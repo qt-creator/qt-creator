@@ -2863,7 +2863,7 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
     return resp.result == SynchronousProcessResponse::Finished;
 }
 
-bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
+void GitClient::pull(const QString &workingDirectory, bool rebase)
 {
     QString abortCommand;
     QStringList arguments = {"pull"};
@@ -2874,12 +2874,10 @@ bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
         abortCommand = "merge";
     }
 
-    bool ok = executeAndHandleConflicts(workingDirectory, arguments, abortCommand);
-
-    if (ok)
-        updateSubmodulesIfNeeded(workingDirectory, true);
-
-    return ok;
+    VcsCommand *command = vcsExecAbortable(workingDirectory, arguments, rebase);
+    connect(command, &VcsCommand::success, this,
+            [this, workingDirectory] { updateSubmodulesIfNeeded(workingDirectory, true); },
+            Qt::QueuedConnection);
 }
 
 void GitClient::synchronousAbortCommand(const QString &workingDir, const QString &abortCommand)
@@ -3045,18 +3043,21 @@ void GitClient::revert(const QString &workingDirectory, const QString &argument)
 // Stashing is handled prior to this call.
 VcsCommand *GitClient::vcsExecAbortable(const QString &workingDirectory,
                                         const QStringList &arguments,
-                                        bool createProgressParser)
+                                        bool isRebase)
 {
     QTC_ASSERT(!arguments.isEmpty(), return nullptr);
 
     QString abortCommand = arguments.at(0);
-    // Git might request an editor, so this must be done asynchronously and without timeout
     VcsCommand *command = createCommand(workingDirectory, nullptr, VcsWindowOutputBind);
     command->setCookie(workingDirectory);
-    command->addFlags(VcsCommand::ShowSuccessMessage);
-    command->addJob(vcsBinary(), arguments, 0);
+    command->addFlags(VcsCommand::SshPasswordPrompt
+                      | VcsCommand::ShowStdOut
+                      | VcsCommand::ShowSuccessMessage);
+    // For rebase, Git might request an editor (which means the process keeps running until the
+    // user closes it), so run without timeout.
+    command->addJob(vcsBinary(), arguments, isRebase ? 0 : command->defaultTimeoutS());
     ConflictHandler::attachToCommand(command, abortCommand);
-    if (createProgressParser)
+    if (isRebase)
         GitProgressParser::attachToCommand(command);
     command->execute();
 

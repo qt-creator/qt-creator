@@ -1111,7 +1111,7 @@ void GitPlugin::pull()
 
     if (!m_gitClient->beginStashScope(topLevel, "Pull", rebase ? Default : AllowUnstashed))
         return;
-    m_gitClient->synchronousPull(topLevel, rebase);
+    m_gitClient->pull(topLevel, rebase);
 }
 
 void GitPlugin::push()
