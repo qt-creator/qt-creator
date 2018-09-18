@@ -136,7 +136,7 @@ public:
                 this, &BuildStepConfigWidget::updateSummary);
     }
 
-    QString summaryText() const override { return QLatin1String("<b>") + displayName() + QLatin1String("</b>"); }
+    QString summaryText() const override { return "<b>" + displayName() + "</b>"; }
     QString displayName() const override { return m_step->displayName(); }
     bool showWidget() const override { return true; }
     BuildStep *step() const { return m_step; }
