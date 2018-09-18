@@ -329,7 +329,7 @@ protected:
         return false;
     }
 
-    bool visit(AST::BinaryExpression *ast)
+    bool visit(AST::BinaryExpression *ast) override
     {
         AST::FieldMemberExpression *field = AST::cast<AST::FieldMemberExpression *>(ast->left);
         AST::FunctionExpression *funcExpr = AST::cast<AST::FunctionExpression *>(ast->right);
@@ -402,7 +402,7 @@ protected:
         return true;
     }
 
-    bool visit(AST::BinaryExpression *ast)
+    bool visit(AST::BinaryExpression *ast) override
     {
         auto field = AST::cast<AST::FieldMemberExpression *>(ast->left);
         auto funcExpr = AST::cast<AST::FunctionExpression *>(ast->right);
