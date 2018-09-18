@@ -499,6 +499,11 @@ bool BaseClient::isSupportedMimeType(const QString &mimeType) const
     return m_supportedMimeTypes.isEmpty() || m_supportedMimeTypes.contains(mimeType);
 }
 
+bool BaseClient::needsRestart(const BaseSettings *) const
+{
+    return false;
+}
+
 bool BaseClient::reset()
 {
     if (!m_restartsLeft)
@@ -756,6 +761,11 @@ StdIOClient::~StdIOClient()
     Utils::SynchronousProcess::stopProcess(m_process);
 }
 
+bool StdIOClient::needsRestart(const StdIOSettings *settings)
+{
+    return m_executable != settings->m_executable || m_arguments != settings->m_arguments;
+}
+
 bool StdIOClient::start()
 {
     m_process.start();
@@ -769,11 +779,6 @@ bool StdIOClient::start()
 void StdIOClient::setWorkingDirectory(const QString &workingDirectory)
 {
     m_process.setWorkingDirectory(workingDirectory);
-}
-
-bool StdIOClient::matches(const BaseSettings *setting)
-{
-    return setting->m_executable == m_executable && setting->m_arguments == m_arguments;
 }
 
 void StdIOClient::sendData(const QByteArray &data)

@@ -167,6 +167,7 @@ void LanguageClientManager::removeMarks(const Core::Id &id)
 
 void LanguageClientManager::startClient(BaseClient *client)
 {
+    QTC_ASSERT(client, return);
     if (managerInstance->m_shuttingDown) {
         managerInstance->clientFinished(client);
         return;
