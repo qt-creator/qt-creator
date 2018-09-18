@@ -1495,6 +1495,10 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
     const int start = file->startOf(literal);
     const char * const str = numeric->chars();
 
+    const bool isBinary = numberLength > 2 && str[0] == '0' && tolower(str[1]) == 'b';
+    const bool isOctal = numberLength >= 2 && str[0] == '0' && str[1] >= '0' && str[1] <= '7';
+    const bool isDecimal = !(isBinary || isOctal || numeric->isHex());
+
     if (!numeric->isHex()) {
         /*
           Convert integer literal to hex representation.
@@ -1514,49 +1518,43 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
         result << op;
     }
 
-    if (value != 0) {
-        if (!(numberLength > 1 && str[0] == '0'
-              && str[1] != 'x' && str[1] != 'X'
-              && str[1] != 'b' && str[1] != 'B')) {
-            /*
-              Convert integer literal to octal representation.
-              Replace
-                0b100000
-                32
-                0x20
-              With
-                040
-            */
-            QString replacement;
-            replacement.sprintf("0%lo", value);
-            auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
-            op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Octal"));
-            op->setPriority(priority);
-            result << op;
-        }
+    if (!isOctal) {
+        /*
+          Convert integer literal to octal representation.
+          Replace
+            0b100000
+            32
+            0x20
+          With
+            040
+        */
+        QString replacement;
+        replacement.sprintf("0%lo", value);
+        auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
+        op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Octal"));
+        op->setPriority(priority);
+        result << op;
     }
 
-    if (value != 0 || numeric->isHex()) {
-        if (!(numberLength > 1 && str[0] != '0')) {
-            /*
-              Convert integer literal to decimal representation.
-              Replace
-                0b100000
-                0x20
-                040
-              With
-                32
-            */
-            QString replacement;
-            replacement.sprintf("%lu", value);
-            auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
-            op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Decimal"));
-            op->setPriority(priority);
-            result << op;
-        }
+    if (!isDecimal) {
+        /*
+          Convert integer literal to decimal representation.
+          Replace
+            0b100000
+            0x20
+            040
+           With
+            32
+        */
+        QString replacement;
+        replacement.sprintf("%lu", value);
+        auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
+        op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Decimal"));
+        op->setPriority(priority);
+        result << op;
     }
 
-    if (!(numberLength > 1 && str[0] == '0' && (str[1] == 'b' || str[1] == 'B'))) {
+    if (!isBinary) {
         /*
           Convert integer literal to binary representation.
           Replace
