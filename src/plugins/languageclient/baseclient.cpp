@@ -773,7 +773,7 @@ void StdIOClient::setWorkingDirectory(const QString &workingDirectory)
 
 bool StdIOClient::matches(const BaseSettings *setting)
 {
-    return setting->m_executable == m_executable && setting->m_arguments == m_executable;
+    return setting->m_executable == m_executable && setting->m_arguments == m_arguments;
 }
 
 void StdIOClient::sendData(const QByteArray &data)
