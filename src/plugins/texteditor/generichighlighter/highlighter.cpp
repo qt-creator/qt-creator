@@ -569,7 +569,7 @@ void Highlighter::applyFormat(int offset,
             // think this approach would fit better. If there are other ideas...
             QBrush bg = format.background();
             if (bg.style() == Qt::NoBrush)
-                bg = TextEditorSettings::fontSettings().toTextCharFormat(C_TEXT).background();
+                bg = fontSettings().toTextCharFormat(C_TEXT).background();
             if (itemData->color().isValid() && isReadableOn(bg.color(), itemData->color()))
                 format.setForeground(itemData->color());
             if (itemData->isItalicSpecified())

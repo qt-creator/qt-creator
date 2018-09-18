@@ -66,6 +66,7 @@ public:
     void applyFormatChanges(int from, int charsRemoved, int charsAdded);
     void updateFormats(const FontSettings &fontSettings);
 
+    FontSettings fontSettings;
     QVector<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
     bool rehighlightPending = false;
@@ -765,6 +766,12 @@ void SyntaxHighlighter::setFontSettings(const FontSettings &fontSettings)
     Q_D(SyntaxHighlighter);
     d->updateFormats(fontSettings);
 }
+
+FontSettings SyntaxHighlighter::fontSettings() const
+{
+    Q_D(const SyntaxHighlighter);
+    return d->fontSettings;
+}
 /*!
     The syntax highlighter is not anymore reacting to the text document if \a noAutmatic is
     \c true.
@@ -836,6 +843,7 @@ void SyntaxHighlighter::highlightBlock(const QString &text)
 
 void SyntaxHighlighterPrivate::updateFormats(const FontSettings &fontSettings)
 {
+    this->fontSettings = fontSettings;
     // C_TEXT is handled by text editor's foreground and background color,
     // so use empty format for that
     for (const auto &pair : qAsConst(formatCategories)) {
