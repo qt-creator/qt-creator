@@ -46,7 +46,6 @@
 namespace Utils { class OutputFormatter; }
 
 namespace ProjectExplorer {
-class Abi;
 class BuildConfiguration;
 class GlobalOrProjectAspect;
 class Node;
@@ -172,7 +171,6 @@ public:
     QVariantMap toMap() const override;
 
     virtual Runnable runnable() const;
-    virtual Abi abi() const;
 
     // Return a handle to the build system target that created this run configuration.
     // May return an empty string if no target built the executable!
@@ -439,7 +437,6 @@ public:
 
     Utils::ProcessHandle applicationProcessHandle() const;
     void setApplicationProcessHandle(const Utils::ProcessHandle &handle);
-    Abi abi() const;
     IDevice::ConstPtr device() const;
 
     RunConfiguration *runConfiguration() const;

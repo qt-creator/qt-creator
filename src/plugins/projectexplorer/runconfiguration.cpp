@@ -310,17 +310,6 @@ QVariantMap RunConfiguration::toMap() const
     return map;
 }
 
-Abi RunConfiguration::abi() const
-{
-    BuildConfiguration *bc = target()->activeBuildConfiguration();
-    if (!bc)
-        return Abi::hostAbi();
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), Constants::CXX_LANGUAGE_ID);
-    if (!tc)
-        return Abi::hostAbi();
-    return tc->targetAbi();
-}
-
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
 {
     return target()->applicationTargets().buildTargetInfo(m_buildKey);
@@ -1332,13 +1321,6 @@ void RunControl::setIcon(const Utils::Icon &icon)
 Utils::Icon RunControl::icon() const
 {
     return d->icon;
-}
-
-Abi RunControl::abi() const
-{
-    if (const RunConfiguration *rc = d->runConfiguration.data())
-        return rc->abi();
-    return Abi();
 }
 
 IDevice::ConstPtr RunControl::device() const
