@@ -85,10 +85,10 @@ static int includePathStartIndex(const QVector<ClangBackEnd::TokenInfoContainer>
 }
 
 static int includePathEndIndex(const QVector<ClangBackEnd::TokenInfoContainer> &marks,
-                                 int currentIndex)
+                               int currentIndex)
 {
     int endIndex = currentIndex + 1;
-    while (isValidIncludePathToken(marks[endIndex]))
+    while (endIndex < marks.size() && isValidIncludePathToken(marks[endIndex]))
         ++endIndex;
     return endIndex - 1;
 }
