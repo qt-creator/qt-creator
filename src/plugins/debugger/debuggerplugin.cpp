@@ -1782,8 +1782,11 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
 {
     ProcessHandle pid = rc->applicationProcessHandle();
     RunConfiguration *runConfig = rc->runConfiguration();
+    QTC_ASSERT(runConfig, return);
+    Target *target = runConfig->target();
+    QTC_ASSERT(target, return);
     auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    auto debugger = new DebuggerRunTool(runControl, guessKitFromAbis({rc->abi()}), false);
+    auto debugger = new DebuggerRunTool(runControl, target->kit(), false);
     debugger->setAttachPid(pid);
     debugger->setRunControlName(tr("Process %1").arg(pid.pid()));
     debugger->setStartMode(AttachExternal);
