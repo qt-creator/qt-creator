@@ -37,12 +37,6 @@ constexpr char noLanguageFilter[] = "No Filter";
 
 class BaseClient;
 
-class LanguageClientSettings
-{
-public:
-    static void init();
-};
-
 class BaseSettings
 {
 public:
@@ -67,6 +61,15 @@ public:
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
+};
+
+class LanguageClientSettings
+{
+public:
+    static void init();
+    static QList<BaseSettings *> fromSettings(QSettings *settings);
+    static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);
+
 };
 
 } // namespace LanguageClient
