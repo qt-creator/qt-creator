@@ -130,16 +130,6 @@ void PropertyEditorQmlBackend::setupPropertyEditorValue(const PropertyName &name
 
 }
 
-static PropertyNameList layoutAttachedPropertiesNames()
-{
-    PropertyNameList propertyNames;
-    propertyNames << "alignment" << "column" << "columnSpan" << "fillHeight" << "fillWidth"
-                  << "maximumHeight" << "maximumWidth" << "minimumHeight" << "minimumWidth"
-                  << "preferredHeight" << "preferredWidth" << "row"<< "rowSpan";
-
-    return propertyNames;
-}
-
 QVariant properDefaultLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &propertyName)
 {
     QVariant value = qmlObjectNode.modelValue(propertyName);
@@ -169,7 +159,9 @@ void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode
 {
     if (QmlItemNode(qmlObjectNode).isInLayout()) {
 
-        static const PropertyNameList propertyNames = layoutAttachedPropertiesNames();
+        static const PropertyNameList propertyNames =
+            {"alignment", "column", "columnSpan", "fillHeight", "fillWidth", "maximumHeight", "maximumWidth",
+             "minimumHeight", "minimumWidth", "preferredHeight", "preferredWidth", "row", "rowSpan"};
 
         foreach (const PropertyName &propertyName, propertyNames) {
             createPropertyEditorValue(qmlObjectNode, "Layout." + propertyName, properDefaultLayoutAttachedProperties(qmlObjectNode, propertyName), propertyEditor);
