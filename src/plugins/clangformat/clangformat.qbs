@@ -7,6 +7,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "CppTools" }
+    Depends { name: "ProjectExplorer" }
     Depends { name: "ExtensionSystem" }
     Depends { name: "Utils" }
 
@@ -21,12 +22,13 @@ QtcPlugin {
     cpp.defines: base.concat("CLANGPCHMANAGER_LIB")
     cpp.includePaths: base.concat(libclang.llvmIncludeDir)
     cpp.libraryPaths: base.concat(libclang.llvmLibDir)
-    cpp.dynamicLibraries: base.concat(libclang.llvmLibs)
+    cpp.dynamicLibraries: base.concat(libclang.llvmFormattingLibs)
     cpp.rpaths: base.concat(libclang.llvmLibDir)
 
     files: [
         "clangformatconfigwidget.cpp",
         "clangformatconfigwidget.h",
+        "clangformatconfigwidget.ui",
         "clangformatindenter.cpp",
         "clangformatindenter.h",
         "clangformatplugin.cpp",

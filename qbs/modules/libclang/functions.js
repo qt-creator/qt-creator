@@ -89,6 +89,31 @@ function libraries(targetOS)
     return targetOS.contains("windows") ? ["libclang.lib", "advapi32.lib", "shell32.lib"] : ["clang"]
 }
 
+function extraLibraries(llvmConfig, targetOS)
+{
+    var libs = []
+    if (targetOS.contains("windows"))
+        libs.push("version");
+    var dynamicList = readListOutput(llvmConfig, ["--libs"])
+        .concat(readListOutput(llvmConfig, ["--system-libs"]));
+    return libs.concat(dynamicList.map(function(s) {
+        return s.startsWith("-l") ? s.slice(2) : s;
+    }));
+}
+
+function formattingLibs(llvmConfig, targetOS)
+{
+    var fixedList = [
+        "clangFormat",
+        "clangToolingCore",
+        "clangRewrite",
+        "clangLex",
+        "clangBasic",
+    ];
+
+    return fixedList.concat(extraLibraries(llvmConfig, targetOS));
+}
+
 function toolingLibs(llvmConfig, targetOS)
 {
     var fixedList = [
@@ -108,13 +133,8 @@ function toolingLibs(llvmConfig, targetOS)
         "clangLex",
         "clangBasic",
     ];
-    if (targetOS.contains("windows"))
-        fixedList.push("version");
-    var dynamicList = readListOutput(llvmConfig, ["--libs"])
-        .concat(readListOutput(llvmConfig, ["--system-libs"]));
-    return fixedList.concat(dynamicList.map(function(s) {
-        return s.startsWith("-l") ? s.slice(2) : s;
-    }));
+
+    return fixedList.concat(extraLibraries(llvmConfig, targetOS));
 }
 
 function toolingParameters(llvmConfig)
