@@ -135,7 +135,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     m_ui->remoteComboBox->setParameters(parameters);
     m_ui->remoteComboBox->setAllowDups(true);
 
-    PushItemDelegate *delegate = new PushItemDelegate(m_ui->commitView);
+    auto delegate = new PushItemDelegate(m_ui->commitView);
     delegate->setParent(this);
 
     initRemoteBranches();

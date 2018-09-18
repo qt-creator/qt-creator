@@ -56,8 +56,8 @@ private:
     void updatePopStashCheckBox(bool moveChangesChecked);
 
     Ui::BranchCheckoutDialog *m_ui;
-    bool m_foundStashForNextBranch;
-    bool m_hasLocalChanges;
+    bool m_foundStashForNextBranch = false;
+    bool m_hasLocalChanges = true;
 };
 
 } // namespace Internal

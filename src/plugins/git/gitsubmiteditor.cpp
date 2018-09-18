@@ -51,13 +51,13 @@ namespace Internal {
 class GitSubmitFileModel : public SubmitFileModel
 {
 public:
-    GitSubmitFileModel(QObject *parent = 0) : SubmitFileModel(parent)
+    GitSubmitFileModel(QObject *parent = nullptr) : SubmitFileModel(parent)
     { }
 
     void updateSelections(SubmitFileModel *source) override
     {
         QTC_ASSERT(source, return);
-        GitSubmitFileModel *gitSource = static_cast<GitSubmitFileModel *>(source);
+        auto gitSource = static_cast<GitSubmitFileModel *>(source);
         int j = 0;
         for (int i = 0; i < rowCount() && j < source->rowCount(); ++i) {
             CommitData::StateFilePair stateFile = stateFilePair(i);

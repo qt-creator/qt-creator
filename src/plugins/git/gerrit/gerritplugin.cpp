@@ -94,7 +94,7 @@ public:
                  const QString &repository, const Utils::FileName &git,
                  const GerritServer &server,
                  FetchMode fm, QObject *parent = nullptr);
-    ~FetchContext();
+    ~FetchContext() override;
     void start();
 
 private:
@@ -467,8 +467,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
     if (repository.isEmpty())
         return;
 
-    FetchContext *fc = new FetchContext(change, repository, git,
-                                        *m_server, FetchMode(mode), this);
+    auto fc = new FetchContext(change, repository, git, *m_server, FetchMode(mode), this);
     connect(fc, &QObject::destroyed, this, &GerritPlugin::fetchFinished);
     emit fetchStarted(change);
     fc->start();

@@ -53,7 +53,7 @@ class GerritPlugin : public QObject
     Q_OBJECT
 public:
     explicit GerritPlugin(QObject *parent = nullptr);
-    ~GerritPlugin();
+    ~GerritPlugin() override;
 
     bool initialize(Core::ActionContainer *ac);
 

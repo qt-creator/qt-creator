@@ -45,7 +45,7 @@ class AuthenticationDialog : public QDialog
 
 public:
     AuthenticationDialog(GerritServer *server);
-    ~AuthenticationDialog();
+    ~AuthenticationDialog() override;
     bool isAuthenticated() const { return m_authenticated; }
 
 private:

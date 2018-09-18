@@ -74,7 +74,7 @@ class GitPlugin : public VcsBase::VcsBasePlugin
 
 public:
     GitPlugin();
-    ~GitPlugin();
+    ~GitPlugin() override;
 
     static GitPlugin *instance();
     static GitClient *client();

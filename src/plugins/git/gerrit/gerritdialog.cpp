@@ -69,7 +69,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_ui->remoteComboBox->setParameters(m_parameters);
     m_ui->remoteComboBox->setFallbackEnabled(true);
     m_queryModel->setStringList(m_parameters->savedQueries);
-    QCompleter *completer = new QCompleter(this);
+    auto completer = new QCompleter(this);
     completer->setModel(m_queryModel);
     m_ui->queryLineEdit->setSpecialCompleter(completer);
     m_ui->queryLineEdit->setOkColor(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal));

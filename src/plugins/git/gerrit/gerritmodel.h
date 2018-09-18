@@ -105,7 +105,7 @@ public:
         SortRole = Qt::UserRole + 3
     };
     GerritModel(const QSharedPointer<GerritParameters> &, QObject *parent = nullptr);
-    ~GerritModel();
+    ~GerritModel() override;
 
     QVariant data(const QModelIndex &index, int role) const override;
 

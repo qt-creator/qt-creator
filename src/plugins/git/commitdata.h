@@ -105,10 +105,10 @@ public:
 
     CommitType commitType;
     QString amendSHA1;
-    QTextCodec *commitEncoding;
+    QTextCodec *commitEncoding = nullptr;
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
-    bool enablePush;
+    bool enablePush = false;
 
     QList<StateFilePair> files;
 

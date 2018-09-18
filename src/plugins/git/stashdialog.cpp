@@ -63,7 +63,7 @@ static inline QList<QStandardItem*> stashModelRowItems(const Stash &s)
 // -----------  StashModel
 class StashModel : public QStandardItemModel {
 public:
-    explicit StashModel(QObject *parent = 0);
+    explicit StashModel(QObject *parent = nullptr);
 
     void setStashes(const QList<Stash> &stashes);
     const Stash &at(int i) { return m_stashes.at(i); }
@@ -189,7 +189,7 @@ void StashDialog::deleteSelection()
     const QList<int> rows = selectedRows();
     QTC_ASSERT(!rows.isEmpty(), return);
     const QString title = tr("Delete Stashes");
-    if (!ask(title, tr("Do you want to delete %n stash(es)?", 0, rows.size())))
+    if (!ask(title, tr("Do you want to delete %n stash(es)?", nullptr, rows.size())))
         return;
     QString errorMessage;
     QStringList errors;
@@ -267,7 +267,7 @@ bool StashDialog::promptForRestore(QString *stash,
 {
     const QString stashIn = *stash;
     bool modifiedPromptShown = false;
-    switch (GitPlugin::client()->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules), 0, errorMessage)) {
+    switch (GitPlugin::client()->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules), nullptr, errorMessage)) {
     case GitClient::StatusFailed:
         return false;
     case GitClient::StatusChanged: {
@@ -317,7 +317,7 @@ void StashDialog::restoreCurrent()
     QString name = m_model->at(index).name;
     // Make sure repository is not modified, restore. The command will
     // output to window on success.
-    if (promptForRestore(&name, 0, &errorMessage)
+    if (promptForRestore(&name, nullptr, &errorMessage)
             && GitPlugin::client()->synchronousStashRestore(m_repository, name)) {
         refresh(m_repository, true); // Might have stashed away local changes.
     } else if (!errorMessage.isEmpty()) {

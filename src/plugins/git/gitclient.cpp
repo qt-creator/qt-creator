@@ -139,7 +139,7 @@ static QString branchesDisplay(const QString &prefix, QStringList *branches, boo
     //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'"
     //  in git show.
     if (more > 0)
-        output += ' ' + GitClient::tr("and %n more", 0, more);
+        output += ' ' + GitClient::tr("and %n more", nullptr, more);
     return output;
 }
 
@@ -187,7 +187,7 @@ bool DescriptionWidgetDecorator::eventFilter(QObject *watched, QEvent *event)
         return QObject::eventFilter(watched, event);
 
     if (event->type() == QEvent::MouseMove) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        auto mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->buttons())
             return QObject::eventFilter(watched, event);
 
@@ -207,7 +207,7 @@ bool DescriptionWidgetDecorator::eventFilter(QObject *watched, QEvent *event)
         textEditor->viewport()->setCursor(cursorShape);
         return ret;
     } else if (event->type() == QEvent::MouseButtonRelease) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        auto mouseEvent = static_cast<QMouseEvent *>(event);
 
         if (mouseEvent->button() == Qt::LeftButton && !(mouseEvent->modifiers() & Qt::ShiftModifier)) {
             const QTextCursor cursor = textEditor->cursorForPosition(mouseEvent->pos());
@@ -624,12 +624,12 @@ public:
     }
 };
 
-class ConflictHandler : public QObject
+class ConflictHandler final : public QObject
 {
     Q_OBJECT
 public:
     static void attachToCommand(VcsCommand *command, const QString &abortCommand = QString()) {
-        ConflictHandler *handler = new ConflictHandler(command->defaultWorkingDirectory(), abortCommand);
+        auto handler = new ConflictHandler(command->defaultWorkingDirectory(), abortCommand);
         handler->setParent(command); // delete when command goes out of scope
 
         command->addFlags(VcsCommand::ExpectRepoChanges);
@@ -655,7 +655,7 @@ private:
           m_abortCommand(abortCommand)
     { }
 
-    ~ConflictHandler()
+    ~ConflictHandler() final
     {
         // If interactive rebase editor window is closed, plugin is terminated
         // but referenced here when the command ends
@@ -1296,7 +1296,7 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
         if (files.isEmpty()) {
             msgCannotRun(arguments, workingDirectory, resp.stdErr(), errorMessage);
         } else {
-            msgCannotRun(tr("Cannot reset %n files in \"%1\": %2", 0, files.size())
+            msgCannotRun(tr("Cannot reset %n files in \"%1\": %2", nullptr, files.size())
                          .arg(QDir::toNativeSeparators(workingDirectory), resp.stdErr()),
                          errorMessage);
         }
@@ -2632,9 +2632,9 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 static inline QString msgCommitted(const QString &amendSHA1, int fileCount)
 {
     if (amendSHA1.isEmpty())
-        return GitClient::tr("Committed %n files.", 0, fileCount) + '\n';
+        return GitClient::tr("Committed %n files.", nullptr, fileCount) + '\n';
     if (fileCount)
-        return GitClient::tr("Amended \"%1\" (%n files).", 0, fileCount).arg(amendSHA1) + '\n';
+        return GitClient::tr("Amended \"%1\" (%n files).", nullptr, fileCount).arg(amendSHA1) + '\n';
     return GitClient::tr("Amended \"%1\".").arg(amendSHA1);
 }
 
@@ -2725,7 +2725,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
         VcsOutputWindow::appendError(stdErr);
         return true;
     } else {
-        VcsOutputWindow::appendError(tr("Cannot commit %n files: %1\n", 0, commitCount).arg(stdErr));
+        VcsOutputWindow::appendError(tr("Cannot commit %n files: %1\n", nullptr, commitCount).arg(stdErr));
         return false;
     }
 }
@@ -3241,9 +3241,9 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     QRegExp versionPattern("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+|rc\\d).*$");
     QTC_ASSERT(versionPattern.isValid(), return 0);
     QTC_ASSERT(versionPattern.exactMatch(output), return 0);
-    const unsigned majorV = versionPattern.cap(1).toUInt(0, 16);
-    const unsigned minorV = versionPattern.cap(2).toUInt(0, 16);
-    const unsigned patchV = versionPattern.cap(3).toUInt(0, 16);
+    const unsigned majorV = versionPattern.cap(1).toUInt(nullptr, 16);
+    const unsigned minorV = versionPattern.cap(2).toUInt(nullptr, 16);
+    const unsigned patchV = versionPattern.cap(3).toUInt(nullptr, 16);
     return version(majorV, minorV, patchV);
 }
 

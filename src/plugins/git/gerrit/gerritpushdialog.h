@@ -48,7 +48,7 @@ class GerritPushDialog : public QDialog
 public:
     GerritPushDialog(const QString &workingDir, const QString &reviewerList,
                      QSharedPointer<GerritParameters> parameters, QWidget *parent);
-    ~GerritPushDialog();
+    ~GerritPushDialog() override;
 
     QString selectedCommit() const;
     QString selectedRemoteName() const;

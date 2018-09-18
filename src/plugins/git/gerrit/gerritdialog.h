@@ -56,7 +56,7 @@ public:
                           const QSharedPointer<GerritServer> &s,
                           const QString &repository,
                           QWidget *parent = nullptr);
-    ~GerritDialog();
+    ~GerritDialog() override;
     QString repositoryPath() const;
     void setCurrentPath(const QString &path);
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);

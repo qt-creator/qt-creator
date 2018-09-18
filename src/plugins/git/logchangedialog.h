@@ -96,9 +96,9 @@ public:
     LogChangeWidget *widget() const;
 
 private:
-    LogChangeWidget *m_widget;
-    QDialogButtonBox *m_dialogButtonBox;
-    QComboBox *m_resetTypeComboBox;
+    LogChangeWidget *m_widget = nullptr;
+    QDialogButtonBox *m_dialogButtonBox = nullptr;
+    QComboBox *m_resetTypeComboBox = nullptr;
 };
 
 class LogItemDelegate : public QStyledItemDelegate

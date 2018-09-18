@@ -35,7 +35,7 @@ namespace Internal {
 class RemoteModel : public QAbstractTableModel {
     Q_OBJECT
 public:
-    explicit RemoteModel(QObject *parent = 0);
+    explicit RemoteModel(QObject *parent = nullptr);
 
     void clear();
     bool refresh(const QString &workingDirectory, QString *errorMessage);

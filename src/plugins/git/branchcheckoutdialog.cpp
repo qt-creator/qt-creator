@@ -33,9 +33,7 @@ BranchCheckoutDialog::BranchCheckoutDialog(QWidget *parent,
                                            const QString &currentBranch,
                                            const QString &nextBranch) :
     QDialog(parent),
-    m_ui(new Ui::BranchCheckoutDialog),
-    m_foundStashForNextBranch(false),
-    m_hasLocalChanges(true)
+    m_ui(new Ui::BranchCheckoutDialog)
 {
     m_ui->setupUi(this);
 

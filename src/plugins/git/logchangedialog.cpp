@@ -159,7 +159,7 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
         arguments << "--not" << "--remotes";
     arguments << "--";
     QString output;
-    if (!GitPlugin::client()->synchronousLog(repository, arguments, &output, 0, VcsCommand::NoOutput))
+    if (!GitPlugin::client()->synchronousLog(repository, arguments, &output, nullptr, VcsCommand::NoOutput))
         return false;
     const QStringList lines = output.split('\n');
     for (const QString &line : lines) {
@@ -193,14 +193,13 @@ const QStandardItem *LogChangeWidget::currentItem(int column) const
     const QModelIndex currentIndex = selectionModel()->currentIndex();
     if (currentIndex.isValid())
         return m_model->item(currentIndex.row(), column);
-    return 0;
+    return nullptr;
 }
 
 LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     QDialog(parent)
     , m_widget(new LogChangeWidget)
     , m_dialogButtonBox(new QDialogButtonBox(this))
-    , m_resetTypeComboBox(0)
 {
     auto layout = new QVBoxLayout(this);
     layout->addWidget(new QLabel(isReset ? tr("Reset to:") : tr("Select change:"), this));

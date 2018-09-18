@@ -204,7 +204,7 @@ void ChangeSelectionDialog::terminateProcess()
     m_process->kill();
     m_process->waitForFinished();
     delete m_process;
-    m_process = 0;
+    m_process = nullptr;
 }
 
 void ChangeSelectionDialog::recalculateCompletion()
