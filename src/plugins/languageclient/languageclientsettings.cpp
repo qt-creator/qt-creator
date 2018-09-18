@@ -37,11 +37,14 @@
 #include <languageserverprotocol/lsptypes.h>
 
 #include <QBoxLayout>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QCompleter>
 #include <QCoreApplication>
+#include <QDir>
 #include <QFileInfo>
 #include <QHeaderView>
+#include <QLabel>
 #include <QPushButton>
 #include <QSettings>
 #include <QStyledItemDelegate>
@@ -57,34 +60,25 @@ constexpr char clientsKey[] = "clients";
 
 namespace LanguageClient {
 
-class LanguageClientSettingsModel : public QAbstractTableModel
+class LanguageClientSettingsModel : public QAbstractListModel
 {
 public:
     LanguageClientSettingsModel() = default;
     ~LanguageClientSettingsModel();
 
     // QAbstractItemModel interface
-    int rowCount(const QModelIndex &/*parent*/ = QModelIndex()) const override { return m_settings.count(); }
-    int columnCount(const QModelIndex &/*parent*/ = QModelIndex()) const override { return ColumnCount; }
-    QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    bool removeRows(int row, int count = 1, const QModelIndex &parent = QModelIndex()) override;
-    bool insertRows(int row, int count = 1, const QModelIndex &parent = QModelIndex()) override;
-    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &/*parent*/ = QModelIndex()) const final { return m_settings.count(); }
+    QVariant data(const QModelIndex &index, int role) const final;
+    bool removeRows(int row, int count = 1, const QModelIndex &parent = QModelIndex()) final;
+    bool insertRows(int row, int count = 1, const QModelIndex &parent = QModelIndex()) final;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) final;
+    Qt::ItemFlags flags(const QModelIndex &index) const final;
 
     void reset(const QList<StdIOSettings *> &settings);
     QList<StdIOSettings *> settings() const { return m_settings; }
     QList<StdIOSettings *> removed() const { return m_removed; }
-
-    enum Columns {
-        DisplayNameColumn = 0,
-        EnabledColumn,
-        MimeTypeColumn,
-        ExecutableColumn,
-        ArgumentsColumn,
-        ColumnCount
-    };
+    StdIOSettings *settingForIndex(const QModelIndex &index) const;
+    QModelIndex indexForSetting(StdIOSettings *setting) const;
 
 private:
     QList<StdIOSettings *> m_settings; // owned
@@ -95,10 +89,18 @@ class LanguageClientSettingsPageWidget : public QWidget
 {
 public:
     LanguageClientSettingsPageWidget(LanguageClientSettingsModel &settings);
+    void currentChanged(const QModelIndex &index);
+    int currentRow() const;
+    void resetCurrentSettings(int row);
+    void applyCurrentSettings();
 
 private:
     LanguageClientSettingsModel &m_settings;
-    QTreeView *m_view;
+    QTreeView *m_view = nullptr;
+    struct CurrentSettings {
+        StdIOSettings *setting = nullptr;
+        QWidget *widget = nullptr;
+    } m_currentSettings;
 
     void addItem();
     void deleteItem();
@@ -154,35 +156,75 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     : m_settings(settings)
     , m_view(new QTreeView())
 {
+    auto mainLayout = new QVBoxLayout();
     auto layout = new QHBoxLayout();
     m_view->setModel(&m_settings);
-    m_view->header()->setStretchLastSection(true);
-    m_view->setRootIsDecorated(false);
-    m_view->setItemsExpandable(false);
+    m_view->setHeaderHidden(true);
+    m_view->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_view->setSelectionBehavior(QAbstractItemView::SelectItems);
+    connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &LanguageClientSettingsPageWidget::currentChanged);
     auto mimeTypes = Utils::transform(Utils::allMimeTypes(), [](const Utils::MimeType &mimeType){
         return mimeType.name();
     });
-    auto mimeTypeCompleter = new QCompleter(mimeTypes);
-    mimeTypeCompleter->setCaseSensitivity(Qt::CaseInsensitive);
-    mimeTypeCompleter->setFilterMode(Qt::MatchContains);
-    m_view->setItemDelegateForColumn(LanguageClientSettingsModel::MimeTypeColumn,
-                                     new Utils::CompleterDelegate(mimeTypeCompleter));
-    auto executableDelegate = new Utils::PathChooserDelegate();
-    executableDelegate->setExpectedKind(Utils::PathChooser::File);
-    executableDelegate->setHistoryCompleter("LanguageClient.ServerPathHistory");
-    m_view->setItemDelegateForColumn(LanguageClientSettingsModel::ExecutableColumn, executableDelegate);
     auto buttonLayout = new QVBoxLayout();
     auto addButton = new QPushButton(tr("&Add"));
     connect(addButton, &QPushButton::pressed, this, &LanguageClientSettingsPageWidget::addItem);
     auto deleteButton = new QPushButton(tr("&Delete"));
     connect(deleteButton, &QPushButton::pressed, this, &LanguageClientSettingsPageWidget::deleteItem);
 
-    setLayout(layout);
+    mainLayout->addLayout(layout);
+    setLayout(mainLayout);
     layout->addWidget(m_view);
     layout->addLayout(buttonLayout);
     buttonLayout->addWidget(addButton);
     buttonLayout->addWidget(deleteButton);
     buttonLayout->addStretch(10);
+}
+
+void LanguageClientSettingsPageWidget::currentChanged(const QModelIndex &index)
+{
+    if (m_currentSettings.widget) {
+        applyCurrentSettings();
+        layout()->removeWidget(m_currentSettings.widget);
+        delete m_currentSettings.widget;
+    }
+
+    if (index.isValid()) {
+        m_currentSettings.setting = m_settings.settingForIndex(index);
+        m_currentSettings.widget = m_currentSettings.setting->createSettingsWidget(this);
+        layout()->addWidget(m_currentSettings.widget);
+    } else {
+        m_currentSettings.setting = nullptr;
+        m_currentSettings.widget = nullptr;
+    }
+}
+
+int LanguageClientSettingsPageWidget::currentRow() const
+{
+    return m_settings.indexForSetting(m_currentSettings.setting).row();
+}
+
+void LanguageClientSettingsPageWidget::resetCurrentSettings(int row)
+{
+    if (m_currentSettings.widget) {
+        layout()->removeWidget(m_currentSettings.widget);
+        delete m_currentSettings.widget;
+    }
+
+    m_currentSettings.setting = nullptr;
+    m_currentSettings.widget = nullptr;
+    m_view->setCurrentIndex(m_settings.index(row));
+}
+
+void LanguageClientSettingsPageWidget::applyCurrentSettings()
+{
+    if (!m_currentSettings.setting)
+        return;
+
+    m_currentSettings.setting->applyFromSettingsWidget(m_currentSettings.widget);
+    auto index = m_settings.indexForSetting(m_currentSettings.setting);
+    m_settings.dataChanged(index, index);
 }
 
 void LanguageClientSettingsPageWidget::addItem()
@@ -233,6 +275,8 @@ QWidget *LanguageClientSettingsPage::widget()
 void LanguageClientSettingsPage::apply()
 {
     qDeleteAll(m_settings);
+    if (m_widget)
+        m_widget->applyCurrentSettings();
     m_settings = Utils::transform(m_model.settings(), [](const StdIOSettings *other){
         return dynamic_cast<StdIOSettings *>(other->copy());
     });
@@ -255,11 +299,19 @@ void LanguageClientSettingsPage::apply()
             }
         }
     }
-    m_model.reset(m_settings);
+
+    if (m_widget) {
+        int row = m_widget->currentRow();
+        m_model.reset(m_settings);
+        m_widget->resetCurrentSettings(row);
+    } else {
+        m_model.reset(m_settings);
+    }
 }
 
 void LanguageClientSettingsPage::finish()
 {
+    m_model.reset(m_settings);
 }
 
 LanguageClientSettingsModel::~LanguageClientSettingsModel()
@@ -269,35 +321,13 @@ LanguageClientSettingsModel::~LanguageClientSettingsModel()
 
 QVariant LanguageClientSettingsModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())
+    StdIOSettings *setting = settingForIndex(index);
+    if (!setting)
         return QVariant();
-    StdIOSettings *setting = m_settings[index.row()];
-    QTC_ASSERT(setting, return false);
-    if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        switch (index.column()) {
-        case DisplayNameColumn: return setting->m_name;
-        case MimeTypeColumn: return setting->m_mimeType;
-        case ExecutableColumn: return setting->m_executable;
-        case ArgumentsColumn: return setting->m_arguments;
-        }
-    } else if (role == Qt::CheckStateRole && index.column() == EnabledColumn) {
+    if (role == Qt::DisplayRole)
+        return setting->m_name;
+    else if (role == Qt::CheckStateRole)
         return setting->m_enabled ? Qt::Checked : Qt::Unchecked;
-    }
-    return QVariant();
-}
-
-QVariant LanguageClientSettingsModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
-        return QVariant();
-
-    switch (section) {
-    case DisplayNameColumn: return tr("Name");
-    case EnabledColumn: return tr("Enabled");
-    case MimeTypeColumn: return tr("Mime Type");
-    case ExecutableColumn: return tr("Executable");
-    case ArgumentsColumn: return tr("Arguments");
-    }
     return QVariant();
 }
 
@@ -326,44 +356,20 @@ bool LanguageClientSettingsModel::insertRows(int row, int count, const QModelInd
 
 bool LanguageClientSettingsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid())
+    StdIOSettings *setting = settingForIndex(index);
+    if (!setting || role != Qt::CheckStateRole)
         return false;
-    StdIOSettings *setting = m_settings[index.row()];
-    QTC_ASSERT(setting, return false);
-    if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        const QString strVal(value.toString());
-        QString *settingsValue = nullptr;
-        switch (index.column()) {
-        case DisplayNameColumn: settingsValue = &setting->m_name; break;
-        case MimeTypeColumn: settingsValue = &setting->m_mimeType; break;
-        case ExecutableColumn: settingsValue = &setting->m_executable; break;
-        case ArgumentsColumn: settingsValue = &setting->m_arguments; break;
-        }
-        if (settingsValue) {
-            if (strVal != *settingsValue) {
-                *settingsValue = value.toString();
-                emit dataChanged(index, index, { Qt::EditRole, Qt::DisplayRole });
-            }
-            return true;
-        }
-    }
 
-    if (role == Qt::CheckStateRole && index.column() == EnabledColumn) {
-        if (setting->m_enabled != value.toBool()) {
-            setting->m_enabled = !setting->m_enabled;
-            emit dataChanged(index, index, { Qt::CheckStateRole });
-        }
-        return true;
+    if (setting->m_enabled != value.toBool()) {
+        setting->m_enabled = !setting->m_enabled;
+        emit dataChanged(index, index, { Qt::CheckStateRole });
     }
-    return false;
+    return true;
 }
 
-Qt::ItemFlags LanguageClientSettingsModel::flags(const QModelIndex &index) const
+Qt::ItemFlags LanguageClientSettingsModel::flags(const QModelIndex &/*index*/) const
 {
-    const auto defaultFlags = Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
-    if (index.column() == EnabledColumn)
-        return defaultFlags | Qt::ItemIsUserCheckable;
-    return defaultFlags;
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
 void LanguageClientSettingsModel::reset(const QList<StdIOSettings *> &settings)
@@ -376,6 +382,32 @@ void LanguageClientSettingsModel::reset(const QList<StdIOSettings *> &settings)
         return dynamic_cast<StdIOSettings *>(other->copy());
     });
     endResetModel();
+}
+
+StdIOSettings *LanguageClientSettingsModel::settingForIndex(const QModelIndex &index) const
+{
+    if (!index.isValid() || index.row() >= m_settings.size())
+        return nullptr;
+    return m_settings[index.row()];
+}
+
+QModelIndex LanguageClientSettingsModel::indexForSetting(StdIOSettings *setting) const
+{
+    const int index = m_settings.indexOf(setting);
+    return index < 0 ? QModelIndex() : createIndex(index, 0, setting);
+}
+
+void BaseSettings::applyFromSettingsWidget(QWidget *widget)
+{
+    if (auto settingsWidget = qobject_cast<BaseSettingsWidget *>(widget)) {
+        m_name = settingsWidget->name();
+        m_mimeType = settingsWidget->mimeType();
+    }
+}
+
+QWidget *BaseSettings::createSettingsWidget(QWidget *parent) const
+{
+    return new BaseSettingsWidget(this, parent);
 }
 
 bool BaseSettings::needsRestart() const
@@ -438,6 +470,20 @@ void LanguageClientSettings::toSettings(QSettings *settings, const QList<StdIOSe
     settings->endGroup();
 }
 
+void StdIOSettings::applyFromSettingsWidget(QWidget *widget)
+{
+    if (auto settingsWidget = qobject_cast<StdIOSettingsWidget *>(widget)) {
+        BaseSettings::applyFromSettingsWidget(settingsWidget);
+        m_executable = settingsWidget->executable();
+        m_arguments = settingsWidget->arguments();
+    }
+}
+
+QWidget *StdIOSettings::createSettingsWidget(QWidget *parent) const
+{
+    return new StdIOSettingsWidget(this, parent);
+}
+
 bool StdIOSettings::needsRestart() const
 {
     if (BaseSettings::needsRestart())
@@ -474,6 +520,64 @@ void StdIOSettings::fromMap(const QVariantMap &map)
     BaseSettings::fromMap(map);
     m_executable = map[executableKey].toString();
     m_arguments = map[argumentsKey].toString();
+}
+
+BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *parent)
+    : QWidget(parent)
+    , m_name(new QLineEdit(settings->m_name, this))
+    , m_mimeType(new QLineEdit(settings->m_mimeType, this))
+{
+    auto *mainLayout = new QGridLayout(this);
+    mainLayout->addWidget(new QLabel(tr("Name:")), 0, 0);
+    mainLayout->addWidget(m_name, 0, 1);
+    mainLayout->addWidget(new QLabel(tr("Language:")), 1, 0);
+    mainLayout->addWidget(m_mimeType, 1 , 1);
+
+    auto mimeTypes = Utils::transform(Utils::allMimeTypes(), [](const Utils::MimeType &mimeType){
+        return mimeType.name();
+    });
+    auto mimeTypeCompleter = new QCompleter(mimeTypes);
+    mimeTypeCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    mimeTypeCompleter->setFilterMode(Qt::MatchContains);
+    m_mimeType->setCompleter(mimeTypeCompleter);
+
+    setLayout(mainLayout);
+}
+
+QString BaseSettingsWidget::name() const
+{
+    return m_name->text();
+}
+
+QString BaseSettingsWidget::mimeType() const
+{
+    return m_mimeType->text();
+}
+
+StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget *parent)
+    : BaseSettingsWidget(settings, parent)
+    , m_executable(new Utils::PathChooser(this))
+    , m_arguments(new QLineEdit(settings->m_arguments, this))
+{
+    auto mainLayout = qobject_cast<QGridLayout *>(layout());
+    QTC_ASSERT(mainLayout, return);
+    const int baseRows = mainLayout->rowCount();
+    mainLayout->addWidget(new QLabel(tr("Executable:")), baseRows, 0);
+    mainLayout->addWidget(m_executable, baseRows, 1);
+    mainLayout->addWidget(new QLabel(tr("Arguments:")), baseRows + 1, 0);
+    m_executable->setExpectedKind(Utils::PathChooser::Command);
+    m_executable->setPath(QDir::toNativeSeparators(settings->m_executable));
+    mainLayout->addWidget(m_arguments, baseRows + 1, 1);
+}
+
+QString StdIOSettingsWidget::executable() const
+{
+    return m_executable->path();
+}
+
+QString StdIOSettingsWidget::arguments() const
+{
+    return m_arguments->text();
 }
 
 } // namespace LanguageClient

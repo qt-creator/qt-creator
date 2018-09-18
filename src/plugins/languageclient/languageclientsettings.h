@@ -31,6 +31,13 @@
 #include <QPointer>
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QLineEdit;
+QT_END_NAMESPACE
+
+namespace Utils { class PathChooser; }
+
 namespace LanguageClient {
 
 constexpr char noLanguageFilter[] = "No Filter";
@@ -54,6 +61,8 @@ public:
     QString m_mimeType = QLatin1String(noLanguageFilter);
     QPointer<BaseClient> m_client; // not owned
 
+    virtual void applyFromSettingsWidget(QWidget *widget);
+    virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
     virtual BaseSettings *copy() const { return new BaseSettings(*this); }
     virtual bool needsRestart() const;
     virtual bool isValid() const ;
@@ -84,6 +93,8 @@ public:
     QString m_executable;
     QString m_arguments;
 
+    void applyFromSettingsWidget(QWidget *widget) override;
+    QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
     BaseSettings *copy() const override { return new StdIOSettings(*this); }
     bool needsRestart() const override;
     bool isValid() const override;
@@ -104,6 +115,36 @@ public:
     static void init();
     static QList<StdIOSettings *> fromSettings(QSettings *settings);
     static void toSettings(QSettings *settings, const QList<StdIOSettings *> &languageClientSettings);
+};
+
+class BaseSettingsWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit BaseSettingsWidget(const BaseSettings* settings, QWidget *parent = nullptr);
+    ~BaseSettingsWidget() = default;
+
+    QString name() const;
+    QString mimeType() const;
+
+private:
+    QLineEdit *m_name = nullptr;
+    QLineEdit *m_mimeType = nullptr;
+};
+
+class StdIOSettingsWidget : public BaseSettingsWidget
+{
+    Q_OBJECT
+public:
+    explicit StdIOSettingsWidget(const StdIOSettings* settings, QWidget *parent = nullptr);
+    ~StdIOSettingsWidget() = default;
+
+    QString executable() const;
+    QString arguments() const;
+
+private:
+    Utils::PathChooser *m_executable = nullptr;
+    QLineEdit *m_arguments = nullptr;
 };
 
 } // namespace LanguageClient
