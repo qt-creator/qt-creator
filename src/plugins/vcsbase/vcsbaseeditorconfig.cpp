@@ -255,16 +255,20 @@ QStringList VcsBaseEditorConfig::argumentsForOption(const OptionMapping &mapping
     if (action && action->isChecked())
         return mapping.options;
 
+    QStringList args;
     const QComboBox *cb = qobject_cast<const QComboBox *>(mapping.object);
-    if (cb) {
-        const QString value = cb->itemData(cb->currentIndex()).toString();
-        QStringList args;
-        foreach (const QString &option, mapping.options)
-            args << option.arg(value);
+    if (!cb)
         return args;
-    }
 
-    return QStringList();
+    const QString value = cb->itemData(cb->currentIndex()).toString();
+    if (value.isEmpty())
+        return args;
+
+    if (mapping.options.isEmpty())
+        args += value.split(' ');
+    else
+        args += mapping.options.first().arg(value);
+    return args;
 }
 
 void VcsBaseEditorConfig::updateMappedSettings()

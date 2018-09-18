@@ -588,6 +588,15 @@ public:
                                    tr("Ignore whitespace only changes.")),
                    settings.boolPointer(GitSettings::ignoreSpaceChangesInBlameKey));
 
+        const QList<ComboBoxItem> logChoices = {
+            ComboBoxItem(tr("No Move Detection"), ""),
+            ComboBoxItem(tr("Detect Moves Within File"), "-M"),
+            ComboBoxItem(tr("Detect Moves Between Files"), "-M -C"),
+            ComboBoxItem(tr("Detect Moves and Copies Between Files"), "-M -C -C")
+        };
+        mapSetting(addComboBox({}, logChoices),
+                   settings.intPointer(GitSettings::blameMoveDetection));
+
         addButton(tr("Reload"), Utils::Icons::RELOAD.icon());
     }
 };

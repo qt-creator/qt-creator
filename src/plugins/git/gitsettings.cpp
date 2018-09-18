@@ -37,6 +37,7 @@ const QLatin1String GitSettings::showTagsKey("ShowTags");
 const QLatin1String GitSettings::omitAnnotationDateKey("OmitAnnotationDate");
 const QLatin1String GitSettings::ignoreSpaceChangesInDiffKey("SpaceIgnorantDiff");
 const QLatin1String GitSettings::ignoreSpaceChangesInBlameKey("SpaceIgnorantBlame");
+const QLatin1String GitSettings::blameMoveDetection("BlameDetectMove");
 const QLatin1String GitSettings::diffPatienceKey("DiffPatience");
 const QLatin1String GitSettings::winSetHomeEnvironmentKey("WinSetHomeEnvironment");
 const QLatin1String GitSettings::gitkOptionsKey("GitKOptions");
@@ -56,6 +57,7 @@ GitSettings::GitSettings()
     declareKey(showTagsKey, false);
     declareKey(omitAnnotationDateKey, false);
     declareKey(ignoreSpaceChangesInDiffKey, true);
+    declareKey(blameMoveDetection, 0);
     declareKey(ignoreSpaceChangesInBlameKey, true);
     declareKey(diffPatienceKey, true);
     declareKey(winSetHomeEnvironmentKey, true);
