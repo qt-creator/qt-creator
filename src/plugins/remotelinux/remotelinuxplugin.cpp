@@ -73,7 +73,7 @@ public:
     GenericDeployStepFactory<TarPackageCreationStep> tarPackageCreationStepFactory;
     GenericDeployStepFactory<UploadAndInstallTarPackageStep> uploadAndInstallTarPackageStepFactory;
     GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
-    GenericDeployStepFactory<GenericRemoteLinuxCustomCommandDeploymentStep>
+    GenericDeployStepFactory<RemoteLinuxCustomCommandDeploymentStep>
         customCommandDeploymentStepFactory;
     GenericDeployStepFactory<RemoteLinuxCheckForFreeDiskSpaceStep>
         checkForFreeDiskSpaceStepFactory;

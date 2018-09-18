@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "remotelinuxcustomcommanddeploymentstep.h"
+#include "remotelinuxcustomcommanddeployservice.h"
 
 #include <projectexplorer/runconfigurationaspects.h>
 
@@ -32,75 +33,53 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 namespace Internal {
 
-class AbstractRemoteLinuxCustomCommandDeploymentStepPrivate
+class RemoteLinuxCustomCommandDeploymentStepPrivate
 {
 public:
     BaseStringAspect *commandLineAspect;
-};
-
-class GenericRemoteLinuxCustomCommandDeploymentStepPrivate
-{
-public:
     RemoteLinuxCustomCommandDeployService service;
 };
 
 } // namespace Internal
 
-using namespace Internal;
-
-
-AbstractRemoteLinuxCustomCommandDeploymentStep::AbstractRemoteLinuxCustomCommandDeploymentStep
-        (BuildStepList *bsl, Core::Id id)
-    : AbstractRemoteLinuxDeployStep(bsl, id)
+RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl)
+    : AbstractRemoteLinuxDeployStep(bsl, stepId())
 {
-    d = new AbstractRemoteLinuxCustomCommandDeploymentStepPrivate;
-
+    d = new Internal::RemoteLinuxCustomCommandDeploymentStepPrivate;
     d->commandLineAspect = addAspect<BaseStringAspect>();
     d->commandLineAspect->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
     d->commandLineAspect->setLabelText(tr("Command line:"));
     d->commandLineAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    setDefaultDisplayName(displayName());
 }
 
-AbstractRemoteLinuxCustomCommandDeploymentStep::~AbstractRemoteLinuxCustomCommandDeploymentStep()
+RemoteLinuxCustomCommandDeploymentStep::~RemoteLinuxCustomCommandDeploymentStep()
 {
     delete d;
 }
 
-bool AbstractRemoteLinuxCustomCommandDeploymentStep::initInternal(QString *error)
+bool RemoteLinuxCustomCommandDeploymentStep::initInternal(QString *error)
 {
-    deployService()->setCommandLine(d->commandLineAspect->value().trimmed());
-    return deployService()->isDeploymentPossible(error);
+    d->service.setCommandLine(d->commandLineAspect->value().trimmed());
+    return d->service.isDeploymentPossible(error);
 }
 
-BuildStepConfigWidget *AbstractRemoteLinuxCustomCommandDeploymentStep::createConfigWidget()
+BuildStepConfigWidget *RemoteLinuxCustomCommandDeploymentStep::createConfigWidget()
 {
     return BuildStep::createConfigWidget();
 }
 
-
-GenericRemoteLinuxCustomCommandDeploymentStep::GenericRemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl)
-    : AbstractRemoteLinuxCustomCommandDeploymentStep(bsl, stepId())
-{
-    d = new GenericRemoteLinuxCustomCommandDeploymentStepPrivate;
-    setDefaultDisplayName(displayName());
-}
-
-GenericRemoteLinuxCustomCommandDeploymentStep::~GenericRemoteLinuxCustomCommandDeploymentStep()
-{
-    delete d;
-}
-
-RemoteLinuxCustomCommandDeployService *GenericRemoteLinuxCustomCommandDeploymentStep::deployService() const
+AbstractRemoteLinuxDeployService *RemoteLinuxCustomCommandDeploymentStep::deployService() const
 {
     return &d->service;
 }
 
-Core::Id GenericRemoteLinuxCustomCommandDeploymentStep::stepId()
+Core::Id RemoteLinuxCustomCommandDeploymentStep::stepId()
 {
     return "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
 }
 
-QString GenericRemoteLinuxCustomCommandDeploymentStep::displayName()
+QString RemoteLinuxCustomCommandDeploymentStep::displayName()
 {
     return tr("Run custom remote command");
 }
