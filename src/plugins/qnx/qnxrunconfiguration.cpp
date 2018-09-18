@@ -39,6 +39,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
     auto libAspect = new QtLibPathAspect(this);
     libAspect->setSettingsKey("Qt4ProjectManager.QnxRunConfiguration.QtLibPath");
     libAspect->setLabelText(tr("Path to Qt libraries on device"));
+    libAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     addExtraAspect(libAspect);
 }
 
