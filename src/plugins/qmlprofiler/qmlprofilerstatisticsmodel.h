@@ -97,7 +97,7 @@ public:
         {
             static const qint64 qint64Max = std::numeric_limits<qint64>::max();
             size_t size = durations.size();
-            QTC_ASSERT(size <= qint64Max, size = qint64Max);
+            QTC_ASSERT(sizeof(size_t) < sizeof(qint64) || size <= qint64Max, size = qint64Max);
             calls = static_cast<qint64>(size);
 
             if (size == 0)

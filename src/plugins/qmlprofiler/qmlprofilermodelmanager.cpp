@@ -480,14 +480,16 @@ int QmlProfilerEventTypeStorage::append(Timeline::TraceEventType &&type)
         QTC_CHECK(false);
         m_types.push_back(QmlEventType());
     }
-    QTC_ASSERT(index <= std::numeric_limits<int>::max(), return std::numeric_limits<int>::max());
+    QTC_ASSERT(index <= static_cast<size_t>(std::numeric_limits<int>::max()),
+               return std::numeric_limits<int>::max());
     return static_cast<int>(index);
 }
 
 int QmlProfilerEventTypeStorage::size() const
 {
     const size_t size = m_types.size();
-    QTC_ASSERT(size <= std::numeric_limits<int>::max(), return std::numeric_limits<int>::max());
+    QTC_ASSERT(size <= static_cast<size_t>(std::numeric_limits<int>::max()),
+               return std::numeric_limits<int>::max());
     return static_cast<int>(size);
 }
 
