@@ -42,7 +42,7 @@ class QMLDESIGNERCORE_EXPORT ZoomAction : public QWidgetAction
 public:
     ZoomAction(QObject *parent);
 
-    double zoomLevel() const;
+    float zoomLevel() const;
 
     void zoomIn();
     void zoomOut();
@@ -50,9 +50,9 @@ public:
 
 protected:
     QWidget *createWidget(QWidget *parent) override;
-    void setZoomLevel(double zoomLevel);
+    void setZoomLevel(float zoomLevel);
 signals:
-    void zoomLevelChanged(double zoom);
+    void zoomLevelChanged(float zoom);
     void indexChanged(int);
     void reseted();
 
@@ -61,7 +61,7 @@ private:
 
 private:
     QPointer<QAbstractItemModel> m_comboBoxModel;
-    double m_zoomLevel;
+    float m_zoomLevel;
     int m_currentComboBoxIndex;
 };
 
