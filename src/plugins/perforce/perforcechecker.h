@@ -40,7 +40,7 @@ class PerforceChecker : public QObject
     Q_OBJECT
 public:
     explicit PerforceChecker(QObject *parent = nullptr);
-    ~PerforceChecker();
+    ~PerforceChecker() override;
 
     void start(const QString &binary,
                const QString &workingDirectory,
