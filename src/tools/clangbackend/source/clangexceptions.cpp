@@ -27,7 +27,7 @@
 
 namespace ClangBackEnd {
 
-const char *ClangBaseException::what() const Q_DECL_NOEXCEPT
+const char *ClangBaseException::what() const noexcept
 {
     return m_info.constData();
 }

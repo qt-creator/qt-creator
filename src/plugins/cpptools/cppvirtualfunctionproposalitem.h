@@ -37,7 +37,7 @@ class CPPTOOLS_EXPORT VirtualFunctionProposalItem final : public TextEditor::Ass
 public:
     VirtualFunctionProposalItem(const Utils::Link &link,
                                 bool openInSplit = true);
-    ~VirtualFunctionProposalItem() Q_DECL_NOEXCEPT override {}
+    ~VirtualFunctionProposalItem() noexcept override {}
     void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
                int basePosition) const override;
     Utils::Link link() const { return m_link; } // Exposed for tests
