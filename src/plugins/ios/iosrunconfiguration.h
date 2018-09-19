@@ -35,7 +35,6 @@
 namespace Ios {
 namespace Internal {
 
-class IosDeployStep;
 class IosDeviceTypeAspect;
 
 class IosRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -44,8 +43,6 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 
 public:
     IosRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-    IosDeployStep *deployStep() const;
 
     Utils::FileName profilePath() const;
     QString applicationName() const;

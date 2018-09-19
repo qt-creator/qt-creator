@@ -25,7 +25,7 @@
 
 #include "iosrunconfiguration.h"
 #include "iosconstants.h"
-#include "iosdeploystep.h"
+#include "iosdevice.h"
 #include "simulatorcontrol.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -160,12 +160,6 @@ void IosRunConfiguration::updateEnabledState()
 bool IosRunConfiguration::canRunForNode(const Node *node) const
 {
     return node->filePath() == profilePath();
-}
-
-IosDeployStep *IosRunConfiguration::deployStep() const
-{
-    DeployConfiguration *config = target()->activeDeployConfiguration();
-    return config ? config->stepList()->firstOfType<IosDeployStep>() : nullptr;
 }
 
 FileName IosRunConfiguration::profilePath() const
