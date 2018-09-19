@@ -347,7 +347,8 @@ void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo p
 {
     QFile compileCommandsFile(projectDir.toString() + "/compile_commands.json");
 
-    QJsonArray array;
+    compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    compileCommandsFile.write("[");
     for (ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
         const ::Utils::FileName buildDir = buildDirectory(*projectPart);
 
@@ -357,12 +358,15 @@ void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo p
         optionsBuilder.build(CppTools::ProjectFile::Unclassified,
                              CppTools::CompilerOptionsBuilder::PchUsage::None);
 
-        for (const ProjectFile &projFile : projectPart->files)
-            array.push_back(createFileObject(optionsBuilder, projFile, buildDir));
+        for (const ProjectFile &projFile : projectPart->files) {
+            const QJsonObject json = createFileObject(optionsBuilder, projFile, buildDir);
+            if (compileCommandsFile.size() > 1)
+                compileCommandsFile.write(",");
+            compileCommandsFile.write('\n' + QJsonDocument(json).toJson().trimmed());
+        }
     }
 
-    compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    compileCommandsFile.write(QJsonDocument(array).toJson());
+    compileCommandsFile.write("\n]");
     compileCommandsFile.close();
 }
 
