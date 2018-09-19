@@ -58,6 +58,8 @@ enum HelpViewerLocation {
     ExternalHelpAlways = 3
 };
 
+CORE_EXPORT QString documentationPath();
+
 CORE_EXPORT void registerDocumentation(const QStringList &fileNames);
 CORE_EXPORT void unregisterDocumentation(const QStringList &nameSpaces);
 

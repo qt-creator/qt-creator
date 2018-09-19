@@ -30,6 +30,8 @@
 #include <extensionsystem/pluginspec.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
+#include <QDir>
 #include <QUrl>
 
 namespace Core {
@@ -65,6 +67,11 @@ Implementation::Implementation()
 Implementation::~Implementation()
 {
     m_instance = nullptr;
+}
+
+QString documentationPath()
+{
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DOC_PATH);
 }
 
 void registerDocumentation(const QStringList &files)

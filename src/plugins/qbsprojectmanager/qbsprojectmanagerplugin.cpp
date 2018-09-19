@@ -111,7 +111,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QT, "qbs");
-    Core::HelpManager::registerDocumentation({Core::ICore::documentationPath() + "/qbs.qch"});
+    Core::HelpManager::registerDocumentation({Core::HelpManager::documentationPath() + "/qbs.qch"});
 
     ProjectManager::registerProjectType<QbsProject>(QmlJSTools::Constants::QBS_MIMETYPE);
     KitManager::registerKitInformation<QbsKitInformation>();
