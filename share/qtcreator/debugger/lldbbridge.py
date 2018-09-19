@@ -244,6 +244,12 @@ class Dumper(DumperBase):
             baseNames[base.GetName()] = i
 
         fieldBits = {}
+        ###
+        # https://lldb.llvm.org/python_reference/lldb.SBType-class.html#get_fields_array
+        # The `get_fields_array` doesn't make promise for ascending order.
+        # I wanna use `get_members_array`, it seems more suit.
+        # 
+        ###
         for f in nativeType.get_fields_array():
             bitsize = f.GetBitfieldSizeInBits()
             if bitsize == 0:
@@ -251,11 +257,12 @@ class Dumper(DumperBase):
             bitpos = f.GetOffsetInBits()
             # Correction for some bitfields. Size 0 can occur for
             # types without debug information.
-            if bitsize > 0:
+            # if bitsize > 0 and not f.IsBitfield():
                 #bitpos = bitpos % bitsize
-                bitpos = bitpos % 8 # Reported type is always wrapping type!
+                # bitpos = bitpos % 8 # Reported type is always wrapping type!
             fieldBits[f.name] = (bitsize, bitpos, f.IsBitfield())
 
+        # import IPython; IPython.embed()
         # Normal members and non-empty base classes.
         anonNumber = 0
         for i in range(fakeValue.GetNumChildren()):
@@ -1104,6 +1111,10 @@ class Dumper(DumperBase):
     def warn(self, msg):
         self.put('{name="%s",value="",type="",numchild="0"},' % msg)
 
+    def debug(self, msg):
+        if False:
+            self.warn('\033[0;101m\n[DEBUG]:%s\033[0m\n' % msg)
+
     def fetchVariables(self, args):
         (ok, res) = self.tryFetchInterpreterVariables(args)
         if ok:
@@ -1127,6 +1138,8 @@ class Dumper(DumperBase):
         self.currentIName = 'local'
         self.put('data=[')
 
+        # self.debug(args)
+        self.debug('hello world this is a debuger output')
         with SubItem(self, '[statics]'):
             self.put('iname="%s",' % self.currentIName)
             self.putEmptyValue()
@@ -1169,11 +1182,13 @@ class Dumper(DumperBase):
                 # default values:  void foo(int = 0)
                 continue
             value = self.fromNativeFrameValue(val)
+            self.debug('Get name : %s Get value: %s' % (name, value))
             variables.append(value)
 
         self.handleLocals(variables)
         self.handleWatches(args)
 
+        self.debug("Handler locals over!!!")
         self.put('],partial="%d"' % isPartial)
         self.reportResult(self.output, args)
 
