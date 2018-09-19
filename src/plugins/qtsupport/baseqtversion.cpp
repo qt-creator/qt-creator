@@ -54,6 +54,8 @@
 #include <utils/winutils.h>
 #include <utils/fileinprojectfinder.h>
 
+#include <resourceeditor/resourcenode.h>
+
 #include <QDir>
 #include <QUrl>
 #include <QFileInfo>
@@ -1369,6 +1371,18 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
     if (target) {
         for (const ProjectExplorer::DeployableFile &file : target->deploymentData().allFiles())
             finder->addMappedPath(file.localFilePath(), file.remoteFilePath());
+    }
+
+    // Add resource paths to the mapping
+    if (startupProject) {
+        if (ProjectExplorer::ProjectNode *rootNode = startupProject->rootProjectNode()) {
+            rootNode->forEachNode([&](ProjectExplorer::FileNode *node) {
+                if (auto resourceNode = dynamic_cast<ResourceEditor::ResourceFileNode *>(node))
+                    finder->addMappedPath(node->filePath(), ":" + resourceNode->qrcPath());
+            });
+        } else {
+            // Can there be projects without root node?
+        }
     }
 
     // Finally, do populate m_projectFinder
