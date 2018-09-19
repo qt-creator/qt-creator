@@ -54,7 +54,7 @@ public:
     void addActivitySelector(bool isUcm);
 
 protected:
-    QString commitName() const;
+    QString commitName() const override;
 
 private:
     ActivitySelector *m_actSelector = nullptr;

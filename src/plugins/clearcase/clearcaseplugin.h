@@ -66,8 +66,7 @@ class ClearCaseControl;
 class ClearCaseResponse
 {
 public:
-    ClearCaseResponse() : error(false) {}
-    bool error;
+    bool error = false;
     QString stdOut;
     QString stdErr;
     QString message;
@@ -89,7 +88,7 @@ public:
 
     QFile::Permissions permissions;
 
-    FileStatus(Status _status = Unknown, QFile::Permissions perm = 0)
+    FileStatus(Status _status = Unknown, QFile::Permissions perm = nullptr)
         : status(_status), permissions(perm)
     { }
 };
@@ -133,13 +132,13 @@ public:
     bool vcsUndoHijack(const QString &workingDir, const QString &fileName, bool keep);
     bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
     bool vcsSetActivity(const QString &workingDir, const QString &title, const QString &activity);
-    bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
+    bool managesDirectory(const QString &directory, QString *topLevel = nullptr) const;
     bool vcsCheckout(const QString &directory, const QByteArray &url);
 
     static ClearCasePlugin *instance();
 
     QString ccGetCurrentActivity() const;
-    QList<QStringPair> activities(int *current = 0) const;
+    QList<QStringPair> activities(int *current = nullptr) const;
     QString ccGetPredecessor(const QString &version) const;
     QStringList ccGetActiveVobs() const;
     ViewData ccGetView(const QString &workingDir) const;
@@ -228,7 +227,8 @@ private:
                                       QTextCodec *codec) const;
     QString runCleartoolSync(const QString &workingDir, const QStringList &arguments) const;
     ClearCaseResponse runCleartool(const QString &workingDir, const QStringList &arguments,
-                                   int timeOutS, unsigned flags, QTextCodec *outputCodec = 0) const;
+                                   int timeOutS, unsigned flags,
+                                   QTextCodec *outputCodec = nullptr) const;
     static void sync(QFutureInterface<void> &future, QStringList files);
 
     void history(const QString &workingDir,
@@ -247,7 +247,7 @@ private:
     QString getFile(const QString &nativeFile, const QString &prefix);
     static void rmdir(const QString &path);
     QString runExtDiff(const QString &workingDir, const QStringList &arguments, int timeOutS,
-                       QTextCodec *outputCodec = 0);
+                       QTextCodec *outputCodec = nullptr);
     static QString getDriveLetterOfPath(const QString &directory);
 
     FileStatus::Status getFileStatus(const QString &fileName) const;
