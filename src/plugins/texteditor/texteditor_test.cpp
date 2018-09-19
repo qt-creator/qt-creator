@@ -126,9 +126,9 @@ void Internal::TextEditorPlugin::testBlockSelectionTransformation()
 
     // open editor
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
-                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, input.toLatin1());
+                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, nullptr, input.toLatin1());
     QVERIFY(editor);
-    if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
+    if (auto textEditor = qobject_cast<BaseTextEditor*>(editor)) {
         TextEditorWidget *editorWidget = textEditor->editorWidget();
         editorWidget->setBlockSelection(selection.positionBlock,
                                         selection.positionColumn,
@@ -349,9 +349,9 @@ void Internal::TextEditorPlugin::testBlockSelectionInsert()
 
     // open editor
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
-                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, text);
+                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, nullptr, text);
     QVERIFY(editor);
-    if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
+    if (auto textEditor = qobject_cast<BaseTextEditor*>(editor)) {
         TextEditorWidget *editorWidget = textEditor->editorWidget();
         editorWidget->setBlockSelection(selection.positionBlock,
                                         selection.positionColumn,
@@ -427,9 +427,9 @@ void Internal::TextEditorPlugin::testBlockSelectionRemove()
 
     // open editor
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
-                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, text);
+                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, nullptr, text);
     QVERIFY(editor);
-    if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
+    if (auto textEditor = qobject_cast<BaseTextEditor*>(editor)) {
         TextEditorWidget *editorWidget = textEditor->editorWidget();
         editorWidget->setBlockSelection(selection.positionBlock,
                                         selection.positionColumn,
@@ -482,9 +482,9 @@ void Internal::TextEditorPlugin::testBlockSelectionCopy()
 
     // open editor
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
-                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, text);
+                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, nullptr, text);
     QVERIFY(editor);
-    if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
+    if (auto textEditor = qobject_cast<BaseTextEditor*>(editor)) {
         TextEditorWidget *editorWidget = textEditor->editorWidget();
         editorWidget->setBlockSelection(selection.positionBlock,
                                         selection.positionColumn,

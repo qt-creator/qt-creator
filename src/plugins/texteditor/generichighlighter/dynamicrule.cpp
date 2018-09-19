@@ -53,7 +53,7 @@ namespace Internal {
 void updateDynamicRules(const QList<QSharedPointer<Rule> > &rules, const QStringList &captures)
 {
     foreach (QSharedPointer<Rule> rule, rules) {
-        DynamicRule *dynamicRule = dynamic_cast<DynamicRule *>(rule.data());
+        auto dynamicRule = dynamic_cast<DynamicRule *>(rule.data());
         if (dynamicRule && dynamicRule->isActive())
             dynamicRule->replaceExpressions(captures);
     }

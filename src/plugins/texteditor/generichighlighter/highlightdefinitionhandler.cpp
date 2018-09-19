@@ -306,7 +306,7 @@ void HighlightDefinitionHandler::foldingElementStarted(const QXmlAttributes &att
 
 void HighlightDefinitionHandler::detectCharStarted(const QXmlAttributes &atts)
 {
-    DetectCharRule *rule = new DetectCharRule;
+    auto rule = new DetectCharRule;
     rule->setChar(atts.value(kChar));
     rule->setActive(atts.value(kDynamic));
     ruleElementStarted(atts, QSharedPointer<Rule>(rule));
@@ -314,7 +314,7 @@ void HighlightDefinitionHandler::detectCharStarted(const QXmlAttributes &atts)
 
 void HighlightDefinitionHandler::detect2CharsStarted(const QXmlAttributes &atts)
 {
-    Detect2CharsRule *rule = new Detect2CharsRule;
+    auto rule = new Detect2CharsRule;
     rule->setChar(atts.value(kChar));
     rule->setChar1(atts.value(kChar1));
     rule->setActive(atts.value(kDynamic));
@@ -323,14 +323,14 @@ void HighlightDefinitionHandler::detect2CharsStarted(const QXmlAttributes &atts)
 
 void HighlightDefinitionHandler::anyCharStarted(const QXmlAttributes &atts)
 {
-    AnyCharRule *rule = new AnyCharRule;
+    auto rule = new AnyCharRule;
     rule->setCharacterSet(atts.value(kString));
     ruleElementStarted(atts, QSharedPointer<Rule>(rule));
 }
 
 void HighlightDefinitionHandler::stringDetectedStarted(const QXmlAttributes &atts)
 {
-    StringDetectRule *rule = new StringDetectRule;
+    auto rule = new StringDetectRule;
     rule->setString(atts.value(kString));
     rule->setInsensitive(atts.value(kInsensitive));
     rule->setActive(atts.value(kDynamic));
@@ -339,7 +339,7 @@ void HighlightDefinitionHandler::stringDetectedStarted(const QXmlAttributes &att
 
 void HighlightDefinitionHandler::wordDetectStarted(const QXmlAttributes &atts)
 {
-    WordDetectRule *rule = new WordDetectRule;
+    auto rule = new WordDetectRule;
     rule->setString(atts.value(kString));
     rule->setInsensitive(atts.value(kInsensitive));
     rule->setActive(atts.value(kDynamic));
@@ -348,7 +348,7 @@ void HighlightDefinitionHandler::wordDetectStarted(const QXmlAttributes &atts)
 
 void HighlightDefinitionHandler::regExprStarted(const QXmlAttributes &atts)
 {
-    RegExprRule *rule = new RegExprRule;
+    auto rule = new RegExprRule;
     rule->setPattern(atts.value(kString));
     rule->setMinimal(atts.value(kMinimal));
     rule->setInsensitive(atts.value(kInsensitive));
@@ -358,7 +358,7 @@ void HighlightDefinitionHandler::regExprStarted(const QXmlAttributes &atts)
 
 void HighlightDefinitionHandler::keywordStarted(const QXmlAttributes &atts)
 {
-    KeywordRule *rule = new KeywordRule(m_definition);
+    auto rule = new KeywordRule(m_definition);
     try {
         rule->setList(atts.value(kString));
     } catch (const HighlighterException &e) {
@@ -404,7 +404,7 @@ void HighlightDefinitionHandler::hlCCharStarted(const QXmlAttributes &atts)
 
 void HighlightDefinitionHandler::rangeDetectStarted(const QXmlAttributes &atts)
 {
-    RangeDetectRule *rule = new RangeDetectRule;
+    auto rule = new RangeDetectRule;
     rule->setChar(atts.value(kChar));
     rule->setChar1(atts.value(kChar1));
     ruleElementStarted(atts, QSharedPointer<Rule>(rule));

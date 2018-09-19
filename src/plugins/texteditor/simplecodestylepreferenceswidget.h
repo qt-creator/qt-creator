@@ -54,7 +54,7 @@ private:
     void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
 
     TabSettingsWidget *m_tabSettingsWidget;
-    ICodeStylePreferences *m_preferences;
+    ICodeStylePreferences *m_preferences = nullptr;
 };
 
 } // namespace TextEditor

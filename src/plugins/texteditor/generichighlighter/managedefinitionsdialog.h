@@ -38,7 +38,7 @@ class ManageDefinitionsDialog : public QDialog
 public:
     explicit ManageDefinitionsDialog(const QList<DefinitionMetaDataPtr> &metaDataList,
                                      const QString &path,
-                                     QWidget *parent = 0);
+                                     QWidget *parent = nullptr);
 
 private:
     void downloadDefinitions();

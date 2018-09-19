@@ -63,7 +63,7 @@ private:
 
     void onCompletionTriggerChanged();
 
-    Ui::CompletionSettingsPage *m_page;
+    Ui::CompletionSettingsPage *m_page = nullptr;
     QPointer<QWidget> m_widget;
     CommentsSettings m_commentsSettings;
     CompletionSettings m_completionSettings;

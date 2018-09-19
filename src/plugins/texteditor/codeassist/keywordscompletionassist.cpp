@@ -193,7 +193,7 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
         if (characterUnderCursor.isLetterOrNumber())
             return nullptr;
         if (interface->position() - startPosition < 3)
-            return 0;
+            return nullptr;
     }
 
     // extract word

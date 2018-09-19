@@ -39,7 +39,6 @@ using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 FindInCurrentFile::FindInCurrentFile()
-  : m_currentDocument(0)
 {
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &FindInCurrentFile::handleFileChange);
@@ -95,7 +94,7 @@ void FindInCurrentFile::handleFileChange(Core::IEditor *editor)
 {
     if (!editor) {
         if (m_currentDocument) {
-            m_currentDocument = 0;
+            m_currentDocument = nullptr;
             emit enabledChanged(isEnabled());
         }
     } else {

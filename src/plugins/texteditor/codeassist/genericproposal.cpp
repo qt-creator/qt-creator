@@ -55,7 +55,7 @@ GenericProposal *GenericProposal::createProposal(const AssistInterface *interfac
     foreach (const QuickFixOperation::Ptr &op, quickFixes) {
         QVariant v;
         v.setValue(op);
-        AssistProposalItem *item = new AssistProposalItem;
+        auto item = new AssistProposalItem;
         item->setText(op->description());
         item->setData(v);
         item->setOrder(op->priority());

@@ -130,7 +130,7 @@ void HighlighterSettingsPage::finish()
     if (!m_d->m_page) // page was not shown
         return;
     delete m_d->m_page;
-    m_d->m_page = 0;
+    m_d->m_page = nullptr;
 }
 
 const HighlighterSettings &HighlighterSettingsPage::highlighterSettings() const

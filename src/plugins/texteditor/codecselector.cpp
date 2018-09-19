@@ -48,7 +48,7 @@ class CodecListWidget : public Utils::ListWidget
 {
 public:
     CodecListWidget(QWidget *parent) : Utils::ListWidget(parent){}
-    QSize sizeHint() const {
+    QSize sizeHint() const override {
         return QListWidget::sizeHint().expandedTo(
             QSize(sizeHintForColumn(0) + verticalScrollBar()->sizeHint().width() + 4, 0));
     }
@@ -126,7 +126,7 @@ CodecSelector::CodecSelector(QWidget *parent, TextDocument *doc)
     connect(m_dialogButtonBox, &QDialogButtonBox::clicked, this, &CodecSelector::buttonClicked);
     connect(m_listWidget, &QAbstractItemView::activated, m_reloadButton, &QAbstractButton::click);
 
-    QVBoxLayout *vbox = new QVBoxLayout(this);
+    auto vbox = new QVBoxLayout(this);
     vbox->addWidget(m_label);
     vbox->addWidget(m_listWidget);
     vbox->addWidget(m_dialogButtonBox);
@@ -140,7 +140,7 @@ CodecSelector::~CodecSelector()
 
 void CodecSelector::updateButtons()
 {
-    bool hasCodec = (selectedCodec() != 0);
+    bool hasCodec = (selectedCodec() != nullptr);
     m_reloadButton->setEnabled(!m_isModified && hasCodec);
     m_saveButton->setEnabled(!m_hasDecodingError && hasCodec);
 }
@@ -149,13 +149,13 @@ QTextCodec *CodecSelector::selectedCodec() const
 {
     if (QListWidgetItem *item = m_listWidget->currentItem()) {
         if (!item->isSelected())
-            return 0;
+            return nullptr;
         QString codecName = item->text();
         if (codecName.contains(QLatin1String(" / ")))
             codecName = codecName.left(codecName.indexOf(QLatin1String(" / ")));
         return QTextCodec::codecForName(codecName.toLatin1());
     }
-    return 0;
+    return nullptr;
 }
 
 void CodecSelector::buttonClicked(QAbstractButton *button)

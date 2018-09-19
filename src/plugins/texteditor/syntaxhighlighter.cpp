@@ -294,7 +294,7 @@ SyntaxHighlighter::SyntaxHighlighter(QTextEdit *parent)
 */
 SyntaxHighlighter::~SyntaxHighlighter()
 {
-    setDocument(0);
+    setDocument(nullptr);
 }
 
 /*!
@@ -641,7 +641,7 @@ QTextBlockUserData *SyntaxHighlighter::currentBlockUserData() const
 {
     Q_D(const SyntaxHighlighter);
     if (!d->currentBlock.isValid())
-        return 0;
+        return nullptr;
 
     return d->currentBlock.userData();
 }
@@ -679,7 +679,7 @@ void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
     Q_D(SyntaxHighlighter);
 
     const int blockLength = block.length();
-    if (block.layout() == 0 || blockLength == 0)
+    if (block.layout() == nullptr || blockLength == 0)
         return;
 
     Utils::sort(formats, byStartOfRange);

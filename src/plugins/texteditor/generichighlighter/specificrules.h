@@ -42,16 +42,14 @@ class HighlightDefinition;
 class DetectCharRule : public DynamicRule
 {
 public:
-    virtual ~DetectCharRule() {}
+    ~DetectCharRule() override {}
 
     void setChar(const QString &character);
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual DetectCharRule *doClone() const { return new DetectCharRule(*this); }
-    virtual void doReplaceExpressions(const QStringList &captures);
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    DetectCharRule *doClone() const override { return new DetectCharRule(*this); }
+    void doReplaceExpressions(const QStringList &captures) override;
 
     QChar m_char;
 };
@@ -59,17 +57,15 @@ private:
 class Detect2CharsRule : public DynamicRule
 {
 public:
-    virtual ~Detect2CharsRule() {}
+    ~Detect2CharsRule() override {}
 
     void setChar(const QString &character);
     void setChar1(const QString &character);
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual Detect2CharsRule *doClone() const { return new Detect2CharsRule(*this); }
-    virtual void doReplaceExpressions(const QStringList &captures);
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    Detect2CharsRule *doClone() const override { return new Detect2CharsRule(*this); }
+    void doReplaceExpressions(const QStringList &captures) override;
 
     QChar m_char;
     QChar m_char1;
@@ -78,15 +74,13 @@ private:
 class AnyCharRule : public Rule
 {
 public:
-    virtual ~AnyCharRule() {}
+    ~AnyCharRule() override {}
 
     void setCharacterSet(const QString &s);
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual AnyCharRule *doClone() const { return new AnyCharRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    AnyCharRule *doClone() const override { return new AnyCharRule(*this); }
 
     QString m_characterSet;
 };
@@ -94,17 +88,15 @@ private:
 class StringDetectRule : public DynamicRule
 {
 public:
-    virtual ~StringDetectRule() {}
+    ~StringDetectRule() override {}
 
     void setString(const QString &s);
     void setInsensitive(const QString &insensitive);
 
 protected:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual StringDetectRule *doClone() const { return new StringDetectRule(*this); }
-    virtual void doReplaceExpressions(const QStringList &captures);
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    StringDetectRule *doClone() const override { return new StringDetectRule(*this); }
+    void doReplaceExpressions(const QStringList &captures) override;
 
     QString m_string;
     int m_length = 0;
@@ -114,28 +106,24 @@ protected:
 class WordDetectRule : public StringDetectRule
 {
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual WordDetectRule *doClone() const { return new WordDetectRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    WordDetectRule *doClone() const override { return new WordDetectRule(*this); }
 };
 
 class RegExprRule : public DynamicRule
 {
 public:
-    virtual ~RegExprRule();
+    ~RegExprRule() override;
 
     void setPattern(const QString &pattern);
     void setInsensitive(const QString &insensitive);
     void setMinimal(const QString &minimal);
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual RegExprRule *doClone() const;
-    virtual void doReplaceExpressions(const QStringList &captures);
-    virtual void doProgressFinished();
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    RegExprRule *doClone() const override;
+    void doReplaceExpressions(const QStringList &captures) override;
+    void doProgressFinished() override;
 
     bool isExactMatch(ProgressData *progress);
 
@@ -152,16 +140,14 @@ class KeywordRule : public Rule
 {
 public:
     KeywordRule(const QSharedPointer<HighlightDefinition> &definition);
-    virtual ~KeywordRule();
+    ~KeywordRule() override;
 
     void setInsensitive(const QString &insensitive);
     void setList(const QString &listName);
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual KeywordRule *doClone() const { return new KeywordRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    KeywordRule *doClone() const override { return new KeywordRule(*this); }
 
     bool m_overrideGlobal;
     Qt::CaseSensitivity m_localCaseSensitivity;
@@ -171,88 +157,74 @@ private:
 class IntRule : public Rule
 {
 public:
-    virtual ~IntRule() {}
+    ~IntRule() override {}
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual IntRule *doClone() const { return new IntRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    IntRule *doClone() const override { return new IntRule(*this); }
 };
 
 class FloatRule : public Rule
 {
 public:
-    virtual ~FloatRule() {}
+    ~FloatRule() override {}
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual FloatRule *doClone() const { return new FloatRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    FloatRule *doClone() const override { return new FloatRule(*this); }
 };
 
 class HlCOctRule : public Rule
 {
 public:
-    virtual ~HlCOctRule() {}
+    ~HlCOctRule() override {}
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual HlCOctRule *doClone() const { return new HlCOctRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    HlCOctRule *doClone() const override { return new HlCOctRule(*this); }
 };
 
 class HlCHexRule : public Rule
 {
 public:
-    virtual ~HlCHexRule() {}
+    ~HlCHexRule() override {}
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual HlCHexRule *doClone() const { return new HlCHexRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    HlCHexRule *doClone() const override { return new HlCHexRule(*this); }
 };
 
 class HlCStringCharRule : public Rule
 {
 public:
-    virtual ~HlCStringCharRule() {}
+    ~HlCStringCharRule() override {}
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual HlCStringCharRule *doClone() const { return new HlCStringCharRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    HlCStringCharRule *doClone() const override { return new HlCStringCharRule(*this); }
 };
 
 class HlCCharRule : public Rule
 {
 public:
-    virtual ~HlCCharRule() {}
+    ~HlCCharRule() override {}
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual HlCCharRule *doClone() const { return new HlCCharRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    HlCCharRule *doClone() const override { return new HlCCharRule(*this); }
 };
 
 class RangeDetectRule : public Rule
 {
 public:
-    virtual ~RangeDetectRule() {}
+    ~RangeDetectRule() override {}
 
     void setChar(const QString &character);
     void setChar1(const QString &character);
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual RangeDetectRule *doClone() const { return new RangeDetectRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    RangeDetectRule *doClone() const override { return new RangeDetectRule(*this); }
 
     QChar m_char;
     QChar m_char1;
@@ -261,38 +233,32 @@ private:
 class LineContinueRule : public Rule
 {
 public:
-    virtual ~LineContinueRule() {}
+    ~LineContinueRule() override {}
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual LineContinueRule *doClone() const { return new LineContinueRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    LineContinueRule *doClone() const override { return new LineContinueRule(*this); }
 };
 
 class DetectSpacesRule : public Rule
 {
 public:
     DetectSpacesRule();
-    virtual ~DetectSpacesRule() {}
+    ~DetectSpacesRule() override {}
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual DetectSpacesRule *doClone() const { return new DetectSpacesRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    DetectSpacesRule *doClone() const override { return new DetectSpacesRule(*this); }
 };
 
 class DetectIdentifierRule : public Rule
 {
 public:
-    virtual ~DetectIdentifierRule() {}
+    ~DetectIdentifierRule() override {}
 
 private:
-    virtual bool doMatchSucceed(const QString &text,
-                                const int length,
-                                ProgressData *progress);
-    virtual DetectIdentifierRule *doClone() const { return new DetectIdentifierRule(*this); }
+    bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
+    DetectIdentifierRule *doClone() const override { return new DetectIdentifierRule(*this); }
 };
 
 } // namespace Internal

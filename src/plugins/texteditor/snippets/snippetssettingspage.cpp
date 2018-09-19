@@ -54,16 +54,16 @@ class SnippetsTableModel : public QAbstractTableModel
     Q_OBJECT
 public:
     SnippetsTableModel(QObject *parent);
-    virtual ~SnippetsTableModel() {}
+    ~SnippetsTableModel() override {}
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual Qt::ItemFlags flags(const QModelIndex &modelIndex) const;
-    virtual QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const;
-    virtual bool setData(const QModelIndex &modelIndex, const QVariant &value,
-                         int role = Qt::EditRole);
-    virtual QVariant headerData(int section, Qt::Orientation orientation,
-                                int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    Qt::ItemFlags flags(const QModelIndex &modelIndex) const override;
+    QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &modelIndex, const QVariant &value,
+                 int role = Qt::EditRole) override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     QList<QString> groupIds() const;
     void load(const QString &groupId);
@@ -267,7 +267,7 @@ class SnippetsSettingsPagePrivate : public QObject
     Q_OBJECT
 public:
     SnippetsSettingsPagePrivate(Core::Id id);
-    ~SnippetsSettingsPagePrivate() { delete m_model; }
+    ~SnippetsSettingsPagePrivate() override { delete m_model; }
 
     Core::Id id() const { return m_id; }
     const QString &displayName() const { return m_displayName; }
@@ -312,7 +312,7 @@ SnippetsSettingsPagePrivate::SnippetsSettingsPagePrivate(Core::Id id) :
     m_id(id),
     m_displayName(tr("Snippets")),
     m_settingsPrefix(QLatin1String("Text")),
-    m_model(new SnippetsTableModel(0)),
+    m_model(new SnippetsTableModel(nullptr)),
     m_snippetsCollectionChanged(false)
 {}
 
@@ -332,7 +332,7 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
 
     for (const SnippetProvider &provider : SnippetProvider::snippetProviders()) {
         m_ui.groupCombo->addItem(provider.displayName(), provider.groupId());
-        SnippetEditorWidget *snippetEditor = new SnippetEditorWidget(w);
+        auto snippetEditor = new SnippetEditorWidget(w);
         SnippetProvider::decorateEditor(snippetEditor, provider.groupId());
         m_ui.snippetsEditorStack->insertWidget(m_ui.groupCombo->count() - 1, snippetEditor);
         connect(snippetEditor, &SnippetEditorWidget::snippetContentChanged,
@@ -409,7 +409,7 @@ void SnippetsSettingsPagePrivate::finish()
         m_snippetsCollectionChanged = false;
     }
 
-    disconnect(TextEditorSettings::instance(), 0, this, 0);
+    disconnect(TextEditorSettings::instance(), nullptr, this, nullptr);
 }
 
 void SnippetsSettingsPagePrivate::loadSettings()

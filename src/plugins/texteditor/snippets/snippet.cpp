@@ -222,7 +222,7 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
             } else {
                 int length = result.text.count() - start;
                 result.ranges << ParsedSnippet::Range(start, length, mangler);
-                mangler = 0;
+                mangler = nullptr;
                 start = -1;
             }
             continue;

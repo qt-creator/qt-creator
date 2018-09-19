@@ -78,8 +78,8 @@ public:
 } // namespace TextEditor
 
 
-static TextEditorSettingsPrivate *d = 0;
-static TextEditorSettings *m_instance = 0;
+static TextEditorSettingsPrivate *d = nullptr;
+static TextEditorSettings *m_instance = nullptr;
 
 TextEditorSettings::TextEditorSettings()
 {
@@ -386,7 +386,7 @@ TextEditorSettings::~TextEditorSettings()
 {
     delete d;
 
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 TextEditorSettings *TextEditorSettings::instance()
@@ -521,7 +521,7 @@ Core::Id TextEditorSettings::languageId(const QString &mimeType)
 
 int TextEditorSettings::increaseFontZoom(int step)
 {
-    FontSettings &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
+    auto &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
     const int previousZoom = fs.fontZoom();
     const int newZoom = qMax(10, previousZoom + step);
     if (newZoom != previousZoom) {
@@ -533,7 +533,7 @@ int TextEditorSettings::increaseFontZoom(int step)
 
 void TextEditorSettings::resetFontZoom()
 {
-    FontSettings &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
+    auto &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
     fs.setFontZoom(100);
     d->m_fontSettingsPage->saveSettings();
 }

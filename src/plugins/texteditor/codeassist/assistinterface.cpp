@@ -134,7 +134,7 @@ void AssistInterface::prepareForAsyncUse()
     m_userStates.reserve(m_textDocument->blockCount());
     for (QTextBlock block = m_textDocument->firstBlock(); block.isValid(); block = block.next())
         m_userStates.append(block.userState());
-    m_textDocument = 0;
+    m_textDocument = nullptr;
     m_isAsync = true;
 }
 

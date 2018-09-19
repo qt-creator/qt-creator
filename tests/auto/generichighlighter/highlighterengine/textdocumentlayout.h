@@ -44,7 +44,7 @@ struct Parenthesis
     int pos;
 };
 
-struct CodeFormatterData {};
+struct CodeFormatterData { virtual ~CodeFormatterData() {} };
 
 struct TextBlockUserData : QTextBlockUserData
 {

@@ -267,7 +267,7 @@ void TextMark::dragToLine(int lineNumber)
 
 void TextMark::addToToolTipLayout(QGridLayout *target) const
 {
-    auto *contentLayout = new QVBoxLayout;
+    auto contentLayout = new QVBoxLayout;
     addToolTipContent(contentLayout);
     if (contentLayout->count() > 0) {
         const int row = target->rowCount();
@@ -346,7 +346,7 @@ TextMarkRegistry *TextMarkRegistry::instance()
 
 void TextMarkRegistry::editorOpened(IEditor *editor)
 {
-    auto document = qobject_cast<TextDocument *>(editor ? editor->document() : 0);
+    auto document = qobject_cast<TextDocument *>(editor ? editor->document() : nullptr);
     if (!document)
         return;
     if (!m_marks.contains(document->filePath()))
@@ -359,7 +359,7 @@ void TextMarkRegistry::editorOpened(IEditor *editor)
 void TextMarkRegistry::documentRenamed(IDocument *document, const
                                            QString &oldName, const QString &newName)
 {
-    TextDocument *baseTextDocument = qobject_cast<TextDocument *>(document);
+    auto baseTextDocument = qobject_cast<TextDocument *>(document);
     if (!baseTextDocument)
         return;
     FileName oldFileName = FileName::fromString(oldName);

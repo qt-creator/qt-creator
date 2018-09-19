@@ -347,7 +347,7 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
     if (sd.isEmpty())
         return;
 
-    auto *watcher = new QFutureWatcher<FormatTask>;
+    auto watcher = new QFutureWatcher<FormatTask>;
     const TextDocument *doc = editor->textDocument();
     QObject::connect(doc, &TextDocument::contentsChanged, watcher, &QFutureWatcher<FormatTask>::cancel);
     QObject::connect(watcher, &QFutureWatcherBase::finished, [watcher] {

@@ -59,13 +59,13 @@ private:
 
     void updateName(ICodeStylePreferences *codeStyle);
     ICodeStylePreferencesFactory *m_factory;
-    ICodeStylePreferences *m_codeStyle;
+    ICodeStylePreferences *m_codeStyle = nullptr;
 
     QString displayName(ICodeStylePreferences *codeStyle) const;
 
     Internal::Ui::CodeStyleSelectorWidget *m_ui;
 
-    bool m_ignoreGuiSignals;
+    bool m_ignoreGuiSignals = false;
 };
 
 } // namespace TextEditor

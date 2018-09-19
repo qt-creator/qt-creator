@@ -39,7 +39,6 @@ using namespace CppTools;
 
 CompletionSettingsPage::CompletionSettingsPage(QObject *parent)
     : TextEditor::TextEditorOptionsPage(parent)
-    , m_page(0)
 {
     setId("P.Completion");
     setDisplayName(tr("Completion"));
@@ -204,7 +203,7 @@ void CompletionSettingsPage::finish()
     if (!m_page) // page was never shown
         return;
     delete m_page;
-    m_page = 0;
+    m_page = nullptr;
 }
 
 const CompletionSettings &CompletionSettingsPage::completionSettings()
