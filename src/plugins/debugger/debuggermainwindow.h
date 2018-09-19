@@ -128,7 +128,7 @@ public:
     static void onModeChanged(Core::Id mode);
 
     static QWidget *centralWidgetStack();
-    void setSubPerspectiveSwitcher(QWidget *widget);
+    void addSubPerspectiveSwitcher(QWidget *widget);
 
 private:
     DebuggerMainWindow();

@@ -332,7 +332,7 @@ QWidget *DebuggerMainWindow::centralWidgetStack()
     return theMainWindow ? theMainWindow->d->m_centralWidgetStack : nullptr;
 }
 
-void DebuggerMainWindow::setSubPerspectiveSwitcher(QWidget *widget)
+void DebuggerMainWindow::addSubPerspectiveSwitcher(QWidget *widget)
 {
     widget->setVisible(false);
     widget->setProperty("panelwidget", true);
@@ -402,7 +402,7 @@ void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
 
 QWidget *createModeWindow(const Core::Id &mode, QWidget *switcher)
 {
-    theMainWindow->setSubPerspectiveSwitcher(switcher);
+    theMainWindow->addSubPerspectiveSwitcher(switcher);
 
     auto editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
