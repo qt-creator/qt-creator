@@ -79,7 +79,7 @@ public:
     // IVersionControl
     bool vcsAdd(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &fileName);
-    bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
+    bool managesDirectory(const QString &directory, QString *topLevel = nullptr) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     // cvs 'edit' is used to implement 'open' (cvsnt).
     bool edit(const QString &topLevel, const QStringList &files);
@@ -135,7 +135,7 @@ private:
                        const QStringList &arguments,
                        int timeOutS,
                        unsigned flags,
-                       QTextCodec *outputCodec = 0) const;
+                       QTextCodec *outputCodec = nullptr) const;
 
     void annotate(const QString &workingDir, const QString &file,
                   const QString &revision = QString(), int lineNumber= -1);

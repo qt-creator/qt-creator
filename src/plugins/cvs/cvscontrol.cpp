@@ -141,7 +141,7 @@ Core::ShellCommand *CvsControl::createInitialCheckoutCommand(const QString &url,
                                                              const QString &localName,
                                                              const QStringList &extraArgs)
 {
-    QTC_ASSERT(localName == url, return 0);
+    QTC_ASSERT(localName == url, return nullptr);
 
     const CvsSettings settings = CvsPlugin::instance()->client()->settings();
 

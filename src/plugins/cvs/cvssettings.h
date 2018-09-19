@@ -46,7 +46,7 @@ public:
     QStringList addOptions(const QStringList &args) const;
 
 protected:
-    void readLegacySettings(const QSettings *settings);
+    void readLegacySettings(const QSettings *settings) override;
 };
 
 } // namespace Internal

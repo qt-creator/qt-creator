@@ -48,7 +48,7 @@ class CvsDiffConfig : public VcsBaseEditorConfig
     Q_OBJECT
 public:
     CvsDiffConfig(VcsBaseClientSettings &settings, QToolBar *toolBar);
-    QStringList arguments() const;
+    QStringList arguments() const override;
 
 private:
     VcsBaseClientSettings &m_settings;

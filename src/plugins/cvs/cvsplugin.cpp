@@ -144,8 +144,9 @@ const VcsBaseEditorParameters editorParameters[] = {
 // Utility to find a parameter set by type
 static inline const VcsBaseEditorParameters *findType(int ie)
 {
-    const EditorContentType et = static_cast<EditorContentType>(ie);
-    return VcsBaseEditor::findType(editorParameters, sizeof(editorParameters) / sizeof(editorParameters[0]), et);
+    return VcsBaseEditor::findType(editorParameters,
+                                   sizeof(editorParameters) / sizeof(*editorParameters),
+                                   static_cast<EditorContentType>(ie));
 }
 
 static inline bool messageBoxQuestion(const QString &title, const QString &question)
@@ -154,7 +155,7 @@ static inline bool messageBoxQuestion(const QString &title, const QString &quest
 }
 
 // ------------- CVSPlugin
-CvsPlugin *CvsPlugin::m_cvsPluginInstance = 0;
+CvsPlugin *CvsPlugin::m_cvsPluginInstance = nullptr;
 
 CvsPlugin::~CvsPlugin()
 {
@@ -416,7 +417,7 @@ bool CvsPlugin::submitEditorAboutToClose()
     if (!isCommitEditorOpen())
         return true;
 
-    CvsSubmitEditor *editor = qobject_cast<CvsSubmitEditor *>(submitEditor());
+    auto editor = qobject_cast<CvsSubmitEditor *>(submitEditor());
     QTC_ASSERT(editor, return true);
     IDocument *editorDocument = editor->document();
     QTC_ASSERT(editorDocument, return true);
@@ -466,15 +467,15 @@ void CvsPlugin::diffCommitFiles(const QStringList &files)
 
 static void setDiffBaseDirectory(IEditor *editor, const QString &db)
 {
-    if (VcsBaseEditorWidget *ve = qobject_cast<VcsBaseEditorWidget*>(editor->widget()))
+    if (auto ve = qobject_cast<VcsBaseEditorWidget*>(editor->widget()))
         ve->setWorkingDirectory(db);
 }
 
 CvsSubmitEditor *CvsPlugin::openCVSSubmitEditor(const QString &fileName)
 {
     IEditor *editor = EditorManager::openEditor(fileName, CVSCOMMITEDITOR_ID);
-    CvsSubmitEditor *submitEditor = qobject_cast<CvsSubmitEditor*>(editor);
-    QTC_ASSERT(submitEditor, return 0);
+    auto submitEditor = qobject_cast<CvsSubmitEditor*>(editor);
+    QTC_ASSERT(submitEditor, return nullptr);
     connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
             this, &CvsPlugin::diffCommitFiles);
 
@@ -907,7 +908,7 @@ bool CvsPlugin::status(const QString &topLevel, const QString &file, const QStri
             runCvs(topLevel, args, client()->vcsTimeoutS(), 0);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
-        showOutputInEditor(title, response.stdOut, OtherContent, topLevel, 0);
+        showOutputInEditor(title, response.stdOut, OtherContent, topLevel, nullptr);
     return ok;
 }
 
@@ -1027,7 +1028,7 @@ bool CvsPlugin::describe(const QString &repositoryPath,
 {
     // Collect logs
     QString output;
-    QTextCodec *codec = 0;
+    QTextCodec *codec = nullptr;
     const QList<CvsLogEntry>::iterator lend = entries.end();
     for (QList<CvsLogEntry>::iterator it = entries.begin(); it != lend; ++it) {
         // Before fiddling file names, try to find codec
@@ -1141,13 +1142,13 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
                                        QTextCodec *codec)
 {
     const VcsBaseEditorParameters *params = findType(editorType);
-    QTC_ASSERT(params, return 0);
+    QTC_ASSERT(params, return nullptr);
     const Id id = params->id;
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    CvsEditorWidget *e = qobject_cast<CvsEditorWidget*>(editor->widget());
+    auto e = qobject_cast<CvsEditorWidget*>(editor->widget());
     if (!e)
-        return 0;
+        return nullptr;
     connect(e, &VcsBaseEditorWidget::annotateRevisionRequested, this, &CvsPlugin::annotate);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
     e->textDocument()->setFallbackSaveAsFileName(s);
