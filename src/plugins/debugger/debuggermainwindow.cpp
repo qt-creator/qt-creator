@@ -32,10 +32,8 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
 #include <coreplugin/rightpane.h>
 
@@ -398,58 +396,6 @@ void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
                     QStyle::CT_ComboBox, &option, sz).width();
         m_perspectiveChooser->setFixedWidth(width);
     }
-}
-
-QWidget *createModeWindow(const Core::Id &mode, QWidget *switcher)
-{
-    theMainWindow->setSubPerspectiveSwitcher(switcher);
-
-    auto editorHolderLayout = new QVBoxLayout;
-    editorHolderLayout->setMargin(0);
-    editorHolderLayout->setSpacing(0);
-
-    auto editorAndFindWidget = new QWidget;
-    editorAndFindWidget->setLayout(editorHolderLayout);
-    editorHolderLayout->addWidget(theMainWindow->centralWidgetStack());
-    editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
-
-    auto documentAndRightPane = new MiniSplitter;
-    documentAndRightPane->addWidget(editorAndFindWidget);
-    documentAndRightPane->addWidget(new RightPanePlaceHolder(mode));
-    documentAndRightPane->setStretchFactor(0, 1);
-    documentAndRightPane->setStretchFactor(1, 0);
-
-    auto centralEditorWidget = new QWidget;
-    auto centralLayout = new QVBoxLayout(centralEditorWidget);
-    centralEditorWidget->setLayout(centralLayout);
-    centralLayout->setMargin(0);
-    centralLayout->setSpacing(0);
-    centralLayout->addWidget(documentAndRightPane);
-    centralLayout->setStretch(0, 1);
-    centralLayout->setStretch(1, 0);
-
-    // Right-side window with editor, output etc.
-    auto mainWindowSplitter = new MiniSplitter;
-    mainWindowSplitter->addWidget(theMainWindow);
-    mainWindowSplitter->addWidget(new OutputPanePlaceHolder(mode, mainWindowSplitter));
-    auto outputPane = new OutputPanePlaceHolder(mode, mainWindowSplitter);
-    outputPane->setObjectName(QLatin1String("DebuggerOutputPanePlaceHolder"));
-    mainWindowSplitter->addWidget(outputPane);
-    mainWindowSplitter->setStretchFactor(0, 10);
-    mainWindowSplitter->setStretchFactor(1, 0);
-    mainWindowSplitter->setOrientation(Qt::Vertical);
-
-    // Navigation and right-side window.
-    auto splitter = new MiniSplitter;
-    splitter->setFocusProxy(theMainWindow->centralWidgetStack());
-    splitter->addWidget(new NavigationWidgetPlaceHolder(mode, Side::Left));
-    splitter->addWidget(mainWindowSplitter);
-    splitter->setStretchFactor(0, 0);
-    splitter->setStretchFactor(1, 1);
-    splitter->setObjectName(QLatin1String("DebugModeWidget"));
-    theMainWindow->setCentralWidget(centralEditorWidget);
-
-    return splitter;
 }
 
 void DebuggerMainWindowPrivate::depopulateCurrentPerspective()

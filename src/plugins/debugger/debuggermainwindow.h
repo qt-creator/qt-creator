@@ -140,6 +140,4 @@ private:
     class DebuggerMainWindowPrivate *d = nullptr;
 };
 
-DEBUGGER_EXPORT QWidget *createModeWindow(const Core::Id &mode, QWidget *);
-
 } // Utils

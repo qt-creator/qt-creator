@@ -72,6 +72,7 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/messagebox.h>
@@ -472,7 +473,60 @@ public:
                                       Icons::MODE_DEBUGGER_FLAT, Icons::MODE_DEBUGGER_FLAT_ACTIVE));
         setPriority(85);
         setId(MODE_DEBUG);
+
+        DebuggerMainWindow *mainWindow = DebuggerMainWindow::instance();
+
+        auto editorHolderLayout = new QVBoxLayout;
+        editorHolderLayout->setMargin(0);
+        editorHolderLayout->setSpacing(0);
+
+        auto editorAndFindWidget = new QWidget;
+        editorAndFindWidget->setLayout(editorHolderLayout);
+        editorHolderLayout->addWidget(mainWindow->centralWidgetStack());
+        editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
+
+        auto documentAndRightPane = new MiniSplitter;
+        documentAndRightPane->addWidget(editorAndFindWidget);
+        documentAndRightPane->addWidget(new RightPanePlaceHolder(MODE_DEBUG));
+        documentAndRightPane->setStretchFactor(0, 1);
+        documentAndRightPane->setStretchFactor(1, 0);
+
+        auto centralEditorWidget = new QWidget;
+        auto centralLayout = new QVBoxLayout(centralEditorWidget);
+        centralEditorWidget->setLayout(centralLayout);
+        centralLayout->setMargin(0);
+        centralLayout->setSpacing(0);
+        centralLayout->addWidget(documentAndRightPane);
+        centralLayout->setStretch(0, 1);
+        centralLayout->setStretch(1, 0);
+
+        // Right-side window with editor, output etc.
+        auto mainWindowSplitter = new MiniSplitter;
+        mainWindowSplitter->addWidget(mainWindow);
+        mainWindowSplitter->addWidget(new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter));
+        auto outputPane = new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter);
+        outputPane->setObjectName(QLatin1String("DebuggerOutputPanePlaceHolder"));
+        mainWindowSplitter->addWidget(outputPane);
+        mainWindowSplitter->setStretchFactor(0, 10);
+        mainWindowSplitter->setStretchFactor(1, 0);
+        mainWindowSplitter->setOrientation(Qt::Vertical);
+
+        // Navigation and right-side window.
+        auto splitter = new MiniSplitter;
+        splitter->setFocusProxy(mainWindow->centralWidgetStack());
+        splitter->addWidget(new NavigationWidgetPlaceHolder(MODE_DEBUG, Side::Left));
+        splitter->addWidget(mainWindowSplitter);
+        splitter->setStretchFactor(0, 0);
+        splitter->setStretchFactor(1, 1);
+        splitter->setObjectName(QLatin1String("DebugModeWidget"));
+
+        mainWindow->setCentralWidget(centralEditorWidget);
+        mainWindow->setSubPerspectiveSwitcher(EngineManager::engineChooser());
+
+        setWidget(splitter);
     }
+
+    ~DebugMode() { delete widget(); }
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -686,7 +740,6 @@ public:
     void updatePresetState();
 
 public:
-    QPointer<QWidget> m_modeWindow;
     QPointer<DebugMode> m_mode;
 
     ActionContainer *m_menu = nullptr;
@@ -1296,11 +1349,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     // Debug mode setup
     m_mode = new DebugMode;
-    m_modeWindow = createModeWindow(Constants::MODE_DEBUG, EngineManager::engineChooser());
-    m_mode->setWidget(m_modeWindow);
 
     m_debugModeContext.setContext(Context(CC::C_EDITORMANAGER));
-    m_debugModeContext.setWidget(m_modeWindow);
+    m_debugModeContext.setWidget(m_mode->widget());
     ICore::addContextObject(&m_debugModeContext);
 
     //
@@ -2242,9 +2293,6 @@ void DebuggerPluginPrivate::doShutdown()
     DebuggerMainWindow::doShutdown();
 
     m_shutdownTimer.stop();
-
-    delete m_modeWindow;
-    m_modeWindow = nullptr;
 
     delete m_mode;
     m_mode = nullptr;
