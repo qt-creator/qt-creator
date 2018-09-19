@@ -51,6 +51,7 @@
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QTimer>
 
 using namespace LanguageServerProtocol;
 using namespace Utils;
@@ -150,9 +151,13 @@ void BaseClient::openDocument(Core::IDocument *document)
     if (textDocument) {
         textDocument->setCompletionAssistProvider(new LanguageClientCompletionAssistProvider(this));
         if (BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(textDocument)) {
-            if (TextEditorWidget *widget = editor->editorWidget()) {
+            if (QPointer<TextEditorWidget> widget = editor->editorWidget()) {
                 connect(widget, &TextEditorWidget::cursorPositionChanged, this, [this, widget](){
-                    cursorPositionChanged(widget);
+                    // TODO This would better be a compressing timer
+                    QTimer::singleShot(50, this, [this, widget]() {
+                        if (widget)
+                            cursorPositionChanged(widget);
+                    });
                 });
             }
         }
