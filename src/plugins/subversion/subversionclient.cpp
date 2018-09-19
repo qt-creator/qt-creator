@@ -275,7 +275,7 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
                                                          const QString &workingDirectory) const
 {
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
-    SubversionDiffEditorController *controller = qobject_cast<SubversionDiffEditorController *>(
+    auto controller = qobject_cast<SubversionDiffEditorController *>(
                 DiffEditorController::controller(document));
     if (!controller)
         controller = new SubversionDiffEditorController(document, workingDirectory);

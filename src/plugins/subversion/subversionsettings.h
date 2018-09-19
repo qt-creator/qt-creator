@@ -44,7 +44,7 @@ public:
     bool hasAuthentication() const;
 
 protected:
-    void readLegacySettings(const QSettings *settings);
+    void readLegacySettings(const QSettings *settings) override;
 };
 
 } // namespace Internal
