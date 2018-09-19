@@ -36,6 +36,8 @@
 
 namespace TextEditor {
 
+class FontSettings;
+
 class SyntaxHighlighter : public QSyntaxHighlighter
 {
 public:
@@ -48,7 +50,7 @@ protected:
     void setTextFormatCategories(int, std::function<TextStyle(int)>)
     {}
     QTextCharFormat formatForCategory(int categoryIndex) const;
-
+    FontSettings fontSettings() const;
 };
 
 }
