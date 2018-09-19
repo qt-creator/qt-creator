@@ -42,7 +42,7 @@ public:
         PushMode
     };
 
-    explicit PullOrPushDialog(Mode mode, QWidget *parent = 0);
+    explicit PullOrPushDialog(Mode mode, QWidget *parent = nullptr);
     ~PullOrPushDialog() override;
 
     // Common parameters and options

@@ -37,7 +37,7 @@ class UnCommitDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UnCommitDialog(QWidget *parent = 0);
+    explicit UnCommitDialog(QWidget *parent = nullptr);
     ~UnCommitDialog() override;
 
     QStringList extraOptions() const;

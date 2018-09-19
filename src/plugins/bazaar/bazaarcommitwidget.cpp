@@ -57,7 +57,7 @@ class BazaarSubmitHighlighter : QSyntaxHighlighter
 {
 public:
     explicit BazaarSubmitHighlighter(QTextEdit *parent);
-    void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text) override;
 
 private:
     enum State { Header, Comment, Other };
