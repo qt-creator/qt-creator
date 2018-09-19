@@ -42,7 +42,7 @@ class CommonSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit CommonSettingsWidget(QWidget *parent = 0);
+    explicit CommonSettingsWidget(QWidget *parent = nullptr);
     ~CommonSettingsWidget() override;
 
     CommonVcsSettings settings() const;
@@ -59,7 +59,7 @@ class CommonOptionsPage : public VcsBaseOptionsPage
     Q_OBJECT
 
 public:
-    explicit CommonOptionsPage(QObject *parent = 0);
+    explicit CommonOptionsPage(QObject *parent = nullptr);
 
     QWidget *widget() override;
     void apply() override;

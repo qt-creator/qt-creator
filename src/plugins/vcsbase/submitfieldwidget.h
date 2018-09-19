@@ -45,7 +45,7 @@ class VCSBASE_EXPORT SubmitFieldWidget : public QWidget
     Q_PROPERTY(bool allowDuplicateFields READ allowDuplicateFields WRITE setAllowDuplicateFields DESIGNABLE true)
 
 public:
-    explicit SubmitFieldWidget(QWidget *parent = 0);
+    explicit SubmitFieldWidget(QWidget *parent = nullptr);
     ~SubmitFieldWidget() override;
 
     QStringList fields() const;

@@ -42,7 +42,6 @@ namespace {
 class PathMatcher
 {
 public:
-    PathMatcher() : m_count(std::numeric_limits<int>::max()), m_project(0) { }
     ProjectExplorer::Project *project() { return m_project; }
 
     void match(ProjectExplorer::Project *project,
@@ -59,8 +58,8 @@ public:
     }
 
 private:
-    int m_count;
-    ProjectExplorer::Project *m_project;
+    int m_count = std::numeric_limits<int>::max();
+    ProjectExplorer::Project *m_project = nullptr;
 };
 
 } // namespace
@@ -68,7 +67,7 @@ private:
 namespace VcsBase {
 namespace Internal {
 
-VcsProjectCache *VcsProjectCache::m_instance = 0;
+VcsProjectCache *VcsProjectCache::m_instance = nullptr;
 
 VcsProjectCache::VcsProjectCache()
 {
@@ -83,7 +82,7 @@ VcsProjectCache::VcsProjectCache()
 
 VcsProjectCache::~VcsProjectCache()
 {
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 ProjectExplorer::Project *VcsProjectCache::projectFor(const QString &repo)

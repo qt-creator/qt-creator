@@ -68,7 +68,7 @@ static Core::IEditor *locateEditor(const char *property, const QString &entry)
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
         if (document->property(property).toString() == entry)
             return Core::DocumentModel::editorsForDocument(document).first();
-    return 0;
+    return nullptr;
 }
 
 namespace VcsBase {
@@ -247,20 +247,20 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Core::Id kind, QString t
                                                         const char *registerDynamicProperty,
                                                         const QString &dynamicPropertyValue) const
 {
-    VcsBaseEditorWidget *baseEditor = 0;
+    VcsBaseEditorWidget *baseEditor = nullptr;
     Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
     const QString progressMsg = tr("Working...");
     if (outputEditor) {
         // Exists already
         outputEditor->document()->setContents(progressMsg.toUtf8());
         baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
-        QTC_ASSERT(baseEditor, return 0);
+        QTC_ASSERT(baseEditor, return nullptr);
         Core::EditorManager::activateEditor(outputEditor);
     } else {
         outputEditor = Core::EditorManager::openEditorWithContents(kind, &title, progressMsg.toUtf8());
         outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
-        QTC_ASSERT(baseEditor, return 0);
+        QTC_ASSERT(baseEditor, return nullptr);
         connect(baseEditor, &VcsBaseEditorWidget::annotateRevisionRequested,
                 this, &VcsBaseClientImpl::annotateRevisionRequested);
         baseEditor->setSource(source);
@@ -455,7 +455,8 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     else
         args << extraOptions;
     args << files;
-    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBaseEditor::getCodec(source);
+    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(nullptr)
+                                         : VcsBaseEditor::getCodec(source);
     VcsCommand *command = createCommand(workingDir, editor);
     command->setCodec(codec);
     enqueueJob(command, args, workingDir, exitCodeInterpreter(DiffCommand));
@@ -528,7 +529,7 @@ void VcsBaseClient::status(const QString &workingDir, const QString &file,
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions << file;
     VcsOutputWindow::setRepository(workingDir);
-    VcsCommand *cmd = createCommand(workingDir, 0, VcsWindowOutputBind);
+    VcsCommand *cmd = createCommand(workingDir, nullptr, VcsWindowOutputBind);
     connect(cmd, &VcsCommand::finished,
             VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository,
             Qt::QueuedConnection);
@@ -632,7 +633,7 @@ void VcsBaseClient::commit(const QString &repositoryRoot,
     //   for example)
     QStringList args(vcsCommandString(CommitCommand));
     args << extraOptions << files;
-    VcsCommand *cmd = createCommand(repositoryRoot, 0, VcsWindowOutputBind);
+    VcsCommand *cmd = createCommand(repositoryRoot, nullptr, VcsWindowOutputBind);
     if (!commitMessageFile.isEmpty())
         connect(cmd, &VcsCommand::finished, [commitMessageFile]() { QFile(commitMessageFile).remove(); });
     enqueueJob(cmd, args);

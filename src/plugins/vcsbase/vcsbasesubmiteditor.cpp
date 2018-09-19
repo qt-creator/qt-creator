@@ -75,7 +75,7 @@ enum { wantToolBar = 0 };
 // Return true if word is meaningful and can be added to a completion model
 static bool acceptsWordForCompletion(const char *word)
 {
-    if (word == 0)
+    if (!word)
         return false;
     static const std::size_t minWordLength = 7;
     return std::strlen(word) >= minWordLength;
@@ -84,17 +84,19 @@ static bool acceptsWordForCompletion(const char *word)
 // Return the class name which function belongs to
 static const char *belongingClassName(const CPlusPlus::Function *function)
 {
-    if (function == 0)
-        return 0;
+    if (!function)
+        return nullptr;
 
-    const CPlusPlus::Name *funcName = function->name();
-    if (funcName != 0 && funcName->asQualifiedNameId() != 0) {
-        const CPlusPlus::Name *funcBaseName = funcName->asQualifiedNameId()->base();
-        if (funcBaseName != 0 && funcBaseName->identifier() != 0)
-            return funcBaseName->identifier()->chars();
+    if (auto funcName = function->name()) {
+        if (auto qualifiedNameId =  funcName->asQualifiedNameId()) {
+            if (const CPlusPlus::Name *funcBaseName = qualifiedNameId->base()) {
+                if (auto identifier = funcBaseName->identifier())
+                    return identifier->chars();
+            }
+        }
     }
 
-    return 0;
+    return nullptr;
 }
 
 /*!
@@ -151,7 +153,7 @@ public:
                                VcsBaseSubmitEditor *q);
 
     SubmitEditorWidget *m_widget;
-    QToolBar *m_toolWidget;
+    QToolBar *m_toolWidget = nullptr;
     const VcsBaseSubmitEditorParameters *m_parameters;
     QString m_displayName;
     QString m_checkScriptWorkingDirectory;
@@ -160,17 +162,15 @@ public:
     QPointer<QAction> m_diffAction;
     QPointer<QAction> m_submitAction;
 
-    NickNameDialog *m_nickNameDialog;
+    NickNameDialog *m_nickNameDialog = nullptr;
 };
 
 VcsBaseSubmitEditorPrivate::VcsBaseSubmitEditorPrivate(const VcsBaseSubmitEditorParameters *parameters,
                                                        SubmitEditorWidget *editorWidget,
                                                        VcsBaseSubmitEditor *q) :
     m_widget(editorWidget),
-    m_toolWidget(0),
     m_parameters(parameters),
-    m_file(new SubmitEditorFile(parameters, q)),
-    m_nickNameDialog(0)
+    m_file(new SubmitEditorFile(parameters, q))
 {
     auto completer = new QCompleter(q);
     completer->setCaseSensitivity(Qt::CaseSensitive);
@@ -384,13 +384,13 @@ static QToolBar *createToolBar(const QWidget *someWidget, QAction *submitAction,
 QWidget *VcsBaseSubmitEditor::toolBar()
 {
     if (!wantToolBar)
-        return 0;
+        return nullptr;
 
     if (d->m_toolWidget)
         return d->m_toolWidget;
 
     if (!d->m_diffAction && !d->m_submitAction)
-        return 0;
+        return nullptr;
 
     // Create
     d->m_toolWidget = createToolBar(d->m_widget, d->m_submitAction, d->m_diffAction);
@@ -429,7 +429,7 @@ void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model)
         const QString filePath = fileInfo.absoluteFilePath();
         // Add symbols from the C++ code model
         const CPlusPlus::Document::Ptr doc = cppSnapShot.document(filePath);
-        if (!doc.isNull() && doc->control() != 0) {
+        if (!doc.isNull() && doc->control()) {
             const CPlusPlus::Control *ctrl = doc->control();
             CPlusPlus::Symbol **symPtr = ctrl->firstSymbol(); // Read-only
             while (symPtr != ctrl->lastSymbol()) {
@@ -438,7 +438,7 @@ void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model)
                 const CPlusPlus::Identifier *symId = sym->identifier();
                 // Add any class, function or namespace identifiers
                 if ((sym->isClass() || sym->isFunction() || sym->isNamespace())
-                        && (symId != 0 && acceptsWordForCompletion(symId->chars())))
+                        && (symId && acceptsWordForCompletion(symId->chars())))
                 {
                     uniqueSymbols.insert(QString::fromUtf8(symId->chars()));
                 }
@@ -531,7 +531,7 @@ VcsBaseSubmitEditor::PromptSubmitResult
                                           bool forcePrompt,
                                           bool canCommitOnFailure)
 {
-    SubmitEditorWidget *submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
+    auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
     Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
 

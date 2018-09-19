@@ -80,7 +80,7 @@ protected:
 
 private:
     WidgetFactory m_factory;
-    VcsClientOptionsPageWidget *m_widget;
+    VcsClientOptionsPageWidget *m_widget = nullptr;
     VcsBaseClientImpl *const m_client;
 };
 

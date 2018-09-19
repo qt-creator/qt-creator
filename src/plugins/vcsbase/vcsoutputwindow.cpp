@@ -91,8 +91,8 @@ private:
 class OutputWindowPlainTextEdit : public Core::OutputWindow
 {
 public:
-    explicit OutputWindowPlainTextEdit(QWidget *parent = 0);
-    ~OutputWindowPlainTextEdit();
+    explicit OutputWindowPlainTextEdit(QWidget *parent = nullptr);
+    ~OutputWindowPlainTextEdit() override;
 
     void appendLines(QString const& s, const QString &repository = QString());
     void appendLinesWithStyle(QString const& s, enum VcsOutputWindow::MessageStyle style, const QString &repository = QString());
@@ -102,7 +102,7 @@ protected:
 
 private:
     void setFormat(enum VcsOutputWindow::MessageStyle style);
-    QString identifierUnderCursor(const QPoint &pos, QString *repository = 0) const;
+    QString identifierUnderCursor(const QPoint &pos, QString *repository = nullptr) const;
 
     const QTextCharFormat m_defaultFormat;
     QTextCharFormat m_errorFormat;
@@ -129,7 +129,7 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     m_messageFormat.setForeground(Utils::creatorTheme()->color(Theme::OutputPanes_MessageOutput));
     m_formatter = new OutputFormatter;
     m_formatter->setPlainTextEdit(this);
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    auto agg = new Aggregation::Aggregate;
     agg->add(this);
     agg->add(new Core::BaseTextFind(this));
 }
@@ -184,7 +184,7 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
     // Add 'open file'
     QString repository;
     const QString token = identifierUnderCursor(event->pos(), &repository);
-    QAction *openAction = 0;
+    QAction *openAction = nullptr;
     if (!token.isEmpty()) {
         // Check for a file, expand via repository if relative
         QFileInfo fi(token);
@@ -287,8 +287,8 @@ public:
     QRegExp passwordRegExp;
 };
 
-static VcsOutputWindow *m_instance = 0;
-static VcsOutputWindowPrivate *d = 0;
+static VcsOutputWindow *m_instance = nullptr;
+static VcsOutputWindowPrivate *d = nullptr;
 
 VcsOutputWindow::VcsOutputWindow()
 {
@@ -314,7 +314,7 @@ static QString filterPasswordFromUrls(const QString &input)
 
 VcsOutputWindow::~VcsOutputWindow()
 {
-    m_instance = 0;
+    m_instance = nullptr;
     delete d;
 }
 
