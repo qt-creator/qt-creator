@@ -131,7 +131,8 @@ bool SnippetsTableModel::setData(const QModelIndex &modelIndex, const QVariant &
         if (modelIndex.column() == 0) {
             const QString &s = value.toString();
             if (!isValidTrigger(s)) {
-                QMessageBox::critical(0, tr("Error"), tr("Not a valid trigger."));
+                QMessageBox::critical(Core::ICore::dialogParent(), tr("Error"),
+                                      tr("Not a valid trigger."));
                 if (snippet.trigger().isEmpty())
                     removeSnippet(modelIndex);
                 return false;
@@ -207,7 +208,8 @@ void SnippetsTableModel::revertBuitInSnippet(const QModelIndex &modelIndex)
 {
     const Snippet &snippet = m_collection->revertedSnippet(modelIndex.row(), m_activeGroupId);
     if (snippet.id().isEmpty()) {
-        QMessageBox::critical(0, tr("Error"), tr("Error reverting snippet."));
+        QMessageBox::critical(Core::ICore::dialogParent(), tr("Error"),
+                              tr("Error reverting snippet."));
         return;
     }
     replaceSnippet(snippet, modelIndex);
@@ -391,11 +393,12 @@ void SnippetsSettingsPagePrivate::apply()
 
     if (m_snippetsCollectionChanged) {
         QString errorString;
-        if (SnippetsCollection::instance()->synchronize(&errorString))
+        if (SnippetsCollection::instance()->synchronize(&errorString)) {
             m_snippetsCollectionChanged = false;
-        else
-            QMessageBox::critical(Core::ICore::mainWindow(),
-                    tr("Error While Saving Snippet Collection"), errorString);
+        } else {
+            QMessageBox::critical(Core::ICore::dialogParent(),
+                                  tr("Error While Saving Snippet Collection"), errorString);
+        }
     }
 }
 
@@ -466,7 +469,7 @@ void SnippetsSettingsPagePrivate::removeSnippet()
 {
     const QModelIndex &modelIndex = m_ui.snippetsTable->selectionModel()->currentIndex();
     if (!modelIndex.isValid()) {
-        QMessageBox::critical(0, tr("Error"), tr("No snippet selected."));
+        QMessageBox::critical(Core::ICore::dialogParent(), tr("Error"), tr("No snippet selected."));
         return;
     }
     m_model->removeSnippet(modelIndex);
