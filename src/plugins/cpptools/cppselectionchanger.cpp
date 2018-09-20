@@ -924,6 +924,9 @@ void CppSelectionChanger::fineTuneASTNodePositions(ASTNodePositions &positions) 
         // TODO: Fix more lambda cases.
         LambdaIntroducerAST *lambdaIntroducerAST = lambdaExpressionAST->lambda_introducer;
         LambdaDeclaratorAST *lambdaDeclaratorAST = lambdaExpressionAST->lambda_declarator;
+        if (!lambdaDeclaratorAST)
+            return;
+
         TrailingReturnTypeAST *trailingReturnTypeAST = lambdaDeclaratorAST->trailing_return_type;
         unsigned firstSquareBracketTokenIndex = lambdaIntroducerAST->lbracket_token;
         unsigned lastParenTokenIndex = lambdaDeclaratorAST->rparen_token;
