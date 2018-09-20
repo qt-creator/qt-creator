@@ -87,6 +87,7 @@ public:
     void setShouldPersistChecker(const ShouldPersistChecker &checker);
 
     QString id() const; // Currently used by GammaRay plugin.
+    QString name() const;
     QWidget *centralWidget() const;
 
     using Callback = std::function<void()>;

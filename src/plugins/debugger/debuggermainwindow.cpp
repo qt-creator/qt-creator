@@ -593,6 +593,11 @@ QString Perspective::id() const
     return d->m_id;
 }
 
+QString Perspective::name() const
+{
+    return d->m_name;
+}
+
 void Perspective::setAboutToActivateCallback(const Perspective::Callback &cb)
 {
     d->m_aboutToActivateCallback = cb;
