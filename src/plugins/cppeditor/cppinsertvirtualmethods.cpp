@@ -514,12 +514,6 @@ public:
                            InsertVirtualMethodsDialog *factory)
         : CppQuickFixOperation(interface, 0)
         , m_factory(factory)
-        , m_classAST(0)
-        , m_valid(false)
-        , m_cppFileName(QString::null)
-        , m_insertPosDecl(0)
-        , m_insertPosOutside(0)
-        , m_functionCount(0)
     {
         setDescription(QCoreApplication::translate(
                            "CppEditor::QuickFix", "Insert Virtual Functions of Base Classes"));
@@ -890,13 +884,13 @@ public:
     }
 
 private:
-    InsertVirtualMethodsDialog *m_factory;
-    const ClassSpecifierAST *m_classAST;
-    bool m_valid;
+    InsertVirtualMethodsDialog *m_factory = nullptr;
+    const ClassSpecifierAST *m_classAST = nullptr;
+    bool m_valid = false;
     QString m_cppFileName;
-    int m_insertPosDecl;
-    int m_insertPosOutside;
-    unsigned m_functionCount;
+    int m_insertPosDecl = 0;
+    int m_insertPosOutside = 0;
+    unsigned m_functionCount = 0;
 };
 
 class InsertVirtualMethodsFilterModel : public QSortFilterProxyModel
