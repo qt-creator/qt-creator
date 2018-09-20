@@ -220,7 +220,7 @@ UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *memb
         else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
             orderedMembers[toString(objectBinding->qualifiedId)] = iter;
         else if (cast<UiObjectDefinition*>(member))
-            orderedMembers[QString::null] = iter;
+            orderedMembers[QString()] = iter;
         else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
             orderedMembers[toString(scriptBinding->qualifiedId)] = iter;
         else if (cast<UiPublicMember*>(member))
@@ -517,7 +517,7 @@ void Rewriter::includeEmptyGroupedProperty(UiObjectDefinition *groupedProperty, 
 #if 0
 UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QStringList &propertyOrder)
 {
-    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString::null);
+    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString());
 
     UiObjectMemberList *lastObjectDef = 0;
     UiObjectMemberList *lastNonObjectDef = 0;
@@ -562,7 +562,7 @@ UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *m
         else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
             orderedMembers[toString(objectBinding->qualifiedId)] = iter;
         else if (cast<UiObjectDefinition*>(member))
-            orderedMembers[QString::null] = iter;
+            orderedMembers[QString()] = iter;
         else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
             orderedMembers[toString(scriptBinding->qualifiedId)] = iter;
         else if (cast<UiPublicMember*>(member))

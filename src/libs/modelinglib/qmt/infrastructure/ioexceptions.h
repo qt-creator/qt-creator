@@ -38,7 +38,7 @@ public:
 class FileIOException : public IOException
 {
 public:
-    explicit FileIOException(const QString &errorMsg, const QString &fileName = QString::null,
+    explicit FileIOException(const QString &errorMsg, const QString &fileName = QString(),
                              int lineNumber = -1);
 
     QString fileName() const { return m_fileName; }

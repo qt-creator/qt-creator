@@ -309,7 +309,7 @@ QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(QmlJS::AS
         else if (auto objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding*>(member))
             orderedMembers[toString(objectBinding->qualifiedId)] = iter;
         else if (QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition*>(member))
-            orderedMembers[QString::null] = iter;
+            orderedMembers[QString()] = iter;
         else if (auto scriptBinding = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding*>(member))
             orderedMembers[toString(scriptBinding->qualifiedId)] = iter;
         else if (QmlJS::AST::cast<QmlJS::AST::UiPublicMember*>(member))
