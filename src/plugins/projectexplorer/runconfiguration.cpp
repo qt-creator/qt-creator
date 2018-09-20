@@ -1659,12 +1659,12 @@ void SimpleTargetRunner::start()
 
         connect(&m_launcher, &ApplicationLauncher::remoteStderr,
                 this, [this](const QString &output) {
-                    appendMessage(output, Utils::StdErrFormatSameLine);
+                    appendMessage(output, Utils::StdErrFormatSameLine, false);
                 });
 
         connect(&m_launcher, &ApplicationLauncher::remoteStdout,
                 this, [this](const QString &output) {
-                    appendMessage(output, Utils::StdOutFormatSameLine);
+                    appendMessage(output, Utils::StdOutFormatSameLine, false);
                 });
 
         connect(&m_launcher, &ApplicationLauncher::finished,
