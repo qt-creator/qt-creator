@@ -1564,70 +1564,18 @@ void PluginManagerPrivate::profilingSummary() const
 
 static inline QString getPlatformName()
 {
-    if (HostOsInfo::isMacHost()) {
-        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_0) {
-            QString result = QLatin1String("OS X");
-            result += QLatin1String(" 10.") + QString::number(QSysInfo::MacintoshVersion - QSysInfo::MV_10_0);
-            return result;
-        } else {
-            return QLatin1String("Mac OS");
-        }
-    } else if (HostOsInfo::isAnyUnixHost()) {
-        QString base = QLatin1String(HostOsInfo::isLinuxHost() ? "Linux" : "Unix");
-        QFile osReleaseFile(QLatin1String("/etc/os-release")); // Newer Linuxes
-        if (osReleaseFile.open(QIODevice::ReadOnly)) {
-            QString name;
-            QString version;
-            forever {
-                const QByteArray line = osReleaseFile.readLine();
-                if (line.isEmpty())
-                    break;
-                if (line.startsWith("NAME=\""))
-                    name = QString::fromLatin1(line.mid(6, line.size() - 8)).trimmed();
-                if (line.startsWith("VERSION_ID=\""))
-                    version = QString::fromLatin1(line.mid(12, line.size() - 14)).trimmed();
-            }
-            if (!name.isEmpty()) {
-                if (!version.isEmpty())
-                    name += QLatin1Char(' ') + version;
-                return base + QLatin1String(" (") + name + QLatin1Char(')');
-            }
-        }
-        return base;
-    } else if (HostOsInfo::isWindowsHost()) {
-        QString result = QLatin1String("Windows");
-        switch (QSysInfo::WindowsVersion) {
-        case QSysInfo::WV_XP:
-            result += QLatin1String(" XP");
-            break;
-        case QSysInfo::WV_2003:
-            result += QLatin1String(" 2003");
-            break;
-        case QSysInfo::WV_VISTA:
-            result += QLatin1String(" Vista");
-            break;
-        case QSysInfo::WV_WINDOWS7:
-            result += QLatin1String(" 7");
-            break;
-        case QSysInfo::WV_WINDOWS8:
-            result += QLatin1String(" 8");
-            break;
-        case QSysInfo::WV_WINDOWS8_1:
-            result += QLatin1String(" 8.1");
-            break;
-        default:
-            break;
-        }
-        if (QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS10)
-            result += QLatin1String(" 10");
-        return result;
-    }
+    if (HostOsInfo::isMacHost())
+        return QLatin1String("OS X");
+    else if (HostOsInfo::isAnyUnixHost())
+        return QLatin1String(HostOsInfo::isLinuxHost() ? "Linux" : "Unix");
+    else if (HostOsInfo::isWindowsHost())
+        return QLatin1String("Windows");
     return QLatin1String("Unknown");
 }
 
 QString PluginManager::platformName()
 {
-    static const QString result = getPlatformName();
+    static const QString result = getPlatformName() + " (" + QSysInfo::prettyProductName() + ')';
     return result;
 }
 
