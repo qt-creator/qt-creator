@@ -60,22 +60,19 @@ class ProjectIntroPagePrivate
 public:
     ProjectIntroPagePrivate();
     Ui::ProjectIntroPage m_ui;
-    bool m_complete;
+    bool m_complete = false;
     QRegularExpressionValidator m_projectNameValidator;
     // Status label style sheets
     const QString m_errorStyleSheet;
     const QString m_warningStyleSheet;
     const QString m_hintStyleSheet;
-    bool m_forceSubProject;
+    bool m_forceSubProject = false;
     QStringList m_projectDirectories;
 };
 
 ProjectIntroPagePrivate::  ProjectIntroPagePrivate() :
-    m_complete(false),
     m_errorStyleSheet(QLatin1String("background : red;")),
-    m_warningStyleSheet(QLatin1String("background : yellow;")),
-    m_hintStyleSheet(),
-    m_forceSubProject(false)
+    m_warningStyleSheet(QLatin1String("background : yellow;"))
 {
 }
 

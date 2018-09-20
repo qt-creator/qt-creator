@@ -58,15 +58,11 @@ namespace Internal {
 
 struct MimeGlobMatchResult
 {
-    MimeGlobMatchResult()
-    : m_weight(0), m_matchingPatternLength(0)
-    {}
-
     void addMatch(const QString &mimeType, int weight, const QString &pattern);
 
     QStringList m_matchingMimeTypes;
-    int m_weight;
-    int m_matchingPatternLength;
+    int m_weight = 0;
+    int m_matchingPatternLength = 0;
     QString m_foundSuffix;
 };
 

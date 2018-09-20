@@ -63,14 +63,14 @@ class TextTip : public QTipLabel
 public:
     TextTip(QWidget *parent);
 
-    virtual void setContent(const QVariant &content);
-    virtual bool isInteractive() const;
-    virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool canHandleContentReplacement(int typeId) const;
-    virtual int showTime() const;
-    virtual bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const;
-    virtual void paintEvent(QPaintEvent *event);
-    virtual void resizeEvent(QResizeEvent *event);
+    void setContent(const QVariant &content) override;
+    bool isInteractive() const override;
+    void configure(const QPoint &pos, QWidget *w) override;
+    bool canHandleContentReplacement(int typeId) const override;
+    int showTime() const override;
+    bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const override;
+    void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     QString m_text;
@@ -81,12 +81,12 @@ class ColorTip : public QTipLabel
 public:
     ColorTip(QWidget *parent);
 
-    virtual void setContent(const QVariant &content);
-    virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool canHandleContentReplacement(int typeId) const;
-    virtual int showTime() const { return 4000; }
-    virtual bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const;
-    virtual void paintEvent(QPaintEvent *event);
+    void setContent(const QVariant &content) override;
+    void configure(const QPoint &pos, QWidget *w) override;
+    bool canHandleContentReplacement(int typeId) const override;
+    int showTime() const override { return 4000; }
+    bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const override;
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     QColor m_color;
@@ -98,15 +98,15 @@ class WidgetTip : public QTipLabel
     Q_OBJECT
 
 public:
-    explicit WidgetTip(QWidget *parent = 0);
+    explicit WidgetTip(QWidget *parent = nullptr);
     void pinToolTipWidget(QWidget *parent);
 
-    virtual void setContent(const QVariant &content);
-    virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool canHandleContentReplacement(int typeId) const;
-    virtual int showTime() const { return 30000; }
-    virtual bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const;
-    virtual bool isInteractive() const { return true; }
+    void setContent(const QVariant &content) override;
+    void configure(const QPoint &pos, QWidget *w) override;
+    bool canHandleContentReplacement(int typeId) const override;
+    int showTime() const override { return 30000; }
+    bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const override;
+    bool isInteractive() const override { return true; }
 
 private:
     QWidget *m_widget;

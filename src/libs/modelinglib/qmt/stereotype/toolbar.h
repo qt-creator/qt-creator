@@ -54,7 +54,7 @@ public:
         }
 
         Tool(const QString &name, const QString &elementType,
-             const QString &stereotype = QString::null)
+             const QString &stereotype = QString())
             : m_name(name),
               m_elementType(elementType),
               m_stereotype(stereotype)
