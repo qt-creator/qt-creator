@@ -55,7 +55,7 @@ protected:
 public:
     virtual bool init(QList<const BuildStep *> &earlierSteps) = 0;
     virtual void run(QFutureInterface<bool> &fi) = 0;
-    virtual BuildStepConfigWidget *createConfigWidget() = 0;
+    virtual BuildStepConfigWidget *createConfigWidget();
 
     virtual bool immutable() const;
     virtual bool runInGuiThread() const;
