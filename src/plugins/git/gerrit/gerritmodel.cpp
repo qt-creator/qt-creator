@@ -598,7 +598,7 @@ static GerritChangePtr parseSshOutput(const QJsonObject &object)
     change->branch = object.value("branch").toString();
     change->status =  object.value("status").toString();
     if (const int timeT = object.value("lastUpdated").toInt())
-        change->lastUpdated = QDateTime::fromTime_t(uint(timeT));
+        change->lastUpdated = QDateTime::fromSecsSinceEpoch(timeT);
     // Read out dependencies
     const QJsonValue dependsOnValue = object.value("dependsOn");
     if (dependsOnValue.isArray()) {
