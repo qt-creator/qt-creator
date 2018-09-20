@@ -219,6 +219,7 @@ public:
     LanguageClientCompletionAssistProcessor(BaseClient *client);
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
     bool running() override;
+    bool needsRestart() const override { return true; }
 
 private:
     void handleCompletionResponse(const Response<CompletionResult, LanguageClientNull> &response);

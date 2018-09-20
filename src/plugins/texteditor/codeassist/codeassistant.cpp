@@ -245,10 +245,17 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     case IAssistProvider::Asynchronous: {
         processor->setAsyncCompletionAvailableHandler(
             [this, reason](IAssistProposal *newProposal){
-                invalidateCurrentRequestData();
-                displayProposal(newProposal, reason);
+                if (m_asyncProcessor && m_asyncProcessor->needsRestart() && m_receivedContentWhileWaiting) {
+                    delete newProposal;
+                    m_receivedContentWhileWaiting = false;
+                    invalidateCurrentRequestData();
+                    requestProposal(reason, m_assistKind, m_requestProvider);
+                } else {
+                    invalidateCurrentRequestData();
+                    displayProposal(newProposal, reason);
 
-                emit q->finished();
+                    emit q->finished();
+                }
         });
 
         // If there is a proposal, nothing asynchronous happened...

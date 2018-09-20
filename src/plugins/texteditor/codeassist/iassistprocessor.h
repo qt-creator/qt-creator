@@ -50,6 +50,7 @@ public:
     void setAsyncCompletionAvailableHandler(const AsyncCompletionsAvailableHandler &finalizer);
 
     virtual bool running() { return false; }
+    virtual bool needsRestart() const { return false; }
 
 private:
     AsyncCompletionsAvailableHandler m_asyncCompletionsAvailableHandler;
