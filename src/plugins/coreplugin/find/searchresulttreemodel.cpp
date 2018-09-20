@@ -104,14 +104,14 @@ QModelIndex SearchResultTreeModel::index(int row, int column,
 
     const SearchResultTreeItem *childItem = parentItem->childAt(row);
     if (childItem)
-        return createIndex(row, column, (void *)childItem);
+        return createIndex(row, column, const_cast<SearchResultTreeItem *>(childItem));
     else
         return QModelIndex();
 }
 
 QModelIndex SearchResultTreeModel::index(SearchResultTreeItem *item) const
 {
-    return createIndex(item->rowOfItem(), 0, (void *)item);
+    return createIndex(item->rowOfItem(), 0, item);
 }
 
 QModelIndex SearchResultTreeModel::parent(const QModelIndex &idx) const
@@ -125,7 +125,7 @@ QModelIndex SearchResultTreeModel::parent(const QModelIndex &idx) const
     if (parentItem == m_rootItem)
         return QModelIndex();
 
-    return createIndex(parentItem->rowOfItem(), 0, (void *)parentItem);
+    return createIndex(parentItem->rowOfItem(), 0, const_cast<SearchResultTreeItem *>(parentItem));
 }
 
 int SearchResultTreeModel::rowCount(const QModelIndex &parent) const
@@ -220,10 +220,9 @@ bool SearchResultTreeModel::setCheckState(const QModelIndex &idx, Qt::CheckState
     }
     // check children
     if (int children = item->childrenCount()) {
-        for (int i = 0; i < children; ++i) {
-            setCheckState(idx.child(i, 0), checkState, false);
-        }
-        emit dataChanged(idx.child(0, 0), idx.child(children-1, 0));
+        for (int i = 0; i < children; ++i)
+            setCheckState(index(i, 0, idx), checkState, false);
+        emit dataChanged(index(0, 0, idx), index(children-1, 0, idx));
     }
     return true;
 }
@@ -355,7 +354,7 @@ void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultIt
             if (existingItem) {
                 existingItem->setGenerated(false);
                 existingItem->item = item;
-                QModelIndex itemIndex = m_currentIndex.child(insertionIndex, 0);
+                QModelIndex itemIndex = index(insertionIndex, 0, m_currentIndex);
                 dataChanged(itemIndex, itemIndex);
             } else {
                 beginInsertRows(m_currentIndex, insertionIndex, insertionIndex);
@@ -434,7 +433,7 @@ QModelIndex SearchResultTreeModel::nextIndex(const QModelIndex &idx, bool *wrapp
 
     if (rowCount(idx) > 0) {
         // node with children
-        return idx.child(0, 0);
+        return index(0, 0, idx);
     }
     // leaf node
     QModelIndex nextIndex;
