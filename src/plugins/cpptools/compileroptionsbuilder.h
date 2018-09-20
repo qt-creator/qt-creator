@@ -53,7 +53,7 @@ public:
 
     CompilerOptionsBuilder(const ProjectPart &projectPart,
                            UseSystemHeader useSystemHeader = UseSystemHeader::No,
-                           SkipBuiltIn skipBuiltInHeaderPaths = SkipBuiltIn::No,
+                           SkipBuiltIn skipBuiltInHeaderPathsAndDefines = SkipBuiltIn::No,
                            QString clangVersion = QString(),
                            QString clangResourceDirectory = QString());
     virtual ~CompilerOptionsBuilder() {}
@@ -77,7 +77,7 @@ public:
 
     // Add options based on project part
     void addWordWidth();
-    void addGlobalUndef();
+    void addToolchainFlags();
     void addHeaderPathOptions();
     void addPrecompiledHeaderOptions(PchUsage pchUsage);
     virtual void addToolchainAndProjectMacros();
@@ -113,7 +113,7 @@ private:
     QString m_clangVersion;
     QString m_clangResourceDirectory;
 
-    SkipBuiltIn m_skipBuiltInHeaderPaths;
+    SkipBuiltIn m_skipBuiltInHeaderPathsAndDefines;
 };
 
 } // namespace CppTools
