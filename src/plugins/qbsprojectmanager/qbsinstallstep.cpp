@@ -251,7 +251,7 @@ void QbsInstallStep::handleBuildConfigChanged()
 // --------------------------------------------------------------------
 
 QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
-    m_step(step), m_ignoreChange(false)
+    BuildStepConfigWidget(step), m_step(step), m_ignoreChange(false)
 {
     connect(m_step, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
             this, &QbsInstallStepConfigWidget::updateState);

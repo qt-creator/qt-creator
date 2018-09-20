@@ -534,6 +534,7 @@ QbsProject *QbsBuildStep::qbsProject() const
 // --------------------------------------------------------------------
 
 QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
+    BuildStepConfigWidget(step),
     m_step(step),
     m_ignoreChange(false)
 {

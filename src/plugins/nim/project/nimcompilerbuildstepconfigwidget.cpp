@@ -39,7 +39,7 @@ using namespace Utils;
 namespace Nim {
 
 NimCompilerBuildStepConfigWidget::NimCompilerBuildStepConfigWidget(NimCompilerBuildStep *buildStep)
-    : BuildStepConfigWidget()
+    : BuildStepConfigWidget(buildStep)
     , m_buildStep(buildStep)
     , m_ui(new Ui::NimCompilerBuildStepConfigWidget())
 {

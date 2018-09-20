@@ -152,8 +152,8 @@ ProcessStepFactory::ProcessStepFactory()
 // ProcessStepConfigWidget
 //*******
 
-ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step) :
-    m_step(step)
+ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
+    : BuildStepConfigWidget(step), m_step(step)
 {
     m_ui.setupUi(this);
     m_ui.command->setExpectedKind(Utils::PathChooser::Command);

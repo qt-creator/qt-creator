@@ -112,7 +112,7 @@ void AbstractRemoteLinuxDeployStep::cancel()
 
 BuildStepConfigWidget *AbstractRemoteLinuxDeployStep::createConfigWidget()
 {
-    return new SimpleBuildStepConfigWidget(this);
+    return new BuildStepConfigWidget(this, false);
 }
 
 RemoteLinuxDeployConfiguration *AbstractRemoteLinuxDeployStep::deployConfiguration() const

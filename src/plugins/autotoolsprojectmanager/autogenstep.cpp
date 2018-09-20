@@ -156,6 +156,7 @@ bool AutogenStep::fromMap(const QVariantMap &map)
 // AutogenStepConfigWidget class
 //////////////////////////////////
 AutogenStepConfigWidget::AutogenStepConfigWidget(AutogenStep *autogenStep) :
+    BuildStepConfigWidget(autogenStep),
     m_autogenStep(autogenStep),
     m_additionalArguments(new QLineEdit)
 {

@@ -32,7 +32,8 @@ namespace WinRt {
 namespace Internal {
 
 WinRtPackageDeploymentStepWidget::WinRtPackageDeploymentStepWidget(WinRtPackageDeploymentStep *step)
-    : m_ui(new Ui::WinRtPackageDeploymentStepWidget)
+    : BuildStepConfigWidget(step)
+    , m_ui(new Ui::WinRtPackageDeploymentStepWidget)
     , m_step(step)
 {
     m_ui->setupUi(this);

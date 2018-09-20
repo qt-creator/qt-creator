@@ -410,6 +410,7 @@ QStringList CMakeBuildStep::specialTargets()
 //
 
 CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep) :
+    BuildStepConfigWidget(buildStep),
     m_buildStep(buildStep),
     m_toolArguments(new QLineEdit),
     m_buildTargetsList(new QListWidget)

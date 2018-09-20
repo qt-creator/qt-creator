@@ -61,8 +61,6 @@ public:
 
     QString summaryText() const override;
     QString displayName() const override;
-private:
-    AndroidPackageInstallationStep *m_step;
 };
 
 class AndroidPackageInstallationFactory: public ProjectExplorer::BuildStepFactory

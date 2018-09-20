@@ -36,8 +36,7 @@ using namespace ProjectExplorer;
 namespace Nim {
 
 NimCompilerCleanStepConfigWidget::NimCompilerCleanStepConfigWidget(NimCompilerCleanStep *cleanStep)
-    : BuildStepConfigWidget()
-    , m_cleanStep(cleanStep)
+    : BuildStepConfigWidget(cleanStep)
     , m_ui(new Ui::NimCompilerCleanStepConfigWidget())
 {
     m_ui->setupUi(this);
@@ -60,7 +59,7 @@ QString NimCompilerCleanStepConfigWidget::displayName() const
 
 void NimCompilerCleanStepConfigWidget::updateUi()
 {
-    auto buildDiretory = m_cleanStep->buildConfiguration()->buildDirectory();
+    auto buildDiretory = step()->buildConfiguration()->buildDirectory();
     m_ui->workingDirectoryLineEdit->setText(buildDiretory.toString());
 }
 

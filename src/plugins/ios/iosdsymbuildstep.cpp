@@ -227,7 +227,7 @@ QStringList IosDsymBuildStep::arguments() const
 //
 
 IosDsymBuildStepConfigWidget::IosDsymBuildStepConfigWidget(IosDsymBuildStep *buildStep)
-    : m_buildStep(buildStep)
+    : BuildStepConfigWidget(buildStep), m_buildStep(buildStep)
 {
     m_ui = new Ui::IosPresetBuildStep;
     m_ui->setupUi(this);

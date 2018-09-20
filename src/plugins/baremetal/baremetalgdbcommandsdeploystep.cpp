@@ -35,7 +35,7 @@ namespace Internal {
 const char GdbCommandsKey[] = "BareMetal.GdbCommandsStep.Commands";
 
 BareMetalGdbCommandsDeployStepWidget::BareMetalGdbCommandsDeployStepWidget(BareMetalGdbCommandsDeployStep &step)
-    : m_step(step)
+    : BuildStepConfigWidget(&step), m_step(step)
 {
     QFormLayout *fl = new QFormLayout(this);
     fl->setMargin(0);

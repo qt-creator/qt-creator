@@ -43,7 +43,7 @@ class RemoteLinuxCheckForFreeDiskSpaceStepWidget : public BuildStepConfigWidget
 
 public:
     explicit RemoteLinuxCheckForFreeDiskSpaceStepWidget(RemoteLinuxCheckForFreeDiskSpaceStep &step)
-            : m_step(step)
+            : BuildStepConfigWidget(&step), m_step(step)
     {
         m_ui.setupUi(this);
         m_ui.requiredSpaceSpinBox->setSuffix(tr("MB"));

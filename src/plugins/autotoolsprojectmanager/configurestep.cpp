@@ -172,6 +172,7 @@ bool ConfigureStep::fromMap(const QVariantMap &map)
 // ConfigureStepConfigWidget class
 /////////////////////////////////////
 ConfigureStepConfigWidget::ConfigureStepConfigWidget(ConfigureStep *configureStep) :
+    BuildStepConfigWidget(configureStep),
     m_configureStep(configureStep),
     m_additionalArguments(new QLineEdit)
 {

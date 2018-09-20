@@ -206,7 +206,7 @@ QStringList IosBuildStep::baseArguments() const
 //
 
 IosBuildStepConfigWidget::IosBuildStepConfigWidget(IosBuildStep *buildStep)
-    : m_buildStep(buildStep)
+    : BuildStepConfigWidget(buildStep), m_buildStep(buildStep)
 {
     m_ui = new Ui::IosBuildStep;
     m_ui->setupUi(this);

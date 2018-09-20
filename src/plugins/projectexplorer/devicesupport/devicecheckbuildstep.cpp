@@ -84,7 +84,7 @@ void DeviceCheckBuildStep::run(QFutureInterface<bool> &fi)
 
 BuildStepConfigWidget *DeviceCheckBuildStep::createConfigWidget()
 {
-    return new SimpleBuildStepConfigWidget(this);
+    return new BuildStepConfigWidget(this, false);
 }
 
 Core::Id DeviceCheckBuildStep::stepId()

@@ -127,27 +127,9 @@ BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
     expander->registerSubProvider([this] { return projectConfiguration()->macroExpander(); });
 }
 
-class ConfigWidget : public BuildStepConfigWidget
-{
-public:
-    ConfigWidget(BuildStep *step) : m_step(step)
-    {
-        setShowWidget(true);
-        connect(m_step, &ProjectConfiguration::displayNameChanged,
-                this, &BuildStepConfigWidget::updateSummary);
-    }
-
-    QString summaryText() const override { return "<b>" + displayName() + "</b>"; }
-    QString displayName() const override { return m_step->displayName(); }
-    BuildStep *step() const { return m_step; }
-
-private:
-    BuildStep *m_step;
-};
-
 BuildStepConfigWidget *BuildStep::createConfigWidget()
 {
-    auto widget = new ConfigWidget(this);
+    auto widget = new BuildStepConfigWidget(this, true);
 
     auto formLayout = new QFormLayout(widget);
     formLayout->setMargin(0);
@@ -379,6 +361,25 @@ BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &m
         return nullptr;
     }
     return bs;
+}
+
+// BuildStepConfigWidget
+
+BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *step, bool showWidget)
+    : m_step(step), m_showWidget(showWidget)
+{
+    connect(m_step, &ProjectConfiguration::displayNameChanged,
+            this, &BuildStepConfigWidget::updateSummary);
+}
+
+QString BuildStepConfigWidget::summaryText() const
+{
+    return "<b>" + displayName() + "</b>";
+}
+
+QString BuildStepConfigWidget::displayName() const
+{
+    return m_step->displayName();
 }
 
 } // ProjectExplorer

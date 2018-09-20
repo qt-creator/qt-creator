@@ -57,7 +57,7 @@ namespace Android {
 namespace Internal {
 
 AndroidBuildApkInnerWidget::AndroidBuildApkInnerWidget(AndroidBuildApkStep *step)
-    : ProjectExplorer::BuildStepConfigWidget(),
+    : ProjectExplorer::BuildStepConfigWidget(step),
       m_ui(new Ui::AndroidBuildApkWidget),
       m_step(step)
 {
@@ -230,6 +230,7 @@ void AndroidBuildApkInnerWidget::updateSigningWarning()
 // AndroidBuildApkWidget
 
 AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step) :
+    BuildStepConfigWidget(step),
     m_step(step)
 {
     m_extraLibraryListModel = new AndroidExtraLibraryListModel(m_step->target(), this);

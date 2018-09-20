@@ -83,7 +83,7 @@ bool UploadAndInstallTarPackageStep::initInternal(QString *error)
 
 BuildStepConfigWidget *UploadAndInstallTarPackageStep::createConfigWidget()
 {
-    return new SimpleBuildStepConfigWidget(this);
+    return new BuildStepConfigWidget(this, false);
 }
 
 Core::Id UploadAndInstallTarPackageStep::stepId()

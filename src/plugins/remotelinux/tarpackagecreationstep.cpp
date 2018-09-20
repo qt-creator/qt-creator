@@ -50,14 +50,12 @@ namespace {
 const char IgnoreMissingFilesKey[] = "RemoteLinux.TarPackageCreationStep.IgnoreMissingFiles";
 const char IncrementalDeploymentKey[] = "RemoteLinux.TarPackageCreationStep.IncrementalDeployment";
 
-class CreateTarStepWidget : public SimpleBuildStepConfigWidget
+class CreateTarStepWidget : public BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    CreateTarStepWidget(TarPackageCreationStep *step) : SimpleBuildStepConfigWidget(step)
+    CreateTarStepWidget(TarPackageCreationStep *step) : BuildStepConfigWidget(step)
     {
-        setShowWidget(true);
-
         m_ignoreMissingFilesCheckBox.setText(tr("Ignore missing files"));
         m_incrementalDeploymentCheckBox.setText(tr("Package modified files only"));
 

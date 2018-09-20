@@ -331,8 +331,8 @@ QStringList MakeStep::availableTargets() const
 // GenericMakeStepConfigWidget
 //
 
-MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
-    m_makeStep(makeStep)
+MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
+    : BuildStepConfigWidget(makeStep), m_makeStep(makeStep)
 {
     m_ui = new Internal::Ui::MakeStep;
     m_ui->setupUi(this);

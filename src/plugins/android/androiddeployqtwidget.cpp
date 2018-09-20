@@ -36,7 +36,7 @@ using namespace Android;
 using namespace Internal;
 
 AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
-    : ProjectExplorer::BuildStepConfigWidget(),
+    : ProjectExplorer::BuildStepConfigWidget(step),
       m_ui(new Ui::AndroidDeployQtWidget),
       m_step(step)
 {

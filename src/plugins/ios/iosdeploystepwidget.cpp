@@ -31,13 +31,11 @@
 
 #include <coreplugin/icore.h>
 
-#include <QFileDialog>
-
 namespace Ios {
 namespace Internal {
 
 IosDeployStepWidget::IosDeployStepWidget(IosDeployStep *step) :
-    ProjectExplorer::BuildStepConfigWidget(),
+    ProjectExplorer::BuildStepConfigWidget(step),
     ui(new Ui::IosDeployStepWidget),
     m_step(step)
 {

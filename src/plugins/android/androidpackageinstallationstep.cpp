@@ -126,9 +126,8 @@ bool AndroidPackageInstallationStep::immutable() const
 namespace Internal {
 
 AndroidPackageInstallationStepWidget::AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step)
-    : m_step(step)
+    : BuildStepConfigWidget(step, false)
 {
-    setShowWidget(false);
 }
 
 QString AndroidPackageInstallationStepWidget::summaryText() const

@@ -220,7 +220,7 @@ void QbsCleanStep::setMaxJobs(int jobcount)
 // --------------------------------------------------------------------
 
 QbsCleanStepConfigWidget::QbsCleanStepConfigWidget(QbsCleanStep *step) :
-    m_step(step)
+    BuildStepConfigWidget(step), m_step(step)
 {
     connect(m_step, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
             this, &QbsCleanStepConfigWidget::updateState);

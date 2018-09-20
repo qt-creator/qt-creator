@@ -149,6 +149,7 @@ bool AutoreconfStep::fromMap(const QVariantMap &map)
 // AutoreconfStepConfigWidget class
 //////////////////////////////////////
 AutoreconfStepConfigWidget::AutoreconfStepConfigWidget(AutoreconfStep *autoreconfStep) :
+    BuildStepConfigWidget(autoreconfStep),
     m_autoreconfStep(autoreconfStep),
     m_additionalArguments(new QLineEdit(this))
 {

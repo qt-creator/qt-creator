@@ -49,7 +49,6 @@ public:
 private:
     void updateUi();
 
-    NimCompilerCleanStep *m_cleanStep;
     QScopedPointer<Ui::NimCompilerCleanStepConfigWidget> m_ui;
 };
 

@@ -171,38 +171,22 @@ class PROJECTEXPLORER_EXPORT BuildStepConfigWidget : public QWidget
 {
     Q_OBJECT
 public:
-    virtual QString summaryText() const = 0;
-    virtual QString additionalSummaryText() const { return QString(); }
-    virtual QString displayName() const = 0;
+    BuildStepConfigWidget(BuildStep *step, bool showWidget = true);
 
+    virtual QString summaryText() const;
+    virtual QString additionalSummaryText() const { return QString(); }
+    virtual QString displayName() const;
+
+    BuildStep *step() const { return m_step; }
     bool showWidget() const { return m_showWidget; }
-    void setShowWidget(bool showWidget) { m_showWidget = showWidget; }
 
 signals:
     void updateSummary();
     void updateAdditionalSummary();
 
 private:
-    bool m_showWidget = true;
-};
-
-class PROJECTEXPLORER_EXPORT SimpleBuildStepConfigWidget : public BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    SimpleBuildStepConfigWidget(BuildStep *step) : m_step(step)
-    {
-        connect(m_step, &ProjectConfiguration::displayNameChanged,
-                this, &BuildStepConfigWidget::updateSummary);
-        setShowWidget(false);
-    }
-
-    QString summaryText() const override { return QLatin1String("<b>") + displayName() + QLatin1String("</b>"); }
-    QString displayName() const override { return m_step->displayName(); }
-    BuildStep *step() const { return m_step; }
-
-private:
-    BuildStep *m_step;
+    BuildStep *m_step = nullptr;
+    const bool m_showWidget = true;
 };
 
 } // namespace ProjectExplorer
