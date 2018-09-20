@@ -36,7 +36,6 @@
 #include <utils/temporarydirectory.h>
 
 #include <QDir>
-#include <QSysInfo>
 #include <QTextCodec>
 
 enum { debug = 0 };
@@ -330,8 +329,8 @@ Utils::optional<QString> AbstractMsvcToolChain::generateEnvironmentSettings(cons
         call += ' ';
         call += batchArgs.toLocal8Bit();
     }
-    if (Utils::HostOsInfo::isWindowsHost() && QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS7)
-        saver.write("chcp 65001\r\n"); // Only works for Windows 7 or later
+    if (Utils::HostOsInfo::isWindowsHost())
+        saver.write("chcp 65001\r\n");
     saver.write(call + "\r\n");
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     saver.write("set\r\n");
