@@ -2,10 +2,9 @@ QTC_PLUGIN_NAME = CompilationDatabaseProjectManager
 
 QTC_LIB_DEPENDS += \
     extensionsystem \
-    qmljs
+    utils
 QTC_PLUGIN_DEPENDS += \
-    clangcodemodel \
     coreplugin \
     cpptools \
     projectexplorer \
-    qtsupport
+    texteditor
