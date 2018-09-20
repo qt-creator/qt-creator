@@ -51,7 +51,7 @@ QString toString(CppIncludeHierarchyModel &model, const QModelIndex &index, int 
             + QLatin1Char('\n');
     const int itemsCount = model.rowCount(index);
     for (int i = 0; i < itemsCount; ++i) {
-        QModelIndex child = index.child(i, 0);
+        QModelIndex child = model.index(i, 0, index);
         if (model.canFetchMore(child))
             model.fetchMore(child);
 
