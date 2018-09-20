@@ -324,7 +324,7 @@ void TestResultsPane::goToNext()
     if (currentIndex.isValid()) {
         // try to set next to first child or next sibling
         if (m_filterModel->rowCount(currentIndex)) {
-            nextCurrentIndex = currentIndex.child(0, 0);
+            nextCurrentIndex = m_filterModel->index(0, 0, currentIndex);
         } else {
             nextCurrentIndex = currentIndex.sibling(currentIndex.row() + 1, 0);
             // if it had no sibling check siblings of parent (and grandparents if necessary)
@@ -369,7 +369,7 @@ void TestResultsPane::goToPrev()
             nextCurrentIndex = currentIndex.sibling(currentIndex.row() - 1, 0);
             // if the sibling has children, use the last one
             while (int rowCount = m_filterModel->rowCount(nextCurrentIndex))
-                nextCurrentIndex = nextCurrentIndex.child(rowCount - 1, 0);
+                nextCurrentIndex = m_filterModel->index(rowCount - 1, 0, nextCurrentIndex);
         } else {
             nextCurrentIndex = currentIndex.parent();
         }
@@ -386,7 +386,7 @@ void TestResultsPane::goToPrev()
         nextCurrentIndex = m_filterModel->index(m_filterModel->rowCount(QModelIndex()) - 1, 0);
         // step through until end
         while (int rowCount = m_filterModel->rowCount(nextCurrentIndex))
-            nextCurrentIndex = nextCurrentIndex.child(rowCount - 1, 0);
+            nextCurrentIndex = m_filterModel->index(rowCount - 1, 0, nextCurrentIndex);
     }
 
     m_treeView->setCurrentIndex(nextCurrentIndex);

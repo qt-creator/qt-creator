@@ -430,7 +430,7 @@ bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
 bool TestResultFilterModel::acceptTestCaseResult(const QModelIndex &srcIndex) const
 {
     for (int row = 0, count = m_sourceModel->rowCount(srcIndex); row < count; ++row) {
-        const QModelIndex &child = srcIndex.child(row, 0);
+        const QModelIndex &child = m_sourceModel->index(row, 0, srcIndex);
         Result::Type type = m_sourceModel->testResult(child)->result();
         if (type == Result::MessageTestCaseSuccess)
             type = Result::Pass;
