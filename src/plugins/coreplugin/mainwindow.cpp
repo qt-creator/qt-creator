@@ -355,7 +355,7 @@ void MainWindow::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
 
 IContext *MainWindow::currentContextObject() const
 {
-    return m_activeContext.isEmpty() ? 0 : m_activeContext.first();
+    return m_activeContext.isEmpty() ? nullptr : m_activeContext.first();
 }
 
 QStatusBar *MainWindow::statusBar() const
@@ -1086,8 +1086,7 @@ void MainWindow::updateContext()
     contexts.add(m_lowPrioAdditionalContexts);
 
     Context uniquecontexts;
-    for (int i = 0; i < contexts.size(); ++i) {
-        const Id id = contexts.at(i);
+    for (const Id &id : qAsConst(contexts)) {
         if (!uniquecontexts.contains(id))
             uniquecontexts.add(id);
     }
