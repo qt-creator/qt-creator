@@ -32,11 +32,7 @@
 /*!
     \contentspage index.html
     \page creator-connecting-mobile.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-deployment-embedded-linux.html
-    \else
     \previouspage creator-deployment-qnx.html
-    \endif
     \nextpage creator-developing-android.html
 
     \title Connecting Devices
