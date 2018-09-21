@@ -149,7 +149,7 @@ bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     createMenu(context);
 
-    Core::HelpManager::registerDocumentation({Core::ICore::documentationPath()
+    Core::HelpManager::registerDocumentation({Core::HelpManager::documentationPath()
                                               + "/fossil.qch"});
 
     return true;
