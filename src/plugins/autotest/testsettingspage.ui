@@ -40,7 +40,7 @@
           <item>
            <widget class="QCheckBox" name="omitRunConfigWarnCB">
             <property name="toolTip">
-             <string>Hides warnings related to a guessed run configuration.</string>
+             <string>Hides warnings related to a deduced run configuration.</string>
             </property>
             <property name="text">
              <string>Omit run configuration warnings</string>

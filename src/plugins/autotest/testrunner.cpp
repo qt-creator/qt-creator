@@ -138,8 +138,8 @@ static QString processInformation(const QProcess *proc)
 static QString rcInfo(const TestConfiguration * const config)
 {
     QString info = '\n' + TestRunner::tr("Run configuration:") + ' ';
-    if (config->isGuessed())
-        info += TestRunner::tr("guessed from");
+    if (config->isDeduced())
+        info += TestRunner::tr("deduced from");
     return info + " \"" + config->runConfigDisplayName() + '"';
 }
 
@@ -406,11 +406,11 @@ int TestRunner::precheckTestConfigurations()
         config->completeTestInformation(TestRunMode::Run);
         if (config->project()) {
             testCaseCount += config->testCaseCount();
-            if (!omitWarnings && config->isGuessed()) {
+            if (!omitWarnings && config->isDeduced()) {
                 QString message = tr(
-                            "Project's run configuration was guessed for \"%1\".\n"
+                            "Project's run configuration was deduced for \"%1\".\n"
                             "This might cause trouble during execution.\n"
-                            "(guessed from \"%2\")");
+                            "(deduced from \"%2\")");
                 message = message.arg(config->displayName()).arg(config->runConfigDisplayName());
                 emit testResultReady(
                             TestResultPtr(new FaultyTestResult(Result::MessageWarn, message)));

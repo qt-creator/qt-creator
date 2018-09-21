@@ -84,8 +84,8 @@ public:
     ProjectExplorer::RunConfiguration *originalRunConfiguration() const { return m_origRunConfig; }
     TestRunConfiguration *runConfiguration() const { return m_runConfig; }
     bool hasExecutable() const;
-    bool isGuessed() const { return m_guessedConfiguration; }
-    QString runConfigDisplayName() const { return m_guessedConfiguration ? m_guessedFrom
+    bool isDeduced() const { return m_deducedConfiguration; }
+    QString runConfigDisplayName() const { return m_deducedConfiguration ? m_deducedFrom
                                                                          : m_displayName; }
 
     ProjectExplorer::Runnable runnable() const { return m_runnable; }
@@ -99,9 +99,9 @@ private:
     QString m_projectFile;
     QString m_buildDir;
     QString m_displayName;
-    QString m_guessedFrom;
+    QString m_deducedFrom;
     QPointer<ProjectExplorer::Project> m_project;
-    bool m_guessedConfiguration = false;
+    bool m_deducedConfiguration = false;
     TestRunConfiguration *m_runConfig = nullptr;
     QSet<QString> m_buildTargets;
     ProjectExplorer::RunConfiguration *m_origRunConfig = nullptr;
