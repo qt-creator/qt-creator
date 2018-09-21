@@ -82,7 +82,7 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
         return false;
 
     // Create a text document for the new file:
-    QTextDocument *document = new QTextDocument;
+    auto document = new QTextDocument;
     QTextCursor cursor(document);
     cursor.beginEditBlock();
     cursor.insertText(contents);
@@ -90,7 +90,7 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
     // Reindent the contents:
     if (reindent) {
         cursor.select(QTextCursor::Document);
-        m_data->indentSelection(cursor, fileName, 0);
+        m_data->indentSelection(cursor, fileName, nullptr);
     }
     cursor.endEditBlock();
 
@@ -135,7 +135,7 @@ TextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bool a
     if (editor)
         return qobject_cast<TextEditorWidget *>(editor->widget());
     else
-        return 0;
+        return nullptr;
 }
 
 RefactoringFilePtr RefactoringChanges::file(TextEditorWidget *editor)
@@ -151,32 +151,16 @@ RefactoringFilePtr RefactoringChanges::file(const QString &fileName) const
 RefactoringFile::RefactoringFile(QTextDocument *document, const QString &fileName)
     : m_fileName(fileName)
     , m_document(document)
-    , m_editor(0)
-    , m_openEditor(false)
-    , m_activateEditor(false)
-    , m_editorCursorPosition(-1)
-    , m_appliedOnce(false)
 { }
 
 RefactoringFile::RefactoringFile(TextEditorWidget *editor)
     : m_fileName(editor->textDocument()->filePath().toString())
-    , m_document(0)
     , m_editor(editor)
-    , m_openEditor(false)
-    , m_activateEditor(false)
-    , m_editorCursorPosition(-1)
-    , m_appliedOnce(false)
 { }
 
 RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<RefactoringChangesData> &data)
     : m_fileName(fileName)
     , m_data(data)
-    , m_document(0)
-    , m_editor(0)
-    , m_openEditor(false)
-    , m_activateEditor(false)
-    , m_editorCursorPosition(-1)
-    , m_appliedOnce(false)
 {
     QList<IEditor *> editors = DocumentModel::editorsForFilePath(fileName);
     if (!editors.isEmpty()) {
@@ -218,7 +202,7 @@ QTextDocument *RefactoringFile::mutableDocument() const
                         &error);
             if (result != TextFileFormat::ReadSuccess) {
                 qWarning() << "Could not read " << m_fileName << ". Error: " << error;
-                m_textFileFormat.codec = 0;
+                m_textFileFormat.codec = nullptr;
             }
         }
         // always make a QTextDocument to avoid excessive null checks
@@ -340,7 +324,7 @@ bool RefactoringFile::apply()
 
     // open / activate / goto position
     if (m_openEditor && !m_fileName.isEmpty()) {
-        unsigned line = unsigned(-1), column = unsigned(-1);
+        auto line = unsigned(-1), column = unsigned(-1);
         if (m_editorCursorPosition != -1)
             lineAndColumn(m_editorCursorPosition, &line, &column);
         m_editor = RefactoringChanges::openEditor(m_fileName, m_activateEditor, line, column);
@@ -409,7 +393,7 @@ void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const 
         QTextCursor selection(p.first.document());
         selection.setPosition(p.first.position());
         selection.setPosition(p.second.position(), QTextCursor::KeepAnchor);
-        ((*m_data).*(mf))(selection, m_fileName, m_editor ? m_editor->textDocument() : 0);
+        ((*m_data).*(mf))(selection, m_fileName, m_editor ? m_editor->textDocument() : nullptr);
     }
 }
 

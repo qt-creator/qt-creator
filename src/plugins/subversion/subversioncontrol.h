@@ -42,7 +42,7 @@ public:
     Core::Id id() const final;
     bool isVcsFileOrDirectory(const Utils::FileName &fileName) const final;
 
-    bool managesDirectory(const QString &directory, QString *topLevel = 0) const final;
+    bool managesDirectory(const QString &directory, QString *topLevel = nullptr) const final;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
 
     bool isConfigured() const final;

@@ -58,7 +58,8 @@ SUBDIRS   = \
     welcome \
     silversearcher \
     languageclient \
-    cppcheck
+    cppcheck \
+    compilationdatabaseprojectmanager
 
 qtHaveModule(serialport) {
     SUBDIRS += serialterminal

@@ -207,7 +207,7 @@ QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor,
 
 void TextDocumentPrivate::resetRevisions()
 {
-    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(m_document.documentLayout());
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
     documentLayout->lastSaveRevision = m_document.revision();
 
@@ -217,7 +217,7 @@ void TextDocumentPrivate::resetRevisions()
 
 void TextDocumentPrivate::updateRevisions()
 {
-    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(m_document.documentLayout());
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
     int oldLastSaveRevision = documentLayout->lastSaveRevision;
     documentLayout->lastSaveRevision = m_document.revision();
@@ -272,7 +272,7 @@ QMap<QString, QString> TextDocument::openedTextDocumentContents()
 {
     QMap<QString, QString> workingCopy;
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
-        TextDocument *textEditorDocument = qobject_cast<TextDocument *>(document);
+        auto textEditorDocument = qobject_cast<TextDocument *>(document);
         if (!textEditorDocument)
             continue;
         QString fileName = textEditorDocument->filePath().toString();
@@ -285,7 +285,7 @@ QMap<QString, QTextCodec *> TextDocument::openedTextDocumentEncodings()
 {
     QMap<QString, QTextCodec *> workingCopy;
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
-        TextDocument *textEditorDocument = qobject_cast<TextDocument *>(document);
+        auto textEditorDocument = qobject_cast<TextDocument *>(document);
         if (!textEditorDocument)
             continue;
         QString fileName = textEditorDocument->filePath().toString();
@@ -340,7 +340,7 @@ void TextDocument::setTabSettings(const TabSettings &newTabSettings)
         return;
     d->m_tabSettings = newTabSettings;
 
-    if (Highlighter *highlighter = qobject_cast<Highlighter *>(d->m_highlighter))
+    if (auto highlighter = qobject_cast<Highlighter *>(d->m_highlighter))
         highlighter->setTabSettings(tabSettings());
 
     emit tabSettingsChanged();
@@ -696,7 +696,7 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
         if (!reload || fileName == realFileName)
             d->m_document.setUndoRedoEnabled(true);
 
-        TextDocumentLayout *documentLayout =
+        auto documentLayout =
             qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
         QTC_ASSERT(documentLayout, return OpenResult::CannotHandle);
         documentLayout->lastSaveRevision = d->m_autoSaveRevision = d->m_document.revision();
@@ -724,7 +724,7 @@ bool TextDocument::reload(QString *errorString)
 bool TextDocument::reload(QString *errorString, const QString &realFileName)
 {
     emit aboutToReload();
-    TextDocumentLayout *documentLayout =
+    auto documentLayout =
         qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     TextMarks marks;
     if (documentLayout)
@@ -801,7 +801,7 @@ void TextDocument::cleanWhitespace(const QTextCursor &cursor)
 
 void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument)
 {
-    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     Q_ASSERT(cursor.visualNavigation() == false);
 
     QTextBlock block = d->m_document.findBlock(cursor.selectionStart());
@@ -973,7 +973,7 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
 void TextDocument::removeMark(TextMark *mark)
 {
     QTextBlock block = d->m_document.findBlockByNumber(mark->lineNumber() - 1);
-    if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
+    if (auto data = static_cast<TextBlockUserData *>(block.userData())) {
         if (!data->removeMark(mark))
             qDebug() << "Could not find mark" << mark << "on line" << mark->lineNumber();
     }

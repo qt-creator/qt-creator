@@ -38,7 +38,7 @@ class DynamicRule : public Rule
 {
 public:
     DynamicRule();
-    virtual ~DynamicRule();
+    ~DynamicRule() override;
 
     void setActive(const QString &active);
     bool isActive() const;

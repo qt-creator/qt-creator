@@ -292,10 +292,6 @@ namespace {
 class ColorSchemeReader : public QXmlStreamReader
 {
 public:
-    ColorSchemeReader() :
-        m_scheme(0)
-    {}
-
     bool read(const QString &fileName, ColorScheme *scheme);
     QString readName(const QString &fileName);
 
@@ -305,7 +301,7 @@ private:
     void readStyleScheme();
     void readStyle();
 
-    ColorScheme *m_scheme;
+    ColorScheme *m_scheme = nullptr;
     QString m_name;
 };
 
@@ -332,7 +328,7 @@ bool ColorSchemeReader::read(const QString &fileName, ColorScheme *scheme)
 
 QString ColorSchemeReader::readName(const QString &fileName)
 {
-    read(fileName, 0);
+    read(fileName, nullptr);
     return m_name;
 }
 

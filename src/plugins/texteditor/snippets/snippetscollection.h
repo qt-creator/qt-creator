@@ -48,7 +48,7 @@ class SnippetsCollection : public QObject
 {
     Q_OBJECT
 public:
-    virtual ~SnippetsCollection();
+    ~SnippetsCollection() override;
 
     static SnippetsCollection *instance();
 

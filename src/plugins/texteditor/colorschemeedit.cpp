@@ -54,10 +54,8 @@ namespace Internal {
 class FormatsModel : public QAbstractListModel
 {
 public:
-    FormatsModel(QObject *parent = 0):
-        QAbstractListModel(parent),
-        m_descriptions(0),
-        m_scheme(0)
+    FormatsModel(QObject *parent = nullptr):
+        QAbstractListModel(parent)
     {
     }
 
@@ -82,12 +80,12 @@ public:
         emitDataChanged(index(0));
     }
 
-    int rowCount(const QModelIndex &parent) const
+    int rowCount(const QModelIndex &parent) const override
     {
         return (parent.isValid() || !m_descriptions) ? 0 : int(m_descriptions->size());
     }
 
-    QVariant data(const QModelIndex &index, int role) const
+    QVariant data(const QModelIndex &index, int role) const override
     {
         if (!m_descriptions || !m_scheme)
             return QVariant();
@@ -139,8 +137,8 @@ public:
     }
 
 private:
-    const FormatDescriptions *m_descriptions;
-    const ColorScheme *m_scheme;
+    const FormatDescriptions *m_descriptions = nullptr;
+    const ColorScheme *m_scheme = nullptr;
     QFont m_baseFont;
 };
 

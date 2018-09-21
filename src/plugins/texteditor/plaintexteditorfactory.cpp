@@ -41,7 +41,7 @@
 
 namespace TextEditor {
 
-static PlainTextEditorFactory *m_instance = 0;
+static PlainTextEditorFactory *m_instance = nullptr;
 
 class PlainTextEditorWidget : public TextEditorWidget
 {

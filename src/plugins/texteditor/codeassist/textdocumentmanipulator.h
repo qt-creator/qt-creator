@@ -48,7 +48,7 @@ public:
     void insertCodeSnippet(int position, const QString &text) final;
     void paste() final;
     void encourageApply() final;
-    void autoIndent(int position, int length);
+    void autoIndent(int position, int length) override;
 
 private:
     bool textIsDifferentAt(int position, int length, const QString &text) const;

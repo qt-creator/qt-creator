@@ -172,14 +172,14 @@ private:
     static int extractRegionDepth(const int state);
     static int extractObservableState(const int state);
 
-    int m_regionDepth;
-    bool m_indentationBasedFolding;
-    const TabSettings *m_tabSettings;
+    int m_regionDepth = 0;
+    bool m_indentationBasedFolding = false;
+    const TabSettings *m_tabSettings = nullptr;
 
-    int m_persistentObservableStatesCounter;
-    int m_dynamicContextsCounter;
+    int m_persistentObservableStatesCounter = PersistentsStart;
+    int m_dynamicContextsCounter = 0;
 
-    bool m_isBroken;
+    bool m_isBroken = false;
 
     QSharedPointer<Internal::Context> m_defaultContext;
     QSharedPointer<Internal::Context> m_currentContext;

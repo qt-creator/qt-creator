@@ -214,7 +214,7 @@ static bool isGitDirectory(const QString &path)
 {
     static IVersionControl *gitVc = VcsManager::versionControl(VcsBase::Constants::VCS_ID_GIT);
     QTC_ASSERT(gitVc, return false);
-    return gitVc == VcsManager::findVersionControlForDirectory(path, 0);
+    return gitVc == VcsManager::findVersionControlForDirectory(path, nullptr);
 }
 
 GitGrep::GitGrep(QObject *parent)
@@ -303,7 +303,8 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
     if (content.isEmpty())
         return nullptr;
     QByteArray fileContent;
-    if (TextFileFormat::readFileUTF8(path, 0, &fileContent, 0) == TextFileFormat::ReadSuccess) {
+    if (TextFileFormat::readFileUTF8(path, nullptr, &fileContent, nullptr)
+            == TextFileFormat::ReadSuccess) {
         if (fileContent == content)
             return nullptr; // open the file for read/write
     }

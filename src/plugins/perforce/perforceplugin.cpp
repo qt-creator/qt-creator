@@ -108,8 +108,9 @@ const VcsBaseEditorParameters editorParameters[] = {
 // Utility to find a parameter set by type
 static inline const VcsBaseEditorParameters *findType(int ie)
 {
-    const EditorContentType et = static_cast<EditorContentType>(ie);
-    return VcsBaseEditor::findType(editorParameters, sizeof(editorParameters)/sizeof(editorParameters[0]), et);
+    return VcsBaseEditor::findType(editorParameters,
+                                   sizeof(editorParameters)/sizeof(*editorParameters),
+                                   static_cast<EditorContentType>(ie));
 }
 
 // Ensure adding "..." to relative paths which is p4's convention
@@ -601,7 +602,7 @@ void PerforcePlugin::startSubmitProject()
 IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames)
 {
     IEditor *editor = EditorManager::openEditor(fileName, PERFORCE_SUBMIT_EDITOR_ID);
-    PerforceSubmitEditor *submitEditor = static_cast<PerforceSubmitEditor*>(editor);
+    auto submitEditor = static_cast<PerforceSubmitEditor*>(editor);
     setSubmitEditor(submitEditor);
     submitEditor->restrictToProjectFiles(depotFileNames);
     connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,

@@ -51,7 +51,7 @@ enum Format {
 class GitSubmitHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
-    explicit GitSubmitHighlighter(QTextEdit *parent = 0);
+    explicit GitSubmitHighlighter(QTextEdit *parent = nullptr);
     void highlightBlock(const QString &text) override;
 
 private:
@@ -65,7 +65,7 @@ private:
 class GitRebaseHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
-    explicit GitRebaseHighlighter(QTextDocument *parent = 0);
+    explicit GitRebaseHighlighter(QTextDocument *parent = nullptr);
     void highlightBlock(const QString &text) override;
 
 private:

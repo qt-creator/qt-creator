@@ -50,7 +50,7 @@ public:
     QString ssh;
     QString curl;
     QStringList savedQueries;
-    bool https;
+    bool https = true;
     QString portFlag;
 };
 

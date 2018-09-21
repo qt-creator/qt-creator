@@ -52,7 +52,7 @@ public:
     };
 
     AssistProposalItemInterface() = default;
-    virtual ~AssistProposalItemInterface() Q_DECL_NOEXCEPT = default;
+    virtual ~AssistProposalItemInterface() noexcept = default;
 
     UTILS_DELETE_MOVE_AND_COPY(AssistProposalItemInterface)
 

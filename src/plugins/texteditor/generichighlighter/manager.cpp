@@ -85,7 +85,7 @@ public:
                 this, &MultiDefinitionDownloader::downloadDefinitionsFinished);
     }
 
-    ~MultiDefinitionDownloader()
+    ~MultiDefinitionDownloader() override
     {
         if (m_downloadWatcher.isRunning())
             m_downloadWatcher.cancel();
@@ -107,9 +107,7 @@ private:
     QString m_downloadPath;
 };
 
-Manager::Manager() :
-    m_multiDownloader(0),
-    m_hasQueuedRegistration(false)
+Manager::Manager()
 {
     connect(&m_registeringWatcher, &QFutureWatcherBase::finished,
             this, &Manager::registerHighlightingFilesFinished);
@@ -404,7 +402,7 @@ void Manager::downloadAvailableDefinitionsMetaData()
 
 void Manager::downloadAvailableDefinitionsListFinished()
 {
-    if (QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender())) {
+    if (auto reply = qobject_cast<QNetworkReply *>(sender())) {
         if (reply->error() == QNetworkReply::NoError)
             emit definitionsMetaDataReady(parseAvailableDefinitionsList(reply));
         else
@@ -425,7 +423,7 @@ void MultiDefinitionDownloader::downloadDefinitions(const QList<QUrl> &urls)
 {
     m_downloaders.clear();
     foreach (const QUrl &url, urls) {
-        DefinitionDownloader *downloader = new DefinitionDownloader(url, m_downloadPath);
+        auto downloader = new DefinitionDownloader(url, m_downloadPath);
         connect(downloader, &DefinitionDownloader::foundReferencedDefinition,
                 this, &MultiDefinitionDownloader::downloadReferencedDefinition);
         m_downloaders.append(downloader);
@@ -479,7 +477,7 @@ void MultiDefinitionDownloader::downloadDefinitionsFinished()
 void Manager::downloadDefinitionsFinished()
 {
     delete m_multiDownloader;
-    m_multiDownloader = 0;
+    m_multiDownloader = nullptr;
 }
 
 void MultiDefinitionDownloader::downloadReferencedDefinition(const QString &name)
@@ -492,7 +490,7 @@ void MultiDefinitionDownloader::downloadReferencedDefinition(const QString &name
 
 bool Manager::isDownloadingDefinitions() const
 {
-    return m_multiDownloader != 0;
+    return m_multiDownloader != nullptr;
 }
 
 void Manager::clear()

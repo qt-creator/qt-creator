@@ -47,7 +47,7 @@ public:
         Int
     };
 
-    SettingMappingData() : boolSetting(0), m_type(Invalid)
+    SettingMappingData() : boolSetting(nullptr)
     { }
 
     SettingMappingData(bool *setting) : boolSetting(setting), m_type(Bool)
@@ -71,7 +71,7 @@ public:
     };
 
 private:
-    Type m_type;
+    Type m_type = Invalid;
 };
 
 class VcsBaseEditorConfigPrivate
@@ -251,20 +251,24 @@ const QList<VcsBaseEditorConfig::OptionMapping> &VcsBaseEditorConfig::optionMapp
 
 QStringList VcsBaseEditorConfig::argumentsForOption(const OptionMapping &mapping) const
 {
-    const QAction *action = qobject_cast<const QAction *>(mapping.object);
+    auto action = qobject_cast<const QAction *>(mapping.object);
     if (action && action->isChecked())
         return mapping.options;
 
-    const QComboBox *cb = qobject_cast<const QComboBox *>(mapping.object);
-    if (cb) {
-        const QString value = cb->itemData(cb->currentIndex()).toString();
-        QStringList args;
-        foreach (const QString &option, mapping.options)
-            args << option.arg(value);
+    QStringList args;
+    auto cb = qobject_cast<const QComboBox *>(mapping.object);
+    if (!cb)
         return args;
-    }
 
-    return QStringList();
+    const QString value = cb->itemData(cb->currentIndex()).toString();
+    if (value.isEmpty())
+        return args;
+
+    if (mapping.options.isEmpty())
+        args += value.split(' ');
+    else
+        args += mapping.options.first().arg(value);
+    return args;
 }
 
 void VcsBaseEditorConfig::updateMappedSettings()
@@ -281,14 +285,14 @@ void VcsBaseEditorConfig::updateMappedSettings()
             }
             case Internal::SettingMappingData::String :
             {
-                const QComboBox *cb = qobject_cast<const QComboBox *>(optMapping.object);
+                auto cb = qobject_cast<const QComboBox *>(optMapping.object);
                 if (cb && cb->currentIndex() != -1)
                     *settingData.stringSetting = cb->itemData(cb->currentIndex()).toString();
                 break;
             }
             case Internal::SettingMappingData::Int:
             {
-                const QComboBox *cb = qobject_cast<const QComboBox *>(optMapping.object);
+                auto cb = qobject_cast<const QComboBox *>(optMapping.object);
                 if (cb && cb->currentIndex() != -1)
                     *settingData.intSetting = cb->currentIndex();
                 break;

@@ -60,7 +60,7 @@ public:
                    settings.boolPointer(BazaarSettings::diffIgnoreBlankLinesKey));
     }
 
-    QStringList arguments() const
+    QStringList arguments() const override
     {
         QStringList args;
         // Bazaar wants "--diff-options=-w -B.."

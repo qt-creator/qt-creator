@@ -44,7 +44,7 @@ class NickNameDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit NickNameDialog(QStandardItemModel *model, QWidget *parent = 0);
+    explicit NickNameDialog(QStandardItemModel *model, QWidget *parent = nullptr);
     ~NickNameDialog() override;
 
     QString nickName() const;

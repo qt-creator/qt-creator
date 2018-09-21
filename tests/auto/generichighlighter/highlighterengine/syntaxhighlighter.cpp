@@ -26,6 +26,7 @@
 #include "syntaxhighlighter.h"
 #include "formats.h"
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/generichighlighter/highlighter.h>
 
 using namespace TextEditor;
@@ -51,3 +52,7 @@ QTextCharFormat SyntaxHighlighter::formatForCategory(int categoryIndex) const
     }
 }
 
+FontSettings SyntaxHighlighter::fontSettings() const
+{
+    return FontSettings();
+}

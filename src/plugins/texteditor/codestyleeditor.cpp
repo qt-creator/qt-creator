@@ -48,7 +48,7 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
       m_codeStyle(codeStyle)
 {
     m_layout = new QVBoxLayout(this);
-    CodeStyleSelectorWidget *selector = new CodeStyleSelectorWidget(factory, this);
+    auto selector = new CodeStyleSelectorWidget(factory, this);
     selector->setCodeStyle(codeStyle);
     m_preview = new SnippetEditorWidget(this);
     DisplaySettings displaySettings = m_preview->displaySettings();

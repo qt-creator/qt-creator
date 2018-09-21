@@ -97,7 +97,7 @@ private:
 
     void clear();
 
-    MultiDefinitionDownloader *m_multiDownloader;
+    MultiDefinitionDownloader *m_multiDownloader = nullptr;
     QList<DefinitionMetaDataPtr> parseAvailableDefinitionsList(QIODevice *device);
 
     QSet<QString> m_isBuildingDefinition;
@@ -105,7 +105,7 @@ private:
     QHash<QString, DefinitionMetaDataPtr> m_availableDefinitions;
 
     RegisterData m_register;
-    bool m_hasQueuedRegistration;
+    bool m_hasQueuedRegistration = false;
     QFutureWatcher<RegisterData> m_registeringWatcher;
     friend class ManagerProcessor;
 

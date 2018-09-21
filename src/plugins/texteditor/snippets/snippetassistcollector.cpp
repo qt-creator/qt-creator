@@ -41,7 +41,7 @@ static void appendSnippets(QList<AssistProposalItemInterface *> *items,
     const int size = collection->totalActiveSnippets(groupId);
     for (int i = 0; i < size; ++i) {
         const Snippet &snippet = collection->snippet(i, groupId);
-        AssistProposalItem *item = new AssistProposalItem;
+        auto item = new AssistProposalItem;
         item->setText(snippet.trigger() + QLatin1Char(' ') + snippet.complement());
         item->setData(snippet.content());
         item->setDetail(snippet.generateTip());

@@ -213,7 +213,8 @@ void CleanDialog::addFile(const QString &workingDirectory, QString fileName, boo
     // Tooltip with size information
     if (fi.isFile()) {
         const QString lastModified = fi.lastModified().toString(Qt::DefaultLocaleShortDate);
-        nameItem->setToolTip(tr("%n bytes, last modified %1.", 0, fi.size()).arg(lastModified));
+        nameItem->setToolTip(tr("%n bytes, last modified %1.", nullptr,
+                                fi.size()).arg(lastModified));
     }
     d->m_filesModel->appendRow(nameItem);
 }
@@ -245,7 +246,7 @@ bool CleanDialog::promptToDelete()
         return true;
 
     if (QMessageBox::question(this, tr("Delete"),
-                              tr("Do you want to delete %n files?", 0, selectedFiles.size()),
+                              tr("Do you want to delete %n files?", nullptr, selectedFiles.size()),
                               QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
         return false;
 

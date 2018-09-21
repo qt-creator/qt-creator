@@ -91,7 +91,7 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     , m_portSpinBox(new QSpinBox(this))
     , m_httpsCheckBox(new QCheckBox(tr("HTTPS")))
 {
-    QFormLayout *formLayout = new QFormLayout(this);
+    auto formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     formLayout->addRow(tr("&Host:"), m_hostLineEdit);
     formLayout->addRow(tr("&User:"), m_userLineEdit);

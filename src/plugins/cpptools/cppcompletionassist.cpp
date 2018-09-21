@@ -83,7 +83,7 @@ struct CompleteFunctionDeclaration
 class CppAssistProposalItem final : public AssistProposalItem
 {
 public:
-    ~CppAssistProposalItem() Q_DECL_NOEXCEPT {}
+    ~CppAssistProposalItem() noexcept {}
     bool prematurelyApplies(const QChar &c) const override;
     void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
 

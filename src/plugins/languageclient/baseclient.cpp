@@ -51,6 +51,7 @@
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QTimer>
 
 using namespace LanguageServerProtocol;
 using namespace Utils;
@@ -150,9 +151,13 @@ void BaseClient::openDocument(Core::IDocument *document)
     if (textDocument) {
         textDocument->setCompletionAssistProvider(new LanguageClientCompletionAssistProvider(this));
         if (BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(textDocument)) {
-            if (TextEditorWidget *widget = editor->editorWidget()) {
+            if (QPointer<TextEditorWidget> widget = editor->editorWidget()) {
                 connect(widget, &TextEditorWidget::cursorPositionChanged, this, [this, widget](){
-                    cursorPositionChanged(widget);
+                    // TODO This would better be a compressing timer
+                    QTimer::singleShot(50, this, [this, widget]() {
+                        if (widget)
+                            cursorPositionChanged(widget);
+                    });
                 });
             }
         }
@@ -494,8 +499,11 @@ bool BaseClient::isSupportedMimeType(const QString &mimeType) const
     return m_supportedMimeTypes.isEmpty() || m_supportedMimeTypes.contains(mimeType);
 }
 
-void BaseClient::reset()
+bool BaseClient::reset()
 {
+    if (!m_restartsLeft)
+        return false;
+    --m_restartsLeft;
     m_state = Uninitialized;
     m_responseHandlers.clear();
     m_buffer.close();
@@ -504,6 +512,7 @@ void BaseClient::reset()
     m_openedDocument.clear();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
+    return true;
 }
 
 void BaseClient::setError(const QString &message)
@@ -762,10 +771,9 @@ void StdIOClient::setWorkingDirectory(const QString &workingDirectory)
     m_process.setWorkingDirectory(workingDirectory);
 }
 
-bool StdIOClient::matches(const LanguageClientSettings &setting)
+bool StdIOClient::matches(const BaseSettings *setting)
 {
-    return setting.m_executable == m_executable
-            && setting.m_arguments == m_executable;
+    return setting->m_executable == m_executable && setting->m_arguments == m_arguments;
 }
 
 void StdIOClient::sendData(const QByteArray &data)

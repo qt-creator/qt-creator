@@ -129,7 +129,7 @@ const VcsBaseSubmitEditorParameters submitEditorParameters = {
 };
 
 
-BazaarPlugin *BazaarPlugin::m_instance = 0;
+BazaarPlugin *BazaarPlugin::m_instance = nullptr;
 
 BazaarPlugin::BazaarPlugin()
 {
@@ -139,8 +139,8 @@ BazaarPlugin::BazaarPlugin()
 BazaarPlugin::~BazaarPlugin()
 {
     delete m_client;
-    m_client = 0;
-    m_instance = 0;
+    m_client = nullptr;
+    m_instance = nullptr;
 }
 
 bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -526,7 +526,7 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &stat
         return;
     }
 
-    CommitEditor *commitEditor = qobject_cast<CommitEditor *>(editor);
+    auto commitEditor = qobject_cast<CommitEditor *>(editor);
 
     if (!commitEditor) {
         VcsOutputWindow::appendError(tr("Unable to create a commit editor."));
@@ -630,7 +630,7 @@ void BazaarPlugin::uncommit()
 
 bool BazaarPlugin::submitEditorAboutToClose()
 {
-    CommitEditor *commitEditor = qobject_cast<CommitEditor *>(submitEditor());
+    auto commitEditor = qobject_cast<CommitEditor *>(submitEditor());
     QTC_ASSERT(commitEditor, return true);
     IDocument *editorDocument = commitEditor->document();
     QTC_ASSERT(editorDocument, return true);

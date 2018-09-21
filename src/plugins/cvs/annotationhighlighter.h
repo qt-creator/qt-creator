@@ -37,7 +37,7 @@ class CvsAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 
 public:
     explicit CvsAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                      QTextDocument *document = 0);
+                                      QTextDocument *document = nullptr);
 
 private:
     QString changeNumber(const QString &block) const override;

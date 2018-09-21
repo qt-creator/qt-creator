@@ -130,7 +130,7 @@ void HighlighterSettingsPage::finish()
     if (!m_d->m_page) // page was not shown
         return;
     delete m_d->m_page;
-    m_d->m_page = 0;
+    m_d->m_page = nullptr;
 }
 
 const HighlighterSettings &HighlighterSettingsPage::highlighterSettings() const
@@ -172,11 +172,12 @@ void HighlighterSettingsPage::settingsToUI()
 void HighlighterSettingsPage::resetDefinitionsLocation()
 {
     const QString &location = findFallbackDefinitionsLocation();
-    if (location.isEmpty())
-        QMessageBox::information(0, tr("Autodetect Definitions"),
+    if (location.isEmpty()) {
+        QMessageBox::information(Core::ICore::dialogParent(), tr("Autodetect Definitions"),
                                  tr("No pre-installed definitions could be found."));
-    else
+    } else {
         m_d->m_page->fallbackDefinitionFilesPath->setPath(location);
+    }
 }
 
 void HighlighterSettingsPage::requestAvailableDefinitionsMetaData()

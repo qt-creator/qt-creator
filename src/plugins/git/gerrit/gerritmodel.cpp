@@ -227,7 +227,7 @@ public:
                  const GerritServer &server,
                  QObject *parent = nullptr);
 
-    ~QueryContext();
+    ~QueryContext() override;
     void start();
     void terminate();
 
@@ -845,7 +845,7 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     const QVariant filterV = QVariant(c->filterString());
     const QVariant changeV = qVariantFromValue(c);
     for (int i = 0; i < GerritModel::ColumnCount; ++i) {
-        QStandardItem *item = new QStandardItem;
+        auto item = new QStandardItem;
         item->setData(changeV, GerritModel::GerritChangeRole);
         item->setData(filterV, GerritModel::FilterRole);
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);

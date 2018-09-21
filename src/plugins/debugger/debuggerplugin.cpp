@@ -521,7 +521,7 @@ public:
         splitter->setObjectName(QLatin1String("DebugModeWidget"));
 
         mainWindow->setCentralWidget(centralEditorWidget);
-        mainWindow->setSubPerspectiveSwitcher(EngineManager::engineChooser());
+        mainWindow->addSubPerspectiveSwitcher(EngineManager::engineChooser());
 
         setWidget(splitter);
     }

@@ -126,7 +126,7 @@ public:
 
     VcsBase::VcsCommand *vcsExecAbortable(const QString &workingDirectory,
                                           const QStringList &arguments,
-                                          bool createProgressParser = false);
+                                          bool isRebase = false);
 
     QString findRepositoryForDirectory(const QString &dir) const;
     QString findGitDirForRepository(const QString &repositoryDir) const;
@@ -242,7 +242,7 @@ public:
     bool isFastForwardMerge(const QString &workingDirectory, const QString &branch);
 
     void fetch(const QString &workingDirectory, const QString &remote);
-    bool synchronousPull(const QString &workingDirectory, bool rebase);
+    void pull(const QString &workingDirectory, bool rebase);
     void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());
     bool synchronousMerge(const QString &workingDirectory, const QString &branch,
                           bool allowFastForward = true);

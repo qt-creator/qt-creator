@@ -262,7 +262,7 @@ void StateListener::slotStateChanged()
     }
 
     // Get the file and its control. Do not use the file unless we find one
-    IVersionControl *fileControl = 0;
+    IVersionControl *fileControl = nullptr;
 
     if (!state.currentFile.isEmpty()) {
         QFileInfo currentFi(state.currentFile);
@@ -296,7 +296,7 @@ void StateListener::slotStateChanged()
     }
 
     // Check for project, find the control
-    IVersionControl *projectControl = 0;
+    IVersionControl *projectControl = nullptr;
     Project *currentProject = ProjectTree::currentProject();
     if (!currentProject)
         currentProject = SessionManager::startupProject();
@@ -513,31 +513,23 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
 class VcsBasePluginPrivate
 {
 public:
-    explicit VcsBasePluginPrivate();
-
     inline bool supportsRepositoryCreation() const;
 
     QPointer<VcsBaseSubmitEditor> m_submitEditor;
-    IVersionControl *m_versionControl;
+    IVersionControl *m_versionControl = nullptr;
     Context m_context;
     VcsBasePluginState m_state;
-    int m_actionState;
+    int m_actionState = -1;
 
     static Internal::StateListener *m_listener;
 };
-
-VcsBasePluginPrivate::VcsBasePluginPrivate() :
-    m_versionControl(0),
-    m_actionState(-1)
-{
-}
 
 bool VcsBasePluginPrivate::supportsRepositoryCreation() const
 {
     return m_versionControl && m_versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation);
 }
 
-Internal::StateListener *VcsBasePluginPrivate::m_listener = 0;
+Internal::StateListener *VcsBasePluginPrivate::m_listener = nullptr;
 
 VcsBasePlugin::VcsBasePlugin() :
     d(new VcsBasePluginPrivate())
@@ -685,7 +677,7 @@ void VcsBasePlugin::createRepository()
         if (directory.isEmpty())
             return;
         const IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(directory);
-        if (managingControl == 0)
+        if (managingControl == nullptr)
             break;
         const QString question = tr("The directory \"%1\" is already managed by a version control system (%2)."
                                     " Would you like to specify another directory?").arg(directory, managingControl->displayName());

@@ -33,11 +33,10 @@
 namespace TextEditor {
 
 SimpleCodeStylePreferencesWidget::SimpleCodeStylePreferencesWidget(QWidget *parent) :
-    QWidget(parent),
-    m_preferences(0)
+    QWidget(parent)
 {
     m_tabSettingsWidget = new TabSettingsWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->addWidget(m_tabSettingsWidget);
     layout->setContentsMargins(QMargins());
     m_tabSettingsWidget->setEnabled(false);

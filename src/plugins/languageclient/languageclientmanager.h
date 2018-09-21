@@ -61,12 +61,20 @@ public:
     static void removeMarks(const Utils::FileName &fileName, const Core::Id &id);
     static void removeMarks(const Core::Id &id);
 
-    static void startClient(LanguageClientSettings setting);
     static void startClient(BaseClient *client);
     static QVector<BaseClient *> clients();
 
     static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, BaseClient *client);
     static void reportFinished(const LanguageServerProtocol::MessageId &id, BaseClient *byClient);
+
+    static void deleteClient(BaseClient *client);
+
+    static void shutdown();
+
+    static LanguageClientManager *instance();
+
+signals:
+    void shutdownFinished();
 
 private:
     LanguageClientManager();
@@ -88,6 +96,7 @@ private:
 
     void clientFinished(BaseClient *client);
 
+    bool m_shuttingDown = false;
     QVector<BaseClient *> m_clients;
     QHash<Utils::FileName, QHash<Core::Id, QVector<LanguageClientMark *>>> m_marks;
     QHash<LanguageServerProtocol::MessageId, QList<BaseClient *>> m_exclusiveRequests;

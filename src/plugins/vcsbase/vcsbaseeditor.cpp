@@ -171,7 +171,7 @@ namespace Internal {
 class AbstractTextCursorHandler : public QObject
 {
 public:
-    AbstractTextCursorHandler(VcsBaseEditorWidget *editorWidget = 0);
+    AbstractTextCursorHandler(VcsBaseEditorWidget *editorWidget = nullptr);
 
     /*! Tries to find some matching contents under \a cursor.
      *
@@ -240,13 +240,13 @@ class ChangeTextCursorHandler : public AbstractTextCursorHandler
     Q_OBJECT
 
 public:
-    ChangeTextCursorHandler(VcsBaseEditorWidget *editorWidget = 0);
+    ChangeTextCursorHandler(VcsBaseEditorWidget *editorWidget = nullptr);
 
-    bool findContentsUnderCursor(const QTextCursor &cursor);
-    void highlightCurrentContents();
-    void handleCurrentContents();
-    QString currentContents() const;
-    void fillContextMenu(QMenu *menu, EditorContentType type) const;
+    bool findContentsUnderCursor(const QTextCursor &cursor) override;
+    void highlightCurrentContents() override;
+    void handleCurrentContents() override;
+    QString currentContents() const override;
+    void fillContextMenu(QMenu *menu, EditorContentType type) const override;
 
 private slots:
     void slotDescribe();
@@ -336,7 +336,7 @@ void ChangeTextCursorHandler::slotCopyRevision()
 
 QAction *ChangeTextCursorHandler::createDescribeAction(const QString &change) const
 {
-    auto a = new QAction(VcsBaseEditorWidget::tr("&Describe Change %1").arg(change), 0);
+    auto a = new QAction(VcsBaseEditorWidget::tr("&Describe Change %1").arg(change), nullptr);
     connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotDescribe);
     return a;
 }
@@ -348,7 +348,7 @@ QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bo
             previous && !editorWidget()->annotatePreviousRevisionTextFormat().isEmpty() ?
                 editorWidget()->annotatePreviousRevisionTextFormat() :
                 editorWidget()->annotateRevisionTextFormat();
-    auto a = new QAction(format.arg(change), 0);
+    auto a = new QAction(format.arg(change), nullptr);
     a->setData(change);
     connect(a, &QAction::triggered, editorWidget(), &VcsBaseEditorWidget::slotAnnotateRevision);
     return a;
@@ -356,7 +356,7 @@ QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bo
 
 QAction *ChangeTextCursorHandler::createCopyRevisionAction(const QString &change) const
 {
-    auto a = new QAction(editorWidget()->copyRevisionTextFormat().arg(change), 0);
+    auto a = new QAction(editorWidget()->copyRevisionTextFormat().arg(change), nullptr);
     a->setData(change);
     connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotCopyRevision);
     return a;
@@ -374,13 +374,13 @@ class UrlTextCursorHandler : public AbstractTextCursorHandler
     Q_OBJECT
 
 public:
-    UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget = 0);
+    UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget = nullptr);
 
-    bool findContentsUnderCursor(const QTextCursor &cursor);
-    void highlightCurrentContents();
-    void handleCurrentContents();
-    void fillContextMenu(QMenu *menu, EditorContentType type) const;
-    QString currentContents() const;
+    bool findContentsUnderCursor(const QTextCursor &cursor) override;
+    void highlightCurrentContents() override;
+    void handleCurrentContents() override;
+    void fillContextMenu(QMenu *menu, EditorContentType type) const override;
+    QString currentContents() const override;
 
 protected slots:
     virtual void slotCopyUrl();
@@ -488,7 +488,7 @@ void UrlTextCursorHandler::slotOpenUrl()
 
 QAction *UrlTextCursorHandler::createOpenUrlAction(const QString &text) const
 {
-    auto a = new QAction(text, 0);
+    auto a = new QAction(text);
     a->setData(m_urlData.url);
     connect(a, &QAction::triggered, this, &UrlTextCursorHandler::slotOpenUrl);
     return a;
@@ -496,7 +496,7 @@ QAction *UrlTextCursorHandler::createOpenUrlAction(const QString &text) const
 
 QAction *UrlTextCursorHandler::createCopyUrlAction(const QString &text) const
 {
-    auto a = new QAction(text, 0);
+    auto a = new QAction(text);
     a->setData(m_urlData.url);
     connect(a, &QAction::triggered, this, &UrlTextCursorHandler::slotCopyUrl);
     return a;
@@ -511,11 +511,11 @@ class EmailTextCursorHandler : public UrlTextCursorHandler
     Q_OBJECT
 
 public:
-    EmailTextCursorHandler(VcsBaseEditorWidget *editorWidget = 0);
-    void fillContextMenu(QMenu *menu, EditorContentType type) const;
+    EmailTextCursorHandler(VcsBaseEditorWidget *editorWidget = nullptr);
+    void fillContextMenu(QMenu *menu, EditorContentType type) const override;
 
 protected slots:
-    void slotOpenUrl();
+    void slotOpenUrl() override;
 };
 
 EmailTextCursorHandler::EmailTextCursorHandler(VcsBaseEditorWidget *editorWidget)
@@ -588,7 +588,7 @@ AbstractTextCursorHandler *VcsBaseEditorWidgetPrivate::findTextCursorHandler(con
         if (handler->findContentsUnderCursor(cursor))
             return handler;
     }
-    return 0;
+    return nullptr;
 }
 
 QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
@@ -643,7 +643,7 @@ VcsBaseEditorWidget::VcsBaseEditorWidget()
 
 void VcsBaseEditorWidget::setParameters(const VcsBaseEditorParameters *parameters)
 {
-    QTC_CHECK(d->m_parameters == 0);
+    QTC_CHECK(d->m_parameters == nullptr);
     d->m_parameters = parameters;
 }
 
@@ -756,7 +756,7 @@ void VcsBaseEditorWidget::init()
 
 VcsBaseEditorWidget::~VcsBaseEditorWidget()
 {
-    setCommand(0); // abort all running commands
+    setCommand(nullptr); // abort all running commands
     delete d;
 }
 
@@ -1012,7 +1012,7 @@ void VcsBaseEditorWidget::mouseMoveEvent(QMouseEvent *e)
         // Link emulation behaviour for 'click on change-interaction'
         const QTextCursor cursor = cursorForPosition(e->pos());
         Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
-        if (handler != 0) {
+        if (handler != nullptr) {
             handler->highlightCurrentContents();
             overrideCursor = true;
             cursorShape = Qt::PointingHandCursor;
@@ -1036,7 +1036,7 @@ void VcsBaseEditorWidget::mouseReleaseEvent(QMouseEvent *e)
         if (e->button() == Qt::LeftButton &&!(e->modifiers() & Qt::ShiftModifier)) {
             const QTextCursor cursor = cursorForPosition(e->pos());
             Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
-            if (handler != 0) {
+            if (handler != nullptr) {
                 handler->handleCurrentContents();
                 e->accept();
                 return;
@@ -1078,7 +1078,7 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
 
     disconnect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
 
-    if (BaseAnnotationHighlighter *ah = qobject_cast<BaseAnnotationHighlighter *>(textDocument()->syntaxHighlighter())) {
+    if (auto ah = qobject_cast<BaseAnnotationHighlighter *>(textDocument()->syntaxHighlighter())) {
         ah->setChangeNumbers(changes);
         ah->rehighlight();
     } else {
@@ -1162,7 +1162,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
         return;
 
     Core::IEditor *ed = Core::EditorManager::openEditor(fileName);
-    if (BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(ed))
+    if (auto editor = qobject_cast<BaseTextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
 }
 
@@ -1230,16 +1230,16 @@ const VcsBaseEditorParameters *VcsBaseEditor::findType(const VcsBaseEditorParame
     for (int i = 0; i < arraySize; i++)
         if (array[i].type == et)
             return array + i;
-    return 0;
+    return nullptr;
 }
 
 // Find the codec used for a file querying the editor.
 static QTextCodec *findFileCodec(const QString &source)
 {
     Core::IDocument *document = Core::DocumentModel::documentForFilePath(source);
-    if (Core::BaseTextDocument *textDocument = qobject_cast<Core::BaseTextDocument *>(document))
+    if (auto textDocument = qobject_cast<Core::BaseTextDocument *>(document))
         return const_cast<QTextCodec *>(textDocument->codec());
-    return 0;
+    return nullptr;
 }
 
 // Find the codec by checking the projects (root dir of project file)
@@ -1285,9 +1285,9 @@ QTextCodec *VcsBaseEditor::getCodec(const QString &workingDirectory, const QStri
 
 VcsBaseEditorWidget *VcsBaseEditor::getVcsBaseEditor(const Core::IEditor *editor)
 {
-    if (const BaseTextEditor *be = qobject_cast<const BaseTextEditor *>(editor))
+    if (auto be = qobject_cast<const BaseTextEditor *>(editor))
         return qobject_cast<VcsBaseEditorWidget *>(be->editorWidget());
-    return 0;
+    return nullptr;
 }
 
 // Return line number of current editor if it matches.
@@ -1301,12 +1301,11 @@ int VcsBaseEditor::lineNumberOfCurrentEditor(const QString &currentFile)
         if (!idocument || idocument->filePath().toString() != currentFile)
             return -1;
     }
-    const BaseTextEditor *eda = qobject_cast<const BaseTextEditor *>(ed);
+    auto eda = qobject_cast<const BaseTextEditor *>(ed);
     if (!eda)
         return -1;
     const int cursorLine = eda->textCursor().blockNumber() + 1;
-    auto const edw = qobject_cast<const TextEditorWidget *>(ed->widget());
-    if (edw) {
+    if (auto edw = qobject_cast<const TextEditorWidget *>(ed->widget())) {
         const int firstLine = edw->firstVisibleBlockNumber() + 1;
         const int lastLine = edw->lastVisibleBlockNumber() + 1;
         if (firstLine <= cursorLine && cursorLine < lastLine)
@@ -1319,7 +1318,7 @@ int VcsBaseEditor::lineNumberOfCurrentEditor(const QString &currentFile)
 bool VcsBaseEditor::gotoLineOfEditor(Core::IEditor *e, int lineNumber)
 {
     if (lineNumber >= 0 && e) {
-        if (BaseTextEditor *be = qobject_cast<BaseTextEditor*>(e)) {
+        if (auto be = qobject_cast<BaseTextEditor*>(e)) {
             be->gotoLine(lineNumber);
             return true;
         }
@@ -1462,7 +1461,7 @@ void VcsBaseEditorWidget::addDiffActions(QMenu *, const DiffChunk &)
 
 void VcsBaseEditorWidget::slotAnnotateRevision()
 {
-    if (const QAction *a = qobject_cast<const QAction *>(sender())) {
+    if (auto a = qobject_cast<const QAction *>(sender())) {
         const int currentLine = textCursor().blockNumber() + 1;
         const QString fileName = fileNameForLine(currentLine);
         QString workingDirectory = d->m_workingDirectory;
@@ -1497,7 +1496,7 @@ void VcsBaseEditorWidget::showProgressIndicator()
 void VcsBaseEditorWidget::hideProgressIndicator()
 {
     delete d->m_progressIndicator;
-    d->m_progressIndicator = 0;
+    d->m_progressIndicator = nullptr;
 }
 
 bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
@@ -1624,7 +1623,7 @@ Core::IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
         if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag)
             return Core::DocumentModel::editorsForDocument(document).first();
     }
-    return 0;
+    return nullptr;
 }
 
 } // namespace VcsBase
@@ -1635,7 +1634,7 @@ Core::IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
 void VcsBase::VcsBaseEditorWidget::testDiffFileResolving(const char *id)
 {
     VcsBaseEditor *editor = VcsBase::VcsEditorFactory::createEditorById(id);
-    VcsBaseEditorWidget *widget = qobject_cast<VcsBaseEditorWidget *>(editor->editorWidget());
+    auto widget = qobject_cast<VcsBaseEditorWidget *>(editor->editorWidget());
 
     QFETCH(QByteArray, header);
     QFETCH(QByteArray, fileName);
@@ -1653,7 +1652,7 @@ void VcsBase::VcsBaseEditorWidget::testLogResolving(const char *id, QByteArray &
                                                     const QByteArray &entry2)
 {
     VcsBaseEditor *editor = VcsBase::VcsEditorFactory::createEditorById(id);
-    VcsBaseEditorWidget *widget = qobject_cast<VcsBaseEditorWidget *>(editor->editorWidget());
+    auto widget = qobject_cast<VcsBaseEditorWidget *>(editor->editorWidget());
 
     widget->textDocument()->setPlainText(QLatin1String(data));
     QCOMPARE(widget->d->entriesComboBox()->itemText(0), QString::fromLatin1(entry1));

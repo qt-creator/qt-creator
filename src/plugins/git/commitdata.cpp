@@ -64,8 +64,6 @@ QString GitSubmitEditorPanelData::authorString() const
 
 CommitData::CommitData(CommitType type)
     : commitType(type)
-    , commitEncoding(0)
-    , enablePush(false)
 {
 }
 

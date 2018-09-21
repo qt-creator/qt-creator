@@ -141,8 +141,9 @@ static const VcsBaseEditorParameters editorParameters[] = {
 // Utility to find a parameter set by type
 static const VcsBaseEditorParameters *findType(int ie)
 {
-    const EditorContentType et = static_cast<EditorContentType>(ie);
-    return VcsBaseEditor::findType(editorParameters, sizeof(editorParameters)/sizeof(VcsBaseEditorParameters), et);
+    return VcsBaseEditor::findType(editorParameters,
+                                   sizeof(editorParameters)/sizeof(*editorParameters),
+                                   static_cast<EditorContentType>(ie));
 }
 
 static QString debugCodec(const QTextCodec *c)
@@ -151,7 +152,7 @@ static QString debugCodec(const QTextCodec *c)
 }
 
 // ------------- ClearCasePlugin
-ClearCasePlugin *ClearCasePlugin::m_clearcasePluginInstance = 0;
+ClearCasePlugin *ClearCasePlugin::m_clearcasePluginInstance = nullptr;
 
 ClearCasePlugin::ClearCasePlugin() :
     m_activityMutex(new QMutex),
@@ -576,7 +577,7 @@ bool ClearCasePlugin::submitEditorAboutToClose()
     if (!isCheckInEditorOpen())
         return true;
 
-    ClearCaseSubmitEditor *editor = qobject_cast<ClearCaseSubmitEditor *>(submitEditor());
+    auto editor = qobject_cast<ClearCaseSubmitEditor *>(submitEditor());
     QTC_ASSERT(editor, return true);
     IDocument *editorDocument = editor->document();
     QTC_ASSERT(editorDocument, return true);
@@ -640,7 +641,7 @@ void ClearCasePlugin::diffCheckInFiles(const QStringList &files)
 
 static void setWorkingDirectory(IEditor *editor, const QString &wd)
 {
-    if (VcsBaseEditorWidget *ve = qobject_cast<VcsBaseEditorWidget*>(editor->widget()))
+    if (auto ve = qobject_cast<VcsBaseEditorWidget*>(editor->widget()))
         ve->setWorkingDirectory(wd);
 }
 
@@ -726,8 +727,8 @@ ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString 
 {
     IEditor *editor =
             EditorManager::openEditor(fileName, Constants::CLEARCASECHECKINEDITOR_ID);
-    ClearCaseSubmitEditor *submitEditor = qobject_cast<ClearCaseSubmitEditor*>(editor);
-    QTC_ASSERT(submitEditor, return 0);
+    auto submitEditor = qobject_cast<ClearCaseSubmitEditor*>(editor);
+    QTC_ASSERT(submitEditor, return nullptr);
     connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
             this, &ClearCasePlugin::diffCheckInFiles);
     submitEditor->setCheckScriptWorkingDirectory(m_checkInView);
@@ -979,7 +980,8 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << files;
     const QString source = VcsBaseEditor::getSource(workingDir, files);
-    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBaseEditor::getCodec(source);
+    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(nullptr)
+                                         : VcsBaseEditor::getCodec(source);
 
     if ((m_settings.diffType == GraphicalDiff) && (files.count() == 1)) {
         const QString file = files.first();
@@ -1022,7 +1024,7 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
     IEditor *editor = showOutputInEditor(title, result, DiffOutput, source, codec);
     setWorkingDirectory(editor, workingDir);
     VcsBaseEditor::tagEditor(editor, tag);
-    ClearCaseEditorWidget *diffEditorWidget = qobject_cast<ClearCaseEditorWidget *>(editor->widget());
+    auto diffEditorWidget = qobject_cast<ClearCaseEditorWidget *>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return);
     if (files.count() == 1)
         editor->setProperty("originalFileName", diffname);
@@ -1114,7 +1116,7 @@ void ClearCasePlugin::diffActivity()
     }
     m_diffPrefix.clear();
     const QString title = QString::fromLatin1("%1.patch").arg(activity);
-    IEditor *editor = showOutputInEditor(title, result, DiffOutput, activity, 0);
+    IEditor *editor = showOutputInEditor(title, result, DiffOutput, activity, nullptr);
     setWorkingDirectory(editor, topLevel);
 }
 
@@ -1469,16 +1471,16 @@ IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString
                                                    QTextCodec *codec) const
 {
     const VcsBaseEditorParameters *params = findType(editorType);
-    QTC_ASSERT(params, return 0);
+    QTC_ASSERT(params, return nullptr);
     const Id id = params->id;
     if (Constants::debug)
         qDebug() << "ClearCasePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    ClearCaseEditorWidget *e = qobject_cast<ClearCaseEditorWidget*>(editor->widget());
+    auto e = qobject_cast<ClearCaseEditorWidget*>(editor->widget());
     if (!e)
-        return 0;
+        return nullptr;
     connect(e, &VcsBaseEditorWidget::annotateRevisionRequested, this, &ClearCasePlugin::vcsAnnotate);
     e->setForceReadOnly(true);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
@@ -1696,7 +1698,7 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
 {
     const QString file = QDir::toNativeSeparators(fileName);
     bool noCheckout = false;
-    ActivitySelector *actSelector = 0;
+    ActivitySelector *actSelector = nullptr;
     QDialog fileOpDlg;
     fileOpDlg.setWindowTitle(title);
 
@@ -2167,7 +2169,7 @@ void ClearCasePlugin::closing()
 {
     // prevent syncSlot from being called on shutdown
     ProgressManager::cancelTasks(ClearCase::Constants::TASK_INDEX);
-    disconnect(qApp, &QApplication::applicationStateChanged, 0, 0);
+    disconnect(qApp, &QApplication::applicationStateChanged, nullptr, nullptr);
 }
 
 void ClearCasePlugin::sync(QFutureInterface<void> &future, QStringList files)
@@ -2302,8 +2304,7 @@ class TestCase
 {
 public:
     TestCase(const QString &fileName) :
-        m_fileName(fileName) ,
-        m_editor(0)
+        m_fileName(fileName)
     {
         ClearCasePlugin::instance()->setFakeCleartool(true);
         VcsManager::clearVersionControlCache();
@@ -2372,7 +2373,7 @@ void ClearCasePlugin::testStatusActions()
     m_viewData = testCase.dummyViewData();
 
     QFETCH(int, status);
-    FileStatus::Status tempStatus = static_cast<FileStatus::Status>(status);
+    auto tempStatus = static_cast<FileStatus::Status>(status);
 
     // special case: file should appear as "Unknown" since there is no entry in the index
     // and we don't want to explicitly set the status for this test case

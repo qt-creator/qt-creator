@@ -69,6 +69,7 @@ public:
 
     // Don't call in constructors of derived classes
     virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    TextEditor::FontSettings fontSettings() const;
 
     void setNoAutomaticHighlighting(bool noAutomatic);
 

@@ -99,8 +99,7 @@ void GerritParameters::setPortFlagBySshType()
 }
 
 GerritParameters::GerritParameters()
-    : https(true)
-    , portFlag(defaultPortFlag)
+    : portFlag(defaultPortFlag)
 {
 }
 

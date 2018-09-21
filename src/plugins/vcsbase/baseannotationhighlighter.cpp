@@ -64,7 +64,7 @@ public:
 
 void BaseAnnotationHighlighterPrivate::updateOtherFormats()
 {
-    m_background = TextEditor::TextEditorSettings::fontSettings()
+    m_background = q->fontSettings()
                        .toTextCharFormat(TextEditor::C_TEXT)
                        .brushProperty(QTextFormat::BackgroundBrush)
                        .color();

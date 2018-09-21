@@ -58,15 +58,15 @@ class BazaarPlugin : public VcsBase::VcsBasePlugin
 
 public:
     BazaarPlugin();
-    ~BazaarPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    ~BazaarPlugin() override;
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
     static BazaarPlugin *instance();
     BazaarClient *client() const;
 
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
+    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    bool submitEditorAboutToClose() override;
 
 #ifdef WITH_TESTS
 private slots:

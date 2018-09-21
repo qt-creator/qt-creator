@@ -48,22 +48,22 @@ public:
                              const QString& revision = QString(),
                              const QStringList &extraOptions = QStringList());
     void commit(const QString &repositoryRoot, const QStringList &files,
-                const QString &commitMessageFile, const QStringList &extraOptions = QStringList());
+                const QString &commitMessageFile, const QStringList &extraOptions = QStringList()) override;
     VcsBase::VcsBaseEditorWidget *annotate(
             const QString &workingDir, const QString &file, const QString &revision = QString(),
-            int lineNumber = -1, const QStringList &extraOptions = QStringList());
+            int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
     bool isVcsDirectory(const Utils::FileName &fileName) const;
-    QString findTopLevelForFile(const QFileInfo &file) const;
+    QString findTopLevelForFile(const QFileInfo &file) const override;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     void view(const QString &source, const QString &id,
-              const QStringList &extraOptions = QStringList());
+              const QStringList &extraOptions = QStringList()) override;
 
 protected:
-    Core::Id vcsEditorKind(VcsCommandTag cmd) const;
-    QString vcsCommandString(VcsCommandTag cmd) const;
-    Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const;
-    QStringList revisionSpec(const QString &revision) const;
-    StatusItem parseStatusLine(const QString &line) const;
+    Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
+    QString vcsCommandString(VcsCommandTag cmd) const override;
+    Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const override;
+    QStringList revisionSpec(const QString &revision) const override;
+    StatusItem parseStatusLine(const QString &line) const override;
 
 private:
     friend class CloneWizard;

@@ -60,7 +60,6 @@ VcsClientOptionsPageWidget::VcsClientOptionsPageWidget(QWidget *parent) : QWidge
 VcsClientOptionsPage::VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientImpl *client,
                                            QObject *parent) :
     VcsBaseOptionsPage(parent),
-    m_widget(0),
     m_client(client)
 {
     QTC_CHECK(m_client);
@@ -76,10 +75,10 @@ void VcsClientOptionsPage::setWidgetFactory(VcsClientOptionsPage::WidgetFactory 
 
 VcsClientOptionsPageWidget *VcsClientOptionsPage::widget()
 {
-    QTC_ASSERT(m_factory, return 0);
+    QTC_ASSERT(m_factory, return nullptr);
     if (!m_widget)
         m_widget = m_factory();
-    QTC_ASSERT(m_widget, return 0);
+    QTC_ASSERT(m_widget, return nullptr);
     m_widget->setSettings(m_client->settings());
     return m_widget;
 }
@@ -98,7 +97,7 @@ void VcsClientOptionsPage::apply()
 void VcsClientOptionsPage::finish()
 {
     delete m_widget;
-    m_widget = 0;
+    m_widget = nullptr;
 }
 
 } // namespace VcsBase

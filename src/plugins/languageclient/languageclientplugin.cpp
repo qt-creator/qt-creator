@@ -25,6 +25,8 @@
 
 #include "languageclientplugin.h"
 
+#include "baseclient.h"
+
 namespace LanguageClient {
 
 bool LanguageClientPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorString*/)
@@ -36,6 +38,16 @@ void LanguageClientPlugin::extensionsInitialized()
 {
     LanguageClientManager::init();
     LanguageClientSettings::init();
+}
+
+ExtensionSystem::IPlugin::ShutdownFlag LanguageClientPlugin::aboutToShutdown()
+{
+    LanguageClientManager::shutdown();
+    if (LanguageClientManager::clients().isEmpty())
+        return ExtensionSystem::IPlugin::SynchronousShutdown;
+    connect(LanguageClientManager::instance(), &LanguageClientManager::shutdownFinished,
+            this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished);
+    return ExtensionSystem::IPlugin::AsynchronousShutdown;
 }
 
 } // namespace LanguageClient

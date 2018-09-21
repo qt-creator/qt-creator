@@ -194,7 +194,7 @@ public:
         return static_cast<TextBlockUserData*>(block.userData());
     }
     static TextBlockUserData *userData(const QTextBlock &block) {
-        TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
+        auto data = static_cast<TextBlockUserData*>(block.userData());
         if (!data && block.isValid())
             const_cast<QTextBlock &>(block).setUserData((data = new TextBlockUserData));
         return data;

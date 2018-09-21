@@ -36,7 +36,7 @@ class GitAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
     Q_OBJECT
 public:
     explicit GitAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                      QTextDocument *document = 0);
+                                      QTextDocument *document = nullptr);
 
 private:
     QString changeNumber(const QString &block) const override;

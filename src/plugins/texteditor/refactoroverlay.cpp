@@ -50,7 +50,7 @@ void RefactorOverlay::paint(QPainter *painter, const QRect &clip)
         paintMarker(m_markers.at(i), painter, clip);
     }
 
-    if (TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(m_editor->document()->documentLayout()))
+    if (auto documentLayout = qobject_cast<TextDocumentLayout*>(m_editor->document()->documentLayout()))
         documentLayout->setRequiredWidth(m_maxWidth);
 
 }

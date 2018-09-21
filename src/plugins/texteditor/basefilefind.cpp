@@ -115,7 +115,7 @@ public:
     ~BaseFileFindPrivate() { delete m_internalSearchEngine; }
     QPointer<IFindSupport> m_currentFindSupport;
 
-    QLabel *m_resultLabel = 0;
+    QLabel *m_resultLabel = nullptr;
     // models in native path format
     QStringListModel m_filterStrings;
     QStringListModel m_exclusionStrings;
@@ -253,7 +253,7 @@ static void displayResult(QFutureWatcher<FileSearchResultList> *watcher,
 void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
                                     SearchResultWindow::SearchMode searchMode)
 {
-    d->m_currentFindSupport = 0;
+    d->m_currentFindSupport = nullptr;
     if (d->m_filterCombo)
         updateComboEntries(d->m_filterCombo, true);
     if (d->m_exclusionCombo)
@@ -290,12 +290,12 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
 void BaseFileFind::runSearch(SearchResult *search)
 {
     FileFindParameters parameters = search->userData().value<FileFindParameters>();
-    CountingLabel *label = new CountingLabel;
+    auto label = new CountingLabel;
     connect(search, &SearchResult::countChanged, label, &CountingLabel::updateCount);
-    CountingLabel *statusLabel = new CountingLabel;
+    auto statusLabel = new CountingLabel;
     connect(search, &SearchResult::countChanged, statusLabel, &CountingLabel::updateCount);
     SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch|IOutputPane::WithFocus));
-    QFutureWatcher<FileSearchResultList> *watcher = new QFutureWatcher<FileSearchResultList>();
+    auto watcher = new QFutureWatcher<FileSearchResultList>();
     watcher->setPendingResultsLimit(1);
     // search is deleted if it is removed from search panel
     connect(search, &QObject::destroyed, watcher, &QFutureWatcherBase::cancel);
@@ -344,7 +344,7 @@ void BaseFileFind::doReplace(const QString &text,
     QStringList files = replaceAll(text, items, preserveCase);
     if (!files.isEmpty()) {
         Utils::FadingIndicator::showText(ICore::mainWindow(),
-            tr("%n occurrences replaced.", 0, items.size()),
+            tr("%n occurrences replaced.", nullptr, items.size()),
             Utils::FadingIndicator::SmallText);
         DocumentManager::notifyFilesChangedInternally(files);
         SearchResultWindow::instance()->hide();
@@ -444,7 +444,7 @@ void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaul
 
 void BaseFileFind::openEditor(const SearchResultItem &item)
 {
-    SearchResult *result = qobject_cast<SearchResult *>(sender());
+    auto result = qobject_cast<SearchResult *>(sender());
     FileFindParameters parameters = result->userData().value<FileFindParameters>();
     IEditor *openedEditor =
             d->m_searchEngines[parameters.searchEngineIndex]->openEditor(item, parameters);
@@ -452,11 +452,11 @@ void BaseFileFind::openEditor(const SearchResultItem &item)
         EditorManager::openEditorAtSearchResult(item, EditorManager::DoNotSwitchToDesignMode);
     if (d->m_currentFindSupport)
         d->m_currentFindSupport->clearHighlights();
-    d->m_currentFindSupport = 0;
+    d->m_currentFindSupport = nullptr;
     if (!openedEditor)
         return;
     // highlight results
-    if (IFindSupport *findSupport = Aggregation::query<IFindSupport>(openedEditor->widget())) {
+    if (auto findSupport = Aggregation::query<IFindSupport>(openedEditor->widget())) {
         d->m_currentFindSupport = findSupport;
         d->m_currentFindSupport->highlightAll(parameters.text, parameters.flags);
     }
@@ -470,14 +470,14 @@ void BaseFileFind::hideHighlightAll(bool visible)
 
 void BaseFileFind::searchAgain()
 {
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
+    auto search = qobject_cast<SearchResult *>(sender());
     search->restart();
     runSearch(search);
 }
 
 void BaseFileFind::recheckEnabled()
 {
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
+    auto search = qobject_cast<SearchResult *>(sender());
     if (!search)
         return;
     search->setSearchAgainEnabled(isEnabled());

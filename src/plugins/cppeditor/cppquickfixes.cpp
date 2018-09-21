@@ -66,12 +66,15 @@
 #include <QFormLayout>
 #include <QInputDialog>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QSharedPointer>
 #include <QStack>
 #include <QTextCursor>
 #include <QTextCodec>
 
+#include <bitset>
 #include <cctype>
+#include <limits>
 
 using namespace CPlusPlus;
 using namespace CppTools;
@@ -1084,12 +1087,6 @@ static QByteArray charToStringEscapeSequences(const QByteArray &content)
     return QByteArray();
 }
 
-static QString msgQtStringLiteralDescription(const QString &replacement, int qtVersion)
-{
-    return QApplication::translate("CppTools::QuickFix", "Enclose in %1(...) (Qt %2)")
-           .arg(replacement).arg(qtVersion);
-}
-
 static QString msgQtStringLiteralDescription(const QString &replacement)
 {
     return QApplication::translate("CppTools::QuickFix", "Enclose in %1(...)").arg(replacement);
@@ -1291,10 +1288,10 @@ void WrapStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOpe
         }
         actions = EncloseInQLatin1StringAction | objectiveCActions;
         result << new WrapStringLiteralOp(interface, priority, actions,
-                                          msgQtStringLiteralDescription(stringLiteralReplacement(actions), 4), literal);
+                                          msgQtStringLiteralDescription(stringLiteralReplacement(actions)), literal);
         actions = EncloseInQStringLiteralAction | objectiveCActions;
         result << new WrapStringLiteralOp(interface, priority, actions,
-                                          msgQtStringLiteralDescription(stringLiteralReplacement(actions), 5), literal);
+                                          msgQtStringLiteralDescription(stringLiteralReplacement(actions)), literal);
     }
 }
 
@@ -1484,8 +1481,14 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
 
     // convert to number
     bool valid;
-    ulong value = QString::fromUtf8(spell).left(numberLength).toULong(&valid, 0);
-    if (!valid) // e.g. octal with digit > 7
+    ulong value = 0;
+    const QString x = QString::fromUtf8(spell).left(numberLength);
+    if (x.startsWith("0b", Qt::CaseInsensitive))
+        value = x.midRef(2).toULong(&valid, 2);
+    else
+        value = x.toULong(&valid, 0);
+
+    if (!valid)
         return;
 
     const int priority = path.size() - 1; // very high priority
@@ -1496,6 +1499,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
         /*
           Convert integer literal to hex representation.
           Replace
+            0b100000
             32
             040
           With
@@ -1511,10 +1515,13 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
     }
 
     if (value != 0) {
-        if (!(numberLength > 1 && str[0] == '0' && str[1] != 'x' && str[1] != 'X')) {
+        if (!(numberLength > 1 && str[0] == '0'
+              && str[1] != 'x' && str[1] != 'X'
+              && str[1] != 'b' && str[1] != 'B')) {
             /*
               Convert integer literal to octal representation.
               Replace
+                0b100000
                 32
                 0x20
               With
@@ -1534,6 +1541,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
             /*
               Convert integer literal to decimal representation.
               Replace
+                0b100000
                 0x20
                 040
               With
@@ -1546,6 +1554,30 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
             op->setPriority(priority);
             result << op;
         }
+    }
+
+    if (!(numberLength > 1 && str[0] == '0' && (str[1] == 'b' || str[1] == 'B'))) {
+        /*
+          Convert integer literal to binary representation.
+          Replace
+            32
+            0x20
+            040
+          With
+            0b100000
+        */
+        QString replacement = "0b";
+        if (value == 0) {
+            replacement.append('0');
+        } else {
+            std::bitset<std::numeric_limits<decltype (value)>::digits> b(value);
+            QRegularExpression re("^[0]*");
+            replacement.append(QString::fromStdString(b.to_string()).remove(re));
+        }
+        auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
+        op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Binary"));
+        op->setPriority(priority);
+        result << op;
     }
 }
 

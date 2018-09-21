@@ -39,7 +39,7 @@ class RemoteDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RemoteDialog(QWidget *parent = 0);
+    explicit RemoteDialog(QWidget *parent = nullptr);
     ~RemoteDialog() override;
 
     void refresh(const QString &repository, bool force);

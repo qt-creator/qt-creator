@@ -56,7 +56,7 @@ LineNumberFilter::LineNumberFilter(QObject *parent)
 void LineNumberFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
-    m_hasCurrentEditor = EditorManager::currentEditor() != 0;
+    m_hasCurrentEditor = EditorManager::currentEditor() != nullptr;
 }
 
 QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &, const QString &entry)

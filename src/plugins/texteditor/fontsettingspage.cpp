@@ -66,15 +66,15 @@ struct ColorSchemeEntry
 class SchemeListModel : public QAbstractListModel
 {
 public:
-    SchemeListModel(QObject *parent = 0):
+    SchemeListModel(QObject *parent = nullptr):
         QAbstractListModel(parent)
     {
     }
 
-    int rowCount(const QModelIndex &parent) const
+    int rowCount(const QModelIndex &parent) const override
     { return parent.isValid() ? 0 : m_colorSchemes.size(); }
 
-    QVariant data(const QModelIndex &index, int role) const
+    QVariant data(const QModelIndex &index, int role) const override
     {
         if (role == Qt::DisplayRole)
             return m_colorSchemes.at(index.row()).name;
@@ -526,7 +526,7 @@ void FontSettingsPage::confirmDeleteColorScheme()
                                               d_ptr->m_ui->deleteButton->window());
 
     // Change the text and role of the discard button
-    QPushButton *deleteButton = static_cast<QPushButton*>(messageBox->button(QMessageBox::Discard));
+    auto deleteButton = static_cast<QPushButton*>(messageBox->button(QMessageBox::Discard));
     deleteButton->setText(tr("Delete"));
     messageBox->addButton(deleteButton, QMessageBox::AcceptRole);
     messageBox->setDefaultButton(deleteButton);
@@ -562,7 +562,7 @@ void FontSettingsPage::maybeSaveColorScheme()
                                               d_ptr->m_ui->schemeComboBox->window());
 
     // Change the text of the discard button
-    QPushButton *discardButton = static_cast<QPushButton*>(messageBox.button(QMessageBox::Discard));
+    auto discardButton = static_cast<QPushButton*>(messageBox.button(QMessageBox::Discard));
     discardButton->setText(tr("Discard"));
     messageBox.addButton(discardButton, QMessageBox::DestructiveRole);
     messageBox.setDefaultButton(QMessageBox::Save);
@@ -658,7 +658,7 @@ void FontSettingsPage::finish()
     // If changes were applied, these are equal. Otherwise restores last value.
     d_ptr->m_value = d_ptr->m_lastValue;
     delete d_ptr->m_ui;
-    d_ptr->m_ui = 0;
+    d_ptr->m_ui = nullptr;
 }
 
 const FontSettings &FontSettingsPage::fontSettings() const

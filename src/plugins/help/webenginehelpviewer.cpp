@@ -96,7 +96,6 @@ WebEngineHelpViewer::WebEngineHelpViewer(QWidget *parent) :
         QTimer::singleShot(/*magic timeout=*/150, this, [this] {
             QUrl urlWithoutFragment = source();
             urlWithoutFragment.setFragment(QString());
-            qDebug() << urlWithoutFragment << m_previousUrlWithoutFragment;
             if (urlWithoutFragment == m_previousUrlWithoutFragment)
                 slotLoadFinished();
             m_previousUrlWithoutFragment = urlWithoutFragment;

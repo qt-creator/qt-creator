@@ -330,7 +330,7 @@ QWidget *DebuggerMainWindow::centralWidgetStack()
     return theMainWindow ? theMainWindow->d->m_centralWidgetStack : nullptr;
 }
 
-void DebuggerMainWindow::setSubPerspectiveSwitcher(QWidget *widget)
+void DebuggerMainWindow::addSubPerspectiveSwitcher(QWidget *widget)
 {
     widget->setVisible(false);
     widget->setProperty("panelwidget", true);

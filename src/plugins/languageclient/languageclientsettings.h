@@ -35,12 +35,20 @@ namespace LanguageClient {
 
 constexpr char noLanguageFilter[] = "No Filter";
 
+class BaseClient;
+
 class LanguageClientSettings
 {
 public:
-    LanguageClientSettings() = default;
-    LanguageClientSettings(const QString &name, bool enabled, const QString &mimeTypeName,
-                           const QString &executable, const QString &arguments)
+    static void init();
+};
+
+class BaseSettings
+{
+public:
+    BaseSettings() = default;
+    BaseSettings(const QString &name, bool enabled, const QString &mimeTypeName,
+                 const QString &executable, const QString &arguments)
         : m_name(name)
         , m_enabled(enabled)
         , m_mimeType(mimeTypeName)
@@ -55,12 +63,10 @@ public:
 
     bool isValid();
 
-    bool operator==(const LanguageClientSettings &other) const;
+    BaseClient *createClient();
 
     QVariantMap toMap() const;
-    static LanguageClientSettings fromMap(const QVariantMap &map);
-    static void init();
+    void fromMap(const QVariantMap &map);
 };
-
 
 } // namespace LanguageClient

@@ -40,18 +40,12 @@ namespace Internal {
 class ICodeStylePreferencesPrivate
 {
 public:
-    ICodeStylePreferencesPrivate()
-        : m_pool(0),
-          m_currentDelegate(0),
-          m_readOnly(false)
-    {}
-
-    CodeStylePool *m_pool;
-    ICodeStylePreferences *m_currentDelegate;
+    CodeStylePool *m_pool = nullptr;
+    ICodeStylePreferences *m_currentDelegate = nullptr;
     TabSettings m_tabSettings;
     QByteArray m_id;
     QString m_displayName;
-    bool m_readOnly;
+    bool m_readOnly = false;
 };
 
 }
@@ -128,7 +122,7 @@ QVariant ICodeStylePreferences::currentValue() const
 
 ICodeStylePreferences *ICodeStylePreferences::currentPreferences() const
 {
-    ICodeStylePreferences *prefs = (ICodeStylePreferences *)this;
+    auto prefs = (ICodeStylePreferences *)this;
     while (prefs->currentDelegate())
         prefs = prefs->currentDelegate();
     return prefs;
@@ -144,7 +138,7 @@ void ICodeStylePreferences::setDelegatingPool(CodeStylePool *pool)
     if (pool == d->m_pool)
         return;
 
-    setCurrentDelegate(0);
+    setCurrentDelegate(nullptr);
     if (d->m_pool) {
         disconnect(d->m_pool, &CodeStylePool::codeStyleRemoved,
                    this, &ICodeStylePreferences::codeStyleRemoved);
@@ -247,7 +241,7 @@ void ICodeStylePreferences::codeStyleRemoved(ICodeStylePreferences *preferences)
         CodeStylePool *pool = delegatingPool();
         QList<ICodeStylePreferences *> codeStyles = pool->codeStyles();
         const int idx = codeStyles.indexOf(preferences);
-        ICodeStylePreferences *newCurrentPreferences = 0;
+        ICodeStylePreferences *newCurrentPreferences = nullptr;
         int i = idx + 1;
         // go forward
         while (i < codeStyles.count()) {

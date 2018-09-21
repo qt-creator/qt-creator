@@ -62,7 +62,7 @@ public:
         m_continueObservableState(-1)
     {}
 
-    ~HighlighterCodeFormatterData() {}
+    ~HighlighterCodeFormatterData() override {}
     int m_foldingIndentDelta;
     int m_originalObservableState;
     QStack<QString> m_foldingRegions;
@@ -71,7 +71,7 @@ public:
 
 HighlighterCodeFormatterData *formatterData(const QTextBlock &block)
 {
-    HighlighterCodeFormatterData *data = 0;
+    HighlighterCodeFormatterData *data = nullptr;
     if (TextBlockUserData *userData = TextDocumentLayout::userData(block)) {
         data = static_cast<HighlighterCodeFormatterData *>(userData->codeFormatterData());
         if (!data) {
@@ -127,13 +127,7 @@ static TextStyle styleForFormat(int format)
 }
 
 Highlighter::Highlighter(QTextDocument *parent) :
-    SyntaxHighlighter(parent),
-    m_regionDepth(0),
-    m_indentationBasedFolding(false),
-    m_tabSettings(0),
-    m_persistentObservableStatesCounter(PersistentsStart),
-    m_dynamicContextsCounter(0),
-    m_isBroken(false)
+    SyntaxHighlighter(parent)
 {
     setTextFormatCategories(TextFormatIdCount, styleForFormat);
 }
@@ -217,7 +211,7 @@ void Highlighter::highlightBlock(const QString &text)
             handleContextChange(m_currentContext->lineBeginContext(),
                                 m_currentContext->definition());
 
-            ProgressData *progress = new ProgressData;
+            auto progress = new ProgressData;
             const int length = text.length();
             while (progress->offset() < length)
                 iterateThroughRules(text, length, progress, false, m_currentContext->rules());
@@ -569,7 +563,7 @@ void Highlighter::applyFormat(int offset,
             // think this approach would fit better. If there are other ideas...
             QBrush bg = format.background();
             if (bg.style() == Qt::NoBrush)
-                bg = TextEditorSettings::fontSettings().toTextCharFormat(C_TEXT).background();
+                bg = fontSettings().toTextCharFormat(C_TEXT).background();
             if (itemData->color().isValid() && isReadableOn(bg.color(), itemData->color()))
                 format.setForeground(itemData->color());
             if (itemData->isItalicSpecified())

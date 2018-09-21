@@ -122,8 +122,14 @@ void BranchView::refresh(const QString &repository, bool force)
         return;
 
     m_repository = repository;
-    m_repositoryLabel->setText(QDir::toNativeSeparators(m_repository));
-    m_repositoryLabel->setToolTip(GitPlugin::msgRepositoryLabel(m_repository));
+    if (m_repository.isEmpty()) {
+        m_repositoryLabel->setText(tr("<No repository>"));
+        m_branchView->setEnabled(false);
+    } else {
+        m_repositoryLabel->setText(QDir::toNativeSeparators(m_repository));
+        m_repositoryLabel->setToolTip(GitPlugin::msgRepositoryLabel(m_repository));
+        m_branchView->setEnabled(true);
+    }
     QString errorMessage;
     if (!m_model->refresh(m_repository, &errorMessage))
         VcsBase::VcsOutputWindow::appendError(errorMessage);

@@ -97,7 +97,7 @@ BehaviorSettingsPage::BehaviorSettingsPage(const BehaviorSettingsPageParameters 
     d->m_codeStyle->setId(Constants::GLOBAL_SETTINGS_ID);
 
     // default pool for all other languages
-    d->m_defaultCodeStylePool = new CodeStylePool(0, this); // Any language
+    d->m_defaultCodeStylePool = new CodeStylePool(nullptr, this); // Any language
     d->m_defaultCodeStylePool->addCodeStyle(d->m_codeStyle);
     d->init();
 
@@ -225,7 +225,7 @@ void BehaviorSettingsPage::finish()
     if (!d->m_page) // page was never shown
         return;
     delete d->m_page;
-    d->m_page = 0;
+    d->m_page = nullptr;
 }
 
 ICodeStylePreferences *BehaviorSettingsPage::codeStyle() const

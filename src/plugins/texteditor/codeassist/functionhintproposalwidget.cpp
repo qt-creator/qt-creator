@@ -269,7 +269,7 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
         }
         QTC_CHECK(d->m_model);
         if (d->m_model && d->m_model->size() > 1) {
-            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+            auto ke = static_cast<QKeyEvent*>(e);
             if (ke->key() == Qt::Key_Up) {
                 previousPage();
                 return true;
@@ -281,7 +281,7 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
         }
         break;
     case QEvent::KeyRelease: {
-            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+            auto ke = static_cast<QKeyEvent*>(e);
             if (ke->key() == Qt::Key_Escape && d->m_escapePressed) {
                 abort();
                 emit explicitlyAborted();

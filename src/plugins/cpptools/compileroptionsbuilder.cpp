@@ -68,6 +68,14 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
     addWordWidth();
     addTargetTriple();
     addExtraCodeModelFlags();
+
+    if (m_projectPart.toolchainType
+            == ProjectExplorer::Constants::COMPILATION_DATABASE_TOOLCHAIN_TYPEID) {
+        addHeaderPathOptions();
+        insertWrappedQtHeaders();
+        return options();
+    }
+
     updateLanguageOption(fileKind);
     addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
     enableExceptions();

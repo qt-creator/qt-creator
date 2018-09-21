@@ -49,12 +49,12 @@ public:
     { }
 
 protected:
-    QString trackFile(const QString &repository)
+    QString trackFile(const QString &repository) override
     {
         return m_plugin->monitorFile(repository);
     }
 
-    QString refreshTopic(const QString &repository)
+    QString refreshTopic(const QString &repository) override
     {
         return m_plugin->synchronousTopic(repository);
     }

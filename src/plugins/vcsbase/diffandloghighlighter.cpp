@@ -142,7 +142,7 @@ void DiffAndLogHighlighterPrivate::updateOtherFormats()
 
 // --- DiffAndLogHighlighter
 DiffAndLogHighlighter::DiffAndLogHighlighter(const QRegExp &filePattern, const QRegExp &changePattern) :
-    TextEditor::SyntaxHighlighter(static_cast<QTextDocument *>(0)),
+    TextEditor::SyntaxHighlighter(static_cast<QTextDocument *>(nullptr)),
     d(new DiffAndLogHighlighterPrivate(this, filePattern, changePattern))
 {
     setDefaultTextFormatCategories();

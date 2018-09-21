@@ -120,7 +120,7 @@ void SettingsPage::apply()
 
     if (widget()->isVisible()) {
         const VcsBaseClientSettings settings = widget()->settings();
-        const GitSettings *rc = static_cast<const GitSettings *>(&settings);
+        auto rc = static_cast<const GitSettings *>(&settings);
         bool gitFoundOk;
         QString errorMessage;
         rc->gitExecutable(&gitFoundOk, &errorMessage);

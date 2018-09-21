@@ -52,8 +52,8 @@ class CodeStyleDialog : public QDialog
     Q_OBJECT
 public:
     CodeStyleDialog(ICodeStylePreferencesFactory *factory,
-                    ICodeStylePreferences *codeStyle, QWidget *parent = 0);
-    ~CodeStyleDialog();
+                    ICodeStylePreferences *codeStyle, QWidget *parent = nullptr);
+    ~CodeStyleDialog() override;
     ICodeStylePreferences *codeStyle() const;
 private:
     void slotCopyClicked();
@@ -62,28 +62,26 @@ private:
     ICodeStylePreferences *m_codeStyle;
     QLineEdit *m_lineEdit;
     QDialogButtonBox *m_buttons;
-    QLabel *m_warningLabel;
-    QPushButton *m_copyButton;
+    QLabel *m_warningLabel = nullptr;
+    QPushButton *m_copyButton = nullptr;
     QString m_originalDisplayName;
 };
 
 CodeStyleDialog::CodeStyleDialog(ICodeStylePreferencesFactory *factory,
                 ICodeStylePreferences *codeStyle, QWidget *parent)
-    : QDialog(parent),
-      m_warningLabel(0),
-      m_copyButton(0)
+    : QDialog(parent)
 {
     setWindowTitle(tr("Edit Code Style"));
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     QLabel *label = new QLabel(tr("Code style name:"));
     m_lineEdit = new QLineEdit(codeStyle->displayName(), this);
-    QHBoxLayout *nameLayout = new QHBoxLayout();
+    auto nameLayout = new QHBoxLayout;
     nameLayout->addWidget(label);
     nameLayout->addWidget(m_lineEdit);
     layout->addLayout(nameLayout);
 
     if (codeStyle->isReadOnly()) {
-        QHBoxLayout *warningLayout = new QHBoxLayout();
+        auto warningLayout = new QHBoxLayout;
         m_warningLabel = new QLabel(
                     tr("You cannot save changes to a built-in code style. "
                        "Copy it first to create your own version."), this);
@@ -158,9 +156,7 @@ CodeStyleDialog::~CodeStyleDialog()
 CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory, QWidget *parent) :
     QWidget(parent),
     m_factory(factory),
-    m_codeStyle(0),
-    m_ui(new Internal::Ui::CodeStyleSelectorWidget),
-    m_ignoreGuiSignals(false)
+    m_ui(new Internal::Ui::CodeStyleSelectorWidget)
 {
     m_ui->setupUi(this);
     m_ui->importButton->setEnabled(false);
@@ -239,8 +235,7 @@ void CodeStyleSelectorWidget::slotComboBoxActivated(int index)
 
     if (index < 0 || index >= m_ui->delegateComboBox->count())
         return;
-    ICodeStylePreferences *delegate =
-            m_ui->delegateComboBox->itemData(index).value<ICodeStylePreferences *>();
+    auto delegate = m_ui->delegateComboBox->itemData(index).value<ICodeStylePreferences *>();
 
     QSignalBlocker blocker(this);
     m_codeStyle->setCurrentDelegate(delegate);
@@ -319,7 +314,7 @@ void CodeStyleSelectorWidget::slotRemoveClicked()
                            this);
 
     // Change the text and role of the discard button
-    QPushButton *deleteButton = static_cast<QPushButton*>(messageBox.button(QMessageBox::Discard));
+    auto deleteButton = static_cast<QPushButton*>(messageBox.button(QMessageBox::Discard));
     deleteButton->setText(tr("Delete"));
     messageBox.addButton(deleteButton, QMessageBox::AcceptRole);
     messageBox.setDefaultButton(deleteButton);
@@ -390,7 +385,7 @@ void CodeStyleSelectorWidget::slotCodeStyleRemoved(ICodeStylePreferences *codeSt
 
 void CodeStyleSelectorWidget::slotUpdateName()
 {
-    ICodeStylePreferences *changedCodeStyle = qobject_cast<ICodeStylePreferences *>(sender());
+    auto changedCodeStyle = qobject_cast<ICodeStylePreferences *>(sender());
     if (!changedCodeStyle)
         return;
 

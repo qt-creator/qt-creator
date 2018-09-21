@@ -77,7 +77,7 @@ void ManageDefinitionsDialog::populateDefinitionsWidget(const QList<DefinitionMe
         }
 
         for (int j = 0; j < 3; ++j) {
-            QTableWidgetItem *item = new QTableWidgetItem;
+            auto item = new QTableWidgetItem;
             if (j == 0) {
                 item->setText(downloadData.name);
                 item->setData(Qt::UserRole, downloadData.url);

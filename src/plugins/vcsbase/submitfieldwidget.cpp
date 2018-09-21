@@ -65,29 +65,17 @@ namespace VcsBase {
 
 // Field/Row entry
 struct FieldEntry {
-    FieldEntry();
     void createGui(const QIcon &removeIcon);
     void deleteGuiLater();
 
-    QComboBox *combo;
-    QHBoxLayout *layout;
-    QLineEdit *lineEdit;
-    QToolBar *toolBar;
-    QToolButton *clearButton;
-    QToolButton *browseButton;
-    int comboIndex;
+    QComboBox *combo = nullptr;
+    QHBoxLayout *layout = nullptr;
+    QLineEdit *lineEdit = nullptr;
+    QToolBar *toolBar = nullptr;
+    QToolButton *clearButton = nullptr;
+    QToolButton *browseButton = nullptr;
+    int comboIndex = 0;
 };
-
-FieldEntry::FieldEntry() :
-    combo(0),
-    layout(0),
-    lineEdit(0),
-    toolBar(0),
-    clearButton(0),
-    browseButton(0),
-    comboIndex(0)
-{
-}
 
 void FieldEntry::createGui(const QIcon &removeIcon)
 {
@@ -131,20 +119,17 @@ struct SubmitFieldWidgetPrivate {
 
     const QIcon removeFieldIcon;
     QStringList fields;
-    QCompleter *completer;
-    bool hasBrowseButton;
-    bool allowDuplicateFields;
+    QCompleter *completer = nullptr;
 
     QList <FieldEntry> fieldEntries;
-    QVBoxLayout *layout;
+    QVBoxLayout *layout = nullptr;
+
+    bool hasBrowseButton = false;
+    bool allowDuplicateFields = false;
 };
 
 SubmitFieldWidgetPrivate::SubmitFieldWidgetPrivate() :
-        removeFieldIcon(Utils::Icons::BROKEN.icon()),
-        completer(0),
-        hasBrowseButton(false),
-        allowDuplicateFields(false),
-        layout(0)
+        removeFieldIcon(Utils::Icons::BROKEN.icon())
 {
 }
 

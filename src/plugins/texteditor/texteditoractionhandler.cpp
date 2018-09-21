@@ -63,7 +63,7 @@ public:
                             Core::ActionContainer *container,
                             std::function<void(bool)> slot)
     {
-        QAction *result = new QAction(title, this);
+        auto result = new QAction(title, this);
         Core::Command *command = Core::ActionManager::registerAction(result, id, Core::Context(m_contextId), scriptable);
         if (!keySequence.isEmpty())
             command->setDefaultKeySequence(keySequence);
@@ -81,7 +81,7 @@ public:
                             const QString &title = QString(),
                             const QKeySequence &keySequence = QKeySequence(),
                             Core::Id menueGroup = Core::Id(),
-                            Core::ActionContainer *container = 0)
+                            Core::ActionContainer *container = nullptr)
     {
         return registerActionHelper(id, scriptable, title, keySequence, menueGroup, container,
             [this, slot](bool) { if (m_currentEditorWidget) slot(m_currentEditorWidget); });
@@ -93,7 +93,7 @@ public:
                             const QString &title = QString(),
                             const QKeySequence &keySequence = QKeySequence(),
                             Core::Id menueGroup = Core::Id(),
-                            Core::ActionContainer *container = 0)
+                            Core::ActionContainer *container = nullptr)
     {
         return registerActionHelper(id, scriptable, title, keySequence, menueGroup, container,
             [this, slot](bool on) { if (m_currentEditorWidget) slot(m_currentEditorWidget, on); });
@@ -105,7 +105,7 @@ public:
                             const QString &title = QString(),
                             const QKeySequence &keySequence = QKeySequence(),
                             Core::Id menueGroup = Core::Id(),
-                            Core::ActionContainer *container = 0)
+                            Core::ActionContainer *container = nullptr)
     {
         return registerActionHelper(id, scriptable, title, keySequence, menueGroup, container,
             [this, slot](bool on) { if (m_currentEditorWidget) slot(m_currentEditorWidget, on); });
@@ -562,7 +562,7 @@ void TextEditorActionHandlerPrivate::updateCurrentEditor(Core::IEditor *editor)
 {
     if (m_currentEditorWidget)
         m_currentEditorWidget->disconnect(this);
-    m_currentEditorWidget = 0;
+    m_currentEditorWidget = nullptr;
 
     if (editor && editor->document()->id() == m_editorId) {
         TextEditorWidget *editorWidget = m_findTextWidget(editor);

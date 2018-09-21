@@ -128,7 +128,7 @@ const VcsBaseEditorParameters editorParameters[] = {
 
 // GitPlugin
 
-static GitPlugin *m_instance = 0;
+static GitPlugin *m_instance = nullptr;
 
 GitPlugin::GitPlugin()
 {
@@ -142,7 +142,7 @@ GitPlugin::~GitPlugin()
 {
     cleanCommitMessageFile();
     delete m_gitClient;
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 void GitPlugin::cleanCommitMessageFile()
@@ -986,8 +986,8 @@ void GitPlugin::updateVersionWarning()
 IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd)
 {
     IEditor *editor = EditorManager::openEditor(fileName, Constants::GITSUBMITEDITOR_ID);
-    GitSubmitEditor *submitEditor = qobject_cast<GitSubmitEditor*>(editor);
-    QTC_ASSERT(submitEditor, return 0);
+    auto submitEditor = qobject_cast<GitSubmitEditor*>(editor);
+    QTC_ASSERT(submitEditor, return nullptr);
     setSubmitEditor(submitEditor);
     submitEditor->setCommitData(cd);
     submitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
@@ -1020,7 +1020,7 @@ bool GitPlugin::submitEditorAboutToClose()
 {
     if (!isCommitEditorOpen())
         return true;
-    GitSubmitEditor *editor = qobject_cast<GitSubmitEditor *>(submitEditor());
+    auto editor = qobject_cast<GitSubmitEditor *>(submitEditor());
     QTC_ASSERT(editor, return true);
     IDocument *editorDocument = editor->document();
     QTC_ASSERT(editorDocument, return true);
@@ -1052,7 +1052,7 @@ bool GitPlugin::submitEditorAboutToClose()
 
 
     // Go ahead!
-    SubmitFileModel *model = qobject_cast<SubmitFileModel *>(editor->fileModel());
+    auto model = qobject_cast<SubmitFileModel *>(editor->fileModel());
     CommitType commitType = editor->commitType();
     QString amendSHA1 = editor->amendSHA1();
     if (model->hasCheckedFiles() || !amendSHA1.isEmpty()) {
@@ -1111,7 +1111,7 @@ void GitPlugin::pull()
 
     if (!m_gitClient->beginStashScope(topLevel, "Pull", rebase ? Default : AllowUnstashed))
         return;
-    m_gitClient->synchronousPull(topLevel, rebase);
+    m_gitClient->pull(topLevel, rebase);
 }
 
 void GitPlugin::push()

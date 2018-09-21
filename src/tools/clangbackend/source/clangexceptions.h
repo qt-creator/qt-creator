@@ -36,7 +36,7 @@ namespace ClangBackEnd {
 class ClangBaseException : public std::exception
 {
 public:
-    const char *what() const Q_DECL_NOEXCEPT override;
+    const char *what() const noexcept override;
 
 protected:
     Utf8String m_info;

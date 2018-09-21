@@ -74,7 +74,7 @@ bool inputText(QWidget *parent, const QString &title, const QString &prompt, QSt
     dialog.setLabelText(prompt);
     dialog.setTextValue(*s);
     // Nasty hack:
-    if (QLineEdit *le = dialog.findChild<QLineEdit*>())
+    if (auto le = dialog.findChild<QLineEdit*>())
         le->setMinimumWidth(500);
     if (dialog.exec() != QDialog::Accepted)
         return false;

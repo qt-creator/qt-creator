@@ -516,7 +516,7 @@ bool CodeAssistantPrivate::isDestroyEvent(int key, const QString &keyText)
 {
     if (keyText.isEmpty())
         return key != Qt::LeftArrow && key != Qt::RightArrow && key != Qt::Key_Shift;
-    if (auto *provider = qobject_cast<CompletionAssistProvider *>(m_requestProvider))
+    if (auto provider = qobject_cast<CompletionAssistProvider *>(m_requestProvider))
         return !provider->isContinuationChar(keyText.at(0));
     return false;
 }
@@ -530,7 +530,7 @@ bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
         if (type == QEvent::FocusOut) {
             destroyContext();
         } else if (type == QEvent::KeyPress) {
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
+            auto keyEvent = static_cast<QKeyEvent *>(e);
             const QString &keyText = keyEvent->text();
 
             if (isDestroyEvent(keyEvent->key(), keyText))

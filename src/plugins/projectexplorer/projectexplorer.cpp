@@ -872,7 +872,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     dd->m_openTerminalHereBuildEnv = new QAction(tr("Build Environment"), this);
     dd->m_openTerminalHereRunEnv = new QAction(tr("Run Environment"), this);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#if !defined(Q_OS_UNIX) || QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     cmd = ActionManager::registerAction(dd->m_openTerminalHereBuildEnv, Constants::OPENTERMINALHEREBUILD,
                                         projecTreeContext);
     dd->m_openTerminalMenu->addAction(dd->m_openTerminalHereBuildEnv);
