@@ -65,6 +65,8 @@
 #include <QMenu>
 #include <QUuid>
 
+#include <cstdlib>
+
 using namespace Core;
 using namespace Core::Internal;
 using namespace Utils;

@@ -209,8 +209,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
 
     QtcProcess::addArgs(&runnerArgs, m_loopbackArguments);
     QtcProcess::addArg(&runnerArgs, m_executableFilePath);
-    if (!m_arguments.isEmpty())
-        QtcProcess::addArgs(&runnerArgs, m_arguments);
+    QtcProcess::addArgs(&runnerArgs, m_arguments);
 
     appendMessage(QStringLiteral("winrtrunner ") + runnerArgs + QLatin1Char('\n'), NormalMessageFormat);
 
