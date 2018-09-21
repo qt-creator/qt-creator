@@ -37,16 +37,12 @@ namespace Internal {
 class OutputFormatterPrivate
 {
 public:
-    OutputFormatterPrivate()
-        : plainTextEdit(nullptr), overwriteOutput(false)
-    {}
-
-    QPlainTextEdit *plainTextEdit;
+    QPlainTextEdit *plainTextEdit = nullptr;
     QTextCharFormat formats[NumberOfFormats];
     QFont font;
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
-    bool overwriteOutput;
+    bool overwriteOutput = false;
 };
 
 } // namespace Internal

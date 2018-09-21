@@ -313,8 +313,7 @@ void Action::addOverrideAction(QAction *action, const Context &context, bool scr
     if (context.isEmpty()) {
         m_contextActionMap.insert(Constants::C_GLOBAL, action);
     } else {
-        for (int i = 0; i < context.size(); ++i) {
-            Id id = context.at(i);
+        for (const Id &id : context) {
             if (m_contextActionMap.contains(id))
                 qWarning("%s", qPrintable(msgActionWarning(action, id, m_contextActionMap.value(id, nullptr))));
             m_contextActionMap.insert(id, action);

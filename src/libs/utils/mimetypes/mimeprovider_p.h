@@ -141,14 +141,14 @@ class MimeXMLProvider : public MimeProviderBase
 public:
     MimeXMLProvider(MimeDatabasePrivate *db);
 
-    virtual bool isValid();
-    virtual MimeType mimeTypeForName(const QString &name);
-    virtual QStringList findByFileName(const QString &fileName, QString *foundSuffix);
-    virtual QStringList parents(const QString &mime);
-    virtual QString resolveAlias(const QString &name);
-    virtual QStringList listAliases(const QString &name);
-    virtual MimeType findByMagic(const QByteArray &data, int *accuracyPtr);
-    virtual QList<MimeType> allMimeTypes();
+    bool isValid() override;
+    MimeType mimeTypeForName(const QString &name) override;
+    QStringList findByFileName(const QString &fileName, QString *foundSuffix) override;
+    QStringList parents(const QString &mime) override;
+    QString resolveAlias(const QString &name) override;
+    QStringList listAliases(const QString &name) override;
+    MimeType findByMagic(const QByteArray &data, int *accuracyPtr) override;
+    QList<MimeType> allMimeTypes() override;
 
     bool load(const QString &fileName, QString *errorMessage);
 
@@ -161,9 +161,9 @@ public:
 
     // Qt Creator additions
     void addData(const QString &id, const QByteArray &data);
-    QMap<int, QList<MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType);
-    void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);
-    void setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule> > &rules);
+    QMap<int, QList<MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType) override;
+    void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns) override;
+    void setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule> > &rules) override;
 
 private:
     void ensureLoaded();

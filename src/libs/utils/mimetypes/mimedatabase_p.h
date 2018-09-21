@@ -99,7 +99,7 @@ public:
     MimeType mimeTypeForName(const QString &nameOrAlias);
     MimeType mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device, int *priorityPtr);
     MimeType findByData(const QByteArray &data, int *priorityPtr);
-    QStringList mimeTypeForFileName(const QString &fileName, QString *foundSuffix = 0);
+    QStringList mimeTypeForFileName(const QString &fileName, QString *foundSuffix = nullptr);
 
     mutable MimeProviderBase *m_provider;
     const QString m_defaultMimeType;

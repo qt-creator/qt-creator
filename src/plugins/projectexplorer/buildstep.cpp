@@ -132,13 +132,13 @@ class ConfigWidget : public BuildStepConfigWidget
 public:
     ConfigWidget(BuildStep *step) : m_step(step)
     {
+        setShowWidget(true);
         connect(m_step, &ProjectConfiguration::displayNameChanged,
                 this, &BuildStepConfigWidget::updateSummary);
     }
 
     QString summaryText() const override { return "<b>" + displayName() + "</b>"; }
     QString displayName() const override { return m_step->displayName(); }
-    bool showWidget() const override { return true; }
     BuildStep *step() const { return m_step; }
 
 private:

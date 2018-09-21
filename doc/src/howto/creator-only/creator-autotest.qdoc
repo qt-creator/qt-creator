@@ -391,7 +391,7 @@
     \uicontrol {Limit result output} check box. To disable automatic scrolling,
     deselect the \uicontrol {Automatically scroll results} check box.
 
-    Internal messages and run configuration warnings for guessed configurations
+    Internal messages and run configuration warnings for deduced configurations
     are omitted by default. To view them, deselect the \uicontrol {Omit internal
     messages} and \uicontrol {Omit run configuration warnings} check boxes.
 */

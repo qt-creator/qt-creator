@@ -53,6 +53,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <texteditor/texteditor.h>
@@ -183,6 +184,10 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     m_frameworkManager->activateFrameworksFromSettings(m_settings);
     TestTreeModel::instance()->syncTestFrameworks();
 
+    connect(ProjectExplorer::SessionManager::instance(),
+            &ProjectExplorer::SessionManager::startupProjectChanged, this, [this] {
+        m_runconfigCache.clear();
+    });
     return true;
 }
 
@@ -311,6 +316,23 @@ void AutotestPlugin::updateMenuItemsEnabledState()
     ActionManager::command(Constants::ACTION_RUN_DBG_UCURSOR)->action()->setEnabled(canRun);
 }
 
+void AutotestPlugin::cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice)
+{
+    if (s_instance)
+        s_instance->m_runconfigCache.insert(buildTargetKey, choice);
+}
+
+ChoicePair AutotestPlugin::cachedChoiceFor(const QString &buildTargetKey)
+{
+    return s_instance ? s_instance->m_runconfigCache.value(buildTargetKey) : ChoicePair();
+}
+
+void AutotestPlugin::clearChoiceCache()
+{
+    if (s_instance)
+        s_instance->m_runconfigCache.clear();
+}
+
 QList<QObject *> AutotestPlugin::createTestObjects() const
 {
     QList<QObject *> tests;
@@ -318,4 +340,10 @@ QList<QObject *> AutotestPlugin::createTestObjects() const
     tests << new AutoTestUnitTests(TestTreeModel::instance());
 #endif
     return tests;
+}
+
+bool ChoicePair::matches(const ProjectExplorer::RunConfiguration *rc) const
+{
+    return rc ? (rc->displayName() == displayName && rc->runnable().executable == executable)
+              : false;
 }

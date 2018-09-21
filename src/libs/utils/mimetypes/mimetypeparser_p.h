@@ -101,22 +101,22 @@ public:
     explicit MimeTypeParser(MimeXMLProvider &provider) : m_provider(provider) {}
 
 protected:
-    inline bool mimeTypeExists(const QString &mimeTypeName)
+    inline bool mimeTypeExists(const QString &mimeTypeName) override
     { return m_provider.mimeTypeForName(mimeTypeName).isValid(); }
 
-    inline bool process(const MimeType &t, QString *)
+    inline bool process(const MimeType &t, QString *) override
     { m_provider.addMimeType(t); return true; }
 
-    inline bool process(const MimeGlobPattern &glob, QString *)
+    inline bool process(const MimeGlobPattern &glob, QString *) override
     { m_provider.addGlobPattern(glob); return true; }
 
-    inline void processParent(const QString &child, const QString &parent)
+    inline void processParent(const QString &child, const QString &parent) override
     { m_provider.addParent(child, parent); }
 
-    inline void processAlias(const QString &alias, const QString &name)
+    inline void processAlias(const QString &alias, const QString &name) override
     { m_provider.addAlias(alias, name); }
 
-    inline void processMagicMatcher(const MimeMagicRuleMatcher &matcher)
+    inline void processMagicMatcher(const MimeMagicRuleMatcher &matcher) override
     { m_provider.addMagicMatcher(matcher); }
 
 private:

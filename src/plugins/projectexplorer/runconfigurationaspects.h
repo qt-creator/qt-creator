@@ -25,19 +25,12 @@
 
 #pragma once
 
-#include "runconfiguration.h"
+#include "projectconfigurationaspects.h"
 #include "applicationlauncher.h"
 #include "environmentaspect.h"
 
-#include <utils/fileutils.h>
-#include <utils/pathchooser.h>
-#include <utils/osspecificaspects.h>
-
 QT_BEGIN_NAMESPACE
 class QCheckBox;
-class QLabel;
-class QLineEdit;
-class QFormLayout;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -120,34 +113,6 @@ private:
     QPointer<Utils::FancyLineEdit> m_chooser;
 };
 
-class PROJECTEXPLORER_EXPORT BaseBoolAspect : public ProjectConfigurationAspect
-{
-    Q_OBJECT
-
-public:
-    explicit BaseBoolAspect(const QString &settingsKey = QString());
-    ~BaseBoolAspect() override;
-
-    void addToConfigurationLayout(QFormLayout *layout) override;
-
-    bool value() const;
-    void setValue(bool val);
-
-    bool defaultValue() const;
-    void setDefaultValue(bool defaultValue);
-
-    void setLabel(const QString &label);
-
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
-
-private:
-    bool m_value = false;
-    bool m_defaultValue = false;
-    QString m_label;
-    QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
-};
-
 class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public BaseBoolAspect
 {
     Q_OBJECT
@@ -162,61 +127,6 @@ class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public BaseBoolAspect
 
 public:
     UseDyldSuffixAspect();
-};
-
-class PROJECTEXPLORER_EXPORT BaseStringAspect : public ProjectConfigurationAspect
-{
-    Q_OBJECT
-
-public:
-    BaseStringAspect();
-    ~BaseStringAspect() override;
-
-    void addToConfigurationLayout(QFormLayout *layout) override;
-
-    QString value() const;
-    void setValue(const QString &val);
-
-    QString labelText() const;
-    void setLabelText(const QString &labelText);
-    void setLabelPixmap(const QPixmap &labelPixmap);
-
-    void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
-    void setPlaceHolderText(const QString &placeHolderText);
-    void setHistoryCompleter(const QString &historyCompleterKey);
-    void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
-    void setEnvironment(const Utils::Environment &env);
-
-    bool isChecked() const;
-    void makeCheckable(const QString &optionalLabel, const QString &optionalBaseKey);
-
-    enum DisplayStyle { LabelDisplay, LineEditDisplay, PathChooserDisplay };
-    void setDisplayStyle(DisplayStyle style);
-
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
-
-    Utils::FileName fileName() const;
-    void setFileName(const Utils::FileName &val);
-
-private:
-    void update();
-
-    DisplayStyle m_displayStyle = LabelDisplay;
-    QString m_labelText;
-    std::function<QString(const QString &)> m_displayFilter;
-    BaseBoolAspect *m_checker = nullptr;
-
-    QString m_value;
-    QString m_placeHolderText;
-    QString m_historyCompleterKey;
-    Utils::PathChooser::Kind m_expectedKind = Utils::PathChooser::File;
-    Utils::Environment m_environment;
-    QPointer<QLabel> m_label;
-    QPointer<QLabel> m_labelDisplay;
-    QPointer<Utils::FancyLineEdit> m_lineEditDisplay;
-    QPointer<Utils::PathChooser> m_pathChooserDisplay;
-    QPixmap m_labelPixmap;
 };
 
 class PROJECTEXPLORER_EXPORT ExecutableAspect : public ProjectConfigurationAspect

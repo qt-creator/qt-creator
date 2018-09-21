@@ -167,7 +167,7 @@ public:
     QHBoxLayout *m_hLayout = nullptr;
     FancyLineEdit *m_lineEdit = nullptr;
 
-    PathChooser::Kind m_acceptingKind;
+    PathChooser::Kind m_acceptingKind = PathChooser::ExistingDirectory;
     QString m_dialogTitleOverride;
     QString m_dialogFilter;
     QString m_initialBrowsePathOverride;
@@ -181,7 +181,6 @@ public:
 PathChooserPrivate::PathChooserPrivate() :
     m_hLayout(new QHBoxLayout),
     m_lineEdit(new FancyLineEdit),
-    m_acceptingKind(PathChooser::ExistingDirectory),
     m_macroExpander(globalMacroExpander())
 {
 }

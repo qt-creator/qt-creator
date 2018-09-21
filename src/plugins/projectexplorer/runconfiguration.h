@@ -382,12 +382,10 @@ public:
 
     bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
 
-    void setPriority(int priority);
     void setProducer(const WorkerCreator &producer);
     void addConstraint(const Constraint &constraint);
     void addSupportedRunMode(Core::Id runMode);
 
-    int priority() const { return m_priority; }
     WorkerCreator producer() const { return m_producer; }
 
 private:
@@ -399,7 +397,6 @@ private:
     QList<Core::Id> m_supportedRunModes;
     QList<Constraint> m_constraints;
     WorkerCreator m_producer;
-    int m_priority = 0;
 };
 
 /**
@@ -478,13 +475,12 @@ public:
         factory->addConstraint(constraint);
     }
     template <class Worker>
-    static void registerWorker(Core::Id runMode, const Constraint &constraint, int priority = 0)
+    static void registerWorker(Core::Id runMode, const Constraint &constraint)
     {
         auto factory = new RunWorkerFactory;
         factory->setProducer([](RunControl *rc) { return new Worker(rc); });
         factory->addSupportedRunMode(runMode);
         factory->addConstraint(constraint);
-        factory->setPriority(priority);
     }
 
     static WorkerCreator producer(RunConfiguration *runConfiguration, Core::Id runMode);

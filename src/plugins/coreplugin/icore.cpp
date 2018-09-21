@@ -445,11 +445,6 @@ QString ICore::installerResourcePath()
            + Constants::IDE_ID;
 }
 
-QString ICore::documentationPath()
-{
-    return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DOC_PATH);
-}
-
 /*!
     Returns the path to the command line tools that are shipped with \QC (corresponding
     to the IDE_LIBEXEC_PATH qmake variable).

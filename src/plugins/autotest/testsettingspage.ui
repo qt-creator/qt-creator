@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>585</width>
-    <height>373</height>
+    <height>431</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
           <item>
            <widget class="QCheckBox" name="omitRunConfigWarnCB">
             <property name="toolTip">
-             <string>Hides warnings related to a guessed run configuration.</string>
+             <string>Hides warnings related to a deduced run configuration.</string>
             </property>
             <property name="text">
              <string>Omit run configuration warnings</string>
@@ -135,6 +135,33 @@ Warning: this is an experimental feature and might lead to failing to execute th
             </item>
             <item>
              <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QPushButton" name="resetChoicesButton">
+              <property name="toolTip">
+               <string>Clear all cached choices of run configurations for tests where the executable could not be deduced.</string>
+              </property>
+              <property name="text">
+               <string>Reset Cached Choices</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>

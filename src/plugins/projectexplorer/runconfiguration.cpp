@@ -642,11 +642,6 @@ bool RunWorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMo
     return true;
 }
 
-void RunWorkerFactory::setPriority(int priority)
-{
-    m_priority = priority;
-}
-
 void RunWorkerFactory::setProducer(const WorkerCreator &producer)
 {
     m_producer = producer;
@@ -971,15 +966,14 @@ RunWorkerFactory::WorkerCreator RunControl::producer(RunConfiguration *runConfig
     const auto canRun = std::bind(&RunWorkerFactory::canRun, std::placeholders::_1, runConfig, runMode);
     const QList<RunWorkerFactory *> candidates = Utils::filtered(g_runWorkerFactories, canRun);
 
+    // This is legit, there might be combinations that cannot run.
     if (candidates.empty())
         return {};
 
-    const auto higherPriority = std::bind(std::greater<>(),
-                                          std::bind(&RunWorkerFactory::priority, std::placeholders::_1),
-                                          std::bind(&RunWorkerFactory::priority, std::placeholders::_2));
-    const auto bestFactory = std::max_element(candidates.begin(), candidates.end(), higherPriority);
-
-    return (*bestFactory)->producer();
+    // There should be at most one top-level producer feeling responsible per combination.
+    // Breaking a tie should be done by tightening the restrictions on one of them.
+    QTC_CHECK(candidates.size() == 1);
+    return candidates.front()->producer();
 }
 
 void RunControlPrivate::initiateStart()
@@ -1616,12 +1610,12 @@ void SimpleTargetRunner::start()
 
         connect(&m_launcher, &ApplicationLauncher::remoteStderr,
                 this, [this](const QString &output) {
-                    appendMessage(output, Utils::StdErrFormatSameLine);
+                    appendMessage(output, Utils::StdErrFormatSameLine, false);
                 });
 
         connect(&m_launcher, &ApplicationLauncher::remoteStdout,
                 this, [this](const QString &output) {
-                    appendMessage(output, Utils::StdOutFormatSameLine);
+                    appendMessage(output, Utils::StdOutFormatSameLine, false);
                 });
 
         connect(&m_launcher, &ApplicationLauncher::finished,

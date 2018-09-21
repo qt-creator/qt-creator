@@ -334,7 +334,7 @@ void NewDialog::showDialog()
         m_ui->templateCategoryView->setExpanded(m_filterProxyModel->index(row, 0), true);
 
     // Ensure that item description is visible on first show
-    currentItemChanged(m_ui->templatesView->rootIndex().child(0,0));
+    currentItemChanged(m_filterProxyModel->index(0, 0, m_ui->templatesView->rootIndex()));
 
     updateOkButton();
     show();
@@ -438,7 +438,8 @@ void NewDialog::currentCategoryChanged(const QModelIndex &index)
         sourceIndex = m_filterProxyModel->mapFromSource(sourceIndex);
         m_ui->templatesView->setRootIndex(sourceIndex);
         // Focus the first item by default
-        m_ui->templatesView->setCurrentIndex(m_ui->templatesView->rootIndex().child(0,0));
+        m_ui->templatesView->setCurrentIndex(
+                    m_filterProxyModel->index(0, 0, m_ui->templatesView->rootIndex()));
     }
 }
 

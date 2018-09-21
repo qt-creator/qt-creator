@@ -26,56 +26,27 @@
 #pragma once
 
 #include "abstractremotelinuxdeploystep.h"
-#include "remotelinuxcustomcommanddeployservice.h"
 
 namespace RemoteLinux {
-namespace Internal {
-class AbstractRemoteLinuxCustomCommandDeploymentStepPrivate;
-class GenericRemoteLinuxCustomCommandDeploymentStepPrivate;
-} // namespace Internal
+namespace Internal { class RemoteLinuxCustomCommandDeploymentStepPrivate; }
 
-
-class REMOTELINUX_EXPORT AbstractRemoteLinuxCustomCommandDeploymentStep
+class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeploymentStep
     : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 public:
-    ~AbstractRemoteLinuxCustomCommandDeploymentStep() override;
-
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
-    void setCommandLine(const QString &commandLine);
-    QString commandLine() const;
-
-protected:
-    AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-
-    bool initInternal(QString *error = 0) override;
-
-private:
-    RemoteLinuxCustomCommandDeployService *deployService() const  override = 0;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
-    Internal::AbstractRemoteLinuxCustomCommandDeploymentStepPrivate *d;
-};
-
-
-class REMOTELINUX_EXPORT GenericRemoteLinuxCustomCommandDeploymentStep
-    : public AbstractRemoteLinuxCustomCommandDeploymentStep
-{
-    Q_OBJECT
-public:
-    explicit GenericRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl);
-    ~GenericRemoteLinuxCustomCommandDeploymentStep() override;
+    explicit RemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl);
+    ~RemoteLinuxCustomCommandDeploymentStep() override;
 
     static Core::Id stepId();
     static QString displayName();
 
 private:
-    RemoteLinuxCustomCommandDeployService *deployService() const override;
+    bool initInternal(QString *error) override;
+    AbstractRemoteLinuxDeployService *deployService() const override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
-    Internal::GenericRemoteLinuxCustomCommandDeploymentStepPrivate *d;
+    Internal::RemoteLinuxCustomCommandDeploymentStepPrivate *d;
 };
 
 } // namespace RemoteLinux

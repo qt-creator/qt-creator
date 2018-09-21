@@ -236,7 +236,7 @@ void FancyLineEdit::updateButtonPositions()
 {
     QRect contentRect = rect();
     for (int i = 0; i < 2; ++i) {
-        Side iconpos = (Side)i;
+        Side iconpos = Side(i);
         if (layoutDirection() == Qt::RightToLeft)
             iconpos = (iconpos == Left ? Right : Left);
 
@@ -473,9 +473,9 @@ void FancyLineEdit::validate()
 
     // Check buttons.
     if (d->m_oldText.isEmpty() || t.isEmpty()) {
-        for (int i = 0; i < 2; ++i) {
-            if (d->m_iconbutton[i]->hasAutoHide())
-                d->m_iconbutton[i]->animateShow(!t.isEmpty());
+        for (auto &button : qAsConst(d->m_iconbutton)) {
+            if (button->hasAutoHide())
+                button->animateShow(!t.isEmpty());
         }
         d->m_oldText = t;
     }

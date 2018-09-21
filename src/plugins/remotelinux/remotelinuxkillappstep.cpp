@@ -43,11 +43,6 @@ RemoteLinuxKillAppStep::RemoteLinuxKillAppStep(BuildStepList *bsl, Core::Id id)
     setDefaultDisplayName(displayName());
 }
 
-BuildStepConfigWidget *RemoteLinuxKillAppStep::createConfigWidget()
-{
-    return new SimpleBuildStepConfigWidget(this);
-}
-
 bool RemoteLinuxKillAppStep::initInternal(QString *error)
 {
     Q_UNUSED(error);

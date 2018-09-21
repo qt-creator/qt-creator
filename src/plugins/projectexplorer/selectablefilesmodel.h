@@ -132,11 +132,11 @@ signals:
 
 protected:
     void propagateUp(const QModelIndex &index);
-    void propagateDown(const QModelIndex &index);
+    void propagateDown(const QModelIndex &idx);
 
 private:
     QList<Glob> parseFilter(const QString &filter);
-    Qt::CheckState applyFilter(const QModelIndex &index);
+    Qt::CheckState applyFilter(const QModelIndex &idx);
     void collectFiles(Tree *root, Utils::FileNameList *result) const;
     void collectPaths(Tree *root, Utils::FileNameList *result) const;
     void selectAllFiles(Tree *root);
@@ -214,7 +214,7 @@ private:
     void parsingProgress(const Utils::FileName &fileName);
     void parsingFinished();
 
-    void smartExpand(const QModelIndex &index);
+    void smartExpand(const QModelIndex &idx);
 
     SelectableFilesFromDirModel *m_model = nullptr;
 

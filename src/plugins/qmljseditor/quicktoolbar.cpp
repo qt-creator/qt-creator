@@ -96,7 +96,7 @@ QuickToolBar::QuickToolBar()
                << QLatin1String("font.italic")
                << QLatin1String("font.underline")
                << QLatin1String("font.strikeout")
-               << QString::null
+               << QString()
                << QLatin1String("states")
                << QLatin1String("transitions")
                ;

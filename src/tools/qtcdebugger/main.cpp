@@ -35,6 +35,7 @@
 #include <QTextStream>
 #include <QFileInfo>
 #include <QByteArray>
+#include <QSysInfo>
 #include <QString>
 #include <QDir>
 #include <QTime>
@@ -138,6 +139,26 @@ static bool parseArguments(const QStringList &args, QString *errorMessage)
     return true;
 }
 
+static bool readDebugger(const wchar_t *key, QString *debugger,
+                         QString *errorMessage)
+{
+    bool success = false;
+    HKEY handle;
+    const RegistryAccess::AccessMode accessMode = optIsWow
+#ifdef Q_OS_WIN64
+        ? RegistryAccess::Registry32Mode
+#else
+        ? RegistryAccess::Registry64Mode
+#endif
+        : RegistryAccess::DefaultAccessMode;
+
+    if (openRegistryKey(HKEY_LOCAL_MACHINE, debuggerRegistryKeyC, false, &handle, accessMode, errorMessage)) {
+        success = registryReadStringKey(handle, key, debugger, errorMessage);
+        RegCloseKey(handle);
+    }
+    return success;
+}
+
 static void usage(const QString &binary, const QString &message = QString())
 {
     QString msg;
@@ -170,10 +191,16 @@ static void usage(const QString &binary, const QString &message = QString())
         << "<p>On 64-bit systems, do the same for the key <i>HKEY_LOCAL_MACHINE\\" << wCharToQString(debuggerWow32RegistryKeyC) << "</i>, "
         << "setting the new value to <pre>\"" << QDir::toNativeSeparators(binary) << "\" -wow %ld %ld</pre></p>"
         << "<p>How to run a command with administrative privileges:</p>"
-        << "<pre>runas /env /noprofile /user:Administrator \"command arguments\"</pre>"
-        << "</body></html>";
+        << "<pre>runas /env /noprofile /user:Administrator \"command arguments\"</pre>";
+    QString currentDebugger;
+    QString errorMessage;
+    if (readDebugger(debuggerRegistryValueNameC, &currentDebugger, &errorMessage))
+       str << "<p>Currently registered debugger:</p><pre>" << currentDebugger << "</pre>";
+    str << "<p>Qt " << QT_VERSION_STR << ", " << QSysInfo::WordSize
+        << "bit</p></body></html>";
 
     QMessageBox msgBox(QMessageBox::Information, QLatin1String(titleC), msg, QMessageBox::Ok);
+    msgBox.setTextInteractionFlags(Qt::TextBrowserInteraction);
     msgBox.exec();
 }
 
@@ -321,22 +348,7 @@ bool startCreatorAsDebugger(bool asClient, QString *errorMessage)
 bool readDefaultDebugger(QString *defaultDebugger,
                          QString *errorMessage)
 {
-    bool success = false;
-    HKEY handle;
-    const RegistryAccess::AccessMode accessMode = optIsWow
-#ifdef Q_OS_WIN64
-        ? RegistryAccess::Registry32Mode
-#else
-        ? RegistryAccess::Registry64Mode
-#endif
-        : RegistryAccess::DefaultAccessMode;
-
-    if (openRegistryKey(HKEY_LOCAL_MACHINE, debuggerRegistryKeyC, false, &handle, accessMode, errorMessage)) {
-        success = registryReadStringKey(handle, debuggerRegistryDefaultValueNameC,
-                                        defaultDebugger, errorMessage);
-        RegCloseKey(handle);
-    }
-    return success;
+   return readDebugger(debuggerRegistryDefaultValueNameC, defaultDebugger, errorMessage);
 }
 
 bool startDefaultDebugger(QString *errorMessage)

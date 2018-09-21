@@ -281,19 +281,19 @@ void SelectableFilesModel::propagateUp(const QModelIndex &index)
     }
 }
 
-void SelectableFilesModel::propagateDown(const QModelIndex &index)
+void SelectableFilesModel::propagateDown(const QModelIndex &idx)
 {
-    auto t = static_cast<Tree *>(index.internalPointer());
+    auto t = static_cast<Tree *>(idx.internalPointer());
     for (int i = 0; i<t->childDirectories.size(); ++i) {
         t->childDirectories[i]->checked = t->checked;
-        propagateDown(index.child(i, 0));
+        propagateDown(index(i, 0, idx));
     }
     for (int i = 0; i<t->files.size(); ++i)
         t->files[i]->checked = t->checked;
 
-    int rows = rowCount(index);
+    int rows = rowCount(idx);
     if (rows)
-        emit dataChanged(index.child(0, 0), index.child(rows-1, 0));
+        emit dataChanged(index(0, 0, idx), index(rows-1, 0, idx));
 }
 
 Qt::ItemFlags SelectableFilesModel::flags(const QModelIndex &index) const
@@ -401,14 +401,14 @@ void SelectableFilesModel::selectAllFiles(Tree *root)
     emit checkedFilesChanged();
 }
 
-Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
+Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &idx)
 {
     bool allChecked = true;
     bool allUnchecked = true;
-    auto t = static_cast<Tree *>(index.internalPointer());
+    auto t = static_cast<Tree *>(idx.internalPointer());
 
     for (int i=0; i < t->childDirectories.size(); ++i) {
-        Qt::CheckState childCheckState = applyFilter(index.child(i, 0));
+        Qt::CheckState childCheckState = applyFilter(index(i, 0, idx));
         if (childCheckState == Qt::Checked)
             allUnchecked = false;
         else if (childCheckState == Qt::Unchecked)
@@ -428,7 +428,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
             removeBlock = (filter(t->visibleFiles.at(visibleIndex)) == FilterState::HIDDEN);
         } else if (removeBlock != (filter(t->visibleFiles.at(visibleIndex)) == FilterState::HIDDEN)) {
             if (removeBlock) {
-                beginRemoveRows(index, startOfBlock, visibleIndex - 1);
+                beginRemoveRows(idx, startOfBlock, visibleIndex - 1);
                 for (int i=startOfBlock; i < visibleIndex; ++i)
                     t->visibleFiles[i]->checked = Qt::Unchecked;
                 t->visibleFiles.erase(t->visibleFiles.begin() + startOfBlock,
@@ -442,7 +442,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
         }
     }
     if (removeBlock) {
-        beginRemoveRows(index, startOfBlock, visibleEnd - 1);
+        beginRemoveRows(idx, startOfBlock, visibleEnd - 1);
         for (int i=startOfBlock; i < visibleEnd; ++i)
             t->visibleFiles[i]->checked = Qt::Unchecked;
         t->visibleFiles.erase(t->visibleFiles.begin() + startOfBlock,
@@ -476,7 +476,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
             ++newIndex;
         }
         // end of block = newIndex
-        beginInsertRows(index, visibleIndex, visibleIndex + newIndex - startOfBlock - 1);
+        beginInsertRows(idx, visibleIndex, visibleIndex + newIndex - startOfBlock - 1);
         for (int i= newIndex - 1; i >= startOfBlock; --i)
             t->visibleFiles.insert(visibleIndex, newRows.at(i));
         endInsertRows();
@@ -486,7 +486,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
             break;
     }
     if (newIndex != newEnd) {
-        beginInsertRows(index, visibleIndex, visibleIndex + newEnd - newIndex - 1);
+        beginInsertRows(idx, visibleIndex, visibleIndex + newEnd - newIndex - 1);
         for (int i = newEnd - 1; i >= newIndex; --i)
             t->visibleFiles.insert(visibleIndex, newRows.at(i));
         endInsertRows();
@@ -508,7 +508,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
         newState = Qt::Unchecked;
     if (t->checked != newState) {
         t->checked = newState;
-        emit dataChanged(index, index);
+        emit dataChanged(idx, idx);
     }
 
     return newState;
@@ -705,13 +705,14 @@ void SelectableFilesWidget::parsingFinished()
     enableWidgets(true);
 }
 
-void SelectableFilesWidget::smartExpand(const QModelIndex &index)
+void SelectableFilesWidget::smartExpand(const QModelIndex &idx)
 {
-    if (m_view->model()->data(index, Qt::CheckStateRole) == Qt::PartiallyChecked) {
-        m_view->expand(index);
-        int rows = m_view->model()->rowCount(index);
+    QAbstractItemModel *model = m_view->model();
+    if (model->data(idx, Qt::CheckStateRole) == Qt::PartiallyChecked) {
+        m_view->expand(idx);
+        int rows = model->rowCount(idx);
         for (int i = 0; i < rows; ++i)
-            smartExpand(index.child(i, 0));
+            smartExpand(model->index(i, 0, idx));
     }
 }
 

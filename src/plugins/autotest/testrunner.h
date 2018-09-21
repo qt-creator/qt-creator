@@ -36,6 +36,7 @@
 #include <QQueue>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QComboBox;
 class QDialogButtonBox;
 class QLabel;
@@ -111,6 +112,7 @@ public:
     explicit RunConfigurationSelectionDialog(const QString &buildTargetKey, QWidget *parent = nullptr);
     QString displayName() const;
     QString executable() const;
+    bool rememberChoice() const;
 private:
     void populate();
     void updateLabels();
@@ -119,6 +121,7 @@ private:
     QLabel *m_arguments;
     QLabel *m_workingDir;
     QComboBox *m_rcCombo;
+    QCheckBox *m_rememberCB;
     QDialogButtonBox *m_buttonBox;
 };
 

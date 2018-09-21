@@ -150,7 +150,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     if (args.overrideColor.isValid())
         m_mainWindow->setOverrideColor(args.overrideColor);
     m_locator = new Locator;
-    qsrand(QDateTime::currentDateTime().toTime_t());
+    std::srand(unsigned(QDateTime::currentDateTime().toSecsSinceEpoch()));
     m_mainWindow->init();
     m_editMode = new EditMode;
     ModeManager::activateMode(m_editMode->id());

@@ -189,11 +189,7 @@ void TerminalRunner::start()
     m_stubProc.setWorkingDirectory(m_stubRunnable.workingDirectory);
 
     if (HostOsInfo::isWindowsHost()) {
-        // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
-        if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
-            m_stubProc.setMode(ConsoleProcess::Suspend);
-        else
-            m_stubProc.setMode(ConsoleProcess::Debug);
+        m_stubProc.setMode(ConsoleProcess::Suspend);
     } else {
         m_stubProc.setMode(ConsoleProcess::Debug);
         m_stubProc.setSettings(Core::ICore::settings());

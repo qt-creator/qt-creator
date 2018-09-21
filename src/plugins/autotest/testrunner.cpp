@@ -49,6 +49,7 @@
 #include <utils/outputformat.h>
 #include <utils/qtcprocess.h>
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -137,8 +138,8 @@ static QString processInformation(const QProcess *proc)
 static QString rcInfo(const TestConfiguration * const config)
 {
     QString info = '\n' + TestRunner::tr("Run configuration:") + ' ';
-    if (config->isGuessed())
-        info += TestRunner::tr("guessed from");
+    if (config->isDeduced())
+        info += TestRunner::tr("deduced from");
     return info + " \"" + config->runConfigDisplayName() + '"';
 }
 
@@ -365,6 +366,17 @@ static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &bui
             = Utils::filtered(target->runConfigurations(), [] (const RunConfiguration *rc) {
         return !rc->runnable().executable.isEmpty();
     });
+
+    const ChoicePair oldChoice = AutotestPlugin::cachedChoiceFor(buildTargetKey);
+    if (!oldChoice.executable.isEmpty()) {
+        runConfig = Utils::findOrDefault(runConfigurations,
+                                  [&oldChoice] (const RunConfiguration *rc) {
+            return oldChoice.matches(rc);
+        });
+        if (runConfig)
+            return runConfig;
+    }
+
     if (runConfigurations.size() == 1)
         return runConfigurations.first();
 
@@ -380,6 +392,8 @@ static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &bui
                 return false;
             return rc->runnable().executable == exe;
         });
+        if (runConfig && dialog.rememberChoice())
+            AutotestPlugin::cacheRunConfigChoice(buildTargetKey, ChoicePair(dName, exe));
     }
     return runConfig;
 }
@@ -392,11 +406,11 @@ int TestRunner::precheckTestConfigurations()
         config->completeTestInformation(TestRunMode::Run);
         if (config->project()) {
             testCaseCount += config->testCaseCount();
-            if (!omitWarnings && config->isGuessed()) {
+            if (!omitWarnings && config->isDeduced()) {
                 QString message = tr(
-                            "Project's run configuration was guessed for \"%1\".\n"
+                            "Project's run configuration was deduced for \"%1\".\n"
                             "This might cause trouble during execution.\n"
-                            "(guessed from \"%2\")");
+                            "(deduced from \"%2\")");
                 message = message.arg(config->displayName()).arg(config->runConfigDisplayName());
                 emit testResultReady(
                             TestResultPtr(new FaultyTestResult(Result::MessageWarn, message)));
@@ -669,6 +683,8 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
         details.append(QString(" (%1)").arg(buildTargetKey));
     m_details = new QLabel(details, this);
     m_rcCombo = new QComboBox(this);
+    m_rememberCB = new QCheckBox(tr("Remember choice. Cached choices can be reset by switching "
+                                    "projects or using the option to clear the cache."), this);
     m_executable = new QLabel(this);
     m_arguments = new QLabel(this);
     m_workingDir = new QLabel(this);
@@ -680,6 +696,7 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(m_details);
     formLayout->addRow(tr("Run Configuration:"), m_rcCombo);
+    formLayout->addRow(m_rememberCB);
     formLayout->addRow(createLine(this));
     formLayout->addRow(tr("Executable:"), m_executable);
     formLayout->addRow(tr("Arguments:"), m_arguments);
@@ -707,6 +724,11 @@ QString RunConfigurationSelectionDialog::displayName() const
 QString RunConfigurationSelectionDialog::executable() const
 {
     return m_executable ? m_executable->text() : QString();
+}
+
+bool RunConfigurationSelectionDialog::rememberChoice() const
+{
+    return m_rememberCB ? m_rememberCB->isChecked() : false;
 }
 
 void RunConfigurationSelectionDialog::populate()

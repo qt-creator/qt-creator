@@ -56,6 +56,8 @@ class CreateTarStepWidget : public SimpleBuildStepConfigWidget
 public:
     CreateTarStepWidget(TarPackageCreationStep *step) : SimpleBuildStepConfigWidget(step)
     {
+        setShowWidget(true);
+
         m_ignoreMissingFilesCheckBox.setText(tr("Ignore missing files"));
         m_incrementalDeploymentCheckBox.setText(tr("Package modified files only"));
 
@@ -87,8 +89,6 @@ public:
         return QLatin1String("<b>") + tr("Create tarball:") + QLatin1String("</b> ")
             + step->packageFilePath();
     }
-
-    bool showWidget() const { return true; }
 
 private:
     void handleIgnoreMissingFilesChanged(bool ignoreMissingFiles) {

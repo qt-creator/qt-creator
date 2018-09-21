@@ -261,7 +261,7 @@ QModelIndex ItemViewFind::nextIndex(const QModelIndex &idx, bool *wrapped) const
     if (d->m_option == FetchMoreWhileSearching && model->canFetchMore(current))
         model->fetchMore(current);
     if (model->rowCount(current) > 0)
-        return current.child(0, 0);
+        return model->index(0, 0, current);
 
     // no more children, go up and look for parent with more children
     QModelIndex nextIndex;
