@@ -43,7 +43,7 @@ class SourceNameIdDoesNotExists : std::exception
 public:
     const char *what() const noexcept override
     {
-        return "The source name id does not exists in the database!";
+        return "The source name id does not exist in the database!";
     }
 };
 
@@ -52,7 +52,7 @@ class DirectoryPathIdDoesNotExists : std::exception
 public:
     const char *what() const noexcept override
     {
-        return "The directory path id does not exists in the database!";
+        return "The directory path id does not exist in the database!";
     }
 };
 

@@ -58,7 +58,7 @@ DocumentDoesNotExistException::DocumentDoesNotExistException(const Utf8String &f
             + filePath
             + Utf8StringLiteral("' with the project part id '")
             + projectPartId
-            + Utf8StringLiteral("' does not exists!");
+            + Utf8StringLiteral("' does not exist!");
 }
 
 DocumentFileDoesNotExistException::DocumentFileDoesNotExistException(
