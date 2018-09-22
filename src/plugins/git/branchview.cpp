@@ -180,6 +180,9 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
         contextMenu.addAction(tr("Fetch"), this, [this, &remote]() {
             GitPlugin::client()->fetch(m_repository, *remote);
         });
+        contextMenu.addSeparator();
+        contextMenu.addAction(tr("Manage Remotes..."), GitPlugin::instance(),
+                              &GitPlugin::manageRemotes);
     }
     if (hasActions) {
         if (!currentSelected && (isLocal || isTag))

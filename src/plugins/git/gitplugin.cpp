@@ -573,7 +573,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     remoteRepositoryMenu->addSeparator(context);
 
     createRepositoryAction(remoteRepositoryMenu, tr("Manage Remotes..."), "Git.RemoteList",
-                           context, false, std::bind(&GitPlugin::remoteList, this));
+                           context, false, std::bind(&GitPlugin::manageRemotes, this));
 
     /* \"Remote Repository" menu */
 
@@ -1314,7 +1314,7 @@ void GitPlugin::branchList()
     NavigationWidget::activateSubWidget(Constants::GIT_BRANCH_VIEW_ID, Side::Right);
 }
 
-void GitPlugin::remoteList()
+void GitPlugin::manageRemotes()
 {
     showNonModalDialog(currentState().topLevel(), m_remoteDialog);
 }
