@@ -47,7 +47,7 @@ namespace Internal {
 
 CppcheckTool::CppcheckTool(CppcheckTextMarkManager &marks) :
     m_marks(marks),
-    m_progressRegexp("^.* checked (\\d)% done$"),
+    m_progressRegexp("^.* checked (\\d+)% done$"),
     m_messageRegexp("^(.+),(\\d+),(\\w+),(\\w+),(.*)$")
 {
     m_runner = std::make_unique<CppcheckRunner>(*this);
