@@ -229,7 +229,7 @@ void CppcheckTool::addToQueue(const Utils::FileNameList &files, CppTools::Projec
 void CppcheckTool::stop(const Utils::FileNameList &files)
 {
     m_runner->removeFromQueue(files);
-    m_runner->stop();
+    m_runner->stop(files);
 }
 
 void CppcheckTool::startParsing()
