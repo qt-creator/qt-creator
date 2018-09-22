@@ -3385,8 +3385,14 @@ GitRemote::GitRemote(const QString &url)
 
     // Check for local remotes (refer to the root or relative path)
     // On Windows, local paths typically starts with <drive>:
+    auto startsWithWindowsDrive = [](const QString &url) {
+        if (!HostOsInfo::isWindowsHost() || url.size() < 2)
+            return false;
+        const QChar drive = url.at(0).toLower();
+        return drive >= 'a' && drive <= 'z' && url.at(1) == ':';
+    };
     if (url.startsWith("file://") || url.startsWith('/') || url.startsWith('.')
-            || (HostOsInfo::isWindowsHost() && url[1] == ':')) {
+            || startsWithWindowsDrive(url)) {
         protocol = "file";
         path = QDir::fromNativeSeparators(url.startsWith("file://") ? url.mid(7) : url);
         isValid = QDir(path).exists() || QDir(path + ".git").exists();
