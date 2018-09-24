@@ -271,7 +271,8 @@ QRegExp PluginSpec::platformSpecification() const
 
 bool PluginSpec::isAvailableForHostPlatform() const
 {
-    return d->platformSpecification.isEmpty() || d->platformSpecification.exactMatch(PluginManager::platformName());
+    return d->platformSpecification.isEmpty()
+            || d->platformSpecification.indexIn(PluginManager::platformName()) >= 0;
 }
 
 bool PluginSpec::isRequired() const

@@ -3,7 +3,7 @@
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
     \"DisabledByDefault\" : true,
-    \"Platform\" : \"(Linux.*)|(Windows.*)\",
+    \"Platform\" : \"^(Linux|Windows)\",
     \"Vendor\" : \"AudioCodes\",
     \"Copyright\" : \"(C) 2016 AudioCodes Ltd., (C) $$QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",
