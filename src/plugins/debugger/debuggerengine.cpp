@@ -1249,11 +1249,11 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
 {
     showMessage("NOTE: INFERIOR SPONTANEOUS STOP");
     QTC_ASSERT(state() == InferiorRunOk, qDebug() << this << state());
+    EngineManager::activateEngine(this);
     showMessage(tr("Stopped."), StatusBar);
     setState(InferiorStopOk);
     if (boolSetting(RaiseOnInterrupt))
         ICore::raiseWindow(DebuggerMainWindow::instance());
-    EngineManager::activateEngine(this);
 }
 
 void DebuggerEngine::notifyInferiorStopFailed()
