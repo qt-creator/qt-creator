@@ -28,17 +28,17 @@
 #include "cursor.h"
 #include "fulltokeninfo.h"
 #include "sourcerange.h"
+#include "token.h"
 #include "tokenprocessor.h"
 
 #include <utils/predicates.h>
 
 namespace ClangBackEnd {
 
-FullTokenInfo::FullTokenInfo(const CXCursor &cxCursor,
-                             CXToken *cxToken,
-                             CXTranslationUnit cxTranslationUnit,
+FullTokenInfo::FullTokenInfo(const Cursor &cursor,
+                             const Token *token,
                              std::vector<CXSourceRange> &currentOutputArgumentRanges)
-    : TokenInfo(cxCursor, cxToken, cxTranslationUnit, currentOutputArgumentRanges)
+    : TokenInfo(cursor, token, currentOutputArgumentRanges)
 {
 }
 
@@ -101,15 +101,13 @@ static Utf8String propertyParentSpelling(CXTranslationUnit cxTranslationUnit,
     return parentSpelling;
 }
 
-static Utf8String getPropertyType(const CXSourceLocation &cxLocation,
-                                  CXTranslationUnit cxTranslationUnit,
-                                  uint propertyPosition)
+static Utf8String getPropertyType(const SourceLocation &location, uint propertyPosition)
 {
     // Extract property type from the source code
     CXFile cxFile;
     uint offset;
-    clang_getFileLocation(cxLocation, &cxFile, nullptr, nullptr, &offset);
-    const char *const contents = clang_getFileContents(cxTranslationUnit, cxFile, nullptr);
+    clang_getFileLocation(location.cx(), &cxFile, nullptr, nullptr, &offset);
+    const char *const contents = clang_getFileContents(location.tu(), cxFile, nullptr);
     const char *const lineContents = &contents[offset - propertyPosition];
 
     const char *typeStart = std::strstr(lineContents, "Q_PROPERTY") + 10;
@@ -125,18 +123,15 @@ static Utf8String getPropertyType(const CXSourceLocation &cxLocation,
 
 void FullTokenInfo::updatePropertyData()
 {
-    CXSourceRange cxRange(clang_getTokenExtent(m_cxTranslationUnit, *m_cxToken));
-    const SourceRange range(m_cxTranslationUnit, cxRange);
-    m_extraInfo.semanticParentTypeSpelling = propertyParentSpelling(m_cxTranslationUnit,
+    const SourceRange range = m_token->extent();
+    m_extraInfo.semanticParentTypeSpelling = propertyParentSpelling(m_token->tu(),
                                                                     range.start().filePath(),
                                                                     line(),
                                                                     column());
     m_extraInfo.cursorRange = range;
     m_extraInfo.declaration = true;
     m_extraInfo.definition = true;
-    m_extraInfo.typeSpelling = getPropertyType(clang_getRangeStart(cxRange),
-                                               m_cxTranslationUnit,
-                                               column() - 1);
+    m_extraInfo.typeSpelling = getPropertyType(range.start(), column() - 1);
 }
 
 void FullTokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
@@ -263,9 +258,8 @@ void FullTokenInfo::overloadedOperatorKind()
 
 void FullTokenInfo::evaluate()
 {
-    m_extraInfo.token = ClangString(clang_getTokenSpelling(m_cxTranslationUnit, *m_cxToken));
-
-    auto cxTokenKind = clang_getTokenKind(*m_cxToken);
+    m_extraInfo.token = m_token->spelling();
+    CXTokenKind cxTokenKind = m_token->kind();
     if (cxTokenKind == CXToken_Identifier) {
         m_extraInfo.declaration = m_originalCursor.isDeclaration();
         m_extraInfo.definition = m_originalCursor.isDefinition();

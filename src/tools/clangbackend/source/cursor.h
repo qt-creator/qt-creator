@@ -35,8 +35,6 @@
 
 #include <vector>
 
-class Utf8String;
-
 namespace ClangBackEnd {
 
 class SourceLocation;

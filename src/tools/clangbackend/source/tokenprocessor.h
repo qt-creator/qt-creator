@@ -27,6 +27,7 @@
 
 #include "fulltokeninfo.h"
 #include "sourcerange.h"
+#include "token.h"
 #include "tokenprocessoriterator.h"
 #include "tokeninfocontainer.h"
 
@@ -52,53 +53,43 @@ public:
 
 public:
     TokenProcessor() = default;
-    TokenProcessor(CXTranslationUnit cxTranslationUnit, const SourceRange &range)
-        : cxTranslationUnit(cxTranslationUnit)
+    TokenProcessor(const SourceRange &range)
+        : tokens(range)
+        , cursors(tokens.annotate())
     {
-        unsigned cxTokensCount = 0;
-        clang_tokenize(cxTranslationUnit, range, &cxTokens, &cxTokensCount);
-        cxCursors.resize(cxTokensCount);
-        clang_annotateTokens(cxTranslationUnit, cxTokens, cxTokensCount, cxCursors.data());
-    }
-    ~TokenProcessor()
-    {
-        clang_disposeTokens(cxTranslationUnit, cxTokens, unsigned(cxCursors.size()));
     }
 
     bool isEmpty() const
     {
-        return cxCursors.empty();
+        return cursors.empty();
     }
     bool isNull() const
     {
-        return cxTokens == nullptr;
+        return !tokens.size();
     }
     size_t size() const
     {
-        return cxCursors.size();
+        return cursors.size();
     }
 
     const_iterator begin() const
     {
-        return const_iterator(cxCursors.cbegin(),
-                              cxTokens,
-                              cxTranslationUnit,
+        return const_iterator(cursors.cbegin(),
+                              tokens.cbegin(),
                               currentOutputArgumentRanges);
     }
 
     const_iterator end() const
     {
-        return const_iterator(cxCursors.cend(),
-                              cxTokens + cxCursors.size(),
-                              cxTranslationUnit,
+        return const_iterator(cursors.cend(),
+                              tokens.cend(),
                               currentOutputArgumentRanges);
     }
 
 
     T operator[](size_t index) const
     {
-        T tokenInfo(cxCursors[index], cxTokens + index, cxTranslationUnit,
-                    currentOutputArgumentRanges);
+        T tokenInfo(cursors[index], &tokens[index], currentOutputArgumentRanges);
         tokenInfo.evaluate();
         return tokenInfo;
     }
@@ -117,8 +108,8 @@ private:
     template<class TC>
     QVector<TC> toTokens() const
     {
-        QVector<TC> tokens;
-        tokens.reserve(int(size()));
+        QVector<TC> tokenInfos;
+        tokenInfos.reserve(int(size()));
 
         const auto isValidTokenInfo = [](const T &tokenInfo) {
             return !tokenInfo.hasInvalidMainType()
@@ -126,48 +117,48 @@ private:
                     && !tokenInfo.hasMainType(HighlightingType::Comment);
         };
 
-        for (size_t index = 0; index < cxCursors.size(); ++index) {
+        for (size_t index = 0; index < cursors.size(); ++index) {
             T tokenInfo = (*this)[index];
             if (isValidTokenInfo(tokenInfo))
-                tokens.push_back(tokenInfo);
+                tokenInfos.push_back(tokenInfo);
         }
 
-        return tokens;
+        return tokenInfos;
     }
 
     mutable std::vector<CXSourceRange> currentOutputArgumentRanges;
-    CXTranslationUnit cxTranslationUnit = nullptr;
-    CXToken *cxTokens = nullptr;
-
-    std::vector<CXCursor> cxCursors;
+    Tokens tokens;
+    std::vector<Cursor> cursors;
 };
 
 template <>
 inline
 QVector<TokenInfoContainer> TokenProcessor<FullTokenInfo>::toTokenInfoContainers() const
 {
-    QVector<FullTokenInfo> tokens = toTokens<FullTokenInfo>();
+    QVector<FullTokenInfo> tokenInfos = toTokens<FullTokenInfo>();
 
-    return Utils::transform(tokens,
-                            [&tokens](FullTokenInfo &token) -> TokenInfoContainer {
-        if (!token.m_extraInfo.declaration || token.hasMainType(HighlightingType::LocalVariable))
-            return token;
+    return Utils::transform(tokenInfos,
+                            [&tokenInfos](FullTokenInfo &tokenInfo) -> TokenInfoContainer {
+        if (!tokenInfo.m_extraInfo.declaration
+                || tokenInfo.hasMainType(HighlightingType::LocalVariable)) {
+            return tokenInfo;
+        }
 
-        const int index = tokens.indexOf(token);
-        const SourceLocationContainer &tokenStart = token.m_extraInfo.cursorRange.start;
-        for (auto it = tokens.rend() - index; it != tokens.rend(); ++it) {
+        const int index = tokenInfos.indexOf(tokenInfo);
+        const SourceLocationContainer &tokenStart = tokenInfo.m_extraInfo.cursorRange.start;
+        for (auto it = tokenInfos.rend() - index; it != tokenInfos.rend(); ++it) {
             if (it->m_extraInfo.declaration && !it->hasMainType(HighlightingType::LocalVariable)
-                    && it->m_originalCursor != token.m_originalCursor
+                    && it->m_originalCursor != tokenInfo.m_originalCursor
                     && it->m_extraInfo.cursorRange.contains(tokenStart)) {
-                if (token.m_originalCursor.lexicalParent() != it->m_originalCursor
-                        && !token.hasMainType(HighlightingType::QtProperty)) {
+                if (tokenInfo.m_originalCursor.lexicalParent() != it->m_originalCursor
+                        && !tokenInfo.hasMainType(HighlightingType::QtProperty)) {
                     continue;
                 }
-                token.m_extraInfo.lexicalParentIndex = std::distance(it, tokens.rend()) - 1;
+                tokenInfo.m_extraInfo.lexicalParentIndex = std::distance(it, tokenInfos.rend()) - 1;
                 break;
             }
         }
-        return token;
+        return tokenInfo;
     });
 }
 

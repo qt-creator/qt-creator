@@ -56,6 +56,8 @@ public:
     operator CXSourceRange() const;
     operator SourceRangeContainer() const;
 
+    CXTranslationUnit tu() const { return cxTranslationUnit; }
+
 private:
     CXSourceRange cxSourceRange;
     CXTranslationUnit cxTranslationUnit = nullptr;

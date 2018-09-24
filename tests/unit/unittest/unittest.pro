@@ -101,7 +101,7 @@ SOURCES += \
     refactoringprojectupdater-test.cpp \
     projectpartqueue-test.cpp \
     processormanager-test.cpp \
-    taskscheduler-test.cpp
+    taskscheduler-test.cpp \
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -154,6 +154,7 @@ SOURCES += \
     sqlitestatement-test.cpp \
     sqlitetable-test.cpp \
     sqlstatementbuilder-test.cpp \
+    token-test.cpp \
     translationunitupdater-test.cpp \
     unsavedfiles-test.cpp \
     unsavedfile-test.cpp \

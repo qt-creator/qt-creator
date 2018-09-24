@@ -25,6 +25,7 @@
 
 #include "clangstring.h"
 #include "cursor.h"
+#include "token.h"
 #include "tokeninfo.h"
 #include "sourcelocation.h"
 #include "sourcerange.h"
@@ -34,17 +35,14 @@
 
 namespace ClangBackEnd {
 
-TokenInfo::TokenInfo(const CXCursor &cxCursor,
-                     CXToken *cxToken,
-                     CXTranslationUnit cxTranslationUnit,
+TokenInfo::TokenInfo(const Cursor &cursor,
+                     const Token *token,
                      std::vector<CXSourceRange> &currentOutputArgumentRanges)
-    : m_originalCursor(cxCursor),
-      m_cxToken(cxToken),
-      m_cxTranslationUnit(cxTranslationUnit),
+    : m_originalCursor(cursor),
+      m_token(token),
       m_currentOutputArgumentRanges(&currentOutputArgumentRanges)
 {
-    const SourceRange sourceRange {cxTranslationUnit,
-                                   clang_getTokenExtent(cxTranslationUnit, *cxToken)};
+    const SourceRange sourceRange = token->extent();
     const auto start = sourceRange.start();
     const auto end = sourceRange.end();
 
@@ -472,18 +470,18 @@ static HighlightingType literalKind(const Cursor &cursor)
     Q_UNREACHABLE();
 }
 
-static bool isTokenPartOfOperator(const Cursor &declarationCursor, CXToken *token)
+static bool isTokenPartOfOperator(const Cursor &declarationCursor, const Token &token)
 {
     Q_ASSERT(declarationCursor.isDeclaration());
     const CXTranslationUnit cxTranslationUnit = declarationCursor.cxTranslationUnit();
-    const ClangString tokenName = clang_getTokenSpelling(cxTranslationUnit, *token);
+    const ClangString tokenName = token.spelling();
     if (tokenName == "operator")
         return true;
 
     if (tokenName == "(") {
         // Valid operator declarations have at least one token after '(' so
         // it's safe to proceed to token + 1 without extra checks.
-        const ClangString nextToken = clang_getTokenSpelling(cxTranslationUnit, *(token + 1));
+        const ClangString nextToken = clang_getTokenSpelling(cxTranslationUnit, *(token.cx() + 1));
         if (nextToken != ")") {
             // Argument lists' parentheses are not operator tokens.
             // This '('-token opens a (non-empty) argument list.
@@ -493,7 +491,7 @@ static bool isTokenPartOfOperator(const Cursor &declarationCursor, CXToken *toke
 
     // It's safe to evaluate the preceding token because we will at least have
     // the 'operator'-keyword's token to the left.
-    CXToken *prevToken = token - 1;
+    CXToken *prevToken = token.cx() - 1;
     if (clang_getTokenKind(*prevToken) == CXToken_Punctuation) {
         if (tokenName == "(") {
             // In an operator declaration, when a '(' follows another punctuation
@@ -526,7 +524,7 @@ void TokenInfo::overloadedOperatorKind()
     if (!declarationCursor.displayName().startsWith("operator"))
         return;
 
-    if (inOperatorDeclaration && !isTokenPartOfOperator(declarationCursor, m_cxToken))
+    if (inOperatorDeclaration && !isTokenPartOfOperator(declarationCursor, *m_token))
         return;
 
     m_types.mixinHighlightingTypes.push_back(HighlightingType::Operator);
@@ -580,45 +578,36 @@ enum class QtMacroPart
     FunctionOrPrimitiveType
 };
 
-static bool isFirstTokenOfCursor(const Cursor &cursor, CXToken *token)
+static bool isFirstTokenOfCursor(const Cursor &cursor, const Token &token)
 {
-    const CXTranslationUnit cxTranslationUnit = cursor.cxTranslationUnit();
-    const SourceLocation tokenLocation = SourceLocation(cxTranslationUnit,
-                                                        clang_getTokenLocation(cxTranslationUnit,
-                                                                               *token));
-    return cursor.sourceLocation() == tokenLocation;
+    return cursor.sourceLocation() == token.location();
 }
 
-static bool isLastTokenOfCursor(const Cursor &cursor, CXToken *token)
+static bool isLastTokenOfCursor(const Cursor &cursor, const Token &token)
 {
-    const CXTranslationUnit cxTranslationUnit = cursor.cxTranslationUnit();
-    const SourceLocation tokenLocation = SourceLocation(cxTranslationUnit,
-                                                        clang_getTokenLocation(cxTranslationUnit,
-                                                                               *token));
-    return cursor.sourceRange().end() == tokenLocation;
+    return cursor.sourceRange().end() == token.location();
 }
 
-static bool isValidMacroToken(const Cursor &cursor, CXToken *token)
+static bool isValidMacroToken(const Cursor &cursor, const Token &token)
 {
     // Proper macro token has at least '(' and ')' around it.
     return !isFirstTokenOfCursor(cursor, token) && !isLastTokenOfCursor(cursor, token);
 }
 
-static QtMacroPart propertyPart(CXTranslationUnit cxTranslationUnit, CXToken *token)
+static QtMacroPart propertyPart(const Token &token)
 {
     static constexpr const char *propertyKeywords[]
             = {"READ", "WRITE", "MEMBER", "RESET", "NOTIFY", "REVISION", "DESIGNABLE",
                "SCRIPTABLE", "STORED", "USER", "CONSTANT", "FINAL"
               };
 
-    const ClangString currentToken = clang_getTokenSpelling(cxTranslationUnit, *token);
-    if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), currentToken)
+    if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), token.spelling())
             != std::end(propertyKeywords)) {
         return QtMacroPart::Keyword;
     }
 
-    const ClangString nextToken = clang_getTokenSpelling(cxTranslationUnit, *(token + 1));
-    const ClangString previousToken = clang_getTokenSpelling(cxTranslationUnit, *(token - 1));
+    const ClangString nextToken = clang_getTokenSpelling(token.tu(), *(token.cx() + 1));
+    const ClangString previousToken = clang_getTokenSpelling(token.tu(), *(token.cx() - 1));
     if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), nextToken)
             != std::end(propertyKeywords)) {
         if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), previousToken)
@@ -645,30 +634,30 @@ static QtMacroPart signalSlotPart(CXTranslationUnit cxTranslationUnit, CXToken *
     return (prevToken == "SLOT") ? QtMacroPart::SlotFunction : QtMacroPart::SlotType;
 }
 
-static QtMacroPart qtMacroPart(CXTranslationUnit cxTranslationUnit, CXToken *token)
+static QtMacroPart qtMacroPart(const Token &token)
 {
-    CXSourceLocation location = clang_getTokenLocation(cxTranslationUnit, *token);
+    const SourceLocation location = token.location();
 
     // If current token is inside macro then the cursor from token's position will be
     // the whole macro cursor.
-    Cursor possibleQtMacroCursor = clang_getCursor(cxTranslationUnit, location);
+    Cursor possibleQtMacroCursor = clang_getCursor(token.tu(), location.cx());
     if (!isValidMacroToken(possibleQtMacroCursor, token))
         return QtMacroPart::None;
 
     ClangString spelling = possibleQtMacroCursor.spelling();
     if (spelling == "Q_PROPERTY")
-        return propertyPart(cxTranslationUnit, token);
+        return propertyPart(token);
 
     if (spelling == "SIGNAL")
-        return signalSlotPart(cxTranslationUnit, token, true);
+        return signalSlotPart(token.tu(), token.cx(), true);
     if (spelling == "SLOT")
-        return signalSlotPart(cxTranslationUnit, token, false);
+        return signalSlotPart(token.tu(), token.cx(), false);
     return QtMacroPart::None;
 }
 
 void TokenInfo::invalidFileKind()
 {
-    const QtMacroPart macroPart = qtMacroPart(m_cxTranslationUnit, m_cxToken);
+    const QtMacroPart macroPart = qtMacroPart(*m_token);
 
     switch (macroPart) {
     case QtMacroPart::None:
@@ -708,7 +697,7 @@ void TokenInfo::keywordKind()
             break;
     }
 
-    const ClangString spelling = clang_getTokenSpelling(m_cxTranslationUnit, *m_cxToken);
+    const ClangString spelling = m_token->spelling();
     if (spelling == "bool"
             || spelling == "char"
             || spelling == "char16_t"
@@ -734,7 +723,7 @@ void TokenInfo::keywordKind()
 
 void TokenInfo::evaluate()
 {
-    auto cxTokenKind = clang_getTokenKind(*m_cxToken);
+    auto cxTokenKind = m_token->kind();
 
     m_types = HighlightingTypes();
 

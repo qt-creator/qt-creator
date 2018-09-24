@@ -28,6 +28,7 @@
 #include "clangstring.h"
 #include "cursor.h"
 #include "sourcerange.h"
+#include "token.h"
 
 #include <clangsupport/sourcerangecontainer.h>
 #include <utils/qtcassert.h>
@@ -119,52 +120,32 @@ class ReferencesCollector
 {
 public:
     ReferencesCollector(CXTranslationUnit cxTranslationUnit);
-    ~ReferencesCollector();
 
     ReferencesResult collect(uint line, uint column, bool localReferences = false) const;
 
 private:
-    bool isWithinTokenRange(CXToken token, uint line, uint column) const;
     bool pointsToIdentifier(uint line, uint column, unsigned *tokenIndex) const;
-    bool matchesIdentifier(const CXToken &token, const Utf8String &identifier) const;
+    bool matchesIdentifier(const Token &token, const Utf8String &identifier) const;
     bool checkToken(unsigned index, const Utf8String &identifier, const Utf8String &usr) const;
 
 private:
     CXTranslationUnit m_cxTranslationUnit = nullptr;
-    CXToken *m_cxTokens = nullptr;
-    uint m_cxTokenCount = 0;
-
-    QVector<CXCursor> m_cxCursors;
+    Tokens m_tokens;
+    std::vector<Cursor> m_cursors;
 };
 
 ReferencesCollector::ReferencesCollector(CXTranslationUnit cxTranslationUnit)
     : m_cxTranslationUnit(cxTranslationUnit)
+    , m_tokens(Cursor(clang_getTranslationUnitCursor(m_cxTranslationUnit)).sourceRange())
+    , m_cursors(m_tokens.annotate())
 {
-    const CXSourceRange range
-            = clang_getCursorExtent(clang_getTranslationUnitCursor(m_cxTranslationUnit));
-    clang_tokenize(cxTranslationUnit, range, &m_cxTokens, &m_cxTokenCount);
-
-    m_cxCursors.resize(static_cast<int>(m_cxTokenCount));
-    clang_annotateTokens(cxTranslationUnit, m_cxTokens, m_cxTokenCount, m_cxCursors.data());
-}
-
-ReferencesCollector::~ReferencesCollector()
-{
-    clang_disposeTokens(m_cxTranslationUnit, m_cxTokens, m_cxTokenCount);
-}
-
-bool ReferencesCollector::isWithinTokenRange(CXToken token, uint line, uint column) const
-{
-    const SourceRange range {m_cxTranslationUnit, clang_getTokenExtent(m_cxTranslationUnit, token)};
-    return range.contains(line, column);
 }
 
 bool ReferencesCollector::pointsToIdentifier(uint line, uint column, unsigned *tokenIndex) const
 {
-    for (uint i = 0; i < m_cxTokenCount; ++i) {
-        const CXToken token = m_cxTokens[i];
-        if (clang_getTokenKind(token) == CXToken_Identifier
-                && isWithinTokenRange(token, line, column)) {
+    for (uint i = 0; i < m_tokens.size(); ++i) {
+        const Token &token = m_tokens[i];
+        if (token.kind() == CXToken_Identifier && token.extent().contains(line, column)) {
             *tokenIndex = i;
             return true;
         }
@@ -173,15 +154,12 @@ bool ReferencesCollector::pointsToIdentifier(uint line, uint column, unsigned *t
     return false;
 }
 
-bool ReferencesCollector::matchesIdentifier(const CXToken &token,
+bool ReferencesCollector::matchesIdentifier(const Token &token,
                                             const Utf8String &identifier) const
 {
-    const CXTokenKind tokenKind = clang_getTokenKind(token);
-    if (tokenKind == CXToken_Identifier) {
-        const Utf8String candidateIdentifier
-                = ClangString(clang_getTokenSpelling(m_cxTranslationUnit, token));
-        return candidateIdentifier == identifier;
-    }
+    const CXTokenKind tokenKind = token.kind();
+    if (tokenKind == CXToken_Identifier)
+        return token.spelling() == identifier;
 
     return false;
 }
@@ -189,7 +167,7 @@ bool ReferencesCollector::matchesIdentifier(const CXToken &token,
 bool ReferencesCollector::checkToken(unsigned index, const Utf8String &identifier,
                                      const Utf8String &usr) const
 {
-    const CXToken token = m_cxTokens[index];
+    const Token &token = m_tokens[index];
     if (!matchesIdentifier(token, identifier))
         return false;
 
@@ -201,8 +179,7 @@ bool ReferencesCollector::checkToken(unsigned index, const Utf8String &identifie
 //        qWarning() << "ReferencesCollector::checkToken:" << line << spelling;
     }
 
-    const Cursor currentCursor(m_cxCursors[static_cast<int>(index)]);
-    const ReferencedCursor candidate = ReferencedCursor::find(currentCursor);
+    const ReferencedCursor candidate = ReferencedCursor::find(m_cursors[index]);
 
     return candidate.usr() == usr;
 }
@@ -215,9 +192,7 @@ ReferencesResult ReferencesCollector::collect(uint line, uint column, bool local
     if (!pointsToIdentifier(line, column, &index))
         return result;
 
-    const Cursor cursorFromUser = m_cxCursors[static_cast<int>(index)];
-
-    const ReferencedCursor refCursor = ReferencedCursor::find(cursorFromUser);
+    const ReferencedCursor refCursor = ReferencedCursor::find(m_cursors[index]);
     const Utf8String usr = refCursor.usr();
     if (usr.isEmpty())
         return result;
@@ -225,14 +200,11 @@ ReferencesResult ReferencesCollector::collect(uint line, uint column, bool local
     if (localReferences && !refCursor.isLocalVariable())
         return result;
 
-    const CXToken token = m_cxTokens[index];
-    const Utf8String identifier = ClangString(clang_getTokenSpelling(m_cxTranslationUnit, token));
-    for (uint i = 0; i < m_cxTokenCount; ++i) {
-        if (checkToken(i, identifier, usr)) {
-            const SourceRange range {m_cxTranslationUnit,
-                                     clang_getTokenExtent(m_cxTranslationUnit, m_cxTokens[i])};
-            result.references.append(range);
-        }
+    const Token &token = m_tokens[index];
+    const Utf8String identifier = token.spelling();
+    for (uint i = 0; i < m_tokens.size(); ++i) {
+        if (checkToken(i, identifier, usr))
+            result.references.append(m_tokens[i].extent());
     }
 
     result.isLocalVariable = refCursor.isLocalVariable();

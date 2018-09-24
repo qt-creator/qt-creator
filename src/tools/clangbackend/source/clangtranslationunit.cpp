@@ -197,7 +197,7 @@ TokenProcessor<TokenInfo> TranslationUnit::tokenInfos() const
 
 TokenProcessor<TokenInfo> TranslationUnit::tokenInfosInRange(const SourceRange &range) const
 {
-    return TokenProcessor<TokenInfo>(m_cxTranslationUnit, range);
+    return TokenProcessor<TokenInfo>(range);
 }
 
 TokenProcessor<FullTokenInfo> TranslationUnit::fullTokenInfos() const
@@ -207,7 +207,7 @@ TokenProcessor<FullTokenInfo> TranslationUnit::fullTokenInfos() const
 
 TokenProcessor<FullTokenInfo> TranslationUnit::fullTokenInfosInRange(const SourceRange &range) const
 {
-    return TokenProcessor<FullTokenInfo>(m_cxTranslationUnit, range);
+    return TokenProcessor<FullTokenInfo>(range);
 }
 
 SkippedSourceRanges TranslationUnit::skippedSourceRanges() const
