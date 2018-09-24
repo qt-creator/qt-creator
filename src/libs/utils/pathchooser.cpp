@@ -655,6 +655,7 @@ QString PathChooser::promptDialogTitle() const
 void PathChooser::setPromptDialogFilter(const QString &filter)
 {
     d->m_dialogFilter = filter;
+    d->m_lineEdit->validate();
 }
 
 QString PathChooser::promptDialogFilter() const
