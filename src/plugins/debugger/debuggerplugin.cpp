@@ -1629,7 +1629,7 @@ void DebuggerPluginPrivate::updatePresetState()
     m_attachToRunningApplication.setEnabled(true);
     m_attachToUnstartedApplication.setEnabled(true);
 
-    m_watchAction.setEnabled(true);
+    m_watchAction.setEnabled(state != DebuggerFinished && state != DebuggerNotReady);
     m_breakAction.setEnabled(true);
 }
 
@@ -2055,7 +2055,7 @@ void DebuggerPluginPrivate::setInitialState()
     m_attachToUnstartedApplication.setEnabled(true);
     m_detachAction.setEnabled(false);
 
-    m_watchAction.setEnabled(true);
+    m_watchAction.setEnabled(false);
     m_breakAction.setEnabled(false);
     //m_snapshotAction.setEnabled(false);
     action(OperateByInstruction)->setChecked(false);
