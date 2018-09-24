@@ -127,7 +127,6 @@ private:
     void setupDummySender();
 
     void onConnectedToBackend();
-    void onDisconnectedFromBackend();
     void onEditorAboutToClose(Core::IEditor *editor);
 
     void logExecutableDoesNotExist();
