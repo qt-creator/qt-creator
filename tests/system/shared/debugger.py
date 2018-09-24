@@ -122,7 +122,7 @@ def removeOldBreakpoints():
 #       line number where the debugger should stop
 def doSimpleDebugging(currentKit, currentConfigName, pressContinueCount=1,
                       expectedBPOrder=[], enableQml=True):
-    expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ \(\d+\) in thread \d+\.']
+    expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ in thread \d+\.']
     if len(expectedBPOrder) == 0:
         expectedLabelTexts.append("Running\.")
     switchViewTo(ViewConstants.PROJECTS)
