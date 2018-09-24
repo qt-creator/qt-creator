@@ -994,7 +994,20 @@ class Dumper(DumperBase):
             qtCoreMatch = re.match('.*/libQt5?Core[^/.]*\.so', name)
 
         if qtCoreMatch is not None:
+            self.addDebugLibs(objfile)
             self.handleQtCoreLoaded(objfile)
+
+    def addDebugLibs(self, objfile):
+        # The directory where separate debug symbols are searched for
+        # is "/usr/lib/debug".
+        try:
+            cooked = gdb.execute('show debug-file-directory', to_string=True)
+            clean = cooked.split('"')[1]
+            newdir = '/'.join(objfile.filename.split('/')[:-1])
+            gdb.execute('set debug-file-directory %s:%s' % (clean, newdir))
+        except:
+            pass
+
 
     def handleQtCoreLoaded(self, objfile):
         fd, tmppath = tempfile.mkstemp()

@@ -62,7 +62,7 @@ QStringList qtBuildPaths()
                 "c:/users/qt/work/qt",
                 "c:/Users/qt/work/install"};
     } else {
-        return {};
+        return { "/home/qt/work/qt" };
     }
 }
 
@@ -450,7 +450,7 @@ DebuggerSourcePathMappingWidget::SourcePathMap
     SourcePathMap rc = in;
     for (const QString &buildPath : qtBuildPaths()) {
         if (!rc.contains(buildPath)) // Do not overwrite user settings.
-            rc.insert(buildPath, qtInstallPath);
+            rc.insert(buildPath, qtInstallPath + "/../Src");
     }
     return rc;
 }
