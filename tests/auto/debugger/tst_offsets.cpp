@@ -103,7 +103,11 @@ typedef boost::unordered::unordered_set<int>::key_equal P_;
 typedef boost::unordered::unordered_set<int>::allocator_type A_;
 
 typedef boost::unordered::detail::set<A_, T_, H_, P_> Uset_types;
+#if BOOST_VERSION <= (1 * 100000 + 64 * 100)
 typedef boost::unordered::detail::table_impl<Uset_types>::table UsetTable;
+#else
+typedef boost::unordered::detail::table<Uset_types> UsetTable;
+#endif
 typedef boost::unordered_set<int> Uset;
 
 OFFSET_ACCESS(Uset::table, Uset, table_);
