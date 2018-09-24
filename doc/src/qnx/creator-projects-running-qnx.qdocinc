@@ -49,6 +49,12 @@
 
     \section2 Troubleshooting Errors
 
+    To support running, debugging, and stopping applications from \QC, the QNX
+    Neutrino RTOS should provide a few additional command line tools and
+    services, as described in \l {Qt Creator Target Requirements}.
+
+    \section3 Debug Output Cannot Be Shown
+
     For the command-line output to show up in the \uicontrol{Application Output},
     \QC needs to be able to establish an SSH connection to the device.
     This is only possible if QNX Momentics is not running, and the SSH key
@@ -56,6 +62,16 @@
 
     If these conditions are not met, you will get an error message saying debug
     output cannot be shown.
+
+    \section3 Cannot Run, Debug, or Stop Applications
+
+    The board support package (BSP) for the QNX device might be missing some
+    of the following applications that \QC needs to run, debug, and stop
+    applications on QNX devices: \c awk, \c grep, \c kill, \c netstat, \c print,
+    \c printf, \c ps, \c read, \c sed, \c sleep, \c uname, \c slog2info, and
+    \c cat.
+
+    For more information, see \l{Other Utilities on the Target Device}.
 
 //! [running on qnx]
 */
