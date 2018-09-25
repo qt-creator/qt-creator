@@ -82,7 +82,7 @@ const char kFalse[] = "false";
 // #pragma mark -- ExternalTool
 
 ExternalTool::ExternalTool() :
-    m_displayCategory(QLatin1String("")) // difference between isNull and isEmpty
+    m_displayCategory("") // difference between isNull and isEmpty
 {
 }
 
@@ -328,8 +328,8 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
     Q_ASSERT(reader);
     Q_ASSERT(currentLocale);
     Q_ASSERT(currentText);
-    if (reader->attributes().hasAttribute(QLatin1String(kXmlLang))) {
-        int index = locales.indexOf(reader->attributes().value(QLatin1String(kXmlLang)).toString());
+    if (reader->attributes().hasAttribute(kXmlLang)) {
+        int index = locales.indexOf(reader->attributes().value(kXmlLang).toString());
         if (index >= 0 && (index < *currentLocale || *currentLocale < 0)) {
             *currentText = reader->readElementText();
             *currentLocale = index;
@@ -346,20 +346,20 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
         }
     }
     if (currentText->isNull()) // prefer isEmpty over isNull
-        *currentText = QLatin1String("");
+        *currentText = "";
 }
 
 static bool parseOutputAttribute(const QString &attribute, QXmlStreamReader *reader, ExternalTool::OutputHandling *value)
 {
     const QStringRef output = reader->attributes().value(attribute);
-    if (output == QLatin1String(kOutputShowInPane)) {
+    if (output == kOutputShowInPane) {
         *value = ExternalTool::ShowInPane;
-    } else if (output == QLatin1String(kOutputReplaceSelection)) {
+    } else if (output == kOutputReplaceSelection) {
         *value = ExternalTool::ReplaceSelection;
-    } else if (output == QLatin1String(kOutputIgnore)) {
+    } else if (output == kOutputIgnore) {
         *value = ExternalTool::Ignore;
     } else {
-        reader->raiseError(QLatin1String("Allowed values for output attribute are 'showinpane','replaceselection','ignore'"));
+        reader->raiseError("Allowed values for output attribute are 'showinpane','replaceselection','ignore'");
         return false;
     }
     return true;
@@ -374,77 +374,77 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
     auto tool = new ExternalTool;
     QXmlStreamReader reader(xml);
 
-    if (!reader.readNextStartElement() || reader.name() != QLatin1String(kExternalTool))
-        reader.raiseError(QLatin1String("Missing start element <externaltool>"));
-    tool->m_id = reader.attributes().value(QLatin1String(kId)).toString();
+    if (!reader.readNextStartElement() || reader.name() != kExternalTool)
+        reader.raiseError("Missing start element <externaltool>");
+    tool->m_id = reader.attributes().value(kId).toString();
     if (tool->m_id.isEmpty())
-        reader.raiseError(QLatin1String("Missing or empty id attribute for <externaltool>"));
+        reader.raiseError("Missing or empty id attribute for <externaltool>");
     while (reader.readNextStartElement()) {
-        if (reader.name() == QLatin1String(kDescription)) {
+        if (reader.name() == kDescription) {
             localizedText(locales, &reader, &descriptionLocale, &tool->m_description);
-        } else if (reader.name() == QLatin1String(kDisplayName)) {
+        } else if (reader.name() == kDisplayName) {
             localizedText(locales, &reader, &nameLocale, &tool->m_displayName);
-        } else if (reader.name() == QLatin1String(kCategory)) {
+        } else if (reader.name() == kCategory) {
             localizedText(locales, &reader, &categoryLocale, &tool->m_displayCategory);
-        } else if (reader.name() == QLatin1String(kOrder)) {
+        } else if (reader.name() == kOrder) {
             if (tool->m_order >= 0) {
-                reader.raiseError(QLatin1String("only one <order> element allowed"));
+                reader.raiseError("only one <order> element allowed");
                 break;
             }
             bool ok;
             tool->m_order = reader.readElementText().toInt(&ok);
             if (!ok || tool->m_order < 0)
-                reader.raiseError(QLatin1String("<order> element requires non-negative integer value"));
-        } else if (reader.name() == QLatin1String(kExecutable)) {
-            if (reader.attributes().hasAttribute(QLatin1String(kOutput))) {
-                if (!parseOutputAttribute(QLatin1String(kOutput), &reader, &tool->m_outputHandling))
+                reader.raiseError("<order> element requires non-negative integer value");
+        } else if (reader.name() == kExecutable) {
+            if (reader.attributes().hasAttribute(kOutput)) {
+                if (!parseOutputAttribute(kOutput, &reader, &tool->m_outputHandling))
                     break;
             }
-            if (reader.attributes().hasAttribute(QLatin1String(kError))) {
-                if (!parseOutputAttribute(QLatin1String(kError), &reader, &tool->m_errorHandling))
+            if (reader.attributes().hasAttribute(kError)) {
+                if (!parseOutputAttribute(kError, &reader, &tool->m_errorHandling))
                     break;
             }
-            if (reader.attributes().hasAttribute(QLatin1String(kModifiesDocument))) {
-                const QStringRef value = reader.attributes().value(QLatin1String(kModifiesDocument));
-                if (value == QLatin1String(kYes) || value == QLatin1String(kTrue)) {
+            if (reader.attributes().hasAttribute(kModifiesDocument)) {
+                const QStringRef value = reader.attributes().value(kModifiesDocument);
+                if (value == kYes || value == kTrue) {
                     tool->m_modifiesCurrentDocument = true;
-                } else if (value == QLatin1String(kNo) || value == QLatin1String(kFalse)) {
+                } else if (value == kNo || value == kFalse) {
                     tool->m_modifiesCurrentDocument = false;
                 } else {
-                    reader.raiseError(QLatin1String("Allowed values for modifiesdocument attribute are 'yes','true','no','false'"));
+                    reader.raiseError("Allowed values for modifiesdocument attribute are 'yes','true','no','false'");
                     break;
                 }
             }
             while (reader.readNextStartElement()) {
-                if (reader.name() == QLatin1String(kPath)) {
+                if (reader.name() == kPath) {
                     tool->m_executables.append(reader.readElementText());
-                } else if (reader.name() == QLatin1String(kArguments)) {
+                } else if (reader.name() == kArguments) {
                     if (!tool->m_arguments.isEmpty()) {
-                        reader.raiseError(QLatin1String("only one <arguments> element allowed"));
+                        reader.raiseError("only one <arguments> element allowed");
                         break;
                     }
                     tool->m_arguments = reader.readElementText();
-                } else if (reader.name() == QLatin1String(kInput)) {
+                } else if (reader.name() == kInput) {
                     if (!tool->m_input.isEmpty()) {
-                        reader.raiseError(QLatin1String("only one <input> element allowed"));
+                        reader.raiseError("only one <input> element allowed");
                         break;
                     }
                     tool->m_input = reader.readElementText();
-                } else if (reader.name() == QLatin1String(kWorkingDirectory)) {
+                } else if (reader.name() == kWorkingDirectory) {
                     if (!tool->m_workingDirectory.isEmpty()) {
-                        reader.raiseError(QLatin1String("only one <workingdirectory> element allowed"));
+                        reader.raiseError("only one <workingdirectory> element allowed");
                         break;
                     }
                     tool->m_workingDirectory = reader.readElementText();
                 } else if (reader.name() == kBaseEnvironmentId) {
                     if (tool->m_baseEnvironmentProviderId.isValid()) {
-                        reader.raiseError(QLatin1String("only one <baseEnvironmentId> element allowed"));
+                        reader.raiseError("only one <baseEnvironmentId> element allowed");
                         break;
                     }
                     tool->m_baseEnvironmentProviderId = Id::fromString(reader.readElementText());
-                } else if (reader.name() == QLatin1String(kEnvironment)) {
+                } else if (reader.name() == kEnvironment) {
                     if (!tool->m_environment.isEmpty()) {
-                        reader.raiseError(QLatin1String("only one <environment> element allowed"));
+                        reader.raiseError("only one <environment> element allowed");
                         break;
                     }
                     QStringList lines = reader.readElementText().split(QLatin1Char(';'));
@@ -453,7 +453,7 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                     tool->m_environment = EnvironmentItem::fromStringList(lines);
                 } else {
                     reader.raiseError(QString::fromLatin1("Unknown element <%1> as subelement of <%2>").arg(
-                                          reader.qualifiedName().toString(), QLatin1String(kExecutable)));
+                                          reader.qualifiedName().toString(), kExecutable));
                     break;
                 }
             }
@@ -483,7 +483,7 @@ ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *er
     return tool;
 }
 
-static QLatin1String stringForOutputHandling(ExternalTool::OutputHandling handling)
+static QString stringForOutputHandling(ExternalTool::OutputHandling handling)
 {
     switch (handling) {
     case ExternalTool::Ignore:
@@ -493,7 +493,7 @@ static QLatin1String stringForOutputHandling(ExternalTool::OutputHandling handli
     case ExternalTool::ReplaceSelection:
         return QLatin1String(kOutputReplaceSelection);
     }
-    return QLatin1String("");
+    return QString();
 }
 
 bool ExternalTool::save(QString *errorMessage) const
@@ -504,36 +504,36 @@ bool ExternalTool::save(QString *errorMessage) const
     if (!saver.hasError()) {
         QXmlStreamWriter out(saver.file());
         out.setAutoFormatting(true);
-        out.writeStartDocument(QLatin1String("1.0"));
+        out.writeStartDocument("1.0");
         out.writeComment(QString::fromLatin1("Written on %1 by %2")
                          .arg(QDateTime::currentDateTime().toString(), ICore::versionString()));
-        out.writeStartElement(QLatin1String(kExternalTool));
-        out.writeAttribute(QLatin1String(kId), m_id);
-        out.writeTextElement(QLatin1String(kDescription), m_description);
-        out.writeTextElement(QLatin1String(kDisplayName), m_displayName);
-        out.writeTextElement(QLatin1String(kCategory), m_displayCategory);
+        out.writeStartElement(kExternalTool);
+        out.writeAttribute(kId, m_id);
+        out.writeTextElement(kDescription, m_description);
+        out.writeTextElement(kDisplayName, m_displayName);
+        out.writeTextElement(kCategory, m_displayCategory);
         if (m_order != -1)
-            out.writeTextElement(QLatin1String(kOrder), QString::number(m_order));
+            out.writeTextElement(kOrder, QString::number(m_order));
 
-        out.writeStartElement(QLatin1String(kExecutable));
-        out.writeAttribute(QLatin1String(kOutput), stringForOutputHandling(m_outputHandling));
-        out.writeAttribute(QLatin1String(kError), stringForOutputHandling(m_errorHandling));
-        out.writeAttribute(QLatin1String(kModifiesDocument), m_modifiesCurrentDocument ? QLatin1String(kYes) : QLatin1String(kNo));
+        out.writeStartElement(kExecutable);
+        out.writeAttribute(kOutput, stringForOutputHandling(m_outputHandling));
+        out.writeAttribute(kError, stringForOutputHandling(m_errorHandling));
+        out.writeAttribute(kModifiesDocument, QLatin1String(m_modifiesCurrentDocument ? kYes : kNo));
         foreach (const QString &executable, m_executables)
-            out.writeTextElement(QLatin1String(kPath), executable);
+            out.writeTextElement(kPath, executable);
         if (!m_arguments.isEmpty())
-            out.writeTextElement(QLatin1String(kArguments), m_arguments);
+            out.writeTextElement(kArguments, m_arguments);
         if (!m_input.isEmpty())
-            out.writeTextElement(QLatin1String(kInput), m_input);
+            out.writeTextElement(kInput, m_input);
         if (!m_workingDirectory.isEmpty())
-            out.writeTextElement(QLatin1String(kWorkingDirectory), m_workingDirectory);
+            out.writeTextElement(kWorkingDirectory, m_workingDirectory);
         if (m_baseEnvironmentProviderId.isValid())
             out.writeTextElement(kBaseEnvironmentId, m_baseEnvironmentProviderId.toString());
         if (!m_environment.isEmpty()) {
             QStringList envLines = EnvironmentItem::toStringList(m_environment);
             for (auto iter = envLines.begin(); iter != envLines.end(); ++iter)
                 *iter = QString::fromUtf8(iter->toUtf8().toPercentEncoding());
-            out.writeTextElement(QLatin1String(kEnvironment), envLines.join(QLatin1Char(';')));
+            out.writeTextElement(kEnvironment, envLines.join(QLatin1Char(';')));
         }
         out.writeEndElement();
 
@@ -620,8 +620,7 @@ bool ExternalToolRunner::resolve()
             m_hasError = true;
             for (int i = 0; i < expandedExecutables.size(); ++i) {
                 m_errorString += tr("Could not find executable for \"%1\" (expanded \"%2\")")
-                        .arg(m_tool->executables().at(i))
-                        .arg(expandedExecutables.at(i));
+                        .arg(m_tool->executables().at(i), expandedExecutables.at(i));
                 m_errorString += QLatin1Char('\n');
             }
             if (!m_errorString.isEmpty())

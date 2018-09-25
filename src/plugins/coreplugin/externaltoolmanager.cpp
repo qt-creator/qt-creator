@@ -235,7 +235,7 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
             } else {
                 action = new QAction(tool->displayName(), m_instance);
                 d->m_actions.insert(toolId, action);
-                connect(action, &QAction::triggered, [tool] {
+                connect(action, &QAction::triggered, tool, [tool] {
                     auto runner = new ExternalToolRunner(tool);
                     if (runner->hasError())
                         MessageManager::write(runner->errorString());

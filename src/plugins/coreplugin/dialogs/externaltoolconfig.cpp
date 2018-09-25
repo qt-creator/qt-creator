@@ -532,8 +532,8 @@ void ExternalToolConfig::updateItem(const QModelIndex &index)
     tool->setWorkingDirectory(ui->workingDirectory->rawPath());
     tool->setBaseEnvironmentProviderId(Id::fromSetting(ui->baseEnvironment->currentData()));
     tool->setEnvironmentUserChanges(m_environment);
-    tool->setOutputHandling((ExternalTool::OutputHandling)ui->outputBehavior->currentIndex());
-    tool->setErrorHandling((ExternalTool::OutputHandling)ui->errorOutputBehavior->currentIndex());
+    tool->setOutputHandling(ExternalTool::OutputHandling(ui->outputBehavior->currentIndex()));
+    tool->setErrorHandling(ExternalTool::OutputHandling(ui->errorOutputBehavior->currentIndex()));
     tool->setModifiesCurrentDocument(ui->modifiesDocumentCheckbox->checkState());
     tool->setInput(ui->inputText->toPlainText());
 }
@@ -554,11 +554,12 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     }
     ui->infoWidget->setEnabled(true);
     ui->description->setText(tool->description());
-    ui->executable->setPath(tool->executables().isEmpty() ? QString() : tool->executables().first());
+    ui->executable->setPath(tool->executables().isEmpty() ? QString()
+                                                          : tool->executables().constFirst());
     ui->arguments->setText(tool->arguments());
     ui->workingDirectory->setPath(tool->workingDirectory());
-    ui->outputBehavior->setCurrentIndex((int)tool->outputHandling());
-    ui->errorOutputBehavior->setCurrentIndex((int)tool->errorHandling());
+    ui->outputBehavior->setCurrentIndex(int(tool->outputHandling()));
+    ui->errorOutputBehavior->setCurrentIndex(int(tool->errorHandling()));
     ui->modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());
     const int baseEnvironmentIndex = ui->baseEnvironment->findData(
         tool->baseEnvironmentProviderId().toSetting());
