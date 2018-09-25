@@ -621,7 +621,8 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartPch &projectPartPch
 {
     out << "("
         << projectPartPch.projectPartId << ", "
-        << projectPartPch.pchPath << ")";
+        << projectPartPch.pchPath << ", "
+        << projectPartPch.lastModified << ")";
 
     return out;
 }

@@ -27,6 +27,7 @@
 
 #include <pchmanagerclientinterface.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <projectpartqueue.h>
 #include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
 #include <updategeneratedfilesmessage.h>
@@ -39,11 +40,11 @@
 namespace ClangBackEnd {
 
 PchManagerServer::PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
-                                   PchCreatorInterface &pchCreator,
+                                   ProjectPartQueueInterface &projectPartQueue,
                                    ProjectPartsInterface &projectParts,
                                    GeneratedFilesInterface &generatedFiles)
     : m_fileSystemWatcher(fileSystemWatcher),
-      m_pchCreator(pchCreator),
+      m_projectPartQueue(projectPartQueue),
       m_projectParts(projectParts),
       m_generatedFiles(generatedFiles)
 {
@@ -58,9 +59,7 @@ void PchManagerServer::end()
 
 void PchManagerServer::updateProjectParts(UpdateProjectPartsMessage &&message)
 {
-    m_pchCreator.generatePchs(m_projectParts.update(message.takeProjectsParts()));
-
-    m_fileSystemWatcher.updateIdPaths(m_pchCreator.takeProjectsIncludes());
+    m_projectPartQueue.addProjectParts(m_projectParts.update(message.takeProjectsParts()));
 }
 
 void PchManagerServer::removeProjectParts(RemoveProjectPartsMessage &&message)
@@ -68,6 +67,8 @@ void PchManagerServer::removeProjectParts(RemoveProjectPartsMessage &&message)
     m_fileSystemWatcher.removeIds(message.projectsPartIds);
 
     m_projectParts.remove(message.projectsPartIds);
+
+    m_projectPartQueue.removeProjectParts(message.projectsPartIds);
 }
 
 void PchManagerServer::updateGeneratedFiles(UpdateGeneratedFilesMessage &&message)
@@ -82,19 +83,11 @@ void PchManagerServer::removeGeneratedFiles(RemoveGeneratedFilesMessage &&messag
 
 void PchManagerServer::pathsWithIdsChanged(const Utils::SmallStringVector &ids)
 {
-    m_pchCreator.generatePchs(m_projectParts.projects(ids));
-
-    m_fileSystemWatcher.updateIdPaths(m_pchCreator.takeProjectsIncludes());
+    m_projectPartQueue.addProjectParts(m_projectParts.projects(ids));
 }
 
 void PchManagerServer::pathsChanged(const FilePathIds &/*filePathIds*/)
 {
-}
-
-void PchManagerServer::taskFinished(TaskFinishStatus status, const ProjectPartPch &projectPartPch)
-{
-    if (status == TaskFinishStatus::Successfully)
-        client()->precompiledHeadersUpdated(PrecompiledHeadersUpdatedMessage({projectPartPch.clone()}));
 }
 
 } // namespace ClangBackEnd

@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "symbolscollectormanagerinterface.h"
-#include "symbolscollectorinterface.h"
+
+#include "processormanagerinterface.h"
 #include "generatedfiles.h"
 
 #include <memory>
@@ -38,51 +38,54 @@ class Database;
 namespace ClangBackEnd {
 
 class GeneratedFiles;
-class SymbolsCollector;
-template<typename SymbolsCollector>
-class SymbolsCollectorManager final : public SymbolsCollectorManagerInterface
+
+template <typename ProcessorType>
+class ProcessorManager : public ProcessorManagerInterface
 {
 public:
-    SymbolsCollectorManager(Sqlite::Database &database,
-                            const GeneratedFiles &generatedFiles)
-        : m_database(database),
-          m_generatedFiles(generatedFiles)
+    using Processor = ProcessorType;
+    ProcessorManager(const GeneratedFiles &generatedFiles)
+        : m_generatedFiles(generatedFiles)
     {}
 
-    SymbolsCollector &unusedSymbolsCollector() override
+    Processor &unusedProcessor() override
     {
-        auto split = std::partition(m_collectors.begin(),
-                                    m_collectors.end(),
+        auto split = std::partition(m_processors.begin(),
+                                    m_processors.end(),
                                     [] (const auto &collector) {
             return collector->isUsed();
         });
 
-        auto freeCollectors = std::distance(split, m_collectors.end());
+        auto freeCollectors = std::distance(split, m_processors.end());
 
         if (freeCollectors > 0)
             return initializedCollector(*split->get());
 
-        m_collectors.emplace_back(std::make_unique<SymbolsCollector>(m_database));
+        m_processors.push_back(createProcessor());
 
-        return  initializedCollector(*m_collectors.back().get());
+        return  initializedCollector(*m_processors.back().get());
     }
 
-    const std::vector<std::unique_ptr<SymbolsCollector>> &collectors() const
+    const std::vector<std::unique_ptr<Processor>> &processors() const
     {
-        return m_collectors;
+        return m_processors;
     }
+
+protected:
+    ~ProcessorManager() = default;
+    virtual std::unique_ptr<Processor> createProcessor() const = 0;
 
 private:
-    SymbolsCollector &initializedCollector(SymbolsCollector &collector)
+    Processor &initializedCollector(Processor &creator)
     {
-        collector.setIsUsed(true);
-        collector.setUnsavedFiles(m_generatedFiles.fileContainers());
-        return collector;
+        creator.setIsUsed(true);
+        creator.setUnsavedFiles(m_generatedFiles.fileContainers());
+        return creator;
     }
 
+
 private:
-    std::vector<std::unique_ptr<SymbolsCollector>> m_collectors;
-    Sqlite::Database &m_database;
+    std::vector<std::unique_ptr<Processor>> m_processors;
     const GeneratedFiles &m_generatedFiles;
 };
 

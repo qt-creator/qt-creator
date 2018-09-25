@@ -25,24 +25,21 @@
 
 #pragma once
 
+#include <queueinterface.h>
+
 #include <utils/smallstringvector.h>
 
 namespace ClangBackEnd {
 
 class SymbolIndexerTask;
 
-class SymbolIndexerTaskQueueInterface
+class SymbolIndexerTaskQueueInterface : public QueueInterface
 {
 public:
-    SymbolIndexerTaskQueueInterface() = default;
-    SymbolIndexerTaskQueueInterface(const SymbolIndexerTaskQueueInterface &) = delete;
-    SymbolIndexerTaskQueueInterface &operator=(const SymbolIndexerTaskQueueInterface &) = delete;
-
     virtual void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks) = 0
     /* [[expects: std::is_sorted(tasks)]] */;
     virtual void removeTasks(const std::vector<int> &projectPartIds) = 0
     /* [[expects: std::is_sorted(projectPartIds)]] */;
-    virtual void processTasks() = 0;
 
 protected:
     ~SymbolIndexerTaskQueueInterface() = default;

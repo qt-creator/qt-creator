@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include "mocksymbolindexertaskscheduler.h"
+#include "mocktaskscheduler.h"
 
 #include <symbolindexertaskqueue.h>
 
@@ -50,8 +50,8 @@ MATCHER_P2(IsTask, filePathId, projectPartId,
 class SymbolIndexerTaskQueue : public testing::Test
 {
 protected:
-    NiceMock<MockSymbolIndexerTaskScheduler> mockSymbolIndexerTaskScheduler;
-    ClangBackEnd::SymbolIndexerTaskQueue queue{mockSymbolIndexerTaskScheduler};
+    NiceMock<MockTaskScheduler<Callable>> mockTaskScheduler;
+    ClangBackEnd::SymbolIndexerTaskQueue queue{mockTaskScheduler};
 };
 
 TEST_F(SymbolIndexerTaskQueue, AddTasks)
@@ -133,20 +133,20 @@ TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndAddTasksInScheduler)
                             {{1, 3}, 1, Callable{}},
                             {{1, 5}, 1, Callable{}}});
 
-    EXPECT_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
-    EXPECT_CALL(mockSymbolIndexerTaskScheduler, addTasks(SizeIs(2)));
+    EXPECT_CALL(mockTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
+    EXPECT_CALL(mockTaskScheduler, addTasks(SizeIs(2)));
 
-    queue.processTasks();
+    queue.processEntries();
 }
 
 TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndAddTasksWithNoTaskInSchedulerIfTaskAreEmpty)
 {
     InSequence s;
 
-    EXPECT_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
-    EXPECT_CALL(mockSymbolIndexerTaskScheduler, addTasks(IsEmpty()));
+    EXPECT_CALL(mockTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
+    EXPECT_CALL(mockTaskScheduler, addTasks(IsEmpty()));
 
-    queue.processTasks();
+    queue.processEntries();
 }
 
 TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndMoveAllTasksInSchedulerIfMoreSlotsAreFree)
@@ -156,10 +156,10 @@ TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndMoveAllTasksInSchedu
                             {{1, 3}, 1, Callable{}},
                             {{1, 5}, 1, Callable{}}});
 
-    EXPECT_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillRepeatedly(Return(4));
-    EXPECT_CALL(mockSymbolIndexerTaskScheduler, addTasks(SizeIs(3)));
+    EXPECT_CALL(mockTaskScheduler, freeSlots()).WillRepeatedly(Return(4));
+    EXPECT_CALL(mockTaskScheduler, addTasks(SizeIs(3)));
 
-    queue.processTasks();
+    queue.processEntries();
 }
 
 TEST_F(SymbolIndexerTaskQueue, ProcessTasksRemovesProcessedTasks)
@@ -167,9 +167,9 @@ TEST_F(SymbolIndexerTaskQueue, ProcessTasksRemovesProcessedTasks)
     queue.addOrUpdateTasks({{{1, 1}, 1, Callable{}},
                             {{1, 3}, 1, Callable{}},
                             {{1, 5}, 1, Callable{}}});
-    ON_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillByDefault(Return(2));
+    ON_CALL(mockTaskScheduler, freeSlots()).WillByDefault(Return(2));
 
-    queue.processTasks();
+    queue.processEntries();
 
     ASSERT_THAT(queue.tasks(), SizeIs(1));
 }

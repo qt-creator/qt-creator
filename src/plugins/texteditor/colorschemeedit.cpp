@@ -278,6 +278,7 @@ void ColorSchemeEdit::updateForegroundControls()
 
     bool isVisible = formatDescription.showControl(FormatDescription::ShowForegroundControl);
 
+    m_ui->relativeForegroundHeadline->setEnabled(isVisible);
     m_ui->foregroundLabel->setVisible(isVisible);
     m_ui->foregroundToolButton->setVisible(isVisible);
     m_ui->eraseForegroundToolButton->setVisible(isVisible);
@@ -296,6 +297,7 @@ void ColorSchemeEdit::updateBackgroundControls()
 
     bool isVisible = formatDescription.showControl(FormatDescription::ShowBackgroundControl);
 
+    m_ui->relativeBackgroundHeadline->setVisible(isVisible);
     m_ui->backgroundLabel->setVisible(isVisible);
     m_ui->backgroundToolButton->setVisible(isVisible);
     m_ui->eraseBackgroundToolButton->setVisible(isVisible);
@@ -326,6 +328,14 @@ void ColorSchemeEdit::updateRelativeForegroundControls()
     m_ui->relativeForegroundSpacer2->setVisible(isVisible);
     m_ui->relativeForegroundSpacer3->setVisible(isVisible);
 
+    bool isEnabled = !m_readOnly && !format.foreground().isValid();
+
+    m_ui->relativeForegroundHeadline->setEnabled(isEnabled);
+    m_ui->foregroundSaturationLabel->setEnabled(isEnabled);
+    m_ui->foregroundLightnessLabel->setEnabled(isEnabled);
+    m_ui->foregroundSaturationSpinBox->setEnabled(isEnabled);
+    m_ui->foregroundLightnessSpinBox->setEnabled(isEnabled);
+
     m_ui->foregroundSaturationSpinBox->setValue(format.relativeForegroundSaturation());
     m_ui->foregroundLightnessSpinBox->setValue(format.relativeForegroundLightness());
 }
@@ -348,6 +358,14 @@ void ColorSchemeEdit::updateRelativeBackgroundControls()
     m_ui->relativeBackgroundSpacer1->setVisible(isVisible);
     m_ui->relativeBackgroundSpacer2->setVisible(isVisible);
     m_ui->relativeBackgroundSpacer3->setVisible(isVisible);
+
+    bool isEnabled = !m_readOnly && !format.background().isValid();
+
+    m_ui->relativeBackgroundHeadline->setEnabled(isEnabled);
+    m_ui->backgroundSaturationLabel->setEnabled(isEnabled);
+    m_ui->backgroundLightnessLabel->setEnabled(isEnabled);
+    m_ui->backgroundSaturationSpinBox->setEnabled(isEnabled);
+    m_ui->backgroundLightnessSpinBox->setEnabled(isEnabled);
 
     m_ui->backgroundSaturationSpinBox->setValue(format.relativeBackgroundSaturation());
     m_ui->backgroundLightnessSpinBox->setValue(format.relativeBackgroundLightness());
@@ -415,6 +433,8 @@ void ColorSchemeEdit::changeForeColor()
         m_scheme.formatFor(category).setForeground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
+
+    updateControls();
 }
 
 void ColorSchemeEdit::changeBackColor()
@@ -436,6 +456,8 @@ void ColorSchemeEdit::changeBackColor()
         if (index.row() == 0)
             setItemListBackground(newColor);
     }
+
+    updateControls();
 }
 
 void ColorSchemeEdit::eraseBackColor()
@@ -451,6 +473,8 @@ void ColorSchemeEdit::eraseBackColor()
         m_scheme.formatFor(category).setBackground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
+
+    updateControls();
 }
 
 void ColorSchemeEdit::eraseForeColor()
@@ -466,6 +490,8 @@ void ColorSchemeEdit::eraseForeColor()
         m_scheme.formatFor(category).setForeground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
+
+    updateControls();
 }
 
 void ColorSchemeEdit::changeRelativeForeColor()

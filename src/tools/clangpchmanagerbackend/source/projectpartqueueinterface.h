@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,29 +25,19 @@
 
 #pragma once
 
-#include <iosfwd>
+#include "queueinterface.h"
+
+#include <projectpartcontainerv2.h>
 
 namespace ClangBackEnd {
 
-class ProjectPartPch;
-
-enum class TaskFinishStatus
-{
-    Successfully,
-    Unsuccessfully
-};
-
-class PchGeneratorNotifierInterface
+class ProjectPartQueueInterface : public QueueInterface
 {
 public:
-    PchGeneratorNotifierInterface() = default;
-    PchGeneratorNotifierInterface(const PchGeneratorNotifierInterface &) = delete;
-    PchGeneratorNotifierInterface &operator=(const PchGeneratorNotifierInterface &) = delete;
-
-    virtual void taskFinished(TaskFinishStatus status, const ProjectPartPch &projectPartPch) = 0;
+    virtual void addProjectParts(V2::ProjectPartContainers &&projectParts) = 0;
+    virtual void removeProjectParts(const Utils::SmallStringVector &projectsPartIds) = 0;
 
 protected:
-    ~PchGeneratorNotifierInterface() = default;
+    ~ProjectPartQueueInterface() = default;
 };
-
 } // namespace ClangBackEnd

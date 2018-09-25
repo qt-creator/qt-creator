@@ -29,7 +29,9 @@
 #include "symbolindexertask.h"
 
 #include <filepathid.h>
+#include <taskschedulerinterface.h>
 
+#include <utils/algorithm.h>
 #include <utils/smallstringvector.h>
 
 #include <functional>
@@ -41,29 +43,59 @@ class TransactionInterface;
 
 namespace ClangBackEnd {
 
-class SymbolIndexerTaskSchedulerInterface;
 class SymbolsCollectorInterface;
 class SymbolStorageInterface;
 
 class SymbolIndexerTaskQueue final : public SymbolIndexerTaskQueueInterface
 {
 public:
-    SymbolIndexerTaskQueue(SymbolIndexerTaskSchedulerInterface &symbolIndexerTaskScheduler)
+    using Task = SymbolIndexerTask::Callable;
+
+    SymbolIndexerTaskQueue(TaskSchedulerInterface<Task> &symbolIndexerTaskScheduler)
         : m_symbolIndexerScheduler(symbolIndexerTaskScheduler)
     {}
 
-    void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks);
-    void removeTasks(const std::vector<int> &projectPartIds);
+    void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks)
+    {
+        auto merge = [] (SymbolIndexerTask &&first, SymbolIndexerTask &&second) {
+            first.callable = std::move(second.callable);
 
-    const std::vector<SymbolIndexerTask> &tasks() const;
+            return std::move(first);
+        };
 
-    void processTasks();
+        m_tasks = Utils::setUnionMerge<std::vector<SymbolIndexerTask>>(tasks, m_tasks, merge);
+    }
+    void removeTasks(const std::vector<int> &projectPartIds)
+    {
+        auto shouldBeRemoved = [&] (const SymbolIndexerTask& task) {
+            return std::binary_search(projectPartIds.begin(), projectPartIds.end(), task.projectPartId);
+        };
+
+        auto newEnd = std::remove_if(m_tasks.begin(), m_tasks.end(), shouldBeRemoved);
+
+        m_tasks.erase(newEnd, m_tasks.end());
+    }
+
+    const std::vector<SymbolIndexerTask> &tasks() const
+    {
+        return m_tasks;
+    }
+
+    void processEntries()
+    {
+        uint taskCount = m_symbolIndexerScheduler.freeSlots();
+
+        auto newEnd = std::prev(m_tasks.end(), std::min<int>(int(taskCount), int(m_tasks.size())));
+        m_symbolIndexerScheduler.addTasks({std::make_move_iterator(newEnd),
+                                           std::make_move_iterator(m_tasks.end())});
+        m_tasks.erase(newEnd, m_tasks.end());
+    }
     void syncTasks();
 
 private:
     std::vector<Utils::SmallString> m_projectPartIds;
     std::vector<SymbolIndexerTask> m_tasks;
-    SymbolIndexerTaskSchedulerInterface &m_symbolIndexerScheduler;
+    TaskSchedulerInterface<Task> &m_symbolIndexerScheduler;
 };
 
 } // namespace ClangBackEnd

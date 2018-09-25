@@ -25,26 +25,55 @@
 
 #pragma once
 
-#include <utils/smallstringview.h>
+#include "googletest.h"
 
-namespace ClangPchManager {
+#include <processorinterface.h>
 
-class PrecompiledHeaderStorageInterface
+namespace Sqlite {
+class Database;
+}
+
+class MockProcessor : public ClangBackEnd::ProcessorInterface
 {
 public:
-    PrecompiledHeaderStorageInterface() = default;
+    MockProcessor()
+    {
+        ON_CALL(*this, setIsUsed(_)).WillByDefault(Invoke(this, &MockProcessor::setIsUsed2));
+        ON_CALL(*this, isUsed()).WillByDefault(Invoke(this, &MockProcessor::isUsed2));
+        ON_CALL(*this, setUnsavedFiles(_)).WillByDefault(Invoke(this, &MockProcessor::setHasUnsavedFiles));
+    }
 
-    PrecompiledHeaderStorageInterface(const PrecompiledHeaderStorageInterface&) = delete;
-    PrecompiledHeaderStorageInterface &operator=(const PrecompiledHeaderStorageInterface&) = delete;
+    MOCK_METHOD1(setUnsavedFiles,
+                 void(const ClangBackEnd::V2::FileContainers &unsavedFiles));
 
-    virtual void insertPrecompiledHeader(Utils::SmallStringView projectPartName,
-                                         Utils::SmallStringView pchPath,
-                                         long long pchBuildTime) = 0;
+    MOCK_METHOD0(clear,
+                 void());
 
-    virtual void deletePrecompiledHeader(Utils::SmallStringView projectPartName) = 0;
+    MOCK_CONST_METHOD0(isUsed,
+                       bool());
 
-protected:
-    ~PrecompiledHeaderStorageInterface() = default;
+    MOCK_METHOD1(setIsUsed,
+                 void(bool));
+
+    MOCK_METHOD0(doInMainThreadAfterFinished,
+                 void());
+
+    void setIsUsed2(bool isUsed)
+    {
+        used = isUsed;
+    }
+
+    bool isUsed2() const
+    {
+        return used;
+    }
+
+    void setHasUnsavedFiles(const ClangBackEnd::V2::FileContainers &unsavedFiles)
+    {
+        hasUnsavedFiles = true;
+    }
+
+public:
+    bool used = false;
+    bool hasUnsavedFiles = false;
 };
-
-} // namespace ClangPchManager

@@ -34,7 +34,7 @@ namespace ClangBackEnd {
 class IncludeCollector : public ClangTool
 {
 public:
-    IncludeCollector(FilePathCachingInterface &filePathCache);
+    IncludeCollector(const FilePathCachingInterface &filePathCache);
 
     void collectIncludes();
 
@@ -48,7 +48,7 @@ private:
     FilePathIds m_includeIds;
     FilePathIds m_topIncludeIds;
     Utils::SmallStringVector m_directories;
-    FilePathCachingInterface &m_filePathCache;
+    const FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

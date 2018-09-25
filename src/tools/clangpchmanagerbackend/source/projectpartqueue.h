@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <functional>
-#include <vector>
+#include "projectpartqueueinterface.h"
+#include "taskschedulerinterface.h"
 
 namespace Sqlite {
 class TransactionInterface;
@@ -34,27 +34,37 @@ class TransactionInterface;
 
 namespace ClangBackEnd {
 
-class SymbolsCollectorInterface;
-class SymbolStorageInterface;
+class PrecompiledHeaderStorageInterface;
+class PchTaskSchedulerInterface;
+class PchCreatorInterface;
 
-using uint = unsigned int;
-
-class SymbolIndexerTaskSchedulerInterface
+class ProjectPartQueue final : public ProjectPartQueueInterface
 {
 public:
-    using Task = std::function<void(SymbolsCollectorInterface &symbolsCollector,
-                                    SymbolStorageInterface &symbolStorage,
-                                    Sqlite::TransactionInterface &transaction)>;
+    using Task = std::function<void (PchCreatorInterface&)>;
 
-    SymbolIndexerTaskSchedulerInterface() = default;
-    SymbolIndexerTaskSchedulerInterface(const SymbolIndexerTaskSchedulerInterface &) = delete;
-    SymbolIndexerTaskSchedulerInterface &operator=(const SymbolIndexerTaskSchedulerInterface &) = delete;
+    ProjectPartQueue(TaskSchedulerInterface<Task> &taskScheduler,
+                     PrecompiledHeaderStorageInterface &precompiledHeaderStorage,
+                     Sqlite::TransactionInterface &transactionsInterface)
+        : m_taskScheduler(taskScheduler),
+          m_precompiledHeaderStorage(precompiledHeaderStorage),
+          m_transactionsInterface(transactionsInterface)
+    {}
 
-    virtual void addTasks(std::vector<Task> &&tasks) = 0;
-    virtual uint freeSlots() = 0;
+    void addProjectParts(V2::ProjectPartContainers &&projectParts);
+    void removeProjectParts(const Utils::SmallStringVector &projectsPartIds);
 
-protected:
-    ~SymbolIndexerTaskSchedulerInterface() = default;
+    void processEntries();
+
+    const V2::ProjectPartContainers &projectParts() const;
+
+    std::vector<Task> createPchTasks(V2::ProjectPartContainers &&projectParts) const;
+
+private:
+    V2::ProjectPartContainers m_projectParts;
+    TaskSchedulerInterface<Task> &m_taskScheduler;
+    PrecompiledHeaderStorageInterface &m_precompiledHeaderStorage;
+    Sqlite::TransactionInterface &m_transactionsInterface;
 };
 
 } // namespace ClangBackEnd

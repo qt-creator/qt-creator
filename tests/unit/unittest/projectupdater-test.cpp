@@ -82,7 +82,7 @@ protected:
         projectPart.files.push_back(header2ProjectFile);
         projectPart.files.push_back(source1ProjectFile);
         projectPart.files.push_back(source2ProjectFile);
-        projectPart.displayName = "project1";
+        projectPart.displayName = "projectb";
         projectPart.projectMacros = {{"FOO", "2"}, {"BAR", "1"}};
         projectPartId = projectPart.id();
 
@@ -90,7 +90,7 @@ protected:
         projectPart2.files.push_back(header1ProjectFile);
         projectPart2.files.push_back(source2ProjectFile);
         projectPart2.files.push_back(source1ProjectFile);
-        projectPart2.displayName = "project2";
+        projectPart2.displayName = "projectaa";
         projectPart2.projectMacros = {{"BAR", "1"}, {"FOO", "2"}};
         projectPartId2 = projectPart2.id();
 
@@ -118,8 +118,7 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    MockPrecompiledHeaderStorage mockPrecompiledHeaderStorage;
-    ClangPchManager::PchManagerClient pchManagerClient{mockPrecompiledHeaderStorage};
+    ClangPchManager::PchManagerClient pchManagerClient;
     MockPchManagerNotifier mockPchManagerNotifier{pchManagerClient};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
     ClangPchManager::ProjectUpdater updater{mockPchManagerServer, filePathCache};
@@ -202,14 +201,13 @@ TEST_F(ProjectUpdater, CallRemoveProjectParts)
 
     EXPECT_CALL(mockPchManagerServer, removeProjectParts(message));
 
-    updater.removeProjectParts({QString(projectPartId), QString(projectPartId2)});
+    updater.removeProjectParts({QString(projectPartId2), QString(projectPartId)});
 }
 
 TEST_F(ProjectUpdater, CallPrecompiledHeaderRemovedInPchManagerProjectUpdater)
 {
     ClangPchManager::PchManagerProjectUpdater pchUpdater{mockPchManagerServer, pchManagerClient, filePathCache};
     ClangBackEnd::RemoveProjectPartsMessage message{{projectPartId, projectPartId2}};
-    EXPECT_CALL(mockPrecompiledHeaderStorage, deletePrecompiledHeader(_)).Times(AnyNumber());
 
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId.toQString()));
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId2.toQString()));

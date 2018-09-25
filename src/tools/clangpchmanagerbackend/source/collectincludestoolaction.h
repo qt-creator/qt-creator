@@ -39,7 +39,7 @@ class CollectIncludesToolAction final : public clang::tooling::FrontendActionFac
 public:
     CollectIncludesToolAction(FilePathIds &includeIds,
                               FilePathIds &topIncludeIds,
-                              FilePathCachingInterface &filePathCache,
+                              const FilePathCachingInterface &filePathCache,
                               const Utils::PathStringVector &excludedIncludes)
         : m_includeIds(includeIds),
           m_topIncludeIds(topIncludeIds),
@@ -93,7 +93,7 @@ private:
     std::vector<uint> m_excludedIncludeUIDs;
     FilePathIds &m_includeIds;
     FilePathIds &m_topIncludeIds;
-    FilePathCachingInterface &m_filePathCache;
+    const FilePathCachingInterface &m_filePathCache;
     const Utils::PathStringVector &m_excludedIncludes;
 };
 

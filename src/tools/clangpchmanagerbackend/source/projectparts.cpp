@@ -35,9 +35,7 @@ inline namespace Pch {
 
 V2::ProjectPartContainers ProjectParts::update(V2::ProjectPartContainers &&projectsParts)
 {
-    auto uniqueProjectParts = ProjectParts::uniqueProjectParts(std::move(projectsParts));
-
-    auto updatedProjectPartContainers = newProjectParts(std::move(uniqueProjectParts));
+    auto updatedProjectPartContainers = newProjectParts(std::move(projectsParts));
 
     mergeProjectParts(updatedProjectPartContainers);
 
@@ -66,16 +64,6 @@ V2::ProjectPartContainers ProjectParts::projects(const Utils::SmallStringVector 
     });
 
     return projectPartsWithIds;
-}
-
-V2::ProjectPartContainers ProjectParts::uniqueProjectParts(V2::ProjectPartContainers &&projectsParts)
-{
-    std::sort(projectsParts.begin(), projectsParts.end());
-    auto newEnd = std::unique(projectsParts.begin(), projectsParts.end());
-
-    projectsParts.erase(newEnd, projectsParts.end());
-
-    return std::move(projectsParts);
 }
 
 V2::ProjectPartContainers ProjectParts::newProjectParts(V2::ProjectPartContainers &&projectsParts) const

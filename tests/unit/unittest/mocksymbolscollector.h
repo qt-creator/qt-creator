@@ -60,6 +60,9 @@ public:
     MOCK_METHOD0(clear,
                  void());
 
+    MOCK_METHOD0(doInMainThreadAfterFinished,
+                 void());
+
     MOCK_CONST_METHOD0(symbols,
                        const ClangBackEnd::SymbolEntries &());
 

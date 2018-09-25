@@ -34,11 +34,6 @@
 
 namespace ClangPchManager {
 
-PchManagerClient::PchManagerClient(PrecompiledHeaderStorageInterface &precompiledHeaderStorage)
-    : m_precompiledHeaderStorage(precompiledHeaderStorage)
-{
-}
-
 void PchManagerClient::alive()
 {
     if (m_connectionClient)
@@ -50,7 +45,6 @@ void PchManagerClient::precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeader
     for (ClangBackEnd::ProjectPartPch &projectPartPch : message.takeProjectPartPchs()) {
         const QString projectPartId{projectPartPch.projectPartId};
         const QString pchPath{projectPartPch.pchPath};
-        addPchToDatabase(projectPartPch);
         addProjectPartPch(std::move(projectPartPch));
         precompiledHeaderUpdated(projectPartId, pchPath, projectPartPch.lastModified);
     }
@@ -60,7 +54,6 @@ void PchManagerClient::precompiledHeaderRemoved(const QString &projectPartId)
 {
     for (auto notifier : m_notifiers) {
         Utils::SmallString id(projectPartId);
-        removePchFromDatabase(id);
         removeProjectPartPch(id);
         notifier->precompiledHeaderRemoved(projectPartId);
     }
@@ -115,18 +108,6 @@ void PchManagerClient::removeProjectPartPch(Utils::SmallStringView projectPartId
         *found = std::move(m_projectPartPchs.back());
         m_projectPartPchs.pop_back();
     }
-}
-
-void PchManagerClient::addPchToDatabase(const ClangBackEnd::ProjectPartPch &projectPartPch)
-{
-    m_precompiledHeaderStorage.insertPrecompiledHeader(projectPartPch.projectPartId,
-                                                       projectPartPch.pchPath,
-                                                       projectPartPch.lastModified);
-}
-
-void PchManagerClient::removePchFromDatabase(const Utils::SmallStringView &projectPartId)
-{
-    m_precompiledHeaderStorage.deletePrecompiledHeader(projectPartId);
 }
 
 void PchManagerClient::addProjectPartPch(ClangBackEnd::ProjectPartPch &&projectPartPch)

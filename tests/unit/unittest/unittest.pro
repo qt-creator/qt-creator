@@ -59,7 +59,6 @@ SOURCES += \
     locatorfilter-test.cpp \
     matchingtext-test.cpp \
     mimedatabase-utilities.cpp \
-    pchgenerator-test.cpp \
     pchmanagerclientserverinprocess-test.cpp \
     pchmanagerclient-test.cpp \
     pchmanagerserver-test.cpp \
@@ -99,9 +98,10 @@ SOURCES += \
     generatedfiles-test.cpp \
     sourcesmanager-test.cpp \
     symbolindexertaskqueue-test.cpp \
-    symbolindexertaskscheduler-test.cpp \
-    symbolscollectormanager-test.cpp \
-    refactoringprojectupdater-test.cpp
+    refactoringprojectupdater-test.cpp \
+    projectpartqueue-test.cpp \
+    processormanager-test.cpp \
+    taskscheduler-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -203,7 +203,6 @@ HEADERS += \
     mockclangpathwatcher.h \
     mockclangpathwatchernotifier.h \
     mockpchcreator.h \
-    mockpchgeneratornotifier.h \
     mockpchmanagerclient.h \
     mockpchmanagernotifier.h \
     mockpchmanagerserver.h \
@@ -238,11 +237,14 @@ HEADERS += \
     mockprojectpartprovider.h \
     mockprecompiledheaderstorage.h \
     mockeditormanager.h \
-    mocksymbolscollectormanager.h \
     mocksymbolindexertaskqueue.h \
-    mocksymbolindexertaskscheduler.h \
     mockcppmodelmanager.h \
-    mockgeneratedfiles.h
+    mockgeneratedfiles.h \
+    mockqueue.h \
+    mockprojectpartqueue.h \
+    mockprocessor.h \
+    mockprocessormanager.h \
+    mocktaskscheduler.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

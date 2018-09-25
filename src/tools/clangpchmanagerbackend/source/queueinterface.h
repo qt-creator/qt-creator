@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,33 +25,20 @@
 
 #pragma once
 
-#include "filestatus.h"
-#include "symbolentry.h"
-#include "sourcedependency.h"
-#include "sourcelocationentry.h"
-#include "usedmacro.h"
-
-#include <processorinterface.h>
-
 #include <utils/smallstringvector.h>
-
-#include <string>
-#include <vector>
 
 namespace ClangBackEnd {
 
-class SymbolsCollectorInterface : public ProcessorInterface
+class QueueInterface
 {
 public:
-    virtual void setFile(FilePathId filePathId, const Utils::SmallStringVector &arguments) = 0;
-    virtual void collectSymbols() = 0;
+    QueueInterface() = default;
+    QueueInterface(const QueueInterface &) = delete;
+    QueueInterface &operator=(const QueueInterface &) = delete;
 
-    virtual const SymbolEntries &symbols() const = 0;
-    virtual const SourceLocationEntries &sourceLocations() const = 0;
-    virtual const FilePathIds &sourceFiles() const = 0;
-    virtual const UsedMacros &usedMacros() const = 0;
-    virtual const FileStatuses &fileStatuses() const = 0;
-    virtual const SourceDependencies &sourceDependencies() const = 0;
+    virtual void processEntries() = 0;
+
+protected:
+    ~QueueInterface() = default;
 };
-
 } // namespace ClangBackEnd

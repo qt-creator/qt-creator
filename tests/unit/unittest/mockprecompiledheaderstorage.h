@@ -29,7 +29,7 @@
 
 #include <precompiledheaderstorageinterface.h>
 
-class MockPrecompiledHeaderStorage : public ClangPchManager::PrecompiledHeaderStorageInterface
+class MockPrecompiledHeaderStorage : public ClangBackEnd::PrecompiledHeaderStorageInterface
 {
 public:
     MOCK_METHOD3(insertPrecompiledHeader,

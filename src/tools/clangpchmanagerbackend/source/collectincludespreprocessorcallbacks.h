@@ -48,15 +48,13 @@ namespace ClangBackEnd {
 class CollectIncludesPreprocessorCallbacks final : public clang::PPCallbacks
 {
 public:
-    CollectIncludesPreprocessorCallbacks(clang::HeaderSearch &headerSearch,
-                                         FilePathIds &includeIds,
+    CollectIncludesPreprocessorCallbacks(FilePathIds &includeIds,
                                          FilePathIds &topIncludeIds,
-                                         FilePathCachingInterface &filePathCache,
+                                         const FilePathCachingInterface &filePathCache,
                                          const std::vector<uint> &excludedIncludeUID,
                                          std::vector<uint> &alreadyIncludedFileUIDs,
                                          clang::SourceManager &sourceManager)
-        : m_headerSearch(headerSearch),
-          m_includeIds(includeIds),
+        : m_includeIds(includeIds),
           m_topIncludeIds(topIncludeIds),
           m_filePathCache(filePathCache),
           m_excludedIncludeUID(excludedIncludeUID),
@@ -159,10 +157,9 @@ public:
     }
 
 private:
-    clang::HeaderSearch &m_headerSearch;
     FilePathIds &m_includeIds;
     FilePathIds &m_topIncludeIds;
-    FilePathCachingInterface &m_filePathCache;
+    const FilePathCachingInterface &m_filePathCache;
     const std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
     clang::SourceManager &m_sourceManager;

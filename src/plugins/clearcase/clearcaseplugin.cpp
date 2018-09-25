@@ -1069,7 +1069,8 @@ void ClearCasePlugin::diffActivity()
         return;
     }
     QString topLevel = state.topLevel();
-    QString activity = QInputDialog::getText(0, tr("Enter Activity"), tr("Activity Name"), QLineEdit::Normal, m_activity);
+    QString activity = QInputDialog::getText(ICore::dialogParent(), tr("Enter Activity"),
+                                             tr("Activity Name"), QLineEdit::Normal, m_activity);
     if (activity.isEmpty())
         return;
     QStringList versions = ccGetActivityVersions(topLevel, activity);
@@ -1527,7 +1528,8 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
             (fi.isWritable() || vcsStatus(absPath).status == FileStatus::Unknown))
         Utils::runAsync(sync, QStringList(absPath)).waitForFinished();
     if (vcsStatus(absPath).status == FileStatus::CheckedOut) {
-        QMessageBox::information(0, tr("ClearCase Checkout"), tr("File is already checked out."));
+        QMessageBox::information(ICore::dialogParent(), tr("ClearCase Checkout"),
+                                 tr("File is already checked out."));
         return true;
     }
 
@@ -1912,7 +1914,8 @@ bool ClearCasePlugin::newActivity()
     QStringList args;
     args << QLatin1String("mkactivity") << QLatin1String("-f");
     if (!m_settings.autoAssignActivityName) {
-        QString headline = QInputDialog::getText(0, tr("Activity Headline"), tr("Enter activity headline"));
+        QString headline = QInputDialog::getText(ICore::dialogParent(), tr("Activity Headline"),
+                                                 tr("Enter activity headline"));
         if (headline.isEmpty())
             return false;
         args << QLatin1String("-headline") << headline;

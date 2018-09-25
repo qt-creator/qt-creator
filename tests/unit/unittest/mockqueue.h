@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,12 +27,11 @@
 
 #include "googletest.h"
 
-#include <pchgeneratornotifierinterface.h>
+#include <queueinterface.h>
 
-class MockPchGeneratorNotifier : public ClangBackEnd::PchGeneratorNotifierInterface
+class MockQueue : public ClangBackEnd::QueueInterface
 {
 public:
-    MOCK_METHOD2(taskFinished,
-                 void (ClangBackEnd::TaskFinishStatus status,
-                       const ClangBackEnd::ProjectPartPch &projectPartPch));
+    MOCK_METHOD0(processEntries, void());
 };
+

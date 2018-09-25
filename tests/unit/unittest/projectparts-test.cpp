@@ -88,16 +88,11 @@ TEST_F(ProjectParts, ProjectPartAdded)
     ASSERT_THAT(projectParts.projectParts(), ElementsAre(projectPartContainer1));
 }
 
-TEST_F(ProjectParts, FilterDublicateProjectPartsForUpdating)
-{
-    auto updatedProjectParts = projectParts.update({projectPartContainer1, projectPartContainer1});
-
-    ASSERT_THAT(updatedProjectParts, ElementsAre(projectPartContainer1));
-}
-
 TEST_F(ProjectParts, FilteredProjectPartAdded)
 {
-    projectParts.update({projectPartContainer1, projectPartContainer1});
+    projectParts.update({projectPartContainer1});
+
+    projectParts.update({projectPartContainer1});
 
     ASSERT_THAT(projectParts.projectParts(), ElementsAre(projectPartContainer1));
 }
@@ -118,13 +113,6 @@ TEST_F(ProjectParts, NoDuplicateProjectPartAfterUpdatingWithNotNewProjectPart)
     auto updatedProjectParts = projectParts.update({projectPartContainer1});
 
     ASSERT_THAT(projectParts.projectParts(), ElementsAre(projectPartContainer1));
-}
-
-TEST_F(ProjectParts, FilterUniqueProjectParts)
-{
-    auto updatedProjectParts = projectParts.uniqueProjectParts({projectPartContainer1, projectPartContainer2, projectPartContainer1});
-
-    ASSERT_THAT(updatedProjectParts, ElementsAre(projectPartContainer1, projectPartContainer2));
 }
 
 TEST_F(ProjectParts, MergeProjectParts)

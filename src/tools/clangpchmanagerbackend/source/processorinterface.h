@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,25 +25,23 @@
 
 #pragma once
 
-#include <utils/smallstringvector.h>
+#include <filecontainerv2.h>
 
 namespace ClangBackEnd {
 
-class ProjectPartPch;
-
-class PchGeneratorInterface
+class ProcessorInterface
 {
 public:
-    PchGeneratorInterface() = default;
-    PchGeneratorInterface(const PchGeneratorInterface &) = delete;
-    PchGeneratorInterface &operator=(const PchGeneratorInterface &) = delete;
+    ProcessorInterface() = default;
+    virtual ~ProcessorInterface() = default;
+    ProcessorInterface(const ProcessorInterface &) = delete;
+    ProcessorInterface &operator=(const ProcessorInterface &) = delete;
 
-    virtual void startTask(Utils::SmallStringVector &&compilerArguments,
-                           ProjectPartPch &&projectPartPch) = 0;
-
-protected:
-    ~PchGeneratorInterface() = default;
+    virtual void setUnsavedFiles(const V2::FileContainers &unsavedFiles) = 0;
+    virtual bool isUsed() const = 0;
+    virtual void setIsUsed(bool isUsed) = 0;
+    virtual void clear() = 0;
+    virtual void doInMainThreadAfterFinished() = 0;
 };
 
 } // namespace ClangBackEnd
-

@@ -23,27 +23,14 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "googletest.h"
 
-#include <filecontainerv2.h>
+#include <processormanagerinterface.h>
 
-#include <vector>
-
-namespace ClangBackEnd {
-
-class SymbolsCollectorInterface;
-
-class SymbolsCollectorManagerInterface
+class MockProcessorManager : public ClangBackEnd::ProcessorManagerInterface
 {
 public:
-    SymbolsCollectorManagerInterface() = default;
-    SymbolsCollectorManagerInterface(const SymbolsCollectorManagerInterface &) = delete;
-    SymbolsCollectorManagerInterface &operator=(const SymbolsCollectorManagerInterface &) = delete;
+    using Processor =  ClangBackEnd::ProcessorInterface;
 
-    virtual SymbolsCollectorInterface &unusedSymbolsCollector() = 0;
-
-protected:
-    ~SymbolsCollectorManagerInterface() = default;
+    MOCK_METHOD0(unusedProcessor, ClangBackEnd::ProcessorInterface &());
 };
-
-} // namespace ClangBackEnd

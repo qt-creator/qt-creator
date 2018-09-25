@@ -43,7 +43,6 @@ public:
     V2::ProjectPartContainers projects(const Utils::SmallStringVector &projectPartIds) const override;
 
 unittest_public:
-    static V2::ProjectPartContainers uniqueProjectParts(V2::ProjectPartContainers &&projectsParts);
     V2::ProjectPartContainers newProjectParts(V2::ProjectPartContainers &&projectsParts) const;
     void mergeProjectParts(const V2::ProjectPartContainers &projectsParts);
     const V2::ProjectPartContainers &projectParts() const;
