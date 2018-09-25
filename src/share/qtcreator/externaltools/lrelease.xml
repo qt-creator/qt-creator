@@ -36,6 +36,6 @@
         <path>lrelease</path>
         <arguments>%{CurrentProject:FilePath}</arguments>
         <workingdirectory>%{CurrentProject:Path}</workingdirectory>
-        <environment>PATH%3D%25%7BJS%3Aif%20%28%22%25%7BCurrentBuild%3AEnv%3APATH%7D%22%29%20%22%25%7BCurrentBuild%3AEnv%3APATH%7D%22%3B%20else%20%22%25%7BEnv%3APATH%7D%22%7D</environment>
+        <baseEnvironmentId>CurrentBuild:Env</baseEnvironmentId>
     </executable>
 </externaltool>
