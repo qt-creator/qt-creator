@@ -35,6 +35,7 @@
 #include <debugger/terminal.h>
 
 #include <debugger/breakhandler.h>
+#include <debugger/debuggersourcepathmappingwidget.h>
 #include <debugger/disassemblerlines.h>
 #include <debugger/moduleshandler.h>
 #include <debugger/registerhandler.h>
@@ -318,6 +319,15 @@ void LldbEngine::runEngine()
     if (rp.startMode == AttachCore)
         cmd.arg("coreFile", rp.coreFile);
     runCommand(cmd);
+
+    const SourcePathMap sourcePathMap =
+        DebuggerSourcePathMappingWidget::mergePlatformQtPath(rp,
+                Internal::globalDebuggerOptions()->sourcePathMap);
+    for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
+         it != cend;
+         ++it) {
+        executeDebuggerCommand("settings append target.source-map " + it.key() + ' ' + it.value());
+    }
 }
 
 void LldbEngine::interruptInferior()

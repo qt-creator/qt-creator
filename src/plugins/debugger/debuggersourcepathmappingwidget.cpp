@@ -61,6 +61,8 @@ QStringList qtBuildPaths()
                 "C:/work/build/qt5_workdir/w/s",
                 "c:/users/qt/work/qt",
                 "c:/Users/qt/work/install"};
+    } else if (HostOsInfo::isMacHost()) {
+        return { "/Users/qt/work/qt" };
     } else {
         return { "/home/qt/work/qt" };
     }
