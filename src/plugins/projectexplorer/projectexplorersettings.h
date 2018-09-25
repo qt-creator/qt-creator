@@ -51,8 +51,8 @@ public:
     bool prompToStopRunControl = false;
     bool automaticallyCreateRunConfigurations = true;
     bool addLibraryPathsToRunEnv = true;
-    int  maxAppOutputLines = Core::Constants::DEFAULT_MAX_LINE_COUNT;
-    int  maxBuildOutputLines = Core::Constants::DEFAULT_MAX_LINE_COUNT;
+    int  maxAppOutputChars = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
+    int  maxBuildOutputChars = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
     StopBeforeBuild stopBeforeBuild = StopBeforeBuild::StopNone;
 
     // Add a UUid which is used to identify the development environment.
@@ -77,8 +77,8 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.prompToStopRunControl == p2.prompToStopRunControl
             && p1.automaticallyCreateRunConfigurations == p2.automaticallyCreateRunConfigurations
             && p1.addLibraryPathsToRunEnv == p2.addLibraryPathsToRunEnv
-            && p1.maxAppOutputLines == p2.maxAppOutputLines
-            && p1.maxBuildOutputLines == p2.maxBuildOutputLines
+            && p1.maxAppOutputChars == p2.maxAppOutputChars
+            && p1.maxBuildOutputChars == p2.maxBuildOutputChars
             && p1.environmentId == p2.environmentId
             && p1.stopBeforeBuild == p2.stopBeforeBuild;
 }

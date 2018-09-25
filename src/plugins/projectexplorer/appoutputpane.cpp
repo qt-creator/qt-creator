@@ -447,7 +447,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setWindowTitle(tr("Application Output Window"));
     ow->setWindowIcon(Icons::WINDOW.icon());
     ow->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
-    ow->setMaxLineCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputLines);
+    ow->setMaxCharCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputChars);
     ow->setWheelZoomEnabled(TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
     ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
     ow->setFontZoom(m_zoom);
@@ -480,7 +480,7 @@ void AppOutputPane::updateFromSettings()
 {
     foreach (const RunControlTab &tab, m_runControlTabs) {
         tab.window->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
-        tab.window->setMaxLineCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputLines);
+        tab.window->setMaxCharCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputChars);
     }
 }
 

@@ -64,7 +64,7 @@ public:
     Qt::MouseButton mouseButtonPressed = Qt::NoButton;
     bool m_zoomEnabled = false;
     float m_originalFontSize = 0.;
-    int maxLineCount = Core::Constants::DEFAULT_MAX_LINE_COUNT;
+    int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
     QTextCursor cursor;
 };
 
@@ -268,21 +268,21 @@ QString OutputWindow::doNewlineEnforcement(const QString &out)
     return s;
 }
 
-void OutputWindow::setMaxLineCount(int count)
+void OutputWindow::setMaxCharCount(int count)
 {
-    d->maxLineCount = count;
-    setMaximumBlockCount(d->maxLineCount);
+    d->maxCharCount = count;
+    setMaximumBlockCount(count / 100);
 }
 
-int OutputWindow::maxLineCount() const
+int OutputWindow::maxCharCount() const
 {
-    return d->maxLineCount;
+    return d->maxCharCount;
 }
 
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 {
     const QString out = SynchronousProcess::normalizeNewlines(output);
-    setMaximumBlockCount(d->maxLineCount);
+    setMaximumBlockCount(d->maxCharCount / 100);
     const bool atBottom = isScrollbarAtBottom() || m_scrollTimer.isActive();
 
     if (format == ErrorMessageFormat || format == NormalMessageFormat) {
@@ -341,7 +341,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &format)
 {
     const QString text = SynchronousProcess::normalizeNewlines(textIn);
-    if (d->maxLineCount > 0 && document()->blockCount() >= d->maxLineCount)
+    if (d->maxCharCount > 0 && document()->characterCount() >= d->maxCharCount)
         return;
     const bool atBottom = isScrollbarAtBottom();
     if (!d->cursor.atEnd())
@@ -349,7 +349,7 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
     d->cursor.beginEditBlock();
     d->cursor.insertText(doNewlineEnforcement(text), format);
 
-    if (d->maxLineCount > 0 && document()->blockCount() >= d->maxLineCount) {
+    if (d->maxCharCount > 0 && document()->characterCount() >= d->maxCharCount) {
         QTextCharFormat tmp;
         tmp.setFontWeight(QFont::Bold);
         d->cursor.insertText(doNewlineEnforcement(tr("Additional output omitted") + QLatin1Char('\n')), tmp);
