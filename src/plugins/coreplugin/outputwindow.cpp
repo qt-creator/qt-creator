@@ -34,6 +34,7 @@
 
 #include <QAction>
 #include <QScrollBar>
+#include <QTextBlock>
 
 using namespace Utils;
 
@@ -281,8 +282,29 @@ int OutputWindow::maxCharCount() const
 
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 {
-    const QString out = SynchronousProcess::normalizeNewlines(output);
-    setMaximumBlockCount(d->maxCharCount / 100);
+    QString out = SynchronousProcess::normalizeNewlines(output);
+
+    if (out.size() > d->maxCharCount) {
+        // Current line alone exceeds limit, we need to cut it.
+        out.truncate(d->maxCharCount);
+        out.append("[...]");
+        setMaximumBlockCount(1);
+    } else {
+        int plannedChars = document()->characterCount() + out.size();
+        if (plannedChars > d->maxCharCount) {
+            int plannedBlockCount = document()->blockCount();
+            QTextBlock tb = document()->firstBlock();
+            while (tb.isValid() && plannedChars > d->maxCharCount && plannedBlockCount > 1) {
+                plannedChars -= tb.length();
+                plannedBlockCount -= 1;
+                tb = tb.next();
+            }
+            setMaximumBlockCount(plannedBlockCount);
+        } else {
+            setMaximumBlockCount(-1);
+        }
+    }
+
     const bool atBottom = isScrollbarAtBottom() || m_scrollTimer.isActive();
 
     if (format == ErrorMessageFormat || format == NormalMessageFormat) {
