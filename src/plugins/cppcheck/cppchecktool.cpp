@@ -61,9 +61,8 @@ void CppcheckTool::updateOptions(const CppcheckOptions &options)
 {
     m_options = options;
     m_filters.clear();
-    const auto patterns = m_options.ignoredPatterns.split(',');
-    for (const auto &pattern : patterns) {
-        const auto trimmedPattern = pattern.trimmed();
+    for (const QString &pattern : m_options.ignoredPatterns.split(',')) {
+        const QString trimmedPattern = pattern.trimmed();
         if (trimmedPattern.isEmpty())
             continue;
 
@@ -90,8 +89,8 @@ void CppcheckTool::updateArguments()
 
     QStringList arguments;
     if (!m_options.customArguments.isEmpty()) {
-        auto expander = Utils::globalMacroExpander();
-        const auto expanded = expander->expand(m_options.customArguments);
+        Utils::MacroExpander *expander = Utils::globalMacroExpander();
+        const QString expanded = expander->expand(m_options.customArguments);
         arguments.push_back(expanded);
     }
 
@@ -127,8 +126,8 @@ QStringList CppcheckTool::additionalArguments(const CppTools::ProjectPart &part)
     QStringList result;
 
     if (m_options.addIncludePaths) {
-        for (const auto &path : qAsConst(part.headerPaths)) {
-            const auto projectDir = m_project->projectDirectory().toString();
+        for (const ProjectExplorer::HeaderPath &path : part.headerPaths) {
+            const QString projectDir = m_project->projectDirectory().toString();
             if (path.type == ProjectExplorer::HeaderPathType::User
                 && path.path.startsWith(projectDir))
                 result.push_back("-I " + path.path);
@@ -186,7 +185,7 @@ void CppcheckTool::check(const Utils::FileNameList &files)
     } else {
         std::copy_if(files.cbegin(), files.cend(), std::back_inserter(filtered),
                      [this](const Utils::FileName &file) {
-            const auto stringed = file.toString();
+            const QString stringed = file.toString();
             const auto filter = [stringed](const QRegExp &re) {return re.exactMatch(stringed);};
             return !Utils::contains(m_filters, filter);
         });
@@ -195,8 +194,8 @@ void CppcheckTool::check(const Utils::FileNameList &files)
     if (filtered.isEmpty())
         return;
 
-    const auto info = CppTools::CppModelManager::instance()->projectInfo(m_project);
-    const auto parts = info.projectParts();
+    const CppTools::ProjectInfo info = CppTools::CppModelManager::instance()->projectInfo(m_project);
+    const QVector<CppTools::ProjectPart::Ptr> parts = info.projectParts();
     if (parts.size() == 1) {
         QTC_ASSERT(parts.first(), return);
         addToQueue(filtered, *parts.first());
@@ -204,14 +203,13 @@ void CppcheckTool::check(const Utils::FileNameList &files)
     }
 
     std::map<CppTools::ProjectPart::Ptr, Utils::FileNameList> groups;
-    for (const auto &file : qAsConst(filtered)) {
-        const auto stringed = file.toString();
-        for (const auto &part : parts) {
+    for (const Utils::FileName &file : qAsConst(filtered)) {
+        const QString stringed = file.toString();
+        for (const CppTools::ProjectPart::Ptr &part : parts) {
+            using CppTools::ProjectFile;
             QTC_ASSERT(part, continue);
-            const auto &partFiles = part->files;
-            using File = CppTools::ProjectFile;
-            const auto match = [stringed](const File &file){return file.path == stringed;};
-            if (Utils::contains(partFiles, match))
+            const auto match = [stringed](const ProjectFile &pFile){return pFile.path == stringed;};
+            if (Utils::contains(part->files, match))
                 groups[part].push_back(file);
         }
     }
@@ -222,7 +220,7 @@ void CppcheckTool::check(const Utils::FileNameList &files)
 
 void CppcheckTool::addToQueue(const Utils::FileNameList &files, CppTools::ProjectPart &part)
 {
-    const auto key = part.id();
+    const QString key = part.id();
     if (!m_cachedAdditionalArguments.contains(key))
         m_cachedAdditionalArguments.insert(key, additionalArguments(part).join(' '));
     m_runner->addToQueue(files, m_cachedAdditionalArguments[key]);
@@ -237,12 +235,12 @@ void CppcheckTool::stop(const Utils::FileNameList &files)
 void CppcheckTool::startParsing()
 {
     if (m_options.showOutput) {
-        const auto message = tr("Cppcheck started: \"%1\".").arg(m_runner->currentCommand());
+        const QString message = tr("Cppcheck started: \"%1\".").arg(m_runner->currentCommand());
         Core::MessageManager::write(message, Core::MessageManager::Silent);
     }
 
     m_progress = std::make_unique<QFutureInterface<void>>();
-    const auto progress = Core::ProgressManager::addTask(
+    const Core::FutureProgress *progress = Core::ProgressManager::addTask(
                 m_progress->future(), QObject::tr("Cppcheck"),
                 Constants::CHECK_PROGRESS_ID);
     QObject::connect(progress, &Core::FutureProgress::canceled,
@@ -260,12 +258,12 @@ void CppcheckTool::parseOutputLine(const QString &line)
         Core::MessageManager::write(line, Core::MessageManager::Silent);
 
     enum Matches { Percentage = 1 };
-    const auto match = m_progressRegexp.match(line);
+    const QRegularExpressionMatch match = m_progressRegexp.match(line);
     if (!match.hasMatch())
         return;
 
-    const auto done = match.captured(Percentage).toInt();
     QTC_ASSERT(m_progress, return);
+    const int done = match.captured(Percentage).toInt();
     m_progress->setProgressValue(done);
 }
 
@@ -291,12 +289,11 @@ void CppcheckTool::parseErrorLine(const QString &line)
         Core::MessageManager::write(line, Core::MessageManager::Silent);
 
     enum Matches { File = 1, Line, Severity, Id, Message };
-    const auto match = m_messageRegexp.match(line);
+    const QRegularExpressionMatch match = m_messageRegexp.match(line);
     if (!match.hasMatch())
         return;
 
-    const auto fileName = Utils::FileName::fromString(
-                QDir::fromNativeSeparators(match.captured(File)));
+    const Utils::FileName fileName = Utils::FileName::fromUserInput(match.captured(File));
     if (!m_runner->currentFiles().contains(fileName))
         return;
 

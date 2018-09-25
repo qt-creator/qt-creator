@@ -76,19 +76,19 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
         return;
 
     using CppModelManager = CppTools::CppModelManager;
-    const auto info = CppModelManager::instance()->projectInfo(m_currentProject);
+    const CppTools::ProjectInfo info = CppModelManager::instance()->projectInfo(m_currentProject);
     if (!info.isValid())
         return;
 
-    const auto editorList = !editors.isEmpty()
+    const QList<Core::IEditor *> editorList = !editors.isEmpty()
             ? editors : Core::DocumentModel::editorsForOpenedDocuments();
 
     Utils::FileNameList toCheck;
-    for (const auto editor: editorList) {
+    for (const Core::IEditor *editor : editorList) {
         QTC_ASSERT(editor, continue);
-        const auto document = editor->document();
+        Core::IDocument *document = editor->document();
         QTC_ASSERT(document, continue);
-        const auto &path = document->filePath();
+        const Utils::FileName &path = document->filePath();
         if (path.isEmpty())
             continue;
 
@@ -98,7 +98,7 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
         if (!m_currentProject->isKnownFile(path))
             continue;
 
-        const auto &pathString = path.toString();
+        const QString &pathString = path.toString();
         if (!info.sourceFiles().contains(pathString))
             continue;
 
@@ -125,15 +125,15 @@ void CppcheckTrigger::removeEditors(const QList<Core::IEditor *> &editors)
     if (!m_currentProject)
         return;
 
-    const auto editorList = !editors.isEmpty()
+    const QList<Core::IEditor *> editorList = !editors.isEmpty()
             ? editors : Core::DocumentModel::editorsForOpenedDocuments();
 
     Utils::FileNameList toRemove;
-    for (const auto editor: editorList) {
+    for (const Core::IEditor *editor : editorList) {
         QTC_ASSERT(editor, return);
-        const auto document = editor->document();
+        const Core::IDocument *document = editor->document();
         QTC_ASSERT(document, return);
-        const auto &path = document->filePath();
+        const Utils::FileName &path = document->filePath();
         if (path.isEmpty())
             return;
 
@@ -156,7 +156,7 @@ void CppcheckTrigger::checkChangedDocument(Core::IDocument *document)
     if (!m_currentProject)
         return;
 
-    const auto &path = document->filePath();
+    const Utils::FileName &path = document->filePath();
     QTC_ASSERT(!path.isEmpty(), return);
     if (!m_checkedFiles.contains(path))
         return;

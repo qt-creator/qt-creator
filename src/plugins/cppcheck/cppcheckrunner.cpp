@@ -43,7 +43,7 @@ CppcheckRunner::CppcheckRunner(CppcheckTool &tool) :
         QProcess getConf;
         getConf.start("getconf ARG_MAX");
         getConf.waitForFinished(2000);
-        const auto argMax = getConf.readAllStandardOutput().replace("\n", "");
+        const QByteArray argMax = getConf.readAllStandardOutput().replace("\n", "");
         m_maxArgumentsLength = std::max(argMax.toInt(), m_maxArgumentsLength);
     }
 
@@ -57,7 +57,7 @@ CppcheckRunner::CppcheckRunner(CppcheckTool &tool) :
             this, &CppcheckRunner::handleFinished);
 
     m_queueTimer.setSingleShot(true);
-    const auto checkDelayInMs = 200;
+    const int checkDelayInMs = 200;
     m_queueTimer.setInterval(checkDelayInMs);
     connect(&m_queueTimer, &QTimer::timeout,
             this, &CppcheckRunner::checkQueued);
@@ -78,7 +78,7 @@ void CppcheckRunner::reconfigure(const QString &binary, const QString &arguments
 void CppcheckRunner::addToQueue(const Utils::FileNameList &files,
                                 const QString &additionalArguments)
 {
-    auto &existing = m_queue[additionalArguments];
+    Utils::FileNameList &existing = m_queue[additionalArguments];
     if (existing.isEmpty()) {
         existing = files;
     } else {
@@ -110,7 +110,7 @@ void CppcheckRunner::removeFromQueue(const Utils::FileNameList &files)
         m_queue.clear();
     } else {
         for (auto it = m_queue.begin(), end = m_queue.end(); it != end;) {
-            for (const auto &file : files)
+            for (const Utils::FileName &file : files)
                 it.value().removeOne(file);
             it = !it.value().isEmpty() ? ++it : m_queue.erase(it);
         }
@@ -133,7 +133,7 @@ void CppcheckRunner::checkQueued()
     if (m_queue.isEmpty() || m_binary.isEmpty())
         return;
 
-    auto files = m_queue.begin().value();
+    Utils::FileNameList files = m_queue.begin().value();
     QString arguments = m_arguments + ' ' + m_queue.begin().key();
     m_currentFiles.clear();
     int argumentsLength = arguments.length();
@@ -163,7 +163,7 @@ void CppcheckRunner::readOutput()
     m_process->setReadChannel(QProcess::StandardOutput);
 
     while (!m_process->atEnd() && m_process->canReadLine()) {
-        auto line = QString::fromUtf8(m_process->readLine());
+        QString line = QString::fromUtf8(m_process->readLine());
         if (line.endsWith('\n'))
             line.chop(1);
         m_tool.parseOutputLine(line);
@@ -178,7 +178,7 @@ void CppcheckRunner::readError()
     m_process->setReadChannel(QProcess::StandardError);
 
     while (!m_process->atEnd() && m_process->canReadLine()) {
-        auto line = QString::fromUtf8(m_process->readLine());
+        QString line = QString::fromUtf8(m_process->readLine());
         if (line.endsWith('\n'))
             line.chop(1);
         m_tool.parseErrorLine(line);
