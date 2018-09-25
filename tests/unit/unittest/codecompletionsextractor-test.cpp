@@ -31,8 +31,6 @@
 #include <clangfilepath.h>
 #include <codecompletionsextractor.h>
 #include <filecontainer.h>
-#include <projectpart.h>
-#include <projects.h>
 #include <clangunsavedfilesshallowarguments.h>
 #include <clangtranslationunit.h>
 #include <clangdocuments.h>
@@ -135,7 +133,6 @@ const ClangBackEnd::FileContainer unsavedDataFileContainer(const char *filePath,
                                                            const char *unsavedFilePath)
 {
     return ClangBackEnd::FileContainer(Utf8String::fromUtf8(filePath),
-                                       Utf8String(),
                                        unsavedFileContent(unsavedFilePath),
                                        true);
 }
@@ -149,18 +146,17 @@ protected:
                                         bool needsReparse = false);
 
 protected:
-    ClangBackEnd::ProjectPart project{Utf8StringLiteral("/path/to/projectfile"), TestEnvironment::addPlatformArguments()};
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
-    Document functionDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), documents};
-    Document functionOverloadDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_functionoverload.cpp"), project, Utf8StringVector(), documents};
-    Document variableDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), project, Utf8StringVector(), documents};
-    Document classDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), project, Utf8StringVector(), documents};
-    Document namespaceDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), project, Utf8StringVector(), documents};
-    Document enumerationDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), project, Utf8StringVector(), documents};
-    Document constructorDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), project, Utf8StringVector(), documents};
-    Document briefCommentDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), project, Utf8StringVector(), documents};
+    ClangBackEnd::Documents documents{unsavedFiles};
+    Utf8StringVector compilationArguments{TestEnvironment::addPlatformArguments()};
+    Document functionDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), compilationArguments, documents};
+    Document functionOverloadDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_functionoverload.cpp"), compilationArguments, documents};
+    Document variableDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), compilationArguments, documents};
+    Document classDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), compilationArguments, documents};
+    Document namespaceDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), compilationArguments, documents};
+    Document enumerationDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), compilationArguments, documents};
+    Document constructorDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), compilationArguments, documents};
+    Document briefCommentDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), compilationArguments, documents};
 };
 
 using CodeCompletionsExtractorSlowTest = CodeCompletionsExtractor;
@@ -612,9 +608,12 @@ TEST_F(CodeCompletionsExtractorSlowTest, NotAvailableFunction)
 
 TEST_F(CodeCompletionsExtractorSlowTest, UnsavedFile)
 {
-    Document document(Utf8String::fromUtf8(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), documents);
-    unsavedFiles.createOrUpdate({unsavedDataFileContainer(TESTDATA_DIR"/complete_extractor_function.cpp",
-                                 TESTDATA_DIR"/complete_extractor_function_unsaved.cpp")});
+    Document document(Utf8String::fromUtf8(TESTDATA_DIR "/complete_extractor_function.cpp"),
+                      compilationArguments,
+                      documents);
+    unsavedFiles.createOrUpdate(
+        {unsavedDataFileContainer(TESTDATA_DIR "/complete_extractor_function.cpp",
+                                  TESTDATA_DIR "/complete_extractor_function_unsaved.cpp")});
     ClangCodeCompleteResults completeResults(getResults(document, 20));
 
     ::CodeCompletionsExtractor extractor(
@@ -628,9 +627,12 @@ TEST_F(CodeCompletionsExtractorSlowTest, UnsavedFile)
 
 TEST_F(CodeCompletionsExtractorSlowTest, ChangeUnsavedFile)
 {
-    Document document(Utf8String::fromUtf8(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), documents);
-    unsavedFiles.createOrUpdate({unsavedDataFileContainer(TESTDATA_DIR"/complete_extractor_function.cpp",
-                                 TESTDATA_DIR"/complete_extractor_function_unsaved.cpp")});
+    Document document(Utf8String::fromUtf8(TESTDATA_DIR "/complete_extractor_function.cpp"),
+                      compilationArguments,
+                      documents);
+    unsavedFiles.createOrUpdate(
+        {unsavedDataFileContainer(TESTDATA_DIR "/complete_extractor_function.cpp",
+                                  TESTDATA_DIR "/complete_extractor_function_unsaved.cpp")});
     ClangCodeCompleteResults completeResults(getResults(document, 20));
     unsavedFiles.createOrUpdate({unsavedDataFileContainer(TESTDATA_DIR"/complete_extractor_function.cpp",
                                  TESTDATA_DIR"/complete_extractor_function_unsaved_2.cpp")});
@@ -647,7 +649,10 @@ TEST_F(CodeCompletionsExtractorSlowTest, ChangeUnsavedFile)
 
 TEST_F(CodeCompletionsExtractorSlowTest, ArgumentDefinition)
 {
-    project.setArguments({Utf8StringLiteral("-DArgumentDefinition"), Utf8StringLiteral("-std=gnu++14")});
+    Document variableDocument{Utf8StringLiteral(TESTDATA_DIR "/complete_extractor_variable.cpp"),
+                              {Utf8StringLiteral("-DArgumentDefinition"),
+                               Utf8StringLiteral("-std=gnu++14")},
+                              documents};
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 35));
 
     ::CodeCompletionsExtractor extractor(
@@ -661,7 +666,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, ArgumentDefinition)
 
 TEST_F(CodeCompletionsExtractorSlowTest, NoArgumentDefinition)
 {
-    project.setArguments({Utf8StringLiteral("-std=gnu++14")});
+    Document variableDocument{Utf8StringLiteral(TESTDATA_DIR "/complete_extractor_variable.cpp"),
+                              {Utf8StringLiteral("-std=gnu++14")},
+                              documents};
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 35));
 
     ::CodeCompletionsExtractor extractor(

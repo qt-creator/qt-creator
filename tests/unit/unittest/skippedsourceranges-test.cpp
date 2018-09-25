@@ -31,8 +31,6 @@
 #include <clangdocuments.h>
 #include <clangstring.h>
 #include <clangtranslationunit.h>
-#include <projectpart.h>
-#include <projects.h>
 #include <skippedsourceranges.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
@@ -47,7 +45,6 @@ using ClangBackEnd::Document;
 using ClangBackEnd::Documents;
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
-using ClangBackEnd::ProjectPart;
 using ClangBackEnd::ClangString;
 using ClangBackEnd::SourceRange;
 using ClangBackEnd::SkippedSourceRanges;
@@ -89,16 +86,12 @@ struct Data {
         document.parse();
     }
 
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/skippedsourceranges.cpp");
-    Document document{filePath,
-                      ProjectPart(Utf8StringLiteral("projectPartId"),
-                                 TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11"),
-                                                                        Utf8StringLiteral("-DBLAH")})),
-                      {},
-                      documents};
+    Utf8StringVector compilationArguments{TestEnvironment::addPlatformArguments(
+        {Utf8StringLiteral("-std=c++11"), Utf8StringLiteral("-DBLAH")})};
+    Document document{filePath, compilationArguments, documents};
     TranslationUnit translationUnit{filePath,
                                     filePath,
                                     document.translationUnit().cxIndex(),

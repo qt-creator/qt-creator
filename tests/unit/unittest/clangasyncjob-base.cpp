@@ -33,9 +33,7 @@ using namespace ClangBackEnd;
 void ClangAsyncJobTest::BaseSetUp(ClangBackEnd::JobRequest::Type jobRequestType,
                                   IAsyncJob &asyncJob)
 {
-    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
-
-    const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
+    const QVector<FileContainer> fileContainer{FileContainer(filePath)};
     document = documents.create(fileContainer).front();
     documents.setVisibleInEditors({filePath});
     documents.setUsedByCurrentEditor(filePath);
@@ -51,10 +49,8 @@ JobRequest ClangAsyncJobTest::createJobRequest(const Utf8String &filePath,
 {
     JobRequest jobRequest(type);
     jobRequest.filePath = filePath;
-    jobRequest.projectPartId = projectPartId;
     jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
     jobRequest.documentRevision = document.documentRevision();
-    jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
 
     return jobRequest;
 }

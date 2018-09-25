@@ -94,7 +94,7 @@ TEST_F(RequestReferencesJob, DontSendReferencesIfDocumentWasClosed)
     EXPECT_CALL(mockIpcClient, references(_)).Times(0);
 
     job.runAsync();
-    documents.remove({FileContainer{filePath, projectPartId}});
+    documents.remove({FileContainer{filePath}});
 
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
@@ -106,7 +106,7 @@ TEST_F(RequestReferencesJob, DontSendReferencesIfDocumentRevisionChanged)
     EXPECT_CALL(mockIpcClient, references(_)).Times(0);
 
     job.runAsync();
-    documents.update({FileContainer(filePath, projectPartId, Utf8String(), true, 99)});
+    documents.update({FileContainer(filePath, Utf8String(), true, 99)});
 
     ASSERT_TRUE(waitUntilJobFinished(job));
 }

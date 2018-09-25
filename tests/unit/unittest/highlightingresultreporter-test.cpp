@@ -33,8 +33,6 @@
 #include <tokeninfocontainer.h>
 #include <tokenprocessor.h>
 #include <clanghighlightingresultreporter.h>
-#include <projectpart.h>
-#include <projects.h>
 #include <unsavedfiles.h>
 
 using ClangBackEnd::Cursor;
@@ -44,20 +42,15 @@ using ClangBackEnd::HighlightingType;
 using ClangBackEnd::Document;
 using ClangBackEnd::Documents;
 using ClangBackEnd::UnsavedFiles;
-using ClangBackEnd::ProjectPart;
-using ClangBackEnd::ProjectParts;
 using ClangBackEnd::ChunksReportedMonitor;
 
 namespace {
 
 struct Data {
-    ProjectParts projects;
     UnsavedFiles unsavedFiles;
-    Documents documents{projects, unsavedFiles};
-    Document document{Utf8StringLiteral(TESTDATA_DIR"/highlightingmarks.cpp"),
-                      ProjectPart(Utf8StringLiteral("projectPartId"),
-                                  TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")})),
-                      {},
+    Documents documents{unsavedFiles};
+    Document document{Utf8StringLiteral(TESTDATA_DIR "/highlightingmarks.cpp"),
+                      TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")}),
                       documents};
 };
 

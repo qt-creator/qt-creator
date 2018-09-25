@@ -42,7 +42,7 @@ JobContext::JobContext(const JobRequest &jobRequest,
 
 Document JobContext::documentForJobRequest() const
 {
-    return documents->document(jobRequest.filePath, jobRequest.projectPartId);
+    return documents->document(jobRequest.filePath);
 }
 
 bool JobContext::isOutdated() const
@@ -52,7 +52,7 @@ bool JobContext::isOutdated() const
 
 bool JobContext::isDocumentOpen() const
 {
-    const bool hasDocument = documents->hasDocument(jobRequest.filePath, jobRequest.projectPartId);
+    const bool hasDocument = documents->hasDocument(jobRequest.filePath);
     if (!hasDocument)
         qCDebug(jobsLog) << "Document already closed for results of" << jobRequest;
 
@@ -61,7 +61,7 @@ bool JobContext::isDocumentOpen() const
 
 bool JobContext::documentRevisionChanged() const
 {
-    const Document &document = documents->document(jobRequest.filePath, jobRequest.projectPartId);
+    const Document &document = documents->document(jobRequest.filePath);
     const bool revisionChanged = document.documentRevision() != jobRequest.documentRevision;
 
     if (revisionChanged)

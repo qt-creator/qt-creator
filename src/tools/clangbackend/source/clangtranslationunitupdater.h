@@ -43,13 +43,11 @@ public:
     bool reparseNeeded = false;
 
     TimePoint needsToBeReparsedChangeTimePoint;
+
     Utf8String filePath;
-    Utf8StringVector fileArguments;
+    Utf8StringVector compilationArguments;
 
     UnsavedFiles unsavedFiles;
-
-    Utf8String projectId;
-    Utf8StringVector projectArguments;
 };
 
 class TranslationUnitUpdateResult {

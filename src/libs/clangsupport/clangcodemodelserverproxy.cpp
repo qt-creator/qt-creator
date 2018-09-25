@@ -57,16 +57,6 @@ void ClangCodeModelServerProxy::documentsClosed(const DocumentsClosedMessage &me
     m_writeMessageBlock.write(message);
 }
 
-void ClangCodeModelServerProxy::projectPartsUpdated(const ProjectPartsUpdatedMessage &message)
-{
-    m_writeMessageBlock.write(message);
-}
-
-void ClangCodeModelServerProxy::projectPartsRemoved(const ProjectPartsRemovedMessage &message)
-{
-    m_writeMessageBlock.write(message);
-}
-
 void ClangCodeModelServerProxy::unsavedFilesUpdated(const UnsavedFilesUpdatedMessage &message)
 {
     m_writeMessageBlock.write(message);

@@ -47,7 +47,6 @@ class TranslationUnit;
 class TranslationUnits;
 class DocumentData;
 class TranslationUnitUpdateResult;
-class ProjectPart;
 class FileContainer;
 class Documents;
 
@@ -61,8 +60,7 @@ public:
 
     Document() = default;
     Document(const Utf8String &filePath,
-             const ProjectPart &projectPart,
-             const Utf8StringVector &fileArguments,
+             const Utf8StringVector &compilationArguments,
              Documents &documents,
              FileExistsCheck fileExistsCheck = FileExistsCheck::Check);
     ~Document();
@@ -81,12 +79,8 @@ public:
     long useCount() const;
 
     Utf8String filePath() const;
-    Utf8StringVector fileArguments() const;
+    Utf8StringVector compilationArguments() const;
     FileContainer fileContainer() const;
-
-    const ProjectPart &projectPart() const;
-    const TimePoint lastProjectPartChangeTimePoint() const;
-    bool isProjectPartOutdated() const;
 
     uint documentRevision() const;
     void setDocumentRevision(uint revision);
@@ -107,7 +101,6 @@ public:
 
     bool isDirty() const;
     TimePoint isDirtyTimeChangePoint() const;
-    bool setDirtyIfProjectPartIsOutdated();
     void setDirtyIfDependencyIsMet(const Utf8String &filePath);
 
     TranslationUnitUpdateInput createUpdateInput() const;

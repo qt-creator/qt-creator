@@ -58,16 +58,6 @@ void EchoClangCodeModelServer::documentsClosed(const DocumentsClosedMessage &mes
     echoMessage(message);
 }
 
-void EchoClangCodeModelServer::projectPartsUpdated(const ProjectPartsUpdatedMessage &message)
-{
-    echoMessage(message);
-}
-
-void EchoClangCodeModelServer::projectPartsRemoved(const ProjectPartsRemovedMessage &message)
-{
-    echoMessage(message);
-}
-
 void EchoClangCodeModelServer::unsavedFilesUpdated(const UnsavedFilesUpdatedMessage &message)
 {
     echoMessage(message);

@@ -32,8 +32,6 @@
 #include <diagnosticcontainer.h>
 #include <diagnosticset.h>
 #include <fixitcontainer.h>
-#include <projectpart.h>
-#include <projects.h>
 #include <sourcelocation.h>
 #include <sourcelocationcontainer.h>
 #include <sourcerangecontainer.h>
@@ -51,7 +49,6 @@ using ::ClangBackEnd::Diagnostic;
 using ::ClangBackEnd::DiagnosticSet;
 using ::ClangBackEnd::DiagnosticContainer;
 using ::ClangBackEnd::FixItContainer;
-using ::ClangBackEnd::ProjectPart;
 using ::ClangBackEnd::SourceLocation;
 using ::ClangBackEnd::SourceLocationContainer;
 using ::ClangBackEnd::Document;
@@ -64,18 +61,15 @@ const Utf8String headerFilePath = Utf8StringLiteral(TESTDATA_DIR"/diagnostic_dia
 class DiagnosticSet : public ::testing::Test
 {
 protected:
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId"),
-                TestEnvironment::addPlatformArguments({Utf8StringLiteral("-pedantic")})};
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
-    Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnosticset.cpp"),
-                      projectPart,
-                      Utf8StringVector(),
+    ClangBackEnd::Documents documents{unsavedFiles};
+    Utf8StringVector compilationArguments{
+        TestEnvironment::addPlatformArguments({Utf8StringLiteral("-pedantic")})};
+    Document document{Utf8StringLiteral(TESTDATA_DIR "/diagnostic_diagnosticset.cpp"),
+                      compilationArguments,
                       documents};
     Document documentMainFile{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnosticset_mainfile.cpp"),
-                              projectPart,
-                              Utf8StringVector(),
+                              compilationArguments,
                               documents};
 
 protected:

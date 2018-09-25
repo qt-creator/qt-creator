@@ -21,9 +21,7 @@ SOURCES += \
     $$PWD/requestcompletionsmessage.cpp \
     $$PWD/echomessage.cpp \
     $$PWD/endmessage.cpp \
-    $$PWD/projectpartsupdatedmessage.cpp \
     $$PWD/documentsopenedmessage.cpp \
-    $$PWD/projectpartsremovedmessage.cpp \
     $$PWD/documentsclosedmessage.cpp \
     $$PWD/codecompletionchunk.cpp \
     $$PWD/codecompletion.cpp \
@@ -46,7 +44,6 @@ SOURCES += \
     $$PWD/pchmanagerserverinterface.cpp \
     $$PWD/pchmanagerserverproxy.cpp \
     $$PWD/precompiledheadersupdatedmessage.cpp \
-    $$PWD/projectpartcontainer.cpp \
     $$PWD/projectpartcontainerv2.cpp \
     $$PWD/projectpartpch.cpp \
     $$PWD/readmessageblock.cpp \
@@ -114,9 +111,7 @@ HEADERS += \
     $$PWD/requestcompletionsmessage.h \
     $$PWD/echomessage.h \
     $$PWD/endmessage.h \
-    $$PWD/projectpartsupdatedmessage.h \
     $$PWD/documentsopenedmessage.h \
-    $$PWD/projectpartsremovedmessage.h \
     $$PWD/documentsclosedmessage.h \
     $$PWD/codecompletionchunk.h \
     $$PWD/codecompletion.h \
@@ -143,7 +138,6 @@ HEADERS += \
     $$PWD/pchmanagerserverinterface.h \
     $$PWD/pchmanagerserverproxy.h \
     $$PWD/precompiledheadersupdatedmessage.h \
-    $$PWD/projectpartcontainer.h \
     $$PWD/projectpartcontainerv2.h \
     $$PWD/projectpartpch.h \
     $$PWD/readmessageblock.h \

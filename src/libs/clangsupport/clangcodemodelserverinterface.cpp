@@ -50,12 +50,6 @@ void ClangCodeModelServerInterface::dispatch(const MessageEnvelop &messageEnvelo
         case MessageType::DocumentVisibilityChangedMessage:
             documentVisibilityChanged(messageEnvelop.message<DocumentVisibilityChangedMessage>());
             break;
-        case MessageType::ProjectPartsUpdatedMessage:
-            projectPartsUpdated(messageEnvelop.message<ProjectPartsUpdatedMessage>());
-            break;
-        case MessageType::ProjectPartsRemovedMessage:
-            projectPartsRemoved(messageEnvelop.message<ProjectPartsRemovedMessage>());
-            break;
         case MessageType::UnsavedFilesUpdatedMessage:
             unsavedFilesUpdated(messageEnvelop.message<UnsavedFilesUpdatedMessage>());
             break;

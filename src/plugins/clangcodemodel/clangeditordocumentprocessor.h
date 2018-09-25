@@ -118,14 +118,14 @@ private:
     void updateBackendProjectPartAndDocument();
     void updateBackendDocument(CppTools::ProjectPart &projectPart);
     void updateBackendDocumentIfProjectPartExists();
-    void requestAnnotationsFromBackend(const QString &projectpartId);
+    void requestAnnotationsFromBackend();
 
     HeaderErrorDiagnosticWidgetCreator creatorForHeaderErrorDiagnosticWidget(
             const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic);
     ClangBackEnd::FileContainer simpleFileContainer(const QByteArray &codecName = QByteArray()) const;
     ClangBackEnd::FileContainer fileContainerWithOptionsAndDocumentContent(
-        CppTools::ProjectPart &projectPart, const QStringList &fileOptions) const;
-    ClangBackEnd::FileContainer fileContainerWithDocumentContent(const QString &projectpartId) const;
+        const QStringList &compilationArguments) const;
+    ClangBackEnd::FileContainer fileContainerWithDocumentContent() const;
 
 private:
     TextEditor::TextDocument &m_document;

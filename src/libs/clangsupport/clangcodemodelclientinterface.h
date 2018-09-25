@@ -39,8 +39,6 @@ class DocumentsClosedMessage;
 class DocumentsOpenedMessage;
 class EchoMessage;
 class FollowSymbolMessage;
-class ProjectPartsRemovedMessage;
-class ProjectPartsUpdatedMessage;
 class ReferencesMessage;
 class RequestAnnotationsMessage;
 class RequestCompletionsMessage;

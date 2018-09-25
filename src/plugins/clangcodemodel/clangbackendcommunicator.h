@@ -32,7 +32,6 @@
 
 #include <clangsupport/clangcodemodelconnectionclient.h>
 #include <clangsupport/filecontainer.h>
-#include <clangsupport/projectpartcontainer.h>
 
 #include <QFuture>
 #include <QObject>
@@ -56,7 +55,6 @@ class BackendCommunicator : public QObject
 public:
     using FileContainer = ClangBackEnd::FileContainer;
     using FileContainers = QVector<ClangBackEnd::FileContainer>;
-    using ProjectPartContainers = QVector<ClangBackEnd::ProjectPartContainer>;
     using LocalUseMap = CppTools::SemanticInfo::LocalUseMap;
 
 public:
@@ -76,11 +74,6 @@ public:
     void documentsClosed(const FileContainers &fileContainers);
     void documentVisibilityChanged();
 
-    void projectPartsUpdated(const QVector<CppTools::ProjectPart::Ptr> projectParts);
-    void projectPartsUpdated(const ProjectPartContainers &projectPartContainers);
-    void projectPartsUpdatedForFallback();
-    void projectPartsRemoved(const QStringList &projectPartIds);
-
     void unsavedFilesUpdated(Core::IDocument *document);
     void unsavedFilesUpdated(const QString &filePath,
                              const QByteArray &contents,
@@ -93,7 +86,6 @@ public:
                             const QString &filePath,
                             quint32 line,
                             quint32 column,
-                            const QString &projectFilePath,
                             qint32 funcNameStartLine = -1,
                             qint32 funcNameStartColumn = -1);
     void requestAnnotations(const ClangBackEnd::FileContainer &fileContainer);
@@ -119,7 +111,6 @@ public:
 private:
     void initializeBackend();
     void initializeBackendWithCurrentData();
-    void projectPartsUpdatedForCurrentProjects();
     void restoreCppEditorDocuments();
     void resetCppEditorDocumentProcessors();
     void unsavedFilesUpdatedForUiHeaders();

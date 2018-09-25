@@ -32,11 +32,9 @@
 #include <diagnosticcontainer.h>
 #include <diagnosticset.h>
 #include <fixitcontainer.h>
-#include <projectpart.h>
 #include <clangdocument.h>
 #include <clangdocuments.h>
 #include <clangtranslationunit.h>
-#include <projects.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
@@ -52,7 +50,6 @@ using ClangBackEnd::DiagnosticSet;
 using ClangBackEnd::DiagnosticContainer;
 using ClangBackEnd::Document;
 using ClangBackEnd::Documents;
-using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
 using ClangBackEnd::SourceLocation;
@@ -87,14 +84,10 @@ protected:
     DiagnosticContainer expectedDiagnostic(ChildMode childMode) const;
 
 protected:
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId"),
-                            TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")})};
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnostic.cpp"),
-                      projectPart,
-                      Utf8StringVector(),
+                      TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")}),
                       documents};
     UnitTest::RunDocumentParse _1{document};
     DiagnosticSet diagnosticSet{document.translationUnit().diagnostics()};

@@ -55,7 +55,6 @@ public:
 public:
     Jobs(Documents &documents,
          UnsavedFiles &unsavedFiles,
-         ProjectParts &projects,
          ClangCodeModelClientInterface &client,
          const Utf8String &logTag = Utf8String());
     ~Jobs();
@@ -91,7 +90,6 @@ private:
 private:
     Documents &m_documents;
     UnsavedFiles &m_unsavedFiles;
-    ProjectParts &m_projectParts;
     ClangCodeModelClientInterface &m_client;
     Utf8String m_logTag;
 

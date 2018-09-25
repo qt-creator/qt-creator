@@ -221,8 +221,7 @@ bool TranslationUnitUpdater::reparseWasSuccessful() const
 CommandLineArguments TranslationUnitUpdater::commandLineArguments() const
 {
     return CommandLineArguments(m_in.filePath.constData(),
-                                m_in.projectArguments,
-                                m_in.fileArguments,
+                                m_in.compilationArguments,
                                 isVerboseModeEnabled());
 }
 

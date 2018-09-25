@@ -32,8 +32,6 @@
 #include <clangtooltipinfocollector.h>
 #include <clangtranslationunit.h>
 #include <fixitcontainer.h>
-#include <projectpart.h>
-#include <projects.h>
 #include <sourcelocationcontainer.h>
 #include <sourcerangecontainer.h>
 #include <unsavedfiles.h>
@@ -42,7 +40,6 @@
 
 #include <clang-c/Index.h>
 
-using ::ClangBackEnd::ProjectPart;
 using ::ClangBackEnd::SourceLocationContainer;
 using ::ClangBackEnd::Document;
 using ::ClangBackEnd::UnsavedFiles;
@@ -84,13 +81,10 @@ MATCHER_P(IsQdocToolTip, expected, std::string(negation ? "isn't" : "is") +  Pri
 #undef CHECK_MEMBER
 
 struct Data {
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-std=c++14")}};
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR "/tooltipinfo.cpp"),
-                      projectPart,
-                      {},
+                      {Utf8StringLiteral("-std=c++14")},
                       documents};
     UnitTest::RunDocumentParse _1{document};
 };

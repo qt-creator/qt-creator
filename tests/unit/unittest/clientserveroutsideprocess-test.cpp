@@ -121,35 +121,12 @@ TEST_F(ClientServerOutsideProcess, SendDocumentsClosedMessage)
 
 TEST_F(ClientServerOutsideProcess, SendCompleteCodeMessage)
 {
-    RequestCompletionsMessage codeCompleteMessage(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
+    RequestCompletionsMessage codeCompleteMessage(Utf8StringLiteral("foo.cpp"), 24, 33);
     EchoMessage echoMessage(codeCompleteMessage);
 
     EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage));
 
     client.serverProxy().requestCompletions(codeCompleteMessage);
-    ASSERT_TRUE(client.waitForEcho());
-}
-
-TEST_F(ClientServerOutsideProcess, SendProjectPartsUpdatedMessage)
-{
-    ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral(TESTDATA_DIR"/complete.pro"));
-    ClangBackEnd::ProjectPartsUpdatedMessage projectPartsUpdatedMessage({projectContainer});
-    EchoMessage echoMessage(projectPartsUpdatedMessage);
-
-    EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage));
-
-    client.serverProxy().projectPartsUpdated(projectPartsUpdatedMessage);
-    ASSERT_TRUE(client.waitForEcho());
-}
-
-TEST_F(ClientServerOutsideProcess, SendProjectPartsRemovedMessage)
-{
-    ClangBackEnd::ProjectPartsRemovedMessage projectPartsRemovedMessage({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
-    EchoMessage echoMessage(projectPartsRemovedMessage);
-
-    EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage));
-
-    client.serverProxy().projectPartsRemoved(projectPartsRemovedMessage);
     ASSERT_TRUE(client.waitForEcho());
 }
 

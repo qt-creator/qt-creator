@@ -33,7 +33,6 @@
 #include <clangdocuments.h>
 #include <clangdocumentsuspenderresumer.h>
 #include <clangtranslationunits.h>
-#include <projects.h>
 #include <unsavedfiles.h>
 #include <utf8string.h>
 
@@ -69,30 +68,25 @@ namespace {
 class DocumentSuspenderResumer : public ::testing::Test
 {
 protected:
-    void SetUp() override;
     Document getDocument(const Utf8String &filePath);
     void categorizeDocuments(int hotDocumentsSize);
     SuspendResumeJobs createSuspendResumeJobs(int hotDocumentsSize = -1);
     static void setParsed(Document &document);
 
 protected:
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     DummyIpcClient dummyIpcClient;
-    ClangBackEnd::DocumentProcessors documentProcessors{documents, unsavedFiles, projects,
-                                                        dummyIpcClient};
-
-    const Utf8String projectPartId = Utf8StringLiteral("projectPartId");
+    ClangBackEnd::DocumentProcessors documentProcessors{documents, unsavedFiles, dummyIpcClient};
 
     const Utf8String filePath1 = Utf8StringLiteral(TESTDATA_DIR"/empty1.cpp");
-    const ClangBackEnd::FileContainer fileContainer1{filePath1, projectPartId, Utf8String(), true};
+    const ClangBackEnd::FileContainer fileContainer1{filePath1, Utf8String(), true};
 
     const Utf8String filePath2 = Utf8StringLiteral(TESTDATA_DIR"/empty2.cpp");
-    const ClangBackEnd::FileContainer fileContainer2{filePath2, projectPartId, Utf8String(), true};
+    const ClangBackEnd::FileContainer fileContainer2{filePath2, Utf8String(), true};
 
     const Utf8String filePath3 = Utf8StringLiteral(TESTDATA_DIR"/empty3.cpp");
-    const ClangBackEnd::FileContainer fileContainer3{filePath3, projectPartId, Utf8String(), true};
+    const ClangBackEnd::FileContainer fileContainer3{filePath3, Utf8String(), true};
 
     std::vector<Document> hotDocuments;
     std::vector<Document> coldDocuments;
@@ -286,14 +280,9 @@ TEST_F(DocumentSuspenderResumer, CreateSuspendAndResumeJobs)
     ASSERT_THAT(jobs, ContainerEq(expectedJobs));
 }
 
-void DocumentSuspenderResumer::SetUp()
-{
-    projects.createOrUpdate({ClangBackEnd::ProjectPartContainer(projectPartId)});
-}
-
 ClangBackEnd::Document DocumentSuspenderResumer::getDocument(const Utf8String &filePath)
 {
-    return documents.document(filePath, projectPartId);
+    return documents.document(filePath);
 }
 
 void DocumentSuspenderResumer::categorizeDocuments(int hotDocumentsSize)

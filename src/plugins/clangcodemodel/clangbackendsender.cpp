@@ -71,20 +71,6 @@ void BackendSender::documentsClosed(const DocumentsClosedMessage &message)
      m_connection->serverProxy().documentsClosed(message);
 }
 
-void BackendSender::projectPartsUpdated(const ProjectPartsUpdatedMessage &message)
-{
-     QTC_CHECK(m_connection->isConnected());
-     qCDebugIpc() << message;
-     m_connection->serverProxy().projectPartsUpdated(message);
-}
-
-void BackendSender::projectPartsRemoved(const ProjectPartsRemovedMessage &message)
-{
-     QTC_CHECK(m_connection->isConnected());
-     qCDebugIpc() << message;
-     m_connection->serverProxy().projectPartsRemoved(message);
-}
-
 void BackendSender::unsavedFilesUpdated(const UnsavedFilesUpdatedMessage &message)
 {
     QTC_CHECK(m_connection->isConnected());

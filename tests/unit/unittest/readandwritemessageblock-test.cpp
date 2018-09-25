@@ -62,7 +62,6 @@ protected:
 protected:
     Utf8String filePath{Utf8StringLiteral("foo.cpp")};
     ClangBackEnd::FileContainer fileContainer{filePath,
-                                              Utf8StringLiteral("projectPartId"),
                                               Utf8StringLiteral("unsaved content"),
                                               true,
                                               1};
@@ -207,7 +206,7 @@ TEST_F(ReadAndWriteMessageBlock, CompareDocumentsClosedMessage)
 
 TEST_F(ReadAndWriteMessageBlock, CompareRequestCompletionsMessage)
 {
-    CompareMessage(ClangBackEnd::RequestCompletionsMessage(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want")));
+    CompareMessage(ClangBackEnd::RequestCompletionsMessage(Utf8StringLiteral("foo.cpp"), 24, 33));
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareCompletionsMessage)

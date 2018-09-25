@@ -50,12 +50,6 @@ QDebug operator<<(QDebug debug, const MessageEnvelop &messageEnvelop)
         case MessageType::DocumentVisibilityChangedMessage:
             qDebug() << messageEnvelop.message<DocumentVisibilityChangedMessage>();
             break;
-        case MessageType::ProjectPartsUpdatedMessage:
-            qDebug() << messageEnvelop.message<ProjectPartsUpdatedMessage>();
-            break;
-        case MessageType::ProjectPartsRemovedMessage:
-            qDebug() << messageEnvelop.message<ProjectPartsRemovedMessage>();
-            break;
         case MessageType::UnsavedFilesUpdatedMessage:
             qDebug() << messageEnvelop.message<UnsavedFilesUpdatedMessage>();
             break;

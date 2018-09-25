@@ -50,8 +50,6 @@ HEADERS += \
     $$PWD/diagnosticsetiterator.h \
     $$PWD/fixit.h \
     $$PWD/fulltokeninfo.h \
-    $$PWD/projectpart.h \
-    $$PWD/projects.h \
     $$PWD/skippedsourceranges.h \
     $$PWD/sourcelocation.h \
     $$PWD/sourcerange.h \
@@ -106,8 +104,6 @@ SOURCES += \
     $$PWD/diagnosticset.cpp \
     $$PWD/fixit.cpp \
     $$PWD/fulltokeninfo.cpp \
-    $$PWD/projectpart.cpp \
-    $$PWD/projects.cpp \
     $$PWD/skippedsourceranges.cpp \
     $$PWD/sourcelocation.cpp \
     $$PWD/sourcerange.cpp \

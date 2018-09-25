@@ -80,7 +80,7 @@ TEST_F(UpdateAnnotationsJobSlowTest, DontSendAnnotationsIfDocumentWasClosed)
     EXPECT_CALL(mockIpcClient, annotations(_)).Times(0);
 
     job.runAsync();
-    documents.remove({FileContainer{filePath, projectPartId}});
+    documents.remove({FileContainer{filePath}});
 
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
@@ -92,14 +92,13 @@ TEST_F(UpdateAnnotationsJobSlowTest, DontSendAnnotationsIfDocumentRevisionChange
     EXPECT_CALL(mockIpcClient, annotations(_)).Times(0);
 
     job.runAsync();
-    documents.update({FileContainer(filePath, projectPartId, Utf8String(), true, 99)});
+    documents.update({FileContainer(filePath, Utf8String(), true, 99)});
 
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
 TEST_F(UpdateAnnotationsJobSlowTest, UpdatesTranslationUnit)
 {
-    const TimePoint timePointBefore = document.lastProjectPartChangeTimePoint();
     const QSet<Utf8String> dependendOnFilesBefore = document.dependedFilePaths();
     job.setContext(jobContext);
     job.prepareAsyncRun();
@@ -107,7 +106,6 @@ TEST_F(UpdateAnnotationsJobSlowTest, UpdatesTranslationUnit)
     job.runAsync();
     ASSERT_TRUE(waitUntilJobFinished(job));
 
-    ASSERT_THAT(timePointBefore, Not(document.lastProjectPartChangeTimePoint()));
     ASSERT_THAT(dependendOnFilesBefore, Not(document.dependedFilePaths()));
 }
 

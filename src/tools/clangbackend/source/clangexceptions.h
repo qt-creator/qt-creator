@@ -42,24 +42,16 @@ protected:
     Utf8String m_info;
 };
 
-class ProjectPartDoNotExistException : public ClangBaseException
-{
-public:
-    ProjectPartDoNotExistException(const Utf8StringVector &projectPartIds);
-};
-
 class DocumentAlreadyExistsException : public ClangBaseException
 {
 public:
-    DocumentAlreadyExistsException(const Utf8String &filePath,
-                                   const Utf8String &projectPartId);
+    DocumentAlreadyExistsException(const Utf8String &filePath);
 };
 
 class DocumentDoesNotExistException : public ClangBaseException
 {
 public:
-    DocumentDoesNotExistException(const Utf8String &filePath,
-                                  const Utf8String &projectPartId);
+    DocumentDoesNotExistException(const Utf8String &filePath);
 };
 
 class DocumentFileDoesNotExistException : public ClangBaseException
@@ -77,15 +69,13 @@ public:
 class DocumentProcessorAlreadyExists : public ClangBaseException
 {
 public:
-    DocumentProcessorAlreadyExists(const Utf8String &filePath,
-                                   const Utf8String &projectPartId);
+    DocumentProcessorAlreadyExists(const Utf8String &filePath);
 };
 
 class DocumentProcessorDoesNotExist : public ClangBaseException
 {
 public:
-    DocumentProcessorDoesNotExist(const Utf8String &filePath,
-                                  const Utf8String &projectPartId);
+    DocumentProcessorDoesNotExist(const Utf8String &filePath);
 };
 
 class TranslationUnitDoesNotExist : public ClangBaseException

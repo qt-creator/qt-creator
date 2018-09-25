@@ -36,7 +36,6 @@
 #include <clangexceptions.h>
 #include <clangjobrequest.h>
 #include <clangjobs.h>
-#include <projects.h>
 #include <unsavedfiles.h>
 
 using testing::Eq;
@@ -54,22 +53,19 @@ protected:
     bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
 
 protected:
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     ClangBackEnd::Document document;
 
     DummyIpcClient dummyIpcClient;
 
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
-    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
 
     ClangBackEnd::JobRequest jobRequest;
     ClangBackEnd::JobContext jobContext;
 
     ClangBackEnd::DocumentProcessors documentProcessors{documents,
                                                         unsavedFiles,
-                                                        projects,
                                                         dummyIpcClient};
 };
 
@@ -166,9 +162,7 @@ TEST_F(DocumentProcessorsSlowTest, ProcessSingle)
 
 void DocumentProcessors::SetUp()
 {
-    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
-
-    const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
+    const QVector<FileContainer> fileContainer{FileContainer(filePath)};
     document = documents.create(fileContainer).front();
     documents.setVisibleInEditors({filePath});
     documents.setUsedByCurrentEditor(filePath);

@@ -43,11 +43,6 @@ public:
     MOCK_METHOD1(documentVisibilityChanged,
                  void(const ClangBackEnd::DocumentVisibilityChangedMessage &message));
 
-    MOCK_METHOD1(projectPartsUpdated,
-                 void(const ClangBackEnd::ProjectPartsUpdatedMessage &message));
-    MOCK_METHOD1(projectPartsRemoved,
-                 void(const ClangBackEnd::ProjectPartsRemovedMessage &message));
-
     MOCK_METHOD1(unsavedFilesUpdated,
                  void(const ClangBackEnd::UnsavedFilesUpdatedMessage &message));
     MOCK_METHOD1(unsavedFilesRemoved,

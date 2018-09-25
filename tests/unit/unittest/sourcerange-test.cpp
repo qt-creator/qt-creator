@@ -30,10 +30,8 @@
 #include <clangtranslationunit.h>
 #include <diagnostic.h>
 #include <diagnosticset.h>
-#include <projectpart.h>
 #include <clangdocument.h>
 #include <clangdocuments.h>
-#include <projects.h>
 #include <unsavedfiles.h>
 #include <sourcerange.h>
 
@@ -45,7 +43,6 @@ using ClangBackEnd::DiagnosticSet;
 using ClangBackEnd::Document;
 using ClangBackEnd::Documents;
 using ClangBackEnd::TranslationUnit;
-using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
 using ClangBackEnd::SourceRange;
@@ -74,15 +71,11 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
 }
 
 struct Data {
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId"),
-                            TestEnvironment::addPlatformArguments({Utf8StringLiteral("-pedantic")})};
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_range.cpp")};
     Document document{filePath,
-                      projectPart,
-                      Utf8StringVector(),
+                      {TestEnvironment::addPlatformArguments({Utf8StringLiteral("-pedantic")})},
                       documents};
     UnitTest::RunDocumentParse _1{document};
     TranslationUnit translationUnit{filePath,

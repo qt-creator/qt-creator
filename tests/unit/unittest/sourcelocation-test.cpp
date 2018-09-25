@@ -28,8 +28,6 @@
 
 #include <diagnostic.h>
 #include <diagnosticset.h>
-#include <projectpart.h>
-#include <projects.h>
 #include <clangdocument.h>
 #include <clangdocuments.h>
 #include <clangtranslationunit.h>
@@ -40,7 +38,6 @@
 
 using ClangBackEnd::Diagnostic;
 using ClangBackEnd::DiagnosticSet;
-using ClangBackEnd::ProjectPart;
 using ClangBackEnd::SourceLocation;
 using ClangBackEnd::Document;
 using ClangBackEnd::UnsavedFiles;
@@ -51,12 +48,9 @@ using testing::Not;
 namespace {
 
 struct Data {
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_location.cpp"),
-                      projectPart,
                       Utf8StringVector(),
                       documents};
     UnitTest::RunDocumentParse _1{document};

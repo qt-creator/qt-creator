@@ -50,10 +50,8 @@ namespace Utils {
 CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath);
 void setLastSentDocumentRevision(const QString &filePath, uint revision);
 
-QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
+QStringList createClangOptions(const CppTools::ProjectPart &projectPart,
                                CppTools::ProjectFile::Kind fileKind);
-QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
-                               const QString &fileName = QString());
 
 CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
 CppTools::ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath);

@@ -27,13 +27,10 @@
 
 #include "clangjobs.h"
 #include "clangtranslationunits.h"
-#include "projectpart.h"
 
 #include <utils/qtcassert.h>
 
 namespace ClangBackEnd {
-
-    // TODO: Check translation unit id?
 
 SupportiveTranslationUnitInitializer::SupportiveTranslationUnitInitializer(
         const Document &document,
@@ -101,7 +98,7 @@ bool SupportiveTranslationUnitInitializer::checkStateAndDocument(State currentEx
     }
 
     QTC_CHECK(m_isDocumentClosedChecker);
-    if (m_isDocumentClosedChecker(m_document.filePath(), m_document.projectPart().id())) {
+    if (m_isDocumentClosedChecker(m_document.filePath())) {
         m_state = State::Aborted;
         return false;
     }

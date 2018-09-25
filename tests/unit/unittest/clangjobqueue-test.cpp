@@ -32,8 +32,6 @@
 #include <clangtranslationunits.h>
 #include <clangjobs.h>
 #include <filecontainer.h>
-#include <projectpart.h>
-#include <projects.h>
 #include <unsavedfiles.h>
 
 #include <clang-c/Index.h>
@@ -70,21 +68,17 @@ protected:
 
     void updateDocumentRevision();
     void updateUnsavedFiles();
-    void updateProject();
-    void removeProject();
     void removeDocument();
 
 protected:
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     ClangBackEnd::Document document;
 
     Utf8String filePath1 = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
     Utf8String filePath2 = Utf8StringLiteral(TESTDATA_DIR"/skippedsourceranges.cpp");
-    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
 
-    ClangBackEnd::JobQueue jobQueue{documents, projects};
+    ClangBackEnd::JobQueue jobQueue{documents};
 };
 
 TEST_F(JobQueue, AddJob)
@@ -200,17 +194,6 @@ TEST_F(JobQueue, RemoveRequestsForClosedDocuments)
     ASSERT_THAT(jobsToRun.size(), Eq(0));
 }
 
-TEST_F(JobQueue, RemoveRequestsForClosedProject)
-{
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateAnnotations));
-    removeProject();
-
-    const JobRequests jobsToRun = jobQueue.processQueue();
-
-    ASSERT_THAT(jobQueue.size(), Eq(0));
-    ASSERT_THAT(jobsToRun.size(), Eq(0));
-}
-
 TEST_F(JobQueue, RemoveRequestsForOudatedUnsavedFiles)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateAnnotations));
@@ -226,17 +209,6 @@ TEST_F(JobQueue, RemoveRequestsForChangedDocumentRevision)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateAnnotations));
     updateDocumentRevision();
-
-    const JobRequests jobsToRun = jobQueue.processQueue();
-
-    ASSERT_THAT(jobQueue.size(), Eq(0));
-    ASSERT_THAT(jobsToRun.size(), Eq(0));
-}
-
-TEST_F(JobQueue, RemoveRequestsForOudatedProject)
-{
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateAnnotations));
-    updateProject();
 
     const JobRequests jobsToRun = jobQueue.processQueue();
 
@@ -369,26 +341,6 @@ TEST_F(JobQueue, RequestUpdateAnnotationsOutdatableByUnsavedFileChange)
     ASSERT_THAT(jobsToStart.size(), Eq(0));
 }
 
-TEST_F(JobQueue, RequestUpdateAnnotationsOutdatableByProjectRemoval)
-{
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateAnnotations));
-    removeProject();
-
-    const JobRequests jobsToStart = jobQueue.processQueue();
-
-    ASSERT_THAT(jobsToStart.size(), Eq(0));
-}
-
-TEST_F(JobQueue, RequestUpdateAnnotationsOutdatableByProjectChange)
-{
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateAnnotations));
-    updateProject();
-
-    const JobRequests jobsToStart = jobQueue.processQueue();
-
-    ASSERT_THAT(jobsToStart.size(), Eq(0));
-}
-
 TEST_F(JobQueue, RequestUpdateAnnotationsOutdatableByDocumentClose)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateAnnotations));
@@ -496,10 +448,8 @@ TEST_F(JobQueue, ResumeDocumentDoesNotRunOnUnsuspended)
 
 void JobQueue::SetUp()
 {
-    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
-
-    const QVector<FileContainer> fileContainer{FileContainer(filePath1, projectPartId),
-                                               FileContainer(filePath2, projectPartId)};
+    const QVector<FileContainer> fileContainer{FileContainer(filePath1),
+                                               FileContainer(filePath2)};
     document = documents.create(fileContainer).front();
     documents.setVisibleInEditors({filePath1});
     documents.setUsedByCurrentEditor(filePath1);
@@ -517,8 +467,7 @@ Utf8String JobQueue::createTranslationUnitForDeletedFile()
     EXPECT_TRUE(temporaryFile.open());
     const QString temporaryFilePath = Utf8String::fromString(temporaryFile.fileName());
 
-    ClangBackEnd::FileContainer fileContainer(temporaryFilePath,
-                                              projectPartId, Utf8String(), true);
+    ClangBackEnd::FileContainer fileContainer(temporaryFilePath, Utf8String(), true);
     documents.create({fileContainer});
     auto document = documents.document(fileContainer);
     document.setIsUsedByCurrentEditor(true);
@@ -533,11 +482,9 @@ JobRequest JobQueue::createJobRequest(
 {
     JobRequest jobRequest(type);
     jobRequest.filePath = filePath;
-    jobRequest.projectPartId = projectPartId;
     jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
     jobRequest.documentRevision = document.documentRevision();
     jobRequest.preferredTranslationUnit = preferredTranslationUnit;
-    jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
 
     return jobRequest;
 }
@@ -549,27 +496,17 @@ void JobQueue::pretendParsedTranslationUnit()
 
 void JobQueue::updateDocumentRevision()
 {
-    documents.update({FileContainer(filePath1, projectPartId, Utf8String(), true, 1)});
+    documents.update({FileContainer(filePath1, Utf8String(), true, 1)});
 }
 
 void JobQueue::updateUnsavedFiles()
 {
-    unsavedFiles.createOrUpdate({FileContainer(filePath1, projectPartId, Utf8String(), true, 1)});
-}
-
-void JobQueue::updateProject()
-{
-    projects.createOrUpdate({projectPartId});
-}
-
-void JobQueue::removeProject()
-{
-    projects.remove({projectPartId});
+    unsavedFiles.createOrUpdate({FileContainer(filePath1, Utf8String(), true, 1)});
 }
 
 void JobQueue::removeDocument()
 {
-    documents.remove({FileContainer(filePath1, projectPartId)});
+    documents.remove({FileContainer(filePath1)});
 }
 
 } // anonymous

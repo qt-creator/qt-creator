@@ -28,16 +28,14 @@
 #include "clangdocument.h"
 #include "clangdocuments.h"
 #include "clangtranslationunits.h"
-#include "projects.h"
 #include "unsavedfiles.h"
 
 #include <utils/algorithm.h>
 
 namespace ClangBackEnd {
 
-JobQueue::JobQueue(Documents &documents, ProjectParts &projectParts, const Utf8String &logTag)
+JobQueue::JobQueue(Documents &documents, const Utf8String &logTag)
     : m_documents(documents)
-    , m_projectParts(projectParts)
     , m_logTag(logTag)
 {
 }
@@ -104,12 +102,12 @@ bool JobQueue::isJobRequestAddable(const JobRequest &jobRequest, QString &notAdd
         return false;
     }
 
-    if (!m_documents.hasDocument(jobRequest.filePath, jobRequest.projectPartId)) {
+    if (!m_documents.hasDocument(jobRequest.filePath)) {
         notAddableReason = "document already closed";
         return false;
     }
 
-    const Document document = m_documents.document(jobRequest.filePath, jobRequest.projectPartId);
+    const Document document = m_documents.document(jobRequest.filePath);
     if (!document.isIntact()) {
         notAddableReason = "document not intact";
         return false;
@@ -131,22 +129,14 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest, QString &expira
         }
     }
 
-    bool projectCheckedAndItExists = false;
-
     if (conditions.testFlag(Condition::DocumentClosed)) {
-        if (!m_documents.hasDocument(jobRequest.filePath, jobRequest.projectPartId)) {
+        if (!m_documents.hasDocument(jobRequest.filePath)) {
             expirationReason = "document already closed";
             return true;
         }
 
-        if (!m_projectParts.hasProjectPart(jobRequest.projectPartId)) {
-            expirationReason = "project already closed";
-            return true;
-        }
-        projectCheckedAndItExists = true;
-
         const Document document
-                = m_documents.document(jobRequest.filePath, jobRequest.projectPartId);
+                = m_documents.document(jobRequest.filePath);
         if (!document.isIntact()) {
             expirationReason = "document not intact";
             return true;
@@ -157,19 +147,6 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest, QString &expira
                 expirationReason = "changed document revision";
                 return true;
             }
-        }
-    }
-
-    if (conditions.testFlag(Condition::ProjectChanged)) {
-        if (!projectCheckedAndItExists && !m_projectParts.hasProjectPart(jobRequest.projectPartId)) {
-            expirationReason = "project already closed";
-            return true;
-        }
-
-        const ProjectPart &project = m_projectParts.project(jobRequest.projectPartId);
-        if (project.lastChangeTimePoint() != jobRequest.projectChangeTimePoint) {
-            expirationReason = "outdated project";
-            return true;
         }
     }
 
@@ -193,8 +170,8 @@ void JobQueue::prioritizeRequests()
 {
     const auto lessThan = [this] (const JobRequest &r1, const JobRequest &r2) {
         // TODO: Getting the TU is O(n) currently, so this might become expensive for large n.
-        const Document &t1 = m_documents.document(r1.filePath, r1.projectPartId);
-        const Document &t2 = m_documents.document(r2.filePath, r2.projectPartId);
+        const Document &t1 = m_documents.document(r1.filePath);
+        const Document &t2 = m_documents.document(r2.filePath);
 
         return priority(t1) > priority(t2);
     };
@@ -267,8 +244,7 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
         const JobRequest &request = i.next();
 
         try {
-            const Document &document = m_documents.document(request.filePath,
-                                                            request.projectPartId);
+            const Document &document = m_documents.document(request.filePath);
 
             if (!areRunConditionsMet(request, document))
                 continue;

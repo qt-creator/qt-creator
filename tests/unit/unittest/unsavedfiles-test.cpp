@@ -93,7 +93,6 @@ class UnsavedFiles : public ::testing::Test
 protected:
     ::UnsavedFiles unsavedFiles;
     Utf8String filePath{Utf8StringLiteral("file.cpp")};
-    Utf8String projectPartId{Utf8StringLiteral("projectPartId")};
 
     Utf8String unsavedContent1{Utf8StringLiteral("foo")};
     Utf8String unsavedContent2{Utf8StringLiteral("bar")};
@@ -101,11 +100,11 @@ protected:
 
 TEST_F(UnsavedFiles, ModifiedCopyIsDifferent)
 {
-    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, unsavedContent1, true)});
     unsavedFiles.createOrUpdate(fileContainers);
 
     ::UnsavedFiles copy = unsavedFiles;
-    QVector<FileContainer> updatedFileContainers({FileContainer(filePath, projectPartId, unsavedContent2, true)});
+    QVector<FileContainer> updatedFileContainers({FileContainer(filePath, unsavedContent2, true)});
     copy.createOrUpdate(updatedFileContainers);
 
     ASSERT_THAT(copy.at(0).fileContent(), Ne(unsavedFiles.at(0).fileContent()));
@@ -114,7 +113,7 @@ TEST_F(UnsavedFiles, ModifiedCopyIsDifferent)
 
 TEST_F(UnsavedFiles, DoNothingForUpdateIfFileHasNoUnsavedContent)
 {
-    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath)});
 
     unsavedFiles.createOrUpdate(fileContainers);
 
@@ -123,17 +122,17 @@ TEST_F(UnsavedFiles, DoNothingForUpdateIfFileHasNoUnsavedContent)
 
 TEST_F(UnsavedFiles, AddUnsavedFileForUpdateWithUnsavedContent)
 {
-    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId),
-                                           FileContainer(filePath, projectPartId, unsavedContent1, true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath),
+                                           FileContainer(filePath, unsavedContent1, true)});
     unsavedFiles.createOrUpdate(fileContainers);
 
-    ASSERT_THAT(unsavedFiles, HasUnsavedFiles(QVector<FileContainer>({FileContainer(filePath, projectPartId, unsavedContent1, true)})));
+    ASSERT_THAT(unsavedFiles, HasUnsavedFiles(QVector<FileContainer>({FileContainer(filePath, unsavedContent1, true)})));
 }
 
 TEST_F(UnsavedFiles, RemoveUnsavedFileForUpdateWithUnsavedContent)
 {
-    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true),
-                                           FileContainer(filePath, projectPartId)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, unsavedContent1, true),
+                                           FileContainer(filePath)});
 
     unsavedFiles.createOrUpdate(fileContainers);
 
@@ -142,17 +141,17 @@ TEST_F(UnsavedFiles, RemoveUnsavedFileForUpdateWithUnsavedContent)
 
 TEST_F(UnsavedFiles, ExchangeUnsavedFileForUpdateWithUnsavedContent)
 {
-    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true),
-                                           FileContainer(filePath, projectPartId, unsavedContent2, true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, unsavedContent1, true),
+                                           FileContainer(filePath, unsavedContent2, true)});
     unsavedFiles.createOrUpdate(fileContainers);
 
-    ASSERT_THAT(unsavedFiles, HasUnsavedFiles(QVector<FileContainer>({FileContainer(filePath, projectPartId, unsavedContent2, true)})));
+    ASSERT_THAT(unsavedFiles, HasUnsavedFiles(QVector<FileContainer>({FileContainer(filePath, unsavedContent2, true)})));
 }
 
 TEST_F(UnsavedFiles, TimeStampIsUpdatedAsUnsavedFilesChanged)
 {
-    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true),
-                                           FileContainer(filePath, projectPartId, unsavedContent2, true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, unsavedContent1, true),
+                                           FileContainer(filePath, unsavedContent2, true)});
     auto lastChangeTimePoint = unsavedFiles.lastChangeTimePoint();
 
     unsavedFiles.createOrUpdate(fileContainers);
@@ -162,7 +161,7 @@ TEST_F(UnsavedFiles, TimeStampIsUpdatedAsUnsavedFilesChanged)
 
 TEST_F(UnsavedFiles, RemoveUnsavedFiles)
 {
-    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, unsavedContent1, true)});
     unsavedFiles.createOrUpdate(fileContainers);
 
     unsavedFiles.remove(fileContainers);
@@ -172,7 +171,7 @@ TEST_F(UnsavedFiles, RemoveUnsavedFiles)
 
 TEST_F(UnsavedFiles, FindUnsavedFile)
 {
-    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, unsavedContent1, true)});
     unsavedFiles.createOrUpdate(fileContainers);
 
     UnsavedFile &unsavedFile = unsavedFiles.unsavedFile(filePath);
@@ -182,7 +181,7 @@ TEST_F(UnsavedFiles, FindUnsavedFile)
 
 TEST_F(UnsavedFiles, FindNoUnsavedFile)
 {
-    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true)});
+    QVector<FileContainer> fileContainers({FileContainer(filePath, unsavedContent1, true)});
     unsavedFiles.createOrUpdate(fileContainers);
 
     UnsavedFile &unsavedFile = unsavedFiles.unsavedFile(Utf8StringLiteral("nonExistingFilePath.cpp"));

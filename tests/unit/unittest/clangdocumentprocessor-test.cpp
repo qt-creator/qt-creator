@@ -34,7 +34,6 @@
 #include <clangdocuments.h>
 #include <clangjobrequest.h>
 #include <clangjobs.h>
-#include <projects.h>
 #include <unsavedfiles.h>
 
 using namespace ClangBackEnd;
@@ -49,14 +48,12 @@ protected:
     bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
 
 protected:
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
 
     DummyIpcClient dummyIpcClient;
 
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
-    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
     std::unique_ptr<ClangBackEnd::DocumentProcessor> documentProcessor;
 };
 
@@ -82,14 +79,13 @@ TEST_F(DocumentProcessorSlowTest, ProcessSingleJob)
 
 void DocumentProcessor::SetUp()
 {
-    const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
+    const QVector<FileContainer> fileContainer{FileContainer(filePath)};
 
-    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
     ClangBackEnd::Document document = {documents.create(fileContainer).front()};
     documents.setVisibleInEditors({filePath});
     documents.setUsedByCurrentEditor(filePath);
     documentProcessor = std::make_unique<ClangBackEnd::DocumentProcessor>(
-                document, documents, unsavedFiles, projects, dummyIpcClient);
+                document, documents, unsavedFiles, dummyIpcClient);
 }
 
 void DocumentProcessor::TearDown()

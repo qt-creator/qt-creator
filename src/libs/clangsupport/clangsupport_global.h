@@ -149,9 +149,6 @@ enum class MessageType : quint8 {
     UnsavedFilesUpdatedMessage,
     UnsavedFilesRemovedMessage,
 
-    ProjectPartsUpdatedMessage,
-    ProjectPartsRemovedMessage,
-
     RequestAnnotationsMessage,
     AnnotationsMessage,
 

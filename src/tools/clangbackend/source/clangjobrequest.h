@@ -81,12 +81,10 @@ public:
         DocumentClosed          = 1 << 1,
         DocumentRevisionChanged = 1 << 2, // Only effective if DocumentIsClosed is also set
         UnsavedFilesChanged     = 1 << 3,
-        ProjectChanged          = 1 << 4,
 
         AnythingChanged = DocumentClosed
                         | DocumentRevisionChanged
-                        | UnsavedFilesChanged
-                        | ProjectChanged,
+                        | UnsavedFilesChanged,
     };
     Q_DECLARE_FLAGS(ExpirationConditions, ExpirationCondition)
 
@@ -107,9 +105,7 @@ public:
 
     // General
     Utf8String filePath;
-    Utf8String projectPartId;
     TimePoint unsavedFilesChangeTimePoint;
-    TimePoint projectChangeTimePoint;
     uint documentRevision = 0;
     PreferredTranslationUnit preferredTranslationUnit = PreferredTranslationUnit::RecentlyParsed;
 

@@ -65,7 +65,6 @@ protected:
 protected:
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp")};
     ClangBackEnd::FileContainer fileContainer{filePath,
-                                              Utf8StringLiteral("projectPartId"),
                                               Utf8StringLiteral("unsaved content"),
                                               true,
                                               1};
@@ -152,7 +151,7 @@ TEST_F(ClientServerInProcess, SendUnregisterUnsavedFilesForEditorMessage)
 
 TEST_F(ClientServerInProcess, SendCompleteCodeMessage)
 {
-    ClangBackEnd::RequestCompletionsMessage message(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
+    ClangBackEnd::RequestCompletionsMessage message(Utf8StringLiteral("foo.cpp"), 24, 33);
 
     EXPECT_CALL(mockClangCodeModelServer, requestCompletions(message))
         .Times(1);
@@ -183,29 +182,6 @@ TEST_F(ClientServerInProcess, SendCompletionsMessage)
 
     clientProxy.completions(message);
     scheduleClientMessages();
-}
-
-TEST_F(ClientServerInProcess, SendProjectPartsUpdatedMessage)
-{
-    ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral(TESTDATA_DIR"/complete.pro"));
-    ClangBackEnd::ProjectPartsUpdatedMessage message({projectContainer});
-
-    EXPECT_CALL(mockClangCodeModelServer, projectPartsUpdated(message))
-        .Times(1);
-
-    serverProxy.projectPartsUpdated(message);
-    scheduleServerMessages();
-}
-
-TEST_F(ClientServerInProcess, SendProjectPartsRemovedMessage)
-{
-    ClangBackEnd::ProjectPartsRemovedMessage message({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
-
-    EXPECT_CALL(mockClangCodeModelServer, projectPartsRemoved(message))
-        .Times(1);
-
-    serverProxy.projectPartsRemoved(message);
-    scheduleServerMessages();
 }
 
 TEST_F(ClientServerInProcess, DocumentVisibilityChangedMessage)

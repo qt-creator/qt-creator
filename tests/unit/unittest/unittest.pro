@@ -144,7 +144,6 @@ SOURCES += \
     diagnosticset-test.cpp \
     diagnostic-test.cpp \
     fixit-test.cpp \
-    projectpart-test.cpp \
     senddocumenttracker-test.cpp \
     skippedsourceranges-test.cpp \
     sourcelocation-test.cpp \
@@ -230,7 +229,6 @@ HEADERS += \
     mocksqlitestatement.h \
     unittest-utility-functions.h \
     mocksymbolquery.h \
-    runprojectcreateorupdate-utility.h \
     rundocumentparse-utility.h \
     mocktimer.h \
     mocksqlitetransactionbackend.h \
