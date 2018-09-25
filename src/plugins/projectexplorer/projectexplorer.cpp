@@ -271,6 +271,12 @@ static BuildConfiguration *activeBuildConfiguration()
     return target ? target->activeBuildConfiguration() : nullptr;
 }
 
+static RunConfiguration *activeRunConfiguration()
+{
+    Target *target = activeTarget();
+    return target ? target->activeRunConfiguration() : nullptr;
+}
+
 static Kit *currentKit()
 {
     Target *target = activeTarget();
@@ -1553,6 +1559,21 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                      return bc->environment().value(var);
                                  return QString();
                              });
+
+    Utils::EnvironmentProvider::addProvider(
+        {Constants::VAR_CURRENTBUILD_ENV, tr("Current Build Environment"), []() {
+             if (BuildConfiguration *bc = activeBuildConfiguration())
+                 return bc->environment();
+             return Utils::Environment::systemEnvironment();
+         }});
+
+    Utils::EnvironmentProvider::addProvider(
+        {"CurrentRun:Env", tr("Current Run Environment"), []() {
+             if (RunConfiguration *rc = activeRunConfiguration())
+                if (auto envAspect = rc->extraAspect<EnvironmentAspect>())
+                    return envAspect->environment();
+             return Utils::Environment::systemEnvironment();
+         }});
 
     QString fileDescription = tr("File where current session is saved.");
     auto fileHandler = [] { return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString(); };

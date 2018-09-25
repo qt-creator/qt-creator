@@ -37,6 +37,8 @@
 Q_GLOBAL_STATIC_WITH_ARGS(Utils::Environment, staticSystemEnvironment,
                           (QProcessEnvironment::systemEnvironment().toStringList()))
 
+Q_GLOBAL_STATIC(QVector<Utils::EnvironmentProvider>, environmentProviders)
+
 static QMap<QString, QString>::iterator findKey(QMap<QString, QString> &input, Utils::OsType osType,
                                                 const QString &key)
 {
@@ -689,6 +691,24 @@ QString Environment::expandVariables(const QString &input) const
 QStringList Environment::expandVariables(const QStringList &variables) const
 {
     return Utils::transform(variables, [this](const QString &i) { return expandVariables(i); });
+}
+
+void EnvironmentProvider::addProvider(EnvironmentProvider &&provider)
+{
+    environmentProviders->append(std::move(provider));
+}
+
+const QVector<EnvironmentProvider> EnvironmentProvider::providers()
+{
+    return *environmentProviders;
+}
+
+optional<EnvironmentProvider> EnvironmentProvider::provider(const QByteArray &id)
+{
+    const int index = indexOf(*environmentProviders, equal(&EnvironmentProvider::id, id));
+    if (index >= 0)
+        return make_optional(environmentProviders->at(index));
+    return nullopt;
 }
 
 } // namespace Utils

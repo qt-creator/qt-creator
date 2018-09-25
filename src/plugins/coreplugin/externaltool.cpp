@@ -64,6 +64,7 @@ const char kPath[] = "path";
 const char kArguments[] = "arguments";
 const char kInput[] = "input";
 const char kWorkingDirectory[] = "workingdirectory";
+const char kBaseEnvironmentId[] = "baseEnvironmentId";
 const char kEnvironment[] = "environment";
 
 const char kXmlLang[] = "xml:lang";
@@ -95,6 +96,7 @@ ExternalTool::ExternalTool(const ExternalTool *other)
       m_arguments(other->m_arguments),
       m_input(other->m_input),
       m_workingDirectory(other->m_workingDirectory),
+      m_baseEnvironmentProviderId(other->m_baseEnvironmentProviderId),
       m_environment(other->m_environment),
       m_outputHandling(other->m_outputHandling),
       m_errorHandling(other->m_errorHandling),
@@ -172,7 +174,23 @@ QString ExternalTool::workingDirectory() const
     return m_workingDirectory;
 }
 
-QList<EnvironmentItem> ExternalTool::environment() const
+Id ExternalTool::baseEnvironmentProviderId() const
+{
+    return m_baseEnvironmentProviderId;
+}
+
+Environment ExternalTool::baseEnvironment() const
+{
+    if (m_baseEnvironmentProviderId.isValid()) {
+        const optional<EnvironmentProvider> provider = EnvironmentProvider::provider(
+            m_baseEnvironmentProviderId.name());
+        if (provider && provider->environment)
+            return provider->environment();
+    }
+    return Environment::systemEnvironment();
+}
+
+QList<EnvironmentItem> ExternalTool::environmentUserChanges() const
 {
     return m_environment;
 }
@@ -274,7 +292,12 @@ void ExternalTool::setWorkingDirectory(const QString &workingDirectory)
     m_workingDirectory = workingDirectory;
 }
 
-void ExternalTool::setEnvironment(const QList<EnvironmentItem> &items)
+void ExternalTool::setBaseEnvironmentProviderId(Id id)
+{
+    m_baseEnvironmentProviderId = id;
+}
+
+void ExternalTool::setEnvironmentUserChanges(const QList<EnvironmentItem> &items)
 {
     m_environment = items;
 }
@@ -413,6 +436,12 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                         break;
                     }
                     tool->m_workingDirectory = reader.readElementText();
+                } else if (reader.name() == kBaseEnvironmentId) {
+                    if (tool->m_baseEnvironmentProviderId.isValid()) {
+                        reader.raiseError(QLatin1String("only one <baseEnvironmentId> element allowed"));
+                        break;
+                    }
+                    tool->m_baseEnvironmentProviderId = Id::fromString(reader.readElementText());
                 } else if (reader.name() == QLatin1String(kEnvironment)) {
                     if (!tool->m_environment.isEmpty()) {
                         reader.raiseError(QLatin1String("only one <environment> element allowed"));
@@ -498,6 +527,8 @@ bool ExternalTool::save(QString *errorMessage) const
             out.writeTextElement(QLatin1String(kInput), m_input);
         if (!m_workingDirectory.isEmpty())
             out.writeTextElement(QLatin1String(kWorkingDirectory), m_workingDirectory);
+        if (m_baseEnvironmentProviderId.isValid())
+            out.writeTextElement(kBaseEnvironmentId, m_baseEnvironmentProviderId.toString());
         if (!m_environment.isEmpty()) {
             QStringList envLines = EnvironmentItem::toStringList(m_environment);
             for (auto iter = envLines.begin(); iter != envLines.end(); ++iter)
@@ -524,6 +555,7 @@ bool ExternalTool::operator==(const ExternalTool &other) const
             && m_arguments == other.m_arguments
             && m_input == other.m_input
             && m_workingDirectory == other.m_workingDirectory
+            && m_baseEnvironmentProviderId == other.m_baseEnvironmentProviderId
             && m_environment == other.m_environment
             && m_outputHandling == other.m_outputHandling
             && m_modifiesCurrentDocument == other.m_modifiesCurrentDocument
@@ -565,12 +597,11 @@ bool ExternalToolRunner::resolve()
     m_resolvedExecutable.clear();
     m_resolvedArguments.clear();
     m_resolvedWorkingDirectory.clear();
-    m_resolvedEnvironment = Environment::systemEnvironment();
-
+    m_resolvedEnvironment = m_tool->baseEnvironment();
 
     MacroExpander *expander = globalMacroExpander();
     QList<EnvironmentItem> expandedEnvironment
-        = Utils::transform(m_tool->environment(), [expander](const EnvironmentItem &item) {
+        = Utils::transform(m_tool->environmentUserChanges(), [expander](const EnvironmentItem &item) {
               return EnvironmentItem(item.name, expander->expand(item.value), item.operation);
           });
     m_resolvedEnvironment.modify(expandedEnvironment);

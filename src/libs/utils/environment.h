@@ -27,6 +27,7 @@
 
 #include "fileutils.h"
 #include "hostosinfo.h"
+#include "optional.h"
 #include "utils_global.h"
 
 #include <QMap>
@@ -146,6 +147,18 @@ private:
                                QSet<FileName> &alreadyChecked) const;
     QMap<QString, QString> m_values;
     OsType m_osType;
+};
+
+class QTCREATOR_UTILS_EXPORT EnvironmentProvider
+{
+public:
+    QByteArray id;
+    QString displayName;
+    std::function<Environment()> environment;
+
+    static void addProvider(EnvironmentProvider &&provider);
+    static const QVector<EnvironmentProvider> providers();
+    static optional<EnvironmentProvider> provider(const QByteArray &id);
 };
 
 } // namespace Utils

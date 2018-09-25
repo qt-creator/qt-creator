@@ -32,6 +32,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/fancylineedit.h>
+#include <utils/environment.h>
 #include <utils/environmentdialog.h>
 
 #include <coreplugin/coreconstants.h>
@@ -396,6 +397,14 @@ void ExternalToolModel::removeTool(const QModelIndex &modelIndex)
 
 // #pragma mark -- ExternalToolConfig
 
+static void fillBaseEnvironmentComboBox(QComboBox *box)
+{
+    box->clear();
+    box->addItem(ExternalTool::tr("System Environment"), QByteArray());
+    for (const Utils::EnvironmentProvider &provider : Utils::EnvironmentProvider::providers())
+        box->addItem(provider.displayName, Id::fromName(provider.id).toSetting());
+}
+
 ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ExternalToolConfig),
@@ -413,6 +422,8 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     chooser->addSupportedWidget(ui->arguments);
     chooser->addSupportedWidget(ui->workingDirectory->lineEdit());
     chooser->addSupportedWidget(ui->inputText);
+
+    fillBaseEnvironmentComboBox(ui->baseEnvironment);
 
     connect(ui->description, &QLineEdit::editingFinished,
             this, &ExternalToolConfig::updateCurrentItem);
@@ -519,7 +530,8 @@ void ExternalToolConfig::updateItem(const QModelIndex &index)
     tool->setExecutables(executables);
     tool->setArguments(ui->arguments->text());
     tool->setWorkingDirectory(ui->workingDirectory->rawPath());
-    tool->setEnvironment(m_environment);
+    tool->setBaseEnvironmentProviderId(Id::fromSetting(ui->baseEnvironment->currentData()));
+    tool->setEnvironmentUserChanges(m_environment);
     tool->setOutputHandling((ExternalTool::OutputHandling)ui->outputBehavior->currentIndex());
     tool->setErrorHandling((ExternalTool::OutputHandling)ui->errorOutputBehavior->currentIndex());
     tool->setModifiesCurrentDocument(ui->modifiesDocumentCheckbox->checkState());
@@ -548,7 +560,10 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     ui->outputBehavior->setCurrentIndex((int)tool->outputHandling());
     ui->errorOutputBehavior->setCurrentIndex((int)tool->errorHandling());
     ui->modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());
-    m_environment = tool->environment();
+    const int baseEnvironmentIndex = ui->baseEnvironment->findData(
+        tool->baseEnvironmentProviderId().toSetting());
+    ui->baseEnvironment->setCurrentIndex(std::max(0, baseEnvironmentIndex));
+    m_environment = tool->environmentUserChanges();
 
     {
         QSignalBlocker blocker(ui->inputText);
