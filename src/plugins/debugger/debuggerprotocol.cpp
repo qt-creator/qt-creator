@@ -267,15 +267,19 @@ static QString ind(int indent)
 
 void GdbMi::dumpChildren(QString * str, bool multiline, int indent) const
 {
-    for (int i = 0; i < m_children.size(); ++i) {
-        if (i != 0) {
+    bool first = true;
+    for (const GdbMi &child : *this) {
+        if (first) {
+            first = false;
+        } else {
             *str += ',';
             if (multiline)
                 *str += '\n';
         }
+
         if (multiline)
             *str += ind(indent);
-        *str += m_children.at(i).toString(multiline, indent);
+        *str += child.toString(multiline, indent);
     }
 }
 
@@ -371,9 +375,9 @@ void GdbMi::fromStringMultiple(const QString &ba)
 const GdbMi &GdbMi::operator[](const char *name) const
 {
     static GdbMi empty;
-    for (int i = 0, n = int(m_children.size()); i < n; ++i)
-        if (m_children.at(i).m_name == QLatin1String(name))
-            return m_children.at(i);
+    for (const GdbMi &child : *this)
+        if (child.m_name == QLatin1String(name))
+            return child;
     return empty;
 }
 

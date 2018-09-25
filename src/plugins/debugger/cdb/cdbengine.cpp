@@ -1321,8 +1321,7 @@ void CdbEngine::showScriptMessages(const QString &message) const
     gdmiMessage.fromString(message);
     if (!gdmiMessage.isValid())
         showMessage(message, LogMisc);
-    const GdbMi &messages = gdmiMessage["msg"];
-    for (const GdbMi &msg : messages.children()) {
+    for (const GdbMi &msg : gdmiMessage["msg"]) {
         if (msg.name() == "bridgemessage")
             showMessage(msg["msg"].data(), LogMisc);
         else
@@ -1529,7 +1528,7 @@ void CdbEngine::handleModules(const DebuggerResponse &response)
         if (response.data.type() == GdbMi::List) {
             ModulesHandler *handler = modulesHandler();
             handler->beginUpdateAll();
-            foreach (const GdbMi &gdbmiModule, response.data.children()) {
+            for (const GdbMi &gdbmiModule : response.data) {
                 Module module;
                 module.moduleName = gdbmiModule["name"].data();
                 module.modulePath = gdbmiModule["image"].data();
@@ -1555,7 +1554,7 @@ void CdbEngine::handleRegistersExt(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         if (response.data.type() == GdbMi::List) {
             RegisterHandler *handler = registerHandler();
-            foreach (const GdbMi &item, response.data.children()) {
+            for (const GdbMi &item : response.data) {
                 Register reg;
                 reg.name = item["name"].data();
                 reg.description = item["description"].data();
@@ -1593,8 +1592,8 @@ void CdbEngine::handleLocals(const DebuggerResponse &response, bool partialUpdat
         partial.m_data = QString::number(partialUpdate ? 1 : 0);
 
         GdbMi all;
-        all.m_children.push_back(response.data);
-        all.m_children.push_back(partial);
+        all.addChild(response.data);
+        all.addChild(partial);
         updateLocalsView(all);
     } else {
         showMessage(response.data["msg"].data(), LogWarning);
@@ -2141,7 +2140,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
             msg.m_data = message;
             msg.m_type = GdbMi::Tuple;
             response.data.m_type = GdbMi::Tuple;
-            response.data.m_children.push_back(msg);
+            response.data.addChild(msg);
         }
         command.callback(response);
         return;
@@ -2899,7 +2898,7 @@ void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
     QString message;
     QTextStream str(&message);
     BreakHandler *handler = breakHandler();
-    foreach (const GdbMi &breakPointG, response.data.children()) {
+    for (const GdbMi &breakPointG : response.data) {
         // Might not be valid if there is not id
         const QString responseId = breakPointG["id"].data();
         BreakpointParameters reportedResponse;

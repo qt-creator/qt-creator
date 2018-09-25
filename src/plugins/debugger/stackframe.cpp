@@ -81,8 +81,8 @@ QString StackFrame::toString() const
 QList<StackFrame> StackFrame::parseFrames(const GdbMi &data, const DebuggerRunParameters &rp)
 {
     StackFrames frames;
-    frames.reserve(data.children().size());
-    for (const GdbMi &item : data.children())
+    frames.reserve(data.childCount());
+    for (const GdbMi &item : data)
         frames.append(parseFrame(item, rp));
     return frames;
 }

@@ -382,7 +382,7 @@ void LldbEngine::handleResponse(const QString &response)
     GdbMi all;
     all.fromStringMultiple(response);
 
-    foreach (const GdbMi &item, all.children()) {
+    for (const GdbMi &item : all) {
         const QString name = item.name();
         if (name == "result") {
             QString msg = item["status"].data();
@@ -557,9 +557,9 @@ void LldbEngine::updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, b
     bp->setLineNumber(bkpt["line"].toInt());
 
     GdbMi locations = bkpt["locations"];
-    const int numChild = int(locations.children().size());
+    const int numChild = locations.childCount();
     if (numChild > 1) {
-        for (const GdbMi &location : locations.children()) {
+        for (const GdbMi &location : locations) {
             const QString locid = QString("%1.%2").arg(rid).arg(location["locid"].data());
             SubBreakpoint loc = bp->findOrCreateSubBreakpoint(locid);
             QTC_ASSERT(loc, continue);
@@ -614,7 +614,7 @@ void LldbEngine::reloadModules()
         const GdbMi &modules = response.data["modules"];
         ModulesHandler *handler = modulesHandler();
         handler->beginUpdateAll();
-        for (const GdbMi &item : modules.children()) {
+        for (const GdbMi &item : modules) {
             Module module;
             module.modulePath = item["file"].data();
             module.moduleName = item["name"].data();
@@ -636,7 +636,7 @@ void LldbEngine::requestModuleSymbols(const QString &moduleName)
         const GdbMi &symbols = response.data["symbols"];
         QString moduleName = response.data["module"].data();
         Symbols syms;
-        for (const GdbMi &item : symbols.children()) {
+        for (const GdbMi &item : symbols) {
             Symbol symbol;
             symbol.address = item["address"].data();
             symbol.name = item["name"].data();
@@ -914,8 +914,7 @@ void LldbEngine::reloadRegisters()
     DebuggerCommand cmd("fetchRegisters");
     cmd.callback = [this](const DebuggerResponse &response) {
         RegisterHandler *handler = registerHandler();
-        GdbMi regs = response.data["registers"];
-        for (const GdbMi &item : regs.children()) {
+        for (const GdbMi &item : response.data["registers"]) {
             Register reg;
             reg.name = item["name"].data();
             reg.value.fromString(item["value"].data(), HexadecimalFormat);
@@ -953,7 +952,7 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
         DisassemblerLines result;
         QPointer<DisassemblerAgent> agent = m_disassemblerAgents.key(id);
         if (!agent.isNull()) {
-            for (const GdbMi &line : response.data["lines"].children()) {
+            for (const GdbMi &line : response.data["lines"]) {
                 DisassemblerLine dl;
                 dl.address = line["address"].toAddress();
                 //dl.data = line["data"].data();

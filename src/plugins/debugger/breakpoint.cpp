@@ -296,7 +296,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
     enabled = true;
     pending = false;
     condition.clear();
-    for (const GdbMi &child : bkpt.children()) {
+    for (const GdbMi &child : bkpt) {
         if (child.hasName("number")) {
             // Handled on caller side.
         } else if (child.hasName("func")) {
