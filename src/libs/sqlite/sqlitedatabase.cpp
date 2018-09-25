@@ -29,6 +29,8 @@
 #include "sqlitetransaction.h"
 #include "sqlitereadwritestatement.h"
 
+#include <QFileInfo>
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -85,6 +87,7 @@ void Database::open()
 
 void Database::open(Utils::PathString &&databaseFilePath)
 {
+    m_isInitialized = QFileInfo::exists(QString(databaseFilePath));
     setDatabaseFilePath(std::move(databaseFilePath));
     open();
 }
@@ -94,6 +97,16 @@ void Database::close()
     m_isOpen = false;
     deleteTransactionStatements();
     m_databaseBackend.close();
+}
+
+bool Database::isInitialized() const
+{
+    return m_isInitialized;
+}
+
+void Database::setIsInitialized(bool isInitialized)
+{
+    m_isInitialized = isInitialized;
 }
 
 bool Database::isOpen() const

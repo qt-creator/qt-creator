@@ -33,6 +33,7 @@
 #include <utf8string.h>
 
 #include <QSignalSpy>
+#include <QTemporaryFile>
 #include <QVariant>
 
 namespace {
@@ -103,6 +104,32 @@ TEST_F(SqliteDatabase, CloseDatabase)
     database.close();
 
     ASSERT_FALSE(database.isOpen());
+}
+
+TEST_F(SqliteDatabase, DatabaseIsNotInitializedAfterOpening)
+{
+    ASSERT_FALSE(database.isInitialized());
+}
+
+TEST_F(SqliteDatabase, DatabaseIsIntializedAfterSettingItBeforeOpening)
+{
+    database.setIsInitialized(true);
+
+    ASSERT_TRUE(database.isInitialized());
+}
+
+TEST_F(SqliteDatabase, DatabaseIsInitializedIfDatabasePathExistsAtOpening)
+{
+    Sqlite::Database database{TESTDATA_DIR "/sqlite_database.db"};
+
+    ASSERT_TRUE(database.isInitialized());
+}
+
+TEST_F(SqliteDatabase, DatabaseIsNotInitializedIfDatabasePathDoesNotExistAtOpening)
+{
+    Sqlite::Database database{Utils::PathString{QDir::tempPath() + "/database_does_not_exist.db"}};
+
+    ASSERT_FALSE(database.isInitialized());
 }
 
 TEST_F(SqliteDatabase, AddTable)

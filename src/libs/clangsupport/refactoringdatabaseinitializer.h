@@ -39,20 +39,24 @@ public:
     RefactoringDatabaseInitializer(DatabaseType &database)
         : database(database)
     {
-        Sqlite::ImmediateTransaction transaction{database};
+        if (!database.isInitialized()) {
+            Sqlite::ExclusiveTransaction transaction{database};
 
-        createSymbolsTable();
-        createLocationsTable();
-        createSourcesTable();
-        createDirectoriesTable();
-        createProjectPartsTable();
-        createProjectPartsSourcesTable();
-        createUsedMacrosTable();
-        createFileStatusesTable();
-        createSourceDependenciesTable();
-        createPrecompiledHeadersTable();
+            createSymbolsTable();
+            createLocationsTable();
+            createSourcesTable();
+            createDirectoriesTable();
+            createProjectPartsTable();
+            createProjectPartsSourcesTable();
+            createUsedMacrosTable();
+            createFileStatusesTable();
+            createSourceDependenciesTable();
+            createPrecompiledHeadersTable();
 
-        transaction.commit();
+            transaction.commit();
+
+            database.setIsInitialized(true);
+        }
     }
 
     void createSymbolsTable()

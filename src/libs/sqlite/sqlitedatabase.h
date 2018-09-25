@@ -56,7 +56,7 @@ public:
 
     Database();
     Database(Utils::PathString &&databaseFilePath,
-             JournalMode journalMode=JournalMode::Wal);
+             JournalMode journalMode);
     Database(Utils::PathString &&databaseFilePath,
              std::chrono::milliseconds busyTimeout = 1000ms,
              JournalMode journalMode=JournalMode::Wal);
@@ -68,6 +68,9 @@ public:
     void open();
     void open(Utils::PathString &&databaseFilePath);
     void close();
+
+    bool isInitialized() const;
+    void setIsInitialized(bool isInitialized);
 
     bool isOpen() const;
 
@@ -133,6 +136,7 @@ private:
     JournalMode m_journalMode = JournalMode::Wal;
     OpenMode m_openMode = OpenMode::ReadWrite;
     bool m_isOpen = false;
+    bool m_isInitialized = false;
 };
 
 } // namespace Sqlite
