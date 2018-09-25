@@ -122,7 +122,7 @@ public:
     void addContext(Core::Id id);
 
     // IEditor
-    Core::IDocument *document() override;
+    Core::IDocument *document() const override;
 
     IEditor *duplicate() override;
 

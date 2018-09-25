@@ -69,7 +69,7 @@ public:
                          QWidget *parent = nullptr);
     ~ModelEditor();
 
-    Core::IDocument *document() override;
+    Core::IDocument *document() const override;
     QWidget *toolBar() override;
     QByteArray saveState() const override;
     bool restoreState(const QByteArray &state) override;

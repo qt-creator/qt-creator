@@ -70,7 +70,7 @@ AndroidManifestEditorWidget *AndroidManifestEditor::widget() const
     return static_cast<AndroidManifestEditorWidget *>(Core::IEditor::widget());
 }
 
-Core::IDocument *AndroidManifestEditor::document()
+Core::IDocument *AndroidManifestEditor::document() const
 {
     return textEditor()->textDocument();
 }

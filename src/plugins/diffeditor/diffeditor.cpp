@@ -274,7 +274,7 @@ Core::IEditor *DiffEditor::duplicate()
     return editor;
 }
 
-Core::IDocument *DiffEditor::document()
+Core::IDocument *DiffEditor::document() const
 {
     return m_document.data();
 }

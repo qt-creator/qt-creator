@@ -394,7 +394,7 @@ public:
         delete m_widget;
     }
 
-    IDocument *document() override { return m_file; }
+    IDocument *document() const override { return m_file; }
 
     QWidget *toolBar() override { return m_toolBar; }
 

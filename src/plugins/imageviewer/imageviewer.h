@@ -49,7 +49,7 @@ public:
     explicit ImageViewer(QWidget *parent = 0);
     ~ImageViewer() override;
 
-    Core::IDocument *document() override;
+    Core::IDocument *document() const override;
     QWidget *toolBar() override;
 
     IEditor *duplicate() override;

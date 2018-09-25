@@ -159,7 +159,7 @@ ModelEditor::~ModelEditor()
     delete d;
 }
 
-Core::IDocument *ModelEditor::document()
+Core::IDocument *ModelEditor::document() const
 {
     return d->document;
 }

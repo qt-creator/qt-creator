@@ -56,7 +56,7 @@ public:
     ~DiffEditor() override;
 
     Core::IEditor *duplicate() override;
-    Core::IDocument *document() override;
+    Core::IDocument *document() const override;
     QWidget *toolBar() override;
     TextEditor::TextEditorWidget *descriptionWidget() const;
     TextEditor::TextEditorWidget *unifiedEditorWidget() const;
