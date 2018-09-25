@@ -89,7 +89,8 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
         const auto document = editor->document();
         QTC_ASSERT(document, continue);
         const auto &path = document->filePath();
-        QTC_ASSERT(!path.isEmpty(), continue);
+        if (path.isEmpty())
+            continue;
 
         if (m_checkedFiles.contains(path))
             continue;
