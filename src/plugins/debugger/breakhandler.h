@@ -85,7 +85,7 @@ public:
     int modelId() const;
 
     bool isEnabled() const { return m_params.enabled; }
-    void setEnabled(bool enabled);
+    void setEnabled(bool enabled, bool descend = true);
 
     const BreakpointParameters &requestedParameters() const { return m_params; }
 

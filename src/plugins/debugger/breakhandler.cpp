@@ -1557,8 +1557,11 @@ bool BreakHandler::setData(const QModelIndex &idx, const QVariant &value, int ro
                     const bool isEnabled = (bps.isEmpty() && sbps.isEmpty())
                             || (!bps.isEmpty() && bps.at(0)->isEnabled())
                             || (!sbps.isEmpty() && sbps.at(0)->params.enabled);
-                    for (Breakpoint bp : bps)
+                    for (Breakpoint bp : bps) {
                         requestBreakpointEnabling(bp, !isEnabled);
+                        if (GlobalBreakpoint gbp = bp->globalBreakpoint())
+                            gbp->setEnabled(!isEnabled, false);
+                    }
                     for (SubBreakpoint sbp : sbps)
                         requestSubBreakpointEnabling(sbp, !isEnabled);
                     return true;
@@ -1642,8 +1645,11 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
                   : breakpointsEnabled ? tr("Disable Breakpoint") : tr("Enable Breakpoint"),
               !selectedBreakpoints.isEmpty(),
               [this, selectedBreakpoints, breakpointsEnabled] {
-                    for (Breakpoint bp : selectedBreakpoints)
+                    for (Breakpoint bp : selectedBreakpoints) {
                         requestBreakpointEnabling(bp, !breakpointsEnabled);
+                        if (GlobalBreakpoint gbp = bp->globalBreakpoint())
+                            gbp->setEnabled(!breakpointsEnabled, false);
+                    }
               }
     );
 
@@ -2311,18 +2317,20 @@ void GlobalBreakpointItem::updateMarker()
         m_marker->setToolTip(toolTip());
 }
 
-void GlobalBreakpointItem::setEnabled(bool enabled)
+void GlobalBreakpointItem::setEnabled(bool enabled, bool descend)
 {
     QTC_CHECK(m_params.enabled != enabled);
     m_params.enabled = enabled;
     updateMarkerIcon();
     update();
 
-    for (QPointer<DebuggerEngine> engine : EngineManager::engines()) {
-        BreakHandler *handler = engine->breakHandler();
-        for (Breakpoint bp : handler->breakpoints()) {
-            if (bp->globalBreakpoint() == this)
-                handler->requestBreakpointEnabling(bp, enabled);
+    if (descend) {
+        for (QPointer<DebuggerEngine> engine : EngineManager::engines()) {
+            BreakHandler *handler = engine->breakHandler();
+            for (Breakpoint bp : handler->breakpoints()) {
+                if (bp->globalBreakpoint() == this)
+                    handler->requestBreakpointEnabling(bp, enabled);
+            }
         }
     }
 }
