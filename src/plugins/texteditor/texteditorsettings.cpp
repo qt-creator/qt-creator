@@ -180,10 +180,11 @@ TextEditorSettings::TextEditorSettings()
                              tr("Name of function at its definition."),
                              Format::createMixinFormat(),
                              FormatDescription::ShowAllControls);
-    functionFormat.setItalic(true);
+    Format virtualFunctionFormat(functionFormat);
+    virtualFunctionFormat.setItalic(true);
     formatDescr.emplace_back(C_VIRTUAL_METHOD, tr("Virtual Function"),
                              tr("Name of function declared as virtual."),
-                             functionFormat);
+                             virtualFunctionFormat);
 
     formatDescr.emplace_back(C_BINDING, tr("QML Binding"),
                              tr("QML item property, that allows a "
@@ -246,7 +247,7 @@ TextEditorSettings::TextEditorSettings()
     formatDescr.emplace_back(C_OVERLOADED_OPERATOR,
                              tr("Overloaded Operators"),
                              tr("Calls and declarations of overloaded (user-defined) operators."),
-                             Format::createMixinFormat(),
+                             functionFormat,
                              FormatDescription::ShowAllControls);
     formatDescr.emplace_back(C_PREPROCESSOR, tr("Preprocessor"),
                              tr("Preprocessor directives."), Qt::darkBlue);
