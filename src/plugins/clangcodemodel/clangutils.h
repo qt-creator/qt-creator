@@ -57,7 +57,8 @@ CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
 CppTools::ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath);
 bool isProjectPartLoaded(const CppTools::ProjectPart::Ptr projectPart);
 QString projectPartIdForFile(const QString &filePath);
-int clangColumn(const QTextBlock &lineText, int cppEditorColumn);
+int clangColumn(const QTextBlock &line, int cppEditorColumn);
+int cppEditorColumn(const QTextBlock &line, int clangColumn);
 
 QString diagnosticCategoryPrefixRemoved(const QString &text);
 

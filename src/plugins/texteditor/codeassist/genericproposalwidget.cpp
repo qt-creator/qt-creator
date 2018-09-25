@@ -31,9 +31,11 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/codeassist/assistproposaliteminterface.h>
 
 #include <utils/faketooltip.h>
 #include <utils/hostosinfo.h>
+#include <utils/utilsicons.h>
 
 #include <QRect>
 #include <QLatin1String>
@@ -49,6 +51,7 @@
 #include <QKeyEvent>
 #include <QDesktopWidget>
 #include <QLabel>
+#include <QStyledItemDelegate>
 
 using namespace Utils;
 
@@ -92,6 +95,8 @@ QVariant ModelAdapter::data(const QModelIndex &index, int role) const
         return m_completionModel->icon(index.row());
     else if (role == Qt::WhatsThisRole)
         return m_completionModel->detail(index.row());
+    else if (role == Qt::UserRole)
+        return m_completionModel->proposalItem(index.row())->requiresFixIts();
 
     return QVariant();
 }
@@ -146,6 +151,7 @@ private:
 // -----------------------
 class GenericProposalListView : public QListView
 {
+    friend class ProposalItemDelegate;
 public:
     GenericProposalListView(QWidget *parent);
 
@@ -160,10 +166,53 @@ public:
     void selectLastRow() { selectRow(model()->rowCount() - 1); }
 };
 
+class ProposalItemDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+public:
+    explicit ProposalItemDelegate(GenericProposalListView *parent = nullptr)
+        : QStyledItemDelegate(parent)
+        , m_parent(parent)
+    {
+    }
+
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override
+    {
+        static const QIcon fixItIcon = ::Utils::Icons::CODEMODEL_FIXIT.icon();
+
+        QStyledItemDelegate::paint(painter, option, index);
+
+        if (m_parent->model()->data(index, Qt::UserRole).toBool()) {
+            const QRect itemRect = m_parent->rectForIndex(index);
+            const QScrollBar *verticalScrollBar = m_parent->verticalScrollBar();
+
+            const int x = m_parent->width() - itemRect.height() - (verticalScrollBar->isVisible()
+                                                                   ? verticalScrollBar->width()
+                                                                   : 0);
+            const int iconSize = itemRect.height() - 5;
+            fixItIcon.paint(painter, QRect(x, itemRect.y() - m_parent->verticalOffset(),
+                                           iconSize, iconSize));
+        }
+    }
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        QSize size(QStyledItemDelegate::sizeHint(option, index));
+        if (m_parent->model()->data(index, Qt::UserRole).toBool())
+            size.setWidth(size.width() + m_parent->rectForIndex(index).height() - 5);
+        return size;
+    }
+private:
+    GenericProposalListView *m_parent;
+};
+
 GenericProposalListView::GenericProposalListView(QWidget *parent)
     : QListView(parent)
 {
     setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
+    setItemDelegate(new ProposalItemDelegate(this));
 }
 
 QSize GenericProposalListView::calculateSize() const

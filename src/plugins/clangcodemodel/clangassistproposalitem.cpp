@@ -27,6 +27,7 @@
 
 #include "clangcompletionchunkstotextconverter.h"
 #include "clangfixitoperation.h"
+#include "clangutils.h"
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/MatchingText.h>
@@ -34,10 +35,13 @@
 #include <cplusplus/Token.h>
 
 #include <texteditor/completionsettings.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QCoreApplication>
+#include <QTextBlock>
 #include <QTextCursor>
+#include <QTextDocument>
 
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
@@ -45,6 +49,7 @@
 
 using namespace CPlusPlus;
 using namespace ClangBackEnd;
+using namespace TextEditor;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -73,7 +78,7 @@ bool ClangAssistProposalItem::implicitlyApplies() const
     return true;
 }
 
-static QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface &manipulator,
+static QString textUntilPreviousStatement(TextDocumentManipulatorInterface &manipulator,
                                           int startPosition)
 {
     static const QString stopCharacters(";{}#");
@@ -90,7 +95,7 @@ static QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInt
 }
 
 // 7.3.3: using typename(opt) nested-name-specifier unqualified-id ;
-static bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &manipulator,
+static bool isAtUsingDeclaration(TextDocumentManipulatorInterface &manipulator,
                                  int basePosition)
 {
     SimpleLexer lexer;
@@ -105,7 +110,7 @@ static bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &m
     if (lastToken.kind() != T_COLON_COLON)
         return false;
 
-    return Utils::contains(tokens, [](const Token &token) {
+    return ::Utils::contains(tokens, [](const Token &token) {
         return token.kind() == T_USING;
     });
 }
@@ -135,17 +140,17 @@ static QString methodDefinitionParameters(const CodeCompletionChunks &chunks)
     return result;
 }
 
-void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
+void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulator,
                                     int basePosition) const
 {
     const CodeCompletion ccr = firstCodeCompletion();
 
     if (!ccr.requiredFixIts.empty()) {
+        // Important: Calculate shift before changing the document.
+        basePosition += fixItsShift(manipulator);
+
         ClangFixItOperation fixItOperation(Utf8String(), ccr.requiredFixIts);
         fixItOperation.perform();
-
-        const int shift = fixItsShift(manipulator);
-        basePosition += shift;
     }
 
     QString textToBeInserted = m_text;
@@ -175,8 +180,8 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
 
         textToBeInserted = converter.text();
     } else if (!ccr.text.isEmpty()) {
-        const TextEditor::CompletionSettings &completionSettings =
-                TextEditor::TextEditorSettings::instance()->completionSettings();
+        const CompletionSettings &completionSettings =
+                TextEditorSettings::instance()->completionSettings();
         const bool autoInsertBrackets = completionSettings.m_autoInsertBrackets;
 
         if (autoInsertBrackets &&
@@ -193,9 +198,9 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
             QTextCursor cursor = manipulator.textCursorAt(basePosition);
 
             bool abandonParen = false;
-            if (Utils::Text::matchPreviousWord(manipulator, cursor, "&")) {
-                Utils::Text::moveToPrevChar(manipulator, cursor);
-                Utils::Text::moveToPrevChar(manipulator, cursor);
+            if (::Utils::Text::matchPreviousWord(manipulator, cursor, "&")) {
+                ::Utils::Text::moveToPrevChar(manipulator, cursor);
+                ::Utils::Text::moveToPrevChar(manipulator, cursor);
                 const QChar prevChar = manipulator.characterAt(cursor.position());
                 cursor.setPosition(basePosition);
                 abandonParen = QString("(;,{}").contains(prevChar);
@@ -206,7 +211,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
             if (!abandonParen && ccr.completionKind == CodeCompletion::FunctionDefinitionCompletionKind) {
                 const CodeCompletionChunk resultType = ccr.chunks.first();
                 QTC_ASSERT(resultType.kind == CodeCompletionChunk::ResultType, return;);
-                if (Utils::Text::matchPreviousWord(manipulator, cursor, resultType.text.toString())) {
+                if (::Utils::Text::matchPreviousWord(manipulator, cursor, resultType.text.toString())) {
                     extraCharacters += methodDefinitionParameters(ccr.chunks);
                     // To skip the next block.
                     abandonParen = true;
@@ -306,7 +311,7 @@ void ClangAssistProposalItem::setText(const QString &text)
 
 QString ClangAssistProposalItem::text() const
 {
-    return m_text + (requiresFixIts() ? fixItText() : QString());
+    return m_text;
 }
 
 const QVector<ClangBackEnd::FixItContainer> &ClangAssistProposalItem::firstCompletionFixIts() const
@@ -314,39 +319,53 @@ const QVector<ClangBackEnd::FixItContainer> &ClangAssistProposalItem::firstCompl
     return firstCodeCompletion().requiredFixIts;
 }
 
-// FIXME: Indicate required fix-it without adding extra text.
+std::pair<int, int> fixItPositionsRange(const FixItContainer &fixIt, const QTextCursor &cursor)
+{
+    const QTextBlock startLine = cursor.document()->findBlockByNumber(fixIt.range.start.line - 1);
+    const QTextBlock endLine = cursor.document()->findBlockByNumber(fixIt.range.end.line - 1);
+
+    const int fixItStartPos = ::Utils::Text::positionInText(
+                cursor.document(),
+                static_cast<int>(fixIt.range.start.line),
+                Utils::cppEditorColumn(startLine, static_cast<int>(fixIt.range.start.column)));
+    const int fixItEndPos = ::Utils::Text::positionInText(
+                cursor.document(),
+                static_cast<int>(fixIt.range.end.line),
+                Utils::cppEditorColumn(endLine, static_cast<int>(fixIt.range.end.column)));
+    return std::make_pair(fixItStartPos, fixItEndPos);
+}
+
+static QString textReplacedByFixit(const FixItContainer &fixIt)
+{
+    TextEditorWidget *textEditorWidget = TextEditorWidget::currentTextEditorWidget();
+    if (!textEditorWidget)
+        return QString();
+    const std::pair<int, int> fixItPosRange = fixItPositionsRange(fixIt,
+                                                                  textEditorWidget->textCursor());
+    return textEditorWidget->textAt(fixItPosRange.first,
+                                    fixItPosRange.second - fixItPosRange.first);
+}
+
 QString ClangAssistProposalItem::fixItText() const
 {
     const FixItContainer &fixIt = firstCompletionFixIts().first();
-    const SourceRangeContainer &range = fixIt.range;
     return QCoreApplication::translate("ClangCodeModel::ClangAssistProposalItem",
-                                       " (requires to correct [%1:%2-%3:%4] to \"%5\")")
-            .arg(range.start.line)
-            .arg(range.start.column)
-            .arg(range.end.line)
-            .arg(range.end.column)
+                                       "Requires to correct \"%1\" to \"%2\"")
+            .arg(textReplacedByFixit(fixIt))
             .arg(fixIt.text.toString());
 }
 
-int ClangAssistProposalItem::fixItsShift(
-        const TextEditor::TextDocumentManipulatorInterface &manipulator) const
+int ClangAssistProposalItem::fixItsShift(const TextDocumentManipulatorInterface &manipulator) const
 {
     const QVector<ClangBackEnd::FixItContainer> &requiredFixIts = firstCompletionFixIts();
     if (requiredFixIts.empty())
         return 0;
 
     int shift = 0;
-    QTextCursor cursor = manipulator.textCursorAt(0);
+    const QTextCursor cursor = manipulator.textCursorAt(0);
     for (const FixItContainer &fixIt : requiredFixIts) {
-        const int fixItStartPos = Utils::Text::positionInText(
-                    cursor.document(),
-                    static_cast<int>(fixIt.range.start.line),
-                    static_cast<int>(fixIt.range.start.column));
-        const int fixItEndPos = Utils::Text::positionInText(
-                    cursor.document(),
-                    static_cast<int>(fixIt.range.end.line),
-                    static_cast<int>(fixIt.range.end.column));
-        shift += fixIt.text.toString().length() - (fixItEndPos - fixItStartPos);
+        const std::pair<int, int> fixItPosRange = fixItPositionsRange(fixIt, cursor);
+        shift += fixIt.text.toString().length() - (fixItPosRange.second - fixItPosRange.first);
     }
     return shift;
 }
@@ -425,9 +444,13 @@ QString ClangAssistProposalItem::detail() const
             detail += "<br>";
         detail += CompletionChunksToTextConverter::convertToToolTipWithHtml(
                     codeCompletion.chunks, codeCompletion.completionKind);
+
         if (!codeCompletion.briefComment.isEmpty())
             detail += "<br>" + codeCompletion.briefComment.toString();
     }
+
+    if (requiresFixIts())
+        detail += "<br><br><b>" + fixItText() + "</b>";
 
     return detail;
 }
