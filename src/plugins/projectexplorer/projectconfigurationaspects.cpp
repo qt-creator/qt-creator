@@ -41,6 +41,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QFormLayout>
+#include <QSpinBox>
 #include <QToolButton>
 
 using namespace Utils;
@@ -75,6 +76,19 @@ public:
     QPointer<FancyLineEdit> m_lineEditDisplay;
     QPointer<PathChooser> m_pathChooserDisplay;
     QPixmap m_labelPixmap;
+};
+
+class BaseIntegerAspectPrivate
+{
+public:
+    QVariant m_value;
+    QVariant m_minimumValue;
+    QVariant m_maximumValue;
+    int m_displayIntegerBase = 10;
+    QString m_label;
+    QString m_prefix;
+    QString m_suffix;
+    QPointer<QSpinBox> m_spinBox; // Owned by configuration widget
 };
 
 } // Internal
@@ -335,6 +349,84 @@ void BaseBoolAspect::setValue(bool value)
 void BaseBoolAspect::setLabel(const QString &label)
 {
     d->m_label = label;
+}
+
+/*!
+    \class ProjectExplorer::BaseIntegerAspect
+*/
+
+// BaseIntegerAspect
+
+BaseIntegerAspect::BaseIntegerAspect()
+    : d(new Internal::BaseIntegerAspectPrivate)
+{}
+
+BaseIntegerAspect::~BaseIntegerAspect() = default;
+
+void BaseIntegerAspect::addToConfigurationLayout(QFormLayout *layout)
+{
+    QTC_CHECK(!d->m_spinBox);
+    d->m_spinBox = new QSpinBox(layout->parentWidget());
+    d->m_spinBox->setValue(d->m_value.toInt());
+    d->m_spinBox->setDisplayIntegerBase(d->m_displayIntegerBase);
+    d->m_spinBox->setPrefix(d->m_prefix);
+    d->m_spinBox->setSuffix(d->m_suffix);
+    if (d->m_maximumValue.isValid() && d->m_maximumValue.isValid())
+        d->m_spinBox->setRange(d->m_minimumValue.toInt(), d->m_maximumValue.toInt());
+    layout->addRow(d->m_label, d->m_spinBox);
+    connect(d->m_spinBox.data(), static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, [this](int value) {
+        d->m_value = value;
+        emit changed();
+    });
+}
+
+void BaseIntegerAspect::fromMap(const QVariantMap &map)
+{
+    d->m_value = map.value(settingsKey());
+}
+
+void BaseIntegerAspect::toMap(QVariantMap &data) const
+{
+    data.insert(settingsKey(), d->m_value);
+}
+
+int BaseIntegerAspect::value() const
+{
+    return d->m_value.toInt();
+}
+
+void BaseIntegerAspect::setValue(int value)
+{
+    d->m_value = value;
+    if (d->m_spinBox)
+        d->m_spinBox->setValue(d->m_value.toInt());
+}
+
+void BaseIntegerAspect::setRange(int min, int max)
+{
+    d->m_minimumValue = min;
+    d->m_maximumValue = max;
+}
+
+void BaseIntegerAspect::setLabel(const QString &label)
+{
+    d->m_label = label;
+}
+
+void BaseIntegerAspect::setPrefix(const QString &prefix)
+{
+    d->m_prefix = prefix;
+}
+
+void BaseIntegerAspect::setSuffix(const QString &suffix)
+{
+    d->m_suffix = suffix;
+}
+
+void BaseIntegerAspect::setDisplayIntegerBase(int base)
+{
+    d->m_displayIntegerBase = base;
 }
 
 } // namespace ProjectExplorer
