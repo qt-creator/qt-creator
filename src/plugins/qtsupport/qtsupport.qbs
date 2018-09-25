@@ -12,6 +12,7 @@ Project {
         Depends { name: "Core" }
         Depends { name: "ProParser" }
         Depends { name: "ProjectExplorer" }
+        Depends { name: "ResourceEditor" }
         Depends { name: "CppTools" }
 
         cpp.defines: base.concat([
