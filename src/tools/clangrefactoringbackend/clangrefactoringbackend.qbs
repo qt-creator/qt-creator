@@ -14,8 +14,10 @@ QtcTool {
 
     cpp.cxxFlags: base.concat(libclang.llvmToolingCxxFlags)
     cpp.defines: base.concat(libclang.llvmToolingDefines)
-    cpp.includePaths: base.concat(libclang.llvmIncludeDir).concat(libclang.llvmToolingIncludes)
+    cpp.includePaths: base.concat(libclang.llvmIncludeDir)
+                          .concat(libclang.llvmToolingIncludes)
                           .concat(["source"])
+                          .concat(["../clangpchmanagerbackend/source"])
     cpp.libraryPaths: base.concat(libclang.llvmLibDir)
     cpp.dynamicLibraries: base.concat(libclang.llvmToolingLibs)
 
