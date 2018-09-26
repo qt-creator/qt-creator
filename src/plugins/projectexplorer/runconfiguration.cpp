@@ -224,6 +224,8 @@ QWidget *RunConfiguration::createConfigurationWidget()
 {
     auto widget = new QWidget;
     auto formLayout = new QFormLayout(widget);
+    formLayout->setMargin(0);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     for (ProjectConfigurationAspect *aspect : m_aspects) {
         if (aspect->isVisible())
@@ -232,7 +234,10 @@ QWidget *RunConfiguration::createConfigurationWidget()
 
     Core::VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
-    return wrapWidget(widget);
+    auto detailsWidget = new Utils::DetailsWidget;
+    detailsWidget->setState(DetailsWidget::NoSummary);
+    detailsWidget->setWidget(widget);
+    return detailsWidget;
 }
 
 void RunConfiguration::updateEnabledState()
@@ -280,18 +285,6 @@ BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
     if (!target())
         return nullptr;
     return target()->activeBuildConfiguration();
-}
-
-QWidget *RunConfiguration::wrapWidget(QWidget *inner) const
-{
-    auto detailsWidget = new Utils::DetailsWidget;
-    detailsWidget->setState(DetailsWidget::NoSummary);
-    detailsWidget->setWidget(inner);
-    if (auto fl = qobject_cast<QFormLayout *>(inner->layout())){
-        fl->setMargin(0);
-        fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    }
-    return detailsWidget;
 }
 
 Target *RunConfiguration::target() const

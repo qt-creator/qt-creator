@@ -205,7 +205,6 @@ protected:
 
     /// convenience function to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
-    QWidget *wrapWidget(QWidget *inner) const;
 
     template<class T> void setOutputFormatter()
     {
