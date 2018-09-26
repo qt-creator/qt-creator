@@ -32,6 +32,8 @@
 #include <QPainter>
 #include <QTextBlock>
 
+#include <algorithm>
+
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
@@ -250,10 +252,10 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
 
     const int count = selection.count();
     for (int i = 1; i < count-1; ++i) {
-#define MAX3(a,b,c) qMax(a, qMax(b,c))
-        qreal x = MAX3(selection.at(i-1).right(),
-                       selection.at(i).right(),
-                       selection.at(i+1).right()) + margin;
+        qreal x = std::max({selection.at(i - 1).right(),
+                            selection.at(i).right(),
+                            selection.at(i + 1).right()})
+                  + margin;
 
         points += QPointF(x+1, selection.at(i).top());
         points += QPointF(x+1, selection.at(i).bottom());
@@ -266,10 +268,10 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
     points += lastSelection.topLeft() + QPointF(-margin, 0);
 
     for (int i = count-2; i > 0; --i) {
-#define MIN3(a,b,c) qMin(a, qMin(b,c))
-        qreal x = MIN3(selection.at(i-1).left(),
-                       selection.at(i).left(),
-                       selection.at(i+1).left()) - margin;
+        qreal x = std::min({selection.at(i - 1).left(),
+                            selection.at(i).left(),
+                            selection.at(i + 1).left()})
+                  - margin;
 
         points += QPointF(x, selection.at(i).bottom()+extra);
         points += QPointF(x, selection.at(i).top());
