@@ -319,10 +319,7 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
     BranchNode *node = indexToNode(index);
     if (!node)
         return Qt::NoItemFlags;
-    if (index.column() == 0 && node->isLeaf() && node->isLocal())
-        return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
-    else
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
 void BranchModel::clear()
