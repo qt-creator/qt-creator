@@ -244,13 +244,19 @@ void SshDeviceProcess::handleProcessFinished(int exitStatus)
 
 void SshDeviceProcess::handleStdout()
 {
-    d->stdOut += d->process->readAllStandardOutput();
+    QByteArray output = d->process->readAllStandardOutput();
+    if (output.isEmpty())
+        return;
+    d->stdOut += output;
     emit readyReadStandardOutput();
 }
 
 void SshDeviceProcess::handleStderr()
 {
-    d->stdErr += d->process->readAllStandardError();
+    QByteArray output = d->process->readAllStandardError();
+    if (output.isEmpty())
+        return;
+    d->stdErr += output;
     emit readyReadStandardError();
 }
 

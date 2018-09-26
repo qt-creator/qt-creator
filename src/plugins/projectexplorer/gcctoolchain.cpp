@@ -385,6 +385,8 @@ static Utils::FileName findLocalCompiler(const Utils::FileName &compilerPath,
     return path.isEmpty() ? compilerPath : path;
 }
 
+Q_GLOBAL_STATIC_WITH_ARGS(const QVector<QByteArray>, unwantedMacros, ({"__cplusplus"}))
+
 ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() const
 {
     // Using a clean environment breaks ccache/distcc/etc.
@@ -442,17 +444,20 @@ ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() c
                 = gccPredefinedMacros(findLocalCompiler(compilerCommand, env),
                                       arguments,
                                       env.toStringList());
-        macroCache->insert(arguments, macros);
+        const QVector<Macro> filteredMacros = Utils::filtered(macros, [](const Macro &m) {
+            return !unwantedMacros->contains(m.key);
+        });
+        macroCache->insert(arguments, filteredMacros);
 
         qCDebug(gccLog) << "Reporting macros to code model:";
-        for (const Macro &m : macros) {
+        for (const Macro &m : filteredMacros) {
             qCDebug(gccLog) << compilerCommand.toUserOutput()
                             << (lang == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
                             << arguments.join(", ") << "]"
                             << QString::fromUtf8(m.toByteArray());
         }
 
-        return macros;
+        return filteredMacros;
     };
 }
 
