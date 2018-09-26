@@ -320,7 +320,7 @@ class FollowSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractA
 {
 public:
     /// Follow symbol under cursor
-    /// Warning: May block if file does not exists (e.g. a not generated ui_* file).
+    /// Warning: May block if file does not exist (e.g. a not generated ui_* file).
     void run(CppEditorWidget *editorWidget);
 };
 
@@ -511,7 +511,7 @@ void CppEditorPlugin::test_moveTokenWiseThroughEveryFile()
     TestActionsTestCase(singleAction(ActionPointer(new NoOpTokenAction)));
 }
 
-/// May block if file does not exists (e.g. a not generated ui_* file).
+/// May block if file does not exist (e.g. a not generated ui_* file).
 void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndFollowSymbol()
 {
     TestActionsTestCase(singleAction(ActionPointer(new FollowSymbolUnderCursorTokenAction)));

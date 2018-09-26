@@ -39,8 +39,8 @@ class QTCREATOR_UTILS_EXPORT FileInProjectFinder
 {
 public:
 
-    using FileHandler = std::function<void(const QString &)>;
-    using DirectoryHandler = std::function<void(const QStringList &)>;
+    using FileHandler = std::function<void(const QString &, int)>;
+    using DirectoryHandler = std::function<void(const QStringList &, int)>;
 
     FileInProjectFinder();
     ~FileInProjectFinder();
@@ -68,16 +68,22 @@ private:
         QHash<QString, PathMappingNode *> children;
     };
 
-    QString findInSearchPaths(const QString &filePath, FileHandler fileHandler,
-                              DirectoryHandler directoryHandler) const;
-    static QString findInSearchPath(const QString &searchPath, const QString &filePath,
-                                    FileHandler fileHandler, DirectoryHandler directoryHandler);
+    struct CacheEntry {
+        QString path;
+        int matchLength = 0;
+    };
+
+    CacheEntry findInSearchPaths(const QString &filePath, FileHandler fileHandler,
+                                 DirectoryHandler directoryHandler) const;
+    static CacheEntry findInSearchPath(const QString &searchPath, const QString &filePath,
+                                       FileHandler fileHandler, DirectoryHandler directoryHandler);
     QStringList filesWithSameFileName(const QString &fileName) const;
     QStringList pathSegmentsWithSameName(const QString &path) const;
 
-    bool handleSuccess(const QString &originalPath, const QString &found, const char *where) const;
+    bool handleSuccess(const QString &originalPath, const QString &found, int confidence,
+                       const char *where) const;
 
-    static int rankFilePath(const QString &candidatePath, const QString &filePathToFind);
+    static int commonPostFixLength(const QString &candidatePath, const QString &filePathToFind);
     static QString bestMatch(const QStringList &filePaths, const QString &filePathToFind);
 
     FileName m_projectDir;
@@ -86,7 +92,7 @@ private:
     FileNameList m_searchDirectories;
     PathMappingNode m_pathMapRoot;
 
-    mutable QHash<QString,QString> m_cache;
+    mutable QHash<QString, CacheEntry> m_cache;
 };
 
 } // namespace Utils

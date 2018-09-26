@@ -962,7 +962,8 @@ bool QmlEngine::hasCapability(unsigned cap) const
 {
     return cap & (AddWatcherCapability
             | AddWatcherWhileRunningCapability
-            | RunToLineCapability);
+            | RunToLineCapability
+            | WatchComplexExpressionsCapability);
     /*ReverseSteppingCapability | SnapshotCapability
         | AutoDerefPointersCapability | DisassemblerCapability
         | RegisterCapability | ShowMemoryCapability

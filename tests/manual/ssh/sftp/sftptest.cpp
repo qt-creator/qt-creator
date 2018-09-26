@@ -33,6 +33,8 @@
 
 #include <iostream>
 
+#include <cstdlib>
+
 using namespace QSsh;
 
 SftpTest::SftpTest(const Parameters &params)
@@ -128,7 +130,7 @@ void SftpTest::handleChannelInitialized()
 
     std::cout << "Creating " << m_parameters.smallFileCount
         << " files of 1 KB each ..." << std::endl;
-    qsrand(QDateTime::currentDateTime().toTime_t());
+    std::srand(QDateTime::currentDateTime().toSecsSinceEpoch());
     for (int i = 0; i < m_parameters.smallFileCount; ++i) {
         const QString fileName
             = QLatin1String("sftptestfile") + QString::number(i + 1);

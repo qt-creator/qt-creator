@@ -291,7 +291,7 @@ void GdbEngine::handleResponse(const QString &buff)
                 data.parseResultOrValue(from, to);
                 if (data.isValid()) {
                     //qDebug() << "parsed result:" << data.toString();
-                    result.m_children.push_back(data);
+                    result.addChild(data);
                     result.m_type = GdbMi::Tuple;
                 }
             }
@@ -566,7 +566,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         res.fromString(ba);
         BreakHandler *handler = breakHandler();
         Breakpoint bp;
-        for (const GdbMi &bkpt : res.children()) {
+        for (const GdbMi &bkpt : res) {
             const QString nr = bkpt["number"].data();
             if (nr.contains('.')) {
                 // A sub-breakpoint.
@@ -590,7 +590,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         // {bkpt={number="2",type="hw watchpoint",disp="keep",enabled="y",
         // what="*0xbfffed48",times="0",original-location="*0xbfffed48"}}
         BreakHandler *handler = breakHandler();
-        for (const GdbMi &bkpt : result.children()) {
+        for (const GdbMi &bkpt : result) {
             const QString nr = bkpt["number"].data();
             BreakpointParameters br;
             br.type = BreakpointByFileAndLine;
@@ -1064,8 +1064,7 @@ void GdbEngine::handleQuerySources(const DebuggerResponse &response)
         m_fullToShortName.clear();
         // "^done,files=[{file="../../../../bin/dumper/dumper.cpp",
         // fullname="/data5/dev/ide/main/bin/dumper/dumper.cpp"},
-        GdbMi files = response.data["files"];
-        for (const GdbMi &item : files.children()) {
+        for (const GdbMi &item : response.data["files"]) {
             GdbMi fileName = item["file"];
             if (fileName.data().endsWith("<built-in>"))
                 continue;
@@ -2240,7 +2239,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
     // http://permalink.gmane.org/gmane.comp.gdb.patches/83936
     const GdbMi locations = bkpt["locations"];
     if (locations.isValid()) {
-        for (const GdbMi &location : locations.children()) {
+        for (const GdbMi &location : locations) {
             // A sub-breakpoint.
             const QString subnr = location["number"].data();
             SubBreakpoint sub = bp->findOrCreateSubBreakpoint(subnr);
@@ -2276,7 +2275,7 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, const Break
         // the "main" entry. Use the "main" entry to retrieve the
         // already known data from the BreakpointManager, and then
         // iterate over all items to update main- and sub-data.
-        for (const GdbMi &bkpt : response.data.children())
+        for (const GdbMi &bkpt : response.data)
             handleBkpt(bkpt, bp);
         if (bp->needsChange()) {
             bp->gotoState(BreakpointUpdateRequested, BreakpointInsertionProceeding);
@@ -2819,7 +2818,7 @@ void GdbEngine::handleModulesList(const DebuggerResponse &response)
             // state="Y",path="/usr/lib/dyld",description="/usr/lib/dyld",
             // loaded_addr="0x8fe00000",slide="0x0",prefix="__dyld_"},
             // shlib-info={...}...
-            for (const GdbMi &item : response.data.children()) {
+            for (const GdbMi &item : response.data) {
                 module.modulePath = item["path"].data();
                 module.moduleName = nameFromPath(module.modulePath);
                 module.symbolsRead = (item["state"].data() == "Y")
@@ -2861,8 +2860,7 @@ void GdbEngine::reloadSourceFiles()
                 m_fullToShortName.clear();
                 // "^done,files=[{file="../../../../bin/dumper/dumper.cpp",
                 // fullname="/data5/dev/ide/main/bin/dumper/dumper.cpp"},
-                GdbMi files = response.data["files"];
-                for (const GdbMi &item : files.children()) {
+                for (const GdbMi &item : response.data["files"]) {
                     GdbMi fileName = item["file"];
                     if (fileName.data().endsWith("<built-in>"))
                         continue;
@@ -3013,8 +3011,7 @@ void GdbEngine::handleThreadListIds(const DebuggerResponse &response)
     // "72^done,{thread-ids={thread-id="2",thread-id="1"},number-of-threads="2"}
     // In gdb 7.1+ additionally: current-thread-id="1"
     ThreadsHandler *handler = threadsHandler();
-    const QVector<GdbMi> &items = response.data["thread-ids"].children();
-    for (const GdbMi &item : items) {
+    for (const GdbMi &item : response.data["thread-ids"]) {
         ThreadData thread;
         thread.id = item.data();
         handler->updateThread(thread);
@@ -3028,7 +3025,7 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
         ThreadsHandler *handler = threadsHandler();
         GdbMi names;
         names.fromString(response.consoleStreamOutput);
-        for (const GdbMi &name : names.children()) {
+        for (const GdbMi &name : names) {
             ThreadData thread;
             thread.id = name["id"].data();
             // Core is unavailable in core dump. Allow the user to provide it.
@@ -3180,10 +3177,9 @@ void GdbEngine::handleRegisterListNames(const DebuggerResponse &response)
         return;
     }
 
-    GdbMi names = response.data["register-names"];
     m_registers.clear();
     int gdbRegisterNumber = 0;
-    for (const GdbMi &item : names.children()) {
+    for (const GdbMi &item : response.data["register-names"]) {
         if (!item.data().isEmpty()) {
             Register reg;
             reg.name = item.data();
@@ -3228,8 +3224,7 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
 
     RegisterHandler *handler = registerHandler();
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
-    const GdbMi values = response.data["register-values"];
-    for (const GdbMi &item : values.children()) {
+    for (const GdbMi &item : response.data["register-values"]) {
         const int number = item["number"].toInt();
         Register reg = m_registers[number];
         QString data = item["value"].data();
@@ -3364,18 +3359,18 @@ void GdbEngine::handleFetchMemory(const DebuggerResponse &response, MemoryAgentC
     QTC_ASSERT(ac.agent, return);
     if (response.resultClass == ResultDone) {
         GdbMi memory = response.data["memory"];
-        QTC_ASSERT(memory.children().size() <= 1, return);
-        if (memory.children().empty())
+        QTC_ASSERT(memory.childCount() <= 1, return);
+        if (memory.childCount() == 0)
             return;
-        GdbMi memory0 = memory.children().at(0); // we asked for only one 'row'
+        GdbMi memory0 = memory.childAt(0); // we asked for only one 'row'
         GdbMi data = memory0["data"];
-        for (int i = 0, n = int(data.children().size()); i != n; ++i) {
-            const GdbMi &child = data.children().at(i);
+        int i = 0;
+        for (const GdbMi &child : data) {
             bool ok = true;
             unsigned char c = '?';
             c = child.data().toUInt(&ok, 0);
             QTC_ASSERT(ok, return);
-            (*ac.accumulator)[ac.offset + i] = c;
+            (*ac.accumulator)[ac.offset + i++] = c;
         }
     } else {
         // We have an error

@@ -35,9 +35,7 @@
 namespace Ios {
 namespace Internal {
 
-class IosDeployStep;
-class IosRunConfigurationFactory;
-class IosRunConfigurationWidget;
+class IosDeviceTypeAspect;
 
 class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -46,30 +44,22 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     IosRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    QWidget *createConfigurationWidget() override;
-    IosDeployStep *deployStep() const;
-
     Utils::FileName profilePath() const;
     QString applicationName() const;
     Utils::FileName bundleDirectory() const;
     Utils::FileName localExecutable() const;
     QString disabledReason() const override;
     IosDeviceType deviceType() const;
-    void setDeviceType(const IosDeviceType &deviceType);
 
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
 
 private:
-    void deviceChanges();
-    friend class IosRunConfigurationWidget;
-    void updateDeviceType();
+    friend class IosDeviceTypeAspect;
     void updateDisplayNames();
     void updateEnabledState() final;
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
-    IosDeviceType m_deviceType;
+    IosDeviceTypeAspect *m_deviceTypeAspect = nullptr;
 };
 
 class IosRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

@@ -61,8 +61,10 @@ QStringList qtBuildPaths()
                 "C:/work/build/qt5_workdir/w/s",
                 "c:/users/qt/work/qt",
                 "c:/Users/qt/work/install"};
+    } else if (HostOsInfo::isMacHost()) {
+        return { "/Users/qt/work/qt" };
     } else {
-        return {};
+        return { "/home/qt/work/qt" };
     }
 }
 
@@ -450,7 +452,7 @@ DebuggerSourcePathMappingWidget::SourcePathMap
     SourcePathMap rc = in;
     for (const QString &buildPath : qtBuildPaths()) {
         if (!rc.contains(buildPath)) // Do not overwrite user settings.
-            rc.insert(buildPath, qtInstallPath);
+            rc.insert(buildPath, qtInstallPath + "/../Src");
     }
     return rc;
 }

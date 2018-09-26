@@ -251,8 +251,8 @@ TextEditor_CurrentLine_ScrollBarColor=ffffffff
 ProjectExplorer_TaskError_TextMarkColor=error
 ProjectExplorer_TaskWarn_TextMarkColor=warning
 
-ClangCodeModel_Error_TextMarkColor=error
-ClangCodeModel_Warning_TextMarkColor=warning
+CodeModel_Error_TextMarkColor=error
+CodeModel_Warning_TextMarkColor=warning
 
 
 ;Designer Main colors

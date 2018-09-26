@@ -407,8 +407,9 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
             qulonglong addressBase = input["addrbase"].data().toULongLong(&ok, 0);
             qulonglong addressStep = input["addrstep"].data().toULongLong(&ok, 0);
 
-            for (int i = 0, n = int(children.children().size()); i != n; ++i) {
-                const GdbMi &subinput = children.children().at(i);
+            int i = -1;
+            for (const GdbMi &subinput : children) {
+                ++i;
                 auto child = new WatchItem;
                 if (childType.isValid())
                     child->type = childType.data();

@@ -373,8 +373,8 @@ void ThreadsHandler::setThreads(const GdbMi &data)
     // file="/.../app.cpp",fullname="/../app.cpp",line="1175"},
     // state="stopped",core="0"}],current-thread-id="1"
 
-    const QVector<GdbMi> &items = data["threads"].children();
-    for (const GdbMi &item : items) {
+    const GdbMi &threads = data["threads"];
+    for (const GdbMi &item : threads) {
         const GdbMi &frame = item["frame"];
         ThreadData thread;
         thread.id = item["id"].data();
@@ -395,7 +395,7 @@ void ThreadsHandler::setThreads(const GdbMi &data)
     const QString &currentId = data["current-thread-id"].data();
     m_currentThread = threadForId(currentId);
 
-    if (!m_currentThread && !items.isEmpty())
+    if (!m_currentThread && threads.childCount() > 0)
         m_currentThread = rootItem()->childAt(0);
 }
 

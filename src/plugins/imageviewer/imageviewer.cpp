@@ -175,7 +175,7 @@ ImageViewer::~ImageViewer()
     delete d;
 }
 
-Core::IDocument *ImageViewer::document()
+Core::IDocument *ImageViewer::document() const
 {
     return d->file.data();
 }

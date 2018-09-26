@@ -164,28 +164,7 @@ void SearchWidget::showEvent(QShowEvent *event)
 
 void SearchWidget::search() const
 {
-    static const QStringList charsToEscapeList({
-        "\\", "+", "-", "!", "(", ")", ":", "^", "[", "]", "{", "}", "~"
-    });
-
-    static const QString escapeChar("\\");
-    static const QRegExp regExp("[\\+\\-\\!\\(\\)\\^\\[\\]\\{\\}~:]");
-
-    QList<QHelpSearchQuery> escapedQueries;
-    const QList<QHelpSearchQuery> queries = searchEngine->queryWidget()->query();
-    foreach (const QHelpSearchQuery &query, queries) {
-        QHelpSearchQuery escapedQuery;
-        escapedQuery.fieldName = query.fieldName;
-        foreach (QString word, query.wordList) {
-            if (word.contains(regExp)) {
-                foreach (const QString &charToEscape, charsToEscapeList)
-                    word.replace(charToEscape, escapeChar + charToEscape);
-            }
-            escapedQuery.wordList.append(word);
-        }
-        escapedQueries.append(escapedQuery);
-    }
-    searchEngine->search(escapedQueries);
+    searchEngine->search(searchEngine->queryWidget()->searchInput());
 }
 
 void SearchWidget::searchingStarted()
@@ -286,24 +265,7 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 
 QStringList SearchWidget::currentSearchTerms() const
 {
-    QList<QHelpSearchQuery> queryList = searchEngine->query();
-
-    QStringList terms;
-    foreach (const QHelpSearchQuery &query, queryList) {
-        switch (query.fieldName) {
-        case QHelpSearchQuery::ALL:
-        case QHelpSearchQuery::PHRASE:
-        case QHelpSearchQuery::DEFAULT:
-        case QHelpSearchQuery::ATLEAST: {
-                foreach (QString term, query.wordList)
-                    terms.append(term.remove(QLatin1Char('"')));
-            }
-            break;
-        default:
-            break;
-        }
-    }
-    return terms;
+    return searchEngine->searchInput().split(QRegExp("\\W+"), QString::SkipEmptyParts);
 }
 
 // #pragma mark -- SearchSideBarItem

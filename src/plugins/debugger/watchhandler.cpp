@@ -2007,7 +2007,7 @@ void WatchHandler::insertItems(const GdbMi &data)
     QSet<WatchItem *> itemsToSort;
 
     const bool sortStructMembers = boolSetting(SortStructMembers);
-    for (const GdbMi &child : data.children()) {
+    for (const GdbMi &child : data) {
         auto item = new WatchItem;
         item->parse(child, sortStructMembers);
         const TypeInfo ti = m_model->m_reportedTypeInfo.value(item->type);
@@ -2599,7 +2599,7 @@ void WatchHandler::appendWatchersAndTooltipRequests(DebuggerCommand *cmd)
 
 void WatchHandler::addDumpers(const GdbMi &dumpers)
 {
-    for (const GdbMi &dumper : dumpers.children()) {
+    for (const GdbMi &dumper : dumpers) {
         DisplayFormats formats;
         formats.append(RawFormat);
         QString reportedFormats = dumper["formats"].data();
@@ -2666,7 +2666,7 @@ QSet<QString> WatchHandler::expandedINames() const
 void WatchHandler::recordTypeInfo(const GdbMi &typeInfo)
 {
     if (typeInfo.type() == GdbMi::List) {
-        for (const GdbMi &s : typeInfo.children()) {
+        for (const GdbMi &s : typeInfo) {
             QString typeName = fromHex(s["name"].data());
             TypeInfo ti(s["size"].data().toUInt());
             m_model->m_reportedTypeInfo.insert(typeName, ti);

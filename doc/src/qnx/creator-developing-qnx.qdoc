@@ -37,7 +37,9 @@
     \title Connecting QNX Devices
 
     You can connect QNX devices to the development PC to deploy, run and debug
-    applications on them from within \QC.
+    applications on them from within \QC. The QNX Neutrino RTOS should provide
+    a few additional command line tools and services, as described in
+    \l {Qt Creator Target Requirements}.
 
     \section1 Adding a QNX Neutrino Device in \QC
 

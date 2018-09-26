@@ -593,7 +593,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
                                       VcsCommand::SuppressCommandLogging)) {
             const QStringList values = output.split(' ');
             startSha = values[0];
-            branchDateTime = QDateTime::fromTime_t(values[1].toUInt());
+            branchDateTime = QDateTime::fromSecsSinceEpoch(values[1].toLongLong());
         }
     }
 
@@ -677,8 +677,8 @@ void BranchModel::parseOutputLine(const QString &line)
     if (strDateTime.isEmpty())
         strDateTime = lineParts.at(4);
     if (!strDateTime.isEmpty()) {
-        const uint timeT = strDateTime.leftRef(strDateTime.indexOf(' ')).toUInt();
-        dateTime = QDateTime::fromTime_t(timeT);
+        const qint64 timeT = strDateTime.leftRef(strDateTime.indexOf(' ')).toLongLong();
+        dateTime = QDateTime::fromSecsSinceEpoch(timeT);
     }
 
     if (!m_oldBranchesIncluded && !current && dateTime.isValid()) {

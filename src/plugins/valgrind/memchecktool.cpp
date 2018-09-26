@@ -749,8 +749,9 @@ void MemcheckTool::heobAction()
         TaskHub::requestPopup();
         return;
     }
-    if (!QFile::exists(executable)
-            && !QFile::exists(Utils::HostOsInfo::withExecutableSuffix(executable))) {
+    if (!QFile::exists(executable))
+        executable = Utils::HostOsInfo::withExecutableSuffix(executable);
+    if (!QFile::exists(executable)) {
         const QString msg = tr("Heob: Cannot find %1.").arg(executable);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();

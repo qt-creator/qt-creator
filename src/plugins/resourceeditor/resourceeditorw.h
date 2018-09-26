@@ -89,7 +89,7 @@ public:
     ~ResourceEditorW() override;
 
     // IEditor
-    Core::IDocument *document() override { return m_resourceDocument; }
+    Core::IDocument *document() const override { return m_resourceDocument; }
     QWidget *toolBar() override;
 
 private:

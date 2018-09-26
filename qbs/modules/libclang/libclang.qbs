@@ -22,6 +22,7 @@ Module {
         property stringList llvmToolingDefines
         property stringList llvmToolingIncludes
         property stringList llvmToolingCxxFlags
+        property stringList llvmFormattingLibs
         property string llvmBuildMode
 
         configure: {
@@ -37,6 +38,7 @@ Module {
             llvmToolingDefines = toolingParams.defines;
             llvmToolingIncludes = toolingParams.includes;
             llvmToolingCxxFlags = toolingParams.cxxFlags;
+            llvmFormattingLibs = ClangFunctions.formattingLibs(llvmConfig, targetOS);
             found = llvmConfig && File.exists(llvmIncludeDir.concat("/clang-c/Index.h"));
         }
     }
@@ -48,6 +50,7 @@ Module {
     property string llvmBinDir: clangProbe.llvmBinDir
     property stringList llvmLibs: clangProbe.llvmLibs
     property stringList llvmToolingLibs: clangProbe.llvmToolingLibs
+    property stringList llvmFormattingLibs: clangProbe.llvmFormattingLibs
     property string llvmBuildMode: clangProbe.llvmBuildMode
     property bool llvmBuildModeMatches: qbs.buildVariant === llvmBuildMode.toLowerCase()
     property stringList llvmToolingDefines: clangProbe.llvmToolingDefines

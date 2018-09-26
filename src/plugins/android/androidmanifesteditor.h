@@ -50,7 +50,7 @@ public:
 
     QWidget *toolBar() override;
     AndroidManifestEditorWidget *widget() const override;
-    Core::IDocument *document() override;
+    Core::IDocument *document() const override;
     TextEditor::TextEditorWidget *textEditor() const;
 
     int currentLine() const override;

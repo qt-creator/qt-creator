@@ -7846,7 +7846,7 @@ void BaseTextEditor::addContext(Id id)
     m_context.add(id);
 }
 
-IDocument *BaseTextEditor::document()
+IDocument *BaseTextEditor::document() const
 {
     return textDocument();
 }

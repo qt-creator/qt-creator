@@ -106,7 +106,7 @@ public:
     QString checkScriptWorkingDirectory() const;
     void setCheckScriptWorkingDirectory(const QString &);
 
-    Core::IDocument *document() override;
+    Core::IDocument *document() const override;
 
     QWidget *toolBar() override;
 

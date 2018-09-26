@@ -5,7 +5,8 @@ QTC_LIB_DEPENDS += \
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     cpptools \
-    projectexplorer
+    projectexplorer \
+    resourceeditor
 DEFINES *= \
     QMAKE_AS_LIBRARY \
     PROPARSER_THREAD_SAFE \

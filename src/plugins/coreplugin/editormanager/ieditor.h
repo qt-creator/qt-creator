@@ -44,7 +44,7 @@ public:
     bool duplicateSupported() const;
     void setDuplicateSupported(bool duplicateSupported);
 
-    virtual IDocument *document() = 0;
+    virtual IDocument *document() const = 0;
 
     virtual IEditor *duplicate() { return nullptr; }
 

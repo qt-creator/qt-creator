@@ -350,7 +350,7 @@ void VcsBaseSubmitEditor::setLineWrapWidth(int w)
     d->m_widget->setLineWrapWidth(w);
 }
 
-Core::IDocument *VcsBaseSubmitEditor::document()
+Core::IDocument *VcsBaseSubmitEditor::document() const
 {
     return d->m_file;
 }

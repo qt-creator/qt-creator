@@ -43,14 +43,14 @@ namespace CppTools {
 
 CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                UseSystemHeader useSystemHeader,
-                                               SkipBuiltIn skipBuiltInHeaderPaths,
+                                               SkipBuiltIn skipBuiltInHeaderPathsAndDefines,
                                                QString clangVersion,
                                                QString clangResourceDirectory)
     : m_projectPart(projectPart)
     , m_useSystemHeader(useSystemHeader)
     , m_clangVersion(clangVersion)
     , m_clangResourceDirectory(clangResourceDirectory)
-    , m_skipBuiltInHeaderPaths(skipBuiltInHeaderPaths)
+    , m_skipBuiltInHeaderPathsAndDefines(skipBuiltInHeaderPathsAndDefines)
 {
 }
 
@@ -85,7 +85,7 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
     undefineCppLanguageFeatureMacrosForMsvc2015();
     addDefineFunctionMacrosMsvc();
 
-    addGlobalUndef();
+    addToolchainFlags();
     addPrecompiledHeaderOptions(pchUsage);
     addHeaderPathOptions();
     addProjectConfigFileInclude();
@@ -305,7 +305,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     m_options.append(includes);
     m_options.append(systemIncludes);
 
-    if (m_skipBuiltInHeaderPaths == SkipBuiltIn::Yes)
+    if (m_skipBuiltInHeaderPathsAndDefines == SkipBuiltIn::Yes)
         return;
 
     // Exclude all built-in includes except Clang resource directory.
@@ -351,7 +351,8 @@ void CompilerOptionsBuilder::addPrecompiledHeaderOptions(PchUsage pchUsage)
 
 void CompilerOptionsBuilder::addToolchainAndProjectMacros()
 {
-    addMacros(m_projectPart.toolChainMacros);
+    if (m_skipBuiltInHeaderPathsAndDefines == SkipBuiltIn::No)
+        addMacros(m_projectPart.toolChainMacros);
     addMacros(m_projectPart.projectMacros);
 }
 
@@ -634,12 +635,15 @@ void CompilerOptionsBuilder::addWrappedQtHeadersIncludePath(QStringList &list)
     }
 }
 
-void CompilerOptionsBuilder::addGlobalUndef()
+void CompilerOptionsBuilder::addToolchainFlags()
 {
     // In case of MSVC we need builtin clang defines to correctly handle clang includes
     if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
-        && m_projectPart.toolchainType != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-        add("-undef");
+            && m_projectPart.toolchainType != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
+        if (m_skipBuiltInHeaderPathsAndDefines == SkipBuiltIn::No)
+            add("-undef");
+        else
+            add("-fPIC");
     }
 }
 

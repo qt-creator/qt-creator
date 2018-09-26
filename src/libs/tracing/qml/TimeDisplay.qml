@@ -67,7 +67,8 @@ Item {
 
         Repeater {
             id: repeater
-            model: Math.floor(timeDisplay.width / timeDisplay.initialBlockLength * 2 + 2)
+            model: Math.max(0, Math.floor(timeDisplay.width / timeDisplay.initialBlockLength * 2
+                                          + 2))
 
             Item {
                 id: column

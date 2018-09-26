@@ -102,14 +102,6 @@ static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QV
         const PropertyName propertyName = propertyIterator.key();
         if (propertyName == "width" || propertyName == "height") {
             node.setAuxiliaryData(propertyIterator.key(), propertyIterator.value());
-        } else if (node.property(propertyIterator.key()).isDynamic() &&
-                   node.property(propertyIterator.key()).dynamicTypeName() == "alias" &&
-                   node.property(propertyIterator.key()).isBindingProperty()) {
-            AbstractProperty targetProperty = node.bindingProperty(propertyIterator.key()).resolveToProperty();
-            if (targetProperty.isValid())
-                targetProperty.parentModelNode().setAuxiliaryData(targetProperty.name() + "@NodeInstance", propertyIterator.value());
-        } else {
-            node.setAuxiliaryData(propertyIterator.key() + "@NodeInstance", propertyIterator.value());
         }
     }
 }

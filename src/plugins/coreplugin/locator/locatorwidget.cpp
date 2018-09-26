@@ -886,10 +886,12 @@ void LocatorWidget::acceptEntry(int row)
     QString newText;
     int selectionStart = -1;
     int selectionLength = 0;
+    QWidget *focusBeforeAccept = QApplication::focusWidget();
     entry.filter->accept(entry, &newText, &selectionStart, &selectionLength);
     if (newText.isEmpty()) {
         emit hidePopup();
-        resetFocus(m_previousFocusWidget, isInMainWindow());
+        if (QApplication::focusWidget() == focusBeforeAccept)
+            resetFocus(m_previousFocusWidget, isInMainWindow());
     } else {
         showText(newText, selectionStart, selectionLength);
     }
