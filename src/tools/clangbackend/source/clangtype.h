@@ -77,7 +77,7 @@ private:
     Type(CXType cxType);
 
 private:
-    CXType cxType;
+    CXType m_cxType;
 };
 
 bool operator==(Type first, Type second);

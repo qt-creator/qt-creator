@@ -127,7 +127,7 @@ public:
     CXCursor cx() const;
 
 private:
-    CXCursor cxCursor;
+    CXCursor m_cxCursor;
 };
 
 template <class VisitorCallback>
@@ -139,7 +139,7 @@ void Cursor::visit(VisitorCallback visitorCallback) const
         return visitorCallback(cursor, parent);
     };
 
-    clang_visitChildren(cxCursor, visitor, &visitorCallback);
+    clang_visitChildren(m_cxCursor, visitor, &visitorCallback);
 }
 
 bool operator==(const Cursor &first, const Cursor &second);
