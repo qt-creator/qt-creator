@@ -56,32 +56,26 @@ public:
                            SkipBuiltIn skipBuiltInHeaderPathsAndDefines = SkipBuiltIn::No,
                            QString clangVersion = QString(),
                            QString clangResourceDirectory = QString());
-    virtual ~CompilerOptionsBuilder() {}
-
-    virtual void addTargetTriple();
-    virtual void addExtraCodeModelFlags();
-    virtual void enableExceptions();
-    virtual void insertWrappedQtHeaders();
-    virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
-    virtual void updateLanguageOption(ProjectFile::Kind fileKind);
-
-    virtual void addExtraOptions() {}
 
     QStringList build(ProjectFile::Kind fileKind,
                       PchUsage pchUsage);
     QStringList options() const;
 
-    // Add custom options
-    void add(const QString &option);
-    void addDefine(const ProjectExplorer::Macro &marco);
-
+    virtual void addExtraOptions() {}
     // Add options based on project part
+    virtual void addToolchainAndProjectMacros();
     void addWordWidth();
     void addToolchainFlags();
     void addHeaderPathOptions();
     void addPrecompiledHeaderOptions(PchUsage pchUsage);
-    virtual void addToolchainAndProjectMacros();
     void addMacros(const ProjectExplorer::Macros &macros);
+
+    void addTargetTriple();
+    void addExtraCodeModelFlags();
+    void enableExceptions();
+    void insertWrappedQtHeaders();
+    void addOptionsForLanguage(bool checkForBorlandExtensions = true);
+    void updateLanguageOption(ProjectFile::Kind fileKind);
 
     void addMsvcCompatibilityVersion();
     void undefineCppLanguageFeatureMacrosForMsvc2015();
@@ -97,8 +91,13 @@ protected:
     virtual QString defineOption() const;
     virtual QString undefineOption() const;
     virtual QString includeOption() const;
+
+    // Add custom options
+    void add(const QString &option);
+
     QString includeDirOptionForPath(const QString &path) const;
-    const ProjectPart m_projectPart;
+
+    const ProjectPart &m_projectPart;
 
 private:
     QByteArray macroOption(const ProjectExplorer::Macro &macro) const;

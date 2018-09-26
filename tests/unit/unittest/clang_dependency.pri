@@ -1,4 +1,6 @@
 include(../../../src/shared/clang/clang_installation.pri)
+include(../../../src/shared/clang/clang_defines.pri)
+
 !isEmpty(LLVM_VERSION) {
     requires(!isEmpty(LIBCLANG_LIBS))
     equals(LLVM_IS_COMPILED_WITH_RTTI, "NO") : message("LLVM needs to be compiled with RTTI!")
