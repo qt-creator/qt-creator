@@ -128,19 +128,32 @@ bool SaveFile::commit()
                               fileName().toStdWString().data(),
                               nullptr, REPLACEFILE_IGNORE_MERGE_ERRORS, nullptr, nullptr);
     if (!result) {
-        const DWORD replaceErrorCode = GetLastError();
+        DWORD replaceErrorCode = GetLastError();
         QString errorStr;
         if (!QFile::exists(finalFileName)) {
             // Replace failed because finalFileName does not exist, try rename.
             if (!(result = rename(finalFileName)))
                 errorStr = errorString();
         } else {
-            wchar_t messageBuffer[256];
-            FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                           nullptr, replaceErrorCode,
-                           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                           messageBuffer, sizeof(messageBuffer), nullptr);
-            errorStr = QString::fromWCharArray(messageBuffer);
+            if (replaceErrorCode == ERROR_UNABLE_TO_REMOVE_REPLACED) {
+                // If we do not get the rights to remove the original final file we still might try
+                // to replace the file contents
+                result = MoveFileEx(fileName().toStdWString().data(),
+                                    finalFileName.toStdWString().data(),
+                                    MOVEFILE_COPY_ALLOWED
+                                    | MOVEFILE_REPLACE_EXISTING
+                                    | MOVEFILE_WRITE_THROUGH);
+                if (!result)
+                    replaceErrorCode = GetLastError();
+            }
+            if (!result) {
+                wchar_t messageBuffer[256];
+                FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                               nullptr, replaceErrorCode,
+                               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                               messageBuffer, sizeof(messageBuffer), nullptr);
+                errorStr = QString::fromWCharArray(messageBuffer);
+            }
         }
         if (!result) {
             remove();
