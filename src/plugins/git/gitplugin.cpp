@@ -1319,6 +1319,11 @@ void GitPlugin::manageRemotes()
     showNonModalDialog(currentState().topLevel(), m_remoteDialog);
 }
 
+void GitPlugin::initRepository()
+{
+    createRepository();
+}
+
 void GitPlugin::stashList()
 {
     showNonModalDialog(currentState().topLevel(), m_stashDialog);

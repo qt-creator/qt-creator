@@ -67,7 +67,6 @@ BranchView::BranchView() :
     m_model(new BranchModel(GitPlugin::client(), this))
 {
     m_addButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    m_addButton->setToolTip(tr("Add Branch"));
     m_addButton->setProperty("noArrow", true);
     connect(m_addButton, &QToolButton::clicked, this, &BranchView::add);
 
@@ -126,10 +125,12 @@ void BranchView::refresh(const QString &repository, bool force)
     m_repository = repository;
     if (m_repository.isEmpty()) {
         m_repositoryLabel->setText(tr("<No repository>"));
+        m_addButton->setToolTip(tr("Create Git Repository..."));
         m_branchView->setEnabled(false);
     } else {
         m_repositoryLabel->setText(QDir::toNativeSeparators(m_repository));
         m_repositoryLabel->setToolTip(GitPlugin::msgRepositoryLabel(m_repository));
+        m_addButton->setToolTip(tr("Add Branch..."));
         m_branchView->setEnabled(true);
     }
     QString errorMessage;
@@ -252,6 +253,11 @@ QModelIndex BranchView::selectedIndex()
 
 bool BranchView::add()
 {
+    if (m_repository.isEmpty()) {
+        GitPlugin::instance()->initRepository();
+        return true;
+    }
+
     QModelIndex trackedIndex = selectedIndex();
     QString trackedBranch = m_model->fullName(trackedIndex);
     if (trackedBranch.isEmpty()) {

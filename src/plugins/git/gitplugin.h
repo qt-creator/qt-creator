@@ -93,6 +93,7 @@ public:
     QObject *remoteCommand(const QStringList &options, const QString &workingDirectory,
                            const QStringList &args) override;
     void manageRemotes();
+    void initRepository();
 
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
