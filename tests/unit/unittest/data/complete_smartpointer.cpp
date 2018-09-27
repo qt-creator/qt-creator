@@ -27,7 +27,11 @@ template<class Type, class... Args>
 class unique_ptr {};
 
 template<class Type, class... Args>
-class shared_ptr {};
+class shared_ptr {
+public:
+    void reset();
+    Type *operator->();
+};
 
 template<class Type, class... Args>
 unique_ptr<Type> make_unique(Args&&... args);
@@ -55,4 +59,5 @@ void f2()
     std::unique_ptr<Bar> bar = std::make_unique<Bar>();
     std::shared_ptr<Bar> bar2 = std::make_shared<Bar>();
     QSharedPointer<Bar> bar3 = QSharedPointer<Bar>::create();
+    bar2->
 }

@@ -43,6 +43,7 @@ using ::testing::Not;
 using ::testing::PrintToString;
 
 using ClangBackEnd::CodeCompletion;
+using ClangBackEnd::CodeCompletionChunk;
 using ClangBackEnd::CodeCompleter;
 
 namespace {
@@ -59,6 +60,29 @@ MATCHER_P2(IsCodeCompletion, text, completionKind,
 
     if (arg.completionKind != completionKind) {
         *result_listener << "kind is " + PrintToString(arg.completionKind) + " and not " +  PrintToString(completionKind);
+        return false;
+    }
+
+    return true;
+}
+
+MATCHER_P(IsOverloadCompletion, text,
+          std::string(negation ? "isn't" : "is") + " overload completion with text " + PrintToString(text))
+{
+    Utf8String overloadName;
+    for (auto &chunk : arg.chunks) {
+        if (chunk.kind == CodeCompletionChunk::Text) {
+            overloadName = chunk.text;
+            break;
+        }
+    }
+    if (overloadName != text) {
+        *result_listener << "text is " + PrintToString(overloadName) + " and not " +  PrintToString(text);
+        return false;
+    }
+
+    if (arg.completionKind != CodeCompletion::FunctionOverloadCompletionKind) {
+        *result_listener << "kind is " + PrintToString(arg.completionKind) + " and not " +  PrintToString(CodeCompletion::FunctionOverloadCompletionKind);
         return false;
     }
 
@@ -195,6 +219,12 @@ protected:
         readFileContent("/complete_smartpointer.cpp"),
         true
     };
+    ClangBackEnd::FileContainer completionsOrder{
+        Utf8StringLiteral(TESTDATA_DIR"/completions_order.cpp"),
+        {includePathArgument},
+        readFileContent("/completions_order.cpp"),
+        true
+    };
 };
 
 using CodeCompleterSlowTest = CodeCompleter;
@@ -306,27 +336,24 @@ TEST_F(CodeCompleterSlowTest, UniquePointerCompletion)
 {
     auto myCompleter = setupCompleter(smartPointerCompletion);
 
-    ASSERT_THAT(myCompleter.complete(55, 54, 55, 32),
-                Contains(IsCodeCompletion(Utf8StringLiteral("Bar"),
-                                          CodeCompletion::ConstructorCompletionKind)));
+    ASSERT_THAT(myCompleter.complete(59, 54, 59, 32),
+                Contains(IsOverloadCompletion(Utf8StringLiteral("Bar"))));
 }
 
 TEST_F(CodeCompleterSlowTest, SharedPointerCompletion)
 {
     auto myCompleter = setupCompleter(smartPointerCompletion);
 
-    ASSERT_THAT(myCompleter.complete(56, 55, 56, 33),
-                Contains(IsCodeCompletion(Utf8StringLiteral("Bar"),
-                                          CodeCompletion::ConstructorCompletionKind)));
+    ASSERT_THAT(myCompleter.complete(60, 55, 60, 33),
+                Contains(IsOverloadCompletion(Utf8StringLiteral("Bar"))));
 }
 
 TEST_F(CodeCompleterSlowTest, QSharedPointerCompletion)
 {
     auto myCompleter = setupCompleter(smartPointerCompletion);
 
-    ASSERT_THAT(myCompleter.complete(57, 60, 57, 32),
-                Contains(IsCodeCompletion(Utf8StringLiteral("Bar"),
-                                          CodeCompletion::ConstructorCompletionKind)));
+    ASSERT_THAT(myCompleter.complete(61, 60, 61, 32),
+                Contains(IsOverloadCompletion(Utf8StringLiteral("Bar"))));
 }
 
 TEST_F(CodeCompleterSlowTest, FunctionInUnsavedIncludedHeader)
@@ -497,6 +524,60 @@ TEST_F(CodeCompleterSlowTest, GlobalCompletionAfterForwardDeclaredClassPointer)
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(6, 4);
 
     ASSERT_TRUE(!completions.isEmpty());
+}
+
+TEST_F(CodeCompleterSlowTest, ConstructorCompletionExists)
+{
+    auto myCompleter = setupCompleter(completionsOrder);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(8, 1);
+
+    int constructorIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "Constructor" && codeCompletion.completionKind == CodeCompletion::ConstructorCompletionKind;
+    });
+
+    ASSERT_THAT(constructorIndex != -1, true);
+}
+
+TEST_F(CodeCompleterSlowTest, ClassConstructorCompletionsOrder)
+{
+    auto myCompleter = setupCompleter(completionsOrder);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(8, 1);
+
+    int classIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "Constructor" && codeCompletion.completionKind == CodeCompletion::ClassCompletionKind;
+    });
+    int constructorIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "Constructor" && codeCompletion.completionKind == CodeCompletion::ConstructorCompletionKind;
+    });
+
+    ASSERT_THAT(classIndex < constructorIndex, true);
+}
+
+TEST_F(CodeCompleterSlowTest, SharedPointerCompletionsOrder)
+{
+    auto myCompleter = setupCompleter(smartPointerCompletion);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(62, 11);
+
+    int resetIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "reset";
+    });
+    int barDestructorIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "~Bar";
+    });
+
+    ASSERT_THAT(barDestructorIndex < resetIndex, true);
+}
+
+TEST_F(CodeCompleterSlowTest, ConstructorHasOverloadCompletions)
+{
+    auto myCompleter = setupCompleter(completionsOrder);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(8, 1);
+
+    int constructorsCount = Utils::count(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "Constructor" && codeCompletion.completionKind == CodeCompletion::ConstructorCompletionKind;
+    });
+
+    ASSERT_THAT(constructorsCount, 2);
 }
 
 ClangBackEnd::CodeCompleter CodeCompleter::setupCompleter(

@@ -50,7 +50,7 @@ public:
     bool next();
     bool peek(const Utf8String &name);
 
-    CodeCompletions extractAll();
+    CodeCompletions extractAll(bool onlyFunctionOverloads);
 
     const CodeCompletion &currentCodeCompletion() const;
 
@@ -72,6 +72,8 @@ private:
     void decreasePriorityForSignals();
     void decreasePriorityForQObjectInternals();
     void decreasePriorityForOperators();
+
+    void handleCompletions(CodeCompletions &codeCompletions, bool onlyFunctionOverloads);
 
     bool hasText(const Utf8String &text, CXCompletionString cxCompletionString) const;
 

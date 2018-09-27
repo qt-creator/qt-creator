@@ -203,6 +203,8 @@ public:
     virtual bool check(bool enable = true);
 };
 
+bool Derived2::
+
 // performance-unnecessary-value-param
 void use(Base b)
 {

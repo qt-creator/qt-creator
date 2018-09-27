@@ -27,8 +27,12 @@
 
 #include "clangbackend_global.h"
 #include "clangstring.h"
+#include "clangtranslationunit.h"
 #include "codecompletionchunkconverter.h"
+#include "sourcelocation.h"
 #include "sourcerange.h"
+
+#include <utils/algorithm.h>
 
 #include <QDebug>
 
@@ -85,7 +89,7 @@ bool CodeCompletionsExtractor::peek(const Utf8String &name)
     return false;
 }
 
-CodeCompletions CodeCompletionsExtractor::extractAll()
+CodeCompletions CodeCompletionsExtractor::extractAll(bool onlyFunctionOverloads)
 {
     CodeCompletions codeCompletions;
     codeCompletions.reserve(int(cxCodeCompleteResults->NumResults));
@@ -93,7 +97,73 @@ CodeCompletions CodeCompletionsExtractor::extractAll()
     while (next())
         codeCompletions.append(currentCodeCompletion_);
 
+    handleCompletions(codeCompletions, onlyFunctionOverloads);
+
     return codeCompletions;
+}
+
+static CodeCompletions filterFunctionOverloads(const CodeCompletions &completions)
+{
+    return ::Utils::filtered(completions, [](const CodeCompletion &completion) {
+        return completion.completionKind == CodeCompletion::FunctionOverloadCompletionKind;
+    });
+}
+
+static ::Utils::optional<bool> classBeforeCXXConstructor(const CodeCompletion &first,
+                                                         const CodeCompletion &second)
+{
+    // Put ClassCompletionKind elements before ConstructorCompletionKind elements
+    // when they have the same name.
+    if (first.completionKind == CodeCompletion::ClassCompletionKind
+            && second.completionKind == CodeCompletion::ConstructorCompletionKind
+            && first.text == second.text) {
+        return true;
+    }
+
+    if (first.completionKind == CodeCompletion::ConstructorCompletionKind
+            && second.completionKind == CodeCompletion::ClassCompletionKind
+            && first.text == second.text) {
+        return false;
+    }
+
+    return ::Utils::optional<bool>();
+}
+
+static void sortCodeCompletions(CodeCompletions &codeCompletions)
+{
+    auto currentItemsCompare = [](const CodeCompletion &first,
+                                  const CodeCompletion &second) {
+        // Items without fix-its come first.
+        if (first.requiredFixIts.empty() != second.requiredFixIts.empty())
+            return first.requiredFixIts.empty() > second.requiredFixIts.empty();
+
+        const ::Utils::optional<bool> classBeforeConstructorWithTheSameName
+                = classBeforeCXXConstructor(first, second);
+        if (classBeforeConstructorWithTheSameName)
+            return classBeforeConstructorWithTheSameName.value();
+
+        return (first.priority > 0
+                && (first.priority < second.priority
+                    || (first.priority == second.priority && first.text < second.text)));
+    };
+
+    // Keep the order for the items with the same priority and name.
+    std::stable_sort(codeCompletions.begin(), codeCompletions.end(), currentItemsCompare);
+}
+
+void CodeCompletionsExtractor::handleCompletions(CodeCompletions &codeCompletions,
+                                                 bool onlyFunctionOverloads)
+{
+    if (onlyFunctionOverloads) {
+        const CodeCompletions overloadCompletions = filterFunctionOverloads(codeCompletions);
+
+        // If filtered completions are empty the assumption we need function overloads is wrong
+        // therefore we do not use filtered results in that case.
+        if (!overloadCompletions.isEmpty())
+            codeCompletions = overloadCompletions;
+    }
+
+    sortCodeCompletions(codeCompletions);
 }
 
 void CodeCompletionsExtractor::extractCompletionKind()

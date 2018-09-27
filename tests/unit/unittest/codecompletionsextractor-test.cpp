@@ -794,6 +794,18 @@ TEST_F(CodeCompletionsExtractorSlowTest, OverloadCandidate)
                                                })));
 }
 
+TEST_F(CodeCompletionsExtractorSlowTest, ExtractAll)
+{
+    ClangCodeCompleteResults completeResults(getResults(constructorDocument, 25));
+    ::CodeCompletionsExtractor extractor(
+                constructorDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
+
+    auto codeCompletions = extractor.extractAll(false);
+
+    ASSERT_THAT(codeCompletions.empty(), false);
+}
+
 ClangCodeCompleteResults CodeCompletionsExtractor::getResults(const Document &document,
                                                               uint line,
                                                               uint column,
