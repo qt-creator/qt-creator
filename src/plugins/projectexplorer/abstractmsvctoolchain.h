@@ -53,7 +53,7 @@ public:
 
     QString originalTargetTriple() const override;
 
-    PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
+    MacroInspectionRunner createMacroInspectionRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
@@ -99,8 +99,11 @@ protected:
 
 
     Utils::FileName m_debuggerCommand;
+
     mutable QMutex *m_predefinedMacrosMutex = nullptr;
     mutable Macros m_predefinedMacros;
+    mutable QStringList m_cxxFlags;
+
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
     mutable QMutex *m_headerPathsMutex = nullptr;

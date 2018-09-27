@@ -77,9 +77,9 @@ bool NimToolChain::isValid() const
     return fi.isExecutable();
 }
 
-ToolChain::PredefinedMacrosRunner NimToolChain::createPredefinedMacrosRunner() const
+ToolChain::MacroInspectionRunner NimToolChain::createMacroInspectionRunner() const
 {
-    return ToolChain::PredefinedMacrosRunner();
+    return ToolChain::MacroInspectionRunner();
 }
 
 Macros NimToolChain::predefinedMacros(const QStringList &) const

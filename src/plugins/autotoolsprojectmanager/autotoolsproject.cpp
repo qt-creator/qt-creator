@@ -276,10 +276,8 @@ void AutotoolsProject::updateCppCodeModel()
 
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
     if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
-        if (qtVersion->qtVersion() <= QtSupport::QtVersionNumber(4,8,6))
-            activeQtVersion = CppTools::ProjectPart::Qt4_8_6AndOlder;
-        else if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            activeQtVersion = CppTools::ProjectPart::Qt4Latest;
+        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
+            activeQtVersion = CppTools::ProjectPart::Qt4;
         else
             activeQtVersion = CppTools::ProjectPart::Qt5;
     }

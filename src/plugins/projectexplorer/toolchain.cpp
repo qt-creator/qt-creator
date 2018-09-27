@@ -286,6 +286,79 @@ bool ToolChain::fromMap(const QVariantMap &data)
     return true;
 }
 
+static long toLanguageVersionAsLong(QByteArray dateAsByteArray)
+{
+    dateAsByteArray.chop(1); // Strip 'L'.
+    return dateAsByteArray.toLong(nullptr);
+}
+
+ToolChain::LanguageVersion ToolChain::cxxLanguageVersion(const QByteArray &cplusplusMacroValue)
+{
+    const long version = toLanguageVersionAsLong(cplusplusMacroValue);
+
+    if (version > 201703L)
+        return LanguageVersion::LatestCxxVersion;
+
+    switch (version) {
+    case 201703L: return LanguageVersion::CXX17;
+    case 201403L: Q_FALLTHROUGH();
+    case 201402L: return LanguageVersion::CXX14;
+    case 201103L: return LanguageVersion::CXX11;
+    case 199711L: return LanguageVersion::CXX03;
+    default:
+        QTC_CHECK(false && "Unexpected __cplusplus value, assuming latest C++ we support.");
+        return LanguageVersion::LatestCxxVersion;
+    }
+}
+
+ToolChain::LanguageVersion ToolChain::languageVersion(const Core::Id &language, const Macros &macros)
+{
+    if (language == Constants::CXX_LANGUAGE_ID) {
+        for (const ProjectExplorer::Macro &macro : macros) {
+            if (macro.key == "__cplusplus") // Check for the C++ identifying macro
+                return cxxLanguageVersion(macro.value);
+        }
+
+        QTC_CHECK(false && "__cplusplus is not predefined, assuming latest C++ we support.");
+        return LanguageVersion::LatestCxxVersion;
+    } else if (language == Constants::C_LANGUAGE_ID) {
+        for (const ProjectExplorer::Macro &macro : macros) {
+            if (macro.key == "__STDC_VERSION__") {
+                const long version = toLanguageVersionAsLong(macro.value);
+
+                if (version > 201710L)
+                    return LanguageVersion::LatestCVersion;
+
+                switch (version) {
+                case 201710L: return LanguageVersion::C18;
+                case 201112L: return LanguageVersion::C11;
+                case 199901L: return LanguageVersion::C99;
+                case 199409L: return LanguageVersion::C89; // C89 as amended in 1994
+                default:
+                    QTC_CHECK(false && "Unexpected __STDC_VERSION__ value, "
+                                       "assuming latest C version we support.");
+                    return LanguageVersion::LatestCVersion;
+                }
+            }
+        }
+
+        // The __STDC_VERSION__ macro was introduced after C89.
+        // We haven't seen it, so it must be C89.
+        return LanguageVersion::C89;
+    } else {
+        QTC_CHECK(false && "Unexpected toolchain language, assuming latest C++ we support.");
+        return LanguageVersion::LatestCxxVersion;
+    }
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(const QVector<QByteArray>, unwantedMacros,
+                          ({"__cplusplus", "__STDC_VERSION__"}))
+
+bool ToolChain::isUnwantedMacro(const Macro &macro)
+{
+    return unwantedMacros->contains(macro.key);
+}
+
 /*!
     Used by the tool chain kit information to validate the kit.
 */

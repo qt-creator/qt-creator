@@ -109,26 +109,44 @@ public:
 
     enum CompilerFlag {
         NoFlags = 0,
-        StandardCxx11 = 0x1,
-        StandardC99 = 0x2,
-        StandardC11 = 0x4,
         GnuExtensions = 0x8,
         MicrosoftExtensions = 0x10,
         BorlandExtensions = 0x20,
         OpenMP = 0x40,
         ObjectiveC = 0x80,
-        StandardCxx14 = 0x100,
-        StandardCxx17 = 0x200,
-        StandardCxx98 = 0x400,
     };
+
+    // Keep in sync with ProjectPart::LanguageVersion!
+    enum LanguageVersion {
+        C89,
+        C99,
+        C11,
+        C18,
+        LatestCVersion = C18,
+        CXX98,
+        CXX03,
+        CXX11,
+        CXX14,
+        CXX17,
+        CXX2a,
+        LatestCxxVersion = CXX2a,
+    };
+
     Q_DECLARE_FLAGS(CompilerFlags, CompilerFlag)
 
     virtual CompilerFlags compilerFlags(const QStringList &cxxflags) const = 0;
     virtual WarningFlags warningFlags(const QStringList &cflags) const = 0;
 
-    // A PredefinedMacrosRunner is created in the ui thread and runs in another thread.
-    using PredefinedMacrosRunner = std::function<Macros(const QStringList &cxxflags)>;
-    virtual PredefinedMacrosRunner createPredefinedMacrosRunner() const = 0;
+    class MacroInspectionReport
+    {
+    public:
+        Macros macros;
+        LanguageVersion languageVersion;
+    };
+
+    // A MacroInspectionRunner is created in the ui thread and runs in another thread.
+    using MacroInspectionRunner = std::function<MacroInspectionReport(const QStringList &cxxflags)>;
+    virtual MacroInspectionRunner createMacroInspectionRunner() const = 0;
     virtual Macros predefinedMacros(const QStringList &cxxflags) const = 0;
 
     // A BuiltInHeaderPathsRunner is created in the ui thread and runs in another thread.
@@ -157,6 +175,9 @@ public:
     virtual QList<Task> validateKit(const Kit *k) const;
 
     void setLanguage(Core::Id language);
+    static LanguageVersion cxxLanguageVersion(const QByteArray &cplusplusMacroValue);
+    static LanguageVersion languageVersion(const Core::Id &language, const Macros &macros);
+    static bool isUnwantedMacro(const Macro &macro);
 
 protected:
     explicit ToolChain(Core::Id typeId, Detection d);

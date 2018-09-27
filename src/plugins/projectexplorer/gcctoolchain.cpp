@@ -254,7 +254,7 @@ GccToolChain::GccToolChain(Detection d) :
 
 GccToolChain::GccToolChain(Core::Id typeId, Detection d) :
     ToolChain(typeId, d),
-    m_predefinedMacrosCache(std::make_shared<Cache<QVector<Macro>, 64>>()),
+    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
     m_headerPathsCache(std::make_shared<Cache<HeaderPaths>>())
 { }
 
@@ -385,9 +385,7 @@ static Utils::FileName findLocalCompiler(const Utils::FileName &compilerPath,
     return path.isEmpty() ? compilerPath : path;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(const QVector<QByteArray>, unwantedMacros, ({"__cplusplus"}))
-
-ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() const
+ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() const
 {
     // Using a clean environment breaks ccache/distcc/etc.
     Environment env = Environment::systemEnvironment();
@@ -396,7 +394,7 @@ ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() c
     const QStringList platformCodeGenFlags = m_platformCodeGenFlags;
     OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
     QTC_CHECK(reinterpretOptions);
-    std::shared_ptr<Cache<QVector<Macro>, 64>> macroCache = m_predefinedMacrosCache;
+    std::shared_ptr<Cache<MacroInspectionReport, 64>> macroCache = m_predefinedMacrosCache;
     Core::Id lang = language();
 
     // This runner must be thread-safe!
@@ -436,20 +434,22 @@ ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() c
         }
 
         arguments = reinterpretOptions(arguments);
-        const Utils::optional<QVector<Macro>> cachedMacros = macroCache->check(arguments);
+        const Utils::optional<MacroInspectionReport> cachedMacros = macroCache->check(arguments);
         if (cachedMacros)
             return cachedMacros.value();
 
-        const QVector<Macro> macros
-                = gccPredefinedMacros(findLocalCompiler(compilerCommand, env),
-                                      arguments,
-                                      env.toStringList());
+        const Macros macros = gccPredefinedMacros(findLocalCompiler(compilerCommand, env),
+                                                  arguments,
+                                                  env.toStringList());
         const QVector<Macro> filteredMacros = Utils::filtered(macros, [](const Macro &m) {
-            return !unwantedMacros->contains(m.key);
+            return !isUnwantedMacro(m);
         });
-        macroCache->insert(arguments, filteredMacros);
 
-        qCDebug(gccLog) << "Reporting macros to code model:";
+        const auto report = MacroInspectionReport{filteredMacros, languageVersion(lang, macros)};
+        macroCache->insert(arguments, report);
+
+        qCDebug(gccLog) << "MacroInspectionReport for code model:";
+        qCDebug(gccLog) << "Language version:" << report.languageVersion;
         for (const Macro &m : filteredMacros) {
             qCDebug(gccLog) << compilerCommand.toUserOutput()
                             << (lang == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
@@ -457,7 +457,7 @@ ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() c
                             << QString::fromUtf8(m.toByteArray());
         }
 
-        return filteredMacros;
+        return report;
     };
 }
 
@@ -472,7 +472,7 @@ ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() c
  */
 ProjectExplorer::Macros GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
-    return createPredefinedMacrosRunner()(cxxflags);
+    return createMacroInspectionRunner()(cxxflags).macros;
 }
 
 /**
@@ -487,55 +487,14 @@ ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags
     foreach (const QString &flag, allCxxflags) {
         if (flag.startsWith("-std=")) {
             const QByteArray std = flag.mid(5).toLatin1();
-            if (std == "c++98" || std == "c++03") {
-                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14 | StandardCxx17 | GnuExtensions);
-                flags |= StandardCxx98;
-            } else if (std == "gnu++98" || std == "gnu++03") {
-                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14 | StandardCxx17);
-                flags |= GnuExtensions;
-            } else if (std == "c++0x" || std == "c++11") {
-                flags |= StandardCxx11;
-                flags &= ~CompilerFlags(StandardCxx14 | StandardCxx17 | GnuExtensions);
-            } else if (std == "c++14" || std == "c++1y") {
-                flags |= StandardCxx14;
-                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx17 | GnuExtensions);
-            } else if (std == "c++17" || std == "c++1z") {
-                flags |= StandardCxx17;
-                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14 | GnuExtensions);
-            } else if (std == "gnu++0x" || std == "gnu++11") {
-                flags |= CompilerFlags(StandardCxx11 | GnuExtensions);
-                flags &= ~CompilerFlags(StandardCxx14 | StandardCxx17);
-            } else if (std== "gnu++14" || std == "gnu++1y") {
-                flags |= CompilerFlags(StandardCxx14 | GnuExtensions);
-                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx17);
-            } else if (std== "gnu++17" || std == "gnu++1z") {
-                flags |= CompilerFlags(StandardCxx17 | GnuExtensions);
-                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14);
-            } else if (std == "c89" || std == "c90"
-                       || std == "iso9899:1990" || std == "iso9899:199409") {
-                flags &= ~CompilerFlags(StandardC99 | StandardC11);
-            } else if (std == "gnu89" || std == "gnu90") {
-                flags &= ~CompilerFlags(StandardC99 | StandardC11);
-                flags |= GnuExtensions;
-            } else if (std == "c99" || std == "c9x"
-                       || std == "iso9899:1999" || std == "iso9899:199x") {
-                flags |= StandardC99;
-                flags &= ~StandardC11;
-            } else if (std == "gnu99" || std == "gnu9x") {
-                flags |= CompilerFlags(StandardC99 | GnuExtensions);
-                flags &= ~StandardC11;
-            } else if (std == "c11" || std == "c1x" || std == "iso9899:2011") {
-                flags |= CompilerFlags(StandardC99 | StandardC11);
-            } else if (std == "gnu11" || std == "gnu1x") {
-                flags |= CompilerFlags(StandardC99 | StandardC11 | GnuExtensions);
-            }
+            if (std.startsWith("gnu"))
+                flags |= CompilerFlags(GnuExtensions);
+            else
+                flags &= ~CompilerFlags(GnuExtensions);
         } else if (flag == "-fopenmp") {
             flags |= OpenMP;
         } else if (flag == "-fms-extensions") {
             flags |= MicrosoftExtensions;
-        } else if (flag == "-ansi") {
-            flags &= ~CompilerFlags(StandardCxx11 | GnuExtensions
-                                    | StandardC99 | StandardC11);
         }
     }
 
@@ -1069,7 +1028,10 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const FileName &comp
             return result;
 
         tc->setLanguage(language);
-        tc->m_predefinedMacrosCache->insert(QStringList(), macros);
+        tc->m_predefinedMacrosCache
+            ->insert(QStringList(),
+                     ToolChain::MacroInspectionReport{macros,
+                                                      ToolChain::languageVersion(language, macros)});
         tc->setCompilerCommand(compilerPath);
         tc->setSupportedAbis(detectedAbis.supportedAbis);
         tc->setTargetAbi(abi);
@@ -1134,7 +1096,11 @@ void GccToolChainConfigWidget::applyImpl()
     tc->setDisplayName(displayName); // reset display name
     tc->setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setPlatformLinkerFlags(splitString(m_platformLinkerFlagsLineEdit->text()));
-    tc->m_predefinedMacrosCache->insert(tc->platformCodeGenFlags(), m_macros);
+    tc->m_predefinedMacrosCache
+        ->insert(tc->platformCodeGenFlags(),
+                 ToolChain::MacroInspectionReport{m_macros,
+                                                  ToolChain::languageVersion(tc->language(),
+                                                                             m_macros)});
 }
 
 void GccToolChainConfigWidget::setFromToolchain()
@@ -1319,7 +1285,7 @@ void ClangToolChain::addToEnvironment(Environment &env) const
 
 ToolChain::CompilerFlags ClangToolChain::defaultCompilerFlags() const
 {
-    return CompilerFlags(GnuExtensions | StandardCxx11);
+    return CompilerFlags(GnuExtensions);
 }
 
 IOutputParser *ClangToolChain::outputParser() const

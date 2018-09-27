@@ -334,6 +334,7 @@ static QByteArray msvcCompilationFile()
         "__CLR_VER",
         "_CMMN_INTRIN_FUNC",
         "_CONTROL_FLOW_GUARD",
+        "__cplusplus",
         "__cplusplus_cli",
         "__cplusplus_winrt",
         "_CPPLIB_VER",

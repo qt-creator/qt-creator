@@ -143,7 +143,7 @@ public:
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
 
-    PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
+    MacroInspectionRunner createMacroInspectionRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
@@ -253,7 +253,7 @@ private:
     mutable HeaderPaths m_headerPaths;
     mutable QString m_version;
 
-    mutable std::shared_ptr<Cache<QVector<Macro>, 64>> m_predefinedMacrosCache;
+    mutable std::shared_ptr<Cache<MacroInspectionReport, 64>> m_predefinedMacrosCache;
     mutable std::shared_ptr<Cache<HeaderPaths>> m_headerPathsCache;
     mutable ExtraHeaderPathsFunction m_extraHeaderPathsFunction = [](HeaderPaths &) {};
 

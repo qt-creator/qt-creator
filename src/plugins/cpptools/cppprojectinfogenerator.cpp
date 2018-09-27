@@ -30,6 +30,8 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/qtcassert.h>
+
 namespace CppTools {
 namespace Internal {
 
@@ -39,9 +41,11 @@ class ToolChainEvaluator
 {
 public:
     ToolChainEvaluator(ProjectPart &projectPart,
+                       Language language,
                        const RawProjectPartFlags &flags,
                        const ToolChainInfo &tcInfo)
         : m_projectPart(projectPart)
+        , m_language(language)
         , m_flags(flags)
         , m_tcInfo(tcInfo)
     {
@@ -61,11 +65,20 @@ public:
         if (m_projectPart.toolchainType == ProjectExplorer::Constants::COMPILATION_DATABASE_TOOLCHAIN_TYPEID)
             m_projectPart.extraCodeModelFlags = m_flags.commandLineFlags;
 
-        mapLanguageVersion();
-        mapLanguageExtensions();
+        if (m_tcInfo.macroInspectionRunner) {
+            auto macroInspectionReport = m_tcInfo.macroInspectionRunner(m_flags.commandLineFlags);
+            m_projectPart.toolChainMacros = macroInspectionReport.macros;
+            m_projectPart.languageVersion = static_cast<ProjectPart::LanguageVersion>(
+                macroInspectionReport.languageVersion);
+        } else { // No compiler set in kit.
+            if (m_language == Language::C)
+                m_projectPart.languageVersion = ProjectPart::LanguageVersion::LatestCVersion;
+            if (m_language == Language::CXX)
+                m_projectPart.languageVersion = ProjectPart::LanguageVersion::LatestCxxVersion;
+        }
 
+        mapLanguageExtensions();
         addHeaderPaths();
-        addDefines();
     }
 
 private:
@@ -74,27 +87,6 @@ private:
         return wordWidth == 64
                 ? ProjectPart::WordWidth64Bit
                 : ProjectPart::WordWidth32Bit;
-    }
-
-    void mapLanguageVersion()
-    {
-        using namespace ProjectExplorer;
-
-        const ToolChain::CompilerFlags &compilerFlags = m_flags.compilerFlags;
-        ProjectPart::LanguageVersion &languageVersion = m_projectPart.languageVersion;
-
-        if (compilerFlags & ToolChain::StandardC11)
-            languageVersion = ProjectPart::C11;
-        else if (compilerFlags & ToolChain::StandardC99)
-            languageVersion = ProjectPart::C99;
-        else if (compilerFlags & ToolChain::StandardCxx17)
-            languageVersion = ProjectPart::CXX17;
-        else if (compilerFlags & ToolChain::StandardCxx14)
-            languageVersion = ProjectPart::CXX14;
-        else if (compilerFlags & ToolChain::StandardCxx11)
-            languageVersion = ProjectPart::CXX11;
-        else if (compilerFlags & ToolChain::StandardCxx98)
-            languageVersion = ProjectPart::CXX98;
     }
 
     void mapLanguageExtensions()
@@ -133,16 +125,9 @@ private:
         }
     }
 
-    void addDefines()
-    {
-        if (!m_tcInfo.predefinedMacrosRunner)
-            return; // No compiler set in kit.
-
-        m_projectPart.toolChainMacros = m_tcInfo.predefinedMacrosRunner(m_flags.commandLineFlags);
-    }
-
 private:
     ProjectPart &m_projectPart;
+    const Language m_language;
     const RawProjectPartFlags &m_flags;
     const ToolChainInfo &m_tcInfo;
 };
@@ -205,15 +190,12 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
         const ProjectPart::Ptr part = projectPartFromRawProjectPart(rawProjectPart,
                                                                     m_projectUpdateInfo.project);
 
-        ProjectPart::LanguageVersion defaultVersion = ProjectPart::LatestCxxVersion;
-        if (rawProjectPart.qtVersion == ProjectPart::Qt4_8_6AndOlder)
-            defaultVersion = ProjectPart::CXX11;
         if (cat.hasCxxSources()) {
             result << createProjectPart(rawProjectPart,
                                         part,
                                         cat.cxxSources(),
                                         cat.partName("C++"),
-                                        defaultVersion,
+                                        Language::CXX,
                                         ProjectPart::NoExtensions);
         }
 
@@ -222,7 +204,7 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         part,
                                         cat.objcxxSources(),
                                         cat.partName("Obj-C++"),
-                                        defaultVersion,
+                                        Language::CXX,
                                         ProjectPart::ObjectiveCExtensions);
         }
 
@@ -231,7 +213,7 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         part,
                                         cat.cSources(),
                                         cat.partName("C"),
-                                        ProjectPart::LatestCVersion,
+                                        Language::C,
                                         ProjectPart::NoExtensions);
         }
 
@@ -240,7 +222,7 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         part,
                                         cat.objcSources(),
                                         cat.partName("Obj-C"),
-                                        ProjectPart::LatestCVersion,
+                                        Language::C,
                                         ProjectPart::ObjectiveCExtensions);
         }
     }
@@ -251,17 +233,16 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(const RawProjectPart &r
                                                          const ProjectPart::Ptr &templateProjectPart,
                                                          const ProjectFiles &projectFiles,
                                                          const QString &partName,
-                                                         ProjectPart::LanguageVersion languageVersion,
+                                                         Language language,
                                                          ProjectPart::LanguageExtensions languageExtensions)
 {
     ProjectPart::Ptr part(templateProjectPart->copy());
     part->displayName = partName;
     part->files = projectFiles;
-    part->languageVersion = languageVersion;
 
     RawProjectPartFlags flags;
     ToolChainInfo tcInfo;
-    if (languageVersion <= ProjectPart::LatestCVersion) {
+    if (language == Language::C) {
         flags = rawProjectPart.flagsForC;
         tcInfo = m_projectUpdateInfo.cToolChainInfo;
     }
@@ -271,7 +252,7 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(const RawProjectPart &r
         tcInfo = m_projectUpdateInfo.cxxToolChainInfo;
     }
     // TODO: If no toolchain is set, show a warning
-    ToolChainEvaluator evaluator(*part.data(), flags, tcInfo);
+    ToolChainEvaluator evaluator(*part.data(), language, flags, tcInfo);
     evaluator.evaluate();
 
     part->languageExtensions |= languageExtensions;

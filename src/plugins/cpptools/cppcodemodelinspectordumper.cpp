@@ -110,11 +110,13 @@ QString Utils::toString(ProjectPart::LanguageVersion languageVersion)
     CASE_LANGUAGEVERSION(C89);
     CASE_LANGUAGEVERSION(C99);
     CASE_LANGUAGEVERSION(C11);
+    CASE_LANGUAGEVERSION(C18);
     CASE_LANGUAGEVERSION(CXX98);
     CASE_LANGUAGEVERSION(CXX03);
     CASE_LANGUAGEVERSION(CXX11);
     CASE_LANGUAGEVERSION(CXX14);
     CASE_LANGUAGEVERSION(CXX17);
+    CASE_LANGUAGEVERSION(CXX2a);
     // no default to get a compiler warning if anything is added
     }
 #undef CASE_LANGUAGEVERSION
@@ -146,8 +148,7 @@ QString Utils::toString(ProjectPart::QtVersion qtVersion)
     switch (qtVersion) {
     CASE_QTVERSION(UnknownQt);
     CASE_QTVERSION(NoQt);
-    CASE_QTVERSION(Qt4_8_6AndOlder);
-    CASE_QTVERSION(Qt4Latest);
+    CASE_QTVERSION(Qt4);
     CASE_QTVERSION(Qt5);
     // no default to get a compiler warning if anything is added
     }

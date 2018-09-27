@@ -49,17 +49,20 @@ namespace CppTools {
 class CPPTOOLS_EXPORT ProjectPart
 {
 public:
+    // Keep in sync with Toolchain::LanguageVersion!
     enum LanguageVersion {
         C89,
         C99,
         C11,
-        LatestCVersion = C11,
+        C18,
+        LatestCVersion = C18,
         CXX98,
         CXX03,
         CXX11,
         CXX14,
         CXX17,
-        LatestCxxVersion = CXX17,
+        CXX2a,
+        LatestCxxVersion = CXX2a,
     };
 
     enum LanguageExtension {
@@ -81,8 +84,7 @@ public:
     enum QtVersion {
         UnknownQt = -1,
         NoQt,
-        Qt4_8_6AndOlder,
-        Qt4Latest,
+        Qt4,
         Qt5
     };
 

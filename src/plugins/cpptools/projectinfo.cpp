@@ -48,7 +48,7 @@ ToolChainInfo::ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
         // they can be run from a worker thread.
         sysRootPath = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
         headerPathsRunner = toolChain->createBuiltInHeaderPathsRunner();
-        predefinedMacrosRunner = toolChain->createPredefinedMacrosRunner();
+        macroInspectionRunner = toolChain->createMacroInspectionRunner();
     }
 }
 

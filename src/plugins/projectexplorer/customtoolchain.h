@@ -71,7 +71,7 @@ public:
 
     bool isValid() const override;
 
-    PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
+    MacroInspectionRunner createMacroInspectionRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cxxflags) const override;

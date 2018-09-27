@@ -32,6 +32,8 @@
 namespace CppTools {
 namespace Internal {
 
+enum class Language { C, CXX };
+
 class ProjectInfoGenerator
 {
 public:
@@ -46,7 +48,7 @@ private:
                                        const ProjectPart::Ptr &templateProjectPart,
                                        const ProjectFiles &projectFiles,
                                        const QString &partName,
-                                       ProjectPart::LanguageVersion languageVersion,
+                                       Language language,
                                        ProjectPart::LanguageExtensions languageExtensions);
 
 private:

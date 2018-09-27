@@ -41,17 +41,11 @@ public:
 
     enum CompilerFlag {
         NoFlags = 0,
-        StandardCxx11 = 0x1,
-        StandardC99 = 0x2,
-        StandardC11 = 0x4,
         GnuExtensions = 0x8,
         MicrosoftExtensions = 0x10,
         BorlandExtensions = 0x20,
         OpenMP = 0x40,
         ObjectiveC = 0x80,
-        StandardCxx14 = 0x100,
-        StandardCxx17 = 0x200,
-        StandardCxx98 = 0x400,
     };
     Q_DECLARE_FLAGS(CompilerFlags, CompilerFlag)
 
@@ -60,8 +54,29 @@ public:
     using BuiltInHeaderPathsRunner = std::function<HeaderPaths(const QStringList &cxxflags, const QString &sysRoot)>;
     virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const { return BuiltInHeaderPathsRunner(); }
 
-    using PredefinedMacrosRunner = std::function<Macros(const QStringList &cxxflags)>;
-    virtual PredefinedMacrosRunner createPredefinedMacrosRunner() const { return PredefinedMacrosRunner(); }
+    enum LanguageVersion {
+        C89,
+        C99,
+        C11,
+        C18,
+        LatestCVersion = C18,
+        CXX98,
+        CXX03,
+        CXX11,
+        CXX14,
+        CXX17,
+        CXX2a,
+        LatestCxxVersion = CXX2a,
+    };
+
+    class MacroInspectionReport
+    {
+    public:
+        Macros macros;
+        LanguageVersion languageVersion; // Derived from macros.
+    };
+    using MacroInspectionRunner = std::function<MacroInspectionReport(const QStringList &cxxflags)>;
+    virtual MacroInspectionRunner createMacroInspectionRunner() const = 0;
 
     virtual QString originalTargetTriple() const { return QString(); }
     virtual QStringList extraCodeModelFlags() const { return QStringList(); }

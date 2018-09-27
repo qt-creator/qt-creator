@@ -408,6 +408,10 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
     case ProjectPart::C11:
         opts << (gnuExtensions ? QLatin1String("-std=gnu11") : QLatin1String("-std=c11"));
         break;
+    case ProjectPart::C18:
+        // Clang 6, 7 and current trunk do not accept "gnu18"/"c18", so use the "*17" variants.
+        opts << (gnuExtensions ? QLatin1String("-std=gnu17") : QLatin1String("-std=c17"));
+        break;
     case ProjectPart::CXX11:
         opts << (gnuExtensions ? QLatin1String("-std=gnu++11") : QLatin1String("-std=c++11"));
         break;
@@ -422,6 +426,9 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
         break;
     case ProjectPart::CXX17:
         opts << (gnuExtensions ? QLatin1String("-std=gnu++17") : QLatin1String("-std=c++17"));
+        break;
+    case ProjectPart::CXX2a:
+        opts << (gnuExtensions ? QLatin1String("-std=gnu++2a") : QLatin1String("-std=c++2a"));
         break;
     }
 
@@ -588,6 +595,11 @@ QString CompilerOptionsBuilder::includeOption() const
 
 bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro &macro) const
 {
+    // Avoid setting __cplusplus & co as this might conflict with other command line flags.
+    // Clang should set __cplusplus based on -std= and -fms-compatibility-version version.
+    QTC_ASSERT(macro.key != "__cplusplus", return true);
+    QTC_ASSERT(macro.key != "__STDC_VERSION__", return true);
+
     // Ignore for all compiler toolchains since LLVM has it's own implementation for
     // __has_include(STR) and __has_include_next(STR)
     if (macro.key.startsWith("__has_include"))
