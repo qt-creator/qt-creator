@@ -1564,10 +1564,11 @@ bool GitClient::synchronousRevParseCmd(const QString &workingDirectory, const QS
 }
 
 // Retrieve head revision
-QString GitClient::synchronousTopRevision(const QString &workingDirectory, QString *errorMessageIn)
+QString GitClient::synchronousTopRevision(const QString &workingDirectory)
 {
     QString revision;
-    if (!synchronousRevParseCmd(workingDirectory, HEAD, &revision, errorMessageIn))
+    QString errorMessage;
+    if (!synchronousRevParseCmd(workingDirectory, HEAD, &revision, &errorMessage))
         return QString();
 
     return revision;
