@@ -32,6 +32,7 @@
 #include <pchmanagerclientproxy.h>
 #include <precompiledheaderstorage.h>
 #include <processormanager.h>
+#include <progresscounter.h>
 #include <projectparts.h>
 #include <projectpartqueue.h>
 #include <filepathcaching.h>
@@ -174,8 +175,9 @@ struct Data // because we have a cycle dependency
     GeneratedFiles generatedFiles;
     PchCreatorManager pchCreatorManager{generatedFiles, environment, database, clangPchManagerServer, includeWatcher};
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
-    TaskScheduler taskScheduler{pchCreatorManager, projectPartQueue, std::thread::hardware_concurrency()};
-    ClangBackEnd::ProjectPartQueue projectPartQueue{taskScheduler, preCompiledHeaderStorage, database};
+    ClangBackEnd::ProgressCounter progressCounter{[&] (int progress, int total) { clangPchManagerServer.setProgress(progress, total); }};
+    TaskScheduler taskScheduler{pchCreatorManager, projectPartQueue, progressCounter, std::thread::hardware_concurrency()};
+    ClangBackEnd::ProjectPartQueue projectPartQueue{taskScheduler, preCompiledHeaderStorage, database, progressCounter};
     PchManagerServer clangPchManagerServer{includeWatcher, projectPartQueue, projectParts, generatedFiles};
 };
 

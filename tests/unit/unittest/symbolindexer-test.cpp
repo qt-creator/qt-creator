@@ -200,8 +200,10 @@ protected:
     ClangBackEnd::FileStatusCache fileStatusCache{filePathCache};
     ClangBackEnd::GeneratedFiles generatedFiles;
     Manager collectorManger{generatedFiles};
-    Scheduler indexerScheduler{collectorManger, indexerQueue, 1};
-    SymbolIndexerTaskQueue indexerQueue{indexerScheduler};
+    NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
+    ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
+    Scheduler indexerScheduler{collectorManger, indexerQueue, progressCounter, 1};
+    SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter};
     ClangBackEnd::SymbolIndexer indexer{indexerQueue,
                                         mockStorage,
                                         mockPathWatcher,

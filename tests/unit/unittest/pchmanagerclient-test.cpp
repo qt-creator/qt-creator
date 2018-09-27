@@ -28,6 +28,7 @@
 #include "mockpchmanagernotifier.h"
 #include "mockpchmanagerserver.h"
 #include "mockprecompiledheaderstorage.h"
+#include "mockprogressmanager.h"
 
 #include <pchmanagerclient.h>
 #include <pchmanagerprojectupdater.h>
@@ -35,6 +36,7 @@
 #include <filepathcaching.h>
 #include <refactoringdatabaseinitializer.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <progressmessage.h>
 #include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
 #include <updategeneratedfilesmessage.h>
@@ -51,8 +53,9 @@ using testing::Not;
 class PchManagerClient : public ::testing::Test
 {
 protected:
+    NiceMock<MockProgressManager> mockProgressManager;
     NiceMock<MockPchManagerServer> mockPchManagerServer;
-    ClangPchManager::PchManagerClient client;
+    ClangPchManager::PchManagerClient client{mockProgressManager};
     NiceMock<MockPchManagerNotifier> mockPchManagerNotifier{client};
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
@@ -153,6 +156,13 @@ TEST_F(PchManagerClient, ProjectPartPchForProjectPartIdIsUpdated)
 
     ASSERT_THAT(client.projectPartPch(projectPartId).value().lastModified,
                 42);
+}
+
+TEST_F(PchManagerClient, SetProgress)
+{
+    EXPECT_CALL(mockProgressManager, setProgress(10, 20));
+
+    client.progress({ClangBackEnd::ProgressType::PrecompiledHeader, 10, 20});
 }
 
 }

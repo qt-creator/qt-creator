@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,8 +25,13 @@
 
 #pragma once
 
-#include "alivemessage.h"
-#include "progressmessage.h"
-#include "sourcelocationsforrenamingmessage.h"
-#include "sourcerangesanddiagnosticsforquerymessage.h"
-#include "sourcerangesforquerymessage.h"
+#include "googletest.h"
+
+#include <progressmanagerinterface.h>
+
+class MockProgressManager : public ClangPchManager::ProgressManagerInterface
+{
+public:
+    MOCK_METHOD2(setProgress,
+                 void (int, int));
+};

@@ -27,6 +27,7 @@
 
 #include <pchmanagerclientinterface.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <progressmessage.h>
 #include <projectpartqueue.h>
 #include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
@@ -88,6 +89,11 @@ void PchManagerServer::pathsWithIdsChanged(const Utils::SmallStringVector &ids)
 
 void PchManagerServer::pathsChanged(const FilePathIds &/*filePathIds*/)
 {
+}
+
+void PchManagerServer::setProgress(int progress, int total)
+{
+    client()->progress({ProgressType::PrecompiledHeader, progress, total});
 }
 
 } // namespace ClangBackEnd

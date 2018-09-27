@@ -82,7 +82,8 @@ protected:
     RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     FilePathCaching filePathCache{database};
     ClangBackEnd::GeneratedFiles generatedFiles;
-    ClangBackEnd::SymbolIndexing indexing{database, filePathCache, generatedFiles};
+    NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
+    ClangBackEnd::SymbolIndexing indexing{database, filePathCache, generatedFiles, mockSetProgressCallback.AsStdFunction()};
     StatementFactory queryFactory{database};
     Query query{queryFactory};
     PathString main1Path = TESTDATA_DIR "/symbolindexing_main1.cpp";

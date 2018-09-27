@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,24 +25,60 @@
 
 #pragma once
 
-#include "ipcclientinterface.h"
+#include "progressmanagerinterface.h"
 
-namespace ClangBackEnd {
+#include <QFutureInterface>
+#include <QCoreApplication>
+#include <QString>
 
-class PrecompiledHeadersUpdatedMessage;
-class ProgressMessage;
+#include <functional>
+#include <memory>
 
-class CLANGSUPPORT_EXPORT PchManagerClientInterface : public IpcClientInterface
+namespace ClangPchManager {
+
+class ProgressManager : public ProgressManagerInterface
 {
 public:
-    void dispatch(const MessageEnvelop &messageEnvelop) override;
+    using Promise = QFutureInterface<void>;
+    using Callback = std::function<void(Promise &)>;
 
-    virtual void alive() = 0;
-    virtual void precompiledHeadersUpdated(PrecompiledHeadersUpdatedMessage &&message) = 0;
-    virtual void progress(ProgressMessage &&message) = 0;
+    ProgressManager(Callback &&callback)
+        : m_callback(std::move(callback))
+    {}
 
-protected:
-    ~PchManagerClientInterface() = default;
+
+    void setProgress(int currentProgress,  int maximumProgress)
+    {
+        if (!m_promise)
+            initialize();
+
+        m_promise->setExpectedResultCount(maximumProgress);
+        m_promise->setProgressValue(currentProgress);
+
+        if (currentProgress >= maximumProgress)
+            finish();
+    }
+
+    Promise *promise()
+    {
+        return m_promise.get();
+    }
+private:
+    void initialize()
+    {
+        m_promise = std::make_unique<Promise>();
+        m_callback(*m_promise);
+    }
+
+    void finish()
+    {
+        m_promise->reportFinished();
+        m_promise.reset();
+    }
+
+private:
+    Callback m_callback;
+    std::unique_ptr<Promise> m_promise;
 };
 
-} // namespace ClangBackEnd
+} // namespace ClangPchManager

@@ -27,6 +27,7 @@
 
 #include "pchmanagerconnectionclient.h"
 #include "pchmanagerclient.h"
+#include "progressmanager.h"
 #include "qtcreatorprojectupdater.h"
 
 #include <filepathcaching.h>
@@ -34,9 +35,12 @@
 #include <sqlitedatabase.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/hostosinfo.h>
+
+#include <QFutureInterface>
 
 #include <chrono>
 
@@ -61,7 +65,12 @@ public:
     Sqlite::Database database{Utils::PathString{Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"}, 1000ms};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    PchManagerClient pchManagerClient;
+    ClangPchManager::ProgressManager progressManager{
+        [] (QFutureInterface<void> &promise) {
+            auto title = QCoreApplication::translate("ClangPchProgressManager", "Creating PCHs", "PCH stands for precompiled header");
+            Core::ProgressManager::addTask(promise.future(), title, "pch creation", nullptr);
+    }};
+    PchManagerClient pchManagerClient{progressManager};
     PchManagerConnectionClient connectionClient{&pchManagerClient};
     QtCreatorProjectUpdater<PchManagerProjectUpdater> projectUpdate{connectionClient.serverProxy(),
                                                                     pchManagerClient,

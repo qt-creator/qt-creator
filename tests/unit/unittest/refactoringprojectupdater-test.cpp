@@ -26,6 +26,7 @@
 #include "googletest.h"
 
 #include "mockcppmodelmanager.h"
+#include "mockprogressmanager.h"
 #include "mockrefactoringserver.h"
 
 #include <sqlitedatabase.h>
@@ -86,7 +87,8 @@ protected:
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
     NiceMock<MockRefactoringServer> mockRefactoringServer;
-    ClangPchManager::PchManagerClient pchManagerClient;
+    NiceMock<MockProgressManager> mockProgressManager;
+    ClangPchManager::PchManagerClient pchManagerClient{mockProgressManager};
     MockCppModelManager mockCppModelManager;
     ClangRefactoring::RefactoringProjectUpdater updater{mockRefactoringServer, pchManagerClient, mockCppModelManager, filePathCache};
     Utils::SmallString projectPartId;

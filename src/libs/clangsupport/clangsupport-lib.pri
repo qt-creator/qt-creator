@@ -203,6 +203,8 @@ HEADERS += \
     $$PWD/updategeneratedfilesmessage.h \
     $$PWD/removegeneratedfilesmessage.h \
     $$PWD/generatedfiles.h \
-    $$PWD/generatedfilesinterface.h
+    $$PWD/generatedfilesinterface.h \
+    $$PWD/progressmessage.h \
+    $$PWD/progresscounter.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

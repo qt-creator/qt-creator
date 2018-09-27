@@ -34,6 +34,7 @@
 #include <filepathcaching.h>
 #include <pchmanagerserver.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <progressmessage.h>
 #include <refactoringdatabaseinitializer.h>
 #include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
@@ -155,6 +156,14 @@ TEST_F(PchManagerServer, UpdateProjectPartQueueByPathIds)
     EXPECT_CALL(mockProjectPartQueue, addProjectParts(ElementsAre(projectPart1)));
 
     server.pathsWithIdsChanged({projectPartId1});
+}
+
+TEST_F(PchManagerServer, SetProgress)
+{
+    EXPECT_CALL(mockPchManagerClient, progress(AllOf(Field(&ClangBackEnd::ProgressMessage::progress, 20),
+                                                     Field(&ClangBackEnd::ProgressMessage::total, 30))));
+
+    server.setProgress(20, 30);
 }
 
 }

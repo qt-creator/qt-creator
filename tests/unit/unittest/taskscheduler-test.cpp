@@ -49,6 +49,7 @@ protected:
     void SetUp()
     {
         ON_CALL(mockProcessorManager, unusedProcessor()).WillByDefault(ReturnRef(mockSymbolsCollector));
+        progressCounter.addTotal(100);
     }
     void TearDown()
     {
@@ -63,11 +64,15 @@ protected:
     NiceMockProcessorManager mockProcessorManager;
     NiceMock<MockSymbolsCollector> mockSymbolsCollector;
     NiceMock<MockSymbolIndexerTaskQueue> mockSymbolIndexerTaskQueue;
+    NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
+    ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
     Scheduler scheduler{mockProcessorManager,
                 mockSymbolIndexerTaskQueue,
+                progressCounter,
                 4};
     Scheduler deferredScheduler{mockProcessorManager,
                 mockSymbolIndexerTaskQueue,
+                progressCounter,
                 4,
                 std::launch::deferred};
 };
@@ -136,6 +141,17 @@ TEST_F(TaskScheduler, FreeSlotsCallsCleanupMethodsAfterTheWorkIsDone)
     EXPECT_CALL(mockSymbolsCollector, doInMainThreadAfterFinished());
     EXPECT_CALL(mockSymbolsCollector, setIsUsed(false));
     EXPECT_CALL(mockSymbolsCollector, clear());
+
+    scheduler.freeSlots();
+}
+
+TEST_F(TaskScheduler, FreeSlotsCallsProgressMethodsAfterTheWorkIsDone)
+{
+    scheduler.addTasks({nocall, nocall});
+    scheduler.syncTasks();
+    InSequence s;
+
+    EXPECT_CALL(mockSetProgressCallback, Call(2, 100));
 
     scheduler.freeSlots();
 }

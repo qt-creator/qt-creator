@@ -177,7 +177,8 @@ enum class MessageType : quint8 {
     RemoveProjectPartsMessage,
     PrecompiledHeadersUpdatedMessage,
     UpdateGeneratedFilesMessage,
-    RemoveGeneratedFilesMessage
+    RemoveGeneratedFilesMessage,
+    ProgressMessage
 };
 
 template<MessageType messageEnumeration>
@@ -233,5 +234,12 @@ enum class SymbolTag : uchar
 };
 
 using SymbolTags = Utils::SizedArray<SymbolTag, 7>;
+
+enum class ProgressType
+{
+    Invalid,
+    PrecompiledHeader,
+    Indexing
+};
 
 }

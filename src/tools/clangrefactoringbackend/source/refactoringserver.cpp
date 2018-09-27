@@ -158,6 +158,11 @@ void RefactoringServer::setGathererProcessingSlotCount(uint count)
     m_gatherer.setProcessingSlotCount(count);
 }
 
+void RefactoringServer::setProgress(int progress, int total)
+{
+    client()->progress({ProgressType::Indexing, progress, total});
+}
+
 void RefactoringServer::gatherSourceRangesForQueryMessages(
         std::vector<V2::FileContainer> &&sources,
         std::vector<V2::FileContainer> &&unsaved,

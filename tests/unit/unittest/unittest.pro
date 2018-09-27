@@ -103,7 +103,8 @@ SOURCES += \
     projectpartqueue-test.cpp \
     processormanager-test.cpp \
     taskscheduler-test.cpp \
-    compileroptionsbuilder-test.cpp
+    compileroptionsbuilder-test.cpp \
+    progresscounter-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -245,7 +246,9 @@ HEADERS += \
     mockprojectpartqueue.h \
     mockprocessor.h \
     mockprocessormanager.h \
-    mocktaskscheduler.h
+    mocktaskscheduler.h \
+    mockprogressmanager.h \
+    mockfutureinterface.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

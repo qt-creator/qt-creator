@@ -34,11 +34,13 @@
 #include "symbolquery.h"
 
 #include <clangpchmanager/clangpchmanagerplugin.h>
+#include <clangpchmanager/progressmanager.h>
 #include <clangsupport/refactoringdatabaseinitializer.h>
 
 #include <cpptools/cppmodelmanager.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cpptoolsconstants.h>
 
@@ -46,7 +48,6 @@
 #include <filepathcaching.h>
 
 #include <sqlitedatabase.h>
-
 #include <utils/hostosinfo.h>
 
 #include <QDir>
@@ -79,13 +80,16 @@ public:
     Sqlite::Database database{Utils::PathString{Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"}, 1000ms};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    RefactoringClient refactoringClient;
+    ClangPchManager::ProgressManager progressManager{
+        [] (QFutureInterface<void> &promise) {
+            auto title = QCoreApplication::translate("ClangRefactoringProgressManager", "C++ Indexing");
+            Core::ProgressManager::addTask(promise.future(), title, "clang indexing", nullptr);}};
+    RefactoringClient refactoringClient{progressManager};
     QtCreatorEditorManager editorManager{filePathCache};
     ClangBackEnd::RefactoringConnectionClient connectionClient{&refactoringClient};
     QuerySqliteReadStatementFactory statementFactory{database};
     SymbolQuery<QuerySqliteReadStatementFactory> symbolQuery{statementFactory};
     RefactoringEngine engine{connectionClient.serverProxy(), refactoringClient, filePathCache, symbolQuery};
-
     QtCreatorSearch qtCreatorSearch;
     QtCreatorClangQueryFindFilter qtCreatorfindFilter{connectionClient.serverProxy(),
                                                       qtCreatorSearch,

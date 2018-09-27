@@ -47,6 +47,9 @@ void RefactoringClientInterface::dispatch(const MessageEnvelop &messageEnvelop)
         case MessageType::SourceRangesForQueryMessage:
             sourceRangesForQueryMessage(messageEnvelop.message<SourceRangesForQueryMessage>());
             break;
+        case MessageType::ProgressMessage:
+            progress(messageEnvelop.message<ProgressMessage>());
+            break;
         default:
             qWarning() << "Unknown IpcClientMessage";
     }

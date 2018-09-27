@@ -12,7 +12,9 @@ HEADERS += \
     $$PWD/pchmanagerconnectionclient.h \
     $$PWD/clangpchmanager_global.h \
     $$PWD/projectupdater.h \
-    $$PWD/pchmanagerprojectupdater.h
+    $$PWD/pchmanagerprojectupdater.h \
+    $$PWD/progressmanager.h \
+    $$PWD/progressmanagerinterface.h
 
 SOURCES += \
     $$PWD/pchmanagerclient.cpp \

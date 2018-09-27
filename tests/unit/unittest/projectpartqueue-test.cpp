@@ -31,16 +31,19 @@
 #include "mocksqlitetransactionbackend.h"
 
 #include <projectpartqueue.h>
+#include <progresscounter.h>
 
 namespace {
 
 class ProjectPartQueue : public testing::Test
 {
 protected:
-    MockTaskScheduler<ClangBackEnd::ProjectPartQueue::Task> mockTaskScheduler;
+    NiceMock<MockTaskScheduler<ClangBackEnd::ProjectPartQueue::Task>> mockTaskScheduler;
     MockPrecompiledHeaderStorage mockPrecompiledHeaderStorage;
     MockSqliteTransactionBackend mockSqliteTransactionBackend;
-    ClangBackEnd::ProjectPartQueue queue{mockTaskScheduler, mockPrecompiledHeaderStorage, mockSqliteTransactionBackend};
+    NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
+    ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
+    ClangBackEnd::ProjectPartQueue queue{mockTaskScheduler, mockPrecompiledHeaderStorage, mockSqliteTransactionBackend, progressCounter};
     ClangBackEnd::V2::ProjectPartContainer projectPart1{"ProjectPart1",
                                                         {"--yi"},
                                                         {{"YI","1"}},
@@ -76,6 +79,25 @@ TEST_F(ProjectPartQueue, AddProjectPart)
     ASSERT_THAT(queue.projectParts(), ElementsAre(projectPart1, projectPart2));
 }
 
+TEST_F(ProjectPartQueue, AddProjectPartCallsProcessEntries)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
+    EXPECT_CALL(mockTaskScheduler, addTasks(SizeIs(2)));
+
+    queue.addProjectParts({projectPart1, projectPart2});
+}
+
+TEST_F(ProjectPartQueue, AddProjectPartCallsProgressCounter)
+{
+    queue.addProjectParts({projectPart1, projectPart2});
+
+    EXPECT_CALL(mockSetProgressCallback, Call(0, 3));
+
+    queue.addProjectParts({projectPart2b, projectPart3});
+}
+
 TEST_F(ProjectPartQueue, IgnoreIdenticalProjectPart)
 {
     queue.addProjectParts({projectPart1, projectPart2});
@@ -103,15 +125,13 @@ TEST_F(ProjectPartQueue, RemoveProjectPart)
     ASSERT_THAT(queue.projectParts(), ElementsAre(projectPart1, projectPart3));
 }
 
-TEST_F(ProjectPartQueue, ProcessTasksCallsFreeSlotsAndAddTasksInScheduler)
+TEST_F(ProjectPartQueue, RemoveProjectPartCallsProgressCounter)
 {
-    InSequence s;
-    queue.addProjectParts({projectPart1, projectPart2});
+    queue.addProjectParts({projectPart1, projectPart2, projectPart3});
 
-    EXPECT_CALL(mockTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
-    EXPECT_CALL(mockTaskScheduler, addTasks(SizeIs(2)));
+    EXPECT_CALL(mockSetProgressCallback, Call(0, 2));
 
-    queue.processEntries();
+    queue.removeProjectParts({projectPart2.projectPartId});
 }
 
 TEST_F(ProjectPartQueue, CreateTasksSizeEqualsInputSize)

@@ -48,6 +48,7 @@ public:
 
     void alive() override;
     void precompiledHeadersUpdated(PrecompiledHeadersUpdatedMessage &&message) override;
+    void progress(ProgressMessage &&message) override;
 
 private:
     ClangBackEnd::WriteMessageBlock writeMessageBlock;

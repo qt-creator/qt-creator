@@ -140,6 +140,17 @@ TEST_F(RefactoringClientServerInProcess, SourceRangesForQueryMessage)
     scheduleClientMessages();
 }
 
+TEST_F(RefactoringClientServerInProcess, SendProgressMessage)
+{
+    ClangBackEnd::ProgressMessage message{ClangBackEnd::ProgressType::PrecompiledHeader, 10, 50};
+
+
+    EXPECT_CALL(mockRefactoringClient, progress(message));
+
+    clientProxy.progress(message.clone());
+    scheduleClientMessages();
+}
+
 TEST_F(RefactoringClientServerInProcess, RequestSourceRangesAndDiagnosticsForQueryMessage)
 {
     RequestSourceRangesForQueryMessage message{"functionDecl()",

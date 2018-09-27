@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,8 +25,18 @@
 
 #pragma once
 
-#include "alivemessage.h"
-#include "progressmessage.h"
-#include "sourcelocationsforrenamingmessage.h"
-#include "sourcerangesanddiagnosticsforquerymessage.h"
-#include "sourcerangesforquerymessage.h"
+#include "googletest.h"
+
+class MockQFutureInterface
+{
+public:
+    MOCK_METHOD1(setExpectedResultCount,
+                 void (int));
+    MOCK_METHOD1(setProgressValue,
+                 void (int));
+    MOCK_CONST_METHOD0(isRunning,
+                       bool ());
+    MOCK_METHOD0(reportFinished,
+                 void ());
+
+};

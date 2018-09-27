@@ -26,8 +26,9 @@
 #include "pchmanagerclient.h"
 
 #include <precompiledheadersupdatedmessage.h>
+#include <progressmanagerinterface.h>
+#include <progressmessage.h>
 #include <pchmanagerconnectionclient.h>
-
 #include <pchmanagernotifierinterface.h>
 
 #include <algorithm>
@@ -48,6 +49,11 @@ void PchManagerClient::precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeader
         addProjectPartPch(std::move(projectPartPch));
         precompiledHeaderUpdated(projectPartId, pchPath, projectPartPch.lastModified);
     }
+}
+
+void PchManagerClient::progress(ClangBackEnd::ProgressMessage &&message)
+{
+    m_progressManager.setProgress(message.progress, message.total);
 }
 
 void PchManagerClient::precompiledHeaderRemoved(const QString &projectPartId)

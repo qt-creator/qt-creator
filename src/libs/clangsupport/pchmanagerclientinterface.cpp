@@ -27,6 +27,7 @@
 #include "messageenvelop.h"
 
 #include <precompiledheadersupdatedmessage.h>
+#include <progressmessage.h>
 
 #include <QDebug>
 
@@ -40,6 +41,9 @@ void PchManagerClientInterface::dispatch(const MessageEnvelop &messageEnvelop)
             break;
         case MessageType::PrecompiledHeadersUpdatedMessage:
             precompiledHeadersUpdated(messageEnvelop.message<PrecompiledHeadersUpdatedMessage>());
+            break;
+        case MessageType::ProgressMessage:
+            progress(messageEnvelop.message<ProgressMessage>());
             break;
         default:
             qWarning() << "Unknown IpcClientMessage";

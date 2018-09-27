@@ -26,6 +26,7 @@
 #include "googletest.h"
 #include "mocksearchhandle.h"
 #include "mockfilepathcaching.h"
+#include "mockprogressmanager.h"
 #include "mocksymbolquery.h"
 
 #include <clangqueryprojectsfindfilter.h>
@@ -72,7 +73,8 @@ protected:
     MockFunction<void(const QString &,
                      const ClangBackEnd::SourceLocationsContainer &,
                      int)> mockLocalRenaming;
-    ClangRefactoring::RefactoringClient client;
+    NiceMock<MockProgressManager> mockProgressManager;
+    ClangRefactoring::RefactoringClient client{mockProgressManager};
     ClangBackEnd::RefactoringServerProxy serverProxy{&client, &ioDevice};
     RefactoringEngine engine{serverProxy, client, mockFilePathCaching, mockSymbolQuery};
     QString fileContent{QStringLiteral("int x;\nint y;")};
@@ -218,6 +220,13 @@ TEST_F(RefactoringClient, XXX)
         .Times(1);
 
     client.addSearchResult(sourceRange);
+}
+
+TEST_F(RefactoringClient, SetProgress)
+{
+    EXPECT_CALL(mockProgressManager, setProgress(10, 20));
+
+    client.progress({ClangBackEnd::ProgressType::Indexing, 10, 20});
 }
 
 void RefactoringClient::SetUp()

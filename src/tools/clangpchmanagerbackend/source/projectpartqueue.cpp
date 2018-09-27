@@ -27,6 +27,7 @@
 
 #include <pchcreatorinterface.h>
 #include <precompiledheaderstorageinterface.h>
+#include <progresscounter.h>
 #include <sqlitetransaction.h>
 
 namespace ClangBackEnd {
@@ -36,6 +37,8 @@ void ProjectPartQueue::addProjectParts(V2::ProjectPartContainers &&projectParts)
     auto compare = [](const V2::ProjectPartContainer &first, const V2::ProjectPartContainer &second) {
         return first.projectPartId < second.projectPartId;
     };
+
+    const std::size_t oldSize = m_projectParts.size();
 
     V2::ProjectPartContainers mergedProjectParts;
     mergedProjectParts.reserve(m_projectParts.size() + projectParts.size());
@@ -47,6 +50,10 @@ void ProjectPartQueue::addProjectParts(V2::ProjectPartContainers &&projectParts)
                    compare);
 
     m_projectParts = std::move(mergedProjectParts);
+
+    m_progressCounter.addTotal(int(m_projectParts.size() - oldSize));
+
+    processEntries();
 }
 
 class CompareDifference
@@ -65,6 +72,8 @@ public:
 
 void ProjectPartQueue::removeProjectParts(const Utils::SmallStringVector &projectsPartIds)
 {
+    const std::size_t oldSize = m_projectParts.size();
+
     V2::ProjectPartContainers notToBeRemovedProjectParts;
     notToBeRemovedProjectParts.reserve(m_projectParts.size());
     std::set_difference(std::make_move_iterator(m_projectParts.begin()),
@@ -75,6 +84,8 @@ void ProjectPartQueue::removeProjectParts(const Utils::SmallStringVector &projec
                         CompareDifference{});
 
     m_projectParts = std::move(notToBeRemovedProjectParts);
+
+    m_progressCounter.removeTotal(int(oldSize - m_projectParts.size()));
 }
 
 void ProjectPartQueue::processEntries()

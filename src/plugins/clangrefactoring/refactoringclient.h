@@ -30,6 +30,7 @@
 #include "searchhandle.h"
 
 #include <refactoringclientinterface.h>
+#include <clangpchmanager/progressmanager.h>
 
 #include <functional>
 
@@ -48,6 +49,10 @@ class ClangQueryHighlighter;
 class RefactoringClient final : public ClangBackEnd::RefactoringClientInterface
 {
 public:
+    RefactoringClient(ClangPchManager::ProgressManagerInterface &progressManager)
+        : m_progressManager(progressManager)
+    {}
+
     void alive() override;
     void sourceLocationsForRenamingMessage(
             ClangBackEnd::SourceLocationsForRenamingMessage &&message) override;
@@ -58,6 +63,8 @@ public:
 
     void setLocalRenamingCallback(
             CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback) override;
+    void progress(ClangBackEnd::ProgressMessage &&message) override;
+
     void setRefactoringEngine(ClangRefactoring::RefactoringEngine *refactoringEngine);
     void setSearchHandle(ClangRefactoring::SearchHandle *searchHandleInterface);
     ClangRefactoring::SearchHandle *searchHandle() const;
@@ -71,6 +78,7 @@ public:
     uint resultCounter() const;
 
     void setRefactoringConnectionClient(ClangBackEnd::RefactoringConnectionClient *connectionClient);
+
 
 unittest_public:
     void addSearchResult(const ClangBackEnd::SourceRangeWithTextContainer &sourceRange);
@@ -88,6 +96,7 @@ private:
     RefactoringEngine *m_refactoringEngine = nullptr;
     ClangQueryExampleHighlighter *m_clangQueryExampleHighlighter = nullptr;
     ClangQueryHighlighter *m_clangQueryHighlighter = nullptr;
+    ClangPchManager::ProgressManagerInterface &m_progressManager;
     uint m_expectedResultCount = 0;
     uint m_resultCounter = 0;
 };

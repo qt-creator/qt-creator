@@ -28,6 +28,7 @@
 #include "taskschedulerinterface.h"
 #include "symbolindexertask.h"
 #include "queueinterface.h"
+#include "progresscounter.h"
 
 #include <processormanagerinterface.h>
 #include <symbolindexertaskqueueinterface.h>
@@ -65,10 +66,12 @@ public:
 
     TaskScheduler(ProcessorManager &symbolsCollectorManager,
                   QueueInterface &queue,
+                  ProgressCounter &progressCounter,
                   uint hardwareConcurrency,
                   std::launch launchPolicy = std::launch::async)
         : m_processorManager(symbolsCollectorManager),
           m_queue(queue),
+          m_progressCounter(progressCounter),
           m_hardwareConcurrency(hardwareConcurrency),
           m_launchPolicy(launchPolicy)
     {}
@@ -133,6 +136,8 @@ private:
             processor.clear();
         });
 
+        m_progressCounter.addProgress(std::distance(split, m_futures.end()));
+
         m_futures.erase(split, m_futures.end());
     }
 
@@ -181,6 +186,7 @@ private:
     std::vector<Future> m_futures;
     ProcessorManager &m_processorManager;
     QueueInterface &m_queue;
+    ProgressCounter &m_progressCounter;
     uint m_hardwareConcurrency;
     std::launch m_launchPolicy;
     bool m_isDisabled = false;

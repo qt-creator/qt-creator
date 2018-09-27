@@ -34,7 +34,7 @@
 
 namespace ClangPchManager {
 class PchManagerConnectionClient;
-
+class ProgressManagerInterface;
 class PchManagerNotifierInterface;
 
 class CLANGPCHMANAGER_EXPORT PchManagerClient final : public ClangBackEnd::PchManagerClientInterface,
@@ -42,9 +42,13 @@ class CLANGPCHMANAGER_EXPORT PchManagerClient final : public ClangBackEnd::PchMa
 {
     friend class PchManagerNotifierInterface;
 public:
-    PchManagerClient() = default;
+    PchManagerClient(ProgressManagerInterface &progressManager)
+        : m_progressManager(progressManager)
+    {}
+
     void alive() override;
     void precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeadersUpdatedMessage &&message) override;
+    void progress(ClangBackEnd::ProgressMessage &&message) override;
 
     void precompiledHeaderRemoved(const QString &projectPartId);
 
@@ -74,6 +78,7 @@ private:
     ClangBackEnd::ProjectPartPchs m_projectPartPchs;
     std::vector<PchManagerNotifierInterface*> m_notifiers;
     PchManagerConnectionClient *m_connectionClient=nullptr;
+    ProgressManagerInterface &m_progressManager;
 };
 
 } // namespace ClangPchManager

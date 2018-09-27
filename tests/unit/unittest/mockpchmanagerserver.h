@@ -42,6 +42,8 @@ public:
                  void (const ClangBackEnd::UpdateGeneratedFilesMessage&));
     MOCK_METHOD1(removeGeneratedFiles,
                  void (const ClangBackEnd::RemoveGeneratedFilesMessage&));
+    MOCK_METHOD2(setProgress,
+                 void(int, int));
 
     void updateProjectParts(ClangBackEnd::UpdateProjectPartsMessage &&message) override
     {

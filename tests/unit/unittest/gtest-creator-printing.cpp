@@ -1000,6 +1000,24 @@ std::ostream &operator<<(std::ostream &out, const SymbolIndexerTask &task)
     return out << "(" << task.filePathId << ", " << task.projectPartId << ")";
 }
 
+const char* progressTypeToString(ClangBackEnd::ProgressType type)
+{
+    switch (type) {
+        case ProgressType::Invalid: return "Invalid";
+        case ProgressType::PrecompiledHeader: return "PrecompiledHeader";
+        case ProgressType::Indexing: return "Indexing";
+    }
+
+    return nullptr;
+}
+
+std::ostream &operator<<(std::ostream &out, const ProgressMessage &message)
+{
+    return out << "(" << progressTypeToString(message.progressType) << ", "
+               << message.progress << ", "
+               << message.total << ")";
+}
+
 void PrintTo(const FilePath &filePath, ::std::ostream *os)
 {
     *os << filePath;

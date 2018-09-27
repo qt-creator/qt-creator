@@ -35,6 +35,7 @@ class TransactionInterface;
 namespace ClangBackEnd {
 
 class PrecompiledHeaderStorageInterface;
+class ProgressCounter;
 class PchTaskSchedulerInterface;
 class PchCreatorInterface;
 
@@ -45,10 +46,12 @@ public:
 
     ProjectPartQueue(TaskSchedulerInterface<Task> &taskScheduler,
                      PrecompiledHeaderStorageInterface &precompiledHeaderStorage,
-                     Sqlite::TransactionInterface &transactionsInterface)
+                     Sqlite::TransactionInterface &transactionsInterface,
+                     ProgressCounter &progressCounter)
         : m_taskScheduler(taskScheduler),
           m_precompiledHeaderStorage(precompiledHeaderStorage),
-          m_transactionsInterface(transactionsInterface)
+          m_transactionsInterface(transactionsInterface),
+          m_progressCounter(progressCounter)
     {}
 
     void addProjectParts(V2::ProjectPartContainers &&projectParts);
@@ -65,6 +68,7 @@ private:
     TaskSchedulerInterface<Task> &m_taskScheduler;
     PrecompiledHeaderStorageInterface &m_precompiledHeaderStorage;
     Sqlite::TransactionInterface &m_transactionsInterface;
+    ProgressCounter &m_progressCounter;
 };
 
 } // namespace ClangBackEnd

@@ -79,6 +79,8 @@ public:
 
     void setGathererProcessingSlotCount(uint count);
 
+    void setProgress(int progress, int total);
+
 private:
     void gatherSourceRangesForQueryMessages(std::vector<V2::FileContainer> &&sources,
                                                           std::vector<V2::FileContainer> &&unsaved,

@@ -36,6 +36,7 @@
 #include <generatedfiles.h>
 #include <pchcreator.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <progressmessage.h>
 
 #include <sqlitedatabase.h>
 

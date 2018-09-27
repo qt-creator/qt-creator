@@ -36,9 +36,16 @@ public:
                  void());
     MOCK_METHOD1(precompiledHeadersUpdated,
                  void(const ClangBackEnd::PrecompiledHeadersUpdatedMessage &message));
+    MOCK_METHOD1(progress,
+                 void(const ClangBackEnd::ProgressMessage &message));
 
     void precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeadersUpdatedMessage &&message) override
     {
         precompiledHeadersUpdated(message);
+    }
+
+    void progress(ClangBackEnd::ProgressMessage &&message) override
+    {
+        progress(message);
     }
 };

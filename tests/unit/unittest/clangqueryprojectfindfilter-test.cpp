@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 
+#include "mockprogressmanager.h"
 #include "mockrefactoringserver.h"
 #include "mocksearch.h"
 #include "mocksearchhandle.h"
@@ -61,7 +62,8 @@ protected:
 protected:
     NiceMock<MockRefactoringServer> mockRefactoringServer;
     NiceMock<MockSearch> mockSearch;
-    ClangRefactoring::RefactoringClient refactoringClient;
+    NiceMock<MockProgressManager> mockProgressManager;
+    ClangRefactoring::RefactoringClient refactoringClient{mockProgressManager};
     ClangRefactoring::ClangQueryProjectsFindFilter findFilter{mockRefactoringServer, mockSearch, refactoringClient};
     QString findDeclQueryText{"functionDecl()"};
     QString curentDocumentFilePath{"/path/to/file.cpp"};

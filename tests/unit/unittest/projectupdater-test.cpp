@@ -29,6 +29,7 @@
 #include "mockpchmanagernotifier.h"
 #include "mockpchmanagerserver.h"
 #include "mockprecompiledheaderstorage.h"
+#include "mockprogressmanager.h"
 
 #include <pchmanagerprojectupdater.h>
 
@@ -118,7 +119,8 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    ClangPchManager::PchManagerClient pchManagerClient;
+    NiceMock<MockProgressManager> mockProgressManager;
+    ClangPchManager::PchManagerClient pchManagerClient{mockProgressManager};
     MockPchManagerNotifier mockPchManagerNotifier{pchManagerClient};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
     ClangPchManager::ProjectUpdater updater{mockPchManagerServer, filePathCache};

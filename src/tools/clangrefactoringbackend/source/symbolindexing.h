@@ -49,6 +49,7 @@
 namespace ClangBackEnd {
 
 class SymbolsCollectorManager;
+class RefactoringServer;
 
 class SymbolsCollectorManager final : public ClangBackEnd::ProcessorManager<SymbolsCollector>
 {
@@ -77,11 +78,13 @@ public:
     using Storage = ClangBackEnd::SymbolStorage<StatementFactory>;
     SymbolIndexing(Sqlite::Database &database,
                    FilePathCachingInterface &filePathCache,
-                   const GeneratedFiles &generatedFiles)
+                   const GeneratedFiles &generatedFiles,
+                   ProgressCounter::SetProgressCallback &&setProgressCallback)
         : m_filePathCache(filePathCache),
           m_statementFactory(database),
           m_collectorManger(generatedFiles, database),
-          m_indexerScheduler(m_collectorManger, m_indexerQueue, std::thread::hardware_concurrency())
+          m_progressCounter(std::move(setProgressCallback)),
+          m_indexerScheduler(m_collectorManger, m_indexerQueue, m_progressCounter, std::thread::hardware_concurrency())
     {
     }
 
@@ -114,8 +117,9 @@ private:
     ClangPathWatcher<QFileSystemWatcher, QTimer> m_sourceWatcher{m_filePathCache};
     FileStatusCache m_fileStatusCache{m_filePathCache};
     SymbolsCollectorManager m_collectorManger;
+    ProgressCounter m_progressCounter;
     SymbolIndexerTaskScheduler m_indexerScheduler;
-    SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler};
+    SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler, m_progressCounter};
     SymbolIndexer m_indexer{m_indexerQueue,
                             m_symbolStorage,
                             m_sourceWatcher,

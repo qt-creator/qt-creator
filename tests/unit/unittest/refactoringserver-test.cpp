@@ -338,6 +338,13 @@ TEST_F(RefactoringServer, UpdateProjectPartsCallsSymbolIndexingUpdateProjectPart
     refactoringServer.updateProjectParts({Utils::clone(projectParts)});
 }
 
+TEST_F(RefactoringServer, SetProgress)
+{
+    EXPECT_CALL(mockRefactoringClient, progress(AllOf(Field(&ClangBackEnd::ProgressMessage::progress, 20),
+                                                      Field(&ClangBackEnd::ProgressMessage::total, 30))));
+
+    refactoringServer.setProgress(20, 30);
+}
 
 void RefactoringServer::SetUp()
 {

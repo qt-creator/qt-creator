@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,8 +25,55 @@
 
 #pragma once
 
-#include "alivemessage.h"
-#include "progressmessage.h"
-#include "sourcelocationsforrenamingmessage.h"
-#include "sourcerangesanddiagnosticsforquerymessage.h"
-#include "sourcerangesforquerymessage.h"
+#include "clangsupport_global.h"
+
+#include <QDataStream>
+
+namespace ClangBackEnd {
+
+class ProgressMessage
+{
+public:
+    ProgressMessage() = default;
+    ProgressMessage(ProgressType progressType, int progress, int total)
+        : progressType(progressType),
+          progress(progress),
+          total(total)
+    {}
+
+    friend QDataStream &operator<<(QDataStream &out, const ProgressMessage &message)
+    {
+        out << message.progress;
+        out << message.total;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, ProgressMessage &message)
+    {
+        in >> message.progress;
+        in >> message.total;
+
+        return in;
+    }
+
+    friend bool operator==(const ProgressMessage &first, const ProgressMessage &second)
+    {
+        return first.progress == second.progress
+            && first.total == second.total;
+    }
+
+    ProgressMessage clone() const
+    {
+        return *this;
+    }
+
+public:
+    ProgressType progressType = ProgressType::Invalid;
+    int progress = 0;
+    int total = 0;
+};
+
+DECLARE_MESSAGE(ProgressMessage)
+} // namespace ClangBackEnd
+

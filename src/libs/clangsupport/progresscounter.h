@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,8 +25,64 @@
 
 #pragma once
 
-#include "alivemessage.h"
-#include "progressmessage.h"
-#include "sourcelocationsforrenamingmessage.h"
-#include "sourcerangesanddiagnosticsforquerymessage.h"
-#include "sourcerangesforquerymessage.h"
+#include <functional>
+
+namespace ClangBackEnd {
+
+class ProgressCounter
+{
+public:
+    using SetProgressCallback = std::function<void(int, int)>;
+
+    ProgressCounter(SetProgressCallback &&progressCallback)
+        : m_progressCallback(std::move(progressCallback))
+    {}
+
+    void addTotal(int total)
+    {
+        m_total += total;
+
+        m_progressCallback(m_progress, m_total);
+    }
+
+    void removeTotal(int total)
+    {
+        m_total -= total;
+
+        sendProgress();
+    }
+
+    void addProgress(int progress)
+    {
+        m_progress += progress;
+
+        sendProgress();
+    }
+
+    void sendProgress()
+    {
+        m_progressCallback(m_progress, m_total);
+
+        if (m_progress >= m_total) {
+            m_progress = 0;
+            m_total = 0;
+        }
+    }
+
+    int total() const
+    {
+        return m_total;
+    }
+
+    int progress() const
+    {
+        return m_total;
+    }
+
+private:
+    std::function<void(int, int)> m_progressCallback;
+    int m_progress = 0;
+    int m_total = 0;
+};
+
+}

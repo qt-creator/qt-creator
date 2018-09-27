@@ -13,6 +13,7 @@ win32 {
 HEADERS += \
     $$PWD/clangpchmanagerplugin.h \
     qtcreatorprojectupdater.h
+
 SOURCES += \
     $$PWD/clangpchmanagerplugin.cpp \
     qtcreatorprojectupdater.cpp

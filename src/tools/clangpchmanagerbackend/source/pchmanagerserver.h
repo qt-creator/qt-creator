@@ -59,6 +59,8 @@ public:
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;
 
+    void setProgress(int progress, int total);
+
 private:
     ClangPathWatcherInterface &m_fileSystemWatcher;
     ProjectPartQueueInterface &m_projectPartQueue;

@@ -59,6 +59,9 @@ public:
     MOCK_METHOD0(cancel,
                  void());
 
+    MOCK_METHOD2(setProgress,
+                 void(int, int));
+
     void requestSourceLocationsForRenamingMessage(ClangBackEnd::RequestSourceLocationsForRenamingMessage &&message) override
     {
         requestSourceLocationsForRenamingMessage(message);

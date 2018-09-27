@@ -32,6 +32,7 @@
 #include <pchmanagerclientproxy.h>
 #include <pchmanagerserverproxy.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <progressmessage.h>
 #include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
 #include <updategeneratedfilesmessage.h>
@@ -149,6 +150,17 @@ TEST_F(PchManagerClientServerInProcess, SendPrecompiledHeaderUpdatedMessage)
     EXPECT_CALL(mockPchManagerClient, precompiledHeadersUpdated(message));
 
     clientProxy.precompiledHeadersUpdated(message.clone());
+    scheduleClientMessages();
+}
+
+TEST_F(PchManagerClientServerInProcess, SendProgressMessage)
+{
+    ClangBackEnd::ProgressMessage message{ClangBackEnd::ProgressType::PrecompiledHeader, 10, 50};
+
+
+    EXPECT_CALL(mockPchManagerClient, progress(message));
+
+    clientProxy.progress(message.clone());
     scheduleClientMessages();
 }
 

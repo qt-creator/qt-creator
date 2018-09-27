@@ -83,6 +83,20 @@ public:
     }
 };
 
+struct Data // because we have a cycle dependency
+{
+    Data(const QString &databasePath)
+        : database{Utils::PathString{databasePath}, 100000ms}
+    {}
+
+    Sqlite::Database database;
+    RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    FilePathCaching filePathCache{database};
+    GeneratedFiles generatedFiles;
+    SymbolIndexing symbolIndexing{database, filePathCache, generatedFiles, [&] (int progress, int total) { clangCodeModelServer.setProgress(progress, total); }};
+    RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache, generatedFiles};
+};
+
 int main(int argc, char *argv[])
 {
     try {
@@ -99,14 +113,10 @@ int main(int argc, char *argv[])
         const QString connectionName = arguments[0];
         const QString databasePath = arguments[1];
 
-        Sqlite::Database database{Utils::PathString{databasePath}, 100000ms};
-        RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
-        FilePathCaching filePathCache{database};
-        GeneratedFiles generatedFiles;
-        SymbolIndexing symbolIndexing{database, filePathCache, generatedFiles};
-        RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache, generatedFiles};
+        Data data{databasePath};
+
         ConnectionServer<RefactoringServer, RefactoringClientProxy> connectionServer;
-        connectionServer.setServer(&clangCodeModelServer);
+        connectionServer.setServer(&data.clangCodeModelServer);
         connectionServer.start(connectionName);
 
         return application.exec();

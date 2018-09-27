@@ -70,6 +70,11 @@ void RefactoringClient::setLocalRenamingCallback(
     m_localRenamingCallback = std::move(localRenamingCallback);
 }
 
+void RefactoringClient::progress(ClangBackEnd::ProgressMessage &&message)
+{
+    m_progressManager.setProgress(message.progress, message.total);
+}
+
 void RefactoringClient::setRefactoringEngine(RefactoringEngine *refactoringEngine)
 {
     m_refactoringEngine = refactoringEngine;

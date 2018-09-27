@@ -29,6 +29,7 @@
 #include "symbolindexertask.h"
 
 #include <filepathid.h>
+#include <progresscounter.h>
 #include <taskschedulerinterface.h>
 
 #include <utils/algorithm.h>
@@ -51,8 +52,10 @@ class SymbolIndexerTaskQueue final : public SymbolIndexerTaskQueueInterface
 public:
     using Task = SymbolIndexerTask::Callable;
 
-    SymbolIndexerTaskQueue(TaskSchedulerInterface<Task> &symbolIndexerTaskScheduler)
-        : m_symbolIndexerScheduler(symbolIndexerTaskScheduler)
+    SymbolIndexerTaskQueue(TaskSchedulerInterface<Task> &symbolIndexerTaskScheduler,
+                           ProgressCounter &progressCounter)
+        : m_symbolIndexerScheduler(symbolIndexerTaskScheduler),
+          m_progressCounter(progressCounter)
     {}
 
     void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks)
@@ -63,7 +66,11 @@ public:
             return std::move(first);
         };
 
+        const std::size_t oldSize = m_tasks.size();
+
         m_tasks = Utils::setUnionMerge<std::vector<SymbolIndexerTask>>(tasks, m_tasks, merge);
+
+        m_progressCounter.addTotal(int(m_tasks.size() - oldSize));
     }
     void removeTasks(const std::vector<int> &projectPartIds)
     {
@@ -71,9 +78,13 @@ public:
             return std::binary_search(projectPartIds.begin(), projectPartIds.end(), task.projectPartId);
         };
 
+        const std::size_t oldSize = m_tasks.size();
+
         auto newEnd = std::remove_if(m_tasks.begin(), m_tasks.end(), shouldBeRemoved);
 
         m_tasks.erase(newEnd, m_tasks.end());
+
+        m_progressCounter.removeTotal(int(oldSize -m_tasks.size()));
     }
 
     const std::vector<SymbolIndexerTask> &tasks() const
@@ -96,6 +107,7 @@ private:
     std::vector<Utils::SmallString> m_projectPartIds;
     std::vector<SymbolIndexerTask> m_tasks;
     TaskSchedulerInterface<Task> &m_symbolIndexerScheduler;
+    ProgressCounter &m_progressCounter;
 };
 
 } // namespace ClangBackEnd
