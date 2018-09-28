@@ -362,14 +362,6 @@ bool PythonProject::addFiles(const QStringList &filePaths)
     foreach (const QString &filePath, filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
-    QSet<QString> toAdd;
-
-    foreach (const QString &filePath, filePaths) {
-        QString directory = QFileInfo(filePath).absolutePath();
-        if (!toAdd.contains(directory))
-            toAdd << directory;
-    }
-
     bool result = saveRawList(newList, projectFilePath().toString());
     refresh();
 
