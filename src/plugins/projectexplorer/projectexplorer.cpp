@@ -1872,26 +1872,21 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
         QTC_ASSERT(!fileName.isEmpty(), continue);
 
         const QFileInfo fi(fileName);
-        const QString filePath = fi.absoluteFilePath();
-        bool found = false;
-        for (Project *pi : SessionManager::projects()) {
-            if (filePath == pi->projectFilePath().toString()) {
-                alreadyOpen.append(pi);
-                found = true;
-                break;
-            }
-        }
+        const auto filePath = Utils::FileName::fromString(fi.absoluteFilePath());
+        Project *found = Utils::findOrDefault(SessionManager::projects(),
+                                              Utils::equal(&Project::projectFilePath, filePath));
         if (found) {
+            alreadyOpen.append(found);
             SessionManager::reportProjectLoadingProgress();
             continue;
         }
 
         Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
         if (ProjectManager::canOpenProjectForMimeType(mt)) {
-            if (!QFileInfo(filePath).isFile()) {
+            if (!filePath.toFileInfo().isFile()) {
                 appendError(errorString,
                             tr("Failed opening project \"%1\": Project is not a file.").arg(fileName));
-            } else if (Project *pro = ProjectManager::openProject(mt, Utils::FileName::fromString(filePath))) {
+            } else if (Project *pro = ProjectManager::openProject(mt, filePath)) {
                 QObject::connect(pro, &Project::parsingFinished, [pro]() {
                     emit SessionManager::instance()->projectFinishedParsing(pro);
                 });
