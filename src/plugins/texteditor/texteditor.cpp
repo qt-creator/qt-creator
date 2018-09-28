@@ -4577,7 +4577,6 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
                                                qreal top) const
 {
     QTextBlock nextBlock = data.block.next();
-    QTextBlock nextVisibleBlock = TextEditor::nextVisibleBlock(data.block, data.doc);
 
     if (nextBlock.isValid() && !nextBlock.isVisible() && q->replacementVisible(data.block.blockNumber())) {
         const bool selectThis = (data.textCursor.hasSelection()
@@ -4615,13 +4614,13 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
                 replacement.prepend(nextBlock.text().trimmed().left(1));
         }
 
-        data.block = nextVisibleBlock.previous();
-        if (!data.block.isValid())
-            data.block = data.doc->lastBlock();
+        QTextBlock nextVisibleBlock = TextEditor::nextVisibleBlock(data.block, data.doc);
+        if (!nextVisibleBlock.isValid())
+            nextVisibleBlock = data.doc->lastBlock();
 
-        if (TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(data.block)) {
+        if (TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(nextVisibleBlock)) {
             if (blockUserData->foldingEndIncluded()) {
-                QString right = data.block.text().trimmed();
+                QString right = nextVisibleBlock.text().trimmed();
                 if (right.endsWith(QLatin1Char(';'))) {
                     right.chop(1);
                     right = right.trimmed();
