@@ -312,11 +312,13 @@ PythonProject::PythonProject(const FileName &fileName) :
     setDisplayName(fileName.toFileInfo().completeBaseName());
 }
 
-static QStringList readLines(const QString &absoluteFileName)
+static QStringList readLines(const Utils::FileName &projectFile)
 {
-    QStringList lines;
+    const QString projectFileName = projectFile.fileName();
+    QSet<QString> visited = { projectFileName };
+    QStringList lines = { projectFileName };
 
-    QFile file(absoluteFileName);
+    QFile file(projectFile.toString());
     if (file.open(QFile::ReadOnly)) {
         QTextStream stream(&file);
 
@@ -324,8 +326,10 @@ static QStringList readLines(const QString &absoluteFileName)
             QString line = stream.readLine();
             if (line.isNull())
                 break;
-
+            if (visited.contains(line))
+                continue;
             lines.append(line);
+            visited.insert(line);
         }
     }
 
@@ -410,8 +414,7 @@ bool PythonProject::renameFile(const QString &filePath, const QString &newFilePa
 void PythonProject::parseProject()
 {
     m_rawListEntries.clear();
-    m_rawFileList = readLines(projectFilePath().toString());
-    m_rawFileList << projectFilePath().fileName();
+    m_rawFileList = readLines(projectFilePath());
     m_files = processEntries(m_rawFileList, &m_rawListEntries);
 }
 
