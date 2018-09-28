@@ -113,6 +113,10 @@ public:
 
     bool showInSimpleTree() const override;
     QString addFileFilter() const override;
+    bool supportsAction(ProjectAction action, const Node *node) const override;
+    bool addFiles(const QStringList &filePaths, QStringList *) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *) override;
+    bool deleteFiles(const QStringList &) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
 private:
@@ -388,7 +392,7 @@ bool PythonProject::removeFiles(const QStringList &filePaths)
 bool PythonProject::setFiles(const QStringList &filePaths)
 {
     QStringList newList;
-    QDir baseDir(projectFilePath().toString());
+    QDir baseDir(projectDirectory().toString());
     foreach (const QString &filePath, filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
@@ -403,7 +407,7 @@ bool PythonProject::renameFile(const QString &filePath, const QString &newFilePa
     if (i != m_rawListEntries.end()) {
         int index = newList.indexOf(i.value());
         if (index != -1) {
-            QDir baseDir(projectFilePath().toString());
+            QDir baseDir(projectDirectory().toString());
             newList.replace(index, baseDir.relativeFilePath(newFilePath));
         }
     }
@@ -574,6 +578,37 @@ bool PythonProjectNode::showInSimpleTree() const
 QString PythonProjectNode::addFileFilter() const
 {
     return QLatin1String("*.py");
+}
+
+bool PythonProjectNode::supportsAction(ProjectAction action, const Node *node) const
+{
+    switch (node->nodeType()) {
+    case NodeType::File:
+        return action == ProjectAction::Rename
+            || action == ProjectAction::RemoveFile;
+    case NodeType::Folder:
+    case NodeType::Project:
+        return action == ProjectAction::AddNewFile
+            || action == ProjectAction::RemoveFile
+            || action == ProjectAction::AddExistingFile;
+    default:
+        return ProjectNode::supportsAction(action, node);
+    }
+}
+
+bool PythonProjectNode::addFiles(const QStringList &filePaths, QStringList *)
+{
+    return m_project->addFiles(filePaths);
+}
+
+bool PythonProjectNode::removeFiles(const QStringList &filePaths, QStringList *)
+{
+    return m_project->removeFiles(filePaths);
+}
+
+bool PythonProjectNode::deleteFiles(const QStringList &)
+{
+    return true;
 }
 
 bool PythonProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
