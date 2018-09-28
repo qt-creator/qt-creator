@@ -169,6 +169,10 @@ def xwarn(message):
 def error(message):
     raise RuntimeError(message)
 
+def my_debuger(msg):
+    if False:
+        warn('\033[0;101m\n[DEBUG]:%s\033[0m\n' % msg)
+
 def showException(msg, exType, exValue, exTraceback):
     DumperBase.showException(msg, exType, exValue, exTraceback)
 
@@ -3076,6 +3080,7 @@ class DumperBase:
                 error('BAD INDEX TYPE %s' % type(index))
             field.check()
 
+            #('EXTRACT FIELD: %s, BASE 0x%x' % (field, self.address()))
             #warn('EXTRACT FIELD: %s, BASE 0x%x' % (field, self.address()))
             if self.type.code == TypeCodePointer:
                 #warn('IS TYPEDEFED POINTER!')
@@ -3099,6 +3104,7 @@ class DumperBase:
             if self.type.code == TypeCodeReference:
                 return self.dereference().extractField(field)
             #warn('FIELD: %s ' % field)
+
             val = self.dumper.Value(self.dumper)
             val.name = field.name
             val.isBaseClass = field.isBase
@@ -3118,18 +3124,12 @@ class DumperBase:
             fieldType = field.fieldType()
 
             if fieldType.code == TypeCodeBitfield:
-                fieldBitpos -= fieldOffset * 8
-                ldata = self.data()
-                data = 0
-                for i in range(fieldSize):
-                    data = data << 8
-                    if self.dumper.isBigEndian:
-                        byte = ldata[i]
-                    else:
-                        byte = ldata[fieldOffset + fieldSize - 1 - i]
-                    data += ord(byte)
-                data = data >> fieldBitpos
-                data = data & ((1 << fieldBitsize) - 1)
+                hex_str = self.data().encode('hex')
+                bin_str = format(int(hex_str, 16), 'x<b')
+
+                start = field.bitpos
+                end = field.bitpos+field.bitsize
+                data = int(bin_str[start:end], 2)
                 val.lvalue = data
                 val.laddress = None
                 return val
@@ -3169,7 +3169,6 @@ class DumperBase:
                     fields = tdata.lfields
                 else:
                     fields = list(tdata.lfields(self))
-
             #warn("FIELDS: %s" % fields)
             res = []
             for field in fields:
