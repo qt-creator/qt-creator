@@ -54,7 +54,8 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
                                                          "--gtest_stream_result_to=",
                                                          "--gtest_break_on_failure",
                                                          "--gtest_throw_on_failure",
-                                                         "--gtest_color="
+                                                         "--gtest_color=",
+                                                         "--gtest_print_time="
                                                          };
 
     QSet<QString> allowed = Utils::filtered(provided.toSet(), [] (const QString &arg) {
