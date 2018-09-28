@@ -179,16 +179,10 @@ bool UpdateInfoPlugin::isCheckForUpdatesRunning() const
     return d->m_checkUpdatesCommand;
 }
 
-bool UpdateInfoPlugin::delayedInitialize()
+void UpdateInfoPlugin::extensionsInitialized()
 {
     if (isAutomaticCheck())
         QTimer::singleShot(OneMinute, this, &UpdateInfoPlugin::startAutoCheckForUpdates);
-
-    return true;
-}
-
-void UpdateInfoPlugin::extensionsInitialized()
-{
 }
 
 bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
