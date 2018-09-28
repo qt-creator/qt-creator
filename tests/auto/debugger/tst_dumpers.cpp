@@ -1658,7 +1658,7 @@ void tst_Dumpers::dumper()
     WatchItem local;
     local.iname = "local";
 
-    for (const GdbMi &child : qAsConst(actual.children())) {
+    for (const GdbMi &child : actual) {
         const QString iname = child["iname"].data();
         if (iname == "local.qtversion")
             context.qtVersion = child["value"].toInt();

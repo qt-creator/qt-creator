@@ -50,8 +50,6 @@
 #include <projectexplorer/session.h>
 
 #include <clangsupport/filecontainer.h>
-#include <clangsupport/projectpartcontainer.h>
-#include <clangsupport/projectpartsupdatedmessage.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -107,8 +105,6 @@ ModelManagerSupportClang::ModelManagerSupportClang()
     CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings().data();
     connect(settings, &CppTools::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
             this, &ModelManagerSupportClang::onDiagnosticConfigsInvalidated);
-
-    m_communicator.projectPartsUpdatedForFallback();
 }
 
 ModelManagerSupportClang::~ModelManagerSupportClang()
@@ -411,17 +407,16 @@ void ModelManagerSupportClang::onProjectPartsUpdated(ProjectExplorer::Project *p
     const CppTools::ProjectInfo projectInfo = cppModelManager()->projectInfo(project);
     QTC_ASSERT(projectInfo.isValid(), return);
 
-    m_communicator.projectPartsUpdated(projectInfo.projectParts());
-    m_communicator.projectPartsUpdatedForFallback();
+    QStringList projectPartIds;
+    for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo.projectParts())
+        projectPartIds.append(projectPart->id());
+    onProjectPartsRemoved(projectPartIds);
 }
 
 void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectPartIds)
 {
-    if (!projectPartIds.isEmpty()) {
-        closeBackendDocumentsWithProjectParts(projectPartIds);
-        m_communicator.projectPartsRemoved(projectPartIds);
-        m_communicator.projectPartsUpdatedForFallback();
-    }
+    if (!projectPartIds.isEmpty())
+        reinitializeBackendDocuments(projectPartIds);
 }
 
 static ClangEditorDocumentProcessors clangProcessorsWithDiagnosticConfig(
@@ -445,8 +440,7 @@ clangProcessorsWithProjectParts(const QStringList &projectPartIds)
     });
 }
 
-void ModelManagerSupportClang::closeBackendDocumentsWithProjectParts(
-        const QStringList &projectPartIds)
+void ModelManagerSupportClang::reinitializeBackendDocuments(const QStringList &projectPartIds)
 {
     const auto processors = clangProcessorsWithProjectParts(projectPartIds);
     foreach (ClangEditorDocumentProcessor *processor, processors) {

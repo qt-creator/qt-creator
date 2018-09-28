@@ -77,7 +77,7 @@ TEST_F(RequestAnnotationsJob, DontSendAnnotationsIfDocumentWasClosed)
     EXPECT_CALL(mockIpcClient, annotations(_)).Times(0);
 
     job.runAsync();
-    documents.remove({FileContainer{filePath, projectPartId}});
+    documents.remove({FileContainer{filePath}});
 
     ASSERT_TRUE(waitUntilJobFinished(job));
 }

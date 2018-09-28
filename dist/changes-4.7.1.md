@@ -25,9 +25,15 @@ C++ Support
 * Clang Code Model
     * Fixed include order for Clang headers
 
+QML Support
+
+* Fixed that comments could break reformatting (QTCREATORBUG-21036)
+
 Debugging
 
 * Fixed remote debugging command line argument (QTCREATORBUG-20928)
+* Fixed environment for `Start and Debug External Application`
+  (QTCREATORBUG-20185)
 * GDB
     * Fixed GDB built-in pretty printer handling (QTCREATORBUG-20770)
 * CDB

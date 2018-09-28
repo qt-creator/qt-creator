@@ -40,11 +40,9 @@ public:
     RequestCompletionsMessage(const Utf8String &filePath,
                               quint32 line,
                               quint32 column,
-                              const Utf8String &projectPartId,
                               qint32 funcNameStartLine = -1,
                               qint32 funcNameStartColumn = -1)
         : filePath(filePath)
-        , projectPartId(projectPartId)
         , ticketNumber(++ticketCounter)
         , line(line)
         , column(column)
@@ -56,7 +54,6 @@ public:
     friend QDataStream &operator<<(QDataStream &out, const RequestCompletionsMessage &message)
     {
         out << message.filePath;
-        out << message.projectPartId;
         out << message.ticketNumber;
         out << message.line;
         out << message.column;
@@ -69,7 +66,6 @@ public:
     friend QDataStream &operator>>(QDataStream &in, RequestCompletionsMessage &message)
     {
         in >> message.filePath;
-        in >> message.projectPartId;
         in >> message.ticketNumber;
         in >> message.line;
         in >> message.column;
@@ -84,7 +80,6 @@ public:
     {
         return first.ticketNumber == second.ticketNumber
                 && first.filePath == second.filePath
-                && first.projectPartId == second.projectPartId
                 && first.line == second.line
                 && first.column == second.column
                 && first.funcNameStartLine == second.funcNameStartLine

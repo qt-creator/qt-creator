@@ -455,7 +455,8 @@ void LldbEngine::activateFrame(int frameIndex)
 
     DebuggerCommand cmd("activateFrame");
     cmd.arg("index", frameIndex);
-    cmd.arg("thread", threadsHandler()->currentThread()->id());
+    if (Thread thread = threadsHandler()->currentThread())
+        cmd.arg("thread", thread->id());
     runCommand(cmd);
 
     updateLocals();

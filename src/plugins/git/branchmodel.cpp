@@ -319,10 +319,7 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
     BranchNode *node = indexToNode(index);
     if (!node)
         return Qt::NoItemFlags;
-    if (index.column() == 0 && node->isLeaf() && node->isLocal())
-        return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
-    else
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
 void BranchModel::clear()
@@ -344,15 +341,17 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     clear();
     if (workingDirectory.isEmpty()) {
         endResetModel();
-        return false;
+        return true;
     }
 
     m_currentSha = m_client->synchronousTopRevision(workingDirectory);
     const QStringList args = {"--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
                               "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)"};
     QString output;
-    if (!m_client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage))
-        VcsOutputWindow::appendError(*errorMessage);
+    if (!m_client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage)) {
+        endResetModel();
+        return false;
+    }
 
     m_workingDirectory = workingDirectory;
     const QStringList lines = output.split('\n');

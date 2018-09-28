@@ -64,6 +64,9 @@ public:
 
     SourceLocationContainer toSourceLocationContainer() const;
 
+    CXTranslationUnit tu() const { return cxTranslationUnit; }
+    CXSourceLocation cx() const { return cxSourceLocation; }
+
 private:
     operator CXSourceLocation() const;
 

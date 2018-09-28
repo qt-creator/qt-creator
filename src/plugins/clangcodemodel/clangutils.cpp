@@ -63,26 +63,6 @@ using namespace CppTools;
 namespace ClangCodeModel {
 namespace Utils {
 
-/**
- * @brief Creates list of message-line arguments required for correct parsing
- * @param pPart Null if file isn't part of any project
- * @param fileName Path to file, non-empty
- */
-QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fileName)
-{
-    ProjectFile::Kind fileKind = ProjectFile::Unclassified;
-    if (!pPart.isNull())
-        foreach (const ProjectFile &file, pPart->files)
-            if (file.path == fileName) {
-                fileKind = file.kind;
-                break;
-            }
-    if (fileKind == ProjectFile::Unclassified)
-        fileKind = ProjectFile::classify(fileName);
-
-    return createClangOptions(pPart, fileKind);
-}
-
 class LibClangOptionsBuilder final : public CompilerOptionsBuilder
 {
 public:
@@ -122,16 +102,10 @@ private:
     }
 };
 
-/**
- * @brief Creates list of message-line arguments required for correct parsing
- * @param pPart Null if file isn't part of any project
- * @param fileKind Determines language and source/header state
- */
-QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind fileKind)
+QStringList createClangOptions(const ProjectPart &projectPart, ProjectFile::Kind fileKind)
 {
-    if (!pPart)
-        return QStringList();
-    return LibClangOptionsBuilder(*pPart).build(fileKind, CompilerOptionsBuilder::PchUsage::None);
+    return LibClangOptionsBuilder(projectPart)
+        .build(fileKind, CompilerOptionsBuilder::PchUsage::None);
 }
 
 ProjectPart::Ptr projectPartForFile(const QString &filePath)

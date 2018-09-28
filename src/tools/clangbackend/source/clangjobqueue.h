@@ -31,13 +31,12 @@
 
 namespace ClangBackEnd {
 
-class ProjectParts;
 class Documents;
 
 class JobQueue
 {
 public:
-    JobQueue(Documents &documents, ProjectParts &projects, const Utf8String &logTag = Utf8String());
+    JobQueue(Documents &documents, const Utf8String &logTag = Utf8String());
 
     bool add(const JobRequest &job);
 
@@ -72,7 +71,6 @@ private:
 
 private:
     Documents &m_documents;
-    ProjectParts &m_projectParts;
     Utf8String m_logTag;
 
     IsJobRunningForTranslationUnitHandler m_isJobRunningForTranslationUnitHandler;

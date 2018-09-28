@@ -33,9 +33,6 @@
 #include "documentschangedmessage.h"
 #include "documentvisibilitychangedmessage.h"
 
-#include "projectpartsupdatedmessage.h"
-#include "projectpartsremovedmessage.h"
-
 #include "unsavedfilesupdatedmessage.h"
 #include "unsavedfilesremovedmessage.h"
 

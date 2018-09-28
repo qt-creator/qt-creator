@@ -44,9 +44,6 @@ public:
     void documentsClosed(const ClangBackEnd::DocumentsClosedMessage &message) override;
     void documentVisibilityChanged(const ClangBackEnd::DocumentVisibilityChangedMessage &message) override;
 
-    void projectPartsUpdated(const ClangBackEnd::ProjectPartsUpdatedMessage &message) override;
-    void projectPartsRemoved(const ClangBackEnd::ProjectPartsRemovedMessage &message) override;
-
     void unsavedFilesUpdated(const ClangBackEnd::UnsavedFilesUpdatedMessage &message) override;
     void unsavedFilesRemoved(const ClangBackEnd::UnsavedFilesRemovedMessage &message) override;
 

@@ -36,15 +36,17 @@
 
 namespace ClangBackEnd {
 
+class Cursor;
+class Token;
+
 class TokenInfo
 {
     friend bool operator==(const TokenInfo &first, const TokenInfo &second);
     template<class T> friend class TokenProcessor;
 public:
     TokenInfo() = default;
-    TokenInfo(const CXCursor &cxCursor,
-              CXToken *cxToken,
-              CXTranslationUnit cxTranslationUnit,
+    TokenInfo(const Cursor &cursor,
+              const Token *token,
               std::vector<CXSourceRange> &m_currentOutputArgumentRanges);
     virtual ~TokenInfo() = default;
 
@@ -100,8 +102,7 @@ protected:
     virtual void punctuationOrOperatorKind();
 
     Cursor m_originalCursor;
-    CXToken *m_cxToken = nullptr;
-    CXTranslationUnit m_cxTranslationUnit = nullptr;
+    const Token *m_token;
     HighlightingTypes m_types;
 
 private:

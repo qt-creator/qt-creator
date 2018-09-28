@@ -29,6 +29,7 @@
 #include "clangstring.h"
 #include "cursor.h"
 #include "sourcerange.h"
+#include "token.h"
 #include "unsavedfiles.h"
 #include "unsavedfile.h"
 
@@ -275,17 +276,12 @@ Utf8String ToolTipInfoCollector::textForNamespaceAlias(const Cursor &cursor) con
 {
     // TODO: Add some libclang API to get the aliased name straight away.
 
-    CXToken *cxTokens = nullptr;
-    uint cxTokenCount = 0;
-
-    clang_tokenize(m_cxTranslationUnit, cursor.cxSourceRange(), &cxTokens, &cxTokenCount);
+    const Tokens tokens(cursor.sourceRange());
 
     Utf8String aliasedName;
     // Start at 3 in order to skip these tokens: namespace X =
-    for (uint i = 3; i < cxTokenCount; ++i)
-        aliasedName += ClangString(clang_getTokenSpelling(m_cxTranslationUnit, cxTokens[i]));
-
-    clang_disposeTokens(m_cxTranslationUnit, cxTokens, cxTokenCount);
+    for (uint i = 3; i < tokens.size(); ++i)
+        aliasedName += tokens[i].spelling();
 
     return aliasedName;
 }

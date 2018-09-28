@@ -55,9 +55,6 @@ public:
     void documentsClosed(const DocumentsClosedMessage &message) override;
     void documentVisibilityChanged(const DocumentVisibilityChangedMessage &message) override;
 
-    void projectPartsUpdated(const ProjectPartsUpdatedMessage &message) override;
-    void projectPartsRemoved(const ProjectPartsRemovedMessage &message) override;
-
     void unsavedFilesUpdated(const UnsavedFilesUpdatedMessage &message) override;
     void unsavedFilesRemoved(const UnsavedFilesRemovedMessage &message) override;
 

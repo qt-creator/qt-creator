@@ -1,4 +1,4 @@
-/****************************************************************************
+/***************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -31,8 +31,8 @@
 #include "debuggericons.h"
 #include "debuggerinternalconstants.h"
 #include "disassembleragent.h"
+#include "enginemanager.h"
 #include "simplifytype.h"
-#include "snapshothandler.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugin.h>

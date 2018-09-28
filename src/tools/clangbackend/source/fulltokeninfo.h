@@ -34,9 +34,8 @@ class FullTokenInfo : public TokenInfo
     template<class T> friend class TokenProcessor;
 public:
     FullTokenInfo() = default;
-    FullTokenInfo(const CXCursor &cxCursor,
-                  CXToken *cxToken,
-                  CXTranslationUnit cxTranslationUnit,
+    FullTokenInfo(const Cursor &cursor,
+                  const Token *token,
                   std::vector<CXSourceRange> &m_currentOutputArgumentRanges);
     void evaluate() override;
 

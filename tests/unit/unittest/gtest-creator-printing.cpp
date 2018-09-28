@@ -237,15 +237,6 @@ std::ostream &operator<<(std::ostream &os, const SourceLocationsContainer &conta
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const ProjectPartsUpdatedMessage &message)
-{
-    os << "("
-       << message.projectContainers
-       << ")";
-
-    return os;
-}
-
 std::ostream &operator<<(std::ostream &os, const FollowSymbolResult &result)
 {
     os << "("
@@ -360,15 +351,6 @@ std::ostream &operator<<(std::ostream &os, const EchoMessage &/*message*/)
      return os << "()";
 }
 
-std::ostream &operator<<(std::ostream &os, const ProjectPartsRemovedMessage &message)
-{
-    os << "("
-       << message.projectPartIds
-       << ")";
-
-    return os;
-}
-
 std::ostream &operator<<(std::ostream &os, const DocumentsClosedMessage &message)
 {
     os << "("
@@ -469,8 +451,7 @@ std::ostream &operator<<(std::ostream &os, const FileContainer &container)
 {
     os << "("
         << container.filePath << ", "
-        << container.projectPartId << ", "
-        << container.fileArguments << ", "
+        << container.compilationArguments << ", "
         << container.documentRevision << ", "
         << container.textCodecName;
 
@@ -606,17 +587,6 @@ std::ostream &operator<<(std::ostream &out, const PrecompiledHeadersUpdatedMessa
     return out;
 }
 
-std::ostream &operator<<(std::ostream &os, const ProjectPartContainer &container)
-{
-    os << "("
-        << container.projectPartId
-        << ","
-        << container.arguments
-        << ")";
-
-    return os;
-}
-
 std::ostream &operator<<(std::ostream &out, const ProjectPartPch &projectPartPch)
 {
     out << "("
@@ -640,7 +610,6 @@ std::ostream &operator<<(std::ostream &os, const RequestAnnotationsMessage &mess
 {
     os << "("
        << message.fileContainer.filePath << ","
-       << message.fileContainer.projectPartId
        << ")";
 
     return os;

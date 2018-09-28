@@ -67,7 +67,7 @@ public:
         m_binary->setExpectedKind(Utils::PathChooser::ExistingCommand);
         m_binary->setCommandVersionArguments({"--version"});
 
-        const auto variableChooser = new Core::VariableChooser (this);
+        auto variableChooser = new Core::VariableChooser(this);
         variableChooser->addSupportedWidget (m_customArguments);
 
         m_unusedFunction->setToolTip(tr("Disables multithreaded check."));
@@ -77,10 +77,10 @@ public:
                                          "checking slower. Use only when needed."));
         m_guessArguments->setToolTip(tr("Like C++ standard and language."));
 
-        const auto layout = new QFormLayout(this);
+        auto layout = new QFormLayout(this);
         layout->addRow(tr("Binary:"), m_binary);
 
-        const auto checks = new Utils::FlowLayout;
+        auto checks = new Utils::FlowLayout;
         layout->addRow(tr("Checks:"), checks);
         checks->addWidget(m_warning);
         checks->addWidget(m_style);
@@ -92,7 +92,7 @@ public:
 
         layout->addRow(tr("Custom arguments:"), m_customArguments);
         layout->addRow(tr("Ignored file patterns:"), m_ignorePatterns);
-        const auto flags = new Utils::FlowLayout;
+        auto flags = new Utils::FlowLayout;
         layout->addRow(flags);
         flags->addWidget(m_inconclusive);
         flags->addWidget(m_forceDefines);
@@ -169,7 +169,7 @@ CppcheckOptionsPage::CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &tr
     if (Utils::HostOsInfo::isAnyUnixHost()) {
         options.binary = "cppcheck";
     } else {
-        auto programFiles = QDir::fromNativeSeparators(
+        QString programFiles = QDir::fromNativeSeparators(
                     QString::fromLocal8Bit(qgetenv("PROGRAMFILES")));
         if (programFiles.isEmpty())
             programFiles = "C:/Program Files";
@@ -204,7 +204,7 @@ void CppcheckOptionsPage::finish()
 
 void CppcheckOptionsPage::save(const CppcheckOptions &options) const
 {
-    const auto s = Core::ICore::settings();
+    QSettings *s = Core::ICore::settings();
     QTC_ASSERT(s, return);
     s->beginGroup(Constants::SETTINGS_ID);
     s->setValue(Constants::SETTINGS_BINARY, options.binary);
@@ -227,7 +227,7 @@ void CppcheckOptionsPage::save(const CppcheckOptions &options) const
 
 void CppcheckOptionsPage::load(CppcheckOptions &options) const
 {
-    const auto s = Core::ICore::settings();
+    QSettings *s = Core::ICore::settings();
     QTC_ASSERT(s, return);
     s->beginGroup(Constants::SETTINGS_ID);
     options.binary = s->value(Constants::SETTINGS_BINARY,

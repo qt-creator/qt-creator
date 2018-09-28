@@ -27,7 +27,6 @@
 
 #include "dummyclangipcclient.h"
 #include "processevents-utilities.h"
-#include "runprojectcreateorupdate-utility.h"
 
 #include <clangbackend_global.h>
 #include <clangdocuments.h>
@@ -35,7 +34,6 @@
 #include <clangsupportivetranslationunitinitializer.cpp>
 #include <clangtranslationunit.h>
 #include <clangtranslationunits.h>
-#include <projects.h>
 #include <utf8string.h>
 
 #include <clang-c/Index.h>
@@ -62,17 +60,14 @@ protected:
 
 protected:
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
-    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
 
-    ProjectParts projects;
-    UnitTest::RunProjectCreateOrUpdate _1{projects, {ProjectPartContainer(projectPartId)}};
     UnsavedFiles unsavedFiles;
-    const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
-    Documents documents{projects, unsavedFiles};
+    const QVector<FileContainer> fileContainer{FileContainer(filePath)};
+    Documents documents{unsavedFiles};
     Document document{documents.create(fileContainer).front()};
     DummyIpcClient dummyClientInterface;
 
-    Jobs jobs{documents, unsavedFiles, projects, dummyClientInterface};
+    Jobs jobs{documents, unsavedFiles, dummyClientInterface};
 
     ClangBackEnd::SupportiveTranslationUnitInitializer initializer{document, jobs};
 };
@@ -86,7 +81,7 @@ TEST_F(SupportiveTranslationUnitInitializer, HasInitiallyNotInitializedState)
 
 TEST_F(SupportiveTranslationUnitInitializer, StartInitializingAbortsIfDocumentIsClosed)
 {
-    documents.remove({FileContainer(filePath, projectPartId)});
+    documents.remove({FileContainer(filePath)});
 
     initializer.startInitializing();
 
@@ -125,7 +120,7 @@ TEST_F(SupportiveTranslationUnitInitializerSlowTest, Abort)
 
 TEST_F(SupportiveTranslationUnitInitializer, CheckIfParseJobFinishedAbortsIfDocumentIsClosed)
 {
-    documents.remove({FileContainer(filePath, projectPartId)});
+    documents.remove({FileContainer(filePath)});
     initializer.setState(ClangBackEnd::SupportiveTranslationUnitInitializer::State::WaitingForParseJob);
     const Jobs::RunningJob runningJob = createRunningJob(JobRequest::Type::ParseSupportiveTranslationUnit);
 
@@ -162,16 +157,14 @@ void SupportiveTranslationUnitInitializer::SetUp()
     documents.setVisibleInEditors({filePath});
     documents.setUsedByCurrentEditor(filePath);
 
-    const auto isDocumentClosed = [this](const Utf8String &filePath,
-                                         const Utf8String &projectPartId) {
-        return !documents.hasDocument(filePath, projectPartId);
+    const auto isDocumentClosed = [this](const Utf8String &filePath) {
+        return !documents.hasDocument(filePath);
     };
     initializer.setIsDocumentClosedChecker(isDocumentClosed);
 }
 
 void SupportiveTranslationUnitInitializer::parse()
 {
-    projects.createOrUpdate({ProjectPartContainer{projectPartId, Utf8StringVector()}});
     document.parse();
 }
 

@@ -366,7 +366,7 @@ FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *parent) :
     m_autoHideTitleBars.setChecked(true);
 
     QObject::connect(&m_autoHideTitleBars, &QAction::toggled, q, [this](bool) {
-        foreach (QDockWidget *dock, q->dockWidgets()) {
+        for (QDockWidget *dock : q->dockWidgets()) {
             if (auto titleBar = dynamic_cast<TitleBarWidget *>(dock->titleBarWidget()))
                 titleBar->updateChildren();
         }
@@ -427,7 +427,7 @@ void FancyMainWindow::setTrackingEnabled(bool enabled)
 {
     if (enabled) {
         d->m_handleDockVisibilityChanges = true;
-        foreach (QDockWidget *dockWidget, dockWidgets())
+        for (QDockWidget *dockWidget : dockWidgets())
             dockWidget->setProperty(dockWidgetActiveState, dockWidget->isVisible());
     } else {
         d->m_handleDockVisibilityChanges = false;
@@ -456,7 +456,7 @@ void FancyMainWindow::contextMenuEvent(QContextMenuEvent *event)
 void FancyMainWindow::handleVisibilityChanged(bool visible)
 {
     d->m_handleDockVisibilityChanges = false;
-    foreach (QDockWidget *dockWidget, dockWidgets()) {
+    for (QDockWidget *dockWidget : dockWidgets()) {
         if (dockWidget->isFloating()) {
             dockWidget->setVisible(visible
                 && dockWidget->property(dockWidgetActiveState).toBool());
@@ -492,7 +492,7 @@ QHash<QString, QVariant> FancyMainWindow::saveSettings() const
     settings.insert(QLatin1String(AutoHideTitleBarsKey),
         d->m_autoHideTitleBars.isChecked());
     settings.insert(ShowCentralWidgetKey, d->m_showCentralWidget.isChecked());
-    foreach (QDockWidget *dockWidget, dockWidgets()) {
+    for (QDockWidget *dockWidget : dockWidgets()) {
         settings.insert(dockWidget->objectName(),
                 dockWidget->property(dockWidgetActiveState));
     }
@@ -507,13 +507,13 @@ void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
     bool on = settings.value(QLatin1String(AutoHideTitleBarsKey), true).toBool();
     d->m_autoHideTitleBars.setChecked(on);
     d->m_showCentralWidget.setChecked(settings.value(ShowCentralWidgetKey, true).toBool());
-    foreach (QDockWidget *widget, dockWidgets()) {
+    for (QDockWidget *widget : dockWidgets()) {
         widget->setProperty(dockWidgetActiveState,
             settings.value(widget->objectName(), false));
     }
 }
 
-QList<QDockWidget *> FancyMainWindow::dockWidgets() const
+const QList<QDockWidget *> FancyMainWindow::dockWidgets() const
 {
     return findChildren<QDockWidget *>();
 }
@@ -577,7 +577,7 @@ QAction *FancyMainWindow::showCentralWidgetAction() const
 
 void FancyMainWindow::setDockActionsVisible(bool v)
 {
-    foreach (const QDockWidget *dockWidget, dockWidgets())
+    for (const QDockWidget *dockWidget : dockWidgets())
         dockWidget->toggleViewAction()->setVisible(v);
     d->m_showCentralWidget.setVisible(v);
     d->m_autoHideTitleBars.setVisible(v);

@@ -66,7 +66,7 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
             p.failed = true;
             p.errorMessage = QCoreApplication::translate("WidgetPluginManager",
                                                          "Failed to create instance of file "
-                                                         "\"%1\": %2").arg(p.path).arg(p.errorMessage);
+                                                         "\"%1\": %2").arg(p.path).arg(loader.errorString());
             qWarning() << p.errorMessage;
             return nullptr;
         }

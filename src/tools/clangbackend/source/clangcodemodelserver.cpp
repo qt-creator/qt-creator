@@ -55,7 +55,7 @@ static bool useSupportiveTranslationUnit()
 namespace ClangBackEnd {
 
 ClangCodeModelServer::ClangCodeModelServer()
-    : documents(projects, unsavedFiles)
+    : documents(unsavedFiles)
 {
     updateAnnotationsTimer.setSingleShot(true);
     QObject::connect(&updateAnnotationsTimer,
@@ -74,7 +74,7 @@ ClangCodeModelServer::ClangCodeModelServer()
     QObject::connect(documents.clangFileSystemWatcher(),
                      &ClangFileSystemWatcher::fileChanged,
                      [this](const Utf8String &filePath) {
-        if (!documents.hasDocumentWithFilePath(filePath))
+        if (!documents.hasDocument(filePath))
             updateAnnotationsTimer.start(0);
     });
 }
@@ -161,43 +161,6 @@ void ClangCodeModelServer::documentsClosed(const ClangBackEnd::DocumentsClosedMe
     }
 }
 
-static DocumentResetInfos toDocumentResetInfos(const std::vector<Document> &documents)
-{
-    DocumentResetInfos infos;
-    for (const auto &d : documents)
-        infos.push_back(DocumentResetInfo{d, d.fileContainer()});
-    return infos;
-}
-
-void ClangCodeModelServer::projectPartsUpdated(const ProjectPartsUpdatedMessage &message)
-{
-    qCDebug(serverLog) << "########## projectPartsUpdated";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::projectPartsUpdated");
-
-    try {
-        projects.createOrUpdate(message.projectContainers);
-        std::vector<Document> affectedDocuments = documents.setDocumentsDirtyIfProjectPartChanged();
-
-        resetDocuments(toDocumentResetInfos(affectedDocuments));
-
-        processJobsForVisibleDocuments();
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::projectPartsUpdated:" << exception.what();
-    }
-}
-
-void ClangCodeModelServer::projectPartsRemoved(const ProjectPartsRemovedMessage &message)
-{
-    qCDebug(serverLog) << "########## projectPartsRemoved";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::projectPartsRemoved");
-
-    try {
-        projects.remove(message.projectPartIds);
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::projectPartsRemoved:" << exception.what();
-    }
-}
-
 void ClangCodeModelServer::unsavedFilesUpdated(const UnsavedFilesUpdatedMessage &message)
 {
     qCDebug(serverLog) << "########## unsavedFilesUpdated";
@@ -232,7 +195,7 @@ void ClangCodeModelServer::requestCompletions(const ClangBackEnd::RequestComplet
     TIME_SCOPE_DURATION("ClangCodeModelServer::requestCompletions");
 
     try {
-        Document document = documents.document(message.filePath, message.projectPartId);
+        Document document = documents.document(message.filePath);
         DocumentProcessor processor = documentProcessors().processor(document);
 
         JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::RequestCompletions);
@@ -255,8 +218,7 @@ void ClangCodeModelServer::requestAnnotations(const RequestAnnotationsMessage &m
     TIME_SCOPE_DURATION("ClangCodeModelServer::requestAnnotations");
 
     try {
-        auto document = documents.document(message.fileContainer.filePath,
-                                           message.fileContainer.projectPartId);
+        auto document = documents.document(message.fileContainer.filePath);
 
         DocumentProcessor processor = documentProcessors().processor(document);
         processor.addJob(JobRequest::Type::RequestAnnotations);
@@ -285,8 +247,7 @@ void ClangCodeModelServer::requestReferences(const RequestReferencesMessage &mes
     TIME_SCOPE_DURATION("ClangCodeModelServer::requestReferences");
 
     try {
-        const Document document = documents.document(message.fileContainer.filePath,
-                                                     message.fileContainer.projectPartId);
+        const Document document = documents.document(message.fileContainer.filePath);
         DocumentProcessor processor = documentProcessors().processor(document);
 
         JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::RequestReferences);
@@ -305,8 +266,7 @@ void ClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMessage 
     TIME_SCOPE_DURATION("ClangCodeModelServer::requestFollowSymbol");
 
     try {
-        const Utf8String &projectPartId = message.fileContainer.projectPartId;
-        Document document = documents.document(message.fileContainer.filePath, projectPartId);
+        Document document = documents.document(message.fileContainer.filePath);
         DocumentProcessor processor = documentProcessors().processor(document);
 
         JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::RequestFollowSymbol);
@@ -323,8 +283,7 @@ void ClangCodeModelServer::requestToolTip(const RequestToolTipMessage &message)
     TIME_SCOPE_DURATION("ClangCodeModelServer::requestToolTip");
 
     try {
-        const Document document = documents.document(message.fileContainer.filePath,
-                                                     message.fileContainer.projectPartId);
+        const Document document = documents.document(message.fileContainer.filePath);
         DocumentProcessor processor = documentProcessors().processor(document);
 
         JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::RequestToolTip);
@@ -504,7 +463,7 @@ DocumentProcessors &ClangCodeModelServer::documentProcessors()
         // DocumentProcessors needs a reference to the client, but the client
         // is not known at construction time of ClangCodeModelServer, so
         // construct DocumentProcessors in a lazy manner.
-        documentProcessors_.reset(new DocumentProcessors(documents, unsavedFiles, projects, *client()));
+        documentProcessors_.reset(new DocumentProcessors(documents, unsavedFiles, *client()));
     }
 
     return *documentProcessors_.data();

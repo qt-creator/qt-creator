@@ -70,7 +70,7 @@ CppcheckTextMark::CppcheckTextMark (const Diagnostic &diagnostic)
     m_checkId(diagnostic.checkId),
     m_message(diagnostic.message)
 {
-    const auto visual = getVisual(diagnostic.severity);
+    const Visual visual = getVisual(diagnostic.severity);
     setPriority(visual.priority);
     setColor(visual.color);
     setIcon(visual.icon);

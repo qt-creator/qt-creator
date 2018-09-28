@@ -47,9 +47,6 @@ public:
     virtual void documentsClosed(const DocumentsClosedMessage &message) = 0;
     virtual void documentVisibilityChanged(const DocumentVisibilityChangedMessage &message) = 0;
 
-    virtual void projectPartsUpdated(const ProjectPartsUpdatedMessage &message) = 0;
-    virtual void projectPartsRemoved(const ProjectPartsRemovedMessage &message) = 0;
-
     virtual void unsavedFilesUpdated(const UnsavedFilesUpdatedMessage &message) = 0;
     virtual void unsavedFilesRemoved(const UnsavedFilesRemovedMessage &message) = 0;
 

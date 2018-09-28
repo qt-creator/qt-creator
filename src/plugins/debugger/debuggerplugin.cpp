@@ -41,6 +41,7 @@
 #include "memoryagent.h"
 #include "breakhandler.h"
 #include "disassemblerlines.h"
+#include "enginemanager.h"
 #include "logwindow.h"
 #include "moduleshandler.h"
 #include "stackhandler.h"
@@ -52,11 +53,9 @@
 #include "localsandexpressionswindow.h"
 #include "loadcoredialog.h"
 #include "sourceutils.h"
-#include "snapshothandler.h"
 #include "shared/hostutils.h"
 #include "console/console.h"
 
-#include "snapshothandler.h"
 #include "threadshandler.h"
 #include "commonoptionspage.h"
 

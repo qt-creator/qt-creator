@@ -50,11 +50,10 @@ HEADERS += \
     $$PWD/diagnosticsetiterator.h \
     $$PWD/fixit.h \
     $$PWD/fulltokeninfo.h \
-    $$PWD/projectpart.h \
-    $$PWD/projects.h \
     $$PWD/skippedsourceranges.h \
     $$PWD/sourcelocation.h \
     $$PWD/sourcerange.h \
+    $$PWD/token.h \
     $$PWD/tokeninfo.h \
     $$PWD/tokenprocessor.h \
     $$PWD/tokenprocessoriterator.h \
@@ -106,11 +105,10 @@ SOURCES += \
     $$PWD/diagnosticset.cpp \
     $$PWD/fixit.cpp \
     $$PWD/fulltokeninfo.cpp \
-    $$PWD/projectpart.cpp \
-    $$PWD/projects.cpp \
     $$PWD/skippedsourceranges.cpp \
     $$PWD/sourcelocation.cpp \
     $$PWD/sourcerange.cpp \
+    $$PWD/token.cpp \
     $$PWD/tokeninfo.cpp \
     $$PWD/unsavedfile.cpp \
     $$PWD/unsavedfiles.cpp \

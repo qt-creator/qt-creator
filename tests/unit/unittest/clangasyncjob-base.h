@@ -33,7 +33,6 @@
 #include <clangdocument.h>
 #include <clangiasyncjob.h>
 #include <clangjobrequest.h>
-#include <projects.h>
 #include <clangdocuments.h>
 #include <unsavedfiles.h>
 
@@ -50,16 +49,14 @@ protected:
                               int timeOutInMs = 10000) const;
 
 protected:
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     ClangBackEnd::Document document;
 
     MockClangCodeModelClient mockIpcClient;
     DummyIpcClient dummyIpcClient;
 
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
-    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
 
     ClangBackEnd::JobRequest jobRequest;
     ClangBackEnd::JobContext jobContext;

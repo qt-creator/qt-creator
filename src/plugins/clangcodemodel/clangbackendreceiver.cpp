@@ -199,14 +199,7 @@ void BackendReceiver::annotations(const AnnotationsMessage &message)
                  << message.skippedPreprocessorRanges.size() << "skipped preprocessor ranges";
 
     auto processor = ClangEditorDocumentProcessor::get(message.fileContainer.filePath);
-
     if (!processor)
-        return;
-
-    const QString projectPartId = message.fileContainer.projectPartId;
-    const QString filePath = message.fileContainer.filePath;
-    const QString documentProjectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
-    if (projectPartId != documentProjectPartId)
         return;
 
     const quint32 documentRevision = message.fileContainer.documentRevision;

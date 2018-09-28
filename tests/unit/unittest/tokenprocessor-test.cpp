@@ -33,8 +33,6 @@
 #include <clangsupport_global.h>
 #include <clangstring.h>
 #include <fulltokeninfo.h>
-#include <projectpart.h>
-#include <projects.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
 #include <tokeninfo.h>
@@ -52,7 +50,6 @@ using ClangBackEnd::Document;
 using ClangBackEnd::Documents;
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
-using ClangBackEnd::ProjectPart;
 using ClangBackEnd::ClangString;
 using ClangBackEnd::SourceRange;
 
@@ -127,15 +124,13 @@ struct Data {
         document.parse();
     }
 
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/highlightingmarks.cpp")};
     Document document{filePath,
-                      ProjectPart(Utf8StringLiteral("projectPartId"),
-                                  TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14"),
-                                                                         Utf8StringLiteral("-I" TESTDATA_DIR)})),
-                      {},
+                      TestEnvironment::addPlatformArguments(
+                          {Utf8StringLiteral("-std=c++14"),
+                           Utf8StringLiteral("-I" TESTDATA_DIR)}),
                       documents};
     TranslationUnit translationUnit{filePath,
                                     filePath,

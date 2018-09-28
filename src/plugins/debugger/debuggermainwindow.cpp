@@ -318,7 +318,7 @@ void DebuggerMainWindow::onModeChanged(Core::Id mode)
         theMainWindow->setDockActionsVisible(false);
 
         // Hide dock widgets manually in case they are floating.
-        foreach (QDockWidget *dockWidget, theMainWindow->dockWidgets()) {
+        for (QDockWidget *dockWidget : theMainWindow->dockWidgets()) {
             if (dockWidget->isFloating())
                 dockWidget->hide();
         }

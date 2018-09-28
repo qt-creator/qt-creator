@@ -577,7 +577,6 @@ void ClangCompletionAssistProcessor::sendFileContent(const QByteArray &customFil
 
     BackendCommunicator &communicator = m_interface->communicator();
     communicator.documentsChanged({{m_interface->fileName(),
-                                    Utf8String(),
                                     Utf8String::fromByteArray(info.unsavedContent),
                                     info.isDocumentModified,
                                     uint(m_interface->textDocument()->revision())}});
@@ -658,12 +657,10 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
 
         const Position cursorPosition = extractLineColumn(position);
         const Position functionNameStart = extractLineColumn(functionNameStartPosition);
-        const QString projectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
         communicator.requestCompletions(this,
                                         filePath,
                                         uint(cursorPosition.line),
                                         uint(cursorPosition.column),
-                                        projectPartId,
                                         functionNameStart.line,
                                         functionNameStart.column);
         setLastCompletionPosition(filePath, position);

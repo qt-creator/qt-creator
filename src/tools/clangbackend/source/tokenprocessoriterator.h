@@ -41,53 +41,49 @@ template<class T>
 class TokenProcessorIterator : public std::iterator<std::forward_iterator_tag, TokenInfo, uint>
 {
 public:
-    TokenProcessorIterator(std::vector<CXCursor>::const_iterator cxCursorIterator,
-                           CXToken *cxToken,
-                           CXTranslationUnit cxTranslationUnit,
+    TokenProcessorIterator(std::vector<Cursor>::const_iterator cursorIterator,
+                           std::vector<Token>::const_iterator tokenIterator,
                            std::vector<CXSourceRange> &currentOutputArgumentRanges)
-        : cxCursorIterator(cxCursorIterator),
-          cxToken(cxToken),
-          cxTranslationUnit(cxTranslationUnit),
+        : cursorIterator(cursorIterator),
+          tokenIterator(tokenIterator),
           currentOutputArgumentRanges(currentOutputArgumentRanges)
     {}
 
     TokenProcessorIterator& operator++()
     {
-        ++cxCursorIterator;
-        ++cxToken;
+        ++cursorIterator;
+        ++tokenIterator;
 
         return *this;
     }
 
     TokenProcessorIterator operator++(int)
     {
-        return TokenProcessorIterator(cxCursorIterator++,
-                                      cxToken++,
-                                      cxTranslationUnit,
+        return TokenProcessorIterator(cursorIterator++,
+                                      tokenIterator++,
                                       currentOutputArgumentRanges);
     }
 
     bool operator==(TokenProcessorIterator other) const
     {
-        return cxCursorIterator == other.cxCursorIterator;
+        return cursorIterator == other.cursorIterator;
     }
 
     bool operator!=(TokenProcessorIterator other) const
     {
-        return cxCursorIterator != other.cxCursorIterator;
+        return cursorIterator != other.cursorIterator;
     }
 
     T operator*()
     {
-        T tokenInfo(*cxCursorIterator, cxToken, cxTranslationUnit, currentOutputArgumentRanges);
+        T tokenInfo(*cursorIterator, &(*tokenIterator), currentOutputArgumentRanges);
         tokenInfo.evaluate();
         return tokenInfo;
     }
 
 private:
-    std::vector<CXCursor>::const_iterator cxCursorIterator;
-    CXToken *cxToken;
-    CXTranslationUnit cxTranslationUnit;
+    std::vector<Cursor>::const_iterator cursorIterator;
+    std::vector<Token>::const_iterator tokenIterator;
     std::vector<CXSourceRange> &currentOutputArgumentRanges;
 };
 

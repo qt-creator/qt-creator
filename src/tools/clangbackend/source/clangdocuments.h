@@ -37,13 +37,12 @@
 
 namespace ClangBackEnd {
 
-class ProjectParts;
 class UnsavedFiles;
 
 class Documents
 {
 public:
-    Documents(ProjectParts &projectParts, UnsavedFiles &unsavedFiles);
+    Documents(UnsavedFiles &unsavedFiles);
 
     std::vector<Document> create(const QVector<FileContainer> &fileContainers);
     std::vector<Document> update(const QVector<FileContainer> &fileContainers);
@@ -52,10 +51,9 @@ public:
     void setUsedByCurrentEditor(const Utf8String &filePath);
     void setVisibleInEditors(const Utf8StringVector &filePaths);
 
-    const Document &document(const Utf8String &filePath, const Utf8String &projectPartId) const;
+    const Document &document(const Utf8String &filePath) const;
     const Document &document(const FileContainer &fileContainer) const;
-    bool hasDocument(const Utf8String &filePath, const Utf8String &projectPartId) const;
-    bool hasDocumentWithFilePath(const Utf8String &filePath) const;
+    bool hasDocument(const Utf8String &filePath) const;
 
     const std::vector<Document> &documents() const;
     using IsMatchingDocument = std::function<bool(const Document &document)>;
@@ -68,7 +66,6 @@ public:
 
     void updateDocumentsWithChangedDependency(const Utf8String &filePath);
     void updateDocumentsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
-    std::vector<Document> setDocumentsDirtyIfProjectPartChanged();
 
     QVector<FileContainer> newerFileContainers(const QVector<FileContainer> &fileContainers) const;
 
@@ -77,12 +74,8 @@ public:
 private:
     Document createDocument(const FileContainer &fileContainer);
     std::vector<Document> updateDocument(const FileContainer &fileContainer);
-    std::vector<Document>::iterator findDocument(const FileContainer &fileContainer);
+    std::vector<Document>::const_iterator findDocument(const FileContainer &fileContainer) const;
     std::vector<Document> findAllDocumentsWithFilePath(const Utf8String &filePath);
-    std::vector<Document>::const_iterator findDocument(const Utf8String &filePath, const Utf8String &projectPartId) const;
-    bool hasDocument(const FileContainer &fileContainer) const;
-    void checkIfProjectPartExists(const Utf8String &projectFileName) const;
-    void checkIfProjectPartsExists(const QVector<FileContainer> &fileContainers) const;
     void checkIfDocumentsDoNotExist(const QVector<FileContainer> &fileContainers) const;
     void checkIfDocumentsForFilePathsExist(const QVector<FileContainer> &fileContainers) const;
 
@@ -91,7 +84,6 @@ private:
 private:
     ClangFileSystemWatcher fileSystemWatcher;
     std::vector<Document> documents_;
-    ProjectParts &projectParts;
     UnsavedFiles &unsavedFiles_;
 };
 

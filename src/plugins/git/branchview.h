@@ -31,6 +31,7 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
+class QModelIndex;
 class QPoint;
 class QToolButton;
 class QTreeView;
@@ -79,6 +80,7 @@ private:
     bool merge(bool allowFastForward);
     void rebase();
     bool cherryPick();
+    void log(const QModelIndex &idx);
 
     QToolButton *m_addButton = nullptr;
     QToolButton *m_refreshButton = nullptr;

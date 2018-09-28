@@ -73,24 +73,20 @@ static QList<QByteArray> extraClangCodeModelAppendOptions() {
 namespace ClangBackEnd {
 
 CommandLineArguments::CommandLineArguments(const char *filePath,
-                                           const Utf8StringVector &projectPartArguments,
-                                           const Utf8StringVector &fileArguments,
+                                           const Utf8StringVector &compilationArguments,
                                            bool addVerboseOption)
     : m_prependArgs(extraClangCodeModelPrependOptions()),
       m_appendArgs(extraClangCodeModelAppendOptions())
 {
     const int elementsToReserve = m_prependArgs.size()
-            + projectPartArguments.size()
-            + fileArguments.size()
+            + compilationArguments.size()
             + (addVerboseOption ? 1 : 0)
             + m_appendArgs.size();
     m_arguments.reserve(static_cast<size_t>(elementsToReserve));
 
     for (const auto &argument : m_prependArgs)
         m_arguments.push_back(argument.constData());
-    for (const auto &argument : projectPartArguments)
-        m_arguments.push_back(argument.constData());
-    for (const auto &argument : fileArguments)
+    for (const auto &argument : compilationArguments)
         m_arguments.push_back(argument.constData());
     if (addVerboseOption)
         m_arguments.push_back("-v");

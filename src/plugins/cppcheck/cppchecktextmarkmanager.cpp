@@ -38,9 +38,8 @@ CppcheckTextMarkManager::~CppcheckTextMarkManager() = default;
 
 void CppcheckTextMarkManager::add(const Diagnostic &diagnostic)
 {
-    auto &fileMarks = m_marks[diagnostic.fileName];
-    const auto finder = [diagnostic] (const MarkPtr &mark) {return *mark == diagnostic;};
-    if (Utils::contains(fileMarks, finder))
+    std::vector<MarkPtr> &fileMarks = m_marks[diagnostic.fileName];
+    if (Utils::contains(fileMarks, [diagnostic](const MarkPtr &mark) {return *mark == diagnostic;}))
         return;
 
     fileMarks.push_back(std::make_unique<CppcheckTextMark>(diagnostic));
@@ -52,7 +51,7 @@ void CppcheckTextMarkManager::clearFiles(const Utils::FileNameList &files)
         return;
 
     if (!files.empty()) {
-        for (const auto &file: files)
+        for (const Utils::FileName &file : files)
             m_marks.erase(file);
     } else {
         m_marks.clear();

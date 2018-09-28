@@ -35,8 +35,8 @@
 #include "debuggerplugin.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "breakhandler.h"
+#include "enginemanager.h"
 #include "shared/peutils.h"
-#include "snapshothandler.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>

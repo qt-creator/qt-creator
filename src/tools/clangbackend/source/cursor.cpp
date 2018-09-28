@@ -36,18 +36,18 @@
 namespace ClangBackEnd {
 
 Cursor::Cursor()
-    : cxCursor(clang_getNullCursor())
+    : m_cxCursor(clang_getNullCursor())
 {
 }
 
 Cursor::Cursor(CXCursor cxCursor)
-    : cxCursor(cxCursor)
+    : m_cxCursor(cxCursor)
 {
 }
 
 bool Cursor::isNull() const
 {
-    return clang_Cursor_isNull(cxCursor);
+    return clang_Cursor_isNull(m_cxCursor);
 }
 
 bool Cursor::isValid() const
@@ -62,32 +62,32 @@ bool Cursor::isTranslationUnit() const
 
 bool Cursor::isDefinition() const
 {
-    return clang_isCursorDefinition(cxCursor);
+    return clang_isCursorDefinition(m_cxCursor);
 }
 
 bool Cursor::isDynamicCall() const
 {
-    return clang_Cursor_isDynamicCall(cxCursor);
+    return clang_Cursor_isDynamicCall(m_cxCursor);
 }
 
 bool Cursor::isVirtualMethod() const
 {
-    return clang_CXXMethod_isVirtual(cxCursor);
+    return clang_CXXMethod_isVirtual(m_cxCursor);
 }
 
 bool Cursor::isPureVirtualMethod() const
 {
-    return clang_CXXMethod_isPureVirtual(cxCursor);
+    return clang_CXXMethod_isPureVirtual(m_cxCursor);
 }
 
 bool Cursor::isConstantMethod() const
 {
-    return clang_CXXMethod_isConst(cxCursor);
+    return clang_CXXMethod_isConst(m_cxCursor);
 }
 
 bool Cursor::isStaticMethod() const
 {
-    return clang_CXXMethod_isStatic(cxCursor);
+    return clang_CXXMethod_isStatic(m_cxCursor);
 }
 
 bool Cursor::isCompoundType() const
@@ -108,7 +108,7 @@ bool Cursor::isDeclaration() const
 bool Cursor::isInvalidDeclaration() const
 {
 #ifdef IS_INVALIDDECL_SUPPORTED
-    return clang_isInvalidDeclaration(cxCursor);
+    return clang_isInvalidDeclaration(m_cxCursor);
 #else
     return false;
 #endif
@@ -219,42 +219,42 @@ bool Cursor::isUnexposed() const
 
 ClangString Cursor::unifiedSymbolResolution() const
 {
-    return ClangString(clang_getCursorUSR(cxCursor));
+    return ClangString(clang_getCursorUSR(m_cxCursor));
 }
 
 ClangString Cursor::mangling() const
 {
-    return ClangString(clang_Cursor_getMangling(cxCursor));
+    return ClangString(clang_Cursor_getMangling(m_cxCursor));
 }
 
 ClangString Cursor::spelling() const
 {
-    return ClangString(clang_getCursorSpelling(cxCursor));
+    return ClangString(clang_getCursorSpelling(m_cxCursor));
 }
 
 ClangString Cursor::displayName() const
 {
-    return ClangString(clang_getCursorDisplayName(cxCursor));
+    return ClangString(clang_getCursorDisplayName(m_cxCursor));
 }
 
 ClangString Cursor::briefComment() const
 {
-    return ClangString(clang_Cursor_getBriefCommentText(cxCursor));
+    return ClangString(clang_Cursor_getBriefCommentText(m_cxCursor));
 }
 
 ClangString Cursor::rawComment() const
 {
-    return ClangString(clang_Cursor_getRawCommentText(cxCursor));
+    return ClangString(clang_Cursor_getRawCommentText(m_cxCursor));
 }
 
 int Cursor::argumentCount() const
 {
-    return clang_Cursor_getNumArguments(cxCursor);
+    return clang_Cursor_getNumArguments(m_cxCursor);
 }
 
 Type Cursor::type() const
 {
-    return clang_getCursorType(cxCursor);
+    return clang_getCursorType(m_cxCursor);
 }
 
 Type Cursor::nonPointerTupe() const
@@ -269,88 +269,88 @@ Type Cursor::nonPointerTupe() const
 
 Type Cursor::enumType() const
 {
-    return clang_getEnumDeclIntegerType(cxCursor);
+    return clang_getEnumDeclIntegerType(m_cxCursor);
 }
 
 long long Cursor::enumConstantValue() const
 {
-    return clang_getEnumConstantDeclValue(cxCursor);
+    return clang_getEnumConstantDeclValue(m_cxCursor);
 }
 
 unsigned long long Cursor::enumConstantUnsignedValue() const
 {
-    return clang_getEnumConstantDeclUnsignedValue(cxCursor);
+    return clang_getEnumConstantDeclUnsignedValue(m_cxCursor);
 }
 
 Cursor Cursor::specializedCursorTemplate() const
 {
-    return clang_getSpecializedCursorTemplate(cxCursor);
+    return clang_getSpecializedCursorTemplate(m_cxCursor);
 }
 
 CXFile Cursor::includedFile() const
 {
-    return clang_getIncludedFile(cxCursor);
+    return clang_getIncludedFile(m_cxCursor);
 }
 
 SourceLocation Cursor::sourceLocation() const
 {
-    return {cxTranslationUnit(), clang_getCursorLocation(cxCursor)};
+    return {cxTranslationUnit(), clang_getCursorLocation(m_cxCursor)};
 }
 
 CXSourceLocation Cursor::cxSourceLocation() const
 {
-    return clang_getCursorLocation(cxCursor);
+    return clang_getCursorLocation(m_cxCursor);
 }
 
 SourceRange Cursor::sourceRange() const
 {
-    return {cxTranslationUnit(), clang_getCursorExtent(cxCursor)};
+    return {cxTranslationUnit(), clang_getCursorExtent(m_cxCursor)};
 }
 
 CXSourceRange Cursor::cxSourceRange() const
 {
-    return clang_getCursorExtent(cxCursor);
+    return clang_getCursorExtent(m_cxCursor);
 }
 
 CXTranslationUnit Cursor::cxTranslationUnit() const
 {
-    return clang_Cursor_getTranslationUnit(cxCursor);
+    return clang_Cursor_getTranslationUnit(m_cxCursor);
 }
 
 SourceRange Cursor::commentRange() const
 {
-    return {cxTranslationUnit(), clang_Cursor_getCommentRange(cxCursor)};
+    return {cxTranslationUnit(), clang_Cursor_getCommentRange(m_cxCursor)};
 }
 
 bool Cursor::hasSameSourceLocationAs(const Cursor &other) const
 {
-    return clang_equalLocations(clang_getCursorLocation(cxCursor),
-                                clang_getCursorLocation(other.cxCursor));
+    return clang_equalLocations(clang_getCursorLocation(m_cxCursor),
+                                clang_getCursorLocation(other.m_cxCursor));
 }
 
 Cursor Cursor::definition() const
 {
-    return clang_getCursorDefinition(cxCursor);
+    return clang_getCursorDefinition(m_cxCursor);
 }
 
 Cursor Cursor::canonical() const
 {
-    return clang_getCanonicalCursor(cxCursor);
+    return clang_getCanonicalCursor(m_cxCursor);
 }
 
 Cursor Cursor::referenced() const
 {
-    return clang_getCursorReferenced(cxCursor);
+    return clang_getCursorReferenced(m_cxCursor);
 }
 
 Cursor Cursor::semanticParent() const
 {
-    return clang_getCursorSemanticParent(cxCursor);
+    return clang_getCursorSemanticParent(m_cxCursor);
 }
 
 Cursor Cursor::lexicalParent() const
 {
-    return clang_getCursorLexicalParent(cxCursor);
+    return clang_getCursorLexicalParent(m_cxCursor);
 }
 
 Cursor Cursor::functionBaseDeclaration() const
@@ -382,22 +382,22 @@ Cursor Cursor::functionBase() const
 
 Type Cursor::resultType() const
 {
-    return clang_getResultType(type().cxType);
+    return clang_getResultType(type().m_cxType);
 }
 
 Cursor Cursor::argument(int index) const
 {
-    return clang_Cursor_getArgument(cxCursor, index);
+    return clang_Cursor_getArgument(m_cxCursor, index);
 }
 
 unsigned Cursor::overloadedDeclarationsCount() const
 {
-    return clang_getNumOverloadedDecls(cxCursor);
+    return clang_getNumOverloadedDecls(m_cxCursor);
 }
 
 Cursor Cursor::overloadedDeclaration(unsigned index) const
 {
-    return clang_getOverloadedDecl(cxCursor, index);
+    return clang_getOverloadedDecl(m_cxCursor, index);
 }
 
 namespace {
@@ -439,19 +439,19 @@ std::vector<CXSourceRange> Cursor::outputArgumentRanges() const
 
 CXCursorKind Cursor::kind() const
 {
-    return clang_getCursorKind(cxCursor);
+    return clang_getCursorKind(m_cxCursor);
 }
 
 CXCursor Cursor::cx() const
 {
-    return cxCursor;
+    return m_cxCursor;
 }
 
 StorageClass Cursor::storageClass() const
 {
-    CXCursor cursor = cxCursor;
+    CXCursor cursor = m_cxCursor;
     if (!isDeclaration())
-        cursor = referenced().cxCursor;
+        cursor = referenced().m_cxCursor;
     const CX_StorageClass cxStorageClass = clang_Cursor_getStorageClass(cursor);
     switch (cxStorageClass) {
     case CX_SC_Invalid:
@@ -475,9 +475,9 @@ StorageClass Cursor::storageClass() const
 
 AccessSpecifier Cursor::accessSpecifier() const
 {
-    CXCursor cursor = cxCursor;
+    CXCursor cursor = m_cxCursor;
     if (!isDeclaration())
-        cursor = referenced().cxCursor;
+        cursor = referenced().m_cxCursor;
     const CX_CXXAccessSpecifier cxAccessSpecifier = clang_getCXXAccessSpecifier(cursor);
     switch (cxAccessSpecifier) {
     case CX_CXXInvalidAccessSpecifier:
@@ -494,7 +494,7 @@ AccessSpecifier Cursor::accessSpecifier() const
 
 bool operator==(const Cursor &first, const Cursor &second)
 {
-    return clang_equalCursors(first.cxCursor, second.cxCursor);
+    return clang_equalCursors(first.m_cxCursor, second.m_cxCursor);
 }
 
 bool operator!=(const Cursor &first, const Cursor &second)

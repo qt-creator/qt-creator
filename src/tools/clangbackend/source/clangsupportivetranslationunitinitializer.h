@@ -35,7 +35,7 @@ namespace ClangBackEnd {
 class SupportiveTranslationUnitInitializer
 {
 public:
-    using IsDocumentClosedChecker = std::function<bool(const Utf8String &, const Utf8String &)>;
+    using IsDocumentClosedChecker = std::function<bool(const Utf8String &)>;
 
     enum class State {
         NotInitialized,

@@ -32,33 +32,18 @@ const char *ClangBaseException::what() const noexcept
     return m_info.constData();
 }
 
-ProjectPartDoNotExistException::ProjectPartDoNotExistException(
-        const Utf8StringVector &projectPartIds)
-{
-    m_info += Utf8StringLiteral("ProjectPart files ")
-           + projectPartIds.join(Utf8StringLiteral(", "))
-           + Utf8StringLiteral(" does not exist!");
-}
-
-DocumentAlreadyExistsException::DocumentAlreadyExistsException(
-        const Utf8String &filePath,
-        const Utf8String &projectPartId)
+DocumentAlreadyExistsException::DocumentAlreadyExistsException(const Utf8String &filePath)
 {
     m_info += Utf8StringLiteral("Document '")
             + filePath
-            + Utf8StringLiteral("' with the project part id '")
-            + projectPartId
             + Utf8StringLiteral("' already exists!");
 }
 
-DocumentDoesNotExistException::DocumentDoesNotExistException(const Utf8String &filePath,
-                                                             const Utf8String &projectPartId)
+DocumentDoesNotExistException::DocumentDoesNotExistException(const Utf8String &filePath)
 {
     m_info += Utf8StringLiteral("Document '")
             + filePath
-            + Utf8StringLiteral("' with the project part id '")
-            + projectPartId
-            + Utf8StringLiteral("' does not exist!");
+            + Utf8StringLiteral("' does not exists!");
 }
 
 DocumentFileDoesNotExistException::DocumentFileDoesNotExistException(
@@ -74,23 +59,17 @@ DocumentIsNullException::DocumentIsNullException()
     m_info = Utf8String::fromUtf8("Tried to access a null Document!");
 }
 
-DocumentProcessorAlreadyExists::DocumentProcessorAlreadyExists(const Utf8String &filePath,
-                                                               const Utf8String &projectPartId)
+DocumentProcessorAlreadyExists::DocumentProcessorAlreadyExists(const Utf8String &filePath)
 {
     m_info = Utf8StringLiteral("Document processor for file '")
            + filePath
-           + Utf8StringLiteral("' and project part id '")
-           + projectPartId
            + Utf8StringLiteral("' already exists!");
 }
 
-DocumentProcessorDoesNotExist::DocumentProcessorDoesNotExist(const Utf8String &filePath,
-                                                             const Utf8String &projectPartId)
+DocumentProcessorDoesNotExist::DocumentProcessorDoesNotExist(const Utf8String &filePath)
 {
     m_info = Utf8StringLiteral("Document processor for file '")
            + filePath
-           + Utf8StringLiteral("' and project part id '")
-           + projectPartId
            + Utf8StringLiteral("' does not exist!");
 }
 

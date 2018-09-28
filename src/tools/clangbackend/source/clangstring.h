@@ -38,13 +38,13 @@ class ClangString
 {
 public:
     ClangString(CXString cxString)
-        : cxString(cxString)
+        : m_cxString(cxString)
     {
     }
 
     ~ClangString()
     {
-        clang_disposeString(cxString);
+        clang_disposeString(m_cxString);
     }
 
     ClangString(const ClangString &) = delete;
@@ -52,20 +52,20 @@ public:
 
 
     ClangString(ClangString &&other)
-        : cxString(std::move(other.cxString))
+        : m_cxString(std::move(other.m_cxString))
     {
-        other.cxString.data = nullptr;
-        other.cxString.private_flags = 0;
+        other.m_cxString.data = nullptr;
+        other.m_cxString.private_flags = 0;
     }
 
 
     ClangString &operator=(ClangString &&other)
     {
         if (this != &other) {
-            clang_disposeString(cxString);
-            cxString = std::move(other.cxString);
-            other.cxString.data = nullptr;
-            other.cxString.private_flags = 0;
+            clang_disposeString(m_cxString);
+            m_cxString = std::move(other.m_cxString);
+            other.m_cxString.data = nullptr;
+            other.m_cxString.private_flags = 0;
         }
 
         return *this;
@@ -73,7 +73,7 @@ public:
 
     const char *cString() const
     {
-        return clang_getCString(cxString);
+        return clang_getCString(m_cxString);
     }
 
     operator Utf8String() const
@@ -83,7 +83,7 @@ public:
 
     bool isNull() const
     {
-        return cxString.data == nullptr;
+        return m_cxString.data == nullptr;
     }
 
     bool hasContent() const
@@ -168,7 +168,7 @@ public:
     }
 
 private:
-    CXString cxString;
+    CXString m_cxString;
 };
 
 } // namespace ClangBackEnd

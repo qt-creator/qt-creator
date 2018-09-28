@@ -33,8 +33,6 @@
 #include <clangtranslationunit.h>
 #include <fixitcontainer.h>
 #include <followsymbolmessage.h>
-#include <projectpart.h>
-#include <projects.h>
 #include <sourcelocationcontainer.h>
 #include <sourcerangecontainer.h>
 #include <unsavedfiles.h>
@@ -50,7 +48,6 @@ using ::testing::ContainerEq;
 using ::testing::Eq;
 using ::testing::PrintToString;
 
-using ::ClangBackEnd::ProjectPart;
 using ::ClangBackEnd::SourceLocationContainer;
 using ::ClangBackEnd::Document;
 using ::ClangBackEnd::UnsavedFiles;
@@ -113,20 +110,12 @@ MATCHER_P4(MatchesFileSourceRange, filename, line, column, length,
 
 class Data {
 public:
-    ProjectPart projectPart{
-        Utf8StringLiteral("projectPartId"),
-                TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")})};
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
-    Document document = {sourceFilePath,
-                         projectPart,
-                         Utf8StringVector(),
-                         documents};
-    Document headerDocument = {headerFilePath,
-                               projectPart,
-                               Utf8StringVector(),
-                               documents};
+    ClangBackEnd::Documents documents{unsavedFiles};
+    Utf8StringVector compilationArguments{
+        TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")})};
+    Document document = {sourceFilePath, compilationArguments, documents};
+    Document headerDocument = {headerFilePath, compilationArguments, documents};
     QVector<Utf8String> deps{sourceFilePath, cursorPath};
 };
 

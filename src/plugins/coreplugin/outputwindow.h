@@ -62,8 +62,8 @@ public:
 
     void scrollToBottom();
 
-    void setMaxLineCount(int count);
-    int maxLineCount() const;
+    void setMaxCharCount(int count);
+    int maxCharCount() const;
 
     void setBaseFont(const QFont &newFont);
     float fontZoom() const;

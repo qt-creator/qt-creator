@@ -34,9 +34,6 @@
 #include <diagnosticset.h>
 #include <tokenprocessor.h>
 #include <filecontainer.h>
-#include <projectpart.h>
-#include <projectpartcontainer.h>
-#include <projects.h>
 #include <clangexceptions.h>
 #include <clangdocument.h>
 #include <clangtranslationunit.h>
@@ -56,8 +53,6 @@ using ClangBackEnd::FileContainer;
 using ClangBackEnd::FilePath;
 using ClangBackEnd::Document;
 using ClangBackEnd::UnsavedFiles;
-using ClangBackEnd::ProjectPart;
-using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::Documents;
 using ClangBackEnd::TranslationUnitUpdateResult;
 using ClangBackEnd::TranslationUnit;
@@ -81,12 +76,9 @@ protected:
     QByteArray readContentFromDocumentFile() const;
 
 protected:
-    ClangBackEnd::ProjectParts projects;
-    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
-    ProjectPart projectPart;
     Utf8String documentFilePath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     ::Document document;
 };
 
@@ -108,14 +100,14 @@ TEST_F(Document, DefaultDocumentIsNotIntact)
 
 TEST_F(Document, ThrowExceptionForNonExistingFilePath)
 {
-    ASSERT_THROW(::Document(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(),
+    ASSERT_THROW(::Document(Utf8StringLiteral("file.cpp"), Utf8StringVector(),
                             documents),
                  ClangBackEnd::DocumentFileDoesNotExistException);
 }
 
 TEST_F(Document, ThrowNoExceptionForNonExistingFilePathIfDoNotCheckIfFileExistsIsSet)
 {
-    ASSERT_NO_THROW(::Document(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(),
+    ASSERT_NO_THROW(::Document(Utf8StringLiteral("file.cpp"), Utf8StringVector(),
                                documents, ::Document::FileExistsCheck::DoNotCheck));
 }
 
@@ -166,29 +158,6 @@ TEST_F(Document, LastCommandLineArgumentIsFilePath)
     const auto arguments = document.createUpdater().commandLineArguments();
 
     ASSERT_THAT(arguments.at(arguments.count() - 1), Eq(nativeFilePath));
-}
-
-TEST_F(DocumentSlowTest, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslationUnitIsGenerated)
-{
-    auto lastChangeTimePoint = document.lastProjectPartChangeTimePoint();
-    std::this_thread::sleep_for(Duration(1));
-
-    document.parse();
-
-    ASSERT_THAT(document.lastProjectPartChangeTimePoint(), Gt(lastChangeTimePoint));
-}
-
-TEST_F(DocumentSlowTest, TimeStampForProjectPartChangeIsUpdatedAsProjectPartIsCleared)
-{
-    ProjectPart projectPart = document.projectPart();
-    document.parse();
-    auto lastChangeTimePoint = document.lastProjectPartChangeTimePoint();
-    std::this_thread::sleep_for(Duration(1));
-
-    projectPart.clear();
-    document.parse();
-
-    ASSERT_THAT(document.lastProjectPartChangeTimePoint(), Gt(lastChangeTimePoint));
 }
 
 TEST_F(Document, DocumentRevisionInFileContainerGetter)
@@ -316,28 +285,6 @@ TEST_F(DocumentSlowTest, DoesNotNeedReparseAfterReparse)
     ASSERT_FALSE(document.isDirty());
 }
 
-TEST_F(Document, SetDirtyIfProjectPartIsOutdated)
-{
-    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
-    document.parse();
-    projects.createOrUpdate({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-DNEW")})});
-
-    const bool wasOutdated = document.setDirtyIfProjectPartIsOutdated();
-
-    ASSERT_TRUE(wasOutdated);
-    ASSERT_TRUE(document.isDirty());
-}
-
-TEST_F(DocumentSlowTest, SetNotDirtyIfProjectPartIsNotOutdated)
-{
-    document.parse();
-
-    const bool wasOutdated = document.setDirtyIfProjectPartIsOutdated();
-
-    ASSERT_FALSE(wasOutdated);
-    ASSERT_FALSE(document.isDirty());
-}
-
 TEST_F(Document, IncorporateUpdaterResultResetsDirtyness)
 {
     document.setDirtyIfDependencyIsMet(document.filePath());
@@ -385,10 +332,7 @@ TEST_F(Document, IncorporateUpdaterResultUpdatesTranslationUnitsReparseTimePoint
 
 void Document::SetUp()
 {
-    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
-    projectPart = *projects.findProjectPart(projectPartId);
-
-    const QVector<FileContainer> fileContainer{FileContainer(documentFilePath, projectPartId)};
+    const QVector<FileContainer> fileContainer{FileContainer(documentFilePath)};
     const auto createdDocuments = documents.create(fileContainer);
     document = createdDocuments.front();
 }
@@ -398,10 +342,7 @@ void Document::SetUp()
     QTemporaryFile temporaryFile;
     EXPECT_TRUE(temporaryFile.open());
     EXPECT_TRUE(temporaryFile.write(readContentFromDocumentFile()));
-    ::Document document(temporaryFile.fileName(),
-                        projectPart,
-                        Utf8StringVector(),
-                        documents);
+    ::Document document(temporaryFile.fileName(), Utf8StringVector(), documents);
 
     return document;
 }

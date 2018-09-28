@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "snapshothandler.h"
+#include "enginemanager.h"
 
 #include "analyzer/analyzermanager.h"
 #include "debuggeractions.h"

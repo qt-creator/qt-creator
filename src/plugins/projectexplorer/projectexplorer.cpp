@@ -1279,10 +1279,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             s->value(QLatin1String("ProjectExplorer/Settings/AddLibraryPathsToRunEnv"), true).toBool();
     dd->m_projectExplorerSettings.prompToStopRunControl =
             s->value(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), false).toBool();
-    dd->m_projectExplorerSettings.maxAppOutputLines =
-            s->value(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), Core::Constants::DEFAULT_MAX_LINE_COUNT).toInt();
-    dd->m_projectExplorerSettings.maxBuildOutputLines =
-            s->value(QLatin1String("ProjectExplorer/Settings/MaxBuildOutputLines"), Core::Constants::DEFAULT_MAX_LINE_COUNT).toInt();
+    dd->m_projectExplorerSettings.maxAppOutputChars =
+            s->value(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"),
+                     Core::Constants::DEFAULT_MAX_CHAR_COUNT).toInt() * 100;
+    dd->m_projectExplorerSettings.maxBuildOutputChars =
+            s->value(QLatin1String("ProjectExplorer/Settings/MaxBuildOutputLines"),
+                     Core::Constants::DEFAULT_MAX_CHAR_COUNT).toInt() * 100;
     dd->m_projectExplorerSettings.environmentId =
             QUuid(s->value(QLatin1String("ProjectExplorer/Settings/EnvironmentId")).toByteArray());
     if (dd->m_projectExplorerSettings.environmentId.isNull())
@@ -1818,8 +1820,8 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), dd->m_projectExplorerSettings.autorestoreLastSession);
     s->setValue(QLatin1String("ProjectExplorer/Settings/AddLibraryPathsToRunEnv"), dd->m_projectExplorerSettings.addLibraryPathsToRunEnv);
     s->setValue(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), dd->m_projectExplorerSettings.prompToStopRunControl);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), dd->m_projectExplorerSettings.maxAppOutputLines);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/MaxBuildOutputLines"), dd->m_projectExplorerSettings.maxBuildOutputLines);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), dd->m_projectExplorerSettings.maxAppOutputChars / 100);
+    s->setValue(QLatin1String("ProjectExplorer/Settings/MaxBuildOutputLines"), dd->m_projectExplorerSettings.maxBuildOutputChars / 100);
     s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), dd->m_projectExplorerSettings.environmentId.toByteArray());
     s->setValue(QLatin1String("ProjectExplorer/Settings/StopBeforeBuild"), dd->m_projectExplorerSettings.stopBeforeBuild);
 }
@@ -1891,26 +1893,21 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
         QTC_ASSERT(!fileName.isEmpty(), continue);
 
         const QFileInfo fi(fileName);
-        const QString filePath = fi.absoluteFilePath();
-        bool found = false;
-        for (Project *pi : SessionManager::projects()) {
-            if (filePath == pi->projectFilePath().toString()) {
-                alreadyOpen.append(pi);
-                found = true;
-                break;
-            }
-        }
+        const auto filePath = Utils::FileName::fromString(fi.absoluteFilePath());
+        Project *found = Utils::findOrDefault(SessionManager::projects(),
+                                              Utils::equal(&Project::projectFilePath, filePath));
         if (found) {
+            alreadyOpen.append(found);
             SessionManager::reportProjectLoadingProgress();
             continue;
         }
 
         Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
         if (ProjectManager::canOpenProjectForMimeType(mt)) {
-            if (!QFileInfo(filePath).isFile()) {
+            if (!filePath.toFileInfo().isFile()) {
                 appendError(errorString,
                             tr("Failed opening project \"%1\": Project is not a file.").arg(fileName));
-            } else if (Project *pro = ProjectManager::openProject(mt, Utils::FileName::fromString(filePath))) {
+            } else if (Project *pro = ProjectManager::openProject(mt, filePath)) {
                 QObject::connect(pro, &Project::parsingFinished, [pro]() {
                     emit SessionManager::instance()->projectFinishedParsing(pro);
                 });

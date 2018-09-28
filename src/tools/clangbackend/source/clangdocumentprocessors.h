@@ -37,18 +37,11 @@ namespace ClangBackEnd {
 class Document;
 class DocumentProcessor;
 
-class DocumentId {
-public:
-    Utf8String filePath;
-    Utf8String projectPartId;
-};
-
 class DocumentProcessors
 {
 public:
     DocumentProcessors(Documents &documents,
                        UnsavedFiles &unsavedFiles,
-                       ProjectParts &projects,
                        ClangCodeModelClientInterface &client);
 
     DocumentProcessor create(const Document &document);
@@ -66,10 +59,9 @@ public: // for tests
 private:
     Documents &m_documents;
     UnsavedFiles &m_unsavedFiles;
-    ProjectParts &m_projects;
     ClangCodeModelClientInterface &m_client;
 
-    QMap<DocumentId, DocumentProcessor> m_processors;
+    QMap<Utf8String, DocumentProcessor> m_processors;
 };
 
 } // namespace ClangBackEnd

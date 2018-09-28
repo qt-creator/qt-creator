@@ -28,8 +28,6 @@
 
 #include <diagnostic.h>
 #include <diagnosticset.h>
-#include <projectpart.h>
-#include <projects.h>
 #include <clangdocument.h>
 #include <clangdocuments.h>
 #include <clangtranslationunit.h>
@@ -43,7 +41,6 @@
 using ClangBackEnd::DiagnosticSet;
 using ClangBackEnd::Document;
 using ClangBackEnd::TranslationUnit;
-using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
 using ClangBackEnd::FixIt;
@@ -70,12 +67,9 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
 
 struct Data
 {
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
-    ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_semicolon_fixit.cpp"),
-                      projectPart,
                       Utf8StringVector(),
                       documents};
     UnitTest::RunDocumentParse _1{document};

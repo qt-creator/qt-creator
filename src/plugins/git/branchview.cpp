@@ -100,6 +100,8 @@ BranchView::BranchView() :
             this, &BranchView::BranchView::setIncludeTags);
 
     m_branchView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_branchView, &QAbstractItemView::doubleClicked,
+            this, &BranchView::log);
     connect(m_branchView, &QWidget::customContextMenuRequested,
             this, &BranchView::slotCustomContextMenu);
     connect(m_model, &QAbstractItemModel::modelReset,
@@ -192,11 +194,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             if (!fullName.isEmpty())
                 GitPlugin::client()->diffBranch(m_repository, fullName);
         });
-        contextMenu.addAction(tr("Log"), this, [this] {
-            const QString branchName = m_model->fullName(selectedIndex(), true);
-            if (!branchName.isEmpty())
-                GitPlugin::client()->log(m_repository, QString(), false, {branchName});
-        });
+        contextMenu.addAction(tr("Log"), this, [this] { log(selectedIndex()); });
         contextMenu.addSeparator();
         if (!currentSelected) {
             if (currentLocal)
@@ -489,6 +487,13 @@ bool BranchView::cherryPick()
 
     const QString branch = m_model->fullName(selected, true);
     return GitPlugin::client()->synchronousCherryPick(m_repository, branch);
+}
+
+void BranchView::log(const QModelIndex &idx)
+{
+    const QString branchName = m_model->fullName(idx, true);
+    if (!branchName.isEmpty())
+        GitPlugin::client()->log(m_repository, QString(), false, {branchName});
 }
 
 BranchViewFactory::BranchViewFactory()

@@ -101,7 +101,7 @@ SOURCES += \
     refactoringprojectupdater-test.cpp \
     projectpartqueue-test.cpp \
     processormanager-test.cpp \
-    taskscheduler-test.cpp
+    taskscheduler-test.cpp \
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -144,7 +144,6 @@ SOURCES += \
     diagnosticset-test.cpp \
     diagnostic-test.cpp \
     fixit-test.cpp \
-    projectpart-test.cpp \
     senddocumenttracker-test.cpp \
     skippedsourceranges-test.cpp \
     sourcelocation-test.cpp \
@@ -155,6 +154,7 @@ SOURCES += \
     sqlitestatement-test.cpp \
     sqlitetable-test.cpp \
     sqlstatementbuilder-test.cpp \
+    token-test.cpp \
     translationunitupdater-test.cpp \
     unsavedfiles-test.cpp \
     unsavedfile-test.cpp \
@@ -230,7 +230,6 @@ HEADERS += \
     mocksqlitestatement.h \
     unittest-utility-functions.h \
     mocksymbolquery.h \
-    runprojectcreateorupdate-utility.h \
     rundocumentparse-utility.h \
     mocktimer.h \
     mocksqlitetransactionbackend.h \

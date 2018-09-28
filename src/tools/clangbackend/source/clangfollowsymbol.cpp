@@ -29,6 +29,7 @@
 #include "cursor.h"
 #include "clangstring.h"
 #include "sourcerange.h"
+#include "token.h"
 #include "clangsupportdebugutils.h"
 
 #include <utils/qtcassert.h>
@@ -37,65 +38,35 @@
 
 namespace ClangBackEnd {
 
-namespace {
-
-struct Tokens
+static SourceRange getOperatorRange(const Tokens &tokens,
+                                    std::vector<Token>::const_iterator currentToken)
 {
-    Tokens(const Tokens &) = delete;
-    Tokens(const Cursor &cursor) {
-        tu = cursor.cxTranslationUnit();
-        clang_tokenize(tu, cursor.cxSourceRange(), &data, &tokenCount);
-    }
-    Tokens(const CXTranslationUnit &tu) {
-        const CXSourceRange range
-                = clang_getCursorExtent(clang_getTranslationUnitCursor(tu));
-        clang_tokenize(tu, range, &data, &tokenCount);
-    }
-    ~Tokens() {
-        clang_disposeTokens(tu, data, tokenCount);
-    }
+    const SourceLocation start = currentToken->location();
+    currentToken += 2;
+    while (currentToken != tokens.cend() && !(currentToken->spelling() == "("))
+        ++currentToken;
 
-    CXToken *data = nullptr;
-    uint tokenCount = 0;
-private:
-    CXTranslationUnit tu;
-};
-
-} // anonymous namespace
-
-static SourceRange getOperatorRange(const CXTranslationUnit tu,
-                                    const Tokens &tokens,
-                                    uint operatorIndex)
-{
-    const CXSourceLocation start = clang_getTokenLocation(tu, tokens.data[operatorIndex]);
-    operatorIndex += 2;
-    while (operatorIndex < tokens.tokenCount
-           && !(ClangString(clang_getTokenSpelling(tu, tokens.data[operatorIndex])) == "(")) {
-        ++operatorIndex;
-    }
-    const CXSourceLocation end = clang_getTokenLocation(tu, tokens.data[operatorIndex]);
-    return SourceRange(tu, clang_getRange(start, end));
+    return SourceRange(start, currentToken->location());
 }
 
 static SourceRangeContainer extractMatchingTokenRange(const Cursor &cursor,
                                                       const Utf8String &tokenStr)
 {
-    Tokens tokens(cursor);
-    const CXTranslationUnit tu = cursor.cxTranslationUnit();
-    for (uint i = 0; i < tokens.tokenCount; ++i) {
-        if (!(tokenStr == ClangString(clang_getTokenSpelling(tu, tokens.data[i]))))
+    Tokens tokens(cursor.sourceRange());
+    for (auto it = tokens.cbegin(); it != tokens.cend(); ++it) {
+        const Token &currentToken = *it;
+        if (!(tokenStr == currentToken.spelling()))
             continue;
 
         if (cursor.isFunctionLike() || cursor.isConstructorOrDestructor()) {
             if (tokenStr == "operator")
-                return getOperatorRange(tu, tokens, i);
+                return getOperatorRange(tokens, it);
 
-            if (i+1 > tokens.tokenCount
-                    || !(ClangString(clang_getTokenSpelling(tu, tokens.data[i+1])) == "(")) {
+            auto nextIt = it + 1;
+            if (nextIt == tokens.cend() || !(nextIt->spelling() == "("))
                 continue;
-            }
         }
-        return SourceRange(tu, clang_getTokenExtent(tu, tokens.data[i]));
+        return currentToken.extent();
     }
     return SourceRangeContainer();
 }
@@ -103,8 +74,8 @@ static SourceRangeContainer extractMatchingTokenRange(const Cursor &cursor,
 static int getTokenIndex(CXTranslationUnit tu, const Tokens &tokens, uint line, uint column)
 {
     int tokenIndex = -1;
-    for (int i = static_cast<int>(tokens.tokenCount - 1); i >= 0; --i) {
-        const SourceRange range(tu, clang_getTokenExtent(tu, tokens.data[i]));
+    for (int i = static_cast<int>(tokens.size() - 1); i >= 0; --i) {
+        const SourceRange range(tu, tokens[i].extent());
         if (range.contains(line, column)) {
             tokenIndex = i;
             break;
@@ -118,28 +89,28 @@ FollowSymbolResult FollowSymbol::followSymbol(CXTranslationUnit tu,
                                               uint line,
                                               uint column)
 {
-    std::unique_ptr<Tokens> tokens(new Tokens(fullCursor));
+    Tokens tokens(fullCursor.sourceRange());
 
-    if (!tokens->tokenCount)
-        tokens.reset(new Tokens(tu));
+    if (!tokens.size()) {
+        const Cursor tuCursor(clang_getTranslationUnitCursor(tu));
+        tokens = Tokens(tuCursor.sourceRange());
+    }
 
-    if (!tokens->tokenCount)
+    if (!tokens.size())
         return SourceRangeContainer();
 
-    QVector<CXCursor> cursors(static_cast<int>(tokens->tokenCount));
-    clang_annotateTokens(tu, tokens->data, tokens->tokenCount, cursors.data());
-    int tokenIndex = getTokenIndex(tu, *tokens, line, column);
+    std::vector<Cursor> cursors = tokens.annotate();
+    int tokenIndex = getTokenIndex(tu, tokens, line, column);
     QTC_ASSERT(tokenIndex >= 0, return SourceRangeContainer());
 
-    const Utf8String tokenSpelling = ClangString(
-                clang_getTokenSpelling(tu, tokens->data[tokenIndex]));
+    const Utf8String tokenSpelling = tokens[tokenIndex].spelling();
     if (tokenSpelling.isEmpty())
         return SourceRangeContainer();
 
     Cursor cursor{cursors[tokenIndex]};
 
     if (cursor.kind() == CXCursor_InclusionDirective) {
-        CXFile file = clang_getIncludedFile(cursors[tokenIndex]);
+        CXFile file = clang_getIncludedFile(cursors[tokenIndex].cx());
         const ClangString filename(clang_getFileName(file));
         const SourceLocation loc(tu, filename, 1, 1);
         FollowSymbolResult result;
