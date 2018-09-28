@@ -69,9 +69,9 @@ static QIcon testResultIcon(Result::Type result) {
         case Result::MessageTestCaseFail:
             return icons[Result::Fail];
         case Result::MessageTestCaseSuccessWarn:
-            return icons[13];
-        case Result::MessageTestCaseFailWarn:
             return icons[14];
+        case Result::MessageTestCaseFailWarn:
+            return icons[15];
         default:
             return QIcon();
         }
