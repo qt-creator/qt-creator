@@ -113,11 +113,9 @@ void NimProject::collectProjectFiles()
     m_lastProjectScan.start();
     QTC_ASSERT(!m_futureWatcher.future().isRunning(), return);
     FileName prjDir = projectDirectory();
-    const QList<Core::IVersionControl *> versionControls = Core::VcsManager::versionControls();
-    QFuture<QList<ProjectExplorer::FileNode *>> future = Utils::runAsync([prjDir, versionControls] {
-        return FileNode::scanForFilesWithVersionControls(
-                    prjDir, [](const FileName &fn) { return new FileNode(fn, FileType::Source, false); },
-                    versionControls);
+    QFuture<QList<ProjectExplorer::FileNode *>> future = Utils::runAsync([prjDir] {
+        return FileNode::scanForFiles(
+                    prjDir, [](const FileName &fn) { return new FileNode(fn, FileType::Source, false); });
     });
     m_futureWatcher.setFuture(future);
     Core::ProgressManager::addTask(future, tr("Scanning for Nim files"), "Nim.Project.Scan");

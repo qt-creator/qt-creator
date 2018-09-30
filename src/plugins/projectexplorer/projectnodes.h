@@ -36,7 +36,6 @@
 #include <functional>
 
 namespace Utils { class MimeType; }
-namespace Core { class IVersionControl; }
 
 namespace ProjectExplorer {
 
@@ -191,10 +190,9 @@ public:
     const FileNode *asFileNode() const final { return this; }
 
     static QList<FileNode *>
-    scanForFilesWithVersionControls(const Utils::FileName &directory,
-                                    const std::function<FileNode *(const Utils::FileName &fileName)> factory,
-                                    const QList<Core::IVersionControl *> &versionControls,
-                                    QFutureInterface<QList<FileNode *>> *future = nullptr);
+    scanForFiles(const Utils::FileName &directory,
+                 const std::function<FileNode *(const Utils::FileName &fileName)> factory,
+                 QFutureInterface<QList<FileNode *>> *future = nullptr);
     bool supportsAction(ProjectAction action, const Node *node) const override;
 
 private:
