@@ -144,7 +144,7 @@ void NimProject::updateProject()
     m_files = transform<QList>(fileNodes, [](const std::unique_ptr<FileNode> &fn) {
         return fn->filePath().toString();
     });
-    Utils::sort(m_files, [](const QString &a, const QString &b) { return a < b; });
+    Utils::sort(m_files);
 
     if (oldFiles == m_files)
         return;
