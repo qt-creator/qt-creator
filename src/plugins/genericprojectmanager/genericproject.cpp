@@ -239,7 +239,10 @@ bool GenericProject::saveRawList(const QStringList &rawList, const QString &file
 static void insertSorted(QStringList *list, const QString &value)
 {
     int pos = Utils::indexOf(*list, [value](const QString &s) { return s > value; });
-    list->insert(pos, value);
+    if (pos == -1)
+        list->append(value);
+    else
+        list->insert(pos, value);
 }
 
 bool GenericProject::addFiles(const QStringList &filePaths)
