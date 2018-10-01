@@ -741,7 +741,10 @@ IEditor *EditorManagerPrivate::openEditorWith(const QString &fileName, Core::Id 
 
     IEditor *openedEditor = nullptr;
     if (views.isEmpty()) {
-        openedEditor = EditorManager::openEditor(fileName, editorId);
+        //This function triggered via contect menu "Open With"
+        //When we opened any qml files with QMLJS editor we don't auto switch to Design Mode because of DoNotSwitchToDesignMode
+        //If open another files flag DoNotSwitchToDesignMode does not affect anything
+        openedEditor = EditorManager::openEditor(fileName, editorId, EditorManager::DoNotSwitchToDesignMode);
     } else {
         if (EditorView *currentView = EditorManagerPrivate::currentEditorView()) {
             if (views.removeOne(currentView))
