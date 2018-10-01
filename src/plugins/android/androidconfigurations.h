@@ -106,6 +106,7 @@ public:
     void setSdkManagerToolArgs(const QStringList &args);
 
     Utils::FileName ndkLocation() const;
+    Utils::FileName gdbServer(const ProjectExplorer::Abi &abi) const;
     QVersionNumber ndkVersion() const;
     void setNdkLocation(const Utils::FileName &ndkLocation);
 

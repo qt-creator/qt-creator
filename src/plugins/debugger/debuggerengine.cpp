@@ -2529,7 +2529,7 @@ Context CppDebuggerEngine::languageContext() const
 void CppDebuggerEngine::validateExecutable()
 {
     DebuggerRunParameters &rp = mutableRunParameters();
-    const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds);
+    const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds) && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;
     switch (rp.toolChainAbi.binaryFormat()) {

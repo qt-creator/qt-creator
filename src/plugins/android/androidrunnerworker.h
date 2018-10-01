@@ -47,7 +47,8 @@ public:
     AndroidRunnerWorker(ProjectExplorer::RunWorker *runner, const QString &packageName);
     ~AndroidRunnerWorker() override;
     bool adbShellAmNeedsQuotes();
-    bool runAdb(const QStringList &args, int timeoutS = 10);
+    bool runAdb(const QStringList &args, int timeoutS = 10, const QByteArray &writeData = {});
+    bool uploadFile(const QString &from, const QString &to, const QString &flags = "+x");
     void adbKill(qint64 pid);
     QStringList selector() const;
     void forceStop();
@@ -110,6 +111,7 @@ protected:
     int m_apiLevel = -1;
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
+    QString m_gdbserverPath;
 };
 
 } // namespace Internal
