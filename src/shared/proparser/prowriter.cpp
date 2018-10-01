@@ -290,7 +290,7 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines,
             lineNo = skipContLines(lines, lineNo, true);
             QString added;
             foreach (const QString &v, values)
-                added += QLatin1String("    ") + indent + v + QLatin1String(" \\\n");
+                added += QLatin1String("        ") + indent + v + QLatin1String(" \\\n");
             added.chop(3);
             lines->insert(lineNo, added);
         }
