@@ -52,7 +52,6 @@ public:
     UpdateInfoPlugin();
     virtual ~UpdateInfoPlugin();
 
-    bool delayedInitialize();
     void extensionsInitialized();
     bool initialize(const QStringList &arguments, QString *errorMessage);
 

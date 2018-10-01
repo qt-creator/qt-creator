@@ -47,7 +47,7 @@ namespace Internal {
 
 CppcheckTool::CppcheckTool(CppcheckTextMarkManager &marks) :
     m_marks(marks),
-    m_progressRegexp("^.* checked (\\d)% done$"),
+    m_progressRegexp("^.* checked (\\d+)% done$"),
     m_messageRegexp("^(.+),(\\d+),(\\w+),(\\w+),(.*)$")
 {
     m_runner = std::make_unique<CppcheckRunner>(*this);
@@ -229,7 +229,7 @@ void CppcheckTool::addToQueue(const Utils::FileNameList &files, CppTools::Projec
 void CppcheckTool::stop(const Utils::FileNameList &files)
 {
     m_runner->removeFromQueue(files);
-    m_runner->stop();
+    m_runner->stop(files);
 }
 
 void CppcheckTool::startParsing()

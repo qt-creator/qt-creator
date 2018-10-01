@@ -87,17 +87,19 @@ void CppcheckRunner::addToQueue(const Utils::FileNameList &files,
     }
 
     if (m_isRunning) {
-        if (existing == m_currentFiles)
-            m_process->kill(); // Further processing in handleFinished
+        stop(existing);
         return;
     }
 
     m_queueTimer.start();
 }
 
-void CppcheckRunner::stop()
+void CppcheckRunner::stop(const Utils::FileNameList &files)
 {
-    if (m_isRunning)
+    if (!m_isRunning)
+        return;
+
+    if (files.isEmpty() || m_currentFiles == files)
         m_process->kill();
 }
 

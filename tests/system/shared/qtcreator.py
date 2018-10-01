@@ -65,7 +65,7 @@ def startQC(additionalParameters=None, withPreparedSettingsPath=True):
     if platform.system() in ('Microsoft', 'Windows'): # for hooking into native file dialog
         appWithOptions.extend(('-platform', 'windows:dialogs=none'))
     test.log("Starting now: %s" % ' '.join(appWithOptions))
-    startApplication(' '.join(appWithOptions))
+    return startApplication(' '.join(appWithOptions))
 
 def startedWithoutPluginError():
     try:

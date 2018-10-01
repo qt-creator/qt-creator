@@ -68,20 +68,21 @@ def main():
     for current in availableProjectTypes:
         category = current.keys()[0]
         template = current.values()[0]
-        displayedPlatforms = __createProject__(category, template)
-        if template.startswith("Qt Quick Application - "):
-            qtVersionsForQuick = ["5.6", "5.10"] if template == "Qt Quick Application - Empty" else ["5.10"]
-            for counter, qtVersion in enumerate(qtVersionsForQuick):
-                def additionalFunc(displayedPlatforms, qtVersion):
-                    requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
-                    __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
-                handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
-                                            additionalFunc, qtVersion)
-                # are there more Quick combinations - then recreate this project
-                if counter < len(qtVersionsForQuick) - 1:
-                    displayedPlatforms = __createProject__(category, template)
-            continue
-        handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms)
+        with TestSection("Testing project template %s -> %s" % (category, template)):
+            displayedPlatforms = __createProject__(category, template)
+            if template.startswith("Qt Quick Application - "):
+                qtVersionsForQuick = ["5.6", "5.10"] if template == "Qt Quick Application - Empty" else ["5.10"]
+                for counter, qtVersion in enumerate(qtVersionsForQuick):
+                    def additionalFunc(displayedPlatforms, qtVersion):
+                        requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
+                        __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
+                    handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
+                                                additionalFunc, qtVersion)
+                    # are there more Quick combinations - then recreate this project
+                    if counter < len(qtVersionsForQuick) - 1:
+                        displayedPlatforms = __createProject__(category, template)
+                continue
+            handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms)
 
     invokeMenuItem("File", "Exit")
 

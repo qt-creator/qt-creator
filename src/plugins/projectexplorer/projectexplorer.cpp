@@ -1707,9 +1707,11 @@ void ProjectExplorerPlugin::extensionsInitialized()
     BuildManager::extensionsInitialized();
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+    // delay restoring kits until UI is shown for improved perceived startup performance
+    QTimer::singleShot(0, this, &ProjectExplorerPlugin::restoreKits);
 }
 
-bool ProjectExplorerPlugin::delayedInitialize()
+void ProjectExplorerPlugin::restoreKits()
 {
     dd->determineSessionToRestoreAtStartup();
     ExtraAbi::load(); // Load this before Toolchains!
@@ -1717,7 +1719,6 @@ bool ProjectExplorerPlugin::delayedInitialize()
     ToolChainManager::restoreToolChains();
     dd->m_kitManager->restoreKits();
     QTimer::singleShot(0, dd, &ProjectExplorerPluginPrivate::restoreSession); // delay a bit...
-    return true;
 }
 
 void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()

@@ -361,8 +361,9 @@ bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileIn
     const QByteArray sizeString = QString::fromLatin1("%1").arg(fileInfo.size(),
         sizeof header.length - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.length, sizeString.data(), sizeString.length());
-    const QByteArray mtimeString = QString::fromLatin1("%1").arg(fileInfo.lastModified().toTime_t(),
-        sizeof header.mtime - 1, 8, QLatin1Char('0')).toLatin1();
+    const QByteArray mtimeString = QString::fromLatin1("%1").arg(
+                fileInfo.lastModified().toSecsSinceEpoch(),
+                sizeof header.mtime - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.mtime, mtimeString.data(), mtimeString.length());
     if (fileInfo.isDir())
         header.typeflag = '5';

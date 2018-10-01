@@ -52,6 +52,8 @@ protected:
     AddLibraryWizard::Platforms platforms() const;
     AddLibraryWizard::LinkageType linkageType() const;
     AddLibraryWizard::MacLibraryType macLibraryType() const;
+    Utils::OsType libraryPlatformType() const;
+    QString libraryPlatformFilter() const;
     QString proFile() const;
     bool isIncludePathChanged() const;
     bool guiSignalsIgnored() const;
@@ -127,6 +129,7 @@ protected:
 private:
     void slotLinkageTypeChanged();
     void slotRemoveSuffixChanged(bool ena);
+    void slotLibraryTypeChanged();
     void slotLibraryPathChanged();
 };
 

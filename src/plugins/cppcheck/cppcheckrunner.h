@@ -51,7 +51,7 @@ public:
     void addToQueue(const Utils::FileNameList &files,
                     const QString &additionalArguments = {});
     void removeFromQueue(const Utils::FileNameList &files);
-    void stop();
+    void stop(const Utils::FileNameList &files = {});
 
     const Utils::FileNameList &currentFiles() const;
     QString currentCommand() const;
