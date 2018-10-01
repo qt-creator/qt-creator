@@ -40,7 +40,7 @@ MDiagram::MDiagram()
 
 MDiagram::MDiagram(const MDiagram &rhs)
     : MObject(rhs),
-      m_elements(),
+      // no deep copy
       // modification date is copied (instead of set to current time) to allow exact copies of the diagram
       m_lastModified(rhs.m_lastModified),
       m_toolbarId(rhs.toolbarId())
@@ -66,17 +66,15 @@ MDiagram &MDiagram::operator=(const MDiagram &rhs)
 
 DElement *MDiagram::findDiagramElement(const Uid &key) const
 {
-    // PERFORM introduce map for better performance
-    foreach (DElement *element, m_elements) {
-        if (element->uid() == key)
-            return element;
-    }
-    return nullptr;
+    return m_elementMap.value(key);
 }
 
 void MDiagram::setDiagramElements(const QList<DElement *> &elements)
 {
     m_elements = elements;
+    m_elementMap.clear();
+    for (DElement *element : elements)
+        m_elementMap.insert(element->uid(), element);
 }
 
 void MDiagram::addDiagramElement(DElement *element)
@@ -84,6 +82,7 @@ void MDiagram::addDiagramElement(DElement *element)
     QMT_ASSERT(element, return);
 
     m_elements.append(element);
+    m_elementMap.insert(element->uid(), element);
 }
 
 void MDiagram::insertDiagramElement(int beforeElement, DElement *element)
@@ -91,13 +90,16 @@ void MDiagram::insertDiagramElement(int beforeElement, DElement *element)
     QMT_ASSERT(beforeElement >= 0 && beforeElement <= m_elements.size(), return);
 
     m_elements.insert(beforeElement, element);
+    m_elementMap.insert(element->uid(), element);
 }
 
 void MDiagram::removeDiagramElement(int index)
 {
     QMT_ASSERT(index >= 0 && index < m_elements.size(), return);
 
-    delete m_elements.at(index);
+    DElement *element = m_elements.at(index);
+    m_elementMap.remove(element->uid());
+    delete element;
     m_elements.removeAt(index);
 }
 

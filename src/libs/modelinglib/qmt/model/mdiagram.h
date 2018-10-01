@@ -27,6 +27,7 @@
 
 #include "mobject.h"
 
+#include <QHash>
 #include <QDateTime>
 
 namespace qmt {
@@ -63,6 +64,7 @@ public:
 
 private:
     QList<DElement *> m_elements;
+    QHash<Uid, DElement *> m_elementMap;
     QDateTime m_lastModified;
     QString m_toolbarId;
 };

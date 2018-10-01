@@ -152,12 +152,11 @@ void DUpdateVisitor::visitMRelation(const MRelation *relation)
         drelation->setStereotypes(relation->stereotypes());
     if (isUpdating(relation->name() != drelation->name()))
         drelation->setName(relation->name());
-    // TODO improve performance of MDiagram::findDiagramElement
     DObject *endAObject = dynamic_cast<DObject *>(m_diagram->findDiagramElement(drelation->endAUid()));
     if (!endAObject || relation->endAUid() != endAObject->modelUid()) {
         (void) isUpdating(true);
         endAObject = nullptr;
-        // TODO use DiagramController::findDelegate (and improve performance of that method)
+        // TODO use DiagramController::findDelegate
         foreach (DElement *diagramElement, m_diagram->diagramElements()) {
             if (diagramElement->modelUid().isValid() && diagramElement->modelUid() == relation->endAUid()) {
                 endAObject = dynamic_cast<DObject *>(diagramElement);
