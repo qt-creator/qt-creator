@@ -190,6 +190,7 @@ private:
     OriginItem *m_originItem = nullptr;
     QGraphicsItem *m_focusItem = nullptr;
     QRectF m_sceneRect;
+    QList<Uid> m_relationEndsUid;
 };
 
 } // namespace qmt

@@ -765,6 +765,7 @@ void DiagramSceneModel::onEndUpdateElement(int row, const MDiagram *diagram)
     if (diagram == m_diagram) {
         QGraphicsItem *item = m_graphicsItems.at(row);
         updateGraphicsItem(item, diagram->diagramElements().at(row));
+        // TODO update all relations and their other end's (e.g. class name may have changed)
         recalcSceneRectSize();
     }
     m_busyState = NotBusy;
@@ -789,6 +790,15 @@ void DiagramSceneModel::onEndInsertElement(int row, const MDiagram *diagram)
         updateGraphicsItem(item, element);
         m_graphicsScene->invalidate();
         updateGraphicsItem(item, element);
+        // if element is relation update ends
+        if (DRelation *dRelation = dynamic_cast<DRelation *>(element)) {
+            DElement *dEnd = m_diagramController->findElement(dRelation->endAUid(), diagram);
+            if (dEnd)
+                updateGraphicsItem(graphicsItem(dEnd), dEnd);
+            dEnd = m_diagramController->findElement(dRelation->endBUid(), diagram);
+            if (dEnd)
+                updateGraphicsItem(graphicsItem(dEnd), dEnd);
+        }
         recalcSceneRectSize();
     }
     m_busyState = NotBusy;
@@ -798,6 +808,12 @@ void DiagramSceneModel::onBeginRemoveElement(int row, const MDiagram *diagram)
 {
     QMT_CHECK(m_busyState == NotBusy);
     if (diagram == m_diagram) {
+        // if element is relation store end's uid
+        m_relationEndsUid.clear();
+        if (DRelation *relation = dynamic_cast<DRelation *>(diagram->diagramElements().at(row))) {
+            m_relationEndsUid.append(relation->endAUid());
+            m_relationEndsUid.append(relation->endBUid());
+        }
         QGraphicsItem *item = m_graphicsItems.takeAt(row);
         deleteGraphicsItem(item, diagram->diagramElements().at(row));
         recalcSceneRectSize();
@@ -810,6 +826,12 @@ void DiagramSceneModel::onEndRemoveElement(int row, const MDiagram *diagram)
     Q_UNUSED(row);
     Q_UNUSED(diagram);
     QMT_CHECK(m_busyState == RemoveElement);
+    // update elements from store (see above)
+    for (const Uid &end_uid : m_relationEndsUid) {
+        DElement *dEnd = m_diagramController->findElement(end_uid, diagram);
+        if (dEnd)
+            updateGraphicsItem(graphicsItem(dEnd), dEnd);
+    }
     m_busyState = NotBusy;
 }
 

@@ -27,6 +27,8 @@
 
 #include "qmt/controller/namecontroller.h"
 #include "qmt/diagram/dclass.h"
+#include "qmt/diagram/dinheritance.h"
+#include "qmt/diagram_controller/diagramcontroller.h"
 #include "qmt/diagram_scene/diagramsceneconstants.h"
 #include "qmt/diagram_scene/diagramscenemodel.h"
 #include "qmt/diagram_scene/parts/contextlabelitem.h"
@@ -41,6 +43,7 @@
 #include "qmt/model/mclass.h"
 #include "qmt/model/mclassmember.h"
 #include "qmt/model/massociation.h"
+#include "qmt/model/minheritance.h"
 #include "qmt/model_controller/modelcontroller.h"
 #include "qmt/stereotype/stereotypecontroller.h"
 #include "qmt/stereotype/stereotypeicon.h"
@@ -71,6 +74,7 @@ static const qreal MINIMUM_AUTO_WIDTH = 80.0;
 static const qreal MINIMUM_AUTO_HEIGHT = 60.0;
 static const qreal BODY_VERT_BORDER = 4.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
+static const qreal BODY_HORIZ_DISTANCE = 4.0;
 
 ClassItem::ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : ObjectItem("class", klass, diagramSceneModel, parent)
@@ -129,6 +133,46 @@ void ClassItem::update()
 
     // stereotypes
     updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), style);
+
+    // base classes
+    DiagramController *diagramController = diagramSceneModel()->diagramController();
+    ModelController *modelController = diagramController->modelController();
+    MClass *klass = modelController->findElement<MClass>(diagramClass->modelUid());
+    if (klass) {
+        // TODO cache relation's Uids and check for change
+        QList<QString> baseClasses;
+        for (const auto &handle : klass->relations()) {
+            if (MInheritance *mInheritance = dynamic_cast<MInheritance *>(handle.target())) {
+                if (mInheritance->base() != klass->uid()) {
+                    DInheritance *dInheritance = diagramController->findDelegate<DInheritance>(mInheritance, diagramSceneModel()->diagram());
+                    if (dInheritance) {
+                        DClass *dBaseClass = diagramController->findElement<DClass>(dInheritance->base(), diagramSceneModel()->diagram());
+                        if (dBaseClass)
+                            continue;
+                    }
+                    MClass *mBaseClass = diagramController->modelController()->findElement<MClass>(mInheritance->base());
+                    if (mBaseClass) {
+                        QString baseClassName;
+                        baseClassName += mBaseClass->name();
+                        baseClasses.append(baseClassName);
+                    }
+                }
+            }
+        }
+        if (!baseClasses.isEmpty()) {
+            if (!m_baseClasses)
+                m_baseClasses = new QGraphicsSimpleTextItem(this);
+            QFont font = style->smallFont();
+            font.setItalic(true);
+            m_baseClasses->setFont(font);
+            m_baseClasses->setBrush(style->textBrush());
+            m_baseClasses->setText(baseClasses.join('\n'));
+        } else if (m_baseClasses) {
+            m_baseClasses->scene()->removeItem(m_baseClasses);
+            delete m_baseClasses;
+            m_baseClasses = nullptr;
+        }
+    }
 
     // namespace
     if (!suppressTextDisplay() && !diagramClass->umlNamespace().isEmpty()) {
@@ -487,10 +531,18 @@ QSizeF ClassItem::calcMinimumGeometry() const
     }
 
     height += BODY_VERT_BORDER;
+    double top_row_width = BODY_HORIZ_DISTANCE;
+    double top_row_height = 0;
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
-        width = std::max(width, stereotypeIconItem->boundingRect().width());
-        height += stereotypeIconItem->boundingRect().height();
+        top_row_width += stereotypeIconItem->boundingRect().width();
+        top_row_height = stereotypeIconItem->boundingRect().height();
     }
+    if (m_baseClasses) {
+        top_row_width += m_baseClasses->boundingRect().width();
+        top_row_height = std::max(top_row_height, m_baseClasses->boundingRect().height());
+    }
+    width = std::max(width, top_row_width);
+    height += top_row_height;
     if (StereotypesItem *stereotypesItem = this->stereotypesItem()) {
         width = std::max(width, stereotypesItem->boundingRect().width());
         height += stereotypesItem->boundingRect().height();
@@ -604,10 +656,16 @@ void ClassItem::updateGeometry()
     } else {
         y += BODY_VERT_BORDER;
     }
+    double first_row_height = 0;
+    if (m_baseClasses) {
+        m_baseClasses->setPos(left + BODY_HORIZ_BORDER, y);
+        first_row_height = m_baseClasses->boundingRect().height();
+    }
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
         stereotypeIconItem->setPos(right - stereotypeIconItem->boundingRect().width() - BODY_HORIZ_BORDER, y);
-        y += stereotypeIconItem->boundingRect().height();
+        first_row_height = std::max(first_row_height, stereotypeIconItem->boundingRect().height());
     }
+    y += first_row_height;
     if (StereotypesItem *stereotypesItem = this->stereotypesItem()) {
         stereotypesItem->setPos(-stereotypesItem->boundingRect().width() / 2.0, y);
         y += stereotypesItem->boundingRect().height();

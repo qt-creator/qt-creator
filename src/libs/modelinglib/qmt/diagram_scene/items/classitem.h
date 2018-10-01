@@ -79,6 +79,7 @@ private:
 
     CustomIconItem *m_customIcon = nullptr;
     QGraphicsRectItem *m_shape = nullptr;
+    QGraphicsSimpleTextItem *m_baseClasses = nullptr;
     QGraphicsSimpleTextItem *m_namespace = nullptr;
     ContextLabelItem *m_contextLabel = nullptr;
     QGraphicsLineItem *m_attributesSeparator = nullptr;
