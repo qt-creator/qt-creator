@@ -285,7 +285,7 @@ HelpPluginPrivate::HelpPluginPrivate()
     cmd = ActionManager::registerAction(action, "Help.ReportBug");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, &QAction::triggered, this, [] {
-        QDesktopServices::openUrl(QUrl("https://bugreports.qt.io"));
+        QDesktopServices::openUrl(QUrl("https://bugreports.qt.io/secure/CreateIssue!default.jspa"));
     });
 
     action = new QAction(HelpPlugin::tr("System Information..."), this);
