@@ -85,7 +85,7 @@ def main():
 
         test.log("Debugging application")
         isMsvc = isMsvcConfig(kit)
-        invokeMenuItem("Debug", "Start Debugging", "Start Debugging")
+        invokeMenuItem("Debug", "Start Debugging", "Start debugging of \"%s\"" % project)
         handleDebuggerWarnings(config, isMsvc)
         ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
