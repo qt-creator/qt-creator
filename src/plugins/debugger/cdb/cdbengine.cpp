@@ -224,7 +224,7 @@ void CdbEngine::init()
     m_stopMode = NoStopRequested;
     m_nextCommandToken  = 0;
     m_currentBuiltinResponseToken = -1;
-    m_operateByInstruction = true; // Default CDB setting.
+    m_lastOperateByInstruction = true; // Default CDB setting.
     m_hasDebuggee = false;
     m_sourceStepInto = false;
     m_watchPointX = m_watchPointY = 0;
@@ -266,14 +266,13 @@ void CdbEngine::init()
 
 CdbEngine::~CdbEngine() = default;
 
-void CdbEngine::operateByInstructionTriggered(bool operateByInstruction)
+void CdbEngine::adjustOperateByInstruction(bool operateByInstruction)
 {
-    DebuggerEngine::operateByInstructionTriggered(operateByInstruction);
-    if (m_operateByInstruction == operateByInstruction)
+    if (m_lastOperateByInstruction == operateByInstruction)
         return;
-    m_operateByInstruction = operateByInstruction;
-    runCommand({QLatin1String(m_operateByInstruction ? "l-t" : "l+t"), NoFlags});
-    runCommand({QLatin1String(m_operateByInstruction ? "l-s" : "l+s"), NoFlags});
+    m_lastOperateByInstruction = operateByInstruction;
+    runCommand({QLatin1String(m_lastOperateByInstruction ? "l-t" : "l+t"), NoFlags});
+    runCommand({QLatin1String(m_lastOperateByInstruction ? "l-s" : "l+s"), NoFlags});
 }
 
 bool CdbEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
@@ -521,7 +520,7 @@ void CdbEngine::handleInitialSessionIdle()
     const DebuggerRunParameters &rp = runParameters();
     if (!rp.commandsAfterConnect.isEmpty())
         runCommand({rp.commandsAfterConnect, NoFlags});
-    operateByInstructionTriggered(operatesByInstruction());
+    //operateByInstructionTriggered(operatesByInstruction());
     // QmlCppEngine expects the QML engine to be connected before any breakpoints are hit
     // (attemptBreakpointSynchronization() will be directly called then)
     if (rp.breakOnMain) {
@@ -758,10 +757,11 @@ bool CdbEngine::hasCapability(unsigned cap) const
            |AdditionalQmlStackCapability);
 }
 
-void CdbEngine::executeStep()
+void CdbEngine::executeStepIn(bool byInstruction)
 {
-    if (!m_operateByInstruction)
+    if (!m_lastOperateByInstruction)
         m_sourceStepInto = true; // See explanation at handleStackTrace().
+    adjustOperateByInstruction(byInstruction);
     runCommand({"t", NoFlags}); // Step into-> t (trace)
     STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunRequested")
     notifyInferiorRunRequested();
@@ -774,21 +774,12 @@ void CdbEngine::executeStepOut()
     notifyInferiorRunRequested();
 }
 
-void CdbEngine::executeNext()
+void CdbEngine::executeStepOver(bool byInstruction)
 {
+    adjustOperateByInstruction(byInstruction);
     runCommand({"p", NoFlags}); // Step over -> p
     STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunRequested")
     notifyInferiorRunRequested();
-}
-
-void CdbEngine::executeStepI()
-{
-    executeStep();
-}
-
-void CdbEngine::executeNextI()
-{
-    executeNext();
 }
 
 void CdbEngine::continueInferior()
@@ -1848,7 +1839,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
             if (stack.isValid()) {
                 switch (parseStackTrace(stack, sourceStepInto)) {
                 case ParseStackStepInto: // Hit on a frame while step into, see parseStackTrace().
-                    executeStep();
+                    executeStepIn(operatesByInstruction());
                     return;
                 case ParseStackStepOut: // Hit on a frame with no source while step into.
                     executeStepOut();

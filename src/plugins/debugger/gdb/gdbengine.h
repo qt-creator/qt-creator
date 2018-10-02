@@ -192,11 +192,9 @@ private: ////////// General Interface //////////
     void updateBreakpoint(const Breakpoint &bp) final;
     void enableSubBreakpoint(const SubBreakpoint &sbp, bool on) final;
 
-    void executeStep() final;
+    void executeStepIn(bool byInstruction) final;
     void executeStepOut() final;
-    void executeNext() final;
-    void executeStepI() final;
-    void executeNextI() final;
+    void executeStepOver(bool byInstruction) final;
 
     void continueInferiorInternal();
     void continueInferior() final;

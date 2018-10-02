@@ -768,7 +768,7 @@ public:
     Action m_interruptAction{tr("Interrupt"), interruptIcon(false), &DebuggerEngine::handleExecInterrupt};
     Action m_abortAction{tr("Abort Debugging"), {}, &DebuggerEngine::abortDebugger,
                          tr("Aborts debugging and resets the debugger to the initial state.")};
-    QAction m_stepAction{tr("Step Into")};
+    QAction m_stepInAction{tr("Step Into")};
     Action m_stepOutAction{tr("Step Out"), Icons::STEP_OUT.icon(), &DebuggerEngine::handleExecStepOut};
 
     Action m_runToLineAction{tr("Run to Line"), {}, &DebuggerEngine::handleExecRunToLine};
@@ -776,7 +776,7 @@ public:
     Action m_jumpToLineAction{tr("Jump to Line"), {}, &DebuggerEngine::handleExecJumpToLine};
     // In the Debug menu.
     Action m_returnFromFunctionAction{tr("Immediately Return From Inner Function"), {}, &DebuggerEngine::executeReturn};
-    QAction m_nextAction{tr("Step Over")};
+    QAction m_stepOverAction{tr("Step Over")};
     Action m_watchAction{tr("Add Expression Evaluator"), {}, &DebuggerEngine::handleAddToWatchWindow};
     Command *m_watchCommand = nullptr;
     QAction m_breakAction{tr("Toggle Breakpoint")};
@@ -1225,30 +1225,30 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     debugMenu->addSeparator();
 
-    cmd = ActionManager::registerAction(&m_nextAction, Constants::NEXT);
+    cmd = ActionManager::registerAction(&m_stepOverAction, Constants::NEXT);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+O") : tr("F10")));
     cmd->setAttribute(Command::CA_Hide);
     cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
-    m_nextAction.setIcon(Icons::STEP_OVER.icon());
-    connect(&m_nextAction, &QAction::triggered, this, [] {
+    m_stepOverAction.setIcon(Icons::STEP_OVER.icon());
+    connect(&m_stepOverAction, &QAction::triggered, this, [] {
         if (DebuggerEngine *engine = EngineManager::currentEngine()) {
-            engine->handleExecNext();
+            engine->handleExecStepOver();
         } else {
             DebuggerRunTool::setBreakOnMainNextTime();
             ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
         }
     });
 
-    cmd = ActionManager::registerAction(&m_stepAction, Constants::STEP);
+    cmd = ActionManager::registerAction(&m_stepInAction, Constants::STEP);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+I") : tr("F11")));
     cmd->setAttribute(Command::CA_Hide);
     cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
-    m_stepAction.setIcon(Icons::STEP_INTO.icon());
-    connect(&m_stepAction, &QAction::triggered, this, [] {
+    m_stepInAction.setIcon(Icons::STEP_INTO.icon());
+    connect(&m_stepInAction, &QAction::triggered, this, [] {
         if (DebuggerEngine *engine = EngineManager::currentEngine()) {
-            engine->handleExecStep();
+            engine->handleExecStepIn();
         } else {
             DebuggerRunTool::setBreakOnMainNextTime();
             ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
@@ -1469,10 +1469,10 @@ void DebuggerPluginPrivate::updatePresetState()
         // correspond to the current start up project.
         // Step into/next: Start and break at 'main' unless a debugger is running.
         QString stepToolTip = canRun ? tr("Start \"%1\" and break at function \"main\"").arg(startupRunConfigName) : whyNot;
-        m_stepAction.setToolTip(stepToolTip);
-        m_nextAction.setToolTip(stepToolTip);
-        m_stepAction.setEnabled(canRun);
-        m_nextAction.setEnabled(canRun);
+        m_stepInAction.setEnabled(canRun);
+        m_stepInAction.setToolTip(stepToolTip);
+        m_stepOverAction.setEnabled(canRun);
+        m_stepOverAction.setToolTip(stepToolTip);
         m_startAction.setEnabled(canRun);
         m_startAction.setIcon(startIcon(false));
         m_startAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -1492,8 +1492,8 @@ void DebuggerPluginPrivate::updatePresetState()
     QTC_ASSERT(currentEngine, return);
 
     // We have a current engine, and it belongs to the startup runconfig.
-    m_stepAction.setToolTip(QString());
-    m_nextAction.setToolTip(QString());
+    m_stepInAction.setToolTip(QString());
+    m_stepOverAction.setToolTip(QString());
 
     // The 'state' bits only affect the fat debug button, not the preset start button.
     m_startAction.setIcon(startIcon(false));
@@ -1522,8 +1522,8 @@ void DebuggerPluginPrivate::updatePresetState()
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_continueAction);
         m_hiddenStopAction.setAction(&m_exitAction);
-        m_stepAction.setEnabled(!companionPreventsAction);
-        m_nextAction.setEnabled(!companionPreventsAction);
+        m_stepInAction.setEnabled(!companionPreventsAction);
+        m_stepOverAction.setEnabled(!companionPreventsAction);
         m_jumpToLineAction.setEnabled(currentEngine->hasCapability(JumpToLineCapability));
         m_returnFromFunctionAction.setEnabled(currentEngine->hasCapability(ReturnFromFunctionCapability));
         m_detachAction.setEnabled(!isCore);
@@ -1541,8 +1541,8 @@ void DebuggerPluginPrivate::updatePresetState()
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_interruptAction);
         m_hiddenStopAction.setAction(&m_interruptAction);
-        m_stepAction.setEnabled(false);
-        m_nextAction.setEnabled(false);
+        m_stepInAction.setEnabled(false);
+        m_stepOverAction.setEnabled(false);
         m_jumpToLineAction.setEnabled(false);
         m_returnFromFunctionAction.setEnabled(false);
         m_detachAction.setEnabled(false);
@@ -1560,8 +1560,8 @@ void DebuggerPluginPrivate::updatePresetState()
         m_debugWithoutDeployAction.setEnabled(canRun);
         m_visibleStartAction.setAction(&m_startAction);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
-        m_stepAction.setEnabled(false);
-        m_nextAction.setEnabled(false);
+        m_stepInAction.setEnabled(false);
+        m_stepOverAction.setEnabled(false);
         m_jumpToLineAction.setEnabled(false);
         m_returnFromFunctionAction.setEnabled(false);
         m_detachAction.setEnabled(false);
@@ -1579,8 +1579,8 @@ void DebuggerPluginPrivate::updatePresetState()
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_exitAction);
         m_hiddenStopAction.setAction(&m_exitAction);
-        m_stepAction.setEnabled(false);
-        m_nextAction.setEnabled(false);
+        m_stepInAction.setEnabled(false);
+        m_stepOverAction.setEnabled(false);
         m_jumpToLineAction.setEnabled(false);
         m_returnFromFunctionAction.setEnabled(false);
         m_detachAction.setEnabled(false);
@@ -1601,8 +1601,8 @@ void DebuggerPluginPrivate::updatePresetState()
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_undisturbableAction);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
-        m_stepAction.setEnabled(false);
-        m_nextAction.setEnabled(false);
+        m_stepInAction.setEnabled(false);
+        m_stepOverAction.setEnabled(false);
         m_jumpToLineAction.setEnabled(false);
         m_returnFromFunctionAction.setEnabled(false);
         m_detachAction.setEnabled(false);
@@ -2064,13 +2064,13 @@ void DebuggerPluginPrivate::setInitialState()
     m_interruptAction.setEnabled(false);
     m_continueAction.setEnabled(false);
 
-    m_stepAction.setEnabled(true);
+    m_stepInAction.setEnabled(true);
     m_stepOutAction.setEnabled(false);
     m_runToLineAction.setEnabled(false);
     m_runToSelectedFunctionAction.setEnabled(true);
     m_returnFromFunctionAction.setEnabled(false);
     m_jumpToLineAction.setEnabled(false);
-    m_nextAction.setEnabled(true);
+    m_stepOverAction.setEnabled(true);
 
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(false);

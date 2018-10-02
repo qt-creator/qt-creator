@@ -47,12 +47,9 @@ public:
     PdbEngine();
 
 private:
-    // DebuggerEngine implementation
-    void executeStep() override;
+    void executeStepIn(bool) override;
     void executeStepOut() override;
-    void executeNext() override;
-    void executeStepI() override;
-    void executeNextI() override;
+    void executeStepOver(bool) override;
 
     void setupEngine() override;
     void runEngine() override;

@@ -72,11 +72,9 @@ private:
 
     void resetLocation() override;
 
-    void executeStep() override;
+    void executeStepOver(bool) override;
+    void executeStepIn(bool) override;
     void executeStepOut() override;
-    void executeNext() override;
-    void executeStepI() override;
-    void executeNextI() override;
 
     void setupEngine() override;
     void runEngine() override;

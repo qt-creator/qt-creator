@@ -691,11 +691,11 @@ void DebuggerEnginePrivate::setupViews()
 
     m_stepOverAction.setIcon(Icons::STEP_OVER_TOOLBAR.icon());
     connect(&m_stepOverAction, &QAction::triggered,
-            m_engine, &DebuggerEngine::handleExecNext);
+            m_engine, &DebuggerEngine::handleExecStepOver);
 
     m_stepIntoAction.setIcon(Icons::STEP_INTO_TOOLBAR.icon());
     connect(&m_stepIntoAction, &QAction::triggered,
-            m_engine, &DebuggerEngine::handleExecStep);
+            m_engine, &DebuggerEngine::handleExecStepIn);
 
     m_stepOutAction.setIcon(Icons::STEP_OUT_TOOLBAR.icon());
     connect(&m_stepOutAction, &QAction::triggered,
@@ -1787,14 +1787,14 @@ DebuggerToolTipManager *DebuggerEngine::toolTipManager()
     return &d->m_toolTipManager;
 }
 
-bool DebuggerEngine::debuggerActionsEnabled() const
-{
-    return debuggerActionsEnabledHelper(d->m_state);
-}
-
 bool DebuggerEngine::operatesByInstruction() const
 {
     return d->m_operateByInstructionAction.isChecked();
+}
+
+bool DebuggerEngine::debuggerActionsEnabled() const
+{
+    return debuggerActionsEnabledHelper(d->m_state);
 }
 
 void DebuggerEngine::operateByInstructionTriggered(bool on)
@@ -2291,31 +2291,25 @@ void DebuggerEngine::handleReset()
     resetInferior();
 }
 
-void DebuggerEngine::handleExecStep()
+void DebuggerEngine::handleExecStepIn()
 {
     if (state() == DebuggerNotReady) {
         DebuggerRunTool::setBreakOnMainNextTime();
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     } else {
         resetLocation();
-        if (operatesByInstruction())
-            executeStepI();
-        else
-            executeStep();
+        executeStepIn(operatesByInstruction());
     }
 }
 
-void DebuggerEngine::handleExecNext()
+void DebuggerEngine::handleExecStepOver()
 {
     if (state() == DebuggerNotReady) {
         DebuggerRunTool::setBreakOnMainNextTime();
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     } else {
         resetLocation();
-        if (operatesByInstruction())
-            executeNextI();
-        else
-            executeNext();
+        executeStepOver(operatesByInstruction());
     }
 }
 

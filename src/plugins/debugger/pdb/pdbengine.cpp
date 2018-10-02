@@ -167,14 +167,7 @@ void PdbEngine::interruptInferior()
     interruptProcess(m_proc.processId(), GdbEngineType, &error);
 }
 
-void PdbEngine::executeStep()
-{
-    notifyInferiorRunRequested();
-    notifyInferiorRunOk();
-    postDirectCommand("step");
-}
-
-void PdbEngine::executeStepI()
+void PdbEngine::executeStepIn(bool)
 {
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -188,14 +181,7 @@ void PdbEngine::executeStepOut()
     postDirectCommand("return");
 }
 
-void PdbEngine::executeNext()
-{
-    notifyInferiorRunRequested();
-    notifyInferiorRunOk();
-    postDirectCommand("next");
-}
-
-void PdbEngine::executeNextI()
+void PdbEngine::executeStepOver(bool)
 {
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
