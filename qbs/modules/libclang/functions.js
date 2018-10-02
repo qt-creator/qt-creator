@@ -101,17 +101,33 @@ function extraLibraries(llvmConfig, targetOS)
     }));
 }
 
-function formattingLibs(llvmConfig, targetOS)
+function formattingLibs(llvmConfig, qtcFunctions, targetOS)
 {
-    var fixedList = [
-        "clangFormat",
-        "clangToolingCore",
-        "clangRewrite",
-        "clangLex",
-        "clangBasic",
-    ];
+    var clangVersion = version(llvmConfig)
+    var libs = []
+    if (qtcFunctions.versionIsAtLeast(clangVersion, MinimumLLVMVersion)) {
+        if (qtcFunctions.versionIsAtLeast(clangVersion, "7.0.0")) {
+            libs.concat([
+                "clangFormat",
+                "clangToolingInclusions",
+                "clangToolingCore",
+                "clangRewrite",
+                "clangLex",
+                "clangBasic",
+            ]);
+        } else {
+            libs.concat([
+                "clangFormat",
+                "clangToolingCore",
+                "clangRewrite",
+                "clangLex",
+                "clangBasic",
+            ]);
+        }
+        libs.concat(extraLibraries(llvmConfig, targetOS));
+    }
 
-    return fixedList.concat(extraLibraries(llvmConfig, targetOS));
+    return libs;
 }
 
 function toolingLibs(llvmConfig, targetOS)

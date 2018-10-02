@@ -36,6 +36,8 @@
 
 #include <utils/hostosinfo.h>
 
+#include <llvm/Config/llvm-config.h>
+
 #include <QDir>
 #include <QFileInfo>
 #include <QTextBlock>
@@ -60,7 +62,12 @@ void adjustFormatStyleForLineBreak(format::FormatStyle &style,
     if (length > 0)
         style.ColumnLimit = prevBlockSize;
     style.AlwaysBreakBeforeMultilineStrings = true;
+#if LLVM_VERSION_MAJOR >= 7
+    style.AlwaysBreakTemplateDeclarations = FormatStyle::BTDS_Yes;
+#else
     style.AlwaysBreakTemplateDeclarations = true;
+#endif
+
     style.AllowAllParametersOfDeclarationOnNextLine = true;
     style.AllowShortBlocksOnASingleLine = true;
     style.AllowShortCaseLabelsOnASingleLine = true;
