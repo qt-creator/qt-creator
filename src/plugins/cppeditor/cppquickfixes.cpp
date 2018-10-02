@@ -3302,9 +3302,17 @@ public:
 
         // Write class qualification, if any.
         if (matchingClass) {
-            const Name *name = rewriteName(matchingClass->name(), &env, control);
-            funcDef.append(printer.prettyName(name));
-            funcDef.append(QLatin1String("::"));
+            Class *current = matchingClass;
+            QVector<const Name *> classes{matchingClass->name()};
+            while (current->enclosingScope()->asClass()) {
+                current = current->enclosingScope()->asClass();
+                classes.prepend(current->name());
+            }
+            for (const Name *n : classes) {
+                const Name *name = rewriteName(n, &env, control);
+                funcDef.append(printer.prettyName(name));
+                funcDef.append(QLatin1String("::"));
+            }
         }
 
         // Write the extracted function itself and its call.
