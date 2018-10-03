@@ -3704,7 +3704,7 @@ void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOpera
     int selStart = cursor.selectionStart();
     int selEnd = cursor.selectionEnd();
     if (selStart > selEnd)
-        qSwap(selStart, selEnd);
+        std::swap(selStart, selEnd);
 
     Overview printer;
 
