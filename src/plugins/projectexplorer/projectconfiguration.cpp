@@ -154,7 +154,7 @@ bool ProjectConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-ProjectConfigurationAspect *ProjectConfiguration::extraAspect(Core::Id id) const
+ProjectConfigurationAspect *ProjectConfiguration::aspect(Core::Id id) const
 {
     return Utils::findOrDefault(m_aspects, Utils::equal(&ProjectConfigurationAspect::id, id));
 }

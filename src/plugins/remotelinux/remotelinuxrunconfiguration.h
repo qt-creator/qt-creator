@@ -40,9 +40,6 @@ public:
     static const char *IdPrefix;
 
 private:
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
-
-    QString defaultDisplayName() const;
     void updateTargetInformation();
 };
 

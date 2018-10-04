@@ -2948,7 +2948,10 @@ class DumperBase:
                 return self.detypedef().integer()
             elif self.type.code == TypeCodeBitfield:
                 return self.lvalue
-            unsigned = self.type.name.startswith('unsigned')
+            # Could be something like 'short unsigned int'
+            unsigned = self.type.name == 'unsigned' \
+                    or self.type.name.startswith('unsigned ') \
+                    or self.type.name.find(' unsigned ') != -1
             bitsize = self.type.bitsize()
             return self.extractInteger(bitsize, unsigned)
 

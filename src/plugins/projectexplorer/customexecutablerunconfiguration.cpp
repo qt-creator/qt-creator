@@ -94,7 +94,7 @@ private:
 CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
     : QDialog(Core::ICore::dialogParent()),
       m_rc(rc),
-      m_workingDirectory(rc->extraAspect<EnvironmentAspect>())
+      m_workingDirectory(rc->aspect<EnvironmentAspect>())
 {
     auto vbox = new QVBoxLayout(this);
     vbox->addWidget(new QLabel(tr("Could not find the executable, please specify one.")));
@@ -121,21 +121,21 @@ CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
     m_executableChooser = new PathChooser(this);
     m_executableChooser->setHistoryCompleter("Qt.CustomExecutable.History");
     m_executableChooser->setExpectedKind(PathChooser::ExistingCommand);
-    m_executableChooser->setPath(rc->extraAspect<ExecutableAspect>()->executable().toString());
+    m_executableChooser->setPath(rc->aspect<ExecutableAspect>()->executable().toString());
     layout->addRow(tr("Executable:"), m_executableChooser);
     connect(m_executableChooser, &PathChooser::rawPathChanged,
             this, &CustomExecutableDialog::changed);
 
-    copyAspect(rc->extraAspect<ArgumentsAspect>(), &m_arguments);
+    copyAspect(rc->aspect<ArgumentsAspect>(), &m_arguments);
     m_arguments.addToConfigurationLayout(layout);
 
-    copyAspect(rc->extraAspect<WorkingDirectoryAspect>(), &m_workingDirectory);
+    copyAspect(rc->aspect<WorkingDirectoryAspect>(), &m_workingDirectory);
     m_workingDirectory.addToConfigurationLayout(layout);
 
-    copyAspect(rc->extraAspect<TerminalAspect>(), &m_terminal);
+    copyAspect(rc->aspect<TerminalAspect>(), &m_terminal);
     m_terminal.addToConfigurationLayout(layout);
 
-    auto enviromentAspect = rc->extraAspect<EnvironmentAspect>();
+    auto enviromentAspect = rc->aspect<EnvironmentAspect>();
     connect(enviromentAspect, &EnvironmentAspect::environmentChanged,
             this, &CustomExecutableDialog::environmentWasChanged);
     environmentWasChanged();
@@ -146,10 +146,10 @@ CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
 void CustomExecutableDialog::accept()
 {
     auto executable = FileName::fromString(m_executableChooser->path());
-    m_rc->extraAspect<ExecutableAspect>()->setExecutable(executable);
-    copyAspect(&m_arguments, m_rc->extraAspect<ArgumentsAspect>());
-    copyAspect(&m_workingDirectory, m_rc->extraAspect<WorkingDirectoryAspect>());
-    copyAspect(&m_terminal, m_rc->extraAspect<TerminalAspect>());
+    m_rc->aspect<ExecutableAspect>()->setExecutable(executable);
+    copyAspect(&m_arguments, m_rc->aspect<ArgumentsAspect>());
+    copyAspect(&m_workingDirectory, m_rc->aspect<WorkingDirectoryAspect>());
+    copyAspect(&m_terminal, m_rc->aspect<TerminalAspect>());
 
     QDialog::accept();
 }
@@ -168,7 +168,7 @@ bool CustomExecutableDialog::event(QEvent *event)
 
 void CustomExecutableDialog::environmentWasChanged()
 {
-    auto aspect = m_rc->extraAspect<EnvironmentAspect>();
+    auto aspect = m_rc->aspect<EnvironmentAspect>();
     QTC_ASSERT(aspect, return);
     m_executableChooser->setEnvironment(aspect->environment());
 }
@@ -242,7 +242,7 @@ void CustomExecutableRunConfiguration::configurationDialogFinished()
 
 QString CustomExecutableRunConfiguration::rawExecutable() const
 {
-    return extraAspect<ExecutableAspect>()->executable().toString();
+    return aspect<ExecutableAspect>()->executable().toString();
 }
 
 bool CustomExecutableRunConfiguration::isConfigured() const
@@ -253,12 +253,12 @@ bool CustomExecutableRunConfiguration::isConfigured() const
 Runnable CustomExecutableRunConfiguration::runnable() const
 {
     FileName workingDirectory =
-            extraAspect<WorkingDirectoryAspect>()->workingDirectory(macroExpander());
+            aspect<WorkingDirectoryAspect>()->workingDirectory(macroExpander());
 
     Runnable r;
-    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
-    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments(macroExpander());
-    r.environment = extraAspect<EnvironmentAspect>()->environment();
+    r.executable = aspect<ExecutableAspect>()->executable().toString();
+    r.commandLineArguments = aspect<ArgumentsAspect>()->arguments(macroExpander());
+    r.environment = aspect<EnvironmentAspect>()->environment();
     r.workingDirectory = workingDirectory.toString();
     r.device = DeviceManager::instance()->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
 

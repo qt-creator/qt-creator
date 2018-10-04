@@ -139,7 +139,7 @@ void IosRunConfiguration::updateDisplayNames()
     setDefaultDisplayName(tr("Run on %1").arg(devName));
     setDisplayName(tr("Run %1 on %2").arg(applicationName()).arg(devName));
 
-    extraAspect<ExecutableAspect>()->setExecutable(localExecutable());
+    aspect<ExecutableAspect>()->setExecutable(localExecutable());
 }
 
 void IosRunConfiguration::updateEnabledState()

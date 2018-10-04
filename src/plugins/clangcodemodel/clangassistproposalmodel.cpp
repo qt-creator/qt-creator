@@ -56,11 +56,7 @@ void ClangAssistProposalModel::sort(const QString &/*prefix*/)
             return static_cast<int>(first->prefixMatch())
                     < static_cast<int>(second->prefixMatch());
         }
-        if (first->requiresFixIts() != second->requiresFixIts())
-            return first->requiresFixIts() < second->requiresFixIts();
-        return (first->order() > 0
-                && (first->order() < second->order()
-                    || (first->order() == second->order() && first->text() < second->text())));
+        return false;
     };
 
     // Keep the order for the items with the same priority and name.

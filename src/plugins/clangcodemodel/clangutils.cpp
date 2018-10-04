@@ -155,8 +155,18 @@ int clangColumn(const QTextBlock &line, int cppEditorColumn)
     // (2) The return value is the column in Clang which is the utf8 byte offset from the beginning
     //     of the line.
     // Here we convert column from (1) to (2).
-    // '+ 1' is for 1-based columns
-    return line.text().left(cppEditorColumn).toUtf8().size() + 1;
+    // '- 1' and '+ 1' are because of 1-based columns
+    return line.text().left(cppEditorColumn - 1).toUtf8().size() + 1;
+}
+
+int cppEditorColumn(const QTextBlock &line, int clangColumn)
+{
+    // (1) clangColumn is the column in Clang which is the utf8 byte offset from the beginning
+    //     of the line.
+    // (2) The return value is the actual column shown by CppEditor.
+    // Here we convert column from (1) to (2).
+    // '- 1' and '+ 1' are because of 1-based columns
+    return QString::fromUtf8(line.text().toUtf8().left(clangColumn - 1)).size() + 1;
 }
 
 ::Utils::CodeModelIcon::Type iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token)

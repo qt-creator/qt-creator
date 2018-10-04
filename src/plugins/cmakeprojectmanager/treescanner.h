@@ -88,8 +88,7 @@ signals:
 
 private:
     static void scanForFiles(FutureInterface *fi, const Utils::FileName &directory,
-                             const FileFilter &filter, const FileTypeFactory &factory,
-                             QList<Core::IVersionControl *> &versionControls);
+                             const FileFilter &filter, const FileTypeFactory &factory);
 
 private:
     FileFilter m_filter;
@@ -97,7 +96,6 @@ private:
 
     FutureWatcher m_futureWatcher;
     Future m_scanFuture;
-    QList<Core::IVersionControl *> m_versionControls;
 };
 
 } // namespace Internal

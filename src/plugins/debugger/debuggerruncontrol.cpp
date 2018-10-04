@@ -906,9 +906,9 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
 
     if (runConfig) {
         m_runParameters.displayName = runConfig->displayName();
-        if (auto symbolsAspect = runConfig->extraAspect<SymbolFileAspect>())
+        if (auto symbolsAspect = runConfig->aspect<SymbolFileAspect>())
             m_runParameters.symbolFile = symbolsAspect->value();
-        if (auto terminalAspect = runConfig->extraAspect<TerminalAspect>())
+        if (auto terminalAspect = runConfig->aspect<TerminalAspect>())
             m_runParameters.useTerminal = terminalAspect->useTerminal();
     }
 
@@ -924,7 +924,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
     if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit))
         m_runParameters.qtPackageSourceLocation = qtVersion->qtPackageSourcePath().toString();
 
-    if (auto aspect = runConfig ? runConfig->extraAspect<DebuggerRunConfigurationAspect>() : nullptr) {
+    if (auto aspect = runConfig ? runConfig->aspect<DebuggerRunConfigurationAspect>() : nullptr) {
         if (!aspect->useCppDebugger())
             m_runParameters.cppEngineType = NoEngineType;
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger();

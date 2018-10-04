@@ -1682,9 +1682,8 @@ namespace {
 class ConvertToCamelCaseOp: public CppQuickFixOperation
 {
 public:
-    ConvertToCamelCaseOp(const CppQuickFixInterface &interface, int priority,
-                         const QString &newName)
-        : CppQuickFixOperation(interface, priority)
+    ConvertToCamelCaseOp(const CppQuickFixInterface &interface, const QString &newName)
+        : CppQuickFixOperation(interface, -1)
         , m_name(newName)
     {
         setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Camel Case"));
@@ -1744,7 +1743,7 @@ void ConvertToCamelCase::match(const CppQuickFixInterface &interface, QuickFixOp
         return;
     for (int i = 1; i < newName.length() - 1; ++i) {
         if (ConvertToCamelCaseOp::isConvertibleUnderscore(newName, i)) {
-            result << new ConvertToCamelCaseOp(interface, path.size() - 1, newName);
+            result << new ConvertToCamelCaseOp(interface, newName);
             return;
         }
     }
@@ -3303,9 +3302,17 @@ public:
 
         // Write class qualification, if any.
         if (matchingClass) {
-            const Name *name = rewriteName(matchingClass->name(), &env, control);
-            funcDef.append(printer.prettyName(name));
-            funcDef.append(QLatin1String("::"));
+            Class *current = matchingClass;
+            QVector<const Name *> classes{matchingClass->name()};
+            while (current->enclosingScope()->asClass()) {
+                current = current->enclosingScope()->asClass();
+                classes.prepend(current->name());
+            }
+            for (const Name *n : classes) {
+                const Name *name = rewriteName(n, &env, control);
+                funcDef.append(printer.prettyName(name));
+                funcDef.append(QLatin1String("::"));
+            }
         }
 
         // Write the extracted function itself and its call.

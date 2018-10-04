@@ -73,24 +73,14 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);
 }
 
-void RemoteLinuxRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
-{
-    setDefaultDisplayName(defaultDisplayName());
-}
-
-QString RemoteLinuxRunConfiguration::defaultDisplayName() const
-{
-    return RunConfigurationFactory::decoratedTargetName(buildKey(), target());
-}
-
 void RemoteLinuxRunConfiguration::updateTargetInformation()
 {
     BuildTargetInfo bti = buildTargetInfo();
     QString localExecutable = bti.targetFilePath.toString();
     DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
 
-    extraAspect<ExecutableAspect>()->setExecutable(FileName::fromString(depFile.remoteFilePath()));
-    extraAspect<SymbolFileAspect>()->setValue(localExecutable);
+    aspect<ExecutableAspect>()->setExecutable(FileName::fromString(depFile.remoteFilePath()));
+    aspect<SymbolFileAspect>()->setValue(localExecutable);
 
     emit enabledChanged();
 }
@@ -103,6 +93,7 @@ const char *RemoteLinuxRunConfiguration::IdPrefix = "RemoteLinuxRunConfiguration
 RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory()
 {
     registerRunConfiguration<RemoteLinuxRunConfiguration>(RemoteLinuxRunConfiguration::IdPrefix);
+    setDecorateDisplayNames(true);
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }
 

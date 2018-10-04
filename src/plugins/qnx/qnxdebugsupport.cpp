@@ -265,7 +265,7 @@ void QnxAttachDebugSupport::showProcessesDialog()
 //    QString projectSourceDirectory = dlg.projectSource();
     QString localExecutable = dlg.localExecutable();
     if (localExecutable.isEmpty()) {
-        if (auto aspect = runConfig->extraAspect<SymbolFileAspect>())
+        if (auto aspect = runConfig->aspect<SymbolFileAspect>())
             localExecutable = aspect->fileName().toString();
     }
 

@@ -193,7 +193,7 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
     });
     expander->registerPrefix("CurrentRun:Env", tr("Variables in the current run environment"),
                              [this](const QString &var) {
-        const auto envAspect = extraAspect<EnvironmentAspect>();
+        const auto envAspect = aspect<EnvironmentAspect>();
         return envAspect ? envAspect->environment().value(var) : QString();
     });
     expander->registerVariable(Constants::VAR_CURRENTRUN_NAME,
@@ -224,6 +224,8 @@ QWidget *RunConfiguration::createConfigurationWidget()
 {
     auto widget = new QWidget;
     auto formLayout = new QFormLayout(widget);
+    formLayout->setMargin(0);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     for (ProjectConfigurationAspect *aspect : m_aspects) {
         if (aspect->isVisible())
@@ -232,7 +234,10 @@ QWidget *RunConfiguration::createConfigurationWidget()
 
     Core::VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
-    return wrapWidget(widget);
+    auto detailsWidget = new Utils::DetailsWidget;
+    detailsWidget->setState(DetailsWidget::NoSummary);
+    detailsWidget->setWidget(widget);
+    return detailsWidget;
 }
 
 void RunConfiguration::updateEnabledState()
@@ -280,18 +285,6 @@ BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
     if (!target())
         return nullptr;
     return target()->activeBuildConfiguration();
-}
-
-QWidget *RunConfiguration::wrapWidget(QWidget *inner) const
-{
-    auto detailsWidget = new Utils::DetailsWidget;
-    detailsWidget->setState(DetailsWidget::NoSummary);
-    detailsWidget->setWidget(inner);
-    if (auto fl = qobject_cast<QFormLayout *>(inner->layout())){
-        fl->setMargin(0);
-        fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    }
-    return detailsWidget;
 }
 
 Target *RunConfiguration::target() const
@@ -383,14 +376,14 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
 Runnable RunConfiguration::runnable() const
 {
     Runnable r;
-    if (auto aspect = extraAspect<ExecutableAspect>())
-        r.executable = aspect->executable().toString();
-    if (auto aspect = extraAspect<ArgumentsAspect>())
-        r.commandLineArguments = aspect->arguments(macroExpander());
-    if (auto aspect = extraAspect<WorkingDirectoryAspect>())
-        r.workingDirectory = aspect->workingDirectory(macroExpander()).toString();
-    if (auto aspect = extraAspect<EnvironmentAspect>())
-        r.environment = aspect->environment();
+    if (auto executableAspect = aspect<ExecutableAspect>())
+        r.executable = executableAspect->executable().toString();
+    if (auto argumentsAspect = aspect<ArgumentsAspect>())
+        r.commandLineArguments = argumentsAspect->arguments(macroExpander());
+    if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())
+        r.workingDirectory = workingDirectoryAspect->workingDirectory(macroExpander()).toString();
+    if (auto environmentAspect = aspect<EnvironmentAspect>())
+        r.environment = environmentAspect->environment();
     return r;
 }
 
@@ -1563,7 +1556,7 @@ SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
     m_runnable = runControl->runnable(); // Default value. Can be overridden using setRunnable.
     m_device = runControl->device(); // Default value. Can be overridden using setDevice.
     if (auto runConfig = runControl->runConfiguration()) {
-        if (auto terminalAspect = runConfig->extraAspect<TerminalAspect>())
+        if (auto terminalAspect = runConfig->aspect<TerminalAspect>())
             m_useTerminal = terminalAspect->useTerminal();
     }
 }

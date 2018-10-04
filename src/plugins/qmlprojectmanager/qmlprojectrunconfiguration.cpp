@@ -305,7 +305,7 @@ Runnable QmlProjectRunConfiguration::runnable() const
     Runnable r;
     r.executable = executable();
     r.commandLineArguments = commandLineArguments();
-    r.environment = extraAspect<QmlProjectEnvironmentAspect>()->environment();
+    r.environment = aspect<QmlProjectEnvironmentAspect>()->environment();
     r.workingDirectory = static_cast<QmlProject *>(project())->targetDirectory(target()).toString();
     return r;
 }
@@ -354,7 +354,7 @@ QString QmlProjectRunConfiguration::executable() const
 QString QmlProjectRunConfiguration::commandLineArguments() const
 {
     // arguments in .user file
-    QString args = extraAspect<ArgumentsAspect>()->arguments(macroExpander());
+    QString args = aspect<ArgumentsAspect>()->arguments(macroExpander());
     const Target *currentTarget = target();
     const IDevice::ConstPtr device = DeviceKitInformation::device(currentTarget->kit());
     const Utils::OsType osType = device ? device->osType() : Utils::HostOsInfo::hostOs();

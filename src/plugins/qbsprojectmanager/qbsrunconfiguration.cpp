@@ -110,11 +110,11 @@ void QbsRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
-    if (auto dyldAspect = extraAspect<UseDyldSuffixAspect>()) {
+    if (auto dyldAspect = aspect<UseDyldSuffixAspect>()) {
         if (dyldAspect->value())
             env.set("DYLD_IMAGE_SUFFIX", "_debug");
     }
-    bool usingLibraryPaths = extraAspect<UseLibraryPathsAspect>()->value();
+    bool usingLibraryPaths = aspect<UseLibraryPathsAspect>()->value();
 
     const auto key = qMakePair(env.toStringList(), usingLibraryPaths);
     const auto it = m_envCache.constFind(key);
@@ -146,16 +146,16 @@ void QbsRunConfiguration::updateTargetInformation()
 {
     BuildTargetInfo bti = buildTargetInfo();
     const FileName executable = executableToRun(bti);
-    auto terminalAspect = extraAspect<TerminalAspect>();
+    auto terminalAspect = aspect<TerminalAspect>();
     if (!terminalAspect->isUserSet())
         terminalAspect->setUseTerminal(bti.usesTerminal);
 
-    extraAspect<ExecutableAspect>()->setExecutable(executable);
+    aspect<ExecutableAspect>()->setExecutable(executable);
 
     if (!executable.isEmpty()) {
         QString defaultWorkingDir = QFileInfo(executable.toString()).absolutePath();
         if (!defaultWorkingDir.isEmpty()) {
-            auto wdAspect = extraAspect<WorkingDirectoryAspect>();
+            auto wdAspect = aspect<WorkingDirectoryAspect>();
             wdAspect->setDefaultWorkingDirectory(FileName::fromString(defaultWorkingDir));
         }
     }

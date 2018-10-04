@@ -69,10 +69,7 @@ bool TreeScanner::asyncScanForFiles(const Utils::FileName &directory)
     m_scanFuture = fi->future();
     m_futureWatcher.setFuture(m_scanFuture);
 
-    if (m_versionControls.isEmpty())
-        m_versionControls = Core::VcsManager::versionControls();
-
-    Utils::runAsync([this, fi, directory]() { TreeScanner::scanForFiles(fi, directory, m_filter, m_factory, m_versionControls); });
+    Utils::runAsync([this, fi, directory]() { TreeScanner::scanForFiles(fi, directory, m_filter, m_factory); });
 
     return true;
 }
@@ -150,14 +147,12 @@ FileType TreeScanner::genericFileType(const Utils::MimeType &mimeType, const Uti
 }
 
 void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FileName& directory,
-                               const FileFilter &filter, const FileTypeFactory &factory,
-                               QList<Core::IVersionControl *> &versionControls)
+                               const FileFilter &filter, const FileTypeFactory &factory)
 {
     std::unique_ptr<FutureInterface> fip(fi);
     fip->reportStarted();
 
-    Result nodes
-            = FileNode::scanForFilesWithVersionControls(
+    Result nodes = FileNode::scanForFiles(
                 directory,
                 [&filter, &factory](const Utils::FileName &fn) -> FileNode * {
         const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn.toString());
@@ -172,7 +167,7 @@ void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FileName& direc
             type = factory(mimeType, fn);
 
         return new FileNode(fn, type, false);
-    }, versionControls, fip.get());
+    }, fip.get());
 
     Utils::sort(nodes, ProjectExplorer::Node::sortByPath);
 

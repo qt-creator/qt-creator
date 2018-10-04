@@ -390,15 +390,15 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
 }
 
 QList<FileNode *>
-FileNode::scanForFilesWithVersionControls(const Utils::FileName &directory,
-                                          const std::function<FileNode *(const Utils::FileName &)> factory,
-                                          const QList<Core::IVersionControl *> &versionControls,
-                                          QFutureInterface<QList<FileNode *>> *future)
+FileNode::scanForFiles(const Utils::FileName &directory,
+                       const std::function<FileNode *(const Utils::FileName &)> factory,
+                       QFutureInterface<QList<FileNode *>> *future)
 {
     QSet<QString> visited;
     if (future)
         future->setProgressRange(0, 1000000);
-    return scanForFilesRecursively(directory, factory, visited, future, 0.0, 1000000.0, versionControls);
+    return scanForFilesRecursively(directory, factory, visited, future, 0.0, 1000000.0,
+                                   Core::VcsManager::versionControls());
 }
 
 bool FileNode::supportsAction(ProjectAction action, const Node *node) const

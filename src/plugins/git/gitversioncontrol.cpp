@@ -82,7 +82,10 @@ bool GitVersionControl::isVcsFileOrDirectory(const Utils::FileName &fileName) co
         return false;
     if (fileName.toFileInfo().isDir())
         return true;
-    return QFile(fileName.toString()).readLine().startsWith("gitdir: ");
+    QFile file(fileName.toString());
+    if (!file.open(QFile::ReadOnly))
+        return false;
+    return file.read(8) == "gitdir: ";
 }
 
 bool GitVersionControl::isConfigured() const

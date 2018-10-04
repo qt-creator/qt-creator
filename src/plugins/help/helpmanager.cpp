@@ -84,11 +84,6 @@ struct HelpManagerPrivate
 static HelpManager *m_instance = nullptr;
 static HelpManagerPrivate *d = nullptr;
 
-static const char linksForKeyQuery[] = "SELECT d.Title, f.Name, e.Name, "
-    "d.Name, a.Anchor FROM IndexTable a, FileNameTable d, FolderTable e, "
-    "NamespaceTable f WHERE a.FileId=d.FileId AND d.FolderId=e.Id AND "
-    "a.NamespaceId=f.Id AND a.Name='%1'";
-
 // -- DbCleaner
 
 struct DbCleaner
@@ -227,66 +222,29 @@ QSet<QString> HelpManager::userDocumentationPaths()
     return d->m_userRegisteredFiles;
 }
 
-static QUrl buildQUrl(const QString &ns, const QString &folder,
-    const QString &relFileName, const QString &anchor)
-{
-    QUrl url;
-    url.setScheme(QLatin1String("qthelp"));
-    url.setAuthority(ns);
-    url.setPath(QLatin1Char('/') + folder + QLatin1Char('/') + relFileName);
-    url.setFragment(anchor);
-    return url;
-}
-
 // This should go into Qt 4.8 once we start using it for Qt Creator
 QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
 {
-    QMap<QString, QUrl> links;
-    QTC_ASSERT(!d->m_needsSetup, return links);
-
-    const QLatin1String sqlite("QSQLITE");
-    const QLatin1String name("HelpManager::linksForKeyword");
-
-    DbCleaner cleaner(name);
-    QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
-    if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
-        const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
-        for (const QString &nameSpace : registeredDocs) {
-            db.setDatabaseName(d->m_helpEngine->documentationFileName(nameSpace));
-            if (db.open()) {
-                QSqlQuery query = QSqlQuery(db);
-                query.setForwardOnly(true);
-                query.exec(QString::fromLatin1(linksForKeyQuery).arg(key));
-                while (query.next()) {
-                    QString title = query.value(0).toString();
-                    if (title.isEmpty()) // generate a title + corresponding path
-                        title = key + QLatin1String(" : ") + query.value(3).toString();
-                    links.insertMulti(title, buildQUrl(query.value(1).toString(),
-                        query.value(2).toString(), query.value(3).toString(),
-                        query.value(4).toString()));
-                }
-            }
-        }
-    }
-    return links;
+    QTC_ASSERT(!d->m_needsSetup, return {});
+    return d->m_helpEngine->linksForKeyword(key);
 }
 
 QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
 {
     QMap<QString, QUrl> empty;
-    QTC_ASSERT(!d->m_needsSetup, return empty);
+    QTC_ASSERT(!d->m_needsSetup, return {});
     return d->m_helpEngine->linksForIdentifier(id);
 }
 
 QUrl HelpManager::findFile(const QUrl &url)
 {
-    QTC_ASSERT(!d->m_needsSetup, return QUrl());
+    QTC_ASSERT(!d->m_needsSetup, return {});
     return d->m_helpEngine->findFile(url);
 }
 
 QByteArray HelpManager::fileData(const QUrl &url)
 {
-    QTC_ASSERT(!d->m_needsSetup, return QByteArray());
+    QTC_ASSERT(!d->m_needsSetup, return {});
     return d->m_helpEngine->fileData(url);
 }
 
@@ -297,19 +255,19 @@ void HelpManager::handleHelpRequest(const QUrl &url, Core::HelpManager::HelpView
 
 QStringList HelpManager::registeredNamespaces()
 {
-    QTC_ASSERT(!d->m_needsSetup, return QStringList());
+    QTC_ASSERT(!d->m_needsSetup, return {});
     return d->m_helpEngine->registeredDocumentations();
 }
 
 QString HelpManager::namespaceFromFile(const QString &file)
 {
-    QTC_ASSERT(!d->m_needsSetup, return QString());
+    QTC_ASSERT(!d->m_needsSetup, return {});
     return d->m_helpEngine->namespaceName(file);
 }
 
 QString HelpManager::fileFromNamespace(const QString &nameSpace)
 {
-    QTC_ASSERT(!d->m_needsSetup, return QString());
+    QTC_ASSERT(!d->m_needsSetup, return {});
     return d->m_helpEngine->documentationFileName(nameSpace);
 }
 
@@ -325,13 +283,13 @@ void HelpManager::setCustomValue(const QString &key, const QVariant &value)
 
 QVariant HelpManager::customValue(const QString &key, const QVariant &value)
 {
-    QTC_ASSERT(!d->m_needsSetup, return QVariant());
+    QTC_ASSERT(!d->m_needsSetup, return {});
     return d->m_helpEngine->customValue(key, value);
 }
 
 HelpManager::Filters HelpManager::filters()
 {
-    QTC_ASSERT(!d->m_needsSetup, return Filters());
+    QTC_ASSERT(!d->m_needsSetup, return {});
 
     Filters filters;
     const QStringList &customFilters = d->m_helpEngine->customFilters();
@@ -342,12 +300,12 @@ HelpManager::Filters HelpManager::filters()
 
 HelpManager::Filters HelpManager::fixedFilters()
 {
-    Filters fixedFilters;
-    QTC_ASSERT(!d->m_needsSetup, return fixedFilters);
+    QTC_ASSERT(!d->m_needsSetup, return {});
 
     const QLatin1String sqlite("QSQLITE");
     const QLatin1String name("HelpManager::fixedCustomFilters");
 
+    Filters fixedFilters;
     DbCleaner cleaner(name);
     QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
     if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
@@ -370,7 +328,7 @@ HelpManager::Filters HelpManager::fixedFilters()
 
 HelpManager::Filters HelpManager::userDefinedFilters()
 {
-    QTC_ASSERT(!d->m_needsSetup, return Filters());
+    QTC_ASSERT(!d->m_needsSetup, return {});
 
     Filters all = filters();
     const Filters &fixed = fixedFilters();

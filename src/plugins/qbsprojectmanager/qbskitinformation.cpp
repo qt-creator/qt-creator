@@ -30,11 +30,11 @@
 #include <projectexplorer/kitconfigwidget.h>
 #include <projectexplorer/kitmanager.h>
 
+#include <utils/elidinglabel.h>
 #include <utils/qtcassert.h>
 
 #include <qbs.h>
 
-#include <QLabel>
 #include <QPushButton>
 
 using namespace ProjectExplorer;
@@ -48,7 +48,7 @@ class ConfigWidget final : public KitConfigWidget
 public:
     ConfigWidget(Kit *kit, const KitInformation *kitInfo)
         : KitConfigWidget(kit, kitInfo),
-          m_contentLabel(new QLabel),
+          m_contentLabel(new Utils::ElidingLabel),
           m_changeButton(new QPushButton(tr("Change...")))
     {
         connect(m_changeButton, &QPushButton::clicked, this, &ConfigWidget::changeProperties);

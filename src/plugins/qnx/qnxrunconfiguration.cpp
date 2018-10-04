@@ -45,7 +45,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
 Runnable QnxRunConfiguration::runnable() const
 {
     Runnable r = RemoteLinuxRunConfiguration::runnable();
-    QString libPath = extraAspect<QtLibPathAspect>()->value();
+    QString libPath = aspect<QtLibPathAspect>()->value();
     if (!libPath.isEmpty()) {
         r.environment.appendOrSet("LD_LIBRARY_PATH", libPath + "/lib:$LD_LIBRARY_PATH");
         r.environment.appendOrSet("QML_IMPORT_PATH", libPath + "/imports:$QML_IMPORT_PATH");
