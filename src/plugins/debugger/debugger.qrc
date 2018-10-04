@@ -14,6 +14,8 @@
         <file>images/debugger_interrupt@2x.png</file>
         <file>images/debugger_interrupt_mask.png</file>
         <file>images/debugger_interrupt_mask@2x.png</file>
+        <file>images/debugger_stop_mask.png</file>
+        <file>images/debugger_stop_mask@2x.png</file>
         <file>images/debugger_reversemode.png</file>
         <file>images/debugger_reversemode@2x.png</file>
         <file>images/debugger_reversemode_background.png</file>

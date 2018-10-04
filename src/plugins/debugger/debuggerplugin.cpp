@@ -1576,8 +1576,8 @@ void DebuggerPluginPrivate::updatePresetState()
         m_continueAction.setEnabled(false);
         m_exitAction.setEnabled(true);
         m_debugWithoutDeployAction.setEnabled(false);
-        m_visibleStartAction.setAction(&m_undisturbableAction);
-        m_visibleStartAction.setIcon(startIcon(true));
+        m_visibleStartAction.setAction(&m_exitAction);
+        m_visibleStartAction.setIcon(Icons::STOP_FLAT.icon());
         m_hiddenStopAction.setAction(&m_exitAction);
         m_stepAction.setEnabled(false);
         m_nextAction.setEnabled(false);

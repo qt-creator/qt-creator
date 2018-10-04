@@ -9464,6 +9464,27 @@
          y="0"
          x="0" />
     </g>
+    <g
+       id="src/plugins/debugger/images/debugger_stop_mask"
+       transform="translate(-711,333)"
+       style="display:inline">
+      <use
+         transform="translate(704,3)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-7-9"
+         width="100%"
+         height="100%" />
+      <rect
+         style="fill:#000000"
+         id="rect4608-0-6"
+         width="17"
+         height="18"
+         x="753"
+         y="48" />
+    </g>
   </g>
   <g
      id="src/plugins/vcsbase/images/submit_arrow">
