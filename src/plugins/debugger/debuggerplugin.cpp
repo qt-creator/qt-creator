@@ -1501,8 +1501,8 @@ void DebuggerPluginPrivate::updatePresetState()
     m_startAction.setVisible(false);
 
     QString currentDisplayName = currentEngine->displayName();
-    m_interruptAction.setToolTip(tr("Interrupt \"%1\"").arg(currentDisplayName));
-    m_continueAction.setToolTip(tr("Continue \"%1\"").arg(currentDisplayName));
+    m_interruptAction.setToolTip(tr("Interrupt %1").arg(currentDisplayName));
+    m_continueAction.setToolTip(tr("Continue %1").arg(currentDisplayName));
 
     m_debugWithoutDeployAction.setEnabled(canRun);
 
