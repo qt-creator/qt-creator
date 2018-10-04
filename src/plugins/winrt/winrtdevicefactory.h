@@ -36,13 +36,13 @@ class WinRtDeviceFactory : public ProjectExplorer::IDeviceFactory
     Q_OBJECT
 public:
     WinRtDeviceFactory();
-    QString displayNameForId(Core::Id type) const;
-    QList<Core::Id> availableCreationIds() const;
-    QIcon iconForId(Core::Id type) const;
-    bool canCreate() const { return false; }
-    ProjectExplorer::IDevice::Ptr create(Core::Id id) const;
-    bool canRestore(const QVariantMap &map) const;
-    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const;
+    QString displayNameForId(Core::Id type) const override;
+    QList<Core::Id> availableCreationIds() const override;
+    QIcon iconForId(Core::Id type) const override;
+    bool canCreate() const override { return false; }
+    ProjectExplorer::IDevice::Ptr create(Core::Id id) const override;
+    bool canRestore(const QVariantMap &map) const override;
+    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 
     void autoDetect();
     void onPrerequisitesLoaded();
