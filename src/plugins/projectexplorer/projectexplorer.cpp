@@ -1572,7 +1572,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Utils::EnvironmentProvider::addProvider(
         {"CurrentRun:Env", tr("Current Run Environment"), []() {
              if (RunConfiguration *rc = activeRunConfiguration())
-                if (auto envAspect = rc->extraAspect<EnvironmentAspect>())
+                if (auto envAspect = rc->aspect<EnvironmentAspect>())
                     return envAspect->environment();
              return Utils::Environment::systemEnvironment();
          }});
