@@ -515,12 +515,10 @@ QSet<Id> KitFeatureProvider::availablePlatforms() const
 
 QString KitFeatureProvider::displayNameForPlatform(Id id) const
 {
-    for (IDeviceFactory *f : IDeviceFactory::allDeviceFactories()) {
-        if (f->availableCreationIds().contains(id)) {
-            const QString dn = f->displayNameForId(id);
-            QTC_ASSERT(!dn.isEmpty(), continue);
-            return dn;
-        }
+    if (IDeviceFactory *f = IDeviceFactory::find(id)) {
+        const QString dn = f->displayName();
+        QTC_CHECK(!dn.isEmpty());
+        return dn;
     }
     return QString();
 }

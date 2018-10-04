@@ -586,13 +586,8 @@ KitInformation::ItemList DeviceTypeKitInformation::toUserOutput(const Kit *k) co
     Core::Id type = deviceTypeId(k);
     QString typeDisplayName = tr("Unknown device type");
     if (type.isValid()) {
-        IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
-            [&type](IDeviceFactory *factory) {
-                return factory->availableCreationIds().contains(type);
-            });
-
-        if (factory)
-            typeDisplayName = factory->displayNameForId(type);
+        if (IDeviceFactory *factory = IDeviceFactory::find(type))
+            typeDisplayName = factory->displayName();
     }
     return ItemList() << qMakePair(tr("Device type"), typeDisplayName);
 }

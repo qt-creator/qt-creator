@@ -47,22 +47,23 @@ public:
     ~IDeviceFactory() override;
     static const QList<IDeviceFactory *> allDeviceFactories();
 
-    virtual QString displayNameForId(Core::Id type) const = 0;
-
-    virtual QList<Core::Id> availableCreationIds() const = 0;
-
-    virtual QIcon iconForId(Core::Id type) const = 0;
+    virtual QString displayName() const = 0;
+    virtual QIcon icon() const = 0;
 
     virtual bool canCreate() const;
-    virtual IDevice::Ptr create(Core::Id id) const = 0;
+    virtual IDevice::Ptr create() const = 0;
 
     virtual bool canRestore(const QVariantMap &map) const = 0;
     virtual IDevice::Ptr restore(const QVariantMap &map) const = 0;
 
     static IDeviceFactory *find(Core::Id type);
+    Core::Id deviceType() const { return m_deviceType; }
 
 protected:
-    explicit IDeviceFactory(QObject *parent = nullptr);
+    explicit IDeviceFactory(Core::Id deviceType);
+
+private:
+    const Core::Id m_deviceType;
 };
 
 } // namespace ProjectExplorer

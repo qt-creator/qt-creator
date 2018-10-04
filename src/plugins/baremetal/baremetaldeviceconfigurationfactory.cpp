@@ -40,22 +40,17 @@ namespace BareMetal {
 namespace Internal {
 
 BareMetalDeviceConfigurationFactory::BareMetalDeviceConfigurationFactory()
+    : IDeviceFactory(Constants::BareMetalOsType)
 {
 }
 
-QString BareMetalDeviceConfigurationFactory::displayNameForId(Core::Id type) const
+QString BareMetalDeviceConfigurationFactory::displayName() const
 {
-    return type == Constants::BareMetalOsType ? tr("Bare Metal Device") : QString();
+    return tr("Bare Metal Device");
 }
 
-QList<Core::Id> BareMetalDeviceConfigurationFactory::availableCreationIds() const
+QIcon BareMetalDeviceConfigurationFactory::icon() const
 {
-    return QList<Core::Id>() << Core::Id(Constants::BareMetalOsType);
-}
-
-QIcon BareMetalDeviceConfigurationFactory::iconForId(Core::Id type) const
-{
-    Q_UNUSED(type)
     using namespace Utils;
     static const QIcon icon =
             Icon::combinedIcon({Icon({{":/baremetal/images/baremetaldevicesmall.png",
@@ -65,9 +60,8 @@ QIcon BareMetalDeviceConfigurationFactory::iconForId(Core::Id type) const
     return icon;
 }
 
-IDevice::Ptr BareMetalDeviceConfigurationFactory::create(Core::Id id) const
+IDevice::Ptr BareMetalDeviceConfigurationFactory::create() const
 {
-    QTC_ASSERT(id == Constants::BareMetalOsType, return IDevice::Ptr());
     BareMetalDeviceConfigurationWizard wizard;
     if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
@@ -76,7 +70,7 @@ IDevice::Ptr BareMetalDeviceConfigurationFactory::create(Core::Id id) const
 
 bool BareMetalDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
 {
-   return IDevice::typeFromMap(map) == Constants::BareMetalOsType;
+   return IDevice::typeFromMap(map) == deviceType();
 }
 
 IDevice::Ptr BareMetalDeviceConfigurationFactory::restore(const QVariantMap &map) const

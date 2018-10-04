@@ -80,7 +80,7 @@ namespace ProjectExplorer {
 
 bool IDeviceFactory::canCreate() const
 {
-    return !availableCreationIds().isEmpty();
+    return true;
 }
 
 static QList<IDeviceFactory *> g_deviceFactories;
@@ -89,11 +89,12 @@ IDeviceFactory *IDeviceFactory::find(Core::Id type)
 {
     return Utils::findOrDefault(g_deviceFactories,
         [&type](IDeviceFactory *factory) {
-            return factory->availableCreationIds().contains(type);
+            return factory->deviceType() == type;
         });
 }
 
-IDeviceFactory::IDeviceFactory(QObject *parent) : QObject(parent)
+IDeviceFactory::IDeviceFactory(Core::Id deviceType)
+    : m_deviceType(deviceType)
 {
     g_deviceFactories.append(this);
 }

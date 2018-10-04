@@ -38,24 +38,17 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-DesktopDeviceFactory::DesktopDeviceFactory(QObject *parent) : IDeviceFactory(parent)
+DesktopDeviceFactory::DesktopDeviceFactory()
+    : IDeviceFactory(Constants::DESKTOP_DEVICE_TYPE)
 { }
 
-QString DesktopDeviceFactory::displayNameForId(Core::Id type) const
+QString DesktopDeviceFactory::displayName() const
 {
-    if (type == Constants::DESKTOP_DEVICE_TYPE)
-        return tr("Desktop");
-    return QString();
+    return tr("Desktop");
 }
 
-QList<Core::Id> DesktopDeviceFactory::availableCreationIds() const
+QIcon DesktopDeviceFactory::icon() const
 {
-    return QList<Core::Id>() << Core::Id(Constants::DESKTOP_DEVICE_TYPE);
-}
-
-QIcon DesktopDeviceFactory::iconForId(Core::Id type) const
-{
-    Q_UNUSED(type)
     static const QIcon icon =
             Utils::creatorTheme()->flag(Utils::Theme::FlatSideBarIcons)
             ? Utils::Icon::combinedIcon({Icons::DESKTOP_DEVICE.icon(),
@@ -69,15 +62,14 @@ bool DesktopDeviceFactory::canCreate() const
     return false;
 }
 
-IDevice::Ptr DesktopDeviceFactory::create(Core::Id id) const
+IDevice::Ptr DesktopDeviceFactory::create() const
 {
-    Q_UNUSED(id);
     return IDevice::Ptr();
 }
 
 bool DesktopDeviceFactory::canRestore(const QVariantMap &map) const
 {
-    return IDevice::idFromMap(map) == Constants::DESKTOP_DEVICE_ID;
+    return IDevice::idFromMap(map) == deviceType();
 }
 
 IDevice::Ptr DesktopDeviceFactory::restore(const QVariantMap &map) const

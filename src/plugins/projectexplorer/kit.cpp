@@ -356,9 +356,9 @@ static QIcon iconForDeviceType(Core::Id deviceType)
 {
     const IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
         [&deviceType](const IDeviceFactory *factory) {
-            return factory->availableCreationIds().contains(deviceType);
+            return factory->deviceType() == deviceType;
         });
-    return factory ? factory->iconForId(deviceType) : QIcon();
+    return factory ? factory->icon() : QIcon();
 }
 
 QIcon Kit::icon() const

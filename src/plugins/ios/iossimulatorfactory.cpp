@@ -36,25 +36,18 @@ namespace Ios {
 namespace Internal {
 
 IosSimulatorFactory::IosSimulatorFactory()
+    : ProjectExplorer::IDeviceFactory(Constants::IOS_SIMULATOR_TYPE)
 {
     setObjectName(QLatin1String("IosSimulatorFactory"));
 }
 
-QString IosSimulatorFactory::displayNameForId(Core::Id type) const
+QString IosSimulatorFactory::displayName() const
 {
-    if (type == Constants::IOS_SIMULATOR_TYPE)
-        return tr("iOS Simulator");
-    return QString();
+    return tr("iOS Simulator");
 }
 
-QList<Core::Id> IosSimulatorFactory::availableCreationIds() const
+QIcon IosSimulatorFactory::icon() const
 {
-    return QList<Core::Id>() << Core::Id(Constants::IOS_SIMULATOR_TYPE);
-}
-
-QIcon IosSimulatorFactory::iconForId(Core::Id type) const
-{
-    Q_UNUSED(type)
     using namespace Utils;
     static const QIcon icon =
             Icon::combinedIcon({Icon({{":/ios/images/iosdevicesmall.png",
@@ -69,15 +62,14 @@ bool IosSimulatorFactory::canCreate() const
     return false;
 }
 
-ProjectExplorer::IDevice::Ptr IosSimulatorFactory::create(Core::Id id) const
+ProjectExplorer::IDevice::Ptr IosSimulatorFactory::create() const
 {
-    Q_UNUSED(id)
     return ProjectExplorer::IDevice::Ptr();
 }
 
 bool IosSimulatorFactory::canRestore(const QVariantMap &map) const
 {
-    return ProjectExplorer::IDevice::typeFromMap(map) == Constants::IOS_SIMULATOR_TYPE;
+    return ProjectExplorer::IDevice::typeFromMap(map) == deviceType();
 }
 
 ProjectExplorer::IDevice::Ptr IosSimulatorFactory::restore(const QVariantMap &map) const

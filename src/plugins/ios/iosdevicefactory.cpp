@@ -36,23 +36,18 @@ namespace Ios {
 namespace Internal {
 
 IosDeviceFactory::IosDeviceFactory()
+    : ProjectExplorer::IDeviceFactory(Constants::IOS_DEVICE_ID)
 {
     setObjectName(QLatin1String("IosDeviceFactory"));
 }
 
-QString IosDeviceFactory::displayNameForId(Core::Id type) const
+QString IosDeviceFactory::displayName() const
 {
-    return type == Constants::IOS_DEVICE_TYPE ? IosDevice::name() : QString();
+    return IosDevice::name();
 }
 
-QList<Core::Id> IosDeviceFactory::availableCreationIds() const
+QIcon IosDeviceFactory::icon() const
 {
-    return QList<Core::Id>() << Core::Id(Constants::IOS_DEVICE_TYPE);
-}
-
-QIcon IosDeviceFactory::iconForId(Core::Id type) const
-{
-    Q_UNUSED(type)
     using namespace Utils;
     static const QIcon icon =
             Icon::combinedIcon({Icon({{":/ios/images/iosdevicesmall.png",
@@ -67,9 +62,8 @@ bool IosDeviceFactory::canCreate() const
     return false;
 }
 
-ProjectExplorer::IDevice::Ptr IosDeviceFactory::create(Core::Id id) const
+ProjectExplorer::IDevice::Ptr IosDeviceFactory::create() const
 {
-    Q_UNUSED(id)
     return ProjectExplorer::IDevice::Ptr();
 }
 

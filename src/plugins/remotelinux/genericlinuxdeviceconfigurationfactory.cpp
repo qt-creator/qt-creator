@@ -39,31 +39,23 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 
-GenericLinuxDeviceConfigurationFactory::GenericLinuxDeviceConfigurationFactory(QObject *parent)
-    : IDeviceFactory(parent)
+GenericLinuxDeviceConfigurationFactory::GenericLinuxDeviceConfigurationFactory()
+    : IDeviceFactory(Constants::GenericLinuxOsType)
 {
 }
 
-QString GenericLinuxDeviceConfigurationFactory::displayNameForId(Core::Id type) const
+QString GenericLinuxDeviceConfigurationFactory::displayName() const
 {
-    QTC_ASSERT(type == Constants::GenericLinuxOsType, return QString());
     return tr("Generic Linux Device");
 }
 
-QList<Core::Id> GenericLinuxDeviceConfigurationFactory::availableCreationIds() const
+QIcon GenericLinuxDeviceConfigurationFactory::icon() const
 {
-    return QList<Core::Id>() << Core::Id(Constants::GenericLinuxOsType);
-}
-
-QIcon GenericLinuxDeviceConfigurationFactory::iconForId(Core::Id type) const
-{
-    Q_UNUSED(type)
     return QIcon();
 }
 
-IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create(Core::Id id) const
+IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const
 {
-    QTC_ASSERT(id == Constants::GenericLinuxOsType, return IDevice::Ptr());
     GenericLinuxDeviceConfigurationWizard wizard(Core::ICore::mainWindow());
     if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
@@ -72,7 +64,7 @@ IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create(Core::Id id) const
 
 bool GenericLinuxDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
 {
-    return IDevice::typeFromMap(map) == Constants::GenericLinuxOsType;
+    return IDevice::typeFromMap(map) == deviceType();
 }
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::restore(const QVariantMap &map) const

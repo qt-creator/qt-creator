@@ -147,7 +147,7 @@ void DeviceSettingsWidget::addDevice()
     IDeviceFactory *factory = IDeviceFactory::find(toCreate);
     if (!factory)
         return;
-    IDevice::Ptr device = factory->create(toCreate);
+    IDevice::Ptr device = factory->create();
     if (device.isNull())
         return;
 

@@ -52,7 +52,9 @@ public:
     WinRtPhoneDeployConfigurationFactory phoneDeployConfigFactory;
     WinRtEmulatorDeployConfigurationFactory emulatorDeployFactory;
     WinRtDeployStepFactory deployStepFactory;
-    WinRtDeviceFactory deviceFactory;
+    WinRtDeviceFactory localDeviceFactory{Constants::WINRT_DEVICE_TYPE_LOCAL};
+    WinRtDeviceFactory phoneDeviceFactory{Constants::WINRT_DEVICE_TYPE_PHONE};
+    WinRtDeviceFactory emulatorDeviceFactory{Constants::WINRT_DEVICE_TYPE_EMULATOR};
 };
 
 WinRtPlugin::WinRtPlugin()

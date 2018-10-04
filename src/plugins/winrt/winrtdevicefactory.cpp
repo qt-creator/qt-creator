@@ -47,9 +47,8 @@ using QtSupport::QtVersionManager;
 namespace WinRt {
 namespace Internal {
 
-WinRtDeviceFactory::WinRtDeviceFactory()
-    : m_process(0)
-    , m_initialized(false)
+WinRtDeviceFactory::WinRtDeviceFactory(Core::Id deviceType)
+    : ProjectExplorer::IDeviceFactory(deviceType)
 {
     if (allPrerequisitesLoaded()) {
         onPrerequisitesLoaded();
@@ -62,21 +61,13 @@ WinRtDeviceFactory::WinRtDeviceFactory()
     }
 }
 
-QString WinRtDeviceFactory::displayNameForId(Core::Id type) const
+QString WinRtDeviceFactory::displayName() const
 {
-    return WinRtDevice::displayNameForType(type);
+    return WinRtDevice::displayNameForType(deviceType());
 }
 
-QList<Core::Id> WinRtDeviceFactory::availableCreationIds() const
+QIcon WinRtDeviceFactory::icon() const
 {
-    return QList<Core::Id>() << Constants::WINRT_DEVICE_TYPE_LOCAL
-                             << Constants::WINRT_DEVICE_TYPE_PHONE
-                             << Constants::WINRT_DEVICE_TYPE_EMULATOR;
-}
-
-QIcon WinRtDeviceFactory::iconForId(Core::Id type) const
-{
-    Q_UNUSED(type)
     using namespace Utils;
     return Icon::combinedIcon({Icon({{":/winrt/images/winrtdevicesmall.png",
                                       Theme::PanelTextColorDark}}, Icon::Tint),
@@ -84,16 +75,15 @@ QIcon WinRtDeviceFactory::iconForId(Core::Id type) const
                                       Theme::IconsBaseColor}})});
 }
 
-IDevice::Ptr WinRtDeviceFactory::create(Core::Id id) const
+IDevice::Ptr WinRtDeviceFactory::create() const
 {
-    Q_UNUSED(id);
     QTC_CHECK(false);
     return IDevice::Ptr();
 }
 
 bool WinRtDeviceFactory::canRestore(const QVariantMap &map) const
 {
-    return availableCreationIds().contains(IDevice::typeFromMap(map));
+    return IDevice::typeFromMap(map) == deviceType();
 }
 
 IDevice::Ptr WinRtDeviceFactory::restore(const QVariantMap &map) const

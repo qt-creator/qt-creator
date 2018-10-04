@@ -45,11 +45,9 @@ DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
     for (const IDeviceFactory * const factory : IDeviceFactory::allDeviceFactories()) {
         if (!factory->canCreate())
             continue;
-        foreach (Core::Id id, factory->availableCreationIds()) {
-            QListWidgetItem *item = new QListWidgetItem(factory->displayNameForId(id));
-            item->setData(Qt::UserRole, QVariant::fromValue(id));
-            ui->listWidget->addItem(item);
-        }
+        QListWidgetItem *item = new QListWidgetItem(factory->displayName());
+        item->setData(Qt::UserRole, QVariant::fromValue(factory->deviceType()));
+        ui->listWidget->addItem(item);
     }
 
     connect(ui->listWidget, &QListWidget::itemSelectionChanged,

@@ -262,10 +262,8 @@ int ToolChainInformationConfigWidget::indexOf(QComboBox *cb, const ToolChain *tc
 DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workingCopy, const KitInformation *ki) :
     KitConfigWidget(workingCopy, ki), m_comboBox(new QComboBox)
 {
-    for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories()) {
-        foreach (Id id, factory->availableCreationIds())
-            m_comboBox->addItem(factory->displayNameForId(id), id.toSetting());
-    }
+    for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
+        m_comboBox->addItem(factory->displayName(), factory->deviceType().toSetting());
 
     m_comboBox->setToolTip(toolTip());
 

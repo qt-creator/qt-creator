@@ -62,7 +62,7 @@ bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
             return false;
         }
 
-        IDevice::Ptr newDevice = factory->create(deviceTypeId);
+        IDevice::Ptr newDevice = factory->create();
         if (newDevice.isNull()) {
             emit addOutput(tr("No device configured."), BuildStep::OutputFormat::ErrorMessage);
             return false;

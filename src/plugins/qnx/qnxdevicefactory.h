@@ -35,14 +35,13 @@ class QnxDeviceFactory : public ProjectExplorer::IDeviceFactory
     Q_OBJECT
 
 public:
-    explicit QnxDeviceFactory(QObject *parent = 0);
+    QnxDeviceFactory();
 
-    QString displayNameForId(Core::Id type) const override;
-    QList<Core::Id> availableCreationIds() const override;
-    QIcon iconForId(Core::Id type) const override;
+    QString displayName() const override;
+    QIcon icon() const override;
 
     bool canCreate() const override;
-    ProjectExplorer::IDevice::Ptr create(Core::Id id) const override;
+    ProjectExplorer::IDevice::Ptr create() const override;
 
     bool canRestore(const QVariantMap &map) const override;
     ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
