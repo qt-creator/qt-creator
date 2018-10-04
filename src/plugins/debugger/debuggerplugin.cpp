@@ -1143,10 +1143,13 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_visibleStartAction.initialize(&m_startAction);
     m_visibleStartAction.setAttribute(ProxyAction::UpdateText);
+    m_visibleStartAction.setAttribute(ProxyAction::UpdateIcon);
     m_visibleStartAction.setAction(&m_startAction);
-    m_visibleStartAction.setIcon(startIcon(true));
 
     ModeManager::addAction(&m_visibleStartAction, Constants::P_ACTION_DEBUG);
+
+    m_undisturbableAction.setIcon(interruptIcon(false));
+    m_undisturbableAction.setEnabled(false);
 
     cmd = ActionManager::registerAction(&m_debugWithoutDeployAction,
         "Debugger.DebugWithoutDeploy");
@@ -1475,7 +1478,7 @@ void DebuggerPluginPrivate::updatePresetState()
         m_continueAction.setEnabled(false);
         m_exitAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(canRun);
-        m_visibleStartAction.setIcon(startIcon(true));
+        m_visibleStartAction.setAction(&m_startAction);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
         m_detachAction.setEnabled(false);
         m_jumpToLineAction.setEnabled(false);
@@ -1517,7 +1520,6 @@ void DebuggerPluginPrivate::updatePresetState()
         m_exitAction.setEnabled(true);
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_continueAction);
-        m_visibleStartAction.setIcon(continueIcon(true));
         m_hiddenStopAction.setAction(&m_exitAction);
         m_stepAction.setEnabled(!companionPreventsAction);
         m_nextAction.setEnabled(!companionPreventsAction);
@@ -1537,7 +1539,6 @@ void DebuggerPluginPrivate::updatePresetState()
         m_exitAction.setEnabled(true);
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_interruptAction);
-        m_visibleStartAction.setIcon(interruptIcon(true));
         m_hiddenStopAction.setAction(&m_interruptAction);
         m_stepAction.setEnabled(false);
         m_nextAction.setEnabled(false);
@@ -1557,7 +1558,6 @@ void DebuggerPluginPrivate::updatePresetState()
         m_exitAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(canRun);
         m_visibleStartAction.setAction(&m_startAction);
-        m_visibleStartAction.setIcon(startIcon(true));
         m_hiddenStopAction.setAction(&m_undisturbableAction);
         m_stepAction.setEnabled(false);
         m_nextAction.setEnabled(false);
@@ -1577,7 +1577,6 @@ void DebuggerPluginPrivate::updatePresetState()
         m_exitAction.setEnabled(true);
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_exitAction);
-        m_visibleStartAction.setIcon(Icons::STOP_FLAT.icon());
         m_hiddenStopAction.setAction(&m_exitAction);
         m_stepAction.setEnabled(false);
         m_nextAction.setEnabled(false);
@@ -1589,10 +1588,10 @@ void DebuggerPluginPrivate::updatePresetState()
         m_stepOutAction.setEnabled(false);
         m_runToLineAction.setEnabled(false);
         m_runToSelectedFunctionAction.setEnabled(false);
-    } else if (state == DebuggerNotReady) {
-        // The startup phase should be over once we are here
-        QTC_CHECK(false);
     } else {
+        // The startup phase should be over once we are here.
+        // But treat it as 'undisturbable if we are here by accident.
+        QTC_CHECK(state != DebuggerNotReady);
         // Everything else is "undisturbable".
         m_startAction.setEnabled(false);
         m_interruptAction.setEnabled(false);
@@ -1600,7 +1599,6 @@ void DebuggerPluginPrivate::updatePresetState()
         m_exitAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_undisturbableAction);
-        m_visibleStartAction.setIcon(startIcon(true));
         m_hiddenStopAction.setAction(&m_undisturbableAction);
         m_stepAction.setEnabled(false);
         m_nextAction.setEnabled(false);
