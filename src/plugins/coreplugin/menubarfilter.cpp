@@ -190,8 +190,6 @@ void Core::Internal::MenuBarFilter::prepareSearch(const QString &entry)
     const QStringList entryPath = normalized.split(separators.at(0), QString::SkipEmptyParts);
     m_entries.clear();
     QVector<const QMenu *> processedMenus;
-    for (QAction* action : menuBarActions()) {
-        requestMenuUpdate(action);
+    for (QAction* action : menuBarActions())
         m_entries << matchesForAction(action, entryPath, QStringList(), processedMenus);
-    }
 }
