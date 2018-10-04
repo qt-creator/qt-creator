@@ -69,11 +69,22 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 
     QTimer timer;
     timer.setInterval(100);
+
+    bool modalSeen = false;
+    bool dialogAccepted = false;
+
     connect(&timer, &QTimer::timeout, this, [&]() {
-        if (auto activeModal
-                = qobject_cast<QmlProfilerAttachDialog *>(QApplication::activeModalWidget())) {
-            activeModal->setPort(serverUrl.port());
-            activeModal->accept();
+        if (QWidget *activeModal = QApplication::activeModalWidget()) {
+            modalSeen = true;
+            auto dialog = qobject_cast<QmlProfilerAttachDialog *>(activeModal);
+            if (dialog) {
+                dialog->setPort(serverUrl.port());
+                dialog->accept();
+                dialogAccepted = true;
+            } else {
+                qWarning() << "Some other modal widget popped up:" << activeModal;
+                QFAIL("Interference from unrelated code.");
+            }
         }
     });
 
@@ -83,6 +94,8 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 
     QTRY_VERIFY(connection);
     QTRY_VERIFY(runControl->isRunning());
+    QTRY_VERIFY(modalSeen);
+    QTRY_VERIFY(dialogAccepted);
     QTRY_VERIFY(profilerTool.clientManager()->isConnected());
 
     connection.reset();
