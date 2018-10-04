@@ -1449,28 +1449,31 @@ void DebuggerPluginPrivate::updatePresetState()
     DebuggerEngine *currentEngine = EngineManager::currentEngine();
 
     QString whyNot;
-    const bool canRun = startupProject
-        && ProjectExplorerPlugin::canRunStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, &whyNot);
+    const bool canRun =
+            ProjectExplorerPlugin::canRunStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, &whyNot);
+
+    QString startupRunConfigName;
+    if (startupRunConfig)
+        startupRunConfigName = startupRunConfig->displayName();
+    if (startupRunConfigName.isEmpty() && startupProject)
+        startupRunConfigName = startupProject->displayName();
+
+    const QString startToolTip =
+            canRun ? tr("Start debugging of \"%1\"").arg(startupRunConfigName) : whyNot;
+
+    m_startAction.setToolTip(startToolTip);
+    m_startAction.setText(canRun ? startToolTip : tr("Start Debugging"));
 
     if (!currentEngine || !currentEngine->isStartupRunConfiguration()) {
         // No engine running  -- or -- we have a running engine but it does not
         // correspond to the current start up project.
-        QString startupRunConfigName;
-        if (startupRunConfig)
-            startupRunConfigName = startupRunConfig->displayName();
-        if (startupRunConfigName.isEmpty() && startupProject)
-            startupRunConfigName = startupProject->displayName();
-
-        QString startToolTip = canRun ? tr("Start debugging of \"%1\"").arg(startupRunConfigName) : whyNot;
-        QString stepToolTip = canRun ? tr("Start \"%1\" and break at function \"main\"").arg(startupRunConfigName) : whyNot;
         // Step into/next: Start and break at 'main' unless a debugger is running.
-        m_stepAction.setEnabled(canRun);
+        QString stepToolTip = canRun ? tr("Start \"%1\" and break at function \"main\"").arg(startupRunConfigName) : whyNot;
         m_stepAction.setToolTip(stepToolTip);
-        m_nextAction.setEnabled(canRun);
         m_nextAction.setToolTip(stepToolTip);
+        m_stepAction.setEnabled(canRun);
+        m_nextAction.setEnabled(canRun);
         m_startAction.setEnabled(canRun);
-        m_startAction.setToolTip(startToolTip);
-        m_startAction.setText(startToolTip);
         m_startAction.setIcon(startIcon(false));
         m_startAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         m_startAction.setVisible(true);
@@ -1493,8 +1496,6 @@ void DebuggerPluginPrivate::updatePresetState()
     m_nextAction.setToolTip(QString());
 
     // The 'state' bits only affect the fat debug button, not the preset start button.
-    m_startAction.setText(QString());
-    m_startAction.setToolTip(whyNot);
     m_startAction.setIcon(startIcon(false));
     m_startAction.setEnabled(false);
     m_startAction.setVisible(false);
