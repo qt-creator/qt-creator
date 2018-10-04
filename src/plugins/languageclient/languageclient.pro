@@ -18,3 +18,6 @@ SOURCES += \
     languageclientmanager.cpp \
     languageclientplugin.cpp \
     languageclientsettings.cpp
+
+RESOURCES += \
+    languageclient.qrc
