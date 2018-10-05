@@ -210,11 +210,19 @@ void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulato
 
             if (!abandonParen && ccr.completionKind == CodeCompletion::FunctionDefinitionCompletionKind) {
                 const CodeCompletionChunk resultType = ccr.chunks.first();
-                QTC_ASSERT(resultType.kind == CodeCompletionChunk::ResultType, return;);
-                if (::Utils::Text::matchPreviousWord(manipulator, cursor, resultType.text.toString())) {
-                    extraCharacters += methodDefinitionParameters(ccr.chunks);
-                    // To skip the next block.
-                    abandonParen = true;
+                if (resultType.kind == CodeCompletionChunk::ResultType) {
+                    if (::Utils::Text::matchPreviousWord(manipulator, cursor, resultType.text.toString())) {
+                        extraCharacters += methodDefinitionParameters(ccr.chunks);
+                        // To skip the next block.
+                        abandonParen = true;
+                    }
+                } else {
+                    // Do nothing becasue it's not a function definition.
+
+                    // It's a clang bug that the function might miss a ResultType chunk
+                    // when the base class method is called from the overriding method
+                    // of the derived class. For example:
+                    // void Derived::foo() override { Base::<complete here> }
                 }
             }
             if (!abandonParen) {
