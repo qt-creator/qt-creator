@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>831</width>
-    <height>507</height>
+    <height>520</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -328,7 +328,7 @@
          <number>12</number>
         </property>
         <item>
-         <widget class="QLabel" name="buildDirLabel">
+         <widget class="QLabel" name="buildDirectoryLabel">
           <property name="text">
            <string>Default build directory:</string>
           </property>
@@ -338,7 +338,7 @@
          <widget class="QLineEdit" name="buildDirectoryEdit"/>
         </item>
         <item>
-         <widget class="QPushButton" name="resetButton">
+         <widget class="QPushButton" name="buildDirectoryResetButton">
           <property name="text">
            <string>Reset</string>
           </property>

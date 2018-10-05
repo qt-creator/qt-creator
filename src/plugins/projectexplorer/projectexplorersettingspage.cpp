@@ -34,6 +34,7 @@
 #include <utils/hostosinfo.h>
 
 #include <QCoreApplication>
+#include <QWidget>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -62,7 +63,7 @@ public:
 private:
     void slotDirectoryButtonGroupChanged();
     void resetDefaultBuildDirectory();
-    void updateResetButton();
+    void updateBuildDirectoryResetButton();
 
     void setJomVisible(bool);
 
@@ -80,10 +81,10 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
 
     connect(m_ui.directoryButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked),
             this, &ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged);
-    connect(m_ui.resetButton, &QAbstractButton::clicked,
+    connect(m_ui.buildDirectoryResetButton, &QAbstractButton::clicked,
             this, &ProjectExplorerSettingsWidget::resetDefaultBuildDirectory);
     connect(m_ui.buildDirectoryEdit, &QLineEdit::textChanged,
-            this, &ProjectExplorerSettingsWidget::updateResetButton);
+            this, &ProjectExplorerSettingsWidget::updateBuildDirectoryResetButton);
 
     auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(m_ui.buildDirectoryEdit);
@@ -180,9 +181,9 @@ void ProjectExplorerSettingsWidget::resetDefaultBuildDirectory()
     setBuildDirectory(QLatin1String(Core::Constants::DEFAULT_BUILD_DIRECTORY));
 }
 
-void ProjectExplorerSettingsWidget::updateResetButton()
+void ProjectExplorerSettingsWidget::updateBuildDirectoryResetButton()
 {
-    m_ui.resetButton->setEnabled(buildDirectory() != QLatin1String(Core::Constants::DEFAULT_BUILD_DIRECTORY));
+    m_ui.buildDirectoryResetButton->setEnabled(buildDirectory() != QLatin1String(Core::Constants::DEFAULT_BUILD_DIRECTORY));
 }
 
 // ------------------ ProjectExplorerSettingsPage
