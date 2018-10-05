@@ -36,10 +36,7 @@ class WinRtDeviceFactory : public ProjectExplorer::IDeviceFactory
     Q_OBJECT
 public:
     explicit WinRtDeviceFactory(Core::Id deviceType);
-    QString displayName() const override;
-    QIcon icon() const override;
-    bool canCreate() const override { return false; }
-    ProjectExplorer::IDevice::Ptr create() const override;
+
     ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 
     void autoDetect();

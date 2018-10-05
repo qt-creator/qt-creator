@@ -32,7 +32,6 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
-#include <QIcon>
 #include <QStyle>
 
 namespace ProjectExplorer {
@@ -40,31 +39,12 @@ namespace Internal {
 
 DesktopDeviceFactory::DesktopDeviceFactory()
     : IDeviceFactory(Constants::DESKTOP_DEVICE_TYPE)
-{ }
-
-QString DesktopDeviceFactory::displayName() const
 {
-    return tr("Desktop");
-}
-
-QIcon DesktopDeviceFactory::icon() const
-{
-    static const QIcon icon =
-            Utils::creatorTheme()->flag(Utils::Theme::FlatSideBarIcons)
+    setDisplayName(tr("Desktop"));
+    setIcon(Utils::creatorTheme()->flag(Utils::Theme::FlatSideBarIcons)
             ? Utils::Icon::combinedIcon({Icons::DESKTOP_DEVICE.icon(),
                                          Icons::DESKTOP_DEVICE_SMALL.icon()})
-            : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon);
-    return icon;
-}
-
-bool DesktopDeviceFactory::canCreate() const
-{
-    return false;
-}
-
-IDevice::Ptr DesktopDeviceFactory::create() const
-{
-    return IDevice::Ptr();
+            : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon));
 }
 
 IDevice::Ptr DesktopDeviceFactory::restore(const QVariantMap &map) const

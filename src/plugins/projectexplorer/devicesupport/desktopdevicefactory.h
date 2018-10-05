@@ -32,16 +32,9 @@ namespace Internal {
 
 class DesktopDeviceFactory : public IDeviceFactory
 {
-    Q_OBJECT
-
 public:
     DesktopDeviceFactory();
 
-    QString displayName() const override;
-    QIcon icon() const override;
-
-    bool canCreate() const override;
-    IDevice::Ptr create() const override;
     IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 

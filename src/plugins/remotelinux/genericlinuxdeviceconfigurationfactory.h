@@ -39,9 +39,6 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationFactory
 public:
     GenericLinuxDeviceConfigurationFactory();
 
-    QString displayName() const override;
-    QIcon icon() const override;
-
     ProjectExplorer::IDevice::Ptr create() const override;
     ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };

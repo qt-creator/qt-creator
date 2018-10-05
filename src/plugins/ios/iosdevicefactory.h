@@ -27,10 +27,6 @@
 
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <QTimer>
-#include <QMap>
-#include <QString>
-
 namespace Ios {
 namespace Internal {
 
@@ -40,11 +36,6 @@ class IosDeviceFactory : public ProjectExplorer::IDeviceFactory
 public:
     IosDeviceFactory();
 
-    QString displayName() const override;
-    QIcon icon() const override;
-
-    bool canCreate() const override;
-    ProjectExplorer::IDevice::Ptr create() const override;
     bool canRestore(const QVariantMap &map) const override;
     ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };

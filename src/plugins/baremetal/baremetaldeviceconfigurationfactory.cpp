@@ -29,10 +29,7 @@
 #include "baremetalconstants.h"
 #include "baremetaldevice.h"
 
-#include <utils/icon.h>
 #include <utils/qtcassert.h>
-
-#include <QIcon>
 
 using namespace ProjectExplorer;
 
@@ -42,22 +39,10 @@ namespace Internal {
 BareMetalDeviceConfigurationFactory::BareMetalDeviceConfigurationFactory()
     : IDeviceFactory(Constants::BareMetalOsType)
 {
-}
-
-QString BareMetalDeviceConfigurationFactory::displayName() const
-{
-    return tr("Bare Metal Device");
-}
-
-QIcon BareMetalDeviceConfigurationFactory::icon() const
-{
-    using namespace Utils;
-    static const QIcon icon =
-            Icon::combinedIcon({Icon({{":/baremetal/images/baremetaldevicesmall.png",
-                                       Theme::PanelTextColorDark}}, Icon::Tint),
-                                Icon({{":/baremetal/images/baremetaldevice.png",
-                                       Theme::IconsBaseColor}})});
-    return icon;
+    setDisplayName(tr("Bare Metal Device"));
+    setCombinedIcon(":/baremetal/images/baremetaldevicesmall.png",
+                    ":/baremetal/images/baremetaldevice.png");
+    setCanCreate(true);
 }
 
 IDevice::Ptr BareMetalDeviceConfigurationFactory::create() const

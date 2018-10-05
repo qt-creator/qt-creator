@@ -28,10 +28,6 @@
 
 #include "iosconstants.h"
 
-#include <utils/icon.h>
-
-#include <QIcon>
-
 namespace Ios {
 namespace Internal {
 
@@ -39,32 +35,9 @@ IosDeviceFactory::IosDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::IOS_DEVICE_ID)
 {
     setObjectName(QLatin1String("IosDeviceFactory"));
-}
-
-QString IosDeviceFactory::displayName() const
-{
-    return IosDevice::name();
-}
-
-QIcon IosDeviceFactory::icon() const
-{
-    using namespace Utils;
-    static const QIcon icon =
-            Icon::combinedIcon({Icon({{":/ios/images/iosdevicesmall.png",
-                                       Theme::PanelTextColorDark}}, Icon::Tint),
-                                Icon({{":/ios/images/iosdevice.png",
-                                       Theme::IconsBaseColor}})});
-    return icon;
-}
-
-bool IosDeviceFactory::canCreate() const
-{
-    return false;
-}
-
-ProjectExplorer::IDevice::Ptr IosDeviceFactory::create() const
-{
-    return ProjectExplorer::IDevice::Ptr();
+    setDisplayName(IosDevice::name());
+    setCombinedIcon(":/ios/images/iosdevicesmall.png",
+                     ":/ios/images/iosdevice.png");
 }
 
 bool IosDeviceFactory::canRestore(const QVariantMap &map) const

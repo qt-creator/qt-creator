@@ -33,8 +33,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QIcon>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
@@ -42,16 +40,9 @@ namespace RemoteLinux {
 GenericLinuxDeviceConfigurationFactory::GenericLinuxDeviceConfigurationFactory()
     : IDeviceFactory(Constants::GenericLinuxOsType)
 {
-}
-
-QString GenericLinuxDeviceConfigurationFactory::displayName() const
-{
-    return tr("Generic Linux Device");
-}
-
-QIcon GenericLinuxDeviceConfigurationFactory::icon() const
-{
-    return QIcon();
+    setDisplayName(tr("Generic Linux Device"));
+    setIcon(QIcon());
+    setCanCreate(true);
 }
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const

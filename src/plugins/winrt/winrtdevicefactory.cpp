@@ -32,10 +32,9 @@
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <qtsupport/qtversionmanager.h>
-#include <utils/icon.h>
+
 #include <utils/qtcassert.h>
 
-#include <QIcon>
 #include <QFileInfo>
 
 using Core::MessageManager;
@@ -59,26 +58,9 @@ WinRtDeviceFactory::WinRtDeviceFactory(Core::Id deviceType)
                 &QtVersionManager::qtVersionsLoaded,
                 this, &WinRtDeviceFactory::onPrerequisitesLoaded, Qt::QueuedConnection);
     }
-}
-
-QString WinRtDeviceFactory::displayName() const
-{
-    return WinRtDevice::displayNameForType(deviceType());
-}
-
-QIcon WinRtDeviceFactory::icon() const
-{
-    using namespace Utils;
-    return Icon::combinedIcon({Icon({{":/winrt/images/winrtdevicesmall.png",
-                                      Theme::PanelTextColorDark}}, Icon::Tint),
-                               Icon({{":/winrt/images/winrtdevice.png",
-                                      Theme::IconsBaseColor}})});
-}
-
-IDevice::Ptr WinRtDeviceFactory::create() const
-{
-    QTC_CHECK(false);
-    return IDevice::Ptr();
+    setDisplayName(WinRtDevice::displayNameForType(deviceType));
+    setCombinedIcon(":/winrt/images/winrtdevicesmall.png",
+                    ":/winrt/images/winrtdevice.png");
 }
 
 IDevice::Ptr WinRtDeviceFactory::restore(const QVariantMap &map) const

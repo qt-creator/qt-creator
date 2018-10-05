@@ -36,11 +36,6 @@ class IosSimulatorFactory : public ProjectExplorer::IDeviceFactory
 public:
     IosSimulatorFactory();
 
-    QString displayName() const override;
-    QIcon icon() const override;
-
-    bool canCreate() const override;
-    ProjectExplorer::IDevice::Ptr create() const override;
     ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 

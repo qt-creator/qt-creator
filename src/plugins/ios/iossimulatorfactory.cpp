@@ -24,13 +24,11 @@
 ****************************************************************************/
 
 #include "iossimulatorfactory.h"
-#include <QLatin1String>
+
 #include "iosconstants.h"
 #include "iossimulator.h"
-#include "utils/icon.h"
-#include "utils/qtcassert.h"
 
-#include <QIcon>
+#include "utils/qtcassert.h"
 
 namespace Ios {
 namespace Internal {
@@ -39,32 +37,9 @@ IosSimulatorFactory::IosSimulatorFactory()
     : ProjectExplorer::IDeviceFactory(Constants::IOS_SIMULATOR_TYPE)
 {
     setObjectName(QLatin1String("IosSimulatorFactory"));
-}
-
-QString IosSimulatorFactory::displayName() const
-{
-    return tr("iOS Simulator");
-}
-
-QIcon IosSimulatorFactory::icon() const
-{
-    using namespace Utils;
-    static const QIcon icon =
-            Icon::combinedIcon({Icon({{":/ios/images/iosdevicesmall.png",
-                                       Theme::PanelTextColorDark}}, Icon::Tint),
-                                Icon({{":/ios/images/iosdevice.png",
-                                       Theme::IconsBaseColor}})});
-    return icon;
-}
-
-bool IosSimulatorFactory::canCreate() const
-{
-    return false;
-}
-
-ProjectExplorer::IDevice::Ptr IosSimulatorFactory::create() const
-{
-    return ProjectExplorer::IDevice::Ptr();
+    setDisplayName(tr("iOS Simulator"));
+    setCombinedIcon(":/ios/images/iosdevicesmall.png",
+                    ":/ios/images/iosdevice.png");
 }
 
 ProjectExplorer::IDevice::Ptr IosSimulatorFactory::restore(const QVariantMap &map) const

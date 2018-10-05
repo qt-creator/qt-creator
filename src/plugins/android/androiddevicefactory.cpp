@@ -28,10 +28,6 @@
 
 #include "androidconstants.h"
 
-#include <utils/icon.h>
-
-#include <QIcon>
-
 namespace Android {
 namespace Internal {
 
@@ -39,32 +35,9 @@ AndroidDeviceFactory::AndroidDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::ANDROID_DEVICE_TYPE)
 {
     setObjectName(QLatin1String("AndroidDeviceFactory"));
-}
-
-QString AndroidDeviceFactory::displayName() const
-{
-    return tr("Android Device");
-}
-
-QIcon AndroidDeviceFactory::icon() const
-{
-    using namespace Utils;
-    static const QIcon icon =
-            Icon::combinedIcon({Icon({{":/android/images/androiddevicesmall.png",
-                                       Theme::PanelTextColorDark}}, Icon::Tint),
-                                Icon({{":/android/images/androiddevice.png",
-                                       Theme::IconsBaseColor}})});
-    return icon;
-}
-
-bool AndroidDeviceFactory::canCreate() const
-{
-    return false;
-}
-
-ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::create() const
-{
-    return ProjectExplorer::IDevice::Ptr();
+    setDisplayName(tr("Android Device"));
+    setCombinedIcon(":/android/images/androiddevicesmall.png",
+                    ":/android/images/androiddevice.png");
 }
 
 ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::restore(const QVariantMap &map) const
