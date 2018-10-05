@@ -338,6 +338,9 @@ public:
     bool debuggerActionsEnabled() const;
     virtual bool companionPreventsActions() const;
 
+    bool operatesByInstruction() const;
+    virtual void operateByInstructionTriggered(bool on); // FIXME: Remove.
+
     DebuggerState state() const;
     bool isDying() const;
 

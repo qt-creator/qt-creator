@@ -113,7 +113,7 @@ private:
     void processError();
     void processFinished();
     void runCommand(const DebuggerCommand &cmd) override;
-    void operateByInstructionTriggered(bool);
+    void operateByInstructionTriggered(bool) override;
 
     void createFullBacktrace();
 

@@ -1233,7 +1233,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     //qDebug() << "BP " << rid << data.toString();
     // Quickly set the location marker.
-    if (lineNumber && !boolSetting(OperateByInstruction)
+    if (lineNumber && !operatesByInstruction()
             && QFileInfo::exists(fullName)
             && function != "qt_v4TriggeredBreakpointHook"
             && function != "qt_qmlDebugMessageAvailable"

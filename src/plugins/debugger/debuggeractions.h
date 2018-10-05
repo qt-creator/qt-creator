@@ -82,7 +82,6 @@ enum DebuggerActionCode
     AutoQuit,
     LockView,
     LogTimeStamps,
-    OperateByInstruction,
     CloseSourceBuffersOnExit,
     CloseMemoryBuffersOnExit,
     SwitchModeOnExit,

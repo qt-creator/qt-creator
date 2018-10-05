@@ -201,8 +201,6 @@ CdbEngine::CdbEngine() :
     wh->addTypeFormats("QImage", imageFormats);
     wh->addTypeFormats("QImage *", imageFormats);
 
-    connect(action(OperateByInstruction), &QAction::triggered,
-            this, &CdbEngine::operateByInstructionTriggered);
     connect(action(CreateFullBacktrace), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
     connect(&m_process, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
@@ -270,6 +268,7 @@ CdbEngine::~CdbEngine() = default;
 
 void CdbEngine::operateByInstructionTriggered(bool operateByInstruction)
 {
+    DebuggerEngine::operateByInstructionTriggered(operateByInstruction);
     if (m_operateByInstruction == operateByInstruction)
         return;
     m_operateByInstruction = operateByInstruction;
@@ -522,7 +521,7 @@ void CdbEngine::handleInitialSessionIdle()
     const DebuggerRunParameters &rp = runParameters();
     if (!rp.commandsAfterConnect.isEmpty())
         runCommand({rp.commandsAfterConnect, NoFlags});
-    operateByInstructionTriggered(action(OperateByInstruction)->isChecked());
+    operateByInstructionTriggered(operatesByInstruction());
     // QmlCppEngine expects the QML engine to be connected before any breakpoints are hit
     // (attemptBreakpointSynchronization() will be directly called then)
     if (rp.breakOnMain) {
