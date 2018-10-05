@@ -337,9 +337,10 @@ void DeviceManager::setDefaultDevice(Core::Id id)
 
 const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
 {
+    const Core::Id deviceType = IDevice::typeFromMap(map);
     IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
-        [&map](IDeviceFactory *factory) {
-            return factory->canRestore(map);
+        [&map, deviceType](IDeviceFactory *factory) {
+            return factory->canRestore(map) && factory->deviceType() == deviceType;
         });
 
     if (!factory)

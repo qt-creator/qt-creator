@@ -68,11 +68,6 @@ IDevice::Ptr BareMetalDeviceConfigurationFactory::create() const
     return wizard.device();
 }
 
-bool BareMetalDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
-{
-   return IDevice::typeFromMap(map) == deviceType();
-}
-
 IDevice::Ptr BareMetalDeviceConfigurationFactory::restore(const QVariantMap &map) const
 {
     QTC_ASSERT(canRestore(map), return IDevice::Ptr());

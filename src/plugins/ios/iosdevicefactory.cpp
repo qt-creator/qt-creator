@@ -69,8 +69,6 @@ ProjectExplorer::IDevice::Ptr IosDeviceFactory::create() const
 
 bool IosDeviceFactory::canRestore(const QVariantMap &map) const
 {
-    if (ProjectExplorer::IDevice::typeFromMap(map) != Constants::IOS_DEVICE_TYPE)
-        return false;
     QVariantMap vMap = map.value(QLatin1String(Constants::EXTRA_INFO_KEY)).toMap();
     if (vMap.isEmpty()
             || vMap.value(QLatin1String("deviceName")).toString() == QLatin1String("*unknown*"))

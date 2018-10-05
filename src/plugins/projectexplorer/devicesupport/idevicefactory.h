@@ -53,7 +53,7 @@ public:
     virtual bool canCreate() const;
     virtual IDevice::Ptr create() const = 0;
 
-    virtual bool canRestore(const QVariantMap &map) const = 0;
+    virtual bool canRestore(const QVariantMap &) const { return true; }
     virtual IDevice::Ptr restore(const QVariantMap &map) const = 0;
 
     static IDeviceFactory *find(Core::Id type);

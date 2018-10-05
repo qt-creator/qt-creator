@@ -67,11 +67,6 @@ ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::create() const
     return ProjectExplorer::IDevice::Ptr();
 }
 
-bool AndroidDeviceFactory::canRestore(const QVariantMap &map) const
-{
-    return ProjectExplorer::IDevice::typeFromMap(map) == deviceType();
-}
-
 ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::restore(const QVariantMap &map) const
 {
     Q_UNUSED(map)

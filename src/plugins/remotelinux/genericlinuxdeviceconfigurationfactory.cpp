@@ -62,11 +62,6 @@ IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const
     return wizard.device();
 }
 
-bool GenericLinuxDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
-{
-    return IDevice::typeFromMap(map) == deviceType();
-}
-
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::restore(const QVariantMap &map) const
 {
     QTC_ASSERT(canRestore(map), return IDevice::Ptr());

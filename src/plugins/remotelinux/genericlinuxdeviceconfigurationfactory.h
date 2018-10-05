@@ -43,7 +43,6 @@ public:
     QIcon icon() const override;
 
     ProjectExplorer::IDevice::Ptr create() const override;
-    bool canRestore(const QVariantMap &map) const override;
     ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 

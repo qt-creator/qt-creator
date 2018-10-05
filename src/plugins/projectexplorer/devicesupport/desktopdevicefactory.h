@@ -42,7 +42,6 @@ public:
 
     bool canCreate() const override;
     IDevice::Ptr create() const override;
-    bool canRestore(const QVariantMap &map) const override;
     IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 

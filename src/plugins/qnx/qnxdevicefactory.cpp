@@ -71,11 +71,6 @@ ProjectExplorer::IDevice::Ptr QnxDeviceFactory::create() const
     return wizard.device();
 }
 
-bool QnxDeviceFactory::canRestore(const QVariantMap &map) const
-{
-    return ProjectExplorer::IDevice::typeFromMap(map) == deviceType();
-}
-
 ProjectExplorer::IDevice::Ptr QnxDeviceFactory::restore(const QVariantMap &map) const
 {
     QTC_ASSERT(canRestore(map), return QnxDevice::Ptr());

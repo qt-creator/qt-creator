@@ -81,11 +81,6 @@ IDevice::Ptr WinRtDeviceFactory::create() const
     return IDevice::Ptr();
 }
 
-bool WinRtDeviceFactory::canRestore(const QVariantMap &map) const
-{
-    return IDevice::typeFromMap(map) == deviceType();
-}
-
 IDevice::Ptr WinRtDeviceFactory::restore(const QVariantMap &map) const
 {
     const IDevice::Ptr device(new WinRtDevice);

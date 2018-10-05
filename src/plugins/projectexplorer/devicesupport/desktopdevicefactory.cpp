@@ -67,11 +67,6 @@ IDevice::Ptr DesktopDeviceFactory::create() const
     return IDevice::Ptr();
 }
 
-bool DesktopDeviceFactory::canRestore(const QVariantMap &map) const
-{
-    return IDevice::idFromMap(map) == deviceType();
-}
-
 IDevice::Ptr DesktopDeviceFactory::restore(const QVariantMap &map) const
 {
     QTC_ASSERT(canRestore(map), return ProjectExplorer::IDevice::Ptr());

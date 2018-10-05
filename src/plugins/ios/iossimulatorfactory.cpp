@@ -67,11 +67,6 @@ ProjectExplorer::IDevice::Ptr IosSimulatorFactory::create() const
     return ProjectExplorer::IDevice::Ptr();
 }
 
-bool IosSimulatorFactory::canRestore(const QVariantMap &map) const
-{
-    return ProjectExplorer::IDevice::typeFromMap(map) == deviceType();
-}
-
 ProjectExplorer::IDevice::Ptr IosSimulatorFactory::restore(const QVariantMap &map) const
 {
     QTC_ASSERT(canRestore(map), return ProjectExplorer::IDevice::Ptr());
