@@ -2010,7 +2010,7 @@ public:
     bool startRecording(const Input &input);
     void record(const Input &input);
     void stopRecording();
-    bool executeRegister(int register);
+    bool executeRegister(int reg);
 
     // Handle current command as synonym
     void handleAs(const QString &command);
