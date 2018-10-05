@@ -77,9 +77,12 @@ for id in svgIDs:
 # The shell mode of Inkscape is used to execute several export commands
 # with one launch of Inkscape.
 inkscapeShellCommands = ""
+pngFiles = []
 for id in svgIDs:
-    inkscapeShellCommands += "qtcreatoricons.svg --export-id=" + id + " --export-id-only --export-png=" + qtcSourceRoot + id + ".png --export-dpi=96\n"
-    inkscapeShellCommands += "qtcreatoricons.svg --export-id=" + id + " --export-id-only --export-png=" + qtcSourceRoot + id + "@2x.png --export-dpi=192\n"
+    for scale in [1, 2]:
+        pngFile = qtcSourceRoot + id + ("" if scale is 1 else "@%dx" % scale) + ".png"
+        pngFiles.append(pngFile)
+        inkscapeShellCommands += "qtcreatoricons.svg --export-id=" + id + " --export-id-only --export-png=" + pngFile + " --export-dpi=%d\n" % (scale * 96)
 inkscapeShellCommands += "quit\n"
 inkscapeProcess = subprocess.Popen(['inkscape', '--shell'], stdin=subprocess.PIPE, shell=True, cwd=scriptDir)
 inkscapeProcess.communicate(input=inkscapeShellCommands.encode())
@@ -89,6 +92,5 @@ optipngExecutable = spawn.find_executable("optipng")
 if not optipngExecutable:
     sys.stderr.write("optipng was not found in PATH. Please do not push the unoptimized .pngs to the main repository.\n")
 else:
-    for id in svgIDs:
-        subprocess.call(["optipng", "-o7", "-strip", "all", qtcSourceRoot + id + ".png"])
-        subprocess.call(["optipng", "-o7", "-strip", "all", qtcSourceRoot + id + "@2x.png"])
+    for pngFile in pngFiles:
+        subprocess.call(["optipng", "-o7", "-strip", "all", pngFile])
