@@ -20,6 +20,7 @@ DEFINES += \
     QT_USE_FAST_CONCATENATION \
     UNIT_TESTS \
     DONT_CHECK_MESSAGE_COUNTER \
+    QTC_RESOURCE_DIR=\"R\\\"xxx($$PWD/../../../share/qtcreator)xxx\\\"\" \
     TESTDATA_DIR=\"R\\\"xxx($$PWD/data)xxx\\\"\"
 msvc: QMAKE_CXXFLAGS_WARN_ON -= -w34100 # 'unreferenced formal parameter' in MATCHER_* functions
 win32:DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echo)xxx\\\"\"
@@ -102,6 +103,7 @@ SOURCES += \
     projectpartqueue-test.cpp \
     processormanager-test.cpp \
     taskscheduler-test.cpp \
+    compileroptionsbuilder-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

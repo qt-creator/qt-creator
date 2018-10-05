@@ -1143,10 +1143,13 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_visibleStartAction.initialize(&m_startAction);
     m_visibleStartAction.setAttribute(ProxyAction::UpdateText);
+    m_visibleStartAction.setAttribute(ProxyAction::UpdateIcon);
     m_visibleStartAction.setAction(&m_startAction);
-    m_visibleStartAction.setIcon(startIcon(true));
 
     ModeManager::addAction(&m_visibleStartAction, Constants::P_ACTION_DEBUG);
+
+    m_undisturbableAction.setIcon(interruptIcon(false));
+    m_undisturbableAction.setEnabled(false);
 
     cmd = ActionManager::registerAction(&m_debugWithoutDeployAction,
         "Debugger.DebugWithoutDeploy");
@@ -1446,28 +1449,31 @@ void DebuggerPluginPrivate::updatePresetState()
     DebuggerEngine *currentEngine = EngineManager::currentEngine();
 
     QString whyNot;
-    const bool canRun = startupProject
-        && ProjectExplorerPlugin::canRunStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, &whyNot);
+    const bool canRun =
+            ProjectExplorerPlugin::canRunStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, &whyNot);
+
+    QString startupRunConfigName;
+    if (startupRunConfig)
+        startupRunConfigName = startupRunConfig->displayName();
+    if (startupRunConfigName.isEmpty() && startupProject)
+        startupRunConfigName = startupProject->displayName();
+
+    const QString startToolTip =
+            canRun ? tr("Start debugging of \"%1\"").arg(startupRunConfigName) : whyNot;
+
+    m_startAction.setToolTip(startToolTip);
+    m_startAction.setText(canRun ? startToolTip : tr("Start Debugging"));
 
     if (!currentEngine || !currentEngine->isStartupRunConfiguration()) {
         // No engine running  -- or -- we have a running engine but it does not
         // correspond to the current start up project.
-        QString startupRunConfigName;
-        if (startupRunConfig)
-            startupRunConfigName = startupRunConfig->displayName();
-        if (startupRunConfigName.isEmpty() && startupProject)
-            startupRunConfigName = startupProject->displayName();
-
-        QString startToolTip = canRun ? tr("Start debugging of \"%1\"").arg(startupRunConfigName) : whyNot;
-        QString stepToolTip = canRun ? tr("Start \"%1\" and break at function \"main\"").arg(startupRunConfigName) : whyNot;
         // Step into/next: Start and break at 'main' unless a debugger is running.
-        m_stepAction.setEnabled(canRun);
+        QString stepToolTip = canRun ? tr("Start \"%1\" and break at function \"main\"").arg(startupRunConfigName) : whyNot;
         m_stepAction.setToolTip(stepToolTip);
-        m_nextAction.setEnabled(canRun);
         m_nextAction.setToolTip(stepToolTip);
+        m_stepAction.setEnabled(canRun);
+        m_nextAction.setEnabled(canRun);
         m_startAction.setEnabled(canRun);
-        m_startAction.setToolTip(startToolTip);
-        m_startAction.setText(startToolTip);
         m_startAction.setIcon(startIcon(false));
         m_startAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         m_startAction.setVisible(true);
@@ -1475,7 +1481,7 @@ void DebuggerPluginPrivate::updatePresetState()
         m_continueAction.setEnabled(false);
         m_exitAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(canRun);
-        m_visibleStartAction.setIcon(startIcon(true));
+        m_visibleStartAction.setAction(&m_startAction);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
         m_detachAction.setEnabled(false);
         m_jumpToLineAction.setEnabled(false);
@@ -1490,15 +1496,13 @@ void DebuggerPluginPrivate::updatePresetState()
     m_nextAction.setToolTip(QString());
 
     // The 'state' bits only affect the fat debug button, not the preset start button.
-    m_startAction.setText(QString());
-    m_startAction.setToolTip(whyNot);
     m_startAction.setIcon(startIcon(false));
     m_startAction.setEnabled(false);
     m_startAction.setVisible(false);
 
     QString currentDisplayName = currentEngine->displayName();
-    m_interruptAction.setToolTip(tr("Interrupt \"%1\"").arg(currentDisplayName));
-    m_continueAction.setToolTip(tr("Continue \"%1\"").arg(currentDisplayName));
+    m_interruptAction.setToolTip(tr("Interrupt %1").arg(currentDisplayName));
+    m_continueAction.setToolTip(tr("Continue %1").arg(currentDisplayName));
 
     m_debugWithoutDeployAction.setEnabled(canRun);
 
@@ -1517,7 +1521,6 @@ void DebuggerPluginPrivate::updatePresetState()
         m_exitAction.setEnabled(true);
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_continueAction);
-        m_visibleStartAction.setIcon(continueIcon(true));
         m_hiddenStopAction.setAction(&m_exitAction);
         m_stepAction.setEnabled(!companionPreventsAction);
         m_nextAction.setEnabled(!companionPreventsAction);
@@ -1537,7 +1540,6 @@ void DebuggerPluginPrivate::updatePresetState()
         m_exitAction.setEnabled(true);
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_interruptAction);
-        m_visibleStartAction.setIcon(interruptIcon(true));
         m_hiddenStopAction.setAction(&m_interruptAction);
         m_stepAction.setEnabled(false);
         m_nextAction.setEnabled(false);
@@ -1557,7 +1559,6 @@ void DebuggerPluginPrivate::updatePresetState()
         m_exitAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(canRun);
         m_visibleStartAction.setAction(&m_startAction);
-        m_visibleStartAction.setIcon(startIcon(true));
         m_hiddenStopAction.setAction(&m_undisturbableAction);
         m_stepAction.setEnabled(false);
         m_nextAction.setEnabled(false);
@@ -1576,8 +1577,7 @@ void DebuggerPluginPrivate::updatePresetState()
         m_continueAction.setEnabled(false);
         m_exitAction.setEnabled(true);
         m_debugWithoutDeployAction.setEnabled(false);
-        m_visibleStartAction.setAction(&m_undisturbableAction);
-        m_visibleStartAction.setIcon(startIcon(true));
+        m_visibleStartAction.setAction(&m_exitAction);
         m_hiddenStopAction.setAction(&m_exitAction);
         m_stepAction.setEnabled(false);
         m_nextAction.setEnabled(false);
@@ -1589,10 +1589,10 @@ void DebuggerPluginPrivate::updatePresetState()
         m_stepOutAction.setEnabled(false);
         m_runToLineAction.setEnabled(false);
         m_runToSelectedFunctionAction.setEnabled(false);
-    } else if (state == DebuggerNotReady) {
-        // The startup phase should be over once we are here
-        QTC_CHECK(false);
     } else {
+        // The startup phase should be over once we are here.
+        // But treat it as 'undisturbable if we are here by accident.
+        QTC_CHECK(state != DebuggerNotReady);
         // Everything else is "undisturbable".
         m_startAction.setEnabled(false);
         m_interruptAction.setEnabled(false);
@@ -1600,7 +1600,6 @@ void DebuggerPluginPrivate::updatePresetState()
         m_exitAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_undisturbableAction);
-        m_visibleStartAction.setIcon(startIcon(true));
         m_hiddenStopAction.setAction(&m_undisturbableAction);
         m_stepAction.setEnabled(false);
         m_nextAction.setEnabled(false);

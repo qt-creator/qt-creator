@@ -1300,7 +1300,7 @@
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       id="share/qtcreator/qmldesigner/propertyEditorQmlSources/HelperWidgets/images/down-arrow">
+       id="share/qtcreator/qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/down-arrow">
       <rect
          style="fill:#ffffff"
          id="rect5094"
@@ -1318,8 +1318,8 @@
     <use
        x="0"
        y="0"
-       xlink:href="#share/qtcreator/qmldesigner/propertyEditorQmlSources/HelperWidgets/images/down-arrow"
-       id="share/qtcreator/qmldesigner/propertyEditorQmlSources/HelperWidgets/images/up-arrow"
+       xlink:href="#share/qtcreator/qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/down-arrow"
+       id="share/qtcreator/qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/up-arrow"
        transform="matrix(1,0,0,-1,8,1174)"
        width="100%"
        height="100%" />
@@ -2529,52 +2529,6 @@
          height="100%" />
     </g>
     <g
-       id="share/qtcreator/templates/wizards/projects/qtquickapplication/canvas3d/icon"
-       transform="translate(-159,-83)">
-      <use
-         style="display:inline"
-         x="0"
-         y="0"
-         xlink:href="#transparentBackgroundRect_60_60"
-         id="use5906-0-4-3-5-6-36"
-         width="100%"
-         height="100%"
-         transform="translate(399,143)" />
-      <use
-         style="display:inline"
-         x="0"
-         y="0"
-         xlink:href="#wizardicons_laptop_and_mobile"
-         id="use5639"
-         width="100%"
-         height="100%"
-         transform="translate(376,0.9999997)" />
-      <g
-         id="g7204"
-         transform="translate(20,8)">
-        <path
-           sodipodi:nodetypes="ccccc"
-           inkscape:connector-curvature="0"
-           id="path5743"
-           d="m 387,310 7,4 v 8 l -7,-4.50001 z"
-           style="fill:#53586b" />
-        <path
-           sodipodi:nodetypes="ccccccc"
-           inkscape:connector-curvature="0"
-           id="path5747"
-           d="m 394,306 7,4 2.6e-4,7.49999 L 394,322 v -8 l -7,-4 z"
-           style="fill:#cecfd5" />
-      </g>
-      <use
-         x="0"
-         y="0"
-         xlink:href="#g7204"
-         id="use7208"
-         transform="translate(20.99974,1.00001)"
-         width="100%"
-         height="100%" />
-    </g>
-    <g
        id="share/qtcreator/templates/wizards/global/consoleapplication"
        transform="translate(-185,-78)">
       <use
@@ -2770,7 +2724,7 @@
          x="0" />
       <g
          transform="matrix(0.875,0,0,0.875,828.5,72.25)"
-         id="src/plugins/welcome/images/userguide-6" />
+         id="g2818" />
       <path
          id="path7726"
          style="fill:#000000"
@@ -3046,31 +3000,6 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/plugins/qbsprojectmanager/images/settingscategory_qbs"
-       transform="translate(-229,-84)">
-      <use
-         style="display:inline"
-         transform="translate(1144,148)"
-         height="100%"
-         width="100%"
-         id="use3820-1-8-0-1-6-0-1-4-4-5-9-2-0-5-9"
-         xlink:href="#backgroundRect_24"
-         y="0"
-         x="0" />
-      <rect
-         y="564"
-         x="1124"
-         height="16"
-         width="16"
-         id="rect6710"
-         style="fill:#000000" />
-      <path
-         d="m 1139,570.5 h -1.5 c 0,0 -1,0 -1,1 0,1 2,1 2,2 0,1 -1,1 -1,1 h -1.5 m -4.5,-4 h 1.5 c 1,0 1.5,1 1.5,2 0,1 -0.5,2 -1.5,2 h -1.5 m 0,-6.5 v 7 m -3.5,-0.5 c 0.2067,0.72504 1,1 2,1 m -0.5,-4 a 2,3 0 0 1 -2,3 2,3 0 0 1 -2,-3 2,3 0 0 1 2,-3 2,3 0 0 1 2,3 z"
-         style="fill:none;stroke:#ffffff"
-         id="path6706"
-         inkscape:connector-curvature="0" />
-    </g>
-    <g
        id="src/plugins/autotest/images/settingscategory_autotest"
        transform="translate(-220,-84)">
       <use
@@ -3187,6 +3116,75 @@
          xlink:href="#path10806"
          id="use1593"
          transform="matrix(-1,0,0,1,2375,0)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
+       transform="translate(-181,-104)"
+       id="src/plugins/languageclient/images/settingscategory_languageclient">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_24"
+         id="use4625"
+         width="100%"
+         height="100%"
+         transform="translate(1196,168)"
+         style="display:inline" />
+      <ellipse
+         style="fill:none;stroke:#000000"
+         id="path4643"
+         cx="1180.5"
+         cy="597.5"
+         rx="4"
+         ry="2" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path4643"
+         id="use4684"
+         width="100%"
+         height="100%"
+         transform="translate(0,-6)" />
+      <rect
+         style="fill:#ffffff"
+         id="rect4670"
+         width="10"
+         height="3"
+         x="1176"
+         y="594.5" />
+      <path
+         style="fill:none;stroke:#000000"
+         d="m 1176.5,591.5 v 6"
+         id="path4672"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path4672"
+         id="use4686"
+         transform="translate(8)"
+         width="100%"
+         height="100%" />
+      <path
+         style="fill:#ffffff;stroke:#000000"
+         d="m 1183,584.5 h 7 c 1,0 1.5,0.5 1.5,1.5 v 5 c 0,1 -0.5,1.5 -1.5,1.5 v 0 l -3,2.5 0.5,-2.5 h -4.5 c -1,0 -1.5,-0.5 -1.5,-1.5 v -5 c 0,-1 0.5,-1.5 1.5,-1.5 z"
+         id="path4639"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccsc" />
+      <path
+         style="fill:none;stroke:#000000"
+         d="m 1185.75,586.25 -2.25,2.25 2.25,2.25"
+         id="path4676"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccc" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path4676"
+         id="use4682"
+         transform="matrix(-1,0,0,1,2373.0138,0)"
          width="100%"
          height="100%" />
     </g>
@@ -4773,7 +4771,7 @@
     <g
        transform="translate(32,0)"
        style="display:inline"
-       id="src/libs/timeline/qml/ico_rangeselection">
+       id="src/libs/tracing/qml/ico_rangeselection">
       <rect
          id="rect6782-96-0-0-7"
          height="16"
@@ -4814,7 +4812,7 @@
     <g
        transform="translate(32,0)"
        style="display:inline"
-       id="src/libs/timeline/qml/ico_rangeselected">
+       id="src/libs/tracing/qml/ico_rangeselected">
       <use
          height="100%"
          width="100%"
@@ -4833,7 +4831,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/libs/timeline/qml/ico_selectionmode"
+       id="src/libs/tracing/qml/ico_selectionmode"
        clip-path="url(#clipPath6127)"
        transform="translate(31,0)">
       <rect
@@ -4885,7 +4883,7 @@
          x="0" />
     </g>
     <g
-       id="src/libs/timeline/qml/ico_edit">
+       id="src/libs/tracing/qml/ico_edit">
       <rect
          style="fill:#ffffff"
          x="1144"
@@ -7467,38 +7465,6 @@
       </g>
     </g>
     <g
-       id="src/libs/utils/images/panel_manage_button_hover"
-       style="opacity:0.83">
-      <use
-         height="600"
-         width="800"
-         transform="translate(8,0)"
-         id="use4140"
-         xlink:href="#panel_manage_button"
-         y="0"
-         x="0" />
-      <rect
-         ry="3"
-         y="500"
-         x="192"
-         height="20"
-         width="8"
-         id="rect4143"
-         style="fill:#ffffff;fill-opacity:0.12549020000000000;stroke:none" />
-    </g>
-    <g
-       id="src/libs/utils/images/panel_manage_button_pressed"
-       style="opacity:0.82999998">
-      <use
-         x="0"
-         y="0"
-         xlink:href="#panel_manage_button"
-         id="use3293"
-         transform="matrix(1,0,0,-1,16,1020)"
-         width="800"
-         height="600" />
-    </g>
-    <g
        style="display:inline"
        transform="translate(-4)"
        id="src/libs/utils/images/crumblepath-segment-first">
@@ -9004,7 +8970,7 @@
     </g>
     <g
        transform="translate(-247.75,309.5)"
-       id="src/boot2qtdevice">
+       id="../boot2qt/common/images/boot2qtdevice">
       <use
          transform="translate(458.75,6.5)"
          style="display:inline"
@@ -9095,7 +9061,7 @@
          inkscape:label="#rect5338" />
     </g>
     <g
-       id="src/boot2qtdevicesmall"
+       id="../boot2qt/common/images/boot2qtdevicesmall"
        transform="translate(-318,27)">
       <use
          x="0"
@@ -9174,7 +9140,7 @@
     </g>
     <g
        transform="translate(-211.75,309.5)"
-       id="src/boot2qtemulator">
+       id="../boot2qt/common/images/boot2qtemulator">
       <use
          transform="translate(458.75,6.5)"
          style="display:inline"
@@ -9230,7 +9196,7 @@
          sodipodi:nodetypes="cccccccccccccccccccccccccccccccccccccccccccccccccc" />
     </g>
     <g
-       id="src/boot2qtemulatorsmall"
+       id="../boot2qt/common/images/boot2qtemulatorsmall"
        transform="translate(-282,27)">
       <use
          x="0"
@@ -9264,7 +9230,7 @@
     </g>
     <g
        transform="translate(-175.75,309.5)"
-       id="src/boot2qtstartvm">
+       id="../boot2qt/common/images/boot2qtstartvm">
       <use
          transform="translate(458.75,6.5)"
          style="display:inline"
@@ -9311,7 +9277,7 @@
     </g>
     <g
        transform="translate(-139.75,310.5)"
-       id="src/vxworksqtdevice">
+       id="../vxworks/plugins/vxworks/images/vxworksqtdevice">
       <use
          transform="translate(458.75,5.5)"
          style="display:inline"
@@ -9329,7 +9295,7 @@
          sodipodi:nodetypes="cccccccccccccc" />
     </g>
     <g
-       id="src/vxworksdevicesmall"
+       id="../vxworks/plugins/vxworks/images/vxworksdevicesmall"
        transform="translate(-210,27)">
       <use
          x="0"
@@ -9463,6 +9429,27 @@
          xlink:href="#formEditorSplit_"
          y="0"
          x="0" />
+    </g>
+    <g
+       id="src/plugins/debugger/images/debugger_stop_mask"
+       transform="translate(-711,333)"
+       style="display:inline">
+      <use
+         transform="translate(704,3)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-7-9"
+         width="100%"
+         height="100%" />
+      <rect
+         style="fill:#000000"
+         id="rect4608-0-6"
+         width="17"
+         height="18"
+         x="753"
+         y="48" />
     </g>
   </g>
   <g

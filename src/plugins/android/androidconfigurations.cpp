@@ -768,6 +768,27 @@ FileName AndroidConfig::ndkLocation() const
     return m_ndkLocation;
 }
 
+static inline QString gdbServerArch(const Abi &abi)
+{
+    switch (abi.architecture()) {
+    case Abi::X86Architecture:
+        return abi.wordWidth() == 64 ? QString{"x86_64"} : QString{"x86"};
+    case Abi::ArmArchitecture:
+        return abi.wordWidth() == 64 ? QString{"arm64"} : QString{"arm"};
+    default: return {};
+    };
+}
+
+FileName AndroidConfig::gdbServer(const ProjectExplorer::Abi &abi) const
+{
+    FileName path = AndroidConfigurations::currentConfig().ndkLocation();
+    path.appendPath(QString::fromLatin1("prebuilt/android-%1/gdbserver/gdbserver")
+                    .arg(gdbServerArch(abi)));
+    if (path.exists())
+        return path;
+    return {};
+}
+
 QVersionNumber AndroidConfig::ndkVersion() const
 {
     QVersionNumber version;
@@ -1081,7 +1102,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
             Debugger::DebuggerKitInformation::setDebugger(toSetup, id);
 
-            AndroidGdbServerKitInformation::setGdbSever(toSetup, tc->suggestedGdbServer());
+            AndroidGdbServerKitInformation::setGdbSever(toSetup, currentConfig().gdbServer(tc->targetAbi()));
             toSetup->makeSticky();
             toSetup->setUnexpandedDisplayName(tr("Android for %1 (GCC %2, %3)")
                                               .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())

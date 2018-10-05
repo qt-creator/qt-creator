@@ -443,7 +443,8 @@ static bool isGuiThread()
 }
 
 SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
-                                                   const QStringList &args)
+                                                   const QStringList &args,
+                                                   const QByteArray &writeData)
 {
     if (debug)
         qDebug() << '>' << Q_FUNC_INFO << binary << args;
@@ -454,8 +455,20 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
     // executable cannot be found in the path. Do not start the
     // event loop in that case.
     d->m_binary = binary;
-    d->m_process.start(binary, args, QIODevice::ReadOnly);
-    d->m_process.closeWriteChannel();
+    d->m_process.start(binary, args, writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
+    connect(&d->m_process, &QProcess::started, this, [this, writeData] {
+        if (!writeData.isEmpty()) {
+            int pos = 0;
+            int sz = writeData.size();
+            do {
+                d->m_process.waitForBytesWritten();
+                auto res = d->m_process.write(writeData.constData() + pos, sz - pos);
+                if (res > 0) pos += res;
+            } while (pos < sz);
+            d->m_process.waitForBytesWritten();
+        }
+        d->m_process.closeWriteChannel();
+    });
     if (!d->m_startFailure) {
         d->m_timer.start();
         if (isGuiThread())

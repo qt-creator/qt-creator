@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/languageclient">
+        <file>images/settingscategory_languageclient.png</file>
+        <file>images/settingscategory_languageclient@2x.png</file>
+    </qresource>
+</RCC>

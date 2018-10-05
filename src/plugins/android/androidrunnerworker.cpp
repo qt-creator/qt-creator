@@ -29,6 +29,7 @@
 #include "androidconstants.h"
 #include "androidmanager.h"
 #include "androidrunconfiguration.h"
+#include "androidgdbserverkitinformation.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/environmentaspect.h>
@@ -42,6 +43,7 @@
 #include <utils/temporaryfile.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
+#include <utils/fileutils.h>
 
 #include <QLoggingCategory>
 #include <QTcpServer>
@@ -222,6 +224,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
                                  << "Extra Start Args:" << m_amStartExtraArgs
                                  << "Before Start ADB cmds:" << m_beforeStartAdbCommands
                                  << "After finish ADB cmds:" << m_afterFinishAdbCommands;
+    m_gdbserverPath = AndroidGdbServerKitInformation::gdbServer(target->kit()).toString();
 }
 
 AndroidRunnerWorker::~AndroidRunnerWorker()
@@ -255,18 +258,30 @@ bool AndroidRunnerWorker::adbShellAmNeedsQuotes()
     return !oldSdk;
 }
 
-bool AndroidRunnerWorker::runAdb(const QStringList &args, int timeoutS)
+bool AndroidRunnerWorker::runAdb(const QStringList &args, int timeoutS, const QByteArray &writeData)
 {
     QStringList adbArgs = selector() + args;
     qCDebug(androidRunWorkerLog) << "ADB command: " << m_adb << adbArgs.join(' ');
     Utils::SynchronousProcess adb;
     adb.setTimeoutS(timeoutS);
-    Utils::SynchronousProcessResponse response = adb.run(m_adb, adbArgs);
+    Utils::SynchronousProcessResponse response = adb.run(m_adb, adbArgs, writeData);
     m_lastRunAdbError = response.exitMessage(m_adb, timeoutS);
     m_lastRunAdbRawOutput = response.allRawOutput();
     bool success = response.result == Utils::SynchronousProcessResponse::Finished;
     qCDebug(androidRunWorkerLog) << "ADB command result:" << success << response.allRawOutput();
     return success;
+}
+
+bool AndroidRunnerWorker::uploadFile(const QString &from, const QString &to, const QString &flags)
+{
+    QFile f(from);
+    if (!f.open(QIODevice::ReadOnly))
+        return false;
+    runAdb({"shell", "run-as", m_packageName, "rm", to});
+    auto res = runAdb({"shell", "run-as", m_packageName, "sh", "-c", QString("'cat > %1'").arg(to)}, 60, f.readAll());
+    if (!res)
+        return false;
+    return runAdb({"shell", "run-as", m_packageName, "chmod", flags, to});
 }
 
 void AndroidRunnerWorker::adbKill(qint64 pid)
@@ -410,30 +425,17 @@ void AndroidRunnerWorker::asyncStartHelper()
         // e.g. on Android 8 with NDK 10e
         runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir});
 
-        QString gdbServerExecutable;
-        if (!runAdb({"shell", "run-as", m_packageName, "ls", "lib/"})) {
-            emit remoteProcessFinished(tr("Failed to get process path. Reason: %1.").arg(m_lastRunAdbError));
-            return;
-        }
-
-        for (const auto &line: m_lastRunAdbRawOutput.split('\n')) {
-            if (line.indexOf("gdbserver") != -1/* || line.indexOf("lldb-server") != -1*/) {
-                gdbServerExecutable = QString::fromUtf8(line.trimmed());
-                break;
-            }
-        }
-
-        if (gdbServerExecutable.isEmpty()) {
-            emit remoteProcessFinished(tr("Cannot find C++ debugger."));
+        if (m_gdbserverPath.isEmpty() || !uploadFile(m_gdbserverPath, "gdbserver")) {
+            emit remoteProcessFinished(tr("Can not find/copy C++ debug server."));
             return;
         }
 
         QString gdbServerSocket = packageDir + "/debug-socket";
-        runAdb({"shell", "run-as", m_packageName, "killall", gdbServerExecutable});
+        runAdb({"shell", "run-as", m_packageName, "killall", "gdbserver"});
         runAdb({"shell", "run-as", m_packageName, "rm", gdbServerSocket});
         std::unique_ptr<QProcess, Deleter> gdbServerProcess(new QProcess, deleter);
         gdbServerProcess->start(m_adb, selector() << "shell" << "run-as"
-                                    << m_packageName << "lib/" + gdbServerExecutable
+                                    << m_packageName << "./gdbserver"
                                     << "--multi" << "+" + gdbServerSocket);
         if (!gdbServerProcess->waitForStarted()) {
             emit remoteProcessFinished(tr("Failed to start C++ debugger."));

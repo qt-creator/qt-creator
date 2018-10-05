@@ -68,6 +68,12 @@ for svgElement in svgTreeRoot.iter():
     except:
         pass
 
+for id in svgIDs:
+    pngFile = qtcSourceRoot + id + ".png"
+    pngAt2XFile = qtcSourceRoot + id + "@2x.png"
+    if not (os.path.isfile(pngFile) or os.path.isfile(pngAt2XFile)):
+        sys.stderr.write(id + " has not yet been exported as .png.\n")
+
 # The shell mode of Inkscape is used to execute several export commands
 # with one launch of Inkscape.
 inkscapeShellCommands = ""

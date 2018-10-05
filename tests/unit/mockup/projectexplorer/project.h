@@ -33,6 +33,8 @@ namespace ProjectExplorer {
 
 class Project : public QObject {
 public:
+    Project() = default;
+
     Utils::FileName projectDirectory() const {
         return Utils::FileName();
     }

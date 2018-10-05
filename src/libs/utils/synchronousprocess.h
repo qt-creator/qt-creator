@@ -127,7 +127,7 @@ public:
     ExitCodeInterpreter exitCodeInterpreter() const;
 
     // Starts an nested event loop and runs the binary with the arguments
-    SynchronousProcessResponse run(const QString &binary, const QStringList &args);
+    SynchronousProcessResponse run(const QString &binary, const QStringList &args, const QByteArray &writeData = {});
     // Starts the binary with the arguments blocking the UI fully
     SynchronousProcessResponse runBlocking(const QString &binary, const QStringList &args);
 

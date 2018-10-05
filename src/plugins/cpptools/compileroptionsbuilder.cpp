@@ -170,11 +170,6 @@ void CompilerOptionsBuilder::add(const QString &option)
     m_options.append(option);
 }
 
-void CompilerOptionsBuilder::addDefine(const ProjectExplorer::Macro &macro)
-{
-    m_options.append(defineDirectiveToDefineOption(macro));
-}
-
 void CompilerOptionsBuilder::addWordWidth()
 {
     const QString argument = m_projectPart.toolChainWordWidth == ProjectPart::WordWidth64Bit
@@ -211,7 +206,7 @@ static QString creatorResourcePath()
 #ifndef UNIT_TESTS
     return Core::ICore::resourcePath();
 #else
-    return QString();
+    return QDir::toNativeSeparators(QString::fromUtf8(QTC_RESOURCE_DIR ""));
 #endif
 }
 
@@ -221,7 +216,7 @@ static QString clangIncludeDirectory(const QString &clangVersion,
 #ifndef UNIT_TESTS
     return Core::ICore::clangIncludeDirectory(clangVersion, clangResourceDirectory);
 #else
-    return QString();
+    return QDir::toNativeSeparators(QString::fromUtf8(CLANG_RESOURCE_DIR ""));
 #endif
 }
 
@@ -238,12 +233,20 @@ static int lastIncludeIndex(const QStringList &options, const QRegularExpression
     return index;
 }
 
-static int includeIndexForResourceDirectory(const QStringList &options)
+static int includeIndexForResourceDirectory(const QStringList &options, bool isMacOs = false)
 {
     // include/c++/{version}, include/c++/v1 and include/g++
-    const int cppIncludeIndex = lastIncludeIndex(
-                options,
-                QRegularExpression("\\A.*[\\/\\\\]include[\\/\\\\].*(g\\+\\+.*\\z|c\\+\\+[\\/\\\\](v1\\z|\\d+.*\\z))"));
+    static const QRegularExpression includeRegExp(
+                R"(\A.*[\/\\]include[\/\\].*(g\+\+.*\z|c\+\+[\/\\](v1\z|\d+.*\z)))");
+
+    // The same as includeRegExp but also matches /usr/local/include
+    static const QRegularExpression includeRegExpMac(
+                R"(\A(.*[\/\\]include[\/\\].*(g\+\+.*\z|c\+\+[\/\\](v1\z|\d+.*\z))))"
+                R"(|([\/\\]usr[\/\\]local[\/\\]include\z))");
+
+    const int cppIncludeIndex = lastIncludeIndex(options, isMacOs
+                                                 ? includeRegExpMac
+                                                 : includeRegExp);
 
     if (cppIncludeIndex > 0)
         return cppIncludeIndex + 1;
@@ -317,7 +320,8 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
 
         const QString clangIncludePath
                 = clangIncludeDirectory(m_clangVersion, m_clangResourceDirectory);
-        int includeIndexForResourceDir = includeIndexForResourceDirectory(builtInIncludes);
+        int includeIndexForResourceDir = includeIndexForResourceDirectory(
+                    builtInIncludes, m_projectPart.toolChainTargetTriple.contains("darwin"));
 
         if (includeIndexForResourceDir >= 0) {
             builtInIncludes.insert(includeIndexForResourceDir, clangIncludePath);

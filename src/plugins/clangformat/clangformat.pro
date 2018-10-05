@@ -3,7 +3,7 @@ include(../../shared/clang/clang_installation.pri)
 
 include(../../shared/clang/clang_defines.pri)
 
-requires(!isEmpty(LLVM_VERSION))
+requires(!isEmpty(CLANGFORMAT_LIBS))
 
 win32 {
     LLVM_BUILDMODE = $$system($$llvm_config --build-mode, lines)

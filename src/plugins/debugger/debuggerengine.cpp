@@ -770,7 +770,7 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addWindow(m_sourceFilesWindow, Perspective::AddToTab, m_modulesWindow, false);
     m_perspective->addWindow(m_localsAndInspectorWindow, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
     m_perspective->addWindow(m_watchersWindow, Perspective::AddToTab, m_localsAndInspectorWindow, true, Qt::RightDockWidgetArea);
-    m_perspective->addWindow(m_registerWindow, Perspective::AddToTab, m_watchersWindow, true, Qt::RightDockWidgetArea);
+    m_perspective->addWindow(m_registerWindow, Perspective::AddToTab, m_watchersWindow, false, Qt::RightDockWidgetArea);
     m_perspective->addWindow(m_logWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
 
     m_perspective->select();
@@ -2529,7 +2529,7 @@ Context CppDebuggerEngine::languageContext() const
 void CppDebuggerEngine::validateExecutable()
 {
     DebuggerRunParameters &rp = mutableRunParameters();
-    const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds);
+    const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds) && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;
     switch (rp.toolChainAbi.binaryFormat()) {

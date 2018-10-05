@@ -38,7 +38,7 @@ Module {
             llvmToolingDefines = toolingParams.defines;
             llvmToolingIncludes = toolingParams.includes;
             llvmToolingCxxFlags = toolingParams.cxxFlags;
-            llvmFormattingLibs = ClangFunctions.formattingLibs(llvmConfig, targetOS);
+            llvmFormattingLibs = ClangFunctions.formattingLibs(llvmConfig, QtcFunctions, targetOS);
             found = llvmConfig && File.exists(llvmIncludeDir.concat("/clang-c/Index.h"));
         }
     }

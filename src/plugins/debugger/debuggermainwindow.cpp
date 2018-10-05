@@ -568,6 +568,7 @@ void Perspective::setEnabled(bool enabled)
 
 QToolButton *PerspectivePrivate::setupToolButton(QAction *action)
 {
+    QTC_ASSERT(action, return nullptr);
     auto toolButton = new QToolButton(m_innerToolBar);
     toolButton->setProperty("panelwidget", true);
     toolButton->setDefaultAction(action);
@@ -577,16 +578,19 @@ QToolButton *PerspectivePrivate::setupToolButton(QAction *action)
 
 void Perspective::addToolBarAction(QAction *action)
 {
+    QTC_ASSERT(action, return);
     d->setupToolButton(action);
 }
 
 void Perspective::addToolBarAction(OptionalAction *action)
 {
+    QTC_ASSERT(action, return);
     action->m_toolButton = d->setupToolButton(action);
 }
 
 void Perspective::addToolBarWidget(QWidget *widget)
 {
+    QTC_ASSERT(widget, return);
     // QStyle::polish is called before it is added to the toolbar, explicitly make it a panel widget
     widget->setProperty("panelwidget", true);
     widget->setParent(d->m_innerToolBar);
@@ -644,6 +648,7 @@ void Perspective::addWindow(QWidget *widget,
                             bool visibleByDefault,
                             Qt::DockWidgetArea area)
 {
+    QTC_ASSERT(widget, return);
     DockOperation op;
     op.widget = widget;
     if (anchorWidget)

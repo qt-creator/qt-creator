@@ -116,9 +116,6 @@ CLANGTOOLING_LIBS=-lclangTooling -lclangIndex -lclangFrontend -lclangParse -lcla
                   -lclangASTMatchers -lclangToolingCore -lclangAST -lclangLex -lclangBasic
 win32:CLANGTOOLING_LIBS += -lversion
 
-CLANGFORMAT_LIBS=-lclangFormat -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
-win32:CLANGFORMAT_LIBS += -lversion
-
 BIN_EXTENSION =
 win32: BIN_EXTENSION = .exe
 
@@ -141,6 +138,17 @@ isEmpty(LLVM_INSTALL_DIR) {
 
 output = $$system($$llvm_config --version, lines)
 LLVM_VERSION = $$extractVersion($$output)
+
+!isEmpty(LLVM_VERSION) {
+    versionIsAtLeast($$LLVM_VERSION, 7, 0, 0): {
+        CLANGFORMAT_LIBS=-lclangFormat -lclangToolingInclusions -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
+        win32:CLANGFORMAT_LIBS += -lversion
+    } else:versionIsAtLeast($$LLVM_VERSION, 6, 0, 0): {
+        CLANGFORMAT_LIBS=-lclangFormat -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
+        win32:CLANGFORMAT_LIBS += -lversion
+    }
+}
+
 isEmpty(LLVM_VERSION) {
     $$llvmWarningOrError(\
         "Cannot determine clang version. Set LLVM_INSTALL_DIR to build the Clang Code Model",\
