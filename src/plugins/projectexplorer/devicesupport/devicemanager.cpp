@@ -199,8 +199,9 @@ QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map,
         const IDeviceFactory * const factory = restoreFactory(map);
         if (!factory)
             continue;
-        const IDevice::Ptr device = factory->restore(map);
+        const IDevice::Ptr device = factory->construct();
         QTC_ASSERT(device, continue);
+        device->fromMap(map);
         devices << device;
     }
     return devices;

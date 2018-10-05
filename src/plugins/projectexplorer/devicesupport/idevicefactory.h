@@ -45,11 +45,11 @@ public:
     QString displayName() const { return m_displayName; }
     QIcon icon() const { return m_icon; }
     bool canCreate() const;
+    IDevice::Ptr construct() const;
 
     virtual IDevice::Ptr create() const { return IDevice::Ptr(); }
 
     virtual bool canRestore(const QVariantMap &) const { return true; }
-    virtual IDevice::Ptr restore(const QVariantMap &map) const = 0;
 
     static IDeviceFactory *find(Core::Id type);
 
@@ -60,12 +60,14 @@ protected:
     void setIcon(const QIcon &icon);
     void setCombinedIcon(const QString &small, const QString &large);
     void setCanCreate(bool canCreate);
+    void setConstructionFunction(const std::function<IDevice::Ptr ()> &constructor);
 
 private:
     const Core::Id m_deviceType;
     QString m_displayName;
     QIcon m_icon;
     bool m_canCreate = false;
+    std::function<IDevice::Ptr()> m_constructor;
 };
 
 } // namespace ProjectExplorer

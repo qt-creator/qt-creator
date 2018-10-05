@@ -38,7 +38,6 @@ public:
     QnxDeviceFactory();
 
     ProjectExplorer::IDevice::Ptr create() const override;
-    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 
     static Core::Id deviceType();
 };

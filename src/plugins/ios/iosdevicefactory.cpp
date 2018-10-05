@@ -38,6 +38,7 @@ IosDeviceFactory::IosDeviceFactory()
     setDisplayName(IosDevice::name());
     setCombinedIcon(":/ios/images/iosdevicesmall.png",
                      ":/ios/images/iosdevice.png");
+    setConstructionFunction([] { return ProjectExplorer::IDevice::Ptr(new IosDevice); });
 }
 
 bool IosDeviceFactory::canRestore(const QVariantMap &map) const
@@ -47,15 +48,6 @@ bool IosDeviceFactory::canRestore(const QVariantMap &map) const
             || vMap.value(QLatin1String("deviceName")).toString() == QLatin1String("*unknown*"))
         return false; // transient device (probably generated during an activation)
     return true;
-}
-
-ProjectExplorer::IDevice::Ptr IosDeviceFactory::restore(const QVariantMap &map) const
-{
-    IosDevice *newDev = new IosDevice;
-    newDev->fromMap(map);
-    // updating the active ones should be enough...
-    //IosDeviceManager::instance()->updateInfo(newDev->uniqueDeviceID());
-    return ProjectExplorer::IDevice::Ptr(newDev);
 }
 
 } // namespace Internal

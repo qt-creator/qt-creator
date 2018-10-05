@@ -59,15 +59,9 @@ WinRtDeviceFactory::WinRtDeviceFactory(Core::Id deviceType)
                 this, &WinRtDeviceFactory::onPrerequisitesLoaded, Qt::QueuedConnection);
     }
     setDisplayName(WinRtDevice::displayNameForType(deviceType));
+    setConstructionFunction([] { return IDevice::Ptr(new WinRtDevice); });
     setCombinedIcon(":/winrt/images/winrtdevicesmall.png",
                     ":/winrt/images/winrtdevice.png");
-}
-
-IDevice::Ptr WinRtDeviceFactory::restore(const QVariantMap &map) const
-{
-    const IDevice::Ptr device(new WinRtDevice);
-    device->fromMap(map);
-    return device;
 }
 
 void WinRtDeviceFactory::autoDetect()

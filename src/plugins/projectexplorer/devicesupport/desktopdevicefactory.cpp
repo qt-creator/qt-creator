@@ -40,19 +40,12 @@ namespace Internal {
 DesktopDeviceFactory::DesktopDeviceFactory()
     : IDeviceFactory(Constants::DESKTOP_DEVICE_TYPE)
 {
+    setConstructionFunction([] { return IDevice::Ptr(new DesktopDevice); });
     setDisplayName(tr("Desktop"));
     setIcon(Utils::creatorTheme()->flag(Utils::Theme::FlatSideBarIcons)
             ? Utils::Icon::combinedIcon({Icons::DESKTOP_DEVICE.icon(),
                                          Icons::DESKTOP_DEVICE_SMALL.icon()})
             : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon));
-}
-
-IDevice::Ptr DesktopDeviceFactory::restore(const QVariantMap &map) const
-{
-    QTC_ASSERT(canRestore(map), return ProjectExplorer::IDevice::Ptr());
-    const ProjectExplorer::IDevice::Ptr device = IDevice::Ptr(new DesktopDevice);
-    device->fromMap(map);
-    return device;
 }
 
 } // namespace Internal

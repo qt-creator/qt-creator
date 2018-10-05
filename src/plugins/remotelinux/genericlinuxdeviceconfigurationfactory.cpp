@@ -43,6 +43,7 @@ GenericLinuxDeviceConfigurationFactory::GenericLinuxDeviceConfigurationFactory()
     setDisplayName(tr("Generic Linux Device"));
     setIcon(QIcon());
     setCanCreate(true);
+    setConstructionFunction([] { return LinuxDevice::create(); });
 }
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const
@@ -51,14 +52,6 @@ IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const
     if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
     return wizard.device();
-}
-
-IDevice::Ptr GenericLinuxDeviceConfigurationFactory::restore(const QVariantMap &map) const
-{
-    QTC_ASSERT(canRestore(map), return IDevice::Ptr());
-    const IDevice::Ptr device = LinuxDevice::create();
-    device->fromMap(map);
-    return device;
 }
 
 } // namespace RemoteLinux

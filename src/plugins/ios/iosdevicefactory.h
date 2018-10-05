@@ -37,7 +37,6 @@ public:
     IosDeviceFactory();
 
     bool canRestore(const QVariantMap &map) const override;
-    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 
 } // namespace Internal

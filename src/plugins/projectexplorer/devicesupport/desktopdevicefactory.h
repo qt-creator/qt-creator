@@ -34,8 +34,6 @@ class DesktopDeviceFactory : public IDeviceFactory
 {
 public:
     DesktopDeviceFactory();
-
-    IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 
 } // namespace Internal

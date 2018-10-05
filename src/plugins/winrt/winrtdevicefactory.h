@@ -37,8 +37,6 @@ class WinRtDeviceFactory : public ProjectExplorer::IDeviceFactory
 public:
     explicit WinRtDeviceFactory(Core::Id deviceType);
 
-    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
-
     void autoDetect();
     void onPrerequisitesLoaded();
 

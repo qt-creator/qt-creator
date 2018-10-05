@@ -39,7 +39,6 @@ public:
    BareMetalDeviceConfigurationFactory();
 
    ProjectExplorer::IDevice::Ptr create() const override;
-   ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 
 } // namespace Internal

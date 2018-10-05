@@ -43,6 +43,7 @@ BareMetalDeviceConfigurationFactory::BareMetalDeviceConfigurationFactory()
     setCombinedIcon(":/baremetal/images/baremetaldevicesmall.png",
                     ":/baremetal/images/baremetaldevice.png");
     setCanCreate(true);
+    setConstructionFunction([] { return BareMetalDevice::create(); });
 }
 
 IDevice::Ptr BareMetalDeviceConfigurationFactory::create() const
@@ -51,14 +52,6 @@ IDevice::Ptr BareMetalDeviceConfigurationFactory::create() const
     if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
     return wizard.device();
-}
-
-IDevice::Ptr BareMetalDeviceConfigurationFactory::restore(const QVariantMap &map) const
-{
-    QTC_ASSERT(canRestore(map), return IDevice::Ptr());
-    const IDevice::Ptr device = BareMetalDevice::create();
-    device->fromMap(map);
-    return device;
 }
 
 } // namespace Internal

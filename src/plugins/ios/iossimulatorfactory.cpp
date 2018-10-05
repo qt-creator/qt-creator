@@ -40,14 +40,7 @@ IosSimulatorFactory::IosSimulatorFactory()
     setDisplayName(tr("iOS Simulator"));
     setCombinedIcon(":/ios/images/iosdevicesmall.png",
                     ":/ios/images/iosdevice.png");
-}
-
-ProjectExplorer::IDevice::Ptr IosSimulatorFactory::restore(const QVariantMap &map) const
-{
-    QTC_ASSERT(canRestore(map), return ProjectExplorer::IDevice::Ptr());
-    const ProjectExplorer::IDevice::Ptr device = ProjectExplorer::IDevice::Ptr(new IosSimulator());
-    device->fromMap(map);
-    return device;
+    setConstructionFunction([] { return ProjectExplorer::IDevice::Ptr(new IosSimulator()); });
 }
 
 } // namespace Internal

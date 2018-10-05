@@ -35,8 +35,6 @@ class AndroidDeviceFactory : public ProjectExplorer::IDeviceFactory
     Q_OBJECT
 public:
     AndroidDeviceFactory();
-
-    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 
 } // namespace Internal

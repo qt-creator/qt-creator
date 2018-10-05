@@ -41,6 +41,7 @@ QnxDeviceFactory::QnxDeviceFactory()
     setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
                     ":/qnx/images/qnxdevice.png");
     setCanCreate(true);
+    setConstructionFunction([] { return QnxDevice::create(); });
 }
 
 ProjectExplorer::IDevice::Ptr QnxDeviceFactory::create() const
@@ -49,14 +50,6 @@ ProjectExplorer::IDevice::Ptr QnxDeviceFactory::create() const
     if (wizard.exec() != QDialog::Accepted)
         return ProjectExplorer::IDevice::Ptr();
     return wizard.device();
-}
-
-ProjectExplorer::IDevice::Ptr QnxDeviceFactory::restore(const QVariantMap &map) const
-{
-    QTC_ASSERT(canRestore(map), return QnxDevice::Ptr());
-    const QnxDevice::Ptr device = QnxDevice::create();
-    device->fromMap(map);
-    return device;
 }
 
 Core::Id QnxDeviceFactory::deviceType()

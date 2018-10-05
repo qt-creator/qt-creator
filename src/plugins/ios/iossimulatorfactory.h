@@ -35,8 +35,6 @@ class IosSimulatorFactory : public ProjectExplorer::IDeviceFactory
     Q_OBJECT
 public:
     IosSimulatorFactory();
-
-    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 
 } // namespace Internal

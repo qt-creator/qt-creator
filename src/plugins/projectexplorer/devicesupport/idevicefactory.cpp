@@ -79,6 +79,11 @@ bool IDeviceFactory::canCreate() const
     return m_canCreate;
 }
 
+IDevice::Ptr IDeviceFactory::construct() const
+{
+    return m_constructor ? m_constructor() : IDevice::Ptr();
+}
+
 static QList<IDeviceFactory *> g_deviceFactories;
 
 IDeviceFactory *IDeviceFactory::find(Core::Id type)
@@ -110,6 +115,11 @@ void IDeviceFactory::setCombinedIcon(const QString &small, const QString &large)
 void IDeviceFactory::setCanCreate(bool canCreate)
 {
     m_canCreate = canCreate;
+}
+
+void IDeviceFactory::setConstructionFunction(const std::function<IDevice::Ptr ()> &constructor)
+{
+    m_constructor = constructor;
 }
 
 void IDeviceFactory::setDisplayName(const QString &displayName)

@@ -40,7 +40,6 @@ public:
     GenericLinuxDeviceConfigurationFactory();
 
     ProjectExplorer::IDevice::Ptr create() const override;
-    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 
 } // namespace RemoteLinux
