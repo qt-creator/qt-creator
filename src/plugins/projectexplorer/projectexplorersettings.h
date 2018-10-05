@@ -26,6 +26,7 @@
 #pragma once
 
 #include <coreplugin/coreconstants.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QUuid>
 
@@ -54,6 +55,7 @@ public:
     int  maxAppOutputChars = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
     int  maxBuildOutputChars = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
     StopBeforeBuild stopBeforeBuild = StopBeforeBuild::StopNone;
+    QString buildDirectoryTemplate;
 
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created
@@ -80,7 +82,8 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.maxAppOutputChars == p2.maxAppOutputChars
             && p1.maxBuildOutputChars == p2.maxBuildOutputChars
             && p1.environmentId == p2.environmentId
-            && p1.stopBeforeBuild == p2.stopBeforeBuild;
+            && p1.stopBeforeBuild == p2.stopBeforeBuild
+            && p1.buildDirectoryTemplate == p2.buildDirectoryTemplate;
 }
 
 } // namespace ProjectExplorer

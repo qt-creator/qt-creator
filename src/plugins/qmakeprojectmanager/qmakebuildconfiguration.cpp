@@ -83,7 +83,7 @@ QString QmakeBuildConfiguration::shadowBuildDirectory(const QString &proFilePath
     const QString projectName = QFileInfo(proFilePath).completeBaseName();
     ProjectMacroExpander expander(proFilePath, projectName, k, suffix, buildType);
     QString projectDir = Project::projectDirectory(FileName::fromString(proFilePath)).toString();
-    QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
+    QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     return FileUtils::resolvePath(projectDir, buildPath);
 }
 

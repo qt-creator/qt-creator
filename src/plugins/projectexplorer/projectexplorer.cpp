@@ -237,6 +237,10 @@ const char RUNMENUCONTEXTMENU[]   = "Project.RunMenu";
 const char FOLDER_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.F.OpenLocation.CtxMenu";
 const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxMenu";
 
+// Default directories:
+const char DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "../%{JS: Util.asciify(\"build-%{CurrentProject:Name}-%{CurrentKit:FileSystemName}-%{CurrentBuild:Name}\")}";
+const char DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY[] = "Directories/BuildDirectory.Template";
+
 } // namespace Constants
 
 
@@ -1294,6 +1298,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     if (tmp < 0 || tmp > ProjectExplorerSettings::StopSameBuildDir)
         tmp = Utils::HostOsInfo::isWindowsHost() ? 1 : 0;
     dd->m_projectExplorerSettings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(tmp);
+    dd->m_projectExplorerSettings.buildDirectoryTemplate
+            = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY).toString();
+    if (dd->m_projectExplorerSettings.buildDirectoryTemplate.isEmpty())
+        dd->m_projectExplorerSettings.buildDirectoryTemplate = Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE;
 
     auto buildManager = new BuildManager(this, dd->m_cancelBuildAction);
     connect(buildManager, &BuildManager::buildStateChanged,
@@ -1825,6 +1833,9 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(QLatin1String("ProjectExplorer/Settings/MaxBuildOutputLines"), dd->m_projectExplorerSettings.maxBuildOutputChars / 100);
     s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), dd->m_projectExplorerSettings.environmentId.toByteArray());
     s->setValue(QLatin1String("ProjectExplorer/Settings/StopBeforeBuild"), dd->m_projectExplorerSettings.stopBeforeBuild);
+
+    // Store this in the Core directory scope for backward compatibility!
+    s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY, dd->m_projectExplorerSettings.buildDirectoryTemplate);
 }
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
@@ -3598,6 +3609,31 @@ void ProjectExplorerPlugin::openOpenProjectDialog()
     const QStringList files = DocumentManager::getOpenFileNames(dd->m_projectFilterString, path);
     if (!files.isEmpty())
         ICore::openFiles(files, ICore::SwitchMode);
+}
+
+/*!
+    Returns the current build directory template.
+
+    \sa setBuildDirectoryTemplate
+*/
+QString ProjectExplorerPlugin::buildDirectoryTemplate()
+{
+    return dd->m_projectExplorerSettings.buildDirectoryTemplate;
+}
+
+/*!
+    Sets the current build directory template to \a directory.
+
+    \sa defaultbuildDirectory
+*/
+void ProjectExplorerPlugin::setBuildDirectoryTemplate(const QString &dir)
+{
+    dd->m_projectExplorerSettings.buildDirectoryTemplate = dir;
+}
+
+QString ProjectExplorerPlugin::defaultBuildDirectoryTemplate()
+{
+    return Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE;
 }
 
 QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()

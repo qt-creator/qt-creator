@@ -105,7 +105,6 @@ static const char editorsKeyC[] = "EditorIds";
 static const char directoryGroupC[] = "Directories";
 static const char projectDirectoryKeyC[] = "Projects";
 static const char useProjectDirectoryKeyC[] = "UseProjectsDirectory";
-static const char buildDirectoryKeyC[] = "BuildDirectory.Template";
 
 using namespace Utils;
 
@@ -155,16 +154,16 @@ public:
     QList<DocumentManager::RecentFile> m_recentFiles;
     static const int m_maxRecentFiles = 7;
 
-    QFileSystemWatcher *m_fileWatcher = nullptr; // Delayed creation.
-    QFileSystemWatcher *m_linkWatcher = nullptr; // Delayed creation (only UNIX/if a link is seen).
     bool m_postponeAutoReload = false;
     bool m_blockActivated = false;
     bool m_checkOnFocusChange = false;
+    bool m_useProjectsDirectory = true;
+
+    QFileSystemWatcher *m_fileWatcher = nullptr; // Delayed creation.
+    QFileSystemWatcher *m_linkWatcher = nullptr; // Delayed creation (only UNIX/if a link is seen).
     QString m_lastVisitedDirectory = QDir::currentPath();
     QString m_defaultLocationForNewFiles;
     FileName m_projectsDirectory;
-    bool m_useProjectsDirectory = true;
-    QString m_buildDirectory;
     // When we are calling into an IDocument
     // we don't want to receive a changed()
     // signal
@@ -1313,7 +1312,6 @@ void DocumentManager::saveSettings()
     s->beginGroup(QLatin1String(directoryGroupC));
     s->setValue(QLatin1String(projectDirectoryKeyC), d->m_projectsDirectory.toString());
     s->setValue(QLatin1String(useProjectDirectoryKeyC), d->m_useProjectsDirectory);
-    s->setValue(QLatin1String(buildDirectoryKeyC), d->m_buildDirectory);
     s->endGroup();
 }
 
@@ -1345,13 +1343,6 @@ void readSettings()
         d->m_projectsDirectory = FileName::fromString(PathChooser::homePath());
     d->m_useProjectsDirectory = s->value(QLatin1String(useProjectDirectoryKeyC),
                                          d->m_useProjectsDirectory).toBool();
-
-    const QString settingsShadowDir = s->value(QLatin1String(buildDirectoryKeyC),
-                                               QString()).toString();
-    if (!settingsShadowDir.isEmpty())
-        d->m_buildDirectory = settingsShadowDir;
-    else
-        d->m_buildDirectory = QLatin1String(Constants::DEFAULT_BUILD_DIRECTORY);
 
     s->endGroup();
 }
@@ -1420,26 +1411,6 @@ void DocumentManager::setProjectsDirectory(const FileName &directory)
         d->m_projectsDirectory = directory;
         emit m_instance->projectsDirectoryChanged(d->m_projectsDirectory);
     }
-}
-
-/*!
-    Returns the default build directory.
-
-    \sa setBuildDirectory
-*/
-QString DocumentManager::buildDirectory()
-{
-    return d->m_buildDirectory;
-}
-
-/*!
-    Sets the shadow build directory to \a directory.
-
-    \sa buildDirectory
-*/
-void DocumentManager::setBuildDirectory(const QString &directory)
-{
-    d->m_buildDirectory = directory;
 }
 
 /*!

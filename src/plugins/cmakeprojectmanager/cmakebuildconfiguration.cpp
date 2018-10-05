@@ -35,7 +35,6 @@
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
 
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildmanager.h>
@@ -160,7 +159,7 @@ FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFi
     const QString projectName = projectFilePath.parentDir().fileName();
     ProjectMacroExpander expander(projectFilePath.toString(), projectName, k, bcName, buildType);
     QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
-    QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
+    QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     return FileName::fromUserInput(projectDir.absoluteFilePath(buildPath));
 }
 

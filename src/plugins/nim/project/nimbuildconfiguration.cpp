@@ -34,12 +34,12 @@
 
 #include "../nimconstants.h"
 
-#include <coreplugin/documentmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
@@ -59,7 +59,7 @@ static FileName defaultBuildDirectory(const Kit *k,
     QFileInfo projectFileInfo(projectFilePath);
 
     ProjectMacroExpander expander(projectFilePath, projectFileInfo.baseName(), k, bc, buildType);
-    QString buildDirectory = expander.expand(Core::DocumentManager::buildDirectory());
+    QString buildDirectory = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
 
     if (FileUtils::isAbsolutePath(buildDirectory))
         return FileName::fromString(buildDirectory);

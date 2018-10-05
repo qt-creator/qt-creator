@@ -163,6 +163,10 @@ public:
     static void openNewProjectDialog();
     static void openOpenProjectDialog();
 
+    static QString buildDirectoryTemplate();
+    static void setBuildDirectoryTemplate(const QString &dir);
+    static QString defaultBuildDirectoryTemplate();
+
 signals:
     void finishedInitialization();
 
