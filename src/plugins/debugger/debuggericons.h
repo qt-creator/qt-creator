@@ -80,5 +80,13 @@ extern const Utils::Icon MODE_DEBUGGER_CLASSIC;
 extern const Utils::Icon MODE_DEBUGGER_FLAT;
 extern const Utils::Icon MODE_DEBUGGER_FLAT_ACTIVE;
 
+extern const Utils::Icon MACOS_TOUCHBAR_DEBUG;
+extern const Utils::Icon MACOS_TOUCHBAR_DEBUG_EXIT;
+extern const Utils::Icon MACOS_TOUCHBAR_DEBUG_INTERRUPT;
+extern const Utils::Icon MACOS_TOUCHBAR_DEBUG_CONTINUE;
+extern const Utils::Icon MACOS_TOUCHBAR_DEBUG_STEP_OVER;
+extern const Utils::Icon MACOS_TOUCHBAR_DEBUG_STEP_INTO;
+extern const Utils::Icon MACOS_TOUCHBAR_DEBUG_STEP_OUT;
+
 } // namespace Icons
 } // namespace Debugger

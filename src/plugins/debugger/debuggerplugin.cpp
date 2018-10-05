@@ -991,6 +991,11 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_menu->appendGroup(G_ANALYZER_REMOTE_TOOLS);
     m_menu->appendGroup(G_ANALYZER_OPTIONS);
 
+    ActionContainer *touchBar = ActionManager::createTouchBar("Debugger.TouchBar",
+                                                              Icons::MACOS_TOUCHBAR_DEBUG.icon());
+    ActionManager::actionContainer(Core::Constants::TOUCH_BAR)
+        ->addMenu(touchBar, Core::Constants::G_TOUCHBAR_OTHER);
+
     ActionContainer *menubar = ActionManager::actionContainer(MENU_BAR);
     ActionContainer *mtools = ActionManager::actionContainer(M_TOOLS);
     menubar->addMenu(mtools, m_menu);
@@ -1181,6 +1186,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd->setDescription(tr("Interrupt Debugger"));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultKeySequence(startShortcut);
+    cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_DEBUG_INTERRUPT.icon());
+    touchBar->addAction(cmd);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     act = new QAction(continueIcon(false), tr("Continue"), this);
@@ -1188,11 +1195,15 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd = ActionManager::registerAction(act, Constants::CONTINUE);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultKeySequence(startShortcut);
+    cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_DEBUG_CONTINUE.icon());
+    touchBar->addAction(cmd);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     act = new QAction(Icons::DEBUG_EXIT_SMALL.icon(), tr("Stop Debugger"), this);
     act->setEnabled(false);
     cmd = ActionManager::registerAction(act, Constants::STOP);
+    cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_DEBUG_EXIT.icon());
+    touchBar->addAction(cmd);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
     m_hiddenStopAction.initialize(cmd->action());
     m_hiddenStopAction.setAttribute(ProxyAction::UpdateText);
@@ -1231,18 +1242,24 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     act->setEnabled(false);
     cmd = ActionManager::registerAction(act, Constants::NEXT);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+O") : tr("F10")));
+    cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_DEBUG_STEP_OVER.icon());
+    touchBar->addAction(cmd);
     debugMenu->addAction(cmd);
 
     act = new QAction(Icons::STEP_INTO.icon(), tr("Step Into"), this);
     act->setEnabled(false);
     cmd = ActionManager::registerAction(act, Constants::STEP);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+I") : tr("F11")));
+    cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_DEBUG_STEP_INTO.icon());
+    touchBar->addAction(cmd);
     debugMenu->addAction(cmd);
 
     act = new QAction(Icons::STEP_OUT.icon(), tr("Step Out"), this);
     act->setEnabled(false);
     cmd = ActionManager::registerAction(act, Constants::STEPOUT);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+T") : tr("Shift+F11")));
+    cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_DEBUG_STEP_OUT.icon());
+    touchBar->addAction(cmd);
     debugMenu->addAction(cmd);
 
     act = new QAction(tr("Run to Line"), this);

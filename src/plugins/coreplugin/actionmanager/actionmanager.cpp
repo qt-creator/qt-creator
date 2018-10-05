@@ -232,6 +232,27 @@ ActionContainer *ActionManager::createMenuBar(Id id)
 }
 
 /*!
+    Creates a touch bar with the given \a id.
+
+    Returns a new ActionContainer that you can use to add items to a (sub) touch bar.
+    Note that it is only possible to create a single level of sub touch bars.
+    The sub touch bar will be represented as a button with \a icon and \a text (one can be left
+    empty), which opens the sub touch bar when touched.
+    The ActionManager owns the returned ActionContainer.
+*/
+ActionContainer *ActionManager::createTouchBar(Id id, const QIcon &icon, const QString &text)
+{
+    QTC_CHECK(!icon.isNull() || !text.isEmpty());
+    ActionContainer * const c = d->m_idContainerMap.value(id);
+    if (c)
+        return c;
+    auto ac = new TouchBarActionContainer(id, icon, text);
+    d->m_idContainerMap.insert(id, ac);
+    connect(ac, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
+    return ac;
+}
+
+/*!
     Makes an \a action known to the system under the specified \a id.
 
     Returns a command object that represents the action in the application and is

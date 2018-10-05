@@ -176,13 +176,18 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
     Command *cmd;
     ActionContainer *cppToolsMenu = ActionManager::actionContainer(CppTools::Constants::M_TOOLS_CPP);
+    ActionContainer *touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
 
     cmd = ActionManager::command(CppTools::Constants::SWITCH_HEADER_SOURCE);
+    cmd->setTouchBarText(tr("Header/Source", "text on macOS touch bar"));
     contextMenu->addAction(cmd);
+    touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
 
     cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
+    cmd->setTouchBarText(tr("Follow", "text on macOS touch bar"));
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
+    touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
 
     QAction *openPreprocessorDialog = new QAction(tr("Additional Preprocessor Directives..."), this);
     cmd = ActionManager::registerAction(openPreprocessorDialog,
@@ -195,10 +200,12 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cmd = ActionManager::registerAction(switchDeclarationDefinition,
         Constants::SWITCH_DECLARATION_DEFINITION, context, true);
     cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F2")));
+    cmd->setTouchBarText(tr("Decl/Def", "text on macOS touch bar"));
     connect(switchDeclarationDefinition, &QAction::triggered,
             this, &CppEditorPlugin::switchDeclarationDefinition);
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
+    touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
 
     cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT);
     cppToolsMenu->addAction(cmd);

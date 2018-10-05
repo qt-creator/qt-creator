@@ -30,7 +30,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
 
-#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -39,6 +38,8 @@
 #include <QMenuBar>
 
 Q_DECLARE_METATYPE(Core::Internal::MenuActionContainer*)
+
+using namespace Utils;
 
 namespace Core {
 namespace Internal {
@@ -50,8 +51,8 @@ namespace Internal {
     \brief The ActionContainer class represents a menu or menu bar in Qt Creator.
 
     You don't create instances of this class directly, but instead use the
-    \l{ActionManager::createMenu()}
-    and \l{ActionManager::createMenuBar()} functions.
+    \l{ActionManager::createMenu()}, \l{ActionManager::createMenuBar()} and
+    \l{ActionManager::createTouchBar()} functions.
     Retrieve existing action containers for an ID with
     \l{ActionManager::actionContainer()}.
 
@@ -206,6 +207,17 @@ QAction *ActionContainerPrivate::insertLocation(Id groupId) const
     return insertLocation(it);
 }
 
+QAction *ActionContainerPrivate::actionForItem(QObject *item) const
+{
+    if (auto cmd = qobject_cast<Command *>(item)) {
+        return cmd->action();
+    } else if (auto container = qobject_cast<ActionContainerPrivate *>(item)) {
+        if (container->containerAction())
+            return container->containerAction();
+    }
+    QTC_ASSERT(false, return nullptr);
+}
+
 QAction *ActionContainerPrivate::insertLocation(QList<Group>::const_iterator group) const
 {
     if (group == m_groups.constEnd())
@@ -214,13 +226,9 @@ QAction *ActionContainerPrivate::insertLocation(QList<Group>::const_iterator gro
     while (group != m_groups.constEnd()) {
         if (!group->items.isEmpty()) {
             QObject *item = group->items.first();
-            if (auto cmd = qobject_cast<Command *>(item)) {
-                return cmd->action();
-            } else if (auto container = qobject_cast<ActionContainer *>(item)) {
-                if (container->menu())
-                    return container->menu()->menuAction();
-            }
-            QTC_ASSERT(false, return nullptr);
+            QAction *action = actionForItem(item);
+            if (action)
+                return action;
         }
         ++group;
     }
@@ -236,38 +244,37 @@ void ActionContainerPrivate::addAction(Command *command, Id groupId)
     QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
     QTC_ASSERT(groupIt != m_groups.constEnd(), qDebug() << "Can't find group"
                << groupId.name() << "in container" << id().name(); return);
-    QAction *beforeAction = insertLocation(groupIt);
-    m_groups[groupIt-m_groups.constBegin()].items.append(command);
-
+    m_groups[groupIt - m_groups.constBegin()].items.append(command);
     connect(command, &Command::activeStateChanged, this, &ActionContainerPrivate::scheduleUpdate);
     connect(command, &QObject::destroyed, this, &ActionContainerPrivate::itemDestroyed);
-    insertAction(beforeAction, command->action());
+
+    QAction *beforeAction = insertLocation(groupIt);
+    insertAction(beforeAction, command);
+
     scheduleUpdate();
 }
 
 void ActionContainerPrivate::addMenu(ActionContainer *menu, Id groupId)
 {
     auto containerPrivate = static_cast<ActionContainerPrivate *>(menu);
-    if (!containerPrivate->canBeAddedToMenu())
-        return;
+    QTC_ASSERT(containerPrivate->canBeAddedToContainer(this), return);
 
-    auto container = static_cast<MenuActionContainer *>(containerPrivate);
     const Id actualGroupId = groupId.isValid() ? groupId : Id(Constants::G_DEFAULT_TWO);
     QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
     QTC_ASSERT(groupIt != m_groups.constEnd(), return);
-    QAction *beforeAction = insertLocation(groupIt);
-    m_groups[groupIt-m_groups.constBegin()].items.append(menu);
-
+    m_groups[groupIt - m_groups.constBegin()].items.append(menu);
     connect(menu, &QObject::destroyed, this, &ActionContainerPrivate::itemDestroyed);
-    insertMenu(beforeAction, container->menu());
+
+    QAction *beforeAction = insertLocation(groupIt);
+    insertMenu(beforeAction, menu);
+
     scheduleUpdate();
 }
 
 void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *menu)
 {
     auto containerPrivate = static_cast<ActionContainerPrivate *>(menu);
-    if (!containerPrivate->canBeAddedToMenu())
-        return;
+    QTC_ASSERT(containerPrivate->canBeAddedToContainer(this), return);
 
     QMutableListIterator<Group> it(m_groups);
     while (it.hasNext()) {
@@ -278,11 +285,13 @@ void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *m
             break;
         }
     }
-
     connect(menu, &QObject::destroyed, this, &ActionContainerPrivate::itemDestroyed);
-    auto container = static_cast<MenuActionContainer *>(containerPrivate);
-    QAction *beforeAction = before->menu()->menuAction();
-    insertMenu(beforeAction, container->menu());
+
+    auto beforePrivate = static_cast<ActionContainerPrivate *>(before);
+    QAction *beforeAction = beforePrivate->containerAction();
+    if (beforeAction)
+        insertMenu(beforeAction, menu);
+
     scheduleUpdate();
 }
 
@@ -315,7 +324,7 @@ void ActionContainerPrivate::clear()
         Group &group = it.next();
         foreach (QObject *item, group.items) {
             if (auto command = qobject_cast<Command *>(item)) {
-                removeAction(command->action());
+                removeAction(command);
                 disconnect(command, &Command::activeStateChanged,
                            this, &ActionContainerPrivate::scheduleUpdate);
                 disconnect(command, &QObject::destroyed, this, &ActionContainerPrivate::itemDestroyed);
@@ -323,7 +332,7 @@ void ActionContainerPrivate::clear()
                 container->clear();
                 disconnect(container, &QObject::destroyed,
                            this, &ActionContainerPrivate::itemDestroyed);
-                removeMenu(container->menu());
+                removeMenu(container);
             }
         }
         group.items.clear();
@@ -353,6 +362,11 @@ QMenu *ActionContainerPrivate::menu() const
 }
 
 QMenuBar *ActionContainerPrivate::menuBar() const
+{
+    return nullptr;
+}
+
+TouchBar *ActionContainerPrivate::touchBar() const
 {
     return nullptr;
 }
@@ -402,24 +416,33 @@ QMenu *MenuActionContainer::menu() const
     return m_menu;
 }
 
-void MenuActionContainer::insertAction(QAction *before, QAction *action)
+QAction *MenuActionContainer::containerAction() const
 {
-    m_menu->insertAction(before, action);
+    return m_menu->menuAction();
 }
 
-void MenuActionContainer::insertMenu(QAction *before, QMenu *menu)
+void MenuActionContainer::insertAction(QAction *before, Command *command)
 {
+    m_menu->insertAction(before, command->action());
+}
+
+void MenuActionContainer::insertMenu(QAction *before, ActionContainer *container)
+{
+    QMenu *menu = container->menu();
+    QTC_ASSERT(menu, return);
     menu->setParent(m_menu, menu->windowFlags()); // work around issues with Qt Wayland (QTBUG-68636)
     m_menu->insertMenu(before, menu);
 }
 
-void MenuActionContainer::removeAction(QAction *action)
+void MenuActionContainer::removeAction(Command *command)
 {
-    m_menu->removeAction(action);
+    m_menu->removeAction(command->action());
 }
 
-void MenuActionContainer::removeMenu(QMenu *menu)
+void MenuActionContainer::removeMenu(ActionContainer *container)
 {
+    QMenu *menu = container->menu();
+    QTC_ASSERT(menu, return);
     m_menu->removeAction(menu->menuAction());
 }
 
@@ -480,11 +503,11 @@ bool MenuActionContainer::updateInternal()
     return hasitems;
 }
 
-bool MenuActionContainer::canBeAddedToMenu() const
+bool MenuActionContainer::canBeAddedToContainer(ActionContainerPrivate *container) const
 {
-    return true;
+    return qobject_cast<MenuActionContainer *>(container)
+           || qobject_cast<MenuBarActionContainer *>(container);
 }
-
 
 // ---------- MenuBarActionContainer ------------
 
@@ -509,24 +532,33 @@ QMenuBar *MenuBarActionContainer::menuBar() const
     return m_menuBar;
 }
 
-void MenuBarActionContainer::insertAction(QAction *before, QAction *action)
+QAction *MenuBarActionContainer::containerAction() const
 {
-    m_menuBar->insertAction(before, action);
+    return nullptr;
 }
 
-void MenuBarActionContainer::insertMenu(QAction *before, QMenu *menu)
+void MenuBarActionContainer::insertAction(QAction *before, Command *command)
 {
+    m_menuBar->insertAction(before, command->action());
+}
+
+void MenuBarActionContainer::insertMenu(QAction *before, ActionContainer *container)
+{
+    QMenu *menu = container->menu();
+    QTC_ASSERT(menu, return);
     menu->setParent(m_menuBar, menu->windowFlags()); // work around issues with Qt Wayland (QTBUG-68636)
     m_menuBar->insertMenu(before, menu);
 }
 
-void MenuBarActionContainer::removeAction(QAction *action)
+void MenuBarActionContainer::removeAction(Command *command)
 {
-    m_menuBar->removeAction(action);
+    m_menuBar->removeAction(command->action());
 }
 
-void MenuBarActionContainer::removeMenu(QMenu *menu)
+void MenuBarActionContainer::removeMenu(ActionContainer *container)
 {
+    QMenu *menu = container->menu();
+    QTC_ASSERT(menu, return);
     m_menuBar->removeAction(menu->menuAction());
 }
 
@@ -552,7 +584,72 @@ bool MenuBarActionContainer::updateInternal()
     return hasitems;
 }
 
-bool MenuBarActionContainer::canBeAddedToMenu() const
+bool MenuBarActionContainer::canBeAddedToContainer(ActionContainerPrivate *) const
+{
+    return false;
+}
+
+// ---------- TouchBarActionContainer ------------
+
+const char ID_PREFIX[] = "io.qt.qtcreator.";
+
+TouchBarActionContainer::TouchBarActionContainer(Id id, const QIcon &icon, const QString &text)
+    : ActionContainerPrivate(id),
+      m_touchBar(std::make_unique<TouchBar>(id.withPrefix(ID_PREFIX).name(), icon, text))
+{
+}
+
+TouchBarActionContainer::~TouchBarActionContainer() = default;
+
+TouchBar *TouchBarActionContainer::touchBar() const
+{
+    return m_touchBar.get();
+}
+
+QAction *TouchBarActionContainer::containerAction() const
+{
+    return m_touchBar->touchBarAction();
+}
+
+QAction *TouchBarActionContainer::actionForItem(QObject *item) const
+{
+    if (Command *command = qobject_cast<Command *>(item))
+        return command->touchBarAction();
+    return ActionContainerPrivate::actionForItem(item);
+}
+
+void TouchBarActionContainer::insertAction(QAction *before, Command *command)
+{
+    m_touchBar->insertAction(before,
+                             command->id().withPrefix(ID_PREFIX).name(),
+                             command->touchBarAction());
+}
+
+void TouchBarActionContainer::insertMenu(QAction *before, ActionContainer *container)
+{
+    TouchBar *touchBar = container->touchBar();
+    QTC_ASSERT(touchBar, return);
+    m_touchBar->insertTouchBar(before, touchBar);
+}
+
+void TouchBarActionContainer::removeAction(Command *command)
+{
+    m_touchBar->removeAction(command->touchBarAction());
+}
+
+void TouchBarActionContainer::removeMenu(ActionContainer *container)
+{
+    TouchBar *touchBar = container->touchBar();
+    QTC_ASSERT(touchBar, return);
+    m_touchBar->removeTouchBar(touchBar);
+}
+
+bool TouchBarActionContainer::canBeAddedToContainer(ActionContainerPrivate *container) const
+{
+    return qobject_cast<TouchBarActionContainer *>(container);
+}
+
+bool TouchBarActionContainer::updateInternal()
 {
     return false;
 }

@@ -57,6 +57,9 @@ public:
 
     static ActionContainer *createMenu(Id id);
     static ActionContainer *createMenuBar(Id id);
+    static ActionContainer *createTouchBar(Id id,
+                                           const QIcon &icon,
+                                           const QString &text = QString());
 
     static Command *registerAction(QAction *action, Id id,
                                    const Context &context = Context(Constants::C_GLOBAL),

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,19 +25,44 @@
 
 #pragma once
 
-#include <utils/icon.h>
+#include <utils/utils_global.h>
 
-namespace Help {
-namespace Icons {
+#include <QAction>
+#include <QByteArray>
+#include <QIcon>
+#include <QString>
 
-const Utils::Icon MODE_HELP_CLASSIC(
-        QLatin1String(":/help/images/mode_help.png"));
-const Utils::Icon MODE_HELP_FLAT({
-        {QLatin1String(":/help/images/mode_help_mask.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon MODE_HELP_FLAT_ACTIVE({
-        {QLatin1String(":/help/images/mode_help_mask.png"), Utils::Theme::IconsModeHelpActiveColor}});
-const Utils::Icon MACOS_TOUCHBAR_HELP(
-        ":/help/images/macos_touchbar_help.png");
+namespace Utils {
 
-} // namespace Icons
-} // namespace Help
+namespace Internal {
+class TouchBarPrivate;
+}
+
+class QTCREATOR_UTILS_EXPORT TouchBar
+{
+public:
+    TouchBar(const QByteArray &id, const QIcon &icon, const QString &title);
+    TouchBar(const QByteArray &id, const QIcon &icon);
+    TouchBar(const QByteArray &id, const QString &title);
+    TouchBar(const QByteArray &id);
+
+    ~TouchBar();
+
+    QByteArray id() const;
+
+    QAction *touchBarAction() const;
+
+    void insertAction(QAction *before, const QByteArray &id, QAction *action);
+    void insertTouchBar(QAction *before, TouchBar *touchBar);
+
+    void removeAction(QAction *action);
+    void removeTouchBar(TouchBar *touchBar);
+    void clear();
+
+    void setApplicationTouchBar();
+
+private:
+    Internal::TouchBarPrivate *d;
+};
+
+} // namespace Utils

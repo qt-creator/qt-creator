@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "mainwindow.h"
+
 #include "icore.h"
 #include "jsexpander.h"
 #include "toolsettings.h"
@@ -427,6 +428,16 @@ void MainWindow::registerDefaultContainers()
     ac->appendGroup(Constants::G_HELP_SUPPORT);
     ac->appendGroup(Constants::G_HELP_ABOUT);
     ac->appendGroup(Constants::G_HELP_UPDATES);
+
+    // macOS touch bar
+    ac = ActionManager::createTouchBar(Constants::TOUCH_BAR,
+                                       QIcon(),
+                                       "Main TouchBar" /*never visible*/);
+    ac->appendGroup(Constants::G_TOUCHBAR_HELP);
+    ac->appendGroup(Constants::G_TOUCHBAR_EDITOR);
+    ac->appendGroup(Constants::G_TOUCHBAR_NAVIGATION);
+    ac->appendGroup(Constants::G_TOUCHBAR_OTHER);
+    ac->touchBar()->setApplicationTouchBar();
 }
 
 void MainWindow::registerDefaultActions()

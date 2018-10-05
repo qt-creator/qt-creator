@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,19 +25,49 @@
 
 #pragma once
 
-#include <utils/icon.h>
+#include <QAction>
+#include <QByteArray>
 
-namespace Help {
-namespace Icons {
+#include <functional>
+#include <vector>
 
-const Utils::Icon MODE_HELP_CLASSIC(
-        QLatin1String(":/help/images/mode_help.png"));
-const Utils::Icon MODE_HELP_FLAT({
-        {QLatin1String(":/help/images/mode_help_mask.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon MODE_HELP_FLAT_ACTIVE({
-        {QLatin1String(":/help/images/mode_help_mask.png"), Utils::Theme::IconsModeHelpActiveColor}});
-const Utils::Icon MACOS_TOUCHBAR_HELP(
-        ":/help/images/macos_touchbar_help.png");
+namespace Utils {
+namespace Internal {
+class TouchBarPrivate;
+} // Internal
+} // Utils
 
-} // namespace Icons
-} // namespace Help
+#import <AppKit/NSTouchBar.h>
+
+@interface TouchBarDelegate : NSObject <NSTouchBarDelegate>
+@property (atomic) Utils::Internal::TouchBarPrivate *parent;
+@property (retain, atomic) NSString *closeButtonIdentifier;
+
+- (id)initWithParent:(Utils::Internal::TouchBarPrivate *)parent;
+
+@end
+
+namespace Utils {
+namespace Internal {
+
+struct TouchBarItem
+{
+    QByteArray id;
+    QMetaObject::Connection updateConnection;
+    QAction *action = nullptr;
+    TouchBarPrivate *touchBar = nullptr;
+};
+
+class TouchBarPrivate
+{
+public:
+    QByteArray m_id;
+    QAction m_action;
+    std::vector<TouchBarItem> m_items;
+    std::function<void()> m_invalidate;
+    TouchBarDelegate *m_delegate;
+    bool m_isSubBar = false;
+};
+
+} // Internal
+} // Utils

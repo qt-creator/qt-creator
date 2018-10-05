@@ -86,6 +86,12 @@ public:
     virtual bool isScriptable() const = 0;
     virtual bool isScriptable(const Context &) const = 0;
 
+    virtual void setTouchBarText(const QString &text) = 0;
+    virtual QString touchBarText() const = 0;
+    virtual void setTouchBarIcon(const QIcon &icon) = 0;
+    virtual QIcon touchBarIcon() const = 0;
+    virtual QAction *touchBarAction() const = 0;
+
 signals:
     void keySequenceChanged();
     void activeStateChanged();

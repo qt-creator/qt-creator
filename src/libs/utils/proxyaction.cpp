@@ -42,6 +42,7 @@ void ProxyAction::setAction(QAction *action)
     m_action = action;
     connectAction();
     updateState();
+    emit currentActionChanged(action);
 }
 
 void ProxyAction::updateState()

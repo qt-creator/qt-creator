@@ -38,6 +38,9 @@ const int  P_MODE_WELCOME          = 100;
 const int  P_MODE_EDIT             = 90;
 const int  P_MODE_DESIGN           = 89;
 
+// TouchBar
+const char TOUCH_BAR[]             = "QtCreator.TouchBar";
+
 // Menubar
 const char MENU_BAR[]              = "QtCreator.MenuBar";
 
@@ -188,6 +191,12 @@ const char G_HELP_HELP[]           = "QtCreator.Group.Help.Help";
 const char G_HELP_SUPPORT[]        = "QtCreator.Group.Help.Supprt";
 const char G_HELP_ABOUT[]          = "QtCreator.Group.Help.About";
 const char G_HELP_UPDATES[]        = "QtCreator.Group.Help.Updates";
+
+// Touchbar groups
+const char G_TOUCHBAR_HELP[]       = "QtCreator.Group.TouchBar.Help";
+const char G_TOUCHBAR_EDITOR[]     = "QtCreator.Group.TouchBar.Editor";
+const char G_TOUCHBAR_NAVIGATION[] = "QtCreator.Group.TouchBar.Navigation";
+const char G_TOUCHBAR_OTHER[]      = "QtCreator.Group.TouchBar.Other";
 
 const char WIZARD_CATEGORY_QT[] = "R.Qt";
 const char WIZARD_TR_CATEGORY_QT[] = QT_TRANSLATE_NOOP("Core", "Qt");

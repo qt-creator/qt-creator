@@ -60,6 +60,9 @@ public:
     static QString stringWithAppendedShortcut(const QString &str, const QKeySequence &shortcut);
     static ProxyAction *proxyActionWithIcon(QAction *original, const QIcon &newIcon);
 
+signals:
+    void currentActionChanged(QAction *action);
+
 private:
     void actionChanged();
     void updateState();

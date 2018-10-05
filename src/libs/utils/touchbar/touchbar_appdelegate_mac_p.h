@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,19 +25,37 @@
 
 #pragma once
 
-#include <utils/icon.h>
+#include "touchbar.h"
 
-namespace Help {
-namespace Icons {
+#import <AppKit/NSApplication.h>
 
-const Utils::Icon MODE_HELP_CLASSIC(
-        QLatin1String(":/help/images/mode_help.png"));
-const Utils::Icon MODE_HELP_FLAT({
-        {QLatin1String(":/help/images/mode_help_mask.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon MODE_HELP_FLAT_ACTIVE({
-        {QLatin1String(":/help/images/mode_help_mask.png"), Utils::Theme::IconsModeHelpActiveColor}});
-const Utils::Icon MACOS_TOUCHBAR_HELP(
-        ":/help/images/macos_touchbar_help.png");
+@interface ApplicationDelegateImpl : NSResponder <NSApplicationDelegate>
+@property (strong, atomic) NSObject *qtDelegate;
 
-} // namespace Icons
-} // namespace Help
+- (id)init;
+- (void)installAsDelegateForApplication:(NSApplication *)application;
+- (void)setApplicationTouchBar:(Utils::Internal::TouchBarPrivate *)bar;
+- (void)pushTouchBar:(Utils::Internal::TouchBarPrivate *)bar;
+- (void)popTouchBar;
+
+@end
+
+namespace Utils {
+namespace Internal {
+
+class ApplicationDelegate
+{
+public:
+    static ApplicationDelegate *instance();
+
+    ApplicationDelegate();
+    ~ApplicationDelegate();
+    void setApplicationTouchBar(TouchBarPrivate *touchBar);
+    void pushTouchBar(TouchBarPrivate *touchBar);
+    void popTouchBar();
+
+    ApplicationDelegateImpl *applicationDelegate;
+};
+
+} // Internal
+} // Utils

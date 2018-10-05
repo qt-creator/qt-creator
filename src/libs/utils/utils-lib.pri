@@ -277,11 +277,14 @@ osx {
     HEADERS += \
         $$PWD/theme/theme_mac.h \
         $$PWD/fileutils_mac.h
+
     OBJECTIVE_SOURCES += \
         $$PWD/theme/theme_mac.mm \
         $$PWD/fileutils_mac.mm \
         $$PWD/processhandle_mac.mm
+
     LIBS += -framework Foundation -framework AppKit
 }
 
+include(touchbar/touchbar.pri)
 include(mimetypes/mimetypes.pri)

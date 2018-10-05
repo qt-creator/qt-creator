@@ -6,5 +6,7 @@
         <file>images/mode_help@2x.png</file>
         <file>images/mode_help_mask.png</file>
         <file>images/mode_help_mask@2x.png</file>
+        <file>images/macos_touchbar_help.png</file>
+        <file>images/macos_touchbar_help@2x.png</file>
     </qresource>
 </RCC>

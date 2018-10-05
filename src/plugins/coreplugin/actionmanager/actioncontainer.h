@@ -36,6 +36,8 @@ class QMenuBar;
 class QAction;
 QT_END_NAMESPACE
 
+namespace Utils { class TouchBar; }
+
 namespace Core {
 
 class Command;
@@ -58,6 +60,7 @@ public:
 
     virtual QMenu *menu() const = 0;
     virtual QMenuBar *menuBar() const = 0;
+    virtual Utils::TouchBar *touchBar() const = 0;
 
     virtual QAction *insertLocation(Id group) const = 0;
     virtual void appendGroup(Id group) = 0;

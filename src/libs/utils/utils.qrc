@@ -209,6 +209,10 @@
         <file>images/lightbulbcap@2x.png</file>
         <file>images/toolbuttonexpandarrow.png</file>
         <file>images/toolbuttonexpandarrow@2x.png</file>
+        <file>images/macos_touchbar_bookmark.png</file>
+        <file>images/macos_touchbar_bookmark@2x.png</file>
+        <file>images/macos_touchbar_clear.png</file>
+        <file>images/macos_touchbar_clear@2x.png</file>
     </qresource>
     <qresource prefix="/codemodel">
         <file>images/enum.png</file>

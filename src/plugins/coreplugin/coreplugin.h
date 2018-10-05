@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <qglobal.h>
 #include "reaper_p.h"
 
 #include <extensionsystem/iplugin.h>

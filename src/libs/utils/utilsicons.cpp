@@ -255,6 +255,10 @@ const Icon CODEMODEL_FIXIT({
         {":/utils/images/lightbulbcap.png", Theme::PanelTextColorMid},
         {":/utils/images/lightbulb.png", Theme::IconsWarningColor}}, Icon::Tint);
 
+const Icon MACOS_TOUCHBAR_BOOKMARK(
+        ":/utils/images/macos_touchbar_bookmark.png");
+const Icon MACOS_TOUCHBAR_CLEAR(
+        ":/utils/images/macos_touchbar_clear.png");
 } // namespace Icons
 
 QIcon CodeModelIcon::iconForType(CodeModelIcon::Type type)

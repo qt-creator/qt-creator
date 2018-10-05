@@ -49,5 +49,19 @@
         <file>images/recordoutline@2x.png</file>
         <file>images/tracepointoverlay.png</file>
         <file>images/tracepointoverlay@2x.png</file>
+        <file>images/macos_touchbar_debug.png</file>
+        <file>images/macos_touchbar_debug@2x.png</file>
+        <file>images/macos_touchbar_debug_continue.png</file>
+        <file>images/macos_touchbar_debug_continue@2x.png</file>
+        <file>images/macos_touchbar_debug_interrupt.png</file>
+        <file>images/macos_touchbar_debug_interrupt@2x.png</file>
+        <file>images/macos_touchbar_debug_exit.png</file>
+        <file>images/macos_touchbar_debug_exit@2x.png</file>
+        <file>images/macos_touchbar_debug_step_into.png</file>
+        <file>images/macos_touchbar_debug_step_into@2x.png</file>
+        <file>images/macos_touchbar_debug_step_out.png</file>
+        <file>images/macos_touchbar_debug_step_out@2x.png</file>
+        <file>images/macos_touchbar_debug_step_over.png</file>
+        <file>images/macos_touchbar_debug_step_over@2x.png</file>
     </qresource>
 </RCC>

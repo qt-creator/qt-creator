@@ -414,6 +414,44 @@ bool Action::hasAttribute(Command::CommandAttribute attr) const
     return (m_attributes & attr);
 }
 
+void Action::setTouchBarText(const QString &text)
+{
+    m_touchBarText = text;
+}
+
+QString Action::touchBarText() const
+{
+    return m_touchBarText;
+}
+
+void Action::setTouchBarIcon(const QIcon &icon)
+{
+    m_touchBarIcon = icon;
+}
+
+QIcon Action::touchBarIcon() const
+{
+    return m_touchBarIcon;
+}
+
+QAction *Action::touchBarAction() const
+{
+    if (!m_touchBarAction) {
+        m_touchBarAction = std::make_unique<Utils::ProxyAction>();
+        m_touchBarAction->initialize(m_action);
+        m_touchBarAction->setIcon(m_touchBarIcon);
+        m_touchBarAction->setText(m_touchBarText);
+        // the touch bar action should be hidden if the command is not valid for the context
+        m_touchBarAction->setAttribute(Utils::ProxyAction::Hide);
+        m_touchBarAction->setAction(m_action->action());
+        connect(m_action,
+                &Utils::ProxyAction::currentActionChanged,
+                m_touchBarAction.get(),
+                &Utils::ProxyAction::setAction);
+    }
+    return m_touchBarAction.get();
+}
+
 } // namespace Internal
 
 void Command::augmentActionWithShortcutToolTip(QAction *a) const

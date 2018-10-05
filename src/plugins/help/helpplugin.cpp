@@ -32,6 +32,7 @@
 #include "generalsettingspage.h"
 #include "helpconstants.h"
 #include "helpfindsupport.h"
+#include "helpicons.h"
 #include "helpindexfilter.h"
 #include "helpmanager.h"
 #include "helpmode.h"
@@ -262,7 +263,10 @@ HelpPluginPrivate::HelpPluginPrivate()
     action = new QAction(HelpPlugin::tr("Context Help"), this);
     cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP,
                                         Context(kToolTipHelpContext, Core::Constants::C_GLOBAL));
+    cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_HELP.icon());
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    ActionManager::actionContainer(Core::Constants::TOUCH_BAR)
+        ->addAction(cmd, Core::Constants::G_TOUCHBAR_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
     connect(action, &QAction::triggered, this, &HelpPluginPrivate::requestContextHelp);
     ActionContainer *textEditorContextMenu = ActionManager::actionContainer(

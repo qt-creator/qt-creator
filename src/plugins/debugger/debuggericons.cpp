@@ -139,5 +139,19 @@ const Icon MODE_DEBUGGER_FLAT({
 const Icon MODE_DEBUGGER_FLAT_ACTIVE({
         {":/debugger/images/mode_debug_mask.png", Theme::IconsModeDebugActiveColor}});
 
+const Icon MACOS_TOUCHBAR_DEBUG(
+        ":/debugger/images/macos_touchbar_debug.png");
+const Icon MACOS_TOUCHBAR_DEBUG_EXIT(
+        ":/debugger/images/macos_touchbar_debug_exit.png");
+const Icon MACOS_TOUCHBAR_DEBUG_INTERRUPT(
+        ":/debugger/images/macos_touchbar_debug_interrupt.png");
+const Icon MACOS_TOUCHBAR_DEBUG_CONTINUE(
+        ":/debugger/images/macos_touchbar_debug_continue.png");
+const Icon MACOS_TOUCHBAR_DEBUG_STEP_OVER(
+        ":/debugger/images/macos_touchbar_debug_step_over.png");
+const Icon MACOS_TOUCHBAR_DEBUG_STEP_INTO(
+        ":/debugger/images/macos_touchbar_debug_step_into.png");
+const Icon MACOS_TOUCHBAR_DEBUG_STEP_OUT(
+        ":/debugger/images/macos_touchbar_debug_step_out.png");
 } // namespace Icons
 } // namespace Debugger

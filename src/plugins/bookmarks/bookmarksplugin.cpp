@@ -98,6 +98,7 @@ BookmarksPluginRunData::BookmarksPluginRunData()
     , m_bookmarkViewFactory(&m_bookmarkManager)
 {
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
     ActionContainer *mbm = ActionManager::createMenu(Id(BOOKMARKS_MENU));
     mbm->menu()->setTitle(BookmarksPlugin::tr("&Bookmarks"));
     mtools->addMenu(mbm);
@@ -109,7 +110,9 @@ BookmarksPluginRunData::BookmarksPluginRunData()
                                                  editorManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? BookmarksPlugin::tr("Meta+M")
                                                             : BookmarksPlugin::tr("Ctrl+M")));
+    cmd->setTouchBarIcon(Utils::Icons::MACOS_TOUCHBAR_BOOKMARK.icon());
     mbm->addAction(cmd);
+    touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_EDITOR);
 
     mbm->addSeparator();
 
