@@ -48,7 +48,7 @@ public:
     ~AndroidRunnerWorker() override;
     bool adbShellAmNeedsQuotes();
     bool runAdb(const QStringList &args, int timeoutS = 10, const QByteArray &writeData = {});
-    bool uploadFile(const QString &from, const QString &to, const QString &flags = "+x");
+    bool uploadFile(const QString &from, const QString &to, const QString &flags = QString("+x"));
     void adbKill(qint64 pid);
     QStringList selector() const;
     void forceStop();
