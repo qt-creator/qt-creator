@@ -1599,6 +1599,12 @@ void GitPlugin::testGitRemote_data()
                .host("code.qt.io")
                .port(80)
                .path("/qt-creator/qt-creator.git");
+    QTest::newRow("invalid-port")
+            << RemoteTest("https://code.qt.io:99999/qt-creator/qt-creator.git")
+               .protocol("https")
+               .host("code.qt.io")
+               .path("/qt-creator/qt-creator.git")
+               .isValid(false);
     QTest::newRow("ssh-user-foo")
             << RemoteTest("ssh://foo@codereview.qt-project.org:29418/qt-creator/qt-creator.git")
                .protocol("ssh")

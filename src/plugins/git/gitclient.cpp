@@ -3403,12 +3403,13 @@ GitRemote::GitRemote(const QString &url)
     if (!match.hasMatch())
         return;
 
+    bool ok  = false;
     protocol = match.captured("protocol");
     userName = match.captured("user");
     host     = match.captured("host");
-    port     = match.captured("port").toUShort();
+    port     = match.captured("port").toUShort(&ok);
     path     = match.captured("path");
-    isValid  = true;
+    isValid  = ok || match.captured("port").isEmpty();
 }
 
 } // namespace Internal
