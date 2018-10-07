@@ -68,7 +68,7 @@ public:
 };
 
 SourceAgentPrivate::SourceAgentPrivate()
-  : producer(QLatin1String("remote"))
+  : producer("remote")
 {
 }
 
@@ -103,7 +103,7 @@ void SourceAgent::setContent(const QString &filePath, const QString &content)
     d->path = filePath;
 
     if (!d->editor) {
-        QString titlePattern = d->producer + QLatin1String(": ")
+        QString titlePattern = d->producer + ": "
             + Utils::FileName::fromString(filePath).fileName();
         d->editor = qobject_cast<BaseTextEditor *>(
             EditorManager::openEditorWithContents(

@@ -296,29 +296,29 @@ int DebuggerRunConfigurationAspect::portsUsedByDebugger() const
 
 void DebuggerRunConfigurationAspect::toMap(QVariantMap &map) const
 {
-    map.insert(QLatin1String(USE_CPP_DEBUGGER_KEY), d.useCppDebugger == EnabledLanguage);
-    map.insert(QLatin1String(USE_CPP_DEBUGGER_AUTO_KEY), d.useCppDebugger == AutoEnabledLanguage);
-    map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), d.useQmlDebugger == EnabledLanguage);
-    map.insert(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), d.useQmlDebugger == AutoEnabledLanguage);
-    map.insert(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), d.qmlDebugServerPort);
-    map.insert(QLatin1String(USE_MULTIPROCESS_KEY), d.useMultiProcess);
+    map.insert(USE_CPP_DEBUGGER_KEY, d.useCppDebugger == EnabledLanguage);
+    map.insert(USE_CPP_DEBUGGER_AUTO_KEY, d.useCppDebugger == AutoEnabledLanguage);
+    map.insert(USE_QML_DEBUGGER_KEY, d.useQmlDebugger == EnabledLanguage);
+    map.insert(USE_QML_DEBUGGER_AUTO_KEY, d.useQmlDebugger == AutoEnabledLanguage);
+    map.insert(QML_DEBUG_SERVER_PORT_KEY, d.qmlDebugServerPort);
+    map.insert(USE_MULTIPROCESS_KEY, d.useMultiProcess);
 }
 
 void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
 {
-    if (map.value(QLatin1String(USE_CPP_DEBUGGER_AUTO_KEY), false).toBool()) {
+    if (map.value(USE_CPP_DEBUGGER_AUTO_KEY, false).toBool()) {
         d.useCppDebugger = AutoEnabledLanguage;
     } else {
-        bool useCpp = map.value(QLatin1String(USE_CPP_DEBUGGER_KEY), false).toBool();
+        bool useCpp = map.value(USE_CPP_DEBUGGER_KEY, false).toBool();
         d.useCppDebugger = useCpp ? EnabledLanguage : DisabledLanguage;
     }
-    if (map.value(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), false).toBool()) {
+    if (map.value(USE_QML_DEBUGGER_AUTO_KEY, false).toBool()) {
         d.useQmlDebugger = AutoEnabledLanguage;
     } else {
-        bool useQml = map.value(QLatin1String(USE_QML_DEBUGGER_KEY), false).toBool();
+        bool useQml = map.value(USE_QML_DEBUGGER_KEY, false).toBool();
         d.useQmlDebugger = useQml ? EnabledLanguage : DisabledLanguage;
     }
-    d.useMultiProcess = map.value(QLatin1String(USE_MULTIPROCESS_KEY), false).toBool();
+    d.useMultiProcess = map.value(USE_MULTIPROCESS_KEY, false).toBool();
 }
 
 } // namespace Debugger

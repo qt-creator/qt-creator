@@ -54,7 +54,7 @@
 
 #define PARSE_RULE_AND_ADD_RESULT_AS_CHILD(nodeType) \
     PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_THIS(nodeType, parseState())
-#define CHILD_AT(obj, index) obj->childAt(index, QLatin1String(Q_FUNC_INFO), QLatin1String(__FILE__), __LINE__)
+#define CHILD_AT(obj, index) obj->childAt(index, Q_FUNC_INFO, __FILE__, __LINE__)
 #define MY_CHILD_AT(index) CHILD_AT(this, index)
 #define CHILD_TO_BYTEARRAY(index) MY_CHILD_AT(index)->toByteArray()
 
@@ -514,12 +514,12 @@ void CvQualifiersNode::parse()
     while (true) {
         if (PEEK() == 'V') {
             if (hasQualifiers())
-                throw ParseException(QLatin1String("Invalid qualifiers: unexpected 'volatile'"));
+                throw ParseException("Invalid qualifiers: unexpected 'volatile'");
             m_hasVolatile = true;
             ADVANCE();
         } else if (PEEK() == 'K') {
             if (m_hasConst)
-                throw ParseException(QLatin1String("Invalid qualifiers: 'const' appears twice"));
+                throw ParseException("Invalid qualifiers: 'const' appears twice");
             m_hasConst = true;
             ADVANCE();
         } else {
@@ -684,7 +684,7 @@ void ExpressionNode::parse()
         while (ExpressionNode::mangledRepresentationStartsWith(PEEK()))
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
         if (ADVANCE() != '_')
-            throw ParseException(QLatin1String("Invalid expression"));
+            throw ParseException("Invalid expression");
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
         if (PEEK() == 'E')
             ADVANCE();
@@ -1269,7 +1269,7 @@ void ExprPrimaryNode::parse()
                 ? BuiltinTypeNode::Ptr()
                 : CHILD_AT(topLevelTypeNode, 0).dynamicCast<BuiltinTypeNode>();
         if (!typeNode)
-            throw ParseException(QLatin1String("Invalid type in expr-primary"));
+            throw ParseException("Invalid type in expr-primary");
 
         switch (typeNode->type()) {
         case BuiltinTypeNode::UnsignedShortType:
@@ -2046,7 +2046,7 @@ void NumberNode::parse()
 {
     const char next = PEEK();
     if (!mangledRepresentationStartsWith(next))
-        throw ParseException(QLatin1String("Invalid number"));
+        throw ParseException("Invalid number");
 
     if (next == 'n') {
         m_isNegative = true;
@@ -2756,15 +2756,15 @@ QByteArray LambdaSigNode::toByteArray() const
 void ClosureTypeNameNode::parse()
 {
     if (parseState()->readAhead(2) != "Ul")
-        throw ParseException(QLatin1String("Invalid closure-type-name"));
+        throw ParseException("Invalid closure-type-name");
     parseState()->advance(2);
     PARSE_RULE_AND_ADD_RESULT_AS_CHILD(LambdaSigNode);
     if (ADVANCE() != 'E')
-        throw ParseException(QLatin1String("invalid closure-type-name"));
+        throw ParseException("invalid closure-type-name");
     if (NonNegativeNumberNode<10>::mangledRepresentationStartsWith(PEEK()))
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
     if (ADVANCE() != '_')
-        throw ParseException(QLatin1String("Invalid closure-type-name"));
+        throw ParseException("Invalid closure-type-name");
 }
 
 QByteArray ClosureTypeNameNode::toByteArray() const
@@ -2798,7 +2798,7 @@ void UnnamedTypeNameNode::parse()
         if (NonNegativeNumberNode<10>::mangledRepresentationStartsWith(PEEK()))
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
         if (ADVANCE() != '_')
-            throw ParseException(QLatin1String("Invalid unnamed-type-node"));
+            throw ParseException("Invalid unnamed-type-node");
     } else {
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ClosureTypeNameNode);
     }
@@ -2834,7 +2834,7 @@ void DeclTypeNode::parse()
 {
     const QByteArray start = parseState()->readAhead(2);
     if (start != "DT" && start != "Dt")
-        throw ParseException(QLatin1String("Invalid decltype"));
+        throw ParseException("Invalid decltype");
     parseState()->advance(2);
     PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
     if (ADVANCE() != 'E')
@@ -2870,7 +2870,7 @@ void UnresolvedTypeRule::parse(GlobalParseState *parseState)
     else if (SubstitutionNode::mangledRepresentationStartsWith(next))
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(SubstitutionNode, parseState, parentNode);
     else
-        throw ParseException(QLatin1String("Invalid unresolved-type"));
+        throw ParseException("Invalid unresolved-type");
 }
 
 
@@ -2911,7 +2911,7 @@ void DestructorNameNode::parse()
     else if (SimpleIdNode::mangledRepresentationStartsWith(next))
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SimpleIdNode);
     else
-        throw ParseException(QLatin1String("Invalid destructor-name"));
+        throw ParseException("Invalid destructor-name");
 }
 
 QByteArray DestructorNameNode::toByteArray() const
@@ -2965,7 +2965,7 @@ void BaseUnresolvedNameNode::parse()
         parseState()->advance(2);
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(DestructorNameNode);
     } else {
-        throw ParseException(QLatin1String("Invalid <base-unresolved-name>"));
+        throw ParseException("Invalid <base-unresolved-name>");
     }
 }
 
@@ -2992,12 +2992,12 @@ bool InitializerNode::mangledRepresentationStartsWith(char c)
 void InitializerNode::parse()
 {
     if (parseState()->readAhead(2) != "pi")
-        throw ParseException(QLatin1String("Invalid initializer"));
+        throw ParseException("Invalid initializer");
     parseState()->advance(2);
     while (ExpressionNode::mangledRepresentationStartsWith(PEEK()))
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
     if (ADVANCE() != 'E')
-        throw ParseException(QLatin1String("Invalid initializer"));
+        throw ParseException("Invalid initializer");
 }
 
 QByteArray InitializerNode::toByteArray() const
@@ -3044,20 +3044,20 @@ void UnresolvedNameNode::parse()
                 UnresolvedQualifierLevelRule::parse(parseState());
             while (UnresolvedQualifierLevelRule::mangledRepresentationStartsWith(PEEK()));
             if (ADVANCE() != 'E')
-                throw ParseException(QLatin1String("Invalid unresolved-name"));
+                throw ParseException("Invalid unresolved-name");
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(BaseUnresolvedNameNode);
         } else if (UnresolvedTypeRule::mangledRepresentationStartsWith(PEEK())) {
             if (m_globalNamespace)
-                throw ParseException(QLatin1String("Invalid unresolved-name"));
+                throw ParseException("Invalid unresolved-name");
             UnresolvedTypeRule::parse(parseState());
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(BaseUnresolvedNameNode);
         } else {
             if (!UnresolvedQualifierLevelRule::mangledRepresentationStartsWith(PEEK()))
-                throw ParseException(QLatin1String("Invalid unresolved-name"));
+                throw ParseException("Invalid unresolved-name");
             while (UnresolvedQualifierLevelRule::mangledRepresentationStartsWith(PEEK()))
                 UnresolvedQualifierLevelRule::parse(parseState());
             if (ADVANCE() != 'E')
-                throw ParseException(QLatin1String("Invalid unresolved-name"));
+                throw ParseException("Invalid unresolved-name");
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(BaseUnresolvedNameNode);
         }
     } else {
@@ -3103,19 +3103,19 @@ void FunctionParamNode::parse()
         if (NonNegativeNumberNode<10>::mangledRepresentationStartsWith(PEEK()))
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
         if (ADVANCE() != '_')
-            throw ParseException(QLatin1String("Invalid function-param"));
+            throw ParseException("Invalid function-param");
     } else if (parseState()->readAhead(2) == "fL") {
         parseState()->advance(2);
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
         if (ADVANCE() != 'p')
-            throw ParseException(QLatin1String("Invalid function-param"));
+            throw ParseException("Invalid function-param");
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(CvQualifiersNode);
         if (NonNegativeNumberNode<10>::mangledRepresentationStartsWith(PEEK()))
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
         if (ADVANCE() != '_')
-            throw ParseException(QLatin1String("Invalid function-param"));
+            throw ParseException("Invalid function-param");
     } else {
-        throw ParseException(QLatin1String("Invalid function-param"));
+        throw ParseException("Invalid function-param");
     }
 }
 

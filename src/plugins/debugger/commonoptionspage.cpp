@@ -80,7 +80,7 @@ void CommonOptionsPage::apply()
     SourcePathMap allPathMap = m_sourceMappingWidget->sourcePathMap();
     for (auto it = allPathMap.begin(), end = allPathMap.end(); it != end; ++it) {
         const QString key = it.key();
-        if (key.startsWith(QLatin1Char('(')))
+        if (key.startsWith('('))
             newOptions.sourcePathRegExpMap.append(qMakePair(QRegExp(key), it.value()));
         else
             newOptions.sourcePathMap.insert(key, it.value());
@@ -118,7 +118,7 @@ QWidget *CommonOptionsPage::widget()
         checkBoxUseToolTipsInMainEditor->setText(tr("Use tooltips in main editor while debugging"));
 
         QString t = tr("Stopping and stepping in the debugger "
-                       "will automatically open views associated with the current location.") + QLatin1Char('\n');
+                       "will automatically open views associated with the current location.") + '\n';
         auto checkBoxCloseSourceBuffersOnExit = new QCheckBox(behaviorBox);
         checkBoxCloseSourceBuffersOnExit->setText(tr("Close temporary source views on debugger exit"));
         checkBoxCloseSourceBuffersOnExit->setToolTip(t + tr("Closes automatically opened source views when the debugger exits."));
@@ -263,13 +263,13 @@ QString CommonOptionsPage::msgSetBreakpointAtFunction(const char *function)
 QString CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(const char *function,
                                                              const QString &hint)
 {
-    QString result = QLatin1String("<html><head/><body>");
+    QString result = "<html><head/><body>";
     result += tr("Always adds a breakpoint on the <i>%1()</i> function.").arg(QLatin1String(function));
     if (!hint.isEmpty()) {
-        result += QLatin1String("<br>");
+        result += "<br>";
         result += hint;
     }
-    result += QLatin1String("</body></html>");
+    result += "</body></html>";
     return result;
 }
 
@@ -311,11 +311,11 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         auto label = new QLabel(debuggingHelperGroupBox);
         label->setTextFormat(Qt::AutoText);
         label->setWordWrap(true);
-        label->setText(QLatin1String("<html><head/><body>\n<p>")
+        label->setText("<html><head/><body>\n<p>"
            + tr("The debugging helpers are used to produce a nice "
                 "display of objects of certain types like QString or "
                 "std::map in the &quot;Locals and Expressions&quot; view.")
-            + QLatin1String("</p></body></html>"));
+            + "</p></body></html>");
 
         auto groupBoxCustomDumperCommands = new QGroupBox(debuggingHelperGroupBox);
         groupBoxCustomDumperCommands->setTitle(tr("Debugging Helper Customization"));

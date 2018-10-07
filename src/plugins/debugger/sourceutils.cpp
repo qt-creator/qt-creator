@@ -263,7 +263,7 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
     if (expr.isEmpty()) {
         tc.setPosition(pos);
         const QChar ch = editorWidget->characterAt(pos);
-        if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
+        if (ch.isLetterOrNumber() || ch == '_')
             tc.movePosition(QTextCursor::EndOfWord);
 
         // Fetch the expression's code.
@@ -324,7 +324,7 @@ ContextData getLocationContext(TextDocument *document, int lineNumber)
             QString fileName = document->property(Constants::DISASSEMBLER_SOURCE_FILE).toString();
             if (!fileName.isEmpty()) {
                 // Possibly one of the  "27 [1] foo = x" lines
-                int pos = line.indexOf(QLatin1Char('['));
+                int pos = line.indexOf('[');
                 int ln = line.leftRef(pos - 1).toInt();
                 if (ln > 0) {
                     data.type = LocationByFile;

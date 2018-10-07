@@ -439,14 +439,14 @@ QString DebuggerResponse::toString() const
 void extractGdbVersion(const QString &msg,
     int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb, bool *isQnxGdb)
 {
-    const QChar dot(QLatin1Char('.'));
+    const QChar dot('.');
 
-    const bool ignoreParenthesisContent = msg.contains(QLatin1String("rubenvb"))
-                                       || msg.contains(QLatin1String("openSUSE"))
-                                       || msg.contains(QLatin1String("SUSE Linux Enterprise"));
+    const bool ignoreParenthesisContent = msg.contains("rubenvb")
+                                       || msg.contains("openSUSE")
+                                       || msg.contains("SUSE Linux Enterprise");
 
-    const QChar parOpen(QLatin1Char('('));
-    const QChar parClose(QLatin1Char(')'));
+    const QChar parOpen('(');
+    const QChar parClose(')');
 
     QString cleaned;
     QString build;
@@ -476,8 +476,8 @@ void extractGdbVersion(const QString &msg,
         }
     }
 
-    *isMacGdb = msg.contains(QLatin1String("Apple version"));
-    *isQnxGdb = msg.contains(QLatin1String("qnx"));
+    *isMacGdb = msg.contains("Apple version");
+    *isQnxGdb = msg.contains("qnx");
 
     *gdbVersion = 10000 * cleaned.section(dot, 0, 0).toInt()
                   + 100 * cleaned.section(dot, 1, 1).toInt()
@@ -504,7 +504,7 @@ static QString quoteUnprintableLatin1(const QString &ba)
     for (int i = 0, n = ba.size(); i != n; ++i) {
         const unsigned char c = ba.at(i).unicode();
         if (isprint(c)) {
-            res += QLatin1Char(c);
+            res += c;
         } else {
             qsnprintf(buf, sizeof(buf) - 1, "\\%x", int(c));
             res += QLatin1String(buf);
@@ -638,18 +638,18 @@ QString decodeData(const QString &ba, const QString &encoding)
         }
         case DebuggerEncoding::JulianDate: {
             const QDate date = dateFromData(ba.toInt());
-            return date.isValid() ? date.toString(Qt::TextDate) : QLatin1String("(invalid)");
+            return date.isValid() ? date.toString(Qt::TextDate) : "(invalid)";
         }
         case DebuggerEncoding::MillisecondsSinceMidnight: {
             const QTime time = timeFromData(ba.toInt());
-            return time.isValid() ? time.toString(Qt::TextDate) : QLatin1String("(invalid)");
+            return time.isValid() ? time.toString(Qt::TextDate) : "(invalid)";
         }
         case DebuggerEncoding::JulianDateAndMillisecondsSinceMidnight: {
             const int p = ba.indexOf('/');
             const QDate date = dateFromData(ba.left(p).toInt());
             const QTime time = timeFromData(ba.mid(p + 1 ).toInt());
             const QDateTime dateTime = QDateTime(date, time);
-            return dateTime.isValid() ? dateTime.toString(Qt::TextDate) : QLatin1String("(invalid)");
+            return dateTime.isValid() ? dateTime.toString(Qt::TextDate) : "(invalid)";
         }
         case DebuggerEncoding::HexEncodedUnsignedInteger:
         case DebuggerEncoding::HexEncodedSignedInteger:
@@ -719,7 +719,7 @@ QString decodeData(const QString &ba, const QString &encoding)
     }
 
     if (enc.quotes) {
-        const QChar doubleQuote(QLatin1Char('"'));
+        const QChar doubleQuote('"');
         result = doubleQuote + result + doubleQuote;
     }
     return result;
@@ -763,7 +763,7 @@ void DebuggerCommand::arg(const char *name, const QString &value)
 
 void DebuggerCommand::arg(const char *name, const char *value)
 {
-    args = addToJsonObject(args, name, QLatin1String(value));
+    args = addToJsonObject(args, name, value);
 }
 
 void DebuggerCommand::arg(const char *name, const QList<int> &list)
@@ -786,7 +786,7 @@ void DebuggerCommand::arg(const char *value)
 {
     QTC_ASSERT(args.isArray() || args.isNull(), return);
     QJsonArray arr = args.toArray();
-    arr.append(QLatin1String(value));
+    arr.append(value);
     args = arr;
 }
 
@@ -846,7 +846,7 @@ QString DebuggerCommand::argsToString() const
 
 DebuggerEncoding::DebuggerEncoding(const QString &data)
 {
-    const QVector<QStringRef> l = data.splitRef(QLatin1Char(':'));
+    const QVector<QStringRef> l = data.splitRef(':');
 
     const QStringRef &t = l.at(0);
     if (t == "latin1") {

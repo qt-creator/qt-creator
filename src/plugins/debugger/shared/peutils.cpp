@@ -288,7 +288,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
 {
     Q_UNUSED(peExecutableFileName)
     rc->clear();
-    *errorMessage = QLatin1String("Not implemented.");
+    *errorMessage = "Not implemented.";
     return false;
 }
 

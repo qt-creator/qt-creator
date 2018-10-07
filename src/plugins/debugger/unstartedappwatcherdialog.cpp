@@ -105,7 +105,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     auto pathLayout = new QHBoxLayout;
     m_pathChooser = new Utils::PathChooser(this);
     m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_pathChooser->setHistoryCompleter(QLatin1String("LocalExecutable"), true);
+    m_pathChooser->setHistoryCompleter("LocalExecutable", true);
     m_pathChooser->setMinimumWidth(400);
 
     auto resetExecutable = new QPushButton(tr("Reset"));

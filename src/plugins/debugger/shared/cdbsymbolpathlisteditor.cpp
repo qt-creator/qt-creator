@@ -55,7 +55,7 @@ CacheDirectoryDialog::CacheDirectoryDialog(QWidget *parent) :
 
     auto formLayout = new QFormLayout;
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_chooser->setHistoryCompleter(QLatin1String("Debugger.CdbCacheDir.History"));
+    m_chooser->setHistoryCompleter("Debugger.CdbCacheDir.History");
     m_chooser->setMinimumWidth(400);
     formLayout->addRow(tr("Path:"), m_chooser);
 
@@ -189,10 +189,10 @@ QString CdbSymbolPathListEditor::symbolPath(const QString &cacheDir,
                                             CdbSymbolPathListEditor::SymbolPathMode mode)
 {
     if (mode == SymbolCachePath)
-        return QLatin1String(symbolCachePrefixC) + QDir::toNativeSeparators(cacheDir);
+        return symbolCachePrefixC + QDir::toNativeSeparators(cacheDir);
     QString s = QLatin1String(symbolServerPrefixC);
     if (!cacheDir.isEmpty())
-        s += QDir::toNativeSeparators(cacheDir) + QLatin1Char('*');
+        s += QDir::toNativeSeparators(cacheDir) + '*';
     s += QLatin1String(symbolServerPostfixC);
     return s;
 }

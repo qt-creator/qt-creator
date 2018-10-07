@@ -51,7 +51,7 @@ namespace Debugger {
 
 DebuggerKitInformation::DebuggerKitInformation()
 {
-    setObjectName(QLatin1String("DebuggerKitInformation"));
+    setObjectName("DebuggerKitInformation");
     setId(DebuggerKitInformation::id());
     setPriority(28000);
 }
@@ -130,11 +130,11 @@ void DebuggerKitInformation::setup(Kit *k)
         } else {
             // Old structure.
             const QMap<QString, QVariant> map = rawId.toMap();
-            QString binary = map.value(QLatin1String("Binary")).toString();
-            if (binary == QLatin1String("auto")) {
+            QString binary = map.value("Binary").toString();
+            if (binary == "auto") {
                 // This is close to the "new kit" case, except that we know
                 // an engine type.
-                DebuggerEngineType autoEngine = DebuggerEngineType(map.value(QLatin1String("EngineType")).toInt());
+                DebuggerEngineType autoEngine = DebuggerEngineType(map.value("EngineType").toInt());
                 if (item.engineType() == autoEngine) {
                     // Use item if host toolchain fits, but only as fallback.
                     level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
@@ -185,8 +185,8 @@ void DebuggerKitInformation::fix(Kit *k)
     }
 
     QMap<QString, QVariant> map = rawId.toMap();
-    QString binary = map.value(QLatin1String("Binary")).toString();
-    if (binary == QLatin1String("auto")) {
+    QString binary = map.value("Binary").toString();
+    if (binary == "auto") {
         // This should not happen as "auto" is handled by setup() already.
         QTC_CHECK(false);
         k->setValue(DebuggerKitInformation::id(), QVariant());
@@ -334,7 +334,7 @@ void DebuggerKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expande
                                [kit]() -> QString {
                                    const DebuggerItem *item = debugger(kit);
                                    return item && !item->abis().isEmpty()
-                                           ? item->abiNames().join(QLatin1Char(' '))
+                                           ? item->abiNames().join(' ')
                                            : tr("Unknown debugger ABI");
                                });
 }

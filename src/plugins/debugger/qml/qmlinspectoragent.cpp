@@ -128,8 +128,8 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
             this, &QmlInspectorAgent::toolsClientStateChanged);
 
     // toolbar
-    m_selectAction->setObjectName(QLatin1String("QML Select Action"));
-    m_zoomAction->setObjectName(QLatin1String("QML Zoom Action"));
+    m_selectAction->setObjectName("QML Select Action");
+    m_zoomAction->setObjectName("QML Zoom Action");
     m_selectAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
     m_showAppOnTopAction->setCheckable(true);
@@ -223,7 +223,7 @@ bool QmlInspectorAgent::selectObjectInTree(int debugId)
         // we may have to fetch it
         m_objectToSelect = debugId;
         using namespace QmlDebug::Constants;
-        if (m_engineClient->objectName() == QLatin1String(QDECLARATIVE_ENGINE)) {
+        if (m_engineClient->objectName() == QDECLARATIVE_ENGINE) {
             // reset current Selection
             QString root = m_qmlEngine->watchHandler()->watchItem(QModelIndex())->iname;
             m_qmlEngine->watchHandler()->setCurrentItem(root);
@@ -322,9 +322,9 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
                || type == "RESET_BINDING_R"
                || type == "SET_METHOD_BODY_R") {
         // FIXME: This is not supported anymore.
-        QString msg = QLatin1String(type) + tr("Success:");
-        msg += QLatin1Char(' ');
-        msg += value.toBool() ? QLatin1Char('1') : QLatin1Char('0');
+        QString msg = type + tr("Success:");
+        msg += ' ';
+        msg += value.toBool() ? '1' : '0';
         // if (!value.toBool())
         //     emit automaticUpdateFailed();
         log(LogReceive, msg);
@@ -366,7 +366,7 @@ void QmlInspectorAgent::newObject(int engineId, int /*objectId*/, int /*parentId
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << "()";
 
-    log(LogReceive, QLatin1String("OBJECT_CREATED"));
+    log(LogReceive, "OBJECT_CREATED");
 
     if (m_engine.debugId() != engineId)
         return;
@@ -456,7 +456,7 @@ void QmlInspectorAgent::queryEngineContext()
     if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return;
 
-    log(LogSend, QLatin1String("LIST_OBJECTS"));
+    log(LogSend, "LIST_OBJECTS");
 
     m_rootContextQueryId
             = m_engineClient->queryRootContexts(m_engine);
@@ -469,7 +469,7 @@ void QmlInspectorAgent::fetchObject(int debugId)
     if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return;
 
-    log(LogSend, QLatin1String("FETCH_OBJECT ") + QString::number(debugId));
+    log(LogSend, "FETCH_OBJECT " + QString::number(debugId));
     quint32 queryId = m_engineClient->queryObject(debugId);
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << debugId << ')'
                              << " - query id" << queryId;
@@ -590,7 +590,7 @@ void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)
 
     // handle the case where the url contains the revision number encoded.
     //(for object created by the debugger)
-    static QRegExp rx(QLatin1String("(.*)_(\\d+):(\\d+)$"));
+    static QRegExp rx("(.*)_(\\d+):(\\d+)$");
     if (rx.exactMatch(fileUrl.path())) {
         fileUrl.setPath(rx.cap(1));
         rev = rx.cap(2).toInt();

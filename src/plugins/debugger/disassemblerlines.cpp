@@ -52,12 +52,12 @@ void DisassemblerLine::fromString(const QString &unparsed)
 
     QString addr = unparsed.left(pos);
     // MSVC 64bit: Remove 64bit separator 00000000`00a45000'.
-    if (addr.size() >= 9 && addr.at(8) == QLatin1Char('`'))
+    if (addr.size() >= 9 && addr.at(8) == '`')
         addr.remove(8, 1);
 
-    if (addr.endsWith(QLatin1Char(':'))) // clang
+    if (addr.endsWith(':')) // clang
         addr.chop(1);
-    if (addr.startsWith(QLatin1String("0x")))
+    if (addr.startsWith("0x"))
         addr.remove(0, 2);
     bool ok = false;
     address = addr.toULongLong(&ok, 16);
@@ -121,7 +121,7 @@ void DisassemblerLines::appendSourceLine(const QString &fileName, uint lineNumbe
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly)) {
             QTextStream ts(&file);
-            cache->lines = ts.readAll().split(QLatin1Char('\n'));
+            cache->lines = ts.readAll().split('\n');
         }
     }
     if (lineNumber >= uint(cache->lines.size()))
@@ -144,42 +144,42 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
     QString line = unparsed.trimmed();
     if (line.isEmpty())
         return;
-    if (line.startsWith(QLatin1String("Current language:")))
+    if (line.startsWith("Current language:"))
         return;
-    if (line.startsWith(QLatin1String("Dump of assembler"))) {
+    if (line.startsWith("Dump of assembler")) {
         m_lastFunction.clear();
         return;
     }
-    if (line.startsWith(QLatin1String("The current source")))
+    if (line.startsWith("The current source"))
         return;
-    if (line.startsWith(QLatin1String("End of assembler"))) {
+    if (line.startsWith("End of assembler")) {
         m_lastFunction.clear();
         return;
     }
-    if (line.startsWith(QLatin1String("=> ")))
+    if (line.startsWith("=> "))
         line = line.mid(3);
-    if (line.startsWith(QLatin1String("0x"))) {
+    if (line.startsWith("0x")) {
         // Address line. Split at the tab.
-        int tab1 = line.indexOf(QLatin1Char('\t'));
+        int tab1 = line.indexOf('\t');
         if (tab1 == -1) {
             appendComment(line);
             return;
         }
-        int tab2 = line.indexOf(QLatin1Char('\t'), tab1 + 1);
+        int tab2 = line.indexOf('\t', tab1 + 1);
         if (tab2 == -1)
             tab2 = tab1;
         QString address = line.left(tab1);
-        if (address.endsWith(QLatin1Char(':')))
+        if (address.endsWith(':'))
             address.chop(1);
-        int pos1 = address.indexOf(QLatin1Char('<')) + 1;
+        int pos1 = address.indexOf('<') + 1;
         DisassemblerLine dl;
         dl.bytes = line.mid(tab1, tab2 - tab1).trimmed();
         m_bytesLength = qMax(m_bytesLength, tab2 - tab1);
         dl.data = line.mid(tab2).trimmed();
-        if (pos1 && address.indexOf(QLatin1String("<UNDEFINED> instruction:")) == -1) {
-            if (address.endsWith(QLatin1Char('>')))
+        if (pos1 && address.indexOf("<UNDEFINED> instruction:") == -1) {
+            if (address.endsWith('>'))
                 address.chop(1);
-            int pos2 = address.indexOf(QLatin1Char('+'), pos1);
+            int pos2 = address.indexOf('+', pos1);
             if (pos1 < pos2) {
                 QString function = address.mid(pos1, pos2 - pos1);
                 if (function != m_lastFunction) {
@@ -222,7 +222,7 @@ QString DisassemblerLine::toString(int maxOp) const
         else
             str += "         ";
         str += QString("       %1 ").arg(bytes);
-        str += QString(maxOp - bytes.size(), QLatin1Char(' '));
+        str += QString(maxOp - bytes.size(), ' ');
         str += data;
     } else if (isCode()) {
         str += someSpace;
@@ -244,7 +244,7 @@ QString DisassemblerLines::toString() const
     QString str;
     for (int i = 0, n = size(); i != n; ++i) {
         str += m_data.at(i).toString(m_bytesLength);
-        str += QLatin1Char('\n');
+        str += '\n';
     }
     return str;
 }

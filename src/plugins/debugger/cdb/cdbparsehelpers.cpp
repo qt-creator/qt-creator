@@ -66,7 +66,7 @@ QString cdbSourcePathMapping(QString fileName,
         // Map parts of the path and ensure a slash follows.
         if (fileName.size() > sourceSize && fileName.startsWith(source, Qt::CaseInsensitive)) {
             const QChar next = fileName.at(sourceSize);
-            if (next == QLatin1Char('\\') || next == QLatin1Char('/')) {
+            if (next == '\\' || next == '/') {
                 const QString &target = mode == DebuggerToSource ? m.second: m.first;
                 fileName.replace(0, sourceSize, target);
                 return fileName;
@@ -105,23 +105,23 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
         break;
     case BreakpointAtExec: { // Emulate by breaking on CreateProcessW().
         BreakpointParameters rc(BreakpointByFunction);
-        rc.module = QLatin1String("kernel32");
-        rc.functionName = QLatin1String("CreateProcessW");
+        rc.module = "kernel32";
+        rc.functionName = "CreateProcessW";
         return rc;
     }
     case BreakpointAtThrow: {
         BreakpointParameters rc(BreakpointByFunction);
-        rc.functionName = QLatin1String("CxxThrowException"); // MSVC runtime. Potentially ambiguous.
+        rc.functionName = "CxxThrowException"; // MSVC runtime. Potentially ambiguous.
         return rc;
     }
     case BreakpointAtCatch: {
         BreakpointParameters rc(BreakpointByFunction);
-        rc.functionName = QLatin1String("__CxxCallCatchBlock"); // MSVC runtime. Potentially ambiguous.
+        rc.functionName = "__CxxCallCatchBlock"; // MSVC runtime. Potentially ambiguous.
         return rc;
     }
     case BreakpointAtMain: {
         BreakpointParameters rc(BreakpointByFunction);
-        rc.functionName = QLatin1String("main");
+        rc.functionName = "main";
         return rc;
     }
     } // switch
@@ -413,12 +413,12 @@ bool parseCdbDisassemblerFunctionLine(const QString &l,
                                       QString *currentFunction, quint64 *functionOffset,
                                       QString *sourceFile)
 {
-    if (l.isEmpty() || !l.endsWith(QLatin1Char(':')) || l.at(0).isDigit() || l.at(0).isSpace())
+    if (l.isEmpty() || !l.endsWith(':') || l.at(0).isDigit() || l.at(0).isSpace())
         return false;
-    int functionEnd = l.indexOf(QLatin1Char(' '));
+    int functionEnd = l.indexOf(' ');
     if (functionEnd < 0)
         functionEnd = l.size() - 1; // Nothing at all, just ':'
-    const int offsetPos = l.indexOf(QLatin1String("+0x"));
+    const int offsetPos = l.indexOf("+0x");
     if (offsetPos > 0) {
         *currentFunction = l.left(offsetPos);
         *functionOffset = l.mid(offsetPos + 3, functionEnd - offsetPos - 3).trimmed().toULongLong(nullptr, 16);
@@ -428,10 +428,10 @@ bool parseCdbDisassemblerFunctionLine(const QString &l,
     }
     sourceFile->clear();
     // Parse file and line.
-    const int filePos = l.indexOf(QLatin1Char('['), functionEnd);
+    const int filePos = l.indexOf('[', functionEnd);
     if (filePos == -1)
         return true; // No file
-    const int linePos = l.indexOf(QLatin1String(" @ "), filePos + 1);
+    const int linePos = l.indexOf(" @ ", filePos + 1);
     if (linePos == -1)
         return false;
     *sourceFile = l.mid(filePos + 1, linePos - filePos - 1).trimmed();
@@ -454,7 +454,7 @@ bool parseCdbDisassemblerLine(const QString &line, DisassemblerLine *dLine, uint
     *sourceLine = 0;
     if (line.size() < 6)
         return false;
-    const QChar blank = QLatin1Char(' ');
+    const QChar blank = ' ';
     int addressPos = 0;
     // Check for joined source and address in 6.11
     const bool hasV611SourceLine = line.at(5).isDigit();
@@ -488,7 +488,7 @@ bool parseCdbDisassemblerLine(const QString &line, DisassemblerLine *dLine, uint
     const int instructionPos = rawDataEnd + 1;
     bool ok;
     QString addressS = line.mid(addressPos, addressEnd - addressPos);
-    if (addressS.size() > 9 && addressS.at(8) == QLatin1Char('`'))
+    if (addressS.size() > 9 && addressS.at(8) == '`')
         addressS.remove(8, 1);
     dLine->address = addressS.toULongLong(&ok, 16);
     if (!ok)

@@ -119,7 +119,7 @@ public:
                 painter->setPen(lightColor);
             // FIXME: performance? this changes only on real font changes.
             QFontMetrics fm(option.font);
-            int charWidth = qMax(fm.width(QLatin1Char('x')), fm.width(QLatin1Char('0')));
+            int charWidth = qMax(fm.width('x'), fm.width('0'));
             QString str = index.data(Qt::DisplayRole).toString();
             int x = option.rect.x();
             bool light = !paintRed;
@@ -174,26 +174,26 @@ void Register::guessMissingData()
 
 static QString subTypeName(RegisterKind kind, int size, RegisterFormat format)
 {
-    QString name(QLatin1Char('['));
+    QString name('[');
 
     switch (kind) {
-        case IntegerRegister: name += QLatin1Char('i'); break;
-        case FloatRegister: name += QLatin1Char('f'); break;
+        case IntegerRegister: name += 'i'; break;
+        case FloatRegister: name += 'f'; break;
         default: break;
     }
 
     name += QString::number(size);
 
     switch (format) {
-        case BinaryFormat: name += QLatin1Char('b'); break;
-        case OctalFormat: name += QLatin1Char('o'); break;
-        case DecimalFormat: name += QLatin1Char('u'); break;
-        case SignedDecimalFormat: name += QLatin1Char('s'); break;
-        case HexadecimalFormat: name += QLatin1Char('x'); break;
-        case CharacterFormat: name += QLatin1Char('c'); break;
+        case BinaryFormat: name += 'b'; break;
+        case OctalFormat: name += 'o'; break;
+        case DecimalFormat: name += 'u'; break;
+        case SignedDecimalFormat: name += 's'; break;
+        case HexadecimalFormat: name += 'x'; break;
+        case CharacterFormat: name += 'c'; break;
     }
 
-    name += QLatin1Char(']');
+    name += ']';
 
     return name;
 }
@@ -492,7 +492,7 @@ Qt::ItemFlags RegisterItem::flags(int column) const
 {
     const Qt::ItemFlags notEditable = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     // Can edit registers if they are hex numbers and not arrays.
-    if (column == 1) //  && IntegerWatchLineEdit::isUnsignedHexNumber(QLatin1String(m_reg.display)))
+    if (column == 1) //  && IntegerWatchLineEdit::isUnsignedHexNumber(m_reg.display))
         return notEditable | Qt::ItemIsEditable;
     return notEditable;
 }

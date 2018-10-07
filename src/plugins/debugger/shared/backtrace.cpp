@@ -48,9 +48,9 @@ void dumpBacktrace(int maxdepth)
         qDebug() << "0x" + QByteArray::number(quintptr(bt[i]), 16);
     QProcess proc;
     QStringList args;
-    args.append(QLatin1String("-e"));
+    args.append("-e");
     args.append(QCoreApplication::arguments().at(0));
-    proc.start(QLatin1String("addr2line"), args);
+    proc.start("addr2line", args);
     proc.waitForStarted();
     for (int i = 0; i < qMin(size, maxdepth); i++)
         proc.write("0x" + QByteArray::number(quintptr(bt[i]), 16) + '\n');

@@ -2731,7 +2731,7 @@ void GdbEngine::handleShowModuleSections(const DebuggerResponse &response,
     // ~"    0xb44a6114->0xb44a6138 at 0x00000114: .note.gnu.build-id ALLOC LOAD READONLY DATA HAS_CONTENTS\n"
     if (response.resultClass == ResultDone) {
         const QStringList lines = response.consoleStreamOutput.split('\n');
-        const QString prefix = QLatin1String("  Object file: ");
+        const QString prefix = "  Object file: ";
         const QString needle = prefix + moduleName;
         Sections sections;
         bool active = false;
@@ -3575,7 +3575,7 @@ void GdbEngine::setupEngine()
     }
 
     const QString tests = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_TESTS"));
-    foreach (const QStringRef &test, tests.splitRef(QLatin1Char(',')))
+    foreach (const QStringRef &test, tests.splitRef(','))
         m_testCases.insert(test.toInt());
     foreach (int test, m_testCases)
         showMessage("ENABLING TEST CASE: " + QString::number(test));
@@ -4688,7 +4688,7 @@ static QString findExecutableFromName(const QString &fileNameFromCore, const QSt
         return absPath;
 
     // remove possible trailing arguments
-    QLatin1Char sep(' ');
+    QChar sep(' ');
     QStringList pathFragments = absPath.split(sep);
     while (pathFragments.size() > 0) {
         QString joined_path = pathFragments.join(sep);

@@ -676,7 +676,7 @@ void DebuggerRunTool::start()
                     DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger "
                                        "languages currently active, and will be ignored.\n"
                                        "Affected are breakpoints %1")
-                    .arg(unhandledIds.join(QLatin1String(", ")));
+                    .arg(unhandledIds.join(", "));
 
             showMessage(warningMessage, LogWarning);
 

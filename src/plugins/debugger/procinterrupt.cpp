@@ -143,11 +143,11 @@ GDB 32bit | Api             | Api             | NA              | Win32         
         if (breakApi == UseDebugBreakApi) {
             ok = DebugBreakProcess(inferior);
             if (!ok)
-                *errorMessage = QLatin1String("DebugBreakProcess failed: ") + Utils::winErrorMessage(GetLastError());
+                *errorMessage = "DebugBreakProcess failed: " + Utils::winErrorMessage(GetLastError());
         } else {
             const QString executable = breakApi == UseWin32Interrupt
-                    ? QCoreApplication::applicationDirPath() + QLatin1String("/win32interrupt.exe")
-                    : QCoreApplication::applicationDirPath() + QLatin1String("/win64interrupt.exe");
+                    ? QCoreApplication::applicationDirPath() + "/win32interrupt.exe"
+                    : QCoreApplication::applicationDirPath() + "/win64interrupt.exe";
             if (!QFile::exists(executable)) {
                 *errorMessage = QString::fromLatin1("%1 does not exist. If you have built %2 "
                                                     "on your own, checkout "
@@ -165,7 +165,7 @@ GDB 32bit | Api             | Api             | NA              | Win32         
                 break;
             default:
                 *errorMessage = QDir::toNativeSeparators(executable)
-                                + QLatin1String(" could not break the process.");
+                                + " could not break the process.";
                 break;
             }
             break;

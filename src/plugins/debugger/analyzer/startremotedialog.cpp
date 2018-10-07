@@ -86,12 +86,12 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     verticalLayout->addWidget(d->buttonBox);
 
     QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String("AnalyzerStartRemoteDialog"));
+    settings->beginGroup("AnalyzerStartRemoteDialog");
     d->kitChooser->populate();
-    d->kitChooser->setCurrentKitId(Core::Id::fromSetting(settings->value(QLatin1String("profile"))));
-    d->executable->setText(settings->value(QLatin1String("executable")).toString());
-    d->workingDirectory->setText(settings->value(QLatin1String("workingDirectory")).toString());
-    d->arguments->setText(settings->value(QLatin1String("arguments")).toString());
+    d->kitChooser->setCurrentKitId(Core::Id::fromSetting(settings->value("profile")));
+    d->executable->setText(settings->value("executable").toString());
+    d->workingDirectory->setText(settings->value("workingDirectory").toString());
+    d->arguments->setText(settings->value("arguments").toString());
     settings->endGroup();
 
     connect(d->kitChooser, &KitChooser::activated, this, &StartRemoteDialog::validate);
@@ -112,11 +112,11 @@ StartRemoteDialog::~StartRemoteDialog()
 void StartRemoteDialog::accept()
 {
     QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String("AnalyzerStartRemoteDialog"));
-    settings->setValue(QLatin1String("profile"), d->kitChooser->currentKitId().toString());
-    settings->setValue(QLatin1String("executable"), d->executable->text());
-    settings->setValue(QLatin1String("workingDirectory"), d->workingDirectory->text());
-    settings->setValue(QLatin1String("arguments"), d->arguments->text());
+    settings->beginGroup("AnalyzerStartRemoteDialog");
+    settings->setValue("profile", d->kitChooser->currentKitId().toString());
+    settings->setValue("executable", d->executable->text());
+    settings->setValue("workingDirectory", d->workingDirectory->text());
+    settings->setValue("arguments", d->arguments->text());
     settings->endGroup();
 
     QDialog::accept();

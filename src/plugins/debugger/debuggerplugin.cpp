@@ -465,7 +465,7 @@ class DebugMode : public IMode
 public:
     DebugMode()
     {
-        setObjectName(QLatin1String("DebugMode"));
+        setObjectName("DebugMode");
         setContext(Context(C_DEBUGMODE, CC::C_NAVIGATION_PANE));
         setDisplayName(DebuggerPlugin::tr("Debug"));
         setIcon(Utils::Icon::modeIcon(Icons::MODE_DEBUGGER_CLASSIC,
@@ -504,7 +504,7 @@ public:
         mainWindowSplitter->addWidget(mainWindow);
         mainWindowSplitter->addWidget(new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter));
         auto outputPane = new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter);
-        outputPane->setObjectName(QLatin1String("DebuggerOutputPanePlaceHolder"));
+        outputPane->setObjectName("DebuggerOutputPanePlaceHolder");
         mainWindowSplitter->addWidget(outputPane);
         mainWindowSplitter->setStretchFactor(0, 10);
         mainWindowSplitter->setStretchFactor(1, 0);
@@ -517,7 +517,7 @@ public:
         splitter->addWidget(mainWindowSplitter);
         splitter->setStretchFactor(0, 0);
         splitter->setStretchFactor(1, 1);
-        splitter->setObjectName(QLatin1String("DebugModeWidget"));
+        splitter->setObjectName("DebugModeWidget");
 
         mainWindow->setCentralWidget(centralEditorWidget);
         mainWindow->addSubPerspectiveSwitcher(EngineManager::engineChooser());
@@ -956,7 +956,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
     // -wincrashevent <event-handle>:<pid>. A handle used for
     // a handshake when attaching to a crashed Windows process.
     // This is created by $QTC/src/tools/qtcdebugger/main.cpp:
-    // args << QLatin1String("-wincrashevent")
+    // args << "-wincrashevent"
     //   << QString::fromLatin1("%1:%2").arg(argWinCrashEvent).arg(argProcessId);
     if (*it == "-wincrashevent") {
         ++it;
@@ -2235,7 +2235,7 @@ void showModuleSymbols(const QString &moduleName, const Symbols &symbols)
     w->setRootIsDecorated(false);
     w->setAlternatingRowColors(true);
     w->setSortingEnabled(true);
-    w->setObjectName(QLatin1String("Symbols.") + moduleName);
+    w->setObjectName("Symbols." + moduleName);
     QStringList header;
     header.append(DebuggerPlugin::tr("Symbol"));
     header.append(DebuggerPlugin::tr("Address"));
@@ -2264,7 +2264,7 @@ void showModuleSections(const QString &moduleName, const Sections &sections)
     w->setRootIsDecorated(false);
     w->setAlternatingRowColors(true);
     w->setSortingEnabled(true);
-    w->setObjectName(QLatin1String("Sections.") + moduleName);
+    w->setObjectName("Sections." + moduleName);
     QStringList header;
     header.append(DebuggerPlugin::tr("Name"));
     header.append(DebuggerPlugin::tr("From"));
@@ -2306,8 +2306,8 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
                 EditorManager::IgnoreNavigationHistory);
     if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
         QString suggestion = titlePattern;
-        if (!suggestion.contains(QLatin1Char('.')))
-            suggestion.append(QLatin1String(".txt"));
+        if (!suggestion.contains('.'))
+            suggestion.append(".txt");
         textEditor->textDocument()->setFallbackSaveAsFileName(suggestion);
     }
     QTC_ASSERT(editor, return);
@@ -2337,7 +2337,7 @@ static DebuggerPlugin *m_instance = nullptr;
 
 DebuggerPlugin::DebuggerPlugin()
 {
-    setObjectName(QLatin1String("DebuggerPlugin"));
+    setObjectName("DebuggerPlugin");
     m_instance = this;
 }
 
@@ -2507,7 +2507,7 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
             "Do you want to continue and run the tool in %2 mode?</p></body></html>")
                 .arg(toolName).arg(currentMode).arg(toolModeString);
         if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),
-                title, message, ICore::settings(), QLatin1String("AnalyzerCorrectModeWarning"))
+                title, message, ICore::settings(), "AnalyzerCorrectModeWarning")
                     != QDialogButtonBox::Yes)
             return false;
     }
@@ -2588,7 +2588,7 @@ void DebuggerUnitTests::initTestCase()
 //        QSKIP("No clang suitable for analyzing found");
 
     s_testRun = true;
-    m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(QLatin1String(":/unit-tests"));
+    m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(":/unit-tests");
     QVERIFY(m_tmpDir->isValid());
 }
 

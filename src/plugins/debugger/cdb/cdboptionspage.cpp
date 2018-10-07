@@ -145,7 +145,7 @@ QStringList CdbBreakEventWidget::breakEvents() const
             const QString filter = filterText(e);
             QString s = QLatin1String(eventDescriptions[e].abbreviation);
             if (!filter.isEmpty()) {
-                s += QLatin1Char(':');
+                s += ':';
                 s += filter;
             }
             rc.push_back(s);

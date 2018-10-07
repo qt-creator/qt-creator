@@ -62,7 +62,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
 
         MangledNameRule::parse(&m_parseState, ParseTreeNode::Ptr());
         if (m_parseState.m_pos != m_parseState.m_mangledName.size())
-            throw ParseException(QLatin1String("Unconsumed input"));
+            throw ParseException("Unconsumed input");
         if (m_parseState.m_parseStack.count() != 1) {
             throw ParseException(QString::fromLatin1("There are %1 elements on the parse stack; "
                     "expected one.").arg(m_parseState.m_parseStack.count()));

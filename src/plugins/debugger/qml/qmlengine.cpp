@@ -1031,7 +1031,7 @@ void QmlEngine::updateCurrentContext()
         return;
     }
 
-    debuggerConsole()->setContext(tr("Context:") + QLatin1Char(' ')
+    debuggerConsole()->setContext(tr("Context:") + ' '
                                   + (context.isEmpty() ? tr("Global QML Context") : context));
 }
 
@@ -1576,7 +1576,7 @@ QmlV8ObjectData QmlEnginePrivate::extractData(const QVariant &data) const
         objectData.value = dataMap.value(VALUE);
 
     } else if (type == "string") {
-        QLatin1Char quote('"');
+        QChar quote('"');
         objectData.type = "string";
         objectData.value = QString(quote + dataMap.value(VALUE).toString() + quote);
 

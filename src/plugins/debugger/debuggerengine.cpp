@@ -281,7 +281,7 @@ public:
           m_toolTipManager(engine)
     {
         m_logWindow = new LogWindow(m_engine); // Needed before start()
-        m_logWindow->setObjectName(QLatin1String(DOCKWIDGET_OUTPUT));
+        m_logWindow->setObjectName(DOCKWIDGET_OUTPUT);
         m_debuggerName = DebuggerEngine::tr("Debugger");
 
         connect(action(EnableReverseDebugging), &SavedAction::valueChanged,
@@ -1641,8 +1641,8 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
             d->m_logWindow->showOutput(LogInput, msg);
             break;
         case LogError:
-            d->m_logWindow->showInput(LogError, QLatin1String("ERROR: ") + msg);
-            d->m_logWindow->showOutput(LogError, QLatin1String("ERROR: ") + msg);
+            d->m_logWindow->showInput(LogError, "ERROR: " + msg);
+            d->m_logWindow->showOutput(LogError, "ERROR: " + msg);
             break;
         case AppOutput:
         case AppStuff:
@@ -2362,7 +2362,7 @@ void DebuggerEngine::handleExecRunToSelectedFunction()
     if (functionName.isEmpty()) {
         const QTextBlock block = cursor.block();
         const QString line = block.text();
-        foreach (const QString &str, line.trimmed().split(QLatin1Char('('))) {
+        foreach (const QString &str, line.trimmed().split('(')) {
             QString a;
             for (int i = str.size(); --i >= 0; ) {
                 if (!str.at(i).isLetterOrNumber())
@@ -2522,7 +2522,7 @@ QString DebuggerEngine::formatStartParameters() const
     if (!sp.qmlServer.host().isEmpty())
         str << "QML server: " << sp.qmlServer.host() << ':' << sp.qmlServer.port() << '\n';
     str << "Sysroot: " << sp.sysRoot << '\n';
-    str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1Char(':')) << '\n';
+    str << "Debug Source Location: " << sp.debugSourceLocation.join(':') << '\n';
     return rc;
 }
 

@@ -311,7 +311,7 @@ static QStringList mergeEnvironment(QStringList runConfigEnvironment,
     // We do not assume someone sets _NT_DEBUGGER_EXTENSION_PATH in the run
     // config, just to make sure, delete any existing entries
     const QString cdbExtensionPathVariableAssign =
-            QLatin1String(cdbExtensionPathVariableC) + QLatin1Char('=');
+            QLatin1String(cdbExtensionPathVariableC) + '=';
     for (QStringList::iterator it = runConfigEnvironment.begin(); it != runConfigEnvironment.end() ; ) {
         if (it->startsWith(cdbExtensionPathVariableAssign)) {
             it = runConfigEnvironment.erase(it);
@@ -485,7 +485,7 @@ void CdbEngine::setupEngine()
     // Make sure that QTestLib uses OutputDebugString for logging.
     const QString qtLoggingToConsoleKey = QStringLiteral("QT_LOGGING_TO_CONSOLE");
     if (!sp.useTerminal && !inferiorEnvironment.hasKey(qtLoggingToConsoleKey))
-        inferiorEnvironment.set(qtLoggingToConsoleKey, QString(QLatin1Char('0')));
+        inferiorEnvironment.set(qtLoggingToConsoleKey, "0");
 
     m_process.setEnvironment(mergeEnvironment(inferiorEnvironment.toStringList(),
                                               extensionFi.absolutePath()));
@@ -1969,7 +1969,7 @@ void CdbEngine::ensureUsing32BitStackInWow64(const DebuggerResponse &response, c
 {
     // Parsing the header of the stack output to check which bitness
     // the cdb is currently using.
-    foreach (const QStringRef &line, response.data.data().splitRef(QLatin1Char('\n'))) {
+    foreach (const QStringRef &line, response.data.data().splitRef('\n')) {
         if (!line.startsWith("Child"))
             continue;
         if (line.startsWith("ChildEBP")) {
@@ -2344,9 +2344,9 @@ void CdbEngine::parseOutputLine(QString line)
                 // for some incomprehensible reasons Microsoft cdb version 6.2 is newer than 6.12
                 m_autoBreakPointCorrection = major > 6 || (major == 6 && minor >= 2 && minor < 10);
                 showMessage(line, LogMisc);
-                showMessage(QString::fromLatin1("Using ")
+                showMessage("Using "
                             + QLatin1String(m_autoBreakPointCorrection ? "CDB " : "codemodel ")
-                            + QString::fromLatin1("based breakpoint correction."), LogMisc);
+                            + "based breakpoint correction.", LogMisc);
             }
         }
     } else if (line.startsWith("ModLoad: ")) {
@@ -2736,8 +2736,8 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
     }
 
     const QString &verOutput = data.childAt(0).data();
-    const QString firstToken = verOutput.split(QLatin1Char(' ')).constFirst();
-    const QVector<QStringRef> pythonVersion = firstToken.splitRef(QLatin1Char('.'));
+    const QString firstToken = verOutput.split(' ').constFirst();
+    const QVector<QStringRef> pythonVersion = firstToken.splitRef('.');
 
     bool ok = false;
     if (pythonVersion.size() == 3) {

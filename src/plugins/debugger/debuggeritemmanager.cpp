@@ -353,7 +353,7 @@ DebuggerItem DebuggerItemConfigWidget::item() const
     item.setWorkingDirectory(m_workingDirectoryChooser->fileName());
     item.setAutoDetected(m_autodetected);
     QList<ProjectExplorer::Abi> abiList;
-    foreach (const QString &a, m_abis->text().split(QRegExp(QLatin1String("[^A-Za-z0-9-_]+")))) {
+    foreach (const QString &a, m_abis->text().split(QRegExp("[^A-Za-z0-9-_]+"))) {
         if (a.isNull())
             continue;
         abiList << Abi::fromString(a);
@@ -372,7 +372,7 @@ void DebuggerItemConfigWidget::store() const
 
 void DebuggerItemConfigWidget::setAbis(const QStringList &abiNames)
 {
-    m_abis->setText(abiNames.join(QLatin1String(", ")));
+    m_abis->setText(abiNames.join(", "));
 }
 
 void DebuggerItemConfigWidget::load(const DebuggerItem *item)
@@ -406,9 +406,9 @@ void DebuggerItemConfigWidget::load(const DebuggerItem *item)
                      "<a href=\"%1\">Windows Console Debugger executable</a>"
                      " (%2) here.").arg(QLatin1String(debuggingToolsWikiLinkC), versionString)
                 + "</p></body></html>";
-        versionCommand = QLatin1String("-version");
+        versionCommand = "-version";
     } else {
-        versionCommand = QLatin1String("--version");
+        versionCommand = "--version";
     }
 
     m_cdbLabel->setText(text);
@@ -730,7 +730,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
         SynchronousProcess lldbInfo;
         lldbInfo.setTimeoutS(2);
         SynchronousProcessResponse response
-                = lldbInfo.runBlocking(QLatin1String("xcrun"), {"--find", "lldb"});
+                = lldbInfo.runBlocking("xcrun", {"--find", "lldb"});
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             QString lPath = response.allOutput().trimmed();
             if (!lPath.isEmpty()) {
@@ -749,8 +749,8 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     foreach (const Utils::FileName &base, path) {
         dir.setPath(base.toFileInfo().absoluteFilePath());
         foreach (const QString &entry, dir.entryList()) {
-            if (entry.startsWith(QLatin1String("lldb-platform-"))
-                    || entry.startsWith(QLatin1String("lldb-gdbserver-"))) {
+            if (entry.startsWith("lldb-platform-")
+                    || entry.startsWith("lldb-gdbserver-")) {
                 continue;
             }
             suspects.append(FileName::fromString(dir.absoluteFilePath(entry)));
@@ -788,19 +788,19 @@ void DebuggerItemManagerPrivate::readLegacyDebuggers(const FileName &file)
 
     foreach (const QVariant &v, reader.restoreValues()) {
         QVariantMap data1 = v.toMap();
-        QString kitName = data1.value(QLatin1String("PE.Profile.Name")).toString();
-        QVariantMap data2 = data1.value(QLatin1String("PE.Profile.Data")).toMap();
+        QString kitName = data1.value("PE.Profile.Name").toString();
+        QVariantMap data2 = data1.value("PE.Profile.Data").toMap();
         QVariant v3 = data2.value(DebuggerKitInformation::id().toString());
         QString fn;
         if (v3.type() == QVariant::String)
             fn = v3.toString();
         else
-            fn = v3.toMap().value(QLatin1String("Binary")).toString();
+            fn = v3.toMap().value("Binary").toString();
         if (fn.isEmpty())
             continue;
-        if (fn.startsWith(QLatin1Char('{')))
+        if (fn.startsWith('{'))
             continue;
-        if (fn == QLatin1String("auto"))
+        if (fn == "auto")
             continue;
         FileName command = FileName::fromUserInput(fn);
         if (!command.exists())

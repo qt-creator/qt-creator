@@ -172,13 +172,13 @@ QString StartApplicationParameters::displayName() const
     const int maxLength = 60;
 
     QString name = FileName::fromString(runnable.executable).fileName()
-            + QLatin1Char(' ') + runnable.commandLineArguments;
+            + ' ' + runnable.commandLineArguments;
     if (name.size() > 60) {
-        int index = name.lastIndexOf(QLatin1Char(' '), maxLength);
+        int index = name.lastIndexOf(' ', maxLength);
         if (index == -1)
             index = maxLength;
         name.truncate(index);
-        name += QLatin1String("...");
+        name += "...";
     }
 
     if (Kit *kit = KitManager::kit(kitId))
@@ -246,15 +246,15 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->localExecutablePathChooser = new PathChooser(this);
     d->localExecutablePathChooser->setExpectedKind(PathChooser::File);
     d->localExecutablePathChooser->setPromptDialogTitle(tr("Select Executable"));
-    d->localExecutablePathChooser->setHistoryCompleter(QLatin1String("LocalExecutable"));
+    d->localExecutablePathChooser->setHistoryCompleter("LocalExecutable");
 
     d->arguments = new FancyLineEdit(this);
-    d->arguments->setHistoryCompleter(QLatin1String("CommandlineArguments"));
+    d->arguments->setHistoryCompleter("CommandlineArguments");
 
     d->workingDirectory = new PathChooser(this);
     d->workingDirectory->setExpectedKind(PathChooser::ExistingDirectory);
     d->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
-    d->workingDirectory->setHistoryCompleter(QLatin1String("WorkingDirectory"));
+    d->workingDirectory->setHistoryCompleter("WorkingDirectory");
 
     d->runInTerminalCheckBox = new QCheckBox(this);
 
@@ -277,7 +277,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->debuginfoPathChooser->setToolTip(tr(
         "Base path for external debug information and debug sources. "
         "If empty, $SYSROOT/usr/lib/debug will be chosen."));
-    d->debuginfoPathChooser->setHistoryCompleter(QLatin1String("Debugger.DebugLocation.History"));
+    d->debuginfoPathChooser->setHistoryCompleter("Debugger.DebugLocation.History");
 
     auto line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
@@ -369,8 +369,8 @@ void StartApplicationDialog::updateState()
 
 void StartApplicationDialog::run(bool attachRemote)
 {
-    const QString settingsGroup = QLatin1String("DebugMode");
-    const QString arrayName = QLatin1String("StartApplication");
+    const QString settingsGroup = "DebugMode";
+    const QString arrayName = "StartApplication";
 
     QList<StartApplicationParameters> history;
     QSettings *settings = ICore::settings();
@@ -585,8 +585,8 @@ static QString cdbRemoteHelp()
                 "to use TCP/IP as communication protocol.</p><p>Enter the connection parameters as:</p>"
                 "<pre>%6</pre></body></html>")
             .arg(Core::Constants::IDE_DISPLAY_NAME,
-                 ext32, ext64, QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
-                 QLatin1String("cdb.exe -server tcp:port=1234"),
+                 ext32, ext64, "_NT_DEBUGGER_EXTENSION_PATH",
+                 "cdb.exe -server tcp:port=1234",
                  QLatin1String(cdbConnectionSyntax));
 }
 
@@ -647,7 +647,7 @@ QString StartRemoteCdbDialog::connection() const
 {
     const QString rc = m_lineEdit->text();
     // Transform an IP:POrt ('localhost:1234') specification into full spec
-    QRegExp ipRegexp(QLatin1String("([\\w\\.\\-_]+):([0-9]{1,4})"));
+    QRegExp ipRegexp("([\\w\\.\\-_]+):([0-9]{1,4})");
     QTC_ASSERT(ipRegexp.isValid(), return QString());
     if (ipRegexp.exactMatch(rc))
         return QString::fromLatin1("tcp:server=%1,port=%2").arg(ipRegexp.cap(1), ipRegexp.cap(2));
@@ -669,7 +669,7 @@ AddressDialog::AddressDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     auto hLayout = new QHBoxLayout;
-    hLayout->addWidget(new QLabel(tr("Enter an address:") + QLatin1Char(' ')));
+    hLayout->addWidget(new QLabel(tr("Enter an address:") + ' '));
     hLayout->addWidget(m_lineEdit);
 
     auto vLayout = new QVBoxLayout;
@@ -697,7 +697,7 @@ bool AddressDialog::isOkButtonEnabled() const
 
 void AddressDialog::setAddress(quint64 a)
 {
-    m_lineEdit->setText(QLatin1String("0x") + QString::number(a, 16));
+    m_lineEdit->setText("0x" + QString::number(a, 16));
 }
 
 quint64 AddressDialog::address() const
@@ -748,19 +748,19 @@ StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent)
     setWindowTitle(tr("Start Remote Engine"));
 
     d->host = new FancyLineEdit(this);
-    d->host->setHistoryCompleter(QLatin1String("HostName"));
+    d->host->setHistoryCompleter("HostName");
 
     d->username = new FancyLineEdit(this);
-    d->username->setHistoryCompleter(QLatin1String("UserName"));
+    d->username->setHistoryCompleter("UserName");
 
     d->password = new QLineEdit(this);
     d->password->setEchoMode(QLineEdit::Password);
 
     d->enginePath = new FancyLineEdit(this);
-    d->enginePath->setHistoryCompleter(QLatin1String("EnginePath"));
+    d->enginePath->setHistoryCompleter("EnginePath");
 
     d->inferiorPath = new FancyLineEdit(this);
-    d->inferiorPath->setHistoryCompleter(QLatin1String("InferiorPath"));
+    d->inferiorPath->setHistoryCompleter("InferiorPath");
 
     d->buttonBox = new QDialogButtonBox(this);
     d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
@@ -916,11 +916,11 @@ void TypeFormatsDialog::addTypeFormats(const QString &type0,
     const DisplayFormats &typeFormats, int current)
 {
     QString type = type0;
-    type.replace(QLatin1String("__"), QLatin1String("::"));
+    type.replace("__", "::");
     int pos = 2;
-    if (type.startsWith(QLatin1Char('Q')))
+    if (type.startsWith('Q'))
         pos = 0;
-    else if (type.startsWith(QLatin1String("std::")))
+    else if (type.startsWith("std::"))
         pos = 1;
     m_ui->pages[pos]->addTypeFormats(type, typeFormats, current);
 }

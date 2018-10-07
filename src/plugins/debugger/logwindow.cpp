@@ -175,7 +175,7 @@ private:
     {
         using Utils::Theme;
         Theme *theme = Utils::creatorTheme();
-        if (text.size() > 3 && text.at(2) == QLatin1Char(':')) {
+        if (text.size() > 3 && text.at(2) == ':') {
             QTextCharFormat format;
             format.setForeground(theme->color(Theme::Debugger_LogWindow_LogTime));
             setFormat(1, text.size(), format);
@@ -310,7 +310,7 @@ private:
         int n = 0;
 
         // cut time string
-        if (line.size() > 18 && line.at(0) == QLatin1Char('['))
+        if (line.size() > 18 && line.at(0) == '[')
             line = line.mid(18);
         //qDebug() << line;
 
@@ -358,8 +358,8 @@ public:
 
     void gotoResult(int i)
     {
-        QString needle = QString::number(i) + QLatin1Char('^');
-        QString needle2 = QLatin1Char('>') + needle;
+        QString needle = QString::number(i) + '^';
+        QString needle2 = '>' + needle;
         QString needle3 = QString::fromLatin1("dtoken(\"%1\")@").arg(i);
         QTextCursor cursor(document());
         do {
@@ -394,7 +394,7 @@ LogWindow::LogWindow(DebuggerEngine *engine)
     : m_engine(engine)
 {
     setWindowTitle(tr("Debugger &Log"));
-    setObjectName(QLatin1String("Log"));
+    setObjectName("Log");
 
     m_ignoreNextInputEcho = false;
 
@@ -412,7 +412,7 @@ LogWindow::LogWindow(DebuggerEngine *engine)
 
     m_commandEdit = new Utils::FancyLineEdit(this);
     m_commandEdit->setFrame(false);
-    m_commandEdit->setHistoryCompleter(QLatin1String("DebuggerInput"));
+    m_commandEdit->setHistoryCompleter("DebuggerInput");
 
     auto repeatButton = new QToolButton(this);
     repeatButton->setIcon(Icons::STEP_OVER.icon());
@@ -521,12 +521,12 @@ void LogWindow::showOutput(int channel, const QString &output)
         return;
 
     const QChar cchar = charForChannel(channel);
-    const QChar nchar = QLatin1Char('\n');
+    const QChar nchar = '\n';
 
     QString out;
     out.reserve(output.size() + 1000);
 
-    if (output.at(0) != QLatin1Char('~') && boolSetting(LogTimeStamps)) {
+    if (output.at(0) != '~' && boolSetting(LogTimeStamps)) {
         out.append(charForChannel(LogTime));
         out.append(logTimeStamp());
         out.append(nchar);
@@ -536,12 +536,12 @@ void LogWindow::showOutput(int channel, const QString &output)
         const int npos = output.indexOf(nchar, pos);
         const int nnpos = npos == -1 ? n : npos;
         const int l = nnpos - pos;
-        if (l != 6 || output.midRef(pos, 6) != QLatin1String("(gdb) "))  {
+        if (l != 6 || output.midRef(pos, 6) != "(gdb) ")  {
             out.append(cchar);
             if (l > 30000) {
                 // FIXME: QTextEdit asserts on really long lines...
                 out.append(output.midRef(pos, 30000));
-                out.append(QLatin1String(" [...] <cut off>\n"));
+                out.append(" [...] <cut off>\n");
             } else {
                 out.append(output.midRef(pos, l + 1));
             }
@@ -631,7 +631,7 @@ QString LogWindow::logTimeStamp()
 {
     // Cache the last log time entry by ms. If time progresses,
     // report the difference to the last time stamp in ms.
-    static const QString logTimeFormat(QLatin1String("hh:mm:ss.zzz"));
+    static const QString logTimeFormat("hh:mm:ss.zzz");
     static QTime lastTime = QTime::currentTime();
     static QString lastTimeStamp = lastTime.toString(logTimeFormat);
 
@@ -642,9 +642,9 @@ QString LogWindow::logTimeStamp()
         lastTimeStamp = lastTime.toString(logTimeFormat);
         // Append time elapsed
         QString rc = lastTimeStamp;
-        rc += QLatin1String(" [");
+        rc += " [";
         rc += QString::number(elapsedMS);
-        rc += QLatin1String("ms]");
+        rc += "ms]";
         return rc;
     }
     return lastTimeStamp;

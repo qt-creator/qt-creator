@@ -188,11 +188,11 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     hbox->addWidget(closeButton);
 
     auto dock = new QDockWidget(tr("Toolbar"), q);
-    dock->setObjectName(QLatin1String("Toolbar"));
+    dock->setObjectName("Toolbar");
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     dock->setAllowedAreas(Qt::BottomDockWidgetArea);
     dock->setTitleBarWidget(new QWidget(dock)); // hide title bar
-    dock->setProperty("managed_dockwidget", QLatin1String("true"));
+    dock->setProperty("managed_dockwidget", "true");
     toolbar->setParent(dock);
     dock->setWidget(toolbar);
     m_toolBarDock = dock;
@@ -300,7 +300,7 @@ void DebuggerMainWindow::onModeChanged(Core::Id mode)
         Perspective *perspective = theMainWindow->d->m_currentPerspective;
         if (!perspective) {
             const QSettings *settings = ICore::settings();
-            const QString lastPerspectiveId = settings->value(QLatin1String(LAST_PERSPECTIVE_KEY)).toString();
+            const QString lastPerspectiveId = settings->value(LAST_PERSPECTIVE_KEY).toString();
             perspective = Perspective::findPerspective(lastPerspectiveId);
             // If we don't find a perspective with the stored name, pick any.
             // This can happen e.g. when a plugin was disabled that provided
@@ -671,7 +671,7 @@ void Perspective::select()
         d->m_lastActiveSubPerspectiveId.clear();
 
     const QString &lastKey = d->m_parentPerspectiveId.isEmpty() ? d->m_id : d->m_parentPerspectiveId;
-    ICore::settings()->setValue(QLatin1String(LAST_PERSPECTIVE_KEY), lastKey);
+    ICore::settings()->setValue(LAST_PERSPECTIVE_KEY, lastKey);
 }
 
 void PerspectivePrivate::restoreLayout()

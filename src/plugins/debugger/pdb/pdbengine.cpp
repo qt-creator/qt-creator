@@ -115,7 +115,7 @@ void PdbEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
     m_interpreter = runParameters().interpreter;
-    QString bridge = ICore::resourcePath() + QLatin1String("/debugger/pdbbridge.py");
+    QString bridge = ICore::resourcePath() + "/debugger/pdbbridge.py";
 
     connect(&m_proc, &QProcess::errorOccurred, this, &PdbEngine::handlePdbError);
     connect(&m_proc, static_cast<void(QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
@@ -135,7 +135,7 @@ void PdbEngine::setupEngine()
 
     QStringList args = {bridge, scriptFile.fileName()};
     args.append(Utils::QtcProcess::splitArgs(runParameters().inferior.workingDirectory));
-    showMessage("STARTING " + m_interpreter + QLatin1Char(' ') + args.join(QLatin1Char(' ')));
+    showMessage("STARTING " + m_interpreter + ' ' + args.join(' '));
     m_proc.setEnvironment(runParameters().debugger.environment.toStringList());
     m_proc.start(m_interpreter, args);
 
@@ -428,7 +428,7 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("An error occurred when attempting to read from "
                 "the Pdb process. For example, the process may not be running.");
         default:
-            return tr("An unknown error in the Pdb process occurred.") + QLatin1Char(' ');
+            return tr("An unknown error in the Pdb process occurred.") + ' ';
     }
 }
 

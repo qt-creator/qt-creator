@@ -797,7 +797,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
 
 void LldbEngine::handleLldbFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    notifyDebuggerProcessFinished(exitCode, exitStatus, QLatin1String("LLDB"));
+    notifyDebuggerProcessFinished(exitCode, exitStatus, "LLDB");
 }
 
 void LldbEngine::readLldbStandardError()
@@ -960,7 +960,7 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
                 //dl.rawData = line["rawdata"].data();
                 dl.data = line["rawdata"].data();
                 if (!dl.data.isEmpty())
-                    dl.data += QString(30 - dl.data.size(), QLatin1Char(' '));
+                    dl.data += QString(30 - dl.data.size(), ' ');
                 dl.data += fromHex(line["hexdata"].data());
                 dl.data += line["data"].data();
                 dl.offset = line["offset"].toInt();

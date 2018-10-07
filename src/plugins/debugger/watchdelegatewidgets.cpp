@@ -109,14 +109,14 @@ QValidator::State IntegerValidator::validateEntry(const QString &s, int base, bo
         return QValidator::Intermediate;
     int pos = 0;
     // Skip sign.
-    if (signedV && s.at(pos) == QLatin1Char('-')) {
+    if (signedV && s.at(pos) == '-') {
         pos++;
         if (pos == size)
             return QValidator::Intermediate;
     }
     // Hexadecimal: '0x'?
     if (base == 16 && pos + 2 <= size
-        && s.at(pos) == QLatin1Char('0') && s.at(pos + 1) == QLatin1Char('x')) {
+        && s.at(pos) == '0' && s.at(pos + 1) == 'x') {
         pos+= 2;
         if (pos == size)
             return QValidator::Intermediate;
@@ -236,7 +236,7 @@ void IntegerWatchLineEdit::setModelData(const QVariant &v)
     default:
         qWarning("Invalid value (%s) passed to IntegerLineEdit::setModelData",
                  v.typeName());
-        setText(QString(QLatin1Char('0')));
+        setText(QString('0'));
         break;
     }
     if (debug)
@@ -303,7 +303,7 @@ WatchLineEdit *WatchLineEdit::create(QVariant::Type t, QWidget *parent)
 BooleanComboBox::BooleanComboBox(QWidget *parent) : QComboBox(parent)
 {
     QStringList items;
-    items << QLatin1String("false") << QLatin1String("true");
+    items << "false" << "true";
     addItems(items);
 }
 

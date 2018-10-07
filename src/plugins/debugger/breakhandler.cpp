@@ -403,7 +403,7 @@ BreakpointDialog::BreakpointDialog(unsigned int enabledParts, QWidget *parent)
     m_labelType->setBuddy(m_comboBoxType);
 
     m_pathChooserFileName = new PathChooser(groupBoxBasic);
-    m_pathChooserFileName->setHistoryCompleter(QLatin1String("Debugger.Breakpoint.File.History"));
+    m_pathChooserFileName->setHistoryCompleter("Debugger.Breakpoint.File.History");
     m_pathChooserFileName->setExpectedKind(PathChooser::File);
     m_labelFileName = new QLabel(tr("&File name:"), groupBoxBasic);
     m_labelFileName->setBuddy(m_pathChooserFileName);
@@ -1028,7 +1028,7 @@ int BreakHandler::threadSpecFromDisplay(const QString &str)
     return ok ? result : -1;
 }
 
-const QString empty(QLatin1Char('-'));
+const QString empty("-");
 
 QVariant BreakpointItem::data(int column, int role) const
 {

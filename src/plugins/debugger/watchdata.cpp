@@ -137,7 +137,7 @@ void WatchItem::setError(const QString &msg)
 void WatchItem::setValue(const QString &value0)
 {
     value = value0;
-    if (value == QLatin1String("{...}")) {
+    if (value == "{...}") {
         value.clear();
         wantsChildren = true; // at least one...
     }
@@ -148,7 +148,7 @@ QString WatchItem::toString() const
     const char *doubleQuoteComma = "\",";
     QString res;
     QTextStream str(&res);
-    str << QLatin1Char('{');
+    str << '{';
     if (!iname.isEmpty())
         str << "iname=\"" << iname << doubleQuoteComma;
     if (!name.isEmpty() && name != iname)
@@ -180,9 +180,9 @@ QString WatchItem::toString() const
     str << "wantsChildren=\"" << (wantsChildren ? "true" : "false") << doubleQuoteComma;
 
     str.flush();
-    if (res.endsWith(QLatin1Char(',')))
+    if (res.endsWith(','))
         res.truncate(res.size() - 1);
-    return res + QLatin1Char('}');
+    return res + '}';
 }
 
 QString WatchItem::msgNotInScope()
@@ -468,7 +468,7 @@ void WatchItem::parse(const GdbMi &data, bool maySort)
 static void formatToolTipRow(QTextStream &str, const QString &category, const QString &value)
 {
     QString val = value.toHtmlEscaped();
-    val.replace(QLatin1Char('\n'), QLatin1String("<br>"));
+    val.replace('\n', "<br>");
     str << "<tr><td>" << category << "</td><td>";
     if (!category.isEmpty())
         str << ':';
@@ -494,7 +494,7 @@ QString WatchItem::toToolTip() const
         QString val = value;
         if (val.size() > 1000) {
             val.truncate(1000);
-            val += QLatin1Char(' ');
+            val += ' ';
             val += tr("... <cut off>");
         }
         formatToolTipRow(str, tr("Value"), val);

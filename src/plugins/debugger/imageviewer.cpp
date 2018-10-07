@@ -124,7 +124,7 @@ void ImageViewer::setInfo(const QString &info)
 
 void ImageViewer::clicked(const QString &message)
 {
-    const QString text = m_info + QLatin1Char('\n')
+    const QString text = m_info + '\n'
         + (message.isEmpty() ? tr("<Click to display color>") : message);
     m_infoLabel->setText(text);
 }

@@ -133,8 +133,8 @@ SourcePathMap SourcePathMappingModel::sourcePathMap() const
 // Check a mapping whether it still contains a placeholder.
 bool SourcePathMappingModel::isNewPlaceHolder(const Mapping &m) const
 {
-    const QLatin1Char lessThan('<');
-    const QLatin1Char greaterThan('>');
+    const QChar lessThan('<');
+    const QChar greaterThan('>');
     return m.first.isEmpty() || m.first.startsWith(lessThan)
            || m.first.endsWith(greaterThan)
            || m.first == m_newSourcePlaceHolder
@@ -253,7 +253,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
 
     // Edit part
     m_targetChooser->setExpectedKind(PathChooser::ExistingDirectory);
-    m_targetChooser->setHistoryCompleter(QLatin1String("Debugger.MappingTarget.History"));
+    m_targetChooser->setHistoryCompleter("Debugger.MappingTarget.History");
     connect(m_sourceLineEdit, &QLineEdit::textChanged,
             this, &DebuggerSourcePathMappingWidget::slotEditSourceFieldChanged);
     connect(m_targetChooser, &PathChooser::pathChanged,
@@ -407,8 +407,8 @@ static QString findQtInstallPath(const FileName &qmakePath)
         return QString();
     QProcess proc;
     QStringList args;
-    args.append(QLatin1String("-query"));
-    args.append(QLatin1String("QT_INSTALL_HEADERS"));
+    args.append("-query");
+    args.append("QT_INSTALL_HEADERS");
     proc.start(qmakePath.toString(), args);
     if (!proc.waitForStarted()) {
         qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(qmakePath.toString()),

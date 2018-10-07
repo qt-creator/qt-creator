@@ -46,7 +46,7 @@ static void moveCursorToEndOfName(QTextCursor *tc)
         return;
 
     QChar ch = doc->characterAt(tc->position());
-    while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
+    while (ch.isLetterOrNumber() || ch == '_') {
         tc->movePosition(QTextCursor::NextCharacter);
         ch = doc->characterAt(tc->position());
     }

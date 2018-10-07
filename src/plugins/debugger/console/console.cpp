@@ -104,7 +104,7 @@ Console::Console()
 
     m_showDebugButtonAction = new Utils::SavedAction(this);
     m_showDebugButtonAction->setDefaultValue(true);
-    m_showDebugButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_LOG));
+    m_showDebugButtonAction->setSettingsKey(CONSOLE, SHOW_LOG);
     m_showDebugButtonAction->setToolTip(tr("Show debug, log, and info messages."));
     m_showDebugButtonAction->setCheckable(true);
     m_showDebugButtonAction->setChecked(true);
@@ -118,7 +118,7 @@ Console::Console()
 
     m_showWarningButtonAction = new Utils::SavedAction(this);
     m_showWarningButtonAction->setDefaultValue(true);
-    m_showWarningButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_WARNING));
+    m_showWarningButtonAction->setSettingsKey(CONSOLE, SHOW_WARNING);
     m_showWarningButtonAction->setToolTip(tr("Show warning messages."));
     m_showWarningButtonAction->setCheckable(true);
     m_showWarningButtonAction->setChecked(true);
@@ -132,7 +132,7 @@ Console::Console()
 
     m_showErrorButtonAction = new Utils::SavedAction(this);
     m_showErrorButtonAction->setDefaultValue(true);
-    m_showErrorButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_ERROR));
+    m_showErrorButtonAction->setSettingsKey(CONSOLE, SHOW_ERROR);
     m_showErrorButtonAction->setToolTip(tr("Show error messages."));
     m_showErrorButtonAction->setCheckable(true);
     m_showErrorButtonAction->setChecked(true);

@@ -56,7 +56,7 @@ public:
 #define DEMANGLER_ASSERT(cond) \
     do { \
         if (!(cond)) { \
-            throw InternalDemanglerException(QLatin1String(Q_FUNC_INFO), QLatin1String(__FILE__), __LINE__); \
+            throw InternalDemanglerException(Q_FUNC_INFO, __FILE__, __LINE__); \
         } \
     } while (0)
 
@@ -69,8 +69,7 @@ template <typename T> QSharedPointer<T> demanglerCast(const QSharedPointer<Parse
     return out;
 }
 
-#define DEMANGLER_CAST(type, input) demanglerCast<type>(input, QLatin1String(Q_FUNC_INFO), \
-        QLatin1String(__FILE__), __LINE__)
+#define DEMANGLER_CAST(type, input) demanglerCast<type>(input, Q_FUNC_INFO, __FILE__, __LINE__)
 
 } // namespace Internal
 } // namespace Debugger

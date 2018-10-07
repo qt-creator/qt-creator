@@ -546,7 +546,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
     setAttribute(Qt::WA_DeleteOnClose);
 
     isPinned = false;
-    const QIcon pinIcon(QLatin1String(":/debugger/images/pin.xpm"));
+    const QIcon pinIcon(":/debugger/images/pin.xpm");
 
     pinButton = new QToolButton;
     pinButton->setIcon(pinIcon);
@@ -582,7 +582,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
         QString text;
         QTextStream str(&text);
         model.forAllItems([&str](ToolTipWatchItem *item) {
-            str << QString(item->level(), QLatin1Char('\t'))
+            str << QString(item->level(), '\t')
                 << item->name << '\t' << item->value << '\t' << item->type << '\n';
         });
         QClipboard *clipboard = QApplication::clipboard();
@@ -832,7 +832,7 @@ void DebuggerToolTipHolder::updateTooltip(DebuggerEngine *engine)
     // FIXME: The engine should decide on whether it likes
     // the context.
     const bool sameFrame = context.matchesFrame(frame)
-        || context.fileName.endsWith(QLatin1String(".py"));
+        || context.fileName.endsWith(".py");
     DEBUG("UPDATE TOOLTIP: STATE " << state << context.iname
           << "PINNED: " << widget->isPinned
           << "SHOW NEEDED: " << widget->isPinned
@@ -940,29 +940,29 @@ static QDate dateFromString(const QString &date)
 
 void DebuggerToolTipHolder::saveSessionData(QXmlStreamWriter &w) const
 {
-    w.writeStartElement(QLatin1String(toolTipElementC));
+    w.writeStartElement(toolTipElementC);
     QXmlStreamAttributes attributes;
-//    attributes.append(QLatin1String(toolTipClassAttributeC), QString::fromLatin1(metaObject()->className()));
-    attributes.append(QLatin1String(fileNameAttributeC), context.fileName);
+//    attributes.append(toolTipClassAttributeC, QString::fromLatin1(metaObject()->className()));
+    attributes.append(fileNameAttributeC, context.fileName);
     if (!context.function.isEmpty())
-        attributes.append(QLatin1String(functionAttributeC), context.function);
-    attributes.append(QLatin1String(textPositionAttributeC), QString::number(context.position));
-    attributes.append(QLatin1String(textLineAttributeC), QString::number(context.line));
-    attributes.append(QLatin1String(textColumnAttributeC), QString::number(context.column));
-    attributes.append(QLatin1String(dateAttributeC), creationDate.toString(QLatin1String("yyyyMMdd")));
+        attributes.append(functionAttributeC, context.function);
+    attributes.append(textPositionAttributeC, QString::number(context.position));
+    attributes.append(textLineAttributeC, QString::number(context.line));
+    attributes.append(textColumnAttributeC, QString::number(context.column));
+    attributes.append(dateAttributeC, creationDate.toString("yyyyMMdd"));
     QPoint offset = widget->titleLabel->m_offset;
     if (offset.x())
-        attributes.append(QLatin1String(offsetXAttributeC), QString::number(offset.x()));
+        attributes.append(offsetXAttributeC, QString::number(offset.x()));
     if (offset.y())
-        attributes.append(QLatin1String(offsetYAttributeC), QString::number(offset.y()));
-    attributes.append(QLatin1String(engineTypeAttributeC), context.engineType);
-    attributes.append(QLatin1String(treeExpressionAttributeC), context.expression);
-    attributes.append(QLatin1String(treeInameAttributeC), context.iname);
+        attributes.append(offsetYAttributeC, QString::number(offset.y()));
+    attributes.append(engineTypeAttributeC, context.engineType);
+    attributes.append(treeExpressionAttributeC, context.expression);
+    attributes.append(treeInameAttributeC, context.iname);
     w.writeAttributes(attributes);
 
-    w.writeStartElement(QLatin1String(treeElementC));
+    w.writeStartElement(treeElementC);
     widget->model.forAllItems([&w](ToolTipWatchItem *item) {
-        const QString modelItemElement = QLatin1String(modelItemElementC);
+        const QString modelItemElement(modelItemElementC);
         for (int i = 0; i < 3; ++i) {
             const QString value = item->data(i, Qt::DisplayRole).toString();
             if (value.isEmpty())
@@ -1078,36 +1078,36 @@ void DebuggerToolTipManagerPrivate::loadSessionData()
     closeAllToolTips();
     const QString data = SessionManager::value(sessionSettingsKeyC).toString();
     QXmlStreamReader r(data);
-    if (r.readNextStartElement() && r.name() == QLatin1String(sessionDocumentC)) {
+    if (r.readNextStartElement() && r.name() == sessionDocumentC) {
         while (!r.atEnd()) {
             if (readStartElement(r, toolTipElementC)) {
                 const QXmlStreamAttributes attributes = r.attributes();
                 DebuggerToolTipContext context;
-                context.fileName = attributes.value(QLatin1String(fileNameAttributeC)).toString();
-                context.position = attributes.value(QLatin1String(textPositionAttributeC)).toString().toInt();
-                context.line = attributes.value(QLatin1String(textLineAttributeC)).toString().toInt();
-                context.column = attributes.value(QLatin1String(textColumnAttributeC)).toString().toInt();
-                context.function = attributes.value(QLatin1String(functionAttributeC)).toString();
+                context.fileName = attributes.value(fileNameAttributeC).toString();
+                context.position = attributes.value(textPositionAttributeC).toString().toInt();
+                context.line = attributes.value(textLineAttributeC).toString().toInt();
+                context.column = attributes.value(textColumnAttributeC).toString().toInt();
+                context.function = attributes.value(functionAttributeC).toString();
                 QPoint offset;
-                const QString offsetXAttribute = QLatin1String(offsetXAttributeC);
-                const QString offsetYAttribute = QLatin1String(offsetYAttributeC);
+                const QString offsetXAttribute(offsetXAttributeC);
+                const QString offsetYAttribute(offsetYAttributeC);
                 if (attributes.hasAttribute(offsetXAttribute))
                     offset.setX(attributes.value(offsetXAttribute).toString().toInt());
                 if (attributes.hasAttribute(offsetYAttribute))
                     offset.setY(attributes.value(offsetYAttribute).toString().toInt());
                 context.mousePosition = offset;
 
-                context.iname = attributes.value(QLatin1String(treeInameAttributeC)).toString();
-                context.expression = attributes.value(QLatin1String(treeExpressionAttributeC)).toString();
+                context.iname = attributes.value(treeInameAttributeC).toString();
+                context.expression = attributes.value(treeExpressionAttributeC).toString();
 
-                //    const QStringRef className = attributes.value(QLatin1String(toolTipClassAttributeC));
-                context.engineType = attributes.value(QLatin1String(engineTypeAttributeC)).toString();
-                context.creationDate = dateFromString(attributes.value(QLatin1String(dateAttributeC)).toString());
+                //    const QStringRef className = attributes.value(toolTipClassAttributeC);
+                context.engineType = attributes.value(engineTypeAttributeC).toString();
+                context.creationDate = dateFromString(attributes.value(dateAttributeC).toString());
                 bool readTree = context.isValid();
                 if (!context.creationDate.isValid() || context.creationDate.daysTo(QDate::currentDate()) > toolTipsExpiryDays) {
                     // DEBUG("Expiring tooltip " << context.fileName << '@' << context.position << " from " << creationDate)
                     //readTree = false;
-                } else { //if (className != QLatin1String("Debugger::Internal::DebuggerToolTipWidget")) {
+                } else { //if (className != "Debugger::Internal::DebuggerToolTipWidget") {
                     //qWarning("Unable to create debugger tool tip widget of class %s", qPrintable(className.toString()));
                     //readTree = false;
                 }
@@ -1136,8 +1136,8 @@ void DebuggerToolTipManagerPrivate::saveSessionData()
 
     QXmlStreamWriter w(&data);
     w.writeStartDocument();
-    w.writeStartElement(QLatin1String(sessionDocumentC));
-    w.writeAttribute(QLatin1String(sessionVersionAttributeC), QLatin1String("1.0"));
+    w.writeStartElement(sessionDocumentC);
+    w.writeAttribute(sessionVersionAttributeC, "1.0");
     for (DebuggerToolTipHolder *tooltip : qAsConst(m_tooltips))
         if (tooltip->widget->isPinned)
             tooltip->saveSessionData(w);

@@ -84,30 +84,30 @@ ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
     setHeaderHidden(true);
     setRootIsDecorated(false);
     setEditTriggers(QAbstractItemView::AllEditTriggers);
-    setStyleSheet(QLatin1String("QTreeView::branch:has-siblings:!adjoins-item {"
-                                "border-image: none;"
-                                "image: none; }"
-                                "QTreeView::branch:has-siblings:adjoins-item {"
-                                "border-image: none;"
-                                "image: none; }"
-                                "QTreeView::branch:!has-children:!has-siblings:adjoins-item {"
-                                "border-image: none;"
-                                "image: none; }"
-                                "QTreeView::branch:has-children:!has-siblings:closed,"
-                                "QTreeView::branch:closed:has-children:has-siblings {"
-                                "border-image: none;"
-                                "image: none; }"
-                                "QTreeView::branch:open:has-children:!has-siblings,"
-                                "QTreeView::branch:open:has-children:has-siblings  {"
-                                "border-image: none;"
-                                "image: none; }"));
+    setStyleSheet("QTreeView::branch:has-siblings:!adjoins-item {"
+                  "border-image: none;"
+                  "image: none; }"
+                  "QTreeView::branch:has-siblings:adjoins-item {"
+                  "border-image: none;"
+                  "image: none; }"
+                  "QTreeView::branch:!has-children:!has-siblings:adjoins-item {"
+                  "border-image: none;"
+                  "image: none; }"
+                  "QTreeView::branch:has-children:!has-siblings:closed,"
+                  "QTreeView::branch:closed:has-children:has-siblings {"
+                  "border-image: none;"
+                  "image: none; }"
+                  "QTreeView::branch:open:has-children:!has-siblings,"
+                  "QTreeView::branch:open:has-children:has-siblings  {"
+                  "border-image: none;"
+                  "image: none; }");
 
     QString baseName = QApplication::style()->objectName();
     if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()
-            && baseName == QLatin1String("windows")) {
+            && baseName == "windows") {
         // Sometimes we get the standard windows 95 style as a fallback
-        if (QStyleFactory::keys().contains(QLatin1String("Fusion"))) {
-            baseName = QLatin1String("fusion"); // Qt5
+        if (QStyleFactory::keys().contains("Fusion")) {
+            baseName = "fusion"; // Qt5
         }
     }
     auto style = new ConsoleViewStyle(baseName);

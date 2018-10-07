@@ -77,18 +77,18 @@ DebuggerItem::DebuggerItem(const QVariant &id)
 
 DebuggerItem::DebuggerItem(const QVariantMap &data)
 {
-    m_id = data.value(QLatin1String(DEBUGGER_INFORMATION_ID)).toString();
-    m_command = FileName::fromUserInput(data.value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString());
+    m_id = data.value(DEBUGGER_INFORMATION_ID).toString();
+    m_command = FileName::fromUserInput(data.value(DEBUGGER_INFORMATION_COMMAND).toString());
     m_workingDirectory = FileName::fromUserInput(data.value(DEBUGGER_INFORMATION_WORKINGDIRECTORY).toString());
-    m_unexpandedDisplayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
-    m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), false).toBool();
-    m_autoDetectionSource = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE)).toString();
-    m_version = data.value(QLatin1String(DEBUGGER_INFORMATION_VERSION)).toString();
-    m_engineType = DebuggerEngineType(data.value(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE),
+    m_unexpandedDisplayName = data.value(DEBUGGER_INFORMATION_DISPLAYNAME).toString();
+    m_isAutoDetected = data.value(DEBUGGER_INFORMATION_AUTODETECTED, false).toBool();
+    m_autoDetectionSource = data.value(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE).toString();
+    m_version = data.value(DEBUGGER_INFORMATION_VERSION).toString();
+    m_engineType = DebuggerEngineType(data.value(DEBUGGER_INFORMATION_ENGINETYPE,
                                                  static_cast<int>(NoEngineType)).toInt());
-    m_lastModified = data.value(QLatin1String(DEBUGGER_INFORMATION_LASTMODIFIED)).toDateTime();
+    m_lastModified = data.value(DEBUGGER_INFORMATION_LASTMODIFIED).toDateTime();
 
-    foreach (const QString &a, data.value(QLatin1String(DEBUGGER_INFORMATION_ABIS)).toStringList()) {
+    foreach (const QString &a, data.value(DEBUGGER_INFORMATION_ABIS).toStringList()) {
         Abi abi = Abi::fromString(a);
         if (!abi.isNull())
             m_abis.append(abi);
@@ -118,12 +118,12 @@ void DebuggerItem::reinitializeFromFile()
     const char *version = "-version";
     const QFileInfo fileInfo = m_command.toFileInfo();
     m_lastModified = fileInfo.lastModified();
-    if (fileInfo.baseName().toLower().contains(QLatin1String("lldb-mi")))
+    if (fileInfo.baseName().toLower().contains("lldb-mi"))
         version = "--version";
 
     SynchronousProcess proc;
     SynchronousProcessResponse response
-            = proc.runBlocking(m_command.toString(), QStringList({QLatin1String(version)}));
+            = proc.runBlocking(m_command.toString(), {QLatin1String(version)});
     if (response.result != SynchronousProcessResponse::Finished) {
         m_engineType = NoEngineType;
         return;
@@ -177,7 +177,7 @@ void DebuggerItem::reinitializeFromFile()
         // "cdb version 6.2.9200.16384"
         m_engineType = CdbEngineType;
         m_abis = Abi::abisOfBinary(m_command);
-        m_version = output.section(QLatin1Char(' '), 2);
+        m_version = output.section(' ', 2);
         return;
     }
     if (output.startsWith("Python")) {
@@ -246,22 +246,22 @@ bool DebuggerItem::operator==(const DebuggerItem &other) const
 QVariantMap DebuggerItem::toMap() const
 {
     QVariantMap data;
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME), m_unexpandedDisplayName);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_ID), m_id);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_COMMAND), m_command.toString());
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_WORKINGDIRECTORY), m_workingDirectory.toString());
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE), int(m_engineType));
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), m_isAutoDetected);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE), m_autoDetectionSource);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_VERSION), m_version);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_ABIS), abiNames());
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_LASTMODIFIED), m_lastModified);
+    data.insert(DEBUGGER_INFORMATION_DISPLAYNAME, m_unexpandedDisplayName);
+    data.insert(DEBUGGER_INFORMATION_ID, m_id);
+    data.insert(DEBUGGER_INFORMATION_COMMAND, m_command.toString());
+    data.insert(DEBUGGER_INFORMATION_WORKINGDIRECTORY, m_workingDirectory.toString());
+    data.insert(DEBUGGER_INFORMATION_ENGINETYPE, int(m_engineType));
+    data.insert(DEBUGGER_INFORMATION_AUTODETECTED, m_isAutoDetected);
+    data.insert(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE, m_autoDetectionSource);
+    data.insert(DEBUGGER_INFORMATION_VERSION, m_version);
+    data.insert(DEBUGGER_INFORMATION_ABIS, abiNames());
+    data.insert(DEBUGGER_INFORMATION_LASTMODIFIED, m_lastModified);
     return data;
 }
 
 QString DebuggerItem::displayName() const
 {
-    if (!m_unexpandedDisplayName.contains(QLatin1Char('%')))
+    if (!m_unexpandedDisplayName.contains('%'))
         return m_unexpandedDisplayName;
 
     MacroExpander expander;
@@ -271,7 +271,7 @@ QString DebuggerItem::displayName() const
         [this] { return !m_version.isEmpty() ? m_version :
                                                DebuggerKitInformation::tr("Unknown debugger version"); });
     expander.registerVariable("Debugger:Abi", DebuggerKitInformation::tr("Debugger"),
-        [this] { return !m_abis.isEmpty() ? abiNames().join(QLatin1Char(' ')) :
+        [this] { return !m_abis.isEmpty() ? abiNames().join(' ') :
                                             DebuggerKitInformation::tr("Unknown debugger ABI"); });
     return expander.expand(m_unexpandedDisplayName);
 }

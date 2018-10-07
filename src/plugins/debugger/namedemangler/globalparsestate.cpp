@@ -43,7 +43,7 @@ char GlobalParseState::advance(int steps)
 {
     Q_ASSERT(steps > 0);
     if (m_pos + steps > m_mangledName.size())
-        throw ParseException(QLatin1String("Unexpected end of input"));
+        throw ParseException("Unexpected end of input");
 
     const char c = m_mangledName[m_pos];
     m_pos += steps;

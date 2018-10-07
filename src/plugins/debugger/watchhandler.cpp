@@ -652,7 +652,7 @@ static QString reformatCharacter(int code, int size, bool isSigned)
         if (code < 0)
             out += QString("/%1    ").arg((1ULL << (8*size)) + code).left(2 + 2 * size);
         else
-            out += QString(2 + 2 * size, QLatin1Char(' '));
+            out += QString(2 + 2 * size, ' ');
     } else {
         out += QString::number(unsigned(code));
     }
@@ -2193,7 +2193,7 @@ void WatchHandler::watchExpression(const QString &exp, const QString &name, bool
     saveWatchers();
 
     if (m_model->m_engine->state() == DebuggerNotReady) {
-        item->setValue(QString(QLatin1Char(' ')));
+        item->setValue(" ");
         item->update();
     } else {
         m_model->m_engine->updateWatchData(item->iname);
@@ -2216,7 +2216,7 @@ void WatchHandler::updateWatchExpression(WatchItem *item, const QString &newExp)
 
     saveWatchers();
     if (m_model->m_engine->state() == DebuggerNotReady) {
-        item->setValue(QString(QLatin1Char(' ')));
+        item->setValue(" ");
         item->update();
     } else {
         m_model->m_engine->updateWatchData(item->iname);
@@ -2622,7 +2622,7 @@ QString WatchModel::editorContents(const QModelIndexList &list)
     QTextStream ts(&contents);
     forAllItems([&ts, this, list](WatchItem *item) {
         if (list.isEmpty() || list.contains(indexForItem(item))) {
-            const QChar tab = QLatin1Char('\t');
+            const QChar tab = '\t';
             const QChar nl = '\n';
             ts << QString(item->level(), tab) << item->name << tab << displayValue(item) << tab
                << item->type << nl;
