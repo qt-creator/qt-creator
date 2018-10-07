@@ -1612,6 +1612,11 @@ void GitPlugin::testGitRemote_data()
                .host("codereview.qt-project.org")
                .port(29418)
                .path("/qt-creator/qt-creator.git");
+    QTest::newRow("ssh-github")
+            << RemoteTest("git@github.com:qt-creator/qt-creator.git")
+               .userName("git")
+               .host("github.com")
+               .path("qt-creator/qt-creator.git");
     QTest::newRow("local-file-protocol")
             << RemoteTest("file:///tmp/myrepo.git")
                .protocol("file")

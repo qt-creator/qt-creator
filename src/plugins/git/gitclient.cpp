@@ -3378,7 +3378,7 @@ GitRemote::GitRemote(const QString &url)
 {
     static const QRegularExpression remotePattern(
                 "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)"
-                "(?::(?<port>\\d+))?:?(?<path>/.*)$");
+                "(?::(?<port>\\d+))?:?(?<path>.*)$");
 
     if (url.isEmpty())
         return;
