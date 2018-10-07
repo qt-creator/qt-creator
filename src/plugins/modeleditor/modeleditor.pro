@@ -23,7 +23,9 @@ SOURCES += \
     modeleditor_plugin.cpp \
     modelindexer.cpp \
     modelsmanager.cpp \
+    modelutilities.cpp \
     openelementvisitor.cpp \
+    packageviewcontroller.cpp \
     pxnodecontroller.cpp \
     pxnodeutilities.cpp \
     settingscontroller.cpp \
@@ -48,7 +50,9 @@ HEADERS += \
     modeleditor_plugin.h \
     modelindexer.h \
     modelsmanager.h \
+    modelutilities.h \
     openelementvisitor.h \
+    packageviewcontroller.h \
     pxnodecontroller.h \
     pxnodeutilities.h \
     settingscontroller.h \

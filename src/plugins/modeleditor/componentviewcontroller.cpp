@@ -25,6 +25,8 @@
 
 #include "componentviewcontroller.h"
 
+#include "modelutilities.h"
+#include "packageviewcontroller.h"
 #include "pxnodeutilities.h"
 
 #include "qmt/controller/namecontroller.h"
@@ -116,29 +118,39 @@ class UpdateIncludeDependenciesVisitor :
     };
 
 public:
+    void setPackageViewController(PackageViewController *packageViewController);
     void setModelController(qmt::ModelController *modelController);
+    void setModelUtilities(ModelUtilities *modelUtilities);
     void updateFilePaths();
     void visitMComponent(qmt::MComponent *component);
 
 private:
-    bool haveMatchingStereotypes(const qmt::MObject *object1, const qmt::MObject *object2);
     QStringList findFilePathOfComponent(const qmt::MComponent *component);
     void collectElementPaths(const ProjectExplorer::FolderNode *folderNode, QMultiHash<QString,
                              Node> *filePathsMap);
     qmt::MComponent *findComponentFromFilePath(const QString &filePath);
-    bool haveDependency(const qmt::MObject *source, const qmt::MObject *target,
-                        bool inverted = false);
-    bool haveDependency(const qmt::MObject *source, const QList<qmt::MPackage *> &targets);
 
 private:
+    PackageViewController *m_packageViewController = nullptr;
     qmt::ModelController *m_modelController = nullptr;
+    ModelUtilities *m_modelUtilities = nullptr;
     QMultiHash<QString, Node> m_filePaths;
     QHash<QString, qmt::MComponent *> m_filePathComponentsMap;
 };
 
+void UpdateIncludeDependenciesVisitor::setPackageViewController(PackageViewController *packageViewController)
+{
+    m_packageViewController = packageViewController;
+}
+
 void UpdateIncludeDependenciesVisitor::setModelController(qmt::ModelController *modelController)
 {
     m_modelController = modelController;
+}
+
+void UpdateIncludeDependenciesVisitor::setModelUtilities(ModelUtilities *modelUtilities)
+{
+    m_modelUtilities = modelUtilities;
 }
 
 void UpdateIncludeDependenciesVisitor::updateFilePaths()
@@ -175,7 +187,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                 qmt::MComponent *includeComponent = findComponentFromFilePath(includeFilePath);
                 if (includeComponent && includeComponent != component) {
                     // add dependency between components
-                    if (!haveDependency(component, includeComponent)) {
+                    if (!m_modelUtilities->haveDependency(component, includeComponent)) {
                         auto dependency = new qmt::MDependency;
                         dependency->setFlags(qmt::MElement::ReverseEngineered);
                         dependency->setStereotypes(QStringList() << "include");
@@ -184,99 +196,12 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                         dependency->setTarget(includeComponent->uid());
                         m_modelController->addRelation(component, dependency);
                     }
-
-                    // search ancestors sharing a common owner
-                    QList<qmt::MPackage *> componentAncestors;
-                    auto ancestor = dynamic_cast<qmt::MPackage *>(component->owner());
-                    while (ancestor) {
-                        componentAncestors.append(ancestor);
-                        ancestor = dynamic_cast<qmt::MPackage *>(ancestor->owner());
-                    }
-                    QList<qmt::MPackage *> includeComponentAncestors;
-                    ancestor = dynamic_cast<qmt::MPackage *>(includeComponent->owner());
-                    while (ancestor) {
-                        includeComponentAncestors.append(ancestor);
-                        ancestor = dynamic_cast<qmt::MPackage *>(ancestor->owner());
-                    }
-
-                    int componentHighestAncestorIndex = componentAncestors.size() - 1;
-                    int includeComponentHighestAncestorIndex = includeComponentAncestors.size() - 1;
-                    QMT_ASSERT(componentAncestors.at(componentHighestAncestorIndex) == includeComponentAncestors.at(includeComponentHighestAncestorIndex), return);
-                    while (componentHighestAncestorIndex > 0 && includeComponentHighestAncestorIndex > 0) {
-                        if (componentAncestors.at(componentHighestAncestorIndex) != includeComponentAncestors.at(includeComponentHighestAncestorIndex))
-                            break;
-                        --componentHighestAncestorIndex;
-                        --includeComponentHighestAncestorIndex;
-                    }
-
-                    // add dependency between parent packages with same stereotype
-                    int index1 = 0;
-                    int includeComponentLowestIndex = 0;
-                    while (index1 <= componentHighestAncestorIndex
-                           && includeComponentLowestIndex <= includeComponentHighestAncestorIndex) {
-                        if (!componentAncestors.at(index1)->stereotypes().isEmpty()) {
-                            int index2 = includeComponentLowestIndex;
-                            while (index2 <= includeComponentHighestAncestorIndex) {
-                                if (haveMatchingStereotypes(componentAncestors.at(index1), includeComponentAncestors.at(index2))) {
-                                    if (!haveDependency(componentAncestors.at(index1), includeComponentAncestors.at(index2))) {
-                                        auto dependency = new qmt::MDependency;
-                                        dependency->setFlags(qmt::MElement::ReverseEngineered);
-                                        // TODO set stereotype for testing purpose
-                                        dependency->setStereotypes(QStringList() << "same stereotype");
-                                        dependency->setDirection(qmt::MDependency::AToB);
-                                        dependency->setSource(componentAncestors.at(index1)->uid());
-                                        dependency->setTarget(includeComponentAncestors.at(index2)->uid());
-                                        m_modelController->addRelation(componentAncestors.at(index1), dependency);
-                                    }
-                                    includeComponentLowestIndex = index2 + 1;
-                                    break;
-                                }
-                                ++index2;
-                            }
-                        }
-                        ++index1;
-                    }
-
-                    // add dependency between topmost packages with common owner
-                    if (componentAncestors.at(componentHighestAncestorIndex) != includeComponentAncestors.at(includeComponentHighestAncestorIndex)) {
-                        if (!haveDependency(componentAncestors.at(componentHighestAncestorIndex), includeComponentAncestors)) {
-                            auto dependency = new qmt::MDependency;
-                            dependency->setFlags(qmt::MElement::ReverseEngineered);
-                            // TODO set stereotype for testing purpose
-                            dependency->setStereotypes(QStringList() << "ancestor");
-                            dependency->setDirection(qmt::MDependency::AToB);
-                            dependency->setSource(componentAncestors.at(componentHighestAncestorIndex)->uid());
-                            dependency->setTarget(includeComponentAncestors.at(includeComponentHighestAncestorIndex)->uid());
-                            m_modelController->addRelation(componentAncestors.at(componentHighestAncestorIndex), dependency);
-                        }
-                    }
-
-                    // add dependency between parent packages
-                    if (componentHighestAncestorIndex > 0 && includeComponentHighestAncestorIndex > 0) { // check for valid parents
-                        if (componentAncestors.at(0) != includeComponentAncestors.at(0)) {
-                            if (!haveDependency(componentAncestors.at(0), includeComponentAncestors)) {
-                                auto dependency = new qmt::MDependency;
-                                dependency->setFlags(qmt::MElement::ReverseEngineered);
-                                // TODO set stereotype for testing purpose
-                                dependency->setStereotypes(QStringList() << "parents");
-                                dependency->setDirection(qmt::MDependency::AToB);
-                                dependency->setSource(componentAncestors.at(0)->uid());
-                                dependency->setTarget(includeComponentAncestors.at(0)->uid());
-                                m_modelController->addRelation(componentAncestors.at(0), dependency);
-                            }
-                        }
-                    }
+                    m_packageViewController->createAncestorDependencies(component, includeComponent);
                 }
             }
         }
     }
     visitMObject(component);
-}
-
-bool UpdateIncludeDependenciesVisitor::haveMatchingStereotypes(const qmt::MObject *object1,
-                                                               const qmt::MObject *object2)
-{
-    return !(object1->stereotypes().toSet() & object2->stereotypes().toSet()).isEmpty();
 }
 
 QStringList UpdateIncludeDependenciesVisitor::findFilePathOfComponent(const qmt::MComponent *component)
@@ -335,48 +260,10 @@ qmt::MComponent *UpdateIncludeDependenciesVisitor::findComponentFromFilePath(con
     return component;
 }
 
-bool UpdateIncludeDependenciesVisitor::haveDependency(const qmt::MObject *source,
-                                                      const qmt::MObject *target, bool inverted)
-{
-    qmt::MDependency::Direction aToB = qmt::MDependency::AToB;
-    qmt::MDependency::Direction bToA = qmt::MDependency::BToA;
-    if (inverted) {
-        aToB = qmt::MDependency::BToA;
-        bToA = qmt::MDependency::AToB;
-    }
-    for (const qmt::Handle<qmt::MRelation> &handle : source->relations()) {
-        if (auto dependency = dynamic_cast<qmt::MDependency *>(handle.target())) {
-            if (dependency->source() == source->uid()
-                    && dependency->target() == target->uid()
-                    && (dependency->direction() == aToB
-                        || dependency->direction() == qmt::MDependency::Bidirectional)) {
-                return true;
-            }
-            if (dependency->source() == target->uid()
-                    && dependency->target() == source->uid()
-                    && (dependency->direction() == bToA
-                        || dependency->direction() == qmt::MDependency::Bidirectional)) {
-                return true;
-            }
-        }
-    }
-    if (!inverted)
-        return haveDependency(target, source, true);
-    return false;
-}
-
-bool UpdateIncludeDependenciesVisitor::haveDependency(const qmt::MObject *source,
-                                                      const QList<qmt::MPackage *> &targets)
-{
-    foreach (const qmt::MObject *target, targets) {
-        if (haveDependency(source, target))
-            return true;
-    }
-    return false;
-}
-
 class ComponentViewController::ComponentViewControllerPrivate {
 public:
+    ModelUtilities *modelUtilities = nullptr;
+    PackageViewController *packageViewController = nullptr;
     PxNodeUtilities *pxnodeUtilities = nullptr;
     qmt::DiagramSceneController *diagramSceneController = nullptr;
 };
@@ -390,6 +277,16 @@ ComponentViewController::ComponentViewController(QObject *parent)
 ComponentViewController::~ComponentViewController()
 {
     delete d;
+}
+
+void ComponentViewController::setModelUtilities(ModelUtilities *modelUtilities)
+{
+    d->modelUtilities = modelUtilities;
+}
+
+void ComponentViewController::setPackageViewController(PackageViewController *packageViewController)
+{
+    d->packageViewController = packageViewController;
 }
 
 void ComponentViewController::setPxNodeUtilties(PxNodeUtilities *pxnodeUtilities)
@@ -416,7 +313,9 @@ void ComponentViewController::updateIncludeDependencies(qmt::MPackage *rootPacka
 {
     d->diagramSceneController->modelController()->startResetModel();
     UpdateIncludeDependenciesVisitor visitor;
+    visitor.setPackageViewController(d->packageViewController);
     visitor.setModelController(d->diagramSceneController->modelController());
+    visitor.setModelUtilities(d->modelUtilities);
     visitor.updateFilePaths();
     rootPackage->accept(&visitor);
     d->diagramSceneController->modelController()->finishResetModel(true);

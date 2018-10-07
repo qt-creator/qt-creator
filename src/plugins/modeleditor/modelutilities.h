@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Jochen Becher
+** Copyright (C) 2018 Jochen Becher
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,46 +27,24 @@
 
 #include <QObject>
 
-namespace ProjectExplorer { class FolderNode; }
-
 namespace qmt {
+class MObject;
 class MPackage;
-class MDiagram;
-class DiagramSceneController;
 }
 
 namespace ModelEditor {
 namespace Internal {
 
-class ModelUtilities;
-class PackageViewController;
-class PxNodeUtilities;
-
-class ComponentViewController :
-        public QObject
+class ModelUtilities : public QObject
 {
     Q_OBJECT
-    class ComponentViewControllerPrivate;
-
 public:
-    explicit ComponentViewController(QObject *parent = nullptr);
-    ~ComponentViewController();
+    explicit ModelUtilities(QObject *parent = nullptr);
+    ~ModelUtilities();
 
-    void setModelUtilities(ModelUtilities *modelUtilities);
-    void setPackageViewController(PackageViewController *packageViewController);
-    void setPxNodeUtilties(PxNodeUtilities *pxnodeUtilities);
-    void setDiagramSceneController(qmt::DiagramSceneController *diagramSceneController);
-
-    void createComponentModel(const QString &filePath,
-                              qmt::MDiagram *diagram, const QString &anchorFolder);
-    void updateIncludeDependencies(qmt::MPackage *rootPackage);
-
-private:
-    void doCreateComponentModel(const QString &filePath, qmt::MDiagram *diagram,
-                                const QString &anchorFolder, bool scanHeaders);
-    bool isProxyHeader(const QString &file) const;
-
-    ComponentViewControllerPrivate *d;
+    bool haveDependency(const qmt::MObject *source, const qmt::MObject *target,
+                        bool inverted = false);
+    bool haveDependency(const qmt::MObject *source, const QList<qmt::MPackage *> &targets);
 };
 
 } // namespace Internal

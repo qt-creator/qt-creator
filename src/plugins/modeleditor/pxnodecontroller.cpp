@@ -28,6 +28,8 @@
 #include "pxnodeutilities.h"
 #include "componentviewcontroller.h"
 #include "classviewcontroller.h"
+#include "modelutilities.h"
+#include "packageviewcontroller.h"
 
 #include "qmt/model/mpackage.h"
 #include "qmt/model/mclass.h"
@@ -92,6 +94,8 @@ class PxNodeController::PxNodeControllerPrivate
 {
 public:
     PxNodeUtilities *pxnodeUtilities = nullptr;
+    ModelUtilities *modelUtilities = nullptr;
+    PackageViewController *packageViewController = nullptr;
     ComponentViewController *componentViewController = nullptr;
     ClassViewController *classViewController = nullptr;
     qmt::DiagramSceneController *diagramSceneController = nullptr;
@@ -103,8 +107,13 @@ PxNodeController::PxNodeController(QObject *parent)
       d(new PxNodeControllerPrivate)
 {
     d->pxnodeUtilities = new PxNodeUtilities(this);
+    d->modelUtilities = new ModelUtilities(this);
+    d->packageViewController = new PackageViewController(this);
+    d->packageViewController->setModelUtilities(d->modelUtilities);
     d->componentViewController = new ComponentViewController(this);
     d->componentViewController->setPxNodeUtilties(d->pxnodeUtilities);
+    d->componentViewController->setPackageViewController(d->packageViewController);
+    d->componentViewController->setModelUtilities(d->modelUtilities);
     d->classViewController = new ClassViewController(this);
 }
 
@@ -123,6 +132,7 @@ void PxNodeController::setDiagramSceneController(
 {
     d->diagramSceneController = diagramSceneController;
     d->pxnodeUtilities->setDiagramSceneController(diagramSceneController);
+    d->packageViewController->setModelController(diagramSceneController->modelController());
     d->componentViewController->setDiagramSceneController(diagramSceneController);
 }
 
