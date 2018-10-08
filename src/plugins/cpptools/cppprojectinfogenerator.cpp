@@ -35,86 +35,6 @@
 namespace CppTools {
 namespace Internal {
 
-namespace {
-
-class ToolChainEvaluator
-{
-public:
-    ToolChainEvaluator(ProjectPart &projectPart,
-                       Language language,
-                       const RawProjectPartFlags &flags,
-                       const ToolChainInfo &tcInfo)
-        : m_projectPart(projectPart)
-        , m_language(language)
-        , m_flags(flags)
-        , m_tcInfo(tcInfo)
-    {
-    }
-
-    void evaluate()
-    {
-        m_projectPart.toolchainType = m_tcInfo.type;
-        m_projectPart.isMsvc2015Toolchain = m_tcInfo.isMsvc2015ToolChain;
-        m_projectPart.toolChainWordWidth = mapWordWith(m_tcInfo.wordWidth);
-        m_projectPart.toolChainTargetTriple = m_tcInfo.targetTriple;
-        m_projectPart.extraCodeModelFlags = m_tcInfo.extraCodeModelFlags;
-
-        m_projectPart.warningFlags = m_flags.warningFlags;
-
-        // For compilation database pass the command line flags directly.
-        if (m_projectPart.toolchainType == ProjectExplorer::Constants::COMPILATION_DATABASE_TOOLCHAIN_TYPEID)
-            m_projectPart.extraCodeModelFlags = m_flags.commandLineFlags;
-
-        if (m_tcInfo.macroInspectionRunner) {
-            auto macroInspectionReport = m_tcInfo.macroInspectionRunner(m_flags.commandLineFlags);
-            m_projectPart.toolChainMacros = macroInspectionReport.macros;
-            m_projectPart.languageVersion = macroInspectionReport.languageVersion;
-        } else { // No compiler set in kit.
-            if (m_language == Language::C)
-                m_projectPart.languageVersion = ProjectExplorer::LanguageVersion::LatestC;
-            else if (m_language == Language::Cxx)
-                m_projectPart.languageVersion = ProjectExplorer::LanguageVersion::LatestCxx;
-        }
-
-        m_projectPart.languageExtensions = m_flags.languageExtensions;
-
-        addHeaderPaths();
-    }
-
-private:
-    static ProjectPart::ToolChainWordWidth mapWordWith(unsigned wordWidth)
-    {
-        return wordWidth == 64
-                ? ProjectPart::WordWidth64Bit
-                : ProjectPart::WordWidth32Bit;
-    }
-
-    void addHeaderPaths()
-    {
-        if (!m_tcInfo.headerPathsRunner)
-            return; // No compiler set in kit.
-
-        const ProjectExplorer::HeaderPaths builtInHeaderPaths
-                = m_tcInfo.headerPathsRunner(m_flags.commandLineFlags,
-                                             m_tcInfo.sysRootPath);
-
-        ProjectExplorer::HeaderPaths &headerPaths = m_projectPart.headerPaths;
-        for (const ProjectExplorer::HeaderPath &header : builtInHeaderPaths) {
-            const ProjectExplorer::HeaderPath headerPath{header.path, header.type};
-            if (!headerPaths.contains(headerPath))
-                headerPaths.push_back(headerPath);
-        }
-    }
-
-private:
-    ProjectPart &m_projectPart;
-    const Language m_language;
-    const RawProjectPartFlags &m_flags;
-    const ToolChainInfo &m_tcInfo;
-};
-
-} // anonymous namespace
-
 ProjectInfoGenerator::ProjectInfoGenerator(const QFutureInterface<void> &futureInterface,
                                            const ProjectUpdateInfo &projectUpdateInfo)
     : m_futureInterface(futureInterface)
@@ -220,10 +140,6 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
     Language language,
     ProjectExplorer::LanguageExtensions languageExtensions)
 {
-    ProjectPart::Ptr part(templateProjectPart->copy());
-    part->displayName = partName;
-    part->files = projectFiles;
-
     RawProjectPartFlags flags;
     ToolChainInfo tcInfo;
     if (language == Language::C) {
@@ -236,8 +152,46 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
         tcInfo = m_projectUpdateInfo.cxxToolChainInfo;
     }
     // TODO: If no toolchain is set, show a warning
-    ToolChainEvaluator evaluator(*part.data(), language, flags, tcInfo);
-    evaluator.evaluate();
+
+    ProjectPart::Ptr part(templateProjectPart->copy());
+    part->displayName = partName;
+    part->files = projectFiles;
+    part->toolchainType = tcInfo.type;
+    part->isMsvc2015Toolchain = tcInfo.isMsvc2015ToolChain;
+    part->toolChainWordWidth = tcInfo.wordWidth == 64 ? ProjectPart::WordWidth64Bit
+                                                      : ProjectPart::WordWidth32Bit;
+    part->toolChainTargetTriple = tcInfo.targetTriple;
+    part->extraCodeModelFlags = tcInfo.extraCodeModelFlags;
+    part->warningFlags = flags.warningFlags;
+    part->languageExtensions = flags.languageExtensions;
+
+    if (part->toolchainType == ProjectExplorer::Constants::COMPILATION_DATABASE_TOOLCHAIN_TYPEID)
+        part->extraCodeModelFlags = flags.commandLineFlags;
+
+    // Toolchain macros and language version
+    if (tcInfo.macroInspectionRunner) {
+        auto macroInspectionReport = tcInfo.macroInspectionRunner(flags.commandLineFlags);
+        part->toolChainMacros = macroInspectionReport.macros;
+        part->languageVersion = macroInspectionReport.languageVersion;
+    // No compiler set in kit.
+    } else if (language == Language::C) {
+        part->languageVersion = ProjectExplorer::LanguageVersion::LatestC;
+    } else {
+        part->languageVersion = ProjectExplorer::LanguageVersion::LatestCxx;
+    }
+
+    // Header paths
+    if (tcInfo.headerPathsRunner) {
+        const ProjectExplorer::HeaderPaths builtInHeaderPaths
+            = tcInfo.headerPathsRunner(flags.commandLineFlags, tcInfo.sysRootPath);
+
+        ProjectExplorer::HeaderPaths &headerPaths = part->headerPaths;
+        for (const ProjectExplorer::HeaderPath &header : builtInHeaderPaths) {
+            const ProjectExplorer::HeaderPath headerPath{header.path, header.type};
+            if (!headerPaths.contains(headerPath))
+                headerPaths.push_back(headerPath);
+        }
+    }
 
     part->languageExtensions |= languageExtensions;
     part->updateLanguageFeatures();
