@@ -134,7 +134,6 @@ namespace SilverSearcher {
 
 FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
     : SearchEngine(parent),
-      m_widget(0),
       m_path("ag"),
       m_toolName("SilverSearcher")
 {
@@ -190,7 +189,7 @@ QFuture<FileSearchResultList> FindInFilesSilverSearcher::executeSearch(
 IEditor *FindInFilesSilverSearcher::openEditor(const SearchResultItem & /*item*/,
                                                const FileFindParameters & /*parameters*/)
 {
-    return 0;
+    return nullptr;
 }
 
 void FindInFilesSilverSearcher::readSettings(QSettings * /*settings*/)
