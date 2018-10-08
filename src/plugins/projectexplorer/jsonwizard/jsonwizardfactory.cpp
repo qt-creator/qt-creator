@@ -318,7 +318,7 @@ static QStringList environmentTemplatesPaths()
 {
     QStringList paths;
 
-    QString envTempPath =  qEnvironmentVariable("QTCREATOR_TEMPLATES_PATH");
+    QString envTempPath = QString::fromLocal8Bit(qgetenv("QTCREATOR_TEMPLATES_PATH"));
 
     if (!envTempPath.isEmpty()) {
         for (const QString &path : envTempPath
