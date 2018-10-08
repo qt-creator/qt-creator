@@ -112,7 +112,7 @@ public:
         QVector<Match> matches;
         if (m_parameters.flags & FindRegularExpression) {
             const QRegularExpression::PatternOptions patternOptions =
-                    (m_parameters.flags & QTextDocument::FindCaseSensitively)
+                    (m_parameters.flags & FindCaseSensitively)
                     ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
             regexp.setPattern(m_parameters.text);
             regexp.setPatternOptions(patternOptions);
