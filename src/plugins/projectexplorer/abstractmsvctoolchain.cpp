@@ -146,10 +146,15 @@ LanguageVersion static languageVersionForMsvc(const Core::Id &language, const Ma
     }
 }
 
-bool static hasFlagEffectOnMacros(const QString &arg)
+bool static hasFlagEffectOnMacros(const QString &flag)
 {
-    if (arg.startsWith("-I"))
-        return false;
+    if (flag.startsWith("-") || flag.startsWith("/")) {
+        const QString f = flag.mid(1);
+        if (f.startsWith("I"))
+            return false; // Skip include paths
+        if (f.startsWith("w", Qt::CaseInsensitive))
+            return false; // Skip warning options
+    }
     return true;
 }
 
