@@ -31,8 +31,6 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-const char PROJECT_TYPE_ICON[] = ":/cmakeproject/images/project_type_settings_icon.png";
-
 CMakeSpecificSettingWidget::CMakeSpecificSettingWidget(QWidget *parent):
     QWidget(parent)
 {
