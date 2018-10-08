@@ -152,47 +152,6 @@ Q_DECLARE_TYPEINFO(HandlerNode, Q_MOVABLE_TYPE);
 
 QT_END_NAMESPACE
 
-static HandlerNode buildHandlerNodes(const char * const **keys)
-{
-    HandlerNode ret;
-    while (const char *rname = *(*keys)++) {
-        QString name = QLatin1String(rname);
-        if (name.endsWith('.')) {
-            HandlerNode sub = buildHandlerNodes(keys);
-            foreach (const QString &key, name.split('|'))
-                ret.children.insert(key, sub);
-        } else {
-            ret.strings.insert(name);
-        }
-    }
-    return ret;
-}
-
-static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMap &map,
-                                       QVariant (*handler)(const QVariant &var))
-{
-    QVariantMap result;
-    QMapIterator<QString, QVariant> it(map);
-    while (it.hasNext()) {
-        it.next();
-        const QString &key = it.key();
-        if (node.strings.contains(key)) {
-            result.insert(key, handler(it.value()));
-            goto handled;
-        }
-        if (it.value().type() == QVariant::Map)
-            for (QHash<QString, HandlerNode>::ConstIterator subit = node.children.constBegin();
-                 subit != node.children.constEnd(); ++subit)
-                if (key.startsWith(subit.key())) {
-                    result.insert(key, processHandlerNodes(subit.value(), it.value().toMap(), handler));
-                    goto handled;
-                }
-        result.insert(key, it.value());
-      handled: ;
-    }
-    return result;
-}
-
 // --------------------------------------------------------------------
 // Helpers:
 // --------------------------------------------------------------------
