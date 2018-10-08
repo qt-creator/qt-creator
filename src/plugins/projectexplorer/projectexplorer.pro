@@ -89,6 +89,7 @@ HEADERS += projectexplorer.h \
     projectmodels.h \
     currentprojectfind.h \
     toolchain.h \
+    toolchaincache.h \
     toolchainconfigwidget.h \
     toolchainmanager.h \
     toolchainoptionspage.h \

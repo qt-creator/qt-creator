@@ -29,6 +29,7 @@
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "taskhub.h"
+#include "toolchaincache.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
@@ -46,7 +47,7 @@ namespace Internal {
 AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Core::Id l, Detection d,
                                              const Abi &abi,
                                              const QString& vcvarsBat) : ToolChain(typeId, d),
-    m_predefinedMacrosMutex(new QMutex),
+    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
     m_lastEnvironment(Utils::Environment::systemEnvironment()),
     m_headerPathsMutex(new QMutex),
     m_abi(abi),
@@ -57,20 +58,18 @@ AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Core::Id l, Detect
 
 AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Detection d) :
     ToolChain(typeId, d),
+    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
     m_lastEnvironment(Utils::Environment::systemEnvironment())
 { }
 
 AbstractMsvcToolChain::~AbstractMsvcToolChain()
 {
-    delete m_predefinedMacrosMutex;
     delete m_headerPathsMutex;
 }
 
 AbstractMsvcToolChain::AbstractMsvcToolChain(const AbstractMsvcToolChain &other)
     : ToolChain(other),
       m_debuggerCommand(other.m_debuggerCommand),
-      m_predefinedMacrosMutex(new QMutex),
-      m_predefinedMacros(other.m_predefinedMacros),
       m_lastEnvironment(other.m_lastEnvironment),
       m_resultEnvironment(other.m_resultEnvironment),
       m_headerPathsMutex(new QMutex),
@@ -147,6 +146,13 @@ LanguageVersion static languageVersionForMsvc(const Core::Id &language, const Ma
     }
 }
 
+bool static hasFlagEffectOnMacros(const QString &arg)
+{
+    if (arg.startsWith("-I"))
+        return false;
+    return true;
+}
+
 Q_GLOBAL_STATIC_WITH_ARGS(const QVector<QByteArray>, unwantedMacrosMsvc,
                           ({"_MSVC_LANG",
                             "_MSC_BUILD",
@@ -157,21 +163,29 @@ ToolChain::MacroInspectionRunner AbstractMsvcToolChain::createMacroInspectionRun
 {
     Utils::Environment env(m_lastEnvironment);
     addToEnvironment(env);
+    std::shared_ptr<Cache<MacroInspectionReport, 64>> macroCache = m_predefinedMacrosCache;
     const Core::Id lang = language();
 
     // This runner must be thread-safe!
-    return [this, env, lang](const QStringList &cxxflags) {
-        QMutexLocker locker(m_predefinedMacrosMutex);
-        if (m_predefinedMacros.isEmpty() || m_cxxFlags != cxxflags) {
-            m_predefinedMacros = msvcPredefinedMacros(cxxflags, env);
-            m_cxxFlags = cxxflags;
-        }
+    return [this, env, macroCache, lang](const QStringList &cxxflags) {
+        const QStringList filteredFlags = Utils::filtered(cxxflags, [](const QString &arg) {
+            return hasFlagEffectOnMacros(arg);
+        });
 
-        const QVector<Macro> filteredMacros = Utils::filtered(m_predefinedMacros, [](const Macro &m) {
+        const Utils::optional<MacroInspectionReport> cachedMacros = macroCache->check(filteredFlags);
+        if (cachedMacros)
+            return cachedMacros.value();
+
+        const Macros macros = msvcPredefinedMacros(filteredFlags, env);
+        const QVector<Macro> filteredMacros = Utils::filtered(macros, [](const Macro &m) {
             return !ToolChain::isUnwantedMacro(m) && !unwantedMacrosMsvc->contains(m.key);
         });
-        return MacroInspectionReport{filteredMacros,
-                                     languageVersionForMsvc(lang, m_predefinedMacros)};
+
+        const auto report = MacroInspectionReport{filteredMacros,
+                                                  languageVersionForMsvc(lang, macros)};
+        macroCache->insert(filteredFlags, report);
+
+        return report;
     };
 }
 
@@ -458,6 +472,11 @@ void AbstractMsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags
     }
     if (warningLevel >= 4)
         flags |= WarningFlags::UnusedParams;
+}
+
+void Internal::AbstractMsvcToolChain::toolChainUpdated()
+{
+    m_predefinedMacrosCache->invalidate();
 }
 
 bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const

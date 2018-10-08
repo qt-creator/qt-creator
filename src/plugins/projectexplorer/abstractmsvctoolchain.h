@@ -26,6 +26,7 @@
 #pragma once
 
 #include "toolchain.h"
+#include "toolchaincache.h"
 #include "abi.h"
 #include "headerpath.h"
 
@@ -92,6 +93,7 @@ protected:
     };
 
     static void inferWarningsForLevel(int warningLevel, WarningFlags &flags);
+    void toolChainUpdated() override;
     virtual Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const = 0;
     // Function must be thread-safe!
     virtual Macros msvcPredefinedMacros(const QStringList cxxflags,
@@ -100,9 +102,7 @@ protected:
 
     Utils::FileName m_debuggerCommand;
 
-    mutable QMutex *m_predefinedMacrosMutex = nullptr;
-    mutable Macros m_predefinedMacros;
-    mutable QStringList m_cxxFlags;
+    mutable std::shared_ptr<Cache<MacroInspectionReport, 64>> m_predefinedMacrosCache;
 
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC

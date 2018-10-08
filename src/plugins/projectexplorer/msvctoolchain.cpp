@@ -470,8 +470,6 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
             predefinedMacros.append(Macro::fromKeyValue(define));
         } else if (arg.startsWith(QLatin1String("/U"))) {
             predefinedMacros.append({arg.mid(2).toLocal8Bit(), ProjectExplorer::MacroType::Undefine});
-        } else if (arg.startsWith(QLatin1String("-I"))) {
-            // Include paths should not have any effect on defines
         } else {
             toProcess.append(arg);
         }
