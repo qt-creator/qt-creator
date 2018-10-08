@@ -72,7 +72,7 @@ public:
         } else { // No compiler set in kit.
             if (m_language == Language::C)
                 m_projectPart.languageVersion = ProjectExplorer::LanguageVersion::LatestC;
-            if (m_language == Language::CXX)
+            else if (m_language == Language::Cxx)
                 m_projectPart.languageVersion = ProjectExplorer::LanguageVersion::LatestCxx;
         }
 
@@ -178,7 +178,7 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         part,
                                         cat.cxxSources(),
                                         cat.partName("C++"),
-                                        Language::CXX,
+                                        Language::Cxx,
                                         LanguageExtension::None);
         }
 
@@ -187,7 +187,7 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         part,
                                         cat.objcxxSources(),
                                         cat.partName("Obj-C++"),
-                                        Language::CXX,
+                                        Language::Cxx,
                                         LanguageExtension::ObjectiveC);
         }
 

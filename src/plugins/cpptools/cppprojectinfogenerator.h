@@ -25,14 +25,13 @@
 
 #pragma once
 
+#include "cpptools_utils.h"
 #include "projectinfo.h"
 
 #include <QFutureInterface>
 
 namespace CppTools {
 namespace Internal {
-
-enum class Language { C, CXX };
 
 class ProjectInfoGenerator
 {
