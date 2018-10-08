@@ -73,7 +73,7 @@ public:
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
-    CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
+    LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cxxflags) const override;
     const Macros &rawPredefinedMacros() const;
     void setPredefinedMacros(const Macros &macros);

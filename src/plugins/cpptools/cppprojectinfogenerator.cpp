@@ -68,16 +68,16 @@ public:
         if (m_tcInfo.macroInspectionRunner) {
             auto macroInspectionReport = m_tcInfo.macroInspectionRunner(m_flags.commandLineFlags);
             m_projectPart.toolChainMacros = macroInspectionReport.macros;
-            m_projectPart.languageVersion = static_cast<ProjectPart::LanguageVersion>(
-                macroInspectionReport.languageVersion);
+            m_projectPart.languageVersion = macroInspectionReport.languageVersion;
         } else { // No compiler set in kit.
             if (m_language == Language::C)
-                m_projectPart.languageVersion = ProjectPart::LanguageVersion::LatestCVersion;
+                m_projectPart.languageVersion = ProjectExplorer::LanguageVersion::LatestC;
             if (m_language == Language::CXX)
-                m_projectPart.languageVersion = ProjectPart::LanguageVersion::LatestCxxVersion;
+                m_projectPart.languageVersion = ProjectExplorer::LanguageVersion::LatestCxx;
         }
 
-        mapLanguageExtensions();
+        m_projectPart.languageExtensions = m_flags.languageExtensions;
+
         addHeaderPaths();
     }
 
@@ -87,25 +87,6 @@ private:
         return wordWidth == 64
                 ? ProjectPart::WordWidth64Bit
                 : ProjectPart::WordWidth32Bit;
-    }
-
-    void mapLanguageExtensions()
-    {
-        using namespace ProjectExplorer;
-
-        const ToolChain::CompilerFlags &compilerFlags = m_flags.compilerFlags;
-        ProjectPart::LanguageExtensions &languageExtensions = m_projectPart.languageExtensions;
-
-        if (compilerFlags & ToolChain::BorlandExtensions)
-            languageExtensions |= ProjectPart::BorlandExtensions;
-        if (compilerFlags & ToolChain::GnuExtensions)
-            languageExtensions |= ProjectPart::GnuExtensions;
-        if (compilerFlags & ToolChain::MicrosoftExtensions)
-            languageExtensions |= ProjectPart::MicrosoftExtensions;
-        if (compilerFlags & ToolChain::OpenMP)
-            languageExtensions |= ProjectPart::OpenMPExtensions;
-        if (compilerFlags & ToolChain::ObjectiveC)
-            languageExtensions |= ProjectPart::ObjectiveCExtensions;
     }
 
     void addHeaderPaths()
@@ -181,6 +162,8 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawP
 
 QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProjectPart &rawProjectPart)
 {
+    using ProjectExplorer::LanguageExtension;
+
     QVector<ProjectPart::Ptr> result;
     ProjectFileCategorizer cat(rawProjectPart.displayName,
                                rawProjectPart.files,
@@ -196,7 +179,7 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         cat.cxxSources(),
                                         cat.partName("C++"),
                                         Language::CXX,
-                                        ProjectPart::NoExtensions);
+                                        LanguageExtension::None);
         }
 
         if (cat.hasObjcxxSources()) {
@@ -205,7 +188,7 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         cat.objcxxSources(),
                                         cat.partName("Obj-C++"),
                                         Language::CXX,
-                                        ProjectPart::ObjectiveCExtensions);
+                                        LanguageExtension::ObjectiveC);
         }
 
         if (cat.hasCSources()) {
@@ -214,7 +197,7 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         cat.cSources(),
                                         cat.partName("C"),
                                         Language::C,
-                                        ProjectPart::NoExtensions);
+                                        LanguageExtension::None);
         }
 
         if (cat.hasObjcSources()) {
@@ -223,18 +206,19 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         cat.objcSources(),
                                         cat.partName("Obj-C"),
                                         Language::C,
-                                        ProjectPart::ObjectiveCExtensions);
+                                        LanguageExtension::ObjectiveC);
         }
     }
     return result;
 }
 
-ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(const RawProjectPart &rawProjectPart,
-                                                         const ProjectPart::Ptr &templateProjectPart,
-                                                         const ProjectFiles &projectFiles,
-                                                         const QString &partName,
-                                                         Language language,
-                                                         ProjectPart::LanguageExtensions languageExtensions)
+ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
+    const RawProjectPart &rawProjectPart,
+    const ProjectPart::Ptr &templateProjectPart,
+    const ProjectFiles &projectFiles,
+    const QString &partName,
+    Language language,
+    ProjectExplorer::LanguageExtensions languageExtensions)
 {
     ProjectPart::Ptr part(templateProjectPart->copy());
     part->displayName = partName;

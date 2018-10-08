@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,35 +25,41 @@
 
 #pragma once
 
-#include "projectinfo.h"
+#include <QFlags>
 
-#include <QFutureInterface>
+namespace ProjectExplorer {
 
-namespace CppTools {
-namespace Internal {
-
-enum class Language { C, CXX };
-
-class ProjectInfoGenerator
-{
-public:
-    ProjectInfoGenerator(const QFutureInterface<void> &futureInterface,
-                         const ProjectUpdateInfo &projectUpdateInfo);
-
-    ProjectInfo generate();
-
-private:
-    QVector<ProjectPart::Ptr> createProjectParts(const RawProjectPart &rawProjectPart);
-    ProjectPart::Ptr createProjectPart(const RawProjectPart &rawProjectPart,
-                                       const ProjectPart::Ptr &templateProjectPart,
-                                       const ProjectFiles &projectFiles,
-                                       const QString &partName,
-                                       Language language,
-                                       ProjectExplorer::LanguageExtensions languageExtensions);
-
-private:
-    const QFutureInterface<void> m_futureInterface;
-    const ProjectUpdateInfo &m_projectUpdateInfo;
+enum class LanguageVersion {
+    C89,
+    C99,
+    C11,
+    C18,
+    LatestC = C18,
+    CXX98,
+    CXX03,
+    CXX11,
+    CXX14,
+    CXX17,
+    CXX2a,
+    LatestCxx = CXX2a,
 };
-} // namespace Internal
-} // namespace CppTools
+
+enum class LanguageExtension {
+    None       = 0,
+
+    Gnu        = 1 << 0,
+    Microsoft  = 1 << 1,
+    Borland    = 1 << 2,
+    OpenMP     = 1 << 3,
+    ObjectiveC = 1 << 4,
+
+    All = Gnu
+        | Microsoft
+        | Borland
+        | OpenMP
+        | ObjectiveC
+};
+
+Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
+
+} // namespace ProjectExplorer

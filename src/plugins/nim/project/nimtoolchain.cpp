@@ -87,9 +87,9 @@ Macros NimToolChain::predefinedMacros(const QStringList &) const
     return Macros();
 }
 
-ToolChain::CompilerFlags NimToolChain::compilerFlags(const QStringList &) const
+LanguageExtensions NimToolChain::languageExtensions(const QStringList &) const
 {
-    return CompilerFlag::NoFlags;
+    return LanguageExtension::None;
 }
 
 WarningFlags NimToolChain::warningFlags(const QStringList &) const

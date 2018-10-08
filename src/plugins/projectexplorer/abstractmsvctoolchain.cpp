@@ -117,11 +117,8 @@ QString AbstractMsvcToolChain::originalTargetTriple() const
 //
 // For _MSV_VER values, see https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2017.
 //
-ToolChain::LanguageVersion static languageVersionForMsvc(const Core::Id &language,
-                                                         const Macros &macros)
+LanguageVersion static languageVersionForMsvc(const Core::Id &language, const Macros &macros)
 {
-    using LanguageVersion = ToolChain::LanguageVersion;
-
     int mscVer = -1;
     QByteArray msvcLang;
     for (const ProjectExplorer::Macro &macro : macros) {
@@ -146,7 +143,7 @@ ToolChain::LanguageVersion static languageVersionForMsvc(const Core::Id &languag
         return LanguageVersion::C99;
     } else {
         QTC_CHECK(false && "Unexpected toolchain language, assuming latest C++ we support.");
-        return LanguageVersion::LatestCxxVersion;
+        return LanguageVersion::LatestCxx;
     }
 }
 
@@ -183,17 +180,17 @@ ProjectExplorer::Macros AbstractMsvcToolChain::predefinedMacros(const QStringLis
     return createMacroInspectionRunner()(cxxflags).macros;
 }
 
-ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList &cxxflags) const
+LanguageExtensions AbstractMsvcToolChain::languageExtensions(const QStringList &cxxflags) const
 {
-    CompilerFlags flags(MicrosoftExtensions);
+    LanguageExtensions extensions(LanguageExtension::Microsoft);
     if (cxxflags.contains(QLatin1String("/openmp")))
-        flags |= OpenMP;
+        extensions |= LanguageExtension::OpenMP;
 
     // see http://msdn.microsoft.com/en-us/library/0k0w269d%28v=vs.71%29.aspx
     if (cxxflags.contains(QLatin1String("/Za")))
-        flags &= ~MicrosoftExtensions;
+        extensions &= ~LanguageExtensions(LanguageExtension::Microsoft);
 
-    return flags;
+    return extensions;
 }
 
 /**

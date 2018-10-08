@@ -103,9 +103,9 @@ QString Utils::toString(ProjectExplorer::HeaderPathType type)
     return QString();
 }
 
-QString Utils::toString(ProjectPart::LanguageVersion languageVersion)
+QString Utils::toString(ProjectExplorer::LanguageVersion languageVersion)
 {
-#define CASE_LANGUAGEVERSION(x) case ProjectPart::x: return QLatin1String(#x)
+#define CASE_LANGUAGEVERSION(x) case ProjectExplorer::LanguageVersion::x: return QLatin1String(#x)
     switch (languageVersion) {
     CASE_LANGUAGEVERSION(C89);
     CASE_LANGUAGEVERSION(C99);
@@ -123,19 +123,19 @@ QString Utils::toString(ProjectPart::LanguageVersion languageVersion)
     return QString();
 }
 
-QString Utils::toString(ProjectPart::LanguageExtensions languageExtension)
+QString Utils::toString(ProjectExplorer::LanguageExtensions languageExtension)
 {
     QString result;
 
-#define CASE_LANGUAGE_EXTENSION(ext) if (languageExtension & ProjectPart::ext) \
+#define CASE_LANGUAGE_EXTENSION(ext) if (languageExtension & ProjectExplorer::LanguageExtension::ext) \
     result += QLatin1String(#ext ", ");
 
-    CASE_LANGUAGE_EXTENSION(NoExtensions);
-    CASE_LANGUAGE_EXTENSION(GnuExtensions);
-    CASE_LANGUAGE_EXTENSION(MicrosoftExtensions);
-    CASE_LANGUAGE_EXTENSION(BorlandExtensions);
-    CASE_LANGUAGE_EXTENSION(OpenMPExtensions);
-    CASE_LANGUAGE_EXTENSION(ObjectiveCExtensions);
+    CASE_LANGUAGE_EXTENSION(None);
+    CASE_LANGUAGE_EXTENSION(Gnu);
+    CASE_LANGUAGE_EXTENSION(Microsoft);
+    CASE_LANGUAGE_EXTENSION(Borland);
+    CASE_LANGUAGE_EXTENSION(OpenMP);
+    CASE_LANGUAGE_EXTENSION(ObjectiveC);
 #undef CASE_LANGUAGE_EXTENSION
     if (result.endsWith(QLatin1String(", ")))
         result.chop(2);

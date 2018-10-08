@@ -29,6 +29,7 @@
 #include "projectexplorer_global.h"
 
 #include "headerpath.h"
+#include "language.h"
 #include "projectmacro.h"
 
 #include <coreplugin/id.h>
@@ -107,34 +108,7 @@ public:
 
     virtual bool isValid() const = 0;
 
-    enum CompilerFlag {
-        NoFlags = 0,
-        GnuExtensions = 0x8,
-        MicrosoftExtensions = 0x10,
-        BorlandExtensions = 0x20,
-        OpenMP = 0x40,
-        ObjectiveC = 0x80,
-    };
-
-    // Keep in sync with ProjectPart::LanguageVersion!
-    enum LanguageVersion {
-        C89,
-        C99,
-        C11,
-        C18,
-        LatestCVersion = C18,
-        CXX98,
-        CXX03,
-        CXX11,
-        CXX14,
-        CXX17,
-        CXX2a,
-        LatestCxxVersion = CXX2a,
-    };
-
-    Q_DECLARE_FLAGS(CompilerFlags, CompilerFlag)
-
-    virtual CompilerFlags compilerFlags(const QStringList &cxxflags) const = 0;
+    virtual LanguageExtensions languageExtensions(const QStringList &cxxflags) const = 0;
     virtual WarningFlags warningFlags(const QStringList &cflags) const = 0;
 
     class MacroInspectionReport

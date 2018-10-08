@@ -292,12 +292,12 @@ static long toLanguageVersionAsLong(QByteArray dateAsByteArray)
     return dateAsByteArray.toLong(nullptr);
 }
 
-ToolChain::LanguageVersion ToolChain::cxxLanguageVersion(const QByteArray &cplusplusMacroValue)
+LanguageVersion ToolChain::cxxLanguageVersion(const QByteArray &cplusplusMacroValue)
 {
     const long version = toLanguageVersionAsLong(cplusplusMacroValue);
 
     if (version > 201703L)
-        return LanguageVersion::LatestCxxVersion;
+        return LanguageVersion::LatestCxx;
 
     switch (version) {
     case 201703L: return LanguageVersion::CXX17;
@@ -307,11 +307,11 @@ ToolChain::LanguageVersion ToolChain::cxxLanguageVersion(const QByteArray &cplus
     case 199711L: return LanguageVersion::CXX03;
     default:
         QTC_CHECK(false && "Unexpected __cplusplus value, assuming latest C++ we support.");
-        return LanguageVersion::LatestCxxVersion;
+        return LanguageVersion::LatestCxx;
     }
 }
 
-ToolChain::LanguageVersion ToolChain::languageVersion(const Core::Id &language, const Macros &macros)
+LanguageVersion ToolChain::languageVersion(const Core::Id &language, const Macros &macros)
 {
     if (language == Constants::CXX_LANGUAGE_ID) {
         for (const ProjectExplorer::Macro &macro : macros) {
@@ -320,14 +320,14 @@ ToolChain::LanguageVersion ToolChain::languageVersion(const Core::Id &language, 
         }
 
         QTC_CHECK(false && "__cplusplus is not predefined, assuming latest C++ we support.");
-        return LanguageVersion::LatestCxxVersion;
+        return LanguageVersion::LatestCxx;
     } else if (language == Constants::C_LANGUAGE_ID) {
         for (const ProjectExplorer::Macro &macro : macros) {
             if (macro.key == "__STDC_VERSION__") {
                 const long version = toLanguageVersionAsLong(macro.value);
 
                 if (version > 201710L)
-                    return LanguageVersion::LatestCVersion;
+                    return LanguageVersion::LatestC;
 
                 switch (version) {
                 case 201710L: return LanguageVersion::C18;
@@ -337,7 +337,7 @@ ToolChain::LanguageVersion ToolChain::languageVersion(const Core::Id &language, 
                 default:
                     QTC_CHECK(false && "Unexpected __STDC_VERSION__ value, "
                                        "assuming latest C version we support.");
-                    return LanguageVersion::LatestCVersion;
+                    return LanguageVersion::LatestC;
                 }
             }
         }
@@ -347,7 +347,7 @@ ToolChain::LanguageVersion ToolChain::languageVersion(const Core::Id &language, 
         return LanguageVersion::C89;
     } else {
         QTC_CHECK(false && "Unexpected toolchain language, assuming latest C++ we support.");
-        return LanguageVersion::LatestCxxVersion;
+        return LanguageVersion::LatestCxx;
     }
 }
 

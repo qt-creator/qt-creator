@@ -59,7 +59,7 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
     m_options.clear();
 
     if (fileKind == ProjectFile::CHeader || fileKind == ProjectFile::CSource) {
-        QTC_ASSERT(m_projectPart.languageVersion <= ProjectPart::LatestCVersion,
+        QTC_ASSERT(m_projectPart.languageVersion <= ProjectExplorer::LanguageVersion::LatestC,
                    return QStringList(););
     }
 
@@ -196,7 +196,7 @@ void CompilerOptionsBuilder::addExtraCodeModelFlags()
 
 void CompilerOptionsBuilder::enableExceptions()
 {
-    if (m_projectPart.languageVersion > ProjectPart::LatestCVersion)
+    if (m_projectPart.languageVersion > ProjectExplorer::LanguageVersion::LatestC)
         add(QLatin1String("-fcxx-exceptions"));
     add(QLatin1String("-fexceptions"));
 }
@@ -378,7 +378,8 @@ void CompilerOptionsBuilder::addMacros(const ProjectExplorer::Macros &macros)
 
 void CompilerOptionsBuilder::updateLanguageOption(ProjectFile::Kind fileKind)
 {
-    const bool objcExt = m_projectPart.languageExtensions & ProjectPart::ObjectiveCExtensions;
+    const bool objcExt = m_projectPart.languageExtensions
+                         & ProjectExplorer::LanguageExtension::ObjectiveC;
     const QStringList options = createLanguageOptionGcc(fileKind, objcExt);
     if (options.isEmpty())
         return;
@@ -394,48 +395,51 @@ void CompilerOptionsBuilder::updateLanguageOption(ProjectFile::Kind fileKind)
 
 void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtensions)
 {
+    using ProjectExplorer::LanguageExtension;
+    using ProjectExplorer::LanguageVersion;
+
     QStringList opts;
-    const ProjectPart::LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
-    const bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
+    const ProjectExplorer::LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
+    const bool gnuExtensions = languageExtensions & LanguageExtension::Gnu;
 
     switch (m_projectPart.languageVersion) {
-    case ProjectPart::C89:
+    case LanguageVersion::C89:
         opts << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
         break;
-    case ProjectPart::C99:
+    case LanguageVersion::C99:
         opts << (gnuExtensions ? QLatin1String("-std=gnu99") : QLatin1String("-std=c99"));
         break;
-    case ProjectPart::C11:
+    case LanguageVersion::C11:
         opts << (gnuExtensions ? QLatin1String("-std=gnu11") : QLatin1String("-std=c11"));
         break;
-    case ProjectPart::C18:
+    case LanguageVersion::C18:
         // Clang 6, 7 and current trunk do not accept "gnu18"/"c18", so use the "*17" variants.
         opts << (gnuExtensions ? QLatin1String("-std=gnu17") : QLatin1String("-std=c17"));
         break;
-    case ProjectPart::CXX11:
+    case LanguageVersion::CXX11:
         opts << (gnuExtensions ? QLatin1String("-std=gnu++11") : QLatin1String("-std=c++11"));
         break;
-    case ProjectPart::CXX98:
+    case LanguageVersion::CXX98:
         opts << (gnuExtensions ? QLatin1String("-std=gnu++98") : QLatin1String("-std=c++98"));
         break;
-    case ProjectPart::CXX03:
+    case LanguageVersion::CXX03:
         opts << (gnuExtensions ? QLatin1String("-std=gnu++03") : QLatin1String("-std=c++03"));
         break;
-    case ProjectPart::CXX14:
+    case LanguageVersion::CXX14:
         opts << (gnuExtensions ? QLatin1String("-std=gnu++14") : QLatin1String("-std=c++14"));
         break;
-    case ProjectPart::CXX17:
+    case LanguageVersion::CXX17:
         opts << (gnuExtensions ? QLatin1String("-std=gnu++17") : QLatin1String("-std=c++17"));
         break;
-    case ProjectPart::CXX2a:
+    case LanguageVersion::CXX2a:
         opts << (gnuExtensions ? QLatin1String("-std=gnu++2a") : QLatin1String("-std=c++2a"));
         break;
     }
 
-    if (languageExtensions & ProjectPart::MicrosoftExtensions)
+    if (languageExtensions & LanguageExtension::Microsoft)
         opts << QLatin1String("-fms-extensions");
 
-    if (checkForBorlandExtensions && (languageExtensions & ProjectPart::BorlandExtensions))
+    if (checkForBorlandExtensions && (languageExtensions & LanguageExtension::Borland))
         opts << QLatin1String("-fborland-extensions");
 
     m_options.append(opts);

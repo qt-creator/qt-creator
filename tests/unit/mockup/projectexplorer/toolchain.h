@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include <projectexplorer/headerpath.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/headerpath.h>
+#include <projectexplorer/language.h>
 #include <projectexplorer/projectmacro.h>
 #include <coreplugin/id.h>
 
@@ -39,35 +40,10 @@ class ToolChain
 public:
     Core::Id typeId() const { return Core::Id(); }
 
-    enum CompilerFlag {
-        NoFlags = 0,
-        GnuExtensions = 0x8,
-        MicrosoftExtensions = 0x10,
-        BorlandExtensions = 0x20,
-        OpenMP = 0x40,
-        ObjectiveC = 0x80,
-    };
-    Q_DECLARE_FLAGS(CompilerFlags, CompilerFlag)
-
     Abi targetAbi() const { return Abi(); }
 
     using BuiltInHeaderPathsRunner = std::function<HeaderPaths(const QStringList &cxxflags, const QString &sysRoot)>;
     virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const { return BuiltInHeaderPathsRunner(); }
-
-    enum LanguageVersion {
-        C89,
-        C99,
-        C11,
-        C18,
-        LatestCVersion = C18,
-        CXX98,
-        CXX03,
-        CXX11,
-        CXX14,
-        CXX17,
-        CXX2a,
-        LatestCxxVersion = CXX2a,
-    };
 
     class MacroInspectionReport
     {

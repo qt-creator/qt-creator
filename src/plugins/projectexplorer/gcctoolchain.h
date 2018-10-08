@@ -140,7 +140,7 @@ public:
 
     bool isValid() const override;
 
-    CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
+    LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
@@ -200,7 +200,7 @@ protected:
     Macros macroCache(const QStringList &allCxxflags) const;
 
     virtual QString defaultDisplayName() const;
-    virtual CompilerFlags defaultCompilerFlags() const;
+    virtual LanguageExtensions defaultLanguageExtensions() const;
 
     virtual DetectedAbisResult detectSupportedAbis() const;
     virtual QString detectVersion() const;
@@ -273,7 +273,7 @@ public:
     QString typeDisplayName() const override;
     QString makeCommand(const Utils::Environment &environment) const override;
 
-    CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
+    LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
 
     IOutputParser *outputParser() const override;
@@ -284,7 +284,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
 
 protected:
-    CompilerFlags defaultCompilerFlags() const override;
+    LanguageExtensions defaultLanguageExtensions() const override;
 
 private:
     friend class Internal::ClangToolChainFactory;
@@ -321,7 +321,7 @@ class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
 public:
     QString typeDisplayName() const override;
 
-    CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
+    LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     IOutputParser *outputParser() const override;
 
     ToolChain *clone() const override;
