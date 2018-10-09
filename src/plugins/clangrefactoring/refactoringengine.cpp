@@ -104,7 +104,7 @@ CppTools::Usages RefactoringEngine::locationsAt(const CppTools::CursorInEditor &
         const QByteArray filePath = data.filePath().toString().toUtf8();
         const ClangBackEnd::FilePathId filePathId = m_filePathCache.filePathId(ClangBackEnd::FilePathView(filePath));
 
-        usages = m_symbolQuery.sourceUsagesAt(filePathId, lineColumn->line, lineColumn->column + 1);
+        usages = m_symbolQuery.sourceUsagesAt(filePathId, lineColumn->line, lineColumn->column);
     }
 
     return usages;

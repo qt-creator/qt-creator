@@ -103,7 +103,8 @@ SOURCES += \
     projectpartqueue-test.cpp \
     processormanager-test.cpp \
     taskscheduler-test.cpp \
-    compileroptionsbuilder-test.cpp
+    compileroptionsbuilder-test.cpp \
+    usedmacrocollector-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,62 +25,46 @@
 
 #pragma once
 
-#include "filestatus.h"
-#include "sourcedependency.h"
-#include "sourcelocationentry.h"
-#include "symbolentry.h"
-#include "usedmacro.h"
-
 #include <filepathcachinginterface.h>
+#include <filestatus.h>
+#include <sourcedependency.h>
+#include <sourcesmanager.h>
+#include <usedmacro.h>
 
-#include <clang/Tooling/Tooling.h>
+#include <clangtool.h>
 
 namespace ClangBackEnd {
 
-class SourcesManager;
-
-class CollectMacrosSourceFileCallbacks : public clang::tooling::SourceFileCallbacks
+class UsedMacroAndSourcesCollector
 {
 public:
-    CollectMacrosSourceFileCallbacks(SymbolEntries &symbolEntries,
-                                     SourceLocationEntries &sourceLocationEntries,
-                                     FilePathCachingInterface &filePathCache,
-                                     SourcesManager &sourcesManager)
-        : m_symbolEntries(symbolEntries),
-          m_sourceLocationEntries(sourceLocationEntries),
-          m_filePathCache(filePathCache),
-          m_sourcesManager(sourcesManager)
+    UsedMacroAndSourcesCollector(FilePathCachingInterface &filePathCache)
+        : m_filePathCache(filePathCache)
     {
     }
 
-    bool handleBeginSource(clang::CompilerInstance &compilerInstance) override;
+    void addFiles(const FilePathIds &filePathIds,
+                  const Utils::SmallStringVector &arguments);
+    void addFile(FilePathId filePathId,
+                 const Utils::SmallStringVector &arguments);
+
+    void collect();
+
+    void clear();
+
+    const FileStatuses &fileStatuses() const
+    {
+        return m_fileStatuses;
+    }
 
     const FilePathIds &sourceFiles() const
     {
         return m_sourceFiles;
     }
 
-    void addSourceFiles(const FilePathIds &filePathIds)
-    {
-        m_sourceFiles = filePathIds;
-    }
-
-    void clear()
-    {
-        m_sourceFiles.clear();
-        m_usedMacros.clear();
-        m_fileStatuses.clear();
-        m_sourceDependencies.clear();
-    }
-
     const UsedMacros &usedMacros() const
     {
         return m_usedMacros;
-    }
-
-    const FileStatuses &fileStatuses() const
-    {
-        return m_fileStatuses;
     }
 
     const SourceDependencies &sourceDependencies() const
@@ -89,14 +73,13 @@ public:
     }
 
 private:
-    FilePathIds m_sourceFiles;
+    ClangTool m_clangTool;
+    SourcesManager m_sourcesManager;
     UsedMacros m_usedMacros;
-    FileStatuses m_fileStatuses;
-    SourceDependencies m_sourceDependencies;
-    SymbolEntries &m_symbolEntries;
-    SourceLocationEntries &m_sourceLocationEntries;
     FilePathCachingInterface &m_filePathCache;
-    SourcesManager &m_sourcesManager;
+    FilePathIds m_sourceFiles;
+    SourceDependencies m_sourceDependencies;
+    FileStatuses m_fileStatuses;
 };
 
 } // namespace ClangBackEnd
