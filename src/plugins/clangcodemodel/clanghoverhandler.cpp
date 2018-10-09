@@ -100,10 +100,6 @@ static QFuture<CppTools::ToolTipInfo> editorDocumentHandlesToolTipInfo(
     return QFuture<CppTools::ToolTipInfo>();
 }
 
-ClangHoverHandler::ClangHoverHandler()
-{
-}
-
 ClangHoverHandler::~ClangHoverHandler()
 {
     abort();
