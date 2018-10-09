@@ -142,7 +142,8 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
 
 QLabel *DisplaySettings::createAnnotationSettingsLink()
 {
-    auto label = new QLabel("<i><a href>Annotation Settings</a></i>", Core::ICore::mainWindow());
+    auto label = new QLabel("<small><i><a href>Annotation Settings</a></i></small>",
+                            Core::ICore::mainWindow());
     QObject::connect(label, &QLabel::linkActivated, []() {
         Utils::ToolTip::hideImmediately();
         Core::ICore::showOptionsDialog(Constants::TEXT_EDITOR_DISPLAY_SETTINGS);
