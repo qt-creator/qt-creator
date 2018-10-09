@@ -41,7 +41,7 @@ using ProjectExplorer::Project;
 
 MATCHER_P(IsPartOfHeader, headerPart, std::string(negation ? "isn't " : "is ") + headerPart)
 {
-    return arg.contains(QString::fromUtf8(headerPart));
+    return arg.contains(QString::fromStdString(headerPart));
 }
 
 class CompilerOptionsBuilderTest : public ::testing::Test
@@ -333,8 +333,8 @@ TEST_F(CompilerOptionsBuilderTest, BuildAllOptions)
                     "-nostdlibinc", "-c", "-m64", "-target", "x86_64-apple-darwin10",
                     "-arch", "x86_64", "-x", "c++", "-std=c++17", "-fcxx-exceptions",
                     "-fexceptions", "-Dfoo=bar", "-DprojectFoo=projectBar", "-undef",
-                    "-I", QDir::toNativeSeparators("D:/code/qt-creator/tests/unit/unittest/../../../share/qtcreator/cplusplus/wrappedQtHeaders"),
-                    "-I", QDir::toNativeSeparators("D:/code/qt-creator/tests/unit/unittest/../../../share/qtcreator/cplusplus/wrappedQtHeaders/QtCore"),
+                    "-I", IsPartOfHeader("wrappedQtHeaders"),
+                    "-I", IsPartOfHeader(QDir::toNativeSeparators("wrappedQtHeaders/QtCore").toStdString()),
                     "-I", QDir::toNativeSeparators("/tmp/path"),
                     "-I", QDir::toNativeSeparators("/tmp/system_path"),
                     "-isystem", QDir::toNativeSeparators("/tmp/builtin_path")
