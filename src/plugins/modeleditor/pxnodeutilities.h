@@ -56,6 +56,7 @@ public:
                                                  const QStringList &relativeElements);
     qmt::MObject *findSameObject(const QStringList &relativeElements,
                                  const qmt::MObject *object);
+    bool isProxyHeader(const QString &file) const;
 
 private:
     PxNodeUtilitiesPrivate *d;

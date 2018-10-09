@@ -64,7 +64,6 @@ public:
 private:
     void doCreateComponentModel(const QString &filePath, qmt::MDiagram *diagram,
                                 const QString &anchorFolder, bool scanHeaders);
-    bool isProxyHeader(const QString &file) const;
 
     ComponentViewControllerPrivate *d;
 };
