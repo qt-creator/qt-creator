@@ -441,16 +441,13 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
         const Macros macros = gccPredefinedMacros(findLocalCompiler(compilerCommand, env),
                                                   arguments,
                                                   env.toStringList());
-        const QVector<Macro> filteredMacros = Utils::filtered(macros, [](const Macro &m) {
-            return !isUnwantedMacro(m);
-        });
 
-        const auto report = MacroInspectionReport{filteredMacros, languageVersion(lang, macros)};
+        const auto report = MacroInspectionReport{macros, languageVersion(lang, macros)};
         macroCache->insert(arguments, report);
 
         qCDebug(gccLog) << "MacroInspectionReport for code model:";
         qCDebug(gccLog) << "Language version:" << static_cast<int>(report.languageVersion);
-        for (const Macro &m : filteredMacros) {
+        for (const Macro &m : macros) {
             qCDebug(gccLog) << compilerCommand.toUserOutput()
                             << (lang == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
                             << arguments.join(", ") << "]"

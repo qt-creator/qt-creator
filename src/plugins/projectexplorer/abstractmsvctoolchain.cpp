@@ -158,12 +158,6 @@ bool static hasFlagEffectOnMacros(const QString &flag)
     return true;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(const QVector<QByteArray>, unwantedMacrosMsvc,
-                          ({"_MSVC_LANG",
-                            "_MSC_BUILD",
-                            "_MSC_FULL_VER",
-                            "_MSC_VER"}))
-
 ToolChain::MacroInspectionRunner AbstractMsvcToolChain::createMacroInspectionRunner() const
 {
     Utils::Environment env(m_lastEnvironment);
@@ -182,11 +176,8 @@ ToolChain::MacroInspectionRunner AbstractMsvcToolChain::createMacroInspectionRun
             return cachedMacros.value();
 
         const Macros macros = msvcPredefinedMacros(filteredFlags, env);
-        const QVector<Macro> filteredMacros = Utils::filtered(macros, [](const Macro &m) {
-            return !ToolChain::isUnwantedMacro(m) && !unwantedMacrosMsvc->contains(m.key);
-        });
 
-        const auto report = MacroInspectionReport{filteredMacros,
+        const auto report = MacroInspectionReport{macros,
                                                   languageVersionForMsvc(lang, macros)};
         macroCache->insert(filteredFlags, report);
 

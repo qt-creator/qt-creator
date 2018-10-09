@@ -151,7 +151,6 @@ public:
     void setLanguage(Core::Id language);
     static LanguageVersion cxxLanguageVersion(const QByteArray &cplusplusMacroValue);
     static LanguageVersion languageVersion(const Core::Id &language, const Macros &macros);
-    static bool isUnwantedMacro(const Macro &macro);
 
 protected:
     explicit ToolChain(Core::Id typeId, Detection d);

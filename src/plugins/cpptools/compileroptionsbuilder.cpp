@@ -44,13 +44,15 @@ namespace CppTools {
 CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                UseSystemHeader useSystemHeader,
                                                SkipBuiltIn skipBuiltInHeaderPathsAndDefines,
+                                               SkipLanguageDefines skipLanguageDefines,
                                                QString clangVersion,
                                                QString clangResourceDirectory)
     : m_projectPart(projectPart)
-    , m_useSystemHeader(useSystemHeader)
     , m_clangVersion(clangVersion)
     , m_clangResourceDirectory(clangResourceDirectory)
+    , m_useSystemHeader(useSystemHeader)
     , m_skipBuiltInHeaderPathsAndDefines(skipBuiltInHeaderPathsAndDefines)
+    , m_skipLanguageDefines(skipLanguageDefines)
 {
 }
 
@@ -601,8 +603,18 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro
 {
     // Avoid setting __cplusplus & co as this might conflict with other command line flags.
     // Clang should set __cplusplus based on -std= and -fms-compatibility-version version.
-    QTC_ASSERT(macro.key != "__cplusplus", return true);
-    QTC_ASSERT(macro.key != "__STDC_VERSION__", return true);
+    static const auto languageDefines = {"__cplusplus",
+                                         "__STDC_VERSION__",
+                                         "_MSC_BUILD",
+                                         "_MSVC_LANG",
+                                         "_MSC_FULL_VER",
+                                         "_MSC_VER"};
+    if (m_skipLanguageDefines == SkipLanguageDefines::Yes
+            && std::find(languageDefines.begin(),
+                         languageDefines.end(),
+                         macro.key) != languageDefines.end()) {
+        return true;
+    }
 
     // Ignore for all compiler toolchains since LLVM has it's own implementation for
     // __has_include(STR) and __has_include_next(STR)

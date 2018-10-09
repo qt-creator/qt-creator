@@ -31,13 +31,19 @@
 
 namespace CppTools {
 
-enum class UseSystemHeader
+enum class UseSystemHeader : char
 {
     Yes,
     No
 };
 
-enum class SkipBuiltIn
+enum class SkipBuiltIn : char
+{
+    Yes,
+    No
+};
+
+enum class SkipLanguageDefines : char
 {
     Yes,
     No
@@ -54,6 +60,7 @@ public:
     CompilerOptionsBuilder(const ProjectPart &projectPart,
                            UseSystemHeader useSystemHeader = UseSystemHeader::No,
                            SkipBuiltIn skipBuiltInHeaderPathsAndDefines = SkipBuiltIn::No,
+                           SkipLanguageDefines skipLanguageDefines = SkipLanguageDefines::Yes,
                            QString clangVersion = QString(),
                            QString clangResourceDirectory = QString());
 
@@ -107,12 +114,13 @@ private:
     void addWrappedQtHeadersIncludePath(QStringList &list);
 
     QStringList m_options;
-    UseSystemHeader m_useSystemHeader;
 
     QString m_clangVersion;
     QString m_clangResourceDirectory;
 
+    UseSystemHeader m_useSystemHeader;
     SkipBuiltIn m_skipBuiltInHeaderPathsAndDefines;
+    SkipLanguageDefines m_skipLanguageDefines;
 };
 
 } // namespace CppTools

@@ -345,14 +345,6 @@ LanguageVersion ToolChain::languageVersion(const Core::Id &language, const Macro
     }
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(const QVector<QByteArray>, unwantedMacros,
-                          ({"__cplusplus", "__STDC_VERSION__"}))
-
-bool ToolChain::isUnwantedMacro(const Macro &macro)
-{
-    return unwantedMacros->contains(macro.key);
-}
-
 /*!
     Used by the tool chain kit information to validate the kit.
 */
