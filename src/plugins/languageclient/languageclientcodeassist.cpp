@@ -247,11 +247,15 @@ TextEditor::IAssistProposal *LanguageClientCompletionAssistProcessor::perform(
 {
     QTC_ASSERT(m_client, return nullptr);
     m_pos = interface->position();
-//    const QRegExp regexp("[_a-zA-Z][_a-zA-Z0-9]*"); // FIXME
-//    int delta = 0;
-//    while (m_pos - delta > 0 && regexp.exactMatch(interface->textAt(m_pos - delta - 1, delta + 1)))
-//        ++delta;
-//    m_pos -= delta;
+    if (interface->reason() == TextEditor::IdleEditor) {
+        // Trigger an automatic completion request only when we are on a word with more than 2 "identifier" character
+        const QRegExp regexp("[_a-zA-Z0-9]*");
+        int delta = 0;
+        while (m_pos - delta > 0 && regexp.exactMatch(interface->textAt(m_pos - delta - 1, delta + 1)))
+            ++delta;
+        if (delta < 3)
+            return nullptr;
+    }
     CompletionRequest completionRequest;
     CompletionParams::CompletionContext context;
     context.setTriggerKind(interface->reason() == TextEditor::ActivationCharacter
