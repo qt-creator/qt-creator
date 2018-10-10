@@ -64,7 +64,7 @@ public:
     virtual void insertGroup(Id before, Id group) = 0;
     virtual void addAction(Command *action, Id group = Id()) = 0;
     virtual void addMenu(ActionContainer *menu, Id group = Id()) = 0;
-    virtual void addMenu(ActionContainer *before, ActionContainer *menu, Id group = Id()) = 0;
+    virtual void addMenu(ActionContainer *before, ActionContainer *menu) = 0;
     Command *addSeparator(Id group = Id());
     virtual Command *addSeparator(const Context &context, Id group = Id(), QAction **outSeparator = nullptr) = 0;
 

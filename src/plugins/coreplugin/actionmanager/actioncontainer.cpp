@@ -263,20 +263,25 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, Id groupId)
     scheduleUpdate();
 }
 
-void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *menu, Id groupId)
+void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *menu)
 {
     auto containerPrivate = static_cast<ActionContainerPrivate *>(menu);
     if (!containerPrivate->canBeAddedToMenu())
         return;
 
-    auto container = static_cast<MenuActionContainer *>(containerPrivate);
-    const Id actualGroupId = groupId.isValid() ? groupId : Id(Constants::G_DEFAULT_TWO);
-    QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
-    QTC_ASSERT(groupIt != m_groups.constEnd(), return);
-    QAction *beforeAction = before->menu()->menuAction();
-    m_groups[groupIt-m_groups.constBegin()].items.append(menu);
+    QMutableListIterator<Group> it(m_groups);
+    while (it.hasNext()) {
+        Group &group = it.next();
+        const int insertionPoint = group.items.indexOf(before);
+        if (insertionPoint >= 0) {
+            group.items.insert(insertionPoint, menu);
+            break;
+        }
+    }
 
     connect(menu, &QObject::destroyed, this, &ActionContainerPrivate::itemDestroyed);
+    auto container = static_cast<MenuActionContainer *>(containerPrivate);
+    QAction *beforeAction = before->menu()->menuAction();
     insertMenu(beforeAction, container->menu());
     scheduleUpdate();
 }
