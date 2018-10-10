@@ -72,6 +72,7 @@ public:
     CppTools::FollowSymbolInterface &followSymbolInterface() override;
     CppTools::RefactoringEngineInterface &refactoringEngineInterface() override;
     std::unique_ptr<CppTools::AbstractOverviewModel> createOverviewModel() override;
+    void setBackendJobsPostponed(bool postponed) override;
 
     BackendCommunicator &communicator();
     QString dummyUiHeaderOnDiskDirPath() const;
@@ -82,6 +83,8 @@ public:
     static ModelManagerSupportClang *instance();
 
 private:
+    bool eventFilter(QObject *obj, QEvent *e) override;
+
     void onEditorOpened(Core::IEditor *editor);
     void onEditorClosed(const QList<Core::IEditor *> &editors);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);

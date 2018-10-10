@@ -207,9 +207,26 @@ bool BackendCommunicator::isNotWaitingForCompletion() const
     return !m_receiver.isExpectingCompletionsMessage();
 }
 
+void BackendCommunicator::setBackendJobsPostponed(bool postponed)
+{
+    if (postponed) {
+        if (!m_postponeBackendJobs)
+            documentVisibilityChanged(Utf8String(), {});
+        ++m_postponeBackendJobs;
+    } else {
+        if (QTC_GUARD(m_postponeBackendJobs > 0))
+            --m_postponeBackendJobs;
+        if (!m_postponeBackendJobs)
+            documentVisibilityChanged();
+    }
+}
+
 void BackendCommunicator::documentVisibilityChanged(const Utf8String &currentEditorFilePath,
                                                     const Utf8StringVector &visibleEditorsFilePaths)
 {
+    if (m_postponeBackendJobs)
+        return;
+
     const DocumentVisibilityChangedMessage message(currentEditorFilePath, visibleEditorsFilePaths);
     m_sender->documentVisibilityChanged(message);
 }
@@ -459,9 +476,14 @@ void BackendCommunicator::initializeBackendWithCurrentData()
 
 void BackendCommunicator::documentsOpened(const FileContainers &fileContainers)
 {
-    const DocumentsOpenedMessage message(fileContainers,
-                                         currentCppEditorDocumentFilePath(),
-                                         visibleCppEditorDocumentsFilePaths());
+    Utf8String currentDocument;
+    Utf8StringVector visibleDocuments;
+    if (!m_postponeBackendJobs) {
+        currentDocument = currentCppEditorDocumentFilePath();
+        visibleDocuments = visibleCppEditorDocumentsFilePaths();
+    }
+
+    const DocumentsOpenedMessage message(fileContainers, currentDocument, visibleDocuments);
     m_sender->documentsOpened(message);
 }
 

@@ -29,6 +29,7 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/vcsmanager.h>
+#include <cpptools/cppmodelmanager.h>
 #include <utils/synchronousprocess.h>
 
 #include <QProcessEnvironment>
@@ -60,12 +61,16 @@ VcsCommand::VcsCommand(const QString &workingDirectory,
         return proxy;
     });
     connect(this, &VcsCommand::started, this, [this] {
-        if (flags() & ExpectRepoChanges)
+        if (flags() & ExpectRepoChanges) {
             Core::DocumentManager::setAutoReloadPostponed(true);
+            CppTools::CppModelManager::instance()->setBackendJobsPostponed(true);
+        }
     });
     connect(this, &VcsCommand::finished, this, [this] {
-        if (flags() & ExpectRepoChanges)
+        if (flags() & ExpectRepoChanges) {
             Core::DocumentManager::setAutoReloadPostponed(false);
+            CppTools::CppModelManager::instance()->setBackendJobsPostponed(false);
+        }
     });
 }
 
