@@ -921,6 +921,10 @@ void SftpChannelPrivate::attributesToFileInfo(const SftpFileAttributes &attribut
         if (attributes.permissions & 00400) // S_IRUSR
             fileInfo.permissions |= QFile::ReadUser | QFile::ReadOwner;
     }
+    if (attributes.timesPresent) {
+        fileInfo.mtime = attributes.mtime;
+        fileInfo.mtimeValid = true;
+    }
 }
 
 void SftpChannelPrivate::removeTransferRequest(const JobMap::Iterator &it)

@@ -44,16 +44,16 @@ enum SftpFileType { FileTypeRegular, FileTypeDirectory, FileTypeOther, FileTypeU
 class QSSH_EXPORT SftpFileInfo
 {
 public:
-    SftpFileInfo() : type(FileTypeUnknown), sizeValid(false), permissionsValid(false) { }
-
     QString name;
-    SftpFileType type;
-    quint64 size;
+    SftpFileType type = FileTypeUnknown;
+    quint64 size = 0;
     QFile::Permissions permissions;
+    quint32 mtime = 0;
 
     // The RFC allows an SFTP server not to support any file attributes beyond the name.
-    bool sizeValid;
-    bool permissionsValid;
+    bool sizeValid = false;
+    bool permissionsValid = false;
+    bool mtimeValid = false;
 };
 
 } // namespace QSsh
