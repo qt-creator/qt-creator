@@ -305,9 +305,7 @@ void VcsBaseEditorConfig::updateMappedSettings()
 
 void VcsBaseEditorConfig::addAction(QAction *action)
 {
-    const QList<QAction *> actions = d->m_toolBar->actions();
-    // Insert the action before line/column and split actions.
-    d->m_toolBar->insertAction(actions.at(qMax(actions.count() - 2, 0)), action);
+    d->m_toolBar->addAction(action);
 }
 
 } // namespace VcsBase
