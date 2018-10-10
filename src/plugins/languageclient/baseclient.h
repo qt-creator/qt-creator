@@ -105,8 +105,8 @@ public:
                      const LanguageServerProtocol::IContent &content);
     void cancelRequest(const LanguageServerProtocol::MessageId &id);
 
-    void setSupportedMimeType(const QStringList &supportedMimeTypes);
-    bool isSupportedMimeType(const QString &mimeType) const;
+    void setSupportedLanguage(const LanguageFilter &filter);
+    bool isSupportedDocument(const Core::IDocument *document) const;
 
     void setName(const QString &name) { m_displayName = name; }
     QString name() const { return m_displayName; }
@@ -154,7 +154,7 @@ private:
     QHash<QByteArray, ContentHandler> m_contentHandler;
     QBuffer m_buffer;
     QString m_displayName;
-    QStringList m_supportedMimeTypes;
+    LanguageFilter m_languagFilter;
     QList<Utils::FileName> m_openedDocument;
     Core::Id m_id;
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;

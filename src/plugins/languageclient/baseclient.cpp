@@ -121,7 +121,7 @@ BaseClient::State BaseClient::state() const
 void BaseClient::openDocument(Core::IDocument *document)
 {
     using namespace TextEditor;
-    if (!isSupportedMimeType(document->mimeType()))
+    if (!isSupportedDocument(document))
         return;
     const FileName &filePath = document->filePath();
     const QString method(DidOpenTextDocumentNotification::methodName);
@@ -497,14 +497,22 @@ void BaseClient::projectClosed(ProjectExplorer::Project *project)
     sendContent(change);
 }
 
-void BaseClient::setSupportedMimeType(const QStringList &supportedMimeTypes)
+void BaseClient::setSupportedLanguage(const LanguageFilter &filter)
 {
-    m_supportedMimeTypes = supportedMimeTypes;
+    m_languagFilter = filter;
 }
 
-bool BaseClient::isSupportedMimeType(const QString &mimeType) const
+bool BaseClient::isSupportedDocument(const Core::IDocument *document) const
 {
-    return m_supportedMimeTypes.isEmpty() || m_supportedMimeTypes.contains(mimeType);
+    QTC_ASSERT(document, return false);
+    if (m_languagFilter.mimeTypes.isEmpty() || m_languagFilter.mimeTypes.contains(document->mimeType()))
+        return true;
+    auto regexps = Utils::transform(m_languagFilter.filePattern, [](const QString &pattern){
+        return QRegExp(pattern, Utils::HostOsInfo::fileNameCaseSensitivity(), QRegExp::Wildcard);
+    });
+    return Utils::anyOf(regexps, [filePath = document->filePath()](const QRegExp &reg){
+        return reg.exactMatch(filePath.toString()) || reg.exactMatch(filePath.fileName());
+    });
 }
 
 bool BaseClient::needsRestart(const BaseSettings *) const

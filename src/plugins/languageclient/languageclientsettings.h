@@ -28,6 +28,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QAbstractItemModel>
+#include <QLabel>
 #include <QPointer>
 #include <QWidget>
 
@@ -44,21 +45,27 @@ constexpr char noLanguageFilter[] = "No Filter";
 
 class BaseClient;
 
+struct LanguageFilter
+{
+    QStringList mimeTypes;
+    QStringList filePattern;
+};
+
 class BaseSettings
 {
 public:
     BaseSettings() = default;
-    BaseSettings(const QString &name, bool enabled, const QString &mimeTypeName)
+    BaseSettings(const QString &name, bool enabled, const LanguageFilter &filter)
         : m_name(name)
         , m_enabled(enabled)
-        , m_mimeType(mimeTypeName)
+        , m_languageFilter(filter)
     {}
 
     virtual ~BaseSettings() = default;
 
     QString m_name = QString("New Language Server");
     bool m_enabled = true;
-    QString m_mimeType = QLatin1String(noLanguageFilter);
+    LanguageFilter m_languageFilter;
     QPointer<BaseClient> m_client; // not owned
 
     virtual void applyFromSettingsWidget(QWidget *widget);
@@ -81,9 +88,9 @@ class StdIOSettings : public BaseSettings
 {
 public:
     StdIOSettings() = default;
-    StdIOSettings(const QString &name, bool enabled, const QString &mimeTypeName,
+    StdIOSettings(const QString &name, bool enabled, const LanguageFilter &filter,
                   const QString &executable, const QString &arguments)
-        : BaseSettings(name, enabled, mimeTypeName)
+        : BaseSettings(name, enabled, filter)
         , m_executable(executable)
         , m_arguments(arguments)
     {}
@@ -125,11 +132,16 @@ public:
     ~BaseSettingsWidget() = default;
 
     QString name() const;
-    QString mimeType() const;
+    LanguageFilter filter() const;
 
 private:
+    void showAddMimeTypeDialog();
+
     QLineEdit *m_name = nullptr;
-    QLineEdit *m_mimeType = nullptr;
+    QLabel *m_mimeTypes = nullptr;
+    QLineEdit *m_filePattern = nullptr;
+
+    static constexpr char filterSeparator = ';';
 };
 
 class StdIOSettingsWidget : public BaseSettingsWidget
