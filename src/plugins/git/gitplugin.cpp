@@ -861,7 +861,7 @@ void GitPlugin::startChangeRelatedAction(const Id &id)
         m_gitClient->synchronousRevert(workingDirectory, change);
         break;
     case Checkout:
-        m_gitClient->stashAndCheckout(workingDirectory, change);
+        m_gitClient->checkout(workingDirectory, change);
         break;
     default:
         return;

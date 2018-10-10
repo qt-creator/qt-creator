@@ -529,7 +529,7 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
 
     // No StashGuard since this function for now is only used with clean working dir.
     // If it is ever used from another place, please add StashGuard here
-    m_client->synchronousCheckout(m_workingDirectory, branch);
+    m_client->checkout(m_workingDirectory, branch, GitClient::StashMode::NoStash);
 }
 
 bool BranchModel::branchIsMerged(const QModelIndex &idx)

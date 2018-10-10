@@ -173,10 +173,9 @@ public:
     bool synchronousCheckoutFiles(const QString &workingDirectory, QStringList files = QStringList(),
                                   QString revision = QString(), QString *errorMessage = nullptr,
                                   bool revertStaging = true);
-    // Checkout ref
-    bool stashAndCheckout(const QString &workingDirectory, const QString &ref);
-    bool synchronousCheckout(const QString &workingDirectory, const QString &ref,
-                             QString *errorMessage = nullptr);
+    enum class StashMode { NoStash, TryStash };
+    void checkout(const QString &workingDirectory, const QString &ref,
+                  StashMode stashMode = StashMode::TryStash);
 
     QStringList setupCheckoutArguments(const QString &workingDirectory, const QString &ref);
     void updateSubmodulesIfNeeded(const QString &workingDirectory, bool prompt);

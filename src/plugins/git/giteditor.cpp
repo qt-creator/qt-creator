@@ -191,7 +191,7 @@ void GitEditorWidget::setPlainText(const QString &text)
 
 void GitEditorWidget::checkoutChange()
 {
-    GitPlugin::client()->stashAndCheckout(sourceWorkingDirectory(), m_currentChange);
+    GitPlugin::client()->checkout(sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditorWidget::resetChange(const QByteArray &resetType)
