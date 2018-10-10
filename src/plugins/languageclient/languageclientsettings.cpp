@@ -125,33 +125,6 @@ private:
     QPointer<LanguageClientSettingsPageWidget> m_widget;
 };
 
-class LanguageChooseDelegate : public QStyledItemDelegate
-{
-public:
-    QWidget *createEditor(QWidget *parent,
-                          const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const override;
-    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
-};
-
-QWidget *LanguageChooseDelegate::createEditor(QWidget *parent,
-                                              const QStyleOptionViewItem &option,
-                                              const QModelIndex &index) const
-{
-    Q_UNUSED(option);
-    Q_UNUSED(index);
-    auto editor = new QComboBox(parent);
-    editor->addItem(noLanguageFilter);
-    editor->addItems(LanguageServerProtocol::languageIds().values());
-    return editor;
-}
-
-void LanguageChooseDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
-{
-    if (auto comboBox = qobject_cast<QComboBox*>(editor))
-        comboBox->setCurrentText(index.data().toString());
-}
-
 LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClientSettingsModel &settings)
     : m_settings(settings)
     , m_view(new QTreeView())
