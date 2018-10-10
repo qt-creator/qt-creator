@@ -47,7 +47,6 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSettings>
-#include <QStyledItemDelegate>
 #include <QTreeView>
 
 constexpr char nameKey[] = "name";
@@ -538,7 +537,7 @@ StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget 
     mainLayout->addWidget(new QLabel(tr("Executable:")), baseRows, 0);
     mainLayout->addWidget(m_executable, baseRows, 1);
     mainLayout->addWidget(new QLabel(tr("Arguments:")), baseRows + 1, 0);
-    m_executable->setExpectedKind(Utils::PathChooser::Command);
+    m_executable->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_executable->setPath(QDir::toNativeSeparators(settings->m_executable));
     mainLayout->addWidget(m_arguments, baseRows + 1, 1);
 }
