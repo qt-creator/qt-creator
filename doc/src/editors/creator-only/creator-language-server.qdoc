@@ -1,0 +1,83 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-fakevim.html
+    \page creator-language-servers.html
+    \nextpage creator-mime-types.html
+
+    \title Using Language Servers
+
+    For several programming languages, a \e {language server} is available
+    that provides information about the code to IDEs as long as they support
+    communication via the language server protocol (LSP). This enables the
+    IDE to provide code completion, highlighting of the symbol under cursor,
+    and jumping to the symbol definition, as well as to integrate diagnostics
+    from the language server.
+
+    By providing a client for the language server protocol, \QC can support
+    the above features for several other programming languages besides C++.
+    However, the experimental client does support language servers that
+    require special handling.
+
+    \QC uses the \l{https://www.iana.org/assignments/media-types/media-types.xhtml}
+    {MIME type} of the file to determine which language server to start when you
+    open a file for editing. Add new MIME types as filters for language servers.
+    For more information about how \QC uses MIME types, see
+    \l {Editing MIME Types}.
+
+    The experimental language service client has been mostly tested with Python.
+    If problems arise when you try some other language, please select
+    \uicontrol Help > \uicontrol {Report Bug} to report them in the Qt Bug
+    Tracker. The reports should include \QC console output with the environment
+    variable \c {QT_LOGGING_RULES=qtc.languageclient.*=true} set.
+
+    To use a language server:
+
+    \list 1
+
+        \li Enable the language server client by selecting \uicontrol Help >
+            \uicontrol {About Plugins} > \uicontrol {Other Languages} >
+            \uicontrol {Language Client} (or \uicontrol {Qt Creator} >
+            \uicontrol {About Plugins} > \uicontrol {Other Languages} >
+            \uicontrol {Language Client} on \macos).
+        \li Restart \QC to load the language client plugin.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Language Client} > \uicontrol Add (or
+            \uicontrol {Qt Creator} > \uicontrol {Language Client} >
+            \uicontrol Add on \macos) to add language servers.
+        \li In the \uicontrol Name field, enter a name for the language server.
+        \li Select the \uicontrol Enabled check box.
+        \li In the \uicontrol {MIME Type} field, enter the filter for files that
+            the lanaguage server will handle. When you start typing the filter
+            name, a list of predefined filters appears where you can select a
+            filter.
+        \li In the \uicontrol Executable field, enter the path to the language
+            server executable.
+        \li In the \uicontrol Arguments field, enter any required command line
+            arguments.
+    \endlist
+*/

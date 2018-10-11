@@ -31,16 +31,16 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-fakevim.html
+    \previouspage creator-language-servers.html
     \page creator-mime-types.html
     \nextpage creator-modeling.html
 
     \title Editing MIME Types
 
-    \QC uses the \l{http://en.wikipedia.org/wiki/Internet_media_type}
-    {Internet media type} (MIME type) of the file to determine which mode and
-    editor to use for opening the file. For example, \QC opens C++ source and
-    header files in the C++ editor, and Qt widget based UI files (.ui) in \QD.
+    \QC uses the \l{https://www.iana.org/assignments/media-types/media-types.xhtml}
+    {MIME type} of the file to determine which mode and editor to use for
+    opening the file. For example, \QC opens C++ source and header files in
+    the C++ editor, and Qt widget based UI files (.ui) in \QD.
 
     To identify the MIME type of a file, \QC uses matching by pattern and
     matching by contents. First, \QC looks at the filename to check whether it

@@ -141,6 +141,7 @@
                 \li \l{Specifying Text Editor Settings}
                 \li \l{Using FakeVim Mode}
             \endlist
+            \li \l{Using Language Servers}
             \li \l{Editing MIME Types}
             \li \l{Modeling}
             \li \l{Editing State Charts}
