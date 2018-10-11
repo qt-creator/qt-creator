@@ -28,7 +28,6 @@
 #include <texteditor/indenter.h>
 
 namespace ClangFormat {
-namespace Internal {
 
 class ClangFormatIndenter final : public TextEditor::Indenter
 {
@@ -42,9 +41,9 @@ public:
                   const QTextCursor &cursor,
                   const TextEditor::TabSettings &tabSettings) override;
     void indentBlock(QTextDocument *doc,
-                                 const QTextBlock &block,
-                                 const QChar &typedChar,
-                                 const TextEditor::TabSettings &tabSettings) override;
+                     const QTextBlock &block,
+                     const QChar &typedChar,
+                     const TextEditor::TabSettings &tabSettings) override;
     int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
 
     bool isElectricCharacter(const QChar &ch) const override;
@@ -53,5 +52,4 @@ public:
     TextEditor::TabSettings tabSettings() const override;
 };
 
-} // namespace Internal
 } // namespace ClangFormat

@@ -32,7 +32,6 @@
 namespace ProjectExplorer { class Project; }
 
 namespace ClangFormat {
-namespace Internal {
 
 namespace Ui {
 class ClangFormatConfigWidget;
@@ -49,9 +48,11 @@ public:
     void apply();
 
 private:
+    void initialize();
+    void fillTable(const std::string &testFilePath);
+
     ProjectExplorer::Project *m_project;
     std::unique_ptr<Ui::ClangFormatConfigWidget> m_ui;
 };
 
-} // namespace Internal
 } // namespace ClangFormat

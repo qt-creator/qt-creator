@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,28 +25,27 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
+#include <utils/fileutils.h>
+#include <clang/Format/Format.h>
 
-#include <memory>
+#include <QFile>
+
+#include <fstream>
 
 namespace ClangFormat {
 
-class ClangFormatOptionsPage;
-
-class ClangFormatPlugin : public ExtensionSystem::IPlugin
+inline void createStyleFileIfNeeded(Utils::FileName styleConfigPath)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangFormat.json")
+    const QString configFile = styleConfigPath.appendPath(".clang-format").toString();
+    if (QFile::exists(configFile))
+        return;
 
-public:
-    ClangFormatPlugin();
-    ~ClangFormatPlugin();
+    clang::format::FormatStyle newStyle = clang::format::getLLVMStyle();
+    std::fstream newStyleFile(configFile.toStdString(), std::fstream::out);
+    if (newStyleFile.is_open()) {
+        newStyleFile << clang::format::configurationAsText(newStyle);
+        newStyleFile.close();
+    }
+}
 
-private:
-    bool initialize(const QStringList &arguments, QString *errorString) final;
-    void extensionsInitialized() final {}
-
-    std::unique_ptr<ClangFormatOptionsPage> m_optionsPage;
-};
-
-} // namespace ClangTools
+}

@@ -2474,6 +2474,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         e->accept();
 
         if (extraBlocks > 0) {
+            cursor.joinPreviousEditBlock();
             const int cursorPosition = cursor.position();
             QTextCursor ensureVisible = cursor;
             while (extraBlocks > 0) {
@@ -2493,6 +2494,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             }
             setTextCursor(ensureVisible);
             cursor.setPosition(cursorPosition);
+            cursor.endEditBlock();
         }
 
         setTextCursor(cursor);
