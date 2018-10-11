@@ -58,12 +58,14 @@ private:
 
 SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQueue,
                              SymbolStorageInterface &symbolStorage,
+                             UsedMacroAndSourceStorageInterface &usedMacroAndSourceStorage,
                              ClangPathWatcherInterface &pathWatcher,
                              FilePathCachingInterface &filePathCache,
                              FileStatusCache &fileStatusCache,
                              Sqlite::TransactionInterface &transactionInterface)
     : m_symbolIndexerTaskQueue(symbolIndexerTaskQueue),
       m_symbolStorage(symbolStorage),
+      m_usedMacroAndSourceStorage(usedMacroAndSourceStorage),
       m_pathWatcher(pathWatcher),
       m_filePathCache(filePathCache),
       m_fileStatusCache(fileStatusCache),
@@ -115,11 +117,11 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart)
             m_symbolStorage.updateProjectPartSources(projectPartId,
                                                      symbolsCollector.sourceFiles());
 
-            m_symbolStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
+            m_usedMacroAndSourceStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
 
-            m_symbolStorage.insertFileStatuses(symbolsCollector.fileStatuses());
+            m_usedMacroAndSourceStorage.insertFileStatuses(symbolsCollector.fileStatuses());
 
-            m_symbolStorage.insertOrUpdateSourceDependencies(symbolsCollector.sourceDependencies());
+            m_usedMacroAndSourceStorage.insertOrUpdateSourceDependencies(symbolsCollector.sourceDependencies());
 
             transaction.commit();
         };
@@ -180,11 +182,11 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
 
             m_symbolStorage.updateProjectPartSources(projectPartId, symbolsCollector.sourceFiles());
 
-            m_symbolStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
+            m_usedMacroAndSourceStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
 
-            m_symbolStorage.insertFileStatuses(symbolsCollector.fileStatuses());
+            m_usedMacroAndSourceStorage.insertFileStatuses(symbolsCollector.fileStatuses());
 
-            m_symbolStorage.insertOrUpdateSourceDependencies(symbolsCollector.sourceDependencies());
+            m_usedMacroAndSourceStorage.insertOrUpdateSourceDependencies(symbolsCollector.sourceDependencies());
 
             transaction.commit();
         };
@@ -212,7 +214,7 @@ FilePathIds SymbolIndexer::filterChangedFiles(const V2::ProjectPartContainer &pr
     ids.reserve(projectPart.sourcePathIds.size());
 
     for (const FilePathId &sourceId : projectPart.sourcePathIds) {
-        long long oldLastModified = m_symbolStorage.fetchLowestLastModifiedTime(sourceId);
+        long long oldLastModified = m_usedMacroAndSourceStorage.fetchLowestLastModifiedTime(sourceId);
         long long currentLastModified =  m_fileStatusCache.lastModifiedTime(sourceId);
         if (oldLastModified < currentLastModified)
             ids.push_back(sourceId);

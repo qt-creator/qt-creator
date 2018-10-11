@@ -28,6 +28,7 @@
 #include "filestatuscache.h"
 #include "symbolindexertaskqueueinterface.h"
 #include "symbolstorageinterface.h"
+#include "usedmacroandsourcestorageinterface.h"
 #include "clangpathwatcher.h"
 
 #include <projectpartcontainerv2.h>
@@ -42,6 +43,7 @@ class SymbolIndexer final : public ClangPathWatcherNotifier
 public:
     SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQueue,
                   SymbolStorageInterface &symbolStorage,
+                  UsedMacroAndSourceStorageInterface &usedMacroAndSourceStorage,
                   ClangPathWatcherInterface &pathWatcher,
                   FilePathCachingInterface &filePathCache,
                   FileStatusCache &fileStatusCache,
@@ -71,6 +73,7 @@ public:
 private:
     SymbolIndexerTaskQueueInterface &m_symbolIndexerTaskQueue;
     SymbolStorageInterface &m_symbolStorage;
+    UsedMacroAndSourceStorageInterface &m_usedMacroAndSourceStorage;
     ClangPathWatcherInterface &m_pathWatcher;
     FilePathCachingInterface &m_filePathCache;
     FileStatusCache &m_fileStatusCache;

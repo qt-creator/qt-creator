@@ -80,7 +80,6 @@ SOURCES += \
     symbolstorage-test.cpp \
     mocksqlitereadstatement.cpp \
     symbolquery-test.cpp \
-    storagesqlitestatementfactory-test.cpp \
     sqliteindex-test.cpp \
     sqlitetransaction-test.cpp \
     refactoringdatabaseinitializer-test.cpp \
@@ -246,7 +245,9 @@ HEADERS += \
     mockprojectpartqueue.h \
     mockprocessor.h \
     mockprocessormanager.h \
-    mocktaskscheduler.h
+    mocktaskscheduler.h \
+    usedmacroandsourcestorage-test.h \
+    mockusedmacroandsourcestorage.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

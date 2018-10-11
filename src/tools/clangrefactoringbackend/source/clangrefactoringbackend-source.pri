@@ -9,7 +9,6 @@ HEADERS += \
     $$PWD/symbolscollectorinterface.h \
     $$PWD/symbolstorageinterface.h \
     $$PWD/symbolstorage.h \
-    $$PWD/storagesqlitestatementfactory.h \
     $$PWD/symbolindexing.h \
     $$PWD/symbolindexinginterface.h \
     $$PWD/collectmacrospreprocessorcallbacks.h \
