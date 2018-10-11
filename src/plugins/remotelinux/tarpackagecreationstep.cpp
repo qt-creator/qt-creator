@@ -197,7 +197,7 @@ void TarPackageCreationStep::addNeededDeploymentFiles(
 {
     const QFileInfo fileInfo = deployable.localFilePath().toFileInfo();
     if (!fileInfo.isDir()) {
-        if (m_deployTimes.hasChangedSinceLastDeployment(deployable, kit))
+        if (m_deployTimes.hasLocalFileChanged(deployable, kit))
             m_files << deployable;
         return;
     }
@@ -400,7 +400,7 @@ void TarPackageCreationStep::deployFinished(bool success)
     // Store files that have been tar'd and successfully deployed
     const auto files = m_files;
     for (const DeployableFile &file : files)
-        m_deployTimes.saveDeploymentTimeStamp(file, kit);
+        m_deployTimes.saveDeploymentTimeStamp(file, kit, QDateTime());
 }
 
 QString TarPackageCreationStep::packageFileName() const

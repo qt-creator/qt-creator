@@ -96,14 +96,22 @@ SshConnection *AbstractRemoteLinuxDeployService::connection() const
     return d->connection;
 }
 
-void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableFile &deployableFile)
+void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableFile &deployableFile,
+                                                               const QDateTime &remoteTimestamp)
 {
-    d->deployTimes.saveDeploymentTimeStamp(deployableFile, profile());
+    d->deployTimes.saveDeploymentTimeStamp(deployableFile, profile(), remoteTimestamp);
 }
 
-bool AbstractRemoteLinuxDeployService::hasChangedSinceLastDeployment(const DeployableFile &deployableFile) const
+bool AbstractRemoteLinuxDeployService::hasLocalFileChanged(
+        const DeployableFile &deployableFile) const
 {
-    return d->deployTimes.hasChangedSinceLastDeployment(deployableFile, profile());
+    return d->deployTimes.hasLocalFileChanged(deployableFile, profile());
+}
+
+bool AbstractRemoteLinuxDeployService::hasRemoteFileChanged(
+        const DeployableFile &deployableFile, const QDateTime &remoteTimestamp) const
+{
+    return d->deployTimes.hasRemoteFileChanged(deployableFile, profile(), remoteTimestamp);
 }
 
 void AbstractRemoteLinuxDeployService::setTarget(Target *target)

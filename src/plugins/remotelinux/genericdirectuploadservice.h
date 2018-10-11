@@ -62,17 +62,25 @@ public:
 private:
     void handleSftpInitialized();
     void handleSftpChannelError(const QString &errorMessage);
-    void handleUploadFinished(QSsh::SftpJobId jobId, const QString &errorMsg);
+    void handleFileInfoAvailable(QSsh::SftpJobId jobId, const QList<QSsh::SftpFileInfo> &fileInfos);
+    void handleJobFinished(QSsh::SftpJobId jobId, const QString &errorMsg);
+    void handleUploadProcFinished(int exitStatus);
     void handleMkdirFinished(int exitStatus);
-    void handleLnFinished(int exitStatus);
-    void handleChmodFinished(int exitStatus);
     void handleStdOutData();
     void handleStdErrData();
     void handleReadChannelFinished();
 
-    void checkDeploymentNeeded(const ProjectExplorer::DeployableFile &file) const;
+    QList<ProjectExplorer::DeployableFile> collectFilesToUpload(
+            const ProjectExplorer::DeployableFile &file) const;
     void setFinished();
     void uploadNextFile();
+    void queryFiles();
+    void clearRunningProc();
+
+    void handleProcFailure();
+    void runPostQueryOnProcResult();
+
+    void tryFinish();
 
     Internal::GenericDirectUploadServicePrivate * const d;
 };

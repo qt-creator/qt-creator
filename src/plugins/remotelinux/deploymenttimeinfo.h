@@ -47,10 +47,15 @@ public:
     QVariantMap exportDeployTimes() const;
 
     void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,
-                                 const ProjectExplorer::Kit *kit);
+                                 const ProjectExplorer::Kit *kit,
+                                 const QDateTime &remoteTimestamp);
 
-    bool hasChangedSinceLastDeployment(const ProjectExplorer::DeployableFile &deployableFile,
-                                       const ProjectExplorer::Kit *kit) const;
+    bool hasLocalFileChanged(const ProjectExplorer::DeployableFile &deployableFile,
+                             const ProjectExplorer::Kit *kit) const;
+
+    bool hasRemoteFileChanged(const ProjectExplorer::DeployableFile &deployableFile,
+                              const ProjectExplorer::Kit *kit,
+                              const QDateTime &remoteTimestamp) const;
 
 private:
     DeploymentTimeInfoPrivate *d;

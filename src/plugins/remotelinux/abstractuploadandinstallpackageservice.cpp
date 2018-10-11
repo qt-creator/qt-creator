@@ -31,6 +31,7 @@
 #include <projectexplorer/deployablefile.h>
 #include <utils/qtcassert.h>
 
+#include <QDateTime>
 #include <QString>
 
 using namespace ProjectExplorer;
@@ -87,7 +88,7 @@ QString AbstractUploadAndInstallPackageService::uploadDir() const
 
 bool AbstractUploadAndInstallPackageService::isDeploymentNecessary() const
 {
-    return hasChangedSinceLastDeployment(DeployableFile(packageFilePath(), QString()));
+    return hasLocalFileChanged(DeployableFile(packageFilePath(), QString()));
 }
 
 void AbstractUploadAndInstallPackageService::doDeviceSetup()
@@ -164,7 +165,7 @@ void AbstractUploadAndInstallPackageService::handleInstallationFinished(const QS
     QTC_ASSERT(d->state == Installing, return);
 
     if (errorMsg.isEmpty()) {
-        saveDeploymentTimeStamp(DeployableFile(packageFilePath(), QString()));
+        saveDeploymentTimeStamp(DeployableFile(packageFilePath(), QString()), QDateTime());
         emit progressMessage(tr("Package installed."));
     } else {
         emit errorMessage(errorMsg);

@@ -76,8 +76,12 @@ protected:
     ProjectExplorer::IDevice::ConstPtr deviceConfiguration() const;
     QSsh::SshConnection *connection() const;
 
-    void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile);
-    bool hasChangedSinceLastDeployment(const ProjectExplorer::DeployableFile &deployableFile) const;
+    void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,
+                                 const QDateTime &remoteTimestamp);
+
+    bool hasLocalFileChanged(const ProjectExplorer::DeployableFile &deployableFile) const;
+    bool hasRemoteFileChanged(const ProjectExplorer::DeployableFile &deployableFile,
+                              const QDateTime &remoteTimestamp) const;
 
     void handleDeviceSetupDone(bool success);
     void handleDeploymentDone();
