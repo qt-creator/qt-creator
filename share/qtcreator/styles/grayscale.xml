@@ -22,7 +22,9 @@
   <style name="Link" foreground="#0000ff"/>
   <style name="Local"/>
   <style name="Number" foreground="#3f3f3f"/>
+  <style name="Punctuation"/>
   <style name="Operator"/>
+  <style name="Overloaded Operator"/>
   <style name="Parentheses" background="#e3e3e3" bold="true"/>
   <style name="ParenthesesMismatch" background="#808080"/>
   <style name="AutoComplete" foreground="#303030" background="#d0d0d0"/>

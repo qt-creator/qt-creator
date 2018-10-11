@@ -31,7 +31,9 @@
   <style name="Function"/>
   <style name="Keyword" foreground="#78d7ec" italic="true"/>
   <style name="PrimitiveType" foreground="#ff8080"/>
+  <style name="Punctuation"/>
   <style name="Operator" foreground="#a6e22e"/>
+  <style name="Overloaded Operator"/>
   <style name="Preprocessor" foreground="#f92672"/>
   <style name="Label" foreground="#ffff55"/>
   <style name="Comment" foreground="#75715e" italic="true"/>

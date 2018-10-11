@@ -31,7 +31,9 @@
   <style name="Occurrences" foreground="#000000" background="#616161"/>
   <style name="Occurrences.Rename" foreground="#000000" background="#ff6464"/>
   <style name="Occurrences.Unused" foreground="#808000"/>
+  <style name="Punctuation"/>
   <style name="Operator" foreground="#cfbfad"/>
+  <style name="Overloaded Operator"/>
   <style name="Parentheses" foreground="#ffff00"  background="#4e4e8f"/>
   <style name="ParenthesesMismatch" background="#404040"/>
   <style name="AutoComplete" foreground="#ffff00"  background="#4e4e8f"/>
