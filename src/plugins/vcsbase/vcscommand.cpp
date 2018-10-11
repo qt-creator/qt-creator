@@ -43,7 +43,7 @@ VcsCommand::VcsCommand(const QString &workingDirectory,
     Core::ShellCommand(workingDirectory, environment),
     m_preventRepositoryChanged(false)
 {
-    setOutputProxyFactory([this]() -> OutputProxy * {
+    setOutputProxyFactory([this] {
         auto proxy = new OutputProxy;
         VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
 
