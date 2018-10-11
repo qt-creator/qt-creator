@@ -93,8 +93,6 @@ Project {
             "remotelinuxrunconfiguration.h",
             "remotelinuxsignaloperation.cpp",
             "remotelinuxsignaloperation.h",
-            "remotelinuxutils.cpp",
-            "remotelinuxutils.h",
             "sshkeydeployer.cpp",
             "sshkeydeployer.h",
             "tarpackagecreationstep.cpp",
