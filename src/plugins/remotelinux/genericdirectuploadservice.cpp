@@ -50,11 +50,10 @@ class GenericDirectUploadServicePrivate
 {
 public:
     GenericDirectUploadServicePrivate()
-        : incremental(false), ignoreMissingFiles(false), stopRequested(false), state(Inactive) {}
+        : incremental(false), ignoreMissingFiles(false), state(Inactive) {}
 
     bool incremental;
     bool ignoreMissingFiles;
-    bool stopRequested;
     State state;
     QList<DeployableFile> filesToUpload;
     SftpChannel::Ptr uploader;
@@ -132,12 +131,6 @@ void GenericDirectUploadService::handleSftpInitialized()
 {
     QTC_ASSERT(d->state == InitializingSftp, setFinished(); return);
 
-    if (d->stopRequested) {
-        setFinished();
-        handleDeploymentDone();
-        return;
-    }
-
     Q_ASSERT(!d->filesToUpload.isEmpty());
     connect(d->uploader.data(), &SftpChannel::finished,
             this, &GenericDirectUploadService::handleUploadFinished);
@@ -159,11 +152,6 @@ void GenericDirectUploadService::handleUploadFinished(SftpJobId jobId, const QSt
     Q_UNUSED(jobId);
 
     QTC_ASSERT(d->state == Uploading, setFinished(); return);
-
-    if (d->stopRequested) {
-        setFinished();
-        handleDeploymentDone();
-    }
 
     const DeployableFile df = d->filesToUpload.takeFirst();
     if (!errorMsg.isEmpty()) {
@@ -204,11 +192,6 @@ void GenericDirectUploadService::handleLnFinished(int exitStatus)
 {
     QTC_ASSERT(d->state == Uploading, setFinished(); return);
 
-    if (d->stopRequested) {
-        setFinished();
-        handleDeploymentDone();
-    }
-
     const DeployableFile df = d->filesToUpload.takeFirst();
     const QString nativePath = df.localFilePath().toUserOutput();
     if (exitStatus != SshRemoteProcess::NormalExit || d->lnProc->exitCode() != 0) {
@@ -226,12 +209,6 @@ void GenericDirectUploadService::handleChmodFinished(int exitStatus)
 {
     QTC_ASSERT(d->state == Uploading, setFinished(); return);
 
-    if (d->stopRequested) {
-        setFinished();
-        handleDeploymentDone();
-        return;
-    }
-
     if (exitStatus != SshRemoteProcess::NormalExit || d->chmodProc->exitCode() != 0) {
         emit errorMessage(tr("Failed to set executable flag."));
         setFinished();
@@ -244,11 +221,6 @@ void GenericDirectUploadService::handleChmodFinished(int exitStatus)
 void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
 {
     QTC_ASSERT(d->state == Uploading, setFinished(); return);
-
-    if (d->stopRequested) {
-        setFinished();
-        handleDeploymentDone();
-    }
 
     const DeployableFile &df = d->filesToUpload.first();
     QFileInfo fi = df.localFilePath().toFileInfo();
@@ -351,7 +323,6 @@ void GenericDirectUploadService::checkDeploymentNeeded(const DeployableFile &dep
 
 void GenericDirectUploadService::setFinished()
 {
-    d->stopRequested = false;
     d->state = Inactive;
     if (d->mkdirProc)
         disconnect(d->mkdirProc.data(), 0, this, 0);
