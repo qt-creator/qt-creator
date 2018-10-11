@@ -46,10 +46,6 @@ public:
     Format() = default;
     Format(const QColor &foreground, const QColor &background);
 
-    static Format createMixinFormat() {
-        return Format(QColor(), QColor());
-    }
-
     QColor foreground() const { return m_foreground; }
     void setForeground(const QColor &foreground);
 
@@ -86,8 +82,8 @@ public:
     bool fromString(const QString &str);
 
 private:
-    QColor m_foreground = Qt::black;
-    QColor m_background = Qt::white;
+    QColor m_foreground;
+    QColor m_background;
     QColor m_underlineColor;
     double m_relativeForegroundSaturation = 0.0;
     double m_relativeForegroundLightness = 0.0;
