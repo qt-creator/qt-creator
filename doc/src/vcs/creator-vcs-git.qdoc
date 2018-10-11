@@ -222,8 +222,10 @@
 
     To work with Git branches, select \uicontrol {Branches}. The checked out
     branch is shown in bold and underlined in the list of branches in the
-    \uicontrol {Git Branches} sidebar view. Double-click local branch names to
-    edit them.
+    \uicontrol {Git Branches} sidebar view.
+
+    For local and remote branches, the changes log can be shown by double
+    clicking on the branch name.
 
     To refresh the list of branches, click \inlineimage reload_gray.png
     (\uicontrol Refresh).
@@ -244,7 +246,7 @@
             \li Remove a local branch. You cannot delete remote branches.
         \row
             \li \uicontrol Rename
-            \li Rename a local branch.
+            \li Rename a local branch. You cannot rename remote branches.
         \row
             \li \uicontrol{Checkout}
             \li Check out the selected branch and make it current. You can stash
@@ -279,6 +281,24 @@
         \row
             \li \uicontrol Track
             \li Set the current branch to track the selected one.
+    \endtable
+
+    The following additional context-menu operations are available for
+    \uicontrol{Remote Branches}. The context-menu can be opened on
+    \uicontrol{Remote Branches} or on a specific remote repository.
+
+    \table
+        \header
+            \li Menu Item
+            \li Description
+        \row
+            \li \uicontrol{Fetch}
+            \li Fetches all the branches and changes information from a
+                specific remote repository, or from all remotes if applied
+                to \uicontrol {Remote Branches}.
+        \row
+            \li \uicontrol{Manage Remotes}
+            \li Opens the \uicontrol Remotes dialog.
     \endtable
 
     \section3 Configuring Merge Tools
