@@ -393,23 +393,6 @@ public:
         m_toolTipManager.resetLocation();
     }
 
-    void handleOperateByInstructionTriggered(bool on)
-    {
-        // Go to source only if we have the file.
-        //    if (DebuggerEngine *cppEngine = m_engine->cppEngine()) {
-        if (m_stackHandler.currentIndex() >= 0) {
-            const StackFrame frame = m_stackHandler.currentFrame();
-            if (on || frame.isUsable())
-                m_engine->gotoLocation(Location(frame, true));
-        }
-        //    }
-    }
-
-    bool operatesByInstruction() const
-    {
-        return m_operateByInstructionAction.isChecked();
-    }
-
 public:
     void setInitialActionStates();
     void setBusyCursor(bool on);
@@ -542,9 +525,15 @@ void DebuggerEnginePrivate::setupViews()
     m_operateByInstructionAction.setVisible(m_engine->hasCapability(DisassemblerCapability));
     m_operateByInstructionAction.setIcon(Debugger::Icons::SINGLE_INSTRUCTION_MODE.icon());
     m_operateByInstructionAction.setCheckable(true);
-    m_operateByInstructionAction.setChecked(boolSetting(OperateByInstruction));
+    m_operateByInstructionAction.setChecked(false);
+    m_operateByInstructionAction.setToolTip("<p>" + tr("This switches the debugger to instruction-wise "
+        "operation mode. In this mode, stepping operates on single "
+        "instructions and the source location view also shows the "
+        "disassembled instructions."));
+    m_operateByInstructionAction.setIconVisibleInMenu(false);
+
     connect(&m_operateByInstructionAction, &QAction::triggered,
-            this, &DebuggerEnginePrivate::handleOperateByInstructionTriggered);
+            m_engine, &DebuggerEngine::operateByInstructionTriggered);
 
     QTC_ASSERT(m_state == DebuggerNotReady || m_state == DebuggerFinished, qDebug() << m_state);
     m_progress.setProgressValue(200);
@@ -977,7 +966,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
      d->resetLocation();
 
     if (loc.canBeDisassembled()
-            && ((hasCapability(OperateByInstructionCapability) && d->operatesByInstruction())
+            && ((hasCapability(OperateByInstructionCapability) && operatesByInstruction())
                 || !loc.hasDebugInfo()) )
     {
         d->m_disassemblerAgent.setLocation(loc);
@@ -1803,6 +1792,24 @@ bool DebuggerEngine::debuggerActionsEnabled() const
     return debuggerActionsEnabledHelper(d->m_state);
 }
 
+bool DebuggerEngine::operatesByInstruction() const
+{
+    return d->m_operateByInstructionAction.isChecked();
+}
+
+void DebuggerEngine::operateByInstructionTriggered(bool on)
+{
+    // Go to source only if we have the file.
+    //    if (DebuggerEngine *cppEngine = m_engine->cppEngine()) {
+    d->m_stackHandler.resetModel();
+    if (d->m_stackHandler.currentIndex() >= 0) {
+        const StackFrame frame = d->m_stackHandler.currentFrame();
+        if (on || frame.isUsable())
+            gotoLocation(Location(frame, true));
+    }
+    //    }
+}
+
 bool DebuggerEngine::companionPreventsActions() const
 {
     return false;
@@ -2291,7 +2298,7 @@ void DebuggerEngine::handleExecStep()
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     } else {
         resetLocation();
-        if (d->operatesByInstruction())
+        if (operatesByInstruction())
             executeStepI();
         else
             executeStep();
@@ -2305,7 +2312,7 @@ void DebuggerEngine::handleExecNext()
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     } else {
         resetLocation();
-        if (d->operatesByInstruction())
+        if (operatesByInstruction())
             executeNextI();
         else
             executeNext();

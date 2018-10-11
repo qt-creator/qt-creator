@@ -253,7 +253,7 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
             tcInfo.targetTriple = tc->originalTargetTriple();
             tcInfo.sysRootPath = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
             tcInfo.headerPathsRunner = tc->createBuiltInHeaderPathsRunner();
-            tcInfo.predefinedMacrosRunner = tc->createPredefinedMacrosRunner();
+            tcInfo.macroInspectionRunner = tc->createMacroInspectionRunner();
 
             m_cppCodeModelUpdater->update({this, tcInfo, tcInfo, rpps});
 

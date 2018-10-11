@@ -82,6 +82,17 @@ public:
         m_directory = parameters.additionalParameters.toString();
     }
 
+    struct Match
+    {
+        Match() = default;
+        Match(int start, int length) :
+            matchStart(start), matchLength(length) {}
+
+        int matchStart = 0;
+        int matchLength = 0;
+        QStringList regexpCapturedTexts;
+    };
+
     void processLine(const QString &line, FileSearchResultList *resultList) const
     {
         if (line.isEmpty())
@@ -97,7 +108,15 @@ public:
         const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
         single.lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
         QString text = line.mid(textSeparator + 1);
-        QVector<QPair<int, int>> matches;
+        QRegularExpression regexp;
+        QVector<Match> matches;
+        if (m_parameters.flags & FindRegularExpression) {
+            const QRegularExpression::PatternOptions patternOptions =
+                    (m_parameters.flags & FindCaseSensitively)
+                    ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+            regexp.setPattern(m_parameters.text);
+            regexp.setPatternOptions(patternOptions);
+        }
         for (;;) {
             const int matchStart = text.indexOf(boldRed);
             if (matchStart == -1)
@@ -106,23 +125,19 @@ public:
             const int matchEnd = text.indexOf(resetColor, matchTextStart);
             QTC_ASSERT(matchEnd != -1, break);
             const int matchLength = matchEnd - matchTextStart;
-            matches.append(qMakePair(matchStart, matchLength));
-            text = text.left(matchStart) + text.mid(matchTextStart, matchLength)
-                    + text.mid(matchEnd + resetColor.size());
+            Match match(matchStart, matchLength);
+            const QStringRef matchText = text.midRef(matchTextStart, matchLength);
+            if (m_parameters.flags & FindRegularExpression)
+                match.regexpCapturedTexts = regexp.match(matchText).capturedTexts();
+            matches.append(match);
+            text = text.leftRef(matchStart) + matchText + text.midRef(matchEnd + resetColor.size());
         }
         single.matchingLine = text;
 
-        if (m_parameters.flags & FindRegularExpression) {
-            const QRegularExpression::PatternOptions patternOptions =
-                    (m_parameters.flags & QTextDocument::FindCaseSensitively)
-                    ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
-            QRegularExpression regexp(m_parameters.text, patternOptions);
-            QRegularExpressionMatch regexpMatch = regexp.match(line);
-            single.regexpCapturedTexts = regexpMatch.capturedTexts();
-        }
         for (auto match : qAsConst(matches)) {
-            single.matchStart = match.first;
-            single.matchLength = match.second;
+            single.matchStart = match.matchStart;
+            single.matchLength = match.matchLength;
+            single.regexpCapturedTexts = match.regexpCapturedTexts;
             resultList->append(single);
         }
     }

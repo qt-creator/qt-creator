@@ -1113,21 +1113,22 @@ VcsBaseEditorWidget *GitClient::annotate(
     return editor;
 }
 
-bool GitClient::synchronousCheckout(const QString &workingDirectory,
-                                          const QString &ref,
-                                          QString *errorMessage)
+void GitClient::checkout(const QString &workingDirectory, const QString &ref,
+                         StashMode stashMode)
 {
+    if (stashMode == StashMode::TryStash && !beginStashScope(workingDirectory, "Checkout"))
+        return;
     QStringList arguments = setupCheckoutArguments(workingDirectory, ref);
-    const SynchronousProcessResponse resp = vcsFullySynchronousExec(
-                workingDirectory, arguments, VcsCommand::ExpectRepoChanges);
-    VcsOutputWindow::append(resp.stdOut());
-    if (resp.result == SynchronousProcessResponse::Finished) {
-        updateSubmodulesIfNeeded(workingDirectory, true);
-        return true;
-    } else {
-        msgCannotRun(arguments, workingDirectory, resp.stdErr(), errorMessage);
-        return false;
-    }
+    VcsCommand *command = vcsExec(
+                workingDirectory, arguments, nullptr, true,
+                VcsCommand::ExpectRepoChanges | VcsCommand::ShowSuccessMessage);
+    connect(command, &VcsCommand::finished,
+            this, [this, workingDirectory, stashMode](bool success) {
+        if (stashMode == StashMode::TryStash)
+            endStashScope(workingDirectory);
+        if (success)
+            updateSubmodulesIfNeeded(workingDirectory, true);
+    });
 }
 
 /* method used to setup arguments for checkout, in case user wants to create local branch */
@@ -1355,16 +1356,6 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory, QStrin
                      errorMessage);
         return false;
     }
-    return true;
-}
-
-bool GitClient::stashAndCheckout(const QString &workingDirectory, const QString &ref)
-{
-    if (!beginStashScope(workingDirectory, "Checkout"))
-        return false;
-    if (!synchronousCheckout(workingDirectory, ref))
-        return false;
-    endStashScope(workingDirectory);
     return true;
 }
 
@@ -3378,7 +3369,7 @@ GitRemote::GitRemote(const QString &url)
 {
     static const QRegularExpression remotePattern(
                 "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)"
-                "(?::(?<port>\\d+))?:?(?<path>/.*)$");
+                "(?::(?<port>\\d+))?:?(?<path>.*)$");
 
     if (url.isEmpty())
         return;
@@ -3403,12 +3394,13 @@ GitRemote::GitRemote(const QString &url)
     if (!match.hasMatch())
         return;
 
+    bool ok  = false;
     protocol = match.captured("protocol");
     userName = match.captured("user");
     host     = match.captured("host");
-    port     = match.captured("port").toUShort();
+    port     = match.captured("port").toUShort(&ok);
     path     = match.captured("path");
-    isValid  = true;
+    isValid  = ok || match.captured("port").isEmpty();
 }
 
 } // namespace Internal

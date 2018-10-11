@@ -18,6 +18,7 @@ QtcPlugin {
         "baseclient.h",
         "dynamiccapabilities.cpp",
         "dynamiccapabilities.h",
+        "languageclient.qrc",
         "languageclient_global.h",
         "languageclientcodeassist.cpp",
         "languageclientcodeassist.h",

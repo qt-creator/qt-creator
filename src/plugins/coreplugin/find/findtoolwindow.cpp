@@ -269,7 +269,7 @@ void FindToolWindow::acceptAndGetParameters(QString *term, IFindFilter **filter)
 {
     QTC_ASSERT(filter, return);
     *filter = nullptr;
-    Find::updateFindCompletion(m_ui.searchTerm->text());
+    Find::updateFindCompletion(m_ui.searchTerm->text(), Find::findFlags());
     int index = m_ui.filterList->currentIndex();
     QString searchTerm = m_ui.searchTerm->text();
     if (index >= 0)

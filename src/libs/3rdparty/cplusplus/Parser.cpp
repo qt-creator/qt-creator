@@ -1834,7 +1834,11 @@ bool Parser::parseEnumSpecifier(SpecifierListAST *&node)
             error(cursor(), "expected identifier before '%s'", tok().spell());
             return false;
         }
-        parseName(ast->name);
+
+        if (LA() == T_IDENTIFIER)
+            parseName(ast->name);
+        else
+            return false;
 
         if (_languageFeatures.cxx11Enabled && LA() == T_COLON) {
             ast->colon_token = consumeToken();

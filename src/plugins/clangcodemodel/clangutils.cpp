@@ -70,6 +70,7 @@ public:
         : CompilerOptionsBuilder(projectPart,
                                  UseSystemHeader::No,
                                  CppTools::SkipBuiltIn::No,
+                                 CppTools::SkipLanguageDefines::Yes,
                                  QString(CLANG_VERSION),
                                  QString(CLANG_RESOURCE_DIR))
     {

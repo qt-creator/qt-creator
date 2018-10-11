@@ -290,6 +290,7 @@ bool TextMark::addToolTipContent(QLayout *target) const
     }
 
     auto textLabel = new QLabel;
+    textLabel->setOpenExternalLinks(true);
     textLabel->setText(text);
     // Differentiate between tool tips that where explicitly set and default tool tips.
     textLabel->setEnabled(!m_toolTip.isEmpty());

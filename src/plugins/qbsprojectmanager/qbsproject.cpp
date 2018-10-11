@@ -915,10 +915,8 @@ void QbsProject::updateCppCodeModel()
 
     CppTools::ProjectPart::QtVersion qtVersionFromKit = CppTools::ProjectPart::NoQt;
     if (qtVersion) {
-        if (qtVersion->qtVersion() <= QtSupport::QtVersionNumber(4,8,6))
-            qtVersionFromKit = CppTools::ProjectPart::Qt4_8_6AndOlder;
-        else if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            qtVersionFromKit = CppTools::ProjectPart::Qt4Latest;
+        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
+            qtVersionFromKit = CppTools::ProjectPart::Qt4;
         else
             qtVersionFromKit = CppTools::ProjectPart::Qt5;
     }

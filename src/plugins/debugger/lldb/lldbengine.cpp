@@ -891,7 +891,7 @@ void LldbEngine::handleLocationNotification(const GdbMi &reportedLocation)
     QString function = reportedLocation["function"].data();
     int lineNumber = reportedLocation["line"].toInt();
     Location loc = Location(fileName, lineNumber);
-    if (boolSetting(OperateByInstruction) || !QFileInfo::exists(fileName) || lineNumber <= 0) {
+    if (operatesByInstruction() || !QFileInfo::exists(fileName) || lineNumber <= 0) {
         loc = Location(address);
         loc.setNeedsMarker(true);
         loc.setUseAssembler(true);

@@ -30,6 +30,7 @@
 #include "cppprojectfile.h"
 
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/language.h>
 #include <projectexplorer/projectexplorer_global.h>
 #include <projectexplorer/projectmacro.h>
 
@@ -49,40 +50,10 @@ namespace CppTools {
 class CPPTOOLS_EXPORT ProjectPart
 {
 public:
-    enum LanguageVersion {
-        C89,
-        C99,
-        C11,
-        LatestCVersion = C11,
-        CXX98,
-        CXX03,
-        CXX11,
-        CXX14,
-        CXX17,
-        LatestCxxVersion = CXX17,
-    };
-
-    enum LanguageExtension {
-        NoExtensions         = 0,
-        GnuExtensions        = 1 << 0,
-        MicrosoftExtensions  = 1 << 1,
-        BorlandExtensions    = 1 << 2,
-        OpenMPExtensions     = 1 << 3,
-        ObjectiveCExtensions = 1 << 4,
-
-        AllExtensions = GnuExtensions
-                      | MicrosoftExtensions
-                      | BorlandExtensions
-                      | OpenMPExtensions
-                      | ObjectiveCExtensions
-    };
-    Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
-
     enum QtVersion {
         UnknownQt = -1,
         NoQt,
-        Qt4_8_6AndOlder,
-        Qt4Latest,
+        Qt4,
         Qt5
     };
 
@@ -127,8 +98,8 @@ public:
 
     ProjectExplorer::Macros projectMacros;
 
-    LanguageVersion languageVersion = LatestCxxVersion;
-    LanguageExtensions languageExtensions = NoExtensions;
+    ProjectExplorer::LanguageVersion languageVersion = ProjectExplorer::LanguageVersion::LatestCxx;
+    ProjectExplorer::LanguageExtensions languageExtensions = ProjectExplorer::LanguageExtension::None;
     ProjectExplorer::WarningFlags warningFlags = ProjectExplorer::WarningFlags::Default;
     QtVersion qtVersion = UnknownQt;
     CPlusPlus::LanguageFeatures languageFeatures;

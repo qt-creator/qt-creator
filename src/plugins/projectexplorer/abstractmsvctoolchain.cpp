@@ -29,6 +29,7 @@
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "taskhub.h"
+#include "toolchaincache.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
@@ -46,7 +47,7 @@ namespace Internal {
 AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Core::Id l, Detection d,
                                              const Abi &abi,
                                              const QString& vcvarsBat) : ToolChain(typeId, d),
-    m_predefinedMacrosMutex(new QMutex),
+    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
     m_lastEnvironment(Utils::Environment::systemEnvironment()),
     m_headerPathsMutex(new QMutex),
     m_abi(abi),
@@ -57,20 +58,18 @@ AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Core::Id l, Detect
 
 AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Detection d) :
     ToolChain(typeId, d),
+    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
     m_lastEnvironment(Utils::Environment::systemEnvironment())
 { }
 
 AbstractMsvcToolChain::~AbstractMsvcToolChain()
 {
-    delete m_predefinedMacrosMutex;
     delete m_headerPathsMutex;
 }
 
 AbstractMsvcToolChain::AbstractMsvcToolChain(const AbstractMsvcToolChain &other)
     : ToolChain(other),
       m_debuggerCommand(other.m_debuggerCommand),
-      m_predefinedMacrosMutex(new QMutex),
-      m_predefinedMacros(other.m_predefinedMacros),
       m_lastEnvironment(other.m_lastEnvironment),
       m_resultEnvironment(other.m_resultEnvironment),
       m_headerPathsMutex(new QMutex),
@@ -99,65 +98,109 @@ QString AbstractMsvcToolChain::originalTargetTriple() const
             : QLatin1String("i686-pc-windows-msvc");
 }
 
-ToolChain::PredefinedMacrosRunner AbstractMsvcToolChain::createPredefinedMacrosRunner() const
+//
+// We want to detect the language version based on the predefined macros.
+// Unfortunately MSVC does not conform to standard when it comes to the predefined
+// __cplusplus macro - it reports "199711L", even for newer language versions.
+//
+// However:
+//   * For >= Visual Studio 2015 Update 3 predefines _MSVC_LANG which has the proper value
+//     of __cplusplus.
+//     See https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2017
+//   * For >= Visual Studio 2017 Version 15.7 __cplusplus is correct once /Zc:__cplusplus
+//     is provided on the command line. Then __cplusplus == _MSVC_LANG.
+//     See https://blogs.msdn.microsoft.com/vcblog/2018/04/09/msvc-now-correctly-reports-__cplusplus
+//
+// We rely on _MSVC_LANG if possible, otherwise on some hard coded language versions
+// depending on _MSC_VER.
+//
+// For _MSV_VER values, see https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2017.
+//
+LanguageVersion static languageVersionForMsvc(const Core::Id &language, const Macros &macros)
+{
+    int mscVer = -1;
+    QByteArray msvcLang;
+    for (const ProjectExplorer::Macro &macro : macros) {
+        if (macro.key == "_MSVC_LANG")
+            msvcLang = macro.value;
+        if (macro.key == "_MSC_VER")
+            mscVer = macro.value.toInt(nullptr);
+    }
+    QTC_CHECK(mscVer > 0);
+
+    if (language == Constants::CXX_LANGUAGE_ID) {
+        if (!msvcLang.isEmpty()) // >= Visual Studio 2015 Update 3
+            return ToolChain::cxxLanguageVersion(msvcLang);
+        if (mscVer >= 1800) // >= Visual Studio 2013 (12.0)
+            return LanguageVersion::CXX14;
+        if (mscVer >= 1600) // >= Visual Studio 2010 (10.0)
+            return LanguageVersion::CXX11;
+        return LanguageVersion::CXX98;
+    } else if (language == Constants::C_LANGUAGE_ID) {
+        if (mscVer >= 1910) // >= Visual Studio 2017 RTW (15.0)
+            return LanguageVersion::C11;
+        return LanguageVersion::C99;
+    } else {
+        QTC_CHECK(false && "Unexpected toolchain language, assuming latest C++ we support.");
+        return LanguageVersion::LatestCxx;
+    }
+}
+
+bool static hasFlagEffectOnMacros(const QString &flag)
+{
+    if (flag.startsWith("-") || flag.startsWith("/")) {
+        const QString f = flag.mid(1);
+        if (f.startsWith("I"))
+            return false; // Skip include paths
+        if (f.startsWith("w", Qt::CaseInsensitive))
+            return false; // Skip warning options
+    }
+    return true;
+}
+
+ToolChain::MacroInspectionRunner AbstractMsvcToolChain::createMacroInspectionRunner() const
 {
     Utils::Environment env(m_lastEnvironment);
     addToEnvironment(env);
+    std::shared_ptr<Cache<MacroInspectionReport, 64>> macroCache = m_predefinedMacrosCache;
+    const Core::Id lang = language();
 
     // This runner must be thread-safe!
-    return [this, env](const QStringList &cxxflags) {
-        QMutexLocker locker(m_predefinedMacrosMutex);
-        if (m_predefinedMacros.isEmpty())
-            m_predefinedMacros = msvcPredefinedMacros(cxxflags, env);
-        return m_predefinedMacros;
+    return [this, env, macroCache, lang](const QStringList &cxxflags) {
+        const QStringList filteredFlags = Utils::filtered(cxxflags, [](const QString &arg) {
+            return hasFlagEffectOnMacros(arg);
+        });
+
+        const Utils::optional<MacroInspectionReport> cachedMacros = macroCache->check(filteredFlags);
+        if (cachedMacros)
+            return cachedMacros.value();
+
+        const Macros macros = msvcPredefinedMacros(filteredFlags, env);
+
+        const auto report = MacroInspectionReport{macros,
+                                                  languageVersionForMsvc(lang, macros)};
+        macroCache->insert(filteredFlags, report);
+
+        return report;
     };
 }
 
 ProjectExplorer::Macros AbstractMsvcToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
-    return createPredefinedMacrosRunner()(cxxflags);
+    return createMacroInspectionRunner()(cxxflags).macros;
 }
 
-ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList &cxxflags) const
+LanguageExtensions AbstractMsvcToolChain::languageExtensions(const QStringList &cxxflags) const
 {
-    CompilerFlags flags(MicrosoftExtensions);
+    LanguageExtensions extensions(LanguageExtension::Microsoft);
     if (cxxflags.contains(QLatin1String("/openmp")))
-        flags |= OpenMP;
+        extensions |= LanguageExtension::OpenMP;
 
     // see http://msdn.microsoft.com/en-us/library/0k0w269d%28v=vs.71%29.aspx
     if (cxxflags.contains(QLatin1String("/Za")))
-        flags &= ~MicrosoftExtensions;
+        extensions &= ~LanguageExtensions(LanguageExtension::Microsoft);
 
-    bool cLanguage = (language() == ProjectExplorer::Constants::C_LANGUAGE_ID);
-
-    switch (m_abi.osFlavor()) {
-    case Abi::WindowsMsvc2010Flavor:
-    case Abi::WindowsMsvc2012Flavor:
-        if (cLanguage)
-            flags |= StandardC99;
-        else
-            flags |= StandardCxx11;
-        break;
-    case Abi::WindowsMsvc2013Flavor:
-    case Abi::WindowsMsvc2015Flavor:
-        if (cLanguage)
-            flags |= StandardC99;
-        else
-            flags |= StandardCxx14;
-        break;
-    case Abi::WindowsMsvc2017Flavor:
-        if (cLanguage)
-            flags |= StandardC11;
-        else if (cxxflags.contains("/std:c++17") || cxxflags.contains("/std:c++latest"))
-            flags |= StandardCxx17;
-        else
-            flags |= StandardCxx14;
-        break;
-    default:
-        break;
-    }
-
-    return flags;
+    return extensions;
 }
 
 /**
@@ -425,6 +468,11 @@ void AbstractMsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags
     }
     if (warningLevel >= 4)
         flags |= WarningFlags::UnusedParams;
+}
+
+void Internal::AbstractMsvcToolChain::toolChainUpdated()
+{
+    m_predefinedMacrosCache->invalidate();
 }
 
 bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const

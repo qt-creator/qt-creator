@@ -36,6 +36,13 @@ namespace ClangBackEnd {
 
 using namespace std::chrono_literals;
 
+static QProcess::ProcessChannelMode kProcessChannelMode
+#ifdef Q_OS_WIN
+    = QProcess::MergedChannels;
+#else
+    = QProcess::ForwardedChannels;
+#endif
+
 ProcessCreator::ProcessCreator()
 {
 }
@@ -66,7 +73,7 @@ std::future<QProcessUniquePointer> ProcessCreator::createProcess() const
     return std::async(std::launch::async, [&] {
         checkIfProcessPathExists();
         auto process = QProcessUniquePointer(new QProcess);
-        process->setProcessChannelMode(QProcess::QProcess::ForwardedChannels);
+        process->setProcessChannelMode(kProcessChannelMode);
         process->setProcessEnvironment(processEnvironment());
         process->start(m_processPath, m_arguments);
         process->waitForStarted(5000);

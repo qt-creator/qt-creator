@@ -1233,7 +1233,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_nextAction.setIcon(Icons::STEP_OVER.icon());
     connect(&m_nextAction, &QAction::triggered, this, [] {
         if (DebuggerEngine *engine = EngineManager::currentEngine()) {
-            engine->executeNext();
+            engine->handleExecNext();
         } else {
             DebuggerRunTool::setBreakOnMainNextTime();
             ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
@@ -1248,7 +1248,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_stepAction.setIcon(Icons::STEP_OVER.icon());
     connect(&m_stepAction, &QAction::triggered, this, [] {
         if (DebuggerEngine *engine = EngineManager::currentEngine()) {
-            engine->executeStep();
+            engine->handleExecStep();
         } else {
             DebuggerRunTool::setBreakOnMainNextTime();
             ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
@@ -1298,10 +1298,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     ActionManager::registerAction(&m_frameUpAction,
         "Debugger.FrameUp", cppDebuggercontext);
 
-    cmd = ActionManager::registerAction(action(OperateByInstruction),
-        Constants::OPERATE_BY_INSTRUCTION, cppDebuggercontext);
-    cmd->setAttribute(Command::CA_Hide);
-    debugMenu->addAction(cmd);
+//    cmd = ActionManager::registerAction(action(OperateByInstruction),
+//        Constants::OPERATE_BY_INSTRUCTION, cppDebuggercontext);
+//    cmd->setAttribute(Command::CA_Hide);
+//    debugMenu->addAction(cmd);
 
     cmd = ActionManager::registerAction(&m_breakAction, "Debugger.ToggleBreak");
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("F8") : tr("F9")));
@@ -2056,7 +2056,6 @@ void DebuggerPluginPrivate::setInitialState()
     m_watchAction.setEnabled(false);
     m_breakAction.setEnabled(false);
     //m_snapshotAction.setEnabled(false);
-    action(OperateByInstruction)->setChecked(false);
 
     m_exitAction.setEnabled(false);
     m_abortAction.setEnabled(false);

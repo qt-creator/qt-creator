@@ -1,5 +1,4 @@
 import qbs
-import qbs.FileInfo
 
 QtcPlugin {
     name: "ClangFormat"
@@ -8,7 +7,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "CppTools" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "ExtensionSystem" }
     Depends { name: "Utils" }
 
     Depends { name: "libclang"; required: false }

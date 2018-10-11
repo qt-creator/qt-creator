@@ -137,7 +137,7 @@ QStringList CppcheckTool::additionalArguments(const CppTools::ProjectPart &part)
     if (!m_options.guessArguments)
         return result;
 
-    using Version = CppTools::ProjectPart::LanguageVersion;
+    using Version = ProjectExplorer::LanguageVersion;
     switch (part.languageVersion) {
     case Version::C89:
         result.push_back("--std=c89 --language=c");
@@ -147,6 +147,9 @@ QStringList CppcheckTool::additionalArguments(const CppTools::ProjectPart &part)
         break;
     case Version::C11:
         result.push_back("--std=c11 --language=c");
+        break;
+    case Version::C18:
+        result.push_back("--language=c");
         break;
     case Version::CXX03:
         result.push_back("--std=c++03 --language=c++");
@@ -159,6 +162,7 @@ QStringList CppcheckTool::additionalArguments(const CppTools::ProjectPart &part)
         break;
     case Version::CXX98:
     case Version::CXX17:
+    case Version::CXX2a:
         result.push_back("--language=c++");
         break;
     }

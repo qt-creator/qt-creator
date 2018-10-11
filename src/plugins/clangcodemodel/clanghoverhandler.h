@@ -37,7 +37,6 @@ class ClangHoverHandler : public TextEditor::BaseHoverHandler
     Q_DECLARE_TR_FUNCTIONS(ClangHoverHandler)
 
 public:
-    ClangHoverHandler();
     ~ClangHoverHandler() override;
 
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget,

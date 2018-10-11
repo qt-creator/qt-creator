@@ -39,6 +39,7 @@ using CppTools::ProjectUpdateInfo;
 using CppTools::ProjectPart;
 using CppTools::RawProjectPart;
 
+using ProjectExplorer::Macros;
 using ProjectExplorer::ToolChain;
 
 using testing::Eq;
@@ -65,6 +66,7 @@ protected:
     ProjectInfo generate();
 
 protected:
+    ProjectUpdateInfo projectUpdateInfo;
     RawProjectPart rawProjectPart;
 };
 
@@ -101,7 +103,7 @@ TEST_F(ProjectInfoGenerator, ProjectPartIndicatesObjectiveCExtensionsByDefault)
 
     ASSERT_THAT(projectInfo.projectParts().size(), Eq(1));
     const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
-    ASSERT_TRUE(projectPart.languageExtensions & ProjectPart::ObjectiveCExtensions);
+    ASSERT_TRUE(projectPart.languageExtensions & ProjectExplorer::LanguageExtension::ObjectiveC);
 }
 
 TEST_F(ProjectInfoGenerator, ProjectPartHasLatestLanguageVersionByDefault)
@@ -112,31 +114,33 @@ TEST_F(ProjectInfoGenerator, ProjectPartHasLatestLanguageVersionByDefault)
 
     ASSERT_THAT(projectInfo.projectParts().size(), Eq(1));
     const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
-    ASSERT_THAT(projectPart.languageVersion, Eq(ProjectPart::LatestCxxVersion));
+    ASSERT_THAT(projectPart.languageVersion, Eq(ProjectExplorer::LanguageVersion::LatestCxx));
 }
 
-TEST_F(ProjectInfoGenerator, UseCompilerFlagsForLanguageVersion)
+TEST_F(ProjectInfoGenerator, UseMacroInspectionReportForLanguageVersion)
 {
+    projectUpdateInfo.cxxToolChainInfo.macroInspectionRunner = [](const QStringList &) {
+        return ToolChain::MacroInspectionReport{Macros(), ProjectExplorer::LanguageVersion::CXX17};
+    };
     rawProjectPart.files = QStringList{ "foo.cpp" };
-    rawProjectPart.flagsForCxx.compilerFlags = ToolChain::CompilerFlag::StandardCxx98;
 
     const ProjectInfo projectInfo = generate();
 
     ASSERT_THAT(projectInfo.projectParts().size(), Eq(1));
     const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
-    ASSERT_THAT(projectPart.languageVersion, Eq(ProjectPart::CXX98));
+    ASSERT_THAT(projectPart.languageVersion, Eq(ProjectExplorer::LanguageVersion::CXX17));
 }
 
-TEST_F(ProjectInfoGenerator, UseCompilerFlagsForLangaugeExtensions)
+TEST_F(ProjectInfoGenerator, UseCompilerFlagsForLanguageExtensions)
 {
     rawProjectPart.files = QStringList{ "foo.cpp" };
-    rawProjectPart.flagsForCxx.compilerFlags = ToolChain::CompilerFlag::MicrosoftExtensions;
+    rawProjectPart.flagsForCxx.languageExtensions = ProjectExplorer::LanguageExtension::Microsoft;
 
     const ProjectInfo projectInfo = generate();
 
     ASSERT_THAT(projectInfo.projectParts().size(), Eq(1));
     const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
-    ASSERT_TRUE(projectPart.languageExtensions & ProjectPart::MicrosoftExtensions);
+    ASSERT_TRUE(projectPart.languageExtensions & ProjectExplorer::LanguageExtension::Microsoft);
 }
 
 TEST_F(ProjectInfoGenerator, ProjectFileKindsMatchProjectPartVersion)
@@ -146,10 +150,10 @@ TEST_F(ProjectInfoGenerator, ProjectFileKindsMatchProjectPartVersion)
     const ProjectInfo projectInfo = generate();
 
     ASSERT_THAT(projectInfo.projectParts(),
-                UnorderedElementsAre(IsProjectPart(ProjectPart::LatestCVersion, ProjectFile::CHeader),
-                                     IsProjectPart(ProjectPart::LatestCVersion, ProjectFile::ObjCHeader),
-                                     IsProjectPart(ProjectPart::LatestCxxVersion, ProjectFile::CXXHeader),
-                                     IsProjectPart(ProjectPart::LatestCxxVersion, ProjectFile::ObjCXXHeader)));
+                UnorderedElementsAre(IsProjectPart(ProjectExplorer::LanguageVersion::LatestC, ProjectFile::CHeader),
+                                     IsProjectPart(ProjectExplorer::LanguageVersion::LatestC, ProjectFile::ObjCHeader),
+                                     IsProjectPart(ProjectExplorer::LanguageVersion::LatestCxx, ProjectFile::CXXHeader),
+                                     IsProjectPart(ProjectExplorer::LanguageVersion::LatestCxx, ProjectFile::ObjCXXHeader)));
 }
 
 void ProjectInfoGenerator::SetUp()
@@ -160,7 +164,7 @@ void ProjectInfoGenerator::SetUp()
 ProjectInfo ProjectInfoGenerator::generate()
 {
     QFutureInterface<void> fi;
-    ProjectUpdateInfo projectUpdateInfo;
+
     projectUpdateInfo.rawProjectParts += rawProjectPart;
     ::ProjectInfoGenerator generator(fi, projectUpdateInfo);
 

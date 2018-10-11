@@ -119,7 +119,15 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
     process.start("ag", arguments);
     if (process.waitForFinished()) {
         typedef QList<FileSearchResult> FileSearchResultList;
-        SilverSearcher::SilverSearcherOutputParser parser(process.readAll());
+        QRegularExpression regexp;
+        if (parameters.flags & FindRegularExpression) {
+            const QRegularExpression::PatternOptions patternOptions =
+                    (parameters.flags & FindCaseSensitively)
+                    ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+            regexp.setPattern(parameters.text);
+            regexp.setPatternOptions(patternOptions);
+        }
+        SilverSearcher::SilverSearcherOutputParser parser(process.readAll(), regexp);
         FileSearchResultList items = parser.parse();
         if (!items.isEmpty())
             fi.reportResult(items);
@@ -134,7 +142,6 @@ namespace SilverSearcher {
 
 FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
     : SearchEngine(parent),
-      m_widget(0),
       m_path("ag"),
       m_toolName("SilverSearcher")
 {
@@ -190,7 +197,7 @@ QFuture<FileSearchResultList> FindInFilesSilverSearcher::executeSearch(
 IEditor *FindInFilesSilverSearcher::openEditor(const SearchResultItem & /*item*/,
                                                const FileFindParameters & /*parameters*/)
 {
-    return 0;
+    return nullptr;
 }
 
 void FindInFilesSilverSearcher::readSettings(QSettings * /*settings*/)

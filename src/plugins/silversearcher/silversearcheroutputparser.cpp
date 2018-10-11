@@ -30,10 +30,12 @@
 namespace SilverSearcher {
 
 SilverSearcherOutputParser::SilverSearcherOutputParser(
-        const QByteArray &output)
+        const QByteArray &output, const QRegularExpression &regexp)
     : output(output)
+    , regexp(regexp)
     , outputSize(output.size())
 {
+    hasRegexp = !regexp.pattern().isEmpty();
 }
 
 QList<Utils::FileSearchResult> SilverSearcherOutputParser::parse()
@@ -102,6 +104,13 @@ bool SilverSearcherOutputParser::parseMatchLength()
 int SilverSearcherOutputParser::parseMatches()
 {
     int matches = 1;
+    const int colon = output.indexOf(':', index);
+    QByteArray text;
+    if (colon != -1) {
+        const int textStart = colon + 1;
+        const int newline = output.indexOf('\n', textStart);
+        text = output.mid(textStart, newline >= 0 ? newline - textStart : -1);
+    }
     while (index < outputSize && output[index] != ':') {
         if (output[index] == ',') {
             ++matches;
@@ -109,6 +118,10 @@ int SilverSearcherOutputParser::parseMatches()
         }
         parseMatchIndex();
         parseMatchLength();
+        if (hasRegexp) {
+            const QString part = QString::fromUtf8(text.mid(item.matchStart, item.matchLength));
+            item.regexpCapturedTexts = regexp.match(part).capturedTexts();
+        }
         items << item;
     }
 

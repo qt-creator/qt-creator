@@ -116,7 +116,8 @@ private:
 
     bool isPreferredLanguage(const ProjectPart &projectPart) const
     {
-        const bool isCProjectPart = projectPart.languageVersion <= ProjectPart::LatestCVersion;
+        const bool isCProjectPart = projectPart.languageVersion
+                                    <= ProjectExplorer::LanguageVersion::LatestC;
         return (m_languagePreference == Language::C && isCProjectPart)
             || (m_languagePreference == Language::Cxx && !isCProjectPart);
     }

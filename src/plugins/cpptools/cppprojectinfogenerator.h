@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "cpptools_utils.h"
 #include "projectinfo.h"
 
 #include <QFutureInterface>
@@ -46,8 +47,8 @@ private:
                                        const ProjectPart::Ptr &templateProjectPart,
                                        const ProjectFiles &projectFiles,
                                        const QString &partName,
-                                       ProjectPart::LanguageVersion languageVersion,
-                                       ProjectPart::LanguageExtensions languageExtensions);
+                                       Language language,
+                                       ProjectExplorer::LanguageExtensions languageExtensions);
 
 private:
     const QFutureInterface<void> m_futureInterface;

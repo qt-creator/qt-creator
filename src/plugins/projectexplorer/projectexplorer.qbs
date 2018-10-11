@@ -145,6 +145,7 @@ Project {
                 "taskmodel.cpp", "taskmodel.h",
                 "taskwindow.cpp", "taskwindow.h",
                 "toolchain.cpp", "toolchain.h",
+                "toolchaincache.h",
                 "toolchainconfigwidget.cpp", "toolchainconfigwidget.h",
                 "toolchainmanager.cpp", "toolchainmanager.h",
                 "toolchainoptionspage.cpp", "toolchainoptionspage.h",

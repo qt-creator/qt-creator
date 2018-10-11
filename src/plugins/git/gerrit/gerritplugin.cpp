@@ -254,7 +254,7 @@ void FetchContext::cherryPick()
 
 void FetchContext::checkout()
 {
-    GitPlugin::client()->stashAndCheckout(m_repository, "FETCH_HEAD");
+    GitPlugin::client()->checkout(m_repository, "FETCH_HEAD");
 }
 
 void FetchContext::terminate()

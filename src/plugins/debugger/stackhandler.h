@@ -73,6 +73,7 @@ public:
     bool isContentsValid() const { return m_contentsValid; }
     void scheduleResetLocation();
     void resetLocation();
+    void resetModel() { beginResetModel(); endResetModel(); }
 
 signals:
     void stackChanged();
@@ -87,7 +88,6 @@ private:
     bool setData(const QModelIndex &idx, const QVariant &data, int role) override;
 
     bool contextMenuEvent(const Utils::ItemViewEvent &event);
-    void resetModel() { beginResetModel(); endResetModel(); }
     void reloadFullStack();
     void copyContentsToClipboard();
     void saveTaskFile();

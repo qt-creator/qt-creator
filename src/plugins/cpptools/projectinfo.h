@@ -58,7 +58,7 @@ public:
 
     QString sysRootPath; // For headerPathsRunner.
     ProjectExplorer::ToolChain::BuiltInHeaderPathsRunner headerPathsRunner;
-    ProjectExplorer::ToolChain::PredefinedMacrosRunner predefinedMacrosRunner;
+    ProjectExplorer::ToolChain::MacroInspectionRunner macroInspectionRunner;
 };
 
 class CPPTOOLS_EXPORT ProjectUpdateInfo

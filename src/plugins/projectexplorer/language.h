@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 Przemyslaw Gorszkowski <pgorszkowski@gmail.com>.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,38 +25,41 @@
 
 #pragma once
 
-#include <coreplugin/find/searchresultwindow.h>
-#include <utils/filesearch.h>
+#include <QFlags>
 
-#include <QByteArray>
-#include <QList>
-#include <QRegularExpression>
+namespace ProjectExplorer {
 
-namespace SilverSearcher {
-
-class SilverSearcherOutputParser
-{
-public:
-    SilverSearcherOutputParser(
-            const QByteArray &output,
-            const QRegularExpression &regexp = QRegularExpression());
-
-    QList<Utils::FileSearchResult> parse();
-private:
-    int parseMatches();
-    bool parseMatchLength();
-    bool parseMatchIndex();
-    bool parseLineNumber();
-    bool parseFilePath();
-    bool parseText();
-
-    QByteArray output;
-    QRegularExpression regexp;
-    bool hasRegexp = false;
-    int outputSize = 0;
-    int index = 0;
-    Utils::FileSearchResult item;
-    QList<Utils::FileSearchResult> items;
+enum class LanguageVersion {
+    C89,
+    C99,
+    C11,
+    C18,
+    LatestC = C18,
+    CXX98,
+    CXX03,
+    CXX11,
+    CXX14,
+    CXX17,
+    CXX2a,
+    LatestCxx = CXX2a,
 };
 
-} // namespace SilverSearcher
+enum class LanguageExtension {
+    None       = 0,
+
+    Gnu        = 1 << 0,
+    Microsoft  = 1 << 1,
+    Borland    = 1 << 2,
+    OpenMP     = 1 << 3,
+    ObjectiveC = 1 << 4,
+
+    All = Gnu
+        | Microsoft
+        | Borland
+        | OpenMP
+        | ObjectiveC
+};
+
+Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
+
+} // namespace ProjectExplorer

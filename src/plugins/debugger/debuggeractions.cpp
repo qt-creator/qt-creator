@@ -166,18 +166,6 @@ DebuggerSettings::DebuggerSettings()
     insertItem(LogTimeStamps, item);
 
     item = new SavedAction(this);
-    item->setText(tr("Operate by Instruction"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setIcon(Debugger::Icons::SINGLE_INSTRUCTION_MODE.icon());
-    item->setToolTip(tr("<p>This switches the debugger to instruction-wise "
-        "operation mode. In this mode, stepping operates on single "
-        "instructions and the source location view also shows the "
-        "disassembled instructions."));
-    item->setIconVisibleInMenu(false);
-    insertItem(OperateByInstruction, item);
-
-    item = new SavedAction(this);
     item->setText(tr("Dereference Pointers Automatically"));
     item->setCheckable(true);
     item->setDefaultValue(true);

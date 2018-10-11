@@ -185,7 +185,7 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(const CodeComple
 {
     QTC_CHECK(m_completions.isEmpty());
 
-    if (m_sentRequestType == FunctionHintCompletion) {
+    if (m_sentRequestType == FunctionHintCompletion && !completions.isEmpty()) {
         const CodeCompletion &firstCompletion = completions.front();
         if (firstCompletion.completionKind == CodeCompletion::FunctionOverloadCompletionKind) {
             setAsyncProposalAvailable(createFunctionHintProposal(completions));

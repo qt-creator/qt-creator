@@ -314,6 +314,24 @@ JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &dat
     return factory;
 }
 
+static QStringList environmentTemplatesPaths()
+{
+    QStringList paths;
+
+    QString envTempPath = QString::fromLocal8Bit(qgetenv("QTCREATOR_TEMPLATES_PATH"));
+
+    if (!envTempPath.isEmpty()) {
+        for (const QString &path : envTempPath
+             .split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts)) {
+            QString canonicalPath = QDir(path).canonicalPath();
+            if (!canonicalPath.isEmpty() && !paths.contains(canonicalPath))
+                paths.append(canonicalPath);
+        }
+    }
+
+    return paths;
+}
+
 Utils::FileNameList &JsonWizardFactory::searchPaths()
 {
     static Utils::FileNameList m_searchPaths = Utils::FileNameList()
@@ -321,6 +339,9 @@ Utils::FileNameList &JsonWizardFactory::searchPaths()
                                            QLatin1String(WIZARD_PATH))
             << Utils::FileName::fromString(Core::ICore::resourcePath() + QLatin1Char('/') +
                                            QLatin1String(WIZARD_PATH));
+    for (const QString &environmentTemplateDirName : environmentTemplatesPaths())
+        m_searchPaths << Utils::FileName::fromString(environmentTemplateDirName);
+
     return m_searchPaths;
 }
 

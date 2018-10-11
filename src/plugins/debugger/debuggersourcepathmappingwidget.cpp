@@ -134,7 +134,7 @@ SourcePathMap SourcePathMappingModel::sourcePathMap() const
 bool SourcePathMappingModel::isNewPlaceHolder(const Mapping &m) const
 {
     const QLatin1Char lessThan('<');
-    const QLatin1Char greaterThan('<');
+    const QLatin1Char greaterThan('>');
     return m.first.isEmpty() || m.first.startsWith(lessThan)
            || m.first.endsWith(greaterThan)
            || m.first == m_newSourcePlaceHolder

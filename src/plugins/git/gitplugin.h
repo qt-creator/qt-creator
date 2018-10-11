@@ -106,6 +106,8 @@ private slots:
     void testDiffFileResolving_data();
     void testDiffFileResolving();
     void testLogResolving();
+    void testGitRemote_data();
+    void testGitRemote();
 #endif
 
 private:

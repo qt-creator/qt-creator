@@ -39,7 +39,7 @@ RawProjectPartFlags::RawProjectPartFlags(const ProjectExplorer::ToolChain *toolC
     if (toolChain) {
         this->commandLineFlags = commandLineFlags;
         warningFlags = toolChain->warningFlags(commandLineFlags);
-        compilerFlags = toolChain->compilerFlags(commandLineFlags);
+        languageExtensions = toolChain->languageExtensions(commandLineFlags);
     }
 }
 
