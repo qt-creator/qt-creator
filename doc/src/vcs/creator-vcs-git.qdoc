@@ -281,6 +281,17 @@
             \li Set the current branch to track the selected one.
     \endtable
 
+    \section3 Configuring Merge Tools
+
+    Only graphical merge tools are supported. You can configure the
+    merge tool to use on the command line. For example, to use the
+    \l{http://kdiff3.sourceforge.net/}{KDiff3} merge tool, enter the
+    following command:
+
+    \badcode
+    git config --global merge.tool kdiff3
+    \endcode
+
     \section2 Applying Patches
 
     Patches are rewriting instructions that can be applied to a set of files.
