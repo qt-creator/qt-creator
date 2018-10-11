@@ -347,8 +347,9 @@ std::string tolower_string(const std::string& in)
    std::string s = in;
    for(size_t i = 0; i != s.size(); ++i)
       {
-      if(std::isalpha(static_cast<unsigned char>(s[i])))
-         s[i] = std::tolower(static_cast<unsigned char>(s[i]));
+      const int cu = static_cast<unsigned char>(s[i]);
+      if(std::isalpha(cu))
+         s[i] = static_cast<char>(std::tolower(cu));
       }
    return s;
    }
@@ -415,7 +416,7 @@ bool host_wildcard_match(const std::string& issued_, const std::string& host_)
    /*
    Now walk through the issued string, making sure every character
    matches. When we come to the (singular) '*', jump forward in the
-   hostname by the cooresponding amount. We know exactly how much
+   hostname by the corresponding amount. We know exactly how much
    space the wildcard takes because it must be exactly `len(host) -
    len(issued) + 1 chars`.
 

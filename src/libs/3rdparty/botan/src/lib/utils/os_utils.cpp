@@ -26,7 +26,13 @@
   #include <setjmp.h>
   #include <unistd.h>
   #include <errno.h>
-#elif defined(BOTAN_TARGET_OS_HAS_WIN32)
+#endif
+
+#if defined(BOTAN_TARGET_OS_HAS_GETAUXVAL)
+  #include <sys/auxv.h>
+#endif
+
+#if defined(BOTAN_TARGET_OS_HAS_WIN32)
   #define NOMINMAX 1
   #include <windows.h>
 #endif
@@ -71,6 +77,17 @@ uint32_t OS::get_process_id()
    return 0; // truly no meaningful value
 #else
    #error "Missing get_process_id"
+#endif
+   }
+
+bool OS::running_in_privileged_state()
+   {
+#if defined(BOTAN_TARGET_OS_HAS_GETAUXVAL) && defined(AT_SECURE)
+   return ::getauxval(AT_SECURE) != 0;
+#elif defined(BOTAN_TARGET_OS_HAS_POSIX1)
+   return (::getuid() != ::geteuid()) || (::getgid() != ::getegid());
+#else
+   return false;
 #endif
    }
 
@@ -199,26 +216,30 @@ uint64_t OS::get_system_timestamp_ns()
 
 size_t OS::system_page_size()
    {
+   const size_t default_page_size = 4096;
+
 #if defined(BOTAN_TARGET_OS_HAS_POSIX1)
    long p = ::sysconf(_SC_PAGESIZE);
    if(p > 1)
       return static_cast<size_t>(p);
    else
-      return 4096;
+      return default_page_size;
 #elif defined(BOTAN_TARGET_OS_HAS_VIRTUAL_LOCK)
    SYSTEM_INFO sys_info;
    ::GetSystemInfo(&sys_info);
    return sys_info.dwPageSize;
+#else
+   return default_page_size;
 #endif
-
-   // default value
-   return 4096;
    }
 
 size_t OS::get_memory_locking_limit()
    {
-#if defined(BOTAN_TARGET_OS_HAS_POSIX1)
+#if defined(BOTAN_TARGET_OS_HAS_POSIX1) && defined(RLIMIT_MEMLOCK)
    /*
+   * If RLIMIT_MEMLOCK is not defined, likely the OS does not support
+   * unprivileged mlock calls.
+   *
    * Linux defaults to only 64 KiB of mlockable memory per process
    * (too small) but BSDs offer a small fraction of total RAM (more
    * than we need). Bound the total mlock size to 512 KiB which is
@@ -232,17 +253,19 @@ size_t OS::get_memory_locking_limit()
    /*
    * Allow override via env variable
    */
-   if(const char* env = std::getenv("BOTAN_MLOCK_POOL_SIZE"))
+   if(OS::running_in_privileged_state() == false)
       {
-      try
+      if(const char* env = std::getenv("BOTAN_MLOCK_POOL_SIZE"))
          {
-         const size_t user_req = std::stoul(env, nullptr);
-         mlock_requested = std::min(user_req, mlock_requested);
+         try
+            {
+            const size_t user_req = std::stoul(env, nullptr);
+            mlock_requested = std::min(user_req, mlock_requested);
+            }
+         catch(std::exception&) { /* ignore it */ }
          }
-      catch(std::exception&) { /* ignore it */ }
       }
 
-#if defined(RLIMIT_MEMLOCK)
    if(mlock_requested > 0)
       {
       struct ::rlimit limits;
@@ -258,13 +281,6 @@ size_t OS::get_memory_locking_limit()
 
       return std::min<size_t>(limits.rlim_cur, mlock_requested * 1024);
       }
-#else
-   /*
-   * If RLIMIT_MEMLOCK is not defined, likely the OS does not support
-   * unprivileged mlock calls.
-   */
-   return 0;
-#endif
 
 #elif defined(BOTAN_TARGET_OS_HAS_VIRTUAL_LOCK)
    SIZE_T working_min = 0, working_max = 0;
@@ -294,12 +310,13 @@ size_t OS::get_memory_locking_limit()
       }
 #endif
 
+   // Not supported on this platform
    return 0;
    }
 
 void* OS::allocate_locked_pages(size_t length)
    {
-#if defined(BOTAN_TARGET_OS_HAS_POSIX1)
+#if defined(BOTAN_TARGET_OS_HAS_POSIX1) && defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
 
 #if !defined(MAP_NOCORE)
    #define MAP_NOCORE 0
@@ -325,13 +342,11 @@ void* OS::allocate_locked_pages(size_t length)
    ::madvise(ptr, length, MADV_DONTDUMP);
 #endif
 
-#if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
    if(::mlock(ptr, length) != 0)
       {
       ::munmap(ptr, length);
       return nullptr; // failed to lock
       }
-#endif
 
    ::memset(ptr, 0, length);
 
@@ -361,18 +376,16 @@ void OS::free_locked_pages(void* ptr, size_t length)
    if(ptr == nullptr || length == 0)
       return;
 
-#if defined(BOTAN_TARGET_OS_HAS_POSIX1)
+#if defined(BOTAN_TARGET_OS_HAS_POSIX1) && defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
    secure_scrub_memory(ptr, length);
-
-#if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
    ::munlock(ptr, length);
-#endif
-
    ::munmap(ptr, length);
+
 #elif defined(BOTAN_TARGET_OS_HAS_VIRTUAL_LOCK)
    secure_scrub_memory(ptr, length);
    ::VirtualUnlock(ptr, length);
    ::VirtualFree(ptr, 0, MEM_RELEASE);
+
 #else
    // Invalid argument because no way this pointer was allocated by us
    throw Invalid_Argument("Invalid ptr to free_locked_pages");

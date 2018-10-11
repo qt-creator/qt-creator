@@ -99,9 +99,10 @@ Extensions::create_extn_obj(const OID& oid,
       {
       extn->decode_inner(body);
       }
-   catch(Decoding_Error& e)
+   catch(Decoding_Error&)
       {
-      throw Decoding_Error("Decoding X.509 extension " + oid.as_string() + " failed", e.what());
+      extn.reset(new Cert_Extension::Unknown_Extension(oid, critical));
+      extn->decode_inner(body);
       }
    return extn;
    }

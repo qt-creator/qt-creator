@@ -43,7 +43,7 @@ void redc_p521(BigInt& x, secure_vector<word>& ws)
    BOTAN_ASSERT_EQUAL(carry, 0, "Final carry in P-521 reduction");
 
    // Now find the actual carry in bit 522
-   const uint8_t bit_522_set = x.word_at(p_full_words) >> (p_top_bits);
+   const word bit_522_set = x.word_at(p_full_words) >> p_top_bits;
 
 #if (BOTAN_MP_WORD_BITS == 64)
    static const word p521_words[9] = {
@@ -91,10 +91,8 @@ inline uint32_t get_uint32_t(const BigInt& x, size_t i)
    {
 #if (BOTAN_MP_WORD_BITS == 32)
    return x.word_at(i);
-#elif (BOTAN_MP_WORD_BITS == 64)
-   return static_cast<uint32_t>(x.word_at(i/2) >> ((i % 2)*32));
 #else
-  #error "Not implemented"
+   return static_cast<uint32_t>(x.word_at(i/2) >> ((i % 2)*32));
 #endif
    }
 
@@ -103,10 +101,8 @@ inline void set_words(BigInt& x, size_t i, uint32_t R0, uint32_t R1)
 #if (BOTAN_MP_WORD_BITS == 32)
    x.set_word_at(i, R0);
    x.set_word_at(i+1, R1);
-#elif (BOTAN_MP_WORD_BITS == 64)
-   x.set_word_at(i/2, (static_cast<uint64_t>(R1) << 32) | R0);
 #else
-  #error "Not implemented"
+   x.set_word_at(i/2, (static_cast<uint64_t>(R1) << 32) | R0);
 #endif
    }
 

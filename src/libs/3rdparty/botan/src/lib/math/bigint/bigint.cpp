@@ -96,7 +96,7 @@ BigInt::BigInt(const uint8_t input[], size_t length, Base base)
 BigInt::BigInt(const uint8_t buf[], size_t length, size_t max_bits)
    {
    const size_t max_bytes = std::min(length, (max_bits + 7) / 8);
-   *this = decode(buf, max_bytes);
+   binary_decode(buf, max_bytes);
 
    const size_t b = this->bits();
    if(b > max_bits)
@@ -163,18 +163,19 @@ void BigInt::encode_words(word out[], size_t size) const
 */
 uint32_t BigInt::get_substring(size_t offset, size_t length) const
    {
-   if(length > 32)
-      throw Invalid_Argument("BigInt::get_substring: Substring size " + std::to_string(length) + " too big");
+   if(length == 0 || length > 32)
+      throw Invalid_Argument("BigInt::get_substring invalid substring length");
 
-   uint64_t piece = 0;
-   for(size_t i = 0; i != 8; ++i)
-      {
-      const uint8_t part = byte_at((offset / 8) + (7-i));
-      piece = (piece << 8) | part;
-      }
-
-   const uint64_t mask = (static_cast<uint64_t>(1) << length) - 1;
+   const size_t byte_offset = offset / 8;
    const size_t shift = (offset % 8);
+   const uint32_t mask = 0xFFFFFFFF >> (32 - length);
+
+   const uint8_t b0 = byte_at(byte_offset);
+   const uint8_t b1 = byte_at(byte_offset + 1);
+   const uint8_t b2 = byte_at(byte_offset + 2);
+   const uint8_t b3 = byte_at(byte_offset + 3);
+   const uint8_t b4 = byte_at(byte_offset + 4);
+   const uint64_t piece = make_uint64(0, 0, 0, b4, b3, b2, b1, b0);
 
    return static_cast<uint32_t>((piece >> shift) & mask);
    }
@@ -339,6 +340,21 @@ void BigInt::binary_decode(const uint8_t buf[], size_t length)
 
    for(size_t i = 0; i != length % WORD_BYTES; ++i)
       m_reg[length / WORD_BYTES] = (m_reg[length / WORD_BYTES] << 8) | buf[i];
+   }
+
+void BigInt::ct_cond_assign(bool predicate, BigInt& other)
+   {
+   const size_t t_words = size();
+   const size_t o_words = other.size();
+
+   const size_t r_words = std::max(t_words, o_words);
+
+   const word mask = CT::expand_mask<word>(predicate);
+
+   for(size_t i = 0; i != r_words; ++i)
+      {
+      this->set_word_at(i, CT::select<word>(mask, other.word_at(i), this->word_at(i)));
+      }
    }
 
 #if defined(BOTAN_HAS_VALGRIND)
