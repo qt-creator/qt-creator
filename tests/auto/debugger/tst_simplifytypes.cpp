@@ -33,6 +33,7 @@ using namespace Internal;
 
 const char *description[] =
 {
+    "g++_short",
     "g++_stdstring",
     "g++_stdwstring",
     "g++_5stdstring",
@@ -49,6 +50,7 @@ const char *description[] =
     "g++_unordered_multimap",
     "g++_stdvector_int_ptr",
     "g++_stdmap_char_ptr",
+    "g++_stdmap_short_string",
 
     "libc++_stringvector",
     "libc++_unordered_map",
@@ -72,6 +74,7 @@ const char *description[] =
 const char *input[] =
 {
 // g++
+"short int",
 "std::string",
 "std::wstring",
 "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >",
@@ -90,6 +93,7 @@ const char *input[] =
 
 "std::vector<int *, std::allocator<int*> >",
 "std::map<const char *, Foo, std::less<const char *>, std::allocator<std::pair<char const* const, Foo> > >",
+"std::map<short, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<short>, std::allocator<std::pair<short int const, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >",
 
 // libc++
 "std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > > >",
@@ -117,6 +121,7 @@ const char *input[] =
 const char *output[] =
 {
     // Gcc
+    "short",
     "std::string",
     "std::wstring",
     "std::string",
@@ -133,6 +138,7 @@ const char *output[] =
     "std::unordered_multimap<int, int>",
     "std::vector<int *>",
     "std::map<const char *, Foo>",
+    "std::map<short, std::string>",
     // libc++
     "std::vector<std::string>",
     "std::unordered_map<std::string, float>",

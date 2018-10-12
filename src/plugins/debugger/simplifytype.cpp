@@ -117,6 +117,8 @@ QString simplifyType(const QString &typeIn)
     if (type.startsWith(QLatin1String("struct ")))
         type.remove(0, 7);
 
+    type.replace(QLatin1String("short int"), QLatin1String("short"));
+
     const bool isLibCpp = type.contains(QLatin1String("std::__1"));
     type.replace(QLatin1String("std::__cxx11::"), QLatin1String("std::"));
     type.replace(QLatin1String("std::__1::"), QLatin1String("std::"));
