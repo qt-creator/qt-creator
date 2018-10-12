@@ -33,9 +33,14 @@ msvc: BOTAN_CXX_FLAGS += /wd4100 /wd4800 /wd4127 /wd4244 /wd4250 /wd4267 /wd4334
 else: BOTAN_CXX_FLAGS += -Wno-unused-parameter
 macos: BOTAN_CXX_FLAGS += -mmacosx-version-min=$$QMAKE_MACOSX_DEPLOYMENT_TARGET -isysroot $$shell_quote($$QMAKE_MAC_SDK_PATH)
 unix: BOTAN_CXX_FLAGS += -fPIC
-!isEmpty(BOTAN_CXX_FLAGS): OTHER_FLAGS += --cxxflags=$$shell_quote($$BOTAN_CXX_FLAGS)
 win32: OTHER_FLAGS += --link-method=hardlink
-CONFIG(debug, debug|release): OTHER_FLAGS += --debug-mode
+CONFIG(debug, debug|release) {
+    OTHER_FLAGS += --with-debug-info
+} else {
+    msvc: BOTAN_CXX_FLAGS += /O2
+    else: BOTAN_CXX_FLAGS += -O3
+}
+!isEmpty(BOTAN_CXX_FLAGS): OTHER_FLAGS += --cxxflags=$$shell_quote($$BOTAN_CXX_FLAGS)
 CONFIGURE_FILE_PATH_FOR_SHELL = $$shell_quote($$shell_path($$BOTAN_SOURCE_DIR/configure.py))
 
 configure_inputs = $$BOTAN_SOURCE_DIR/configure.py
