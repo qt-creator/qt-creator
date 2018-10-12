@@ -39,7 +39,7 @@
 using namespace ProjectExplorer;
 
 namespace {
-Q_LOGGING_CATEGORY(androidDeviceLog, "qtc.android.build.androiddevice")
+Q_LOGGING_CATEGORY(androidDeviceLog, "qtc.android.build.androiddevice", QtWarningMsg)
 }
 
 namespace Android {

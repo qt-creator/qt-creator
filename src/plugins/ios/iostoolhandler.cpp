@@ -58,7 +58,7 @@
 #include <string.h>
 #include <errno.h>
 
-static Q_LOGGING_CATEGORY(toolHandlerLog, "qtc.ios.toolhandler")
+static Q_LOGGING_CATEGORY(toolHandlerLog, "qtc.ios.toolhandler", QtWarningMsg)
 
 namespace Ios {
 

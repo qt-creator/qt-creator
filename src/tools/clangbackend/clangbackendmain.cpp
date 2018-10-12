@@ -69,8 +69,6 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_WIN
     qInstallMessageHandler(messageOutput);
 #endif
-    QLoggingCategory::setFilterRules(QStringLiteral("qtc.*.debug=false"));
-
     QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
     QCoreApplication::setApplicationName(QStringLiteral("ClangBackend"));

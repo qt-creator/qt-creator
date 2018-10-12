@@ -86,8 +86,6 @@ public:
 int main(int argc, char *argv[])
 {
     try {
-        //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
-
         QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
         QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
         QCoreApplication::setApplicationName(QStringLiteral("ClangRefactoringBackend"));

@@ -73,7 +73,7 @@ GeneratedCodeModelSupport::GeneratedCodeModelSupport(CppModelManager *modelmanag
     CppTools::AbstractEditorSupport(modelmanager, generator), m_generatedFileName(generatedFile),
     m_generator(generator)
 {
-    QLoggingCategory log("qtc.cpptools.generatedcodemodelsupport");
+    QLoggingCategory log("qtc.cpptools.generatedcodemodelsupport", QtWarningMsg);
     qCDebug(log) << "ctor GeneratedCodeModelSupport for" << m_generator->source()
                  << generatedFile;
 
@@ -86,7 +86,7 @@ GeneratedCodeModelSupport::~GeneratedCodeModelSupport()
 {
     CppTools::CppModelManager::instance()->emitAbstractEditorSupportRemoved(
                 m_generatedFileName.toString());
-    QLoggingCategory log("qtc.cpptools.generatedcodemodelsupport");
+    QLoggingCategory log("qtc.cpptools.generatedcodemodelsupport", QtWarningMsg);
     qCDebug(log) << "dtor ~generatedcodemodelsupport for" << m_generatedFileName;
 }
 

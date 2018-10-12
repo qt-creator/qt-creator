@@ -88,7 +88,7 @@ QList<BuildInfo *> ProjectImporter::import(const Utils::FileName &importPath, bo
 {
     QList<BuildInfo *> result;
 
-    const QLoggingCategory log("qtc.projectexplorer.import");
+    const QLoggingCategory log("qtc.projectexplorer.import", QtWarningMsg);
     qCDebug(log) << "ProjectImporter::import" << importPath << silent;
 
     QFileInfo fi = importPath.toFileInfo();

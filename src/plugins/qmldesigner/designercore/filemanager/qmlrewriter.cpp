@@ -34,7 +34,7 @@
 #include <typeinfo>
 
 
-static Q_LOGGING_CATEGORY(qmlRewriter, "qtc.rewriter.qmlrewriter")
+static Q_LOGGING_CATEGORY(qmlRewriter, "qtc.rewriter.qmlrewriter", QtWarningMsg)
 
 using namespace QmlDesigner::Internal;
 

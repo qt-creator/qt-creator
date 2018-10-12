@@ -65,8 +65,8 @@
 #include <QThread>
 #include <QSettings>
 
-static Q_LOGGING_CATEGORY(puppetStart, "qtc.puppet.start")
-static Q_LOGGING_CATEGORY(puppetBuild, "qtc.puppet.build")
+static Q_LOGGING_CATEGORY(puppetStart, "qtc.puppet.start", QtWarningMsg)
+static Q_LOGGING_CATEGORY(puppetBuild, "qtc.puppet.build", QtWarningMsg)
 
 namespace QmlDesigner {
 

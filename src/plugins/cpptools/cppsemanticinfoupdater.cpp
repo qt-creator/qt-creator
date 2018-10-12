@@ -42,7 +42,7 @@ enum { debug = 0 };
 using namespace CPlusPlus;
 using namespace CppTools;
 
-static Q_LOGGING_CATEGORY(log, "qtc.cpptools.semanticinfoupdater")
+static Q_LOGGING_CATEGORY(log, "qtc.cpptools.semanticinfoupdater", QtWarningMsg)
 
 namespace CppTools {
 

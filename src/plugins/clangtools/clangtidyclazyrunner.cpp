@@ -37,7 +37,7 @@
 #include <QDir>
 #include <QLoggingCategory>
 
-static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner")
+static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
 
 namespace ClangTools {
 namespace Internal {

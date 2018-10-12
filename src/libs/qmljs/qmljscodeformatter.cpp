@@ -30,7 +30,7 @@
 #include <QTextBlock>
 #include <QTextDocument>
 
-static Q_LOGGING_CATEGORY(formatterLog, "qtc.qmljs.formatter")
+static Q_LOGGING_CATEGORY(formatterLog, "qtc.qmljs.formatter", QtWarningMsg)
 
 namespace QmlJS {
 

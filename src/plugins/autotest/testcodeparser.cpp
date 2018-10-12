@@ -49,7 +49,7 @@
 #include <QFutureInterface>
 #include <QLoggingCategory>
 
-static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser")
+static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser", QtWarningMsg)
 
 namespace Autotest {
 namespace Internal {

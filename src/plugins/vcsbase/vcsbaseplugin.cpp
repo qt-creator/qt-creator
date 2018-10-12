@@ -59,9 +59,9 @@ using namespace Utils;
 using namespace ProjectExplorer;
 
 namespace {
-Q_LOGGING_CATEGORY(baseLog, "qtc.vcs.base")
-Q_LOGGING_CATEGORY(findRepoLog, "qtc.vcs.find-repo")
-Q_LOGGING_CATEGORY(stateLog, "qtc.vcs.state")
+Q_LOGGING_CATEGORY(baseLog, "qtc.vcs.base", QtWarningMsg)
+Q_LOGGING_CATEGORY(findRepoLog, "qtc.vcs.find-repo", QtWarningMsg)
+Q_LOGGING_CATEGORY(stateLog, "qtc.vcs.state", QtWarningMsg)
 }
 
 /*!

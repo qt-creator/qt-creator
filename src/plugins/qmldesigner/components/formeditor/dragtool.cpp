@@ -38,7 +38,7 @@
 #include <QTimer>
 #include <QWidget>
 
-static Q_LOGGING_CATEGORY(dragToolInfo, "qtc.qmldesigner.formeditor");
+static Q_LOGGING_CATEGORY(dragToolInfo, "qtc.qmldesigner.formeditor", QtWarningMsg);
 
 namespace QmlDesigner {
 

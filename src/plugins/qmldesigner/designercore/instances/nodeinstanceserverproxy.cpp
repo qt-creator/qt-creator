@@ -85,7 +85,7 @@
 
 namespace QmlDesigner {
 
-static Q_LOGGING_CATEGORY(instanceViewBenchmark, "qtc.nodeinstances.init")
+static Q_LOGGING_CATEGORY(instanceViewBenchmark, "qtc.nodeinstances.init", QtWarningMsg)
 
 void NodeInstanceServerProxy::showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {

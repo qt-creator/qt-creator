@@ -58,7 +58,7 @@ using namespace CppTools::Internal;
 
 typedef Document::DiagnosticMessage Message;
 
-static Q_LOGGING_CATEGORY(log, "qtc.cpptools.sourceprocessor")
+static Q_LOGGING_CATEGORY(log, "qtc.cpptools.sourceprocessor", QtWarningMsg)
 
 namespace {
 

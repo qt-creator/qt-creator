@@ -414,8 +414,6 @@ int main(int argc, char **argv)
 
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
 
-    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false\nqtc.*.info=false"));
-
 #ifdef Q_OS_MAC
     // increase the number of file that can be opened in Qt Creator.
     struct rlimit rl;

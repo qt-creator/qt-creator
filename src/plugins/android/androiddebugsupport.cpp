@@ -48,7 +48,7 @@
 #include <QHostAddress>
 
 namespace {
-Q_LOGGING_CATEGORY(androidDebugSupportLog, "qtc.android.run.androiddebugsupport")
+Q_LOGGING_CATEGORY(androidDebugSupportLog, "qtc.android.run.androiddebugsupport", QtWarningMsg)
 }
 
 using namespace Debugger;

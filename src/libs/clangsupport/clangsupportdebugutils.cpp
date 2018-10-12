@@ -37,7 +37,7 @@
 
 namespace {
 
-Q_LOGGING_CATEGORY(timersLog, "qtc.clangbackend.timers");
+Q_LOGGING_CATEGORY(timersLog, "qtc.clangbackend.timers", QtWarningMsg);
 
 class DebugInspectionDir : public QTemporaryDir
 {

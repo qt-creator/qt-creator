@@ -58,8 +58,8 @@ using namespace Utils;
 
 namespace LanguageClient {
 
-static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client");
-static Q_LOGGING_CATEGORY(LOGLSPCLIENTV, "qtc.languageclient.messages");
+static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMsg);
+static Q_LOGGING_CATEGORY(LOGLSPCLIENTV, "qtc.languageclient.messages", QtWarningMsg);
 
 BaseClient::BaseClient()
     : m_id(Core::Id::fromString(QUuid::createUuid().toString()))

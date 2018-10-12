@@ -681,7 +681,7 @@ void extremeFunction3(int parameter1,
 // Misc
 // -------------------------------------------------------------------------------------------------
 
-static Q_LOGGING_CATEGORY(log, "qtc.cpptools.builtineditordocumentprocessor")
+static Q_LOGGING_CATEGORY(log, "qtc.cpptools.builtineditordocumentprocessor", QtWarningMsg)
 
     int hello; // NOTE: Ops, awkward placement of next token after Q_LOGGING_CATEGORY (semicolon helps)
 

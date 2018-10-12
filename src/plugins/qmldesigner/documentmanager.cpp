@@ -54,7 +54,7 @@
 
 namespace QmlDesigner {
 
-Q_LOGGING_CATEGORY(documentManagerLog, "qtc.qtquickdesigner.documentmanager")
+Q_LOGGING_CATEGORY(documentManagerLog, "qtc.qtquickdesigner.documentmanager", QtWarningMsg)
 
 static inline QmlDesigner::DesignDocument* designDocument()
 {

@@ -40,7 +40,7 @@ enum {
     debug = false
 };
 
-static Q_LOGGING_CATEGORY(iconsLog, "qtc.qmljs.icons")
+static Q_LOGGING_CATEGORY(iconsLog, "qtc.qmljs.icons", QtWarningMsg)
 
 namespace QmlJS {
 

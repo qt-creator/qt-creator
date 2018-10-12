@@ -57,7 +57,7 @@ const char HANDSHAKE_TYPE[] = "handshake";
 const char START_MAGIC[] = "\n[== \"CMake Server\" ==[\n";
 const char END_MAGIC[] = "\n]== \"CMake Server\" ==]\n";
 
-Q_LOGGING_CATEGORY(cmakeServerMode, "qtc.cmake.serverMode");
+Q_LOGGING_CATEGORY(cmakeServerMode, "qtc.cmake.serverMode", QtWarningMsg);
 
 // ----------------------------------------------------------------------
 // Helpers:

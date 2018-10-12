@@ -60,7 +60,7 @@ int distance(const FileName &targetDirectory, const FileName &fileName)
 // compiler flags
 void CMakeCbpParser::sortFiles()
 {
-    QLoggingCategory log("qtc.cmakeprojectmanager.filetargetmapping");
+    QLoggingCategory log("qtc.cmakeprojectmanager.filetargetmapping", QtWarningMsg);
     FileNameList fileNames = transform<QList>(m_fileList, &FileNode::filePath);
 
     sort(fileNames);

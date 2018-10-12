@@ -49,7 +49,7 @@
 
 #include <QLoggingCategory>
 
-static Q_LOGGING_CATEGORY(propertyEditorBenchmark, "qtc.propertyeditor.load")
+static Q_LOGGING_CATEGORY(propertyEditorBenchmark, "qtc.propertyeditor.load", QtWarningMsg)
 
 static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration = QmlJS::SimpleReaderNode::Ptr();
 

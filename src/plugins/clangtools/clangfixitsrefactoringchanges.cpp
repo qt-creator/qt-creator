@@ -35,7 +35,7 @@
 
 #include <utils/qtcassert.h>
 
-Q_LOGGING_CATEGORY(fixitsLog, "qtc.clangtools.fixits");
+Q_LOGGING_CATEGORY(fixitsLog, "qtc.clangtools.fixits", QtWarningMsg);
 
 using namespace Utils;
 

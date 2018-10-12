@@ -43,7 +43,7 @@
 #include <QTextDocument>
 #include <QTime>
 
-static Q_LOGGING_CATEGORY(LOGLSPCOMPLETION, "qtc.languageclient.completion");
+static Q_LOGGING_CATEGORY(LOGLSPCOMPLETION, "qtc.languageclient.completion", QtWarningMsg);
 
 using namespace LanguageServerProtocol;
 

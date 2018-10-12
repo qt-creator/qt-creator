@@ -34,7 +34,7 @@
 #include <QFile>
 #include <QLoggingCategory>
 
-static Q_LOGGING_CATEGORY(simpleReaderLog, "qtc.qmljs.simpleReader")
+static Q_LOGGING_CATEGORY(simpleReaderLog, "qtc.qmljs.simpleReader", QtWarningMsg)
 
 namespace QmlJS{
 

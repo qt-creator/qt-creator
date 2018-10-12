@@ -59,7 +59,7 @@ using namespace QmlDebug::Constants;
 namespace Debugger {
 namespace Internal {
 
-Q_LOGGING_CATEGORY(qmlInspectorLog, "qtc.dbg.qmlinspector")
+Q_LOGGING_CATEGORY(qmlInspectorLog, "qtc.dbg.qmlinspector", QtWarningMsg)
 
 /*!
  * DebuggerAgent updates the watchhandler with the object tree data.

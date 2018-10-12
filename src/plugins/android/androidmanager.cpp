@@ -77,7 +77,7 @@ namespace {
     const QString apkVersionRegEx("package: name=([\\=a-z\\d_\\.\\'\\s]*)"
                                   "\\sversionName='([\\d\\.]*)'");
 
-    Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager")
+    Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager", QtWarningMsg)
 
     bool runCommand(const QString &executable, const QStringList &args,
                     QString *output = nullptr, int timeoutS = 30)
