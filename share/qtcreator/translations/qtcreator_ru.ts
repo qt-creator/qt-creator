@@ -1758,6 +1758,10 @@ Install an SDK of at least API version %1.</source>
         <translation>Alt+Shift+T,Alt+A</translation>
     </message>
     <message>
+        <source>Ctrl+Meta+T, Ctrl+Meta+A</source>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+A</translation>
+    </message>
+    <message>
         <source>&amp;Run Selected Tests</source>
         <translation>&amp;Запустить выбранные</translation>
     </message>
@@ -1768,6 +1772,10 @@ Install an SDK of at least API version %1.</source>
     <message>
         <source>Alt+Shift+T,Alt+R</source>
         <translation>Alt+Shift+T,Alt+R</translation>
+    </message>
+    <message>
+        <source>Ctrl+Meta+T, Ctrl+Meta+R</source>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+R</translation>
     </message>
     <message>
         <source>Run Tests for Current &amp;File</source>
@@ -1782,12 +1790,20 @@ Install an SDK of at least API version %1.</source>
         <translation>Alt+Shift+T,Alt+F</translation>
     </message>
     <message>
+        <source>Ctrl+Meta+T, Ctrl+Meta+F</source>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+F</translation>
+    </message>
+    <message>
         <source>Re&amp;scan Tests</source>
         <translation>&amp;Пересканировать</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+S</source>
         <translation>Alt+Shift+T,Alt+S</translation>
+    </message>
+    <message>
+        <source>Ctrl+Meta+T, Ctrl+Meta+S</source>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+S</translation>
     </message>
     <message>
         <source>&amp;Run Test Under Cursor</source>
@@ -11195,7 +11211,7 @@ Flags: %3</source>
     <name>CppTools::TidyChecksTreeModel</name>
     <message>
         <source>Web Page</source>
-        <translation>Вэб-страница</translation>
+        <translation>Веб-страница</translation>
     </message>
 </context>
 <context>
@@ -13312,7 +13328,7 @@ Affected are breakpoints %1</source>
     </message>
     <message>
         <source>Start Debugging Without Deployment</source>
-        <translation>Начать отладку с установкой</translation>
+        <translation>Начать отладку без установки</translation>
     </message>
     <message>
         <source>Start and Debug External Application...</source>
@@ -26821,6 +26837,10 @@ to project &quot;%2&quot;.</source>
         <translation>Alt+Shift+L</translation>
     </message>
     <message>
+        <source>Meta+Shift+L</source>
+        <translation>Meta+Shift+L</translation>
+    </message>
+    <message>
         <source>Hide Empty Directories</source>
         <translation>Скрывать пустые каталоги</translation>
     </message>
@@ -36383,7 +36403,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Classes for displaying and editing Web content</source>
-        <translation>Классы для отображения и правки вэб-страниц</translation>
+        <translation>Классы для отображения и правки веб-страниц</translation>
     </message>
     <message>
         <source>WebKit1 and QWidget-based classes from Qt 4 (Qt 5)</source>
@@ -45317,6 +45337,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>No executable to deploy found in %1.</source>
         <translation>В %1 не обнаружен исполняемый файл для установки.</translation>
+    </message>
+    <message>
+        <source>Cannot find windeployqt.exe in &quot;%1&quot;.</source>
+        <translation>Не удалось найти windeployqt.exe в «%1».</translation>
     </message>
     <message>
         <source>Cannot parse manifest file %1.</source>
