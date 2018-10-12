@@ -175,10 +175,12 @@ public:
 
     virtual QString summaryText() const;
     virtual QString additionalSummaryText() const { return QString(); }
-    virtual QString displayName() const;
 
+    QString displayName() const;
     BuildStep *step() const { return m_step; }
     bool showWidget() const { return m_showWidget; }
+
+    void setDisplayName(const QString &displayName);
 
 signals:
     void updateSummary();
@@ -187,6 +189,7 @@ signals:
 private:
     BuildStep *m_step = nullptr;
     const bool m_showWidget = true;
+    QString m_displayName;
 };
 
 } // namespace ProjectExplorer

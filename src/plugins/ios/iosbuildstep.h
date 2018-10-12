@@ -77,7 +77,6 @@ class IosBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     IosBuildStepConfigWidget(IosBuildStep *buildStep);
     ~IosBuildStepConfigWidget();
-    QString displayName() const override;
     QString summaryText() const override;
 
 private:

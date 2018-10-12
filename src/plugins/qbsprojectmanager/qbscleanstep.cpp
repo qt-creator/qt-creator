@@ -250,11 +250,6 @@ QString QbsCleanStepConfigWidget::summaryText() const
     return m_summary;
 }
 
-QString QbsCleanStepConfigWidget::displayName() const
-{
-    return m_step->displayName();
-}
-
 void QbsCleanStepConfigWidget::updateState()
 {
     m_ui->dryRunCheckBox->setChecked(m_step->dryRun());

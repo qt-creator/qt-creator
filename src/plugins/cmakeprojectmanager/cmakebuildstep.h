@@ -120,7 +120,6 @@ class CMakeBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep);
-    QString displayName() const override;
     QString summaryText() const override;
 
 private:

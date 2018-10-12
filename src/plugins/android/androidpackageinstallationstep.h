@@ -60,7 +60,6 @@ public:
     AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step);
 
     QString summaryText() const override;
-    QString displayName() const override;
 };
 
 class AndroidPackageInstallationFactory: public ProjectExplorer::BuildStepFactory

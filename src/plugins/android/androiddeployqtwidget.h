@@ -52,7 +52,6 @@ private:
     void resetDefaultDevices();
 
     QString summaryText() const override;
-    QString displayName() const override;
 
     Ui::AndroidDeployQtWidget *m_ui;
     AndroidDeployQtStep *m_step;

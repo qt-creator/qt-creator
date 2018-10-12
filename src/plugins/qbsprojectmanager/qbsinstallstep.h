@@ -100,7 +100,6 @@ public:
     QbsInstallStepConfigWidget(QbsInstallStep *step);
     ~QbsInstallStepConfigWidget() override;
     QString summaryText() const override;
-    QString displayName() const override;
 
 private:
     void updateState();

@@ -406,11 +406,6 @@ MakeStepConfigWidget::~MakeStepConfigWidget()
     delete m_ui;
 }
 
-QString MakeStepConfigWidget::displayName() const
-{
-    return m_makeStep->displayName();
-}
-
 void MakeStepConfigWidget::setSummaryText(const QString &text)
 {
     if (text == m_summaryText)

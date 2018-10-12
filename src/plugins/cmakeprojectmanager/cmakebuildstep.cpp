@@ -415,6 +415,8 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
     m_toolArguments(new QLineEdit),
     m_buildTargetsList(new QListWidget)
 {
+    setDisplayName(tr("Build", "CMakeProjectManager::CMakeBuildStepConfigWidget display name."));
+
     auto fl = new QFormLayout(this);
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
@@ -468,11 +470,6 @@ void CMakeBuildStepConfigWidget::itemChanged(QListWidgetItem *item)
             (item->checkState() == Qt::Checked) ? item->data(Qt::UserRole).toString() : CMakeBuildStep::allTarget();
     m_buildStep->setBuildTarget(target);
     updateDetails();
-}
-
-QString CMakeBuildStepConfigWidget::displayName() const
-{
-    return tr("Build", "CMakeProjectManager::CMakeBuildStepConfigWidget display name.");
 }
 
 void CMakeBuildStepConfigWidget::buildTargetsChanged()

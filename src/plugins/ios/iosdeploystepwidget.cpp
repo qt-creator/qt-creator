@@ -39,6 +39,7 @@ IosDeployStepWidget::IosDeployStepWidget(IosDeployStep *step) :
     ui(new Ui::IosDeployStepWidget),
     m_step(step)
 {
+    setDisplayName(QString::fromLatin1("<b>%1</b>").arg(m_step->displayName()));
     ui->setupUi(this);
     connect(m_step, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
             this, &ProjectExplorer::BuildStepConfigWidget::updateSummary);
@@ -47,11 +48,6 @@ IosDeployStepWidget::IosDeployStepWidget(IosDeployStep *step) :
 IosDeployStepWidget::~IosDeployStepWidget()
 {
     delete ui;
-}
-
-QString IosDeployStepWidget::displayName() const
-{
-    return QString::fromLatin1("<b>%1</b>").arg(m_step->displayName());
 }
 
 QString IosDeployStepWidget::summaryText() const

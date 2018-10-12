@@ -267,11 +267,6 @@ IosDsymBuildStepConfigWidget::~IosDsymBuildStepConfigWidget()
     delete m_ui;
 }
 
-QString IosDsymBuildStepConfigWidget::displayName() const
-{
-    return m_buildStep->displayName();
-}
-
 void IosDsymBuildStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_buildStep->buildConfiguration();

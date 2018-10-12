@@ -194,11 +194,6 @@ ConfigureStepConfigWidget::ConfigureStepConfigWidget(ConfigureStep *configureSte
             this, &ConfigureStepConfigWidget::updateDetails);
 }
 
-QString ConfigureStepConfigWidget::displayName() const
-{
-    return tr("Configure", "AutotoolsProjectManager::ConfigureStepConfigWidget display name.");
-}
-
 QString ConfigureStepConfigWidget::summaryText() const
 {
     return m_summaryText;

@@ -74,7 +74,6 @@ class IosDsymBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidg
 public:
     IosDsymBuildStepConfigWidget(IosDsymBuildStep *buildStep);
     ~IosDsymBuildStepConfigWidget();
-    QString displayName() const override;
     QString summaryText() const override;
 
 private:

@@ -288,11 +288,6 @@ QString QbsInstallStepConfigWidget::summaryText() const
     return m_summary;
 }
 
-QString QbsInstallStepConfigWidget::displayName() const
-{
-    return m_step->displayName();
-}
-
 void QbsInstallStepConfigWidget::updateState()
 {
     if (!m_ignoreChange) {

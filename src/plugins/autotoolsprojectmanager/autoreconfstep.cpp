@@ -169,11 +169,6 @@ AutoreconfStepConfigWidget::AutoreconfStepConfigWidget(AutoreconfStep *autorecon
             this, &AutoreconfStepConfigWidget::updateDetails);
 }
 
-QString AutoreconfStepConfigWidget::displayName() const
-{
-    return tr("Autoreconf", "AutotoolsProjectManager::AutoreconfStepConfigWidget display name.");
-}
-
 QString AutoreconfStepConfigWidget::summaryText() const
 {
     return m_summaryText;

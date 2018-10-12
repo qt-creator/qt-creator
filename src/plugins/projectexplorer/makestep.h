@@ -100,7 +100,6 @@ public:
     explicit MakeStepConfigWidget(MakeStep *makeStep);
     ~MakeStepConfigWidget() override;
 
-    QString displayName() const override;
     QString summaryText() const override;
 
 private:

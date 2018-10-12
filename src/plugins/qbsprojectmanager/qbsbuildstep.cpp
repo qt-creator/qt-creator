@@ -69,7 +69,6 @@ public:
     QbsBuildStepConfigWidget(QbsBuildStep *step);
     ~QbsBuildStepConfigWidget() override;
     QString summaryText() const override;
-    QString displayName() const override;
 
 private:
     void updateState();
@@ -600,11 +599,6 @@ QbsBuildStepConfigWidget::~QbsBuildStepConfigWidget()
 QString QbsBuildStepConfigWidget::summaryText() const
 {
     return m_summary;
-}
-
-QString QbsBuildStepConfigWidget::displayName() const
-{
-    return step()->displayName();
 }
 
 void QbsBuildStepConfigWidget::updateState()

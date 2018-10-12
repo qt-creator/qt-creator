@@ -44,7 +44,6 @@ public:
 
 private:
     QString summaryText() const override;
-    QString displayName() const override;
 
     Ui::IosDeployStepWidget *ui;
     IosDeployStep *m_step;

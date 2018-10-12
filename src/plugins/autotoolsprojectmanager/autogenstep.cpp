@@ -176,11 +176,6 @@ AutogenStepConfigWidget::AutogenStepConfigWidget(AutogenStep *autogenStep) :
             this, &AutogenStepConfigWidget::updateDetails);
 }
 
-QString AutogenStepConfigWidget::displayName() const
-{
-    return tr("Autogen", "AutotoolsProjectManager::AutogenStepConfigWidget display name.");
-}
-
 QString AutogenStepConfigWidget::summaryText() const
 {
     return m_summaryText;

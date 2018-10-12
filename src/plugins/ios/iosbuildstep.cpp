@@ -211,6 +211,8 @@ IosBuildStepConfigWidget::IosBuildStepConfigWidget(IosBuildStep *buildStep)
     m_ui = new Ui::IosBuildStep;
     m_ui->setupUi(this);
 
+    setDisplayName(tr("iOS build", "iOS BuildStep display name."));
+
     Project *pro = m_buildStep->target()->project();
 
     m_ui->buildArgumentsTextEdit->setPlainText(Utils::QtcProcess::joinArgs(
@@ -245,11 +247,6 @@ IosBuildStepConfigWidget::IosBuildStepConfigWidget(IosBuildStep *buildStep)
 IosBuildStepConfigWidget::~IosBuildStepConfigWidget()
 {
     delete m_ui;
-}
-
-QString IosBuildStepConfigWidget::displayName() const
-{
-    return tr("iOS build", "iOS BuildStep display name.");
 }
 
 void IosBuildStepConfigWidget::updateDetails()

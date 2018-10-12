@@ -200,7 +200,7 @@ public:
     ~QMakeStepConfigWidget() override;
     QString summaryText() const override;
     QString additionalSummaryText() const override;
-    QString displayName() const override;
+
 private:
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();

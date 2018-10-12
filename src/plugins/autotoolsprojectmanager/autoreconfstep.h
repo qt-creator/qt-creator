@@ -110,7 +110,6 @@ class AutoreconfStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     AutoreconfStepConfigWidget(AutoreconfStep *autoreconfStep);
 
-    QString displayName() const override;
     QString summaryText() const override;
 
 private:

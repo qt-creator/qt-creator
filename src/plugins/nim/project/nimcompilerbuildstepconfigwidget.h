@@ -42,7 +42,6 @@ public:
     ~NimCompilerBuildStepConfigWidget();
 
     QString summaryText() const override;
-    QString displayName() const override;
 
 private:
     void updateUi();

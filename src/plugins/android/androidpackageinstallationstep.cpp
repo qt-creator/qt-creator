@@ -128,16 +128,12 @@ namespace Internal {
 AndroidPackageInstallationStepWidget::AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step)
     : BuildStepConfigWidget(step, false)
 {
+    setDisplayName(tr("Make install"));
 }
 
 QString AndroidPackageInstallationStepWidget::summaryText() const
 {
     return "<b>" + tr("Make install") + "</b>";
-}
-
-QString AndroidPackageInstallationStepWidget::displayName() const
-{
-    return tr("Make install");
 }
 
 //

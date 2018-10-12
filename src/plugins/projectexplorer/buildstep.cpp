@@ -368,6 +368,7 @@ BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &m
 BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *step, bool showWidget)
     : m_step(step), m_showWidget(showWidget)
 {
+    m_displayName = step->displayName();
     connect(m_step, &ProjectConfiguration::displayNameChanged,
             this, &BuildStepConfigWidget::updateSummary);
 }
@@ -380,6 +381,11 @@ QString BuildStepConfigWidget::summaryText() const
 QString BuildStepConfigWidget::displayName() const
 {
     return m_step->displayName();
+}
+
+void BuildStepConfigWidget::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
 }
 
 } // ProjectExplorer
