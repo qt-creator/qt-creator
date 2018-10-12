@@ -61,6 +61,7 @@ using namespace ProjectExplorer;
 namespace {
 Q_LOGGING_CATEGORY(baseLog, "qtc.vcs.base")
 Q_LOGGING_CATEGORY(findRepoLog, "qtc.vcs.find-repo")
+Q_LOGGING_CATEGORY(stateLog, "qtc.vcs.state")
 }
 
 /*!
@@ -326,6 +327,7 @@ void StateListener::slotStateChanged()
     if (!vc)
         state.clearPatchFile(); // Need a repository to patch
 
+    qCDebug(stateLog).noquote() << "VC:" << (vc ? vc->displayName() : QString("None")) << state;
     EditorManager::updateWindowTitles();
     emit stateChanged(state, vc);
 }
