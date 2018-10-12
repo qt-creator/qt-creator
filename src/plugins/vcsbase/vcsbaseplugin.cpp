@@ -43,6 +43,7 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QLoggingCategory>
 #include <QSharedData>
 #include <QScopedPointer>
 #include <QSharedPointer>
@@ -57,7 +58,10 @@ using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer;
 
-enum { debug = 0, debugRepositorySearch = 0 };
+namespace {
+Q_LOGGING_CATEGORY(baseLog, "qtc.vcs.base")
+Q_LOGGING_CATEGORY(findRepoLog, "qtc.vcs.find-repo")
+}
 
 /*!
     \namespace VcsBase
@@ -570,11 +574,10 @@ void VcsBasePlugin::extensionsInitialized()
 
 void VcsBasePlugin::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result)
 {
-    if (debug)
-        qDebug() << this << "plugin's submit editor"
-                 << d->m_submitEditor << (d->m_submitEditor ? d->m_submitEditor->document()->id().name() : "")
-                 << "closing submit editor" << submitEditor
-                 << (submitEditor ? submitEditor->document()->id().name() : "");
+    qCDebug(baseLog) << this << "plugin's submit editor" << d->m_submitEditor
+                     << (d->m_submitEditor ? d->m_submitEditor->document()->id().name() : QByteArray())
+                     << "closing submit editor" << submitEditor
+                     << (submitEditor ? submitEditor->document()->id().name() : QByteArray());
     if (submitEditor == d->m_submitEditor)
         *result = submitEditorAboutToClose();
 }
@@ -613,8 +616,7 @@ const VcsBasePluginState &VcsBasePlugin::currentState() const
 
 bool VcsBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
 {
-    if (debug)
-        qDebug() << "enableMenuAction" << menuAction->text() << as;
+    qCDebug(baseLog) << "enableMenuAction" << menuAction->text() << as;
     switch (as) {
     case NoVcsEnabled: {
         const bool supportsCreation = d->supportsRepositoryCreation();
@@ -727,8 +729,7 @@ bool VcsBasePlugin::raiseSubmitEditor() const
 QString VcsBasePlugin::findRepositoryForDirectory(const QString &dirS,
                                                   const QString &checkFile)
 {
-    if (debugRepositorySearch)
-        qDebug() << ">VcsBasePlugin::findRepositoryForDirectory" << dirS << checkFile;
+    qCDebug(findRepoLog) << ">" << dirS << checkFile;
     QTC_ASSERT(!dirS.isEmpty() && !checkFile.isEmpty(), return QString());
 
     const QString root = QDir::rootPath();
@@ -741,13 +742,11 @@ QString VcsBasePlugin::findRepositoryForDirectory(const QString &dirS,
             break;
 
         if (QFileInfo(directory, checkFile).isFile()) {
-            if (debugRepositorySearch)
-                qDebug() << "<VcsBasePlugin::findRepositoryForDirectory> " << absDirPath;
+            qCDebug(findRepoLog) << "<" << absDirPath;
             return absDirPath;
         }
     } while (!directory.isRoot() && directory.cdUp());
-    if (debugRepositorySearch)
-        qDebug() << "<VcsBasePlugin::findRepositoryForDirectory bailing out at " << directory.absolutePath();
+    qCDebug(findRepoLog) << "< bailing out at" << directory.absolutePath();
     return QString();
 }
 
