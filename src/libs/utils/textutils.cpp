@@ -53,7 +53,7 @@ OptionalLineColumn convertPosition(const QTextDocument *document, int pos)
     QTextBlock block = document->findBlock(pos);
 
     if (block.isValid())
-        optional.emplace(block.blockNumber() + 1, pos - block.position());
+        optional.emplace(block.blockNumber() + 1, pos - block.position() + 1);
 
     return optional;
 }

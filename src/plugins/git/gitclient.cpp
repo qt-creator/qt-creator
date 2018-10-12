@@ -2944,6 +2944,12 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
                              QMessageBox::NoButton, ICore::mainWindow());
     QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),
                                                           QMessageBox::AcceptRole);
+    const QString mergeTool = readConfigValue(workingDir, "merge.tool");
+    if (mergeTool.isEmpty() || mergeTool.startsWith("vimdiff")) {
+        mergeToolButton->setEnabled(false);
+        mergeToolButton->setToolTip(tr("Only graphical merge tools are supported. "
+                                       "Please configure merge.tool."));
+    }
     mergeOrAbort.addButton(QMessageBox::Ignore);
     if (abortCommand == "rebase")
         mergeOrAbort.addButton(tr("&Skip"), QMessageBox::RejectRole);

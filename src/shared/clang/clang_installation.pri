@@ -226,7 +226,7 @@ isEmpty(LLVM_VERSION) {
     LLVM_CXXFLAGS ~= s,/EH\S*,
     LLVM_CXXFLAGS ~= s,/M\S*,
     LLVM_CXXFLAGS ~= s,/G\S*,
-    LLVM_CXXFLAGS ~= s,-Werror=date-time,
+    LLVM_CXXFLAGS ~= s,-Werror=\S*,
     LLVM_CXXFLAGS ~= s,-Wcovered-switch-default,
     LLVM_CXXFLAGS ~= s,-fPIC,
     LLVM_CXXFLAGS ~= s,-pedantic,

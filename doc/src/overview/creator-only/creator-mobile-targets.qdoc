@@ -56,8 +56,9 @@
             This is totally transparent to users. As Qt is composed of libraries
             referencing each other, Qt 4 applications are only supported on
             Android version 1.6, or later, and Qt 5 applications on version
-            2.3.3, or later. You must install a Qt version targeting Android and
-            the Android SDK and NDK to develop for Android devices.
+            4.1 (API level 16), or later. You must install a Qt version
+            targeting Android and the Android SDK and NDK to develop for
+            Android devices.
 
         \if defined(qtcreator)
         \li \l{Connecting Bare Metal Devices}

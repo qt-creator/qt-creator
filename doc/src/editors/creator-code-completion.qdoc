@@ -60,7 +60,7 @@
     first-letter case-sensitivity, select \uicontrol Full or
     \uicontrol {First Letter} in the \uicontrol {Case-sensitivity} field.
 
-    \section2 Summary of Available Types
+    \section1 Summary of Available Types
 
     The following table lists available types for code completion and icon used
     for each.
@@ -132,7 +132,7 @@
         \endif
     \endtable
 
-    \section2 Completing Code Snippets
+    \section1 Completing Code Snippets
 
     Code snippets can consist of multiple variables that you specify values for.
     Select an item in the list and press \key Tab or \key Enter to complete the
@@ -189,7 +189,7 @@
 
     \endlist
 
-    \section3 Adding and Editing Snippets
+    \section2 Adding and Editing Snippets
 
     Select a snippet in the list to edit it in the snippet editor. To add a new
     snippet, select \uicontrol Add. Specify a trigger and, if the trigger is
@@ -268,7 +268,7 @@
     To discard the changes you made to a built-in snippet, select
     \uicontrol {Revert Built-in}.
 
-    \section3 Removing Snippets
+    \section2 Removing Snippets
 
     Several similar built-in snippets might be provided for different use cases.
     To make the list of suggestions shorter when you write code, remove the
@@ -279,7 +279,7 @@
     \uicontrol Remove. To restore the removed snippets, select
     \uicontrol {Restore Removed Built-ins}.
 
-    \section3 Resetting Snippets
+    \section2 Resetting Snippets
 
     To remove all added snippets and to restore all removed snippets, select
     \uicontrol {Reset All}.

@@ -15,6 +15,7 @@
   <style name="Local" foreground="#000000"/>
   <style name="Number" foreground="#0000ff"/>
   <style name="Operator" foreground="#000000"/>
+  <style name="Overloaded Operator" foreground="#000000"/>
   <style name="Parentheses" foreground="#ff0000" background="#c3e1ff"/>
   <style name="ParenthesesMismatch" background="#ff00ff"/>
   <style name="AutoComplete" foreground="#ff0000" background="#c3e1ff"/>

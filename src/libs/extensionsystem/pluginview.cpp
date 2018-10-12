@@ -228,15 +228,6 @@ public:
         if (column == NameColumn) {
             if (role == Qt::DisplayRole || role == SortRole)
                 return m_name;
-            if (role == Qt::DecorationRole) {
-                foreach (PluginSpec *spec, m_plugins) {
-                    if (spec->hasError())
-                        return icon(ErrorIcon);
-                    if (!spec->isEnabledBySettings())
-                        return icon(NotLoadedIcon);
-                }
-                return icon(OkIcon);
-            }
         }
 
         if (column == LoadedColumn) {

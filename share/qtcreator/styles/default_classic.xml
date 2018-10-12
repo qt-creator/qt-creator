@@ -25,7 +25,9 @@
   <style name="Function" background="#ffffff"/>
   <style name="Keyword" foreground="#808000"/>
   <style name="PrimitiveType" foreground="#808000"/>
+  <style name="Punctuation"/>
   <style name="Operator"/>
+  <style name="Overloaded Operator" background="#ffffff"/>
   <style name="Preprocessor" foreground="#000080"/>
   <style name="Label" foreground="#800000"/>
   <style name="Comment" foreground="#008000"/>

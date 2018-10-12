@@ -44,6 +44,26 @@ void CTR_BE::clear()
    m_pad_pos = 0;
    }
 
+size_t CTR_BE::default_iv_length() const
+   {
+   return m_block_size;
+   }
+
+bool CTR_BE::valid_iv_length(size_t iv_len) const
+   {
+   return (iv_len <= m_block_size);
+   }
+
+Key_Length_Specification CTR_BE::key_spec() const
+   {
+   return m_cipher->key_spec();
+   }
+
+CTR_BE* CTR_BE::clone() const
+   {
+   return new CTR_BE(m_cipher->clone(), m_ctr_size);
+   }
+
 void CTR_BE::key_schedule(const uint8_t key[], size_t key_len)
    {
    m_cipher->set_key(key, key_len);
@@ -106,7 +126,7 @@ void CTR_BE::set_iv(const uint8_t iv[], size_t iv_len)
    if(!valid_iv_length(iv_len))
       throw Invalid_IV_Length(name(), iv_len);
 
-   m_iv.resize(m_cipher->block_size());
+   m_iv.resize(m_block_size);
    zeroise(m_iv);
    buffer_insert(m_iv, 0, iv, iv_len);
 
@@ -122,37 +142,42 @@ void CTR_BE::add_counter(const uint64_t counter)
    if(ctr_size == 4)
       {
       size_t off = (BS - 4);
+      uint32_t low32 = counter + load_be<uint32_t>(&m_counter[off], 0);
+
       for(size_t i = 0; i != ctr_blocks; ++i)
          {
-         uint32_t low32 = load_be<uint32_t>(&m_counter[off], 0);
-         low32 += counter;
          store_be(low32, &m_counter[off]);
          off += BS;
+         low32 += 1;
          }
       }
    else if(ctr_size == 8)
       {
       size_t off = (BS - 8);
+      uint64_t low64 = counter + load_be<uint64_t>(&m_counter[off], 0);
+
       for(size_t i = 0; i != ctr_blocks; ++i)
          {
-         uint64_t low64 = load_be<uint64_t>(&m_counter[off], 0);
-         low64 += counter;
          store_be(low64, &m_counter[off]);
          off += BS;
+         low64 += 1;
          }
       }
    else if(ctr_size == 16)
       {
       size_t off = (BS - 16);
+      uint64_t b0 = load_be<uint64_t>(&m_counter[off], 0);
+      uint64_t b1 = load_be<uint64_t>(&m_counter[off], 1);
+      b1 += counter;
+      b0 += (b1 < counter) ? 1 : 0; // carry
+
       for(size_t i = 0; i != ctr_blocks; ++i)
          {
-         uint64_t b0 = load_be<uint64_t>(&m_counter[off], 0);
-         uint64_t b1 = load_be<uint64_t>(&m_counter[off], 1);
-         b1 += counter;
-         b0 += (b1 < counter) ? 1 : 0; // carry
          store_be(b0, &m_counter[off]);
          store_be(b1, &m_counter[off+8]);
          off += BS;
+         b1 += 1;
+         b0 += (b1 == 0); // carry
          }
       }
    else
@@ -185,13 +210,27 @@ void CTR_BE::seek(uint64_t offset)
    const size_t BS = m_block_size;
 
    // Set m_counter blocks to IV, IV + 1, ... IV + n
-   for(size_t i = 1; i != m_ctr_blocks; ++i)
-      {
-      buffer_insert(m_counter, i*BS, &m_counter[(i-1)*BS], BS);
 
-      for(size_t j = 0; j != m_ctr_size; ++j)
-         if(++m_counter[i*BS + (BS - 1 - j)])
-            break;
+   if(m_ctr_size == 4 && BS >= 8)
+      {
+      const uint32_t low32 = load_be<uint32_t>(&m_counter[BS-4], 0);
+      for(size_t i = 1; i != m_ctr_blocks; ++i)
+         {
+         copy_mem(&m_counter[i*BS], &m_counter[0], BS);
+         uint32_t c = low32 + i;
+         store_be(c, &m_counter[(BS-4)+i*BS]);
+         }
+      }
+   else
+      {
+      for(size_t i = 1; i != m_ctr_blocks; ++i)
+         {
+         buffer_insert(m_counter, i*BS, &m_counter[(i-1)*BS], BS);
+
+         for(size_t j = 0; j != m_ctr_size; ++j)
+            if(++m_counter[i*BS + (BS - 1 - j)])
+               break;
+         }
       }
 
    if(base_counter > 0)

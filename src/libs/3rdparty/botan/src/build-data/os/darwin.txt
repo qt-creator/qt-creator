@@ -14,8 +14,8 @@ posix1
 posix_mlock
 arc4random
 dev_random
-security_framework
 
+commoncrypto
 sockets
 threads
 filesystem

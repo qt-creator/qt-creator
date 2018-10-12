@@ -2,6 +2,7 @@
 * CBC Mode
 * (C) 1999-2007,2013,2017 Jack Lloyd
 * (C) 2016 Daniel Neus, Rohde & Schwarz Cybersecurity
+* (C) 2018 Ribose Inc
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -15,9 +16,9 @@ namespace Botan {
 CBC_Mode::CBC_Mode(BlockCipher* cipher, BlockCipherModePaddingMethod* padding) :
    m_cipher(cipher),
    m_padding(padding),
-   m_state(m_cipher->block_size())
+   m_block_size(cipher->block_size())
    {
-   if(m_padding && !m_padding->valid_blocksize(cipher->block_size()))
+   if(m_padding && !m_padding->valid_blocksize(m_block_size))
       throw Invalid_Argument("Padding " + m_padding->name() +
                              " cannot be used with " +
                              cipher->name() + "/CBC");
@@ -31,7 +32,7 @@ void CBC_Mode::clear()
 
 void CBC_Mode::reset()
    {
-   zeroise(m_state);
+   m_state.clear();
    }
 
 std::string CBC_Mode::name() const
@@ -65,6 +66,7 @@ bool CBC_Mode::valid_nonce_length(size_t n) const
 void CBC_Mode::key_schedule(const uint8_t key[], size_t length)
    {
    m_cipher->set_key(key, length);
+   m_state.clear();
    }
 
 void CBC_Mode::start_msg(const uint8_t nonce[], size_t nonce_len)
@@ -79,6 +81,9 @@ void CBC_Mode::start_msg(const uint8_t nonce[], size_t nonce_len)
    */
    if(nonce_len)
       m_state.assign(nonce, nonce + nonce_len);
+   else if(m_state.empty())
+      m_state.resize(m_cipher->block_size());
+   // else leave the state alone
    }
 
 size_t CBC_Encryption::minimum_final_size() const
@@ -96,6 +101,7 @@ size_t CBC_Encryption::output_length(size_t input_length) const
 
 size_t CBC_Encryption::process(uint8_t buf[], size_t sz)
    {
+   BOTAN_STATE_CHECK(state().empty() == false);
    const size_t BS = block_size();
 
    BOTAN_ASSERT(sz % BS == 0, "CBC input is full blocks");
@@ -120,6 +126,7 @@ size_t CBC_Encryption::process(uint8_t buf[], size_t sz)
 
 void CBC_Encryption::finish(secure_vector<uint8_t>& buffer, size_t offset)
    {
+   BOTAN_STATE_CHECK(state().empty() == false);
    BOTAN_ASSERT(buffer.size() >= offset, "Offset is sane");
 
    const size_t BS = block_size();
@@ -151,6 +158,7 @@ size_t CTS_Encryption::output_length(size_t input_length) const
 
 void CTS_Encryption::finish(secure_vector<uint8_t>& buffer, size_t offset)
    {
+   BOTAN_STATE_CHECK(state().empty() == false);
    BOTAN_ASSERT(buffer.size() >= offset, "Offset is sane");
    uint8_t* buf = buffer.data() + offset;
    const size_t sz = buffer.size() - offset;
@@ -205,6 +213,8 @@ size_t CBC_Decryption::minimum_final_size() const
 
 size_t CBC_Decryption::process(uint8_t buf[], size_t sz)
    {
+   BOTAN_STATE_CHECK(state().empty() == false);
+
    const size_t BS = block_size();
 
    BOTAN_ASSERT(sz % BS == 0, "Input is full blocks");
@@ -231,6 +241,7 @@ size_t CBC_Decryption::process(uint8_t buf[], size_t sz)
 
 void CBC_Decryption::finish(secure_vector<uint8_t>& buffer, size_t offset)
    {
+   BOTAN_STATE_CHECK(state().empty() == false);
    BOTAN_ASSERT(buffer.size() >= offset, "Offset is sane");
    const size_t sz = buffer.size() - offset;
 
@@ -251,7 +262,7 @@ void CBC_Decryption::finish(secure_vector<uint8_t>& buffer, size_t offset)
 
 void CBC_Decryption::reset()
    {
-   zeroise(state());
+   CBC_Mode::reset();
    zeroise(m_tempbuf);
    }
 
@@ -267,6 +278,7 @@ size_t CTS_Decryption::minimum_final_size() const
 
 void CTS_Decryption::finish(secure_vector<uint8_t>& buffer, size_t offset)
    {
+   BOTAN_STATE_CHECK(state().empty() == false);
    BOTAN_ASSERT(buffer.size() >= offset, "Offset is sane");
    const size_t sz = buffer.size() - offset;
    uint8_t* buf = buffer.data() + offset;

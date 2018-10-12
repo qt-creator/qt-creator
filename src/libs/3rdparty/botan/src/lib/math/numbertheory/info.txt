@@ -2,8 +2,6 @@
 NUMBERTHEORY -> 20131128
 </defines>
 
-load_on auto
-
 <header:public>
 curve_nistp.h
 numthry.h
@@ -13,6 +11,7 @@ monty.h
 </header:public>
 
 <header:internal>
+primality.h
 def_powm.h
 monty_exp.h
 </header:internal>

@@ -97,7 +97,7 @@ secure_vector<uint8_t> PKCS8_decode(
       }
    catch(Decoding_Error& e)
       {
-      throw Decoding_Error("PKCS #8 private key decoding failed: " + std::string(e.what()));
+      throw Decoding_Error("PKCS #8 private key decoding", e);
       }
 
    try
@@ -126,7 +126,7 @@ secure_vector<uint8_t> PKCS8_decode(
       }
    catch(std::exception& e)
       {
-      throw Decoding_Error("PKCS #8 private key decoding failed: " + std::string(e.what()));
+      throw Decoding_Error("PKCS #8 private key decoding", e);
       }
    return key;
    }
@@ -167,7 +167,9 @@ choose_pbe_params(const std::string& pbe_algo, const std::string& key_algo)
       }
 
    SCAN_Name request(pbe_algo);
-   if(request.algo_name() != "PBE-PKCS5v20" || request.arg_count() != 2)
+   if(request.arg_count() != 2)
+      throw Exception("Unsupported PBE " + pbe_algo);
+   if(request.algo_name() != "PBE-PKCS5v20" && request.algo_name() != "PBES2")
       throw Exception("Unsupported PBE " + pbe_algo);
    return std::make_pair(request.arg(0), request.arg(1));
    }

@@ -27,7 +27,7 @@ cd lib
 rm -r codec/base32 compression ffi misc passhash pbkdf/pbkdf1 pbkdf/pgp_s2k pbkdf/scrypt prov \
       psk_db tls
 cd block
-rm -r aria blowfish camellia cascade cast gost_28147 idea kasumi lion misty1 noekeon seed serpent\
+rm -r aria blowfish camellia cascade cast128 cast256 gost_28147 idea kasumi lion misty1 noekeon seed serpent\
        shacal2 sm4 threefish_512 twofish xtea
 cd ../filters
 rm -r codec_filt fd_unix
@@ -50,7 +50,7 @@ rm -r chacha_rng
 cd ../stream
 rm -r chacha ofb rc4 salsa20 shake_cipher
 cd ../utils
-rm -r boost http_util locking_allocator mem_pool poly_dbl socket sqlite3 thread_utils
+rm -r boost http_util locking_allocator mem_pool poly_dbl socket sqlite3 thread_utils uuid
 cd ../x509
 rm -r certstor_sql certstor_sqlite3
 
