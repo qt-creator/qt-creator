@@ -3633,7 +3633,7 @@ void ProjectExplorerPlugin::setBuildDirectoryTemplate(const QString &dir)
 
 QString ProjectExplorerPlugin::defaultBuildDirectoryTemplate()
 {
-    return Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE;
+    return QString(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE);
 }
 
 QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
