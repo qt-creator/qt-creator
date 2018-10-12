@@ -166,12 +166,10 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
         return;
 
     const QModelIndex currentBranch = m_model->currentBranch();
-    const bool hasSelection = index.isValid();
-    const bool currentSelected = hasSelection && index == currentBranch;
+    const bool currentSelected = index == currentBranch;
     const bool isLocal = m_model->isLocal(index);
-    const bool isLeaf = m_model->isLeaf(index);
     const bool isTag = m_model->isTag(index);
-    const bool hasActions = hasSelection && isLeaf;
+    const bool hasActions = m_model->isLeaf(index);
     const bool currentLocal = m_model->isLocal(currentBranch);
 
     QMenu contextMenu;
