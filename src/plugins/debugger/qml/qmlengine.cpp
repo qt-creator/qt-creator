@@ -349,8 +349,6 @@ void QmlEngine::connectionEstablished()
     connect(inspectorView(), &WatchTreeView::currentIndexChanged,
             this, &QmlEngine::updateCurrentContext);
 
-    BreakpointManager::claimBreakpointsForEngine(this);
-
     if (state() == EngineRunRequested)
         notifyEngineRunAndInferiorRunOk();
 }
@@ -2433,13 +2431,18 @@ void QmlEnginePrivate::stateChanged(State state)
     engine->logServiceStateChange(name(), serviceVersion(), state);
 
     if (state == QmlDebugClient::Enabled) {
-        /// Start session.
-        flushSendBuffer();
-        QJsonObject parameters;
-        parameters.insert("redundantRefs", false);
-        parameters.insert("namesAsObjects", false);
-        runDirectCommand(CONNECT, QJsonDocument(parameters).toJson());
-        runCommand({VERSION}, CB(handleVersion));
+        BreakpointManager::claimBreakpointsForEngine(engine);
+
+        // Since the breakpoint claiming is deferred, we need to also defer the connecting
+        QTimer::singleShot(0, this, [this]() {
+            /// Start session.
+            flushSendBuffer();
+            QJsonObject parameters;
+            parameters.insert("redundantRefs", false);
+            parameters.insert("namesAsObjects", false);
+            runDirectCommand(CONNECT, QJsonDocument(parameters).toJson());
+            runCommand({VERSION}, CB(handleVersion));
+        });
     }
 }
 

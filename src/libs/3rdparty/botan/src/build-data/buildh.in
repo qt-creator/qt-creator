@@ -87,6 +87,10 @@
 #define BOTAN_ENABLE_DEBUG_ASSERTS
 %{endif}
 
+%{if optimize_for_size}
+#define BOTAN_OPTIMIZE_FOR_SIZE
+%{endif}
+
 /*
 * Module availability definitions
 */
@@ -166,8 +170,8 @@
 * broken system RNG.
 */
 #define BOTAN_ENTROPY_DEFAULT_SOURCES \
-   { "rdseed", "rdrand", "darwin_secrandom", "getentropy", \
-     "dev_random", "system_rng", "proc_walk", "system_stats" }
+   { "rdseed", "rdrand", "getentropy", "dev_random", \
+     "system_rng", "proc_walk", "system_stats" }
 
 /* Multiplier on a block cipher's native parallelism */
 #define BOTAN_BLOCK_CIPHER_PAR_MULT 4
@@ -176,7 +180,7 @@
 * These control the RNG used by the system RNG interface
 */
 #define BOTAN_SYSTEM_RNG_DEVICE "/dev/urandom"
-#define BOTAN_SYSTEM_RNG_POLL_DEVICES { "/dev/urandom", "/dev/random", "/dev/srandom" }
+#define BOTAN_SYSTEM_RNG_POLL_DEVICES { "/dev/urandom", "/dev/random" }
 
 /*
 * This directory will be monitored by ProcWalking_EntropySource and

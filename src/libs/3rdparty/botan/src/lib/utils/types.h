@@ -56,7 +56,7 @@ namespace Botan {
 * <dt>Public Key Cryptosystems<dd>
 *        @ref dlies.h "DLIES", @ref ecies.h "ECIES", @ref elgamal.h "ElGamal"
 *        @ref rsa.h "RSA", @ref newhope.h "NewHope", @ref mceliece.h "McEliece" and @ref mceies.h "MCEIES",
-*        @ref sm2_enc.h "SM2"
+*        @ref sm2.h "SM2"
 * <dt>Public Key Signature Schemes<dd>
 *        @ref dsa.h "DSA", @ref ecdsa.h "ECDSA", @ref ecgdsa.h "ECGDSA", @ref eckcdsa.h "ECKCDSA",
 *        @ref gost_3410.h "GOST 34.10-2001", @ref sm2.h "SM2", @ref xmss.h "XMSS"
@@ -92,16 +92,12 @@ using u32bit = std::uint32_t;
 using u64bit = std::uint64_t;
 using s32bit = std::int32_t;
 
-#if (BOTAN_MP_WORD_BITS == 8)
-  typedef uint8_t word;
-#elif (BOTAN_MP_WORD_BITS == 16)
-  typedef uint16_t word;
-#elif (BOTAN_MP_WORD_BITS == 32)
+#if (BOTAN_MP_WORD_BITS == 32)
   typedef uint32_t word;
 #elif (BOTAN_MP_WORD_BITS == 64)
   typedef uint64_t word;
 #else
-  #error BOTAN_MP_WORD_BITS must be 8, 16, 32, or 64
+  #error BOTAN_MP_WORD_BITS must be 32 or 64
 #endif
 
 }

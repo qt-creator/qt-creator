@@ -2795,7 +2795,7 @@ def qdump__qfloat16(d, value):
     elif exp == 0b11111:
         res = ('-inf' if sign else 'inf') if fraction == 0 else 'nan'
     else:
-        res = (-1)**sign * (1 + fraction / 2**10) * 2**(exp - 15)
+        res = (-1)**sign * (1 + 1. * fraction / 2**10) * 2**(exp - 15)
     d.putValue(res)
     d.putNumChild(1)
     d.putPlainChildren(value)

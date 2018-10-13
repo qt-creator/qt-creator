@@ -46,14 +46,14 @@ class DocumentContentCompletionProcessor : public IAssistProcessor
 {
 public:
     DocumentContentCompletionProcessor(const QString &snippetGroupId);
+    ~DocumentContentCompletionProcessor() override;
 
     IAssistProposal *perform(const AssistInterface *interface) override;
-    bool running() final { return m_running; }
+    bool running() final { return m_watcher.isRunning(); }
 
 private:
-    TextEditor::SnippetAssistCollector m_snippetCollector;
-    IAssistProposal *createProposal(const AssistInterface *interface);
-    bool m_running = false;
+    QString m_snippetGroup;
+    QFutureWatcher<QStringList> m_watcher;
 };
 
 DocumentContentCompletionProvider::DocumentContentCompletionProvider(const QString &snippetGroup)
@@ -71,45 +71,39 @@ IAssistProcessor *DocumentContentCompletionProvider::createProcessor() const
 }
 
 DocumentContentCompletionProcessor::DocumentContentCompletionProcessor(const QString &snippetGroupId)
-    : m_snippetCollector(snippetGroupId, QIcon(":/texteditor/images/snippet.png"))
+    : m_snippetGroup(snippetGroupId)
 { }
+
+DocumentContentCompletionProcessor::~DocumentContentCompletionProcessor()
+{
+    if (m_watcher.isRunning())
+        m_watcher.cancel();
+}
+
+static void createProposal(QFutureInterface<QStringList> &future, const QString text)
+{
+    const QRegularExpression wordRE("([a-zA-Z_][a-zA-Z0-9_]{2,})");
+
+    QSet<QString> words;
+    QRegularExpressionMatchIterator it = wordRE.globalMatch(text);
+    while (it.hasNext()) {
+        if (future.isCanceled())
+            return;
+        QRegularExpressionMatch match = it.next();
+        const QString &word = match.captured();
+        if (!words.contains(word))
+            words.insert(word);
+    }
+
+    future.reportResult(words.toList());
+}
 
 IAssistProposal *DocumentContentCompletionProcessor::perform(const AssistInterface *interface)
 {
-    Utils::onResultReady(Utils::runAsync(
-                             &DocumentContentCompletionProcessor::createProposal, this, interface),
-                         [this](IAssistProposal *proposal){
-        m_running = false;
-        setAsyncProposalAvailable(proposal);
-    });
-    m_running = true;
-    return nullptr;
-}
-
-static void generateProposalItems(const QString &text, QSet<QString> &words,
-                                  QList<AssistProposalItemInterface *> &items)
-{
-    static const QRegularExpression wordRE("([a-zA-Z_][a-zA-Z0-9_]{2,})");
-
-    QRegularExpressionMatch match;
-    int index = text.indexOf(wordRE, 0, &match);
-    while (index >= 0) {
-        const QString &word = match.captured();
-        if (!words.contains(word)) {
-            auto item = new AssistProposalItem();
-            item->setText(word);
-            items.append(item);
-            words.insert(word);
-        }
-        index += word.size();
-        index = text.indexOf(wordRE, index, &match);
-    }
-}
-
-IAssistProposal *DocumentContentCompletionProcessor::createProposal(
-        const AssistInterface *interface)
-{
     QScopedPointer<const AssistInterface> assistInterface(interface);
+    if (running())
+        return nullptr;
+
     int pos = interface->position();
 
     QChar chr;
@@ -126,14 +120,20 @@ IAssistProposal *DocumentContentCompletionProcessor::createProposal(
             return nullptr;
     }
 
-    QSet<QString> words;
-    QList<AssistProposalItemInterface *> items = m_snippetCollector.collect();
-    QTextBlock block = interface->textDocument()->firstBlock();
+    const QString text = interface->textDocument()->toPlainText();
 
-    while (block.isValid()) {
-        generateProposalItems(block.text(), words, items);
-        block = block.next();
-    }
-
-    return new GenericProposal(pos, items);
+    m_watcher.setFuture(Utils::runAsync(&createProposal, text));
+    QObject::connect(&m_watcher, &QFutureWatcher<QStringList>::resultReadyAt,
+                     &m_watcher, [this, pos](int index){
+        const TextEditor::SnippetAssistCollector snippetCollector(
+                    m_snippetGroup, QIcon(":/texteditor/images/snippet.png"));
+        QList<AssistProposalItemInterface *> items = snippetCollector.collect();
+        for (const QString &word : m_watcher.resultAt(index)) {
+            auto item = new AssistProposalItem();
+            item->setText(word);
+            items.append(item);
+        }
+        setAsyncProposalAvailable(new GenericProposal(pos, items));
+    });
+    return nullptr;
 }

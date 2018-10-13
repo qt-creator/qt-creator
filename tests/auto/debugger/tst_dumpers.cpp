@@ -3568,6 +3568,8 @@ void tst_Dumpers::dumper_data()
                + Check("holder", "", "@QStringDataPtr") % Qt5
                + Check("holder.ptr", "\"ABC\"", TypeDef("@QTypedArrayData<unsigned short>",
                                                         "@QStringData")) % Qt5
+                // Note that the following breaks with LLDB 6.0 on Linux as LLDB reads
+                // the type wrong as "QStaticStringData<4>"
                + Check("sd", "\"Q\"", "@QStaticStringData<1>") % Qt5;
 
 

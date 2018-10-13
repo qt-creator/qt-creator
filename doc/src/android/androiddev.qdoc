@@ -37,7 +37,8 @@
     \title Connecting Android Devices
 
     You can connect Android devices to the development PC to run, debug,
-    and analyze applications built for them from \QC.
+    and analyze applications built for them from \QC. Devices with Android
+    version 4.1 (API level 16) or later are supported.
 
     If you have a tool chain for building applications for Android devices
     installed on the development PC, you can add it to \QC. You can then add a
@@ -59,7 +60,10 @@
     \list
 
         \li \l{http://www.oracle.com/technetwork/java/javase/downloads/index.html}
-            {Java SE Development Kit (JDK)} version 6, or later
+            {Java SE Development Kit (JDK)} version 6, or later.
+            You can also use \l{http://openjdk.java.net/}{OpenJDK} on Linux.
+
+            \note Android SDK Tools have issues with JDK versions later than 8.
 
         \li \l{http://www.gradle.org}{Gradle} for building application packages
             for Android devices (APK). Gradle is delivered with Qt 5.9, and
@@ -71,7 +75,7 @@
 
         \li A tool chain for building applications for Android devices provided
             by the \l{http://developer.android.com/tools/sdk/ndk/index.html}
-            {Android NDK} from Google.
+            {Android NDK} from Google. The recommended version is 10e.
 
         \li \l{http://developer.android.com/sdk/index.html}{Android SDK Tools}
 
@@ -106,9 +110,12 @@
     \section1 Setting Up the Development Environment
 
     You must download and install the latest Android NDK and SDK, and then
-    update or install the tools and packages needed for development. The SDK
-    tool used to update and install the other SDK tools and packages depends on
-    the Android SDK Tools version that you have installed:
+    update or install the tools and packages needed for development. However,
+    if your Qt version is earlier than v5.9, use the SDK tools package v25.2.5
+    or earlier.
+
+    The SDK tool used to update and install the other SDK tools and packages
+    depends on the Android SDK Tools version that you have installed:
 
     \list
 
@@ -134,6 +141,10 @@
     \endlist
 
     In addition, you must install Qt for Android as part of Qt 5.2, or later.
+
+    \note You can build a 64-bit version of Qt for Android yourself. However,
+    for such a Qt version, the minimum required Android version on devices
+    is 5.0 (API level 21).
 
     For more information, see \l{Qt for Android}.
 
@@ -287,22 +298,11 @@
 
     \section1 Debugging on Android Devices
 
-    Android devices support debugging multi-thread applications in version
-    2.2.1 and later. If you use AVD, select Android 2.3, or later. For more
-    information, see the Android documentation.
-
-    In addition, debugging is supported at android-10 API level, or higher. In
-    the run settings for the project, in the \uicontrol {Android build SDK} field,
-    select android-10, or higher. For more information about Android API levels,
-    see \l{http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels}
-    {What is API Level?}.
-
-    \note Select a \l{glossary-build-config}{debug build configuration} to build
+    Select a \l{glossary-build-config}{debug build configuration} to build
     the application for debugging.
 
     \note \QC cannot debug applications on Android devices if Android Studio is
     running. If the following message is displayed in the \uicontrol Output
     pane, close Android Studio and try again: \e {Ignoring second debugger -
     accepting and dropping.}
-
 */

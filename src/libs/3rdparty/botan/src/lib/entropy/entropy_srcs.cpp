@@ -30,10 +30,7 @@
 
 #if defined(BOTAN_HAS_ENTROPY_SRC_PROC_WALKER)
   #include <botan/internal/proc_walk.h>
-#endif
-
-#if defined(BOTAN_HAS_ENTROPY_SRC_DARWIN_SECRANDOM)
-  #include <botan/internal/darwin_secrandom.h>
+  #include <botan/internal/os_utils.h>
 #endif
 
 #if defined(BOTAN_HAS_ENTROPY_SRC_GETENTROPY)
@@ -86,13 +83,6 @@ std::unique_ptr<Entropy_Source> Entropy_Source::create(const std::string& name)
       }
 #endif
 
-#if defined(BOTAN_HAS_ENTROPY_SRC_DARWIN_SECRANDOM)
-   if(name == "darwin_secrandom")
-      {
-      return std::unique_ptr<Entropy_Source>(new Darwin_SecRandom);
-      }
-#endif
-
 #if defined(BOTAN_HAS_ENTROPY_SRC_GETENTROPY)
    if(name == "getentropy")
       {
@@ -108,7 +98,7 @@ std::unique_ptr<Entropy_Source> Entropy_Source::create(const std::string& name)
 #endif
 
 #if defined(BOTAN_HAS_ENTROPY_SRC_PROC_WALKER)
-   if(name == "proc_walk")
+   if(name == "proc_walk" && OS::running_in_privileged_state() == false)
       {
       const std::string root_dir = BOTAN_ENTROPY_PROC_FS_PATH;
       if(!root_dir.empty())

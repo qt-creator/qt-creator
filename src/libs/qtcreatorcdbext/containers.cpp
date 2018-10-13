@@ -108,7 +108,7 @@ static inline int msvcStdVectorSize(const SymbolGroupValue &v)
     const std::vector<std::string> innerTypes = v.innerTypes();
     if (innerTypes.empty())
         return -1;
-    const std::string innerType = fixInnerType(SymbolGroupValue::stripPointerType(innerTypes[0]), v);
+    const std::string innerType = fixInnerType(innerTypes[0], v);
     const size_t size = SymbolGroupValue::sizeOf(innerType.c_str());
     if (size == 0)
         return -1;

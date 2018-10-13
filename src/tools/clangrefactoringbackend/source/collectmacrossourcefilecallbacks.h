@@ -70,6 +70,7 @@ public:
         m_sourceFiles.clear();
         m_usedMacros.clear();
         m_fileStatuses.clear();
+        m_sourceDependencies.clear();
     }
 
     const UsedMacros &usedMacros() const

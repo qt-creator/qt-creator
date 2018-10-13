@@ -104,6 +104,7 @@ SOURCES += \
     processormanager-test.cpp \
     taskscheduler-test.cpp \
     compileroptionsbuilder-test.cpp \
+    usedmacrocollector-test.cpp \
     progresscounter-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
