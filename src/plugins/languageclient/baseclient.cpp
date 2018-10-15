@@ -759,7 +759,7 @@ StdIOClient::~StdIOClient()
 bool StdIOClient::start()
 {
     m_process.start();
-    if (!m_process.waitForStarted() && m_process.state() != QProcess::Running) {
+    if (!m_process.waitForStarted() || m_process.state() != QProcess::Running) {
         setError(m_process.errorString());
         return false;
     }
