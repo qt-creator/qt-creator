@@ -621,11 +621,6 @@ QString QMakeStepConfigWidget::summaryText() const
     return m_summaryText;
 }
 
-QString QMakeStepConfigWidget::additionalSummaryText() const
-{
-    return m_additionalSummaryText;
-}
-
 void QMakeStepConfigWidget::qtVersionChanged()
 {
     updateSummaryLabel();

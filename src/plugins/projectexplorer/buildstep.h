@@ -174,7 +174,6 @@ public:
     BuildStepConfigWidget(BuildStep *step, bool showWidget = true);
 
     virtual QString summaryText() const;
-    virtual QString additionalSummaryText() const { return QString(); }
 
     QString displayName() const;
     BuildStep *step() const { return m_step; }
@@ -184,7 +183,6 @@ public:
 
 signals:
     void updateSummary();
-    void updateAdditionalSummary();
 
 private:
     BuildStep *m_step = nullptr;

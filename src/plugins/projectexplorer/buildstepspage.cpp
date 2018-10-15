@@ -182,7 +182,6 @@ BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
     detailsWidget->setToolWidget(toolWidget);
     detailsWidget->setContentsMargins(0, 0, 0, 1);
     detailsWidget->setSummaryText(widget->summaryText());
-    detailsWidget->setAdditionalSummaryText(widget->additionalSummaryText());
 }
 
 BuildStepsWidgetData::~BuildStepsWidgetData()
@@ -208,19 +207,6 @@ void BuildStepListWidget::updateSummary()
         foreach (const BuildStepsWidgetData *s, m_buildStepsData) {
             if (s->widget == widget) {
                 s->detailsWidget->setSummaryText(widget->summaryText());
-                break;
-            }
-        }
-    }
-}
-
-void BuildStepListWidget::updateAdditionalSummary()
-{
-    auto widget = qobject_cast<BuildStepConfigWidget *>(sender());
-    if (widget) {
-        foreach (const BuildStepsWidgetData *s, m_buildStepsData) {
-            if (s->widget == widget) {
-                s->detailsWidget->setAdditionalSummaryText(widget->additionalSummaryText());
                 break;
             }
         }
@@ -329,8 +315,6 @@ void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
 
     connect(s->widget, &BuildStepConfigWidget::updateSummary,
             this, &BuildStepListWidget::updateSummary);
-    connect(s->widget, &BuildStepConfigWidget::updateAdditionalSummary,
-            this, &BuildStepListWidget::updateAdditionalSummary);
 
     connect(s->step, &BuildStep::enabledChanged,
             this, &BuildStepListWidget::updateEnabledState);

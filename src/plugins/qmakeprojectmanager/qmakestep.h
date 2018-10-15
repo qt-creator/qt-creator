@@ -199,7 +199,6 @@ public:
     QMakeStepConfigWidget(QMakeStep *step);
     ~QMakeStepConfigWidget() override;
     QString summaryText() const override;
-    QString additionalSummaryText() const override;
 
 private:
     // slots for handling buildconfiguration/step signals
@@ -230,7 +229,6 @@ private:
     Internal::Ui::QMakeStep *m_ui = nullptr;
     QMakeStep *m_step = nullptr;
     QString m_summaryText;
-    QString m_additionalSummaryText;
     bool m_ignoreChange = false;
 };
 
