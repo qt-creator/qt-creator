@@ -99,7 +99,6 @@ class QbsInstallStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     QbsInstallStepConfigWidget(QbsInstallStep *step);
     ~QbsInstallStepConfigWidget() override;
-    QString summaryText() const override;
 
 private:
     void updateState();
@@ -112,7 +111,6 @@ private:
     Ui::QbsInstallStepConfigWidget *m_ui;
 
     QbsInstallStep *m_step;
-    QString m_summary;
     bool m_ignoreChange;
 };
 

@@ -63,7 +63,6 @@ private:
     void updateKeyStorePath(const QString &path);
     void signPackageCheckBoxToggled(bool checked);
 
-    QString summaryText() const override;
     void setCertificates();
 
     Ui::AndroidBuildApkWidget *m_ui;
@@ -84,8 +83,6 @@ private:
     void addAndroidExtraLib();
     void removeAndroidExtraLib();
     void checkEnableRemoveButton();
-
-    QString summaryText() const final;
 
 private:
     QListView *m_androidExtraLibsListView = nullptr;

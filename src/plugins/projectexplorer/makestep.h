@@ -100,19 +100,15 @@ public:
     explicit MakeStepConfigWidget(MakeStep *makeStep);
     ~MakeStepConfigWidget() override;
 
-    QString summaryText() const override;
-
 private:
     void itemChanged(QListWidgetItem *item);
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
     void updateDetails();
-    void setSummaryText(const QString &text);
     void setUserJobCountVisible(bool visible);
 
     Internal::Ui::MakeStep *m_ui;
     MakeStep *m_makeStep;
-    QString m_summaryText;
 };
 
 } // namespace GenericProjectManager

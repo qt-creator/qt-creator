@@ -198,7 +198,6 @@ class QMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     QMakeStepConfigWidget(QMakeStep *step);
     ~QMakeStepConfigWidget() override;
-    QString summaryText() const override;
 
 private:
     // slots for handling buildconfiguration/step signals
@@ -224,11 +223,8 @@ private:
     void updateQtQuickCompilerOption();
     void updateEffectiveQMakeCall();
 
-    void setSummaryText(const QString &);
-
     Internal::Ui::QMakeStep *m_ui = nullptr;
     QMakeStep *m_step = nullptr;
-    QString m_summaryText;
     bool m_ignoreChange = false;
 };
 

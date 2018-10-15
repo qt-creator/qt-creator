@@ -74,7 +74,6 @@ class IosDsymBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidg
 public:
     IosDsymBuildStepConfigWidget(IosDsymBuildStep *buildStep);
     ~IosDsymBuildStepConfigWidget();
-    QString summaryText() const override;
 
 private:
     void commandChanged();
@@ -84,7 +83,6 @@ private:
 
     Ui::IosPresetBuildStep *m_ui;
     IosDsymBuildStep *m_buildStep;
-    QString m_summaryText;
 };
 
 class IosDsymBuildStepFactory : public ProjectExplorer::BuildStepFactory

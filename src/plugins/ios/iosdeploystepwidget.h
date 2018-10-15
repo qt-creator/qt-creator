@@ -43,8 +43,6 @@ public:
     ~IosDeployStepWidget();
 
 private:
-    QString summaryText() const override;
-
     Ui::IosDeployStepWidget *ui;
     IosDeployStep *m_step;
 };

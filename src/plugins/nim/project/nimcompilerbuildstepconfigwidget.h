@@ -41,8 +41,6 @@ public:
     NimCompilerBuildStepConfigWidget(NimCompilerBuildStep *buildStep);
     ~NimCompilerBuildStepConfigWidget();
 
-    QString summaryText() const override;
-
 private:
     void updateUi();
     void updateCommandLineText();

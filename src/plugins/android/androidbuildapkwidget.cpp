@@ -63,6 +63,7 @@ AndroidBuildApkInnerWidget::AndroidBuildApkInnerWidget(AndroidBuildApkStep *step
 {
     m_ui->setupUi(this);
     setDisplayName(tr("<b>Build Android APK</b>"));
+    setSummaryText(displayName());
 
     // Target sdk combobox
     const int minApiSupported = AndroidManager::apiLevelRange().first;
@@ -132,11 +133,6 @@ AndroidBuildApkInnerWidget::AndroidBuildApkInnerWidget(AndroidBuildApkStep *step
 AndroidBuildApkInnerWidget::~AndroidBuildApkInnerWidget()
 {
     delete m_ui;
-}
-
-QString AndroidBuildApkInnerWidget::summaryText() const
-{
-    return displayName();
 }
 
 void AndroidBuildApkInnerWidget::setTargetSdk(const QString &sdk)
@@ -230,6 +226,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step) :
     m_step(step)
 {
     setDisplayName(tr("<b>Build Android APK</b>"));
+    setSummaryText(tr("<b>Build Android APK</b>"));
 
     m_extraLibraryListModel = new AndroidExtraLibraryListModel(m_step->target(), this);
 
@@ -319,11 +316,6 @@ void AndroidBuildApkWidget::removeAndroidExtraLib()
 void AndroidBuildApkWidget::checkEnableRemoveButton()
 {
     m_removeAndroidExtraLibButton->setEnabled(m_androidExtraLibsListView->selectionModel()->hasSelection());
-}
-
-QString AndroidBuildApkWidget::summaryText() const
-{
-    return tr("<b>Build Android APK</b>");
 }
 
 } // Internal

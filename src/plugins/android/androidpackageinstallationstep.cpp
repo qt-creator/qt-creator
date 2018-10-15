@@ -129,11 +129,7 @@ AndroidPackageInstallationStepWidget::AndroidPackageInstallationStepWidget(Andro
     : BuildStepConfigWidget(step, false)
 {
     setDisplayName(tr("Make install"));
-}
-
-QString AndroidPackageInstallationStepWidget::summaryText() const
-{
-    return "<b>" + tr("Make install") + "</b>";
+    setSummaryText("<b>" + tr("Make install") + "</b>");
 }
 
 //

@@ -194,11 +194,6 @@ ConfigureStepConfigWidget::ConfigureStepConfigWidget(ConfigureStep *configureSte
             this, &ConfigureStepConfigWidget::updateDetails);
 }
 
-QString ConfigureStepConfigWidget::summaryText() const
-{
-    return m_summaryText;
-}
-
 void ConfigureStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_configureStep->buildConfiguration();
@@ -209,6 +204,6 @@ void ConfigureStepConfigWidget::updateDetails()
     param.setWorkingDirectory(bc->buildDirectory().toString());
     param.setCommand(projectDirRelativeToBuildDir(bc) + "configure");
     param.setArguments(m_configureStep->additionalArguments());
-    m_summaryText = param.summaryInWorkdir(displayName());
-    emit updateSummary();
+
+    setSummaryText(param.summaryInWorkdir(displayName()));
 }

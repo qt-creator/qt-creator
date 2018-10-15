@@ -525,8 +525,7 @@ void CMakeBuildStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_buildStep->buildConfiguration();
     if (!bc) {
-        m_summaryText = tr("<b>No build configuration found on this kit.</b>");
-        emit updateSummary();
+        setSummaryText(tr("<b>No build configuration found on this kit.</b>"));
         return;
     }
 
@@ -536,14 +535,8 @@ void CMakeBuildStepConfigWidget::updateDetails()
     param.setWorkingDirectory(bc->buildDirectory().toString());
     param.setCommand(m_buildStep->cmakeCommand());
     param.setArguments(m_buildStep->allArguments(0));
-    m_summaryText = param.summary(displayName());
 
-    emit updateSummary();
-}
-
-QString CMakeBuildStepConfigWidget::summaryText() const
-{
-    return m_summaryText;
+    setSummaryText(param.summary(displayName()));
 }
 
 //

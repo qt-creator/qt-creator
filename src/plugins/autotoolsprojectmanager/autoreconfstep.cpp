@@ -169,11 +169,6 @@ AutoreconfStepConfigWidget::AutoreconfStepConfigWidget(AutoreconfStep *autorecon
             this, &AutoreconfStepConfigWidget::updateDetails);
 }
 
-QString AutoreconfStepConfigWidget::summaryText() const
-{
-    return m_summaryText;
-}
-
 void AutoreconfStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_autoreconfStep->buildConfiguration();
@@ -185,6 +180,6 @@ void AutoreconfStepConfigWidget::updateDetails()
     param.setWorkingDirectory(projectDir);
     param.setCommand("autoreconf");
     param.setArguments(m_autoreconfStep->additionalArguments());
-    m_summaryText = param.summary(displayName());
-    emit updateSummary();
+
+    setSummaryText(param.summary(displayName()));
 }

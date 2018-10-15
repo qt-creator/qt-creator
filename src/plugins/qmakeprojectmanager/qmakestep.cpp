@@ -616,11 +616,6 @@ QMakeStepConfigWidget::~QMakeStepConfigWidget()
     delete m_ui;
 }
 
-QString QMakeStepConfigWidget::summaryText() const
-{
-    return m_summaryText;
-}
-
 void QMakeStepConfigWidget::qtVersionChanged()
 {
     updateSummaryLabel();
@@ -831,14 +826,6 @@ void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
         BuildManager::buildLists(stepLists, QStringList() << ProjectExplorerPlugin::displayNameForStepId(clean)
                        << ProjectExplorerPlugin::displayNameForStepId(build));
     }
-}
-
-void QMakeStepConfigWidget::setSummaryText(const QString &text)
-{
-    if (text == m_summaryText)
-        return;
-    m_summaryText = text;
-    emit updateSummary();
 }
 
 ////

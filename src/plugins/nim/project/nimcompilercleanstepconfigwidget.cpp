@@ -41,17 +41,13 @@ NimCompilerCleanStepConfigWidget::NimCompilerCleanStepConfigWidget(NimCompilerCl
 {
     m_ui->setupUi(this);
     setDisplayName(tr(Constants::C_NIMCOMPILERCLEANSTEPWIDGET_DISPLAY));
+    setSummaryText(tr(Constants::C_NIMCOMPILERCLEANSTEPWIDGET_SUMMARY));
     connect(cleanStep->buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
             this, &NimCompilerCleanStepConfigWidget::updateUi);
     updateUi();
 }
 
 NimCompilerCleanStepConfigWidget::~NimCompilerCleanStepConfigWidget() = default;
-
-QString NimCompilerCleanStepConfigWidget::summaryText() const
-{
-    return tr(Constants::C_NIMCOMPILERCLEANSTEPWIDGET_SUMMARY);
-}
 
 void NimCompilerCleanStepConfigWidget::updateUi()
 {

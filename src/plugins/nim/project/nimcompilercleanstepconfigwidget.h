@@ -42,8 +42,6 @@ public:
 
     ~NimCompilerCleanStepConfigWidget();
 
-    QString summaryText() const override;
-
 private:
     void updateUi();
 

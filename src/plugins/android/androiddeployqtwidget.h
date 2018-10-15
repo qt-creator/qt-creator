@@ -51,8 +51,6 @@ private:
     void cleanLibsOnDevice();
     void resetDefaultDevices();
 
-    QString summaryText() const override;
-
     Ui::AndroidDeployQtWidget *m_ui;
     AndroidDeployQtStep *m_step;
 };

@@ -46,6 +46,7 @@ NimCompilerBuildStepConfigWidget::NimCompilerBuildStepConfigWidget(NimCompilerBu
     m_ui->setupUi(this);
 
     setDisplayName(tr(Constants::C_NIMCOMPILERBUILDSTEPWIDGET_DISPLAY));
+    setSummaryText(tr(Constants::C_NIMCOMPILERBUILDSTEPWIDGET_SUMMARY));
 
     // Connect the project signals
     auto project = static_cast<NimProject *>(m_buildStep->project());
@@ -68,11 +69,6 @@ NimCompilerBuildStepConfigWidget::NimCompilerBuildStepConfigWidget(NimCompilerBu
 }
 
 NimCompilerBuildStepConfigWidget::~NimCompilerBuildStepConfigWidget() = default;
-
-QString NimCompilerBuildStepConfigWidget::summaryText() const
-{
-    return tr(Constants::C_NIMCOMPILERBUILDSTEPWIDGET_SUMMARY);
-}
 
 void NimCompilerBuildStepConfigWidget::onTargetChanged(int index)
 {

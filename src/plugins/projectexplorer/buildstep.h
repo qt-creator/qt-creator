@@ -173,13 +173,13 @@ class PROJECTEXPLORER_EXPORT BuildStepConfigWidget : public QWidget
 public:
     BuildStepConfigWidget(BuildStep *step, bool showWidget = true);
 
-    virtual QString summaryText() const;
-
+    QString summaryText() const;
     QString displayName() const;
     BuildStep *step() const { return m_step; }
     bool showWidget() const { return m_showWidget; }
 
     void setDisplayName(const QString &displayName);
+    void setSummaryText(const QString &summaryText);
 
 signals:
     void updateSummary();
@@ -188,6 +188,7 @@ private:
     BuildStep *m_step = nullptr;
     const bool m_showWidget = true;
     QString m_displayName;
+    QString m_summaryText;
 };
 
 } // namespace ProjectExplorer

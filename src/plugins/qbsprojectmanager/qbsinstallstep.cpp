@@ -283,11 +283,6 @@ QbsInstallStepConfigWidget::~QbsInstallStepConfigWidget()
     delete m_ui;
 }
 
-QString QbsInstallStepConfigWidget::summaryText() const
-{
-    return m_summary;
-}
-
 void QbsInstallStepConfigWidget::updateState()
 {
     if (!m_ignoreChange) {
@@ -301,11 +296,7 @@ void QbsInstallStepConfigWidget::updateState()
 
     m_ui->commandLineTextEdit->setPlainText(command);
 
-    QString summary = tr("<b>Qbs:</b> %1").arg(command);
-    if (m_summary != summary) {
-        m_summary = summary;
-        emit updateSummary();
-    }
+    setSummaryText(tr("<b>Qbs:</b> %1").arg(command));
 }
 
 void QbsInstallStepConfigWidget::changeRemoveFirst(bool rf)

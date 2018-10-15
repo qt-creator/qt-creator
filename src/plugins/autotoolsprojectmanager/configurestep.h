@@ -111,13 +111,10 @@ class ConfigureStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     ConfigureStepConfigWidget(ConfigureStep *configureStep);
 
-    QString summaryText() const override;
-
 private:
     void updateDetails();
 
     ConfigureStep *m_configureStep;
-    QString m_summaryText;
     QLineEdit *m_additionalArguments;
 };
 

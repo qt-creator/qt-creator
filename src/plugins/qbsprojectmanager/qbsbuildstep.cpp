@@ -68,7 +68,6 @@ class QbsBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     QbsBuildStepConfigWidget(QbsBuildStep *step);
     ~QbsBuildStepConfigWidget() override;
-    QString summaryText() const override;
 
 private:
     void updateState();
@@ -115,7 +114,6 @@ private:
     };
 
     QList<Property> m_propertyCache;
-    QString m_summary;
     bool m_ignoreChange;
 };
 
@@ -596,11 +594,6 @@ QbsBuildStepConfigWidget::~QbsBuildStepConfigWidget()
     delete m_ui;
 }
 
-QString QbsBuildStepConfigWidget::summaryText() const
-{
-    return m_summary;
-}
-
 void QbsBuildStepConfigWidget::updateState()
 {
     if (!m_ignoreChange) {
@@ -632,11 +625,7 @@ void QbsBuildStepConfigWidget::updateState()
         command.append(' ').append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
     m_ui->commandLineTextEdit->setPlainText(command);
 
-    QString summary = tr("<b>Qbs:</b> %1").arg(command);
-    if (m_summary != summary) {
-        m_summary = summary;
-        emit updateSummary();
-    }
+    setSummaryText(tr("<b>Qbs:</b> %1").arg(command));
 }
 
 void QbsBuildStepConfigWidget::updateQmlDebuggingOption()

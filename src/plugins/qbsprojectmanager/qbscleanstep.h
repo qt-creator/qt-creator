@@ -96,7 +96,6 @@ class QbsCleanStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     QbsCleanStepConfigWidget(QbsCleanStep *step);
     ~QbsCleanStepConfigWidget() override;
-    QString summaryText() const override;
 
 private:
     void updateState();
@@ -108,7 +107,6 @@ private:
     Ui::QbsCleanStepConfigWidget *m_ui;
 
     QbsCleanStep *m_step;
-    QString m_summary;
 };
 
 class QbsCleanStepFactory : public ProjectExplorer::BuildStepFactory

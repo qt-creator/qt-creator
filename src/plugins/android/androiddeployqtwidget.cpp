@@ -42,6 +42,7 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
 {
     m_ui->setupUi(this);
     setDisplayName(tr("<b>Deploy configurations</b>"));
+    setSummaryText(displayName());
 
     m_ui->uninstallPreviousPackage->setChecked(m_step->uninstallPreviousPackage() > AndroidDeployQtStep::Keep);
     m_ui->uninstallPreviousPackage->setEnabled(m_step->uninstallPreviousPackage() != AndroidDeployQtStep::ForceUnintall);
@@ -59,11 +60,6 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
 AndroidDeployQtWidget::~AndroidDeployQtWidget()
 {
     delete m_ui;
-}
-
-QString AndroidDeployQtWidget::summaryText() const
-{
-    return displayName();
 }
 
 void AndroidDeployQtWidget::installMinistro()

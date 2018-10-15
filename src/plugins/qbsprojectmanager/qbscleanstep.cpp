@@ -245,11 +245,6 @@ QbsCleanStepConfigWidget::~QbsCleanStepConfigWidget()
     delete m_ui;
 }
 
-QString QbsCleanStepConfigWidget::summaryText() const
-{
-    return m_summary;
-}
-
 void QbsCleanStepConfigWidget::updateState()
 {
     m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
@@ -259,11 +254,7 @@ void QbsCleanStepConfigWidget::updateState()
             ->equivalentCommandLine(m_step);
     m_ui->commandLineTextEdit->setPlainText(command);
 
-    QString summary = tr("<b>Qbs:</b> %1").arg(command);
-    if (m_summary !=  summary) {
-        m_summary = summary;
-        emit updateSummary();
-    }
+    setSummaryText(tr("<b>Qbs:</b> %1").arg(command));
 }
 
 void QbsCleanStepConfigWidget::changeDryRun(bool dr)

@@ -369,23 +369,32 @@ BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *step, bool showWidget)
     : m_step(step), m_showWidget(showWidget)
 {
     m_displayName = step->displayName();
+    m_summaryText = "<b>" + m_displayName + "</b>";
     connect(m_step, &ProjectConfiguration::displayNameChanged,
             this, &BuildStepConfigWidget::updateSummary);
 }
 
 QString BuildStepConfigWidget::summaryText() const
 {
-    return "<b>" + displayName() + "</b>";
+    return m_summaryText;
 }
 
 QString BuildStepConfigWidget::displayName() const
 {
-    return m_step->displayName();
+    return m_displayName;
 }
 
 void BuildStepConfigWidget::setDisplayName(const QString &displayName)
 {
     m_displayName = displayName;
+}
+
+void BuildStepConfigWidget::setSummaryText(const QString &summaryText)
+{
+    if (summaryText != m_summaryText) {
+        m_summaryText = summaryText;
+        updateSummary();
+    }
 }
 
 } // ProjectExplorer

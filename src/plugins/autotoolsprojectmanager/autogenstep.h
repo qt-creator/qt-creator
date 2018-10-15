@@ -111,13 +111,10 @@ class AutogenStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     AutogenStepConfigWidget(AutogenStep *autogenStep);
 
-    QString summaryText() const override;
-
 private:
     void updateDetails();
 
     AutogenStep *m_autogenStep;
-    QString m_summaryText;
     QLineEdit *m_additionalArguments;
 };
 

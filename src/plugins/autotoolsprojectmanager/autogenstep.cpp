@@ -176,11 +176,6 @@ AutogenStepConfigWidget::AutogenStepConfigWidget(AutogenStep *autogenStep) :
             this, &AutogenStepConfigWidget::updateDetails);
 }
 
-QString AutogenStepConfigWidget::summaryText() const
-{
-    return m_summaryText;
-}
-
 void AutogenStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_autogenStep->buildConfiguration();
@@ -192,6 +187,6 @@ void AutogenStepConfigWidget::updateDetails()
     param.setWorkingDirectory(projectDir);
     param.setCommand("./autogen.sh");
     param.setArguments(m_autogenStep->additionalArguments());
-    m_summaryText = param.summary(displayName());
-    emit updateSummary();
+
+    setSummaryText(param.summary(displayName()));
 }

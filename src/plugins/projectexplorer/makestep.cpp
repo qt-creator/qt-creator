@@ -406,14 +406,6 @@ MakeStepConfigWidget::~MakeStepConfigWidget()
     delete m_ui;
 }
 
-void MakeStepConfigWidget::setSummaryText(const QString &text)
-{
-    if (text == m_summaryText)
-        return;
-    m_summaryText = text;
-    emit updateSummary();
-}
-
 void MakeStepConfigWidget::setUserJobCountVisible(bool visible)
 {
     m_ui->jobsLabel->setVisible(visible);
@@ -459,11 +451,6 @@ void MakeStepConfigWidget::updateDetails()
         setSummaryText(tr("<b>Make:</b> %1 not found in the environment.").arg(param.command())); // Override display text
     else
         setSummaryText(param.summaryInWorkdir(displayName()));
-}
-
-QString MakeStepConfigWidget::summaryText() const
-{
-    return m_summaryText;
 }
 
 void MakeStepConfigWidget::itemChanged(QListWidgetItem *item)

@@ -77,7 +77,6 @@ class IosBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     IosBuildStepConfigWidget(IosBuildStep *buildStep);
     ~IosBuildStepConfigWidget();
-    QString summaryText() const override;
 
 private:
     void buildArgumentsChanged();
@@ -87,7 +86,6 @@ private:
 
     Ui::IosBuildStep *m_ui;
     IosBuildStep *m_buildStep;
-    QString m_summaryText;
 };
 
 class IosBuildStepFactory : public ProjectExplorer::BuildStepFactory

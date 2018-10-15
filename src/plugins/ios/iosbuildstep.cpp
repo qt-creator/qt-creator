@@ -259,13 +259,8 @@ void IosBuildStepConfigWidget::updateDetails()
     param.setEnvironment(bc->environment());
     param.setCommand(m_buildStep->buildCommand());
     param.setArguments(Utils::QtcProcess::joinArgs(m_buildStep->allArguments()));
-    m_summaryText = param.summary(displayName());
-    emit updateSummary();
-}
 
-QString IosBuildStepConfigWidget::summaryText() const
-{
-    return m_summaryText;
+    setSummaryText(param.summary(displayName()));
 }
 
 void IosBuildStepConfigWidget::buildArgumentsChanged()

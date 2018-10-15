@@ -277,13 +277,8 @@ void IosDsymBuildStepConfigWidget::updateDetails()
     param.setEnvironment(bc->environment());
     param.setCommand(m_buildStep->command());
     param.setArguments(Utils::QtcProcess::joinArgs(m_buildStep->arguments()));
-    m_summaryText = param.summary(displayName());
-    emit updateSummary();
-}
 
-QString IosDsymBuildStepConfigWidget::summaryText() const
-{
-    return m_summaryText;
+    setSummaryText(param.summary(displayName()));
 }
 
 void IosDsymBuildStepConfigWidget::commandChanged()

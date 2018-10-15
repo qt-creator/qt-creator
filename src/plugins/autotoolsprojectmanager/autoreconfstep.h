@@ -110,13 +110,10 @@ class AutoreconfStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     AutoreconfStepConfigWidget(AutoreconfStep *autoreconfStep);
 
-    QString summaryText() const override;
-
 private:
     void updateDetails();
 
     AutoreconfStep *m_autoreconfStep;
-    QString m_summaryText;
     QLineEdit *m_additionalArguments;
 };
 

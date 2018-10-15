@@ -58,8 +58,6 @@ class AndroidPackageInstallationStepWidget : public ProjectExplorer::BuildStepCo
     Q_OBJECT
 public:
     AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step);
-
-    QString summaryText() const override;
 };
 
 class AndroidPackageInstallationFactory: public ProjectExplorer::BuildStepFactory
