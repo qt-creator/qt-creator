@@ -216,6 +216,7 @@ void LanguageClientSettingsPage::init()
 {
     m_model.reset(LanguageClientSettings::fromSettings(Core::ICore::settings()));
     apply();
+    finish();
 }
 
 QWidget *LanguageClientSettingsPage::widget()
