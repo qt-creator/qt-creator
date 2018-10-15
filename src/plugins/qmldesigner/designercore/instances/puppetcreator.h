@@ -66,12 +66,12 @@ public:
 
     static QString defaultPuppetToplevelBuildDirectory();
     static QString defaultPuppetFallbackDirectory();
+    static QString qmlPuppetFallbackDirectory(const DesignerSettings &settings);
 protected:
     bool build(const QString &qmlPuppetProjectFilePath) const;
 
 
     QString qmlPuppetToplevelBuildDirectory() const;
-    QString qmlPuppetFallbackDirectory() const;
     QString qmlPuppetDirectory(PuppetType puppetPathType) const;
     QString qml2PuppetPath(PuppetType puppetType) const;
 
