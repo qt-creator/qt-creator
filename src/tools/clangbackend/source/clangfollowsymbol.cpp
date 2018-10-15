@@ -112,7 +112,7 @@ FollowSymbolResult FollowSymbol::followSymbol(CXTranslationUnit tu,
     if (cursor.kind() == CXCursor_InclusionDirective) {
         CXFile file = clang_getIncludedFile(cursors[tokenIndex].cx());
         const ClangString filename(clang_getFileName(file));
-        const SourceLocation loc(tu, filename, 1, 1);
+        const SourceLocation loc(tu, clang_getLocation(tu, file, 1, 1));
         FollowSymbolResult result;
         result.range = SourceRangeContainer(SourceRange(loc, loc));
         // CLANG-UPGRADE-CHECK: Remove if we don't use empty generated ui_* headers anymore.

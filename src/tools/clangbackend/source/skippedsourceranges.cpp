@@ -66,7 +66,11 @@ static SourceRange adaptedSourceRange(CXTranslationUnit cxTranslationUnit, const
 
     return SourceRange {
         range.start(),
-        SourceLocation(cxTranslationUnit, end.filePath(), end.line(), 1)
+        SourceLocation(cxTranslationUnit,
+                       clang_getLocation(cxTranslationUnit,
+                                         clang_getFile(cxTranslationUnit,
+                                                       end.filePath().constData()),
+                                         end.line(), 1))
     };
 }
 
