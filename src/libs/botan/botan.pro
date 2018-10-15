@@ -35,7 +35,7 @@ macos: BOTAN_CXX_FLAGS += -mmacosx-version-min=$$QMAKE_MACOSX_DEPLOYMENT_TARGET 
 unix: BOTAN_CXX_FLAGS += -fPIC
 win32: OTHER_FLAGS += --link-method=hardlink
 CONFIG(debug, debug|release) {
-    OTHER_FLAGS += --with-debug-info
+    OTHER_FLAGS += --debug-mode
 } else {
     msvc: BOTAN_CXX_FLAGS += /O2
     else: BOTAN_CXX_FLAGS += -O3
