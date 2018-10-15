@@ -1245,7 +1245,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd->setAttribute(Command::CA_Hide);
     cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
-    m_stepAction.setIcon(Icons::STEP_OVER.icon());
+    m_stepAction.setIcon(Icons::STEP_INTO.icon());
     connect(&m_stepAction, &QAction::triggered, this, [] {
         if (DebuggerEngine *engine = EngineManager::currentEngine()) {
             engine->handleExecStep();
