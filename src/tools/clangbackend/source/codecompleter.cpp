@@ -48,14 +48,14 @@ namespace ClangBackEnd {
 
 namespace {
 
-CodeCompletions toCodeCompletions(const TranslationUnit &translationUnit,
+CodeCompletions toCodeCompletions(const UnsavedFile &unsavedFile,
                                   const ClangCodeCompleteResults &results,
                                   bool onlyFunctionOverloads)
 {
     if (results.isNull())
         return CodeCompletions();
 
-    CodeCompletionsExtractor extractor(translationUnit.cxTranslationUnit(), results.data());
+    CodeCompletionsExtractor extractor(unsavedFile, results.data());
     CodeCompletions codeCompletions = extractor.extractAll(onlyFunctionOverloads);
 
     return codeCompletions;
@@ -118,7 +118,9 @@ CodeCompletions CodeCompleter::complete(uint line, uint column,
 
     filterUnknownContextResults(clangCompletions, unsavedFile(), line, column);
 
-    return toCodeCompletions(translationUnit, clangCompletions, funcNameStartLine >= 0);
+    return toCodeCompletions(unsavedFiles.unsavedFile(translationUnit.filePath()),
+                             clangCompletions,
+                             funcNameStartLine >= 0);
 }
 
 // For given "make_unique<T>" / "make_shared<T>" / "QSharedPointer<T>::create" return "new T("

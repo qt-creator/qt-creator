@@ -35,10 +35,12 @@
 
 namespace ClangBackEnd {
 
+class UnsavedFile;
+
 class CodeCompletionsExtractor
 {
 public:
-    CodeCompletionsExtractor(CXTranslationUnit cxTranslationUnit,
+    CodeCompletionsExtractor(const UnsavedFile &unsavedFile,
                              CXCodeCompleteResults *cxCodeCompleteResults);
 
     CodeCompletionsExtractor(CodeCompletionsExtractor&) = delete;
@@ -79,7 +81,7 @@ private:
 
 private:
     CodeCompletion currentCodeCompletion_;
-    CXTranslationUnit cxTranslationUnit;
+    const UnsavedFile &unsavedFile;
     CXCompletionResult currentCxCodeCompleteResult;
     CXCodeCompleteResults *cxCodeCompleteResults;
     uint cxCodeCompleteResultIndex = 0;

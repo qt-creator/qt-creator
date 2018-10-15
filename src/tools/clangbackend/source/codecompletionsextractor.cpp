@@ -31,19 +31,20 @@
 #include "codecompletionchunkconverter.h"
 #include "sourcelocation.h"
 #include "sourcerange.h"
+#include "unsavedfile.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 
 namespace ClangBackEnd {
 
-CodeCompletionsExtractor::CodeCompletionsExtractor(CXTranslationUnit cxTranslationUnit,
+CodeCompletionsExtractor::CodeCompletionsExtractor(const UnsavedFile &unsavedFile,
                                                    CXCodeCompleteResults *cxCodeCompleteResults)
-    : cxTranslationUnit(cxTranslationUnit)
+    : unsavedFile(unsavedFile)
     , cxCodeCompleteResults(cxCodeCompleteResults)
 {
-
 }
 
 bool CodeCompletionsExtractor::next()
@@ -342,6 +343,27 @@ void CodeCompletionsExtractor::extractCompletionChunks()
     currentCodeCompletion_.chunks = CodeCompletionChunkConverter::extract(currentCxCodeCompleteResult.CompletionString);
 }
 
+SourceRangeContainer toRangeContainer(const UnsavedFile &file, CXSourceRange cxSourceRange)
+{
+    const CXSourceLocation start = clang_getRangeStart(cxSourceRange);
+    const CXSourceLocation end = clang_getRangeEnd(cxSourceRange);
+
+    uint startLine = 0;
+    uint startColumn = 0;
+    uint endLine = 0;
+    uint endColumn = 0;
+    clang_getFileLocation(start, nullptr, &startLine, &startColumn, nullptr);
+    clang_getFileLocation(end, nullptr, &endLine, &endColumn, nullptr);
+    QTC_ASSERT(startLine == endLine, return SourceRangeContainer(););
+
+    const Utf8String lineText = file.lineRange(startLine, endLine);
+    startColumn = QString(lineText.mid(0, startColumn - 1)).size() + 1;
+    endColumn = QString(lineText.mid(0, endColumn - 1)).size() + 1;
+
+    return SourceRangeContainer(SourceLocationContainer(file.filePath(), startLine, startColumn),
+                                SourceLocationContainer(file.filePath(), endLine, endColumn));
+}
+
 void CodeCompletionsExtractor::extractRequiredFixIts()
 {
 #ifdef IS_COMPLETION_FIXITS_BACKPORTED
@@ -358,7 +380,7 @@ void CodeCompletionsExtractor::extractRequiredFixIts()
                                                      i,
                                                      &range);
         currentCodeCompletion_.requiredFixIts.push_back(
-                    FixItContainer(Utf8String(fixIt), SourceRange(cxTranslationUnit, range)));
+                    FixItContainer(Utf8String(fixIt), toRangeContainer(unsavedFile, range)));
     }
 #endif
 }
