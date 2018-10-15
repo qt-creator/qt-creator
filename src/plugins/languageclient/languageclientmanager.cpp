@@ -214,8 +214,12 @@ void LanguageClientManager::shutdown()
     if (managerInstance->m_shuttingDown)
         return;
     managerInstance->m_shuttingDown = true;
-    for (auto interface : managerInstance->m_clients)
-        interface->shutdown();
+    for (auto interface : managerInstance->m_clients) {
+        if (interface->reachable())
+            interface->shutdown();
+        else
+            deleteClient(interface);
+    }
 }
 
 LanguageClientManager *LanguageClientManager::instance()
