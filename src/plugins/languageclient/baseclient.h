@@ -26,6 +26,7 @@
 #pragma once
 
 #include "dynamiccapabilities.h"
+#include "languageclientcodeassist.h"
 #include "languageclientsettings.h"
 
 #include <coreplugin/id.h>
@@ -158,6 +159,8 @@ private:
     Core::Id m_id;
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;
+    LanguageClientCompletionAssistProvider m_completionProvider;
+    QSet<TextEditor::TextDocument *> m_resetCompletionProvider;
     LanguageServerProtocol::BaseMessage m_currentMessage;
     QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;

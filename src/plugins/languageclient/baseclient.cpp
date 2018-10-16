@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "baseclient.h"
-#include "languageclientcodeassist.h"
 #include "languageclientmanager.h"
 
 #include <coreplugin/icore.h>
@@ -63,6 +62,7 @@ static Q_LOGGING_CATEGORY(LOGLSPCLIENTV, "qtc.languageclient.messages", QtWarnin
 
 BaseClient::BaseClient()
     : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
+    , m_completionProvider(this)
 {
     m_buffer.open(QIODevice::ReadWrite | QIODevice::Append);
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
@@ -72,6 +72,10 @@ BaseClient::BaseClient()
 BaseClient::~BaseClient()
 {
     m_buffer.close();
+    // FIXME: instead of replacing the completion provider in the text document store the
+    // completion provider as a prioritised list in the text document
+    for (TextEditor::TextDocument *document : m_resetCompletionProvider)
+        document->setCompletionAssistProvider(nullptr);
 }
 
 void BaseClient::initialize()
@@ -149,7 +153,11 @@ void BaseClient::openDocument(Core::IDocument *document)
         documentContentsChanged(document);
     });
     if (textDocument) {
-        textDocument->setCompletionAssistProvider(new LanguageClientCompletionAssistProvider(this));
+        m_resetCompletionProvider << textDocument;
+        textDocument->setCompletionAssistProvider(&m_completionProvider);
+        connect(textDocument, &QObject::destroyed, this, [this, textDocument]{
+            m_resetCompletionProvider.remove(textDocument);
+        });
         if (BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(textDocument)) {
             if (QPointer<TextEditorWidget> widget = editor->editorWidget()) {
                 connect(widget, &TextEditorWidget::cursorPositionChanged, this, [this, widget](){
