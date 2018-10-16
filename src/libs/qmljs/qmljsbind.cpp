@@ -306,14 +306,14 @@ bool Bind::visit(UiArrayBinding *)
     return true;
 }
 
-bool Bind::visit(VariableDeclaration *ast)
+bool Bind::visit(PatternElement *ast)
 {
-    if (ast->name.isEmpty())
+    if (ast->bindingIdentifier.isEmpty() || !ast->isVariableDeclaration())
         return false;
 
     ASTVariableReference *ref = new ASTVariableReference(ast, _doc, &_valueOwner);
     if (_currentObjectValue)
-        _currentObjectValue->setMember(ast->name.toString(), ref);
+        _currentObjectValue->setMember(ast->bindingIdentifier, ref);
     return true;
 }
 
@@ -337,8 +337,8 @@ bool Bind::visit(FunctionExpression *ast)
 
     // 1. Function formal arguments
     for (FormalParameterList *it = ast->formals; it; it = it->next) {
-        if (!it->name.isEmpty())
-            functionScope->setMember(it->name.toString(), _valueOwner.unknownValue());
+        if (!it->element->bindingIdentifier.isEmpty())
+            functionScope->setMember(it->element->bindingIdentifier, _valueOwner.unknownValue());
     }
 
     // 2. Functions defined inside the function body

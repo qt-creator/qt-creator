@@ -84,7 +84,7 @@ protected:
 
     bool visit(AST::UiPublicMember *node) override
     {
-        if (node->memberTypeName() == m_typeName){
+        if (node->memberType->name == m_typeName){
             const ObjectValue * objectValue = m_context->lookupType(m_document.data(), QStringList(m_typeName));
             if (objectValue == m_typeValue)
                 m_implemenations.append(node->typeToken);
@@ -187,9 +187,10 @@ protected:
         return false;
     }
 
-    bool visit(AST::VariableDeclaration *node) override
+    bool visit(AST::PatternElement *node) override
     {
-        AST::Node::accept(node->expression, this);
+    if (node->isVariableDeclaration())
+            AST::Node::accept(node->initializer, this);
         return false;
     }
 

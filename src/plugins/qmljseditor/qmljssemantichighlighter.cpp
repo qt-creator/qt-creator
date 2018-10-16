@@ -323,8 +323,8 @@ protected:
 
     bool visit(UiPublicMember *ast)
     {
-        if (ast->typeToken.isValid() && ast->isValid()) {
-            if (m_scopeChain.context()->lookupType(m_scopeChain.document().data(), QStringList(ast->memberTypeName().toString())))
+        if (ast->typeToken.isValid()) { // TODO: ast->isValid() ?
+            if (m_scopeChain.context()->lookupType(m_scopeChain.document().data(), QStringList(ast->memberType->name.toString())))
                 addUse(ast->typeToken, SemanticHighlighter::QmlTypeType);
         }
         if (ast->identifierToken.isValid())
@@ -350,9 +350,10 @@ protected:
         return visit(static_cast<FunctionExpression *>(ast));
     }
 
-    bool visit(VariableDeclaration *ast)
+    bool visit(PatternElement *ast)
     {
-        processName(ast->name, ast->identifierToken);
+        if (ast->isVariableDeclaration())
+            processName(ast->bindingIdentifier, ast->identifierToken);
         return true;
     }
 

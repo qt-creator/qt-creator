@@ -84,7 +84,7 @@ void JsonCheck::postVisit(Node *)
     analysis()->m_ranking += previous.m_ranking;
 }
 
-bool JsonCheck::visit(ObjectLiteral *ast)
+bool JsonCheck::visit(ObjectPattern *ast)
 {
     if (!proceedCheck(JsonValue::Object, ast->lbraceToken))
         return false;
@@ -96,8 +96,8 @@ bool JsonCheck::visit(ObjectLiteral *ast)
         return false;
 
     QSet<QString> propertiesFound;
-    for (PropertyAssignmentList *it = ast->properties; it; it = it->next) {
-        PropertyNameAndValue *assignment = AST::cast<AST::PropertyNameAndValue *>(it->assignment);
+    for (PatternPropertyList *it = ast->properties; it; it = it->next) {
+        PatternProperty *assignment = AST::cast<AST::PatternProperty *>(it->property);
         StringLiteralPropertyName *literalName = cast<StringLiteralPropertyName *>(assignment->name);
         if (literalName) {
             const QString &propertyName = literalName->id.toString();
@@ -106,7 +106,7 @@ bool JsonCheck::visit(ObjectLiteral *ast)
                 propertiesFound.insert(propertyName);
                 // Sec. 5.2: "... each property definition's value MUST be a schema..."
                 m_schema->enterNestedPropertySchema(propertyName);
-                processSchema(assignment->value);
+                processSchema(assignment->initializer);
                 m_schema->leaveNestedSchema();
             } else {
                 analysis()->m_messages.append(Message(ErrInvalidPropertyName,
@@ -144,7 +144,7 @@ bool JsonCheck::visit(ObjectLiteral *ast)
     return false;
 }
 
-bool JsonCheck::visit(ArrayLiteral *ast)
+bool JsonCheck::visit(ArrayPattern *ast)
 {
     if (!proceedCheck(JsonValue::Array, ast->firstSourceLocation()))
         return false;
@@ -155,21 +155,21 @@ bool JsonCheck::visit(ArrayLiteral *ast)
         // Sec. 5.5: "When this attribute value is a schema... all the items in the array MUST
         // be valid according to the schema."
         m_schema->enterNestedItemSchema();
-        for (ElementList *element = ast->elements; element; element = element->next)
-            processSchema(element->expression);
+        for (PatternElementList *element = ast->elements; element; element = element->next)
+            processSchema(element->element->initializer);
         m_schema->leaveNestedSchema();
     } else if (m_schema->hasItemArraySchema()) {
         // Sec. 5.5: "When this attribute value is an array of schemas... each position in the
         // instance array MUST conform to the schema in the corresponding position for this array."
         int current = 0;
         const int arraySize = m_schema->itemArraySchemaSize();
-        for (ElementList *element = ast->elements; element; element = element->next, ++current) {
+        for (PatternElementList *element = ast->elements; element; element = element->next, ++current) {
             if (current < arraySize) {
                 if (m_schema->maybeEnterNestedArraySchema(current)) {
-                    processSchema(element->expression);
+                    processSchema(element->element->initializer);
                     m_schema->leaveNestedSchema();
                 } else {
-                    Node::accept(element->expression, this);
+                    Node::accept(element->element->initializer, this);
                 }
             } else {
                 // TODO: Handle additionalItems.

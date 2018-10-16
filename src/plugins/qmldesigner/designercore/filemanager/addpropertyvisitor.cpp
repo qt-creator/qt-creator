@@ -81,6 +81,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     QmlJS::AST::UiObjectMemberList *insertAfter = searchMemberToInsertAfter(initializer->members, m_name, m_propertyOrder);
     QmlJS::AST::SourceLocation endOfPreviousMember;
     QmlJS::AST::SourceLocation startOfNextMember;
+    bool previousMemberSemicolon = false;
     unsigned depth;
 
     if (insertAfter == nullptr || insertAfter->member == nullptr) {
@@ -95,6 +96,16 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
         depth = calculateIndentDepth(endOfPreviousMember) + indentDepth();
     } else {
         endOfPreviousMember = insertAfter->member->lastSourceLocation();
+
+        // Find out if the previous members ends with semicolon.
+        if (auto member = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding*>(insertAfter->member)) {
+            if (auto stmt = QmlJS::AST::cast<QmlJS::AST::ExpressionStatement*>(member->statement))
+                previousMemberSemicolon = stmt->semicolonToken.isValid();
+            else
+                previousMemberSemicolon = endOfPreviousMember.isValid();
+        } else {
+            previousMemberSemicolon = endOfPreviousMember.isValid();
+        }
 
         if (insertAfter->next && insertAfter->next->member)
             startOfNextMember = insertAfter->next->member->firstSourceLocation();
@@ -113,7 +124,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
                 needsTrailingSemicolon = m_propertyType == QmlRefactoring::ScriptBinding;
             }
         } else { // we're inserting after a member, not after the lbrace
-            if (endOfPreviousMember.isValid()) { // there already is a semicolon after the previous member
+            if (previousMemberSemicolon) {
                 if (insertAfter->next && insertAfter->next->member) { // and the after us there is a member, not an rbrace, so:
                     needsTrailingSemicolon = m_propertyType == QmlRefactoring::ScriptBinding;
                 }

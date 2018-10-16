@@ -134,8 +134,8 @@ protected:
         for (FormalParameterList *it = ast->formals; it; it = it->next) {
             if (it != ast->formals)
                 entry.displayName += QLatin1String(", ");
-            if (!it->name.isEmpty())
-                entry.displayName += it->name.toString();
+            if (!it->element->bindingIdentifier.isEmpty())
+                entry.displayName += it->element->bindingIdentifier.toString();
         }
         entry.displayName += QLatin1Char(')');
         entry.symbolName = entry.displayName;
@@ -214,8 +214,8 @@ protected:
             for (FormalParameterList *it = funcExpr->formals; it; it = it->next) {
                 if (it != funcExpr->formals)
                     entry.displayName += QLatin1String(", ");
-                if (!it->name.isEmpty())
-                    entry.displayName += it->name.toString();
+                if (!it->element->bindingIdentifier.isEmpty())
+                    entry.displayName += it->element->bindingIdentifier.toString();
             }
             entry.displayName += QLatin1Char(')');
             entry.symbolName = entry.displayName;

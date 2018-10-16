@@ -68,7 +68,6 @@ public:
     virtual bool visit(UiObjectMemberList *) { return true; }
     virtual bool visit(UiArrayMemberList *) { return true; }
     virtual bool visit(UiQualifiedId *) { return true; }
-    virtual bool visit(UiQualifiedPragmaId *) { return true; }
     virtual bool visit(UiEnumDeclaration *) { return true; }
     virtual bool visit(UiEnumMemberList *) { return true; }
 
@@ -87,7 +86,6 @@ public:
     virtual void endVisit(UiObjectMemberList *) {}
     virtual void endVisit(UiArrayMemberList *) {}
     virtual void endVisit(UiQualifiedId *) {}
-    virtual void endVisit(UiQualifiedPragmaId *) {}
     virtual void endVisit(UiEnumDeclaration *) {}
     virtual void endVisit(UiEnumMemberList *) { }
 
@@ -107,8 +105,14 @@ public:
     virtual bool visit(FalseLiteral *) { return true; }
     virtual void endVisit(FalseLiteral *) {}
 
+    virtual bool visit(SuperLiteral *) { return true; }
+    virtual void endVisit(SuperLiteral *) {}
+
     virtual bool visit(StringLiteral *) { return true; }
     virtual void endVisit(StringLiteral *) {}
+
+    virtual bool visit(TemplateLiteral *) { return true; }
+    virtual void endVisit(TemplateLiteral *) {}
 
     virtual bool visit(NumericLiteral *) { return true; }
     virtual void endVisit(NumericLiteral *) {}
@@ -116,26 +120,26 @@ public:
     virtual bool visit(RegExpLiteral *) { return true; }
     virtual void endVisit(RegExpLiteral *) {}
 
-    virtual bool visit(ArrayLiteral *) { return true; }
-    virtual void endVisit(ArrayLiteral *) {}
+    virtual bool visit(ArrayPattern *) { return true; }
+    virtual void endVisit(ArrayPattern *) {}
 
-    virtual bool visit(ObjectLiteral *) { return true; }
-    virtual void endVisit(ObjectLiteral *) {}
+    virtual bool visit(ObjectPattern *) { return true; }
+    virtual void endVisit(ObjectPattern *) {}
 
-    virtual bool visit(ElementList *) { return true; }
-    virtual void endVisit(ElementList *) {}
+    virtual bool visit(PatternElementList *) { return true; }
+    virtual void endVisit(PatternElementList *) {}
+
+    virtual bool visit(PatternPropertyList *) { return true; }
+    virtual void endVisit(PatternPropertyList *) {}
+
+    virtual bool visit(PatternElement *) { return true; }
+    virtual void endVisit(PatternElement *) {}
+
+    virtual bool visit(PatternProperty *) { return true; }
+    virtual void endVisit(PatternProperty *) {}
 
     virtual bool visit(Elision *) { return true; }
     virtual void endVisit(Elision *) {}
-
-    virtual bool visit(PropertyAssignmentList *) { return true; }
-    virtual void endVisit(PropertyAssignmentList *) {}
-
-    virtual bool visit(PropertyNameAndValue *) { return true; }
-    virtual void endVisit(PropertyNameAndValue *) {}
-
-    virtual bool visit(PropertyGetterSetter *) { return true; }
-    virtual void endVisit(PropertyGetterSetter *) {}
 
     virtual bool visit(NestedExpression *) { return true; }
     virtual void endVisit(NestedExpression *) {}
@@ -149,11 +153,17 @@ public:
     virtual bool visit(NumericLiteralPropertyName *) { return true; }
     virtual void endVisit(NumericLiteralPropertyName *) {}
 
+    virtual bool visit(ComputedPropertyName *) { return true; }
+    virtual void endVisit(ComputedPropertyName *) {}
+
     virtual bool visit(ArrayMemberExpression *) { return true; }
     virtual void endVisit(ArrayMemberExpression *) {}
 
     virtual bool visit(FieldMemberExpression *) { return true; }
     virtual void endVisit(FieldMemberExpression *) {}
+
+    virtual bool visit(TaggedTemplate *) { return true; }
+    virtual void endVisit(TaggedTemplate *) {}
 
     virtual bool visit(NewMemberExpression *) { return true; }
     virtual void endVisit(NewMemberExpression *) {}
@@ -221,9 +231,6 @@ public:
     virtual bool visit(VariableDeclarationList *) { return true; }
     virtual void endVisit(VariableDeclarationList *) {}
 
-    virtual bool visit(VariableDeclaration *) { return true; }
-    virtual void endVisit(VariableDeclaration *) {}
-
     virtual bool visit(EmptyStatement *) { return true; }
     virtual void endVisit(EmptyStatement *) {}
 
@@ -242,14 +249,8 @@ public:
     virtual bool visit(ForStatement *) { return true; }
     virtual void endVisit(ForStatement *) {}
 
-    virtual bool visit(LocalForStatement *) { return true; }
-    virtual void endVisit(LocalForStatement *) {}
-
     virtual bool visit(ForEachStatement *) { return true; }
     virtual void endVisit(ForEachStatement *) {}
-
-    virtual bool visit(LocalForEachStatement *) { return true; }
-    virtual void endVisit(LocalForEachStatement *) {}
 
     virtual bool visit(ContinueStatement *) { return true; }
     virtual void endVisit(ContinueStatement *) {}
@@ -259,6 +260,9 @@ public:
 
     virtual bool visit(ReturnStatement *) { return true; }
     virtual void endVisit(ReturnStatement *) {}
+
+    virtual bool visit(YieldExpression *) { return true; }
+    virtual void endVisit(YieldExpression *) {}
 
     virtual bool visit(WithStatement *) { return true; }
     virtual void endVisit(WithStatement *) {}
@@ -302,20 +306,56 @@ public:
     virtual bool visit(FormalParameterList *) { return true; }
     virtual void endVisit(FormalParameterList *) {}
 
-    virtual bool visit(FunctionBody *) { return true; }
-    virtual void endVisit(FunctionBody *) {}
+    virtual bool visit(ClassExpression *) { return true; }
+    virtual void endVisit(ClassExpression *) {}
+
+    virtual bool visit(ClassDeclaration *) { return true; }
+    virtual void endVisit(ClassDeclaration *) {}
+
+    virtual bool visit(ClassElementList *) { return true; }
+    virtual void endVisit(ClassElementList *) {}
 
     virtual bool visit(Program *) { return true; }
     virtual void endVisit(Program *) {}
 
-    virtual bool visit(SourceElements *) { return true; }
-    virtual void endVisit(SourceElements *) {}
+    virtual bool visit(NameSpaceImport *) { return true; }
+    virtual void endVisit(NameSpaceImport *) {}
 
-    virtual bool visit(FunctionSourceElement *) { return true; }
-    virtual void endVisit(FunctionSourceElement *) {}
+    virtual bool visit(ImportSpecifier *) { return true; }
+    virtual void endVisit(ImportSpecifier *) {}
 
-    virtual bool visit(StatementSourceElement *) { return true; }
-    virtual void endVisit(StatementSourceElement *) {}
+    virtual bool visit(ImportsList *) { return true; }
+    virtual void endVisit(ImportsList *) {}
+
+    virtual bool visit(NamedImports *) { return true; }
+    virtual void endVisit(NamedImports *) {}
+
+    virtual bool visit(FromClause *) { return true; }
+    virtual void endVisit(FromClause *) {}
+
+    virtual bool visit(ImportClause *) { return true; }
+    virtual void endVisit(ImportClause *) {}
+
+    virtual bool visit(ImportDeclaration *) { return true; }
+    virtual void endVisit(ImportDeclaration *) {}
+
+    virtual bool visit(ExportSpecifier *) { return true; }
+    virtual void endVisit(ExportSpecifier *) {}
+
+    virtual bool visit(ExportsList *) { return true; }
+    virtual void endVisit(ExportsList *) {}
+
+    virtual bool visit(ExportClause *) { return true; }
+    virtual void endVisit(ExportClause *) {}
+
+    virtual bool visit(ExportDeclaration *) { return true; }
+    virtual void endVisit(ExportDeclaration *) {}
+
+    virtual bool visit(ModuleItem *) { return true; }
+    virtual void endVisit(ModuleItem *) {}
+
+    virtual bool visit(ESModule *) { return true; }
+    virtual void endVisit(ESModule *) {}
 
     virtual bool visit(DebuggerStatement *) { return true; }
     virtual void endVisit(DebuggerStatement *) {}

@@ -250,12 +250,12 @@ QVariant SimpleAbstractStreamReader::parsePropertyExpression(AST::ExpressionNode
 {
     Q_ASSERT(expressionNode);
 
-    AST::ArrayLiteral *arrayLiteral = AST::cast<AST::ArrayLiteral *>(expressionNode);
+    AST::ArrayPattern *arrayLiteral = AST::cast<AST::ArrayPattern *>(expressionNode);
 
     if (arrayLiteral) {
         QList<QVariant> variantList;
-        for (AST::ElementList *it = arrayLiteral->elements; it; it = it->next)
-            variantList << parsePropertyExpression(it->expression);
+        for (AST::PatternElementList *it = arrayLiteral->elements; it; it = it->next)
+            variantList << parsePropertyExpression(it->element->initializer);
         return variantList;
     }
 

@@ -84,7 +84,6 @@ protected:
     bool visit(AST::ExpressionStatement *ast) override;
     bool visit(AST::IfStatement *ast) override;
     bool visit(AST::ForStatement *ast) override;
-    bool visit(AST::LocalForStatement *ast) override;
     bool visit(AST::WhileStatement *ast) override;
     bool visit(AST::DoWhileStatement *ast) override;
     bool visit(AST::CaseBlock *ast) override;

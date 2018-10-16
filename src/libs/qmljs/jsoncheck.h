@@ -51,8 +51,8 @@ private:
     bool preVisit(AST::Node *) override;
     void postVisit(AST::Node *) override;
 
-    bool visit(AST::ObjectLiteral *ast) override;
-    bool visit(AST::ArrayLiteral *ast) override;
+    bool visit(AST::ObjectPattern *ast) override;
+    bool visit(AST::ArrayPattern *ast) override;
     bool visit(AST::NullExpression *ast) override;
     bool visit(AST::TrueLiteral *ast) override;
     bool visit(AST::FalseLiteral *ast) override;

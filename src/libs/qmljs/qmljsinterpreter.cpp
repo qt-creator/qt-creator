@@ -1052,6 +1052,11 @@ void ObjectValue::setMember(const QString &name, const Value *value)
     m_members[name].value = value;
 }
 
+void ObjectValue::setMember(const QStringRef &name, const Value *value)
+{
+    m_members[name.toString()].value = value;
+}
+
 void ObjectValue::setPropertyInfo(const QString &name, const PropertyInfo &propertyInfo)
 {
     m_members[name].propertyInfo = propertyInfo;
@@ -1856,7 +1861,7 @@ ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
         for (UiObjectMemberList *it = m_initializer->members; it; it = it->next) {
             UiObjectMember *member = it->member;
             if (UiPublicMember *def = cast<UiPublicMember *>(member)) {
-                if (def->type == UiPublicMember::Property && !def->name.isEmpty() && def->isValid()) {
+                if (def->type == UiPublicMember::Property && !def->name.isEmpty()) {
                     ASTPropertyReference *ref = new ASTPropertyReference(def, m_doc, valueOwner);
                     m_properties.append(ref);
                     if (def->defaultToken.isValid())
@@ -1931,7 +1936,7 @@ const Document *ASTObjectValue::document() const
     return m_doc;
 }
 
-ASTVariableReference::ASTVariableReference(VariableDeclaration *ast, const Document *doc, ValueOwner *valueOwner)
+ASTVariableReference::ASTVariableReference(PatternElement *ast, const Document *doc, ValueOwner *valueOwner)
     : Reference(valueOwner)
     , m_ast(ast)
     , m_doc(doc)
@@ -1947,7 +1952,7 @@ const ASTVariableReference *ASTVariableReference::asAstVariableReference() const
     return this;
 }
 
-const VariableDeclaration *ASTVariableReference::ast() const
+const PatternElement *ASTVariableReference::ast() const
 {
     return m_ast;
 }
@@ -1955,16 +1960,16 @@ const VariableDeclaration *ASTVariableReference::ast() const
 const Value *ASTVariableReference::value(ReferenceContext *referenceContext) const
 {
     // may be assigned to later
-    if (!m_ast->expression)
+    if (!m_ast->expressionCast())
         return valueOwner()->unknownValue();
 
     Document::Ptr doc = m_doc->ptr();
     ScopeChain scopeChain(doc, referenceContext->context());
     ScopeBuilder builder(&scopeChain);
-    builder.push(ScopeAstPath(doc)(m_ast->expression->firstSourceLocation().begin()));
+    builder.push(ScopeAstPath(doc)(m_ast->expressionCast()->firstSourceLocation().begin()));
 
     Evaluate evaluator(&scopeChain, referenceContext);
-    return evaluator(m_ast->expression);
+    return evaluator(m_ast->expressionCast());
 }
 
 bool ASTVariableReference::getSourceLocation(QString *fileName, int *line, int *column) const
@@ -1981,12 +1986,12 @@ class UsesArgumentsArray : protected Visitor
     bool m_usesArgumentsArray;
 
 public:
-    bool operator()(FunctionBody *ast)
+    bool operator()(StatementList *ast)
     {
-        if (!ast || !ast->elements)
+        if (!ast)
             return false;
         m_usesArgumentsArray = false;
-        Node::accept(ast->elements, this);
+        Node::accept(ast, this);
         return m_usesArgumentsArray;
     }
 
@@ -2001,7 +2006,8 @@ protected:
     }
 
     // don't go into nested functions
-    bool visit(FunctionBody *) { return false; }
+    bool visit(Program *) { return false; }
+    bool visit(StatementList *) { return false; }
 };
 } // anonymous namespace
 
@@ -2013,7 +2019,7 @@ ASTFunctionValue::ASTFunctionValue(FunctionExpression *ast, const Document *doc,
     setPrototype(valueOwner->functionPrototype());
 
     for (FormalParameterList *it = ast->formals; it; it = it->next)
-        m_argumentNames.append(it->name.toString());
+        m_argumentNames.append(it->element->bindingIdentifier.toString());
 
     m_isVariadic = UsesArgumentsArray()(ast->body);
 }
@@ -2121,10 +2127,9 @@ bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *
 const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) const
 {
     if (m_ast->statement
-            && (!m_ast->isValid()
-                || m_ast->memberTypeName() == QLatin1String("variant")
-                || m_ast->memberTypeName() == QLatin1String("var")
-                || m_ast->memberTypeName() == QLatin1String("alias"))) {
+            && (m_ast->memberType->name == QLatin1String("variant")
+                || m_ast->memberType->name == QLatin1String("var")
+                || m_ast->memberType->name == QLatin1String("alias"))) {
 
         // Adjust the context for the current location - expensive!
         // ### Improve efficiency by caching the 'use chain' constructed in ScopeBuilder.
@@ -2140,7 +2145,7 @@ const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) con
         return evaluator(m_ast->statement);
     }
 
-    const QString memberType = m_ast->memberTypeName().toString();
+    const QString memberType = m_ast->memberType->name.toString();
 
     const Value *builtin = valueOwner()->defaultValueForBuiltinType(memberType);
     if (!builtin->asUndefinedValue())

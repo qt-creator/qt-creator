@@ -91,7 +91,7 @@ QmlErrorPrivate::QmlErrorPrivate()
     Creates an empty error object.
 */
 QmlError::QmlError()
-: d(0)
+: d(nullptr)
 {
 }
 
@@ -99,7 +99,7 @@ QmlError::QmlError()
     Creates a copy of \a other.
 */
 QmlError::QmlError(const QmlError &other)
-: d(0)
+: d(nullptr)
 {
     *this = other;
 }
@@ -111,7 +111,7 @@ QmlError &QmlError::operator=(const QmlError &other)
 {
     if (!other.d) {
         delete d;
-        d = 0;
+        d = nullptr;
     } else {
         if (!d)
             d = new QmlErrorPrivate;
@@ -130,7 +130,7 @@ QmlError &QmlError::operator=(const QmlError &other)
 */
 QmlError::~QmlError()
 {
-    delete d; d = 0;
+    delete d; d = nullptr;
 }
 
 /*!
@@ -138,7 +138,7 @@ QmlError::~QmlError()
 */
 bool QmlError::isValid() const
 {
-    return d != 0;
+    return d != nullptr;
 }
 
 /*!
@@ -231,7 +231,7 @@ QObject *QmlError::object() const
 {
     if (d)
         return d->object;
-    return 0;
+    return nullptr;
 }
 
 /*!
@@ -260,7 +260,7 @@ QtMsgType QmlError::messageType() const
     \since 5.9
 
     Sets the \a messageType for this message. The message type determines which
-    QDebug handlers are responsible for recieving the message.
+    QDebug handlers are responsible for receiving the message.
  */
 void QmlError::setMessageType(QtMsgType messageType)
 {

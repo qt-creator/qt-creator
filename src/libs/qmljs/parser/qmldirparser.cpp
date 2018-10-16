@@ -93,6 +93,7 @@ bool QmlDirParser::parse(const QString &source)
     _components.clear();
     _scripts.clear();
     _designerSupported = false;
+    _className.clear();
 
     quint16 lineNumber = 0;
     bool firstLine = true;
@@ -182,7 +183,8 @@ bool QmlDirParser::parse(const QString &source)
                 continue;
             }
 
-            // Ignore these. qmlimportscanner uses them.
+            _className = sections[1];
+
         } else if (sections[0] == QLatin1String("internal")) {
             if (sectionCount != 3) {
                 reportError(lineNumber, 0,
@@ -256,7 +258,7 @@ bool QmlDirParser::parse(const QString &source)
             if (parseVersion(sections[1], &major, &minor)) {
                 const QString &fileName = sections[2];
 
-                if (fileName.endsWith(QLatin1String(".js"))) {
+                if (fileName.endsWith(QLatin1String(".js")) || fileName.endsWith(QLatin1String(".mjs"))) {
                     // A 'js' extension indicates a namespaced script import
                     const Script entry(sections[0], fileName, major, minor);
                     _scripts.append(entry);
@@ -361,6 +363,11 @@ QList<QmlDirParser::TypeInfo> QmlDirParser::typeInfos() const
 bool QmlDirParser::designerSupported() const
 {
     return _designerSupported;
+}
+
+QString QmlDirParser::className() const
+{
+    return _className;
 }
 
 QDebug &operator<< (QDebug &debug, const QmlDirParser::Component &component)

@@ -248,7 +248,7 @@ public:
 
     {}
 
-    void pragmaLibrary(int line, int column) override
+    void pragmaLibrary(int line, int column)
     {
         isLibrary = true;
         addLocation(line, column);
@@ -305,12 +305,14 @@ bool Document::parse_helper(int startToken)
     case QmlJSGrammar::T_FEED_UI_PROGRAM:
         _parsedCorrectly = parser.parse();
         break;
-    case QmlJSGrammar::T_FEED_JS_PROGRAM:
+    case QmlJSGrammar::T_FEED_JS_SCRIPT:
+    case QmlJSGrammar::T_FEED_JS_MODULE:
         _parsedCorrectly = parser.parseProgram();
         for (const auto &d: directives.locations()) {
             _jsdirectives << d;
         }
         break;
+
     case QmlJSGrammar::T_FEED_JS_EXPRESSION:
         _parsedCorrectly = parser.parseExpression();
         break;
@@ -341,7 +343,7 @@ bool Document::parseQml()
 
 bool Document::parseJavaScript()
 {
-    return parse_helper(QmlJSGrammar::T_FEED_JS_PROGRAM);
+    return parse_helper(QmlJSGrammar::T_FEED_JS_SCRIPT);
 }
 
 bool Document::parseExpression()

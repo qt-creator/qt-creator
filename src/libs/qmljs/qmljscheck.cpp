@@ -197,10 +197,6 @@ protected:
             return true;
         if (Statement *stmt = ast->statementCast())
             onUnreachable(stmt);
-        if (FunctionSourceElement *fun = cast<FunctionSourceElement *>(ast))
-            onUnreachable(fun->declaration);
-        if (StatementSourceElement *stmt = cast<StatementSourceElement *>(ast))
-            onUnreachable(stmt->statement);
         return false;
     }
 
@@ -306,8 +302,6 @@ protected:
     bool visit(WhileStatement *ast) override { return preconditionLoopStatement(ast, ast->statement); }
     bool visit(ForStatement *ast) override { return preconditionLoopStatement(ast, ast->statement); }
     bool visit(ForEachStatement *ast) override { return preconditionLoopStatement(ast, ast->statement); }
-    bool visit(LocalForStatement *ast) override { return preconditionLoopStatement(ast, ast->statement); }
-    bool visit(LocalForEachStatement *ast) override { return preconditionLoopStatement(ast, ast->statement); }
 
     bool visit(DoWhileStatement *ast) override
     {
@@ -367,8 +361,8 @@ public:
     {
         clear();
         for (FormalParameterList *plist = function->formals; plist; plist = plist->next) {
-            if (!plist->name.isEmpty())
-                _formalParameterNames += plist->name.toString();
+            if (!plist->element->bindingIdentifier.isEmpty())
+                _formalParameterNames += plist->element->bindingIdentifier.toString();
         }
 
         Node::accept(function->body, this);
@@ -418,11 +412,11 @@ protected:
         return true;
     }
 
-    bool visit(VariableDeclaration *ast)
+    bool visit(PatternElement *ast)
     {
-        if (ast->name.isEmpty())
+        if (ast->bindingIdentifier.isEmpty() || !ast->isVariableDeclaration())
             return true;
-        const QString &name = ast->name.toString();
+        const QString &name = ast->bindingIdentifier.toString();
 
         if (_formalParameterNames.contains(name))
             addMessage(WarnAlreadyFormalParameter, ast->identifierToken, name);
@@ -484,7 +478,7 @@ private:
 
     QList<Message> _messages;
     QStringList _formalParameterNames;
-    QHash<QString, VariableDeclaration *> _declaredVariables;
+    QHash<QString, PatternElement *> _declaredVariables;
     QHash<QString, FunctionDeclaration *> _declaredFunctions;
     QHash<QString, QList<SourceLocation> > _possiblyUndeclaredUses;
     bool _seenNonDeclarationStatement;
@@ -1039,8 +1033,8 @@ bool Check::visit(UiArrayBinding *ast)
 bool Check::visit(UiPublicMember *ast)
 {
     if (ast->type == UiPublicMember::Property) {
-        if (ast->isValid()) {
-            const QStringRef typeName = ast->memberTypeName();
+        if (ast->defaultToken.isValid() || ast->readonlyToken.isValid()) {
+            const QStringRef typeName = ast->memberType->name;
             if (!typeName.isEmpty() && typeName.at(0).isLower()) {
                 const QString typeNameS = typeName.toString();
                 if (!isValidBuiltinPropertyType(typeNameS))
@@ -1277,8 +1271,6 @@ bool Check::visit(Block *ast)
                 && !cast<Finally *>(p)
                 && !cast<ForStatement *>(p)
                 && !cast<ForEachStatement *>(p)
-                && !cast<LocalForStatement *>(p)
-                && !cast<LocalForEachStatement *>(p)
                 && !cast<DoWhileStatement *>(p)
                 && !cast<WhileStatement *>(p)
                 && !cast<IfStatement *>(p)
@@ -1311,8 +1303,7 @@ bool Check::visit(Expression *ast)
 {
     if (ast->left && ast->right) {
         Node *p = parent();
-        if (!cast<ForStatement *>(p)
-                && !cast<LocalForStatement *>(p)) {
+        if (!cast<ForStatement *>(p)) {
             addMessage(WarnComma, ast->commaToken);
         }
     }
@@ -1366,13 +1357,6 @@ bool Check::visit(IfStatement *ast)
 }
 
 bool Check::visit(ForStatement *ast)
-{
-    if (ast->condition)
-        checkAssignInCondition(ast->condition);
-    return true;
-}
-
-bool Check::visit(LocalForStatement *ast)
 {
     if (ast->condition)
         checkAssignInCondition(ast->condition);

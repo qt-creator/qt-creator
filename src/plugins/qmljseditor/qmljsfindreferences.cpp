@@ -227,9 +227,9 @@ protected:
         return false;
     }
 
-    bool visit(AST::VariableDeclaration *node) override
+    bool visit(AST::PatternElement *node) override
     {
-        if (node->name == _name) {
+        if (node->isVariableDeclaration() && node->bindingIdentifier == _name) {
             if (checkLookup())
                 _usages.append(node->identifierToken);
         }
@@ -322,7 +322,7 @@ protected:
 
     bool visit(AST::UiPublicMember *node) override
     {
-        if (node->memberTypeName() == _name){
+        if (node->memberType->name == _name){
             const ObjectValue * tVal = _context->lookupType(_doc.data(), QStringList(_name));
             if (tVal == _typeValue)
                 _usages.append(node->typeToken);
@@ -406,9 +406,10 @@ protected:
         return false;
     }
 
-    bool visit(AST::VariableDeclaration *node) override
+    bool visit(AST::PatternElement *node) override
     {
-        Node::accept(node->expression, this);
+        if (node->isVariableDeclaration())
+            Node::accept(node->initializer, this);
         return false;
     }
 
@@ -583,8 +584,8 @@ protected:
     bool visit(UiPublicMember *node) override
     {
         if (containsOffset(node->typeToken)){
-            if (node->isValid()) {
-                _name = node->memberTypeName().toString();
+            if (node->defaultToken.isValid()) {
+                _name = node->memberType->name.toString();
                 _targetValue = _scopeChain->context()->lookupType(_doc.data(), QStringList(_name));
                 _scope = 0;
                 _typeKind = TypeKind;
@@ -612,10 +613,10 @@ protected:
         return true;
     }
 
-    bool visit(VariableDeclaration *node) override
+    bool visit(PatternElement *node) override
     {
-        if (containsOffset(node->identifierToken)) {
-            _name = node->name.toString();
+        if (node->isVariableDeclaration() && containsOffset(node->identifierToken)) {
+            _name = node->bindingIdentifier.toString();
             return false;
         }
         return true;

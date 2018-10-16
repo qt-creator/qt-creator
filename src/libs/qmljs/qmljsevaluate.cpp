@@ -126,11 +126,6 @@ bool Evaluate::visit(AST::UiHeaderItemList *)
     return false;
 }
 
-bool Evaluate::visit(AST::UiQualifiedPragmaId *)
-{
-    return false;
-}
-
 bool Evaluate::visit(AST::UiPragma *)
 {
     return false;
@@ -264,20 +259,20 @@ bool Evaluate::visit(AST::RegExpLiteral *)
     return false;
 }
 
-bool Evaluate::visit(AST::ArrayLiteral *)
+bool Evaluate::visit(AST::ArrayPattern *)
 {
     _result = _valueOwner->arrayCtor()->returnValue();
     return false;
 }
 
-bool Evaluate::visit(AST::ObjectLiteral *)
+bool Evaluate::visit(AST::ObjectPattern *)
 {
     // ### properties
     _result = _valueOwner->newObject();
     return false;
 }
 
-bool Evaluate::visit(AST::ElementList *)
+bool Evaluate::visit(AST::PatternElementList *)
 {
     return false;
 }
@@ -287,17 +282,12 @@ bool Evaluate::visit(AST::Elision *)
     return false;
 }
 
-bool Evaluate::visit(AST::PropertyAssignmentList *)
+bool Evaluate::visit(AST::PatternPropertyList *)
 {
     return false;
 }
 
-bool Evaluate::visit(AST::PropertyGetterSetter *)
-{
-    return false;
-}
-
-bool Evaluate::visit(AST::PropertyNameAndValue *)
+bool Evaluate::visit(AST::PatternProperty *)
 {
     return false;
 }
@@ -529,11 +519,6 @@ bool Evaluate::visit(AST::Block *)
     return false;
 }
 
-bool Evaluate::visit(AST::StatementList *)
-{
-    return false;
-}
-
 bool Evaluate::visit(AST::VariableStatement *)
 {
     return false;
@@ -544,7 +529,7 @@ bool Evaluate::visit(AST::VariableDeclarationList *)
     return false;
 }
 
-bool Evaluate::visit(AST::VariableDeclaration *)
+bool Evaluate::visit(AST::PatternElement *)
 {
     return false;
 }
@@ -579,17 +564,7 @@ bool Evaluate::visit(AST::ForStatement *)
     return false;
 }
 
-bool Evaluate::visit(AST::LocalForStatement *)
-{
-    return false;
-}
-
 bool Evaluate::visit(AST::ForEachStatement *)
-{
-    return false;
-}
-
-bool Evaluate::visit(AST::LocalForEachStatement *)
 {
     return false;
 }
@@ -679,27 +654,12 @@ bool Evaluate::visit(AST::FormalParameterList *)
     return false;
 }
 
-bool Evaluate::visit(AST::FunctionBody *)
-{
-    return false;
-}
-
 bool Evaluate::visit(AST::Program *)
 {
     return false;
 }
 
-bool Evaluate::visit(AST::SourceElements *)
-{
-    return false;
-}
-
-bool Evaluate::visit(AST::FunctionSourceElement *)
-{
-    return false;
-}
-
-bool Evaluate::visit(AST::StatementSourceElement *)
+bool Evaluate::visit(AST::StatementList *)
 {
     return false;
 }

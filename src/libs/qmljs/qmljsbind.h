@@ -79,7 +79,7 @@ protected:
     // QML/JS
     bool visit(AST::FunctionDeclaration *ast) override;
     bool visit(AST::FunctionExpression *ast) override;
-    bool visit(AST::VariableDeclaration *ast) override;
+    bool visit(AST::PatternElement *ast) override;
 
     ObjectValue *switchObjectValue(ObjectValue *newObjectValue);
     ObjectValue *bindObject(AST::UiQualifiedId *qualifiedTypeNameId, AST::UiObjectInitializer *initializer);

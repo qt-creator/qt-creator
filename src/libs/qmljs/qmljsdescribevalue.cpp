@@ -366,11 +366,11 @@ void DescribeValueVisitor::visit(const Reference *value)
         }
     } else if (const ASTVariableReference *v = value->asAstVariableReference()) {
         basicDump("ASTVariableReference", v, printDetail);
-        const AST::VariableDeclaration *var = v->ast();
-        if (printDetail && var) {
+        const AST::PatternElement *var = v->ast();
+        if (printDetail && var && var->isVariableDeclaration()) {
             dumpNewline();
             dump("variable:");
-            dump(var->name.toString());
+            dump(var->bindingIdentifier.toString());
         }
     } else if (const QmlPrototypeReference *v = value->asQmlPrototypeReference()) {
         basicDump("QmlPrototypeReference", v, printDetail);

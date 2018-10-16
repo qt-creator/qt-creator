@@ -1178,9 +1178,6 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             if (property->type == AST::UiPublicMember::Signal)
                 continue; // QML designer doesn't support this yet.
 
-            if (property->name.isEmpty() || !property->isValid())
-                continue; // better safe than sorry.
-
             const QStringRef astName = property->name;
             QString astValue;
             if (property->statement)
@@ -1193,7 +1190,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 astValue = astValue.left(astValue.length() - 1);
             astValue = astValue.trimmed();
 
-            const TypeName &astType = property->memberTypeName().toUtf8();
+            const TypeName &astType = property->memberType->name.toUtf8();
             AbstractProperty modelProperty = modelNode.property(astName.toUtf8());
 
             if (property->binding) {
@@ -1250,12 +1247,12 @@ static QVariant parsePropertyExpression(AST::ExpressionNode *expressionNode)
 {
     Q_ASSERT(expressionNode);
 
-    auto arrayLiteral = AST::cast<AST::ArrayLiteral *>(expressionNode);
+    auto arrayLiteral = AST::cast<AST::ArrayPattern *>(expressionNode);
 
     if (arrayLiteral) {
         QList<QVariant> variantList;
-        for (AST::ElementList *it = arrayLiteral->elements; it; it = it->next)
-            variantList << parsePropertyExpression(it->expression);
+        for (AST::PatternElementList *it = arrayLiteral->elements; it; it = it->next)
+            variantList << parsePropertyExpression(it->element->initializer);
         return variantList;
     }
 

@@ -295,8 +295,8 @@ protected:
 
         decl.text += QLatin1Char('(');
         for (FormalParameterList *it = ast->formals; it; it = it->next) {
-            if (!it->name.isEmpty())
-                decl.text += it->name;
+            if (!it->element->bindingIdentifier.isEmpty())
+                decl.text += it->element->bindingIdentifier;
 
             if (it->next)
                 decl.text += QLatin1String(", ");
@@ -309,14 +309,14 @@ protected:
         return false;
     }
 
-    bool visit(AST::VariableDeclaration *ast) override
+    bool visit(AST::PatternElement *ast) override
     {
-        if (ast->name.isEmpty())
+        if (!ast->isVariableDeclaration() || ast->bindingIdentifier.isEmpty())
             return false;
 
         Declaration decl;
         decl.text.fill(QLatin1Char(' '), _depth);
-        decl.text += ast->name;
+        decl.text += ast->bindingIdentifier;
 
         const SourceLocation first = ast->identifierToken;
         decl.startLine = first.startLine;
@@ -343,8 +343,8 @@ protected:
 
             decl.text += QLatin1Char('(');
             for (FormalParameterList *it = funcExpr->formals; it; it = it->next) {
-                if (!it->name.isEmpty())
-                    decl.text += it->name;
+                if (!it->element->bindingIdentifier.isEmpty())
+                    decl.text += it->element->bindingIdentifier;
 
                 if (it->next)
                     decl.text += QLatin1String(", ");

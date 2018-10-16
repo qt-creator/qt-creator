@@ -189,13 +189,14 @@ void TypeDescriptionReader::readDependencies(UiScriptBinding *ast)
         addError(ast->statement->firstSourceLocation(), tr("Expected dependency definitions"));
         return;
     }
-    ArrayLiteral *exp = AST::cast<ArrayLiteral *>(stmt->expression);
+    ArrayPattern *exp = AST::cast<ArrayPattern *>(stmt->expression);
     if (!exp) {
         addError(stmt->expression->firstSourceLocation(), tr("Expected dependency definitions"));
         return;
     }
-    for (ElementList *l = exp->elements; l; l = l->next) {
-        StringLiteral *str = AST::cast<StringLiteral *>(l->expression);
+    for (PatternElementList *l = exp->elements; l; l = l->next) {
+        //StringLiteral *str = AST::cast<StringLiteral *>(l->element->initializer);
+        StringLiteral *str = AST::cast<StringLiteral *>(l->element->initializer);
         *_dependencies << str->value.toString();
     }
 }
@@ -231,7 +232,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
             } else if (name == QLatin1String("exports")) {
                 readExports(script, fmo);
             } else if (name == QLatin1String("exportMetaObjectRevisions")) {
-                readMetaObjectRevisions(script, fmo);
+                //readMetaObjectRevisions(script, fmo);
             } else if (name == QLatin1String("attachedType")) {
                 fmo->setAttachedTypeName(readStringBinding(script));
             } else if (name == QLatin1String("isSingleton")) {
@@ -562,14 +563,14 @@ void TypeDescriptionReader::readExports(UiScriptBinding *ast, FakeMetaObject::Pt
         return;
     }
 
-    ArrayLiteral *arrayLit = AST::cast<ArrayLiteral *>(expStmt->expression);
+    ArrayPattern *arrayLit = AST::cast<ArrayPattern *>(expStmt->expression);
     if (!arrayLit) {
         addError(expStmt->firstSourceLocation(), tr("Expected array of strings after colon."));
         return;
     }
 
-    for (ElementList *it = arrayLit->elements; it; it = it->next) {
-        StringLiteral *stringLit = AST::cast<StringLiteral *>(it->expression);
+    for (PatternElementList *it = arrayLit->elements; it; it = it->next) {
+        StringLiteral *stringLit = AST::cast<StringLiteral *>(it->element->initializer);
         if (!stringLit) {
             addError(arrayLit->firstSourceLocation(), tr("Expected array literal with only string literal members."));
             return;
@@ -608,7 +609,7 @@ void TypeDescriptionReader::readMetaObjectRevisions(UiScriptBinding *ast, FakeMe
         return;
     }
 
-    ArrayLiteral *arrayLit = AST::cast<ArrayLiteral *>(expStmt->expression);
+    ArrayPattern *arrayLit = AST::cast<ArrayPattern *>(expStmt->expression);
     if (!arrayLit) {
         addError(expStmt->firstSourceLocation(), tr("Expected array of numbers after colon."));
         return;
@@ -616,8 +617,8 @@ void TypeDescriptionReader::readMetaObjectRevisions(UiScriptBinding *ast, FakeMe
 
     int exportIndex = 0;
     const int exportCount = fmo->exports().size();
-    for (ElementList *it = arrayLit->elements; it; it = it->next, ++exportIndex) {
-        NumericLiteral *numberLit = cast<NumericLiteral *>(it->expression);
+    for (PatternElementList *it = arrayLit->elements; it; it = it->next, ++exportIndex) {
+        NumericLiteral *numberLit = cast<NumericLiteral *>(it->element->initializer);
         if (!numberLit) {
             addError(arrayLit->firstSourceLocation(), tr("Expected array literal with only number literal members."));
             return;
@@ -654,18 +655,18 @@ void TypeDescriptionReader::readEnumValues(AST::UiScriptBinding *ast, LanguageUt
         return;
     }
 
-    ObjectLiteral *objectLit = AST::cast<ObjectLiteral *>(expStmt->expression);
+    ObjectPattern *objectLit = AST::cast<ObjectPattern *>(expStmt->expression);
     if (!objectLit) {
         addError(expStmt->firstSourceLocation(), tr("Expected object literal after colon."));
         return;
     }
 
-    for (PropertyAssignmentList *it = objectLit->properties; it; it = it->next) {
-        PropertyNameAndValue *assignement = AST::cast<PropertyNameAndValue *>(it->assignment);
+    for (PatternPropertyList *it = objectLit->properties; it; it = it->next) {
+        PatternProperty *assignement = AST::cast<PatternProperty *>(it->property);
         if (assignement) {
             StringLiteralPropertyName *propName = AST::cast<StringLiteralPropertyName *>(assignement->name);
-            NumericLiteral *value = AST::cast<NumericLiteral *>(assignement->value);
-            UnaryMinusExpression *minus = AST::cast<UnaryMinusExpression *>(assignement->value);
+            NumericLiteral *value = AST::cast<NumericLiteral *>(assignement->initializer);
+            UnaryMinusExpression *minus = AST::cast<UnaryMinusExpression *>(assignement->initializer);
             if (minus)
                 value = AST::cast<NumericLiteral *>(minus->expression);
             if (!propName || !value) {
@@ -679,7 +680,7 @@ void TypeDescriptionReader::readEnumValues(AST::UiScriptBinding *ast, LanguageUt
             fme->addKey(propName->id.toString(), v);
             continue;
         }
-        PropertyGetterSetter *getterSetter = AST::cast<PropertyGetterSetter *>(it->assignment);
+        PatternPropertyList *getterSetter = AST::cast<PatternPropertyList *>(it->next);
         if (getterSetter)
             addError(objectLit->firstSourceLocation(), tr("Enum should not contain getter and setters, but only 'string: number' elements."));
     }

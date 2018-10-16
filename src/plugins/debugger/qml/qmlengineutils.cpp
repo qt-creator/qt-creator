@@ -160,15 +160,12 @@ public:
 
     bool visit(VariableStatement *ast) override { test(ast); return true; }
     bool visit(VariableDeclarationList *ast) override { test(ast); return true; }
-    bool visit(VariableDeclaration *ast) override { test(ast); return true; }
     bool visit(ExpressionStatement *ast) override { test(ast); return true; }
     bool visit(IfStatement *ast) override { test(ast); return true; }
     bool visit(DoWhileStatement *ast) override { test(ast); return true; }
     bool visit(WhileStatement *ast) override { test(ast); return true; }
     bool visit(ForStatement *ast) override { test(ast); return true; }
-    bool visit(LocalForStatement *ast) override { test(ast); return true; }
     bool visit(ForEachStatement *ast) override { test(ast); return true; }
-    bool visit(LocalForEachStatement *ast) override { test(ast); return true; }
     bool visit(ContinueStatement *ast) override { test(ast); return true; }
     bool visit(BreakStatement *ast) override { test(ast); return true; }
     bool visit(ReturnStatement *ast) override { test(ast); return true; }

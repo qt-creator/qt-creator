@@ -35,7 +35,8 @@ bool InteractiveInterpreter::canEvaluate()
     int yytos = -1;
 
     setCode(m_code, 1);
-    m_tokens.append(T_FEED_JS_PROGRAM);
+    m_tokens.append(T_FEED_JS_SCRIPT);
+    m_tokens.append(T_FEED_JS_MODULE);
 
     do {
         if (++yytos == m_stateStack.size())
