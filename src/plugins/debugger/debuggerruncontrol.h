@@ -59,8 +59,6 @@ public:
     void start() override;
     void stop() override;
 
-    void quitDebugger();
-
     bool isCppDebugging() const;
     bool isQmlDebugging() const;
     int portsUsedByDebugger() const;
