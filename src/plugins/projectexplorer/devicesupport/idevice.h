@@ -211,7 +211,7 @@ protected:
     IDevice(const IDevice &other);
 
 private:
-    IDevice &operator=(const IDevice &); // Unimplemented.
+    IDevice &operator=(const IDevice &) = delete;
 
     int version() const;
 
