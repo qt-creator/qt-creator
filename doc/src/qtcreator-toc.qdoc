@@ -192,6 +192,7 @@
                 \li \l{Using Clang Tools}
                 \li \l{Detecting Memory Leaks with Heob}
                 \li \l{Analyzing CPU Usage}
+                \li \l{Analyzing Code with Cppcheck}
             \endlist
             \li \l{Running Autotests}
         \endlist

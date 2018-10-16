@@ -81,6 +81,11 @@
             desktop applications with the Performance Analyzer (commercial only)
             that integrates the Linux Perf tool.
 
+        \li \l{Analyzing Code with Cppcheck}
+
+            You can use the experimental Cppcheck plugin to detect undefined
+            behavior and dangerous coding constructs.
+
     \endlist
 
 */
