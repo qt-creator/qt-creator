@@ -163,7 +163,7 @@ private:
     QLineEdit *m_packageNameLineEdit;
     QLabel *m_packageNameWarningIcon;
     QLabel *m_packageNameWarning;
-    QSpinBox *m_versionCode;
+    QLineEdit *m_versionCodeLineEdit;
     QLineEdit *m_versionNameLinedit;
     QComboBox *m_androidMinSdkVersion;
     QComboBox *m_androidTargetSdkVersion;
