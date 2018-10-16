@@ -13,6 +13,7 @@ SUBDIRS += \
     generichighlighter \
     pointeralgorithm \
     profilewriter \
+    ssh \
     treeviewfind \
     toolchaincache \
     qtcprocess \

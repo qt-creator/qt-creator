@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "../remoteprocess/argumentscollector.h"
+#include "argumentscollector.h"
 #include "shell.h"
 
 #include <ssh/sshconnection.h>

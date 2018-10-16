@@ -5,4 +5,4 @@
 #-------------------------------------------------
 
 TEMPLATE = subdirs
-SUBDIRS = errorhandling sftp remoteprocess shell sftpfsmodel tunnel
+SUBDIRS = shell sftpfsmodel

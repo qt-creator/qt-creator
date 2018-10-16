@@ -32,6 +32,7 @@
 
 #include <QByteArray>
 #include <QFlags>
+#include <QMetaType>
 #include <QObject>
 #include <QSharedPointer>
 #include <QString>
@@ -152,3 +153,5 @@ private:
 };
 
 } // namespace QSsh
+
+Q_DECLARE_METATYPE(QSsh::SshConnectionParameters::AuthenticationType)
