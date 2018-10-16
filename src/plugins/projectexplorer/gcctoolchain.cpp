@@ -489,7 +489,7 @@ LanguageExtensions GccToolChain::languageExtensions(const QStringList &cxxflags)
             else
                 extensions &= ~LanguageExtensions(LanguageExtension::Gnu);
         } else if (flag == "-fopenmp") {
-            extensions |= LanguageExtension::Gnu;
+            extensions |= LanguageExtension::OpenMP;
         } else if (flag == "-fms-extensions") {
             extensions |= LanguageExtension::Microsoft;
         }
