@@ -29,8 +29,6 @@
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 
-#include "ui_qbscleanstepconfigwidget.h"
-
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -38,8 +36,7 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
-static const char QBS_DRY_RUN[] = "Qbs.DryRun";
-static const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
+using namespace ProjectExplorer;
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -53,6 +50,27 @@ QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
 {
     setDisplayName(tr("Qbs Clean"));
     setRunInGuiThread(true);
+
+    m_dryRunAspect = addAspect<BaseBoolAspect>();
+    m_dryRunAspect->setSettingsKey("Qbs.DryRun");
+    m_dryRunAspect->setLabel(tr("Dry run"));
+
+    m_keepGoingAspect = addAspect<BaseBoolAspect>();
+    m_keepGoingAspect->setSettingsKey("Qbs.DryKeepGoing");
+    m_keepGoingAspect->setLabel(tr("Keep going"));
+
+    m_effectiveCommandAspect = addAspect<BaseStringAspect>();
+    m_effectiveCommandAspect->setDisplayStyle(BaseStringAspect::TextEditDisplay);
+    m_effectiveCommandAspect->setLabelText(tr("Equivalent command line:"));
+
+    updateState();
+
+    connect(this, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
+            this, &QbsCleanStep::updateState);
+    connect(m_dryRunAspect, &BaseBoolAspect::changed,
+            this, &QbsCleanStep::updateState);
+    connect(m_keepGoingAspect, &BaseBoolAspect::changed,
+            this, &QbsCleanStep::updateState);
 }
 
 QbsCleanStep::~QbsCleanStep()
@@ -83,7 +101,9 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
     m_fi = &fi;
 
     auto pro = static_cast<QbsProject *>(project());
-    qbs::CleanOptions options(m_qbsCleanOptions);
+    qbs::CleanOptions options;
+    options.setDryRun(m_dryRunAspect->value());
+    options.setKeepGoing(m_keepGoingAspect->value());
 
     QString error;
     m_job = pro->clean(options, m_products, error);
@@ -104,43 +124,17 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
 
 ProjectExplorer::BuildStepConfigWidget *QbsCleanStep::createConfigWidget()
 {
-    return new QbsCleanStepConfigWidget(this);
+    auto w = BuildStep::createConfigWidget();
+    connect(this, &QbsCleanStep::stateChanged, w, [this, w] {
+        w->setSummaryText(tr("<b>Qbs:</b> %1").arg(m_effectiveCommandAspect->value()));
+    });
+    return w;
 }
 
 void QbsCleanStep::cancel()
 {
     if (m_job)
         m_job->cancel();
-}
-
-bool QbsCleanStep::dryRun() const
-{
-    return m_qbsCleanOptions.dryRun();
-}
-
-bool QbsCleanStep::keepGoing() const
-{
-    return m_qbsCleanOptions.keepGoing();
-}
-
-bool QbsCleanStep::fromMap(const QVariantMap &map)
-{
-    if (!ProjectExplorer::BuildStep::fromMap(map))
-        return false;
-
-    m_qbsCleanOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN)).toBool());
-    m_qbsCleanOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
-
-    return true;
-}
-
-QVariantMap QbsCleanStep::toMap() const
-{
-    QVariantMap map = ProjectExplorer::BuildStep::toMap();
-    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsCleanOptions.dryRun());
-    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsCleanOptions.keepGoing());
-
-    return map;
 }
 
 void QbsCleanStep::cleaningDone(bool success)
@@ -172,6 +166,14 @@ void QbsCleanStep::handleProgress(int value)
     m_fi->setProgressValue(m_progressBase + value);
 }
 
+void QbsCleanStep::updateState()
+{
+    QString command = static_cast<QbsBuildConfiguration *>(buildConfiguration())
+            ->equivalentCommandLine(this);
+    m_effectiveCommandAspect->setValue(command);
+    emit stateChanged();
+}
+
 void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message, const QString &file, int line)
 {
     ProjectExplorer::Task task = ProjectExplorer::Task(type, message,
@@ -179,75 +181,6 @@ void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, con
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     emit addTask(task, 1);
     emit addOutput(message, OutputFormat::Stdout);
-}
-
-void QbsCleanStep::setDryRun(bool dr)
-{
-    if (m_qbsCleanOptions.dryRun() == dr)
-        return;
-    m_qbsCleanOptions.setDryRun(dr);
-    emit changed();
-}
-
-void QbsCleanStep::setKeepGoing(bool kg)
-{
-    if (m_qbsCleanOptions.keepGoing() == kg)
-        return;
-    m_qbsCleanOptions.setKeepGoing(kg);
-    emit changed();
-}
-
-
-// --------------------------------------------------------------------
-// QbsCleanStepConfigWidget:
-// --------------------------------------------------------------------
-
-QbsCleanStepConfigWidget::QbsCleanStepConfigWidget(QbsCleanStep *step) :
-    BuildStepConfigWidget(step), m_step(step)
-{
-    connect(m_step, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
-            this, &QbsCleanStepConfigWidget::updateState);
-    connect(m_step, &QbsCleanStep::changed,
-            this, &QbsCleanStepConfigWidget::updateState);
-
-    setContentsMargins(0, 0, 0, 0);
-
-    m_ui = new Ui::QbsCleanStepConfigWidget;
-    m_ui->setupUi(this);
-
-    connect(m_ui->dryRunCheckBox, &QAbstractButton::toggled,
-            this, &QbsCleanStepConfigWidget::changeDryRun);
-    connect(m_ui->keepGoingCheckBox, &QAbstractButton::toggled,
-            this, &QbsCleanStepConfigWidget::changeKeepGoing);
-
-    updateState();
-}
-
-QbsCleanStepConfigWidget::~QbsCleanStepConfigWidget()
-{
-    delete m_ui;
-}
-
-void QbsCleanStepConfigWidget::updateState()
-{
-    m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
-    m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
-
-    QString command = static_cast<QbsBuildConfiguration *>(m_step->buildConfiguration())
-            ->equivalentCommandLine(m_step);
-    m_ui->commandLineTextEdit->setPlainText(command);
-
-    setSummaryText(tr("<b>Qbs:</b> %1").arg(command));
-}
-
-void QbsCleanStepConfigWidget::changeDryRun(bool dr)
-{
-    m_step->setDryRun(dr);
-}
-
-void QbsCleanStepConfigWidget::changeKeepGoing(bool kg)
-{
-    m_step->setKeepGoing(kg);
 }
 
 // --------------------------------------------------------------------

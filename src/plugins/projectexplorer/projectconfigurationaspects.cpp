@@ -43,6 +43,7 @@
 #include <QFormLayout>
 #include <QSpinBox>
 #include <QToolButton>
+#include <QTextEdit>
 
 using namespace Utils;
 
@@ -76,6 +77,7 @@ public:
     QPointer<QLabel> m_labelDisplay;
     QPointer<FancyLineEdit> m_lineEditDisplay;
     QPointer<PathChooser> m_pathChooserDisplay;
+    QPointer<QTextEdit> m_textEditDisplay;
     QPixmap m_labelPixmap;
 };
 
@@ -178,6 +180,8 @@ void BaseStringAspect::setPlaceHolderText(const QString &placeHolderText)
     d->m_placeHolderText = placeHolderText;
     if (d->m_lineEditDisplay)
         d->m_lineEditDisplay->setPlaceholderText(placeHolderText);
+    if (d->m_textEditDisplay)
+        d->m_textEditDisplay->setPlaceholderText(placeHolderText);
 }
 
 void BaseStringAspect::setHistoryCompleter(const QString &historyCompleterKey)
@@ -234,6 +238,18 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
                 this, &BaseStringAspect::setValue);
         hbox->addWidget(d->m_lineEditDisplay);
         break;
+    case TextEditDisplay:
+        d->m_textEditDisplay = new QTextEdit(parent);
+        d->m_textEditDisplay->setPlaceholderText(d->m_placeHolderText);
+        connect(d->m_textEditDisplay, &QTextEdit::textChanged, this, [this] {
+            const QString value = d->m_textEditDisplay->document()->toPlainText();
+            if (value != d->m_value) {
+                d->m_value = value;
+                emit changed();
+            }
+        });
+        hbox->addWidget(d->m_textEditDisplay);
+        break;
     case LabelDisplay:
         d->m_labelDisplay = new QLabel(parent);
         d->m_labelDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -268,6 +284,11 @@ void BaseStringAspect::update()
     if (d->m_lineEditDisplay) {
         d->m_lineEditDisplay->setText(displayedString);
         d->m_lineEditDisplay->setEnabled(enabled);
+    }
+
+    if (d->m_textEditDisplay) {
+        d->m_textEditDisplay->setText(displayedString);
+        d->m_textEditDisplay->setEnabled(enabled);
     }
 
     if (d->m_labelDisplay)

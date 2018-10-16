@@ -93,7 +93,12 @@ public:
     bool isChecked() const;
     void makeCheckable(const QString &optionalLabel, const QString &optionalBaseKey);
 
-    enum DisplayStyle { LabelDisplay, LineEditDisplay, PathChooserDisplay };
+    enum DisplayStyle {
+        LabelDisplay,
+        LineEditDisplay,
+        TextEditDisplay,
+        PathChooserDisplay
+    };
     void setDisplayStyle(DisplayStyle style);
 
     void fromMap(const QVariantMap &map) override;
