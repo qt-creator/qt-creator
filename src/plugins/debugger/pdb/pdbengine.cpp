@@ -255,8 +255,24 @@ void PdbEngine::insertBreakpoint(const Breakpoint &bp)
 
 void PdbEngine::updateBreakpoint(const Breakpoint &bp)
 {
-    Q_UNUSED(bp);
-    QTC_CHECK(false);
+    QTC_ASSERT(bp, return);
+    const BreakpointState state = bp->state();
+    if (QTC_GUARD(state == BreakpointUpdateRequested))
+        notifyBreakpointChangeProceeding(bp);
+    if (bp->responseId().isEmpty()) // FIXME postpone update somehow (QTimer::singleShot?)
+        return;
+
+    // FIXME figure out what needs to be changed (there might be more than enabled state)
+    const BreakpointParameters &requested = bp->requestedParameters();
+    if (requested.enabled != bp->isEnabled()) {
+        if (bp->isEnabled())
+            postDirectCommand("disable " + bp->responseId());
+        else
+            postDirectCommand("enable " + bp->responseId());
+        bp->setEnabled(!bp->isEnabled());
+    }
+    // Pretend it succeeds without waiting for response.
+    notifyBreakpointChangeOk(bp);
 }
 
 void PdbEngine::removeBreakpoint(const Breakpoint &bp)
@@ -494,8 +510,12 @@ void PdbEngine::handleOutput2(const QString &data)
             bp->setLineNumber(lineNumber);
             bp->adjustMarker();
             bp->setPending(false);
-            QTC_CHECK(!bp->needsChange());
             notifyBreakpointInsertOk(bp);
+            if (bp->needsChange()) {
+                bp->gotoState(BreakpointUpdateRequested, BreakpointInserted);
+                updateBreakpoint(bp);
+//            QTC_CHECK(!bp->needsChange());
+            }
         }
     }
 }
