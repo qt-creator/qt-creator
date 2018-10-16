@@ -107,24 +107,24 @@ function formattingLibs(llvmConfig, qtcFunctions, targetOS)
     var libs = []
     if (qtcFunctions.versionIsAtLeast(clangVersion, MinimumLLVMVersion)) {
         if (qtcFunctions.versionIsAtLeast(clangVersion, "7.0.0")) {
-            libs.concat([
+            libs.push(
                 "clangFormat",
                 "clangToolingInclusions",
                 "clangToolingCore",
                 "clangRewrite",
                 "clangLex",
-                "clangBasic",
-            ]);
+                "clangBasic"
+            );
         } else {
-            libs.concat([
+            libs.push(
                 "clangFormat",
                 "clangToolingCore",
                 "clangRewrite",
                 "clangLex",
-                "clangBasic",
-            ]);
+                "clangBasic"
+            );
         }
-        libs.concat(extraLibraries(llvmConfig, targetOS));
+        libs = libs.concat(extraLibraries(llvmConfig, targetOS));
     }
 
     return libs;
