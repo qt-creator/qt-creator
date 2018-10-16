@@ -81,9 +81,6 @@ public:
     QString version() const;
     void setVersion(const QString &version);
 
-    QString autoDetectionSource() const { return m_autoDetectionSource; }
-    void setAutoDetectionSource(const QString &autoDetectionSource);
-
     const QList<ProjectExplorer::Abi> &abis() const { return m_abis; }
     void setAbis(const QList<ProjectExplorer::Abi> &abis);
     void setAbi(const ProjectExplorer::Abi &abi);
@@ -115,7 +112,6 @@ private:
     Utils::FileName m_command;
     Utils::FileName m_workingDirectory;
     bool m_isAutoDetected = false;
-    QString m_autoDetectionSource;
     QString m_version;
     QList<ProjectExplorer::Abi> m_abis;
     QDateTime m_lastModified;

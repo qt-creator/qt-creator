@@ -56,7 +56,6 @@ const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
 const char DEBUGGER_INFORMATION_ID[] = "Id";
 const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
 const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
-const char DEBUGGER_INFORMATION_AUTODETECTION_SOURCE[] = "AutoDetectionSource";
 const char DEBUGGER_INFORMATION_VERSION[] = "Version";
 const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
 const char DEBUGGER_INFORMATION_LASTMODIFIED[] = "LastModified";
@@ -82,7 +81,6 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
     m_workingDirectory = FileName::fromUserInput(data.value(DEBUGGER_INFORMATION_WORKINGDIRECTORY).toString());
     m_unexpandedDisplayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
     m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), false).toBool();
-    m_autoDetectionSource = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE)).toString();
     m_version = data.value(QLatin1String(DEBUGGER_INFORMATION_VERSION)).toString();
     m_engineType = DebuggerEngineType(data.value(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE),
                                                  static_cast<int>(NoEngineType)).toInt());
@@ -252,7 +250,6 @@ QVariantMap DebuggerItem::toMap() const
     data.insert(QLatin1String(DEBUGGER_INFORMATION_WORKINGDIRECTORY), m_workingDirectory.toString());
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE), int(m_engineType));
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), m_isAutoDetected);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE), m_autoDetectionSource);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_VERSION), m_version);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ABIS), abiNames());
     data.insert(QLatin1String(DEBUGGER_INFORMATION_LASTMODIFIED), m_lastModified);
@@ -304,11 +301,6 @@ QString DebuggerItem::version() const
 void DebuggerItem::setVersion(const QString &version)
 {
     m_version = version;
-}
-
-void DebuggerItem::setAutoDetectionSource(const QString &autoDetectionSource)
-{
-    m_autoDetectionSource = autoDetectionSource;
 }
 
 void DebuggerItem::setAbis(const QList<Abi> &abis)
