@@ -445,6 +445,12 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
         completeIncludePath(realPath, suffixes);
     }
 
+    auto includesCompare = [](AssistProposalItemInterface *first,
+                              AssistProposalItemInterface *second) {
+        return first->text() < second->text();
+    };
+    std::sort(m_completions.begin(), m_completions.end(), includesCompare);
+
     return !m_completions.isEmpty();
 }
 
