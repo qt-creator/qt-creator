@@ -185,4 +185,6 @@
 
     \image qtcreator-clang-code-model-build-settings.png
 
+    \include creator-compilation-database.qdocinc using compilation databases
+
 */

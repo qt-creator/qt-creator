@@ -1,0 +1,52 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [using compilation databases]
+
+    \section1 Using Compilation Databases
+
+    The \l{https://clang.llvm.org/docs/JSONCompilationDatabase.html}
+    {JSON compilation database format} specifies how to replay single builds
+    independently of the build system.
+
+    A \e {compilation database} is basically a list of files and the compiler
+    flags that are used to compile the files. The database is used to feed the
+    code model with the necessary information for correctly parsing the code
+    when you open a file for editing.
+
+    To generate a compilation database from the information that the code model
+    has, select \uicontrol Build > \uicontrol {Generate Compilation Database}.
+
+    You can use the experimental Compilation Database Project Manager to open
+    the files in a compilation database with access to all the editing features
+    provided by the Clang code model.
+
+    To enable the plugin, select \uicontrol Help > \uicontrol {About Plugins} >
+    \uicontrol {Build Systems} > \uicontrol {Compilation Database Project Manager}.
+    Then restart \QC to load the plugin.
+
+//! [using compilation databases]
+*/
