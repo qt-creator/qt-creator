@@ -199,7 +199,7 @@ void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulato
 
             bool abandonParen = false;
             if (::Utils::Text::matchPreviousWord(manipulator, cursor, "&")) {
-                ::Utils::Text::moveToPrevChar(manipulator, cursor);
+                ::Utils::Text::moveToPrevWord(manipulator, cursor);
                 ::Utils::Text::moveToPrevChar(manipulator, cursor);
                 const QChar prevChar = manipulator.characterAt(cursor.position());
                 cursor.setPosition(basePosition);

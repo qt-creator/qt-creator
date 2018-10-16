@@ -68,6 +68,14 @@ void moveToPrevChar(CharacterProvider &provider, QTextCursor &cursor)
 }
 
 template <class CharacterProvider>
+void moveToPrevWord(CharacterProvider &provider, QTextCursor &cursor)
+{
+    cursor.movePosition(QTextCursor::PreviousWord);
+    while (provider.characterAt(cursor.position()) == ':')
+        cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
+}
+
+template <class CharacterProvider>
 bool matchPreviousWord(CharacterProvider &provider, QTextCursor cursor, QString pattern)
 {
     cursor.movePosition(QTextCursor::PreviousWord);
