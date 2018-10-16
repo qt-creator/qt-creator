@@ -239,8 +239,7 @@ void UnstartedAppWatcherDialog::pidFound(const DeviceProcessItem &p)
 void UnstartedAppWatcherDialog::startStopWatching(bool start)
 {
     setWaitingState(start ? WatchingState : NotWatchingState);
-    m_watchingPushButton->setText(start ? QLatin1String("Stop Watching")
-                                        : QLatin1String("Start Watching"));
+    m_watchingPushButton->setText(start ? tr("Stop Watching") : tr("Start Watching"));
     startStopTimer(start);
 }
 

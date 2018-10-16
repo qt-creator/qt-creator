@@ -42,7 +42,7 @@
 
 #include <limits>
 
-static Q_LOGGING_CATEGORY(moveManipulatorInfo, "qtc.qmldesigner.formeditor");
+static Q_LOGGING_CATEGORY(moveManipulatorInfo, "qtc.qmldesigner.formeditor", QtWarningMsg);
 
 namespace QmlDesigner {
 

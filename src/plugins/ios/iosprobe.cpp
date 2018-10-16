@@ -33,7 +33,7 @@
 #include <QLoggingCategory>
 #include <QProcess>
 
-static Q_LOGGING_CATEGORY(probeLog, "qtc.ios.probe")
+static Q_LOGGING_CATEGORY(probeLog, "qtc.ios.probe", QtWarningMsg)
 
 namespace Ios {
 

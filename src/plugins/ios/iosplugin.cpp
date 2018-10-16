@@ -53,7 +53,7 @@ using namespace QtSupport;
 namespace Ios {
 namespace Internal {
 
-Q_LOGGING_CATEGORY(iosLog, "qtc.ios.common")
+Q_LOGGING_CATEGORY(iosLog, "qtc.ios.common", QtWarningMsg)
 
 class IosPluginPrivate
 {

@@ -551,7 +551,7 @@ void ModelIndexer::removeDiagramReferenceFile(const QString &file,
 
 const QLoggingCategory &ModelIndexer::logger()
 {
-    static const QLoggingCategory category("qtc.modeleditor.modelindexer");
+    static const QLoggingCategory category("qtc.modeleditor.modelindexer", QtWarningMsg);
     return category;
 }
 

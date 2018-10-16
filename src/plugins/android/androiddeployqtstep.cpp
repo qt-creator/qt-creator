@@ -64,7 +64,7 @@ using namespace Android;
 using namespace Android::Internal;
 
 namespace {
-Q_LOGGING_CATEGORY(deployStepLog, "qtc.android.build.androiddeployqtstep")
+Q_LOGGING_CATEGORY(deployStepLog, "qtc.android.build.androiddeployqtstep", QtWarningMsg)
 }
 
 const QLatin1String UninstallPreviousPackageKey("UninstallPreviousPackage");

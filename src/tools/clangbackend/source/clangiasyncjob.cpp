@@ -25,7 +25,7 @@
 
 #include "clangiasyncjob.h"
 
-Q_LOGGING_CATEGORY(jobsLog, "qtc.clangbackend.jobs");
+Q_LOGGING_CATEGORY(jobsLog, "qtc.clangbackend.jobs", QtWarningMsg);
 
 namespace ClangBackEnd {
 

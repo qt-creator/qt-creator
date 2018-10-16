@@ -47,7 +47,7 @@ namespace Ios {
 namespace Internal {
 
 namespace {
-Q_LOGGING_CATEGORY(iosSettingsLog, "qtc.ios.common")
+Q_LOGGING_CATEGORY(iosSettingsLog, "qtc.ios.common", QtWarningMsg)
 }
 
 static const int IdentifierRole = Qt::UserRole+1;

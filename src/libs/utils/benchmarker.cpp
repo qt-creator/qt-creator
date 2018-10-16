@@ -29,7 +29,7 @@
 #include <QLoggingCategory>
 #include <QTimer>
 
-static Q_LOGGING_CATEGORY(benchmarksLog, "qtc.benchmark");
+static Q_LOGGING_CATEGORY(benchmarksLog, "qtc.benchmark", QtWarningMsg);
 
 namespace Utils {
 

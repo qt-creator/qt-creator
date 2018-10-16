@@ -52,7 +52,7 @@
 
 namespace QmlDesigner {
 
-static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach")
+static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 
 class ViewManagerData
 {

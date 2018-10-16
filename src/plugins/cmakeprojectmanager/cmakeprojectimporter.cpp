@@ -50,7 +50,7 @@ using namespace QtSupport;
 
 namespace {
 
-Q_LOGGING_CATEGORY(cmInputLog, "qtc.cmake.import");
+Q_LOGGING_CATEGORY(cmInputLog, "qtc.cmake.import", QtWarningMsg);
 
 struct CMakeToolChainData
 {

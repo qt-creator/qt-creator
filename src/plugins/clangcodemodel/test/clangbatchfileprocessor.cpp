@@ -61,7 +61,7 @@ using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 using namespace ProjectExplorer;
 
-static Q_LOGGING_CATEGORY(debug, "qtc.clangcodemodel.batch");
+static Q_LOGGING_CATEGORY(debug, "qtc.clangcodemodel.batch", QtWarningMsg);
 
 static int timeOutFromEnvironmentVariable()
 {

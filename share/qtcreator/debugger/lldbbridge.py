@@ -457,7 +457,7 @@ class Dumper(DumperBase):
                     self.listMembers(value, nativeType)
                 tdata.templateArguments = self.listTemplateParametersHelper(nativeType)
             elif code == lldb.eTypeClassFunction:
-                tdata.code = TypeCodeFunction,
+                tdata.code = TypeCodeFunction
             elif code == lldb.eTypeClassMemberPointer:
                 tdata.code = TypeCodeMemberPointer
 
@@ -648,6 +648,21 @@ class Dumper(DumperBase):
 
     def isMsvcTarget(self):
         return False
+
+    def prettySymbolByAddress(self, address):
+        try:
+            result = lldb.SBCommandReturnObject()
+            # Cast the address to a function pointer to get the name and location of the function.
+            expression = 'po (void (*)()){}'
+            self.debugger.GetCommandInterpreter().HandleCommand(expression.format(address), result)
+            output = ''
+            if result.Succeeded():
+                output = result.GetOutput().strip()
+            if output:
+                return output
+        except:
+            pass
+        return '0x%x' % address
 
     def qtVersionAndNamespace(self):
         for func in self.target.FindFunctions('qVersion'):

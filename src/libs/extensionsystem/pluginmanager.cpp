@@ -61,7 +61,7 @@
 
 #include <functional>
 
-Q_LOGGING_CATEGORY(pluginLog, "qtc.extensionsystem")
+Q_LOGGING_CATEGORY(pluginLog, "qtc.extensionsystem", QtWarningMsg)
 
 const char C_IGNORED_PLUGINS[] = "Plugins/Ignored";
 const char C_FORCEENABLED_PLUGINS[] = "Plugins/ForceEnabled";

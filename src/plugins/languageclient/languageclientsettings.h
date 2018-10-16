@@ -41,35 +41,69 @@ class BaseSettings
 {
 public:
     BaseSettings() = default;
-    BaseSettings(const QString &name, bool enabled, const QString &mimeTypeName,
-                 const QString &executable, const QString &arguments)
+    BaseSettings(const QString &name, bool enabled, const QString &mimeTypeName)
         : m_name(name)
         , m_enabled(enabled)
         , m_mimeType(mimeTypeName)
-        , m_executable(executable)
-        , m_arguments(arguments)
     {}
+
+    virtual ~BaseSettings() = default;
+
     QString m_name = QString("New Language Server");
     bool m_enabled = true;
     QString m_mimeType = QLatin1String(noLanguageFilter);
+    QPointer<BaseClient> m_client; // not owned
+
+    virtual BaseSettings *copy() const { return new BaseSettings(*this); }
+    virtual bool needsRestart() const;
+    virtual bool isValid() const ;
+    virtual BaseClient *createClient() const;
+    virtual QVariantMap toMap() const;
+    virtual void fromMap(const QVariantMap &map);
+
+protected:
+    BaseSettings(const BaseSettings &other) = default;
+    BaseSettings(BaseSettings &&other) = default;
+    BaseSettings &operator=(const BaseSettings &other) = default;
+    BaseSettings &operator=(BaseSettings &&other) = default;
+};
+
+class StdIOSettings : public BaseSettings
+{
+public:
+    StdIOSettings() = default;
+    StdIOSettings(const QString &name, bool enabled, const QString &mimeTypeName,
+                  const QString &executable, const QString &arguments)
+        : BaseSettings(name, enabled, mimeTypeName)
+        , m_executable(executable)
+        , m_arguments(arguments)
+    {}
+
+    ~StdIOSettings() override = default;
+
     QString m_executable;
     QString m_arguments;
 
-    bool isValid();
+    BaseSettings *copy() const override { return new StdIOSettings(*this); }
+    bool needsRestart() const override;
+    bool isValid() const override;
+    BaseClient *createClient() const override;
+    QVariantMap toMap() const override;
+    void fromMap(const QVariantMap &map) override;
 
-    BaseClient *createClient();
-
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+protected:
+    StdIOSettings(const StdIOSettings &other) = default;
+    StdIOSettings(StdIOSettings &&other) = default;
+    StdIOSettings &operator=(const StdIOSettings &other) = default;
+    StdIOSettings &operator=(StdIOSettings &&other) = default;
 };
 
 class LanguageClientSettings
 {
 public:
     static void init();
-    static QList<BaseSettings *> fromSettings(QSettings *settings);
-    static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);
-
+    static QList<StdIOSettings *> fromSettings(QSettings *settings);
+    static void toSettings(QSettings *settings, const QList<StdIOSettings *> &languageClientSettings);
 };
 
 } // namespace LanguageClient

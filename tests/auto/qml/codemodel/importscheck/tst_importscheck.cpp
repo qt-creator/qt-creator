@@ -100,7 +100,6 @@ QString resourcePath()
 
 void tst_ImportCheck::initTestCase()
 {
-    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
     if (!ModelManagerInterface::instance())
         new ModelManagerInterface;
 

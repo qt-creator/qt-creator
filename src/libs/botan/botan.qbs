@@ -42,7 +42,8 @@ Product {
                     + "sha2_32,sha2_32_x86,sha2_64,simd,system_rng,emsa_pkcs1,pbes2,pbkdf2";
             args.push("--enable-modules=" + modules);
             var cxxFlags = [];
-            if (product.qbs.toolchain.contains("msvc")) {
+            var tc = product.qbs.toolchain;
+            if (tc.contains("msvc")) {
                 cxxFlags.push("/wd4100", "/wd4800", "/wd4127", "/wd4244", "/wd4250", "/wd4267",
                               "/wd4334", "/wd4702", "/wd4996", "/D_ENABLE_EXTENDED_ALIGNED_STORAGE");
             }
@@ -55,10 +56,11 @@ Product {
             }
             if (product.qbs.targetOS.contains("unix"))
                 cxxFlags.push("-fPIC");
+            if (product.qbs.buildVariant === "release")
+                cxxFlags.push(tc.contains("msvc") ? "/O2" : "-O3");
             if (cxxFlags.length > 0)
                 args.push("--cxxflags=" + cxxFlags.join(" "));
             var ccOption = "--cc=";
-            var tc = product.qbs.toolchain;
             if (tc.contains("msvc"))
                 ccOption += "msvc";
             else if (tc.contains("clang"))

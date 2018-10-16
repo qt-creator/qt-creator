@@ -42,7 +42,7 @@
 #include <functional>
 
 namespace {
-Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager")
+Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
 }
 
 namespace Android {

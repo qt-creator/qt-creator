@@ -68,7 +68,7 @@ using namespace ProjectExplorer;
 using namespace Android::Internal;
 
 namespace {
-Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkstep")
+Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkstep", QtWarningMsg)
 }
 
 namespace Android {

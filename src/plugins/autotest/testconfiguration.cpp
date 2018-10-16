@@ -41,7 +41,7 @@
 
 #include <QLoggingCategory>
 
-static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testconfiguration")
+static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testconfiguration", QtWarningMsg)
 
 using namespace ProjectExplorer;
 

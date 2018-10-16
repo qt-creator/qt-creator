@@ -56,7 +56,7 @@
 #include <memory>
 
 namespace {
-Q_LOGGING_CATEGORY(gccLog, "qtc.projectexplorer.toolchain.gcc");
+Q_LOGGING_CATEGORY(gccLog, "qtc.projectexplorer.toolchain.gcc", QtWarningMsg);
 } // namespace
 
 using namespace Utils;

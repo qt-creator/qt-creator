@@ -90,7 +90,6 @@ private:
 
 void tst_PluginSpec::init()
 {
-    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
     QVERIFY(QDir::setCurrent(QLatin1String(PLUGINSPEC_DIR)));
 }
 

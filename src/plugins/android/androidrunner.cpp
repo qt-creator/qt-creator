@@ -45,7 +45,7 @@
 #include <QLoggingCategory>
 
 namespace {
-Q_LOGGING_CATEGORY(androidRunnerLog, "qtc.android.run.androidrunner")
+Q_LOGGING_CATEGORY(androidRunnerLog, "qtc.android.run.androidrunner", QtWarningMsg)
 }
 
 using namespace ProjectExplorer;

@@ -70,7 +70,7 @@ using namespace CppTools;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol")
+static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol", QtWarningMsg)
 
 static QStringList splitArgs(QString &argsString)
 {

@@ -47,7 +47,7 @@
 #include <QLoggingCategory>
 #include <QTextBlock>
 
-static Q_LOGGING_CATEGORY(log, "qtc.cpptools.builtineditordocumentprocessor")
+static Q_LOGGING_CATEGORY(log, "qtc.cpptools.builtineditordocumentprocessor", QtWarningMsg)
 
 namespace {
 

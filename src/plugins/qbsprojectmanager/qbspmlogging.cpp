@@ -27,6 +27,6 @@
 
 namespace QbsProjectManager {
 namespace Internal {
-Q_LOGGING_CATEGORY(qbsPmLog, "qtc.qbspm")
+Q_LOGGING_CATEGORY(qbsPmLog, "qtc.qbspm", QtWarningMsg)
 }
 }

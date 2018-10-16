@@ -40,7 +40,7 @@
 #include <QLoggingCategory>
 #include <QSettings>
 
-static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager")
+static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager", QtWarningMsg)
 
 namespace Autotest {
 namespace Internal {

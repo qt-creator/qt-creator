@@ -40,7 +40,7 @@ using namespace TextEditor;
 using SemanticHighlighter::incrementalApplyExtraAdditionalFormats;
 using SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd;
 
-static Q_LOGGING_CATEGORY(log, "qtc.cpptools.semantichighlighter")
+static Q_LOGGING_CATEGORY(log, "qtc.cpptools.semantichighlighter", QtWarningMsg)
 
 namespace CppTools {
 

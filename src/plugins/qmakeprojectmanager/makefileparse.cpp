@@ -349,7 +349,7 @@ BaseQtVersion::QmakeBuildConfigs MakeFileParse::effectiveBuildConfig(BaseQtVersi
 
 const QLoggingCategory &MakeFileParse::logging()
 {
-    static const QLoggingCategory category("qtc.qmakeprojectmanager.import");
+    static const QLoggingCategory category("qtc.qmakeprojectmanager.import", QtWarningMsg);
     return category;
 }
 

@@ -44,7 +44,7 @@
 #include <QSortFilterProxyModel>
 
 namespace {
-Q_LOGGING_CATEGORY(androidSdkMgrUiLog, "qtc.android.sdkManagerUi")
+Q_LOGGING_CATEGORY(androidSdkMgrUiLog, "qtc.android.sdkManagerUi", QtWarningMsg)
 }
 
 namespace Android {

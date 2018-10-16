@@ -193,10 +193,11 @@ void BackendReceiver::completions(const CompletionsMessage &message)
 
 void BackendReceiver::annotations(const AnnotationsMessage &message)
 {
-    qCDebugIpc() << "AnnotationsMessage with"
-                 << message.diagnostics.size() << "diagnostics"
-                 << message.tokenInfos.size() << "highlighting marks"
-                 << message.skippedPreprocessorRanges.size() << "skipped preprocessor ranges";
+    qCDebugIpc() << "AnnotationsMessage"
+                 << "for" << QFileInfo(message.fileContainer.filePath).fileName() << "with"
+                 << message.diagnostics.size() << "diagnostics" << message.tokenInfos.size()
+                 << "token infos" << message.skippedPreprocessorRanges.size()
+                 << "skipped preprocessor ranges";
 
     auto processor = ClangEditorDocumentProcessor::get(message.fileContainer.filePath);
     if (!processor)

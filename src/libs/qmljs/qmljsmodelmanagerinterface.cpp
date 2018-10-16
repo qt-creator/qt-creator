@@ -54,7 +54,7 @@
 
 namespace QmlJS {
 
-QMLJS_EXPORT Q_LOGGING_CATEGORY(qmljsLog, "qtc.qmljs.common")
+QMLJS_EXPORT Q_LOGGING_CATEGORY(qmljsLog, "qtc.qmljs.common", QtWarningMsg)
 
 /*!
     \class QmlJS::ModelManagerInterface

@@ -76,7 +76,6 @@ static QString pluginFolder(const QLatin1String &folder)
 
 void tst_PluginManager::init()
 {
-    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
     m_pm = new PluginManager;
     m_pm->setPluginIID(QLatin1String("plugin"));
     m_objectAdded = new QSignalSpy(m_pm, SIGNAL(objectAdded(QObject*)));

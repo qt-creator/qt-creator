@@ -64,7 +64,7 @@
 using namespace LanguageUtils;
 using namespace QmlJS;
 
-static Q_LOGGING_CATEGORY(rewriterBenchmark, "qtc.rewriter.load")
+static Q_LOGGING_CATEGORY(rewriterBenchmark, "qtc.rewriter.load", QtWarningMsg)
 
 namespace {
 

@@ -38,7 +38,7 @@ using namespace ProjectExplorer;
 
 namespace QtSupport {
 
-static QLoggingCategory log("qtc.qscxmlcgenerator");
+static QLoggingCategory log("qtc.qscxmlcgenerator", QtWarningMsg);
 static const char TaskCategory[] = "Task.Category.ExtraCompiler.QScxmlc";
 
 QScxmlcGenerator::QScxmlcGenerator(const Project *project,

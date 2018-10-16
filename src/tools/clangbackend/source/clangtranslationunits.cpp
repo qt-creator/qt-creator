@@ -35,7 +35,7 @@
 #include <QLoggingCategory>
 #include <QUuid>
 
-Q_LOGGING_CATEGORY(tuLog, "qtc.clangbackend.translationunits");
+Q_LOGGING_CATEGORY(tuLog, "qtc.clangbackend.translationunits", QtWarningMsg);
 
 namespace ClangBackEnd {
 

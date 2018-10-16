@@ -470,7 +470,7 @@ Node *FlatModel::nodeForIndex(const QModelIndex &index) const
 
 const QLoggingCategory &FlatModel::logger()
 {
-    static QLoggingCategory logger("qtc.projectexplorer.flatmodel");
+    static QLoggingCategory logger("qtc.projectexplorer.flatmodel", QtWarningMsg);
     return logger;
 }
 

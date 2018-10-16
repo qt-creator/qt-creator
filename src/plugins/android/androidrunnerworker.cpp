@@ -52,7 +52,7 @@
 #include <chrono>
 
 namespace {
-Q_LOGGING_CATEGORY(androidRunWorkerLog, "qtc.android.run.androidrunnerworker")
+Q_LOGGING_CATEGORY(androidRunWorkerLog, "qtc.android.run.androidrunnerworker", QtWarningMsg)
 }
 
 using namespace std;

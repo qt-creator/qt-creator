@@ -112,8 +112,9 @@ public:
 
     Core::Id id() const { return m_id; }
 
+    bool needsRestart(const BaseSettings *) const;
+
     virtual bool start() { return true; }
-    virtual bool matches(const BaseSettings * /*setting*/) { return false; }
     virtual bool reset();
 
     void log(const QString &message,
@@ -175,11 +176,11 @@ public:
     StdIOClient &operator=(const StdIOClient &) = delete;
     StdIOClient &operator=(StdIOClient &&) = delete;
 
+    bool needsRestart(const StdIOSettings *settings);
+
     bool start() override;
 
     void setWorkingDirectory(const QString &workingDirectory);
-
-    bool matches(const BaseSettings *setting) override;
 
 protected:
     void sendData(const QByteArray &data) final;

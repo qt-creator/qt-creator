@@ -75,7 +75,7 @@ namespace {
     const QString apkVersionRegEx("(?<token>package: )(.*?)(versionCode=)'(?<target>.*?)'");
     const QString versionCodeRegEx("(?<token>versionCode=)(?<version>\\d*)");
 
-    Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager")
+    Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager", QtWarningMsg)
 
     QString parseAaptOutput(const QString &output, const QString &regEx) {
         const QRegularExpression regRx(regEx,

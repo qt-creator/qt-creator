@@ -35,7 +35,7 @@
 
 #include <algorithm>
 
-static Q_LOGGING_CATEGORY(importsLog, "qtc.qmljs.imports")
+static Q_LOGGING_CATEGORY(importsLog, "qtc.qmljs.imports", QtWarningMsg)
 
 namespace QmlJS {
 

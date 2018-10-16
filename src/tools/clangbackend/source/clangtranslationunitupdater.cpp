@@ -32,7 +32,7 @@
 
 #include <QLoggingCategory>
 
-static Q_LOGGING_CATEGORY(verboseLibLog, "qtc.clangbackend.verboselib");
+static Q_LOGGING_CATEGORY(verboseLibLog, "qtc.clangbackend.verboselib", QtWarningMsg);
 
 static bool isVerboseModeEnabled()
 {
