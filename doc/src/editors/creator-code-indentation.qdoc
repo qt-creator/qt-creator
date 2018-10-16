@@ -86,6 +86,8 @@
 
     To specify different settings for a particular project, select
     \uicontrol Projects > \uicontrol {Code Style Settings}.
+
+    \include creator-clangformat.qdocinc clang format
     \endif
 
     \section1 Indenting QML Files

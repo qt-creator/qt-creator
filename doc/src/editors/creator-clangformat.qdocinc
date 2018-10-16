@@ -1,0 +1,66 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [clang format]
+
+    \section2 Automatic Indentation
+
+    The experimental Clang Format plugin uses the
+    \l{https://clang.llvm.org/docs/LibFormat.html}{LibFormat}
+    library for automatic indentation.
+
+    To enable the plugin, select \uicontrol Help > \uicontrol {About Plugins} >
+    \uicontrol {C++} > \uicontrol {ClangFormat}. Then restart \QC to load the
+    plugin.
+
+    To specify global settings for Clang Format:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {C++} >
+            \uicontrol {Clang Format}.
+            \image qtcreator-clang-format-options.png "C++ Clang Format options"
+        \li Double-click a value to modify it.
+    \endlist
+
+    You can also specify formatting separately for each project.
+    Create a \c {.clang-format} file that contains the
+    \l{https://clang.llvm.org/docs/ClangFormatStyleOptions.html}
+    {Clang Format Style Options} to use and save it in the project directory.
+
+    You can create \c {.clang-format} files that contain the configuration
+    options of a certain predefined style from the command line. For example,
+    to create a format file for the LLVM style, enter the following command:
+
+    \badcode
+    clang-format -style=llvm -dump-config > .clang-format
+    \endcode
+
+    To view the \c {.clang-format} file for a project, select
+    \uicontrol Projects > \uicontrol {Project Settings} >
+    \uicontrol {Clang Format}.
+
+//! [clang format]
+*/
