@@ -102,7 +102,7 @@ SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
         // (2) column in Clang is the utf8 byte offset from the beginning of the line.
         // Here we convert column from (2) to (1).
         column_ = static_cast<uint>(QString::fromUtf8(&contents[lineStart],
-                                                      static_cast<int>(column_)).size());
+                                                      static_cast<int>(column_) - 1).size()) + 1;
     }
 }
 
