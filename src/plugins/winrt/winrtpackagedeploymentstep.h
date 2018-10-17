@@ -26,6 +26,7 @@
 #pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/projectconfigurationaspects.h>
 
 namespace WinRt {
 namespace Internal {
@@ -43,20 +44,15 @@ public:
     void stdOutput(const QString &line) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
-    void setWinDeployQtArguments(const QString &args);
-    QString winDeployQtArguments() const;
     QString defaultWinDeployQtArguments() const;
 
     void raiseError(const QString &errorMessage);
     void raiseWarning(const QString &warningMessage);
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
 private:
     bool parseIconsAndExecutableFromManifest(QString manifestFileName, QStringList *items, QString *executable);
 
-    QString m_args;
+    ProjectExplorer::BaseStringAspect *m_argsAspect = nullptr;
     QString m_targetFilePath;
     QString m_targetDirPath;
     QString m_executablePathInManifest;

@@ -33,7 +33,6 @@ const char WINRT_DEVICE_TYPE_LOCAL[] = "WinRt.Device.Local";
 const char WINRT_DEVICE_TYPE_EMULATOR[] = "WinRt.Device.Emulator";
 const char WINRT_DEVICE_TYPE_PHONE[] = "WinRt.Device.Phone";
 const char WINRT_BUILD_STEP_DEPLOY[] = "WinRt.BuildStep.Deploy";
-const char WINRT_BUILD_STEP_DEPLOY_ARGUMENTS[] = "WinRt.BuildStep.Deploy.Arguments";
 const char WINRT_WINRTQT[] = "WinRt.QtVersion.WindowsRuntime";
 const char WINRT_WINPHONEQT[] = "WinRt.QtVersion.WindowsPhone";
 const char WINRT_QTMAP_SUBKEYNAME[] = "WinRt";

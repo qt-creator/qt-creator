@@ -7,7 +7,6 @@ HEADERS += \
     winrtdevice.h \
     winrtdevicefactory.h \
     winrtpackagedeploymentstep.h \
-    winrtpackagedeploymentstepwidget.h \
     winrtphoneqtversion.h \
     winrtplugin.h \
     winrtqtversion.h \
@@ -22,7 +21,6 @@ SOURCES += \
     winrtdevice.cpp \
     winrtdevicefactory.cpp \
     winrtpackagedeploymentstep.cpp \
-    winrtpackagedeploymentstepwidget.cpp \
     winrtphoneqtversion.cpp \
     winrtplugin.cpp \
     winrtqtversion.cpp \
@@ -32,9 +30,6 @@ SOURCES += \
     winrtrunnerhelper.cpp
 
 DEFINES += WINRT_LIBRARY
-
-FORMS += \
-    winrtpackagedeploymentstepwidget.ui
 
 RESOURCES += \
     winrt.qrc
