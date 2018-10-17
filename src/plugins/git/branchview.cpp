@@ -185,9 +185,9 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     }
     if (hasActions) {
         if (!currentSelected && (isLocal || isTag))
-            contextMenu.addAction(tr("Remove"), this, &BranchView::remove);
+            contextMenu.addAction(tr("Remove..."), this, &BranchView::remove);
         if (isLocal || isTag)
-            contextMenu.addAction(tr("Rename"), this, &BranchView::rename);
+            contextMenu.addAction(tr("Rename..."), this, &BranchView::rename);
         if (!currentSelected)
             contextMenu.addAction(tr("Checkout"), this, &BranchView::checkout);
         contextMenu.addSeparator();
