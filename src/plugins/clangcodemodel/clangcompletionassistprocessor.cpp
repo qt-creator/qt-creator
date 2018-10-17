@@ -98,9 +98,9 @@ static void addFunctionOverloadAssistProposalItem(QList<AssistProposalItemInterf
     cursor.movePosition(QTextCursor::StartOfWord);
 
     const ClangBackEnd::CodeCompletionChunk resultType = codeCompletion.chunks.first();
-    if (::Utils::Text::matchPreviousWord(*interface->textEditorWidget(),
-                                         cursor,
-                                         resultType.text.toString())) {
+    if (Utils::Text::matchPreviousWord(*interface->textEditorWidget(),
+                                       cursor,
+                                       resultType.text.toString())) {
         // Function definition completion - do not merge completions together.
         addAssistProposalItem(items, codeCompletion, name);
     } else {

@@ -198,9 +198,9 @@ void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulato
             QTextCursor cursor = manipulator.textCursorAt(basePosition);
 
             bool abandonParen = false;
-            if (::Utils::Text::matchPreviousWord(manipulator, cursor, "&")) {
-                ::Utils::Text::moveToPrevWord(manipulator, cursor);
-                ::Utils::Text::moveToPrevChar(manipulator, cursor);
+            if (Utils::Text::matchPreviousWord(manipulator, cursor, "&")) {
+                Utils::Text::moveToPreviousWord(manipulator, cursor);
+                Utils::Text::moveToPreviousChar(manipulator, cursor);
                 const QChar prevChar = manipulator.characterAt(cursor.position());
                 cursor.setPosition(basePosition);
                 abandonParen = QString("(;,{}").contains(prevChar);
@@ -211,7 +211,7 @@ void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulato
             if (!abandonParen && ccr.completionKind == CodeCompletion::FunctionDefinitionCompletionKind) {
                 const CodeCompletionChunk resultType = ccr.chunks.first();
                 if (resultType.kind == CodeCompletionChunk::ResultType) {
-                    if (::Utils::Text::matchPreviousWord(manipulator, cursor, resultType.text.toString())) {
+                    if (Utils::Text::matchPreviousWord(manipulator, cursor, resultType.text.toString())) {
                         extraCharacters += methodDefinitionParameters(ccr.chunks);
                         // To skip the next block.
                         abandonParen = true;

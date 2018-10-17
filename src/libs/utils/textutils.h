@@ -29,7 +29,6 @@
 #include "utils_global.h"
 
 #include <QString>
-#include <QTextCursor>
 
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
@@ -58,51 +57,6 @@ QTCREATOR_UTILS_EXPORT QTextCursor wordStartCursor(const QTextCursor &cursor);
 QTCREATOR_UTILS_EXPORT int utf8NthLineOffset(const QTextDocument *textDocument,
                                              const QByteArray &buffer,
                                              int line);
-
-template <class CharacterProvider>
-void moveToPrevChar(CharacterProvider &provider, QTextCursor &cursor)
-{
-    cursor.movePosition(QTextCursor::PreviousCharacter);
-    while (provider.characterAt(cursor.position()).isSpace())
-        cursor.movePosition(QTextCursor::PreviousCharacter);
-}
-
-template <class CharacterProvider>
-void moveToPrevWord(CharacterProvider &provider, QTextCursor &cursor)
-{
-    cursor.movePosition(QTextCursor::PreviousWord);
-    while (provider.characterAt(cursor.position()) == ':')
-        cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
-}
-
-template <class CharacterProvider>
-bool matchPreviousWord(CharacterProvider &provider, QTextCursor cursor, QString pattern)
-{
-    cursor.movePosition(QTextCursor::PreviousWord);
-    while (provider.characterAt(cursor.position()) == ':')
-        cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
-
-    int previousWordStart = cursor.position();
-    cursor.movePosition(QTextCursor::NextWord);
-    moveToPrevChar(provider, cursor);
-    QString toMatch = provider.textAt(previousWordStart, cursor.position() - previousWordStart + 1);
-
-    pattern = pattern.simplified();
-    while (!pattern.isEmpty() && pattern.endsWith(toMatch)) {
-        pattern.chop(toMatch.length());
-        if (pattern.endsWith(' '))
-            pattern.chop(1);
-        if (!pattern.isEmpty()) {
-            cursor.movePosition(QTextCursor::StartOfWord);
-            cursor.movePosition(QTextCursor::PreviousWord);
-            previousWordStart = cursor.position();
-            cursor.movePosition(QTextCursor::NextWord);
-            moveToPrevChar(provider, cursor);
-            toMatch = provider.textAt(previousWordStart, cursor.position() - previousWordStart + 1);
-        }
-    }
-    return pattern.isEmpty();
-}
 
 } // Text
 } // Utils
