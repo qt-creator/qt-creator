@@ -79,6 +79,8 @@ public:
 
     bool operator == (const ToolChain &) const override;
 
+    static void cancelMsvcToolChainDetection();
+
 protected:
     explicit MsvcToolChain(Core::Id typeId, const QString &name, const Abi &abi,
                            const QString &varsBat, const QString &varsBatArg,
