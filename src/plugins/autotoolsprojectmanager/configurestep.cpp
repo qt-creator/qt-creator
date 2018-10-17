@@ -81,6 +81,12 @@ ConfigureStepFactory::ConfigureStepFactory()
 ConfigureStep::ConfigureStep(BuildStepList *bsl) : AbstractProcessStep(bsl, CONFIGURE_STEP_ID)
 {
     setDefaultDisplayName(tr("Configure"));
+
+    m_additionalArgumentsAspect = addAspect<BaseStringAspect>();
+    m_additionalArgumentsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_additionalArgumentsAspect->setSettingsKey(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY);
+    m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
+    m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
 }
 
 bool ConfigureStep::init(QList<const BuildStep *> &earlierSteps)
@@ -92,7 +98,7 @@ bool ConfigureStep::init(QList<const BuildStep *> &earlierSteps)
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory().toString());
     pp->setCommand(projectDirRelativeToBuildDir(bc) + "configure");
-    pp->setArguments(additionalArguments());
+    pp->setArguments(m_additionalArgumentsAspect->value());
     pp->resolveAll();
 
     return AbstractProcessStep::init(earlierSteps);
@@ -124,7 +130,16 @@ void ConfigureStep::run(QFutureInterface<bool>& fi)
 
 BuildStepConfigWidget *ConfigureStep::createConfigWidget()
 {
-    return new ConfigureStepConfigWidget(this);
+    m_widget = AbstractProcessStep::createConfigWidget();
+
+    updateDetails();
+
+    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [this] {
+        m_runConfigure = true;
+        updateDetails();
+    });
+
+    return m_widget.data();
 }
 
 bool ConfigureStep::immutable() const
@@ -132,78 +147,24 @@ bool ConfigureStep::immutable() const
     return false;
 }
 
-void ConfigureStep::setAdditionalArguments(const QString &list)
-{
-    if (list == m_additionalArguments)
-        return;
-
-    m_additionalArguments = list;
-    m_runConfigure = true;
-
-    emit additionalArgumentsChanged(list);
-}
-
 void ConfigureStep::notifyBuildDirectoryChanged()
 {
-    emit buildDirectoryChanged();
-}
-
-QString ConfigureStep::additionalArguments() const
-{
-    return m_additionalArguments;
-}
-
-QVariantMap ConfigureStep::toMap() const
-{
-    QVariantMap map = AbstractProcessStep::toMap();
-
-    map.insert(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY, m_additionalArguments);
-    return map;
-}
-
-bool ConfigureStep::fromMap(const QVariantMap &map)
-{
-    m_additionalArguments = map.value(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY).toString();
-
-    return BuildStep::fromMap(map);
-}
-
-/////////////////////////////////////
-// ConfigureStepConfigWidget class
-/////////////////////////////////////
-ConfigureStepConfigWidget::ConfigureStepConfigWidget(ConfigureStep *configureStep) :
-    BuildStepConfigWidget(configureStep),
-    m_configureStep(configureStep),
-    m_additionalArguments(new QLineEdit)
-{
-    QFormLayout *fl = new QFormLayout(this);
-    fl->setMargin(0);
-    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    setLayout(fl);
-
-    fl->addRow(tr("Arguments:"), m_additionalArguments);
-    m_additionalArguments->setText(m_configureStep->additionalArguments());
-
     updateDetails();
-
-    connect(m_additionalArguments, &QLineEdit::textChanged,
-            configureStep, &ConfigureStep::setAdditionalArguments);
-    connect(configureStep, &ConfigureStep::additionalArgumentsChanged,
-            this, &ConfigureStepConfigWidget::updateDetails);
-    connect(configureStep, &ConfigureStep::buildDirectoryChanged,
-            this, &ConfigureStepConfigWidget::updateDetails);
 }
 
-void ConfigureStepConfigWidget::updateDetails()
+void ConfigureStep::updateDetails()
 {
-    BuildConfiguration *bc = m_configureStep->buildConfiguration();
+    if (!m_widget)
+        return;
+
+    BuildConfiguration *bc = buildConfiguration();
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
     param.setWorkingDirectory(bc->buildDirectory().toString());
     param.setCommand(projectDirRelativeToBuildDir(bc) + "configure");
-    param.setArguments(m_configureStep->additionalArguments());
+    param.setArguments(m_additionalArgumentsAspect->value());
 
-    setSummaryText(param.summaryInWorkdir(displayName()));
+    m_widget->setSummaryText(param.summaryInWorkdir(displayName()));
 }

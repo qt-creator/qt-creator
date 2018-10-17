@@ -78,7 +78,6 @@ void AutotoolsBuildConfiguration::initialize(const BuildInfo *info)
         buildSteps->insertStep(0, autogenStep);
     } else {
         AutoreconfStep *autoreconfStep = new AutoreconfStep(buildSteps);
-        autoreconfStep->setAdditionalArguments("--force --install");
         buildSteps->insertStep(0, autoreconfStep);
     }
 

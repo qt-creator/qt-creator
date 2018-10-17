@@ -28,17 +28,10 @@
 #pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
-
-QT_BEGIN_NAMESPACE
-class QLineEdit;
-QT_END_NAMESPACE
+#include <projectexplorer/projectconfigurationaspects.h>
 
 namespace AutotoolsProjectManager {
 namespace Internal {
-
-class AutotoolsProject;
-class AutogenStep;
-class AutogenStepConfigWidget;
 
 /////////////////////////////
 // AutogenStepFactory class
@@ -63,16 +56,12 @@ public:
  * A autogen step can be configured by selecting the "Projects" button of Qt Creator
  * (in the left hand side menu) and under "Build Settings".
  *
- * It is possible for the user to specify custom arguments. The corresponding
- * configuration widget is created by AutogenStep::createConfigWidget and is
- * represented by an instance of the class AutogenStepConfigWidget.
+ * It is possible for the user to specify custom arguments.
  */
 
 class AutogenStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
-    friend class AutogenStepFactory;
-    friend class AutogenStepConfigWidget;
 
 public:
     explicit AutogenStep(ProjectExplorer::BuildStepList *bsl);
@@ -81,41 +70,10 @@ public:
     void run(QFutureInterface<bool> &fi) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override;
-    QString additionalArguments() const;
-    QVariantMap toMap() const override;
-
-    void setAdditionalArguments(const QString &list);
-
-signals:
-    void additionalArgumentsChanged(const QString &);
 
 private:
-    bool fromMap(const QVariantMap &map) override;
-
-    QString m_additionalArguments;
+    ProjectExplorer::BaseStringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runAutogen = false;
-};
-
-//////////////////////////////////
-// AutogenStepConfigWidget class
-//////////////////////////////////
-/**
- * @brief Implementation of the ProjectExplorer::BuildStepConfigWidget interface.
- *
- * Allows to configure a autogen step in the GUI.
- */
-class AutogenStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-
-public:
-    AutogenStepConfigWidget(AutogenStep *autogenStep);
-
-private:
-    void updateDetails();
-
-    AutogenStep *m_autogenStep;
-    QLineEdit *m_additionalArguments;
 };
 
 } // namespace Internal

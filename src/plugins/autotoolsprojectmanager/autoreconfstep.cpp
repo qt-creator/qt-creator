@@ -26,28 +26,20 @@
 ****************************************************************************/
 
 #include "autoreconfstep.h"
-#include "autotoolsproject.h"
-#include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <utils/qtcprocess.h>
-
-#include <QVariantMap>
-#include <QLineEdit>
-#include <QFormLayout>
+#include <projectexplorer/target.h>
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
 const char AUTORECONF_STEP_ID[] = "AutotoolsProjectManager.AutoreconfStep";
-const char AUTORECONF_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.AutoreconfStep.AdditionalArguments";
 
 
 // AutoreconfStepFactory class
@@ -66,6 +58,13 @@ AutoreconfStepFactory::AutoreconfStepFactory()
 AutoreconfStep::AutoreconfStep(BuildStepList *bsl) : AbstractProcessStep(bsl, AUTORECONF_STEP_ID)
 {
     setDefaultDisplayName(tr("Autoreconf"));
+
+    m_additionalArgumentsAspect = addAspect<BaseStringAspect>();
+    m_additionalArgumentsAspect->setSettingsKey("AutotoolsProjectManager.AutoreconfStep.AdditionalArguments");
+    m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
+    m_additionalArgumentsAspect->setValue("--force --install");
+    m_additionalArgumentsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
 }
 
 bool AutoreconfStep::init(QList<const BuildStep *> &earlierSteps)
@@ -78,7 +77,7 @@ bool AutoreconfStep::init(QList<const BuildStep *> &earlierSteps)
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
     pp->setWorkingDirectory(projectDir);
     pp->setCommand("autoreconf");
-    pp->setArguments(additionalArguments());
+    pp->setArguments(m_additionalArgumentsAspect->value());
     pp->resolveAll();
 
     return AbstractProcessStep::init(earlierSteps);
@@ -106,80 +105,33 @@ void AutoreconfStep::run(QFutureInterface<bool> &fi)
 
 BuildStepConfigWidget *AutoreconfStep::createConfigWidget()
 {
-    return new AutoreconfStepConfigWidget(this);
+    auto widget = AbstractProcessStep::createConfigWidget();
+
+    auto updateDetails = [this, widget] {
+        BuildConfiguration *bc = buildConfiguration();
+
+        ProcessParameters param;
+        param.setMacroExpander(bc->macroExpander());
+        param.setEnvironment(bc->environment());
+        const QString projectDir(bc->target()->project()->projectDirectory().toString());
+        param.setWorkingDirectory(projectDir);
+        param.setCommand("autoreconf");
+        param.setArguments(m_additionalArgumentsAspect->value());
+
+        widget->setSummaryText(param.summary(displayName()));
+    };
+
+    updateDetails();
+
+    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [=] {
+        updateDetails();
+        m_runAutoreconf = true;
+    });
+
+    return widget;
 }
 
 bool AutoreconfStep::immutable() const
 {
     return false;
-}
-
-void AutoreconfStep::setAdditionalArguments(const QString &list)
-{
-    if (list == m_additionalArguments)
-        return;
-
-    m_additionalArguments = list;
-    m_runAutoreconf = true;
-
-    emit additionalArgumentsChanged(list);
-}
-
-QString AutoreconfStep::additionalArguments() const
-{
-    return m_additionalArguments;
-}
-
-QVariantMap AutoreconfStep::toMap() const
-{
-    QVariantMap map = AbstractProcessStep::toMap();
-
-    map.insert(AUTORECONF_ADDITIONAL_ARGUMENTS_KEY, m_additionalArguments);
-    return map;
-}
-
-bool AutoreconfStep::fromMap(const QVariantMap &map)
-{
-    m_additionalArguments = map.value(AUTORECONF_ADDITIONAL_ARGUMENTS_KEY).toString();
-
-    return BuildStep::fromMap(map);
-}
-
-//////////////////////////////////////
-// AutoreconfStepConfigWidget class
-//////////////////////////////////////
-AutoreconfStepConfigWidget::AutoreconfStepConfigWidget(AutoreconfStep *autoreconfStep) :
-    BuildStepConfigWidget(autoreconfStep),
-    m_autoreconfStep(autoreconfStep),
-    m_additionalArguments(new QLineEdit(this))
-{
-    QFormLayout *fl = new QFormLayout(this);
-    fl->setMargin(0);
-    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    setLayout(fl);
-
-    fl->addRow(tr("Arguments:"), m_additionalArguments);
-    m_additionalArguments->setText(m_autoreconfStep->additionalArguments());
-
-    updateDetails();
-
-    connect(m_additionalArguments, &QLineEdit::textChanged,
-            autoreconfStep, &AutoreconfStep::setAdditionalArguments);
-    connect(autoreconfStep, &AutoreconfStep::additionalArgumentsChanged,
-            this, &AutoreconfStepConfigWidget::updateDetails);
-}
-
-void AutoreconfStepConfigWidget::updateDetails()
-{
-    BuildConfiguration *bc = m_autoreconfStep->buildConfiguration();
-
-    ProcessParameters param;
-    param.setMacroExpander(bc->macroExpander());
-    param.setEnvironment(bc->environment());
-    const QString projectDir(bc->target()->project()->projectDirectory().toString());
-    param.setWorkingDirectory(projectDir);
-    param.setCommand("autoreconf");
-    param.setArguments(m_autoreconfStep->additionalArguments());
-
-    setSummaryText(param.summary(displayName()));
 }

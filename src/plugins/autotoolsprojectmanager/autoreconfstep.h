@@ -28,16 +28,10 @@
 #pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
-
-QT_BEGIN_NAMESPACE
-class QLineEdit;
-QT_END_NAMESPACE
+#include <projectexplorer/projectconfigurationaspects.h>
 
 namespace AutotoolsProjectManager {
 namespace Internal {
-
-class AutotoolsProject;
-class AutoreconfStep;
 
 ////////////////////////////////
 // AutoreconfStepFactory class
@@ -62,16 +56,12 @@ public:
  * A autoreconf step can be configured by selecting the "Projects" button
  * of Qt Creator (in the left hand side menu) and under "Build Settings".
  *
- * It is possible for the user to specify custom arguments. The corresponding
- * configuration widget is created by AutoreconfStep::createConfigWidget and is
- * represented by an instance of the class AutoreconfStepConfigWidget.
+ * It is possible for the user to specify custom arguments.
  */
 
 class AutoreconfStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
-    friend class AutoreconfStepFactory;
-    friend class AutoreconfStepConfigWidget;
 
 public:
     explicit AutoreconfStep(ProjectExplorer::BuildStepList *bsl);
@@ -80,41 +70,10 @@ public:
     void run(QFutureInterface<bool> &fi) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override;
-    QString additionalArguments() const;
-    QVariantMap toMap() const override;
-
-    void setAdditionalArguments(const QString &list);
-
-signals:
-    void additionalArgumentsChanged(const QString &);
 
 private:
-    bool fromMap(const QVariantMap &map) override;
-
-    QString m_additionalArguments;
+    ProjectExplorer::BaseStringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runAutoreconf = false;
-};
-
-//////////////////////////////////////
-// AutoreconfStepConfigWidget class
-//////////////////////////////////////
-/**
- * @brief Implementation of the ProjectExplorer::BuildStepConfigWidget interface.
- *
- * Allows to configure a autoreconf step in the GUI..
- */
-class AutoreconfStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-
-public:
-    AutoreconfStepConfigWidget(AutoreconfStep *autoreconfStep);
-
-private:
-    void updateDetails();
-
-    AutoreconfStep *m_autoreconfStep;
-    QLineEdit *m_additionalArguments;
 };
 
 } // namespace Internal
