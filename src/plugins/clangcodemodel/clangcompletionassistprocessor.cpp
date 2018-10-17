@@ -113,8 +113,7 @@ static bool isTheSameFunctionOverload(const CodeCompletion &completion,
                                       const QString &name,
                                       ClangAssistProposalItem *lastItem)
 {
-    return completion.hasParameters
-            && completion.completionKind == lastItem->firstCodeCompletion().completionKind
+    return completion.completionKind == lastItem->firstCodeCompletion().completionKind
             && lastItem->text() == name;
 }
 
