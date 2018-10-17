@@ -30,6 +30,7 @@
 #include "remotelinux_export.h"
 
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/projectconfigurationaspects.h>
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -76,8 +77,8 @@ private:
 
     DeploymentTimeInfo m_deployTimes;
 
-    bool m_incrementalDeployment = false;
-    bool m_ignoreMissingFiles = false;
+    ProjectExplorer::BaseBoolAspect *m_incrementalDeploymentAspect = nullptr;
+    ProjectExplorer::BaseBoolAspect *m_ignoreMissingFilesAspect = nullptr;
     bool m_packagingNeeded = false;
     QList<ProjectExplorer::DeployableFile> m_files;
 };

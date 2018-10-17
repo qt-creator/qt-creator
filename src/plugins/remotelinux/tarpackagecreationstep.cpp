@@ -38,9 +38,6 @@
 #include <QFile>
 #include <QFileInfo>
 
-#include <QCheckBox>
-#include <QVBoxLayout>
-
 #include <cstring>
 
 using namespace ProjectExplorer;
@@ -49,60 +46,6 @@ namespace RemoteLinux {
 namespace {
 const char IgnoreMissingFilesKey[] = "RemoteLinux.TarPackageCreationStep.IgnoreMissingFiles";
 const char IncrementalDeploymentKey[] = "RemoteLinux.TarPackageCreationStep.IncrementalDeployment";
-
-class CreateTarStepWidget : public BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    CreateTarStepWidget(TarPackageCreationStep *step) : BuildStepConfigWidget(step)
-    {
-        m_ignoreMissingFilesCheckBox.setText(tr("Ignore missing files"));
-        m_incrementalDeploymentCheckBox.setText(tr("Package modified files only"));
-
-        QVBoxLayout *mainLayout = new QVBoxLayout(this);
-        mainLayout->setMargin(0);
-        mainLayout->addWidget(&m_incrementalDeploymentCheckBox);
-        mainLayout->addWidget(&m_ignoreMissingFilesCheckBox);
-
-        m_ignoreMissingFilesCheckBox.setChecked(step->ignoreMissingFiles());
-        m_incrementalDeploymentCheckBox.setChecked(step->isIncrementalDeployment());
-
-        connect(&m_ignoreMissingFilesCheckBox, &QAbstractButton::toggled,
-                this, &CreateTarStepWidget::handleIgnoreMissingFilesChanged);
-
-        connect(&m_incrementalDeploymentCheckBox, &QAbstractButton::toggled,
-                this, &CreateTarStepWidget::handleIncrementalDeploymentChanged);
-
-        connect(step, &AbstractPackagingStep::packageFilePathChanged,
-                this, &BuildStepConfigWidget::updateSummary);
-    }
-
-    QString summaryText() const
-    {
-        TarPackageCreationStep * const step = static_cast<TarPackageCreationStep *>(this->step());
-        if (step->packageFilePath().isEmpty()) {
-            return QLatin1String("<font color=\"red\">")
-                + tr("Tarball creation not possible.") + QLatin1String("</font>");
-        }
-        return QLatin1String("<b>") + tr("Create tarball:") + QLatin1String("</b> ")
-            + step->packageFilePath();
-    }
-
-private:
-    void handleIgnoreMissingFilesChanged(bool ignoreMissingFiles) {
-        TarPackageCreationStep *step = qobject_cast<TarPackageCreationStep *>(this->step());
-        step->setIgnoreMissingFiles(ignoreMissingFiles);
-    }
-
-    void handleIncrementalDeploymentChanged(bool incrementalDeployment) {
-        TarPackageCreationStep *step = qobject_cast<TarPackageCreationStep *>(this->step());
-        step->setIncrementalDeployment(incrementalDeployment);
-    }
-
-    QCheckBox m_ignoreMissingFilesCheckBox;
-    QCheckBox m_incrementalDeploymentCheckBox;
-};
-
 
 const int TarBlockSize = 512;
 struct TarFileHeader {
@@ -131,6 +74,14 @@ TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl)
     : AbstractPackagingStep(bsl, stepId())
 {
     setDefaultDisplayName(displayName());
+
+    m_ignoreMissingFilesAspect = addAspect<BaseBoolAspect>();
+    m_ignoreMissingFilesAspect->setLabel(tr("Ignore missing files"));
+    m_ignoreMissingFilesAspect->setSettingsKey(IgnoreMissingFilesKey);
+
+    m_incrementalDeploymentAspect = addAspect<BaseBoolAspect>();
+    m_incrementalDeploymentAspect->setLabel(tr("Package modified files only"));
+    m_incrementalDeploymentAspect->setSettingsKey(IncrementalDeploymentKey);
 }
 
 bool TarPackageCreationStep::init(QList<const BuildStep *> &earlierSteps)
@@ -149,7 +100,7 @@ void TarPackageCreationStep::run(QFutureInterface<bool> &fi)
 
     const QList<DeployableFile> &files = target()->deploymentData().allFiles();
 
-    if (m_incrementalDeployment) {
+    if (m_incrementalDeploymentAspect->value()) {
         m_files.clear();
         for (const DeployableFile &file : files)
             addNeededDeploymentFiles(file, target()->kit());
@@ -169,26 +120,6 @@ void TarPackageCreationStep::run(QFutureInterface<bool> &fi)
             this, &TarPackageCreationStep::deployFinished);
 
     reportRunResult(fi, success);
-}
-
-void TarPackageCreationStep::setIgnoreMissingFiles(bool ignoreMissingFiles)
-{
-    m_ignoreMissingFiles = ignoreMissingFiles;
-}
-
-bool TarPackageCreationStep::ignoreMissingFiles() const
-{
-    return m_ignoreMissingFiles;
-}
-
-void TarPackageCreationStep::setIncrementalDeployment(bool incrementalDeployment)
-{
-    m_incrementalDeployment = incrementalDeployment;
-}
-
-bool TarPackageCreationStep::isIncrementalDeployment() const
-{
-    return m_incrementalDeployment;
 }
 
 void TarPackageCreationStep::addNeededDeploymentFiles(
@@ -282,7 +213,7 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
     if (!file.open(QIODevice::ReadOnly)) {
         const QString message = tr("Error reading file \"%1\": %2.")
                                 .arg(nativePath, file.errorString());
-        if (m_ignoreMissingFiles) {
+        if (m_ignoreMissingFilesAspect->value()) {
             raiseWarning(message);
             return true;
         } else {
@@ -410,15 +341,31 @@ QString TarPackageCreationStep::packageFileName() const
 
 BuildStepConfigWidget *TarPackageCreationStep::createConfigWidget()
 {
-    return new CreateTarStepWidget(this);
+    auto widget = BuildStep::createConfigWidget();
+
+    auto updateSummary = [this, widget] {
+        QString path = packageFilePath();
+        if (path.isEmpty()) {
+            widget->setSummaryText("<font color=\"red\">"
+                              + tr("Tarball creation not possible.")
+                              + "</font>");
+        } else {
+            widget->setSummaryText("<b>" + tr("Create tarball:") + "</b> " + path);
+        }
+    };
+
+    connect(this, &AbstractPackagingStep::packageFilePathChanged,
+            this, updateSummary);
+
+    updateSummary();
+
+    return widget;
 }
 
 bool TarPackageCreationStep::fromMap(const QVariantMap &map)
 {
     if (!AbstractPackagingStep::fromMap(map))
         return false;
-    setIgnoreMissingFiles(map.value(QLatin1String(IgnoreMissingFilesKey), false).toBool());
-    setIncrementalDeployment(map.value(QLatin1String(IncrementalDeploymentKey), false).toBool());
     m_deployTimes.importDeployTimes(map);
     return true;
 }
@@ -426,8 +373,6 @@ bool TarPackageCreationStep::fromMap(const QVariantMap &map)
 QVariantMap TarPackageCreationStep::toMap() const
 {
     QVariantMap map = AbstractPackagingStep::toMap();
-    map.insert(QLatin1String(IgnoreMissingFilesKey), ignoreMissingFiles());
-    map.insert(QLatin1String(IncrementalDeploymentKey), m_incrementalDeployment);
     map.unite(m_deployTimes.exportDeployTimes());
     return map;
 }
@@ -443,5 +388,3 @@ QString TarPackageCreationStep::displayName()
 }
 
 } // namespace RemoteLinux
-
-#include "tarpackagecreationstep.moc"
