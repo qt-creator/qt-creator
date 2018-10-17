@@ -41,7 +41,7 @@ class CdbCommand;
 struct MemoryViewCookie;
 class StringInputStream;
 
-class CdbEngine : public DebuggerEngine
+class CdbEngine : public CppDebuggerEngine
 {
     Q_OBJECT
 
