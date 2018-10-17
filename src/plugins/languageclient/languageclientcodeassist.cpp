@@ -267,6 +267,7 @@ TextEditor::IAssistProposal *LanguageClientCompletionAssistProcessor::perform(
     if (!Utils::Text::convertPosition(interface->textDocument(), m_pos, &line, &column))
         return nullptr;
     --line; // line is 0 based in the protocol
+    --column; // column is 0 based in the protocol
     params.setPosition({line, column});
     params.setTextDocument(
                 DocumentUri::fromFileName(Utils::FileName::fromString(interface->fileName())));
