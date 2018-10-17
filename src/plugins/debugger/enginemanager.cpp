@@ -344,8 +344,13 @@ void EngineManagerPrivate::selectUiForCurrentEngine()
     int row = 0;
 
     if (m_currentItem && m_currentItem->m_engine) {
+        ICore::updateAdditionalContexts(Context(Debugger::Constants::C_DEBUGGER_NOTRUNNING),
+                                        Context(Debugger::Constants::C_DEBUGGER_RUNNING));
         perspective = m_currentItem->m_engine->perspective();
         m_currentItem->m_engine->updateState(false);
+    } else {
+        ICore::updateAdditionalContexts(Context(Debugger::Constants::C_DEBUGGER_RUNNING),
+                                        Context(Debugger::Constants::C_DEBUGGER_NOTRUNNING));
     }
 
     if (m_currentItem)

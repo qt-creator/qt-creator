@@ -777,6 +777,7 @@ public:
     // In the Debug menu.
     Action m_returnFromFunctionAction{tr("Immediately Return From Inner Function"), {}, &DebuggerEngine::executeReturn};
     QAction m_stepOverAction{tr("Step Over")};
+    QAction m_startAndBreakOnMain{tr("Start and Break on Main")};
     Action m_watchAction{tr("Add Expression Evaluator"), {}, &DebuggerEngine::handleAddToWatchWindow};
     Command *m_watchCommand = nullptr;
     QAction m_breakAction{tr("Toggle Breakpoint")};
@@ -1012,6 +1013,11 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
+
+    const Context debuggerRunning(C_DEBUGGER_RUNNING);
+    const Context debuggerNotRunning(C_DEBUGGER_NOTRUNNING);
+    ICore::addAdditionalContext(debuggerNotRunning);
+
     m_arguments = arguments;
     if (!m_arguments.isEmpty())
         connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::finishedInitialization,
@@ -1225,34 +1231,37 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     debugMenu->addSeparator();
 
-    cmd = ActionManager::registerAction(&m_stepOverAction, Constants::NEXT);
+    cmd = ActionManager::registerAction(&m_startAndBreakOnMain,
+                                        Constants::START_AND_BREAK_ON_MAIN,
+                                        debuggerNotRunning);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+O") : tr("F10")));
     cmd->setAttribute(Command::CA_Hide);
-    cmd->setAttribute(Command::CA_UpdateText);
+    debugMenu->addAction(cmd);
+    connect(&m_startAndBreakOnMain, &QAction::triggered, this, [] {
+        DebuggerRunTool::setBreakOnMainNextTime();
+        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
+    });
+
+    cmd = ActionManager::registerAction(&m_stepOverAction, Constants::NEXT, debuggerRunning);
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+O") : tr("F10")));
+    cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
     m_stepOverAction.setIcon(Icons::STEP_OVER.icon());
     connect(&m_stepOverAction, &QAction::triggered, this, [] {
-        if (DebuggerEngine *engine = EngineManager::currentEngine()) {
-            engine->handleExecStepOver();
-        } else {
-            DebuggerRunTool::setBreakOnMainNextTime();
-            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
-        }
+        DebuggerEngine *engine = EngineManager::currentEngine();
+        QTC_ASSERT(engine, return);
+        engine->handleExecStepOver();
     });
 
-    cmd = ActionManager::registerAction(&m_stepInAction, Constants::STEP);
+    cmd = ActionManager::registerAction(&m_stepInAction, Constants::STEP, debuggerRunning);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+I") : tr("F11")));
     cmd->setAttribute(Command::CA_Hide);
-    cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
     m_stepInAction.setIcon(Icons::STEP_INTO.icon());
     connect(&m_stepInAction, &QAction::triggered, this, [] {
-        if (DebuggerEngine *engine = EngineManager::currentEngine()) {
-            engine->handleExecStepIn();
-        } else {
-            DebuggerRunTool::setBreakOnMainNextTime();
-            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
-        }
+        DebuggerEngine *engine = EngineManager::currentEngine();
+        QTC_ASSERT(engine, return);
+        engine->handleExecStepIn();
     });
 
 

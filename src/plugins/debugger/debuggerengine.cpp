@@ -2293,24 +2293,14 @@ void DebuggerEngine::handleReset()
 
 void DebuggerEngine::handleExecStepIn()
 {
-    if (state() == DebuggerNotReady) {
-        DebuggerRunTool::setBreakOnMainNextTime();
-        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    } else {
-        resetLocation();
-        executeStepIn(operatesByInstruction());
-    }
+    resetLocation();
+    executeStepIn(operatesByInstruction());
 }
 
 void DebuggerEngine::handleExecStepOver()
 {
-    if (state() == DebuggerNotReady) {
-        DebuggerRunTool::setBreakOnMainNextTime();
-        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    } else {
-        resetLocation();
-        executeStepOver(operatesByInstruction());
-    }
+    resetLocation();
+    executeStepOver(operatesByInstruction());
 }
 
 void DebuggerEngine::handleExecStepOut()
