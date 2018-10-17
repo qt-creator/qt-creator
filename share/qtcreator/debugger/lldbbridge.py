@@ -1127,6 +1127,13 @@ class Dumper(DumperBase):
 
         self.setVariableFetchingOptions(args)
 
+        # Reset certain caches whenever a step over / into / continue
+        # happens.
+        # FIXME: Caches are currently also cleared if currently
+        # selected frame is changed, that shouldn't happen.
+        if not self.partialVariable:
+            self.resetPerStepCaches()
+
         anyModule = self.target.GetModuleAtIndex(0)
         anySymbol = anyModule.GetSymbolAtIndex(0)
         self.fakeAddress = int(anySymbol.GetStartAddress())

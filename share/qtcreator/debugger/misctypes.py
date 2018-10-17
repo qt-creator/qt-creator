@@ -24,6 +24,7 @@
 ############################################################################
 
 from dumper import *
+import re
 
 #######################################################################
 #
@@ -349,6 +350,171 @@ def qdump__WTF__String(d, value):
         charSize = 2
 
     d.putCharArrayHelper(bufferPtr, stringLength, charSize)
+
+
+#######################################################################
+#
+# Python
+#
+#######################################################################
+
+def get_python_interpreter_major_version(d):
+    key = 'python_interpreter_major_version'
+    if key in d.generalCache:
+        return d.generalCache[key]
+
+    e = "(char*)Py_GetVersion()"
+    result = d.nativeParseAndEvaluate(e)
+    result_str = str(result)
+    matches = re.search(r'(\d+?)\.(\d+?)\.(\d+?)', result_str)
+    if matches:
+        result_str = matches.group(1)
+    d.generalCache[key] = result_str
+    return result_str
+
+
+def is_python_3(d):
+    return get_python_interpreter_major_version(d) == '3'
+
+
+def repr_cache_decorator(namespace):
+    def real_decorator(func_to_decorate):
+        def wrapper(d, address):
+            if namespace in d.perStepCache and address in d.perStepCache[namespace]:
+                return d.perStepCache[namespace][address]
+
+            if namespace not in d.perStepCache:
+                d.perStepCache[namespace] = {}
+
+            if address == 0:
+                result_str = d.perStepCache[namespace][address] = "<nullptr>"
+                return result_str
+
+            result = func_to_decorate(d, address)
+            d.perStepCache[namespace][address] = result
+            return result
+        return wrapper
+    return real_decorator
+
+
+@repr_cache_decorator('py_object')
+def get_py_object_repr_helper(d, address):
+    # The code below is a long way to evaluate:
+    # ((PyBytesObject *)PyUnicode_AsEncodedString(PyObject_Repr(
+    #        (PyObject*){}), \"utf-8\", \"backslashreplace\"))->ob_sval"
+    # But with proper object cleanup.
+
+    e_decref = "Py_DecRef((PyObject *){})"
+
+    e = "PyObject_Repr((PyObject*){})"
+    repr_object_value = d.parseAndEvaluate(e.format(address))
+    repr_object_address = d.fromPointerData(repr_object_value.ldata)[0]
+
+    if is_python_3(d):
+        # Try to get a UTF-8 encoded string from the repr object.
+        e = "PyUnicode_AsEncodedString((PyObject*){}, \"utf-8\", \"backslashreplace\")"
+        string_object_value = d.parseAndEvaluate(e.format(repr_object_address))
+        string_object_address = d.fromPointerData(string_object_value.ldata)[0]
+
+        e = "(char*)(((PyBytesObject *){})->ob_sval)"
+        result = d.nativeParseAndEvaluate(e.format(string_object_address))
+
+        # It's important to stringify the result before any other evaluations happen.
+        result_str = str(result)
+
+        # Clean up.
+        d.nativeParseAndEvaluate(e_decref.format(string_object_address))
+
+    else:
+        # Retrieve non-unicode string.
+        e = "(char*)(PyString_AsString((PyObject*){}))"
+        result = d.nativeParseAndEvaluate(e.format(repr_object_address))
+
+        # It's important to stringify the result before any other evaluations happen.
+        result_str = str(result)
+
+    # Do some string stripping.
+    # FIXME when using cdb engine.
+    matches = re.search(r'.+?"(.+)"$', result_str)
+    if matches:
+        result_str = matches.group(1)
+
+    # Clean up.
+    d.nativeParseAndEvaluate(e_decref.format(repr_object_address))
+
+    return result_str
+
+
+@repr_cache_decorator('py_object_type')
+def get_py_object_type(d, object_address):
+    e = "((PyObject *){})->ob_type"
+    type_value = d.parseAndEvaluate(e.format(object_address))
+    type_address = d.fromPointerData(type_value.ldata)[0]
+    type_repr = get_py_object_repr_helper(d, type_address)
+    return type_repr
+
+
+@repr_cache_decorator('py_object_meta_type')
+def get_py_object_meta_type(d, object_address):
+    # The python3 object layout has a few more indirections.
+    if is_python_3(d):
+        e = "((PyObject *){})->ob_type->ob_base->ob_base->ob_type"
+    else:
+        e = "((PyObject *){})->ob_type->ob_type"
+    type_value = d.parseAndEvaluate(e.format(object_address))
+    type_address = d.fromPointerData(type_value.ldata)[0]
+    type_repr = get_py_object_repr_helper(d, type_address)
+    return type_repr
+
+
+@repr_cache_decorator('py_object_base_class')
+def get_py_object_base_class(d, object_address):
+    e = "((PyObject *){})->ob_type->tp_base"
+    base_value = d.parseAndEvaluate(e.format(object_address))
+    base_address = d.fromPointerData(base_value.ldata)[0]
+    base_repr = get_py_object_repr_helper(d, base_address)
+    return base_repr
+
+
+def get_py_object_repr(d, value):
+    address = value.address()
+    repr_available = False
+    try:
+        result = get_py_object_repr_helper(d, address)
+        d.putValue(d.hexencode(result), encoding='utf8')
+        repr_available = True
+    except:
+        d.putEmptyValue()
+
+    def sub_item(name, functor, address):
+        with SubItem(d, '[{}]'.format(name)):
+            sub_value = functor(d, address)
+            d.putValue(d.hexencode(sub_value), encoding='utf8')
+
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            if repr_available:
+                sub_item('class', get_py_object_type, address)
+                sub_item('super class', get_py_object_base_class, address)
+                sub_item('meta type', get_py_object_meta_type, address)
+            d.putFields(value)
+
+
+def qdump__PyTypeObject(d, value):
+    get_py_object_repr(d, value)
+
+
+def qdump___typeobject(d, value):
+    get_py_object_repr(d, value)
+
+
+def qdump__PyObject(d, value):
+    get_py_object_repr(d, value)
+
+
+def qdump__PyVarObject(d, value):
+    get_py_object_repr(d, value)
 
 
 #######################################################################
