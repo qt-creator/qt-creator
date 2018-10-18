@@ -61,8 +61,11 @@ enum class JobType {
 struct Job
 {
     DeployableFile file;
-    JobType type = JobType::None;
+    JobType type;
     QDateTime result;
+    explicit Job(const DeployableFile &file = DeployableFile(), JobType type = JobType::None,
+                 const QDateTime &result = QDateTime())
+        : file(file), type(type), result(result) {}
 };
 
 class GenericDirectUploadServicePrivate
@@ -244,7 +247,7 @@ void GenericDirectUploadService::handleJobFinished(SftpJobId jobId, const QStrin
                                   .arg(job.file.remoteFilePath()));
                 saveDeploymentTimeStamp(job.file, QDateTime());
             } else {
-                d->runningJobs.insert(jobId, { job.file, JobType::PostQuery, QDateTime() });
+                d->runningJobs.insert(jobId, Job(job.file, JobType::PostQuery));
             }
             uploadNextFile();
         }
@@ -298,7 +301,7 @@ void GenericDirectUploadService::runPostQueryOnProcResult()
                           .arg(d->runningProcFile.remoteFilePath()));
         saveDeploymentTimeStamp(d->runningProcFile, QDateTime());
     } else {
-        d->runningJobs.insert(jobId, { d->runningProcFile, JobType::PostQuery, QDateTime() });
+        d->runningJobs.insert(jobId, Job(d->runningProcFile, JobType::PostQuery));
     }
     clearRunningProc();
     uploadNextFile();
@@ -359,7 +362,7 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
                     handleDeploymentDone();
                 }
             } else {
-                d->runningJobs[job] = { d->runningProcFile, JobType::Upload, QDateTime() };
+                d->runningJobs[job] = Job(d->runningProcFile, JobType::Upload);
                 clearRunningProc();
                 d->uploadJobRunning = true;
             }
@@ -488,7 +491,7 @@ void GenericDirectUploadService::queryFiles()
             continue;
         }
 
-        d->runningJobs.insert(jobId, { file, JobType::PreQuery, QDateTime() });
+        d->runningJobs.insert(jobId, Job(file, JobType::PreQuery));
     }
 
     uploadNextFile();
