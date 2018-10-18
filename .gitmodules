@@ -2,3 +2,7 @@
 	path = src/shared/qbs
 	url = ../../qbs/qbs.git
 	ignore = dirty
+[submodule "perfparser"]
+	path = src/tools/perfparser
+	url = ../perfparser.git
+	ignore = dirty
