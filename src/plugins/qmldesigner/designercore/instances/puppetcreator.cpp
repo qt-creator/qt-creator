@@ -371,7 +371,11 @@ QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
         return qmlPuppetToplevelBuildDirectory() + '/' + QCoreApplication::applicationVersion()
                 + '/' + QString::fromLatin1(qtHash());
 
+#ifndef QMLDESIGNER_TEST
     return qmlPuppetFallbackDirectory(m_designerSettings);
+#else
+    return QString();
+#endif
 }
 
 QString PuppetCreator::defaultPuppetFallbackDirectory()
