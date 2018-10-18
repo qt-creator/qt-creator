@@ -42,6 +42,7 @@
 #include <filepath.h>
 #include <fulltokeninfo.h>
 #include <nativefilepath.h>
+#include <pchcreator.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <projectpartartefact.h>
 #include <sourcedependency.h>
@@ -998,6 +999,11 @@ std::ostream &operator<<(std::ostream &os, const ReferencesResult &value)
 std::ostream &operator<<(std::ostream &out, const SymbolIndexerTask &task)
 {
     return out << "(" << task.filePathId << ", " << task.projectPartId << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes)
+{
+    return out << "(" << includes.includeIds << ", " << includes.topIncludeIds << ", " << includes.topSystemIncludeIds << ")";
 }
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os)

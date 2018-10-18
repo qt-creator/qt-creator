@@ -42,11 +42,13 @@ public:
 
     FilePathIds takeIncludeIds();
     FilePathIds takeTopIncludeIds();
+    FilePathIds takeTopsSystemIncludeIds();
 
 private:
     Utils::PathStringVector m_excludedIncludes;
     FilePathIds m_includeIds;
     FilePathIds m_topIncludeIds;
+    FilePathIds m_topsSystemIncludeIds;
     Utils::SmallStringVector m_directories;
     const FilePathCachingInterface &m_filePathCache;
 };

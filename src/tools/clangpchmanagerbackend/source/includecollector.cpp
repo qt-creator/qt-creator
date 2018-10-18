@@ -45,6 +45,7 @@ void IncludeCollector::collectIncludes()
     auto action = std::unique_ptr<CollectIncludesToolAction>(
                 new CollectIncludesToolAction(m_includeIds,
                                               m_topIncludeIds,
+                                              m_topsSystemIncludeIds,
                                               m_filePathCache,
                                               m_excludedIncludes));
 
@@ -82,6 +83,11 @@ FilePathIds IncludeCollector::takeTopIncludeIds()
     std::sort(m_topIncludeIds.begin(), m_topIncludeIds.end());
 
     return std::move(m_topIncludeIds);
+}
+
+FilePathIds IncludeCollector::takeTopsSystemIncludeIds()
+{
+    return std::move(m_topsSystemIncludeIds);
 }
 
 

@@ -50,12 +50,14 @@ class CollectIncludesPreprocessorCallbacks final : public clang::PPCallbacks
 public:
     CollectIncludesPreprocessorCallbacks(FilePathIds &includeIds,
                                          FilePathIds &topIncludeIds,
+                                         FilePathIds &topsSystemIncludeIds,
                                          const FilePathCachingInterface &filePathCache,
                                          const std::vector<uint> &excludedIncludeUID,
                                          std::vector<uint> &alreadyIncludedFileUIDs,
                                          clang::SourceManager &sourceManager)
         : m_includeIds(includeIds),
           m_topIncludeIds(topIncludeIds),
+          m_topsSystemIncludeIds(topsSystemIncludeIds),
           m_filePathCache(filePathCache),
           m_excludedIncludeUID(excludedIncludeUID),
           m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs),
@@ -70,11 +72,8 @@ public:
                             const clang::FileEntry *file,
                             llvm::StringRef /*searchPath*/,
                             llvm::StringRef /*relativePath*/,
-                            const clang::Module * /*imported*/
-#if LLVM_VERSION_MAJOR >= 7
-                            , clang::SrcMgr::CharacteristicKind /*fileType*/
-#endif
-                            ) override
+                            const clang::Module * /*imported*/,
+                            clang::SrcMgr::CharacteristicKind fileType) override
     {
         if (!m_skipInclude && file) {
             auto fileUID = file->getUID();
@@ -87,6 +86,8 @@ public:
                     if (!filePath.empty()) {
                         FilePathId includeId = m_filePathCache.filePathId(filePath);
                         m_includeIds.emplace_back(includeId);
+                        if (isSystem(fileType) && !isInSystemHeader(hashLocation))
+                            m_topsSystemIncludeIds.emplace_back(includeId);
                         if (isInExcludedIncludeUID(sourceFileUID))
                             m_topIncludeIds.emplace_back(includeId);
                     }
@@ -114,6 +115,16 @@ public:
         m_skipInclude = true;
 
         return true;
+    }
+
+    bool isSystem(clang::SrcMgr::CharacteristicKind kind)
+    {
+        return kind != clang::SrcMgr::C_User && kind != clang::SrcMgr::C_User_ModuleMap;
+    }
+
+    bool isInSystemHeader(clang::SourceLocation location)
+    {
+        return m_sourceManager.isInSystemHeader(location);
     }
 
     void ensureDirectory(const QString &directory, const QString &fileName)
@@ -163,6 +174,7 @@ public:
 private:
     FilePathIds &m_includeIds;
     FilePathIds &m_topIncludeIds;
+    FilePathIds &m_topsSystemIncludeIds;
     const FilePathCachingInterface &m_filePathCache;
     const std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;

@@ -41,11 +41,13 @@ class CollectIncludesAction final : public clang::PreprocessOnlyAction
 public:
     CollectIncludesAction(FilePathIds &includeIds,
                           FilePathIds &topIncludeIds,
+                          FilePathIds &topsSystemIncludeIds,
                           const FilePathCachingInterface &filePathCache,
                           std::vector<uint> &excludedIncludeUID,
                           std::vector<uint> &alreadyIncludedFileUIDs)
         : m_includeIds(includeIds),
           m_topIncludeIds(topIncludeIds),
+          m_topsSystemIncludeIds(topsSystemIncludeIds),
           m_filePathCache(filePathCache),
           m_excludedIncludeUID(excludedIncludeUID),
           m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs)
@@ -62,6 +64,7 @@ public:
           auto macroPreprocessorCallbacks = new CollectIncludesPreprocessorCallbacks(
                       m_includeIds,
                       m_topIncludeIds,
+                      m_topsSystemIncludeIds,
                       m_filePathCache,
                       m_excludedIncludeUID,
                       m_alreadyIncludedFileUIDs,
@@ -83,6 +86,7 @@ public:
 private:
     FilePathIds &m_includeIds;
     FilePathIds &m_topIncludeIds;
+    FilePathIds &m_topsSystemIncludeIds;
     const FilePathCachingInterface &m_filePathCache;
     std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
