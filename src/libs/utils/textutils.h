@@ -36,7 +36,7 @@ QT_FORWARD_DECLARE_CLASS(QTextCursor)
 namespace Utils {
 namespace Text {
 
-// line is 1-based, column is 0-based
+// line is 1-based, column is 1-based
 QTCREATOR_UTILS_EXPORT bool convertPosition(const QTextDocument *document,
                                             int pos,
                                             int *line, int *column);
