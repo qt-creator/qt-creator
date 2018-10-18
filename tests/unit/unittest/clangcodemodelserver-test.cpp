@@ -311,11 +311,11 @@ TEST_F(ClangCodeModelServerSlowTest, GetNewCodeCompletionAfterUpdatingUnsavedFil
     requestCompletionsInFileA();
 }
 
-TEST_F(ClangCodeModelServerSlowTest, TranslationUnitAfterCreationIsNotDirty)
+TEST_F(ClangCodeModelServerSlowTest, OpenedDocumentsAreDirty)
 {
     openDocument(filePathA, AnnotationJobsMultiplier);
 
-    ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, 0U, false, false));
+    ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, 0U, true, false));
 }
 
 TEST_F(ClangCodeModelServerSlowTest, SetCurrentAndVisibleEditor)

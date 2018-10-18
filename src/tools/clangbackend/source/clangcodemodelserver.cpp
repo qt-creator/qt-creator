@@ -102,9 +102,11 @@ void ClangCodeModelServer::documentsOpened(const ClangBackEnd::DocumentsOpenedMe
         QVector<FileContainer> toCreate;
         categorizeFileContainers(message.fileContainers, toCreate, toReset);
 
-        const std::vector<Document> createdDocuments = documents.create(toCreate);
-        for (const auto &document : createdDocuments)
+        std::vector<Document> createdDocuments = documents.create(toCreate);
+        for (auto &document : createdDocuments) {
+            document.setDirtyIfDependencyIsMet(document.filePath());
             documentProcessors().create(document);
+        }
         const std::vector<Document> resetDocuments_ = resetDocuments(toReset);
 
         unsavedFiles.createOrUpdate(message.fileContainers);
@@ -341,8 +343,7 @@ void ClangCodeModelServer::processJobsForVisibleDocuments()
 void ClangCodeModelServer::processJobsForCurrentDocument()
 {
     auto currentDocuments = documents.filtered([](const Document &document) {
-        return document.isUsedByCurrentEditor()
-               && (document.isDirty() || document.documentRevision() == 1);
+        return document.isUsedByCurrentEditor() && document.isDirty();
     });
     QTC_CHECK(currentDocuments.size() <= 1);
 
