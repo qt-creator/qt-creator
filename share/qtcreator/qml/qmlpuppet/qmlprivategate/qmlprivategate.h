@@ -85,6 +85,7 @@ public:
     void setPropertyBinding(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QString &expression);
     void keepBindingFromGettingDeleted(QObject *object, QQmlContext *context, const PropertyName &propertyName);
 
+    void emitComponentComplete(QObject *item);
     void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer);
 
     bool objectWasDeleted(QObject *object);

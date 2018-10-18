@@ -44,6 +44,8 @@
 #include <private/qquickdesignersupportproperties_p.h>
 #include <private/qquickdesignersupportpropertychanges_p.h>
 #include <private/qquickdesignersupportstates_p.h>
+#include <private/qqmldata_p.h>
+#include <private/qqmlcomponentattached_p.h>
 
 namespace QmlDesigner {
 
@@ -216,6 +218,24 @@ void setPropertyBinding(QObject *object, QQmlContext *context, const PropertyNam
     QQuickDesignerSupportProperties::setPropertyBinding(object, context, propertyName, expression);
 }
 
+void emitComponentComplete(QObject *item)
+{
+    if (!item)
+        return;
+
+    QQmlData *data = QQmlData::get(item);
+    if (data && data->context) {
+        QQmlComponentAttached *componentAttached = data->context->componentAttached;
+        while (componentAttached) {
+            if (componentAttached->parent())
+                if (componentAttached->parent() == item)
+                    emit componentAttached->completed();
+
+            componentAttached = componentAttached->next;
+        }
+    }
+}
+
 void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer)
 {
     if (object) {
@@ -224,6 +244,8 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
         if (item && DesignerSupport::isComponentComplete(item))
             return;
 
+        if (!nodeInstanceServer->hasInstanceForObject(item))
+            emitComponentComplete(object);
         QList<QObject*> childList = object->children();
 
         if (item) {

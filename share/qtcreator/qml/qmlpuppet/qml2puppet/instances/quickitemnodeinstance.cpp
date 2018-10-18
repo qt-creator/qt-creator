@@ -195,7 +195,7 @@ void QuickItemNodeInstance::doComponentComplete()
 
     QmlPrivateGate::disableTextCursor(quickItem());
 
-    DesignerSupport::emitComponentCompleteSignalForAttachedProperty(quickItem());
+    QmlPrivateGate::emitComponentComplete(quickItem());
 
     QQmlProperty contentItemProperty(quickItem(), "contentItem", engine());
     if (contentItemProperty.isValid())
