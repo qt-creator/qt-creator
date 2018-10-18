@@ -84,14 +84,6 @@ void ClangCodeModelServer::end()
     QCoreApplication::exit();
 }
 
-static std::vector<Document> operator+(const std::vector<Document> &a,
-                                       const std::vector<Document> &b)
-{
-    std::vector<Document> result = a;
-    result.insert(result.end(), b.begin(), b.end());
-    return result;
-}
-
 void ClangCodeModelServer::documentsOpened(const ClangBackEnd::DocumentsOpenedMessage &message)
 {
     qCDebug(serverLog) << "########## documentsOpened";
@@ -114,7 +106,7 @@ void ClangCodeModelServer::documentsOpened(const ClangBackEnd::DocumentsOpenedMe
         documents.setVisibleInEditors(message.visibleEditorFilePaths);
 
         processSuspendResumeJobs(documents.documents());
-        processInitialJobsForDocuments(createdDocuments + resetDocuments_);
+        processJobsForVisibleDocuments();
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::documentsOpened:" << exception.what();
     }
@@ -438,14 +430,6 @@ std::vector<Document> ClangCodeModelServer::resetDocuments(const DocumentResetIn
     }
 
     return newDocuments;
-}
-
-void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Document> &documents)
-{
-    for (const auto &document : documents) {
-        DocumentProcessor processor = documentProcessors().processor(document);
-        addUpdateAnnotationsJobsAndProcess(processor);
-    }
 }
 
 void ClangCodeModelServer::setUpdateAnnotationsTimeOutInMsForTestsOnly(int value)

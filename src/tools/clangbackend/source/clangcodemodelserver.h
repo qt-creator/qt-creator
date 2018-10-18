@@ -78,7 +78,6 @@ public: // for tests
     DocumentProcessors &documentProcessors();
 
 private:
-    void processInitialJobsForDocuments(const std::vector<Document> &documents);
     void processJobsForVisibleDocuments();
     void processJobsForCurrentDocument();
     void processTimerForVisibleButNotCurrentDocuments();
