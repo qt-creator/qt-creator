@@ -55,15 +55,15 @@ namespace Internal {
 
 class ClangProjectSettings;
 
-class ModelManagerSupportClang:
+class ClangModelManagerSupport:
         public QObject,
         public CppTools::ModelManagerSupport
 {
     Q_OBJECT
 
 public:
-    ModelManagerSupportClang();
-    ~ModelManagerSupportClang() override;
+    ClangModelManagerSupport();
+    ~ClangModelManagerSupport() override;
 
     CppTools::CppCompletionAssistProvider *completionAssistProvider() override;
     TextEditor::BaseHoverHandler *createHoverHandler() override;
@@ -80,7 +80,7 @@ public:
 
     ClangProjectSettings &projectSettings(ProjectExplorer::Project *project) const;
 
-    static ModelManagerSupportClang *instance();
+    static ClangModelManagerSupport *instance();
 
 private:
     bool eventFilter(QObject *obj, QEvent *e) override;
@@ -131,7 +131,7 @@ private:
     QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;
 };
 
-class ModelManagerSupportProviderClang : public CppTools::ModelManagerSupportProvider
+class ClangModelManagerSupportProvider : public CppTools::ModelManagerSupportProvider
 {
 public:
     QString id() const override;

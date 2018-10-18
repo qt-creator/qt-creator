@@ -32,13 +32,13 @@
 namespace CppTools {
 namespace Internal {
 
-class ModelManagerSupportInternal: public ModelManagerSupport
+class BuiltinModelManagerSupport: public ModelManagerSupport
 {
-    Q_DISABLE_COPY(ModelManagerSupportInternal)
+    Q_DISABLE_COPY(BuiltinModelManagerSupport)
 
 public:
-    ModelManagerSupportInternal();
-    virtual ~ModelManagerSupportInternal();
+    BuiltinModelManagerSupport();
+    virtual ~BuiltinModelManagerSupport();
 
     CppCompletionAssistProvider *completionAssistProvider() final;
     TextEditor::BaseHoverHandler *createHoverHandler() final;
@@ -55,7 +55,7 @@ private:
     QScopedPointer<RefactoringEngineInterface> m_refactoringEngine;
 };
 
-class ModelManagerSupportProviderInternal : public ModelManagerSupportProvider
+class BuiltinModelManagerSupportProvider : public ModelManagerSupportProvider
 {
 public:
     QString id() const override;

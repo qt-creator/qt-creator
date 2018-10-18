@@ -53,7 +53,7 @@ static Core::Id configIdForProject(ClangProjectSettings &projectSettings)
 }
 
 ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project *project)
-    : m_projectSettings(ModelManagerSupportClang::instance()->projectSettings(project))
+    : m_projectSettings(ClangModelManagerSupport::instance()->projectSettings(project))
 {
     m_ui.setupUi(this);
 

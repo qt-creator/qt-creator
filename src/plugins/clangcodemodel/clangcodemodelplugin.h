@@ -53,7 +53,7 @@ private:
     void generateCompilationDB();
     void createCompilationDBButton();
 
-    ModelManagerSupportProviderClang m_modelManagerSupportProvider;
+    ClangModelManagerSupportProvider m_modelManagerSupportProvider;
     Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
     QFutureWatcher<void> m_generatorWatcher;
 #ifdef WITH_TESTS
