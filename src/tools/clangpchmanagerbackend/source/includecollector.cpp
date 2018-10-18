@@ -33,21 +33,21 @@
 
 namespace ClangBackEnd {
 
-IncludeCollector::IncludeCollector(const FilePathCachingInterface &filePathCache)
-    :  m_filePathCache(filePathCache)
+void IncludeCollector::collect()
 {
-}
-
-void IncludeCollector::collectIncludes()
-{
-    clang::tooling::ClangTool tool = createTool();
+    clang::tooling::ClangTool tool = m_clangTool.createTool();
 
     auto action = std::unique_ptr<CollectIncludesToolAction>(
                 new CollectIncludesToolAction(m_includeIds,
                                               m_topIncludeIds,
                                               m_topsSystemIncludeIds,
                                               m_filePathCache,
-                                              m_excludedIncludes));
+                                              m_excludedIncludes,
+                                              m_usedMacros,
+                                              m_sourcesManager,
+                                              m_sourceDependencies,
+                                              m_sourceFiles,
+                                              m_fileStatuses));
 
     tool.run(action.get());
 }
@@ -71,25 +71,33 @@ void IncludeCollector::setExcludedIncludes(Utils::PathStringVector &&excludedInc
 #endif
 }
 
-FilePathIds IncludeCollector::takeIncludeIds()
+void IncludeCollector::addFiles(const FilePathIds &filePathIds,
+                                const Utils::SmallStringVector &arguments)
 {
-    std::sort(m_includeIds.begin(), m_includeIds.end());
-
-    return std::move(m_includeIds);
+    m_clangTool.addFiles(m_filePathCache.filePaths(filePathIds), arguments);
+    m_sourceFiles.insert(m_sourceFiles.end(), filePathIds.begin(), filePathIds.end());
 }
 
-FilePathIds IncludeCollector::takeTopIncludeIds()
+void IncludeCollector::addFile(FilePathId filePathId, const Utils::SmallStringVector &arguments)
 {
-    std::sort(m_topIncludeIds.begin(), m_topIncludeIds.end());
-
-    return std::move(m_topIncludeIds);
+    addFiles({filePathId}, arguments);
 }
 
-FilePathIds IncludeCollector::takeTopsSystemIncludeIds()
+void IncludeCollector::addFile(FilePath filePath,
+                               const FilePathIds &sourceFileIds,
+                               const Utils::SmallStringVector &arguments)
 {
-    return std::move(m_topsSystemIncludeIds);
+    m_clangTool.addFiles({filePath}, arguments);
+    m_sourceFiles.insert(m_sourceFiles.end(), sourceFileIds.begin(), sourceFileIds.end());
 }
 
-
+void IncludeCollector::clear()
+{
+    m_clangTool = ClangTool();
+    m_usedMacros.clear();
+    m_sourceFiles.clear();
+    m_fileStatuses.clear();
+    m_sourceDependencies.clear();
+}
 
 } // namespace ClangBackEnd

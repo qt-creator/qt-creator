@@ -25,17 +25,13 @@
 
 #pragma once
 
+#include "collectmacrospreprocessorcallbacks.h"
 #include "sourcelocationsutils.h"
+
 #include <filepathcachinginterface.h>
 #include <filepathid.h>
 
 #include <utils/smallstringvector.h>
-
-#include <clang/Basic/SourceManager.h>
-#include <clang/Lex/MacroInfo.h>
-#include <clang/Lex/HeaderSearch.h>
-#include <clang/Lex/PPCallbacks.h>
-#include <clang/Lex/Preprocessor.h>
 
 #include <QFile>
 #include <QDir>
@@ -45,7 +41,8 @@
 
 namespace ClangBackEnd {
 
-class CollectIncludesPreprocessorCallbacks final : public clang::PPCallbacks
+class CollectIncludesPreprocessorCallbacks final : public clang::PPCallbacks,
+                                                   public CollectUsedMacrosAndSourcesPreprocessorCallbacksBase
 {
 public:
     CollectIncludesPreprocessorCallbacks(FilePathIds &includeIds,
@@ -54,15 +51,43 @@ public:
                                          const FilePathCachingInterface &filePathCache,
                                          const std::vector<uint> &excludedIncludeUID,
                                          std::vector<uint> &alreadyIncludedFileUIDs,
-                                         clang::SourceManager &sourceManager)
-        : m_includeIds(includeIds),
+                                         const clang::SourceManager &sourceManager,
+                                         UsedMacros &usedMacros,
+                                         SourcesManager &sourcesManager,
+                                         std::shared_ptr<clang::Preprocessor> preprocessor,
+                                         SourceDependencies &sourceDependencies,
+                                         FilePathIds &sourceFiles,
+                                         FileStatuses &fileStatuses)
+        : CollectUsedMacrosAndSourcesPreprocessorCallbacksBase(usedMacros,
+                                                               filePathCache,
+                                                               sourceManager,
+                                                               sourcesManager,
+                                                               preprocessor,
+                                                               sourceDependencies,
+                                                               sourceFiles,
+                                                               fileStatuses),
+          m_includeIds(includeIds),
           m_topIncludeIds(topIncludeIds),
           m_topsSystemIncludeIds(topsSystemIncludeIds),
-          m_filePathCache(filePathCache),
           m_excludedIncludeUID(excludedIncludeUID),
-          m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs),
-          m_sourceManager(sourceManager)
+          m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs)
     {}
+
+    void FileChanged(clang::SourceLocation sourceLocation,
+                     clang::PPCallbacks::FileChangeReason reason,
+                     clang::SrcMgr::CharacteristicKind,
+                     clang::FileID) override
+    {
+        if (reason == clang::PPCallbacks::EnterFile)
+        {
+            const clang::FileEntry *fileEntry = m_sourceManager->getFileEntryForID(
+                        m_sourceManager->getFileID(sourceLocation));
+            if (fileEntry) {
+                addFileStatus(fileEntry);
+                addSourceFile(fileEntry);
+            }
+        }
+    }
 
     void InclusionDirective(clang::SourceLocation hashLocation,
                             const clang::Token &/*includeToken*/,
@@ -76,8 +101,9 @@ public:
                             clang::SrcMgr::CharacteristicKind fileType) override
     {
         if (!m_skipInclude && file) {
+            addSourceDependency(file, hashLocation);
             auto fileUID = file->getUID();
-            auto sourceFileUID = m_sourceManager.getFileEntryForID(m_sourceManager.getFileID(hashLocation))->getUID();
+            auto sourceFileUID = m_sourceManager->getFileEntryForID(m_sourceManager->getFileID(hashLocation))->getUID();
             if (isNotInExcludedIncludeUID(fileUID)) {
                 auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
                 if (notAlreadyIncluded.first) {
@@ -117,14 +143,41 @@ public:
         return true;
     }
 
-    bool isSystem(clang::SrcMgr::CharacteristicKind kind)
+
+    void Ifndef(clang::SourceLocation,
+                const clang::Token &macroNameToken,
+                const clang::MacroDefinition &macroDefinition) override
     {
-        return kind != clang::SrcMgr::C_User && kind != clang::SrcMgr::C_User_ModuleMap;
+        addUsedMacro(macroNameToken, macroDefinition);
     }
 
-    bool isInSystemHeader(clang::SourceLocation location)
+    void Ifdef(clang::SourceLocation,
+               const clang::Token &macroNameToken,
+               const clang::MacroDefinition &macroDefinition) override
     {
-        return m_sourceManager.isInSystemHeader(location);
+        addUsedMacro( macroNameToken, macroDefinition);
+    }
+
+    void Defined(const clang::Token &macroNameToken,
+                 const clang::MacroDefinition &macroDefinition,
+                 clang::SourceRange) override
+    {
+        addUsedMacro(macroNameToken, macroDefinition);
+    }
+
+    void MacroExpands(const clang::Token &macroNameToken,
+                      const clang::MacroDefinition &macroDefinition,
+                      clang::SourceRange,
+                      const clang::MacroArgs *) override
+    {
+        addUsedMacro(macroNameToken, macroDefinition);
+    }
+
+    void EndOfMainFile() override
+    {
+        filterOutHeaderGuards();
+        mergeUsedMacros();
+        m_sourcesManager.updateModifiedTimeStamps();
     }
 
     void ensureDirectory(const QString &directory, const QString &fileName)
@@ -175,10 +228,8 @@ private:
     FilePathIds &m_includeIds;
     FilePathIds &m_topIncludeIds;
     FilePathIds &m_topsSystemIncludeIds;
-    const FilePathCachingInterface &m_filePathCache;
     const std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
-    clang::SourceManager &m_sourceManager;
     bool m_skipInclude = false;
 };
 

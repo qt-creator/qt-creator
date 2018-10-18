@@ -44,13 +44,23 @@ public:
                           FilePathIds &topsSystemIncludeIds,
                           const FilePathCachingInterface &filePathCache,
                           std::vector<uint> &excludedIncludeUID,
-                          std::vector<uint> &alreadyIncludedFileUIDs)
+                          std::vector<uint> &alreadyIncludedFileUIDs,
+                          UsedMacros &usedMacros,
+                          SourcesManager &sourcesManager,
+                          SourceDependencies &sourceDependencies,
+                          FilePathIds &sourceFiles,
+                          FileStatuses &fileStatuses)
         : m_includeIds(includeIds),
           m_topIncludeIds(topIncludeIds),
           m_topsSystemIncludeIds(topsSystemIncludeIds),
           m_filePathCache(filePathCache),
           m_excludedIncludeUID(excludedIncludeUID),
-          m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs)
+          m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs),
+          m_usedMacros(usedMacros),
+          m_sourcesManager(sourcesManager),
+          m_sourceDependencies(sourceDependencies),
+          m_sourceFiles(sourceFiles),
+          m_fileStatuses(fileStatuses)
     {
     }
 
@@ -68,7 +78,13 @@ public:
                       m_filePathCache,
                       m_excludedIncludeUID,
                       m_alreadyIncludedFileUIDs,
-                      compilerInstance.getSourceManager());
+                      compilerInstance.getSourceManager(),
+                      m_usedMacros,
+                      m_sourcesManager,
+                      compilerInstance.getPreprocessorPtr(),
+                      m_sourceDependencies,
+                      m_sourceFiles,
+                      m_fileStatuses);
 
           preprocessor.addPPCallbacks(std::unique_ptr<clang::PPCallbacks>(macroPreprocessorCallbacks));
 
@@ -90,6 +106,11 @@ private:
     const FilePathCachingInterface &m_filePathCache;
     std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
+    UsedMacros &m_usedMacros;
+    SourcesManager &m_sourcesManager;
+    SourceDependencies &m_sourceDependencies;
+    FilePathIds &m_sourceFiles;
+    FileStatuses &m_fileStatuses;
 };
 
 } // namespace ClangBackEnd

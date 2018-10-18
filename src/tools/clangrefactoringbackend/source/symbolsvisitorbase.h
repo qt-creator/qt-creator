@@ -44,7 +44,7 @@ namespace ClangBackEnd {
 class SymbolsVisitorBase
 {
 public:
-    SymbolsVisitorBase(FilePathCachingInterface &filePathCache,
+    SymbolsVisitorBase(const FilePathCachingInterface &filePathCache,
                        const clang::SourceManager *sourceManager,
                        SourcesManager &sourcesManager)
         : m_filePathCache(filePathCache),
@@ -152,8 +152,13 @@ public:
 
     bool isInSystemHeader(clang::FileID fileId) const
     {
-        return clang::SrcMgr::isSystem(
-                    m_sourceManager->getSLocEntry(fileId).getFile().getFileCharacteristic());
+        return isSystem(m_sourceManager->getSLocEntry(fileId).getFile().getFileCharacteristic());
+    }
+
+    static
+    bool isSystem(clang::SrcMgr::CharacteristicKind kind)
+    {
+        return clang::SrcMgr::isSystem(kind);
     }
 
     void clear()
@@ -163,7 +168,7 @@ public:
 
 protected:
     std::vector<FilePathId> m_filePathIndices;
-    FilePathCachingInterface &m_filePathCache;
+    const FilePathCachingInterface &m_filePathCache;
     const clang::SourceManager *m_sourceManager = nullptr;
     SourcesManager &m_sourcesManager;
 };

@@ -243,21 +243,17 @@ PchCreatorIncludes PchCreator::generateProjectPartPchIncludes(
     Utils::SmallString jointedFilePath = generateProjectPartSourceFilePath(projectPart);
     auto jointFile = generateFileWithContent(jointedFilePath, jointedFileContent);
     Utils::SmallStringVector arguments = generateProjectPartCommandLine(projectPart);
-    arguments.push_back(jointedFilePath);
     FilePath filePath{Utils::PathString(jointedFilePath)};
 
     IncludeCollector collector(m_filePathCache);
 
     collector.setExcludedIncludes(generateProjectPartSourcePaths(projectPart));
 
-    collector.addFile(std::string(filePath.directory()),
-                      std::string(filePath.name()),
-                      {},
-                      arguments);
+    collector.addFile(filePath, projectPart.sourcePathIds, arguments);
 
     collector.addUnsavedFiles(m_unsavedFiles);
 
-    collector.collectIncludes();
+    collector.collect();
 
     jointFile->remove();
 
