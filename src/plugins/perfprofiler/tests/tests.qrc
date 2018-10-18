@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/perfprofiler/tests">
+        <file>probe.file.ptr</file>
+    </qresource>
+</RCC>

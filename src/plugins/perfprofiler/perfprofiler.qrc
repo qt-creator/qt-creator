@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/perfprofiler">
+        <file>PerfProfilerFlameGraphView.qml</file>
+        <file>tracepoints.sh</file>
+    </qresource>
+</RCC>

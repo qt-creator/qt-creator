@@ -48,6 +48,7 @@ Project {
         "modeleditor/modeleditor.qbs",
         "nim/nim.qbs",
         "perforce/perforce.qbs",
+        "perfprofiler/perfprofiler.qbs",
         "projectexplorer/projectexplorer.qbs",
         "qbsprojectmanager/qbsprojectmanager.qbs",
         "qmakeandroidsupport",
