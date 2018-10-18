@@ -127,12 +127,18 @@ ProjectWelcomePage::ProjectWelcomePage()
         auto act = new QAction(tr("Open Session #%1").arg(i), this);
         Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
         cmd->setDefaultKeySequence(QKeySequence((useMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
-        connect(act, &QAction::triggered, this, [this, i] { openSessionAt(i - 1); });
+        connect(act, &QAction::triggered, this, [this, i] {
+            if (i <= m_sessionModel->rowCount())
+                openSessionAt(i - 1);
+        });
 
         act = new QAction(tr("Open Recent Project #%1").arg(i), this);
         cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
-        connect(act, &QAction::triggered, this, [this, i] { openProjectAt(i - 1); });
+        connect(act, &QAction::triggered, this, [this, i] {
+            if (i <= m_projectModel->rowCount(QModelIndex()))
+                openProjectAt(i - 1);
+        });
     }
 }
 
