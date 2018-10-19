@@ -32,6 +32,7 @@
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
+#include <utils/fancylineedit.h>
 #include <utils/qtcprocess.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <languageserverprotocol/lsptypes.h>
@@ -582,7 +583,8 @@ public:
     {
         setWindowTitle(tr("Select MIME Types"));
         auto mainLayout = new QVBoxLayout;
-        auto filter = new QLineEdit(this);
+        auto filter = new Utils::FancyLineEdit(this);
+        filter->setFiltering(true);
         mainLayout->addWidget(filter);
         auto listView = new QListView(this);
         mainLayout->addWidget(listView);
