@@ -1709,7 +1709,6 @@ void BreakHandler::removeBreakpoint(const Breakpoint &bp)
         break;
     case BreakpointInserted:
     case BreakpointInsertionProceeding:
-        bp->setState(BreakpointRemoveRequested);
         requestBreakpointRemoval(bp);
         break;
     case BreakpointNew:
