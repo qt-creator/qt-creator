@@ -69,4 +69,9 @@ QString RemoteLinuxKillAppStep::displayName()
     return tr("Kill current application instance");
 }
 
+BuildStepConfigWidget *RemoteLinuxKillAppStep::createConfigWidget()
+{
+    return new BuildStepConfigWidget(this, false);
+}
+
 } // namespace RemoteLinux

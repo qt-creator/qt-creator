@@ -110,11 +110,6 @@ void AbstractRemoteLinuxDeployStep::cancel()
     deployService()->stop();
 }
 
-BuildStepConfigWidget *AbstractRemoteLinuxDeployStep::createConfigWidget()
-{
-    return new BuildStepConfigWidget(this, false);
-}
-
 RemoteLinuxDeployConfiguration *AbstractRemoteLinuxDeployStep::deployConfiguration() const
 {
     return qobject_cast<RemoteLinuxDeployConfiguration *>(BuildStep::deployConfiguration());

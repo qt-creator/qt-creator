@@ -41,6 +41,8 @@ public:
     static QString displayName();
 
 private:
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+
     bool initInternal(QString *error) override;
     AbstractRemoteLinuxDeployService *deployService() const override;
 

@@ -64,11 +64,6 @@ bool RemoteLinuxCustomCommandDeploymentStep::initInternal(QString *error)
     return d->service.isDeploymentPossible(error);
 }
 
-BuildStepConfigWidget *RemoteLinuxCustomCommandDeploymentStep::createConfigWidget()
-{
-    return BuildStep::createConfigWidget();
-}
-
 AbstractRemoteLinuxDeployService *RemoteLinuxCustomCommandDeploymentStep::deployService() const
 {
     return &d->service;

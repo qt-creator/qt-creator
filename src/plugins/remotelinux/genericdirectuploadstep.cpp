@@ -79,11 +79,6 @@ bool GenericDirectUploadStep::initInternal(QString *error)
     return d->deployService.isDeploymentPossible(error);
 }
 
-BuildStepConfigWidget *GenericDirectUploadStep::createConfigWidget()
-{
-    return BuildStep::createConfigWidget();
-}
-
 GenericDirectUploadService *GenericDirectUploadStep::deployService() const
 {
     return &d->deployService;

@@ -44,7 +44,6 @@ public:
 private:
     bool initInternal(QString *error) override;
     AbstractRemoteLinuxDeployService *deployService() const override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     Internal::RemoteLinuxCustomCommandDeploymentStepPrivate *d;
 };
