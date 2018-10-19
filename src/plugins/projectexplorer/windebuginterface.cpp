@@ -177,6 +177,8 @@ void WinDebugInterface::dispatchDebugOutput()
     m_outputMutex.lock();
     for (auto &entry : m_debugOutput) {
         std::vector<QString> &src = entry.second;
+        if (src.empty())
+            continue;
         QString dst;
         size_t n = std::min(maxMessagesToSend, src.size());
         for (size_t i = 0; i < n; ++i)
