@@ -26,6 +26,7 @@
 #include "systemsettings.h"
 #include "coreconstants.h"
 #include "editormanager/editormanager_p.h"
+#include "fileutils.h"
 #include "icore.h"
 #include "iversioncontrol.h"
 #include "patchtool.h"
@@ -66,6 +67,8 @@ QWidget *SystemSettings::widget()
         m_page = new Ui::SystemSettings();
         m_widget = new QWidget;
         m_page->setupUi(m_widget);
+        m_page->terminalOpenArgs->setToolTip(
+            tr("Command line arguments used for \"%1\".").arg(FileUtils::msgTerminalAction()));
 
         m_page->reloadBehavior->setCurrentIndex(EditorManager::reloadSetting());
         if (HostOsInfo::isAnyUnixHost()) {
