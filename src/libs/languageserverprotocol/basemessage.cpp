@@ -77,7 +77,7 @@ static QPair<QByteArray, QByteArray> splitHeaderFieldLine(
         return {headerFieldLine.mid(0, assignmentIndex),
                     headerFieldLine.mid(assignmentIndex + fieldSeparatorLength)};
     }
-    parseError = BaseMessage::tr("Unexpected header line \"%1\"")
+    parseError = BaseMessage::tr("Unexpected header line \"%1\".")
             .arg(QLatin1String(headerFieldLine));
     return {};
 }
@@ -97,8 +97,8 @@ static void parseContentType(BaseMessage &message, QByteArray contentType, QStri
             if (equalindex > 0)
                 codec = QTextCodec::codecForName(charset);
             if (!codec) {
-                parseError = BaseMessage::tr("Cannot decode content with \"%1\" "
-                                "falling back to \"%2\"")
+                parseError = BaseMessage::tr("Cannot decode content with \"%1\". "
+                                "Falling back to \"%2\".")
                         .arg(QLatin1String(charset),
                              QLatin1String(defaultCharset));
             }
@@ -113,7 +113,7 @@ static void parseContentLength(BaseMessage &message, QByteArray contentLength, Q
     bool ok = true;
     message.contentLength = QString::fromLatin1(contentLength).toInt(&ok);
     if (!ok) {
-        parseError = BaseMessage::tr("Expected an integer in \"%1\", but got \"%2\"")
+        parseError = BaseMessage::tr("Expected an integer in \"%1\", but got \"%2\".")
                 .arg(contentLengthFieldName, QLatin1String(contentLength));
     }
 }
@@ -146,7 +146,7 @@ void BaseMessage::parse(QBuffer *data, QString &parseError, BaseMessage &message
         } else if (headerFieldName == contentTypeFieldName) {
             parseContentType(message, headerFieldValue, parseError);
         } else {
-            parseError = tr("Unexpected header field \"%1\" in \"%2\"")
+            parseError = tr("Unexpected header field \"%1\" in \"%2\".")
                     .arg(QLatin1String(headerFieldName),
                          QLatin1String(headerFieldLine));
         }
