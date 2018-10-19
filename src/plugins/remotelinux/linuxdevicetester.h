@@ -50,7 +50,8 @@ private:
     void handleProcessFinished(int exitStatus);
     void handlePortsGatheringError(const QString &message);
     void handlePortListReady();
-
+    void handleSftpInitialized();
+    void handleSftpError(const QString &message);
     void setFinished(ProjectExplorer::DeviceTester::TestResult result);
 
     Internal::GenericLinuxDeviceTesterPrivate * const d;

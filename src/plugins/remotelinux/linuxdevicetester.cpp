@@ -28,6 +28,7 @@
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
+#include <ssh/sftpchannel.h>
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
 
@@ -38,7 +39,7 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 
-enum State { Inactive, Connecting, RunningUname, TestingPorts };
+enum State { Inactive, Connecting, RunningUname, TestingPorts, TestingSftp };
 
 } // anonymous namespace
 
@@ -49,6 +50,7 @@ public:
     SshConnection *connection = nullptr;
     SshRemoteProcess::Ptr process;
     DeviceUsedPortsGatherer portsGatherer;
+    SftpChannel::Ptr sftpChannel;
     State state = Inactive;
 };
 
@@ -95,6 +97,9 @@ void GenericLinuxDeviceTester::stopTest()
         break;
     case RunningUname:
         d->process->close();
+        break;
+    case TestingSftp:
+        d->sftpChannel->closeChannel();
         break;
     case Inactive:
         break;
@@ -170,7 +175,29 @@ void GenericLinuxDeviceTester::handlePortListReady()
         emit errorMessage(tr("The following specified ports are currently in use: %1")
             .arg(portList) + QLatin1Char('\n'));
     }
+
+    emit progressMessage(tr("Checking if an SFTP channel can be set up..."));
+    d->sftpChannel = d->connection->createSftpChannel();
+    connect(d->sftpChannel.data(), &SftpChannel::initialized,
+            this, &GenericLinuxDeviceTester::handleSftpInitialized);
+    connect(d->sftpChannel.data(), &SftpChannel::channelError,
+            this, &GenericLinuxDeviceTester::handleSftpError);
+    d->state = TestingSftp;
+    d->sftpChannel->initialize();
+}
+
+void GenericLinuxDeviceTester::handleSftpInitialized()
+{
+    QTC_ASSERT(d->state == TestingSftp, return);
+    emit progressMessage(tr("SFTP channel successfully initialized.\n"));
     setFinished(TestSuccess);
+}
+
+void GenericLinuxDeviceTester::handleSftpError(const QString &message)
+{
+    QTC_ASSERT(d->state == TestingSftp, return);
+    emit errorMessage(tr("Error setting up SFTP channel: %1\n").arg(message));
+    setFinished(TestFailure);
 }
 
 void GenericLinuxDeviceTester::setFinished(TestResult result)
