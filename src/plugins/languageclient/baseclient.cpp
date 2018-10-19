@@ -515,9 +515,11 @@ bool BaseClient::isSupportedDocument(const Core::IDocument *document) const
     });
 }
 
-bool BaseClient::needsRestart(const BaseSettings *) const
+bool BaseClient::needsRestart(const BaseSettings *settings) const
 {
-    return false;
+    QTC_ASSERT(settings, return false);
+    return m_languagFilter.mimeTypes != settings->m_languageFilter.mimeTypes
+            || m_languagFilter.filePattern != settings->m_languageFilter.filePattern;
 }
 
 bool BaseClient::reset()
