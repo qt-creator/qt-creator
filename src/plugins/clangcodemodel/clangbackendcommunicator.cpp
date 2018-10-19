@@ -374,9 +374,8 @@ void BackendCommunicator::documentsChangedWithRevisionCheck(Core::IDocument *doc
     const auto textDocument = qobject_cast<TextDocument*>(document);
     const auto filePath = textDocument->filePath().toString();
 
-    documentsChangedWithRevisionCheck(FileContainer(filePath,
-                                                    Utf8StringVector(),
-                                                    textDocument->document()->revision()));
+    documentsChangedWithRevisionCheck(
+        FileContainer(filePath, {}, {}, textDocument->document()->revision()));
 }
 
 void BackendCommunicator::updateChangeContentStartPosition(const QString &filePath, int position)

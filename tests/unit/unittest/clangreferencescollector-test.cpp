@@ -60,6 +60,7 @@ struct Data {
     ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/references.cpp"),
                       TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")}),
+                      {},
                       documents};
 };
 

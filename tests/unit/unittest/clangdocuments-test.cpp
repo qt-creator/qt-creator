@@ -99,7 +99,7 @@ TEST_F(Documents, DoNotThrowForAddingNonExistingFileWithUnsavedContent)
 
 TEST_F(Documents, Add)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, {}, {}, 74u);
 
     documents.create({fileContainer});
 
@@ -109,8 +109,8 @@ TEST_F(Documents, Add)
 
 TEST_F(Documents, CreateWithUnsavedContentSetsDependenciesDirty)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringVector(), 74u);
-    ClangBackEnd::FileContainer fileContainerWithUnsavedContent(otherFilePath, Utf8StringVector(), Utf8String(), true, 2u);
+    ClangBackEnd::FileContainer fileContainer(filePath, {}, {}, 74u);
+    ClangBackEnd::FileContainer fileContainerWithUnsavedContent(otherFilePath, {}, {}, Utf8String(), true, 2u);
     auto dependentDocument = documents.create({fileContainer}).at(0);
     dependentDocument.setDependedFilePaths(QSet<Utf8String>() << filePath << otherFilePath);
 
@@ -121,7 +121,7 @@ TEST_F(Documents, CreateWithUnsavedContentSetsDependenciesDirty)
 
 TEST_F(Documents, AddAndTestCreatedTranslationUnit)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, {}, {}, 74u);
 
     auto createdDocuments = documents.create({fileContainer});
 
@@ -130,7 +130,7 @@ TEST_F(Documents, AddAndTestCreatedTranslationUnit)
 
 TEST_F(Documents, ThrowForCreatingAnExistingDocument)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, {}, {}, 74u);
     documents.create({fileContainer});
 
     ASSERT_THROW(documents.create({fileContainer}), ClangBackEnd::DocumentAlreadyExistsException);
@@ -138,15 +138,15 @@ TEST_F(Documents, ThrowForCreatingAnExistingDocument)
 
 TEST_F(Documents, ThrowForUpdatingANonExistingDocument)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, {}, {}, 74u);
     ASSERT_THROW(documents.update({fileContainer}),
                  ClangBackEnd::DocumentDoesNotExistException);
 }
 
 TEST_F(Documents, UpdateSingle)
 {
-    ClangBackEnd::FileContainer createFileContainer(filePath, Utf8StringVector(), 74u);
-    ClangBackEnd::FileContainer updateFileContainer(filePath, Utf8StringVector(), 75u);
+    ClangBackEnd::FileContainer createFileContainer(filePath, {}, {}, 74u);
+    ClangBackEnd::FileContainer updateFileContainer(filePath, {}, {}, 75u);
     documents.create({createFileContainer});
 
     documents.update({updateFileContainer});
@@ -156,8 +156,8 @@ TEST_F(Documents, UpdateSingle)
 
 TEST_F(Documents, UpdateReturnsUpdatedDocument)
 {
-    ClangBackEnd::FileContainer createFileContainer(filePath, Utf8StringVector(), 74u);
-    ClangBackEnd::FileContainer updateFileContainer(filePath,  Utf8StringVector(), 75u);
+    ClangBackEnd::FileContainer createFileContainer(filePath, {}, {}, 74u);
+    ClangBackEnd::FileContainer updateFileContainer(filePath, {}, {}, 75u);
     documents.create({createFileContainer});
 
     const std::vector<Document> updatedDocuments = documents.update({updateFileContainer});
@@ -169,9 +169,9 @@ TEST_F(Documents, UpdateReturnsUpdatedDocument)
 // TODO: Does this test still makes sense?
 TEST_F(Documents, UpdateMultiple)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringVector(), 74u);
-    ClangBackEnd::FileContainer fileContainerWithOtherProject(filePath, Utf8StringVector(), 74u);
-    ClangBackEnd::FileContainer updatedFileContainer(filePath, Utf8StringVector(), 75u);
+    ClangBackEnd::FileContainer fileContainer(filePath, {}, {}, 74u);
+    ClangBackEnd::FileContainer fileContainerWithOtherProject(filePath, {}, {}, 74u);
+    ClangBackEnd::FileContainer updatedFileContainer(filePath, {}, {}, 75u);
     documents.create({fileContainer, fileContainerWithOtherProject});
 
     documents.update({updatedFileContainer});
@@ -181,8 +181,8 @@ TEST_F(Documents, UpdateMultiple)
 
 TEST_F(DocumentsSlowTest, UpdateUnsavedFileAndCheckForReparse)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringVector(), 74u);
-    ClangBackEnd::FileContainer headerContainer(headerPath, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, {}, {}, 74u);
+    ClangBackEnd::FileContainer headerContainer(headerPath, {}, {}, 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, Utf8String(), true, 75u);
     documents.create({fileContainer, headerContainer});
     Document document = documents.document(filePath);
@@ -195,8 +195,8 @@ TEST_F(DocumentsSlowTest, UpdateUnsavedFileAndCheckForReparse)
 
 TEST_F(DocumentsSlowTest, RemoveFileAndCheckForReparse)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringVector(), 74u);
-    ClangBackEnd::FileContainer headerContainer(headerPath, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, {}, {}, 74u);
+    ClangBackEnd::FileContainer headerContainer(headerPath, {}, {}, 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, Utf8String(), true, 75u);
     documents.create({fileContainer, headerContainer});
     Document document = documents.document(filePath);
@@ -209,7 +209,7 @@ TEST_F(DocumentsSlowTest, RemoveFileAndCheckForReparse)
 
 TEST_F(Documents, DontGetNewerFileContainerIfRevisionIsTheSame)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, {}, {}, 74u);
     documents.create({fileContainer});
 
     auto newerFileContainers = documents.newerFileContainers({fileContainer});
@@ -219,8 +219,8 @@ TEST_F(Documents, DontGetNewerFileContainerIfRevisionIsTheSame)
 
 TEST_F(Documents, GetNewerFileContainerIfRevisionIsDifferent)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringVector(), 74u);
-    ClangBackEnd::FileContainer newerContainer(filePath, Utf8StringVector(), 75u);
+    ClangBackEnd::FileContainer fileContainer(filePath, {}, {}, 74u);
+    ClangBackEnd::FileContainer newerContainer(filePath, {}, {}, 75u);
     documents.create({fileContainer});
 
     auto newerFileContainers = documents.newerFileContainers({newerContainer});
@@ -256,7 +256,7 @@ TEST_F(Documents, RemoveAllValidIfExceptionIsThrown)
                  ClangBackEnd::DocumentDoesNotExistException);
 
     ASSERT_THAT(documents.documents(),
-                Not(Contains(Document(filePath, Utf8StringVector(), documents))));
+                Not(Contains(Document(filePath, {}, {}, documents))));
 }
 
 TEST_F(Documents, HasDocument)

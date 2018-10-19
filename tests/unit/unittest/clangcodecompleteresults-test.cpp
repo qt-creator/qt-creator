@@ -56,7 +56,8 @@ TEST(ClangCodeCompleteResultsSlowTest, GetData)
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Document document(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
-                      Utf8StringVector(),
+                      {},
+                      {},
                       documents);
     Utf8String nativeFilePath = FilePath::toNativeSeparators(document.filePath());
     document.parse();
@@ -85,7 +86,8 @@ TEST(ClangCodeCompleteResultsSlowTest, MoveClangCodeCompleteResults)
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Document document(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
-                      Utf8StringVector(),
+                      {},
+                      {},
                       documents);
     Utf8String nativeFilePath = FilePath::toNativeSeparators(document.filePath());
     document.parse();

@@ -85,6 +85,7 @@ struct Data {
     ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR "/tooltipinfo.cpp"),
                       {Utf8StringLiteral("-std=c++14")},
+                      {},
                       documents};
     UnitTest::RunDocumentParse _1{document};
 };

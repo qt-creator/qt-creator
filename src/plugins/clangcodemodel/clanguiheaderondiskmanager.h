@@ -36,7 +36,7 @@ class UiHeaderOnDiskManager
 public:
     UiHeaderOnDiskManager();
 
-    QString createIfNeeded(const QString &filePath);
+    QString write(const QString &filePath, const QByteArray &content);
     QString remove(const QString &filePath);
 
     QString mapPath(const QString &filePath) const;

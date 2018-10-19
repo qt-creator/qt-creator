@@ -67,9 +67,11 @@ protected:
         TestEnvironment::addPlatformArguments({Utf8StringLiteral("-pedantic")})};
     Document document{Utf8StringLiteral(TESTDATA_DIR "/diagnostic_diagnosticset.cpp"),
                       compilationArguments,
+                      {},
                       documents};
     Document documentMainFile{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnosticset_mainfile.cpp"),
                               compilationArguments,
+                              {},
                               documents};
 
 protected:

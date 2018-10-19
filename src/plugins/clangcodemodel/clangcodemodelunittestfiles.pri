@@ -7,7 +7,8 @@ SOURCES += \
     $$PWD/clangcompletioncontextanalyzer.cpp \
     $$PWD/clangdiagnosticfilter.cpp \
     $$PWD/clangfixitoperation.cpp \
-    $$PWD/clanghighlightingresultreporter.cpp
+    $$PWD/clanghighlightingresultreporter.cpp \
+    $$PWD/clanguiheaderondiskmanager.cpp
 
 HEADERS += \
     $$PWD/clangactivationsequencecontextprocessor.h \
@@ -17,4 +18,5 @@ HEADERS += \
     $$PWD/clangdiagnosticfilter.h \
     $$PWD/clangfixitoperation.h \
     $$PWD/clanghighlightingresultreporter.h \
-    $$PWD/clangisdiagnosticrelatedtolocation.h
+    $$PWD/clangisdiagnosticrelatedtolocation.h \
+    $$PWD/clanguiheaderondiskmanager.h

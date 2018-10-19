@@ -28,11 +28,13 @@
 #include "clangdocuments.h"
 #include "clangdocumentsuspenderresumer.h"
 #include "clangfilesystemwatcher.h"
+#include "clangupdateannotationsjob.h"
 #include "codecompleter.h"
 #include "diagnosticset.h"
 #include "tokenprocessor.h"
 #include "clangexceptions.h"
 #include "skippedsourceranges.h"
+#include "unsavedfile.h"
 
 #include <clangsupport/clangsupportdebugutils.h>
 #include <clangsupport/clangcodemodelservermessages.h>
@@ -42,7 +44,9 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QFileInfo>
 #include <QLoggingCategory>
+#include <QDir>
 
 Q_LOGGING_CATEGORY(serverLog, "qtc.clangbackend.server", QtWarningMsg);
 
@@ -97,7 +101,10 @@ void ClangCodeModelServer::documentsOpened(const ClangBackEnd::DocumentsOpenedMe
         std::vector<Document> createdDocuments = documents.create(toCreate);
         for (auto &document : createdDocuments) {
             document.setDirtyIfDependencyIsMet(document.filePath());
-            documentProcessors().create(document);
+            DocumentProcessor processor = documentProcessors().create(document);
+            processor.jobs().setJobFinishedCallback([this](const Jobs::RunningJob &a, IAsyncJob *b) {
+                onJobFinished(a, b);
+            });
         }
         const std::vector<Document> resetDocuments_ = resetDocuments(toReset);
 
@@ -163,6 +170,7 @@ void ClangCodeModelServer::unsavedFilesUpdated(const UnsavedFilesUpdatedMessage 
     try {
         unsavedFiles.createOrUpdate(message.fileContainers);
         documents.updateDocumentsWithChangedDependencies(message.fileContainers);
+        resetDocumentsWithUnresolvedIncludes(documents.documents());
 
         updateAnnotationsTimer.start(updateAnnotationsTimeOutInMs);
     } catch (const std::exception &exception) {
@@ -393,6 +401,14 @@ void ClangCodeModelServer::processSuspendResumeJobs(const std::vector<Document> 
     }
 }
 
+void ClangCodeModelServer::onJobFinished(const Jobs::RunningJob &jobRecord, IAsyncJob *job)
+{
+    if (jobRecord.jobRequest.type == JobRequest::Type::UpdateAnnotations) {
+        const auto updateJob = static_cast<UpdateAnnotationsJob *>(job);
+        resetDocumentsWithUnresolvedIncludes({updateJob->pinnedDocument()});
+    }
+}
+
 void ClangCodeModelServer::categorizeFileContainers(const QVector<FileContainer> &fileContainers,
                                                     QVector<FileContainer> &toCreate,
                                                     DocumentResetInfos &toReset) const
@@ -430,6 +446,49 @@ std::vector<Document> ClangCodeModelServer::resetDocuments(const DocumentResetIn
     }
 
     return newDocuments;
+}
+
+static bool isDocumentWithUnresolvedIncludesFixable(const Document &document,
+                                                    const UnsavedFiles &unsavedFiles)
+{
+    for (uint i = 0; i < unsavedFiles.count(); ++i) {
+        const UnsavedFile &unsavedFile = unsavedFiles.at(i);
+        const Utf8String unsavedFilePath = QDir::cleanPath(unsavedFile.filePath());
+
+        for (const Utf8String &unresolvedPath : document.unresolvedFilePaths()) {
+            const QString documentDir = QFileInfo(document.filePath()).absolutePath();
+            const QString candidate = QDir::cleanPath(documentDir + "/" + unresolvedPath.toString());
+
+            if (Utf8String(candidate) == unsavedFilePath)
+                return true;
+
+            for (const Utf8String &headerPath : document.headerPaths()) {
+                Utf8String candidate = headerPath;
+                candidate.append(QStringLiteral("/"));
+                candidate.append(unresolvedPath);
+                candidate = QDir::cleanPath(candidate);
+                if (candidate == unsavedFilePath)
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+void ClangCodeModelServer::resetDocumentsWithUnresolvedIncludes(
+    const std::vector<Document> &documents)
+{
+    DocumentResetInfos toReset;
+
+    for (const Document &document : documents) {
+        if (document.unresolvedFilePaths().isEmpty())
+            continue;
+        if (isDocumentWithUnresolvedIncludesFixable(document, unsavedFiles))
+            toReset << DocumentResetInfo{document, document.fileContainer()};
+    }
+
+    resetDocuments(toReset);
 }
 
 void ClangCodeModelServer::setUpdateAnnotationsTimeOutInMsForTestsOnly(int value)

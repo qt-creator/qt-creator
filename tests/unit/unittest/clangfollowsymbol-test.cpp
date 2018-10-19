@@ -114,8 +114,8 @@ public:
     ClangBackEnd::Documents documents{unsavedFiles};
     Utf8StringVector compilationArguments{
         TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")})};
-    Document document = {sourceFilePath, compilationArguments, documents};
-    Document headerDocument = {headerFilePath, compilationArguments, documents};
+    Document document = {sourceFilePath, compilationArguments, {}, documents};
+    Document headerDocument = {headerFilePath, compilationArguments, {}, documents};
     QVector<Utf8String> deps{sourceFilePath, cursorPath};
 };
 

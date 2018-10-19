@@ -70,7 +70,8 @@ struct Data
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_semicolon_fixit.cpp"),
-                      Utf8StringVector(),
+                      {},
+                      {},
                       documents};
     UnitTest::RunDocumentParse _1{document};
     TranslationUnit translationUnit{document.translationUnit()};

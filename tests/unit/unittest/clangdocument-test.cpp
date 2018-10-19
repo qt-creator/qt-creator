@@ -100,15 +100,17 @@ TEST_F(Document, DefaultDocumentIsNotIntact)
 
 TEST_F(Document, ThrowExceptionForNonExistingFilePath)
 {
-    ASSERT_THROW(::Document(Utf8StringLiteral("file.cpp"), Utf8StringVector(),
-                            documents),
+    ASSERT_THROW(::Document(Utf8StringLiteral("file.cpp"), {}, {}, documents),
                  ClangBackEnd::DocumentFileDoesNotExistException);
 }
 
 TEST_F(Document, ThrowNoExceptionForNonExistingFilePathIfDoNotCheckIfFileExistsIsSet)
 {
-    ASSERT_NO_THROW(::Document(Utf8StringLiteral("file.cpp"), Utf8StringVector(),
-                               documents, ::Document::FileExistsCheck::DoNotCheck));
+    ASSERT_NO_THROW(::Document(Utf8StringLiteral("file.cpp"),
+                               {},
+                               {},
+                               documents,
+                               ::Document::FileExistsCheck::DoNotCheck));
 }
 
 TEST_F(Document, DocumentIsValid)
@@ -342,7 +344,7 @@ void Document::SetUp()
     QTemporaryFile temporaryFile;
     EXPECT_TRUE(temporaryFile.open());
     EXPECT_TRUE(temporaryFile.write(readContentFromDocumentFile()));
-    ::Document document(temporaryFile.fileName(), Utf8StringVector(), documents);
+    ::Document document(temporaryFile.fileName(), {}, {}, documents);
 
     return document;
 }

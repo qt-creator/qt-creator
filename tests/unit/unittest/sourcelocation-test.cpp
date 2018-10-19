@@ -51,7 +51,8 @@ struct Data {
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_location.cpp"),
-                      Utf8StringVector(),
+                      {},
+                      {},
                       documents};
     UnitTest::RunDocumentParse _1{document};
     DiagnosticSet diagnosticSet{document.translationUnit().diagnostics()};

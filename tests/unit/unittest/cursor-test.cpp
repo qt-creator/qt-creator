@@ -64,6 +64,7 @@ struct Data {
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/cursor.cpp")};
     Document document{filePath,
                       TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")}),
+                      {},
                       documents};
     TranslationUnit translationUnit{filePath,
                                     filePath,

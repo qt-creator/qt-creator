@@ -61,6 +61,7 @@ public:
     Document() = default;
     Document(const Utf8String &filePath,
              const Utf8StringVector &compilationArguments,
+             const Utf8StringVector &headerPaths,
              Documents &documents,
              FileExistsCheck fileExistsCheck = FileExistsCheck::Check);
     ~Document();
@@ -80,6 +81,7 @@ public:
 
     Utf8String filePath() const;
     Utf8StringVector compilationArguments() const;
+    Utf8StringVector headerPaths() const;
     FileContainer fileContainer() const;
 
     uint documentRevision() const;
@@ -105,6 +107,9 @@ public:
 
     TranslationUnitUpdateInput createUpdateInput() const;
     void incorporateUpdaterResult(const TranslationUnitUpdateResult &result) const;
+
+    const QSet<Utf8String> unresolvedFilePaths() const;
+    void setUnresolvedFilePaths(const QSet<Utf8String> &unresolved);
 
     TranslationUnit translationUnit(PreferredTranslationUnit preferredTranslationUnit
                                         = PreferredTranslationUnit::RecentlyParsed) const;

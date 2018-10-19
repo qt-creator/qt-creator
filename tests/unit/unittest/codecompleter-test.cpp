@@ -109,119 +109,139 @@ protected:
     QString targetHeaderPath{includeDirectory.path() + QStringLiteral("/complete_target_header.h")};
     ClangBackEnd::FileContainer mainFileContainer{Utf8StringLiteral(TESTDATA_DIR
                                                                     "/complete_completer_main.cpp"),
-                                                  Utf8StringVector{includePathArgument}};
+                                                  Utf8StringVector{includePathArgument},
+                                                  {}};
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     ClangBackEnd::Document document;
     QScopedPointer<ClangBackEnd::CodeCompleter> completer;
     ClangBackEnd::FileContainer unsavedMainFileContainer{mainFileContainer.filePath,
                                                          {includePathArgument},
+                                                         {},
                                                          readFileContent("/complete_completer_main_unsaved.cpp"),
                                                          true};
     ClangBackEnd::FileContainer unsavedTargetHeaderFileContainer{targetHeaderPath,
                                                                  {includePathArgument},
+                                                                 {},
                                                                  readFileContent("/complete_target_header_unsaved.h"),
                                                                  true};
 
     ClangBackEnd::FileContainer arrowFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_arrow.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_arrow.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withDotArrowCorrectionForPointer.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerBeforeTyping{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withDotArrowCorrectionForPointer_beforeTyping.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerAfterTyping{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withDotArrowCorrectionForPointer_afterTyping.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerInitial{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withDotArrowCorrectionForPointerInitial.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerUpdated{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withDotArrowCorrectionForPointerUpdated.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForObjectFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForObject.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withNoDotArrowCorrectionForObject.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForFloatFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForFloat.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withNoDotArrowCorrectionForFloat.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForObjectWithArrowOperatortFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForObjectWithArrowOperator.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withNoDotArrowCorrectionForObjectWithArrowOperator.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForDotDotFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForDotDot.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withNoDotArrowCorrectionForDotDot.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForArrowDotFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForArrowDot.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withNoDotArrowCorrectionForArrowDot.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForOnlyDotFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForOnlyDot.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withNoDotArrowCorrectionForOnlyDot.cpp"),
         true
     };
     ClangBackEnd::FileContainer noDotArrowCorrectionForColonColonFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForColonColon.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withNoDotArrowCorrectionForColonColon.cpp"),
         true
     };
     ClangBackEnd::FileContainer dotArrowCorrectionForForwardDeclaredClassPointer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForForwardDeclaredClassPointer.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withDotArrowCorrectionForForwardDeclaredClassPointer.cpp"),
         true
     };
     ClangBackEnd::FileContainer globalCompletionAfterForwardDeclaredClassPointer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withGlobalCompletionAfterForwardDeclaredClassPointer.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_withGlobalCompletionAfterForwardDeclaredClassPointer.cpp"),
         true
     };
     ClangBackEnd::FileContainer smartPointerCompletion{
         Utf8StringLiteral(TESTDATA_DIR"/complete_smartpointer.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/complete_smartpointer.cpp"),
         true
     };
     ClangBackEnd::FileContainer completionsOrder{
         Utf8StringLiteral(TESTDATA_DIR"/completions_order.cpp"),
         {includePathArgument},
+        {},
         readFileContent("/completions_order.cpp"),
         true
     };

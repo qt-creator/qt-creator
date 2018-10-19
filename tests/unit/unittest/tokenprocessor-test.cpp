@@ -131,6 +131,7 @@ struct Data {
                       TestEnvironment::addPlatformArguments(
                           {Utf8StringLiteral("-std=c++14"),
                            Utf8StringLiteral("-I" TESTDATA_DIR)}),
+                      {},
                       documents};
     TranslationUnit translationUnit{filePath,
                                     filePath,

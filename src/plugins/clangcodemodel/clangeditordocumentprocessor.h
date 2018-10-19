@@ -124,7 +124,8 @@ private:
             const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic);
     ClangBackEnd::FileContainer simpleFileContainer(const QByteArray &codecName = QByteArray()) const;
     ClangBackEnd::FileContainer fileContainerWithOptionsAndDocumentContent(
-        const QStringList &compilationArguments) const;
+        const QStringList &compilationArguments,
+        const ProjectExplorer::HeaderPaths headerPaths) const;
     ClangBackEnd::FileContainer fileContainerWithDocumentContent() const;
 
 private:

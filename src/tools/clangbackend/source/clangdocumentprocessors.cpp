@@ -84,6 +84,8 @@ void DocumentProcessors::reset(const Document &oldDocument, const Document &newD
                                                             [](const JobRequest &job) {
         return job.isTakeOverable();
     });
+    const Jobs::JobFinishedCallback jobFinishedCallback
+        = processor(oldDocument).jobs().jobFinishedCallback();
 
     // Remove current processor
     remove(oldDocument);
@@ -92,6 +94,7 @@ void DocumentProcessors::reset(const Document &oldDocument, const Document &newD
     DocumentProcessor newProcessor = create(newDocument);
     for (const JobRequest &job : jobsForNewProcessor)
         newProcessor.addJob(job);
+    newProcessor.jobs().setJobFinishedCallback(jobFinishedCallback);
 }
 
 JobRequests DocumentProcessors::process()
