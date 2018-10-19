@@ -32,9 +32,13 @@
     and the working directory to use. The working directory defaults to
     the directory of the build result.
 
-    For console applications, check the \uicontrol{Run in Terminal} check box.
-    If you need to run with special environment variables set up, you
-    also do it in the run configuration settings.
+    For console applications, check the \uicontrol{Run in terminal} check box.
+    To specify the terminal to use on Linux and \macos, select \uicontrol Tools
+    > \uicontrol Options > \uicontrol Environment > \uicontrol System.
+
+    To run with special environment variables set up, select them in the
+    \uicontrol {Run Environment} section. For more information, see
+    \l {Selecting the Run Environment}.
 
     \image qtcreator-pprunsettings.png
 

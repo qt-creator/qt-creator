@@ -237,7 +237,9 @@
         \li Show the file or directory in the file explorer.
 
         \li Open a terminal window in the selected directory or in the directory
-            that contains the file.
+            that contains the file. To specify the terminal to use on Linux and
+            \macos, select \uicontrol Tools > \uicontrol Options >
+            \uicontrol Environment > \uicontrol System.
 
         \li Search from the selected directory.
 

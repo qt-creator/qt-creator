@@ -253,8 +253,10 @@
     the standard output and error output. When you run or debug the
     application, you can view the output in the \uicontrol{Application Output} pane.
 
-    For console applications that require input, select \uicontrol {Projects > Run
-    Settings > Run in terminal}.
+    For console applications that require input, select \uicontrol Projects >
+    \uicontrol {Run Settings} > \uicontrol {Run in terminal}. To specify the
+    terminal to use, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Environment > \uicontrol System.
 
     \b {On Windows:} Output is displayed differently for \e{console
     applications} and \e{GUI applications}.
