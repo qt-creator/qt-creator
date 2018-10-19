@@ -1747,8 +1747,9 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
                 *message = bp->msgWatchpointByExpressionTriggered(bp->expression(), tid);
             else
                 *message = bp->msgBreakpointTriggered(tid);
-            rc |= StopReportStatusMessage|StopNotifyStop;
+            rc |= StopReportStatusMessage;
         }
+        rc |= StopNotifyStop;
         return rc;
     }
     if (reason == "exception") {
