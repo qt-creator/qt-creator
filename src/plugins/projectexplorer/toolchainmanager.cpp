@@ -251,7 +251,9 @@ bool ToolChainManager::isLanguageSupported(const Core::Id &id)
 
 void ToolChainManager::aboutToShutdown()
 {
+#ifdef Q_OS_WIN
     MsvcToolChain::cancelMsvcToolChainDetection();
+#endif
 }
 
 } // namespace ProjectExplorer
