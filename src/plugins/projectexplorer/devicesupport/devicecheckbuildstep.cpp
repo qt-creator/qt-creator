@@ -39,6 +39,7 @@ DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl)
     : BuildStep(bsl, stepId())
 {
     setDefaultDisplayName(displayName());
+    setWidgetExpandedByDefault(false);
 }
 
 bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
@@ -80,11 +81,6 @@ bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
 void DeviceCheckBuildStep::run(QFutureInterface<bool> &fi)
 {
     reportRunResult(fi, true);
-}
-
-BuildStepConfigWidget *DeviceCheckBuildStep::createConfigWidget()
-{
-    return new BuildStepConfigWidget(this, false);
 }
 
 Core::Id DeviceCheckBuildStep::stepId()

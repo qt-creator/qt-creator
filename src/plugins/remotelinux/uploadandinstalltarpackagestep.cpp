@@ -66,6 +66,7 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
 {
     m_deployService = new UploadAndInstallTarPackageService(this);
     setDefaultDisplayName(displayName());
+    setWidgetExpandedByDefault(false);
 }
 
 bool UploadAndInstallTarPackageStep::initInternal(QString *error)
@@ -79,11 +80,6 @@ bool UploadAndInstallTarPackageStep::initInternal(QString *error)
     }
     m_deployService->setPackageFilePath(pStep->packageFilePath());
     return m_deployService->isDeploymentPossible(error);
-}
-
-BuildStepConfigWidget *UploadAndInstallTarPackageStep::createConfigWidget()
-{
-    return new BuildStepConfigWidget(this, false);
 }
 
 Core::Id UploadAndInstallTarPackageStep::stepId()

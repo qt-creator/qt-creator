@@ -52,6 +52,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
     const QString name = tr("Copy application data");
     setDefaultDisplayName(name);
     setDisplayName(name);
+    setWidgetExpandedByDefault(false);
 }
 
 bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps)
@@ -126,7 +127,7 @@ bool AndroidPackageInstallationStep::immutable() const
 namespace Internal {
 
 AndroidPackageInstallationStepWidget::AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step)
-    : BuildStepConfigWidget(step, false)
+    : BuildStepConfigWidget(step)
 {
     setDisplayName(tr("Make install"));
     setSummaryText("<b>" + tr("Make install") + "</b>");

@@ -41,6 +41,7 @@ RemoteLinuxKillAppStep::RemoteLinuxKillAppStep(BuildStepList *bsl, Core::Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id), m_service(new RemoteLinuxKillAppService(this))
 {
     setDefaultDisplayName(displayName());
+    setWidgetExpandedByDefault(false);
 }
 
 bool RemoteLinuxKillAppStep::initInternal(QString *error)
@@ -67,11 +68,6 @@ Core::Id RemoteLinuxKillAppStep::stepId()
 QString RemoteLinuxKillAppStep::displayName()
 {
     return tr("Kill current application instance");
-}
-
-BuildStepConfigWidget *RemoteLinuxKillAppStep::createConfigWidget()
-{
-    return new BuildStepConfigWidget(this, false);
 }
 
 } // namespace RemoteLinux

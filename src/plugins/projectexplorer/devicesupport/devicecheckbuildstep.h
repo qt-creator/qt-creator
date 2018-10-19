@@ -42,8 +42,6 @@ public:
 
     void run(QFutureInterface<bool> &fi) override;
 
-    BuildStepConfigWidget *createConfigWidget() override;
-
     static Core::Id stepId();
     static QString displayName();
 };

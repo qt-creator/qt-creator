@@ -129,7 +129,7 @@ BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
 
 BuildStepConfigWidget *BuildStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this, true);
+    auto widget = new BuildStepConfigWidget(this);
 
     auto formLayout = new QFormLayout(widget);
     formLayout->setMargin(0);
@@ -198,6 +198,16 @@ void BuildStep::reportRunResult(QFutureInterface<bool> &fi, bool success)
 bool BuildStep::isActive() const
 {
     return projectConfiguration()->isActive();
+}
+
+bool BuildStep::widgetExpandedByDefault() const
+{
+    return m_widgetExpandedByDefault;
+}
+
+void BuildStep::setWidgetExpandedByDefault(bool widgetExpandedByDefault)
+{
+    m_widgetExpandedByDefault = widgetExpandedByDefault;
 }
 
 /*!
@@ -365,8 +375,8 @@ BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &m
 
 // BuildStepConfigWidget
 
-BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *step, bool showWidget)
-    : m_step(step), m_showWidget(showWidget)
+BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *step)
+    : m_step(step)
 {
     m_displayName = step->displayName();
     m_summaryText = "<b>" + m_displayName + "</b>";

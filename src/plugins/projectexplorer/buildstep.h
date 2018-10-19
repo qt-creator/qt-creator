@@ -84,6 +84,9 @@ public:
 
     bool isActive() const override;
 
+    bool widgetExpandedByDefault() const;
+    void setWidgetExpandedByDefault(bool widgetExpandedByDefault);
+
 signals:
     /// Adds a \p task to the Issues pane.
     /// Do note that for linking compile output with tasks, you should first emit the task
@@ -99,6 +102,7 @@ signals:
 
 private:
     bool m_enabled = true;
+    bool m_widgetExpandedByDefault = true;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepInfo
@@ -171,12 +175,11 @@ class PROJECTEXPLORER_EXPORT BuildStepConfigWidget : public QWidget
 {
     Q_OBJECT
 public:
-    BuildStepConfigWidget(BuildStep *step, bool showWidget = true);
+    explicit BuildStepConfigWidget(BuildStep *step);
 
     QString summaryText() const;
     QString displayName() const;
     BuildStep *step() const { return m_step; }
-    bool showWidget() const { return m_showWidget; }
 
     void setDisplayName(const QString &displayName);
     void setSummaryText(const QString &summaryText);
@@ -186,7 +189,6 @@ signals:
 
 private:
     BuildStep *m_step = nullptr;
-    const bool m_showWidget = true;
     QString m_displayName;
     QString m_summaryText;
 };

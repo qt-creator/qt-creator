@@ -257,7 +257,7 @@ void BuildStepListWidget::init(BuildStepList *bsl)
     for (int i = 0; i < bsl->count(); ++i) {
         addBuildStep(i);
         // addBuilStep expands the config widget by default, which we don't want here
-        if (m_buildStepsData.at(i)->widget->showWidget())
+        if (m_buildStepsData.at(i)->step->widgetExpandedByDefault())
             m_buildStepsData.at(i)->detailsWidget->setState(DetailsWidget::Collapsed);
     }
 
@@ -326,7 +326,7 @@ void BuildStepListWidget::addBuildStep(int pos)
     addBuildStepWidget(pos, newStep);
     BuildStepsWidgetData *s = m_buildStepsData.at(pos);
     // Expand new build steps by default
-    if (s->widget->showWidget())
+    if (newStep->widgetExpandedByDefault())
         s->detailsWidget->setState(DetailsWidget::Expanded);
     else
         s->detailsWidget->setState(DetailsWidget::OnlySummary);

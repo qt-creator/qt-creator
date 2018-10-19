@@ -57,8 +57,6 @@ public:
 
     bool initInternal(QString *error = 0) override;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
     static Core::Id stepId();
     static QString displayName();
 
