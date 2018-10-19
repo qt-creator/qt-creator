@@ -1471,7 +1471,7 @@ void DebuggerPluginPrivate::updatePresetState()
         // No engine running  -- or -- we have a running engine but it does not
         // correspond to the current start up project.
         m_startAction.setEnabled(canRun);
-        m_startAction.setIcon(startIcon(false));
+        m_startAction.setIcon(startIcon(true));
         m_startAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         m_startAction.setVisible(true);
         m_debugWithoutDeployAction.setEnabled(canRun);
