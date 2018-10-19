@@ -264,6 +264,10 @@ void PdbEngine::removeBreakpoint(const Breakpoint &bp)
     QTC_ASSERT(bp, return);
     QTC_CHECK(bp->state() == BreakpointRemoveRequested);
     notifyBreakpointRemoveProceeding(bp);
+    if (bp->responseId().isEmpty()) {
+        notifyBreakpointRemoveFailed(bp);
+        return;
+    }
     showMessage(QString("DELETING BP %1 IN %2")
                 .arg(bp->responseId()).arg(bp->fileName()));
     postDirectCommand("clear " + bp->responseId());
