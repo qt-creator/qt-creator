@@ -36,6 +36,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
 
+#include <debugger/analyzer/analyzericons.h>
+
 #include <QCheckBox>
 #include <QDir>
 #include <QFormLayout>
@@ -164,6 +166,8 @@ CppcheckOptionsPage::CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &tr
     setId(Constants::OPTIONS_PAGE_ID);
     setDisplayName(tr("Cppcheck"));
     setCategory("T.Analyzer");
+    setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
+    setCategoryIcon(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
 
     CppcheckOptions options;
     if (Utils::HostOsInfo::isAnyUnixHost()) {
