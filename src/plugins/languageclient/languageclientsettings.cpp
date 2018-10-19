@@ -598,6 +598,7 @@ public:
                                                              &Utils::MimeType::name), this);
         m_mimeTypeModel->m_selectedMimeTypes = selectedMimeTypes;
         proxy->setSourceModel(m_mimeTypeModel);
+        proxy->sort(0);
         connect(filter, &QLineEdit::textChanged, proxy, &QSortFilterProxyModel::setFilterWildcard);
         listView->setModel(proxy);
 
