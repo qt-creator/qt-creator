@@ -274,7 +274,7 @@ HelpPluginPrivate::HelpPluginPrivate()
         textEditorContextMenu->addAction(cmd, Core::Constants::G_HELP);
     }
 
-    action = new QAction(HelpPlugin::tr("Technical Support"), this);
+    action = new QAction(HelpPlugin::tr("Technical Support..."), this);
     cmd = ActionManager::registerAction(action, "Help.TechSupport");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, &QAction::triggered, this, [this] {
