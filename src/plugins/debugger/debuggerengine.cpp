@@ -488,7 +488,7 @@ public:
     QAction m_breakAction{tr("Toggle Breakpoint")};
     QAction m_resetAction{tr("Restart Debugging")};
     OptionalAction m_operateByInstructionAction{tr("Operate by Instruction")};
-    QAction m_recordForReverseOperationAction{tr("Record information to allpow reversal of Direction")};
+    QAction m_recordForReverseOperationAction{tr("Record Information to Allow Reversal of Direction")};
     OptionalAction m_operateInReverseDirectionAction{tr("Reverse Direction")};
     OptionalAction m_snapshotAction{tr("Take Snapshot of Process State")};
 
@@ -526,7 +526,7 @@ void DebuggerEnginePrivate::setupViews()
     m_operateByInstructionAction.setIcon(Debugger::Icons::SINGLE_INSTRUCTION_MODE.icon());
     m_operateByInstructionAction.setCheckable(true);
     m_operateByInstructionAction.setChecked(false);
-    m_operateByInstructionAction.setToolTip("<p>" + tr("This switches the debugger to instruction-wise "
+    m_operateByInstructionAction.setToolTip("<p>" + tr("Switches the debugger to instruction-wise "
         "operation mode. In this mode, stepping operates on single "
         "instructions and the source location view also shows the "
         "disassembled instructions."));
@@ -684,7 +684,7 @@ void DebuggerEnginePrivate::setupViews()
     connect(&m_abortAction, &QAction::triggered,
             m_engine, &DebuggerEngine::abortDebugger);
 
-    m_resetAction.setToolTip(tr("Restart the debugging session."));
+    m_resetAction.setToolTip(tr("Restarts the debugging session."));
     m_resetAction.setIcon(Icons::RESTART_TOOLBAR.icon());
     connect(&m_resetAction, &QAction::triggered,
             m_engine, &DebuggerEngine::handleReset);
@@ -1111,7 +1111,7 @@ void DebuggerEngine::notifyEngineSetupFailed()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupFailed);
     if (d->m_isPrimaryEngine) {
-        showMessage(tr("Debugging has failed"), NormalMessageFormat);
+        showMessage(tr("Debugging has failed."), NormalMessageFormat);
         d->m_progress.setProgressValue(900);
         d->m_progress.reportCanceled();
         d->m_progress.reportFinished();
@@ -1472,7 +1472,7 @@ void DebuggerEnginePrivate::updateReverseActions()
     m_operateInReverseDirectionAction.setVisible(canReverse);
     m_operateInReverseDirectionAction.setEnabled(canReverse && stopped && doesRecord);
     m_operateInReverseDirectionAction.setIcon(Icons::DIRECTION_BACKWARD.icon());
-    m_operateInReverseDirectionAction.setText(DebuggerEngine::tr("Operate in reverse direction"));
+    m_operateInReverseDirectionAction.setText(DebuggerEngine::tr("Operate in Reverse Direction"));
 }
 
 void DebuggerEnginePrivate::cleanupViews()
@@ -2212,7 +2212,7 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
     static int count = 0;
     showMessage(QString("<Rebuild Watchmodel %1 @ %2 >")
                 .arg(++count).arg(LogWindow::logTimeStamp()), LogMiscInput);
-    showMessage(tr("Finished retrieving data"), 400, StatusBar);
+    showMessage(tr("Finished retrieving data."), 400, StatusBar);
 
     d->m_toolTipManager.updateToolTips();
 
