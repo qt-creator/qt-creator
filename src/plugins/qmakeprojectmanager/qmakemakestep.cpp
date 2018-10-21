@@ -129,7 +129,7 @@ bool QmakeMakeStep::init(QList<const BuildStep *> &earlierSteps)
         }
     }
 
-    Utils::QtcProcess::addArgs(&args, userArguments());
+    Utils::QtcProcess::addArgs(&args, allArguments());
     if (bc->fileNodeBuild() && subProFile) {
         QString objectsDir = subProFile->objectsDirectory();
         if (objectsDir.isEmpty()) {
