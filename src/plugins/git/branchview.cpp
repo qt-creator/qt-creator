@@ -246,6 +246,10 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             contextMenu.addAction(tr("Track"), this, [this] {
                 m_model->setRemoteTracking(selectedIndex());
             });
+            if (!isLocal) {
+                contextMenu.addSeparator();
+                contextMenu.addAction(tr("&Push"), this, &BranchView::push);
+            }
         }
     }
     contextMenu.exec(m_branchView->viewport()->mapToGlobal(point));
@@ -529,6 +533,22 @@ void BranchView::log(const QModelIndex &idx)
     const QString branchName = m_model->fullName(idx, true);
     if (!branchName.isEmpty())
         GitPlugin::client()->log(m_repository, QString(), false, {branchName});
+}
+
+void BranchView::push()
+{
+    const QModelIndex selected = selectedIndex();
+    QTC_CHECK(selected != m_model->currentBranch());
+
+    const QString fullTargetName = m_model->fullName(selected);
+    const int pos = fullTargetName.indexOf('/');
+
+    const QString localBranch = m_model->fullName(m_model->currentBranch());
+    const QString remoteName = fullTargetName.left(pos);
+    const QString remoteBranch = fullTargetName.mid(pos + 1);
+    const QStringList pushArgs = {remoteName, localBranch + ':' + remoteBranch};
+
+    GitPlugin::client()->push(m_repository, pushArgs);
 }
 
 BranchViewFactory::BranchViewFactory()
