@@ -137,10 +137,12 @@ static QString processInformation(const QProcess *proc)
 
 static QString rcInfo(const TestConfiguration * const config)
 {
-    QString info = '\n' + TestRunner::tr("Run configuration:") + ' ';
+    QString info;
     if (config->isDeduced())
-        info += TestRunner::tr("deduced from");
-    return info + " \"" + config->runConfigDisplayName() + '"';
+        info = TestRunner::tr("\nRun configuration: deduced from \"%1\"");
+    else
+        info = TestRunner::tr("\nRun configuration: \"%1\"");
+    return info.arg(config->runConfigDisplayName());
 }
 
 static QString constructOmittedDetailsString(const QStringList &omitted)
