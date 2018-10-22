@@ -1417,8 +1417,6 @@ void BreakHandler::handleAlienBreakpoint(const QString &responseId, const Breakp
 
 SubBreakpoint BreakpointItem::findOrCreateSubBreakpoint(const QString &responseId)
 {
-    const QString minorPart = responseId.section('.', 1);
-
     SubBreakpoint loc = findFirstLevelChild([&](const SubBreakpoint &l) {
         return l->responseId == responseId;
     });

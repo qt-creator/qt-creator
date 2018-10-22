@@ -1474,6 +1474,21 @@ class Dumper(DumperBase):
                 bp.SetOneShot(bool(args['oneshot']))
         self.reportResult(self.describeBreakpoint(bp), args)
 
+    def enableSubbreakpoint(self, args):
+        lldbId = int(args['lldbid'])
+        locId = int(args['locid'])
+        bp = self.target.FindBreakpointByID(lldbId)
+        res = False
+        enabled = False
+        if bp.IsValid():
+            loc = bp.FindLocationByID(locId)
+            if loc.IsValid():
+                loc.SetEnabled(bool(args['enabled']))
+                enabled = loc.IsEnabled()
+                res = True
+        self.reportResult('success="%s",enabled="%s",locid="%s"'
+                        % (int(res), int(enabled), locId), args)
+
     def removeBreakpoint(self, args):
         lldbId = int(args['lldbid'])
         if lldbId > qqWatchpointOffset:
