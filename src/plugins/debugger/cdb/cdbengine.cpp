@@ -2492,7 +2492,7 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
     BreakpointParameters parameters = bp->requestedParameters();
     const auto handleBreakInsertCB = [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); };
     BreakpointParameters response = parameters;
-    auto responseId = QString::number(breakPointIdToCdbId(bp));
+    const QString responseId = breakPointCdbId(bp);
     QScopedPointer<BreakpointCorrectionContext> lineCorrection(
                 new BreakpointCorrectionContext(m_codeModelSnapshot, CppTools::CppModelManager::instance()->workingCopy()));
     if (!m_autoBreakPointCorrection
@@ -2539,7 +2539,7 @@ void CdbEngine::updateBreakpoint(const Breakpoint &bp)
     BreakpointParameters parameters = bp->requestedParameters();
     const auto handleBreakInsertCB = [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); };
     BreakpointParameters response = parameters;
-    auto responseId = QString::number(breakPointIdToCdbId(bp));
+    const QString responseId = breakPointCdbId(bp);
     notifyBreakpointChangeProceeding(bp);
     if (debugBreakpoints)
         qDebug("Changing %d:\n    %s\nTo %s\n", bp->modelId(),
