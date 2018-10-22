@@ -336,7 +336,7 @@ void AndroidBuildApkStep::run(QFutureInterface<bool> &fi)
 
 void AndroidBuildApkStep::processStarted()
 {
-    emit addOutput(tr("Starting: \"%1\" %2")
+    emit addOutput(tr("Starting: \"%1 %2\"")
                    .arg(QDir::toNativeSeparators(m_command),
                         m_argumentsPasswordConcealed),
                    BuildStep::OutputFormat::NormalMessage);

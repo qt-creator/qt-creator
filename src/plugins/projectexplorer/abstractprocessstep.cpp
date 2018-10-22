@@ -245,7 +245,7 @@ void AbstractProcessStep::cleanUp(QProcess *process)
 
 void AbstractProcessStep::processStarted()
 {
-    emit addOutput(tr("Starting: \"%1\" %2")
+    emit addOutput(tr("Starting: \"%1 %2\"")
                    .arg(QDir::toNativeSeparators(m_param.effectiveCommand()),
                         m_param.prettyArguments()),
                    BuildStep::OutputFormat::NormalMessage);
