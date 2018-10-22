@@ -1082,17 +1082,7 @@ QVariant BreakpointItem::data(int column, int role) const
             break;
         case BreakpointFileColumn:
             if (role == Qt::DisplayRole) {
-                QString str;
-                if (!m_parameters.fileName.isEmpty())
-                    str = m_parameters.fileName;
-                if (str.isEmpty()) {
-                    QString s = FileName::fromString(str).fileName();
-                    if (!s.isEmpty())
-                        str = s;
-                }
-                // FIXME: better?
-                //if (params.multiple && str.isEmpty() && !response.fileName.isEmpty())
-                //    str = response.fileName;
+                const QString str = markerFileName();
                 if (!str.isEmpty())
                     return QDir::toNativeSeparators(str);
                 return empty;
@@ -1100,8 +1090,9 @@ QVariant BreakpointItem::data(int column, int role) const
             break;
         case BreakpointLineColumn:
             if (role == Qt::DisplayRole) {
-                if (m_parameters.lineNumber > 0)
-                    return m_parameters.lineNumber;
+                const int line = markerLineNumber();
+                if (line > 0)
+                    return line;
                 return empty;
             }
             if (role == Qt::UserRole + 1)
@@ -1830,7 +1821,9 @@ QString BreakpointItem::markerFileName() const
 
 int BreakpointItem::markerLineNumber() const
 {
-    return m_parameters.lineNumber;
+    if (m_parameters.lineNumber > 0)
+        return m_parameters.lineNumber;
+    return requestedParameters().lineNumber;
 }
 
 const BreakpointParameters &BreakpointItem::requestedParameters() const
