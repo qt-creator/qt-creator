@@ -56,7 +56,7 @@ public:
     QStringList list;
     QString historyKey;
     QString historyKeyIsLastItemEmpty;
-    int maxLines = 30;
+    int maxLines = 6;
     bool isLastItemEmpty = false;
 };
 
