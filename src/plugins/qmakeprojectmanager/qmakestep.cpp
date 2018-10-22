@@ -290,11 +290,6 @@ ProjectExplorer::BuildStepConfigWidget *QMakeStep::createConfigWidget()
     return new QMakeStepConfigWidget(this);
 }
 
-bool QMakeStep::immutable() const
-{
-    return false;
-}
-
 void QMakeStep::processStartupFailed()
 {
     m_needToRunQMake = true;

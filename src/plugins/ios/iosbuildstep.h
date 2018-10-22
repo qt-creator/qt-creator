@@ -52,7 +52,6 @@ public:
     void run(QFutureInterface<bool> &fi) override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool immutable() const override;
     void setBaseArguments(const QStringList &args);
     void setExtraArguments(const QStringList &extraArgs);
     QStringList baseArguments() const;

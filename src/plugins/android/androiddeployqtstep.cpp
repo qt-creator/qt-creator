@@ -92,6 +92,7 @@ AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
 AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent)
     : ProjectExplorer::BuildStep(parent, Id)
 {
+    setImmutable(true);
     m_uninstallPreviousPackage = QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
 
     //: AndroidDeployQtStep default display name

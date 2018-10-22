@@ -43,7 +43,6 @@ public:
     bool init(QList<const BuildStep *> &earlierSteps) override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool immutable() const override;
 
     void run(QFutureInterface<bool> &fi) override;
 

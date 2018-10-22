@@ -80,11 +80,6 @@ BuildStepConfigWidget *ProcessStep::createConfigWidget()
     return new ProcessStepConfigWidget(this);
 }
 
-bool ProcessStep::immutable() const
-{
-    return false;
-}
-
 QString ProcessStep::command() const
 {
     return m_command;

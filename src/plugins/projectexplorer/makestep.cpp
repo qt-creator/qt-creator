@@ -301,11 +301,6 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
     return new MakeStepConfigWidget(this);
 }
 
-bool MakeStep::immutable() const
-{
-    return false;
-}
-
 bool MakeStep::buildsTarget(const QString &target) const
 {
     return m_buildTargets.contains(target);

@@ -48,7 +48,6 @@ public:
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool immutable() const override;
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
     QStringList availableTargets() const;

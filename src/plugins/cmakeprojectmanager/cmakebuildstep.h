@@ -60,7 +60,6 @@ public:
     void run(QFutureInterface<bool> &fi) override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool immutable() const override;
 
     QString buildTarget() const;
     bool buildsBuildTarget(const QString &target) const;

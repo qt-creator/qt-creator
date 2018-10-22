@@ -178,11 +178,6 @@ BuildStepConfigWidget *IosBuildStep::createConfigWidget()
     return new IosBuildStepConfigWidget(this);
 }
 
-bool IosBuildStep::immutable() const
-{
-    return false;
-}
-
 void IosBuildStep::setBaseArguments(const QStringList &args)
 {
     m_baseBuildArguments = args;

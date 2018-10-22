@@ -130,8 +130,3 @@ BuildStepConfigWidget *AutoreconfStep::createConfigWidget()
 
     return widget;
 }
-
-bool AutoreconfStep::immutable() const
-{
-    return false;
-}

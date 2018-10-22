@@ -53,6 +53,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
     setDefaultDisplayName(name);
     setDisplayName(name);
     setWidgetExpandedByDefault(false);
+    setImmutable(true);
 }
 
 bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps)
@@ -114,11 +115,6 @@ BuildStepConfigWidget *AndroidPackageInstallationStep::createConfigWidget()
     return new AndroidPackageInstallationStepWidget(this);
 }
 
-
-bool AndroidPackageInstallationStep::immutable() const
-{
-    return true;
-}
 
 //
 // AndroidPackageInstallationStepWidget

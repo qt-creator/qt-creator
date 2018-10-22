@@ -97,7 +97,6 @@ private:
     void slotSetSerialNumber(const QString &serialNumber);
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool immutable() const override { return true; }
 
     void processReadyReadStdOutput(DeployErrorCode &errorCode);
     void stdOutput(const QString &line);

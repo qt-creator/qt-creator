@@ -142,11 +142,6 @@ BuildStepConfigWidget *ConfigureStep::createConfigWidget()
     return m_widget.data();
 }
 
-bool ConfigureStep::immutable() const
-{
-    return false;
-}
-
 void ConfigureStep::notifyBuildDirectoryChanged()
 {
     updateDetails();

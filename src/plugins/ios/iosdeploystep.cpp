@@ -59,6 +59,7 @@ const Core::Id IosDeployStep::Id("Qt4ProjectManager.IosDeployStep");
 IosDeployStep::IosDeployStep(BuildStepList *parent)
     : BuildStep(parent, Id)
 {
+    setImmutable(true);
     updateDisplayNames();
     connect(DeviceManager::instance(), &DeviceManager::updated,
             this, &IosDeployStep::updateDisplayNames);

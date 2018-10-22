@@ -395,7 +395,7 @@ void BuildStepListWidget::updateBuildStepButtonsState()
             bs->setEnabled(!bs->enabled());
             s->toolWidget->setBuildStepEnabled(bs->enabled());
         });
-        s->toolWidget->setRemoveEnabled(!m_buildStepList->at(i)->immutable());
+        s->toolWidget->setRemoveEnabled(!m_buildStepList->at(i)->isImmutable());
         connect(s->toolWidget, &ToolWidget::removeClicked,
                 this, [this, i] {
             if (!m_buildStepList->removeStep(i)) {
@@ -407,13 +407,13 @@ void BuildStepListWidget::updateBuildStepButtonsState()
         });
 
         s->toolWidget->setUpEnabled((i > 0)
-                                    && !(m_buildStepList->at(i)->immutable()
-                                         && m_buildStepList->at(i - 1)->immutable()));
+                                    && !(m_buildStepList->at(i)->isImmutable()
+                                         && m_buildStepList->at(i - 1)->isImmutable()));
         connect(s->toolWidget, &ToolWidget::upClicked,
                 this, [this, i] { m_buildStepList->moveStepUp(i); });
         s->toolWidget->setDownEnabled((i + 1 < m_buildStepList->count())
-                                      && !(m_buildStepList->at(i)->immutable()
-                                           && m_buildStepList->at(i + 1)->immutable()));
+                                      && !(m_buildStepList->at(i)->isImmutable()
+                                           && m_buildStepList->at(i + 1)->isImmutable()));
         connect(s->toolWidget, &ToolWidget::downClicked,
                 this, [this, i] { m_buildStepList->moveStepUp(i + 1); });
 

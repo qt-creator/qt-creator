@@ -57,7 +57,6 @@ public:
     virtual void run(QFutureInterface<bool> &fi) = 0;
     virtual BuildStepConfigWidget *createConfigWidget();
 
-    virtual bool immutable() const;
     virtual bool runInGuiThread() const;
     virtual void cancel();
 
@@ -87,6 +86,9 @@ public:
     bool widgetExpandedByDefault() const;
     void setWidgetExpandedByDefault(bool widgetExpandedByDefault);
 
+    bool isImmutable() const { return m_immutable; }
+    void setImmutable(bool immutable) { m_immutable = immutable; }
+
 signals:
     /// Adds a \p task to the Issues pane.
     /// Do note that for linking compile output with tasks, you should first emit the task
@@ -102,6 +104,7 @@ signals:
 
 private:
     bool m_enabled = true;
+    bool m_immutable = false;
     bool m_widgetExpandedByDefault = true;
 };
 

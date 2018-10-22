@@ -114,7 +114,6 @@ public:
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool immutable() const override;
     void setForced(bool b);
 
     enum class ArgumentFlag {

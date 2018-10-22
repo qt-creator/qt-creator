@@ -77,7 +77,6 @@ private:
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool immutable() const override { return true; }
     void processStarted() override;
     void processFinished(int exitCode, QProcess::ExitStatus status) override;
     bool verifyKeystorePassword();

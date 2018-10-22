@@ -138,8 +138,3 @@ BuildStepConfigWidget *AutogenStep::createConfigWidget()
 
     return widget;
 }
-
-bool AutogenStep::immutable() const
-{
-    return false;
-}

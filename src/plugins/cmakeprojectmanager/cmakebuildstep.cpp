@@ -278,11 +278,6 @@ BuildStepConfigWidget *CMakeBuildStep::createConfigWidget()
     return new CMakeBuildStepConfigWidget(this);
 }
 
-bool CMakeBuildStep::immutable() const
-{
-    return false;
-}
-
 void CMakeBuildStep::stdOutput(const QString &line)
 {
     if (m_percentProgress.indexIn(line) != -1) {

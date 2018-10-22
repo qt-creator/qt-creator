@@ -129,6 +129,7 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent)
 {
     //: AndroidBuildApkStep default display name
     setDefaultDisplayName(tr("Build Android APK"));
+    setImmutable(true);
 }
 
 bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)

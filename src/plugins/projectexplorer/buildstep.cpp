@@ -211,15 +211,12 @@ void BuildStep::setWidgetExpandedByDefault(bool widgetExpandedByDefault)
 }
 
 /*!
+  \fn BuildStep::isImmutable()
+
     If this function returns \c true, the user cannot delete this build step for
     this target and the user is prevented from changing the order in which
     immutable steps are run. The default implementation returns \c false.
 */
-
-bool BuildStep::immutable() const
-{
-    return false;
-}
 
 bool BuildStep::runInGuiThread() const
 {

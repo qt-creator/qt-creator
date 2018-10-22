@@ -49,7 +49,6 @@ public:
     void run(QFutureInterface<bool> &) override;
 
     BuildStepConfigWidget *createConfigWidget() override;
-    bool immutable() const override;
 
     QString command() const;
     QString arguments() const;

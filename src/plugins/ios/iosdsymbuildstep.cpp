@@ -197,11 +197,6 @@ BuildStepConfigWidget *IosDsymBuildStep::createConfigWidget()
     return new IosDsymBuildStepConfigWidget(this);
 }
 
-bool IosDsymBuildStep::immutable() const
-{
-    return false;
-}
-
 void IosDsymBuildStep::setArguments(const QStringList &args)
 {
     if (arguments() == args)
