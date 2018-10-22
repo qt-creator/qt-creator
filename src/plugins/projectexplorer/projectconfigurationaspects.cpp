@@ -217,7 +217,8 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
     case PathChooserDisplay:
         d->m_pathChooserDisplay = new PathChooser(parent);
         d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
-        d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
+        if (!d->m_historyCompleterKey.isEmpty())
+            d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
         connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
                 this, &BaseStringAspect::setValue);
@@ -226,7 +227,8 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
     case LineEditDisplay:
         d->m_lineEditDisplay = new FancyLineEdit(parent);
         d->m_lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
-        d->m_lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
+        if (!d->m_historyCompleterKey.isEmpty())
+            d->m_lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         connect(d->m_lineEditDisplay, &FancyLineEdit::textEdited,
                 this, &BaseStringAspect::setValue);
         hbox->addWidget(d->m_lineEditDisplay);
