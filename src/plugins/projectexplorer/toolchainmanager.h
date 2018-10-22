@@ -74,6 +74,8 @@ public:
     static QString displayNameOfLanguageId(const Core::Id &id);
     static bool isLanguageSupported(const Core::Id &id);
 
+    static void aboutToShutdown();
+
     void saveToolChains();
 
 signals:

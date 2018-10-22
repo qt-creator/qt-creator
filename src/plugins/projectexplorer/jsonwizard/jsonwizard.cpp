@@ -31,6 +31,7 @@
 #include "../project.h"
 #include "../projectexplorer.h"
 #include "../projectexplorerconstants.h"
+#include "../projecttree.h"
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/messagemanager.h>
 
@@ -290,7 +291,7 @@ void JsonWizard::accept()
     openFiles(m_files);
 
     auto node = static_cast<ProjectExplorer::Node*>(value(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE).value<void*>());
-    if (node) // PREFERRED_PROJECT_NODE is not set for newly created projects
+    if (node && ProjectTree::hasNode(node)) // PREFERRED_PROJECT_NODE is not set for newly created projects
         openProjectForNode(node);
 }
 

@@ -27,6 +27,7 @@
 
 #include "abi.h"
 #include "kitinformation.h"
+#include "msvctoolchain.h"
 #include "toolchain.h"
 #include "toolchainsettingsaccessor.h"
 
@@ -247,6 +248,13 @@ QString ToolChainManager::displayNameOfLanguageId(const Core::Id &id)
 bool ToolChainManager::isLanguageSupported(const Core::Id &id)
 {
     return Utils::contains(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
+}
+
+void ToolChainManager::aboutToShutdown()
+{
+#ifdef Q_OS_WIN
+    MsvcToolChain::cancelMsvcToolChainDetection();
+#endif
 }
 
 } // namespace ProjectExplorer
