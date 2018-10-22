@@ -305,10 +305,12 @@ void BuildStepListWidget::updateAddBuildStepMenu()
     }
 }
 
-void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
+void BuildStepListWidget::addBuildStep(int pos)
 {
+    BuildStep *newStep = m_buildStepList->at(pos);
+
     // create everything
-    auto s = new BuildStepsWidgetData(step);
+    auto s = new BuildStepsWidgetData(newStep);
     m_buildStepsData.insert(pos, s);
 
     m_vbox->insertWidget(pos, s->detailsWidget);
@@ -318,13 +320,7 @@ void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
 
     connect(s->step, &BuildStep::enabledChanged,
             this, &BuildStepListWidget::updateEnabledState);
-}
 
-void BuildStepListWidget::addBuildStep(int pos)
-{
-    BuildStep *newStep = m_buildStepList->at(pos);
-    addBuildStepWidget(pos, newStep);
-    BuildStepsWidgetData *s = m_buildStepsData.at(pos);
     // Expand new build steps by default
     if (newStep->widgetExpandedByDefault())
         s->detailsWidget->setState(DetailsWidget::Expanded);

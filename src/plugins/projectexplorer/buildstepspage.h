@@ -112,7 +112,6 @@ private:
 
     void setupUi();
     void updateBuildStepButtonsState();
-    void addBuildStepWidget(int pos, BuildStep *step);
 
     BuildStepList *m_buildStepList = nullptr;
 
