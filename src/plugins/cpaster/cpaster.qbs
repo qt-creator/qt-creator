@@ -26,8 +26,6 @@ QtcPlugin {
         "fileshareprotocolsettingswidget.ui",
         "kdepasteprotocol.cpp",
         "kdepasteprotocol.h",
-        "pastebindotcaprotocol.cpp",
-        "pastebindotcaprotocol.h",
         "pastebindotcomprotocol.cpp",
         "pastebindotcomprotocol.h",
         "pastebindotcomsettings.ui",

@@ -13,7 +13,6 @@ QT += network
 HEADERS = ../protocol.h \
     ../cpasterconstants.h \
     ../pastebindotcomprotocol.h \
-    ../pastebindotcaprotocol.h \
     ../pastecodedotxyzprotocol.h \
     ../kdepasteprotocol.h \
     ../urlopenprotocol.h \
@@ -21,7 +20,6 @@ HEADERS = ../protocol.h \
 
 SOURCES += ../protocol.cpp \
     ../pastebindotcomprotocol.cpp \
-    ../pastebindotcaprotocol.cpp \
     ../pastecodedotxyzprotocol.cpp \
     ../kdepasteprotocol.cpp \
     ../urlopenprotocol.cpp \
