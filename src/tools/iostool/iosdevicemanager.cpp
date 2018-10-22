@@ -423,6 +423,7 @@ public:
     void requestDeviceInfo(const QString &deviceId, int timeout);
     QStringList errors();
     void addError(QString errorMsg);
+    QString deviceId(AMDeviceRef device);
     void addDevice(AMDeviceRef device);
     void removeDevice(AMDeviceRef device);
     void checkPendingLookups();
@@ -654,11 +655,18 @@ void IosDeviceManagerPrivate::addError(QString errorMsg)
     emit q->errorMsg(errorMsg);
 }
 
-void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
+QString IosDeviceManagerPrivate::deviceId(AMDeviceRef device)
 {
     CFStringRef s = m_lib.deviceCopyDeviceIdentifier(device);
-    QString devId = QString::fromCFString(s);
+    // remove dashes as a hotfix for QTCREATORBUG-21291
+    const auto id = QString::fromCFString(s).remove('-');
     if (s) CFRelease(s);
+    return id;
+}
+
+void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
+{
+    const QString devId = deviceId(device);
     CFRetain(device);
 
     DeviceInterfaceType interfaceType = static_cast<DeviceInterfaceType>(lib()->deviceGetInterfaceType(device));
@@ -703,10 +711,7 @@ void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
 
 void IosDeviceManagerPrivate::removeDevice(AMDeviceRef device)
 {
-    CFStringRef s = m_lib.deviceCopyDeviceIdentifier(device);
-    QString devId = QString::fromCFString(s);
-    if (s)
-        CFRelease(s);
+    const QString devId = deviceId(device);
     if (debugAll)
         qDebug() << "removeDevice " << devId;
     if (m_devices.contains(devId)) {
