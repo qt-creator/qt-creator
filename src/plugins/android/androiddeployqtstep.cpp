@@ -569,11 +569,6 @@ void AndroidDeployQtStep::setUninstallPreviousPackage(bool uninstall)
     m_uninstallPreviousPackage = uninstall;
 }
 
-bool AndroidDeployQtStep::runInGuiThread() const
-{
-    return false;
-}
-
 AndroidDeployQtStep::UninstallType AndroidDeployQtStep::uninstallPreviousPackage()
 {
     if (QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))

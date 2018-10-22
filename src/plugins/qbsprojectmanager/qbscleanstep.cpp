@@ -52,6 +52,7 @@ QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
     ProjectExplorer::BuildStep(bsl, Constants::QBS_CLEANSTEP_ID)
 {
     setDisplayName(tr("Qbs Clean"));
+    setRunInGuiThread(true);
 }
 
 QbsCleanStep::~QbsCleanStep()
@@ -105,11 +106,6 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
 ProjectExplorer::BuildStepConfigWidget *QbsCleanStep::createConfigWidget()
 {
     return new QbsCleanStepConfigWidget(this);
-}
-
-bool QbsCleanStep::runInGuiThread() const
-{
-    return true;
 }
 
 void QbsCleanStep::cancel()

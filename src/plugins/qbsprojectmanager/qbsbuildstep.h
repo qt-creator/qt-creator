@@ -64,7 +64,6 @@ public:
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
-    bool runInGuiThread() const override;
     void cancel() override;
 
     QVariantMap qbsConfiguration(VariableHandling variableHandling) const;

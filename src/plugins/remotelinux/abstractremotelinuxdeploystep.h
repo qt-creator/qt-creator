@@ -47,7 +47,6 @@ public:
     QVariantMap toMap() const override;
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
-    bool runInGuiThread() const override { return true; }
     void cancel() override;
     RemoteLinuxDeployConfiguration *deployConfiguration() const;
 

@@ -72,7 +72,6 @@ private:
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool runInGuiThread() const override { return true; }
     ProjectExplorer::IDevice::ConstPtr device() const;
     IosDevice::ConstPtr iosdevice() const;
     IosSimulator::ConstPtr iossimulator() const;

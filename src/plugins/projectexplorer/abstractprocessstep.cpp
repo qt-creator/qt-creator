@@ -96,6 +96,7 @@ AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
 {
     m_timer.setInterval(500);
     connect(&m_timer, &QTimer::timeout, this, &AbstractProcessStep::checkForCancel);
+    setRunInGuiThread(true);
 }
 
 /*!

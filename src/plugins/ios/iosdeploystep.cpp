@@ -60,6 +60,7 @@ IosDeployStep::IosDeployStep(BuildStepList *parent)
     : BuildStep(parent, Id)
 {
     setImmutable(true);
+    setRunInGuiThread(true);
     updateDisplayNames();
     connect(DeviceManager::instance(), &DeviceManager::updated,
             this, &IosDeployStep::updateDisplayNames);

@@ -127,6 +127,8 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
 {
     setDisplayName(tr("Qbs Build"));
     setQbsConfiguration(QVariantMap());
+    setRunInGuiThread(true);
+
 //    setQbsConfiguration(other->qbsConfiguration(PreserveVariables));
 }
 
@@ -182,11 +184,6 @@ void QbsBuildStep::run(QFutureInterface<bool> &fi)
 ProjectExplorer::BuildStepConfigWidget *QbsBuildStep::createConfigWidget()
 {
     return new QbsBuildStepConfigWidget(this);
-}
-
-bool QbsBuildStep::runInGuiThread() const
-{
-    return true;
 }
 
 void QbsBuildStep::cancel()

@@ -57,7 +57,6 @@ public:
     virtual void run(QFutureInterface<bool> &fi) = 0;
     virtual BuildStepConfigWidget *createConfigWidget();
 
-    virtual bool runInGuiThread() const;
     virtual void cancel();
 
     bool fromMap(const QVariantMap &map) override;
@@ -89,6 +88,9 @@ public:
     bool isImmutable() const { return m_immutable; }
     void setImmutable(bool immutable) { m_immutable = immutable; }
 
+    bool runInGuiThread() const;
+    void setRunInGuiThread(bool runInGuiThread);
+
 signals:
     /// Adds a \p task to the Issues pane.
     /// Do note that for linking compile output with tasks, you should first emit the task
@@ -106,6 +108,7 @@ private:
     bool m_enabled = true;
     bool m_immutable = false;
     bool m_widgetExpandedByDefault = true;
+    bool m_runInGuiThread = false;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepInfo

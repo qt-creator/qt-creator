@@ -220,7 +220,12 @@ void BuildStep::setWidgetExpandedByDefault(bool widgetExpandedByDefault)
 
 bool BuildStep::runInGuiThread() const
 {
-    return false;
+    return m_runInGuiThread;
+}
+
+void BuildStep::setRunInGuiThread(bool runInGuiThread)
+{
+    m_runInGuiThread = runInGuiThread;
 }
 
 /*!

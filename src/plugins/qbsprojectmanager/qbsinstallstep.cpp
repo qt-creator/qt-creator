@@ -61,6 +61,7 @@ QbsInstallStep::QbsInstallStep(ProjectExplorer::BuildStepList *bsl) :
     ProjectExplorer::BuildStep(bsl, Constants::QBS_INSTALLSTEP_ID)
 {
     setDisplayName(tr("Qbs Install"));
+    setRunInGuiThread(true);
 
     const QbsBuildConfiguration * const bc = buildConfig();
     connect(bc, &QbsBuildConfiguration::qbsConfigurationChanged,
@@ -110,11 +111,6 @@ void QbsInstallStep::run(QFutureInterface<bool> &fi)
 ProjectExplorer::BuildStepConfigWidget *QbsInstallStep::createConfigWidget()
 {
     return new QbsInstallStepConfigWidget(this);
-}
-
-bool QbsInstallStep::runInGuiThread() const
-{
-    return true;
 }
 
 void QbsInstallStep::cancel()

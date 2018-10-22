@@ -66,6 +66,7 @@ BareMetalGdbCommandsDeployStep::BareMetalGdbCommandsDeployStep(BuildStepList *bs
     : BuildStep(bsl, stepId())
 {
     setDefaultDisplayName(displayName());
+    setRunInGuiThread(true);
 }
 
 void BareMetalGdbCommandsDeployStep::run(QFutureInterface<bool> &fi)

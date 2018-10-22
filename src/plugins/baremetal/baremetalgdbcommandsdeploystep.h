@@ -42,7 +42,6 @@ public:
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
-    bool runInGuiThread() const override { return true;}
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;

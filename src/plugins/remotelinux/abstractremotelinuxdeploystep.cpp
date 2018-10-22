@@ -48,6 +48,7 @@ public:
 AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl, Core::Id id)
     : BuildStep(bsl, id), d(new Internal::AbstractRemoteLinuxDeployStepPrivate)
 {
+    setRunInGuiThread(true);
 }
 
 AbstractRemoteLinuxDeployStep::~AbstractRemoteLinuxDeployStep()

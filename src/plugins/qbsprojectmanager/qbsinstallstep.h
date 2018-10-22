@@ -51,7 +51,6 @@ public:
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
-    bool runInGuiThread() const override;
     void cancel() override;
 
     bool fromMap(const QVariantMap &map) override;

@@ -74,8 +74,6 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    bool runInGuiThread() const override;
-
     UninstallType uninstallPreviousPackage();
 
     AndroidDeviceInfo deviceInfo() const;
