@@ -200,9 +200,11 @@
     current working directory. You can specify another location for the file,
     including a relative or absolute path, as an argument of the command.
 
+    \omit
     To generate a temporary core file, select \uicontrol {Create Snapshot} in the
     context menu in the \uicontrol Snapshot view. The core file is deleted when you
     stop debugging.
+    \endomit
 
     \section1 Compiler Questions
 

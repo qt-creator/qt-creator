@@ -387,8 +387,10 @@
 
         \li Disassemble sections of code.
 
+        \omit
         \li Create snapshots of the current state of the debugged program
             and re-examine them later.
+        \endomit
 
     \endlist
 
@@ -605,6 +607,7 @@
 
     By default, the \uicontrol Registers view is hidden.
 
+    \omit
     \section2 Creating Snapshots
 
     A snapshot contains the complete state of the debugged program at a time,
@@ -616,7 +619,7 @@
     Double-click on entries in the \uicontrol {Debugger Perspectives} view to
     switch between snapshots. The debugger views are updated to reflect the state
     of the program at time of taking the snapshot.
-
+    \endomit
 */
 
 
