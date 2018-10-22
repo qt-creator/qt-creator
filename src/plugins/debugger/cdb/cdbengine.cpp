@@ -832,6 +832,7 @@ void CdbEngine::handleDoInterruptInferior(const QString &errorMessage)
 
 void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
 {
+    const bool requestInterrupt = m_stopMode == NoStopRequested;
     if (callback) {
         m_interrupCallbacks.push_back(callback);
         if (!m_initialSessionIdleHandled)
@@ -842,6 +843,8 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
         m_stopMode = Interrupt;
     }
 
+    if (!requestInterrupt)
+        return; // we already requested a stop no need to interrupt twice
     showMessage(QString("Interrupting process %1...").arg(inferiorPid()), LogMisc);
     QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed(); return);
     QTC_ASSERT(device(), notifyInferiorRunFailed(); return);
