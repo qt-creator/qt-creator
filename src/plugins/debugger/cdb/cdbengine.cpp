@@ -610,7 +610,7 @@ void CdbEngine::runEngine()
     const auto cb = [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); };
     if (boolSetting(CdbBreakOnCrtDbgReport)) {
         Abi::OSFlavor flavor = runParameters().toolChainAbi.osFlavor();
-        // CrtDebugReport can not be safely resolved for vc 19
+        // CrtDebugReport cannot be safely resolved for vc 19
         if ((flavor > Abi::WindowsMsvc2005Flavor && flavor <= Abi::WindowsMsvc2013Flavor) ||
                 flavor > Abi::WindowsMSysFlavor || flavor <= Abi::WindowsCEFlavor) {
             const QString module = msvcRunTime(flavor);
@@ -2748,7 +2748,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
     }
     if (!ok) {
         m_pythonVersion = 0;
-        showMessage(QString("Can not parse sys.version:\n%1").arg(verOutput), LogWarning);
+        showMessage(QString("Cannot parse sys.version:\n%1").arg(verOutput), LogWarning);
         return;
     }
 

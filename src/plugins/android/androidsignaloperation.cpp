@@ -57,7 +57,7 @@ void Android::Internal::AndroidSignalOperation::adbFindRunAsFinished(int exitCod
             m_errorMessage += QLatin1String(" adb process error: ") + adbError;
     }
     if (runAs.isEmpty() || !m_errorMessage.isEmpty()) {
-        m_errorMessage = QLatin1String("Can not find User for process: ")
+        m_errorMessage = QLatin1String("Cannot find User for process: ")
                 + QString::number(m_pid)
                 + m_errorMessage;
         m_state = Idle;
@@ -90,7 +90,7 @@ void Android::Internal::AndroidSignalOperation::adbKillFinished(int exitCode,
         m_errorMessage = QString::fromLatin1(m_adbProcess->readAllStandardError());
     }
     if (!m_errorMessage.isEmpty()) {
-        m_errorMessage = QLatin1String("Can not kill process: ") + QString::number(m_pid)
+        m_errorMessage = QLatin1String("Cannot kill process: ") + QString::number(m_pid)
                 + m_errorMessage;
     }
     m_state = Idle;

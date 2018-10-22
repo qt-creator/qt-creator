@@ -126,7 +126,7 @@ void IosBuildSettingsWidget::setDefaultSigningIdentfier(const QString &identifie
     } else {
         // Reset to default
         ui->m_signEntityCombo->setCurrentIndex(0);
-        qCDebug(iosSettingsLog) << "Can not find default"
+        qCDebug(iosSettingsLog) << "Cannot find default"
                                 << (ui->m_autoSignCheckbox->isChecked() ? "team": "provisioning profile")
                                 << ". Identifier: " << identifier;
     }

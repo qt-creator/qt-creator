@@ -58,7 +58,7 @@ AbstractProperty::AbstractProperty(const PropertyName &propertyName, const Inter
     m_view(view)
 {
     Q_ASSERT(!m_model || m_view);
-    Q_ASSERT_X(!m_propertyName.contains(' '), Q_FUNC_INFO, "a property name can not contain a space");
+    Q_ASSERT_X(!m_propertyName.contains(' '), Q_FUNC_INFO, "a property name cannot contain a space");
 }
 
 AbstractProperty::AbstractProperty(const Internal::InternalPropertyPointer &property, Model* model,  AbstractView *view)

@@ -180,7 +180,7 @@ void GnuMakeParser::taskAdded(const Task &task, int linkedLines, int skippedLine
         if (possibleFiles.size() == 1)
             editable.file = Utils::FileName(possibleFiles.first());
         // Let the Makestep apply additional heuristics (based on
-        // files in ther project) if we can not uniquely
+        // files in ther project) if we cannot uniquely
         // identify the file!
     }
 

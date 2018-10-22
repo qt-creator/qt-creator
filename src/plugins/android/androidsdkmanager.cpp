@@ -627,7 +627,7 @@ AndroidSdkPackage *SdkManagerOutputParser::parsePlatform(const QStringList &data
     if (parseAbstractData(packageData, data, 2, "Platform")) {
         int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
         if (apiLevel == -1) {
-            qCDebug(sdkManagerLog) << "Platform: Can not parse api level:"<< data;
+            qCDebug(sdkManagerLog) << "Platform: Cannot parse api level:"<< data;
             return nullptr;
         }
         platform = new SdkPlatform(packageData.revision, data.at(0), apiLevel);
@@ -647,7 +647,7 @@ QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QString
     if (parseAbstractData(packageData, data, 4, "System-image")) {
         int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
         if (apiLevel == -1) {
-            qCDebug(sdkManagerLog) << "System-image: Can not parse api level:"<< data;
+            qCDebug(sdkManagerLog) << "System-image: Cannot parse api level:"<< data;
             return result;
         }
         auto image = new SystemImage(packageData.revision, data.at(0),

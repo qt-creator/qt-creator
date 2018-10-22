@@ -170,7 +170,7 @@ CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEM
 
         if (senderBc && senderBc->isActive()) {
             // The environment on our BC has changed:
-            // * Error out if the reader updates, can not happen since all BCs share a target/kit.
+            // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
             // * run cmake without configuration arguments if the reader stays
             m_buildDirManager.setParametersAndRequestParse(
                         BuildDirParameters(senderBc),
@@ -183,7 +183,7 @@ CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEM
 
         if (senderBc && senderBc->isActive() && senderBc == m_buildDirManager.buildConfiguration()) {
             // The build directory of our BC has changed:
-            // * Error out if the reader updates, can not happen since all BCs share a target/kit.
+            // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
             // * run cmake without configuration arguments if the reader stays
             //   If no configuration exists, then the arguments will get added automatically by
             //   the reader.
@@ -198,7 +198,7 @@ CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEM
 
         if (senderBc && senderBc->isActive() && senderBc == m_buildDirManager.buildConfiguration()) {
             // The CMake configuration has changed on our BC:
-            // * Error out if the reader updates, can not happen since all BCs share a target/kit.
+            // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
             // * run cmake with configuration arguments if the reader stays
             m_buildDirManager.setParametersAndRequestParse(
                         BuildDirParameters(senderBc),

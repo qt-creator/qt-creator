@@ -241,7 +241,7 @@ void DatabaseBackend::cacheTextEncoding()
 void DatabaseBackend::checkForOpenDatabaseWhichCanBeClosed()
 {
     if (m_databaseHandle == nullptr)
-        throw DatabaseIsAlreadyClosed("SqliteDatabaseBackend::close: database is not open so it can not be closed.");
+        throw DatabaseIsAlreadyClosed("SqliteDatabaseBackend::close: database is not open so it cannot be closed.");
 }
 
 void DatabaseBackend::checkDatabaseClosing(int resultCode)

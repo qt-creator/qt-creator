@@ -398,7 +398,7 @@ QVariantMap UserFileAccessor::preprocessReadSettings(const QVariantMap &data) co
     QVariantMap tmp = MergingSettingsAccessor::preprocessReadSettings(data);
 
     // Move from old Version field to new one:
-    // This can not be done in a normal upgrader since the version information is needed
+    // This cannot be done in a normal upgrader since the version information is needed
     // to decide which upgraders to run
     const QString obsoleteKey = OBSOLETE_VERSION_KEY;
     const int obsoleteVersion = tmp.value(obsoleteKey, -1).toInt();

@@ -185,7 +185,7 @@ static inline int askMsgSendFailed()
                 QMessageBox::Retry);
 }
 
-// taken from utils/fileutils.cpp. We can not use utils here since that depends app_version.h.
+// taken from utils/fileutils.cpp. We cannot use utils here since that depends app_version.h.
 static bool copyRecursively(const QString &srcFilePath,
                             const QString &tgtFilePath)
 {

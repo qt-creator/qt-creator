@@ -218,7 +218,7 @@ QString AndroidManager::activityName(ProjectExplorer::Target *target)
 
 /*!
     Returns the minimum Android API level set for the APK. Minimum API level
-    of the kit is returned if the manifest file of the APK can not be found
+    of the kit is returned if the manifest file of the APK cannot be found
     or parsed.
 */
 int AndroidManager::minimumSDK(ProjectExplorer::Target *target)
