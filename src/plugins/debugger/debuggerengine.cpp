@@ -1847,7 +1847,7 @@ void DebuggerEngine::handleBeginOfRecordingReached()
 
 void DebuggerEngine::handleRecordingFailed()
 {
-    showStatusMessage(tr("Reverse-execution recording failed.."));
+    showStatusMessage(tr("Reverse-execution recording failed."));
     d->m_operateInReverseDirectionAction.setChecked(false);
     d->m_recordForReverseOperationAction.setChecked(false);
     d->updateReverseActions();
