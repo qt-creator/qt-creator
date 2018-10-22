@@ -135,7 +135,7 @@ AndroidBuildApkInnerWidget::~AndroidBuildApkInnerWidget()
 
 QString AndroidBuildApkInnerWidget::displayName() const
 {
-    return tr("<b>Build Android APK</b>");
+    return "<b>" + tr("Build Android APK") + "</b>";
 }
 
 QString AndroidBuildApkInnerWidget::summaryText() const
@@ -324,7 +324,7 @@ void AndroidBuildApkWidget::checkEnableRemoveButton()
 
 QString AndroidBuildApkWidget::summaryText() const
 {
-    return tr("<b>Build Android APK</b>");
+    return "<b>" + tr("Build Android APK") + "</b>";
 }
 
 QString AndroidBuildApkWidget::displayName() const
