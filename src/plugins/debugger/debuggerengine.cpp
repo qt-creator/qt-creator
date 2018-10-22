@@ -1261,11 +1261,13 @@ void DebuggerEnginePrivate::setInitialActionStates()
     m_recordForReverseOperationAction.setCheckable(true);
     m_recordForReverseOperationAction.setChecked(false);
     m_recordForReverseOperationAction.setIcon(Icons::RECORD_OFF.icon());
-    m_recordForReverseOperationAction.setToolTip(tr(
-        "<html><head/><body><p>Record information to enable stepping backwards.</p><p>"
-        "<b>Note:</b> This feature is very slow and unstable on the GDB side. "
-        "It exhibits unpredictable behavior when going backwards over system "
-        "calls and is very likely to destroy your debugging session.</p></body></html>"));
+    m_recordForReverseOperationAction.setToolTip(QString("<html><head/><body><p>%1</p><p>"
+                                                         "<b>%2</b>%3</p></body></html>").arg(
+                         tr("Record information to enable stepping backwards."),
+                         tr("Note: "),
+                         tr("This feature is very slow and unstable on the GDB side. "
+                            "It exhibits unpredictable behavior when going backwards over system "
+                            "calls and is very likely to destroy your debugging session.")));
 
     m_operateInReverseDirectionAction.setCheckable(true);
     m_operateInReverseDirectionAction.setChecked(false);
