@@ -1963,7 +1963,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
         }
 
         // Edit existing breakpoint.
-        act = menu->addAction(tr("Edit Breakpoint ..."));
+        act = menu->addAction(tr("Edit Breakpoint..."));
         connect(act, &QAction::triggered, [gbp] {
             BreakpointManager::editBreakpoint(gbp, ICore::dialogParent());
         });
