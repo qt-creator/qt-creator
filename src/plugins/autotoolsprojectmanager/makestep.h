@@ -49,7 +49,7 @@ class MakeStep : public ProjectExplorer::MakeStep
     Q_OBJECT
 
 public:
-    explicit MakeStep(ProjectExplorer::BuildStepList *bsl, const QString &buildTarget = QString());
+    explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
 };
 
 } // namespace Internal

@@ -43,27 +43,20 @@ const char MAKE_STEP_ID[] = "AutotoolsProjectManager.MakeStep";
 
 MakeStepFactory::MakeStepFactory()
 {
-    struct Step : public MakeStep
-    {
-        Step(ProjectExplorer::BuildStepList *bsl) : MakeStep(bsl)
-        {
-            if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-                setBuildTarget("clean", true);
-                setClean(true);
-            } else {
-                setBuildTarget("all", true);
-            }
-        }
-    };
-
-    registerStep<Step>(MAKE_STEP_ID);
+    registerStep<MakeStep>(MAKE_STEP_ID);
     setDisplayName(ProjectExplorer::MakeStep::defaultDisplayName());
     setSupportedProjectType(AUTOTOOLS_PROJECT_ID);
 }
 
 // MakeStep
 
-MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, const QString &buildTarget)
-    : ProjectExplorer::MakeStep(bsl, MAKE_STEP_ID, buildTarget, {"all", "clean"})
+MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl)
+    : ProjectExplorer::MakeStep(bsl, MAKE_STEP_ID, QString(), {"all", "clean"})
 {
+    if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        setBuildTarget("clean", true);
+        setClean(true);
+    } else {
+        setBuildTarget("all", true);
+    }
 }
