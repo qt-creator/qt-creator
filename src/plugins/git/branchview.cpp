@@ -37,6 +37,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <utils/elidinglabel.h>
+#include <utils/fancylineedit.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -48,6 +49,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPoint>
+#include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -57,6 +59,21 @@ using namespace Core;
 namespace Git {
 namespace Internal {
 
+class BranchFilterModel : public QSortFilterProxyModel
+{
+public:
+    BranchFilterModel(QObject *parent) : QSortFilterProxyModel(parent) {}
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
+    {
+        QAbstractItemModel *m = sourceModel();
+        // Filter leaves only. The root node and all intermediate nodes should always be visible
+        if (!sourceParent.isValid() || m->rowCount(m->index(sourceRow, 0, sourceParent)) > 0)
+            return true;
+        return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
+    }
+};
+
 BranchView::BranchView() :
     m_includeOldEntriesAction(new QAction(tr("Include Old Entries"), this)),
     m_includeTagsAction(new QAction(tr("Include Tags"), this)),
@@ -64,7 +81,8 @@ BranchView::BranchView() :
     m_refreshButton(new QToolButton(this)),
     m_repositoryLabel(new Utils::ElidingLabel(this)),
     m_branchView(new Utils::NavigationTreeView(this)),
-    m_model(new BranchModel(GitPlugin::client(), this))
+    m_model(new BranchModel(GitPlugin::client(), this)),
+    m_filterModel(new BranchFilterModel(this))
 {
     m_addButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
     m_addButton->setProperty("noArrow", true);
@@ -75,12 +93,21 @@ BranchView::BranchView() :
     m_refreshButton->setProperty("noArrow", true);
     connect(m_refreshButton, &QToolButton::clicked, this, &BranchView::refreshCurrentRepository);
 
-    m_branchView->setModel(m_model);
     m_branchView->setHeaderHidden(true);
     setFocus();
 
     m_repositoryLabel->setElideMode(Qt::ElideLeft);
+
+    m_filterModel->setSourceModel(m_model);
+    m_filterModel->setFilterRole(Qt::EditRole);
+    m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_branchView->setModel(m_filterModel);
+    auto filterEdit = new Utils::FancyLineEdit(this);
+    filterEdit->setFiltering(true);
+    connect(filterEdit, &Utils::FancyLineEdit::textChanged,
+            m_filterModel, QOverload<const QString &>::of(&BranchFilterModel::setFilterRegExp));
     auto layout = new QVBoxLayout(this);
+    layout->addWidget(filterEdit);
     layout->addWidget(m_repositoryLabel);
     layout->addWidget(m_branchView);
     layout->setContentsMargins(0, 2, 0, 0);
@@ -100,7 +127,7 @@ BranchView::BranchView() :
 
     m_branchView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_branchView, &QAbstractItemView::doubleClicked,
-            this, &BranchView::log);
+            this, [this](const QModelIndex &idx) { log(m_filterModel->mapToSource(idx)); });
     connect(m_branchView, &QWidget::customContextMenuRequested,
             this, &BranchView::slotCustomContextMenu);
     connect(m_model, &QAbstractItemModel::modelReset,
@@ -161,10 +188,11 @@ void BranchView::resizeColumns()
 
 void BranchView::slotCustomContextMenu(const QPoint &point)
 {
-    const QModelIndex index = m_branchView->indexAt(point);
-    if (!index.isValid())
+    const QModelIndex filteredIndex = m_branchView->indexAt(point);
+    if (!filteredIndex.isValid())
         return;
 
+    const QModelIndex index = m_filterModel->mapToSource(filteredIndex);
     const QModelIndex currentBranch = m_model->currentBranch();
     const bool currentSelected = index.row() == currentBranch.row();
     const bool isLocal = m_model->isLocal(index);
@@ -185,9 +213,9 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     }
     if (hasActions) {
         if (!currentSelected && (isLocal || isTag))
-            contextMenu.addAction(tr("Remove"), this, &BranchView::remove);
+            contextMenu.addAction(tr("Remove..."), this, &BranchView::remove);
         if (isLocal || isTag)
-            contextMenu.addAction(tr("Rename"), this, &BranchView::rename);
+            contextMenu.addAction(tr("Rename..."), this, &BranchView::rename);
         if (!currentSelected)
             contextMenu.addAction(tr("Checkout"), this, &BranchView::checkout);
         contextMenu.addSeparator();
@@ -246,7 +274,7 @@ QModelIndex BranchView::selectedIndex()
     QModelIndexList selected = m_branchView->selectionModel()->selectedIndexes();
     if (selected.isEmpty())
         return QModelIndex();
-    return selected.at(0);
+    return m_filterModel->mapToSource(selected.at(0));
 }
 
 bool BranchView::add()

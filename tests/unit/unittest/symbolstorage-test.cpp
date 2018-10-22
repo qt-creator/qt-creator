@@ -28,11 +28,8 @@
 #include "mockfilepathcaching.h"
 #include "mocksqlitedatabase.h"
 
-#include <storagesqlitestatementfactory.h>
 #include <symbolstorage.h>
 #include <sqlitedatabase.h>
-
-#include <storagesqlitestatementfactory.h>
 
 #include <utils/optional.h>
 
@@ -45,56 +42,43 @@ using ClangBackEnd::SymbolEntries;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
-using ClangBackEnd::StorageSqliteStatementFactory;
 using ClangBackEnd::SymbolIndex;
 using ClangBackEnd::SourceLocationKind;
 using ClangBackEnd::SymbolKind;
 using Sqlite::Database;
 using Sqlite::Table;
 
-using StatementFactory = StorageSqliteStatementFactory<MockSqliteDatabase>;
-using Storage = ClangBackEnd::SymbolStorage<StatementFactory>;
+using Storage = ClangBackEnd::SymbolStorage<MockSqliteDatabase>;
 
 class SymbolStorage : public testing::Test
 {
 protected:
     NiceMock<MockSqliteDatabase> mockDatabase;
-    StatementFactory statementFactory{mockDatabase};
-    MockSqliteWriteStatement &insertSymbolsToNewSymbolsStatement = statementFactory.insertSymbolsToNewSymbolsStatement;
-    MockSqliteWriteStatement &insertLocationsToNewLocationsStatement = statementFactory.insertLocationsToNewLocationsStatement;
-    MockSqliteReadStatement &selectNewSourceIdsStatement = statementFactory.selectNewSourceIdsStatement;
-    MockSqliteWriteStatement &addNewSymbolsToSymbolsStatement = statementFactory.addNewSymbolsToSymbolsStatement;
-    MockSqliteWriteStatement &syncNewSymbolsFromSymbolsStatement = statementFactory.syncNewSymbolsFromSymbolsStatement;
-    MockSqliteWriteStatement &syncSymbolsIntoNewLocationsStatement = statementFactory.syncSymbolsIntoNewLocationsStatement;
-    MockSqliteWriteStatement &deleteAllLocationsFromUpdatedFilesStatement = statementFactory.deleteAllLocationsFromUpdatedFilesStatement;
-    MockSqliteWriteStatement &insertNewLocationsInLocationsStatement = statementFactory.insertNewLocationsInLocationsStatement;
-    MockSqliteWriteStatement &deleteNewSymbolsTableStatement = statementFactory.deleteNewSymbolsTableStatement;
-    MockSqliteWriteStatement &deleteNewLocationsTableStatement = statementFactory.deleteNewLocationsTableStatement;
-    MockSqliteWriteStatement &insertProjectPartStatement = statementFactory.insertProjectPartStatement;
-    MockSqliteWriteStatement &updateProjectPartStatement = statementFactory.updateProjectPartStatement;
-    MockSqliteReadStatement &getProjectPartIdStatement = statementFactory.getProjectPartIdStatement;
-    MockSqliteWriteStatement &deleteAllProjectPartsSourcesWithProjectPartIdStatement = statementFactory.deleteAllProjectPartsSourcesWithProjectPartIdStatement;
-    MockSqliteWriteStatement &insertProjectPartSourcesStatement = statementFactory.insertProjectPartSourcesStatement;
-    MockSqliteWriteStatement &insertIntoNewUsedMacrosStatement = statementFactory.insertIntoNewUsedMacrosStatement;
-    MockSqliteWriteStatement &syncNewUsedMacrosStatement = statementFactory.syncNewUsedMacrosStatement;
-    MockSqliteWriteStatement &deleteOutdatedUsedMacrosStatement = statementFactory.deleteOutdatedUsedMacrosStatement;
-    MockSqliteWriteStatement &deleteNewUsedMacrosTableStatement = statementFactory.deleteNewUsedMacrosTableStatement;
-    MockSqliteWriteStatement &insertFileStatuses = statementFactory.insertFileStatuses;
-    MockSqliteWriteStatement &insertIntoNewSourceDependenciesStatement = statementFactory.insertIntoNewSourceDependenciesStatement;
-    MockSqliteWriteStatement &syncNewSourceDependenciesStatement = statementFactory.syncNewSourceDependenciesStatement;
-    MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = statementFactory.deleteOutdatedSourceDependenciesStatement;
-    MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = statementFactory.deleteNewSourceDependenciesStatement;
-    MockSqliteReadStatement &getProjectPartArtefactsBySourceId = statementFactory.getProjectPartArtefactsBySourceId;
-    MockSqliteReadStatement &getProjectPartArtefactsByProjectPartName = statementFactory.getProjectPartArtefactsByProjectPartName;
-    MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = statementFactory.getLowestLastModifiedTimeOfDependencies;
-    MockSqliteReadStatement &getPrecompiledHeader = statementFactory.getPrecompiledHeader;
+    Storage storage{mockDatabase};
+    MockSqliteWriteStatement &insertSymbolsToNewSymbolsStatement = storage.m_insertSymbolsToNewSymbolsStatement;
+    MockSqliteWriteStatement &insertLocationsToNewLocationsStatement = storage.m_insertLocationsToNewLocationsStatement;
+    MockSqliteReadStatement &selectNewSourceIdsStatement = storage.m_selectNewSourceIdsStatement;
+    MockSqliteWriteStatement &addNewSymbolsToSymbolsStatement = storage.m_addNewSymbolsToSymbolsStatement;
+    MockSqliteWriteStatement &syncNewSymbolsFromSymbolsStatement = storage.m_syncNewSymbolsFromSymbolsStatement;
+    MockSqliteWriteStatement &syncSymbolsIntoNewLocationsStatement = storage.m_syncSymbolsIntoNewLocationsStatement;
+    MockSqliteWriteStatement &deleteAllLocationsFromUpdatedFilesStatement = storage.m_deleteAllLocationsFromUpdatedFilesStatement;
+    MockSqliteWriteStatement &insertNewLocationsInLocationsStatement = storage.m_insertNewLocationsInLocationsStatement;
+    MockSqliteWriteStatement &deleteNewSymbolsTableStatement = storage.m_deleteNewSymbolsTableStatement;
+    MockSqliteWriteStatement &deleteNewLocationsTableStatement = storage.m_deleteNewLocationsTableStatement;
+    MockSqliteWriteStatement &insertProjectPartStatement = storage.m_insertProjectPartStatement;
+    MockSqliteWriteStatement &updateProjectPartStatement = storage.m_updateProjectPartStatement;
+    MockSqliteReadStatement &getProjectPartIdStatement = storage.m_getProjectPartIdStatement;
+    MockSqliteWriteStatement &deleteAllProjectPartsSourcesWithProjectPartIdStatement = storage.m_deleteAllProjectPartsSourcesWithProjectPartIdStatement;
+    MockSqliteWriteStatement &insertProjectPartSourcesStatement = storage.m_insertProjectPartSourcesStatement;
+    MockSqliteReadStatement &getProjectPartArtefactsBySourceId = storage.m_getProjectPartArtefactsBySourceId;
+    MockSqliteReadStatement &getProjectPartArtefactsByProjectPartName = storage.m_getProjectPartArtefactsByProjectPartName;
+    MockSqliteReadStatement &getPrecompiledHeader = storage.m_getPrecompiledHeader;
 
     SymbolEntries symbolEntries{{1, {"functionUSR", "function", SymbolKind::Function}},
                                 {2, {"function2USR", "function2", SymbolKind::Function}}};
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SourceLocationKind::Declaration},
                                           {2, {1, 4}, {7, 11}, SourceLocationKind::Definition}};
     ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\"}", "[\"/includes\"]", 74};
-    Storage storage{statementFactory};
 };
 
 TEST_F(SymbolStorage, CreateAndFillTemporaryLocationsTable)
@@ -232,40 +216,6 @@ TEST_F(SymbolStorage, UpdateProjectPartSources)
     storage.updateProjectPartSources(42, {{1, 1}, {1, 2}});
 }
 
-TEST_F(SymbolStorage, InsertOrUpdateUsedMacros)
-{
-    InSequence sequence;
-
-    EXPECT_CALL(insertIntoNewUsedMacrosStatement, write(TypedEq<uint>(42u), TypedEq<Utils::SmallStringView>("FOO")));
-    EXPECT_CALL(insertIntoNewUsedMacrosStatement, write(TypedEq<uint>(43u), TypedEq<Utils::SmallStringView>("BAR")));
-    EXPECT_CALL(syncNewUsedMacrosStatement, execute());
-    EXPECT_CALL(deleteOutdatedUsedMacrosStatement, execute());
-    EXPECT_CALL(deleteNewUsedMacrosTableStatement, execute());
-
-    storage.insertOrUpdateUsedMacros({{"FOO", {1, 42}}, {"BAR", {1, 43}}});
-}
-
-TEST_F(SymbolStorage, InsertFileStatuses)
-{
-    EXPECT_CALL(insertFileStatuses, write(TypedEq<int>(42), TypedEq<off_t>(1), TypedEq<time_t>(2), TypedEq<bool>(false)));
-    EXPECT_CALL(insertFileStatuses, write(TypedEq<int>(43), TypedEq<off_t>(4), TypedEq<time_t>(5), TypedEq<bool>(true)));
-
-    storage.insertFileStatuses({{{1, 42}, 1, 2, false}, {{1, 43}, 4, 5, true}});
-}
-
-TEST_F(SymbolStorage, InsertOrUpdateSourceDependencies)
-{
-    InSequence sequence;
-
-    EXPECT_CALL(insertIntoNewSourceDependenciesStatement, write(TypedEq<int>(42), TypedEq<int>(1)));
-    EXPECT_CALL(insertIntoNewSourceDependenciesStatement, write(TypedEq<int>(42), TypedEq<int>(2)));
-    EXPECT_CALL(syncNewSourceDependenciesStatement, execute());
-    EXPECT_CALL(deleteOutdatedSourceDependenciesStatement, execute());
-    EXPECT_CALL(deleteNewSourceDependenciesStatement, execute());
-
-    storage.insertOrUpdateSourceDependencies({{{1, 42}, {1, 1}}, {{1, 42}, {1, 2}}});
-}
-
 TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatement)
 {
     EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
@@ -302,24 +252,6 @@ TEST_F(SymbolStorage, FetchProjectPartArtefactByProjectNameReturnArtefact)
     ASSERT_THAT(result, Eq(artefact));
 }
 
-TEST_F(SymbolStorage, FetchLowestLastModifiedTimeIfNoModificationTimeExists)
-{
-    EXPECT_CALL(getLowestLastModifiedTimeOfDependencies, valueReturnInt64(Eq(1)));
-
-    auto lowestLastModified = storage.fetchLowestLastModifiedTime({1, 1});
-
-    ASSERT_THAT(lowestLastModified, Eq(0));
-}
-
-TEST_F(SymbolStorage, FetchLowestLastModifiedTime)
-{
-    EXPECT_CALL(getLowestLastModifiedTimeOfDependencies, valueReturnInt64(Eq(21)))
-            .WillRepeatedly(Return(12));
-
-    auto lowestLastModified = storage.fetchLowestLastModifiedTime({1, 21});
-
-    ASSERT_THAT(lowestLastModified, Eq(12));
-}
 TEST_F(SymbolStorage, FetchPrecompiledHeaderCallsValueInStatement)
 {
     EXPECT_CALL(getPrecompiledHeader, valueReturnProjectPartPch(Eq(25)));
@@ -338,7 +270,41 @@ TEST_F(SymbolStorage, FetchPrecompiledHeader)
     ASSERT_THAT(precompiledHeader.value(), Eq(pch));
 }
 
+TEST_F(SymbolStorage, AddNewSymbolsTable)
+{
+    InSequence s;
 
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
+
+    storage.createNewSymbolsTable();
+}
+
+TEST_F(SymbolStorage, AddNewLocationsTable)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER, locationKind INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_newLocations_sourceId_line_column ON newLocations(sourceId, line, column)")));
+
+    storage.createNewLocationsTable();
+}
+
+TEST_F(SymbolStorage, AddTablesInConstructor)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSymbols(temporarySymbolId INTEGER PRIMARY KEY, symbolId INTEGER, usr TEXT, symbolName TEXT, symbolKind INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_usr_symbolName ON newSymbols(usr, symbolName)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSymbols_symbolId ON newSymbols(symbolId)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newLocations(temporarySymbolId INTEGER, symbolId INTEGER, sourceId INTEGER, line INTEGER, column INTEGER, locationKind INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_newLocations_sourceId_line_column ON newLocations(sourceId, line, column)")));
+    EXPECT_CALL(mockDatabase, commit());
+
+    Storage storage{mockDatabase};
+}
 
 }
 

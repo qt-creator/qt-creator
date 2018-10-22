@@ -71,7 +71,7 @@ public:
         variableChooser->addSupportedWidget (m_customArguments);
 
         m_unusedFunction->setToolTip(tr("Disables multithreaded check."));
-        m_ignorePatterns->setToolTip(tr("Comma-separated wildcards of full file paths."
+        m_ignorePatterns->setToolTip(tr("Comma-separated wildcards of full file paths. "
                                         "Files still can be checked if others include them."));
         m_addIncludePaths->setToolTip(tr("Can find missing includes but makes "
                                          "checking slower. Use only when needed."));

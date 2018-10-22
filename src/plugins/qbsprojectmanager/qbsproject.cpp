@@ -72,6 +72,7 @@
 #include <QElapsedTimer>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QSet>
 #include <QVariantMap>
 
 #include <algorithm>
@@ -936,13 +937,14 @@ void QbsProject::updateCppCodeModel()
         QString objcPch;
         QString objcxxPch;
         const auto &pchFinder = [&cPch, &cxxPch, &objcPch, &objcxxPch](const qbs::ArtifactData &a) {
-            if (a.fileTags().contains("c_pch_src"))
+            const QStringList fileTags = a.fileTags();
+            if (fileTags.contains("c_pch_src"))
                 cPch = a.filePath();
-            else if (a.fileTags().contains("cpp_pch_src"))
+            if (fileTags.contains("cpp_pch_src"))
                 cxxPch = a.filePath();
-            else if (a.fileTags().contains("objc_pch_src"))
+            if (fileTags.contains("objc_pch_src"))
                 objcPch = a.filePath();
-            else if (a.fileTags().contains("objcpp_pch_src"))
+            if (fileTags.contains("objcpp_pch_src"))
                 objcxxPch = a.filePath();
         };
         const QList<qbs::ArtifactData> &generatedArtifacts = prd.generatedArtifacts();
@@ -1038,7 +1040,7 @@ void QbsProject::updateCppCodeModel()
                 }
             }
 
-            QStringList pchFiles;
+            QSet<QString> pchFiles;
             if (hasCFiles && props.getModuleProperty("cpp", "useCPrecompiledHeader").toBool()
                     && !cPch.isEmpty()) {
                 pchFiles << cPch;
@@ -1061,7 +1063,7 @@ void QbsProject::updateCppCodeModel()
                                     << grp.name() << "in product" << prd.name();
                 qCWarning(qbsPmLog) << "Expect problems with code model";
             }
-            rpp.setPreCompiledHeaders(pchFiles);
+            rpp.setPreCompiledHeaders(pchFiles.toList());
             rpp.setFiles(grp.allFilePaths(), [filePathToSourceArtifact](const QString &filePath) {
                 // Keep this lambda thread-safe!
                 return cppFileType(filePathToSourceArtifact.value(filePath));

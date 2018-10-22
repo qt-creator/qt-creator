@@ -40,7 +40,7 @@ SourceRange::SourceRange()
 
 SourceRange::SourceRange(const SourceLocation &start, const SourceLocation &end)
     : cxSourceRange(clang_getRange(start, end)),
-      cxTranslationUnit(start.cxTranslationUnit)
+      cxTranslationUnit(start.m_cxTranslationUnit)
 {
 }
 

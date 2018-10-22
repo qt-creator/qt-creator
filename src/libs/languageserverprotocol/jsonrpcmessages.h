@@ -125,7 +125,7 @@ public:
         }
         if (errorMessage)
             *errorMessage = QCoreApplication::translate("LanguageServerProtocol::Notification",
-                                                        "No parameters in '%1'").arg(method());
+                                                        "No parameters in \"%1\".").arg(method());
         return false;
     }
 };
@@ -274,7 +274,7 @@ public:
             return true;
         if (errorMessage) {
             *errorMessage = QCoreApplication::translate("LanguageServerProtocol::Request",
-                                                        "No id set in '%1'").arg(this->method());
+                                                        "No ID set in \"%1\".").arg(this->method());
         }
         return false;
     }

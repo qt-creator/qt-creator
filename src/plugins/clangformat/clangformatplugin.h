@@ -30,7 +30,6 @@
 #include <memory>
 
 namespace ClangFormat {
-namespace Internal {
 
 class ClangFormatOptionsPage;
 
@@ -50,5 +49,4 @@ private:
     std::unique_ptr<ClangFormatOptionsPage> m_optionsPage;
 };
 
-} // namespace Internal
 } // namespace ClangTools

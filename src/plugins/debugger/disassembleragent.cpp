@@ -400,6 +400,7 @@ void DisassemblerAgent::updateBreakpointMarker(const Breakpoint &bp)
 
     auto marker = new DisassemblerBreakpointMarker(bp, lineNumber);
     d->breakpointMarks.append(marker);
+    QTC_ASSERT(d->document, return);
     d->document->addMark(marker);
 }
 

@@ -154,14 +154,22 @@ DiagnosticSet TranslationUnit::diagnostics() const
 
 SourceLocation TranslationUnit::sourceLocationAt(uint line,uint column) const
 {
-    return SourceLocation(m_cxTranslationUnit, m_filePath, line, column);
+    return SourceLocation(m_cxTranslationUnit,
+                          clang_getLocation(m_cxTranslationUnit,
+                                            clang_getFile(m_cxTranslationUnit,
+                                                          m_filePath.constData()),
+                                            line, column));
 }
 
 SourceLocation TranslationUnit::sourceLocationAt(const Utf8String &filePath,
                                                  uint line,
                                                  uint column) const
 {
-    return SourceLocation(m_cxTranslationUnit, filePath, line, column);
+    return SourceLocation(m_cxTranslationUnit,
+                          clang_getLocation(m_cxTranslationUnit,
+                                            clang_getFile(m_cxTranslationUnit,
+                                                          filePath.constData()),
+                                            line, column));
 }
 
 SourceRange TranslationUnit::sourceRange(uint fromLine,

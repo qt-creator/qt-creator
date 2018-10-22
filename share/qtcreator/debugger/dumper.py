@@ -337,6 +337,10 @@ class DumperBase:
         #warn('EXPANDED INAMES: %s' % self.expandedINames)
         #warn('WATCHERS: %s' % self.watchers)
 
+    def resetPerStepCaches(self):
+        self.perStepCache = {}
+        pass
+
     def resetCaches(self):
         # This is a cache mapping from 'type name' to 'display alternatives'.
         self.qqFormats = { 'QVariant (QVariantMap)' : mapForms() }
@@ -354,6 +358,14 @@ class DumperBase:
         # Maps type names to static metaobjects. If a type is known
         # to not be QObject derived, it contains a 0 value.
         self.knownStaticMetaObjects = {}
+
+        # A dictionary to serve as a per debugging step cache.
+        # Cleared on each step over / into / continue.
+        self.perStepCache = {}
+
+        # A dictionary to serve as a general cache throughout the whole
+        # debug session.
+        self.generalCache = {}
 
         self.counts = {}
         self.structPatternCache = {}
@@ -3669,6 +3681,9 @@ class DumperBase:
         if not self.isInt(address):
             error('wrong')
         return bytes(struct.pack(self.packCode + self.ptrCode(), address))
+
+    def fromPointerData(self, bytes_value):
+        return struct.unpack(self.packCode + self.ptrCode(), bytes_value)
 
     def createPointerValue(self, targetAddress, targetTypish):
         if not isinstance(targetTypish, self.Type) and not isinstance(targetTypish, str):

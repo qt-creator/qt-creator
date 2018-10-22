@@ -7,7 +7,7 @@
 :*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{toolTip='Interrupt' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.ProjectSelectorDockWidget_QDockWidget	{name='ProjectSelectorDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Run_Core::Internal::FancyToolButton	{text='Run' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{toolTip?='Start Debugging*' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{toolTip?='Start debugging*' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Widget Box_QDockWidget	{name='WidgetBoxDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Widget Box'}
 :*Qt Creator.findEdit_Utils::FilterLineEdit	{name='findEdit' type='Utils::FancyLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Core::Internal::FancyToolButton	{occurrence='3' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -43,17 +43,17 @@
 :CppCompiler:_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':CppCompiler:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :CppCompiler:_QLabel	{container=':qt_tabwidget_stackedwidget_QWidget' text='C++:' type='QLabel' unnamed='1' visible='1'}
 :CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='groupBox' title='Behavior' type='QGroupBox' visible='1'}
-:DebugModeWidget.Debugger Log_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.OutputDockWidget' type='QDockWidget' visible='1'}
-:DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.BreakDockWidget' type='QDockWidget' visible='1'}
+:DebugModeWidget.Debugger Log_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='GlobalLogDockWidget' type='QDockWidget' visible='1'}
+:DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.BreakpointManagerDockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.Debugger.Docks.LocalsAndInspectorDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.LocalsAndInspectorDockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.OK_QPushButton	{container=':Qt Creator.DebugModeWidget_QSplitter' text='OK' type='QPushButton' unnamed='1' visible='1'}
 :DebugModeWidget.Toolbar_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Toolbar' type='QDockWidget' visible='1'}
 :DebugModeWidget_Debugger::Internal::ConsoleView	{container=':Qt Creator.DebugModeWidget_QSplitter' type='Debugger::Internal::ConsoleView' unnamed='1' visible='1'}
-:DebugModeWidget_QComboBox	{container=':Qt Creator.DebugModeWidget_QSplitter' occurrence='2' type='QComboBox' unnamed='1' visible='1'}
-:Debugger Toolbar.Continue_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' toolTip?='Continue *' type='QToolButton' unnamed='1' visible='1'}
+:DebugModeWidget_QComboBox	{container=':Qt Creator_Core::Internal::MainWindow' occurrence='3' type='QComboBox' unnamed='1' visible='1'}
+:Debugger Toolbar.Continue_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' toolTip?='Continue*' type='QToolButton' unnamed='1' visible='1'}
 :Debugger Toolbar.Exit Debugger_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' text='Stop Debugger' type='QToolButton' unnamed='1' visible='1'}
 :Debugger Toolbar.StatusText_Utils::StatusLabel	{container=':DebugModeWidget.Toolbar_QDockWidget' type='Utils::StatusLabel' unnamed='1'}
-:Debugger.Docks.BreakDockWidget.Debugger.Docks.Break_QFrame	{container=':DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget' name='Debugger.Docks.Break' type='QFrame' visible='1'}
+:Debugger.Docks.BreakDockWidget.Debugger.Docks.Break_QFrame	{container=':DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget' name='Debugger.Docks.BreakpointManager' type='QFrame' visible='1'}
 :Debugger.Docks.LocalsAndWatchersDockWidget.Inspector_QFrame	{container=':DebugModeWidget.Debugger.Docks.LocalsAndInspectorDockWidget_QDockWidget' name='Inspector' type='QFrame' visible='1'}
 :Debugger::Internal::ConsoleEdit	{columnIndex='0' container=':DebugModeWidget_Debugger::Internal::ConsoleView' rowIndex='0' type='Debugger::Internal::ConsoleEdit' unnamed='1' visible='1'}
 :Description.description_Utils::CompletingTextEdit	{container=':splitter.Description_QGroupBox' name='description' type='Utils::CompletingTextEdit' visible='1'}

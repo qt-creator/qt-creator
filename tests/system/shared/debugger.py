@@ -51,13 +51,14 @@ def handleDebuggerWarnings(config, isMsvcBuild=False):
         clickButton("{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}" % msgBox)
 
 def takeDebuggerLog():
-    invokeMenuItem("Window", "Views", "Debugger Log")
-    debuggerLogWindow = waitForObject("{container=':DebugModeWidget.Debugger Log_QDockWidget' type='Debugger::Internal::CombinedPane' unnamed='1' visible='1'}")
+    invokeMenuItem("Window", "Views", "Global Debugger Log")
+    debuggerLogWindow = waitForObject("{container=':DebugModeWidget.Debugger Log_QDockWidget' "
+                                      "type='Debugger::Internal::DebuggerPane' unnamed='1' visible='1'}")
     debuggerLog = str(debuggerLogWindow.plainText)
     mouseClick(debuggerLogWindow, 5, 5, 0, Qt.LeftButton)
     invokeContextMenuItem(debuggerLogWindow, "Clear Contents")
     waitFor("str(debuggerLogWindow.plainText)==''", 5000)
-    invokeMenuItem("Window", "Views", "Debugger Log")
+    invokeMenuItem("Window", "Views", "Global Debugger Log")
     return debuggerLog
 
 # function to set breakpoints for the current project
@@ -122,7 +123,7 @@ def removeOldBreakpoints():
 #       line number where the debugger should stop
 def doSimpleDebugging(currentKit, currentConfigName, pressContinueCount=1,
                       expectedBPOrder=[], enableQml=True):
-    expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ \(\d+\) in thread \d+\.']
+    expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ in thread \d+\.']
     if len(expectedBPOrder) == 0:
         expectedLabelTexts.append("Running\.")
     switchViewTo(ViewConstants.PROJECTS)

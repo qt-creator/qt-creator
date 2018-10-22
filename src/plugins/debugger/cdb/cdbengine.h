@@ -41,7 +41,7 @@ class CdbCommand;
 struct MemoryViewCookie;
 class StringInputStream;
 
-class CdbEngine : public DebuggerEngine
+class CdbEngine : public CppDebuggerEngine
 {
     Q_OBJECT
 
@@ -64,11 +64,9 @@ public:
     void watchPoint(const QPoint &) override;
     void setRegisterValue(const QString &name, const QString &value) override;
 
-    void executeStep() override;
+    void executeStepOver(bool byInstruction) override;
+    void executeStepIn(bool byInstruction) override;
     void executeStepOut() override;
-    void executeNext() override;
-    void executeStepI() override;
-    void executeNextI() override;
 
     void continueInferior() override;
     void interruptInferior() override;
@@ -113,7 +111,7 @@ private:
     void processError();
     void processFinished();
     void runCommand(const DebuggerCommand &cmd) override;
-    void operateByInstructionTriggered(bool) override;
+    void adjustOperateByInstruction(bool);
 
     void createFullBacktrace();
 
@@ -217,7 +215,7 @@ private:
     int m_currentBuiltinResponseToken = -1;
     QMap<QString, NormalizedSourceFileName> m_normalizedFileCache;
     const QString m_extensionCommandPrefix; //!< Library name used as prefix
-    bool m_operateByInstruction = true; // Default CDB setting.
+    bool m_lastOperateByInstruction = true; // Default CDB setting.
     bool m_hasDebuggee = false;
     enum Wow64State {
         wow64Uninitialized,

@@ -901,7 +901,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
                 // there is no debug information. Divert to "-exec-next-step"
                 showMessage("APPLYING WORKAROUND #3");
                 notifyInferiorStopOk();
-                executeNextI();
+                executeStepOver(true);
             } else if (msg.startsWith("Couldn't get registers: No such process.")) {
                 // Happens on archer-tromey-python 6.8.50.20090910-cvs
                 // There might to be a race between a process shutting down
@@ -1324,7 +1324,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             if (isSkippableFunction(funcName, fileName)) {
                 //showMessage(_("SKIPPING ") + funcName);
                 ++stepCounter;
-                executeStep();
+                executeStepIn(false);
                 return;
             }
             //if (stepCounter)
@@ -1838,25 +1838,32 @@ void GdbEngine::continueInferior()
     continueInferiorInternal();
 }
 
-void GdbEngine::executeStep()
+void GdbEngine::executeStepIn(bool byInstruction)
 {
     CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
+
+    DebuggerCommand cmd;
     if (isNativeMixedActiveFrame()) {
-        DebuggerCommand cmd("executeStep", RunRequest);
+        cmd.flags = RunRequest;
+        cmd.function = "executeStep";
         cmd.callback = CB(handleExecuteStep);
-        runCommand(cmd);
+    } else if (byInstruction) {
+        cmd.flags = RunRequest|NeedsFlush;
+        cmd.function = "-exec-step-instruction";
+        if (isReverseDebugging())
+            cmd.function += "--reverse";
+        cmd.callback = CB(handleExecuteContinue);
     } else {
-        DebuggerCommand cmd;
         cmd.flags = RunRequest|NeedsFlush;
         cmd.function = "-exec-step";
         if (isReverseDebugging())
             cmd.function += " --reverse";
         cmd.callback = CB(handleExecuteStep);
-        runCommand(cmd);
     }
+    runCommand(cmd);
 }
 
 void GdbEngine::handleExecuteStep(const DebuggerResponse &response)
@@ -1882,7 +1889,7 @@ void GdbEngine::handleExecuteStep(const DebuggerResponse &response)
         notifyInferiorRunFailed();
         if (isDying())
             return;
-        executeStepI(); // Fall back to instruction-wise stepping.
+        executeStepIn(true); // Fall back to instruction-wise stepping.
     } else if (msg.startsWith("Cannot execute this command while the selected thread is running.")) {
         showExecutionError(msg);
         notifyInferiorRunFailed();
@@ -1893,21 +1900,6 @@ void GdbEngine::handleExecuteStep(const DebuggerResponse &response)
         showExecutionError(msg);
         notifyInferiorIll();
     }
-}
-
-void GdbEngine::executeStepI()
-{
-    CHECK_STATE(InferiorStopOk);
-    setTokenBarrier();
-    notifyInferiorRunRequested();
-    showStatusMessage(tr("Step by instruction requested..."), 5000);
-    DebuggerCommand cmd;
-    cmd.flags = RunRequest|NeedsFlush;
-    cmd.function = "-exec-step-instruction";
-    if (isReverseDebugging())
-        cmd.function += "--reverse";
-    cmd.callback = CB(handleExecuteContinue);
-    runCommand(cmd);
 }
 
 void GdbEngine::executeStepOut()
@@ -1928,23 +1920,29 @@ void GdbEngine::executeStepOut()
     }
 }
 
-void GdbEngine::executeNext()
+void GdbEngine::executeStepOver(bool byInstruction)
 {
     CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
+
+    DebuggerCommand cmd;
+    cmd.flags = RunRequest;
     if (isNativeMixedActiveFrame()) {
-        runCommand({"executeNext", RunRequest});
+        cmd.function = "executeNext";
+    } else if (byInstruction) {
+        cmd.function = "-exec-next-instruction";
+        if (isReverseDebugging())
+            cmd.function += " --reverse";
+        cmd.callback = CB(handleExecuteContinue);
     } else {
-        DebuggerCommand cmd;
-        cmd.flags = RunRequest;
         cmd.function = "-exec-next";
         if (isReverseDebugging())
             cmd.function += " --reverse";
         cmd.callback = CB(handleExecuteNext);
-        runCommand(cmd);
     }
+    runCommand(cmd);
 }
 
 void GdbEngine::handleExecuteNext(const DebuggerResponse &response)
@@ -1967,7 +1965,7 @@ void GdbEngine::handleExecuteNext(const DebuggerResponse &response)
             || msg.contains("Error accessing memory address ")) {
         notifyInferiorRunFailed();
         if (!isDying())
-            executeNextI(); // Fall back to instruction-wise stepping.
+            executeStepOver(true); // Fall back to instruction-wise stepping.
     } else if (msg.startsWith("Cannot execute this command while the selected thread is running.")) {
         showExecutionError(msg);
         notifyInferiorRunFailed();
@@ -1979,21 +1977,6 @@ void GdbEngine::handleExecuteNext(const DebuggerResponse &response)
            tr("Cannot continue debugged process:") + '\n' + msg);
         //notifyInferiorIll();
     }
-}
-
-void GdbEngine::executeNextI()
-{
-    CHECK_STATE(InferiorStopOk);
-    setTokenBarrier();
-    notifyInferiorRunRequested();
-    showStatusMessage(tr("Step next instruction requested..."), 5000);
-    DebuggerCommand cmd;
-    cmd.flags = RunRequest;
-    cmd.function = "-exec-next-instruction";
-    if (isReverseDebugging())
-        cmd.function += " --reverse";
-    cmd.callback = CB(handleExecuteContinue);
-    runCommand(cmd);
 }
 
 static QString addressSpec(quint64 address)

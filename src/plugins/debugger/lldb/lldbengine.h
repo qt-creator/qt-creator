@@ -60,11 +60,9 @@ signals:
     void outputReady(const QString &data);
 
 private:
-    void executeStep() override;
+    void executeStepIn(bool byInstruction) override;
     void executeStepOut() override;
-    void executeNext() override;
-    void executeStepI() override;
-    void executeNextI() override;
+    void executeStepOver(bool byInstruction) override;
 
     void setupEngine() override;
     void runEngine() override;

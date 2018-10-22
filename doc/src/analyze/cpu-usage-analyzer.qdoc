@@ -33,7 +33,7 @@
     \contentspage index.html
     \previouspage creator-heob.html
     \page creator-cpu-usage-analyzer.html
-    \nextpage creator-autotest.html
+    \nextpage creator-cppcheck.html
 
     \title Analyzing CPU Usage
 

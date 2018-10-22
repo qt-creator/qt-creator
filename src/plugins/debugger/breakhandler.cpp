@@ -1709,7 +1709,6 @@ void BreakHandler::removeBreakpoint(const Breakpoint &bp)
         break;
     case BreakpointInserted:
     case BreakpointInsertionProceeding:
-        bp->setState(BreakpointRemoveRequested);
         requestBreakpointRemoval(bp);
         break;
     case BreakpointNew:
@@ -2565,17 +2564,17 @@ bool BreakpointManager::setData(const QModelIndex &idx, const QVariant &value, i
 //                setCurrentIndex(index(row, 0));   FIXME
                 return true;
             }
-//            if (kev->key() == Qt::Key_Space) {
-//                const QModelIndexList selectedIds = ev.selectedRows();
-//                if (!selectedIds.isEmpty()) {
-//                    const GlobalBreakpoints gbps = findBreakpointsByIndex(selectedIds);
-//                    const bool isEnabled = gbps.isEmpty() || gbps.at(0)->isEnabled();
-//                    for (GlobalBreakpoint gbp : gbps)
-//                        gbp->m_parameters.enabled = isEnabled;
+            if (kev->key() == Qt::Key_Space) {
+                const QModelIndexList selectedIds = ev.selectedRows();
+                if (!selectedIds.isEmpty()) {
+                    const GlobalBreakpoints gbps = findBreakpointsByIndex(selectedIds);
+                    const bool isEnabled = gbps.isEmpty() || gbps.at(0)->isEnabled();
+                    for (GlobalBreakpoint gbp : gbps)
+                        gbp->setEnabled(!isEnabled);
 //                    scheduleSynchronization();
-//                    return true;
-//                }
-//            }
+                    return true;
+                }
+            }
         }
 
         if (ev.as<QMouseEvent>(QEvent::MouseButtonDblClick)) {

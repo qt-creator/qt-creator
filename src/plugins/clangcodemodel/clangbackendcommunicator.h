@@ -108,6 +108,8 @@ public:
     void updateChangeContentStartPosition(const QString &filePath, int position);
     bool isNotWaitingForCompletion() const;
 
+    void setBackendJobsPostponed(bool postponed);
+
 private:
     void initializeBackend();
     void initializeBackendWithCurrentData();
@@ -134,6 +136,7 @@ private:
     QTimer m_backendStartTimeOut;
     QScopedPointer<ClangBackEnd::ClangCodeModelServerInterface> m_sender;
     int m_connectedCount = 0;
+    int m_postponeBackendJobs = 1; // Initial application state is inactive, so no jobs should be run.
 };
 
 } // namespace Internal

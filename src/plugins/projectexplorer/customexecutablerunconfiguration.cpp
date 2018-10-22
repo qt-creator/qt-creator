@@ -278,11 +278,6 @@ QString CustomExecutableRunConfiguration::defaultDisplayName() const
         return tr("Run %1").arg(QDir::toNativeSeparators(rawExecutable()));
 }
 
-Abi CustomExecutableRunConfiguration::abi() const
-{
-    return Abi(); // return an invalid ABI: We do not know what we will end up running!
-}
-
 // Factory
 
 CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory() :

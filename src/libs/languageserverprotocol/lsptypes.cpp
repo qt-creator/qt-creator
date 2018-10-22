@@ -136,7 +136,7 @@ bool MarkupOrString::isValid(QStringList *error) const
         return true;
     if (error) {
         *error << QCoreApplication::translate("LanguageServerProtocoll::MarkupOrString",
-                                              "Expected a string or MarkupContent in MarkupOrString");
+                                              "Expected a string or MarkupContent in MarkupOrString.");
     }
     return false;
 }

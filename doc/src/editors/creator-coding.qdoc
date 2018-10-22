@@ -41,7 +41,9 @@
 
     \title Coding
 
+    \if defined(qtcreator)
     \image creator_coding.png
+    \endif
 
     \list
 
@@ -88,6 +90,13 @@
     \section1 Related Topics
 
     \list
+
+        \li \l{Using Language Servers}
+
+            The experimental language client provides code completion,
+            highlighting of the symbol under cursor, and jumping to the symbol
+            definition for other programming languages besides C++. In addition,
+            it integrates diagnostics from the language server.
 
         \li \l{Editing MIME Types}
 

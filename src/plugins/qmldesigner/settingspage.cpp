@@ -69,7 +69,6 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
             PuppetCreator::defaultPuppetFallbackDirectory());
         }
     );
-    m_ui.fallbackPuppetPathLineEdit->setPath(PuppetCreator::defaultPuppetFallbackDirectory());
     m_ui.fallbackPuppetPathLineEdit->lineEdit()->setPlaceholderText(PuppetCreator::defaultPuppetFallbackDirectory());
 
     connect(m_ui.resetQmlPuppetBuildPathButton, &QPushButton::clicked, [=]() {
@@ -138,11 +137,15 @@ DesignerSettings SettingsPageWidget::settings() const
               m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText());
     if (newFallbackPuppetPath.isEmpty())
         newFallbackPuppetPath = m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText();
-    QString oldFallbackPuppetPath = settings.value(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY,
-                                                   PuppetCreator::defaultPuppetFallbackDirectory()).toString();
-    if (oldFallbackPuppetPath != newFallbackPuppetPath) {
-        settings.insert(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY,
-            newFallbackPuppetPath);
+    QString oldFallbackPuppetPath = PuppetCreator::qmlPuppetFallbackDirectory(settings);
+
+    if (oldFallbackPuppetPath != newFallbackPuppetPath && QFileInfo::exists(newFallbackPuppetPath)) {
+        if (newFallbackPuppetPath == PuppetCreator::defaultPuppetFallbackDirectory())
+            settings.insert(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY, QString());
+        else
+            settings.insert(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY, newFallbackPuppetPath);
+    } else if (!QFileInfo::exists(oldFallbackPuppetPath) || !QFileInfo::exists(newFallbackPuppetPath)){
+        settings.insert(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY, QString());
     }
 
     if (!m_ui.puppetBuildPathLineEdit->path().isEmpty() &&

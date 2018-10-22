@@ -123,8 +123,6 @@ public:
 
     QStringList fullName(bool includePrefix = false) const
     {
-        QTC_ASSERT(isLeaf(), return QStringList());
-
         QStringList fn;
         QList<const BranchNode *> nodes;
         const BranchNode *current = this;

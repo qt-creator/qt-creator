@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "baseclient.h"
-#include "languageclientcodeassist.h"
 #include "languageclientmanager.h"
 
 #include <coreplugin/icore.h>
@@ -63,6 +62,7 @@ static Q_LOGGING_CATEGORY(LOGLSPCLIENTV, "qtc.languageclient.messages", QtWarnin
 
 BaseClient::BaseClient()
     : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
+    , m_completionProvider(this)
 {
     m_buffer.open(QIODevice::ReadWrite | QIODevice::Append);
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
@@ -72,6 +72,10 @@ BaseClient::BaseClient()
 BaseClient::~BaseClient()
 {
     m_buffer.close();
+    // FIXME: instead of replacing the completion provider in the text document store the
+    // completion provider as a prioritised list in the text document
+    for (TextEditor::TextDocument *document : m_resetCompletionProvider)
+        document->setCompletionAssistProvider(nullptr);
 }
 
 void BaseClient::initialize()
@@ -117,7 +121,7 @@ BaseClient::State BaseClient::state() const
 void BaseClient::openDocument(Core::IDocument *document)
 {
     using namespace TextEditor;
-    if (!isSupportedMimeType(document->mimeType()))
+    if (!isSupportedDocument(document))
         return;
     const FileName &filePath = document->filePath();
     const QString method(DidOpenTextDocumentNotification::methodName);
@@ -149,7 +153,11 @@ void BaseClient::openDocument(Core::IDocument *document)
         documentContentsChanged(document);
     });
     if (textDocument) {
-        textDocument->setCompletionAssistProvider(new LanguageClientCompletionAssistProvider(this));
+        m_resetCompletionProvider << textDocument;
+        textDocument->setCompletionAssistProvider(&m_completionProvider);
+        connect(textDocument, &QObject::destroyed, this, [this, textDocument]{
+            m_resetCompletionProvider.remove(textDocument);
+        });
         if (BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(textDocument)) {
             if (QPointer<TextEditorWidget> widget = editor->editorWidget()) {
                 connect(widget, &TextEditorWidget::cursorPositionChanged, this, [this, widget](){
@@ -489,19 +497,29 @@ void BaseClient::projectClosed(ProjectExplorer::Project *project)
     sendContent(change);
 }
 
-void BaseClient::setSupportedMimeType(const QStringList &supportedMimeTypes)
+void BaseClient::setSupportedLanguage(const LanguageFilter &filter)
 {
-    m_supportedMimeTypes = supportedMimeTypes;
+    m_languagFilter = filter;
 }
 
-bool BaseClient::isSupportedMimeType(const QString &mimeType) const
+bool BaseClient::isSupportedDocument(const Core::IDocument *document) const
 {
-    return m_supportedMimeTypes.isEmpty() || m_supportedMimeTypes.contains(mimeType);
+    QTC_ASSERT(document, return false);
+    if (m_languagFilter.mimeTypes.isEmpty() || m_languagFilter.mimeTypes.contains(document->mimeType()))
+        return true;
+    auto regexps = Utils::transform(m_languagFilter.filePattern, [](const QString &pattern){
+        return QRegExp(pattern, Utils::HostOsInfo::fileNameCaseSensitivity(), QRegExp::Wildcard);
+    });
+    return Utils::anyOf(regexps, [filePath = document->filePath()](const QRegExp &reg){
+        return reg.exactMatch(filePath.toString()) || reg.exactMatch(filePath.fileName());
+    });
 }
 
-bool BaseClient::needsRestart(const BaseSettings *) const
+bool BaseClient::needsRestart(const BaseSettings *settings) const
 {
-    return false;
+    QTC_ASSERT(settings, return false);
+    return m_languagFilter.mimeTypes != settings->m_languageFilter.mimeTypes
+            || m_languagFilter.filePattern != settings->m_languageFilter.filePattern;
 }
 
 bool BaseClient::reset()
@@ -640,7 +658,7 @@ void BaseClient::intializeCallback(const InitializeResponse &initResponse)
     if (optional<ResponseError<InitializeError>> error = initResponse.error()) {
         if (error.value().data().has_value()
                 && error.value().data().value().retry().value_or(false)) {
-            const QString title(tr("Language Server \"%1\" initialize error"));
+            const QString title(tr("Language Server \"%1\" Initialize Error"));
             auto result = QMessageBox::warning(Core::ICore::dialogParent(),
                                                title,
                                                error.value().message(),

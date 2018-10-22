@@ -54,6 +54,13 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/kitId"), newKitPtr->id().toSetting());
 
     QmlProfilerTool profilerTool;
+
+    QmlProfilerClientManager *clientManager = profilerTool.clientManager();
+    clientManager->setRetryInterval(10);
+    clientManager->setMaximumRetries(10);
+    connect(clientManager, &QmlProfilerClientManager::connectionFailed,
+            clientManager, &QmlProfilerClientManager::retryConnect);
+
     QTcpServer server;
     QUrl serverUrl = Utils::urlFromLocalHostAndFreePort();
     QVERIFY(serverUrl.port() >= 0);
@@ -64,7 +71,6 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     connect(&server, &QTcpServer::newConnection, this, [&]() {
         connection.reset(server.nextPendingConnection());
         fakeDebugServer(connection.data());
-        server.close();
     });
 
     QTimer timer;
@@ -94,7 +100,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     QTRY_VERIFY(runControl->isRunning());
     QTRY_VERIFY(modalSeen);
     QTRY_VERIFY(!timer.isActive());
-    QTRY_VERIFY(profilerTool.clientManager()->isConnected());
+    QTRY_VERIFY(clientManager->isConnected());
 
     connection.reset();
     QTRY_VERIFY(runControl->isStopped());

@@ -46,6 +46,7 @@ namespace Git {
 namespace Internal {
 
 class BranchModel;
+class BranchFilterModel;
 
 class BranchView : public QWidget
 {
@@ -87,6 +88,7 @@ private:
     Utils::ElidingLabel *m_repositoryLabel = nullptr;
     Utils::NavigationTreeView *m_branchView = nullptr;
     BranchModel *m_model = nullptr;
+    BranchFilterModel *m_filterModel = nullptr;
     QString m_repository;
 };
 

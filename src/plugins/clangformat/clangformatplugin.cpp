@@ -45,6 +45,8 @@
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/target.h>
 
+#include <clang/Format/Format.h>
+
 #include <QAction>
 #include <QDebug>
 #include <QMainWindow>
@@ -56,7 +58,6 @@
 using namespace ProjectExplorer;
 
 namespace ClangFormat {
-namespace Internal {
 
 class ClangFormatOptionsPage : public Core::IOptionsPage
 {
@@ -98,7 +99,7 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
-
+#ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
     m_optionsPage = std::make_unique<ClangFormatOptionsPage>();
 
     auto panelFactory = new ProjectPanelFactory();
@@ -112,9 +113,8 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
     CppTools::CppModelManager::instance()->setCppIndenterCreator([]() {
         return new ClangFormatIndenter();
     });
-
+#endif
     return true;
 }
 
-} // namespace Internal
 } // namespace ClangFormat

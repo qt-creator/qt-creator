@@ -456,10 +456,11 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const QStringList &
     }
     root->prependChild(createNoneNode(&selector));
 
-    // Set combobox to context node:
+    // Set combobox to context node if that appears in the tree:
     auto predicate = [context](TreeItem *ti) { return static_cast<AddNewTree*>(ti)->node() == context; };
     TreeItem *contextItem = root->findAnyChild(predicate);
-    m_ui->projectComboBox->setCurrentIndex(m_model.indexForItem(contextItem));
+    if (contextItem)
+        m_ui->projectComboBox->setCurrentIndex(m_model.indexForItem(contextItem));
 
     setAdditionalInfo(selector.deployingProjects());
     setBestNode(selector.bestChoice());

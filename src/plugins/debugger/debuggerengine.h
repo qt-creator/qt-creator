@@ -434,8 +434,8 @@ public:
     void handleUserStop();
     void handleAbort();
     void handleReset();
-    void handleExecStep();
-    void handleExecNext();
+    void handleExecStepIn();
+    void handleExecStepOver();
     void handleExecStepOut();
     void handleExecReturn();
     void handleExecJumpToLine();
@@ -480,11 +480,9 @@ protected:
     virtual void resetInferior() {}
 
     virtual void detachDebugger() {}
-    virtual void executeStep() {}
+    virtual void executeStepOver(bool /*byInstruction*/ = false) {}
+    virtual void executeStepIn(bool /*byInstruction*/ = false) {}
     virtual void executeStepOut() {}
-    virtual void executeNext() {}
-    virtual void executeStepI() {}
-    virtual void executeNextI() {}
     virtual void executeReturn() {}
 
     virtual void continueInferior() {}

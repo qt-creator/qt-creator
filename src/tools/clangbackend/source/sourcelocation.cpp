@@ -40,93 +40,92 @@
 namespace ClangBackEnd {
 
 SourceLocation::SourceLocation()
-    : cxSourceLocation(clang_getNullLocation())
+    : m_cxSourceLocation(clang_getNullLocation())
 {
 }
 
 const Utf8String &SourceLocation::filePath() const
 {
-    if (isFilePathNormalized_)
-        return filePath_;
+    if (!m_isEvaluated)
+        evaluate();
 
-    isFilePathNormalized_ = true;
-    filePath_ = FilePath::fromNativeSeparators(filePath_);
+    if (m_isFilePathNormalized)
+        return m_filePath;
 
-    return filePath_;
+    m_isFilePathNormalized = true;
+    m_filePath = FilePath::fromNativeSeparators(m_filePath);
+
+    return m_filePath;
 }
 
 uint SourceLocation::line() const
 {
-    return line_;
+    if (!m_isEvaluated)
+        evaluate();
+    return m_line;
 }
 
 uint SourceLocation::column() const
 {
-    return column_;
+    if (!m_isEvaluated)
+        evaluate();
+    return m_column;
 }
 
 uint SourceLocation::offset() const
 {
-    return offset_;
+    if (!m_isEvaluated)
+        evaluate();
+    return m_offset;
 }
 
 SourceLocationContainer SourceLocation::toSourceLocationContainer() const
 {
-    return SourceLocationContainer(filePath(), line_, column_);
+    if (!m_isEvaluated)
+        evaluate();
+    return SourceLocationContainer(filePath(), m_line, m_column);
 }
 
-SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
-                               CXSourceLocation cxSourceLocation)
-    : cxSourceLocation(cxSourceLocation)
-    , cxTranslationUnit(cxTranslationUnit)
+void SourceLocation::evaluate() const
 {
+    m_isEvaluated = true;
+
     CXFile cxFile;
 
-    clang_getFileLocation(cxSourceLocation,
+    clang_getFileLocation(m_cxSourceLocation,
                           &cxFile,
-                          &line_,
-                          &column_,
-                          &offset_);
+                          &m_line,
+                          &m_column,
+                          &m_offset);
 
-    isFilePathNormalized_ = false;
+    m_isFilePathNormalized = false;
     if (!cxFile)
         return;
 
-    filePath_ = ClangString(clang_getFileName(cxFile));
-    if (column_ > 1) {
-        const uint lineStart = offset_ + 1 - column_;
-        const char *contents = clang_getFileContents(cxTranslationUnit, cxFile, nullptr);
+    m_filePath = ClangString(clang_getFileName(cxFile));
+    if (m_column > 1) {
+        const uint lineStart = m_offset + 1 - m_column;
+        const char *contents = clang_getFileContents(m_cxTranslationUnit, cxFile, nullptr);
         if (!contents)
             return;
         // (1) column in SourceLocation is the actual column shown by CppEditor.
         // (2) column in Clang is the utf8 byte offset from the beginning of the line.
         // Here we convert column from (2) to (1).
-        column_ = static_cast<uint>(QString::fromUtf8(&contents[lineStart],
-                                                      static_cast<int>(column_)).size());
+        m_column = static_cast<uint>(QString::fromUtf8(&contents[lineStart],
+                                                       static_cast<int>(m_column) - 1).size()) + 1;
     }
 }
 
 SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
-                               const Utf8String &filePath,
-                               uint line,
-                               uint column)
-    : cxSourceLocation(clang_getLocation(cxTranslationUnit,
-                                         clang_getFile(cxTranslationUnit,
-                                                       filePath.constData()),
-                                         line,
-                                         column)),
-      cxTranslationUnit(cxTranslationUnit),
-      filePath_(filePath),
-      line_(line),
-      column_(column),
-      isFilePathNormalized_(true)
+                               CXSourceLocation cxSourceLocation)
+    : m_cxSourceLocation(cxSourceLocation)
+    , m_cxTranslationUnit(cxTranslationUnit)
 {
-    clang_getFileLocation(cxSourceLocation, 0, 0, 0, &offset_);
 }
 
 SourceLocation::operator CXSourceLocation() const
 {
-    return cxSourceLocation;
+    return m_cxSourceLocation;
 }
 
 std::ostream &operator<<(std::ostream &os, const SourceLocation &sourceLocation)

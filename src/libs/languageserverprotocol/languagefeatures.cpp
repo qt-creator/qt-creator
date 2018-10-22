@@ -331,7 +331,7 @@ bool MarkedString::isValid(QStringList *errorHierarchy) const
         *errorHierarchy << QCoreApplication::translate(
                                "LanguageServerProtocol::MarkedString",
                                "MarkedString should be either MarkedLanguageString, "
-                               "MarkupContent or QList<MarkedLanguageString>");
+                               "MarkupContent, or QList<MarkedLanguageString>.");
     }
     return false;
 }
@@ -356,7 +356,7 @@ bool DocumentFormattingProperty::isValid(QStringList *error) const
     if (error) {
         *error << QCoreApplication::translate(
                       "LanguageServerProtocol::MarkedString",
-                      "DocumentFormattingProperty should be either bool, double or QString");
+                      "DocumentFormattingProperty should be either bool, double, or QString.");
     }
     return false;
 }

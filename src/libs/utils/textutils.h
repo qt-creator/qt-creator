@@ -29,7 +29,6 @@
 #include "utils_global.h"
 
 #include <QString>
-#include <QTextCursor>
 
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
@@ -37,7 +36,7 @@ QT_FORWARD_DECLARE_CLASS(QTextCursor)
 namespace Utils {
 namespace Text {
 
-// line is 1-based, column is 0-based
+// line is 1-based, column is 1-based
 QTCREATOR_UTILS_EXPORT bool convertPosition(const QTextDocument *document,
                                             int pos,
                                             int *line, int *column);
@@ -55,42 +54,9 @@ QTCREATOR_UTILS_EXPORT QTextCursor flippedCursor(const QTextCursor &cursor);
 
 QTCREATOR_UTILS_EXPORT QTextCursor wordStartCursor(const QTextCursor &cursor);
 
-template <class CharacterProvider>
-void moveToPrevChar(CharacterProvider &provider, QTextCursor &cursor)
-{
-    cursor.movePosition(QTextCursor::PreviousCharacter);
-    while (provider.characterAt(cursor.position()).isSpace())
-        cursor.movePosition(QTextCursor::PreviousCharacter);
-}
-
-template <class CharacterProvider>
-bool matchPreviousWord(CharacterProvider &provider, QTextCursor cursor, QString pattern)
-{
-    cursor.movePosition(QTextCursor::PreviousWord);
-    while (provider.characterAt(cursor.position()) == ':')
-        cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
-
-    int previousWordStart = cursor.position();
-    cursor.movePosition(QTextCursor::NextWord);
-    moveToPrevChar(provider, cursor);
-    QString toMatch = provider.textAt(previousWordStart, cursor.position() - previousWordStart + 1);
-
-    pattern = pattern.simplified();
-    while (!pattern.isEmpty() && pattern.endsWith(toMatch)) {
-        pattern.chop(toMatch.length());
-        if (pattern.endsWith(' '))
-            pattern.chop(1);
-        if (!pattern.isEmpty()) {
-            cursor.movePosition(QTextCursor::StartOfWord);
-            cursor.movePosition(QTextCursor::PreviousWord);
-            previousWordStart = cursor.position();
-            cursor.movePosition(QTextCursor::NextWord);
-            moveToPrevChar(provider, cursor);
-            toMatch = provider.textAt(previousWordStart, cursor.position() - previousWordStart + 1);
-        }
-    }
-    return pattern.isEmpty();
-}
+QTCREATOR_UTILS_EXPORT int utf8NthLineOffset(const QTextDocument *textDocument,
+                                             const QByteArray &buffer,
+                                             int line);
 
 } // Text
 } // Utils

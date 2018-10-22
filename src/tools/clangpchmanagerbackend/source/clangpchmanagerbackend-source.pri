@@ -26,7 +26,9 @@ HEADERS += \
     $$PWD/collectusedmacroactionfactory.h \
     $$PWD/collectusedmacrosaction.h \
     $$PWD/collectusedmacrosandsourcespreprocessorcallbacks.h \
-    $$PWD/usedmacrosandsourcescollector.h
+    $$PWD/usedmacrosandsourcescollector.h \
+    $$PWD/usedmacroandsourcestorageinterface.h \
+    $$PWD/usedmacroandsourcestorage.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

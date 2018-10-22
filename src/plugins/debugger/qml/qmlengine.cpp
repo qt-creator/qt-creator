@@ -610,15 +610,7 @@ void QmlEngine::interruptInferior()
     showStatusMessage(tr("Waiting for JavaScript engine to interrupt on next statement."));
 }
 
-void QmlEngine::executeStep()
-{
-    clearExceptionSelection();
-    d->continueDebugging(StepIn);
-    notifyInferiorRunRequested();
-    notifyInferiorRunOk();
-}
-
-void QmlEngine::executeStepI()
+void QmlEngine::executeStepIn(bool)
 {
     clearExceptionSelection();
     d->continueDebugging(StepIn);
@@ -634,17 +626,12 @@ void QmlEngine::executeStepOut()
     notifyInferiorRunOk();
 }
 
-void QmlEngine::executeNext()
+void QmlEngine::executeStepOver(bool)
 {
     clearExceptionSelection();
     d->continueDebugging(Next);
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
-}
-
-void QmlEngine::executeNextI()
-{
-    executeNext();
 }
 
 void QmlEngine::executeRunToLine(const ContextData &data)

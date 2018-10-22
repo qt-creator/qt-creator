@@ -167,14 +167,7 @@ void PdbEngine::interruptInferior()
     interruptProcess(m_proc.processId(), GdbEngineType, &error);
 }
 
-void PdbEngine::executeStep()
-{
-    notifyInferiorRunRequested();
-    notifyInferiorRunOk();
-    postDirectCommand("step");
-}
-
-void PdbEngine::executeStepI()
+void PdbEngine::executeStepIn(bool)
 {
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -188,14 +181,7 @@ void PdbEngine::executeStepOut()
     postDirectCommand("return");
 }
 
-void PdbEngine::executeNext()
-{
-    notifyInferiorRunRequested();
-    notifyInferiorRunOk();
-    postDirectCommand("next");
-}
-
-void PdbEngine::executeNextI()
+void PdbEngine::executeStepOver(bool)
 {
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -269,8 +255,24 @@ void PdbEngine::insertBreakpoint(const Breakpoint &bp)
 
 void PdbEngine::updateBreakpoint(const Breakpoint &bp)
 {
-    Q_UNUSED(bp);
-    QTC_CHECK(false);
+    QTC_ASSERT(bp, return);
+    const BreakpointState state = bp->state();
+    if (QTC_GUARD(state == BreakpointUpdateRequested))
+        notifyBreakpointChangeProceeding(bp);
+    if (bp->responseId().isEmpty()) // FIXME postpone update somehow (QTimer::singleShot?)
+        return;
+
+    // FIXME figure out what needs to be changed (there might be more than enabled state)
+    const BreakpointParameters &requested = bp->requestedParameters();
+    if (requested.enabled != bp->isEnabled()) {
+        if (bp->isEnabled())
+            postDirectCommand("disable " + bp->responseId());
+        else
+            postDirectCommand("enable " + bp->responseId());
+        bp->setEnabled(!bp->isEnabled());
+    }
+    // Pretend it succeeds without waiting for response.
+    notifyBreakpointChangeOk(bp);
 }
 
 void PdbEngine::removeBreakpoint(const Breakpoint &bp)
@@ -278,6 +280,10 @@ void PdbEngine::removeBreakpoint(const Breakpoint &bp)
     QTC_ASSERT(bp, return);
     QTC_CHECK(bp->state() == BreakpointRemoveRequested);
     notifyBreakpointRemoveProceeding(bp);
+    if (bp->responseId().isEmpty()) {
+        notifyBreakpointRemoveFailed(bp);
+        return;
+    }
     showMessage(QString("DELETING BP %1 IN %2")
                 .arg(bp->responseId()).arg(bp->fileName()));
     postDirectCommand("clear " + bp->responseId());
@@ -504,8 +510,12 @@ void PdbEngine::handleOutput2(const QString &data)
             bp->setLineNumber(lineNumber);
             bp->adjustMarker();
             bp->setPending(false);
-            QTC_CHECK(!bp->needsChange());
             notifyBreakpointInsertOk(bp);
+            if (bp->needsChange()) {
+                bp->gotoState(BreakpointUpdateRequested, BreakpointInserted);
+                updateBreakpoint(bp);
+//            QTC_CHECK(!bp->needsChange());
+            }
         }
     }
 }

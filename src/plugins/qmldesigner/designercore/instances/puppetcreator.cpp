@@ -371,7 +371,11 @@ QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
         return qmlPuppetToplevelBuildDirectory() + '/' + QCoreApplication::applicationVersion()
                 + '/' + QString::fromLatin1(qtHash());
 
-    return qmlPuppetFallbackDirectory();
+#ifndef QMLDESIGNER_TEST
+    return qmlPuppetFallbackDirectory(m_designerSettings);
+#else
+    return QString();
+#endif
 }
 
 QString PuppetCreator::defaultPuppetFallbackDirectory()
@@ -382,15 +386,16 @@ QString PuppetCreator::defaultPuppetFallbackDirectory()
         return Core::ICore::libexecPath();
 }
 
-QString PuppetCreator::qmlPuppetFallbackDirectory() const
+QString PuppetCreator::qmlPuppetFallbackDirectory(const DesignerSettings &settings)
 {
 #ifndef QMLDESIGNER_TEST
-    QString puppetFallbackDirectory = m_designerSettings.value(
+    QString puppetFallbackDirectory = settings.value(
         DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY).toString();
-    if (puppetFallbackDirectory.isEmpty())
+    if (puppetFallbackDirectory.isEmpty() || !QFileInfo::exists(puppetFallbackDirectory))
         return defaultPuppetFallbackDirectory();
     return puppetFallbackDirectory;
 #else
+    Q_UNUSED(settings);
     return QString();
 #endif
 }

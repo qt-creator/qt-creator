@@ -27,10 +27,11 @@ QtcPlugin {
         "clangformatconfigwidget.cpp",
         "clangformatconfigwidget.h",
         "clangformatconfigwidget.ui",
+        "clangformatconstants.h",
         "clangformatindenter.cpp",
         "clangformatindenter.h",
         "clangformatplugin.cpp",
         "clangformatplugin.h",
-        "clangformatconstants.h",
+        "clangformatutils.h",
     ]
 }

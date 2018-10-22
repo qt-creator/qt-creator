@@ -774,11 +774,6 @@ void DebuggerRunTool::setSolibSearchPath(const QStringList &list)
     m_runParameters.solibSearchPath = list;
 }
 
-void DebuggerRunTool::quitDebugger()
-{
-    initiateStop();
-}
-
 bool DebuggerRunTool::fixupParameters()
 {
     DebuggerRunParameters &rp = m_runParameters;

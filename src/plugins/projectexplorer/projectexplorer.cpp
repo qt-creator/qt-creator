@@ -1739,6 +1739,7 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     disconnect(ModeManager::instance(), &ModeManager::currentModeChanged,
                dd, &ProjectExplorerPluginPrivate::currentModeChanged);
     ProjectTree::aboutToShutDown();
+    ToolChainManager::aboutToShutdown();
     SessionManager::closeAllProjects();
 
     dd->m_shuttingDown = true;

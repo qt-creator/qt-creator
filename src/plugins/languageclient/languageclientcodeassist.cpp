@@ -69,6 +69,8 @@ public:
 
     bool operator <(const LanguageClientCompletionItem &other) const;
 
+    bool isPerfectMatch(int pos, QTextDocument *doc) const;
+
 private:
     CompletionItem m_item;
     mutable QString m_sortText;
@@ -194,6 +196,26 @@ bool LanguageClientCompletionItem::operator <(const LanguageClientCompletionItem
     return sortText() < other.sortText();
 }
 
+bool LanguageClientCompletionItem::isPerfectMatch(int pos, QTextDocument *doc) const
+{
+    QTC_ASSERT(doc, return false);
+    using namespace Utils::Text;
+    if (auto additionalEdits = m_item.additionalTextEdits()) {
+        if (!additionalEdits.value().isEmpty())
+            return false;
+    }
+    if (auto edit = m_item.textEdit()) {
+        auto range = edit->range();
+        const int start = positionInText(doc, range.start().line() + 1, range.start().character() + 1);
+        const int end = positionInText(doc, range.end().line() + 1, range.end().character() + 1);
+        auto text = textAt(QTextCursor(doc), start, end - start);
+        return text == edit->newText();
+    }
+    const QString textToInsert(m_item.insertText().value_or(text()));
+    const int length = textToInsert.length();
+    return textToInsert == textAt(QTextCursor(doc), pos - length, length);
+}
+
 class LanguageClientCompletionModel : public TextEditor::GenericProposalModel
 {
 public:
@@ -201,6 +223,9 @@ public:
     bool isSortable(const QString &/*prefix*/) const override { return true; }
     void sort(const QString &/*prefix*/) override;
     bool supportsPrefixExpansion() const override { return false; }
+
+    QList<LanguageClientCompletionItem *> items() const
+    { return Utils::static_container_cast<LanguageClientCompletionItem *>(m_currentItems); }
 };
 
 void LanguageClientCompletionModel::sort(const QString &/*prefix*/)
@@ -213,16 +238,44 @@ void LanguageClientCompletionModel::sort(const QString &/*prefix*/)
     });
 }
 
+class LanguageClientCompletionProposal : public TextEditor::GenericProposal
+{
+public:
+    LanguageClientCompletionProposal(int cursorPos, LanguageClientCompletionModel *model)
+        : TextEditor::GenericProposal(cursorPos, TextEditor::GenericProposalModelPtr(model))
+        , m_model(model)
+    { }
+
+    // IAssistProposal interface
+    bool hasItemsToPropose(const QString &/*text*/, TextEditor::AssistReason reason) const override
+    {
+        if (m_model->size() <= 0 || m_document.isNull())
+            return false;
+
+        return m_model->keepPerfectMatch(reason)
+                || !Utils::anyOf(m_model->items(), [this](LanguageClientCompletionItem *item){
+            return item->isPerfectMatch(m_pos, m_document);
+        });
+    }
+
+    LanguageClientCompletionModel *m_model;
+    QPointer<QTextDocument> m_document;
+    int m_pos = -1;
+};
+
+
 class LanguageClientCompletionAssistProcessor : public TextEditor::IAssistProcessor
 {
 public:
     LanguageClientCompletionAssistProcessor(BaseClient *client);
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
     bool running() override;
+    bool needsRestart() const override { return true; }
 
 private:
     void handleCompletionResponse(const Response<CompletionResult, LanguageClientNull> &response);
 
+    QPointer<QTextDocument> m_document;
     QPointer<BaseClient> m_client;
     bool m_running = false;
     int m_pos = -1;
@@ -247,11 +300,15 @@ TextEditor::IAssistProposal *LanguageClientCompletionAssistProcessor::perform(
 {
     QTC_ASSERT(m_client, return nullptr);
     m_pos = interface->position();
-//    const QRegExp regexp("[_a-zA-Z][_a-zA-Z0-9]*"); // FIXME
-//    int delta = 0;
-//    while (m_pos - delta > 0 && regexp.exactMatch(interface->textAt(m_pos - delta - 1, delta + 1)))
-//        ++delta;
-//    m_pos -= delta;
+    if (interface->reason() == TextEditor::IdleEditor) {
+        // Trigger an automatic completion request only when we are on a word with more than 2 "identifier" character
+        const QRegExp regexp("[_a-zA-Z0-9]*");
+        int delta = 0;
+        while (m_pos - delta > 0 && regexp.exactMatch(interface->textAt(m_pos - delta - 1, delta + 1)))
+            ++delta;
+        if (delta < 3)
+            return nullptr;
+    }
     CompletionRequest completionRequest;
     CompletionParams::CompletionContext context;
     context.setTriggerKind(interface->reason() == TextEditor::ActivationCharacter
@@ -263,6 +320,7 @@ TextEditor::IAssistProposal *LanguageClientCompletionAssistProcessor::perform(
     if (!Utils::Text::convertPosition(interface->textDocument(), m_pos, &line, &column))
         return nullptr;
     --line; // line is 0 based in the protocol
+    --column; // column is 0 based in the protocol
     params.setPosition({line, column});
     params.setTextDocument(
                 DocumentUri::fromFileName(Utils::FileName::fromString(interface->fileName())));
@@ -272,6 +330,7 @@ TextEditor::IAssistProposal *LanguageClientCompletionAssistProcessor::perform(
     completionRequest.setParams(params);
     m_client->sendContent(completionRequest);
     m_running = true;
+    m_document = interface->textDocument();
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime()
                               << " : request completions at " << m_pos
                               << " by " << assistReasonString(interface->reason());
@@ -309,7 +368,9 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     model->loadContent(Utils::transform(items, [](const CompletionItem &item){
         return static_cast<AssistProposalItemInterface *>(new LanguageClientCompletionItem(item));
     }));
-    auto proposal = new GenericProposal(m_pos, GenericProposalModelPtr(model));
+    auto proposal = new LanguageClientCompletionProposal(m_pos, model);
+    proposal->m_document = m_document;
+    proposal->m_pos = m_pos;
     proposal->setFragile(true);
     setAsyncProposalAvailable(proposal);
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : "

@@ -708,14 +708,18 @@ class Dumper(DumperBase):
         self.reportResult(self.output)
 
     def parseAndEvaluate(self, exp):
+        val = self.nativeParseAndEvaluate(exp)
+        return None if val is None else self.fromNativeValue(val)
+
+    def nativeParseAndEvaluate(self, exp):
         #warn('EVALUATE "%s"' % exp)
         try:
             val = gdb.parse_and_eval(exp)
+            return val
         except RuntimeError as error:
             if self.passExceptions:
                 warn("Cannot evaluate '%s': %s" % (exp, error))
             return None
-        return self.fromNativeValue(val)
 
     def callHelper(self, rettype, value, function, args):
         # args is a tuple.

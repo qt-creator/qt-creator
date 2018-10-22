@@ -1296,6 +1296,11 @@ bool MsvcToolChain::operator ==(const ToolChain &other) const
     return m_varsBatArg == msvcTc->m_varsBatArg;
 }
 
+void MsvcToolChain::cancelMsvcToolChainDetection()
+{
+    envModThreadPool()->clear();
+}
+
 bool MsvcToolChainFactory::canRestore(const QVariantMap &data)
 {
     const Core::Id id = typeIdFromMap(data);

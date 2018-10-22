@@ -37,6 +37,8 @@ const char MODE_DEBUG[]             = "Mode.Debug";
 const char C_DEBUGMODE[]            = "Debugger.DebugMode";
 const char C_CPPDEBUGGER[]          = "Gdb Debugger";
 const char C_QMLDEBUGGER[]          = "Qml/JavaScript Debugger";
+const char C_DEBUGGER_RUNNING[]     = "Debugger.Running";
+const char C_DEBUGGER_NOTRUNNING[]  = "Debugger.NotRunning";
 
 const char PRESET_PERSPECTIVE_ID[]  = "Debugger.Perspective.Preset";
 
@@ -54,6 +56,7 @@ const char ABORT[]                  = "Debugger.Abort";
 const char STEP[]                   = "Debugger.StepLine";
 const char STEPOUT[]                = "Debugger.StepOut";
 const char NEXT[]                   = "Debugger.NextLine";
+const char START_AND_BREAK_ON_MAIN[]= "Debugger.StartAndBreakOnMain";
 const char REVERSE[]                = "Debugger.ReverseDirection";
 const char RESET[]                  = "Debugger.Reset";
 const char OPERATE_BY_INSTRUCTION[] = "Debugger.OperateByInstruction";

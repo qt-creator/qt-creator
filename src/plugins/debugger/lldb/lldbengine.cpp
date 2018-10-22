@@ -336,16 +336,10 @@ void LldbEngine::interruptInferior()
     runCommand({"interruptInferior"});
 }
 
-void LldbEngine::executeStep()
+void LldbEngine::executeStepIn(bool byInstruction)
 {
     notifyInferiorRunRequested();
-    runCommand({"executeStep"});
-}
-
-void LldbEngine::executeStepI()
-{
-    notifyInferiorRunRequested();
-    runCommand({"executeStepI"});
+    runCommand({QLatin1String(byInstruction ? "executeStepI" : "executeStep")});
 }
 
 void LldbEngine::executeStepOut()
@@ -354,16 +348,10 @@ void LldbEngine::executeStepOut()
     runCommand({"executeStepOut"});
 }
 
-void LldbEngine::executeNext()
+void LldbEngine::executeStepOver(bool byInstruction)
 {
     notifyInferiorRunRequested();
-    runCommand({"executeNext"});
-}
-
-void LldbEngine::executeNextI()
-{
-    notifyInferiorRunRequested();
-    runCommand({"executeNextI"});
+    runCommand({QLatin1String(byInstruction ? "executeNextI" : "executeNext")});
 }
 
 void LldbEngine::continueInferior()

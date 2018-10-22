@@ -95,7 +95,11 @@ public:
                             const clang::FileEntry *file,
                             llvm::StringRef /*searchPath*/,
                             llvm::StringRef /*relativePath*/,
-                            const clang::Module * /*imported*/) override
+                            const clang::Module * /*imported*/
+#if LLVM_VERSION_MAJOR >= 7
+                            , clang::SrcMgr::CharacteristicKind /*fileType*/
+#endif
+                            ) override
     {
         if (!m_skipInclude && file)
             addSourceDependency(file, hashLocation);

@@ -451,6 +451,8 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
         QList<AndroidToolChain *> toolChainBundle;
         for (Core::Id lang : {ProjectExplorer::Constants::CXX_LANGUAGE_ID, ProjectExplorer::Constants::C_LANGUAGE_ID}) {
             FileName compilerPath = AndroidConfigurations::currentConfig().gccPath(abi, lang, version);
+            if (!compilerPath.exists())
+                continue;
 
             AndroidToolChain *tc = findToolChain(compilerPath, lang, alreadyKnown);
             if (!tc || tc->originalTargetTriple().isEmpty()) {
@@ -464,7 +466,8 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
             toolChainBundle.append(tc);
         }
 
-        QTC_ASSERT(!toolChainBundle.isEmpty(), continue);
+        if (toolChainBundle.isEmpty())
+            continue;
 
         auto it = newestToolChainForArch.constFind(abi);
         if (it == newestToolChainForArch.constEnd())

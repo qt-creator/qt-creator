@@ -374,13 +374,6 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
     return args;
 }
 
-Abi QmlProjectRunConfiguration::abi() const
-{
-    Abi hostAbi = Abi::hostAbi();
-    return Abi(hostAbi.architecture(), hostAbi.os(), hostAbi.osFlavor(),
-               Abi::RuntimeQmlFormat, hostAbi.wordWidth());
-}
-
 void QmlProjectRunConfiguration::updateEnabledState()
 {
     bool qmlFileFound = m_mainQmlFileAspect->isQmlFilePresent();

@@ -230,7 +230,10 @@ class Dumper(DumperBase):
         return None
 
     def parseAndEvaluate(self, exp):
-        return self.fromNativeValue(cdbext.parseAndEvaluate(exp))
+        return self.fromNativeValue(self.nativeParseAndEvaluate(exp))
+
+    def nativeParseAndEvaluate(self, exp):
+        return cdbext.parseAndEvaluate(exp)
 
     def isWindowsTarget(self):
         return True

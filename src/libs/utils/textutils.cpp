@@ -140,5 +140,20 @@ QTextCursor wordStartCursor(const QTextCursor &textCursor)
     return cursor;
 }
 
+int utf8NthLineOffset(const QTextDocument *textDocument, const QByteArray &buffer, int line)
+{
+    if (textDocument->characterCount() == buffer.size() + 1)
+        return textDocument->findBlockByNumber(line - 1).position();
+
+    int pos = 0;
+    for (int count = 0; count < line - 1; ++count) {
+        pos = buffer.indexOf('\n', pos);
+        if (pos == -1)
+            return -1;
+        ++pos;
+    }
+    return pos;
+}
+
 } // Text
 } // Utils

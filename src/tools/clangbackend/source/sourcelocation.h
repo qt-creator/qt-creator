@@ -41,7 +41,7 @@ class SourceLocation
 
     friend bool operator==(const SourceLocation &first, const SourceLocation &second)
     {
-        return clang_equalLocations(first.cxSourceLocation, second.cxSourceLocation);
+        return clang_equalLocations(first.m_cxSourceLocation, second.m_cxSourceLocation);
     }
     friend bool operator!=(const SourceLocation &first, const SourceLocation &second)
     {
@@ -50,10 +50,6 @@ class SourceLocation
 
 public:
     SourceLocation();
-    SourceLocation(CXTranslationUnit cxTranslationUnit,
-                   const Utf8String &filePath,
-                   uint line,
-                   uint column);
     SourceLocation(CXTranslationUnit cxTranslationUnit,
                    CXSourceLocation cxSourceLocation);
 
@@ -64,20 +60,22 @@ public:
 
     SourceLocationContainer toSourceLocationContainer() const;
 
-    CXTranslationUnit tu() const { return cxTranslationUnit; }
-    CXSourceLocation cx() const { return cxSourceLocation; }
+    CXTranslationUnit tu() const { return m_cxTranslationUnit; }
+    CXSourceLocation cx() const { return m_cxSourceLocation; }
 
 private:
     operator CXSourceLocation() const;
+    void evaluate() const;
 
 private:
-   CXSourceLocation cxSourceLocation;
-   CXTranslationUnit cxTranslationUnit;
-   mutable Utf8String filePath_;
-   uint line_ = 0;
-   uint column_ = 0;
-   uint offset_ = 0;
-   mutable bool isFilePathNormalized_ = true;
+   CXSourceLocation m_cxSourceLocation;
+   CXTranslationUnit m_cxTranslationUnit;
+   mutable Utf8String m_filePath;
+   mutable uint m_line = 0;
+   mutable uint m_column = 0;
+   mutable uint m_offset = 0;
+   mutable bool m_isFilePathNormalized = true;
+   mutable bool m_isEvaluated = false;
 };
 
 std::ostream &operator<<(std::ostream &os, const SourceLocation &sourceLocation);

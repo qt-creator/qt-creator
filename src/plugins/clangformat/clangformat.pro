@@ -24,7 +24,8 @@ HEADERS = \
     clangformatconfigwidget.h \
     clangformatindenter.h \
     clangformatplugin.h \
-    clangformatconstants.h
+    clangformatconstants.h \
+    clangformatutils.h
 
 FORMS += \
     clangformatconfigwidget.ui

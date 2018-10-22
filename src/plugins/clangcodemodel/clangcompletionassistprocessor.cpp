@@ -98,9 +98,9 @@ static void addFunctionOverloadAssistProposalItem(QList<AssistProposalItemInterf
     cursor.movePosition(QTextCursor::StartOfWord);
 
     const ClangBackEnd::CodeCompletionChunk resultType = codeCompletion.chunks.first();
-    if (::Utils::Text::matchPreviousWord(*interface->textEditorWidget(),
-                                         cursor,
-                                         resultType.text.toString())) {
+    if (Utils::Text::matchPreviousWord(*interface->textEditorWidget(),
+                                       cursor,
+                                       resultType.text.toString())) {
         // Function definition completion - do not merge completions together.
         addAssistProposalItem(items, codeCompletion, name);
     } else {
@@ -444,6 +444,12 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
         }
         completeIncludePath(realPath, suffixes);
     }
+
+    auto includesCompare = [](AssistProposalItemInterface *first,
+                              AssistProposalItemInterface *second) {
+        return first->text() < second->text();
+    };
+    std::sort(m_completions.begin(), m_completions.end(), includesCompare);
 
     return !m_completions.isEmpty();
 }

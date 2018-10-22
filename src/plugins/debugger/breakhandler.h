@@ -98,7 +98,7 @@ private:
     void updateMarker();
     void updateMarkerIcon();
     void destroyMarker();
-    void scheduleSynchronization();
+//    void scheduleSynchronization();
     QPointer<DebuggerEngine> usingEngine() const;
 
     bool isEngineRunning() const;
