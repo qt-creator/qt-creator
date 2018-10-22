@@ -75,27 +75,27 @@ void AutotoolsBuildConfiguration::initialize(const BuildInfo *info)
     QFile autogenFile(target()->project()->projectDirectory().toString() + "/autogen.sh");
     if (autogenFile.exists()) {
         AutogenStep *autogenStep = new AutogenStep(buildSteps);
-        buildSteps->insertStep(0, autogenStep);
+        buildSteps->appendStep(autogenStep);
     } else {
         AutoreconfStep *autoreconfStep = new AutoreconfStep(buildSteps);
-        buildSteps->insertStep(0, autoreconfStep);
+        buildSteps->appendStep(autoreconfStep);
     }
 
     // ./configure.
     ConfigureStep *configureStep = new ConfigureStep(buildSteps);
-    buildSteps->insertStep(1, configureStep);
+    buildSteps->appendStep(configureStep);
     connect(this, &BuildConfiguration::buildDirectoryChanged,
             configureStep, &ConfigureStep::notifyBuildDirectoryChanged);
 
     // make
     MakeStep *makeStep = new MakeStep(buildSteps, "all");
-    buildSteps->insertStep(2, makeStep);
+    buildSteps->appendStep(makeStep);
 
     // ### Build Steps Clean ###
     BuildStepList *cleanSteps = stepList(BUILDSTEPS_CLEAN);
     MakeStep *cleanMakeStep = new MakeStep(cleanSteps, "clean");
     cleanMakeStep->setClean(true);
-    cleanSteps->insertStep(0, cleanMakeStep);
+    cleanSteps->appendStep(cleanMakeStep);
 }
 
 NamedWidget *AutotoolsBuildConfiguration::createConfigWidget()
