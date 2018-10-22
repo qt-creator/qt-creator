@@ -55,6 +55,7 @@ public:
     bool m_value = false;
     bool m_defaultValue = false;
     QString m_label;
+    QString m_tooltip;
     QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
 };
 
@@ -309,6 +310,7 @@ void BaseBoolAspect::addToConfigurationLayout(QFormLayout *layout)
     QTC_CHECK(!d->m_checkBox);
     d->m_checkBox = new QCheckBox(d->m_label, layout->parentWidget());
     d->m_checkBox->setChecked(d->m_value);
+    d->m_checkBox->setToolTip(d->m_tooltip);
     layout->addRow(QString(), d->m_checkBox);
     connect(d->m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         d->m_value = d->m_checkBox->isChecked();
@@ -351,6 +353,11 @@ void BaseBoolAspect::setValue(bool value)
 void BaseBoolAspect::setLabel(const QString &label)
 {
     d->m_label = label;
+}
+
+void BaseBoolAspect::setToolTip(const QString &tooltip)
+{
+    d->m_tooltip = tooltip;
 }
 
 /*!

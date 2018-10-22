@@ -58,6 +58,7 @@ public:
     void setDefaultValue(bool defaultValue);
 
     void setLabel(const QString &label);
+    void setToolTip(const QString &tooltip);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
