@@ -359,8 +359,7 @@ QString ClangAssistProposalItem::fixItText() const
     const FixItContainer &fixIt = firstCompletionFixIts().first();
     return QCoreApplication::translate("ClangCodeModel::ClangAssistProposalItem",
                                        "Requires to correct \"%1\" to \"%2\"")
-            .arg(textReplacedByFixit(fixIt))
-            .arg(fixIt.text.toString());
+            .arg(textReplacedByFixit(fixIt), fixIt.text.toString());
 }
 
 int ClangAssistProposalItem::fixItsShift(const TextDocumentManipulatorInterface &manipulator) const
