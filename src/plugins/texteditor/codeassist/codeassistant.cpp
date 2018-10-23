@@ -440,7 +440,7 @@ void CodeAssistantPrivate::notifyChange()
         QTC_ASSERT(m_proposal, return);
         if (m_editorWidget->position() < m_proposal->basePosition()) {
             destroyContext();
-        } else if (!m_proposal->isFragile()) {
+        } else if (m_proposal->supportsPrefix()) {
             m_proposalWidget->updateProposal(
                 m_editorWidget->textAt(m_proposal->basePosition(),
                                      m_editorWidget->position() - m_proposal->basePosition()));
