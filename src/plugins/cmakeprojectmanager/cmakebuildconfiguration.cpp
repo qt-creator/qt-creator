@@ -160,6 +160,7 @@ FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFi
     ProjectMacroExpander expander(projectFilePath.toString(), projectName, k, bcName, buildType);
     QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
+    buildPath.replace(" ", "-");
     return FileName::fromUserInput(projectDir.absoluteFilePath(buildPath));
 }
 
