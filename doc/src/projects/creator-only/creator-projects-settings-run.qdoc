@@ -37,14 +37,23 @@
 
     \title Specifying Run Settings
 
-    \QC automatically creates run configurations for your project.
-    To view and modify the settings, select \uicontrol {Projects > Build & Run > Run}.
-
-    The settings to specify depend on the type of the project and on the
+    The run settings to specify depend on the type of the project and on the
     \l{glossary-buildandrun-kit}{kit} that you build and run the project with.
 
-    Click \uicontrol Add to add run settings for a project and \uicontrol Remove to remove
-    the current settings.
+    \QC automatically creates run configurations for your project.
+    To view and modify them, select \uicontrol Projects >
+    \uicontrol {Build & Run} > \uicontrol Run.
+
+    The available run configurations are listed in the
+    \uicontrol {Run configuration} field.
+    To add run configurations for a project, select \uicontrol Add.
+    To remove the current run configuration, select \uicontrol Remove.
+    To rename the current run configuration, select \uicontrol Rename.
+
+    To prevent \QC from automatically creating run configurations, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run},
+    and then deselect the \uicontrol {Create suitable run configurations
+    automatically} check box.
 
     The run configurations for qmake projects derive their executable from the
     parsed .pro files. For more information on how the commands are constructed,
