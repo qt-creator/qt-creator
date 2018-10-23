@@ -743,18 +743,23 @@ static inline bool isWatchIName(const QString &iname)
 
 bool CdbEngine::hasCapability(unsigned cap) const
 {
-    return cap & (DisassemblerCapability | RegisterCapability
-           | ShowMemoryCapability
-           |WatchpointByAddressCapability|JumpToLineCapability|AddWatcherCapability|WatchWidgetsCapability
-           |ReloadModuleCapability
-           |BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
-           |BreakConditionCapability|TracePointCapability
-           |BreakModuleCapability
-           |CreateFullBacktraceCapability
-           |OperateByInstructionCapability
-           |RunToLineCapability
-           |MemoryAddressCapability
-           |AdditionalQmlStackCapability);
+    return cap & (DisassemblerCapability
+                  | RegisterCapability
+                  | ShowMemoryCapability
+                  | WatchpointByAddressCapability
+                  | JumpToLineCapability
+                  | AddWatcherCapability
+                  | WatchWidgetsCapability
+                  | ReloadModuleCapability
+                  | BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
+                  | BreakConditionCapability|TracePointCapability
+                  | BreakIndividualLocationsCapability
+                  | BreakModuleCapability
+                  | CreateFullBacktraceCapability
+                  | OperateByInstructionCapability
+                  | RunToLineCapability
+                  | MemoryAddressCapability
+                  | AdditionalQmlStackCapability);
 }
 
 void CdbEngine::executeStepIn(bool byInstruction)
