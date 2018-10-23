@@ -794,8 +794,19 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
     foreach (const QString &rawArg, argList) {
         int pos = rawArg.indexOf(':');
         if (pos > 0) {
+            const QString propertyName = rawArg.left(pos);
+            static const QStringList specialProperties{
+                Constants::QBS_CONFIG_PROFILE_KEY, Constants::QBS_CONFIG_VARIANT_KEY,
+                Constants::QBS_CONFIG_QUICK_DEBUG_KEY, Constants::QBS_INSTALL_ROOT_KEY};
+            if (specialProperties.contains(propertyName)) {
+                if (errorMessage) {
+                    *errorMessage = tr("Property \"%1\" cannot be set here. "
+                                       "Please use the dedicated UI element.").arg(propertyName);
+                }
+                return false;
+            }
             const QString rawValue = rawArg.mid(pos + 1);
-            Property property(rawArg.left(pos), rawValue, expander->expand(rawValue));
+            Property property(propertyName, rawValue, expander->expand(rawValue));
             properties.append(property);
         } else {
             if (errorMessage)
