@@ -286,10 +286,39 @@ public:
 
         connect(action(EnableReverseDebugging), &SavedAction::valueChanged,
                 this, [this] { updateState(true); });
+        static int contextCount = 0;
+        m_context = Context(Id("Debugger.Engine.").withSuffix(++contextCount));
+
+        ActionManager::registerAction(&m_continueAction, Constants::CONTINUE, m_context);
+        ActionManager::registerAction(&m_exitAction, Constants::STOP, m_context);
+        ActionManager::registerAction(&m_interruptAction, Constants::INTERRUPT, m_context);
+        ActionManager::registerAction(&m_abortAction, Constants::ABORT, m_context);
+        ActionManager::registerAction(&m_stepOverAction, Constants::NEXT, m_context);
+        ActionManager::registerAction(&m_stepIntoAction, Constants::STEP, m_context);
+        ActionManager::registerAction(&m_stepOutAction, Constants::STEPOUT, m_context);
+        ActionManager::registerAction(&m_runToLineAction, Constants::RUNTOLINE, m_context);
+        ActionManager::registerAction(&m_runToSelectedFunctionAction, Constants::RUNTOSELECTEDFUNCTION, m_context);
+        ActionManager::registerAction(&m_jumpToLineAction, Constants::JUMPTOLINE, m_context);
+        ActionManager::registerAction(&m_returnFromFunctionAction, Constants::RETURNFROMFUNCTION, m_context);
+        ActionManager::registerAction(&m_detachAction, Constants::DETACH, m_context);
+        ActionManager::registerAction(&m_resetAction, Constants::RESET, m_context);
     }
 
     ~DebuggerEnginePrivate()
     {
+        ActionManager::unregisterAction(&m_continueAction, Constants::CONTINUE);
+        ActionManager::unregisterAction(&m_exitAction, Constants::STOP);
+        ActionManager::unregisterAction(&m_interruptAction, Constants::INTERRUPT);
+        ActionManager::unregisterAction(&m_abortAction, Constants::ABORT);
+        ActionManager::unregisterAction(&m_stepOverAction, Constants::NEXT);
+        ActionManager::unregisterAction(&m_stepIntoAction, Constants::STEP);
+        ActionManager::unregisterAction(&m_stepOutAction, Constants::STEPOUT);
+        ActionManager::unregisterAction(&m_runToLineAction, Constants::RUNTOLINE);
+        ActionManager::unregisterAction(&m_runToSelectedFunctionAction, Constants::RUNTOSELECTEDFUNCTION);
+        ActionManager::unregisterAction(&m_jumpToLineAction, Constants::JUMPTOLINE);
+        ActionManager::unregisterAction(&m_returnFromFunctionAction, Constants::RETURNFROMFUNCTION);
+        ActionManager::unregisterAction(&m_detachAction, Constants::DETACH);
+        ActionManager::unregisterAction(&m_resetAction, Constants::RESET);
         destroyPerspective();
 
         delete m_logWindow;
@@ -314,6 +343,14 @@ public:
         delete m_sourceFilesView;
         delete m_stackView;
         delete m_threadsView;
+    }
+
+    void updateActionToolTips()
+    {
+        // update tooltips that are visible on the button in the mode selector
+        const QString displayName = m_engine->displayName();
+        m_continueAction.setToolTip(tr("Continue %1").arg(displayName));
+        m_interruptAction.setToolTip(tr("Interrupt %1").arg(displayName));
     }
 
     void setupViews();
@@ -494,6 +531,7 @@ public:
 
     QPointer<TerminalRunner> m_terminalRunner;
     DebuggerToolTipManager m_toolTipManager;
+    Context m_context;
 };
 
 void DebuggerEnginePrivate::setupViews()
@@ -668,6 +706,8 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addToolBarAction(&m_resetAction);
     m_perspective->addToolBarAction(&m_operateByInstructionAction);
 
+    connect(&m_detachAction, &QAction::triggered, m_engine, &DebuggerEngine::handleExecDetach);
+
     m_continueAction.setIcon(Icons::DEBUG_CONTINUE_SMALL_TOOLBAR.icon());
     connect(&m_continueAction, &QAction::triggered,
             m_engine, &DebuggerEngine::handleExecContinue);
@@ -787,6 +827,7 @@ DebuggerEngine::~DebuggerEngine()
 void DebuggerEngine::setDebuggerName(const QString &name)
 {
     d->m_debuggerName = name;
+    d->updateActionToolTips();
 }
 
 QString DebuggerEngine::debuggerName() const
@@ -924,6 +965,7 @@ void DebuggerEngine::setRegisterValue(const QString &name, const QString &value)
 void DebuggerEngine::setRunParameters(const DebuggerRunParameters &runParameters)
 {
     d->m_runParameters = runParameters;
+    d->updateActionToolTips();
 }
 
 void DebuggerEngine::setRunId(const QString &id)
@@ -1295,9 +1337,11 @@ void DebuggerEnginePrivate::setInitialActionStates()
     m_stepIntoAction.setEnabled(true);
     m_stepOutAction.setEnabled(false);
     m_runToLineAction.setEnabled(false);
+    m_runToLineAction.setVisible(false);
     m_runToSelectedFunctionAction.setEnabled(true);
     m_returnFromFunctionAction.setEnabled(false);
     m_jumpToLineAction.setEnabled(false);
+    m_jumpToLineAction.setVisible(false);
     m_stepOverAction.setEnabled(true);
 
     action(AutoDerefPointers)->setEnabled(true);
@@ -1434,13 +1478,20 @@ void DebuggerEnginePrivate::updateState(bool alsoUpdateCompanion)
     m_stepOverAction.setToolTip(QString());
 
     m_stepOutAction.setEnabled(stopped);
-    m_runToLineAction.setEnabled(stopped && m_engine->hasCapability(RunToLineCapability));
-    m_runToSelectedFunctionAction.setEnabled(stopped);
-    m_returnFromFunctionAction.
-        setEnabled(stopped && m_engine->hasCapability(ReturnFromFunctionCapability));
 
-    const bool canJump = stopped && m_engine->hasCapability(JumpToLineCapability);
-    m_jumpToLineAction.setEnabled(canJump);
+    const bool canRunToLine = m_engine->hasCapability(RunToLineCapability);
+    m_runToLineAction.setVisible(canRunToLine);
+    m_runToLineAction.setEnabled(stopped && canRunToLine);
+
+    m_runToSelectedFunctionAction.setEnabled(stopped);
+
+    const bool canReturnFromFunction = m_engine->hasCapability(ReturnFromFunctionCapability);
+    m_returnFromFunctionAction.setVisible(canReturnFromFunction);
+    m_returnFromFunctionAction.setEnabled(stopped && canReturnFromFunction);
+
+    const bool canJump = m_engine->hasCapability(JumpToLineCapability);
+    m_jumpToLineAction.setVisible(canJump);
+    m_jumpToLineAction.setEnabled(stopped && canJump);
 
     const bool actionsEnabled = m_engine->debuggerActionsEnabled();
     const bool canDeref = actionsEnabled && m_engine->hasCapability(AutoDerefPointersCapability);
@@ -2034,6 +2085,11 @@ void DebuggerEngine::updateLocals()
 {
     watchHandler()->resetValueCache();
     doUpdateLocals(UpdateParameters());
+}
+
+Context DebuggerEngine::debuggerContext() const
+{
+    return d->m_context;
 }
 
 void DebuggerEngine::updateAll()

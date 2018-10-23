@@ -304,6 +304,7 @@ public:
     virtual void updateAll();
     virtual void updateLocals();
 
+    Core::Context debuggerContext() const;
     virtual Core::Context languageContext() const { return {}; }
     QString displayName() const;
 

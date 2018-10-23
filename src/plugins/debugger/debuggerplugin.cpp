@@ -758,33 +758,13 @@ public:
     QAction m_startRemoteCdbAction{tr("Attach to Remote CDB Session...")};
     QAction m_attachToCoreAction{tr("Load Core File...")};
 
-    Action m_detachAction{tr("Detach Debugger"), {}, &DebuggerEngine::handleExecDetach};
-    Action m_continueAction{tr("Continue"), continueIcon(false), &DebuggerEngine::handleExecContinue};
-
-    // On application output button if "Stop" is possible
-    Action m_exitAction{tr("Stop Debugger"), Icons::DEBUG_EXIT_SMALL.icon(), &DebuggerEngine::quitDebugger};
-
-    // On the fat debug button if "Pause" is possible
-    Action m_interruptAction{tr("Interrupt"), interruptIcon(false), &DebuggerEngine::handleExecInterrupt};
-    Action m_abortAction{tr("Abort Debugging"), {}, &DebuggerEngine::abortDebugger,
-                         tr("Aborts debugging and resets the debugger to the initial state.")};
-    QAction m_stepInAction{tr("Step Into")};
-    Action m_stepOutAction{tr("Step Out"), Icons::STEP_OUT.icon(), &DebuggerEngine::handleExecStepOut};
-
-    Action m_runToLineAction{tr("Run to Line"), {}, &DebuggerEngine::handleExecRunToLine};
-    Action m_runToSelectedFunctionAction{tr("Run to Selected Function"), {}, &DebuggerEngine::handleExecRunToSelectedFunction};
-    Action m_jumpToLineAction{tr("Jump to Line"), {}, &DebuggerEngine::handleExecJumpToLine};
     // In the Debug menu.
-    Action m_returnFromFunctionAction{tr("Immediately Return From Inner Function"), {}, &DebuggerEngine::executeReturn};
-    QAction m_stepOverAction{tr("Step Over")};
     QAction m_startAndBreakOnMain{tr("Start and Break on Main")};
     Action m_watchAction{tr("Add Expression Evaluator"), {}, &DebuggerEngine::handleAddToWatchWindow};
     Command *m_watchCommand = nullptr;
     QAction m_breakAction{tr("Toggle Breakpoint")};
     Action m_frameUpAction{tr("Move to Calling Frame"), {}, &DebuggerEngine::handleFrameDown};
     Action m_frameDownAction{tr("Move to Called Frame"), {}, &DebuggerEngine::handleFrameUp};
-    Action m_resetAction{tr("Restart Debugging"), Icons::RESTART_TOOLBAR.icon(), &DebuggerEngine::handleReset,
-                         tr("Restart the debugging session.")};
     Action m_openMemoryEditorAction{tr("Memory..."), {}, &DebuggerEngine::openMemoryEditor};
 
     BreakpointManager m_breakpointManager;
@@ -1014,7 +994,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 {
     Q_UNUSED(errorMessage);
 
-    const Context debuggerRunning(C_DEBUGGER_RUNNING);
     const Context debuggerNotRunning(C_DEBUGGER_NOTRUNNING);
     ICore::addAdditionalContext(debuggerNotRunning);
 
@@ -1040,6 +1019,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_menu->addSeparator(G_ANALYZER_TOOLS);
     m_menu->addSeparator(G_ANALYZER_REMOTE_TOOLS);
     m_menu->addSeparator(G_ANALYZER_OPTIONS);
+
+    QAction *act;
 
     // Populate Windows->Views menu with standard actions.
     Context debugcontext(Constants::C_DEBUGMODE);
@@ -1200,19 +1181,27 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, Constants::G_START_QML);
 
-    cmd = ActionManager::registerAction(&m_detachAction, "Debugger.Detach");
-    cmd->setAttribute(Command::CA_Hide);
+    act = new QAction(tr("Detach Debugger"), this);
+    act->setEnabled(false);
+    cmd = ActionManager::registerAction(act, Constants::DETACH);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    cmd = ActionManager::registerAction(&m_interruptAction, Constants::INTERRUPT);
+    act = new QAction(interruptIcon(false), tr("Interrupt"), this);
+    act->setEnabled(false);
+    cmd = ActionManager::registerAction(act, Constants::INTERRUPT);
     cmd->setDescription(tr("Interrupt Debugger"));
+    cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    cmd = ActionManager::registerAction(&m_continueAction, Constants::CONTINUE);
-//    cmd->setDefaultKeySequence(debugKey);
+    act = new QAction(continueIcon(false), tr("Continue"), this);
+    act->setEnabled(false);
+    cmd = ActionManager::registerAction(act, Constants::CONTINUE);
+    cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    cmd = ActionManager::registerAction(&m_exitAction, Constants::STOP);
+    act = new QAction(Icons::DEBUG_EXIT_SMALL.icon(), tr("Stop Debugger"), this);
+    act->setEnabled(false);
+    cmd = ActionManager::registerAction(act, Constants::STOP);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
     m_hiddenStopAction.initialize(cmd->action());
     m_hiddenStopAction.setAttribute(ProxyAction::UpdateText);
@@ -1221,11 +1210,16 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd = ActionManager::registerAction(&m_hiddenStopAction, Constants::HIDDEN_STOP);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Shift+Ctrl+Y") : tr("Shift+F5")));
 
-    cmd = ActionManager::registerAction(&m_abortAction, Constants::ABORT);
+    act = new QAction(tr("Abort Debugging"), this);
+    act->setEnabled(false);
+    cmd = ActionManager::registerAction(act, Constants::ABORT);
     cmd->setDescription(tr("Reset Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    cmd = ActionManager::registerAction(&m_resetAction, Constants::RESET);
+    act = new QAction(Icons::RESTART_TOOLBAR.icon(), tr("Restart Debugging"), this);
+    act->setEnabled(false);
+    act->setToolTip(tr("Restart the debugging session."));
+    cmd = ActionManager::registerAction(act, Constants::RESET);
     cmd->setDescription(tr("Restart Debugging"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
@@ -1242,56 +1236,50 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
     });
 
-    cmd = ActionManager::registerAction(&m_stepOverAction, Constants::NEXT, debuggerRunning);
+    act = new QAction(Icons::STEP_OVER.icon(), tr("Step Over"), this);
+    act->setEnabled(false);
+    cmd = ActionManager::registerAction(act, Constants::NEXT);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+O") : tr("F10")));
-    cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
-    m_stepOverAction.setIcon(Icons::STEP_OVER.icon());
-    connect(&m_stepOverAction, &QAction::triggered, this, [] {
-        DebuggerEngine *engine = EngineManager::currentEngine();
-        QTC_ASSERT(engine, return);
-        engine->handleExecStepOver();
-    });
 
-    cmd = ActionManager::registerAction(&m_stepInAction, Constants::STEP, debuggerRunning);
+    act = new QAction(Icons::STEP_INTO.icon(), tr("Step Into"), this);
+    act->setEnabled(false);
+    cmd = ActionManager::registerAction(act, Constants::STEP);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+I") : tr("F11")));
-    cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
-    m_stepInAction.setIcon(Icons::STEP_INTO.icon());
-    connect(&m_stepInAction, &QAction::triggered, this, [] {
-        DebuggerEngine *engine = EngineManager::currentEngine();
-        QTC_ASSERT(engine, return);
-        engine->handleExecStepIn();
-    });
 
-
-    cmd = ActionManager::registerAction(&m_stepOutAction, Constants::STEPOUT);
+    act = new QAction(Icons::STEP_OUT.icon(), tr("Step Out"), this);
+    act->setEnabled(false);
+    cmd = ActionManager::registerAction(act, Constants::STEPOUT);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+T") : tr("Shift+F11")));
-    cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
-    cmd = ActionManager::registerAction(&m_runToLineAction,
-        "Debugger.RunToLine", cppDebuggercontext);
+    act = new QAction(tr("Run to Line"), this);
+    act->setEnabled(false);
+    act->setVisible(false);
+    cmd = ActionManager::registerAction(act, Constants::RUNTOLINE);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Shift+F8") : tr("Ctrl+F10")));
-    cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
-    cmd = ActionManager::registerAction(&m_runToSelectedFunctionAction,
-        "Debugger.RunToSelectedFunction", cppDebuggercontext);
+    act = new QAction(tr("Run to Selected Function"), this);
+    act->setEnabled(false);
+    act->setEnabled(false);
+    cmd = ActionManager::registerAction(act, Constants::RUNTOSELECTEDFUNCTION);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F6")));
-    cmd->setAttribute(Command::CA_Hide);
     // Don't add to menu by default as keeping its enabled state
     // and text up-to-date is a lot of hassle.
     // debugMenu->addAction(cmd);
 
-    cmd = ActionManager::registerAction(&m_jumpToLineAction,
-        "Debugger.JumpToLine", cppDebuggercontext);
-    cmd->setAttribute(Command::CA_Hide);
+    act = new QAction(tr("Jump to Line"), this);
+    act->setEnabled(false);
+    act->setVisible(false);
+    cmd = ActionManager::registerAction(act, Constants::JUMPTOLINE);
     debugMenu->addAction(cmd);
 
-    cmd = ActionManager::registerAction(&m_returnFromFunctionAction,
-        "Debugger.ReturnFromFunction", cppDebuggercontext);
-    cmd->setAttribute(Command::CA_Hide);
+    act = new QAction(tr("Immediately Return From Inner Function"), this);
+    act->setEnabled(false);
+    act->setVisible(false);
+    cmd = ActionManager::registerAction(act, Constants::RETURNFROMFUNCTION);
     debugMenu->addAction(cmd);
 
     debugMenu->addSeparator();
@@ -1476,150 +1464,61 @@ void DebuggerPluginPrivate::updatePresetState()
     if (!currentEngine || !currentEngine->isStartupRunConfiguration()) {
         // No engine running  -- or -- we have a running engine but it does not
         // correspond to the current start up project.
-        // Step into/next: Start and break at 'main' unless a debugger is running.
-        QString stepToolTip = canRun ? tr("Start \"%1\" and break at function \"main\"").arg(startupRunConfigName) : whyNot;
-        m_stepInAction.setEnabled(canRun);
-        m_stepInAction.setToolTip(stepToolTip);
-        m_stepOverAction.setEnabled(canRun);
-        m_stepOverAction.setToolTip(stepToolTip);
         m_startAction.setEnabled(canRun);
         m_startAction.setIcon(startIcon(false));
         m_startAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         m_startAction.setVisible(true);
-        m_interruptAction.setEnabled(false);
-        m_continueAction.setEnabled(false);
-        m_exitAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(canRun);
         m_visibleStartAction.setAction(&m_startAction);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
-        m_detachAction.setEnabled(false);
-        m_jumpToLineAction.setEnabled(false);
-        m_returnFromFunctionAction.setEnabled(false);
         return;
     }
 
     QTC_ASSERT(currentEngine, return);
 
     // We have a current engine, and it belongs to the startup runconfig.
-    m_stepInAction.setToolTip(QString());
-    m_stepOverAction.setToolTip(QString());
-
     // The 'state' bits only affect the fat debug button, not the preset start button.
     m_startAction.setIcon(startIcon(false));
     m_startAction.setEnabled(false);
     m_startAction.setVisible(false);
 
-    QString currentDisplayName = currentEngine->displayName();
-    m_interruptAction.setToolTip(tr("Interrupt %1").arg(currentDisplayName));
-    m_continueAction.setToolTip(tr("Continue %1").arg(currentDisplayName));
-
     m_debugWithoutDeployAction.setEnabled(canRun);
 
-    // Global actions are redirected to running, active engine if possible.
-
-    const bool isCore = currentEngine->runParameters().startMode == AttachCore;
-
     const DebuggerState state = currentEngine->state();
-    const bool companionPreventsAction = currentEngine->companionPreventsActions();
 
     if (state == InferiorStopOk) {
         // F5 continues, Shift-F5 kills. It is "continuable".
         m_startAction.setEnabled(false);
-        m_interruptAction.setEnabled(false);
-        m_continueAction.setEnabled(!companionPreventsAction);
-        m_exitAction.setEnabled(true);
         m_debugWithoutDeployAction.setEnabled(false);
-        m_visibleStartAction.setAction(&m_continueAction);
-        m_hiddenStopAction.setAction(&m_exitAction);
-        m_stepInAction.setEnabled(!companionPreventsAction);
-        m_stepOverAction.setEnabled(!companionPreventsAction);
-        m_jumpToLineAction.setEnabled(currentEngine->hasCapability(JumpToLineCapability));
-        m_returnFromFunctionAction.setEnabled(currentEngine->hasCapability(ReturnFromFunctionCapability));
-        m_detachAction.setEnabled(!isCore);
-        m_abortAction.setEnabled(true);
-        m_resetAction.setEnabled(currentEngine->hasCapability(ResetInferiorCapability));
-        m_stepOutAction.setEnabled(!companionPreventsAction);
-        m_runToLineAction.setEnabled(currentEngine->hasCapability(RunToLineCapability));
-        m_runToSelectedFunctionAction.setEnabled(true);
+        m_visibleStartAction.setAction(ActionManager::command(Constants::CONTINUE)->action());
+        m_hiddenStopAction.setAction(ActionManager::command(Constants::STOP)->action());
     } else if (state == InferiorRunOk) {
         // Shift-F5 interrupts. It is also "interruptible".
         m_startAction.setEnabled(false);
-        m_interruptAction.setEnabled(!companionPreventsAction);
-        m_continueAction.setEnabled(false);
-        m_exitAction.setEnabled(true);
         m_debugWithoutDeployAction.setEnabled(false);
-        m_visibleStartAction.setAction(&m_interruptAction);
-        m_hiddenStopAction.setAction(&m_interruptAction);
-        m_stepInAction.setEnabled(false);
-        m_stepOverAction.setEnabled(false);
-        m_jumpToLineAction.setEnabled(false);
-        m_returnFromFunctionAction.setEnabled(false);
-        m_detachAction.setEnabled(false);
-        m_abortAction.setEnabled(true);
-        m_resetAction.setEnabled(false);
-        m_stepOutAction.setEnabled(false);
-        m_runToLineAction.setEnabled(false);
-        m_runToSelectedFunctionAction.setEnabled(false);
+        m_visibleStartAction.setAction(ActionManager::command(Constants::INTERRUPT)->action());
+        m_hiddenStopAction.setAction(ActionManager::command(Constants::INTERRUPT)->action());
     } else if (state == DebuggerFinished) {
         // We don't want to do anything anymore.
         m_startAction.setEnabled(canRun);
-        m_interruptAction.setEnabled(false);
-        m_continueAction.setEnabled(false);
-        m_exitAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(canRun);
         m_visibleStartAction.setAction(&m_startAction);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
-        m_stepInAction.setEnabled(false);
-        m_stepOverAction.setEnabled(false);
-        m_jumpToLineAction.setEnabled(false);
-        m_returnFromFunctionAction.setEnabled(false);
-        m_detachAction.setEnabled(false);
-        m_abortAction.setEnabled(false);
-        m_resetAction.setEnabled(false);
-        m_stepOutAction.setEnabled(false);
-        m_runToLineAction.setEnabled(false);
-        m_runToSelectedFunctionAction.setEnabled(false);
     } else if (state == InferiorUnrunnable) {
         // We don't want to do anything anymore.
         m_startAction.setEnabled(false);
-        m_interruptAction.setEnabled(false);
-        m_continueAction.setEnabled(false);
-        m_exitAction.setEnabled(true);
         m_debugWithoutDeployAction.setEnabled(false);
-        m_visibleStartAction.setAction(&m_exitAction);
-        m_hiddenStopAction.setAction(&m_exitAction);
-        m_stepInAction.setEnabled(false);
-        m_stepOverAction.setEnabled(false);
-        m_jumpToLineAction.setEnabled(false);
-        m_returnFromFunctionAction.setEnabled(false);
-        m_detachAction.setEnabled(false);
-        m_abortAction.setEnabled(true);
-        m_resetAction.setEnabled(false);
-        m_stepOutAction.setEnabled(false);
-        m_runToLineAction.setEnabled(false);
-        m_runToSelectedFunctionAction.setEnabled(false);
+        m_visibleStartAction.setAction(ActionManager::command(Constants::STOP)->action());
+        m_hiddenStopAction.setAction(ActionManager::command(Constants::STOP)->action());
     } else {
         // The startup phase should be over once we are here.
         // But treat it as 'undisturbable if we are here by accident.
         QTC_CHECK(state != DebuggerNotReady);
         // Everything else is "undisturbable".
         m_startAction.setEnabled(false);
-        m_interruptAction.setEnabled(false);
-        m_continueAction.setEnabled(false);
-        m_exitAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(false);
         m_visibleStartAction.setAction(&m_undisturbableAction);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
-        m_stepInAction.setEnabled(false);
-        m_stepOverAction.setEnabled(false);
-        m_jumpToLineAction.setEnabled(false);
-        m_returnFromFunctionAction.setEnabled(false);
-        m_detachAction.setEnabled(false);
-        m_abortAction.setEnabled(true);
-        m_resetAction.setEnabled(false);
-        m_stepOutAction.setEnabled(false);
-        m_runToLineAction.setEnabled(false);
-        m_runToSelectedFunctionAction.setEnabled(false);
     }
 
 // FIXME: Decentralize the actions below
@@ -2060,26 +1959,10 @@ void DebuggerPluginPrivate::setInitialState()
     m_attachToRemoteServerAction.setEnabled(true);
     m_attachToRunningApplication.setEnabled(true);
     m_attachToUnstartedApplication.setEnabled(true);
-    m_detachAction.setEnabled(false);
 
     m_watchAction.setEnabled(false);
     m_breakAction.setEnabled(false);
     //m_snapshotAction.setEnabled(false);
-
-    m_exitAction.setEnabled(false);
-    m_abortAction.setEnabled(false);
-    m_resetAction.setEnabled(false);
-
-    m_interruptAction.setEnabled(false);
-    m_continueAction.setEnabled(false);
-
-    m_stepInAction.setEnabled(true);
-    m_stepOutAction.setEnabled(false);
-    m_runToLineAction.setEnabled(false);
-    m_runToSelectedFunctionAction.setEnabled(true);
-    m_returnFromFunctionAction.setEnabled(false);
-    m_jumpToLineAction.setEnabled(false);
-    m_stepOverAction.setEnabled(true);
 
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(false);

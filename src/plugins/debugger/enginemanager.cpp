@@ -315,23 +315,30 @@ void EngineManagerPrivate::activateEngineByIndex(int index)
 
 void EngineManagerPrivate::activateEngineItem(EngineItem *engineItem)
 {
+    Context previousContext;
     if (m_currentItem) {
         if (DebuggerEngine *engine = m_currentItem->m_engine) {
-            const Context context = engine->languageContext();
-            ICore::removeAdditionalContext(context);
+            previousContext.add(engine->languageContext());
+            previousContext.add(engine->debuggerContext());
+        } else {
+            previousContext.add(Context(Constants::C_DEBUGGER_NOTRUNNING));
         }
     }
 
     m_currentItem = engineItem;
 
+    Context newContext;
     if (m_currentItem) {
         if (DebuggerEngine *engine = m_currentItem->m_engine) {
-            const Context context = engine->languageContext();
-            ICore::addAdditionalContext(context);
+            newContext.add(engine->languageContext());
+            newContext.add(engine->debuggerContext());
             engine->gotoCurrentLocation();
+        } else {
+            newContext.add(Context(Constants::C_DEBUGGER_NOTRUNNING));
         }
     }
 
+    ICore::updateAdditionalContexts(previousContext, newContext);
     selectUiForCurrentEngine();
 }
 
@@ -344,13 +351,8 @@ void EngineManagerPrivate::selectUiForCurrentEngine()
     int row = 0;
 
     if (m_currentItem && m_currentItem->m_engine) {
-        ICore::updateAdditionalContexts(Context(Debugger::Constants::C_DEBUGGER_NOTRUNNING),
-                                        Context(Debugger::Constants::C_DEBUGGER_RUNNING));
         perspective = m_currentItem->m_engine->perspective();
         m_currentItem->m_engine->updateState(false);
-    } else {
-        ICore::updateAdditionalContexts(Context(Debugger::Constants::C_DEBUGGER_RUNNING),
-                                        Context(Debugger::Constants::C_DEBUGGER_NOTRUNNING));
     }
 
     if (m_currentItem)
