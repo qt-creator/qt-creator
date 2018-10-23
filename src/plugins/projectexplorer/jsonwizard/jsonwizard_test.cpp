@@ -25,6 +25,8 @@
 
 #include "jsonwizardfactory.h"
 
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorer.h>
 
 #include <QJsonDocument>
@@ -246,6 +248,12 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsComboBox()
     QCOMPARE(qPrintable(disabledComboBox->currentText()), "fgh");
 }
 
+static const char *iconInsideResource(const QString &relativePathToIcon)
+{
+    const QDir resourcePath(Core::ICore::resourcePath());
+    return resourcePath.filePath(relativePathToIcon).toLocal8Bit().data();
+}
+
 void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()
 {
     QString errorMessage;
@@ -255,8 +263,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()
         QJsonObject{
            {"trKey", "item no1"},
            {"condition", true},
-           {"icon", "../share/qtcreator/templates/wizards/qtquickstyleicons/default.png"}
-
+           {"icon", iconInsideResource("templates/wizards/qtquickstyleicons/default.png")}
         },
         QJsonObject{
            {"trKey", "item no2"},
@@ -268,7 +275,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()
             {"trKey", "item no3"},
             {"condition", true},
             {"trToolTip", "MyToolTip"},
-            {"icon", "../share/qtcreator/templates/wizards/qtquickstyleicons/default.png"}
+            {"icon", iconInsideResource("templates/wizards/qtquickstyleicons/default.png")}
         }
     });
 
