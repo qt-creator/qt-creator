@@ -374,7 +374,9 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
     if (d->maxCharCount > 0 && document()->characterCount() >= d->maxCharCount) {
         QTextCharFormat tmp;
         tmp.setFontWeight(QFont::Bold);
-        d->cursor.insertText(doNewlineEnforcement(tr("Additional output omitted") + QLatin1Char('\n')), tmp);
+        d->cursor.insertText(doNewlineEnforcement(tr("Additional output omitted. You can increase "
+                                                     "the limit in the \"Build & Run\" settings.")
+                                                  + QLatin1Char('\n')), tmp);
     }
 
     d->cursor.endEditBlock();
