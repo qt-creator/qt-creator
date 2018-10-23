@@ -99,7 +99,7 @@ const char SYMBOLS_FIND_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C
 // CLANG_VERSION here because it might denote a version that was not yet
 // released (e.g. 6.0.1, but only 6.0.0 was released).
 constexpr const char TIDY_DOCUMENTATION_URL_TEMPLATE[]
-    = "https://releases.llvm.org/6.0.0/tools/clang/tools/extra/docs/clang-tidy/checks/%1.html";
+    = "https://releases.llvm.org/7.0.0/tools/clang/tools/extra/docs/clang-tidy/checks/%1.html";
 
 } // namespace Constants
 } // namespace CppTools
