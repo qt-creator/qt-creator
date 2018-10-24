@@ -466,11 +466,6 @@ public:
     bool m_busy = false;
     bool m_isDying = false;
 
-    QAction m_debugWithoutDeployAction;
-    QAction m_attachToQmlPortAction;
-    QAction m_attachToRemoteServerAction;
-    QAction m_startRemoteCdbAction;
-    QAction m_attachToCoreAction;
     QAction m_detachAction;
     OptionalAction m_continueAction{tr("Continue")};
     QAction m_exitAction{tr("Stop Debugger")}; // On application output button if "Stop" is possible
@@ -1275,9 +1270,6 @@ void DebuggerEnginePrivate::setInitialActionStates()
 
     m_snapshotAction.setIcon(Utils::Icons::SNAPSHOT_TOOLBAR.icon());
 
-    m_attachToQmlPortAction.setEnabled(true);
-    m_attachToCoreAction.setEnabled(true);
-    m_attachToRemoteServerAction.setEnabled(true);
     m_detachAction.setEnabled(false);
 
     m_watchAction.setEnabled(true);
@@ -1328,7 +1320,6 @@ void DebuggerEnginePrivate::updateState(bool alsoUpdateCompanion)
         m_stepIntoAction.setEnabled(true);
         m_stepOutAction.setEnabled(false);
         m_exitAction.setEnabled(false);
-        m_debugWithoutDeployAction.setEnabled(true);
     } else if (state == InferiorStopOk) {
         // F5 continues, Shift-F5 kills. It is "continuable".
         m_interruptAction.setVisible(false);
@@ -1339,7 +1330,6 @@ void DebuggerEnginePrivate::updateState(bool alsoUpdateCompanion)
         m_stepIntoAction.setEnabled(!companionPreventsAction);
         m_stepOutAction.setEnabled(!companionPreventsAction);
         m_exitAction.setEnabled(true);
-        m_debugWithoutDeployAction.setEnabled(false);
         m_localsAndInspectorWindow->setShowLocals(true);
     } else if (state == InferiorRunOk) {
         // Shift-F5 interrupts. It is also "interruptible".
@@ -1351,10 +1341,8 @@ void DebuggerEnginePrivate::updateState(bool alsoUpdateCompanion)
         m_stepIntoAction.setEnabled(false);
         m_stepOutAction.setEnabled(false);
         m_exitAction.setEnabled(true);
-        m_debugWithoutDeployAction.setEnabled(false);
         m_localsAndInspectorWindow->setShowLocals(false);
     } else if (state == DebuggerFinished) {
-        const bool canRun = ProjectExplorerPlugin::canRunStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         // We don't want to do anything anymore.
         m_interruptAction.setVisible(true);
         m_interruptAction.setEnabled(false);
@@ -1364,7 +1352,6 @@ void DebuggerEnginePrivate::updateState(bool alsoUpdateCompanion)
         m_stepIntoAction.setEnabled(false);
         m_stepOutAction.setEnabled(false);
         m_exitAction.setEnabled(false);
-        m_debugWithoutDeployAction.setEnabled(canRun);
         setBusyCursor(false);
         cleanupViews();
     } else if (state == InferiorUnrunnable) {
@@ -1377,7 +1364,6 @@ void DebuggerEnginePrivate::updateState(bool alsoUpdateCompanion)
         m_stepIntoAction.setEnabled(false);
         m_stepOutAction.setEnabled(false);
         m_exitAction.setEnabled(true);
-        m_debugWithoutDeployAction.setEnabled(false);
         // show locals in core dumps
         m_localsAndInspectorWindow->setShowLocals(true);
     } else {
@@ -1390,12 +1376,7 @@ void DebuggerEnginePrivate::updateState(bool alsoUpdateCompanion)
         m_stepIntoAction.setEnabled(false);
         m_stepOutAction.setEnabled(false);
         m_exitAction.setEnabled(false);
-        m_debugWithoutDeployAction.setEnabled(false);
     }
-
-    m_attachToQmlPortAction.setEnabled(true);
-    m_attachToCoreAction.setEnabled(true);
-    m_attachToRemoteServerAction.setEnabled(true);
 
     const bool threadsEnabled = state == InferiorStopOk || state == InferiorUnrunnable;
     m_threadsHandler.threadSwitcher()->setEnabled(threadsEnabled);
