@@ -221,6 +221,11 @@ void LanguageClientManager::shutdown()
         else
             deleteClient(interface);
     }
+    QTimer::singleShot(3000, managerInstance, [](){
+        for (auto interface : managerInstance->m_clients)
+            deleteClient(interface);
+        emit managerInstance->shutdownFinished();
+    });
 }
 
 LanguageClientManager *LanguageClientManager::instance()
