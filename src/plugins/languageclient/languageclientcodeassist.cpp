@@ -372,6 +372,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     proposal->m_document = m_document;
     proposal->m_pos = m_pos;
     proposal->setFragile(true);
+    proposal->setSupportsPrefix(false);
     setAsyncProposalAvailable(proposal);
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : "
                               << items.count() << " completions handled";

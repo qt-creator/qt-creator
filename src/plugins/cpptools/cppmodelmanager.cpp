@@ -38,7 +38,7 @@
 #include "cppindexingsupport.h"
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
-#include "cppmodelmanagersupportinternal.h"
+#include "cppbuiltinmodelmanagersupport.h"
 #include "cppqtstyleindenter.h"
 #include "cpprefactoringchanges.h"
 #include "cpprefactoringengine.h"
@@ -502,7 +502,7 @@ void CppModelManager::initCppTools()
 void CppModelManager::initializeBuiltinModelManagerSupport()
 {
     d->m_builtinModelManagerSupport
-            = ModelManagerSupportProviderInternal().createModelManagerSupport();
+            = BuiltinModelManagerSupportProvider().createModelManagerSupport();
     d->m_activeModelManagerSupport = d->m_builtinModelManagerSupport;
     d->m_refactoringEngines[RefactoringEngineType::BuiltIn] =
             &d->m_activeModelManagerSupport->refactoringEngineInterface();

@@ -126,7 +126,7 @@ Id IDocument::id() const
  * In that case, the contents of the auto save file should be loaded, the file name of the
  * IDocument should be set to \a fileName, and the document state be set to modified.
  * If the editor is opened from a regular file, \a fileName and \a realFileName are the same.
- * Use \a errorString to return an error message, if this document can not handle the
+ * Use \a errorString to return an error message, if this document cannot handle the
  * file contents.
  * Returns whether the file was opened and read successfully.
  */

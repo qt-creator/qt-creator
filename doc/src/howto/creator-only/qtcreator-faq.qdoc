@@ -200,9 +200,11 @@
     current working directory. You can specify another location for the file,
     including a relative or absolute path, as an argument of the command.
 
+    \omit
     To generate a temporary core file, select \uicontrol {Create Snapshot} in the
     context menu in the \uicontrol Snapshot view. The core file is deleted when you
     stop debugging.
+    \endomit
 
     \section1 Compiler Questions
 
@@ -253,8 +255,10 @@
     the standard output and error output. When you run or debug the
     application, you can view the output in the \uicontrol{Application Output} pane.
 
-    For console applications that require input, select \uicontrol {Projects > Run
-    Settings > Run in terminal}.
+    For console applications that require input, select \uicontrol Projects >
+    \uicontrol {Run Settings} > \uicontrol {Run in terminal}. To specify the
+    terminal to use, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Environment > \uicontrol System.
 
     \b {On Windows:} Output is displayed differently for \e{console
     applications} and \e{GUI applications}.

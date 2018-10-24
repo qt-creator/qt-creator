@@ -400,7 +400,7 @@ void AndroidRunnerWorker::asyncStartHelper()
         runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir.trimmed()});
 
         if (m_gdbserverPath.isEmpty() || !uploadFile(m_gdbserverPath, "gdbserver")) {
-            emit remoteProcessFinished(tr("Can not find/copy C++ debug server."));
+            emit remoteProcessFinished(tr("Cannot find/copy C++ debug server."));
             return;
         }
 

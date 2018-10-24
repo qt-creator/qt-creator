@@ -257,7 +257,6 @@ public:
     // Convenience.
     void setWatchpointAtAddress(quint64 address, unsigned size);
     void setWatchpointAtExpression(const QString &exp);
-    void setBreakpointEnabled(const Breakpoint &bp, bool on);
 
     void updateDisassemblerMarker(const Breakpoint &bp);
     void removeDisassemblerMarker(const Breakpoint &bp);

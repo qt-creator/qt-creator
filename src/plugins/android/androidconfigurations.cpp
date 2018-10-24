@@ -793,7 +793,7 @@ QVersionNumber AndroidConfig::ndkVersion() const
 {
     QVersionNumber version;
     if (!m_ndkLocation.exists()) {
-        qCDebug(avdConfigLog) << "Can not find ndk version. Check NDK path."
+        qCDebug(avdConfigLog) << "Cannot find ndk version. Check NDK path."
                               << m_ndkLocation.toString();
         return version;
     }
@@ -826,11 +826,11 @@ QVersionNumber AndroidConfig::ndkVersion() const
                 version = QVersionNumber::fromString(QString("%1.%2.0").arg(major)
                                                      .arg((int)minor[0].toLatin1() - 97));
             } else {
-                qCDebug(avdConfigLog) << "Can not find ndk version. Can not parse RELEASE.TXT."
+                qCDebug(avdConfigLog) << "Cannot find ndk version. Cannot parse RELEASE.TXT."
                                       << content;
             }
         } else {
-            qCDebug(avdConfigLog) << "Can not find ndk version." << errorString;
+            qCDebug(avdConfigLog) << "Cannot find ndk version." << errorString;
         }
     }
     return version;

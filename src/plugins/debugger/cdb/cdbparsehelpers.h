@@ -53,7 +53,7 @@ QString cdbSourcePathMapping(QString fileName,
 enum { cdbBreakPointStartId = 100000,
        cdbBreakPointIdMinorPart = 100};
 
-int breakPointIdToCdbId(const Breakpoint &bp);
+QString breakPointCdbId(const Breakpoint &bp);
 
 // Convert breakpoint in CDB syntax (applying source path mappings using native paths).
 QString cdbAddBreakpointCommand(const BreakpointParameters &d,

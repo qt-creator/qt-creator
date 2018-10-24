@@ -253,7 +253,7 @@ void BackendCommunicator::unsavedFilesUpdatedForUiHeaders()
     const auto editorSupports = CppModelManager::instance()->abstractEditorSupports();
     foreach (const AbstractEditorSupport *es, editorSupports) {
         const QString mappedPath
-                = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskPath(es->fileName());
+                = ClangModelManagerSupport::instance()->dummyUiHeaderOnDiskPath(es->fileName());
         unsavedFilesUpdated(mappedPath, es->contents(), es->revision());
     }
 }

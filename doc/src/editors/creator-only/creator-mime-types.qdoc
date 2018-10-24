@@ -41,6 +41,8 @@
     {MIME type} of the file to determine which mode and editor to use for
     opening the file. For example, \QC opens C++ source and header files in
     the C++ editor, and Qt widget based UI files (.ui) in \QD.
+    For some MIME types, you can change the editor that is used to open the
+    files of that type by default.
 
     To identify the MIME type of a file, \QC uses matching by pattern and
     matching by contents. First, \QC looks at the filename to check whether it
@@ -94,12 +96,18 @@
             \note You are recommended not to change the range and priority,
             because it might cause problems when opening files in \QC.
 
+        \li In \uicontrol Handler, double-click the editor name to display a
+            context-menu where you can select another editor to open the file
+            in by default. The menu is available only if alternative suitable
+            editors are available.
+
         \li Click \uicontrol OK.
 
     \endlist
 
-    To revert all the changes you have made to the MIME type definitions,
-    select \uicontrol {Reset All}.
+    To revert the changes you have made to the MIME type definitions,
+    select \uicontrol {Reset MIME Types}. To revert the changes you have
+    made to the default editors, select \uicontrol {Reset Handlers}.
 
     \note If you now select \uicontrol OK or \uicontrol Apply, you permanently lose all
     your own patterns and magic headers. The changes are reverted the next

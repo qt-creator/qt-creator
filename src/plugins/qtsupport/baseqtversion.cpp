@@ -1807,7 +1807,7 @@ FileNameList BaseQtVersion::qtCorePaths() const
             }
         }
     }
-    // Only handle static libs if we can not find dynamic ones:
+    // Only handle static libs if we cannot find dynamic ones:
     if (dynamicLibs.isEmpty())
         return staticLibs;
     return dynamicLibs;

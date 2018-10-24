@@ -64,9 +64,9 @@ void tst_fileutils::parentDir_data()
     QTest::newRow("C:/data") << "C:/data" << "C:/" << "";
     QTest::newRow("C:/") << "C:/" << "" << "";
     QTest::newRow("//./com1") << "//./com1" << "/" << "";
-    QTest::newRow("//?/path") << "//?/path" << "/" << "Qt 4 can not handle this path.";
+    QTest::newRow("//?/path") << "//?/path" << "/" << "Qt 4 cannot handle this path.";
     QTest::newRow("/Global?\?/UNC/host") << "/Global?\?/UNC/host" << "/Global?\?/UNC/host"
-                                        << "Qt 4 can not handle this path.";
+                                        << "Qt 4 cannot handle this path.";
     QTest::newRow("//server/directory/file")
             << "//server/directory/file" << "//server/directory" << "";
     QTest::newRow("//server/directory") << "//server/directory" << "//server" << "";

@@ -610,7 +610,7 @@ void CdbEngine::runEngine()
     const auto cb = [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); };
     if (boolSetting(CdbBreakOnCrtDbgReport)) {
         Abi::OSFlavor flavor = runParameters().toolChainAbi.osFlavor();
-        // CrtDebugReport can not be safely resolved for vc 19
+        // CrtDebugReport cannot be safely resolved for vc 19
         if ((flavor > Abi::WindowsMsvc2005Flavor && flavor <= Abi::WindowsMsvc2013Flavor) ||
                 flavor > Abi::WindowsMSysFlavor || flavor <= Abi::WindowsCEFlavor) {
             const QString module = msvcRunTime(flavor);
@@ -743,18 +743,23 @@ static inline bool isWatchIName(const QString &iname)
 
 bool CdbEngine::hasCapability(unsigned cap) const
 {
-    return cap & (DisassemblerCapability | RegisterCapability
-           | ShowMemoryCapability
-           |WatchpointByAddressCapability|JumpToLineCapability|AddWatcherCapability|WatchWidgetsCapability
-           |ReloadModuleCapability
-           |BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
-           |BreakConditionCapability|TracePointCapability
-           |BreakModuleCapability
-           |CreateFullBacktraceCapability
-           |OperateByInstructionCapability
-           |RunToLineCapability
-           |MemoryAddressCapability
-           |AdditionalQmlStackCapability);
+    return cap & (DisassemblerCapability
+                  | RegisterCapability
+                  | ShowMemoryCapability
+                  | WatchpointByAddressCapability
+                  | JumpToLineCapability
+                  | AddWatcherCapability
+                  | WatchWidgetsCapability
+                  | ReloadModuleCapability
+                  | BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
+                  | BreakConditionCapability|TracePointCapability
+                  | BreakIndividualLocationsCapability
+                  | BreakModuleCapability
+                  | CreateFullBacktraceCapability
+                  | OperateByInstructionCapability
+                  | RunToLineCapability
+                  | MemoryAddressCapability
+                  | AdditionalQmlStackCapability);
 }
 
 void CdbEngine::executeStepIn(bool byInstruction)
@@ -832,6 +837,7 @@ void CdbEngine::handleDoInterruptInferior(const QString &errorMessage)
 
 void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
 {
+    const bool requestInterrupt = m_stopMode == NoStopRequested;
     if (callback) {
         m_interrupCallbacks.push_back(callback);
         if (!m_initialSessionIdleHandled)
@@ -842,6 +848,8 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
         m_stopMode = Interrupt;
     }
 
+    if (!requestInterrupt)
+        return; // we already requested a stop no need to interrupt twice
     showMessage(QString("Interrupting process %1...").arg(inferiorPid()), LogMisc);
     QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed(); return);
     QTC_ASSERT(device(), notifyInferiorRunFailed(); return);
@@ -2489,7 +2497,7 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
     BreakpointParameters parameters = bp->requestedParameters();
     const auto handleBreakInsertCB = [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); };
     BreakpointParameters response = parameters;
-    auto responseId = QString::number(breakPointIdToCdbId(bp));
+    const QString responseId = breakPointCdbId(bp);
     QScopedPointer<BreakpointCorrectionContext> lineCorrection(
                 new BreakpointCorrectionContext(m_codeModelSnapshot, CppTools::CppModelManager::instance()->workingCopy()));
     if (!m_autoBreakPointCorrection
@@ -2536,7 +2544,7 @@ void CdbEngine::updateBreakpoint(const Breakpoint &bp)
     BreakpointParameters parameters = bp->requestedParameters();
     const auto handleBreakInsertCB = [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); };
     BreakpointParameters response = parameters;
-    auto responseId = QString::number(breakPointIdToCdbId(bp));
+    const QString responseId = breakPointCdbId(bp);
     notifyBreakpointChangeProceeding(bp);
     if (debugBreakpoints)
         qDebug("Changing %d:\n    %s\nTo %s\n", bp->modelId(),
@@ -2745,7 +2753,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
     }
     if (!ok) {
         m_pythonVersion = 0;
-        showMessage(QString("Can not parse sys.version:\n%1").arg(verOutput), LogWarning);
+        showMessage(QString("Cannot parse sys.version:\n%1").arg(verOutput), LogWarning);
         return;
     }
 

@@ -158,7 +158,7 @@ void ClangFormatConfigWidget::initialize()
             m_ui->projectHasClangFormat->hide();
         } else {
             m_ui->projectHasClangFormat->setText(
-                    tr(" Current project has its own .clang-format file "
+                    tr("Current project has its own .clang-format file "
                        "and can be configured in Projects > Clang Format."));
         }
         const QString settingsDir = Core::ICore::userResourcePath();

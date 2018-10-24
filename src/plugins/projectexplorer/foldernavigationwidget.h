@@ -118,6 +118,9 @@ public:
 protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;
 
+private slots:
+    void setCrumblePath(const Utils::FileName &filePath);
+
 private:
     bool rootAutoSynchronization() const;
     void setRootAutoSynchronization(bool sync);
@@ -131,7 +134,6 @@ private:
     QStringList projectsInDirectory(const QModelIndex &index) const;
     void openProjectsInDirectory(const QModelIndex &index);
     void createNewFolder(const QModelIndex &parent);
-    void setCrumblePath(const QModelIndex &index);
 
     Core::IContext *m_context = nullptr;
     Utils::NavigationTreeView *m_listView = nullptr;

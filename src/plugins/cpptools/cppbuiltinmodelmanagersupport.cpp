@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "cppcompletionassist.h"
-#include "cppmodelmanagersupportinternal.h"
+#include "cppbuiltinmodelmanagersupport.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cpphoverhandler.h"
 #include "cppoverviewmodel.h"
@@ -38,60 +38,60 @@
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-QString ModelManagerSupportProviderInternal::id() const
+QString BuiltinModelManagerSupportProvider::id() const
 {
     return QLatin1String("CppTools.BuiltinCodeModel");
 }
 
-QString ModelManagerSupportProviderInternal::displayName() const
+QString BuiltinModelManagerSupportProvider::displayName() const
 {
     return QCoreApplication::translate("ModelManagerSupportInternal::displayName",
                                        "%1 Built-in").arg(Core::Constants::IDE_DISPLAY_NAME);
 }
 
-ModelManagerSupport::Ptr ModelManagerSupportProviderInternal::createModelManagerSupport()
+ModelManagerSupport::Ptr BuiltinModelManagerSupportProvider::createModelManagerSupport()
 {
-    return ModelManagerSupport::Ptr(new ModelManagerSupportInternal);
+    return ModelManagerSupport::Ptr(new BuiltinModelManagerSupport);
 }
 
-ModelManagerSupportInternal::ModelManagerSupportInternal()
+BuiltinModelManagerSupport::BuiltinModelManagerSupport()
     : m_completionAssistProvider(new InternalCompletionAssistProvider),
       m_followSymbol(new FollowSymbolUnderCursor),
       m_refactoringEngine(new CppRefactoringEngine)
 {
 }
 
-ModelManagerSupportInternal::~ModelManagerSupportInternal()
+BuiltinModelManagerSupport::~BuiltinModelManagerSupport()
 {
 }
 
-BaseEditorDocumentProcessor *ModelManagerSupportInternal::createEditorDocumentProcessor(
+BaseEditorDocumentProcessor *BuiltinModelManagerSupport::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
     return new BuiltinEditorDocumentProcessor(baseTextDocument);
 }
 
-CppCompletionAssistProvider *ModelManagerSupportInternal::completionAssistProvider()
+CppCompletionAssistProvider *BuiltinModelManagerSupport::completionAssistProvider()
 {
     return m_completionAssistProvider.data();
 }
 
-TextEditor::BaseHoverHandler *ModelManagerSupportInternal::createHoverHandler()
+TextEditor::BaseHoverHandler *BuiltinModelManagerSupport::createHoverHandler()
 {
     return new CppHoverHandler;
 }
 
-FollowSymbolInterface &ModelManagerSupportInternal::followSymbolInterface()
+FollowSymbolInterface &BuiltinModelManagerSupport::followSymbolInterface()
 {
     return *m_followSymbol;
 }
 
-RefactoringEngineInterface &ModelManagerSupportInternal::refactoringEngineInterface()
+RefactoringEngineInterface &BuiltinModelManagerSupport::refactoringEngineInterface()
 {
     return *m_refactoringEngine;
 }
 
-std::unique_ptr<AbstractOverviewModel> ModelManagerSupportInternal::createOverviewModel()
+std::unique_ptr<AbstractOverviewModel> BuiltinModelManagerSupport::createOverviewModel()
 {
     return std::make_unique<CppTools::OverviewModel>();
 }

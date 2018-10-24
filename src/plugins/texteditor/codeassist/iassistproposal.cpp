@@ -90,6 +90,11 @@ bool IAssistProposal::isFragile() const
     return m_isFragile;
 }
 
+bool IAssistProposal::supportsPrefix() const
+{
+    return m_supportsPrefix;
+}
+
 /*!
     \fn bool TextEditor::IAssistProposal::isCorrective() const
 
@@ -118,6 +123,11 @@ void IAssistProposal::makeCorrection(TextEditorWidget *editorWidget)
 void IAssistProposal::setFragile(bool fragile)
 {
     m_isFragile = fragile;
+}
+
+void IAssistProposal::setSupportsPrefix(bool supportsPrefix)
+{
+    m_supportsPrefix = supportsPrefix;
 }
 
 /*!

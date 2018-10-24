@@ -128,24 +128,13 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
     return p;
 }
 
-int breakPointIdToCdbId(const Breakpoint &bp)
+QString breakPointCdbId(const Breakpoint &bp)
 {
-//    return cdbBreakPointStartId + bp.majorPart() * cdbBreakPointIdMinorPart + bp.minorPart();
+    static int bpId = 1;
     if (!bp->responseId().isEmpty())
-        return bp->responseId().toInt();
-    return cdbBreakPointStartId + bp->modelId() * cdbBreakPointIdMinorPart;
+        return bp->responseId();
+    return QString::number(cdbBreakPointStartId + (bpId++) * cdbBreakPointIdMinorPart);
 }
-
-//static int cdbIdToBreakpointModel(int cdbid)
-//{
-//    if (cdbid >= cdbBreakPointStartId) {
-//        int major = (cdbid - cdbBreakPointStartId) / cdbBreakPointIdMinorPart;
-//        int minor = cdbid % cdbBreakPointIdMinorPart;
-//        (void) minor;
-//        return major;
-//    }
-//    return 0;
-//}
 
 QString cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
                                 const QList<QPair<QString, QString> > &sourcePathMapping,
@@ -212,11 +201,11 @@ QString cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
 QString cdbClearBreakpointCommand(const Breakpoint &bp)
 {
 // FIME: Check
-//    const int firstBreakPoint = breakPointIdToCdbId(id);
+//    const int firstBreakPoint = breakPointCdbId(id);
 //    if (id.isMinor())
 //        return "bc " + QString::number(firstBreakPoint);
     // If this is a major break point we also want to delete all sub break points
-    const int firstBreakPoint = cdbBreakPointStartId + bp->modelId() * cdbBreakPointIdMinorPart;
+    const int firstBreakPoint = bp->responseId().toInt();
     const int lastBreakPoint = firstBreakPoint + cdbBreakPointIdMinorPart - 1;
     return "bc " + QString::number(firstBreakPoint) + '-' + QString::number(lastBreakPoint);
 }

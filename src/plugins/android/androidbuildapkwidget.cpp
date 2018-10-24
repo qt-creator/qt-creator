@@ -62,7 +62,7 @@ AndroidBuildApkInnerWidget::AndroidBuildApkInnerWidget(AndroidBuildApkStep *step
       m_step(step)
 {
     m_ui->setupUi(this);
-    setDisplayName(tr("<b>Build Android APK</b>"));
+    setDisplayName("<b>" + tr("Build Android APK" + "</b>"));
     setSummaryText(displayName());
 
     // Target sdk combobox
@@ -225,8 +225,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step) :
     BuildStepConfigWidget(step),
     m_step(step)
 {
-    setDisplayName(tr("<b>Build Android APK</b>"));
-    setSummaryText(tr("<b>Build Android APK</b>"));
+    setDisplayName("<b>" + tr("Build Android APK" + "</b>"));
+    setSummaryText("<b>" + tr("Build Android APK" + "</b>"));
 
     m_extraLibraryListModel = new AndroidExtraLibraryListModel(m_step->target(), this);
 

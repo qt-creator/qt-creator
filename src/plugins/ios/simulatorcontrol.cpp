@@ -107,7 +107,7 @@ static bool launchSimulator(const QString &simUdid) {
                     return runSimCtlCommand(QStringList({"boot", simUdid}), nullptr);
             }
         } else {
-            qCDebug(simulatorLog) << "Can not start Simulator device."
+            qCDebug(simulatorLog) << "Cannot start Simulator device."
                                   << "Error probing Simulator.app instance";
             return false;
         }
@@ -438,7 +438,7 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
     }
 
     if (simInfo.isShuttingDown()) {
-        qCDebug(simulatorLog) << "Can not start Simulator device. "
+        qCDebug(simulatorLog) << "Cannot start Simulator device. "
                               << "Previous instance taking too long to shutdown." << simInfo;
         return;
     }
@@ -465,7 +465,7 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
             qCDebug(simulatorLog) << "Error starting simulator.";
         }
     } else {
-       qCDebug(simulatorLog) << "Can not start Simulator device. Simulator not in shutdown state."
+       qCDebug(simulatorLog) << "Cannot start Simulator device. Simulator not in shutdown state."
                              << simInfo;
     }
 

@@ -70,7 +70,7 @@ namespace Internal {
 static ClangProjectSettings &getProjectSettings(ProjectExplorer::Project *project)
 {
     QTC_CHECK(project);
-    return ModelManagerSupportClang::instance()->projectSettings(project);
+    return ClangModelManagerSupport::instance()->projectSettings(project);
 }
 
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(

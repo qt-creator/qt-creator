@@ -56,6 +56,8 @@ Project {
             "clazychecks.ui",
             "compileroptionsbuilder.cpp",
             "compileroptionsbuilder.h",
+            "cppbuiltinmodelmanagersupport.cpp",
+            "cppbuiltinmodelmanagersupport.h",
             "cppcanonicalsymbol.cpp",
             "cppcanonicalsymbol.h",
             "cppchecksymbols.cpp",
@@ -123,8 +125,6 @@ Project {
             "cppmodelmanager.h",
             "cppmodelmanagersupport.cpp",
             "cppmodelmanagersupport.h",
-            "cppmodelmanagersupportinternal.cpp",
-            "cppmodelmanagersupportinternal.h",
             "cppoverviewmodel.cpp",
             "cppoverviewmodel.h",
             "cpppointerdeclarationformatter.cpp",
@@ -215,7 +215,7 @@ Project {
             "tidychecks.ui",
             "typehierarchybuilder.cpp",
             "typehierarchybuilder.h",
-            "usages.h"
+            "usages.h",
         ]
 
         Group {

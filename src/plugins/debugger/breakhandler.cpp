@@ -1331,12 +1331,6 @@ void BreakpointItem::setEnabled(bool on)
     adjustMarker();
 }
 
-void BreakHandler::setBreakpointEnabled(const Breakpoint &bp, bool on)
-{
-    bp->setEnabled(on);
-    requestBreakpointUpdate(bp);
-}
-
 void DebuggerEngine::notifyBreakpointInsertProceeding(const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);

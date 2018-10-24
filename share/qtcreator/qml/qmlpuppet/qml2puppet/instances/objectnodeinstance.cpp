@@ -396,7 +396,7 @@ QVariant ObjectNodeInstance::convertEnumToValue(const QVariant &value, const Pro
         QQmlExpression expression(context(), object(), enumeration.toString());
         adjustedValue =  expression.evaluate();
         if (expression.hasError())
-            qDebug() << "Enumeration can not be evaluated:" << object() << name << enumeration;
+            qDebug() << "Enumeration cannot be evaluated:" << object() << name << enumeration;
     }
     return adjustedValue;
 }

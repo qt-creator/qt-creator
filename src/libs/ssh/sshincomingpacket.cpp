@@ -203,7 +203,8 @@ SshKeyExchangeReply SshIncomingPacket::extractKeyExchangeReply(const QByteArray 
             throw SshPacketParseException();
         getHostKeySpecificReplyData(replyData, hostKeyAlgo, replyData.k_s.mid(k_sOffset));
 
-        if (kexAlgo == SshCapabilities::DiffieHellmanGroup1Sha1) {
+        if (kexAlgo == SshCapabilities::DiffieHellmanGroup1Sha1
+                || kexAlgo == SshCapabilities::DiffieHellmanGroup14Sha1) {
             replyData.f = SshPacketParser::asBigInt(m_data, &topLevelOffset);
         } else {
             QSSH_ASSERT_AND_RETURN_VALUE(kexAlgo.startsWith(SshCapabilities::EcdhKexNamePrefix),

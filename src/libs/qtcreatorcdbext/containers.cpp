@@ -77,7 +77,7 @@ static inline std::string fixInnerType(const std::string &type,
     std::string stripped
         = SymbolGroupValue::stripConst(SymbolGroupValue::stripClassPrefixes(type));
 
-    // Unfortunately the cdb can not handle the vc exclusiv 64 bit integer
+    // Unfortunately the cdb cannot handle the vc exclusiv 64 bit integer
     // "__int64" but works fine with "int64", so we have to strip down "__"
     const size_t __int64pos = stripped.find("__int64");
     if (__int64pos != std::string::npos)

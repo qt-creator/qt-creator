@@ -52,7 +52,7 @@ void OsParser::stdOutput(const QString &line)
     if (Utils::HostOsInfo::isWindowsHost()) {
         const QString trimmed = line.trimmed();
         if (trimmed == QLatin1String("The process cannot access the file because it is being used by another process.")) {
-            addTask(Task(Task::Error, tr("The process can not access the file because it is being used by another process.\n"
+            addTask(Task(Task::Error, tr("The process cannot access the file because it is being used by another process.\n"
                                          "Please close all running instances of your application before starting a build."),
                          Utils::FileName(), -1, Constants::TASK_CATEGORY_COMPILE));
             m_hasFatalError = true;

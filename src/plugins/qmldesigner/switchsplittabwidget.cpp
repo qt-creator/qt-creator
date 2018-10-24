@@ -122,7 +122,7 @@ QWidget *SwitchSplitTabWidget::currentWidget() const
 void SwitchSplitTabWidget::updateSplitterSizes(int index)
 {
     if (isHidden()) {
-        // we can not get the sizes if the splitter is hidden
+        // we cannot get the sizes if the splitter is hidden
         m_splittSizesAreDirty = true;
         return;
     }

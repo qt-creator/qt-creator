@@ -278,7 +278,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 {
     addAspect<QmlProjectEnvironmentAspect>(target);
     m_qmlViewerAspect = addAspect<BaseStringAspect>();
-    m_qmlViewerAspect->setLabelText(tr("QML viewer:"));
+    m_qmlViewerAspect->setLabelText(tr("QML Viewer:"));
     m_qmlViewerAspect->setPlaceHolderText(executable());
     m_qmlViewerAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
 

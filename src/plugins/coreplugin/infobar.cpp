@@ -111,7 +111,7 @@ void InfoBar::suppressInfo(Id id)
     m_suppressed << id;
 }
 
-// Info can not be added more than once, or if it is suppressed
+// Info cannot be added more than once, or if it is suppressed
 bool InfoBar::canInfoBeAdded(Id id) const
 {
     return !containsInfo(id) && !m_suppressed.contains(id) && !globallySuppressed.contains(id);

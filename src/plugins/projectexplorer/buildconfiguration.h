@@ -127,7 +127,7 @@ protected:
     ~IBuildConfigurationFactory() override;
 
 public:
-    // The priority is negative if this factory can not create anything for the target.
+    // The priority is negative if this factory cannot create anything for the target.
     // It is 0 for the "default" factory that wants to handle the target.
     // Add 100 for each specialization.
     virtual int priority(const Target *parent) const;

@@ -360,7 +360,7 @@ static Utils::FileName findLocalCompiler(const Utils::FileName &compilerPath,
     // Find the "real" compiler if icecc, distcc or similar are in use. Ignore ccache, since that
     // is local already.
 
-    // Get the path to the compiler, ignoring direct calls to icecc and distcc as we can not
+    // Get the path to the compiler, ignoring direct calls to icecc and distcc as we cannot
     // do anything about those.
     const Utils::FileName compilerDir = compilerPath.parentDir();
     const QString compilerDirString = compilerDir.toString();

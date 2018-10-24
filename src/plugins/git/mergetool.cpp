@@ -238,9 +238,10 @@ void MergeTool::readData()
         } else if (m_line.startsWith("Hit return")) {
             QMessageBox::warning(
                         Core::ICore::dialogParent(), tr("Merge Tool"),
-                        tr("<html><body><p>Merge tool is not configured.</p>\n"
-                           "<p>Run git config --global merge.tool &lt;tool&gt; to configure it, "
-                           "then try again</p></body></html>"));
+                        QString("<html><body><p>%1</p>\n<p>%2</p></body></html>").arg(
+                            tr("Merge tool is not configured."),
+                            tr("Run git config --global merge.tool &lt;tool&gt; "
+                               "to configure it, then try again.")));
             m_process->kill();
         } else if (m_line.endsWith('\n')) {
             // Skip unidentified lines
