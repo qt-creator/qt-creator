@@ -373,13 +373,25 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     connect(m_listView, &QAbstractItemView::activated, this, [this](const QModelIndex &index) {
         openItem(m_sortProxyModel->mapToSource(index));
     });
-    // use QueuedConnection for updating crumble path, because that can scroll, which doesn't
-    // work well when done directly in currentChanged (the wrong item can get highlighted)
+    // Delay updating crumble path by event loop cylce, because that can scroll, which doesn't
+    // work well when done directly in currentChanged (the wrong item can get highlighted).
+    // We cannot use Qt::QueuedConnection directly, because the QModelIndex could get invalidated
+    // in the meantime, so use a queued invokeMethod instead.
     connect(m_listView->selectionModel(),
             &QItemSelectionModel::currentChanged,
             this,
-            &FolderNavigationWidget::setCrumblePath,
-            Qt::QueuedConnection);
+            [this](const QModelIndex &index) {
+                const QModelIndex sourceIndex = m_sortProxyModel->mapToSource(index);
+                const auto filePath = Utils::FileName::fromString(
+                    m_fileSystemModel->filePath(sourceIndex));
+                // QTimer::singleShot only posts directly onto the event loop if you use the SLOT("...")
+                // notation, so using a singleShot with a lambda would flicker
+                // QTimer::singleShot(0, this, [this, filePath]() { setCrumblePath(filePath); });
+                QMetaObject::invokeMethod(this,
+                                          "setCrumblePath",
+                                          Qt::QueuedConnection,
+                                          Q_ARG(Utils::FileName, filePath));
+            });
     connect(m_crumbLabel, &Utils::FileCrumbLabel::pathClicked, [this](const Utils::FileName &path) {
         const QModelIndex rootIndex = m_sortProxyModel->mapToSource(m_listView->rootIndex());
         const QModelIndex fileIndex = m_fileSystemModel->index(path.toString());
@@ -623,7 +635,7 @@ void FolderNavigationWidget::selectFile(const Utils::FileName &filePath)
             } else {
                 m_listView->scrollTo(fileIndex);
             }
-            setCrumblePath(fileIndex);
+            setCrumblePath(filePath);
         });
     }
 }
@@ -699,12 +711,12 @@ void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
     m_listView->edit(index);
 }
 
-void FolderNavigationWidget::setCrumblePath(const QModelIndex &index)
+void FolderNavigationWidget::setCrumblePath(const Utils::FileName &filePath)
 {
-    const QModelIndex sourceIndex = m_sortProxyModel->mapToSource(index);
+    const QModelIndex index = m_fileSystemModel->index(filePath.toString());
     const int width = m_crumbLabel->width();
     const int previousHeight = m_crumbLabel->immediateHeightForWidth(width);
-    m_crumbLabel->setPath(Utils::FileName::fromString(m_fileSystemModel->filePath(sourceIndex)));
+    m_crumbLabel->setPath(filePath);
     const int currentHeight = m_crumbLabel->immediateHeightForWidth(width);
     const int diff = currentHeight - previousHeight;
     if (diff != 0 && m_crumbLabel->isVisible()) {
