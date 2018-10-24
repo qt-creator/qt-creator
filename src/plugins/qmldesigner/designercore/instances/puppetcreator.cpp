@@ -142,7 +142,7 @@ bool PuppetCreator::useOnlyFallbackPuppet() const
 #ifndef QMLDESIGNER_TEST
     if (!m_kit || !m_kit->isValid())
         qWarning() << "Invalid kit for QML puppet";
-    return m_designerSettings.value(DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET
+    return m_designerSettings.value(DesignerSettingsKey::USE_DEFAULT_PUPPET
                                     ).toBool() || m_kit == nullptr || !m_kit->isValid();
 #else
     return true;
@@ -390,7 +390,7 @@ QString PuppetCreator::qmlPuppetFallbackDirectory(const DesignerSettings &settin
 {
 #ifndef QMLDESIGNER_TEST
     QString puppetFallbackDirectory = settings.value(
-        DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY).toString();
+        DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY).toString();
     if (puppetFallbackDirectory.isEmpty() || !QFileInfo::exists(puppetFallbackDirectory))
         return defaultPuppetFallbackDirectory();
     return puppetFallbackDirectory;
