@@ -169,6 +169,7 @@ void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPositio
                                           m_positionForProposal,
                                           functionNameStart);
             } else { // e.g. "(" without any function name in front
+                m_addSnippets = true;
                 m_positionForProposal = afterOperatorPosition;
                 setActionAndClangPosition(PassThroughToLibClang, afterOperatorPosition);
             }
@@ -179,6 +180,8 @@ void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPositio
 bool ClangCompletionContextAnalyzer::handleNonFunctionCall(int position)
 {
     if (isTokenForPassThrough(m_completionOperator)) {
+        if (m_completionOperator == T_EOF_SYMBOL)
+            m_addSnippets = true;
         setActionAndClangPosition(PassThroughToLibClang, position);
         return true;
     } else if (m_completionOperator == T_DOXY_COMMENT) {
