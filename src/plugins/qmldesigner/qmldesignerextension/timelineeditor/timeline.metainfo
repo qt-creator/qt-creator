@@ -1,0 +1,35 @@
+MetaInfo {
+    Type {
+        name: "QtQuick.Timeline.Timeline"
+        icon: ":/timelineplugin/images/timeline-16px.png"
+
+        ItemLibraryEntry {
+          name: "Timeline"
+          category: "none"
+          version: "1.0"
+          requiredImport: "none"
+        }
+    }
+    Type {
+        name: "QtQuick.Timeline.Keyframe"
+        icon: ":/timelineplugin/images/keyframe-16px.png"
+
+        ItemLibraryEntry {
+            name: "Keyframe"
+            category: "none"
+            version: "1.0"
+            requiredImport: "none"
+        }
+    }
+    Type {
+        name: "QtQuick.Timeline.KeyframeGroup"
+        icon: ":/timelineplugin/images/keyframe-16px.png"
+
+        ItemLibraryEntry {
+            name: "KeyframeGroup"
+            category: "none"
+            version: "1.0"
+            requiredImport: "none"
+        }
+    }
+}
