@@ -658,7 +658,7 @@ void BaseClient::intializeCallback(const InitializeResponse &initResponse)
     if (optional<ResponseError<InitializeError>> error = initResponse.error()) {
         if (error.value().data().has_value()
                 && error.value().data().value().retry().value_or(false)) {
-            const QString title(tr("Language Server \"%1\" Initialize Error"));
+            const QString title(tr("Language Server \"%1\" Initialize Error").arg(m_displayName));
             auto result = QMessageBox::warning(Core::ICore::dialogParent(),
                                                title,
                                                error.value().message(),
