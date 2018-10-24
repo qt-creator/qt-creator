@@ -286,21 +286,17 @@ void GitEditorWidget::aboutToOpen(const QString &fileName, const QString &realFi
 
 QString GitEditorWidget::decorateVersion(const QString &revision) const
 {
-    const QFileInfo fi(source());
-    const QString workingDirectory = fi.absolutePath();
-
     // Format verbose, SHA1 being first token
-    return GitPlugin::client()->synchronousShortDescription(workingDirectory, revision);
+    return GitPlugin::client()->synchronousShortDescription(sourceWorkingDirectory(), revision);
 }
 
 QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
     QStringList revisions;
     QString errorMessage;
-    const QFileInfo fi(source());
-    const QString workingDirectory = fi.absolutePath();
     // Get the SHA1's of the file.
-    if (!GitPlugin::client()->synchronousParentRevisions(workingDirectory, revision, &revisions, &errorMessage)) {
+    if (!GitPlugin::client()->synchronousParentRevisions(sourceWorkingDirectory(),
+                                                         revision, &revisions, &errorMessage)) {
         VcsOutputWindow::appendSilently(errorMessage);
         return QStringList();
     }
@@ -371,8 +367,12 @@ QString GitEditorWidget::fileNameForLine(int line) const
 
 QString GitEditorWidget::sourceWorkingDirectory() const
 {
-    const QFileInfo fi(source());
-    return fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+    Utils::FileName path = Utils::FileName::fromString(source());
+    if (!path.isEmpty() && !path.toFileInfo().isDir())
+        path = path.parentDir();
+    while (!path.isEmpty() && !path.exists())
+        path = path.parentDir();
+    return path.toString();
 }
 
 } // namespace Internal
