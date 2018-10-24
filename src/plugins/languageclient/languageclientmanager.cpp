@@ -262,6 +262,8 @@ void LanguageClientManager::clientFinished(BaseClient *client)
                     Core::MessageManager::Flash);
         QTimer::singleShot(restartTimeoutS * 1000, client, [client](){ startClient(client); });
     } else {
+        if (unexpectedFinish && !m_shuttingDown)
+            client->log(tr("Unexpectedly finished."), Core::MessageManager::Flash);
         deleteClient(client);
         if (m_shuttingDown && m_clients.isEmpty())
             emit shutdownFinished();
