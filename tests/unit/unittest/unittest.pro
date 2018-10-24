@@ -102,8 +102,7 @@ SOURCES += \
     projectpartqueue-test.cpp \
     processormanager-test.cpp \
     taskscheduler-test.cpp \
-    compileroptionsbuilder-test.cpp \
-    usedmacrocollector-test.cpp
+    compileroptionsbuilder-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -180,7 +179,8 @@ SOURCES += \
     symbolindexing-test.cpp \
     symbolscollector-test.cpp \
     symbolfinder-test.cpp \
-    testclangtool.cpp
+    testclangtool.cpp \
+    usedmacrocollector-test.cpp
 }
 
 exists($$GOOGLEBENCHMARK_DIR) {
