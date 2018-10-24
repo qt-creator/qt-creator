@@ -603,7 +603,7 @@ void ClangCodeCompletionTest::testCompleteWithDotToArrowCorrection()
     ProjectLessCompletionTest t("dotToArrowCorrection.cpp",
                                 QStringLiteral(".")); // See above "Explicitly Inserting The Dot"
 
-    QVERIFY(hasItem(t.proposal, "member (requires to correct [4:8-4:9] to \"->\")"));
+    QVERIFY(hasItem(t.proposal, "member"));
 }
 
 void ClangCodeCompletionTest::testDontCompleteWithDotToArrowCorrectionForFloats()
