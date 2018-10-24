@@ -3,7 +3,8 @@ INCLUDEPATH += $$PWD
 SOURCES += \
     $$PWD/pchmanagerserver.cpp \
     $$PWD/projectparts.cpp \
-    $$PWD/projectpartqueue.cpp
+    $$PWD/projectpartqueue.cpp \
+    $$PWD/pchtaskgenerator.cpp
 
 HEADERS += \
     $$PWD/pchmanagerserver.h \
@@ -23,7 +24,11 @@ HEADERS += \
     $$PWD/precompiledheaderstorage.h \
     $$PWD/precompiledheaderstorageinterface.h \
     $$PWD/usedmacroandsourcestorageinterface.h \
-    $$PWD/usedmacroandsourcestorage.h
+    $$PWD/usedmacroandsourcestorage.h \
+    $$PWD/pchtaskgenerator.h \
+    $$PWD/pchtask.h \
+    $$PWD/builddependenciesproviderinterface.h \
+    $$PWD/builddependencies.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

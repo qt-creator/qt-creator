@@ -170,6 +170,8 @@ class SuspendResumeJobsEntry;
 class ReferencesResult;
 class SymbolIndexerTask;
 class PchCreatorIncludes;
+class PchTask;
+class BuildDependency;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -250,6 +252,8 @@ std::ostream &operator<<(std::ostream &os, const SuspendResumeJobsEntry &entry);
 std::ostream &operator<<(std::ostream &os, const ReferencesResult &value);
 std::ostream &operator<<(std::ostream &out, const SymbolIndexerTask &task);
 std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes);
+std::ostream &operator<<(std::ostream &out, const PchTask &task);
+std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);
