@@ -631,6 +631,7 @@ FileName FileName::parentDir() const
 
     const QString path = basePath + QLatin1String("/..");
     const QString parent = QDir::cleanPath(path);
+    QTC_ASSERT(parent != path, return FileName());
 
     return FileName::fromString(parent);
 }
