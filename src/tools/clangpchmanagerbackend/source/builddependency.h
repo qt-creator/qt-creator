@@ -25,24 +25,20 @@
 
 #pragma once
 
-#include "builddependency.h"
-
-#include <utils/smallstringvector.h>
+#include "sourceentry.h"
+#include "usedmacro.h"
 
 namespace ClangBackEnd {
 
-class PchTask
+class BuildDependency
 {
 public:
-    PchTask(Utils::SmallStringVector &&ids, BuildDependency &&buildDependency)
-        : ids(std::move(ids)),
-          buildDependency(std::move(buildDependency))
-    {
-    }
-
-    Utils::SmallStringVector ids;
-    BuildDependency buildDependency;
+    SourceEntries includes;
+    FilePathIds topIncludeIds;
+    FilePathIds topsSystemIncludeIds;
+    UsedMacros usedMacros;
 };
 
-using PchTasks = std::vector<PchTask>;
+using BuildDependencies = std::vector<BuildDependency>;
+
 }

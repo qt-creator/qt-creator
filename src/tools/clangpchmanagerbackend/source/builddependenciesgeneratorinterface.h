@@ -27,22 +27,17 @@
 
 #include "builddependency.h"
 
-#include <utils/smallstringvector.h>
+#include "projectpartcontainerv2.h"
 
 namespace ClangBackEnd {
 
-class PchTask
+class BuildDependenciesGeneratorInterface
 {
 public:
-    PchTask(Utils::SmallStringVector &&ids, BuildDependency &&buildDependency)
-        : ids(std::move(ids)),
-          buildDependency(std::move(buildDependency))
-    {
-    }
+    virtual BuildDependency create(const V2::ProjectPartContainer &projectPart) = 0;
 
-    Utils::SmallStringVector ids;
-    BuildDependency buildDependency;
+protected:
+    ~BuildDependenciesGeneratorInterface() = default;
 };
 
-using PchTasks = std::vector<PchTask>;
-}
+} // namespace ClangBackEnd

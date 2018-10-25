@@ -25,24 +25,14 @@
 
 #pragma once
 
-#include "builddependency.h"
+#include "googletest.h"
 
-#include <utils/smallstringvector.h>
+#include <builddependenciesgeneratorinterface.h>
 
-namespace ClangBackEnd {
-
-class PchTask
+class MockBuildDependenciesGenerator : public ClangBackEnd::BuildDependenciesGeneratorInterface
 {
 public:
-    PchTask(Utils::SmallStringVector &&ids, BuildDependency &&buildDependency)
-        : ids(std::move(ids)),
-          buildDependency(std::move(buildDependency))
-    {
-    }
-
-    Utils::SmallStringVector ids;
-    BuildDependency buildDependency;
+    MOCK_METHOD1(create,
+                 ClangBackEnd::BuildDependency (const ClangBackEnd::V2::ProjectPartContainer &projectPart));
 };
 
-using PchTasks = std::vector<PchTask>;
-}

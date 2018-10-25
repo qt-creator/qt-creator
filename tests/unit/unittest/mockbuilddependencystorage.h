@@ -25,24 +25,26 @@
 
 #pragma once
 
-#include "builddependency.h"
+#include "googletest.h"
 
-#include <utils/smallstringvector.h>
+#include <builddependenciesstorageinterface.h>
 
-namespace ClangBackEnd {
-
-class PchTask
+class MockBuildDependenciesStorage : public ClangBackEnd::BuildDependenciesStorageInterface
 {
 public:
-    PchTask(Utils::SmallStringVector &&ids, BuildDependency &&buildDependency)
-        : ids(std::move(ids)),
-          buildDependency(std::move(buildDependency))
-    {
-    }
-
-    Utils::SmallStringVector ids;
-    BuildDependency buildDependency;
+    MOCK_METHOD1(updateSources,
+                 void (const ClangBackEnd::SourceEntries &sources));
+    MOCK_METHOD1(insertOrUpdateUsedMacros,
+                 void (const ClangBackEnd::UsedMacros &usedMacros));
+    MOCK_METHOD1(insertFileStatuses,
+                 void (const ClangBackEnd::FileStatuses &fileStatuses));
+    MOCK_METHOD1(insertOrUpdateSourceDependencies,
+                 void (const ClangBackEnd::SourceDependencies &sourceDependencies));
+    MOCK_CONST_METHOD1(fetchLowestLastModifiedTime,
+                       long long (ClangBackEnd::FilePathId sourceId));
+    MOCK_CONST_METHOD1(fetchDependSources,
+                       ClangBackEnd::SourceEntries (ClangBackEnd::FilePathId sourceId));
+    MOCK_CONST_METHOD1(fetchUsedMacros,
+                       ClangBackEnd::UsedMacros (ClangBackEnd::FilePathId sourceId));
 };
 
-using PchTasks = std::vector<PchTask>;
-}

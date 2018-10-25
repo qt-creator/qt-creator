@@ -35,6 +35,8 @@ using ClangBackEnd::BuildDependency;
 using ClangBackEnd::BuildDependencies;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::PchTask;
+using ClangBackEnd::SourceEntries;
+using ClangBackEnd::SourceType;
 
 class PchTaskGenerator : public testing::Test
 {
@@ -47,7 +49,8 @@ protected:
                                                         {"/yi"},
                                                         {{1, 1}},
                                                         {{1, 2}}};
-    BuildDependency buildDependency{{{1, 1}}, {}, {}};
+    SourceEntries firstSources{{{1, 1}, SourceType::Any, 1}, {{1, 2}, SourceType::Any, 1}, {{1, 10}, SourceType::Any, 1}};
+    BuildDependency buildDependency{firstSources, {}, {}, {}};
 };
 
 TEST_F(PchTaskGenerator, Create)
@@ -60,7 +63,7 @@ TEST_F(PchTaskGenerator, Create)
                 ElementsAre(
                     AllOf(Field(&PchTask::ids, ElementsAre("ProjectPart1")),
                           Field(&PchTask::buildDependency,
-                                Field(&BuildDependency::includeIds, ElementsAre(FilePathId{1, 1}))))));
+                                Field(&BuildDependency::includes, firstSources)))));
 }
 
 }

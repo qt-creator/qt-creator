@@ -25,24 +25,13 @@
 
 #pragma once
 
-#include "builddependency.h"
+#include "googletest.h"
 
-#include <utils/smallstringvector.h>
+#include <modifiedtimecheckerinterface.h>
 
-namespace ClangBackEnd {
-
-class PchTask
+class MockModifiedTimeChecker : public ClangBackEnd::ModifiedTimeCheckerInterface
 {
 public:
-    PchTask(Utils::SmallStringVector &&ids, BuildDependency &&buildDependency)
-        : ids(std::move(ids)),
-          buildDependency(std::move(buildDependency))
-    {
-    }
-
-    Utils::SmallStringVector ids;
-    BuildDependency buildDependency;
+    MOCK_CONST_METHOD1(isUpToDate,
+                       bool (const ClangBackEnd::SourceEntries &sourceEntries));
 };
-
-using PchTasks = std::vector<PchTask>;
-}

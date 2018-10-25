@@ -25,24 +25,56 @@
 
 #pragma once
 
-#include "builddependency.h"
+#include <filepathid.h>
 
-#include <utils/smallstringvector.h>
+#include <vector>
 
 namespace ClangBackEnd {
 
-class PchTask
+enum SourceType : unsigned char
 {
-public:
-    PchTask(Utils::SmallStringVector &&ids, BuildDependency &&buildDependency)
-        : ids(std::move(ids)),
-          buildDependency(std::move(buildDependency))
-    {
-    }
-
-    Utils::SmallStringVector ids;
-    BuildDependency buildDependency;
+    Any,
+    TopInclude,
+    TopSystemInclude
 };
 
-using PchTasks = std::vector<PchTask>;
+class TimeStamp
+{
+    using int64 = long long;
+public:
+    TimeStamp(int64 value)
+        : value(value)
+    {}
+
+    operator int64() const
+    {
+        return value;
+    }
+
+    int64 value = -1;
+};
+
+class SourceEntry
+{
+public:
+    friend
+    bool operator<(SourceEntry first, SourceEntry second)
+    {
+        return first.sourceId < second.sourceId;
+    }
+
+    friend
+    bool operator==(SourceEntry first, SourceEntry second)
+    {
+        return first.sourceId == second.sourceId;
+    }
+
+public:
+    FilePathId sourceId;
+    SourceType sourceType = SourceType::Any;
+    TimeStamp lastModified;
+};
+
+using SourceEntries = std::vector<SourceEntry>;
+
 }

@@ -105,7 +105,8 @@ SOURCES += \
     compileroptionsbuilder-test.cpp \
     usedmacroandsourcestorage-test.cpp \
     pchtaskgenerator-test.cpp \
-    compilationdatabaseutils-test.cpp
+    compilationdatabaseutils-test.cpp \
+    builddependenciesprovider-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -250,7 +251,10 @@ HEADERS += \
     mockprocessormanager.h \
     mocktaskscheduler.h \
     mockusedmacroandsourcestorage.h \
-    mockbuilddependenciesprovider.h
+    mockbuilddependenciesprovider.h \
+    mockbuilddependencystorage.h \
+    mockmodifiedtimechecker.h \
+    mockbuilddependenciesgenerator.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

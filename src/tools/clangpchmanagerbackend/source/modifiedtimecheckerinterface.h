@@ -25,24 +25,22 @@
 
 #pragma once
 
-#include "builddependency.h"
-
-#include <utils/smallstringvector.h>
+#include "sourceentry.h"
 
 namespace ClangBackEnd {
 
-class PchTask
+class ModifiedTimeCheckerInterface
 {
 public:
-    PchTask(Utils::SmallStringVector &&ids, BuildDependency &&buildDependency)
-        : ids(std::move(ids)),
-          buildDependency(std::move(buildDependency))
-    {
-    }
+    ModifiedTimeCheckerInterface() = default;
+    ModifiedTimeCheckerInterface(const ModifiedTimeCheckerInterface &) = delete;
+    ModifiedTimeCheckerInterface &operator=(const ModifiedTimeCheckerInterface &) = delete;
 
-    Utils::SmallStringVector ids;
-    BuildDependency buildDependency;
+    virtual bool isUpToDate(const SourceEntries &sourceEntries) const = 0;
+
+protected:
+    ~ModifiedTimeCheckerInterface() = default;
 };
 
-using PchTasks = std::vector<PchTask>;
-}
+} // namespace ClangBackEnd
+

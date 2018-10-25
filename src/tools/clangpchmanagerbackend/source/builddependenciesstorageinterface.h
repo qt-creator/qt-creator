@@ -25,20 +25,31 @@
 
 #pragma once
 
+#include <builddependency.h>
 #include <filepathid.h>
-
-#include <vector>
+#include <filestatus.h>
+#include <sourcedependency.h>
+#include <usedmacro.h>
 
 namespace ClangBackEnd {
 
-class BuildDependency
+class BuildDependenciesStorageInterface
 {
 public:
-    FilePathIds includeIds;
-    FilePathIds topIncludeIds;
-    FilePathIds topsSystemIncludeIds;
+    BuildDependenciesStorageInterface() = default;
+    BuildDependenciesStorageInterface(const BuildDependenciesStorageInterface &) = delete;
+    BuildDependenciesStorageInterface &operator=(const BuildDependenciesStorageInterface &) = delete;
+
+    virtual void updateSources(const SourceEntries &sourceIds) = 0;
+    virtual void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) = 0;
+    virtual void insertFileStatuses(const FileStatuses &fileStatuses) = 0;
+    virtual void insertOrUpdateSourceDependencies(const SourceDependencies &sourceDependencies) = 0;
+    virtual long long fetchLowestLastModifiedTime(FilePathId sourceId) const = 0;
+    virtual SourceEntries fetchDependSources(FilePathId sourceId) const = 0;
+    virtual UsedMacros fetchUsedMacros(FilePathId sourceId) const = 0;
+
+protected:
+    ~BuildDependenciesStorageInterface() = default;
 };
 
-using BuildDependencies = std::vector<BuildDependency>;
-
-}
+} // namespace ClangBackEnd

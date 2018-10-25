@@ -25,20 +25,37 @@
 
 #pragma once
 
-#include "builddependency.h"
-
-#include "projectpartcontainerv2.h"
+#include "builddependenciesproviderinterface.h"
 
 namespace ClangBackEnd {
 
-class BuildDependenciesProviderInterface
+class BuildDependenciesStorageInterface;
+class ModifiedTimeCheckerInterface;
+class BuildDependenciesGeneratorInterface;
+
+class BuildDependenciesProvider : public BuildDependenciesProviderInterface
 {
 public:
-    virtual BuildDependency create(const V2::ProjectPartContainer &projectPart) const = 0;
+    BuildDependenciesProvider(BuildDependenciesStorageInterface &buildDependenciesStorage,
+                              ModifiedTimeCheckerInterface &modifiedTimeChecker,
+                              BuildDependenciesGeneratorInterface &buildDependenciesGenerator)
+        : m_buildDependenciesStorage(buildDependenciesStorage),
+          m_modifiedTimeChecker(modifiedTimeChecker),
+          m_buildDependenciesGenerator(buildDependenciesGenerator)
+    {
+    }
 
-protected:
-    ~BuildDependenciesProviderInterface() = default;
+    BuildDependency create(const V2::ProjectPartContainer &projectPart) const override;
+
+private:
+    BuildDependency createBuildDependencyFromStorage(SourceEntries &&includes) const;
+    UsedMacros createUsedMacrosFromStorage(const SourceEntries &includes) const;
+    SourceEntries createSourceEntriesFromStorage(const FilePathIds &sourcePathIds) const;
+
+private:
+    BuildDependenciesStorageInterface &m_buildDependenciesStorage;
+    ModifiedTimeCheckerInterface &m_modifiedTimeChecker;
+    BuildDependenciesGeneratorInterface &m_buildDependenciesGenerator;
 };
 
 } // namespace ClangBackEnd
-

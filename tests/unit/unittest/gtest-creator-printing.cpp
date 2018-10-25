@@ -32,7 +32,7 @@
 
 #include <sourcelocations.h>
 
-#include <builddependencies.h>
+#include <builddependency.h>
 #include <clangcodemodelclientmessages.h>
 #include <clangcodemodelservermessages.h>
 #include <clangdocumentsuspenderresumer.h>
@@ -1015,9 +1015,27 @@ std::ostream &operator<<(std::ostream &out, const PchTask &task)
 std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency)
 {
     return out << "("
-               << dependency.includeIds << ", "
+               << dependency.includes << ", "
                << dependency.topsSystemIncludeIds << ", "
                << dependency.topIncludeIds << ")";
+}
+
+const char *sourceTypeString(SourceType sourceType)
+{
+    using ClangBackEnd::SymbolTag;
+
+    switch (sourceType) {
+    case SourceType::Any: return "Any";
+    case SourceType::TopInclude: return "TopInclude";
+    case SourceType::TopSystemInclude: return "TopSystemInclude";
+    }
+
+    return "";
+}
+
+std::ostream &operator<<(std::ostream &out, const SourceEntry &entry)
+{
+    return out  << "(" << entry.sourceId << ", " << sourceTypeString(entry.sourceType) << ")";
 }
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os)
