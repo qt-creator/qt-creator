@@ -947,6 +947,7 @@ void DiagramSceneModel::onSelectionChanged()
 
 void DiagramSceneModel::clearGraphicsScene()
 {
+    m_graphicsScene->clearSelection();
     m_graphicsItems.clear();
     m_itemToElementMap.clear();
     m_elementToItemMap.clear();
