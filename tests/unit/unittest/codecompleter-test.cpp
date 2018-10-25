@@ -580,6 +580,51 @@ TEST_F(CodeCompleterSlowTest, ConstructorHasOverloadCompletions)
     ASSERT_THAT(constructorsCount, 2);
 }
 
+TEST_F(CodeCompleterSlowTest, FunctionOverloadsNoParametersOrder)
+{
+    auto myCompleter = setupCompleter(completionsOrder);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(27, 7);
+
+    int firstIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "foo";
+    });
+    int secondIndex = Utils::indexOf(completions, [i = 0, firstIndex](const CodeCompletion &codeCompletion) mutable {
+        return (i++) > firstIndex && codeCompletion.text == "foo";
+    });
+
+    ASSERT_THAT(abs(firstIndex - secondIndex), 1);
+}
+
+TEST_F(CodeCompleterSlowTest, FunctionOverloadsWithParametersOrder)
+{
+    auto myCompleter = setupCompleter(completionsOrder);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(27, 7);
+
+    int firstIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "bar";
+    });
+    int secondIndex = Utils::indexOf(completions, [i = 0, firstIndex](const CodeCompletion &codeCompletion) mutable {
+        return (i++) > firstIndex && codeCompletion.text == "bar";
+    });
+
+    ASSERT_THAT(abs(firstIndex - secondIndex), 1);
+}
+
+TEST_F(CodeCompleterSlowTest, FunctionOverloadsWithoutDotOrArrowOrder)
+{
+    auto myCompleter = setupCompleter(completionsOrder);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(21, 1);
+
+    int firstIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "bar";
+    });
+    int secondIndex = Utils::indexOf(completions, [i = 0, firstIndex](const CodeCompletion &codeCompletion) mutable {
+        return (i++) > firstIndex && codeCompletion.text == "bar";
+    });
+
+    ASSERT_THAT(abs(firstIndex - secondIndex), 1);
+}
+
 ClangBackEnd::CodeCompleter CodeCompleter::setupCompleter(
         const ClangBackEnd::FileContainer &fileContainer)
 {

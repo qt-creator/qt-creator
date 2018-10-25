@@ -115,7 +115,9 @@ static void adaptOverloadsPriorities(CodeCompletions &codeCompletions)
     std::map<Utf8String, std::vector<CodeCompletion *>> cachedOverloads;
     for (CodeCompletion &currentCompletion : codeCompletions) {
         if (currentCompletion.completionKind != CodeCompletion::ConstructorCompletionKind
-                && currentCompletion.completionKind != CodeCompletion::FunctionCompletionKind) {
+                && currentCompletion.completionKind != CodeCompletion::FunctionCompletionKind
+                && currentCompletion.completionKind
+                != CodeCompletion::FunctionDefinitionCompletionKind) {
             continue;
         }
 
