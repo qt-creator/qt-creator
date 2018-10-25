@@ -394,6 +394,8 @@ namespace PE = ProjectExplorer::Constants;
 namespace Debugger {
 namespace Internal {
 
+const char DEBUGGER_START[] = "Debugger.Start";
+
 void addCdbOptionPages(QList<IOptionsPage*> *opts);
 void addGdbOptionPages(QList<IOptionsPage*> *opts);
 
@@ -1115,17 +1117,19 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     //   G_START_QML
 
     ActionContainer *mstart = ActionManager::actionContainer(PE::M_DEBUG_STARTDEBUGGING);
+    const QKeySequence startShortcut(useMacShortcuts ? tr("Ctrl+Y") : tr("F5"));
+
 
     cmd = ActionManager::registerAction(&m_visibleStartAction, Constants::DEBUG);
     cmd->setDescription(tr("Start Debugging or Continue"));
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Y") : tr("F5")));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
     //mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    cmd = ActionManager::registerAction(&m_startAction, "Debugger.Start");
+    cmd = ActionManager::registerAction(&m_startAction, DEBUGGER_START);
     cmd->setDescription(tr("Start Debugging"));
     cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setDefaultKeySequence(startShortcut);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     m_visibleStartAction.initialize(&m_startAction);
@@ -1191,12 +1195,14 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd = ActionManager::registerAction(act, Constants::INTERRUPT);
     cmd->setDescription(tr("Interrupt Debugger"));
     cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setDefaultKeySequence(startShortcut);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     act = new QAction(continueIcon(false), tr("Continue"), this);
     act->setEnabled(false);
     cmd = ActionManager::registerAction(act, Constants::CONTINUE);
     cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setDefaultKeySequence(startShortcut);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     act = new QAction(Icons::DEBUG_EXIT_SMALL.icon(), tr("Stop Debugger"), this);
@@ -1461,7 +1467,7 @@ void DebuggerPluginPrivate::updatePresetState()
     m_startAction.setToolTip(startToolTip);
     m_startAction.setText(canRun ? startToolTip : tr("Start Debugging"));
 
-    if (!currentEngine || !currentEngine->isStartupRunConfiguration()) {
+    if (!currentEngine) {
         // No engine running  -- or -- we have a running engine but it does not
         // correspond to the current start up project.
         m_startAction.setEnabled(canRun);
@@ -1502,7 +1508,7 @@ void DebuggerPluginPrivate::updatePresetState()
         // We don't want to do anything anymore.
         m_startAction.setEnabled(canRun);
         m_debugWithoutDeployAction.setEnabled(canRun);
-        m_visibleStartAction.setAction(&m_startAction);
+        m_visibleStartAction.setAction(ActionManager::command(DEBUGGER_START)->action());
         m_hiddenStopAction.setAction(&m_undisturbableAction);
     } else if (state == InferiorUnrunnable) {
         // We don't want to do anything anymore.
