@@ -170,7 +170,8 @@ void ClassItem::update()
             m_baseClasses->setBrush(style->textBrush());
             m_baseClasses->setText(baseClasses.join('\n'));
         } else if (m_baseClasses) {
-            m_baseClasses->scene()->removeItem(m_baseClasses);
+            if (m_baseClasses->scene())
+                m_baseClasses->scene()->removeItem(m_baseClasses);
             delete m_baseClasses;
             m_baseClasses = nullptr;
         }
