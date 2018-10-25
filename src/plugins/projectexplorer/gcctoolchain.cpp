@@ -1198,6 +1198,10 @@ ClangToolChain::ClangToolChain(Detection d) :
     GccToolChain(Constants::CLANG_TOOLCHAIN_TYPEID, d)
 { }
 
+ClangToolChain::ClangToolChain(Core::Id typeId, ToolChain::Detection d) :
+    GccToolChain(typeId, d)
+{ }
+
 QString ClangToolChain::typeDisplayName() const
 {
     return ClangToolChainFactory::tr("Clang");

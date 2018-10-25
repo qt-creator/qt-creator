@@ -117,7 +117,6 @@ public:
     void setKeystoreLocation(const Utils::FileName &keystoreLocation);
 
     QString toolchainHost() const;
-    QStringList makeExtraSearchDirectories() const;
 
     unsigned partitionSize() const;
     void setPartitionSize(unsigned partitionSize);
@@ -134,10 +133,8 @@ public:
     Utils::FileName avdManagerToolPath() const;
     Utils::FileName aaptToolPath() const;
 
-    Utils::FileName gccPath(const ProjectExplorer::Abi &abi, Core::Id lang,
-                            const QString &ndkToolChainVersion) const;
-
-    Utils::FileName gdbPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
+    Utils::FileName clangPath() const;
+    Utils::FileName gdbPath() const;
     Utils::FileName makePath() const;
 
     Utils::FileName keytoolPath() const;
@@ -162,7 +159,6 @@ public:
 private:
     static QString getDeviceProperty(const QString &adbToolPath, const QString &device, const QString &property);
 
-    Utils::FileName toolPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKBinPath() const;
     int getSDKVersion(const QString &device) const;
     static int getSDKVersion(const QString &adbToolPath, const QString &device);
@@ -179,7 +175,6 @@ private:
     Utils::FileName m_ndkLocation;
     Utils::FileName m_openJDKLocation;
     Utils::FileName m_keystoreLocation;
-    QStringList m_makeExtraSearchDirectories;
     unsigned m_partitionSize = 1024;
     bool m_automaticKitCreation = true;
 
