@@ -123,9 +123,6 @@ QJsonObject JsonRpcMessageHandler::toJsonObject(const QByteArray &_content,
                                                 QTextCodec *codec,
                                                 QString &parseError)
 {
-    auto tr = [](const char *message){
-        return QCoreApplication::translate("JsonRpcMessageHandler", message);
-    };
     if (_content.isEmpty())
         return QJsonObject();
     QByteArray content;

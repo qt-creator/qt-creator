@@ -112,7 +112,7 @@ void ClangDiagnosticConfigsSelectionWidget::connectToClangDiagnosticConfigsDialo
         ClangDiagnosticConfigsWidget *widget = new ClangDiagnosticConfigsWidget(currentConfigId());
         widget->layout()->setMargin(0);
         QDialog dialog;
-        dialog.setWindowTitle(widget->tr("Diagnostic Configurations"));
+        dialog.setWindowTitle(ClangDiagnosticConfigsWidget::tr("Diagnostic Configurations"));
         dialog.setLayout(new QVBoxLayout);
         dialog.layout()->addWidget(widget);
         auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

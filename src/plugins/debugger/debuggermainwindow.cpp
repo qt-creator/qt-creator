@@ -153,11 +153,11 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     });
 
     auto viewButton = new QToolButton;
-    viewButton->setText(tr("&Views"));
+    viewButton->setText(DebuggerMainWindow::tr("&Views"));
 
     auto closeButton = new QToolButton();
     closeButton->setIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
-    closeButton->setToolTip(tr("Leave Debug Mode"));
+    closeButton->setToolTip(DebuggerMainWindow::tr("Leave Debug Mode"));
 
     auto toolbar = new Utils::StyledBar;
     toolbar->setProperty("topBorder", true);
@@ -187,7 +187,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     hbox->addWidget(viewButton);
     hbox->addWidget(closeButton);
 
-    auto dock = new QDockWidget(tr("Toolbar"), q);
+    auto dock = new QDockWidget(DebuggerMainWindow::tr("Toolbar"), q);
     dock->setObjectName(QLatin1String("Toolbar"));
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     dock->setAllowedAreas(Qt::BottomDockWidgetArea);
@@ -482,7 +482,8 @@ void DebuggerMainWindowPrivate::populateCurrentPerspective()
 
     QWidget *central = m_currentPerspective->centralWidget();
     m_centralWidgetStack->addWidget(central ? central : m_editorPlaceHolder);
-    q->showCentralWidgetAction()->setText(central ? central->windowTitle() : tr("Editor"));
+    q->showCentralWidgetAction()->setText(central ? central->windowTitle()
+                                                  : DebuggerMainWindow::tr("Editor"));
 
     m_statusLabel->clear();
 

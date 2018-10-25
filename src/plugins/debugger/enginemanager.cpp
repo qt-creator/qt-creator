@@ -278,11 +278,11 @@ bool EngineItem::setData(int row, const QVariant &value, int role)
 
             auto menu = new QMenu(ev.view());
 
-            QAction *actCreate = menu->addAction(tr("Create Snapshot"));
+            QAction *actCreate = menu->addAction(EngineManager::tr("Create Snapshot"));
             actCreate->setEnabled(m_engine->hasCapability(SnapshotCapabilityRole));
             menu->addSeparator();
 
-            QAction *actRemove = menu->addAction(tr("Abort Debugger"));
+            QAction *actRemove = menu->addAction(EngineManager::tr("Abort Debugger"));
             actRemove->setEnabled(true);
 
             QAction *act = menu->exec(cmev->globalPos());
