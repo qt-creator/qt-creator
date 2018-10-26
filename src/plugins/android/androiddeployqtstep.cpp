@@ -124,7 +124,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         return false;
     }
 
-    emit addOutput(tr("initializing deployment to Android device/simulator"), OutputFormat::Stdout);
+    emit addOutput(tr("Initializing deployment to Android device/simulator"), OutputFormat::Stdout);
 
     RunConfiguration *rc = target()->activeRunConfiguration();
     QTC_ASSERT(rc, return false);
