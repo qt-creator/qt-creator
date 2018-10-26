@@ -60,7 +60,7 @@ public:
           m_portability(new QCheckBox(tr("Portability"), this)),
           m_information(new QCheckBox(tr("Information"), this)),
           m_unusedFunction(new QCheckBox(tr("Unused functions"), this)),
-          m_missingInclude(new QCheckBox(tr("Missing include"), this)),
+          m_missingInclude(new QCheckBox(tr("Missing includes"), this)),
           m_inconclusive(new QCheckBox(tr("Inconclusive errors"), this)),
           m_forceDefines(new QCheckBox(tr("Check all define combinations"), this)),
           m_showOutput(new QCheckBox(tr("Show raw output"), this)),
