@@ -205,6 +205,7 @@ void LanguageClientManager::reportFinished(const MessageId &id, BaseClient *byCl
 void LanguageClientManager::deleteClient(BaseClient *client)
 {
     QTC_ASSERT(client, return);
+    client->disconnect(managerInstance);
     managerInstance->removeMarks(client->id());
     managerInstance->m_clients.removeAll(client);
     delete client;
