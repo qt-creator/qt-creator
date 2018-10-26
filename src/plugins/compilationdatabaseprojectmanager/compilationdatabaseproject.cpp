@@ -148,10 +148,10 @@ static QStringList filteredFlags(const QStringList &flags, const QString &fileNa
 }
 
 static CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
-                                                   const QJsonObject &object)
+                                                   const QJsonObject &object,
+                                                   const QString &workingDir,
+                                                   const Utils::FileName &fileName)
 {
-    const Utils::FileName fileName = Utils::FileName::fromString(
-                QDir::fromNativeSeparators(object["file"].toString()));
     QStringList flags;
     const QJsonArray arguments = object["arguments"].toArray();
     if (arguments.isEmpty()) {
@@ -161,7 +161,6 @@ static CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projec
             flags.append(arg.toString());
     }
 
-    const QString workingDir = object["directory"].toString();
     flags = filteredFlags(flags, fileName.fileName(), workingDir);
 
     CppTools::RawProjectPart rpp;
@@ -221,7 +220,14 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
             CppTools::RawProjectParts rpps;
             for (const QJsonValue &element : array) {
                 const QJsonObject object = element.toObject();
-                const QString filePath = object["file"].toString();
+                const QString workingDir = object["directory"].toString();
+                Utils::FileName fileName = Utils::FileName::fromString(
+                            QDir::fromNativeSeparators(object["file"].toString()));
+                if (!fileName.exists()) {
+                    fileName = Utils::FileUtils::canonicalPath(
+                                Utils::FileName::fromString(workingDir + "/" + fileName.toString()));
+                }
+                const QString filePath = fileName.toString();
                 const CppTools::ProjectFile::Kind kind = CppTools::ProjectFile::classify(filePath);
                 ProjectExplorer::FolderNode *parent = nullptr;
                 ProjectExplorer::FileType type = ProjectExplorer::FileType::Unknown;
@@ -235,9 +241,9 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
                     parent = root.get();
                 }
                 parent->addNode(std::make_unique<ProjectExplorer::FileNode>(
-                                    Utils::FileName::fromString(filePath), type, false));
+                                    fileName, type, false));
 
-                rpps.append(makeRawProjectPart(projectFile, object));
+                rpps.append(makeRawProjectPart(projectFile, object, workingDir, fileName));
             }
 
             root->addNode(std::move(headers));
