@@ -3168,14 +3168,14 @@
          width="100%"
          height="100%" />
       <path
-         style="fill:#ffffff;stroke:#000000"
-         d="m 1183,584.5 h 7 c 1,0 1.5,0.5 1.5,1.5 v 5 c 0,1 -0.5,1.5 -1.5,1.5 v 0 l -3,2.5 0.5,-2.5 h -4.5 c -1,0 -1.5,-0.5 -1.5,-1.5 v -5 c 0,-1 0.5,-1.5 1.5,-1.5 z"
+         style="fill:#000000"
+         d="m 1184.5,584 h 6 c 1,0 1.5,0.5 1.5,1.5 v 4 c 0,1 -0.5,1.5 -1.5,1.5 h -0.5 l -4.5,3.5 2,-3.5 h -3 c -1,0 -1.5,-0.5 -1.5,-1.5 v -4 c 0,-1 0.5,-1.5 1.5,-1.5 z"
          id="path4639"
          inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccccccccccsc" />
+         sodipodi:nodetypes="cccccccccccc" />
       <path
-         style="fill:none;stroke:#000000"
-         d="m 1185.75,586.25 -2.25,2.25 2.25,2.25"
+         style="fill:none;stroke:#ffffff"
+         d="m 1186.75,585.25 -2.25,2.25 2.25,2.25"
          id="path4676"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccc" />
@@ -3184,7 +3184,7 @@
          y="0"
          xlink:href="#path4676"
          id="use4682"
-         transform="matrix(-1,0,0,1,2373.0138,0)"
+         transform="matrix(-1,0,0,1,2375,0)"
          width="100%"
          height="100%" />
     </g>
