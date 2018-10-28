@@ -201,49 +201,49 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     const bool currentLocal = m_model->isLocal(currentBranch);
 
     QMenu contextMenu;
-    contextMenu.addAction(tr("Add..."), this, &BranchView::add);
+    contextMenu.addAction(tr("&Add..."), this, &BranchView::add);
     const Utils::optional<QString> remote = m_model->remoteName(index);
     if (remote.has_value()) {
-        contextMenu.addAction(tr("Fetch"), this, [this, &remote]() {
+        contextMenu.addAction(tr("&Fetch"), this, [this, &remote]() {
             GitPlugin::client()->fetch(m_repository, *remote);
         });
         contextMenu.addSeparator();
-        contextMenu.addAction(tr("Manage Remotes..."), GitPlugin::instance(),
+        contextMenu.addAction(tr("Manage &Remotes..."), GitPlugin::instance(),
                               &GitPlugin::manageRemotes);
     }
     if (hasActions) {
         if (!currentSelected && (isLocal || isTag))
-            contextMenu.addAction(tr("Remove..."), this, &BranchView::remove);
+            contextMenu.addAction(tr("Rem&ove..."), this, &BranchView::remove);
         if (isLocal || isTag)
-            contextMenu.addAction(tr("Rename..."), this, &BranchView::rename);
+            contextMenu.addAction(tr("Re&name..."), this, &BranchView::rename);
         if (!currentSelected)
-            contextMenu.addAction(tr("Checkout"), this, &BranchView::checkout);
+            contextMenu.addAction(tr("&Checkout"), this, &BranchView::checkout);
         contextMenu.addSeparator();
-        contextMenu.addAction(tr("Diff"), this, [this] {
+        contextMenu.addAction(tr("&Diff"), this, [this] {
             const QString fullName = m_model->fullName(selectedIndex(), true);
             if (!fullName.isEmpty())
                 GitPlugin::client()->diffBranch(m_repository, fullName);
         });
-        contextMenu.addAction(tr("Log"), this, [this] { log(selectedIndex()); });
+        contextMenu.addAction(tr("&Log"), this, [this] { log(selectedIndex()); });
         contextMenu.addSeparator();
         if (!currentSelected) {
             if (currentLocal)
-                contextMenu.addAction(tr("Reset"), this, &BranchView::reset);
+                contextMenu.addAction(tr("Re&set"), this, &BranchView::reset);
             QString mergeTitle;
             if (isFastForwardMerge()) {
-                contextMenu.addAction(tr("Merge (Fast-Forward)"), this, [this] { merge(true); });
-                mergeTitle = tr("Merge (No Fast-Forward)");
+                contextMenu.addAction(tr("&Merge (Fast-Forward)"), this, [this] { merge(true); });
+                mergeTitle = tr("Merge (No &Fast-Forward)");
             } else {
-                mergeTitle = tr("Merge");
+                mergeTitle = tr("&Merge");
             }
 
             contextMenu.addAction(mergeTitle, this, [this] { merge(false); });
-            contextMenu.addAction(tr("Rebase"), this, &BranchView::rebase);
+            contextMenu.addAction(tr("&Rebase"), this, &BranchView::rebase);
             contextMenu.addSeparator();
-            contextMenu.addAction(tr("Cherry Pick"), this, &BranchView::cherryPick);
+            contextMenu.addAction(tr("Cherry &Pick"), this, &BranchView::cherryPick);
         }
         if (currentLocal && !currentSelected && !isTag) {
-            contextMenu.addAction(tr("Track"), this, [this] {
+            contextMenu.addAction(tr("&Track"), this, [this] {
                 m_model->setRemoteTracking(selectedIndex());
             });
             if (!isLocal) {
