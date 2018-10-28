@@ -74,6 +74,7 @@ public:
     bool jobCountOverridesMakeflags() const;
     void setJobCountOverrideMakeflags(bool override);
     bool makeflagsContainsJobCount() const;
+    bool userArgsContainsJobCount() const;
 
     Utils::Environment environment(BuildConfiguration *bc) const;
 
@@ -110,6 +111,7 @@ private:
     void updateDetails();
     void setSummaryText(const QString &text);
     void setUserJobCountVisible(bool visible);
+    void setUserJobCountEnabled(bool enabled);
 
     Internal::Ui::MakeStep *m_ui;
     MakeStep *m_makeStep;
