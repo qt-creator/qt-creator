@@ -428,7 +428,6 @@ bool BranchView::remove()
 bool BranchView::rename()
 {
     const QModelIndex selected = selectedIndex();
-    QTC_CHECK(selected != m_model->currentBranch());
     const bool isTag = m_model->isTag(selected);
     QTC_CHECK(m_model->isLocal(selected) || isTag);
 
