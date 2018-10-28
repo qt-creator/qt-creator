@@ -295,7 +295,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QFutureInter
 
     m_process->start();
 
-    emit addOutput(tr("Starting: \"%1 %2\"")
+    emit addOutput(tr("Starting: \"%1\" %2")
                    .arg(QDir::toNativeSeparators(m_command), args),
                    BuildStep::OutputFormat::NormalMessage);
 
