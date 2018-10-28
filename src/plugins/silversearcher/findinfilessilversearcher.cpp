@@ -35,9 +35,11 @@
 
 #include "silversearcheroutputparser.h"
 
-#include <QProcess>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
+#include <QProcess>
+#include <QSettings>
 
 using namespace Core;
 using namespace TextEditor;
@@ -49,6 +51,14 @@ const QLatin1String silverSearcherName("Silver Searcher");
 using FutureInterfaceType = QFutureInterface<FileSearchResultList>;
 
 const QString metacharacters = "+()^$.{}[]|\\";
+
+const QString SearchOptionsString = "SearchOptionsString";
+
+class SilverSearcherSearchOptions
+{
+public:
+    QString searchOptions;
+};
 
 QString convertWildcardToRegex(const QString &wildcard)
 {
@@ -112,6 +122,11 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
 
     arguments << "-G" << nameFiltersAsRegex;
 
+    SilverSearcherSearchOptions params = parameters.searchEngineParameters
+                                             .value<SilverSearcherSearchOptions>();
+    if (!params.searchOptions.isEmpty())
+        arguments << params.searchOptions.split(' ');
+
     const FileName path = FileName::fromUserInput(FileUtils::normalizePathName(directory));
     arguments << "--" << parameters.text << path.toString();
 
@@ -121,9 +136,10 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
         typedef QList<FileSearchResult> FileSearchResultList;
         QRegularExpression regexp;
         if (parameters.flags & FindRegularExpression) {
-            const QRegularExpression::PatternOptions patternOptions =
-                    (parameters.flags & FindCaseSensitively)
-                    ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+            const QRegularExpression::PatternOptions patternOptions
+                = (parameters.flags & FindCaseSensitively)
+                      ? QRegularExpression::NoPatternOption
+                      : QRegularExpression::CaseInsensitiveOption;
             regexp.setPattern(parameters.text);
             regexp.setPatternOptions(patternOptions);
         }
@@ -138,14 +154,22 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
 
 } // namespace
 
+Q_DECLARE_METATYPE(SilverSearcherSearchOptions)
+
 namespace SilverSearcher {
 
 FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
-    : SearchEngine(parent),
-      m_path("ag"),
-      m_toolName("SilverSearcher")
+    : SearchEngine(parent)
+    , m_path("ag")
+    , m_toolName("SilverSearcher")
 {
     m_widget = new QWidget;
+    auto layout = new QHBoxLayout(m_widget);
+    layout->setMargin(0);
+    m_searchOptionsLineEdit = new QLineEdit;
+    m_searchOptionsLineEdit->setPlaceholderText(tr("Search Options (optional)"));
+    layout->addWidget(m_searchOptionsLineEdit);
+
     FindInFiles *findInFiles = FindInFiles::instance();
     QTC_ASSERT(findInFiles, return);
     findInFiles->addSearchEngine(this);
@@ -166,7 +190,9 @@ FindInFilesSilverSearcher::~FindInFilesSilverSearcher()
 
 QVariant FindInFilesSilverSearcher::parameters() const
 {
-    return QVariant();
+    SilverSearcherSearchOptions silverSearcherSearchOptions;
+    silverSearcherSearchOptions.searchOptions = m_searchOptionsLineEdit->text();
+    return qVariantFromValue(silverSearcherSearchOptions);
 }
 
 QString FindInFilesSilverSearcher::title() const
@@ -184,8 +210,9 @@ QWidget *FindInFilesSilverSearcher::widget() const
     return m_widget;
 }
 
-void FindInFilesSilverSearcher::writeSettings(QSettings * /*settings*/) const
+void FindInFilesSilverSearcher::writeSettings(QSettings *settings) const
 {
+    settings->setValue(SearchOptionsString, m_searchOptionsLineEdit->text());
 }
 
 QFuture<FileSearchResultList> FindInFilesSilverSearcher::executeSearch(
@@ -200,8 +227,9 @@ IEditor *FindInFilesSilverSearcher::openEditor(const SearchResultItem & /*item*/
     return nullptr;
 }
 
-void FindInFilesSilverSearcher::readSettings(QSettings * /*settings*/)
+void FindInFilesSilverSearcher::readSettings(QSettings *settings)
 {
+    m_searchOptionsLineEdit->setText(settings->value(SearchOptionsString).toString());
 }
 
 } // namespace SilverSearcher

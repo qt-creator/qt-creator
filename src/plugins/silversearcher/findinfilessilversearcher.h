@@ -32,6 +32,8 @@
 
 #include <QPointer>
 
+class QLineEdit;
+
 namespace SilverSearcher {
 
 class FindInFilesSilverSearcher : public TextEditor::SearchEngine
@@ -59,6 +61,7 @@ private:
 
     Utils::FileName m_directorySetting;
     QPointer<QWidget> m_widget;
+    QPointer<QLineEdit> m_searchOptionsLineEdit;
     QString m_path;
     QString m_toolName;
 };
