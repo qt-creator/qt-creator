@@ -554,21 +554,25 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
 
     const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).constLast();
 
-    const QStringList possiblePaths = {
-        importDir.absoluteFilePath(relativePathWithVersion),
-        //Since we are in a subfolder of the import we do not require the directory
-        importDir.absoluteFilePath(withoutDirWithVersion),
+    QStringList possiblePaths = {
         fileSystemDir.absoluteFilePath(relativePathWithVersion),
         resourcesDir.absoluteFilePath(relativePathWithVersion),
-
-        importDir.absoluteFilePath(relativePath),
-        //Since we are in a subfolder of the import we do not require the directory
-        importDir.absoluteFilePath(withoutDir),
         fileSystemDir.absoluteFilePath(relativePath),
         resourcesDir.absoluteFilePath(relativePath)
     };
+
+    if (!importDir.isEmpty())
+        possiblePaths.append({
+            importDir.absoluteFilePath(relativePathWithVersion),
+            //Since we are in a subfolder of the import we do not require the directory
+            importDir.absoluteFilePath(withoutDirWithVersion),
+            importDir.absoluteFilePath(relativePath),
+            //Since we are in a subfolder of the import we do not require the directory
+            importDir.absoluteFilePath(withoutDir),
+        });
+
     return Utils::findOrDefault(possiblePaths, [](const QString &possibleFilePath) {
-        return QFile::exists(possibleFilePath);
+        return QFileInfo::exists(possibleFilePath);
     });
 }
 
