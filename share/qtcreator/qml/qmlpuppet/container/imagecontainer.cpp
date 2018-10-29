@@ -196,7 +196,10 @@ static void readSharedMemory(qint32 key, ImageContainer &container)
 
         QImage image = QImage(imageWidth, imageHeight, QImage::Format(imageFormat));
 
-        std::memcpy(image.bits(), reinterpret_cast<const qint32*>(sharedMemory.constData()) + 5, byteCount);
+        if (image.isNull())
+            qDebug() << Q_FUNC_INFO << "Not able to create image:" << imageWidth << imageHeight << imageFormat;
+        else
+            std::memcpy(image.bits(), reinterpret_cast<const qint32*>(sharedMemory.constData()) + 5, byteCount);
 
         container.setImage(image);
 
