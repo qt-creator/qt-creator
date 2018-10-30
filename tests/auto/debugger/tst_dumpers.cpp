@@ -5757,7 +5757,11 @@ void tst_Dumpers::dumper_data()
                     "const Foo &b4 = a4;\n"
                     "typedef Foo &Ref4;\n"
                     "const Ref4 d4 = const_cast<Ref4>(a4);\n"
-                    "unused(&a4, &b4, &d4);\n")
+                    "unused(&a4, &b4, &d4);\n"
+
+                    "int *q = 0;\n"
+                    "int &qq = *q;\n"
+                    "unused(&qq, &q);\n")
 
                + CoreProfile()
                + NoCdbEngine // The Cdb has no information about references
@@ -5781,7 +5785,9 @@ void tst_Dumpers::dumper_data()
                + Check("b4", "", "Foo &")
                + Check("b4.a", "12", "int")
                //+ Check("d4", "\"hello\"", "Ref4");  FIXME: We get "Foo &" instead
-               + Check("d4.a", "12", "int");
+               + Check("d4.a", "12", "int")
+
+               + Check("qq", "<null reference>", "int &");
 
     QTest::newRow("DynamicReference")
             << Data("struct BaseClass { virtual ~BaseClass() {} };\n"
