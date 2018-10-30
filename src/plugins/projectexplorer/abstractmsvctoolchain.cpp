@@ -98,54 +98,6 @@ QString AbstractMsvcToolChain::originalTargetTriple() const
             : QLatin1String("i686-pc-windows-msvc");
 }
 
-//
-// We want to detect the language version based on the predefined macros.
-// Unfortunately MSVC does not conform to standard when it comes to the predefined
-// __cplusplus macro - it reports "199711L", even for newer language versions.
-//
-// However:
-//   * For >= Visual Studio 2015 Update 3 predefines _MSVC_LANG which has the proper value
-//     of __cplusplus.
-//     See https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2017
-//   * For >= Visual Studio 2017 Version 15.7 __cplusplus is correct once /Zc:__cplusplus
-//     is provided on the command line. Then __cplusplus == _MSVC_LANG.
-//     See https://blogs.msdn.microsoft.com/vcblog/2018/04/09/msvc-now-correctly-reports-__cplusplus
-//
-// We rely on _MSVC_LANG if possible, otherwise on some hard coded language versions
-// depending on _MSC_VER.
-//
-// For _MSV_VER values, see https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2017.
-//
-LanguageVersion static languageVersionForMsvc(const Core::Id &language, const Macros &macros)
-{
-    int mscVer = -1;
-    QByteArray msvcLang;
-    for (const ProjectExplorer::Macro &macro : macros) {
-        if (macro.key == "_MSVC_LANG")
-            msvcLang = macro.value;
-        if (macro.key == "_MSC_VER")
-            mscVer = macro.value.toInt(nullptr);
-    }
-    QTC_CHECK(mscVer > 0);
-
-    if (language == Constants::CXX_LANGUAGE_ID) {
-        if (!msvcLang.isEmpty()) // >= Visual Studio 2015 Update 3
-            return ToolChain::cxxLanguageVersion(msvcLang);
-        if (mscVer >= 1800) // >= Visual Studio 2013 (12.0)
-            return LanguageVersion::CXX14;
-        if (mscVer >= 1600) // >= Visual Studio 2010 (10.0)
-            return LanguageVersion::CXX11;
-        return LanguageVersion::CXX98;
-    } else if (language == Constants::C_LANGUAGE_ID) {
-        if (mscVer >= 1910) // >= Visual Studio 2017 RTW (15.0)
-            return LanguageVersion::C11;
-        return LanguageVersion::C99;
-    } else {
-        QTC_CHECK(false && "Unexpected toolchain language, assuming latest C++ we support.");
-        return LanguageVersion::LatestCxx;
-    }
-}
-
 bool static hasFlagEffectOnMacros(const QString &flag)
 {
     if (flag.startsWith("-") || flag.startsWith("/")) {
@@ -177,8 +129,7 @@ ToolChain::MacroInspectionRunner AbstractMsvcToolChain::createMacroInspectionRun
 
         const Macros macros = msvcPredefinedMacros(filteredFlags, env);
 
-        const auto report = MacroInspectionReport{macros,
-                                                  languageVersionForMsvc(lang, macros)};
+        const auto report = MacroInspectionReport{macros, languageVersion(macros)};
         macroCache->insert(filteredFlags, report);
 
         return report;
