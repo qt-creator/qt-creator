@@ -258,6 +258,9 @@ static int includeIndexForResourceDirectory(const QStringList &options, bool isM
 
 void CompilerOptionsBuilder::insertWrappedQtHeaders()
 {
+    if (m_skipBuiltInHeaderPathsAndDefines == SkipBuiltIn::Yes)
+        return;
+
     QStringList wrappedQtHeaders;
     addWrappedQtHeadersIncludePath(wrappedQtHeaders);
 
