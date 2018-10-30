@@ -163,7 +163,7 @@ ToolChain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Co
 
 Utils::FileName jsonObjectFilename(const QJsonObject &object)
 {
-    const QString workingDir = object["directory"].toString();
+    const QString workingDir = QDir::fromNativeSeparators(object["directory"].toString());
     Utils::FileName fileName = Utils::FileName::fromString(
                 QDir::fromNativeSeparators(object["file"].toString()));
     if (fileName.toFileInfo().isRelative()) {
@@ -232,6 +232,76 @@ CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
     return rpp;
 }
 
+QStringList relativeDirsList(Utils::FileName currentPath, const Utils::FileName &rootPath)
+{
+    QStringList dirsList;
+    while (!currentPath.isEmpty() && currentPath != rootPath) {
+        QString dirName = currentPath.fileName();
+        if (dirName.isEmpty())
+            dirName = currentPath.toString();
+        dirsList.prepend(dirName);
+        currentPath = currentPath.parentDir();
+    }
+    return dirsList;
+}
+
+FolderNode *addChildFolderNode(FolderNode *parent, const QString &childName)
+{
+    Utils::FileName parentPath = parent->filePath();
+    auto node = std::make_unique<FolderNode>(
+                parentPath.appendPath(childName), NodeType::Folder, childName);
+    FolderNode *childNode = node.get();
+    parent->addNode(std::move(node));
+
+    return childNode;
+}
+
+FolderNode *addOrGetChildFolderNode(FolderNode *parent, const QString &childName)
+{
+    Node *childNode = parent->findNode([childName](const Node *node) {
+        if (!node->asFolderNode())
+            return false;
+        QString nodeDirName = node->filePath().fileName();
+        if (nodeDirName.isEmpty())
+            nodeDirName = node->filePath().toString();
+        return nodeDirName == childName;
+    });
+    if (childNode)
+        return childNode->asFolderNode();
+
+    return addChildFolderNode(parent, childName);
+}
+
+    // Return the node for folderPath.
+FolderNode *createFoldersIfNeeded(FolderNode *root, const Utils::FileName &folderPath)
+{
+    const QStringList dirsList = relativeDirsList(folderPath, root->filePath());
+
+    FolderNode *parent = root;
+    for (const QString &dir : dirsList)
+        parent = addOrGetChildFolderNode(parent, dir);
+
+    return parent;
+}
+
+void createFolders(FolderNode *root, const Utils::FileName &rootPath)
+{
+    root->setAbsoluteFilePathAndLine(rootPath, -1);
+
+    for (Node *child : root->nodes()) {
+        FileNode *fileNode = child->asFileNode();
+        if (!fileNode)
+            continue;
+
+        FolderNode *parentNode = createFoldersIfNeeded(root,
+                                                       fileNode->filePath().parentDir());
+        child->setParentFolderNode(nullptr);
+        std::unique_ptr<Node> childNode = root->takeNode(child);
+        if (!parentNode->fileNode(child->filePath()))
+            parentNode->addNode(std::move(childNode));
+    }
+}
+
 } // anonymous namespace
 
 void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName &projectFile)
@@ -245,38 +315,22 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
     const QJsonArray array = QJsonDocument::fromJson(file.readAll()).array();
 
     auto root = std::make_unique<DBProjectNode>(projectDirectory());
-    root->addNode(std::make_unique<FileNode>(
-                      projectFile,
-                      FileType::Project,
-                      false));
-    auto headers = std::make_unique<VirtualFolderNode>(
-                Utils::FileName::fromString("Headers"), 0);
-    auto sources = std::make_unique<VirtualFolderNode>(
-                Utils::FileName::fromString("Sources"), 0);
 
     CppTools::RawProjectParts rpps;
+    Utils::FileName commonPath;
     ToolChain *cToolchain = nullptr;
     ToolChain *cxxToolchain = nullptr;
     for (const QJsonValue &element : array) {
         const QJsonObject object = element.toObject();
-
         Utils::FileName fileName = jsonObjectFilename(object);
         const QStringList flags = jsonObjectFlags(object);
-        const QString filePath = fileName.toString();
 
-        const CppTools::ProjectFile::Kind kind = CppTools::ProjectFile::classify(filePath);
-        FolderNode *parent = nullptr;
-        FileType type = FileType::Unknown;
-        if (CppTools::ProjectFile::isHeader(kind)) {
-            parent = headers.get();
-            type = FileType::Header;
-        } else if (CppTools::ProjectFile::isSource(kind)) {
-            parent = sources.get();
-            type = FileType::Source;
-        } else {
-            parent = root.get();
-        }
-        parent->addNode(std::make_unique<FileNode>(fileName, type, false));
+        commonPath = rpps.empty()
+                ? fileName.parentDir()
+                : Utils::FileUtils::commonPath(commonPath, fileName);
+
+        ProjectExplorer::FileType type = ProjectExplorer::FileType::Unknown;
+        root->addNode(std::make_unique<FileNode>(fileName, type, false));
 
         CppTools::RawProjectPart rpp = makeRawProjectPart(projectFile,
                                                           m_kit.get(),
@@ -297,8 +351,12 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
             rpps[rppIndex].files.append(rpp.files);
     }
 
-    root->addNode(std::move(headers));
-    root->addNode(std::move(sources));
+    createFolders(root.get(), commonPath);
+
+    root->addNode(std::make_unique<FileNode>(
+                      projectFile,
+                      FileType::Project,
+                      false));
 
     setRootProjectNode(std::move(root));
 
