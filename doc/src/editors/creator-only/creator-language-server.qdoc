@@ -40,14 +40,17 @@
 
     By providing a client for the language server protocol, \QC can support
     the above features for several other programming languages besides C++.
-    However, the experimental client does support language servers that
+    However, the experimental client does not support language servers that
     require special handling.
 
     \QC uses the \l{https://www.iana.org/assignments/media-types/media-types.xhtml}
-    {MIME type} of the file to determine which language server to start when you
-    open a file for editing. Add new MIME types as filters for language servers.
-    For more information about how \QC uses MIME types, see
-    \l {Editing MIME Types}.
+    {MIME type} of the file to determine which language server to request
+    information from when you open a file for editing. Add new MIME types or
+    file patterns to match language servers. If you do not set at least one MIME
+    type or file pattern, no files will be sent to the language server. This is
+    done to avoid unnecessary traffic and inaccurate information, as files are
+    only sent to the languge server if they are known to be handled by it. For
+    more information about how \QC uses MIME types, see \l {Editing MIME Types}.
 
     The experimental language service client has been mostly tested with Python.
     If problems arise when you try some other language, please select
@@ -58,7 +61,6 @@
     To use a language server:
 
     \list 1
-
         \li Enable the language server client by selecting \uicontrol Help >
             \uicontrol {About Plugins} > \uicontrol {Other Languages} >
             \uicontrol {Language Client} (or \uicontrol {Qt Creator} >
@@ -66,18 +68,23 @@
             \uicontrol {Language Client} on \macos).
         \li Restart \QC to load the language client plugin.
         \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol {Language Client} > \uicontrol Add (or
-            \uicontrol {Qt Creator} > \uicontrol {Language Client} >
-            \uicontrol Add on \macos) to add language servers.
+            \uicontrol {Language Client} (or \uicontrol {Qt Creator} >
+            \uicontrol Preferences > \uicontrol {Language Client} > on
+            \macos) to view a list of language servers.
+            \image qtcreator-language-client-options.png "Language client options page"
+        \li Select the check box next to the language server name to enable the
+            language server.
+        \li Select \uicontrol Add to add language servers.
         \li In the \uicontrol Name field, enter a name for the language server.
-        \li Select the \uicontrol Enabled check box.
-        \li In the \uicontrol {MIME Type} field, enter the filter for files that
-            the lanaguage server will handle. When you start typing the filter
-            name, a list of predefined filters appears where you can select a
-            filter.
+        \li In the \uicontrol {Language} field, select
+            \uicontrol {Set MIME Types} to select the MIME types of the files to
+            send to the language server. In the field below, you can enter file
+            patterns to extend the MIME types, separated by semicolons.
         \li In the \uicontrol Executable field, enter the path to the language
             server executable.
         \li In the \uicontrol Arguments field, enter any required command line
             arguments.
     \endlist
+
+    To remove language servers from the list, select \uicontrol Delete.
 */
