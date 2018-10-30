@@ -268,11 +268,6 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
                                             m_ui->androidDetailsWidget);
     m_ui->androidDetailsWidget->setWidget(androidSummary);
 
-    auto kitsDetailsLabel = new QLabel(m_ui->kitWarningDetails);
-    kitsDetailsLabel->setWordWrap(true);
-    m_ui->kitWarningDetails->setWidget(kitsDetailsLabel);
-    m_ui->kitWarningDetails->setIcon(Utils::Icons::WARNING.icon());
-
     m_ui->SDKLocationPathChooser->setFileName(m_androidConfig.sdkLocation());
     m_ui->SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
     m_ui->NDKLocationPathChooser->setFileName(m_androidConfig.ndkLocation());
@@ -532,48 +527,6 @@ void AndroidSettingsWidget::createKitToggled()
     m_androidConfig.setAutomaticKitCreation(m_ui->CreateKitCheckBox->isChecked());
 }
 
-void AndroidSettingsWidget::checkMissingQtVersion()
-{
-    auto summaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
-    if (!summaryWidget->allRowsOk()) {
-        m_ui->kitWarningDetails->setVisible(false);
-        m_ui->kitWarningDetails->setState(Utils::DetailsWidget::Collapsed);
-        return;
-    }
-
-    QList<AndroidToolChainFactory::AndroidToolChainInformation> compilerPaths
-            = AndroidToolChainFactory::toolchainPathsForNdk(m_androidConfig.ndkLocation());
-
-    // See if we have qt versions for those toolchains
-    QSet<ProjectExplorer::Abi> toolchainsForAbi;
-    foreach (const AndroidToolChainFactory::AndroidToolChainInformation &ati, compilerPaths) {
-        if (ati.language == Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
-            toolchainsForAbi.insert(ati.abi);
-    }
-
-    const QList<QtSupport::BaseQtVersion *> androidQts
-            = QtSupport::QtVersionManager::versions([](const QtSupport::BaseQtVersion *v) {
-        return v->type() == QLatin1String(Constants::ANDROIDQT) && !v->qtAbis().isEmpty();
-    });
-    QSet<ProjectExplorer::Abi> qtVersionsForAbi;
-    foreach (QtSupport::BaseQtVersion *qtVersion, androidQts)
-        qtVersionsForAbi.insert(qtVersion->qtAbis().first());
-
-    QSet<ProjectExplorer::Abi> missingQtArchs = toolchainsForAbi.subtract(qtVersionsForAbi);
-    bool isArchMissing = !missingQtArchs.isEmpty();
-    m_ui->kitWarningDetails->setVisible(isArchMissing);
-    if (isArchMissing) {
-        m_ui->kitWarningDetails->setSummaryText(tr("Cannot create kits for all architectures."));
-        auto detailsLabel = static_cast<QLabel *>(m_ui->kitWarningDetails->widget());
-        QStringList archNames;
-        for (auto abi : missingQtArchs)
-            archNames << abi.toString();
-        detailsLabel->setText(tr("Qt versions are missing for the following architectures:\n%1"
-                                 "\n\nTo add the Qt version, select Options > Build & Run > Qt"
-                                 " Versions.").arg(archNames.join(", ")));
-    }
-}
-
 void AndroidSettingsWidget::updateUI()
 {
     auto javaSummaryWidget = static_cast<SummaryWidget *>(m_ui->javaDetailsWidget->widget());
@@ -596,7 +549,6 @@ void AndroidSettingsWidget::updateUI()
     m_ui->androidDetailsWidget->setState(androidSetupOk ? Utils::DetailsWidget::Collapsed :
                                                           Utils::DetailsWidget::Expanded);
     startUpdateAvd();
-    checkMissingQtVersion();
 }
 
 void AndroidSettingsWidget::manageAVD()

@@ -91,7 +91,6 @@ private:
     void manageAVD();
     void createKitToggled();
 
-    void checkMissingQtVersion();
     void updateUI();
     void updateAvds();
 
