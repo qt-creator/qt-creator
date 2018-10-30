@@ -25,46 +25,26 @@
 
 #pragma once
 
-#include <projectexplorer/project.h>
+#include "compilationdatabaseconstants.h"
 
-#include <texteditor/texteditor.h>
+#include <cpptools/cppprojectfile.h>
 
-#include <QFutureWatcher>
+#include <QStringList>
 
-namespace CppTools {
-class CppProjectUpdater;
+namespace ProjectExplorer {
+class HeaderPath;
+class Macro;
 }
 
-namespace ProjectExplorer { class Kit; }
-
 namespace CompilationDatabaseProjectManager {
-namespace Internal {
 
-class CompilationDatabaseProject : public ProjectExplorer::Project
-{
-    Q_OBJECT
+void filteredFlags(const QString &fileName,
+                   const QString &workingDir,
+                   QStringList &flags,
+                   QVector<ProjectExplorer::HeaderPath> &headerPaths,
+                   QVector<ProjectExplorer::Macro> &macros,
+                   CppTools::ProjectFile::Kind &fileKind);
 
-public:
-    explicit CompilationDatabaseProject(const Utils::FileName &filename);
-    ~CompilationDatabaseProject() override;
-    bool needsConfiguration() const override { return false; }
-    bool needsBuildConfigurations() const override { return false; }
+QStringList splitCommandLine(QString commandLine);
 
-private:
-    void buildTreeAndProjectParts(const Utils::FileName &projectFile);
-
-    QFutureWatcher<void> m_parserWatcher;
-    std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;
-    std::unique_ptr<ProjectExplorer::Kit> m_kit;
-};
-
-class CompilationDatabaseEditorFactory : public TextEditor::TextEditorFactory
-{
-    Q_OBJECT
-
-public:
-    CompilationDatabaseEditorFactory();
-};
-
-} // namespace Internal
 } // namespace CompilationDatabaseProjectManager

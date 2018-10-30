@@ -104,7 +104,8 @@ SOURCES += \
     taskscheduler-test.cpp \
     compileroptionsbuilder-test.cpp \
     usedmacroandsourcestorage-test.cpp \
-    pchtaskgenerator-test.cpp
+    pchtaskgenerator-test.cpp \
+    compilationdatabaseutils-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

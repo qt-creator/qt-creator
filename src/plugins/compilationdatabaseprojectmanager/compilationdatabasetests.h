@@ -25,46 +25,30 @@
 
 #pragma once
 
-#include <projectexplorer/project.h>
+#include <QObject>
+#include <memory>
 
-#include <texteditor/texteditor.h>
-
-#include <QFutureWatcher>
-
-namespace CppTools {
-class CppProjectUpdater;
-}
-
-namespace ProjectExplorer { class Kit; }
+namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
 
 namespace CompilationDatabaseProjectManager {
-namespace Internal {
 
-class CompilationDatabaseProject : public ProjectExplorer::Project
+class CompilationDatabaseTests : public QObject
 {
     Q_OBJECT
-
 public:
-    explicit CompilationDatabaseProject(const Utils::FileName &filename);
-    ~CompilationDatabaseProject() override;
-    bool needsConfiguration() const override { return false; }
-    bool needsBuildConfigurations() const override { return false; }
+    explicit CompilationDatabaseTests(QObject *parent = nullptr);
+    ~CompilationDatabaseTests();
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void testProject();
+    void testProject_data();
 
 private:
-    void buildTreeAndProjectParts(const Utils::FileName &projectFile);
+    void addTestRow(const QByteArray &relativeFilePath);
 
-    QFutureWatcher<void> m_parserWatcher;
-    std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;
-    std::unique_ptr<ProjectExplorer::Kit> m_kit;
+    std::unique_ptr<CppTools::Tests::TemporaryCopiedDir> m_tmpDir;
 };
 
-class CompilationDatabaseEditorFactory : public TextEditor::TextEditorFactory
-{
-    Q_OBJECT
-
-public:
-    CompilationDatabaseEditorFactory();
-};
-
-} // namespace Internal
 } // namespace CompilationDatabaseProjectManager

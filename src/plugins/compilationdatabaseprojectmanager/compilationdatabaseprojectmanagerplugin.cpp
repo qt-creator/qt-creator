@@ -27,6 +27,7 @@
 
 #include "compilationdatabaseconstants.h"
 #include "compilationdatabaseproject.h"
+#include "compilationdatabasetests.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectmanager.h>
@@ -50,6 +51,15 @@ bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &argu
 
 void CompilationDatabaseProjectManagerPlugin::extensionsInitialized()
 {
+}
+
+QList<QObject *> CompilationDatabaseProjectManagerPlugin::createTestObjects() const
+{
+    QList<QObject *> tests;
+#ifdef WITH_TESTS
+    tests << new CompilationDatabaseTests;
+#endif
+    return tests;
 }
 
 } // namespace Internal

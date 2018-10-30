@@ -13,7 +13,26 @@ QtcPlugin {
         "compilationdatabaseconstants.h",
         "compilationdatabaseproject.cpp",
         "compilationdatabaseproject.h",
+        "compilationdatabaseutils.cpp",
+        "compilationdatabaseutils.h",
         "compilationdatabaseprojectmanagerplugin.cpp",
         "compilationdatabaseprojectmanagerplugin.h",
     ]
+
+    Group {
+        name: "Tests"
+        condition: qtc.testsEnabled
+        files: [
+            "compilationdatabasetests.cpp",
+            "compilationdatabasetests.h",
+            "compilationdatabasetests.qrc",
+        ]
+    }
+
+    Group {
+        name: "Test resources"
+        prefix: "database_samples/"
+        fileTags: []
+        files: ["**/*"]
+    }
 }
