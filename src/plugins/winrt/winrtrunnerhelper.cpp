@@ -152,7 +152,7 @@ void WinRtRunnerHelper::onProcessFinished(int exitCode, QProcess::ExitStatus exi
     QTC_ASSERT(m_process, return);
     m_process->disconnect();
     m_process->deleteLater();
-    m_process = 0;
+    m_process = nullptr;
     emit finished(exitCode, exitStatus);
 }
 
@@ -163,7 +163,7 @@ void WinRtRunnerHelper::onProcessError(QProcess::ProcessError processError)
                       m_process->errorString()), Utils::ErrorMessageFormat);
     m_process->disconnect();
     m_process->deleteLater();
-    m_process = 0;
+    m_process = nullptr;
     emit error(processError);
 }
 
@@ -176,7 +176,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
         QtcProcess::addArg(&runnerArgs, QString::number(m_device->deviceId()));
     }
 
-    QtcProcess *process = 0;
+    QtcProcess *process = nullptr;
     bool connectProcess = false;
 
     switch (conf) {

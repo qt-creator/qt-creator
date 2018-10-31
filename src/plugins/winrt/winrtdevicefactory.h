@@ -55,8 +55,8 @@ private:
     QString findRunnerFilePath() const;
     void parseRunnerOutput(const QByteArray &output) const;
 
-    Utils::QtcProcess *m_process;
-    bool m_initialized;
+    Utils::QtcProcess *m_process = nullptr;
+    bool m_initialized = false;
 };
 
 } // Internal

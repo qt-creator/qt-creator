@@ -48,8 +48,6 @@ namespace WinRt {
 namespace Internal {
 
 WinRtDeviceFactory::WinRtDeviceFactory()
-    : m_process(0)
-    , m_initialized(false)
 {
     if (allPrerequisitesLoaded()) {
         onPrerequisitesLoaded();
