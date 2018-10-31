@@ -38,7 +38,7 @@ static Core::Id initialClangDiagnosticConfigId()
 { return Core::Id(Constants::CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS); }
 
 static CppCodeModelSettings::PCHUsage initialPchUsage()
-{ return CppCodeModelSettings::PchUse_None; }
+{ return CppCodeModelSettings::PchUse_BuildSystem; }
 
 static QString clangDiagnosticConfigKey()
 { return QStringLiteral("ClangDiagnosticConfig"); }

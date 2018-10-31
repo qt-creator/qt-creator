@@ -77,7 +77,7 @@ signals:
     void changed();
 
 private:
-    PCHUsage m_pchUsage = PchUse_None;
+    PCHUsage m_pchUsage = PchUse_BuildSystem;
     bool m_interpretAmbigiousHeadersAsCHeaders = false;
     bool m_skipIndexingBigFiles = true;
     int m_indexerFileSizeLimitInMB = 5;
