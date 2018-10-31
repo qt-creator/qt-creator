@@ -189,7 +189,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
         }
         Q_FALLTHROUGH();
     case Start:
-        QtcProcess::addArgs(&runnerArgs, QStringLiteral("--start --stop --install --wait 0"));
+        QtcProcess::addArgs(&runnerArgs, QStringLiteral("--start --stop --wait 0"));
         connectProcess = true;
         QTC_ASSERT(!m_process, m_process->deleteLater());
         m_process = new QtcProcess(this);
