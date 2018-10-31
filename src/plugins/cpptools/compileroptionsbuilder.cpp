@@ -65,6 +65,11 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
                    return QStringList(););
     }
 
+    if (fileKind == ProjectFile::CXXHeader || fileKind == ProjectFile::CXXSource) {
+        QTC_ASSERT(m_projectPart.languageVersion > ProjectExplorer::LanguageVersion::LatestC,
+                   return QStringList(););
+    }
+
     add("-c");
 
     addWordWidth();
