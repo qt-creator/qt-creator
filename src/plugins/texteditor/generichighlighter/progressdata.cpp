@@ -113,3 +113,18 @@ void ProgressData::unTrackRule(Rule *rule)
 {
     m_trackedRules.removeAll(rule);
 }
+
+bool ProgressData::detectRecursion(const QString &contextId)
+{
+    if (m_offset != m_iterationOffset) {
+        m_iterationOffset = m_offset;
+        m_iterationContextIds.clear();
+    }
+
+    if (m_iterationContextIds.contains(contextId))
+        return true;
+
+    m_iterationContextIds.append(contextId);
+
+    return false;
+}

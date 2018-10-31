@@ -337,6 +337,13 @@ void Highlighter::iterateThroughRules(const QString &text,
                                       const bool childRule,
                                       const QList<QSharedPointer<Rule> > &rules)
 {
+    if (!childRule) {
+        if (progress->detectRecursion(m_currentContext->id())) {
+            progress->setOffset(length);
+            return;
+        }
+    }
+
     typedef QList<QSharedPointer<Rule> >::const_iterator RuleIterator;
 
     bool contextChanged = false;
