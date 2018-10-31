@@ -57,12 +57,14 @@ public:
     {}
 };
 
-static QStringList splitCommandLine(const QString &line)
+static QStringList splitCommandLine(QString commandLine)
 {
     QStringList result;
     bool insideQuotes = false;
 
-    for (const QString &part : line.split(QRegularExpression("\""))) {
+    // Remove escaped quotes.
+    commandLine.replace("\\\"", "'");
+    for (const QString &part : commandLine.split(QRegularExpression("\""))) {
         if (insideQuotes) {
             const QString quotedPart = "\"" + part + "\"";
             if (result.last().endsWith("="))
