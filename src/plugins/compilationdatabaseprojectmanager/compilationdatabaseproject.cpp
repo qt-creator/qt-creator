@@ -37,6 +37,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchainconfigwidget.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <texteditor/textdocument.h>
@@ -300,6 +301,8 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
     root->addNode(std::move(sources));
 
     setRootProjectNode(std::move(root));
+
+    addTarget(createTarget(m_kit.get()));
 
     m_cppCodeModelUpdater->update({this, cToolchain, cxxToolchain, m_kit.get(), rpps});
 
