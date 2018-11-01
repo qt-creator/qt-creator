@@ -41,6 +41,10 @@
     You can install and run \QC on several operating systems to create
     applications for multiple desktop, embedded, and mobile device platforms.
 
+    \QC automatically runs scheduled checks for updates based on the settings
+    specified in \uicontrol Tools > \uicontrol Options \uicontrol Environment >
+    \uicontrol Update.
+
     \section1 Development Platforms
 
     \QC is available in binary packages for the following operating systems:
