@@ -58,52 +58,17 @@ void SshChannelManager::handleChannelRequest(const SshIncomingPacket &packet)
 
 void SshChannelManager::handleChannelOpen(const SshIncomingPacket &packet)
 {
-    SshChannelOpen channelOpen = packet.extractChannelOpen();
-
-    SshTcpIpForwardServer::Ptr server;
-
-    foreach (const SshTcpIpForwardServer::Ptr &candidate, m_listeningForwardServers) {
-        if (candidate->port() == channelOpen.remotePort
-                && candidate->bindAddress().toUtf8() == channelOpen.remoteAddress) {
-            server = candidate;
-            break;
-        }
-    };
-
-
-    if (server.isNull()) {
-        // Apparently the server knows a remoteAddress we are not aware of. There are plenty of ways
-        // to make that happen: /etc/hosts on the server, different writings for localhost,
-        // different DNS servers, ...
-        // Rather than trying to figure that out, we just use the first listening forwarder with the
-        // same port.
-        foreach (const SshTcpIpForwardServer::Ptr &candidate, m_listeningForwardServers) {
-            if (candidate->port() == channelOpen.remotePort) {
-                server = candidate;
-                break;
-            }
-        };
-    }
-
-    if (server.isNull()) {
-        SshOpenFailureType reason = (channelOpen.remotePort == 0) ?
-                    SSH_OPEN_UNKNOWN_CHANNEL_TYPE : SSH_OPEN_ADMINISTRATIVELY_PROHIBITED;
-        try {
-            m_sendFacility.sendChannelOpenFailurePacket(channelOpen.remoteChannel, reason,
-                                                        QByteArray());
-        }  catch (const std::exception &e) {
-            qCWarning(sshLog, "Botan error: %s", e.what());
-        }
+    const SshChannelOpenGeneric channelOpen = packet.extractChannelOpen();
+    if (channelOpen.channelType == SshIncomingPacket::ForwardedTcpIpType) {
+        handleChannelOpenForwardedTcpIp(channelOpen);
         return;
     }
-
-    SshForwardedTcpIpTunnel::Ptr tunnel(new SshForwardedTcpIpTunnel(m_nextLocalChannelId++,
-                                                                    m_sendFacility));
-    tunnel->d->handleOpenSuccess(channelOpen.remoteChannel, channelOpen.remoteWindowSize,
-                                 channelOpen.remoteMaxPacketSize);
-    tunnel->open(QIODevice::ReadWrite);
-    server->setNewConnection(tunnel);
-    insertChannel(tunnel->d, tunnel);
+    try {
+        m_sendFacility.sendChannelOpenFailurePacket(channelOpen.commonData.remoteChannel,
+                                                    SSH_OPEN_UNKNOWN_CHANNEL_TYPE, QByteArray());
+    }  catch (const std::exception &e) {
+        qCWarning(sshLog, "Botan error: %s", e.what());
+    }
 }
 
 void SshChannelManager::handleChannelOpenFailure(const SshIncomingPacket &packet)
@@ -284,6 +249,58 @@ void SshChannelManager::insertChannel(AbstractSshChannel *priv,
     connect(priv, &AbstractSshChannel::timeout, this, &SshChannelManager::timeout);
     m_channels.insert(priv->localChannelId(), priv);
     m_sessions.insert(priv, pub);
+}
+
+void SshChannelManager::handleChannelOpenForwardedTcpIp(
+        const SshChannelOpenGeneric &channelOpenGeneric)
+{
+    const SshChannelOpenForwardedTcpIp channelOpen
+            = SshIncomingPacket::extractChannelOpenForwardedTcpIp(channelOpenGeneric);
+
+    SshTcpIpForwardServer::Ptr server;
+
+    foreach (const SshTcpIpForwardServer::Ptr &candidate, m_listeningForwardServers) {
+        if (candidate->port() == channelOpen.remotePort
+                && candidate->bindAddress().toUtf8() == channelOpen.remoteAddress) {
+            server = candidate;
+            break;
+        }
+    };
+
+
+    if (server.isNull()) {
+        // Apparently the server knows a remoteAddress we are not aware of. There are plenty of ways
+        // to make that happen: /etc/hosts on the server, different writings for localhost,
+        // different DNS servers, ...
+        // Rather than trying to figure that out, we just use the first listening forwarder with the
+        // same port.
+        foreach (const SshTcpIpForwardServer::Ptr &candidate, m_listeningForwardServers) {
+            if (candidate->port() == channelOpen.remotePort) {
+                server = candidate;
+                break;
+            }
+        };
+    }
+
+    if (server.isNull()) {
+        try {
+            m_sendFacility.sendChannelOpenFailurePacket(channelOpen.common.remoteChannel,
+                                                        SSH_OPEN_ADMINISTRATIVELY_PROHIBITED,
+                                                        QByteArray());
+        }  catch (const std::exception &e) {
+            qCWarning(sshLog, "Botan error: %s", e.what());
+        }
+        return;
+    }
+
+    SshForwardedTcpIpTunnel::Ptr tunnel(new SshForwardedTcpIpTunnel(m_nextLocalChannelId++,
+                                                                    m_sendFacility));
+    tunnel->d->handleOpenSuccess(channelOpen.common.remoteChannel,
+                                 channelOpen.common.remoteWindowSize,
+                                 channelOpen.common.remoteMaxPacketSize);
+    tunnel->open(QIODevice::ReadWrite);
+    server->setNewConnection(tunnel);
+    insertChannel(tunnel->d, tunnel);
 }
 
 int SshChannelManager::closeAllChannels(CloseAllMode mode)

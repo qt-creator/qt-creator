@@ -38,6 +38,7 @@ class SshTcpIpForwardServer;
 namespace Internal {
 
 class AbstractSshChannel;
+struct SshChannelOpenGeneric;
 class SshIncomingPacket;
 class SshSendFacility;
 
@@ -87,6 +88,7 @@ private:
     void insertChannel(AbstractSshChannel *priv,
         const QSharedPointer<QObject> &pub);
 
+    void handleChannelOpenForwardedTcpIp(const SshChannelOpenGeneric &channelOpenGeneric);
     SshSendFacility &m_sendFacility;
     QHash<quint32, AbstractSshChannel *> m_channels;
     QHash<AbstractSshChannel *, QSharedPointer<QObject> > m_sessions;

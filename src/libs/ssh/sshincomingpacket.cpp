@@ -364,29 +364,46 @@ SshUnimplemented SshIncomingPacket::extractUnimplemented() const
     }
 }
 
-SshChannelOpen SshIncomingPacket::extractChannelOpen() const
+SshChannelOpenGeneric SshIncomingPacket::extractChannelOpen() const
 {
     Q_ASSERT(isComplete());
     Q_ASSERT(type() == SSH_MSG_CHANNEL_OPEN);
 
-    SshChannelOpen open;
     try {
+        SshChannelOpenGeneric channelOpen;
         quint32 offset = TypeOffset + 1;
-        QByteArray type = SshPacketParser::asString(m_data, &offset);
-        open.remoteChannel = SshPacketParser::asUint32(m_data, &offset);
-        open.remoteWindowSize = SshPacketParser::asUint32(m_data, &offset);
-        open.remoteMaxPacketSize = SshPacketParser::asUint32(m_data, &offset);
-        if (type == ForwardedTcpIpType) {
-            open.remoteAddress = SshPacketParser::asString(m_data, &offset);
-            open.remotePort = SshPacketParser::asUint32(m_data, &offset);
-        } else {
-            open.remotePort = 0;
-        }
+        channelOpen.channelType = SshPacketParser::asString(m_data, &offset);
+        channelOpen.commonData.remoteChannel = SshPacketParser::asUint32(m_data, &offset);
+        channelOpen.commonData.remoteWindowSize = SshPacketParser::asUint32(m_data, &offset);
+        channelOpen.commonData.remoteMaxPacketSize = SshPacketParser::asUint32(m_data, &offset);
+        channelOpen.typeSpecificData = m_data.mid(offset, length() - paddingLength() - offset
+                                                  + int(sizeof m_length));
+        return channelOpen;
     } catch (const SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Server sent invalid SSH_MSG_CHANNEL_OPEN packet.");
     }
-    return open;
+}
+
+SshChannelOpenForwardedTcpIp SshIncomingPacket::extractChannelOpenForwardedTcpIp(
+        const SshChannelOpenGeneric &genericData)
+{
+    try {
+        SshChannelOpenForwardedTcpIp specificData;
+        specificData.common = genericData.commonData;
+        quint32 offset = 0;
+        specificData.remoteAddress = SshPacketParser::asString(genericData.typeSpecificData,
+                                                               &offset);
+        specificData.remotePort = SshPacketParser::asUint32(genericData.typeSpecificData, &offset);
+        specificData.originatorAddress = SshPacketParser::asString(genericData.typeSpecificData,
+                                                                   &offset);
+        specificData.originatorPort = SshPacketParser::asUint32(genericData.typeSpecificData,
+                                                                &offset);
+        return specificData;
+    } catch (const SshPacketParseException &) {
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Server sent invalid SSH_MSG_CHANNEL_OPEN packet.");
+    }
 }
 
 SshChannelOpenFailure SshIncomingPacket::extractChannelOpenFailure() const
