@@ -49,9 +49,12 @@ static QString updatedPathFlag(const QString &pathStr, const QString &workingDir
     return result;
 }
 
-static CppTools::ProjectFile::Kind fileKindFromString(const QString &flag)
+static CppTools::ProjectFile::Kind fileKindFromString(QString flag)
 {
     using namespace CppTools;
+    if (flag.startsWith("-x"))
+        flag = flag.mid(2);
+
     if (flag == "c++-header")
         return ProjectFile::CXXHeader;
     if (flag == "c-header")
@@ -118,8 +121,14 @@ void filteredFlags(const QString &fileName,
             continue;
         }
 
-        if (fileKindIsNext || flag == "/TC" || flag == "/TP"
-                || flag.startsWith("/Tc") || flag.startsWith("/Tp")) {
+        if (flag == "-o") {
+            skipNext = true;
+            continue;
+        }
+
+        if (flag != "-x"
+                && (fileKindIsNext || flag == "/TC" || flag == "/TP"
+                    || flag.startsWith("/Tc") || flag.startsWith("/Tp") || flag.startsWith("-x"))) {
             fileKindIsNext = false;
             fileKind = fileKindFromString(flag);
             continue;

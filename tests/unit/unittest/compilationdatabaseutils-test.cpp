@@ -166,4 +166,34 @@ TEST_F(CompilationDatabaseUtils, FilterCommand)
     ASSERT_THAT(fileKind, CppTools::ProjectFile::Kind::CXXSource);
 }
 
+TEST_F(CompilationDatabaseUtils, FileKindDifferentFromExtension)
+{
+    fileName = "foo.c";
+    flags = QStringList{"-xc++"};
+
+    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
+
+    ASSERT_THAT(fileKind, CppTools::ProjectFile::Kind::CXXSource);
+}
+
+TEST_F(CompilationDatabaseUtils, FileKindDifferentFromExtension2)
+{
+    fileName = "foo.cpp";
+    flags  = QStringList{"-x", "c"};
+
+    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
+
+    ASSERT_THAT(fileKind, CppTools::ProjectFile::Kind::CSource);
+}
+
+TEST_F(CompilationDatabaseUtils, SkipOutputFiles)
+{
+    fileName = "foo.cpp";
+    flags  = QStringList{"-o", "foo.o"};
+
+    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
+
+    ASSERT_THAT(flags.isEmpty(), true);
+}
+
 }

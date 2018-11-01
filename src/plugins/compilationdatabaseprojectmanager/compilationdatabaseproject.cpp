@@ -178,7 +178,7 @@ void addDriverModeFlagIfNeeded(const ToolChain *toolchain, QStringList &flags)
     if (toolchain->typeId() == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID
             && !flags.empty() && !flags.front().endsWith("cl")
             && !flags.front().endsWith("cl.exe")) {
-        flags.insert(1, "--driver-mode=g++");
+        flags.prepend("--driver-mode=g++");
     }
 }
 
