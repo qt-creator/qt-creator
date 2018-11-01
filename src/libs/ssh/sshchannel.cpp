@@ -34,10 +34,6 @@
 namespace QSsh {
 namespace Internal {
 
-// "Payload length" (RFC 4253, 6.1), i.e. minus packet type, channel number
-// and length field for string.
-const quint32 MinMaxPacketSize = 32768 - sizeof(quint32) - sizeof(quint32) - 1;
-
 const quint32 NoChannel = 0xffffffffu;
 
 AbstractSshChannel::AbstractSshChannel(quint32 channelId,
@@ -142,11 +138,6 @@ void AbstractSshChannel::handleOpenSuccess(quint32 remoteChannelId,
     }
 
     m_timeoutTimer.stop();
-
-   if (remoteMaxPacketSize < MinMaxPacketSize) {
-       throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
-           "Maximum packet size too low.");
-   }
 
    qCDebug(sshLog, "Channel opened. remote channel id: %u, remote window size: %u, "
        "remote max packet size: %u",
