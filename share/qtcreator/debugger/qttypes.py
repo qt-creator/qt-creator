@@ -24,6 +24,7 @@
 ############################################################################
 
 import platform
+import re
 from dumper import *
 
 
@@ -483,6 +484,116 @@ def qdump__QDir(d, value):
                 typ = d.lookupType(ns + 'QStringList')
                 d.putItem(d.createValue(privAddress + filesOffset, typ))
             d.putFields(value)
+
+
+def qdump__QEvent(d, value):
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            # Add a sub-item with the event type.
+            with SubItem(d, '[type]'):
+                (vtable, privateD, t) = value.split("pp{ushort}")
+                event_type_name = "QEvent::Type"
+                type_value = t.cast(event_type_name)
+                d.putValue(type_value.displayEnum('0x%04x'))
+                d.putType(event_type_name)
+                d.putNumChild(0)
+
+            # Show the rest of the class fields as usual.
+            d.putFields(value, dumpBase=True)
+
+def qdump__QKeyEvent(d, value):
+    # QEvent fields
+    #   virtual table pointer
+    #   QEventPrivate *d;
+    #   ushort t;
+    #   ushort posted : 1;
+    #   ushort spont : 1;
+    #   ushort m_accept : 1;
+    #   ushort reserved : 13;
+    # QInputEvent fields
+    #   Qt::KeyboardModifiers modState;
+    #   ulong ts;
+    # QKeyEvent fields
+    #   QString txt;
+    #   int k;
+    #   quint32 nScanCode;
+    #   quint32 nVirtualKey;
+    #   quint32 nModifiers; <- nativeModifiers
+    #   ushort c;
+    #   ushort autor:1;
+    #   ushort reserved:15;
+    (vtable, privateD, t, flags, modState, ts, txt, k, scanCode,
+     virtualKey, modifiers,
+     c, autor) = value.split("ppHHiQ{QString}{int}IIIHH")
+
+    #d.putStringValue(txt)
+    #data = d.encodeString(txt)
+    key_txt_utf8 = d.encodeStringUtf8(txt)
+
+    k_type_name = "Qt::Key"
+    k_casted_to_enum_value = k.cast(k_type_name)
+    k_name = k_casted_to_enum_value.displayEnum()
+    matches = re.search(r'Key_(\w+)', k_name)
+    if matches:
+        k_name = matches.group(1)
+
+    if t == 6:
+        key_event_type = "Pressed"
+    elif t == 7:
+        key_event_type = "Released"
+    else:
+        key_event_type = ""
+
+    data = ""
+
+    if key_event_type:
+        data += "{} ".format(key_event_type)
+
+    # Try to use the name of the enum value, otherwise the value
+    # of txt in QKeyEvent.
+    if k_name:
+        data += "'{}'".format(k_name)
+    elif key_txt_utf8:
+        data += "'{}'".format(key_txt_utf8)
+    else:
+        data += "<non-ascii>"
+
+    k_int = k.integer()
+    data += " (key:{} vKey:{}".format(k_int, virtualKey)
+
+    modifier_list = []
+    modifier_list.append(("Shift", 0x02000000))
+    modifier_list.append(("Control", 0x04000000))
+    modifier_list.append(("Alt", 0x08000000))
+    modifier_list.append(("Meta", 0x10000000))
+    # modifier_map.append(("KeyPad", 0x20000000)) Is this useful?
+    modifier_list.append(("Grp", 0x40000000))
+
+    modifiers = []
+    for modifier_name, mask in modifier_list:
+        if modState & mask:
+            modifiers.append(modifier_name)
+
+    if modifiers:
+        data += " mods:" + "+".join(modifiers)
+
+    data += ")"
+
+    d.putValue(d.hexencode(data), 'utf8')
+
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            # Add a sub-item with the enum name and value.
+            with SubItem(d, '[{}]'.format(k_type_name)):
+                k_casted_to_enum_value = k.cast(k_type_name)
+                d.putValue(k_casted_to_enum_value.displayEnum('0x%04x'))
+                d.putType(k_type_name)
+                d.putNumChild(0)
+
+            # Show the rest of the class fields as usual.
+            d.putFields(value, dumpBase=True)
 
 
 def qdump__QFile(d, value):
