@@ -37,7 +37,9 @@
 #include <utils/qtcassert.h>
 #include <utils/icon.h>
 
+#include <QHash>
 #include <QPointer>
+#include <QVariant>
 #include <QWidget>
 
 #include <functional>
@@ -137,6 +139,7 @@ public:
     QString workingDirectory;
     Utils::Environment environment;
     IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
+    QHash<Core::Id, QVariant> extraData;
 
     // FIXME: Not necessarily a display name
     QString displayName() const { return executable; }

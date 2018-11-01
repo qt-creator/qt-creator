@@ -60,6 +60,11 @@ public:
 
     void setState(State newState);
     void doSignal(QSsh::SshRemoteProcess::Signal signal);
+
+    QString displayName() const
+    {
+        return runnable.extraData.value("Ssh.X11ForwardToDisplay").toString();
+    }
 };
 
 SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *parent)
@@ -82,6 +87,12 @@ void SshDeviceProcess::start(const Runnable &runnable)
     d->exitCode = -1;
     d->runnable = runnable;
     d->connection = QSsh::acquireConnection(device()->sshParameters());
+    const QString displayName = d->displayName();
+    const QString connDisplayName = d->connection->x11DisplayName();
+    if (!displayName.isEmpty() && !connDisplayName.isEmpty() && connDisplayName != displayName) {
+        QSsh::releaseConnection(d->connection);
+        d->connection = new QSsh::SshConnection(device()->sshParameters(), this);
+    }
     connect(d->connection, &QSsh::SshConnection::error,
             this, &SshDeviceProcess::handleConnectionError);
     connect(d->connection, &QSsh::SshConnection::disconnected,
@@ -183,6 +194,9 @@ void SshDeviceProcess::handleConnected()
     const Utils::Environment env = d->runnable.environment;
     for (Utils::Environment::const_iterator it = env.constBegin(); it != env.constEnd(); ++it)
         d->process->addToEnvironment(env.key(it).toUtf8(), env.value(it).toUtf8());
+    const QString display = d->displayName();
+    if (!display.isEmpty())
+        d->process->requestX11Forwarding(display);
     d->process->start();
 }
 
@@ -346,7 +360,10 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
         process->disconnect(q);
     if (connection) {
         connection->disconnect(q);
-        QSsh::releaseConnection(connection);
+        if (connection->parent() == q)
+            connection->deleteLater();
+        else
+            QSsh::releaseConnection(connection);
         connection = nullptr;
     }
 }

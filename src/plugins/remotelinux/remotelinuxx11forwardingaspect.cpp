@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,33 +23,31 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "remotelinuxx11forwardingaspect.h"
 
-#include "remotelinux_export.h"
+#include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
 
-#include <projectexplorer/runconfiguration.h>
+using namespace Utils;
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
+static QString defaultDisplay() { return QLatin1String(qgetenv("DISPLAY")); }
+
+X11ForwardingAspect::X11ForwardingAspect()
 {
-    Q_OBJECT
+    setDisplayName(tr("X11 Forwarding"));
+    setDisplayStyle(LineEditDisplay);
+    setId("X11ForwardingAspect");
+    setSettingsKey("RunConfiguration.X11Forwarding");
+    makeCheckable(tr("Forward to local display"), "RunConfiguration.UseX11Forwarding");
+    setValue(defaultDisplay());
+}
 
-public:
-    RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-    static const char *IdPrefix;
-
-protected:
-    ProjectExplorer::Runnable runnable() const override;
-
-private:
-    void updateTargetInformation();
-};
-
-class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+QString X11ForwardingAspect::display(const Utils::MacroExpander *expander) const
 {
-public:
-    RemoteLinuxRunConfigurationFactory();
-};
+    QTC_ASSERT(expander, return value());
+    return !isChecked() ? QString() : expander->expandProcessArgs(value());
+}
 
 } // namespace RemoteLinux

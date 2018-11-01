@@ -43,6 +43,7 @@ HEADERS += \
     linuxdeviceprocess.h \
     remotelinuxcustomrunconfiguration.h \
     remotelinuxsignaloperation.h \
+    remotelinuxx11forwardingaspect.h \
     deploymenttimeinfo.h
 
 SOURCES += \
@@ -84,6 +85,7 @@ SOURCES += \
     linuxdeviceprocess.cpp \
     remotelinuxcustomrunconfiguration.cpp \
     remotelinuxsignaloperation.cpp \
+    remotelinuxx11forwardingaspect.cpp \
     deploymenttimeinfo.cpp
 
 FORMS += \

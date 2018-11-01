@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,29 +27,22 @@
 
 #include "remotelinux_export.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/projectconfigurationaspects.h>
+
+#include <QPointer>
+
+namespace Utils { class MacroExpander; }
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
+class REMOTELINUX_EXPORT X11ForwardingAspect : public ProjectExplorer::BaseStringAspect
 {
     Q_OBJECT
 
 public:
-    RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-    static const char *IdPrefix;
+    X11ForwardingAspect();
 
-protected:
-    ProjectExplorer::Runnable runnable() const override;
-
-private:
-    void updateTargetInformation();
-};
-
-class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    RemoteLinuxRunConfigurationFactory();
+    QString display(const Utils::MacroExpander *expander) const;
 };
 
 } // namespace RemoteLinux
