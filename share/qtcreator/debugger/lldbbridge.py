@@ -252,8 +252,9 @@ class Dumper(DumperBase):
             # Correction for some bitfields. Size 0 can occur for
             # types without debug information.
             if bitsize > 0:
+                pass
                 #bitpos = bitpos % bitsize
-                bitpos = bitpos % 8 # Reported type is always wrapping type!
+                #bitpos = bitpos % 8 # Reported type is always wrapping type!
             fieldBits[f.name] = (bitsize, bitpos, f.IsBitfield())
 
         # Normal members and non-empty base classes.
@@ -269,7 +270,7 @@ class Dumper(DumperBase):
                 (fieldBitsize, fieldBitpos, isBitfield) = fieldBits[fieldName]
             else:
                 fieldBitsize = nativeFieldType.GetByteSize() * 8
-                fieldBitpost = None
+                fieldBitpos = None
                 isBitfield = False
 
             if isBitfield: # Bit fields
