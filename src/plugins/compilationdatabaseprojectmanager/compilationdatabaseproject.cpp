@@ -302,17 +302,43 @@ void createFolders(FolderNode *root, const Utils::FileName &rootPath)
     }
 }
 
+std::vector<QJsonObject> readJsonObjects(const QString &filePath)
+{
+    std::vector<QJsonObject> result;
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly))
+        return result;
+
+    const QByteArray contents = file.readAll();
+    int objectStart = contents.indexOf('{');
+    int objectEnd = contents.indexOf('}', objectStart + 1);
+
+    while (objectStart >= 0 && objectEnd >= 0) {
+        const QJsonDocument document = QJsonDocument::fromJson(
+                    contents.mid(objectStart, objectEnd - objectStart + 1));
+        if (document.isNull()) {
+            // The end was found incorrectly, search for the next one.
+            objectEnd = contents.indexOf('}', objectEnd + 1);
+            continue;
+        }
+
+        result.push_back(document.object());
+        objectStart = contents.indexOf('{', objectEnd + 1);
+        objectEnd = contents.indexOf('}', objectStart + 1);
+    }
+
+    return result;
+}
+
 } // anonymous namespace
 
 void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName &projectFile)
 {
-    QFile file(projectFilePath().toString());
-    if (!file.open(QIODevice::ReadOnly)) {
+    std::vector<QJsonObject> array = readJsonObjects(projectFilePath().toString());
+    if (array.empty()) {
         emitParsingFinished(false);
         return;
     }
-
-    const QJsonArray array = QJsonDocument::fromJson(file.readAll()).array();
 
     auto root = std::make_unique<DBProjectNode>(projectDirectory());
 
@@ -320,8 +346,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
     Utils::FileName commonPath;
     ToolChain *cToolchain = nullptr;
     ToolChain *cxxToolchain = nullptr;
-    for (const QJsonValue &element : array) {
-        const QJsonObject object = element.toObject();
+    for (const QJsonObject &object : array) {
         Utils::FileName fileName = jsonObjectFilename(object);
         const QStringList flags = jsonObjectFlags(object);
 
