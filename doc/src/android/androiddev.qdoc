@@ -75,7 +75,7 @@
 
         \li A tool chain for building applications for Android devices provided
             by the \l{http://developer.android.com/tools/sdk/ndk/index.html}
-            {Android NDK} from Google. The recommended version is 10e.
+            {Android NDK} from Google.
 
         \li \l{http://developer.android.com/sdk/index.html}{Android SDK Tools}
 
@@ -91,8 +91,6 @@
         \li On Windows, you also need the following:
 
           \list
-
-            \li MinGW v4.8.0 revision 2
 
             \li Android Debug Bridge (ADB) driver on the Windows platform to
                 enable USB debugging. The default USB driver on Windows does not
