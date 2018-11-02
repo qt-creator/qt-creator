@@ -81,8 +81,10 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
 {
     Link link;
 
-    int lineNumber = 0, positionInBlock = 0;
-    convertPosition(cursor.position(), &lineNumber, &positionInBlock);
+    int line = 0;
+    int column = 0;
+    convertPosition(cursor.position(), &line, &column);
+    const int positionInBlock = column - 1;
 
     const QString block = cursor.block().text();
 

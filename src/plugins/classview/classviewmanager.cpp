@@ -423,7 +423,7 @@ void Manager::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
 
 /*!
     Opens the text editor for the file \a fileName on \a line (1-based) and
-    \a column (1-based).
+    \a column (0-based).
 */
 
 void Manager::gotoLocation(const QString &fileName, int line, int column)
@@ -468,7 +468,8 @@ void Manager::gotoLocations(const QList<QVariant> &list)
             }
         }
     }
-    gotoLocation(loc.fileName(), loc.line(), loc.column());
+    // line is 1-based, column is 0-based
+    gotoLocation(loc.fileName(), loc.line(), loc.column() - 1);
 }
 
 /*!

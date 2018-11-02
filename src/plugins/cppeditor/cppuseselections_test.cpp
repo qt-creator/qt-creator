@@ -31,6 +31,7 @@
 #include <QElapsedTimer>
 #include <QtTest>
 
+// Uses 1-based line and 0-based column.
 struct Selection {
     Selection(int line, int column, int length) : line(line), column(column), length(length) {}
     int line;
@@ -116,7 +117,7 @@ SelectionList UseSelectionsTestCase::toSelectionList(
         int line, column;
         const int position = qMin(selection.cursor.position(), selection.cursor.anchor());
         m_editorWidget->convertPosition(position, &line, &column);
-        result << Selection(line, column, selection.cursor.selectedText().length());
+        result << Selection(line, column - 1, selection.cursor.selectedText().length());
     }
     return result;
 }

@@ -373,7 +373,7 @@ void CppElementEvaluator::execute()
         // Fetch the expression's code
         ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
         const QString &expression = expressionUnderCursor(m_tc);
-        Scope *scope = doc->scopeAt(line, column);
+        Scope *scope = doc->scopeAt(line, column - 1);
 
         TypeOfExpression typeOfExpression;
         typeOfExpression.init(doc, snapshot);

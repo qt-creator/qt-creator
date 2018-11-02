@@ -329,7 +329,8 @@ static Document::Ptr addDefinition(const Snapshot &docTable,
                 const QString contents = editor->textDocument()->plainText();
                 int column;
                 editor->convertPosition(contents.length(), line, &column);
-                editor->gotoLine(*line, column);
+                // gotoLine accepts 0-based column.
+                editor->gotoLine(*line, column - 1);
                 editor->insert(definition);
                 *line += 1;
             }

@@ -1092,7 +1092,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
     int line = 0, column = 0;
     Utils::Text::convertPosition(m_interface->textDocument(), startOfExpression, &line, &column);
     const QString fileName = m_interface->fileName();
-    return startCompletionInternal(fileName, line, column, expression, endOfExpression);
+    return startCompletionInternal(fileName, line, column - 1, expression, endOfExpression);
 }
 
 bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
@@ -1125,7 +1125,7 @@ bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
     int line = 0, column = 0;
     Utils::Text::convertPosition(m_interface->textDocument(), m_interface->position(), &line,
                                  &column);
-    Scope *scope = thisDocument->scopeAt(line, column);
+    Scope *scope = thisDocument->scopeAt(line, column - 1);
     if (!scope)
         return false;
 
@@ -1319,7 +1319,8 @@ bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
 }
 
 int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString &fileName,
-                                                                  unsigned line, unsigned column,
+                                                                  unsigned line,
+                                                                  unsigned positionInBlock,
                                                                   const QString &expr,
                                                                   int endOfExpression)
 {
@@ -1331,7 +1332,7 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
 
     m_model->m_typeOfExpression->init(thisDocument, m_interface->snapshot());
 
-    Scope *scope = thisDocument->scopeAt(line, column);
+    Scope *scope = thisDocument->scopeAt(line, positionInBlock);
     QTC_ASSERT(scope != 0, return -1);
 
     if (expression.isEmpty()) {
@@ -2016,7 +2017,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
         int lineSigned = 0, columnSigned = 0;
         Utils::Text::convertPosition(m_interface->textDocument(), m_interface->position(),
                                      &lineSigned, &columnSigned);
-        unsigned line = lineSigned, column = columnSigned;
+        unsigned line = lineSigned, column = columnSigned - 1;
 
         // find a scope that encloses the current location, starting from the lastVisibileSymbol
         // and moving outwards

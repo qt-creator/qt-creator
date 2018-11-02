@@ -133,9 +133,10 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
 
         const int nodeOffset = rewriterView->nodeOffset(selectedNode);
         if (nodeOffset > 0) {
-                int line, column;
-                m_textEditor->editorWidget()->convertPosition(nodeOffset, &line, &column);
-                m_textEditor->editorWidget()->gotoLine(line, column);
+            int line, column;
+            m_textEditor->editorWidget()->convertPosition(nodeOffset, &line, &column);
+            // line has to be 1 based, column 0 based!
+            m_textEditor->editorWidget()->gotoLine(line, column - 1);
         }
     }
     m_updateSelectionTimer.stop();
