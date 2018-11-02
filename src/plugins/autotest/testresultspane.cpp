@@ -454,27 +454,32 @@ void TestResultsPane::initializeFilterMenu()
 
 void TestResultsPane::updateSummaryLabel()
 {
-    QString labelText = QString("<p>Test summary:&nbsp;&nbsp; %1 %2, %3 %4")
-            .arg(QString::number(m_model->resultTypeCount(Result::Pass)), tr("passes"),
-                 QString::number(m_model->resultTypeCount(Result::Fail)), tr("fails"));
-    int count = m_model->resultTypeCount(Result::UnexpectedPass);
+    QString labelText = QString("<p>");
+    labelText.append(tr("Test summary"));
+    labelText.append(":&nbsp;&nbsp; ");
+    int count = m_model->resultTypeCount(Result::Pass);
+    labelText += QString::number(count) + ' ' + tr("passes");
+    count = m_model->resultTypeCount(Result::Fail);
+    labelText += ", " + QString::number(count) + ' ' + tr("fails");
+    count = m_model->resultTypeCount(Result::UnexpectedPass);
     if (count)
-        labelText.append(QString(", %1 %2").arg(QString::number(count), tr("unexpected passes")));
+        labelText += ", " + QString::number(count) + ' ' + tr("unexpected passes");
     count = m_model->resultTypeCount(Result::ExpectedFail);
     if (count)
-        labelText.append(QString(", %1 %2").arg(QString::number(count), tr("expected fails")));
+        labelText += ", " + QString::number(count) + ' ' + tr("expected fails");
     count = m_model->resultTypeCount(Result::MessageFatal);
     if (count)
-        labelText.append(QString(", %1 %2").arg(QString::number(count), tr("fatals")));
+        labelText += ", " + QString::number(count) + ' ' + tr("fatals");
     count = m_model->resultTypeCount(Result::BlacklistedFail)
             + m_model->resultTypeCount(Result::BlacklistedPass);
     if (count)
-        labelText.append(QString(", %1 %2").arg(QString::number(count), tr("blacklisted")));
-
+        labelText += ", " + QString::number(count) + ' ' + tr("blacklisted");
+    count = m_model->resultTypeCount(Result::Skip);
+    if (count)
+        labelText += ", " + QString::number(count) + ' ' + tr("skipped");
     count = m_model->disabledTests();
     if (count)
-        labelText.append(tr(", %1 disabled").arg(count));
-
+        labelText += ", " + QString::number(count) + ' ' + tr("disabled");
     labelText.append(".</p>");
     m_summaryLabel->setText(labelText);
 }
