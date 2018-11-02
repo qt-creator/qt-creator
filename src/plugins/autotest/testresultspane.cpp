@@ -444,11 +444,12 @@ void TestResultsPane::initializeFilterMenu()
         m_filterMenu->addAction(action);
     }
     m_filterMenu->addSeparator();
-    QAction *action = new QAction(m_filterMenu);
-    action->setText(tr("Check All Filters"));
-    action->setCheckable(false);
+    QAction *action = new QAction(tr("Check All Filters"), m_filterMenu);
     m_filterMenu->addAction(action);
-    connect(action, &QAction::triggered, this, &TestResultsPane::enableAllFilter);
+    connect(action, &QAction::triggered, this, [this]() { TestResultsPane::checkAllFilter(true); });
+    action = new QAction(tr("Uncheck All Filters"), m_filterMenu);
+    m_filterMenu->addAction(action);
+    connect(action, &QAction::triggered, this, [this]() { TestResultsPane::checkAllFilter(false); });
 }
 
 void TestResultsPane::updateSummaryLabel()
@@ -478,11 +479,11 @@ void TestResultsPane::updateSummaryLabel()
     m_summaryLabel->setText(labelText);
 }
 
-void TestResultsPane::enableAllFilter()
+void TestResultsPane::checkAllFilter(bool checked)
 {
     for (QAction *action : m_filterMenu->actions()) {
         if (action->isCheckable())
-            action->setChecked(true);
+            action->setChecked(checked);
     }
     m_filterModel->enableAllResultTypes();
 }

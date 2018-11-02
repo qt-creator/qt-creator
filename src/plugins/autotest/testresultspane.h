@@ -101,7 +101,7 @@ private:
     void onItemActivated(const QModelIndex &index);
     void onRunAllTriggered();
     void onRunSelectedTriggered();
-    void enableAllFilter();
+    void checkAllFilter(bool checked);
     void filterMenuTriggered(QAction *action);
 
     void initializeFilterMenu();
