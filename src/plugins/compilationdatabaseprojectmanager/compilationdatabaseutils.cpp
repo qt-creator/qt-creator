@@ -81,6 +81,19 @@ static CppTools::ProjectFile::Kind fileKindFromString(QString flag)
     return ProjectFile::Unclassified;
 }
 
+QStringList filterFromFileName(const QStringList &flags, QString baseName)
+{
+    baseName.append('.'); // to match name.c, name.o, etc.
+    QStringList result;
+    result.reserve(flags.size());
+    for (const QString &flag : flags) {
+        if (!flag.contains(baseName))
+            result.push_back(flag);
+    }
+
+    return result;
+}
+
 void filteredFlags(const QString &fileName,
                    const QString &workingDir,
                    QStringList &flags,
@@ -88,13 +101,13 @@ void filteredFlags(const QString &fileName,
                    Macros &macros,
                    CppTools::ProjectFile::Kind &fileKind)
 {
-    if (flags.isEmpty())
+    if (flags.empty())
         return;
 
     // Skip compiler call if present.
     bool skipNext = Utils::HostOsInfo::isWindowsHost()
-                ? (!flags.first().startsWith('/') && !flags.first().startsWith('-'))
-                : (!flags.first().startsWith('-'));
+                ? (!flags.front().startsWith('/') && !flags.front().startsWith('-'))
+                : (!flags.front().startsWith('-'));
     Utils::optional<HeaderPathType> includePathType;
     Utils::optional<MacroType> macroType;
     bool fileKindIsNext = false;
@@ -121,11 +134,6 @@ void filteredFlags(const QString &fileName,
             continue;
         }
 
-        if (flag == "-o") {
-            skipNext = true;
-            continue;
-        }
-
         if (flag != "-x"
                 && (fileKindIsNext || flag == "/TC" || flag == "/TP"
                     || flag.startsWith("/Tc") || flag.startsWith("/Tp") || flag.startsWith("-x"))) {
@@ -139,15 +147,12 @@ void filteredFlags(const QString &fileName,
             continue;
         }
 
-        if (flag == "-c" || flag == "-pedantic"
+        if (flag == "-o" || flag == "-MF" || flag == "-c" || flag == "-pedantic"
                 || flag.startsWith("-O") || flag.startsWith("-W") || flag.startsWith("-w")
                 || QString::compare(flag, "-fpic", Qt::CaseInsensitive) == 0
                 || QString::compare(flag, "-fpie", Qt::CaseInsensitive) == 0) {
             continue;
         }
-
-        if (flag.endsWith(fileName))
-            continue;
 
         if ((flag.startsWith("-I") || flag.startsWith("-isystem") || flag.startsWith("/I"))
                    && flag != "-I" && flag != "-isystem" && flag != "/I") {

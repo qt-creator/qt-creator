@@ -38,6 +38,8 @@ class Macro;
 
 namespace CompilationDatabaseProjectManager {
 
+QStringList filterFromFileName(const QStringList &flags, QString baseName);
+
 void filteredFlags(const QString &fileName,
                    const QString &workingDir,
                    QStringList &flags,

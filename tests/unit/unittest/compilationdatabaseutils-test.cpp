@@ -53,11 +53,18 @@ TEST_F(CompilationDatabaseUtils, FilterEmptyFlags)
     ASSERT_THAT(flags.isEmpty(), true);
 }
 
+TEST_F(CompilationDatabaseUtils, FilterFromFilename)
+{
+    flags = filterFromFileName(QStringList{"-o", "foo.o"}, "foo");
+
+    ASSERT_THAT(flags, QStringList{"-o"});
+}
+
 TEST_F(CompilationDatabaseUtils, FilterArguments)
 {
     fileName = "compileroptionsbuilder.cpp";
     workingDir = "C:/build-qtcreator-MinGW_32bit-Debug";
-    flags = QStringList {
+    flags = filterFromFileName(QStringList {
         "clang++",
         "-c",
         "-m32",
@@ -77,7 +84,7 @@ TEST_F(CompilationDatabaseUtils, FilterArguments)
         "-x",
         "c++",
         "C:\\qt-creator\\src\\plugins\\cpptools\\compileroptionsbuilder.cpp"
-    };
+    }, "compileroptionsbuilder");
 
     filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
 
@@ -146,7 +153,7 @@ TEST_F(CompilationDatabaseUtils, FilterCommand)
 {
     fileName = "SemaCodeComplete.cpp";
     workingDir = "C:/build-qt_llvm-msvc2017_64bit-Debug";
-    flags = splitCommandLine(kCmakeCommand);
+    flags = filterFromFileName(splitCommandLine(kCmakeCommand), "SemaCodeComplete");
 
     filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
 
@@ -188,8 +195,7 @@ TEST_F(CompilationDatabaseUtils, FileKindDifferentFromExtension2)
 
 TEST_F(CompilationDatabaseUtils, SkipOutputFiles)
 {
-    fileName = "foo.cpp";
-    flags  = QStringList{"-o", "foo.o"};
+    flags = filterFromFileName(QStringList{"-o", "foo.o"}, "foo");
 
     filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
 
