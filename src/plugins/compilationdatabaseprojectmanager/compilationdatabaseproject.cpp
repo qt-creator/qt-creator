@@ -302,8 +302,6 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
 
     setRootProjectNode(std::move(root));
 
-    addTarget(createTarget(m_kit.get()));
-
     m_cppCodeModelUpdater->update({this, cToolchain, cxxToolchain, m_kit.get(), rpps});
 
     emitParsingFinished(true);
@@ -320,6 +318,9 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
     setPreferredKitPredicate([](const Kit *) { return false; });
 
     m_kit.reset(KitManager::defaultKit()->clone());
+
+    connect(this, &CompilationDatabaseProject::parsingFinished,
+            this, [this]() { addTarget(createTarget(m_kit.get())); });
 
     emitParsingStarted();
 
