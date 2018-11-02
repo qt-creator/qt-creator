@@ -85,10 +85,7 @@ def main():
     if not waitFor("str(mainWin.windowTitle).startswith('dummy.cpp ') and ' @ cplusplus-tools ' in str(mainWin.windowTitle)", 5000):
         test.warning("Opening dummy.cpp seems to have failed")
     # Reset cursor to the start of the document
-    if platform.system() == 'Darwin':
-        type(cppwindow, "<Home>")
-    else:
-        type(cppwindow, "<Ctrl+Home>")
+    jumpToFirstLine(cppwindow)
 
     type(cppwindow, "<Ctrl+f>")
     clickButton(waitForObject(":*Qt Creator_Utils::IconButton"))

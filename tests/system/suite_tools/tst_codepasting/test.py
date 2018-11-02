@@ -76,7 +76,7 @@ def pasteFile(sourceFile, protocol):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(sourceFile)
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-    type(editor, "<Up>")
+    jumpToFirstLine(editor)
     typeLines(editor, "// tst_codepasting %s" % datetime.utcnow())
     sourceText = editor.plainText
     invokeMenuItem("Tools", "Code Pasting", "Paste Snippet...")
@@ -232,6 +232,7 @@ def main():
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(sourceFile)
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+    jumpToFirstLine(editor)
     markText(editor, "Down", 7)
     # QString QTextCursor::selectedText () const:
     # "Note: If the selection obtained from an editor spans a line break, the text will contain a
