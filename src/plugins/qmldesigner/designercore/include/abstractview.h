@@ -259,6 +259,7 @@ public:
 
     virtual void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
 
+    void activateTimeline(const ModelNode &timeline);
     void activateTimelineRecording(const ModelNode &timeline);
     void deactivateTimelineRecording();
 
