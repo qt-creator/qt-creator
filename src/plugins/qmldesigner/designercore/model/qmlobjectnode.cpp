@@ -52,7 +52,7 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    if (timelineIsActive()) {
+    if (timelineIsActive() && currentTimeline().isRecording()) {
         modelNode().validId();
 
         QmlTimelineKeyframeGroup timelineFrames(currentTimeline().keyframeGroup(modelNode(), name));
@@ -63,6 +63,18 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
         timelineFrames.setValue(value, frame);
 
         return;
+    } else if (timelineIsActive()) {
+
+        QmlTimelineKeyframeGroup timelineFrames(currentTimeline().keyframeGroup(modelNode(), name));
+
+        Q_ASSERT(timelineFrames.isValid());
+
+        if (timelineFrames.isRecording()) {
+            qreal frame = currentTimeline().modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+            timelineFrames.setValue(value, frame);
+
+            return;
+        }
     }
 
     if (isInBaseState()) {
