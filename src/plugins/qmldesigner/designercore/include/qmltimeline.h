@@ -67,6 +67,11 @@ public:
     void destroyKeyframesForTarget(const ModelNode &target);
     static bool hasActiveTimeline(AbstractView *view);
 
+    bool isRecording() const;
+    void toogleRecording(bool b) const;
+
+    void resetGroupRecording() const;
+
 private:
     void addKeyframeGroupIfNotExists(const ModelNode &node, const PropertyName &propertyName);
     bool hasKeyframeGroup(const ModelNode &node, const PropertyName &propertyName) const;

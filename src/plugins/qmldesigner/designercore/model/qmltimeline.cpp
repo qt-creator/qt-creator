@@ -224,6 +224,37 @@ bool QmlTimeline::hasActiveTimeline(AbstractView *view)
     return false;
 }
 
+bool QmlTimeline::isRecording() const
+{
+    QTC_ASSERT(isValid(), return false);
+
+    return modelNode().hasAuxiliaryData("REC@Internal");
+}
+
+void QmlTimeline::toogleRecording(bool record) const
+{
+    QTC_ASSERT(isValid(), return);
+
+    if (!record) {
+        if (isRecording())
+            modelNode().removeAuxiliaryData("REC@Internal");
+    } else {
+        modelNode().setAuxiliaryData("REC@Internal", true);
+    }
+}
+
+void QmlTimeline::resetGroupRecording() const
+{
+    QTC_ASSERT(isValid(), return);
+
+    for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
+        if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode)) {
+            const QmlTimelineKeyframeGroup frames(childNode);
+            frames.toogleRecording(false);
+        }
+    }
+}
+
 void QmlTimeline::addKeyframeGroupIfNotExists(const ModelNode &node, const PropertyName &propertyName)
 {
     if (!isValid())
