@@ -57,9 +57,7 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
             this, &PasteView::protocolChanged);
 }
 
-PasteView::~PasteView()
-{
-}
+PasteView::~PasteView() = default;
 
 QString PasteView::user() const
 {
@@ -150,7 +148,7 @@ int PasteView::show(const QString &user, const QString &description,
     m_mode = DiffChunkMode;
     QString content;
     foreach (const FileData &part, parts) {
-        QListWidgetItem *itm = new QListWidgetItem(part.filename, m_ui.uiPatchList);
+        auto itm = new QListWidgetItem(part.filename, m_ui.uiPatchList);
         itm->setCheckState(Qt::Checked);
         itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         content += part.content;

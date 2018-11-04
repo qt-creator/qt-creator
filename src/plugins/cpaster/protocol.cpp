@@ -59,9 +59,7 @@ Protocol::Protocol()
 {
 }
 
-Protocol::~Protocol()
-{
-}
+Protocol::~Protocol() = default;
 
 bool Protocol::hasSettings() const
 {
@@ -75,7 +73,7 @@ bool Protocol::checkConfiguration(QString *)
 
 Core::IOptionsPage *Protocol::settingsPage() const
 {
-    return 0;
+    return nullptr;
 }
 
 void Protocol::list()
@@ -216,9 +214,7 @@ NetworkProtocol::NetworkProtocol()
             this, &NetworkProtocol::authenticationRequired);
 }
 
-NetworkProtocol::~NetworkProtocol()
-{
-}
+NetworkProtocol::~NetworkProtocol() = default;
 
 void NetworkProtocol::requestAuthentication(const QUrl &url, QNetworkReply *reply, QAuthenticator *authenticator)
 {

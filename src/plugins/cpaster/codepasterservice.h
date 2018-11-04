@@ -33,7 +33,7 @@ namespace CodePaster {
 class Service
 {
 public:
-    virtual ~Service() {}
+    virtual ~Service() = default;
 
     virtual void postText(const QString &text, const QString &mimeType) = 0;
     virtual void postCurrentEditor() = 0;

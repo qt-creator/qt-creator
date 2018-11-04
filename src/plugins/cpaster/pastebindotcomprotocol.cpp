@@ -135,7 +135,7 @@ void PasteBinDotComProtocol::pasteFinished()
         emit pasteDone(QString::fromLatin1(m_pasteReply->readAll()));
 
     m_pasteReply->deleteLater();
-    m_pasteReply = 0;
+    m_pasteReply = nullptr;
 }
 
 void PasteBinDotComProtocol::fetch(const QString &id)

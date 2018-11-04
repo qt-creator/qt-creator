@@ -45,7 +45,7 @@ class CodePasterServiceImpl : public QObject, public CodePaster::Service
     Q_OBJECT
     Q_INTERFACES(CodePaster::Service)
 public:
-    explicit CodePasterServiceImpl(QObject *parent = 0);
+    explicit CodePasterServiceImpl(QObject *parent = nullptr);
 
     void postText(const QString &text, const QString &mimeType) override;
     void postCurrentEditor() override;

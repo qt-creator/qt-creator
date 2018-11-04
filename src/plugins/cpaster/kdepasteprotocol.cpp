@@ -169,7 +169,7 @@ void StickyNotesPasteProtocol::pasteFinished()
     }
 
     m_pasteReply->deleteLater();
-    m_pasteReply = 0;
+    m_pasteReply = nullptr;
 }
 
 void StickyNotesPasteProtocol::fetch(const QString &id)
@@ -207,7 +207,7 @@ void StickyNotesPasteProtocol::fetchFinished()
         content.remove(QLatin1Char('\r'));
     }
     m_fetchReply->deleteLater();
-    m_fetchReply = 0;
+    m_fetchReply = nullptr;
     emit fetchDone(title, content, error);
 }
 

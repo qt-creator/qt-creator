@@ -73,9 +73,7 @@ SettingsPage::SettingsPage(const QSharedPointer<Settings> &settings, QObject *pa
                     Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
-SettingsPage::~SettingsPage()
-{
-}
+SettingsPage::~SettingsPage() = default;
 
 QWidget *SettingsPage::widget()
 {

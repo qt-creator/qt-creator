@@ -63,7 +63,7 @@ public:
     virtual bool hasSettings() const;
     virtual Core::IOptionsPage *settingsPage() const;
 
-    virtual bool checkConfiguration(QString *errorMessage = 0);
+    virtual bool checkConfiguration(QString *errorMessage = nullptr);
     virtual void fetch(const QString &id) = 0;
     virtual void list();
     virtual void paste(const QString &text,
@@ -80,11 +80,11 @@ public:
     // Return true when settings changed.
     static bool showConfigurationError(const Protocol *p,
                                        const QString &message,
-                                       QWidget *parent = 0,
+                                       QWidget *parent = nullptr,
                                        bool showConfig = true);
     // Ensure configuration is correct
     static bool ensureConfiguration(Protocol *p,
-                                    QWidget *parent = 0);
+                                    QWidget *parent = nullptr);
 
 signals:
     void pasteDone(const QString &link);

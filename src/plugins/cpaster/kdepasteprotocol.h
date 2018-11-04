@@ -50,7 +50,7 @@ public:
     void setHostUrl(const QString &hostUrl);
 
 protected:
-    bool checkConfiguration(QString *errorMessage = 0) override;
+    bool checkConfiguration(QString *errorMessage = nullptr) override;
 
 private:
     void fetchFinished();

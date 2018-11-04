@@ -116,7 +116,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     // Create the settings Page
     m_settings->fromSettings(ICore::settings());
-    SettingsPage *settingsPage = new SettingsPage(m_settings, this);
+    auto settingsPage = new SettingsPage(m_settings, this);
 
     // Create the protocols and append them to the Settings
     Protocol *protos[] =  {new PasteBinDotComProtocol,
@@ -191,7 +191,7 @@ static inline void textFromCurrentEditor(QString *text, QString *mimeType)
         return;
     const IDocument *document = editor->document();
     QString data;
-    if (const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor))
+    if (auto textEditor = qobject_cast<const BaseTextEditor *>(editor))
         data = textEditor->selectedText();
     if (data.isEmpty()) {
         if (auto textDocument = qobject_cast<const TextDocument *>(document)) {

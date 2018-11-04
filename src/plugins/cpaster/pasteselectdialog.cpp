@@ -60,9 +60,7 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols,
     m_ui.listWidget->setFont(listFont);
 }
 
-PasteSelectDialog::~PasteSelectDialog()
-{
-}
+PasteSelectDialog::~PasteSelectDialog() = default;
 
 QString PasteSelectDialog::pasteId() const
 {

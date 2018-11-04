@@ -42,7 +42,7 @@ class SettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit SettingsWidget(const QStringList &protocols, QWidget *parent = 0);
+    explicit SettingsWidget(const QStringList &protocols, QWidget *parent = nullptr);
 
     void setSettings(const Settings &);
     Settings settings();
