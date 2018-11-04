@@ -40,7 +40,7 @@ namespace BinEditor {
 class EditorService
 {
 public:
-    virtual ~EditorService() {}
+    virtual ~EditorService() = default;
 
     virtual QWidget *widget() = 0;
     virtual Core::IEditor *editor() = 0;
@@ -70,7 +70,7 @@ public:
 class FactoryService
 {
 public:
-    virtual ~FactoryService() {}
+    virtual ~FactoryService() = default;
 
     // Create a BinEditor widget. Embed into a Core::IEditor iff wantsEditor == true.
     virtual EditorService *createEditorService(const QString &title, bool wantsEditor) = 0;

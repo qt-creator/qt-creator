@@ -62,8 +62,8 @@ class BinEditorWidget : public QAbstractScrollArea
     Q_PROPERTY(bool newWindowRequestAllowed READ newWindowRequestAllowed WRITE setNewWindowRequestAllowed DESIGNABLE false)
 
 public:
-    BinEditorWidget(QWidget *parent = 0);
-    ~BinEditorWidget();
+    BinEditorWidget(QWidget *parent = nullptr);
+    ~BinEditorWidget() override;
 
     EditorService *editorService() const;
 
@@ -98,7 +98,7 @@ public:
     bool isReadOnly() const;
 
     int find(const QByteArray &pattern, qint64 from = 0,
-             QTextDocument::FindFlags findFlags = 0);
+             QTextDocument::FindFlags findFlags = nullptr);
 
     void selectAll();
     void clear();
@@ -112,7 +112,7 @@ public:
     int selectionStart() const { return qMin(m_anchorPosition, m_cursorPosition); }
     int selectionEnd() const { return qMax(m_anchorPosition, m_cursorPosition); }
 
-    bool event(QEvent*);
+    bool event(QEvent*) override;
 
     bool isUndoAvailable() const { return m_undoStack.size(); }
     bool isRedoAvailable() const { return m_redoStack.size(); }
@@ -125,7 +125,7 @@ public:
 
     void setFontSettings(const TextEditor::FontSettings &fs);
     void highlightSearchResults(const QByteArray &pattern,
-        QTextDocument::FindFlags findFlags = 0);
+        QTextDocument::FindFlags findFlags = nullptr);
     void copy(bool raw = false);
     void setMarkup(const QList<Markup> &markup);
     void setNewWindowRequestAllowed(bool c);
@@ -137,24 +137,24 @@ signals:
     void cursorPositionChanged(int position);
 
 private:
-    void scrollContentsBy(int dx, int dy);
-    void paintEvent(QPaintEvent *e);
-    void resizeEvent(QResizeEvent *);
-    void changeEvent(QEvent *);
-    void wheelEvent(QWheelEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void keyPressEvent(QKeyEvent *e);
-    void focusInEvent(QFocusEvent *);
-    void focusOutEvent(QFocusEvent *);
-    void timerEvent(QTimerEvent *);
-    void contextMenuEvent(QContextMenuEvent *event);
+    void scrollContentsBy(int dx, int dy) override;
+    void paintEvent(QPaintEvent *e) override;
+    void resizeEvent(QResizeEvent *) override;
+    void changeEvent(QEvent *) override;
+    void wheelEvent(QWheelEvent *e) override;
+    void mousePressEvent(QMouseEvent *e) override;
+    void mouseMoveEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
+    void focusInEvent(QFocusEvent *) override;
+    void focusOutEvent(QFocusEvent *) override;
+    void timerEvent(QTimerEvent *) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     friend class BinEditorWidgetPrivate;
     BinEditorWidgetPrivate *d;
 
-    typedef QMap<qint64, QByteArray> BlockMap;
+    using BlockMap = QMap<qint64, QByteArray>;
     BlockMap m_data;
     BlockMap m_oldData;
     int m_blockSize;
