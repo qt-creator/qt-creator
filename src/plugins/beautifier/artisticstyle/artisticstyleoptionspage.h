@@ -45,7 +45,7 @@ class ArtisticStyleOptionsPageWidget : public QWidget
 public:
     explicit ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings,
                                             QWidget *parent = nullptr);
-    virtual ~ArtisticStyleOptionsPageWidget();
+    ~ArtisticStyleOptionsPageWidget() override;
     void restore();
     void apply();
 

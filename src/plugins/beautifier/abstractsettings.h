@@ -46,7 +46,7 @@ class AbstractSettings : public QObject
 
 public:
     explicit AbstractSettings(const QString &name, const QString &ending);
-    virtual ~AbstractSettings();
+    ~AbstractSettings() override;
 
     void read();
     void save();

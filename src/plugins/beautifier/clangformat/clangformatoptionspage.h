@@ -44,7 +44,7 @@ class ClangFormatOptionsPageWidget : public QWidget
 
 public:
     explicit ClangFormatOptionsPageWidget(ClangFormatSettings *settings, QWidget *parent = nullptr);
-    virtual ~ClangFormatOptionsPageWidget();
+    ~ClangFormatOptionsPageWidget() override;
     void restore();
     void apply();
 

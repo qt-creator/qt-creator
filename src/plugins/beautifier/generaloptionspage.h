@@ -45,7 +45,7 @@ class GeneralOptionsPageWidget : public QWidget
 public:
     explicit GeneralOptionsPageWidget(const QSharedPointer<GeneralSettings> &settings,
                                       const QStringList &toolIds, QWidget *parent = nullptr);
-    virtual ~GeneralOptionsPageWidget();
+    ~GeneralOptionsPageWidget() override;
     void restore();
     void apply(bool *autoFormatChanged);
 

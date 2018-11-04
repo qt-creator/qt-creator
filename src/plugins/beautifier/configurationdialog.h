@@ -40,7 +40,7 @@ class ConfigurationDialog : public QDialog
 
 public:
     explicit ConfigurationDialog(QWidget *parent = nullptr);
-    ~ConfigurationDialog();
+    ~ConfigurationDialog() override;
     void setSettings(AbstractSettings *settings);
 
     void clear();

@@ -125,7 +125,7 @@ void ConfigurationEditor::setCommentExpression(const QRegularExpression &rx)
 bool ConfigurationEditor::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
-        const QKeyEvent *key = static_cast<const QKeyEvent *>(event);
+        auto key = static_cast<const QKeyEvent *>(event);
         if (key->key() == Qt::Key_Escape) {
             event->accept();
             m_completer->popup()->hide();

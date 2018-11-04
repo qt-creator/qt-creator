@@ -44,7 +44,7 @@ class UncrustifyOptionsPageWidget : public QWidget
 
 public:
     explicit UncrustifyOptionsPageWidget(UncrustifySettings *settings, QWidget *parent = nullptr);
-    virtual ~UncrustifyOptionsPageWidget();
+    ~UncrustifyOptionsPageWidget() override;
     void restore();
     void apply();
 

@@ -181,7 +181,7 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
         const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
         if (editors.isEmpty())
             return;
-        if (TextEditorWidget* widget = qobject_cast<TextEditorWidget *>(editors.first()->widget()))
+        if (auto widget = qobject_cast<TextEditorWidget *>(editors.first()->widget()))
             TextEditor::formatEditor(widget, command);
     }
 }

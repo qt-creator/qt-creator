@@ -54,9 +54,7 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending) :
 {
 }
 
-AbstractSettings::~AbstractSettings()
-{
-}
+AbstractSettings::~AbstractSettings() = default;
 
 QStringList AbstractSettings::completerWords()
 {
