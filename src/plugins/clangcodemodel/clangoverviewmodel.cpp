@@ -221,7 +221,7 @@ bool OverviewModel::isGenerated(const QModelIndex &) const
 
 ::Utils::Link OverviewModel::linkFromIndex(const QModelIndex &sourceIndex) const
 {
-    TokenTreeItem *item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
+    auto item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
     if (!item)
         return {};
     return ::Utils::Link(m_filePath, static_cast<int>(item->token.line),
@@ -230,7 +230,7 @@ bool OverviewModel::isGenerated(const QModelIndex &) const
 
 ::Utils::LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIndex) const
 {
-    TokenTreeItem *item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
+    auto item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
     if (!item)
         return {};
     return ::Utils::LineColumn(static_cast<int>(item->token.line),
@@ -239,7 +239,7 @@ bool OverviewModel::isGenerated(const QModelIndex &) const
 
 OverviewModel::Range OverviewModel::rangeFromIndex(const QModelIndex &sourceIndex) const
 {
-    TokenTreeItem *item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
+    auto item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
     if (!item)
         return {};
     const ClangBackEnd::SourceRangeContainer &range = item->token.extraInfo.cursorRange;

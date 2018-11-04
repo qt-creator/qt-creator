@@ -38,7 +38,7 @@ class ClangAssistProposalItem final : public TextEditor::AssistProposalItemInter
 {
     friend bool operator<(const ClangAssistProposalItem &first, const ClangAssistProposalItem &second);
 public:
-    ~ClangAssistProposalItem() noexcept {}
+    ~ClangAssistProposalItem() noexcept override = default;
     bool prematurelyApplies(const QChar &typedCharacter) const final;
     bool implicitlyApplies() const final;
     void apply(TextEditor::TextDocumentManipulatorInterface &manipulator, int basePosition) const final;

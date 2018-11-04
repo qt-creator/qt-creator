@@ -106,7 +106,7 @@ TextEditor::ProposalModelPtr completionResults(TextEditor::BaseTextEditor *textE
 {
     using namespace TextEditor;
 
-    TextEditorWidget *textEditorWidget = qobject_cast<TextEditorWidget *>(textEditor->widget());
+    auto textEditorWidget = qobject_cast<TextEditorWidget *>(textEditor->widget());
     QTC_ASSERT(textEditorWidget, return TextEditor::ProposalModelPtr());
     AssistInterface *assistInterface = textEditorWidget->createAssistInterface(
                 TextEditor::Completion, TextEditor::ExplicitlyInvoked);

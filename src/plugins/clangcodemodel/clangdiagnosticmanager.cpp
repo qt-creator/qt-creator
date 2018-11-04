@@ -300,7 +300,7 @@ void ClangDiagnosticManager::cleanMarks()
 }
 void ClangDiagnosticManager::generateTextMarks()
 {
-    QObject::disconnect(&m_textMarkDelay, &QTimer::timeout, 0, 0);
+    QObject::disconnect(&m_textMarkDelay, &QTimer::timeout, nullptr, nullptr);
     cleanMarks();
     m_clangTextMarks.reserve(m_warningDiagnostics.size() + m_errorDiagnostics.size());
     addClangTextMarks(m_warningDiagnostics);

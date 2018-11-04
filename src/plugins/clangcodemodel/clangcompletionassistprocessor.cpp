@@ -69,7 +69,7 @@ static void addAssistProposalItem(QList<AssistProposalItemInterface *> &items,
                                   const CodeCompletion &codeCompletion,
                                   const QString &name)
 {
-    ClangAssistProposalItem *item = new ClangAssistProposalItem;
+    auto item = new ClangAssistProposalItem;
     items.push_back(item);
 
     item->setText(name);
@@ -164,9 +164,7 @@ ClangCompletionAssistProcessor::ClangCompletionAssistProcessor()
 {
 }
 
-ClangCompletionAssistProcessor::~ClangCompletionAssistProcessor()
-{
-}
+ClangCompletionAssistProcessor::~ClangCompletionAssistProcessor() = default;
 
 IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *interface)
 {
@@ -301,7 +299,7 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
         break;
     }
 
-    return 0;
+    return nullptr;
 }
 
 int ClangCompletionAssistProcessor::startOfOperator(int positionInDocument,

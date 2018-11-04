@@ -76,7 +76,7 @@ TextEditor::AssistInterface *ClangCompletionAssistProvider::createAssistInterfac
                                                   projectPart->languageFeatures);
     }
 
-    return 0;
+    return nullptr;
 }
 
 } // namespace Internal

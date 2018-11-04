@@ -110,7 +110,7 @@ BackendCommunicator::BackendCommunicator()
 
 BackendCommunicator::~BackendCommunicator()
 {
-    disconnect(&m_connection, 0, this, 0);
+    disconnect(&m_connection, nullptr, this, nullptr);
 }
 
 void BackendCommunicator::initializeBackend()

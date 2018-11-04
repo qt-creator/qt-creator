@@ -61,7 +61,7 @@
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 
-static ClangModelManagerSupport *m_instance = 0;
+static ClangModelManagerSupport *m_instance = nullptr;
 
 static CppTools::CppModelManager *cppModelManager()
 {
@@ -113,7 +113,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
 ClangModelManagerSupport::~ClangModelManagerSupport()
 {
     QTC_CHECK(m_projectSettings.isEmpty());
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 CppTools::CppCompletionAssistProvider *ClangModelManagerSupport::completionAssistProvider()
@@ -238,7 +238,7 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
     QTC_ASSERT(editor, return);
     Core::IDocument *document = editor->document();
     QTC_ASSERT(document, return);
-    TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+    auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
 
     if (textDocument && cppModelManager()->isCppEditor(editor)) {
         connectTextDocumentToTranslationUnit(textDocument);
@@ -255,7 +255,7 @@ void ClangModelManagerSupport::onEditorClosed(const QList<Core::IEditor *> &)
 
 void ClangModelManagerSupport::onCppDocumentAboutToReloadOnTranslationUnit()
 {
-    TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
+    auto textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
     disconnect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
                this, &ClangModelManagerSupport::onCppDocumentContentsChangedOnTranslationUnit);
 }
@@ -263,7 +263,7 @@ void ClangModelManagerSupport::onCppDocumentAboutToReloadOnTranslationUnit()
 void ClangModelManagerSupport::onCppDocumentReloadFinishedOnTranslationUnit(bool success)
 {
     if (success) {
-        TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
+        auto textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
         connectToTextDocumentContentsChangedForTranslationUnit(textDocument);
         m_communicator.documentsChangedWithRevisionCheck(textDocument);
     }
@@ -282,7 +282,7 @@ void ClangModelManagerSupport::onCppDocumentContentsChangedOnTranslationUnit(int
                                                                              int /*charsRemoved*/,
                                                                              int /*charsAdded*/)
 {
-    Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
+    auto document = qobject_cast<Core::IDocument *>(sender());
 
     m_communicator.updateChangeContentStartPosition(document->filePath().toString(),
                                                        position);
@@ -293,7 +293,7 @@ void ClangModelManagerSupport::onCppDocumentContentsChangedOnTranslationUnit(int
 
 void ClangModelManagerSupport::onCppDocumentAboutToReloadOnUnsavedFile()
 {
-    TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
+    auto textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
     disconnect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
                this, &ClangModelManagerSupport::onCppDocumentContentsChangedOnUnsavedFile);
 }
@@ -301,7 +301,7 @@ void ClangModelManagerSupport::onCppDocumentAboutToReloadOnUnsavedFile()
 void ClangModelManagerSupport::onCppDocumentReloadFinishedOnUnsavedFile(bool success)
 {
     if (success) {
-        TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
+        auto textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
         connectToTextDocumentContentsChangedForUnsavedFile(textDocument);
         m_communicator.unsavedFilesUpdated(textDocument);
     }
@@ -309,7 +309,7 @@ void ClangModelManagerSupport::onCppDocumentReloadFinishedOnUnsavedFile(bool suc
 
 void ClangModelManagerSupport::onCppDocumentContentsChangedOnUnsavedFile()
 {
-    Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
+    auto document = qobject_cast<Core::IDocument *>(sender());
     m_communicator.unsavedFilesUpdated(document);
 }
 

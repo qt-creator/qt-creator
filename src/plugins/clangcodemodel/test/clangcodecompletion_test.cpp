@@ -114,8 +114,7 @@ private:
 class TestDocument
 {
 public:
-    TestDocument(const QByteArray &fileName, CppTools::Tests::TemporaryDir *temporaryDir = 0)
-        : cursorPosition(-1)
+    TestDocument(const QByteArray &fileName, CppTools::Tests::TemporaryDir *temporaryDir = nullptr)
     {
         QTC_ASSERT(!fileName.isEmpty(), return);
         const QResource resource(qrcPath(fileName));
@@ -153,10 +152,10 @@ public:
     { return isCreated() && hasValidCursorPosition(); }
 
     QString filePath;
-    int cursorPosition;
+    int cursorPosition = -1;
 
 private:
-    TestDocument() : cursorPosition(-1) {}
+    TestDocument() = default;
     QSharedPointer<CppTools::Tests::TemporaryDir> m_temporaryDir;
 };
 
@@ -278,10 +277,10 @@ public:
     ProjectLoader(const QStringList &projectFiles,
                   const ProjectExplorer::Macros &projectMacros,
                   bool testOnlyForCleanedProjects = false)
-        : m_project(0)
+        : m_project(nullptr)
         , m_projectFiles(projectFiles)
         , m_projectMacros(projectMacros)
-        , m_helper(0, testOnlyForCleanedProjects)
+        , m_helper(nullptr, testOnlyForCleanedProjects)
     {
     }
 

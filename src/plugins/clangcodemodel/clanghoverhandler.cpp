@@ -56,7 +56,7 @@ static CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(TextEditor
     if (editorHandle)
         return editorHandle->processor();
 
-    return 0;
+    return nullptr;
 }
 
 static bool editorDocumentProcessorHasDiagnosticAt(TextEditorWidget *editorWidget, int pos)

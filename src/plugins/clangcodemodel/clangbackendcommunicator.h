@@ -59,7 +59,7 @@ public:
 
 public:
     BackendCommunicator();
-    ~BackendCommunicator();
+    ~BackendCommunicator() override;
 
     void documentsOpened(const FileContainers &fileContainers);
     void documentsChanged(Core::IDocument *document);

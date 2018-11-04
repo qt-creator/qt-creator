@@ -35,9 +35,9 @@ namespace ClangCodeModel {
 class ClangPreprocessorAssistProposalItem final : public TextEditor::AssistProposalItemInterface
 {
 public:
-    ~ClangPreprocessorAssistProposalItem() noexcept {}
+    ~ClangPreprocessorAssistProposalItem() noexcept override = default;
     bool prematurelyApplies(const QChar &typedChar) const final;
-    virtual bool implicitlyApplies() const final;
+    bool implicitlyApplies() const final;
     void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
                int basePosition) const final;
 

@@ -42,9 +42,9 @@ class ClangCodeModelPlugin final: public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangCodeModel.json")
 
 public:
-    ~ClangCodeModelPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
+    ~ClangCodeModelPlugin() override;
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override;
 
 private:
     void maybeHandleBatchFileAndExit() const;
@@ -57,7 +57,7 @@ private:
     Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
     QFutureWatcher<void> m_generatorWatcher;
 #ifdef WITH_TESTS
-    QList<QObject *> createTestObjects() const;
+    QList<QObject *> createTestObjects() const override;
 #endif
 };
 

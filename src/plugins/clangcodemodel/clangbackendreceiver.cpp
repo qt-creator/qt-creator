@@ -63,9 +63,7 @@ static bool printAliveMessage()
     return print;
 }
 
-BackendReceiver::BackendReceiver()
-{
-}
+BackendReceiver::BackendReceiver() = default;
 
 BackendReceiver::~BackendReceiver()
 {
