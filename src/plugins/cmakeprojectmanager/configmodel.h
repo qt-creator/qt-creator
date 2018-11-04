@@ -120,7 +120,7 @@ class ConfigModelTreeItem  : public Utils::TreeItem
 {
 public:
     ConfigModelTreeItem(ConfigModel::InternalDataItem *di = nullptr) : dataItem(di) {}
-    virtual ~ConfigModelTreeItem() override;
+    ~ConfigModelTreeItem() override;
 
     QVariant data(int column, int role) const final;
     bool setData(int column, const QVariant &data, int role) final;

@@ -49,7 +49,7 @@ public:
     void finish() override;
 
 private:
-    CMakeToolConfigWidget *m_widget = 0;
+    CMakeToolConfigWidget *m_widget = nullptr;
 };
 
 } // namespace Internal

@@ -144,10 +144,10 @@ void CMakeProjectPlugin::updateContextActions()
 {
     Project *project = ProjectTree::currentProject();
     const Node *node = ProjectTree::findCurrentNode();
-    const CMakeTargetNode *targetNode = dynamic_cast<const CMakeTargetNode *>(node);
+    auto targetNode = dynamic_cast<const CMakeTargetNode *>(node);
     // as targetNode can be deleted while the menu is open, we keep only the
     const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
-    CMakeProject *cmProject = dynamic_cast<CMakeProject *>(project);
+    auto cmProject = dynamic_cast<CMakeProject *>(project);
 
     // Build Target:
     disconnect(d->m_actionConnect);

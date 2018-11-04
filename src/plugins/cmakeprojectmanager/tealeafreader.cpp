@@ -287,7 +287,7 @@ void TeaLeafReader::generateProjectTree(CMakeProjectNode *root, const QList<cons
     QSet<FileName> toAdd = toWatch;
     toAdd.subtract(currentWatched);
     foreach (const FileName &fn, toAdd) {
-        CMakeFile *cm = new CMakeFile(this, fn);
+        auto cm = new CMakeFile(this, fn);
         DocumentManager::addDocument(cm);
         m_watchedFiles.insert(cm);
     }

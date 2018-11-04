@@ -140,7 +140,7 @@ void CMakeKitInformation::fix(Kit *k)
 KitInformation::ItemList CMakeKitInformation::toUserOutput(const Kit *k) const
 {
     const CMakeTool *const tool = cmakeTool(k);
-    return ItemList() << qMakePair(tr("CMake"), tool == 0 ? tr("Unconfigured") : tool->displayName());
+    return ItemList() << qMakePair(tr("CMake"), tool ? tool->displayName() : tr("Unconfigured"));
 }
 
 KitConfigWidget *CMakeKitInformation::createConfigWidget(Kit *k) const

@@ -40,7 +40,7 @@ class CMakeSpecificSettingWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit CMakeSpecificSettingWidget(QWidget *parent = 0);
+    explicit CMakeSpecificSettingWidget(QWidget *parent = nullptr);
     void setSettings(const CMakeSpecificSettings &settings);
     CMakeSpecificSettings settings() const;
 

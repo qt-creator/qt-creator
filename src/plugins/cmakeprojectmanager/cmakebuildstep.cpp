@@ -530,7 +530,7 @@ void CMakeBuildStepConfigWidget::updateDetails()
     param.setEnvironment(bc->environment());
     param.setWorkingDirectory(bc->buildDirectory().toString());
     param.setCommand(m_buildStep->cmakeCommand());
-    param.setArguments(m_buildStep->allArguments(0));
+    param.setArguments(m_buildStep->allArguments(nullptr));
 
     setSummaryText(param.summary(displayName()));
 }

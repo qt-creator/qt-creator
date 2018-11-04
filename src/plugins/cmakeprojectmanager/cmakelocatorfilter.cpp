@@ -62,7 +62,7 @@ void CMakeLocatorFilter::prepareSearch(const QString &entry)
     m_result.clear();
     const QList<Project *> projects = SessionManager::projects();
     for (Project *p : projects) {
-        CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
+        auto cmakeProject = qobject_cast<const CMakeProject *>(p);
         if (!cmakeProject)
             continue;
         const QStringList buildTargetTitles = cmakeProject->buildTargetTitles();

@@ -115,7 +115,7 @@ public:
 
     CMakeToolItemModel *model() const { return static_cast<CMakeToolItemModel *>(TreeItem::model()); }
 
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const override
     {
         switch (role) {
         case Qt::DisplayRole:
@@ -172,7 +172,7 @@ QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name, const FileName
                                              const bool autoRun, const bool autoCreate,
                                              const bool isAutoDetected)
 {
-    CMakeToolTreeItem *item = new CMakeToolTreeItem(name, executable, autoRun, autoCreate, isAutoDetected);
+    auto item = new CMakeToolTreeItem(name, executable, autoRun, autoCreate, isAutoDetected);
     if (isAutoDetected)
         autoGroupItem()->appendChild(item);
     else
@@ -188,7 +188,7 @@ void CMakeToolItemModel::addCMakeTool(const CMakeTool *item, bool changed)
     if (cmakeToolItem(item->id()))
         return;
 
-    CMakeToolTreeItem *treeItem = new CMakeToolTreeItem(item, changed);
+    auto treeItem = new CMakeToolTreeItem(item, changed);
     if (item->isAutoDetected())
         autoGroupItem()->appendChild(treeItem);
     else
@@ -362,7 +362,7 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     m_autoCreateBuildDirectoryCheckBox->setText(tr("Auto-create build directories"));
     m_autoCreateBuildDirectoryCheckBox->setToolTip(tr("Automatically create build directories for CMake projects."));
 
-    QFormLayout *formLayout = new QFormLayout(this);
+    auto formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
@@ -448,7 +448,7 @@ public:
         header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
         header->setSectionResizeMode(1, QHeaderView::Stretch);
 
-        QVBoxLayout *buttonLayout = new QVBoxLayout();
+        auto buttonLayout = new QVBoxLayout();
         buttonLayout->setContentsMargins(0, 0, 0, 0);
         buttonLayout->addWidget(m_addButton);
         buttonLayout->addWidget(m_cloneButton);
@@ -456,11 +456,11 @@ public:
         buttonLayout->addWidget(m_makeDefButton);
         buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
-        QVBoxLayout *verticalLayout = new QVBoxLayout();
+        auto verticalLayout = new QVBoxLayout();
         verticalLayout->addWidget(m_cmakeToolsView);
         verticalLayout->addWidget(m_container);
 
-        QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
+        auto horizontalLayout = new QHBoxLayout(this);
         horizontalLayout->addLayout(verticalLayout);
         horizontalLayout->addLayout(buttonLayout);
 
@@ -528,10 +528,10 @@ void CMakeToolConfigWidget::removeCMakeTool()
 {
     bool delDef = m_model.defaultItemId() == m_currentItem->m_id;
     m_model.removeCMakeTool(m_currentItem->m_id);
-    m_currentItem = 0;
+    m_currentItem = nullptr;
 
     if (delDef) {
-        CMakeToolTreeItem *it = static_cast<CMakeToolTreeItem *>(m_model.autoGroupItem()->firstChild());
+        auto it = static_cast<CMakeToolTreeItem *>(m_model.autoGroupItem()->firstChild());
         if (!it)
             it = static_cast<CMakeToolTreeItem *>(m_model.manualGroupItem()->firstChild());
         if (it)
@@ -593,7 +593,7 @@ void CMakeSettingsPage::apply()
 void CMakeSettingsPage::finish()
 {
     delete m_widget;
-    m_widget = 0;
+    m_widget = nullptr;
 }
 
 } // namespace Internal

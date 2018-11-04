@@ -107,7 +107,7 @@ void CMakeKitConfigWidget::makeReadOnly()
 void CMakeKitConfigWidget::refresh()
 {
     CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
-    m_comboBox->setCurrentIndex(tool == 0 ? -1 : indexOf(tool->id()));
+    m_comboBox->setCurrentIndex(tool ? indexOf(tool->id()) : -1);
 }
 
 QWidget *CMakeKitConfigWidget::mainWidget() const

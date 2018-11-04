@@ -76,7 +76,7 @@ public:
         bool matches(const QString &n, const QString &ex) const;
     };
 
-    typedef std::function<Utils::FileName (const Utils::FileName &)> PathMapper;
+    using PathMapper = std::function<Utils::FileName (const Utils::FileName &)>;
 
     explicit CMakeTool(Detection d, const Core::Id &id);
     explicit CMakeTool(const QVariantMap &map, bool fromSdk);

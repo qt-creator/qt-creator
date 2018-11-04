@@ -329,7 +329,7 @@ void CMakeProject::updateQmlJSCodeModel()
     projectInfo.importPaths.clear();
 
     QString cmakeImports;
-    CMakeBuildConfiguration *bc = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
+    auto bc = qobject_cast<const CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     if (!bc)
         return;
 

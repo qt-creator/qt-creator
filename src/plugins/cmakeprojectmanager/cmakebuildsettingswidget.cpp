@@ -69,7 +69,7 @@ static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex 
 
     QAbstractItemModel *model = view->model();
     QModelIndex result = idx;
-    while (QSortFilterProxyModel *proxy = qobject_cast<QSortFilterProxyModel *>(model)) {
+    while (auto proxy = qobject_cast<const QSortFilterProxyModel *>(model)) {
         result = proxy->mapToSource(result);
         model = proxy->sourceModel();
     }
@@ -412,7 +412,7 @@ void CMakeBuildSettingsWidget::updateSelection(const QModelIndex &current, const
 
 QAction *CMakeBuildSettingsWidget::createForceAction(int type, const QModelIndex &idx)
 {
-    ConfigModel::DataItem::Type t = static_cast<ConfigModel::DataItem::Type>(type);
+    auto t = static_cast<ConfigModel::DataItem::Type>(type);
     QString typeString;
     switch (type) {
     case ConfigModel::DataItem::BOOLEAN:
@@ -448,7 +448,7 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
     if (!idx.isValid())
         return false;
 
-    QMenu *menu = new QMenu(this);
+    auto menu = new QMenu(this);
     connect(menu, &QMenu::triggered, menu, &QMenu::deleteLater);
 
     QAction *action = nullptr;
