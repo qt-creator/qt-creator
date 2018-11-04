@@ -426,7 +426,7 @@ void BookmarkManager::toggleBookmark(const FileName &fileName, int lineNumber)
     }
 
     // Add a new bookmark if no bookmark existed on this line
-    Bookmark *mark = new Bookmark(lineNumber, this);
+    auto mark = new Bookmark(lineNumber, this);
     mark->updateFileName(fileName);
     const QModelIndex currentIndex = selectionModel()->currentIndex();
     const int insertionIndex = currentIndex.isValid() ? currentIndex.row() + 1
@@ -749,7 +749,7 @@ void BookmarkManager::addBookmark(const QString &s)
         const QString &note = s.mid(index3 + 1);
         const int lineNumber = s.midRef(index2 + 1, index3 - index2 - 1).toInt();
         if (!filePath.isEmpty() && !findBookmark(FileName::fromString(filePath), lineNumber)) {
-            Bookmark *b = new Bookmark(lineNumber, this);
+            auto b = new Bookmark(lineNumber, this);
             b->updateFileName(FileName::fromString(filePath));
             b->setNote(note);
             addBookmark(b, false);

@@ -38,14 +38,14 @@ class BookmarksPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Bookmarks.json")
 
 public:
-    BookmarksPlugin() {}
+    BookmarksPlugin() = default;
     ~BookmarksPlugin() final;
 
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final {}
 
-    BookmarksPluginRunData *m_runData;
+    BookmarksPluginRunData *m_runData = nullptr;
 };
 
 } // namespace Internal
