@@ -47,7 +47,7 @@ ClangTidyClazyRunControl::ClangTidyClazyRunControl(
 
 ClangToolRunner *ClangTidyClazyRunControl::createRunner()
 {
-    QTC_ASSERT(!m_clangExecutable.isEmpty(), return 0);
+    QTC_ASSERT(!m_clangExecutable.isEmpty(), return nullptr);
 
     auto runner = new ClangTidyClazyRunner(m_diagnosticConfig,
                                            m_clangExecutable,

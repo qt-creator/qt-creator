@@ -35,7 +35,7 @@ class DiagnosticView : public Debugger::DetailedErrorView
     Q_OBJECT
 
 public:
-    DiagnosticView(QWidget *parent = 0);
+    DiagnosticView(QWidget *parent = nullptr);
 
     enum ExtraColumn {
         FixItColumn = LocationColumn + 1,
@@ -46,7 +46,7 @@ public:
 private:
     void suppressCurrentDiagnostic();
 
-    QList<QAction *> customActions() const;
+    QList<QAction *> customActions() const override;
     bool eventFilter(QObject *watched, QEvent *event) override;
     void setModel(QAbstractItemModel *model) override;
 

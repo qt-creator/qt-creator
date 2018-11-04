@@ -363,7 +363,7 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
     });
 }
 
-SelectableFilesDialog::~SelectableFilesDialog() {}
+SelectableFilesDialog::~SelectableFilesDialog() = default;
 
 FileInfos SelectableFilesDialog::filteredFileInfos() const
 {

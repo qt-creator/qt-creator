@@ -38,8 +38,8 @@ class ClangToolsBasicSettings : public QWidget
     Q_OBJECT
 
 public:
-    explicit ClangToolsBasicSettings(QWidget *parent = 0);
-    ~ClangToolsBasicSettings();
+    explicit ClangToolsBasicSettings(QWidget *parent = nullptr);
+    ~ClangToolsBasicSettings() override;
 
     Ui::ClangToolsBasicSettings *ui();
 private:

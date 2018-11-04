@@ -44,7 +44,7 @@ class ClangTool : public QObject
 
 public:
     ClangTool(const QString &name);
-    virtual ~ClangTool();
+    ~ClangTool() override;
 
     virtual void startTool(bool askUserForFileSelection) = 0;
 

@@ -87,7 +87,7 @@ int ClangToolsDiagnosticModel::diagnosticsCount() const
 
 static QString createDiagnosticToolTipString(const Diagnostic &diagnostic)
 {
-    typedef QPair<QString, QString> StringPair;
+    using StringPair = QPair<QString, QString>;
     QList<StringPair> lines;
 
     if (!diagnostic.category.isEmpty()) {
@@ -140,7 +140,7 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
     if (step.message == step.extendedMessage)
         return createFullLocationString(step.location);
 
-    typedef QPair<QString, QString> StringPair;
+    using StringPair = QPair<QString, QString>;
     QList<StringPair> lines;
 
     if (!step.message.isEmpty()) {

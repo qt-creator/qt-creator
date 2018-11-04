@@ -40,8 +40,8 @@ class ProjectSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent = 0);
-    ~ProjectSettingsWidget();
+    explicit ProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent = nullptr);
+    ~ProjectSettingsWidget() override;
 
 private:
     void updateButtonStates();

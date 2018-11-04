@@ -44,7 +44,7 @@ class ClangToolsConfigWidget : public QWidget
 
 public:
     ClangToolsConfigWidget(ClangToolsSettings *settings, QWidget *parent = nullptr);
-    ~ClangToolsConfigWidget();
+    ~ClangToolsConfigWidget() override;
 private:
     std::unique_ptr<Ui::ClangToolsConfigWidget> m_ui;
     ClangToolsSettings *m_settings;

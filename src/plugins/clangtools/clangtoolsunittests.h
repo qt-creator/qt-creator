@@ -37,7 +37,7 @@ class ClangToolsUnitTests : public QObject
     Q_OBJECT
 
 public:
-    ClangToolsUnitTests() {}
+    ClangToolsUnitTests() = default;
 
 private slots:
     void initTestCase();

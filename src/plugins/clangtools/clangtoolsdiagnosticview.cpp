@@ -47,7 +47,7 @@ class ClickableFixItHeader : public QHeaderView
     Q_OBJECT
 
 public:
-    ClickableFixItHeader(Qt::Orientation orientation, QWidget *parent = 0)
+    ClickableFixItHeader(Qt::Orientation orientation, QWidget *parent = nullptr)
         : QHeaderView(orientation, parent)
     {
     }
@@ -58,7 +58,7 @@ public:
     }
 
 protected:
-    void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
+    void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const override
     {
         painter->save();
         QHeaderView::paintSection(painter, rect, logicalIndex);
@@ -72,7 +72,7 @@ protected:
         }
     }
 
-    void mousePressEvent(QMouseEvent *event)
+    void mousePressEvent(QMouseEvent *event) override
     {
         if (event->localPos().x() > sectionPosition(DiagnosticView::FixItColumn)) {
             state = (state != QStyle::State_On) ? QStyle::State_On : QStyle::State_Off;

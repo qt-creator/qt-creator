@@ -65,7 +65,7 @@ inline bool operator==(const SuppressedDiagnostic &d1, const SuppressedDiagnosti
             && d1.uniquifier == d2.uniquifier;
 }
 
-typedef QList<SuppressedDiagnostic> SuppressedDiagnosticsList;
+using SuppressedDiagnosticsList = QList<SuppressedDiagnostic>;
 
 class ClangToolsProjectSettings : public QObject
 {

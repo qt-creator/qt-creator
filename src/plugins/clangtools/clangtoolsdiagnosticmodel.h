@@ -115,7 +115,7 @@ public:
     ProjectExplorer::Project *project() const { return m_project; }
 
 private:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     void handleSuppressedDiagnosticsChanged();
 
     QPointer<ProjectExplorer::Project> m_project;

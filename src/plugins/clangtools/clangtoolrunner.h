@@ -45,7 +45,7 @@ public:
                     const Utils::Environment &environment,
                     const QString &name,
                     QObject *parent = nullptr);
-    virtual ~ClangToolRunner();
+    ~ClangToolRunner() override;
 
     // compilerOptions is expected to contain everything except:
     //   (1) filePath, that is the file to analyze

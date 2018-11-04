@@ -39,7 +39,7 @@ class SuppressedDiagnosticsModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    SuppressedDiagnosticsModel(QObject *parent = 0) : QAbstractTableModel(parent) { }
+    SuppressedDiagnosticsModel(QObject *parent = nullptr) : QAbstractTableModel(parent) { }
 
     void setDiagnostics(const SuppressedDiagnosticsList &diagnostics);
     SuppressedDiagnostic diagnosticAt(int i) const;
@@ -47,10 +47,11 @@ public:
 private:
     enum Columns { ColumnFile, ColumnContext, ColumnDescription, ColumnLast = ColumnDescription };
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex & = QModelIndex()) const { return ColumnLast + 1; }
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex & = QModelIndex()) const override { return ColumnLast + 1; }
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     SuppressedDiagnosticsList m_diagnostics;
 };
