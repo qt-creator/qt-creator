@@ -56,7 +56,7 @@ public:
     MakefileParserThread(const QString &makefile);
 
     /** @see QThread::run() */
-    void run();
+    void run() override;
 
     /**
      * @return List of sources that are set for the _SOURCES target.

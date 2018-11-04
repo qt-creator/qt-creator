@@ -127,7 +127,7 @@ void AutotoolsProject::loadProjectTree()
                    this, &AutotoolsProject::makefileParsingFinished);
         m_makefileParserThread->wait();
         delete m_makefileParserThread;
-        m_makefileParserThread = 0;
+        m_makefileParserThread = nullptr;
     }
 
     // Parse the makefile asynchronously in a thread

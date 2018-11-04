@@ -49,7 +49,7 @@ AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget(AutotoolsBuildConfigu
     m_pathChooser(new Utils::PathChooser),
     m_buildConfiguration(bc)
 {
-    QFormLayout *fl = new QFormLayout(this);
+    auto fl = new QFormLayout(this);
     fl->setContentsMargins(0, 0, 0, 0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 

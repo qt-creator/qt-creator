@@ -41,7 +41,7 @@ class AutotoolsOpenProjectWizard : public Utils::Wizard
 public:
     enum PageId { BuildPathPageId };
 
-    AutotoolsOpenProjectWizard(const QString &sourceDirectory, QWidget *parent = 0);
+    AutotoolsOpenProjectWizard(const QString &sourceDirectory, QWidget *parent = nullptr);
 
     QString buildDirectory() const;
     QString sourceDirectory() const;

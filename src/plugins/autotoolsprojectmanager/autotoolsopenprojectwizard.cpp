@@ -75,7 +75,7 @@ void AutotoolsOpenProjectWizard::setBuildDirectory(const QString &directory)
 BuildPathPage::BuildPathPage(AutotoolsOpenProjectWizard *w) : QWizardPage(w),
     m_pc(new Utils::PathChooser)
 {
-    QFormLayout *fl = new QFormLayout;
+    auto fl = new QFormLayout;
     this->setLayout(fl);
 
     QLabel *label = new QLabel(this);
@@ -86,7 +86,7 @@ BuildPathPage::BuildPathPage(AutotoolsOpenProjectWizard *w) : QWizardPage(w),
                       "with different settings."));
     fl->addWidget(label);
     m_pc->setHistoryCompleter(QLatin1String("AutoTools.BuildDir.History"));
-    AutotoolsOpenProjectWizard *wiz = static_cast<AutotoolsOpenProjectWizard *>(wizard());
+    auto wiz = static_cast<AutotoolsOpenProjectWizard *>(wizard());
     m_pc->setBaseDirectory(wiz->sourceDirectory());
     m_pc->setPath(wiz->buildDirectory());
     connect(m_pc, &Utils::PathChooser::rawPathChanged, this, &BuildPathPage::buildDirectoryChanged);

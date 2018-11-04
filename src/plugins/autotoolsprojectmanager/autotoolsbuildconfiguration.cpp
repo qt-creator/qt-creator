@@ -74,26 +74,26 @@ void AutotoolsBuildConfiguration::initialize(const BuildInfo *info)
     // autogen.sh or autoreconf
     QFile autogenFile(target()->project()->projectDirectory().toString() + "/autogen.sh");
     if (autogenFile.exists()) {
-        AutogenStep *autogenStep = new AutogenStep(buildSteps);
+        auto autogenStep = new AutogenStep(buildSteps);
         buildSteps->appendStep(autogenStep);
     } else {
-        AutoreconfStep *autoreconfStep = new AutoreconfStep(buildSteps);
+        auto autoreconfStep = new AutoreconfStep(buildSteps);
         buildSteps->appendStep(autoreconfStep);
     }
 
     // ./configure.
-    ConfigureStep *configureStep = new ConfigureStep(buildSteps);
+    auto configureStep = new ConfigureStep(buildSteps);
     buildSteps->appendStep(configureStep);
     connect(this, &BuildConfiguration::buildDirectoryChanged,
             configureStep, &ConfigureStep::notifyBuildDirectoryChanged);
 
     // make
-    MakeStep *makeStep = new MakeStep(buildSteps);
+    auto makeStep = new MakeStep(buildSteps);
     buildSteps->appendStep(makeStep);
 
     // ### Build Steps Clean ###
     BuildStepList *cleanSteps = stepList(BUILDSTEPS_CLEAN);
-    MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
+    auto cleanMakeStep = new MakeStep(cleanSteps);
     cleanSteps->appendStep(cleanMakeStep);
 }
 
@@ -133,7 +133,7 @@ QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableSetups(const Kit
 BuildInfo *AutotoolsBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                                const Utils::FileName &buildDir) const
 {
-    BuildInfo *info = new BuildInfo(this);
+    auto info = new BuildInfo(this);
     info->typeName = tr("Build");
     info->buildDirectory = buildDir;
     info->kitId = k->id();

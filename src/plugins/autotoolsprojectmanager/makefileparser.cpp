@@ -56,7 +56,7 @@ bool MakefileParser::parse()
     m_sources.clear();
     m_makefiles.clear();
 
-    QFile *file = new QFile(m_makefile);
+    auto file = new QFile(m_makefile);
     if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning("%s: %s", qPrintable(m_makefile), qPrintable(file->errorString()));
         delete file;
@@ -343,7 +343,7 @@ QStringList MakefileParser::directorySources(const QString &directory,
 QStringList MakefileParser::targetValues(bool *hasVariables)
 {
     QStringList values;
-    if (hasVariables != 0)
+    if (hasVariables)
         *hasVariables = false;
 
     const int index = m_line.indexOf(QLatin1Char('='));
@@ -366,7 +366,7 @@ QStringList MakefileParser::targetValues(bool *hasVariables)
         while (it != lineValues.end()) {
             if ((*it).startsWith(QLatin1String("$("))) {
                 it = lineValues.erase(it);
-                if (hasVariables != 0)
+                if (hasVariables)
                     *hasVariables = true;
             } else {
                 ++it;
@@ -400,9 +400,9 @@ QStringList MakefileParser::targetValues(bool *hasVariables)
 
 void MakefileParser::appendHeader(QStringList &list,  const QDir &dir, const QString &fileName)
 {
-    const char *const headerExtensions[] = {".h", ".hh", ".hg", ".hxx", ".hpp", 0};
+    const char *const headerExtensions[] = {".h", ".hh", ".hg", ".hxx", ".hpp", nullptr};
     int i = 0;
-    while (headerExtensions[i] != 0) {
+    while (headerExtensions[i]) {
         const QString headerFile = fileName + QLatin1String(headerExtensions[i]);
         QFileInfo fileInfo(dir, headerFile);
         if (fileInfo.exists())

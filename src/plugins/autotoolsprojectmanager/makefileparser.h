@@ -200,7 +200,7 @@ private:
      *                     contained a variable like $(test). Note that all variables are not
      *                     part of the return value, as they cannot get interpreted currently.
      */
-    QStringList targetValues(bool *hasVariables = 0);
+    QStringList targetValues(bool *hasVariables = nullptr);
 
     /**
      * Adds recursively all sources of the current folder to m_sources and removes
