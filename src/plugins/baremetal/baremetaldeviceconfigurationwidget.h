@@ -40,11 +40,11 @@ class BareMetalDeviceConfigurationWidget
 
 public:
     explicit BareMetalDeviceConfigurationWidget(
-        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = 0);
+        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = nullptr);
 
 private:
     void gdbServerProviderChanged();
-    void updateDeviceFromUi();
+    void updateDeviceFromUi() override;
 
     GdbServerProviderChooser *m_gdbServerProviderChooser;
 };

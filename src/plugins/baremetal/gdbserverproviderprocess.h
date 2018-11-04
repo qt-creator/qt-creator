@@ -38,7 +38,7 @@ class GdbServerProviderProcess : public ProjectExplorer::DeviceProcess
 public:
     explicit GdbServerProviderProcess(
             const QSharedPointer<const ProjectExplorer::IDevice> &device,
-            QObject *parent = 0);
+            QObject *parent = nullptr);
 
     void start(const ProjectExplorer::Runnable &runnable) override;
     void interrupt() override;

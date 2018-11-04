@@ -229,7 +229,7 @@ QString GdbServerProviderFactory::idFromMap(const QVariantMap &data)
     return data.value(QLatin1String(idKeyC)).toString();
 }
 
-void GdbServerProviderFactory::idToMap(QVariantMap &data, const QString id)
+void GdbServerProviderFactory::idToMap(QVariantMap &data, const QString &id)
 {
     data.insert(QLatin1String(idKeyC), id);
 }

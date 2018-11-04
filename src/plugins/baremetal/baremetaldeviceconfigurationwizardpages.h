@@ -42,10 +42,10 @@ class BareMetalDeviceConfigurationWizardSetupPage : public QWizardPage
     Q_OBJECT
 
 public:
-    explicit BareMetalDeviceConfigurationWizardSetupPage(QWidget *parent = 0);
+    explicit BareMetalDeviceConfigurationWizardSetupPage(QWidget *parent = nullptr);
 
-    void initializePage();
-    bool isComplete() const;
+    void initializePage() override;
+    bool isComplete() const override;
     QString configurationName() const;
     QString gdbServerProviderId() const;
 

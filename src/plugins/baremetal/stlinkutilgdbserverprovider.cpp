@@ -238,7 +238,7 @@ GdbServerProvider *StLinkUtilGdbServerProviderFactory::restore(const QVariantMap
     if (p->fromMap(updated))
         return p;
     delete p;
-    return 0;
+    return nullptr;
 }
 
 StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget(

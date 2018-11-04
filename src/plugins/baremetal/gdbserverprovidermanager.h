@@ -46,7 +46,7 @@ class GdbServerProviderManager : public QObject
 
 public:
     static GdbServerProviderManager *instance();
-    ~GdbServerProviderManager();
+    ~GdbServerProviderManager() override;
 
     static QList<GdbServerProvider *> providers();
     static QList<GdbServerProviderFactory *> factories();

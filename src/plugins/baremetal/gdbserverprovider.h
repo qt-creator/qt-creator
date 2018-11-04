@@ -126,7 +126,7 @@ public:
     virtual GdbServerProvider *restore(const QVariantMap &data) = 0;
 
     static QString idFromMap(const QVariantMap &data);
-    static void idToMap(QVariantMap &data, const QString id);
+    static void idToMap(QVariantMap &data, const QString &id);
 
 protected:
     void setId(const QString &id);
@@ -174,7 +174,7 @@ private:
     void setFromProvider();
 
     GdbServerProvider *m_provider;
-    QLabel *m_errorLabel = 0;
+    QLabel *m_errorLabel = nullptr;
 };
 
 class HostWidget : public QWidget
@@ -182,7 +182,7 @@ class HostWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit HostWidget(QWidget *parent = 0);
+    explicit HostWidget(QWidget *parent = nullptr);
 
     void setHost(const QString &host);
     QString host() const;

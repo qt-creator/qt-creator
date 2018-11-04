@@ -48,7 +48,7 @@ const char countKeyC[] = "GdbServerProvider.Count";
 const char fileVersionKeyC[] = "Version";
 const char fileNameKeyC[] = "/gdbserverproviders.xml";
 
-static GdbServerProviderManager *m_instance = 0;
+static GdbServerProviderManager *m_instance = nullptr;
 
 GdbServerProviderManager::GdbServerProviderManager()
     : m_configFile(Utils::FileName::fromString(Core::ICore::userResourcePath() + fileNameKeyC))
@@ -76,7 +76,7 @@ GdbServerProviderManager::~GdbServerProviderManager()
     qDeleteAll(m_providers);
     m_providers.clear();
     delete m_writer;
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 GdbServerProviderManager *GdbServerProviderManager::instance()
@@ -154,7 +154,7 @@ QList<GdbServerProviderFactory *> GdbServerProviderManager::factories()
 GdbServerProvider *GdbServerProviderManager::findProvider(const QString &id)
 {
     if (id.isEmpty() || !m_instance)
-        return 0;
+        return nullptr;
 
     return Utils::findOrDefault(m_instance->m_providers, Utils::equal(&GdbServerProvider::id, id));
 }
@@ -162,7 +162,7 @@ GdbServerProvider *GdbServerProviderManager::findProvider(const QString &id)
 GdbServerProvider *GdbServerProviderManager::findByDisplayName(const QString &displayName)
 {
     if (displayName.isEmpty())
-        return 0;
+        return nullptr;
 
     return Utils::findOrDefault(m_instance->m_providers,
                                 Utils::equal(&GdbServerProvider::displayName, displayName));

@@ -86,9 +86,9 @@ public:
     explicit GdbServerProvidersSettingsPage(QObject *parent = nullptr);
 
 private:
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
     GdbServerProvidersSettingsWidget *m_configWidget = nullptr;
 };

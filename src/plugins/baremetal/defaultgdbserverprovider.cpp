@@ -47,12 +47,7 @@ DefaultGdbServerProvider::DefaultGdbServerProvider()
 {
 }
 
-DefaultGdbServerProvider::DefaultGdbServerProvider(const DefaultGdbServerProvider &other)
-    : GdbServerProvider(other)
-    , m_host(other.m_host)
-    , m_port(other.m_port)
-{
-}
+DefaultGdbServerProvider::DefaultGdbServerProvider(const DefaultGdbServerProvider &other) = default;
 
 quint16 DefaultGdbServerProvider::port() const
 {
@@ -162,7 +157,7 @@ GdbServerProvider *DefaultGdbServerProviderFactory::restore(const QVariantMap &d
     if (p->fromMap(updated))
         return p;
     delete p;
-    return 0;
+    return nullptr;
 }
 
 DefaultGdbServerProviderConfigWidget::DefaultGdbServerProviderConfigWidget(

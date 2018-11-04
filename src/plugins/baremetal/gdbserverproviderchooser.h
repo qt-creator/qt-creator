@@ -45,7 +45,7 @@ class GdbServerProviderChooser : public QWidget
 
 public:
     explicit GdbServerProviderChooser(
-            bool useManageButton = true, QWidget *parent = 0);
+            bool useManageButton = true, QWidget *parent = nullptr);
 
     QString currentProviderId() const;
     void setCurrentProviderId(const QString &id);

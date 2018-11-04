@@ -37,7 +37,7 @@ const char GdbCommandsKey[] = "BareMetal.GdbCommandsStep.Commands";
 BareMetalGdbCommandsDeployStepWidget::BareMetalGdbCommandsDeployStepWidget(BareMetalGdbCommandsDeployStep &step)
     : BuildStepConfigWidget(&step), m_step(step)
 {
-    QFormLayout *fl = new QFormLayout(this);
+    auto fl = new QFormLayout(this);
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);

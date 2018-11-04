@@ -63,16 +63,7 @@ OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
 }
 
 OpenOcdGdbServerProvider::OpenOcdGdbServerProvider(
-        const OpenOcdGdbServerProvider &other)
-    : GdbServerProvider(other)
-    , m_host(other.m_host)
-    , m_port(other.m_port)
-    , m_executableFile(other.m_executableFile)
-    , m_rootScriptsDir(other.m_rootScriptsDir)
-    , m_configurationFile(other.m_configurationFile)
-    , m_additionalArguments(other.m_additionalArguments)
-{
-}
+        const OpenOcdGdbServerProvider &other) = default;
 
 QString OpenOcdGdbServerProvider::defaultInitCommands()
 {
@@ -246,7 +237,7 @@ GdbServerProvider *OpenOcdGdbServerProviderFactory::restore(const QVariantMap &d
     if (p->fromMap(updated))
         return p;
     delete p;
-    return 0;
+    return nullptr;
 }
 
 OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(

@@ -36,15 +36,15 @@ class GdbServerProvider;
 class BareMetalDevice : public ProjectExplorer::IDevice
 {
 public:
-    typedef QSharedPointer<BareMetalDevice> Ptr;
-    typedef QSharedPointer<const BareMetalDevice> ConstPtr;
+    using Ptr = QSharedPointer<BareMetalDevice>;
+    using ConstPtr = QSharedPointer<const BareMetalDevice>;
 
     static Ptr create();
     static Ptr create(const QString &name, Core::Id type, MachineType machineType,
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
     static Ptr create(const BareMetalDevice &other);
 
-    ~BareMetalDevice();
+    ~BareMetalDevice() override;
     QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     QList<Core::Id> actionIds() const override;
@@ -63,11 +63,11 @@ public:
     void unregisterProvider(GdbServerProvider *provider);
     void providerUpdated(GdbServerProvider *provider);
 
-    virtual void fromMap(const QVariantMap &map) override;
-    virtual QVariantMap toMap() const override;
+    void fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
 protected:
-    BareMetalDevice() {}
+    BareMetalDevice() = default;
     BareMetalDevice(const QString &name, Core::Id type,
                     MachineType machineType, Origin origin, Core::Id id);
     BareMetalDevice(const BareMetalDevice &other);
