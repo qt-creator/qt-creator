@@ -295,7 +295,7 @@ void ParserTreeItem::convertTo(QStandardItem *item) const
         ++curHash;
     }
 
-    typedef QMap<SymbolInformation, ParserTreeItem::Ptr>::const_iterator MapCitSymbolInformations;
+    using MapCitSymbolInformations = QMap<SymbolInformation, ParserTreeItem::Ptr>::const_iterator;
     // add to item
     MapCitSymbolInformations cur = map.constBegin();
     MapCitSymbolInformations end = map.constEnd();
@@ -303,7 +303,7 @@ void ParserTreeItem::convertTo(QStandardItem *item) const
         const SymbolInformation &inf = cur.key();
         ParserTreeItem::Ptr ptr = cur.value();
 
-        QStandardItem *add = new QStandardItem();
+        auto add = new QStandardItem;
         Utils::setSymbolInformationToItem(inf, add);
         if (!ptr.isNull()) {
             // icon

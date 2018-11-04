@@ -50,8 +50,8 @@ class Parser : public QObject
     Q_OBJECT
 
 public:
-    explicit Parser(QObject *parent = 0);
-    ~Parser();
+    explicit Parser(QObject *parent = nullptr);
+    ~Parser() override;
 
     bool canFetchMore(QStandardItem *item, bool skipRoot = false) const;
 
@@ -86,8 +86,8 @@ public:
     void setFlatMode(bool flat);
 
 protected:
-    typedef QHash<QString, unsigned>::const_iterator CitCachedDocTreeRevision;
-    typedef QHash<QString, QStringList>::const_iterator CitCachedPrjFileLists;
+    using CitCachedDocTreeRevision = QHash<QString, unsigned>::const_iterator;
+    using CitCachedPrjFileLists = QHash<QString, QStringList>::const_iterator;
 
     void onResetDataDone();
 

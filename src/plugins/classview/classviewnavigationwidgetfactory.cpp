@@ -58,7 +58,7 @@ NavigationWidgetFactory::NavigationWidgetFactory()
 Core::NavigationView NavigationWidgetFactory::createWidget()
 {
     Core::NavigationView navigationView;
-    NavigationWidget *widget = new NavigationWidget();
+    auto widget = new NavigationWidget();
     navigationView.widget = widget;
     navigationView.dockToolBarWidgets = widget->createToolButtons();
     return navigationView;
@@ -77,7 +77,7 @@ static QString settingsPrefix(int position)
 
 void NavigationWidgetFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
 {
-    NavigationWidget *pw = qobject_cast<NavigationWidget *>(widget);
+    auto pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);
 
     // .beginGroup is not used - to prevent simultaneous access
@@ -87,7 +87,7 @@ void NavigationWidgetFactory::saveSettings(QSettings *settings, int position, QW
 
 void NavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
 {
-    NavigationWidget *pw = qobject_cast<NavigationWidget *>(widget);
+    auto pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);
 
     // .beginGroup is not used - to prevent simultaneous access

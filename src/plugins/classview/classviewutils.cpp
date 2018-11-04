@@ -72,9 +72,7 @@ const int IconSortOrder[] = {
 
 namespace Internal {
 
-Utils::Utils()
-{
-}
+Utils::Utils() = default;
 
 /*!
     Converts internal location container to QVariant compatible.
@@ -120,9 +118,8 @@ int Utils::iconTypeSortOrder(int icon)
 
     // initialization
     if (sortOrder.isEmpty()) {
-        for (unsigned i = 0 ;
-             i < sizeof(Constants::IconSortOrder) / sizeof(Constants::IconSortOrder[0]) ; ++i)
-            sortOrder.insert(Constants::IconSortOrder[i], sortOrder.count());
+        for (int i : Constants::IconSortOrder)
+            sortOrder.insert(i, sortOrder.count());
     }
 
     // if it is missing - return the same value

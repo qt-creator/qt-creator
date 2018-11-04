@@ -46,9 +46,7 @@ TreeItemModel::TreeItemModel(QObject *parent)
 {
 }
 
-TreeItemModel::~TreeItemModel()
-{
-}
+TreeItemModel::~TreeItemModel() = default;
 
 QVariant TreeItemModel::data(const QModelIndex &index, int role) const
 {
@@ -136,7 +134,7 @@ QMimeData *TreeItemModel::mimeData(const QModelIndexList &indexes) const
     }
     if (mimeData->files().isEmpty()) {
         delete mimeData;
-        return 0;
+        return nullptr;
     }
     return mimeData;
 }

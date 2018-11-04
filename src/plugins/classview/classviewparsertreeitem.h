@@ -41,8 +41,8 @@ class ParserTreeItemPrivate;
 class ParserTreeItem
 {
 public:
-    typedef QSharedPointer<ParserTreeItem> Ptr;
-    typedef QSharedPointer<const ParserTreeItem> ConstPtr;
+    using Ptr = QSharedPointer<ParserTreeItem>;
+    using ConstPtr = QSharedPointer<const ParserTreeItem>;
 
 public:
     ParserTreeItem();
@@ -91,7 +91,7 @@ protected:
     ParserTreeItem &operator=(const ParserTreeItem &other);
 
 private:
-    typedef QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator CitSymbolInformations;
+    using CitSymbolInformations = QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator;
     //! Private class data pointer
     ParserTreeItemPrivate *d;
 };

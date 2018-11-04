@@ -42,9 +42,9 @@ class Manager : public QObject
     Q_OBJECT
 
 public:
-    explicit Manager(QObject *parent = 0);
+    explicit Manager(QObject *parent = nullptr);
 
-    virtual ~Manager();
+    ~Manager() override;
 
     //! Get an instance of Manager
     static Manager *instance();

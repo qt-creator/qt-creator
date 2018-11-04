@@ -46,8 +46,8 @@ class NavigationWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit NavigationWidget(QWidget *parent = 0);
-    ~NavigationWidget();
+    explicit NavigationWidget(QWidget *parent = nullptr);
+    ~NavigationWidget() override;
 
     QList<QToolButton *> createToolButtons();
 
@@ -76,10 +76,10 @@ protected:
     void fetchExpandedItems(QStandardItem *item, const QStandardItem *target) const;
 
     //! implements QWidget::hideEvent
-    void hideEvent(QHideEvent *event);
+    void hideEvent(QHideEvent *event) override;
 
     //! implements QWidget::showEvent
-    void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
 private:
     Utils::NavigationTreeView *treeView;

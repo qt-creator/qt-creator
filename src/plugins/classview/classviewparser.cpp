@@ -92,10 +92,7 @@ namespace Internal {
 class ParserPrivate
 {
 public:
-    typedef QHash<QString, CPlusPlus::Document::Ptr>::const_iterator CitDocumentList;
-
-    //! Constructor
-    ParserPrivate() : flatMode(false) {}
+    using CitDocumentList = QHash<QString, CPlusPlus::Document::Ptr>::const_iterator;
 
     //! Get document from documentList
     CPlusPlus::Document::Ptr document(const QString &fileName) const;
@@ -142,7 +139,7 @@ public:
     ParserTreeItem::ConstPtr rootItem;
 
     //! Flat mode
-    bool flatMode;
+    bool flatMode = false;
 };
 
 CPlusPlus::Document::Ptr ParserPrivate::document(const QString &fileName) const

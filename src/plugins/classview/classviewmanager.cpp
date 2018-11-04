@@ -52,7 +52,7 @@ namespace Internal {
 ///////////////////////////////// ManagerPrivate //////////////////////////////////
 
 // static variable initialization
-static Manager *managerInstance = 0;
+static Manager *managerInstance = nullptr;
 
 /*!
     \class ClassView::Internal::Manager
@@ -141,8 +141,6 @@ static Manager *managerInstance = 0;
 class ManagerPrivate
 {
 public:
-    ManagerPrivate() : state(false), disableCodeParser(false) {}
-
     //! State mutex
     QMutex mutexState;
 
@@ -153,10 +151,10 @@ public:
     QThread parserThread;
 
     //! Internal manager state. \sa Manager::state
-    bool state;
+    bool state = false;
 
     //! there is some massive operation ongoing so temporary we should wait
-    bool disableCodeParser;
+    bool disableCodeParser = false;
 };
 
 ///////////////////////////////// Manager //////////////////////////////////
@@ -185,7 +183,7 @@ Manager::~Manager()
     d->parserThread.quit();
     d->parserThread.wait();
     delete d;
-    managerInstance = 0;
+    managerInstance = nullptr;
 }
 
 Manager *Manager::instance()
