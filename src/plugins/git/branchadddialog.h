@@ -26,12 +26,25 @@
 #pragma once
 
 #include <QDialog>
+#include <QItemDelegate>
 
 namespace Git {
 namespace Internal {
 
+class BranchModel;
 
 namespace Ui { class BranchAddDialog; }
+
+class BranchValidationDelegate : public QItemDelegate
+{
+public:
+    BranchValidationDelegate(QWidget *parent, BranchModel *model);
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const override;
+
+private:
+    BranchModel *m_model;
+};
 
 class BranchAddDialog : public QDialog
 {

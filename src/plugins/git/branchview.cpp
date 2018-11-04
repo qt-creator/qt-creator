@@ -126,6 +126,9 @@ BranchView::BranchView() :
             this, &BranchView::BranchView::setIncludeTags);
 
     m_branchView->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_branchView->setEditTriggers(QAbstractItemView::SelectedClicked
+                                  | QAbstractItemView::EditKeyPressed);
+    m_branchView->setItemDelegate(new BranchValidationDelegate(this, m_model));
     connect(m_branchView, &QAbstractItemView::doubleClicked,
             this, [this](const QModelIndex &idx) { log(m_filterModel->mapToSource(idx)); });
     connect(m_branchView, &QWidget::customContextMenuRequested,
