@@ -1058,7 +1058,7 @@ void ClearCasePlugin::rmdir(const QString &path)
 
 void ClearCasePlugin::diffActivity()
 {
-    typedef QMap<QString, QStringPair>::Iterator FileVerIt;
+    using FileVerIt = QMap<QString, QStringPair>::Iterator;
 
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -1649,7 +1649,7 @@ bool ClearCasePlugin::vcsCheckIn(const QString &messageFile, const QStringList &
     if (files.isEmpty())
         return true;
     const QString title = QString::fromLatin1("Checkin %1").arg(files.join(QLatin1String("; ")));
-    typedef QSharedPointer<FileChangeBlocker> FCBPointer;
+    using FCBPointer = QSharedPointer<FileChangeBlocker>;
     replaceActivity &= (activity != QLatin1String(Constants::KEEP_ACTIVITY));
     if (replaceActivity && !vcsSetActivity(m_checkInView, title, activity))
         return false;

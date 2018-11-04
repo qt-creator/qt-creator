@@ -43,7 +43,7 @@ class QAction;
 template <typename T>
 class QFutureInterface;
 class QMutex;
-typedef QPair<QString, QString> QStringPair;
+using QStringPair = QPair<QString, QString>;
 class QTextCodec;
 QT_END_NAMESPACE
 
@@ -93,7 +93,7 @@ public:
     { }
 };
 
-typedef QHash<QString, FileStatus> StatusMap;
+using StatusMap = QHash<QString, FileStatus>;
 
 class ViewData
 {

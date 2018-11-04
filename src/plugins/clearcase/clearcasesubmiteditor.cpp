@@ -51,7 +51,7 @@ void ClearCaseSubmitEditor::setIsUcm(bool isUcm)
 
 void ClearCaseSubmitEditor::setStatusList(const QStringList &statusOutput)
 {
-    typedef QStringList::const_iterator ConstIterator;
+    using ConstIterator = QStringList::const_iterator;
     auto model = new VcsBase::SubmitFileModel(this);
     model->setRepositoryRoot(checkScriptWorkingDirectory());
 

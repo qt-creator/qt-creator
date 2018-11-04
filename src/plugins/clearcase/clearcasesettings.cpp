@@ -96,7 +96,7 @@ void ClearCaseSettings::fromSettings(QSettings *settings)
 
 void ClearCaseSettings::toSettings(QSettings *settings) const
 {
-    typedef QHash<QString, int>::ConstIterator FilesConstIt;
+    using FilesConstIt = QHash<QString, int>::ConstIterator;
 
     settings->beginGroup(QLatin1String(groupC));
     settings->setValue(QLatin1String(commandKeyC), ccCommand);

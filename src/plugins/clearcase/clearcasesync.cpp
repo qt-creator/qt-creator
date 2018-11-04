@@ -111,7 +111,7 @@ void ClearCaseSync::processCleartoolLsLine(const QDir &viewRootDir, const QStrin
         m_plugin->setStatus(absFile, FileStatus::CheckedIn, true);
 }
 
-void ClearCaseSync::updateTotalFilesCount(const QString view, ClearCaseSettings settings,
+void ClearCaseSync::updateTotalFilesCount(const QString &view, ClearCaseSettings settings,
                                           const int processed)
 {
     settings = m_plugin->settings(); // Might have changed while task was running
