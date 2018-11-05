@@ -228,7 +228,7 @@ bool QmlTimeline::isRecording() const
 {
     QTC_ASSERT(isValid(), return false);
 
-    return modelNode().hasAuxiliaryData("REC@Internal");
+    return modelNode().hasAuxiliaryData("Record@Internal");
 }
 
 void QmlTimeline::toogleRecording(bool record) const
@@ -237,9 +237,9 @@ void QmlTimeline::toogleRecording(bool record) const
 
     if (!record) {
         if (isRecording())
-            modelNode().removeAuxiliaryData("REC@Internal");
+            modelNode().removeAuxiliaryData("Record@Internal");
     } else {
-        modelNode().setAuxiliaryData("REC@Internal", true);
+        modelNode().setAuxiliaryData("Record@Internal", true);
     }
 }
 
