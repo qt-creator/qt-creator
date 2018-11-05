@@ -1127,7 +1127,8 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList cxxflags,
                                                                  arguments);
     if (response.result != Utils::SynchronousProcessResponse::Finished ||
             response.exitCode != 0) {
-        return {};
+        // Show the warning but still parse the output.
+        QTC_CHECK(false && "clang-cl exited with non-zero code.");
     }
 
     return Macro::toMacros(response.allRawOutput());
