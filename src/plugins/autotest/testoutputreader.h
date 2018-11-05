@@ -42,16 +42,18 @@ public:
     TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                      QProcess *testApplication, const QString &buildDirectory);
 
-    virtual void processOutput(const QByteArray &outputLine) = 0;
-    virtual void processStdError(const QByteArray &output);
+    virtual void processOutput(const QByteArray &outputLineWithNewLine) = 0;
+    virtual void processStdError(const QByteArray &outputLineWithNewLine);
     void reportCrash();
     void createAndReportResult(const QString &message, Result::Type type);
     bool hadValidOutput() const { return m_hadValidOutput; }
     void setId(const QString &id) { m_id = id; }
     QString id() const { return m_id; }
 
+    static QByteArray chopLineBreak(const QByteArray &original);
+
 signals:
-    void newOutputAvailable(const QByteArray &output);
+    void newOutputAvailable(const QByteArray &outputWithLineBreak);
 protected:
     virtual TestResultPtr createDefaultResult() const = 0;
 

@@ -329,7 +329,7 @@ static QStringList extractFunctionInformation(const QString &testClassName,
     return result;
 }
 
-void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
+void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLineWithNewLine)
 {
     static QRegExp start("^[*]{9} Start testing of (.*) [*]{9}$");
     static QRegExp config("^Config: Using QtTest library (.*), (Qt (\\d+(\\.\\d+){2}) \\(.*\\))$");
@@ -346,7 +346,7 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
     if (m_futureInterface.isCanceled())
         return;
 
-    const QString &line = QString::fromLatin1(outputLine);
+    const QString line = QString::fromLatin1(chopLineBreak(outputLineWithNewLine));
 
     if (result.exactMatch(line)) {
         processResultOutput(result.cap(1).toLower().trimmed(), result.cap(2));
