@@ -52,6 +52,33 @@ QWidget *ProjectConfigurationAspect::createConfigWidget() const
 }
 
 
+// ProjectConfigurationAspects
+
+ProjectConfigurationAspects::ProjectConfigurationAspects() = default;
+
+ProjectConfigurationAspects::~ProjectConfigurationAspects()
+{
+    qDeleteAll(base());
+}
+
+ProjectConfigurationAspect *ProjectConfigurationAspects::aspect(Core::Id id) const
+{
+    return Utils::findOrDefault(base(), Utils::equal(&ProjectConfigurationAspect::id, id));
+}
+
+void ProjectConfigurationAspects::fromMap(const QVariantMap &map) const
+{
+    for (ProjectConfigurationAspect *aspect : *this)
+        aspect->fromMap(map);
+}
+
+void ProjectConfigurationAspects::toMap(QVariantMap &map) const
+{
+    for (ProjectConfigurationAspect *aspect : *this)
+        aspect->toMap(map);
+}
+
+
 // ProjectConfiguration
 
 ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id)
@@ -61,10 +88,7 @@ ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id)
     setObjectName(id.toString());
 }
 
-ProjectConfiguration::~ProjectConfiguration()
-{
-    qDeleteAll(m_aspects);
-}
+ProjectConfiguration::~ProjectConfiguration() = default;
 
 Core::Id ProjectConfiguration::id() const
 {
@@ -130,8 +154,7 @@ QVariantMap ProjectConfiguration::toMap() const
     map.insert(QLatin1String(DISPLAY_NAME_KEY), m_displayName);
     map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), m_defaultDisplayName);
 
-    for (const auto &aspect : m_aspects)
-        aspect->toMap(map);
+    m_aspects.toMap(map);
 
     return map;
 }
@@ -148,15 +171,14 @@ bool ProjectConfiguration::fromMap(const QVariantMap &map)
                                      m_defaultDisplayName.isEmpty() ?
                                          m_displayName : m_defaultDisplayName).toString();
 
-    for (const auto &aspect : qAsConst(m_aspects))
-        aspect->fromMap(map);
+    m_aspects.fromMap(map);
 
     return true;
 }
 
 ProjectConfigurationAspect *ProjectConfiguration::aspect(Core::Id id) const
 {
-    return Utils::findOrDefault(m_aspects, Utils::equal(&ProjectConfigurationAspect::id, id));
+    return m_aspects.aspect(id);
 }
 
 Core::Id ProjectExplorer::idFromMap(const QVariantMap &map)

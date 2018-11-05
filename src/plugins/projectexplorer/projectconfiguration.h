@@ -80,6 +80,48 @@ protected:
     ConfigWidgetCreator m_configWidgetCreator;
 };
 
+class PROJECTEXPLORER_EXPORT ProjectConfigurationAspects
+        : private QList<ProjectConfigurationAspect *>
+{
+    using Base = QList<ProjectConfigurationAspect *>;
+
+public:
+    ProjectConfigurationAspects();
+    ~ProjectConfigurationAspects();
+
+    template <class Aspect, typename ...Args>
+    Aspect *addAspect(Args && ...args)
+    {
+        auto aspect = new Aspect(args...);
+        append(aspect);
+        return aspect;
+    }
+
+    ProjectConfigurationAspect *aspect(Core::Id id) const;
+
+    template <typename T> T *aspect() const
+    {
+        for (ProjectConfigurationAspect *aspect : *this)
+            if (T *result = qobject_cast<T *>(aspect))
+                return result;
+        return nullptr;
+    }
+
+    void fromMap(const QVariantMap &map) const;
+    void toMap(QVariantMap &map) const;
+
+    using Base::append;
+    using Base::begin;
+    using Base::end;
+
+private:
+    Base &base() { return *this; }
+    const Base &base() const { return *this; }
+
+    ProjectConfigurationAspects(const ProjectConfigurationAspects &) = delete;
+    ProjectConfigurationAspects &operator=(const ProjectConfigurationAspects &) = delete;
+};
+
 class PROJECTEXPLORER_EXPORT ProjectConfiguration : public QObject
 {
     Q_OBJECT
@@ -119,29 +161,20 @@ public:
     template<class Aspect, typename ...Args>
     Aspect *addAspect(Args && ...args)
     {
-        auto aspect = new Aspect(args...);
-        m_aspects.append(aspect);
-        return aspect;
+        return m_aspects.addAspect<Aspect>(std::forward<Args>(args)...);
     }
 
-    const QList<ProjectConfigurationAspect *> aspects() const { return m_aspects; }
+    const ProjectConfigurationAspects &aspects() const { return m_aspects; }
 
     ProjectConfigurationAspect *aspect(Core::Id id) const;
-
-    template <typename T> T *aspect() const
-    {
-        for (ProjectConfigurationAspect *aspect : m_aspects)
-            if (T *result = qobject_cast<T *>(aspect))
-                return result;
-        return nullptr;
-    }
+    template <typename T> T *aspect() const { return m_aspects.aspect<T>(); }
 
 signals:
     void displayNameChanged();
     void toolTipChanged();
 
 protected:
-    QList<ProjectConfigurationAspect *> m_aspects;
+    ProjectConfigurationAspects m_aspects;
 
 private:
     const Core::Id m_id;
