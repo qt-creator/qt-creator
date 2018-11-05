@@ -1591,6 +1591,8 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
 
     auto copyAsciiAction = new QAction(tr("Copy Selection as ASCII Characters"), contextMenu);
     auto copyHexAction = new QAction(tr("Copy Selection as Hex Values"), contextMenu);
+    auto copyBeValue = new QAction(contextMenu);
+    auto copyLeValue = new QAction(contextMenu);
     auto jumpToBeAddressHereAction = new QAction(contextMenu);
     auto jumpToBeAddressNewWindowAction = new QAction(contextMenu);
     auto jumpToLeAddressHereAction = new QAction(contextMenu);
@@ -1606,10 +1608,16 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
     quint64 leAddress = 0;
     if (byteCount <= 8) {
         asIntegers(selStart, byteCount, beAddress, leAddress);
+        copyBeValue->setText(tr("Copy 0x%1").arg(QString::number(beAddress, 16)));
+        contextMenu->addAction(copyBeValue);
+        // If the menu entries would be identical, show only one of them.
+        if (beAddress != leAddress) {
+            copyLeValue->setText(tr("Copy 0x%1").arg(QString::number(leAddress, 16)));
+            contextMenu->addAction(copyLeValue);
+        }
         setupJumpToMenuAction(contextMenu, jumpToBeAddressHereAction,
                               jumpToBeAddressNewWindowAction, beAddress);
 
-        // If the menu entries would be identical, show only one of them.
         if (beAddress != leAddress) {
             setupJumpToMenuAction(contextMenu, jumpToLeAddressHereAction,
                                   jumpToLeAddressNewWindowAction, leAddress);
@@ -1617,8 +1625,11 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
     } else {
         jumpToBeAddressHereAction->setText(tr("Jump to Address in This Window"));
         jumpToBeAddressNewWindowAction->setText(tr("Jump to Address in New Window"));
+        copyBeValue->setText(tr("Copy value"));
         jumpToBeAddressHereAction->setEnabled(false);
         jumpToBeAddressNewWindowAction->setEnabled(false);
+        copyBeValue->setEnabled(false);
+        contextMenu->addAction(copyBeValue);
         contextMenu->addAction(jumpToBeAddressHereAction);
         contextMenu->addAction(jumpToBeAddressNewWindowAction);
     }
@@ -1631,6 +1642,10 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
         copy(true);
     else if (action == copyHexAction)
         copy(false);
+    else if (action == copyBeValue)
+        QApplication::clipboard()->setText("0x" + QString::number(beAddress, 16));
+    else if (action == copyLeValue)
+        QApplication::clipboard()->setText("0x" + QString::number(leAddress, 16));
     else if (action == jumpToBeAddressHereAction)
         jumpToAddress(beAddress);
     else if (action == jumpToLeAddressHereAction)
