@@ -47,7 +47,6 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
                 this, [this] () {
             while (m_testApplication->canReadLine()) {
                 const QByteArray output = m_testApplication->readLine();
-                emit newOutputAvailable(output);
                 processOutput(output);
             }
         });
@@ -58,6 +57,12 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
             processStdError(output);
         });
     }
+}
+
+void TestOutputReader::processOutput(const QByteArray &output)
+{
+    processOutputLine(output);
+    emit newOutputAvailable(output);
 }
 
 void TestOutputReader::processStdError(const QByteArray &outputLineWithNewLine)

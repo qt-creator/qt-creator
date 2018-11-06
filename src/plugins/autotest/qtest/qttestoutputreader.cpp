@@ -139,7 +139,7 @@ QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &fu
 {
 }
 
-void QtTestOutputReader::processOutput(const QByteArray &outputLine)
+void QtTestOutputReader::processOutputLine(const QByteArray &outputLine)
 {
     static const QByteArray qmlDebug = "QML Debugger: Waiting for connection on port";
     switch (m_mode) {

@@ -33,6 +33,7 @@
 #include "testtreemodel.h"
 #include "testcodeparser.h"
 #include "testeditormark.h"
+#include "testoutputreader.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -236,7 +237,7 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
 
 void TestResultsPane::addOutput(const QByteArray &output)
 {
-    m_textOutput->insertPlainText(QString::fromLatin1(output));
+    m_textOutput->appendPlainText(QString::fromLatin1(TestOutputReader::chopLineBreak(output)));
 }
 
 QWidget *TestResultsPane::outputWidget(QWidget *parent)

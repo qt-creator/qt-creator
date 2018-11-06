@@ -42,7 +42,7 @@ public:
     TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                      QProcess *testApplication, const QString &buildDirectory);
 
-    virtual void processOutput(const QByteArray &outputLineWithNewLine) = 0;
+    void processOutput(const QByteArray &output);
     virtual void processStdError(const QByteArray &outputLineWithNewLine);
     void reportCrash();
     void createAndReportResult(const QString &message, Result::Type type);
@@ -55,6 +55,7 @@ public:
 signals:
     void newOutputAvailable(const QByteArray &outputWithLineBreak);
 protected:
+    virtual void processOutputLine(const QByteArray &outputLineWithNewLine) = 0;
     virtual TestResultPtr createDefaultResult() const = 0;
 
     void reportResult(const TestResultPtr &result);

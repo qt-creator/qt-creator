@@ -62,7 +62,7 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
     }
 }
 
-void GTestOutputReader::processOutput(const QByteArray &outputLineWithNewLine)
+void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLine)
 {
     static QRegExp newTestStarts("^\\[-{10}\\] \\d+ tests? from (.*)$");
     static QRegExp testEnds("^\\[-{10}\\] \\d+ tests? from (.*) \\((.*)\\)$");

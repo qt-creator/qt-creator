@@ -51,7 +51,7 @@ public:
                        QProcess *testApplication, const QString &buildDirectory,
                        const QString &projectFile, OutputMode mode, TestType type);
 protected:
-    void processOutput(const QByteArray &outputLine) override;
+    void processOutputLine(const QByteArray &outputLine) override;
     TestResultPtr createDefaultResult() const override;
 
 private:
