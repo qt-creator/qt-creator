@@ -318,7 +318,7 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
     if (!node)
         return Qt::NoItemFlags;
     Qt::ItemFlags res = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    if (node->isLeaf() && node->isLocal())
+    if (node->isLeaf() && node->isLocal() && index.column() == 0)
         res |= Qt::ItemIsEditable;
     return res;
 }
