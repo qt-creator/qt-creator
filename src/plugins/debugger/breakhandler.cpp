@@ -1408,8 +1408,9 @@ void BreakHandler::handleAlienBreakpoint(const QString &responseId, const Breakp
     } else {
         bp = new BreakpointItem(nullptr);
         bp->m_responseId = responseId;
-        bp->setState(BreakpointInserted);
-        bp->setParameters(params);
+        bp->m_parameters = params;
+        bp->m_state = BreakpointInserted;
+        bp->updateMarker();
         rootItem()->appendChild(bp);
         // This has no global breakpoint, so there's nothing to update here.
     }
