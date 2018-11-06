@@ -79,7 +79,7 @@ TEST_F(UsedMacroAndSourceStorage, InsertOrUpdateUsedMacros)
     EXPECT_CALL(deleteOutdatedUsedMacrosStatement, execute());
     EXPECT_CALL(deleteNewUsedMacrosTableStatement, execute());
 
-    storage.insertOrUpdateUsedMacros({{"FOO", {1, 42}}, {"BAR", {1, 43}}});
+    storage.insertOrUpdateUsedMacros({{"FOO", 42}, {"BAR", 43}});
 }
 
 TEST_F(UsedMacroAndSourceStorage, InsertFileStatuses)
@@ -87,7 +87,7 @@ TEST_F(UsedMacroAndSourceStorage, InsertFileStatuses)
     EXPECT_CALL(insertFileStatuses, write(TypedEq<int>(42), TypedEq<off_t>(1), TypedEq<time_t>(2), TypedEq<bool>(false)));
     EXPECT_CALL(insertFileStatuses, write(TypedEq<int>(43), TypedEq<off_t>(4), TypedEq<time_t>(5), TypedEq<bool>(true)));
 
-    storage.insertFileStatuses({{{1, 42}, 1, 2, false}, {{1, 43}, 4, 5, true}});
+    storage.insertFileStatuses({{42, 1, 2, false}, {43, 4, 5, true}});
 }
 
 TEST_F(UsedMacroAndSourceStorage, InsertOrUpdateSourceDependencies)
@@ -100,7 +100,7 @@ TEST_F(UsedMacroAndSourceStorage, InsertOrUpdateSourceDependencies)
     EXPECT_CALL(deleteOutdatedSourceDependenciesStatement, execute());
     EXPECT_CALL(deleteNewSourceDependenciesStatement, execute());
 
-    storage.insertOrUpdateSourceDependencies({{{1, 42}, {1, 1}}, {{1, 42}, {1, 2}}});
+    storage.insertOrUpdateSourceDependencies({{42, 1}, {42, 2}});
 }
 
 TEST_F(UsedMacroAndSourceStorage, AddTablesInConstructor)
@@ -122,7 +122,7 @@ TEST_F(UsedMacroAndSourceStorage, FetchLowestLastModifiedTimeIfNoModificationTim
 {
     EXPECT_CALL(getLowestLastModifiedTimeOfDependencies, valueReturnInt64(Eq(1)));
 
-    auto lowestLastModified = storage.fetchLowestLastModifiedTime({1, 1});
+    auto lowestLastModified = storage.fetchLowestLastModifiedTime(1);
 
     ASSERT_THAT(lowestLastModified, Eq(0));
 }
@@ -132,7 +132,7 @@ TEST_F(UsedMacroAndSourceStorage, FetchLowestLastModifiedTime)
     EXPECT_CALL(getLowestLastModifiedTimeOfDependencies, valueReturnInt64(Eq(21)))
             .WillRepeatedly(Return(12));
 
-    auto lowestLastModified = storage.fetchLowestLastModifiedTime({1, 21});
+    auto lowestLastModified = storage.fetchLowestLastModifiedTime(21);
 
     ASSERT_THAT(lowestLastModified, Eq(12));
 }

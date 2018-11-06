@@ -31,7 +31,7 @@ namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const FilePathId &filePathId)
 {
-    debug.nospace() << "(" << filePathId.directoryId << ", " << filePathId.filePathId << ")";
+    debug.nospace() << "(" << filePathId.filePathId << ")";
 
     return debug;
 }

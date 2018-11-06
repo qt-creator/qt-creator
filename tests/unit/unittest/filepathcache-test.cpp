@@ -36,11 +36,28 @@ using Cache = ClangBackEnd::FilePathCache<NiceMock<MockFilePathStorage>>;
 using ClangBackEnd::FilePathId;
 using NFP = ClangBackEnd::FilePath;
 using ClangBackEnd::FilePathView;
+using ClangBackEnd::Sources::SourceNameAndDirectoryId;
 
 class FilePathCache : public testing::Test
 {
 protected:
-    void SetUp();
+    void SetUp()
+    {
+        ON_CALL(mockStorage, fetchDirectoryId(Eq("/path/to")))
+                .WillByDefault(Return(5));
+        ON_CALL(mockStorage, fetchDirectoryId(Eq("/path2/to")))
+                .WillByDefault(Return(6));
+        ON_CALL(mockStorage, fetchSourceId(5, Eq("file.cpp")))
+                .WillByDefault(Return(42));
+        ON_CALL(mockStorage, fetchSourceId(5, Eq("file2.cpp")))
+                .WillByDefault(Return(63));
+        ON_CALL(mockStorage, fetchSourceId(6, Eq("file.cpp")))
+                .WillByDefault(Return(72));
+        ON_CALL(mockStorage, fetchDirectoryPath(5))
+                .WillByDefault(Return(Utils::PathString("/path/to")));
+        ON_CALL(mockStorage, fetchSourceNameAndDirectoryId(42))
+                .WillByDefault(Return(SourceNameAndDirectoryId("file.cpp", 5)));
+    }
 
 protected:
     NiceMock<MockFilePathStorage> mockStorage;
@@ -59,13 +76,6 @@ TEST_F(FilePathCache, FilePathIdWithOutAnyEntryCalls)
     EXPECT_CALL(mockStorage, fetchSourceId(5, Eq("file.cpp")));
 
     cache.filePathId(FilePathView("/path/to/file.cpp"));
-}
-
-TEST_F(FilePathCache, DirectoryIdOfFilePathIdWithOutAnyEntry)
-{
-    auto filePathId = cache.filePathId(FilePathView("/path/to/file.cpp"));
-
-    ASSERT_THAT(filePathId.directoryId, 5);
 }
 
 TEST_F(FilePathCache, FilePathIdOfFilePathIdWithOutAnyEntry)
@@ -113,24 +123,6 @@ TEST_F(FilePathCache, GetFilePathIdWithDirectoryIdCached)
     ASSERT_THAT(filePathId.filePathId, 63);
 }
 
-TEST_F(FilePathCache, GetDirectyIdWithCachedValue)
-{
-    cache.filePathId(FilePathView("/path/to/file.cpp"));
-
-    auto filePathId = cache.filePathId(FilePathView("/path/to/file2.cpp"));
-
-    ASSERT_THAT(filePathId.directoryId, 5);
-}
-
-TEST_F(FilePathCache, GetDirectyIdWithDirectoryIdCached)
-{
-    cache.filePathId(FilePathView("/path/to/file.cpp"));
-
-    auto filePathId = cache.filePathId(FilePathView("/path/to/file2.cpp"));
-
-    ASSERT_THAT(filePathId.directoryId, 5);
-}
-
 TEST_F(FilePathCache, ThrowForGettingAFilePathWithAnInvalidId)
 {
     FilePathId filePathId;
@@ -149,7 +141,7 @@ TEST_F(FilePathCache, GetAFilePath)
 
 TEST_F(FilePathCache, GetAFilePathWithCachedFilePathId)
 {
-    FilePathId filePathId{5, 42};
+    FilePathId filePathId{42};
 
     auto filePath = cache.filePath(filePathId);
 
@@ -172,24 +164,6 @@ TEST_F(FilePathCache, DuplicateFilePathsAreEqual)
     FilePathId filePath2Id = cache.filePathId(FilePathView("/path/to/file.cpp"));
 
     ASSERT_THAT(filePath2Id, Eq(filePath1Id));
-}
-
-void FilePathCache::SetUp()
-{
-    ON_CALL(mockStorage, fetchDirectoryId(Eq("/path/to")))
-            .WillByDefault(Return(5));
-    ON_CALL(mockStorage, fetchDirectoryId(Eq("/path2/to")))
-            .WillByDefault(Return(6));
-    ON_CALL(mockStorage, fetchSourceId(5, Eq("file.cpp")))
-            .WillByDefault(Return(42));
-    ON_CALL(mockStorage, fetchSourceId(5, Eq("file2.cpp")))
-            .WillByDefault(Return(63));
-    ON_CALL(mockStorage, fetchSourceId(6, Eq("file.cpp")))
-            .WillByDefault(Return(72));
-    ON_CALL(mockStorage, fetchDirectoryPath(5))
-            .WillByDefault(Return(Utils::PathString("/path/to")));
-    ON_CALL(mockStorage, fetchSourceName(42))
-            .WillByDefault(Return(Utils::SmallString("file.cpp")));
 }
 
 }

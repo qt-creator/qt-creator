@@ -171,7 +171,7 @@ namespace ClangBackEnd {
 
 std::ostream &operator<<(std::ostream &out, const FilePathId &id)
 {
-    return out << "(" << id.directoryId << ", " << id.filePathId << ")";
+    return out << "(" << id.filePathId << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const FilePathView &filePathView)
@@ -1086,8 +1086,8 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &containe
 
 std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
 {
-    os << "(("
-       << container.filePathId.directoryId << ", " << container.filePathId.filePathId << "), "
+    os << "("
+       << container.filePathId.filePathId << ", "
        << container.line << ", "
        << container.column << ", "
        << container.offset

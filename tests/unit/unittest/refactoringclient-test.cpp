@@ -85,10 +85,10 @@ protected:
     CppTools::ProjectPart::Ptr projectPart;
     CppTools::ProjectFile projectFile{qStringFilePath, CppTools::ProjectFile::CXXSource};
     SourceLocationsForRenamingMessage renameMessage{"symbol",
-                                                    {{{{1, 42}, 1, 1, 0}, {{1, 42}, 2, 5, 10}}},
+                                                    {{{42, 1, 1, 0}, {42, 2, 5, 10}}},
                                                     1};
-    SourceRangesForQueryMessage queryResultMessage{{{{{1, 42}, 1, 1, 0, 1, 5, 4, ""},
-                                                     {{1, 42}, 2, 1, 5, 2, 5, 10, ""}}}};
+    SourceRangesForQueryMessage queryResultMessage{{{{42, 1, 1, 0, 1, 5, 4, ""},
+                                                     {42, 2, 1, 5, 2, 5, 10, ""}}}};
     SourceRangesForQueryMessage emptyQueryResultMessage;
 };
 
@@ -212,7 +212,7 @@ TEST_F(RefactoringClient, ResultCounterIsZeroAfterSettingExpectedResultCount)
 TEST_F(RefactoringClient, XXX)
 {
     const Core::Search::TextRange textRange{{1,0,1},{1,0,1}};
-    const ClangBackEnd::SourceRangeWithTextContainer sourceRange{{1, 1}, 1, 1, 1, 1, 1, 1, "function"};
+    const ClangBackEnd::SourceRangeWithTextContainer sourceRange{1, 1, 1, 1, 1, 1, 1, "function"};
 
     EXPECT_CALL(mockSearchHandle, addResult(QString("/path/to/file"), QString("function"), textRange))
         .Times(1);
@@ -234,9 +234,9 @@ void RefactoringClient::SetUp()
     client.setSearchHandle(&mockSearchHandle);
     client.setExpectedResultCount(1);
 
-    ON_CALL(mockFilePathCaching, filePath(Eq(FilePathId{1, 1})))
+    ON_CALL(mockFilePathCaching, filePath(Eq(FilePathId{1})))
             .WillByDefault(Return(FilePath(PathString("/path/to/file"))));
-    ON_CALL(mockFilePathCaching, filePath(Eq(FilePathId{1, 42})))
+    ON_CALL(mockFilePathCaching, filePath(Eq(FilePathId{42})))
             .WillByDefault(Return(clangBackEndFilePath));
 }
 

@@ -71,11 +71,11 @@ using ClangBackEnd::SourceLocationKind;
 using ClangBackEnd::UsedMacros;
 using OptionalProjectPartArtefact = Utils::optional<ClangBackEnd::ProjectPartArtefact>;
 
-MATCHER_P2(IsFileId, directoryId, fileNameId,
+MATCHER_P(IsFileId, fileNameId,
           std::string(negation ? "isn't " : "is ")
-          + PrintToString(ClangBackEnd::FilePathId(directoryId, fileNameId)))
+          + PrintToString(ClangBackEnd::FilePathId(fileNameId)))
 {
-    return arg == ClangBackEnd::FilePathId(directoryId, fileNameId);
+    return arg == ClangBackEnd::FilePathId(fileNameId);
 }
 
 struct Data
@@ -163,7 +163,7 @@ protected:
     ClangBackEnd::FilePathId header2PathId{filePathId(TESTDATA_DIR "/symbolindexer_header1.h")};
     ClangBackEnd::FilePathId header1PathId{filePathId(TESTDATA_DIR "/symbolindexer_header2.h")};
     PathString generatedFileName = "includecollector_generated_file.h";
-    ClangBackEnd::FilePathId generatedFilePathId{1, 21};
+    ClangBackEnd::FilePathId generatedFilePathId21;
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
                                       {{"BAR", "1"}, {"FOO", "1"}},
@@ -186,11 +186,11 @@ protected:
                             "void f();",
                             {}}};
     SymbolEntries symbolEntries{{1, {"function", "function", SymbolKind::Function}}};
-    SourceLocationEntries sourceLocations{{1, {1, 1}, {42, 23}, SourceLocationKind::Declaration}};
-    FilePathIds sourceFileIds{{1, 1}, {42, 23}};
-    UsedMacros usedMacros{{"Foo", {1, 1}}};
-    FileStatuses fileStatus{{{1, 2}, 3, 4, false}};
-    SourceDependencies sourceDependencies{{{1, 1}, {1, 2}}, {{1, 1}, {1, 3}}};
+    SourceLocationEntries sourceLocations{{1, 1, {42, 23}, SourceLocationKind::Declaration}};
+    FilePathIds sourceFileIds{1, 23};
+    UsedMacros usedMacros{{"Foo", 1}};
+    FileStatuses fileStatus{{2, 3, 4, false}};
+    SourceDependencies sourceDependencies{{1, 2}, {1, 3}};
     ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\",\"BAR\":\"1\"}", "[\"/includes\"]", 74};
     ClangBackEnd::ProjectPartArtefact emptyArtefact{"", "", "", 74};
     Utils::optional<ClangBackEnd::ProjectPartArtefact > nullArtefact;
@@ -338,7 +338,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSourcesWithoutArti
     ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>("project2"))).WillByDefault(Return(nullArtefact));
     ON_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project2"), _, _, _)).WillByDefault(Return(3));
 
-    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(3, ElementsAre(IsFileId(1, 1), IsFileId(42, 23))));
+    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(3, ElementsAre(IsFileId(1), IsFileId(23))));
 
     indexer.updateProjectParts({projectPart2});
 }

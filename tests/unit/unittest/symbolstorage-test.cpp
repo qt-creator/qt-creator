@@ -76,8 +76,8 @@ protected:
 
     SymbolEntries symbolEntries{{1, {"functionUSR", "function", SymbolKind::Function}},
                                 {2, {"function2USR", "function2", SymbolKind::Function}}};
-    SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SourceLocationKind::Declaration},
-                                          {2, {1, 4}, {7, 11}, SourceLocationKind::Definition}};
+    SourceLocationEntries sourceLocations{{1, 3, {42, 23}, SourceLocationKind::Declaration},
+                                          {2, 4, {7, 11}, SourceLocationKind::Definition}};
     ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\"}", "[\"/includes\"]", 74};
 };
 
@@ -213,7 +213,7 @@ TEST_F(SymbolStorage, UpdateProjectPartSources)
     EXPECT_CALL(insertProjectPartSourcesStatement, write(TypedEq<int>(42), TypedEq<int>(1)));
     EXPECT_CALL(insertProjectPartSourcesStatement, write(TypedEq<int>(42), TypedEq<int>(2)));
 
-    storage.updateProjectPartSources(42, {{1, 1}, {1, 2}});
+    storage.updateProjectPartSources(42, {1, 2});
 }
 
 TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatement)
@@ -221,7 +221,7 @@ TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatement)
     EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
             .WillRepeatedly(Return(artefact));
 
-    storage.fetchProjectPartArtefact({2, 1});
+    storage.fetchProjectPartArtefact(1);
 }
 
 TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdReturnArtefact)
@@ -229,7 +229,7 @@ TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdReturnArtefact)
     EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
             .WillRepeatedly(Return(artefact));
 
-    auto result = storage.fetchProjectPartArtefact({2, 1});
+    auto result = storage.fetchProjectPartArtefact(1);
 
     ASSERT_THAT(result, Eq(artefact));
 }
@@ -239,7 +239,7 @@ TEST_F(SymbolStorage, FetchProjectPartArtefactByProjectNameCallsValueInStatement
     EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
             .WillRepeatedly(Return(artefact));
 
-    storage.fetchProjectPartArtefact({2, 1});
+    storage.fetchProjectPartArtefact(1);
 }
 
 TEST_F(SymbolStorage, FetchProjectPartArtefactByProjectNameReturnArtefact)
@@ -247,7 +247,7 @@ TEST_F(SymbolStorage, FetchProjectPartArtefactByProjectNameReturnArtefact)
     EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
             .WillRepeatedly(Return(artefact));
 
-    auto result = storage.fetchProjectPartArtefact({2, 1});
+    auto result = storage.fetchProjectPartArtefact(1);
 
     ASSERT_THAT(result, Eq(artefact));
 }

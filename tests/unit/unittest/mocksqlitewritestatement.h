@@ -99,5 +99,11 @@ public:
     MOCK_METHOD2(write,
                  void (uint, uint));
 
+    MOCK_METHOD2(write,
+                 void (uchar, int));
+
+    MOCK_METHOD2(write,
+                 void (long long, int));
+
     Utils::SmallString sqlStatement;
 };

@@ -49,7 +49,7 @@ protected:
                                                         {"/yi"},
                                                         {{1, 1}},
                                                         {{1, 2}}};
-    SourceEntries firstSources{{{1, 1}, SourceType::Any, 1}, {{1, 2}, SourceType::Any, 1}, {{1, 10}, SourceType::Any, 1}};
+    SourceEntries firstSources{{1, SourceType::Any, 1}, {2, SourceType::Any, 1}, {10, SourceType::Any, 1}};
     BuildDependency buildDependency{firstSources, {}, {}, {}};
 };
 

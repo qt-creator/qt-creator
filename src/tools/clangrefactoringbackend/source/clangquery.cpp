@@ -101,7 +101,7 @@ namespace {
 
 V2::SourceRangeContainer convertToContainer(const clang::ast_matchers::dynamic::SourceRange sourceRange)
 {
-    return V2::SourceRangeContainer({1, 0},
+    return V2::SourceRangeContainer(0,
                                     sourceRange.Start.Line,
                                     sourceRange.Start.Column,
                                     0,

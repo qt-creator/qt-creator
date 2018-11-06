@@ -31,7 +31,7 @@
 
 namespace ClangBackEnd {
 
-enum SourceType : unsigned char
+enum class SourceType : unsigned char
 {
     Any,
     TopInclude,
@@ -56,7 +56,21 @@ public:
 
 class SourceEntry
 {
+    using int64 = long long;
 public:
+    SourceEntry(int sourceId, int64 lastModified, int sourceType)
+        : lastModified(lastModified),
+          sourceId(sourceId),
+          sourceType(static_cast<SourceType>(sourceType))
+
+    {}
+
+    SourceEntry(FilePathId sourceId, SourceType sourceType, TimeStamp lastModified)
+        : lastModified(lastModified),
+          sourceId(sourceId),
+          sourceType(sourceType)
+    {}
+
     friend
     bool operator<(SourceEntry first, SourceEntry second)
     {
@@ -66,13 +80,15 @@ public:
     friend
     bool operator==(SourceEntry first, SourceEntry second)
     {
-        return first.sourceId == second.sourceId;
+        return first.sourceId == second.sourceId
+            && first.sourceType == second.sourceType
+            && first.lastModified == second.lastModified ;
     }
 
 public:
+    TimeStamp lastModified;
     FilePathId sourceId;
     SourceType sourceType = SourceType::Any;
-    TimeStamp lastModified;
 };
 
 using SourceEntries = std::vector<SourceEntry>;

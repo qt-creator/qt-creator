@@ -27,6 +27,8 @@
 
 #include "googletest.h"
 
+#include <filepathstoragesources.h>
+
 class MockFilePathStorage
 {
 public:
@@ -36,7 +38,7 @@ public:
                  int (int directoryId, Utils::SmallStringView sourceName));
     MOCK_METHOD1(fetchDirectoryPath,
                  Utils::PathString (int directoryId));
-    MOCK_METHOD1(fetchSourceName,
-                 Utils::SmallString (int sourceId));
+    MOCK_METHOD1(fetchSourceNameAndDirectoryId,
+                 ClangBackEnd::Sources::SourceNameAndDirectoryId (int sourceId));
 };
 

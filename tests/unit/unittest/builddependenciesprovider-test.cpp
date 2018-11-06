@@ -62,20 +62,20 @@ protected:
                                                         {"--yi"},
                                                         {{"YI","1"}},
                                                         {"/yi"},
-                                                        {{1, 1}},
-                                                        {{1, 2}}};
+                                                        {1},
+                                                        {2}};
     ClangBackEnd::V2::ProjectPartContainer projectPart2{"ProjectPart2",
                                                         {"--er"},
                                                         {{"ER","2"}},
                                                         {"/er"},
-                                                        {{1, 1}},
-                                                        {{1, 2}, {1, 3}, {1, 4}}};
-    SourceEntries firstSources{{{1, 1}, SourceType::Any, 1}, {{1, 2}, SourceType::Any, 1}, {{1, 10}, SourceType::Any, 1}};
-    SourceEntries secondSources{{{1, 1}, SourceType::Any, 1}, {{1, 3}, SourceType::Any, 1}, {{1, 8}, SourceType::Any, 1}};
-    SourceEntries thirdSources{{{1, 4}, SourceType::Any, 1}, {{1, 8}, SourceType::Any, 1}, {{1, 10}, SourceType::Any, 1}};
-    UsedMacros firstUsedMacros{{"YI", {1, 1}}};
-    UsedMacros secondUsedMacros{{"LIANG", {1, 2}}, {"ER", {1, 2}}};
-    UsedMacros thirdUsedMacros{{"SAN", {1, 10}}};
+                                                        {1},
+                                                        {2, 3, 4}};
+    SourceEntries firstSources{{1, SourceType::Any, 1}, {2, SourceType::Any, 1}, {10, SourceType::Any, 1}};
+    SourceEntries secondSources{{1, SourceType::Any, 1}, {3, SourceType::Any, 1}, {8, SourceType::Any, 1}};
+    SourceEntries thirdSources{{4, SourceType::Any, 1}, {8, SourceType::Any, 1}, {10, SourceType::Any, 1}};
+    UsedMacros firstUsedMacros{{"YI", 1}};
+    UsedMacros secondUsedMacros{{"LIANG", 2}, {"ER", 2}};
+    UsedMacros thirdUsedMacros{{"SAN", 10}};
     BuildDependency buildDependency{secondSources, {}, {}, {}};
 };
 
@@ -83,7 +83,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromStorageIfTime
 {
     InSequence s;
 
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources(FilePathId{1, 2})).WillRepeatedly(Return(firstSources));
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillRepeatedly(Return(firstSources));
     EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(true));
     EXPECT_CALL(mockBuildDependenciesGenerator, create(projectPart1)).Times(0);
 
@@ -92,9 +92,9 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromStorageIfTime
 
 TEST_F(BuildDependenciesProvider, FetchDependSourcesFromStorage)
 {
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources(FilePathId{1, 2})).WillByDefault(Return(firstSources));
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources(FilePathId{1, 3})).WillByDefault(Return(secondSources));
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources(FilePathId{1, 4})).WillByDefault(Return(thirdSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillByDefault(Return(firstSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({3})).WillByDefault(Return(secondSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({4})).WillByDefault(Return(thirdSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(_)).WillByDefault(Return(true));
 
     auto buildDependency = provider.create(projectPart2);
@@ -106,7 +106,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromGeneratorIfTi
 {
     InSequence s;
 
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources(FilePathId{1, 2})).WillRepeatedly(Return(firstSources));
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillRepeatedly(Return(firstSources));
     EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(false));
     EXPECT_CALL(mockBuildDependenciesGenerator, create(projectPart1));
 
@@ -115,7 +115,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromGeneratorIfTi
 
 TEST_F(BuildDependenciesProvider, FetchDependSourcesFromGenerator)
 {
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources(FilePathId{1, 2})).WillByDefault(Return(firstSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillByDefault(Return(firstSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(_)).WillByDefault(Return(false));
     ON_CALL(mockBuildDependenciesGenerator, create(projectPart1)).WillByDefault(Return(buildDependency));
 
@@ -128,25 +128,25 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchUsedMacrosFromStorageIfTimeSta
 {
     InSequence s;
 
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources(FilePathId{1, 2})).WillRepeatedly(Return(firstSources));
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillRepeatedly(Return(firstSources));
     EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(true));
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchUsedMacros(FilePathId{1, 1}));
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchUsedMacros(FilePathId{1, 2}));
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchUsedMacros(FilePathId{1, 10}));
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchUsedMacros({1}));
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchUsedMacros({2}));
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchUsedMacros({10}));
 
     provider.create(projectPart1);
 }
 
 TEST_F(BuildDependenciesProvider, FetchUsedMacrosFromStorageIfDependSourcesAreUpToDate)
 {
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources(FilePathId{1, 2})).WillByDefault(Return(firstSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillByDefault(Return(firstSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillByDefault(Return(true));
-    ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros(FilePathId{1, 1})).WillByDefault(Return(firstUsedMacros));
-    ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros(FilePathId{1, 2})).WillByDefault(Return(secondUsedMacros));
-    ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros(FilePathId{1, 10})).WillByDefault(Return(thirdUsedMacros));
+    ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros({1})).WillByDefault(Return(firstUsedMacros));
+    ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros({2})).WillByDefault(Return(secondUsedMacros));
+    ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros({10})).WillByDefault(Return(thirdUsedMacros));
 
     auto buildDependency = provider.create(projectPart1);
 
-    ASSERT_THAT(buildDependency.usedMacros, ElementsAre(UsedMacro{"YI", {1, 1}}, UsedMacro{"ER", {1, 2}}, UsedMacro{"LIANG", {1, 2}}, UsedMacro{"SAN", {1, 10}}));
+    ASSERT_THAT(buildDependency.usedMacros, ElementsAre(UsedMacro{"YI", 1}, UsedMacro{"ER", 2}, UsedMacro{"LIANG", 2}, UsedMacro{"SAN", 10}));
 }
 }

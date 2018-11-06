@@ -42,19 +42,19 @@ protected:
 
 
 protected:
-    SourceRangeWithTextContainers sourceRanges1{{{1, 1}, 1, 1, 1, 2, 1, 4, "foo"},
-                                                {{1, 1}, 1, 1, 1, 2, 2, 5, "foo"},
-                                                {{1, 2}, 1, 1, 1, 2, 1, 4, "foo"}};
-    SourceRangeWithTextContainers sourceRanges2{{{1, 3}, 1, 1, 1, 2, 1, 4, "foo"},
-                                                {{1, 1}, 1, 1, 1, 2, 1, 4, "foo"},
-                                                {{1, 1}, 1, 1, 1, 2, 3, 6, "foo"}};
-    SourceRangeWithTextContainers sourceRanges3{{{1, 1}, 1, 1, 1, 2, 3, 6, "foo"},
-                                                {{1, 3}, 1, 1, 1, 2, 1, 4, "foo"}};
-    SourceRangeWithTextContainers sourceRanges4{{{1, 1}, 1, 1, 1, 2, 3, 6, "foo"},
-                                                {{1, 3}, 1, 1, 1, 2, 1, 4, "foo"},
-                                                {{1, 3}, 1, 1, 1, 2, 1, 4, "foo"}};
-    SourceRangeWithTextContainers sourceRanges5{{{1, 3}, 1, 1, 1, 2, 1, 4, "foo"},
-                                                {{1, 1}, 1, 1, 1, 2, 3, 6, "foo"}};
+    SourceRangeWithTextContainers sourceRanges1{{1, 1, 1, 1, 2, 1, 4, "foo"},
+                                                {1, 1, 1, 1, 2, 2, 5, "foo"},
+                                                {2, 1, 1, 1, 2, 1, 4, "foo"}};
+    SourceRangeWithTextContainers sourceRanges2{{3, 1, 1, 1, 2, 1, 4, "foo"},
+                                                {1, 1, 1, 1, 2, 1, 4, "foo"},
+                                                {1, 1, 1, 1, 2, 3, 6, "foo"}};
+    SourceRangeWithTextContainers sourceRanges3{{1, 1, 1, 1, 2, 3, 6, "foo"},
+                                                {3, 1, 1, 1, 2, 1, 4, "foo"}};
+    SourceRangeWithTextContainers sourceRanges4{{1, 1, 1, 1, 2, 3, 6, "foo"},
+                                                {3, 1, 1, 1, 2, 1, 4, "foo"},
+                                                {3, 1, 1, 1, 2, 1, 4, "foo"}};
+    SourceRangeWithTextContainers sourceRanges5{{3, 1, 1, 1, 2, 1, 4, "foo"},
+                                                {1, 1, 1, 1, 2, 3, 6, "foo"}};
     SourceRangesForQueryMessage message1{{Utils::clone(sourceRanges1)}};
     SourceRangesForQueryMessage message2{{Utils::clone(sourceRanges2)}};
     ClangBackEnd::SourceRangeFilter filter{3};
