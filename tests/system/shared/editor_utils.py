@@ -23,6 +23,10 @@
 #
 ############################################################################
 
+def jumpToFirstLine(editor):
+    home = "<Home>" if platform.system() == 'Darwin' else "<Ctrl+Home>"
+    type(editor, home)
+
 # places the cursor inside the given editor into the given line
 # (leading and trailing whitespaces are ignored!)
 # and goes to the end of the line
@@ -36,10 +40,7 @@ def placeCursorToLine(editor, line, isRegex=False):
     if not isinstance(editor, (str, unicode)):
         editor = objectMap.realName(editor)
     oldPosition = 0
-    if isDarwin:
-        type(getEditor(), "<Home>")
-    else:
-        type(getEditor(), "<Ctrl+Home>")
+    jumpToFirstLine(getEditor())
     found = False
     if isRegex:
         regex = re.compile(line)

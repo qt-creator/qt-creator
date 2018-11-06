@@ -287,10 +287,11 @@ void AndroidSdkManagerWidget::onLicenseCheckResult(const AndroidSdkManager::Oper
         runPendingCommand();
     } else {
         // Assertion was found. Provide user workflow to accept licenses.
-        QString warningMessage = tr("\nPlease note that the installation and use of Android SDK "
-                                    "packages may fail if respective licenses are not accepted.");
-        int userSelection = QMessageBox::question(this, tr("Android SDK Licenses"),
-                                                  output.stdOutput + warningMessage,
+        QString warningMessage = tr("Review Android SDK package licenses that have not been "
+                                    "accepted?\nPlease note that the installation and use of "
+                                    "Android SDK packages may fail if respective licenses are not "
+                                    "accepted.");
+        int userSelection = QMessageBox::question(this, tr("Android SDK Licenses"), warningMessage,
                                                   QMessageBox::Yes | QMessageBox::No);
         if (userSelection == QMessageBox::Yes) {
             // Run license workflow.

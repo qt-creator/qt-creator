@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>database_samples/llvm/compile_commands.json</file>
+        <file>database_samples/qtc/compile_commands.json</file>
+    </qresource>
+</RCC>

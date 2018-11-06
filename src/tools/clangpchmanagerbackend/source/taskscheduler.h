@@ -64,12 +64,12 @@ public:
     using ProcessorInterface = typename ProcessorManager::Processor;
     using Future = std::future<ProcessorInterface&>;
 
-    TaskScheduler(ProcessorManager &symbolsCollectorManager,
+    TaskScheduler(ProcessorManager &processorManager,
                   QueueInterface &queue,
                   ProgressCounter &progressCounter,
                   uint hardwareConcurrency,
                   std::launch launchPolicy = std::launch::async)
-        : m_processorManager(symbolsCollectorManager),
+        : m_processorManager(processorManager),
           m_queue(queue),
           m_progressCounter(progressCounter),
           m_hardwareConcurrency(hardwareConcurrency),

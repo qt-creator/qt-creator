@@ -128,7 +128,7 @@ public:
                                           const QStringList &arguments,
                                           bool isRebase = false);
 
-    QString findRepositoryForDirectory(const QString &dir) const;
+    QString findRepositoryForDirectory(const QString &directory) const;
     QString findGitDirForRepository(const QString &repositoryDir) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 

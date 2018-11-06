@@ -145,14 +145,14 @@ int utf8NthLineOffset(const QTextDocument *textDocument, const QByteArray &buffe
     if (textDocument->characterCount() == buffer.size() + 1)
         return textDocument->findBlockByNumber(line - 1).position();
 
-    int pos = 0;
+    int utf8Offset = 0;
     for (int count = 0; count < line - 1; ++count) {
-        pos = buffer.indexOf('\n', pos);
-        if (pos == -1)
-            return -1;
-        ++pos;
+        utf8Offset = buffer.indexOf('\n', utf8Offset);
+        if (utf8Offset == -1)
+            return -1; // The line does not exist.
+        ++utf8Offset;
     }
-    return pos;
+    return utf8Offset;
 }
 
 } // Text

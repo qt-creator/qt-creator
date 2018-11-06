@@ -74,7 +74,7 @@ public:
     bool install() const;
     bool cleanInstallRoot() const;
     bool hasCustomInstallRoot() const;
-    Utils::FileName installRoot() const;
+    Utils::FileName installRoot(VariableHandling variableHandling = ExpandVariables) const;
     int maxJobs() const;
     QString buildVariant() const;
 

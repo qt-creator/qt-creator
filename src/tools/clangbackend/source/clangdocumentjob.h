@@ -37,6 +37,9 @@ namespace ClangBackEnd {
 template<class Result>
 class DocumentJob : public AsyncJob<Result>
 {
+public:
+    Document pinnedDocument() const { return m_pinnedDocument; }
+
 protected:
     bool acquireDocument()
     {

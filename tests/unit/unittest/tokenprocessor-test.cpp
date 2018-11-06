@@ -131,6 +131,7 @@ struct Data {
                       TestEnvironment::addPlatformArguments(
                           {Utf8StringLiteral("-std=c++14"),
                            Utf8StringLiteral("-I" TESTDATA_DIR)}),
+                      {},
                       documents};
     TranslationUnit translationUnit{filePath,
                                     filePath,
@@ -1485,8 +1486,7 @@ TEST_F(TokenProcessor, PreprocessorInclusionDirectiveWithKeyword)
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::StringLiteral));
 }
 
-// CLANG-UPGRADE-CHECK: Enable once https://bugs.llvm.org//show_bug.cgi?id=12972 is resolved.
-TEST_F(TokenProcessor, DISABLED_VariableInOperatorFunctionCall)
+TEST_F(TokenProcessor, VariableInOperatorFunctionCall)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(566, 12));
 

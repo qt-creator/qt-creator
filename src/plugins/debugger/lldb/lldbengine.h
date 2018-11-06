@@ -89,6 +89,7 @@ private:
     void insertBreakpoint(const Breakpoint &bp) override;
     void removeBreakpoint(const Breakpoint &bp) override;
     void updateBreakpoint(const Breakpoint &bp) override;
+    void enableSubBreakpoint(const SubBreakpoint &sbp, bool on) override;
 
     void assignValueInDebugger(WatchItem *item, const QString &expr, const QVariant &value) override;
     void executeDebuggerCommand(const QString &command) override;

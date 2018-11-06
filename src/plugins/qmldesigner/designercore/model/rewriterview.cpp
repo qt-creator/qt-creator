@@ -493,6 +493,9 @@ QString RewriterView::auxiliaryDataAsQML() const
                 if (key.endsWith("@NodeInstance"))
                     continue;
 
+                if (key.endsWith("@Internal"))
+                    continue;
+
                 const QVariant value = data.value(key.toUtf8());
                 QString strValue = value.toString();
                 if (static_cast<QMetaType::Type>(value.type()) == QMetaType::QString)

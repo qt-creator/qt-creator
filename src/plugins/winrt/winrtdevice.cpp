@@ -42,7 +42,7 @@ using namespace ProjectExplorer;
 namespace WinRt {
 namespace Internal {
 
-WinRtDevice::WinRtDevice() : m_deviceId(-1)
+WinRtDevice::WinRtDevice()
 {
     initFreePorts();
 }
@@ -74,7 +74,7 @@ QString WinRtDevice::displayType() const
 
 IDeviceWidget *WinRtDevice::createWidget()
 {
-    return 0;
+    return nullptr;
 }
 
 QList<Core::Id> WinRtDevice::actionIds() const

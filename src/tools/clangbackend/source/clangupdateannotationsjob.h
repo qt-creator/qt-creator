@@ -31,11 +31,15 @@
 #include <clangsupport/tokeninfocontainer.h>
 #include <clangsupport/sourcerangecontainer.h>
 
+#include <QSet>
+#include <QVector>
+
 namespace ClangBackEnd {
 
 struct UpdateAnnotationsJobResult
 {
     TranslationUnitUpdateResult updateResult;
+    QSet<Utf8String> unresolvedFilePaths;
 
     ClangBackEnd::DiagnosticContainer firstHeaderErrorDiagnostic;
     QVector<ClangBackEnd::DiagnosticContainer> diagnostics;

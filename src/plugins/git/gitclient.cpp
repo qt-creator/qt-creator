@@ -769,22 +769,24 @@ GitClient::GitClient() : VcsBase::VcsBaseClientImpl(new GitSettings),
             .arg(QCoreApplication::applicationPid());
 }
 
-QString GitClient::findRepositoryForDirectory(const QString &dir) const
+QString GitClient::findRepositoryForDirectory(const QString &directory) const
 {
-    if (dir.isEmpty() || dir.endsWith("/.git") || dir.contains("/.git/"))
+    if (directory.isEmpty() || directory.endsWith("/.git") || directory.contains("/.git/"))
         return QString();
-    QDir directory(dir);
     // QFileInfo is outside loop, because it is faster this way
     QFileInfo fileInfo;
-    do {
-        if (directory.exists(GIT_DIRECTORY)) {
-            fileInfo.setFile(directory, GIT_DIRECTORY);
-            if (fileInfo.isFile())
-                return directory.absolutePath();
-            else if (directory.exists(".git/config"))
-                return directory.absolutePath();
-        }
-    } while (!directory.isRoot() && directory.cdUp());
+    FileName parent;
+    for (FileName dir = FileName::fromString(directory); !dir.isEmpty(); dir = dir.parentDir()) {
+        FileName gitName = FileName(dir).appendPath(GIT_DIRECTORY);
+        if (!gitName.exists())
+            continue; // parent might exist
+        fileInfo.setFile(gitName.toString());
+        if (fileInfo.isFile())
+            return dir.toString();
+        gitName.appendPath("config");
+        if (gitName.exists())
+            return dir.toString();
+    }
     return QString();
 }
 

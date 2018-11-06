@@ -101,7 +101,7 @@ void WinRtRunner::onProcessError()
     QTC_ASSERT(m_runner, return);
     m_runner->disconnect();
     m_runner->deleteLater();
-    m_runner = 0;
+    m_runner = nullptr;
     m_state = StoppedState;
     reportStopped();
 }

@@ -103,8 +103,10 @@ SOURCES += \
     processormanager-test.cpp \
     taskscheduler-test.cpp \
     compileroptionsbuilder-test.cpp \
-    usedmacrocollector-test.cpp \
-    progresscounter-test.cpp
+    progresscounter-test.cpp \
+    usedmacroandsourcestorage-test.cpp \
+    pchtaskgenerator-test.cpp \
+    compilationdatabaseutils-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -181,7 +183,8 @@ SOURCES += \
     symbolindexing-test.cpp \
     symbolscollector-test.cpp \
     symbolfinder-test.cpp \
-    testclangtool.cpp
+    testclangtool.cpp \
+    usedmacrocollector-test.cpp
 }
 
 exists($$GOOGLEBENCHMARK_DIR) {
@@ -249,8 +252,8 @@ HEADERS += \
     mocktaskscheduler.h \
     mockprogressmanager.h \
     mockfutureinterface.h \
-    usedmacroandsourcestorage-test.h \
     mockusedmacroandsourcestorage.h \
+    mockbuilddependenciesprovider.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

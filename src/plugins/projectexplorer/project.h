@@ -232,6 +232,8 @@ protected:
     // Used to pre-check kits in the TargetSetupPage. RequiredKitPredicate
     // is used to select kits available in the TargetSetupPage
     void setPreferredKitPredicate(const Kit::Predicate &predicate);
+    // The predicate used to select kits available in TargetSetupPage.
+    void setRequiredKitPredicate(const Kit::Predicate &predicate);
 
     void setId(Core::Id id);
     void setRootProjectNode(std::unique_ptr<ProjectNode> &&root); // takes ownership!
@@ -245,9 +247,6 @@ protected:
                                                    const QString &description);
 
 private:
-    // The predicate used to select kits available in TargetSetupPage.
-    void setRequiredKitPredicate(const Kit::Predicate &predicate);
-
     void handleSubTreeChanged(FolderNode *node);
     void setActiveTarget(Target *target);
     ProjectPrivate *d;

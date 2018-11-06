@@ -3,4 +3,4 @@
 #include <missing_file2.moc>
 #include <foo2/missing_file2.moc>
 
-#include "includecollector_external1.h"
+#include "external1.h"

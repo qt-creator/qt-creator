@@ -35,6 +35,8 @@ namespace CppTools {
 class CppProjectUpdater;
 }
 
+namespace ProjectExplorer { class Kit; }
+
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
 
@@ -45,10 +47,15 @@ class CompilationDatabaseProject : public ProjectExplorer::Project
 public:
     explicit CompilationDatabaseProject(const Utils::FileName &filename);
     ~CompilationDatabaseProject() override;
+    bool needsConfiguration() const override { return false; }
+    bool needsBuildConfigurations() const override { return false; }
 
 private:
+    void buildTreeAndProjectParts(const Utils::FileName &projectFile);
+
     QFutureWatcher<void> m_parserWatcher;
     std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;
+    std::unique_ptr<ProjectExplorer::Kit> m_kit;
 };
 
 class CompilationDatabaseEditorFactory : public TextEditor::TextEditorFactory

@@ -78,16 +78,18 @@ public: // for tests
     DocumentProcessors &documentProcessors();
 
 private:
-    void processInitialJobsForDocuments(const std::vector<Document> &documents);
     void processJobsForVisibleDocuments();
     void processJobsForCurrentDocument();
     void processTimerForVisibleButNotCurrentDocuments();
     void processSuspendResumeJobs(const std::vector<Document> &documents);
 
+    void onJobFinished(const Jobs::RunningJob &jobRecord, IAsyncJob *job);
+
     void categorizeFileContainers(const QVector<FileContainer> &fileContainers,
                                   QVector<FileContainer> &toCreate,
                                   DocumentResetInfos &toReset) const;
     std::vector<Document> resetDocuments(const DocumentResetInfos &infos);
+    void resetDocumentsWithUnresolvedIncludes(const std::vector<Document> &documents);
 
     void addAndRunUpdateJobs(std::vector<Document> documents);
 

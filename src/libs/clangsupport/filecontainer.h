@@ -53,11 +53,13 @@ public:
 
     FileContainer(const Utf8String &filePath,
                   const Utf8StringVector &compilationArguments,
+                  const Utf8StringVector &headerPaths,
                   const Utf8String &unsavedFileContent = Utf8String(),
                   bool hasUnsavedFileContent = false,
                   quint32 documentRevision = 0)
         : filePath(filePath),
           compilationArguments(compilationArguments),
+          headerPaths(headerPaths),
           unsavedFileContent(unsavedFileContent),
           documentRevision(documentRevision),
           hasUnsavedFileContent(hasUnsavedFileContent)
@@ -66,9 +68,11 @@ public:
 
     FileContainer(const Utf8String &filePath,
                   const Utf8StringVector &compilationArguments,
+                  const Utf8StringVector &headerPaths,
                   quint32 documentRevision)
         : filePath(filePath),
           compilationArguments(compilationArguments),
+          headerPaths(headerPaths),
           documentRevision(documentRevision),
           hasUnsavedFileContent(false)
     {
@@ -78,6 +82,7 @@ public:
     {
         out << container.filePath;
         out << container.compilationArguments;
+        out << container.headerPaths;
         out << container.unsavedFileContent;
         out << container.textCodecName;
         out << container.documentRevision;
@@ -90,6 +95,7 @@ public:
     {
         in >> container.filePath;
         in >> container.compilationArguments;
+        in >> container.headerPaths;
         in >> container.unsavedFileContent;
         in >> container.textCodecName;
         in >> container.documentRevision;
@@ -106,6 +112,7 @@ public:
 public:
     Utf8String filePath;
     Utf8StringVector compilationArguments;
+    Utf8StringVector headerPaths;
     Utf8String unsavedFileContent;
     Utf8String textCodecName;
     quint32 documentRevision = 0;

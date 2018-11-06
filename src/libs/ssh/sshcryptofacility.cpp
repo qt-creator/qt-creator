@@ -423,7 +423,7 @@ Keyed_Filter *SshDecryptionFacility::makeCipherMode(BlockCipher *cipher, Mode mo
 {
     switch (mode) {
     case CbcMode:
-        return get_cipher(cipher->name() + "/CBC/NoPadding", iv, key, DECRYPTION);
+        return get_cipher(cipher->name() + "/CBC/NoPadding", key, iv, DECRYPTION);
     case CtrMode:
         return makeCtrCipherMode(cipher, iv, key);
     }

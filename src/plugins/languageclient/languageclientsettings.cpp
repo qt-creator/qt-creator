@@ -114,6 +114,7 @@ private:
 
 class LanguageClientSettingsPage : public Core::IOptionsPage
 {
+    Q_DECLARE_TR_FUNCTIONS(LanguageClientSettingsPage)
 public:
     LanguageClientSettingsPage();
     ~LanguageClientSettingsPage() override;
@@ -147,9 +148,9 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
         return mimeType.name();
     });
     auto buttonLayout = new QVBoxLayout();
-    auto addButton = new QPushButton(tr("&Add"));
+    auto addButton = new QPushButton(LanguageClientSettingsPage::tr("&Add"));
     connect(addButton, &QPushButton::pressed, this, &LanguageClientSettingsPageWidget::addItem);
-    auto deleteButton = new QPushButton(tr("&Delete"));
+    auto deleteButton = new QPushButton(LanguageClientSettingsPage::tr("&Delete"));
     connect(deleteButton, &QPushButton::pressed, this, &LanguageClientSettingsPageWidget::deleteItem);
 
     mainLayout->addLayout(layout);
@@ -577,6 +578,7 @@ public:
 
 class MimeTypeDialog : public QDialog
 {
+    Q_DECLARE_TR_FUNCTIONS(MimeTypeDialog)
 public:
     explicit MimeTypeDialog(const QStringList &selectedMimeTypes, QWidget *parent = nullptr)
         : QDialog(parent)

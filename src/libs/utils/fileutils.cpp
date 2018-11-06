@@ -346,6 +346,13 @@ QString FileUtils::resolvePath(const QString &baseDir, const QString &fileName)
     return QDir::cleanPath(baseDir + QLatin1Char('/') + fileName);
 }
 
+FileName FileUtils::commonPath(const FileName &oldCommonPath, const FileName &fileName)
+{
+    FileName newCommonPath = oldCommonPath;
+    while (!newCommonPath.isEmpty() && !fileName.isChildOf(newCommonPath))
+        newCommonPath = newCommonPath.parentDir();
+    return canonicalPath(newCommonPath);
+}
 
 QByteArray FileReader::fetchQrc(const QString &fileName)
 {
@@ -631,6 +638,7 @@ FileName FileName::parentDir() const
 
     const QString path = basePath + QLatin1String("/..");
     const QString parent = QDir::cleanPath(path);
+    QTC_ASSERT(parent != path, return FileName());
 
     return FileName::fromString(parent);
 }

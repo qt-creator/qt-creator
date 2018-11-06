@@ -598,7 +598,9 @@ void tst_LanguageServerProtocol::documentUri_data()
     QTest::addColumn<Utils::FileName>("fileName");
     QTest::addColumn<QString>("string");
 
-    const QString filePrefix("file:///");
+    // '/' (fs root) is part of the file path
+    const QString filePrefix = Utils::HostOsInfo::isWindowsHost() ? QString("file:///")
+                                                                  : QString("file://");
 
     QTest::newRow("empty uri")
             << DocumentUri()
@@ -613,7 +615,7 @@ void tst_LanguageServerProtocol::documentUri_data()
             << Utils::FileName::fromUserInput(QDir::homePath())
             << QString(filePrefix + QDir::homePath());
 
-    const QString argv0 = qApp->arguments().first();
+    const QString argv0 = QFileInfo(qApp->arguments().first()).absoluteFilePath();
     const auto argv0FileName = Utils::FileName::fromUserInput(argv0);
     QTest::newRow("argv0 file name")
             << DocumentUri::fromFileName(argv0FileName)
@@ -627,8 +629,10 @@ void tst_LanguageServerProtocol::documentUri_data()
             << Utils::FileName()
             << "https://www.qt.io/";
 
+    // depending on the OS the resulting path is different (made suitable for the file system)
     const QString winUserPercent("file:///C%3A/Users/");
-    const QString winUser("C:\\Users\\");
+    const QString winUser = Utils::HostOsInfo::isWindowsHost() ? QString("C:\\Users\\")
+                                                               : QString("/C:/Users/");
     QTest::newRow("percent encoding")
             << DocumentUri::fromProtocol(winUserPercent)
             << true

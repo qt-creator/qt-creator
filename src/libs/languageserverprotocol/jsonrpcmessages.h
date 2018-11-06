@@ -64,6 +64,8 @@ private:
 
 class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessageHandler
 {
+    Q_DECLARE_TR_FUNCTIONS(JsonRpcMessageHandler)
+
 public:
     using MessageProvider = std::function<IContent *(const QJsonObject &)>;
     static void registerMessageProvider(const QString &method, MessageProvider provider);

@@ -31,7 +31,29 @@
 
 #include <utils/qtcassert.h>
 
+#include <QRegularExpression>
+
 namespace ClangBackEnd {
+
+// TODO: Add libclang API for this.
+static QSet<Utf8String> unresolvedFilePaths(const QVector<DiagnosticContainer> &diagnostics)
+{
+    // We expect something like:
+    // fatal error: 'ops.h' file not found
+    QRegularExpression re("'(.*)' file not found");
+    QSet<Utf8String> unresolved;
+
+    for (const DiagnosticContainer &diagnostic : diagnostics) {
+        if (diagnostic.severity == DiagnosticSeverity::Fatal
+                && diagnostic.category == Utf8StringLiteral("Lexical or Preprocessor Issue")) {
+            const QString path = re.match(diagnostic.text).captured(1);
+            if (!path.isEmpty())
+                unresolved << path;
+        }
+    }
+
+    return unresolved;
+}
 
 IAsyncJob::AsyncPrepareResult UpdateAnnotationsJob::prepareAsyncRun()
 {
@@ -53,6 +75,9 @@ IAsyncJob::AsyncPrepareResult UpdateAnnotationsJob::prepareAsyncRun()
                                            asyncResult.diagnostics,
                                            asyncResult.tokenInfos,
                                            asyncResult.skippedSourceRanges);
+        asyncResult.unresolvedFilePaths.unite(
+            unresolvedFilePaths({asyncResult.firstHeaderErrorDiagnostic}));
+        asyncResult.unresolvedFilePaths.unite(unresolvedFilePaths(asyncResult.diagnostics));
 
         return asyncResult;
     });
@@ -66,6 +91,8 @@ void UpdateAnnotationsJob::finalizeAsyncRun()
         const AsyncResult result = asyncResult();
 
         m_pinnedDocument.incorporateUpdaterResult(result.updateResult);
+        m_pinnedDocument.setUnresolvedFilePaths(result.unresolvedFilePaths);
+
         context().client->annotations(AnnotationsMessage(m_pinnedFileContainer,
                                                          result.diagnostics,
                                                          result.firstHeaderErrorDiagnostic,

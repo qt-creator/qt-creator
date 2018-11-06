@@ -236,32 +236,28 @@ Utils::PathStringVector PchCreator::generateProjectPartSourcePaths(
     return includeAndSources;
 }
 
-std::pair<FilePathIds,FilePathIds> PchCreator::generateProjectPartPchIncludes(
+PchCreatorIncludes PchCreator::generateProjectPartPchIncludes(
         const V2::ProjectPartContainer &projectPart) const
 {
     Utils::SmallString jointedFileContent = generateProjectPartSourcesContent(projectPart);
     Utils::SmallString jointedFilePath = generateProjectPartSourceFilePath(projectPart);
     auto jointFile = generateFileWithContent(jointedFilePath, jointedFileContent);
     Utils::SmallStringVector arguments = generateProjectPartCommandLine(projectPart);
-    arguments.push_back(jointedFilePath);
     FilePath filePath{Utils::PathString(jointedFilePath)};
 
     IncludeCollector collector(m_filePathCache);
 
     collector.setExcludedIncludes(generateProjectPartSourcePaths(projectPart));
 
-    collector.addFile(std::string(filePath.directory()),
-                      std::string(filePath.name()),
-                      {},
-                      arguments);
+    collector.addFile(filePath, projectPart.sourcePathIds, arguments);
 
     collector.addUnsavedFiles(m_unsavedFiles);
 
-    collector.collectIncludes();
+    collector.collect();
 
     jointFile->remove();
 
-    return  {collector.takeIncludeIds(), collector.takeTopIncludeIds()};
+    return  {collector.takeIncludeIds(), collector.takeTopIncludeIds(), collector.takeTopsSystemIncludeIds()};
 }
 
 Utils::SmallString PchCreator::generateProjectPathPchHeaderFilePath(
@@ -312,10 +308,8 @@ Utils::SmallStringVector PchCreator::generateProjectPartClangCompilerArguments(
 IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &projectPart)
 {
     long long lastModified = QDateTime::currentSecsSinceEpoch();
-    FilePathIds allExternalIncludes;
-    FilePathIds topExternalIncludes;
-    std::tie(allExternalIncludes, topExternalIncludes) = generateProjectPartPchIncludes(projectPart);
-    auto content = generatePchIncludeFileContent(topExternalIncludes);
+    auto includes = generateProjectPartPchIncludes(projectPart);
+    auto content = generatePchIncludeFileContent(includes.topIncludeIds);
     auto pchIncludeFilePath = generateProjectPathPchHeaderFilePath(projectPart);
     auto pchFilePath = generateProjectPartPchFilePath(projectPart);
     generateFileWithContent(pchIncludeFilePath, content);
@@ -329,7 +323,7 @@ IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &proje
         m_projectPartPch.lastModified = lastModified;
     }
 
-    return {projectPart.projectPartId.clone(), std::move(allExternalIncludes)};
+    return {projectPart.projectPartId.clone(), std::move(includes.includeIds)};
 }
 
 void PchCreator::generatePch(const V2::ProjectPartContainer &projectPart)

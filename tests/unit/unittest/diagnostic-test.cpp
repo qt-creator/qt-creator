@@ -88,6 +88,7 @@ protected:
     ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnostic.cpp"),
                       TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")}),
+                      {},
                       documents};
     UnitTest::RunDocumentParse _1{document};
     DiagnosticSet diagnosticSet{document.translationUnit().diagnostics()};

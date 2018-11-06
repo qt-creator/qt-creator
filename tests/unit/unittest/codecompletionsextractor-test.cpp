@@ -149,14 +149,14 @@ protected:
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Utf8StringVector compilationArguments{TestEnvironment::addPlatformArguments()};
-    Document functionDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), compilationArguments, documents};
-    Document functionOverloadDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_functionoverload.cpp"), compilationArguments, documents};
-    Document variableDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), compilationArguments, documents};
-    Document classDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), compilationArguments, documents};
-    Document namespaceDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), compilationArguments, documents};
-    Document enumerationDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), compilationArguments, documents};
-    Document constructorDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), compilationArguments, documents};
-    Document briefCommentDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), compilationArguments, documents};
+    Document functionDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), compilationArguments, {},  documents};
+    Document functionOverloadDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_functionoverload.cpp"), compilationArguments, {},  documents};
+    Document variableDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), compilationArguments, {},  documents};
+    Document classDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), compilationArguments, {},  documents};
+    Document namespaceDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), compilationArguments, {},  documents};
+    Document enumerationDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), compilationArguments, {},  documents};
+    Document constructorDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), compilationArguments, {},  documents};
+    Document briefCommentDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), compilationArguments, {},  documents};
 };
 
 using CodeCompletionsExtractorSlowTest = CodeCompletionsExtractor;
@@ -610,6 +610,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, UnsavedFile)
 {
     Document document(Utf8String::fromUtf8(TESTDATA_DIR "/complete_extractor_function.cpp"),
                       compilationArguments,
+                      {},
                       documents);
     unsavedFiles.createOrUpdate(
         {unsavedDataFileContainer(TESTDATA_DIR "/complete_extractor_function.cpp",
@@ -629,6 +630,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, ChangeUnsavedFile)
 {
     Document document(Utf8String::fromUtf8(TESTDATA_DIR "/complete_extractor_function.cpp"),
                       compilationArguments,
+                      {},
                       documents);
     unsavedFiles.createOrUpdate(
         {unsavedDataFileContainer(TESTDATA_DIR "/complete_extractor_function.cpp",
@@ -652,6 +654,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, ArgumentDefinition)
     Document variableDocument{Utf8StringLiteral(TESTDATA_DIR "/complete_extractor_variable.cpp"),
                               {Utf8StringLiteral("-DArgumentDefinition"),
                                Utf8StringLiteral("-std=gnu++14")},
+                              {},
                               documents};
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 35));
 
@@ -668,6 +671,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, NoArgumentDefinition)
 {
     Document variableDocument{Utf8StringLiteral(TESTDATA_DIR "/complete_extractor_variable.cpp"),
                               {Utf8StringLiteral("-std=gnu++14")},
+                              {},
                               documents};
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 35));
 

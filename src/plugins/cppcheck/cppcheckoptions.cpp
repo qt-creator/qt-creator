@@ -47,6 +47,7 @@ namespace Internal {
 
 class OptionsWidget final : public QWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(CppcheckOptionsPage)
 public:
     explicit OptionsWidget(QWidget *parent = nullptr)
         : QWidget(parent),

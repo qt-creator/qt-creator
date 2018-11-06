@@ -68,6 +68,7 @@ static void copyAspect(ProjectConfigurationAspect *source, ProjectConfigurationA
 
 class CustomExecutableDialog : public QDialog
 {
+    Q_DECLARE_TR_FUNCTIONS(CustomExecutableDialog)
 public:
     explicit CustomExecutableDialog(RunConfiguration *rc);
 

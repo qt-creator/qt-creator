@@ -38,13 +38,13 @@ UiHeaderOnDiskManager::UiHeaderOnDiskManager() : m_temporaryDir("clang-uiheader-
     QTC_CHECK(m_temporaryDir.isValid());
 }
 
-QString UiHeaderOnDiskManager::createIfNeeded(const QString &filePath)
+QString UiHeaderOnDiskManager::write(const QString &filePath, const QByteArray &content)
 {
     const QString mappedPath = mapPath(filePath);
-    if (!QFileInfo::exists(mappedPath)) {
-        const bool fileCreated = QFile(mappedPath).open(QFile::WriteOnly); // touch file
-        QTC_CHECK(fileCreated);
-    }
+    QFile file(mappedPath);
+    const bool fileCreated = file.open(QFile::WriteOnly);
+    const qint64 bytesWritten = file.write(content);
+    QTC_CHECK(fileCreated && bytesWritten != -1);
 
     return mappedPath;
 }

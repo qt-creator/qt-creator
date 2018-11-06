@@ -49,7 +49,7 @@ class SearchModel;
 /**
  * @brief The Search class provides the way to search/find items.
  */
-class Search : public OutputPane::OutputPane
+class Search : public ScxmlEditor::OutputPane::OutputPane
 {
     Q_OBJECT
 

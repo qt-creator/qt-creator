@@ -51,6 +51,7 @@ class DocumentData
 public:
     DocumentData(const Utf8String &filePath,
                  const Utf8StringVector &compilationArguments,
+                 const Utf8StringVector &headerPaths,
                  Documents &documents);
     ~DocumentData();
 
@@ -59,10 +60,12 @@ public:
 
     const Utf8String filePath;
     const Utf8StringVector compilationArguments;
+    const Utf8StringVector headerPaths;
 
     TranslationUnits translationUnits;
 
     QSet<Utf8String> dependedFilePaths;
+    QSet<Utf8String> unresolvedFilePaths;
 
     uint documentRevision = 0;
 
@@ -80,10 +83,12 @@ public:
 
 DocumentData::DocumentData(const Utf8String &filePath,
                            const Utf8StringVector &compilationArguments,
+                           const Utf8StringVector &headerPaths,
                            Documents &documents)
     : documents(documents),
       filePath(filePath),
       compilationArguments(compilationArguments),
+      headerPaths(headerPaths),
       translationUnits(filePath),
       isDirtyChangeTimePoint(Clock::now())
 {
@@ -97,10 +102,12 @@ DocumentData::~DocumentData()
 
 Document::Document(const Utf8String &filePath,
                    const Utf8StringVector &compilationArguments,
+                   const Utf8StringVector &headerPaths,
                    Documents &documents,
                    FileExistsCheck fileExistsCheck)
     : d(std::make_shared<DocumentData>(filePath,
                                        compilationArguments,
+                                       headerPaths,
                                        documents))
 {
     if (fileExistsCheck == FileExistsCheck::Check)
@@ -164,12 +171,20 @@ Utf8StringVector Document::compilationArguments() const
     return d->compilationArguments;
 }
 
+Utf8StringVector Document::headerPaths() const
+{
+    checkIfNull();
+
+    return d->headerPaths;
+}
+
 FileContainer Document::fileContainer() const
 {
     checkIfNull();
 
     return FileContainer(d->filePath,
                          d->compilationArguments,
+                         d->headerPaths,
                          Utf8String(),
                          false,
                          d->documentRevision);
@@ -328,6 +343,20 @@ void Document::incorporateUpdaterResult(const TranslationUnitUpdateResult &resul
             && result.needsToBeReparsedChangeTimePoint == d->isDirtyChangeTimePoint) {
         d->isDirty = false;
     }
+}
+
+const QSet<Utf8String> Document::unresolvedFilePaths() const
+{
+    checkIfNull();
+
+    return d->unresolvedFilePaths;
+}
+
+void Document::setUnresolvedFilePaths(const QSet<Utf8String> &unresolved)
+{
+    checkIfNull();
+
+    d->unresolvedFilePaths = unresolved;
 }
 
 TranslationUnit Document::translationUnit(PreferredTranslationUnit preferredTranslationUnit) const

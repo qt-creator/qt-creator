@@ -42,16 +42,16 @@ using CodeCompletions = QVector<CodeCompletion>;
 class CodeCompletion
 {
 public:
-    enum Kind : quint32 {
+    enum Kind : uint8_t {
         Other = 0,
         FunctionCompletionKind,
         FunctionDefinitionCompletionKind,
         FunctionOverloadCompletionKind,
         TemplateFunctionCompletionKind,
+        ClassCompletionKind,
         ConstructorCompletionKind,
         DestructorCompletionKind,
         VariableCompletionKind,
-        ClassCompletionKind,
         TypeAliasCompletionKind,
         TemplateClassCompletionKind,
         EnumerationCompletionKind,

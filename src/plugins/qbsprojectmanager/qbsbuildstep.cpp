@@ -257,9 +257,9 @@ bool QbsBuildStep::hasCustomInstallRoot() const
     return m_qbsConfiguration.contains(Constants::QBS_INSTALL_ROOT_KEY);
 }
 
-Utils::FileName QbsBuildStep::installRoot() const
+Utils::FileName QbsBuildStep::installRoot(VariableHandling variableHandling) const
 {
-    Utils::FileName root = Utils::FileName::fromString(m_qbsConfiguration
+    Utils::FileName root = Utils::FileName::fromString(qbsConfiguration(variableHandling)
             .value(Constants::QBS_INSTALL_ROOT_KEY).toString());
     if (root.isNull()) {
         const QbsBuildConfiguration * const bc
@@ -554,6 +554,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
 
     auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(m_ui->propertyEdit);
+    chooser->addSupportedWidget(m_ui->installDirChooser->lineEdit());
     m_ui->propertyEdit->setValidationFunction([this](Utils::FancyLineEdit *edit,
                                                      QString *errorMessage) {
         return validateProperties(edit, errorMessage);
@@ -602,7 +603,7 @@ void QbsBuildStepConfigWidget::updateState()
         m_ui->forceProbesCheckBox->setChecked(qbsStep()->forceProbes());
         updatePropertyEdit(qbsStep()->qbsConfiguration(QbsBuildStep::PreserveVariables));
         m_ui->qmlDebuggingLibraryCheckBox->setChecked(qbsStep()->isQmlDebuggingEnabled());
-        m_ui->installDirChooser->setFileName(qbsStep()->installRoot());
+        m_ui->installDirChooser->setFileName(qbsStep()->installRoot(QbsBuildStep::PreserveVariables));
         m_ui->defaultInstallDirCheckBox->setChecked(!qbsStep()->hasCustomInstallRoot());
     }
 

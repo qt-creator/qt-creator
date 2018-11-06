@@ -33,6 +33,7 @@ namespace QmlDesigner {
 
 class AbstractViewAbstractVieweGroup;
 class QmlObjectNode;
+class QmlTimeline;
 
 class QMLDESIGNERCORE_EXPORT QmlTimelineKeyframeGroup : public QmlModelNodeFacade
 {
@@ -75,6 +76,11 @@ public:
 
     int indexOfKeyframe(const ModelNode &frame) const;
     void slideKeyframe(int sourceIndex, int targetIndex);
+
+    bool isRecording() const;
+    void toogleRecording(bool b) const;
+
+    QmlTimeline timeline() const;
 };
 
 } //QmlDesigner

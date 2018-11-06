@@ -57218,20 +57218,8 @@ These files are preserved.</source>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
     <message>
-        <source>&lt;program&gt;</source>
-        <translation>&lt;програма&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation>Основна програма</translation>
-    </message>
-    <message>
         <source>Binding loop detected.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;байт-код&gt;</translation>
     </message>
     <message>
         <source>(Opt)</source>
@@ -57247,19 +57235,7 @@ references to elements in other files, loops, and so on.)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Source code not available</source>
-        <translation>Код не доступний</translation>
-    </message>
-    <message>
         <source>Paint</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation>Компіляція</translation>
-    </message>
-    <message>
-        <source>Create</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -57269,10 +57245,6 @@ references to elements in other files, loops, and so on.)</source>
     <message>
         <source>Signal</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
     </message>
 </context>
 <context>

@@ -205,6 +205,7 @@ void LanguageClientManager::reportFinished(const MessageId &id, BaseClient *byCl
 void LanguageClientManager::deleteClient(BaseClient *client)
 {
     QTC_ASSERT(client, return);
+    client->disconnect(managerInstance);
     managerInstance->removeMarks(client->id());
     managerInstance->m_clients.removeAll(client);
     delete client;
@@ -221,6 +222,11 @@ void LanguageClientManager::shutdown()
         else
             deleteClient(interface);
     }
+    QTimer::singleShot(3000, managerInstance, [](){
+        for (auto interface : managerInstance->m_clients)
+            deleteClient(interface);
+        emit managerInstance->shutdownFinished();
+    });
 }
 
 LanguageClientManager *LanguageClientManager::instance()
@@ -256,6 +262,8 @@ void LanguageClientManager::clientFinished(BaseClient *client)
                     Core::MessageManager::Flash);
         QTimer::singleShot(restartTimeoutS * 1000, client, [client](){ startClient(client); });
     } else {
+        if (unexpectedFinish && !m_shuttingDown)
+            client->log(tr("Unexpectedly finished."), Core::MessageManager::Flash);
         deleteClient(client);
         if (m_shuttingDown && m_clients.isEmpty())
             emit shutdownFinished();

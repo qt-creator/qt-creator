@@ -52,7 +52,7 @@ class CollectUsedMacrosAndSourcesPreprocessorCallbacksBase : public SymbolsVisit
 {
 public:
     CollectUsedMacrosAndSourcesPreprocessorCallbacksBase(UsedMacros &usedMacros,
-                                                         FilePathCachingInterface &filePathCache,
+                                                         const FilePathCachingInterface &filePathCache,
                                                          const clang::SourceManager &sourceManager,
                                                          SourcesManager &sourcesManager,
                                                          std::shared_ptr<clang::Preprocessor> preprocessor,

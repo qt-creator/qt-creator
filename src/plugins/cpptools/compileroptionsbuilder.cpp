@@ -65,18 +65,16 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
                    return QStringList(););
     }
 
+    if (fileKind == ProjectFile::CXXHeader || fileKind == ProjectFile::CXXSource) {
+        QTC_ASSERT(m_projectPart.languageVersion > ProjectExplorer::LanguageVersion::LatestC,
+                   return QStringList(););
+    }
+
     add("-c");
 
     addWordWidth();
     addTargetTriple();
     addExtraCodeModelFlags();
-
-    if (m_projectPart.toolchainType
-            == ProjectExplorer::Constants::COMPILATION_DATABASE_TOOLCHAIN_TYPEID) {
-        addHeaderPathOptions();
-        insertWrappedQtHeaders();
-        return options();
-    }
 
     updateLanguageOption(fileKind);
     addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
@@ -258,6 +256,9 @@ static int includeIndexForResourceDirectory(const QStringList &options, bool isM
 
 void CompilerOptionsBuilder::insertWrappedQtHeaders()
 {
+    if (m_skipBuiltInHeaderPathsAndDefines == SkipBuiltIn::Yes)
+        return;
+
     QStringList wrappedQtHeaders;
     addWrappedQtHeadersIncludePath(wrappedQtHeaders);
 
@@ -503,6 +504,7 @@ static QStringList languageFeatureMacros()
         QLatin1String("__cpp_exceptions"),
         QLatin1String("__cpp_fold_expressions"),
         QLatin1String("__cpp_generic_lambdas"),
+        QLatin1String("__cpp_guaranteed_copy_elision"),
         QLatin1String("__cpp_hex_float"),
         QLatin1String("__cpp_if_constexpr"),
         QLatin1String("__cpp_inheriting_constructors"),
@@ -514,6 +516,7 @@ static QStringList languageFeatureMacros()
         QLatin1String("__cpp_nested_namespace_definitions"),
         QLatin1String("__cpp_noexcept_function_type"),
         QLatin1String("__cpp_nontype_template_args"),
+        QLatin1String("__cpp_nontype_template_parameter_auto"),
         QLatin1String("__cpp_nsdmi"),
         QLatin1String("__cpp_range_based_for"),
         QLatin1String("__cpp_raw_strings"),

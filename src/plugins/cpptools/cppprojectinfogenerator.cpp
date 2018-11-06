@@ -165,9 +165,6 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
     part->warningFlags = flags.warningFlags;
     part->languageExtensions = flags.languageExtensions;
 
-    if (part->toolchainType == ProjectExplorer::Constants::COMPILATION_DATABASE_TOOLCHAIN_TYPEID)
-        part->extraCodeModelFlags = flags.commandLineFlags;
-
     // Toolchain macros and language version
     if (tcInfo.macroInspectionRunner) {
         auto macroInspectionReport = tcInfo.macroInspectionRunner(flags.commandLineFlags);

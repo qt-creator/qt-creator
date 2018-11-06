@@ -48,7 +48,11 @@ Item {
         width: rightRange.x - leftRange.x
         height: parent.height
 
-        color: width > 1 ? (dragArea.pressed ? dragColor : rangeColor) : singleLineColor
+        function alphaColor(color) {
+            return Qt.rgba(color.r, color.g, color.b, Math.max(Math.min(color.a, 0.7), 0.3));
+        }
+
+        color: width > 1 ? alphaColor(dragArea.pressed ? dragColor : rangeColor) : singleLineColor
     }
 
     Item {

@@ -64,6 +64,7 @@ struct Data {
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/cursor.cpp")};
     Document document{filePath,
                       TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")}),
+                      {},
                       documents};
     TranslationUnit translationUnit{filePath,
                                     filePath,
@@ -185,7 +186,7 @@ TEST_F(Cursor, BriefComment)
     ASSERT_THAT(cursor.briefComment(), Eq("A brief comment"));
 }
 
-TEST_F(Cursor, DISABLED_ON_WINDOWS(RawComment))
+TEST_F(Cursor, RawComment)
 {
     auto cursor = translationUnit.cursorAt(Utf8StringLiteral(TESTDATA_DIR"/cursor.h"), 10, 7);
 

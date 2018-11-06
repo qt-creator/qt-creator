@@ -126,6 +126,9 @@ BranchView::BranchView() :
             this, &BranchView::BranchView::setIncludeTags);
 
     m_branchView->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_branchView->setEditTriggers(QAbstractItemView::SelectedClicked
+                                  | QAbstractItemView::EditKeyPressed);
+    m_branchView->setItemDelegate(new BranchValidationDelegate(this, m_model));
     connect(m_branchView, &QAbstractItemView::doubleClicked,
             this, [this](const QModelIndex &idx) { log(m_filterModel->mapToSource(idx)); });
     connect(m_branchView, &QWidget::customContextMenuRequested,
@@ -194,7 +197,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
 
     const QModelIndex index = m_filterModel->mapToSource(filteredIndex);
     const QModelIndex currentBranch = m_model->currentBranch();
-    const bool currentSelected = index.row() == currentBranch.row();
+    const bool currentSelected = index.sibling(index.row(), 0) == currentBranch;
     const bool isLocal = m_model->isLocal(index);
     const bool isTag = m_model->isTag(index);
     const bool hasActions = m_model->isLeaf(index);
@@ -432,7 +435,6 @@ bool BranchView::remove()
 bool BranchView::rename()
 {
     const QModelIndex selected = selectedIndex();
-    QTC_CHECK(selected != m_model->currentBranch());
     const bool isTag = m_model->isTag(selected);
     QTC_CHECK(m_model->isLocal(selected) || isTag);
 

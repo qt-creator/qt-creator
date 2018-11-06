@@ -32,6 +32,7 @@
 
 #include <sourcelocations.h>
 
+#include <builddependencies.h>
 #include <clangcodemodelclientmessages.h>
 #include <clangcodemodelservermessages.h>
 #include <clangdocumentsuspenderresumer.h>
@@ -42,6 +43,8 @@
 #include <filepath.h>
 #include <fulltokeninfo.h>
 #include <nativefilepath.h>
+#include <pchcreator.h>
+#include <pchtask.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <projectpartartefact.h>
 #include <sourcedependency.h>
@@ -1016,6 +1019,23 @@ std::ostream &operator<<(std::ostream &out, const ProgressMessage &message)
     return out << "(" << progressTypeToString(message.progressType) << ", "
                << message.progress << ", "
                << message.total << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes)
+{
+    return out << "(" << includes.includeIds << ", " << includes.topIncludeIds << ", " << includes.topSystemIncludeIds << ")";
+}
+std::ostream &operator<<(std::ostream &out, const PchTask &task)
+{
+    return out << "(" << task.ids << ", " << task.buildDependency << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency)
+{
+    return out << "("
+               << dependency.includeIds << ", "
+               << dependency.topsSystemIncludeIds << ", "
+               << dependency.topIncludeIds << ")";
 }
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os)

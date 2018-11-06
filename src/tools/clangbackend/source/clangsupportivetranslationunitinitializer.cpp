@@ -58,7 +58,7 @@ void SupportiveTranslationUnitInitializer::startInitializing()
 
     m_document.translationUnits().createAndAppend();
 
-    m_jobs.setJobFinishedCallback([this](const Jobs::RunningJob &runningJob) {
+    m_jobs.setJobFinishedCallback([this](const Jobs::RunningJob &runningJob, IAsyncJob *) {
         checkIfParseJobFinished(runningJob);
     });
     addJob(JobRequest::Type::ParseSupportiveTranslationUnit);
@@ -69,7 +69,8 @@ void SupportiveTranslationUnitInitializer::startInitializing()
 
 void SupportiveTranslationUnitInitializer::abort()
 {
-    m_jobs.setJobFinishedCallback(Jobs::JobFinishedCallback());
+    if (m_document.translationUnits().size() > 1)
+        m_jobs.setJobFinishedCallback(Jobs::JobFinishedCallback());
     m_state = State::Aborted;
 }
 

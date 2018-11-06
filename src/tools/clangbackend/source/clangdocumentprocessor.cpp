@@ -76,6 +76,11 @@ DocumentProcessor::DocumentProcessor(const Document &document,
 {
 }
 
+Jobs &DocumentProcessor::jobs() const
+{
+    return d->jobs;
+}
+
 JobRequest DocumentProcessor::createJobRequest(
         JobRequest::Type type,
         PreferredTranslationUnit preferredTranslationUnit) const

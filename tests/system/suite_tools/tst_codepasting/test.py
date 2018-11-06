@@ -37,6 +37,7 @@ skipPastingToPastebinCom = platform.system() not in __platformToBeRunToday__()
 NAME_KDE = "Paste.KDE.Org"
 NAME_PBCA = "Pastebin.Ca"
 NAME_PBCOM = "Pastebin.Com"
+NAME_PCXYZ = "Pastecode.Xyz"
 
 serverProblems = "Server side problems."
 
@@ -75,7 +76,7 @@ def pasteFile(sourceFile, protocol):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(sourceFile)
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-    type(editor, "<Up>")
+    jumpToFirstLine(editor)
     typeLines(editor, "// tst_codepasting %s" % datetime.utcnow())
     sourceText = editor.plainText
     invokeMenuItem("Tools", "Code Pasting", "Paste Snippet...")
@@ -175,7 +176,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    protocolsToTest = [NAME_KDE, NAME_PBCA, NAME_PBCOM]
+    protocolsToTest = [NAME_KDE, NAME_PBCA, NAME_PBCOM, NAME_PCXYZ]
     sourceFile = os.path.join(os.getcwd(), "testdata", "main.cpp")
     # make sure General Messages is open
     openGeneralMessages()
@@ -231,6 +232,7 @@ def main():
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(sourceFile)
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+    jumpToFirstLine(editor)
     markText(editor, "Down", 7)
     # QString QTextCursor::selectedText () const:
     # "Note: If the selection obtained from an editor spans a line break, the text will contain a

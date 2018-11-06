@@ -175,10 +175,18 @@ void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulato
             cursorOffset = converter.placeholderPositions().at(0) - converter.text().size();
     } else if (ccr.completionKind == CodeCompletion::NamespaceCompletionKind) {
         CompletionChunksToTextConverter converter;
-
         converter.parseChunks(ccr.chunks); // Appends "::" after name space name
-
         textToBeInserted = converter.text();
+
+        // Clang does not provide the "::" chunk consistently for namespaces, e.g.
+        //
+        //    namespace a { namespace b { namespace c {} } }
+        //    <CURSOR> // complete "a" ==> "a::"
+        //    a::<CURSOR> // complete "b" ==> "b", not "b::"
+        //
+        // Remove "::" to avoid any confusion for now.
+        if (textToBeInserted.endsWith("::"))
+            textToBeInserted.chop(2);
     } else if (!ccr.text.isEmpty()) {
         const CompletionSettings &completionSettings =
                 TextEditorSettings::instance()->completionSettings();

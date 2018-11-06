@@ -110,24 +110,32 @@ static CodeCompletions filterFunctionOverloads(const CodeCompletions &completion
     });
 }
 
-static ::Utils::optional<bool> classBeforeCXXConstructor(const CodeCompletion &first,
-                                                         const CodeCompletion &second)
+static void adaptOverloadsPriorities(CodeCompletions &codeCompletions)
 {
-    // Put ClassCompletionKind elements before ConstructorCompletionKind elements
-    // when they have the same name.
-    if (first.completionKind == CodeCompletion::ClassCompletionKind
-            && second.completionKind == CodeCompletion::ConstructorCompletionKind
-            && first.text == second.text) {
-        return true;
-    }
+    std::map<Utf8String, std::vector<CodeCompletion *>> cachedOverloads;
+    for (CodeCompletion &currentCompletion : codeCompletions) {
+        if (currentCompletion.completionKind != CodeCompletion::ConstructorCompletionKind
+                && currentCompletion.completionKind != CodeCompletion::FunctionCompletionKind
+                && currentCompletion.completionKind
+                != CodeCompletion::FunctionDefinitionCompletionKind) {
+            continue;
+        }
 
-    if (first.completionKind == CodeCompletion::ConstructorCompletionKind
-            && second.completionKind == CodeCompletion::ClassCompletionKind
-            && first.text == second.text) {
-        return false;
+        auto found = cachedOverloads.find(currentCompletion.text);
+        if (found == cachedOverloads.end()) {
+            cachedOverloads[currentCompletion.text].push_back(&currentCompletion);
+        } else {
+            const quint32 oldPriority = found->second.front()->priority;
+            if (currentCompletion.priority >= oldPriority) {
+                currentCompletion.priority = oldPriority;
+            } else {
+                const quint32 newPriority = currentCompletion.priority;
+                for (CodeCompletion *completion : found->second)
+                    completion->priority = newPriority;
+            }
+            found->second.push_back(&currentCompletion);
+        }
     }
-
-    return ::Utils::optional<bool>();
 }
 
 static void sortCodeCompletions(CodeCompletions &codeCompletions)
@@ -138,14 +146,8 @@ static void sortCodeCompletions(CodeCompletions &codeCompletions)
         if (first.requiredFixIts.empty() != second.requiredFixIts.empty())
             return first.requiredFixIts.empty() > second.requiredFixIts.empty();
 
-        const ::Utils::optional<bool> classBeforeConstructorWithTheSameName
-                = classBeforeCXXConstructor(first, second);
-        if (classBeforeConstructorWithTheSameName)
-            return classBeforeConstructorWithTheSameName.value();
-
-        return (first.priority > 0
-                && (first.priority < second.priority
-                    || (first.priority == second.priority && first.text < second.text)));
+        return std::tie(first.priority, first.text, first.completionKind)
+                < std::tie(second.priority, second.text, second.completionKind);
     };
 
     // Keep the order for the items with the same priority and name.
@@ -164,6 +166,7 @@ void CodeCompletionsExtractor::handleCompletions(CodeCompletions &codeCompletion
             codeCompletions = overloadCompletions;
     }
 
+    adaptOverloadsPriorities(codeCompletions);
     sortCodeCompletions(codeCompletions);
 }
 

@@ -37,7 +37,10 @@
 
 #include <clangcodemodelservermessages.h>
 
+#include <clangcodemodel/clanguiheaderondiskmanager.h>
+
 #include <utils/algorithm.h>
+#include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
 #include <QFile>
@@ -119,11 +122,13 @@ protected:
                       int expectedAnnotationsMessages = AnnotationJobsMultiplier);
     void openDocument(const Utf8String &filePath,
                       const Utf8StringVector &compilationArguments,
+                      const Utf8StringVector &headerPaths,
                       int expectedAnnotationsMessages = AnnotationJobsMultiplier);
     void openDocuments(int expectedAnnotationsMessages);
     void openDocumentWithUnsavedContent(const Utf8String &filePath, const Utf8String &content);
     void closeDocument(const Utf8String &filePath);
 
+    void updateUnsavedFile(const Utf8String &filePath, const Utf8String &fileContent);
     void updateUnsavedContent(const Utf8String &filePath,
                               const Utf8String &fileContent,
                               quint32 revisionNumber);
@@ -172,6 +177,8 @@ protected:
     const Utf8String aFilePath = Utf8StringLiteral("afile.cpp");
     const Utf8String anExistingFilePath
         = Utf8StringLiteral(TESTDATA_DIR"/complete_translationunit_parse_error.cpp");
+
+    const Utf8String uicMainPath = Utf8StringLiteral(TESTDATA_DIR"/uicmain.cpp");
 };
 
 using ClangCodeModelServerSlowTest = ClangCodeModelServer;
@@ -311,11 +318,11 @@ TEST_F(ClangCodeModelServerSlowTest, GetNewCodeCompletionAfterUpdatingUnsavedFil
     requestCompletionsInFileA();
 }
 
-TEST_F(ClangCodeModelServerSlowTest, TranslationUnitAfterCreationIsNotDirty)
+TEST_F(ClangCodeModelServerSlowTest, OpenedDocumentsAreDirty)
 {
     openDocument(filePathA, AnnotationJobsMultiplier);
 
-    ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, 0U, false, false));
+    ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, 0U, true, false));
 }
 
 TEST_F(ClangCodeModelServerSlowTest, SetCurrentAndVisibleEditor)
@@ -428,6 +435,52 @@ TEST_F(ClangCodeModelServerSlowTest, TakeOverJobsOnDocumentChange)
     updateVisibilty(filePathC, filePathC); // Enable processing jobs
 }
 
+TEST_F(ClangCodeModelServerSlowTest, UicHeaderAvailableBeforeParse)
+{
+    // Write ui file
+    ClangCodeModel::Internal::UiHeaderOnDiskManager uiManager;
+    const QByteArray content = "class UicObject{};";
+    const QString uiHeaderFilePath = uiManager.write("uicheader.h", content);
+
+    // Open document
+    openDocument(uicMainPath,
+                 {Utf8StringLiteral("-I"), Utf8String(uiManager.directoryPath())},
+                 {uiManager.directoryPath()},
+                 AnnotationJobsMultiplier);
+    updateVisibilty(uicMainPath, uicMainPath);
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+
+    // Check
+    ASSERT_THAT(documents.document(uicMainPath).dependedFilePaths(),
+                Contains(uiHeaderFilePath));
+}
+
+TEST_F(ClangCodeModelServerSlowTest, UicHeaderAvailableAfterParse)
+{
+    ClangCodeModel::Internal::UiHeaderOnDiskManager uiManager;
+    const QString uiHeaderFilePath = uiManager.mapPath("uicheader.h");
+
+    // Open document
+    openDocument(uicMainPath,
+                 {Utf8StringLiteral("-I"), Utf8String(uiManager.directoryPath())},
+                 {uiManager.directoryPath()},
+                 2 * AnnotationJobsMultiplier);
+    updateVisibilty(uicMainPath, uicMainPath);
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+    ASSERT_THAT(documents.document(uicMainPath).dependedFilePaths(),
+                Not(Contains(uiHeaderFilePath)));
+
+    // Write ui file and notify backend
+    const QByteArray content = "class UicObject{};";
+    uiManager.write("uicheader.h", content);
+    updateUnsavedFile(Utf8String(uiHeaderFilePath), Utf8String::fromByteArray(content));
+
+    // Check
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+    ASSERT_THAT(documents.document(uicMainPath).dependedFilePaths(),
+                Contains(uiHeaderFilePath));
+}
+
 void ClangCodeModelServer::SetUp()
 {
     clangServer.setClient(&mockClangCodeModelClient);
@@ -454,14 +507,15 @@ bool ClangCodeModelServer::waitUntilAllJobsFinished(int timeOutInMs)
 void ClangCodeModelServer::openDocument(const Utf8String &filePath,
                                         int expectedAnnotationsMessages)
 {
-    openDocument(filePath, {}, expectedAnnotationsMessages);
+    openDocument(filePath, {}, {}, expectedAnnotationsMessages);
 }
 
 void ClangCodeModelServer::openDocument(const Utf8String &filePath,
                                         const Utf8StringVector &compilationArguments,
+                                        const Utf8StringVector &headerPaths,
                                         int expectedAnnotationsMessages)
 {
-    const FileContainer fileContainer(filePath, compilationArguments);
+    const FileContainer fileContainer(filePath, compilationArguments, headerPaths);
     const DocumentsOpenedMessage message({fileContainer}, filePath, {filePath});
 
     expectAnnotations(expectedAnnotationsMessages);
@@ -608,7 +662,7 @@ void ClangCodeModelServer::requestAnnotations(const Utf8String &filePath)
 
 void ClangCodeModelServer::requestReferences(quint32 documentRevision)
 {
-    const FileContainer fileContainer{filePathC, Utf8StringVector(), documentRevision};
+    const FileContainer fileContainer{filePathC, {}, {}, documentRevision};
     const RequestReferencesMessage message{fileContainer, 3, 9};
 
     clangServer.requestReferences(message);
@@ -616,7 +670,7 @@ void ClangCodeModelServer::requestReferences(quint32 documentRevision)
 
 void ClangCodeModelServer::requestFollowSymbol(quint32 documentRevision)
 {
-    const FileContainer fileContainer{filePathC, Utf8StringVector(), documentRevision};
+    const FileContainer fileContainer{filePathC, {}, {}, documentRevision};
     const RequestFollowSymbolMessage message{fileContainer, 43, 9};
 
     clangServer.requestFollowSymbol(message);
@@ -647,7 +701,7 @@ void ClangCodeModelServer::updateUnsavedContent(const Utf8String &filePath,
 
 void ClangCodeModelServer::removeUnsavedFile(const Utf8String &filePath)
 {
-    const FileContainer fileContainer(filePath, Utf8StringVector(), 74);
+    const FileContainer fileContainer(filePath, {}, {}, 74);
     const DocumentsChangedMessage message({fileContainer});
 
     clangServer.documentsChanged(message);
@@ -659,6 +713,15 @@ void ClangCodeModelServer::closeDocument(const Utf8String &filePath)
     const DocumentsClosedMessage message(fileContainers);
 
     clangServer.documentsClosed(message);
+}
+
+void ClangCodeModelServer::updateUnsavedFile(const Utf8String &filePath,
+                                             const Utf8String &fileContent)
+{
+    const FileContainer fileContainer(filePath, fileContent, true, 0);
+    const UnsavedFilesUpdatedMessage message({fileContainer});
+
+    clangServer.unsavedFilesUpdated(message);
 }
 
 void ClangCodeModelServer::openDocumentAndWaitForFinished(

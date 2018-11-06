@@ -56,6 +56,7 @@
 #include <QApplication>
 #include <QMenu>
 #include <QTextBlock>
+#include <QTimer>
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
@@ -317,7 +318,10 @@ void ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated(const QStr
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
 
-    const QString mappedPath = m_uiHeaderOnDiskManager.createIfNeeded(filePath);
+    if (content.size() == 0)
+        return; // Generation not yet finished.
+
+    const QString mappedPath = m_uiHeaderOnDiskManager.write(filePath, content);
     m_communicator.unsavedFilesUpdated(mappedPath, content, 0);
 }
 

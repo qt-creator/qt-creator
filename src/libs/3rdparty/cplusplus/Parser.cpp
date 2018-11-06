@@ -1835,10 +1835,8 @@ bool Parser::parseEnumSpecifier(SpecifierListAST *&node)
             return false;
         }
 
-        if (LA() == T_IDENTIFIER)
+        if (LA() == T_COLON_COLON || LA() == T_IDENTIFIER)
             parseName(ast->name);
-        else
-            return false;
 
         if (_languageFeatures.cxx11Enabled && LA() == T_COLON) {
             ast->colon_token = consumeToken();

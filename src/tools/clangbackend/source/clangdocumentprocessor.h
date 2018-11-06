@@ -47,6 +47,8 @@ public:
                       UnsavedFiles &unsavedFiles,
                       ClangCodeModelClientInterface &client);
 
+    Jobs &jobs() const;
+
     JobRequest createJobRequest(JobRequest::Type type,
                                 PreferredTranslationUnit preferredTranslationUnit
                                         = PreferredTranslationUnit::RecentlyParsed) const;

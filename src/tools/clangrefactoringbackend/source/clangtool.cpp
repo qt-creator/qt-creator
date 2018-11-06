@@ -25,6 +25,8 @@
 
 #include "clangtool.h"
 
+#include <iostream>
+
 namespace ClangBackEnd {
 
 namespace {

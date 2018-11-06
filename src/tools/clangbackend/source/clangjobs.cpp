@@ -121,6 +121,11 @@ JobRequests Jobs::stop()
     return queuedJobs;
 }
 
+Jobs::JobFinishedCallback Jobs::finishedCallback() const
+{
+    return m_jobFinishedCallback;
+}
+
 JobRequests Jobs::runJobs(const JobRequests &jobsRequests)
 {
     JobRequests jobsStarted;
@@ -165,7 +170,7 @@ void Jobs::onJobFinished(IAsyncJob *asyncJob)
 
     if (m_jobFinishedCallback) {
         const RunningJob runningJob = m_running.value(asyncJob);
-        m_jobFinishedCallback(runningJob);
+        m_jobFinishedCallback(runningJob, asyncJob);
     }
 
     m_running.remove(asyncJob);

@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "branchadddialog.h"
+#include "branchmodel.h"
 #include "ui_branchadddialog.h"
 #include "gitplugin.h"
 
+#include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 
 #include <QPushButton>
@@ -87,6 +89,21 @@ private:
     QStringList m_localBranches;
 };
 
+BranchValidationDelegate::BranchValidationDelegate(QWidget *parent, BranchModel *model)
+    : QItemDelegate(parent)
+    , m_model(model)
+{
+}
+
+QWidget *BranchValidationDelegate::createEditor(QWidget *parent,
+                                                const QStyleOptionViewItem & /*option*/,
+                                                const QModelIndex & /*index*/) const
+{
+    auto lineEdit = new Utils::FancyLineEdit(parent);
+    BranchNameValidator *validator = new BranchNameValidator(m_model->localBranchNames(), lineEdit);
+    lineEdit->setValidator(validator);
+    return lineEdit;
+}
 
 BranchAddDialog::BranchAddDialog(const QStringList &localBranches, bool addBranch, QWidget *parent) :
     QDialog(parent),

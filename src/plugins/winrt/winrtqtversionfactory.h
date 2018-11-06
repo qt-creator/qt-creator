@@ -33,7 +33,7 @@ namespace Internal {
 class WinRtQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
-    explicit WinRtQtVersionFactory(QObject *parent = 0);
+    explicit WinRtQtVersionFactory(QObject *parent = nullptr);
     ~WinRtQtVersionFactory();
 
     bool canRestore(const QString &type);

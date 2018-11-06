@@ -63,7 +63,7 @@ public:
     GenericMakeCleanStepFactory makeCleanStepFactory;
     GenericBuildConfigurationFactory buildConfigFactory;
 
-    QAction editFilesAction{GenericProjectPluginPrivate::tr("Edit Files..."), nullptr};
+    QAction editFilesAction{GenericProjectPlugin::tr("Edit Files..."), nullptr};
 };
 
 static GenericProjectPluginPrivate *dd = nullptr;

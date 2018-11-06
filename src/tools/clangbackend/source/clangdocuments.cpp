@@ -206,6 +206,7 @@ Document Documents::createDocument(const FileContainer &fileContainer)
 
     documents_.emplace_back(fileContainer.filePath,
                             fileContainer.compilationArguments,
+                            fileContainer.headerPaths,
                             *this,
                             checkIfFileExists);
 

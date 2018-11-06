@@ -477,7 +477,7 @@ QList<Node *> FolderNode::findNodes(const std::function<bool(Node *)> &filter)
         if (n->asFileNode() && filter(n.get()))
             result.append(n.get());
         else if (FolderNode *folder = n->asFolderNode())
-            result.append(folder->findNode(filter));
+            result.append(folder->findNodes(filter));
     }
     return result;
 }

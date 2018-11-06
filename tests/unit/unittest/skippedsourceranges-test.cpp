@@ -90,8 +90,8 @@ struct Data {
     ClangBackEnd::Documents documents{unsavedFiles};
     Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/skippedsourceranges.cpp");
     Utf8StringVector compilationArguments{TestEnvironment::addPlatformArguments(
-        {Utf8StringLiteral("-std=c++11"), Utf8StringLiteral("-DBLAH")})};
-    Document document{filePath, compilationArguments, documents};
+        {Utf8StringLiteral("-std=c++11"), {}, Utf8StringLiteral("-DBLAH")})};
+    Document document{filePath, compilationArguments, {}, documents};
     TranslationUnit translationUnit{filePath,
                                     filePath,
                                     document.translationUnit().cxIndex(),

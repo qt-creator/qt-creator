@@ -54,8 +54,8 @@ QtSupport::BaseQtVersion *WinRtQtVersionFactory::restore(const QString &type,
         const QVariantMap &data)
 {
     if (!canRestore(type))
-        return 0;
-    WinRtQtVersion *v = 0;
+        return nullptr;
+    WinRtQtVersion *v = nullptr;
     if (type == QLatin1String(Constants::WINRT_WINPHONEQT))
         v = new WinRtPhoneQtVersion;
     else
@@ -74,7 +74,7 @@ QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(const Utils::FileName &q
 {
     QFileInfo fi = qmakePath.toFileInfo();
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
-        return 0;
+        return nullptr;
 
     bool isWinRt = false;
     bool isPhone = false;
@@ -89,7 +89,7 @@ QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(const Utils::FileName &q
     }
 
     if (!isWinRt)
-        return 0;
+        return nullptr;
 
     return isPhone ? new WinRtPhoneQtVersion(qmakePath, isAutoDetected, autoDetectionSource)
                    : new WinRtQtVersion(qmakePath, isAutoDetected, autoDetectionSource);

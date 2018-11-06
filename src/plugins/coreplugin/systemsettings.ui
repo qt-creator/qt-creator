@@ -347,9 +347,6 @@
         </item>
         <item>
          <widget class="QLineEdit" name="terminalOpenArgs">
-          <property name="toolTip">
-           <string>Command line arguments used for &quot;Open Terminal Here&quot;.</string>
-          </property>
          </widget>
         </item>
         <item>

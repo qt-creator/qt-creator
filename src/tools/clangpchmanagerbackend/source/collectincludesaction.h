@@ -41,14 +41,26 @@ class CollectIncludesAction final : public clang::PreprocessOnlyAction
 public:
     CollectIncludesAction(FilePathIds &includeIds,
                           FilePathIds &topIncludeIds,
+                          FilePathIds &topsSystemIncludeIds,
                           const FilePathCachingInterface &filePathCache,
                           std::vector<uint> &excludedIncludeUID,
-                          std::vector<uint> &alreadyIncludedFileUIDs)
+                          std::vector<uint> &alreadyIncludedFileUIDs,
+                          UsedMacros &usedMacros,
+                          SourcesManager &sourcesManager,
+                          SourceDependencies &sourceDependencies,
+                          FilePathIds &sourceFiles,
+                          FileStatuses &fileStatuses)
         : m_includeIds(includeIds),
           m_topIncludeIds(topIncludeIds),
+          m_topsSystemIncludeIds(topsSystemIncludeIds),
           m_filePathCache(filePathCache),
           m_excludedIncludeUID(excludedIncludeUID),
-          m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs)
+          m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs),
+          m_usedMacros(usedMacros),
+          m_sourcesManager(sourcesManager),
+          m_sourceDependencies(sourceDependencies),
+          m_sourceFiles(sourceFiles),
+          m_fileStatuses(fileStatuses)
     {
     }
 
@@ -62,10 +74,17 @@ public:
           auto macroPreprocessorCallbacks = new CollectIncludesPreprocessorCallbacks(
                       m_includeIds,
                       m_topIncludeIds,
+                      m_topsSystemIncludeIds,
                       m_filePathCache,
                       m_excludedIncludeUID,
                       m_alreadyIncludedFileUIDs,
-                      compilerInstance.getSourceManager());
+                      compilerInstance.getSourceManager(),
+                      m_usedMacros,
+                      m_sourcesManager,
+                      compilerInstance.getPreprocessorPtr(),
+                      m_sourceDependencies,
+                      m_sourceFiles,
+                      m_fileStatuses);
 
           preprocessor.addPPCallbacks(std::unique_ptr<clang::PPCallbacks>(macroPreprocessorCallbacks));
 
@@ -83,9 +102,15 @@ public:
 private:
     FilePathIds &m_includeIds;
     FilePathIds &m_topIncludeIds;
+    FilePathIds &m_topsSystemIncludeIds;
     const FilePathCachingInterface &m_filePathCache;
     std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
+    UsedMacros &m_usedMacros;
+    SourcesManager &m_sourcesManager;
+    SourceDependencies &m_sourceDependencies;
+    FilePathIds &m_sourceFiles;
+    FileStatuses &m_fileStatuses;
 };
 
 } // namespace ClangBackEnd

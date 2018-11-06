@@ -29,7 +29,6 @@
 #include "gccparser.h"
 #include "linuxiccparser.h"
 #include "projectmacro.h"
-#include "projectexplorerconstants.h"
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
@@ -96,18 +95,6 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
     }
 
     return response.allOutput().toUtf8();
-}
-
-static const QStringList languageOption(Core::Id languageId)
-{
-    if (languageId == Constants::C_LANGUAGE_ID)
-        return {"-x", "c"};
-    return {"-x", "c++"};
-}
-
-static const QStringList gccPredefinedMacrosOptions(Core::Id languageId)
-{
-    return languageOption(languageId) + QStringList({"-E", "-dM"});
 }
 
 static ProjectExplorer::Macros gccPredefinedMacros(const FileName &gcc,
@@ -1209,6 +1196,10 @@ void GccToolChainConfigWidget::handlePlatformLinkerFlagsChange()
 
 ClangToolChain::ClangToolChain(Detection d) :
     GccToolChain(Constants::CLANG_TOOLCHAIN_TYPEID, d)
+{ }
+
+ClangToolChain::ClangToolChain(Core::Id typeId, ToolChain::Detection d) :
+    GccToolChain(typeId, d)
 { }
 
 QString ClangToolChain::typeDisplayName() const

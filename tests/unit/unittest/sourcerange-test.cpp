@@ -76,6 +76,7 @@ struct Data {
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_range.cpp")};
     Document document{filePath,
                       {TestEnvironment::addPlatformArguments({Utf8StringLiteral("-pedantic")})},
+                      {},
                       documents};
     UnitTest::RunDocumentParse _1{document};
     TranslationUnit translationUnit{filePath,

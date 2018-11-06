@@ -46,6 +46,14 @@ class GeneratedFiles;
 class PchManagerClientInterface;
 class ClangPathWatcherInterface;
 
+class PchCreatorIncludes
+{
+public:
+    FilePathIds includeIds;
+    FilePathIds topIncludeIds;
+    FilePathIds topSystemIncludeIds;
+};
+
 class PchCreator final : public PchCreatorInterface
 {
 public:
@@ -87,7 +95,7 @@ public:
             const V2::ProjectPartContainer &projectPart) const;
     Utils::PathStringVector generateProjectPartSourcePaths(
             const V2::ProjectPartContainer &projectPart) const;
-    std::pair<FilePathIds,FilePathIds> generateProjectPartPchIncludes(
+    PchCreatorIncludes generateProjectPartPchIncludes(
             const V2::ProjectPartContainer &projectPart) const;
     Utils::SmallString generateProjectPathPchHeaderFilePath(
             const V2::ProjectPartContainer &projectPart) const;

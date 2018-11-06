@@ -60,7 +60,7 @@ private:
     void initFreePorts();
 
 private:
-    int m_deviceId;
+    int m_deviceId = -1;
 };
 
 } // Internal

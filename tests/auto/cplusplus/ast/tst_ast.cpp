@@ -206,6 +206,7 @@ private slots:
     void invalidCode();
     void enumDeclaration();
     void invalidEnumClassDeclaration();
+    void invalidEnumWithDestructorId();
 };
 
 void tst_AST::gcc_attributes_1()
@@ -1998,6 +1999,14 @@ void tst_AST::invalidEnumClassDeclaration()
 {
     QSharedPointer<TranslationUnit> unit(parseStatement(
         "enum class operator A { };", true));
+
+    QVERIFY(diag.errorCount != 0);
+}
+
+void tst_AST::invalidEnumWithDestructorId()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+        "enum ~A {};", false));
 
     QVERIFY(diag.errorCount != 0);
 }

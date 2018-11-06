@@ -27,6 +27,7 @@
 
 #include "projectexplorer_export.h"
 
+#include "projectexplorerconstants.h"
 #include "toolchain.h"
 #include "toolchaincache.h"
 #include "abi.h"
@@ -50,6 +51,18 @@ class LinuxIccToolChainFactory;
 // --------------------------------------------------------------------------
 // GccToolChain
 // --------------------------------------------------------------------------
+
+inline const QStringList languageOption(Core::Id languageId)
+{
+    if (languageId == Constants::C_LANGUAGE_ID)
+        return {"-x", "c"};
+    return {"-x", "c++"};
+}
+
+inline const QStringList gccPredefinedMacrosOptions(Core::Id languageId)
+{
+    return languageOption(languageId) + QStringList({"-E", "-dM"});
+}
 
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
@@ -194,6 +207,7 @@ class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 {
 public:
     explicit ClangToolChain(Detection d);
+    ClangToolChain(Core::Id typeId, Detection d);
     QString typeDisplayName() const override;
     QString makeCommand(const Utils::Environment &environment) const override;
 

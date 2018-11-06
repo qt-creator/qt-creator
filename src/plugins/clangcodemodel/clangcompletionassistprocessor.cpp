@@ -113,8 +113,7 @@ static bool isTheSameFunctionOverload(const CodeCompletion &completion,
                                       const QString &name,
                                       ClangAssistProposalItem *lastItem)
 {
-    return completion.hasParameters
-            && completion.completionKind == lastItem->firstCodeCompletion().completionKind
+    return completion.completionKind == lastItem->firstCodeCompletion().completionKind
             && lastItem->text() == name;
 }
 
@@ -263,6 +262,7 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
     analyzer.analyze();
     m_completionOperator = analyzer.completionOperator();
     m_positionForProposal = analyzer.positionForProposal();
+    m_addSnippets = analyzer.addSnippets();
 
     QByteArray modifiedFileContent;
 
@@ -286,7 +286,6 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
                                           analyzer.positionEndOfExpression());
         Q_FALLTHROUGH();
     case ClangCompletionContextAnalyzer::PassThroughToLibClang: {
-        m_addSnippets = m_completionOperator == T_EOF_SYMBOL;
         m_sentRequestType = NormalCompletion;
         m_requestSent = sendCompletionRequest(analyzer.positionForClang(),
                                               modifiedFileContent);

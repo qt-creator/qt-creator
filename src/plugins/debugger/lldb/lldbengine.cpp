@@ -512,6 +512,26 @@ void LldbEngine::updateBreakpoint(const Breakpoint &bp)
     runCommand(cmd);
 }
 
+void LldbEngine::enableSubBreakpoint(const SubBreakpoint &sbp, bool on)
+{
+    QTC_ASSERT(sbp, return);
+    Breakpoint bp = sbp->breakpoint();
+    QTC_ASSERT(bp, return);
+    DebuggerCommand cmd("enableSubbreakpoint");
+    cmd.arg("lldbid", bp->responseId());
+    cmd.arg("locid", sbp->responseId);
+    cmd.arg("enabled", on);
+    cmd.callback = [bp, sbp](const DebuggerResponse &response) {
+        QTC_ASSERT(sbp, return);
+        QTC_ASSERT(bp, return);
+        if (response.resultClass == ResultDone) {
+            sbp->params.enabled = response.data["enabled"].toInt();
+            bp->adjustMarker();
+        }
+    };
+    runCommand(cmd);
+}
+
 void LldbEngine::removeBreakpoint(const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
@@ -549,7 +569,7 @@ void LldbEngine::updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, b
     const int numChild = locations.childCount();
     if (numChild > 1) {
         for (const GdbMi &location : locations) {
-            const QString locid = QString("%1.%2").arg(rid).arg(location["locid"].data());
+            const QString locid = location["locid"].data();
             SubBreakpoint loc = bp->findOrCreateSubBreakpoint(locid);
             QTC_ASSERT(loc, continue);
             loc->params.type = bp->type();
@@ -557,6 +577,7 @@ void LldbEngine::updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, b
             loc->params.functionName = location["function"].data();
             loc->params.fileName = location["file"].data();
             loc->params.lineNumber = location["line"].toInt();
+            loc->displayName = QString("%1.%2").arg(bp->responseId()).arg(locid);
         }
         bp->setPending(false);
     } else if (numChild == 1) {
@@ -1020,6 +1041,7 @@ bool LldbEngine::hasCapability(unsigned cap) const
         | ReloadModuleSymbolsCapability
         | BreakOnThrowAndCatchCapability
         | BreakConditionCapability
+        | BreakIndividualLocationsCapability
         | TracePointCapability
         | ReturnFromFunctionCapability
         | CreateFullBacktraceCapability

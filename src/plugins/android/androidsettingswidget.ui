@@ -184,9 +184,6 @@
     </widget>
    </item>
    <item>
-    <widget class="Utils::DetailsWidget" name="kitWarningDetails" native="true"/>
-   </item>
-   <item>
     <widget class="QTabWidget" name="managerTabWidget">
      <property name="currentIndex">
       <number>0</number>

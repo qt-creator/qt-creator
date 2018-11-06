@@ -39,12 +39,24 @@ class CollectIncludesToolAction final : public clang::tooling::FrontendActionFac
 public:
     CollectIncludesToolAction(FilePathIds &includeIds,
                               FilePathIds &topIncludeIds,
+                              FilePathIds &topsSystemIncludeIds,
                               const FilePathCachingInterface &filePathCache,
-                              const Utils::PathStringVector &excludedIncludes)
+                              const Utils::PathStringVector &excludedIncludes,
+                              UsedMacros &usedMacros,
+                              SourcesManager &sourcesManager,
+                              SourceDependencies &sourceDependencies,
+                              FilePathIds &sourceFiles,
+                              FileStatuses &fileStatuses)
         : m_includeIds(includeIds),
           m_topIncludeIds(topIncludeIds),
+          m_topsSystemIncludeIds(topsSystemIncludeIds),
           m_filePathCache(filePathCache),
-          m_excludedIncludes(excludedIncludes)
+          m_excludedIncludes(excludedIncludes),
+          m_usedMacros(usedMacros),
+          m_sourcesManager(sourcesManager),
+          m_sourceDependencies(sourceDependencies),
+          m_sourceFiles(sourceFiles),
+          m_fileStatuses(fileStatuses)
     {}
 
 
@@ -66,9 +78,15 @@ public:
     {
         return new CollectIncludesAction(m_includeIds,
                                          m_topIncludeIds,
+                                         m_topsSystemIncludeIds,
                                          m_filePathCache,
                                          m_excludedIncludeUIDs,
-                                         m_alreadyIncludedFileUIDs);
+                                         m_alreadyIncludedFileUIDs,
+                                         m_usedMacros,
+                                         m_sourcesManager,
+                                         m_sourceDependencies,
+                                         m_sourceFiles,
+                                         m_fileStatuses);
     }
 
     std::vector<uint> generateExcludedIncludeFileUIDs(clang::FileManager &fileManager) const
@@ -93,8 +111,14 @@ private:
     std::vector<uint> m_excludedIncludeUIDs;
     FilePathIds &m_includeIds;
     FilePathIds &m_topIncludeIds;
+    FilePathIds &m_topsSystemIncludeIds;
     const FilePathCachingInterface &m_filePathCache;
     const Utils::PathStringVector &m_excludedIncludes;
+    UsedMacros &m_usedMacros;
+    SourcesManager &m_sourcesManager;
+    SourceDependencies &m_sourceDependencies;
+    FilePathIds &m_sourceFiles;
+    FileStatuses &m_fileStatuses;
 };
 
 } // namespace ClangBackEnd

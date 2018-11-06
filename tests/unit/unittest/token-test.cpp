@@ -56,7 +56,7 @@ struct Data {
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/token.cpp")};
     Utf8StringVector compilationArguments{
         TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")})};
-    Document document{filePath, compilationArguments, documents};
+    Document document{filePath, compilationArguments, {}, documents};
     TranslationUnit translationUnit{filePath,
                                     filePath,
                                     document.translationUnit().cxIndex(),

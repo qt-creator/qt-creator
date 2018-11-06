@@ -133,12 +133,12 @@ void trimFirstNonEmptyBlock(const QTextBlock &currentBlock)
     if (!initialText.at(initialText.size() - 1).isSpace())
         return;
 
-    int extraSpaceCount = 1;
-    for (int i = initialText.size() - 2; i >= 0; --i) {
-        if (!initialText.at(i).isSpace())
-            break;
-        ++extraSpaceCount;
-    }
+    auto lastNonSpace = std::find_if_not(initialText.rbegin(),
+                                         initialText.rend(),
+                                         [](const QChar &letter) {
+        return letter.isSpace();
+    });
+    const int extraSpaceCount = static_cast<int>(std::distance(initialText.rbegin(), lastNonSpace));
 
     QTextCursor cursor(prevBlock);
     cursor.beginEditBlock();
@@ -249,28 +249,25 @@ Utils::LineColumn utf16LineColumn(const QTextBlock &block,
                                   const QByteArray &utf8Buffer,
                                   int utf8Offset)
 {
+    // Do not search if the offset is less - we are not interested.
     if (utf8Offset < blockOffsetUtf8 - 1)
         return Utils::LineColumn();
 
+    // If lastIndexOf('\n') returns -1 then we are fine to add 1 and get 0 offset.
+    const int lineStartUtf8Offset = utf8Buffer.lastIndexOf('\n', utf8Offset - 1) + 1;
+
+    int line = block.blockNumber() + 1; // Init with the line corresponding the block.
     if (utf8Offset == blockOffsetUtf8 - 1) {
-        const int lineStart = utf8Buffer.lastIndexOf('\n', utf8Offset - 1) + 1;
-        const QByteArray lineText = utf8Buffer.mid(lineStart, utf8Offset - lineStart);
-        return Utils::LineColumn(block.blockNumber(), QString::fromUtf8(lineText).size() + 1);
+        // Our offset is the end of the previous line
+        --line;
+    } else {
+        line += static_cast<int>(std::count(utf8Buffer.begin() + blockOffsetUtf8,
+                                            utf8Buffer.begin() + lineStartUtf8Offset,
+                                            '\n'));
     }
 
-    int pos = blockOffsetUtf8;
-    int prevPos = pos;
-    int line = block.blockNumber(); // Start with previous line.
-    while (pos != -1 && pos <= utf8Offset) {
-        // Find the first pos which comes after offset and take the previous line.
-        ++line;
-        prevPos = pos;
-        pos = utf8Buffer.indexOf('\n', pos);
-        if (pos != -1)
-            ++pos;
-    }
-
-    const QByteArray lineText = utf8Buffer.mid(prevPos, utf8Offset - prevPos);
+    const QByteArray lineText = utf8Buffer.mid(lineStartUtf8Offset,
+                                               utf8Offset - lineStartUtf8Offset);
     return Utils::LineColumn(line, QString::fromUtf8(lineText).size() + 1);
 }
 

@@ -51,7 +51,8 @@ struct Data {
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_location.cpp"),
-                      Utf8StringVector(),
+                      {},
+                      {},
                       documents};
     UnitTest::RunDocumentParse _1{document};
     DiagnosticSet diagnosticSet{document.translationUnit().diagnostics()};
@@ -86,7 +87,7 @@ TEST_F(SourceLocation, Column)
     ASSERT_THAT(sourceLocation.column(), 1);
 }
 
-TEST_F(SourceLocation, DISABLED_ON_WINDOWS(Offset))
+TEST_F(SourceLocation, Offset)
 {
     ASSERT_THAT(sourceLocation.offset(), 18);
 }

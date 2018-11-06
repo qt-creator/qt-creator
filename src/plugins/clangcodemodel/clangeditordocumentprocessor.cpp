@@ -56,6 +56,7 @@
 
 #include <cplusplus/CppDocument.h>
 
+#include <utils/algorithm.h>
 #include <utils/textutils.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -614,7 +615,7 @@ void ClangEditorDocumentProcessor::updateBackendDocument(CppTools::ProjectPart &
     const QStringList compilationArguments = projectPartOptions + fileOptions.options();
 
     m_communicator.documentsOpened(
-        {fileContainerWithOptionsAndDocumentContent(compilationArguments)});
+        {fileContainerWithOptionsAndDocumentContent(compilationArguments, projectPart.headerPaths)});
     ClangCodeModel::Utils::setLastSentDocumentRevision(filePath(), revision());
 }
 
@@ -672,10 +673,18 @@ ClangBackEnd::FileContainer ClangEditorDocumentProcessor::simpleFileContainer(
 }
 
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithOptionsAndDocumentContent(
-    const QStringList &compilationArguments) const
+    const QStringList &compilationArguments, const ProjectExplorer::HeaderPaths headerPaths) const
 {
+    auto theHeaderPaths
+        = ::Utils::transform<QVector>(headerPaths, [](const ProjectExplorer::HeaderPath path) {
+              return Utf8String(QDir::toNativeSeparators(path.path));
+    });
+    theHeaderPaths << QDir::toNativeSeparators(
+        ClangModelManagerSupport::instance()->dummyUiHeaderOnDiskDirPath());
+
     return ClangBackEnd::FileContainer(filePath(),
                                        Utf8StringVector(compilationArguments),
+                                       theHeaderPaths,
                                        textDocument()->toPlainText(),
                                        true,
                                        revision());

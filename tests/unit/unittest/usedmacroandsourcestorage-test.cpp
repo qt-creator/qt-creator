@@ -31,8 +31,6 @@
 #include <sqlitedatabase.h>
 #include <usedmacroandsourcestorage.h>
 
-#include <storagesqlitestatementfactory.h>
-
 #include <utils/optional.h>
 
 namespace {
@@ -45,7 +43,7 @@ using Sqlite::Table;
 
 using Storage = ClangBackEnd::UsedMacroAndSourceStorage<MockSqliteDatabase>;
 
-class SymbolStorage : public testing::Test
+class UsedMacroAndSourceStorage : public testing::Test
 {
 protected:
     NiceMock<MockSqliteDatabase> mockDatabase;
@@ -62,7 +60,7 @@ protected:
     MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = storage.m_getLowestLastModifiedTimeOfDependencies;
 };
 
-TEST_F(SymbolStorage, ConvertStringsToJson)
+TEST_F(UsedMacroAndSourceStorage, ConvertStringsToJson)
 {
     Utils::SmallStringVector strings{"foo", "bar", "foo"};
 
@@ -71,7 +69,7 @@ TEST_F(SymbolStorage, ConvertStringsToJson)
     ASSERT_THAT(jsonText, Eq("[\"foo\",\"bar\",\"foo\"]"));
 }
 
-TEST_F(SymbolStorage, InsertOrUpdateUsedMacros)
+TEST_F(UsedMacroAndSourceStorage, InsertOrUpdateUsedMacros)
 {
     InSequence sequence;
 
@@ -84,7 +82,7 @@ TEST_F(SymbolStorage, InsertOrUpdateUsedMacros)
     storage.insertOrUpdateUsedMacros({{"FOO", {1, 42}}, {"BAR", {1, 43}}});
 }
 
-TEST_F(SymbolStorage, InsertFileStatuses)
+TEST_F(UsedMacroAndSourceStorage, InsertFileStatuses)
 {
     EXPECT_CALL(insertFileStatuses, write(TypedEq<int>(42), TypedEq<off_t>(1), TypedEq<time_t>(2), TypedEq<bool>(false)));
     EXPECT_CALL(insertFileStatuses, write(TypedEq<int>(43), TypedEq<off_t>(4), TypedEq<time_t>(5), TypedEq<bool>(true)));
@@ -92,7 +90,7 @@ TEST_F(SymbolStorage, InsertFileStatuses)
     storage.insertFileStatuses({{{1, 42}, 1, 2, false}, {{1, 43}, 4, 5, true}});
 }
 
-TEST_F(SymbolStorage, InsertOrUpdateSourceDependencies)
+TEST_F(UsedMacroAndSourceStorage, InsertOrUpdateSourceDependencies)
 {
     InSequence sequence;
 
@@ -105,7 +103,7 @@ TEST_F(SymbolStorage, InsertOrUpdateSourceDependencies)
     storage.insertOrUpdateSourceDependencies({{{1, 42}, {1, 1}}, {{1, 42}, {1, 2}}});
 }
 
-TEST_F(SymbolStorage, AddTablesInConstructor)
+TEST_F(UsedMacroAndSourceStorage, AddTablesInConstructor)
 {
     InSequence s;
 
@@ -120,7 +118,7 @@ TEST_F(SymbolStorage, AddTablesInConstructor)
 }
 
 
-TEST_F(SymbolStorage, FetchLowestLastModifiedTimeIfNoModificationTimeExists)
+TEST_F(UsedMacroAndSourceStorage, FetchLowestLastModifiedTimeIfNoModificationTimeExists)
 {
     EXPECT_CALL(getLowestLastModifiedTimeOfDependencies, valueReturnInt64(Eq(1)));
 
@@ -129,7 +127,7 @@ TEST_F(SymbolStorage, FetchLowestLastModifiedTimeIfNoModificationTimeExists)
     ASSERT_THAT(lowestLastModified, Eq(0));
 }
 
-TEST_F(SymbolStorage, FetchLowestLastModifiedTime)
+TEST_F(UsedMacroAndSourceStorage, FetchLowestLastModifiedTime)
 {
     EXPECT_CALL(getLowestLastModifiedTimeOfDependencies, valueReturnInt64(Eq(21)))
             .WillRepeatedly(Return(12));
@@ -139,24 +137,24 @@ TEST_F(SymbolStorage, FetchLowestLastModifiedTime)
     ASSERT_THAT(lowestLastModified, Eq(12));
 }
 
-TEST_F(SymbolStorage, AddNewUsedMacroTable)
+TEST_F(UsedMacroAndSourceStorage, AddNewUsedMacroTable)
 {
     InSequence s;
 
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newUsedMacros(sourceId INTEGER, macroName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newUsedMacros_sourceId_macroName ON newUsedMacros(sourceId, macroName)")));
 
-    factory.createNewUsedMacrosTable();
+    storage.createNewUsedMacrosTable();
 }
 
-TEST_F(SymbolStorage, AddNewSourceDependenciesTable)
+TEST_F(UsedMacroAndSourceStorage, AddNewSourceDependenciesTable)
 {
     InSequence s;
 
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE newSourceDependencies(sourceId INTEGER, dependencySourceId TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSourceDependencies_sourceId_dependencySourceId ON newSourceDependencies(sourceId, dependencySourceId)")));
 
-    factory.createNewSourceDependenciesTable();
+    storage.createNewSourceDependenciesTable();
 }
 
 }
