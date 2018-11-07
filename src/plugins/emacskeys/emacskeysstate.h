@@ -42,7 +42,7 @@ class EmacsKeysState : public QObject
 {
 public:
     EmacsKeysState(QPlainTextEdit *edit);
-    ~EmacsKeysState();
+    ~EmacsKeysState() override;
     void setLastAction(EmacsKeysAction action);
     void beginOwnAction() { m_ignore3rdParty = true; }
     void endOwnAction(EmacsKeysAction action) {

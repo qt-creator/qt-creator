@@ -58,13 +58,9 @@ namespace Internal {
 // EmacsKeysPlugin
 //---------------------------------------------------------------------------
 
-EmacsKeysPlugin::EmacsKeysPlugin(): m_currentEditorWidget(0)
-{
-}
+EmacsKeysPlugin::EmacsKeysPlugin() = default;
 
-EmacsKeysPlugin::~EmacsKeysPlugin()
-{
-}
+EmacsKeysPlugin::~EmacsKeysPlugin() = default;
 
 bool EmacsKeysPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
@@ -141,7 +137,7 @@ ExtensionSystem::IPlugin::ShutdownFlag EmacsKeysPlugin::aboutToShutdown()
 
 void EmacsKeysPlugin::editorAboutToClose(IEditor *editor)
 {
-    QPlainTextEdit *w = qobject_cast<QPlainTextEdit*>(editor->widget());
+    auto w = qobject_cast<QPlainTextEdit*>(editor->widget());
     if (!w)
         return;
 
@@ -154,7 +150,7 @@ void EmacsKeysPlugin::editorAboutToClose(IEditor *editor)
 void EmacsKeysPlugin::currentEditorChanged(IEditor *editor)
 {
     if (!editor) {
-        m_currentEditorWidget = 0;
+        m_currentEditorWidget = nullptr;
         return;
     }
     m_currentEditorWidget = qobject_cast<QPlainTextEdit*>(editor->widget());
@@ -314,7 +310,7 @@ void EmacsKeysPlugin::insertLineAndIndent()
     QTextCursor cursor = m_currentEditorWidget->textCursor();
     cursor.beginEditBlock();
     cursor.insertBlock();
-    if (m_currentBaseTextEditorWidget != 0)
+    if (m_currentBaseTextEditorWidget)
         m_currentBaseTextEditorWidget->textDocument()->autoIndent(cursor);
     cursor.endEditBlock();
     m_currentEditorWidget->setTextCursor(cursor);
@@ -324,7 +320,7 @@ void EmacsKeysPlugin::insertLineAndIndent()
 QAction *EmacsKeysPlugin::registerAction(Id id, void (EmacsKeysPlugin::*callback)(),
                                          const QString &title)
 {
-    QAction *result = new QAction(title, this);
+    auto result = new QAction(title, this);
     ActionManager::registerAction(result, id, Context(Core::Constants::C_GLOBAL), true);
     connect(result, &QAction::triggered, this, callback);
     return result;
@@ -339,7 +335,7 @@ void EmacsKeysPlugin::genericGoto(QTextCursor::MoveOperation op, bool abortAssis
     cursor.movePosition(op, m_currentState->mark() != -1 ?
         QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
     m_currentEditorWidget->setTextCursor(cursor);
-    if (abortAssist && m_currentBaseTextEditorWidget != 0)
+    if (abortAssist && m_currentBaseTextEditorWidget)
         m_currentBaseTextEditorWidget->abortAssist();
     m_currentState->endOwnAction(KeysActionOther);
 }

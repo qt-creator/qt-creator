@@ -48,7 +48,7 @@ EmacsKeysState::EmacsKeysState(QPlainTextEdit *edit):
             this, &EmacsKeysState::selectionChanged);
 }
 
-EmacsKeysState::~EmacsKeysState() {}
+EmacsKeysState::~EmacsKeysState() = default;
 
 void EmacsKeysState::setLastAction(EmacsKeysAction action)
 {

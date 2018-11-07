@@ -52,11 +52,11 @@ class EmacsKeysPlugin : public ExtensionSystem::IPlugin
 
 public:
     EmacsKeysPlugin();
-    ~EmacsKeysPlugin();
+    ~EmacsKeysPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void extensionsInitialized() override;
+    ShutdownFlag aboutToShutdown() override;
 
 private:
     void editorAboutToClose(Core::IEditor *editor);
@@ -93,9 +93,9 @@ private:
     void genericVScroll(int direction);
 
     QHash<QPlainTextEdit*, EmacsKeysState*> m_stateMap;
-    QPlainTextEdit *m_currentEditorWidget;
-    EmacsKeysState *m_currentState;
-    TextEditor::TextEditorWidget *m_currentBaseTextEditorWidget;
+    QPlainTextEdit *m_currentEditorWidget = nullptr;
+    EmacsKeysState *m_currentState = nullptr;
+    TextEditor::TextEditorWidget *m_currentBaseTextEditorWidget = nullptr;
 };
 
 } // namespace Internal
