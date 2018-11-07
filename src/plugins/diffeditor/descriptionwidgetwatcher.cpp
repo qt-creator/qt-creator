@@ -68,7 +68,7 @@ QList<TextEditor::TextEditorWidget *> DescriptionWidgetWatcher::descriptionWidge
 
 TextEditor::TextEditorWidget *DescriptionWidgetWatcher::descriptionWidget(Core::IEditor *editor) const
 {
-    if (Internal::DiffEditor *diffEditor = qobject_cast<Internal::DiffEditor *>(editor)) {
+    if (auto diffEditor = qobject_cast<const Internal::DiffEditor *>(editor)) {
         if (diffEditor->document() == m_document)
             return diffEditor->descriptionWidget();
     }

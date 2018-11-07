@@ -40,7 +40,7 @@ class DiffEditorFactory : public Core::IEditorFactory
 public:
     explicit DiffEditorFactory(QObject *parent);
 
-    Core::IEditor *createEditor();
+    Core::IEditor *createEditor() override;
 };
 
 } // namespace Internal

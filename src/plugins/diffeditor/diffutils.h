@@ -47,7 +47,7 @@ public:
         PatchEditor
     };
 
-    DiffFileInfo() {}
+    DiffFileInfo() = default;
     DiffFileInfo(const QString &file) : fileName(file) {}
     DiffFileInfo(const QString &file, const QString &type)
         : fileName(file), typeInfo(type) {}

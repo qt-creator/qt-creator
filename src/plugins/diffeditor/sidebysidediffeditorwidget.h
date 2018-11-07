@@ -57,7 +57,7 @@ class SideBySideDiffEditorWidget : public QWidget
     Q_OBJECT
 public:
     explicit SideBySideDiffEditorWidget(QWidget *parent = nullptr);
-    ~SideBySideDiffEditorWidget();
+    ~SideBySideDiffEditorWidget() override;
 
     TextEditor::TextEditorWidget *leftEditorWidget() const;
     TextEditor::TextEditorWidget *rightEditorWidget() const;

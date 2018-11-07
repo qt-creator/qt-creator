@@ -33,7 +33,7 @@ namespace Internal {
 class DiffSelection
 {
 public:
-    DiffSelection() {}
+    DiffSelection() = default;
     DiffSelection(QTextCharFormat *f) : format(f) {}
     DiffSelection(int s, int e, QTextCharFormat *f) : start(s), end(e), format(f) {}
 

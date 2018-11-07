@@ -174,7 +174,7 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
             ToolTip::hide();
     });
 
-    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
     if (documentLayout)
         connect(documentLayout, &TextDocumentLayout::foldChanged,
                 this, &SideDiffEditorWidget::foldChanged);
@@ -210,7 +210,7 @@ void SideDiffEditorWidget::setFolded(int blockNumber, bool folded)
 
     TextDocumentLayout::doFoldOrUnfold(block, !folded);
 
-    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
 }

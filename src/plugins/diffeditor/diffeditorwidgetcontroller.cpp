@@ -168,7 +168,7 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
                                 workingDirectory, strip, revert))
             m_document->reload();
     } else { // PatchEditor
-        TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(
+        auto textDocument = qobject_cast<TextEditor::TextDocument *>(
                     DocumentModel::documentForFilePath(absFileName));
         if (!textDocument)
             return;

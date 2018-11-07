@@ -40,9 +40,7 @@ SelectableTextEditorWidget::SelectableTextEditorWidget(Core::Id id, QWidget *par
     setupFallBackEditor(id);
 }
 
-SelectableTextEditorWidget::~SelectableTextEditorWidget()
-{
-}
+SelectableTextEditorWidget::~SelectableTextEditorWidget() = default;
 
 static QList<DiffSelection> subtractSelection(
         const DiffSelection &minuendSelection,

@@ -258,7 +258,7 @@ DiffEditor::~DiffEditor()
 
 Core::IEditor *DiffEditor::duplicate()
 {
-    DiffEditor *editor = new DiffEditor();
+    auto editor = new DiffEditor();
     Utils::GuardLocker guard(editor->m_ignoreChanges);
 
     editor->setDocument(m_document);
