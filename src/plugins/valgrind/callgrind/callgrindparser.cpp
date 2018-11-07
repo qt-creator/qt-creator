@@ -139,16 +139,7 @@ class Parser::Private
 public:
 
     explicit Private(Parser *qq)
-        : q(qq),
-          addressValuesCount(0),
-          costValuesCount(0),
-          data(0),
-          currentFunction(0),
-          lastObject(-1),
-          lastFile(-1),
-          currentDifferingFile(-1),
-          isParsingFunctionCall(false),
-          callsCount(0)
+        : q(qq)
     {
     }
 
@@ -174,30 +165,22 @@ public:
     void parseCalledSourceFile(const char *begin, const char *end);
     void parseCalledObjectFile(const char *begin, const char *end);
 
-    int addressValuesCount;
-    int costValuesCount;
+    int addressValuesCount = 0;
+    int costValuesCount = 0;
 
-    ParseData *data;
-    Function *currentFunction;
-    qint64 lastObject;
-    qint64 lastFile;
-    qint64 currentDifferingFile;
+    ParseData *data = nullptr;
+    Function *currentFunction = nullptr;
+    qint64 lastObject = -1;
+    qint64 lastFile = -1;
+    qint64 currentDifferingFile = -1;
 
-    bool isParsingFunctionCall;
-    quint64 callsCount;
+    bool isParsingFunctionCall = false;
+    quint64 callsCount = 0;
     struct CallData {
-        CallData()
-        : calledFunction(-1)
-        , calledObject(-1)
-        , calledFile(-1)
-        , call(0)
-        {
-        }
-
-        qint64 calledFunction;
-        qint64 calledObject;
-        qint64 calledFile;
-        FunctionCall *call;
+        qint64 calledFunction = -1;
+        qint64 calledObject = -1;
+        qint64 calledFile = -1;
+        FunctionCall *call = nullptr;
     };
     CallData currentCallData;
     QVector<quint64> callDestinations;
@@ -217,7 +200,7 @@ void Parser::Private::parse(QIODevice *device)
     // be sure to clean up existing data before re-allocating
     // the callee might not have taken the parse data
     delete data;
-    data = 0;
+    data = nullptr;
 
     data = new ParseData;
     parseHeader(device);
