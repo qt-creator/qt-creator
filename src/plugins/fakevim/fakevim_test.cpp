@@ -255,7 +255,7 @@ struct FakeVimPlugin::TestData
     int lines() const
     {
         QTextDocument *doc = editor()->document();
-        Q_ASSERT(doc != 0);
+        Q_ASSERT(doc != nullptr);
         return doc->lineCount();
     }
 

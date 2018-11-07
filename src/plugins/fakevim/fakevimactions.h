@@ -61,9 +61,9 @@ public:
 };
 
 #ifdef FAKEVIM_STANDALONE
-typedef DummyAction FakeVimAction;
+using FakeVimAction = DummyAction;
 #else
-typedef Utils::SavedAction FakeVimAction;
+using FakeVimAction = Utils::SavedAction;
 #endif
 
 enum FakeVimSettingsCode

@@ -146,7 +146,7 @@ void FakeVimSettings::writeSettings(QSettings *settings)
 
 FakeVimAction *FakeVimSettings::item(int code)
 {
-    QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return 0);
+    QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return nullptr);
     return m_items.value(code, 0);
 }
 
@@ -176,7 +176,7 @@ void FakeVimSettings::createAction(int code, const QVariant &value,
                                    const QString &settingsKey,
                                    const QString &shortKey)
 {
-    FakeVimAction *item = new FakeVimAction(0);
+    auto item = new FakeVimAction(nullptr);
     item->setValue(value);
     item->setSettingsKey("FakeVim", settingsKey);
     item->setDefaultValue(value);

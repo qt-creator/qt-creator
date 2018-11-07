@@ -252,7 +252,7 @@ enum EventResult
 
 struct CursorPosition
 {
-    CursorPosition() {}
+    CursorPosition() = default;
     CursorPosition(int block, int column) : line(block), column(column) {}
     explicit CursorPosition(const QTextCursor &tc)
         : line(tc.block().blockNumber()), column(tc.positionInBlock()) {}
@@ -320,12 +320,12 @@ private:
     CursorPosition m_position;
     QString m_fileName;
 };
-typedef QHash<QChar, Mark> Marks;
-typedef QHashIterator<QChar, Mark> MarksIterator;
+using Marks = QHash<QChar, Mark>;
+using MarksIterator = QHashIterator<QChar, Mark>;
 
 struct State
 {
-    State() {}
+    State() = default;
     State(int revision, const CursorPosition &position, const Marks &marks,
         VisualMode lastVisualMode, bool lastVisualModeInverted) : revision(revision),
         position(position), marks(marks), lastVisualMode(lastVisualMode),
@@ -354,7 +354,7 @@ QDebug operator<<(QDebug ts, const Column &col)
 
 struct Register
 {
-    Register() {}
+    Register() = default;
     Register(const QString &c) : contents(c) {}
     Register(const QString &c, RangeMode m) : contents(c), rangemode(m) {}
     QString contents;
@@ -982,7 +982,7 @@ public:
         return m & ~Qt::KeypadModifier;
     }
 
-    Input() {}
+    Input() = default;
     explicit Input(QChar x)
         : m_key(x.unicode()), m_xkey(x.unicode()), m_text(x)
     {
@@ -1252,7 +1252,7 @@ QDebug operator<<(QDebug ts, const Input &input) { return input.dump(ts); }
 class Inputs : public QVector<Input>
 {
 public:
-    Inputs() {}
+    Inputs() = default;
 
     explicit Inputs(const QString &str, bool noremap = true, bool silent = false)
         : m_noremap(noremap), m_silent(silent)
@@ -1521,7 +1521,7 @@ private:
 };
 
 // Mappings for all modes
-typedef QHash<char, ModeMapping> Mappings;
+using Mappings = QHash<char, ModeMapping>;
 
 // Iterator for mappings
 class MappingsIterator : public QVector<ModeMapping::Iterator>
@@ -1641,7 +1641,7 @@ private:
 
 // state of current mapping
 struct MappingState {
-    MappingState() {}
+    MappingState() = default;
     MappingState(bool noremap, bool silent, bool editBlock)
         : noremap(noremap), silent(silent), editBlock(editBlock) {}
     bool noremap = false;
@@ -2037,7 +2037,7 @@ public:
     int position() const { return m_cursor.position(); }
 
     // Transform text selected by cursor in current visual mode.
-    typedef std::function<QString(const QString &)> Transformation;
+    using Transformation = std::function<QString(const QString &)>;
     void transformText(const Range &range, QTextCursor &tc, const std::function<void()> &transform) const;
     void transformText(const Range &range, const Transformation &transform);
 
@@ -2119,7 +2119,7 @@ public:
     QString registerContents(int reg) const;
     void setRegister(int reg, const QString &contents, RangeMode mode);
     RangeMode registerRangeMode(int reg) const;
-    void getRegisterType(int *reg, bool *isClipboard, bool *isSelection, bool *append = 0) const;
+    void getRegisterType(int *reg, bool *isClipboard, bool *isSelection, bool *append = nullptr) const;
 
     void recordJump(int position = -1);
     void jump(int distance);
@@ -2207,7 +2207,7 @@ public:
         QPointer<FakeVimHandler::Private> currentHandler;
     };
 
-    typedef QSharedPointer<BufferData> BufferDataPtr;
+    using BufferDataPtr = QSharedPointer<BufferData>;
     void pullOrCreateBufferData();
     BufferDataPtr m_buffer;
 
@@ -5899,7 +5899,7 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
     setMark('>', lastPosition);
 
     if (lines > 2)
-        showMessage(MessageInfo, Tr::tr("%n lines moved.", 0, lines));
+        showMessage(MessageInfo, Tr::tr("%n lines moved.", nullptr, lines));
 
     return true;
 }
@@ -6044,7 +6044,7 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
         endEditBlock();
         leaveVisualMode();
         //qDebug() << "FILTER: " << command;
-        showMessage(MessageInfo, Tr::tr("%n lines filtered.", 0,
+        showMessage(MessageInfo, Tr::tr("%n lines filtered.", nullptr,
             input.count('\n')));
     } else if (!result.isEmpty()) {
         q->extraInformationChanged(result);
@@ -6489,7 +6489,7 @@ void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
 
     const int lines = endLine - beginLine + 1;
     if (lines > 2)
-        showMessage(MessageInfo, Tr::tr("%n lines indented.", 0, lines));
+        showMessage(MessageInfo, Tr::tr("%n lines indented.", nullptr, lines));
 }
 
 void FakeVimHandler::Private::indentText(const Range &range, QChar typedChar)
@@ -6545,7 +6545,7 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     const int lines = endLine - beginLine + 1;
     if (lines > 2) {
         showMessage(MessageInfo,
-            Tr::tr("%n lines %1ed %2 time.", 0, lines)
+            Tr::tr("%n lines %1ed %2 time.", nullptr, lines)
             .arg(repeat > 0 ? '>' : '<').arg(qAbs(repeat)));
     }
 }
@@ -7083,7 +7083,7 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg)
     const int lines = blockAt(range.endPos).blockNumber()
         - blockAt(range.beginPos).blockNumber() + 1;
     if (lines > 2)
-        showMessage(MessageInfo, Tr::tr("%n lines yanked.", 0, lines));
+        showMessage(MessageInfo, Tr::tr("%n lines yanked.", nullptr, lines));
 }
 
 void FakeVimHandler::Private::transformText(
@@ -8610,7 +8610,7 @@ void FakeVimHandler::Private::getRegisterType(int *reg, bool *isClipboard, bool 
 
     // If register is uppercase, append content to lower case register on yank/delete.
     const QChar c(*reg);
-    if (append != 0)
+    if (append != nullptr)
         *append = c.isUpper();
     if (c.isUpper())
         *reg = c.toLower().unicode();
@@ -8631,9 +8631,9 @@ void FakeVimHandler::Private::getRegisterType(int *reg, bool *isClipboard, bool 
         selection = false;
     }
 
-    if (isClipboard != 0)
+    if (isClipboard != nullptr)
         *isClipboard = clipboard;
-    if (isSelection != 0)
+    if (isSelection != nullptr)
         *isSelection = selection;
 }
 
@@ -8655,8 +8655,8 @@ FakeVimHandler::~FakeVimHandler()
 // gracefully handle that the parent editor is deleted
 void FakeVimHandler::disconnectFromEditor()
 {
-    d->m_textedit = 0;
-    d->m_plaintextedit = 0;
+    d->m_textedit = nullptr;
+    d->m_plaintextedit = nullptr;
 }
 
 void FakeVimHandler::updateGlobalMarksFilenames(const QString &oldFileName, const QString &newFileName)
@@ -8683,7 +8683,7 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
     if (ev->type() == QEvent::KeyPress &&
         (ob == d->editor()
          || (Private::g.mode == ExMode || Private::g.subsubmode == SearchSubSubMode))) {
-        QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
+        auto kev = static_cast<QKeyEvent *>(ev);
         KEY_DEBUG("KEYPRESS" << kev->key() << kev->text() << QChar(kev->key()));
         EventResult res = d->handleEvent(kev);
         //if (Private::g.mode == InsertMode)
@@ -8697,7 +8697,7 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 
     if (ev->type() == QEvent::ShortcutOverride && (ob == d->editor()
          || (Private::g.mode == ExMode || Private::g.subsubmode == SearchSubSubMode))) {
-        QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
+        auto kev = static_cast<QKeyEvent *>(ev);
         if (d->wantsOverride(kev)) {
             KEY_DEBUG("OVERRIDING SHORTCUT" << kev->key());
             ev->accept(); // accepting means "don't run the shortcuts"
