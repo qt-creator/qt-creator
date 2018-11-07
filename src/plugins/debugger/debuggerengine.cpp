@@ -798,8 +798,8 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addWindow(m_modulesWindow, Perspective::AddToTab, m_threadsWindow, false);
     m_perspective->addWindow(m_sourceFilesWindow, Perspective::AddToTab, m_modulesWindow, false);
     m_perspective->addWindow(m_localsAndInspectorWindow, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
-    m_perspective->addWindow(m_watchersWindow, Perspective::AddToTab, m_localsAndInspectorWindow, true, Qt::RightDockWidgetArea);
-    m_perspective->addWindow(m_registerWindow, Perspective::AddToTab, m_watchersWindow, false, Qt::RightDockWidgetArea);
+    m_perspective->addWindow(m_watchersWindow, Perspective::SplitVertical, m_localsAndInspectorWindow, true, Qt::RightDockWidgetArea);
+    m_perspective->addWindow(m_registerWindow, Perspective::AddToTab, m_localsAndInspectorWindow, false, Qt::RightDockWidgetArea);
     m_perspective->addWindow(m_logWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
 
     m_perspective->select();
