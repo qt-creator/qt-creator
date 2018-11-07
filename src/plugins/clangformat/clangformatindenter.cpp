@@ -78,7 +78,7 @@ Replacements filteredReplacements(const Replacements &replacements,
     Replacements filtered;
     for (const Replacement &replacement : replacements) {
         int replacementOffset = static_cast<int>(replacement.getOffset());
-        if (replacementOffset > offset + lengthForFilter)
+        if (replacementOffset >= offset + lengthForFilter)
             break;
 
         if (replacementOffset + 1 >= offset)
@@ -234,13 +234,9 @@ Replacements replacements(QByteArray buffer,
     if (!status.FormatComplete)
         Replacements();
 
-    int lengthForFilter = 0;
-    if (block == nullptr)
-        lengthForFilter = utf8Length;
-
     return filteredReplacements(replacements,
                                 utf8Offset,
-                                lengthForFilter,
+                                utf8Length,
                                 extraOffset);
 }
 
@@ -330,6 +326,17 @@ void applyReplacements(const QTextBlock &block,
     }
 }
 
+QString selectedLines(QTextDocument *doc, const QTextBlock &startBlock, const QTextBlock &endBlock)
+{
+    QString text = Utils::Text::textAt(
+                QTextCursor(doc),
+                startBlock.position(),
+                std::max(0, endBlock.position() + endBlock.length() - startBlock.position() - 1));
+    while (!text.isEmpty() && text.rbegin()->isSpace())
+        text.chop(1);
+    return text;
+}
+
 } // anonymous namespace
 
 bool ClangFormatIndenter::isElectricCharacter(const QChar &ch) const
@@ -366,12 +373,7 @@ void ClangFormatIndenter::indent(QTextDocument *doc,
             const QTextBlock end = doc->findBlock(cursor.selectionEnd());
             utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, start.blockNumber() + 1);
             QTC_ASSERT(utf8Offset >= 0, return;);
-            utf8Length =
-                    Utils::Text::textAt(
-                        QTextCursor(doc),
-                        start.position(),
-                        std::max(0, end.position() + end.length() - start.position() - 1))
-                    .toUtf8().size();
+            utf8Length = selectedLines(doc, start, end).toUtf8().size();
             applyReplacements(start,
                               utf8Offset,
                               buffer,
