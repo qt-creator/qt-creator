@@ -127,7 +127,7 @@ void DebuggerItem::reinitializeFromFile()
         return;
     }
     m_abis.clear();
-    const QString output = response.allOutput();
+    const QString output = response.allOutput().trimmed();
     if (output.contains("gdb")) {
         m_engineType = GdbEngineType;
         const char needle[] = "This GDB was configured as \"";
