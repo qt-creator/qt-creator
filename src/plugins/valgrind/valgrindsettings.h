@@ -129,6 +129,8 @@ protected:
  * Base callgrind settings
  */
 public:
+    QString kcachegrindExecutable() const;
+
     bool enableCacheSim() const { return m_enableCacheSim; }
     bool enableBranchSim() const { return m_enableBranchSim; }
     bool collectSystime() const { return m_collectSystime; }
@@ -141,6 +143,7 @@ public:
     /// \return Minimum cost ratio, range [0.0..100.0]
     double visualisationMinimumInclusiveCostRatio() const { return m_visualisationMinimumInclusiveCostRatio; }
 
+    void setKCachegrindExecutable(const QString &exec);
     void setEnableCacheSim(bool enable);
     void setEnableBranchSim(bool enable);
     void setCollectSystime(bool collect);
@@ -163,6 +166,7 @@ signals:
     void visualisationMinimumInclusiveCostRatioChanged(double);
 
 private:
+    QString m_kcachegrindExecutable;
     bool m_enableCacheSim;
     bool m_collectSystime;
     bool m_collectBusEvents;

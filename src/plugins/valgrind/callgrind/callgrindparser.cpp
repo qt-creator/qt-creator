@@ -32,6 +32,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <QFileDevice>
 #include <QHash>
 #include <QVector>
 #include <QStringList>
@@ -202,7 +203,10 @@ void Parser::Private::parse(QIODevice *device)
     delete data;
     data = nullptr;
 
-    data = new ParseData;
+    QString file;
+    if (auto fileDevice = qobject_cast<QFileDevice *>(device))
+        file = fileDevice->fileName();
+    data = new ParseData(file);
     parseHeader(device);
     while (!device->atEnd()) {
         QByteArray line = device->readLine();

@@ -44,13 +44,15 @@ namespace Callgrind {
 class ParseData::Private {
     Q_DECLARE_TR_FUNCTIONS(Valgrind::Callgrind::ParseData)
 public:
-    Private(ParseData *q)
-        : m_q(q)
+    Private(ParseData *q, const QString &fileName)
+        : m_fileName(fileName)
+        , m_q(q)
     {
     }
 
     ~Private();
 
+    QString m_fileName;
     QStringList m_events;
     QStringList m_positions;
     QVector<quint64> m_totalCosts;
@@ -138,15 +140,19 @@ void ParseData::Private::cycleDetection()
 
 //BEGIN ParseData
 
-ParseData::ParseData()
-: d(new Private(this))
+ParseData::ParseData(const QString &fileName)
+    : d(new Private(this, fileName))
 {
-
 }
 
 ParseData::~ParseData()
 {
     delete d;
+}
+
+QString ParseData::fileName() const
+{
+    return d->m_fileName;
 }
 
 QString ParseData::prettyStringForEvent(const QString &event)

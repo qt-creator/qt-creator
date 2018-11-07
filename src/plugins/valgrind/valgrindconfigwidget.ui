@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>655</width>
-    <height>364</height>
+    <width>708</width>
+    <height>397</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -106,7 +106,7 @@
       <string>Profiling Options</string>
      </property>
      <layout class="QFormLayout" name="formLayout_2">
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="minimumInclusiveCostRatioLabel">
         <property name="toolTip">
          <string>Limits the amount of results the profiler gives you. A lower limit will likely increase performance.</string>
@@ -119,7 +119,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QDoubleSpinBox" name="minimumInclusiveCostRatio">
         <property name="suffix">
          <string>%</string>
@@ -135,7 +135,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="3" column="0" colspan="2">
        <widget class="QGroupBox" name="enableEventToolTips">
         <property name="title">
          <string>Show additional information for events in tooltips</string>
@@ -203,14 +203,14 @@ With cache simulation, further event counters are enabled:
         </layout>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="visualisationMinimumInclusiveCostRatioLabel">
         <property name="text">
          <string>Visualization: Minimum event cost:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QDoubleSpinBox" name="visualisationMinimumInclusiveCostRatio">
         <property name="prefix">
          <string/>
@@ -223,6 +223,23 @@ With cache simulation, further event counters are enabled:
         </property>
         <property name="maximum">
          <double>50.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>KCachegrind executable:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="Utils::PathChooser" name="kcachegrindExeChooser" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
        </widget>
       </item>

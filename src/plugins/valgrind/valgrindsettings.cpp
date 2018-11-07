@@ -49,6 +49,7 @@ const char visibleErrorKindsC[] = "Analyzer.Valgrind.VisibleErrorKinds";
 const char lastSuppressionDirectoryC[] = "Analyzer.Valgrind.LastSuppressionDirectory";
 const char lastSuppressionHistoryC[] = "Analyzer.Valgrind.LastSuppressionHistory";
 
+const char kcachegrindExeC[] = "Analyzer.Valgrind.KCachegrindExecutable";
 const char callgrindEnableCacheSimC[] = "Analyzer.Valgrind.Callgrind.EnableCacheSim";
 const char callgrindEnableBranchSimC[] = "Analyzer.Valgrind.Callgrind.EnableBranchSim";
 const char callgrindCollectSystimeC[] = "Analyzer.Valgrind.Callgrind.CollectSystime";
@@ -105,6 +106,7 @@ void ValgrindBaseSettings::fromMap(const QVariantMap &map)
     }
 
     // Callgrind
+    setIfPresent(map, kcachegrindExeC, &m_kcachegrindExecutable);
     setIfPresent(map, callgrindEnableCacheSimC, &m_enableCacheSim);
     setIfPresent(map, callgrindEnableBranchSimC, &m_enableBranchSim);
     setIfPresent(map, callgrindCollectSystimeC, &m_collectSystime);
@@ -135,6 +137,7 @@ void ValgrindBaseSettings::toMap(QVariantMap &map) const
     map.insert(visibleErrorKindsC, errorKinds);
 
     // Callgrind
+    map.insert(kcachegrindExeC, m_kcachegrindExecutable);
     map.insert(callgrindEnableCacheSimC, m_enableCacheSim);
     map.insert(callgrindEnableBranchSimC, m_enableBranchSim);
     map.insert(callgrindCollectSystimeC, m_collectSystime);
@@ -214,6 +217,16 @@ void ValgrindBaseSettings::setVisibleErrorKinds(const QList<int> &visibleErrorKi
         m_visibleErrorKinds = visibleErrorKinds;
         emit visibleErrorKindsChanged(visibleErrorKinds);
     }
+}
+
+QString ValgrindBaseSettings::kcachegrindExecutable() const
+{
+    return m_kcachegrindExecutable;
+}
+
+void ValgrindBaseSettings::setKCachegrindExecutable(const QString &exec)
+{
+    m_kcachegrindExecutable = exec;
 }
 
 void ValgrindBaseSettings::setEnableCacheSim(bool enable)
@@ -394,6 +407,7 @@ void ValgrindGlobalSettings::readSettings()
     defaults.insert(lastSuppressionHistoryC, QStringList());
 
     // Callgrind
+    defaults.insert(kcachegrindExeC, "kcachegrind");
     defaults.insert(callgrindEnableCacheSimC, false);
     defaults.insert(callgrindEnableBranchSimC, false);
     defaults.insert(callgrindCollectSystimeC, false);

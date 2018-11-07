@@ -3188,6 +3188,81 @@
          width="100%"
          height="100%" />
     </g>
+    <g
+       id="src/plugins/valgrind/images/kcachegrind"
+       transform="translate(112)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use5933-0-2"
+         width="100%"
+         height="100%"
+         transform="translate(1740,132)" />
+      <circle
+         style="fill:none;stroke:#000000"
+         id="path3156"
+         cx="1732.5"
+         cy="575.5"
+         r="3" />
+      <circle
+         style="fill:none;stroke:#000000"
+         id="path3156-7"
+         cx="1732.5"
+         cy="575.5"
+         r="5" />
+      <path
+         style="fill:none;stroke:#000000"
+         id="path3156-7-6"
+         sodipodi:type="arc"
+         sodipodi:cx="1732.5"
+         sodipodi:cy="575.5"
+         sodipodi:rx="5.5"
+         sodipodi:ry="5.5"
+         sodipodi:start="1.0821041"
+         sodipodi:end="4.118977"
+         d="m 1735.0821,580.35621 a 5.5,5.5 0 0 1 -7.2965,-2.0235 5.5,5.5 0 0 1 1.6388,-7.39242"
+         sodipodi:open="true" />
+      <path
+         style="fill:none;stroke:#000000"
+         d="m 1735,580 c 1,2 2.5,3.5 3.5,2.5 1,-1 -0.5,-2.5 -2.5,-3.5"
+         id="path7714"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="czc" />
+      <rect
+         style="fill:#000000"
+         id="rect7716"
+         width="3"
+         height="3"
+         x="1731"
+         y="580" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#rect7716"
+         id="use7718-4"
+         transform="rotate(45,1732.2679,575.40407)"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect7716"
+         id="use7718"
+         transform="rotate(90,1732.5,575.5)"
+         width="100%"
+         height="100%" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#rect7716"
+         id="use7718-4-4"
+         transform="rotate(135,1732.4602,575.4038)"
+         width="100%"
+         height="100%" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

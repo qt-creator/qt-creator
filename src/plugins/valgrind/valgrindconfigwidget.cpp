@@ -73,6 +73,10 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings, bool 
     //
     // Callgrind
     //
+    m_ui->kcachegrindExeChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_ui->kcachegrindExeChooser->setPromptDialogTitle(tr("KCachegrind Command"));
+    connect(m_ui->kcachegrindExeChooser, &Utils::PathChooser::rawPathChanged,
+            m_settings, &ValgrindBaseSettings::setKCachegrindExecutable);
     connect(m_ui->enableCacheSim, &QCheckBox::toggled,
             m_settings, &ValgrindBaseSettings::setEnableCacheSim);
     connect(m_settings, &ValgrindBaseSettings::enableCacheSimChanged,
@@ -168,6 +172,7 @@ void ValgrindConfigWidget::updateUi()
 {
     m_ui->valgrindExeChooser->setPath(m_settings->valgrindExecutable());
     m_ui->smcDetectionComboBox->setCurrentIndex(m_settings->selfModifyingCodeDetection());
+    m_ui->kcachegrindExeChooser->setPath(m_settings->kcachegrindExecutable());
     m_ui->enableCacheSim->setChecked(m_settings->enableCacheSim());
     m_ui->enableBranchSim->setChecked(m_settings->enableBranchSim());
     m_ui->collectSystime->setChecked(m_settings->collectSystime());

@@ -44,8 +44,10 @@ class Function;
 class ParseData
 {
 public:
-    explicit ParseData();
+    explicit ParseData(const QString &fileName);
     ~ParseData();
+
+    QString fileName() const;
 
     static QString prettyStringForEvent(const QString &event);
     /// List of events reported in the data file.

@@ -186,6 +186,8 @@ public:
     QPointer<CostView> m_calleesView;
     QPointer<Visualization> m_visualization;
 
+    QString m_lastFileName;
+
     // Navigation
     QAction *m_goBack = nullptr;
     QAction *m_goNext = nullptr;
@@ -207,6 +209,7 @@ public:
     QAction *m_startAction = nullptr;
     QAction *m_stopAction = nullptr;
     QAction *m_loadExternalLogFile = nullptr;
+    QAction *m_startKCachegrind = nullptr;
     QAction *m_dumpAction = nullptr;
     QAction *m_resetAction = nullptr;
     QAction *m_pauseAction = nullptr;
@@ -355,6 +358,8 @@ CallgrindTool::CallgrindTool()
 
     updateCostFormat();
 
+    ValgrindGlobalSettings *settings = ValgrindPlugin::globalSettings();
+
     //
     // Control Widget
     //
@@ -364,6 +369,16 @@ CallgrindTool::CallgrindTool()
     action->setIcon(Utils::Icons::OPENFILE_TOOLBAR.icon());
     action->setToolTip(tr("Load External Log File"));
     connect(action, &QAction::triggered, this, &CallgrindTool::loadExternalLogFile);
+
+    action = m_startKCachegrind = new QAction(this);
+    action->setEnabled(false);
+    const Utils::Icon kCachegrindIcon({{":/valgrind/images/kcachegrind.png",
+                                        Theme::IconsBaseColor}});
+    action->setIcon(kCachegrindIcon.icon());
+    action->setToolTip(tr("Open results in KCachegrind."));
+    connect(action, &QAction::triggered, this, [this, settings] {
+        QProcess::startDetached(settings->kcachegrindExecutable(), { m_lastFileName });
+    });
 
     // dump action
     m_dumpAction = action = new QAction(this);
@@ -423,6 +438,7 @@ CallgrindTool::CallgrindTool()
     m_perspective.addToolBarAction(m_startAction);
     m_perspective.addToolBarAction(m_stopAction);
     m_perspective.addToolBarAction(m_loadExternalLogFile);
+    m_perspective.addToolBarAction(m_startKCachegrind);
     m_perspective.addToolBarAction(m_dumpAction);
     m_perspective.addToolBarAction(m_resetAction);
     m_perspective.addToolBarAction(m_pauseAction);
@@ -465,8 +481,6 @@ CallgrindTool::CallgrindTool()
     button->setToolTip(tr("Cost Format"));
     m_perspective.addToolBarWidget(button);
     }
-
-    ValgrindGlobalSettings *settings = ValgrindPlugin::globalSettings();
 
     // Cycle detection
     //action = new QAction("Cycle Detection", this); ///FIXME: icon
@@ -713,6 +727,7 @@ void CallgrindTool::setParseData(ParseData *data)
         delete data;
         data = nullptr;
     }
+    m_lastFileName = data ? data->fileName() : QString();
     m_dataModel.setParseData(data);
     m_calleesModel.setParseData(data);
     m_callersModel.setParseData(data);
@@ -919,14 +934,21 @@ void CallgrindTool::takeParserData(ParseData *data)
 {
     showParserResults(data);
 
-    if (!data)
+    if (!data) {
+        m_lastFileName.clear();
+        m_startKCachegrind->setEnabled(false);
         return;
+    }
 
     // clear first
     clearTextMarks();
     doClear(true);
 
     setParseData(data);
+    const QString kcachegrindExecutable = ValgrindPlugin::globalSettings()->kcachegrindExecutable();
+    const bool kcachegrindExists = !Utils::Environment::systemEnvironment().searchInPath(
+                kcachegrindExecutable).isEmpty();
+    m_startKCachegrind->setEnabled(kcachegrindExists && !m_lastFileName.isEmpty());
     createTextMarks();
 }
 
