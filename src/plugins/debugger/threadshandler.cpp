@@ -221,13 +221,11 @@ ThreadsHandler::ThreadsHandler(DebuggerEngine *engine)
                   tr("Address"), tr("Function"), tr("File"), tr("Line"), tr("State"),
                   tr("Name"), tr("Target ID"), tr("Details"), tr("Core"),
               });
+}
 
-    m_comboBox = new QComboBox;
-    m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    m_comboBox->setModel(this);
-    connect(m_comboBox, QOverload<int>::of(&QComboBox::activated), this, [this](int row) {
-        setData(index(row, 0), {}, BaseTreeView::ItemActivatedRole);
-    });
+ThreadsHandler::~ThreadsHandler()
+{
+    delete m_comboBox;
 }
 
 QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
@@ -249,7 +247,7 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
         const Thread thread = itemForIndexAtLevel<1>(idx);
         if (thread != m_currentThread) {
             m_currentThread = thread;
-            m_comboBox->setCurrentIndex(idx.row());
+            threadSwitcher()->setCurrentIndex(idx.row());
             m_engine->selectThread(thread);
         }
         return true;
@@ -362,6 +360,19 @@ void ThreadsHandler::notifyStopped(const QString &id)
         forItemsAtLevel<1>([](const Thread &thread) { thread->notifyStopped(); });
     else if (Thread thread = threadForId(id))
         thread->notifyStopped();
+}
+
+QPointer<QComboBox> ThreadsHandler::threadSwitcher()
+{
+    if (!m_comboBox) {
+        m_comboBox = new QComboBox;
+        m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        m_comboBox->setModel(this);
+        connect(m_comboBox, QOverload<int>::of(&QComboBox::activated), this, [this](int row) {
+            setData(index(row, 0), {}, BaseTreeView::ItemActivatedRole);
+        });
+    }
+    return m_comboBox;
 }
 
 void ThreadsHandler::setThreads(const GdbMi &data)
