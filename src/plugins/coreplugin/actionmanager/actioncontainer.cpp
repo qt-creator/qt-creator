@@ -383,6 +383,7 @@ MenuActionContainer::MenuActionContainer(Id id)
       m_menu(new QMenu)
 {
     m_menu->setObjectName(id.toString());
+    m_menu->menuAction()->setMenuRole(QAction::NoRole);
     setOnAllDisabledBehavior(Disable);
 }
 
