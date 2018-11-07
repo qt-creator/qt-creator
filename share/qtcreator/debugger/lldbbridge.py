@@ -830,8 +830,7 @@ class Dumper(DumperBase):
         self.startMode_ = args.get('startmode', 1)
         self.breakOnMain_ = args.get('breakonmain', 0)
         self.useTerminal_ = args.get('useterminal', 0)
-        self.processArgs_ = args.get('processargs', [])
-        self.processArgs_ = list(map(lambda x: self.hexdecode(x), self.processArgs_))
+        self.processArgs_ = self.hexdecode(args.get('processargs'))
         self.environment_ = args.get('environment', [])
         self.environment_ = list(map(lambda x: self.hexdecode(x), self.environment_))
         self.attachPid_ = args.get('attachpid', 0)
@@ -928,7 +927,19 @@ class Dumper(DumperBase):
             else:
                 self.reportState('enginerunfailed')
         else:
-            launchInfo = lldb.SBLaunchInfo(self.processArgs_)
+            # This does not seem to work on Linux nor macOS?
+            #launchInfo = lldb.SBLaunchInfo([self.processArgs_])
+            #launchInfo.SetShellExpandArguments(True)
+            args = []
+            try:
+                import subprocess
+                cmd = 'for x in {} ; do printf "%s\n" "$x" ; done' \
+                    .format(self.processArgs_)
+                args = subprocess.check_output(cmd, shell=True, cwd=self.workingDirectory_).split()
+            except:
+                # Wrong, but...
+                args = self.processArgs_
+            launchInfo = lldb.SBLaunchInfo(args)
             launchInfo.SetWorkingDirectory(self.workingDirectory_)
             launchInfo.SetEnvironmentEntries(self.environment_, False)
             if self.breakOnMain_:

@@ -253,20 +253,15 @@ void LldbEngine::setupEngine()
 
     const DebuggerRunParameters &rp = runParameters();
 
-    QString executable;
-    QtcProcess::Arguments args;
-    QtcProcess::prepareCommand(QFileInfo(rp.inferior.executable).absoluteFilePath(),
-                               rp.inferior.commandLineArguments, &executable, &args);
-
     DebuggerCommand cmd2("setupInferior");
-    cmd2.arg("executable", executable);
+    cmd2.arg("executable", rp.inferior.executable);
     cmd2.arg("breakonmain", rp.breakOnMain);
     cmd2.arg("useterminal", bool(terminal()));
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
     cmd2.arg("workingdirectory", rp.inferior.workingDirectory);
     cmd2.arg("environment", rp.inferior.environment.toStringList());
-    cmd2.arg("processargs", args.toUnixArgs());
+    cmd2.arg("processargs", toHex(rp.inferior.commandLineArguments));
 
     if (terminal()) {
         const qint64 attachedPID = terminal()->applicationPid();
