@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "usedmacroandsourcestorageinterface.h"
+#include "builddependenciesstorageinterface.h"
 
 #include <compilermacro.h>
 #include <sqliteexception.h>
@@ -41,21 +41,31 @@
 namespace ClangBackEnd {
 
 template<typename Database=Sqlite::Database>
-class UsedMacroAndSourceStorage final : public UsedMacroAndSourceStorageInterface
+class BuildDependenciesStorage final : public BuildDependenciesStorageInterface
 {
     using ReadStatement = typename Database::ReadStatement;
     using WriteStatement = typename Database::WriteStatement;
 public:
-    UsedMacroAndSourceStorage(Database &database)
+    BuildDependenciesStorage(Database &database)
         : m_transaction(database),
           m_database(database)
     {
         m_transaction.commit();
     }
 
+    void updateSources(const SourceEntries &sourceEntries) override
+    {
+        for (const SourceEntry &entry : sourceEntries) {
+            m_updateBuildDependencyTimeStampStatement.write(static_cast<long long>(entry.lastModified),
+                                                            entry.sourceId.filePathId);
+            m_updateSourceTypeStatement.write(static_cast<uchar>(entry.sourceType),
+                                              entry.sourceId.filePathId);
+        }
+    }
+
     void insertFileStatuses(const FileStatuses &fileStatuses) override
     {
-        WriteStatement &statement = m_insertFileStatuses;
+        WriteStatement &statement = m_insertFileStatusesStatement;
 
         for (const FileStatus &fileStatus : fileStatuses)
             statement.write(fileStatus.filePathId.filePathId,
@@ -92,6 +102,25 @@ public:
         m_syncNewSourceDependenciesStatement.execute();
         m_deleteOutdatedSourceDependenciesStatement.execute();
         m_deleteNewSourceDependenciesStatement.execute();
+    }
+
+    SourceEntries fetchDependSources(FilePathId sourceId,
+                                     Utils::SmallStringView projectPartName) const override
+    {
+        auto projectPartId = m_fetchProjectPartIdStatement.template value<int>(projectPartName);
+
+        if (projectPartId) {
+           return m_fetchSourceDependenciesStatement.template values<SourceEntry, 3>(
+                       300,
+                       sourceId.filePathId,
+                       projectPartId.value());
+        }
+        return {};
+    }
+
+    UsedMacros fetchUsedMacros(FilePathId sourceId) const override
+    {
+        return m_fetchUsedMacrosStatement.template values<UsedMacro, 2>(128, sourceId.filePathId);
     }
 
     static Utils::SmallString toJson(const Utils::SmallStringVector &strings)
@@ -178,7 +207,7 @@ public:
         "INSERT INTO newSourceDependencies(sourceId, dependencySourceId) VALUES (?,?)",
         m_database
     };
-    WriteStatement m_insertFileStatuses{
+    WriteStatement m_insertFileStatusesStatement{
         "INSERT OR REPLACE INTO fileStatuses(sourceId, size, lastModified, isInPrecompiledHeader) VALUES (?,?,?,?)",
         m_database
     };
@@ -192,6 +221,26 @@ public:
     };
     WriteStatement m_deleteNewSourceDependenciesStatement{
         "DELETE FROM newSourceDependencies",
+        m_database
+    };
+    WriteStatement m_updateBuildDependencyTimeStampStatement{
+        "UPDATE fileStatuses SET buildDependencyTimeStamp = ? WHERE sourceId == ?",
+        m_database
+    };
+    WriteStatement m_updateSourceTypeStatement{
+        "UPDATE projectPartsSources SET sourceType = ? WHERE sourceId == ?",
+        m_database
+    };
+    mutable ReadStatement m_fetchSourceDependenciesStatement{
+        "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM sourceDependencies, collectedDependencies WHERE sourceDependencies.sourceId == collectedDependencies.sourceId) SELECT sourceId, buildDependencyTimeStamp, sourceType FROM collectedDependencies NATURAL JOIN projectPartsSources NATURAL JOIN fileStatuses WHERE projectPartId = ?",
+        m_database
+    };
+    mutable ReadStatement m_fetchProjectPartIdStatement{
+        "SELECT projectPartId FROM projectParts WHERE projectPartName = ?",
+        m_database
+    };
+    mutable ReadStatement m_fetchUsedMacrosStatement{
+        "SELECT macroName, sourceId FROM usedMacros WHERE sourceId = ?",
         m_database
     };
 };

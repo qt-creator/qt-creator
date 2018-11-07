@@ -34,7 +34,7 @@
 #include "taskscheduler.h"
 #include "symbolstorage.h"
 
-#include <usedmacroandsourcestorage.h>
+#include <builddependenciesstorage.h>
 
 #include <refactoringdatabaseinitializer.h>
 #include <filepathcachingfwd.h>
@@ -74,7 +74,7 @@ private:
 class SymbolIndexing final : public SymbolIndexingInterface
 {
 public:
-    using UsedMacroAndSourceStorage = ClangBackEnd::UsedMacroAndSourceStorage<Sqlite::Database>;
+    using BuildDependenciesStorage = ClangBackEnd::BuildDependenciesStorage<Sqlite::Database>;
     using SymbolStorage = ClangBackEnd::SymbolStorage<Sqlite::Database>;
     SymbolIndexing(Sqlite::Database &database,
                    FilePathCachingInterface &filePathCache,
@@ -111,7 +111,7 @@ public:
 private:
     using SymbolIndexerTaskScheduler = TaskScheduler<SymbolsCollectorManager, SymbolIndexerTask::Callable>;
     FilePathCachingInterface &m_filePathCache;
-    UsedMacroAndSourceStorage m_usedMacroAndSourceStorage;
+    BuildDependenciesStorage m_usedMacroAndSourceStorage;
     SymbolStorage m_symbolStorage;
     ClangPathWatcher<QFileSystemWatcher, QTimer> m_sourceWatcher{m_filePathCache};
     FileStatusCache m_fileStatusCache{m_filePathCache};

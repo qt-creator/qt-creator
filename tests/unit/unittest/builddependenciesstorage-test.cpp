@@ -29,7 +29,7 @@
 #include "mocksqlitedatabase.h"
 
 #include <sqlitedatabase.h>
-#include <usedmacroandsourcestorage.h>
+#include <builddependenciesstorage.h>
 
 #include <utils/optional.h>
 
@@ -38,12 +38,15 @@ namespace {
 using Utils::PathString;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathCachingInterface;
+using ClangBackEnd::SourceEntries;
+using ClangBackEnd::SourceType;
+using ClangBackEnd::UsedMacro;
 using Sqlite::Database;
 using Sqlite::Table;
 
-using Storage = ClangBackEnd::UsedMacroAndSourceStorage<MockSqliteDatabase>;
+using Storage = ClangBackEnd::BuildDependenciesStorage<MockSqliteDatabase>;
 
-class UsedMacroAndSourceStorage : public testing::Test
+class BuildDependenciesStorage : public testing::Test
 {
 protected:
     NiceMock<MockSqliteDatabase> mockDatabase;
@@ -52,15 +55,20 @@ protected:
     MockSqliteWriteStatement &syncNewUsedMacrosStatement =storage.m_syncNewUsedMacrosStatement;
     MockSqliteWriteStatement &deleteOutdatedUsedMacrosStatement = storage.m_deleteOutdatedUsedMacrosStatement;
     MockSqliteWriteStatement &deleteNewUsedMacrosTableStatement = storage.m_deleteNewUsedMacrosTableStatement;
-    MockSqliteWriteStatement &insertFileStatuses = storage.m_insertFileStatuses;
+    MockSqliteWriteStatement &insertFileStatuses = storage.m_insertFileStatusesStatement;
     MockSqliteWriteStatement &insertIntoNewSourceDependenciesStatement = storage.m_insertIntoNewSourceDependenciesStatement;
     MockSqliteWriteStatement &syncNewSourceDependenciesStatement = storage.m_syncNewSourceDependenciesStatement;
     MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = storage.m_deleteOutdatedSourceDependenciesStatement;
     MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = storage.m_deleteNewSourceDependenciesStatement;
     MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = storage.m_getLowestLastModifiedTimeOfDependencies;
+    MockSqliteWriteStatement &updateBuildDependencyTimeStampStatement = storage.m_updateBuildDependencyTimeStampStatement;
+    MockSqliteWriteStatement &updateSourceTypeStatement = storage.m_updateSourceTypeStatement;
+    MockSqliteReadStatement &fetchSourceDependenciesStatement = storage.m_fetchSourceDependenciesStatement;
+    MockSqliteReadStatement &fetchProjectPartIdStatement = storage.m_fetchProjectPartIdStatement;
+    MockSqliteReadStatement &fetchUsedMacrosStatement = storage.m_fetchUsedMacrosStatement;
 };
 
-TEST_F(UsedMacroAndSourceStorage, ConvertStringsToJson)
+TEST_F(BuildDependenciesStorage, ConvertStringsToJson)
 {
     Utils::SmallStringVector strings{"foo", "bar", "foo"};
 
@@ -69,7 +77,7 @@ TEST_F(UsedMacroAndSourceStorage, ConvertStringsToJson)
     ASSERT_THAT(jsonText, Eq("[\"foo\",\"bar\",\"foo\"]"));
 }
 
-TEST_F(UsedMacroAndSourceStorage, InsertOrUpdateUsedMacros)
+TEST_F(BuildDependenciesStorage, InsertOrUpdateUsedMacros)
 {
     InSequence sequence;
 
@@ -82,7 +90,7 @@ TEST_F(UsedMacroAndSourceStorage, InsertOrUpdateUsedMacros)
     storage.insertOrUpdateUsedMacros({{"FOO", 42}, {"BAR", 43}});
 }
 
-TEST_F(UsedMacroAndSourceStorage, InsertFileStatuses)
+TEST_F(BuildDependenciesStorage, InsertFileStatuses)
 {
     EXPECT_CALL(insertFileStatuses, write(TypedEq<int>(42), TypedEq<off_t>(1), TypedEq<time_t>(2), TypedEq<bool>(false)));
     EXPECT_CALL(insertFileStatuses, write(TypedEq<int>(43), TypedEq<off_t>(4), TypedEq<time_t>(5), TypedEq<bool>(true)));
@@ -90,7 +98,7 @@ TEST_F(UsedMacroAndSourceStorage, InsertFileStatuses)
     storage.insertFileStatuses({{42, 1, 2, false}, {43, 4, 5, true}});
 }
 
-TEST_F(UsedMacroAndSourceStorage, InsertOrUpdateSourceDependencies)
+TEST_F(BuildDependenciesStorage, InsertOrUpdateSourceDependencies)
 {
     InSequence sequence;
 
@@ -103,7 +111,7 @@ TEST_F(UsedMacroAndSourceStorage, InsertOrUpdateSourceDependencies)
     storage.insertOrUpdateSourceDependencies({{42, 1}, {42, 2}});
 }
 
-TEST_F(UsedMacroAndSourceStorage, AddTablesInConstructor)
+TEST_F(BuildDependenciesStorage, AddTablesInConstructor)
 {
     InSequence s;
 
@@ -118,7 +126,7 @@ TEST_F(UsedMacroAndSourceStorage, AddTablesInConstructor)
 }
 
 
-TEST_F(UsedMacroAndSourceStorage, FetchLowestLastModifiedTimeIfNoModificationTimeExists)
+TEST_F(BuildDependenciesStorage, FetchLowestLastModifiedTimeIfNoModificationTimeExists)
 {
     EXPECT_CALL(getLowestLastModifiedTimeOfDependencies, valueReturnInt64(Eq(1)));
 
@@ -127,7 +135,7 @@ TEST_F(UsedMacroAndSourceStorage, FetchLowestLastModifiedTimeIfNoModificationTim
     ASSERT_THAT(lowestLastModified, Eq(0));
 }
 
-TEST_F(UsedMacroAndSourceStorage, FetchLowestLastModifiedTime)
+TEST_F(BuildDependenciesStorage, FetchLowestLastModifiedTime)
 {
     EXPECT_CALL(getLowestLastModifiedTimeOfDependencies, valueReturnInt64(Eq(21)))
             .WillRepeatedly(Return(12));
@@ -137,7 +145,7 @@ TEST_F(UsedMacroAndSourceStorage, FetchLowestLastModifiedTime)
     ASSERT_THAT(lowestLastModified, Eq(12));
 }
 
-TEST_F(UsedMacroAndSourceStorage, AddNewUsedMacroTable)
+TEST_F(BuildDependenciesStorage, AddNewUsedMacroTable)
 {
     InSequence s;
 
@@ -147,7 +155,7 @@ TEST_F(UsedMacroAndSourceStorage, AddNewUsedMacroTable)
     storage.createNewUsedMacrosTable();
 }
 
-TEST_F(UsedMacroAndSourceStorage, AddNewSourceDependenciesTable)
+TEST_F(BuildDependenciesStorage, AddNewSourceDependenciesTable)
 {
     InSequence s;
 
@@ -155,6 +163,72 @@ TEST_F(UsedMacroAndSourceStorage, AddNewSourceDependenciesTable)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_newSourceDependencies_sourceId_dependencySourceId ON newSourceDependencies(sourceId, dependencySourceId)")));
 
     storage.createNewSourceDependenciesTable();
+}
+
+TEST_F(BuildDependenciesStorage, UpdateSources)
+{
+    InSequence s;
+    SourceEntries entries{{1, SourceType::TopInclude, 10}, {2, SourceType::TopSystemInclude, 20}};
+
+    EXPECT_CALL(updateBuildDependencyTimeStampStatement, write(TypedEq<long long>(10), TypedEq<int>(1)));
+    EXPECT_CALL(updateSourceTypeStatement, write(TypedEq<uchar>(1), TypedEq<int>(1)));
+    EXPECT_CALL(updateBuildDependencyTimeStampStatement, write(TypedEq<long long>(20), TypedEq<int>(2)));
+    EXPECT_CALL(updateSourceTypeStatement, write(TypedEq<uchar>(2), TypedEq<int>(2)));
+
+    storage.updateSources(entries);
+}
+
+TEST_F(BuildDependenciesStorage, CallsFetchDependSourcesWithNonExistingProjectPartDontFetchesSourceDependencies)
+{
+    EXPECT_CALL(fetchProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("test"))).WillOnce(Return(Utils::optional<int>{}));
+    EXPECT_CALL(fetchSourceDependenciesStatement, valuesReturnSourceEntries(_, _, _)).Times(0);
+
+    storage.fetchDependSources(22, "test");
+}
+
+TEST_F(BuildDependenciesStorage, CallsFetchDependSourcesWithExistingProjectPartFetchesSourceDependencies)
+{
+    EXPECT_CALL(fetchProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("test"))).WillOnce(Return(Utils::optional<int>{20}));
+    EXPECT_CALL(fetchSourceDependenciesStatement, valuesReturnSourceEntries(_, 22, 20));
+
+    storage.fetchDependSources(22, "test");
+}
+
+TEST_F(BuildDependenciesStorage, FetchDependSourcesWithNonExistingProjectPartReturnsEmptySourceEntries)
+{
+    EXPECT_CALL(fetchProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("test"))).WillOnce(Return(Utils::optional<int>{}));
+
+    auto entries = storage.fetchDependSources(22, "test");
+
+    ASSERT_THAT(entries, IsEmpty());
+}
+
+TEST_F(BuildDependenciesStorage, FetchDependSourcesWithExistingProjectPartReturnsSourceEntries)
+{
+    SourceEntries sourceEntries{{1, SourceType::TopInclude, 10}, {2, SourceType::TopSystemInclude, 20}};
+    EXPECT_CALL(fetchProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("test"))).WillOnce(Return(Utils::optional<int>{20}));
+    EXPECT_CALL(fetchSourceDependenciesStatement, valuesReturnSourceEntries(_, 22, 20)).WillOnce(Return(sourceEntries));
+
+    auto entries = storage.fetchDependSources(22, "test");
+
+    ASSERT_THAT(entries, sourceEntries);
+}
+
+TEST_F(BuildDependenciesStorage, CallsFetchUsedMacros)
+{
+    EXPECT_CALL(fetchUsedMacrosStatement, valuesReturnUsedMacros(_, 22));
+
+    storage.fetchUsedMacros(22);
+}
+
+TEST_F(BuildDependenciesStorage, FetchUsedMacros)
+{
+    ClangBackEnd::UsedMacros result{UsedMacro{"YI", 1}, UsedMacro{"ER", 2}};
+    EXPECT_CALL(fetchUsedMacrosStatement, valuesReturnUsedMacros(_, 22)).WillOnce(Return(result));
+
+    auto usedMacros = storage.fetchUsedMacros(22);
+
+    ASSERT_THAT(usedMacros, result);
 }
 
 }

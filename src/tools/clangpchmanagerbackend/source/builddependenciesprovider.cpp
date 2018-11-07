@@ -53,7 +53,8 @@ OutputContainer setUnion(InputContainer1 &&input1,
 
 BuildDependency BuildDependenciesProvider::create(const V2::ProjectPartContainer &projectPart) const
 {
-    SourceEntries includes = createSourceEntriesFromStorage(projectPart.sourcePathIds);
+    SourceEntries includes = createSourceEntriesFromStorage(projectPart.sourcePathIds,
+                                                            projectPart.projectPartId);
 
     if (!m_modifiedTimeChecker.isUpToDate(includes))
         return m_buildDependenciesGenerator.create(projectPart);
@@ -89,12 +90,13 @@ UsedMacros BuildDependenciesProvider::createUsedMacrosFromStorage(const SourceEn
 }
 
 SourceEntries BuildDependenciesProvider::createSourceEntriesFromStorage(
-        const FilePathIds &sourcePathIds) const
+        const FilePathIds &sourcePathIds, Utils::SmallStringView projectPartId) const
 {
     SourceEntries includes;
 
     for (FilePathId sourcePathId : sourcePathIds) {
-        SourceEntries entries = m_buildDependenciesStorage.fetchDependSources(sourcePathId);
+        SourceEntries entries = m_buildDependenciesStorage.fetchDependSources(sourcePathId,
+                                                                              projectPartId);
         SourceEntries mergedEntries = setUnion<SourceEntries>(includes, entries);
 
         includes = std::move(mergedEntries);

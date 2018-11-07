@@ -24,8 +24,6 @@ HEADERS += \
     $$PWD/taskschedulerinterface.h \
     $$PWD/precompiledheaderstorage.h \
     $$PWD/precompiledheaderstorageinterface.h \
-    $$PWD/usedmacroandsourcestorageinterface.h \
-    $$PWD/usedmacroandsourcestorage.h \
     $$PWD/pchtaskgenerator.h \
     $$PWD/pchtask.h \
     $$PWD/builddependenciesproviderinterface.h \
@@ -34,7 +32,8 @@ HEADERS += \
     $$PWD/builddependency.h \
     $$PWD/modifiedtimecheckerinterface.h \
     $$PWD/sourceentry.h \
-    $$PWD/builddependenciesgeneratorinterface.h
+    $$PWD/builddependenciesgeneratorinterface.h \
+    $$PWD/builddependenciesstorage.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

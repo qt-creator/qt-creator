@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include "mockbuilddependencystorage.h"
+#include "mockbuilddependenciesstorage.h"
 #include "mockmodifiedtimechecker.h"
 #include "mockbuilddependenciesgenerator.h"
 
@@ -83,7 +83,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromStorageIfTime
 {
     InSequence s;
 
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillRepeatedly(Return(firstSources));
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, TypedEq<Utils::SmallStringView>("ProjectPart1"))).WillRepeatedly(Return(firstSources));
     EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(true));
     EXPECT_CALL(mockBuildDependenciesGenerator, create(projectPart1)).Times(0);
 
@@ -92,9 +92,9 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromStorageIfTime
 
 TEST_F(BuildDependenciesProvider, FetchDependSourcesFromStorage)
 {
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillByDefault(Return(firstSources));
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({3})).WillByDefault(Return(secondSources));
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({4})).WillByDefault(Return(thirdSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, TypedEq<Utils::SmallStringView>("ProjectPart2"))).WillByDefault(Return(firstSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({3}, TypedEq<Utils::SmallStringView>("ProjectPart2"))).WillByDefault(Return(secondSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({4}, TypedEq<Utils::SmallStringView>("ProjectPart2"))).WillByDefault(Return(thirdSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(_)).WillByDefault(Return(true));
 
     auto buildDependency = provider.create(projectPart2);
@@ -106,7 +106,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromGeneratorIfTi
 {
     InSequence s;
 
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillRepeatedly(Return(firstSources));
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, TypedEq<Utils::SmallStringView>("ProjectPart1"))).WillRepeatedly(Return(firstSources));
     EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(false));
     EXPECT_CALL(mockBuildDependenciesGenerator, create(projectPart1));
 
@@ -115,7 +115,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromGeneratorIfTi
 
 TEST_F(BuildDependenciesProvider, FetchDependSourcesFromGenerator)
 {
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillByDefault(Return(firstSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, TypedEq<Utils::SmallStringView>("ProjectPart1"))).WillByDefault(Return(firstSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(_)).WillByDefault(Return(false));
     ON_CALL(mockBuildDependenciesGenerator, create(projectPart1)).WillByDefault(Return(buildDependency));
 
@@ -128,7 +128,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchUsedMacrosFromStorageIfTimeSta
 {
     InSequence s;
 
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillRepeatedly(Return(firstSources));
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, TypedEq<Utils::SmallStringView>("ProjectPart1"))).WillRepeatedly(Return(firstSources));
     EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(true));
     EXPECT_CALL(mockBuildDependenciesStorage, fetchUsedMacros({1}));
     EXPECT_CALL(mockBuildDependenciesStorage, fetchUsedMacros({2}));
@@ -139,7 +139,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchUsedMacrosFromStorageIfTimeSta
 
 TEST_F(BuildDependenciesProvider, FetchUsedMacrosFromStorageIfDependSourcesAreUpToDate)
 {
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2})).WillByDefault(Return(firstSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, TypedEq<Utils::SmallStringView>("ProjectPart1"))).WillByDefault(Return(firstSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillByDefault(Return(true));
     ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros({1})).WillByDefault(Return(firstUsedMacros));
     ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros({2})).WillByDefault(Return(secondUsedMacros));

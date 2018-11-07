@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,28 +25,26 @@
 
 #pragma once
 
-#include "filestatus.h"
-#include "sourcedependency.h"
-#include "usedmacro.h"
+#include "googletest.h"
 
-namespace ClangBackEnd {
+#include <builddependenciesstorageinterface.h>
 
-class UsedMacroAndSourceStorageInterface
+class MockBuildDependenciesStorage : public ClangBackEnd::BuildDependenciesStorageInterface
 {
 public:
-    UsedMacroAndSourceStorageInterface() = default;
-    UsedMacroAndSourceStorageInterface(const UsedMacroAndSourceStorageInterface &) = delete;
-    UsedMacroAndSourceStorageInterface &operator=(const UsedMacroAndSourceStorageInterface &) = delete;
-
-    virtual void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) = 0;
-    virtual void insertFileStatuses(const FileStatuses &fileStatuses) = 0;
-    virtual void insertOrUpdateSourceDependencies(const SourceDependencies &sourceDependencies) = 0;
-    virtual long long fetchLowestLastModifiedTime(FilePathId sourceId) const = 0;
-
-
-protected:
-    ~UsedMacroAndSourceStorageInterface() = default;
+    MOCK_METHOD1(updateSources,
+                 void (const ClangBackEnd::SourceEntries &sources));
+    MOCK_METHOD1(insertOrUpdateUsedMacros,
+                 void (const ClangBackEnd::UsedMacros &usedMacros));
+    MOCK_METHOD1(insertFileStatuses,
+                 void (const ClangBackEnd::FileStatuses &fileStatuses));
+    MOCK_METHOD1(insertOrUpdateSourceDependencies,
+                 void (const ClangBackEnd::SourceDependencies &sourceDependencies));
+    MOCK_CONST_METHOD1(fetchLowestLastModifiedTime,
+                       long long (ClangBackEnd::FilePathId sourceId));
+    MOCK_CONST_METHOD2(fetchDependSources,
+                       ClangBackEnd::SourceEntries (ClangBackEnd::FilePathId sourceId, Utils::SmallStringView));
+    MOCK_CONST_METHOD1(fetchUsedMacros,
+                       ClangBackEnd::UsedMacros (ClangBackEnd::FilePathId sourceId));
 };
-
-} // namespace ClangBackEnd
 

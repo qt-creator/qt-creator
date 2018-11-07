@@ -42,6 +42,11 @@ public:
           filePathId(filePathId)
     {}
 
+    UsedMacro(Utils::SmallStringView macroName, int filePathId)
+        : macroName(macroName),
+          filePathId(filePathId)
+    {}
+
     friend bool operator<(const UsedMacro &first, const UsedMacro &second)
     {
         return std::tie(first.filePathId, first.macroName)

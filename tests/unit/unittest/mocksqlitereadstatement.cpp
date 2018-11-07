@@ -82,6 +82,15 @@ MockSqliteReadStatement::values<Symbol, 3>(
 }
 
 template <>
+UsedMacros
+MockSqliteReadStatement::values<ClangBackEnd::UsedMacro, 2>(
+        std::size_t reserveSize,
+        const int &sourceId)
+{
+    return valuesReturnUsedMacros(reserveSize, sourceId);
+}
+
+template <>
 std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directory, 2>(std::size_t reserveSize)
 {
     return valuesReturnStdVectorDirectory(reserveSize);

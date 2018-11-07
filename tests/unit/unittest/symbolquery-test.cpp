@@ -75,8 +75,8 @@ class SymbolQuerySlowTest : public testing::Test
 protected:
     void SetUp() override
     {
-        database.execute("INSERT INTO sources VALUES (1, 1, \"filename.h\", 1)");
-        database.execute("INSERT INTO sources VALUES (2, 1, \"filename.cpp\", 1)");
+        database.execute("INSERT INTO sources VALUES (1, 1, \"filename.h\")");
+        database.execute("INSERT INTO sources VALUES (2, 1, \"filename.cpp\")");
         database.execute("INSERT INTO directories VALUES (1, \"/path/to\")");
         database.execute("INSERT INTO locations VALUES (1, 2, 3, 1, 1)");
         database.execute("INSERT INTO locations VALUES (1, 4, 6, 2, 3)");

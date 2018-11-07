@@ -34,6 +34,7 @@
 #include <projectpartartefact.h>
 #include <projectpartpch.h>
 #include <sourceentry.h>
+#include <usedmacro.h>
 #include <symbol.h>
 
 #include <cpptools/usages.h>
@@ -53,6 +54,7 @@ using ClangRefactoring::SourceLocations;
 namespace Sources = ClangBackEnd::Sources;
 using ClangRefactoring::Symbol;
 using ClangRefactoring::Symbols;
+using ClangBackEnd::UsedMacros;
 
 class MockSqliteDatabase;
 
@@ -78,6 +80,9 @@ public:
 
     MOCK_METHOD3(valuesReturnSourceEntries,
                  SourceEntries(std::size_t, int, int));
+
+    MOCK_METHOD2(valuesReturnUsedMacros,
+                 UsedMacros (std::size_t, int));
 
     MOCK_METHOD1(valueReturnInt32,
                  Utils::optional<int>(Utils::SmallStringView));
@@ -183,6 +188,12 @@ MockSqliteReadStatement::values<Symbol, 3>(
         const int&,
         const int&,
         const Utils::SmallStringView&);
+
+template <>
+UsedMacros
+MockSqliteReadStatement::values<ClangBackEnd::UsedMacro, 2>(
+        std::size_t reserveSize,
+        const int &sourceId);
 
 template <>
 std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directory, 2>(std::size_t reserveSize);

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "sourceentry.h"
+
 #include <builddependency.h>
 #include <filepathid.h>
 #include <filestatus.h>
@@ -45,7 +47,7 @@ public:
     virtual void insertFileStatuses(const FileStatuses &fileStatuses) = 0;
     virtual void insertOrUpdateSourceDependencies(const SourceDependencies &sourceDependencies) = 0;
     virtual long long fetchLowestLastModifiedTime(FilePathId sourceId) const = 0;
-    virtual SourceEntries fetchDependSources(FilePathId sourceId) const = 0;
+    virtual SourceEntries fetchDependSources(FilePathId sourceId, Utils::SmallStringView projectPartId) const = 0;
     virtual UsedMacros fetchUsedMacros(FilePathId sourceId) const = 0;
 
 protected:

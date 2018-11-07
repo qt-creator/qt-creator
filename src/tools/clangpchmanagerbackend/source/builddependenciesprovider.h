@@ -50,7 +50,8 @@ public:
 private:
     BuildDependency createBuildDependencyFromStorage(SourceEntries &&includes) const;
     UsedMacros createUsedMacrosFromStorage(const SourceEntries &includes) const;
-    SourceEntries createSourceEntriesFromStorage(const FilePathIds &sourcePathIds) const;
+    SourceEntries createSourceEntriesFromStorage(const FilePathIds &sourcePathIds,
+                                                 Utils::SmallStringView projectPartId) const;
 
 private:
     BuildDependenciesStorageInterface &m_buildDependenciesStorage;
