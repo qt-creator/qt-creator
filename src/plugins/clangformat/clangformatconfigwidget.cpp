@@ -138,7 +138,7 @@ void ClangFormatConfigWidget::initialize()
 
         connect(m_ui->createFileButton, &QPushButton::clicked,
                 this, [this]() {
-            createStyleFileIfNeeded(m_project->projectDirectory());
+            createStyleFileIfNeeded(m_project->projectDirectory(), false);
             initialize();
         });
         return;
@@ -146,10 +146,8 @@ void ClangFormatConfigWidget::initialize()
 
     m_ui->createFileButton->hide();
 
-    std::string testFilePath;
     if (m_project) {
         m_ui->projectHasClangFormat->hide();
-        testFilePath = m_project->projectDirectory().appendPath("t.cpp").toString().toStdString();
         connect(m_ui->applyButton, &QPushButton::clicked, this, &ClangFormatConfigWidget::apply);
     } else {
         const Project *currentProject = SessionManager::startupProject();
@@ -162,34 +160,20 @@ void ClangFormatConfigWidget::initialize()
                        "and can be configured in Projects > Clang Format."));
         }
         const QString settingsDir = Core::ICore::userResourcePath();
-        createStyleFileIfNeeded(Utils::FileName::fromString(settingsDir));
-        testFilePath = settingsDir.toStdString() + "/t.cpp";
+        createStyleFileIfNeeded(Utils::FileName::fromString(settingsDir), true);
         m_ui->applyButton->hide();
     }
 
-    fillTable(testFilePath);
+    fillTable();
 }
 
-void ClangFormatConfigWidget::fillTable(const std::string &testFilePath)
+void ClangFormatConfigWidget::fillTable()
 {
-    llvm::Expected<clang::format::FormatStyle> formatStyle =
-        clang::format::getStyle("file", testFilePath, "LLVM");
-    std::string configText;
-    bool brokenConfig = false;
-    if (!formatStyle) {
-        handleAllErrors(formatStyle.takeError(), [](const llvm::ErrorInfoBase &) {
-            // do nothing
-        });
-        configText = clang::format::configurationAsText(clang::format::getLLVMStyle());
-        brokenConfig = true;
-    } else {
-        configText = clang::format::configurationAsText(*formatStyle);
-    }
+    clang::format::FormatStyle style = m_project ? currentProjectStyle() : currentGlobalStyle();
 
+    std::string configText = clang::format::configurationAsText(style);
     std::istringstream stream(configText);
     readTable(m_ui->clangFormatOptionsTable, stream);
-    if (brokenConfig)
-        apply();
 
 }
 

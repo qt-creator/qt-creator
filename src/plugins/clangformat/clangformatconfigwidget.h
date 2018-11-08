@@ -49,7 +49,7 @@ public:
 
 private:
     void initialize();
-    void fillTable(const std::string &testFilePath);
+    void fillTable();
 
     ProjectExplorer::Project *m_project;
     std::unique_ptr<Ui::ClangFormatConfigWidget> m_ui;
