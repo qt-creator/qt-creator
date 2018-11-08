@@ -195,6 +195,11 @@ void CppCodeModelSettings::setClangDiagnosticConfigId(const Core::Id &configId)
     m_clangDiagnosticConfigId = configId;
 }
 
+void CppCodeModelSettings::resetClangDiagnosticConfigId()
+{
+    m_clangDiagnosticConfigId = initialClangDiagnosticConfigId();
+}
+
 const ClangDiagnosticConfig CppCodeModelSettings::clangDiagnosticConfig() const
 {
     const ClangDiagnosticConfigsModel configsModel(m_clangCustomDiagnosticConfigs);

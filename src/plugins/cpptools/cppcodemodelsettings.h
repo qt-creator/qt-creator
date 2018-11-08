@@ -55,6 +55,7 @@ public:
 public:
     Core::Id clangDiagnosticConfigId() const;
     void setClangDiagnosticConfigId(const Core::Id &configId);
+    void resetClangDiagnosticConfigId();
     const ClangDiagnosticConfig clangDiagnosticConfig() const;
 
     ClangDiagnosticConfigs clangCustomDiagnosticConfigs() const;
