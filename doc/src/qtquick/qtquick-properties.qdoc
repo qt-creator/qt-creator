@@ -188,7 +188,7 @@
     Then create the dataModel.qml file that contains the dummy data:
 
     \qml
-        import QtQuick 1.0
+        import QtQuick 2.0
 
         ListModel {
              ListElement {
@@ -222,7 +222,7 @@
     you can fake a parent context:
 
     \qml
-        import QtQuick 1.0
+        import QtQuick 2.0
         import QmlDesigner 1.0
 
         DummyContextObject {
