@@ -70,10 +70,7 @@ void ExternalToolsFilter::prepareSearch(const QString &entry)
     m_results.clear();
     const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
     const QMap<QString, ExternalTool *> externalToolsById = ExternalToolManager::toolsById();
-    auto end = externalToolsById.cend();
-    for (auto it = externalToolsById.cbegin(); it != end; ++it) {
-        ExternalTool *tool = *it;
-
+    for (ExternalTool *tool : externalToolsById) {
         int index = tool->displayName().indexOf(entry, 0, entryCaseSensitivity);
         LocatorFilterEntry::HighlightInfo::DataType hDataType = LocatorFilterEntry::HighlightInfo::DisplayName;
         if (index < 0) {
