@@ -135,12 +135,12 @@ public:
                 || action == Rename;
     }
 
-    bool addFiles(const QStringList &filePaths, QStringList * = 0) override
+    bool addFiles(const QStringList &filePaths, QStringList * = nullptr) override
     {
         return m_project->addFiles(filePaths);
     }
 
-    bool removeFiles(const QStringList &filePaths, QStringList * = 0) override
+    bool removeFiles(const QStringList &filePaths, QStringList * = nullptr) override
     {
         return m_project->removeFiles(filePaths);
     }

@@ -89,9 +89,7 @@ GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
     setSupportedProjectMimeTypeName(Constants::GENERICMIMETYPE);
 }
 
-GenericBuildConfigurationFactory::~GenericBuildConfigurationFactory()
-{
-}
+GenericBuildConfigurationFactory::~GenericBuildConfigurationFactory() = default;
 
 QList<BuildInfo *> GenericBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
@@ -136,7 +134,7 @@ void GenericBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 ////////////////////////////////////////////////////////////////////////////////////
 
 GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericBuildConfiguration *bc)
-    : m_buildConfiguration(0)
+    : m_buildConfiguration(nullptr)
 {
     auto fl = new QFormLayout(this);
     fl->setContentsMargins(0, -1, 0, -1);

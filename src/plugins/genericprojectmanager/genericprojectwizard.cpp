@@ -126,7 +126,7 @@ GenericProjectWizard::GenericProjectWizard()
 Core::BaseFileWizard *GenericProjectWizard::create(QWidget *parent,
                                                    const Core::WizardDialogParameters &parameters) const
 {
-    GenericProjectWizardDialog *wizard = new GenericProjectWizardDialog(this, parent);
+    auto wizard = new GenericProjectWizardDialog(this, parent);
 
     wizard->setPath(parameters.defaultPath());
 
@@ -141,7 +141,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
 {
     Q_UNUSED(errorMessage)
 
-    const GenericProjectWizardDialog *wizard = qobject_cast<const GenericProjectWizardDialog *>(w);
+    auto wizard = qobject_cast<const GenericProjectWizardDialog *>(w);
     const QString projectPath = wizard->path();
     const QDir dir(projectPath);
     const QString projectName = wizard->projectName();

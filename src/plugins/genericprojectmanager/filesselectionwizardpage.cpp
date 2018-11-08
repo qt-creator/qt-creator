@@ -44,7 +44,7 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
     m_genericProjectWizardDialog(genericProjectWizard),
     m_filesWidget(new ProjectExplorer::SelectableFilesWidget(this))
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
 
     layout->addWidget(m_filesWidget);
     m_filesWidget->setBaseDirEditable(false);

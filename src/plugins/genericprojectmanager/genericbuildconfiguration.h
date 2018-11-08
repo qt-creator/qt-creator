@@ -55,7 +55,7 @@ class GenericBuildConfigurationFactory : public ProjectExplorer::IBuildConfigura
 
 public:
     GenericBuildConfigurationFactory();
-    ~GenericBuildConfigurationFactory();
+    ~GenericBuildConfigurationFactory() override;
 
 private:
     QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const override;
