@@ -132,7 +132,8 @@ class EngineManagerPrivate : public QObject
 public:
     EngineManagerPrivate()
     {
-        m_engineModel.setHeader({EngineManager::tr("Name"), EngineManager::tr("File")});
+        m_engineModel.setHeader({EngineManager::tr("Perspective"),
+                                 EngineManager::tr("Debugged Application")});
         // The preset case:
         auto preset = new EngineItem;
         m_engineModel.rootItem()->appendChild(preset);
