@@ -254,7 +254,9 @@ QVariant EngineItem::data(int column, int role) const
     } else {
         switch (role) {
         case Qt::DisplayRole:
-            return EngineManager::tr("Debugger Preset");
+            if (column == 0)
+                return EngineManager::tr("Debugger Preset");
+            return QString("-");
         default:
             break;
         }
