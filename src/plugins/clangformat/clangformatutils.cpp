@@ -118,7 +118,8 @@ static clang::format::FormatStyle constructStyle(bool isGlobal)
     FormatStyle style = getLLVMStyle();
     const CppCodeStyleSettings codeStyleSettings = isGlobal
             ? CppCodeStyleSettings::currentGlobalCodeStyle()
-            : CppCodeStyleSettings::currentProjectCodeStyle();
+            : CppCodeStyleSettings::currentProjectCodeStyle()
+              .value_or(CppCodeStyleSettings::currentGlobalCodeStyle());
     const TabSettings tabSettings = isGlobal
             ? CppCodeStyleSettings::currentGlobalTabSettings()
             : CppCodeStyleSettings::currentProjectTabSettings();
@@ -171,8 +172,7 @@ clang::format::FormatStyle currentGlobalStyle()
 
 clang::format::FormatStyle currentStyle()
 {
-    const bool isGlobal = (CppCodeStyleSettings::currentProjectCodeStyle()
-                           == CppCodeStyleSettings::currentGlobalCodeStyle());
+    const bool isGlobal = !CppCodeStyleSettings::currentProjectCodeStyle().has_value();
     return currentStyle(isGlobal);
 }
 
