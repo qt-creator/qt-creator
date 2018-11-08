@@ -53,7 +53,6 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
         connect(m_testApplication, &QProcess::readyReadStandardError,
                 this, [this] () {
             const QByteArray output = m_testApplication->readAllStandardError();
-            emit newOutputAvailable(output);
             processStdError(output);
         });
     }
@@ -68,6 +67,7 @@ void TestOutputReader::processOutput(const QByteArray &output)
 void TestOutputReader::processStdError(const QByteArray &outputLineWithNewLine)
 {
     qWarning() << "AutoTest.Run: Ignored plain output:" << outputLineWithNewLine;
+    emit newOutputAvailable(outputLineWithNewLine);
 }
 
 void TestOutputReader::reportCrash()
