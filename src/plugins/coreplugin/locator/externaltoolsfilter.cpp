@@ -67,7 +67,9 @@ void ExternalToolsFilter::refresh(QFutureInterface<void> &)
 
 void ExternalToolsFilter::prepareSearch(const QString &entry)
 {
-    m_results.clear();
+    QList<LocatorFilterEntry> bestEntries;
+    QList<LocatorFilterEntry> betterEntries;
+    QList<LocatorFilterEntry> goodEntries;
     const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
     const QMap<QString, ExternalTool *> externalToolsById = ExternalToolManager::toolsById();
     for (ExternalTool *tool : externalToolsById) {
@@ -82,7 +84,14 @@ void ExternalToolsFilter::prepareSearch(const QString &entry)
             LocatorFilterEntry filterEntry(this, tool->displayName(), QVariant::fromValue(tool));
             filterEntry.extraInfo = tool->description();
             filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, entry.length(), hDataType);
-            m_results.append(filterEntry);
+
+            if (filterEntry.displayName.startsWith(entry, entryCaseSensitivity))
+                bestEntries.append(filterEntry);
+            else if (filterEntry.displayName.contains(entry, entryCaseSensitivity))
+                betterEntries.append(filterEntry);
+            else
+                goodEntries.append(filterEntry);
         }
     }
+    m_results = bestEntries + betterEntries + goodEntries;
 }
