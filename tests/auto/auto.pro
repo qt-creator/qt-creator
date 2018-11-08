@@ -10,7 +10,6 @@ SUBDIRS += \
     extensionsystem \
     externaltool \
     environment \
-    generichighlighter \
     pointeralgorithm \
     profilewriter \
     ssh \

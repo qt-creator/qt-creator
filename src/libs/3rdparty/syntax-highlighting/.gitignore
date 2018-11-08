@@ -1,0 +1,9 @@
+*.kdev4
+*.orig
+*.out
+*.rej
+*~
+/compile.pl
+CMakeLists.txt.user
+callgrind.*
+heaptrack.*

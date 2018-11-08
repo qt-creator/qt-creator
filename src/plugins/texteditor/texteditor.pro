@@ -34,23 +34,9 @@ SOURCES += texteditorplugin.cpp \
     textindenter.cpp \
     quickfix.cpp \
     syntaxhighlighter.cpp \
-    highlighterutils.cpp \
-    generichighlighter/itemdata.cpp \
-    generichighlighter/specificrules.cpp \
-    generichighlighter/rule.cpp \
-    generichighlighter/dynamicrule.cpp \
-    generichighlighter/context.cpp \
-    generichighlighter/includerulesinstruction.cpp \
-    generichighlighter/progressdata.cpp \
-    generichighlighter/keywordlist.cpp \
-    generichighlighter/highlightdefinition.cpp \
-    generichighlighter/highlighter.cpp \
-    generichighlighter/manager.cpp \
-    generichighlighter/highlightdefinitionhandler.cpp \
-    generichighlighter/highlightersettingspage.cpp \
-    generichighlighter/highlightersettings.cpp \
-    generichighlighter/managedefinitionsdialog.cpp \
-    generichighlighter/definitiondownloader.cpp \
+    highlighter.cpp \
+    highlightersettings.cpp \
+    highlightersettingspage.cpp \
     refactoringchanges.cpp \
     refactoroverlay.cpp \
     outlinefactory.cpp \
@@ -137,27 +123,9 @@ HEADERS += texteditorplugin.h \
     textindenter.h \
     quickfix.h \
     syntaxhighlighter.h \
-    highlighterutils.h \
-    generichighlighter/reuse.h \
-    generichighlighter/itemdata.h \
-    generichighlighter/specificrules.h \
-    generichighlighter/rule.h \
-    generichighlighter/reuse.h \
-    generichighlighter/dynamicrule.h \
-    generichighlighter/context.h \
-    generichighlighter/includerulesinstruction.h \
-    generichighlighter/progressdata.h \
-    generichighlighter/keywordlist.h \
-    generichighlighter/highlighterexception.h \
-    generichighlighter/highlightdefinition.h \
-    generichighlighter/highlighter.h \
-    generichighlighter/manager.h \
-    generichighlighter/highlightdefinitionhandler.h \
-    generichighlighter/highlightersettingspage.h \
-    generichighlighter/highlightersettings.h \
-    generichighlighter/managedefinitionsdialog.h \
-    generichighlighter/highlightdefinitionmetadata.h \
-    generichighlighter/definitiondownloader.h \
+    highlighter.h \
+    highlightersettings.h \
+    highlightersettingspage.h \
     refactoringchanges.h \
     refactoroverlay.h \
     outlinefactory.h \
@@ -223,14 +191,14 @@ FORMS += \
     displaysettingspage.ui \
     fontsettingspage.ui \
     colorschemeedit.ui \
-    generichighlighter/highlightersettingspage.ui \
-    generichighlighter/managedefinitionsdialog.ui \
     snippets/snippetssettingspage.ui \
     behaviorsettingswidget.ui \
     behaviorsettingspage.ui \
     tabsettingswidget.ui \
     completionsettingspage.ui \
-    codestyleselectorwidget.ui
+    codestyleselectorwidget.ui \
+    highlightersettingspage.ui
+
 RESOURCES += texteditor.qrc
 
 equals(TEST, 1) {

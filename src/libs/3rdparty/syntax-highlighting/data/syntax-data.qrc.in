@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource prefix="/org.kde.syntax-highlighting/syntax">
+<file alias="index.katesyntax">@CMAKE_CURRENT_BINARY_DIR@/index.katesyntax</file>
+@SYNTAX_DATA_QRC_FILES_STRING@
+</qresource>
+</RCC>

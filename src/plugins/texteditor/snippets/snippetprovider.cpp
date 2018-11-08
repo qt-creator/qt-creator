@@ -25,7 +25,7 @@
 
 #include "snippetprovider.h"
 
-#include "texteditorplugin.h"
+#include <texteditor/texteditorplugin.h>
 
 #include <utils/algorithm.h>
 

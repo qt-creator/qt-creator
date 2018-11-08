@@ -25,23 +25,24 @@
 
 #include "texteditorsettings.h"
 
-#include "fontsettings.h"
-#include "texteditor.h"
 #include "behaviorsettings.h"
 #include "behaviorsettingspage.h"
 #include "completionsettings.h"
-#include "marginsettings.h"
+#include "completionsettingspage.h"
 #include "displaysettings.h"
 #include "displaysettingspage.h"
-#include "fontsettingspage.h"
-#include "typingsettings.h"
-#include "storagesettings.h"
-#include "tabsettings.h"
 #include "extraencodingsettings.h"
+#include "fontsettings.h"
+#include "fontsettingspage.h"
+#include "highlightersettingspage.h"
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
-#include "completionsettingspage.h"
-#include <texteditor/generichighlighter/highlightersettingspage.h>
+#include "marginsettings.h"
+#include "storagesettings.h"
+#include "tabsettings.h"
+#include "texteditor.h"
+#include "typingsettings.h"
+
 #include <texteditor/snippets/snippetssettingspage.h>
 
 #include <extensionsystem/pluginmanager.h>

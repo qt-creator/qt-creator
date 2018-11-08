@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  	Copyright (c) 2001 Joseph Wenninger <jowenn@kde.org>
+  	modified (c) 2002 Anders Lund <anders@alweb.dk>
+  	modified (c) 2003 Simon Huerlimann <simon.huerlimann@access.unizh.ch>
+  	modified (c) 2005 Dominik Haumann <dhdev@gmx.de>
+  	modified (c) 2008 Wilbert Berendsen <info@wilbertberendsen.nl>
+
+  	This file describes the XML format used for syntax highlight descriptions
+  	for the Kate text editor (http://kate.kde.org), which is part of the KDE
+  	desktop environment (http://www.kde.org).
+  	You'll find the "Writing a Kate Highlighting XML File HOWTO" at
+  	http://kate.kde.org/doc/hlhowto.php
+
+  	This format is identified using the SYSTEM identifier
+  	SYSTEM "language.dtd"
+
+  	Files using this format should include a DOCTYPE declaration like this:
+  	<!DOCTYPE language SYSTEM "language.dtd">
+
+  	You can validate your syntax files using "validatehl.sh yourSyntax.xml".
+  	This needs xmllint from the libxml2 XML library.
+
+  	In any case, the katehighlightingindexer will validate all files bundled
+  	with KTextEditor during compile time and fail on errors.
+
+  	To use your syntax file, copy it to ~/.local/share/katepart5/syntax/ in
+  	your home directory. You have to open a new instance of kwrite/kate to use
+  	the new syntax file.
+
+  TODO
+    - find a more readable way for the - -dtdvalid stuff, it's just annoying
+      xml comments don't allow it.
+-->
+<!--
+  Entity declarations
+    You can use '&per;' instead of '.'. This seems to be useful in <item> elements.
+
+  TODO
+    - Are there any more such pre-defined entities?
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <!--
+    Default Styles
+    Allowed predefined default styles for itemData, available are:
+      - dsNormal,   used for normal text
+      - dsKeyword,  used for keywords
+      - dsFunction, used for function calls
+      - dsVariable, used for variables
+      - dsControlFlow, used for control flow, e.g. if, then, else, continue, break
+      - dsOperator, used for operators such as +, -, *, ::
+      - dsBuiltIn,  used for built-in language classes and functions
+      - dsExtension,used for extensions, such as boost, Qt
+      - dsPreprocessor, used for preprocessor statements
+      - dsAttribute,used for attributes, e.g. @override in java
+
+      - dsChar,     used for a character
+      - dsSpecialChar, used for escaped characters
+      - dsString,   used for strings
+      - dsVerbatimString, used for strings such as HERE docs
+      - dsSpecialString, used for strings such as regular expressions or LaTeX math mode
+      - dsImport,   used for includes, imports and modules
+
+      - dsDataType, used for data types
+      - dsDecVal,   used for decimal values
+      - dsBaseN,    used for values with a base other than 10
+      - dsFloat,    used for float values
+      - dsConstant, used for language constants
+
+      - dsComment,  used for comments
+      - dsDocumentation, used for comments that are API documentation
+      - dsAnnotation, used for annotation in comments, e.g. @param in doxygen
+      - dsCommentVar, used for variables in comments, e.g. after @param in doxygen
+      - dsRegionMarker, used for region markers
+      - dsInformation, used for information in comments, e.g. @note in doxygen
+      - dsWarning,  used for warnings in comments, e.g. @warning in doxygen
+      - dsAlert,    used for warning messages such as TODO, WARNING in comments
+
+      - dsOthers,   used for 'other' things
+      - dsError,    used for error highlighting.
+  -->
+  <xs:simpleType name="defStyles">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="dsNormal"/>
+      <xs:enumeration value="dsKeyword"/>
+      <xs:enumeration value="dsFunction"/>
+      <xs:enumeration value="dsVariable"/>
+      <xs:enumeration value="dsControlFlow"/>
+      <xs:enumeration value="dsOperator"/>
+      <xs:enumeration value="dsBuiltIn"/>
+      <xs:enumeration value="dsExtension"/>
+      <xs:enumeration value="dsPreprocessor"/>
+      <xs:enumeration value="dsAttribute"/>
+      <xs:enumeration value="dsChar"/>
+      <xs:enumeration value="dsSpecialChar"/>
+      <xs:enumeration value="dsString"/>
+      <xs:enumeration value="dsVerbatimString"/>
+      <xs:enumeration value="dsSpecialString"/>
+      <xs:enumeration value="dsImport"/>
+      <xs:enumeration value="dsDataType"/>
+      <xs:enumeration value="dsDecVal"/>
+      <xs:enumeration value="dsBaseN"/>
+      <xs:enumeration value="dsFloat"/>
+      <xs:enumeration value="dsConstant"/>
+      <xs:enumeration value="dsComment"/>
+      <xs:enumeration value="dsDocumentation"/>
+      <xs:enumeration value="dsAnnotation"/>
+      <xs:enumeration value="dsCommentVar"/>
+      <xs:enumeration value="dsRegionMarker"/>
+      <xs:enumeration value="dsInformation"/>
+      <xs:enumeration value="dsWarning"/>
+      <xs:enumeration value="dsAlert"/>
+      <xs:enumeration value="dsOthers"/>
+      <xs:enumeration value="dsError"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <!--
+    Language specification
+      name:        The name of this syntax description. Used in the Highlightning Mode menu
+      section:     The logical group to which this syntax description belongs. Used for sub menus
+      extensions:  A file glob or pattern to decide for which documents to use this syntax description
+      style:       The style that this highlighter provides. It is used through required-syntax-style by the indenters. [optional]
+      mimetype:    A list of mimetypes to decide for which documents to use this syntax description [optional]
+      version:     Version number of this syntax description [optional]
+      kateversion: Kate version required for using this file [optional]
+      casesensitive: Whether text is matched case sensitive. [boolean, optional, default=true] FIXME: This is not implemented yet
+      priority:    Priority of this language, if more than one are usable for the file [optional]
+      author:      Name of author of this hl file [optional]
+      license:     License for this hl file [optional]
+      indenter:    Name of the Indenter to use for this highlighting mode per default, like "cstyle" [optional]
+      hidden:      Should it be hidden in menu [boolean, optional, default=false]
+
+    TODO
+      - Which matches are affected by casesensitive? keyword, RegExpr, StringDetect, WordDetect...?
+
+    WARNING: due to helper scripts, the language opening tag must be on a
+    *single line* and *cannot* be split in multiple lines.
+
+  -->
+  <xs:element name="language">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="highlighting"/>
+        <xs:element minOccurs="0" ref="general"/>
+        <xs:element minOccurs="0" ref="spellchecking"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="section" use="required" type="xs:NMTOKEN"/>
+      <xs:attribute name="extensions" use="required"/>
+      <xs:attribute name="version" use="required" type="xs:integer"/>
+      <xs:attribute name="kateversion" use="required" type="xs:decimal"/>
+      <xs:attribute name="style"/>
+      <xs:attribute name="mimetype"/>
+      <xs:attribute name="casesensitive" type="xs:boolean"/>
+      <xs:attribute name="priority" type="xs:integer"/>
+      <xs:attribute name="author"/>
+      <xs:attribute name="license"/>
+      <xs:attribute name="indenter"/>
+      <xs:attribute name="hidden" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- General options -->
+  <xs:element name="general">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="folding"/>
+        <xs:element ref="comments"/>
+        <xs:element ref="keywords"/>
+        <xs:element ref="emptyLines"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    List of folding
+    indentationsensitive: If true, the code folding is indentation based.
+  -->
+  <xs:element name="folding">
+    <xs:complexType>
+      <xs:attribute name="indentationsensitive" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- List of comments -->
+  <xs:element name="comments">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="comment"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Comment specification
+    name:         Type of this comment. Allowed are 'singleLine' and 'multiLine'
+    start:        The comment starts with this string
+    end:          The comment ends with this string [optional]
+    region:       The region name of the foldable multiline comment. If you have
+                  beginRegion="Comment" ... endRegion="Comment" you should use
+                  region="Comment". This way uncomment works even if you do not
+                  select all the text of the multiline comment.
+    position:     only availalbe for type singleLine. Default is column0, to insert
+                  the single line comment characters after the whitespaces
+                  (= before the first non space) set position to "afterwhitespace"
+  -->
+  <xs:element name="comment">
+    <xs:complexType>
+      <xs:attribute name="name" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="singleLine"/>
+            <xs:enumeration value="multiLine"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="start" use="required"/>
+      <xs:attribute name="end"/>
+      <xs:attribute name="region"/>
+      <xs:attribute name="position">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="afterwhitespace"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Keyword options
+    casesensitive:        Whether keywords are matched case sensitive. [boolean, optional, default=true]
+    weakDeliminator:      Add weak deliminators [optional, default: ""]
+    additionalDeliminator: Add deliminators [optional]
+    wordWrapDeliminator:  characters that are used to wrap long lines [optional]
+
+  -->
+  <xs:element name="keywords">
+    <xs:complexType>
+      <xs:attribute name="casesensitive" type="xs:boolean"/>
+      <xs:attribute name="weakDeliminator"/>
+      <xs:attribute name="additionalDeliminator"/>
+      <xs:attribute name="wordWrapDeliminator"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Treat lines that match a given regular expression as empty line. This is
+    needed for example in Python for comments (#...), as then the indentation
+    based folding should ignore the line.
+    This is only implemented for indentation based folding. If the folding
+    is not indentation based, the emptyLines are not used.
+  -->
+  <xs:element name="emptyLines">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="emptyLine"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    One empty line regular expression.
+    regexpr:       The regular expression, example from python: ^\s*#.*$
+    casesensitive: Sets, whether the regular expression match is performed case sesitive
+  -->
+  <xs:element name="emptyLine">
+    <xs:complexType>
+      <xs:attribute name="regexpr" use="required"/>
+      <xs:attribute name="casesensitive" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- Highlighting specification -->
+  <xs:element name="highlighting">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="list"/>
+        <xs:element ref="contexts"/>
+        <xs:element ref="itemDatas"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    List of items
+    name:     Name of this list
+  -->
+  <xs:element name="list">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="item"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    List item
+    contains string used in <keyword>
+  -->
+  <xs:element name="item" type="xs:string"/>
+  <!-- List of contexts -->
+  <xs:element name="contexts">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="context"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    context specification
+      name:             The name of this context specification. Used in '*Context' attributes [optional]
+      attribute:        The name of the ItemData to be used for matching text
+      lineEndContext:   Next context if end of line is encountered
+      lineEmptyContext: Next context if an empty line is encountered [optional]
+      fallthrough:      Use a fallthrough context [optional]
+      fallthroughContext: Fall through to this context [optional]
+      dynamic:          Dynamic context [boolean, optional]
+      noIndentationBasedFolding: Python uses indentation based folding. However, Python has parts where
+    		    it does not use indentation based folding (e.g. for """ strings). In this case
+    		    switch to an own context and set this attribute to true. Then the indentation
+    		    based folding will ignore this parts and not change folding markers. [optional]
+
+    TODO:
+      - Explain fallthrough.
+      - Do we need fallthrough at all? It could be true, if fallthroughContext is set, false otherwise.
+      - Make lineEndContext optional, defaults to '#stay'. Reasonable?
+  -->
+  <xs:element name="context">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="keyword"/>
+        <xs:element ref="Float"/>
+        <xs:element ref="HlCOct"/>
+        <xs:element ref="HlCHex"/>
+        <xs:element ref="HlCFloat"/>
+        <xs:element ref="Int"/>
+        <xs:element ref="DetectChar"/>
+        <xs:element ref="Detect2Chars"/>
+        <xs:element ref="AnyChar"/>
+        <xs:element ref="StringDetect"/>
+        <xs:element ref="WordDetect"/>
+        <xs:element ref="RegExpr"/>
+        <xs:element ref="LineContinue"/>
+        <xs:element ref="HlCStringChar"/>
+        <xs:element ref="RangeDetect"/>
+        <xs:element ref="HlCChar"/>
+        <xs:element ref="IncludeRules"/>
+        <xs:element ref="DetectSpaces"/>
+        <xs:element ref="DetectIdentifier"/>
+      </xs:choice>
+      <xs:attribute name="name"/>
+      <xs:attribute name="attribute" use="required"/>
+      <xs:attribute name="lineEndContext" use="required"/>
+      <xs:attribute name="lineEmptyContext"/>
+      <xs:attribute name="fallthrough" type="xs:boolean"/>
+      <xs:attribute name="fallthroughContext"/>
+      <xs:attribute name="dynamic" type="xs:boolean"/>
+      <xs:attribute name="noIndentationBasedFolding" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Common attributes
+    attribute:    The name of the ItemData to be used for matching text
+    context:      The name of the context to go to when this rule matches
+    beginRegion:  Begin a region of type beginRegion [optional]
+    endRegion:    End a region of type endRegion [optional]
+    firstNonSpace: should this rule only match at first non-space char in line?
+    column: should this rule only match at given column in line (column == count of chars in front)
+  -->
+  <xs:attributeGroup name="commonAttributes">
+    <xs:attribute name="attribute"/>
+    <xs:attribute name="context"/>
+    <xs:attribute name="beginRegion"/>
+    <xs:attribute name="endRegion"/>
+    <xs:attribute name="lookAhead" type="xs:boolean"/>
+    <xs:attribute name="firstNonSpace" type="xs:boolean"/>
+    <xs:attribute name="column" type="xs:integer"/>
+  </xs:attributeGroup>
+  <!--
+    Detect members of a keyword list
+      commonAttributes: Common attributes
+      insensitive:      Is this list case-insensitive? [boolean, optional, see note]
+      String:           Name of the list
+      weakDelimiter:    Use weak deliminator
+
+      By default, case sensitivity is determined from <keywords casesensitive> in
+      <general> (default=true), but can be overridden per-list with 'insensitive'.
+
+    TODO:
+      - Should be weakDeliminator
+      - Explain deliminator
+      - Doesn't seem to be supported in highligh.cpp
+  -->
+  <xs:element name="keyword">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="insensitive" type="xs:boolean"/>
+      <xs:attribute name="String" use="required"/>
+      <xs:attribute name="weakDelimiter"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect a floating point number
+    commonAttributes: Common attributes
+  -->
+  <xs:element name="Float">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect an octal number
+    commonAttributes: Common attributes
+  -->
+  <xs:element name="HlCOct">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect a hexadecimal number
+    commonAttributes: Common attributes
+  -->
+  <xs:element name="HlCHex">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect a C-style floating point number
+    commonAttributes: Common attributes
+  -->
+  <xs:element name="HlCFloat">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect C-style character
+      commonAttributes: Common attributes
+
+    TODO
+      - Did I get this right?
+  -->
+  <xs:element name="HlCChar">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect an integer number
+    commonAttributes: Common attributes
+  -->
+  <xs:element name="Int">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect a single character
+    commonAttributes: Common attributes
+    char:             The character to look for
+    dynamic:          Uses 1 .. 9 as placeholders for dynamic arguments (in fact, first char of arg...) [boolean, optional, default=false]
+  -->
+  <xs:element name="DetectChar">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="char" use="required"/>
+      <xs:attribute name="dynamic" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect two characters
+    commonAttributes: Common attributes
+    char:             The first character
+    char1:            The second character
+  -->
+  <xs:element name="Detect2Chars">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="char" use="required"/>
+      <xs:attribute name="char1" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect any group of characters
+      commonAttributes: Common attributes
+      String:           A string representing the characters to look for
+
+    TODO
+      - Description is not descriptive enough, I'm not sure what it exactly does:-(
+  -->
+  <xs:element name="AnyChar">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="String" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect a string
+      commonAttributes: Common attributes
+      String:           The string to look for
+      insensitive:      Whether the string is matched case INsensitive. [boolean, optional, default=false]
+      dynamic:          Uses %1 .. %9 as placeholders for dynamic arguments [boolean, optional, default=false]
+
+    TODO
+      - What's default of insensitive? I'm not sure...
+  -->
+  <xs:element name="StringDetect">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="String" use="required"/>
+      <xs:attribute name="insensitive" type="xs:boolean"/>
+      <xs:attribute name="dynamic" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect a word, i.e. a string at word boundaries
+      commonAttributes: Common attributes
+      String:           The string to look for
+      insensitive:      Whether the string is matched case INsensitive. [boolean, optional, default=false]
+
+    TODO
+      - What's default of insensitive? I'm not sure...
+  -->
+  <xs:element name="WordDetect">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="String" use="required"/>
+      <xs:attribute name="insensitive" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect a match of a regular expression
+    commonAttributes: Common attributes
+    String:           The regular expression pattern
+    insensitive:      Whether the text is matched case INsensitive. [boolean, optional, default=false]
+    minimal:          Wheather to use minimal matching for wild cards in the pattern [boolean, optional, default='false']
+    dynamic:          Uses %1 .. %9 as placeholders for dynamic arguments [boolean, optional, default=false]
+  -->
+  <xs:element name="RegExpr">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="String" use="required"/>
+      <xs:attribute name="insensitive" type="xs:boolean"/>
+      <xs:attribute name="minimal" type="xs:boolean"/>
+      <xs:attribute name="dynamic" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect a line continuation
+    commonAttributes: Common attributes
+    char:             The char marking the end of line [char,  optional,  default='\\']
+  -->
+  <xs:element name="LineContinue">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="char"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect a C-style escaped character
+      commonAttributes: Common attributes
+
+    TODO:
+      - Did I get this right? Only one character, or a string?
+  -->
+  <xs:element name="HlCStringChar">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Detect a range of characters
+    commonAttributes: Common attributes
+    char:             The character starting the range
+    char1:            The character terminating the range
+  -->
+  <xs:element name="RangeDetect">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+      <xs:attribute name="char" use="required"/>
+      <xs:attribute name="char1" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Include Rules of another context
+    context:             The name of the context to include
+    includeAttrib:       If this is true, the host context of the IncludeRules
+                         will be given the attribute of the source context
+  -->
+  <xs:element name="IncludeRules">
+    <xs:complexType>
+      <xs:attribute name="context" use="required"/>
+      <xs:attribute name="includeAttrib" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- Detect all following Spaces -->
+  <xs:element name="DetectSpaces">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- Detect an Identifier ( == LETTER(LETTER|NUMBER|_)*) -->
+  <xs:element name="DetectIdentifier">
+    <xs:complexType>
+      <xs:attributeGroup ref="commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- List of attributes -->
+  <xs:element name="itemDatas">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="itemData"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Attribute specification
+    name          CDATA   #REQUIRED       The name of this attribute
+    defStyleNum   CDATA   #REQUIRED       The index of the default style to use
+    color         CDATA   #IMPLIED        Color for this style, either a hex triplet, a name or some other format recognized by Qt [optional]
+    selColor      CDATA   #IMPLIED        The color for this style when text is selected [optional]
+    italic        CDATA   #IMPLIED        Whether this attribute should be rendered using an italic typeface [optional, boolean, default=false]
+    bold          CDATA   #IMPLIED        Whether this attribute should be renederd using a bold typeface [optional, boolean, default=false]
+    underline     CDATA   #IMPLIED        Whether this attribute should be underlined [optional, boolean, default=false]
+    strikeOut     CDATA   #IMPLIED        Whether this attribute should be striked out [optional, boolean, default=false]
+    backgroundColor    CDATA #IMPLIED     The background color for this style [optional]
+    selBackgroundColor CDATA #IMPLIED     The background color for this style when text is selected [optional]
+    spellChecking      CDATA #IMPLIED     Whether this attribute should be spell checked [optional, boolean, default=true]
+  -->
+  <xs:element name="itemData">
+    <xs:complexType>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="defStyleNum" use="required" type="defStyles"/>
+      <xs:attribute name="color"/>
+      <xs:attribute name="selColor"/>
+      <xs:attribute name="italic" type="xs:boolean"/>
+      <xs:attribute name="bold" type="xs:boolean"/>
+      <xs:attribute name="underline" type="xs:boolean"/>
+      <xs:attribute name="strikeOut" type="xs:boolean"/>
+      <xs:attribute name="backgroundColor"/>
+      <xs:attribute name="selBackgroundColor"/>
+      <xs:attribute name="spellChecking" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- Spellchecking specification -->
+  <xs:element name="spellchecking">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="encodings"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- List of character encodings -->
+  <xs:element name="encodings">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="encoding"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Encoding specification
+    sequence       CDATA        #REQUIRED  Character sequence of the encoding; must not contain new-line characters, i.e. \n or \r
+    character      CDATA        #IMPLIED   Encoded character; must be of length 1
+    ignored        (%boolean;)  #IMPLIED   If true, then the encoding sequence is ignored for spellchecking
+  -->
+  <xs:element name="encoding">
+    <xs:complexType>
+      <xs:attribute name="string" use="required"/>
+      <xs:attribute name="char"/>
+      <xs:attribute name="ignored" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

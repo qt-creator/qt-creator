@@ -21,5 +21,6 @@ Project {
         "utils/process_stub.qbs",
         "utils/process_ctrlc_stub.qbs",
         "utils/utils.qbs",
+        "3rdparty/syntax-highlighting/syntax-highlighting.qbs",
     ].concat(project.additionalLibs)
 }

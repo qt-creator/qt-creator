@@ -31,7 +31,9 @@ for(l, SUBDIRS) {
 }
 
 SUBDIRS += \
-    utils/process_stub.pro
+    utils/process_stub.pro \
+    3rdparty/syntax-highlighting \
+    3rdparty/syntax-highlighting/data
 
 win32:SUBDIRS += utils/process_ctrlc_stub.pro
 

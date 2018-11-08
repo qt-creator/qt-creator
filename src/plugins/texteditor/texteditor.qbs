@@ -1,4 +1,6 @@
 import qbs 1.0
+import qbs.FileInfo
+import qbs.Environment
 
 Project {
     name: "TextEditor"
@@ -9,10 +11,14 @@ Project {
         Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "printsupport"] }
         Depends { name: "Aggregation" }
         Depends { name: "Utils" }
+        Depends { name: "KSyntaxHighlighting" }
+
+        Export {
+            Depends { name: "KSyntaxHighlighting" }
+        }
 
         Depends { name: "Core" }
 
-        cpp.includePaths: base.concat([path]) // Needed for the highlighterengine autotest.
         cpp.enableExceptions: true
 
         files: [
@@ -80,8 +86,13 @@ Project {
             "fontsettingspage.ui",
             "formattexteditor.cpp",
             "formattexteditor.h",
-            "highlighterutils.cpp",
-            "highlighterutils.h",
+            "highlighter.cpp",
+            "highlighter.h",
+            "highlightersettings.cpp",
+            "highlightersettings.h",
+            "highlightersettingspage.cpp",
+            "highlightersettingspage.h",
+            "highlightersettingspage.ui",
             "icodestylepreferences.cpp",
             "icodestylepreferences.h",
             "icodestylepreferencesfactory.cpp",
@@ -194,50 +205,6 @@ Project {
                 "textdocumentmanipulator.cpp",
                 "textdocumentmanipulator.h",
                 "textdocumentmanipulatorinterface.h",
-            ]
-        }
-
-        Group {
-            name: "GenericHighlighter"
-            prefix: "generichighlighter/"
-            files: [
-                "context.cpp",
-                "context.h",
-                "definitiondownloader.cpp",
-                "definitiondownloader.h",
-                "dynamicrule.cpp",
-                "dynamicrule.h",
-                "highlightdefinition.cpp",
-                "highlightdefinition.h",
-                "highlightdefinitionhandler.cpp",
-                "highlightdefinitionhandler.h",
-                "highlightdefinitionmetadata.h",
-                "highlighter.cpp",
-                "highlighter.h",
-                "highlighterexception.h",
-                "highlightersettings.cpp",
-                "highlightersettings.h",
-                "highlightersettingspage.cpp",
-                "highlightersettingspage.h",
-                "highlightersettingspage.ui",
-                "includerulesinstruction.cpp",
-                "includerulesinstruction.h",
-                "itemdata.cpp",
-                "itemdata.h",
-                "keywordlist.cpp",
-                "keywordlist.h",
-                "managedefinitionsdialog.cpp",
-                "managedefinitionsdialog.h",
-                "managedefinitionsdialog.ui",
-                "manager.cpp",
-                "manager.h",
-                "progressdata.cpp",
-                "progressdata.h",
-                "reuse.h",
-                "rule.cpp",
-                "rule.h",
-                "specificrules.cpp",
-                "specificrules.h",
             ]
         }
 

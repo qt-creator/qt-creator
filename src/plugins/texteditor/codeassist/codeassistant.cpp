@@ -26,7 +26,6 @@
 #include "codeassistant.h"
 #include "completionassistprovider.h"
 #include "iassistprocessor.h"
-#include "textdocument.h"
 #include "iassistproposal.h"
 #include "iassistproposalmodel.h"
 #include "iassistproposalwidget.h"
@@ -35,6 +34,7 @@
 #include "runner.h"
 #include "textdocumentmanipulator.h"
 
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>

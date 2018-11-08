@@ -41,7 +41,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
-#include <texteditor/highlighterutils.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 

@@ -44,6 +44,8 @@ public:
     static TextEditorPlugin *instance();
     static LineNumberFilter *lineNumberFilter();
 
+    ShutdownFlag aboutToShutdown() override;
+
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final;

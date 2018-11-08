@@ -1,0 +1,5 @@
+add_subdirectory(indexer)
+if(TARGET Qt5::Gui)
+    add_subdirectory(lib)
+    add_subdirectory(cli)
+endif()

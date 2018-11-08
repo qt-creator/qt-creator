@@ -29,10 +29,10 @@
 #include "snippet.h"
 #include "snippetscollection.h"
 #include "snippetssettings.h"
-#include "textdocument.h"
 #include "ui_snippetssettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <extensionsystem/pluginmanager.h>

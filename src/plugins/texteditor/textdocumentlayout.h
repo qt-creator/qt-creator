@@ -30,6 +30,8 @@
 #include "textmark.h"
 #include "textdocument.h"
 
+#include <State>
+
 #include <QTextBlockUserData>
 #include <QPlainTextDocumentLayout>
 
@@ -133,6 +135,9 @@ public:
     CodeFormatterData *codeFormatterData() const { return m_codeFormatterData; }
     void setCodeFormatterData(CodeFormatterData *data);
 
+    KSyntaxHighlighting::State syntaxState() { return m_syntaxState; }
+    void setSyntaxState(KSyntaxHighlighting::State state) { m_syntaxState = state; }
+
 private:
     TextMarks m_marks;
     int m_foldingIndent : 16;
@@ -144,6 +149,7 @@ private:
     int m_additionalAnnotationHeight = 0;
     Parentheses m_parentheses;
     CodeFormatterData *m_codeFormatterData;
+    KSyntaxHighlighting::State m_syntaxState;
 };
 
 

@@ -14,7 +14,6 @@ Project {
         "extensionsystem/extensionsystem.qbs",
         "externaltool/externaltool.qbs",
         "filesearch/filesearch.qbs",
-        "generichighlighter/generichighlighter.qbs",
         "json/json.qbs",
         "languageserverprotocol/languageserverprotocol.qbs",
         "profilewriter/profilewriter.qbs",

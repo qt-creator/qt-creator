@@ -25,16 +25,16 @@
 
 #include "texteditorplugin.h"
 
-#include "texteditor.h"
 #include "findincurrentfile.h"
 #include "findinfiles.h"
 #include "findinopenfiles.h"
 #include "fontsettings.h"
-#include "generichighlighter/manager.h"
+#include "highlighter.h"
 #include "linenumberfilter.h"
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
 #include "snippets/snippetprovider.h"
+#include "texteditor.h"
 #include "texteditoractionhandler.h"
 #include "texteditorsettings.h"
 
@@ -144,9 +144,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
             editor->editorWidget()->showContextMenu();
     });
 
-    // Generic highlighter.
-    connect(ICore::instance(), &ICore::coreOpened, Manager::instance(), &Manager::registerHighlightingFiles);
-
     // Add text snippet provider.
     SnippetProvider::registerGroup(Constants::TEXT_SNIPPET_GROUP_ID,
                                     tr("Text", "SnippetProvider"));
@@ -227,6 +224,12 @@ void TextEditorPlugin::extensionsInitialized()
 LineNumberFilter *TextEditorPlugin::lineNumberFilter()
 {
     return &m_instance->d->lineNumberFilter;
+}
+
+ExtensionSystem::IPlugin::ShutdownFlag TextEditorPlugin::aboutToShutdown()
+{
+    Highlighter::handleShutdown();
+    return SynchronousShutdown;
 }
 
 void TextEditorPluginPrivate::updateSearchResultsFont(const FontSettings &settings)

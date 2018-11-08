@@ -35,7 +35,6 @@
 #include "texteditor.h"
 #include "texteditorconstants.h"
 #include "typingsettings.h"
-#include <texteditor/generichighlighter/highlighter.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -339,9 +338,6 @@ void TextDocument::setTabSettings(const TabSettings &newTabSettings)
     if (newTabSettings == d->m_tabSettings)
         return;
     d->m_tabSettings = newTabSettings;
-
-    if (auto highlighter = qobject_cast<Highlighter *>(d->m_highlighter))
-        highlighter->setTabSettings(tabSettings());
 
     emit tabSettingsChanged();
 }

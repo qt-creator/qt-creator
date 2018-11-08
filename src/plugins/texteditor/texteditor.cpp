@@ -37,31 +37,27 @@
 #include "circularclipboardassist.h"
 #include "codecselector.h"
 #include "completionsettings.h"
-#include "highlighterutils.h"
+#include "extraencodingsettings.h"
+#include "highlighter.h"
+#include "highlightersettings.h"
 #include "icodestylepreferences.h"
 #include "indenter.h"
+#include "refactoroverlay.h"
 #include "snippets/snippet.h"
+#include "storagesettings.h"
 #include "syntaxhighlighter.h"
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "textdocumentlayout.h"
 #include "texteditorconstants.h"
 #include "texteditoroverlay.h"
-#include "refactoroverlay.h"
 #include "texteditorsettings.h"
 #include "typingsettings.h"
-#include "extraencodingsettings.h"
-#include "storagesettings.h"
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/codeassistant.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/documentcontentcompletion.h>
-#include <texteditor/generichighlighter/context.h>
-#include <texteditor/generichighlighter/highlightdefinition.h>
-#include <texteditor/generichighlighter/highlighter.h>
-#include <texteditor/generichighlighter/highlightersettings.h>
-#include <texteditor/generichighlighter/manager.h>
 
 #include <coreplugin/icore.h>
 #include <aggregation/aggregate.h>
@@ -94,6 +90,7 @@
 #include <QClipboard>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QFutureWatcher>
 #include <QGridLayout>
 #include <QKeyEvent>
 #include <QMap>
@@ -847,17 +844,21 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
  */
 static void updateEditorInfoBar(TextEditorWidget *widget)
 {
-    Id infoSyntaxDefinition(Constants::INFO_SYNTAX_DEFINITION);
+    Id id(Constants::INFO_SYNTAX_DEFINITION);
     InfoBar *infoBar = widget->textDocument()->infoBar();
     if (!widget->isMissingSyntaxDefinition()) {
-        infoBar->removeInfo(infoSyntaxDefinition);
-    } else if (infoBar->canInfoBeAdded(infoSyntaxDefinition)) {
-        InfoBarEntry info(infoSyntaxDefinition,
+        infoBar->removeInfo(id);
+    } else if (infoBar->canInfoBeAdded(id)) {
+        InfoBarEntry info(id,
                           BaseTextEditor::tr("A highlight definition was not found for this file. "
-                                             "Would you like to try to find one?"),
+                                             "Would you like to update highlight definition files?"),
                           InfoBarEntry::GlobalSuppressionEnabled);
-        info.setCustomButtonInfo(BaseTextEditor::tr("Show Highlighter Options..."), [widget]() {
-            ICore::showOptionsDialog(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS, widget);
+        info.setCustomButtonInfo(BaseTextEditor::tr("Update Definitions"), [id, widget]() {
+            widget->textDocument()->infoBar()->removeInfo(id);
+            Highlighter::updateDefinitions([widget = QPointer<TextEditorWidget>(widget)]() {
+                if (widget)
+                    widget->configureGenericHighlighter();
+            });
         });
 
         infoBar->addInfo(info);
@@ -8463,37 +8464,30 @@ QString TextEditorWidget::textAt(int from, int to) const
 void TextEditorWidget::configureGenericHighlighter()
 {
     auto highlighter = new Highlighter();
-    highlighter->setTabSettings(textDocument()->tabSettings());
     textDocument()->setSyntaxHighlighter(highlighter);
 
     setCodeFoldingSupported(false);
 
     const QString type = textDocument()->mimeType();
     const MimeType mimeType = Utils::mimeTypeForName(type);
-    if (mimeType.isValid()) {
-        d->m_isMissingSyntaxDefinition = true;
+    const QString fileName = textDocument()->filePath().fileName();
+    KSyntaxHighlighting::Definition definition;
+    if (mimeType.isValid())
+        definition = Highlighter::definitionForMimeType(mimeType.name());
+    if (!definition.isValid())
+        definition = Highlighter::definitionForFileName(fileName);
 
-        QString definitionId;
-        setMimeTypeForHighlighter(highlighter, mimeType, textDocument()->filePath().toString(),
-                                  &definitionId);
+    if (definition.isValid()) {
+        highlighter->setDefinition(definition);
+        d->m_isMissingSyntaxDefinition = false;
+        d->m_commentDefinition.singleLine = definition.singleLineCommentMarker();
+        d->m_commentDefinition.multiLineStart = definition.multiLineCommentMarker().first;
+        d->m_commentDefinition.multiLineEnd = definition.multiLineCommentMarker().second;
 
-        if (!definitionId.isEmpty()) {
-            d->m_isMissingSyntaxDefinition = false;
-            const QSharedPointer<HighlightDefinition> &definition =
-                Manager::instance()->definition(definitionId);
-            if (!definition.isNull() && definition->isValid()) {
-                d->m_commentDefinition.isAfterWhiteSpaces = definition->isCommentAfterWhiteSpaces();
-                d->m_commentDefinition.singleLine = definition->singleLineComment();
-                d->m_commentDefinition.multiLineStart = definition->multiLineCommentStart();
-                d->m_commentDefinition.multiLineEnd = definition->multiLineCommentEnd();
-
-                setCodeFoldingSupported(true);
-            }
-        } else {
-            const QString fileName = textDocument()->filePath().toString();
-            if (TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName))
-                d->m_isMissingSyntaxDefinition = false;
-        }
+        setCodeFoldingSupported(true);
+    } else {
+        d->m_isMissingSyntaxDefinition =
+            !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName);
     }
 
     textDocument()->setFontSettings(TextEditorSettings::fontSettings());
@@ -8544,9 +8538,6 @@ void TextEditorWidget::setupGenericHighlighter()
     setLineSeparatorsAllowed(true);
 
     connect(textDocument(), &IDocument::filePathChanged,
-            d, &TextEditorWidgetPrivate::reconfigure);
-
-    connect(Manager::instance(), &Manager::highlightingFilesRegistered,
             d, &TextEditorWidgetPrivate::reconfigure);
 
     updateEditorInfoBar(this);
