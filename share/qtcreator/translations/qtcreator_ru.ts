@@ -246,8 +246,8 @@ The minimum API level required by the kit is %1.</source>
         <translation>Отладчик Android для %1</translation>
     </message>
     <message>
-        <source>Android for %1 (GCC %2, %3)</source>
-        <translation>Android для %1 (GCC %2, Qt %3)</translation>
+        <source>Android for %1 (Clang %2)</source>
+        <translation>Android для %1 (Clang %2)</translation>
     </message>
 </context>
 <context>
@@ -1407,36 +1407,15 @@ Cancelling pending operations...
         <translation>В Android SDK недостаёт пакетов</translation>
     </message>
     <message>
-        <source>Cannot create kits for all architectures.</source>
-        <translation>Невозможно создать комплекты для всех архитектур.</translation>
-    </message>
-    <message>
-        <source>Qt versions are missing for the following architectures:
-%1
-
-To add the Qt version, select Options &gt; Build &amp; Run &gt; Qt Versions.</source>
-        <translation>Отсутствуют профили Qt для следующих архитектур:
-%1
-
-Для добавления профиля зайдите в Параметры &gt; Сборка и запуск &gt; Профили Qt.</translation>
-    </message>
-    <message>
         <source>(SDK Version: %1, NDK Version: %2)</source>
         <translation>(Версия SDK: %1, Версия NDK: %2)</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
-    <message>
-        <source>NDK Root:</source>
-        <translation>Корень NDK:</translation>
-    </message>
-</context>
-<context>
     <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
-        <source>Android GCC</source>
-        <translation>Android GCC</translation>
+        <source>Android Clang</source>
+        <translation>Android Clang</translation>
     </message>
 </context>
 <context>
@@ -6993,6 +6972,13 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>CompilationDatabaseProject</name>
+    <message>
+        <source>No matching toolchain found, use the default.</source>
+        <translation>Не обнаружен подходящий инструментарий, используется стандартный.</translation>
+    </message>
+</context>
+<context>
     <name>ContentWindow</name>
     <message>
         <source>Open Link</source>
@@ -9681,6 +9667,10 @@ Do you want to kill it?</source>
         <translation>При сравнении имён файлов:</translation>
     </message>
     <message>
+        <source>Command line arguments used for &quot;%1&quot;.</source>
+        <translation>Параметры командной строки для «%1».</translation>
+    </message>
+    <message>
         <source>Command used for reverting diff chunks.</source>
         <translation>Команда, используемая для отката фрагментов diff.</translation>
     </message>
@@ -9727,10 +9717,6 @@ Do you want to kill it?</source>
     <message>
         <source>Minimum number of open documents that should be kept in memory. Increasing this number will lead to greater resource usage when not manually closing documents.</source>
         <translation>Минимальное число открытых документов, которые необходимо хранить в памяти. При увеличении этого числа будет расти и потребление ресурсов, если не закрывать документы вручную.</translation>
-    </message>
-    <message>
-        <source>Command line arguments used for &quot;Open Terminal Here&quot;.</source>
-        <translation>Параметры командной строки для «Открыть терминале в этом каталоге».</translation>
     </message>
     <message>
         <source>Command line arguments used for &quot;Run in terminal&quot;.</source>
@@ -13371,6 +13357,14 @@ Setting breakpoints by file name and line number may fail.</source>
 <context>
     <name>Debugger::Internal::DebuggerEnginePrivate</name>
     <message>
+        <source>Continue %1</source>
+        <translation>Продолжить %1</translation>
+    </message>
+    <message>
+        <source>Interrupt %1</source>
+        <translation>Прервать %1</translation>
+    </message>
+    <message>
         <source>Debugger finished.</source>
         <translation>Отладчик завершился.</translation>
     </message>
@@ -13698,10 +13692,6 @@ Affected are breakpoints %1</source>
         <translation>Прервать отладку</translation>
     </message>
     <message>
-        <source>Aborts debugging and resets the debugger to the initial state.</source>
-        <translation>Прервать отладку и сбросить отладчик в исходное состояние.</translation>
-    </message>
-    <message>
         <source>Step Over</source>
         <translation>Перейти через</translation>
     </message>
@@ -13760,18 +13750,6 @@ Affected are breakpoints %1</source>
     <message>
         <source>Start debugging of &quot;%1&quot;</source>
         <translation>Запуск отладки «%1»</translation>
-    </message>
-    <message>
-        <source>Start &quot;%1&quot; and break at function &quot;main&quot;</source>
-        <translation>Запускает «%1» и останавливается на функции «main»</translation>
-    </message>
-    <message>
-        <source>Interrupt %1</source>
-        <translation>Прервать %1</translation>
-    </message>
-    <message>
-        <source>Continue %1</source>
-        <translation>Продолжить %1</translation>
     </message>
     <message>
         <source>Process Already Under Debugger Control</source>
@@ -22743,6 +22721,10 @@ Error: %5</translation>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
         <translation>Неожиданное завершение. Перезапуск через %1 секунд.</translation>
+    </message>
+    <message>
+        <source>Unexpectedly finished.</source>
+        <translation>Неожиданное завершение.</translation>
     </message>
 </context>
 <context>
