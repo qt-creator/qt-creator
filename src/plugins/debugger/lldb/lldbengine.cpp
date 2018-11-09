@@ -191,6 +191,11 @@ void LldbEngine::abortDebuggerProcess()
         notifyEngineShutdownFinished();
 }
 
+static QString adapterStartFailed()
+{
+    return LldbEngine::tr("Adapter start failed.");
+}
+
 void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
@@ -211,7 +216,7 @@ void LldbEngine::setupEngine()
         notifyEngineSetupFailed();
         showMessage("ADAPTER START FAILED");
         if (!msg.isEmpty())
-            ICore::showWarningWithOptions(tr("Adapter start failed."), msg);
+            ICore::showWarningWithOptions(adapterStartFailed(), msg);
         return;
     }
     m_lldbProc.waitForReadyRead(1000);
@@ -222,9 +227,8 @@ void LldbEngine::setupEngine()
         ICore::resourcePath().toLocal8Bit() + "/debugger/";
 
     m_lldbProc.write("script sys.path.insert(1, '" + dumperSourcePath + "')\n");
+    // This triggers reportState("enginesetupok") or "enginesetupfailed":
     m_lldbProc.write("script from lldbbridge import *\n");
-    m_lldbProc.write("script print(dir())\n");
-    m_lldbProc.write("script theDumper = Dumper()\n"); // This triggers reportState("enginesetupok")
 
     QString commands = nativeStartupCommands();
     if (!commands.isEmpty())
@@ -384,7 +388,7 @@ void LldbEngine::handleResponse(const QString &response)
                     cmd.callback(response);
             }
         } else if (name == "state")
-            handleStateNotification(item);
+            handleStateNotification(all);
         else if (name == "location")
             handleLocationNotification(item);
         else if (name == "output")
@@ -830,9 +834,9 @@ void LldbEngine::readLldbStandardOutput()
     }
 }
 
-void LldbEngine::handleStateNotification(const GdbMi &reportedState)
+void LldbEngine::handleStateNotification(const GdbMi &item)
 {
-    QString newState = reportedState.data();
+    const QString newState = item["state"].data();
     if (newState == "running")
         notifyInferiorRunOk();
     else if (newState == "inferiorrunfailed")
@@ -867,9 +871,11 @@ void LldbEngine::handleStateNotification(const GdbMi &reportedState)
         notifyInferiorIll();
     else if (newState == "enginesetupok")
         notifyEngineSetupOk();
-    else if (newState == "enginesetupfailed")
+    else if (newState == "enginesetupfailed") {
+        Core::AsynchronousMessageBox::critical(adapterStartFailed(),
+                                               item["error"].data());
         notifyEngineSetupFailed();
-    else if (newState == "enginerunfailed")
+    } else if (newState == "enginerunfailed")
         notifyEngineRunFailed();
     else if (newState == "enginerunandinferiorrunok") {
         if (runParameters().continueAfterAttach)
