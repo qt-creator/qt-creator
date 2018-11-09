@@ -85,6 +85,8 @@ private:
                                const QByteArray &customFileContent,
                                int functionNameStartPosition = -1);
 
+    CodeCompletions applyCompletionFixIt(const CodeCompletions &completions);
+
 private:
     struct Position { int line; int column; };
     Position extractLineColumn(int position);
