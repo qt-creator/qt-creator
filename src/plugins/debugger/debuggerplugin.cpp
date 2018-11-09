@@ -2021,14 +2021,6 @@ void addDebugInfoTask(unsigned id, const QString &cmd)
     dd->m_debugInfoTaskHandler.addTask(id, cmd);
 }
 
-bool isReverseDebuggingEnabled()
-{
-    return true;
-
-    static bool enabled = qEnvironmentVariableIsSet("QTC_DEBUGGER_ENABLE_REVERSE");
-    return enabled;
-}
-
 void DebuggerPluginPrivate::extensionsInitialized()
 {
     // If the CppEditor or QmlJS editor plugin is there, we want to add something to
