@@ -95,14 +95,15 @@ public:
         StringTable::destroy();
         delete m_cppFileSettingsPage;
         delete m_cppCodeModelSettingsPage;
-        delete m_cppCodeStyleSettingsPage;
+        if (m_cppCodeStyleSettingsPage)
+            delete m_cppCodeStyleSettingsPage;
     }
 
     QSharedPointer<CppCodeModelSettings> m_codeModelSettings;
     CppToolsSettings *m_settings = nullptr;
     CppFileSettingsPage *m_cppFileSettingsPage = nullptr;
     CppCodeModelSettingsPage *m_cppCodeModelSettingsPage = nullptr;
-    CppCodeStyleSettingsPage *m_cppCodeStyleSettingsPage = nullptr;
+    QPointer<CppCodeStyleSettingsPage> m_cppCodeStyleSettingsPage = nullptr;
 };
 
 CppToolsPlugin::CppToolsPlugin()
