@@ -546,7 +546,7 @@ VcsBaseSubmitEditor::PromptSubmitResult
     QWidget *parent = Core::ICore::mainWindow();
     // Pop up a message depending on whether the check succeeded and the
     // user wants to be prompted
-    bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit();
+    bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
     if (canCommit) {
         // Check ok, do prompt?
         if (prompt) {

@@ -152,13 +152,24 @@ void GitSubmitEditorWidget::setPanelData(const GitSubmitEditorPanelData &data)
     authorInformationChanged();
 }
 
-bool GitSubmitEditorWidget::canSubmit() const
+bool GitSubmitEditorWidget::canSubmit(QString *whyNot) const
 {
-    if (m_gitSubmitPanelUi.invalidAuthorLabel->isVisible()
-        || m_gitSubmitPanelUi.invalidEmailLabel->isVisible()
-        || m_hasUnmerged)
+    if (m_gitSubmitPanelUi.invalidAuthorLabel->isVisible()) {
+        if (whyNot)
+            *whyNot = tr("Invalid author");
         return false;
-    return SubmitEditorWidget::canSubmit();
+    }
+    if (m_gitSubmitPanelUi.invalidEmailLabel->isVisible()) {
+        if (whyNot)
+            *whyNot = tr("Invalid email");
+        return false;
+    }
+    if (m_hasUnmerged) {
+        if (whyNot)
+            *whyNot = tr("Unresolved merge conflicts");
+        return false;
+    }
+    return SubmitEditorWidget::canSubmit(whyNot);
 }
 
 QString GitSubmitEditorWidget::cleanupDescription(const QString &input) const

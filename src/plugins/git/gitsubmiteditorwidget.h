@@ -72,7 +72,7 @@ public:
     void refreshLog(const QString &repository);
 
 protected:
-    bool canSubmit() const override;
+    bool canSubmit(QString *whyNot) const override;
     QString cleanupDescription(const QString &) const override;
     QString commitName() const override;
 

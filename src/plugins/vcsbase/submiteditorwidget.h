@@ -94,7 +94,7 @@ public:
     void addSubmitFieldWidget(SubmitFieldWidget *f);
     QList<SubmitFieldWidget *> submitFieldWidgets() const;
 
-    virtual bool canSubmit() const;
+    virtual bool canSubmit(QString *whyNot = nullptr) const;
     void setUpdateInProgress(bool value);
     bool updateInProgress() const;
 

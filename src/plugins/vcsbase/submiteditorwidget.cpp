@@ -532,14 +532,23 @@ void SubmitEditorWidget::descriptionTextChanged()
     updateSubmitAction();
 }
 
-bool SubmitEditorWidget::canSubmit() const
+bool SubmitEditorWidget::canSubmit(QString *whyNot) const
 {
-    if (d->m_updateInProgress)
+    if (d->m_updateInProgress) {
+        if (whyNot)
+            *whyNot = tr("Update in progress");
         return false;
-    if (isDescriptionMandatory() && d->m_description.trimmed().isEmpty())
+    }
+    if (isDescriptionMandatory() && d->m_description.trimmed().isEmpty()) {
+        if (whyNot)
+            *whyNot = tr("Description is empty");
         return false;
+    }
     const unsigned checkedCount = checkedFilesCount();
-    return d->m_emptyFileListEnabled || checkedCount > 0;
+    const bool res = d->m_emptyFileListEnabled || checkedCount > 0;
+    if (!res && whyNot)
+        *whyNot = tr("No files checked");
+    return res;
 }
 
 void SubmitEditorWidget::setUpdateInProgress(bool value)
