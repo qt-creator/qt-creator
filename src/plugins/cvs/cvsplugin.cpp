@@ -431,12 +431,9 @@ bool CvsPlugin::submitEditorAboutToClose()
 
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    const VcsBaseSubmitEditor::PromptSubmitResult answer =
-            editor->promptSubmit(tr("Closing CVS Editor"),
-                                 tr("Do you want to commit the change?"),
-                                 tr("The commit message check failed. Do you want to commit the change?"),
-                                 client()->settings().boolPointer(CvsSettings::promptOnSubmitKey),
-                                 !m_submitActionTriggered);
+    const VcsBaseSubmitEditor::PromptSubmitResult answer = editor->promptSubmit(
+                this, client()->settings().boolPointer(CvsSettings::promptOnSubmitKey),
+                !m_submitActionTriggered);
     m_submitActionTriggered = false;
     switch (answer) {
     case VcsBaseSubmitEditor::SubmitCanceled:

@@ -31,6 +31,7 @@
 #include "submiteditorwidget.h"
 #include "submitfieldwidget.h"
 #include "submitfilemodel.h"
+#include "vcsbaseplugin.h"
 #include "vcsoutputwindow.h"
 #include "vcsplugin.h"
 #include "vcsprojectcache.h"
@@ -58,6 +59,7 @@
 #include <QFileInfo>
 #include <QPointer>
 #include <QProcess>
+#include <QPushButton>
 #include <QSet>
 #include <QStringListModel>
 #include <QStyle>
@@ -523,14 +525,31 @@ void VcsBaseSubmitEditor::setDescriptionMandatory(bool v)
 
 enum { checkDialogMinimumWidth = 500 };
 
+static QString withUnusedMnemonic(QString string, const QList<QPushButton *> &otherButtons)
+{
+    QSet<QChar> mnemonics;
+    for (QPushButton *button : otherButtons) {
+        const QString text = button->text();
+        const int ampersandPos = text.indexOf('&');
+        if (ampersandPos >= 0 && ampersandPos < text.size() - 1)
+            mnemonics.insert(text.at(ampersandPos + 1));
+    }
+    for (int i = 0, total = string.length(); i < total; ++i) {
+        if (!mnemonics.contains(string.at(i)))
+            return string.insert(i, '&');
+    }
+    return string;
+}
+
 VcsBaseSubmitEditor::PromptSubmitResult
-        VcsBaseSubmitEditor::promptSubmit(const QString &title,
-                                          const QString &question,
-                                          const QString &checkFailureQuestion,
+        VcsBaseSubmitEditor::promptSubmit(VcsBasePlugin *plugin,
                                           bool *promptSetting,
                                           bool forcePrompt,
                                           bool canCommitOnFailure)
 {
+    bool dummySetting = false;
+    if (!promptSetting)
+        promptSetting = &dummySetting;
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
     Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
@@ -539,67 +558,52 @@ VcsBaseSubmitEditor::PromptSubmitResult
         return SubmitDiscarded;
 
     QString errorMessage;
-    QMessageBox::StandardButton answer = QMessageBox::Yes;
 
     const bool prompt = forcePrompt || *promptSetting;
 
-    QWidget *parent = Core::ICore::mainWindow();
     // Pop up a message depending on whether the check succeeded and the
     // user wants to be prompted
     bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
+    if (canCommit && !prompt)
+        return SubmitConfirmed;
+    CheckableMessageBox mb(Core::ICore::dialogParent());
+    const QString commitName = plugin->commitDisplayName();
+    mb.setWindowTitle(tr("Close %1 %2 Editor")
+                      .arg(plugin->versionControl()->displayName(), commitName));
+    mb.setIconPixmap(QMessageBox::standardIcon(QMessageBox::Question));
+    QString message;
     if (canCommit) {
-        // Check ok, do prompt?
-        if (prompt) {
-            // Provide check box to turn off prompt ONLY if it was not forced
-            if (*promptSetting && !forcePrompt) {
-                const QDialogButtonBox::StandardButton danswer =
-                        CheckableMessageBox::question(parent, title, question,
-                                                                   tr("Prompt to submit"), promptSetting,
-                                                                   QDialogButtonBox::Yes|QDialogButtonBox::No|
-                                                                   QDialogButtonBox::Cancel,
-                                                                   QDialogButtonBox::Yes);
-                answer = CheckableMessageBox::dialogButtonBoxToMessageBoxButton(danswer);
-            } else {
-                answer = QMessageBox::question(parent, title, question,
-                                               QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
-                                               QMessageBox::Yes);
-            }
-        }
+        message = tr("What do you want to do with these changes?");
     } else {
-        // Check failed.
-        QMessageBox::StandardButtons buttons;
-        if (canCommitOnFailure)
-            buttons = QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel;
-        else
-            buttons = QMessageBox::Yes|QMessageBox::No;
-        QMessageBox msgBox(QMessageBox::Question, title, checkFailureQuestion,
-                           buttons, parent);
-        msgBox.setDefaultButton(QMessageBox::Cancel);
-        msgBox.setInformativeText(errorMessage);
-        msgBox.setMinimumWidth(checkDialogMinimumWidth);
-        answer = static_cast<QMessageBox::StandardButton>(msgBox.exec());
+        message = tr("Cannot %1%2.\nWhat do you want to do?",
+                     "%2 is an optional error message with ': ' prefix. Do not separate it from %1.")
+                .arg(commitName.toLower(),
+                     errorMessage.isEmpty() ? errorMessage : ": " + errorMessage);
     }
-    if (!canCommit && !canCommitOnFailure) {
-        switch (answer) {
-        case QMessageBox::No:
-            return SubmitDiscarded;
-        case QMessageBox::Yes:
-            return SubmitCanceled;
-        default:
-            break;
-        }
-    } else {
-        switch (answer) {
-        case QMessageBox::No:
-            return SubmitDiscarded;
-        case QMessageBox::Yes:
-            return SubmitConfirmed;
-        default:
-            break;
-        }
+    mb.setText(message);
+    mb.setCheckBoxText(tr("Prompt to %1").arg(commitName.toLower()));
+    mb.setChecked(*promptSetting);
+    // Provide check box to turn off prompt ONLY if it was not forced
+    mb.setCheckBoxVisible(*promptSetting && !forcePrompt);
+    QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Close | QDialogButtonBox::Cancel;
+    if (canCommit || canCommitOnFailure)
+        buttons |= QDialogButtonBox::Ok;
+    mb.setStandardButtons(buttons);
+    QPushButton *cancelButton = mb.button(QDialogButtonBox::Cancel);
+    cancelButton->setText(tr("&Keep Editing"));
+    cancelButton->setDefault(true);
+    if (QPushButton *commitButton = mb.button(QDialogButtonBox::Ok)) {
+        commitButton->setText(withUnusedMnemonic(commitName,
+                              {cancelButton, mb.button(QDialogButtonBox::Close)}));
     }
-
-    return SubmitCanceled;
+    if (mb.exec() == QDialog::Accepted)
+        *promptSetting = mb.isChecked();
+    QAbstractButton *chosen = mb.clickedButton();
+    if (!chosen || chosen == cancelButton)
+        return SubmitCanceled;
+    if (chosen == mb.button(QDialogButtonBox::Close))
+        return SubmitDiscarded;
+    return SubmitConfirmed;
 }
 
 QString VcsBaseSubmitEditor::promptForNickName()

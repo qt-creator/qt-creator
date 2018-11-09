@@ -593,10 +593,7 @@ bool ClearCasePlugin::submitEditorAboutToClose()
     // is, the editor was closed or shutdown).
     bool prompt = m_settings.promptToCheckIn;
     const VcsBaseSubmitEditor::PromptSubmitResult answer =
-            editor->promptSubmit(tr("Closing ClearCase Editor"),
-                                 tr("Do you want to check in the files?"),
-                                 tr("The comment check failed. Do you want to check in the files?"),
-                                 &prompt, !m_submitActionTriggered);
+            editor->promptSubmit(this, &prompt, !m_submitActionTriggered);
     m_submitActionTriggered = false;
     switch (answer) {
     case VcsBaseSubmitEditor::SubmitCanceled:

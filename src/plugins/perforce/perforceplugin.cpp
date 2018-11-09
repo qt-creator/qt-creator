@@ -1310,10 +1310,7 @@ bool PerforcePlugin::submitEditorAboutToClose()
     // is, the editor was closed or shutdown).
     bool wantsPrompt = m_settings.promptToSubmit();
     const VcsBaseSubmitEditor::PromptSubmitResult answer =
-            perforceEditor->promptSubmit(tr("Closing p4 Editor"),
-                                         tr("Do you want to submit this change list?"),
-                                         tr("The commit message check failed. Do you want to submit this change list?"),
-                                         &wantsPrompt, !m_submitActionTriggered);
+            perforceEditor->promptSubmit(this, &wantsPrompt, !m_submitActionTriggered);
     m_submitActionTriggered = false;
 
     if (answer == VcsBaseSubmitEditor::SubmitCanceled)

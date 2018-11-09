@@ -425,12 +425,9 @@ bool SubversionPlugin::submitEditorAboutToClose()
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
     VcsBaseClientSettings &newSettings = client()->settings();
-    const VcsBaseSubmitEditor::PromptSubmitResult answer =
-            editor->promptSubmit(tr("Closing Subversion Editor"),
-                                 tr("Do you want to commit the change?"),
-                                 tr("The commit message check failed. Do you want to commit the change?"),
-                                 newSettings.boolPointer(SubversionSettings::promptOnSubmitKey),
-                                 !m_submitActionTriggered);
+    const VcsBaseSubmitEditor::PromptSubmitResult answer = editor->promptSubmit(
+                this, newSettings.boolPointer(SubversionSettings::promptOnSubmitKey),
+                !m_submitActionTriggered);
     m_submitActionTriggered = false;
     switch (answer) {
     case VcsBaseSubmitEditor::SubmitCanceled:

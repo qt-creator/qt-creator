@@ -46,6 +46,7 @@ namespace Internal {
 
 class SubmitEditorWidget;
 class SubmitFileModel;
+class VcsBasePlugin;
 class VcsBaseSubmitEditorPrivate;
 
 class VCSBASE_EXPORT VcsBaseSubmitEditorParameters
@@ -84,8 +85,7 @@ public:
     // 'promptSetting' points to a bool variable containing the plugin's
     // prompt setting. The user can uncheck it from the message box.
     enum PromptSubmitResult { SubmitConfirmed, SubmitCanceled, SubmitDiscarded };
-    PromptSubmitResult promptSubmit(const QString &title, const QString &question,
-                                    const QString &checkFailureQuestion,
+    PromptSubmitResult promptSubmit(VcsBasePlugin *plugin,
                                     bool *promptSetting,
                                     bool forcePrompt = false,
                                     bool canCommitOnFailure = true);
