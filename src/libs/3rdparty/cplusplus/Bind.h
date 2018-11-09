@@ -121,6 +121,7 @@ protected:
     virtual bool visit(DynamicExceptionSpecificationAST *ast);
     virtual bool visit(MemInitializerAST *ast);
     virtual bool visit(NestedNameSpecifierAST *ast);
+    virtual bool visit(NoExceptSpecificationAST *) { return true; }
     virtual bool visit(NewArrayDeclaratorAST *ast);
     virtual bool visit(NewTypeIdAST *ast);
     virtual bool visit(OperatorAST *ast);
@@ -139,6 +140,8 @@ protected:
     virtual bool visit(CaptureAST *ast);
     virtual bool visit(LambdaDeclaratorAST *ast);
     virtual bool visit(TrailingReturnTypeAST *ast);
+    virtual bool visit(DotDesignatorAST *) { return true; }
+    virtual bool visit(BracketDesignatorAST *) { return true; }
 
     // StatementAST
     virtual bool visit(QtMemberDeclarationAST *ast);
@@ -165,6 +168,7 @@ protected:
     virtual bool visit(ObjCSynchronizedStatementAST *ast);
 
     // ExpressionAST
+    virtual bool visit(AlignofExpressionAST *) { return true; }
     virtual bool visit(IdExpressionAST *ast);
     virtual bool visit(CompoundExpressionAST *ast);
     virtual bool visit(CompoundLiteralAST *ast);
@@ -175,12 +179,15 @@ protected:
     virtual bool visit(ConditionalExpressionAST *ast);
     virtual bool visit(CppCastExpressionAST *ast);
     virtual bool visit(DeleteExpressionAST *ast);
+    virtual bool visit(DesignatedInitializerAST *) { return true; }
     virtual bool visit(ArrayInitializerAST *ast);
     virtual bool visit(NewExpressionAST *ast);
+    virtual bool visit(NoExceptOperatorExpressionAST *) { return true; }
     virtual bool visit(TypeidExpressionAST *ast);
     virtual bool visit(TypenameCallExpressionAST *ast);
     virtual bool visit(TypeConstructorCallAST *ast);
     virtual bool visit(SizeofExpressionAST *ast);
+    virtual bool visit(StaticAssertDeclarationAST *) { return true; }
     virtual bool visit(PointerLiteralAST *ast);
     virtual bool visit(NumericLiteralAST *ast);
     virtual bool visit(BoolLiteralAST *ast);
