@@ -249,12 +249,6 @@ class Dumper(DumperBase):
             if bitsize == 0:
                 bitsize = f.GetType().GetByteSize() * 8
             bitpos = f.GetOffsetInBits()
-            # Correction for some bitfields. Size 0 can occur for
-            # types without debug information.
-            if bitsize > 0:
-                pass
-                #bitpos = bitpos % bitsize
-                #bitpos = bitpos % 8 # Reported type is always wrapping type!
             fieldBits[f.name] = (bitsize, bitpos, f.IsBitfield())
 
         # Normal members and non-empty base classes.
