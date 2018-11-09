@@ -1070,9 +1070,11 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 
 void DebuggerEngine::gotoCurrentLocation()
 {
-    int top = stackHandler()->currentIndex();
-    if (top >= 0)
-        gotoLocation(stackHandler()->currentFrame());
+    if (d->m_state == InferiorStopOk || d->m_state == InferiorUnrunnable) {
+        int top = stackHandler()->currentIndex();
+        if (top >= 0)
+            gotoLocation(stackHandler()->currentFrame());
+    }
 }
 
 const DebuggerRunParameters &DebuggerEngine::runParameters() const
@@ -1107,6 +1109,17 @@ void DebuggerEngine::abortDebugger()
         showMessage("ABORTING DEBUGGER. SECOND TIME.");
         abortDebuggerProcess();
         emit requestRunControlFinish();
+    }
+}
+
+void DebuggerEngine::updateUi(bool isCurrentEngine)
+{
+    updateState(false);
+    if (isCurrentEngine) {
+        gotoCurrentLocation();
+    } else {
+        d->m_locationMark.reset();
+        d->m_disassemblerAgent.resetLocation();
     }
 }
 

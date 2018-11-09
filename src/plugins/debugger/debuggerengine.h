@@ -366,6 +366,7 @@ public:
     void gotoCurrentLocation();
     virtual void quitDebugger(); // called when pressing the stop button
     void abortDebugger();
+    void updateUi(bool isCurrentEngine);
 
     bool isPrimaryEngine() const;
 
