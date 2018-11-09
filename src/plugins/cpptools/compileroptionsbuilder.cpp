@@ -442,6 +442,9 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
     if (languageExtensions & LanguageExtension::Microsoft)
         opts << QLatin1String("-fms-extensions");
 
+    if (languageExtensions & LanguageExtension::OpenMP)
+        opts << QLatin1String("-fopenmp");
+
     if (checkForBorlandExtensions && (languageExtensions & LanguageExtension::Borland))
         opts << QLatin1String("-fborland-extensions");
 
