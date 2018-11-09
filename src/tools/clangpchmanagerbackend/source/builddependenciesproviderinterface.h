@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "builddependencies.h"
+#include "builddependency.h"
 
 #include "projectpartcontainerv2.h"
 
@@ -34,7 +34,7 @@ namespace ClangBackEnd {
 class BuildDependenciesProviderInterface
 {
 public:
-    virtual BuildDependency create(const V2::ProjectPartContainer &projectPart) = 0;
+    virtual BuildDependency create(const V2::ProjectPartContainer &projectPart) const = 0;
 
 protected:
     ~BuildDependenciesProviderInterface() = default;

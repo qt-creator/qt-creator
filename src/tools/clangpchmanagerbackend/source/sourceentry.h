@@ -31,14 +31,66 @@
 
 namespace ClangBackEnd {
 
-class BuildDependency
+enum class SourceType : unsigned char
 {
-public:
-    FilePathIds includeIds;
-    FilePathIds topIncludeIds;
-    FilePathIds topsSystemIncludeIds;
+    Any,
+    TopInclude,
+    TopSystemInclude
 };
 
-using BuildDependencies = std::vector<BuildDependency>;
+class TimeStamp
+{
+    using int64 = long long;
+public:
+    TimeStamp(int64 value)
+        : value(value)
+    {}
+
+    operator int64() const
+    {
+        return value;
+    }
+
+    int64 value = -1;
+};
+
+class SourceEntry
+{
+    using int64 = long long;
+public:
+    SourceEntry(int sourceId, int64 lastModified, int sourceType)
+        : lastModified(lastModified),
+          sourceId(sourceId),
+          sourceType(static_cast<SourceType>(sourceType))
+
+    {}
+
+    SourceEntry(FilePathId sourceId, SourceType sourceType, TimeStamp lastModified)
+        : lastModified(lastModified),
+          sourceId(sourceId),
+          sourceType(sourceType)
+    {}
+
+    friend
+    bool operator<(SourceEntry first, SourceEntry second)
+    {
+        return first.sourceId < second.sourceId;
+    }
+
+    friend
+    bool operator==(SourceEntry first, SourceEntry second)
+    {
+        return first.sourceId == second.sourceId
+            && first.sourceType == second.sourceType
+            && first.lastModified == second.lastModified ;
+    }
+
+public:
+    TimeStamp lastModified;
+    FilePathId sourceId;
+    SourceType sourceType = SourceType::Any;
+};
+
+using SourceEntries = std::vector<SourceEntry>;
 
 }

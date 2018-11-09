@@ -317,7 +317,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 
     initialTestFile->m_editor->setCursorPosition(initialTestFile->m_cursorPosition);
 //    qDebug() << "Initial line:" << initialTestFile->editor->currentLine();
-//    qDebug() << "Initial column:" << initialTestFile->editor->currentColumn() - 1;
+//    qDebug() << "Initial column:" << initialTestFile->editor->currentColumn();
 
     OverrideItemList immediateVirtualSymbolResults;
     OverrideItemList finalVirtualSymbolResults;
@@ -338,7 +338,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
                 QSKIP((curTestName + " is not supported by Clang FollowSymbol").toLatin1());
             }
 
-            initialTestFile->m_editorWidget->openLinkUnderCursor();
+            widget->openLinkUnderCursor();
             break;
         }
 
@@ -349,7 +349,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         QSharedPointer<VirtualFunctionTestAssistProvider> testProvider(
             new VirtualFunctionTestAssistProvider(widget));
         builtinFollowSymbol->setVirtualFunctionAssistProvider(testProvider);
-        initialTestFile->m_editorWidget->openLinkUnderCursor();
+        widget->openLinkUnderCursor();
         immediateVirtualSymbolResults = testProvider->m_immediateItems;
         finalVirtualSymbolResults = testProvider->m_finalItems;
 
@@ -382,7 +382,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     QEXPECT_FAIL("globalVarFromEnum", "Contributor works on a fix.", Abort);
     QEXPECT_FAIL("matchFunctionSignature_Follow_5", "foo(int) resolved as CallAST", Abort);
     QCOMPARE(currentTextEditor->currentLine(), expectedLine);
-    QCOMPARE(currentTextEditor->currentColumn() - 1, expectedColumn);
+    QCOMPARE(currentTextEditor->currentColumn(), expectedColumn);
 
 //    qDebug() << immediateVirtualSymbolResults;
 //    qDebug() << finalVirtualSymbolResults;

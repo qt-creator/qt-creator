@@ -38,7 +38,7 @@
 
 
 namespace {
-Q_LOGGING_CATEGORY(androidTCLog, "qtc.android.toolchainmanagement");
+Q_LOGGING_CATEGORY(androidTCLog, "qtc.android.toolchainmanagement", QtWarningMsg);
 }
 
 namespace Android {

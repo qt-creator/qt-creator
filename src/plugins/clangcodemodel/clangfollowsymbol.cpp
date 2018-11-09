@@ -163,13 +163,10 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
                                  CppTools::SymbolFinder *symbolFinder,
                                  bool inNextSplit)
 {
-    int lineNumber = 0, positionInBlock = 0;
+    int line = 0;
+    int column = 0;
     QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
-    Utils::Text::convertPosition(cursor.document(), cursor.position(), &lineNumber,
-                                 &positionInBlock);
-
-    const uint line = lineNumber;
-    const uint column = positionInBlock + 1;
+    Utils::Text::convertPosition(cursor.document(), cursor.position(), &line, &column);
 
     ClangEditorDocumentProcessor *processor = ClangEditorDocumentProcessor::get(
                 data.filePath().toString());
@@ -177,7 +174,10 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
         return processLinkCallback(Utils::Link());
 
     if (!resolveTarget) {
-        processLinkCallback(linkAtCursor(cursor, data.filePath().toString(), line, column,
+        processLinkCallback(linkAtCursor(cursor,
+                                         data.filePath().toString(),
+                                         static_cast<uint>(line),
+                                         static_cast<uint>(column),
                                          processor));
         return;
     }

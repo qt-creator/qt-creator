@@ -39,14 +39,14 @@ class FilePathId
 {
 public:
     constexpr FilePathId() = default;
-    FilePathId(int directoryId, int filePathId)
-        : directoryId(directoryId),
-          filePathId(filePathId)
+
+    FilePathId(int filePathId)
+        : filePathId(filePathId)
     {}
 
     bool isValid() const
     {
-        return directoryId >= 0 && filePathId >= 0;
+        return filePathId >= 0;
     }
 
     friend bool operator==(FilePathId first, FilePathId second)
@@ -66,7 +66,6 @@ public:
 
     friend QDataStream &operator<<(QDataStream &out, const FilePathId &filePathId)
     {
-        out << filePathId.directoryId;
         out << filePathId.filePathId;
 
         return out;
@@ -74,14 +73,12 @@ public:
 
     friend QDataStream &operator>>(QDataStream &in, FilePathId &filePathId)
     {
-        in >> filePathId.directoryId;
         in >> filePathId.filePathId;
 
         return in;
     }
 
 public:
-    int directoryId = -1;
     int filePathId = -1;
 };
 
@@ -97,11 +94,7 @@ template<> struct hash<ClangBackEnd::FilePathId>
     using result_type = std::size_t;
     result_type operator()(const argument_type& filePathId) const
     {
-        long long hash = filePathId.directoryId;
-        hash = hash << 32;
-        hash += filePathId.filePathId;
-
-        return std::hash<long long>{}(hash);
+        return std::hash<int>{}(filePathId.filePathId);
     }
 };
 

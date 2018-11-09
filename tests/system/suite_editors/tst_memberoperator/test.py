@@ -25,12 +25,29 @@
 
 source("../../shared/qtcreator.py")
 
+WhatsThisRole = 5 # Qt::WhatsThisRole
+
+def __getGenericProposalListView__(timeout):
+    try:
+        waitForObject(':popupFrame_TextEditor::GenericProposalWidget', timeout)
+        return findObject(':popupFrame_Proposal_QListView')
+    except LookupError:
+        return None
+
+
+def __verifyLineUnderCursor__(cppwindow, record):
+    found = str(lineUnderCursor(cppwindow)).strip()
+    exp = testData.field(record, "expected")
+    test.compare(found, exp)
+
+
 def main():
     for useClang in [False, True]:
         with TestSection(getCodeModelString(useClang)):
             if not startCreatorVerifyingClang(useClang):
                 continue
             createProject_Qt_Console(tempDir(), "SquishProject")
+            selectBuildConfig(Targets.DESKTOP_5_6_1_DEFAULT, "Debug") # do not use the default Qt4
             checkCodeModelSettings(useClang)
             selectFromLocator("main.cpp")
             cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
@@ -45,10 +62,36 @@ def main():
                 type(cppwindow, testData.field(record, "usage"))
                 snooze(1) # maybe find something better
                 type(cppwindow, testData.field(record, "operator"))
-                waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
-                found = str(lineUnderCursor(cppwindow)).strip()
-                exp = testData.field(record, "expected")
-                test.compare(found, exp)
+                genericProposalWidget = __getGenericProposalListView__(1500)
+                # the clang code model does not change the . to -> before applying a proposal
+                # so, verify list of proposals roughly
+                if useClang:
+                    expectProposal = testData.field(record, "clangProposal") == 'True'
+                    test.compare(genericProposalWidget is not None, expectProposal,
+                                 'Verifying whether proposal widget is displayed as expected.')
+
+                    if genericProposalWidget is not None:
+                        model = genericProposalWidget.model()
+                        proposalToolTips = dumpItems(model, role=WhatsThisRole)
+                        needCorrection = filter(lambda x: 'Requires changing "." to "->"' in x,
+                                                proposalToolTips)
+                        correction = testData.field(record, "correction")
+                        if correction == 'all':
+                            test.compare(len(needCorrection), len(proposalToolTips),
+                                         "Verifying whether all proposal need correction.")
+                        elif correction == 'mixed':
+                            test.verify(len(proposalToolTips) > len(needCorrection) > 0,
+                                        "Verifying whether some of the proposals need correction.")
+                        elif correction == 'none':
+                            test.verify(len(needCorrection) == 0,
+                                        "Verifying whether no proposal needs a correction.")
+                        else:
+                            test.warning("Used tsv file seems to be broken - found '%s' in "
+                                         "correction column." % correction)
+                    elif not expectProposal:
+                        __verifyLineUnderCursor__(cppwindow, record)
+                else:
+                    __verifyLineUnderCursor__(cppwindow, record)
                 invokeMenuItem("File", 'Revert "main.cpp" to Saved')
                 clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
             snooze(1)

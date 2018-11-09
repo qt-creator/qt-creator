@@ -77,6 +77,7 @@ class ThreadsHandler : public ThreadsHandlerModel
 
 public:
     explicit ThreadsHandler(DebuggerEngine *engine);
+    ~ThreadsHandler();
 
     Thread currentThread() const;
     Thread threadForId(const QString &id) const;
@@ -95,7 +96,7 @@ public:
     void notifyRunning(const QString &id);
     void notifyStopped(const QString &id);
 
-    QComboBox *threadSwitcher() { return m_comboBox; }
+    QPointer<QComboBox> threadSwitcher();
 
 private:
     void sort(int column, Qt::SortOrder order) override;
@@ -105,7 +106,7 @@ private:
     DebuggerEngine *m_engine;
     Thread m_currentThread;
     QHash<QString, QString> m_pidForGroupId;
-    QComboBox *m_comboBox;
+    QPointer<QComboBox> m_comboBox;
 };
 
 } // namespace Internal

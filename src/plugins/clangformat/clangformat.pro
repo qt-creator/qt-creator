@@ -18,7 +18,8 @@ QMAKE_CXXFLAGS += $$LLVM_CXXFLAGS
 SOURCES = \
     clangformatconfigwidget.cpp \
     clangformatindenter.cpp \
-    clangformatplugin.cpp
+    clangformatplugin.cpp \
+    clangformatutils.cpp
 
 HEADERS = \
     clangformatconfigwidget.h \

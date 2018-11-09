@@ -75,6 +75,7 @@ QStringList jsonObjectFlags(const QJsonObject &object)
     if (arguments.isEmpty()) {
         flags = splitCommandLine(object["command"].toString());
     } else {
+        flags.reserve(arguments.size());
         for (const QJsonValue &arg : arguments)
             flags.append(arg.toString());
     }
@@ -284,27 +285,43 @@ FolderNode *createFoldersIfNeeded(FolderNode *root, const Utils::FileName &folde
     return parent;
 }
 
-void createFolders(FolderNode *root, const Utils::FileName &rootPath)
+FileType fileTypeForName(const QString &fileName)
+{
+    CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::classify(fileName);
+    if (CppTools::ProjectFile::isHeader(fileKind))
+        return FileType::Header;
+    return FileType::Source;
+}
+
+void createTree(FolderNode *root,
+                const Utils::FileName &rootPath,
+                const CppTools::RawProjectParts &rpps)
 {
     root->setAbsoluteFilePathAndLine(rootPath, -1);
 
-    for (Node *child : root->nodes()) {
-        FileNode *fileNode = child->asFileNode();
-        if (!fileNode)
-            continue;
-
-        FolderNode *parentNode = createFoldersIfNeeded(root,
-                                                       fileNode->filePath().parentDir());
-        child->setParentFolderNode(nullptr);
-        std::unique_ptr<Node> childNode = root->takeNode(child);
-        if (!parentNode->fileNode(child->filePath()))
-            parentNode->addNode(std::move(childNode));
+    for (const CppTools::RawProjectPart &rpp : rpps) {
+        for (const QString &filePath : rpp.files) {
+            Utils::FileName fileName = Utils::FileName::fromString(filePath);
+            FolderNode *parentNode = createFoldersIfNeeded(root, fileName.parentDir());
+            if (!parentNode->fileNode(fileName)) {
+                parentNode->addNode(std::make_unique<FileNode>(fileName,
+                                                               fileTypeForName(fileName.fileName()),
+                                                               false));
+            }
+        }
     }
 }
 
-std::vector<QJsonObject> readJsonObjects(const QString &filePath)
+struct Entry
 {
-    std::vector<QJsonObject> result;
+    QStringList flags;
+    Utils::FileName fileName;
+    QString workingDir;
+};
+
+std::vector<Entry> readJsonObjects(const QString &filePath)
+{
+    std::vector<Entry> result;
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly))
         return result;
@@ -322,7 +339,12 @@ std::vector<QJsonObject> readJsonObjects(const QString &filePath)
             continue;
         }
 
-        result.push_back(document.object());
+        const QJsonObject object = document.object();
+        const Utils::FileName fileName = jsonObjectFilename(object);
+        const QStringList flags
+                = filterFromFileName(jsonObjectFlags(object), fileName.toFileInfo().baseName());
+        result.push_back({flags, fileName, object["directory"].toString()});
+
         objectStart = contents.indexOf('{', objectEnd + 1);
         objectEnd = contents.indexOf('}', objectStart + 1);
     }
@@ -334,7 +356,7 @@ std::vector<QJsonObject> readJsonObjects(const QString &filePath)
 
 void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName &projectFile)
 {
-    std::vector<QJsonObject> array = readJsonObjects(projectFilePath().toString());
+    std::vector<Entry> array = readJsonObjects(projectFilePath().toString());
     if (array.empty()) {
         emitParsingFinished(false);
         return;
@@ -346,37 +368,37 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
     Utils::FileName commonPath;
     ToolChain *cToolchain = nullptr;
     ToolChain *cxxToolchain = nullptr;
-    for (const QJsonObject &object : array) {
-        Utils::FileName fileName = jsonObjectFilename(object);
-        const QStringList flags = jsonObjectFlags(object);
+
+    std::sort(array.begin(), array.end(), [](const Entry &lhs, const Entry &rhs) {
+        return std::lexicographical_compare(lhs.flags.begin(), lhs.flags.end(),
+                                            rhs.flags.begin(), rhs.flags.end());
+    });
+
+    const Entry *prevEntry = nullptr;
+    for (const Entry &entry : array) {
+        if (prevEntry && prevEntry->flags == entry.flags) {
+            rpps.back().files.append(entry.fileName.toString());
+            continue;
+        }
+
+        prevEntry = &entry;
 
         commonPath = rpps.empty()
-                ? fileName.parentDir()
-                : Utils::FileUtils::commonPath(commonPath, fileName);
-
-        ProjectExplorer::FileType type = ProjectExplorer::FileType::Unknown;
-        root->addNode(std::make_unique<FileNode>(fileName, type, false));
+                ? entry.fileName.parentDir()
+                : Utils::FileUtils::commonPath(commonPath, entry.fileName);
 
         CppTools::RawProjectPart rpp = makeRawProjectPart(projectFile,
                                                           m_kit.get(),
                                                           cToolchain,
                                                           cxxToolchain,
-                                                          object["directory"].toString(),
-                                                          fileName,
-                                                          flags);
-        int rppIndex = Utils::indexOf(rpps, [&rpp](const CppTools::RawProjectPart &currentRpp) {
-            return rpp.buildSystemTarget == currentRpp.buildSystemTarget
-                    && rpp.headerPaths == currentRpp.headerPaths
-                    && rpp.projectMacros == currentRpp.projectMacros
-                    && rpp.flagsForCxx.commandLineFlags == currentRpp.flagsForCxx.commandLineFlags;
-        });
-        if (rppIndex == -1)
-            rpps.append(rpp);
-        else
-            rpps[rppIndex].files.append(rpp.files);
+                                                          entry.workingDir,
+                                                          entry.fileName,
+                                                          entry.flags);
+
+        rpps.append(rpp);
     }
 
-    createFolders(root.get(), commonPath);
+    createTree(root.get(), commonPath, rpps);
 
     root->addNode(std::make_unique<FileNode>(
                       projectFile,

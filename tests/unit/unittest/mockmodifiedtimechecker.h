@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,19 +27,11 @@
 
 #include "googletest.h"
 
-#include "mocksqlitedatabase.h"
+#include <modifiedtimecheckerinterface.h>
 
-#include <usedmacroandsourcestorageinterface.h>
-
-class MockUsedMacroAndSourceStorage : public ClangBackEnd::UsedMacroAndSourceStorageInterface
+class MockModifiedTimeChecker : public ClangBackEnd::ModifiedTimeCheckerInterface
 {
 public:
-   MOCK_METHOD1(insertOrUpdateUsedMacros,
-                void (const ClangBackEnd::UsedMacros &usedMacros));
-   MOCK_METHOD1(insertFileStatuses,
-                void (const ClangBackEnd::FileStatuses &fileStatuses));
-   MOCK_METHOD1(insertOrUpdateSourceDependencies,
-                void (const ClangBackEnd::SourceDependencies &sourceDependencies));
-   MOCK_CONST_METHOD1(fetchLowestLastModifiedTime,
-                      long long (ClangBackEnd::FilePathId sourceId));
+    MOCK_CONST_METHOD1(isUpToDate,
+                       bool (const ClangBackEnd::SourceEntries &sourceEntries));
 };

@@ -3104,14 +3104,14 @@ bool TextEditorWidget::restoreState(const QByteArray &state)
     int version;
     int vval;
     int hval;
-    int lval;
-    int cval;
+    int lineVal;
+    int columnVal;
     QDataStream stream(state);
     stream >> version;
     stream >> vval;
     stream >> hval;
-    stream >> lval;
-    stream >> cval;
+    stream >> lineVal;
+    stream >> columnVal;
 
     if (version >= 1) {
         QList<int> collapsedBlocks;
@@ -3137,7 +3137,8 @@ bool TextEditorWidget::restoreState(const QByteArray &state)
     }
 
     d->m_lastCursorChangeWasInteresting = false; // avoid adding last position to history
-    gotoLine(lval, cval);
+    // line is 1-based, column is 0-based
+    gotoLine(lineVal, columnVal - 1);
     verticalScrollBar()->setValue(vval);
     horizontalScrollBar()->setValue(hval);
     d->saveCurrentCursorPositionForNavigation();

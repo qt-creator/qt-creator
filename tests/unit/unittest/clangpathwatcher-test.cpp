@@ -73,7 +73,7 @@ protected:
     FilePathView path2{"/path/path2"};
     QString path1QString = QString(path1.toStringView());
     QString path2QString = QString(path2.toStringView());
-    FilePathIds pathIds = {{1, 1}, {1, 2}};
+    FilePathIds pathIds = {1, 2};
     std::vector<int> ids{watcher.idCache().stringIds({id1, id2, id3})};
     WatcherEntry watcherEntry1{ids[0], pathIds[0]};
     WatcherEntry watcherEntry2{ids[1], pathIds[0]};

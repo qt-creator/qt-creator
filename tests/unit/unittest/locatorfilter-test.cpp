@@ -69,7 +69,7 @@ protected:
     int length = 0;
     QString newText;
     Utils::LineColumn lineColumn{4, 3};
-    ClangBackEnd::FilePathId filePathId{42, 64};
+    ClangBackEnd::FilePathId filePathId{64};
     ClangRefactoring::SourceLocation sourceLocation{filePathId, lineColumn};
 };
 

@@ -27,7 +27,7 @@
 
 template <>
 SourceLocations
-MockSqliteReadStatement::values<SourceLocation, 4>(std::size_t reserveSize,
+MockSqliteReadStatement::values<SourceLocation, 3>(std::size_t reserveSize,
                                                    const int &sourceId,
                                                    const int &line,
                                                    const int &column)
@@ -79,6 +79,15 @@ MockSqliteReadStatement::values<Symbol, 3>(
 {
     return valuesReturnSymbols(reserveSize, symbolKind1, symbolKind2, symbolKind3, searchTerm);
 
+}
+
+template <>
+UsedMacros
+MockSqliteReadStatement::values<ClangBackEnd::UsedMacro, 2>(
+        std::size_t reserveSize,
+        const int &sourceId)
+{
+    return valuesReturnUsedMacros(reserveSize, sourceId);
 }
 
 template <>
@@ -158,7 +167,21 @@ MockSqliteReadStatement::value<Utils::SmallString>(const int &sourceId)
 
 template <>
 Utils::optional<SourceLocation>
-MockSqliteReadStatement::value<SourceLocation, 4>(const long long &symbolId, const int &locationKind)
+MockSqliteReadStatement::value<SourceLocation, 3>(const long long &symbolId, const int &locationKind)
 {
     return valueReturnSourceLocation(symbolId, locationKind);
+}
+
+template <>
+SourceEntries
+MockSqliteReadStatement::values<SourceEntry, 3>(std::size_t reserveSize, const int &filePathId, const int &projectPartId)
+{
+    return valuesReturnSourceEntries(reserveSize, filePathId, projectPartId);
+}
+
+template <>
+Utils::optional<Sources::SourceNameAndDirectoryId>
+MockSqliteReadStatement::value<Sources::SourceNameAndDirectoryId, 2>(const int &id)
+{
+    return valueReturnSourceNameAndDirectoryId(id);
 }

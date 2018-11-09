@@ -544,7 +544,8 @@ QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
     allFlags << platformCodeGenFlags << flags;
     for (int i = 0; i < allFlags.size(); ++i) {
         const QString &flag = allFlags.at(i);
-        if (flag.startsWith("-stdlib=") || flag.startsWith("--gcctoolchain=")) {
+        if (flag.startsWith("-stdlib=") || flag.startsWith("--gcctoolchain=")
+            || flag.startsWith("-B")) {
             arguments << flag;
         } else if (!hasKitSysroot) {
             // pass build system's sysroot to compiler, if we didn't pass one from kit

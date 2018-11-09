@@ -40,7 +40,7 @@ public:
     {}
     Database &database;
     ReadStatement selectLocationsForSymbolLocation{
-        "SELECT directoryId, sourceId, line, column FROM locations JOIN sources USING(sourceId) WHERE symbolId = "
+        "SELECT sourceId, line, column FROM locations WHERE symbolId = "
         "  (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND column=?) "
         "ORDER BY sourceId, line, column",
         database};
@@ -59,7 +59,7 @@ public:
         "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind IN (?,?,?) AND symbolName LIKE ?",
         database};
     ReadStatement selectLocationOfSymbol{
-        "SELECT (SELECT directoryId FROM sources WHERE sourceId = l.sourceId), sourceId, line, column FROM locations AS l WHERE symbolId = ? AND locationKind = ?",
+        "SELECT sourceId, line, column FROM locations AS l WHERE symbolId = ? AND locationKind = ?",
         database};
 };
 

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "builddependencies.h"
+#include "builddependency.h"
 
 #include <utils/smallstringvector.h>
 

@@ -34,18 +34,12 @@
 
 namespace ClangFormat {
 
-inline void createStyleFileIfNeeded(Utils::FileName styleConfigPath)
-{
-    const QString configFile = styleConfigPath.appendPath(".clang-format").toString();
-    if (QFile::exists(configFile))
-        return;
+void createStyleFileIfNeeded(Utils::FileName styleConfigPath, bool isGlobal);
 
-    clang::format::FormatStyle newStyle = clang::format::getLLVMStyle();
-    std::fstream newStyleFile(configFile.toStdString(), std::fstream::out);
-    if (newStyleFile.is_open()) {
-        newStyleFile << clang::format::configurationAsText(newStyle);
-        newStyleFile.close();
-    }
-}
+clang::format::FormatStyle currentProjectStyle();
+clang::format::FormatStyle currentGlobalStyle();
+
+Utils::FileName currentStyleConfigPath();
+clang::format::FormatStyle currentStyle();
 
 }

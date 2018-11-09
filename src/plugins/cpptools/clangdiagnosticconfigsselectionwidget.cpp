@@ -126,6 +126,9 @@ void ClangDiagnosticConfigsSelectionWidget::connectToClangDiagnosticConfigsDialo
                     = settings->clangCustomDiagnosticConfigs();
             const ClangDiagnosticConfigs currentDiagnosticConfigs = widget->customConfigs();
             if (oldDiagnosticConfigs != currentDiagnosticConfigs) {
+                const ClangDiagnosticConfigsModel configsModel(currentDiagnosticConfigs);
+                if (!configsModel.hasConfigWithId(settings->clangDiagnosticConfigId()))
+                    settings->resetClangDiagnosticConfigId();
                 settings->setClangCustomDiagnosticConfigs(currentDiagnosticConfigs);
                 settings->toSettings(Core::ICore::settings());
             }

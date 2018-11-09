@@ -225,11 +225,11 @@ void CallgrindController::getLocalDataFile()
 //                this, &CallgrindController::foundRemoteFile);
 //        m_findRemoteFile->start();
     } else {
-        QDir dir(workingDir, QString::fromLatin1("%1.*").arg(baseFileName), QDir::Time);
-        QStringList outputFiles = dir.entryList();
+        const QDir dir(workingDir, QString::fromLatin1("%1.*").arg(baseFileName), QDir::Time);
+        const QStringList outputFiles = dir.entryList();
         // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
         if (!outputFiles.isEmpty())
-            fileName = workingDir + QLatin1Char('/') + dir.entryList().first();
+            fileName = workingDir + QLatin1Char('/') + outputFiles.first();
 
         emit localParseDataAvailable(fileName);
     }

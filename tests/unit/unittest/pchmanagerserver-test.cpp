@@ -79,7 +79,7 @@ protected:
     PathString main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
     PathString header1Path = TESTDATA_DIR "/includecollector_header1.h";
     PathString header2Path = TESTDATA_DIR "/includecollector_header2.h";
-    ClangBackEnd::IdPaths idPath{projectPartId1, {{1, 1}, {1, 2}}};
+    ClangBackEnd::IdPaths idPath{projectPartId1, {1, 2}};
     ProjectPartContainer projectPart1{projectPartId1.clone(),
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
                                       {{"DEFINE", "1"}},

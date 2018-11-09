@@ -63,8 +63,8 @@ TEST_F(FilePathStorageSqliteStatementFactory, SelectSourceIdFromSourcesByDirecto
 
 TEST_F(FilePathStorageSqliteStatementFactory, SelectSourceNameFromSourcesByDirectoryIdAndSourceId)
 {
-    ASSERT_THAT(factory.selectSourceNameFromSourcesBySourceId.sqlStatement,
-                Eq("SELECT sourceName FROM sources WHERE sourceId = ?"));
+    ASSERT_THAT(factory.selectSourceNameAndDirectoryIdFromSourcesBySourceId.sqlStatement,
+                Eq("SELECT sourceName, directoryId FROM sources WHERE sourceId = ?"));
 }
 
 TEST_F(FilePathStorageSqliteStatementFactory, SelectAllDirectories)

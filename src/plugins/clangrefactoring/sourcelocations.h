@@ -45,8 +45,8 @@ public:
     SourceLocation(ClangBackEnd::FilePathId filePathId, int line, int column)
         : filePathId{filePathId}, lineColumn{line, column}
     {}
-    SourceLocation(int directoryId, int sourceId, int line, int column)
-        : filePathId{directoryId, sourceId}, lineColumn{line, column}
+    SourceLocation(int sourceId, int line, int column)
+        : filePathId{sourceId}, lineColumn{line, column}
     {}
 
     friend bool operator==(SourceLocation first, SourceLocation second)

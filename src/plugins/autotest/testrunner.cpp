@@ -471,25 +471,35 @@ void TestRunner::runTests()
 static void processOutput(TestOutputReader *outputreader, const QString &msg,
                           Utils::OutputFormat format)
 {
+    QByteArray message = msg.toUtf8();
     switch (format) {
     case Utils::OutputFormat::StdOutFormatSameLine:
     case Utils::OutputFormat::DebugFormat: {
-        static const QString gdbSpecialOut = "Qt: gdb: -nograb added to command-line options.\n"
-                                             "\t Use the -dograb option to enforce grabbing.";
-        int start = msg.startsWith(gdbSpecialOut) ? gdbSpecialOut.length() + 1 : 0;
+        static const QByteArray gdbSpecialOut = "Qt: gdb: -nograb added to command-line options.\n"
+                                                "\t Use the -dograb option to enforce grabbing.";
+        int start = message.startsWith(gdbSpecialOut) ? gdbSpecialOut.length() + 1 : 0;
         if (start) {
-            int maxIndex = msg.length() - 1;
+            int maxIndex = message.length() - 1;
             while (start < maxIndex && msg.at(start + 1) == '\n')
                 ++start;
-            if (start >= msg.length()) // we cut out the whole message
+            if (start >= message.length()) // we cut out the whole message
                 break;
         }
-        for (const QString &line : msg.mid(start).split('\n'))
-            outputreader->processOutput(line.toUtf8());
+
+        int index = message.indexOf('\n', start);
+        while (index != -1) {
+            const QByteArray line = message.mid(start, index - start + 1);
+            outputreader->processOutput(line);
+            start = index + 1;
+            index = message.indexOf('\n', start);
+        }
+        if (!QTC_GUARD(start == message.length())) // paranoia
+            outputreader->processOutput(message.mid(start).append('\n'));
+
         break;
     }
     case Utils::OutputFormat::StdErrFormatSameLine:
-        outputreader->processStdError(msg.toUtf8());
+        outputreader->processStdError(message);
         break;
     default:
         break; // channels we're not caring about

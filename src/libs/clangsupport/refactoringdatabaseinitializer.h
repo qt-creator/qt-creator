@@ -99,7 +99,6 @@ public:
         table.addColumn("sourceId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         const Sqlite::Column &directoryIdColumn = table.addColumn("directoryId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceNameColumn = table.addColumn("sourceName", Sqlite::ColumnType::Text);
-        table.addColumn("sourceType", Sqlite::ColumnType::Integer);
         table.addUniqueIndex({directoryIdColumn, sourceNameColumn});
 
         table.initialize(database);
@@ -139,6 +138,7 @@ public:
         table.setName("projectPartsSources");
         const Sqlite::Column &projectPartIdColumn = table.addColumn("projectPartId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        table.addColumn("sourceType", Sqlite::ColumnType::Integer);
         table.addUniqueIndex({sourceIdColumn, projectPartIdColumn});
         table.addIndex({projectPartIdColumn});
 
@@ -167,6 +167,7 @@ public:
         table.addColumn("sourceId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         table.addColumn("size", Sqlite::ColumnType::Integer);
         table.addColumn("lastModified", Sqlite::ColumnType::Integer);
+        table.addColumn("buildDependencyTimeStamp", Sqlite::ColumnType::Integer);
         table.addColumn("isInPrecompiledHeader", Sqlite::ColumnType::Integer);
         table.initialize(database);
     }

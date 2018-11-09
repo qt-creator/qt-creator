@@ -2786,7 +2786,10 @@ class DumperBase:
         if typeobj.code == TypeCodeReference:
             #warn('REFERENCE VALUE: %s' % value)
             val = value.dereference()
-            self.putItem(val)
+            if val.laddress != 0:
+                self.putItem(val)
+            else:
+                self.putSpecialValue('nullreference')
             self.putBetterType(typeName)
             return
 

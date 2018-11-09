@@ -60,7 +60,6 @@ Scope *CanonicalSymbol::getScopeAndExpression(const QTextCursor &cursor, QString
     QTextCursor tc = cursor;
     int line, column;
     Utils::Text::convertPosition(cursor.document(), tc.position(), &line, &column);
-    ++column; // 1-based line and 1-based column
 
     int pos = tc.position();
     QTextDocument *textDocument = cursor.document();
@@ -74,7 +73,7 @@ Scope *CanonicalSymbol::getScopeAndExpression(const QTextCursor &cursor, QString
 
     ExpressionUnderCursor expressionUnderCursor(m_document->languageFeatures());
     *code = expressionUnderCursor(tc);
-    return m_document->scopeAt(line, column);
+    return m_document->scopeAt(line, column - 1);
 }
 
 Symbol *CanonicalSymbol::operator()(const QTextCursor &cursor)

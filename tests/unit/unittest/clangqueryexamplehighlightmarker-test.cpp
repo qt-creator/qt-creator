@@ -66,7 +66,7 @@ TEST_F(ClangQueryExampleHighlightMarker, NoCallForNotSourceRanges)
 
 TEST_F(ClangQueryExampleHighlightMarker, SingleLineSourceRange)
 {
-    SourceRanges sourceRanges{{{1, 1}, 1, 3, 3, 1, 10, 10, "function"}};
+    SourceRanges sourceRanges{{1, 1, 3, 3, 1, 10, 10, "function"}};
     Marker marker(std::move(sourceRanges), highlighter, textFormats);
 
     EXPECT_CALL(highlighter, setFormat(2, 7, textFormats[0]));
@@ -76,7 +76,7 @@ TEST_F(ClangQueryExampleHighlightMarker, SingleLineSourceRange)
 
 TEST_F(ClangQueryExampleHighlightMarker, OtherSingleLineSourceRange)
 {
-    SourceRanges sourceRanges{{{1, 1}, 2, 5, 5, 2, 11, 11, "function"}};
+    SourceRanges sourceRanges{{1, 2, 5, 5, 2, 11, 11, "function"}};
     Marker marker(std::move(sourceRanges), highlighter, textFormats);
     marker.highlightBlock(1, "foo");
 
@@ -88,9 +88,9 @@ TEST_F(ClangQueryExampleHighlightMarker, OtherSingleLineSourceRange)
 TEST_F(ClangQueryExampleHighlightMarker, CascadedSingleLineSourceRanges)
 {
     InSequence sequence;
-    SourceRanges sourceRanges{{{1, 1}, 1, 2, 2, 1, 15, 15, "void function"},
-                              {{1, 1}, 1, 2, 2, 1, 6, 6, "void"},
-                              {{1, 1}, 1, 7, 7, 1, 15, 15, "function"}};
+    SourceRanges sourceRanges{{1, 1, 2, 2, 1, 15, 15, "void function"},
+                              {1, 1, 2, 2, 1, 6, 6, "void"},
+                              {1, 1, 7, 7, 1, 15, 15, "function"}};
     Marker marker(std::move(sourceRanges), highlighter, textFormats);
 
     EXPECT_CALL(highlighter, setFormat(1, 13, textFormats[0]));
@@ -103,7 +103,7 @@ TEST_F(ClangQueryExampleHighlightMarker, CascadedSingleLineSourceRanges)
 TEST_F(ClangQueryExampleHighlightMarker, DualLineSourceRanges)
 {
     InSequence sequence;
-    SourceRanges sourceRanges{{{1, 1}, 1, 2, 2, 2, 4, 20, "void f()\n {}"}};
+    SourceRanges sourceRanges{{1, 1, 2, 2, 2, 4, 20, "void f()\n {}"}};
     Marker marker(std::move(sourceRanges), highlighter, textFormats);
 
     EXPECT_CALL(highlighter, setFormat(1, 7, textFormats[0]));
@@ -116,7 +116,7 @@ TEST_F(ClangQueryExampleHighlightMarker, DualLineSourceRanges)
 TEST_F(ClangQueryExampleHighlightMarker, MultipleLineSourceRanges)
 {
     InSequence sequence;
-    SourceRanges sourceRanges{{{1, 1}, 1, 2, 2, 3, 3, 20, "void f()\n {\n }"}};
+    SourceRanges sourceRanges{{1, 1, 2, 2, 3, 3, 20, "void f()\n {\n }"}};
     Marker marker(std::move(sourceRanges), highlighter, textFormats);
 
     EXPECT_CALL(highlighter, setFormat(1, 7, textFormats[0]));
@@ -131,9 +131,9 @@ TEST_F(ClangQueryExampleHighlightMarker, MultipleLineSourceRanges)
 TEST_F(ClangQueryExampleHighlightMarker, MoreMultipleLineSourceRanges)
 {
     InSequence sequence;
-    SourceRanges sourceRanges{{{1, 1}, 1, 1, 0, 4, 2, 0, ""},
-                              {{1, 1}, 2, 2, 0, 2, 7, 0, ""},
-                              {{1, 1}, 3, 2, 0, 3, 7, 0, ""}};
+    SourceRanges sourceRanges{{1, 1, 1, 0, 4, 2, 0, ""},
+                              {1, 2, 2, 0, 2, 7, 0, ""},
+                              {1, 3, 2, 0, 3, 7, 0, ""}};
     Marker marker(std::move(sourceRanges), highlighter, textFormats);
 
     EXPECT_CALL(highlighter, setFormat(0, 10, textFormats[0]));
@@ -152,9 +152,9 @@ TEST_F(ClangQueryExampleHighlightMarker, MoreMultipleLineSourceRanges)
 TEST_F(ClangQueryExampleHighlightMarker, CascadedMultipleLineSourceRanges)
 {
     InSequence sequence;
-    SourceRanges sourceRanges{{{1, 1}, 1, 1, 0, 4, 2, 0, ""},
-                              {{1, 1}, 2, 2, 0, 3, 4, 0, ""},
-                              {{1, 1}, 2, 11, 0, 2, 16, 0, ""}};
+    SourceRanges sourceRanges{{1, 1, 1, 0, 4, 2, 0, ""},
+                              {1, 2, 2, 0, 3, 4, 0, ""},
+                              {1, 2, 11, 0, 2, 16, 0, ""}};
     Marker marker(std::move(sourceRanges), highlighter, textFormats);
 
     EXPECT_CALL(highlighter, setFormat(0, 9, textFormats[0]));
@@ -173,7 +173,7 @@ TEST_F(ClangQueryExampleHighlightMarker, CascadedMultipleLineSourceRanges)
 
 TEST_F(ClangQueryExampleHighlightMarker, FormatSingle)
 {
-    SourceRange sourceRange{{1, 1}, 1, 3, 3, 1, 10, 10};
+    SourceRange sourceRange{1, 1, 3, 3, 1, 10, 10};
 
     EXPECT_CALL(highlighter, setFormat(2, 7, textFormats[0]));
 
@@ -182,7 +182,7 @@ TEST_F(ClangQueryExampleHighlightMarker, FormatSingle)
 
 TEST_F(ClangQueryExampleHighlightMarker, FormatMultipleStart)
 {
-    SourceRange sourceRange{{1, 1}, 1, 3, 3, 2, 9, 20};
+    SourceRange sourceRange{1, 1, 3, 3, 2, 9, 20};
 
     EXPECT_CALL(highlighter, setFormat(2, 8, textFormats[0]));
 
@@ -191,7 +191,7 @@ TEST_F(ClangQueryExampleHighlightMarker, FormatMultipleStart)
 
 TEST_F(ClangQueryExampleHighlightMarker, FormatMultipleEnd)
 {
-    SourceRange sourceRange{{1, 1}, 1, 3, 3, 2, 8, 20};
+    SourceRange sourceRange{1, 1, 3, 3, 2, 8, 20};
 
     EXPECT_CALL(highlighter, setFormat(0, 7, textFormats[1]));
 
@@ -200,7 +200,7 @@ TEST_F(ClangQueryExampleHighlightMarker, FormatMultipleEnd)
 
 TEST_F(ClangQueryExampleHighlightMarker, FormatMultipleMiddle)
 {
-    SourceRange sourceRange{{1, 1}, 1, 3, 3, 3, 8, 20};
+    SourceRange sourceRange{1, 1, 3, 3, 3, 8, 20};
 
     EXPECT_CALL(highlighter, setFormat(0, 10, textFormats[2]));
 

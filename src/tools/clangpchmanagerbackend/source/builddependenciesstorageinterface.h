@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,28 +25,33 @@
 
 #pragma once
 
-#include "filestatus.h"
-#include "sourcedependency.h"
-#include "usedmacro.h"
+#include "sourceentry.h"
+
+#include <builddependency.h>
+#include <filepathid.h>
+#include <filestatus.h>
+#include <sourcedependency.h>
+#include <usedmacro.h>
 
 namespace ClangBackEnd {
 
-class UsedMacroAndSourceStorageInterface
+class BuildDependenciesStorageInterface
 {
 public:
-    UsedMacroAndSourceStorageInterface() = default;
-    UsedMacroAndSourceStorageInterface(const UsedMacroAndSourceStorageInterface &) = delete;
-    UsedMacroAndSourceStorageInterface &operator=(const UsedMacroAndSourceStorageInterface &) = delete;
+    BuildDependenciesStorageInterface() = default;
+    BuildDependenciesStorageInterface(const BuildDependenciesStorageInterface &) = delete;
+    BuildDependenciesStorageInterface &operator=(const BuildDependenciesStorageInterface &) = delete;
 
+    virtual void updateSources(const SourceEntries &sourceIds) = 0;
     virtual void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) = 0;
     virtual void insertFileStatuses(const FileStatuses &fileStatuses) = 0;
     virtual void insertOrUpdateSourceDependencies(const SourceDependencies &sourceDependencies) = 0;
     virtual long long fetchLowestLastModifiedTime(FilePathId sourceId) const = 0;
-
+    virtual SourceEntries fetchDependSources(FilePathId sourceId, Utils::SmallStringView projectPartId) const = 0;
+    virtual UsedMacros fetchUsedMacros(FilePathId sourceId) const = 0;
 
 protected:
-    ~UsedMacroAndSourceStorageInterface() = default;
+    ~BuildDependenciesStorageInterface() = default;
 };
 
 } // namespace ClangBackEnd
-

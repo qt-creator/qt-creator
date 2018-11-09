@@ -61,12 +61,12 @@ protected:
     MockSqliteReadStatement &selectSymbolsForKindAndStartsWith2 = mockStatementFactory.selectSymbolsForKindAndStartsWith2;
     MockSqliteReadStatement &selectSymbolsForKindAndStartsWith3 = mockStatementFactory.selectSymbolsForKindAndStartsWith3;
     MockSqliteReadStatement &selectLocationOfSymbol = mockStatementFactory.selectLocationOfSymbol;
-    SourceLocations locations{{{1, 1}, 1, 1},
-                              {{1, 1}, 2, 3},
-                              {{1, 2}, 1, 1},
-                              {{1, 2}, 3, 1},
-                              {{1, 4}, 1, 1},
-                              {{1, 4}, 1, 3}};
+    SourceLocations locations{{1, 1, 1},
+                              {1, 2, 3},
+                              {2, 1, 1},
+                              {2, 3, 1},
+                              {4, 1, 1},
+                              {4, 1, 3}};
     MockQuery query{mockStatementFactory};
 };
 
@@ -75,8 +75,8 @@ class SymbolQuerySlowTest : public testing::Test
 protected:
     void SetUp() override
     {
-        database.execute("INSERT INTO sources VALUES (1, 1, \"filename.h\", 1)");
-        database.execute("INSERT INTO sources VALUES (2, 1, \"filename.cpp\", 1)");
+        database.execute("INSERT INTO sources VALUES (1, 1, \"filename.h\")");
+        database.execute("INSERT INTO sources VALUES (2, 1, \"filename.cpp\")");
         database.execute("INSERT INTO directories VALUES (1, \"/path/to\")");
         database.execute("INSERT INTO locations VALUES (1, 2, 3, 1, 1)");
         database.execute("INSERT INTO locations VALUES (1, 4, 6, 2, 3)");
@@ -96,28 +96,28 @@ TEST_F(SymbolQuery, LocationsAtCallsValues)
 {
     EXPECT_CALL(selectLocationsForSymbolLocation, valuesReturnSourceLocations(_, 42, 14, 7));
 
-    query.locationsAt({1, 42}, 14, 7);
+    query.locationsAt(42, 14, 7);
 }
 
 TEST_F(SymbolQuerySlowTest, LocationsAt)
 {
-    auto locations = query.locationsAt({1, 2}, 4, 6);
+    auto locations = query.locationsAt(2, 4, 6);
 
     ASSERT_THAT(locations,
-                UnorderedElementsAre(SourceLocation({1, 1}, 2, 3),
-                                     SourceLocation({1, 2}, 4, 6)));
+                UnorderedElementsAre(SourceLocation(1, 2, 3),
+                                     SourceLocation(2, 4, 6)));
 }
 
 TEST_F(SymbolQuery, SourceUsagesAtCallsValues)
 {
     EXPECT_CALL(selectSourceUsagesForSymbolLocation, valuesReturnSourceUsages(_, 42, 14, 7));
 
-    query.sourceUsagesAt({1, 42}, 14, 7);
+    query.sourceUsagesAt(42, 14, 7);
 }
 
 TEST_F(SymbolQuerySlowTest, SourceUsagesAt)
 {
-    auto usages = query.sourceUsagesAt({1, 2}, 4, 6);
+    auto usages = query.sourceUsagesAt(2, 4, 6);
 
     ASSERT_THAT(usages,
                 UnorderedElementsAre(CppTools::Usage("/path/to/filename.h", 2, 3),
@@ -190,7 +190,7 @@ TEST_F(SymbolQuerySlowTest, LocationForSymbolId)
 {
     auto location = query.locationForSymbolId(1, SourceLocationKind::Definition);
 
-    ASSERT_THAT(location.value(), Eq(SourceLocation({1, 2}, {4, 6})));
+    ASSERT_THAT(location.value(), Eq(SourceLocation(2, {4, 6})));
 }
 
 }

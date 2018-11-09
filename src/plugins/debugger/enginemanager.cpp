@@ -133,7 +133,10 @@ public:
     EngineManagerPrivate()
     {
         m_engineModel.setHeader({EngineManager::tr("Name"), EngineManager::tr("File")});
-        m_engineModel.rootItem()->appendChild(new EngineItem); // The preset case.
+        // The preset case:
+        auto preset = new EngineItem;
+        m_engineModel.rootItem()->appendChild(preset);
+        m_currentItem = preset;
 
         m_engineChooser = new QComboBox;
         m_engineChooser->setModel(&m_engineModel);

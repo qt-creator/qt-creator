@@ -33,6 +33,8 @@
 #include <stringcachefwd.h>
 #include <projectpartartefact.h>
 #include <projectpartpch.h>
+#include <sourceentry.h>
+#include <usedmacro.h>
 #include <symbol.h>
 
 #include <cpptools/usages.h>
@@ -45,11 +47,14 @@
 #include <vector>
 
 using std::int64_t;
+using ClangBackEnd::SourceEntry;
+using ClangBackEnd::SourceEntries;
 using ClangRefactoring::SourceLocation;
 using ClangRefactoring::SourceLocations;
 namespace Sources = ClangBackEnd::Sources;
 using ClangRefactoring::Symbol;
 using ClangRefactoring::Symbols;
+using ClangBackEnd::UsedMacros;
 
 class MockSqliteDatabase;
 
@@ -73,6 +78,12 @@ public:
     MOCK_METHOD1(valuesReturnStdVectorSource,
                  std::vector<Sources::Source>(std::size_t));
 
+    MOCK_METHOD3(valuesReturnSourceEntries,
+                 SourceEntries(std::size_t, int, int));
+
+    MOCK_METHOD2(valuesReturnUsedMacros,
+                 UsedMacros (std::size_t, int));
+
     MOCK_METHOD1(valueReturnInt32,
                  Utils::optional<int>(Utils::SmallStringView));
 
@@ -87,6 +98,9 @@ public:
 
     MOCK_METHOD1(valueReturnSmallString,
                  Utils::optional<Utils::SmallString>(int));
+
+    MOCK_METHOD1(valueReturnSourceNameAndDirectoryId,
+                 Utils::optional<Sources::SourceNameAndDirectoryId>(int));
 
     MOCK_METHOD1(valueReturnProjectPartArtefact,
                  Utils::optional<ClangBackEnd::ProjectPartArtefact>(int));
@@ -137,7 +151,7 @@ public:
 
 template <>
 SourceLocations
-MockSqliteReadStatement::values<SourceLocation, 4>(
+MockSqliteReadStatement::values<SourceLocation, 3>(
         std::size_t reserveSize,
         const int &sourceId,
         const int &line,
@@ -174,6 +188,12 @@ MockSqliteReadStatement::values<Symbol, 3>(
         const int&,
         const int&,
         const Utils::SmallStringView&);
+
+template <>
+UsedMacros
+MockSqliteReadStatement::values<ClangBackEnd::UsedMacro, 2>(
+        std::size_t reserveSize,
+        const int &sourceId);
 
 template <>
 std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directory, 2>(std::size_t reserveSize);
@@ -219,4 +239,12 @@ MockSqliteReadStatement::value<Utils::SmallString>(const int&);
 
 template <>
 Utils::optional<SourceLocation>
-MockSqliteReadStatement::value<SourceLocation, 4>(const long long &symbolId, const int &locationKind);
+MockSqliteReadStatement::value<SourceLocation, 3>(const long long &symbolId, const int &locationKind);
+
+template <>
+SourceEntries
+MockSqliteReadStatement::values<SourceEntry, 3>(std::size_t reserveSize, const int&, const int&);
+
+template <>
+Utils::optional<Sources::SourceNameAndDirectoryId>
+MockSqliteReadStatement::value<Sources::SourceNameAndDirectoryId, 2>(const int&);

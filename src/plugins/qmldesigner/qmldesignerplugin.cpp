@@ -374,7 +374,8 @@ void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
             if (currentSelectedNode != selectedNode) {
                 int line, column;
                 currentDesignDocument()->textEditor()->convertPosition(nodeOffset, &line, &column);
-                currentDesignDocument()->textEditor()->gotoLine(line, column);
+                // line has to be 1 based, column 0 based!
+                currentDesignDocument()->textEditor()->gotoLine(line, column - 1);
             }
         }
     }

@@ -491,12 +491,12 @@ void FollowSymbolUnderCursor::findLink(
 {
     Link link;
 
-    int lineNumber = 0, positionInBlock = 0;
+    int line = 0;
+    int column = 0;
     QTextCursor cursor = data.cursor();
     QTextDocument *document = cursor.document();
-    Utils::Text::convertPosition(document, cursor.position(), &lineNumber, &positionInBlock);
-    const unsigned line = lineNumber;
-    const unsigned column = positionInBlock + 1;
+    Utils::Text::convertPosition(document, cursor.position(), &line, &column);
+    const int positionInBlock = column - 1;
 
     Snapshot snapshot = theSnapshot;
 
@@ -541,8 +541,8 @@ void FollowSymbolUnderCursor::findLink(
     for (int i = 0; i < tokens.size(); ++i) {
         const Token &tk = tokens.at(i);
 
-        if (((unsigned) positionInBlock) >= tk.utf16charsBegin()
-                && ((unsigned) positionInBlock) < tk.utf16charsEnd()) {
+        if (static_cast<unsigned>(positionInBlock) >= tk.utf16charsBegin()
+                && static_cast<unsigned>(positionInBlock) < tk.utf16charsEnd()) {
             int closingParenthesisPos = tokens.size();
             if (i >= 2 && tokens.at(i).is(T_IDENTIFIER) && tokens.at(i - 1).is(T_LPAREN)
                 && (tokens.at(i - 2).is(T_SIGNAL) || tokens.at(i - 2).is(T_SLOT))) {
@@ -584,8 +584,8 @@ void FollowSymbolUnderCursor::findLink(
 
             // In this case we want to look at one token before the current position to recognize
             // an operator if the cursor is inside the actual operator: operator[$]
-            if (unsigned(positionInBlock) >= tk.utf16charsBegin()
-                    && unsigned(positionInBlock) <= tk.utf16charsEnd()) {
+            if (static_cast<unsigned>(positionInBlock) >= tk.utf16charsBegin()
+                    && static_cast<unsigned>(positionInBlock) <= tk.utf16charsEnd()) {
                 cursorRegionReached = true;
                 if (tk.is(T_OPERATOR)) {
                     link = attemptFuncDeclDef(cursor, theSnapshot,
@@ -675,7 +675,7 @@ void FollowSymbolUnderCursor::findLink(
     }
 
     // Find the last symbol up to the cursor position
-    Scope *scope = doc->scopeAt(line, column);
+    Scope *scope = doc->scopeAt(line, positionInBlock);
     if (!scope)
         return processLinkCallback(link);
 
@@ -698,19 +698,21 @@ void FollowSymbolUnderCursor::findLink(
                 if (d->isDeclaration() || d->isFunction()) {
                     const QString fileName = QString::fromUtf8(d->fileName(), d->fileNameLength());
                     if (data.filePath().toString() == fileName) {
-                        if (unsigned(lineNumber) == d->line()
-                            && unsigned(positionInBlock) >= d->column()) { // TODO: check the end
+                        if (static_cast<unsigned>(line) == d->line()
+                            && static_cast<unsigned>(positionInBlock) >= d->column()) {
+                            // TODO: check the end
                             result = r; // take the symbol under cursor.
                             break;
                         }
                     }
                 } else if (d->isUsingDeclaration()) {
-                    int tokenBeginLineNumber = 0, tokenBeginColumnNumber = 0;
+                    int tokenBeginLineNumber = 0;
+                    int tokenBeginColumnNumber = 0;
                     Utils::Text::convertPosition(document, beginOfToken, &tokenBeginLineNumber,
                                                  &tokenBeginColumnNumber);
-                    if (unsigned(tokenBeginLineNumber) > d->line()
-                            || (unsigned(tokenBeginLineNumber) == d->line()
-                                && unsigned(tokenBeginColumnNumber) > d->column())) {
+                    if (static_cast<unsigned>(tokenBeginLineNumber) > d->line()
+                            || (static_cast<unsigned>(tokenBeginLineNumber) == d->line()
+                                && static_cast<unsigned>(tokenBeginColumnNumber) >= d->column())) {
                         result = r; // take the symbol under cursor.
                         break;
                     }

@@ -128,7 +128,8 @@ void QmakeManager::addLibraryImpl(const QString &fileName, BaseTextEditor *edito
     // add extra \n in case the last line is not empty
     int line, column;
     editor->convertPosition(endOfDoc, &line, &column);
-    if (!editor->textAt(endOfDoc - column, column).simplified().isEmpty())
+    const int positionInBlock = column - 1;
+    if (!editor->textAt(endOfDoc - positionInBlock, positionInBlock).simplified().isEmpty())
         snippet = QLatin1Char('\n') + snippet;
 
     editor->insert(snippet);

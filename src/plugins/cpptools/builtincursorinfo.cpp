@@ -184,8 +184,9 @@ private:
     {
         CursorInfo result;
 
+        // findLocalUses operates with 1-based line and 0-based column
         const CppTools::SemanticInfo::LocalUseMap localUses
-                = BuiltinCursorInfo::findLocalUses(m_document, m_line, m_column);
+                = BuiltinCursorInfo::findLocalUses(m_document, m_line, m_column - 1);
         result.localUses = localUses;
         splitLocalUses(localUses, &result.useRanges, &result.unusedVariablesRanges);
 
@@ -216,8 +217,7 @@ private:
             bool good = false;
             foreach (const CppTools::SemanticInfo::Use &use, uses) {
                 unsigned l = static_cast<unsigned>(m_line);
-                // convertCursorPosition() returns a 0-based column number.
-                unsigned c = static_cast<unsigned>(m_column + 1);
+                unsigned c = static_cast<unsigned>(m_column);
                 if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
                     good = true;
                     break;

@@ -45,7 +45,11 @@
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/target.h>
 
+#include <texteditor/texteditorsettings.h>
+
 #include <clang/Format/Format.h>
+
+#include <utils/algorithm.h>
 
 #include <QAction>
 #include <QDebug>
@@ -95,6 +99,26 @@ private:
 ClangFormatPlugin::ClangFormatPlugin() = default;
 ClangFormatPlugin::~ClangFormatPlugin() = default;
 
+#ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
+static void disableCppCodeStyle()
+{
+    using namespace TextEditor;
+    TextEditorSettings::unregisterCodeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID);
+    TextEditorSettings::unregisterCodeStylePool(CppTools::Constants::CPP_SETTINGS_ID);
+    TextEditorSettings::unregisterCodeStyle(CppTools::Constants::CPP_SETTINGS_ID);
+
+    QList<Core::IOptionsPage *> pages = Core::IOptionsPage::allOptionsPages();
+    int codeStylePageIndex = Utils::indexOf(pages, [](Core::IOptionsPage *page) {
+        return page->id() == CppTools::Constants::CPP_CODE_STYLE_SETTINGS_ID;
+    });
+    if (codeStylePageIndex >= 0) {
+        auto *page = pages[codeStylePageIndex];
+        page->finish();
+        page->deleteLater();
+    }
+}
+#endif
+
 bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments);
@@ -113,6 +137,8 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
     CppTools::CppModelManager::instance()->setCppIndenterCreator([]() {
         return new ClangFormatIndenter();
     });
+
+    disableCppCodeStyle();
 #endif
     return true;
 }

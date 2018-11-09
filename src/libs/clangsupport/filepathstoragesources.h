@@ -69,6 +69,17 @@ public:
     int sourceId;
     Utils::PathString sourceName;
 };
+
+class SourceNameAndDirectoryId
+{
+public:
+    SourceNameAndDirectoryId(Utils::SmallStringView sourceName, int directoryId)
+        : sourceName(sourceName), directoryId(directoryId)
+    {}
+
+    Utils::SmallString sourceName;
+    int directoryId = -1;
+};
 } // namespace ClangBackEnd
 
 } // namespace ClangBackEnd

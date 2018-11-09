@@ -33,6 +33,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 
+#include <texteditor/tabsettings.h>
+
 #include <cplusplus/Overview.h>
 
 #include <utils/qtcassert.h>
@@ -225,6 +227,31 @@ CppCodeStyleSettings CppCodeStyleSettings::currentGlobalCodeStyle()
 
     return cppCodeStylePreferences->currentCodeStyleSettings();
 }
+
+TextEditor::TabSettings CppCodeStyleSettings::currentProjectTabSettings()
+{
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
+    if (!project)
+        return currentGlobalTabSettings();
+
+    ProjectExplorer::EditorConfiguration *editorConfiguration = project->editorConfiguration();
+    QTC_ASSERT(editorConfiguration, return currentGlobalTabSettings());
+
+    TextEditor::ICodeStylePreferences *codeStylePreferences
+        = editorConfiguration->codeStyle(CppTools::Constants::CPP_SETTINGS_ID);
+    QTC_ASSERT(codeStylePreferences, return currentGlobalTabSettings());
+    return codeStylePreferences->tabSettings();
+}
+
+TextEditor::TabSettings CppCodeStyleSettings::currentGlobalTabSettings()
+{
+    CppTools::CppCodeStylePreferences *cppCodeStylePreferences
+            = CppTools::CppToolsSettings::instance()->cppCodeStyle();
+    QTC_ASSERT(cppCodeStylePreferences, return TextEditor::TabSettings());
+
+    return cppCodeStylePreferences->tabSettings();
+}
+
 
 static void configureOverviewWithCodeStyleSettings(CPlusPlus::Overview &overview,
                                                    const CppCodeStyleSettings &settings)

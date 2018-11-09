@@ -34,6 +34,7 @@ class QSettings;
 QT_END_NAMESPACE
 
 namespace CPlusPlus { class Overview; }
+namespace TextEditor { class TabSettings; }
 
 namespace CppTools {
 
@@ -94,6 +95,8 @@ public:
 
     static CppCodeStyleSettings currentProjectCodeStyle();
     static CppCodeStyleSettings currentGlobalCodeStyle();
+    static TextEditor::TabSettings currentProjectTabSettings();
+    static TextEditor::TabSettings currentGlobalTabSettings();
 
     /*! Returns an Overview configured by the current project's code style.
 

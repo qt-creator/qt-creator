@@ -133,7 +133,7 @@ public:
             return m_filePathStorage.fetchSourceId(directoryId, fileName);
         });
 
-        return {directoryId, fileNameId};
+        return fileNameId;
     }
 
     FilePath filePath(FilePathId filePathId) const
@@ -141,20 +141,20 @@ public:
         if (Q_UNLIKELY(!filePathId.isValid()))
             throw NoFilePathForInvalidFilePathId();
 
-        auto fetchFilePath = [&] (int id) { return m_filePathStorage.fetchDirectoryPath(id); };
-
-        Utils::PathString directoryPath = m_directoryPathCache.string(filePathId.directoryId,
-                                                                    fetchFilePath);
-
-
-        auto fetchSoureName = [&] (int id) {
-            return FileNameEntry{m_filePathStorage.fetchSourceName(id), filePathId.directoryId};
+        auto fetchSoureNameAndDirectoryId = [&] (int id) {
+            auto entry = m_filePathStorage.fetchSourceNameAndDirectoryId(id);
+            return FileNameEntry{entry.sourceName, entry.directoryId};
         };
 
-        Utils::SmallString fileName = m_fileNameCache.string(filePathId.filePathId,
-                                                             fetchSoureName);
+        FileNameEntry entry = m_fileNameCache.string(filePathId.filePathId,
+                                                     fetchSoureNameAndDirectoryId);
 
-        return FilePath{directoryPath, fileName};
+        auto fetchDirectoryPath = [&] (int id) { return m_filePathStorage.fetchDirectoryPath(id); };
+
+        Utils::PathString directoryPath = m_directoryPathCache.string(entry.directoryId,
+                                                                      fetchDirectoryPath);
+
+        return FilePath{directoryPath, entry.fileName};
     }
 
 private:

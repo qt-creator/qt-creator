@@ -165,14 +165,14 @@ public:
         return statement.template value<int>(directoryId, sourceName);
     }
 
-    Utils::SmallString fetchSourceName(int sourceId)
+    Sources::SourceNameAndDirectoryId fetchSourceNameAndDirectoryId(int sourceId)
     {
         try {
             Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
-            ReadStatement &statement = m_statementFactory.selectSourceNameFromSourcesBySourceId;
+            ReadStatement &statement = m_statementFactory.selectSourceNameAndDirectoryIdFromSourcesBySourceId;
 
-            auto optionalSourceName = statement.template value<Utils::SmallString>(sourceId);
+            auto optionalSourceName = statement.template value<Sources::SourceNameAndDirectoryId, 2>(sourceId);
 
             if (!optionalSourceName)
                 throw SourceNameIdDoesNotExists();
@@ -181,7 +181,7 @@ public:
 
             return optionalSourceName.value();
         } catch (const Sqlite::StatementIsBusy &) {
-            return fetchSourceName(sourceId);
+            return fetchSourceNameAndDirectoryId(sourceId);
         }
     }
 

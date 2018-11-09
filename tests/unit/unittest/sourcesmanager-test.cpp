@@ -37,103 +37,103 @@ protected:
 
 TEST_F(SourcesManager, TouchFilePathIdFirstTime)
 {
-    ASSERT_FALSE(sources.alreadyParsed({1, 1}, 56));
+    ASSERT_FALSE(sources.alreadyParsed(1, 56));
 }
 
 TEST_F(SourcesManager, TouchFilePathIdTwoTimesWithSameTime)
 {
-    sources.alreadyParsed({1, 1}, 56);
+    sources.alreadyParsed(1, 56);
 
-    ASSERT_FALSE(sources.alreadyParsed({1, 1}, 56));
+    ASSERT_FALSE(sources.alreadyParsed(1, 56));
 }
 
 TEST_F(SourcesManager, TouchFilePathIdSecondTimeWithSameTime)
 {
-    sources.alreadyParsed({1, 1}, 56);
+    sources.alreadyParsed(1, 56);
 
     sources.updateModifiedTimeStamps();
 
-    ASSERT_TRUE(sources.alreadyParsed({1, 1}, 56));
+    ASSERT_TRUE(sources.alreadyParsed(1, 56));
 }
 
 TEST_F(SourcesManager, TouchFilePathIdSecondTimeWithOlderTime)
 {
-    sources.alreadyParsed({1, 1}, 56);
+    sources.alreadyParsed(1, 56);
 
     sources.updateModifiedTimeStamps();
 
-    ASSERT_TRUE(sources.alreadyParsed({1, 1}, 55));
+    ASSERT_TRUE(sources.alreadyParsed(1, 55));
 }
 
 TEST_F(SourcesManager, TouchFilePathIdSecondTimeWithNewerTime)
 {
-    sources.alreadyParsed({1, 1}, 56);
+    sources.alreadyParsed(1, 56);
 
     sources.updateModifiedTimeStamps();
 
-    ASSERT_FALSE(sources.alreadyParsed({1, 1}, 57));
+    ASSERT_FALSE(sources.alreadyParsed(1, 57));
 }
 
 TEST_F(SourcesManager, MultipleFileIds)
 {
-    sources.alreadyParsed({1, 1}, 455);
-    sources.alreadyParsed({1, 4}, 56);
-    sources.alreadyParsed({1, 3}, 85);
-    sources.alreadyParsed({1, 6}, 56);
-    sources.alreadyParsed({1, 2}, 45);
+    sources.alreadyParsed(1, 455);
+    sources.alreadyParsed(4, 56);
+    sources.alreadyParsed(3, 85);
+    sources.alreadyParsed(6, 56);
+    sources.alreadyParsed(2, 45);
 
     sources.updateModifiedTimeStamps();
 
-    ASSERT_TRUE(sources.alreadyParsed({1, 3}, 85));
+    ASSERT_TRUE(sources.alreadyParsed(3, 85));
 }
 
 TEST_F(SourcesManager, UpdateModifiedTimeStampsWithNewerTimeStamp)
 {
-    sources.alreadyParsed({1, 1}, 455);
-    sources.alreadyParsed({1, 4}, 56);
-    sources.alreadyParsed({1, 3}, 85);
-    sources.alreadyParsed({1, 6}, 56);
-    sources.alreadyParsed({1, 2}, 45);
+    sources.alreadyParsed(1, 455);
+    sources.alreadyParsed(4, 56);
+    sources.alreadyParsed(3, 85);
+    sources.alreadyParsed(6, 56);
+    sources.alreadyParsed(2, 45);
     sources.updateModifiedTimeStamps();
 
-    sources.alreadyParsed({1, 3}, 86);
+    sources.alreadyParsed(3, 86);
     sources.updateModifiedTimeStamps();
 
-    ASSERT_TRUE(sources.alreadyParsed({1, 3}, 86));
+    ASSERT_TRUE(sources.alreadyParsed(3, 86));
 }
 
 TEST_F(SourcesManager, DontUpdateModifiedTimeStampsWithOlderTimeStamp)
 {
-    sources.alreadyParsed({1, 1}, 455);
-    sources.alreadyParsed({1, 4}, 56);
-    sources.alreadyParsed({1, 3}, 85);
-    sources.alreadyParsed({1, 6}, 56);
-    sources.alreadyParsed({1, 2}, 45);
+    sources.alreadyParsed(1, 455);
+    sources.alreadyParsed(4, 56);
+    sources.alreadyParsed(3, 85);
+    sources.alreadyParsed(6, 56);
+    sources.alreadyParsed(2, 45);
     sources.updateModifiedTimeStamps();
 
-    sources.alreadyParsed({1, 3}, 84);
+    sources.alreadyParsed(3, 84);
     sources.updateModifiedTimeStamps();
 
-    ASSERT_TRUE(sources.alreadyParsed({1, 3}, 85));
+    ASSERT_TRUE(sources.alreadyParsed(3, 85));
 }
 
 TEST_F(SourcesManager, ZeroTime)
 {
-    sources.alreadyParsed({1, 1}, 0);
+    sources.alreadyParsed(1, 0);
 
     sources.updateModifiedTimeStamps();
 
-    ASSERT_TRUE(sources.alreadyParsed({1, 1}, 0));
+    ASSERT_TRUE(sources.alreadyParsed(1, 0));
 }
 
 TEST_F(SourcesManager, TimeIsUpdated)
 {
-    sources.alreadyParsed({1, 1}, 56);
-    sources.alreadyParsed({1, 1}, 57);
+    sources.alreadyParsed(1, 56);
+    sources.alreadyParsed(1, 57);
 
     sources.updateModifiedTimeStamps();
 
-    ASSERT_TRUE(sources.alreadyParsed({1, 1}, 57));
+    ASSERT_TRUE(sources.alreadyParsed(1, 57));
 }
 
 TEST_F(SourcesManager, AnyDependFileIsNotModifiedAfterInitialization)
@@ -143,22 +143,22 @@ TEST_F(SourcesManager, AnyDependFileIsNotModifiedAfterInitialization)
 
 TEST_F(SourcesManager, AnyDependFileIsModified)
 {
-    sources.alreadyParsed({1, 1}, 56);
+    sources.alreadyParsed(1, 56);
 
     ASSERT_TRUE(sources.dependentFilesModified());
 }
 
 TEST_F(SourcesManager, AnyDependFileIsModifiedAfterParsingTwoTimesSameTimeStamp)
 {
-    sources.alreadyParsed({1, 1}, 56);
-    sources.alreadyParsed({1, 1}, 56);
+    sources.alreadyParsed(1, 56);
+    sources.alreadyParsed(1, 56);
 
     ASSERT_TRUE(sources.dependentFilesModified());
 }
 
 TEST_F(SourcesManager, AnyDependFileIsNotModifiedAfterUpdate)
 {
-    sources.alreadyParsed({1, 1}, 56);
+    sources.alreadyParsed(1, 56);
     sources.updateModifiedTimeStamps();
 
     ASSERT_FALSE(sources.dependentFilesModified());
@@ -166,68 +166,68 @@ TEST_F(SourcesManager, AnyDependFileIsNotModifiedAfterUpdate)
 
 TEST_F(SourcesManager, AnyDependFileIsNotModifiedAfterNotAlreadyPared)
 {
-    sources.alreadyParsed({1, 1}, 56);
+    sources.alreadyParsed(1, 56);
     sources.updateModifiedTimeStamps();
 
-    sources.alreadyParsed({1, 1}, 56);
+    sources.alreadyParsed(1, 56);
 
     ASSERT_FALSE(sources.dependentFilesModified());
 }
 
 TEST_F(SourcesManager, AnyDependFileIsNotModifiedAfterAlreadyPared)
 {
-    sources.alreadyParsed({1, 1}, 56);
+    sources.alreadyParsed(1, 56);
     sources.updateModifiedTimeStamps();
 
-    sources.alreadyParsed({1, 1}, 57);
+    sources.alreadyParsed(1, 57);
 
     ASSERT_TRUE(sources.dependentFilesModified());
 }
 
 TEST_F(SourcesManager, AnyDependFileIsModifiedAfterUpdateNewTimeStamp)
 {
-    sources.alreadyParsed({1, 1}, 56);
-    sources.alreadyParsed({1, 2}, 56);
+    sources.alreadyParsed(1, 56);
+    sources.alreadyParsed(2, 56);
     sources.updateModifiedTimeStamps();
-    sources.alreadyParsed({1, 1}, 57);
+    sources.alreadyParsed(1, 57);
 
-    sources.alreadyParsed({1, 2}, 56);
+    sources.alreadyParsed(2, 56);
 
     ASSERT_TRUE(sources.dependentFilesModified());
 }
 
 TEST_F(SourcesManager, AlreadyParsedWithDependencyAfterUpdateNewTimeStamp)
 {
-    sources.alreadyParsedAllDependentFiles({1, 1}, 56);
-    sources.alreadyParsedAllDependentFiles({1, 2}, 56);
+    sources.alreadyParsedAllDependentFiles(1, 56);
+    sources.alreadyParsedAllDependentFiles(2, 56);
     sources.updateModifiedTimeStamps();
-    sources.alreadyParsedAllDependentFiles({1, 1}, 57);
+    sources.alreadyParsedAllDependentFiles(1, 57);
 
-    bool alreadyParsed = sources.alreadyParsedAllDependentFiles({1, 2}, 56);
+    bool alreadyParsed = sources.alreadyParsedAllDependentFiles(2, 56);
 
     ASSERT_FALSE(alreadyParsed);
 }
 
 TEST_F(SourcesManager, AlreadyParsedWithDependencyAfterUpdateNewSecondTimeStamp)
 {
-    sources.alreadyParsedAllDependentFiles({1, 1}, 56);
-    sources.alreadyParsedAllDependentFiles({1, 2}, 56);
+    sources.alreadyParsedAllDependentFiles(1, 56);
+    sources.alreadyParsedAllDependentFiles(2, 56);
     sources.updateModifiedTimeStamps();
-    sources.alreadyParsedAllDependentFiles({1, 1}, 56);
+    sources.alreadyParsedAllDependentFiles(1, 56);
 
-    bool alreadyParsed = sources.alreadyParsedAllDependentFiles({1, 2}, 57);
+    bool alreadyParsed = sources.alreadyParsedAllDependentFiles(2, 57);
 
     ASSERT_FALSE(alreadyParsed);
 }
 
 TEST_F(SourcesManager, AlreadyParsedWithDependencyAfterUpdateSameTimeStamps)
 {
-    sources.alreadyParsedAllDependentFiles({1, 1}, 56);
-    sources.alreadyParsedAllDependentFiles({1, 2}, 56);
+    sources.alreadyParsedAllDependentFiles(1, 56);
+    sources.alreadyParsedAllDependentFiles(2, 56);
     sources.updateModifiedTimeStamps();
-    sources.alreadyParsedAllDependentFiles({1, 1}, 56);
+    sources.alreadyParsedAllDependentFiles(1, 56);
 
-    bool alreadyParsed = sources.alreadyParsedAllDependentFiles({1, 2}, 56);
+    bool alreadyParsed = sources.alreadyParsedAllDependentFiles(2, 56);
 
     ASSERT_TRUE(alreadyParsed);
 }

@@ -118,6 +118,12 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     setClangCustomDiagnosticConfigs(customDiagnosticConfigsFromSettings(s));
     setClangDiagnosticConfigId(clangDiagnosticConfigIdFromSettings(s));
 
+    { // Before Qt Creator 4.8, inconsistent settings might have been written.
+        const ClangDiagnosticConfigsModel model(m_clangCustomDiagnosticConfigs);
+        if (!model.hasConfigWithId(m_clangDiagnosticConfigId))
+            setClangDiagnosticConfigId(initialClangDiagnosticConfigId());
+    }
+
     const QVariant pchUsageVariant = s->value(pchUsageKey(), initialPchUsage());
     setPCHUsage(static_cast<PCHUsage>(pchUsageVariant.toInt()));
 
@@ -187,6 +193,11 @@ Core::Id CppCodeModelSettings::clangDiagnosticConfigId() const
 void CppCodeModelSettings::setClangDiagnosticConfigId(const Core::Id &configId)
 {
     m_clangDiagnosticConfigId = configId;
+}
+
+void CppCodeModelSettings::resetClangDiagnosticConfigId()
+{
+    m_clangDiagnosticConfigId = initialClangDiagnosticConfigId();
 }
 
 const ClangDiagnosticConfig CppCodeModelSettings::clangDiagnosticConfig() const

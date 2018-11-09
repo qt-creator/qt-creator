@@ -55,7 +55,7 @@ public:
 
         const std::size_t reserveSize = 128;
 
-        return locationsStatement.template values<SourceLocation, 4>(reserveSize,
+        return locationsStatement.template values<SourceLocation, 3>(reserveSize,
                                                                      filePathId.filePathId,
                                                                      line,
                                                                      utf8Column);
@@ -120,7 +120,7 @@ public:
     {
         ReadStatement &statement = m_statementFactory.selectLocationOfSymbol;
 
-        return statement.template value<SourceLocation, 4>(symbolId, int(kind));
+        return statement.template value<SourceLocation, 3>(symbolId, int(kind));
     }
 private:
     StatementFactory &m_statementFactory;

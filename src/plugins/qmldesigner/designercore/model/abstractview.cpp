@@ -586,17 +586,37 @@ void AbstractView::contextHelpId(const Core::IContext::HelpIdCallback &callback)
 #endif
 }
 
-void AbstractView::activateTimelineRecording(const ModelNode &timeline)
+void AbstractView::activateTimeline(const ModelNode &timeline)
 {
+    if (currentTimeline().isValid())
+        currentTimeline().toogleRecording(false);
+
     Internal::WriteLocker locker(m_model.data());
+
     if (model())
         model()->d->notifyCurrentTimelineChanged(timeline);
+}
 
+void AbstractView::activateTimelineRecording(const ModelNode &timeline)
+{
+    if (currentTimeline().isValid())
+        currentTimeline().toogleRecording(true);
+
+    Internal::WriteLocker locker(m_model.data());
+
+    if (model())
+        model()->d->notifyCurrentTimelineChanged(timeline);
 }
 
 void AbstractView::deactivateTimelineRecording()
 {
+    if (currentTimeline().isValid()) {
+        currentTimeline().toogleRecording(false);
+        currentTimeline().resetGroupRecording();
+    }
+
     Internal::WriteLocker locker(m_model.data());
+
     if (model())
         model()->d->notifyCurrentTimelineChanged(ModelNode());
 }

@@ -58,7 +58,7 @@ private:
 
 SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQueue,
                              SymbolStorageInterface &symbolStorage,
-                             UsedMacroAndSourceStorageInterface &usedMacroAndSourceStorage,
+                             BuildDependenciesStorageInterface &usedMacroAndSourceStorage,
                              ClangPathWatcherInterface &pathWatcher,
                              FilePathCachingInterface &filePathCache,
                              FileStatusCache &fileStatusCache,

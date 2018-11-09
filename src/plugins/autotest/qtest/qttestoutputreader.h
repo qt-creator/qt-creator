@@ -51,12 +51,12 @@ public:
                        QProcess *testApplication, const QString &buildDirectory,
                        const QString &projectFile, OutputMode mode, TestType type);
 protected:
-    void processOutput(const QByteArray &outputLine) override;
+    void processOutputLine(const QByteArray &outputLine) override;
     TestResultPtr createDefaultResult() const override;
 
 private:
-    void processXMLOutput(const QByteArray &outputLine);
-    void processPlainTextOutput(const QByteArray &outputLine);
+    void processXMLOutput(const QByteArray &outputLineWithNewline);
+    void processPlainTextOutput(const QByteArray &outputLineWithNewline);
     void processResultOutput(const QString &result, const QString &message);
     void processLocationOutput(const QString &fileWithLine);
     void processSummaryFinishOutput();

@@ -67,6 +67,8 @@ public:
     void trackRule(Rule *rule);
     void unTrackRule(Rule *rule);
 
+    bool detectRecursion(const QString &contextId);
+
 private:
     int m_offset;
     int m_savedOffset;
@@ -76,6 +78,8 @@ private:
     bool m_willContinueLine;
     QStringList m_captures;
     QList<Rule *> m_trackedRules;
+    int m_iterationOffset = -1;
+    QStringList m_iterationContextIds;
 };
 
 } // namespace Internal

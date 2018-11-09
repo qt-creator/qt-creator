@@ -98,6 +98,7 @@ public:
         bool enableClickableFixits;
         bool limitWidth;
         bool hideTooltipAfterLinkActivation;
+        bool allowTextSelection;
     };
 
     static QWidget *create(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
@@ -122,7 +123,12 @@ private:
         auto *label = new QLabel;
         label->setTextFormat(Qt::RichText);
         label->setText(text);
-        label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        if (m_displayHints.allowTextSelection) {
+            label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        } else {
+            label->setTextInteractionFlags(Qt::LinksAccessibleByMouse
+                                           | Qt::LinksAccessibleByKeyboard);
+        }
 
         if (m_displayHints.limitWidth) {
             const int limit = widthLimit();
@@ -457,6 +463,7 @@ QWidget *ClangDiagnosticWidget::create(
         hints.enableClickableFixits = true;
         hints.limitWidth = true;
         hints.hideTooltipAfterLinkActivation = true;
+        hints.allowTextSelection = false;
     } else { // Info Bar
         hints.showCategoryAndEnableOption = false;
         hints.showFileNameInMainDiagnostic = true;
@@ -464,6 +471,7 @@ QWidget *ClangDiagnosticWidget::create(
         hints.enableClickableFixits = false;
         hints.limitWidth = false;
         hints.hideTooltipAfterLinkActivation = false;
+        hints.allowTextSelection = true;
     }
 
     return WidgetFromDiagnostics::create(diagnostics, hints);

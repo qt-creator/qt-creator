@@ -167,29 +167,57 @@ static QString cleanText(const QString &original)
     return clean;
 }
 
+static bool textStartsWith(CaseSensitivity cs, const QString &text, const QString &prefix)
+{
+    switch (cs) {
+    case TextEditor::CaseInsensitive:
+        return text.startsWith(prefix, Qt::CaseInsensitive);
+    case TextEditor::CaseSensitive:
+        return text.startsWith(prefix, Qt::CaseSensitive);
+    case TextEditor::FirstLetterCaseSensitive:
+        return prefix.at(0) == text.at(0)
+               && prefix.midRef(1).startsWith(text.midRef(1), Qt::CaseInsensitive);
+    }
+
+    return false;
+}
+
+enum class PerfectMatchType {
+    None,
+    StartsWith,
+    Full,
+};
+
+static PerfectMatchType perfectMatch(CaseSensitivity cs, const QString &text, const QString &prefix)
+{
+    if (textStartsWith(cs, text, prefix))
+        return prefix.size() == text.size() ? PerfectMatchType::Full : PerfectMatchType::StartsWith;
+
+    return PerfectMatchType::None;
+}
+
 bool GenericProposalModel::isPerfectMatch(const QString &prefix) const
 {
     if (prefix.isEmpty())
         return false;
 
+    const CaseSensitivity cs = TextEditorSettings::completionSettings().m_caseSensitivity;
+    bool hasFullMatch = false;
+
     for (int i = 0; i < size(); ++i) {
         const QString &current = cleanText(text(i));
-        if (!current.isEmpty()) {
-            CaseSensitivity cs = TextEditorSettings::completionSettings().m_caseSensitivity;
-            if (cs == TextEditor::CaseSensitive) {
-                if (prefix == current)
-                    return true;
-            } else if (cs == TextEditor::CaseInsensitive) {
-                if (prefix.compare(current, Qt::CaseInsensitive) == 0)
-                    return true;
-            } else if (cs == TextEditor::FirstLetterCaseSensitive) {
-                if (prefix.at(0) == current.at(0)
-                        && prefix.midRef(1).compare(current.midRef(1), Qt::CaseInsensitive) == 0)
-                    return true;
-            }
-        }
+        if (current.isEmpty())
+            continue;
+
+        const PerfectMatchType match = perfectMatch(cs, current, prefix);
+        if (match == PerfectMatchType::StartsWith)
+            return false;
+
+        if (!hasFullMatch && match == PerfectMatchType::Full)
+            hasFullMatch = true;
     }
-    return false;
+
+    return hasFullMatch;
 }
 
 bool GenericProposalModel::isPrefiltered(const QString &prefix) const

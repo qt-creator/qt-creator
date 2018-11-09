@@ -55,7 +55,7 @@
 namespace SerialTerminal {
 namespace Internal {
 
-static Q_LOGGING_CATEGORY(log, Constants::LOGGING_CATEGORY)
+static Q_LOGGING_CATEGORY(log, Constants::LOGGING_CATEGORY, QtWarningMsg)
 
 // Tab Widget helper for middle click tab close
 class TabWidget : public QTabWidget

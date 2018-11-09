@@ -74,10 +74,10 @@ TEST_F(ClangQueryHighlightMarker, NoCallForNoMessagesAndContexts)
 TEST_F(ClangQueryHighlightMarker, CallForMessagesAndContextsForASingleLine)
 {
     InSequence sequence;
-    Messages messages{{{{0, 1}, 1, 5, 0, 1, 10, 0}, ErrorType::RegistryMatcherNotFound, {}},
-                      {{{0, 1}, 1, 30, 0, 1, 40, 0}, ErrorType::RegistryMatcherNotFound, {}}};
-    Contexts contexts{{{{0, 1}, 1, 2, 0, 1, 15, 0}, ContextType::MatcherArg, {}},
-                      {{{0, 1}, 1, 20, 0, 1, 50, 0}, ContextType::MatcherArg, {}}};
+    Messages messages{{{1, 1, 5, 0, 1, 10, 0}, ErrorType::RegistryMatcherNotFound, {}},
+                      {{1, 1, 30, 0, 1, 40, 0}, ErrorType::RegistryMatcherNotFound, {}}};
+    Contexts contexts{{{1, 1, 2, 0, 1, 15, 0}, ContextType::MatcherArg, {}},
+                      {{1, 1, 20, 0, 1, 50, 0}, ContextType::MatcherArg, {}}};
     marker.setMessagesAndContexts(std::move(messages), std::move(contexts));
 
     EXPECT_CALL(highlighter, setFormat(1, 13, contextTextFormat));
@@ -91,7 +91,7 @@ TEST_F(ClangQueryHighlightMarker, CallForMessagesAndContextsForASingleLine)
 TEST_F(ClangQueryHighlightMarker, CallForMessagesForAMultiLine)
 {
     InSequence sequence;
-    Messages messages{{{{0, 1}, 1, 5, 0, 3, 3, 0}, ErrorType::RegistryMatcherNotFound, {}}};
+    Messages messages{{{1, 1, 5, 0, 3, 3, 0}, ErrorType::RegistryMatcherNotFound, {}}};
     Contexts contexts;
     marker.setMessagesAndContexts(std::move(messages), std::move(contexts));
 
@@ -107,8 +107,8 @@ TEST_F(ClangQueryHighlightMarker, CallForMessagesForAMultiLine)
 TEST_F(ClangQueryHighlightMarker, CallForMessagesAndContextForAMultiLine)
 {
     InSequence sequence;
-    Messages messages{{{{1, 1}, 1, 5, 0, 3, 3, 0}, ErrorType::RegistryMatcherNotFound, {}}};
-    Contexts contexts{{{{1, 1}, 1, 2, 0, 3, 4, 0}, ContextType::MatcherArg, {}}};
+    Messages messages{{{1, 1, 5, 0, 3, 3, 0}, ErrorType::RegistryMatcherNotFound, {}}};
+    Contexts contexts{{{1, 1, 2, 0, 3, 4, 0}, ContextType::MatcherArg, {}}};
     marker.setMessagesAndContexts(std::move(messages), std::move(contexts));
 
     EXPECT_CALL(highlighter, setFormat(1, 11, contextTextFormat));
@@ -136,7 +136,7 @@ TEST_F(ClangQueryHighlightMarker, NoMessagesIfEmpty)
 
 TEST_F(ClangQueryHighlightMarker, NoMessagesForBeforePosition)
 {
-    Messages messages{{{{0, 1}, 1, 5, 0, 3, 3, 0},
+    Messages messages{{{1, 1, 5, 0, 3, 3, 0},
             ErrorType::RegistryMatcherNotFound,
             {"foo"}}};
     Contexts contexts;
@@ -149,7 +149,7 @@ TEST_F(ClangQueryHighlightMarker, NoMessagesForBeforePosition)
 
 TEST_F(ClangQueryHighlightMarker, NoMessagesForAfterPosition)
 {
-    Messages messages{{{{0, 1}, 1, 5, 0, 3, 3, 0},
+    Messages messages{{{1, 1, 5, 0, 3, 3, 0},
             ErrorType::RegistryMatcherNotFound,
             {"foo"}}};
     Contexts contexts;
@@ -162,7 +162,7 @@ TEST_F(ClangQueryHighlightMarker, NoMessagesForAfterPosition)
 
 TEST_F(ClangQueryHighlightMarker, OneMessagesForInsidePosition)
 {
-    Message message{{{0, 1}, 1, 5, 0, 3, 3, 0},
+    Message message{{1, 1, 5, 0, 3, 3, 0},
                     ErrorType::RegistryMatcherNotFound,
                     {"foo"}};
     Messages messages{message.clone()};
@@ -176,7 +176,7 @@ TEST_F(ClangQueryHighlightMarker, OneMessagesForInsidePosition)
 
 TEST_F(ClangQueryHighlightMarker, NoMessagesForOutsidePosition)
 {
-    Message message{{{0, 1}, 1, 5, 0, 3, 3, 0},
+    Message message{{1, 1, 5, 0, 3, 3, 0},
                     ErrorType::RegistryMatcherNotFound,
                     {"foo"}};
     Messages messages{message.clone()};
@@ -190,7 +190,7 @@ TEST_F(ClangQueryHighlightMarker, NoMessagesForOutsidePosition)
 
 TEST_F(ClangQueryHighlightMarker, AfterStartColumnBeforeLine)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 3, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 3, 3, 0};
 
     bool isAfterStartColumn = marker.isInsideRange(sourceRange, 1, 6);
 
@@ -199,7 +199,7 @@ TEST_F(ClangQueryHighlightMarker, AfterStartColumnBeforeLine)
 
 TEST_F(ClangQueryHighlightMarker, AfterStartColumnBeforeColumn)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 3, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 3, 3, 0};
 
     bool isAfterStartColumn = marker.isInsideRange(sourceRange, 2, 4);
 
@@ -208,7 +208,7 @@ TEST_F(ClangQueryHighlightMarker, AfterStartColumnBeforeColumn)
 
 TEST_F(ClangQueryHighlightMarker, AfterStartColumnAtColumn)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 3, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 3, 3, 0};
 
     bool isAfterStartColumn = marker.isInsideRange(sourceRange, 2, 5);
 
@@ -217,7 +217,7 @@ TEST_F(ClangQueryHighlightMarker, AfterStartColumnAtColumn)
 
 TEST_F(ClangQueryHighlightMarker, AfterStartColumnAfterColumn)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 3, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 3, 3, 0};
 
     bool isAfterStartColumn = marker.isInsideRange(sourceRange, 2, 6);
 
@@ -226,7 +226,7 @@ TEST_F(ClangQueryHighlightMarker, AfterStartColumnAfterColumn)
 
 TEST_F(ClangQueryHighlightMarker, BeforeEndColumnAfterLine)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 3, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 3, 3, 0};
 
     bool isBeforeEndColumn = marker.isInsideRange(sourceRange, 4, 1);
 
@@ -235,7 +235,7 @@ TEST_F(ClangQueryHighlightMarker, BeforeEndColumnAfterLine)
 
 TEST_F(ClangQueryHighlightMarker, BeforeEndColumnAfterColumn)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 3, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 3, 3, 0};
 
     bool isBeforeEndColumn = marker.isInsideRange(sourceRange, 3, 4);
 
@@ -244,7 +244,7 @@ TEST_F(ClangQueryHighlightMarker, BeforeEndColumnAfterColumn)
 
 TEST_F(ClangQueryHighlightMarker, BeforeEndColumnAtColumn)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 3, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 3, 3, 0};
 
     bool isBeforeEndColumn = marker.isInsideRange(sourceRange, 3, 3);
 
@@ -253,7 +253,7 @@ TEST_F(ClangQueryHighlightMarker, BeforeEndColumnAtColumn)
 
 TEST_F(ClangQueryHighlightMarker, BeforeEndColumnBeforeColumn)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 3, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 3, 3, 0};
 
     bool isBeforeEndColumn = marker.isInsideRange(sourceRange, 3, 2);
 
@@ -262,7 +262,7 @@ TEST_F(ClangQueryHighlightMarker, BeforeEndColumnBeforeColumn)
 
 TEST_F(ClangQueryHighlightMarker, InBetweenLineBeforeLine)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 3, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 3, 3, 0};
 
     bool isInBetween = marker.isInsideRange(sourceRange, 1, 6);
 
@@ -271,7 +271,7 @@ TEST_F(ClangQueryHighlightMarker, InBetweenLineBeforeLine)
 
 TEST_F(ClangQueryHighlightMarker, InBetweenLineAfterLine)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 4, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 4, 3, 0};
 
     bool isInBetween = marker.isInsideRange(sourceRange, 5, 1);
 
@@ -280,7 +280,7 @@ TEST_F(ClangQueryHighlightMarker, InBetweenLineAfterLine)
 
 TEST_F(ClangQueryHighlightMarker, InBetweenLine)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 4, 3, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 4, 3, 0};
 
     bool isInBetween = marker.isInsideRange(sourceRange, 3, 1);
 
@@ -289,7 +289,7 @@ TEST_F(ClangQueryHighlightMarker, InBetweenLine)
 
 TEST_F(ClangQueryHighlightMarker, SingleLineBefore)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 2, 10, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 2, 10, 0};
 
     bool isInRange = marker.isInsideRange(sourceRange, 2, 4);
 
@@ -298,7 +298,7 @@ TEST_F(ClangQueryHighlightMarker, SingleLineBefore)
 
 TEST_F(ClangQueryHighlightMarker, SingleLineAfter)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 2, 10, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 2, 10, 0};
 
     bool isInRange = marker.isInsideRange(sourceRange, 2, 11);
 
@@ -307,7 +307,7 @@ TEST_F(ClangQueryHighlightMarker, SingleLineAfter)
 
 TEST_F(ClangQueryHighlightMarker, SingleLineInRange)
 {
-    SourceRange sourceRange{{0, 1}, 2, 5, 0, 2, 10, 0};
+    SourceRange sourceRange{1, 2, 5, 0, 2, 10, 0};
 
     bool isInRange = marker.isInsideRange(sourceRange, 2, 6);
 
@@ -328,7 +328,7 @@ TEST_F(ClangQueryHighlightMarker, NoContextsIfEmpty)
 TEST_F(ClangQueryHighlightMarker, NoContextsForBeforePosition)
 {
     Messages messages;
-    Contexts contexts{{{{0, 1}, 1, 5, 0, 3, 3, 0},
+    Contexts contexts{{{1, 1, 5, 0, 3, 3, 0},
                       ContextType::MatcherArg,
                       {"foo"}}};
     marker.setMessagesAndContexts(std::move(messages), std::move(contexts));
@@ -341,7 +341,7 @@ TEST_F(ClangQueryHighlightMarker, NoContextsForBeforePosition)
 TEST_F(ClangQueryHighlightMarker, NoContextsForAfterPosition)
 {
     Messages messages;
-    Contexts contexts{{{{0, 1}, 1, 5, 0, 3, 3, 0},
+    Contexts contexts{{{1, 1, 5, 0, 3, 3, 0},
                       ContextType::MatcherArg,
                       {"foo"}}};
     marker.setMessagesAndContexts(std::move(messages), std::move(contexts));
@@ -353,7 +353,7 @@ TEST_F(ClangQueryHighlightMarker, NoContextsForAfterPosition)
 
 TEST_F(ClangQueryHighlightMarker, OneContextsForInsidePosition)
 {
-    Context context{{{0, 1}, 1, 5, 0, 3, 3, 0},
+    Context context{{1, 1, 5, 0, 3, 3, 0},
                     ContextType::MatcherArg,
                     {"foo"}};
     Messages messages;
@@ -367,7 +367,7 @@ TEST_F(ClangQueryHighlightMarker, OneContextsForInsidePosition)
 
 TEST_F(ClangQueryHighlightMarker, NoContextsForOutsidePosition)
 {
-    Context context{{{0, 1}, 1, 5, 0, 3, 3, 0},
+    Context context{{1, 1, 5, 0, 3, 3, 0},
                     ContextType::MatcherArg,
                     {"foo"}};
     Messages messages;

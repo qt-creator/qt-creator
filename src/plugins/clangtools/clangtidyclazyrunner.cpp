@@ -79,7 +79,8 @@ QStringList ClangTidyClazyRunner::constructCommandLineArguments(const QStringLis
     arguments << QString("-fsyntax-only")
               << QString("-serialize-diagnostics")
               << QString(m_logFile)
-              << ClangDiagnosticConfigsModel::globalDiagnosticOptions();
+              << ClangDiagnosticConfigsModel::globalDiagnosticOptions()
+              << m_diagnosticConfig.clangOptions();
 
     const ClangDiagnosticConfig::TidyMode tidyMode = m_diagnosticConfig.clangTidyMode();
     if (tidyMode != ClangDiagnosticConfig::TidyMode::Disabled) {

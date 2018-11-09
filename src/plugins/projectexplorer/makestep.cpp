@@ -196,14 +196,23 @@ void MakeStep::setJobCountOverrideMakeflags(bool override)
     m_overrideMakeflags = override;
 }
 
+static bool argsContainsJobCount(const QString &str)
+{
+    const QStringList args = Utils::QtcProcess::splitArgs(str, Utils::HostOsInfo::hostOs());
+    return Utils::anyOf(args, [](const QString &arg) { return arg.startsWith("-j"); });
+}
+
 bool MakeStep::makeflagsContainsJobCount() const
 {
     const Utils::Environment env = environment(buildConfiguration());
     if (!env.hasKey(MAKEFLAGS))
         return false;
-    const QStringList args = Utils::QtcProcess::splitArgs(env.value(MAKEFLAGS),
-                                                          Utils::HostOsInfo::hostOs());
-    return Utils::anyOf(args, [](const QString &arg) { return arg.startsWith("-j"); });
+    return argsContainsJobCount(env.value(MAKEFLAGS));
+}
+
+bool MakeStep::userArgsContainsJobCount() const
+{
+    return argsContainsJobCount(m_makeArguments);
 }
 
 Utils::Environment MakeStep::environment(BuildConfiguration *bc) const
@@ -262,8 +271,10 @@ int MakeStep::defaultJobCount()
 
 QStringList MakeStep::jobArguments() const
 {
-    if (!isJobCountSupported() || (makeflagsContainsJobCount() && !jobCountOverridesMakeflags()))
+    if (!isJobCountSupported() || userArgsContainsJobCount()
+            || (makeflagsContainsJobCount() && !jobCountOverridesMakeflags())) {
         return {};
+    }
     return {"-j" + QString::number(m_userJobCount)};
 }
 
@@ -408,6 +419,13 @@ void MakeStepConfigWidget::setUserJobCountVisible(bool visible)
     m_ui->overrideMakeflags->setVisible(visible);
 }
 
+void MakeStepConfigWidget::setUserJobCountEnabled(bool enabled)
+{
+    m_ui->jobsLabel->setEnabled(enabled);
+    m_ui->userJobCount->setEnabled(enabled);
+    m_ui->overrideMakeflags->setEnabled(enabled);
+}
+
 void MakeStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
@@ -428,6 +446,7 @@ void MakeStepConfigWidget::updateDetails()
     }
 
     setUserJobCountVisible(m_makeStep->isJobCountSupported());
+    setUserJobCountEnabled(!m_makeStep->userArgsContainsJobCount());
     m_ui->userJobCount->setValue(m_makeStep->jobCount());
     m_ui->overrideMakeflags->setCheckState(
         m_makeStep->jobCountOverridesMakeflags() ? Qt::Checked : Qt::Unchecked);

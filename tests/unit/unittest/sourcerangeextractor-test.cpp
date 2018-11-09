@@ -74,7 +74,7 @@ using SourceRangeExtractorSlowTest = SourceRangeExtractor;
 
 TEST_F(SourceRangeExtractorSlowTest, ExtractSourceRangeContainer)
 {
-    SourceRangeWithTextContainer sourceRangeContainer{{1, 1}, 1, 1, 0, 1, 10, 9, Utils::SmallString("int value;")};
+    SourceRangeWithTextContainer sourceRangeContainer{1, 1, 1, 0, 1, 10, 9, Utils::SmallString("int value;")};
 
     extractor.addSourceRange(sourceRange);
 

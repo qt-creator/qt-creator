@@ -74,7 +74,7 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
     CPlusPlus::ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
     moveCursorToEndOfName(&tc);
     const QString &expression = expressionUnderCursor(tc);
-    CPlusPlus::Scope *scope = doc->scopeAt(line, column);
+    CPlusPlus::Scope *scope = doc->scopeAt(line, column - 1);
 
     CPlusPlus::TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
