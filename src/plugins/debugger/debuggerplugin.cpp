@@ -1213,7 +1213,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_hiddenStopAction.setAttribute(ProxyAction::UpdateText);
     m_hiddenStopAction.setAttribute(ProxyAction::UpdateIcon);
 
-    cmd = ActionManager::registerAction(&m_hiddenStopAction, Constants::HIDDEN_STOP);
+    cmd = ActionManager::registerAction(&m_hiddenStopAction, "Debugger.HiddenStop");
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Shift+Ctrl+Y") : tr("Shift+F5")));
 
     act = new QAction(tr("Abort Debugging"), this);
@@ -1232,7 +1232,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     debugMenu->addSeparator();
 
     cmd = ActionManager::registerAction(&m_startAndBreakOnMain,
-                                        Constants::START_AND_BREAK_ON_MAIN,
+                                        "Debugger.StartAndBreakOnMain",
                                         debuggerNotRunning);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+O") : tr("F10")));
     cmd->setAttribute(Command::CA_Hide);
