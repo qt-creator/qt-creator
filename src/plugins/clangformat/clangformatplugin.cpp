@@ -99,6 +99,7 @@ private:
 ClangFormatPlugin::ClangFormatPlugin() = default;
 ClangFormatPlugin::~ClangFormatPlugin() = default;
 
+#ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
 static void disableCppCodeStyle()
 {
     using namespace TextEditor;
@@ -116,6 +117,7 @@ static void disableCppCodeStyle()
         page->deleteLater();
     }
 }
+#endif
 
 bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
