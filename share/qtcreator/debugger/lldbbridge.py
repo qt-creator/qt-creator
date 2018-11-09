@@ -1741,13 +1741,39 @@ class Dumper(DumperBase):
         value = frame.FindVariable(exp)
         return value
 
+    def setValue(self, address, typename, value):
+        sbtype = self.lookupNativeType(typename)
+        error = lldb.SBError()
+        sbaddr = lldb.SBAddress(address, self.target)
+        sbvalue = self.target.CreateValueFromAddress('x', sbaddr, sbtype)
+        sbvalue.SetValueFromCString(str(value), error)
+
+    def setValues(self, address, typename, values):
+        sbtype = self.lookupNativeType(typename)
+        sizeof = sbtype.GetByteSize()
+        error = lldb.SBError()
+        for i in range(len(values)):
+            sbaddr = lldb.SBAddress(address + i * sizeof, self.target)
+            sbvalue = self.target.CreateValueFromAddress('x', sbaddr, sbtype)
+            sbvalue.SetValueFromCString(str(values[i]), error)
+
     def assignValue(self, args):
         self.reportToken(args)
         error = lldb.SBError()
-        exp = self.hexdecode(args['exp'])
+        expr = self.hexdecode(args['expr'])
         value = self.hexdecode(args['value'])
-        lhs = self.findValueByExpression(exp)
-        lhs.SetValueFromCString(value, error)
+        simpleType = int(args['simpleType'])
+        lhs = self.findValueByExpression(expr)
+        typeName = lhs.GetType().GetName()
+        typeName = typeName.replace('::', '__')
+        pos = typeName.find('<')
+        if pos != -1:
+            typeName = typeName[0:pos]
+        if typeName in self.qqEditable and not simpleType:
+            expr = self.parseAndEvaluate(expr)
+            self.qqEditable[typeName](self, expr, value)
+        else:
+            lhs.SetValueFromCString(value, error)
         self.reportResult(self.describeError(error), args)
 
     def watchPoint(self, args):

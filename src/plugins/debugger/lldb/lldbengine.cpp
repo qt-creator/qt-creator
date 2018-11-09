@@ -705,12 +705,14 @@ void LldbEngine::fetchStack(int limit)
 //
 //////////////////////////////////////////////////////////////////////
 
-void LldbEngine::assignValueInDebugger(WatchItem *,
+void LldbEngine::assignValueInDebugger(WatchItem *item,
     const QString &expression, const QVariant &value)
 {
     DebuggerCommand cmd("assignValue");
-    cmd.arg("exp", toHex(expression));
+    cmd.arg("expr", toHex(expression));
     cmd.arg("value", toHex(value.toString()));
+    cmd.arg("type", toHex(item->type));
+    cmd.arg("simpleType", isIntOrFloatType(item->type));
     cmd.callback = [this](const DebuggerResponse &) { updateLocals(); };
     runCommand(cmd);
 }
