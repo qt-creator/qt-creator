@@ -32,6 +32,13 @@
 #include <QTextDocument>
 #include <QVector>
 
+namespace TextEditor {
+class Indenter;
+class Replacement;
+using Replacements = std::vector<Replacement>;
+class TabSettings;
+}
+
 namespace ClangTools {
 namespace Internal {
 
@@ -64,6 +71,18 @@ public:
 private:
     QTextDocument *document(const QString &filePath) const;
     void shiftAffectedReplacements(const ReplacementOperation &op, int startIndex);
+
+    void tryToFormat(TextEditor::Indenter &indenter,
+                     const TextEditor::TabSettings &tabSettings,
+                     QTextDocument *doc,
+                     const ReplacementOperation &op,
+                     int currentIndex);
+    void shiftAffectedReplacements(const QString &fileName,
+                                   const TextEditor::Replacements &replacements,
+                                   int startIndex);
+    bool hasIntersection(const QString &fileName,
+                         const TextEditor::Replacements &replacements,
+                         int startIndex) const;
 
     QString m_filePath;
     mutable Utils::TextFileFormat m_textFileFormat;

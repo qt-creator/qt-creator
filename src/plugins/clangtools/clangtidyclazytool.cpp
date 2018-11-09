@@ -179,7 +179,6 @@ public:
             QVector<DiagnosticItem *> itemsInvalidated;
 
             fileInfo.file.setReplacements(ops);
-
             model->removeWatchedPath(ops.first()->fileName);
             if (fileInfo.file.apply()) {
                 itemsApplied = itemsScheduled;

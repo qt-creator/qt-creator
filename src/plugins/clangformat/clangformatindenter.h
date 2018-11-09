@@ -41,6 +41,7 @@ public:
                   const QTextCursor &cursor,
                   const TextEditor::TabSettings &tabSettings) override;
     TextEditor::Replacements format(QTextDocument *doc,
+                                    const Utils::FileName &fileName,
                                     const QTextCursor &cursor,
                                     const TextEditor::TabSettings &tabSettings) override;
     void indentBlock(QTextDocument *doc,

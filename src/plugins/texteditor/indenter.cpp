@@ -42,9 +42,9 @@ bool Indenter::isElectricCharacter(const QChar &) const
 }
 
 void Indenter::indentBlock(QTextDocument *doc,
-                             const QTextBlock &block,
-                             const QChar &typedChar,
-                             const TabSettings &tabSettings)
+                           const QTextBlock &block,
+                           const QChar &typedChar,
+                           const TabSettings &tabSettings)
 {
     Q_UNUSED(doc);
     Q_UNUSED(typedChar);
@@ -103,6 +103,7 @@ void Indenter::reindent(QTextDocument *doc, const QTextCursor &cursor, const Tab
 }
 
 Replacements Indenter::format(QTextDocument *doc,
+                              const Utils::FileName & /*fileName*/,
                               const QTextCursor &cursor,
                               const TabSettings &tabSettings)
 {

@@ -26,6 +26,13 @@
 #include "clangfixitsrefactoringchanges.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/cppcodestylesettings.h>
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsconstants.h>
+
+#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/indenter.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <QDebug>
 #include <QFileInfo>
@@ -35,8 +42,11 @@
 
 #include <utils/qtcassert.h>
 
+#include <algorithm>
+
 Q_LOGGING_CATEGORY(fixitsLog, "qtc.clangtools.fixits", QtWarningMsg);
 
+using namespace TextEditor;
 using namespace Utils;
 
 namespace ClangTools {
@@ -71,6 +81,13 @@ bool FixitsRefactoringFile::apply()
 
     QTC_ASSERT(!m_filePath.isEmpty(), return false);
 
+    ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(
+        CppTools::Constants::CPP_SETTINGS_ID);
+    std::unique_ptr<TextEditor::Indenter> indenter(factory->createIndenter());
+
+    const TextEditor::TabSettings tabSettings
+            = CppTools::CppCodeStyleSettings::currentProjectTabSettings();
+
     // Apply changes
     for (int i=0; i < m_replacementOperations.size(); ++i) {
         ReplacementOperation &op = *m_replacementOperations[i];
@@ -90,6 +107,8 @@ bool FixitsRefactoringFile::apply()
             cursor.setPosition(op.pos);
             cursor.setPosition(op.pos + op.length, QTextCursor::KeepAnchor);
             cursor.insertText(op.text);
+
+            tryToFormat(*indenter, tabSettings, doc, op, i);
         }
     }
 
@@ -106,6 +125,33 @@ bool FixitsRefactoringFile::apply()
     }
 
     return true;
+}
+
+void FixitsRefactoringFile::tryToFormat(TextEditor::Indenter &indenter,
+                                        const TextEditor::TabSettings &tabSettings,
+                                        QTextDocument *doc,
+                                        const ReplacementOperation &op,
+                                        int currentIndex)
+{
+    QTextCursor cursor(doc);
+    cursor.beginEditBlock();
+    cursor.setPosition(op.pos);
+    cursor.movePosition(QTextCursor::Right,
+                        QTextCursor::KeepAnchor,
+                        op.text.length());
+    const Replacements replacements = indenter.format(doc,
+                                                      Utils::FileName::fromString(op.fileName),
+                                                      cursor,
+                                                      tabSettings);
+    cursor.endEditBlock();
+
+    if (replacements.empty())
+        return;
+
+    if (hasIntersection(op.fileName, replacements, currentIndex + 1))
+        doc->undo(&cursor);
+    else
+        shiftAffectedReplacements(op.fileName, replacements, currentIndex + 1);
 }
 
 QTextDocument *FixitsRefactoringFile::document(const QString &filePath) const
@@ -145,6 +191,46 @@ void FixitsRefactoringFile::shiftAffectedReplacements(const ReplacementOperation
             current.pos -= op.length;
 
         qCDebug(fixitsLog) << "    shift:" << i << before << " ====> " << current;
+    }
+}
+
+bool FixitsRefactoringFile::hasIntersection(const QString &fileName,
+                                            const Replacements &replacements,
+                                            int startIndex) const
+{
+    for (int i = startIndex; i < m_replacementOperations.size(); ++i) {
+        const ReplacementOperation &current = *m_replacementOperations[i];
+        if (fileName != current.fileName)
+            continue;
+
+        // Usually the number of replacements is from 1 to 3.
+        if (std::any_of(replacements.begin(),
+                        replacements.end(),
+                        [&current](const const Replacement &replacement) {
+                            return replacement.offset + replacement.length > current.pos
+                                   && replacement.offset < current.pos + current.length;
+                        })) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void FixitsRefactoringFile::shiftAffectedReplacements(const QString &fileName,
+                                                      const Replacements &replacements,
+                                                      int startIndex)
+{
+    for (int i = startIndex; i < m_replacementOperations.size(); ++i) {
+        ReplacementOperation &current = *m_replacementOperations[i];
+        if (fileName != current.fileName)
+            continue;
+
+        for (const auto &replacement : replacements) {
+            if (replacement.offset > current.pos)
+                break;
+            current.pos += replacement.text.size() - replacement.length;
+        }
     }
 }
 

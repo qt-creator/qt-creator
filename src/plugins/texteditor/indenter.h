@@ -39,6 +39,8 @@ class QTextBlock;
 class QChar;
 QT_END_NAMESPACE
 
+namespace Utils { class FileName; }
+
 namespace TextEditor {
 
 class ICodeStylePreferences;
@@ -85,6 +87,7 @@ public:
 
     // By default just calls indent with default settings.
     virtual Replacements format(QTextDocument *doc,
+                                const Utils::FileName &fileName,
                                 const QTextCursor &cursor,
                                 const TabSettings &tabSettings);
 

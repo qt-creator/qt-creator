@@ -384,14 +384,10 @@ void ClangFormatIndenter::indent(QTextDocument *doc,
 }
 
 QtReplacements ClangFormatIndenter::format(QTextDocument *doc,
+                                           const Utils::FileName &fileName,
                                            const QTextCursor &cursor,
                                            const TextEditor::TabSettings & /*tabSettings*/)
 {
-    TextEditorWidget *editor = TextEditorWidget::currentTextEditorWidget();
-    if (!editor)
-        return QtReplacements();
-
-    const Utils::FileName fileName = editor->textDocument()->filePath();
     int utf8Offset;
     int utf8Length;
     const QByteArray buffer = doc->toPlainText().toUtf8();
