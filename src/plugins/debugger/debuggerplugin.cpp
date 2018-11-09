@@ -1065,13 +1065,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_engineManagerWindow->setWindowTitle(tr("Debugger Perspectives"));
     m_engineManagerWindow->setObjectName(DOCKWIDGET_ENGINEMANAGER);
 
-    //act = m_snapshotAction = new QAction(tr("Create Snapshot"), this);
-    //act->setProperty(Role, RequestCreateSnapshotRole);
-    //act->setIcon(Icons::SNAPSHOT.icon());
-
-//    connect(act, &QAction::triggered,
-//            this, &DebuggerPluginPrivate::handleOperateByInstructionTriggered);
-
     // Logging
     m_globalLogWindow = new GlobalLogWindow;
 
@@ -1290,21 +1283,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     debugMenu->addSeparator();
 
-    //cmd = ActionManager::registerAction(m_snapshotAction,
-    //    "Debugger.Snapshot", cppDebuggercontext);
-    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+S")));
-    //cmd->setAttribute(Command::CA_Hide);
-    //debugMenu->addAction(cmd);
-
     ActionManager::registerAction(&m_frameDownAction,
         "Debugger.FrameDown", cppDebuggercontext);
     ActionManager::registerAction(&m_frameUpAction,
         "Debugger.FrameUp", cppDebuggercontext);
-
-//    cmd = ActionManager::registerAction(action(OperateByInstruction),
-//        Constants::OPERATE_BY_INSTRUCTION, cppDebuggercontext);
-//    cmd->setAttribute(Command::CA_Hide);
-//    debugMenu->addAction(cmd);
 
     cmd = ActionManager::registerAction(&m_breakAction, "Debugger.ToggleBreak");
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("F8") : tr("F9")));
@@ -1313,14 +1295,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         this, &DebuggerPluginPrivate::toggleBreakpointHelper);
 
     debugMenu->addSeparator();
-
-    // currently broken
-//    auto qmlUpdateOnSaveDummyAction = new QAction(tr("Apply Changes on Save"), this);
-//    qmlUpdateOnSaveDummyAction->setCheckable(true);
-//    qmlUpdateOnSaveDummyAction->setIcon(Icons::APPLY_ON_SAVE.icon());
-//    qmlUpdateOnSaveDummyAction->setEnabled(false);
-//    cmd = ActionManager::registerAction(qmlUpdateOnSaveDummyAction, Constants::QML_UPDATE_ON_SAVE);
-//    debugMenu->addAction(cmd);
 
     auto qmlShowAppOnTopDummyAction = new QAction(tr("Show Application on Top"), this);
     qmlShowAppOnTopDummyAction->setCheckable(true);
@@ -1398,23 +1372,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
     m_perspective.addToolBarAction(&m_startAction);
 
-//    QAction *operateByInstructionAction = action(OperateByInstruction);
-//    operateByInstructionAction->setText(tr("Start in Operate by Instruction mode"));
-
-
-//    QAction *enableReverseDebuggingAction = action(EnableReverseDebugging);
-//    enableReverseDebuggingAction->setText(tr("Start with recording information to reverse step if possible"));
-////                                        Icons::SINGLE_INSTRUCTION_MODE.icon()};
-//    Action m_enableReverseDebuggingAction{tr("Start with recording information to reverse step if possible"),
-//                                          Icons::REVERSE_MODE.icon()}
-//    m_perspective.addToolbarAction(operateByInstructionAction);
-
     m_perspective.addWindow(m_breakpointManagerWindow, Perspective::SplitVertical, nullptr);
     m_perspective.addWindow(m_globalLogWindow, Perspective::SplitHorizontal, m_breakpointManagerWindow, false);
     m_perspective.addWindow(m_engineManagerWindow, Perspective::AddToTab, m_globalLogWindow);
-
-//    connect(action(EnableReverseDebugging), &SavedAction::valueChanged,
-//            this, &DebuggerPluginPrivate::enableReverseDebuggingTriggered);
 
     setInitialState();
 
