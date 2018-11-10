@@ -94,13 +94,8 @@ private:
 
     QString toolTip(const QString &sha) const;
 
-    GitClient *m_client;
-    QString m_workingDirectory;
-    BranchNode *m_rootNode;
-    BranchNode *m_currentBranch = nullptr;
-    QString m_currentSha;
-    QStringList m_obsoleteLocalBranches;
-    bool m_oldBranchesIncluded = false;
+    class Private;
+    Private *d;
 };
 
 } // namespace Internal
