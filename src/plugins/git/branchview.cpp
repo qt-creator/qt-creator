@@ -298,12 +298,12 @@ bool BranchView::add()
         trackedBranch = m_model->fullName(trackedIndex);
     }
     const bool isLocal = m_model->isLocal(trackedIndex);
-    const bool isTag = m_model->isTag(trackedIndex);
+    const bool isTracked = !m_model->isHead(trackedIndex) && !m_model->isTag(trackedIndex);
 
     const QStringList localNames = m_model->localBranchNames();
 
     QString suggestedName;
-    if (!isTag) {
+    if (isTracked) {
         const QString suggestedNameBase = trackedBranch.mid(trackedBranch.lastIndexOf('/') + 1);
         suggestedName = suggestedNameBase;
         int i = 2;
@@ -315,7 +315,7 @@ bool BranchView::add()
 
     BranchAddDialog branchAddDialog(localNames, true, this);
     branchAddDialog.setBranchName(suggestedName);
-    branchAddDialog.setTrackedBranchName(isTag ? QString() : trackedBranch, !isLocal);
+    branchAddDialog.setTrackedBranchName(isTracked ? trackedBranch : QString(), !isLocal);
 
     if (branchAddDialog.exec() == QDialog::Accepted) {
         QModelIndex idx = m_model->addBranch(branchAddDialog.branchName(), branchAddDialog.track(), trackedIndex);

@@ -72,6 +72,7 @@ public:
     QString sha(const QModelIndex &idx) const;
     QDateTime dateTime(const QModelIndex &idx) const;
     bool hasTags() const;
+    bool isHead(const QModelIndex &idx) const;
     bool isLocal(const QModelIndex &idx) const;
     bool isLeaf(const QModelIndex &idx) const;
     bool isTag(const QModelIndex &idx) const;

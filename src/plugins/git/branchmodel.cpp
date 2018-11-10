@@ -161,6 +161,13 @@ public:
         return n;
     }
 
+    BranchNode *prepend(BranchNode *n)
+    {
+        n->parent = this;
+        children.prepend(n);
+        return n;
+    }
+
     QStringList childrenNames() const
     {
         if (children.count() > 0) {
@@ -206,7 +213,9 @@ public:
     QString workingDirectory;
     BranchNode *rootNode;
     BranchNode *currentBranch = nullptr;
+    BranchNode *headNode = nullptr;
     QString currentSha;
+    QDateTime currentDateTime;
     QStringList obsoleteLocalBranches;
     bool oldBranchesIncluded = false;
 };
@@ -340,7 +349,7 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
     if (!node)
         return Qt::NoItemFlags;
     Qt::ItemFlags res = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    if (node->isLeaf() && node->isLocal() && index.column() == 0)
+    if (node != d->headNode && node->isLeaf() && node->isLocal() && index.column() == 0)
         res |= Qt::ItemIsEditable;
     return res;
 }
@@ -355,7 +364,9 @@ void BranchModel::clear()
         d->rootNode->children.takeLast();
 
     d->currentSha.clear();
+    d->currentDateTime = QDateTime();
     d->currentBranch = nullptr;
+    d->headNode = nullptr;
     d->obsoleteLocalBranches.clear();
 }
 
@@ -368,7 +379,7 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
         return true;
     }
 
-    d->currentSha = d->client->synchronousTopRevision(workingDirectory);
+    d->currentSha = d->client->synchronousTopRevision(workingDirectory, &d->currentDateTime);
     const QStringList args = {"--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
                               "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)"};
     QString output;
@@ -386,6 +397,12 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
         if (d->currentBranch->isLocal())
             d->currentBranch = nullptr;
         setCurrentBranch();
+    }
+    if (!d->currentBranch) {
+        BranchNode *local = d->rootNode->children.at(LocalBranches);
+        d->currentBranch = d->headNode = new BranchNode(tr("Detached HEAD"), "HEAD", QString(),
+                                                        d->currentDateTime);
+        local->prepend(d->headNode);
     }
 
     endResetModel();
@@ -458,6 +475,8 @@ QString BranchModel::fullName(const QModelIndex &idx, bool includePrefix) const
     BranchNode *node = indexToNode(idx);
     if (!node || !node->isLeaf())
         return QString();
+    if (node == d->headNode)
+        return QString("HEAD");
     return node->fullName(includePrefix).join('/');
 }
 
@@ -490,12 +509,20 @@ bool BranchModel::hasTags() const
     return d->rootNode->children.count() > Tags;
 }
 
+bool BranchModel::isHead(const QModelIndex &idx) const
+{
+    if (!idx.isValid())
+        return false;
+    BranchNode *node = indexToNode(idx);
+    return node == d->headNode;
+}
+
 bool BranchModel::isLocal(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return false;
     BranchNode *node = indexToNode(idx);
-    return node->isLocal();
+    return node == d->headNode ? false : node->isLocal();
 }
 
 bool BranchModel::isLeaf(const QModelIndex &idx) const

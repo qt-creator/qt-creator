@@ -1557,14 +1557,20 @@ bool GitClient::synchronousRevParseCmd(const QString &workingDirectory, const QS
 }
 
 // Retrieve head revision
-QString GitClient::synchronousTopRevision(const QString &workingDirectory)
+QString GitClient::synchronousTopRevision(const QString &workingDirectory, QDateTime *dateTime)
 {
-    QString revision;
-    QString errorMessage;
-    if (!synchronousRevParseCmd(workingDirectory, HEAD, &revision, &errorMessage))
+    const QStringList arguments = {"show", "-s", "--pretty=format:%H:%ct", HEAD};
+    const SynchronousProcessResponse resp = vcsFullySynchronousExec(
+                workingDirectory, arguments, silentFlags);
+    if (resp.result != SynchronousProcessResponse::Finished)
         return QString();
-
-    return revision;
+    const QStringList output = resp.stdOut().trimmed().split(':');
+    if (dateTime && output.size() > 1) {
+        bool ok = false;
+        const qint64 timeT = output.at(1).toLongLong(&ok);
+        *dateTime = ok ? QDateTime::fromSecsSinceEpoch(timeT) : QDateTime();
+    }
+    return output.first();
 }
 
 void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,
