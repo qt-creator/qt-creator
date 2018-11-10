@@ -94,7 +94,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *errorMe
     Core::Context context("HelloWorld.MainView");
 
     // Create an action to be triggered by a menu entry
-    QAction *helloWorldAction = new QAction(tr("Say \"&Hello World!\""), this);
+    auto helloWorldAction = new QAction(tr("Say \"&Hello World!\""), this);
     connect(helloWorldAction, &QAction::triggered, this, &HelloWorldPlugin::sayHelloWorld);
 
     // Register the action with the action manager
@@ -140,10 +140,10 @@ void HelloWorldPlugin::extensionsInitialized()
 
 void HelloWorldPlugin::sayHelloWorld()
 {
-    // When passing 0 for the parent, the message box becomes an
+    // When passing nullptr for the parent, the message box becomes an
     // application-global modal dialog box
     QMessageBox::information(
-            0, tr("Hello World!"), tr("Hello World! Beautiful day today, isn't it?"));
+            nullptr, tr("Hello World!"), tr("Hello World! Beautiful day today, isn't it?"));
 }
 
 } // namespace Internal

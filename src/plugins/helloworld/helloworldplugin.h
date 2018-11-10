@@ -40,11 +40,11 @@ class HelloWorldPlugin
 
 public:
     HelloWorldPlugin();
-    ~HelloWorldPlugin();
+    ~HelloWorldPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
-    void extensionsInitialized();
+    void extensionsInitialized() override;
 
 private:
     void sayHelloWorld();

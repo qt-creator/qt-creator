@@ -35,7 +35,7 @@ class HelloWorldWindow : public QWidget
     Q_OBJECT
 
 public:
-    HelloWorldWindow(QWidget *parent = 0);
+    explicit HelloWorldWindow(QWidget *parent = nullptr);
 };
 
 } // namespace Internal
