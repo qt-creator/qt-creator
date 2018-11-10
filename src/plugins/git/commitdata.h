@@ -90,7 +90,7 @@ class CommitData
 public:
     CommitData(CommitType type = SimpleCommit);
     // A pair of state string/file name ('modified', 'file.cpp').
-    typedef QPair<FileStates, QString> StateFilePair;
+    using StateFilePair = QPair<FileStates, QString>;
 
     void clear();
     // Parse the files and the branch of panelInfo

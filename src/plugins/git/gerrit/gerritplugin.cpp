@@ -270,9 +270,7 @@ GerritPlugin::GerritPlugin(QObject *parent)
 {
 }
 
-GerritPlugin::~GerritPlugin()
-{
-}
+GerritPlugin::~GerritPlugin() = default;
 
 bool GerritPlugin::initialize(ActionContainer *ac)
 {

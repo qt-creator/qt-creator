@@ -38,17 +38,14 @@ class QueryContext;
 
 class GerritApproval {
 public:
-    GerritApproval() : approval(-1) {}
-
     QString type; // Review type
     QString description; // Type description, possibly empty
     GerritUser reviewer;
-    int approval;
+    int approval = -1;
 };
 
 class GerritPatchSet {
 public:
-    GerritPatchSet() : patchSetNumber(1) {}
     QString approvalsToHtml() const;
     QString approvalsColumn() const;
     bool hasApproval(const GerritUser &user) const;
@@ -56,7 +53,7 @@ public:
 
     QString url;
     QString ref;
-    int patchSetNumber;
+    int patchSetNumber = 1;
     QList<GerritApproval> approvals;
 };
 
@@ -82,7 +79,7 @@ public:
     int depth = -1;
 };
 
-typedef QSharedPointer<GerritChange> GerritChangePtr;
+using GerritChangePtr = QSharedPointer<GerritChange>;
 
 class GerritModel : public QStandardItemModel
 {

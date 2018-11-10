@@ -140,9 +140,9 @@ static inline void applyApproval(int approval, int *total)
 // by a type character followed by the approval level: "C: -2, S: 1"
 QString GerritPatchSet::approvalsColumn() const
 {
-    typedef QMap<QChar, int> TypeReviewMap;
-    typedef TypeReviewMap::iterator TypeReviewMapIterator;
-    typedef TypeReviewMap::const_iterator TypeReviewMapConstIterator;
+    using TypeReviewMap = QMap<QChar, int>;
+    using TypeReviewMapIterator = TypeReviewMap::iterator;
+    using TypeReviewMapConstIterator = TypeReviewMap::const_iterator;
 
     QString result;
     if (approvals.isEmpty())
@@ -398,8 +398,7 @@ GerritModel::GerritModel(const QSharedPointer<GerritParameters> &p, QObject *par
     setHorizontalHeaderLabels(headers);
 }
 
-GerritModel::~GerritModel()
-{ }
+GerritModel::~GerritModel() = default;
 
 QVariant GerritModel::data(const QModelIndex &index, int role) const
 {

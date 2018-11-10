@@ -84,7 +84,7 @@ public:
     QString ignore;
 };
 
-typedef QMap<QString, SubmoduleData> SubmoduleDataMap;
+using SubmoduleDataMap = QMap<QString, SubmoduleData>;
 
 class GitClient : public VcsBase::VcsBaseClientImpl
 {

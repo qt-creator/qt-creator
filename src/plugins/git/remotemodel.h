@@ -69,7 +69,7 @@ protected:
         QString name;
         QString url;
     };
-    typedef QList<Remote> RemoteList;
+    using RemoteList = QList<Remote>;
 
 private:
     const Qt::ItemFlags m_flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;

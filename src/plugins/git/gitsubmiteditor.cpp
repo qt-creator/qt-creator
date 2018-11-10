@@ -109,9 +109,7 @@ GitSubmitEditor::GitSubmitEditor(const VcsBaseSubmitEditorParameters *parameters
             this, &GitSubmitEditor::commitDataRetrieved);
 }
 
-GitSubmitEditor::~GitSubmitEditor()
-{
-}
+GitSubmitEditor::~GitSubmitEditor() = default;
 
 GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
 {

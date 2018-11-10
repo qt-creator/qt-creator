@@ -2027,8 +2027,8 @@ bool GitClient::isValidRevision(const QString &revision) const
 {
     if (revision.length() < 1)
         return false;
-    for (int i = 0; i < revision.length(); ++i)
-        if (revision.at(i) != '0')
+    for (const auto i : revision)
+        if (i != '0')
             return true;
     return false;
 }
