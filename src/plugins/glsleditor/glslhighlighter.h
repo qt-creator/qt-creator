@@ -38,7 +38,7 @@ public:
     GlslHighlighter();
 
 protected:
-    void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text) override;
     void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
     bool isPPKeyword(const QStringRef &text) const;
 };

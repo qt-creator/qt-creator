@@ -38,11 +38,7 @@
 namespace GlslEditor {
 namespace Internal {
 
-GlslIndenter::GlslIndenter()
-{}
-
-GlslIndenter::~GlslIndenter()
-{}
+GlslIndenter::~GlslIndenter() = default;
 
 bool GlslIndenter::isElectricCharacter(const QChar &ch) const
 {

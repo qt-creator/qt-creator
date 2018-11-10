@@ -125,14 +125,13 @@ private:
     QString wordUnderCursor() const;
 
     QTimer m_updateDocumentTimer;
-    QComboBox *m_outlineCombo;
+    QComboBox *m_outlineCombo = nullptr;
     Document::Ptr m_glslDocument;
 };
 
 GlslEditorWidget::GlslEditorWidget()
 {
     setAutoCompleter(new GlslCompleter);
-    m_outlineCombo = 0;
 
     m_updateDocumentTimer.setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
     m_updateDocumentTimer.setSingleShot(true);
@@ -147,7 +146,7 @@ GlslEditorWidget::GlslEditorWidget()
 
     // ### m_outlineCombo->setModel(m_outlineModel);
 
-    QTreeView *treeView = new QTreeView;
+    auto treeView = new QTreeView;
     treeView->header()->hide();
     treeView->setItemsExpandable(false);
     treeView->setRootIsDecorated(false);
@@ -203,7 +202,7 @@ void GlslEditorWidget::updateDocumentNow()
     doc->_engine = new Engine();
     Parser parser(doc->_engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnitAST *ast = parser.parse();
-    if (ast != 0 || extraSelections(CodeWarningsSelection).isEmpty()) {
+    if (ast || extraSelections(CodeWarningsSelection).isEmpty()) {
         Semantic sem;
         Scope *globalScope = new Namespace();
         doc->_globalScope = globalScope;

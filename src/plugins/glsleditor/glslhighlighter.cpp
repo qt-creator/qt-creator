@@ -56,7 +56,7 @@ void GlslHighlighter::highlightBlock(const QString &text)
     int braceDepth = initialBraceDepth;
 
     const QByteArray data = text.toLatin1();
-    GLSL::Lexer lex(/*engine=*/ 0, data.constData(), data.size());
+    GLSL::Lexer lex(/*engine=*/ nullptr, data.constData(), data.size());
     lex.setState(state);
     lex.setScanKeywords(false);
     lex.setScanComments(true);

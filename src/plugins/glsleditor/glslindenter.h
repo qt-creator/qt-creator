@@ -33,20 +33,19 @@ namespace Internal {
 class GlslIndenter : public TextEditor::Indenter
 {
 public:
-    GlslIndenter();
-    virtual ~GlslIndenter();
+    ~GlslIndenter() override;
 
-    virtual bool isElectricCharacter(const QChar &ch) const override;
-    virtual void indentBlock(QTextDocument *doc,
-                             const QTextBlock &block,
-                             const QChar &typedChar,
-                             const TextEditor::TabSettings &tabSettings) override;
+    bool isElectricCharacter(const QChar &ch) const override;
+    void indentBlock(QTextDocument *doc,
+                     const QTextBlock &block,
+                     const QChar &typedChar,
+                     const TextEditor::TabSettings &tabSettings) override;
 
-    virtual void indent(QTextDocument *doc,
-                        const QTextCursor &cursor,
-                        const QChar &typedChar,
-                        const TextEditor::TabSettings &tabSettings,
-                        bool autoTriggered = true) override;
+    void indent(QTextDocument *doc,
+                const QTextCursor &cursor,
+                const QChar &typedChar,
+                const TextEditor::TabSettings &tabSettings,
+                bool autoTriggered = true) override;
 
     int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
     TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
