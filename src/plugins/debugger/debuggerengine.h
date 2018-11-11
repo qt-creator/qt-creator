@@ -443,7 +443,6 @@ public:
     void handleAddToWatchWindow();
     void handleFrameDown();
     void handleFrameUp();
-    void handleOperateByInstructionTriggered(bool operateByInstructionTriggered);
 
     // Breakpoint state transitions
     void notifyBreakpointInsertProceeding(const Breakpoint &bp);

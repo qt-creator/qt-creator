@@ -731,8 +731,6 @@ public:
 
     void onStartupProjectChanged(Project *project);
 
-    void handleOperateByInstructionTriggered(bool operateByInstructionTriggered);
-
     bool parseArgument(QStringList::const_iterator &it,
         const QStringList::const_iterator &cend, QString *errorMessage);
     bool parseArguments(const QStringList &args, QString *errorMessage);
