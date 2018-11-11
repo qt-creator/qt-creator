@@ -30,6 +30,7 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcscommand.h>
 
+#include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
@@ -217,6 +218,7 @@ public:
     QString currentSha;
     QDateTime currentDateTime;
     QStringList obsoleteLocalBranches;
+    Utils::FileSystemWatcher fsWatcher;
     bool oldBranchesIncluded = false;
 };
 
@@ -233,6 +235,10 @@ BranchModel::BranchModel(GitClient *client, QObject *parent) :
     // Abuse the sha field for ref prefix
     d->rootNode->append(new BranchNode(tr("Local Branches"), "refs/heads"));
     d->rootNode->append(new BranchNode(tr("Remote Branches"), "refs/remotes"));
+    connect(&d->fsWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this] {
+        QString errorMessage;
+        refresh(d->workingDirectory, &errorMessage);
+    });
 }
 
 BranchModel::~BranchModel()
@@ -388,7 +394,13 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
         return false;
     }
 
-    d->workingDirectory = workingDirectory;
+    if (d->workingDirectory != workingDirectory) {
+        d->workingDirectory = workingDirectory;
+        d->fsWatcher.removeFiles(d->fsWatcher.files());
+        const QString gitDir = d->client->findGitDirForRepository(workingDirectory);
+        if (!gitDir.isEmpty())
+            d->fsWatcher.addFile(gitDir + "/HEAD", Utils::FileSystemWatcher::WatchModifiedDate);
+    }
     const QStringList lines = output.split('\n');
     for (const QString &l : lines)
         parseOutputLine(l);
