@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="Javadoc" version="2" kateversion="2.4" section="Markup" extensions="" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Javadoc" version="3" kateversion="5.0" section="Markup" extensions="" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<contexts>
 			<context name="Start" attribute="Normal Text" lineEndContext="#stay">
@@ -29,6 +29,7 @@
 				<StringDetect attribute="InlineTag" context="#stay" String="{@value}" />
 				<StringDetect attribute="InlineTag" context="InlineTagar" String="{@value " />
 				<StringDetect attribute="InlineTag" context="InlineTagar" String="{@value&#009;" />
+				<IncludeRules context="##Alerts"/>
 				<IncludeRules context="##HTML"/>
 			</context>
 			<context attribute="Javadoc" lineEndContext="#stay" name="Javadocar">
@@ -71,12 +72,14 @@
 				<StringDetect attribute="InlineTag" context="#stay" String="{@value}" />
 				<StringDetect attribute="InlineTag" context="InlineTagar" String="{@value " />
 				<StringDetect attribute="InlineTag" context="InlineTagar" String="{@value&#009;" />
+				<IncludeRules context="##Alerts"/>
 				<IncludeRules context="##HTML"/>
 			</context>
 			<context attribute="Javadoc" lineEndContext="#pop" name="JavadocParam">
 				<DetectSpaces />
 				<RegExpr attribute="JavadocParam" context="#pop#pop" String="\S*(?=\*/)" />
 				<RegExpr attribute="JavadocParam" context="#pop" String="\S*(\s|$)" />
+				<IncludeRules context="##Alerts"/>
 			</context>
 			<context attribute="InlineTag" name="InlineTagar" lineEndContext="#stay">
 				<DetectChar attribute="InlineTag" context="#pop" char="}" />
@@ -94,12 +97,12 @@
 		</contexts>
 		<itemDatas>
 			<itemData name="Normal Text"  defStyleNum="dsNormal"/>
-			<itemData name="BlockTag"     defStyleNum="dsKeyword" color="#808080" selColor="#FFFFFF" bold="1" italic="0"/>
-			<itemData name="InlineTag"    defStyleNum="dsKeyword" color="#808080" selColor="#FFFFFF" bold="0" italic="0"/>
-			<itemData name="JavadocParam" defStyleNum="dsKeyword" color="#008080" selColor="#FFFFFF" bold="0" italic="1"/>
-			<itemData name="SeeTag"       defStyleNum="dsKeyword" color="#008080" selColor="#FFFFFF" bold="0" italic="1"/>
-			<itemData name="JavadocFS"    defStyleNum="dsComment" color="#008000" selColor="#FFFFFF" bold="1" italic="0"/>
-			<itemData name="Javadoc"      defStyleNum="dsComment" color="#008000" selColor="#FFFFFF"/>
+			<itemData name="BlockTag"     defStyleNum="dsAnnotation" bold="1" italic="0" spellChecking="false"/>
+			<itemData name="InlineTag"    defStyleNum="dsAnnotation" bold="0" italic="0" spellChecking="false"/>
+			<itemData name="JavadocParam" defStyleNum="dsAnnotation" bold="0" italic="1" spellChecking="false"/>
+			<itemData name="SeeTag"       defStyleNum="dsAnnotation" bold="0" italic="1" spellChecking="false"/>
+			<itemData name="JavadocFS"    defStyleNum="dsComment" bold="1" italic="0" spellChecking="false"/>
+			<itemData name="Javadoc"      defStyleNum="dsComment"/>
 		</itemDatas>
 	</highlighting>
 	<general>
