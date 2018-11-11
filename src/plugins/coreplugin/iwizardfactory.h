@@ -133,7 +133,7 @@ private:
     QString m_descriptionImage;
     QSet<Id> m_requiredFeatures;
     QSet<Id> m_supportedProjectTypes;
-    WizardFlags m_flags = nullptr;
+    WizardFlags m_flags;
     Id m_id;
 
     friend class Internal::CorePlugin;

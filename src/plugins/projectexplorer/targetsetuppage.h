@@ -117,7 +117,7 @@ private:
 
     ProjectExplorer::Kit::Predicate m_requiredPredicate;
     ProjectExplorer::Kit::Predicate m_preferredPredicate;
-    QPointer<ProjectImporter> m_importer = nullptr;
+    QPointer<ProjectImporter> m_importer;
     QLayout *m_baseLayout = nullptr;
     QString m_projectPath;
     QString m_defaultShadowBuildLocation;

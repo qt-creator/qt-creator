@@ -64,7 +64,7 @@ public:
     void finish() override { }
 
 private:
-    QPointer<SettingsPageWidget> m_widget = nullptr;
+    QPointer<SettingsPageWidget> m_widget;
 };
 
 } // namespace ClearCase
