@@ -193,6 +193,7 @@ QString GitPlugin::invalidBranchAndRemoteNamePattern()
         "|^[/-]"  // no leading slash or dash
         "|\""     // no quotes
         "|\\*"    // no asterisk
+        "|(^|[A-Z]+_)HEAD" // no HEAD, FETCH_HEAD etc.
     );
 }
 
