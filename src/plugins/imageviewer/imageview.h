@@ -70,7 +70,7 @@ class ImageView : public QGraphicsView
 
 public:
     ImageView(ImageViewerFile *file);
-    ~ImageView();
+    ~ImageView() override;
 
     void reset();
     void createScene();
@@ -95,15 +95,15 @@ private:
     QImage renderSvg(const QSize &imageSize) const;
     bool exportSvg(const ExportData &ed);
 
-    void drawBackground(QPainter *p, const QRectF &rect);
-    void hideEvent(QHideEvent *event);
-    void showEvent(QShowEvent *event);
-    void wheelEvent(QWheelEvent *event);
+    void drawBackground(QPainter *p, const QRectF &rect) override;
+    void hideEvent(QHideEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
     ImageViewerFile *m_file;
-    QGraphicsItem *m_imageItem = 0;
-    QGraphicsRectItem *m_backgroundItem = 0;
-    QGraphicsRectItem *m_outlineItem = 0;
+    QGraphicsItem *m_imageItem = nullptr;
+    QGraphicsRectItem *m_backgroundItem = nullptr;
+    QGraphicsRectItem *m_outlineItem = nullptr;
     bool m_showBackground = false;
     bool m_showOutline = true;
 };

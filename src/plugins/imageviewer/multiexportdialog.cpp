@@ -67,20 +67,20 @@ static const int standardIconSizesValues[] = {16, 24, 32, 48, 64, 128, 256};
 static QSize sizeFromString(const QStringRef &r)
 {
     if (r.isEmpty())
-        return QSize();
+        return {};
     const int xPos = r.indexOf('x');
     bool ok;
     const int width = xPos < 0
         ? r.toInt(&ok)
         : r.left(xPos).toInt(&ok);
     if (!ok || width <= 0)
-        return QSize();
+        return {};
     if (xPos < 0)
-        return QSize(width, width);
+        return {width, width};
     const int height = r.mid(xPos + 1).toInt(&ok);
     if (!ok || height <= 0)
-        return QSize();
-    return QSize(width, height);
+        return {};
+    return {width, height};
 }
 
 static void appendSizeSpec(const QSize &size, QString *target)
@@ -119,7 +119,7 @@ static QVector<QSize> stringToSizes(const QString &s)
     for (const QStringRef &sizeSpec : sizes) {
         const QSize size = sizeFromString(sizeSpec);
         if (!size.isValid() || size.isEmpty())
-            return QVector<QSize>();
+            return {};
         else
             result.append(size);
     }
@@ -173,8 +173,8 @@ QVector<QSize> MultiExportDialog::standardIconSizes()
     QVector<QSize> result;
     const int size = int(sizeof(standardIconSizesValues) / sizeof(standardIconSizesValues[0]));
     result.reserve(size);
-    for (int i = 0; i < size; ++i)
-        result.append(QSize(standardIconSizesValues[i], standardIconSizesValues[i]));
+    for (int standardIconSizesValue : standardIconSizesValues)
+        result.append(QSize(standardIconSizesValue, standardIconSizesValue));
     return result;
 }
 
@@ -186,7 +186,7 @@ MultiExportDialog::MultiExportDialog(QWidget *parent)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    QFormLayout *formLayout = new QFormLayout(this);
+    auto formLayout = new QFormLayout(this);
 
     m_pathChooser->setMinimumWidth(QApplication::desktop()->availableGeometry(this).width() / 5);
     m_pathChooser->setExpectedKind(Utils::PathChooser::SaveFile);
@@ -200,10 +200,10 @@ MultiExportDialog::MultiExportDialog(QWidget *parent)
     pathChooserLabel->setToolTip(pathChooserToolTip);
     formLayout->addRow(pathChooserLabel, m_pathChooser);
 
-    QToolButton *sizeEditButton = new QToolButton;
+    auto sizeEditButton = new QToolButton;
     sizeEditButton->setFocusPolicy(Qt::NoFocus);
     sizeEditButton->setIcon(Utils::Icons::ARROW_DOWN.icon());
-    QMenu *sizeEditMenu = new QMenu(this);
+    auto sizeEditMenu = new QMenu(this);
     sizeEditMenu->addAction(tr("Clear"),
                             m_sizesLineEdit, &QLineEdit::clear);
     sizeEditMenu->addAction(tr("Set Standard Icon Sizes"), this,
@@ -215,11 +215,11 @@ MultiExportDialog::MultiExportDialog(QWidget *parent)
 
     const QString sizesToolTip =
         tr("A comma-separated list of size specifications of the form \"<width>x<height>\".");
-    QLabel *sizesLabel = new QLabel(tr("Sizes:"));
+    auto sizesLabel = new QLabel(tr("Sizes:"));
     sizesLabel->setToolTip(sizesToolTip);
     formLayout->addRow(sizesLabel, m_sizesLineEdit);
     m_sizesLineEdit->setToolTip(sizesToolTip);
-    QWidgetAction *optionsAction = new QWidgetAction(this);
+    auto optionsAction = new QWidgetAction(this);
     optionsAction->setDefaultWidget(sizeEditButton);
     m_sizesLineEdit->addAction(optionsAction, QLineEdit::TrailingPosition);
 

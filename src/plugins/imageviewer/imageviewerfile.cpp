@@ -58,7 +58,7 @@ public:
         });
     }
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) override
     {
         const bool smoothTransform = painter->worldTransform().m11() < 1;
         painter->setRenderHint(QPainter::SmoothPixmapTransform, smoothTransform);
@@ -110,7 +110,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, cons
         QRectF bound = m_tempSvgItem->boundingRect();
         if (qFuzzyIsNull(bound.width()) && qFuzzyIsNull(bound.height())) {
             delete m_tempSvgItem;
-            m_tempSvgItem = 0;
+            m_tempSvgItem = nullptr;
             if (errorString)
                 *errorString = tr("Failed to read SVG image.");
             return OpenResult::CannotHandle;
@@ -134,7 +134,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, cons
             if (errorString)
                 *errorString = tr("Failed to read image.");
             delete m_pixmap;
-            m_pixmap = 0;
+            m_pixmap = nullptr;
             return OpenResult::CannotHandle;
         }
         m_type = TypePixmap;
@@ -187,7 +187,7 @@ void ImageViewerFile::setPaused(bool paused)
 
 QGraphicsItem *ImageViewerFile::createGraphicsItem() const
 {
-    QGraphicsItem *val = 0;
+    QGraphicsItem *val = nullptr;
     switch (m_type) {
     case TypeInvalid:
         break;
@@ -195,7 +195,7 @@ QGraphicsItem *ImageViewerFile::createGraphicsItem() const
 #ifndef QT_NO_SVG
         if (m_tempSvgItem) {
             val = m_tempSvgItem;
-            m_tempSvgItem = 0;
+            m_tempSvgItem = nullptr;
         } else {
             val = new QGraphicsSvgItem(filePath().toString());
         }
@@ -238,12 +238,12 @@ void ImageViewerFile::updateVisibility()
 void ImageViewerFile::cleanUp()
 {
     delete m_pixmap;
-    m_pixmap = 0;
+    m_pixmap = nullptr;
     delete m_movie;
-    m_movie = 0;
+    m_movie = nullptr;
 #ifndef QT_NO_SVG
     delete m_tempSvgItem;
-    m_tempSvgItem = 0;
+    m_tempSvgItem = nullptr;
 #endif
     m_type = TypeInvalid;
 }

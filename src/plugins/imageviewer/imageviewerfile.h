@@ -82,10 +82,10 @@ private:
 
     ImageType m_type = TypeInvalid;
 #ifndef QT_NO_SVG
-    mutable QGraphicsSvgItem *m_tempSvgItem = 0;
+    mutable QGraphicsSvgItem *m_tempSvgItem = nullptr;
 #endif
-    QMovie *m_movie = 0;
-    QPixmap *m_pixmap = 0;
+    QMovie *m_movie = nullptr;
+    QPixmap *m_pixmap = nullptr;
     bool m_isPaused = false;
 };
 

@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <qglobal.h>
+
 namespace ImageViewer {
 namespace Constants {
 

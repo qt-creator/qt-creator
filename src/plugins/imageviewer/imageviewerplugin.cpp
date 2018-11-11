@@ -127,7 +127,7 @@ QAction *ImageViewerPlugin::registerNewAction(Core::Id id,
                                               const QString &title, const QKeySequence &key)
 {
     Core::Context context(Constants::IMAGEVIEWER_ID);
-    QAction *action = new QAction(title, this);
+    auto action = new QAction(title, this);
     Core::Command *command = Core::ActionManager::registerAction(action, id, context);
     if (!key.isEmpty())
         command->setDefaultKeySequence(key);
