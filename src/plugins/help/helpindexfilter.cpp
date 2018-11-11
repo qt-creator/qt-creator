@@ -65,9 +65,7 @@ HelpIndexFilter::HelpIndexFilter()
             this, &HelpIndexFilter::invalidateCache);
 }
 
-HelpIndexFilter::~HelpIndexFilter()
-{
-}
+HelpIndexFilter::~HelpIndexFilter() = default;
 
 void HelpIndexFilter::prepareSearch(const QString &entry)
 {

@@ -55,17 +55,13 @@
 
 using namespace Help::Internal;
 
-SearchWidget::SearchWidget()
-{
-}
+SearchWidget::SearchWidget() = default;
 
-SearchWidget::~SearchWidget()
-{
-}
+SearchWidget::~SearchWidget() = default;
 
 void SearchWidget::zoomIn()
 {
-    QTextBrowser* browser = resultWidget->findChild<QTextBrowser*>();
+    auto browser = resultWidget->findChild<QTextBrowser*>();
     if (browser && zoomCount != 10) {
         zoomCount++;
         browser->zoomIn();
@@ -74,7 +70,7 @@ void SearchWidget::zoomIn()
 
 void SearchWidget::zoomOut()
 {
-    QTextBrowser* browser = resultWidget->findChild<QTextBrowser*>();
+    auto browser = resultWidget->findChild<QTextBrowser*>();
     if (browser && zoomCount != -5) {
         zoomCount--;
         browser->zoomOut();
@@ -86,7 +82,7 @@ void SearchWidget::resetZoom()
     if (zoomCount == 0)
         return;
 
-    QTextBrowser* browser = resultWidget->findChild<QTextBrowser*>();
+    auto browser = resultWidget->findChild<QTextBrowser*>();
     if (browser) {
         browser->zoomOut(zoomCount);
         zoomCount = 0;
@@ -102,13 +98,13 @@ void SearchWidget::reindexDocumentation()
 void SearchWidget::showEvent(QShowEvent *event)
 {
     if (!event->spontaneous() && !searchEngine) {
-        QVBoxLayout *vLayout = new QVBoxLayout(this);
+        auto vLayout = new QVBoxLayout(this);
         vLayout->setMargin(0);
         vLayout->setSpacing(0);
 
         searchEngine = new QHelpSearchEngine(&LocalHelpManager::helpEngine(), this);
 
-        Utils::StyledBar *toolbar = new Utils::StyledBar(this);
+        auto toolbar = new Utils::StyledBar(this);
         toolbar->setSingleRow(false);
         m_queryWidget = searchEngine->queryWidget();
         QLayout *tbLayout = new QVBoxLayout();
@@ -120,7 +116,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         tbLayout->addWidget(m_indexingDocumentationLabel);
         toolbar->setLayout(tbLayout);
 
-        Utils::StyledBar *toolbar2 = new Utils::StyledBar(this);
+        auto toolbar2 = new Utils::StyledBar(this);
         toolbar2->setSingleRow(false);
         tbLayout = new QVBoxLayout();
         tbLayout->setSpacing(0);
@@ -149,7 +145,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         connect(searchEngine, &QHelpSearchEngine::searchingFinished, this,
             &SearchWidget::searchingFinished);
 
-        QTextBrowser* browser = resultWidget->findChild<QTextBrowser*>();
+        auto browser = resultWidget->findChild<const QTextBrowser*>();
         browser->viewport()->installEventFilter(this);
 
         connect(searchEngine, &QHelpSearchEngine::indexingStarted, this,
@@ -210,10 +206,10 @@ void SearchWidget::indexingFinished()
 
 bool SearchWidget::eventFilter(QObject *o, QEvent *e)
 {
-    QTextBrowser *browser = resultWidget->findChild<QTextBrowser *>();
+    auto browser = resultWidget->findChild<const QTextBrowser *>();
     if (browser && o == browser->viewport()
         && e->type() == QEvent::MouseButtonRelease){
-        QMouseEvent *me = static_cast<QMouseEvent *>(e);
+        auto me = static_cast<const QMouseEvent *>(e);
         QUrl link = resultWidget->linkAt(me->pos());
         if (!link.isEmpty() || link.isValid()) {
             bool controlPressed = me->modifiers() & Qt::ControlModifier;
@@ -228,7 +224,7 @@ bool SearchWidget::eventFilter(QObject *o, QEvent *e)
 
 void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 {
-    QTextBrowser *browser = resultWidget->findChild<QTextBrowser *>();
+    auto browser = resultWidget->findChild<QTextBrowser *>();
     if (!browser)
         return;
 
@@ -280,7 +276,7 @@ SearchSideBarItem::SearchSideBarItem()
 
 QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()
 {
-    QToolButton *reindexButton = new QToolButton;
+    auto reindexButton = new QToolButton;
     reindexButton->setIcon(Utils::Icons::RELOAD.icon());
     reindexButton->setToolTip(tr("Regenerate Index"));
     connect(reindexButton, &QAbstractButton::clicked,

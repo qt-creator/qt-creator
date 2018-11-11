@@ -59,9 +59,7 @@ OpenPagesWidget::OpenPagesWidget(OpenPagesModel *sourceModel, QWidget *parent)
             this, &OpenPagesWidget::updateCloseButtonVisibility);
 }
 
-OpenPagesWidget::~OpenPagesWidget()
-{
-}
+OpenPagesWidget::~OpenPagesWidget() = default;
 
 void OpenPagesWidget::selectCurrentPage()
 {

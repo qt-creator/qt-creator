@@ -46,7 +46,7 @@ class MacWebKitHelpWidget : public QMacCocoaViewContainer
 
 public:
     MacWebKitHelpWidget(MacWebKitHelpViewer *parent);
-    ~MacWebKitHelpWidget();
+    ~MacWebKitHelpWidget() override;
 
     WebView *webView() const;
     void startToolTipTimer(const QPoint &pos, const QString &text);
@@ -54,8 +54,8 @@ public:
     MacWebKitHelpViewer *viewer() const;
 
 protected:
-    void hideEvent(QHideEvent *);
-    void showEvent(QShowEvent *);
+    void hideEvent(QHideEvent *) override;
+    void showEvent(QShowEvent *) override;
 
 private:
     void showToolTip();
@@ -68,44 +68,44 @@ class MacWebKitHelpViewer : public HelpViewer
 
 public:
     explicit MacWebKitHelpViewer(QWidget *parent = nullptr);
-    ~MacWebKitHelpViewer();
+    ~MacWebKitHelpViewer() override;
 
-    QFont viewerFont() const;
-    void setViewerFont(const QFont &font);
+    QFont viewerFont() const override;
+    void setViewerFont(const QFont &font) override;
 
-    qreal scale() const;
-    void setScale(qreal scale);
+    qreal scale() const override;
+    void setScale(qreal scale) override;
 
-    QString title() const;
+    QString title() const override;
 
-    QUrl source() const;
-    void setSource(const QUrl &url);
+    QUrl source() const override;
+    void setSource(const QUrl &url) override;
     void scrollToAnchor(const QString &anchor);
-    void highlightId(const QString &id) { Q_UNUSED(id) }
+    void highlightId(const QString &id) override { Q_UNUSED(id) }
 
-    void setHtml(const QString &html);
+    void setHtml(const QString &html) override;
 
-    QString selectedText() const;
-    bool isForwardAvailable() const;
-    bool isBackwardAvailable() const;
-    void addBackHistoryItems(QMenu *backMenu);
-    void addForwardHistoryItems(QMenu *forwardMenu);
+    QString selectedText() const override;
+    bool isForwardAvailable() const override;
+    bool isBackwardAvailable() const override;
+    void addBackHistoryItems(QMenu *backMenu) override;
+    void addForwardHistoryItems(QMenu *forwardMenu) override;
     void setActionVisible(bool visible);
 
     bool findText(const QString &text, Core::FindFlags flags,
-        bool incremental, bool fromSearch, bool *wrapped = nullptr);
+        bool incremental, bool fromSearch, bool *wrapped = nullptr) override;
 
     MacWebKitHelpWidget *widget() const { return m_widget; }
 
 public:
-    void scaleUp();
-    void scaleDown();
-    void resetScale();
-    void copy();
-    void stop();
-    void forward();
-    void backward();
-    void print(QPrinter *printer);
+    void scaleUp() override;
+    void scaleDown() override;
+    void resetScale() override;
+    void copy() override;
+    void stop() override;
+    void forward() override;
+    void backward() override;
+    void print(QPrinter *printer) override;
 
     void slotLoadStarted();
     void slotLoadFinished();

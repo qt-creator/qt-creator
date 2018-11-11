@@ -98,19 +98,19 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     m_sideBarSplitter->setOpaqueResize(false);
     hLayout->addWidget(m_sideBarSplitter);
 
-    Utils::StyledBar *toolBar = new Utils::StyledBar();
-    QHBoxLayout *layout = new QHBoxLayout(toolBar);
+    auto toolBar = new Utils::StyledBar();
+    auto layout = new QHBoxLayout(toolBar);
     layout->setSpacing(0);
     layout->setMargin(0);
 
     auto rightSide = new QWidget(this);
     m_sideBarSplitter->insertWidget(1, rightSide);
-    QVBoxLayout *vLayout = new QVBoxLayout(rightSide);
+    auto vLayout = new QVBoxLayout(rightSide);
     vLayout->setMargin(0);
     vLayout->setSpacing(0);
     vLayout->addWidget(toolBar);
     vLayout->addWidget(m_viewerStack);
-    Core::FindToolBarPlaceHolder *fth = new Core::FindToolBarPlaceHolder(this);
+    auto fth = new Core::FindToolBarPlaceHolder(this);
     vLayout->addWidget(fth);
 
     setFocusProxy(m_viewerStack);
@@ -265,7 +265,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         openButton->setPopupMode(QToolButton::InstantPopup);
         openButton->setProperty("noArrow", true);
         layout->addWidget(openButton);
-        QMenu *openMenu = new QMenu(openButton);
+        auto openMenu = new QMenu(openButton);
         if (m_switchToHelp)
             openMenu->addAction(m_switchToHelp);
         if (style == ModeWidget) {
@@ -382,7 +382,7 @@ void HelpWidget::addSideBar()
                                                                   : tr("Ctrl+Shift+/")));
     shortcutMap.insert(Constants::HELP_SEARCH, cmd);
 
-    Core::SideBarItem *openPagesItem = 0;
+    Core::SideBarItem *openPagesItem = nullptr;
     if (m_style == ModeWidget) {
         QWidget *openPagesWidget = OpenPagesManager::instance().openPagesWidget();
         openPagesWidget->setWindowTitle(HelpPlugin::tr(Constants::SB_OPENPAGES));
@@ -693,7 +693,7 @@ void HelpWidget::highlightSearchTerms()
 {
     if (m_searchTerms.isEmpty())
         return;
-    HelpViewer *viewer = qobject_cast<HelpViewer *>(sender());
+    auto viewer = qobject_cast<HelpViewer *>(sender());
     QTC_ASSERT(viewer, return);
     foreach (const QString& term, m_searchTerms)
         viewer->findText(term, nullptr, false, true);

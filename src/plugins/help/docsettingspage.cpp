@@ -68,7 +68,7 @@ static DocEntry createEntry(const QString &nameSpace, const QString &fileName, b
 
 class DocModel : public QAbstractListModel {
 public:
-    typedef QVector<DocEntry> DocEntries;
+    using DocEntries = QVector<DocEntry>;
 
     explicit DocModel(const DocEntries &e = DocEntries(), QObject *parent = nullptr)
         : QAbstractListModel(parent), m_docEntries(e) {}
@@ -268,7 +268,7 @@ bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)
         return IOptionsPage::eventFilter(object, event);
 
     if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+        auto ke = static_cast<const QKeyEvent*>(event);
         switch (ke->key()) {
             case Qt::Key_Delete:
                 removeDocumentation(currentSelection());

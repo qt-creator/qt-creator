@@ -111,7 +111,7 @@ protected:
 
     void restoreOverrideCursor();
 
-    Actions m_visibleActions = 0;
+    Actions m_visibleActions;
     int m_loadOverrideStack = 0;
 };
 

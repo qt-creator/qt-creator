@@ -52,7 +52,7 @@ TextBrowserHelpViewer::TextBrowserHelpViewer(QWidget *parent)
     , m_textBrowser(new TextBrowserHelpWidget(this))
 {
     m_textBrowser->setOpenLinks(false);
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_textBrowser, 10);
@@ -73,9 +73,7 @@ TextBrowserHelpViewer::TextBrowserHelpViewer(QWidget *parent)
     connect(m_textBrowser, &QTextBrowser::backwardAvailable, this, &HelpViewer::backwardAvailable);
 }
 
-TextBrowserHelpViewer::~TextBrowserHelpViewer()
-{
-}
+TextBrowserHelpViewer::~TextBrowserHelpViewer() = default;
 
 QFont TextBrowserHelpViewer::viewerFont() const
 {
@@ -179,7 +177,7 @@ bool TextBrowserHelpViewer::isBackwardAvailable() const
 void TextBrowserHelpViewer::addBackHistoryItems(QMenu *backMenu)
 {
     for (int i = 1; i <= m_textBrowser->backwardHistoryCount(); ++i) {
-        QAction *action = new QAction(backMenu);
+        auto action = new QAction(backMenu);
         action->setText(m_textBrowser->historyTitle(-i));
         action->setData(-i);
         connect(action, &QAction::triggered, this, &TextBrowserHelpViewer::goToHistoryItem);
@@ -190,7 +188,7 @@ void TextBrowserHelpViewer::addBackHistoryItems(QMenu *backMenu)
 void TextBrowserHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
 {
     for (int i = 1; i <= m_textBrowser->forwardHistoryCount(); ++i) {
-        QAction *action = new QAction(forwardMenu);
+        auto action = new QAction(forwardMenu);
         action->setText(m_textBrowser->historyTitle(i));
         action->setData(i);
         connect(action, &QAction::triggered, this, &TextBrowserHelpViewer::goToHistoryItem);
@@ -281,7 +279,7 @@ void TextBrowserHelpViewer::print(QPrinter *printer)
 
 void TextBrowserHelpViewer::goToHistoryItem()
 {
-    QAction *action = qobject_cast<QAction *>(sender());
+    auto action = qobject_cast<const QAction *>(sender());
     QTC_ASSERT(action, return);
     bool ok = false;
     int index = action->data().toInt(&ok);
@@ -393,14 +391,14 @@ bool TextBrowserHelpWidget::eventFilter(QObject *obj, QEvent *event)
             if (!forceFont)
                 return true;
         } else if (event->type() == QEvent::KeyPress) {
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+            auto keyEvent = static_cast<QKeyEvent *>(event);
             if (keyEvent->key() == Qt::Key_Slash) {
                 keyEvent->accept();
                 Core::Find::openFindToolBar(Core::Find::FindForwardDirection);
                 return true;
             }
         } else if (event->type() == QEvent::ToolTip) {
-            QHelpEvent *e = static_cast<QHelpEvent *>(event);
+            auto e = static_cast<const QHelpEvent *>(event);
             QToolTip::showText(e->globalPos(), linkAt(e->pos()));
             return true;
         }

@@ -46,7 +46,7 @@ RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *pare
 
     const QStringList remoteUrls = m_filter->remoteUrls();
     for (const QString &url : remoteUrls) {
-        QListWidgetItem *item = new QListWidgetItem(url);
+        auto item = new QListWidgetItem(url);
         m_ui.listWidget->addItem(item);
         item->setFlags(item->flags() | Qt::ItemIsEditable);
     }
@@ -127,9 +127,7 @@ RemoteHelpFilter::RemoteHelpFilter()
     m_remoteUrls.append("https://en.wikipedia.org/w/index.php?search=%1");
 }
 
-RemoteHelpFilter::~RemoteHelpFilter()
-{
-}
+RemoteHelpFilter::~RemoteHelpFilter() = default;
 
 QList<Core::LocatorFilterEntry> RemoteHelpFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {

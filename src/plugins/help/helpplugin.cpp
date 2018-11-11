@@ -203,8 +203,8 @@ HelpPluginPrivate::HelpPluginPrivate()
 
     const QString &locale = ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
-        QTranslator *qtr = new QTranslator(this);
-        QTranslator *qhelptr = new QTranslator(this);
+        auto qtr = new QTranslator(this);
+        auto qhelptr = new QTranslator(this);
         const QString &creatorTrPath = ICore::resourcePath() + "/translations";
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &trFile = QLatin1String("assistant_") + locale;
@@ -397,7 +397,7 @@ void HelpPluginPrivate::saveExternalWindowSettings()
 
 HelpWidget *HelpPluginPrivate::createHelpWidget(const Context &context, HelpWidget::WidgetStyle style)
 {
-    HelpWidget *widget = new HelpWidget(context, style);
+    auto widget = new HelpWidget(context, style);
 
     connect(widget->currentViewer(), &HelpViewer::loadFinished,
             this, &HelpPluginPrivate::highlightSearchTermsInContextHelp);
@@ -446,8 +446,8 @@ HelpViewer *HelpPluginPrivate::externalHelpViewer()
 HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
 {
     // check for backends
-    typedef std::function<HelpViewer *()> ViewerFactory;
-    typedef QPair<QByteArray, ViewerFactory>  ViewerFactoryItem; // id -> factory
+    using ViewerFactory = std::function<HelpViewer *()>;
+    using ViewerFactoryItem = QPair<QByteArray, ViewerFactory>; // id -> factory
     QVector<ViewerFactoryItem> factories;
 #ifdef QTC_WEBENGINE_HELPVIEWER
     factories.append(qMakePair(QByteArray("qtwebengine"), []() { return new WebEngineHelpViewer(); }));
@@ -491,7 +491,7 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
     viewer->setScale(zoom);
 
     // add find support
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate();
+    auto agg = new Aggregation::Aggregate;
     agg->add(viewer);
     agg->add(new HelpViewerFindSupport(viewer));
 
@@ -760,10 +760,10 @@ class DialogClosingOnEscape : public QDialog
 {
 public:
     DialogClosingOnEscape(QWidget *parent = nullptr) : QDialog(parent) {}
-    bool event(QEvent *event)
+    bool event(QEvent *event) override
     {
         if (event->type() == QEvent::ShortcutOverride) {
-            QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+            auto ke = static_cast<QKeyEvent *>(event);
             if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
                 ke->accept();
                 return true;

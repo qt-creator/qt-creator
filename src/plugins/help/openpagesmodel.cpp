@@ -97,7 +97,7 @@ HelpViewer *OpenPagesModel::pageAt(int index) const
 
 void OpenPagesModel::handleTitleChanged()
 {
-    HelpViewer *page = static_cast<HelpViewer *>(sender());
+    auto page = static_cast<HelpViewer *>(sender());
     const int row = m_pages.indexOf(page);
     Q_ASSERT(row != -1 );
     const QModelIndex &item = index(row, 0);

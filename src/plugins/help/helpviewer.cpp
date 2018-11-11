@@ -78,8 +78,7 @@ static ExtensionMap extensionMap[] = {
     {".xhtml", "application/xhtml+xml"},
     {".wml", "text/vnd.wap.wml"},
     {".wmlc", "application/vnd.wap.wmlc"},
-    {"about:blank", nullptr},
-    {nullptr, nullptr}
+    {"about:blank", nullptr}
 };
 
 HelpViewer::HelpViewer(QWidget *parent)
@@ -122,11 +121,9 @@ QString HelpViewer::mimeFromUrl(const QUrl &url)
     const int index = path.lastIndexOf(QLatin1Char('.'));
     const QByteArray &ext = path.mid(index).toUtf8().toLower();
 
-    const ExtensionMap *e = extensionMap;
-    while (e->extension) {
-        if (ext == e->extension)
-            return QLatin1String(e->mimeType);
-        ++e;
+    for (const auto &e : extensionMap) {
+        if (ext == e.extension)
+            return QLatin1String(e.mimeType);
     }
     return QString();
 }

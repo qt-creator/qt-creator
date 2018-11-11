@@ -59,7 +59,7 @@ private:
     Ui::FilterSettingsPage m_ui;
     QPointer<QWidget> m_widget;
 
-    typedef QMap<QString, QStringList> FilterMap;
+    using FilterMap = QMap<QString, QStringList>;
     FilterMap m_filterMap;
     FilterMap m_filterMapBackup;
 

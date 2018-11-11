@@ -58,7 +58,7 @@ OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
     m_openPagesWidget->allowContextMenu(false);
     m_openPagesWidget->installEventFilter(this);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->setMargin(0);
     layout->addWidget(m_openPagesWidget);
 
@@ -68,9 +68,7 @@ OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
             this, &OpenPagesSwitcher::setCurrentPage);
 }
 
-OpenPagesSwitcher::~OpenPagesSwitcher()
-{
-}
+OpenPagesSwitcher::~OpenPagesSwitcher() = default;
 
 void OpenPagesSwitcher::gotoNextPage()
 {
@@ -110,7 +108,7 @@ bool OpenPagesSwitcher::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_openPagesWidget) {
         if (event->type() == QEvent::KeyPress) {
-            QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+            auto ke = static_cast<const QKeyEvent*>(event);
             if (ke->key() == Qt::Key_Escape) {
                 setVisible(false);
                 return true;
@@ -129,7 +127,7 @@ bool OpenPagesSwitcher::eventFilter(QObject *object, QEvent *event)
             else if (key == Qt::Key_Tab && (ke->modifiers() == modifier))
                 gotoPreviousPage();
         } else if (event->type() == QEvent::KeyRelease) {
-            QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+            auto ke = static_cast<const QKeyEvent*>(event);
             if (ke->modifiers() == 0
                /*HACK this is to overcome some event inconsistencies between platforms*/
                || (ke->modifiers() == Qt::AltModifier

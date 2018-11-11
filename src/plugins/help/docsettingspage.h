@@ -63,7 +63,7 @@ private:
 
     QString m_recentDialogPath;
 
-    typedef QHash<QString, QString> NameSpaceToPathHash;
+    using NameSpaceToPathHash = QHash<QString, QString>;
     NameSpaceToPathHash m_filesToRegister;
     QHash<QString, bool> m_filesToRegisterUserManaged;
     NameSpaceToPathHash m_filesToUnregister;

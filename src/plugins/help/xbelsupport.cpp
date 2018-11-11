@@ -211,7 +211,7 @@ void XbelReader::readBookmark(QStandardItem *item)
 
 QStandardItem *XbelReader::createChildItem(QStandardItem *item)
 {
-    QStandardItem *childItem = new QStandardItem();
+    auto childItem = new QStandardItem;
     childItem->setEditable(false);
 
     if (item)
