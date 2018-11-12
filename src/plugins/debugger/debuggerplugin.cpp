@@ -1023,6 +1023,15 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     const Context cppDebuggercontext(C_CPPDEBUGGER);
     const Context qmljsDebuggercontext(C_QMLDEBUGGER);
 
+    const auto addLabel = [](QWidget *widget, const QString &text) {
+        auto vbox = qobject_cast<QVBoxLayout *>(widget->layout());
+        QTC_ASSERT(vbox, return);
+        auto label = new QLabel(widget);
+        label->setText(text);
+        label->setMargin(6);
+        vbox->insertWidget(0, label);
+    };
+
     m_breakpointManagerView = new BaseTreeView;
     m_breakpointManagerView->setIconSize(QSize(10, 10));
     m_breakpointManagerView->setWindowIcon(Icons::BREAKPOINTS.icon());
@@ -1033,6 +1042,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_breakpointManagerWindow = addSearch(m_breakpointManagerView);
     m_breakpointManagerWindow->setWindowTitle(tr("Breakpoint Preset"));
     m_breakpointManagerWindow->setObjectName(DOCKWIDGET_BREAKPOINTMANAGER);
+    addLabel(m_breakpointManagerWindow, m_breakpointManagerWindow->windowTitle());
+
 
     // Snapshot
     m_engineManagerView = new BaseTreeView;
@@ -1043,6 +1054,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_engineManagerWindow = addSearch(m_engineManagerView);
     m_engineManagerWindow->setWindowTitle(tr("Debugger Perspectives"));
     m_engineManagerWindow->setObjectName(DOCKWIDGET_ENGINEMANAGER);
+    addLabel(m_engineManagerWindow, m_engineManagerWindow->windowTitle());
 
     // Logging
     m_globalLogWindow = new GlobalLogWindow;
