@@ -203,20 +203,21 @@ bool CppCodeStyleSettings::equals(const CppCodeStyleSettings &rhs) const
 Utils::optional<CppCodeStyleSettings> CppCodeStyleSettings::currentProjectCodeStyle()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
+    using OptSettings = Utils::optional<CppCodeStyleSettings>;
     if (!project)
-        return Utils::optional<CppCodeStyleSettings>();
+        return OptSettings();
 
     ProjectExplorer::EditorConfiguration *editorConfiguration = project->editorConfiguration();
-    QTC_ASSERT(editorConfiguration, return Utils::optional<CppCodeStyleSettings>());
+    QTC_ASSERT(editorConfiguration, return OptSettings());
 
     TextEditor::ICodeStylePreferences *codeStylePreferences
         = editorConfiguration->codeStyle(Constants::CPP_SETTINGS_ID);
-    QTC_ASSERT(codeStylePreferences, return Utils::optional<CppCodeStyleSettings>());
+    QTC_ASSERT(codeStylePreferences, return OptSettings());
 
     CppCodeStylePreferences *cppCodeStylePreferences
         = dynamic_cast<CppCodeStylePreferences *>(codeStylePreferences);
     if (!cppCodeStylePreferences)
-        return Utils::optional<CppCodeStyleSettings>();
+        return OptSettings();
 
     return cppCodeStylePreferences->currentCodeStyleSettings();
 }
