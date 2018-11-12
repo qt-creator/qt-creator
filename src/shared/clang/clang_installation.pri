@@ -111,6 +111,17 @@ defineReplace(splitFlags) {
     return($$result)
 }
 
+defineReplace(extractWarnings) {
+    flags = $$1
+    result =
+    for (flag, flags) {
+        contains(flag, ^[-/][wW].*$) {
+            result += $$flag
+        }
+    }
+    return($$result)
+}
+
 CLANGTOOLING_LIBS=-lclangTooling -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
                   -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
                   -lclangASTMatchers -lclangToolingCore -lclangAST -lclangLex -lclangBasic
@@ -240,6 +251,9 @@ isEmpty(LLVM_VERSION) {
     LLVM_CXXFLAGS ~= s,-gsplit-dwarf,
 
     LLVM_CXXFLAGS = $$splitFlags($$LLVM_CXXFLAGS)
+
+    LLVM_CXXFLAGS_WARNINGS = $$extractWarnings($$LLVM_CXXFLAGS)
+    LLVM_CXXFLAGS -= $$LLVM_CXXFLAGS_WARNINGS
 
     LLVM_IS_COMPILED_WITH_RTTI = $$system($$llvm_config --has-rtti, lines)
 
