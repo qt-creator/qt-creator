@@ -302,6 +302,11 @@ public:
         ActionManager::registerAction(&m_returnFromFunctionAction, Constants::RETURNFROMFUNCTION, m_context);
         ActionManager::registerAction(&m_detachAction, Constants::DETACH, m_context);
         ActionManager::registerAction(&m_resetAction, Constants::RESET, m_context);
+        ActionManager::registerAction(&m_watchAction, Constants::WATCH, m_context);
+        ActionManager::registerAction(&m_operateByInstructionAction, Constants::OPERATE_BY_INSTRUCTION, m_context);
+        ActionManager::registerAction(&m_openMemoryEditorAction, Constants::OPEN_MEMORY_EDITOR, m_context);
+        ActionManager::registerAction(&m_frameUpAction, Constants::FRAME_UP, m_context);
+        ActionManager::registerAction(&m_frameDownAction, Constants::FRAME_DOWN, m_context);
     }
 
     ~DebuggerEnginePrivate()
@@ -319,6 +324,11 @@ public:
         ActionManager::unregisterAction(&m_returnFromFunctionAction, Constants::RETURNFROMFUNCTION);
         ActionManager::unregisterAction(&m_detachAction, Constants::DETACH);
         ActionManager::unregisterAction(&m_resetAction, Constants::RESET);
+        ActionManager::unregisterAction(&m_watchAction, Constants::WATCH);
+        ActionManager::unregisterAction(&m_operateByInstructionAction, Constants::OPERATE_BY_INSTRUCTION);
+        ActionManager::unregisterAction(&m_openMemoryEditorAction, Constants::OPEN_MEMORY_EDITOR);
+        ActionManager::unregisterAction(&m_frameUpAction, Constants::FRAME_UP);
+        ActionManager::unregisterAction(&m_frameDownAction, Constants::FRAME_DOWN);
         destroyPerspective();
 
         delete m_logWindow;
@@ -518,6 +528,10 @@ public:
     QAction m_runToLineAction{tr("Run to Line")}; // In the debug menu
     QAction m_runToSelectedFunctionAction{tr("Run to Selected Function")};
     QAction m_jumpToLineAction{tr("Jump to Line")};
+    QAction m_frameUpAction{tr("Move to Calling Frame")};
+    QAction m_frameDownAction{tr("Move to Called Frame")};
+    QAction m_openMemoryEditorAction{tr("Memory...")};
+
     // In the Debug menu.
     QAction m_returnFromFunctionAction{tr("Immediately Return From Inner Function")};
     QAction m_stepOverAction{tr("Step Over")};
@@ -569,9 +583,21 @@ void DebuggerEnginePrivate::setupViews()
         "instructions and the source location view also shows the "
         "disassembled instructions."));
     m_operateByInstructionAction.setIconVisibleInMenu(false);
-
     connect(&m_operateByInstructionAction, &QAction::triggered,
             m_engine, &DebuggerEngine::operateByInstructionTriggered);
+
+    m_frameDownAction.setEnabled(true);
+    connect(&m_frameDownAction, &QAction::triggered,
+            m_engine, &DebuggerEngine::handleFrameDown);
+
+    m_frameUpAction.setEnabled(true);
+    connect(&m_frameUpAction, &QAction::triggered,
+            m_engine, &DebuggerEngine::handleFrameUp);
+
+    m_openMemoryEditorAction.setEnabled(true);
+    m_openMemoryEditorAction.setVisible(m_engine->hasCapability(ShowMemoryCapability));
+    connect(&m_openMemoryEditorAction, &QAction::triggered,
+            m_engine, &DebuggerEngine::openMemoryEditor);
 
     QTC_ASSERT(m_state == DebuggerNotReady || m_state == DebuggerFinished, qDebug() << m_state);
     m_progress.setProgressValue(200);
@@ -752,6 +778,9 @@ void DebuggerEnginePrivate::setupViews()
 
     connect(&m_jumpToLineAction, &QAction::triggered,
             m_engine, &DebuggerEngine::handleExecJumpToLine);
+
+    connect(&m_watchAction, &QAction::triggered,
+            m_engine, &DebuggerEngine::handleAddToWatchWindow);
 
     m_perspective->addToolBarAction(&m_recordForReverseOperationAction);
     connect(&m_recordForReverseOperationAction, &QAction::triggered,

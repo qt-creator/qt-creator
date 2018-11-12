@@ -640,23 +640,6 @@ struct Callback
     std::function<void()> cb;
 };
 
-struct Action : public QAction
-{
-    Action(const QString &name, const QIcon &icon = {}) : QAction(name) { setIcon(icon); }
-    Action(const QString &name, const QIcon &icon, Callback cb, const QString &toolTip = {})
-        : Action(name, icon)
-    {
-        m_cb = cb;
-        setToolTip(toolTip);
-        connect(this, &QAction::triggered, this, &Action::onTriggered);
-    }
-    void onTriggered()
-    {
-        m_cb.cb();
-    }
-    Callback m_cb;
-};
-
 class DebuggerPluginPrivate : public QObject
 {
     Q_OBJECT
@@ -760,12 +743,9 @@ public:
 
     // In the Debug menu.
     QAction m_startAndBreakOnMain{tr("Start and Break on Main")};
-    Action m_watchAction{tr("Add Expression Evaluator"), {}, &DebuggerEngine::handleAddToWatchWindow};
+    QAction m_watchAction{tr("Add Expression Evaluator")};
     Command *m_watchCommand = nullptr;
     QAction m_breakAction{tr("Toggle Breakpoint")};
-    Action m_frameUpAction{tr("Move to Calling Frame"), {}, &DebuggerEngine::handleFrameDown};
-    Action m_frameDownAction{tr("Move to Called Frame"), {}, &DebuggerEngine::handleFrameUp};
-    Action m_openMemoryEditorAction{tr("Memory..."), {}, &DebuggerEngine::openMemoryEditor};
 
     BreakpointManager m_breakpointManager;
     QPointer<BaseTreeView> m_breakpointManagerView;
@@ -1025,9 +1005,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     // Populate Windows->Views menu with standard actions.
     Context debugcontext(Constants::C_DEBUGMODE);
 
-    Command *cmd = ActionManager::registerAction(&m_openMemoryEditorAction,
-        "Debugger.Views.OpenMemoryEditor", debugcontext);
-    cmd->setAttribute(Command::CA_Hide);
+    act = new QAction(tr("Memory..."), this);
+    act->setVisible(false);
+    act->setEnabled(false);
+    Command *cmd = ActionManager::registerAction(act, Constants::OPEN_MEMORY_EDITOR);
 
     TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_DEBUGINFO,
                          tr("Debug Information"));
@@ -1281,10 +1262,36 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     debugMenu->addSeparator();
 
-    ActionManager::registerAction(&m_frameDownAction,
-        "Debugger.FrameDown", cppDebuggercontext);
-    ActionManager::registerAction(&m_frameUpAction,
-        "Debugger.FrameUp", cppDebuggercontext);
+    act = new QAction(this);
+    act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                             "Move to Calling Frame"));
+    act->setEnabled(false);
+    act->setVisible(false);
+    ActionManager::registerAction(act, Constants::FRAME_UP);
+
+    act = new QAction(this);
+    act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                             "Move to Called Frame"));
+    act->setEnabled(false);
+    act->setVisible(false);
+    ActionManager::registerAction(act, Constants::FRAME_DOWN);
+
+    act = new QAction(this);
+    act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                             "Memory..."));
+    act->setEnabled(false);
+    act->setVisible(true);
+    ActionManager::registerAction(act, Constants::FRAME_UP);
+
+    act = new QAction(this);
+    act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                             "Operate by Instruction"));
+    act->setEnabled(false);
+    act->setVisible(false);
+    act->setCheckable(true);
+    act->setChecked(false);
+    cmd = ActionManager::registerAction(act, Constants::OPERATE_BY_INSTRUCTION);
+    debugMenu->addAction(cmd);
 
     cmd = ActionManager::registerAction(&m_breakAction, "Debugger.ToggleBreak");
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("F8") : tr("F9")));
@@ -1310,10 +1317,13 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     debugMenu->addSeparator();
 
-    cmd = m_watchCommand = ActionManager::registerAction(&m_watchAction, "Debugger.AddToWatch",
-            Context(CppEditor::Constants::CPPEDITOR_ID,  QmlJSEditor::Constants::C_QMLJSEDITOR_ID));
-    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
+    cmd = m_watchCommand = ActionManager::registerAction(&m_watchAction, Constants::WATCH);
     debugMenu->addAction(cmd);
+
+ // FIXME: Re-vive watcher creation before engine runs.
+//    connect(&m_watchAction, &QAction::triggered, this, [&] {
+//        QTC_CHECK(false);
+//    });
 
     addGdbOptionPages(&m_optionPages);
     addCdbOptionPages(&m_optionPages);
