@@ -410,6 +410,7 @@ BuildInfo *QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
     info->typeName = tr("Build");
     info->kitId = k->id();
     info->buildType = type;
+    info->config.insert("configName", type == BuildConfiguration::Debug ? "Debug" : "Release");
     return info;
 }
 
