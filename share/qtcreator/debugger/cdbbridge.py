@@ -323,15 +323,18 @@ class Dumper(DumperBase):
         return namespace
 
     def qtVersion(self):
-        qtVersion = self.parseAndEvaluate('((void**)&%s)[2]' % self.qtHookDataSymbolName()).integer()
-        if qtVersion is None and self.qtCoreModuleName() is not None:
-            try:
-                versionValue = cdbext.call(self.qtCoreModuleName() + '!qVersion()')
-                version = self.extractCString(self.fromNativeValue(versionValue).address())
-                (major, minor, patch) = version.decode('latin1').split('.')
-                qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
-            except:
-                pass
+        qtVersion = None
+        try:
+            qtVersion = self.parseAndEvaluate('((void**)&%s)[2]' % self.qtHookDataSymbolName()).integer()
+        except:
+            if self.qtCoreModuleName() is not None:
+                try:
+                    versionValue = cdbext.call(self.qtCoreModuleName() + '!qVersion()')
+                    version = self.extractCString(self.fromNativeValue(versionValue).address())
+                    (major, minor, patch) = version.decode('latin1').split('.')
+                    qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+                except:
+                    pass
         if qtVersion is None:
             qtVersion = self.fallbackQtVersion
         self.qtVersion = lambda: qtVersion
