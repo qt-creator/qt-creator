@@ -235,14 +235,15 @@ static int lastIncludeIndex(const QStringList &options, const QRegularExpression
 
 static int includeIndexForResourceDirectory(const QStringList &options, bool isMacOs = false)
 {
-    // include/c++/{version}, include/c++/v1 and include/g++
-    static const QRegularExpression includeRegExp(
-                R"(\A.*[\/\\]include[\/\\].*(g\+\+.*\z|c\+\+[\/\\](v1\z|\d+.*\z)))");
+    // include/c++, include/g++, libc++\include and libc++abi\include
+    static const QString cppIncludes = R"((.*[\/\\]include[\/\\].*(g\+\+|c\+\+).*))"
+                                       R"(|(.*libc\+\+[\/\\]include))"
+                                       R"(|(.*libc\+\+abi[\/\\]include))";
+    static const QRegularExpression includeRegExp("\\A(" + cppIncludes + ")\\z");
 
     // The same as includeRegExp but also matches /usr/local/include
     static const QRegularExpression includeRegExpMac(
-                R"(\A(.*[\/\\]include[\/\\].*(g\+\+.*\z|c\+\+[\/\\](v1\z|\d+.*\z))))"
-                R"(|([\/\\]usr[\/\\]local[\/\\]include\z))");
+        "\\A(" + cppIncludes + R"(|([\/\\]usr[\/\\]local[\/\\]include))" + ")\\z");
 
     const int cppIncludeIndex = lastIncludeIndex(options, isMacOs
                                                  ? includeRegExpMac
