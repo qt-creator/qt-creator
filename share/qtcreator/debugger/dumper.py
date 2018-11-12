@@ -1103,7 +1103,8 @@ class DumperBase:
     def putType(self, typish, priority = 0):
         # Higher priority values override lower ones.
         if priority >= self.currentType.priority:
-            if isinstance(typish, str):
+            types = (str) if sys.version_info[0] >= 3 else (str, unicode)
+            if isinstance(typish, types):
                 self.currentType.value = typish
             else:
                 self.currentType.value = typish.name
