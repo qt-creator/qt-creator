@@ -63,8 +63,11 @@ bool SerialControl::start()
     stop();
 
     if (!m_serialPort.open(QIODevice::ReadWrite)) {
-        if (!m_retrying)
-            appendMessage(tr("Unable to open port %1.").arg(portName()) + "\n", Utils::ErrorMessageFormat);
+        if (!m_retrying) {
+            appendMessage(tr("Unable to open port %1: %2.")
+                          .arg(portName(), m_serialPort.errorString()),
+                          Utils::ErrorMessageFormat);
+        }
         return false;
     }
 
