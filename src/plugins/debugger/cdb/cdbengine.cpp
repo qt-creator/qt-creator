@@ -1452,7 +1452,7 @@ void CdbEngine::fetchMemory(MemoryAgent *agent, quint64 address, quint64 length)
     StringInputStream str(args);
     str << address << ' ' << length;
     cmd.args = args;
-    cmd.callback = [&](const DebuggerResponse &response) {
+    cmd.callback = [=] (const DebuggerResponse &response) {
         if (!agent)
             return;
         if (response.resultClass == ResultDone) {
