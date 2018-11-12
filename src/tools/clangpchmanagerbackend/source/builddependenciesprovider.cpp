@@ -27,7 +27,7 @@
 
 #include "builddependenciesstorageinterface.h"
 #include "modifiedtimecheckerinterface.h"
-#include "builddependenciesgeneratorinterface.h"
+#include "builddependencygeneratorinterface.h"
 
 #include <algorithm>
 

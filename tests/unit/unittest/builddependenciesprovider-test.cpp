@@ -27,7 +27,7 @@
 
 #include "mockbuilddependenciesstorage.h"
 #include "mockmodifiedtimechecker.h"
-#include "mockbuilddependenciesgenerator.h"
+#include "mockbuilddependencygenerator.h"
 
 #include <builddependenciesprovider.h>
 
@@ -56,7 +56,7 @@ class BuildDependenciesProvider : public testing::Test
 protected:
     NiceMock<MockBuildDependenciesStorage> mockBuildDependenciesStorage;
     NiceMock<MockModifiedTimeChecker> mockModifiedTimeChecker;
-    NiceMock<MockBuildDependenciesGenerator> mockBuildDependenciesGenerator;
+    NiceMock<MockBuildDependencyGenerator> mockBuildDependenciesGenerator;
     ClangBackEnd::BuildDependenciesProvider provider{mockBuildDependenciesStorage, mockModifiedTimeChecker, mockBuildDependenciesGenerator};
     ClangBackEnd::V2::ProjectPartContainer projectPart1{"ProjectPart1",
                                                         {"--yi"},
@@ -70,13 +70,13 @@ protected:
                                                         {"/er"},
                                                         {1},
                                                         {2, 3, 4}};
-    SourceEntries firstSources{{1, SourceType::Any, 1}, {2, SourceType::Any, 1}, {10, SourceType::Any, 1}};
-    SourceEntries secondSources{{1, SourceType::Any, 1}, {3, SourceType::Any, 1}, {8, SourceType::Any, 1}};
-    SourceEntries thirdSources{{4, SourceType::Any, 1}, {8, SourceType::Any, 1}, {10, SourceType::Any, 1}};
+    SourceEntries firstSources{{1, SourceType::UserInclude, 1}, {2, SourceType::UserInclude, 1}, {10, SourceType::UserInclude, 1}};
+    SourceEntries secondSources{{1, SourceType::UserInclude, 1}, {3, SourceType::UserInclude, 1}, {8, SourceType::UserInclude, 1}};
+    SourceEntries thirdSources{{4, SourceType::UserInclude, 1}, {8, SourceType::UserInclude, 1}, {10, SourceType::UserInclude, 1}};
     UsedMacros firstUsedMacros{{"YI", 1}};
     UsedMacros secondUsedMacros{{"LIANG", 2}, {"ER", 2}};
     UsedMacros thirdUsedMacros{{"SAN", 10}};
-    BuildDependency buildDependency{secondSources, {}, {}, {}};
+    BuildDependency buildDependency{secondSources, {}};
 };
 
 TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromStorageIfTimeStampsAreUpToDate)

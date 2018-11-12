@@ -171,9 +171,9 @@ TEST_F(BuildDependenciesStorage, UpdateSources)
     SourceEntries entries{{1, SourceType::TopInclude, 10}, {2, SourceType::TopSystemInclude, 20}};
 
     EXPECT_CALL(updateBuildDependencyTimeStampStatement, write(TypedEq<long long>(10), TypedEq<int>(1)));
-    EXPECT_CALL(updateSourceTypeStatement, write(TypedEq<uchar>(1), TypedEq<int>(1)));
+    EXPECT_CALL(updateSourceTypeStatement, write(TypedEq<uchar>(0), TypedEq<int>(1)));
     EXPECT_CALL(updateBuildDependencyTimeStampStatement, write(TypedEq<long long>(20), TypedEq<int>(2)));
-    EXPECT_CALL(updateSourceTypeStatement, write(TypedEq<uchar>(2), TypedEq<int>(2)));
+    EXPECT_CALL(updateSourceTypeStatement, write(TypedEq<uchar>(1), TypedEq<int>(2)));
 
     storage.updateSources(entries);
 }

@@ -173,6 +173,7 @@ class PchCreatorIncludes;
 class PchTask;
 class BuildDependency;
 class SourceEntry;
+class FilePathCaching;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -289,3 +290,5 @@ class Usage;
 
 std::ostream &operator<<(std::ostream &out, const Usage &usage);
 } // namespace CppTools
+
+void setFilePathCache(ClangBackEnd::FilePathCaching *filePathCache);

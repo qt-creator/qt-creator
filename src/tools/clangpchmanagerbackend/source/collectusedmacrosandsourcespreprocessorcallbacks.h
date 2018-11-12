@@ -102,7 +102,15 @@ public:
         auto includeFilePathId = filePathId(includeLocation);
         auto includedFilePathId = filePathId(file);
 
-        m_sourceDependencies.emplace_back(includeFilePathId, includedFilePathId);
+        SourceDependency sourceDependency{includeFilePathId, includedFilePathId};
+
+        auto found = std::lower_bound(m_sourceDependencies.begin(),
+                                      m_sourceDependencies.end(),
+                                      sourceDependency,
+                                      [](auto first, auto second) { return first < second; });
+
+        if (found == m_sourceDependencies.end() || *found != sourceDependency)
+            m_sourceDependencies.emplace(found, sourceDependency);
     }
 
     void mergeUsedMacros()

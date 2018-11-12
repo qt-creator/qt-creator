@@ -34,17 +34,26 @@ namespace ClangBackEnd {
 class SourceDependency
 {
 public:
-    SourceDependency(FilePathId filePathId,
-                    FilePathId dependencyFilePathId)
-        : filePathId(filePathId),
-          dependencyFilePathId(dependencyFilePathId)
+    SourceDependency(FilePathId filePathId, FilePathId dependencyFilePathId)
+        : filePathId(filePathId)
+        , dependencyFilePathId(dependencyFilePathId)
     {}
 
-    friend
-    bool operator==(SourceDependency first, SourceDependency second)
+    friend bool operator==(SourceDependency first, SourceDependency second)
     {
         return first.filePathId == second.filePathId
-            && first.dependencyFilePathId == second.dependencyFilePathId;
+               && first.dependencyFilePathId == second.dependencyFilePathId;
+    }
+
+    friend bool operator!=(SourceDependency first, SourceDependency second)
+    {
+        return !(first == second);
+    }
+
+    friend bool operator<(SourceDependency first, SourceDependency second)
+    {
+        return std::tie(first.filePathId, first.dependencyFilePathId)
+               < std::tie(second.filePathId, second.dependencyFilePathId);
     }
 
 public:
@@ -53,4 +62,4 @@ public:
 };
 
 using SourceDependencies = std::vector<SourceDependency>;
-}
+} // namespace ClangBackEnd

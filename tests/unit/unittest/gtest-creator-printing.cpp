@@ -66,6 +66,10 @@
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/locator/ilocatorfilter.h>
 
+namespace {
+ClangBackEnd::FilePathCaching *filePathCache = nullptr;
+}
+
 void PrintTo(const Utf8String &text, ::std::ostream *os)
 {
     *os << text;
@@ -171,7 +175,10 @@ namespace ClangBackEnd {
 
 std::ostream &operator<<(std::ostream &out, const FilePathId &id)
 {
-    return out << "(" << id.filePathId << ")";
+    if (filePathCache)
+        return out << "(" << id.filePathId << ", " << filePathCache->filePath(id) << ")";
+
+    return out << id.filePathId;
 }
 
 std::ostream &operator<<(std::ostream &out, const FilePathView &filePathView)
@@ -1014,10 +1021,13 @@ std::ostream &operator<<(std::ostream &out, const PchTask &task)
 
 std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency)
 {
-    return out << "("
-               << dependency.includes << ", "
-               << dependency.topsSystemIncludeIds << ", "
-               << dependency.topIncludeIds << ")";
+    return out << "(\n"
+               << "includes: " << dependency.includes << ",\n"
+               << "usedMacros: " << dependency.usedMacros  << ",\n"
+               << "fileStatuses: " << dependency.fileStatuses  << ",\n"
+               << "sourceFiles: " << dependency.sourceFiles  << ",\n"
+               << "sourceDependencies: " << dependency.sourceDependencies  << ",\n"
+               << ")";
 }
 
 const char *sourceTypeString(SourceType sourceType)
@@ -1025,9 +1035,14 @@ const char *sourceTypeString(SourceType sourceType)
     using ClangBackEnd::SymbolTag;
 
     switch (sourceType) {
-    case SourceType::Any: return "Any";
-    case SourceType::TopInclude: return "TopInclude";
-    case SourceType::TopSystemInclude: return "TopSystemInclude";
+        case SourceType::TopInclude:
+            return "TopInclude";
+        case SourceType::TopSystemInclude:
+            return "TopSystemInclude";
+        case SourceType::SystemInclude:
+            return "SystemInclude";
+        case SourceType::UserInclude:
+            return "UserInclude";
     }
 
     return "";
@@ -1131,3 +1146,8 @@ std::ostream &operator<<(std::ostream &out, const Usage &usage)
     return out << "(" << usage.path << ", " << usage.line << ", " << usage.column <<")";
 }
 } // namespace CppTools
+
+void setFilePathCache(ClangBackEnd::FilePathCaching *cache)
+{
+    filePathCache = cache;
+}

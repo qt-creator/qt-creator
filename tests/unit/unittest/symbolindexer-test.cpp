@@ -162,7 +162,7 @@ protected:
     ClangBackEnd::FilePathId main2PathId{filePathId(TESTDATA_DIR "/symbolindexer_main2.cpp")};
     ClangBackEnd::FilePathId header2PathId{filePathId(TESTDATA_DIR "/symbolindexer_header1.h")};
     ClangBackEnd::FilePathId header1PathId{filePathId(TESTDATA_DIR "/symbolindexer_header2.h")};
-    PathString generatedFileName = "includecollector_generated_file.h";
+    PathString generatedFileName = "BuildDependencyCollector_generated_file.h";
     ClangBackEnd::FilePathId generatedFilePathId21;
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},

@@ -31,13 +31,13 @@
 
 namespace ClangBackEnd {
 
-class BuildDependenciesGeneratorInterface
+class BuildDependencyGeneratorInterface
 {
 public:
     virtual BuildDependency create(const V2::ProjectPartContainer &projectPart) = 0;
 
 protected:
-    ~BuildDependenciesGeneratorInterface() = default;
+    ~BuildDependencyGeneratorInterface() = default;
 };
 
 } // namespace ClangBackEnd

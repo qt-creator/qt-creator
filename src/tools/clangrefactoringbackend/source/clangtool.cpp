@@ -135,6 +135,8 @@ clang::tooling::ClangTool ClangTool::createTool() const
             tool.mapVirtualFile(toStringRef(unsavedFileContent.filePath),
                                 toStringRef(unsavedFileContent.content));
 
+    tool.mapVirtualFile("/dummyFile", "#pragma once");
+
     return tool;
 }
 

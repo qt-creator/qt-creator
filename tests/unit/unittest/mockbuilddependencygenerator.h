@@ -27,9 +27,9 @@
 
 #include "googletest.h"
 
-#include <builddependenciesgeneratorinterface.h>
+#include <builddependencygeneratorinterface.h>
 
-class MockBuildDependenciesGenerator : public ClangBackEnd::BuildDependenciesGeneratorInterface
+class MockBuildDependencyGenerator : public ClangBackEnd::BuildDependencyGeneratorInterface
 {
 public:
     MOCK_METHOD1(create,

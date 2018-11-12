@@ -145,7 +145,7 @@ public:
         return SymbolIndex(reinterpret_cast<std::uintptr_t>(pointer));
     }
 
-    void setSourceManager(const clang::SourceManager *sourceManager)
+    void setSourceManager(clang::SourceManager *sourceManager)
     {
         m_sourceManager = sourceManager;
     }

@@ -33,9 +33,10 @@ namespace ClangBackEnd {
 
 enum class SourceType : unsigned char
 {
-    Any,
     TopInclude,
-    TopSystemInclude
+    TopSystemInclude,
+    UserInclude,
+    SystemInclude
 };
 
 class TimeStamp
@@ -62,7 +63,6 @@ public:
         : lastModified(lastModified),
           sourceId(sourceId),
           sourceType(static_cast<SourceType>(sourceType))
-
     {}
 
     SourceEntry(FilePathId sourceId, SourceType sourceType, TimeStamp lastModified)
@@ -85,10 +85,12 @@ public:
             && first.lastModified == second.lastModified ;
     }
 
+    friend bool operator!=(SourceEntry first, SourceEntry second) { return !(first == second); }
+
 public:
     TimeStamp lastModified;
     FilePathId sourceId;
-    SourceType sourceType = SourceType::Any;
+    SourceType sourceType = SourceType::UserInclude;
 };
 
 using SourceEntries = std::vector<SourceEntry>;

@@ -32,6 +32,7 @@
 
 #include <iterator>
 #include <ostream>
+#include <sstream>
 
 namespace Utils {
 
@@ -232,7 +233,19 @@ ostream &operator<<(ostream &out, const vector<T> &vector)
 {
     out << "[";
 
-    copy(vector.cbegin(), vector.cend(), ostream_iterator<T>(out, ", "));
+    for (auto current = vector.begin(); current != vector.end(); ++current) {
+        std::ostringstream entryStream;
+        entryStream << *current;
+        std::string entryString = entryStream.str();
+
+        if (entryString.size() > 4)
+            out << "\n\t";
+
+        out << entryString;
+
+        if (std::next(current) != vector.end())
+            out << ", ";
+    }
 
     out << "]";
 

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "builddependency.h"
 #include "collectmacrospreprocessorcallbacks.h"
 #include "sourcelocationsutils.h"
 
@@ -32,6 +33,8 @@
 #include <filepathid.h>
 
 #include <utils/smallstringvector.h>
+
+#include <llvm/Support/MemoryBuffer.h>
 
 #include <QFile>
 #include <QDir>
@@ -41,34 +44,26 @@
 
 namespace ClangBackEnd {
 
-class CollectIncludesPreprocessorCallbacks final : public clang::PPCallbacks,
+class CollectBuildDependencyPreprocessorCallbacks final : public clang::PPCallbacks,
                                                    public CollectUsedMacrosAndSourcesPreprocessorCallbacksBase
 {
 public:
-    CollectIncludesPreprocessorCallbacks(FilePathIds &includeIds,
-                                         FilePathIds &topIncludeIds,
-                                         FilePathIds &topsSystemIncludeIds,
+    CollectBuildDependencyPreprocessorCallbacks(BuildDependency &buildDependency,
                                          const FilePathCachingInterface &filePathCache,
                                          const std::vector<uint> &excludedIncludeUID,
                                          std::vector<uint> &alreadyIncludedFileUIDs,
-                                         const clang::SourceManager &sourceManager,
-                                         UsedMacros &usedMacros,
+                                         clang::SourceManager &sourceManager,
                                          SourcesManager &sourcesManager,
-                                         std::shared_ptr<clang::Preprocessor> preprocessor,
-                                         SourceDependencies &sourceDependencies,
-                                         FilePathIds &sourceFiles,
-                                         FileStatuses &fileStatuses)
-        : CollectUsedMacrosAndSourcesPreprocessorCallbacksBase(usedMacros,
+                                         std::shared_ptr<clang::Preprocessor> preprocessor)
+        : CollectUsedMacrosAndSourcesPreprocessorCallbacksBase(buildDependency.usedMacros,
                                                                filePathCache,
                                                                sourceManager,
                                                                sourcesManager,
                                                                preprocessor,
-                                                               sourceDependencies,
-                                                               sourceFiles,
-                                                               fileStatuses),
-          m_includeIds(includeIds),
-          m_topIncludeIds(topIncludeIds),
-          m_topsSystemIncludeIds(topsSystemIncludeIds),
+                                                               buildDependency.sourceDependencies,
+                                                               buildDependency.sourceFiles,
+                                                               buildDependency.fileStatuses),
+          m_buildDependency(buildDependency),
           m_excludedIncludeUID(excludedIncludeUID),
           m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs)
     {}
@@ -90,7 +85,7 @@ public:
     }
 
     void InclusionDirective(clang::SourceLocation hashLocation,
-                            const clang::Token &/*includeToken*/,
+                            const clang::Token & /*includeToken*/,
                             llvm::StringRef /*fileName*/,
                             bool /*isAngled*/,
                             clang::CharSourceRange /*fileNameRange*/,
@@ -103,20 +98,30 @@ public:
         if (!m_skipInclude && file) {
             addSourceDependency(file, hashLocation);
             auto fileUID = file->getUID();
-            auto sourceFileUID = m_sourceManager->getFileEntryForID(m_sourceManager->getFileID(hashLocation))->getUID();
-            if (isNotInExcludedIncludeUID(fileUID)) {
-                auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
-                if (notAlreadyIncluded.first) {
-                    m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second, fileUID);
-                    FilePath filePath = filePathFromFile(file);
-                    if (!filePath.empty()) {
-                        FilePathId includeId = m_filePathCache.filePathId(filePath);
-                        m_includeIds.emplace_back(includeId);
-                        if (isSystem(fileType) && !isInSystemHeader(hashLocation))
-                            m_topsSystemIncludeIds.emplace_back(includeId);
-                        if (isInExcludedIncludeUID(sourceFileUID))
-                            m_topIncludeIds.emplace_back(includeId);
+            auto sourceFileUID = m_sourceManager
+                                     ->getFileEntryForID(m_sourceManager->getFileID(hashLocation))
+                                     ->getUID();
+            auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
+            if (notAlreadyIncluded.first) {
+                m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second, fileUID);
+                FilePath filePath = filePathFromFile(file);
+                if (!filePath.empty()) {
+                    FilePathId includeId = m_filePathCache.filePathId(filePath);
+
+                    time_t lastModified = file->getModificationTime();
+
+                    SourceType sourceType = SourceType::UserInclude;
+                    if (isSystem(fileType)) {
+                        if (isInSystemHeader(hashLocation))
+                            sourceType = SourceType::SystemInclude;
+                        else
+                            sourceType = SourceType::TopSystemInclude;
+                    } else if (isNotInExcludedIncludeUID(fileUID)
+                               && isInExcludedIncludeUID(sourceFileUID)) {
+                        sourceType = SourceType::TopInclude;
                     }
+
+                    addInclude({includeId, sourceType, lastModified});
                 }
             }
         }
@@ -124,19 +129,12 @@ public:
         m_skipInclude = false;
     }
 
-    bool FileNotFound(clang::StringRef fileNameRef, clang::SmallVectorImpl<char> &recoveryPath) override
+    bool FileNotFound(clang::StringRef /*fileNameRef*/,
+                      clang::SmallVectorImpl<char> &recoveryPath) override
     {
-        QTemporaryDir temporaryDirectory;
-        temporaryDirectory.setAutoRemove(false);
-        const QByteArray temporaryDirUtf8 = temporaryDirectory.path().toUtf8();
+        auto dummyPath = llvm::StringRef("/dummyPath");
 
-        const QString fileName = QString::fromUtf8(fileNameRef.data(), int(fileNameRef.size()));
-        QString filePath = temporaryDirectory.path() + '/' + fileName;
-
-        ensureDirectory(temporaryDirectory.path(), fileName);
-        createFakeFile(filePath);
-
-        recoveryPath.append(temporaryDirUtf8.cbegin(), temporaryDirUtf8.cend());
+        recoveryPath.append(std::cbegin(dummyPath), std::cend(dummyPath));
 
         m_skipInclude = true;
 
@@ -189,15 +187,6 @@ public:
             QDir(directory).mkpath(directoryEntries.join('/'));
     }
 
-    void createFakeFile(const QString &filePath)
-    {
-        QFile fakeFile;
-        fakeFile.setFileName(filePath);
-
-        fakeFile.open(QIODevice::ReadWrite);
-        fakeFile.close();
-    }
-
     bool isNotInExcludedIncludeUID(uint uid) const
     {
         return !isInExcludedIncludeUID(uid);
@@ -224,10 +213,21 @@ public:
         return FilePath::fromNativeFilePath(absolutePath(file->getName()));
     }
 
+    void addInclude(SourceEntry sourceEntry)
+    {
+        auto &includes = m_buildDependency.includes;
+        auto found = std::lower_bound(includes.begin(),
+                                      includes.end(),
+                                      sourceEntry,
+                                      [](auto first, auto second) { return first < second; });
+
+        if (found == includes.end() || *found != sourceEntry)
+            includes.emplace(found, sourceEntry);
+    }
+
 private:
-    FilePathIds &m_includeIds;
-    FilePathIds &m_topIncludeIds;
-    FilePathIds &m_topsSystemIncludeIds;
+    FilePathIds m_containsMissingIncludes;
+    BuildDependency &m_buildDependency;
     const std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
     bool m_skipInclude = false;
