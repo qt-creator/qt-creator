@@ -184,6 +184,7 @@ void CodeCompletionsExtractor::extractCompletionKind()
             currentCodeCompletion_.completionKind = CodeCompletion::FunctionCompletionKind;
             break;
         case CXCursor_VariableRef:
+        case CXCursor_MemberRef:
         case CXCursor_VarDecl:
         case CXCursor_FieldDecl:
         case CXCursor_ParmDecl:

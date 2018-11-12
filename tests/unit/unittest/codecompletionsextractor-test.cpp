@@ -156,6 +156,7 @@ protected:
     Document namespaceDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), compilationArguments, {},  documents};
     Document enumerationDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), compilationArguments, {},  documents};
     Document constructorDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), compilationArguments, {},  documents};
+    Document constructorMemberInitDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructorMemberInitialization.cpp"), compilationArguments, {},  documents};
     Document briefCommentDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), compilationArguments, {},  documents};
 };
 
@@ -433,6 +434,19 @@ TEST_F(CodeCompletionsExtractorSlowTest, Constructor)
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Constructor"),
                                          CodeCompletion::ConstructorCompletionKind,
                                          CodeCompletion::Available));
+}
+
+TEST_F(CodeCompletionsExtractorSlowTest, ConstructorMemberInitializer) {
+  ClangCodeCompleteResults completeResults(getResults(constructorMemberInitDocument, 2, 18));
+
+  ::CodeCompletionsExtractor extractor(
+      unsavedFiles.unsavedFile(constructorDocument.filePath()),
+      completeResults.data());
+
+  ASSERT_THAT(extractor,
+              HasCompletion(Utf8StringLiteral("member"),
+                            CodeCompletion::VariableCompletionKind,
+                            CodeCompletion::Available));
 }
 
 TEST_F(CodeCompletionsExtractorSlowTest, Destructor)
