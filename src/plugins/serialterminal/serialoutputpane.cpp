@@ -736,6 +736,7 @@ void SerialOutputPane::sendInput()
 
         current->writeData(m_inputLine->text().toUtf8() + m_serialControlTabs.at(index).lineEnd);
     }
+    m_inputLine->selectAll();
     // TODO: add a blink or something to visually see if the data was sent or not
 }
 
