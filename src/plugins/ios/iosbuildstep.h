@@ -75,7 +75,7 @@ class IosBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     IosBuildStepConfigWidget(IosBuildStep *buildStep);
-    ~IosBuildStepConfigWidget();
+    ~IosBuildStepConfigWidget() override;
 
 private:
     void buildArgumentsChanged();

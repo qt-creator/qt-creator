@@ -235,7 +235,7 @@ class IosDeviceToolHandlerPrivate : public IosToolHandlerPrivate
     };
 public:
     explicit IosDeviceToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
-    ~IosDeviceToolHandlerPrivate();
+    ~IosDeviceToolHandlerPrivate() override;
 
 // IosToolHandlerPrivate overrides
 public:
@@ -304,7 +304,7 @@ class IosSimulatorToolHandlerPrivate : public IosToolHandlerPrivate
 {
 public:
     explicit IosSimulatorToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
-    ~IosSimulatorToolHandlerPrivate();
+    ~IosSimulatorToolHandlerPrivate() override;
 
 // IosToolHandlerPrivate overrides
 public:
@@ -336,9 +336,7 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(const IosDeviceType &devType,
 {
 }
 
-IosToolHandlerPrivate::~IosToolHandlerPrivate()
-{
-}
+IosToolHandlerPrivate::~IosToolHandlerPrivate() = default;
 
 // signals
 void IosToolHandlerPrivate::isTransferringApp(const QString &bundlePath, const QString &deviceId,

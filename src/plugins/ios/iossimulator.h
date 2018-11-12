@@ -63,15 +63,15 @@ QDebug operator <<(QDebug debug, const IosDeviceType &deviceType);
 class IosSimulator : public ProjectExplorer::IDevice
 {
 public:
-    typedef QSharedPointer<const IosSimulator> ConstPtr;
-    typedef QSharedPointer<IosSimulator> Ptr;
+    using ConstPtr = QSharedPointer<const IosSimulator>;
+    using Ptr = QSharedPointer<IosSimulator>;
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
 
     QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     QList<Core::Id> actionIds() const override;
     QString displayNameForActionId(Core::Id actionId) const override;
-    void executeAction(Core::Id actionId, QWidget *parent = 0) override;
+    void executeAction(Core::Id actionId, QWidget *parent = nullptr) override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     void fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;

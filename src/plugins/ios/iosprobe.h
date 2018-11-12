@@ -69,8 +69,6 @@ class XcodeProbe
 public:
     static Utils::FileName sdkPath(const QString &devPath, const QString &platformName);
     static QMap<QString, XcodePlatform> detectPlatforms(const QString &devPath = QString());
-    XcodeProbe()
-    { }
 
 private:
     void addDeveloperPath(const QString &path);

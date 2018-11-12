@@ -48,8 +48,8 @@ bool IosQtVersionFactory::canRestore(const QString &type)
 QtSupport::BaseQtVersion *IosQtVersionFactory::restore(const QString &type,
     const QVariantMap &data)
 {
-    QTC_ASSERT(canRestore(type), return 0);
-    IosQtVersion *v = new IosQtVersion;
+    QTC_ASSERT(canRestore(type), return nullptr);
+    auto v = new IosQtVersion;
     v->fromMap(data);
     return v;
 }
@@ -65,7 +65,7 @@ QtSupport::BaseQtVersion *IosQtVersionFactory::create(const Utils::FileName &qma
                                                       const QString &autoDetectionSource)
 {
     if (!(evaluator->values(QLatin1String("QMAKE_PLATFORM")).contains(QLatin1String("ios"))))
-        return 0;
+        return nullptr;
     return new IosQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
 }
 

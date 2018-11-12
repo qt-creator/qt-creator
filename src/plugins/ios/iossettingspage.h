@@ -39,7 +39,7 @@ class IosSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit IosSettingsPage(QObject *parent = 0);
+    explicit IosSettingsPage(QObject *parent = nullptr);
 
     QWidget *widget() override;
     void apply() override;

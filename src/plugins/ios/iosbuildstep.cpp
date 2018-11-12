@@ -154,7 +154,7 @@ QStringList IosBuildStep::defaultArguments() const
     }
     if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
             || tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-        GccToolChain *gtc = static_cast<GccToolChain *>(tc);
+        auto gtc = static_cast<GccToolChain *>(tc);
         res << gtc->platformCodeGenFlags();
     }
     if (!SysRootKitInformation::sysRoot(kit).isEmpty())

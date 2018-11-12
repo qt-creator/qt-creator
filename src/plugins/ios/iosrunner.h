@@ -47,7 +47,7 @@ class IosRunner : public ProjectExplorer::RunWorker
 
 public:
     IosRunner(ProjectExplorer::RunControl *runControl);
-    ~IosRunner();
+    ~IosRunner() override;
 
     void setCppDebugging(bool cppDebug);
     void setQmlDebugging(QmlDebug::QmlDebugServicesPreset qmlDebugServices);

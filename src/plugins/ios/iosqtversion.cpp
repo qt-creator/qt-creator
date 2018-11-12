@@ -40,10 +40,7 @@
 using namespace Ios::Internal;
 using namespace ProjectExplorer;
 
-IosQtVersion::IosQtVersion()
-    : QtSupport::BaseQtVersion()
-{
-}
+IosQtVersion::IosQtVersion() = default;
 
 IosQtVersion::IosQtVersion(const Utils::FileName &path, bool isAutodetected,
                            const QString &autodetectionSource)

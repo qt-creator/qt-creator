@@ -86,7 +86,7 @@ QString IosSimulator::displayType() const
 
 IDeviceWidget *IosSimulator::createWidget()
 {
-    return 0;
+    return nullptr;
 }
 
 QList<Core::Id> IosSimulator::actionIds() const

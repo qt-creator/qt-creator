@@ -82,8 +82,8 @@ bool IosDeployStep::init(QList<const BuildStep *> &earlierSteps)
     Q_UNUSED(earlierSteps);
     QTC_ASSERT(m_transferStatus == NoTransfer, return false);
     m_device = DeviceKitInformation::device(target()->kit());
-    IosRunConfiguration * runConfig = qobject_cast<IosRunConfiguration *>(
-                this->target()->activeRunConfiguration());
+    auto runConfig = qobject_cast<const IosRunConfiguration *>(
+        this->target()->activeRunConfiguration());
     QTC_ASSERT(runConfig, return false);
     m_bundlePath = runConfig->bundleDirectory().toString();
 

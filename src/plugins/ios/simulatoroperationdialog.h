@@ -45,7 +45,7 @@ class SimulatorOperationDialog : public QDialog
     Q_OBJECT
 public:
     explicit SimulatorOperationDialog(QWidget *parent = nullptr);
-    ~SimulatorOperationDialog();
+    ~SimulatorOperationDialog() override;
 
 public:
     void addFutures(const QList<QFuture<void> > &futureList);

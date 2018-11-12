@@ -43,7 +43,7 @@ class IosToolHandler : public QObject
 {
     Q_OBJECT
 public:
-    typedef QMap<QString,QString> Dict;
+    using Dict = QMap<QString,QString>;
     enum RunKind {
         NormalRun,
         DebugRun
@@ -56,8 +56,8 @@ public:
 
     static QString iosDeviceToolPath();
 
-    explicit IosToolHandler(const Internal::IosDeviceType &type, QObject *parent = 0);
-    ~IosToolHandler();
+    explicit IosToolHandler(const Internal::IosDeviceType &type, QObject *parent = nullptr);
+    ~IosToolHandler() override;
     void requestTransferApp(const QString &bundlePath, const QString &deviceId, int timeout = 1000);
     void requestRunApp(const QString &bundlePath, const QStringList &extraArgs, RunKind runType,
                             const QString &deviceId, int timeout = 1000);

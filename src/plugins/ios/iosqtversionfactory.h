@@ -33,7 +33,7 @@ namespace Internal {
 class IosQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
-    explicit IosQtVersionFactory(QObject *parent = 0);
+    explicit IosQtVersionFactory(QObject *parent = nullptr);
 
     bool canRestore(const QString &type) override;
     QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data) override;

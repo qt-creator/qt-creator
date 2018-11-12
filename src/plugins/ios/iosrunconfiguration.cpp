@@ -169,7 +169,7 @@ FileName IosRunConfiguration::profilePath() const
 
 static QmakeProFile *proFile(const IosRunConfiguration *rc)
 {
-    QmakeProject *pro = qobject_cast<QmakeProject *>(rc->target()->project());
+    auto pro = qobject_cast<const QmakeProject *>(rc->target()->project());
     QmakeProFile *proFile = pro ? pro->rootProFile() : nullptr;
     if (proFile)
         proFile = proFile->findProFile(rc->profilePath());

@@ -104,7 +104,7 @@ static Core::Id deviceId(const QString &sdkName)
         return Constants::IOS_DEVICE_TYPE;
     else if (sdkName.startsWith("iphonesimulator", Qt::CaseInsensitive))
         return Constants::IOS_SIMULATOR_TYPE;
-    return Core::Id();
+    return {};
 }
 
 static bool isSimulatorDeviceId(const Core::Id &id)
@@ -576,7 +576,7 @@ static ClangToolChain *createToolChain(const XcodePlatform &platform,
             && l != Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
         return nullptr;
 
-    ClangToolChain *toolChain = new ClangToolChain(ToolChain::AutoDetection);
+    auto toolChain = new ClangToolChain(ToolChain::AutoDetection);
     toolChain->setLanguage(l);
     toolChain->setDisplayName(target.name);
     toolChain->setPlatformCodeGenFlags(target.backendFlags);

@@ -57,7 +57,7 @@ SimulatorInfoModel::SimulatorInfoModel(QObject *parent) :
 QVariant SimulatorInfoModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
-        return QVariant();
+        return {};
 
     const SimulatorInfo &simInfo = m_simList[index.row()];
     if (role == Qt::EditRole || role == Qt::DisplayRole) {
@@ -77,7 +77,7 @@ QVariant SimulatorInfoModel::data(const QModelIndex &index, int role) const
         return QVariant::fromValue<SimulatorInfo>(simInfo);
     }
 
-    return QVariant();
+    return {};
 }
 
 int SimulatorInfoModel::rowCount(const QModelIndex &parent) const
@@ -96,7 +96,7 @@ int SimulatorInfoModel::columnCount(const QModelIndex &parent) const
 QVariant SimulatorInfoModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Vertical || section > colCount)
-        return QVariant();
+        return {};
 
     if (role == Qt::DisplayRole) {
         switch (section) {
@@ -111,7 +111,7 @@ QVariant SimulatorInfoModel::headerData(int section, Qt::Orientation orientation
         }
     }
 
-    return QVariant();
+    return {};
 }
 
 QModelIndex SimulatorInfoModel::index(int row, int column, const QModelIndex &parent) const
@@ -121,7 +121,7 @@ QModelIndex SimulatorInfoModel::index(int row, int column, const QModelIndex &pa
 
 QModelIndex SimulatorInfoModel::parent(const QModelIndex &) const
 {
-    return QModelIndex();
+    return {};
 }
 
 void SimulatorInfoModel::requestSimulatorInfo()
@@ -149,7 +149,7 @@ void SimulatorInfoModel::populateSimulators(const SimulatorInfoList &simulatorLi
         for (auto itr = m_simList.cbegin(); itr < m_simList.cend(); ++itr, ++newItr) {
             if (*itr == *newItr) {
                 if (end != -1)
-                    updatedIndexes.push_back(std::make_pair(start, end - 1));
+                    updatedIndexes.emplace_back(start, end - 1);
                 start = std::distance(m_simList.cbegin(), itr);
                 end = -1;
             } else {

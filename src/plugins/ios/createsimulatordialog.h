@@ -46,7 +46,7 @@ class CreateSimulatorDialog : public QDialog
 
 public:
     explicit CreateSimulatorDialog(QWidget *parent = nullptr);
-    ~CreateSimulatorDialog();
+    ~CreateSimulatorDialog() override;
 
     QString name() const;
     RuntimeInfo runtime() const;

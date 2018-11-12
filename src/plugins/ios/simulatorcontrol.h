@@ -89,7 +89,7 @@ public:
 
 public:
     explicit SimulatorControl(QObject* parent = nullptr);
-    ~SimulatorControl();
+    ~SimulatorControl() override;
 
 public:
     static QList<DeviceTypeInfo> availableDeviceTypes();

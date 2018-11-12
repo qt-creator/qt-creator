@@ -46,8 +46,8 @@ class IosBuildSettingsWidget : public ProjectExplorer::NamedWidget
 
 public:
     explicit IosBuildSettingsWidget(const Core::Id &deviceType, const QString &signingIdentifier,
-                                    bool isSigningAutoManaged, QWidget *parent = 0);
-    ~IosBuildSettingsWidget();
+                                    bool isSigningAutoManaged, QWidget *parent = nullptr);
+    ~IosBuildSettingsWidget() override;
 
     bool isSigningAutomaticallyManaged() const;
 

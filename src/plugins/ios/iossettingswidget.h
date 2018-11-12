@@ -41,8 +41,8 @@ class IosSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    IosSettingsWidget(QWidget *parent = 0);
-    ~IosSettingsWidget();
+    IosSettingsWidget(QWidget *parent = nullptr);
+    ~IosSettingsWidget() override;
 
     void saveSettings();
 

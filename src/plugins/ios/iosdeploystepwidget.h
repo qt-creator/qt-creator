@@ -40,7 +40,7 @@ class IosDeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     IosDeployStepWidget(IosDeployStep *step);
-    ~IosDeployStepWidget();
+    ~IosDeployStepWidget() override;
 
 private:
     Ui::IosDeployStepWidget *ui;

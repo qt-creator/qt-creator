@@ -72,7 +72,7 @@ class IosDsymBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidg
 
 public:
     IosDsymBuildStepConfigWidget(IosDsymBuildStep *buildStep);
-    ~IosDsymBuildStepConfigWidget();
+    ~IosDsymBuildStepConfigWidget() override;
 
 private:
     void commandChanged();
