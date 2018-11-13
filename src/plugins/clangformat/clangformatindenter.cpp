@@ -65,18 +65,20 @@ void adjustFormatStyleForLineBreak(format::FormatStyle &style)
     style.KeepLineBreaksForNonEmptyLines = true;
 #endif
     style.MaxEmptyLinesToKeep = 2;
+    style.SortIncludes = false;
+    style.SortUsingDeclarations = false;
 }
 
 Replacements filteredReplacements(const Replacements &replacements,
                                   int offset,
-                                  int lengthForFilter,
-                                  int extraOffsetToAdd)
+                                  int extraOffsetToAdd,
+                                  bool onlyIndention)
 {
     Replacements filtered;
     for (const Replacement &replacement : replacements) {
         int replacementOffset = static_cast<int>(replacement.getOffset());
-        if (replacementOffset >= offset + lengthForFilter)
-            break;
+        if (onlyIndention && replacementOffset != offset - 1)
+            continue;
 
         if (replacementOffset + 1 >= offset)
             replacementOffset += extraOffsetToAdd;
@@ -138,7 +140,7 @@ void modifyToIndentEmptyLines(QByteArray &buffer, int &offset, int &length, cons
 {
     const QString blockText = block.text().trimmed();
     const bool closingParenBlock = blockText.startsWith(')');
-    if (length != 0 && !closingParenBlock)
+    if (!blockText.isEmpty() && !closingParenBlock)
         return;
 
     //This extra text works for the most cases.
@@ -207,8 +209,8 @@ Replacements replacements(const Utils::FileName &fileName,
 
     return filteredReplacements(replacements,
                                 utf8Offset,
-                                utf8Length,
-                                extraOffset);
+                                extraOffset,
+                                block);
 }
 
 Utils::LineColumn utf16LineColumn(const QTextBlock &block,
@@ -216,17 +218,14 @@ Utils::LineColumn utf16LineColumn(const QTextBlock &block,
                                   const QByteArray &utf8Buffer,
                                   int utf8Offset)
 {
-    // Do not search if the offset is less - we are not interested.
-    if (utf8Offset < blockOffsetUtf8 - 1)
-        return Utils::LineColumn();
-
     // If lastIndexOf('\n') returns -1 then we are fine to add 1 and get 0 offset.
     const int lineStartUtf8Offset = utf8Buffer.lastIndexOf('\n', utf8Offset - 1) + 1;
-
     int line = block.blockNumber() + 1; // Init with the line corresponding the block.
-    if (utf8Offset == blockOffsetUtf8 - 1) {
-        // Our offset is the end of the previous line
-        --line;
+
+    if (utf8Offset < blockOffsetUtf8) {
+        line -= static_cast<int>(std::count(utf8Buffer.begin() + lineStartUtf8Offset,
+                                            utf8Buffer.begin() + blockOffsetUtf8,
+                                            '\n'));
     } else {
         line += static_cast<int>(std::count(utf8Buffer.begin() + blockOffsetUtf8,
                                             utf8Buffer.begin() + lineStartUtf8Offset,
@@ -333,38 +332,50 @@ void ClangFormatIndenter::indent(QTextDocument *doc,
                                  const QTextCursor &cursor,
                                  const QChar &typedChar,
                                  const TabSettings &tabSettings,
-                                 bool autoTriggered)
+                                 bool /*autoTriggered*/)
 {
-    if (typedChar == QChar::Null && (cursor.hasSelection() || !autoTriggered)) {
-        TextEditorWidget *editor = TextEditorWidget::currentTextEditorWidget();
-        if (!editor)
-            return;
-        const Utils::FileName fileName = editor->textDocument()->filePath();
-        int utf8Offset;
-        int utf8Length;
-        const QByteArray buffer = doc->toPlainText().toUtf8();
-        if (cursor.hasSelection()) {
-            const QTextBlock start = doc->findBlock(cursor.selectionStart());
-            const QTextBlock end = doc->findBlock(cursor.selectionEnd());
-            utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, start.blockNumber() + 1);
-            QTC_ASSERT(utf8Offset >= 0, return;);
-            utf8Length = selectedLines(doc, start, end).toUtf8().size();
-            applyReplacements(start,
-                              utf8Offset,
-                              buffer,
-                              replacements(fileName,  buffer, utf8Offset, utf8Length));
-        } else {
-            const QTextBlock block = cursor.block();
-            utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, block.blockNumber() + 1);
-            QTC_ASSERT(utf8Offset >= 0, return;);
-            utf8Length = block.text().toUtf8().size();
-            applyReplacements(block,
-                              utf8Offset,
-                              buffer,
-                              replacements(fileName,  buffer, utf8Offset, utf8Length));
+    if (cursor.hasSelection()) {
+        QTextBlock currentBlock = doc->findBlock(cursor.selectionStart());
+        while (currentBlock.isValid() && currentBlock.position() < cursor.selectionEnd()) {
+            indentBlock(doc, currentBlock, typedChar, tabSettings);
+            currentBlock = currentBlock.next();
         }
     } else {
         indentBlock(doc, cursor.block(), typedChar, tabSettings);
+    }
+}
+
+void ClangFormatIndenter::format(QTextDocument *doc,
+                                 const QTextCursor &cursor,
+                                 const TextEditor::TabSettings &/*tabSettings*/)
+{
+    TextEditorWidget *editor = TextEditorWidget::currentTextEditorWidget();
+    if (!editor)
+        return;
+
+    const Utils::FileName fileName = editor->textDocument()->filePath();
+    int utf8Offset;
+    int utf8Length;
+    const QByteArray buffer = doc->toPlainText().toUtf8();
+    if (cursor.hasSelection()) {
+        const QTextBlock start = doc->findBlock(cursor.selectionStart());
+        const QTextBlock end = doc->findBlock(cursor.selectionEnd());
+        utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, start.blockNumber() + 1);
+        QTC_ASSERT(utf8Offset >= 0, return;);
+        utf8Length = selectedLines(doc, start, end).toUtf8().size();
+        applyReplacements(start,
+                          utf8Offset,
+                          buffer,
+                          replacements(fileName, buffer, utf8Offset, utf8Length));
+    } else {
+        const QTextBlock block = cursor.block();
+        utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, block.blockNumber() + 1);
+        QTC_ASSERT(utf8Offset >= 0, return;);
+        utf8Length = block.text().toUtf8().size();
+        applyReplacements(block,
+                          utf8Offset,
+                          buffer,
+                          replacements(fileName, buffer, utf8Offset, utf8Length));
     }
 }
 
@@ -391,12 +402,11 @@ void ClangFormatIndenter::indentBlock(QTextDocument *doc,
     const QByteArray buffer = doc->toPlainText().toUtf8();
     const int utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, block.blockNumber() + 1);
     QTC_ASSERT(utf8Offset >= 0, return;);
-    const int utf8Length = block.text().toUtf8().size();
 
     applyReplacements(block,
                       utf8Offset,
                       buffer,
-                      replacements(fileName, buffer, utf8Offset, utf8Length, &block, typedChar));
+                      replacements(fileName, buffer, utf8Offset, 0, &block, typedChar));
 }
 
 int ClangFormatIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &)
@@ -411,9 +421,8 @@ int ClangFormatIndenter::indentFor(const QTextBlock &block, const TextEditor::Ta
     const QByteArray buffer = doc->toPlainText().toUtf8();
     const int utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, block.blockNumber() + 1);
     QTC_ASSERT(utf8Offset >= 0, return 0;);
-    const int utf8Length = block.text().toUtf8().size();
 
-    Replacements toReplace = replacements(fileName, buffer, utf8Offset, utf8Length, &block);
+    Replacements toReplace = replacements(fileName, buffer, utf8Offset, 0, &block);
 
     if (toReplace.empty())
         return -1;
