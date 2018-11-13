@@ -35,14 +35,17 @@
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 
-#include <QIcon>
 #include <QFileInfo>
+#include <QIcon>
+#include <QLoggingCategory>
 
 using Core::MessageManager;
 using ProjectExplorer::DeviceManager;
 using ProjectExplorer::IDevice;
 using QtSupport::BaseQtVersion;
 using QtSupport::QtVersionManager;
+
+Q_LOGGING_CATEGORY(winrtDeviceLog, "qtc.winrt.deviceParser", QtWarningMsg)
 
 namespace WinRt {
 namespace Internal {
@@ -96,6 +99,7 @@ bool WinRtDeviceFactory::canRestore(const QVariantMap &map) const
 
 IDevice::Ptr WinRtDeviceFactory::restore(const QVariantMap &map) const
 {
+    qCDebug(winrtDeviceLog) << __FUNCTION__;
     const IDevice::Ptr device(new WinRtDevice);
     device->fromMap(map);
     return device;
@@ -103,6 +107,7 @@ IDevice::Ptr WinRtDeviceFactory::restore(const QVariantMap &map) const
 
 void WinRtDeviceFactory::autoDetect()
 {
+    qCDebug(winrtDeviceLog) << __FUNCTION__;
     MessageManager::write(tr("Running Windows Runtime device detection."));
     const QString runnerFilePath = findRunnerFilePath();
     if (runnerFilePath.isEmpty()) {
@@ -111,6 +116,7 @@ void WinRtDeviceFactory::autoDetect()
     }
 
     if (!m_process) {
+        qCDebug(winrtDeviceLog) << __FUNCTION__ << "Creating process";
         m_process = new Utils::QtcProcess(this);
         connect(m_process, &QProcess::errorOccurred, this, &WinRtDeviceFactory::onProcessError);
         connect(m_process,
@@ -120,8 +126,11 @@ void WinRtDeviceFactory::autoDetect()
 
     const QString args = QStringLiteral("--list-devices");
     m_process->setCommand(runnerFilePath, args);
+    qCDebug(winrtDeviceLog) << __FUNCTION__ << "Starting process" << runnerFilePath
+                            << "with arguments" << args;
     MessageManager::write(runnerFilePath + QLatin1Char(' ') + args);
     m_process->start();
+    qCDebug(winrtDeviceLog) << __FUNCTION__ << "Process started";
 }
 
 void WinRtDeviceFactory::onPrerequisitesLoaded()
@@ -129,6 +138,7 @@ void WinRtDeviceFactory::onPrerequisitesLoaded()
     if (!allPrerequisitesLoaded() || m_initialized)
         return;
 
+    qCDebug(winrtDeviceLog) << __FUNCTION__;
     m_initialized = true;
     disconnect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
                this, &WinRtDeviceFactory::onPrerequisitesLoaded);
@@ -137,6 +147,7 @@ void WinRtDeviceFactory::onPrerequisitesLoaded()
     autoDetect();
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &WinRtDeviceFactory::autoDetect);
+    qCDebug(winrtDeviceLog) << __FUNCTION__ << "Done";
 }
 
 void WinRtDeviceFactory::onProcessError()
@@ -147,6 +158,8 @@ void WinRtDeviceFactory::onProcessError()
 
 void WinRtDeviceFactory::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
+    qCDebug(winrtDeviceLog) << __FUNCTION__ << "Exit code:" << exitCode <<"\tExit status:"
+                            << exitStatus;
     if (exitStatus == QProcess::CrashExit) {
         // already handled in onProcessError
         return;
@@ -158,7 +171,12 @@ void WinRtDeviceFactory::onProcessFinished(int exitCode, QProcess::ExitStatus ex
         return;
     }
 
-    parseRunnerOutput(m_process->readAllStandardOutput());
+    const QByteArray stdOut = m_process->readAllStandardOutput();
+    const QByteArray stdErr = m_process->readAllStandardError();
+     qCDebug(winrtDeviceLog) << __FUNCTION__ << "winrtrunner's stdout:" << stdOut;
+    if (!stdErr.isEmpty())
+        qCDebug(winrtDeviceLog) << __FUNCTION__ << "winrtrunner's stderr:" << stdErr;
+    parseRunnerOutput(stdOut);
 }
 
 bool WinRtDeviceFactory::allPrerequisitesLoaded()
@@ -168,6 +186,7 @@ bool WinRtDeviceFactory::allPrerequisitesLoaded()
 
 QString WinRtDeviceFactory::findRunnerFilePath() const
 {
+    qCDebug(winrtDeviceLog) << __FUNCTION__;
     const QString winRtRunnerExe = QStringLiteral("/winrtrunner.exe");
     const QList<BaseQtVersion *> winrtVersions
             = QtVersionManager::sortVersions(
@@ -186,19 +205,26 @@ QString WinRtDeviceFactory::findRunnerFilePath() const
             }
         }
     }
+    qCDebug(winrtDeviceLog) << __FUNCTION__ << "Found" << filePath;
     return filePath;
 }
 
 static int extractDeviceId(QByteArray *line)
 {
+    qCDebug(winrtDeviceLog) << __FUNCTION__ << "Line:" << *line;
     int pos = line->indexOf(' ');
-    if (pos < 0)
+    if (pos < 0) {
+        qCDebug(winrtDeviceLog) << __FUNCTION__ << "Could not find space, returning -1";
         return -1;
+    }
     bool ok;
     int id = line->left(pos).toInt(&ok);
-    if (!ok)
+    if (!ok) {
+        qCDebug(winrtDeviceLog) << __FUNCTION__ << "Could not extract ID";
         return -1;
+    }
     line->remove(0, pos + 1);
+    qCDebug(winrtDeviceLog) << __FUNCTION__ << "Found ID" << id;
     return id;
 }
 
@@ -235,6 +261,7 @@ static IDevice::MachineType machineTypeFromLine(const QByteArray &line)
  */
 void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
 {
+    qCDebug(winrtDeviceLog) << __FUNCTION__;
     ProjectExplorer::DeviceManager *deviceManager = ProjectExplorer::DeviceManager::instance();
     enum State { StartState, AppxState, PhoneState, XapState };
     State state = StartState;
@@ -242,16 +269,22 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
     int numSkipped = 0;
     foreach (QByteArray line, output.split('\n')) {
         line = line.trimmed();
+        qCDebug(winrtDeviceLog) << __FUNCTION__ << "Line:" << line;
         if (line == "Appx:") {
+            qCDebug(winrtDeviceLog) << __FUNCTION__ << "state = AppxState";
             state = AppxState;
         } else if (line == "Phone:") {
+            qCDebug(winrtDeviceLog) << __FUNCTION__ << "state = PhoneState";
             state = PhoneState;
         } else if (line == "Xap:") {
+            qCDebug(winrtDeviceLog) << __FUNCTION__ << "state = XapState";
             state = XapState;
         } else {
             const int deviceId = extractDeviceId(&line);
-            if (deviceId < 0)
+            if (deviceId < 0) {
+                qCDebug(winrtDeviceLog) << __FUNCTION__ << "Could not extract device ID";
                 continue;
+            }
 
             const IDevice::MachineType machineType = machineTypeFromLine(line);
             Core::Id deviceType;
@@ -280,6 +313,7 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
             const Core::Id internalId = Core::Id::fromString(internalName);
             ++numFound;
             if (DeviceManager::instance()->find(internalId)) {
+                qCDebug(winrtDeviceLog) << __FUNCTION__ << "Skipping device with ID" << deviceId;
                 ++numSkipped;
                 continue;
             }
@@ -288,6 +322,8 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
                                                   internalId, deviceId);
             device->setDisplayName(name);
             deviceManager->addDevice(ProjectExplorer::IDevice::ConstPtr(device));
+            qCDebug(winrtDeviceLog) << __FUNCTION__ << "Added device" << name << "(internal name:"
+                                    << internalName << ")";
         }
     }
     QString message = tr("Found %n Windows Runtime devices.", 0, numFound);
