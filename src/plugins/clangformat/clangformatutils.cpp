@@ -172,10 +172,17 @@ clang::format::FormatStyle currentGlobalStyle()
     return currentStyle(true);
 }
 
+static bool isCurrentStyleGlobal()
+{
+    Utils::FileName path = projectStylePath();
+    if (path.appendPath(".clang-format").exists())
+        return false;
+    return !CppCodeStyleSettings::currentProjectCodeStyle().has_value();
+}
+
 clang::format::FormatStyle currentStyle()
 {
-    const bool isGlobal = !CppCodeStyleSettings::currentProjectCodeStyle().has_value();
-    return currentStyle(isGlobal);
+    return currentStyle(isCurrentStyleGlobal());
 }
 
 }
