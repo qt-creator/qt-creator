@@ -307,4 +307,9 @@ QString QmakeProFileNode::objectExtension() const
     return exts.first();
 }
 
+TargetInformation QmakeProFileNode::targetInformation() const
+{
+    return proFile() ? proFile()->targetInformation() : TargetInformation();
+}
+
 } // namespace QmakeProjectManager

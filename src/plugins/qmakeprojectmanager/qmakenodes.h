@@ -101,6 +101,7 @@ public:
     QString singleVariableValue(const Variable var) const;
 
     QmakeProFileNode *findProFileFor(const Utils::FileName &string) const;
+    TargetInformation targetInformation() const;
 
     bool showInSimpleTree(ProjectType projectType) const;
 };

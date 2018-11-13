@@ -753,35 +753,27 @@ QmakeProFileNode *QmakeProject::rootProjectNode() const
     return static_cast<QmakeProFileNode *>(Project::rootProjectNode());
 }
 
-QList<QmakeProFile *>
-QmakeProject::collectAllProFiles(QmakeProFile *file, Parsing parse,
-                                 const QList<ProjectType> &projectTypes)
-{
-    QList<QmakeProFile *> result;
-    if (parse == ExactAndCumulativeParse || file->includedInExactParse())
-        if (projectTypes.isEmpty() || projectTypes.contains(file->projectType()))
-            result.append(file);
-
-    for (QmakePriFile *f : file->children()) {
-        auto qmakeProFileNode = dynamic_cast<QmakeProFile *>(f);
-        if (qmakeProFileNode)
-            result.append(collectAllProFiles(qmakeProFileNode, parse, projectTypes));
-    }
-
-    return result;
-}
-
-QList<QmakeProFile *> QmakeProject::applicationProFiles(Parsing parse) const
+QList<const QmakeProFileNode *> QmakeProject::applicationProFiles(Parsing parse) const
 {
     return allProFiles({ProjectType::ApplicationTemplate, ProjectType::ScriptTemplate}, parse);
 }
 
-QList<QmakeProFile *> QmakeProject::allProFiles(const QList<ProjectType> &projectTypes, Parsing parse) const
+const QList<const QmakeProFileNode *>
+    QmakeProject::allProFiles(const QList<ProjectType> &projectTypes, Parsing parse) const
 {
-    QList<QmakeProFile *> list;
-    if (!rootProFile())
-        return list;
-    list = collectAllProFiles(rootProFile(), parse, projectTypes);
+    QList<const QmakeProFileNode *> list;
+
+    rootProjectNode()->forEachProjectNode([&list, projectTypes, parse](const ProjectNode *node) {
+        if (auto qmakeNode = dynamic_cast<const QmakeProFileNode *>(node)) {
+            QmakeProFile *file = qmakeNode->proFile();
+            QTC_ASSERT(file, return);
+            if (parse == ExactAndCumulativeParse || file->includedInExactParse()) {
+                if (projectTypes.isEmpty() || projectTypes.contains(file->projectType()))
+                    list.append(qmakeNode);
+            }
+        }
+    });
+
     return list;
 }
 
@@ -1033,16 +1025,16 @@ void QmakeProject::updateBuildSystemData()
         return;
 
     DeploymentData deploymentData;
-    collectData(file, deploymentData);
+    collectData(rootProjectNode(), deploymentData);
     target->setDeploymentData(deploymentData);
 
     BuildTargetInfoList appTargetList;
-    for (const QmakeProFile * const proFile : applicationProFiles()) {
-        TargetInformation ti = proFile->targetInformation();
+    for (const QmakeProFileNode * const node : applicationProFiles()) {
+        TargetInformation ti = node->targetInformation();
         if (!ti.valid)
             continue;
 
-        const QStringList &config = proFile->variableValue(Variable::Config);
+        const QStringList &config = node->variableValue(Variable::Config);
 
         QString destDir = ti.destDir.toString();
         QString workingDir;
@@ -1065,15 +1057,15 @@ void QmakeProject::updateBuildSystemData()
             workingDir += '/' + ti.target + ".app/Contents/MacOS";
 
         BuildTargetInfo bti;
-        bti.targetFilePath = FileName::fromString(executableFor(proFile));
-        bti.projectFilePath = proFile->filePath();
+        bti.targetFilePath = FileName::fromString(executableFor(node));
+        bti.projectFilePath = node->filePath();
         bti.workingDirectory = FileName::fromString(workingDir);
-        bti.displayName = proFile->filePath().toFileInfo().completeBaseName();
+        bti.displayName = bti.projectFilePath.toFileInfo().completeBaseName();
         bti.buildKey = bti.projectFilePath.toString();
         bti.isQtcRunnable = config.contains("qtc_runnable");
 
         if (config.contains("console") && !config.contains("testcase")) {
-            const QStringList qt = proFile->variableValue(Variable::Qt);
+            const QStringList qt = node->variableValue(Variable::Qt);
             bti.usesTerminal = !qt.contains("testlib") && !qt.contains("qmltest");
         }
 
@@ -1082,8 +1074,10 @@ void QmakeProject::updateBuildSystemData()
         // The user could be linking to a library found via a -L/some/dir switch
         // to find those libraries while actually running we explicitly prepend those
         // dirs to the library search path
-        const QStringList libDirectories = proFile->variableValue(Variable::LibDirectories);
+        const QStringList libDirectories = node->variableValue(Variable::LibDirectories);
         if (!libDirectories.isEmpty()) {
+            QmakeProFile *proFile = node->proFile();
+            QTC_ASSERT(proFile, return);
             const QString proDirectory = proFile->buildDir().toString();
             foreach (QString dir, libDirectories) {
                 // Fix up relative entries like "LIBS+=-L.."
@@ -1108,8 +1102,9 @@ void QmakeProject::updateBuildSystemData()
     target->setApplicationTargets(appTargetList);
 }
 
-void QmakeProject::collectData(const QmakeProFile *file, DeploymentData &deploymentData)
+void QmakeProject::collectData(const QmakeProFileNode *node, DeploymentData &deploymentData)
 {
+    QmakeProFile *file = node->proFile();
     if (!file->isSubProjectDeployable(file->filePath()))
         return;
 
@@ -1124,29 +1119,31 @@ void QmakeProject::collectData(const QmakeProFile *file, DeploymentData &deploym
     switch (file->projectType()) {
     case ProjectType::ApplicationTemplate:
         if (!installsList.targetPath.isEmpty())
-            collectApplicationData(file, deploymentData);
+            collectApplicationData(node, deploymentData);
         break;
     case ProjectType::SharedLibraryTemplate:
     case ProjectType::StaticLibraryTemplate:
         collectLibraryData(file, deploymentData);
         break;
     case ProjectType::SubDirsTemplate:
-        for (const QmakePriFile *const subPriFile : file->subPriFilesExact()) {
-            auto subProFile = dynamic_cast<const QmakeProFile *>(subPriFile);
-            if (subProFile)
-                collectData(subProFile, deploymentData);
-        }
+        node->forEachNode({}, [this, &deploymentData](Node *subNode) {
+            if (auto subProject = dynamic_cast<QmakeProFileNode *>(subNode)) {
+                QTC_ASSERT(subProject->priFile(), return );
+                if (subProject->priFile()->includedInExactParse())
+                    collectData(subProject, deploymentData);
+            }
+        });
         break;
     default:
         break;
     }
 }
 
-void QmakeProject::collectApplicationData(const QmakeProFile *file, DeploymentData &deploymentData)
+void QmakeProject::collectApplicationData(const QmakeProFileNode *node, DeploymentData &deploymentData)
 {
-    QString executable = executableFor(file);
+    QString executable = executableFor(node);
     if (!executable.isEmpty())
-        deploymentData.addFile(executable, file->installsList().targetPath,
+        deploymentData.addFile(executable, node->proFile()->installsList().targetPath,
                                DeployableFile::TypeExecutable);
 }
 
@@ -1332,15 +1329,18 @@ void QmakeProject::warnOnToolChainMismatch(const QmakeProFile *pro) const
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
-QString QmakeProject::executableFor(const QmakeProFile *file)
+QString QmakeProject::executableFor(const QmakeProFileNode *node)
 {
     const Kit *const kit = activeTarget() ? activeTarget()->kit() : nullptr;
     const ToolChain *const tc = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc)
         return QString();
 
-    TargetInformation ti = file->targetInformation();
+    TargetInformation ti = node->targetInformation();
     QString target;
+
+    QmakeProFile *file = node->proFile();
+    QTC_ASSERT(file, return QString());
 
     if (tc->targetAbi().os() == Abi::DarwinOS
             && file->variableValue(Variable::Config).contains("app_bundle")) {

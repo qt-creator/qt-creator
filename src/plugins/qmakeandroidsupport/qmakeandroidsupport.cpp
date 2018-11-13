@@ -140,7 +140,7 @@ QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *
     if (!project)
         return {};
 
-    foreach (QmakeProFile *file, project->allProFiles()) {
+    for (const QmakeProFileNode *file : project->allProFiles()) {
         TargetInformation info = file->targetInformation();
         res.insert(info.buildDir.toString());
         Utils::FileName destDir = info.destDir;
@@ -174,13 +174,13 @@ QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer
     auto qmakeProject = qobject_cast<QmakeProject *>(target->project());
     if (!qmakeProject)
         return apps;
-    for (QmakeProFile *proFile : qmakeProject->applicationProFiles()) {
+    for (const QmakeProFileNode *proFile : qmakeProject->applicationProFiles()) {
         if (proFile->projectType() == ProjectType::ApplicationTemplate) {
-            if (proFile->targetInformation().target.startsWith(QLatin1String("lib"))
-                    && proFile->targetInformation().target.endsWith(QLatin1String(".so")))
-                apps << proFile->targetInformation().target.mid(3, proFile->targetInformation().target.lastIndexOf(QLatin1Char('.')) - 3);
+            const QString target = proFile->targetInformation().target;
+            if (target.startsWith("lib") && target.endsWith(".so"))
+                apps << target.mid(3, target.lastIndexOf('.') - 3);
             else
-                apps << proFile->targetInformation().target;
+                apps << target;
         }
     }
     apps.sort();
