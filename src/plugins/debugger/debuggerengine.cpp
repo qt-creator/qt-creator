@@ -1011,7 +1011,7 @@ void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
         d->m_device = d->m_runParameters.inferior.device;
     d->m_terminalRunner = runTool->terminalRunner();
 
-    validateExecutable();
+    validateRunParameters(d->m_runParameters);
 
     d->setupViews();
 }
@@ -1076,11 +1076,6 @@ void DebuggerEngine::gotoCurrentLocation()
 }
 
 const DebuggerRunParameters &DebuggerEngine::runParameters() const
-{
-    return d->m_runParameters;
-}
-
-DebuggerRunParameters &DebuggerEngine::mutableRunParameters() const
 {
     return d->m_runParameters;
 }
@@ -2604,9 +2599,8 @@ Context CppDebuggerEngine::languageContext() const
     return Context(Constants::C_CPPDEBUGGER);
 }
 
-void CppDebuggerEngine::validateExecutable()
+void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
-    DebuggerRunParameters &rp = mutableRunParameters();
     const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds) && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;

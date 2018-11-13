@@ -264,7 +264,7 @@ public:
     void updateWatchData(const QString &iname); // FIXME: Merge with above.
     virtual void selectWatchData(const QString &iname);
 
-    virtual void validateExecutable() {}
+    virtual void validateRunParameters(DebuggerRunParameters &) {}
     virtual void prepareForRestart() {}
     virtual void abortDebuggerProcess() {} // second attempt
 
@@ -514,7 +514,6 @@ protected:
     void startDying() const;
 
 protected:
-    DebuggerRunParameters &mutableRunParameters() const;
     ProjectExplorer::IDevice::ConstPtr device() const;
     DebuggerEngine *companionEngine() const;
 
@@ -531,7 +530,7 @@ public:
     CppDebuggerEngine() {}
     ~CppDebuggerEngine() override {}
 
-    void validateExecutable() override;
+    void validateRunParameters(DebuggerRunParameters &rp) override;
     Core::Context languageContext() const override;
 };
 
