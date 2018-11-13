@@ -24,3 +24,7 @@
 ****************************************************************************/
 
 #pragma once
+
+namespace ClangFormat {
+static const char SETTINGS_FILE_NAME[] = ".clang-format";
+}

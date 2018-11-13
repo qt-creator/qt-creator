@@ -25,6 +25,8 @@
 
 #include "clangformatutils.h"
 
+#include "clangformatconstants.h"
+
 #include <coreplugin/icore.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <texteditor/tabsettings.h>
@@ -134,7 +136,7 @@ static clang::format::FormatStyle constructStyle(bool isGlobal)
 
 void createStyleFileIfNeeded(Utils::FileName styleConfigPath, bool isGlobal)
 {
-    const QString configFile = styleConfigPath.appendPath(".clang-format").toString();
+    const QString configFile = styleConfigPath.appendPath(SETTINGS_FILE_NAME).toString();
     if (QFile::exists(configFile))
         return;
 
@@ -175,7 +177,7 @@ clang::format::FormatStyle currentGlobalStyle()
 static bool isCurrentStyleGlobal()
 {
     Utils::FileName path = projectStylePath();
-    if (path.appendPath(".clang-format").exists())
+    if (path.appendPath(SETTINGS_FILE_NAME).exists())
         return false;
     return !CppCodeStyleSettings::currentProjectCodeStyle().has_value();
 }
