@@ -92,7 +92,7 @@ static void applyCppCodeStyleSettings(clang::format::FormatStyle &style,
             : - static_cast<int>(style.IndentWidth);
 }
 
-static Utils::FileName projectStylePath()
+static Utils::FileName projectPath()
 {
     const Project *project = SessionManager::startupProject();
     if (project)
@@ -101,18 +101,18 @@ static Utils::FileName projectStylePath()
     return Utils::FileName();
 }
 
-static Utils::FileName globalStylePath()
+static Utils::FileName globalPath()
 {
     return Utils::FileName::fromString(Core::ICore::userResourcePath());
 }
 
-Utils::FileName currentStyleConfigPath()
-{
-    Utils::FileName path = projectStylePath();
-    if (!path.isEmpty())
-        return path;
-
-    return globalStylePath();
+static bool configForFileExists(Utils::FileName fileName) {
+    QDir projectDir(fileName.parentDir().toString());
+    while (!projectDir.exists(SETTINGS_FILE_NAME) && !projectDir.exists(SETTINGS_FILE_ALT_NAME)) {
+        if (!projectDir.cdUp())
+            return false;
+    }
+    return true;
 }
 
 static clang::format::FormatStyle constructStyle(bool isGlobal)
@@ -134,9 +134,11 @@ static clang::format::FormatStyle constructStyle(bool isGlobal)
     return style;
 }
 
-void createStyleFileIfNeeded(Utils::FileName styleConfigPath, bool isGlobal)
+void createStyleFileIfNeeded(bool isGlobal)
 {
-    const QString configFile = styleConfigPath.appendPath(SETTINGS_FILE_NAME).toString();
+    Utils::FileName path = isGlobal ? globalPath() : projectPath();
+    const QString configFile = path.appendPath(SETTINGS_FILE_NAME).toString();
+
     if (QFile::exists(configFile))
         return;
 
@@ -147,13 +149,23 @@ void createStyleFileIfNeeded(Utils::FileName styleConfigPath, bool isGlobal)
     }
 }
 
-static clang::format::FormatStyle currentStyle(bool isGlobal)
+clang::format::FormatStyle styleForFile(Utils::FileName fileName)
 {
-    Utils::FileName styleConfigPath = isGlobal ? globalStylePath() : projectStylePath();
-    createStyleFileIfNeeded(styleConfigPath, isGlobal);
+    bool isGlobal = false;
+    if (!configForFileExists(fileName)) {
+        if (fileName.isChildOf(projectPath()) && CppCodeStyleSettings::currentProjectCodeStyle()) {
+            fileName = projectPath();
+        } else {
+            fileName = globalPath();
+            isGlobal = true;
+        }
+        fileName.appendPath(SAMPLE_FILE_NAME);
+        createStyleFileIfNeeded(isGlobal);
+    }
 
-    Expected<FormatStyle> style = format::getStyle(
-                "file", styleConfigPath.appendPath("test.cpp").toString().toStdString(), "LLVM");
+    Expected<FormatStyle> style = format::getStyle("file",
+                                                   fileName.toString().toStdString(),
+                                                   "none");
     if (style)
         return *style;
 
@@ -166,25 +178,12 @@ static clang::format::FormatStyle currentStyle(bool isGlobal)
 
 clang::format::FormatStyle currentProjectStyle()
 {
-    return currentStyle(false);
+    return styleForFile(projectPath().appendPath(SAMPLE_FILE_NAME));
 }
 
 clang::format::FormatStyle currentGlobalStyle()
 {
-    return currentStyle(true);
-}
-
-static bool isCurrentStyleGlobal()
-{
-    Utils::FileName path = projectStylePath();
-    if (path.appendPath(SETTINGS_FILE_NAME).exists())
-        return false;
-    return !CppCodeStyleSettings::currentProjectCodeStyle().has_value();
-}
-
-clang::format::FormatStyle currentStyle()
-{
-    return currentStyle(isCurrentStyleGlobal());
+    return styleForFile(globalPath().appendPath(SAMPLE_FILE_NAME));
 }
 
 }

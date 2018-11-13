@@ -139,7 +139,7 @@ void ClangFormatConfigWidget::initialize()
 
         connect(m_ui->createFileButton, &QPushButton::clicked,
                 this, [this]() {
-            createStyleFileIfNeeded(m_project->projectDirectory(), false);
+            createStyleFileIfNeeded(false);
             initialize();
         });
         return;
@@ -160,8 +160,7 @@ void ClangFormatConfigWidget::initialize()
                     tr("Current project has its own .clang-format file "
                        "and can be configured in Projects > Clang Format."));
         }
-        const QString settingsDir = Core::ICore::userResourcePath();
-        createStyleFileIfNeeded(Utils::FileName::fromString(settingsDir), true);
+        createStyleFileIfNeeded(true);
         m_ui->applyButton->hide();
     }
 
