@@ -1278,13 +1278,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     act = new QAction(this);
     act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
-                                             "Memory..."));
-    act->setEnabled(false);
-    act->setVisible(true);
-    ActionManager::registerAction(act, Constants::FRAME_UP);
-
-    act = new QAction(this);
-    act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
                                              "Operate by Instruction"));
     act->setEnabled(false);
     act->setVisible(false);
