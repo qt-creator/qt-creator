@@ -222,6 +222,7 @@ void GenericDirectUploadService::handleJobFinished(SftpJobId jobId, const QStrin
             emit errorMessage(errorString);
             setFinished();
             handleDeploymentDone();
+            return;
         }
 
         // This is done for Windows.
