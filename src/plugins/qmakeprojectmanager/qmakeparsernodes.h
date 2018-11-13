@@ -303,9 +303,6 @@ public:
     TargetInformation targetInformation() const;
     InstallsList installsList() const;
 
-    QString makefile() const;
-    QString objectExtension() const;
-    QString objectsDirectory() const;
     QByteArray cxxDefines() const;
 
     enum AsyncUpdateDelay { ParseNow, ParseLater };
@@ -314,9 +311,6 @@ public:
 
     bool validParse() const;
     bool parseInProgress() const;
-
-    bool isDebugAndRelease() const;
-    bool isQtcRunnable() const;
 
     void setParseInProgressRecursive(bool b);
 

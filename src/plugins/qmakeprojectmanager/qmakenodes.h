@@ -82,12 +82,20 @@ public:
 
     QmakeProFile *proFile() const;
 
+    QString makefile() const;
+    QString objectsDirectory() const;
+    QString objectExtension() const;
+
+    bool isDebugAndRelease() const;
+    bool isQtcRunnable() const;
+
     bool showInSimpleTree() const override;
 
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
     QmakeProjectManager::ProjectType projectType() const;
     QString buildDir() const;
+    Utils::FileName buildDir(QmakeBuildConfiguration *bc) const;
 
     QStringList variableValue(const Variable var) const;
     QString singleVariableValue(const Variable var) const;

@@ -1029,23 +1029,6 @@ const QmakeProFile *QmakeProFile::findProFile(const FileName &fileName) const
     return static_cast<const QmakeProFile *>(findPriFile(fileName));
 }
 
-QString QmakeProFile::makefile() const
-{
-    return singleVariableValue(Variable::Makefile);
-}
-
-QString QmakeProFile::objectExtension() const
-{
-    if (m_varValues[Variable::ObjectExt].isEmpty())
-        return HostOsInfo::isWindowsHost() ? QLatin1String(".obj") : QLatin1String(".o");
-    return m_varValues[Variable::ObjectExt].first();
-}
-
-QString QmakeProFile::objectsDirectory() const
-{
-    return singleVariableValue(Variable::ObjectsDir);
-}
-
 QByteArray QmakeProFile::cxxDefines() const
 {
     QByteArray result;
@@ -1123,18 +1106,6 @@ QList<QmakeProFile *> QmakeProFile::allProFiles()
             result.append(proC->allProFiles());
     }
     return result;
-}
-
-bool QmakeProFile::isDebugAndRelease() const
-{
-    const QStringList configValues = m_varValues.value(Variable::Config);
-    return configValues.contains(QLatin1String("debug_and_release"));
-}
-
-bool QmakeProFile::isQtcRunnable() const
-{
-    const QStringList configValues = m_varValues.value(Variable::Config);
-    return configValues.contains(QLatin1String("qtc_runnable"));
 }
 
 ProjectType QmakeProFile::projectType() const

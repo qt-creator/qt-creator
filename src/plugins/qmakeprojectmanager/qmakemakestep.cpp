@@ -99,8 +99,7 @@ bool QmakeMakeStep::init(QList<const BuildStep *> &earlierSteps)
 
     QString args;
 
-    QmakeProjectManager::QmakeProFileNode *subNode = bc->subNodeBuild();
-    QmakeProjectManager::QmakeProFile *subProFile = subNode ? subNode->proFile() : nullptr;
+    QmakeProjectManager::QmakeProFileNode *subProFile = bc->subNodeBuild();
     if (subProFile) {
         QString makefile = subProFile->makefile();
         if (makefile.isEmpty())

@@ -191,7 +191,7 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
     QString makefile = workingDirectory + '/';
 
     if (qmakeBc->subNodeBuild()) {
-        QmakeProFile *pro = qmakeBc->subNodeBuild()->proFile();
+        QmakeProFileNode *pro = qmakeBc->subNodeBuild();
         if (pro && !pro->makefile().isEmpty())
             makefile.append(pro->makefile());
         else

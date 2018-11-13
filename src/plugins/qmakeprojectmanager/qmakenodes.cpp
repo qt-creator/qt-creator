@@ -228,6 +228,28 @@ QmakeProFile *QmakeProFileNode::proFile() const
     return static_cast<QmakeProFile*>(QmakePriFileNode::priFile());
 }
 
+QString QmakeProFileNode::makefile() const
+{
+    return singleVariableValue(Variable::Makefile);
+}
+
+QString QmakeProFileNode::objectsDirectory() const
+{
+    return singleVariableValue(Variable::ObjectsDir);
+}
+
+bool QmakeProFileNode::isDebugAndRelease() const
+{
+    const QStringList configValues = variableValue(Variable::Config);
+    return configValues.contains(QLatin1String("debug_and_release"));
+}
+
+bool QmakeProFileNode::isQtcRunnable() const
+{
+    const QStringList configValues = variableValue(Variable::Config);
+    return configValues.contains(QLatin1String("qtc_runnable"));
+}
+
 FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
@@ -269,6 +291,20 @@ QString QmakeProFileNode::buildDir() const
         }
     }
     return QString();
+}
+
+FileName QmakeProFileNode::buildDir(QmakeBuildConfiguration *bc) const
+{
+    const QmakeProFile *pro = proFile();
+    return pro ? pro->buildDir(bc) : FileName();
+}
+
+QString QmakeProFileNode::objectExtension() const
+{
+    QStringList exts = variableValue(Variable::ObjectExt);
+    if (exts.isEmpty())
+        return HostOsInfo::isWindowsHost() ? QLatin1String(".obj") : QLatin1String(".o");
+    return exts.first();
 }
 
 } // namespace QmakeProjectManager
