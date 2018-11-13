@@ -116,6 +116,8 @@ Utils::FileName currentStyleConfigPath()
 static clang::format::FormatStyle constructStyle(bool isGlobal)
 {
     FormatStyle style = getLLVMStyle();
+    style.BreakBeforeBraces = FormatStyle::BS_Custom;
+
     const CppCodeStyleSettings codeStyleSettings = isGlobal
             ? CppCodeStyleSettings::currentGlobalCodeStyle()
             : CppCodeStyleSettings::currentProjectCodeStyle()
