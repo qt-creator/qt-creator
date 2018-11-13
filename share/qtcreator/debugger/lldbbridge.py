@@ -1632,7 +1632,6 @@ class Dumper(DumperBase):
 
     def activateFrame(self, args):
         self.reportToken(args)
-        thread = args['thread']
         self.currentThread().SetSelectedFrame(args['index'])
         self.reportResult('', args)
 
