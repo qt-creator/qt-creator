@@ -157,8 +157,7 @@ ToolChain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Co
     }
 
     toolchain = ToolChainKitInformation::toolChain(kit, language);
-    qWarning() << QCoreApplication::translate("CompilationDatabaseProject",
-                                              "No matching toolchain found, use the default.");
+    qWarning() << "No matching toolchain found, use the default.";
     return toolchain;
 }
 
