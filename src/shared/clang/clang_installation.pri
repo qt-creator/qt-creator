@@ -228,6 +228,8 @@ isEmpty(LLVM_VERSION) {
     LLVM_CXXFLAGS ~= s,/G\S*,
     LLVM_CXXFLAGS ~= s,-Werror=\S*,
     LLVM_CXXFLAGS ~= s,-Wcovered-switch-default,
+    LLVM_CXXFLAGS ~= s,-Wnon-virtual-dtor,
+    LLVM_CXXFLAGS ~= s,-Woverloaded-virtual,
     LLVM_CXXFLAGS ~= s,-fPIC,
     LLVM_CXXFLAGS ~= s,-pedantic,
     LLVM_CXXFLAGS ~= s,-Wstring-conversion,

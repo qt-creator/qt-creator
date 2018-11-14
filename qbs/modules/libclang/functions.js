@@ -161,6 +161,17 @@ function toolingParameters(llvmConfig)
         cxxFlags: [],
     };
     var allCxxFlags = readListOutput(llvmConfig, ["--cxxflags"]);
+    var badFlags = [
+        "-fno-exceptions",
+        "/W4",
+        "-Wcovered-switch-default",
+        "-Wnon-virtual-dtor",
+        "-Woverloaded-virtual",
+        "-fPIC",
+        "-pedantic",
+        "-Wstring-conversion",
+        "-gsplit-dwarf"
+    ]
     for (var i = 0; i < allCxxFlags.length; ++i) {
         var flag = allCxxFlags[i];
         if (flag.startsWith("-D") || flag.startsWith("/D")) {
@@ -173,10 +184,9 @@ function toolingParameters(llvmConfig)
         }
         if (!flag.startsWith("-std") && !flag.startsWith("-O") && !flag.startsWith("/O")
                 && !flag.startsWith("-march")
-                && !flag.startsWith("/EH") && flag !== "-fno-exceptions"
-                && flag !== "/W4" && flag !== "-Werror=date-time"
-                && flag !== "-Wcovered-switch-default" && flag !== "-fPIC" && flag !== "-pedantic"
-                && flag !== "-Wstring-conversion" && flag !== "-gsplit-dwarf") {
+                && !flag.startsWith("-Werror=")
+                && !flag.startsWith("/EH")
+                && !badFlags.contains(flag)) {
             params.cxxFlags.push(flag);
         }
     }
