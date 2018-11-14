@@ -528,9 +528,12 @@ public:
     QAction m_runToLineAction{tr("Run to Line")}; // In the debug menu
     QAction m_runToSelectedFunctionAction{tr("Run to Selected Function")};
     QAction m_jumpToLineAction{tr("Jump to Line")};
-    QAction m_frameUpAction{tr("Move to Calling Frame")};
-    QAction m_frameDownAction{tr("Move to Called Frame")};
-    QAction m_openMemoryEditorAction{tr("Memory...")};
+    QAction m_frameUpAction{QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                                        "Move to Calling Frame")};
+    QAction m_frameDownAction{QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                                          "Move to Called Frame")};
+    QAction m_openMemoryEditorAction{QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                                                 "Memory...")};
 
     // In the Debug menu.
     QAction m_returnFromFunctionAction{tr("Immediately Return From Inner Function")};

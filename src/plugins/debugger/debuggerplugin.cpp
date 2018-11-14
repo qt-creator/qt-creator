@@ -1289,7 +1289,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     ActionManager::registerAction(act, Constants::FRAME_DOWN);
 
     act = new QAction(this);
-    act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+    act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerEnginePrivate",
                                              "Operate by Instruction"));
     act->setEnabled(false);
     act->setVisible(false);
