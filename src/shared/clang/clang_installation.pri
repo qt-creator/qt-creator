@@ -121,15 +121,15 @@ win32: BIN_EXTENSION = .exe
 
 isEmpty(LLVM_INSTALL_DIR) {
     unix {
-      llvm_config = $$system(which llvm-config-6.0)
+      llvm_config = $$system(which llvm-config-7)
     }
 
     isEmpty(llvm_config) {
         llvm_config = llvm-config
     }
 } else {
-    exists($$LLVM_INSTALL_DIR/bin/llvm-config-6.0$$BIN_EXTENSION) {
-      llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config-6.0)
+    exists($$LLVM_INSTALL_DIR/bin/llvm-config-7$$BIN_EXTENSION) {
+      llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config-7)
     } else {
       llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config)
       requires(exists($$llvm_config$$BIN_EXTENSION))

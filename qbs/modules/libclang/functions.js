@@ -36,7 +36,7 @@ function llvmConfig(hostOS, qtcFunctions)
 {
     var llvmInstallDirFromEnv = Environment.getEnv("LLVM_INSTALL_DIR")
     var llvmConfigVariants = [
-        "llvm-config", "llvm-config-6.0", "llvm-config-7.0", "llvm-config-8.0", "llvm-config-9.0"
+        "llvm-config", "llvm-config-7", "llvm-config-8", "llvm-config-9"
     ];
 
     // Prefer llvm-config* from LLVM_INSTALL_DIR
