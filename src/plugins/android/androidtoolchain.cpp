@@ -177,6 +177,13 @@ ToolChain *AndroidToolChainFactory::restore(const QVariantMap &data)
     return nullptr;
 }
 
+static FileName clangPlusPlusPath(const FileName &clangPath)
+{
+    return clangPath.parentDir().appendPath(
+                HostOsInfo::withExecutableSuffix(
+                    QFileInfo(clangPath.toString()).baseName() + "++"));
+}
+
 ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(CToolChainList &alreadyKnown)
 {
     QList<ToolChain *> result;
@@ -192,7 +199,7 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(CToolChainList
     for (const Core::Id &lang : LanguageIds) {
         FileName compilerCommand = clangPath;
         if (lang == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-            compilerCommand.appendString("++");
+            compilerCommand = clangPlusPlusPath(clangPath);
 
         if (!compilerCommand.exists()) {
             qCDebug(androidTCLog) << "Skipping Clang toolchain. Can not find compiler"

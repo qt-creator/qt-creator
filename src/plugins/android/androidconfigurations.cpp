@@ -424,7 +424,8 @@ FileName AndroidConfig::clangPath() const
     QDirIterator iter(clangPath.toString(), hostPatterns, QDir::Dirs);
     if (iter.hasNext()) {
         iter.next();
-        return clangPath.appendPath(iter.fileName()).appendPath("bin/clang");
+        return clangPath.appendPath(iter.fileName())
+            .appendPath(HostOsInfo::withExecutableSuffix("bin/clang"));
     }
 
     return clangPath;
