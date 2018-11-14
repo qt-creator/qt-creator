@@ -42,6 +42,7 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
@@ -53,10 +54,12 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
+#include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
+#include <QFileInfo>
 #include <QHash>
 #include <QSet>
 #include <QStringList>
@@ -163,7 +166,8 @@ private:
 
 GenericProject::GenericProject(const Utils::FileName &fileName) :
     Project(Constants::GENERICMIMETYPE, fileName, [this]() { refresh(Everything); }),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this)),
+    m_deployFileWatcher(new FileSystemWatcher(this))
 {
     setId(Constants::GENERICPROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -187,6 +191,8 @@ GenericProject::GenericProject(const Utils::FileName &fileName) :
     m_configIDocument
             = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_configFileName),
                                   [this]() { refresh(Configuration); });
+    connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
+            this, &GenericProject::updateDeploymentData);
 }
 
 GenericProject::~GenericProject()
@@ -366,6 +372,7 @@ void GenericProject::refresh(RefreshOptions options)
     }
 
     refreshCppCodeModel();
+    updateDeploymentData();
     emitParsingFinished(true);
 }
 
@@ -452,6 +459,32 @@ void GenericProject::refreshCppCodeModel()
 
     const CppTools::ProjectUpdateInfo projectInfoUpdate(this, cToolChain, cxxToolChain, k, {rpp});
     m_cppCodeModelUpdater->update(projectInfoUpdate);
+}
+
+void GenericProject::updateDeploymentData()
+{
+    static const QString fileName("QtCreatorDeployment.txt");
+    Utils::FileName deploymentFilePath;
+    if (activeTarget() && activeTarget()->activeBuildConfiguration()) {
+        deploymentFilePath = activeTarget()->activeBuildConfiguration()->buildDirectory()
+                .appendPath(fileName);
+    }
+    bool hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
+    if (!hasDeploymentData) {
+        deploymentFilePath = projectDirectory().appendPath(fileName);
+        hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
+    }
+    if (hasDeploymentData) {
+        DeploymentData deploymentData;
+        deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
+                                                  projectDirectory().toString());
+        activeTarget()->setDeploymentData(deploymentData);
+        if (m_deployFileWatcher->files() != QStringList(deploymentFilePath.toString())) {
+            m_deployFileWatcher->removeFiles(m_deployFileWatcher->files());
+            m_deployFileWatcher->addFile(deploymentFilePath.toString(),
+                                         FileSystemWatcher::WatchModifiedDate);
+        }
+    }
 }
 
 void GenericProject::activeTargetWasChanged()

@@ -28,6 +28,7 @@
 #include <utils/algorithm.h>
 
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 
 namespace ProjectExplorer {
@@ -87,7 +88,13 @@ QString DeploymentData::addFilesFromDeploymentFile(const QString &deploymentFile
             if (!line.contains(':'))
                 continue;
             QStringList file = line.split(':');
-            addFile(sourcePrefix + file.at(0), deploymentPrefix + file.at(1));
+            QString sourceFile = file.at(0);
+            if (QFileInfo(sourceFile).isRelative())
+                sourceFile.prepend(sourcePrefix);
+            QString targetFile = file.at(1);
+            if (QFileInfo(targetFile).isRelative())
+                targetFile.prepend(deploymentPrefix);
+            addFile(sourceFile, targetFile);
         }
     }
     return deploymentPrefix;

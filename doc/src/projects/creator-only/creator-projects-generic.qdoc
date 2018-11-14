@@ -126,6 +126,14 @@
     #define NAME value
     \endcode
 
+    \section1 Providing Deployment Information
+
+    If you want to run your application on an embedded Linux device, you first need to
+    deploy your executable and possibly other files. \QC does that for you
+    automatically if you provide the necessary information. This works the same
+    way as explained for CMake \l {Deploying CMake Projects to Embedded Linux Devices}{here},
+    except that you also need to include your application binary in the list.
+
     \section1 Creating a Run Configuration
 
     \QC cannot automatically determine which executable to run.

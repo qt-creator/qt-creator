@@ -28,6 +28,7 @@
 #include <projectexplorer/project.h>
 
 namespace CppTools { class CppProjectUpdater; }
+namespace Utils { class FileSystemWatcher; }
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -64,6 +65,7 @@ private:
                                QHash<QString, QString> *map = nullptr) const;
 
     void refreshCppCodeModel();
+    void updateDeploymentData();
     void activeTargetWasChanged();
     void activeBuildConfigurationWasChanged();
 
@@ -82,6 +84,7 @@ private:
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
     ProjectExplorer::Target *m_activeTarget = nullptr;
+    Utils::FileSystemWatcher * const m_deployFileWatcher;
 };
 
 } // namespace Internal
