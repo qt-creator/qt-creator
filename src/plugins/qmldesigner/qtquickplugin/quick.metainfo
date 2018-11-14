@@ -108,6 +108,7 @@ MetaInfo {
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
             Property { name: "source"; type: "QUrl"; value:"qrc:/qtquickplugin/images/template_image.png"; }
+            Property { name: "fillMode"; type: "enum"; value: "Image.PreserveAspectFit"; }
         }
     }
 
