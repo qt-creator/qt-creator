@@ -1775,6 +1775,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
                       | RegisterCapability
                       | ShowMemoryCapability
                       | CreateFullBacktraceCapability
+                      | AddWatcherCapability
                       | ShowModuleSymbolsCapability
                       | ShowModuleSectionsCapability
                       | WatchComplexExpressionsCapability
