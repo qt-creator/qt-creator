@@ -274,6 +274,7 @@ SOURCES += projectexplorer.cpp \
     devicesupport/desktopdeviceconfigurationwidget.cpp \
     devicesupport/desktopprocesssignaloperation.cpp \
     deployablefile.cpp \
+    deploymentdata.cpp \
     deploymentdatamodel.cpp \
     deploymentdataview.cpp \
     customtoolchain.cpp \

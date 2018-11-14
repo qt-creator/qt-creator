@@ -54,6 +54,7 @@ Project {
                 "dependenciespanel.cpp", "dependenciespanel.h",
                 "deployablefile.cpp", "deployablefile.h",
                 "deployconfiguration.cpp", "deployconfiguration.h",
+                "deploymentdata.cpp",
                 "deploymentdata.h",
                 "deploymentdataview.cpp",
                 "deploymentdataview.h",
