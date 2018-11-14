@@ -48,7 +48,7 @@ class MercurialSubmitHighlighter : TextEditor::SyntaxHighlighter
 {
 public:
     explicit MercurialSubmitHighlighter(QTextEdit *parent);
-    void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text) override;
 
 private:
     enum State { None = -1, Header, Other };
@@ -66,7 +66,7 @@ MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit *parent) :
 void MercurialSubmitHighlighter::highlightBlock(const QString &text)
 {
     // figure out current state
-    State state = static_cast<State>(previousBlockState());
+    auto state = static_cast<State>(previousBlockState());
     if (text.startsWith(QLatin1String("HG:"))) {
         setFormat(0, text.size(), formatForCategory(TextEditor::C_COMMENT));
         setCurrentBlockState(state);

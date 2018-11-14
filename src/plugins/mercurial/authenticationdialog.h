@@ -37,7 +37,8 @@ class AuthenticationDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AuthenticationDialog(const QString &username, const QString &password, QWidget *parent = 0);
+    explicit AuthenticationDialog(const QString &username, const QString &password,
+                                  QWidget *parent = nullptr);
     ~AuthenticationDialog() override;
     void setPasswordEnabled(bool enabled);
     QString getUserName();

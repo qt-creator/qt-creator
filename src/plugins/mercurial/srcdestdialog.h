@@ -39,7 +39,7 @@ class SrcDestDialog : public QDialog
 
 public:
     enum Direction { outgoing, incoming };
-    explicit SrcDestDialog(Direction dir, QWidget *parent = 0);
+    explicit SrcDestDialog(Direction dir, QWidget *parent = nullptr);
     ~SrcDestDialog() override;
 
     void setPathChooserKind(Utils::PathChooser::Kind kind);

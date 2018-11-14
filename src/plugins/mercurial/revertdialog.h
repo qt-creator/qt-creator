@@ -37,7 +37,7 @@ class RevertDialog : public QDialog
     Q_OBJECT
 
 public:
-    RevertDialog(QWidget *parent = 0);
+    RevertDialog(QWidget *parent = nullptr);
     ~RevertDialog() override;
 
     QString revision() const;

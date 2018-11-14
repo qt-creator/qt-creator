@@ -39,7 +39,7 @@ class OptionsPageWidget : public VcsBase::VcsClientOptionsPageWidget
     Q_OBJECT
 
 public:
-    explicit OptionsPageWidget(QWidget *parent = 0);
+    explicit OptionsPageWidget(QWidget *parent = nullptr);
 
     VcsBase::VcsBaseClientSettings settings() const override;
     void setSettings(const VcsBase::VcsBaseClientSettings &s) override;

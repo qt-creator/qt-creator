@@ -49,12 +49,12 @@ public:
     MercurialTopicCache(MercurialClient *client) : m_client(client) {}
 
 protected:
-    QString trackFile(const QString &repository)
+    QString trackFile(const QString &repository) override
     {
         return repository + QLatin1String("/.hg/branch");
     }
 
-    QString refreshTopic(const QString &repository)
+    QString refreshTopic(const QString &repository) override
     {
         return m_client->branchQuerySync(repository);
     }
@@ -75,7 +75,7 @@ QString MercurialControl::displayName() const
 
 Core::Id MercurialControl::id() const
 {
-    return Core::Id(VcsBase::Constants::VCS_ID_MERCURIAL);
+    return {VcsBase::Constants::VCS_ID_MERCURIAL};
 }
 
 bool MercurialControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const

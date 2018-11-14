@@ -35,7 +35,7 @@ class MercurialAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
     explicit MercurialAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                            QTextDocument *document = 0);
+                                            QTextDocument *document = nullptr);
 
 private:
     QString changeNumber(const QString &block) const override;
