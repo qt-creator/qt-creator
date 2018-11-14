@@ -33,7 +33,7 @@ class DynamicCapability
 {
 public:
     DynamicCapability() = default;
-    void enable(QString id, QJsonValue options)
+    void enable(const QString &id, const QJsonValue &options)
     {
         QTC_CHECK(!m_enabled);
         m_enabled = true;

@@ -129,7 +129,7 @@ class BaseSettingsWidget : public QWidget
     Q_OBJECT
 public:
     explicit BaseSettingsWidget(const BaseSettings* settings, QWidget *parent = nullptr);
-    ~BaseSettingsWidget() = default;
+    ~BaseSettingsWidget() override = default;
 
     QString name() const;
     LanguageFilter filter() const;
@@ -149,7 +149,7 @@ class StdIOSettingsWidget : public BaseSettingsWidget
     Q_OBJECT
 public:
     explicit StdIOSettingsWidget(const StdIOSettings* settings, QWidget *parent = nullptr);
-    ~StdIOSettingsWidget() = default;
+    ~StdIOSettingsWidget() override = default;
 
     QString executable() const;
     QString arguments() const;

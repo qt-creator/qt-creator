@@ -609,7 +609,7 @@ void BaseClient::handleMethod(const QString &method, MessageId id, const IConten
         if (paramsValid)
             log(params);
     } else if (method == ShowMessageRequest::methodName) {
-        const ShowMessageRequest *request = dynamic_cast<const ShowMessageRequest *>(content);
+        auto request = dynamic_cast<const ShowMessageRequest *>(content);
         auto params = request->params().value_or(ShowMessageRequestParams());
         paramsValid = params.isValid(&error);
         if (paramsValid) {

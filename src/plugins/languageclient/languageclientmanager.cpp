@@ -290,7 +290,7 @@ void LanguageClientManager::editorOpened(Core::IEditor *iEditor)
     }
 }
 
-void LanguageClientManager::editorsClosed(const QList<Core::IEditor *> editors)
+void LanguageClientManager::editorsClosed(const QList<Core::IEditor *> &editors)
 {
     for (auto iEditor : editors) {
         if (auto editor = qobject_cast<TextEditor::BaseTextEditor *>(iEditor)) {

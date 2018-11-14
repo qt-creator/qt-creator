@@ -49,6 +49,8 @@ class LanguageClientManager : public QObject
 {
     Q_OBJECT
 public:
+    LanguageClientManager(const LanguageClientManager &other) = delete;
+    LanguageClientManager(LanguageClientManager &&other) = delete;
     ~LanguageClientManager() override;
 
     static void init();
@@ -78,11 +80,9 @@ signals:
 
 private:
     LanguageClientManager();
-    LanguageClientManager(const LanguageClientManager &other) = delete;
-    LanguageClientManager(LanguageClientManager &&other) = delete;
 
     void editorOpened(Core::IEditor *editor);
-    void editorsClosed(const QList<Core::IEditor *> editors);
+    void editorsClosed(const QList<Core::IEditor *> &editors);
     void documentContentsSaved(Core::IDocument *document);
     void documentWillSave(Core::IDocument *document);
     void findLinkAt(const Utils::FileName &filePath, const QTextCursor &cursor,

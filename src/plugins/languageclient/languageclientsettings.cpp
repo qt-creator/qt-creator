@@ -70,7 +70,7 @@ class LanguageClientSettingsModel : public QAbstractListModel
 {
 public:
     LanguageClientSettingsModel() = default;
-    ~LanguageClientSettingsModel();
+    ~LanguageClientSettingsModel() override;
 
     // QAbstractItemModel interface
     int rowCount(const QModelIndex &/*parent*/ = QModelIndex()) const final { return m_settings.count(); }
