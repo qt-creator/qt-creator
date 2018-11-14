@@ -27,6 +27,9 @@
 
 #include <utils/algorithm.h>
 
+#include <QFile>
+#include <QTextStream>
+
 namespace ProjectExplorer {
 
 void DeploymentData::setLocalInstallRoot(const Utils::FileName &installRoot)
@@ -64,5 +67,30 @@ bool DeploymentData::operator==(const DeploymentData &other) const
             && m_localInstallRoot == other.m_localInstallRoot;
 }
 
+QString DeploymentData::addFilesFromDeploymentFile(const QString &deploymentFilePath,
+                                                   const QString &sourceDir)
+{
+    const QString sourcePrefix = sourceDir.endsWith('/') ? sourceDir : sourceDir + '/';
+    QFile deploymentFile(deploymentFilePath);
+    QTextStream deploymentStream;
+    QString deploymentPrefix;
+
+    if (!deploymentFile.open(QFile::ReadOnly | QFile::Text))
+        return deploymentPrefix;
+    deploymentStream.setDevice(&deploymentFile);
+    deploymentPrefix = deploymentStream.readLine();
+    if (!deploymentPrefix.endsWith('/'))
+        deploymentPrefix.append('/');
+    if (deploymentStream.device()) {
+        while (!deploymentStream.atEnd()) {
+            QString line = deploymentStream.readLine();
+            if (!line.contains(':'))
+                continue;
+            QStringList file = line.split(':');
+            addFile(sourcePrefix + file.at(0), deploymentPrefix + file.at(1));
+        }
+    }
+    return deploymentPrefix;
+}
 
 } // namespace ProjectExplorer

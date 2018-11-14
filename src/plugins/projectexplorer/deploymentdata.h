@@ -44,6 +44,7 @@ public:
     void addFile(const DeployableFile &file);
     void addFile(const QString &localFilePath, const QString &remoteDirectory,
                  DeployableFile::Type type = DeployableFile::TypeNormal);
+    QString addFilesFromDeploymentFile(const QString &deploymentFilePath, const QString &sourceDir);
 
     int fileCount() const { return m_files.count(); }
     DeployableFile fileAt(int index) const { return m_files.at(index); }

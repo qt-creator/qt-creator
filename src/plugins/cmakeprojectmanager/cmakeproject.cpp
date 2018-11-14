@@ -595,26 +595,23 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
     if (!t)
         return;
 
-    QFile deploymentFile;
-    QTextStream deploymentStream;
-    QString deploymentPrefix;
-
     QDir sourceDir(t->project()->projectDirectory().toString());
     QDir buildDir(t->activeBuildConfiguration()->buildDirectory().toString());
 
-    deploymentFile.setFileName(sourceDir.filePath("QtCreatorDeployment.txt"));
-    // If we don't have a global QtCreatorDeployment.txt check for one created by the active build configuration
-    if (!deploymentFile.exists())
-        deploymentFile.setFileName(buildDir.filePath("QtCreatorDeployment.txt"));
-    if (deploymentFile.open(QFile::ReadOnly | QFile::Text)) {
-        deploymentStream.setDevice(&deploymentFile);
-        deploymentPrefix = deploymentStream.readLine();
-        if (!deploymentPrefix.endsWith('/'))
-            deploymentPrefix.append('/');
-    }
-
     BuildTargetInfoList appTargetList;
     DeploymentData deploymentData;
+
+    QString deploymentPrefix;
+    QString deploymentFilePath = sourceDir.filePath("QtCreatorDeployment.txt");
+    bool hasDeploymentFile = QFileInfo::exists(deploymentFilePath);
+    if (!hasDeploymentFile) {
+        deploymentFilePath = buildDir.filePath("QtCreatorDeployment.txt");
+        hasDeploymentFile = QFileInfo::exists(deploymentFilePath);
+    }
+    if (hasDeploymentFile) {
+        deploymentPrefix = deploymentData.addFilesFromDeploymentFile(deploymentFilePath,
+                                                                     sourceDir.absolutePath());
+    }
 
     foreach (const CMakeBuildTarget &ct, buildTargets()) {
         if (ct.targetType == UtilityType)
@@ -636,19 +633,6 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
             bti.workingDirectory = ct.workingDirectory;
             bti.buildKey = ct.title + QChar('\n') + bti.projectFilePath.toString();
             appTargetList.list.append(bti);
-        }
-    }
-
-    QString absoluteSourcePath = sourceDir.absolutePath();
-    if (!absoluteSourcePath.endsWith('/'))
-        absoluteSourcePath.append('/');
-    if (deploymentStream.device()) {
-        while (!deploymentStream.atEnd()) {
-            QString line = deploymentStream.readLine();
-            if (!line.contains(':'))
-                continue;
-            QStringList file = line.split(':');
-            deploymentData.addFile(absoluteSourcePath + file.at(0), deploymentPrefix + file.at(1));
         }
     }
 
