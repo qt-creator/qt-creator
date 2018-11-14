@@ -44,11 +44,7 @@
 namespace Core {
 namespace Internal {
 
-
-QMenu *WindowList::m_dockMenu = nullptr;
-QList<QWidget *> WindowList::m_windows;
-QList<QAction *> WindowList::m_windowActions;
-QList<Id> WindowList::m_windowActionIds;
+Q_GLOBAL_STATIC(WindowList, m_windowList)
 
 WindowSupport::WindowSupport(QWidget *window, const Context &context)
     : QObject(window),
@@ -80,7 +76,7 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
     ActionManager::registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, context);
     connect(m_toggleFullScreenAction, &QAction::triggered, this, &WindowSupport::toggleFullScreen);
 
-    WindowList::addWindow(window);
+    m_windowList->addWindow(window);
 
     connect(ICore::instance(), &ICore::coreAboutToClose, this, [this]() { m_shutdown = true; });
 }
@@ -95,7 +91,7 @@ WindowSupport::~WindowSupport()
         }
         ActionManager::unregisterAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN);
         ICore::removeContextObject(m_contextObject);
-        WindowList::removeWindow(m_window);
+        m_windowList->removeWindow(m_window);
     }
 }
 
@@ -117,12 +113,12 @@ bool WindowSupport::eventFilter(QObject *obj, QEvent *event)
         }
         updateFullScreenAction();
     } else if (event->type() == QEvent::WindowActivate) {
-        WindowList::setActiveWindow(m_window);
+        m_windowList->setActiveWindow(m_window);
     } else if (event->type() == QEvent::Hide) {
         // minimized windows are hidden, but we still want to show them
-        WindowList::setWindowVisible(m_window, m_window->isMinimized());
+        m_windowList->setWindowVisible(m_window, m_window->isMinimized());
     } else if (event->type() == QEvent::Show) {
-        WindowList::setWindowVisible(m_window, true);
+        m_windowList->setWindowVisible(m_window, true);
     }
     return false;
 }
@@ -151,6 +147,11 @@ void WindowSupport::updateFullScreenAction()
     }
 }
 
+WindowList::~WindowList()
+{
+    qDeleteAll(m_windowActions);
+}
+
 void WindowList::addWindow(QWidget *window)
 {
 #ifdef Q_OS_OSX
@@ -163,16 +164,16 @@ void WindowList::addWindow(QWidget *window)
     m_windows.append(window);
     Id id = Id("QtCreator.Window.").withSuffix(m_windows.size());
     m_windowActionIds.append(id);
-    auto action = new QAction(window->windowTitle(), ActionManager::instance());
+    auto action = new QAction(window->windowTitle());
     m_windowActions.append(action);
-    QObject::connect(action, &QAction::triggered, [action]() { WindowList::activateWindow(action); });
+    QObject::connect(action, &QAction::triggered, [action, this]() { activateWindow(action); });
     action->setCheckable(true);
     action->setChecked(false);
     Command *cmd = ActionManager::registerAction(action, id);
     cmd->setAttribute(Command::CA_UpdateText);
     ActionManager::actionContainer(Constants::M_WINDOW)->addAction(cmd, Constants::G_WINDOW_LIST);
     action->setVisible(window->isVisible() || window->isMinimized()); // minimized windows are hidden but should be shown
-    QObject::connect(window, &QWidget::windowTitleChanged, [window]() { WindowList::updateTitle(window); });
+    QObject::connect(window, &QWidget::windowTitleChanged, [window, this]() { updateTitle(window); });
     if (m_dockMenu)
         m_dockMenu->addAction(action);
     if (window->isActiveWindow())

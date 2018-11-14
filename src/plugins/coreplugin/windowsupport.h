@@ -41,19 +41,21 @@ namespace Internal {
 class WindowList
 {
 public:
-    static void addWindow(QWidget *window);
-    static void removeWindow(QWidget *window);
-    static void setActiveWindow(QWidget *window);
-    static void setWindowVisible(QWidget *window, bool visible);
+    ~WindowList();
+
+    void addWindow(QWidget *window);
+    void removeWindow(QWidget *window);
+    void setActiveWindow(QWidget *window);
+    void setWindowVisible(QWidget *window, bool visible);
 
 private:
-    static void activateWindow(QAction *action);
-    static void updateTitle(QWidget *window);
+    void activateWindow(QAction *action);
+    void updateTitle(QWidget *window);
 
-    static QMenu *m_dockMenu;
-    static QList<QWidget *> m_windows;
-    static QList<QAction *> m_windowActions;
-    static QList<Id> m_windowActionIds;
+    QMenu *m_dockMenu = nullptr;
+    QList<QWidget *> m_windows;
+    QList<QAction *> m_windowActions;
+    QList<Id> m_windowActionIds;
 };
 
 class WindowSupport : public QObject
