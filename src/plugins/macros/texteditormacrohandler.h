@@ -41,13 +41,13 @@ class TextEditorMacroHandler : public IMacroHandler
 public:
     TextEditorMacroHandler();
 
-    void startRecording(Macro *macro);
-    void endRecordingMacro(Macro *macro);
+    void startRecording(Macro *macro) override;
+    void endRecordingMacro(Macro *macro) override;
 
-    bool canExecuteEvent(const MacroEvent &macroEvent);
-    bool executeEvent(const MacroEvent &macroEvent);
+    bool canExecuteEvent(const MacroEvent &macroEvent) override;
+    bool executeEvent(const MacroEvent &macroEvent) override;
 
-    bool eventFilter(QObject *watched, QEvent *event);
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
     void changeEditor(Core::IEditor *editor);
     void closeEditor(Core::IEditor *editor);

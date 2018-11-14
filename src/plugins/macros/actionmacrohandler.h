@@ -42,8 +42,8 @@ class ActionMacroHandler : public IMacroHandler
 public:
     ActionMacroHandler();
 
-    bool canExecuteEvent(const MacroEvent &macroEvent);
-    bool executeEvent(const MacroEvent &macroEvent);
+    bool canExecuteEvent(const MacroEvent &macroEvent) override;
+    bool executeEvent(const MacroEvent &macroEvent) override;
 
 private:
     void registerCommand(Core::Id id);

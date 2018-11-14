@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <QtGlobal>
+
 namespace Macros {
 namespace Constants {
 

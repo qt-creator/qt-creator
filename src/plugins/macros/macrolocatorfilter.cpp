@@ -45,9 +45,7 @@ MacroLocatorFilter::MacroLocatorFilter(QObject *parent)
     setShortcutString("rm");
 }
 
-MacroLocatorFilter::~MacroLocatorFilter()
-{
-}
+MacroLocatorFilter::~MacroLocatorFilter() = default;
 
 QList<Core::LocatorFilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {

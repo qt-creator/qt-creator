@@ -44,8 +44,8 @@ namespace Ui { class MacroOptionsWidget; }
 class MacroOptionsWidget : public QWidget {
     Q_OBJECT
 public:
-    explicit MacroOptionsWidget(QWidget *parent = 0);
-    ~MacroOptionsWidget();
+    explicit MacroOptionsWidget(QWidget *parent = nullptr);
+    ~MacroOptionsWidget() override;
 
     void initialize();
 

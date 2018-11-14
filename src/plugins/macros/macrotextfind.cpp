@@ -44,7 +44,7 @@ bool MacroTextFind::supportsReplace() const
 
 Core::FindFlags MacroTextFind::supportedFindFlags() const
 {
-    QTC_ASSERT(m_currentFind, return 0);
+    QTC_ASSERT(m_currentFind, return {});
     return m_currentFind->supportedFindFlags();
 }
 
@@ -63,13 +63,13 @@ void MacroTextFind::clearHighlights()
 
 QString MacroTextFind::currentFindString() const
 {
-    QTC_ASSERT(m_currentFind, return QString());
+    QTC_ASSERT(m_currentFind, return {});
     return m_currentFind->currentFindString();
 }
 
 QString MacroTextFind::completedFindString() const
 {
-    QTC_ASSERT(m_currentFind, return QString());
+    QTC_ASSERT(m_currentFind, return {});
     return m_currentFind->completedFindString();
 }
 

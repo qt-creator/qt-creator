@@ -38,10 +38,10 @@ class MacrosPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Macros.json")
 
 public:
-    ~MacrosPlugin();
+    ~MacrosPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override;
 
 private:
     MacroManager *m_macroManager = nullptr;

@@ -74,7 +74,7 @@ bool FindMacroHandler::executeEvent(const MacroEvent &macroEvent)
     if (!aggregate)
         return false;
 
-    Core::IFindSupport *currentFind = aggregate->component<Core::IFindSupport>();
+    auto currentFind = aggregate->component<Core::IFindSupport>();
     if (!currentFind)
         return false;
 
@@ -190,9 +190,8 @@ void FindMacroHandler::changeEditor(Core::IEditor *editor)
 
     Aggregation::Aggregate *aggregate = Aggregation::Aggregate::parentAggregate(editor->widget());
     if (aggregate) {
-        Core::IFindSupport *currentFind = aggregate->component<Core::IFindSupport>();
-        if (currentFind) {
-            MacroTextFind *macroFind = qobject_cast<MacroTextFind *>(currentFind);
+        if (auto currentFind = aggregate->component<Core::IFindSupport>()) {
+            auto macroFind = qobject_cast<MacroTextFind *>(currentFind);
             if (macroFind)
                 return;
 

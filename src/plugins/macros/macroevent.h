@@ -40,7 +40,7 @@ namespace Internal {
 class MacroEvent
 {
 public:
-    MacroEvent() {}
+    MacroEvent() = default;
 
     Core::Id id() const;
     void setId(Core::Id id);

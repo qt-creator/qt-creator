@@ -135,7 +135,7 @@ void MacroManager::MacroManagerPrivate::initialize()
 
     foreach (const QString &name, files) {
         QString fileName = dir.absolutePath() + QLatin1Char('/') + name;
-        Macro *macro = new Macro;
+        auto macro = new Macro;
         if (macro->loadHeader(fileName))
             addMacro(macro);
         else
@@ -152,7 +152,7 @@ void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
 {
     // Add sortcut
     Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
-    QAction *action = new QAction(macro->description(), q);
+    auto action = new QAction(macro->description(), q);
     Core::Command *command = Core::ActionManager::registerAction(
                 action, makeId(macro->displayName()), context);
     command->setAttribute(Core::Command::CA_UpdateText);

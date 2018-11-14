@@ -37,8 +37,8 @@ class SaveDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SaveDialog(QWidget *parent = 0);
-    ~SaveDialog();
+    explicit SaveDialog(QWidget *parent = nullptr);
+    ~SaveDialog() override;
 
     QString name() const;
     QString description() const;

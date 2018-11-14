@@ -61,8 +61,8 @@ protected:
     void changeMacro(const QString &name, const QString &description);
 
 private:
-    explicit MacroManager(QObject *parent = 0);
-    ~MacroManager();
+    explicit MacroManager(QObject *parent = nullptr);
+    ~MacroManager() override;
 
     static MacroManager *m_instance;
 

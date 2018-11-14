@@ -41,10 +41,10 @@ class FindMacroHandler : public IMacroHandler
 public:
     FindMacroHandler();
 
-    void startRecording(Macro* macro);
+    void startRecording(Macro* macro) override;
 
-    bool canExecuteEvent(const MacroEvent &macroEvent);
-    bool executeEvent(const MacroEvent &macroEvent);
+    bool canExecuteEvent(const MacroEvent &macroEvent) override;
+    bool executeEvent(const MacroEvent &macroEvent) override;
 
     void findIncremental(const QString &txt, Core::FindFlags findFlags);
     void findStep(const QString &txt, Core::FindFlags findFlags);

@@ -39,12 +39,12 @@ class MacroOptionsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    MacroOptionsPage(QObject *parent = 0);
+    MacroOptionsPage(QObject *parent = nullptr);
 
     // IOptionsPage implementation
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<MacroOptionsWidget> m_widget;
