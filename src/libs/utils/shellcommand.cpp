@@ -338,10 +338,13 @@ SynchronousProcessResponse ShellCommand::runCommand(const FileName &binary,
     if (!(d->m_flags & SuppressCommandLogging))
         proxy->appendCommand(dir, binary, arguments);
 
-    if (d->m_flags & FullySynchronously || QThread::currentThread() == QCoreApplication::instance()->thread())
+    if ((d->m_flags & FullySynchronously)
+            || (!(d->m_flags & NoFullySync)
+                && QThread::currentThread() == QCoreApplication::instance()->thread())) {
         response = runFullySynchronous(binary, arguments, proxy, timeoutS, dir, interpreter);
-    else
+    } else {
         response = runSynchronous(binary, arguments, proxy, timeoutS, dir, interpreter);
+    }
 
     if (!d->m_aborted) {
         // Success/Fail message in appropriate window?
