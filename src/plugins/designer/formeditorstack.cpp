@@ -53,6 +53,16 @@ FormEditorStack::FormEditorStack(QWidget *parent) :
     setObjectName("FormEditorStack");
 }
 
+FormEditorStack::~FormEditorStack()
+{
+    if (m_designerCore) {
+        if (auto fwm = m_designerCore->formWindowManager()) {
+            disconnect(fwm, &QDesignerFormWindowManagerInterface::activeFormWindowChanged,
+                       this, &FormEditorStack::updateFormWindowSelectionHandles);
+        }
+    }
+}
+
 void FormEditorStack::add(const EditorData &data)
 {
     if (m_designerCore == 0) { // Initialize first time here
