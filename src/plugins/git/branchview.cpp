@@ -314,14 +314,16 @@ bool BranchView::add()
     branchAddDialog.setTrackedBranchName(isTag ? QString() : trackedBranch, !isLocal);
 
     if (branchAddDialog.exec() == QDialog::Accepted) {
-        QModelIndex idx = m_model->addBranch(branchAddDialog.branchName(), branchAddDialog.track(), trackedIndex);
+        QModelIndex idx = m_model->addBranch(branchAddDialog.branchName(), branchAddDialog.track(),
+                                             trackedIndex);
         if (!idx.isValid())
             return false;
+        QModelIndex mappedIdx = m_filterModel->mapFromSource(idx);
         QTC_ASSERT(m_branchView, return false);
-        m_branchView->selectionModel()->select(idx, QItemSelectionModel::Clear
+        m_branchView->selectionModel()->select(mappedIdx, QItemSelectionModel::Clear
                                              | QItemSelectionModel::Select
                                              | QItemSelectionModel::Current);
-        m_branchView->scrollTo(idx);
+        m_branchView->scrollTo(mappedIdx);
         if (QMessageBox::question(this, tr("Checkout"), tr("Checkout branch?"),
                                   QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             return checkout();
