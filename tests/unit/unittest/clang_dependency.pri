@@ -22,7 +22,7 @@ include(../../../src/shared/clang/clang_defines.pri)
     !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): QMAKE_RPATHDIR += $$LLVM_LIBDIR
 
     LLVM_CXXFLAGS ~= s,-g\d?,
-    QMAKE_CXXFLAGS += $$LLVM_CXXFLAGS
+    QMAKE_CXXFLAGS *= $$LLVM_CXXFLAGS
 
     DEFINES += CLANG_COMPILER_PATH=\"R\\\"xxx($$LLVM_BINDIR/clang)xxx\\\"\"
 }

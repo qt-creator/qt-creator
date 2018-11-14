@@ -216,7 +216,7 @@ isEmpty(LLVM_VERSION) {
 
     # Remove unwanted flags. It is a workaround for linking.
     # It is not intended for cross compiler linking.
-    LLVM_CXXFLAGS = $$system($$llvm_config --cxxflags, lines)
+    LLVM_CXXFLAGS *= $$system($$llvm_config --cxxflags, lines)
     LLVM_CXXFLAGS ~= s,-fno-exceptions,
     LLVM_CXXFLAGS ~= s,-std=c++11,
     LLVM_CXXFLAGS ~= s,-std=c++0x,
