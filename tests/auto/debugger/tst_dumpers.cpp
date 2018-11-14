@@ -1301,6 +1301,7 @@ void tst_Dumpers::dumper()
         proFile.write(data.mainFile.toUtf8());
         proFile.write("\nTARGET = doit\n");
         proFile.write("\nCONFIG -= app_bundle\n");
+        proFile.write("\nmacos: CONFIG += sdk_no_version_check\n");
         proFile.write("\nCONFIG -= release\n");
         proFile.write("\nCONFIG += debug\n");
         proFile.write("\nCONFIG += console\n");
