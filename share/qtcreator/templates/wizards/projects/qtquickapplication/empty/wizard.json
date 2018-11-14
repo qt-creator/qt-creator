@@ -86,65 +86,65 @@
                             {
                                 "trKey": "Qt 5.12",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.12',
                                     'QtQuickWindowVersion': '2.12',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.4'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Qt 5.11",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.11',
                                     'QtQuickWindowVersion': '2.11',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.3'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Qt 5.10",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.10',
                                     'QtQuickWindowVersion': '2.10',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.3'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Qt 5.9",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.9',
                                     'QtQuickWindowVersion': '2.2',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.2'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Qt 5.8",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.8',
                                     'QtQuickWindowVersion': '2.2',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Qt 5.7",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.7',
                                     'QtQuickWindowVersion': '2.2',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Qt 5.6",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.6',
                                     'QtQuickWindowVersion': '2.2',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.Enterprise.VirtualKeyboard 2.0'
-                                }"
+                                })"
                             }
                         ]
                     }
