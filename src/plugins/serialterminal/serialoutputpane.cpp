@@ -36,6 +36,8 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/outputwindow.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/icon.h>
@@ -304,6 +306,14 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
     Core::Id contextId = Core::Id(Constants::C_SERIAL_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
     Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
+    using TextEditor::TextEditorSettings;
+    auto fontSettingsChanged = [ow] {
+        ow->setBaseFont(TextEditorSettings::fontSettings().font());
+    };
+
+    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+            this, fontSettingsChanged);
+    fontSettingsChanged();
     ow->setWindowTitle(tr("Serial Terminal Window"));
     ow->setFormatter(formatter);
     // TODO: wordwrap, maxLineCount, zoom/wheelZoom (add to settings)

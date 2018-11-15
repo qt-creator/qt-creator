@@ -5,6 +5,7 @@ QtcPlugin {
     condition: Qt.serialport.present
 
     Depends { name: "Core" }
+    Depends { name: "TextEditor" }
     Depends { name: "Utils" }
     Depends { name: "Qt.serialport"; required: false }
 
