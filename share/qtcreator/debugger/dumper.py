@@ -3028,8 +3028,6 @@ class DumperBase:
                     return self.integer()
                 if self.type.code == TypeCodeFloat:
                     return self.floatingPoint()
-                if self.type.code == TypeCodeTypedef:
-                    return self.cast(self.type.ltarget).value()
                 if self.type.code == TypeCodePointer:
                     return self.pointer()
             return None
