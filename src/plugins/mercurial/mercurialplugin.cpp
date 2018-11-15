@@ -133,7 +133,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
         m_client->view(source, id);
     };
     const auto widgetCreator = []() { return new MercurialEditorWidget; };
-    for (auto editor : editorParameters)
+    for (auto &editor : editorParameters)
         new VcsEditorFactory(&editor, widgetCreator, describeFunc, this);
 
     new VcsSubmitEditorFactory(&submitEditorParameters,
