@@ -94,7 +94,7 @@ class FolderNavigationWidget : public QWidget
     Q_PROPERTY(bool autoSynchronization READ autoSynchronization WRITE setAutoSynchronization)
 public:
     explicit FolderNavigationWidget(QWidget *parent = nullptr);
-    ~FolderNavigationWidget();
+    ~FolderNavigationWidget() override;
 
     static QStringList projectFilesInDirectory(const QString &path);
 

@@ -429,7 +429,7 @@ RunConfigurationFactory::~RunConfigurationFactory()
     m_ownedRunWorkerFactories.clear();
 }
 
-QString RunConfigurationFactory::decoratedTargetName(const QString targetName, Target *target)
+QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, Target *target)
 {
     QString displayName;
     if (!targetName.isEmpty())

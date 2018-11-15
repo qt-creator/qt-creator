@@ -67,7 +67,7 @@ public:
                            Core::Id l, Detection d = ManualDetection);
     MsvcToolChain(const MsvcToolChain &other);
     MsvcToolChain();
-    ~MsvcToolChain();
+    ~MsvcToolChain() override;
 
     Abi targetAbi() const override;
 
@@ -137,7 +137,7 @@ protected:
 
     Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const;
     // Function must be thread-safe!
-    virtual Macros msvcPredefinedMacros(const QStringList cxxflags,
+    virtual Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                         const Utils::Environment &env) const;
     virtual LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
                                                 const Core::Id &language,
@@ -198,7 +198,7 @@ public:
     void setClangPath(const QString &path) { m_clangPath = path; }
 
     void resetMsvcToolChain(const MsvcToolChain *base = nullptr);
-    Macros msvcPredefinedMacros(const QStringList cxxflags,
+    Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                 const Utils::Environment &env) const override;
     LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
                                         const Core::Id &language,

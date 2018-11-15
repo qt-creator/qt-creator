@@ -189,7 +189,7 @@ public:
         IconStringRole = Qt::UserRole + 2
     };
     ListField();
-    virtual ~ListField() override;
+    ~ListField() override;
 
     protected:
     bool parseData(const QVariant &data, QString *errorMessage) override;

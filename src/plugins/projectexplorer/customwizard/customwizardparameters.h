@@ -45,7 +45,7 @@ namespace Internal {
 class CustomWizardField {
 public:
     // Parameters of the widget control are stored as map
-    typedef QMap<QString, QString> ControlAttributeMap;
+    using ControlAttributeMap = QMap<QString, QString>;
     CustomWizardField();
     void clear();
 
@@ -136,9 +136,9 @@ public:
 // Documentation inside.
 class CustomWizardContext {
 public:
-    typedef QMap<QString, QString> FieldReplacementMap;
-    typedef QSharedPointer<Utils::TemporaryFile> TemporaryFilePtr;
-    typedef QList<TemporaryFilePtr> TemporaryFilePtrList;
+    using FieldReplacementMap = QMap<QString, QString>;
+    using TemporaryFilePtr = QSharedPointer<Utils::TemporaryFile>;
+    using TemporaryFilePtrList = QList<TemporaryFilePtr>;
 
     void reset();
 

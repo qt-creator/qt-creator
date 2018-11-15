@@ -86,7 +86,7 @@ class DependenciesWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit DependenciesWidget(Project *project, QWidget *parent = 0);
+    explicit DependenciesWidget(Project *project, QWidget *parent = nullptr);
 
 private:
     Project *m_project;

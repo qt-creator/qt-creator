@@ -110,10 +110,10 @@ public:
         const std::unique_ptr<FieldPrivate> d;
     };
 
-    JsonFieldPage(Utils::MacroExpander *expander, QWidget *parent = 0);
+    JsonFieldPage(Utils::MacroExpander *expander, QWidget *parent = nullptr);
     ~JsonFieldPage() override;
 
-    typedef std::function<Field *()> FieldFactory;
+    using FieldFactory = std::function<Field *()>;
     static void registerFieldFactory(const QString &id, const FieldFactory &ff);
 
     bool setup(const QVariant &data);

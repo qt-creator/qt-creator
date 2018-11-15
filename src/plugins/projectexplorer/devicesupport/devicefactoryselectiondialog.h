@@ -40,7 +40,7 @@ class DeviceFactorySelectionDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit DeviceFactorySelectionDialog(QWidget *parent = 0);
+    explicit DeviceFactorySelectionDialog(QWidget *parent = nullptr);
     ~DeviceFactorySelectionDialog() override;
     Core::Id selectedId() const;
 

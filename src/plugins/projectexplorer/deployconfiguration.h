@@ -76,6 +76,8 @@ class PROJECTEXPLORER_EXPORT DeployConfigurationFactory
 {
 public:
     DeployConfigurationFactory();
+    DeployConfigurationFactory(const DeployConfigurationFactory &) = delete;
+    DeployConfigurationFactory operator=(const DeployConfigurationFactory &) = delete;
     virtual ~DeployConfigurationFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
@@ -113,9 +115,6 @@ protected:
     }
 
 private:
-    DeployConfigurationFactory(const DeployConfigurationFactory &) = delete;
-    DeployConfigurationFactory operator=(const DeployConfigurationFactory &) = delete;
-
     DeployConfigurationCreator m_creator;
     Core::Id m_deployConfigBaseId;
     Core::Id m_supportedProjectType;

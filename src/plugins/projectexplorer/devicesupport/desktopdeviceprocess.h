@@ -35,7 +35,7 @@ class DesktopDeviceProcess : public DeviceProcess
     Q_OBJECT
 
 public:
-    DesktopDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
+    DesktopDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
 
     void start(const Runnable &runnable) override;
     void interrupt() override;

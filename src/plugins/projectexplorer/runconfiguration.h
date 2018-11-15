@@ -242,6 +242,8 @@ class PROJECTEXPLORER_EXPORT RunConfigurationFactory
 {
 public:
     RunConfigurationFactory();
+    RunConfigurationFactory(const RunConfigurationFactory &) = delete;
+    RunConfigurationFactory operator=(const RunConfigurationFactory &) = delete;
     virtual ~RunConfigurationFactory();
 
     static RunConfiguration *restore(Target *parent, const QVariantMap &map);
@@ -250,7 +252,7 @@ public:
 
     Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }
 
-    static QString decoratedTargetName(const QString targetName, Target *kit);
+    static QString decoratedTargetName(const QString &targetName, Target *kit);
 
 protected:
     virtual QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const;
@@ -282,9 +284,6 @@ protected:
 private:
     RunWorkerFactory *addRunWorkerFactoryHelper
         (Core::Id runMode, const std::function<RunWorker *(RunControl *)> &creator);
-
-    RunConfigurationFactory(const RunConfigurationFactory &) = delete;
-    RunConfigurationFactory operator=(const RunConfigurationFactory &) = delete;
 
     bool canHandle(Target *target) const;
 

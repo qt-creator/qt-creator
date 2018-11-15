@@ -132,6 +132,8 @@ class PROJECTEXPLORER_EXPORT BuildStepFactory
 {
 public:
     BuildStepFactory();
+    BuildStepFactory(const BuildStepFactory &) = delete;
+    BuildStepFactory &operator=(const BuildStepFactory &) = delete;
     virtual ~BuildStepFactory();
 
     static const QList<BuildStepFactory *> allBuildStepFactories();
@@ -144,9 +146,6 @@ public:
     bool canHandle(BuildStepList *bsl) const;
 
 protected:
-    BuildStepFactory(const BuildStepFactory &) = delete;
-    BuildStepFactory &operator=(const BuildStepFactory &) = delete;
-
     using BuildStepCreator = std::function<BuildStep *(BuildStepList *)>;
 
     template <class BuildStepType>

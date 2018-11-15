@@ -461,7 +461,7 @@ static QByteArray msvcCompilationFile()
 //
 // [1] https://msdn.microsoft.com/en-us/library/b0084kay.aspx
 // [2] http://stackoverflow.com/questions/3665537/how-to-find-out-cl-exes-built-in-macros
-Macros MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
+Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
                                            const Utils::Environment &env) const
 {
     Macros predefinedMacros;
@@ -1384,7 +1384,7 @@ bool ClangClToolChain::operator ==(const ToolChain &other) const
     return m_clangPath == clangClTc->m_clangPath;
 }
 
-Macros ClangClToolChain::msvcPredefinedMacros(const QStringList cxxflags,
+Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
                                               const Utils::Environment &env) const
 {
     if (!cxxflags.contains("--driver-mode=g++"))
@@ -1497,9 +1497,7 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
             + QLatin1Char('/') + name + QStringLiteral("/vcbuildtools.bat");
     if (!QFileInfo(vcVarsBat).isFile())
         return;
-    const size_t count = sizeof(entries) / sizeof(entries[0]);
-    for (size_t i = 0; i < count; ++i) {
-        const Entry &e = entries[i];
+    for (const Entry &e : entries) {
         const Abi abi(e.architecture, Abi::WindowsOS, Abi::WindowsMsvc2015Flavor,
                       e.format, e.wordSize);
         for (auto language: {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {

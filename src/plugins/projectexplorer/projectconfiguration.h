@@ -87,6 +87,8 @@ class PROJECTEXPLORER_EXPORT ProjectConfigurationAspects
 
 public:
     ProjectConfigurationAspects();
+    ProjectConfigurationAspects(const ProjectConfigurationAspects &) = delete;
+    ProjectConfigurationAspects &operator=(const ProjectConfigurationAspects &) = delete;
     ~ProjectConfigurationAspects();
 
     template <class Aspect, typename ...Args>
@@ -117,9 +119,6 @@ public:
 private:
     Base &base() { return *this; }
     const Base &base() const { return *this; }
-
-    ProjectConfigurationAspects(const ProjectConfigurationAspects &) = delete;
-    ProjectConfigurationAspects &operator=(const ProjectConfigurationAspects &) = delete;
 };
 
 class PROJECTEXPLORER_EXPORT ProjectConfiguration : public QObject

@@ -59,7 +59,7 @@ public:
         QVariant condition;
     };
     static QVector<ConditionalFeature> parseFeatures(const QVariant &data,
-                                                     QString *errorMessage = 0);
+                                                     QString *errorMessage = nullptr);
 
 private:
     void setupProjectFiles(const JsonWizard::GeneratorFiles &files);

@@ -35,7 +35,7 @@ class LocalProcessList : public DeviceProcessList
     Q_OBJECT
 
 public:
-    explicit LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
+    explicit LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = nullptr);
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     static QList<DeviceProcessItem> getLocalProcesses();

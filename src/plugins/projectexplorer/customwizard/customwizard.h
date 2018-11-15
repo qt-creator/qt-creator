@@ -82,7 +82,7 @@ class PROJECTEXPLORER_EXPORT CustomWizard : public Core::BaseFileWizardFactory
     Q_OBJECT
 
 public:
-    typedef QMap<QString, QString> FieldReplacementMap;
+    using FieldReplacementMap = QMap<QString, QString>;
 
     CustomWizard();
     ~CustomWizard() override;
@@ -101,8 +101,8 @@ public:
     static int verbose();
 
 protected:
-    typedef QSharedPointer<Internal::CustomWizardParameters> CustomWizardParametersPtr;
-    typedef QSharedPointer<Internal::CustomWizardContext> CustomWizardContextPtr;
+    using CustomWizardParametersPtr = QSharedPointer<Internal::CustomWizardParameters>;
+    using CustomWizardContextPtr = QSharedPointer<Internal::CustomWizardContext>;
 
     // generate files in path
     Core::GeneratedFiles generateWizardFiles(QString *errorMessage) const;

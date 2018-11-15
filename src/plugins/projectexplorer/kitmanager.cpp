@@ -270,7 +270,7 @@ QSet<Id> KitManager::availableFeatures(Core::Id platformId)
     return features;
 }
 
-QList<Kit *> KitManager::sortKits(const QList<Kit *> kits)
+QList<Kit *> KitManager::sortKits(const QList<Kit *> &kits)
 {
     // This method was added to delay the sorting of kits as long as possible.
     // Since the displayName can contain variables it can be costly (e.g. involve

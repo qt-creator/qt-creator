@@ -39,7 +39,7 @@ class DeviceSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    DeviceSettingsPage(QObject *parent = 0);
+    DeviceSettingsPage(QObject *parent = nullptr);
 
     QWidget *widget() override;
     void apply() override;

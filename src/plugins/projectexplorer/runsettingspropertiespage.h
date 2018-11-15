@@ -94,7 +94,7 @@ private:
     QMenu *m_addRunMenu;
     QMenu *m_addDeployMenu;
     bool m_ignoreChange = false;
-    typedef QPair<QWidget *, QLabel *> RunConfigItem;
+    using RunConfigItem = QPair<QWidget *, QLabel *>;
     QList<RunConfigItem> m_subWidgets;
 
     QGridLayout *m_gridLayout;

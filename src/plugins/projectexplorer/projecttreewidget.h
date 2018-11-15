@@ -104,9 +104,9 @@ class ProjectTreeWidgetFactory : public Core::INavigationWidgetFactory
 public:
     ProjectTreeWidgetFactory();
 
-    Core::NavigationView createWidget();
-    void restoreSettings(QSettings *settings, int position, QWidget *widget);
-    void saveSettings(QSettings *settings, int position, QWidget *widget);
+    Core::NavigationView createWidget() override;
+    void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
+    void saveSettings(QSettings *settings, int position, QWidget *widget) override;
 };
 
 } // namespace Internal

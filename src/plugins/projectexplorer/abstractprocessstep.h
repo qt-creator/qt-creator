@@ -57,7 +57,7 @@ public:
 
 protected:
     AbstractProcessStep(BuildStepList *bsl, Core::Id id);
-    ~AbstractProcessStep();
+    ~AbstractProcessStep() override;
 
     virtual void processStarted();
     virtual void processFinished(int exitCode, QProcess::ExitStatus status);

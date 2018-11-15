@@ -34,7 +34,7 @@ class DesktopDeviceConfigurationWidget : public IDeviceWidget
 {
     Q_OBJECT
 public:
-    explicit DesktopDeviceConfigurationWidget(const IDevice::Ptr &device, QWidget *parent = 0);
+    explicit DesktopDeviceConfigurationWidget(const IDevice::Ptr &device, QWidget *parent = nullptr);
     ~DesktopDeviceConfigurationWidget() override;
 
     void updateDeviceFromUi() override;

@@ -41,7 +41,7 @@ namespace ProjectExplorer {
 class JsonWizardGenerator
 {
 public:
-    virtual ~JsonWizardGenerator() { }
+    virtual ~JsonWizardGenerator() = default;
 
     virtual Core::GeneratedFiles fileList(Utils::MacroExpander *expander,
                                           const QString &baseDir, const QString &projectDir,

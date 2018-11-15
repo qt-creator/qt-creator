@@ -72,7 +72,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject
 {
     Q_OBJECT
 public:
-    typedef QSharedPointer<DeviceProcessSignalOperation> Ptr;
+    using Ptr = QSharedPointer<DeviceProcessSignalOperation>;
 
     virtual void killProcess(qint64 pid) = 0;
     virtual void killProcess(const QString &filePath) = 0;
@@ -96,7 +96,7 @@ class PROJECTEXPLORER_EXPORT DeviceEnvironmentFetcher : public QObject
 {
     Q_OBJECT
 public:
-    typedef QSharedPointer<DeviceEnvironmentFetcher> Ptr;
+    using Ptr = QSharedPointer<DeviceEnvironmentFetcher>;
 
     virtual void start() = 0;
 
@@ -110,7 +110,7 @@ protected:
 class PROJECTEXPLORER_EXPORT PortsGatheringMethod
 {
 public:
-    typedef QSharedPointer<const PortsGatheringMethod> Ptr;
+    using Ptr = QSharedPointer<const PortsGatheringMethod>;
 
     virtual ~PortsGatheringMethod() = default;
     virtual Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
@@ -121,12 +121,13 @@ public:
 class PROJECTEXPLORER_EXPORT IDevice : public QEnableSharedFromThis<IDevice>
 {
 public:
-    typedef QSharedPointer<IDevice> Ptr;
-    typedef QSharedPointer<const IDevice> ConstPtr;
+    using Ptr = QSharedPointer<IDevice>;
+    using ConstPtr = QSharedPointer<const IDevice>;
 
     enum Origin { ManuallyAdded, AutoDetected };
     enum MachineType { Hardware, Emulator };
 
+    IDevice &operator=(const IDevice &) = delete;
     virtual ~IDevice();
 
     QString displayName() const;
@@ -141,7 +142,7 @@ public:
         QString key;
         QString value;
     };
-    typedef QList<DeviceInfoItem> DeviceInfo;
+    using DeviceInfo = QList<DeviceInfoItem>;
     virtual DeviceInfo deviceInformation() const;
 
     Core::Id type() const;
@@ -211,8 +212,6 @@ protected:
     IDevice(const IDevice &other);
 
 private:
-    IDevice &operator=(const IDevice &) = delete;
-
     int version() const;
 
     const std::unique_ptr<Internal::IDevicePrivate> d;

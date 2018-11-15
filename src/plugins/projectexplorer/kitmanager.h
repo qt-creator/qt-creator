@@ -66,8 +66,8 @@ class PROJECTEXPLORER_EXPORT KitInformation : public QObject
     Q_OBJECT
 
 public:
-    typedef QPair<QString, QString> Item;
-    typedef QList<Item> ItemList;
+    using Item = QPair<QString, QString>;
+    using ItemList = QList<Item>;
 
     Core::Id id() const { return m_id; }
     int priority() const { return m_priority; }
@@ -136,7 +136,7 @@ public:
     static QSet<Core::Id> supportedPlatforms();
     static QSet<Core::Id> availableFeatures(Core::Id platformId);
 
-    static QList<Kit *> sortKits(const QList<Kit *> kits); // Avoid sorting whenever possible!
+    static QList<Kit *> sortKits(const QList<Kit *> &kits); // Avoid sorting whenever possible!
 
     static void saveKits();
 
@@ -167,7 +167,6 @@ private:
     class KitList
     {
     public:
-        KitList() {}
         Core::Id defaultKit;
         std::vector<std::unique_ptr<Kit>> kits;
     };

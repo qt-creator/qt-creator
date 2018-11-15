@@ -39,10 +39,9 @@ namespace Internal { class DeviceProcessListPrivate; }
 class PROJECTEXPLORER_EXPORT DeviceProcessItem
 {
 public:
-    DeviceProcessItem() : pid(0) {}
     bool operator<(const DeviceProcessItem &other) const;
 
-    int pid;
+    int pid = 0;
     QString cmdLine;
     QString exe;
 };

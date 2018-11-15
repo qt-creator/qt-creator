@@ -50,7 +50,7 @@ class CustomWizardContext;
 class CustomWizardFieldPage : public QWizardPage {
     Q_OBJECT
 public:
-    typedef QList<CustomWizardField> FieldList;
+    using FieldList = QList<CustomWizardField>;
 
     explicit CustomWizardFieldPage(const QSharedPointer<CustomWizardContext> &ctx,
                                    const QSharedPointer<CustomWizardParameters> &parameters,
@@ -92,9 +92,9 @@ private:
         QString userChange;
     };
 
-    typedef QList<LineEditData> LineEditDataList;
-    typedef QList<TextEditData> TextEditDataList;
-    typedef QList<PathChooserData> PathChooserDataList;
+    using LineEditDataList = QList<LineEditData>;
+    using TextEditDataList = QList<TextEditData>;
+    using PathChooserDataList = QList<PathChooserData>;
 
     QWidget *registerLineEdit(const QString &fieldName, const CustomWizardField &field);
     QWidget *registerComboBox(const QString &fieldName, const CustomWizardField &field);

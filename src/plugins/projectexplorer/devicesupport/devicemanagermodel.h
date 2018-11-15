@@ -41,7 +41,7 @@ class PROJECTEXPLORER_EXPORT DeviceManagerModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent = 0);
+    explicit DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent = nullptr);
     ~DeviceManagerModel() override;
 
     void setFilter(const QList<Core::Id> &filter);
