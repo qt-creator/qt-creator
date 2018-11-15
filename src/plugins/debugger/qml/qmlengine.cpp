@@ -1040,7 +1040,9 @@ void QmlEngine::executeDebuggerCommand(const QString &command)
         if (d->unpausedEvaluate) {
             d->evaluate(command, contextId, CB(d->handleExecuteDebuggerCommand));
         } else {
-            quint32 queryId = d->inspectorAgent.queryExpressionResult(contextId, command);
+            quint32 queryId = d->inspectorAgent.queryExpressionResult(
+                        contextId, command,
+                        d->inspectorAgent.engineId(watchHandler()->watchItem(currentIndex)));
             if (queryId) {
                 d->queryIds.append(queryId);
             } else {

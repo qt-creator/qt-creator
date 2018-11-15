@@ -137,8 +137,8 @@ public:
         : m_debugId(-1), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false)
     {
     }
-    explicit ObjectReference(int id)
-        : m_debugId(id), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false)
+    ObjectReference(int id, const QString &name = QString())
+        : m_debugId(id), m_parentId(-1), m_name(name), m_contextDebugId(-1), m_needsMoreData(false)
     {
     }
     ObjectReference(int id, int parentId, const FileReference &source)

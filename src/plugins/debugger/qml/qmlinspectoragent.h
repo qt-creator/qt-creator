@@ -54,11 +54,12 @@ class QmlInspectorAgent : public QObject
 public:
     QmlInspectorAgent(QmlEngine *engine, QmlDebug::QmlDebugConnection *connection);
 
-    quint32 queryExpressionResult(int debugId, const QString &expression);
+    quint32 queryExpressionResult(int debugId, const QString &expression, int engineId);
     void assignValue(const WatchItem *data, const QString &expression, const QVariant &valueV);
     void updateWatchData(const WatchItem &data);
     void watchDataSelected(int id);
     void enableTools(bool enable);
+    int engineId(const WatchItem *item) const;
 
 private:
     void selectObjectsInTree(const QList<int> &debugIds);
@@ -73,9 +74,9 @@ private:
     void onValueChanged(int debugId, const QByteArray &propertyName, const QVariant &value);
 
     void queryEngineContext();
-    void updateObjectTree(const QmlDebug::ContextReference &context);
-    void verifyAndInsertObjectInTree(const QmlDebug::ObjectReference &object);
-    void insertObjectInTree(const QmlDebug::ObjectReference &result);
+    void updateObjectTree(const QmlDebug::ContextReference &contexts, int engineId = -1);
+    void verifyAndInsertObjectInTree(const QmlDebug::ObjectReference &object, int engineId = -1);
+    void insertObjectInTree(const QmlDebug::ObjectReference &result, int engineId = -1);
 
     void buildDebugIdHashRecursive(const QmlDebug::ObjectReference &ref);
     void addWatchData(const QmlDebug::ObjectReference &obj,
@@ -106,13 +107,15 @@ private:
     QmlDebug::QmlToolsClient *m_toolsClient = nullptr;
 
     quint32 m_engineQueryId = 0;
-    quint32 m_rootContextQueryId = 0;
+
+    QList<quint32> m_rootContextQueryIds;
+    QHash<int, QmlDebug::ContextReference> m_rootContexts;
 
     QList<int> m_objectsToSelect;
 
     QList<quint32> m_objectTreeQueryIds;
-    QStack<QmlDebug::ObjectReference> m_objectStack;
-    QmlDebug::EngineReference m_engine;
+    QStack<QPair<QmlDebug::ObjectReference, int>> m_objectStack;
+    QList<QmlDebug::EngineReference> m_engines;
     QHash<int, QString> m_debugIdToIname;
     QHash<int, QmlDebug::FileReference> m_debugIdLocations;
 
