@@ -164,26 +164,26 @@ void QmlInspectorAgent::watchDataSelected(int id)
     }
 }
 
-bool QmlInspectorAgent::selectObjectInTree(int debugId)
+void QmlInspectorAgent::selectObjectsInTree(const QList<int> &debugIds)
 {
-    qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << debugId << ')' << endl
-                             << "  " << debugId << "already fetched? "
-                             << m_debugIdToIname.contains(debugId);
+    qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << debugIds << ')';
 
-    if (m_debugIdToIname.contains(debugId)) {
-        QString iname = m_debugIdToIname.value(debugId);
-        QTC_ASSERT(iname.startsWith("inspect."), qDebug() << iname);
-        qCDebug(qmlInspectorLog) << "  selecting" << iname << "in tree";
-        m_qmlEngine->watchHandler()->setCurrentItem(iname);
-        m_objectToSelect = WatchItem::InvalidId;
-        return true;
+    for (int debugId : debugIds) {
+        if (m_debugIdToIname.contains(debugId)) {
+            const QString iname = m_debugIdToIname.value(debugId);
+            QTC_ASSERT(iname.startsWith("inspect."), qDebug() << iname);
+            qCDebug(qmlInspectorLog) << "  selecting" << iname << "in tree";
+
+            // We can't multi-select in the watch handler for now ...
+            m_qmlEngine->watchHandler()->setCurrentItem(iname);
+            m_objectsToSelect.removeOne(debugId);
+            continue;
+        }
+
+        // we may have to fetch it
+        m_objectsToSelect.append(debugId);
+        fetchObject(debugId);
     }
-
-    // we may have to fetch it
-    m_objectToSelect = debugId;
-    using namespace QmlDebug::Constants;
-    fetchObject(debugId);
-    return false;
 
 }
 
@@ -470,17 +470,16 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
     qCDebug(qmlInspectorLog) << __FUNCTION__ << "Time: Insertion took "
                              << timeElapsed.elapsed() << " ms";
 
-    if (object.debugId() == m_debugIdToSelect) {
-        m_debugIdToSelect = WatchItem::InvalidId;
-        selectObject(object.debugId(), object.source(), m_targetToSync);
-    }
-
-    if (m_debugIdToIname.contains(m_objectToSelect)) {
-        // select item in view
-        QString iname = m_debugIdToIname.value(m_objectToSelect);
-        qCDebug(qmlInspectorLog) << "  selecting" << iname << "in tree";
-        m_qmlEngine->watchHandler()->setCurrentItem(iname);
-        m_objectToSelect = WatchItem::InvalidId;
+    for (auto it = m_objectsToSelect.begin(); it != m_objectsToSelect.end();) {
+        if (m_debugIdToIname.contains(*it)) {
+            // select item in view
+            QString iname = m_debugIdToIname.value(*it);
+            qCDebug(qmlInspectorLog) << "  selecting" << iname << "in tree";
+            m_qmlEngine->watchHandler()->setCurrentItem(iname);
+            it = m_objectsToSelect.erase(it);
+        } else {
+            ++it;
+        }
     }
     m_qmlEngine->watchHandler()->updateLocalsWindow();
     m_qmlEngine->watchHandler()->reexpandItems();
@@ -505,7 +504,8 @@ void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)
     const QString filePath = m_qmlEngine->toFileInProject(fileUrl);
     m_debugIdLocations.insert(ref.debugId(), FileReference(filePath, lineNum, colNum));
 
-    foreach (const ObjectReference &it, ref.children())
+    const auto children = ref.children();
+    for (const ObjectReference &it : children)
         buildDebugIdHashRecursive(it);
 }
 
@@ -670,12 +670,8 @@ void QmlInspectorAgent::toolsClientStateChanged(QmlDebugClient::State state)
 
 void QmlInspectorAgent::selectObjectsFromToolsClient(const QList<int> &debugIds)
 {
-    if (debugIds.isEmpty())
-        return;
-
-    m_targetToSync = EditorTarget;
-    m_debugIdToSelect = debugIds.first();
-    selectObject(m_debugIdToSelect, m_debugIdLocations.value(m_debugIdToSelect), EditorTarget);
+    if (!debugIds.isEmpty())
+        selectObjects(debugIds, m_debugIdLocations.value(debugIds.first()));
 }
 
 void QmlInspectorAgent::onSelectActionTriggered(bool checked)
@@ -701,16 +697,11 @@ void QmlInspectorAgent::jumpToObjectDefinitionInEditor(const FileReference &objS
     Core::EditorManager::openEditorAt(fileName, objSource.lineNumber());
 }
 
-void QmlInspectorAgent::selectObject(int debugId, const QmlDebug::FileReference &source,
-                                     SelectionTarget target)
+void QmlInspectorAgent::selectObjects(const QList<int> &debugIds,
+                                      const QmlDebug::FileReference &source)
 {
-    if (target == ToolTarget)
-        m_toolsClient->selectObjects({debugId});
-
-    if (target == EditorTarget)
-        jumpToObjectDefinitionInEditor(source);
-
-    selectObjectInTree(debugId);
+    jumpToObjectDefinitionInEditor(source);
+    selectObjectsInTree(debugIds);
 }
 
 void QmlInspectorAgent::enableTools(const bool enable)

@@ -61,7 +61,7 @@ public:
     void enableTools(bool enable);
 
 private:
-    bool selectObjectInTree(int debugId);
+    void selectObjectsInTree(const QList<int> &debugIds);
     void addObjectWatch(int objectDebugId);
 
     void reloadEngines();
@@ -99,11 +99,8 @@ private:
     void onReloaded();
     void jumpToObjectDefinitionInEditor(const QmlDebug::FileReference &objSource);
 
-    enum SelectionTarget { NoTarget, ToolTarget, EditorTarget };
-    void selectObject(int debugId, const QmlDebug::FileReference &source,
-                      SelectionTarget target);
+    void selectObjects(const QList<int> &debugIds, const QmlDebug::FileReference &source);
 
-private:
     QPointer<QmlEngine> m_qmlEngine;
     QmlDebug::QmlEngineDebugClient *m_engineClient = nullptr;
     QmlDebug::QmlToolsClient *m_toolsClient = nullptr;
@@ -111,8 +108,7 @@ private:
     quint32 m_engineQueryId = 0;
     quint32 m_rootContextQueryId = 0;
 
-    int m_objectToSelect = WatchItem::InvalidId;
-    int m_debugIdToSelect = WatchItem::InvalidId;
+    QList<int> m_objectsToSelect;
 
     QList<quint32> m_objectTreeQueryIds;
     QStack<QmlDebug::ObjectReference> m_objectStack;
@@ -123,8 +119,6 @@ private:
     QList<int> m_objectWatches;
     QList<int> m_fetchDataIds;
     QTimer m_delayQueryTimer;
-
-    SelectionTarget m_targetToSync = NoTarget;
 
     // toolbar
     Core::Context m_inspectorToolsContext;
