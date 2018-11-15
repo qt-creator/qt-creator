@@ -41,10 +41,7 @@ public:
     virtual void changeToSelectMarqueeTool() = 0;
     virtual void changeToZoomTool() = 0;
     virtual void showAppOnTop(bool showOnTop) = 0;
-
-    // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
-    virtual void setObjectIdList(
-            const QList<ObjectReference> &objectRoots) = 0;
+    virtual void selectObjects(const QList<int> &debugIds) = 0;
 
 signals:
     void newState(QmlDebug::QmlDebugClient::State status);

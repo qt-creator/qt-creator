@@ -67,7 +67,6 @@ const char FRAME_UP[]               = "Debugger.FrameUp";
 const char FRAME_DOWN[]             = "Debugger.FrameDown";
 const char QML_SHOW_APP_ON_TOP[]    = "Debugger.QmlShowAppOnTop";
 const char QML_SELECTTOOL[]         = "Debugger.QmlSelectTool";
-const char QML_ZOOMTOOL[]           = "Debugger.QmlZoomTool";
 
 const char TASK_CATEGORY_DEBUGGER_DEBUGINFO[] = "Debuginfo";
 const char TASK_CATEGORY_DEBUGGER_RUNTIME[]   = "DebugRuntime";

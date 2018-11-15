@@ -63,14 +63,8 @@ Q_LOGGING_CATEGORY(qmlInspectorLog, "qtc.dbg.qmlinspector", QtWarningMsg)
  */
 QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *connection)
     : m_qmlEngine(engine)
-    , m_objectToSelect(WatchItem::InvalidId)
-    , m_toolsClient(nullptr)
-    , m_targetToSync(NoTarget)
-    , m_debugIdToSelect(WatchItem::InvalidId)
-    , m_currentSelectedDebugId(WatchItem::InvalidId)
     , m_inspectorToolsContext("Debugger.QmlInspector")
     , m_selectAction(new QAction(this))
-    , m_zoomAction(new QAction(this))
     , m_showAppOnTopAction(action(ShowAppOnTop))
 {
     m_debugIdToIname.insert(WatchItem::InvalidId, "inspect");
@@ -83,49 +77,43 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     connect(&m_delayQueryTimer, &QTimer::timeout,
             this, &QmlInspectorAgent::queryEngineContext);
 
-    auto engineClient2 = new QmlEngineDebugClient(connection);
-    connect(engineClient2, &BaseEngineDebugClient::newState,
-            this, &QmlInspectorAgent::clientStateChanged);
-    connect(engineClient2, &BaseEngineDebugClient::newState,
-            this, &QmlInspectorAgent::engineClientStateChanged);
+    m_engineClient = new QmlEngineDebugClient(connection);
+    connect(m_engineClient, &BaseEngineDebugClient::newState,
+            this, &QmlInspectorAgent::updateState);
+    connect(m_engineClient, &BaseEngineDebugClient::result,
+            this, &QmlInspectorAgent::onResult);
+    connect(m_engineClient, &BaseEngineDebugClient::newObject,
+            this, &QmlInspectorAgent::newObject);
+    connect(m_engineClient, &BaseEngineDebugClient::valueChanged,
+            this, &QmlInspectorAgent::onValueChanged);
+    updateState();
 
-    m_engineClients.insert(engineClient2->name(), engineClient2);
-    if (engineClient2->state() == QmlDebugClient::Enabled)
-        setActiveEngineClient(engineClient2);
-
-    auto toolsClient2 = new QmlToolsClient(connection);
-    connect(toolsClient2, &BaseToolsClient::newState,
-            this, &QmlInspectorAgent::clientStateChanged);
-    connect(toolsClient2, &BaseToolsClient::newState,
+    m_toolsClient = new QmlToolsClient(connection);
+    connect(m_toolsClient, &BaseToolsClient::newState,
             this, &QmlInspectorAgent::toolsClientStateChanged);
+    connect(m_toolsClient, &BaseToolsClient::currentObjectsChanged,
+            this, &QmlInspectorAgent::selectObjectsFromToolsClient);
+    connect(m_toolsClient, &BaseToolsClient::logActivity,
+            m_qmlEngine.data(), &QmlEngine::logServiceActivity);
+    connect(m_toolsClient, &BaseToolsClient::reloaded,
+            this, &QmlInspectorAgent::onReloaded);
 
     // toolbar
     m_selectAction->setObjectName("QML Select Action");
-    m_zoomAction->setObjectName("QML Zoom Action");
     m_selectAction->setCheckable(true);
-    m_zoomAction->setCheckable(true);
     m_showAppOnTopAction->setCheckable(true);
-    m_selectAction->setEnabled(false);
-    m_zoomAction->setEnabled(false);
-    m_showAppOnTopAction->setEnabled(false);
+    enableTools(m_toolsClient->state() == QmlDebugClient::Enabled);
 
     connect(m_selectAction, &QAction::triggered,
             this, &QmlInspectorAgent::onSelectActionTriggered);
-    connect(m_zoomAction, &QAction::triggered,
-            this, &QmlInspectorAgent::onZoomActionTriggered);
     connect(m_showAppOnTopAction, &QAction::triggered,
             this, &QmlInspectorAgent::onShowAppOnTopChanged);
 }
 
-quint32 QmlInspectorAgent::queryExpressionResult(int debugId,
-                                                 const QString &expression)
+quint32 QmlInspectorAgent::queryExpressionResult(int debugId, const QString &expression)
 {
-    if (!m_engineClient)
-        return 0;
-
-    qCDebug(qmlInspectorLog)
-            << __FUNCTION__ << '(' << debugId << expression
-            << m_engine.debugId() << ')';
+    qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << debugId << expression
+                             << m_engine.debugId() << ')';
 
     return m_engineClient->queryExpressionResult(debugId, expression,
                                                  m_engine.debugId());
@@ -134,8 +122,7 @@ quint32 QmlInspectorAgent::queryExpressionResult(int debugId,
 void QmlInspectorAgent::assignValue(const WatchItem *data,
                                     const QString &expr, const QVariant &valueV)
 {
-    qCDebug(qmlInspectorLog)
-            << __FUNCTION__ << '(' << data->id << ')' << data->iname;
+    qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << data->id << ')' << data->iname;
 
     if (data->id != WatchItem::InvalidId) {
         QString val(valueV.toString());
@@ -166,15 +153,14 @@ void QmlInspectorAgent::updateWatchData(const WatchItem &data)
     }
 }
 
-void QmlInspectorAgent::watchDataSelected(qint64 id)
+void QmlInspectorAgent::watchDataSelected(int id)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << id << ')';
 
     if (id != WatchItem::InvalidId) {
         QTC_ASSERT(m_debugIdLocations.keys().contains(id), return);
-        jumpToObjectDefinitionInEditor(m_debugIdLocations.value(id), id);
-        if (m_toolsClient)
-            m_toolsClient->setObjectIdList({ObjectReference(static_cast<int>(id))});
+        jumpToObjectDefinitionInEditor(m_debugIdLocations.value(id));
+        m_toolsClient->selectObjects({id});
     }
 }
 
@@ -189,45 +175,16 @@ bool QmlInspectorAgent::selectObjectInTree(int debugId)
         QTC_ASSERT(iname.startsWith("inspect."), qDebug() << iname);
         qCDebug(qmlInspectorLog) << "  selecting" << iname << "in tree";
         m_qmlEngine->watchHandler()->setCurrentItem(iname);
-        m_objectToSelect = 0;
+        m_objectToSelect = WatchItem::InvalidId;
         return true;
-    } else {
-        // we may have to fetch it
-        m_objectToSelect = debugId;
-        using namespace QmlDebug::Constants;
-        fetchObject(debugId);
-        return false;
     }
-}
 
-ObjectReference QmlInspectorAgent::objectForId(int objectDebugId) const
-{
-    if (!m_debugIdToIname.contains(objectDebugId))
-        return ObjectReference(objectDebugId);
+    // we may have to fetch it
+    m_objectToSelect = debugId;
+    using namespace QmlDebug::Constants;
+    fetchObject(debugId);
+    return false;
 
-    int line = -1;
-    int column = -1;
-    QString file;
-    QHashIterator<QPair<QString, int>, QHash<QPair<int, int>, QList<int> > > iter(m_debugIdHash);
-    while (iter.hasNext()) {
-        iter.next();
-        QHashIterator<QPair<int, int>, QList<int> > i(iter.value());
-        while (i.hasNext()) {
-            i.next();
-            if (i.value().contains(objectDebugId)) {
-                line = i.key().first;
-                column = i.key().second;
-                break;
-            }
-        }
-        if (line != -1) {
-            file = iter.key().first;
-            break;
-        }
-    }
-    // TODO: Set correct parentId
-    return ObjectReference(objectDebugId, WatchItem::InvalidId,
-                           FileReference(QUrl::fromLocalFile(file), line, column));
 }
 
 void QmlInspectorAgent::addObjectWatch(int objectDebugId)
@@ -251,29 +208,15 @@ void QmlInspectorAgent::addObjectWatch(int objectDebugId)
         m_objectWatches.append(objectDebugId);
 }
 
-QString QmlInspectorAgent::displayName(int objectDebugId) const
-{
-    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
-        return QString();
-
-    if (m_debugIdToIname.contains(objectDebugId)) {
-        const WatchItem *item = m_qmlEngine->watchHandler()->findItem(
-                    m_debugIdToIname.value(objectDebugId));
-        QTC_ASSERT(item, return QString());
-        return item->name;
-    }
-    return QString();
-}
-
 void QmlInspectorAgent::updateState()
 {
-    if (m_engineClient
-            && (m_engineClient->state() == QmlDebugClient::Enabled)
-            && boolSetting(ShowQmlObjectTree)) {
+    m_qmlEngine->logServiceStateChange(m_engineClient->name(), m_engineClient->serviceVersion(),
+                                       m_engineClient->state());
+
+    if (m_engineClient->state() == QmlDebugClient::Enabled && boolSetting(ShowQmlObjectTree))
         reloadEngines();
-    } else {
+    else
         clearObjectTree();
-    }
 }
 
 void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
@@ -392,9 +335,7 @@ void QmlInspectorAgent::onValueChanged(int debugId, const QByteArray &propertyNa
     const QString iname = m_debugIdToIname.value(debugId) +
             ".[properties]." + QString::fromLatin1(propertyName);
     WatchHandler *watchHandler = m_qmlEngine->watchHandler();
-    qCDebug(qmlInspectorLog)
-            << __FUNCTION__ << '(' << debugId << ')' << iname
-            << value.toString();
+    qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << debugId << ')' << iname << value.toString();
     if (WatchItem *item = watchHandler->findItem(iname)) {
         item->value = value.toString();
         item->removeChildren();
@@ -531,7 +472,7 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
 
     if (object.debugId() == m_debugIdToSelect) {
         m_debugIdToSelect = WatchItem::InvalidId;
-        selectObject(object, m_targetToSync);
+        selectObject(object.debugId(), object.source(), m_targetToSync);
     }
 
     if (m_debugIdToIname.contains(m_objectToSelect)) {
@@ -552,25 +493,16 @@ void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)
     QUrl fileUrl = ref.source().url();
     int lineNum = ref.source().lineNumber();
     int colNum = ref.source().columnNumber();
-    int rev = 0;
 
     // handle the case where the url contains the revision number encoded.
-    //(for object created by the debugger)
+    // (for object created by the debugger)
     static QRegExp rx("(.*)_(\\d+):(\\d+)$");
     if (rx.exactMatch(fileUrl.path())) {
         fileUrl.setPath(rx.cap(1));
-        rev = rx.cap(2).toInt();
         lineNum += rx.cap(3).toInt() - 1;
     }
 
-    const QString filePath
-            = m_qmlEngine->toFileInProject(fileUrl);
-
-    // append the debug ids in the hash
-    QPair<QString, int> file = qMakePair<QString, int>(filePath, rev);
-    QPair<int, int> location = qMakePair<int, int>(lineNum, colNum);
-    if (!m_debugIdHash[file][location].contains(ref.debugId()))
-        m_debugIdHash[file][location].append(ref.debugId());
+    const QString filePath = m_qmlEngine->toFileInProject(fileUrl);
     m_debugIdLocations.insert(ref.debugId(), FileReference(filePath, lineNum, colNum));
 
     foreach (const ObjectReference &it, ref.children())
@@ -694,7 +626,7 @@ void QmlInspectorAgent::log(QmlInspectorAgent::LogDirection direction,
 
 bool QmlInspectorAgent::isConnected() const
 {
-    return m_engineClient && m_engineClient->state() == QmlDebugClient::Enabled;
+    return m_engineClient->state() == QmlDebugClient::Enabled;
 }
 
 void QmlInspectorAgent::clearObjectTree()
@@ -703,91 +635,36 @@ void QmlInspectorAgent::clearObjectTree()
         m_qmlEngine->watchHandler()->removeAllData(true);
     m_objectTreeQueryIds.clear();
     m_fetchDataIds.clear();
-    int old_count = m_debugIdHash.count();
-    m_debugIdHash.clear();
-    m_debugIdHash.reserve(old_count + 1);
     m_debugIdToIname.clear();
     m_debugIdToIname.insert(WatchItem::InvalidId, "inspect");
     m_objectStack.clear();
     m_objectWatches.clear();
 }
 
-void QmlInspectorAgent::clientStateChanged(QmlDebugClient::State state)
-{
-    QString serviceName;
-    float version = 0;
-    if (auto client = qobject_cast<QmlDebugClient*>(sender())) {
-        serviceName = client->name();
-        version = client->serviceVersion();
-    }
-
-    m_qmlEngine->logServiceStateChange(serviceName, version, state);
-}
-
 void QmlInspectorAgent::toolsClientStateChanged(QmlDebugClient::State state)
 {
-    auto client = qobject_cast<BaseToolsClient*>(sender());
-    QTC_ASSERT(client, return);
+    QTC_ASSERT(m_toolsClient, return);
+    m_qmlEngine->logServiceStateChange(m_toolsClient->name(), m_toolsClient->serviceVersion(),
+                                       state);
     if (state == QmlDebugClient::Enabled) {
-        m_toolsClient = client;
-
-        connect(client, &BaseToolsClient::currentObjectsChanged,
-                this, &QmlInspectorAgent::selectObjectsFromToolsClient);
-        connect(client, &BaseToolsClient::logActivity,
-                m_qmlEngine.data(), &QmlEngine::logServiceActivity);
-        connect(client, &BaseToolsClient::reloaded,
-                this, &QmlInspectorAgent::onReloaded);
-
-        // register actions here
-        // because there can be multiple QmlEngines
-        // at the same time (but hopefully one one is connected)
+        Core::ICore::addAdditionalContext(m_inspectorToolsContext);
         Core::ActionManager::registerAction(m_selectAction,
                                             Core::Id(Constants::QML_SELECTTOOL),
-                                            m_inspectorToolsContext);
-        Core::ActionManager::registerAction(m_zoomAction, Core::Id(Constants::QML_ZOOMTOOL),
                                             m_inspectorToolsContext);
         Core::ActionManager::registerAction(m_showAppOnTopAction,
                                             Core::Id(Constants::QML_SHOW_APP_ON_TOP),
                                             m_inspectorToolsContext);
 
-        Core::ICore::addAdditionalContext(m_inspectorToolsContext);
-
-        m_toolsClientConnected = true;
         enableTools(m_qmlEngine->state() == InferiorRunOk);
         if (m_showAppOnTopAction->isChecked())
             m_toolsClient->showAppOnTop(true);
-
-    } else if (m_toolsClientConnected && client == m_toolsClient) {
-        disconnect(client, &BaseToolsClient::currentObjectsChanged,
-                   this, &QmlInspectorAgent::selectObjectsFromToolsClient);
-        disconnect(client, &BaseToolsClient::logActivity,
-                   m_qmlEngine.data(), &QmlEngine::logServiceActivity);
+    } else  {
+        enableTools(false);
 
         Core::ActionManager::unregisterAction(m_selectAction, Core::Id(Constants::QML_SELECTTOOL));
-        Core::ActionManager::unregisterAction(m_zoomAction, Core::Id(Constants::QML_ZOOMTOOL));
         Core::ActionManager::unregisterAction(m_showAppOnTopAction,
                                               Core::Id(Constants::QML_SHOW_APP_ON_TOP));
-
         Core::ICore::removeAdditionalContext(m_inspectorToolsContext);
-
-        enableTools(false);
-        m_toolsClientConnected = false;
-        m_selectAction->setCheckable(false);
-        m_zoomAction->setCheckable(false);
-        m_showAppOnTopAction->setCheckable(false);
-    }
-}
-
-void QmlInspectorAgent::engineClientStateChanged(QmlDebugClient::State state)
-{
-    auto client = qobject_cast<BaseEngineDebugClient*>(sender());
-
-    if (state == QmlDebugClient::Enabled && !m_engineClientConnected) {
-        // We accept the first client that is enabled and reject the others.
-        QTC_ASSERT(client, return);
-        setActiveEngineClient(client);
-    } else if (m_engineClientConnected && client == m_engineClient) {
-        m_engineClientConnected = false;
     }
 }
 
@@ -798,7 +675,7 @@ void QmlInspectorAgent::selectObjectsFromToolsClient(const QList<int> &debugIds)
 
     m_targetToSync = EditorTarget;
     m_debugIdToSelect = debugIds.first();
-    selectObject(objectForId(m_debugIdToSelect), EditorTarget);
+    selectObject(m_debugIdToSelect, m_debugIdLocations.value(m_debugIdToSelect), EditorTarget);
 }
 
 void QmlInspectorAgent::onSelectActionTriggered(bool checked)
@@ -807,19 +684,6 @@ void QmlInspectorAgent::onSelectActionTriggered(bool checked)
     if (checked) {
         m_toolsClient->setDesignModeBehavior(true);
         m_toolsClient->changeToSelectTool();
-        m_zoomAction->setChecked(false);
-    } else {
-        m_toolsClient->setDesignModeBehavior(false);
-    }
-}
-
-void QmlInspectorAgent::onZoomActionTriggered(bool checked)
-{
-    QTC_ASSERT(m_toolsClient, return);
-    if (checked) {
-        m_toolsClient->setDesignModeBehavior(true);
-        m_toolsClient->changeToZoomTool();
-        m_selectAction->setChecked(false);
     } else {
         m_toolsClient->setDesignModeBehavior(false);
     }
@@ -831,73 +695,28 @@ void QmlInspectorAgent::onShowAppOnTopChanged(bool checked)
     m_toolsClient->showAppOnTop(checked);
 }
 
-void QmlInspectorAgent::setActiveEngineClient(BaseEngineDebugClient *client)
-{
-    if (m_engineClient == client)
-        return;
-
-    if (m_engineClient) {
-        disconnect(m_engineClient, &BaseEngineDebugClient::newState,
-                   this, &QmlInspectorAgent::updateState);
-        disconnect(m_engineClient, &BaseEngineDebugClient::result,
-                   this, &QmlInspectorAgent::onResult);
-        disconnect(m_engineClient, &BaseEngineDebugClient::newObject,
-                   this, &QmlInspectorAgent::newObject);
-        disconnect(m_engineClient, &BaseEngineDebugClient::valueChanged,
-                   this, &QmlInspectorAgent::onValueChanged);
-    }
-
-    m_engineClient = client;
-
-    if (m_engineClient) {
-        connect(m_engineClient, &BaseEngineDebugClient::newState,
-                this, &QmlInspectorAgent::updateState);
-        connect(m_engineClient, &BaseEngineDebugClient::result,
-                this, &QmlInspectorAgent::onResult);
-        connect(m_engineClient, &BaseEngineDebugClient::newObject,
-                this, &QmlInspectorAgent::newObject);
-        connect(m_engineClient, &BaseEngineDebugClient::valueChanged,
-                this, &QmlInspectorAgent::onValueChanged);
-    }
-
-    updateState();
-
-    m_engineClientConnected = true;
-}
-
-void QmlInspectorAgent::jumpToObjectDefinitionInEditor(
-        const FileReference &objSource, int debugId)
+void QmlInspectorAgent::jumpToObjectDefinitionInEditor(const FileReference &objSource)
 {
     const QString fileName = m_qmlEngine->toFileInProject(objSource.url());
-
     Core::EditorManager::openEditorAt(fileName, objSource.lineNumber());
-    if (debugId != WatchItem::InvalidId && debugId != m_currentSelectedDebugId) {
-        m_currentSelectedDebugId = debugId;
-        m_currentSelectedDebugName = displayName(debugId);
-    }
 }
 
-void QmlInspectorAgent::selectObject(const ObjectReference &obj, SelectionTarget target)
+void QmlInspectorAgent::selectObject(int debugId, const QmlDebug::FileReference &source,
+                                     SelectionTarget target)
 {
-    if (m_toolsClient && target == ToolTarget)
-        m_toolsClient->setObjectIdList(QList<ObjectReference>() << obj);
+    if (target == ToolTarget)
+        m_toolsClient->selectObjects({debugId});
 
     if (target == EditorTarget)
-        jumpToObjectDefinitionInEditor(obj.source());
+        jumpToObjectDefinitionInEditor(source);
 
-    selectObjectInTree(obj.debugId());
+    selectObjectInTree(debugId);
 }
 
 void QmlInspectorAgent::enableTools(const bool enable)
 {
-    if (!m_toolsClientConnected)
-        return;
     m_selectAction->setEnabled(enable);
     m_showAppOnTopAction->setEnabled(enable);
-    // only enable zoom action for Qt 4.x/old client
-    // (zooming is integrated into selection tool in Qt 5).
-    if (!qobject_cast<QmlToolsClient*>(m_toolsClient))
-        m_zoomAction->setEnabled(enable);
 }
 
 void QmlInspectorAgent::onReloaded()

@@ -40,10 +40,7 @@ public:
     void changeToSelectMarqueeTool() override;
     void changeToZoomTool() override;
     void showAppOnTop(bool showOnTop) override;
-
-    // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
-    void setObjectIdList(const QList<ObjectReference> &objectRoots) override;
-
+    void selectObjects(const QList<int> &debugIds) override;
     void messageReceived(const QByteArray &) override;
 
 private:

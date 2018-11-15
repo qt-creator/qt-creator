@@ -90,14 +90,10 @@ void QmlToolsClient::messageReceived(const QByteArray &message)
     }
 }
 
-void QmlToolsClient::setObjectIdList(const QList<ObjectReference> &objectRoots)
+void QmlToolsClient::selectObjects(const QList<int> &debugIds)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
-
-    QList<int> debugIds;
-    foreach (const ObjectReference &object, objectRoots)
-        debugIds << object.debugId();
 
     QPacket ds(dataStreamVersion());
     ds << QByteArray(REQUEST) << m_requestId++ << QByteArray(SELECT) << debugIds;
