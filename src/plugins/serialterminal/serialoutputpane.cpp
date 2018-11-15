@@ -643,6 +643,11 @@ void SerialOutputPane::defaultLineEndingChanged(int index)
         return;
 
     m_settings.setDefaultLineEndingIndex(index);
+    const int currentControlIndex = currentIndex();
+    if (currentControlIndex >= 0) {
+        m_serialControlTabs[currentControlIndex].lineEnd =
+                m_lineEndingsSelection->currentData().toByteArray();
+    }
 
     qCDebug(log) << "Set default line ending to "
                  << m_settings.defaultLineEndingText()
