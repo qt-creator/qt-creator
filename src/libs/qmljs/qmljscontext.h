@@ -91,7 +91,7 @@ public:
     operator const ContextPtr &() const;
 
 private:
-    const ContextPtr &m_context;
+    const ContextPtr m_context;
     QList<const Reference *> m_references;
 };
 
