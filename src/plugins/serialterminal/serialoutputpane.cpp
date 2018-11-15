@@ -381,7 +381,8 @@ void SerialOutputPane::createToolButtons()
     m_portsSelection = new ComboBox;
     m_portsSelection->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_portsSelection->setModel(m_devicesModel);
-    connect(m_portsSelection, &ComboBox::opened, m_devicesModel, &SerialDeviceModel::update);
+    updatePortsList();
+    connect(m_portsSelection, &ComboBox::opened, this, &SerialOutputPane::updatePortsList);
     connect(m_portsSelection, static_cast<void (ComboBox::*)(int)>(&ComboBox::currentIndexChanged),
             this, &SerialOutputPane::activePortNameChanged);
     // TODO: the ports are not updated with the box opened (if the user wait for it) -> add a timer?
@@ -407,6 +408,12 @@ void SerialOutputPane::updateLineEndingsComboBox()
         m_lineEndingsSelection->addItem(value.first, value.second);
 
     m_lineEndingsSelection->setCurrentIndex(m_settings.defaultLineEndingIndex);
+}
+
+void SerialOutputPane::updatePortsList()
+{
+    m_devicesModel->update();
+    m_portsSelection->setCurrentIndex(m_devicesModel->indexForPort(m_settings.portName));
 }
 
 int SerialOutputPane::indexOf(const SerialControl *rc) const
@@ -618,6 +625,8 @@ void SerialOutputPane::activePortNameChanged(int index)
 
     // Update current port name
     m_currentPortName = pn;
+    m_settings.setPortName(pn);
+    emit settingsChanged(m_settings);
 }
 
 void SerialOutputPane::activeBaudRateChanged(int index)
