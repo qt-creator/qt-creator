@@ -38,9 +38,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 
-#include <qmldebug/declarativeenginedebugclient.h>
-#include <qmldebug/declarativeenginedebugclientv2.h>
-#include <qmldebug/declarativetoolsclient.h>
 #include <qmldebug/qmldebugconstants.h>
 #include <qmldebug/qmlenginedebugclient.h>
 #include <qmldebug/qmltoolsclient.h>
@@ -86,40 +83,15 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     connect(&m_delayQueryTimer, &QTimer::timeout,
             this, &QmlInspectorAgent::queryEngineContext);
 
-    auto engineClient1 = new DeclarativeEngineDebugClient(connection);
-    connect(engineClient1, &BaseEngineDebugClient::newState,
-            this, &QmlInspectorAgent::clientStateChanged);
-    connect(engineClient1, &BaseEngineDebugClient::newState,
-            this, &QmlInspectorAgent::engineClientStateChanged);
-
     auto engineClient2 = new QmlEngineDebugClient(connection);
     connect(engineClient2, &BaseEngineDebugClient::newState,
             this, &QmlInspectorAgent::clientStateChanged);
     connect(engineClient2, &BaseEngineDebugClient::newState,
             this, &QmlInspectorAgent::engineClientStateChanged);
 
-    auto engineClient3 = new DeclarativeEngineDebugClientV2(connection);
-    connect(engineClient3, &BaseEngineDebugClient::newState,
-            this, &QmlInspectorAgent::clientStateChanged);
-    connect(engineClient3, &BaseEngineDebugClient::newState,
-            this, &QmlInspectorAgent::engineClientStateChanged);
-
-    m_engineClients.insert(engineClient1->name(), engineClient1);
     m_engineClients.insert(engineClient2->name(), engineClient2);
-    m_engineClients.insert(engineClient3->name(), engineClient3);
-
-    if (engineClient1->state() == QmlDebugClient::Enabled)
-        setActiveEngineClient(engineClient1);
     if (engineClient2->state() == QmlDebugClient::Enabled)
         setActiveEngineClient(engineClient2);
-    if (engineClient3->state() == QmlDebugClient::Enabled)
-        setActiveEngineClient(engineClient3);
-
-    auto toolsClient1 = new DeclarativeToolsClient(connection);
-    connect(toolsClient1, &BaseToolsClient::newState,
-            this, &QmlInspectorAgent::clientStateChanged);
-    connect(toolsClient1, &BaseToolsClient::newState,
-            this, &QmlInspectorAgent::toolsClientStateChanged);
 
     auto toolsClient2 = new QmlToolsClient(connection);
     connect(toolsClient2, &BaseToolsClient::newState,
@@ -223,13 +195,7 @@ bool QmlInspectorAgent::selectObjectInTree(int debugId)
         // we may have to fetch it
         m_objectToSelect = debugId;
         using namespace QmlDebug::Constants;
-        if (m_engineClient->objectName() == QDECLARATIVE_ENGINE) {
-            // reset current Selection
-            QString root = m_qmlEngine->watchHandler()->watchItem(QModelIndex())->iname;
-            m_qmlEngine->watchHandler()->setCurrentItem(root);
-        } else {
-            fetchObject(debugId);
-        }
+        fetchObject(debugId);
         return false;
     }
 }

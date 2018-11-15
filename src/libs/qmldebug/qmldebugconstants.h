@@ -35,7 +35,5 @@ const char STR_IGNORING_DEBUGGER[] = "Ignoring \"-qmljsdebugger=";
 const char STR_CONNECTION_ESTABLISHED[] = "Connection established";
 const char STR_CONNECTING_TO_SOCKET[] = "Connecting to socket";
 
-const char QDECLARATIVE_ENGINE[] = "QDeclarativeEngine";
-
 } // namespace Constants
 } // namespace QmlDebug

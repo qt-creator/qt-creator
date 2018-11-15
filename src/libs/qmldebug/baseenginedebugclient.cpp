@@ -71,11 +71,8 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
                                    bool simple)
 {
     QmlObjectData data;
-    ds >> data;
     int parentId = -1;
-    // qt > 4.8.3
-    if (objectName() != QLatin1String(Constants::QDECLARATIVE_ENGINE))
-        ds >> parentId;
+    ds >> data >> parentId;
     o.m_debugId = data.objectId;
     o.m_className = data.objectType;
     o.m_idString = data.idString;
