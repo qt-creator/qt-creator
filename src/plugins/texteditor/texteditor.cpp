@@ -2492,9 +2492,9 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                     d->autocompleterHighlight(tc);
                 }
             }
+            cursor.endEditBlock();
             setTextCursor(ensureVisible);
             cursor.setPosition(cursorPosition);
-            cursor.endEditBlock();
         }
 
         setTextCursor(cursor);
