@@ -138,6 +138,10 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
         const QUrl &resolvedUrl = helpEngine.findFile(url);
         if (!resolvedUrl.isValid())
             return false;
+        // Workaround QTBUG-71833
+        // QHelpEngineCore::findFile returns a valid url even though the file does not exist
+        if (resolvedUrl.scheme() == "about" && resolvedUrl.path() == "blank")
+            return false;
 
         const QString& path = resolvedUrl.path();
         if (!canOpenPage(path)) {
