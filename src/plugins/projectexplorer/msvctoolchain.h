@@ -25,12 +25,14 @@
 
 #pragma once
 
-#include "abstractmsvctoolchain.h"
 #include "abi.h"
+#include "toolchain.h"
+#include "toolchaincache.h"
 #include "toolchainconfigwidget.h"
 
 #include <QFutureWatcher>
 
+#include <utils/environment.h>
 #include <utils/optional.h>
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
@@ -45,7 +47,7 @@ namespace Internal {
 // MsvcToolChain
 // --------------------------------------------------------------------------
 
-class MsvcToolChain : public AbstractMsvcToolChain
+class MsvcToolChain : public ToolChain
 {
 public:
     enum Type { WindowsSDK, VS };
@@ -65,6 +67,13 @@ public:
                            Core::Id l, Detection d = ManualDetection);
     MsvcToolChain(const MsvcToolChain &other);
     MsvcToolChain();
+    ~MsvcToolChain();
+
+    Abi targetAbi() const override;
+
+    bool isValid() const override;
+
+    QString originalTargetTriple() const override;
 
     Utils::FileNameList suggestedMkspecList() const override;
 
@@ -75,27 +84,63 @@ public:
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 
+    bool canClone() const override;
     ToolChain *clone() const override;
 
+    MacroInspectionRunner createMacroInspectionRunner() const override;
+    Macros predefinedMacros(const QStringList &cxxflags) const override;
+    LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
+    WarningFlags warningFlags(const QStringList &cflags) const override;
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
+    HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,
+                                   const Utils::FileName &sysRoot) const override;
+    void addToEnvironment(Utils::Environment &env) const override;
+
+    QString makeCommand(const Utils::Environment &environment) const override;
+    Utils::FileName compilerCommand() const override;
+    IOutputParser *outputParser() const override;
+
     QString varsBatArg() const { return m_varsBatArg; }
+    QString varsBat() const { return m_vcvarsBat; }
     void setVarsBatArg(const QString &varsBA) { m_varsBatArg = varsBA; }
 
     bool operator == (const ToolChain &) const override;
 
     static void cancelMsvcToolChainDetection();
+    static Utils::optional<QString> generateEnvironmentSettings(const Utils::Environment &env,
+                                                                const QString &batchFile,
+                                                                const QString &batchArgs,
+                                                                QMap<QString, QString> &envPairs);
+
 
 protected:
+    class WarningFlagAdder
+    {
+        int m_warningCode = 0;
+        WarningFlags &m_flags;
+        bool m_doesEnable = false;
+        bool m_triggered = false;
+    public:
+        WarningFlagAdder(const QString &flag, WarningFlags &flags);
+        void operator ()(int warningCode, WarningFlags flagsSet);
+
+        bool triggered() const;
+    };
+
     explicit MsvcToolChain(Core::Id typeId, const QString &name, const Abi &abi,
                            const QString &varsBat, const QString &varsBatArg,
                            Core::Id l, Detection d);
     explicit MsvcToolChain(Core::Id typeId);
 
-    Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const final;
+    static void inferWarningsForLevel(int warningLevel, WarningFlags &flags);
+    void toolChainUpdated() override;
+
+    Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const;
     // Function must be thread-safe!
-    Macros msvcPredefinedMacros(const QStringList cxxflags,
-                                const Utils::Environment &env) const override;
-    LanguageVersion msvcLanguageVersion(const Core::Id &language,
-                                        const Macros &macros) const override;
+    virtual Macros msvcPredefinedMacros(const QStringList cxxflags,
+                                        const Utils::Environment &env) const;
+    virtual LanguageVersion msvcLanguageVersion(const Core::Id &language,
+                                                const Macros &macros) const;
 
 private:
     struct GenerateEnvResult
@@ -111,6 +156,19 @@ private:
     mutable QList<Utils::EnvironmentItem> m_environmentModifications;
     mutable QFutureWatcher<GenerateEnvResult> m_envModWatcher;
 
+    Utils::FileName m_debuggerCommand;
+
+    mutable std::shared_ptr<Cache<MacroInspectionReport, 64>> m_predefinedMacrosCache;
+
+    mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
+    mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
+    mutable QMutex *m_headerPathsMutex = nullptr;
+    mutable HeaderPaths m_headerPaths;
+
+protected:
+    Abi m_abi;
+
+    QString m_vcvarsBat;
     QString m_varsBatArg; // Argument
 };
 

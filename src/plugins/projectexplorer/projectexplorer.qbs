@@ -235,8 +235,6 @@ Project {
             name: "WindowsToolChains"
             condition: qbs.targetOS.contains("windows") || qtc.testsEnabled
             files: [
-                "abstractmsvctoolchain.cpp",
-                "abstractmsvctoolchain.h",
                 "msvctoolchain.cpp",
                 "msvctoolchain.h",
                 "windebuginterface.cpp",

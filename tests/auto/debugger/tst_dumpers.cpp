@@ -47,7 +47,7 @@ using namespace Internal;
 
 #ifdef Q_CC_MSVC
 
-// Copied from abstractmsvctoolchain.cpp to avoid plugin dependency.
+// Copied from msvctoolchain.cpp to avoid plugin dependency.
 static bool generateEnvironmentSettings(Utils::Environment &env,
                                         const QString &batchFile,
                                         const QString &batchArgs,

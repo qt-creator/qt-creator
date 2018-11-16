@@ -315,12 +315,10 @@ FORMS += processstep.ui \
 WINSOURCES += \
     windebuginterface.cpp \
     msvctoolchain.cpp \
-    abstractmsvctoolchain.cpp
 
 WINHEADERS += \
     windebuginterface.h \
     msvctoolchain.h \
-    abstractmsvctoolchain.h
 
 win32|equals(TEST, 1) {
     SOURCES += $$WINSOURCES
