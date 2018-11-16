@@ -156,6 +156,7 @@ void DeviceSettingsWidget::addDevice()
     m_ui->configurationComboBox->setCurrentIndex(m_deviceManagerModel->indexOf(device));
     if (device->hasDeviceTester())
         testDevice();
+    saveSettings();
 }
 
 void DeviceSettingsWidget::removeDevice()
