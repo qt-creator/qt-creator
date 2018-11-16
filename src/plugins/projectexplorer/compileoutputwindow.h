@@ -37,7 +37,7 @@ class QTextCharFormat;
 class QToolButton;
 QT_END_NAMESPACE
 
-namespace Utils { class AnsiEscapeCodeHandler; }
+namespace Utils { class OutputFormatter; }
 
 namespace ProjectExplorer {
 
@@ -91,7 +91,7 @@ private:
     QToolButton *m_cancelBuildButton;
     QToolButton *m_zoomInButton;
     QToolButton *m_zoomOutButton;
-    Utils::AnsiEscapeCodeHandler *m_escapeCodeHandler;
+    Utils::OutputFormatter *m_formatter;
 };
 
 } // namespace Internal

@@ -40,7 +40,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/behaviorsettings.h>
-#include <utils/ansiescapecodehandler.h>
+#include <utils/outputformatter.h>
 #include <utils/proxyaction.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
@@ -151,7 +151,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_cancelBuildButton(new QToolButton),
     m_zoomInButton(new QToolButton),
     m_zoomOutButton(new QToolButton),
-    m_escapeCodeHandler(new Utils::AnsiEscapeCodeHandler)
+    m_formatter(new Utils::OutputFormatter)
 {
     Core::Context context(C_COMPILE_OUTPUT);
     m_outputWindow = new CompileOutputTextEdit(context);
@@ -160,6 +160,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_outputWindow->setReadOnly(true);
     m_outputWindow->setUndoRedoEnabled(false);
     m_outputWindow->setMaxCharCount(Core::Constants::DEFAULT_MAX_CHAR_COUNT);
+    m_outputWindow->setFormatter(m_formatter);
 
     // Let selected text be colored as if the text edit was editable,
     // otherwise the highlight for searching is too light
@@ -210,7 +211,7 @@ CompileOutputWindow::~CompileOutputWindow()
     delete m_cancelBuildButton;
     delete m_zoomInButton;
     delete m_zoomOutButton;
-    delete m_escapeCodeHandler;
+    delete m_formatter;
 }
 
 void CompileOutputWindow::updateZoomEnabled()
@@ -256,31 +257,24 @@ QList<QWidget *> CompileOutputWindow::toolBarWidgets() const
 
 void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputFormat format)
 {
-    using Utils::Theme;
-    Theme *theme = Utils::creatorTheme();
-    QTextCharFormat textFormat;
+    Utils::OutputFormat fmt = Utils::NormalMessageFormat;
     switch (format) {
     case BuildStep::OutputFormat::Stdout:
-        textFormat.setForeground(theme->color(Theme::TextColorNormal));
-        textFormat.setFontWeight(QFont::Normal);
+        fmt = Utils::StdOutFormat;
         break;
     case BuildStep::OutputFormat::Stderr:
-        textFormat.setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
-        textFormat.setFontWeight(QFont::Normal);
+        fmt = Utils::StdErrFormat;
         break;
     case BuildStep::OutputFormat::NormalMessage:
-        textFormat.setForeground(theme->color(Theme::OutputPanes_MessageOutput));
+        fmt = Utils::NormalMessageFormat;
         break;
     case BuildStep::OutputFormat::ErrorMessage:
-        textFormat.setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
-        textFormat.setFontWeight(QFont::Bold);
+        fmt = Utils::ErrorMessageFormat;
         break;
 
     }
 
-    foreach (const Utils::FormattedText &output,
-             m_escapeCodeHandler->parseText(Utils::FormattedText(text, textFormat)))
-        m_outputWindow->appendText(output.text, output.format);
+    m_outputWindow->appendMessage(text, fmt);
 }
 
 void CompileOutputWindow::clearContents()
@@ -362,8 +356,7 @@ void CompileOutputWindow::showPositionOf(const Task &task)
 
 void CompileOutputWindow::flush()
 {
-    if (m_escapeCodeHandler)
-        m_escapeCodeHandler->endFormatScope();
+    m_formatter->flush();
 }
 
 #include "compileoutputwindow.moc"
