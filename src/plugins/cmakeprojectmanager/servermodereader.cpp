@@ -360,6 +360,19 @@ void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
 {
     int counter = 0;
     for (const FileGroup *fg : qAsConst(m_fileGroups)) {
+        // CMake users worked around Creator's inability of listing header files by creating
+        // custom targets with all the header files. This target breaks the code model, so
+        // keep quiet about it:-)
+        if (fg->macros.isEmpty()
+                && fg->includePaths.isEmpty()
+                && !fg->isGenerated
+                && Utils::allOf(fg->sources, [](const Utils::FileName &source) {
+                                    return Node::fileTypeForFileName(source) == FileType::Header;
+                                })) {
+            qWarning() << "Not reporting all-header file group of target" << fg->target << "to code model.";
+            continue;
+        }
+
         ++counter;
         const QStringList flags = QtcProcess::splitArgs(fg->compileFlags);
         const QStringList includes = transform(fg->includePaths, [](const IncludePath *ip)  { return ip->path.toString(); });
