@@ -523,17 +523,6 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
     if (!k || (m_requiredPredicate && !m_requiredPredicate(k)))
         return nullptr;
 
-    const IBuildConfigurationFactory *const factory
-            = IBuildConfigurationFactory::find(k, m_projectPath);
-    const QList<BuildInfo *> infoList = [this, k, factory]() {
-        if (factory)
-            return factory->availableSetups(k, m_projectPath);
-
-        auto *info = new BuildInfo(nullptr);
-        info->kitId = k->id();
-        return QList<BuildInfo *>({info});
-    }();
-
     // Not all projects have BuildConfigurations, that is perfectly fine.
     auto *widget = new TargetSetupWidget(k, m_projectPath);
 
