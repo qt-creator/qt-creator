@@ -48,6 +48,8 @@ public:
     bool isQtcRunnable = true;
     bool usesTerminal = false;
 
+    uint runEnvModifierHash = 0; // Make sure to update this when runEnvModifier changes!
+
     std::function<void(Utils::Environment &, bool)> runEnvModifier;
 };
 
@@ -56,7 +58,11 @@ inline bool operator==(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
     return ti1.buildKey == ti2.buildKey
         && ti1.displayName == ti2.displayName
         && ti1.targetFilePath == ti2.targetFilePath
-        && ti1.projectFilePath == ti2.projectFilePath;
+        && ti1.projectFilePath == ti2.projectFilePath
+        && ti1.workingDirectory == ti2.workingDirectory
+        && ti1.isQtcRunnable == ti2.isQtcRunnable
+        && ti1.usesTerminal == ti2.usesTerminal
+        && ti1.runEnvModifierHash == ti2.runEnvModifierHash;
 }
 
 inline bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)

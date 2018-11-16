@@ -1097,6 +1097,7 @@ void QmakeProject::updateBuildSystemData()
         if (qtVersion)
             libraryPaths.append(qtVersion->librarySearchPath().toString());
 
+        bti.runEnvModifierHash = qHash(libraryPaths);
         bti.runEnvModifier = [libraryPaths](Environment &env, bool useLibrarySearchPath) {
             if (useLibrarySearchPath)
                 env.prependOrSetLibrarySearchPaths(libraryPaths);
