@@ -39,7 +39,6 @@ class OutputFormatterPrivate
 public:
     QPlainTextEdit *plainTextEdit = nullptr;
     QTextCharFormat formats[NumberOfFormats];
-    QFont font;
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
     bool overwriteOutput = false;
@@ -126,34 +125,27 @@ void OutputFormatter::initFormats()
     if (!plainTextEdit())
         return;
 
-    QFont boldFont;
-    boldFont.setBold(true);
-
     Theme *theme = creatorTheme();
 
     // NormalMessageFormat
-    d->formats[NormalMessageFormat].setFont(boldFont, QTextCharFormat::FontPropertiesSpecifiedOnly);
+    d->formats[NormalMessageFormat].setFontWeight(QFont::Bold);
     d->formats[NormalMessageFormat].setForeground(theme->color(Theme::OutputPanes_NormalMessageTextColor));
 
     // ErrorMessageFormat
-    d->formats[ErrorMessageFormat].setFont(boldFont, QTextCharFormat::FontPropertiesSpecifiedOnly);
+    d->formats[ErrorMessageFormat].setFontWeight(QFont::Bold);
     d->formats[ErrorMessageFormat].setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
 
     // LogMessageFormat
-    d->formats[LogMessageFormat].setFont(d->font, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[LogMessageFormat].setForeground(theme->color(Theme::OutputPanes_WarningMessageTextColor));
 
     // StdOutFormat
-    d->formats[StdOutFormat].setFont(d->font, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[StdOutFormat].setForeground(theme->color(Theme::OutputPanes_StdOutTextColor));
     d->formats[StdOutFormatSameLine] = d->formats[StdOutFormat];
 
     // StdErrFormat
-    d->formats[StdErrFormat].setFont(d->font, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[StdErrFormat].setForeground(theme->color(Theme::OutputPanes_StdErrTextColor));
     d->formats[StdErrFormatSameLine] = d->formats[StdErrFormat];
 
-    d->formats[DebugFormat].setFont(d->font, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[DebugFormat].setForeground(theme->color(Theme::OutputPanes_DebugTextColor));
 }
 
