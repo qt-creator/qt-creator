@@ -101,6 +101,9 @@ namespace ProjectExplorer {
 class AbstractProcessStep::Private
 {
 public:
+    Private(AbstractProcessStep *q) : q(q) {}
+
+    AbstractProcessStep *q;
     QTimer m_timer;
     QFutureInterface<bool> *m_futureInterface = nullptr;
     std::unique_ptr<Utils::QtcProcess> m_process;
@@ -108,14 +111,20 @@ public:
     ProcessParameters m_param;
     QHash<QString, QPair<Utils::FileName, quint64>> m_filesCache;
     QHash<QString, Utils::FileNameList> m_candidates;
+    QByteArray deferredText;
     quint64 m_cacheCounter = 0;
     bool m_ignoreReturnValue = false;
     bool m_skipFlush = false;
+
+    void readData(void (AbstractProcessStep::*func)(const QString &), bool isUtf8 = false);
+    void processLine(const QByteArray &data,
+                     void (AbstractProcessStep::*func)(const QString &),
+                     bool isUtf8 = false);
 };
 
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
     BuildStep(bsl, id),
-    d(new Private)
+    d(new Private(this))
 {
     d->m_timer.setInterval(500);
     connect(&d->m_timer, &QTimer::timeout, this, &AbstractProcessStep::checkForCancel);
@@ -345,12 +354,36 @@ void AbstractProcessStep::processReadyReadStdOutput()
     if (!bc)
         bc = target()->activeBuildConfiguration();
     const bool utf8Output = bc && bc->environment().hasKey("VSLANG");
+    d->readData(&AbstractProcessStep::stdOutput, utf8Output);
+}
 
-    while (d->m_process->canReadLine()) {
-        QString line = utf8Output ? QString::fromUtf8(d->m_process->readLine())
-                                  : QString::fromLocal8Bit(d->m_process->readLine());
-        stdOutput(line);
+void AbstractProcessStep::Private::readData(void (AbstractProcessStep::*func)(const QString &),
+                                            bool isUtf8)
+{
+    while (m_process->bytesAvailable()) {
+        const bool hasLine = m_process->canReadLine();
+        const QByteArray data = hasLine ? m_process->readLine() : m_process->readAll();
+        int startPos = 0;
+        int crPos = -1;
+        while ((crPos = data.indexOf('\r', startPos)) >= 0)  {
+            processLine(data.mid(startPos, crPos - startPos + 1), func, isUtf8);
+            startPos = crPos + 1;
+        }
+        if (hasLine)
+            processLine(data.mid(startPos), func, isUtf8);
+        else if (startPos < data.count())
+            deferredText += data.mid(startPos);
     }
+}
+
+void AbstractProcessStep::Private::processLine(const QByteArray &data,
+                                               void (AbstractProcessStep::*func)(const QString &),
+                                               bool isUtf8)
+{
+    const QByteArray text = deferredText + data;
+    deferredText.clear();
+    const QString line = isUtf8 ? QString::fromUtf8(text) : QString::fromLocal8Bit(text);
+    (q->*func)(line);
 }
 
 /*!
@@ -371,10 +404,7 @@ void AbstractProcessStep::processReadyReadStdError()
     if (!d->m_process)
         return;
     d->m_process->setReadChannel(QProcess::StandardError);
-    while (d->m_process->canReadLine()) {
-        QString line = QString::fromLocal8Bit(d->m_process->readLine());
-        stdError(line);
-    }
+    d->readData(&AbstractProcessStep::stdError);
 }
 
 /*!
