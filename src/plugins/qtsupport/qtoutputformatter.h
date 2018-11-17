@@ -29,8 +29,6 @@
 
 #include <utils/outputformatter.h>
 
-QT_FORWARD_DECLARE_CLASS(QTextCursor)
-
 namespace ProjectExplorer { class Project; }
 
 namespace QtSupport {
@@ -66,11 +64,9 @@ protected:
 private:
     void updateProjectFileList();
     LinkResult matchLine(const QString &line) const;
-    void appendMessagePart(QTextCursor &cursor, const QString &txt, const QTextCharFormat &format);
-    void appendLine(QTextCursor &cursor, const LinkResult &lr, const QString &line,
-                    Utils::OutputFormat);
-    void appendLine(QTextCursor &cursor, const LinkResult &lr, const QString &line,
-                    const QTextCharFormat &format);
+    void appendMessagePart(const QString &txt, const QTextCharFormat &format);
+    void appendLine(const LinkResult &lr, const QString &line, Utils::OutputFormat format);
+    void appendLine(const LinkResult &lr, const QString &line, const QTextCharFormat &format);
 
     Internal::QtOutputFormatterPrivate *d;
 

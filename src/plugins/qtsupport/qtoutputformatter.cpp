@@ -135,8 +135,7 @@ void QtOutputFormatter::appendMessage(const QString &txt, OutputFormat format)
     appendMessage(txt, charFormat(format));
 }
 
-void QtOutputFormatter::appendMessagePart(QTextCursor &cursor, const QString &txt,
-                                          const QTextCharFormat &format)
+void QtOutputFormatter::appendMessagePart(const QString &txt, const QTextCharFormat &format)
 {
     QString deferredText;
 
@@ -149,11 +148,11 @@ void QtOutputFormatter::appendMessagePart(QTextCursor &cursor, const QString &tx
         LinkResult lr = matchLine(line);
         if (!lr.href.isEmpty()) {
             // Found something && line continuation
-            cursor.insertText(deferredText, format);
+            d->cursor.insertText(deferredText, format);
             deferredText.clear();
             if (!d->lastLine.isEmpty())
                 clearLastLine();
-            appendLine(cursor, lr, line, format);
+            appendLine(lr, line, format);
         } else {
             // Found nothing, just emit the new part
             deferredText += newPart;
@@ -165,7 +164,7 @@ void QtOutputFormatter::appendMessagePart(QTextCursor &cursor, const QString &tx
         }
         d->lastLine.clear(); // Handled line continuation
     }
-    cursor.insertText(deferredText, format);
+    d->cursor.insertText(deferredText, format);
 }
 
 void QtOutputFormatter::appendMessage(const QString &txt, const QTextCharFormat &format)
@@ -175,15 +174,14 @@ void QtOutputFormatter::appendMessage(const QString &txt, const QTextCharFormat 
     d->cursor.beginEditBlock();
 
     foreach (const FormattedText &output, parseAnsi(txt, format))
-        appendMessagePart(d->cursor, output.text, output.format);
+        appendMessagePart(output.text, output.format);
 
     d->cursor.endEditBlock();
 }
 
-void QtOutputFormatter::appendLine(QTextCursor &cursor, const LinkResult &lr,
-                                   const QString &line, OutputFormat format)
+void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line, OutputFormat format)
 {
-    appendLine(cursor, lr, line, charFormat(format));
+    appendLine(lr, line, charFormat(format));
 }
 
 static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href)
@@ -197,12 +195,12 @@ static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QStr
     return result;
 }
 
-void QtOutputFormatter::appendLine(QTextCursor &cursor, const LinkResult &lr,
-                                   const QString &line, const QTextCharFormat &format)
+void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line,
+                                   const QTextCharFormat &format)
 {
-    cursor.insertText(line.left(lr.start), format);
-    cursor.insertText(line.mid(lr.start, lr.end - lr.start), linkFormat(format, lr.href));
-    cursor.insertText(line.mid(lr.end), format);
+    d->cursor.insertText(line.left(lr.start), format);
+    d->cursor.insertText(line.mid(lr.start, lr.end - lr.start), linkFormat(format, lr.href));
+    d->cursor.insertText(line.mid(lr.end), format);
 }
 
 void QtOutputFormatter::handleLink(const QString &href)
