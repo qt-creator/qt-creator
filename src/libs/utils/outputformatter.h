@@ -66,7 +66,7 @@ protected:
     virtual void clearLastLine();
     QTextCharFormat charFormat(OutputFormat format) const;
     QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
-    void append(QTextCursor &cursor, const QString &text, const QTextCharFormat &format);
+    void append(const QString &text, const QTextCharFormat &format);
 
 private:
     virtual void appendMessage(const QString &text, const QTextCharFormat &format);

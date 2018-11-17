@@ -41,7 +41,7 @@ public:
     QTextCharFormat formats[NumberOfFormats];
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
-    bool overwriteOutput = false;
+    OutputFormat lastFormat = NumberOfFormats;
 };
 
 } // namespace Internal
@@ -65,30 +65,22 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 {
     d->plainTextEdit = plainText;
     d->cursor = plainText ? plainText->textCursor() : QTextCursor();
+    d->cursor.movePosition(QTextCursor::End);
     initFormats();
 }
 
 void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
 {
+    if (!d->cursor.atEnd() && format != d->lastFormat)
+        d->cursor.movePosition(QTextCursor::End);
+    d->lastFormat = format;
     appendMessage(text, d->formats[format]);
 }
 
 void OutputFormatter::appendMessage(const QString &text, const QTextCharFormat &format)
 {
-    if (!d->cursor.atEnd())
-        d->cursor.movePosition(QTextCursor::End);
-
-    foreach (const FormattedText &output, parseAnsi(text, format)) {
-        int startPos = 0;
-        int crPos = -1;
-        while ((crPos = output.text.indexOf(QLatin1Char('\r'), startPos)) >= 0)  {
-            append(d->cursor, output.text.mid(startPos, crPos - startPos), output.format);
-            startPos = crPos + 1;
-            d->overwriteOutput = true;
-        }
-        if (startPos < output.text.count())
-            append(d->cursor, output.text.mid(startPos), output.format);
-    }
+    foreach (const FormattedText &output, parseAnsi(text, format))
+        append(output.text, output.format);
 }
 
 QTextCharFormat OutputFormatter::charFormat(OutputFormat format) const
@@ -101,15 +93,18 @@ QList<FormattedText> OutputFormatter::parseAnsi(const QString &text, const QText
     return d->escapeCodeHandler.parseText(FormattedText(text, format));
 }
 
-void OutputFormatter::append(QTextCursor &cursor, const QString &text,
-                             const QTextCharFormat &format)
+void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
 {
-    if (d->overwriteOutput) {
-        cursor.clearSelection();
-        cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
-        d->overwriteOutput = false;
+    int startPos = 0;
+    int crPos = -1;
+    while ((crPos = text.indexOf('\r', startPos)) >= 0)  {
+        d->cursor.insertText(text.mid(startPos, crPos - startPos), format);
+        d->cursor.clearSelection();
+        d->cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+        startPos = crPos + 1;
     }
-    cursor.insertText(text, format);
+    if (startPos < text.count())
+        d->cursor.insertText(text.mid(startPos), format);
 }
 
 void OutputFormatter::clearLastLine()
