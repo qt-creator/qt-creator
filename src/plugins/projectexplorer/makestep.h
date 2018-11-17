@@ -30,6 +30,8 @@
 
 QT_FORWARD_DECLARE_CLASS(QListWidgetItem);
 
+namespace Utils { class Environment; }
+
 namespace ProjectExplorer {
 
 namespace Internal {

@@ -40,6 +40,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -47,6 +48,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 #include <utils/utilsicons.h>
 

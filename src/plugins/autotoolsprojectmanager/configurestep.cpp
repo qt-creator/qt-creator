@@ -34,6 +34,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcprocess.h>

@@ -26,6 +26,7 @@
 #include "processstep.h"
 #include "buildstep.h"
 #include "buildconfiguration.h"
+#include "processparameters.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
 #include "kit.h"

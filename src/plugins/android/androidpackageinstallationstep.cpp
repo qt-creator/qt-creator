@@ -31,12 +31,14 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/gnumakeparser.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 

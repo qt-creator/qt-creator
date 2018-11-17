@@ -30,10 +30,11 @@
 #include "nimproject.h"
 #include "nimtoolchain.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/ioutputparser.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/processparameters.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>

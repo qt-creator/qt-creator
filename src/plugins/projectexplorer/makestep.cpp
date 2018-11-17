@@ -30,6 +30,7 @@
 #include "gnumakeparser.h"
 #include "kitinformation.h"
 #include "project.h"
+#include "processparameters.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
@@ -37,6 +38,7 @@
 
 #include <coreplugin/id.h>
 #include <coreplugin/variablechooser.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>

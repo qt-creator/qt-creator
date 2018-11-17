@@ -36,6 +36,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/xcodebuildparser.h>

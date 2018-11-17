@@ -37,6 +37,7 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>

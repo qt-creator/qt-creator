@@ -35,6 +35,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>

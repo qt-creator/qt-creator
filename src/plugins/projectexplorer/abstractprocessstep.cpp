@@ -27,25 +27,32 @@
 #include "ansifilterparser.h"
 #include "buildconfiguration.h"
 #include "buildstep.h"
+#include "ioutputparser.h"
+#include "processparameters.h"
 #include "project.h"
 #include "target.h"
 #include "task.h"
 
 #include <coreplugin/reaper.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
-#include <QTimer>
 #include <QDir>
+#include <QTimer>
+#include <QHash>
+#include <QPair>
 
 #include <algorithm>
+#include <memory>
 
 namespace {
 const int CACHE_SOFT_LIMIT = 500;
 const int CACHE_HARD_LIMIT = 1000;
 } // namespace
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
 /*!
     \class ProjectExplorer::AbstractProcessStep
@@ -91,12 +98,33 @@ using namespace ProjectExplorer;
      Should be used in init().
 */
 
-AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
-    BuildStep(bsl, id)
+class AbstractProcessStep::Private
 {
-    m_timer.setInterval(500);
-    connect(&m_timer, &QTimer::timeout, this, &AbstractProcessStep::checkForCancel);
+public:
+    QTimer m_timer;
+    QFutureInterface<bool> *m_futureInterface = nullptr;
+    std::unique_ptr<Utils::QtcProcess> m_process;
+    std::unique_ptr<IOutputParser> m_outputParserChain;
+    ProcessParameters m_param;
+    QHash<QString, QPair<Utils::FileName, quint64>> m_filesCache;
+    QHash<QString, Utils::FileNameList> m_candidates;
+    quint64 m_cacheCounter = 0;
+    bool m_ignoreReturnValue = false;
+    bool m_skipFlush = false;
+};
+
+AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
+    BuildStep(bsl, id),
+    d(new Private)
+{
+    d->m_timer.setInterval(500);
+    connect(&d->m_timer, &QTimer::timeout, this, &AbstractProcessStep::checkForCancel);
     setRunInGuiThread(true);
+}
+
+AbstractProcessStep::~AbstractProcessStep()
+{
+    delete d;
 }
 
 /*!
@@ -108,11 +136,11 @@ AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
 
 void AbstractProcessStep::setOutputParser(IOutputParser *parser)
 {
-    m_outputParserChain.reset(new AnsiFilterParser);
-    m_outputParserChain->appendOutputParser(parser);
+    d->m_outputParserChain.reset(new AnsiFilterParser);
+    d->m_outputParserChain->appendOutputParser(parser);
 
-    connect(m_outputParserChain.get(), &IOutputParser::addOutput, this, &AbstractProcessStep::outputAdded);
-    connect(m_outputParserChain.get(), &IOutputParser::addTask, this, &AbstractProcessStep::taskAdded);
+    connect(d->m_outputParserChain.get(), &IOutputParser::addOutput, this, &AbstractProcessStep::outputAdded);
+    connect(d->m_outputParserChain.get(), &IOutputParser::addTask, this, &AbstractProcessStep::taskAdded);
 }
 
 /*!
@@ -123,13 +151,13 @@ void AbstractProcessStep::appendOutputParser(IOutputParser *parser)
     if (!parser)
         return;
 
-    QTC_ASSERT(m_outputParserChain, return);
-    m_outputParserChain->appendOutputParser(parser);
+    QTC_ASSERT(d->m_outputParserChain, return);
+    d->m_outputParserChain->appendOutputParser(parser);
 }
 
 IOutputParser *AbstractProcessStep::outputParser() const
 {
-    return m_outputParserChain.get();
+    return d->m_outputParserChain.get();
 }
 
 void AbstractProcessStep::emitFaultyConfigurationMessage()
@@ -140,7 +168,7 @@ void AbstractProcessStep::emitFaultyConfigurationMessage()
 
 bool AbstractProcessStep::ignoreReturnValue()
 {
-    return m_ignoreReturnValue;
+    return d->m_ignoreReturnValue;
 }
 
 /*!
@@ -152,7 +180,7 @@ bool AbstractProcessStep::ignoreReturnValue()
 
 void AbstractProcessStep::setIgnoreReturnValue(bool b)
 {
-    m_ignoreReturnValue = b;
+    d->m_ignoreReturnValue = b;
 }
 
 /*!
@@ -164,12 +192,12 @@ bool AbstractProcessStep::init(QList<const BuildStep *> &earlierSteps)
 {
     Q_UNUSED(earlierSteps);
 
-    m_candidates.clear();
+    d->m_candidates.clear();
     const Utils::FileNameList fl = project()->files(Project::AllFiles);
     for (const Utils::FileName &file : fl)
-        m_candidates[file.fileName()].push_back(file);
+        d->m_candidates[file.fileName()].push_back(file);
 
-    return !m_process;
+    return !d->m_process;
 }
 
 /*!
@@ -179,7 +207,7 @@ bool AbstractProcessStep::init(QList<const BuildStep *> &earlierSteps)
 
 void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 {
-    QDir wd(m_param.effectiveWorkingDirectory());
+    QDir wd(d->m_param.effectiveWorkingDirectory());
     if (!wd.exists()) {
         if (!wd.mkpath(wd.absolutePath())) {
             emit addOutput(tr("Could not create directory \"%1\"")
@@ -190,51 +218,56 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         }
     }
 
-    QString effectiveCommand = m_param.effectiveCommand();
+    QString effectiveCommand = d->m_param.effectiveCommand();
     if (!QFileInfo::exists(effectiveCommand)) {
         processStartupFailed();
         reportRunResult(fi, false);
         return;
     }
 
-    m_futureInterface = &fi;
+    d->m_futureInterface = &fi;
 
-    m_process.reset(new Utils::QtcProcess());
-    m_process->setUseCtrlCStub(Utils::HostOsInfo::isWindowsHost());
-    m_process->setWorkingDirectory(wd.absolutePath());
-    m_process->setEnvironment(m_param.environment());
-    m_process->setCommand(effectiveCommand, m_param.effectiveArguments());
+    d->m_process.reset(new Utils::QtcProcess());
+    d->m_process->setUseCtrlCStub(Utils::HostOsInfo::isWindowsHost());
+    d->m_process->setWorkingDirectory(wd.absolutePath());
+    d->m_process->setEnvironment(d->m_param.environment());
+    d->m_process->setCommand(effectiveCommand, d->m_param.effectiveArguments());
 
-    connect(m_process.get(), &QProcess::readyReadStandardOutput,
+    connect(d->m_process.get(), &QProcess::readyReadStandardOutput,
             this, &AbstractProcessStep::processReadyReadStdOutput);
-    connect(m_process.get(), &QProcess::readyReadStandardError,
+    connect(d->m_process.get(), &QProcess::readyReadStandardError,
             this, &AbstractProcessStep::processReadyReadStdError);
-    connect(m_process.get(), static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+    connect(d->m_process.get(), static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
             this, &AbstractProcessStep::slotProcessFinished);
 
-    m_process->start();
-    if (!m_process->waitForStarted()) {
+    d->m_process->start();
+    if (!d->m_process->waitForStarted()) {
         processStartupFailed();
-        m_process.reset();
-        m_outputParserChain.reset();
+        d->m_process.reset();
+        d->m_outputParserChain.reset();
         reportRunResult(fi, false);
         return;
     }
     processStarted();
-    m_timer.start();
+    d->m_timer.start();
+}
+
+ProcessParameters *AbstractProcessStep::processParameters()
+{
+    return &d->m_param;
 }
 
 void AbstractProcessStep::cleanUp(QProcess *process)
 {
     // The process has finished, leftover data is read in processFinished
     processFinished(process->exitCode(), process->exitStatus());
-    const bool returnValue = processSucceeded(process->exitCode(), process->exitStatus()) || m_ignoreReturnValue;
+    const bool returnValue = processSucceeded(process->exitCode(), process->exitStatus()) || d->m_ignoreReturnValue;
 
-    m_outputParserChain.reset();
-    m_process.reset();
+    d->m_outputParserChain.reset();
+    d->m_process.reset();
 
     // Report result
-    reportRunResult(*m_futureInterface, returnValue);
+    reportRunResult(*d->m_futureInterface, returnValue);
 }
 
 /*!
@@ -247,8 +280,8 @@ void AbstractProcessStep::cleanUp(QProcess *process)
 void AbstractProcessStep::processStarted()
 {
     emit addOutput(tr("Starting: \"%1\" %2")
-                   .arg(QDir::toNativeSeparators(m_param.effectiveCommand()),
-                        m_param.prettyArguments()),
+                   .arg(QDir::toNativeSeparators(d->m_param.effectiveCommand()),
+                        d->m_param.prettyArguments()),
                    BuildStep::OutputFormat::NormalMessage);
 }
 
@@ -260,10 +293,10 @@ void AbstractProcessStep::processStarted()
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    if (m_outputParserChain)
-        m_outputParserChain->flush();
+    if (d->m_outputParserChain)
+        d->m_outputParserChain->flush();
 
-    QString command = QDir::toNativeSeparators(m_param.effectiveCommand());
+    QString command = QDir::toNativeSeparators(d->m_param.effectiveCommand());
     if (status == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
                        BuildStep::OutputFormat::NormalMessage);
@@ -285,10 +318,10 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
 void AbstractProcessStep::processStartupFailed()
 {
     emit addOutput(tr("Could not start process \"%1\" %2")
-                   .arg(QDir::toNativeSeparators(m_param.effectiveCommand()),
-                        m_param.prettyArguments()),
+                   .arg(QDir::toNativeSeparators(d->m_param.effectiveCommand()),
+                        d->m_param.prettyArguments()),
                    BuildStep::OutputFormat::ErrorMessage);
-    m_timer.stop();
+    d->m_timer.stop();
 }
 
 /*!
@@ -305,17 +338,17 @@ bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus st
 
 void AbstractProcessStep::processReadyReadStdOutput()
 {
-    if (!m_process)
+    if (!d->m_process)
         return;
-    m_process->setReadChannel(QProcess::StandardOutput);
+    d->m_process->setReadChannel(QProcess::StandardOutput);
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
         bc = target()->activeBuildConfiguration();
     const bool utf8Output = bc && bc->environment().hasKey("VSLANG");
 
-    while (m_process->canReadLine()) {
-        QString line = utf8Output ? QString::fromUtf8(m_process->readLine())
-                                  : QString::fromLocal8Bit(m_process->readLine());
+    while (d->m_process->canReadLine()) {
+        QString line = utf8Output ? QString::fromUtf8(d->m_process->readLine())
+                                  : QString::fromLocal8Bit(d->m_process->readLine());
         stdOutput(line);
     }
 }
@@ -328,18 +361,18 @@ void AbstractProcessStep::processReadyReadStdOutput()
 
 void AbstractProcessStep::stdOutput(const QString &line)
 {
-    if (m_outputParserChain)
-        m_outputParserChain->stdOutput(line);
+    if (d->m_outputParserChain)
+        d->m_outputParserChain->stdOutput(line);
     emit addOutput(line, BuildStep::OutputFormat::Stdout, BuildStep::DontAppendNewline);
 }
 
 void AbstractProcessStep::processReadyReadStdError()
 {
-    if (!m_process)
+    if (!d->m_process)
         return;
-    m_process->setReadChannel(QProcess::StandardError);
-    while (m_process->canReadLine()) {
-        QString line = QString::fromLocal8Bit(m_process->readLine());
+    d->m_process->setReadChannel(QProcess::StandardError);
+    while (d->m_process->canReadLine()) {
+        QString line = QString::fromLocal8Bit(d->m_process->readLine());
         stdError(line);
     }
 }
@@ -352,22 +385,22 @@ void AbstractProcessStep::processReadyReadStdError()
 
 void AbstractProcessStep::stdError(const QString &line)
 {
-    if (m_outputParserChain)
-        m_outputParserChain->stdError(line);
+    if (d->m_outputParserChain)
+        d->m_outputParserChain->stdError(line);
     emit addOutput(line, BuildStep::OutputFormat::Stderr, BuildStep::DontAppendNewline);
 }
 
 QFutureInterface<bool> *AbstractProcessStep::futureInterface() const
 {
-    return m_futureInterface;
+    return d->m_futureInterface;
 }
 
 void AbstractProcessStep::checkForCancel()
 {
-    if (m_futureInterface->isCanceled() && m_timer.isActive()) {
-        m_timer.stop();
+    if (d->m_futureInterface->isCanceled() && d->m_timer.isActive()) {
+        d->m_timer.stop();
 
-        Core::Reaper::reap(m_process.release());
+        Core::Reaper::reap(d->m_process.release());
     }
 }
 
@@ -375,23 +408,23 @@ void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int
 {
     // Do not bother to report issues if we do not care about the results of
     // the buildstep anyway:
-    if (m_ignoreReturnValue)
+    if (d->m_ignoreReturnValue)
         return;
 
     // flush out any pending tasks before proceeding:
-    if (!m_skipFlush && m_outputParserChain) {
-        m_skipFlush = true;
-        m_outputParserChain->flush();
-        m_skipFlush = false;
+    if (!d->m_skipFlush && d->m_outputParserChain) {
+        d->m_skipFlush = true;
+        d->m_outputParserChain->flush();
+        d->m_skipFlush = false;
     }
 
     Task editable(task);
     QString filePath = task.file.toString();
 
-    auto it = m_filesCache.find(filePath);
-    if (it != m_filesCache.end()) {
+    auto it = d->m_filesCache.find(filePath);
+    if (it != d->m_filesCache.end()) {
         editable.file = it.value().first;
-        it.value().second = ++m_cacheCounter;
+        it.value().second = ++d->m_cacheCounter;
     } else if (!filePath.isEmpty() && !filePath.startsWith('<') && !QDir::isAbsolutePath(filePath)) {
         // We have no save way to decide which file in which subfolder
         // is meant. Therefore we apply following heuristics:
@@ -400,7 +433,7 @@ void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int
         // 3. give up.
 
         QString sourceFilePath = filePath;
-        Utils::FileNameList possibleFiles = m_candidates.value(Utils::FileName::fromString(filePath).fileName());
+        Utils::FileNameList possibleFiles = d->m_candidates.value(Utils::FileName::fromString(filePath).fileName());
 
         if (possibleFiles.count() == 1) {
             editable.file = possibleFiles.first();
@@ -437,9 +470,9 @@ void AbstractProcessStep::outputAdded(const QString &string, BuildStep::OutputFo
 
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
-    m_timer.stop();
+    d->m_timer.stop();
 
-    QProcess *process = m_process.get();
+    QProcess *process = d->m_process.get();
     if (!process) // Happens when the process was canceled and handed over to the Reaper.
         process = qobject_cast<QProcess *>(sender()); // The process was canceled!
 
@@ -458,11 +491,11 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 void AbstractProcessStep::purgeCache(bool useSoftLimit)
 {
     const int limit = useSoftLimit ? CACHE_SOFT_LIMIT : CACHE_HARD_LIMIT;
-    if (m_filesCache.size() <= limit)
+    if (d->m_filesCache.size() <= limit)
         return;
 
-    const quint64 minCounter = m_cacheCounter - static_cast<quint64>(limit);
-    std::remove_if(m_filesCache.begin(), m_filesCache.end(),
+    const quint64 minCounter = d->m_cacheCounter - static_cast<quint64>(limit);
+    std::remove_if(d->m_filesCache.begin(), d->m_filesCache.end(),
                    [minCounter](const QPair<Utils::FileName, quint64> &entry) {
         return entry.second <= minCounter;
     });
@@ -471,5 +504,7 @@ void AbstractProcessStep::purgeCache(bool useSoftLimit)
 void AbstractProcessStep::insertInCache(const QString &relativePath, const Utils::FileName &absPath)
 {
     purgeCache(false);
-    m_filesCache.insert(relativePath, qMakePair(absPath, ++m_cacheCounter));
+    d->m_filesCache.insert(relativePath, qMakePair(absPath, ++d->m_cacheCounter));
 }
+
+} // namespace ProjectExplorer

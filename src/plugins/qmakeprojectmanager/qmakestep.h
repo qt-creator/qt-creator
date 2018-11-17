@@ -31,6 +31,8 @@
 #include <QStringList>
 #include <QFutureWatcher>
 
+#include <memory>
+
 namespace Utils { class FileName; }
 
 namespace ProjectExplorer {

@@ -37,6 +37,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>

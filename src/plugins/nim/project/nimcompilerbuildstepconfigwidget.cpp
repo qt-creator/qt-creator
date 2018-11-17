@@ -31,6 +31,8 @@
 
 #include "../nimconstants.h"
 
+#include <projectexplorer/processparameters.h>
+
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;

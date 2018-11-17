@@ -30,6 +30,8 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
+#include <utils/fileutils.h>
+
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
 QT_END_NAMESPACE

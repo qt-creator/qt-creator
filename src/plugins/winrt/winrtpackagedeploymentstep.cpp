@@ -33,6 +33,7 @@
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 
