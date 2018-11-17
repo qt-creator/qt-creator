@@ -57,7 +57,6 @@ public:
     void flush();
 
     virtual void appendMessage(const QString &text, OutputFormat format);
-    virtual void appendMessage(const QString &text, const QTextCharFormat &format);
     virtual void handleLink(const QString &href);
     virtual QList<QWidget *> toolbarWidgets() const { return {}; }
     virtual void clear() {}
@@ -70,6 +69,7 @@ protected:
     void append(QTextCursor &cursor, const QString &text, const QTextCharFormat &format);
 
 private:
+    virtual void appendMessage(const QString &text, const QTextCharFormat &format);
     Internal::OutputFormatterPrivate *d;
 };
 

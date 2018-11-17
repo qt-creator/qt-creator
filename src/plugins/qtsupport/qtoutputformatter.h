@@ -53,7 +53,6 @@ public:
     ~QtOutputFormatter() override;
 
     void appendMessage(const QString &text, Utils::OutputFormat format) override;
-    void appendMessage(const QString &text, const QTextCharFormat &format) override;
     void handleLink(const QString &href) override;
     void setPlainTextEdit(QPlainTextEdit *plainText) override;
 
@@ -67,6 +66,7 @@ private:
     void appendMessagePart(const QString &txt, const QTextCharFormat &format);
     void appendLine(const LinkResult &lr, const QString &line, Utils::OutputFormat format);
     void appendLine(const LinkResult &lr, const QString &line, const QTextCharFormat &format);
+    void appendMessage(const QString &text, const QTextCharFormat &format) override;
 
     Internal::QtOutputFormatterPrivate *d;
 
