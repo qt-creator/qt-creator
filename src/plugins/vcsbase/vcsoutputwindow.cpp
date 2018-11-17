@@ -104,6 +104,7 @@ private:
     void setFormat(enum VcsOutputWindow::MessageStyle style);
     QString identifierUnderCursor(const QPoint &pos, QString *repository = nullptr) const;
 
+    Utils::OutputFormat m_format;
     const QTextCharFormat m_defaultFormat;
     QTextCharFormat m_errorFormat;
     QTextCharFormat m_warningFormat;
@@ -113,20 +114,11 @@ private:
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
-    Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), parent),
-    m_defaultFormat(currentCharFormat()),
-    m_errorFormat(m_defaultFormat),
-    m_warningFormat(m_defaultFormat),
-    m_commandFormat(m_defaultFormat),
-    m_messageFormat(m_defaultFormat)
+    Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), parent)
 {
     setReadOnly(true);
     setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
-    m_errorFormat.setForeground(Utils::creatorTheme()->color(Theme::OutputPanes_ErrorMessageTextColor));
-    m_warningFormat.setForeground(Utils::creatorTheme()->color(Theme::OutputPanes_WarningMessageTextColor));
-    m_commandFormat.setFontWeight(QFont::Bold);
-    m_messageFormat.setForeground(Utils::creatorTheme()->color(Theme::OutputPanes_MessageOutput));
     m_formatter = new OutputFormatter;
     m_formatter->setPlainTextEdit(this);
     auto agg = new Aggregation::Aggregate;
@@ -226,7 +218,7 @@ void OutputWindowPlainTextEdit::appendLines(QString const& s, const QString &rep
     const QChar newLine(QLatin1Char('\n'));
     const QChar lastChar = s.at(s.size() - 1);
     const bool appendNewline = (lastChar != QLatin1Char('\r') && lastChar != newLine);
-    m_formatter->appendMessage(appendNewline ? s + newLine : s, currentCharFormat());
+    m_formatter->appendMessage(appendNewline ? s + newLine : s, m_format);
 
     // Scroll down
     moveCursor(QTextCursor::End);
@@ -250,28 +242,26 @@ void OutputWindowPlainTextEdit::appendLinesWithStyle(QString const& s, enum VcsO
     else {
         appendLines(s, repository);
     }
-
-    setCurrentCharFormat(m_defaultFormat);
 }
 
 void OutputWindowPlainTextEdit::setFormat(enum VcsOutputWindow::MessageStyle style)
 {
     switch (style) {
     case VcsOutputWindow::Warning:
-        setCurrentCharFormat(m_warningFormat);
+        m_format = LogMessageFormat;
         break;
     case VcsOutputWindow::Error:
-        setCurrentCharFormat(m_errorFormat);
+        m_format = ErrorMessageFormat;
         break;
     case VcsOutputWindow::Message:
-        setCurrentCharFormat(m_messageFormat);
+        m_format = NormalMessageFormat;
         break;
     case VcsOutputWindow::Command:
-        setCurrentCharFormat(m_commandFormat);
+        m_format = NormalMessageFormat;
         break;
     default:
     case VcsOutputWindow::None:
-        setCurrentCharFormat(m_defaultFormat);
+        m_format = OutputFormat::StdOutFormat;
         break;
     }
 }
