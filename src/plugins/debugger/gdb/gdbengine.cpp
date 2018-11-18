@@ -1803,7 +1803,6 @@ bool GdbEngine::hasCapability(unsigned cap) const
                   | RunToLineCapability
                   | MemoryAddressCapability
                   | AdditionalQmlStackCapability
-                  | NativeMixedCapability
                   | ResetInferiorCapability
                   | SnapshotCapability
                   | ReverseSteppingCapability);
