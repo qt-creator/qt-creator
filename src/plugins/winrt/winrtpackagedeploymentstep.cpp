@@ -40,6 +40,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QLayout>
 #include <QRegularExpression>
