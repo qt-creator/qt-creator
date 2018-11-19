@@ -25,6 +25,7 @@
 
 #include "sshcryptofacility_p.h"
 
+#include "opensshkeyfilereader_p.h"
 #include "sshbotanconversions_p.h"
 #include "sshcapabilities_p.h"
 #include "sshexception_p.h"
@@ -222,7 +223,14 @@ void SshEncryptionFacility::createAuthenticationKey(const QByteArray &privKeyFil
     QList<BigInt> allKeyParams;
     QString error1;
     QString error2;
-    if (!createAuthenticationKeyFromPKCS8(privKeyFileContents, pubKeyParams, allKeyParams, error1)
+    OpenSshKeyFileReader openSshReader(m_rng);
+    if (openSshReader.parseKey(privKeyFileContents)) {
+        m_authKeyAlgoName = openSshReader.keyType();
+        m_authKey.reset(openSshReader.privateKey().release());
+        pubKeyParams = openSshReader.publicParameters();
+        allKeyParams = openSshReader.allParameters();
+    } else if (!createAuthenticationKeyFromPKCS8(privKeyFileContents, pubKeyParams, allKeyParams,
+                                                 error1)
             && !createAuthenticationKeyFromOpenSSL(privKeyFileContents, pubKeyParams, allKeyParams,
                 error2)) {
         qCDebug(sshLog, "%s: %s\n\t%s\n", Q_FUNC_INFO, qPrintable(error1), qPrintable(error2));

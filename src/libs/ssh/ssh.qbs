@@ -21,6 +21,8 @@ Project {
         Depends { name: "Botan"; condition: !qtc.useSystemBotan }
 
         files: [
+            "opensshkeyfilereader.cpp",
+            "opensshkeyfilereader_p.h",
             "sftpchannel.h",
             "sftpchannel_p.h",
             "sftpchannel.cpp",
