@@ -95,7 +95,7 @@ public:
                             const clang::Module * /*imported*/,
                             clang::SrcMgr::CharacteristicKind fileType) override
     {
-        if (!m_skipInclude && file) {
+        if (file) {
             addSourceDependency(file, hashLocation);
             auto fileUID = file->getUID();
             auto sourceFileUID = m_sourceManager
@@ -124,23 +124,11 @@ public:
                     addInclude({includeId, sourceType, lastModified});
                 }
             }
+        } else {
+            auto sourceFileId = filePathId(hashLocation);
+            m_containsMissingIncludes.emplace_back(sourceFileId);
         }
-
-        m_skipInclude = false;
     }
-
-    bool FileNotFound(clang::StringRef /*fileNameRef*/,
-                      clang::SmallVectorImpl<char> &recoveryPath) override
-    {
-        auto dummyPath = llvm::StringRef("/dummyPath");
-
-        recoveryPath.append(std::cbegin(dummyPath), std::cend(dummyPath));
-
-        m_skipInclude = true;
-
-        return true;
-    }
-
 
     void Ifndef(clang::SourceLocation,
                 const clang::Token &macroNameToken,
@@ -176,6 +164,128 @@ public:
         filterOutHeaderGuards();
         mergeUsedMacros();
         m_sourcesManager.updateModifiedTimeStamps();
+        filterOutIncludesWithMissingIncludes();
+    }
+
+    static
+    void sortAndMakeUnique(FilePathIds &filePathIds)
+    {
+        std::sort(filePathIds.begin(), filePathIds.end());
+        auto newEnd = std::unique(filePathIds.begin(),
+                                  filePathIds.end());
+        filePathIds.erase(newEnd, filePathIds.end());
+    }
+
+    void appendContainsMissingIncludes(const FilePathIds &dependentSourceFilesWithMissingIncludes)
+    {
+        auto split = m_containsMissingIncludes
+                         .insert(m_containsMissingIncludes.end(),
+                                 dependentSourceFilesWithMissingIncludes.begin(),
+                                 dependentSourceFilesWithMissingIncludes.end());
+        std::inplace_merge(m_containsMissingIncludes.begin(),
+                           split,
+                           m_containsMissingIncludes.end());
+    }
+
+    void removeAlreadyFoundSourcesWithMissingIncludes(FilePathIds &dependentSourceFilesWithMissingIncludes) const
+    {
+        FilePathIds filteredDependentSourceFilesWithMissingIncludes;
+        filteredDependentSourceFilesWithMissingIncludes.reserve(dependentSourceFilesWithMissingIncludes.size());
+        std::set_difference(dependentSourceFilesWithMissingIncludes.begin(),
+                            dependentSourceFilesWithMissingIncludes.end(),
+                            m_containsMissingIncludes.begin(),
+                            m_containsMissingIncludes.end(),
+                            std::back_inserter(filteredDependentSourceFilesWithMissingIncludes));
+        dependentSourceFilesWithMissingIncludes = filteredDependentSourceFilesWithMissingIncludes;
+    }
+
+    void collectSourceWithMissingIncludes(FilePathIds containsMissingIncludes,
+                                          const SourceDependencies &sourceDependencies)
+    {
+        if (containsMissingIncludes.empty())
+            return;
+
+        class Compare
+        {
+        public:
+            bool operator()(SourceDependency sourceDependency, FilePathId filePathId)
+            {
+                return sourceDependency.dependencyFilePathId < filePathId;
+            }
+            bool operator()(FilePathId filePathId, SourceDependency sourceDependency)
+            {
+                return filePathId < sourceDependency.dependencyFilePathId;
+            }
+        };
+
+        FilePathIds dependentSourceFilesWithMissingIncludes;
+        auto begin = sourceDependencies.begin();
+        for (FilePathId sourceWithMissingInclude : containsMissingIncludes) {
+            auto range = std::equal_range(begin,
+                                          sourceDependencies.end(),
+                                          sourceWithMissingInclude,
+                                          Compare{});
+            std::for_each(range.first, range.second, [&](auto entry) {
+                dependentSourceFilesWithMissingIncludes.emplace_back(entry.filePathId);
+            });
+
+            begin = range.second;
+        }
+
+        sortAndMakeUnique(dependentSourceFilesWithMissingIncludes);
+        removeAlreadyFoundSourcesWithMissingIncludes(dependentSourceFilesWithMissingIncludes);
+        appendContainsMissingIncludes(dependentSourceFilesWithMissingIncludes);
+        collectSourceWithMissingIncludes(dependentSourceFilesWithMissingIncludes,
+                                         sourceDependencies);
+    }
+
+    void removeSourceWithMissingIncludesFromIncludes()
+    {
+        class Compare
+        {
+        public:
+            bool operator()(SourceEntry entry, FilePathId filePathId)
+            {
+                return entry.sourceId < filePathId;
+            }
+            bool operator()(FilePathId filePathId, SourceEntry entry)
+            {
+                return filePathId < entry.sourceId;
+            }
+        };
+
+        auto &includes = m_buildDependency.includes;
+        SourceEntries newIncludes;
+        newIncludes.reserve(includes.size());
+        std::set_difference(includes.begin(),
+                            includes.end(),
+                            m_containsMissingIncludes.begin(),
+                            m_containsMissingIncludes.end(),
+                            std::back_inserter(newIncludes),
+                            Compare{});
+
+        m_buildDependency.includes = newIncludes;
+    }
+
+    SourceDependencies sourceDependenciesSortedByDependendFilePathId() const
+    {
+        auto sourceDependencies = m_buildDependency.sourceDependencies;
+        std::sort(sourceDependencies.begin(), sourceDependencies.end(), [](auto first, auto second) {
+            return std::tie(first.dependencyFilePathId, first.filePathId)
+                   < std::tie(second.dependencyFilePathId, second.filePathId);
+        });
+
+        return sourceDependencies;
+    }
+
+    void filterOutIncludesWithMissingIncludes()
+    {
+        sortAndMakeUnique(m_containsMissingIncludes);;
+
+        collectSourceWithMissingIncludes(m_containsMissingIncludes,
+                                         sourceDependenciesSortedByDependendFilePathId());
+
+        removeSourceWithMissingIncludesFromIncludes();
     }
 
     void ensureDirectory(const QString &directory, const QString &fileName)
@@ -230,7 +340,6 @@ private:
     BuildDependency &m_buildDependency;
     const std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
-    bool m_skipInclude = false;
 };
 
 } // namespace ClangBackEnd

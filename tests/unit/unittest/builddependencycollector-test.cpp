@@ -494,6 +494,25 @@ TEST_F(BuildDependencyCollector, CollectSourceDependencies)
                                      SourceDependency(header1FileId, header2FileId)));
 }
 
+TEST_F(BuildDependencyCollector, MissingInclude)
+{
+    emptyCollector.addFile(id(TESTDATA_DIR "/builddependencycollector/project/main5.cpp"),
+                           {"cc",
+                            "-I",
+                            TESTDATA_DIR "/builddependencycollector/external",
+                            "-I",
+                            TESTDATA_DIR "/builddependencycollector/project",
+                            "-isystem",
+                            TESTDATA_DIR "/builddependencycollector/system"});
+
+    emptyCollector.collect();
+
+    ASSERT_THAT(emptyCollector.includeIds(),
+                ElementsAre(
+                    HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
+                               SourceType::UserInclude)));
+}
+
 TEST_F(BuildDependencyCollector, Create)
 {
     ClangBackEnd::BuildDependencyCollector collector{filePathCache};
@@ -508,10 +527,12 @@ TEST_F(BuildDependencyCollector, Create)
                      TESTDATA_DIR "/builddependencycollector/system"},
                     {},
                     {},
-                    {id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
-                     id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+                    {
+                        id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
+                        id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
                         id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
-                    id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),},
+                        id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
+                    },
                     {id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp")}};
 
     auto buildDependency = collector.create(projectPart);
@@ -562,8 +583,6 @@ TEST_F(BuildDependencyCollector, Create)
                       HasInclude(id(TESTDATA_DIR
                                     "/builddependencycollector/system/indirect_system2.h"),
                                  SourceType::SystemInclude),
-                      HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
-                                 SourceType::UserInclude),
                       HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
                                  SourceType::UserInclude))),
             Field(&BuildDependency::usedMacros,
