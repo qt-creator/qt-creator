@@ -95,7 +95,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
 
-        id: column
+        id: renderArea
 
         Repeater {
             model: modelProxy.models
@@ -103,8 +103,8 @@ Rectangle {
                 model: modelData
                 zoomer: overview.zoomer
                 notes: modelProxy.notes
-                width: column.width
-                height: column.height / modelProxy.models.length
+                width: renderArea.width
+                height: renderArea.height / modelProxy.models.length
             }
         }
     }
@@ -116,7 +116,7 @@ Rectangle {
             return prev;
         }, {});
 
-        property int vertSpace: column.height / 7
+        property int vertSpace: renderArea.height / 7
         property color noteColor: Theme.color(Theme.Timeline_HighlightColor)
         readonly property double spacing: parent.width / zoomer.traceDuration
 

@@ -46,6 +46,7 @@ public:
 
     void disablePort(const QString &portName);
     void enablePort(const QString &portName);
+    int indexForPort(const QString &portName) const;
 
     void update();
 

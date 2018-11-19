@@ -302,6 +302,11 @@ public:
         ActionManager::registerAction(&m_returnFromFunctionAction, Constants::RETURNFROMFUNCTION, m_context);
         ActionManager::registerAction(&m_detachAction, Constants::DETACH, m_context);
         ActionManager::registerAction(&m_resetAction, Constants::RESET, m_context);
+        ActionManager::registerAction(&m_watchAction, Constants::WATCH, m_context);
+        ActionManager::registerAction(&m_operateByInstructionAction, Constants::OPERATE_BY_INSTRUCTION, m_context);
+        ActionManager::registerAction(&m_openMemoryEditorAction, Constants::OPEN_MEMORY_EDITOR, m_context);
+        ActionManager::registerAction(&m_frameUpAction, Constants::FRAME_UP, m_context);
+        ActionManager::registerAction(&m_frameDownAction, Constants::FRAME_DOWN, m_context);
     }
 
     ~DebuggerEnginePrivate()
@@ -319,6 +324,11 @@ public:
         ActionManager::unregisterAction(&m_returnFromFunctionAction, Constants::RETURNFROMFUNCTION);
         ActionManager::unregisterAction(&m_detachAction, Constants::DETACH);
         ActionManager::unregisterAction(&m_resetAction, Constants::RESET);
+        ActionManager::unregisterAction(&m_watchAction, Constants::WATCH);
+        ActionManager::unregisterAction(&m_operateByInstructionAction, Constants::OPERATE_BY_INSTRUCTION);
+        ActionManager::unregisterAction(&m_openMemoryEditorAction, Constants::OPEN_MEMORY_EDITOR);
+        ActionManager::unregisterAction(&m_frameUpAction, Constants::FRAME_UP);
+        ActionManager::unregisterAction(&m_frameDownAction, Constants::FRAME_DOWN);
         destroyPerspective();
 
         delete m_logWindow;
@@ -513,6 +523,13 @@ public:
     QAction m_runToLineAction{tr("Run to Line")}; // In the debug menu
     QAction m_runToSelectedFunctionAction{tr("Run to Selected Function")};
     QAction m_jumpToLineAction{tr("Jump to Line")};
+    QAction m_frameUpAction{QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                                        "Move to Calling Frame")};
+    QAction m_frameDownAction{QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                                          "Move to Called Frame")};
+    QAction m_openMemoryEditorAction{QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                                                 "Memory...")};
+
     // In the Debug menu.
     QAction m_returnFromFunctionAction{tr("Immediately Return From Inner Function")};
     QAction m_stepOverAction{tr("Step Over")};
@@ -564,9 +581,21 @@ void DebuggerEnginePrivate::setupViews()
         "instructions and the source location view also shows the "
         "disassembled instructions."));
     m_operateByInstructionAction.setIconVisibleInMenu(false);
-
     connect(&m_operateByInstructionAction, &QAction::triggered,
             m_engine, &DebuggerEngine::operateByInstructionTriggered);
+
+    m_frameDownAction.setEnabled(true);
+    connect(&m_frameDownAction, &QAction::triggered,
+            m_engine, &DebuggerEngine::handleFrameDown);
+
+    m_frameUpAction.setEnabled(true);
+    connect(&m_frameUpAction, &QAction::triggered,
+            m_engine, &DebuggerEngine::handleFrameUp);
+
+    m_openMemoryEditorAction.setEnabled(true);
+    m_openMemoryEditorAction.setVisible(m_engine->hasCapability(ShowMemoryCapability));
+    connect(&m_openMemoryEditorAction, &QAction::triggered,
+            m_engine, &DebuggerEngine::openMemoryEditor);
 
     QTC_ASSERT(m_state == DebuggerNotReady || m_state == DebuggerFinished, qDebug() << m_state);
     m_progress.setProgressValue(200);
@@ -747,6 +776,9 @@ void DebuggerEnginePrivate::setupViews()
 
     connect(&m_jumpToLineAction, &QAction::triggered,
             m_engine, &DebuggerEngine::handleExecJumpToLine);
+
+    connect(&m_watchAction, &QAction::triggered,
+            m_engine, &DebuggerEngine::handleAddToWatchWindow);
 
     m_perspective->addToolBarAction(&m_recordForReverseOperationAction);
     connect(&m_recordForReverseOperationAction, &QAction::triggered,
@@ -977,7 +1009,7 @@ void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
         d->m_device = d->m_runParameters.inferior.device;
     d->m_terminalRunner = runTool->terminalRunner();
 
-    validateExecutable();
+    validateRunParameters(d->m_runParameters);
 
     d->setupViews();
 }
@@ -1036,17 +1068,14 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 
 void DebuggerEngine::gotoCurrentLocation()
 {
-    int top = stackHandler()->currentIndex();
-    if (top >= 0)
-        gotoLocation(stackHandler()->currentFrame());
+    if (d->m_state == InferiorStopOk || d->m_state == InferiorUnrunnable) {
+        int top = stackHandler()->currentIndex();
+        if (top >= 0)
+            gotoLocation(stackHandler()->currentFrame());
+    }
 }
 
 const DebuggerRunParameters &DebuggerEngine::runParameters() const
-{
-    return d->m_runParameters;
-}
-
-DebuggerRunParameters &DebuggerEngine::mutableRunParameters() const
 {
     return d->m_runParameters;
 }
@@ -1078,6 +1107,17 @@ void DebuggerEngine::abortDebugger()
         showMessage("ABORTING DEBUGGER. SECOND TIME.");
         abortDebuggerProcess();
         emit requestRunControlFinish();
+    }
+}
+
+void DebuggerEngine::updateUi(bool isCurrentEngine)
+{
+    updateState(false);
+    if (isCurrentEngine) {
+        gotoCurrentLocation();
+    } else {
+        d->m_locationMark.reset();
+        d->m_disassemblerAgent.resetLocation();
     }
 }
 
@@ -2556,9 +2596,8 @@ Context CppDebuggerEngine::languageContext() const
     return Context(Constants::C_CPPDEBUGGER);
 }
 
-void CppDebuggerEngine::validateExecutable()
+void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
-    DebuggerRunParameters &rp = mutableRunParameters();
     const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds) && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;

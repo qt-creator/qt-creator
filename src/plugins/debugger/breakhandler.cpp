@@ -2304,10 +2304,11 @@ void GlobalBreakpointItem::updateMarker()
 
 void GlobalBreakpointItem::setEnabled(bool enabled, bool descend)
 {
-    QTC_CHECK(m_params.enabled != enabled);
-    m_params.enabled = enabled;
-    updateMarkerIcon();
-    update();
+    if (m_params.enabled != enabled) {
+        m_params.enabled = enabled;
+        updateMarkerIcon();
+        update();
+    }
 
     if (descend) {
         for (QPointer<DebuggerEngine> engine : EngineManager::engines()) {

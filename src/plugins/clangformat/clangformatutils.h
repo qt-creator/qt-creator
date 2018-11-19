@@ -34,12 +34,13 @@
 
 namespace ClangFormat {
 
-void createStyleFileIfNeeded(Utils::FileName styleConfigPath, bool isGlobal);
+// Creates the style for the current project or the global style if needed.
+void createStyleFileIfNeeded(bool isGlobal);
 
 clang::format::FormatStyle currentProjectStyle();
 clang::format::FormatStyle currentGlobalStyle();
 
-Utils::FileName currentStyleConfigPath();
-clang::format::FormatStyle currentStyle();
+// Is the style from the matching .clang-format file or global one if it's not found.
+clang::format::FormatStyle styleForFile(Utils::FileName fileName);
 
 }

@@ -254,7 +254,9 @@ QVariant EngineItem::data(int column, int role) const
     } else {
         switch (role) {
         case Qt::DisplayRole:
-            return EngineManager::tr("Debugger Preset");
+            if (column == 0)
+                return EngineManager::tr("Debugger Preset");
+            return QString("-");
         default:
             break;
         }
@@ -335,7 +337,6 @@ void EngineManagerPrivate::activateEngineItem(EngineItem *engineItem)
         if (DebuggerEngine *engine = m_currentItem->m_engine) {
             newContext.add(engine->languageContext());
             newContext.add(engine->debuggerContext());
-            engine->gotoCurrentLocation();
         } else {
             newContext.add(Context(Constants::C_DEBUGGER_NOTRUNNING));
         }
@@ -353,10 +354,8 @@ void EngineManagerPrivate::selectUiForCurrentEngine()
     Perspective *perspective = nullptr;
     int row = 0;
 
-    if (m_currentItem && m_currentItem->m_engine) {
+    if (m_currentItem && m_currentItem->m_engine)
         perspective = m_currentItem->m_engine->perspective();
-        m_currentItem->m_engine->updateState(false);
-    }
 
     if (m_currentItem)
         row = m_engineModel.rootItem()->indexOf(m_currentItem);
@@ -376,17 +375,12 @@ void EngineManagerPrivate::selectUiForCurrentEngine()
     QTC_ASSERT(perspective, return);
     perspective->select();
 
-    m_engineModel.rootItem()->forFirstLevelChildren([](EngineItem *engineItem) {
+    m_engineModel.rootItem()->forFirstLevelChildren([this](EngineItem *engineItem) {
         if (engineItem && engineItem->m_engine)
-            engineItem->m_engine->updateMarkers();
+            engineItem->m_engine->updateUi(engineItem == m_currentItem);
     });
 
     emit theEngineManager->currentEngineChanged();
-}
-
-void EngineManager::selectUiForCurrentEngine()
-{
-    d->selectUiForCurrentEngine();
 }
 
 EngineItem *EngineManagerPrivate::findEngineItem(DebuggerEngine *engine)

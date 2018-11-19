@@ -60,7 +60,7 @@ Item {
     Item {
         x: -(timeDisplay.offsetX % timeDisplay.pixelsPerBlock)
         y: 0
-        id: row
+        id: timeDisplayArea
 
         property int firstBlock: timeDisplay.offsetX / timeDisplay.pixelsPerBlock
         property int offset: repeater.model > 0 ? repeater.model - (firstBlock % repeater.model) : 0;
@@ -71,18 +71,18 @@ Item {
                                           + 2))
 
             Item {
-                id: column
+                id: timeDisplayItem
 
                 // Changing the text in text nodes is expensive. We minimize the number of changes
                 // by rotating the nodes during scrolling.
-                property int stableIndex: (index + row.offset) % repeater.model
+                property int stableIndex: (index + timeDisplayArea.offset) % repeater.model
 
                 height: timeDisplay.height
                 y: 0
                 x: width * stableIndex
                 width: timeDisplay.pixelsPerBlock
 
-                property double blockStartTime: (row.firstBlock + stableIndex)
+                property double blockStartTime: (timeDisplayArea.firstBlock + stableIndex)
                                                 * timeDisplay.timePerBlock
                                                 + timeDisplay.alignedWindowStart
 
@@ -97,7 +97,8 @@ Item {
                     font.pixelSize: timeDisplay.fontSize
                     anchors.rightMargin: timeDisplay.textMargin
                     verticalAlignment: Text.AlignVCenter
-                    text: TimeFormatter.format(column.blockStartTime, timeDisplay.rangeDuration)
+                    text: TimeFormatter.format(timeDisplayItem.blockStartTime,
+                                               timeDisplay.rangeDuration)
                     visible: width > 0
                     color: Theme.color(Theme.PanelTextColorLight)
                     elide: Text.ElideLeft
@@ -117,7 +118,8 @@ Item {
                             width: timeDisplay.pixelsPerSection
 
                             Rectangle {
-                                visible: column.stableIndex !== 0 || (-row.x < parent.x + x)
+                                visible: timeDisplayItem.stableIndex !== 0
+                                         || (-timeDisplayArea.x < parent.x + x)
                                 color: Theme.color(Theme.Timeline_DividerColor)
                                 width: 1
                                 anchors.top: parent.top

@@ -26,6 +26,7 @@
 
 #include "clangformatconfigwidget.h"
 
+#include "clangformatconstants.h"
 #include "clangformatutils.h"
 #include "ui_clangformatconfigwidget.h"
 
@@ -131,14 +132,14 @@ void ClangFormatConfigWidget::initialize()
     m_ui->clangFormatOptionsTable->show();
     m_ui->applyButton->show();
 
-    if (m_project && !m_project->projectDirectory().appendPath(".clang-format").exists()) {
+    if (m_project && !m_project->projectDirectory().appendPath(SETTINGS_FILE_NAME).exists()) {
         m_ui->projectHasClangFormat->setText(tr("No .clang-format file for the project."));
         m_ui->clangFormatOptionsTable->hide();
         m_ui->applyButton->hide();
 
         connect(m_ui->createFileButton, &QPushButton::clicked,
                 this, [this]() {
-            createStyleFileIfNeeded(m_project->projectDirectory(), false);
+            createStyleFileIfNeeded(false);
             initialize();
         });
         return;
@@ -152,15 +153,14 @@ void ClangFormatConfigWidget::initialize()
     } else {
         const Project *currentProject = SessionManager::startupProject();
         if (!currentProject
-                || !currentProject->projectDirectory().appendPath(".clang-format").exists()) {
+                || !currentProject->projectDirectory().appendPath(SETTINGS_FILE_NAME).exists()) {
             m_ui->projectHasClangFormat->hide();
         } else {
             m_ui->projectHasClangFormat->setText(
                     tr("Current project has its own .clang-format file "
                        "and can be configured in Projects > Clang Format."));
         }
-        const QString settingsDir = Core::ICore::userResourcePath();
-        createStyleFileIfNeeded(Utils::FileName::fromString(settingsDir), true);
+        createStyleFileIfNeeded(true);
         m_ui->applyButton->hide();
     }
 
@@ -184,9 +184,9 @@ void ClangFormatConfigWidget::apply()
     const QByteArray text = tableToYAML(m_ui->clangFormatOptionsTable);
     QString filePath;
     if (m_project)
-        filePath = m_project->projectDirectory().appendPath(".clang-format").toString();
+        filePath = m_project->projectDirectory().appendPath(SETTINGS_FILE_NAME).toString();
     else
-        filePath = Core::ICore::userResourcePath() + "/.clang-format";
+        filePath = Core::ICore::userResourcePath() + "/" + SETTINGS_FILE_NAME;
     QFile file(filePath);
     if (!file.open(QFile::WriteOnly))
         return;

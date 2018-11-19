@@ -79,6 +79,13 @@ void SerialDeviceModel::enablePort(const QString &portName)
     m_disabledPorts.remove(portName);
 }
 
+int SerialDeviceModel::indexForPort(const QString &portName) const
+{
+    return Utils::indexOf(m_ports, [portName](const QSerialPortInfo &port) {
+        return port.portName() == portName;
+    });
+}
+
 void SerialDeviceModel::update()
 {
     // Called from the combobox before popup, thus updated only when needed and immediately

@@ -200,22 +200,24 @@ bool CppCodeStyleSettings::equals(const CppCodeStyleSettings &rhs) const
            ;
 }
 
-CppCodeStyleSettings CppCodeStyleSettings::currentProjectCodeStyle()
+Utils::optional<CppCodeStyleSettings> CppCodeStyleSettings::currentProjectCodeStyle()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
+    using OptSettings = Utils::optional<CppCodeStyleSettings>;
     if (!project)
-        return currentGlobalCodeStyle();
+        return OptSettings();
 
     ProjectExplorer::EditorConfiguration *editorConfiguration = project->editorConfiguration();
-    QTC_ASSERT(editorConfiguration, return currentGlobalCodeStyle());
+    QTC_ASSERT(editorConfiguration, return OptSettings());
 
     TextEditor::ICodeStylePreferences *codeStylePreferences
         = editorConfiguration->codeStyle(Constants::CPP_SETTINGS_ID);
-    QTC_ASSERT(codeStylePreferences, return currentGlobalCodeStyle());
+    QTC_ASSERT(codeStylePreferences, return OptSettings());
 
     CppCodeStylePreferences *cppCodeStylePreferences
         = dynamic_cast<CppCodeStylePreferences *>(codeStylePreferences);
-    QTC_ASSERT(cppCodeStylePreferences, return currentGlobalCodeStyle());
+    if (!cppCodeStylePreferences)
+        return OptSettings();
 
     return cppCodeStylePreferences->currentCodeStyleSettings();
 }
@@ -270,7 +272,9 @@ static void configureOverviewWithCodeStyleSettings(CPlusPlus::Overview &overview
 CPlusPlus::Overview CppCodeStyleSettings::currentProjectCodeStyleOverview()
 {
     CPlusPlus::Overview overview;
-    configureOverviewWithCodeStyleSettings(overview, currentProjectCodeStyle());
+    const Utils::optional<CppCodeStyleSettings> codeStyleSettings = currentProjectCodeStyle();
+    configureOverviewWithCodeStyleSettings(overview,
+                                           codeStyleSettings.value_or(currentGlobalCodeStyle()));
     return overview;
 }
 

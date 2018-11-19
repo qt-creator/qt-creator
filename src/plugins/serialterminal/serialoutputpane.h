@@ -114,6 +114,7 @@ private:
 
     void createToolButtons();
     void updateLineEndingsComboBox();
+    void updatePortsList();
 
     void contextMenuRequested(const QPoint &pos, int index);
 

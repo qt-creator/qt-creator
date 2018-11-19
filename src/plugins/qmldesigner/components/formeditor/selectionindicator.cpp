@@ -54,12 +54,16 @@ void SelectionIndicator::show()
 {
     foreach (QGraphicsPolygonItem *item, m_indicatorShapeHash)
         item->show();
+    if (m_labelItem)
+        m_labelItem->show();
 }
 
 void SelectionIndicator::hide()
 {
     foreach (QGraphicsPolygonItem *item, m_indicatorShapeHash)
         item->hide();
+    if (m_labelItem)
+        m_labelItem->hide();
 }
 
 void SelectionIndicator::clear()

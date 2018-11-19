@@ -57,7 +57,7 @@ public:
 private:
     void applyFixitsToFile(TextEditor::RefactoringFile &refactoringFile,
                            const QVector<ClangBackEnd::FixItContainer> fixItContainers);
-    Utils::ChangeSet toChangeSet(
+    ::Utils::ChangeSet toChangeSet(
             TextEditor::RefactoringFile &refactoringFile,
             const QVector<ClangBackEnd::FixItContainer> fixItContainers) const;
 

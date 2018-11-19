@@ -640,23 +640,6 @@ struct Callback
     std::function<void()> cb;
 };
 
-struct Action : public QAction
-{
-    Action(const QString &name, const QIcon &icon = {}) : QAction(name) { setIcon(icon); }
-    Action(const QString &name, const QIcon &icon, Callback cb, const QString &toolTip = {})
-        : Action(name, icon)
-    {
-        m_cb = cb;
-        setToolTip(toolTip);
-        connect(this, &QAction::triggered, this, &Action::onTriggered);
-    }
-    void onTriggered()
-    {
-        m_cb.cb();
-    }
-    Callback m_cb;
-};
-
 class DebuggerPluginPrivate : public QObject
 {
     Q_OBJECT
@@ -731,8 +714,6 @@ public:
 
     void onStartupProjectChanged(Project *project);
 
-    void handleOperateByInstructionTriggered(bool operateByInstructionTriggered);
-
     bool parseArgument(QStringList::const_iterator &it,
         const QStringList::const_iterator &cend, QString *errorMessage);
     bool parseArguments(const QStringList &args, QString *errorMessage);
@@ -762,12 +743,9 @@ public:
 
     // In the Debug menu.
     QAction m_startAndBreakOnMain{tr("Start and Break on Main")};
-    Action m_watchAction{tr("Add Expression Evaluator"), {}, &DebuggerEngine::handleAddToWatchWindow};
+    QAction m_watchAction{tr("Add Expression Evaluator")};
     Command *m_watchCommand = nullptr;
     QAction m_breakAction{tr("Toggle Breakpoint")};
-    Action m_frameUpAction{tr("Move to Calling Frame"), {}, &DebuggerEngine::handleFrameDown};
-    Action m_frameDownAction{tr("Move to Called Frame"), {}, &DebuggerEngine::handleFrameUp};
-    Action m_openMemoryEditorAction{tr("Memory..."), {}, &DebuggerEngine::openMemoryEditor};
 
     BreakpointManager m_breakpointManager;
     QPointer<BaseTreeView> m_breakpointManagerView;
@@ -1027,9 +1005,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     // Populate Windows->Views menu with standard actions.
     Context debugcontext(Constants::C_DEBUGMODE);
 
-    Command *cmd = ActionManager::registerAction(&m_openMemoryEditorAction,
-        "Debugger.Views.OpenMemoryEditor", debugcontext);
-    cmd->setAttribute(Command::CA_Hide);
+    act = new QAction(tr("Memory..."), this);
+    act->setVisible(false);
+    act->setEnabled(false);
+    Command *cmd = ActionManager::registerAction(act, Constants::OPEN_MEMORY_EDITOR);
 
     TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_DEBUGINFO,
                          tr("Debug Information"));
@@ -1044,6 +1023,15 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     const Context cppDebuggercontext(C_CPPDEBUGGER);
     const Context qmljsDebuggercontext(C_QMLDEBUGGER);
 
+    const auto addLabel = [](QWidget *widget, const QString &text) {
+        auto vbox = qobject_cast<QVBoxLayout *>(widget->layout());
+        QTC_ASSERT(vbox, return);
+        auto label = new QLabel(widget);
+        label->setText(text);
+        label->setMargin(6);
+        vbox->insertWidget(0, label);
+    };
+
     m_breakpointManagerView = new BaseTreeView;
     m_breakpointManagerView->setIconSize(QSize(10, 10));
     m_breakpointManagerView->setWindowIcon(Icons::BREAKPOINTS.icon());
@@ -1054,6 +1042,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_breakpointManagerWindow = addSearch(m_breakpointManagerView);
     m_breakpointManagerWindow->setWindowTitle(tr("Breakpoint Preset"));
     m_breakpointManagerWindow->setObjectName(DOCKWIDGET_BREAKPOINTMANAGER);
+    addLabel(m_breakpointManagerWindow, m_breakpointManagerWindow->windowTitle());
+
 
     // Snapshot
     m_engineManagerView = new BaseTreeView;
@@ -1064,13 +1054,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_engineManagerWindow = addSearch(m_engineManagerView);
     m_engineManagerWindow->setWindowTitle(tr("Debugger Perspectives"));
     m_engineManagerWindow->setObjectName(DOCKWIDGET_ENGINEMANAGER);
-
-    //act = m_snapshotAction = new QAction(tr("Create Snapshot"), this);
-    //act->setProperty(Role, RequestCreateSnapshotRole);
-    //act->setIcon(Icons::SNAPSHOT.icon());
-
-//    connect(act, &QAction::triggered,
-//            this, &DebuggerPluginPrivate::handleOperateByInstructionTriggered);
+    addLabel(m_engineManagerWindow, m_engineManagerWindow->windowTitle());
 
     // Logging
     m_globalLogWindow = new GlobalLogWindow;
@@ -1213,7 +1197,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_hiddenStopAction.setAttribute(ProxyAction::UpdateText);
     m_hiddenStopAction.setAttribute(ProxyAction::UpdateIcon);
 
-    cmd = ActionManager::registerAction(&m_hiddenStopAction, Constants::HIDDEN_STOP);
+    cmd = ActionManager::registerAction(&m_hiddenStopAction, "Debugger.HiddenStop");
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Shift+Ctrl+Y") : tr("Shift+F5")));
 
     act = new QAction(tr("Abort Debugging"), this);
@@ -1232,7 +1216,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     debugMenu->addSeparator();
 
     cmd = ActionManager::registerAction(&m_startAndBreakOnMain,
-                                        Constants::START_AND_BREAK_ON_MAIN,
+                                        "Debugger.StartAndBreakOnMain",
                                         debuggerNotRunning);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+O") : tr("F10")));
     cmd->setAttribute(Command::CA_Hide);
@@ -1290,21 +1274,29 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     debugMenu->addSeparator();
 
-    //cmd = ActionManager::registerAction(m_snapshotAction,
-    //    "Debugger.Snapshot", cppDebuggercontext);
-    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+S")));
-    //cmd->setAttribute(Command::CA_Hide);
-    //debugMenu->addAction(cmd);
+    act = new QAction(this);
+    act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                             "Move to Calling Frame"));
+    act->setEnabled(false);
+    act->setVisible(false);
+    ActionManager::registerAction(act, Constants::FRAME_UP);
 
-    ActionManager::registerAction(&m_frameDownAction,
-        "Debugger.FrameDown", cppDebuggercontext);
-    ActionManager::registerAction(&m_frameUpAction,
-        "Debugger.FrameUp", cppDebuggercontext);
+    act = new QAction(this);
+    act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerPluginPrivate",
+                                             "Move to Called Frame"));
+    act->setEnabled(false);
+    act->setVisible(false);
+    ActionManager::registerAction(act, Constants::FRAME_DOWN);
 
-//    cmd = ActionManager::registerAction(action(OperateByInstruction),
-//        Constants::OPERATE_BY_INSTRUCTION, cppDebuggercontext);
-//    cmd->setAttribute(Command::CA_Hide);
-//    debugMenu->addAction(cmd);
+    act = new QAction(this);
+    act->setText(QCoreApplication::translate("Debugger::Internal::DebuggerEnginePrivate",
+                                             "Operate by Instruction"));
+    act->setEnabled(false);
+    act->setVisible(false);
+    act->setCheckable(true);
+    act->setChecked(false);
+    cmd = ActionManager::registerAction(act, Constants::OPERATE_BY_INSTRUCTION);
+    debugMenu->addAction(cmd);
 
     cmd = ActionManager::registerAction(&m_breakAction, "Debugger.ToggleBreak");
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("F8") : tr("F9")));
@@ -1313,14 +1305,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         this, &DebuggerPluginPrivate::toggleBreakpointHelper);
 
     debugMenu->addSeparator();
-
-    // currently broken
-//    auto qmlUpdateOnSaveDummyAction = new QAction(tr("Apply Changes on Save"), this);
-//    qmlUpdateOnSaveDummyAction->setCheckable(true);
-//    qmlUpdateOnSaveDummyAction->setIcon(Icons::APPLY_ON_SAVE.icon());
-//    qmlUpdateOnSaveDummyAction->setEnabled(false);
-//    cmd = ActionManager::registerAction(qmlUpdateOnSaveDummyAction, Constants::QML_UPDATE_ON_SAVE);
-//    debugMenu->addAction(cmd);
 
     auto qmlShowAppOnTopDummyAction = new QAction(tr("Show Application on Top"), this);
     qmlShowAppOnTopDummyAction->setCheckable(true);
@@ -1338,10 +1322,13 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     debugMenu->addSeparator();
 
-    cmd = m_watchCommand = ActionManager::registerAction(&m_watchAction, "Debugger.AddToWatch",
-            Context(CppEditor::Constants::CPPEDITOR_ID,  QmlJSEditor::Constants::C_QMLJSEDITOR_ID));
-    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
+    cmd = m_watchCommand = ActionManager::registerAction(&m_watchAction, Constants::WATCH);
     debugMenu->addAction(cmd);
+
+ // FIXME: Re-vive watcher creation before engine runs.
+//    connect(&m_watchAction, &QAction::triggered, this, [&] {
+//        QTC_CHECK(false);
+//    });
 
     addGdbOptionPages(&m_optionPages);
     addCdbOptionPages(&m_optionPages);
@@ -1398,23 +1385,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
     m_perspective.addToolBarAction(&m_startAction);
 
-//    QAction *operateByInstructionAction = action(OperateByInstruction);
-//    operateByInstructionAction->setText(tr("Start in Operate by Instruction mode"));
-
-
-//    QAction *enableReverseDebuggingAction = action(EnableReverseDebugging);
-//    enableReverseDebuggingAction->setText(tr("Start with recording information to reverse step if possible"));
-////                                        Icons::SINGLE_INSTRUCTION_MODE.icon()};
-//    Action m_enableReverseDebuggingAction{tr("Start with recording information to reverse step if possible"),
-//                                          Icons::REVERSE_MODE.icon()}
-//    m_perspective.addToolbarAction(operateByInstructionAction);
-
     m_perspective.addWindow(m_breakpointManagerWindow, Perspective::SplitVertical, nullptr);
     m_perspective.addWindow(m_globalLogWindow, Perspective::SplitHorizontal, m_breakpointManagerWindow, false);
     m_perspective.addWindow(m_engineManagerWindow, Perspective::AddToTab, m_globalLogWindow);
-
-//    connect(action(EnableReverseDebugging), &SavedAction::valueChanged,
-//            this, &DebuggerPluginPrivate::enableReverseDebuggingTriggered);
 
     setInitialState();
 
@@ -2059,14 +2032,6 @@ QMessageBox *showMessageBox(int icon, const QString &title,
 void addDebugInfoTask(unsigned id, const QString &cmd)
 {
     dd->m_debugInfoTaskHandler.addTask(id, cmd);
-}
-
-bool isReverseDebuggingEnabled()
-{
-    return true;
-
-    static bool enabled = qEnvironmentVariableIsSet("QTC_DEBUGGER_ENABLE_REVERSE");
-    return enabled;
 }
 
 void DebuggerPluginPrivate::extensionsInitialized()

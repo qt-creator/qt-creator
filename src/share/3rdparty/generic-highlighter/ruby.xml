@@ -31,7 +31,7 @@
 
 <!-- Hold the "language" opening tag on a single line, as mentioned in "language.dtd". -->
 <language name="Ruby" section="Scripts"
-	  version="8" kateversion="3.3"
+	  version="9" kateversion="3.3"
 	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec;Vagrantfile"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"
@@ -274,7 +274,7 @@
 				<!-- regexp hack -->
 				<RegExpr attribute="Operator" String="\s!" context="#stay"/>
 				<RegExpr attribute="Operator" String="/=\s" context="#stay" insensitive="0"/>
-				<StringDetect attribute="Operator" String="%=" context="#stay" insensitive="0"/>
+				<Detect2Chars attribute="Operator" char="%" char1="=" context="#stay"/>
 				<Detect2Chars attribute="Operator" char=":" char1=":" context="Member Access"/>
 
 				<RegExpr attribute="Symbol" String=":(@{1,2}|\$)?[a-zA-Z_][a-zA-Z0-9_]*[=?!]?" context="check_div_1"/>
@@ -287,7 +287,7 @@
 				<DetectChar attribute="Raw String" char="'" context="Apostrophed String"/>
 				<DetectChar attribute="Command" char="`" context="Command String"/>
 
-				<StringDetect attribute="Normal Text" String="?#" context="#stay"/>
+				<Detect2Chars attribute="Normal Text" char="?" char1="#" context="#stay"/>
 
 				<RegExpr attribute="Comment" String="#\s*BEGIN.*$"  context="#stay" beginRegion="marker" column="0"/>
 				<RegExpr attribute="Comment" String="#\s*END.*$"  context="#stay" endRegion="marker" column="0"/>
@@ -364,22 +364,22 @@
 			</context>
 
 			<context name="Quoted String" attribute="String" lineEndContext="#stay">
-				<StringDetect attribute="String" String="\\" context="#stay"/>
-				<RegExpr attribute="String" String="\\\&quot;" context="#stay"/>
+				<Detect2Chars attribute="String" char="\" char1="\" context="#stay"/>
+				<Detect2Chars attribute="String" char="\" char1="&quot;" context="#stay"/>
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
 				<DetectChar char="&quot;" attribute="String" context="check_div_1_pop"/>
 			</context>
 
 			<context name="Apostrophed String" attribute="Raw String" lineEndContext="#stay">
-				<StringDetect attribute="String" String="\\" context="#stay"/>
-				<RegExpr attribute="String" String="\\\'" context="#stay"/>
+				<Detect2Chars attribute="String" char="\" char1="\" context="#stay"/>
+				<Detect2Chars attribute="String" char="\" char1="'" context="#stay"/>
 				<DetectChar char="'" attribute="Raw String" context="check_div_1_pop"/>
 			</context>
 
 			<context name="Command String" attribute="Command" lineEndContext="#stay">
-				<StringDetect attribute="String" String="\\" context="#stay"/>
-				<RegExpr attribute="String" String="\\\`" context="#stay"/>
+				<Detect2Chars attribute="String" char="\" char1="\" context="#stay"/>
+				<Detect2Chars attribute="String" char="\" char1="`" context="#stay"/>
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
 				<DetectChar char="`" attribute="Command" context="check_div_1_pop"/>
@@ -391,7 +391,7 @@
 			</context>
 
 			<context name="RegEx 1" attribute="Regular Expression" lineEndContext="#stay">
-				<RegExpr attribute="Regular Expression" String="\\\/" context="#stay"/>
+				<Detect2Chars attribute="Regular Expression" char="\" char1="/" context="#stay"/>
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
 				<RegExpr attribute="Regular Expression" String="/[uiomxn]*" context="check_div_1_pop"/>
@@ -473,42 +473,42 @@
 			<context name="find_gdl_input" attribute="Normal Text" lineEndContext="#pop">
 
 				<!-- handle token arrays -->
-				<RegExpr attribute="GDL input" context="gdl_token_array_1" String="w\(" />
-				<RegExpr attribute="GDL input" context="gdl_token_array_2" String="w\{" />
-				<RegExpr attribute="GDL input" context="gdl_token_array_3" String="w\[" />
-				<RegExpr attribute="GDL input" context="gdl_token_array_4" String="w&lt;" />
+				<Detect2Chars attribute="GDL input" context="gdl_token_array_1" char="w" char1="(" />
+				<Detect2Chars attribute="GDL input" context="gdl_token_array_2" char="w" char1="{" />
+				<Detect2Chars attribute="GDL input" context="gdl_token_array_3" char="w" char1="[" />
+				<Detect2Chars attribute="GDL input" context="gdl_token_array_4" char="w" char1="&lt;" />
 				<!-- then we handle the 'any char' format -->
 				<RegExpr attribute="GDL input" context="gdl_token_array_5" String="w([^\s\w])" />
 
 				<!-- handle token arrays -->
-				<RegExpr attribute="GDL input" context="gdl_token_array_1" String="W\(" />
-				<RegExpr attribute="GDL input" context="gdl_token_array_2" String="W\{" />
-				<RegExpr attribute="GDL input" context="gdl_token_array_3" String="W\[" />
-				<RegExpr attribute="GDL input" context="gdl_token_array_4" String="W&lt;" />
+				<Detect2Chars attribute="GDL input" context="gdl_token_array_1" char="W" char1="(" />
+				<Detect2Chars attribute="GDL input" context="gdl_token_array_2" char="W" char1="{" />
+				<Detect2Chars attribute="GDL input" context="gdl_token_array_3" char="W" char1="[" />
+				<Detect2Chars attribute="GDL input" context="gdl_token_array_4" char="W" char1="&lt;" />
 				<!-- then we handle the 'any char' format -->
 				<RegExpr attribute="GDL input" context="gdl_token_array_5" String="W([^\s\w])" />
 
 				<!-- handle apostrophed strings -->
-				<RegExpr attribute="GDL input" context="gdl_apostrophed_1" String="q\(" />
-				<RegExpr attribute="GDL input" context="gdl_apostrophed_2" String="q\{" />
-				<RegExpr attribute="GDL input" context="gdl_apostrophed_3" String="q\[" />
-				<RegExpr attribute="GDL input" context="gdl_apostrophed_4" String="q&lt;" />
+				<Detect2Chars attribute="GDL input" context="gdl_apostrophed_1" char="q" char1="(" />
+				<Detect2Chars attribute="GDL input" context="gdl_apostrophed_2" char="q" char1="{" />
+				<Detect2Chars attribute="GDL input" context="gdl_apostrophed_3" char="q" char1="[" />
+				<Detect2Chars attribute="GDL input" context="gdl_apostrophed_4" char="q" char1="&lt;" />
 				<!-- then we handle the 'any char' format -->
 				<RegExpr attribute="GDL input" context="gdl_apostrophed_5" String="q([^\s\w])" />
 
 				<!-- handle shell commands -->
-				<RegExpr attribute="GDL input" context="gdl_shell_command_1" String="x\(" />
-				<RegExpr attribute="GDL input" context="gdl_shell_command_2" String="x\{" />
-				<RegExpr attribute="GDL input" context="gdl_shell_command_3" String="x\[" />
-				<RegExpr attribute="GDL input" context="gdl_shell_command_4" String="x&lt;" />
+				<Detect2Chars attribute="GDL input" context="gdl_shell_command_1" char="x" char1="(" />
+				<Detect2Chars attribute="GDL input" context="gdl_shell_command_2" char="x" char1="{" />
+				<Detect2Chars attribute="GDL input" context="gdl_shell_command_3" char="x" char1="[" />
+				<Detect2Chars attribute="GDL input" context="gdl_shell_command_4" char="x" char1="&lt;" />
 				<!-- then we handle the 'any char' format -->
 				<RegExpr attribute="GDL input" context="gdl_shell_command_5" String="x([^\s\w])" />
 
 				<!-- handle regular expressions -->
-				<RegExpr attribute="GDL input" context="gdl_regexpr_1" String="r\(" />
-				<RegExpr attribute="GDL input" context="gdl_regexpr_2" String="r\{" />
-				<RegExpr attribute="GDL input" context="gdl_regexpr_3" String="r\[" />
-				<RegExpr attribute="GDL input" context="gdl_regexpr_4" String="r&lt;" />
+				<Detect2Chars attribute="GDL input" context="gdl_regexpr_1" char="r" char1="(" />
+				<Detect2Chars attribute="GDL input" context="gdl_regexpr_2" char="r" char1="{" />
+				<Detect2Chars attribute="GDL input" context="gdl_regexpr_3" char="r" char1="[" />
+				<Detect2Chars attribute="GDL input" context="gdl_regexpr_4" char="r" char1="&lt;" />
 				<!-- then we handle the 'any char' format -->
 				<RegExpr attribute="GDL input" context="gdl_regexpr_5" String="r([^\s\w])" />
 
@@ -517,10 +517,14 @@
 					  be careful to make this the last GDL ruleset, because the rule for
 					  the short form %?foo? will otherwise catch any of the other formats
 				-->
-				<RegExpr attribute="GDL input" context="gdl_dq_string_1" String="Q?\(" />
-				<RegExpr attribute="GDL input" context="gdl_dq_string_2" String="Q?\{" />
-				<RegExpr attribute="GDL input" context="gdl_dq_string_3" String="Q?\[" />
-				<RegExpr attribute="GDL input" context="gdl_dq_string_4" String="Q?&lt;" />
+				<Detect2Chars attribute="GDL input" context="gdl_dq_string_1" char="Q" char1="(" />
+				<Detect2Chars attribute="GDL input" context="gdl_dq_string_2" char="Q" char1="{" />
+				<Detect2Chars attribute="GDL input" context="gdl_dq_string_3" char="Q" char1="[" />
+				<Detect2Chars attribute="GDL input" context="gdl_dq_string_4" char="Q" char1="&lt;" />
+				<DetectChar attribute="GDL input" context="gdl_dq_string_1" char="(" />
+				<DetectChar attribute="GDL input" context="gdl_dq_string_2" char="{" />
+				<DetectChar attribute="GDL input" context="gdl_dq_string_3" char="[" />
+				<DetectChar attribute="GDL input" context="gdl_dq_string_4" char="&lt;" />
 				<!-- then we handle the 'any char' format -->
 				<RegExpr attribute="GDL input" context="gdl_dq_string_5" String="Q?([^\s\w])" />
 
@@ -650,7 +654,7 @@
 
 			<!-- rules to be included in all token_array contexts -->
 			<context name="token_array_rules" attribute="String" lineEndContext="#stay" >
-				<StringDetect attribute="String" String="\\" context="#stay"/>
+				<Detect2Chars attribute="String" char="\" char1="\" context="#stay"/>
 			</context>
 
 			<!-- apostrophed string specific contexts -->

@@ -53,6 +53,7 @@ class FormEditorStack : public QStackedWidget
 
 public:
     explicit FormEditorStack(QWidget *parent = nullptr);
+    ~FormEditorStack() override;
 
     void add(const EditorData &d);
 

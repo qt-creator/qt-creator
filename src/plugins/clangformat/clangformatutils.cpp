@@ -25,6 +25,8 @@
 
 #include "clangformatutils.h"
 
+#include "clangformatconstants.h"
+
 #include <coreplugin/icore.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <texteditor/tabsettings.h>
@@ -90,7 +92,7 @@ static void applyCppCodeStyleSettings(clang::format::FormatStyle &style,
             : - static_cast<int>(style.IndentWidth);
 }
 
-static Utils::FileName projectStylePath()
+static Utils::FileName projectPath()
 {
     const Project *project = SessionManager::startupProject();
     if (project)
@@ -99,26 +101,29 @@ static Utils::FileName projectStylePath()
     return Utils::FileName();
 }
 
-static Utils::FileName globalStylePath()
+static Utils::FileName globalPath()
 {
     return Utils::FileName::fromString(Core::ICore::userResourcePath());
 }
 
-Utils::FileName currentStyleConfigPath()
-{
-    Utils::FileName path = projectStylePath();
-    if (!path.isEmpty())
-        return path;
-
-    return globalStylePath();
+static bool configForFileExists(Utils::FileName fileName) {
+    QDir projectDir(fileName.parentDir().toString());
+    while (!projectDir.exists(SETTINGS_FILE_NAME) && !projectDir.exists(SETTINGS_FILE_ALT_NAME)) {
+        if (!projectDir.cdUp())
+            return false;
+    }
+    return true;
 }
 
 static clang::format::FormatStyle constructStyle(bool isGlobal)
 {
     FormatStyle style = getLLVMStyle();
+    style.BreakBeforeBraces = FormatStyle::BS_Custom;
+
     const CppCodeStyleSettings codeStyleSettings = isGlobal
             ? CppCodeStyleSettings::currentGlobalCodeStyle()
-            : CppCodeStyleSettings::currentProjectCodeStyle();
+            : CppCodeStyleSettings::currentProjectCodeStyle()
+              .value_or(CppCodeStyleSettings::currentGlobalCodeStyle());
     const TabSettings tabSettings = isGlobal
             ? CppCodeStyleSettings::currentGlobalTabSettings()
             : CppCodeStyleSettings::currentProjectTabSettings();
@@ -129,9 +134,11 @@ static clang::format::FormatStyle constructStyle(bool isGlobal)
     return style;
 }
 
-void createStyleFileIfNeeded(Utils::FileName styleConfigPath, bool isGlobal)
+void createStyleFileIfNeeded(bool isGlobal)
 {
-    const QString configFile = styleConfigPath.appendPath(".clang-format").toString();
+    Utils::FileName path = isGlobal ? globalPath() : projectPath();
+    const QString configFile = path.appendPath(SETTINGS_FILE_NAME).toString();
+
     if (QFile::exists(configFile))
         return;
 
@@ -142,13 +149,23 @@ void createStyleFileIfNeeded(Utils::FileName styleConfigPath, bool isGlobal)
     }
 }
 
-static clang::format::FormatStyle currentStyle(bool isGlobal)
+clang::format::FormatStyle styleForFile(Utils::FileName fileName)
 {
-    Utils::FileName styleConfigPath = isGlobal ? globalStylePath() : projectStylePath();
-    createStyleFileIfNeeded(styleConfigPath, isGlobal);
+    bool isGlobal = false;
+    if (!configForFileExists(fileName)) {
+        if (fileName.isChildOf(projectPath()) && CppCodeStyleSettings::currentProjectCodeStyle()) {
+            fileName = projectPath();
+        } else {
+            fileName = globalPath();
+            isGlobal = true;
+        }
+        fileName.appendPath(SAMPLE_FILE_NAME);
+        createStyleFileIfNeeded(isGlobal);
+    }
 
-    Expected<FormatStyle> style = format::getStyle(
-                "file", styleConfigPath.appendPath("test.cpp").toString().toStdString(), "LLVM");
+    Expected<FormatStyle> style = format::getStyle("file",
+                                                   fileName.toString().toStdString(),
+                                                   "none");
     if (style)
         return *style;
 
@@ -161,19 +178,12 @@ static clang::format::FormatStyle currentStyle(bool isGlobal)
 
 clang::format::FormatStyle currentProjectStyle()
 {
-    return currentStyle(false);
+    return styleForFile(projectPath().appendPath(SAMPLE_FILE_NAME));
 }
 
 clang::format::FormatStyle currentGlobalStyle()
 {
-    return currentStyle(true);
-}
-
-clang::format::FormatStyle currentStyle()
-{
-    const bool isGlobal = (CppCodeStyleSettings::currentProjectCodeStyle()
-                           == CppCodeStyleSettings::currentGlobalCodeStyle());
-    return currentStyle(isGlobal);
+    return styleForFile(globalPath().appendPath(SAMPLE_FILE_NAME));
 }
 
 }

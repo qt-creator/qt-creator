@@ -186,7 +186,7 @@ void GenericDirectUploadService::handleFileInfoAvailable(SftpJobId jobId,
     QTC_ASSERT(fileInfos.length() == 1, return);
     auto it = d->runningJobs.find(jobId);
     QTC_ASSERT(it != d->runningJobs.end(), return);
-    it->result = QDateTime::fromTime_t(fileInfos.at(0).mtime);
+    it->result = QDateTime::fromSecsSinceEpoch(fileInfos.at(0).mtime);
 }
 
 void GenericDirectUploadService::handleJobFinished(SftpJobId jobId, const QString &errorMsg)

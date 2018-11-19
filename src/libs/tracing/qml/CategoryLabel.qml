@@ -96,7 +96,7 @@ Item {
     }
 
     Column {
-        id: column
+        id: labelsArea
         property QtObject parentModel: model
         anchors.top: txt.bottom
         visible: expanded
@@ -111,7 +111,7 @@ Item {
                                                             : draggerParent.contentHeight
                 active: contentBottom > offset
                 width: labelContainer.width
-                height: column.parentModel ? column.parentModel.rowHeight(index + 1) : 0
+                height: labelsArea.parentModel ? labelsArea.parentModel.rowHeight(index + 1) : 0
 
                 sourceComponent: RowLabel {
                     label: labels[index];
@@ -123,8 +123,8 @@ Item {
                         }
                     }
                     onSetRowHeight: {
-                        column.parentModel.setExpandedRowHeight(index + 1, newHeight);
-                        loader.height = column.parentModel.rowHeight(index + 1);
+                        labelsArea.parentModel.setExpandedRowHeight(index + 1, newHeight);
+                        loader.height = labelsArea.parentModel.rowHeight(index + 1);
                     }
                 }
             }

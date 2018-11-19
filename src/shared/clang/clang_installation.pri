@@ -121,15 +121,15 @@ win32: BIN_EXTENSION = .exe
 
 isEmpty(LLVM_INSTALL_DIR) {
     unix {
-      llvm_config = $$system(which llvm-config-6.0)
+      llvm_config = $$system(which llvm-config-7)
     }
 
     isEmpty(llvm_config) {
         llvm_config = llvm-config
     }
 } else {
-    exists($$LLVM_INSTALL_DIR/bin/llvm-config-6.0$$BIN_EXTENSION) {
-      llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config-6.0)
+    exists($$LLVM_INSTALL_DIR/bin/llvm-config-7$$BIN_EXTENSION) {
+      llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config-7)
     } else {
       llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config)
       requires(exists($$llvm_config$$BIN_EXTENSION))
@@ -216,7 +216,7 @@ isEmpty(LLVM_VERSION) {
 
     # Remove unwanted flags. It is a workaround for linking.
     # It is not intended for cross compiler linking.
-    LLVM_CXXFLAGS = $$system($$llvm_config --cxxflags, lines)
+    LLVM_CXXFLAGS *= $$system($$llvm_config --cxxflags, lines)
     LLVM_CXXFLAGS ~= s,-fno-exceptions,
     LLVM_CXXFLAGS ~= s,-std=c++11,
     LLVM_CXXFLAGS ~= s,-std=c++0x,
@@ -228,6 +228,8 @@ isEmpty(LLVM_VERSION) {
     LLVM_CXXFLAGS ~= s,/G\S*,
     LLVM_CXXFLAGS ~= s,-Werror=\S*,
     LLVM_CXXFLAGS ~= s,-Wcovered-switch-default,
+    LLVM_CXXFLAGS ~= s,-Wnon-virtual-dtor,
+    LLVM_CXXFLAGS ~= s,-Woverloaded-virtual,
     LLVM_CXXFLAGS ~= s,-fPIC,
     LLVM_CXXFLAGS ~= s,-pedantic,
     LLVM_CXXFLAGS ~= s,-Wstring-conversion,

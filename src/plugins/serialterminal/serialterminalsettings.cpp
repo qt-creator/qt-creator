@@ -120,6 +120,12 @@ void Settings::setBaudRate(qint32 br)
     edited = true;
 }
 
+void Settings::setPortName(const QString &name)
+{
+    portName = name;
+    edited = true;
+}
+
 QByteArray Settings::defaultLineEnding() const
 {
     return defaultLineEndingIndex >= (unsigned int)lineEndings.size()

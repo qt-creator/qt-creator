@@ -90,6 +90,7 @@ public:
     void autoIndent(const QTextCursor &cursor, QChar typedChar = QChar::Null,
                     bool autoTriggered = true);
     void autoReindent(const QTextCursor &cursor);
+    void autoFormat(const QTextCursor &cursor);
     QTextCursor indent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,
                        int *offset = nullptr);
     QTextCursor unindent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,

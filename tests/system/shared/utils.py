@@ -109,7 +109,7 @@ def selectFromLocator(filter, itemName = None):
         itemName = filter
     itemName = itemName.replace(".", "\\.").replace("_", "\\_")
     locator = waitForObject(":*Qt Creator_Utils::FilterLineEdit")
-    mouseClick(locator, 5, 5, 0, Qt.LeftButton)
+    mouseClick(locator)
     replaceEditorContent(locator, filter)
     # clicking the wanted item
     # if you replace this by pressing ENTER, be sure that something is selected

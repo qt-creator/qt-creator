@@ -31,7 +31,7 @@
 
 <language
     name="CMake"
-    version="8"
+    version="11"
     kateversion="2.4"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
@@ -97,6 +97,7 @@
         <item>add_dependencies</item>
         <item>add_executable</item>
         <item>add_library</item>
+        <item>add_link_options</item>
         <item>add_subdirectory</item>
         <item>add_test</item>
         <item>aux_source_directory</item>
@@ -129,7 +130,9 @@
         <item>target_compile_features</item>
         <item>target_compile_options</item>
         <item>target_include_directories</item>
+        <item>target_link_directories</item>
         <item>target_link_libraries</item>
+        <item>target_link_options</item>
         <item>target_sources</item>
         <item>try_compile</item>
         <item>try_run</item>
@@ -546,6 +549,8 @@
     <list name="list_nargs">
       <item>APPEND</item>
       <item>AT</item>
+      <item>CASE</item>
+      <item>COMPARE</item>
       <item>EXCLUDE</item>
       <item>FILTER</item>
       <item>FIND</item>
@@ -556,6 +561,7 @@
       <item>INSERT</item>
       <item>JOIN</item>
       <item>LENGTH</item>
+      <item>ORDER</item>
       <item>OUTPUT_VARIABLE</item>
       <item>PREPEND</item>
       <item>REGEX</item>
@@ -570,12 +576,25 @@
       <item>TOLOWER</item>
       <item>TRANSFORM</item>
     </list>
+    <list name="list_sargs">
+      <item>ASCENDING</item>
+      <item>DESCENDING</item>
+      <item>FILE_BASENAME</item>
+      <item>INSENSITIVE</item>
+      <item>SENSITIVE</item>
+      <item>STRING</item>
+    </list>
     <list name="mark_as_advanced_nargs">
       <item>CLEAR</item>
       <item>FORCE</item>
     </list>
     <list name="math_nargs">
       <item>EXPR</item>
+      <item>OUTPUT_FORMAT</item>
+    </list>
+    <list name="math_sargs">
+      <item>DECIMAL</item>
+      <item>HEXADECIMAL</item>
     </list>
     <list name="message_nargs">
       <item>AUTHOR_WARNING</item>
@@ -870,6 +889,10 @@
       <item>WORLD_READ</item>
       <item>WORLD_WRITE</item>
     </list>
+    <list name="link_directories_nargs">
+      <item>AFTER</item>
+      <item>BEFORE</item>
+    </list>
     <list name="link_libraries_nargs">
       <item>debug</item>
       <item>general</item>
@@ -1004,7 +1027,18 @@
       <item>PUBLIC</item>
       <item>SYSTEM</item>
     </list>
+    <list name="target_link_directories_nargs">
+      <item>BEFORE</item>
+      <item>INTERFACE</item>
+      <item>PRIVATE</item>
+      <item>PUBLIC</item>
+    </list>
     <list name="target_link_libraries_nargs">
+      <item>INTERFACE</item>
+      <item>PRIVATE</item>
+      <item>PUBLIC</item>
+    </list>
+    <list name="target_link_options_nargs">
       <item>INTERFACE</item>
       <item>PRIVATE</item>
       <item>PUBLIC</item>
@@ -1175,6 +1209,8 @@
       <item>CMAKE_ARCHIVE_OUTPUT_DIRECTORY</item>
       <item>CMAKE_ARGC</item>
       <item>CMAKE_ARGV0</item>
+      <item>CMAKE_AUTOGEN_PARALLEL</item>
+      <item>CMAKE_AUTOGEN_VERBOSE</item>
       <item>CMAKE_AUTOMOC</item>
       <item>CMAKE_AUTOMOC_DEPEND_FILTERS</item>
       <item>CMAKE_AUTOMOC_MOC_OPTIONS</item>
@@ -1363,6 +1399,7 @@
       <item>CMAKE_LIBRARY_PATH_FLAG</item>
       <item>CMAKE_LINK_DEF_FILE_FLAG</item>
       <item>CMAKE_LINK_DEPENDS_NO_SHARED</item>
+      <item>CMAKE_LINK_DIRECTORIES_BEFORE</item>
       <item>CMAKE_LINK_INTERFACE_LIBRARIES</item>
       <item>CMAKE_LINK_LIBRARY_FILE_FLAG</item>
       <item>CMAKE_LINK_LIBRARY_FLAG</item>
@@ -1474,6 +1511,7 @@
       <item>CMAKE_VERSION</item>
       <item>CMAKE_VISIBILITY_INLINES_HIDDEN</item>
       <item>CMAKE_VS_DEVENV_COMMAND</item>
+      <item>CMAKE_VS_GLOBALS</item>
       <item>CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD</item>
       <item>CMAKE_VS_INCLUDE_PACKAGE_TO_DEFAULT_BUILD</item>
       <item>CMAKE_VS_INTEL_Fortran_PROJECT_VERSION</item>
@@ -1496,7 +1534,23 @@
       <item>CMAKE_WIN32_EXECUTABLE</item>
       <item>CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS</item>
       <item>CMAKE_XCODE_GENERATE_SCHEME</item>
+      <item>CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY</item>
       <item>CMAKE_XCODE_PLATFORM_TOOLSET</item>
+      <item>CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER</item>
+      <item>CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN</item>
+      <item>CMAKE_XCODE_SCHEME_DISABLE_MAIN_THREAD_CHECKER</item>
+      <item>CMAKE_XCODE_SCHEME_DYNAMIC_LIBRARY_LOADS</item>
+      <item>CMAKE_XCODE_SCHEME_DYNAMIC_LINKER_API_USAGE</item>
+      <item>CMAKE_XCODE_SCHEME_GUARD_MALLOC</item>
+      <item>CMAKE_XCODE_SCHEME_MAIN_THREAD_CHECKER_STOP</item>
+      <item>CMAKE_XCODE_SCHEME_MALLOC_GUARD_EDGES</item>
+      <item>CMAKE_XCODE_SCHEME_MALLOC_SCRIBBLE</item>
+      <item>CMAKE_XCODE_SCHEME_MALLOC_STACK</item>
+      <item>CMAKE_XCODE_SCHEME_THREAD_SANITIZER</item>
+      <item>CMAKE_XCODE_SCHEME_THREAD_SANITIZER_STOP</item>
+      <item>CMAKE_XCODE_SCHEME_UNDEFINED_BEHAVIOUR_SANITIZER</item>
+      <item>CMAKE_XCODE_SCHEME_UNDEFINED_BEHAVIOUR_SANITIZER_STOP</item>
+      <item>CMAKE_XCODE_SCHEME_ZOMBIE_OBJECTS</item>
       <item>CPACK_ABSOLUTE_DESTINATION_FILES</item>
       <item>CPACK_ARCHIVE_COMPONENT_INSTALL</item>
       <item>CPACK_ARCHIVE_FILE_NAME</item>
@@ -1525,6 +1579,7 @@
       <item>CPACK_CYGWIN_PATCH_NUMBER</item>
       <item>CPACK_DEBIAN_ARCHIVE_TYPE</item>
       <item>CPACK_DEBIAN_COMPRESSION_TYPE</item>
+      <item>CPACK_DEBIAN_DEBUGINFO_PACKAGE</item>
       <item>CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS</item>
       <item>CPACK_DEBIAN_FILE_NAME</item>
       <item>CPACK_DEBIAN_PACKAGE_ARCHITECTURE</item>
@@ -1563,6 +1618,9 @@
       <item>CPACK_DMG_SLA_LANGUAGES</item>
       <item>CPACK_DMG_VOLUME_NAME</item>
       <item>CPACK_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION</item>
+      <item>CPACK_EXT_ENABLE_STAGING</item>
+      <item>CPACK_EXT_PACKAGE_SCRIPT</item>
+      <item>CPACK_EXT_REQUESTED_VERSIONS</item>
       <item>CPACK_GENERATOR</item>
       <item>CPACK_IFW_ADMIN_TARGET_DIRECTORY</item>
       <item>CPACK_IFW_BINARYCREATOR_EXECUTABLE</item>
@@ -1972,6 +2030,7 @@
       <item>INTERPROCEDURAL_OPTIMIZATION</item>
       <item>LABELS</item>
       <item>LINK_DIRECTORIES</item>
+      <item>LINK_OPTIONS</item>
       <item>LISTFILE_STACK</item>
       <item>MACROS</item>
       <item>PARENT_DIRECTORY</item>
@@ -2048,6 +2107,7 @@
       <item>C_STANDARD</item>
       <item>C_STANDARD_REQUIRED</item>
       <item>DEFINE_SYMBOL</item>
+      <item>DEPLOYMENT_ADDITIONAL_FILES</item>
       <item>DEPLOYMENT_REMOTE_DIRECTORY</item>
       <item>DOTNET_TARGET_FRAMEWORK_VERSION</item>
       <item>ENABLE_EXPORTS</item>
@@ -2090,7 +2150,10 @@
       <item>INTERFACE_COMPILE_FEATURES</item>
       <item>INTERFACE_COMPILE_OPTIONS</item>
       <item>INTERFACE_INCLUDE_DIRECTORIES</item>
+      <item>INTERFACE_LINK_DEPENDS</item>
+      <item>INTERFACE_LINK_DIRECTORIES</item>
       <item>INTERFACE_LINK_LIBRARIES</item>
+      <item>INTERFACE_LINK_OPTIONS</item>
       <item>INTERFACE_POSITION_INDEPENDENT_CODE</item>
       <item>INTERFACE_SOURCES</item>
       <item>INTERFACE_SYSTEM_INCLUDE_DIRECTORIES</item>
@@ -2104,10 +2167,12 @@
       <item>LINKER_LANGUAGE</item>
       <item>LINK_DEPENDS</item>
       <item>LINK_DEPENDS_NO_SHARED</item>
+      <item>LINK_DIRECTORIES</item>
       <item>LINK_FLAGS</item>
       <item>LINK_INTERFACE_LIBRARIES</item>
       <item>LINK_INTERFACE_MULTIPLICITY</item>
       <item>LINK_LIBRARIES</item>
+      <item>LINK_OPTIONS</item>
       <item>LINK_SEARCH_END_STATIC</item>
       <item>LINK_SEARCH_START_STATIC</item>
       <item>LINK_WHAT_YOU_USE</item>
@@ -2140,12 +2205,15 @@
       <item>SOURCE_DIR</item>
       <item>SOVERSION</item>
       <item>STATIC_LIBRARY_FLAGS</item>
+      <item>STATIC_LIBRARY_OPTIONS</item>
       <item>SUFFIX</item>
       <item>TYPE</item>
       <item>VERSION</item>
       <item>VISIBILITY_INLINES_HIDDEN</item>
       <item>VS_CONFIGURATION_TYPE</item>
       <item>VS_DEBUGGER_COMMAND</item>
+      <item>VS_DEBUGGER_COMMAND_ARGUMENTS</item>
+      <item>VS_DEBUGGER_ENVIRONMENT</item>
       <item>VS_DEBUGGER_WORKING_DIRECTORY</item>
       <item>VS_DESKTOP_EXTENSIONS_VERSION</item>
       <item>VS_DOTNET_REFERENCES</item>
@@ -2172,6 +2240,24 @@
       <item>WINDOWS_EXPORT_ALL_SYMBOLS</item>
       <item>XCODE_EXPLICIT_FILE_TYPE</item>
       <item>XCODE_PRODUCT_TYPE</item>
+      <item>XCODE_SCHEME_ADDRESS_SANITIZER</item>
+      <item>XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN</item>
+      <item>XCODE_SCHEME_ARGUMENTS</item>
+      <item>XCODE_SCHEME_DISABLE_MAIN_THREAD_CHECKER</item>
+      <item>XCODE_SCHEME_DYNAMIC_LIBRARY_LOADS</item>
+      <item>XCODE_SCHEME_DYNAMIC_LINKER_API_USAGE</item>
+      <item>XCODE_SCHEME_ENVIRONMENT</item>
+      <item>XCODE_SCHEME_EXECUTABLE</item>
+      <item>XCODE_SCHEME_GUARD_MALLOC</item>
+      <item>XCODE_SCHEME_MAIN_THREAD_CHECKER_STOP</item>
+      <item>XCODE_SCHEME_MALLOC_GUARD_EDGES</item>
+      <item>XCODE_SCHEME_MALLOC_SCRIBBLE</item>
+      <item>XCODE_SCHEME_MALLOC_STACK</item>
+      <item>XCODE_SCHEME_THREAD_SANITIZER</item>
+      <item>XCODE_SCHEME_THREAD_SANITIZER_STOP</item>
+      <item>XCODE_SCHEME_UNDEFINED_BEHAVIOUR_SANITIZER</item>
+      <item>XCODE_SCHEME_UNDEFINED_BEHAVIOUR_SANITIZER_STOP</item>
+      <item>XCODE_SCHEME_ZOMBIE_OBJECTS</item>
       <item>XCTEST</item>
     </list>
     <list name="source-properties">
@@ -2379,6 +2465,7 @@
         <WordDetect String="add_dependencies" insensitive="true" attribute="Command" context="add_dependencies_ctx" />
         <WordDetect String="add_executable" insensitive="true" attribute="Command" context="add_executable_ctx" />
         <WordDetect String="add_library" insensitive="true" attribute="Command" context="add_library_ctx" />
+        <WordDetect String="add_link_options" insensitive="true" attribute="Command" context="add_link_options_ctx" />
         <WordDetect String="add_subdirectory" insensitive="true" attribute="Command" context="add_subdirectory_ctx" />
         <WordDetect String="add_test" insensitive="true" attribute="Command" context="add_test_ctx" />
         <WordDetect String="aux_source_directory" insensitive="true" attribute="Command" context="aux_source_directory_ctx" />
@@ -2411,7 +2498,9 @@
         <WordDetect String="target_compile_features" insensitive="true" attribute="Command" context="target_compile_features_ctx" />
         <WordDetect String="target_compile_options" insensitive="true" attribute="Command" context="target_compile_options_ctx" />
         <WordDetect String="target_include_directories" insensitive="true" attribute="Command" context="target_include_directories_ctx" />
+        <WordDetect String="target_link_directories" insensitive="true" attribute="Command" context="target_link_directories_ctx" />
         <WordDetect String="target_link_libraries" insensitive="true" attribute="Command" context="target_link_libraries_ctx" />
+        <WordDetect String="target_link_options" insensitive="true" attribute="Command" context="target_link_options_ctx" />
         <WordDetect String="target_sources" insensitive="true" attribute="Command" context="target_sources_ctx" />
         <WordDetect String="try_compile" insensitive="true" attribute="Command" context="try_compile_ctx" />
         <WordDetect String="try_run" insensitive="true" attribute="Command" context="try_run_ctx" />
@@ -2699,6 +2788,7 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="list_ctx_op">
         <IncludeRules context="EndCmdPop2" />
         <keyword attribute="Named Args" context="#stay" String="list_nargs" />
+        <keyword attribute="Special Args" context="#stay" String="list_sargs" />
         <IncludeRules context="User Function Args" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="macro_ctx">
@@ -2722,6 +2812,7 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="math_ctx_op">
         <IncludeRules context="EndCmdPop2" />
         <keyword attribute="Named Args" context="#stay" String="math_nargs" />
+        <keyword attribute="Special Args" context="#stay" String="math_sargs" />
         <IncludeRules context="User Function Args" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="message_ctx">
@@ -2904,6 +2995,13 @@
         <keyword attribute="Named Args" context="#stay" String="add_library_nargs" />
         <IncludeRules context="User Function Args" />
       </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="add_link_options_ctx">
+        <DetectChar attribute="Normal Text" context="add_link_options_ctx_op" char="(" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="add_link_options_ctx_op">
+        <IncludeRules context="EndCmdPop2" />
+        <IncludeRules context="User Function Args" />
+      </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="add_subdirectory_ctx">
         <DetectChar attribute="Normal Text" context="add_subdirectory_ctx_op" char="(" />
       </context>
@@ -3056,6 +3154,7 @@
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="link_directories_ctx_op">
         <IncludeRules context="EndCmdPop2" />
+        <keyword attribute="Named Args" context="#stay" String="link_directories_nargs" />
         <IncludeRules context="User Function Args" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="link_libraries_ctx">
@@ -3174,12 +3273,28 @@
         <keyword attribute="Named Args" context="#stay" String="target_include_directories_nargs" />
         <IncludeRules context="User Function Args" />
       </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="target_link_directories_ctx">
+        <DetectChar attribute="Normal Text" context="target_link_directories_ctx_op" char="(" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="target_link_directories_ctx_op">
+        <IncludeRules context="EndCmdPop2" />
+        <keyword attribute="Named Args" context="#stay" String="target_link_directories_nargs" />
+        <IncludeRules context="User Function Args" />
+      </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="target_link_libraries_ctx">
         <DetectChar attribute="Normal Text" context="target_link_libraries_ctx_op" char="(" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="target_link_libraries_ctx_op">
         <IncludeRules context="EndCmdPop2" />
         <keyword attribute="Named Args" context="#stay" String="target_link_libraries_nargs" />
+        <IncludeRules context="User Function Args" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="target_link_options_ctx">
+        <DetectChar attribute="Normal Text" context="target_link_options_ctx_op" char="(" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="target_link_options_ctx_op">
+        <IncludeRules context="EndCmdPop2" />
+        <keyword attribute="Named Args" context="#stay" String="target_link_options_nargs" />
         <IncludeRules context="User Function Args" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="target_sources_ctx">
@@ -3466,6 +3581,8 @@
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_LIBRARY_ARCHITECTURE\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_LINKER_PREFERENCE\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_LINKER_PREFERENCE_PROPAGATES\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_LINKER_WRAPPER_FLAG\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_LINKER_WRAPPER_FLAG_SEP\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_LINK_EXECUTABLE\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_OUTPUT_EXTENSION\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_PLATFORM_ID\b" />
@@ -3527,6 +3644,7 @@
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_PACKAGE_SHLIBDEPS\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_PACKAGE_SOURCE\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_PACKAGE_SUGGESTS\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_DEBUGINFO_PACKAGE\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_NSIS_&id_re;_INSTALL_DIRECTORY\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_NUGET_&id_re;_PACKAGE_AUTHORS\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_NUGET_&id_re;_PACKAGE_COPYRIGHT\b" />

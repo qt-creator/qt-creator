@@ -40,6 +40,9 @@ public:
     void reindent(QTextDocument *doc,
                   const QTextCursor &cursor,
                   const TextEditor::TabSettings &tabSettings) override;
+    void format(QTextDocument *doc,
+                const QTextCursor &cursor,
+                const TextEditor::TabSettings &tabSettings) override;
     void indentBlock(QTextDocument *doc,
                      const QTextBlock &block,
                      const QChar &typedChar,

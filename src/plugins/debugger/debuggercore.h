@@ -86,8 +86,6 @@ QStringList stringListSetting(int code);
 QMessageBox *showMessageBox(int icon, const QString &title,
     const QString &text, int buttons = 0);
 
-bool isReverseDebuggingEnabled();
-
 QAction *addAction(QMenu *menu, const QString &display, bool on,
                    const std::function<void()> &onTriggered = {});
 QAction *addAction(QMenu *menu, const QString &d1, const QString &d2, bool on,

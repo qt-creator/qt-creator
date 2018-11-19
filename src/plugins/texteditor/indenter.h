@@ -67,6 +67,11 @@ public:
                         const TabSettings &tabSettings,
                         bool autoTriggered = true);
 
+    // By default just calls indent with default settings.
+    virtual void format(QTextDocument *doc,
+                        const QTextCursor &cursor,
+                        const TabSettings &tabSettings);
+
     // Reindent at cursor. Selection will be adjusted according to the indentation
     // change of the first block.
     virtual void reindent(QTextDocument *doc, const QTextCursor &cursor, const TabSettings &tabSettings);

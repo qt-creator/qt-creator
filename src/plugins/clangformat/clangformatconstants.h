@@ -24,3 +24,9 @@
 ****************************************************************************/
 
 #pragma once
+
+namespace ClangFormat {
+static const char SETTINGS_FILE_NAME[] = ".clang-format";
+static const char SETTINGS_FILE_ALT_NAME[] = "_clang-format";
+static const char SAMPLE_FILE_NAME[] = "test.cpp";
+}

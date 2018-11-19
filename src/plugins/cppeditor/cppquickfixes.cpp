@@ -2988,7 +2988,10 @@ public:
             m_baseName = QLatin1String("value");
 
         // Getter Name
-        const CppCodeStyleSettings settings = CppCodeStyleSettings::currentProjectCodeStyle();
+        const Utils::optional<CppCodeStyleSettings> codeStyleSettings
+                = CppCodeStyleSettings::currentProjectCodeStyle();
+        const CppCodeStyleSettings settings
+                = codeStyleSettings.value_or(CppCodeStyleSettings::currentGlobalCodeStyle());
         const bool hasValidBaseName = m_baseName != m_variableString;
         const bool getPrefixIsAlreadyUsed = hasClassMemberWithGetPrefix(m_classSpecifier->symbol);
         if (settings.preferGetterNameWithoutGetPrefix && hasValidBaseName && !getPrefixIsAlreadyUsed) {

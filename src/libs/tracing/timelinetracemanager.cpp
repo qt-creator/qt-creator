@@ -283,7 +283,6 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
     });
 
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>(reader);
-    watcher->setFuture(future);
     connect(watcher, &QFutureWatcherBase::canceled, this, &TimelineTraceManager::clearAll);
     connect(watcher, &QFutureWatcherBase::finished, this, [this, reader]() {
         if (!reader->isCanceled()) {
@@ -294,6 +293,7 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
             finalize();
         }
     });
+    watcher->setFuture(future);
 
     return future;
 }

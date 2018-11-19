@@ -78,19 +78,19 @@ Item {
 
 
     Column {
-        id: rows
+        id: scaleArea
         anchors.left: parent.left
         anchors.right: parent.right
         Repeater {
             id: rowRepeater
             model: timeMarks.rowCount
             Rectangle {
-                id: row
+                id: scaleItem
                 color: ((index + (startOdd ? 1 : 0)) % 2)
                        ? Theme.color(Theme.Timeline_BackgroundColor1)
                        : Theme.color(Theme.Timeline_BackgroundColor2)
-                anchors.left: rows.left
-                anchors.right: rows.right
+                anchors.left: scaleArea.left
+                anchors.right: scaleArea.right
                 height: timeMarks.model ? timeMarks.model.rowHeight(index) : 0
 
                 property double minVal: timeMarks.model ? timeMarks.model.rowMinValue(index) : 0
@@ -123,17 +123,17 @@ Item {
                             anchors.leftMargin: 2
                             anchors.topMargin: 2
                             anchors.left: parent.left
-                            text: prettyPrintScale(row.maxVal)
+                            text: prettyPrintScale(scaleItem.maxVal)
                         }
 
                         Repeater {
-                            model: row.valDiff / row.stepVal
+                            model: scaleItem.valDiff / scaleItem.stepVal
 
                             Item {
                                 anchors.left: scaleParent.left
                                 anchors.right: scaleParent.right
-                                height: row.stepVal * row.height / row.valDiff
-                                y: row.height - (index + 1) * height
+                                height: scaleItem.stepVal * scaleItem.height / scaleItem.valDiff
+                                y: scaleItem.height - (index + 1) * height
                                 visible: y > scaleTopLabel.height
                                 TimelineText {
                                     font.pixelSize: 8
@@ -141,7 +141,7 @@ Item {
                                     anchors.bottomMargin: 2
                                     anchors.leftMargin: 2
                                     anchors.left: parent.left
-                                    text: prettyPrintScale(row.minVal + index * row.stepVal)
+                                    text: prettyPrintScale(scaleItem.minVal + index * scaleItem.stepVal)
                                 }
 
                                 Rectangle {

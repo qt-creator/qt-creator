@@ -29,6 +29,7 @@
 #include "clangassistproposalmodel.h"
 #include "clangcompletionassistprocessor.h"
 #include "clangcompletioncontextanalyzer.h"
+#include "clangfixitoperation.h"
 #include "clangfunctionhintmodel.h"
 #include "clangcompletionchunkstotextconverter.h"
 #include "clangpreprocessorassistproposalitem.h"
@@ -178,6 +179,35 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
     return startCompletionHelper(); // == 0 if results are calculated asynchronously
 }
 
+// All completions require fix-it, apply this fix-it now.
+CodeCompletions ClangCompletionAssistProcessor::applyCompletionFixIt(const CodeCompletions &completions)
+{
+    // CLANG-UPGRADE-CHECK: Currently we rely on fact that there are only 2 possible fix-it types:
+    // 'dot to arrow' and 'arrow to dot' and they can't appear for the same item.
+    // However if we get multiple options which trigger for the same code we need to improve this
+    // algorithm. Check comments to FixIts field of CodeCompletionResult and which fix-its are used
+    // to construct results in SemaCodeComplete.cpp.
+    const CodeCompletion &completion = completions.front();
+    const ClangBackEnd::FixItContainer &fixIt = completion.requiredFixIts.front();
+
+    ClangFixItOperation fixItOperation(Utf8String(), completion.requiredFixIts);
+    fixItOperation.perform();
+
+    const int fixItLength = static_cast<int>(fixIt.range.end.column - fixIt.range.start.column);
+    const QString fixItText = fixIt.text.toString();
+    m_positionForProposal += fixItText.length() - fixItLength;
+
+    CodeCompletions completionsWithoutFixIts;
+    completionsWithoutFixIts.reserve(completions.size());
+    for (const CodeCompletion &completion : completions) {
+        CodeCompletion completionCopy = completion;
+        completionCopy.requiredFixIts.clear();
+        completionsWithoutFixIts.push_back(completionCopy);
+    }
+
+    return completionsWithoutFixIts;
+}
+
 void ClangCompletionAssistProcessor::handleAvailableCompletions(const CodeCompletions &completions)
 {
     QTC_CHECK(m_completions.isEmpty());
@@ -194,7 +224,13 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(const CodeComple
     }
 
     //m_sentRequestType == NormalCompletion or function signatures were empty
-    m_completions = toAssistProposalItems(completions, m_interface.data());
+
+    // Completions are sorted the way that all items with fix-its come after all items without them
+    // therefore it's enough to check only the first one.
+    if (!completions.isEmpty() && !completions.front().requiredFixIts.isEmpty())
+        m_completions = toAssistProposalItems(applyCompletionFixIt(completions), m_interface.data());
+    else
+        m_completions = toAssistProposalItems(completions, m_interface.data());
 
     if (m_addSnippets && !m_completions.isEmpty())
         addSnippets();

@@ -2727,7 +2727,8 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
             arguments << "--signoff";
     }
 
-    const SynchronousProcessResponse resp = vcsFullySynchronousExec(repositoryDirectory, arguments);
+    const SynchronousProcessResponse resp = vcsSynchronousExec(repositoryDirectory, arguments,
+                                                               VcsCommand::NoFullySync);
     const QString stdErr = resp.stdErr();
     if (resp.result == SynchronousProcessResponse::Finished) {
         VcsOutputWindow::appendMessage(msgCommitted(amendSHA1, commitCount));

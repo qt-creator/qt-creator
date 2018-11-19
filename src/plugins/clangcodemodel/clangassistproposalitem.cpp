@@ -140,6 +140,17 @@ static QString methodDefinitionParameters(const CodeCompletionChunks &chunks)
     return result;
 }
 
+static bool skipParenForFunctionLikeSnippet(const std::vector<int> &placeholderPositions,
+                                            const QString &text,
+                                            int position)
+{
+    return placeholderPositions.size() == 1
+           && position > 0
+           && text[position - 1] == '('
+           && text[position] == ')'
+           && position + 1 == text.size();
+}
+
 void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulator,
                                     int basePosition) const
 {
@@ -167,12 +178,20 @@ void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulato
     } else if (ccr.completionKind == CodeCompletion::KeywordCompletionKind) {
         CompletionChunksToTextConverter converter;
         converter.setupForKeywords();
-
         converter.parseChunks(ccr.chunks);
 
         textToBeInserted = converter.text();
-        if (converter.hasPlaceholderPositions())
-            cursorOffset = converter.placeholderPositions().at(0) - converter.text().size();
+
+        if (converter.hasPlaceholderPositions()) {
+            const std::vector<int> &placeholderPositions = converter.placeholderPositions();
+            const int position = placeholderPositions[0];
+            cursorOffset = position - converter.text().size();
+            // If the snippet looks like a function call, e.g. "sizeof(<PLACEHOLDER>)",
+            // ensure that we can "overtype" ')' after inserting it.
+            setAutoCompleteSkipPos = skipParenForFunctionLikeSnippet(placeholderPositions,
+                                                                     textToBeInserted,
+                                                                     position);
+        }
     } else if (ccr.completionKind == CodeCompletion::NamespaceCompletionKind) {
         CompletionChunksToTextConverter converter;
         converter.parseChunks(ccr.chunks); // Appends "::" after name space name

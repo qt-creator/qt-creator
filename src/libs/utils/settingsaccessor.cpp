@@ -535,6 +535,8 @@ SettingsAccessor::RestoreData
 UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
 {
     RestoreData result = data;
+    if (data.data.isEmpty())
+        return result;
     const int version = versionFromMap(result.data);
     if (version < firstSupportedVersion() || version > currentVersion()) {
         Issue i(QApplication::translate("Utils::SettingsAccessor", "No Valid Settings Found"),
@@ -548,7 +550,8 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
         return result;
     }
 
-    if (result.path != baseFilePath() && version < currentVersion()) {
+    if (result.path != baseFilePath() && !result.path.endsWith(".shared")
+            && version < currentVersion()) {
         Issue i(QApplication::translate("Utils::SettingsAccessor", "Using Old Settings"),
                 QApplication::translate("Utils::SettingsAccessor",
                                         "<p>The versioned backup \"%1\" of the settings "
@@ -578,6 +581,7 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
                 .arg(applicationDisplayName).arg(result.path.toUserOutput()), Issue::Type::WARNING);
         i.defaultButton = QMessageBox::No;
         i.escapeButton = QMessageBox::No;
+        i.buttons.clear();
         i.buttons.insert(QMessageBox::Yes, Continue);
         i.buttons.insert(QMessageBox::No, DiscardAndContinue);
         result.issue = i;
@@ -615,6 +619,7 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FileName &
     RestoreData secondaryData
             = m_secondaryAccessor ? m_secondaryAccessor->readData(m_secondaryAccessor->baseFilePath(), parent)
                                   : RestoreData();
+    secondaryData.data = preprocessReadSettings(secondaryData.data);
     int secondaryVersion = versionFromMap(secondaryData.data);
     if (secondaryVersion == -1)
         secondaryVersion = currentVersion(); // No version information, use currentVersion since
@@ -635,10 +640,12 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FileName &
                                                             "Do you want to try loading it anyway?")
                                     .arg(secondaryData.path.toUserOutput())
                                     .arg(applicationDisplayName), Issue::Type::WARNING);
+        secondaryData.issue->buttons.clear();
         secondaryData.issue->buttons.insert(QMessageBox::Yes, Continue);
         secondaryData.issue->buttons.insert(QMessageBox::No, DiscardAndContinue);
         secondaryData.issue->defaultButton = QMessageBox::No;
         secondaryData.issue->escapeButton = QMessageBox::No;
+        setVersionInMap(secondaryData.data, std::max(secondaryVersion, firstSupportedVersion()));
     }
 
     if (secondaryData.hasIssue()) {

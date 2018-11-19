@@ -2492,9 +2492,9 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                     d->autocompleterHighlight(tc);
                 }
             }
+            cursor.endEditBlock();
             setTextCursor(ensureVisible);
             cursor.setPosition(cursorPosition);
-            cursor.endEditBlock();
         }
 
         setTextCursor(cursor);
@@ -7132,11 +7132,21 @@ void TextEditorWidget::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
         documentLayout->requestUpdate();
 }
 
+static bool applyFormattingInsteadOfIndentation()
+{
+    constexpr const char option[] = "QTC_FORMAT_INSTEAD_OF_INDENT";
+    return qEnvironmentVariableIsSet(option);
+}
+
 void TextEditorWidget::format()
 {
+    static bool formattingInsteadOfIndentation = applyFormattingInsteadOfIndentation();
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
-    d->m_document->autoIndent(cursor, QChar::Null, false);
+    if (formattingInsteadOfIndentation)
+        d->m_document->autoFormat(cursor);
+    else
+        d->m_document->autoIndent(cursor);
     cursor.endEditBlock();
 }
 

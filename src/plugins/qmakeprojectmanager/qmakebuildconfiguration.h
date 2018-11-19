@@ -137,7 +137,7 @@ private:
 
     bool m_shadowBuild = true;
     bool m_isEnabled = true;
-    QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration = nullptr;
+    QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;
 

@@ -194,6 +194,8 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
 
             newQmlItemNode.setId(view->generateNewId(QLatin1String("image")));
 
+            newQmlItemNode.modelNode().variantProperty("fillMode").setEnumeration("Image.PreserveAspectFit");
+
             Q_ASSERT(newQmlItemNode.isValid());
         }
         Q_ASSERT(newQmlItemNode.isValid());

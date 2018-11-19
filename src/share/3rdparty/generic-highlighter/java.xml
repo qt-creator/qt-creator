@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd">
-<language name="Java" version="3" kateversion="5.0" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<!DOCTYPE language SYSTEM "language.dtd"
+[
+	<!ENTITY int "[0-9]([0-9_]*[0-9])?">
+	<!ENTITY hex "[0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?">
+]>
+<language name="Java" version="5" kateversion="5.0" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<list name="java15">
 			<item>ACTIVE</item>
@@ -3760,14 +3764,13 @@
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<keyword attribute="Data Type" context="#stay" String="types"/>
 				<keyword attribute="Java15" context="#stay" String="java15"/>
-				<Float attribute="Float" context="#stay">
-					<AnyChar String="fF" attribute="Float" context="#stay"/>
-				</Float>
-				<HlCOct attribute="Octal" context="#stay"/>
-				<HlCHex attribute="Hex" context="#stay"/>
-				<Int attribute="Decimal" context="#stay">
-					<StringDetect attribute="Decimal" context="#stay" String="L" insensitive="true"/>
-				</Int>
+				<RegExpr attribute="Float" context="#stay" String="(\b&int;\.?|(\b&int;)?\.&int;)([eE][\-\+]?&int;[fFdD]?|[fFdD])\b"/>
+				<RegExpr attribute="Float" context="#stay" String="(\b&int;\.|(\b&int;)?\.&int;\b)"/>
+				<RegExpr attribute="Float" context="#stay" String="\b0[xX](&hex;\.?|(&hex;)?\.&hex;)[pP][\-\+]?&int;[fFdD]?\b"/>
+				<RegExpr attribute="Hex" context="#stay" String="\b0[xX]&hex;[lL]?\b"/>
+				<RegExpr attribute="Binary" context="#stay" String="\b0[bB][01]([01_]*[01])?[lL]?\b"/>
+				<RegExpr attribute="Octal" context="#stay" String="\b0[0-7]([0-7_]*[0-7])?[lL]?\b"/>
+				<RegExpr attribute="Decimal" context="#stay" String="\b(0|[1-9]([0-9_]*[0-9])?)[lL]?\b"/>
 				<HlCChar attribute="Char" context="#stay"/>
 				<RegExpr attribute="Char" context="#stay" String="'\\u[0-9a-fA-F]{4}'"/>
 				<RegExpr attribute="Decimal" context="#stay" String="//\s*BEGIN.*$" beginRegion="Region1"/>
@@ -3822,9 +3825,12 @@
 			<context attribute="Normal Text" lineEndContext="#pop" name="Imports">
 				<RegExpr attribute="Imports" context="#pop" String="\s*.*;" />
 			</context>
-			<context attribute="Comment" lineEndContext="#pop" name="Commentar 1"/>
+			<context attribute="Comment" lineEndContext="#pop" name="Commentar 1">
+				<IncludeRules context="##Alerts"/>
+			</context>
 			<context attribute="Comment" lineEndContext="#stay" name="Commentar 2">
 				<Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="Comment"/>
+				<IncludeRules context="##Alerts"/>
 			</context>
 		</contexts>
 		<itemDatas>
@@ -3838,6 +3844,7 @@
 			<itemData name="Decimal"      defStyleNum="dsDecVal" spellChecking="false"/>
 			<itemData name="Octal"        defStyleNum="dsBaseN" spellChecking="false"/>
 			<itemData name="Hex"          defStyleNum="dsBaseN" spellChecking="false"/>
+			<itemData name="Binary"       defStyleNum="dsBaseN" spellChecking="false"/>
 			<itemData name="Float"        defStyleNum="dsFloat" spellChecking="false"/>
 			<itemData name="Char"         defStyleNum="dsChar" spellChecking="false"/>
 			<itemData name="String"       defStyleNum="dsString"/>

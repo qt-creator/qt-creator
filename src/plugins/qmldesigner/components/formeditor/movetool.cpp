@@ -96,7 +96,7 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
         if (m_movingItems.isEmpty())
             return;
 
-        //    m_selectionIndicator.hide();
+        m_selectionIndicator.hide();
         m_resizeIndicator.hide();
         m_anchorIndicator.hide();
         m_bindingIndicator.hide();

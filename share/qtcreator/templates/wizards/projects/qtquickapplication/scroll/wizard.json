@@ -89,38 +89,38 @@
                             {
                                 "trKey": "Qt 5.12",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.12',
                                     'QtQuickControlsVersion': '2.5',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.4'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Qt 5.11",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.11',
                                     'QtQuickControlsVersion': '2.4',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.3'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Qt 5.10",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.10',
                                     'QtQuickControlsVersion': '2.3',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.3'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Qt 5.9",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickVersion': '2.9',
                                     'QtQuickControlsVersion': '2.2',
                                     'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.2'
-                                }"
+                                })"
                             }
                         ]
                     }
@@ -137,66 +137,66 @@
                             {
                                 "trKey": "Default",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickControlsStyle': 'Default',
                                     'QtQuickControlsStyleTheme': ''
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Material Light",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickControlsStyle': 'Material',
                                     'QtQuickControlsStyleTheme': 'Light'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Material Dark",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickControlsStyle': 'Material',
                                     'QtQuickControlsStyleTheme': 'Dark'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Universal Light",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickControlsStyle': 'Universal',
                                     'QtQuickControlsStyleTheme': 'Light'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Universal Dark",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickControlsStyle': 'Universal',
                                     'QtQuickControlsStyleTheme': 'Dark'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Universal System",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickControlsStyle': 'Universal',
                                     'QtQuickControlsStyleTheme': 'System'
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Fusion (Qt 5.10+)",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickControlsStyle': 'Fusion',
                                     'QtQuickControlsStyleTheme': ''
-                                }"
+                                })"
                             },
                             {
                                 "trKey": "Imagine (Qt 5.10+)",
                                 "value":
-                                "{
+                                "({
                                     'QtQuickControlsStyle': 'Imagine',
                                     'QtQuickControlsStyleTheme': ''
-                                }"
+                                })"
                             }
                         ]
                     }

@@ -36,6 +36,8 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/outputwindow.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/icon.h>
@@ -304,6 +306,14 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
     Core::Id contextId = Core::Id(Constants::C_SERIAL_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
     Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
+    using TextEditor::TextEditorSettings;
+    auto fontSettingsChanged = [ow] {
+        ow->setBaseFont(TextEditorSettings::fontSettings().font());
+    };
+
+    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+            this, fontSettingsChanged);
+    fontSettingsChanged();
     ow->setWindowTitle(tr("Serial Terminal Window"));
     ow->setFormatter(formatter);
     // TODO: wordwrap, maxLineCount, zoom/wheelZoom (add to settings)
@@ -381,7 +391,8 @@ void SerialOutputPane::createToolButtons()
     m_portsSelection = new ComboBox;
     m_portsSelection->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_portsSelection->setModel(m_devicesModel);
-    connect(m_portsSelection, &ComboBox::opened, m_devicesModel, &SerialDeviceModel::update);
+    updatePortsList();
+    connect(m_portsSelection, &ComboBox::opened, this, &SerialOutputPane::updatePortsList);
     connect(m_portsSelection, static_cast<void (ComboBox::*)(int)>(&ComboBox::currentIndexChanged),
             this, &SerialOutputPane::activePortNameChanged);
     // TODO: the ports are not updated with the box opened (if the user wait for it) -> add a timer?
@@ -407,6 +418,12 @@ void SerialOutputPane::updateLineEndingsComboBox()
         m_lineEndingsSelection->addItem(value.first, value.second);
 
     m_lineEndingsSelection->setCurrentIndex(m_settings.defaultLineEndingIndex);
+}
+
+void SerialOutputPane::updatePortsList()
+{
+    m_devicesModel->update();
+    m_portsSelection->setCurrentIndex(m_devicesModel->indexForPort(m_settings.portName));
 }
 
 int SerialOutputPane::indexOf(const SerialControl *rc) const
@@ -618,6 +635,8 @@ void SerialOutputPane::activePortNameChanged(int index)
 
     // Update current port name
     m_currentPortName = pn;
+    m_settings.setPortName(pn);
+    emit settingsChanged(m_settings);
 }
 
 void SerialOutputPane::activeBaudRateChanged(int index)
@@ -643,6 +662,11 @@ void SerialOutputPane::defaultLineEndingChanged(int index)
         return;
 
     m_settings.setDefaultLineEndingIndex(index);
+    const int currentControlIndex = currentIndex();
+    if (currentControlIndex >= 0) {
+        m_serialControlTabs[currentControlIndex].lineEnd =
+                m_lineEndingsSelection->currentData().toByteArray();
+    }
 
     qCDebug(log) << "Set default line ending to "
                  << m_settings.defaultLineEndingText()
@@ -736,6 +760,7 @@ void SerialOutputPane::sendInput()
 
         current->writeData(m_inputLine->text().toUtf8() + m_serialControlTabs.at(index).lineEnd);
     }
+    m_inputLine->selectAll();
     // TODO: add a blink or something to visually see if the data was sent or not
 }
 

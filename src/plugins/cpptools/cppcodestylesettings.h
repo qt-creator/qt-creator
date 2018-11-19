@@ -27,6 +27,8 @@
 
 #include "cpptools_global.h"
 
+#include <utils/optional.h>
+
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
@@ -93,7 +95,7 @@ public:
     bool operator==(const CppCodeStyleSettings &s) const { return equals(s); }
     bool operator!=(const CppCodeStyleSettings &s) const { return !equals(s); }
 
-    static CppCodeStyleSettings currentProjectCodeStyle();
+    static Utils::optional<CppCodeStyleSettings> currentProjectCodeStyle();
     static CppCodeStyleSettings currentGlobalCodeStyle();
     static TextEditor::TabSettings currentProjectTabSettings();
     static TextEditor::TabSettings currentGlobalTabSettings();

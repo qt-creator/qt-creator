@@ -94,7 +94,8 @@ protected:
     // Function must be thread-safe!
     Macros msvcPredefinedMacros(const QStringList cxxflags,
                                 const Utils::Environment &env) const override;
-    LanguageVersion languageVersion(const Macros &macros) const override;
+    LanguageVersion msvcLanguageVersion(const Core::Id &language,
+                                        const Macros &macros) const override;
 
 private:
     struct GenerateEnvResult
@@ -139,7 +140,8 @@ public:
     void resetMsvcToolChain(const MsvcToolChain *base = nullptr);
     Macros msvcPredefinedMacros(const QStringList cxxflags,
                                 const Utils::Environment &env) const override;
-    LanguageVersion languageVersion(const Macros &macros) const override;
+    LanguageVersion msvcLanguageVersion(const Core::Id &language,
+                                        const Macros &macros) const override;
 
     bool operator ==(const ToolChain &) const override;
 private:

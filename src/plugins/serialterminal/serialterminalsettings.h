@@ -62,6 +62,7 @@ public:
     void load(QSettings *settings);
 
     void setBaudRate(qint32 br);
+    void setPortName(const QString &name);
 
     QByteArray defaultLineEnding() const;
     QString defaultLineEndingText() const;

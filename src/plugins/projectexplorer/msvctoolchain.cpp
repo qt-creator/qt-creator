@@ -525,9 +525,9 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
 //
 // For _MSV_VER values, see https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2017.
 //
-LanguageVersion MsvcToolChain::languageVersion(const Macros &macros) const
+LanguageVersion MsvcToolChain::msvcLanguageVersion(const Core::Id &language,
+                                                   const Macros &macros) const
 {
-    const Core::Id lang = language();
     int mscVer = -1;
     QByteArray msvcLang;
     for (const ProjectExplorer::Macro &macro : macros) {
@@ -538,7 +538,7 @@ LanguageVersion MsvcToolChain::languageVersion(const Macros &macros) const
     }
     QTC_CHECK(mscVer > 0);
 
-    if (lang == Constants::CXX_LANGUAGE_ID) {
+    if (language == Constants::CXX_LANGUAGE_ID) {
         if (!msvcLang.isEmpty()) // >= Visual Studio 2015 Update 3
             return ToolChain::cxxLanguageVersion(msvcLang);
         if (mscVer >= 1800) // >= Visual Studio 2013 (12.0)
@@ -546,7 +546,7 @@ LanguageVersion MsvcToolChain::languageVersion(const Macros &macros) const
         if (mscVer >= 1600) // >= Visual Studio 2010 (10.0)
             return LanguageVersion::CXX11;
         return LanguageVersion::CXX98;
-    } else if (lang == Constants::C_LANGUAGE_ID) {
+    } else if (language == Constants::C_LANGUAGE_ID) {
         if (mscVer >= 1910) // >= Visual Studio 2017 RTW (15.0)
             return LanguageVersion::C11;
         return LanguageVersion::C99;
@@ -1134,9 +1134,10 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList cxxflags,
     return Macro::toMacros(response.allRawOutput());
 }
 
-LanguageVersion ClangClToolChain::languageVersion(const Macros &macros) const
+LanguageVersion ClangClToolChain::msvcLanguageVersion(const Core::Id &language,
+                                                      const Macros &macros) const
 {
-    return ToolChain::languageVersion(language(), macros);
+    return ToolChain::languageVersion(language, macros);
 }
 
 // --------------------------------------------------------------------------
