@@ -140,8 +140,12 @@ def verifyOutline(outlinePseudoTree, datasetFileName):
         return
     for counter, (expectedItem, foundItem) in enumerate(zip(expected, outlinePseudoTree)):
         if expectedItem != foundItem:
-            test.fail("Mismatch in element number %d for '%s'" % (counter + 1, fileName),
-                      "%s != %s" % (str(expectedItem), str(foundItem)))
+            if JIRA.isBugStillOpen(21335) and expectedItem[:-1] == foundItem[:-1]:
+                test.xfail("Mismatch in element number %d for '%s'" % (counter + 1, fileName),
+                           "%s != %s" % (str(expectedItem), str(foundItem)))
+            else:
+                test.fail("Mismatch in element number %d for '%s'" % (counter + 1, fileName),
+                          "%s != %s" % (str(expectedItem), str(foundItem)))
             return
     test.passes("All nodes (%d) inside outline match expected nodes for '%s'."
                 % (len(expected), fileName))
