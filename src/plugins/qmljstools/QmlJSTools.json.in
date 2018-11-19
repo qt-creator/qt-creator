@@ -57,6 +57,11 @@
         \"        <comment>JSON file</comment>\",
         \"        <glob pattern=\'*.json\' weight=\'70\'/>\",
         \"    </mime-type>\",
+        \"    <mime-type type=\'application/x-javascript-module\'>\",
+        \"        <sub-class-of type=\'application/javascript\'/>\",
+        \"        <comment>Javascript module</comment>\",
+        \"        <glob pattern=\'*.mjs\' weight=\'70\'/>\",
+        \"    </mime-type>\",
         \"</mime-info>\"
     ]
 }
