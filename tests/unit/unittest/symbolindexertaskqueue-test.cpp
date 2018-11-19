@@ -75,15 +75,15 @@ TEST_F(SymbolIndexerTaskQueue, AddTasks)
 
 TEST_F(SymbolIndexerTaskQueue, AddTasksCallsProgressCounter)
 {
-    queue.addOrUpdateTasks({{{1, 1}, 1, Callable{}},
-                            {{1, 3}, 1, Callable{}},
-                            {{1, 5}, 1, Callable{}}});
+    queue.addOrUpdateTasks({{1, 1, Callable{}},
+                            {3, 1, Callable{}},
+                            {5, 1, Callable{}}});
 
 
     EXPECT_CALL(mockSetProgressCallback, Call(0, 4));
 
-    queue.addOrUpdateTasks({{{1, 2}, 1, Callable{}},
-                            {{1, 3}, 1, Callable{}}});
+    queue.addOrUpdateTasks({{2, 1, Callable{}},
+                            {3, 1, Callable{}}});
 
 }
 
@@ -144,15 +144,15 @@ TEST_F(SymbolIndexerTaskQueue, RemoveTaskByProjectParts)
 
 TEST_F(SymbolIndexerTaskQueue, RemoveTasksCallsProgressCounter)
 {
-    queue.addOrUpdateTasks({{{1, 1}, 1, Callable{}},
-                            {{1, 3}, 1, Callable{}},
-                            {{1, 5}, 1, Callable{}}});
-    queue.addOrUpdateTasks({{{1, 2}, 2, Callable{}},
-                            {{1, 3}, 2, Callable{}}});
-    queue.addOrUpdateTasks({{{1, 2}, 3, Callable{}},
-                            {{1, 3}, 3, Callable{}}});
-    queue.addOrUpdateTasks({{{1, 2}, 4, Callable{}},
-                            {{1, 3}, 4, Callable{}}});
+    queue.addOrUpdateTasks({{1, 1, Callable{}},
+                            {3, 1, Callable{}},
+                            {5, 1, Callable{}}});
+    queue.addOrUpdateTasks({{2, 2, Callable{}},
+                            {3, 2, Callable{}}});
+    queue.addOrUpdateTasks({{2, 3, Callable{}},
+                            {3, 3, Callable{}}});
+    queue.addOrUpdateTasks({{2, 4, Callable{}},
+                            {3, 4, Callable{}}});
 
 
     EXPECT_CALL(mockSetProgressCallback, Call(0, 5));
