@@ -273,7 +273,7 @@ public:
     bool needsRestart() const override { return true; }
 
 private:
-    void handleCompletionResponse(const Response<CompletionResult, LanguageClientNull> &response);
+    void handleCompletionResponse(const CompletionRequest::Response &response);
 
     QPointer<QTextDocument> m_document;
     QPointer<BaseClient> m_client;
@@ -343,7 +343,7 @@ bool LanguageClientCompletionAssistProcessor::running()
 }
 
 void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
-        const Response<CompletionResult, LanguageClientNull> &response)
+    const CompletionRequest::Response &response)
 {
     using namespace TextEditor;
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : got completions";

@@ -92,7 +92,7 @@ void BaseClient::initialize()
             return WorkSpaceFolder(pro->projectDirectory().toString(), pro->displayName());
         }));
     }
-    initRequest->setResponseCallback([this](const InitializeResponse &initResponse){
+    initRequest->setResponseCallback([this](const InitializeRequest::Response &initResponse){
         intializeCallback(initResponse);
     });
     // directly send data otherwise the state check would fail;
@@ -106,7 +106,7 @@ void BaseClient::shutdown()
     QTC_ASSERT(m_state == Initialized, emit finished(); return);
     qCDebug(LOGLSPCLIENT) << "shutdown language server " << m_displayName;
     ShutdownRequest shutdown;
-    shutdown.setResponseCallback([this](const ShutdownResponse &shutdownResponse){
+    shutdown.setResponseCallback([this](const ShutdownRequest::Response &shutdownResponse){
         shutDownCallback(shutdownResponse);
     });
     sendContent(shutdown);
@@ -348,7 +348,7 @@ void BaseClient::requestDocumentSymbols(TextEditor::TextDocument *document)
                 DocumentSymbolParams(TextDocumentIdentifier(DocumentUri::fromFileName(filePath))));
     request.setResponseCallback(
                 [doc = QPointer<TextEditor::TextDocument>(document)]
-                (Response<DocumentSymbolsResult, LanguageClientNull> response){
+                (DocumentSymbolsRequest::Response response){
         if (!doc)
             return;
         const DocumentSymbolsResult result = response.result().value_or(DocumentSymbolsResult());
@@ -441,7 +441,7 @@ void BaseClient::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
     DocumentHighlightsRequest request(TextDocumentPositionParams(uri, widget->textCursor()));
     request.setResponseCallback(
                 [widget = QPointer<TextEditor::TextEditorWidget>(widget), this, uri]
-                (Response<DocumentHighlightsResult, LanguageClientNull> response)
+                (DocumentHighlightsRequest::Response response)
     {
         m_highlightRequests.remove(uri);
         if (!widget)
@@ -573,7 +573,7 @@ void BaseClient::showMessageBox(const ShowMessageRequestParams &message, const M
     }
     box->setModal(true);
     connect(box, &QMessageBox::finished, this, [=]{
-        Response<LanguageClientValue<MessageActionItem>, LanguageClientNull> response;
+        ShowMessageRequest::Response response;
         response.setId(id);
         const MessageActionItem &item = itemForButton.value(box->clickedButton());
         response.setResult(item.isValid(nullptr) ? LanguageClientValue<MessageActionItem>(item)
@@ -615,7 +615,7 @@ void BaseClient::handleMethod(const QString &method, MessageId id, const IConten
         if (paramsValid) {
             showMessageBox(params, request->id());
         } else {
-            Response<LanguageClientValue<MessageActionItem>, LanguageClientNull> response;
+            ShowMessageRequest::Response response;
             response.setId(request->id());
             ResponseError<LanguageClientNull> error;
             const QString errorMessage =
@@ -652,7 +652,7 @@ void BaseClient::handleMethod(const QString &method, MessageId id, const IConten
     delete content;
 }
 
-void BaseClient::intializeCallback(const InitializeResponse &initResponse)
+void BaseClient::intializeCallback(const InitializeRequest::Response &initResponse)
 {
     QTC_ASSERT(m_state == InitializeRequested, return);
     if (optional<ResponseError<InitializeError>> error = initResponse.error()) {
@@ -693,7 +693,7 @@ void BaseClient::intializeCallback(const InitializeResponse &initResponse)
         openDocument(openedDocument);
 }
 
-void BaseClient::shutDownCallback(const ShutdownResponse &shutdownResponse)
+void BaseClient::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
 {
     QTC_ASSERT(m_state == ShutdownRequested, return);
     optional<ResponseError<JsonObject>> errorValue = shutdownResponse.error();

@@ -136,8 +136,8 @@ private:
     void handleMethod(const QString &method, LanguageServerProtocol::MessageId id,
                       const LanguageServerProtocol::IContent *content);
 
-    void intializeCallback(const LanguageServerProtocol::InitializeResponse &initResponse);
-    void shutDownCallback(const LanguageServerProtocol::ShutdownResponse &shutdownResponse);
+    void intializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
+    void shutDownCallback(const LanguageServerProtocol::ShutdownRequest::Response &shutdownResponse);
     bool sendWorkspceFolderChanges() const;
     void log(const LanguageServerProtocol::ShowMessageParams &message,
              Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);

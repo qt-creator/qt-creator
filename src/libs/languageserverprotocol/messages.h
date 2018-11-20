@@ -95,8 +95,6 @@ public:
     constexpr static const char methodName[] = "window/showMessageRequest";
 };
 
-using ShowMessageResponse = Response<LanguageClientValue<MessageActionItem>, LanguageClientNull>;
-
 using LogMessageParams = ShowMessageParams;
 
 class LANGUAGESERVERPROTOCOL_EXPORT LogMessageNotification : public Notification<LogMessageParams>

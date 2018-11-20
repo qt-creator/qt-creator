@@ -245,7 +245,8 @@ public:
     void setId(const MessageId &id)
     { JsonRpcMessage::m_jsonObject.insert(idKey, id.toJson()); }
 
-    using ResponseCallback = std::function<void(Response<Result, Error>)>;
+    using Response = LanguageServerProtocol::Response<Result, Error>;
+    using ResponseCallback = std::function<void(Response)>;
     void setResponseCallback(const ResponseCallback &callback)
     { m_callBack = callback; }
 
@@ -258,13 +259,13 @@ public:
             QString parseError;
             const QJsonObject &object =
                     JsonRpcMessageHandler::toJsonObject(content, codec, parseError);
-            Response<Result, Error> response(object);
+            Response response(object);
             if (object.isEmpty()) {
                 ResponseError<Error> error;
                 error.setMessage(parseError);
                 response.setError(ResponseError<Error>());
             }
-            callback(Response<Result, Error>(object));
+            callback(Response(object));
         });
     }
 

@@ -324,7 +324,7 @@ void LanguageClientManager::findLinkAt(const Utils::FileName &filePath,
     const Position pos(cursor);
     TextDocumentPositionParams params(document, pos);
     GotoDefinitionRequest request(params);
-    request.setResponseCallback([callback](const Response<GotoResult, LanguageClientNull> &response){
+    request.setResponseCallback([callback](const GotoDefinitionRequest::Response &response){
         if (Utils::optional<GotoResult> _result = response.result()) {
             const GotoResult result = _result.value();
             if (Utils::holds_alternative<std::nullptr_t>(result))

@@ -29,8 +29,6 @@
 
 namespace LanguageServerProtocol {
 
-using ShutdownResponse = Response<LanguageClientNull, LanguageClientNull>;
-
 class LANGUAGESERVERPROTOCOL_EXPORT ShutdownRequest : public Request<
         LanguageClientNull, LanguageClientNull, LanguageClientNull>
 {

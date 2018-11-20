@@ -176,6 +176,4 @@ public:
     constexpr static const char methodName[] = "initialize";
 };
 
-using InitializeResponse = Response<InitializeResult, InitializeError>;
-
 } // namespace LanguageClient
