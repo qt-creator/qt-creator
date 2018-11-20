@@ -91,7 +91,7 @@ public:
 
 private:
     CppCodeStylePreferences *m_pageCppCodeStylePreferences;
-    QPointer<TextEditor::CodeStyleEditor> m_widget;
+    QPointer<QWidget> m_widget;
 };
 
 } // namespace Internal

@@ -42,6 +42,8 @@ class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory : public QObject
 public:
     explicit ICodeStylePreferencesFactory(QObject *parent = nullptr);
 
+    virtual QWidget *createCodeStyleEditor(ICodeStylePreferences *codeStyle,
+                                           QWidget *parent = nullptr);
     virtual Core::Id languageId() = 0;
     virtual QString displayName() = 0;
     virtual ICodeStylePreferences *createCodeStyle() const = 0;

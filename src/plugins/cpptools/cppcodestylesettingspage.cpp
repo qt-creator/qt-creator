@@ -35,6 +35,7 @@
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/codestyleeditor.h>
+#include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/snippets/snippetprovider.h>
@@ -523,16 +524,19 @@ CppCodeStyleSettingsPage::CppCodeStyleSettingsPage(QWidget *parent) :
 QWidget *CppCodeStyleSettingsPage::widget()
 {
     if (!m_widget) {
-        CppCodeStylePreferences *originalCodeStylePreferences
-                = CppToolsSettings::instance()->cppCodeStyle();
-        m_pageCppCodeStylePreferences = new CppCodeStylePreferences(m_widget);
-        m_pageCppCodeStylePreferences->setDelegatingPool(originalCodeStylePreferences->delegatingPool());
-        m_pageCppCodeStylePreferences->setCodeStyleSettings(originalCodeStylePreferences->codeStyleSettings());
-        m_pageCppCodeStylePreferences->setCurrentDelegate(originalCodeStylePreferences->currentDelegate());
+        CppCodeStylePreferences *originalCodeStylePreferences = CppToolsSettings::instance()
+                                                                    ->cppCodeStyle();
+        m_pageCppCodeStylePreferences = new CppCodeStylePreferences();
+        m_pageCppCodeStylePreferences->setDelegatingPool(
+            originalCodeStylePreferences->delegatingPool());
+        m_pageCppCodeStylePreferences->setCodeStyleSettings(
+            originalCodeStylePreferences->codeStyleSettings());
+        m_pageCppCodeStylePreferences->setCurrentDelegate(
+            originalCodeStylePreferences->currentDelegate());
         // we set id so that it won't be possible to set delegate to the original prefs
         m_pageCppCodeStylePreferences->setId(originalCodeStylePreferences->id());
-        m_widget = new CodeStyleEditor(TextEditorSettings::codeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID),
-                                       m_pageCppCodeStylePreferences);
+        m_widget = TextEditorSettings::codeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID)
+                       ->createCodeStyleEditor(m_pageCppCodeStylePreferences);
     }
     return m_widget;
 }

@@ -79,11 +79,6 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
     updatePreview();
 }
 
-void CodeStyleEditor::clearMargins()
-{
-    m_layout->setContentsMargins(QMargins());
-}
-
 void CodeStyleEditor::updatePreview()
 {
     QTextDocument *doc = m_preview->document();

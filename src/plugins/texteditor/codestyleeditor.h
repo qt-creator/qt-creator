@@ -46,8 +46,6 @@ public:
     CodeStyleEditor(ICodeStylePreferencesFactory *factory,
                            ICodeStylePreferences *codeStyle, QWidget *parent = nullptr);
 
-    void clearMargins();
-
 private:
     void updatePreview();
 

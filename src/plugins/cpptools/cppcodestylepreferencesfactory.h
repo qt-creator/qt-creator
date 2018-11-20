@@ -25,11 +25,13 @@
 
 #pragma once
 
+#include "cpptools_global.h"
+
 #include <texteditor/icodestylepreferencesfactory.h>
 
 namespace CppTools {
 
-class CppCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory
+class CPPTOOLS_EXPORT CppCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory
 {
 public:
     CppCodeStylePreferencesFactory();

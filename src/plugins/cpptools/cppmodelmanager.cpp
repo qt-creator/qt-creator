@@ -39,7 +39,6 @@
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
 #include "cppbuiltinmodelmanagersupport.h"
-#include "cppqtstyleindenter.h"
 #include "cpprefactoringchanges.h"
 #include "cpprefactoringengine.h"
 #include "cppsourceprocessor.h"
@@ -510,7 +509,6 @@ void CppModelManager::initializeBuiltinModelManagerSupport()
 
 CppModelManager::CppModelManager()
     : CppModelManagerBase(nullptr)
-    , createCppIndenter([]() { return new CppQtStyleIndenter; })
     , d(new CppModelManagerPrivate)
 {
     d->m_indexingSupporter = 0;

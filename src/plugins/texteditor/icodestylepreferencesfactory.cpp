@@ -25,6 +25,8 @@
 
 #include "icodestylepreferencesfactory.h"
 
+#include "codestyleeditor.h"
+
 using namespace TextEditor;
 
 ICodeStylePreferencesFactory::ICodeStylePreferencesFactory(QObject *parent) :
@@ -32,3 +34,8 @@ ICodeStylePreferencesFactory::ICodeStylePreferencesFactory(QObject *parent) :
 {
 }
 
+QWidget *ICodeStylePreferencesFactory::createCodeStyleEditor(ICodeStylePreferences *codeStyle,
+                                                             QWidget *parent)
+{
+    return new CodeStyleEditor(this, codeStyle, parent);
+}

@@ -43,6 +43,9 @@
 
 #include <projectexplorer/session.h>
 
+#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/texteditorsettings.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
@@ -58,6 +61,8 @@ CppTools::CppModelManager *mm()
 }
 
 } // anonymous namespace
+
+using namespace TextEditor;
 
 namespace CppEditor {
 namespace Internal {
@@ -103,7 +108,10 @@ CppEditorDocument::CppEditorDocument()
 {
     setId(CppEditor::Constants::CPPEDITOR_ID);
     setSyntaxHighlighter(new CppHighlighter);
-    setIndenter(CppTools::CppModelManager::instance()->createCppIndenter());
+
+    ICodeStylePreferencesFactory *factory
+        = TextEditorSettings::codeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID);
+    setIndenter(factory->createIndenter());
 
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
             this, &CppEditorDocument::invalidateFormatterCache);

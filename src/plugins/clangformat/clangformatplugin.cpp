@@ -36,13 +36,14 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/ioptionspage.h>
 
+#include <cpptools/cppcodestylepreferencesfactory.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/texteditorsettings.h>
@@ -63,59 +64,38 @@ using namespace ProjectExplorer;
 
 namespace ClangFormat {
 
-class ClangFormatOptionsPage : public Core::IOptionsPage
-{
-public:
-    explicit ClangFormatOptionsPage()
-    {
-        setId("Cpp.CodeStyle.ClangFormat");
-        setDisplayName(QCoreApplication::translate(
-                           "ClangFormat::Internal::ClangFormatOptionsPage",
-                           "Clang Format"));
-        setCategory(CppTools::Constants::CPP_SETTINGS_CATEGORY);
-    }
-
-    QWidget *widget()
-    {
-        if (!m_widget)
-            m_widget = new ClangFormatConfigWidget;
-        return m_widget;
-    }
-
-    void apply()
-    {
-        m_widget->apply();
-    }
-
-    void finish()
-    {
-        delete m_widget;
-    }
-
-private:
-    QPointer<ClangFormatConfigWidget> m_widget;
-};
-
 ClangFormatPlugin::ClangFormatPlugin() = default;
 ClangFormatPlugin::~ClangFormatPlugin() = default;
 
 #ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
-static void disableCppCodeStyle()
+class ClangFormatStyleFactory : public CppTools::CppCodeStylePreferencesFactory
+{
+public:
+    QWidget *createCodeStyleEditor(TextEditor::ICodeStylePreferences *,
+                                   QWidget *parent = nullptr) override
+    {
+        if (!parent)
+            return new ClangFormatConfigWidget;
+        return new ClangFormatConfigWidget(SessionManager::startupProject());
+    }
+
+    QWidget *createEditor(TextEditor::ICodeStylePreferences *, QWidget *) const override
+    {
+        return nullptr;
+    }
+
+    TextEditor::Indenter *createIndenter() const override
+    {
+        return new ClangFormatIndenter();
+    }
+};
+
+static void replaceCppCodeStyle()
 {
     using namespace TextEditor;
     TextEditorSettings::unregisterCodeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::unregisterCodeStylePool(CppTools::Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::unregisterCodeStyle(CppTools::Constants::CPP_SETTINGS_ID);
-
-    QList<Core::IOptionsPage *> pages = Core::IOptionsPage::allOptionsPages();
-    int codeStylePageIndex = Utils::indexOf(pages, [](Core::IOptionsPage *page) {
-        return page->id() == CppTools::Constants::CPP_CODE_STYLE_SETTINGS_ID;
-    });
-    if (codeStylePageIndex >= 0) {
-        auto *page = pages[codeStylePageIndex];
-        page->finish();
-        page->deleteLater();
-    }
+    ICodeStylePreferencesFactory *factory = new ClangFormatStyleFactory();
+    TextEditorSettings::registerCodeStyleFactory(factory);
 }
 #endif
 
@@ -124,21 +104,7 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 #ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
-    m_optionsPage = std::make_unique<ClangFormatOptionsPage>();
-
-    auto panelFactory = new ProjectPanelFactory();
-    panelFactory->setPriority(120);
-    panelFactory->setDisplayName(tr("Clang Format"));
-    panelFactory->setCreateWidgetFunction([](Project *project) {
-        return new ClangFormatConfigWidget(project);
-    });
-    ProjectPanelFactory::registerFactory(panelFactory);
-
-    CppTools::CppModelManager::instance()->setCppIndenterCreator([]() {
-        return new ClangFormatIndenter();
-    });
-
-    disableCppCodeStyle();
+    replaceCppCodeStyle();
 #endif
     return true;
 }

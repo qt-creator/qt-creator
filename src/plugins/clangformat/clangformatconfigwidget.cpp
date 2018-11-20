@@ -132,10 +132,15 @@ void ClangFormatConfigWidget::initialize()
     m_ui->clangFormatOptionsTable->show();
     m_ui->applyButton->show();
 
+    QLayoutItem *lastItem = m_ui->verticalLayout->itemAt(m_ui->verticalLayout->count() - 1);
+    if (QSpacerItem *spacer = lastItem->spacerItem())
+        m_ui->verticalLayout->removeItem(lastItem);
+
     if (m_project && !m_project->projectDirectory().appendPath(SETTINGS_FILE_NAME).exists()) {
         m_ui->projectHasClangFormat->setText(tr("No .clang-format file for the project."));
         m_ui->clangFormatOptionsTable->hide();
         m_ui->applyButton->hide();
+        m_ui->verticalLayout->addStretch(1);
 
         connect(m_ui->createFileButton, &QPushButton::clicked,
                 this, [this]() {
@@ -158,7 +163,7 @@ void ClangFormatConfigWidget::initialize()
         } else {
             m_ui->projectHasClangFormat->setText(
                     tr("Current project has its own .clang-format file "
-                       "and can be configured in Projects > Clang Format."));
+                       "and can be configured in Projects > Code Style > C++."));
         }
         createStyleFileIfNeeded(true);
         m_ui->applyButton->hide();

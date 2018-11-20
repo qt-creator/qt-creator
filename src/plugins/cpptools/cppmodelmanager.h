@@ -215,13 +215,6 @@ public:
                                      RefactoringEngineInterface *refactoringEngine);
     static void removeRefactoringEngine(RefactoringEngineType type);
 
-    using CppIndenterCreator = std::function<TextEditor::Indenter *()>;
-    void setCppIndenterCreator(CppIndenterCreator indenterCreator)
-    {
-        createCppIndenter = std::move(indenterCreator);
-    }
-    CppIndenterCreator createCppIndenter;
-
     void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
     void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
     void setIncludesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
