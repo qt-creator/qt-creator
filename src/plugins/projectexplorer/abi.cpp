@@ -958,6 +958,7 @@ Abi Abi::hostAbi()
     return result;
 }
 
+//! Extract available ABIs from a binary using heuristics.
 QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
 {
     QList<Abi> tmp;

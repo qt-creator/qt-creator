@@ -31,6 +31,7 @@
 
 #include <projectexplorer/abi.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
@@ -60,6 +61,35 @@ const char DEBUGGER_INFORMATION_VERSION[] = "Version";
 const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
 const char DEBUGGER_INFORMATION_LASTMODIFIED[] = "LastModified";
 const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
+
+
+//! Return the configuration of gdb as a list of --key=value
+//! \note That the list will also contain some output not in this format.
+static QString getConfigurationOfGdbCommand(const QString &command)
+{
+    // run gdb with the --configuration opion
+    Utils::SynchronousProcess gdbConfigurationCall;
+    Utils::SynchronousProcessResponse output =
+            gdbConfigurationCall.runBlocking(command, {QString("--configuration")});
+    return output.allOutput();
+}
+
+//! Extract the target ABI identifier from GDB output
+//! \return QString() (aka Null) if unable to find something
+static QString extractGdbTargetAbiStringFromGdbOutput(const QString &gdbOutput)
+{
+    const auto outputLines = gdbOutput.split('\n');
+    const auto whitespaceSeparatedTokens = outputLines.join(' ').split(' ', QString::SkipEmptyParts);
+
+    const QString targetKey{"--target="};
+    const QString targetValue = Utils::findOrDefault(whitespaceSeparatedTokens,
+                                                [&targetKey](const QString &token) { return token.startsWith(targetKey); });
+    if (!targetValue.isEmpty())
+        return targetValue.mid(targetKey.size());
+
+    return {};
+}
+
 
 namespace Debugger {
 
@@ -130,22 +160,6 @@ void DebuggerItem::reinitializeFromFile()
     const QString output = response.allOutput().trimmed();
     if (output.contains("gdb")) {
         m_engineType = GdbEngineType;
-        const char needle[] = "This GDB was configured as \"";
-        // E.g.  "--host=i686-pc-linux-gnu --target=arm-unknown-nto-qnx6.5.0".
-        // or "i686-linux-gnu"
-        int pos1 = output.indexOf(needle);
-        if (pos1 != -1) {
-            pos1 += int(strlen(needle));
-            int pos2 = output.indexOf('"', pos1 + 1);
-            QString target = output.mid(pos1, pos2 - pos1);
-            int pos3 = target.indexOf("--target=");
-            if (pos3 >= 0)
-                target = target.mid(pos3 + 9);
-            m_abis.append(Abi::abiFromTargetTriplet(target));
-        } else {
-            // Fallback.
-            m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
-        }
 
         // Version
         bool isMacGdb, isQnxGdb;
@@ -155,6 +169,33 @@ void DebuggerItem::reinitializeFromFile()
         if (version)
             m_version = QString::fromLatin1("%1.%2.%3")
                 .arg(version / 10000).arg((version / 100) % 100).arg(version % 100);
+
+        // ABI
+        const bool unableToFindAVersion = (0 == version);
+        const bool gdbSupportsConfigurationFlag = (version >= 70700);
+        if (gdbSupportsConfigurationFlag || unableToFindAVersion) {
+            const auto gdbConfiguration = getConfigurationOfGdbCommand(m_command.toString());
+            const auto gdbTargetAbiString =
+                    extractGdbTargetAbiStringFromGdbOutput(gdbConfiguration);
+            if (!gdbTargetAbiString.isEmpty()) {
+                m_abis.append(Abi::abiFromTargetTriplet(gdbTargetAbiString));
+                return;
+            }
+        }
+
+        // ABI: legacy: the target was removed from the output of --version with
+        // https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=commit;h=c61b06a19a34baab66e3809c7b41b0c31009ed9f
+        auto legacyGdbTargetAbiString = extractGdbTargetAbiStringFromGdbOutput(output);
+        if (!legacyGdbTargetAbiString.isEmpty()) {
+            // remove trailing "
+            legacyGdbTargetAbiString =
+                    legacyGdbTargetAbiString.left(legacyGdbTargetAbiString.length() - 1);
+            m_abis.append(Abi::abiFromTargetTriplet(legacyGdbTargetAbiString));
+            return;
+        }
+
+        qWarning() << "Unable to determine gdb target ABI";
+        //! \note If unable to determine the GDB ABI, no ABI is appended to m_abis here.
         return;
     }
     if (output.startsWith("lldb") || output.startsWith("LLDB")) {

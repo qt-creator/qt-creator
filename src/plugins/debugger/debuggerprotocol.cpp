@@ -436,6 +436,11 @@ QString DebuggerResponse::toString() const
 
 // Tested in tests/auto/debugger/tst_gdb.cpp
 
+//! Extract the GDB version number from the output of 'gdb --version'.
+//! \param[out] gdbVersion GDB version "hash" with major*10000 + minor*100 + patch
+//!             e.g. version GDB 3.7.14 will set this to 30714
+//! \param[out] gdbBuildVersion distribution dependent value
+//! \note See the file tests/auto/debugger/tst_gdb.cpp for example conversions.
 void extractGdbVersion(const QString &msg,
     int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb, bool *isQnxGdb)
 {
