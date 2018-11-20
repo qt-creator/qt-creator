@@ -107,7 +107,8 @@ SOURCES += \
     pchtaskgenerator-test.cpp \
     compilationdatabaseutils-test.cpp \
     builddependenciesprovider-test.cpp \
-    builddependenciesstorage-test.cpp
+    builddependenciesstorage-test.cpp \
+    builddependencycollector-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -173,7 +174,6 @@ SOURCES += \
     clangqueryprojectfindfilter-test.cpp \
     clangquery-test.cpp \
     gtest-clang-printing.cpp \
-    includecollector-test.cpp \
     pchcreator-test.cpp \
     refactoringclientserverinprocess-test.cpp \
     refactoringclient-test.cpp \
@@ -255,8 +255,8 @@ HEADERS += \
     mockfutureinterface.h \
     mockbuilddependenciesprovider.h \
     mockmodifiedtimechecker.h \
-    mockbuilddependenciesgenerator.h \
-    mockbuilddependenciesstorage.h
+    mockbuilddependenciesstorage.h \
+    mockbuilddependencygenerator.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

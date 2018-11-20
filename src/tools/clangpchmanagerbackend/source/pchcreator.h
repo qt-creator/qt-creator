@@ -28,6 +28,7 @@
 #include "pchcreatorinterface.h"
 
 #include "idpaths.h"
+#include "sourceentry.h"
 
 #include <filepathcaching.h>
 #include <projectpartpch.h>
@@ -93,9 +94,9 @@ public:
             const V2::ProjectPartContainer &projectPart) const;
     Utils::SmallString generateProjectPartSourcesContent(
             const V2::ProjectPartContainer &projectPart) const;
-    Utils::PathStringVector generateProjectPartSourcePaths(
+    ClangBackEnd::FilePaths generateProjectPartSourcePaths(
             const V2::ProjectPartContainer &projectPart) const;
-    PchCreatorIncludes generateProjectPartPchIncludes(
+    SourceEntries generateProjectPartPchIncludes(
             const V2::ProjectPartContainer &projectPart) const;
     Utils::SmallString generateProjectPathPchHeaderFilePath(
             const V2::ProjectPartContainer &projectPart) const;
@@ -112,6 +113,9 @@ public:
     static std::unique_ptr<QFile> generateFileWithContent(
             const Utils::SmallString &filePath,
             const Utils::SmallString &content);
+
+    static FilePathIds topIncludeIds(const SourceEntries &includes);
+    static FilePathIds allIncludeIds(const SourceEntries &includes);
 
 private:
     static QByteArray projectPartHash(const V2::ProjectPartContainer &projectPart);

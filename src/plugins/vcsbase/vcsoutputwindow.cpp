@@ -343,16 +343,17 @@ void VcsOutputWindow::visibilityChanged(bool visible)
 
 void VcsOutputWindow::setFocus()
 {
+    d->widget.setFocus();
 }
 
 bool VcsOutputWindow::hasFocus() const
 {
-    return false;
+    return d->widget.hasFocus();
 }
 
 bool VcsOutputWindow::canFocus() const
 {
-    return false;
+    return true;
 }
 
 bool VcsOutputWindow::canNavigate() const

@@ -75,10 +75,10 @@ protected:
     NiceMock<MockPchManagerClient> mockPchManagerClient;
     SmallString projectPartId1 = "project1";
     SmallString projectPartId2 = "project2";
-    PathString main1Path = TESTDATA_DIR "/includecollector_main3.cpp";
-    PathString main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
-    PathString header1Path = TESTDATA_DIR "/includecollector_header1.h";
-    PathString header2Path = TESTDATA_DIR "/includecollector_header2.h";
+    PathString main1Path = TESTDATA_DIR "/BuildDependencyCollector_main3.cpp";
+    PathString main2Path = TESTDATA_DIR "/BuildDependencyCollector_main2.cpp";
+    PathString header1Path = TESTDATA_DIR "/BuildDependencyCollector_header1.h";
+    PathString header2Path = TESTDATA_DIR "/BuildDependencyCollector_header2.h";
     ClangBackEnd::IdPaths idPath{projectPartId1, {1, 2}};
     ProjectPartContainer projectPart1{projectPartId1.clone(),
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},

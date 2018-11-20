@@ -26,7 +26,7 @@
 #include "pchcreator.h"
 
 #include "environment.h"
-#include "includecollector.h"
+#include "builddependencycollector.h"
 #include "pchnotcreatederror.h"
 
 #include <clangpathwatcherinterface.h>
@@ -58,12 +58,12 @@ void append(Target &target, const Source &source)
         target.push_back(ValueType(std::move(entry)));
 }
 
-void appendFilePathId(Utils::PathStringVector &target,
+void appendFilePathId(ClangBackEnd::FilePaths &target,
                       const ClangBackEnd::FilePathIds &source,
                       const ClangBackEnd::FilePathCachingInterface &filePathCache)
 {
     for (FilePathId id : source)
-        target.emplace_back(filePathCache.filePath(id).path());
+        target.emplace_back(filePathCache.filePath(id));
 }
 
 Utils::PathStringVector generatedFilePaths(const V2::FileContainers &generaredFiles)
@@ -190,23 +190,23 @@ Utils::PathStringVector PchCreator::generateProjectPartHeaders(
 
 namespace {
 
-std::size_t sizeOfContent(const Utils::PathStringVector &paths)
+std::size_t sizeOfContent(const ClangBackEnd::FilePaths &paths)
 {
     return std::accumulate(paths.begin(),
                            paths.end(),
                            std::size_t(0),
-                           [] (std::size_t size, const Utils::PathString &path) {
+                           [] (std::size_t size, const auto &path) {
         const char includeTemplate[] = "#include \"\"\n";
         return size + path.size() + sizeof(includeTemplate);
     });
 }
 
-Utils::SmallString concatContent(const Utils::PathStringVector &paths, std::size_t size)
+Utils::SmallString concatContent(const ClangBackEnd::FilePaths &paths, std::size_t size)
 {
     Utils::SmallString content;
     content.reserve(size);
 
-    for (const Utils::PathString &path : paths) {
+    for (const ClangBackEnd::FilePath &path : paths) {
         content += "#include \"";
         content +=  path;
         content += "\"\n";
@@ -220,15 +220,15 @@ Utils::SmallString concatContent(const Utils::PathStringVector &paths, std::size
 Utils::SmallString PchCreator::generateProjectPartSourcesContent(
         const V2::ProjectPartContainer &projectPart) const
 {
-    Utils::PathStringVector paths = generateProjectPartSourcePaths(projectPart);
+    ClangBackEnd::FilePaths paths = generateProjectPartSourcePaths(projectPart);
 
     return concatContent(paths, sizeOfContent(paths));
 }
 
-Utils::PathStringVector PchCreator::generateProjectPartSourcePaths(
-        const V2::ProjectPartContainer &projectPart) const
+ClangBackEnd::FilePaths PchCreator::generateProjectPartSourcePaths(
+    const V2::ProjectPartContainer &projectPart) const
 {
-    Utils::PathStringVector includeAndSources;
+    ClangBackEnd::FilePaths includeAndSources;
     includeAndSources.reserve(projectPart.sourcePathIds.size());
 
     appendFilePathId(includeAndSources, projectPart.sourcePathIds, m_filePathCache);
@@ -236,7 +236,7 @@ Utils::PathStringVector PchCreator::generateProjectPartSourcePaths(
     return includeAndSources;
 }
 
-PchCreatorIncludes PchCreator::generateProjectPartPchIncludes(
+SourceEntries PchCreator::generateProjectPartPchIncludes(
         const V2::ProjectPartContainer &projectPart) const
 {
     Utils::SmallString jointedFileContent = generateProjectPartSourcesContent(projectPart);
@@ -245,9 +245,9 @@ PchCreatorIncludes PchCreator::generateProjectPartPchIncludes(
     Utils::SmallStringVector arguments = generateProjectPartCommandLine(projectPart);
     FilePath filePath{Utils::PathString(jointedFilePath)};
 
-    IncludeCollector collector(m_filePathCache);
+    BuildDependencyCollector collector(m_filePathCache);
 
-    collector.setExcludedIncludes(generateProjectPartSourcePaths(projectPart));
+    collector.setExcludedFilePaths(generateProjectPartSourcePaths(projectPart));
 
     collector.addFile(filePath, projectPart.sourcePathIds, arguments);
 
@@ -257,7 +257,7 @@ PchCreatorIncludes PchCreator::generateProjectPartPchIncludes(
 
     jointFile->remove();
 
-    return  {collector.takeIncludeIds(), collector.takeTopIncludeIds(), collector.takeTopsSystemIncludeIds()};
+    return collector.includeIds();
 }
 
 Utils::SmallString PchCreator::generateProjectPathPchHeaderFilePath(
@@ -309,7 +309,7 @@ IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &proje
 {
     long long lastModified = QDateTime::currentSecsSinceEpoch();
     auto includes = generateProjectPartPchIncludes(projectPart);
-    auto content = generatePchIncludeFileContent(includes.topIncludeIds);
+    auto content = generatePchIncludeFileContent(topIncludeIds(includes));
     auto pchIncludeFilePath = generateProjectPathPchHeaderFilePath(projectPart);
     auto pchFilePath = generateProjectPartPchFilePath(projectPart);
     generateFileWithContent(pchIncludeFilePath, content);
@@ -323,7 +323,7 @@ IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &proje
         m_projectPartPch.lastModified = lastModified;
     }
 
-    return {projectPart.projectPartId.clone(), std::move(includes.includeIds)};
+    return {projectPart.projectPartId.clone(), allIncludeIds(includes)};
 }
 
 void PchCreator::generatePch(const V2::ProjectPartContainer &projectPart)
@@ -390,6 +390,32 @@ std::unique_ptr<QFile> PchCreator::generateFileWithContent(
     precompiledIncludeFile->close();
 
     return precompiledIncludeFile;
+}
+
+FilePathIds PchCreator::topIncludeIds(const SourceEntries &includes)
+{
+    FilePathIds topIncludes;
+    topIncludes.reserve(includes.size());
+
+    for (SourceEntry include : includes) {
+        if (include.sourceType == SourceType::TopInclude)
+            topIncludes.push_back(include.sourceId);
+    }
+
+    return topIncludes;
+}
+
+FilePathIds PchCreator::allIncludeIds(const SourceEntries &includes)
+{
+    FilePathIds allIncludes;
+    allIncludes.reserve(includes.size());
+
+    std::transform(includes.begin(),
+                   includes.end(),
+                   std::back_inserter(allIncludes),
+                   [](auto &&entry) { return entry.sourceId; });
+
+    return allIncludes;
 }
 
 QByteArray PchCreator::projectPartHash(const V2::ProjectPartContainer &projectPart)

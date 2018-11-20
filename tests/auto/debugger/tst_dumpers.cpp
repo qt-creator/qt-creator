@@ -5416,7 +5416,7 @@ void tst_Dumpers::dumper_data()
                     "Flags fthree = (Flags)(one|two); unused(&fthree);\n"
                     "Flags fmixed = (Flags)(two|8); unused(&fmixed);\n"
                     "Flags fbad = (Flags)(24); unused(&fbad);\n")
-               + GdbEngine
+               + NoCdbEngine
                + Check("fone", "one (1)", "Flags")
                + Check("fthree", "(one | two) (3)", "Flags")
                + Check("fmixed", "(two | unknown: 8) (10)", "Flags")
@@ -5433,7 +5433,7 @@ void tst_Dumpers::dumper_data()
                     "    Enum3 e3 = Enum3(c3 | b3);\n"
                     "};\n",
                     "E e;\n")
-                + GdbEngine
+                + NoCdbEngine
                 + Check("e.e1", "(E::b1 | E::c1) (3)", "E::Enum1")
                 + Check("e.e2", "(E::b2 | E::c2) (3)", "E::Enum2")
                 + Check("e.e3", "(E::b3 | E::c3) (3)", "E::Enum3");

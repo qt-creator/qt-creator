@@ -49,8 +49,8 @@ protected:
                                                         {"/yi"},
                                                         {{1, 1}},
                                                         {{1, 2}}};
-    SourceEntries firstSources{{1, SourceType::Any, 1}, {2, SourceType::Any, 1}, {10, SourceType::Any, 1}};
-    BuildDependency buildDependency{firstSources, {}, {}, {}};
+    SourceEntries firstSources{{1, SourceType::UserInclude, 1}, {2, SourceType::UserInclude, 1}, {10, SourceType::UserInclude, 1}};
+    BuildDependency buildDependency{firstSources, {}};
 };
 
 TEST_F(PchTaskGenerator, Create)

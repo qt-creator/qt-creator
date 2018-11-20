@@ -44,20 +44,32 @@
 
 namespace {
 
+using ClangBackEnd::FilePath;
 using ClangBackEnd::FilePathId;
+using ClangBackEnd::FilePathIds;
+using ClangBackEnd::FilePathView;
 using ClangBackEnd::GeneratedFiles;
 using ClangBackEnd::IdPaths;
 using ClangBackEnd::ProjectPartPch;
-using ClangBackEnd::V2::ProjectPartContainer;
+using ClangBackEnd::SourceEntries;
+using ClangBackEnd::SourceEntry;
+using ClangBackEnd::SourceType;
 using ClangBackEnd::V2::FileContainer;
-using ClangBackEnd::FilePath;
-using ClangBackEnd::FilePathIds;
-using ClangBackEnd::FilePathView;
+using ClangBackEnd::V2::ProjectPartContainer;
 
 using Utils::PathString;
 using Utils::SmallString;
 
 using UnitTests::EndsWith;
+
+MATCHER_P2(HasIdAndType, sourceId, sourceType,
+           std::string(negation ? "hasn't" : "has") +
+               PrintToString(ClangBackEnd::SourceEntry(sourceId, sourceType,
+                                                       -1)))
+{
+    const ClangBackEnd::SourceEntry &entry = arg;
+    return entry.sourceId == sourceId && entry.sourceType == sourceType;
+}
 
 class PchCreator: public ::testing::Test
 {
@@ -75,27 +87,27 @@ protected:
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
-    FilePath main1Path = TESTDATA_DIR "/includecollector/project/main3.cpp";
-    FilePath main2Path = TESTDATA_DIR "/includecollector/project/main2.cpp";
-    FilePath header1Path = TESTDATA_DIR "/includecollector/project/header1.h";
-    FilePath header2Path = TESTDATA_DIR "/includecollector/project/header2.h";
-    Utils::SmallStringView generatedFileName = "includecollector/project/generated_file.h";
-    FilePath generatedFilePath = TESTDATA_DIR "/includecollector/project/generated_file.h";
+    FilePath main1Path = TESTDATA_DIR "/builddependencycollector/project/main3.cpp";
+    FilePath main2Path = TESTDATA_DIR "/builddependencycollector/project/main2.cpp";
+    FilePath header1Path = TESTDATA_DIR "/builddependencycollector/project/header1.h";
+    FilePath header2Path = TESTDATA_DIR "/builddependencycollector/project/header2.h";
+    Utils::SmallStringView generatedFileName = "builddependencycollector/project/generated_file.h";
+    FilePath generatedFilePath = TESTDATA_DIR "/builddependencycollector/project/generated_file.h";
     TestEnvironment environment;
     FileContainer generatedFile{{TESTDATA_DIR, generatedFileName}, "#pragma once", {}};
     NiceMock<MockPchManagerClient> mockPchManagerClient;
     NiceMock<MockClangPathWatcher> mockClangPathWatcher;
     ClangBackEnd::PchCreator creator{environment, database, mockPchManagerClient, mockClangPathWatcher};
     ProjectPartContainer projectPart1{"project1",
-                                      {"-I", TESTDATA_DIR, "-I", TESTDATA_DIR "/includecollector/external", "-I", TESTDATA_DIR "/includecollector/project", "-isystem", TESTDATA_DIR "/includecollector/system", "-Wno-pragma-once-outside-header"},
+                                      {"-I", TESTDATA_DIR, "-I", TESTDATA_DIR "/builddependencycollector/external", "-I", TESTDATA_DIR "/builddependencycollector/project", "-isystem", TESTDATA_DIR "/builddependencycollector/system", "-Wno-pragma-once-outside-header"},
                                       {{"DEFINE", "1"}},
-                                      {TESTDATA_DIR "/includecollector/external", TESTDATA_DIR "/includecollector/project"},
+                                      {TESTDATA_DIR "/builddependencycollector/external", TESTDATA_DIR "/builddependencycollector/project"},
                                       {id(header1Path)},
                                       {id(main1Path)}};
     ProjectPartContainer projectPart2{"project2",
-                                      {"-I", TESTDATA_DIR, "-I", TESTDATA_DIR "/includecollector/external", "-I", TESTDATA_DIR "/includecollector/project", "-x", "c++-header", "-Wno-pragma-once-outside-header"},
+                                      {"-I", TESTDATA_DIR, "-I", TESTDATA_DIR "/builddependencycollector/external", "-I", TESTDATA_DIR "/builddependencycollector/project", "-x", "c++-header", "-Wno-pragma-once-outside-header"},
                                       {{"DEFINE", "1"}},
-                                      {TESTDATA_DIR "/includecollector/external", TESTDATA_DIR "/includecollector/project"},
+                                      {TESTDATA_DIR "/builddependencycollector/external", TESTDATA_DIR "/builddependencycollector/project"},
                                       {id(header2Path)},
                                       {id(main2Path)}};
 };
@@ -113,7 +125,7 @@ TEST_F(PchCreator, CreateProjectPartCommandLine)
 {
     auto commandLine = creator.generateProjectPartCommandLine(projectPart1);
 
-    ASSERT_THAT(commandLine, ElementsAre(environment.clangCompilerPath(), "-I", TESTDATA_DIR, "-I", TESTDATA_DIR "/includecollector/external", "-I", TESTDATA_DIR "/includecollector/project", "-isystem", TESTDATA_DIR "/includecollector/system", "-Wno-pragma-once-outside-header"));
+    ASSERT_THAT(commandLine, ElementsAre(environment.clangCompilerPath(), "-I", TESTDATA_DIR, "-I", TESTDATA_DIR "/builddependencycollector/external", "-I", TESTDATA_DIR "/builddependencycollector/project", "-isystem", TESTDATA_DIR "/builddependencycollector/system", "-Wno-pragma-once-outside-header"));
 }
 
 TEST_F(PchCreator, CreateProjectPartHeaders)
@@ -136,37 +148,45 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludes)
 
     auto includeIds = creator.generateProjectPartPchIncludes(projectPart1);
 
-    ASSERT_THAT(includeIds,
-                AllOf(
-                    Field(&PchCreatorIncludes::includeIds,
-                          AllOf(Contains(id(TESTDATA_DIR "/includecollector/external/external1.h")),
-                                Contains(id(TESTDATA_DIR "/includecollector/external/external2.h")),
-                                Contains(id(TESTDATA_DIR "/includecollector/project/header2.h")),
-                                Contains(id(TESTDATA_DIR "/includecollector/system/system1.h")))),
-                    Field(&PchCreatorIncludes::topSystemIncludeIds,
-                          AllOf(Contains(id(TESTDATA_DIR "/includecollector/system/system1.h")),
-                                Not(Contains(id(TESTDATA_DIR "/includecollector/system/indirect_system.h"))))),
-                    Field(&PchCreatorIncludes::topIncludeIds,
-                          AllOf(Contains(id(TESTDATA_DIR "/includecollector/external/external1.h")),
-                                Contains(id(TESTDATA_DIR "/includecollector/external/external2.h"))))));
+    ASSERT_THAT(
+        includeIds,
+        AllOf(
+            Contains(HasIdAndType(
+                id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+                SourceType::TopInclude)),
+            Contains(HasIdAndType(
+                id(TESTDATA_DIR "/builddependencycollector/system/system1.h"),
+                SourceType::TopSystemInclude)),
+            Contains(HasIdAndType(
+                id(TESTDATA_DIR
+                   "/builddependencycollector/system/indirect_system.h"),
+                SourceType::SystemInclude)),
+            Contains(HasIdAndType(
+                id(TESTDATA_DIR
+                   "/builddependencycollector/external/external1.h"),
+                SourceType::TopInclude)),
+            Contains(HasIdAndType(
+                id(TESTDATA_DIR
+                   "/builddependencycollector/external/external2.h"),
+                SourceType::TopInclude))));
 }
 
 TEST_F(PchCreatorSlowTest, CreateProjectPartPchFileContent)
 {
     auto includes = creator.generateProjectPartPchIncludes(projectPart1);
 
-    auto content = creator.generatePchIncludeFileContent(includes.topIncludeIds);
+    auto content = creator.generatePchIncludeFileContent(creator.topIncludeIds(includes));
 
     ASSERT_THAT(std::string(content),
-                AllOf(HasSubstr("#include \"" TESTDATA_DIR "/includecollector/project/header2.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/includecollector/external/external1.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/includecollector/external/external2.h\"\n")));
+                AllOf(HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/project/header2.h\"\n"),
+                      HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/external/external1.h\"\n"),
+                      HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/external/external2.h\"\n")));
 }
 
 TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludeFile)
 {
     auto includes = creator.generateProjectPartPchIncludes(projectPart1);
-    auto content = creator.generatePchIncludeFileContent(includes.topIncludeIds);
+    auto content = creator.generatePchIncludeFileContent(creator.topIncludeIds(includes));
     auto pchIncludeFilePath = creator.generateProjectPathPchHeaderFilePath(projectPart1);
     auto file = creator.generateFileWithContent(pchIncludeFilePath, content);
     file->open(QIODevice::ReadOnly);
@@ -174,9 +194,9 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludeFile)
     auto fileContent = file->readAll();
 
     ASSERT_THAT(fileContent.toStdString(),
-                AllOf(HasSubstr("#include \"" TESTDATA_DIR "/includecollector/project/header2.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/includecollector/external/external1.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/includecollector/external/external2.h\"\n")));
+                AllOf(HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/project/header2.h\"\n"),
+                      HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/external/external1.h\"\n"),
+                      HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/external/external2.h\"\n")));
 }
 
 TEST_F(PchCreator, CreateProjectPartPchCompilerArguments)
@@ -236,9 +256,9 @@ TEST_F(PchCreatorVerySlowTest, IdPathsForCreatePchsForProjectParts)
 
     ASSERT_THAT(creator.takeProjectIncludes(),
                 AllOf(Field(&IdPaths::id, "project1"),
-                      Field(&IdPaths::filePathIds, AllOf(Contains(id(TESTDATA_DIR "/includecollector/project/header2.h")),
-                                                         Contains(id(TESTDATA_DIR "/includecollector/external/external1.h")),
-                                                         Contains(id(TESTDATA_DIR "/includecollector/external/external2.h"))))));
+                      Field(&IdPaths::filePathIds, AllOf(Contains(id(TESTDATA_DIR "/builddependencycollector/project/header2.h")),
+                                                         Contains(id(TESTDATA_DIR "/builddependencycollector/external/external1.h")),
+                                                         Contains(id(TESTDATA_DIR "/builddependencycollector/external/external2.h"))))));
 }
 
 TEST_F(PchCreatorVerySlowTest, ProjectPartPchForCreatesPchForProjectPart)
@@ -277,7 +297,7 @@ TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesNoPchForProjectPart
                                            {{"DEFINE", "1"}},
                                            {"/includes"},
                                            {},
-                                           {id(TESTDATA_DIR "/includecollector/project/faulty.cpp")}};
+                                           {id(TESTDATA_DIR "/builddependencycollector/project/faulty.cpp")}};
 
     creator.generatePch(faultyProjectPart);
 
@@ -291,15 +311,14 @@ TEST_F(PchCreator, CreateProjectPartSourcesContent)
 {
     auto content = creator.generateProjectPartSourcesContent(projectPart1);
 
-    ASSERT_THAT(content, Eq("#include \"" TESTDATA_DIR "/includecollector/project/main3.cpp\"\n"));
+    ASSERT_THAT(content, Eq("#include \"" TESTDATA_DIR "/builddependencycollector/project/main3.cpp\"\n"));
 }
 
 TEST_F(PchCreator, Call)
 {
     auto content = creator.generateProjectPartSourcesContent(projectPart1);
 
-    ASSERT_THAT(content, Eq("#include \"" TESTDATA_DIR "/includecollector/project/main3.cpp\"\n"));
+    ASSERT_THAT(content, Eq("#include \"" TESTDATA_DIR "/builddependencycollector/project/main3.cpp\"\n"));
 }
-
 
 }

@@ -2944,8 +2944,6 @@ class DumperBase:
                 return str(simple)
             if self.ldisplay is not None:
                 return self.ldisplay
-            if self.type.code == TypeCodeEnum:
-                return self.displayEnum()
             #if self.ldata is not None:
             #    if sys.version_info[0] == 2 and isinstance(self.ldata, buffer):
             #        return bytes(self.ldata).encode('hex')
@@ -3020,6 +3018,8 @@ class DumperBase:
 
         def value(self):
             if self.type is not None:
+                if self.type.code == TypeCodeEnum:
+                    return self.displayEnum()
                 if self.type.code == TypeCodeTypedef:
                     return self.detypedef().value()
                 if self.type.code == TypeCodeIntegral:
@@ -3028,8 +3028,6 @@ class DumperBase:
                     return self.integer()
                 if self.type.code == TypeCodeFloat:
                     return self.floatingPoint()
-                if self.type.code == TypeCodeTypedef:
-                    return self.cast(self.type.ltarget).value()
                 if self.type.code == TypeCodePointer:
                     return self.pointer()
             return None

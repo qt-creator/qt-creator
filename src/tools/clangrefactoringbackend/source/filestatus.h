@@ -54,6 +54,12 @@ public:
             && first.lastModified == second.lastModified;
     }
 
+    friend
+    bool operator<(const FileStatus &first, const FileStatus &second)
+    {
+        return first.filePathId < second.filePathId;
+    }
+
 public:
     FilePathId filePathId;
     off_t size;

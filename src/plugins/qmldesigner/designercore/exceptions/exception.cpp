@@ -30,6 +30,8 @@
 #include <cxxabi.h>
 #endif
 
+#include <utils/qtcassert.h>
+
 #include <QCoreApplication>
 
 #include <coreplugin/messagebox.h>
@@ -83,6 +85,7 @@ void Exception::setShouldAssert(bool assert)
 
 bool Exception::shouldAssert()
 {
+    return true;
     return s_shouldAssert;
 }
 
@@ -122,8 +125,11 @@ Exception::Exception(int line,
     free(symbols);
 #endif
 
-if (s_shouldAssert)
-    Q_ASSERT_X(false, _function, QString(QStringLiteral("%1:%2 - %3")).arg(m_file).arg(m_line).arg(m_function).toUtf8());
+    if (s_shouldAssert) {
+        qDebug() << description();
+        QTC_ASSERT(false, ;);
+        Q_ASSERT(false);
+    }
 }
 
 Exception::~Exception() = default;

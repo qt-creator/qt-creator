@@ -531,14 +531,29 @@ class Dumper(DumperBase):
 
     def nativeTypeEnumDisplay(self, nativeType, intval, form):
         if hasattr(nativeType, 'get_enum_members_array'):
+            enumerators = []
+            flags = []
+            found = False
             for enumMember in nativeType.get_enum_members_array():
                 # Even when asking for signed we get unsigned with LLDB 3.8.
-                diff = enumMember.GetValueAsSigned() - intval
-                mask = (1 << nativeType.GetByteSize() * 8) - 1
-                if diff & mask == 0:
-                    path = nativeType.GetName().split('::')
-                    path[-1] = enumMember.GetName()
-                    return '::'.join(path) + ' (' + (form % intval) + ')'
+                value = enumMember.GetValueAsSigned()
+                name = nativeType.GetName().split('::')
+                name[-1] = enumMember.GetName()
+                if value == intval:
+                    return '::'.join(name) + ' (' + (form % intval) + ')'
+                enumerators.append(('::'.join(name), value))
+
+            given = intval
+            for (name, value) in enumerators:
+                if value & given != 0:
+                    flags.append(name)
+                    given = given & ~value
+                    found = True
+
+            if not found or given != 0:
+                flags.append('unknown: %d' % given)
+
+            return '(' + ' | '.join(flags) + ') (' + (form % intval) + ')'
         return form % intval
 
     def nativeDynamicTypeName(self, address, baseType):

@@ -31,14 +31,14 @@ namespace ClangBackEnd {
 
 class BuildDependenciesStorageInterface;
 class ModifiedTimeCheckerInterface;
-class BuildDependenciesGeneratorInterface;
+class BuildDependencyGeneratorInterface;
 
 class BuildDependenciesProvider : public BuildDependenciesProviderInterface
 {
 public:
     BuildDependenciesProvider(BuildDependenciesStorageInterface &buildDependenciesStorage,
                               ModifiedTimeCheckerInterface &modifiedTimeChecker,
-                              BuildDependenciesGeneratorInterface &buildDependenciesGenerator)
+                              BuildDependencyGeneratorInterface &buildDependenciesGenerator)
         : m_buildDependenciesStorage(buildDependenciesStorage),
           m_modifiedTimeChecker(modifiedTimeChecker),
           m_buildDependenciesGenerator(buildDependenciesGenerator)
@@ -56,7 +56,7 @@ private:
 private:
     BuildDependenciesStorageInterface &m_buildDependenciesStorage;
     ModifiedTimeCheckerInterface &m_modifiedTimeChecker;
-    BuildDependenciesGeneratorInterface &m_buildDependenciesGenerator;
+    BuildDependencyGeneratorInterface &m_buildDependenciesGenerator;
 };
 
 } // namespace ClangBackEnd

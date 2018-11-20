@@ -507,7 +507,7 @@ VersionUpgrader *UpgradingSettingsAccessor::upgrader(const int version) const
 SettingsAccessor::RestoreData
 UpgradingSettingsAccessor::upgradeSettings(const RestoreData &data, const int targetVersion) const
 {
-    if (data.hasError())
+    if (data.hasError() || data.data.isEmpty())
         return data;
 
     QTC_ASSERT(targetVersion >= firstSupportedVersion(), return data);

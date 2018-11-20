@@ -25,27 +25,28 @@
 
 #pragma once
 
+#include "builddependencygeneratorinterface.h"
+
 #include <clangtool.h>
-#include <filestatus.h>
-#include <sourcedependency.h>
 #include <sourcesmanager.h>
-#include <usedmacro.h>
 
 #include <filepathcachingfwd.h>
 
 namespace ClangBackEnd {
 
-class IncludeCollector : public ClangTool
+class BuildDependencyCollector : public BuildDependencyGeneratorInterface
 {
 public:
-    IncludeCollector(const FilePathCachingInterface &filePathCache)
+    BuildDependencyCollector(const FilePathCachingInterface &filePathCache)
         :  m_filePathCache(filePathCache)
     {
     }
 
+    BuildDependency create(const V2::ProjectPartContainer &projectPart) override;
+
     void collect();
 
-    void setExcludedIncludes(Utils::PathStringVector &&excludedIncludes);
+    void setExcludedFilePaths(ClangBackEnd::FilePaths &&excludedIncludes);
     void addFiles(const FilePathIds &filePathIds,
                   const Utils::SmallStringVector &arguments);
     void addFile(FilePathId filePathId,
@@ -53,62 +54,43 @@ public:
     void addFile(FilePath filePath,
                  const FilePathIds &sourceFileIds,
                  const Utils::SmallStringVector &arguments);
+    void addUnsavedFiles(const V2::FileContainers &unsavedFiles);
 
     void clear();
 
     const FileStatuses &fileStatuses() const
     {
-        return m_fileStatuses;
+        return m_buildDependency.fileStatuses;
     }
 
     const FilePathIds &sourceFiles() const
     {
-        return m_sourceFiles;
+        return m_buildDependency.sourceFiles;
     }
 
     const UsedMacros &usedMacros() const
     {
-        return m_usedMacros;
+        return m_buildDependency.usedMacros;
     }
 
     const SourceDependencies &sourceDependencies() const
     {
-        return m_sourceDependencies;
+        return m_buildDependency.sourceDependencies;
     }
 
-    FilePathIds takeIncludeIds()
+    const SourceEntries &includeIds()
     {
-        std::sort(m_includeIds.begin(), m_includeIds.end());
+        std::sort(m_buildDependency.includes.begin(), m_buildDependency.includes.end());
 
-        return std::move(m_includeIds);
-    }
-
-    FilePathIds takeTopIncludeIds()
-    {
-        std::sort(m_topIncludeIds.begin(), m_topIncludeIds.end());
-
-        return std::move(m_topIncludeIds);
-    }
-
-    FilePathIds takeTopsSystemIncludeIds()
-    {
-        std::sort(m_topsSystemIncludeIds.begin(), m_topsSystemIncludeIds.end());
-
-        return std::move(m_topsSystemIncludeIds);
+        return std::move(m_buildDependency.includes);
     }
 
 private:
     ClangTool m_clangTool;
-    Utils::PathStringVector m_excludedIncludes;
-    FilePathIds m_includeIds;
-    FilePathIds m_topIncludeIds;
-    FilePathIds m_topsSystemIncludeIds;
+    BuildDependency m_buildDependency;
+    ClangBackEnd::FilePaths m_excludedFilePaths;
     Utils::SmallStringVector m_directories;
     SourcesManager m_sourcesManager;
-    UsedMacros m_usedMacros;
-    FilePathIds m_sourceFiles;
-    SourceDependencies m_sourceDependencies;
-    FileStatuses m_fileStatuses;
     const FilePathCachingInterface &m_filePathCache;
 };
 

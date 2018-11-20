@@ -1769,25 +1769,25 @@ static QString msgNoGdbBinaryForToolChain(const Abi &tc)
 
 bool GdbEngine::hasCapability(unsigned cap) const
 {
-    if (runParameters().startMode == AttachCore) {
-        return cap & (AutoDerefPointersCapability
-                      | DisassemblerCapability
-                      | RegisterCapability
-                      | ShowMemoryCapability
-                      | CreateFullBacktraceCapability
-                      | AddWatcherCapability
-                      | ShowModuleSymbolsCapability
-                      | ShowModuleSectionsCapability
-                      | WatchComplexExpressionsCapability
-                      | MemoryAddressCapability
-                      | AdditionalQmlStackCapability);
+    if (cap & (AutoDerefPointersCapability
+               | DisassemblerCapability
+               | RegisterCapability
+               | ShowMemoryCapability
+               | CreateFullBacktraceCapability
+               | AddWatcherCapability
+               | ShowModuleSymbolsCapability
+               | ShowModuleSectionsCapability
+               | OperateByInstructionCapability
+               | WatchComplexExpressionsCapability
+               | MemoryAddressCapability
+               | AdditionalQmlStackCapability)) {
+        return true;
     }
 
-    return cap & (AutoDerefPointersCapability
-                  | DisassemblerCapability
-                  | RegisterCapability
-                  | ShowMemoryCapability
-                  | JumpToLineCapability
+    if (runParameters().startMode == AttachCore)
+        return false;
+
+    return cap & (JumpToLineCapability
                   | ReloadModuleCapability
                   | ReloadModuleSymbolsCapability
                   | BreakOnThrowAndCatchCapability
@@ -1795,21 +1795,14 @@ bool GdbEngine::hasCapability(unsigned cap) const
                   | BreakIndividualLocationsCapability
                   | TracePointCapability
                   | ReturnFromFunctionCapability
-                  | CreateFullBacktraceCapability
                   | WatchpointByAddressCapability
                   | WatchpointByExpressionCapability
-                  | AddWatcherCapability
                   | AddWatcherWhileRunningCapability
                   | WatchWidgetsCapability
-                  | ShowModuleSymbolsCapability
-                  | ShowModuleSectionsCapability
                   | CatchCapability
-                  | OperateByInstructionCapability
                   | RunToLineCapability
-                  | WatchComplexExpressionsCapability
                   | MemoryAddressCapability
                   | AdditionalQmlStackCapability
-                  | NativeMixedCapability
                   | ResetInferiorCapability
                   | SnapshotCapability
                   | ReverseSteppingCapability);
