@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>385</width>
     <height>231</height>
    </rect>
   </property>
@@ -55,19 +55,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="dsa">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>&amp;DSA</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QRadioButton" name="ecdsa">
           <property name="text">
            <string>ECDSA</string>
@@ -108,8 +95,7 @@
       <item row="1" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QComboBox" name="comboBox">
-         </widget>
+         <widget class="QComboBox" name="comboBox"/>
         </item>
         <item>
          <spacer name="horizontalSpacer_2">

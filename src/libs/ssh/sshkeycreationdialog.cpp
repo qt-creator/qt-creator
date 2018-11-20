@@ -54,8 +54,6 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
 
     connect(m_ui->rsa, &QRadioButton::toggled,
             this, &SshKeyCreationDialog::keyTypeChanged);
-    connect(m_ui->dsa, &QRadioButton::toggled,
-            this, &SshKeyCreationDialog::keyTypeChanged);
     connect(m_ui->privateKeyFileButton, &QPushButton::clicked,
             this, &SshKeyCreationDialog::handleBrowseButtonClicked);
     connect(m_ui->generateButton, &QPushButton::clicked,
@@ -77,8 +75,6 @@ void SshKeyCreationDialog::keyTypeChanged()
         keySizes << QLatin1String("1024") << QLatin1String("2048") << QLatin1String("4096");
     else if (m_ui->ecdsa->isChecked())
         keySizes << QLatin1String("256") << QLatin1String("384") << QLatin1String("521");
-    else if (m_ui->dsa->isChecked())
-        keySizes << QLatin1String("1024");
     m_ui->comboBox->addItems(keySizes);
     if (!keySizes.isEmpty())
         m_ui->comboBox->setCurrentIndex(0);
@@ -91,8 +87,7 @@ void SshKeyCreationDialog::generateKeys()
         return;
 
     const SshKeyGenerator::KeyType keyType = m_ui->rsa->isChecked()
-            ? SshKeyGenerator::Rsa : m_ui->dsa->isChecked()
-            ? SshKeyGenerator::Dsa : SshKeyGenerator::Ecdsa;
+            ? SshKeyGenerator::Rsa : SshKeyGenerator::Ecdsa;
 
     if (!m_keyGenerator)
         m_keyGenerator = new SshKeyGenerator;
