@@ -120,6 +120,10 @@ public:
 
     void log(const QString &message,
              Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);
+    template<typename Error>
+    void log(const LanguageServerProtocol::ResponseError<Error> &responseError,
+             Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch)
+    { log(responseError.toString(), flag); }
 
 signals:
     void initialized(LanguageServerProtocol::ServerCapabilities capabilities);

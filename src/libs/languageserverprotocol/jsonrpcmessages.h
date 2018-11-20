@@ -155,6 +155,8 @@ public:
                 && checkOptional<Error>(error, dataKey);
     }
 
+    QString toString() const { return errorCodesToString(code()) + ": " + message(); }
+
     // predefined error codes
     enum ErrorCodes {
         // Defined by JSON RPC
@@ -320,8 +322,6 @@ template <typename Error>
 inline QDebug operator<<(QDebug stream,
                 const LanguageServerProtocol::ResponseError<Error> &error)
 {
-    stream.nospace() << LanguageServerProtocol::ResponseError<Error>::errorCodesToString(error.code())
-                     << ":"
-                     << error.message();
+    stream.nospace() << error.toString();
     return stream;
 }

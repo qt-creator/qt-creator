@@ -350,7 +350,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     m_running = false;
     QTC_ASSERT(m_client, return);
     if (auto error = response.error()) {
-        m_client->log(error.value().message());
+        m_client->log(error.value());
         return;
     }
     const Utils::optional<CompletionResult> &result = response.result();
