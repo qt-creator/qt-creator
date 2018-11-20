@@ -73,7 +73,6 @@ public:
     static void clearChoiceCache();
 
 private:
-    bool checkLicense();
     void initializeMenuEntries();
     void onRunAllTriggered();
     void onRunSelectedTriggered();
