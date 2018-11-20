@@ -27,6 +27,10 @@
 
 #include "builddependenciesproviderinterface.h"
 
+namespace Sqlite {
+class TransactionInterface;
+}
+
 namespace ClangBackEnd {
 
 class BuildDependenciesStorageInterface;
@@ -38,25 +42,28 @@ class BuildDependenciesProvider : public BuildDependenciesProviderInterface
 public:
     BuildDependenciesProvider(BuildDependenciesStorageInterface &buildDependenciesStorage,
                               ModifiedTimeCheckerInterface &modifiedTimeChecker,
-                              BuildDependencyGeneratorInterface &buildDependenciesGenerator)
-        : m_buildDependenciesStorage(buildDependenciesStorage),
-          m_modifiedTimeChecker(modifiedTimeChecker),
-          m_buildDependenciesGenerator(buildDependenciesGenerator)
-    {
-    }
+                              BuildDependencyGeneratorInterface &buildDependenciesGenerator,
+                              Sqlite::TransactionInterface &transactionBackend)
+        : m_storage(buildDependenciesStorage)
+        , m_modifiedTimeChecker(modifiedTimeChecker)
+        , m_generator(buildDependenciesGenerator)
+        , m_transactionBackend(transactionBackend)
+    {}
 
-    BuildDependency create(const V2::ProjectPartContainer &projectPart) const override;
+    BuildDependency create(const V2::ProjectPartContainer &projectPart) override;
 
 private:
     BuildDependency createBuildDependencyFromStorage(SourceEntries &&includes) const;
     UsedMacros createUsedMacrosFromStorage(const SourceEntries &includes) const;
     SourceEntries createSourceEntriesFromStorage(const FilePathIds &sourcePathIds,
                                                  Utils::SmallStringView projectPartId) const;
+    void storeBuildDependency(const BuildDependency &buildDependency);
 
 private:
-    BuildDependenciesStorageInterface &m_buildDependenciesStorage;
+    BuildDependenciesStorageInterface &m_storage;
     ModifiedTimeCheckerInterface &m_modifiedTimeChecker;
-    BuildDependencyGeneratorInterface &m_buildDependenciesGenerator;
+    BuildDependencyGeneratorInterface &m_generator;
+    Sqlite::TransactionInterface &m_transactionBackend;
 };
 
 } // namespace ClangBackEnd
