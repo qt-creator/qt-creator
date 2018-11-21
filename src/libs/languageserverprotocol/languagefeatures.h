@@ -323,7 +323,7 @@ public:
 using DocumentSymbolParams = TextDocumentParams;
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentSymbolsResult
-        : public Utils::variant<QList<SymbolInformation>, std::nullptr_t>
+        : public Utils::variant<QList<SymbolInformation>, QList<DocumentSymbol>, std::nullptr_t>
 {
 public:
     using variant::variant;

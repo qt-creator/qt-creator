@@ -430,6 +430,10 @@ public:
     int kind() const { return typedValue<int>(kindKey); }
     void setKind(int kind) { insert(kindKey, kind); }
 
+    Utils::optional<bool> deprecated() const { return optionalValue<bool>(deprecatedKey); }
+    void setDeprecated(bool deprecated) { insert(deprecatedKey, deprecated); }
+    void clearDeprecated() { remove(deprecatedKey); }
+
     Location location() const { return typedValue<Location>(locationKey); }
     void setLocation(const Location &location) { insert(locationKey, location); }
 
@@ -439,6 +443,37 @@ public:
     void clearContainerName() { remove(containerNameKey); }
 
     bool isValid(QStringList *error) const override;
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT DocumentSymbol : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    QString name() const { return typedValue<QString>(nameKey); }
+    void setName(const QString &name) { insert(nameKey, name); }
+
+    Utils::optional<QString> detail() const { return optionalValue<QString>(detailKey); }
+    void setDetail(const QString &detail) { insert(detailKey, detail); }
+    void clearDetail() { remove(detailKey); }
+
+    int kind() const { return typedValue<int>(kindKey); }
+    void setKind(int kind) { insert(kindKey, kind); }
+
+    Utils::optional<bool> deprecated() const { return optionalValue<bool>(deprecatedKey); }
+    void setDeprecated(bool deprecated) { insert(deprecatedKey, deprecated); }
+    void clearDeprecated() { remove(deprecatedKey); }
+
+    Range range() const { return typedValue<Range>(rangeKey); }
+    void setRange(Range range) { insert(rangeKey, range); }
+
+    Range selectionRange() const { return typedValue<Range>(selectionRangeKey); }
+    void setSelectionRange(Range selectionRange) { insert(selectionRangeKey, selectionRange); }
+
+    Utils::optional<QList<DocumentSymbol>> children() const
+    { return optionalArray<DocumentSymbol>(childrenKey); }
+    void setChildren(QList<DocumentSymbol> children) { insertArray(childrenKey, children); }
+    void clearChildren() { remove(childrenKey); }
 };
 
 enum class SymbolKind {

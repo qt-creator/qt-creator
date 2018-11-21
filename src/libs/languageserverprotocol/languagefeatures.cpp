@@ -277,15 +277,30 @@ GotoResult::GotoResult(const QJsonValue &value)
     }
 }
 
+template<typename Symbol>
+QList<Symbol> documentSymbolsResultArray(const QJsonArray &array)
+{
+    QList<Symbol> ret;
+    for (auto arrayValue : array) {
+        if (arrayValue.isObject())
+            ret << Symbol(arrayValue.toObject());
+    }
+    return ret;
+}
+
 DocumentSymbolsResult::DocumentSymbolsResult(const QJsonValue &value)
 {
     if (value.isArray()) {
-        QList<SymbolInformation> symbols;
-        for (auto arrayValue : value.toArray()) {
-            if (arrayValue.isObject())
-                symbols.append(SymbolInformation(arrayValue.toObject()));
+        QJsonArray array = value.toArray();
+        if (array.isEmpty()) {
+            *this = QList<SymbolInformation>();
+        } else {
+            QJsonObject arrayObject = array.first().toObject();
+            if (arrayObject.contains(rangeKey))
+                *this = documentSymbolsResultArray<DocumentSymbol>(array);
+            else
+                *this = documentSymbolsResultArray<SymbolInformation>(array);
         }
-        *this = symbols;
     } else {
         *this = nullptr;
     }
