@@ -46,24 +46,41 @@
 namespace Utils {
 namespace Internal {
 
-QTipLabel::QTipLabel(QWidget *parent) :
+TipLabel::TipLabel(QWidget *parent) :
     QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget)
-{}
+{
+}
 
-void QTipLabel::setHelpId(const QString &id)
+void TipLabel::setHelpId(const QString &id)
 {
     m_helpId = id;
     update();
 }
 
-QString QTipLabel::helpId() const
+QString TipLabel::helpId() const
 {
     return m_helpId;
 }
 
+const QMetaObject *TipLabel::metaObject() const
+{
+    // CSS Tooltip styling depends on a the name of this class.
+    // So set up a minimalist QMetaObject to fake a class name "QTipLabel":
+    static const uint tip_label_meta_data[15] = { 8 /* moc revision */ };
+    static const QMetaObject tipMetaObject {
+         &QLabel::staticMetaObject,
+         QByteArrayLiteral("QTipLabel").data_ptr(),
+         tip_label_meta_data,
+         nullptr,
+         nullptr,
+         nullptr
+    };
+
+    return &tipMetaObject;
+}
 
 ColorTip::ColorTip(QWidget *parent)
-    : QTipLabel(parent)
+    : TipLabel(parent)
 {
     resize(40, 40);
 }
@@ -101,7 +118,7 @@ bool ColorTip::equals(int typeId, const QVariant &other, const QString &otherHel
 
 void ColorTip::paintEvent(QPaintEvent *event)
 {
-    QTipLabel::paintEvent(event);
+    TipLabel::paintEvent(event);
 
     QPainter painter(this);
     painter.setBrush(m_color);
@@ -115,7 +132,7 @@ void ColorTip::paintEvent(QPaintEvent *event)
     painter.drawRect(borderRect);
 }
 
-TextTip::TextTip(QWidget *parent) : QTipLabel(parent)
+TextTip::TextTip(QWidget *parent) : TipLabel(parent)
 {
     setForegroundRole(QPalette::ToolTipText);
     setBackgroundRole(QPalette::ToolTipBase);
@@ -210,7 +227,7 @@ void TextTip::resizeEvent(QResizeEvent *event)
 }
 
 WidgetTip::WidgetTip(QWidget *parent) :
-    QTipLabel(parent), m_layout(new QVBoxLayout)
+    TipLabel(parent), m_layout(new QVBoxLayout)
 {
     m_layout->setContentsMargins(0, 0, 0, 0);
     setLayout(m_layout);
@@ -266,9 +283,6 @@ bool WidgetTip::equals(int typeId, const QVariant &other, const QString &otherHe
     return typeId == ToolTip::WidgetContent && otherHelpId == helpId()
             && other.value<QWidget *>() == m_widget;
 }
-
-// need to include it here to force it to be inside the namespaces
-#include "moc_tips.cpp"
 
 } // namespace Internal
 } // namespace Utils

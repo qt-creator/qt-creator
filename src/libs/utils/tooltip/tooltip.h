@@ -50,7 +50,7 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace Utils {
-namespace Internal { class QTipLabel; }
+namespace Internal { class TipLabel; }
 
 class QTCREATOR_UTILS_EXPORT ToolTip : public QObject
 {
@@ -110,7 +110,7 @@ private:
     void showTip();
     void hideTipWithDelay();
 
-    QPointer<Internal::QTipLabel> m_tip;
+    QPointer<Internal::TipLabel> m_tip;
     QWidget *m_widget;
     QRect m_rect;
     QTimer m_showTimer;

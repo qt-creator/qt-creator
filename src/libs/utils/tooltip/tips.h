@@ -33,17 +33,13 @@
 #include <QVariant>
 #include <QVBoxLayout>
 
-#ifndef Q_MOC_RUN
 namespace Utils {
 namespace Internal {
-#endif
 
-// Please do not change the name of this class. Detailed comments in tooltip.h.
-class QTipLabel : public QLabel
+class TipLabel : public QLabel
 {
-    Q_OBJECT
 public:
-    QTipLabel(QWidget *parent);
+    TipLabel(QWidget *parent);
 
     virtual void setContent(const QVariant &content) = 0;
     virtual bool isInteractive() const { return false; }
@@ -54,11 +50,14 @@ public:
     virtual void setHelpId(const QString &id);
     virtual QString helpId() const;
 
+protected:
+    const QMetaObject *metaObject() const override;
+
 private:
     QString m_helpId;
 };
 
-class TextTip : public QTipLabel
+class TextTip : public TipLabel
 {
 public:
     TextTip(QWidget *parent);
@@ -76,7 +75,7 @@ private:
     QString m_text;
 };
 
-class ColorTip : public QTipLabel
+class ColorTip : public TipLabel
 {
 public:
     ColorTip(QWidget *parent);
@@ -93,7 +92,7 @@ private:
     QPixmap m_tilePixmap;
 };
 
-class WidgetTip : public QTipLabel
+class WidgetTip : public TipLabel
 {
     Q_OBJECT
 
@@ -113,7 +112,5 @@ private:
     QVBoxLayout *m_layout;
 };
 
-#ifndef Q_MOC_RUN
 } // namespace Internal
 } // namespace Utils
-#endif
