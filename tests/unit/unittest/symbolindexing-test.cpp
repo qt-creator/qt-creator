@@ -89,7 +89,7 @@ protected:
     PathString main1Path = TESTDATA_DIR "/symbolindexing_main1.cpp";
     ProjectPartContainer projectPart1{"project1",
                                       {"cc", "-I", TESTDATA_DIR, "-std=c++1z"},
-                                      {{"DEFINE", "1"}},
+                                      {{"DEFINE", "1", 1}},
                                       {"/includes"},
                                       {},
                                       {filePathId(main1Path)}};

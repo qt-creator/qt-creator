@@ -166,19 +166,19 @@ protected:
     ClangBackEnd::FilePathId generatedFilePathId21;
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
-                                      {{"BAR", "1"}, {"FOO", "1"}},
+                                      {{"BAR", "1", 1}, {"FOO", "1", 2}},
                                       {"/includes"},
                                       {header1PathId},
                                       {main1PathId}};
     ProjectPartContainer projectPart2{"project2",
                                       {"-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"},
-                                      {{"BAR", "1"}, {"FOO", "0"}},
+                                      {{"BAR", "1", 1}, {"FOO", "0", 2}},
                                       {"/includes"},
                                       {header2PathId},
                                       {main2PathId}};
     ProjectPartContainer projectPart3{"project3",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
-                                      {{"BAR", "1"}, {"FOO", "1"}},
+                                      {{"BAR", "1", 1}, {"FOO", "1", 2}},
                                       {"/includes", "/other/includes"},
                                       {header1PathId},
                                       {main1PathId}};
@@ -315,11 +315,11 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
 {
     EXPECT_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project1"),
                                                        ElementsAre("-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"),
-                                                       ElementsAre(CompilerMacro{"BAR", "1"}, CompilerMacro{"FOO", "1"}),
+                                                       ElementsAre(CompilerMacro{"BAR", "1", 1}, CompilerMacro{"FOO", "1", 2}),
                                                        ElementsAre("/includes")));
     EXPECT_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project2"),
                                                        ElementsAre("-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"),
-                                                       ElementsAre(CompilerMacro{"BAR", "1"}, CompilerMacro{"FOO", "0"}),
+                                                       ElementsAre(CompilerMacro{"BAR", "1", 1}, CompilerMacro{"FOO", "0", 2}),
                                                        ElementsAre("/includes")));
 
     indexer.updateProjectParts({projectPart1, projectPart2});
@@ -535,7 +535,7 @@ TEST_F(SymbolIndexer, IncludeSearchPathsAreDifferent)
 {
     ProjectPartContainer projectPart3{"project3",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
-                                      {{"BAR", "1"}, {"FOO", "1"}},
+                                      {{"BAR", "1", 1}, {"FOO", "1", 2}},
                                       {"/includes", "/other/includes"},
                                       {header1PathId},
                                       {main1PathId}};

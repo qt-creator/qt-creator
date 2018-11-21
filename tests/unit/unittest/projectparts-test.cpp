@@ -48,20 +48,20 @@ protected:
     FilePathId secondSource{12};
     FilePathId thirdSource{13};
     ProjectPartContainer projectPartContainer1{"id",
-                                              {"-DUNIX", "-O2"},
-                                              {{"DEFINE", "1"}},
-                                              {"/includes"},
-                                              {firstHeader, secondHeader},
-                                              {firstSource, secondSource}};
+                                               {"-DUNIX", "-O2"},
+                                               {{"DEFINE", "1", 1}},
+                                               {"/includes"},
+                                               {firstHeader, secondHeader},
+                                               {firstSource, secondSource}};
     ProjectPartContainer updatedProjectPartContainer1{"id",
                                                       {"-DUNIX", "-O2"},
-                                                      {{"DEFINE", "1"}},
+                                                      {{"DEFINE", "1", 1}},
                                                       {"/includes"},
                                                       {firstHeader, secondHeader},
                                                       {firstSource, secondSource, thirdSource}};
     ProjectPartContainer projectPartContainer2{"id2",
                                               {"-DUNIX", "-O2"},
-                                              {{"DEFINE", "1"}},
+                                              {{"DEFINE", "1", 1}},
                                               {"/includes"},
                                               {firstHeader, secondHeader},
                                               {firstSource, secondSource}};

@@ -156,10 +156,11 @@ QStringList ProjectUpdater::compilerArguments(CppTools::ProjectPart *projectPart
 
 ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(const ProjectExplorer::Macros &projectMacros)
 {
-    auto macros =  Utils::transform<ClangBackEnd::CompilerMacros>(projectMacros,
-                                                                  [] (const ProjectExplorer::Macro &macro) {
-        return ClangBackEnd::CompilerMacro{macro.key, macro.value};
-    });
+    int index = 0;
+    auto macros = Utils::transform<ClangBackEnd::CompilerMacros>(
+        projectMacros, [&](const ProjectExplorer::Macro &macro) {
+            return ClangBackEnd::CompilerMacro{macro.key, macro.value, ++index};
+        });
 
     std::sort(macros.begin(), macros.end());
 

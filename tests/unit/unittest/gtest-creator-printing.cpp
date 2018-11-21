@@ -1053,12 +1053,14 @@ const char *sourceTypeString(SourceType sourceType)
     using ClangBackEnd::SymbolTag;
 
     switch (sourceType) {
-        case SourceType::TopInclude:
-            return "TopInclude";
+        case SourceType::TopProjectInclude:
+            return "TopProjectInclude";
         case SourceType::TopSystemInclude:
             return "TopSystemInclude";
         case SourceType::SystemInclude:
             return "SystemInclude";
+        case SourceType::ProjectInclude:
+            return "ProjectInclude";
         case SourceType::UserInclude:
             return "UserInclude";
     }

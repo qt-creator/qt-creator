@@ -36,10 +36,10 @@ class CompilerMacro
 public:
     constexpr CompilerMacro() = default;
 
-    CompilerMacro(Utils::SmallString &&key,
-                  Utils::SmallString &&value)
-        : key(std::move(key)),
-          value(std::move(value))
+    CompilerMacro(Utils::SmallString &&key, Utils::SmallString &&value, int index)
+        : key(std::move(key))
+        , value(std::move(value))
+        , index(index)
     {}
 
     friend QDataStream &operator<<(QDataStream &out, const CompilerMacro &compilerMacro)
@@ -72,6 +72,7 @@ public:
 public:
     Utils::SmallString key;
     Utils::SmallString value;
+    int index = 0;
 };
 
 using CompilerMacros = std::vector<CompilerMacro>;

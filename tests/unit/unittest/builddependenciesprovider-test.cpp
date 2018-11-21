@@ -65,13 +65,13 @@ protected:
                                                      mockSqliteTransactionBackend};
     ClangBackEnd::V2::ProjectPartContainer projectPart1{"ProjectPart1",
                                                         {"--yi"},
-                                                        {{"YI", "1"}},
+                                                        {{"YI", "1", 1}},
                                                         {"/yi"},
                                                         {1},
                                                         {2}};
     ClangBackEnd::V2::ProjectPartContainer projectPart2{"ProjectPart2",
                                                         {"--er"},
-                                                        {{"ER", "2"}},
+                                                        {{"ER", "2", 1}},
                                                         {"/er"},
                                                         {1},
                                                         {2, 3, 4}};

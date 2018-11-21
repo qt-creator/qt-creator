@@ -168,7 +168,7 @@ TEST_F(BuildDependenciesStorage, AddNewSourceDependenciesTable)
 TEST_F(BuildDependenciesStorage, UpdateSources)
 {
     InSequence s;
-    SourceEntries entries{{1, SourceType::TopInclude, 10}, {2, SourceType::TopSystemInclude, 20}};
+    SourceEntries entries{{1, SourceType::TopProjectInclude, 10}, {2, SourceType::TopSystemInclude, 20}};
 
     EXPECT_CALL(updateBuildDependencyTimeStampStatement, write(TypedEq<long long>(10), TypedEq<int>(1)));
     EXPECT_CALL(updateSourceTypeStatement, write(TypedEq<uchar>(0), TypedEq<int>(1)));
@@ -205,7 +205,7 @@ TEST_F(BuildDependenciesStorage, FetchDependSourcesWithNonExistingProjectPartRet
 
 TEST_F(BuildDependenciesStorage, FetchDependSourcesWithExistingProjectPartReturnsSourceEntries)
 {
-    SourceEntries sourceEntries{{1, SourceType::TopInclude, 10}, {2, SourceType::TopSystemInclude, 20}};
+    SourceEntries sourceEntries{{1, SourceType::TopProjectInclude, 10}, {2, SourceType::TopSystemInclude, 20}};
     EXPECT_CALL(fetchProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("test"))).WillOnce(Return(Utils::optional<int>{20}));
     EXPECT_CALL(fetchSourceDependenciesStatement, valuesReturnSourceEntries(_, 22, 20)).WillOnce(Return(sourceEntries));
 

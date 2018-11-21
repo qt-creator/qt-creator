@@ -66,19 +66,33 @@ protected:
     {
         setFilePathCache(&filePathCache);
 
-        collector.addFile(id(TESTDATA_DIR "/builddependencycollector/project/main.cpp"), {"cc", "-I", TESTDATA_DIR "/builddependencycollector/external", "-I", TESTDATA_DIR "/builddependencycollector/project", "-isystem", TESTDATA_DIR "/builddependencycollector/system"});
-        collector.addFile(id(TESTDATA_DIR "/builddependencycollector/project/main2.cpp"), {"cc", "-I", TESTDATA_DIR "/builddependencycollector/external", "-I", TESTDATA_DIR "/builddependencycollector/project", "-isystem", TESTDATA_DIR "/builddependencycollector/system"});
+        collector.addFile(id(TESTDATA_DIR "/builddependencycollector/project/main.cpp"),
+                          {"cc",
+                           "-I",
+                           TESTDATA_DIR "/builddependencycollector/external",
+                           "-I",
+                           TESTDATA_DIR "/builddependencycollector/project",
+                           "-isystem",
+                           TESTDATA_DIR "/builddependencycollector/system"});
+        collector.addFile(id(TESTDATA_DIR "/builddependencycollector/project/main2.cpp"),
+                          {"cc",
+                           "-I",
+                           TESTDATA_DIR "/builddependencycollector/external",
+                           "-I",
+                           TESTDATA_DIR "/builddependencycollector/project",
+                           "-isystem",
+                           TESTDATA_DIR "/builddependencycollector/system"});
 
-        collector.addUnsavedFiles({{{TESTDATA_DIR, "BuildDependencyCollector/project/generated_file.h"}, "#pragma once", {}}});
+        collector.addUnsavedFiles(
+            {{{TESTDATA_DIR, "BuildDependencyCollector/project/generated_file.h"},
+              "#pragma once",
+              {}}});
 
         collector.setExcludedFilePaths(Utils::clone(excludePaths));
         emptyCollector.setExcludedFilePaths(Utils::clone(excludePaths));
     }
 
-    ~BuildDependencyCollector()
-    {
-        setFilePathCache(nullptr);
-    }
+    ~BuildDependencyCollector() { setFilePathCache(nullptr); }
 
     FilePathId id(const Utils::SmallStringView &path) const
     {
@@ -90,7 +104,7 @@ protected:
         return QFileInfo(QString(filePath)).size();
     }
 
-   static std::time_t lastModified(Utils::SmallStringView filePath)
+    static std::time_t lastModified(Utils::SmallStringView filePath)
     {
         return QFileInfo(QString(filePath)).lastModified().toTime_t();
     }
@@ -100,9 +114,8 @@ protected:
         return {id(filePath), fileSize(filePath), lastModified(filePath), false};
     }
 
-    static
-    FilePathIds filteredIncludes(const ClangBackEnd::SourceEntries &includes,
-                                 ClangBackEnd::SourceType includeType)
+    static FilePathIds filteredIncludes(const ClangBackEnd::SourceEntries &includes,
+                                        ClangBackEnd::SourceType includeType)
     {
         FilePathIds filteredIncludes;
 
@@ -114,31 +127,32 @@ protected:
         return filteredIncludes;
     }
 
-    static
-    FilePathIds topIncludes(const ClangBackEnd::SourceEntries &includes)
+    static FilePathIds topIncludes(const ClangBackEnd::SourceEntries &includes)
     {
-        return filteredIncludes(includes, ClangBackEnd::SourceType::TopInclude);
+        return filteredIncludes(includes, ClangBackEnd::SourceType::TopProjectInclude);
     }
 
-    static
-    FilePathIds systemTopIncludes(const ClangBackEnd::SourceEntries &includes)
+    static FilePathIds systemTopIncludes(const ClangBackEnd::SourceEntries &includes)
     {
         return filteredIncludes(includes, ClangBackEnd::SourceType::TopSystemInclude);
     }
 
-    static
-    FilePathIds userIncludes(const ClangBackEnd::SourceEntries &includes)
+    static FilePathIds userIncludes(const ClangBackEnd::SourceEntries &includes)
     {
         return filteredIncludes(includes, ClangBackEnd::SourceType::UserInclude);
     }
 
-    static
-    FilePathIds allIncludes(const ClangBackEnd::SourceEntries &includes)
+    static FilePathIds projectPartIncludes(const ClangBackEnd::SourceEntries &includes)
+    {
+        return filteredIncludes(includes, ClangBackEnd::SourceType::ProjectInclude);
+    }
+
+    static FilePathIds allIncludes(const ClangBackEnd::SourceEntries &includes)
     {
         FilePathIds filteredIncludes;
 
         for (const ClangBackEnd::SourceEntry &include : includes)
-                filteredIncludes.push_back(include.sourceId);
+            filteredIncludes.push_back(include.sourceId);
 
         return filteredIncludes;
     }
@@ -564,17 +578,17 @@ TEST_F(BuildDependencyCollector, Create)
                       HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
                                  SourceType::UserInclude),
                       HasInclude(id(TESTDATA_DIR "/builddependencycollector/external/external3.h"),
-                                 SourceType::TopInclude),
+                                 SourceType::TopProjectInclude),
                       HasInclude(id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
-                                 SourceType::TopInclude),
+                                 SourceType::TopProjectInclude),
                       HasInclude(id(TESTDATA_DIR
                                     "/builddependencycollector/external/indirect_external.h"),
-                                 SourceType::UserInclude),
+                                 SourceType::ProjectInclude),
                       HasInclude(id(TESTDATA_DIR
                                     "/builddependencycollector/external/indirect_external2.h"),
-                                 SourceType::UserInclude),
+                                 SourceType::ProjectInclude),
                       HasInclude(id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
-                                 SourceType::TopInclude),
+                                 SourceType::TopProjectInclude),
                       HasInclude(id(TESTDATA_DIR "/builddependencycollector/system/system1.h"),
                                  SourceType::TopSystemInclude),
                       HasInclude(id(TESTDATA_DIR

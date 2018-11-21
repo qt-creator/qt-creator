@@ -33,7 +33,8 @@ HEADERS += \
     $$PWD/modifiedtimecheckerinterface.h \
     $$PWD/sourceentry.h \
     $$PWD/builddependenciesstorage.h \
-    $$PWD/builddependencygeneratorinterface.h
+    $$PWD/builddependencygeneratorinterface.h \
+    $$PWD/usedmacrofilter.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

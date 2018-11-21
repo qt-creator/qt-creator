@@ -46,25 +46,25 @@ protected:
     ClangBackEnd::ProjectPartQueue queue{mockTaskScheduler, mockPrecompiledHeaderStorage, mockSqliteTransactionBackend, progressCounter};
     ClangBackEnd::V2::ProjectPartContainer projectPart1{"ProjectPart1",
                                                         {"--yi"},
-                                                        {{"YI","1"}},
+                                                        {{"YI","1", 1}},
                                                         {"/yi"},
                                                         {1},
                                                         {2}};
     ClangBackEnd::V2::ProjectPartContainer projectPart2{"ProjectPart2",
                                                         {"--er"},
-                                                        {{"ER","2"}},
+                                                        {{"ER","2", 1}},
                                                         {"/bar"},
                                                         {1},
                                                         {2}};
     ClangBackEnd::V2::ProjectPartContainer projectPart2b{"ProjectPart2",
                                                         {"--liang"},
-                                                        {{"LIANG","3"}},
+                                                        {{"LIANG","3", 1}},
                                                         {"/liang"},
                                                         {3},
                                                         {2, 4}};
     ClangBackEnd::V2::ProjectPartContainer projectPart3{"ProjectPart3",
                                                         {"--san"},
-                                                        {{"SAN","2"}},
+                                                        {{"SAN","2", 1}},
                                                         {"/SAN"},
                                                         {1},
                                                         {2}};

@@ -33,9 +33,10 @@ namespace ClangBackEnd {
 
 enum class SourceType : unsigned char
 {
-    TopInclude,
+    TopProjectInclude,
     TopSystemInclude,
     UserInclude,
+    ProjectInclude,
     SystemInclude
 };
 

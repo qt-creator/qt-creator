@@ -117,9 +117,11 @@ public:
                             sourceType = SourceType::SystemInclude;
                         else
                             sourceType = SourceType::TopSystemInclude;
-                    } else if (isNotInExcludedIncludeUID(fileUID)
-                               && isInExcludedIncludeUID(sourceFileUID)) {
-                        sourceType = SourceType::TopInclude;
+                    } else if (isNotInExcludedIncludeUID(fileUID)) {
+                        if (isInExcludedIncludeUID(sourceFileUID))
+                            sourceType = SourceType::TopProjectInclude;
+                        else
+                            sourceType = SourceType::ProjectInclude;
                     }
 
                     addInclude({includeId, sourceType, lastModified});

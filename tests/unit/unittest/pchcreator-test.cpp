@@ -100,13 +100,13 @@ protected:
     ClangBackEnd::PchCreator creator{environment, database, mockPchManagerClient, mockClangPathWatcher};
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-I", TESTDATA_DIR "/builddependencycollector/external", "-I", TESTDATA_DIR "/builddependencycollector/project", "-isystem", TESTDATA_DIR "/builddependencycollector/system", "-Wno-pragma-once-outside-header"},
-                                      {{"DEFINE", "1"}},
+                                      {{"DEFINE", "1", 1}},
                                       {TESTDATA_DIR "/builddependencycollector/external", TESTDATA_DIR "/builddependencycollector/project"},
                                       {id(header1Path)},
                                       {id(main1Path)}};
     ProjectPartContainer projectPart2{"project2",
                                       {"-I", TESTDATA_DIR, "-I", TESTDATA_DIR "/builddependencycollector/external", "-I", TESTDATA_DIR "/builddependencycollector/project", "-x", "c++-header", "-Wno-pragma-once-outside-header"},
-                                      {{"DEFINE", "1"}},
+                                      {{"DEFINE", "1", 1}},
                                       {TESTDATA_DIR "/builddependencycollector/external", TESTDATA_DIR "/builddependencycollector/project"},
                                       {id(header2Path)},
                                       {id(main2Path)}};
@@ -153,7 +153,7 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludes)
         AllOf(
             Contains(HasIdAndType(
                 id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
-                SourceType::TopInclude)),
+                SourceType::TopProjectInclude)),
             Contains(HasIdAndType(
                 id(TESTDATA_DIR "/builddependencycollector/system/system1.h"),
                 SourceType::TopSystemInclude)),
@@ -164,11 +164,11 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludes)
             Contains(HasIdAndType(
                 id(TESTDATA_DIR
                    "/builddependencycollector/external/external1.h"),
-                SourceType::TopInclude)),
+                SourceType::TopProjectInclude)),
             Contains(HasIdAndType(
                 id(TESTDATA_DIR
                    "/builddependencycollector/external/external2.h"),
-                SourceType::TopInclude))));
+                SourceType::TopProjectInclude))));
 }
 
 TEST_F(PchCreatorSlowTest, CreateProjectPartPchFileContent)
@@ -294,7 +294,7 @@ TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesNoPchForProjectPart
 {
     ProjectPartContainer faultyProjectPart{"faultyProject",
                                            {"-I", TESTDATA_DIR},
-                                           {{"DEFINE", "1"}},
+                                           {{"DEFINE", "1", 1}},
                                            {"/includes"},
                                            {},
                                            {id(TESTDATA_DIR "/builddependencycollector/project/faulty.cpp")}};

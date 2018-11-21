@@ -398,7 +398,7 @@ FilePathIds PchCreator::topIncludeIds(const SourceEntries &includes)
     topIncludes.reserve(includes.size());
 
     for (SourceEntry include : includes) {
-        if (include.sourceType == SourceType::TopInclude)
+        if (include.sourceType == SourceType::TopProjectInclude)
             topIncludes.push_back(include.sourceId);
     }
 

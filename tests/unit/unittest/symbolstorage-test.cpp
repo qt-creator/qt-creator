@@ -180,7 +180,7 @@ TEST_F(SymbolStorage, InsertProjectPart)
                       TypedEq<Utils::SmallStringView>("[\"/includes\"]")));
     EXPECT_CALL(mockDatabase, lastInsertedRowId()).Times(2);
 
-    storage.insertOrUpdateProjectPart("project",  {"foo"}, {{"FOO", "1"}}, {"/includes"});
+    storage.insertOrUpdateProjectPart("project",  {"foo"}, {{"FOO", "1", 1}}, {"/includes"});
 }
 
 TEST_F(SymbolStorage, UpdateProjectPart)
@@ -202,7 +202,7 @@ TEST_F(SymbolStorage, UpdateProjectPart)
                       TypedEq<Utils::SmallStringView>("project")));
     EXPECT_CALL(mockDatabase, lastInsertedRowId());
 
-    storage.insertOrUpdateProjectPart("project",  {"foo"}, {{"FOO", "1"}}, {"/includes"});
+    storage.insertOrUpdateProjectPart("project",  {"foo"}, {{"FOO", "1", 1}}, {"/includes"});
 }
 
 TEST_F(SymbolStorage, UpdateProjectPartSources)

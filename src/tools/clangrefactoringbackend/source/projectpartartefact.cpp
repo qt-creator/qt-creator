@@ -62,8 +62,9 @@ CompilerMacros ProjectPartArtefact::createCompilerMacrosFromDocument(const QJson
     CompilerMacros macros;
     macros.reserve(object.size());
 
+    int index = 0;
     for (auto current = object.constBegin(); current != object.constEnd(); ++current)
-        macros.emplace_back(current.key(), current.value().toString());
+        macros.emplace_back(current.key(), current.value().toString(), ++index);
 
     std::sort(macros.begin(), macros.end());
 

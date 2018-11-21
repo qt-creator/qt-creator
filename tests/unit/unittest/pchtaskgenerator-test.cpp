@@ -45,7 +45,7 @@ protected:
     ClangBackEnd::PchTaskGenerator generator{mockBuildDependenciesProvider};
     ClangBackEnd::V2::ProjectPartContainer projectPart1{"ProjectPart1",
                                                         {"--yi"},
-                                                        {{"YI","1"}},
+                                                        {{"YI", "1", 1}},
                                                         {"/yi"},
                                                         {{1, 1}},
                                                         {{1, 2}}};

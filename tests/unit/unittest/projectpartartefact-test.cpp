@@ -56,7 +56,7 @@ TEST(ProjectPartArtefact, CompilerMacros)
     ClangBackEnd::ProjectPartArtefact artefact{"", "{\"Foo\":\"1\",\"Bar\":\"42\"}",  "", 1};
 
     ASSERT_THAT(artefact.compilerMacros,
-                UnorderedElementsAre(Eq(CompilerMacro{"Foo", "1"}), Eq(CompilerMacro{"Bar", "42"})));
+                UnorderedElementsAre(Eq(CompilerMacro{"Foo", "1", 1}), Eq(CompilerMacro{"Bar", "42", 2})));
 }
 
 TEST(ProjectPartArtefact, EmptyCompilerMacros)

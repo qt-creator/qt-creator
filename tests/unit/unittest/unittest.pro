@@ -107,7 +107,8 @@ SOURCES += \
     pchtaskgenerator-test.cpp \
     compilationdatabaseutils-test.cpp \
     builddependenciesprovider-test.cpp \
-    builddependenciesstorage-test.cpp
+    builddependenciesstorage-test.cpp \
+    usedmacrofilter-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

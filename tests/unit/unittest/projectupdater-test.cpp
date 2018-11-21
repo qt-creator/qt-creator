@@ -128,7 +128,7 @@ protected:
     Utils::SmallString projectPartId2;
     Utils::PathStringVector headerPaths = {"/path/to/header1.h", "/path/to/header2.h"};
     Utils::PathStringVector sourcePaths = {"/path/to/source1.cpp", "/path/to/source2.cpp"};
-    ClangBackEnd::CompilerMacros compilerMacros = {{"BAR", "1"}, {"FOO", "2"}};
+    ClangBackEnd::CompilerMacros compilerMacros = {{"BAR", "1", 1}, {"FOO", "2", 2}};
     CppTools::ProjectFile header1ProjectFile{QString(headerPaths[0]), CppTools::ProjectFile::CXXHeader};
     CppTools::ProjectFile header2ProjectFile{QString(headerPaths[1]), CppTools::ProjectFile::CXXHeader};
     CppTools::ProjectFile source1ProjectFile{QString(sourcePaths[0]), CppTools::ProjectFile::CXXSource};
@@ -246,9 +246,9 @@ TEST_F(ProjectUpdater, CreateSortedCompilerMacros)
 {
     auto paths = updater.createCompilerMacros({{"DEFINE", "1"}, {"FOO", "2"}, {"BAR", "1"}});
 
-    ASSERT_THAT(paths, ElementsAre(CompilerMacro{"BAR", "1"},
-                                   CompilerMacro{"FOO", "2"},
-                                   CompilerMacro{"DEFINE", "1"}));
+    ASSERT_THAT(paths, ElementsAre(CompilerMacro{"BAR", "1", 1},
+                                   CompilerMacro{"FOO", "2", 2},
+                                   CompilerMacro{"DEFINE", "1", 3}));
 }
 
 TEST_F(ProjectUpdater, CreateSortedIncludeSearchPaths)

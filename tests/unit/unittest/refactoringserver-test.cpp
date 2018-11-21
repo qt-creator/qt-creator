@@ -326,7 +326,7 @@ TEST_F(RefactoringServer, UpdateProjectPartsCallsSymbolIndexingUpdateProjectPart
 {
     ProjectPartContainers projectParts{{{"projectPartId",
                                         {"-I", TESTDATA_DIR},
-                                        {{"DEFINE", "1"}},
+                                        {{"DEFINE", "1", 1}},
                                         {"/includes"},
                                         {filePathId("header1.h")},
                                         {filePathId("main.cpp")}}}};
