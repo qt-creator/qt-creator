@@ -30,6 +30,7 @@
 #include "tabsettings.h"
 
 #include <QMap>
+#include <vector>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -44,6 +45,21 @@ class ICodeStylePreferences;
 class TabSettings;
 
 using IndentationForBlock = QMap<int, int>;
+
+class TEXTEDITOR_EXPORT Replacement
+{
+public:
+    Replacement(int offset, int length, const QString &text)
+        : offset(offset)
+        , length(length)
+        , text(text)
+    {}
+    int offset;
+    int length;
+    QString text;
+};
+
+using Replacements = std::vector<Replacement>;
 
 class TEXTEDITOR_EXPORT Indenter
 {
@@ -68,9 +84,9 @@ public:
                         bool autoTriggered = true);
 
     // By default just calls indent with default settings.
-    virtual void format(QTextDocument *doc,
-                        const QTextCursor &cursor,
-                        const TabSettings &tabSettings);
+    virtual Replacements format(QTextDocument *doc,
+                                const QTextCursor &cursor,
+                                const TabSettings &tabSettings);
 
     // Reindent at cursor. Selection will be adjusted according to the indentation
     // change of the first block.

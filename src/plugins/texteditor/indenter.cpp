@@ -102,11 +102,12 @@ void Indenter::reindent(QTextDocument *doc, const QTextCursor &cursor, const Tab
     }
 }
 
-void Indenter::format(QTextDocument *doc,
-                      const QTextCursor &cursor,
-                      const TabSettings &tabSettings)
+Replacements Indenter::format(QTextDocument *doc,
+                              const QTextCursor &cursor,
+                              const TabSettings &tabSettings)
 {
     indent(doc, cursor, QChar::Null, tabSettings);
+    return Replacements();
 }
 
 void Indenter::setCodeStylePreferences(ICodeStylePreferences *)
