@@ -570,6 +570,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     createRepositoryAction(subversionMenu, tr("Fetch"), "Git.Subversion.Fetch",
                            context, false, &GitClient::synchronousSubversionFetch);
 
+    createRepositoryAction(subversionMenu, tr("DCommit"), "Git.Subversion.DCommit",
+                           context, false, &GitClient::subversionDeltaCommit);
+
     // --------------
     remoteRepositoryMenu->addSeparator(context);
 

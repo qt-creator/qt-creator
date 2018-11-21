@@ -263,6 +263,7 @@ public:
     // git svn support (asynchronous).
     void synchronousSubversionFetch(const QString &workingDirectory);
     void subversionLog(const QString &workingDirectory);
+    void subversionDeltaCommit(const QString &workingDirectory);
 
     void stashPop(const QString &workingDirectory, const QString &stash = QString());
     void revert(const QStringList &files, bool revertStaging);

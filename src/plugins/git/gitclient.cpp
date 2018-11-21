@@ -3010,6 +3010,12 @@ void GitClient::subversionLog(const QString &workingDirectory)
     vcsExec(workingDirectory, arguments, editor);
 }
 
+void GitClient::subversionDeltaCommit(const QString &workingDirectory)
+{
+    vcsExec(workingDirectory, {"svn", "dcommit"}, nullptr, true,
+            VcsCommand::ShowSuccessMessage);
+}
+
 void GitClient::push(const QString &workingDirectory, const QStringList &pushArgs)
 {
     vcsExec(workingDirectory, QStringList({"push"}) + pushArgs, nullptr, true,
