@@ -546,14 +546,14 @@ QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
     for (int i = 0; i < allFlags.size(); ++i) {
         const QString &flag = allFlags.at(i);
         if (flag.startsWith("-stdlib=") || flag.startsWith("--gcctoolchain=")
-            || flag.startsWith("-B")) {
+            || flag.startsWith("-B") || (flag.startsWith("-isystem") && flag.length() > 8)) {
             arguments << flag;
         } else if (!hasKitSysroot) {
             // pass build system's sysroot to compiler, if we didn't pass one from kit
             if (flag.startsWith("--sysroot=")) {
                 arguments << flag;
             } else if ((flag.startsWith("-isysroot") || flag.startsWith("--sysroot")
-                        || flag == "-target" || flag == "-gcc-toolchain")
+                        || flag == "-target" || flag == "-gcc-toolchain" || flag == "-isystem")
                        && i < flags.size() - 1) {
                 arguments << flag << allFlags.at(i + 1);
                 ++i;
