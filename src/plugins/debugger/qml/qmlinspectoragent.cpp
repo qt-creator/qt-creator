@@ -140,17 +140,6 @@ void QmlInspectorAgent::assignValue(const WatchItem *data,
     }
 }
 
-static int parentIdForIname(const QString &iname, int engineId)
-{
-    // Extract the parent id
-    int lastIndex = iname.lastIndexOf('.');
-    int secondLastIndex = iname.lastIndexOf('.', lastIndex - 1);
-    int parentId = WatchItem::InvalidId;
-    if (secondLastIndex != WatchItem::InvalidId)
-        parentId = iname.mid(secondLastIndex + 1, lastIndex - secondLastIndex - 1).toInt();
-    return parentId >= 0 ? parentId : engineId;
-}
-
 void QmlInspectorAgent::updateWatchData(const WatchItem &data)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << data.id << ')';
@@ -281,7 +270,8 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
                     QString name = engine.name();
                     if (name.isEmpty())
                         name = QString::fromLatin1("Engine %1").arg(engine.debugId());
-                    verifyAndInsertObjectInTree(ObjectReference(engine.debugId(), name));
+                    verifyAndInsertObjectInTree(ObjectReference(engine.debugId(), name),
+                                                engine.debugId());
                     updateObjectTree(m_rootContexts[engine.debugId()], engine.debugId());
                 }
                 m_rootContextQueryIds.clear();
@@ -435,16 +425,59 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
     // fetch parents till we find a previously expanded parent.
 
     WatchHandler *handler = m_qmlEngine->watchHandler();
-    const int parentId = object.parentId() >= 0 ? object.parentId() : engineId;
     const int objectDebugId = object.debugId();
+    int parentId = object.parentId();
+
+    if (engineId == -1) {
+        // Find engineId if missing.
+        const auto it = m_debugIdToIname.find(objectDebugId);
+        if (it != m_debugIdToIname.end()) {
+            const QString iname = *it;
+            const int firstIndex = strlen("inspect");
+            const int secondIndex = iname.indexOf('.', firstIndex + 1);
+            if (secondIndex != -1)
+                engineId = iname.mid(firstIndex + 1, secondIndex - firstIndex - 1).toInt();
+        }
+
+        // Still not found? Maybe we're loading the engine itself.
+        if (engineId == -1) {
+            for (const auto &engine : m_engines) {
+                if (engine.debugId() == objectDebugId) {
+                    engineId = engine.debugId();
+                    break;
+                }
+            }
+        }
+    }
+
+    if (objectDebugId == engineId) {
+        // Don't load an engine's parent
+        parentId = -1;
+    } else if (parentId == -1) {
+        // Find parentId if missing
+        const auto it = m_debugIdToIname.find(objectDebugId);
+        if (it != m_debugIdToIname.end()) {
+            const QString iname = *it;
+            int lastIndex = iname.lastIndexOf('.');
+            int secondLastIndex = iname.lastIndexOf('.', lastIndex - 1);
+            if (secondLastIndex != WatchItem::InvalidId)
+                parentId = iname.mid(secondLastIndex + 1, lastIndex - secondLastIndex - 1).toInt();
+            else
+                parentId = engineId;
+        } else {
+            parentId = engineId;
+        }
+    }
+
     if (m_debugIdToIname.contains(parentId)) {
         QString parentIname = m_debugIdToIname.value(parentId);
-        if (parentId != WatchItem::InvalidId && !handler->isExpandedIName(parentIname)) {
+        if (parentId != WatchItem::InvalidId && parentId != engineId
+                && !handler->isExpandedIName(parentIname)) {
             m_objectStack.push(QPair<ObjectReference, int>(object, engineId));
             handler->fetchMore(parentIname);
             return; // recursive
         }
-        insertObjectInTree(object, engineId);
+        insertObjectInTree(object, parentId);
 
     } else {
         m_objectStack.push(QPair<ObjectReference, int>(object, engineId));
@@ -456,8 +489,9 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
         // We want to expand only a particular branch and not the whole tree. Hence, we do not
         // expand siblings. If this is the engine, we add add root objects with the same engine ID
         // as children.
-        if (object.children().contains(top.first) ||
-                    (top.first.parentId() < 0 && object.debugId() == top.second)) {
+        if (object.children().contains(top.first)
+                || (top.first.parentId() == objectDebugId)
+                || (top.first.parentId() < 0 && objectDebugId == top.second)) {
             QString objectIname = m_debugIdToIname.value(objectDebugId);
             if (!handler->isExpandedIName(objectIname)) {
                 handler->fetchMore(objectIname);
@@ -470,12 +504,9 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
     }
 }
 
-void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object, int engineId)
+void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object, int parentId)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << object << ')';
-
-    const int objectDebugId = object.debugId();
-    const int parentId = parentIdForIname(m_debugIdToIname.value(objectDebugId), engineId);
 
     QElapsedTimer timeElapsed;
 
