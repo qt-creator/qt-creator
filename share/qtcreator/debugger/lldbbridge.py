@@ -1654,7 +1654,7 @@ class Dumper(DumperBase):
 
     def selectThread(self, args):
         self.reportToken(args)
-        self.process.SetSelectedThreadByID(args['id'])
+        self.process.SetSelectedThreadByID(int(args['id']))
         self.reportResult('', args)
 
     def fetchFullBacktrace(self, _ = None):
