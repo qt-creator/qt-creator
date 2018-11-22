@@ -273,9 +273,9 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
                     verifyAndInsertObjectInTree(ObjectReference(engine.debugId(), name),
                                                 engine.debugId());
                     updateObjectTree(m_rootContexts[engine.debugId()], engine.debugId());
+                    fetchObject(engine.debugId());
                 }
                 m_rootContextQueryIds.clear();
-                m_rootContexts.clear();
             }
         }
     }
@@ -378,6 +378,7 @@ void QmlInspectorAgent::queryEngineContext()
 
     log(LogSend, "LIST_OBJECTS");
 
+    m_rootContexts.clear();
     for (const auto &engine : qAsConst(m_engines))
         m_rootContextQueryIds.append(m_engineClient->queryRootContexts(engine));
 }
@@ -471,14 +472,14 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
 
     if (m_debugIdToIname.contains(parentId)) {
         QString parentIname = m_debugIdToIname.value(parentId);
-        if (parentId != WatchItem::InvalidId && parentId != engineId
-                && !handler->isExpandedIName(parentIname)) {
+        if (parentId != WatchItem::InvalidId && !handler->isExpandedIName(parentIname)) {
             m_objectStack.push(QPair<ObjectReference, int>(object, engineId));
             handler->fetchMore(parentIname);
             return; // recursive
         }
         insertObjectInTree(object, parentId);
-
+        if (objectDebugId == engineId)
+            updateObjectTree(m_rootContexts[engineId], engineId);
     } else {
         m_objectStack.push(QPair<ObjectReference, int>(object, engineId));
         fetchObject(parentId);
