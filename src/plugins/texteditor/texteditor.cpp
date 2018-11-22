@@ -3020,14 +3020,6 @@ void TextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
 void TextEditorWidget::inputMethodEvent(QInputMethodEvent *e)
 {
-    if (e->commitString().isEmpty() && e->preeditString().isEmpty() && e->attributes().isEmpty()) {
-        // Avoid doing anything when getting bogus events as it can happen on Gnome desktop.
-        // Otherwise QPlainTextEdit will report content changes for locations where factually
-        // nothing changed.
-        // Workaround for QTCREATORBUG-19571
-        e->accept();
-        return;
-    }
     if (d->m_inBlockSelectionMode) {
         if (!e->commitString().isEmpty())
             d->insertIntoBlockSelection(e->commitString());
