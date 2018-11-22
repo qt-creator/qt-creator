@@ -674,3 +674,15 @@ int signalSlotTest() {
     SIGNAL(something(QString (*func1)(QString)));
     1 == 2;
 }
+
+class NonConstParameterConstructor
+{
+    NonConstParameterConstructor() = default;
+    NonConstParameterConstructor(NonConstParameterConstructor &buildDependenciesStorage);
+
+    void Call()
+    {
+        NonConstParameterConstructor foo;
+        NonConstParameterConstructor bar(foo);
+    }
+};
