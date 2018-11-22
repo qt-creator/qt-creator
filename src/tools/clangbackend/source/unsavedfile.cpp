@@ -83,7 +83,8 @@ bool UnsavedFile::hasCharacterAt(uint line, uint column, char character) const
 
 Utf8String UnsavedFile::lineRange(uint fromLine, uint toLine) const
 {
-    QTC_ASSERT(fromLine <= toLine, return Utf8String());
+    if (fromLine > toLine)
+        return Utf8String();
 
     // Find start of first line
     bool ok = false;
