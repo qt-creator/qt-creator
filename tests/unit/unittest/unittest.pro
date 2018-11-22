@@ -106,8 +106,7 @@ SOURCES += \
     pchtaskgenerator-test.cpp \
     compilationdatabaseutils-test.cpp \
     builddependenciesprovider-test.cpp \
-    builddependenciesstorage-test.cpp \
-    builddependencycollector-test.cpp
+    builddependenciesstorage-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -184,7 +183,8 @@ SOURCES += \
     symbolscollector-test.cpp \
     symbolfinder-test.cpp \
     testclangtool.cpp \
-    usedmacrocollector-test.cpp
+    usedmacrocollector-test.cpp \
+    builddependencycollector-test.cpp
 }
 
 exists($$GOOGLEBENCHMARK_DIR) {
