@@ -88,6 +88,12 @@ public:
     int toPositionInDocument(QTextDocument *doc) const;
 };
 
+static bool operator<=(const Position &first, const Position &second)
+{
+    return first.line() < second.line()
+            || (first.line() == second.line() && first.character() <= second.character());
+}
+
 class LANGUAGESERVERPROTOCOL_EXPORT Range : public JsonObject
 {
 public:
@@ -102,6 +108,8 @@ public:
     // The range's end position.
     Position end() const { return typedValue<Position>(endKey); }
     void setEnd(const Position &end) { insert(endKey, end); }
+
+    bool contains(const Position &pos) const { return start() <= pos && pos <= end(); }
 
     bool isValid(QStringList *error) const override
     { return check<Position>(error, startKey) && check<Position>(error, endKey); }
