@@ -60,6 +60,7 @@ public:
     virtual void handleLink(const QString &href);
     virtual QList<QWidget *> toolbarWidgets() const { return {}; }
     virtual void clear() {}
+    void setBoldFontEnabled(bool enabled);
 
 protected:
     void initFormats();

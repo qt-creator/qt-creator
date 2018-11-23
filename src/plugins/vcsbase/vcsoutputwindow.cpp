@@ -120,6 +120,7 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
     m_formatter = new OutputFormatter;
+    m_formatter->setBoldFontEnabled(false);
     m_formatter->setPlainTextEdit(this);
     auto agg = new Aggregation::Aggregate;
     agg->add(this);

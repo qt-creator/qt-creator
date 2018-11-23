@@ -42,6 +42,7 @@ public:
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
     OutputFormat lastFormat = NumberOfFormats;
+    bool boldFontEnabled = true;
 };
 
 } // namespace Internal
@@ -123,11 +124,9 @@ void OutputFormatter::initFormats()
     Theme *theme = creatorTheme();
 
     // NormalMessageFormat
-    d->formats[NormalMessageFormat].setFontWeight(QFont::Bold);
     d->formats[NormalMessageFormat].setForeground(theme->color(Theme::OutputPanes_NormalMessageTextColor));
 
     // ErrorMessageFormat
-    d->formats[ErrorMessageFormat].setFontWeight(QFont::Bold);
     d->formats[ErrorMessageFormat].setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
 
     // LogMessageFormat
@@ -142,11 +141,21 @@ void OutputFormatter::initFormats()
     d->formats[StdErrFormatSameLine] = d->formats[StdErrFormat];
 
     d->formats[DebugFormat].setForeground(theme->color(Theme::OutputPanes_DebugTextColor));
+
+    setBoldFontEnabled(d->boldFontEnabled);
 }
 
 void OutputFormatter::handleLink(const QString &href)
 {
     Q_UNUSED(href);
+}
+
+void OutputFormatter::setBoldFontEnabled(bool enabled)
+{
+    d->boldFontEnabled = enabled;
+    const QFont::Weight fontWeight = enabled ? QFont::Bold : QFont::Normal;
+    d->formats[NormalMessageFormat].setFontWeight(fontWeight);
+    d->formats[ErrorMessageFormat].setFontWeight(fontWeight);
 }
 
 void OutputFormatter::flush()
