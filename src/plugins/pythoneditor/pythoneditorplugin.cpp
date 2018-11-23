@@ -99,7 +99,7 @@ private:
     bool saveRawList(const QStringList &rawList, const QString &fileName);
     void parseProject();
     QStringList processEntries(const QStringList &paths,
-                               QHash<QString, QString> *map = 0) const;
+                               QHash<QString, QString> *map = nullptr) const;
 
     QStringList m_rawFileList;
     QStringList m_files;

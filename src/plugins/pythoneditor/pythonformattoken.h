@@ -48,7 +48,7 @@ enum Format {
 class FormatToken
 {
 public:
-    FormatToken() {}
+    FormatToken() = default;
 
     FormatToken(Format format, int position, int length)
         : m_format(format), m_position(position), m_length(length)

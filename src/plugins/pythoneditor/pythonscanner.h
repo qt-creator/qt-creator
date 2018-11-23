@@ -37,10 +37,10 @@ namespace Internal {
  */
 class Scanner
 {
+public:
     Scanner(const Scanner &other) = delete;
     void operator=(const Scanner &other) = delete;
 
-public:
     enum State {
         State_Default,
         State_String,

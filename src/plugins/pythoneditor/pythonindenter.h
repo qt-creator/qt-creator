@@ -31,9 +31,6 @@ namespace PythonEditor {
 
 class PythonIndenter : public TextEditor::Indenter
 {
-public:
-    PythonIndenter() {}
-
 private:
     bool isElectricCharacter(const QChar &ch) const override;
     int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
