@@ -43,6 +43,8 @@
 #include <QPaintEvent>
 #include <QVBoxLayout>
 
+#include <memory>
+
 namespace Utils {
 namespace Internal {
 
