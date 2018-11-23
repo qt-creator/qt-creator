@@ -55,10 +55,12 @@ public:
 
     QString description() const override;
     QString targetArch() const;
+    int mininmumNDK() const;
 protected:
     void parseMkSpec(ProFileEvaluator *) const override;
 private:
     mutable QString m_targetArch;
+    mutable int m_minNdk = -1;
 };
 
 } // namespace Internal
