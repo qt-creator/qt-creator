@@ -26,20 +26,23 @@
 #include "sshkeycreationdialog.h"
 #include "ui_sshkeycreationdialog.h"
 
-#include "sshkeygenerator.h"
+#include "sshsettings.h"
 
+#include <utils/fileutils.h>
+
+#include <QApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QApplication>
 #include <QMessageBox>
+#include <QProcess>
 #include <QStandardPaths>
 
 namespace QSsh {
 
 SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
-    : QDialog(parent), m_keyGenerator(0), m_ui(new Ui::SshKeyCreationDialog)
+    : QDialog(parent), m_ui(new Ui::SshKeyCreationDialog)
 {
     m_ui->setupUi(this);
     // Not using Utils::PathChooser::browseButtonLabel to avoid dependency
@@ -63,7 +66,6 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
 
 SshKeyCreationDialog::~SshKeyCreationDialog()
 {
-    delete m_keyGenerator;
     delete m_ui;
 }
 
@@ -83,24 +85,33 @@ void SshKeyCreationDialog::keyTypeChanged()
 
 void SshKeyCreationDialog::generateKeys()
 {
-    if (userForbidsOverwriting())
+    if (SshSettings::keygenFilePath().isEmpty()) {
+        showError(tr("The ssh-keygen tool was not found."));
         return;
-
-    const SshKeyGenerator::KeyType keyType = m_ui->rsa->isChecked()
-            ? SshKeyGenerator::Rsa : SshKeyGenerator::Ecdsa;
-
-    if (!m_keyGenerator)
-        m_keyGenerator = new SshKeyGenerator;
-
+    }
+    if (QFileInfo::exists(privateKeyFilePath())) {
+        showError(tr("Refusing to overwrite existing private key file \"%1\".")
+                  .arg(QDir::toNativeSeparators(privateKeyFilePath())));
+        return;
+    }
+    const QString keyTypeString = QLatin1String(m_ui->rsa->isChecked() ? "rsa": "ecdsa");
     QApplication::setOverrideCursor(Qt::BusyCursor);
-    const bool success = m_keyGenerator->generateKeys(keyType, SshKeyGenerator::Mixed,
-        m_ui->comboBox->currentText().toUShort());
+    QProcess keygen;
+    const QStringList args{"-t", keyTypeString, "-b", m_ui->comboBox->currentText(),
+                "-N", QString(), "-f", privateKeyFilePath()};
+    QString errorMsg;
+    keygen.start(SshSettings::keygenFilePath().toString(), args);
+    keygen.closeWriteChannel();
+    if (!keygen.waitForStarted() || !keygen.waitForFinished())
+        errorMsg = keygen.errorString();
+    else if (keygen.exitCode() != 0)
+        errorMsg = QString::fromLocal8Bit(keygen.readAllStandardError());
+    if (!errorMsg.isEmpty()) {
+        showError(tr("The ssh-keygen tool at \"%1\" failed: %2")
+                  .arg(SshSettings::keygenFilePath().toUserOutput(), errorMsg));
+    }
     QApplication::restoreOverrideCursor();
-
-    if (success)
-        saveKeys();
-    else
-        QMessageBox::critical(this, tr("Key Generation Failed"), m_keyGenerator->error());
+    accept();
 }
 
 void SshKeyCreationDialog::handleBrowseButtonClicked()
@@ -117,43 +128,9 @@ void SshKeyCreationDialog::setPrivateKeyFile(const QString &filePath)
     m_ui->publicKeyFileLabel->setText(filePath + QLatin1String(".pub"));
 }
 
-void SshKeyCreationDialog::saveKeys()
+void SshKeyCreationDialog::showError(const QString &details)
 {
-    const QString parentDir = QFileInfo(privateKeyFilePath()).dir().path();
-    if (!QDir::root().mkpath(parentDir)) {
-        QMessageBox::critical(this, tr("Cannot Save Key File"),
-            tr("Failed to create directory: \"%1\".").arg(parentDir));
-        return;
-    }
-
-    QFile privateKeyFile(privateKeyFilePath());
-    if (!privateKeyFile.open(QIODevice::WriteOnly)
-            || !privateKeyFile.write(m_keyGenerator->privateKey())) {
-        QMessageBox::critical(this, tr("Cannot Save Private Key File"),
-            tr("The private key file could not be saved: %1").arg(privateKeyFile.errorString()));
-        return;
-    }
-    QFile::setPermissions(privateKeyFilePath(), QFile::ReadOwner | QFile::WriteOwner);
-
-    QFile publicKeyFile(publicKeyFilePath());
-    if (!publicKeyFile.open(QIODevice::WriteOnly)
-            || !publicKeyFile.write(m_keyGenerator->publicKey())) {
-        QMessageBox::critical(this, tr("Cannot Save Public Key File"),
-            tr("The public key file could not be saved: %1").arg(publicKeyFile.errorString()));
-        return;
-    }
-
-    accept();
-}
-
-bool SshKeyCreationDialog::userForbidsOverwriting()
-{
-    if (!QFileInfo::exists(privateKeyFilePath()) && !QFileInfo::exists(publicKeyFilePath()))
-        return false;
-    const QMessageBox::StandardButton reply = QMessageBox::question(this, tr("File Exists"),
-            tr("There already is a file of that name. Do you want to overwrite it?"),
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    return reply != QMessageBox::Yes;
+    QMessageBox::critical(this, tr("Key Generation Failed"), details);
 }
 
 QString SshKeyCreationDialog::privateKeyFilePath() const

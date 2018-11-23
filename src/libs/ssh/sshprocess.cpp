@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,38 +23,47 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "sshprocess_p.h"
 
-#include "abstractremotelinuxdeployservice.h"
+#include "sshsettings.h"
 
-namespace RemoteLinux {
-namespace Internal { class RemoteLinuxCustomCommandDeployservicePrivate; }
+#include <utils/environment.h>
 
-class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeployService
-    : public AbstractRemoteLinuxDeployService
+#ifdef Q_OS_UNIX
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+namespace QSsh {
+namespace Internal {
+
+SshProcess::SshProcess()
 {
-    Q_OBJECT
-public:
-    explicit RemoteLinuxCustomCommandDeployService(QObject *parent = nullptr);
-    ~RemoteLinuxCustomCommandDeployService() override;
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    if (SshSettings::askpassFilePath().exists())
+        env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());
+    setProcessEnvironment(env.toProcessEnvironment());
+}
 
-    void setCommandLine(const QString &commandLine);
+SshProcess::~SshProcess()
+{
+    if (state() == QProcess::NotRunning)
+        return;
+    disconnect();
+    terminate();
+    waitForFinished(1000);
+    if (state() == QProcess::NotRunning)
+        return;
+    kill();
+    waitForFinished(1000);
+}
 
-    bool isDeploymentNecessary() const override { return true; }
-    bool isDeploymentPossible(QString *whyNot = nullptr) const override;
+void SshProcess::setupChildProcess()
+{
+#ifdef Q_OS_UNIX
+    setsid(); // Otherwise, ssh will ignore SSH_ASKPASS and read from /dev/tty directly.
+#endif
+}
 
-protected:
-    void doDeviceSetup() override { handleDeviceSetupDone(true); }
-    void stopDeviceSetup() override { handleDeviceSetupDone(false); }
-    void doDeploy() override;
-    void stopDeployment() override;
-
-private:
-    void handleStdout();
-    void handleStderr();
-    void handleProcessClosed(const QString &error);
-
-    Internal::RemoteLinuxCustomCommandDeployservicePrivate *d;
-};
-
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace QSsh

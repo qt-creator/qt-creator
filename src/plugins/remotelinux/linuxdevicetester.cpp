@@ -28,7 +28,7 @@
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
-#include <ssh/sftpchannel.h>
+#include <ssh/sftptransfer.h>
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
 
@@ -48,9 +48,9 @@ class GenericLinuxDeviceTesterPrivate
 public:
     IDevice::ConstPtr deviceConfiguration;
     SshConnection *connection = nullptr;
-    SshRemoteProcess::Ptr process;
+    SshRemoteProcessPtr process;
     DeviceUsedPortsGatherer portsGatherer;
-    SftpChannel::Ptr sftpChannel;
+    SftpTransferPtr sftpUpload;
     State state = Inactive;
 };
 
@@ -76,7 +76,7 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::ConstPtr &deviceConfigu
     d->connection = new SshConnection(deviceConfiguration->sshParameters(), this);
     connect(d->connection, &SshConnection::connected,
             this, &GenericLinuxDeviceTester::handleConnected);
-    connect(d->connection, &SshConnection::error,
+    connect(d->connection, &SshConnection::errorOccurred,
             this, &GenericLinuxDeviceTester::handleConnectionFailure);
 
     emit progressMessage(tr("Connecting to host..."));
@@ -99,7 +99,7 @@ void GenericLinuxDeviceTester::stopTest()
         d->process->close();
         break;
     case TestingSftp:
-        d->sftpChannel->closeChannel();
+        d->sftpUpload->stop();
         break;
     case Inactive:
         break;
@@ -113,7 +113,7 @@ void GenericLinuxDeviceTester::handleConnected()
     QTC_ASSERT(d->state == Connecting, return);
 
     d->process = d->connection->createRemoteProcess("uname -rsm");
-    connect(d->process.data(), &SshRemoteProcess::closed,
+    connect(d->process.get(), &SshRemoteProcess::done,
             this, &GenericLinuxDeviceTester::handleProcessFinished);
 
     emit progressMessage(tr("Checking kernel version..."));
@@ -125,15 +125,16 @@ void GenericLinuxDeviceTester::handleConnectionFailure()
 {
     QTC_ASSERT(d->state != Inactive, return);
 
-    emit errorMessage(tr("SSH connection failure: %1").arg(d->connection->errorString()) + QLatin1Char('\n'));
+    emit errorMessage(d->connection->errorString() + QLatin1Char('\n'));
+
     setFinished(TestFailure);
 }
 
-void GenericLinuxDeviceTester::handleProcessFinished(int exitStatus)
+void GenericLinuxDeviceTester::handleProcessFinished(const QString &error)
 {
     QTC_ASSERT(d->state == RunningUname, return);
 
-    if (exitStatus != SshRemoteProcess::NormalExit || d->process->exitCode() != 0) {
+    if (!error.isEmpty() || d->process->exitCode() != 0) {
         const QByteArray stderrOutput = d->process->readAllStandardError();
         if (!stderrOutput.isEmpty())
             emit errorMessage(tr("uname failed: %1").arg(QString::fromUtf8(stderrOutput)) + QLatin1Char('\n'));
@@ -176,34 +177,35 @@ void GenericLinuxDeviceTester::handlePortListReady()
             .arg(portList) + QLatin1Char('\n'));
     }
 
-    emit progressMessage(tr("Checking if an SFTP channel can be set up..."));
-    d->sftpChannel = d->connection->createSftpChannel();
-    connect(d->sftpChannel.data(), &SftpChannel::initialized,
-            this, &GenericLinuxDeviceTester::handleSftpInitialized);
-    connect(d->sftpChannel.data(), &SftpChannel::channelError,
-            this, &GenericLinuxDeviceTester::handleSftpError);
+    emit progressMessage(tr("Checking whether an SFTP connection can be set up..."));
+    d->sftpUpload = d->connection->createUpload(FilesToTransfer(),
+                                                FileTransferErrorHandling::Abort);
+    connect(d->sftpUpload.get(), &SftpTransfer::done,
+            this, &GenericLinuxDeviceTester::handleSftpFinished);
     d->state = TestingSftp;
-    d->sftpChannel->initialize();
+    d->sftpUpload->start();
 }
 
-void GenericLinuxDeviceTester::handleSftpInitialized()
+void GenericLinuxDeviceTester::handleSftpFinished(const QString &error)
 {
     QTC_ASSERT(d->state == TestingSftp, return);
-    emit progressMessage(tr("SFTP channel successfully initialized.\n"));
-    setFinished(TestSuccess);
-}
-
-void GenericLinuxDeviceTester::handleSftpError(const QString &message)
-{
-    QTC_ASSERT(d->state == TestingSftp, return);
-    emit errorMessage(tr("Error setting up SFTP channel: %1\n").arg(message));
-    setFinished(TestFailure);
+    if (!error.isEmpty()) {
+        emit errorMessage(tr("Error setting up SFTP connection: %1\n").arg(error));
+        setFinished(TestFailure);
+    } else {
+        emit progressMessage(tr("SFTP service available.\n"));
+        setFinished(TestSuccess);
+    }
 }
 
 void GenericLinuxDeviceTester::setFinished(TestResult result)
 {
     d->state = Inactive;
     disconnect(&d->portsGatherer, nullptr, this, nullptr);
+    if (d->sftpUpload) {
+        disconnect(d->sftpUpload.get(), nullptr, this, nullptr);
+        d->sftpUpload.release()->deleteLater();
+    }
     if (d->connection) {
         disconnect(d->connection, nullptr, this, nullptr);
         d->connection->deleteLater();

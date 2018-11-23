@@ -52,7 +52,7 @@ signals:
 
 private:
     void handleConnectionFailure();
-    void handleKeyUploadFinished(int exitStatus);
+    void handleKeyUploadFinished();
     void cleanup();
 
     Internal::SshKeyDeployerPrivate * const d;

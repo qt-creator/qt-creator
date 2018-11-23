@@ -1,6 +1,0 @@
-endian big
-
-<aliases>
-680x0
-68k
-</aliases>

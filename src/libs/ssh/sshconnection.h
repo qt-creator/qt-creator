@@ -25,54 +25,34 @@
 
 #pragma once
 
-#include "ssherrors.h"
-#include "sshhostkeydatabase.h"
-
+#include "sftpdefs.h"
 #include "ssh_global.h"
 
 #include <QByteArray>
 #include <QFlags>
 #include <QMetaType>
 #include <QObject>
-#include <QSharedPointer>
 #include <QString>
 #include <QHostAddress>
 #include <QUrl>
 
+#include <memory>
+
 namespace QSsh {
-class SftpChannel;
-class SshDirectTcpIpTunnel;
 class SshRemoteProcess;
-class SshTcpIpForwardServer;
-
-namespace Internal { class SshConnectionPrivate; }
-
-enum SshConnectionOption {
-    SshIgnoreDefaultProxy = 0x1,
-    SshEnableStrictConformanceChecks = 0x2
-};
-
-Q_DECLARE_FLAGS(SshConnectionOptions, SshConnectionOption)
 
 enum SshHostKeyCheckingMode {
     SshHostKeyCheckingNone,
     SshHostKeyCheckingStrict,
     SshHostKeyCheckingAllowNoMatch,
-    SshHostKeyCheckingAllowMismatch
 };
 
 class QSSH_EXPORT SshConnectionParameters
 {
 public:
     enum AuthenticationType {
-        AuthenticationTypePassword,
-        AuthenticationTypePublicKey,
-        AuthenticationTypeKeyboardInteractive,
-
-        // Some servers disable "password", others disable "keyboard-interactive".
-        AuthenticationTypeTryAllPasswordBasedMethods,
-
-        AuthenticationTypeAgent,
+        AuthenticationTypeAll,
+        AuthenticationTypeSpecificKey,
     };
 
     SshConnectionParameters();
@@ -80,19 +60,16 @@ public:
     QString host() const { return url.host(); }
     quint16 port() const { return url.port(); }
     QString userName() const { return url.userName(); }
-    QString password() const { return url.password(); }
     void setHost(const QString &host) { url.setHost(host); }
     void setPort(int port) { url.setPort(port); }
     void setUserName(const QString &name) { url.setUserName(name); }
-    void setPassword(const QString &password) { url.setPassword(password); }
 
     QUrl url;
     QString privateKeyFile;
-    int timeout; // In seconds.
-    AuthenticationType authenticationType;
-    SshConnectionOptions options;
-    SshHostKeyCheckingMode hostKeyCheckingMode;
-    SshHostKeyDatabasePtr hostKeyDatabase;
+    QString x11DisplayName;
+    int timeout = 0; // In seconds.
+    AuthenticationType authenticationType = AuthenticationTypeAll;
+    SshHostKeyCheckingMode hostKeyCheckingMode = SshHostKeyCheckingAllowNoMatch;
 };
 
 QSSH_EXPORT bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
@@ -101,57 +78,62 @@ QSSH_EXPORT bool operator!=(const SshConnectionParameters &p1, const SshConnecti
 class QSSH_EXPORT SshConnectionInfo
 {
 public:
-    SshConnectionInfo() : localPort(0), peerPort(0) {}
+    SshConnectionInfo() = default;
     SshConnectionInfo(const QHostAddress &la, quint16 lp, const QHostAddress &pa, quint16 pp)
         : localAddress(la), localPort(lp), peerAddress(pa), peerPort(pp) {}
 
+    bool isValid() const { return peerPort != 0; }
+
     QHostAddress localAddress;
-    quint16 localPort;
+    quint16 localPort = 0;
     QHostAddress peerAddress;
-    quint16 peerPort;
+    quint16 peerPort = 0;
 };
+
+using SshRemoteProcessPtr = std::unique_ptr<SshRemoteProcess>;
 
 class QSSH_EXPORT SshConnection : public QObject
 {
     Q_OBJECT
 
 public:
-    enum State { Unconnected, Connecting, Connected };
+    enum State { Unconnected, Connecting, Connected, Disconnecting };
 
     explicit SshConnection(const SshConnectionParameters &serverInfo, QObject *parent = 0);
 
     void connectToHost();
     void disconnectFromHost();
     State state() const;
-    SshError errorState() const;
     QString errorString() const;
     SshConnectionParameters connectionParameters() const;
     SshConnectionInfo connectionInfo() const;
+    bool sharingEnabled() const;
     ~SshConnection();
 
-    QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
-    QSharedPointer<SshRemoteProcess> createRemoteShell();
-    QSharedPointer<SftpChannel> createSftpChannel();
-    QSharedPointer<SshDirectTcpIpTunnel> createDirectTunnel(const QString &originatingHost,
-            quint16 originatingPort, const QString &remoteHost, quint16 remotePort);
-    QSharedPointer<SshTcpIpForwardServer> createForwardServer(const QString &remoteHost,
-            quint16 remotePort);
-
-    // -1 if an error occurred, number of channels closed otherwise.
-    int closeAllChannels();
-
-    int channelCount() const;
-
-    QString x11DisplayName() const;
+    SshRemoteProcessPtr createRemoteProcess(const QByteArray &command);
+    SshRemoteProcessPtr createRemoteShell();
+    SftpTransferPtr createUpload(const FilesToTransfer &files,
+                                 FileTransferErrorHandling errorHandlingMode);
+    SftpTransferPtr createDownload(const FilesToTransfer &files,
+                                   FileTransferErrorHandling errorHandlingMode);
+    SftpSessionPtr createSftpSession();
 
 signals:
     void connected();
     void disconnected();
     void dataAvailable(const QString &message);
-    void error(QSsh::SshError);
+    void errorOccurred();
 
 private:
-    Internal::SshConnectionPrivate *d;
+    void doConnectToHost();
+    void emitError(const QString &reason);
+    void emitConnected();
+    void emitDisconnected();
+    SftpTransferPtr setupTransfer(const FilesToTransfer &files, Internal::FileTransferType type,
+                                  FileTransferErrorHandling errorHandlingMode);
+
+    struct SshConnectionPrivate;
+    SshConnectionPrivate * const d;
 };
 
 } // namespace QSsh

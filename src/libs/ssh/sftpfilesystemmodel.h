@@ -80,7 +80,7 @@ private:
     void handleSshConnectionEstablished();
     void handleSshConnectionFailure();
     void handleSftpChannelInitialized();
-    void handleSftpChannelError(const QString &reason);
+    void handleSftpSessionClosed(const QString &reason);
     void handleFileInfo(QSsh::SftpJobId jobId, const QList<QSsh::SftpFileInfo> &fileInfoList);
     void handleSftpJobFinished(QSsh::SftpJobId jobId, const QString &errorMessage);
 

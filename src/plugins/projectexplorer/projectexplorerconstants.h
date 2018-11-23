@@ -107,6 +107,7 @@ const char KITS_SETTINGS_CATEGORY[]  = "A.Kits";
 // Kits pages
 const char KITS_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.KitsOptions";
 const char DEVICE_SETTINGS_PAGE_ID[] = "E.ProjectExplorer.DeviceOptions";
+const char SSH_SETTINGS_PAGE_ID[] = "F.ProjectExplorer.SshOptions";
 const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "M.ProjectExplorer.ToolChainOptions";
 const char DEBUGGER_SETTINGS_PAGE_ID[] = "N.ProjectExplorer.DebuggerOptions";
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,36 +25,20 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeployservice.h"
+#include <QProcess>
 
-namespace RemoteLinux {
-namespace Internal { class RemoteLinuxCustomCommandDeployservicePrivate; }
+namespace QSsh {
+namespace Internal {
 
-class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeployService
-    : public AbstractRemoteLinuxDeployService
+class SshProcess : public QProcess
 {
-    Q_OBJECT
 public:
-    explicit RemoteLinuxCustomCommandDeployService(QObject *parent = nullptr);
-    ~RemoteLinuxCustomCommandDeployService() override;
-
-    void setCommandLine(const QString &commandLine);
-
-    bool isDeploymentNecessary() const override { return true; }
-    bool isDeploymentPossible(QString *whyNot = nullptr) const override;
-
-protected:
-    void doDeviceSetup() override { handleDeviceSetupDone(true); }
-    void stopDeviceSetup() override { handleDeviceSetupDone(false); }
-    void doDeploy() override;
-    void stopDeployment() override;
+    SshProcess();
+    ~SshProcess() override;
 
 private:
-    void handleStdout();
-    void handleStderr();
-    void handleProcessClosed(const QString &error);
-
-    Internal::RemoteLinuxCustomCommandDeployservicePrivate *d;
+    void setupChildProcess() override;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace QSsh

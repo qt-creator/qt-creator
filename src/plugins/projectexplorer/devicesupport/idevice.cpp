@@ -120,16 +120,14 @@ const char PortsSpecKey[] = "FreePortsSpec";
 const char UserNameKey[] = "Uname";
 const char AuthKey[] = "Authentication";
 const char KeyFileKey[] = "KeyFile";
-const char PasswordKey[] = "Password";
 const char TimeoutKey[] = "Timeout";
 const char HostKeyCheckingKey[] = "HostKeyChecking";
-const char SshOptionsKey[] = "SshOptions";
 
 const char DebugServerKey[] = "DebugServerKey";
 const char QmlsceneKey[] = "QmlsceneKey";
 
 using AuthType = QSsh::SshConnectionParameters::AuthenticationType;
-const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
+const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationTypeAll;
 const IDevice::MachineType DefaultMachineType = IDevice::Hardware;
 
 const int DefaultTimeout = 10;
@@ -161,7 +159,6 @@ DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
 
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
 {
-    d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
 }
 
 IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id)
@@ -172,7 +169,6 @@ IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id
     d->machineType = machineType;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
     d->id = id.isValid() ? id : newId();
-    d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
 }
 
 IDevice::IDevice(const IDevice &other)
@@ -328,16 +324,19 @@ void IDevice::fromMap(const QVariantMap &map)
     d->sshParameters.setHost(map.value(QLatin1String(HostKey)).toString());
     d->sshParameters.setPort(map.value(QLatin1String(SshPortKey), 22).toInt());
     d->sshParameters.setUserName(map.value(QLatin1String(UserNameKey)).toString());
-    d->sshParameters.authenticationType
-        = static_cast<AuthType>(map.value(QLatin1String(AuthKey), DefaultAuthType).toInt());
-    d->sshParameters.setPassword(map.value(QLatin1String(PasswordKey)).toString());
+
+    // Pre-4.9, the authentication enum used to have more values
+    const int storedAuthType = map.value(QLatin1String(AuthKey), DefaultAuthType).toInt();
+    const bool outdatedAuthType = storedAuthType
+            > QSsh::SshConnectionParameters::AuthenticationTypeSpecificKey;
+    d->sshParameters.authenticationType = outdatedAuthType
+            ? QSsh::SshConnectionParameters::AuthenticationTypeAll
+            : static_cast<AuthType>(storedAuthType);
+
     d->sshParameters.privateKeyFile = map.value(QLatin1String(KeyFileKey), defaultPrivateKeyFilePath()).toString();
     d->sshParameters.timeout = map.value(QLatin1String(TimeoutKey), DefaultTimeout).toInt();
     d->sshParameters.hostKeyCheckingMode = static_cast<QSsh::SshHostKeyCheckingMode>
             (map.value(QLatin1String(HostKeyCheckingKey), QSsh::SshHostKeyCheckingNone).toInt());
-    const QVariant optionsVariant = map.value(QLatin1String(SshOptionsKey));
-    if (optionsVariant.isValid())  // false for QtC < 3.4
-        d->sshParameters.options = QSsh::SshConnectionOptions(optionsVariant.toInt());
 
     QString portsSpec = map.value(PortsSpecKey).toString();
     if (portsSpec.isEmpty())
@@ -369,11 +368,9 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(SshPortKey), d->sshParameters.port());
     map.insert(QLatin1String(UserNameKey), d->sshParameters.userName());
     map.insert(QLatin1String(AuthKey), d->sshParameters.authenticationType);
-    map.insert(QLatin1String(PasswordKey), d->sshParameters.password());
     map.insert(QLatin1String(KeyFileKey), d->sshParameters.privateKeyFile);
     map.insert(QLatin1String(TimeoutKey), d->sshParameters.timeout);
     map.insert(QLatin1String(HostKeyCheckingKey), d->sshParameters.hostKeyCheckingMode);
-    map.insert(QLatin1String(SshOptionsKey), static_cast<int>(d->sshParameters.options));
 
     map.insert(QLatin1String(PortsSpecKey), d->freePorts.toString());
     map.insert(QLatin1String(VersionKey), d->version);
@@ -404,7 +401,6 @@ QSsh::SshConnectionParameters IDevice::sshParameters() const
 void IDevice::setSshParameters(const QSsh::SshConnectionParameters &sshParameters)
 {
     d->sshParameters = sshParameters;
-    d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
 }
 
 QUrl IDevice::toolControlChannel(const ControlChannelHint &) const

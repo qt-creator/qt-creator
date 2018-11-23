@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,41 +25,49 @@
 
 #pragma once
 
+#include "sftpdefs.h"
 #include "ssh_global.h"
-#include "sshprocess_p.h"
 
-#include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QByteArray;
-QT_END_NAMESPACE
+#include <QObject>
 
 namespace QSsh {
 class SshConnection;
 
-class QSSH_EXPORT SshRemoteProcess : public Internal::SshProcess
+class QSSH_EXPORT SftpSession : public QObject
 {
-    Q_OBJECT
-
     friend class SshConnection;
+    Q_OBJECT
 public:
-    ~SshRemoteProcess();
-
-    void requestTerminal();
-    void requestX11Forwarding(const QString &displayName);
+    ~SftpSession() override;
     void start();
+    void quit();
 
-    bool isRunning() const;
+    SftpJobId ls(const QString &path);
+    SftpJobId createDirectory(const QString &path);
+    SftpJobId removeDirectory(const QString &path);
+    SftpJobId removeFile(const QString &path);
+    SftpJobId rename(const QString &oldPath, const QString &newPath);
+    SftpJobId createSoftLink(const QString &filePath, const QString &target);
+    SftpJobId uploadFile(const QString &localFilePath, const QString &remoteFilePath);
+    SftpJobId downloadFile(const QString &remoteFilePath, const QString &localFilePath);
+
+    enum class State { Inactive, Starting, Running, Closing };
+    State state() const;
 
 signals:
+    void started();
     void done(const QString &error);
+    void commandFinished(SftpJobId job, const QString &error);
+    void fileInfoAvailable(SftpJobId job, const QList<SftpFileInfo> &fileInfoList);
 
 private:
-    SshRemoteProcess(const QByteArray &command, const QStringList &connectionArgs);
+    SftpSession(const QStringList &connectionArgs);
     void doStart();
+    void handleStdout();
+    void handleLsOutput(SftpJobId jobId, const QByteArray &output);
 
-    struct SshRemoteProcessPrivate;
-    SshRemoteProcessPrivate * const d;
+    struct SftpSessionPrivate;
+    SftpSessionPrivate * const d;
 };
 
 } // namespace QSsh

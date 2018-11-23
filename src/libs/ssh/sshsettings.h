@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,36 +25,44 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeployservice.h"
+#include "ssh_global.h"
 
-namespace RemoteLinux {
-namespace Internal { class RemoteLinuxCustomCommandDeployservicePrivate; }
+#include <utils/fileutils.h>
 
-class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeployService
-    : public AbstractRemoteLinuxDeployService
+#include <functional>
+
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
+
+namespace QSsh {
+
+class QSSH_EXPORT SshSettings
 {
-    Q_OBJECT
 public:
-    explicit RemoteLinuxCustomCommandDeployService(QObject *parent = nullptr);
-    ~RemoteLinuxCustomCommandDeployService() override;
+    static void loadSettings(QSettings *settings);
+    static void storeSettings(QSettings *settings);
 
-    void setCommandLine(const QString &commandLine);
+    static void setConnectionSharingEnabled(bool share);
+    static bool connectionSharingEnabled();
 
-    bool isDeploymentNecessary() const override { return true; }
-    bool isDeploymentPossible(QString *whyNot = nullptr) const override;
+    static void setConnectionSharingTimeout(int timeInMinutes);
+    static int connectionSharingTimeout();
 
-protected:
-    void doDeviceSetup() override { handleDeviceSetupDone(true); }
-    void stopDeviceSetup() override { handleDeviceSetupDone(false); }
-    void doDeploy() override;
-    void stopDeployment() override;
+    static void setSshFilePath(const Utils::FileName &ssh);
+    static Utils::FileName sshFilePath();
 
-private:
-    void handleStdout();
-    void handleStderr();
-    void handleProcessClosed(const QString &error);
+    static void setSftpFilePath(const Utils::FileName &sftp);
+    static Utils::FileName sftpFilePath();
 
-    Internal::RemoteLinuxCustomCommandDeployservicePrivate *d;
+    static void setAskpassFilePath(const Utils::FileName &askPass);
+    static Utils::FileName askpassFilePath();
+
+    static void setKeygenFilePath(const Utils::FileName &keygen);
+    static Utils::FileName keygenFilePath();
+
+    using SearchPathRetriever = std::function<Utils::FileNameList()>;
+    static void setExtraSearchPathRetriever(const SearchPathRetriever &pathRetriever);
 };
 
-} // namespace RemoteLinux
+} // namespace QSsh

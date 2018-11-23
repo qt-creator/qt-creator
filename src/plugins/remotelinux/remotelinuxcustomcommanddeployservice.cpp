@@ -119,14 +119,12 @@ void RemoteLinuxCustomCommandDeployService::handleStderr()
     emit stdErrData(QString::fromUtf8(d->runner->readAllStandardError()));
 }
 
-void RemoteLinuxCustomCommandDeployService::handleProcessClosed(int exitStatus)
+void RemoteLinuxCustomCommandDeployService::handleProcessClosed(const QString &error)
 {
     QTC_ASSERT(d->state == Running, return);
 
-    if (exitStatus == SshRemoteProcess::FailedToStart) {
-        emit errorMessage(tr("Remote process failed to start."));
-    } else if (exitStatus == SshRemoteProcess::CrashExit) {
-        emit errorMessage(tr("Remote process was killed by a signal."));
+    if (!error.isEmpty()) {
+        emit errorMessage(tr("Remote process failed: %1").arg(error));
     } else if (d->runner->processExitCode() != 0) {
         emit errorMessage(tr("Remote process finished with exit code %1.")
             .arg(d->runner->processExitCode()));

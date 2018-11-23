@@ -98,12 +98,12 @@ void AbstractRemoteLinuxPackageInstaller::handleConnectionError()
     setFinished();
 }
 
-void AbstractRemoteLinuxPackageInstaller::handleInstallationFinished(int exitStatus)
+void AbstractRemoteLinuxPackageInstaller::handleInstallationFinished(const QString &error)
 {
     if (!d->isRunning)
         return;
 
-    if (exitStatus != SshRemoteProcess::NormalExit || d->installer->processExitCode() != 0)
+    if (!error.isEmpty() || d->installer->processExitCode() != 0)
         emit finished(tr("Installing package failed."));
     else if (!errorString().isEmpty())
         emit finished(errorString());

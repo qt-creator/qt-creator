@@ -52,7 +52,6 @@ wrapper.sh
 /src/plugins/**/*.json
 /src/plugins/coreplugin/ide_version.h
 /src/libs/qt-breakpad/bin
-/src/libs/botan/build/
 app_version.h
 phony.c
 

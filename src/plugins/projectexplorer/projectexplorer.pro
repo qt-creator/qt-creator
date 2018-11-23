@@ -130,6 +130,7 @@ HEADERS += projectexplorer.h \
     devicesupport/localprocesslist.h \
     devicesupport/sshdeviceprocess.h \
     devicesupport/sshdeviceprocesslist.h \
+    devicesupport/sshsettingspage.h \
     devicesupport/desktopdeviceconfigurationwidget.h \
     devicesupport/desktopprocesssignaloperation.h \
     deploymentdata.h \
@@ -271,6 +272,7 @@ SOURCES += projectexplorer.cpp \
     devicesupport/localprocesslist.cpp \
     devicesupport/sshdeviceprocess.cpp \
     devicesupport/sshdeviceprocesslist.cpp \
+    devicesupport/sshsettingspage.cpp \
     devicesupport/desktopdeviceconfigurationwidget.cpp \
     devicesupport/desktopprocesssignaloperation.cpp \
     deployablefile.cpp \

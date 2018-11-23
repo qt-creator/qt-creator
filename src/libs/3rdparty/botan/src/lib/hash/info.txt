@@ -1,7 +1,0 @@
-<defines>
-HASH -> 20180112
-</defines>
-
-<header:public>
-hash.h
-</header:public>

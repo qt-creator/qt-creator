@@ -1,8 +1,0 @@
-<defines>
-HMAC_DRBG -> 20140319
-</defines>
-
-<requires>
-hmac
-stateful_rng
-</requires>

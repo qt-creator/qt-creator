@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,36 +25,29 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeployservice.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-namespace RemoteLinux {
-namespace Internal { class RemoteLinuxCustomCommandDeployservicePrivate; }
+#include <QPointer>
 
-class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeployService
-    : public AbstractRemoteLinuxDeployService
+namespace ProjectExplorer {
+namespace Internal {
+
+class SshSettingsWidget;
+
+class SshSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
-    explicit RemoteLinuxCustomCommandDeployService(QObject *parent = nullptr);
-    ~RemoteLinuxCustomCommandDeployService() override;
-
-    void setCommandLine(const QString &commandLine);
-
-    bool isDeploymentNecessary() const override { return true; }
-    bool isDeploymentPossible(QString *whyNot = nullptr) const override;
-
-protected:
-    void doDeviceSetup() override { handleDeviceSetupDone(true); }
-    void stopDeviceSetup() override { handleDeviceSetupDone(false); }
-    void doDeploy() override;
-    void stopDeployment() override;
+    SshSettingsPage(QObject *parent = 0);
 
 private:
-    void handleStdout();
-    void handleStderr();
-    void handleProcessClosed(const QString &error);
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
-    Internal::RemoteLinuxCustomCommandDeployservicePrivate *d;
+    QPointer<SshSettingsWidget> m_widget;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace ProjectExplorer

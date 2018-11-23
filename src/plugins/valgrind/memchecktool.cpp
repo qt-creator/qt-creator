@@ -155,7 +155,7 @@ public:
             *localServerAddress = connection.connectionInfo().localAddress;
             reportStarted();
         });
-        connect(&connection, &QSsh::SshConnection::error, this, [this] {
+        connect(&connection, &QSsh::SshConnection::errorOccurred, this, [this] {
             reportFailure();
         });
     }

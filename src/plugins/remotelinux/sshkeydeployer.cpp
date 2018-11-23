@@ -79,19 +79,18 @@ void SshKeyDeployer::handleConnectionFailure()
     emit error(tr("Connection failed: %1").arg(d->deployProcess.lastConnectionErrorString()));
 }
 
-void SshKeyDeployer::handleKeyUploadFinished(int exitStatus)
+void SshKeyDeployer::handleKeyUploadFinished()
 {
-    Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
-        || exitStatus == SshRemoteProcess::CrashExit
-        || exitStatus == SshRemoteProcess::NormalExit);
-
     const int exitCode = d->deployProcess.processExitCode();
     const QString errorMsg = d->deployProcess.processErrorString();
     cleanup();
-    if (exitStatus == SshRemoteProcess::NormalExit && exitCode == 0)
+    if (errorMsg.isEmpty() && exitCode == 0) {
         emit finishedSuccessfully();
-    else
-        emit error(tr("Key deployment failed: %1.").arg(errorMsg));
+    } else {
+        emit error(tr("Key deployment failed: %1.").arg(errorMsg.isEmpty()
+                        ? QString::fromUtf8(d->deployProcess.readAllStandardError())
+                        : errorMsg));
+    }
 }
 
 void SshKeyDeployer::stopDeployment()

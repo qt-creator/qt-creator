@@ -49,10 +49,8 @@ private:
     void sshPortEditingFinished();
     void timeoutEditingFinished();
     void userNameEditingFinished();
-    void passwordEditingFinished();
     void keyFileEditingFinished();
     void gdbServerEditingFinished();
-    void showPassword(bool showClearText);
     void handleFreePortsChanged();
     void setPrivateKey(const QString &path);
     void createNewKey();

@@ -113,12 +113,12 @@ void QnxDeviceTester::handleGenericTestFinished(TestResult result)
     testNextCommand();
 }
 
-void QnxDeviceTester::handleProcessFinished(int exitStatus)
+void QnxDeviceTester::handleProcessFinished(const QString &error)
 {
     QTC_ASSERT(m_state == CommandsTest, return);
 
     const QString command = m_commandsToTest[m_currentCommandIndex];
-    if (exitStatus == QSsh::SshRemoteProcess::NormalExit) {
+    if (error.isEmpty()) {
         if (m_processRunner->processExitCode() == 0) {
             emit progressMessage(tr("%1 found.").arg(command) + QLatin1Char('\n'));
         } else {

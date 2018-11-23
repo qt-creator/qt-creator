@@ -25,9 +25,11 @@
 
 #include "sftpfilesystemmodel.h"
 
-#include "sftpchannel.h"
+#include "sftpsession.h"
 #include "sshconnection.h"
 #include "sshconnectionmanager.h"
+
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
 #include <QHash>
@@ -71,7 +73,7 @@ SftpFileNode *indexToFileNode(const QModelIndex &index)
 SftpDirNode *indexToDirNode(const QModelIndex &index)
 {
     SftpFileNode * const fileNode = indexToFileNode(index);
-    QSSH_ASSERT(fileNode);
+    QTC_CHECK(fileNode);
     return dynamic_cast<SftpDirNode *>(fileNode);
 }
 
@@ -81,7 +83,7 @@ class SftpFileSystemModelPrivate
 {
 public:
     SshConnection *sshConnection;
-    SftpChannel::Ptr sftpChannel;
+    SftpSessionPtr sftpSession;
     QString rootDirectory;
     SftpFileNode *rootNode;
     SftpJobId statJobId;
@@ -109,9 +111,9 @@ SftpFileSystemModel::~SftpFileSystemModel()
 
 void SftpFileSystemModel::setSshConnection(const SshConnectionParameters &sshParams)
 {
-    QSSH_ASSERT_AND_RETURN(!d->sshConnection);
+    QTC_ASSERT(!d->sshConnection, return);
     d->sshConnection = QSsh::acquireConnection(sshParams);
-    connect(d->sshConnection, &SshConnection::error,
+    connect(d->sshConnection, &SshConnection::errorOccurred,
             this, &SftpFileSystemModel::handleSshConnectionFailure);
     if (d->sshConnection->state() == SshConnection::Connected) {
         handleSshConnectionEstablished();
@@ -142,12 +144,11 @@ QString SftpFileSystemModel::rootDirectory() const
 
 SftpJobId SftpFileSystemModel::downloadFile(const QModelIndex &index, const QString &targetFilePath)
 {
-    QSSH_ASSERT_AND_RETURN_VALUE(d->rootNode, SftpInvalidJob);
+    QTC_ASSERT(d->rootNode, return SftpInvalidJob);
     const SftpFileNode * const fileNode = indexToFileNode(index);
-    QSSH_ASSERT_AND_RETURN_VALUE(fileNode, SftpInvalidJob);
-    QSSH_ASSERT_AND_RETURN_VALUE(fileNode->fileInfo.type == FileTypeRegular, SftpInvalidJob);
-    const SftpJobId jobId = d->sftpChannel->downloadFile(fileNode->path, targetFilePath,
-        SftpOverwriteExisting);
+    QTC_ASSERT(fileNode, return SftpInvalidJob);
+    QTC_ASSERT(fileNode->fileInfo.type == FileTypeRegular, return SftpInvalidJob);
+    const SftpJobId jobId = d->sftpSession->downloadFile(fileNode->path, targetFilePath);
     if (jobId != SftpInvalidJob)
         d->externalJobs << jobId;
     return jobId;
@@ -211,8 +212,8 @@ QModelIndex SftpFileSystemModel::index(int row, int column, const QModelIndex &p
     if (!parent.isValid())
         return createIndex(row, column, d->rootNode);
     const SftpDirNode * const parentNode = indexToDirNode(parent);
-    QSSH_ASSERT_AND_RETURN_VALUE(parentNode, QModelIndex());
-    QSSH_ASSERT_AND_RETURN_VALUE(row < parentNode->children.count(), QModelIndex());
+    QTC_ASSERT(parentNode, return QModelIndex());
+    QTC_ASSERT(row < parentNode->children.count(), return QModelIndex());
     SftpFileNode * const childNode = parentNode->children.at(row);
     return createIndex(row, column, childNode);
 }
@@ -223,14 +224,14 @@ QModelIndex SftpFileSystemModel::parent(const QModelIndex &child) const
         return QModelIndex();
 
     const SftpFileNode * const childNode = indexToFileNode(child);
-    QSSH_ASSERT_AND_RETURN_VALUE(childNode, QModelIndex());
+    QTC_ASSERT(childNode, return QModelIndex());
     if (childNode == d->rootNode)
         return QModelIndex();
     SftpDirNode * const parentNode = childNode->parent;
     if (parentNode == d->rootNode)
         return createIndex(0, 0, d->rootNode);
     const SftpDirNode * const grandParentNode = parentNode->parent;
-    QSSH_ASSERT_AND_RETURN_VALUE(grandParentNode, QModelIndex());
+    QTC_ASSERT(grandParentNode, return QModelIndex());
     return createIndex(grandParentNode->children.indexOf(parentNode), 0, parentNode);
 }
 
@@ -247,22 +248,22 @@ int SftpFileSystemModel::rowCount(const QModelIndex &parent) const
         return 0;
     if (dirNode->lsState != SftpDirNode::LsNotYetCalled)
         return dirNode->children.count();
-    d->lsOps.insert(d->sftpChannel->listDirectory(dirNode->path), dirNode);
+    d->lsOps.insert(d->sftpSession->ls(dirNode->path), dirNode);
     dirNode->lsState = SftpDirNode::LsRunning;
     return 0;
 }
 
 void SftpFileSystemModel::statRootDirectory()
 {
-    d->statJobId = d->sftpChannel->statFile(d->rootDirectory);
+    d->statJobId = d->sftpSession->ls(d->rootDirectory);
 }
 
 void SftpFileSystemModel::shutDown()
 {
-    if (d->sftpChannel) {
-        disconnect(d->sftpChannel.data(), 0, this, 0);
-        d->sftpChannel->closeChannel();
-        d->sftpChannel.clear();
+    if (d->sftpSession) {
+        disconnect(d->sftpSession.get(), 0, this, 0);
+        d->sftpSession->quit();
+        d->sftpSession.release()->deleteLater();
     }
     if (d->sshConnection) {
         disconnect(d->sshConnection, 0, this, 0);
@@ -283,25 +284,24 @@ void SftpFileSystemModel::handleSshConnectionFailure()
 
 void SftpFileSystemModel::handleSftpChannelInitialized()
 {
-    connect(d->sftpChannel.data(),
-        &SftpChannel::fileInfoAvailable,
+    connect(d->sftpSession.get(), &SftpSession::fileInfoAvailable,
         this, &SftpFileSystemModel::handleFileInfo);
-    connect(d->sftpChannel.data(), &SftpChannel::finished,
+    connect(d->sftpSession.get(), &SftpSession::commandFinished,
         this, &SftpFileSystemModel::handleSftpJobFinished);
     statRootDirectory();
 }
 
 void SftpFileSystemModel::handleSshConnectionEstablished()
 {
-    d->sftpChannel = d->sshConnection->createSftpChannel();
-    connect(d->sftpChannel.data(), &SftpChannel::initialized,
+    d->sftpSession = d->sshConnection->createSftpSession();
+    connect(d->sftpSession.get(), &SftpSession::started,
             this, &SftpFileSystemModel::handleSftpChannelInitialized);
-    connect(d->sftpChannel.data(), &SftpChannel::channelError,
-            this, &SftpFileSystemModel::handleSftpChannelError);
-    d->sftpChannel->initialize();
+    connect(d->sftpSession.get(), &SftpSession::done,
+            this, &SftpFileSystemModel::handleSftpSessionClosed);
+    d->sftpSession->start();
 }
 
-void SftpFileSystemModel::handleSftpChannelError(const QString &reason)
+void SftpFileSystemModel::handleSftpSessionClosed(const QString &reason)
 {
     emit connectionError(reason);
     beginResetModel();
@@ -312,18 +312,18 @@ void SftpFileSystemModel::handleSftpChannelError(const QString &reason)
 void SftpFileSystemModel::handleFileInfo(SftpJobId jobId, const QList<SftpFileInfo> &fileInfoList)
 {
     if (jobId == d->statJobId) {
-        QSSH_ASSERT_AND_RETURN(!d->rootNode);
+        QTC_ASSERT(!d->rootNode, return);
         beginInsertRows(QModelIndex(), 0, 0);
         d->rootNode = new SftpDirNode;
         d->rootNode->path = d->rootDirectory;
-        d->rootNode->fileInfo = fileInfoList.first();
+        d->rootNode->fileInfo.type = FileTypeDirectory;
         d->rootNode->fileInfo.name = d->rootDirectory == QLatin1String("/")
             ? d->rootDirectory : QFileInfo(d->rootDirectory).fileName();
         endInsertRows();
         return;
     }
     SftpDirNode * const parentNode = d->lsOps.value(jobId);
-    QSSH_ASSERT_AND_RETURN(parentNode);
+    QTC_ASSERT(parentNode, return);
     QList<SftpFileInfo> filteredList;
     foreach (const SftpFileInfo &fi, fileInfoList) {
         if (fi.name != QLatin1String(".") && fi.name != QLatin1String(".."))
@@ -358,14 +358,14 @@ void SftpFileSystemModel::handleSftpJobFinished(SftpJobId jobId, const QString &
     if (jobId == d->statJobId) {
         d->statJobId = SftpInvalidJob;
         if (!errorMessage.isEmpty())
-            emit sftpOperationFailed(tr("Error getting \"stat\" info about \"%1\": %2")
+            emit sftpOperationFailed(tr("Error listing root directory \"%1\": %2")
                 .arg(rootDirectory(), errorMessage));
         return;
     }
 
     DirNodeHash::Iterator it = d->lsOps.find(jobId);
     if (it != d->lsOps.end()) {
-        QSSH_ASSERT(it.value()->lsState == SftpDirNode::LsRunning);
+        QTC_ASSERT(it.value()->lsState == SftpDirNode::LsRunning, return);
         it.value()->lsState = SftpDirNode::LsFinished;
         if (!errorMessage.isEmpty())
             emit sftpOperationFailed(tr("Error listing contents of directory \"%1\": %2")
@@ -375,7 +375,7 @@ void SftpFileSystemModel::handleSftpJobFinished(SftpJobId jobId, const QString &
     }
 
     const int jobIndex = d->externalJobs.indexOf(jobId);
-    QSSH_ASSERT_AND_RETURN(jobIndex != -1);
+    QTC_ASSERT(jobIndex != -1, return);
     d->externalJobs.removeAt(jobIndex);
     emit sftpOperationFinished(jobId, errorMessage);
 }

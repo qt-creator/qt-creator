@@ -62,11 +62,9 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
     connect(d->ui.userNameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
     connect(d->ui.privateKeyPathChooser, &PathChooser::validChanged,
             this, &QWizardPage::completeChanged);
-    connect(d->ui.passwordButton, &QAbstractButton::toggled,
+    connect(d->ui.defaultAuthButton, &QAbstractButton::toggled,
             this, &GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged);
     connect(d->ui.keyButton, &QAbstractButton::toggled,
-            this, &GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged);
-    connect(d->ui.agentButton, &QAbstractButton::toggled,
             this, &GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged);
 }
 
@@ -80,8 +78,7 @@ void GenericLinuxDeviceConfigurationWizardSetupPage::initializePage()
     d->ui.nameLineEdit->setText(defaultConfigurationName());
     d->ui.hostNameLineEdit->setText(defaultHostName());
     d->ui.userNameLineEdit->setText(defaultUserName());
-    d->ui.passwordButton->setChecked(true);
-    d->ui.passwordLineEdit->setText(defaultPassWord());
+    d->ui.defaultAuthButton->setChecked(true);
     d->ui.privateKeyPathChooser->setPath(ProjectExplorer::IDevice::defaultPrivateKeyFilePath());
     handleAuthTypeChanged();
 }
@@ -91,7 +88,7 @@ bool GenericLinuxDeviceConfigurationWizardSetupPage::isComplete() const
     return !configurationName().isEmpty()
             && !d->ui.hostNameLineEdit->text().trimmed().isEmpty()
             && !d->ui.userNameLineEdit->text().trimmed().isEmpty()
-            && (authenticationType() != SshConnectionParameters::AuthenticationTypePublicKey
+            && (authenticationType() != SshConnectionParameters::AuthenticationTypeSpecificKey
                 || d->ui.privateKeyPathChooser->isValid());
 }
 
@@ -105,17 +102,14 @@ QUrl GenericLinuxDeviceConfigurationWizardSetupPage::url() const
     QUrl url;
     url.setHost(d->ui.hostNameLineEdit->text().trimmed());
     url.setUserName(d->ui.userNameLineEdit->text().trimmed());
-    url.setPassword(d->ui.passwordLineEdit->text());
     url.setPort(22);
     return url;
 }
 
 SshConnectionParameters::AuthenticationType GenericLinuxDeviceConfigurationWizardSetupPage::authenticationType() const
 {
-    return d->ui.passwordButton->isChecked()
-            ? SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
-            : d->ui.keyButton->isChecked() ? SshConnectionParameters::AuthenticationTypePublicKey
-                                           : SshConnectionParameters::AuthenticationTypeAgent;
+    return d->ui.keyButton->isChecked() ? SshConnectionParameters::AuthenticationTypeSpecificKey
+                                        : SshConnectionParameters::AuthenticationTypeAll;
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::privateKeyFilePath() const
@@ -145,10 +139,8 @@ QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultPassWord() const
 
 void GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged()
 {
-    d->ui.passwordLineEdit->setEnabled(authenticationType()
-            == SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods);
     d->ui.privateKeyPathChooser->setEnabled(authenticationType()
-            == SshConnectionParameters::AuthenticationTypePublicKey);
+            == SshConnectionParameters::AuthenticationTypeSpecificKey);
     emit completeChanged();
 }
 

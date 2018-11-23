@@ -1,8 +1,0 @@
-<aliases>
-hp-pa
-parisc
-parisc64
-pa-risc
-hp-parisc
-hp-pa-risc
-</aliases>

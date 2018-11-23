@@ -55,15 +55,12 @@ public:
 
     qint64 write(const QByteArray &data) override;
 
-    // Default is "false" due to OpenSSH not implementing this feature for some reason.
-    void setSshServerSupportsSignals(bool signalsSupported);
-
 private:
     void handleConnected();
     void handleConnectionError();
     void handleDisconnected();
     void handleProcessStarted();
-    void handleProcessFinished(int exitStatus);
+    void handleProcessFinished();
     void handleStdout();
     void handleStderr();
     void handleKillOperationFinished(const QString &errorMessage);

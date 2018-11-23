@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,36 +25,38 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeployservice.h"
+#include "sftpdefs.h"
+#include "ssh_global.h"
 
-namespace RemoteLinux {
-namespace Internal { class RemoteLinuxCustomCommandDeployservicePrivate; }
+#include <QObject>
 
-class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeployService
-    : public AbstractRemoteLinuxDeployService
+namespace QSsh {
+class SshConnection;
+
+class QSSH_EXPORT SftpTransfer : public QObject
 {
+    friend class SshConnection;
     Q_OBJECT
 public:
-    explicit RemoteLinuxCustomCommandDeployService(QObject *parent = nullptr);
-    ~RemoteLinuxCustomCommandDeployService() override;
+    ~SftpTransfer();
 
-    void setCommandLine(const QString &commandLine);
+    void start();
+    void stop();
 
-    bool isDeploymentNecessary() const override { return true; }
-    bool isDeploymentPossible(QString *whyNot = nullptr) const override;
-
-protected:
-    void doDeviceSetup() override { handleDeviceSetupDone(true); }
-    void stopDeviceSetup() override { handleDeviceSetupDone(false); }
-    void doDeploy() override;
-    void stopDeployment() override;
+signals:
+    void started();
+    void done(const QString &error);
+    void progress(const QString &output);
 
 private:
-    void handleStdout();
-    void handleStderr();
-    void handleProcessClosed(const QString &error);
+    SftpTransfer(const FilesToTransfer &files, Internal::FileTransferType type,
+                 FileTransferErrorHandling errorHandlingMode,
+                 const QStringList &connectionArgs);
+    void doStart();
+    void emitError(const QString &details);
 
-    Internal::RemoteLinuxCustomCommandDeployservicePrivate *d;
+    struct SftpTransferPrivate;
+    SftpTransferPrivate * const d;
 };
 
-} // namespace RemoteLinux
+} // namespace QSsh

@@ -47,11 +47,10 @@ public:
 private:
     void handleConnected();
     void handleConnectionFailure();
-    void handleProcessFinished(int exitStatus);
+    void handleProcessFinished(const QString &error);
     void handlePortsGatheringError(const QString &message);
     void handlePortListReady();
-    void handleSftpInitialized();
-    void handleSftpError(const QString &message);
+    void handleSftpFinished(const QString &error);
     void setFinished(ProjectExplorer::DeviceTester::TestResult result);
 
     Internal::GenericLinuxDeviceTesterPrivate * const d;

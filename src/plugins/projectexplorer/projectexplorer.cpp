@@ -84,6 +84,7 @@
 #include "devicesupport/desktopdevicefactory.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/devicesettingspage.h"
+#include "devicesupport/sshsettingspage.h"
 #include "targetsettingspanel.h"
 #include "projectpanelfactory.h"
 #include "waitforstopdialog.h"
@@ -119,6 +120,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 #include <ssh/sshconnection.h>
+#include <ssh/sshsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -536,6 +538,7 @@ public:
     // Settings pages
     ProjectExplorerSettingsPage m_projectExplorerSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
+    SshSettingsPage m_sshSettingsPage;
 
     ProjectTreeWidgetFactory m_projectTreeFactory;
     FolderNavigationWidgetFactory m_folderNavigationWidgetFactory;
@@ -1715,6 +1718,28 @@ void ProjectExplorerPlugin::extensionsInitialized()
     BuildManager::extensionsInitialized();
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+
+    QSsh::SshSettings::loadSettings(Core::ICore::settings());
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        const auto searchPathRetriever = [] {
+            const QString gitBinary = Core::ICore::settings()->value("Git/BinaryPath", "git")
+                    .toString();
+            const QStringList rawGitSearchPaths = Core::ICore::settings()->value("Git/Path")
+                    .toString().split(':', QString::SkipEmptyParts);
+            const Utils::FileNameList gitSearchPaths = Utils::transform(rawGitSearchPaths,
+                    [](const QString &rawPath) { return Utils::FileName::fromString(rawPath); });
+            const Utils::FileName fullGitPath = Utils::Environment::systemEnvironment()
+                    .searchInPath(gitBinary, gitSearchPaths);
+            if (fullGitPath.isEmpty())
+                return Utils::FileNameList();
+            return Utils::FileNameList{
+                fullGitPath.parentDir(),
+                fullGitPath.parentDir().parentDir() + "/usr/bin"
+            };
+        };
+        QSsh::SshSettings::setExtraSearchPathRetriever(searchPathRetriever);
+    }
+
     // delay restoring kits until UI is shown for improved perceived startup performance
     QTimer::singleShot(0, this, &ProjectExplorerPlugin::restoreKits);
 }

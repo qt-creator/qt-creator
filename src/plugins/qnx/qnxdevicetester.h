@@ -46,7 +46,7 @@ public:
 private slots:
     void handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult result);
 
-    void handleProcessFinished(int exitStatus);
+    void handleProcessFinished(const QString &error);
     void handleConnectionError();
 
 private:

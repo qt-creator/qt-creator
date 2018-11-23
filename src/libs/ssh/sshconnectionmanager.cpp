@@ -26,6 +26,9 @@
 #include "sshconnectionmanager.h"
 
 #include "sshconnection.h"
+#include "sshsettings.h"
+
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QList>
@@ -61,7 +64,7 @@ public:
         moveToThread(QCoreApplication::instance()->thread());
         connect(&m_removalTimer, &QTimer::timeout,
                 this, &SshConnectionManager::removeInactiveConnections);
-        m_removalTimer.start(150000); // For a total timeout of five minutes.
+        m_removalTimer.start(SshSettings::connectionSharingTimeout() * 1000 * 60 / 2);
     }
 
     ~SshConnectionManager()
@@ -71,8 +74,8 @@ public:
             delete connection.connection;
         }
 
-        QSSH_ASSERT(m_acquiredConnections.isEmpty());
-        QSSH_ASSERT(m_deprecatedConnections.isEmpty());
+        QTC_CHECK(m_acquiredConnections.isEmpty());
+        QTC_CHECK(m_deprecatedConnections.isEmpty());
     }
 
     SshConnection *acquireConnection(const SshConnectionParameters &sshParams)
@@ -85,6 +88,9 @@ public:
                 continue;
 
             if (connection->thread() != QThread::currentThread())
+                continue;
+
+            if (connection->sharingEnabled() != SshSettings::connectionSharingEnabled())
                 continue;
 
             if (m_deprecatedConnections.contains(connection)) // we were asked to no longer use this one...
@@ -102,8 +108,6 @@ public:
                 continue;
 
             if (connection->thread() != QThread::currentThread()) {
-                if (connection->channelCount() != 0)
-                    continue;
                 QMetaObject::invokeMethod(this, "switchToCallerThread",
                     Qt::BlockingQueuedConnection,
                     Q_ARG(SshConnection *, connection),
@@ -129,7 +133,7 @@ public:
         QMutexLocker locker(&m_listMutex);
 
         const bool wasAquired = m_acquiredConnections.removeOne(connection);
-        QSSH_ASSERT_AND_RETURN(wasAquired);
+        QTC_ASSERT(wasAquired, return);
         if (m_acquiredConnections.contains(connection))
             return;
 
@@ -139,7 +143,7 @@ public:
                 || connection->state() != SshConnection::Connected) {
             doDelete = true;
         } else {
-            QSSH_ASSERT_AND_RETURN(!m_unacquiredConnections.contains(UnaquiredConnection(connection)));
+            QTC_ASSERT(!m_unacquiredConnections.contains(UnaquiredConnection(connection)), return);
 
             // It can happen that two or more connections with the same parameters were acquired
             // if the clients were running in different threads. Only keep one of them in
@@ -151,12 +155,10 @@ public:
                     break;
                 }
             }
-            if (!haveConnection) {
-                connection->closeAllChannels(); // Clean up after neglectful clients.
+            if (!haveConnection)
                 m_unacquiredConnections.append(UnaquiredConnection(connection));
-            } else {
+            else
                 doDelete = true;
-            }
         }
 
         if (doDelete) {

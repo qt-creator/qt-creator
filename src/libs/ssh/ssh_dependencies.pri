@@ -1,1 +1,2 @@
 QTC_LIB_NAME = QtcSsh
+QTC_LIB_DEPENDS += utils

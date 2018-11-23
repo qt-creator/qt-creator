@@ -32,10 +32,11 @@
 
 #include <QList>
 
+QT_FORWARD_DECLARE_CLASS(QDateTime)
 QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace ProjectExplorer { class DeployableFile; }
-
+namespace QSsh { class SshRemoteProcess; }
 namespace RemoteLinux {
 namespace Internal { class GenericDirectUploadServicePrivate; }
 
@@ -60,27 +61,16 @@ public:
     void stopDeployment() override;
 
 private:
-    void handleSftpInitialized();
-    void handleSftpChannelError(const QString &errorMessage);
-    void handleFileInfoAvailable(QSsh::SftpJobId jobId, const QList<QSsh::SftpFileInfo> &fileInfos);
-    void handleJobFinished(QSsh::SftpJobId jobId, const QString &errorMsg);
-    void handleUploadProcFinished(int exitStatus);
-    void handleMkdirFinished(int exitStatus);
-    void handleStdOutData();
-    void handleStdErrData();
-    void handleReadChannelFinished();
+    QDateTime timestampFromStat(const ProjectExplorer::DeployableFile &file,
+                                QSsh::SshRemoteProcess *statProc);
+    void checkForStateChangeOnRemoteProcFinished();
 
     QList<ProjectExplorer::DeployableFile> collectFilesToUpload(
             const ProjectExplorer::DeployableFile &file) const;
     void setFinished();
-    void uploadNextFile();
     void queryFiles();
-    void clearRunningProc();
-
-    void handleProcFailure();
-    void runPostQueryOnProcResult();
-
-    void tryFinish();
+    void uploadFiles();
+    void chmod();
 
     Internal::GenericDirectUploadServicePrivate * const d;
 };

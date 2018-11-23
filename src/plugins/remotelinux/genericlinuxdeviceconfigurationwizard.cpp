@@ -71,11 +71,10 @@ GenericLinuxDeviceConfigurationWizard::~GenericLinuxDeviceConfigurationWizard()
 IDevice::Ptr GenericLinuxDeviceConfigurationWizard::device()
 {
     SshConnectionParameters sshParams;
-    sshParams.options &= ~SshConnectionOptions(SshEnableStrictConformanceChecks); // For older SSH servers.
     sshParams.url = d->setupPage.url();
     sshParams.timeout = 10;
     sshParams.authenticationType = d->setupPage.authenticationType();
-    if (sshParams.authenticationType == SshConnectionParameters::AuthenticationTypePublicKey)
+    if (sshParams.authenticationType == SshConnectionParameters::AuthenticationTypeSpecificKey)
         sshParams.privateKeyFile = d->setupPage.privateKeyFilePath();
     IDevice::Ptr device = LinuxDevice::create(d->setupPage.configurationName(),
         Core::Id(Constants::GenericLinuxOsType), IDevice::Hardware);

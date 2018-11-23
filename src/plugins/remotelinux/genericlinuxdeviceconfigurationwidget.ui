@@ -52,23 +52,16 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QRadioButton" name="passwordButton">
+       <widget class="QRadioButton" name="defaultAuthButton">
         <property name="text">
-         <string>Password</string>
+         <string>Default</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="keyButton">
         <property name="text">
-         <string>&amp;Key</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="agentButton">
-        <property name="text">
-         <string>Key via ssh-agent</string>
+         <string>Specific &amp;key</string>
         </property>
        </widget>
       </item>
@@ -206,33 +199,8 @@
    <item row="4" column="1">
     <widget class="QLineEdit" name="userLineEdit"/>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="passwordLabel">
-     <property name="text">
-      <string>&amp;Password:</string>
-     </property>
-     <property name="buddy">
-      <cstring>pwdLineEdit</cstring>
-     </property>
-    </widget>
-   </item>
    <item row="5" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
-     <item>
-      <widget class="QLineEdit" name="pwdLineEdit">
-       <property name="echoMode">
-        <enum>QLineEdit::Password</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="showPasswordCheckBox">
-       <property name="text">
-        <string>Show password</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <layout class="QHBoxLayout" name="horizontalLayout_6"/>
    </item>
    <item row="6" column="0">
     <widget class="QLabel" name="keyLabel">
@@ -280,7 +248,6 @@
     </widget>
    </item>
   </layout>
-  <zorder>passwordLabel</zorder>
   <zorder>authTypeButtonsWidget</zorder>
   <zorder>hostNameLabel</zorder>
   <zorder>userNameLabel</zorder>
@@ -302,7 +269,7 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>passwordButton</tabstop>
+  <tabstop>defaultAuthButton</tabstop>
   <tabstop>keyButton</tabstop>
   <tabstop>hostLineEdit</tabstop>
   <tabstop>sshPortSpinBox</tabstop>
@@ -310,8 +277,6 @@
   <tabstop>portsLineEdit</tabstop>
   <tabstop>timeoutSpinBox</tabstop>
   <tabstop>userLineEdit</tabstop>
-  <tabstop>pwdLineEdit</tabstop>
-  <tabstop>showPasswordCheckBox</tabstop>
   <tabstop>createKeyButton</tabstop>
   <tabstop>gdbServerLineEdit</tabstop>
  </tabstops>

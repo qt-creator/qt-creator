@@ -26,7 +26,6 @@
 #pragma once
 
 #include <ssh/sshremoteprocess.h>
-#include <ssh/sftpchannel.h>
 #include <ssh/sshconnection.h>
 
 #include <projectexplorer/runconfiguration.h>
@@ -91,8 +90,8 @@ private:
     // remote callgrind support
     QSsh::SshConnection *m_ssh = nullptr;
     QString m_tempDataFile;
-    QSsh::SshRemoteProcess::Ptr m_findRemoteFile;
-    QSsh::SftpChannel::Ptr m_sftp;
+    QSsh::SshRemoteProcessPtr m_findRemoteFile;
+    QSsh::SftpSessionPtr m_sftp;
     QSsh::SftpJobId m_downloadJob = 0;
     QByteArray m_remoteFile;
 };

@@ -69,17 +69,12 @@ void RemoteLinuxCheckForFreeDiskSpaceService::handleStdErr()
 
 void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
 {
-    switch (d->processRunner->processExitStatus()) {
-    case QSsh::SshRemoteProcess::FailedToStart:
-        emit errorMessage(tr("Remote process failed to start."));
+    if (!d->processRunner->processErrorString().isEmpty()) {
+        emit errorMessage(tr("Remote process failed: %1")
+                          .arg(d->processRunner->processErrorString()));
         stopDeployment();
         return;
-    case QSsh::SshRemoteProcess::CrashExit:
-        emit errorMessage(tr("Remote process crashed."));
-        stopDeployment();
-        return;
-    case QSsh::SshRemoteProcess::NormalExit:
-        break;
+
     }
 
     bool isNumber;

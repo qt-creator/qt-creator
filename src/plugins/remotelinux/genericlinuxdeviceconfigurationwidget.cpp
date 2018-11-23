@@ -48,17 +48,11 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::hostNameEditingFinished);
     connect(m_ui->userLineEdit, &QLineEdit::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::userNameEditingFinished);
-    connect(m_ui->pwdLineEdit, &QLineEdit::editingFinished,
-            this, &GenericLinuxDeviceConfigurationWidget::passwordEditingFinished);
-    connect(m_ui->passwordButton, &QAbstractButton::toggled,
-            this, &GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged);
     connect(m_ui->keyFileLineEdit, &PathChooser::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished);
     connect(m_ui->keyFileLineEdit, &PathChooser::browsingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished);
     connect(m_ui->keyButton, &QAbstractButton::toggled,
-            this, &GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged);
-    connect(m_ui->agentButton, &QAbstractButton::toggled,
             this, &GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged);
     connect(m_ui->timeoutSpinBox, &QAbstractSpinBox::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished);
@@ -68,8 +62,6 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished);
     connect(m_ui->sshPortSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished);
-    connect(m_ui->showPasswordCheckBox, &QAbstractButton::toggled,
-            this, &GenericLinuxDeviceConfigurationWidget::showPassword);
     connect(m_ui->portsLineEdit, &QLineEdit::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged);
     connect(m_ui->createKeyButton, &QAbstractButton::clicked,
@@ -91,15 +83,11 @@ GenericLinuxDeviceConfigurationWidget::~GenericLinuxDeviceConfigurationWidget()
 void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    const bool usePassword = m_ui->passwordButton->isChecked();
     const bool useKeyFile = m_ui->keyButton->isChecked();
-    sshParams.authenticationType
-            = usePassword ? SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
-                          : useKeyFile ? SshConnectionParameters::AuthenticationTypePublicKey
-                                       : SshConnectionParameters::AuthenticationTypeAgent;
+    sshParams.authenticationType = useKeyFile
+            ? SshConnectionParameters::AuthenticationTypeSpecificKey
+            : SshConnectionParameters::AuthenticationTypeAll;
     device()->setSshParameters(sshParams);
-    m_ui->pwdLineEdit->setEnabled(usePassword);
-    m_ui->passwordLabel->setEnabled(usePassword);
     m_ui->keyFileLineEdit->setEnabled(useKeyFile);
     m_ui->keyLabel->setEnabled(useKeyFile);
 }
@@ -132,13 +120,6 @@ void GenericLinuxDeviceConfigurationWidget::userNameEditingFinished()
     device()->setSshParameters(sshParams);
 }
 
-void GenericLinuxDeviceConfigurationWidget::passwordEditingFinished()
-{
-    SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.setPassword(m_ui->pwdLineEdit->text());
-    device()->setSshParameters(sshParams);
-}
-
 void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
@@ -155,12 +136,6 @@ void GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged()
 {
     device()->setFreePorts(PortList::fromString(m_ui->portsLineEdit->text()));
     updatePortsWarningLabel();
-}
-
-void GenericLinuxDeviceConfigurationWidget::showPassword(bool showClearText)
-{
-    m_ui->pwdLineEdit->setEchoMode(showClearText
-        ? QLineEdit::Normal : QLineEdit::Password);
 }
 
 void GenericLinuxDeviceConfigurationWidget::setPrivateKey(const QString &path)
@@ -190,7 +165,6 @@ void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
     sshPortEditingFinished();
     timeoutEditingFinished();
     userNameEditingFinished();
-    passwordEditingFinished();
     keyFileEditingFinished();
     handleFreePortsChanged();
     gdbServerEditingFinished();
@@ -220,16 +194,12 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     const SshConnectionParameters &sshParams = device()->sshParameters();
 
     switch (sshParams.authenticationType) {
-    case SshConnectionParameters::AuthenticationTypePublicKey:
+    case SshConnectionParameters::AuthenticationTypeSpecificKey:
         m_ui->keyButton->setChecked(true);
         break;
-    case SshConnectionParameters::AuthenticationTypeAgent:
-        m_ui->agentButton->setChecked(true);
+    case SshConnectionParameters::AuthenticationTypeAll:
+        m_ui->defaultAuthButton->setChecked(true);
         break;
-    case SshConnectionParameters::AuthenticationTypePassword:
-    case SshConnectionParameters::AuthenticationTypeKeyboardInteractive:
-    case SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods:
-        m_ui->passwordButton->setChecked(true);
     }
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->hostLineEdit->setEnabled(!device()->isAutoDetected());
@@ -241,9 +211,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->portsLineEdit->setText(device()->freePorts().toString());
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->userLineEdit->setText(sshParams.userName());
-    m_ui->pwdLineEdit->setText(sshParams.password());
     m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
-    m_ui->showPasswordCheckBox->setChecked(false);
     m_ui->gdbServerLineEdit->setText(device()->debugServerPath());
     updatePortsWarningLabel();
 }

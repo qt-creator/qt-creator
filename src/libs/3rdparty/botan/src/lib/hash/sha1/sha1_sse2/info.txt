@@ -1,5 +1,0 @@
-<defines>
-SHA1_SSE2 -> 20160803
-</defines>
-
-need_isa sse2

@@ -1,5 +1,0 @@
-wordsize 64
-
-<aliases>
-mips64el
-</aliases>

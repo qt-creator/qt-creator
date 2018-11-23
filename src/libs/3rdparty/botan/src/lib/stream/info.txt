@@ -1,7 +1,0 @@
-<defines>
-STREAM_CIPHER -> 20131128
-</defines>
-
-<header:public>
-stream_cipher.h
-</header:public>
