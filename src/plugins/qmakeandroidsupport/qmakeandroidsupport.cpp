@@ -135,7 +135,7 @@ bool QmakeAndroidSupport::setTargetData(Core::Id role, const QVariant &value, co
 QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *target) const
 {
     QSet<QString> res;
-    QmakeProject *project = qobject_cast<QmakeProject*>(target->project());
+    auto project = qobject_cast<QmakeProject*>(target->project());
     Q_ASSERT(project);
     if (!project)
         return {};
@@ -171,7 +171,7 @@ QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *
 QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer::Target *target) const
 {
     QStringList apps;
-    QmakeProject *qmakeProject = qobject_cast<QmakeProject *>(target->project());
+    auto qmakeProject = qobject_cast<QmakeProject *>(target->project());
     if (!qmakeProject)
         return apps;
     for (QmakeProFile *proFile : qmakeProject->applicationProFiles()) {
@@ -191,7 +191,7 @@ void QmakeAndroidSupport::addFiles(const ProjectExplorer::Target *target,
                                    const QString &buildKey,
                                    const QStringList &addedFiles) const
 {
-    QmakeProject *project = static_cast<QmakeProject *>(target->project());
+    auto project = static_cast<QmakeProject *>(target->project());
     QmakeProFile *currentRunNode = project->rootProFile()->findProFile(FileName::fromString(buildKey));
     QTC_ASSERT(currentRunNode, return);
     currentRunNode->addFiles(addedFiles);
