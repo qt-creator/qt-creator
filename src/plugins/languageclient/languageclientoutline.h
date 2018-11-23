@@ -25,30 +25,19 @@
 
 #pragma once
 
-#include "languageclientmanager.h"
-#include "languageclientoutline.h"
-#include "languageclientsettings.h"
-
-#include <extensionsystem/iplugin.h>
+#include <texteditor/ioutlinewidget.h>
 
 namespace LanguageClient {
 
-class LanguageClientPlugin : public ExtensionSystem::IPlugin
+class LanguageClientOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "LanguageClient.json")
 public:
-    LanguageClientPlugin() = default;
+    using IOutlineWidgetFactory::IOutlineWidgetFactory;
 
-    // IPlugin interface
-private:
-    bool initialize(const QStringList &arguments, QString *errorString) override;
-    void extensionsInitialized() override;
-    ShutdownFlag aboutToShutdown() override;
-
-private:
-    LanguageClientManager m_clientManager;
-    LanguageClientOutlineWidgetFactory m_outlineFactory;
+    // IOutlineWidgetFactory interface
+public:
+    bool supportsEditor(Core::IEditor *editor) const override;
+    TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) override;
 };
 
 } // namespace LanguageClient

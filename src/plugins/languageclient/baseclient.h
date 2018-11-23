@@ -125,6 +125,9 @@ public:
              Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch)
     { log(responseError.toString(), flag); }
 
+    const LanguageServerProtocol::ServerCapabilities &capabilities() const;
+    const DynamicCapabilities &dynamicCapabilities() const;
+
 signals:
     void initialized(LanguageServerProtocol::ServerCapabilities capabilities);
     void finished();

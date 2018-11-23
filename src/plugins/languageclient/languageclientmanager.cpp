@@ -234,6 +234,15 @@ LanguageClientManager *LanguageClientManager::instance()
     return managerInstance;
 }
 
+QList<BaseClient *> LanguageClientManager::clientsSupportingDocument(
+    const TextEditor::TextDocument *doc)
+{
+    QTC_ASSERT(doc, return {};);
+    return Utils::filtered(managerInstance->reachableClients(), [doc](BaseClient *client) {
+        return client->isSupportedDocument(doc);
+    }).toList();
+}
+
 QVector<BaseClient *> LanguageClientManager::reachableClients()
 {
     return Utils::filtered(m_clients, &BaseClient::reachable);

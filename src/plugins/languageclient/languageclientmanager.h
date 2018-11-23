@@ -75,6 +75,8 @@ public:
 
     static LanguageClientManager *instance();
 
+    static QList<BaseClient *> clientsSupportingDocument(const TextEditor::TextDocument *doc);
+
 signals:
     void shutdownFinished();
 

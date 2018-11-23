@@ -24,6 +24,8 @@ QtcPlugin {
         "languageclientcodeassist.h",
         "languageclientmanager.cpp",
         "languageclientmanager.h",
+        "languageclientoutline.cpp",
+        "languageclientoutline.h",
         "languageclientplugin.cpp",
         "languageclientplugin.h",
         "languageclientsettings.cpp",

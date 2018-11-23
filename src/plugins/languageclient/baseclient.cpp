@@ -549,6 +549,16 @@ void BaseClient::log(const QString &message, Core::MessageManager::PrintToOutput
     Core::MessageManager::write(QString("LanguageClient %1: %2").arg(name(), message), flag);
 }
 
+const ServerCapabilities &BaseClient::capabilities() const
+{
+    return m_serverCapabilities;
+}
+
+const DynamicCapabilities &BaseClient::dynamicCapabilities() const
+{
+    return m_dynamicCapabilities;
+}
+
 void BaseClient::log(const ShowMessageParams &message,
                      Core::MessageManager::PrintToOutputPaneFlag flag)
 {
