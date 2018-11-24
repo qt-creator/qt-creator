@@ -42,8 +42,8 @@ public:
     TaskListPlugin();
     ~TaskListPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized() {}
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override {}
 
     static bool loadFile(QString *errorString, const Utils::FileName &fileName);
 
