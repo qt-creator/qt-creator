@@ -52,7 +52,7 @@ namespace {
 class FindIds : protected Visitor
 {
 public:
-    typedef QHash<QString, SourceLocation> Result;
+    using Result = QHash<QString, SourceLocation>;
 
     Result operator()(Node *node)
     {
@@ -87,7 +87,7 @@ public:
         : QmlJSQuickFixOperation(interface, 0)
         , m_objDef(objDef)
     {
-        Q_ASSERT(m_objDef != 0);
+        Q_ASSERT(m_objDef);
 
         setDescription(tr("Wrap Component in Loader"));
     }
@@ -96,7 +96,7 @@ public:
     {
         QString tryName = base;
         int extraNumber = 1;
-        const ObjectValue *found = 0;
+        const ObjectValue *found = nullptr;
         const ScopeChain &scope = assistInterface()->semanticInfo().scopeChain();
         forever {
             scope.lookup(tryName, &found);
@@ -181,7 +181,7 @@ void matchWrapInLoaderQuickFix(const QmlJSQuickFixInterface &interface, QuickFix
     QList<Node *> path = interface->semanticInfo().rangePath(pos);
     for (int i = path.size() - 1; i >= 0; --i) {
         Node *node = path.at(i);
-        if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
+        if (auto objDef = cast<UiObjectDefinition *>(node)) {
             if (!interface->currentFile()->isCursorOn(objDef->qualifiedTypeNameId))
                 return;
              // check that the node is not the root node
@@ -189,7 +189,7 @@ void matchWrapInLoaderQuickFix(const QmlJSQuickFixInterface &interface, QuickFix
                 result << new Operation<UiObjectDefinition>(interface, objDef);
                 return;
             }
-        } else if (UiObjectBinding *objBinding = cast<UiObjectBinding *>(node)) {
+        } else if (auto objBinding = cast<UiObjectBinding *>(node)) {
             if (!interface->currentFile()->isCursorOn(objBinding->qualifiedTypeNameId))
                 return;
             result << new Operation<UiObjectBinding>(interface, objBinding);

@@ -44,7 +44,7 @@ QmlJSOutlineTreeView::QmlJSOutlineTreeView(QWidget *parent) :
 
     setRootIsDecorated(false);
 
-    Utils::AnnotatedItemDelegate *itemDelegate = new Utils::AnnotatedItemDelegate(this);
+    auto itemDelegate = new Utils::AnnotatedItemDelegate(this);
     itemDelegate->setDelimiter(QLatin1String(" "));
     itemDelegate->setAnnotationRole(QmlOutlineModel::AnnotationRole);
     setItemDelegateForColumn(0, itemDelegate);

@@ -47,7 +47,7 @@ public:
 
 private:
     void removedFromEditor() override;
-    void init(bool warning, const QString message);
+    void init(bool warning, const QString &message);
 
 private:
     RemovedFromEditorHandler m_removedFromEditorHandler;

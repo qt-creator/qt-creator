@@ -131,14 +131,14 @@ private:
     QHash<AST::UiObjectMember*,AST::UiObjectMember*> parent;
     QList<AST::UiObjectMember *> stack;
 
-    bool preVisit(AST::Node *node)
+    bool preVisit(AST::Node *node) override
     {
         if (AST::UiObjectMember *objMember = node->uiObjectMemberCast())
             stack.append(objMember);
         return true;
     }
 
-    void postVisit(AST::Node *node)
+    void postVisit(AST::Node *node) override
     {
         if (AST::UiObjectMember *objMember = node->uiObjectMemberCast()) {
             stack.removeLast();
@@ -169,7 +169,7 @@ public:
     }
 
 private:
-    bool preVisit(AST::Node *node)
+    bool preVisit(AST::Node *node) override
     {
         if (!node)
             return false;
@@ -178,37 +178,37 @@ private:
         return true;
     }
 
-    void postVisit(AST::Node *)
+    void postVisit(AST::Node *) override
     {
         indent--;
     }
 
-    typedef QPair<QString,QString> ElementType;
-    bool visit(AST::UiObjectDefinition *objDef)
+    using ElementType = QPair<QString,QString>;
+    bool visit(AST::UiObjectDefinition *objDef) override
     {
         QModelIndex index = m_model->enterObjectDefinition(objDef);
         m_nodeToIndex.insert(objDef, index);
         return true;
     }
 
-    void endVisit(AST::UiObjectDefinition * /*objDef*/)
+    void endVisit(AST::UiObjectDefinition * /*objDef*/) override
     {
         m_model->leaveObjectDefiniton();
     }
 
-    bool visit(AST::UiObjectBinding *objBinding)
+    bool visit(AST::UiObjectBinding *objBinding) override
     {
         QModelIndex index = m_model->enterObjectBinding(objBinding);
         m_nodeToIndex.insert(objBinding, index);
         return true;
     }
 
-    void endVisit(AST::UiObjectBinding * /*objBinding*/)
+    void endVisit(AST::UiObjectBinding * /*objBinding*/) override
     {
         m_model->leaveObjectBinding();
     }
 
-    bool visit(AST::UiArrayBinding *arrayBinding)
+    bool visit(AST::UiArrayBinding *arrayBinding) override
     {
         QModelIndex index = m_model->enterArrayBinding(arrayBinding);
         m_nodeToIndex.insert(arrayBinding, index);
@@ -216,12 +216,12 @@ private:
         return true;
     }
 
-    void endVisit(AST::UiArrayBinding * /*arrayBinding*/)
+    void endVisit(AST::UiArrayBinding * /*arrayBinding*/) override
     {
         m_model->leaveArrayBinding();
     }
 
-    bool visit(AST::UiScriptBinding *scriptBinding)
+    bool visit(AST::UiScriptBinding *scriptBinding) override
     {
         QModelIndex index = m_model->enterScriptBinding(scriptBinding);
         m_nodeToIndex.insert(scriptBinding, index);
@@ -229,12 +229,12 @@ private:
         return true;
     }
 
-    void endVisit(AST::UiScriptBinding * /*scriptBinding*/)
+    void endVisit(AST::UiScriptBinding * /*scriptBinding*/) override
     {
         m_model->leaveScriptBinding();
     }
 
-    bool visit(AST::UiPublicMember *publicMember)
+    bool visit(AST::UiPublicMember *publicMember) override
     {
         QModelIndex index = m_model->enterPublicMember(publicMember);
         m_nodeToIndex.insert(publicMember, index);
@@ -242,12 +242,12 @@ private:
         return true;
     }
 
-    void endVisit(AST::UiPublicMember * /*publicMember*/)
+    void endVisit(AST::UiPublicMember * /*publicMember*/) override
     {
         m_model->leavePublicMember();
     }
 
-    bool visit(AST::FunctionDeclaration *functionDeclaration)
+    bool visit(AST::FunctionDeclaration *functionDeclaration) override
     {
         QModelIndex index = m_model->enterFunctionDeclaration(functionDeclaration);
         m_nodeToIndex.insert(functionDeclaration, index);
@@ -255,15 +255,15 @@ private:
         return true;
     }
 
-    void endVisit(AST::FunctionDeclaration * /*functionDeclaration*/)
+    void endVisit(AST::FunctionDeclaration * /*functionDeclaration*/) override
     {
         m_model->leaveFunctionDeclaration();
     }
 
-    bool visit(AST::BinaryExpression *binExp)
+    bool visit(AST::BinaryExpression *binExp) override
     {
-        AST::IdentifierExpression *lhsIdent = AST::cast<AST::IdentifierExpression *>(binExp->left);
-        AST::ObjectPattern *rhsObjLit = AST::cast<AST::ObjectPattern *>(binExp->right);
+        auto lhsIdent = AST::cast<const AST::IdentifierExpression *>(binExp->left);
+        auto rhsObjLit = AST::cast<AST::ObjectPattern *>(binExp->right);
 
         if (lhsIdent && rhsObjLit && (lhsIdent->name == QLatin1String("testcase"))
             && (binExp->op == QSOperator::Assign)) {
@@ -295,8 +295,8 @@ private:
         while (properties) {
             QModelIndex index = m_model->enterTestCaseProperties(properties);
             m_nodeToIndex.insert(properties, index);
-            if (AST::PatternProperty *assignment = AST::cast<AST::PatternProperty *>(properties->property))
-                if (AST::ObjectPattern *objLiteral = AST::cast<AST::ObjectPattern *>(assignment->initializer))
+            if (auto assignment = AST::cast<const AST::PatternProperty *>(properties->property))
+                if (auto objLiteral = AST::cast<const AST::ObjectPattern *>(assignment->initializer))
                     visitProperties(objLiteral->properties);
 
             m_model->leaveTestCaseProperties();
@@ -333,16 +333,14 @@ QStringList QmlOutlineModel::mimeTypes() const
 QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.count() <= 0)
-        return 0;
+        return nullptr;
     auto data = new Utils::DropMimeData;
     data->setOverrideFileDropAction(Qt::CopyAction);
     QByteArray encoded;
     QDataStream stream(&encoded, QIODevice::WriteOnly);
     stream << indexes.size();
 
-    for (int i = 0; i < indexes.size(); ++i) {
-        QModelIndex index = indexes.at(i);
-
+    for (const auto &index : indexes) {
         AST::SourceLocation location = sourceLocation(index);
         data->addFile(m_editorDocument->filePath().toString(), location.startLine,
                       location.startColumn - 1 /*editors have 0-based column*/);
@@ -399,7 +397,7 @@ bool QmlOutlineModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
         itemsToMove << static_cast<QmlOutlineItem*>(itemFromIndex(index));
     }
 
-    QmlOutlineItem *targetItem = static_cast<QmlOutlineItem*>(itemFromIndex(parent));
+    auto targetItem = static_cast<QmlOutlineItem*>(itemFromIndex(parent));
     reparentNodes(targetItem, row, itemsToMove);
 
     // Prevent view from calling removeRow() on it's own
@@ -474,7 +472,7 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
     const QString typeName = asString(objDef->qualifiedTypeNameId);
 
     QMap<int, QVariant> data;
-    AST::UiQualifiedId *idNode = 0;
+    AST::UiQualifiedId *idNode = nullptr;
     QIcon icon;
 
     data.insert(Qt::DisplayRole, typeName);
@@ -575,7 +573,7 @@ QModelIndex QmlOutlineModel::enterPublicMember(AST::UiPublicMember *publicMember
     objectData.insert(AnnotationRole, getAnnotation(publicMember->statement));
     objectData.insert(ItemTypeRole, NonElementBindingType);
 
-    QmlOutlineItem *item = enterNode(objectData, publicMember, 0, Icons::publicMemberIcon());
+    QmlOutlineItem *item = enterNode(objectData, publicMember, nullptr, Icons::publicMemberIcon());
 
     return item->index();
 }
@@ -610,7 +608,8 @@ QModelIndex QmlOutlineModel::enterFunctionDeclaration(AST::FunctionDeclaration *
                                                            functionDeclaration->formals));
     objectData.insert(ItemTypeRole, ElementBindingType);
 
-    QmlOutlineItem *item = enterNode(objectData, functionDeclaration, 0, Icons::functionDeclarationIcon());
+    QmlOutlineItem *item = enterNode(objectData, functionDeclaration, nullptr,
+                                     Icons::functionDeclarationIcon());
 
     return item->index();
 }
@@ -640,7 +639,8 @@ QModelIndex QmlOutlineModel::enterFieldMemberExpression(AST::FieldMemberExpressi
     objectData.insert(Qt::DisplayRole, display);
     objectData.insert(ItemTypeRole, ElementBindingType);
 
-    QmlOutlineItem *item = enterNode(objectData, expression, 0, m_icons->functionDeclarationIcon());
+    QmlOutlineItem *item = enterNode(objectData, expression, nullptr,
+                                     m_icons->functionDeclarationIcon());
 
     return item->index();
 }
@@ -657,7 +657,8 @@ QModelIndex QmlOutlineModel::enterTestCase(AST::ObjectPattern *objectLiteral)
     objectData.insert(Qt::DisplayRole, QLatin1String("testcase"));
     objectData.insert(ItemTypeRole, ElementBindingType);
 
-    QmlOutlineItem *item = enterNode(objectData, objectLiteral, 0, Icons::objectDefinitionIcon());
+    QmlOutlineItem *item = enterNode(objectData, objectLiteral, nullptr,
+                                     Icons::objectDefinitionIcon());
 
     return item->index();
 }
@@ -670,29 +671,29 @@ void QmlOutlineModel::leaveTestCase()
 QModelIndex QmlOutlineModel::enterTestCaseProperties(AST::PatternPropertyList *propertyAssignmentList)
 {
     QMap<int, QVariant> objectData;
-    if (AST::PatternProperty *assignment = AST::cast<AST::PatternProperty *>(
+    if (auto assignment = AST::cast<AST::PatternProperty *>(
                 propertyAssignmentList->property)) {
-        if (AST::IdentifierPropertyName *propertyName = AST::cast<AST::IdentifierPropertyName *>(assignment->name)) {
+        if (auto propertyName = AST::cast<const AST::IdentifierPropertyName *>(assignment->name)) {
             objectData.insert(Qt::DisplayRole, propertyName->id.toString());
             objectData.insert(ItemTypeRole, ElementBindingType);
             QmlOutlineItem *item;
             if (assignment->initializer->kind == AST::Node::Kind_FunctionExpression)
-                item = enterNode(objectData, assignment, 0, Icons::functionDeclarationIcon());
+                item = enterNode(objectData, assignment, nullptr, Icons::functionDeclarationIcon());
             else if (assignment->initializer->kind == AST::Node::Kind_ObjectPattern)
-                item = enterNode(objectData, assignment, 0, Icons::objectDefinitionIcon());
+                item = enterNode(objectData, assignment, nullptr, Icons::objectDefinitionIcon());
             else
-                item = enterNode(objectData, assignment, 0, Icons::scriptBindingIcon());
+                item = enterNode(objectData, assignment, nullptr, Icons::scriptBindingIcon());
 
             return item->index();
         }
     }
-    if (AST::PatternProperty *getterSetter = AST::cast<AST::PatternProperty *>(
+    if (auto getterSetter = AST::cast<AST::PatternProperty *>(
                 propertyAssignmentList->property)) {
-        if (AST::IdentifierPropertyName *propertyName = AST::cast<AST::IdentifierPropertyName *>(getterSetter->name)) {
+        if (auto propertyName = AST::cast<const AST::IdentifierPropertyName *>(getterSetter->name)) {
             objectData.insert(Qt::DisplayRole, propertyName->id.toString());
             objectData.insert(ItemTypeRole, ElementBindingType);
             QmlOutlineItem *item;
-            item = enterNode(objectData, getterSetter, 0, Icons::functionDeclarationIcon());
+            item = enterNode(objectData, getterSetter, nullptr, Icons::functionDeclarationIcon());
 
             return item->index();
 
@@ -708,14 +709,14 @@ void QmlOutlineModel::leaveTestCaseProperties()
 
 AST::Node *QmlOutlineModel::nodeForIndex(const QModelIndex &index) const
 {
-    QTC_ASSERT(index.isValid() && (index.model() == this), return 0);
+    QTC_ASSERT(index.isValid() && (index.model() == this), return nullptr);
     if (index.isValid()) {
-        QmlOutlineItem *item = static_cast<QmlOutlineItem*>(itemFromIndex(index));
-        QTC_ASSERT(item, return 0);
-        QTC_ASSERT(m_itemToNode.contains(item), return 0);
+        auto item = static_cast<QmlOutlineItem*>(itemFromIndex(index));
+        QTC_ASSERT(item, return nullptr);
+        QTC_ASSERT(m_itemToNode.contains(item), return nullptr);
         return m_itemToNode.value(item);
     }
-    return 0;
+    return nullptr;
 }
 
 AST::SourceLocation QmlOutlineModel::sourceLocation(const QModelIndex &index) const
@@ -728,7 +729,7 @@ AST::SourceLocation QmlOutlineModel::sourceLocation(const QModelIndex &index) co
             location = getLocation(member);
         else if (AST::ExpressionNode *expression = node->expressionCast())
             location = getLocation(expression);
-        else if (AST::PatternPropertyList *propertyAssignmentList = AST::cast<AST::PatternPropertyList *>(node))
+        else if (auto propertyAssignmentList = AST::cast<AST::PatternPropertyList *>(node))
             location = getLocation(propertyAssignmentList);
     }
     return location;
@@ -736,22 +737,22 @@ AST::SourceLocation QmlOutlineModel::sourceLocation(const QModelIndex &index) co
 
 AST::UiQualifiedId *QmlOutlineModel::idNode(const QModelIndex &index) const
 {
-    QTC_ASSERT(index.isValid() && (index.model() == this), return 0);
-    QmlOutlineItem *item = static_cast<QmlOutlineItem*>(itemFromIndex(index));
+    QTC_ASSERT(index.isValid() && (index.model() == this), return nullptr);
+    auto item = static_cast<QmlOutlineItem*>(itemFromIndex(index));
     return m_itemToIdNode.value(item);
 }
 
 QIcon QmlOutlineModel::icon(const QModelIndex &index) const
 {
     QTC_ASSERT(index.isValid() && (index.model() == this), return QIcon());
-    QmlOutlineItem *item = static_cast<QmlOutlineItem*>(itemFromIndex(index));
+    auto item = static_cast<QmlOutlineItem*>(itemFromIndex(index));
     return m_itemToIcon.value(item);
 }
 
 QmlOutlineItem *QmlOutlineModel::enterNode(QMap<int, QVariant> data, AST::Node *node, AST::UiQualifiedId *idNode, const QIcon &icon)
 {
     int siblingIndex = m_treePos.last();
-    QmlOutlineItem *newItem = 0;
+    QmlOutlineItem *newItem = nullptr;
     if (siblingIndex == 0) {
         // first child
         if (!m_currentItem->hasChildren()) {
@@ -827,19 +828,18 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
 
     QList<Utils::ChangeSet::Range> changedRanges;
 
-    for (int i = 0; i < itemsToMove.size(); ++i) {
-        QmlOutlineItem *outlineItem = itemsToMove.at(i);
+    for (auto outlineItem : itemsToMove) {
         AST::UiObjectMember *sourceObjectMember = m_itemToNode.value(outlineItem)->uiObjectMemberCast();
         if (!sourceObjectMember)
             return;
 
         bool insertionOrderSpecified = true;
-        AST::UiObjectMember *memberToInsertAfter = 0;
+        AST::UiObjectMember *memberToInsertAfter = nullptr;
         {
             if (row == -1) {
                 insertionOrderSpecified = false;
             } else if (row > 0) {
-                QmlOutlineItem *outlineItem = static_cast<QmlOutlineItem*>(targetItem->child(row - 1));
+                auto outlineItem = static_cast<QmlOutlineItem*>(targetItem->child(row - 1));
                 memberToInsertAfter = m_itemToNode.value(outlineItem)->uiObjectMemberCast();
             }
         }
@@ -888,8 +888,8 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
 
     Rewriter rewriter(documentText, changeSet, QStringList());
 
-    if (AST::UiObjectDefinition *objDefinition = AST::cast<AST::UiObjectDefinition*>(newParent)) {
-        AST::UiObjectMemberList *listInsertAfter = 0;
+    if (auto objDefinition = AST::cast<const AST::UiObjectDefinition*>(newParent)) {
+        AST::UiObjectMemberList *listInsertAfter = nullptr;
         if (insertionOrderSpecified) {
             if (insertAfter) {
                 listInsertAfter = objDefinition->initializer->members;
@@ -898,7 +898,7 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
             }
         }
 
-        if (AST::UiScriptBinding *moveScriptBinding = AST::cast<AST::UiScriptBinding*>(toMove)) {
+        if (auto moveScriptBinding = AST::cast<const AST::UiScriptBinding*>(toMove)) {
             const QString propertyName = asString(moveScriptBinding->qualifiedId);
             QString propertyValue;
             {
@@ -925,8 +925,8 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
             else
                 *addedRange = rewriter.addObject(objDefinition->initializer, strToMove);
         }
-    } else if (AST::UiArrayBinding *arrayBinding = AST::cast<AST::UiArrayBinding*>(newParent)) {
-        AST::UiArrayMemberList *listInsertAfter = 0;
+    } else if (auto arrayBinding = AST::cast<AST::UiArrayBinding*>(newParent)) {
+        AST::UiArrayMemberList *listInsertAfter = nullptr;
         if (insertionOrderSpecified) {
             if (insertAfter) {
                 listInsertAfter = arrayBinding->members;
@@ -1000,7 +1000,7 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::ExpressionNode *exprNode) 
 }
 
 AST::SourceLocation QmlOutlineModel::getLocation(AST::PatternPropertyList *propertyNode) {
-    if (AST::PatternProperty *assignment = AST::cast<AST::PatternProperty *>(propertyNode->property))
+    if (auto assignment = AST::cast<AST::PatternProperty *>(propertyNode->property))
         return getLocation(assignment);
     return propertyNode->firstSourceLocation(); // should never happen
 }
@@ -1045,7 +1045,7 @@ QString QmlOutlineModel::getAnnotation(AST::UiObjectInitializer *objectInitializ
 
 QString QmlOutlineModel::getAnnotation(AST::Statement *statement)
 {
-    if (AST::ExpressionStatement *expr = AST::cast<AST::ExpressionStatement*>(statement))
+    if (auto expr = AST::cast<const AST::ExpressionStatement*>(statement))
         return getAnnotation(expr->expression);
     return QString();
 }
@@ -1065,7 +1065,7 @@ QString QmlOutlineModel::getAnnotation(AST::ExpressionNode *expression)
 QHash<QString,QString> QmlOutlineModel::getScriptBindings(AST::UiObjectInitializer *objectInitializer) {
     QHash <QString,QString> scriptBindings;
     for (AST::UiObjectMemberList *it = objectInitializer->members; it; it = it->next) {
-        if (AST::UiScriptBinding *binding = AST::cast<AST::UiScriptBinding*>(it->member)) {
+        if (auto binding = AST::cast<const AST::UiScriptBinding*>(it->member)) {
             const QString bindingName = asString(binding->qualifiedId);
             scriptBindings.insert(bindingName, getAnnotation(binding->statement));
         }

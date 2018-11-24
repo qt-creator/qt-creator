@@ -51,29 +51,29 @@ public:
     QmlJSOutlineFilterModel(QObject *parent);
     // QSortFilterProxyModel
     bool filterAcceptsRow(int sourceRow,
-                          const QModelIndex &sourceParent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    Qt::DropActions supportedDragActions() const;
+                          const QModelIndex &sourceParent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    Qt::DropActions supportedDragActions() const override;
 
     bool filterBindings() const;
     void setFilterBindings(bool filterBindings);
 private:
-    bool m_filterBindings;
+    bool m_filterBindings = false;
 };
 
 class QmlJSOutlineWidget : public TextEditor::IOutlineWidget
 {
     Q_OBJECT
 public:
-    QmlJSOutlineWidget(QWidget *parent = 0);
+    QmlJSOutlineWidget(QWidget *parent = nullptr);
 
     void setEditor(QmlJSEditorWidget *editor);
 
     // IOutlineWidget
-    virtual QList<QAction*> filterMenuActions() const override;
-    virtual void setCursorSynchronization(bool syncWithCursor) override;
-    virtual void restoreSettings(const QVariantMap &map) override;
-    virtual QVariantMap settings() const override;
+    QList<QAction*> filterMenuActions() const override;
+    void setCursorSynchronization(bool syncWithCursor) override;
+    void restoreSettings(const QVariantMap &map) override;
+    QVariantMap settings() const override;
 
 private:
     void updateSelectionInTree(const QModelIndex &index);
@@ -98,8 +98,8 @@ class QmlJSOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory
 {
     Q_OBJECT
 public:
-    bool supportsEditor(Core::IEditor *editor) const;
-    TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor);
+    bool supportsEditor(Core::IEditor *editor) const override;
+    TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) override;
 };
 
 } // namespace Internal

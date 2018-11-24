@@ -34,9 +34,9 @@ class QmlJSOutlineTreeView : public Utils::NavigationTreeView
 {
     Q_OBJECT
 public:
-    explicit QmlJSOutlineTreeView(QWidget *parent = 0);
+    explicit QmlJSOutlineTreeView(QWidget *parent = nullptr);
 
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
     void collapseAllExceptRoot();

@@ -58,23 +58,16 @@ enum {
 struct Declaration
 {
     QString text;
-    int startLine;
-    int startColumn;
-    int endLine;
-    int endColumn;
-
-    Declaration()
-        : startLine(0),
-        startColumn(0),
-        endLine(0),
-        endColumn(0)
-    { }
+    int startLine = 0;
+    int startColumn = 0;
+    int endLine = 0;
+    int endColumn = 0;
 };
 
 class FindIdDeclarations: protected Visitor
 {
 public:
-    typedef QHash<QString, QList<AST::SourceLocation> > Result;
+    using Result = QHash<QString, QList<AST::SourceLocation> >;
 
     Result operator()(Document::Ptr doc)
     {
@@ -111,8 +104,8 @@ protected:
     bool visit(AST::UiScriptBinding *node) override
     {
         if (asString(node->qualifiedId) == QLatin1String("id")) {
-            if (AST::ExpressionStatement *stmt = AST::cast<AST::ExpressionStatement*>(node->statement)) {
-                if (AST::IdentifierExpression *idExpr = AST::cast<AST::IdentifierExpression *>(stmt->expression)) {
+            if (auto stmt = AST::cast<const AST::ExpressionStatement*>(node->statement)) {
+                if (auto idExpr = AST::cast<const AST::IdentifierExpression *>(stmt->expression)) {
                     if (!idExpr->name.isEmpty()) {
                         const QString &id = idExpr->name.toString();
                         QList<AST::SourceLocation> *locs = &_ids[id];
@@ -331,8 +324,8 @@ protected:
 
     bool visit(AST::BinaryExpression *ast) override
     {
-        AST::FieldMemberExpression *field = AST::cast<AST::FieldMemberExpression *>(ast->left);
-        AST::FunctionExpression *funcExpr = AST::cast<AST::FunctionExpression *>(ast->right);
+        auto field = AST::cast<const AST::FieldMemberExpression *>(ast->left);
+        auto funcExpr = AST::cast<const AST::FunctionExpression *>(ast->right);
 
         if (field && funcExpr && funcExpr->body && (ast->op == QSOperator::Assign)) {
             Declaration decl;
@@ -368,7 +361,7 @@ public:
     {
         _textDocument = textDocument;
         _ranges.clear();
-        if (doc && doc->ast() != 0)
+        if (doc && doc->ast() != nullptr)
             doc->ast()->accept(this);
         return _ranges;
     }
@@ -414,7 +407,7 @@ protected:
 
     bool visit(AST::UiScriptBinding *ast) override
     {
-        if (AST::Block *block = AST::cast<AST::Block *>(ast->statement))
+        if (auto block = AST::cast<AST::Block *>(ast->statement))
             _ranges.append(createRange(ast, block));
         return true;
     }

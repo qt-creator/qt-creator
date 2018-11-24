@@ -38,10 +38,10 @@ namespace QmlJSEditor {
 
 namespace Internal { class QmlJSQuickFixAssistInterface; }
 
-typedef QSharedPointer<const Internal::QmlJSQuickFixAssistInterface> QmlJSQuickFixInterface;
-typedef TextEditor::QuickFixOperation QuickFixOperation;
-typedef TextEditor::QuickFixOperations QuickFixOperations;
-typedef TextEditor::QuickFixInterface QuickFixInterface;
+using QmlJSQuickFixInterface = QSharedPointer<const Internal::QmlJSQuickFixAssistInterface>;
+using TextEditor::QuickFixOperation;
+using TextEditor::QuickFixOperations;
+using TextEditor::QuickFixInterface;
 
 /*!
     A quick-fix operation for the QML/JavaScript editor.
@@ -60,7 +60,7 @@ public:
     void perform() override;
 
 protected:
-    typedef Utils::ChangeSet::Range Range;
+    using Range = Utils::ChangeSet::Range;
 
     virtual void performChanges(QmlJSTools::QmlJSRefactoringFilePtr currentFile,
                                 const QmlJSTools::QmlJSRefactoringChanges &refactoring) = 0;

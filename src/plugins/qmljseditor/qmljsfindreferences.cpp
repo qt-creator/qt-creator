@@ -70,7 +70,7 @@ namespace {
 class FindUsages: protected Visitor
 {
 public:
-    typedef QList<AST::SourceLocation> Result;
+    using Result = QList<AST::SourceLocation>;
 
     FindUsages(Document::Ptr doc, const ContextPtr &context)
         : _doc(doc)
@@ -276,7 +276,7 @@ private:
 
     bool checkLookup()
     {
-        const ObjectValue *scope = 0;
+        const ObjectValue *scope = nullptr;
         _scopeChain.lookup(_name, &scope);
         return check(scope);
     }
@@ -288,13 +288,13 @@ private:
     ScopeBuilder _builder;
 
     QString _name;
-    const ObjectValue *_scope;
+    const ObjectValue *_scope = nullptr;
 };
 
 class FindTypeUsages: protected Visitor
 {
 public:
-    typedef QList<AST::SourceLocation> Result;
+    using Result = QList<AST::SourceLocation>;
 
     FindTypeUsages(Document::Ptr doc, const ContextPtr &context)
         : _doc(doc)
@@ -449,7 +449,7 @@ private:
     ScopeBuilder _builder;
 
     QString _name;
-    const ObjectValue *_typeValue;
+    const ObjectValue *_typeValue = nullptr;
 };
 
 class FindTargetExpression: protected Visitor
@@ -468,8 +468,8 @@ public:
     void operator()(quint32 offset)
     {
         _name.clear();
-        _scope = 0;
-        _objectNode = 0;
+        _scope = nullptr;
+        _objectNode = nullptr;
         _offset = offset;
         _typeKind = ExpKind;
         if (_doc)
@@ -587,7 +587,7 @@ protected:
             if (node->defaultToken.isValid()) {
                 _name = node->memberType->name.toString();
                 _targetValue = _scopeChain->context()->lookupType(_doc.data(), QStringList(_name));
-                _scope = 0;
+                _scope = nullptr;
                 _typeKind = TypeKind;
             }
             return false;
@@ -648,7 +648,7 @@ private:
         for (UiQualifiedId *att = id; att; att = att->next) {
             if (!att->name.isEmpty() && containsOffset(att->identifierToken)) {
                 _targetValue = _scopeChain->context()->lookupType(_doc.data(), id, att->next);
-                _scope = 0;
+                _scope = nullptr;
                 _name = att->name.toString();
                 _typeKind = TypeKind;
                 return true;
@@ -666,13 +666,13 @@ private:
     }
 
     QString _name;
-    const ObjectValue *_scope;
-    const Value *_targetValue;
-    Node *_objectNode;
+    const ObjectValue *_scope = nullptr;
+    const Value *_targetValue = nullptr;
+    Node *_objectNode = nullptr;
     Document::Ptr _doc;
-    const ScopeChain *_scopeChain;
-    quint32 _offset;
-    Kind _typeKind;
+    const ScopeChain *_scopeChain = nullptr;
+    quint32 _offset = 0;
+    Kind _typeKind = ExpKind;
 };
 
 static QString matchingLine(unsigned position, const QString &source)
@@ -687,8 +687,8 @@ static QString matchingLine(unsigned position, const QString &source)
 class ProcessFile
 {
     ContextPtr context;
-    typedef FindReferences::Usage Usage;
-    QString name;
+    using Usage = FindReferences::Usage;
+    const QString name;
     const ObjectValue *scope;
     QFutureInterface<Usage> *future;
 
@@ -698,7 +698,7 @@ public:
     using result_type = QList<Usage>;
 
     ProcessFile(const ContextPtr &context,
-                QString name,
+                const QString &name,
                 const ObjectValue *scope,
                 QFutureInterface<Usage> *future)
         : context(context), name(name), scope(scope), future(future)
@@ -729,8 +729,8 @@ public:
 class SearchFileForType
 {
     ContextPtr context;
-    typedef FindReferences::Usage Usage;
-    QString name;
+    using Usage = FindReferences::Usage;
+    const QString name;
     const ObjectValue *scope;
     QFutureInterface<Usage> *future;
 
@@ -740,7 +740,7 @@ public:
     using result_type = QList<Usage>;
 
     SearchFileForType(const ContextPtr &context,
-                      QString name,
+                      const QString &name,
                       const ObjectValue *scope,
                       QFutureInterface<Usage> *future)
         : context(context), name(name), scope(scope), future(future)
@@ -770,7 +770,7 @@ public:
 
 class UpdateUI
 {
-    typedef FindReferences::Usage Usage;
+    using Usage = FindReferences::Usage;
     QFutureInterface<Usage> *future;
 
 public:
@@ -800,14 +800,12 @@ FindReferences::FindReferences(QObject *parent)
     connect(&m_watcher, &QFutureWatcherBase::finished, this, &FindReferences::searchFinished);
 }
 
-FindReferences::~FindReferences()
-{
-}
+FindReferences::~FindReferences() = default;
 
 static void find_helper(QFutureInterface<FindReferences::Usage> &future,
-                        const ModelManagerInterface::WorkingCopy workingCopy,
+                        const ModelManagerInterface::WorkingCopy &workingCopy,
                         Snapshot snapshot,
-                        const QString fileName,
+                        const QString &fileName,
                         quint32 offset,
                         QString replacement)
 {
@@ -925,7 +923,7 @@ void FindReferences::renameUsages(const QString &fileName, quint32 offset,
     m_watcher.setFuture(result);
 }
 
-QList<FindReferences::Usage> FindReferences::findUsageOfType(const QString &fileName, const QString typeName)
+QList<FindReferences::Usage> FindReferences::findUsageOfType(const QString &fileName, const QString &typeName)
 {
     QList<Usage> usages;
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
@@ -1006,7 +1004,7 @@ void FindReferences::searchFinished()
 {
     if (m_currentSearch)
         m_currentSearch->finishSearch(m_watcher.isCanceled());
-    m_currentSearch = 0;
+    m_currentSearch = nullptr;
     emit changed();
 }
 

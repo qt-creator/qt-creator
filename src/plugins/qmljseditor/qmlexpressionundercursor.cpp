@@ -43,11 +43,8 @@ class ExpressionUnderCursor
     Scanner scanner;
 
 public:
-    ExpressionUnderCursor()
-        : start(0), end(0)
-    {}
-
-    int start, end;
+    int start = 0;
+    int end = 0;
 
     int startState(const QTextBlock &block) const
     {
@@ -117,12 +114,12 @@ using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
 QmlExpressionUnderCursor::QmlExpressionUnderCursor()
-    : _expressionNode(0), _expressionOffset(0), _expressionLength(0)
+    : _expressionNode(nullptr), _expressionOffset(0), _expressionLength(0)
 {}
 
 ExpressionNode *QmlExpressionUnderCursor::operator()(const QTextCursor &cursor)
 {
-    _expressionNode = 0;
+    _expressionNode = nullptr;
     _expressionOffset = -1;
     _expressionLength = -1;
 

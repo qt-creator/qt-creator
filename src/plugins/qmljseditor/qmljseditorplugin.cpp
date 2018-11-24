@@ -241,7 +241,7 @@ QuickToolBar *QmlJSEditorPlugin::quickToolBar()
 
 void QmlJSEditorPluginPrivate::renameUsages()
 {
-    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
+    if (auto editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->renameUsages();
 }
 
@@ -293,7 +293,7 @@ void QmlJSEditorPluginPrivate::reformatFile()
 
 void QmlJSEditorPluginPrivate::showContextPane()
 {
-    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
+    if (auto editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->showContextPane();
 }
 

@@ -57,7 +57,7 @@ static inline const ObjectValue * getPropertyChangesTarget(Node *node, const Sco
     UiObjectInitializer *initializer = initializerOfObject(node);
     if (initializer) {
         for (UiObjectMemberList *members = initializer->members; members; members = members->next) {
-            if (UiScriptBinding *scriptBinding = cast<UiScriptBinding *>(members->member)) {
+            if (auto scriptBinding = cast<const UiScriptBinding *>(members->member)) {
                 if (scriptBinding->qualifiedId
                         && scriptBinding->qualifiedId->name == QLatin1String("target")
                         && ! scriptBinding->qualifiedId->next) {
@@ -66,12 +66,12 @@ static inline const ObjectValue * getPropertyChangesTarget(Node *node, const Sco
                     if (const ObjectValue *targetObject = value_cast<ObjectValue>(targetValue))
                         return targetObject;
                     else
-                        return 0;
+                        return nullptr;
                 }
             }
         }
     }
-    return 0;
+    return nullptr;
 }
 
 QuickToolBar::QuickToolBar()
@@ -105,7 +105,7 @@ QuickToolBar::QuickToolBar()
 QuickToolBar::~QuickToolBar()
 {
     delete m_widget.data();
-    m_widget = 0;
+    m_widget = nullptr;
 }
 
 void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::Ptr document, const ScopeChain *scopeChain, Node *node, bool update, bool force)
@@ -153,13 +153,13 @@ void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::P
     contextWidget()->colorDialog()->setParent(editorWidget->parentWidget());
 
     if (cast<UiObjectDefinition*>(node) || cast<UiObjectBinding*>(node)) {
-        UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node);
-        UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node);
+        auto objectDefinition = cast<const UiObjectDefinition*>(node);
+        auto objectBinding = cast<const UiObjectBinding*>(node);
 
         QString name;
         quint32 offset = 0;
         quint32 end = 0;
-        UiObjectInitializer *initializer = 0;
+        UiObjectInitializer *initializer = nullptr;
         if (objectDefinition) {
             name = objectDefinition->qualifiedTypeNameId->name.toString();
             initializer = objectDefinition->initializer;
@@ -199,7 +199,7 @@ void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::P
         reg = reg.intersected(rect);
 
         if (contextWidget()->acceptsType(m_prototypes)) {
-            m_node = 0;
+            m_node = nullptr;
             PropertyReader propertyReader(document, initializer);
             QTextCursor tc = m_editorWidget->textCursor();
             tc.setPosition(offset);
@@ -224,12 +224,12 @@ void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::P
             m_doc = document;
             m_node = node;
         } else {
-            contextWidget()->setParent(0);
+            contextWidget()->setParent(nullptr);
             contextWidget()->hide();
             contextWidget()->colorDialog()->hide();
         }
     } else {
-        contextWidget()->setParent(0);
+        contextWidget()->setParent(nullptr);
         contextWidget()->hide();
         contextWidget()->colorDialog()->hide();
     }
@@ -248,8 +248,8 @@ bool QuickToolBar::isAvailable(TextEditor::TextEditorWidget *, Document::Ptr doc
 
     QString name;
 
-    UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node);
-    UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node);
+    auto objectDefinition = cast<const UiObjectDefinition*>(node);
+    auto objectBinding = cast<const UiObjectBinding*>(node);
     if (objectDefinition)
         name = objectDefinition->qualifiedTypeNameId->name.toString();
 
@@ -281,10 +281,10 @@ void QuickToolBar::setProperty(const QString &propertyName, const QVariant &valu
         stringValue = QLatin1Char('\"') + value.toString() + QLatin1Char('\"');
 
     if (cast<UiObjectDefinition*>(m_node) || cast<UiObjectBinding*>(m_node)) {
-        UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(m_node);
-        UiObjectBinding *objectBinding = cast<UiObjectBinding*>(m_node);
+        auto objectDefinition = cast<const UiObjectDefinition*>(m_node);
+        auto objectBinding = cast<const UiObjectBinding*>(m_node);
 
-        UiObjectInitializer *initializer = 0;
+        UiObjectInitializer *initializer = nullptr;
         if (objectDefinition)
             initializer = objectDefinition->initializer;
         else if (objectBinding)
@@ -326,10 +326,10 @@ void QuickToolBar::setProperty(const QString &propertyName, const QVariant &valu
 void QuickToolBar::removeProperty(const QString &propertyName)
 {
     if (cast<UiObjectDefinition*>(m_node) || cast<UiObjectBinding*>(m_node)) {
-        UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(m_node);
-        UiObjectBinding *objectBinding = cast<UiObjectBinding*>(m_node);
+        auto objectDefinition = cast<const UiObjectDefinition*>(m_node);
+        auto objectBinding = cast<const UiObjectBinding*>(m_node);
 
-        UiObjectInitializer *initializer = 0;
+        UiObjectInitializer *initializer = nullptr;
         if (objectDefinition)
             initializer = objectDefinition->initializer;
         else if (objectBinding)

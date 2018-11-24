@@ -86,7 +86,7 @@ void QmlJSTextMark::removedFromEditor()
     m_removedFromEditorHandler(this);
 }
 
-void QmlJSTextMark::init(bool warning, const QString message)
+void QmlJSTextMark::init(bool warning, const QString &message)
 {
     setIcon(warning ? Utils::Icons::CODEMODEL_WARNING.icon()
                     : Utils::Icons::CODEMODEL_ERROR.icon());

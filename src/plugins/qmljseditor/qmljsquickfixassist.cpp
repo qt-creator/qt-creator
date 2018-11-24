@@ -53,8 +53,7 @@ QmlJSQuickFixAssistInterface::QmlJSQuickFixAssistInterface(QmlJSEditorWidget *ed
     , m_currentFile(QmlJSRefactoringChanges::file(editor, m_semanticInfo.document))
 {}
 
-QmlJSQuickFixAssistInterface::~QmlJSQuickFixAssistInterface()
-{}
+QmlJSQuickFixAssistInterface::~QmlJSQuickFixAssistInterface() = default;
 
 const SemanticInfo &QmlJSQuickFixAssistInterface::semanticInfo() const
 {

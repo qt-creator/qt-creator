@@ -48,8 +48,8 @@ public:
     QmlOutlineItem(QmlOutlineModel *model);
 
     // QStandardItem
-    QVariant data(int role = Qt::UserRole + 1) const;
-    int type() const;
+    QVariant data(int role = Qt::UserRole + 1) const override;
+    int type() const override;
 
     void setItemData(const QMap<int, QVariant> &roles);
 
@@ -79,12 +79,12 @@ public:
     QmlOutlineModel(QmlJSEditorDocument *document);
 
     // QStandardItemModel
-    QStringList mimeTypes() const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex  &parent);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    Qt::DropActions supportedDragActions() const;
-    Qt::DropActions supportedDropActions() const;
+    QStringList mimeTypes() const override;
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex  &parent) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    Qt::DropActions supportedDragActions() const override;
+    Qt::DropActions supportedDropActions() const override;
 
     QmlJS::Document::Ptr document() const;
     void update(const QmlJSTools::SemanticInfo &semanticInfo);

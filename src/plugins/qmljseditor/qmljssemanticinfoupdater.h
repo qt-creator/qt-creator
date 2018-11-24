@@ -40,8 +40,8 @@ class SemanticInfoUpdater: public QThread
     Q_OBJECT
 
 public:
-    SemanticInfoUpdater(QObject *parent = 0);
-    virtual ~SemanticInfoUpdater();
+    SemanticInfoUpdater(QObject *parent = nullptr);
+    ~SemanticInfoUpdater() override;
 
     void abort();
     void update(const QmlJS::Document::Ptr &doc, const QmlJS::Snapshot &snapshot);
@@ -51,7 +51,7 @@ signals:
     void updated(const QmlJSTools::SemanticInfo &semanticInfo);
 
 protected:
-    virtual void run();
+    void run() override;
 
 private:
     QmlJSTools::SemanticInfo makeNewSemanticInfo(const QmlJS::Document::Ptr &doc,

@@ -133,11 +133,9 @@ static bool isCompleteStringLiteral(const QStringRef &text)
     return false;
 }
 
-AutoCompleter::AutoCompleter()
-{}
+AutoCompleter::AutoCompleter() = default;
 
-AutoCompleter::~AutoCompleter()
-{}
+AutoCompleter::~AutoCompleter() = default;
 
 bool AutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
                                               const QString &textToInsert) const

@@ -38,7 +38,7 @@ QT_END_NAMESPACE
 namespace QmlJS {
 class ScopeChain;
 class Context;
-typedef QSharedPointer<const Context> ContextPtr;
+using ContextPtr = QSharedPointer<const Context>;
 class Value;
 class ObjectValue;
 }
@@ -82,7 +82,7 @@ private:
                         const QmlJS::Document::Ptr &qmlDocument,
                         QmlJS::AST::Node *node);
 
-    QmlJS::ModelManagerInterface *m_modelManager;
+    QmlJS::ModelManagerInterface *m_modelManager = nullptr;
     QColor m_colorTip;
 };
 

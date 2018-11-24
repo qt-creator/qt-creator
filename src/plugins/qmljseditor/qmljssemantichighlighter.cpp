@@ -72,7 +72,7 @@ static bool isIdScope(const ObjectValue *scope, const QList<const QmlComponentCh
 class CollectStateNames : protected Visitor
 {
     QStringList m_stateNames;
-    bool m_inStateType;
+    bool m_inStateType = false;
     ScopeChain m_scopeChain;
     const CppComponentValue *m_statePrototype;
 
@@ -100,7 +100,7 @@ protected:
             ast->accept(this);
     }
 
-    bool preVisit(Node *ast)
+    bool preVisit(Node *ast) override
     {
         return ast->uiObjectMemberCast()
                 || cast<UiProgram *>(ast)
@@ -127,7 +127,7 @@ protected:
         return false;
     }
 
-    bool visit(UiObjectDefinition *ast)
+    bool visit(UiObjectDefinition *ast) override
     {
         const bool old = m_inStateType;
         m_inStateType = hasStatePrototype(ast);
@@ -136,7 +136,7 @@ protected:
         return false;
     }
 
-    bool visit(UiObjectBinding *ast)
+    bool visit(UiObjectBinding *ast) override
     {
         const bool old = m_inStateType;
         m_inStateType = hasStatePrototype(ast);
@@ -145,7 +145,7 @@ protected:
         return false;
     }
 
-    bool visit(UiScriptBinding *ast)
+    bool visit(UiScriptBinding *ast) override
     {
         if (!m_inStateType)
             return false;
@@ -154,10 +154,10 @@ protected:
         if (ast->qualifiedId->name != QLatin1String("name"))
             return false;
 
-        ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement);
+        auto expStmt = cast<const ExpressionStatement *>(ast->statement);
         if (!expStmt)
             return false;
-        StringLiteral *strLit = cast<StringLiteral *>(expStmt->expression);
+        auto strLit = cast<const StringLiteral *>(expStmt->expression);
         if (!strLit || strLit->value.isEmpty())
             return false;
 
@@ -237,7 +237,7 @@ protected:
             return;
 
         const QString &nameStr = name.toString();
-        const ObjectValue *scope = 0;
+        const ObjectValue *scope = nullptr;
         const Value *value = m_scopeChain.lookup(nameStr, &scope);
         if (!value || !scope)
             return;
@@ -284,13 +284,13 @@ protected:
         addUse(fullLocationForQualifiedId(localId), SemanticHighlighter::BindingNameType);
     }
 
-    bool visit(UiImport *ast)
+    bool visit(UiImport *ast) override
     {
         processName(ast->importId, ast->importIdToken);
         return true;
     }
 
-    bool visit(UiObjectDefinition *ast)
+    bool visit(UiObjectDefinition *ast) override
     {
         if (m_scopeChain.document()->bind()->isGroupedPropertyBinding(ast))
             processBindingName(ast->qualifiedTypeNameId);
@@ -300,7 +300,7 @@ protected:
         return false;
     }
 
-    bool visit(UiObjectBinding *ast)
+    bool visit(UiObjectBinding *ast) override
     {
         processTypeId(ast->qualifiedTypeNameId);
         processBindingName(ast->qualifiedId);
@@ -308,20 +308,20 @@ protected:
         return false;
     }
 
-    bool visit(UiScriptBinding *ast)
+    bool visit(UiScriptBinding *ast) override
     {
         processBindingName(ast->qualifiedId);
         scopedAccept(ast, ast->statement);
         return false;
     }
 
-    bool visit(UiArrayBinding *ast)
+    bool visit(UiArrayBinding *ast) override
     {
         processBindingName(ast->qualifiedId);
         return true;
     }
 
-    bool visit(UiPublicMember *ast)
+    bool visit(UiPublicMember *ast) override
     {
         if (ast->typeToken.isValid()) { // TODO: ast->isValid() ?
             if (m_scopeChain.context()->lookupType(m_scopeChain.document().data(), QStringList(ast->memberType->name.toString())))
@@ -338,32 +338,32 @@ protected:
         return false;
     }
 
-    bool visit(FunctionExpression *ast)
+    bool visit(FunctionExpression *ast) override
     {
         processName(ast->name, ast->identifierToken);
         scopedAccept(ast, ast->body);
         return false;
     }
 
-    bool visit(FunctionDeclaration *ast)
+    bool visit(FunctionDeclaration *ast) override
     {
         return visit(static_cast<FunctionExpression *>(ast));
     }
 
-    bool visit(PatternElement *ast)
+    bool visit(PatternElement *ast) override
     {
         if (ast->isVariableDeclaration())
             processName(ast->bindingIdentifier, ast->identifierToken);
         return true;
     }
 
-    bool visit(IdentifierExpression *ast)
+    bool visit(IdentifierExpression *ast) override
     {
         processName(ast->name, ast->identifierToken);
         return false;
     }
 
-    bool visit(StringLiteral *ast)
+    bool visit(StringLiteral *ast) override
     {
         if (ast->value.isEmpty())
             return false;

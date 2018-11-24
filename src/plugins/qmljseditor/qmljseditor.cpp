@@ -295,7 +295,7 @@ void QmlJSEditorWidget::updateContextPane()
         Node *oldNode = info.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = info.declaringMemberNoProperties(position());
         if (oldNode != newNode && m_oldCursorPosition != -1)
-            m_contextPane->apply(this, info.document, 0, newNode, false);
+            m_contextPane->apply(this, info.document, nullptr, newNode, false);
 
         if (m_contextPane->isAvailable(this, info.document, newNode) &&
             !m_contextPane->widget()->isVisible()) {
@@ -357,14 +357,11 @@ void QmlJSEditorWidget::updateUses()
 
 class SelectedElement: protected Visitor
 {
-    unsigned m_cursorPositionStart;
-    unsigned m_cursorPositionEnd;
+    unsigned m_cursorPositionStart = 0;
+    unsigned m_cursorPositionEnd = 0;
     QList<UiObjectMember *> m_selectedMembers;
 
 public:
-    SelectedElement()
-        : m_cursorPositionStart(0), m_cursorPositionEnd(0) {}
-
     QList<UiObjectMember *> operator()(const Document::Ptr &doc, unsigned startPosition, unsigned endPosition)
     {
         m_cursorPositionStart = startPosition;
@@ -390,7 +387,7 @@ protected:
 
     inline bool isIdBinding(UiObjectMember *member) const
     {
-        if (UiScriptBinding *script = cast<UiScriptBinding *>(member)) {
+        if (auto script = cast<const UiScriptBinding *>(member)) {
             if (! script->qualifiedId)
                 return false;
             else if (script->qualifiedId->name.isEmpty())
@@ -422,7 +419,7 @@ protected:
         return (m_cursorPositionStart != m_cursorPositionEnd);
     }
 
-    void postVisit(Node *ast)
+    void postVisit(Node *ast) override
     {
         if (!isRangeSelected() && !m_selectedMembers.isEmpty())
             return; // nothing to do, we already have the results.
@@ -511,9 +508,9 @@ void QmlJSEditorWidget::createToolBar()
     m_outlineCombo->setMinimumContentsLength(22);
     m_outlineCombo->setModel(m_qmlJsEditorDocument->outlineModel());
 
-    QTreeView *treeView = new QTreeView;
+    auto treeView = new QTreeView;
 
-    Utils::AnnotatedItemDelegate *itemDelegate = new Utils::AnnotatedItemDelegate(this);
+    auto itemDelegate = new Utils::AnnotatedItemDelegate(this);
     itemDelegate->setDelimiter(QLatin1String(" "));
     itemDelegate->setAnnotationRole(QmlOutlineModel::AnnotationRole);
     treeView->setItemDelegateForColumn(0, itemDelegate);
@@ -620,13 +617,13 @@ static const CppComponentValue *findCppComponentToInspect(const SemanticInfo &se
 {
     AST::Node *node = semanticInfo.astNodeAt(cursorPosition);
     if (!node)
-        return 0;
+        return nullptr;
 
     const ScopeChain scopeChain = semanticInfo.scopeChain(semanticInfo.rangePath(cursorPosition));
     Evaluate evaluator(&scopeChain);
     const Value *value = evaluator.reference(node);
     if (!value)
-        return 0;
+        return nullptr;
 
     return value->asCppComponentValue();
 }
@@ -726,7 +723,7 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     AST::Node *node = semanticInfo.astNodeAt(cursorPosition);
     QTC_ASSERT(node, return;);
 
-    if (AST::UiImport *importAst = cast<AST::UiImport *>(node)) {
+    if (auto importAst = cast<const AST::UiImport *>(node)) {
         // if it's a file import, link to the file
         foreach (const ImportInfo &import, semanticInfo.document->bind()->imports()) {
             if (import.ast() == importAst && import.type() == ImportType::File) {
@@ -742,7 +739,7 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     }
 
     // string literals that could refer to a file link to them
-    if (StringLiteral *literal = cast<StringLiteral *>(node)) {
+    if (auto literal = cast<const StringLiteral *>(node)) {
         const QString &text = literal->value.toString();
         Utils::Link link;
         link.linkTextStart = literal->literalToken.begin();
@@ -777,8 +774,8 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     link.targetLine = line;
     link.targetColumn = column - 1; // adjust the column
 
-    if (AST::UiQualifiedId *q = AST::cast<AST::UiQualifiedId *>(node)) {
-        for (AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
+    if (auto q = AST::cast<const AST::UiQualifiedId *>(node)) {
+        for (const AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
             if (! tail->next && cursorPosition <= tail->identifierToken.end()) {
                 link.linkTextStart = tail->identifierToken.begin();
                 link.linkTextEnd = tail->identifierToken.end();
@@ -787,13 +784,13 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
             }
         }
 
-    } else if (AST::IdentifierExpression *id = AST::cast<AST::IdentifierExpression *>(node)) {
+    } else if (auto id = AST::cast<const AST::IdentifierExpression *>(node)) {
         link.linkTextStart = id->firstSourceLocation().begin();
         link.linkTextEnd = id->lastSourceLocation().end();
         processLinkCallback(link);
         return;
 
-    } else if (AST::FieldMemberExpression *mem = AST::cast<AST::FieldMemberExpression *>(node)) {
+    } else if (auto mem = AST::cast<const AST::FieldMemberExpression *>(node)) {
         link.linkTextStart = mem->lastSourceLocation().begin();
         link.linkTextEnd = mem->lastSourceLocation().end();
         processLinkCallback(link);
@@ -842,7 +839,7 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
             if (!proposal.isNull()) {
                 GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();
                 for (int index = 0; index < model->size(); ++index) {
-                    AssistProposalItem *item = static_cast<AssistProposalItem *>(model->proposalItem(index));
+                    auto item = static_cast<const AssistProposalItem *>(model->proposalItem(index));
                     QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
                     QAction *action = refactoringMenu->addAction(op->description());
                     connect(action, &QAction::triggered, this, [op]() { op->perform(); });
@@ -902,7 +899,7 @@ void QmlJSEditorWidget::wheelEvent(QWheelEvent *event)
     TextEditorWidget::wheelEvent(event);
 
     if (visible)
-        m_contextPane->apply(this, m_qmlJsEditorDocument->semanticInfo().document, 0,
+        m_contextPane->apply(this, m_qmlJsEditorDocument->semanticInfo().document, nullptr,
                              m_qmlJsEditorDocument->semanticInfo().declaringMemberNoProperties(m_oldCursorPosition),
                              false, true);
 }
@@ -934,7 +931,7 @@ void QmlJSEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
     if (m_contextPane) {
         Node *newNode = semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
-            m_contextPane->apply(this, semanticInfo.document, 0, newNode, true);
+            m_contextPane->apply(this, semanticInfo.document, nullptr, newNode, true);
             m_contextPaneTimer.start(); //update text marker
         }
     }
@@ -976,7 +973,8 @@ bool QmlJSEditorWidget::hideContextPane()
 {
     bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
     if (b)
-        m_contextPane->apply(this, m_qmlJsEditorDocument->semanticInfo().document, 0, 0, false);
+        m_contextPane->apply(this, m_qmlJsEditorDocument->semanticInfo().document,
+                             nullptr, nullptr, false);
     return b;
 }
 
@@ -993,7 +991,7 @@ AssistInterface *QmlJSEditorWidget::createAssistInterface(
     } else if (assistKind == QuickFix) {
         return new QmlJSQuickFixAssistInterface(const_cast<QmlJSEditorWidget *>(this), reason);
     }
-    return 0;
+    return nullptr;
 }
 
 QString QmlJSEditorWidget::foldReplacementText(const QTextBlock &block) const

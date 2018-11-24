@@ -72,11 +72,10 @@ namespace {
 
     AST::UiObjectInitializer *nodeInitializer(AST::Node *node)
     {
-        AST::UiObjectInitializer *initializer = 0;
-        if (const AST::UiObjectBinding *binding = AST::cast<const AST::UiObjectBinding *>(node))
+        AST::UiObjectInitializer *initializer = nullptr;
+        if (auto binding = AST::cast<const AST::UiObjectBinding*>(node))
             initializer = binding->initializer;
-         else if (const AST::UiObjectDefinition *definition =
-                  AST::cast<const AST::UiObjectDefinition *>(node))
+         else if (auto definition = AST::cast<const AST::UiObjectDefinition*>(node))
             initializer = definition->initializer;
         return initializer;
     }
@@ -92,7 +91,7 @@ namespace {
     }
 }
 
-QmlJSHoverHandler::QmlJSHoverHandler() : m_modelManager(0)
+QmlJSHoverHandler::QmlJSHoverHandler()
 {
     m_modelManager = ModelManagerInterface::instance();
 }
@@ -177,7 +176,7 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
         if (!urlMap.isEmpty())
             break;
         return false;
-    } while (0);
+    } while (false);
 
     // Check if the module name contains a major version.
     QRegularExpression version("^([^\\d]*)(\\d+)\\.*\\d*$");
@@ -211,7 +210,7 @@ void QmlJSHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, R
     if (!m_modelManager)
         return;
 
-    QmlJSEditorWidget *qmlEditor = qobject_cast<QmlJSEditorWidget *>(editorWidget);
+    auto qmlEditor = qobject_cast<QmlJSEditorWidget*>(editorWidget);
     QTC_ASSERT(qmlEditor, return);
 
     const QmlJSTools::SemanticInfo &semanticInfo = qmlEditor->qmlJsEditorDocument()->semanticInfo();
@@ -230,7 +229,7 @@ void QmlJSHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, R
     if (rangePath.isEmpty()) {
         // Is the cursor on an import? The ast path will have an UiImport
         // member in the last or second to last position!
-        AST::UiImport *import = 0;
+        AST::UiImport *import = nullptr;
         if (astPath.size() >= 1)
             import = AST::cast<AST::UiImport *>(astPath.last());
         if (!import && astPath.size() >= 2)
@@ -305,7 +304,7 @@ bool QmlJSHoverHandler::matchColorItem(const ScopeChain &scopeChain,
     if (!initializer)
         return false;
 
-    AST::UiObjectMember *member = 0;
+    AST::UiObjectMember *member = nullptr;
     for (AST::UiObjectMemberList *list = initializer->members; list; list = list->next) {
         if (posIsInSource(pos, list->member)) {
             member = list->member;
@@ -316,8 +315,8 @@ bool QmlJSHoverHandler::matchColorItem(const ScopeChain &scopeChain,
         return false;
 
     QString color;
-    const Value *value = 0;
-    if (const AST::UiScriptBinding *binding = AST::cast<const AST::UiScriptBinding *>(member)) {
+    const Value *value = nullptr;
+    if (auto binding = AST::cast<const AST::UiScriptBinding *>(member)) {
         if (binding->qualifiedId && posIsInSource(pos, binding->statement)) {
             value = scopeChain.evaluate(binding->qualifiedId);
             if (value && value->asColorValue()) {
@@ -326,8 +325,7 @@ bool QmlJSHoverHandler::matchColorItem(const ScopeChain &scopeChain,
                                binding->statement->lastSourceLocation());
             }
         }
-    } else if (const AST::UiPublicMember *publicMember =
-               AST::cast<const AST::UiPublicMember *>(member)) {
+    } else if (auto publicMember = AST::cast<const AST::UiPublicMember *>(member)) {
         if (!publicMember->name.isEmpty() && posIsInSource(pos, publicMember->statement)) {
             value = scopeChain.lookup(publicMember->name.toString());
             if (const Reference *ref = value->asReference())
@@ -440,33 +438,33 @@ void QmlJSHoverHandler::prettyPrintTooltip(const Value *value,
 static const ObjectValue *isMember(const ScopeChain &scopeChain,
                                                 AST::Node *node, QString *name)
 {
-    const ObjectValue *owningObject = 0;
-    if (AST::IdentifierExpression *identExp = AST::cast<AST::IdentifierExpression *>(node)) {
+    const ObjectValue *owningObject = nullptr;
+    if (auto identExp = AST::cast<const AST::IdentifierExpression *>(node)) {
         if (identExp->name.isEmpty())
-            return 0;
+            return nullptr;
         *name = identExp->name.toString();
         scopeChain.lookup(*name, &owningObject);
-    } else if (AST::FieldMemberExpression *fme = AST::cast<AST::FieldMemberExpression *>(node)) {
+    } else if (auto fme = AST::cast<const AST::FieldMemberExpression *>(node)) {
         if (!fme->base || fme->name.isEmpty())
-            return 0;
+            return nullptr;
         *name = fme->name.toString();
         const Value *base = scopeChain.evaluate(fme->base);
         if (!base)
-            return 0;
+            return nullptr;
         owningObject = base->asObjectValue();
         if (owningObject)
             owningObject->lookupMember(*name, scopeChain.context(), &owningObject);
-    } else if (AST::UiQualifiedId *qid = AST::cast<AST::UiQualifiedId *>(node)) {
+    } else if (auto qid = AST::cast<const AST::UiQualifiedId *>(node)) {
         if (qid->name.isEmpty())
-            return 0;
+            return nullptr;
         *name = qid->name.toString();
         const Value *value = scopeChain.lookup(*name, &owningObject);
         for (AST::UiQualifiedId *it = qid->next; it; it = it->next) {
             if (!value)
-                return 0;
+                return nullptr;
             const ObjectValue *next = value->asObjectValue();
             if (!next || it->name.isEmpty())
-                return 0;
+                return nullptr;
             *name = it->name.toString();
             value = next->lookupMember(*name, scopeChain.context(), &owningObject);
         }
@@ -483,7 +481,7 @@ bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
     if (const ObjectValue *scope = isMember(scopeChain, node, &name)) {
         // maybe it's a type?
         if (!name.isEmpty() && name.at(0).isUpper()) {
-            if (AST::UiQualifiedId *qualifiedId = AST::cast<AST::UiQualifiedId *>(node)) {
+            if (auto qualifiedId = AST::cast<AST::UiQualifiedId *>(node)) {
                 const ObjectValue *value = scopeChain.context()->lookupType(qmlDocument.data(), qualifiedId);
                 if (setQmlTypeHelp(scopeChain, qmlDocument, value, QStringList(qualifiedId->name.toString())))
                     return true;
@@ -513,7 +511,8 @@ bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
                     if (!HelpManager::linksForIdentifier(helpId).isEmpty())
                         break;
                     helpId.clear();
-                } while (0);
+                } while (false);
+
                 if (!helpId.isEmpty()) {
                     setLastHelpItemIdentified(HelpItem(helpId, name, HelpItem::QmlProperty));
                     return true;
@@ -525,7 +524,7 @@ bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
         }
     } else {
         // it might be a type, but the scope chain is broken (mismatched braces)
-        if (AST::UiQualifiedId *qualifiedId = AST::cast<AST::UiQualifiedId *>(node)) {
+        if (auto qualifiedId = AST::cast<AST::UiQualifiedId *>(node)) {
             const ObjectValue *value = scopeChain.context()->lookupType(qmlDocument.data(),
                                                                         qualifiedId);
             if (setQmlTypeHelp(scopeChain, qmlDocument, value,

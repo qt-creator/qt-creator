@@ -73,9 +73,9 @@ public:
     }
 
     void performChanges(QmlJSRefactoringFilePtr currentFile,
-                        const QmlJSRefactoringChanges &)
+                        const QmlJSRefactoringChanges &) override
     {
-        Q_ASSERT(_objectInitializer != 0);
+        Q_ASSERT(_objectInitializer);
 
         Utils::ChangeSet changes;
 
@@ -101,16 +101,16 @@ public:
 
 void matchSplitInitializerQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
 {
-    UiObjectInitializer *objectInitializer = 0;
+    UiObjectInitializer *objectInitializer = nullptr;
 
     const int pos = interface->currentFile()->cursor().position();
 
     if (Node *member = interface->semanticInfo().rangeAt(pos)) {
-        if (UiObjectBinding *b = AST::cast<UiObjectBinding *>(member)) {
+        if (auto b = AST::cast<const UiObjectBinding *>(member)) {
             if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
                 objectInitializer = b->initializer;
 
-        } else if (UiObjectDefinition *b = AST::cast<UiObjectDefinition *>(member)) {
+        } else if (auto b = AST::cast<const UiObjectDefinition *>(member)) {
             if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
                 objectInitializer = b->initializer;
         }

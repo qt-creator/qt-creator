@@ -82,7 +82,7 @@ class QmlJsEditingSettignsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit QmlJsEditingSettignsPageWidget(QWidget *parent = 0);
+    explicit QmlJsEditingSettignsPageWidget(QWidget *parent = nullptr);
 
     QmlJsEditingSettings settings() const;
     void setSettings(const QmlJsEditingSettings &);
@@ -101,9 +101,9 @@ class QmlJsEditingSettingsPage : public Core::IOptionsPage
 public:
     QmlJsEditingSettingsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<QmlJsEditingSettignsPageWidget> m_widget;

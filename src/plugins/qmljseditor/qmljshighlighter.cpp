@@ -45,9 +45,7 @@ QmlJSHighlighter::QmlJSHighlighter(QTextDocument *parent)
     setDefaultTextFormatCategories();
 }
 
-QmlJSHighlighter::~QmlJSHighlighter()
-{
-}
+QmlJSHighlighter::~QmlJSHighlighter() = default;
 
 bool QmlJSHighlighter::isQmlEnabled() const
 {
@@ -167,8 +165,7 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
     }
 
     int previousTokenEnd = 0;
-    for (int index = 0; index < tokens.size(); ++index) {
-        const Token &token = tokens.at(index);
+    for (const auto &token : tokens) {
         setFormat(previousTokenEnd, token.begin() - previousTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
 
         switch (token.kind) {

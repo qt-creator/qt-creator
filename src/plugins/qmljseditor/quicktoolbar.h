@@ -39,13 +39,13 @@ class QuickToolBar : public QmlJS::IContextPane
 
 public:
    QuickToolBar();
-   ~QuickToolBar();
-   void apply(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, const QmlJS::ScopeChain *scopeChain, QmlJS::AST::Node *node, bool update, bool force = false);
-   bool isAvailable(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, QmlJS::AST::Node *node);
+   ~QuickToolBar() override;
+   void apply(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, const QmlJS::ScopeChain *scopeChain, QmlJS::AST::Node *node, bool update, bool force = false) override;
+   bool isAvailable(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, QmlJS::AST::Node *node) override;
    void setProperty(const QString &propertyName, const QVariant &value);
    void removeProperty(const QString &propertyName);
-   void setEnabled(bool);
-   QWidget* widget();
+   void setEnabled(bool) override;
+   QWidget* widget() override;
 
    void onPropertyChanged(const QString &, const QVariant &);
    void onPropertyRemoved(const QString &);

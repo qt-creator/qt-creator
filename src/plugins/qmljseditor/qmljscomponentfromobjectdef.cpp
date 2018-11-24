@@ -170,7 +170,7 @@ public:
 
         if (doc->isParsedCorrectly()) {
 
-            UiObjectMember *astRootNode = 0;
+            UiObjectMember *astRootNode = nullptr;
             if (UiProgram *program = doc->qmlProgram())
                 if (program->members)
                     astRootNode = program->members->member;
@@ -240,7 +240,7 @@ void matchComponentFromObjectDefQuickFix(const QmlJSQuickFixInterface &interface
     QList<Node *> path = interface->semanticInfo().rangePath(pos);
     for (int i = path.size() - 1; i >= 0; --i) {
         Node *node = path.at(i);
-        if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
+        if (auto objDef = cast<UiObjectDefinition *>(node)) {
 
             if (!interface->currentFile()->isCursorOn(objDef->qualifiedTypeNameId))
                 return;
@@ -249,7 +249,7 @@ void matchComponentFromObjectDefQuickFix(const QmlJSQuickFixInterface &interface
                 result << new Operation(interface, objDef);
                 return;
             }
-        } else if (UiObjectBinding *objBinding = cast<UiObjectBinding *>(node)) {
+        } else if (auto objBinding = cast<UiObjectBinding *>(node)) {
             if (!interface->currentFile()->isCursorOn(objBinding->qualifiedTypeNameId))
                 return;
             result << new Operation(interface, objBinding);

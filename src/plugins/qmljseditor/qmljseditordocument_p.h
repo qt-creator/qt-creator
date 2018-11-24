@@ -50,7 +50,7 @@ class QmlJSEditorDocumentPrivate : public QObject
 
 public:
     QmlJSEditorDocumentPrivate(QmlJSEditorDocument *parent);
-    ~QmlJSEditorDocumentPrivate();
+    ~QmlJSEditorDocumentPrivate() override;
 
     void invalidateFormatterCache();
     void reparseDocument();

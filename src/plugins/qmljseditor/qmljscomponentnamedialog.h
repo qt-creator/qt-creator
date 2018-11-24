@@ -37,13 +37,13 @@ class ComponentNameDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ComponentNameDialog(QWidget *parent = 0);
-    ~ComponentNameDialog();
+    explicit ComponentNameDialog(QWidget *parent = nullptr);
+    ~ComponentNameDialog() override;
 
     static bool go(QString *proposedName, QString *proposedPath, QString *proposedSuffix,
                    const QStringList &properties, const QStringList &sourcePreview, const QString &oldFileName,
                    QStringList *result,
-                   QWidget *parent = 0);
+                   QWidget *parent = nullptr);
 
     void setProperties(const QStringList &properties);
 

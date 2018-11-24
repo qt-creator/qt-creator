@@ -39,14 +39,14 @@ class QMLJSEDITOR_EXPORT QmlJSHighlighter : public TextEditor::SyntaxHighlighter
     Q_OBJECT
 
 public:
-    QmlJSHighlighter(QTextDocument *parent = 0);
-    virtual ~QmlJSHighlighter();
+    QmlJSHighlighter(QTextDocument *parent = nullptr);
+    ~QmlJSHighlighter() override;
 
     bool isQmlEnabled() const;
     void setQmlEnabled(bool duiEnabled);
 
 protected:
-    virtual void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text) override;
 
     int onBlockStart();
     void onBlockEnd(int state);
