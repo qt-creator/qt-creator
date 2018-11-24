@@ -41,9 +41,7 @@ QnxQtVersionFactory::QnxQtVersionFactory(QObject *parent) :
 {
 }
 
-QnxQtVersionFactory::~QnxQtVersionFactory()
-{
-}
+QnxQtVersionFactory::~QnxQtVersionFactory() = default;
 
 bool QnxQtVersionFactory::canRestore(const QString &type)
 {
@@ -53,8 +51,8 @@ bool QnxQtVersionFactory::canRestore(const QString &type)
 QtSupport::BaseQtVersion *QnxQtVersionFactory::restore(const QString &type, const QVariantMap &data)
 {
     if (!canRestore(type))
-        return 0;
-    QnxQtVersion *v = new QnxQtVersion();
+        return nullptr;
+    auto v = new QnxQtVersion;
     v->fromMap(data);
     return v;
 }
@@ -71,11 +69,11 @@ QtSupport::BaseQtVersion *QnxQtVersionFactory::create(const Utils::FileName &qma
 {
     QFileInfo fi = qmakePath.toFileInfo();
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
-        return 0;
+        return nullptr;
 
     if (evaluator->contains(QLatin1String("QNX_CPUDIR"))) {
         return new QnxQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
     }
 
-    return 0;
+    return nullptr;
 }

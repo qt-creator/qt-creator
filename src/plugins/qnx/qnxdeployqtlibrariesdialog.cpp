@@ -229,7 +229,7 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
             m_ui->qtLibraryCombo->itemData(m_ui->qtLibraryCombo->currentIndex()).toInt();
 
 
-    QnxQtVersion *qtVersion = dynamic_cast<QnxQtVersion *>(QtVersionManager::version(qtVersionId));
+    auto qtVersion = dynamic_cast<const QnxQtVersion *>(QtVersionManager::version(qtVersionId));
 
     QTC_ASSERT(qtVersion, return result);
 
@@ -260,8 +260,7 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
     QFileInfoList list = dir.entryInfoList(nameFilters,
             QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
 
-    for (int i = 0; i < list.size(); ++i) {
-        QFileInfo fileInfo = list.at(i);
+    for (auto &fileInfo : list) {
         if (fileInfo.isDir()) {
             result.append(gatherFiles(fileInfo.absoluteFilePath(), baseDirPath.isEmpty() ?
                                           dirPath : baseDirPath));

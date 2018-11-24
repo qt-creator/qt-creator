@@ -90,11 +90,7 @@ QnxDevice::QnxDevice(const QString &name, Core::Id type, MachineType machineType
 {
 }
 
-QnxDevice::QnxDevice(const QnxDevice &other)
-    : RemoteLinux::LinuxDevice(other)
-    , m_versionNumber(other.m_versionNumber)
-{
-}
+QnxDevice::QnxDevice(const QnxDevice &other) = default;
 
 QnxDevice::Ptr QnxDevice::create()
 {

@@ -43,9 +43,7 @@ QnxVersionNumber::QnxVersionNumber(const QString &version)
     m_segments = version.split(QLatin1Char('.'));
 }
 
-QnxVersionNumber::QnxVersionNumber()
-{
-}
+QnxVersionNumber::QnxVersionNumber() = default;
 
 QString QnxVersionNumber::toString() const
 {

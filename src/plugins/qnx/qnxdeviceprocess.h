@@ -37,10 +37,10 @@ class QnxDeviceProcess : public ProjectExplorer::SshDeviceProcess
 public:
     QnxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device, QObject *parent);
 
-    void interrupt() { doSignal(2); }
-    void terminate() { doSignal(15); }
-    void kill() { doSignal(9); }
-    QString fullCommandLine(const ProjectExplorer::Runnable &runnable) const;
+    void interrupt() override { doSignal(2); }
+    void terminate() override { doSignal(15); }
+    void kill() override { doSignal(9); }
+    QString fullCommandLine(const ProjectExplorer::Runnable &runnable) const override;
 
 private:
     void doSignal(int sig);

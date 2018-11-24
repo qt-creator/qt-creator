@@ -61,7 +61,7 @@ QnxConfigurationManager *QnxConfigurationManager::instance()
 
 QnxConfigurationManager::~QnxConfigurationManager()
 {
-    m_instance = 0;
+    m_instance = nullptr;
     qDeleteAll(m_configurations);
     delete m_writer;
 }
@@ -101,7 +101,7 @@ QnxConfiguration *QnxConfigurationManager::configurationFromEnvFile(const Utils:
             return c;
     }
 
-    return 0;
+    return nullptr;
 }
 
 void QnxConfigurationManager::saveConfigs()
@@ -138,7 +138,7 @@ void QnxConfigurationManager::restoreConfigurations()
             continue;
 
         const QVariantMap dMap = data.value(key).toMap();
-        QnxConfiguration *configuration = new QnxConfiguration(dMap);
+        auto configuration = new QnxConfiguration(dMap);
         addConfiguration(configuration);
     }
 }

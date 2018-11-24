@@ -42,7 +42,7 @@ QnxBaseQtConfigWidget::QnxBaseQtConfigWidget(QnxQtVersion *version) :
 {
     QTC_ASSERT(version, return);
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
+    auto layout = new QHBoxLayout(this);
     layout->addWidget(m_sdpPathChooser);
 
     m_sdpPathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);

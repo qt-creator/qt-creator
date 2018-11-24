@@ -63,8 +63,8 @@ public:
         State state;
     };
 
-    explicit QnxSettingsWidget(QWidget *parent = 0);
-    ~QnxSettingsWidget();
+    explicit QnxSettingsWidget(QWidget *parent = nullptr);
+    ~QnxSettingsWidget() override;
     QList<ConfigState> changedConfigs();
 
 protected slots:

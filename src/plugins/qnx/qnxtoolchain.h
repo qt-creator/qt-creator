@@ -55,7 +55,7 @@ public:
     bool operator ==(const ToolChain &) const override;
 
 protected:
-    virtual DetectedAbisResult detectSupportedAbis() const override;
+    DetectedAbisResult detectSupportedAbis() const override;
 
 private:
     QString m_sdpPath;

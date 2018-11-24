@@ -41,7 +41,7 @@ class QnxDeviceWizard : public Utils::Wizard
     Q_OBJECT
 
 public:
-    explicit QnxDeviceWizard(QWidget *parent = 0);
+    explicit QnxDeviceWizard(QWidget *parent = nullptr);
 
     ProjectExplorer::IDevice::Ptr device();
 

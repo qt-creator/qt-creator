@@ -34,17 +34,17 @@ class QnxQtVersionFactory : public QtSupport::QtVersionFactory
 {
     Q_OBJECT
 public:
-    explicit QnxQtVersionFactory(QObject *parent = 0);
-    ~QnxQtVersionFactory();
+    explicit QnxQtVersionFactory(QObject *parent = nullptr);
+    ~QnxQtVersionFactory() override;
 
-    virtual bool canRestore(const QString &type);
-    virtual QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
+    bool canRestore(const QString &type) override;
+    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data) override;
 
-    virtual int priority() const;
-    virtual QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath,
-                                             ProFileEvaluator *evaluator,
-                                             bool isAutoDetected = false,
-                                             const QString &autoDetectionSource = QString());
+    int priority() const override;
+    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath,
+                                     ProFileEvaluator *evaluator,
+                                     bool isAutoDetected = false,
+                                     const QString &autoDetectionSource = QString()) override;
 };
 
 } // namespace Internal

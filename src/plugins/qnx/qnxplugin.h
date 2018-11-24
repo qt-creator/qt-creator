@@ -36,7 +36,6 @@ class QnxPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")
 
 public:
-    QnxPlugin() {}
     ~QnxPlugin() final;
 
 private:

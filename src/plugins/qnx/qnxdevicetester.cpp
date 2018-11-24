@@ -159,9 +159,9 @@ void QnxDeviceTester::testNextCommand()
 void QnxDeviceTester::setFinished()
 {
     m_state = Inactive;
-    disconnect(m_genericTester, 0, this, 0);
+    disconnect(m_genericTester, nullptr, this, nullptr);
     if (m_processRunner)
-        disconnect(m_processRunner, 0, this, 0);
+        disconnect(m_processRunner, nullptr, this, nullptr);
     emit finished(m_result);
 }
 

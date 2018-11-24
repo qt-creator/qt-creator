@@ -36,8 +36,8 @@ class QNX_EXPORT QnxDevice : public RemoteLinux::LinuxDevice
     Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxDevice)
 
 public:
-    typedef QSharedPointer<QnxDevice> Ptr;
-    typedef QSharedPointer<const QnxDevice> ConstPtr;
+    using Ptr = QSharedPointer<QnxDevice>;
+    using ConstPtr = QSharedPointer<const QnxDevice>;
 
     static Ptr create();
     static Ptr create(const QString &name, Core::Id type, MachineType machineType,

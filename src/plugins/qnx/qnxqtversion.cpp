@@ -44,8 +44,7 @@ namespace Internal {
 
 static char SDP_PATH_KEY[] = "SDKPath";
 
-QnxQtVersion::QnxQtVersion()
-{ }
+QnxQtVersion::QnxQtVersion() = default;
 
 QnxQtVersion::QnxQtVersion(const Utils::FileName &path, bool isAutoDetected,
                            const QString &autoDetectionSource) :

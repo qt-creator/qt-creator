@@ -238,12 +238,12 @@ bool QnxToolChainFactory::canRestore(const QVariantMap &data)
 
 ToolChain *QnxToolChainFactory::restore(const QVariantMap &data)
 {
-    QnxToolChain *tc = new QnxToolChain(ToolChain::ManualDetection);
+    auto tc = new QnxToolChain(ToolChain::ManualDetection);
     if (tc->fromMap(data))
         return tc;
 
     delete tc;
-    return 0;
+    return nullptr;
 }
 
 bool QnxToolChainFactory::canCreate()
@@ -296,7 +296,7 @@ void QnxToolChainConfigWidget::applyImpl()
     if (toolChain()->isAutoDetected())
         return;
 
-    QnxToolChain *tc = static_cast<QnxToolChain *>(toolChain());
+    auto tc = static_cast<QnxToolChain *>(toolChain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
     tc->setDisplayName(displayName); // reset display name
@@ -309,7 +309,7 @@ void QnxToolChainConfigWidget::discardImpl()
 {
     // subwidgets are not yet connected!
     QSignalBlocker blocker(this);
-    QnxToolChain *tc = static_cast<QnxToolChain *>(toolChain());
+    auto tc = static_cast<const QnxToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_sdpPath->setPath(tc->sdpPath());
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
@@ -319,7 +319,7 @@ void QnxToolChainConfigWidget::discardImpl()
 
 bool QnxToolChainConfigWidget::isDirtyImpl() const
 {
-    QnxToolChain *tc = static_cast<QnxToolChain *>(toolChain());
+    auto tc = static_cast<const QnxToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->fileName() != tc->compilerCommand()
             || m_sdpPath->path() != tc->sdpPath()

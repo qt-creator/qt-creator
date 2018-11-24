@@ -58,13 +58,13 @@ public:
     };
 
     explicit QnxDeployQtLibrariesDialog(const ProjectExplorer::IDevice::ConstPtr &device,
-                                        QWidget *parent = 0);
-    ~QnxDeployQtLibrariesDialog();
+                                        QWidget *parent = nullptr);
+    ~QnxDeployQtLibrariesDialog() override;
 
     int execAndDeploy(int qtVersionId, const QString &remoteDirectory);
 
 protected:
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
 private slots:
     void deployLibraries();

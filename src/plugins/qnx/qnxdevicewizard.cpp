@@ -44,7 +44,7 @@ public:
         RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage(parent)
     {}
 
-    QString defaultConfigurationName() const { return QnxDeviceWizard::tr("QNX Device"); }
+    QString defaultConfigurationName() const override { return QnxDeviceWizard::tr("QNX Device"); }
 };
 
 QnxDeviceWizard::QnxDeviceWizard(QWidget *parent) :

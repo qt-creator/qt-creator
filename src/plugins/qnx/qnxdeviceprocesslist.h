@@ -36,12 +36,12 @@ class QnxDeviceProcessList : public ProjectExplorer::SshDeviceProcessList
     Q_OBJECT
 public:
     explicit QnxDeviceProcessList(
-            const ProjectExplorer::IDevice::ConstPtr &device, QObject *parent = 0);
+            const ProjectExplorer::IDevice::ConstPtr &device, QObject *parent = nullptr);
 
 private:
-    virtual QString listProcessesCommandLine() const;
-    virtual QList<ProjectExplorer::DeviceProcessItem> buildProcessList(
-            const QString &listProcessesReply) const;
+    QString listProcessesCommandLine() const override;
+    QList<ProjectExplorer::DeviceProcessItem> buildProcessList(
+            const QString &listProcessesReply) const override;
 };
 
 } // namespace Internal
