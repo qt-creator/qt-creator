@@ -74,11 +74,11 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FileName &fi
         qWarning() << simpleQmlJSReader.errors();
         if (errorMessage)
             *errorMessage = simpleQmlJSReader.errors().join(QLatin1String(", "));
-        return 0;
+        return nullptr;
     }
 
     if (rootNode->name() == QLatin1String("Project")) {
-        QmlProjectItem *projectItem = new QmlProjectItem();
+        auto projectItem = new QmlProjectItem;
 
         const QVariant mainFileProperty = rootNode->property(QLatin1String("mainFile"));
         if (mainFileProperty.isValid())
@@ -99,32 +99,32 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FileName &fi
             if (childNode->name() == QLatin1String("QmlFiles")) {
                 if (debug)
                     qDebug() << "QmlFiles";
-                QmlFileFilterItem *qmlFileFilterItem = new QmlFileFilterItem(projectItem);
+                auto qmlFileFilterItem = new QmlFileFilterItem(projectItem);
                 setupFileFilterItem(qmlFileFilterItem, childNode);
                 projectItem->appendContent(qmlFileFilterItem);
             } else if (childNode->name() == QLatin1String("JavaScriptFiles")) {
                 if (debug)
                     qDebug() << "JavaScriptFiles";
-                JsFileFilterItem *jsFileFilterItem = new JsFileFilterItem(projectItem);
+                auto jsFileFilterItem = new JsFileFilterItem(projectItem);
                 setupFileFilterItem(jsFileFilterItem, childNode);
                 projectItem->appendContent(jsFileFilterItem);
             } else if (childNode->name() == QLatin1String("ImageFiles")) {
                 if (debug)
                     qDebug() << "ImageFiles";
-                ImageFileFilterItem *imageFileFilterItem = new ImageFileFilterItem(projectItem);
+                auto imageFileFilterItem = new ImageFileFilterItem(projectItem);
                 setupFileFilterItem(imageFileFilterItem, childNode);
                 projectItem->appendContent(imageFileFilterItem);
 
             } else if (childNode->name() == QLatin1String("CssFiles")) {
                 if (debug)
                     qDebug() << "CssFiles";
-                CssFileFilterItem *cssFileFilterItem = new CssFileFilterItem(projectItem);
+                auto cssFileFilterItem = new CssFileFilterItem(projectItem);
                 setupFileFilterItem(cssFileFilterItem, childNode);
                 projectItem->appendContent(cssFileFilterItem);
             } else if (childNode->name() == QLatin1String("Files")) {
                 if (debug)
                     qDebug() << "Files";
-                OtherFileFilterItem *otherFileFilterItem = new OtherFileFilterItem(projectItem);
+                auto otherFileFilterItem = new OtherFileFilterItem(projectItem);
                 setupFileFilterItem(otherFileFilterItem, childNode);
                 projectItem->appendContent(otherFileFilterItem);
             } else if (childNode->name() == "Environment") {
@@ -144,7 +144,7 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FileName &fi
     if (errorMessage)
         *errorMessage = tr("Invalid root element: %1").arg(rootNode->name());
 
-    return 0;
+    return nullptr;
 }
 
 } // namespace QmlProjectManager

@@ -38,9 +38,8 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
 
     m_sourceDirectory = directoryPath;
 
-    for (int i = 0; i < m_content.size(); ++i) {
-        QmlProjectContentItem *contentElement = m_content.at(i);
-        FileFilterBaseItem *fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
+    for (auto contentElement : qAsConst(m_content)) {
+        auto fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
         if (fileFilter) {
             fileFilter->setDefaultDirectory(directoryPath);
             connect(fileFilter, &FileFilterBaseItem::filesChanged,

@@ -72,7 +72,7 @@ class MainQmlFileAspect : public ProjectConfigurationAspect
 {
 public:
     explicit MainQmlFileAspect(QmlProject *project);
-    ~MainQmlFileAspect() { delete m_fileListCombo; }
+    ~MainQmlFileAspect() override { delete m_fileListCombo; }
 
     enum MainScriptSource {
         FileInEditor,
@@ -107,9 +107,8 @@ public:
 
 MainQmlFileAspect::MainQmlFileAspect(QmlProject *project)
     : m_project(project)
+    , m_scriptFile(M_CURRENT_FILE)
 {
-    m_scriptFile = M_CURRENT_FILE;
-
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &MainQmlFileAspect::changeCurrentFile);
     connect(EditorManager::instance(), &EditorManager::currentDocumentStateChanged,
@@ -189,7 +188,7 @@ void MainQmlFileAspect::updateFileComboBox()
         if (fileInfo.suffix() != QLatin1String("qml"))
             continue;
 
-        QStandardItem *item = new QStandardItem(fn);
+        auto item = new QStandardItem(fn);
         m_fileListModel.appendRow(item);
 
         if (mainScriptPath == fn)

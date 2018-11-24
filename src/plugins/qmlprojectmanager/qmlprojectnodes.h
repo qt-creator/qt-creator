@@ -40,7 +40,7 @@ public:
 
     bool showInSimpleTree() const override;
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
     bool deleteFiles(const QStringList &filePaths) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 

@@ -47,7 +47,7 @@ Environment QmlProjectEnvironmentAspect::baseEnvironment() const
             ? Environment::systemEnvironment()
             : Environment();
 
-    if (QmlProject *project = qobject_cast<QmlProject *>(m_target->project()))
+    if (auto project = qobject_cast<const QmlProject *>(m_target->project()))
         env.modify(project->environment());
 
     return env;

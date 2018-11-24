@@ -48,7 +48,7 @@ class FileFilterBaseItem : public QmlProjectContentItem {
     Q_PROPERTY(QStringList files READ files NOTIFY filesChanged DESIGNABLE false)
 
 public:
-    FileFilterBaseItem(QObject *parent = 0);
+    FileFilterBaseItem(QObject *parent = nullptr);
 
     QString directory() const;
     void setDirectory(const QString &directoryPath);
@@ -81,7 +81,7 @@ private:
     QString absoluteDir() const;
 
     bool fileMatches(const QString &fileName) const;
-    QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs = 0);
+    QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs = nullptr);
     Utils::FileSystemWatcher *dirWatcher();
     QStringList watchedDirectories() const;
 
@@ -99,12 +99,12 @@ private:
         RecurseDefault // not set explicitly
     };
 
-    RecursiveOption m_recurse;
+    RecursiveOption m_recurse = RecurseDefault;
 
     QStringList m_explicitFiles;
 
     QSet<QString> m_files;
-    Utils::FileSystemWatcher *m_dirWatcher;
+    Utils::FileSystemWatcher *m_dirWatcher = nullptr;
     QTimer m_updateFileListTimer;
 
 
@@ -115,7 +115,7 @@ class QmlFileFilterItem : public FileFilterBaseItem {
     Q_OBJECT
 
 public:
-    QmlFileFilterItem(QObject *parent = 0);
+    QmlFileFilterItem(QObject *parent = nullptr);
 };
 
 class JsFileFilterItem : public FileFilterBaseItem {
@@ -128,7 +128,7 @@ signals:
     void filterChanged();
 
 public:
-    JsFileFilterItem(QObject *parent = 0);
+    JsFileFilterItem(QObject *parent = nullptr);
 };
 
 class ImageFileFilterItem : public FileFilterBaseItem {
@@ -141,7 +141,7 @@ signals:
     void filterChanged();
 
 public:
-    ImageFileFilterItem(QObject *parent = 0);
+    ImageFileFilterItem(QObject *parent = nullptr);
 };
 
 class CssFileFilterItem : public FileFilterBaseItem {
@@ -154,7 +154,7 @@ signals:
     void filterChanged();
 
 public:
-    CssFileFilterItem(QObject *parent = 0);
+    CssFileFilterItem(QObject *parent = nullptr);
 };
 
 class OtherFileFilterItem : public FileFilterBaseItem {
@@ -167,7 +167,7 @@ signals:
     void filterChanged();
 
 public:
-    OtherFileFilterItem(QObject *parent = 0);
+    OtherFileFilterItem(QObject *parent = nullptr);
 };
 
 } // namespace QmlProjectManager

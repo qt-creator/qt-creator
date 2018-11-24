@@ -37,9 +37,7 @@
 namespace QmlProjectManager {
 
 FileFilterBaseItem::FileFilterBaseItem(QObject *parent) :
-        QmlProjectContentItem(parent),
-        m_recurse(RecurseDefault),
-        m_dirWatcher(0)
+        QmlProjectContentItem(parent)
 {
     m_updateFileListTimer.setSingleShot(true);
     m_updateFileListTimer.setInterval(50);

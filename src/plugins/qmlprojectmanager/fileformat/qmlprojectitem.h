@@ -38,7 +38,7 @@ class QmlProjectContentItem : public QObject {
     Q_OBJECT
 
 public:
-    QmlProjectContentItem(QObject *parent = 0) : QObject(parent) {}
+    QmlProjectContentItem(QObject *parent = nullptr) : QObject(parent) {}
 };
 
 class QmlProjectItem : public QObject
