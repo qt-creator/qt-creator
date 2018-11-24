@@ -35,7 +35,7 @@ namespace QmlProfiler {
 class QMLPROFILER_EXPORT QmlEventLocation
 {
 public:
-    QmlEventLocation() : m_line(-1),m_column(-1) {}
+    QmlEventLocation() = default;
     QmlEventLocation(const QString &file, int lineNumber, int columnNumber) : m_filename(file),
         m_line(lineNumber), m_column(columnNumber)
     {}
@@ -60,8 +60,8 @@ private:
     friend QDataStream &operator<<(QDataStream &stream, const QmlEventLocation &location);
 
     QString m_filename;
-    int m_line;
-    int m_column;
+    int m_line = -1;
+    int m_column = -1;
 };
 
 inline bool operator==(const QmlEventLocation &location1, const QmlEventLocation &location2)

@@ -70,8 +70,6 @@
 #include <QRegExp>
 #include <QTextCursor>
 
-#include <math.h>
-
 namespace QmlProfiler {
 namespace Internal {
 
@@ -120,7 +118,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
         }
     });
 
-    QVBoxLayout *groupLayout = new QVBoxLayout;
+    auto groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0, 0, 0, 0);
     groupLayout->setSpacing(0);
 
@@ -136,7 +134,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     d->m_mainView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setFocusProxy(d->m_mainView);
 
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    auto agg = new Aggregation::Aggregate;
     agg->add(d->m_mainView);
     agg->add(new TraceViewFindSupport(this, modelManager));
 

@@ -36,7 +36,7 @@ class InputEventsModelTest : public QObject
 {
     Q_OBJECT
 public:
-    InputEventsModelTest(QObject *parent = 0);
+    InputEventsModelTest(QObject *parent = nullptr);
 
 private slots:
     void initTestCase();

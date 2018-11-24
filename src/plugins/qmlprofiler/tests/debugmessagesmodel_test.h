@@ -36,7 +36,7 @@ class DebugMessagesModelTest : public QObject
 {
     Q_OBJECT
 public:
-    DebugMessagesModelTest(QObject *parent = 0);
+    DebugMessagesModelTest(QObject *parent = nullptr);
 
 private slots:
     void initTestCase();

@@ -106,15 +106,15 @@ void QmlProfilerTextMarkModel::createMarks(QmlProfilerViewManager *viewManager,
     });
 
     int lineNumber = -1;
-    for (auto it = ids.begin(), end = ids.end(); it != end; ++it) {
-        if (it->lineNumber == lineNumber) {
-            m_marks.last()->addTypeId(it->typeId);
+    for (const auto &id : ids) {
+        if (id.lineNumber == lineNumber) {
+            m_marks.last()->addTypeId(id.typeId);
         } else {
-            lineNumber = it->lineNumber;
+            lineNumber = id.lineNumber;
             m_marks << new QmlProfilerTextMark(viewManager,
-                                               it->typeId,
+                                               id.typeId,
                                                FileName::fromString(fileName),
-                                               it->lineNumber);
+                                               id.lineNumber);
         }
     }
 }
@@ -133,7 +133,7 @@ void QmlProfilerTextMarkModel::hideTextMarks()
 
 bool QmlProfilerTextMark::addToolTipContent(QLayout *target) const
 {
-    QGridLayout *layout = new QGridLayout;
+    auto layout = new QGridLayout;
     layout->setHorizontalSpacing(10);
     for (int row = 0, rowEnd = m_typeIds.length(); row != rowEnd; ++row) {
         const QStringList typeDetails = m_viewManager->statisticsView()->details(m_typeIds[row]);

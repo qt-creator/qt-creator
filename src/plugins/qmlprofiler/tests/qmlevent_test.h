@@ -34,7 +34,7 @@ class QmlEventTest : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlEventTest(QObject *parent = 0);
+    explicit QmlEventTest(QObject *parent = nullptr);
 
 private slots:
     void testCtors();

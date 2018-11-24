@@ -34,7 +34,7 @@ class QmlProfilerBindingLoopsRenderPassTest : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerBindingLoopsRenderPassTest(QObject *parent = 0);
+    explicit QmlProfilerBindingLoopsRenderPassTest(QObject *parent = nullptr);
 
 private slots:
     void testInstance();

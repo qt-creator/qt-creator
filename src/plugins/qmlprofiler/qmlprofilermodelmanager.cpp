@@ -478,7 +478,7 @@ int QmlProfilerEventTypeStorage::append(Timeline::TraceEventType &&type)
         m_types.push_back(std::move(type.asRvalueRef<QmlEventType>()));
     } else {
         QTC_CHECK(false);
-        m_types.push_back(QmlEventType());
+        m_types.emplace_back();
     }
     QTC_ASSERT(index <= static_cast<size_t>(std::numeric_limits<int>::max()),
                return std::numeric_limits<int>::max());

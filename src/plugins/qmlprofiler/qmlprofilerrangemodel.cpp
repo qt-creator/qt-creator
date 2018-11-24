@@ -155,7 +155,7 @@ void QmlProfilerRangeModel::computeExpandedLevels()
 
 void QmlProfilerRangeModel::findBindingLoops()
 {
-    typedef QPair<int, int> CallStackEntry;
+    using CallStackEntry = QPair<int, int>;
     QStack<CallStackEntry> callStack;
 
     for (int i = 0; i < count(); ++i) {

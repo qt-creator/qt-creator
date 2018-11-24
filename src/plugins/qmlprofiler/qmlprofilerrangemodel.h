@@ -45,15 +45,10 @@ class QmlProfilerRangeModel : public QmlProfilerTimelineModel
 public:
 
     struct Item {
-        Item() :
-                displayRowExpanded(1),
-                displayRowCollapsed(Constants::QML_MIN_LEVEL),
-                bindingLoopHead(-1) {}
-
         // not-expanded, per type
-        int displayRowExpanded;
-        int displayRowCollapsed;
-        int bindingLoopHead;
+        int displayRowExpanded = 1;
+        int displayRowCollapsed = Constants::QML_MIN_LEVEL;
+        int bindingLoopHead = -1;
     };
 
     QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range,

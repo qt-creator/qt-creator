@@ -40,7 +40,7 @@ public:
     explicit QmlProfilerStateWidget(QmlProfilerStateManager *stateManager,
                                     QmlProfilerModelManager *modelManager,
                                     QWidget *parent = nullptr);
-    ~QmlProfilerStateWidget();
+    ~QmlProfilerStateWidget() override;
 
 private:
     void showText(const QString &text);

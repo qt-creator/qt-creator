@@ -73,11 +73,11 @@ public:
 
 private:
     struct RangeStackFrame {
-        RangeStackFrame() : originTypeIndex(-1), startTime(-1) {}
+        RangeStackFrame() = default;
         RangeStackFrame(int originTypeIndex, qint64 startTime) :
             originTypeIndex(originTypeIndex), startTime(startTime) {}
-        int originTypeIndex;
-        qint64 startTime;
+        int originTypeIndex = -1;
+        qint64 startTime = -1;
     };
 
     enum EventContinuation {

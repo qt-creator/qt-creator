@@ -304,7 +304,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
         auto aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
                     runConfiguration->aspect(Constants::SETTINGS));
         if (aspect) {
-            if (QmlProfilerSettings *settings = static_cast<QmlProfilerSettings *>(aspect->currentSettings())) {
+            if (auto settings = static_cast<const QmlProfilerSettings *>(aspect->currentSettings())) {
                 d->m_profilerConnections->setFlushInterval(settings->flushEnabled() ?
                                                                settings->flushInterval() : 0);
                 d->m_profilerModelManager->setAggregateTraces(settings->aggregateTraces());
@@ -345,7 +345,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
 
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
             runWorker, [this, runWorker]() {
-        QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
+        auto infoBox = new QMessageBox(ICore::mainWindow());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
 
@@ -513,7 +513,7 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
 
     Id kitId;
     int port;
-    Kit *kit = 0;
+    Kit *kit = nullptr;
 
     {
         QSettings *settings = ICore::settings();
@@ -573,7 +573,7 @@ void QmlProfilerTool::logError(const QString &msg)
 
 void QmlProfilerTool::showErrorDialog(const QString &error)
 {
-    QMessageBox *errorDialog = new QMessageBox(ICore::mainWindow());
+    auto errorDialog = new QMessageBox(ICore::mainWindow());
     errorDialog->setIcon(QMessageBox::Warning);
     errorDialog->setWindowTitle(tr("QML Profiler"));
     errorDialog->setText(error);
@@ -780,7 +780,7 @@ QList <QAction *> QmlProfilerTool::profilerContextMenuActions()
 
 void QmlProfilerTool::showNonmodalWarning(const QString &warningMsg)
 {
-    QMessageBox *noExecWarning = new QMessageBox(ICore::mainWindow());
+    auto noExecWarning = new QMessageBox(ICore::mainWindow());
     noExecWarning->setIcon(QMessageBox::Warning);
     noExecWarning->setWindowTitle(tr("QML Profiler"));
     noExecWarning->setText(warningMsg);

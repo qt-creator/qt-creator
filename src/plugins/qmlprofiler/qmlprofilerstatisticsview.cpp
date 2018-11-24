@@ -70,7 +70,7 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
     setObjectName(QLatin1String("QmlProfiler.Statistics.Dock"));
     setWindowTitle(tr("Statistics"));
 
-    QmlProfilerStatisticsModel *model = new QmlProfilerStatisticsModel(profilerModelManager);
+    auto model = new QmlProfilerStatisticsModel(profilerModelManager);
     m_mainView.reset(new QmlProfilerStatisticsMainView(model));
     connect(m_mainView.get(), &QmlProfilerStatisticsMainView::gotoSourceLocation,
             this, &QmlProfilerStatisticsView::gotoSourceLocation);
@@ -99,13 +99,13 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
             m_callersView.get(), &QmlProfilerStatisticsRelativesView::displayType);
 
     // widget arrangement
-    QVBoxLayout *groupLayout = new QVBoxLayout;
+    auto groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0,0,0,0);
     groupLayout->setSpacing(0);
 
-    Core::MiniSplitter *splitterVertical = new Core::MiniSplitter;
+    auto splitterVertical = new Core::MiniSplitter;
     splitterVertical->addWidget(m_mainView.get());
-    Core::MiniSplitter *splitterHorizontal = new Core::MiniSplitter;
+    auto splitterHorizontal = new Core::MiniSplitter;
     splitterHorizontal->addWidget(m_callersView.get());
     splitterHorizontal->addWidget(m_calleesView.get());
     splitterHorizontal->setOrientation(Qt::Horizontal);
@@ -226,9 +226,7 @@ QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(QmlProfilerStatisti
     resizeColumnToContents(MainType);
 }
 
-QmlProfilerStatisticsMainView::~QmlProfilerStatisticsMainView()
-{
-}
+QmlProfilerStatisticsMainView::~QmlProfilerStatisticsMainView() = default;
 
 void QmlProfilerStatisticsMainView::setShowExtendedStatistics(bool show)
 {
@@ -274,7 +272,7 @@ void QmlProfilerStatisticsMainView::jumpToItem(int typeIndex)
 {
     displayTypeIndex(typeIndex);
 
-    QSortFilterProxyModel *sortModel = qobject_cast<QSortFilterProxyModel *>(model());
+    auto sortModel = qobject_cast<const QSortFilterProxyModel *>(model());
     QTC_ASSERT(sortModel, return);
 
     QAbstractItemModel *sourceModel = sortModel->sourceModel();
@@ -294,7 +292,7 @@ void QmlProfilerStatisticsMainView::displayTypeIndex(int typeIndex)
     if (typeIndex < 0) {
         setCurrentIndex(QModelIndex());
     } else {
-        QSortFilterProxyModel *sortModel = qobject_cast<QSortFilterProxyModel *>(model());
+        auto sortModel = qobject_cast<const QSortFilterProxyModel *>(model());
         QTC_ASSERT(sortModel, return);
 
         QAbstractItemModel *sourceModel = sortModel->sourceModel();
@@ -392,9 +390,7 @@ QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesView(
     });
 }
 
-QmlProfilerStatisticsRelativesView::~QmlProfilerStatisticsRelativesView()
-{
-}
+QmlProfilerStatisticsRelativesView::~QmlProfilerStatisticsRelativesView() = default;
 
 void QmlProfilerStatisticsRelativesView::displayType(int typeIndex)
 {

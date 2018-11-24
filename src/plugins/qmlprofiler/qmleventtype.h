@@ -41,7 +41,7 @@ public:
 
     QmlEventType(Message message = MaximumMessage, RangeType rangeType = MaximumRangeType,
                  int detailType = -1, const QmlEventLocation &location = QmlEventLocation(),
-                 const QString &data = QString(), const QString displayName = QString());
+                 const QString &data = QString(), const QString &displayName = QString());
 
     void setData(const QString &data) { m_data = data; }
     void setLocation(const QmlEventLocation &location) { m_location = location; }

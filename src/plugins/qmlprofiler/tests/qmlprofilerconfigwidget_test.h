@@ -36,7 +36,7 @@ class QmlProfilerConfigWidgetTest : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerConfigWidgetTest(QObject *parent = 0);
+    explicit QmlProfilerConfigWidgetTest(QObject *parent = nullptr);
 
 private slots:
     void testUpdateFromSettings();

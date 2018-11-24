@@ -37,7 +37,7 @@ class LocalQmlProfilerRunnerTest : public QObject
 {
     Q_OBJECT
 public:
-    LocalQmlProfilerRunnerTest(QObject *parent = 0);
+    LocalQmlProfilerRunnerTest(QObject *parent = nullptr);
 
 private slots:
     void testRunner();

@@ -33,7 +33,7 @@ class QmlEventLocationTest : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlEventLocationTest(QObject *parent = 0);
+    explicit QmlEventLocationTest(QObject *parent = nullptr);
 
 private slots:
     void testCtor();

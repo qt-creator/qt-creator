@@ -36,7 +36,7 @@ class PixmapCacheModelTest : public QObject
 {
     Q_OBJECT
 public:
-    PixmapCacheModelTest(QObject *parent = 0);
+    PixmapCacheModelTest(QObject *parent = nullptr);
 
 private slots:
     void initTestCase();

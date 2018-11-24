@@ -78,7 +78,7 @@ void QmlProfilerBindingLoopsRenderPassTest::testInstance()
     const QmlProfilerBindingLoopsRenderPass *inst = QmlProfilerBindingLoopsRenderPass::instance();
     const QmlProfilerBindingLoopsRenderPass *inst2 = QmlProfilerBindingLoopsRenderPass::instance();
     QCOMPARE(inst, inst2);
-    QVERIFY(inst != 0);
+    QVERIFY(inst != nullptr);
 }
 
 void QmlProfilerBindingLoopsRenderPassTest::testUpdate()
@@ -86,43 +86,43 @@ void QmlProfilerBindingLoopsRenderPassTest::testUpdate()
     const QmlProfilerBindingLoopsRenderPass *inst = QmlProfilerBindingLoopsRenderPass::instance();
     Timeline::TimelineAbstractRenderer renderer;
     Timeline::TimelineRenderState parentState(0, 8, 1, 1);
-    Timeline::TimelineRenderPass::State *nullState = 0;
-    QSGNode *nullNode = 0;
+    Timeline::TimelineRenderPass::State *nullState = nullptr;
+    QSGNode *nullNode = nullptr;
     Timeline::TimelineRenderPass::State *result =
-            inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
+            inst->update(&renderer, &parentState, nullptr, 0, 0, true, 1);
     QCOMPARE(result, nullState);
 
     QmlProfilerModelManager manager;
     Timeline::TimelineModelAggregator aggregator;
     DummyModel model(&manager, &aggregator);
     renderer.setModel(&model);
-    result = inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
+    result = inst->update(&renderer, &parentState, nullptr, 0, 0, true, 1);
     QCOMPARE(result, nullState);
 
     model.loadData();
-    result = inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
+    result = inst->update(&renderer, &parentState, nullptr, 0, 0, true, 1);
     QCOMPARE(result, nullState);
 
-    result = inst->update(&renderer, &parentState, 0, 2, 9, true, 1);
+    result = inst->update(&renderer, &parentState, nullptr, 2, 9, true, 1);
     QVERIFY(result != nullState);
     QCOMPARE(result->expandedOverlay(), nullNode);
     QVERIFY(result->collapsedOverlay() != nullNode);
     QCOMPARE(result->expandedRows().count(), 2);  // all the loops are in one row
     QCOMPARE(result->collapsedRows().count(), 0); // it's an overlay
     QCOMPARE(result->expandedRows()[1]->childCount(), 1);
-    QSGGeometryNode *node = static_cast<QSGGeometryNode *>(result->expandedRows()[1]->firstChild());
+    auto node = static_cast<const QSGGeometryNode *>(result->expandedRows()[1]->firstChild());
     QSGMaterial *material1 = node->material();
-    QVERIFY(material1 != 0);
+    QVERIFY(material1 != nullptr);
     QCOMPARE(node->geometry()->vertexCount(), 7 * 4);
     node = static_cast<QSGGeometryNode *>(result->collapsedOverlay()->firstChild());
     QSGMaterial *material2 = node->material();
     QCOMPARE(node->geometry()->vertexCount(), 7 * 18);
-    QVERIFY(material2 != 0);
+    QVERIFY(material2 != nullptr);
     QCOMPARE(material1->type(), material2->type());
     QSGMaterialShader *shader1 = material1->createShader();
-    QVERIFY(shader1 != 0);
+    QVERIFY(shader1 != nullptr);
     QSGMaterialShader *shader2 = material2->createShader();
-    QVERIFY(shader2 != 0);
+    QVERIFY(shader2 != nullptr);
     QCOMPARE(shader1->attributeNames(), shader2->attributeNames());
 
     delete shader1;

@@ -262,7 +262,7 @@ FlameGraphData *FlameGraphModel::pushChild(FlameGraphData *parent, const QmlEven
         }
     }
 
-    FlameGraphData *child = new FlameGraphData(parent, data.typeIndex());
+    auto child = new FlameGraphData(parent, data.typeIndex());
     parent->children.append(child);
     return child;
 }
@@ -270,7 +270,7 @@ FlameGraphData *FlameGraphModel::pushChild(FlameGraphData *parent, const QmlEven
 QModelIndex FlameGraphModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid()) {
-        FlameGraphData *parentData = static_cast<FlameGraphData *>(parent.internalPointer());
+        auto parentData = static_cast<const FlameGraphData *>(parent.internalPointer());
         return createIndex(row, column, parentData->children[row]);
     } else {
         return createIndex(row, column, row >= 0 ? m_stackBottom.children[row] : nullptr);
@@ -280,7 +280,7 @@ QModelIndex FlameGraphModel::index(int row, int column, const QModelIndex &paren
 QModelIndex FlameGraphModel::parent(const QModelIndex &child) const
 {
     if (child.isValid()) {
-        FlameGraphData *childData = static_cast<FlameGraphData *>(child.internalPointer());
+        auto childData = static_cast<const FlameGraphData *>(child.internalPointer());
         return childData->parent == &m_stackBottom ? QModelIndex() :
                                                      createIndex(0, 0, childData->parent);
     } else {
@@ -291,7 +291,7 @@ QModelIndex FlameGraphModel::parent(const QModelIndex &child) const
 int FlameGraphModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
-        FlameGraphData *parentData = static_cast<FlameGraphData *>(parent.internalPointer());
+        auto parentData = static_cast<const FlameGraphData *>(parent.internalPointer());
         return parentData->children.count();
     } else {
         return m_stackBottom.children.count();
@@ -306,7 +306,7 @@ int FlameGraphModel::columnCount(const QModelIndex &parent) const
 
 QVariant FlameGraphModel::data(const QModelIndex &index, int role) const
 {
-    FlameGraphData *data = static_cast<FlameGraphData *>(index.internalPointer());
+    auto data = static_cast<const FlameGraphData *>(index.internalPointer());
     return lookup(data ? *data : m_stackBottom, role);
 }
 

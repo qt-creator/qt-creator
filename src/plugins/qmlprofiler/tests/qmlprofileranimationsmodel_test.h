@@ -36,7 +36,7 @@ class QmlProfilerAnimationsModelTest : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerAnimationsModelTest(QObject *parent = 0);
+    explicit QmlProfilerAnimationsModelTest(QObject *parent = nullptr);
 
 private slots:
     void initTestCase();

@@ -31,7 +31,7 @@ namespace Internal {
 
 void fakeDebugServer(QIODevice *socket)
 {
-    QmlDebug::QPacketProtocol *protocol = new QmlDebug::QPacketProtocol(socket, socket);
+    auto protocol = new QmlDebug::QPacketProtocol(socket, socket);
     QObject::connect(protocol, &QmlDebug::QPacketProtocol::readyRead, [protocol]() {
         QmlDebug::QPacket packet(QDataStream::Qt_4_7);
         const int messageId = 0;

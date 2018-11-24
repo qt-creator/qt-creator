@@ -41,7 +41,7 @@ namespace QmlProfiler {
 struct QmlEvent : public Timeline::TraceEvent {
     static const qint32 staticClassId = 0x716d6c65; // 'qmle';
 
-    QmlEvent() : TraceEvent(staticClassId), m_dataType(Inline8Bit), m_dataLength(0) {}
+    QmlEvent() : TraceEvent(staticClassId) {}
 
     template<typename Number>
     QmlEvent(qint64 timestamp, int typeIndex, std::initializer_list<Number> list)
@@ -216,8 +216,8 @@ private:
         External64Bit = Inline64Bit | External
     };
 
-    Type m_dataType;
-    quint16 m_dataLength;
+    Type m_dataType = Inline8Bit;
+    quint16 m_dataLength = 0;
 
     static const int s_internalDataLength = 8;
     union {
@@ -250,7 +250,7 @@ private:
     typename std::enable_if<(sizeof(Number) > 1), bool>::type
     squeeze(const Container &numbers)
     {
-        typedef typename QIntegerForSize<sizeof(Number) / 2>::Signed Small;
+        using Small = typename QIntegerForSize<sizeof(Number) / 2>::Signed;
         foreach (Number item, numbers) {
             if (!squeezable<Number, Small>(item))
                 return false;

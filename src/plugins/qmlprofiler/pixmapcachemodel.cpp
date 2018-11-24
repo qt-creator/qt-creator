@@ -166,7 +166,7 @@ QVariantMap PixmapCacheModel::details(int index) const
 void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
     Item newEvent;
-    const PixmapEventType pixmapType = static_cast<PixmapEventType>(type.detailType());
+    const auto pixmapType = static_cast<PixmapEventType>(type.detailType());
     newEvent.pixmapEventType = pixmapType;
     qint64 pixmapStartTime = event.timestamp();
 
@@ -443,13 +443,11 @@ void PixmapCacheModel::computeMaxCacheSize()
 void PixmapCacheModel::resizeUnfinishedLoads()
 {
     // all the unfinished "load start" events continue till the end of the trace
-    for (auto pixmap = m_pixmaps.begin(), pixmapsEnd = m_pixmaps.end();
-         pixmap != pixmapsEnd; ++pixmap) {
-        for (auto size = pixmap->sizes.begin(), sizesEnd = pixmap->sizes.end(); size != sizesEnd;
-             ++size) {
-            if (size->loadState == Loading) {
-                insertEnd(size->started, modelManager()->traceEnd() - startTime(size->started));
-                size->loadState = Error;
+    for (auto &pixmap : m_pixmaps) {
+        for (auto &size : pixmap.sizes) {
+            if (size.loadState == Loading) {
+                insertEnd(size.started, modelManager()->traceEnd() - startTime(size.started));
+                size.loadState = Error;
             }
         }
     }

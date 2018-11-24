@@ -51,7 +51,7 @@ public:
         : q(qq), m_currentState(Idle), m_clientRecording(true), m_serverRecording(false),
           m_requestedFeatures(0), m_recordedFeatures(0) {}
 
-    ~QmlProfilerStateManagerPrivate() {}
+    ~QmlProfilerStateManagerPrivate() = default;
 
     QmlProfilerStateManager *q;
 

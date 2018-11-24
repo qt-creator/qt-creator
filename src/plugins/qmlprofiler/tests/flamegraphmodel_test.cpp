@@ -41,7 +41,7 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
                                       Timeline::TimelineModelAggregator *aggregator)
 {
     // Notes only work with timeline models
-    QmlProfilerRangeModel *rangeModel = new QmlProfilerRangeModel(manager, Javascript, aggregator);
+    auto rangeModel = new QmlProfilerRangeModel(manager, Javascript, aggregator);
     int rangeModelId = rangeModel->modelId();
     manager->notesModel()->addTimelineModel(rangeModel);
 

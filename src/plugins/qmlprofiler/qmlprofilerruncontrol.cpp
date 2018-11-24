@@ -231,7 +231,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(QmlProfilerTool *profilerTool,
 {
     setId("LocalQmlProfilerSupport");
 
-    QmlProfilerRunner *profiler = new QmlProfilerRunner(runControl);
+    auto profiler = new QmlProfilerRunner(runControl);
     profiler->setServerUrl(serverUrl);
     connect(profiler, &QmlProfilerRunner::starting,
             profilerTool, &QmlProfilerTool::finalizeRunControl);

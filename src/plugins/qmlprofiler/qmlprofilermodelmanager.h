@@ -49,8 +49,8 @@ class QMLPROFILER_EXPORT QmlProfilerModelManager : public Timeline::TimelineTrac
 {
     Q_OBJECT
 public:
-    typedef std::function<void(const QmlEvent &, const QmlEventType &)> QmlEventLoader;
-    typedef std::function<QmlEventLoader(QmlEventLoader)> QmlEventFilter;
+    using QmlEventLoader = std::function<void (const QmlEvent &, const QmlEventType &)>;
+    using QmlEventFilter = std::function<QmlEventLoader (QmlEventLoader)>;
 
     explicit QmlProfilerModelManager(QObject *parent = nullptr);
     ~QmlProfilerModelManager() override;

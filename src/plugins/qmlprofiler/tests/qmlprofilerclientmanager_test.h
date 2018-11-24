@@ -37,7 +37,7 @@ class QmlProfilerClientManagerTest : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerClientManagerTest(QObject *parent = 0);
+    explicit QmlProfilerClientManagerTest(QObject *parent = nullptr);
 
 private slots:
     void testConnectionFailure_data();

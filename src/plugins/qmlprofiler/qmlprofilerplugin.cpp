@@ -115,7 +115,7 @@ void QmlProfilerPlugin::extensionsInitialized()
 
     RunControl::registerWorkerCreator(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
                                       [this](RunControl *runControl) {
-        QmlProfilerRunner *runner = new QmlProfilerRunner(runControl);
+        auto runner = new QmlProfilerRunner(runControl);
         connect(runner, &QmlProfilerRunner::starting,
                 &d->m_profilerTool, &QmlProfilerTool::finalizeRunControl);
         return runner;

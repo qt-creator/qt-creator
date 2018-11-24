@@ -64,11 +64,11 @@ QmlProfilerAttachDialog::QmlProfilerAttachDialog(QWidget *parent) :
     d->portSpinBox->setMaximum(65535);
     d->portSpinBox->setValue(3768);
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
+    auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
-    QLabel *hint = new QLabel(this);
+    auto hint = new QLabel(this);
     hint->setWordWrap(true);
     hint->setTextFormat(Qt::RichText);
     hint->setText(tr("Select an externally started QML-debug enabled application.<p>"
@@ -76,11 +76,11 @@ QmlProfilerAttachDialog::QmlProfilerAttachDialog(QWidget *parent) :
                   + "<p><tt>-qmljsdebugger=port:&lt;port&gt;,block,<br>"
                     "&nbsp;&nbsp;services:CanvasFrameRate,EngineControl,DebugMessages</tt>");
 
-    QFormLayout *formLayout = new QFormLayout();
+    auto formLayout = new QFormLayout;
     formLayout->addRow(tr("Kit:"), d->kitChooser);
     formLayout->addRow(tr("&Port:"), d->portSpinBox);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(hint);
     verticalLayout->addLayout(formLayout);
     verticalLayout->addWidget(buttonBox);

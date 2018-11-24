@@ -59,16 +59,16 @@ public:
 
     struct PixmapState {
         PixmapState(int width, int height, CacheState cache = Uncached) :
-            size(width, height), started(-1), loadState(Initial), cacheState(cache) {}
-        PixmapState(CacheState cache = Uncached) : started(-1), loadState(Initial), cacheState(cache) {}
+            size(width, height), cacheState(cache) {}
+        PixmapState(CacheState cache = Uncached) : cacheState(cache) {}
         QSize size;
-        int started;
-        LoadState loadState;
+        int started = -1;
+        LoadState loadState = Initial;
         CacheState cacheState;
     };
 
     struct Pixmap {
-        Pixmap() {}
+        Pixmap() = default;
         Pixmap(const QString &url) : url(url), sizes(1) {}
         QString url;
         QVector<PixmapState> sizes;

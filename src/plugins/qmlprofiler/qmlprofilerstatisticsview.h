@@ -75,7 +75,7 @@ class QmlProfilerStatisticsMainView : public Utils::TreeView
     Q_OBJECT
 public:
     explicit QmlProfilerStatisticsMainView(QmlProfilerStatisticsModel *model);
-    ~QmlProfilerStatisticsMainView();
+    ~QmlProfilerStatisticsMainView() override;
 
     QModelIndex selectedModelIndex() const;
     void copyTableToClipboard() const;
@@ -110,7 +110,7 @@ class QmlProfilerStatisticsRelativesView : public Utils::TreeView
     Q_OBJECT
 public:
     explicit QmlProfilerStatisticsRelativesView(QmlProfilerStatisticsRelativesModel *model);
-    ~QmlProfilerStatisticsRelativesView();
+    ~QmlProfilerStatisticsRelativesView() override;
 
     void displayType(int typeIndex);
     void jumpToItem(int typeIndex);

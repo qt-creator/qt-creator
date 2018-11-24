@@ -33,7 +33,7 @@ class QmlEventTypeTest : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlEventTypeTest(QObject *parent = 0);
+    explicit QmlEventTypeTest(QObject *parent = nullptr);
 
 private slots:
     void testAccessors();

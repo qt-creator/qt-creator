@@ -85,13 +85,12 @@ void FlameGraphView::onVisibleFeaturesChanged(quint64 features)
 void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    QAction *getGlobalStatsAction = nullptr;
 
     QPoint position = ev->globalPos();
 
     menu.addActions(QmlProfilerTool::profilerContextMenuActions());
     menu.addSeparator();
-    getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
+    QAction *getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
     if (!m_model->modelManager()->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 
