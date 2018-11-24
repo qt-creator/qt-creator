@@ -36,7 +36,7 @@ void AttributeItemModel::setTag(ScxmlTag *tag)
 {
     beginResetModel();
     m_tag = tag;
-    m_document = m_tag ? m_tag->document() : 0;
+    m_document = m_tag ? m_tag->document() : nullptr;
     endResetModel();
     emit layoutChanged();
     emit dataChanged(QModelIndex(), QModelIndex());

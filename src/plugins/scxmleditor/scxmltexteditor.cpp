@@ -49,7 +49,7 @@ ScxmlTextEditor::ScxmlTextEditor()
 void ScxmlTextEditor::finalizeInitialization()
 {
     // Revert to saved/load externally modified files.
-    ScxmlEditorDocument *document = qobject_cast<ScxmlEditorDocument*>(textDocument());
+    auto document = qobject_cast<const ScxmlEditorDocument*>(textDocument());
     connect(document, &ScxmlEditorDocument::reloadRequested,
         [this](QString *errorString, const QString &fileName) {
             open(errorString, fileName, fileName);
@@ -58,7 +58,7 @@ void ScxmlTextEditor::finalizeInitialization()
 
 bool ScxmlTextEditor::open(QString *errorString, const QString &fileName, const QString & /*realFileName*/)
 {
-    ScxmlEditorDocument *document = qobject_cast<ScxmlEditorDocument*>(textDocument());
+    auto document = qobject_cast<ScxmlEditorDocument*>(textDocument());
     Common::MainWidget *designWidget = document->designWidget();
     QTC_ASSERT(designWidget, return false);
 

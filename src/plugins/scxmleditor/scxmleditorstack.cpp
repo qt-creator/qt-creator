@@ -89,8 +89,8 @@ void ScxmlEditorStack::modeAboutToChange(Core::Id m)
 {
     // Sync the editor when entering edit mode
     if (m == Core::Constants::MODE_EDIT) {
-        for (const ScxmlTextEditor *editor: m_editors)
-            if (ScxmlEditorDocument *document = qobject_cast<ScxmlEditorDocument*>(editor->textDocument()))
+        for (auto editor: qAsConst(m_editors))
+            if (auto document = qobject_cast<ScxmlEditorDocument*>(editor->textDocument()))
                 document->syncXmlFromDesignWidget();
     }
 }

@@ -649,7 +649,7 @@ void TransitionItem::connectToTopItem(const QPointF &pos, TransitionPoint tp, It
         removeGrabbers();
         if (m_startItem == m_endItem && cornerPoints == 2) {
             setTagValue("type", "internal");
-            setEndItem(0);
+            setEndItem(nullptr);
             m_targetType = InternalNoTarget;
         }
 
@@ -1169,7 +1169,7 @@ void TransitionItem::storeValues(bool block)
 
 void TransitionItem::updateUIProperties()
 {
-    if (tag() != 0 && isActiveScene())
+    if (tag() && isActiveScene())
         storeValues();
 }
 
@@ -1180,9 +1180,9 @@ void TransitionItem::updateTargetType()
 
     TransitionTargetType type = ExternalTarget;
 
-    if (m_startItem != 0 && m_startItem == m_endItem)
+    if (m_startItem && m_startItem == m_endItem)
         type = InternalSameTarget;
-    else if (m_startItem != 0 && !m_endItem) {
+    else if (m_startItem && !m_endItem) {
         if (m_movingLastPoint) {
             type = ExternalNoTarget;
         } else {

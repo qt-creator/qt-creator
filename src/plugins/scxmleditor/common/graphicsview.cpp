@@ -231,7 +231,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
 
         QList<QGraphicsItem*> parentItems = items(event->pos());
         for (int i = 0; i < parentItems.count(); ++i) {
-            BaseItem *item = static_cast<BaseItem*>(parentItems[i]);
+            auto item = static_cast<const BaseItem*>(parentItems[i]);
             if (item && item->type() >= StateType) {
                 targetPos = item->mapFromScene(targetPos);
                 targetTag = item->tag();

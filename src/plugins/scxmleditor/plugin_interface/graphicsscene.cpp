@@ -70,7 +70,7 @@ void GraphicsScene::unselectAll()
     foreach (QGraphicsItem *it, selectedItems)
         it->setSelected(false);
     if (m_document)
-        m_document->setCurrentTag(0);
+        m_document->setCurrentTag(nullptr);
 }
 
 void GraphicsScene::unhighlightAll()
@@ -209,7 +209,7 @@ void GraphicsScene::removeSelectedItems()
             m_document->setCurrentTag(tags[i]);
             m_document->removeTag(tags[i]);
         }
-        m_document->setCurrentTag(0);
+        m_document->setCurrentTag(nullptr);
         m_document->undoStack()->endMacro();
     }
 }
@@ -305,7 +305,7 @@ void GraphicsScene::setEditorInfo(const QString &key, const QString &value)
 void GraphicsScene::setDocument(ScxmlDocument *document)
 {
     if (m_document)
-        disconnect(m_document, 0, this, 0);
+        disconnect(m_document, nullptr, this, nullptr);
 
     m_document = document;
 
@@ -361,7 +361,7 @@ void GraphicsScene::init()
     }
 
     m_initializing = false;
-    warningVisibilityChanged(0, 0);
+    warningVisibilityChanged(0, nullptr);
     emit selectedStateCountChanged(0);
     emit selectedBaseItemCountChanged(0);
 }
@@ -556,7 +556,7 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
                     auto transition = new TransitionItem;
                     addItem(transition);
                     transition->setStartItem(qgraphicsitem_cast<ConnectableItem*>(parentItem));
-                    transition->init(childTag, 0, false, false);
+                    transition->init(childTag, nullptr, false, false);
                     transition->updateAttributes();
                 } else {
                     childItem = SceneUtils::createItemByTagType(childTag->tagType(), QPointF());
@@ -745,7 +745,7 @@ void GraphicsScene::removeItems(const ScxmlTag *tag)
 
         // Then delete them
         for (int i = items.count(); i--;) {
-            items[i]->setTag(0);
+            items[i]->setTag(nullptr);
             delete items[i];
         }
     }
@@ -911,7 +911,7 @@ void GraphicsScene::addChild(BaseItem *item)
 void GraphicsScene::removeChild(BaseItem *item)
 {
     if (item)
-        disconnect(item, 0, this, 0);
+        disconnect(item, nullptr, this, nullptr);
     m_baseItems.removeAll(item);
 
     selectionChanged(false);
@@ -943,7 +943,7 @@ void GraphicsScene::checkInitialState()
 void GraphicsScene::clearAllTags()
 {
     foreach (BaseItem *it, m_baseItems) {
-        it->setTag(0);
+        it->setTag(nullptr);
     }
 }
 

@@ -185,7 +185,7 @@ QVector<ScxmlTag*> findRemovedTags(const QVector<BaseItem*> &items)
             // Find the last selected parent
             BaseItem *parent = it->parentBaseItem();
             BaseItem *lastSelectedParent = it;
-            while (parent != 0) {
+            while (parent) {
                 if (parent->isSelected())
                     lastSelectedParent = parent;
                 parent = parent->parentBaseItem();
@@ -330,7 +330,7 @@ void layout(const QList<QGraphicsItem*> &items)
 
 bool isChild(const QGraphicsItem *parent, const QGraphicsItem *child)
 {
-    while (child != 0) {
+    while (child) {
         if (parent == child)
             return true;
         child = child->parentItem();
@@ -341,7 +341,7 @@ bool isChild(const QGraphicsItem *parent, const QGraphicsItem *child)
 
 bool isSomeSelected(QGraphicsItem *item)
 {
-    while (item != 0) {
+    while (item) {
         if (item->isSelected())
             return true;
         item = item->parentItem();

@@ -325,7 +325,7 @@ void Structure::showMenu(const QModelIndex &index, const QPoint &globalPos)
                     m_currentDocument->undoStack()->beginMacro(tr("Remove items"));
                     m_currentDocument->setCurrentTag(tag);
                     m_currentDocument->removeTag(tag);
-                    m_currentDocument->setCurrentTag(0);
+                    m_currentDocument->setCurrentTag(nullptr);
                     m_currentDocument->undoStack()->endMacro();
                 } else if (actionType == TagUtils::AddChild) {
                     tag->document()->undoStack()->beginMacro(tr("Add child"));

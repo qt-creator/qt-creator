@@ -60,11 +60,9 @@ namespace Internal {
 class ScxmlTextEditorWidget : public TextEditor::TextEditorWidget
 {
 public:
-    ScxmlTextEditorWidget()
-    {
-    }
+    ScxmlTextEditorWidget() = default;
 
-    void finalizeInitialization()
+    void finalizeInitialization() override
     {
         setReadOnly(true);
     }

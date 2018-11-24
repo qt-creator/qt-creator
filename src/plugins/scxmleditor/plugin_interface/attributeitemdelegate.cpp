@@ -29,7 +29,6 @@ using namespace ScxmlEditor::PluginInterface;
 
 AttributeItemDelegate::AttributeItemDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
-    , m_tag(0)
 {
 }
 

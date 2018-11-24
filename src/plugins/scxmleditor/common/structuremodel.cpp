@@ -46,7 +46,7 @@ void StructureModel::setDocument(ScxmlDocument *document)
 {
     beginResetModel();
     if (m_document)
-        disconnect(m_document, 0, this, 0);
+        disconnect(m_document, nullptr, this, nullptr);
 
     m_document = document;
     if (m_document) {

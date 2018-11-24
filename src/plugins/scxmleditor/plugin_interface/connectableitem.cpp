@@ -451,7 +451,7 @@ void ConnectableItem::releaseFromParent()
     setOpacity(0.5);
     m_releasedIndex = tag()->index();
     m_releasedParent = parentItem();
-    tag()->document()->changeParent(tag(), 0, !m_releasedParent ? m_releasedIndex : -1);
+    tag()->document()->changeParent(tag(), nullptr, !m_releasedParent ? m_releasedIndex : -1);
     setZValue(503);
 
     for (int i = 0; i < m_quickTransitions.count(); ++i)
@@ -468,7 +468,8 @@ void ConnectableItem::connectToParent(BaseItem *parentItem)
     for (int i = 0; i < m_corners.count(); ++i)
         m_corners[i]->setVisible(true);
 
-    tag()->document()->changeParent(tag(), parentItem ? parentItem->tag() : 0, parentItem == m_releasedParent ? m_releasedIndex : -1);
+    tag()->document()->changeParent(tag(), parentItem ? parentItem->tag() : nullptr,
+                                    parentItem == m_releasedParent ? m_releasedIndex : -1);
 
     setZValue(0);
     m_releasedIndex = -1;
@@ -564,7 +565,7 @@ void ConnectableItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
 void ConnectableItem::updateUIProperties()
 {
-    if (tag() != 0 && isActiveScene()) {
+    if (tag() && isActiveScene()) {
         Serializer s;
         s.append(pos());
         s.append(boundingRect());

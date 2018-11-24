@@ -333,7 +333,7 @@ bool BaseItem::isActiveScene() const
 
 ScxmlUiFactory *BaseItem::uiFactory() const
 {
-    return m_scene ? m_scene->uiFactory() : 0;
+    return m_scene ? m_scene->uiFactory() : nullptr;
 }
 
 GraphicsScene *BaseItem::graphicsScene() const

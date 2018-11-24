@@ -132,9 +132,7 @@ OutputTabWidget::OutputTabWidget(QWidget *parent)
     close();
 }
 
-OutputTabWidget::~OutputTabWidget()
-{
-}
+OutputTabWidget::~OutputTabWidget() = default;
 
 int OutputTabWidget::addPane(OutputPane *pane)
 {

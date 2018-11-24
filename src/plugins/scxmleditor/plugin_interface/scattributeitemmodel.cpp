@@ -50,7 +50,7 @@ bool SCAttributeItemModel::setData(const QModelIndex &index, const QVariant &val
 
     bool bEditable = m_tag->tagType() <= MetadataItem;
 
-    if (index.row() >= 0 && m_document != 0) {
+    if (index.row() >= 0 && m_document) {
         if (!bEditable) {
             if (index.row() < m_tag->info()->n_attributes)
                 m_document->setValue(m_tag, index.row(), value.toString());

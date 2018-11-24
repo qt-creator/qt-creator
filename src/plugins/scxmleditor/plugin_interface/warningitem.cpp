@@ -70,7 +70,7 @@ QRectF WarningItem::boundingRect() const
 
 void WarningItem::mousePressEvent(QGraphicsSceneMouseEvent *e)
 {
-    QToolTip::showText(e->screenPos(), toolTip(), 0);
+    QToolTip::showText(e->screenPos(), toolTip(), nullptr);
     QGraphicsObject::mousePressEvent(e);
 }
 
@@ -162,7 +162,7 @@ void WarningItem::setPixmap(const QPixmap &pixmap)
 
 ScxmlTag *WarningItem::tag() const
 {
-    return m_parentItem ? m_parentItem->tag() : 0;
+    return m_parentItem ? m_parentItem->tag() : nullptr;
 }
 
 ScxmlEditor::OutputPane::Warning *WarningItem::warning() const

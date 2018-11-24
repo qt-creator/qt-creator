@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "scxmleditor_global.h"
+#include <QtGlobal>
 
 namespace ScxmlEditor {
 namespace Constants {

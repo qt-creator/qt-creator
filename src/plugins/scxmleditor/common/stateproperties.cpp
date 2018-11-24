@@ -96,14 +96,14 @@ void StateProperties::tagChange(ScxmlDocument::TagChange change, ScxmlTag *tag, 
 void StateProperties::setDocument(ScxmlDocument *document)
 {
     if (m_document)
-        disconnect(m_document, 0, this, 0);
+        disconnect(m_document, nullptr, this, nullptr);
 
     m_document = document;
     if (m_document) {
         m_tag = m_document->rootTag();
         connect(m_document, &ScxmlDocument::endTagChange, this, &StateProperties::tagChange);
     } else {
-        setTag(0);
+        setTag(nullptr);
     }
 }
 
