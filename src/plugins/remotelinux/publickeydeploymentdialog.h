@@ -40,13 +40,13 @@ class REMOTELINUX_EXPORT PublicKeyDeploymentDialog : public QProgressDialog
 public:
     // Asks for public key and returns null if the file dialog is canceled.
     static PublicKeyDeploymentDialog *createDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
-        QWidget *parent = 0);
+        QWidget *parent = nullptr);
 
-    ~PublicKeyDeploymentDialog();
+    ~PublicKeyDeploymentDialog() override;
 
 private:
     explicit PublicKeyDeploymentDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
-        const QString &publicKeyFileName, QWidget *parent = 0);
+        const QString &publicKeyFileName, QWidget *parent = nullptr);
     void handleDeploymentFinished(const QString &errorMsg);
     void handleDeploymentError(const QString &errorMsg);
     void handleDeploymentSuccess();

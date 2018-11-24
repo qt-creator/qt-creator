@@ -40,8 +40,8 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
 
 public:
     explicit GenericLinuxDeviceConfigurationWidget(
-        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = 0);
-    ~GenericLinuxDeviceConfigurationWidget();
+        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = nullptr);
+    ~GenericLinuxDeviceConfigurationWidget() override;
 
 private:
     void authenticationTypeChanged();
@@ -58,7 +58,7 @@ private:
     void createNewKey();
     void hostKeyCheckingChanged(bool doCheck);
 
-    void updateDeviceFromUi();
+    void updateDeviceFromUi() override;
     void updatePortsWarningLabel();
     void initGui();
 

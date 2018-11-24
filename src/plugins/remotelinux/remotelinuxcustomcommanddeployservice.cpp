@@ -39,11 +39,9 @@ enum State { Inactive, Running };
 class RemoteLinuxCustomCommandDeployservicePrivate
 {
 public:
-    RemoteLinuxCustomCommandDeployservicePrivate() : state(Inactive), runner(0) { }
-
     QString commandLine;
-    State state;
-    SshRemoteProcessRunner *runner;
+    State state = Inactive;
+    SshRemoteProcessRunner *runner = nullptr;
 };
 
 } // namespace Internal
@@ -105,7 +103,7 @@ void RemoteLinuxCustomCommandDeployService::stopDeployment()
 {
     QTC_ASSERT(d->state == Running, return);
 
-    disconnect(d->runner, 0, this, 0);
+    disconnect(d->runner, nullptr, this, nullptr);
     d->runner->cancel();
     d->state = Inactive;
     handleDeploymentDone();

@@ -41,7 +41,7 @@ class RemoteLinuxEnvironmentReader : public QObject
 
 public:
     RemoteLinuxEnvironmentReader(const ProjectExplorer::IDevice::ConstPtr &device,
-                                 QObject *parent = 0);
+                                 QObject *parent = nullptr);
     void start();
     void stop();
 
@@ -58,10 +58,10 @@ private:
     void setFinished();
     void destroyProcess();
 
-    bool m_stop;
+    bool m_stop = false;
     Utils::Environment m_env;
     ProjectExplorer::IDevice::ConstPtr m_device;
-    ProjectExplorer::DeviceProcess *m_deviceProcess;
+    ProjectExplorer::DeviceProcess *m_deviceProcess = nullptr;
 };
 
 } // namespace Internal

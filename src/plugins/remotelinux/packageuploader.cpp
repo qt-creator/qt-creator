@@ -35,13 +35,11 @@ namespace RemoteLinux {
 namespace Internal {
 
 PackageUploader::PackageUploader(QObject *parent) :
-    QObject(parent), m_state(Inactive), m_connection(0)
+    QObject(parent), m_state(Inactive), m_connection(nullptr)
 {
 }
 
-PackageUploader::~PackageUploader()
-{
-}
+PackageUploader::~PackageUploader() = default;
 
 void PackageUploader::uploadPackage(SshConnection *connection,
     const QString &localFilePath, const QString &remoteFilePath)
@@ -138,12 +136,12 @@ void PackageUploader::setState(State newState)
         return;
     if (newState == Inactive) {
         if (m_uploader) {
-            disconnect(m_uploader.data(), 0, this, 0);
+            disconnect(m_uploader.data(), nullptr, this, nullptr);
             m_uploader.clear();
         }
         if (m_connection) {
-            disconnect(m_connection, 0, this, 0);
-            m_connection = 0;
+            disconnect(m_connection, nullptr, this, nullptr);
+            m_connection = nullptr;
         }
     }
     m_state = newState;

@@ -43,8 +43,8 @@ class PackageUploader : public QObject
 {
     Q_OBJECT
 public:
-    explicit PackageUploader(QObject *parent = 0);
-    ~PackageUploader();
+    explicit PackageUploader(QObject *parent = nullptr);
+    ~PackageUploader() override;
 
     // Connection has to be established already.
     void uploadPackage(QSsh::SshConnection *connection,

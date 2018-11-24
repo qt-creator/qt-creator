@@ -39,8 +39,8 @@ class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
     Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::LinuxDevice)
 
 public:
-    typedef QSharedPointer<LinuxDevice> Ptr;
-    typedef QSharedPointer<const LinuxDevice> ConstPtr;
+    using Ptr = QSharedPointer<LinuxDevice>;
+    using ConstPtr = QSharedPointer<const LinuxDevice>;
 
     static Ptr create();
     static Ptr create(const QString &name, Core::Id type, MachineType machineType,
@@ -66,7 +66,7 @@ public:
     ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
 
 protected:
-    LinuxDevice() {}
+    LinuxDevice() = default;
     LinuxDevice(const QString &name, Core::Id type,
                              MachineType machineType, Origin origin, Core::Id id);
     LinuxDevice(const LinuxDevice &other);

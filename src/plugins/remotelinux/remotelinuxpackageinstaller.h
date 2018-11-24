@@ -38,7 +38,7 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxPackageInstaller : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(AbstractRemoteLinuxPackageInstaller)
 public:
-    ~AbstractRemoteLinuxPackageInstaller();
+    ~AbstractRemoteLinuxPackageInstaller() override;
 
     void installPackage(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
         const QString &packageFilePath, bool removePackageFile);
@@ -50,7 +50,7 @@ signals:
     void finished(const QString &errorMsg = QString());
 
 protected:
-    explicit AbstractRemoteLinuxPackageInstaller(QObject *parent = 0);
+    explicit AbstractRemoteLinuxPackageInstaller(QObject *parent = nullptr);
 
 private:
     void handleConnectionError();
@@ -74,11 +74,11 @@ class REMOTELINUX_EXPORT RemoteLinuxTarPackageInstaller : public AbstractRemoteL
 {
     Q_OBJECT
 public:
-    RemoteLinuxTarPackageInstaller(QObject *parent = 0);
+    RemoteLinuxTarPackageInstaller(QObject *parent = nullptr);
 
 private:
-    QString installCommandLine(const QString &packageFilePath) const;
-    QString cancelInstallationCommandLine() const;
+    QString installCommandLine(const QString &packageFilePath) const override;
+    QString cancelInstallationCommandLine() const override;
 };
 
 

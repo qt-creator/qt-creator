@@ -35,19 +35,19 @@ class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeployService
 {
     Q_OBJECT
 public:
-    explicit RemoteLinuxCustomCommandDeployService(QObject *parent = 0);
-    ~RemoteLinuxCustomCommandDeployService();
+    explicit RemoteLinuxCustomCommandDeployService(QObject *parent = nullptr);
+    ~RemoteLinuxCustomCommandDeployService() override;
 
     void setCommandLine(const QString &commandLine);
 
-    bool isDeploymentNecessary() const { return true; }
-    bool isDeploymentPossible(QString *whyNot = 0) const;
+    bool isDeploymentNecessary() const override { return true; }
+    bool isDeploymentPossible(QString *whyNot = nullptr) const override;
 
 protected:
-    void doDeviceSetup() { handleDeviceSetupDone(true); }
-    void stopDeviceSetup() { handleDeviceSetupDone(false); }
-    void doDeploy();
-    void stopDeployment();
+    void doDeviceSetup() override { handleDeviceSetupDone(true); }
+    void stopDeviceSetup() override { handleDeviceSetupDone(false); }
+    void doDeploy() override;
+    void stopDeployment() override;
 
 private:
     void handleStdout();

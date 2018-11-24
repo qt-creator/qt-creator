@@ -39,8 +39,8 @@ class REMOTELINUX_EXPORT SshKeyDeployer : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(SshKeyDeployer)
 public:
-    explicit SshKeyDeployer(QObject *parent = 0);
-    ~SshKeyDeployer();
+    explicit SshKeyDeployer(QObject *parent = nullptr);
+    ~SshKeyDeployer() override;
 
     void deployPublicKey(const QSsh::SshConnectionParameters &sshParams,
         const QString &keyFilePath);

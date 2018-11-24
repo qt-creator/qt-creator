@@ -37,10 +37,8 @@ namespace Internal {
 RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(const IDevice::ConstPtr &device,
                                                            QObject *parent)
     : QObject(parent)
-    , m_stop(false)
     , m_env(Utils::OsTypeLinux)
     , m_device(device)
-    , m_deviceProcess(0)
 {
 }
 
@@ -127,7 +125,7 @@ void RemoteLinuxEnvironmentReader::destroyProcess()
     if (m_deviceProcess->state() != QProcess::NotRunning)
         m_deviceProcess->terminate();
     m_deviceProcess->deleteLater();
-    m_deviceProcess = 0;
+    m_deviceProcess = nullptr;
 }
 
 } // namespace Internal

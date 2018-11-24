@@ -55,7 +55,7 @@ PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(const IDevice
         tr("Choose Public Key File"), dir,
         tr("Public Key Files (*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty())
-        return 0;
+        return nullptr;
     return new PublicKeyDeploymentDialog(deviceConfig, publicKeyFileName, parent);
 }
 
@@ -114,7 +114,7 @@ void PublicKeyDeploymentDialog::handleDeploymentFinished(const QString &errorMsg
 
 void PublicKeyDeploymentDialog::handleCanceled()
 {
-    disconnect(&d->keyDeployer, 0, this, 0);
+    disconnect(&d->keyDeployer, nullptr, this, nullptr);
     d->keyDeployer.stopDeployment();
     if (d->done)
         accept();

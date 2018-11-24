@@ -38,8 +38,8 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizard : public Utils::W
     Q_OBJECT
 
 public:
-    GenericLinuxDeviceConfigurationWizard(QWidget *parent = 0);
-    ~GenericLinuxDeviceConfigurationWizard();
+    GenericLinuxDeviceConfigurationWizard(QWidget *parent = nullptr);
+    ~GenericLinuxDeviceConfigurationWizard() override;
 
     ProjectExplorer::IDevice::Ptr device();
 

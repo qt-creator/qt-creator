@@ -35,16 +35,16 @@ class EmbeddedLinuxQtVersion : public QtSupport::BaseQtVersion
 public:
     EmbeddedLinuxQtVersion() = default;
     EmbeddedLinuxQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
-    ~EmbeddedLinuxQtVersion() = default;
-    EmbeddedLinuxQtVersion *clone() const;
+    ~EmbeddedLinuxQtVersion() override = default;
+    EmbeddedLinuxQtVersion *clone() const override;
 
-    QString type() const;
+    QString type() const override;
 
-    QList<ProjectExplorer::Abi> detectQtAbis() const;
+    QList<ProjectExplorer::Abi> detectQtAbis() const override;
 
-    QString description() const;
+    QString description() const override;
 
-    QSet<Core::Id> targetDeviceTypes() const;
+    QSet<Core::Id> targetDeviceTypes() const override;
 };
 
 } // namespace Internal

@@ -39,10 +39,10 @@ class REMOTELINUX_EXPORT UploadAndInstallTarPackageService : public AbstractUplo
 
 public:
     explicit UploadAndInstallTarPackageService(QObject *parent);
-    ~UploadAndInstallTarPackageService();
+    ~UploadAndInstallTarPackageService() override;
 
 private:
-    AbstractRemoteLinuxPackageInstaller *packageInstaller() const;
+    AbstractRemoteLinuxPackageInstaller *packageInstaller() const override;
 
     Internal::UploadAndInstallTarPackageServicePrivate *d;
 };
@@ -55,7 +55,7 @@ class REMOTELINUX_EXPORT UploadAndInstallTarPackageStep : public AbstractRemoteL
 public:
     explicit UploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bsl);
 
-    bool initInternal(QString *error = 0) override;
+    bool initInternal(QString *error = nullptr) override;
 
     static Core::Id stepId();
     static QString displayName();

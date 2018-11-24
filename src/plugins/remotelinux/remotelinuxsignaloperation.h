@@ -61,7 +61,7 @@ private:
     void finish();
 
     const QSsh::SshConnectionParameters m_sshParameters;
-    QSsh::SshRemoteProcessRunner *m_runner;
+    QSsh::SshRemoteProcessRunner *m_runner = nullptr;
 
     friend class LinuxDevice;
 };

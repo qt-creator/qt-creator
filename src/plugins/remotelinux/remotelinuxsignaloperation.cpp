@@ -34,9 +34,7 @@ using namespace ProjectExplorer;
 
 RemoteLinuxSignalOperation::RemoteLinuxSignalOperation(
         const QSsh::SshConnectionParameters &sshParameters)
-    : DeviceProcessSignalOperation()
-    , m_sshParameters(sshParameters)
-    , m_runner(0)
+    : m_sshParameters(sshParameters)
 {}
 
 RemoteLinuxSignalOperation::~RemoteLinuxSignalOperation()
@@ -68,7 +66,7 @@ void RemoteLinuxSignalOperation::run(const QString &command)
 void RemoteLinuxSignalOperation::finish()
 {
     delete m_runner;
-    m_runner = 0;
+    m_runner = nullptr;
     emit finished(m_errorMessage);
 }
 

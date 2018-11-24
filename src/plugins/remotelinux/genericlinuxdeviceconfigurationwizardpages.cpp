@@ -159,7 +159,7 @@ GenericLinuxDeviceConfigurationWizardFinalPage::GenericLinuxDeviceConfigurationW
     setTitle(tr("Summary"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
     d->infoLabel.setWordWrap(true);
-    QVBoxLayout * const layout = new QVBoxLayout(this);
+    auto const layout = new QVBoxLayout(this);
     layout->addWidget(&d->infoLabel);
 }
 

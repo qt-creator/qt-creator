@@ -41,8 +41,8 @@ class TypeSpecificDeviceConfigurationListModel : public QAbstractListModel
 public:
     explicit TypeSpecificDeviceConfigurationListModel(ProjectExplorer::Target *target);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
 private:
     int indexForId(Core::Id id) const;

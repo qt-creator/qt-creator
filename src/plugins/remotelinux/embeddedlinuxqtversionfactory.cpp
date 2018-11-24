@@ -36,8 +36,7 @@ namespace Internal {
 EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory(QObject *parent) : QtSupport::QtVersionFactory(parent)
 { }
 
-EmbeddedLinuxQtVersionFactory::~EmbeddedLinuxQtVersionFactory()
-{ }
+EmbeddedLinuxQtVersionFactory::~EmbeddedLinuxQtVersionFactory() = default;
 
 bool EmbeddedLinuxQtVersionFactory::canRestore(const QString &type)
 {
@@ -47,8 +46,8 @@ bool EmbeddedLinuxQtVersionFactory::canRestore(const QString &type)
 QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::restore(const QString &type, const QVariantMap &data)
 {
     if (!canRestore(type))
-        return 0;
-    EmbeddedLinuxQtVersion *v = new EmbeddedLinuxQtVersion;
+        return nullptr;
+    auto v = new EmbeddedLinuxQtVersion;
     v->fromMap(data);
     return v;
 }
@@ -67,9 +66,9 @@ QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::create(const Utils::Fil
 
     QFileInfo fi = qmakePath.toFileInfo();
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
-        return 0;
+        return nullptr;
 
-    EmbeddedLinuxQtVersion *version = new EmbeddedLinuxQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
+    auto version = new EmbeddedLinuxQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
 
     QList<ProjectExplorer::Abi> abis = version->qtAbis();
     // Note: This fails for e.g. intel/meego cross builds on x86 linux machines.
@@ -79,7 +78,7 @@ QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::create(const Utils::Fil
         return version;
 
     delete version;
-    return 0;
+    return nullptr;
 }
 
 } // namespace Internal

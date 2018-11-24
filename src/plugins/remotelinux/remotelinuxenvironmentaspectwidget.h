@@ -43,7 +43,7 @@ public:
     RemoteLinuxEnvironmentAspectWidget(RemoteLinuxEnvironmentAspect *aspect,
                                        ProjectExplorer::Target *target);
 
-    RemoteLinuxEnvironmentAspect *aspect() const;
+    RemoteLinuxEnvironmentAspect *aspect() const override;
     QPushButton *fetchButton() const;
 
 private:

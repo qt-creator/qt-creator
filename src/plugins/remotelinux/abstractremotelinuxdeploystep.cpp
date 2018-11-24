@@ -144,7 +144,7 @@ void AbstractRemoteLinuxDeployStep::handleFinished()
         emit addOutput(tr("Deploy step failed."), OutputFormat::ErrorMessage);
     else
         emit addOutput(tr("Deploy step finished."), OutputFormat::NormalMessage);
-    disconnect(deployService(), 0, this, 0);
+    disconnect(deployService(), nullptr, this, nullptr);
     reportRunResult(d->future, !d->hasError);
 }
 

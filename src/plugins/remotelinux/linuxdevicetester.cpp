@@ -203,11 +203,11 @@ void GenericLinuxDeviceTester::handleSftpError(const QString &message)
 void GenericLinuxDeviceTester::setFinished(TestResult result)
 {
     d->state = Inactive;
-    disconnect(&d->portsGatherer, 0, this, 0);
+    disconnect(&d->portsGatherer, nullptr, this, nullptr);
     if (d->connection) {
-        disconnect(d->connection, 0, this, 0);
+        disconnect(d->connection, nullptr, this, nullptr);
         d->connection->deleteLater();
-        d->connection = 0;
+        d->connection = nullptr;
     }
     emit finished(result);
 }

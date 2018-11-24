@@ -51,16 +51,13 @@ enum State { Inactive, SettingUpDevice, Connecting, Deploying };
 class AbstractRemoteLinuxDeployServicePrivate
 {
 public:
-    AbstractRemoteLinuxDeployServicePrivate()
-        : connection(0), state(Inactive), stopRequested(false) {}
-
     IDevice::ConstPtr deviceConfiguration;
     QPointer<Target> target;
 
     DeploymentTimeInfo deployTimes;
-    SshConnection *connection;
-    State state;
-    bool stopRequested;
+    SshConnection *connection = nullptr;
+    State state = Inactive;
+    bool stopRequested = false;
 };
 } // namespace Internal
 
@@ -260,9 +257,9 @@ void AbstractRemoteLinuxDeployService::setFinished()
 {
     d->state = Inactive;
     if (d->connection) {
-        disconnect(d->connection, 0, this, 0);
+        disconnect(d->connection, nullptr, this, nullptr);
         QSsh::releaseConnection(d->connection);
-        d->connection = 0;
+        d->connection = nullptr;
     }
     d->stopRequested = false;
     emit finished();

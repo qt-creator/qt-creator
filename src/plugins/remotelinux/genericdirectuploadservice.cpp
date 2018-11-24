@@ -71,13 +71,10 @@ struct Job
 class GenericDirectUploadServicePrivate
 {
 public:
-    GenericDirectUploadServicePrivate()
-        : incremental(false), ignoreMissingFiles(false), state(Inactive) {}
-
-    bool incremental;
-    bool ignoreMissingFiles;
+    bool incremental = false;
+    bool ignoreMissingFiles = false;
     bool uploadJobRunning = false;
-    State state;
+    State state = Inactive;
 
     QList<DeployableFile> filesToUpload;
 
@@ -373,21 +370,21 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
 
 void GenericDirectUploadService::handleStdOutData()
 {
-    SshRemoteProcess * const process = qobject_cast<SshRemoteProcess *>(sender());
+    auto const process = qobject_cast<SshRemoteProcess *>(sender());
     if (process)
         emit stdOutData(QString::fromUtf8(process->readAllStandardOutput()));
 }
 
 void GenericDirectUploadService::handleStdErrData()
 {
-    SshRemoteProcess * const process = qobject_cast<SshRemoteProcess *>(sender());
+    auto const process = qobject_cast<SshRemoteProcess *>(sender());
     if (process)
         emit stdErrData(QString::fromUtf8(process->readAllStandardError()));
 }
 
 void GenericDirectUploadService::handleReadChannelFinished()
 {
-    SshRemoteProcess * const process = qobject_cast<SshRemoteProcess *>(sender());
+    auto const process = qobject_cast<SshRemoteProcess *>(sender());
     if (process && process->atEnd())
         process->close();
 }
@@ -479,7 +476,7 @@ void GenericDirectUploadService::queryFiles()
 {
     QTC_ASSERT(d->state == Uploading, return);
 
-    for (const DeployableFile &file : d->deployableFiles) {
+    for (const DeployableFile &file : qAsConst(d->deployableFiles)) {
         if (!d->incremental || hasLocalFileChanged(file)) {
             d->filesToUpload.append(file);
             continue;

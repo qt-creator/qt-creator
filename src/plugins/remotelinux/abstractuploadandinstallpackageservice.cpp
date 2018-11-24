@@ -176,8 +176,8 @@ void AbstractUploadAndInstallPackageService::handleInstallationFinished(const QS
 void AbstractUploadAndInstallPackageService::setFinished()
 {
     d->state = Inactive;
-    disconnect(d->uploader, 0, this, 0);
-    disconnect(packageInstaller(), 0, this, 0);
+    disconnect(d->uploader, nullptr, this, nullptr);
+    disconnect(packageInstaller(), nullptr, this, nullptr);
     handleDeploymentDone();
 }
 

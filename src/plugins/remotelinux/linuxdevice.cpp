@@ -64,7 +64,7 @@ public:
     }
 
 private:
-    QString listProcessesCommandLine() const
+    QString listProcessesCommandLine() const override
     {
         return QString::fromLatin1(
             "for dir in `ls -d /proc/[0123456789]*`; do "
@@ -77,7 +77,7 @@ private:
             "done").arg(QLatin1String(Delimiter0)).arg(QLatin1String(Delimiter1));
     }
 
-    QList<DeviceProcessItem> buildProcessList(const QString &listProcessesReply) const
+    QList<DeviceProcessItem> buildProcessList(const QString &listProcessesReply) const override
     {
         QList<DeviceProcessItem> processes;
         const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)
@@ -123,7 +123,7 @@ private:
 
 class LinuxPortsGatheringMethod : public PortsGatheringMethod
 {
-    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const
+    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
     {
         // We might encounter the situation that protocol is given IPv6
         // but the consumer of the free port information decides to open
@@ -142,7 +142,7 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
         return runnable;
     }
 
-    QList<Utils::Port> usedPorts(const QByteArray &output) const
+    QList<Utils::Port> usedPorts(const QByteArray &output) const override
     {
         QList<Utils::Port> ports;
         QList<QByteArray> portStrings = output.split('\n');
@@ -198,7 +198,7 @@ void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent)
 {
     QTC_ASSERT(actionIds().contains(actionId), return);
 
-    QDialog *d = 0;
+    QDialog *d = nullptr;
     const LinuxDevice::ConstPtr device = sharedFromThis().staticCast<const LinuxDevice>();
     if (actionId == Constants::GenericDeployKeyToDeviceActionId)
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
@@ -219,10 +219,7 @@ LinuxDevice::LinuxDevice(const QString &name, Core::Id type, MachineType machine
     setDisplayName(name);
 }
 
-LinuxDevice::LinuxDevice(const LinuxDevice &other)
-    : IDevice(other)
-{
-}
+LinuxDevice::LinuxDevice(const LinuxDevice &other) = default;
 
 LinuxDevice::Ptr LinuxDevice::create()
 {

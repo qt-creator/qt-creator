@@ -101,7 +101,7 @@ void SshKeyDeployer::stopDeployment()
 
 void SshKeyDeployer::cleanup()
 {
-    disconnect(&d->deployProcess, 0, this, 0);
+    disconnect(&d->deployProcess, nullptr, this, nullptr);
 }
 
 } // namespace RemoteLinux
