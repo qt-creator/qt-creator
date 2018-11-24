@@ -74,7 +74,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 
-#include <limits.h>
+#include <climits>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -135,7 +135,7 @@ static inline QString debugCodec(const QTextCodec *c)
 
 // Parse "svn status" output for added/conflicted/deleted/modified files
 // "M<7blanks>file"
-typedef QList<SubversionSubmitEditor::StatusFilePair> StatusList;
+using StatusList = QList<SubversionSubmitEditor::StatusFilePair>;
 
 StatusList parseStatusOutput(const QString &output)
 {
