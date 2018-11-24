@@ -58,9 +58,8 @@ static const char *baseClassesC[] = {"QMainWindow", "QWidget", "QDialog"};
 static inline QStringList baseClasses()
 {
     QStringList rc;
-    const int baseClassCount = sizeof(baseClassesC)/sizeof(const char *);
-    for (int i = 0; i < baseClassCount; i++)
-        rc.push_back(QLatin1String(baseClassesC[i]));
+    for (auto baseClass : baseClassesC)
+        rc.push_back(QLatin1String(baseClass));
     return rc;
 }
 

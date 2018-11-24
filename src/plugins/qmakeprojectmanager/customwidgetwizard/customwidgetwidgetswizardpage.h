@@ -48,12 +48,12 @@ class CustomWidgetWidgetsWizardPage : public QWizardPage
     Q_OBJECT
 
 public:
-    explicit CustomWidgetWidgetsWizardPage(QWidget *parent = 0);
-    virtual ~CustomWidgetWidgetsWizardPage();
+    explicit CustomWidgetWidgetsWizardPage(QWidget *parent = nullptr);
+    ~CustomWidgetWidgetsWizardPage() override;
 
     QList<PluginOptions::WidgetOptions> widgetOptions() const;
 
-    virtual bool isComplete() const;
+    bool isComplete() const override;
 
     FileNamingParameters fileNamingParameters() const { return m_fileNamingParameters; }
     void setFileNamingParameters(const FileNamingParameters &fnp) {m_fileNamingParameters = fnp; }
@@ -61,7 +61,7 @@ public:
     int classCount() const { return m_uiClassDefs.size(); }
     QString classNameAt(int i) const;
 
-    virtual void initializePage();
+    void initializePage() override;
 
 private Q_SLOTS:
     void on_classList_classAdded(const QString &name);

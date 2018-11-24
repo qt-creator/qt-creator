@@ -284,8 +284,8 @@ void LibraryWizardDialog::setupFilesPage()
             QStringList baseClasses;
             const int pluginBaseClassCount = sizeof(pluginBaseClasses)/sizeof(PluginBaseClasses);
             Q_ASSERT(defaultPluginBaseClass < pluginBaseClassCount);
-            for (int i = 0; i < pluginBaseClassCount; i++)
-                baseClasses.push_back(QLatin1String(pluginBaseClasses[i].name));
+            for (const PluginBaseClasses &pluginBaseClasse : pluginBaseClasses)
+                baseClasses.push_back(QLatin1String(pluginBaseClasse.name));
             m_filesPage->setBaseClassChoices(baseClasses);
             m_filesPage->setBaseClassName(baseClasses.at(defaultPluginBaseClass));
             m_pluginBaseClassesInitialized = true;

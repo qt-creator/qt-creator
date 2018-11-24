@@ -103,12 +103,12 @@ QmakeStaticData::QmakeStaticData()
     const unsigned count = sizeof(fileTypeDataStorage)/sizeof(FileTypeDataStorage);
     fileTypeData.reserve(count);
 
-    for (unsigned i = 0 ; i < count; ++i) {
-        const QString desc = QCoreApplication::translate("QmakeProjectManager::QmakePriFile", fileTypeDataStorage[i].typeName);
-        const QString filter = QString::fromUtf8(fileTypeDataStorage[i].addFileFilter);
-        fileTypeData.push_back(QmakeStaticData::FileTypeData(fileTypeDataStorage[i].type,
+    for (const FileTypeDataStorage &fileType : fileTypeDataStorage) {
+        const QString desc = QCoreApplication::translate("QmakeProjectManager::QmakePriFile", fileType.typeName);
+        const QString filter = QString::fromUtf8(fileType.addFileFilter);
+        fileTypeData.push_back(QmakeStaticData::FileTypeData(fileType.type,
                                                              desc, filter,
-                                                             Core::FileIconProvider::directoryIcon(QLatin1String(fileTypeDataStorage[i].icon))));
+                                                             Core::FileIconProvider::directoryIcon(QLatin1String(fileType.icon))));
     }
     // Project icon
     projectIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);

@@ -43,12 +43,12 @@ class CustomWidgetPluginWizardPage : public QWizardPage
     Q_OBJECT
 
 public:
-    explicit CustomWidgetPluginWizardPage(QWidget *parent = 0);
-    virtual ~CustomWidgetPluginWizardPage();
+    explicit CustomWidgetPluginWizardPage(QWidget *parent = nullptr);
+    ~CustomWidgetPluginWizardPage() override;
 
     void init(const CustomWidgetWidgetsWizardPage *widgetsPage);
 
-    virtual bool isComplete() const;
+    bool isComplete() const override;
 
     FileNamingParameters fileNamingParameters() const { return m_fileNamingParameters; }
     void setFileNamingParameters(const FileNamingParameters &fnp) {m_fileNamingParameters = fnp; }

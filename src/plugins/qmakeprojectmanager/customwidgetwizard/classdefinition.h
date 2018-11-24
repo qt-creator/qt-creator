@@ -39,7 +39,7 @@ class ClassDefinition : public QTabWidget
     Q_OBJECT
 
 public:
-    explicit ClassDefinition(QWidget *parent = 0);
+    explicit ClassDefinition(QWidget *parent = nullptr);
     void setClassName(const QString &name);
 
     FileNamingParameters fileNamingParameters() const { return m_fileNamingParameters; }

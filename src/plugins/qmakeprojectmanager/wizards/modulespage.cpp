@@ -36,8 +36,6 @@
 #include <QLayout>
 #include <QWidget>
 
-#include <math.h>
-
 using namespace QmakeProjectManager::Internal;
 
 ModulesPage::ModulesPage(QWidget *parent)
