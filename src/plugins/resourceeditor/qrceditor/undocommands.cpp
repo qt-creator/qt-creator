@@ -34,15 +34,13 @@ ViewCommand::ViewCommand(ResourceView *view)
         : m_view(view)
 { }
 
-ViewCommand::~ViewCommand()
-{ }
+ViewCommand::~ViewCommand() = default;
 
 ModelIndexViewCommand::ModelIndexViewCommand(ResourceView *view)
         : ViewCommand(view)
 { }
 
-ModelIndexViewCommand::~ModelIndexViewCommand()
-{ }
+ModelIndexViewCommand::~ModelIndexViewCommand() = default;
 
 void ModelIndexViewCommand::storeIndex(const QModelIndex &index)
 {
@@ -112,7 +110,7 @@ void ModifyPropertyCommand::redo()
 }
 
 RemoveEntryCommand::RemoveEntryCommand(ResourceView *view, const QModelIndex &index)
-        : ModelIndexViewCommand(view), m_entry(0), m_isExpanded(true)
+        : ModelIndexViewCommand(view), m_entry(nullptr), m_isExpanded(true)
 {
     storeIndex(index);
 }
@@ -132,9 +130,9 @@ void RemoveEntryCommand::redo()
 
 void RemoveEntryCommand::undo()
 {
-    if (m_entry != 0) {
+    if (m_entry != nullptr) {
         m_entry->restore();
-        Q_ASSERT(m_view != 0);
+        Q_ASSERT(m_view != nullptr);
         const QModelIndex index = makeIndex();
         m_view->setExpanded(index, m_isExpanded);
         m_view->setCurrentIndex(index);
@@ -145,7 +143,7 @@ void RemoveEntryCommand::undo()
 void RemoveEntryCommand::freeEntry()
 {
     delete m_entry;
-    m_entry = 0;
+    m_entry = nullptr;
 }
 
 RemoveMultipleEntryCommand::RemoveMultipleEntryCommand(ResourceView *view, const QList<QModelIndex> &list)

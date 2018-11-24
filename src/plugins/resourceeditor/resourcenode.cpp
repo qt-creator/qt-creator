@@ -84,7 +84,7 @@ private:
 class PrefixFolderLang
 {
 public:
-    PrefixFolderLang(QString prefix, QString folder, QString lang)
+    PrefixFolderLang(const QString &prefix, const QString &folder, const QString &lang)
         : m_prefix(prefix)
         , m_folder(folder)
         , m_lang(lang)
@@ -317,7 +317,7 @@ void ResourceTopLevelNode::addInternalNodes()
             folderNodes.insert(prefixId, fn.get());
             addNode(std::move(fn));
         }
-        ResourceFolderNode *currentPrefixNode = static_cast<ResourceFolderNode*>(folderNodes[prefixId]);
+        auto currentPrefixNode = static_cast<ResourceFolderNode*>(folderNodes[prefixId]);
 
         QSet<QString> fileNames;
         int filecount = file.fileCount(i);
@@ -508,10 +508,7 @@ ResourceFolderNode::ResourceFolderNode(const QString &prefix, const QString &lan
 
 }
 
-ResourceFolderNode::~ResourceFolderNode()
-{
-
-}
+ResourceFolderNode::~ResourceFolderNode() = default;
 
 bool ResourceFolderNode::supportsAction(ProjectAction action, const Node *node) const
 {

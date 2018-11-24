@@ -77,25 +77,25 @@ private:
     ResourceEditorW * currentEditor() const;
 
 private:
-    QAction *m_redoAction;
-    QAction *m_undoAction;
-    QAction *m_refreshAction;
+    QAction *m_redoAction = nullptr;
+    QAction *m_undoAction = nullptr;
+    QAction *m_refreshAction = nullptr;
 
     // project tree's folder context menu
-    QAction *m_addPrefix;
-    QAction *m_removePrefix;
-    QAction *m_renamePrefix;
-    QAction *m_removeNonExisting;
+    QAction *m_addPrefix = nullptr;
+    QAction *m_removePrefix = nullptr;
+    QAction *m_renamePrefix = nullptr;
+    QAction *m_removeNonExisting = nullptr;
 
-    QAction *m_renameResourceFile;
-    QAction *m_removeResourceFile;
+    QAction *m_renameResourceFile = nullptr;
+    QAction *m_removeResourceFile = nullptr;
 
-    QAction *m_openInEditor;
-    QMenu *m_openWithMenu;
+    QAction *m_openInEditor = nullptr;
+    QMenu *m_openWithMenu = nullptr;
 
     // file context menu
-    Utils::ParameterAction *m_copyPath;
-    Utils::ParameterAction *m_copyUrl;
+    Utils::ParameterAction *m_copyPath = nullptr;
+    Utils::ParameterAction *m_copyUrl = nullptr;
 };
 
 } // namespace Internal

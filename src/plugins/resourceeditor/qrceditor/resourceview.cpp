@@ -61,9 +61,7 @@ ResourceView::ResourceView(RelativeResourceModel *model, QUndoStack *history, QW
     connect(this, &QAbstractItemView::activated, this, &ResourceView::onItemActivated);
 }
 
-ResourceView::~ResourceView()
-{
-}
+ResourceView::~ResourceView() = default;
 
 void ResourceView::findSamePlacePostDeletionModelIndex(int &row, QModelIndex &parent) const
 {

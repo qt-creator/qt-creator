@@ -174,7 +174,7 @@ Core::IDocument::OpenResult ResourceFile::load()
         const QString language = relt.attribute(QLatin1String("lang"));
 
         const int idx = indexOfPrefix(prefix, language);
-        Prefix * p = 0;
+        Prefix *p = nullptr;
         if (idx == -1) {
             p = new Prefix(prefix, language);
             m_prefix_list.append(p);
@@ -473,8 +473,7 @@ bool ResourceFile::contains(int pref_idx, const QString &file) const
 {
     const QChar slash = QLatin1Char('/');
     QString result = QString(slash);
-    for (int i = 0; i < prefix.size(); ++i) {
-        const QChar c = prefix.at(i);
+    for (const QChar c : prefix) {
         if (c == slash && result.at(result.size() - 1) == slash)
             continue;
         result.append(c);
@@ -584,10 +583,10 @@ QModelIndex ResourceModel::index(int row, int column, const QModelIndex &parent)
     if (column != 0)
         return QModelIndex();
 
-    void * internalPointer = 0;
+    void *internalPointer = nullptr;
     if (parent.isValid()) {
         void * const pip = parent.internalPointer();
-        if (pip == 0)
+        if (!pip)
             return QModelIndex();
 
         // File node
@@ -615,7 +614,7 @@ QModelIndex ResourceModel::parent(const QModelIndex &index) const
         return QModelIndex();
 
     void * const internalPointer = index.internalPointer();
-    if (internalPointer == 0)
+    if (!internalPointer)
         return QModelIndex();
     Node * const node = reinterpret_cast<Node *>(internalPointer);
     Prefix * const prefix = node->prefix();
@@ -1121,12 +1120,12 @@ QString ResourceModel::resourcePath(const QString &prefix, const QString &file)
 QMimeData *ResourceModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.size() != 1)
-        return 0;
+        return nullptr;
 
     QString prefix, file;
     getItem(indexes.front(), prefix, file);
     if (prefix.isEmpty() || file.isEmpty())
-        return 0;
+        return nullptr;
 
     // DnD format of Designer 4.4
     QDomDocument doc;
@@ -1135,7 +1134,7 @@ QMimeData *ResourceModel::mimeData(const QModelIndexList &indexes) const
     elem.setAttribute(QLatin1String("file"), resourcePath(prefix, file));
     doc.appendChild(elem);
 
-    QMimeData *rc = new QMimeData;
+    auto rc = new QMimeData;
     rc->setText(doc.toString());
     return rc;
 }
@@ -1157,7 +1156,7 @@ public:
             const QString &fileName, const QString &alias)
             : EntryBackup(model, prefixIndex, fileName), m_fileIndex(fileIndex),
             m_alias(alias) { }
-    void restore() const;
+    void restore() const override;
 };
 
 void FileEntryBackup::restore() const
@@ -1180,7 +1179,7 @@ public:
     PrefixEntryBackup(ResourceModel &model, int prefixIndex, const QString &prefix,
             const QString &language, const QList<FileEntryBackup> &files)
             : EntryBackup(model, prefixIndex, prefix), m_language(language), m_files(files) { }
-    void restore() const;
+    void restore() const override;
 };
 
 void PrefixEntryBackup::restore() const
@@ -1240,6 +1239,6 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
             Core::FileUtils::removeFile(fileNameBackup, removeFileDialog.isDeleteFileChecked());
             return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
         }
-        return 0;
+        return nullptr;
     }
 }

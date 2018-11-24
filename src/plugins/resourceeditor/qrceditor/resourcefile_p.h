@@ -116,7 +116,7 @@ struct Prefix : public Node
     QString lang;
     FileList file_list;
 };
-typedef QList<Prefix *> PrefixList;
+using PrefixList = QList<Prefix *>;
 
 /*!
     \class ResourceFile
@@ -294,7 +294,7 @@ protected:
 
 public:
     virtual void restore() const = 0;
-    virtual ~EntryBackup() { }
+    virtual ~EntryBackup() = default;
 };
 
 class RelativeResourceModel : public ResourceModel
