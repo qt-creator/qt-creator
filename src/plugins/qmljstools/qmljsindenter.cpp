@@ -35,11 +35,9 @@
 using namespace QmlJSEditor;
 using namespace Internal;
 
-Indenter::Indenter()
-{}
+Indenter::Indenter() = default;
 
-Indenter::~Indenter()
-{}
+Indenter::~Indenter() = default;
 
 bool Indenter::isElectricCharacter(const QChar &ch) const
 {

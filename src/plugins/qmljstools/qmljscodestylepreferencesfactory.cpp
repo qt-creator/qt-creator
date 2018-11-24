@@ -54,9 +54,7 @@ static const char *defaultPreviewText =
     "    }\n"
     "}\n";
 
-QmlJSCodeStylePreferencesFactory::QmlJSCodeStylePreferencesFactory()
-{
-}
+QmlJSCodeStylePreferencesFactory::QmlJSCodeStylePreferencesFactory() = default;
 
 Core::Id QmlJSCodeStylePreferencesFactory::languageId()
 {
@@ -76,7 +74,7 @@ TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeS
 QWidget *QmlJSCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePreferences *preferences,
                                                            QWidget *parent) const
 {
-    Internal::QmlJSCodeStylePreferencesWidget *widget = new Internal::QmlJSCodeStylePreferencesWidget(parent);
+    auto widget = new Internal::QmlJSCodeStylePreferencesWidget(parent);
     widget->layout()->setMargin(0);
     widget->setPreferences(preferences);
     return widget;

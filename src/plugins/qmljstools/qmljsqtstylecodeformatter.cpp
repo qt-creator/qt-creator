@@ -31,9 +31,7 @@ using namespace QmlJS;
 using namespace QmlJSTools;
 using namespace TextEditor;
 
-CreatorCodeFormatter::CreatorCodeFormatter()
-{
-}
+CreatorCodeFormatter::CreatorCodeFormatter() = default;
 
 CreatorCodeFormatter::CreatorCodeFormatter(const TabSettings &tabSettings)
 {
@@ -44,7 +42,7 @@ CreatorCodeFormatter::CreatorCodeFormatter(const TabSettings &tabSettings)
 void CreatorCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &data) const
 {
     TextBlockUserData *userData = TextDocumentLayout::userData(*block);
-    QmlJSCodeFormatterData *cppData = static_cast<QmlJSCodeFormatterData *>(userData->codeFormatterData());
+    auto cppData = static_cast<QmlJSCodeFormatterData *>(userData->codeFormatterData());
     if (!cppData) {
         cppData = new QmlJSCodeFormatterData;
         userData->setCodeFormatterData(cppData);
@@ -57,7 +55,7 @@ bool CreatorCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *dat
     TextBlockUserData *userData = TextDocumentLayout::testUserData(block);
     if (!userData)
         return false;
-    QmlJSCodeFormatterData *cppData = static_cast<QmlJSCodeFormatterData *>(userData->codeFormatterData());
+    auto cppData = static_cast<const QmlJSCodeFormatterData *>(userData->codeFormatterData());
     if (!cppData)
         return false;
 

@@ -42,7 +42,7 @@ class QMLJSTOOLS_EXPORT QmlJSToolsSettings : public QObject
 
 public:
     explicit QmlJSToolsSettings();
-    ~QmlJSToolsSettings();
+    ~QmlJSToolsSettings() override;
 
     static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
 };

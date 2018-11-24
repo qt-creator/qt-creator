@@ -44,10 +44,8 @@ namespace QmlJSTools {
 class QMLJSTOOLS_EXPORT Range
 {
 public:
-    Range(): ast(nullptr) {}
-
-public: // attributes
-    QmlJS::AST::Node *ast;
+    // attributes
+    QmlJS::AST::Node *ast = nullptr;
     QTextCursor begin;
     QTextCursor end;
 };
@@ -55,8 +53,8 @@ public: // attributes
 class QMLJSTOOLS_EXPORT SemanticInfo
 {
 public:
-    SemanticInfo() {}
-    SemanticInfo(QmlJS::ScopeChain *rootScopeChain);
+    SemanticInfo() = default;
+    explicit SemanticInfo(QmlJS::ScopeChain *rootScopeChain);
 
     bool isValid() const;
     int revision() const;

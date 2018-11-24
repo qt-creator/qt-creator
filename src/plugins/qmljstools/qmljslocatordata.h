@@ -39,7 +39,7 @@ class LocatorData : public QObject
     Q_OBJECT
 public:
     LocatorData();
-    ~LocatorData();
+    ~LocatorData() override;
 
     enum EntryType
     {

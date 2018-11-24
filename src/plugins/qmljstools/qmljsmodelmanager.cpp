@@ -145,7 +145,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
 
 void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
 {
-    Target *activeTarget = 0;
+    Target *activeTarget = nullptr;
     if (projectInfo.project)
         activeTarget = projectInfo.project->activeTarget();
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
@@ -212,9 +212,7 @@ ModelManager::ModelManager()
     loadDefaultQmlTypeDescriptions();
 }
 
-ModelManager::~ModelManager()
-{
-}
+ModelManager::~ModelManager() = default;
 
 void ModelManager::delayedInitialization()
 {
@@ -257,7 +255,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
 
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
         const QString key = document->filePath().toString();
-        if (TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
+        if (auto textDocument = qobject_cast<const TextEditor::TextDocument *>(document)) {
             // TODO the language should be a property on the document, not the editor
             if (DocumentModel::editorsForDocument(document).first()
                     ->context().contains(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID)) {

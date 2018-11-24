@@ -51,7 +51,6 @@ namespace Internal {
 
 QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent) :
     QWidget(parent),
-    m_preferences(0),
     m_ui(new Ui::QmlJSCodeStyleSettingsPage)
 {
     m_ui->setupUi(this);
@@ -125,8 +124,7 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
 
 QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage(/*QSharedPointer<CppFileSettings> &settings,*/
                      QWidget *parent) :
-    Core::IOptionsPage(parent),
-    m_pageTabPreferences(0)
+    Core::IOptionsPage(parent)
 {
     setId(Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("QmlJSTools", Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));

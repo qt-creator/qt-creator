@@ -64,8 +64,7 @@ LocatorData::LocatorData()
                 [this] (ProjectExplorer::Project*) { m_entries.clear(); });
 }
 
-LocatorData::~LocatorData()
-{}
+LocatorData::~LocatorData() = default;
 
 namespace {
 
@@ -77,9 +76,6 @@ class FunctionFinder : protected AST::Visitor
     QString m_documentContext;
 
 public:
-    FunctionFinder()
-    {}
-
     QList<LocatorData::Entry> run(const Document::Ptr &doc)
     {
         m_doc = doc;
@@ -116,12 +112,12 @@ protected:
         m_context = old;
     }
 
-    bool visit(FunctionDeclaration *ast)
+    bool visit(FunctionDeclaration *ast) override
     {
         return visit(static_cast<FunctionExpression *>(ast));
     }
 
-    bool visit(FunctionExpression *ast)
+    bool visit(FunctionExpression *ast) override
     {
         if (ast->name.isEmpty())
             return true;
@@ -146,7 +142,7 @@ protected:
         return false;
     }
 
-    bool visit(UiScriptBinding *ast)
+    bool visit(UiScriptBinding *ast) override
     {
         if (!ast->qualifiedId)
             return true;
@@ -163,7 +159,7 @@ protected:
         return false;
     }
 
-    bool visit(UiObjectBinding *ast)
+    bool visit(UiObjectBinding *ast) override
     {
         if (!ast->qualifiedTypeNameId)
             return true;
@@ -176,7 +172,7 @@ protected:
         return false;
     }
 
-    bool visit(UiObjectDefinition *ast)
+    bool visit(UiObjectDefinition *ast) override
     {
         if (!ast->qualifiedTypeNameId)
             return true;
@@ -189,7 +185,7 @@ protected:
         return false;
     }
 
-    bool visit(AST::BinaryExpression *ast)
+    bool visit(AST::BinaryExpression *ast) override
     {
         auto fieldExpr = AST::cast<AST::FieldMemberExpression *>(ast->left);
         auto funcExpr = AST::cast<AST::FunctionExpression *>(ast->right);

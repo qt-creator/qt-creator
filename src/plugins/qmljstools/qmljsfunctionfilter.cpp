@@ -46,8 +46,7 @@ FunctionFilter::FunctionFilter(LocatorData *data, QObject *parent)
     setIncludedByDefault(false);
 }
 
-FunctionFilter::~FunctionFilter()
-{ }
+FunctionFilter::~FunctionFilter() = default;
 
 void FunctionFilter::refresh(QFutureInterface<void> &)
 {

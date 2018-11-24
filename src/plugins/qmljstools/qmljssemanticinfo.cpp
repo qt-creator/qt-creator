@@ -131,7 +131,7 @@ protected:
 
 AST::Node *SemanticInfo::rangeAt(int cursorPosition) const
 {
-    AST::Node *declaringMember = 0;
+    AST::Node *declaringMember = nullptr;
 
     for (int i = ranges.size() - 1; i != -1; --i) {
         const Range &range = ranges.at(i);
@@ -152,7 +152,7 @@ Node *SemanticInfo::declaringMemberNoProperties(int cursorPosition) const
 {
     AST::Node *node = rangeAt(cursorPosition);
 
-    if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node)) {
+    if (auto objectDefinition = cast<const UiObjectDefinition*>(node)) {
         const QStringRef name = objectDefinition->qualifiedTypeNameId->name;
         if (!name.isEmpty() && name.at(0).isLower()) {
             QList<AST::Node *> path = rangePath(cursorPosition);
@@ -163,7 +163,7 @@ Node *SemanticInfo::declaringMemberNoProperties(int cursorPosition) const
             if (path.size() > 2)
                 return path.at(path.size() - 3);
         }
-    } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node)) {
+    } else if (auto objectBinding = cast<const UiObjectBinding*>(node)) {
         const QStringRef name = objectBinding->qualifiedTypeNameId->name;
         if (name.contains(QLatin1String("Gradient"))) {
             QList<AST::Node *> path = rangePath(cursorPosition);
@@ -222,7 +222,7 @@ AST::Node *SemanticInfo::astNodeAt(int pos) const
 {
     const QList<AST::Node *> path = astPath(pos);
     if (path.isEmpty())
-        return 0;
+        return nullptr;
     return path.last();
 }
 
