@@ -39,7 +39,7 @@ public:
     void loadHistoryEntry(int entryIndex);
 
 protected:
-    void keyPressEvent(QKeyEvent *event) override final;
+    void keyPressEvent(QKeyEvent *event) final;
 
 private:
     QStringList m_history;

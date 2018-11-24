@@ -50,9 +50,9 @@ public:
 
     void update();
 
-    Qt::ItemFlags flags(const QModelIndex &index) const override final;
-    int rowCount(const QModelIndex &parent) const override final;
-    QVariant data(const QModelIndex &index, int role) const override final;
+    Qt::ItemFlags flags(const QModelIndex &index) const final;
+    int rowCount(const QModelIndex &parent) const final;
+    QVariant data(const QModelIndex &index, int role) const final;
 
 private:
     QList<QSerialPortInfo> m_ports;

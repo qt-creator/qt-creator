@@ -43,9 +43,9 @@ class SerialTerminalPlugin : public ExtensionSystem::IPlugin
 public:
     explicit SerialTerminalPlugin() = default;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override final;
-    void extensionsInitialized() override final;
-    ShutdownFlag aboutToShutdown() override final;
+    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void extensionsInitialized() final;
+    ShutdownFlag aboutToShutdown() final;
 
 private:
     void settingsChanged(const Settings &settings);

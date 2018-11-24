@@ -414,7 +414,7 @@ void SerialOutputPane::createToolButtons()
 void SerialOutputPane::updateLineEndingsComboBox()
 {
     m_lineEndingsSelection->clear();
-    for (QPair<QString,QByteArray> value : m_settings.lineEndings)
+    for (auto &value : m_settings.lineEndings)
         m_lineEndingsSelection->addItem(value.first, value.second);
 
     m_lineEndingsSelection->setCurrentIndex(m_settings.defaultLineEndingIndex);
@@ -520,7 +520,7 @@ void SerialOutputPane::contextMenuRequested(const QPoint &pos, int index)
 {
     QList<QAction *> actions { m_closeCurrentTabAction, m_closeAllTabsAction, m_closeOtherTabsAction };
 
-    QAction *action = QMenu::exec(actions, m_tabWidget->mapToGlobal(pos), 0, m_tabWidget);
+    QAction *action = QMenu::exec(actions, m_tabWidget->mapToGlobal(pos), nullptr, m_tabWidget);
     const int currentIdx = index != -1 ? index : currentIndex();
 
     if (action == m_closeCurrentTabAction) {
