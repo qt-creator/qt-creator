@@ -40,7 +40,7 @@ class CodeGenSettingsPageWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CodeGenSettingsPageWidget(QWidget *parent = 0);
+    explicit CodeGenSettingsPageWidget(QWidget *parent = nullptr);
 
     CodeGenSettings parameters() const;
     void setParameters(const CodeGenSettings &p);
@@ -55,11 +55,11 @@ private:
 class CodeGenSettingsPage : public Core::IOptionsPage
 {
 public:
-    explicit CodeGenSettingsPage(QObject *parent = 0);
+    explicit CodeGenSettingsPage(QObject *parent = nullptr);
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<CodeGenSettingsPageWidget> m_widget;

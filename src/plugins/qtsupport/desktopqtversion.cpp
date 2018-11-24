@@ -114,11 +114,7 @@ QString DesktopQtVersion::qmlsceneCommand() const
     return m_qmlsceneCommand;
 }
 
-DesktopQtVersion::DesktopQtVersion(const DesktopQtVersion &other)
-    : BaseQtVersion(other),
-      m_qmlsceneCommand(other.m_qmlsceneCommand)
-{
-}
+DesktopQtVersion::DesktopQtVersion(const DesktopQtVersion &other) = default;
 
 QString DesktopQtVersion::findTargetBinary(TargetBinaries binary) const
 {

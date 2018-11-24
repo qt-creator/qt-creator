@@ -1478,7 +1478,7 @@ QList<Task> BaseQtVersion::reportIssues(const QString &proFile, const QString &b
 
 QtConfigWidget *BaseQtVersion::createConfigurationWidget() const
 {
-    return 0;
+    return nullptr;
 }
 
 static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,

@@ -33,14 +33,15 @@ namespace Internal {
 class DesktopQtVersionFactory : public QtVersionFactory
 {
 public:
-    explicit DesktopQtVersionFactory(QObject *parent = 0);
-    ~DesktopQtVersionFactory();
+    explicit DesktopQtVersionFactory(QObject *parent = nullptr);
+    ~DesktopQtVersionFactory() override;
 
-    virtual bool canRestore(const QString &type);
-    virtual BaseQtVersion *restore(const QString &type, const QVariantMap &data);
+    bool canRestore(const QString &type) override;
+    BaseQtVersion *restore(const QString &type, const QVariantMap &data) override;
 
-    virtual int priority() const;
-    virtual BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+    int priority() const override;
+    BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
+                          bool isAutoDetected = false, const QString &autoDetectionSource = QString()) override;
 };
 
 } // Internal

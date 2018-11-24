@@ -44,7 +44,7 @@ class QTSUPPORT_EXPORT ProMessageHandler : public QObject, public QMakeHandler
 
 public:
     ProMessageHandler(bool verbose = true, bool exact = true);
-    ~ProMessageHandler() override {}
+    ~ProMessageHandler() override = default;
 
     void aboutToEval(ProFile *, ProFile *, EvalFileType) override {}
     void doneWithEval(ProFile *) override {}
@@ -102,8 +102,8 @@ private:
     ProFileCacheManager(QObject *parent);
     ~ProFileCacheManager() override;
     void clear();
-    ProFileCache *m_cache;
-    int m_refCount;
+    ProFileCache *m_cache = nullptr;
+    int m_refCount = 0;
     QTimer m_timer;
 
     static ProFileCacheManager *s_instance;

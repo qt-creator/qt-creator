@@ -45,7 +45,7 @@ template <class Predicate>
 bool changeDomElementContents(const QDomElement &element,
                               Predicate p,
                               const QString &newValue,
-                              QString *ptrToOldValue = 0)
+                              QString *ptrToOldValue = nullptr)
 {
     // Find text in "<element>text</element>"
     const QDomNodeList children = element.childNodes();

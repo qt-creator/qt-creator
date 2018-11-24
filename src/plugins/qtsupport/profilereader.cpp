@@ -118,12 +118,10 @@ QHash<ProFile *, QVector<ProFile *> > ProFileReader::includeFiles() const
     return m_includeFiles;
 }
 
-ProFileCacheManager *ProFileCacheManager::s_instance = 0;
+ProFileCacheManager *ProFileCacheManager::s_instance = nullptr;
 
 ProFileCacheManager::ProFileCacheManager(QObject *parent) :
-        QObject(parent),
-        m_cache(0),
-        m_refCount(0)
+    QObject(parent)
 {
     s_instance = this;
     m_timer.setInterval(5000);
@@ -147,7 +145,7 @@ void ProFileCacheManager::decRefCount()
 
 ProFileCacheManager::~ProFileCacheManager()
 {
-    s_instance = 0;
+    s_instance = nullptr;
     clear();
 }
 
@@ -165,7 +163,7 @@ void ProFileCacheManager::clear()
     // obtaining a cache pointer and using it is atomic as far as the main
     // loop is concerned. Use a shared pointer once this is not true anymore.
     delete m_cache;
-    m_cache = 0;
+    m_cache = nullptr;
 }
 
 void ProFileCacheManager::discardFiles(const QString &prefix, QMakeVfs *vfs)

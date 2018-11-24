@@ -99,8 +99,8 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
 {
     const QString projectDir = proFileInfo.canonicalPath();
     QDialog d(ICore::mainWindow());
-    QGridLayout *lay = new QGridLayout(&d);
-    QLabel *descrLbl = new QLabel;
+    auto lay = new QGridLayout(&d);
+    auto descrLbl = new QLabel;
     d.setWindowTitle(tr("Copy Project to writable Location?"));
     descrLbl->setTextFormat(Qt::RichText);
     descrLbl->setWordWrap(false);
@@ -116,8 +116,8 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                          "be able to alter or compile your project in the current location.</p>")
                       .arg(nativeProjectDir));
     lay->addWidget(descrLbl, 0, 0, 1, 2);
-    QLabel *txt = new QLabel(tr("&Location:"));
-    PathChooser *chooser = new PathChooser;
+    auto txt = new QLabel(tr("&Location:"));
+    auto chooser = new PathChooser;
     txt->setBuddy(chooser);
     chooser->setExpectedKind(PathChooser::ExistingDirectory);
     chooser->setHistoryCompleter(QLatin1String("Qt.WritableExamplesDir.History"));
@@ -127,7 +127,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     lay->addWidget(txt, 1, 0);
     lay->addWidget(chooser, 1, 1);
     enum { Copy = QDialog::Accepted + 1, Keep = QDialog::Accepted + 2 };
-    QDialogButtonBox *bb = new QDialogButtonBox;
+    auto bb = new QDialogButtonBox;
     QPushButton *copyBtn = bb->addButton(tr("&Copy Project and Open"), QDialogButtonBox::AcceptRole);
     connect(copyBtn, &QAbstractButton::released, &d, [&d] { d.done(Copy); });
     copyBtn->setDefault(true);
@@ -297,9 +297,6 @@ class GridProxyModel : public QAbstractItemModel
 {
 public:
     using OptModelIndex = Utils::optional<QModelIndex>;
-
-    GridProxyModel()
-    {}
 
     void setSourceModel(QAbstractItemModel *newModel)
     {
@@ -544,7 +541,7 @@ public:
         m_currentTagRects.clear();
         int xx = 0;
         int yy = y + tagsBase;
-        for (const QString tag : item.tags) {
+        for (const QString &tag : item.tags) {
             const int ww = tagsFontMetrics.width(tag) + 5;
             if (xx + ww > w - 30) {
                 yy += 15;
@@ -579,7 +576,7 @@ public:
                 const QPoint pos = mev->pos();
                 if (pos.y() > option.rect.y() + tagsSeparatorY) {
                     //const QStringList tags = idx.data(Tags).toStringList();
-                    for (auto it : m_currentTagRects) {
+                    for (const auto &it : m_currentTagRects) {
                         if (it.second.contains(pos))
                             emit tagClicked(it.first);
                     }
@@ -594,7 +591,7 @@ public:
                 }
             }
         }
-        return QAbstractItemDelegate::editorEvent(ev, model, option, idx);
+        return QStyledItemDelegate::editorEvent(ev, model, option, idx);
     }
 
     void setShowExamples(bool showExamples) { m_showExamples = showExamples; goon(); }
@@ -624,7 +621,7 @@ public:
     {
         m_exampleDelegate.setShowExamples(isExamples);
         const int sideMargin = 27;
-        static ExamplesListModel *s_examplesModel = new ExamplesListModel(this);
+        static auto s_examplesModel = new ExamplesListModel(this);
         m_examplesModel = s_examplesModel;
 
         auto filteredModel = new ExamplesListModelFilter(m_examplesModel, !m_isExamples, this);

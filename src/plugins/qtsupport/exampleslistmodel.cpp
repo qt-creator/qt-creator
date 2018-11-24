@@ -129,7 +129,7 @@ void ExampleSetModel::recreateModel(const QList<BaseQtVersion *> &qtVersions)
     QSet<QString> extraManifestDirs;
     for (int i = 0; i < m_extraExampleSets.size(); ++i)  {
         const ExtraExampleSet &set = m_extraExampleSets.at(i);
-        QStandardItem *newItem = new QStandardItem();
+        auto newItem = new QStandardItem();
         newItem->setData(set.displayName, Qt::DisplayRole);
         newItem->setData(set.displayName, Qt::UserRole + 1);
         newItem->setData(QVariant(), Qt::UserRole + 2);
@@ -148,7 +148,7 @@ void ExampleSetModel::recreateModel(const QList<BaseQtVersion *> &qtVersions)
             }
             continue;
         }
-        QStandardItem *newItem = new QStandardItem();
+        auto newItem = new QStandardItem();
         newItem->setData(version->displayName(), Qt::DisplayRole);
         newItem->setData(version->displayName(), Qt::UserRole + 1);
         newItem->setData(version->uniqueId(), Qt::UserRole + 2);

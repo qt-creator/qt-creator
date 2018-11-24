@@ -38,10 +38,7 @@ DesktopQtVersionFactory::DesktopQtVersionFactory(QObject *parent)
 
 }
 
-DesktopQtVersionFactory::~DesktopQtVersionFactory()
-{
-
-}
+DesktopQtVersionFactory::~DesktopQtVersionFactory() = default;
 
 bool DesktopQtVersionFactory::canRestore(const QString &type)
 {
@@ -51,8 +48,8 @@ bool DesktopQtVersionFactory::canRestore(const QString &type)
 BaseQtVersion *DesktopQtVersionFactory::restore(const QString &type, const QVariantMap &data)
 {
     if (!canRestore(type))
-        return 0;
-    DesktopQtVersion *v = new DesktopQtVersion;
+        return nullptr;
+    auto v = new DesktopQtVersion;
     v->fromMap(data);
     return v;
 }
@@ -70,5 +67,5 @@ BaseQtVersion *DesktopQtVersionFactory::create(const Utils::FileName &qmakePath,
     QFileInfo fi = qmakePath.toFileInfo();
     if (fi.exists() && fi.isExecutable() && fi.isFile())
         return new DesktopQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
-    return 0;
+    return nullptr;
 }
