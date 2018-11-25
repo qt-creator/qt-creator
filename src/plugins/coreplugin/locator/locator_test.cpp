@@ -179,4 +179,22 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
                      << ResultData("qcore_mac_p.h", priorityTestFilesShort.at(2))
                      << ResultData("mid_qcore_mac_p.h", priorityTestFilesShort.at(1))))
            );
+
+    const QStringList sortingTestFiles({QDir::fromNativeSeparators(testDir.file("aaa/zfile.cpp")),
+                                        QDir::fromNativeSeparators(testDir.file("bbb/yfile.cpp")),
+                                        QDir::fromNativeSeparators(testDir.file("ccc/xfile.cpp"))});
+    QStringList sortingTestFilesShort;
+    for (const QString &file : sortingTestFiles)
+        sortingTestFilesShort << Utils::FileUtils::shortNativePath(Utils::FileName::fromString(file));
+
+    QTest::newRow("BaseFileFilter-SortByDisplayName")
+        << sortingTestFiles
+        << (QList<ReferenceData>()
+            << ReferenceData(
+                "file",
+                (QList<ResultData>()
+                    << ResultData("xfile.cpp", sortingTestFilesShort.at(2))
+                    << ResultData("yfile.cpp", sortingTestFilesShort.at(1))
+                    << ResultData("zfile.cpp", sortingTestFilesShort.at(0))))
+            );
 }

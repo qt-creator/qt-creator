@@ -26,6 +26,7 @@
 #include "basefilefilter.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -178,6 +179,12 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         d->m_current.iterator.clear();
         QTimer::singleShot(0, this, &BaseFileFilter::updatePreviousResultData);
     }
+
+    for (auto &entry : entries) {
+        if (entry.size() < 1000)
+            Utils::sort(entry, Core::LocatorFilterEntry::compareLexigraphically);
+    }
+
     return entries[0] + entries[1] + entries[2] + entries[3];
 }
 
