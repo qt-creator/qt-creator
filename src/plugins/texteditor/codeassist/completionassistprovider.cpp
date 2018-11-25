@@ -33,8 +33,7 @@ CompletionAssistProvider::CompletionAssistProvider(QObject *parent)
     : IAssistProvider(parent)
 {}
 
-CompletionAssistProvider::~CompletionAssistProvider()
-{}
+CompletionAssistProvider::~CompletionAssistProvider() = default;
 
 IAssistProvider::RunType CompletionAssistProvider::runType() const
 {

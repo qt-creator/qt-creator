@@ -82,8 +82,7 @@ const QChar Snippet::kEscapeChar(QLatin1Char('\\'));
 Snippet::Snippet(const QString &groupId, const QString &id) : m_groupId(groupId), m_id(id)
 {}
 
-Snippet::~Snippet()
-{}
+Snippet::~Snippet() = default;
 
 const QString &Snippet::id() const
 {

@@ -428,7 +428,7 @@ void ColorSchemeEdit::changeForeColor()
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
     m_ui->eraseForegroundToolButton->setEnabled(true);
 
-    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+    for (const QModelIndex &index : m_ui->itemList->selectionModel()->selectedRows()) {
         const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setForeground(newColor);
         m_formatsModel->emitDataChanged(index);
@@ -448,7 +448,7 @@ void ColorSchemeEdit::changeBackColor()
     m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
     m_ui->eraseBackgroundToolButton->setEnabled(true);
 
-    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+    for (const QModelIndex &index : m_ui->itemList->selectionModel()->selectedRows()) {
         const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setBackground(newColor);
         m_formatsModel->emitDataChanged(index);
@@ -485,7 +485,7 @@ void ColorSchemeEdit::eraseForeColor()
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
     m_ui->eraseForegroundToolButton->setEnabled(false);
 
-    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+    for (const QModelIndex &index : m_ui->itemList->selectionModel()->selectedRows()) {
         const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setForeground(newColor);
         m_formatsModel->emitDataChanged(index);
@@ -534,7 +534,7 @@ void ColorSchemeEdit::eraseRelativeForeColor()
     m_ui->foregroundSaturationSpinBox->setValue(0.0);
     m_ui->foregroundLightnessSpinBox->setValue(0.0);
 
-    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+    for (const QModelIndex &index : m_ui->itemList->selectionModel()->selectedRows()) {
         const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setRelativeForegroundSaturation(0.0);
         m_scheme.formatFor(category).setRelativeForegroundLightness(0.0);
@@ -563,7 +563,7 @@ void ColorSchemeEdit::checkCheckBoxes()
     if (m_curItem == -1)
         return;
 
-    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+    for (const QModelIndex &index : m_ui->itemList->selectionModel()->selectedRows()) {
         const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setBold(m_ui->boldCheckBox->isChecked());
         m_scheme.formatFor(category).setItalic(m_ui->italicCheckBox->isChecked());
@@ -582,7 +582,7 @@ void ColorSchemeEdit::changeUnderlineColor()
     m_ui->underlineColorToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
     m_ui->eraseUnderlineColorToolButton->setEnabled(true);
 
-    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+    for (const QModelIndex &index : m_ui->itemList->selectionModel()->selectedRows()) {
         const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setUnderlineColor(newColor);
         m_formatsModel->emitDataChanged(index);
@@ -597,7 +597,7 @@ void ColorSchemeEdit::eraseUnderlineColor()
     m_ui->underlineColorToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
     m_ui->eraseUnderlineColorToolButton->setEnabled(false);
 
-    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+    for (const QModelIndex &index : m_ui->itemList->selectionModel()->selectedRows()) {
         const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setUnderlineColor(newColor);
         m_formatsModel->emitDataChanged(index);
@@ -609,7 +609,7 @@ void ColorSchemeEdit::changeUnderlineStyle(int comboBoxIndex)
     if (m_curItem == -1)
         return;
 
-    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+    for (const QModelIndex &index : m_ui->itemList->selectionModel()->selectedRows()) {
         const TextStyle category = m_descriptions[index.row()].id();
         auto value = m_ui->underlineComboBox->itemData(comboBoxIndex);
         auto enumeratorIndex = static_cast<QTextCharFormat::UnderlineStyle>(value.toInt());

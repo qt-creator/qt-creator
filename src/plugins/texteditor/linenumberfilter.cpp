@@ -36,7 +36,7 @@
 #include <QPair>
 #include <QVariant>
 
-typedef QPair<int,int> LineColumn;
+using LineColumn = QPair<int, int>;
 Q_DECLARE_METATYPE(LineColumn)
 
 using namespace Core;

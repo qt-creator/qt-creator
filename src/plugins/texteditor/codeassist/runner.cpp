@@ -32,8 +32,7 @@
 using namespace TextEditor;
 using namespace Internal;
 
-ProcessorRunner::ProcessorRunner()
-{}
+ProcessorRunner::ProcessorRunner() = default;
 
 ProcessorRunner::~ProcessorRunner()
 {

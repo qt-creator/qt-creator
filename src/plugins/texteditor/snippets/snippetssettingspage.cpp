@@ -54,7 +54,7 @@ class SnippetsTableModel : public QAbstractTableModel
     Q_OBJECT
 public:
     SnippetsTableModel(QObject *parent);
-    ~SnippetsTableModel() override {}
+    ~SnippetsTableModel() override = default;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

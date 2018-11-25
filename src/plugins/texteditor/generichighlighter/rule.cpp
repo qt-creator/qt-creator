@@ -58,8 +58,7 @@ Rule::Rule(bool consumesNonSpace) :
     m_lookAhead(false), m_firstNonSpace(false), m_column(-1), m_consumesNonSpace(consumesNonSpace)
 {}
 
-Rule::~Rule()
-{}
+Rule::~Rule() = default;
 
 void Rule::setContext(const QString &context)
 { m_context = context; }

@@ -51,7 +51,7 @@ struct TestBlockSelection
     TestBlockSelection(int positionBlock, int positionColumn, int anchorBlock, int anchorColumn)
         : positionBlock(positionBlock), positionColumn(positionColumn)
         , anchorBlock(anchorBlock), anchorColumn(anchorColumn) {}
-    TestBlockSelection() {}
+    TestBlockSelection() = default;
 };
 
 Q_DECLARE_METATYPE(TransFormationType)
@@ -529,23 +529,25 @@ struct TabSettingsFlags{
     TabSettings::ContinuationAlignBehavior behavior;
 };
 
-typedef std::function<bool(TabSettingsFlags)> IsClean;
-void generateTestRows(QLatin1String name, QString text, IsClean isClean)
+using IsClean = std::function<bool (TabSettingsFlags)>;
+void generateTestRows(const QLatin1String &name, const QString &text, IsClean isClean)
 {
-    QList<TabSettings::TabPolicy> allPolicys;
-    allPolicys << TabSettings::SpacesOnlyTabPolicy
-               << TabSettings::TabsOnlyTabPolicy
-               << TabSettings::MixedTabPolicy;
-    QList<TabSettings::ContinuationAlignBehavior> allbehavior;
-    allbehavior << TabSettings::NoContinuationAlign
-                << TabSettings::ContinuationAlignWithSpaces
-                << TabSettings::ContinuationAlignWithIndent;
+    const QVector<TabSettings::TabPolicy> allPolicies = {
+        TabSettings::SpacesOnlyTabPolicy,
+        TabSettings::TabsOnlyTabPolicy,
+        TabSettings::MixedTabPolicy
+    };
+    const QVector<TabSettings::ContinuationAlignBehavior> allbehaviors = {
+        TabSettings::NoContinuationAlign,
+        TabSettings::ContinuationAlignWithSpaces,
+        TabSettings::ContinuationAlignWithIndent
+    };
 
     const QLatin1Char splitter('_');
     const int indentSize = 3;
 
-    foreach (TabSettings::TabPolicy policy, allPolicys) {
-        foreach (TabSettings::ContinuationAlignBehavior behavior, allbehavior) {
+    for (auto policy : allPolicies) {
+        for (auto behavior : allbehaviors) {
             const QString tag = tabPolicyToString(policy) + splitter
                     + continuationAlignBehaviorToString(behavior) + splitter
                     + name;

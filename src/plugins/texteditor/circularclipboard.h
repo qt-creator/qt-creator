@@ -48,7 +48,7 @@ private:
     ~CircularClipboard();
     CircularClipboard &operator=(const CircularClipboard &);
 
-    mutable int m_current;
+    mutable int m_current = -1;
     QList< QSharedPointer<const QMimeData> > m_items;
 };
 

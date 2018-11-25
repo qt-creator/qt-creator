@@ -43,8 +43,7 @@ GenericProposal::GenericProposal(int cursorPos, const QList<AssistProposalItemIn
     m_model->loadContent(items);
 }
 
-GenericProposal::~GenericProposal()
-{}
+GenericProposal::~GenericProposal() = default;
 
 GenericProposal *GenericProposal::createProposal(const AssistInterface *interface, const QuickFixOperations &quickFixes)
 {

@@ -36,8 +36,6 @@
 #include <QPointer>
 #include <qtimer.h>
 
-#include <math.h>
-
 namespace TextEditor {
 
 class SyntaxHighlighterPrivate
@@ -690,8 +688,8 @@ void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
     previousSemanticFormats.reserve(all.size());
     formatsToApply.reserve(all.size() + formats.size());
 
-    for (int i = 0, ei = formats.size(); i < ei; ++i)
-        formats[i].format.setProperty(QTextFormat::UserProperty, true);
+    for (auto &format : formats)
+        format.format.setProperty(QTextFormat::UserProperty, true);
 
     foreach (const QTextLayout::FormatRange &r, all) {
         if (r.format.hasProperty(QTextFormat::UserProperty))

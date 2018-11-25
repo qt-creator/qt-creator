@@ -57,7 +57,7 @@ class TextDocumentPrivate;
 class TextMark;
 class TypingSettings;
 
-typedef QList<TextMark *> TextMarks;
+using TextMarks = QList<TextMark *>;
 
 class TEXTEDITOR_EXPORT TextDocument : public Core::BaseTextDocument
 {
@@ -169,6 +169,6 @@ private:
     TextDocumentPrivate *d;
 };
 
-typedef QSharedPointer<TextDocument> TextDocumentPtr;
+using TextDocumentPtr = QSharedPointer<TextDocument>;
 
 } // namespace TextEditor

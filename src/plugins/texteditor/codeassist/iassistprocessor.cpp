@@ -36,11 +36,9 @@ using namespace TextEditor;
     \sa IAssistProposal, IAssistProvider
 */
 
-IAssistProcessor::IAssistProcessor()
-{}
+IAssistProcessor::IAssistProcessor() = default;
 
-IAssistProcessor::~IAssistProcessor()
-{}
+IAssistProcessor::~IAssistProcessor() = default;
 
 void IAssistProcessor::setAsyncProposalAvailable(IAssistProposal *proposal)
 {

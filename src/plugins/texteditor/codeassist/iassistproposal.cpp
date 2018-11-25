@@ -63,8 +63,7 @@ IAssistProposal::IAssistProposal(int basePosition)
     : m_basePosition(basePosition)
 {}
 
-IAssistProposal::~IAssistProposal()
-{}
+IAssistProposal::~IAssistProposal() = default;
 
 /*!
     \fn bool TextEditor::IAssistProposal::isFragile() const

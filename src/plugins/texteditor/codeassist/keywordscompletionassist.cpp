@@ -160,7 +160,7 @@ int KeywordsFunctionHintModel::activeArgument(const QString &prefix) const
 // ---------------------------------
 // KeywordsCompletionAssistProcessor
 // ---------------------------------
-KeywordsCompletionAssistProcessor::KeywordsCompletionAssistProcessor(Keywords keywords)
+KeywordsCompletionAssistProcessor::KeywordsCompletionAssistProcessor(const Keywords &keywords)
     : m_snippetCollector(QString(), QIcon(":/texteditor/images/snippet.png"))
     , m_variableIcon(QLatin1String(":/codemodel/images/keyword.png"))
     , m_functionIcon(QLatin1String(":/codemodel/images/member.png"))
@@ -222,7 +222,7 @@ void KeywordsCompletionAssistProcessor::setSnippetGroup(const QString &id)
     m_snippetCollector.setGroupId(id);
 }
 
-void KeywordsCompletionAssistProcessor::setKeywords(Keywords keywords)
+void KeywordsCompletionAssistProcessor::setKeywords(const Keywords &keywords)
 {
     m_keywords = keywords;
 }

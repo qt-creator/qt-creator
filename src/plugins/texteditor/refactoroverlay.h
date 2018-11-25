@@ -42,7 +42,7 @@ struct  TEXTEDITOR_EXPORT RefactorMarker {
     QVariant data;
 };
 
-typedef QList<RefactorMarker> RefactorMarkers;
+using RefactorMarkers = QList<RefactorMarker>;
 
 class  TEXTEDITOR_EXPORT RefactorOverlay : public QObject
 {

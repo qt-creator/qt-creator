@@ -29,11 +29,9 @@
 
 using namespace TextEditor;
 
-IFunctionHintProposalModel::IFunctionHintProposalModel()
-{}
+IFunctionHintProposalModel::IFunctionHintProposalModel() = default;
 
-IFunctionHintProposalModel::~IFunctionHintProposalModel()
-{}
+IFunctionHintProposalModel::~IFunctionHintProposalModel() = default;
 
 QString IFunctionHintProposalModel::id(int /*index*/) const
 {

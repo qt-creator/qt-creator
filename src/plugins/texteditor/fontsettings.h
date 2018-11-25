@@ -51,7 +51,7 @@ class FormatDescription;
 class TEXTEDITOR_EXPORT FontSettings
 {
 public:
-    typedef std::vector<FormatDescription> FormatDescriptions;
+    using FormatDescriptions = std::vector<FormatDescription>;
 
     FontSettings();
     void clear();

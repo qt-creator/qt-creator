@@ -40,8 +40,7 @@ AutoCompleter::AutoCompleter() :
     m_surroundWithQuotes(true)
 {}
 
-AutoCompleter::~AutoCompleter()
-{}
+AutoCompleter::~AutoCompleter() = default;
 
 static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen)
 {

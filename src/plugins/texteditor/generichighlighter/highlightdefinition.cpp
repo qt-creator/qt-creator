@@ -76,13 +76,12 @@ HighlightDefinition::HighlightDefinition() :
     m_singleLineCommentAfterWhiteSpaces(false),
     m_indentationBasedFolding(false)
 {
-    QString s(QLatin1String(".():!+,-<=>%&/;?[]^{|}~\\*, \t"));
-    foreach (const QChar &c, s)
+    const QString s(QLatin1String(".():!+,-<=>%&/;?[]^{|}~\\*, \t"));
+    for (auto &c : s)
         m_delimiters.insert(c);
 }
 
-HighlightDefinition::~HighlightDefinition()
-{}
+HighlightDefinition::~HighlightDefinition() = default;
 
 bool HighlightDefinition::isValid() const
 {
@@ -169,15 +168,15 @@ const QString &HighlightDefinition::multiLineCommentRegion() const
 
 void HighlightDefinition::removeDelimiters(const QString &characters)
 {
-    for (int i = 0; i < characters.length(); ++i)
-        m_delimiters.remove(characters.at(i));
+    for (QChar character : characters)
+        m_delimiters.remove(character);
 }
 
 void HighlightDefinition::addDelimiters(const QString &characters)
 {
-    for (int i = 0; i < characters.length(); ++i) {
-        if (!m_delimiters.contains(characters.at(i)))
-            m_delimiters.insert(characters.at(i));
+    for (QChar character : characters) {
+        if (!m_delimiters.contains(character))
+            m_delimiters.insert(character);
     }
 }
 

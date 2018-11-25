@@ -113,8 +113,7 @@ HighlightDefinitionHandler(const QSharedPointer<HighlightDefinition> &definition
     m_initialContext(true)
 {}
 
-HighlightDefinitionHandler::~HighlightDefinitionHandler()
-{}
+HighlightDefinitionHandler::~HighlightDefinitionHandler() = default;
 
 bool HighlightDefinitionHandler::startDocument()
 {

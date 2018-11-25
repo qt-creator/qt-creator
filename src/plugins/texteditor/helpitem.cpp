@@ -30,8 +30,7 @@
 
 using namespace TextEditor;
 
-HelpItem::HelpItem()
-{}
+HelpItem::HelpItem() = default;
 
 HelpItem::HelpItem(const QString &helpId, Category category) :
     m_helpId(helpId), m_docMark(helpId), m_category(category)

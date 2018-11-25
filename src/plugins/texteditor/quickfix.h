@@ -49,7 +49,7 @@ class TEXTEDITOR_EXPORT QuickFixOperation
     Q_DISABLE_COPY(QuickFixOperation)
 
 public:
-    typedef QSharedPointer<QuickFixOperation> Ptr;
+    using Ptr = QSharedPointer<QuickFixOperation>;
 
 public:
     QuickFixOperation(int priority = -1);
@@ -85,7 +85,7 @@ private:
     QString _description;
 };
 
-typedef QList<QuickFixOperation::Ptr> QuickFixOperations;
+using QuickFixOperations = QList<QuickFixOperation::Ptr>;
 
 inline QuickFixOperations &operator<<(QuickFixOperations &list, QuickFixOperation *op)
 {
@@ -93,7 +93,7 @@ inline QuickFixOperations &operator<<(QuickFixOperations &list, QuickFixOperatio
     return list;
 }
 
-typedef QSharedPointer<const AssistInterface> QuickFixInterface;
+using QuickFixInterface = QSharedPointer<const AssistInterface>;
 
 } // namespace TextEditor
 

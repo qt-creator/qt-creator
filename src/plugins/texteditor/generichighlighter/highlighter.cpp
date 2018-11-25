@@ -56,17 +56,11 @@ namespace {
 class HighlighterCodeFormatterData : public CodeFormatterData
 {
 public:
-    HighlighterCodeFormatterData() :
-        m_foldingIndentDelta(0),
-        m_originalObservableState(-1),
-        m_continueObservableState(-1)
-    {}
-
-    ~HighlighterCodeFormatterData() override {}
-    int m_foldingIndentDelta;
-    int m_originalObservableState;
+    ~HighlighterCodeFormatterData() override = default;
+    int m_foldingIndentDelta = 0;
+    int m_originalObservableState = -1;
     QStack<QString> m_foldingRegions;
-    int m_continueObservableState;
+    int m_continueObservableState = -1;
 };
 
 HighlighterCodeFormatterData *formatterData(const QTextBlock &block)
@@ -132,8 +126,7 @@ Highlighter::Highlighter(QTextDocument *parent) :
     setTextFormatCategories(TextFormatIdCount, styleForFormat);
 }
 
-Highlighter::~Highlighter()
-{}
+Highlighter::~Highlighter() = default;
 
 // Mapping from Kate format strings to format ids.
 struct KateFormatMap
@@ -344,7 +337,7 @@ void Highlighter::iterateThroughRules(const QString &text,
         }
     }
 
-    typedef QList<QSharedPointer<Rule> >::const_iterator RuleIterator;
+    using RuleIterator = QList<QSharedPointer<Rule> >::const_iterator;
 
     bool contextChanged = false;
     bool atLeastOneMatch = false;
@@ -639,8 +632,8 @@ void Highlighter::mapLeadingSequence(const QString &contextSequence)
 void Highlighter::pushContextSequence(int state)
 {
     const QVector<QSharedPointer<Context> > &contexts = m_persistentContexts.value(state);
-    for (int i = 0; i < contexts.size(); ++i)
-        m_contexts.push_back(contexts.at(i));
+    for (const auto &context : contexts)
+        m_contexts.push_back(context);
 }
 
 QString Highlighter::currentContextSequence() const

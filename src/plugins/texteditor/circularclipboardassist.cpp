@@ -59,7 +59,7 @@ public:
         setText(text);
     }
 
-    ~ClipboardProposalItem() noexcept override {}
+    ~ClipboardProposalItem() noexcept override = default;
 
     void apply(TextDocumentManipulatorInterface &manipulator, int /*basePosition*/) const override
     {

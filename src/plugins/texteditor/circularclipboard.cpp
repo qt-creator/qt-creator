@@ -29,13 +29,9 @@ using namespace TextEditor::Internal;
 
 static const int kMaxSize = 10;
 
-CircularClipboard::CircularClipboard()
-    : m_current(-1)
-{}
+CircularClipboard::CircularClipboard() = default;
 
-CircularClipboard::~CircularClipboard()
-{
-}
+CircularClipboard::~CircularClipboard() = default;
 
 CircularClipboard *CircularClipboard::instance()
 {

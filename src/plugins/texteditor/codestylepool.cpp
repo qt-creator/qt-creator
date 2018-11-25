@@ -50,14 +50,12 @@ namespace Internal {
 class CodeStylePoolPrivate
 {
 public:
-    CodeStylePoolPrivate()
-        : m_factory(nullptr)
-    {}
+    CodeStylePoolPrivate() = default;
     ~CodeStylePoolPrivate();
 
     QByteArray generateUniqueId(const QByteArray &id) const;
 
-    ICodeStylePreferencesFactory *m_factory;
+    ICodeStylePreferencesFactory *m_factory = nullptr;
     QList<ICodeStylePreferences *> m_pool;
     QList<ICodeStylePreferences *> m_builtInPool;
     QList<ICodeStylePreferences *> m_customPool;

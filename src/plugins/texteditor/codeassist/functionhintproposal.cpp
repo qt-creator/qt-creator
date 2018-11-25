@@ -36,8 +36,7 @@ FunctionHintProposal::FunctionHintProposal(int cursorPos, FunctionHintProposalMo
     setFragile(true);
 }
 
-FunctionHintProposal::~FunctionHintProposal()
-{}
+FunctionHintProposal::~FunctionHintProposal() = default;
 
 ProposalModelPtr FunctionHintProposal::model() const
 {

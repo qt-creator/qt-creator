@@ -41,14 +41,14 @@ namespace Internal {
 
 struct OverlaySelection
 {
-    OverlaySelection():m_fixedLength(-1), m_dropShadow(false){}
+    OverlaySelection() = default;
 
     QTextCursor m_cursor_begin;
     QTextCursor m_cursor_end;
     QColor m_fg;
     QColor m_bg;
-    int m_fixedLength;
-    bool m_dropShadow;
+    int m_fixedLength = -1;
+    bool m_dropShadow = false;
 };
 
 class TextEditorOverlay : public QObject

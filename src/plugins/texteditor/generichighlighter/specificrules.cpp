@@ -278,8 +278,7 @@ KeywordRule::KeywordRule(const QSharedPointer<HighlightDefinition> &definition) 
     setDefinition(definition);
 }
 
-KeywordRule::~KeywordRule()
-{}
+KeywordRule::~KeywordRule() = default;
 
 void KeywordRule::setInsensitive(const QString &insensitive)
 {

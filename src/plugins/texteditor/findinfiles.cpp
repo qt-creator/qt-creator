@@ -58,9 +58,7 @@ FindInFiles::FindInFiles()
             this, &FindInFiles::findOnFileSystem);
 }
 
-FindInFiles::~FindInFiles()
-{
-}
+FindInFiles::~FindInFiles() = default;
 
 bool FindInFiles::isValid() const
 {

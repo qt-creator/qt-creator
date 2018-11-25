@@ -33,7 +33,7 @@
 #include <QTextLayout>
 
 #include <functional>
-#include <limits.h>
+#include <climits>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;

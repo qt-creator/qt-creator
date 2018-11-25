@@ -117,7 +117,7 @@ private:
     ShowControls m_showControls = ShowAllAbsoluteControls;
 };
 
-typedef std::vector<FormatDescription> FormatDescriptions;
+using FormatDescriptions = std::vector<FormatDescription>;
 
 class TEXTEDITOR_EXPORT FontSettingsPage : public TextEditorOptionsPage
 {

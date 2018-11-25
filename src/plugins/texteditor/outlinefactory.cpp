@@ -92,9 +92,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     updateCurrentEditor(Core::EditorManager::currentEditor());
 }
 
-OutlineWidgetStack::~OutlineWidgetStack()
-{
-}
+OutlineWidgetStack::~OutlineWidgetStack() = default;
 
 QToolButton *OutlineWidgetStack::toggleSyncButton()
 {
@@ -166,7 +164,7 @@ void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
     IOutlineWidget *newWidget = nullptr;
 
     if (editor) {
-        for (IOutlineWidgetFactory *widgetFactory : g_outlineWidgetFactories) {
+        for (IOutlineWidgetFactory *widgetFactory : qAsConst(g_outlineWidgetFactories)) {
             if (widgetFactory->supportsEditor(editor)) {
                 newWidget = widgetFactory->createWidget(editor);
                 break;

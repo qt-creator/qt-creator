@@ -3852,8 +3852,8 @@ void TextEditorWidgetPrivate::insertIntoBlockSelection(const QString &text)
     const QStringList::const_iterator endLine = textLines.constEnd();
     for (QStringList::const_iterator textLine = textLines.constBegin(); textLine != endLine; ++textLine)
         textLength += qMax(0, ts.columnCountForText(*textLine, column) - textLength);
-    for (QStringList::iterator textLine = textLines.begin(); textLine != textLines.end(); ++textLine)
-        textLine->append(QString(qMax(0, textLength - ts.columnCountForText(*textLine, column)), QLatin1Char(' ')));
+    for (auto &textLine : textLines)
+        textLine.append(QString(qMax(0, textLength - ts.columnCountForText(textLine, column)), QLatin1Char(' ')));
 
     // insert Text
     for (;;) {
@@ -4156,7 +4156,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         }
     }
 
-    for (const TextMark *mark : marks) {
+    for (const TextMark *mark : qAsConst(marks)) {
         boundingRect = QRectF(x, boundingRect.top(), q->viewport()->width() - x, boundingRect.height());
         if (boundingRect.isEmpty())
             break;
@@ -4617,7 +4617,7 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
 
         if (TextBlockUserData *nextBlockUserData = TextDocumentLayout::testUserData(nextBlock)) {
             if (nextBlockUserData->foldingStartIncluded())
-                replacement.prepend(nextBlock.text().trimmed().left(1));
+                replacement.prepend(nextBlock.text().trimmed().at(0));
         }
 
         QTextBlock nextVisibleBlock = TextEditor::nextVisibleBlock(data.block, data.doc);

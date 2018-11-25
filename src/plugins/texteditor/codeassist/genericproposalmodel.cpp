@@ -38,10 +38,12 @@
 
 using namespace TextEditor;
 
+QT_BEGIN_NAMESPACE
 uint qHash(const AssistProposalItem &item)
 {
     return qHash(item.text());
 }
+QT_END_NAMESPACE
 
 namespace {
 
@@ -129,8 +131,7 @@ private:
 
 } // Anonymous
 
-GenericProposalModel::GenericProposalModel()
-{}
+GenericProposalModel::GenericProposalModel() = default;
 
 GenericProposalModel::~GenericProposalModel()
 {

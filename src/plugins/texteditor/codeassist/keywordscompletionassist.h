@@ -100,7 +100,7 @@ private:
 class TEXTEDITOR_EXPORT KeywordsCompletionAssistProcessor : public IAssistProcessor
 {
 public:
-    KeywordsCompletionAssistProcessor(Keywords keywords);
+    KeywordsCompletionAssistProcessor(const Keywords &keywords);
     ~KeywordsCompletionAssistProcessor() override = default;
 
     IAssistProposal *perform(const AssistInterface *interface) override;
@@ -108,7 +108,7 @@ public:
     void setSnippetGroup(const QString &id);
 
 protected:
-    void setKeywords (Keywords keywords);
+    void setKeywords (const Keywords &keywords);
 
 private:
     bool isInComment(const AssistInterface *interface) const;

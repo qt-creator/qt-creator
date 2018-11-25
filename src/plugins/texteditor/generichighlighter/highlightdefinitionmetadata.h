@@ -35,10 +35,10 @@ namespace Internal {
 class HighlightDefinitionMetaData
 {
 public:
-    HighlightDefinitionMetaData() : priority(0) {}
+    HighlightDefinitionMetaData() = default;
 
 public:
-    int priority;
+    int priority = 0;
     QString id;
     QString name;
     QString version;
@@ -48,7 +48,7 @@ public:
     QUrl url;
 };
 
-typedef QSharedPointer<HighlightDefinitionMetaData> DefinitionMetaDataPtr;
+using DefinitionMetaDataPtr = QSharedPointer<HighlightDefinitionMetaData>;
 
 } // namespace Internal
 } // namespace TextEditor

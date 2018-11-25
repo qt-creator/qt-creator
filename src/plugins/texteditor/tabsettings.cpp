@@ -224,8 +224,8 @@ int TabSettings::positionAtColumn(const QString &text, int column, int *offset, 
 int TabSettings::columnCountForText(const QString &text, int startColumn) const
 {
     int column = startColumn;
-    for (int i = 0; i < text.size(); ++i) {
-        if (text.at(i) == QLatin1Char('\t'))
+    for (auto c : text) {
+        if (c == QLatin1Char('\t'))
             column = column - (column % m_tabSize) + m_tabSize;
         else
             ++column;

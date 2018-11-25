@@ -54,8 +54,7 @@ const Context &Context::operator=(Context copy)
     return *this;
 }
 
-Context::~Context()
-{}
+Context::~Context() = default;
 
 void Context::swap(Context &context)
 {

@@ -32,8 +32,8 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT NormalIndenter : public Indenter
 {
 public:
-    NormalIndenter() {}
-    ~NormalIndenter() override {}
+    NormalIndenter() = default;
+    ~NormalIndenter() override = default;
 
     int indentFor(const QTextBlock &block, const TabSettings &tabSettings) override;
 };

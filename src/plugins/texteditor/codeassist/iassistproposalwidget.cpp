@@ -52,8 +52,7 @@ IAssistProposalWidget::IAssistProposalWidget()
     : QFrame(nullptr, Qt::Popup)
 {}
 
-IAssistProposalWidget::~IAssistProposalWidget()
-{}
+IAssistProposalWidget::~IAssistProposalWidget() = default;
 
 int IAssistProposalWidget::basePosition() const
 {

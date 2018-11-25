@@ -32,8 +32,7 @@ using namespace Internal;
 DynamicRule::DynamicRule() : m_active(false)
 {}
 
-DynamicRule::~DynamicRule()
-{}
+DynamicRule::~DynamicRule() = default;
 
 void DynamicRule::setActive(const QString &active)
 { m_active = toBool(active); }

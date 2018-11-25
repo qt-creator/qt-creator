@@ -30,9 +30,7 @@
 
 namespace TextEditor {
 
-CodeFormatterData::~CodeFormatterData()
-{
-}
+CodeFormatterData::~CodeFormatterData() = default;
 
 TextBlockUserData::~TextBlockUserData()
 {
@@ -48,8 +46,8 @@ TextBlockUserData::~TextBlockUserData()
 int TextBlockUserData::braceDepthDelta() const
 {
     int delta = 0;
-    for (int i = 0; i < m_parentheses.size(); ++i) {
-        switch (m_parentheses.at(i).chr.unicode()) {
+    for (auto &parenthesis : m_parentheses) {
+        switch (parenthesis.chr.unicode()) {
         case '{': case '+': case '[': ++delta; break;
         case '}': case '-': case ']': --delta; break;
         default: break;

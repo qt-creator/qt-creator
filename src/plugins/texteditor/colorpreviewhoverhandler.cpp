@@ -109,9 +109,9 @@ static QColor fromEnumString(const QString &s)
         {QLatin1String("transparent"), QColor(Qt::transparent)}
     };
 
-    for (uint ii = 0; ii < sizeof(table) / sizeof(table[0]); ++ii) {
-        if (s == table[ii].name)
-            return table[ii].color;
+    for (const auto &enumColor : table) {
+        if (s == enumColor.name)
+            return enumColor.color;
     }
 
     return QColor();
@@ -189,11 +189,9 @@ static QString removeWhitespace(const QString &s)
 {
     QString ret;
     ret.reserve(s.size());
-    for (int ii = 0; ii < s.length(); ++ii) {
-        const QChar c = s[ii];
+    for (QChar c : s) {
         if (!c.isSpace())
             ret += c;
-
     }
     return ret;
 }

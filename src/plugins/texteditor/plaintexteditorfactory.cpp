@@ -46,7 +46,7 @@ static PlainTextEditorFactory *m_instance = nullptr;
 class PlainTextEditorWidget : public TextEditorWidget
 {
 public:
-    PlainTextEditorWidget() {}
+    PlainTextEditorWidget() = default;
     void finalizeInitialization() override
     {
         textDocument()->setMimeType(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT));

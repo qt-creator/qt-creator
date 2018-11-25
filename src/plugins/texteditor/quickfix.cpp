@@ -32,9 +32,7 @@ QuickFixOperation::QuickFixOperation(int priority)
     setPriority(priority);
 }
 
-QuickFixOperation::~QuickFixOperation()
-{
-}
+QuickFixOperation::~QuickFixOperation() = default;
 
 int QuickFixOperation::priority() const
 {

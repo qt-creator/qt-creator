@@ -45,20 +45,19 @@ QString findFallbackDefinitionsLocation()
     dir.setNameFilters(QStringList(QLatin1String("*.xml")));
 
     if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()) {
-        static const QLatin1String kateSyntax[] = {
+        static const QLatin1String kateSyntaxPaths[] = {
             QLatin1String("/share/apps/katepart/syntax"),
             QLatin1String("/share/kde4/apps/katepart/syntax")
         };
-        static const int kateSyntaxCount =
-                sizeof(kateSyntax) / sizeof(kateSyntax[0]);
 
         // Some wild guesses.
-        for (int i = 0; i < kateSyntaxCount; ++i) {
-            QStringList paths;
-            paths << QLatin1String("/usr") + kateSyntax[i]
-                     << QLatin1String("/usr/local") + kateSyntax[i]
-                        << QLatin1String("/opt") + kateSyntax[i];
-            foreach (const QString &path, paths) {
+        for (const auto &kateSyntaxPath : kateSyntaxPaths) {
+            const QStringList paths = {
+                QLatin1String("/usr") + kateSyntaxPath,
+                QLatin1String("/usr/local") + kateSyntaxPath,
+                QLatin1String("/opt") + kateSyntaxPath
+            };
+            for (const auto &path : paths) {
                 dir.setPath(path);
                 if (dir.exists() && !dir.entryInfoList().isEmpty())
                     return dir.path();
@@ -66,9 +65,8 @@ QString findFallbackDefinitionsLocation()
         }
 
         // Try kde-config.
-        QStringList programs;
-        programs << QLatin1String("kde-config") << QLatin1String("kde4-config");
-        foreach (const QString &program, programs) {
+        const QStringList programs = {QLatin1String("kde-config"), QLatin1String("kde4-config")};
+        for (auto &program : programs) {
             Utils::SynchronousProcess process;
             process.setTimeoutS(5);
             Utils::SynchronousProcessResponse response
@@ -76,8 +74,8 @@ QString findFallbackDefinitionsLocation()
             if (response.result == Utils::SynchronousProcessResponse::Finished) {
                 QString output = response.stdOut();
                 output.remove(QLatin1Char('\n'));
-                for (int i = 0; i < kateSyntaxCount; ++i) {
-                    dir.setPath(output + kateSyntax[i]);
+                for (auto &kateSyntaxPath : kateSyntaxPaths) {
+                    dir.setPath(output + kateSyntaxPath);
                     if (dir.exists() && !dir.entryInfoList().isEmpty())
                         return dir.path();
                 }
@@ -189,7 +187,7 @@ void HighlighterSettings::assignDefaultDefinitionsPath()
 
 bool HighlighterSettings::isIgnoredFilePattern(const QString &fileName) const
 {
-    foreach (QRegExp regExp, m_ignoredFiles)
+    for (auto &regExp : m_ignoredFiles)
         if (regExp.indexIn(fileName) != -1)
             return true;
 
@@ -210,8 +208,8 @@ void HighlighterSettings::setExpressionsFromList(const QStringList &patterns)
     QRegExp regExp;
     regExp.setCaseSensitivity(Qt::CaseInsensitive);
     regExp.setPatternSyntax(QRegExp::Wildcard);
-    foreach (const QString &s, patterns) {
-        regExp.setPattern(s);
+    for (auto &pattern : patterns) {
+        regExp.setPattern(pattern);
         m_ignoredFiles.append(regExp);
     }
 }

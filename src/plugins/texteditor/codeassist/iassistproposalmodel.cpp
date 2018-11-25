@@ -41,8 +41,6 @@ using namespace TextEditor;
     This is class is part of the CodeAssist API.
 */
 
-IAssistProposalModel::IAssistProposalModel()
-{}
+IAssistProposalModel::IAssistProposalModel() = default;
 
-IAssistProposalModel::~IAssistProposalModel()
-{}
+IAssistProposalModel::~IAssistProposalModel() = default;

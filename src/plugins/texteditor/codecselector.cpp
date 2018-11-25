@@ -134,9 +134,7 @@ CodecSelector::CodecSelector(QWidget *parent, TextDocument *doc)
     updateButtons();
 }
 
-CodecSelector::~CodecSelector()
-{
-}
+CodecSelector::~CodecSelector() = default;
 
 void CodecSelector::updateButtons()
 {

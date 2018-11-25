@@ -32,8 +32,7 @@
 
 namespace TextEditor {
 
-BaseHoverHandler::~BaseHoverHandler()
-{}
+BaseHoverHandler::~BaseHoverHandler() = default;
 
 void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point, bool decorate)
 {

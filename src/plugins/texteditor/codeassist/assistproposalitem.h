@@ -39,7 +39,7 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT AssistProposalItem : public AssistProposalItemInterface
 {
 public:
-    ~AssistProposalItem() noexcept override {}
+    ~AssistProposalItem() noexcept override = default;
     QString text() const override;
     bool implicitlyApplies() const override;
     bool prematurelyApplies(const QChar &c) const override;

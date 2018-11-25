@@ -32,11 +32,9 @@
 
 using namespace TextEditor;
 
-Indenter::Indenter()
-{}
+Indenter::Indenter() = default;
 
-Indenter::~Indenter()
-{}
+Indenter::~Indenter() = default;
 
 bool Indenter::isElectricCharacter(const QChar &) const
 {

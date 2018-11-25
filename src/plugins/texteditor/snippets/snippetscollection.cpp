@@ -107,8 +107,7 @@ SnippetsCollection::SnippetsCollection() :
             this, &SnippetsCollection::identifyGroups);
 }
 
-SnippetsCollection::~SnippetsCollection()
-{}
+SnippetsCollection::~SnippetsCollection() = default;
 
 void SnippetsCollection::insertSnippet(const Snippet &snippet)
 {
@@ -309,7 +308,7 @@ bool SnippetsCollection::synchronize(QString *errorString)
     }
     Utils::FileSaver saver(m_userSnippetsPath + m_userSnippetsFile);
     if (!saver.hasError()) {
-        typedef QHash<QString, int>::ConstIterator GroupIndexByIdConstIt;
+        using GroupIndexByIdConstIt = QHash<QString, int>::ConstIterator;
 
         QXmlStreamWriter writer(saver.file());
         writer.setAutoFormatting(true);

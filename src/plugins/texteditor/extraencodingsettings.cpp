@@ -39,8 +39,7 @@ using namespace TextEditor;
 ExtraEncodingSettings::ExtraEncodingSettings() : m_utf8BomSetting(OnlyKeep)
 {}
 
-ExtraEncodingSettings::~ExtraEncodingSettings()
-{}
+ExtraEncodingSettings::~ExtraEncodingSettings() = default;
 
 void ExtraEncodingSettings::toSettings(const QString &category, QSettings *s) const
 {

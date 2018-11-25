@@ -35,7 +35,7 @@
 
 namespace TextEditor {
 struct Parenthesis;
-typedef QVector<Parenthesis> Parentheses;
+using Parentheses = QVector<Parenthesis>;
 
 struct TEXTEDITOR_EXPORT Parenthesis
 {

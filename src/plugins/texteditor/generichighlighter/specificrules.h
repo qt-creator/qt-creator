@@ -42,7 +42,7 @@ class HighlightDefinition;
 class DetectCharRule : public DynamicRule
 {
 public:
-    ~DetectCharRule() override {}
+    ~DetectCharRule() override = default;
 
     void setChar(const QString &character);
 
@@ -57,7 +57,7 @@ private:
 class Detect2CharsRule : public DynamicRule
 {
 public:
-    ~Detect2CharsRule() override {}
+    ~Detect2CharsRule() override = default;
 
     void setChar(const QString &character);
     void setChar1(const QString &character);
@@ -74,7 +74,7 @@ private:
 class AnyCharRule : public Rule
 {
 public:
-    ~AnyCharRule() override {}
+    ~AnyCharRule() override = default;
 
     void setCharacterSet(const QString &s);
 
@@ -88,7 +88,7 @@ private:
 class StringDetectRule : public DynamicRule
 {
 public:
-    ~StringDetectRule() override {}
+    ~StringDetectRule() override = default;
 
     void setString(const QString &s);
     void setInsensitive(const QString &insensitive);
@@ -157,7 +157,7 @@ private:
 class IntRule : public Rule
 {
 public:
-    ~IntRule() override {}
+    ~IntRule() override = default;
 
 private:
     bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
@@ -167,7 +167,7 @@ private:
 class FloatRule : public Rule
 {
 public:
-    ~FloatRule() override {}
+    ~FloatRule() override = default;
 
 private:
     bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
@@ -177,7 +177,7 @@ private:
 class HlCOctRule : public Rule
 {
 public:
-    ~HlCOctRule() override {}
+    ~HlCOctRule() override = default;
 
 private:
     bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
@@ -187,7 +187,7 @@ private:
 class HlCHexRule : public Rule
 {
 public:
-    ~HlCHexRule() override {}
+    ~HlCHexRule() override = default;
 
 private:
     bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
@@ -197,7 +197,7 @@ private:
 class HlCStringCharRule : public Rule
 {
 public:
-    ~HlCStringCharRule() override {}
+    ~HlCStringCharRule() override = default;
 
 private:
     bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
@@ -207,7 +207,7 @@ private:
 class HlCCharRule : public Rule
 {
 public:
-    ~HlCCharRule() override {}
+    ~HlCCharRule() override = default;
 
 private:
     bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
@@ -217,7 +217,7 @@ private:
 class RangeDetectRule : public Rule
 {
 public:
-    ~RangeDetectRule() override {}
+    ~RangeDetectRule() override = default;
 
     void setChar(const QString &character);
     void setChar1(const QString &character);
@@ -233,7 +233,7 @@ private:
 class LineContinueRule : public Rule
 {
 public:
-    ~LineContinueRule() override {}
+    ~LineContinueRule() override = default;
 
 private:
     bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
@@ -244,7 +244,7 @@ class DetectSpacesRule : public Rule
 {
 public:
     DetectSpacesRule();
-    ~DetectSpacesRule() override {}
+    ~DetectSpacesRule() override = default;
 
 private:
     bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;
@@ -254,7 +254,7 @@ private:
 class DetectIdentifierRule : public Rule
 {
 public:
-    ~DetectIdentifierRule() override {}
+    ~DetectIdentifierRule() override = default;
 
 private:
     bool doMatchSucceed(const QString &text, const int length, ProgressData *progress) override;

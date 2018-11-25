@@ -55,8 +55,7 @@ RefactoringChanges::RefactoringChanges(RefactoringChangesData *data)
     : m_data(data)
 {}
 
-RefactoringChanges::~RefactoringChanges()
-{}
+RefactoringChanges::~RefactoringChanges() = default;
 
 RefactoringSelections RefactoringChanges::rangesToSelections(QTextDocument *document,
                                                              const QList<Range> &ranges)
@@ -387,7 +386,7 @@ void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const 
                                                                           const TextDocument *) const,
                                        const RefactoringSelections &ranges)
 {
-    typedef QPair<QTextCursor, QTextCursor> CursorPair;
+    using CursorPair = QPair<QTextCursor, QTextCursor>;
 
     foreach (const CursorPair &p, ranges) {
         QTextCursor selection(p.first.document());
@@ -403,8 +402,7 @@ void RefactoringFile::fileChanged()
         m_data->fileChanged(m_fileName);
 }
 
-RefactoringChangesData::~RefactoringChangesData()
-{}
+RefactoringChangesData::~RefactoringChangesData() = default;
 
 void RefactoringChangesData::indentSelection(const QTextCursor &, const QString &, const TextDocument *) const
 {
