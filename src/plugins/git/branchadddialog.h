@@ -61,6 +61,9 @@ public:
 
     bool track() const;
 
+    void setCheckoutVisible(bool visible);
+    bool checkout() const;
+
 private:
     void updateButtonStatus();
 

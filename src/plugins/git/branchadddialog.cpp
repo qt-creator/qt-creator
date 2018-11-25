@@ -110,6 +110,7 @@ BranchAddDialog::BranchAddDialog(const QStringList &localBranches, bool addBranc
     m_ui(new Ui::BranchAddDialog)
 {
     m_ui->setupUi(this);
+    setCheckoutVisible(false);
     setWindowTitle(addBranch ? tr("Add Branch") : tr("Rename Branch"));
     m_ui->branchNameEdit->setValidator(new BranchNameValidator(localBranches, this));
     connect(m_ui->branchNameEdit, &QLineEdit::textChanged, this, &BranchAddDialog::updateButtonStatus);
@@ -147,6 +148,17 @@ void BranchAddDialog::setTrackedBranchName(const QString &name, bool remote)
 bool BranchAddDialog::track() const
 {
     return m_ui->trackingCheckBox->isChecked();
+}
+
+void BranchAddDialog::setCheckoutVisible(bool visible)
+{
+    m_ui->checkoutCheckBox->setVisible(visible);
+    m_ui->checkoutCheckBox->setChecked(visible);
+}
+
+bool BranchAddDialog::checkout() const
+{
+    return m_ui->checkoutCheckBox->isChecked();
 }
 
 /*! Updates the ok button enabled state of the dialog according to the validity of the branch name. */

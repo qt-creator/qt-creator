@@ -316,6 +316,7 @@ bool BranchView::add()
     BranchAddDialog branchAddDialog(localNames, true, this);
     branchAddDialog.setBranchName(suggestedName);
     branchAddDialog.setTrackedBranchName(isTracked ? trackedBranch : QString(), !isLocal);
+    branchAddDialog.setCheckoutVisible(true);
 
     if (branchAddDialog.exec() == QDialog::Accepted) {
         QModelIndex idx = m_model->addBranch(branchAddDialog.branchName(), branchAddDialog.track(),
@@ -328,10 +329,8 @@ bool BranchView::add()
                                              | QItemSelectionModel::Select
                                              | QItemSelectionModel::Current);
         m_branchView->scrollTo(mappedIdx);
-        if (QMessageBox::question(this, tr("Checkout"), tr("Checkout branch?"),
-                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+        if (branchAddDialog.checkout())
             return checkout();
-        }
     }
 
     return false;
