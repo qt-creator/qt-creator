@@ -419,6 +419,11 @@
 
     To view the Git Subversion log, select \uicontrol Log.
 
+    To publish the commits from the current branch to the Subversion server,
+    select \uicontrol DCommit. This will create a revision in Subversion for
+    every local Git commit. Afterwards, the branch is rebased or reset
+    (depending on whether or not there is a diff between Subversion and head).
+
     \section2 Reviewing Code with Gerrit
 
     If your Git project uses Gerrit for code reviews, you can view your changes
