@@ -14,6 +14,7 @@ LIBS += $$CLANGFORMAT_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 QMAKE_CXXFLAGS += $$LLVM_CXXFLAGS
+unix:!macos:QMAKE_LFLAGS += -Wl,--exclude-libs,ALL
 
 SOURCES = \
     clangformatconfigwidget.cpp \
