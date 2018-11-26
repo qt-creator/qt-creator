@@ -25,6 +25,8 @@
 
 #include "colorthemeview.h"
 
+#include <coreplugin/icore.h>
+
 #include <QBrush>
 #include <QColorDialog>
 #include <QLinearGradient>
@@ -58,7 +60,7 @@ void ColorThemeItem::openColorDialog()
 {
     QColor oldColor = m_color;
 
-    QColorDialog dialog(oldColor, 0);
+    QColorDialog dialog(oldColor, Core::ICore::dialogParent());
     dialog.setWindowTitle(tr("Pick Color"));
     connect(&dialog, &QColorDialog::currentColorChanged, this, &ColorThemeItem::setColor);
     QPoint topRight = parentWidget()->mapToGlobal(parentWidget()->rect().topRight());
