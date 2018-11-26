@@ -49,6 +49,34 @@ static Core::Internal::DocumentModelPrivate *d;
 namespace Core {
 namespace Internal {
 
+namespace {
+bool compare(const DocumentModel::Entry *e1, const DocumentModel::Entry *e2)
+{
+    const int cmp = e1->plainDisplayName().localeAwareCompare(e2->plainDisplayName());
+    return (cmp < 0) || (cmp == 0 && e1->fileName() < e2->fileName());
+}
+
+// Return a pair of indices. The first is the index that needs to be removed or -1 if no removal
+// is necessary. The second is the index to add the entry into, or -1 if no addition is necessary.
+// If the entry does not need to be moved, then (-1, -1) will be returned as no action is needed.
+std::pair<int, int> positionEntry(const QList<DocumentModel::Entry *> &list,
+                                  DocumentModel::Entry *entry)
+{
+    const int to_remove = list.indexOf(entry);
+
+    const QList<DocumentModel::Entry *> toSort
+            = Utils::filtered(list, [entry](DocumentModel::Entry *e) { return e != entry; });
+
+    const auto begin = std::begin(toSort);
+    const auto end = std::end(toSort);
+    const auto to_insert
+            = static_cast<int>(std::distance(begin, std::lower_bound(begin, end, entry, &compare)));
+    if (to_remove == to_insert)
+        return std::make_pair(-1, -1);
+    return std::make_pair(to_remove, to_insert);
+}
+} // namespace
+
 DocumentModelPrivate::~DocumentModelPrivate()
 {
     qDeleteAll(m_entries);
@@ -91,18 +119,13 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
         return;
     }
 
-    int index;
-    const QString displayName = entry->plainDisplayName();
-    for (index = 0; index < m_entries.count(); ++index) {
-        int cmp = displayName.localeAwareCompare(m_entries.at(index)->plainDisplayName());
-        if (cmp < 0)
-            break;
-        if (cmp == 0 && fileName < m_entries.at(index)->fileName())
-            break;
-    }
-    int row = index + 1/*<no document>*/;
+    auto positions = positionEntry(m_entries, entry);
+    // Do not remove anything (new entry), insert somewhere:
+    QTC_CHECK(positions.first == -1 && positions.second >= 0);
+
+    int row = positions.second + 1/*<no document>*/;
     beginInsertRows(QModelIndex(), row, row);
-    m_entries.insert(index, entry);
+    m_entries.insert(positions.second, entry);
     disambiguateDisplayNames(entry);
     if (!fixedPath.isEmpty())
         m_entryByFixedPath[fixedPath] = entry;
@@ -321,9 +344,26 @@ void DocumentModelPrivate::itemChanged()
     }
     if (!found && !fixedPath.isEmpty())
         m_entryByFixedPath[fixedPath] = entry;
+
     if (!disambiguateDisplayNames(m_entries.at(idx.value()))) {
         QModelIndex mindex = index(idx.value() + 1/*<no document>*/, 0);
         emit dataChanged(mindex, mindex);
+    }
+
+    // Make sure the entries stay sorted:
+    auto positions = positionEntry(m_entries, entry);
+    if (positions.first >= 0 && positions.second >= 0) {
+        // Entry did move: remove and add it again.
+        beginRemoveRows(QModelIndex(), positions.first + 1, positions.first + 1);
+        m_entries.removeAt(positions.first);
+        endRemoveRows();
+
+        beginInsertRows(QModelIndex(), positions.second + 1, positions.second + 1);
+        m_entries.insert(positions.second, entry);
+        endInsertRows();
+    } else {
+        // Nothing to remove or add: The entry did not move.
+        QTC_CHECK(positions.first == -1 && positions.second == -1);
     }
 }
 
