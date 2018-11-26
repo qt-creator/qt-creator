@@ -34,6 +34,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <cmath>
 #include <limits>
 
 namespace QmlDesigner {
@@ -282,7 +283,7 @@ void QmlTimelineKeyframeGroup::moveAllKeyframes(qreal offset)
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
         auto property = childNode.variantProperty("frame");
         if (property.isValid())
-            property.setValue(property.value().toReal() + offset);
+            property.setValue(std::round(property.value().toReal() + offset));
     }
 }
 
@@ -292,7 +293,7 @@ void QmlTimelineKeyframeGroup::scaleAllKeyframes(qreal factor)
         auto property = childNode.variantProperty("frame");
 
         if (property.isValid())
-            property.setValue(property.value().toReal() * factor);
+            property.setValue(std::round(property.value().toReal() * factor));
     }
 }
 
