@@ -93,10 +93,18 @@ void tst_Reformatter::test()
 
     // compare line by line
     int commonLines = qMin(newLines.size(), sourceLines.size());
+    bool insideMultiLineComment = false;
     for (int i = 0; i < commonLines; ++i) {
         // names intentional to make 'Actual (sourceLine): ...\nExpected (newLinee): ...' line up
         const QString &sourceLine = sourceLines.at(i);
         const QString &newLinee = newLines.at(i);
+        if (!insideMultiLineComment && sourceLine.trimmed().startsWith("/*")) {
+            insideMultiLineComment = true;
+            sourceLines.insert(i, "\n");
+            continue;
+        }
+        if (sourceLine.trimmed().endsWith("*/"))
+            insideMultiLineComment = false;
         if (sourceLine.trimmed().isEmpty() && newLinee.trimmed().isEmpty())
             continue;
         bool fail = !QCOMPARE_NOEXIT(newLinee, sourceLine);

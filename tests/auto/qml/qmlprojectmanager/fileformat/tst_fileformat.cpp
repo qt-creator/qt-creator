@@ -223,8 +223,9 @@ void tst_FileFormat::testLibraryPaths()
 
     project->setSourceDirectory(testDataDir);
 
-    QStringList expectedPaths(QStringList() << SRCDIR "/otherLibrary"
-                                            << SRCDIR "/data/library");
+    const QDir base(testDataDir);
+    const QStringList expectedPaths({base.relativeFilePath(SRCDIR "/otherLibrary"),
+                                     base.relativeFilePath(SRCDIR "/data/library")});
     qDebug() << expectedPaths << project->importPaths();
     QCOMPARE(project->importPaths().toSet(), expectedPaths.toSet());
     delete project;
