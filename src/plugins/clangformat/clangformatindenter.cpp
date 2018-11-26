@@ -133,6 +133,18 @@ void trimFirstNonEmptyBlock(const QTextBlock &currentBlock)
     cursor.endEditBlock();
 }
 
+void trimCurrentBlock(const QTextBlock &currentBlock)
+{
+    if (currentBlock.text().trimmed().isEmpty()) {
+        // Clear the block containing only spaces
+        QTextCursor cursor(currentBlock);
+        cursor.beginEditBlock();
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        cursor.removeSelectedText();
+        cursor.endEditBlock();
+    }
+}
+
 // Returns the total langth of previous lines with pure whitespace.
 int previousEmptyLinesLength(const QTextBlock &currentBlock)
 {
@@ -418,6 +430,7 @@ void ClangFormatIndenter::indentBlock(QTextDocument *doc,
 
     const Utils::FileName fileName = editor->textDocument()->filePath();
     trimFirstNonEmptyBlock(block);
+    trimCurrentBlock(block);
     const QByteArray buffer = doc->toPlainText().toUtf8();
     const int utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, block.blockNumber() + 1);
     QTC_ASSERT(utf8Offset >= 0, return;);
@@ -436,6 +449,7 @@ int ClangFormatIndenter::indentFor(const QTextBlock &block, const TextEditor::Ta
 
     const Utils::FileName fileName = editor->textDocument()->filePath();
     trimFirstNonEmptyBlock(block);
+    trimCurrentBlock(block);
     const QTextDocument *doc = block.document();
     const QByteArray buffer = doc->toPlainText().toUtf8();
     const int utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, block.blockNumber() + 1);
