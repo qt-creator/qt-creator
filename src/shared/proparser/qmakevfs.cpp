@@ -106,10 +106,10 @@ int QMakeVfs::idForFileName(const QString &fn, VfsFlags flags)
             return id;
     }
 #endif
-    if (!(flags & VfsAccessedOnly)) {
 #ifdef PROPARSER_THREAD_SAFE
-        QMutexLocker locker(&s_mutex);
+    QMutexLocker locker(&s_mutex);
 #endif
+    if (!(flags & VfsAccessedOnly)) {
         int &id = s_fileIdMap[fn];
         if (!id) {
             id = ++s_fileIdCounter;
