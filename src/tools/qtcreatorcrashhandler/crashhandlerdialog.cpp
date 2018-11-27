@@ -35,10 +35,87 @@
 #include <QIcon>
 #include <QSettings>
 #include <QStyle>
+#include <QSyntaxHighlighter>
+#include <QTextCharFormat>
 
 static const char SettingsApplication[] = "QtCreator";
 static const char SettingsKeySkipWarningAbortingBacktrace[]
     = "CrashHandler/SkipWarningAbortingBacktrace";
+
+namespace {
+
+class StacktraceHighlighter : public QSyntaxHighlighter
+{
+public:
+    StacktraceHighlighter(QTextDocument *parent = 0)
+        : QSyntaxHighlighter(parent)
+    {
+        m_currentThreadFormat.setFontWeight(QFont::Bold);
+        m_currentThreadFormat.setForeground(Qt::red);
+
+        m_threadFormat.setFontWeight(QFont::Bold);
+        m_threadFormat.setForeground(Qt::blue);
+
+        m_stackTraceNumberFormat.setFontWeight(QFont::Bold);
+        m_stackTraceFunctionFormat.setFontWeight(QFont::Bold);
+        m_stackTraceLocationFormat.setForeground(Qt::darkGreen);
+    }
+
+protected:
+    void highlightBlock(const QString &text) override
+    {
+        if (text.isEmpty())
+            return;
+
+        // Current thread line
+        // [Current thread is 1 (Thread 0x7f8212984f00 (LWP 20425))]
+        if (text.startsWith("[Current thread is"))
+            return setFormat(0, text.size(), m_currentThreadFormat);
+
+        // Thread line
+        // Thread 1 (Thread 0x7fc24eb7ef00 (LWP 18373)):
+        if (text.startsWith("Thread"))
+            return setFormat(0, text.size(), m_threadFormat);
+
+        // Stack trace line
+        // #3  0x000055d001160992 in main (argc=2, argv=0x7ffd0b4873a8) at file.cpp:82
+        if (text.startsWith('#')) {
+            int startIndex = -1;
+            int endIndex = -1;
+
+            // Item number
+            endIndex = text.indexOf(' ');
+            if (endIndex != -1)
+                setFormat(0, endIndex, m_stackTraceNumberFormat);
+
+            // Function name
+            startIndex = text.indexOf(" in ");
+            if (startIndex != -1) {
+                startIndex += 4;
+                const QString stopCharacters = "(<"; // Do not include function/template parameters
+                endIndex = startIndex;
+                while (endIndex < text.size() && !stopCharacters.contains(text[endIndex]))
+                    ++endIndex;
+                setFormat(startIndex, endIndex - startIndex, m_stackTraceFunctionFormat);
+            }
+
+            // Location
+            startIndex = text.indexOf("at ");
+            if (startIndex != -1)
+                setFormat(startIndex + 3, text.size() - startIndex, m_stackTraceLocationFormat);
+        }
+    }
+
+private:
+    QTextCharFormat m_currentThreadFormat;
+    QTextCharFormat m_threadFormat;
+
+    QTextCharFormat m_stackTraceNumberFormat;
+    QTextCharFormat m_stackTraceFunctionFormat;
+    QTextCharFormat m_stackTraceLocationFormat;
+};
+
+} // anonymous
 
 CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler,
                                        const QString &signalName,
@@ -52,6 +129,8 @@ CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler,
     m_ui->introLabel->setTextFormat(Qt::RichText);
     m_ui->introLabel->setOpenExternalLinks(true);
     m_ui->debugInfoEdit->setReadOnly(true);
+    new StacktraceHighlighter(m_ui->debugInfoEdit->document());
+
     m_ui->progressBar->setMinimum(0);
     m_ui->progressBar->setMaximum(0);
     m_ui->restartAppCheckBox->setText(tr("&Restart %1 on close").arg(appName));
