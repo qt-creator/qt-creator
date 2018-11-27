@@ -57,30 +57,30 @@ protected:
 
 TEST_F(UsedMacroFilter, SystemIncludes)
 {
-    auto result = ClangBackEnd::UsedMacroFilter::filterIncludes(includes);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
 
-    ASSERT_THAT(result.system, ElementsAre(FilePathId{2}, FilePathId{4}));
+    ASSERT_THAT(filter.systemIncludes, ElementsAre(FilePathId{2}, FilePathId{4}));
 }
 
 TEST_F(UsedMacroFilter, ProjectIncludes)
 {
-    auto result = ClangBackEnd::UsedMacroFilter::filterIncludes(includes);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
 
-    ASSERT_THAT(result.project, ElementsAre(FilePathId{3}, FilePathId{5}));
+    ASSERT_THAT(filter.projectIncludes, ElementsAre(FilePathId{3}, FilePathId{5}));
 }
 
 TEST_F(UsedMacroFilter, SystemUsedMacros)
 {
     ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
 
-    ASSERT_THAT(filter.systemUsedMacros(), ElementsAre("ER", "SE"));
+    ASSERT_THAT(filter.systemUsedMacros, ElementsAre(UsedMacro{"ER", 2}, UsedMacro{"SE", 4}));
 }
 
 TEST_F(UsedMacroFilter, ProjectUsedMacros)
 {
     ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
 
-    ASSERT_THAT(filter.projectUsedMacros(), ElementsAre("WU", "SAN"));
+    ASSERT_THAT(filter.projectUsedMacros, ElementsAre(UsedMacro{"WU", 5}, UsedMacro{"SAN", 3}));
 }
 
 TEST_F(UsedMacroFilter, SystemCompileMacros)
@@ -89,7 +89,7 @@ TEST_F(UsedMacroFilter, SystemCompileMacros)
 
     filter.filter(compileMacros);
 
-    ASSERT_THAT(filter.systemCompilerMacros(),
+    ASSERT_THAT(filter.systemCompilerMacros,
                 ElementsAre(CompilerMacro{"ER", "2", 2}, CompilerMacro{"SE", "4", 4}));
 }
 
@@ -99,8 +99,8 @@ TEST_F(UsedMacroFilter, ProjectCompileMacros)
 
     filter.filter(compileMacros);
 
-    ASSERT_THAT(filter.projectCompilerMacros(),
-                ElementsAre(CompilerMacro{"SAN", "3", 3}, CompilerMacro{"WU", "5", 5}));
+    ASSERT_THAT(filter.projectCompilerMacros,
+                ElementsAre(CompilerMacro{"WU", "5", 5}, CompilerMacro{"SAN", "3", 3}));
 }
 
 } // namespace

@@ -907,10 +907,8 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartArtefact &projectPa
 
 std::ostream &operator<<(std::ostream &out, const CompilerMacro &compilerMacro)
 {
-    return out << "("
-               << compilerMacro.key << ", "
-               << compilerMacro.value
-               << ")";
+    return out << "(" << compilerMacro.key << ", " << compilerMacro.value << ", "
+               << compilerMacro.index << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const SymbolEntry &entry)
@@ -1030,11 +1028,13 @@ std::ostream &operator<<(std::ostream &out, const ProgressMessage &message)
 
 std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes)
 {
-    return out << "(" << includes.includeIds << ", " << includes.topIncludeIds << ", " << includes.topSystemIncludeIds << ")";
+    return out << "(" << includes.includeIds << ", " << includes.topIncludeIds << ", "
+               << includes.topSystemIncludeIds << ")";
 }
 std::ostream &operator<<(std::ostream &out, const PchTask &task)
 {
-    return out << "(" << task.ids << ", " << task.buildDependency << ")";
+    return out << "(" << task.projectPartId << ", " << task.dependentIds << ", " << task.includes
+               << ", " << task.compilerMacros << ", " << task.usedMacros << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency)

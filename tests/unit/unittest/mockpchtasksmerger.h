@@ -25,41 +25,19 @@
 
 #pragma once
 
-#include "filestatus.h"
-#include "sourcedependency.h"
-#include "sourceentry.h"
-#include "usedmacro.h"
+#include "googletest.h"
 
-namespace ClangBackEnd {
+#include <pchtasksmergerinterface.h>
 
-class BuildDependency
+class MockPchTasksMerger : public ClangBackEnd::PchTasksMergerInterface
 {
 public:
-    void clear()
-    {
-        includes.clear();
-        usedMacros.clear();
-        sourceFiles.clear();
-        fileStatuses.clear();
-        sourceDependencies.clear();
-    }
+    MOCK_METHOD2(addTask,
+                 void(const ClangBackEnd::PchTask &systemPchTask,
+                      const ClangBackEnd::PchTask &projectPchTask));
 
-    friend bool operator==(const BuildDependency &first, const BuildDependency &second)
+    void addTask(ClangBackEnd::PchTask &&systemPchTask, ClangBackEnd::PchTask &&projectPchTask)
     {
-        return first.includes == second.includes && first.usedMacros == second.usedMacros
-               && first.sourceFiles == second.sourceFiles
-               && first.sourceDependencies == second.sourceDependencies
-               && first.fileStatuses == second.fileStatuses;
+        addTask(systemPchTask, projectPchTask);
     }
-
-public:
-    SourceEntries includes;
-    UsedMacros usedMacros;
-    FilePathIds sourceFiles;
-    SourceDependencies sourceDependencies;
-    FileStatuses fileStatuses;
 };
-
-using BuildDependencies = std::vector<BuildDependency>;
-
-} // namespace ClangBackEnd

@@ -43,30 +43,19 @@ public:
 
     UsedMacroFilter(const SourceEntries &includes, const UsedMacros &usedMacros)
     {
-        Includes filteredIncludes = filterIncludes(includes);
-        m_systemUsedMacros = filterUsedMarcos(usedMacros, filteredIncludes.system);
-        m_projectUsedMacros = filterUsedMarcos(usedMacros, filteredIncludes.project);
+        filterIncludes(includes);
+        systemUsedMacros = filterUsedMarcos(usedMacros, systemIncludes);
+        projectUsedMacros = filterUsedMarcos(usedMacros, projectIncludes);
     }
 
-    static Includes filterIncludes(const SourceEntries &includes)
+    void filterIncludes(const SourceEntries &includes)
     {
-        Includes result;
-        result.system.reserve(includes.size());
-        result.project.reserve(includes.size());
+        systemIncludes.reserve(includes.size());
+        projectIncludes.reserve(includes.size());
 
         for (SourceEntry include : includes)
-            filterInclude(include, result);
-
-        return result;
+            filterInclude(include);
     }
-
-    const Utils::PathStringVector &projectUsedMacros() const { return m_projectUsedMacros; }
-
-    const Utils::PathStringVector &systemUsedMacros() const { return m_systemUsedMacros; }
-
-    const CompilerMacros &projectCompilerMacros() const { return m_projectCompilerMacros; }
-
-    const CompilerMacros &systemCompilerMacros() const { return m_systemCompilerMacros; }
 
     void filter(const CompilerMacros &compilerMacros)
     {
@@ -78,40 +67,39 @@ public:
                       return std::tie(first.key, first.value) < std::tie(second.key, second.value);
                   });
 
-        m_systemCompilerMacros = filtercompilerMacros(indexedCompilerMacro, m_systemUsedMacros);
-        m_projectCompilerMacros = filtercompilerMacros(indexedCompilerMacro, m_projectUsedMacros);
+        systemCompilerMacros = filtercompilerMacros(indexedCompilerMacro, systemUsedMacros);
+        projectCompilerMacros = filtercompilerMacros(indexedCompilerMacro, projectUsedMacros);
     }
 
 private:
-    static void filterInclude(SourceEntry include, Includes &result)
+    void filterInclude(SourceEntry include)
     {
         switch (include.sourceType) {
         case SourceType::TopSystemInclude:
         case SourceType::SystemInclude:
-            result.system.emplace_back(include.sourceId);
+            systemIncludes.emplace_back(include.sourceId);
             break;
         case SourceType::TopProjectInclude:
         case SourceType::ProjectInclude:
-            result.project.emplace_back(include.sourceId);
+            projectIncludes.emplace_back(include.sourceId);
             break;
         case SourceType::UserInclude:
             break;
         }
     }
 
-    static Utils::PathStringVector filterUsedMarcos(const UsedMacros &usedMacros,
-                                                    const FilePathIds &filePathId)
+    static UsedMacros filterUsedMarcos(const UsedMacros &usedMacros, const FilePathIds &filePathId)
     {
-        class BackInserterIterator : public std::back_insert_iterator<Utils::PathStringVector>
+        class BackInserterIterator : public std::back_insert_iterator<UsedMacros>
         {
         public:
-            BackInserterIterator(Utils::PathStringVector &container)
-                : std::back_insert_iterator<Utils::PathStringVector>(container)
+            BackInserterIterator(UsedMacros &container)
+                : std::back_insert_iterator<UsedMacros>(container)
             {}
 
             BackInserterIterator &operator=(const UsedMacro &usedMacro)
             {
-                container->push_back(usedMacro.macroName);
+                container->push_back(usedMacro);
 
                 return *this;
             }
@@ -132,7 +120,7 @@ private:
             }
         };
 
-        Utils::PathStringVector filtertedMacros;
+        UsedMacros filtertedMacros;
         filtertedMacros.reserve(usedMacros.size());
 
         std::set_intersection(usedMacros.begin(),
@@ -142,26 +130,30 @@ private:
                               BackInserterIterator(filtertedMacros),
                               Compare{});
 
-        std::sort(filtertedMacros.begin(), filtertedMacros.end());
+        std::sort(filtertedMacros.begin(),
+                  filtertedMacros.end(),
+                  [](const UsedMacro &first, const UsedMacro &second) {
+                      return first.macroName < second.macroName;
+                  });
 
         return filtertedMacros;
     }
 
     static CompilerMacros filtercompilerMacros(const CompilerMacros &indexedCompilerMacro,
-                                               const Utils::PathStringVector &usedMacros)
+                                               const UsedMacros &usedMacros)
     {
         struct Compare
         {
-            bool operator()(const Utils::PathString &usedMacro,
+            bool operator()(const UsedMacro &usedMacro,
                             const CompilerMacro &compileMacro)
             {
-                return usedMacro < compileMacro.key;
+                return usedMacro.macroName < compileMacro.key;
             }
 
             bool operator()(const CompilerMacro &compileMacro,
-                            const Utils::PathString &usedMacro)
+                            const UsedMacro &usedMacro)
             {
-                return compileMacro.key < usedMacro;
+                return compileMacro.key < usedMacro.macroName;
             }
         };
 
@@ -175,20 +167,16 @@ private:
                               std::back_inserter(filtertedCompilerMacros),
                               Compare{});
 
-        std::sort(filtertedCompilerMacros.begin(),
-                  filtertedCompilerMacros.end(),
-                  [](const CompilerMacro &first, const CompilerMacro &second) {
-                      return first.index < second.index;
-                  });
-
         return filtertedCompilerMacros;
     }
 
-private:
-    Utils::PathStringVector m_projectUsedMacros;
-    Utils::PathStringVector m_systemUsedMacros;
-    CompilerMacros m_projectCompilerMacros;
-    CompilerMacros m_systemCompilerMacros;
+public:
+    FilePathIds projectIncludes;
+    FilePathIds systemIncludes;
+    UsedMacros projectUsedMacros;
+    UsedMacros systemUsedMacros;
+    CompilerMacros projectCompilerMacros;
+    CompilerMacros systemCompilerMacros;
 };
 
 } // namespace ClangBackEnd

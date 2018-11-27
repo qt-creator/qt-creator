@@ -27,6 +27,8 @@
 
 #include "builddependency.h"
 
+#include <compilermacro.h>
+
 #include <utils/smallstringvector.h>
 
 namespace ClangBackEnd {
@@ -34,15 +36,22 @@ namespace ClangBackEnd {
 class PchTask
 {
 public:
-    PchTask(Utils::SmallStringVector &&ids, BuildDependency &&buildDependency)
-        : ids(std::move(ids)),
-          buildDependency(std::move(buildDependency))
-    {
-    }
+    PchTask(Utils::SmallString &&projectPartId,
+            FilePathIds &&includes,
+            CompilerMacros &&compilerMacros,
+            UsedMacros &&usedMacros)
+        : projectPartId(projectPartId)
+        , includes(includes)
+        , compilerMacros(compilerMacros)
+        , usedMacros(usedMacros)
+    {}
 
-    Utils::SmallStringVector ids;
-    BuildDependency buildDependency;
+    Utils::SmallString projectPartId;
+    Utils::SmallStringVector dependentIds;
+    FilePathIds includes;
+    CompilerMacros compilerMacros;
+    UsedMacros usedMacros;
 };
 
 using PchTasks = std::vector<PchTask>;
-}
+} // namespace ClangBackEnd

@@ -257,7 +257,8 @@ HEADERS += \
     mockbuilddependenciesprovider.h \
     mockmodifiedtimechecker.h \
     mockbuilddependenciesstorage.h \
-    mockbuilddependencygenerator.h
+    mockbuilddependencygenerator.h \
+    mockpchtasksmerger.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

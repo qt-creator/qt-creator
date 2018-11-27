@@ -34,7 +34,8 @@ HEADERS += \
     $$PWD/sourceentry.h \
     $$PWD/builddependenciesstorage.h \
     $$PWD/builddependencygeneratorinterface.h \
-    $$PWD/usedmacrofilter.h
+    $$PWD/usedmacrofilter.h \
+    $$PWD/pchtasksmergerinterface.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

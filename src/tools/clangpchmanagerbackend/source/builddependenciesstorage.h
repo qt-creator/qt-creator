@@ -232,7 +232,7 @@ public:
         database
     };
     mutable ReadStatement fetchSourceDependenciesStatement{
-        "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM sourceDependencies, collectedDependencies WHERE sourceDependencies.sourceId == collectedDependencies.sourceId) SELECT sourceId, buildDependencyTimeStamp, sourceType FROM collectedDependencies NATURAL JOIN projectPartsSources NATURAL JOIN fileStatuses WHERE projectPartId = ?",
+        "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM sourceDependencies, collectedDependencies WHERE sourceDependencies.sourceId == collectedDependencies.sourceId) SELECT sourceId, buildDependencyTimeStamp, sourceType FROM collectedDependencies NATURAL JOIN projectPartsSources NATURAL JOIN fileStatuses WHERE projectPartId = ? ORDER BY sourceId",
         database
     };
     mutable ReadStatement fetchProjectPartIdStatement{
@@ -240,7 +240,7 @@ public:
         database
     };
     mutable ReadStatement fetchUsedMacrosStatement{
-        "SELECT macroName, sourceId FROM usedMacros WHERE sourceId = ?",
+        "SELECT macroName, sourceId FROM usedMacros WHERE sourceId = ? ORDER BY sourceId, macroName",
         database
     };
 };

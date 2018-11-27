@@ -31,19 +31,24 @@
 
 namespace ClangBackEnd {
 
+class PchTasksMergerInterface;
+
 class BuildDependenciesProviderInterface;
 
 class PchTaskGenerator
 {
 public:
-    PchTaskGenerator(BuildDependenciesProviderInterface &buildDependenciesProvider)
+    PchTaskGenerator(BuildDependenciesProviderInterface &buildDependenciesProvider,
+                     PchTasksMergerInterface &pchTasksMergerInterface)
         : m_buildDependenciesProvider(buildDependenciesProvider)
+        , m_pchTasksMergerInterface(pchTasksMergerInterface)
     {}
 
-    PchTasks create(V2::ProjectPartContainers &&projectParts);
+    void create(V2::ProjectPartContainers &&projectParts);
 
 private:
     BuildDependenciesProviderInterface &m_buildDependenciesProvider;
+    PchTasksMergerInterface &m_pchTasksMergerInterface;
 };
 
 

@@ -26,22 +26,33 @@
 #include "pchtaskgenerator.h"
 
 #include "builddependenciesproviderinterface.h"
+#include "pchtasksmergerinterface.h"
+
+#include "usedmacrofilter.h"
 
 #include <utils/algorithm.h>
 
 namespace ClangBackEnd {
 
-PchTasks PchTaskGenerator::create(V2::ProjectPartContainers &&projectParts)
+void PchTaskGenerator::create(V2::ProjectPartContainers &&projectParts)
 {
-    PchTasks tasks;
-    tasks.reserve(projectParts.size() * 2);
-
     for (auto &projectPart : projectParts) {
-        tasks.emplace_back(std::initializer_list<Utils::SmallString>{{projectPart.projectPartId}},
-                           m_buildDependenciesProvider.create(projectPart));
-    }
+        BuildDependency buildDependency = m_buildDependenciesProvider.create(projectPart);
+        UsedMacroFilter filter{buildDependency.includes, buildDependency.usedMacros};
 
-    return tasks;
+        filter.filter(projectPart.compilerMacros);
+
+        m_pchTasksMergerInterface.addTask({projectPart.projectPartId.clone(),
+                                           std::move(filter.systemIncludes),
+                                           std::move(filter.systemCompilerMacros),
+                                           std::move(filter.systemUsedMacros)
+
+                                          },
+                                          {std::move(projectPart.projectPartId),
+                                           std::move(filter.projectIncludes),
+                                           std::move(filter.projectCompilerMacros),
+                                           std::move(filter.projectUsedMacros)});
+    }
 }
 
 } // namespace ClangBackEnd
