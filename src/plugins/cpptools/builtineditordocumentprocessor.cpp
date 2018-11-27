@@ -163,7 +163,8 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
         TextEditor::TextDocument *document,
         bool enableSemanticHighlighter)
     : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
-    , m_parser(new BuiltinEditorDocumentParser(document->filePath().toString()))
+    , m_parser(new BuiltinEditorDocumentParser(document->filePath().toString(),
+                                               indexerFileSizeLimitInMb()))
     , m_codeWarningsUpdated(false)
     , m_semanticHighlighter(enableSemanticHighlighter
                             ? new CppTools::SemanticHighlighter(document)

@@ -39,7 +39,7 @@ class CPPTOOLS_EXPORT BuiltinEditorDocumentParser : public BaseEditorDocumentPar
     Q_OBJECT
 
 public:
-    BuiltinEditorDocumentParser(const QString &filePath);
+    BuiltinEditorDocumentParser(const QString &filePath, int fileSizeLimitInMb = -1);
 
     bool releaseSourceAndAST() const;
     void setReleaseSourceAndAST(bool release);
@@ -79,6 +79,8 @@ private:
 
     bool m_releaseSourceAndAST = true;
     ExtraState m_extraState;
+
+    const int m_fileSizeLimitInMb = -1;
 };
 
 } // namespace CppTools
