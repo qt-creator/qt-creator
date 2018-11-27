@@ -156,7 +156,7 @@ def main():
     for (qType, prop, info) in expect:
         test.verify(checkIfObjectExists(search % (qType, prop)),
                     "Verifying whether %s is shown" % info)
-    checkTableViewForContent(search % (expect[0][0], expect[0][1]), "Help: Create .*", "Tutorials",
+    checkTableViewForContent(search % (expect[0][0], expect[0][1]), "Help: Creating .*", "Tutorials",
                              "Verifying that at least one tutorial is displayed.")
     # exit Qt Creator
     invokeMenuItem("File", "Exit")

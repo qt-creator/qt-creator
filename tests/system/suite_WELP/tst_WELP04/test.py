@@ -50,11 +50,13 @@ def main():
     tutorial = findExampleOrTutorial(tableView, ".*", True)
     test.verify(tutorial is None,
                 "Verifying: 'Tutorials' topic is opened and nothing is shown.")
-    bnr = "Help: Build and Run Examples"
+    bnr = "Help: Building and Running an Example"
     replaceEditorContent(searchTutorials, bnr.lower())
     waitFor('findExampleOrTutorial(tableView, "%s.*") is not None' % bnr, 3000)
     tutorial = findExampleOrTutorial(tableView, "%s.*" % bnr, True)
     test.verify(tutorial is not None, "Verifying: Expected Text tutorial is shown.")
+    # clicking before documentation was updated will open the tutorial in browser
+    progressBarWait(warn=False)
     # select a text tutorial
     mouseClick(tutorial)
     test.verify("Building and Running an Example" in
