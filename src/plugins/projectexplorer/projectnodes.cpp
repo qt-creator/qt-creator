@@ -514,6 +514,17 @@ void FolderNode::forEachGenericNode(const std::function<void(Node *)> &genericTa
     }
 }
 
+void FolderNode::forEachProjectNode(const std::function<void(const ProjectNode *)> &task) const
+{
+    if (const ProjectNode *projectNode = asProjectNode())
+        task(projectNode);
+
+    for (const std::unique_ptr<Node> &n : m_nodes) {
+        if (FolderNode *fn = n->asFolderNode())
+            fn->forEachProjectNode(task);
+    }
+}
+
 const QList<Node *> FolderNode::nodes() const
 {
     return Utils::toRawPointer<QList>(m_nodes);

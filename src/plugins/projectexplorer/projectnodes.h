@@ -216,6 +216,7 @@ public:
                      const std::function<void(FolderNode *)> &folderTask = {},
                      const std::function<bool(const FolderNode *)> &folderFilterTask = {}) const;
     void forEachGenericNode(const std::function<void(Node *)> &genericTask) const;
+    void forEachProjectNode(const std::function<void(const ProjectNode *)> &genericTask) const;
     const QList<Node *> nodes() const;
     QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FileName &file) const;
