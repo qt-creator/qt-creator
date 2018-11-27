@@ -105,6 +105,16 @@
 
     \endlist
 
+    Even if an alternative editor is not listed for a MIME type, you can still
+    change the editor that is used to open the files of a particular type.
+    Remove the filename extension from the current MIME type and add it to a
+    MIME type that is handled by the editor you want to use. For example, to
+    edit Linux kernel device tree source (.dts) files with the text editor,
+    delete the pattern \c {*.dts} from the MIME type \c {audio/vnd.dts} (where
+    it represents the digital surround audio file format), and add it to the
+    \c {text/plain} MIME type. You can use the \uicontrol Filter field to find
+    the MIME type that currently contains a filename extension.
+
     To revert the changes you have made to the MIME type definitions,
     select \uicontrol {Reset MIME Types}. To revert the changes you have
     made to the default editors, select \uicontrol {Reset Handlers}.
