@@ -366,6 +366,8 @@ void AbstractProcessStep::Private::readData(void (AbstractProcessStep::*func)(co
         int startPos = 0;
         int crPos = -1;
         while ((crPos = data.indexOf('\r', startPos)) >= 0)  {
+            if (data.size() > crPos + 1 && data.at(crPos + 1) == '\n')
+                break;
             processLine(data.mid(startPos, crPos - startPos + 1), func, isUtf8);
             startPos = crPos + 1;
         }

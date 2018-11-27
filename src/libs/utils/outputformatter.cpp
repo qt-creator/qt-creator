@@ -99,6 +99,11 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
     int startPos = 0;
     int crPos = -1;
     while ((crPos = text.indexOf('\r', startPos)) >= 0)  {
+        if (text.size() > crPos + 1 && text.at(crPos + 1) == '\n') {
+            d->cursor.insertText(text.mid(startPos, crPos - startPos) + '\n', format);
+            startPos = crPos + 2;
+            continue;
+        }
         d->cursor.insertText(text.mid(startPos, crPos - startPos), format);
         d->cursor.clearSelection();
         d->cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
