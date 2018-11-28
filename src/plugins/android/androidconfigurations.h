@@ -134,7 +134,7 @@ public:
     Utils::FileName aaptToolPath() const;
 
     Utils::FileName clangPath() const;
-    Utils::FileName gdbPath() const;
+    Utils::FileName gdbPath(const ProjectExplorer::Abi &abi) const;
     Utils::FileName makePath() const;
 
     Utils::FileName keytoolPath() const;
