@@ -93,6 +93,7 @@ public:
     void registerCapabilities(const QList<LanguageServerProtocol::Registration> &registrations);
     void unregisterCapabilities(const QList<LanguageServerProtocol::Unregistration> &unregistrations);
     bool findLinkAt(LanguageServerProtocol::GotoDefinitionRequest &request);
+    bool findUsages(LanguageServerProtocol::FindReferencesRequest &request);
     void requestDocumentSymbols(TextEditor::TextDocument *document);
     void cursorPositionChanged(TextEditor::TextEditorWidget *widget);
 
@@ -107,6 +108,8 @@ public:
 
     void setSupportedLanguage(const LanguageFilter &filter);
     bool isSupportedDocument(const Core::IDocument *document) const;
+    bool isSupportedFile(const Utils::FileName &filePath, const QString &mimeType) const;
+    bool isSupportedUri(const LanguageServerProtocol::DocumentUri &uri) const;
 
     void setName(const QString &name) { m_displayName = name; }
     QString name() const { return m_displayName; }

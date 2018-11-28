@@ -29,6 +29,7 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/find/searchresultwindow.h>
 #include <languageserverprotocol/messages.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
@@ -294,6 +295,11 @@ void LanguageClientManager::editorOpened(Core::IEditor *iEditor)
                         (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback){
                     findLinkAt(filePath, cursor, callback);
                 });
+                connect(widget, &TextEditorWidget::requestUsages, this,
+                        [this, filePath = document->filePath()]
+                        (const QTextCursor &cursor){
+                    findUsages(filePath, cursor);
+                });
             }
         }
     }
@@ -349,6 +355,76 @@ void LanguageClientManager::findLinkAt(const Utils::FileName &filePath,
     for (BaseClient *interface : reachableClients()) {
         if (interface->findLinkAt(request))
             m_exclusiveRequests[request.id()] << interface;
+    }
+}
+
+QList<Core::SearchResultItem> generateSearchResultItems(const LanguageClientArray<Location> &locations)
+{
+    auto convertPosition = [](const Position &pos){
+        return Core::Search::TextPosition(pos.line() + 1, pos.character());
+    };
+    auto convertRange = [convertPosition](const Range &range){
+        return Core::Search::TextRange(convertPosition(range.start()), convertPosition(range.end()));
+    };
+    QList<Core::SearchResultItem> result;
+    if (locations.isNull())
+        return result;
+    QMap<QString, QList<Core::Search::TextRange>> rangesInDocument;
+    for (const Location &location : locations.toList())
+        rangesInDocument[location.uri().toFileName().toString()] << convertRange(location.range());
+    for (auto it = rangesInDocument.begin(); it != rangesInDocument.end(); ++it) {
+        const QString &fileName = it.key();
+        QFile file(fileName);
+        file.open(QFile::ReadOnly);
+
+        Core::SearchResultItem item;
+        item.path = QStringList() << fileName;
+        item.useTextEditorFont = true;
+
+        QStringList lines = QString::fromLocal8Bit(file.readAll()).split(QChar::LineFeed);
+        for (const Core::Search::TextRange &range : it.value()) {
+            item.mainRange = range;
+            if (file.isOpen() && range.begin.line > 0 && range.begin.line <= lines.size())
+                item.text = lines[range.begin.line - 1];
+            else
+                item.text.clear();
+            result << item;
+        }
+    }
+    return result;
+}
+
+void LanguageClientManager::findUsages(const Utils::FileName &filePath, const QTextCursor &cursor)
+{
+    const DocumentUri uri = DocumentUri::fromFileName(filePath);
+    const TextDocumentIdentifier document(uri);
+    const Position pos(cursor);
+    QTextCursor termCursor(cursor);
+    termCursor.select(QTextCursor::WordUnderCursor);
+    ReferenceParams params(TextDocumentPositionParams(document, pos));
+    params.setContext(ReferenceParams::ReferenceContext(true));
+    FindReferencesRequest request(params);
+    auto callback = [wordUnderCursor = termCursor.selectedText()]
+            (const QString &clientName, const FindReferencesRequest::Response &response){
+        if (auto result = response.result()) {
+            Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
+                        tr("Find References with %1 for:").arg(clientName), "", wordUnderCursor);
+            search->addResults(generateSearchResultItems(result.value()), Core::SearchResult::AddOrdered);
+            QObject::connect(search, &Core::SearchResult::activated,
+                             [](const Core::SearchResultItem& item) {
+                                 Core::EditorManager::openEditorAtSearchResult(item);
+                             });
+            search->finishSearch(false);
+            search->popup();
+        }
+    };
+    for (BaseClient *client : reachableClients()) {
+        request.setResponseCallback([callback, clientName = client->name()]
+                                    (const FindReferencesRequest::Response &response){
+            callback(clientName, response);
+        });
+        if (client->findUsages(request))
+            m_exclusiveRequests[request.id()] << client;
     }
 }
 

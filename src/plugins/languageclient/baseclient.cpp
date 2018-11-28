@@ -303,21 +303,41 @@ void BaseClient::unregisterCapabilities(const QList<Unregistration> &unregistrat
     m_dynamicCapabilities.unregisterCapability(unregistrations);
 }
 
-bool BaseClient::findLinkAt(GotoDefinitionRequest &request)
+template <typename Request>
+static bool sendTextDocumentPositionParamsRequest(BaseClient *client,
+                                                  const Request &request,
+                                                  const DynamicCapabilities &dynamicCapabilities,
+                                                  const optional<bool> &serverCapability)
 {
-    bool sendMessage = m_dynamicCapabilities.isRegistered(
-                GotoDefinitionRequest::methodName).value_or(false);
+    if (!request.isValid(nullptr))
+        return false;
+    const DocumentUri uri = request.params().value().textDocument().uri();
+    const bool supportedFile = client->isSupportedUri(uri);
+    bool sendMessage = dynamicCapabilities.isRegistered(Request::methodName).value_or(false);
     if (sendMessage) {
-        const TextDocumentRegistrationOptions option(
-                    m_dynamicCapabilities.option(GotoDefinitionRequest::methodName));
+        const TextDocumentRegistrationOptions option(dynamicCapabilities.option(Request::methodName));
         if (option.isValid(nullptr))
-            sendMessage = option.filterApplies(Utils::FileName::fromString(QUrl(request.params()->textDocument().uri()).adjusted(QUrl::PreferLocalFile).toString()));
+            sendMessage = option.filterApplies(FileName::fromString(QUrl(uri).adjusted(QUrl::PreferLocalFile).toString()));
+        else
+            sendMessage = supportedFile;
     } else {
-        sendMessage = m_serverCapabilities.definitionProvider().value_or(sendMessage);
+        sendMessage = serverCapability.value_or(sendMessage) && supportedFile;
     }
     if (sendMessage)
-        sendContent(request);
+        client->sendContent(request);
     return sendMessage;
+}
+
+bool BaseClient::findLinkAt(GotoDefinitionRequest &request)
+{
+    return LanguageClient::sendTextDocumentPositionParamsRequest(
+                this, request, m_dynamicCapabilities, m_serverCapabilities.definitionProvider());
+}
+
+bool BaseClient::findUsages(FindReferencesRequest &request)
+{
+    return LanguageClient::sendTextDocumentPositionParamsRequest(
+                this, request, m_dynamicCapabilities, m_serverCapabilities.referencesProvider());
 }
 
 TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation &info)
@@ -505,14 +525,27 @@ void BaseClient::setSupportedLanguage(const LanguageFilter &filter)
 bool BaseClient::isSupportedDocument(const Core::IDocument *document) const
 {
     QTC_ASSERT(document, return false);
-    if (m_languagFilter.mimeTypes.isEmpty() || m_languagFilter.mimeTypes.contains(document->mimeType()))
+    return isSupportedFile(document->filePath(), document->mimeType());
+}
+
+bool BaseClient::isSupportedFile(const Utils::FileName &filePath, const QString &mimeType) const
+{
+    if (m_languagFilter.mimeTypes.isEmpty() && m_languagFilter.filePattern.isEmpty())
+        return true;
+    if (m_languagFilter.mimeTypes.contains(mimeType))
         return true;
     auto regexps = Utils::transform(m_languagFilter.filePattern, [](const QString &pattern){
         return QRegExp(pattern, Utils::HostOsInfo::fileNameCaseSensitivity(), QRegExp::Wildcard);
     });
-    return Utils::anyOf(regexps, [filePath = document->filePath()](const QRegExp &reg){
+    return Utils::anyOf(regexps, [filePath](const QRegExp &reg){
         return reg.exactMatch(filePath.toString()) || reg.exactMatch(filePath.fileName());
     });
+}
+
+bool BaseClient::isSupportedUri(const DocumentUri &uri) const
+{
+    return isSupportedFile(uri.toFileName(),
+                           Utils::mimeTypeForFile(uri.toFileName().fileName()).name());
 }
 
 bool BaseClient::needsRestart(const BaseSettings *settings) const

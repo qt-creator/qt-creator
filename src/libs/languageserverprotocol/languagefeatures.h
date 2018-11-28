@@ -235,6 +235,9 @@ public:
     class ReferenceContext : public JsonObject
     {
     public:
+        explicit ReferenceContext(bool includeDeclaration)
+        { setIncludeDeclaration(includeDeclaration); }
+        ReferenceContext() = default;
         using JsonObject::JsonObject;
         bool includeDeclaration() const { return typedValue<bool>(includeDeclarationKey); }
         void setIncludeDeclaration(bool includeDeclaration)

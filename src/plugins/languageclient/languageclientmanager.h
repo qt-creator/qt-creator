@@ -89,6 +89,7 @@ private:
     void documentWillSave(Core::IDocument *document);
     void findLinkAt(const Utils::FileName &filePath, const QTextCursor &cursor,
                     Utils::ProcessLinkCallback callback);
+    void findUsages(const Utils::FileName &filePath, const QTextCursor &cursor);
 
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
