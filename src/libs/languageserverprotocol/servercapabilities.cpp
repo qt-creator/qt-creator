@@ -107,7 +107,7 @@ bool ServerCapabilities::isValid(QStringList *error) const
             && checkOptional<bool>(error, definitionProviderKey)
             && checkOptional<bool, RegistrationOptions>(error, typeDefinitionProviderKey)
             && checkOptional<bool, RegistrationOptions>(error, implementationProviderKey)
-            && checkOptional<bool>(error, referenceProviderKey)
+            && checkOptional<bool>(error, referencesProviderKey)
             && checkOptional<bool>(error, documentHighlightProviderKey)
             && checkOptional<bool>(error, documentSymbolProviderKey)
             && checkOptional<bool>(error, workspaceSymbolProviderKey)

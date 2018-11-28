@@ -279,9 +279,9 @@ public:
     void clearImplementationProvider() { remove(implementationProviderKey); }
 
     // The server provides find references support.
-    Utils::optional<bool> referenceProvider() const { return optionalValue<bool>(referenceProviderKey); }
-    void setReferenceProvider(bool referenceProvider) { insert(referenceProviderKey, referenceProvider); }
-    void clearReferenceProvider() { remove(referenceProviderKey); }
+    Utils::optional<bool> referencesProvider() const { return optionalValue<bool>(referencesProviderKey); }
+    void setReferencesProvider(bool referenceProvider) { insert(referencesProviderKey, referenceProvider); }
+    void clearReferencesProvider() { remove(referencesProviderKey); }
 
     // The server provides document highlight support.
     Utils::optional<bool> documentHighlightProvider() const
