@@ -1126,6 +1126,8 @@ void QbsProject::updateApplicationTargets()
         bti.usesTerminal = usesTerminal;
         bti.displayName = productData.fullDisplayName();
         bti.runEnvModifier = [targetFile, productData, this](Utils::Environment &env, bool usingLibraryPaths) {
+            if (!qbsProject().isValid())
+                return;
             QProcessEnvironment procEnv = env.toProcessEnvironment();
             procEnv.insert(QLatin1String("QBS_RUN_FILE_PATH"), targetFile);
             QStringList setupRunEnvConfig;
