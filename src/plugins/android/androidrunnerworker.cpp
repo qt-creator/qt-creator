@@ -280,7 +280,7 @@ bool AndroidRunnerWorker::uploadFile(const QString &from, const QString &to, con
     runAdb({"shell", "run-as", m_packageName, "rm", to});
     const QByteArray data = f.readAll();
     const bool res = runAdb({"shell", "run-as", m_packageName, QString("sh -c 'base64 -d > %1'").arg(to)}, 60, data.toBase64());
-    if (!res)
+    if (!res || m_lastRunAdbRawOutput.contains("base64: not found"))
         return false;
     return runAdb({"shell", "run-as", m_packageName, "chmod", flags, to});
 }
@@ -426,17 +426,34 @@ void AndroidRunnerWorker::asyncStartHelper()
         // e.g. on Android 8 with NDK 10e
         runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir});
 
+        QString gdbServerExecutable;
+        QString gdbServerPrefix = "./lib/";
         if (m_gdbserverPath.isEmpty() || !uploadFile(m_gdbserverPath, "gdbserver")) {
-            emit remoteProcessFinished(tr("Cannot find/copy C++ debug server."));
-            return;
+            // upload failed - check for old devices
+            if (runAdb({"shell", "run-as", m_packageName, "ls", "lib/"})) {
+                for (const auto &line: m_lastRunAdbRawOutput.split('\n')) {
+                    if (line.indexOf("gdbserver") != -1/* || line.indexOf("lldb-server") != -1*/) {
+                        gdbServerExecutable = QString::fromUtf8(line.trimmed());
+                        break;
+                    }
+                }
+            }
+            if (gdbServerExecutable.isEmpty()) {
+                emit remoteProcessFinished(tr("Cannot find/copy C++ debug server."));
+                return;
+            }
+        } else {
+            gdbServerPrefix = "./";
+            gdbServerExecutable = "gdbserver";
         }
 
         QString gdbServerSocket = packageDir + "/debug-socket";
-        runAdb({"shell", "run-as", m_packageName, "killall", "gdbserver"});
+        runAdb({"shell", "run-as", m_packageName, "killall", gdbServerExecutable});
         runAdb({"shell", "run-as", m_packageName, "rm", gdbServerSocket});
+
         std::unique_ptr<QProcess, Deleter> gdbServerProcess(new QProcess, deleter);
         gdbServerProcess->start(m_adb, selector() << "shell" << "run-as"
-                                    << m_packageName << "./gdbserver"
+                                    << m_packageName << gdbServerPrefix + gdbServerExecutable
                                     << "--multi" << "+" + gdbServerSocket);
         if (!gdbServerProcess->waitForStarted()) {
             emit remoteProcessFinished(tr("Failed to start C++ debugger."));
