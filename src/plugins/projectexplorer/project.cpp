@@ -872,6 +872,15 @@ bool Project::hasParsingData() const
     return d->m_hasParsingData;
 }
 
+const ProjectNode *Project::findNodeForBuildKey(const QString &buildKey) const
+{
+    const ProjectNode *result = nullptr;
+    d->m_rootProjectNode->forEachProjectNode([buildKey](const ProjectNode *node) {
+        return node->buildKey() == buildKey;
+    });
+    return result;
+}
+
 ProjectImporter *Project::projectImporter() const
 {
     return nullptr;

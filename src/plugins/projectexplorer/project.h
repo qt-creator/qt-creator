@@ -171,6 +171,8 @@ public:
     bool isParsing() const;
     bool hasParsingData() const;
 
+    const ProjectNode *findNodeForBuildKey(const QString &buildKey) const;
+
     template<typename S, typename R, typename T, typename ...Args1, typename ...Args2>
     void subscribeSignal(void (S::*sig)(Args1...), R*recv, T (R::*sl)(Args2...)) {
         new Internal::ProjectSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {

@@ -223,6 +223,11 @@ bool QmakeProFileNode::showInSimpleTree() const
     return showInSimpleTree(projectType()) || m_project->rootProjectNode() == this;
 }
 
+QString QmakeProFileNode::buildKey() const
+{
+    return filePath().toString();
+}
+
 QmakeProFile *QmakeProFileNode::proFile() const
 {
     return static_cast<QmakeProFile*>(QmakePriFileNode::priFile());

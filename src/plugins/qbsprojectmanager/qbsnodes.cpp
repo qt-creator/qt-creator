@@ -438,6 +438,11 @@ bool QbsProductNode::renameFile(const QString &filePath, const QString &newFileP
     return prjNode->project()->renameFileInProduct(filePath, newFilePath, m_qbsProductData, grp);
 }
 
+QString QbsProductNode::buildKey() const
+{
+    return QbsProject::uniqueProductName(m_qbsProductData);
+}
+
 // --------------------------------------------------------------------
 // QbsProjectNode:
 // --------------------------------------------------------------------

@@ -165,10 +165,8 @@ void QbsRunConfiguration::updateTargetInformation()
 
 bool QbsRunConfiguration::canRunForNode(const Node *node) const
 {
-    if (auto pn = dynamic_cast<const QbsProductNode *>(node)) {
-        const QString uniqueProductName = buildKey();
-        return uniqueProductName == QbsProject::uniqueProductName(pn->qbsProductData());
-    }
+    if (auto pn = dynamic_cast<const QbsProductNode *>(node))
+        return buildKey() == pn->buildKey();
 
     return false;
 }

@@ -110,6 +110,8 @@ public:
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
+    QString buildKey() const override;
+
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }
 
 private:

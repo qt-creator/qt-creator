@@ -91,6 +91,8 @@ public:
 
     bool showInSimpleTree() const override;
 
+    QString buildKey() const override;
+
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
     QmakeProjectManager::ProjectType projectType() const;
