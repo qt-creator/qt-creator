@@ -45,6 +45,9 @@ public:
     int line = -1; // (0 or -1 for no line number)
     int column = -1; // 0-based starting position for a mark (-1 for no mark)
     int offset = -1;
+
+    bool operator<(const TextPosition &other)
+    { return line < other.line || (line == other.line && column < other.column); }
 };
 
 class TextRange
@@ -79,6 +82,9 @@ public:
 
     TextPosition begin;
     TextPosition end;
+
+    bool operator<(const TextRange &other)
+    { return begin < other.begin; }
 };
 
 } // namespace Search
