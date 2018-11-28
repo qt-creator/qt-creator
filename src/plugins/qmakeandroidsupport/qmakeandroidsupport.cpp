@@ -61,10 +61,8 @@ QVariant QmakeAndroidSupport::targetData(Core::Id role, const Target *target) co
         return {};
 
     const FileName projectFilePath = FileName::fromString(rc->buildKey());
-    const QmakeProject *pro = qobject_cast<QmakeProject *>(target->project());
-    QTC_ASSERT(pro, return {});
-    QTC_ASSERT(pro->rootProjectNode(), return {});
-    const QmakeProFileNode *profileNode = pro->rootProjectNode()->findProFileFor(projectFilePath);
+    const ProjectNode *projectNode = target->project()->findNodeForBuildKey(rc->buildKey());
+    auto profileNode = dynamic_cast<const QmakeProFileNode *>(projectNode);
     QTC_ASSERT(profileNode, return {});
 
     if (role == Android::Constants::AndroidPackageSourceDir)

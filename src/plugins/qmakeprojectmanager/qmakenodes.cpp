@@ -198,18 +198,6 @@ FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringL
     return FolderNode::AddNewInformation(filePath().fileName(), context && context->parentProjectNode() == this ? 120 : 90);
 }
 
-QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) const
-{
-    if (fileName == filePath())
-        return const_cast<QmakeProFileNode *>(this);
-    for (Node *node : nodes()) {
-        if (auto *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(node))
-            if (QmakeProFileNode *result = qmakeProFileNode->findProFileFor(fileName))
-                return result;
-    }
-    return nullptr;
-}
-
 /*!
   \class QmakeProFileNode
   Implements abstract ProjectNode class

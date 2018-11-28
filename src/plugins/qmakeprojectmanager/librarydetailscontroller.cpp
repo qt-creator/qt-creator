@@ -864,12 +864,12 @@ bool PackageLibraryDetailsController::isLinkPackageGenerated() const
     if (!project)
         return false;
 
-    const auto *rootProject = dynamic_cast<const QmakeProFileNode *>(project->rootProjectNode());
-    if (!rootProject)
+    const ProjectNode *projectNode = project->findNodeForBuildKey(proFile());
+    if (!projectNode)
         return false;
 
     const QmakeProFileNode *currentProject =
-            rootProject->findProFileFor(Utils::FileName::fromString(proFile()));
+            dynamic_cast<const QmakeProFileNode *>(projectNode);
     if (!currentProject)
         return false;
 

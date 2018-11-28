@@ -159,27 +159,13 @@ void IosRunConfiguration::updateEnabledState()
 
 bool IosRunConfiguration::canRunForNode(const Node *node) const
 {
-    return node->filePath() == profilePath();
-}
-
-FileName IosRunConfiguration::profilePath() const
-{
-    return FileName::fromString(buildKey());
-}
-
-static QmakeProFile *proFile(const IosRunConfiguration *rc)
-{
-    auto pro = qobject_cast<const QmakeProject *>(rc->target()->project());
-    QmakeProFile *proFile = pro ? pro->rootProFile() : nullptr;
-    if (proFile)
-        proFile = proFile->findProFile(rc->profilePath());
-    return proFile;
+    return node->filePath().toString() == buildKey();
 }
 
 QString IosRunConfiguration::applicationName() const
 {
-    QmakeProFile *pro = proFile(this);
-    if (pro) {
+    Project *project = target()->project();
+    if (auto pro = dynamic_cast<const QmakeProFileNode *>(project->findNodeForBuildKey(buildKey()))) {
         TargetInformation ti = pro->targetInformation();
         if (ti.valid)
             return ti.target;
@@ -197,7 +183,8 @@ FileName IosRunConfiguration::bundleDirectory() const
         return res;
     }
     if (BuildConfiguration *bc = target()->activeBuildConfiguration()) {
-        const QmakeProFile *pro = proFile(this);
+        Project *project = target()->project();
+        auto pro = dynamic_cast<const QmakeProFileNode *>(project->findNodeForBuildKey(buildKey()));
         if (pro) {
             TargetInformation ti = pro->targetInformation();
             if (ti.valid)
