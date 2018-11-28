@@ -372,12 +372,12 @@ class FindUsagesTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Find Usages on each token
-    void run(CppEditorWidget *);
+    void run(CppEditorWidget *editor);
 };
 
-void FindUsagesTokenAction::run(CppEditorWidget *)
+void FindUsagesTokenAction::run(CppEditorWidget *editor)
 {
-    CppEditorPlugin::instance()->findUsages();
+    editor->findUsages();
     QApplication::processEvents();
 }
 

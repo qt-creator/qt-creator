@@ -443,6 +443,8 @@ public:
     void openLinkUnderCursor();
     void openLinkUnderCursorInNextSplit();
 
+    virtual void findUsages();
+
     /// Abort code assistant if it is running.
     void abortAssist();
 
@@ -475,6 +477,7 @@ signals:
 
     void requestLinkAt(const QTextCursor &cursor, Utils::ProcessLinkCallback &callback,
                        bool resolveTarget, bool inNextSplit);
+    void requestUsages(const QTextCursor &cursor);
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;

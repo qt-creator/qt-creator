@@ -74,7 +74,7 @@ public:
 
     void inspectElementUnderCursor() const;
 
-    void findUsages();
+    void findUsages() override;
     void renameUsages();
     void showContextPane();
 

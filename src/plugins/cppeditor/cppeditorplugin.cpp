@@ -118,7 +118,6 @@ public:
     void inspectCppCodeModel();
 
     QAction *m_renameSymbolUnderCursorAction = nullptr;
-    QAction *m_findUsagesAction = nullptr;
     QAction *m_reparseExternallyChangedFiles = nullptr;
     QAction *m_openTypeHierarchyAction = nullptr;
     QAction *m_openIncludeHierarchyAction = nullptr;
@@ -215,10 +214,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
             this, &CppEditorPlugin::openDeclarationDefinitionInNextSplit);
     cppToolsMenu->addAction(cmd);
 
-    d->m_findUsagesAction = new QAction(tr("Find Usages"), this);
-    cmd = ActionManager::registerAction(d->m_findUsagesAction, Constants::FIND_USAGES, context);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
-    connect(d->m_findUsagesAction, &QAction::triggered, this, &CppEditorPlugin::findUsages);
+    cmd = ActionManager::command(TextEditor::Constants::FIND_USAGES);
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
@@ -328,12 +324,6 @@ void CppEditorPlugin::renameSymbolUnderCursor()
         editorWidget->renameSymbolUnderCursor();
 }
 
-void CppEditorPlugin::findUsages()
-{
-    if (CppEditorWidget *editorWidget = currentCppEditorWidget())
-        editorWidget->findUsages();
-}
-
 void CppEditorPlugin::showPreProcessorDialog()
 {
     if (CppEditorWidget *editorWidget = currentCppEditorWidget())
@@ -344,7 +334,7 @@ void CppEditorPluginPrivate::onTaskStarted(Id type)
 {
     if (type == CppTools::Constants::TASK_INDEX) {
         m_renameSymbolUnderCursorAction->setEnabled(false);
-        m_findUsagesAction->setEnabled(false);
+        ActionManager::command(TextEditor::Constants::FIND_USAGES)->action()->setEnabled(false);
         m_reparseExternallyChangedFiles->setEnabled(false);
         m_openTypeHierarchyAction->setEnabled(false);
         m_openIncludeHierarchyAction->setEnabled(false);
@@ -355,7 +345,7 @@ void CppEditorPluginPrivate::onAllTasksFinished(Id type)
 {
     if (type == CppTools::Constants::TASK_INDEX) {
         m_renameSymbolUnderCursorAction->setEnabled(true);
-        m_findUsagesAction->setEnabled(true);
+        ActionManager::command(TextEditor::Constants::FIND_USAGES)->action()->setEnabled(true);
         m_reparseExternallyChangedFiles->setEnabled(true);
         m_openTypeHierarchyAction->setEnabled(true);
         m_openIncludeHierarchyAction->setEnabled(true);

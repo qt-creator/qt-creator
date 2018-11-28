@@ -1872,6 +1872,11 @@ void TextEditorWidget::openLinkUnderCursorInNextSplit()
     }, true, openInNextSplit);
 }
 
+void TextEditorWidget::findUsages()
+{
+    emit requestUsages(textCursor());
+}
+
 void TextEditorWidget::abortAssist()
 {
     d->m_codeAssistant.destroyContext();

@@ -431,10 +431,13 @@ static void findRenameCallback(CppEditorWidget *widget,
     search->popup();
 }
 
+void CppEditorWidget::findUsages()
+{
+    findUsages(textCursor());
+}
+
 void CppEditorWidget::findUsages(QTextCursor cursor)
 {
-    if (cursor.isNull())
-        cursor = textCursor();
     // 'this' in cursorInEditor is never used (and must never be used) asynchronously.
     const CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this};
     QPointer<CppEditorWidget> cppEditorWidget = this;

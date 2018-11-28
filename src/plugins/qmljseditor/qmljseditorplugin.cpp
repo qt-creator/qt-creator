@@ -81,7 +81,6 @@ public:
     Command *addToolAction(QAction *a, Context &context, Id id,
                            ActionContainer *c1, const QString &keySequence);
 
-    void findUsages();
     void renameUsages();
     void reformatFile();
     void showContextPane();
@@ -157,10 +156,7 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
-    QAction *findUsagesAction = new QAction(QmlJSEditorPlugin::tr("Find Usages"), this);
-    cmd = ActionManager::registerAction(findUsagesAction, Constants::FIND_USAGES, context);
-    cmd->setDefaultKeySequence(QKeySequence(QmlJSEditorPlugin::tr("Ctrl+Shift+U")));
-    connect(findUsagesAction, &QAction::triggered, this, &QmlJSEditorPluginPrivate::findUsages);
+    cmd = ActionManager::command(TextEditor::Constants::FIND_USAGES);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
@@ -241,12 +237,6 @@ QuickToolBar *QmlJSEditorPlugin::quickToolBar()
 {
     QTC_ASSERT(m_instance && m_instance->d, return new QuickToolBar());
     return &m_instance->d->m_quickToolBar;
-}
-
-void QmlJSEditorPluginPrivate::findUsages()
-{
-    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
-        editor->findUsages();
 }
 
 void QmlJSEditorPluginPrivate::renameUsages()

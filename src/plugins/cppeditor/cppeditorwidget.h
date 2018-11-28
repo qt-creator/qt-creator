@@ -78,7 +78,8 @@ public:
     void switchDeclarationDefinition(bool inNextSplit);
     void showPreProcessorWidget() override;
 
-    void findUsages(QTextCursor cursor = QTextCursor());
+    void findUsages() override;
+    void findUsages(QTextCursor cursor);
     void renameUsages(const QString &replacement = QString(),
                       QTextCursor cursor = QTextCursor());
     void renameSymbolUnderCursor();

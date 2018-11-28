@@ -181,6 +181,7 @@ public:
     QAction *m_unindentAction = nullptr;
     QAction *m_followSymbolAction = nullptr;
     QAction *m_followSymbolInNextSplitAction = nullptr;
+    QAction *m_findUsageAction = nullptr;
     QAction *m_jumpToFileAction = nullptr;
     QAction *m_jumpToFileInNextSplitAction = nullptr;
     QList<QAction *> m_modifyingActions;
@@ -288,6 +289,9 @@ void TextEditorActionHandlerPrivate::createActions()
     m_followSymbolInNextSplitAction = registerAction(FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT,
             [] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, tr("Follow Symbol Under Cursor in Next Split"),
             QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")));
+    m_findUsageAction = registerAction(FIND_USAGES,
+            [] (TextEditorWidget *w) { w->findUsages(); }, true, tr("Find References to Symbol Under Cursor"),
+            QKeySequence(tr("Ctrl+Shift+U")));
     m_jumpToFileAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR,
             [] (TextEditorWidget *w) { w->openLinkUnderCursor(); }, true, tr("Jump to File Under Cursor"),
             QKeySequence(Qt::Key_F2));
