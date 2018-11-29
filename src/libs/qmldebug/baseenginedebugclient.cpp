@@ -155,7 +155,7 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
     int contextCount;
     ds >> contextCount;
 
-    for (int ii = 0; ii < contextCount; ++ii) {
+    for (int ii = 0; ii < contextCount && !ds.atEnd(); ++ii) {
         c.m_contexts.append(ContextReference());
         decode(ds, c.m_contexts.last());
     }
@@ -163,7 +163,7 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
     int objectCount;
     ds >> objectCount;
 
-    for (int ii = 0; ii < objectCount; ++ii) {
+    for (int ii = 0; ii < objectCount && !ds.atEnd(); ++ii) {
         ObjectReference obj;
         decode(ds, obj, true);
         obj.m_contextDebugId = c.m_debugId;
