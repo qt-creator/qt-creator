@@ -63,8 +63,7 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
         timelineFrames.setValue(value, frame);
 
         return;
-    } else if (timelineIsActive()) {
-
+    } else if (modelNode().hasId() && timelineIsActive()) {
         QmlTimelineKeyframeGroup timelineFrames(currentTimeline().keyframeGroup(modelNode(), name));
 
         Q_ASSERT(timelineFrames.isValid());

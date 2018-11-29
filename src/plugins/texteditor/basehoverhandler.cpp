@@ -76,10 +76,14 @@ void BaseHoverHandler::contextHelpId(TextEditorWidget *widget,
 {
     // If the tooltip is visible and there is a help match, this match is used to update
     // the help id. Otherwise, let the identification process happen.
-    if (!Utils::ToolTip::isVisible() || !lastHelpItemIdentified().isValid())
-        process(widget, pos, [this, widget, callback](int) { propagateHelpId(widget, callback); });
-    else
+    if (!Utils::ToolTip::isVisible() || !lastHelpItemIdentified().isValid()) {
+        process(widget, pos, [this, widget = QPointer<TextEditorWidget>(widget), callback](int) {
+            if (widget)
+                propagateHelpId(widget, callback);
+        });
+    } else {
         propagateHelpId(widget, callback);
+    }
 }
 
 void BaseHoverHandler::setToolTip(const QString &tooltip)

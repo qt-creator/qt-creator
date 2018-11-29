@@ -1,12 +1,11 @@
 INCLUDEPATH += $$PWD
 
 SOURCES += \
+    $$PWD/builddependenciesprovider.cpp \
     $$PWD/pchmanagerserver.cpp \
     $$PWD/projectparts.cpp \
     $$PWD/projectpartqueue.cpp \
-    $$PWD/pchtaskgenerator.cpp \
-    $$PWD/builddependenciesprovider.cpp \
-    $$PWD/builddependencycollector.cpp
+    $$PWD/pchtaskgenerator.cpp
 
 HEADERS += \
     $$PWD/pchmanagerserver.h \
@@ -34,16 +33,13 @@ HEADERS += \
     $$PWD/modifiedtimecheckerinterface.h \
     $$PWD/sourceentry.h \
     $$PWD/builddependenciesstorage.h \
-    $$PWD/builddependencycollector.h \
-    $$PWD/builddependencygeneratorinterface.h \
-    $$PWD/collectbuilddependencytoolaction.h \
-    $$PWD/collectbuilddependencyaction.h \
-    $$PWD/collectbuilddependencypreprocessorcallbacks.h
+    $$PWD/builddependencygeneratorinterface.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
     $$PWD/usedmacrosandsourcescollector.cpp \
-    $$PWD/pchcreator.cpp
+    $$PWD/pchcreator.cpp \
+    $$PWD/builddependencycollector.cpp
 
 HEADERS += \
     $$PWD/collectusedmacroactionfactory.h \
@@ -51,5 +47,9 @@ HEADERS += \
     $$PWD/collectusedmacrosandsourcespreprocessorcallbacks.h \
     $$PWD/pchcreator.h \
     $$PWD/processormanager.h \
-    $$PWD/usedmacrosandsourcescollector.h
+    $$PWD/usedmacrosandsourcescollector.h \
+    $$PWD/builddependencycollector.h \
+    $$PWD/collectbuilddependencytoolaction.h \
+    $$PWD/collectbuilddependencyaction.h \
+    $$PWD/collectbuilddependencypreprocessorcallbacks.h
 }

@@ -455,7 +455,11 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
     // executable cannot be found in the path. Do not start the
     // event loop in that case.
     d->m_binary = binary;
-    d->m_process.start(binary, args, writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
+    // using QProcess::start() and passing program, args and OpenMode results in a different
+    // quoting of arguments than using QProcess::setArguments() beforehand and calling start()
+    // only with the OpenMode
+    d->m_process.setProgram(binary);
+    d->m_process.setArguments(args);
     connect(&d->m_process, &QProcess::started, this, [this, writeData] {
         if (!writeData.isEmpty()) {
             int pos = 0;
@@ -469,6 +473,8 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
         }
         d->m_process.closeWriteChannel();
     });
+    d->m_process.start(writeData.isEmpty() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
+
     if (!d->m_startFailure) {
         d->m_timer.start();
         if (isGuiThread())

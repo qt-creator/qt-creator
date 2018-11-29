@@ -384,7 +384,12 @@ void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
     if (m_currentPerspective)
         m_currentPerspective->d->restoreLayout();
 
-    const int index = indexInChooser(m_currentPerspective);
+    int index = indexInChooser(m_currentPerspective);
+    if (index == -1) {
+        if (Perspective *parent = Perspective::findPerspective(m_currentPerspective->d->m_parentPerspectiveId))
+            index = indexInChooser(parent);
+    }
+
     if (index != -1) {
         m_perspectiveChooser->setCurrentIndex(index);
 

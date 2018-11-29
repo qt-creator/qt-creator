@@ -592,9 +592,9 @@ class WithVirtualFunctionDefined {
 namespace NFoo { namespace NBar { namespace NTest { class NamespaceTypeSpelling; } } }
 
 Undeclared u;
-
-#include "../../../../share/qtcreator/cplusplus/wrappedQtHeaders/QtCore/qobjectdefs.h"
-
+#define Q_PROPERTY(arg) static_assert("Q_PROPERTY", #arg); // Keep these in sync with wrappedQtHeaders/QtCore/qobjectdefs.h
+#define SIGNAL(arg) #arg
+#define SLOT(arg) #arg
 class Property {
     Q_PROPERTY(const volatile unsigned long long * prop READ getProp WRITE setProp NOTIFY propChanged)
     Q_PROPERTY(const QString str READ getStr)
@@ -674,3 +674,15 @@ int signalSlotTest() {
     SIGNAL(something(QString (*func1)(QString)));
     1 == 2;
 }
+
+class NonConstParameterConstructor
+{
+    NonConstParameterConstructor() = default;
+    NonConstParameterConstructor(NonConstParameterConstructor &buildDependenciesStorage);
+
+    void Call()
+    {
+        NonConstParameterConstructor foo;
+        NonConstParameterConstructor bar(foo);
+    }
+};

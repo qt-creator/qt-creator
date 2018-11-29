@@ -177,8 +177,10 @@ void DiagnosticView::setModel(QAbstractItemModel *model)
         m_ignoreSetSelectedFixItsCount = false;
     });
     setHeader(clickableFixItHeader);
-    header()->setStretchLastSection(false);
-    header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    clickableFixItHeader->setStretchLastSection(false);
+    clickableFixItHeader->setSectionResizeMode(0, QHeaderView::Stretch);
+    clickableFixItHeader->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    clickableFixItHeader->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 }
 
 } // namespace Internal

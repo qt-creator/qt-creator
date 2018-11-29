@@ -548,9 +548,6 @@ void TokenInfo::punctuationOrOperatorKind()
             // case CXCursor_CXXDeleteExpr:
             overloadedOperatorKind();
             break;
-        case CXCursor_Constructor:
-            collectOutputArguments(m_originalCursor);
-            break;
         case CXCursor_UnaryOperator:
         case CXCursor_BinaryOperator:
         case CXCursor_CompoundAssignOperator:

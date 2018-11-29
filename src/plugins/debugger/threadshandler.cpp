@@ -408,6 +408,11 @@ void ThreadsHandler::setThreads(const GdbMi &data)
 
     if (!m_currentThread && threads.childCount() > 0)
         m_currentThread = rootItem()->childAt(0);
+
+    if (!m_currentThread) {
+        const QModelIndex currentThreadIndex = m_currentThread->index();
+        threadSwitcher()->setCurrentIndex(currentThreadIndex.row());
+    }
 }
 
 QAbstractItemModel *ThreadsHandler::model()

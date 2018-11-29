@@ -157,6 +157,7 @@ void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPositio
             setActionAndClangPosition(CompleteSlot, afterOperatorPosition);
         } else if (m_interface->position() != afterOperatorPosition) {
             // No function completion if cursor is not after '(' or ','
+            m_addSnippets = true;
             m_positionForProposal = afterOperatorPosition;
             setActionAndClangPosition(PassThroughToLibClang, afterOperatorPosition);
         } else {

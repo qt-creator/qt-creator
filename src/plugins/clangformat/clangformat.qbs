@@ -17,6 +17,7 @@ QtcPlugin {
     condition: libclang.present
                && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
 
+    cpp.cxxFlags: base.concat(libclang.llvmToolingCxxFlags)
     cpp.defines: base.concat("CLANGPCHMANAGER_LIB")
     cpp.includePaths: base.concat(libclang.llvmIncludeDir)
     cpp.libraryPaths: base.concat(libclang.llvmLibDir)

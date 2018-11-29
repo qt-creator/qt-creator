@@ -261,6 +261,7 @@ public:
         SdkToolsMarker              = 0x100,
         PlatformToolsMarker         = 0x200,
         EmulatorToolsMarker         = 0x400,
+        ExtrasMarker                = 0x800,
         SectionMarkers = InstalledPackagesMarker | AvailablePackagesMarkers | AvailableUpdatesMarker
     };
 
@@ -280,6 +281,7 @@ private:
     SdkTools *parseSdkToolsPackage(const QStringList &data) const;
     PlatformTools *parsePlatformToolsPackage(const QStringList &data) const;
     EmulatorTools *parseEmulatorToolsPackage(const QStringList &data) const;
+    ExtraTools *parseExtraToolsPackage(const QStringList &data) const;
     MarkerTag parseMarkers(const QString &line);
 
     MarkerTag m_currentSection = MarkerTag::None;
@@ -295,7 +297,8 @@ const std::map<SdkManagerOutputParser::MarkerTag, const char *> markerTags {
     {SdkManagerOutputParser::MarkerTag::BuildToolsMarker,           "build-tools"},
     {SdkManagerOutputParser::MarkerTag::SdkToolsMarker,             "tools"},
     {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"},
-    {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker,        "emulator"}
+    {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker,        "emulator"},
+    {SdkManagerOutputParser::MarkerTag::ExtrasMarker,               "extras"}
 };
 
 AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config, QObject *parent):
@@ -562,6 +565,10 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
     }
         break;
 
+    case MarkerTag::ExtrasMarker:
+        createPackage(&SdkManagerOutputParser::parseExtraToolsPackage);
+        break;
+
     default:
         qCDebug(sdkManagerLog) << "Unhandled package: " << markerTags.at(packageMarker);
         break;
@@ -724,6 +731,22 @@ EmulatorTools *SdkManagerOutputParser::parseEmulatorToolsPackage(const QStringLi
                                   "unavailable:" << data;
     }
     return emulatorTools;
+}
+
+ExtraTools *SdkManagerOutputParser::parseExtraToolsPackage(const QStringList &data) const
+{
+    ExtraTools *extraTools = nullptr;
+    GenericPackageData packageData;
+    if (parseAbstractData(packageData, data, 1, "Extras")) {
+        extraTools = new ExtraTools(packageData.revision, data.at(0));
+        extraTools->setDescriptionText(packageData.description);
+        extraTools->setDisplayText(packageData.description);
+        extraTools->setInstalledLocation(packageData.installedLocation);
+    } else {
+        qCDebug(sdkManagerLog) << "Extra-tools: Parsing failed. Minimum required data "
+                                  "unavailable:" << data;
+    }
+    return extraTools;
 }
 
 SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QString &line)

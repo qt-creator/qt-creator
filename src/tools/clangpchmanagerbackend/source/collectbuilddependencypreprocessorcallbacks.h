@@ -44,8 +44,9 @@
 
 namespace ClangBackEnd {
 
-class CollectBuildDependencyPreprocessorCallbacks final : public clang::PPCallbacks,
-                                                   public CollectUsedMacrosAndSourcesPreprocessorCallbacksBase
+class CollectBuildDependencyPreprocessorCallbacks final
+    : public clang::PPCallbacks,
+      public CollectUsedMacrosAndSourcesPreprocessorCallbacksBase
 {
 public:
     CollectBuildDependencyPreprocessorCallbacks(BuildDependency &buildDependency,

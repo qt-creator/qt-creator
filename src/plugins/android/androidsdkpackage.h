@@ -53,8 +53,9 @@ public:
         SdkPlatformPackage      = 1 << 4,
         SystemImagePackage      = 1 << 5,
         EmulatorToolsPackage    = 1 << 6,
+        ExtraToolsPackage       = 1 << 7,
         AnyValidType = SdkToolsPackage | BuildToolsPackage | PlatformToolsPackage |
-        SdkPlatformPackage | SystemImagePackage | EmulatorToolsPackage
+        SdkPlatformPackage | SystemImagePackage | EmulatorToolsPackage | ExtraToolsPackage
     };
 
     enum PackageState {
@@ -188,6 +189,16 @@ public:
 
 // AndroidSdkPackage Overrides
 public:
+    bool isValid() const override;
+    PackageType type() const override;
+};
+
+class ExtraTools : public AndroidSdkPackage
+{
+public:
+    ExtraTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+
+// AndroidSdkPackage Overrides
     bool isValid() const override;
     PackageType type() const override;
 };

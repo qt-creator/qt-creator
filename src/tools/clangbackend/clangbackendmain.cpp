@@ -80,7 +80,9 @@ int main(int argc, char *argv[])
 
     const QString connection = processArguments(application);
 
-    clang_enableStackTraces();
+    // Printing the stack strace might dead lock as clang's stack printer allocates memory.
+    if (qEnvironmentVariableIntValue("QTC_CLANG_ENABLE_STACKTRACES"))
+        clang_enableStackTraces();
 
     ClangCodeModelServer clangCodeModelServer;
     ConnectionServer<ClangCodeModelServer, ClangCodeModelClientProxy> connectionServer;

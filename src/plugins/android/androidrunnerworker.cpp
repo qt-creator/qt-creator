@@ -252,8 +252,9 @@ bool AndroidRunnerWorker::uploadFile(const QString &from, const QString &to, con
     if (!f.open(QIODevice::ReadOnly))
         return false;
     runAdb({"shell", "run-as", m_packageName, "rm", to});
-    auto res = runAdb({"shell", "run-as", m_packageName, "sh", "-c", QString("'cat > %1'").arg(to)},
-                      nullptr, f.readAll());
+    const QByteArray data = f.readAll();
+    const bool res = runAdb({"shell", "run-as", m_packageName, QString("sh -c 'base64 -d > %1'").arg(to)},
+                            nullptr, data.toBase64());
     if (!res)
         return false;
     return runAdb({"shell", "run-as", m_packageName, "chmod", flags, to});

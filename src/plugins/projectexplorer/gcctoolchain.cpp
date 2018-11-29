@@ -396,27 +396,28 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
             } else if (a == "-arch") {
                 if (++iArg < allFlags.length() && !arguments.contains(a))
                     arguments << a << allFlags.at(iArg);
-            } else if (a == "--sysroot" || a == "-isysroot" || a == "-D" ||a == "-U") {
+            } else if (a == "--sysroot" || a == "-isysroot" || a == "-D" || a == "-U"
+                       || a == "-gcc-toolchain" || a == "-target") {
                 if (++iArg < allFlags.length())
                     arguments << a << allFlags.at(iArg);
-            } else if (a == "-m128bit-long-double" || a == "-m32" || a == "-m3dnow" || a == "-m3dnowa"
-                       || a == "-m64" || a == "-m96bit-long-double" || a == "-mabm" || a == "-maes"
-                       || a.startsWith("-march=") || a == "-mavx" || a.startsWith("-masm=")
-                       || a.startsWith("-mfloat-abi")
-                       || a == "-mcx16" || a == "-mfma" || a == "-mfma4" || a == "-mlwp"
-                       || a == "-mpclmul" || a == "-mpopcnt" || a == "-msse" || a == "-msse2"
-                       || a == "-msse2avx" || a == "-msse3" || a == "-msse4" || a == "-msse4.1"
-                       || a == "-msse4.2" || a == "-msse4a" || a == "-mssse3"
-                       || a.startsWith("-mtune=") || a == "-mxop"
-                       || a == "-Os" || a == "-O0" || a == "-O1" || a == "-O2" || a == "-O3"
-                       || a == "-ffinite-math-only" || a == "-fshort-double" || a == "-fshort-wchar"
-                       || a == "-fsignaling-nans" || a == "-fno-inline" || a == "-fno-exceptions"
-                       || a == "-fstack-protector" || a == "-fstack-protector-all"
-                       || a == "-fsanitize=address" || a == "-fno-rtti"
-                       || a.startsWith("-std=") || a.startsWith("-stdlib=") || a.startsWith("-specs=")
-                       || a == "-ansi" || a == "-undef" || a.startsWith("-D") || a.startsWith("-U")
-                       || a == "-fopenmp" || a == "-Wno-deprecated" || a == "-fPIC" || a == "-fpic"
-                       || a == "-fPIE" || a == "-fpie")
+            } else if (a == "-m128bit-long-double" || a == "-m32" || a == "-m3dnow"
+                       || a == "-m3dnowa" || a == "-m64" || a == "-m96bit-long-double"
+                       || a == "-mabm" || a == "-maes" || a.startsWith("-march=") || a == "-mavx"
+                       || a.startsWith("-masm=") || a.startsWith("-mfloat-abi") || a == "-mcx16"
+                       || a == "-mfma" || a == "-mfma4" || a == "-mlwp" || a == "-mpclmul"
+                       || a == "-mpopcnt" || a == "-msse" || a == "-msse2" || a == "-msse2avx"
+                       || a == "-msse3" || a == "-msse4" || a == "-msse4.1" || a == "-msse4.2"
+                       || a == "-msse4a" || a == "-mssse3" || a.startsWith("-mtune=")
+                       || a == "-mxop" || a == "-Os" || a == "-O0" || a == "-O1" || a == "-O2"
+                       || a == "-O3" || a == "-ffinite-math-only" || a == "-fshort-double"
+                       || a == "-fshort-wchar" || a == "-fsignaling-nans" || a == "-fno-inline"
+                       || a == "-fno-exceptions" || a == "-fstack-protector"
+                       || a == "-fstack-protector-all" || a == "-fsanitize=address"
+                       || a == "-fno-rtti" || a.startsWith("-std=") || a.startsWith("-stdlib=")
+                       || a.startsWith("-specs=") || a == "-ansi" || a == "-undef"
+                       || a.startsWith("-D") || a.startsWith("-U") || a == "-fopenmp"
+                       || a == "-Wno-deprecated" || a == "-fPIC" || a == "-fpic" || a == "-fPIE"
+                       || a == "-fpie")
                 arguments << a;
         }
 
@@ -545,13 +546,14 @@ QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
     for (int i = 0; i < allFlags.size(); ++i) {
         const QString &flag = allFlags.at(i);
         if (flag.startsWith("-stdlib=") || flag.startsWith("--gcctoolchain=")
-            || flag.startsWith("-B")) {
+            || flag.startsWith("-B") || (flag.startsWith("-isystem") && flag.length() > 8)) {
             arguments << flag;
         } else if (!hasKitSysroot) {
             // pass build system's sysroot to compiler, if we didn't pass one from kit
             if (flag.startsWith("--sysroot=")) {
                 arguments << flag;
-            } else if ((flag.startsWith("-isysroot") || flag.startsWith("--sysroot"))
+            } else if ((flag.startsWith("-isysroot") || flag.startsWith("--sysroot")
+                        || flag == "-target" || flag == "-gcc-toolchain" || flag == "-isystem")
                        && i < flags.size() - 1) {
                 arguments << flag << allFlags.at(i + 1);
                 ++i;

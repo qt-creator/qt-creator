@@ -51,21 +51,21 @@ class BuildDependenciesStorage : public testing::Test
 protected:
     NiceMock<MockSqliteDatabase> mockDatabase;
     Storage storage{mockDatabase};
-    MockSqliteWriteStatement &insertIntoNewUsedMacrosStatement = storage.m_insertIntoNewUsedMacrosStatement;
-    MockSqliteWriteStatement &syncNewUsedMacrosStatement =storage.m_syncNewUsedMacrosStatement;
-    MockSqliteWriteStatement &deleteOutdatedUsedMacrosStatement = storage.m_deleteOutdatedUsedMacrosStatement;
-    MockSqliteWriteStatement &deleteNewUsedMacrosTableStatement = storage.m_deleteNewUsedMacrosTableStatement;
-    MockSqliteWriteStatement &insertFileStatuses = storage.m_insertFileStatusesStatement;
-    MockSqliteWriteStatement &insertIntoNewSourceDependenciesStatement = storage.m_insertIntoNewSourceDependenciesStatement;
-    MockSqliteWriteStatement &syncNewSourceDependenciesStatement = storage.m_syncNewSourceDependenciesStatement;
-    MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = storage.m_deleteOutdatedSourceDependenciesStatement;
-    MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = storage.m_deleteNewSourceDependenciesStatement;
-    MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = storage.m_getLowestLastModifiedTimeOfDependencies;
-    MockSqliteWriteStatement &updateBuildDependencyTimeStampStatement = storage.m_updateBuildDependencyTimeStampStatement;
-    MockSqliteWriteStatement &updateSourceTypeStatement = storage.m_updateSourceTypeStatement;
-    MockSqliteReadStatement &fetchSourceDependenciesStatement = storage.m_fetchSourceDependenciesStatement;
-    MockSqliteReadStatement &fetchProjectPartIdStatement = storage.m_fetchProjectPartIdStatement;
-    MockSqliteReadStatement &fetchUsedMacrosStatement = storage.m_fetchUsedMacrosStatement;
+    MockSqliteWriteStatement &insertIntoNewUsedMacrosStatement = storage.insertIntoNewUsedMacrosStatement;
+    MockSqliteWriteStatement &syncNewUsedMacrosStatement =storage.syncNewUsedMacrosStatement;
+    MockSqliteWriteStatement &deleteOutdatedUsedMacrosStatement = storage.deleteOutdatedUsedMacrosStatement;
+    MockSqliteWriteStatement &deleteNewUsedMacrosTableStatement = storage.deleteNewUsedMacrosTableStatement;
+    MockSqliteWriteStatement &insertFileStatuses = storage.insertFileStatusesStatement;
+    MockSqliteWriteStatement &insertIntoNewSourceDependenciesStatement = storage.insertIntoNewSourceDependenciesStatement;
+    MockSqliteWriteStatement &syncNewSourceDependenciesStatement = storage.syncNewSourceDependenciesStatement;
+    MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = storage.deleteOutdatedSourceDependenciesStatement;
+    MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = storage.deleteNewSourceDependenciesStatement;
+    MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = storage.getLowestLastModifiedTimeOfDependencies;
+    MockSqliteWriteStatement &updateBuildDependencyTimeStampStatement = storage.updateBuildDependencyTimeStampStatement;
+    MockSqliteWriteStatement &updateSourceTypeStatement = storage.updateSourceTypeStatement;
+    MockSqliteReadStatement &fetchSourceDependenciesStatement = storage.fetchSourceDependenciesStatement;
+    MockSqliteReadStatement &fetchProjectPartIdStatement = storage.fetchProjectPartIdStatement;
+    MockSqliteReadStatement &fetchUsedMacrosStatement = storage.fetchUsedMacrosStatement;
 };
 
 TEST_F(BuildDependenciesStorage, ConvertStringsToJson)

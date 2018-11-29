@@ -312,6 +312,14 @@ TEST_F(ClangCompletionContextAnalyzer, AfterOpeningParenthesis)
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText, true));
 }
 
+TEST_F(ClangCompletionContextAnalyzer, AfterOpeningBraceAndIdentifierOnNewLine)
+{
+    auto analyzer = runAnalyzer("if (1) {\n"
+                                "cla@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, -3, -3, positionInText, true));
+}
+
 TEST_F(ClangCompletionContextAnalyzer, ArgumentOneAtSignal)
 {
     auto analyzer = runAnalyzer("SIGNAL(@");

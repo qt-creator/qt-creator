@@ -289,7 +289,12 @@ bool ToolChain::fromMap(const QVariantMap &data)
 static long toLanguageVersionAsLong(QByteArray dateAsByteArray)
 {
     dateAsByteArray.chop(1); // Strip 'L'.
-    return dateAsByteArray.toLong(nullptr);
+
+    bool success = false;
+    const int result = dateAsByteArray.toLong(&success);
+    QTC_CHECK(success);
+
+    return result;
 }
 
 LanguageVersion ToolChain::cxxLanguageVersion(const QByteArray &cplusplusMacroValue)
