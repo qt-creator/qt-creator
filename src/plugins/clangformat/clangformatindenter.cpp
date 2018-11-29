@@ -69,6 +69,13 @@ void adjustFormatStyleForLineBreak(format::FormatStyle &style)
     style.SortUsingDeclarations = false;
 }
 
+StringRef clearExtraNewline(StringRef text)
+{
+    while (text.startswith("\n\n"))
+        text = text.drop_front();
+    return text;
+}
+
 Replacements filteredReplacements(const Replacements &replacements,
                                   int offset,
                                   int extraOffsetToAdd,
@@ -83,10 +90,13 @@ Replacements filteredReplacements(const Replacements &replacements,
         if (replacementOffset + 1 >= offset)
             replacementOffset += extraOffsetToAdd;
 
+        StringRef text = onlyIndention ? clearExtraNewline(replacement.getReplacementText())
+                                       : replacement.getReplacementText();
+
         Error error = filtered.add(Replacement(replacement.getFilePath(),
                                                static_cast<unsigned int>(replacementOffset),
                                                replacement.getLength(),
-                                               replacement.getReplacementText()));
+                                               text));
         // Throws if error is not checked.
         if (error)
             break;
@@ -121,6 +131,18 @@ void trimFirstNonEmptyBlock(const QTextBlock &currentBlock)
     cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, extraSpaceCount);
     cursor.removeSelectedText();
     cursor.endEditBlock();
+}
+
+void trimCurrentBlock(const QTextBlock &currentBlock)
+{
+    if (currentBlock.text().trimmed().isEmpty()) {
+        // Clear the block containing only spaces
+        QTextCursor cursor(currentBlock);
+        cursor.beginEditBlock();
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        cursor.removeSelectedText();
+        cursor.endEditBlock();
+    }
 }
 
 // Returns the total langth of previous lines with pure whitespace.
@@ -335,10 +357,19 @@ void ClangFormatIndenter::indent(QTextDocument *doc,
                                  bool /*autoTriggered*/)
 {
     if (cursor.hasSelection()) {
-        QTextBlock currentBlock = doc->findBlock(cursor.selectionStart());
-        while (currentBlock.isValid() && currentBlock.position() < cursor.selectionEnd()) {
-            indentBlock(doc, currentBlock, typedChar, tabSettings);
-            currentBlock = currentBlock.next();
+        // Calling currentBlock.next() might be unsafe because we change the document.
+        // Let's operate with block numbers instead.
+        const int startNumber = doc->findBlock(cursor.selectionStart()).blockNumber();
+        const int endNumber = doc->findBlock(cursor.selectionEnd()).blockNumber();
+        for (int currentBlockNumber = startNumber; currentBlockNumber <= endNumber;
+             ++currentBlockNumber) {
+            const QTextBlock currentBlock = doc->findBlockByNumber(currentBlockNumber);
+            if (currentBlock.isValid()) {
+                const int blocksAmount = doc->blockCount();
+                indentBlock(doc, currentBlock, typedChar, tabSettings);
+                QTC_CHECK(blocksAmount == doc->blockCount()
+                          && "ClangFormat plugin indentation changed the amount of blocks.");
+            }
         }
     } else {
         indentBlock(doc, cursor.block(), typedChar, tabSettings);
@@ -399,6 +430,7 @@ void ClangFormatIndenter::indentBlock(QTextDocument *doc,
 
     const Utils::FileName fileName = editor->textDocument()->filePath();
     trimFirstNonEmptyBlock(block);
+    trimCurrentBlock(block);
     const QByteArray buffer = doc->toPlainText().toUtf8();
     const int utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, block.blockNumber() + 1);
     QTC_ASSERT(utf8Offset >= 0, return;);
@@ -417,6 +449,7 @@ int ClangFormatIndenter::indentFor(const QTextBlock &block, const TextEditor::Ta
 
     const Utils::FileName fileName = editor->textDocument()->filePath();
     trimFirstNonEmptyBlock(block);
+    trimCurrentBlock(block);
     const QTextDocument *doc = block.document();
     const QByteArray buffer = doc->toPlainText().toUtf8();
     const int utf8Offset = Utils::Text::utf8NthLineOffset(doc, buffer, block.blockNumber() + 1);

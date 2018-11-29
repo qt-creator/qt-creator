@@ -103,7 +103,15 @@
 
           \endlist
 
-        \endlist
+          \note When using the command line tools instead of Android Studio,
+                it is recommended to create an empty folder and extract the
+                downloaded archive into this folder.
+                The sdkmanager will install downloaded packages next to the
+                \c tools folder that contains all command line tools.
+                You must specify the path to the folder where you extracted the
+                files as Android SDK location inside the Android settings.
+
+    \endlist
 
     \section1 Setting Up the Development Environment
 

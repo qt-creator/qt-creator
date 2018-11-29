@@ -136,7 +136,7 @@ CppTools::CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
 
         int line, column;
         convertPosition(textDocument, macro.utf16charsBegin(), &line, &column);
-        ++column; //Highlighting starts at (column-1) --> compensate here
+
         Result use(line, column, name.size(), SemanticHighlighter::MacroUse);
         macroUses.append(use);
     }

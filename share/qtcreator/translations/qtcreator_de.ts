@@ -13791,24 +13791,24 @@ Soll es noch einmal versucht werden?</translation>
         <translation>Makroaufnahme</translation>
     </message>
     <message>
-        <source>Ctrl+(</source>
-        <translation>Ctrl+(</translation>
-    </message>
-    <message>
-        <source>Alt+(</source>
-        <translation>Alt+(</translation>
-    </message>
-    <message>
         <source>Stop Recording Macro</source>
         <translation>Makroaufnahme anhalten</translation>
     </message>
     <message>
-        <source>Ctrl+)</source>
-        <translation>Ctrl+)</translation>
+        <source>Ctrl+[</source>
+        <translation>Ctrl+[</translation>
     </message>
     <message>
-        <source>Alt+)</source>
-        <translation>Alt+)</translation>
+        <source>Alt+[</source>
+        <translation>Alt+[</translation>
+    </message>
+    <message>
+        <source>Ctrl+]</source>
+        <translation>Ctrl+]</translation>
+    </message>
+    <message>
+        <source>Alt+]</source>
+        <translation>Alt+]</translation>
     </message>
     <message>
         <source>Play Last Macro</source>
@@ -20477,20 +20477,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Fehlende Android-SDK-Pakete</translation>
     </message>
     <message>
-        <source>Cannot create kits for all architectures.</source>
-        <translation>Kits können nicht für alle Architekturen erstellt werden.</translation>
-    </message>
-    <message>
-        <source>Qt versions are missing for the following architectures:
-%1
-
-To add the Qt version, select Options &gt; Build &amp; Run &gt; Qt Versions.</source>
-        <translation>Es fehlen Qt-Versionen für die folgenden Architekturen:
-%1
-
-Um die Qt-Versionen hinzuzufügen, benutzen Sie Einstellungen &gt; Erstellung und Ausführung &gt; Qt Versionen.</translation>
-    </message>
-    <message>
         <source>(SDK Version: %1, NDK Version: %2)</source>
         <translation>(SDK-Version: %1, NDK-Version: %2)</translation>
     </message>
@@ -20498,15 +20484,8 @@ Um die Qt-Versionen hinzuzufügen, benutzen Sie Einstellungen &gt; Erstellung un
 <context>
     <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
-        <source>Android GCC</source>
-        <translation>Android GCC</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
-    <message>
-        <source>NDK Root:</source>
-        <translation>NDK Root:</translation>
+        <source>Android Clang</source>
+        <translation>Android Clang</translation>
     </message>
 </context>
 <context>
@@ -30364,8 +30343,8 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
         <translation>Android-Debugger für %1</translation>
     </message>
     <message>
-        <source>Android for %1 (GCC %2, %3)</source>
-        <translation>Android für %1 (GCC %2, %3)</translation>
+        <source>Android for %1 (Clang %2)</source>
+        <translation>Android für %1 (Clang %2)</translation>
     </message>
 </context>
 <context>
@@ -46058,6 +46037,10 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
         <translation>Unerwartet beendet. Neustart in %1 Sekunden.</translation>
+    </message>
+    <message>
+        <source>Unexpectedly finished.</source>
+        <translation>Unerwartet beendet.</translation>
     </message>
 </context>
 <context>

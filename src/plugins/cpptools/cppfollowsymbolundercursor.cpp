@@ -491,10 +491,13 @@ void FollowSymbolUnderCursor::findLink(
 {
     Link link;
 
-    int line = 0;
-    int column = 0;
     QTextCursor cursor = data.cursor();
     QTextDocument *document = cursor.document();
+    if (!document)
+        return processLinkCallback(link);
+
+    int line = 0;
+    int column = 0;
     Utils::Text::convertPosition(document, cursor.position(), &line, &column);
     const int positionInBlock = column - 1;
 

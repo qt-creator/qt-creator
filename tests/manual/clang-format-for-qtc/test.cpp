@@ -656,7 +656,11 @@ void extremeFunction(
     ++uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuunbelievableLongValue;
 
     extremeFunction(
-        "some super duper super duper super duper super duper super duper super duper super duper long");
+        "some super duper super duper super duper super duper super duper super duper long");
+
+    // BreakStringLiterals splits the string.
+    extremeFunction("some super duper super duper super duper super duper super duper super duper "
+                    "super duper long");
 }
 
 void extremeFunction2(int parameter1,

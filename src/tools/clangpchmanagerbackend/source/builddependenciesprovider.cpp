@@ -29,6 +29,8 @@
 #include "modifiedtimecheckerinterface.h"
 #include "builddependencygeneratorinterface.h"
 
+#include <sqlitetransaction.h>
+
 #include <algorithm>
 
 namespace ClangBackEnd {
@@ -51,19 +53,25 @@ OutputContainer setUnion(InputContainer1 &&input1,
     return results;
 }
 
-BuildDependency BuildDependenciesProvider::create(const V2::ProjectPartContainer &projectPart) const
+BuildDependency BuildDependenciesProvider::create(const V2::ProjectPartContainer &projectPart)
 {
     SourceEntries includes = createSourceEntriesFromStorage(projectPart.sourcePathIds,
                                                             projectPart.projectPartId);
 
-    if (!m_modifiedTimeChecker.isUpToDate(includes))
-        return m_buildDependenciesGenerator.create(projectPart);
+    if (!m_modifiedTimeChecker.isUpToDate(includes)) {
+        BuildDependency buildDependency = m_generator.create(projectPart);
+
+        storeBuildDependency(buildDependency);
+
+        return buildDependency;
+    }
 
     return createBuildDependencyFromStorage(std::move(includes));
 
 }
 
-BuildDependency BuildDependenciesProvider::createBuildDependencyFromStorage(SourceEntries &&includes) const
+BuildDependency BuildDependenciesProvider::createBuildDependencyFromStorage(
+    SourceEntries &&includes) const
 {
     BuildDependency buildDependency;
 
@@ -78,13 +86,17 @@ UsedMacros BuildDependenciesProvider::createUsedMacrosFromStorage(const SourceEn
     UsedMacros usedMacros;
     usedMacros.reserve(1024);
 
+    Sqlite::DeferredTransaction transaction(m_transactionBackend);
+
     for (const SourceEntry &entry : includes) {
-        UsedMacros macros = m_buildDependenciesStorage.fetchUsedMacros(entry.sourceId);
+        UsedMacros macros = m_storage.fetchUsedMacros(entry.sourceId);
         std::sort(macros.begin(), macros.end());
         usedMacros.insert(usedMacros.end(),
                           std::make_move_iterator(macros.begin()),
                           std::make_move_iterator(macros.end()));
     }
+
+    transaction.commit();
 
     return usedMacros;
 }
@@ -94,15 +106,31 @@ SourceEntries BuildDependenciesProvider::createSourceEntriesFromStorage(
 {
     SourceEntries includes;
 
+    Sqlite::DeferredTransaction transaction(m_transactionBackend);
+
     for (FilePathId sourcePathId : sourcePathIds) {
-        SourceEntries entries = m_buildDependenciesStorage.fetchDependSources(sourcePathId,
+        SourceEntries entries = m_storage.fetchDependSources(sourcePathId,
                                                                               projectPartId);
         SourceEntries mergedEntries = setUnion<SourceEntries>(includes, entries);
 
         includes = std::move(mergedEntries);
     }
 
+    transaction.commit();
+
     return includes;
+}
+
+void BuildDependenciesProvider::storeBuildDependency(const BuildDependency &buildDependency)
+{
+    Sqlite::ImmediateTransaction transaction(m_transactionBackend);
+
+    m_storage.updateSources(buildDependency.includes);
+    m_storage.insertFileStatuses(buildDependency.fileStatuses);
+    m_storage.insertOrUpdateSourceDependencies(buildDependency.sourceDependencies);
+    m_storage.insertOrUpdateUsedMacros(buildDependency.usedMacros);
+
+    transaction.commit();
 }
 
 } // namespace ClangBackEnd

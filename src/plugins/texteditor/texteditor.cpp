@@ -299,6 +299,8 @@ public:
     {
     }
 
+    ~HoverHandlerRunner() { abortHandlers(); }
+
     void startChecking(const QTextCursor &textCursor, const QPoint &point)
     {
         if (m_handlers.empty())
@@ -315,9 +317,7 @@ public:
         if (isCheckRunning(documentRevision, position))
             return;
 
-        // Cancel currently running checks
-        for (BaseHoverHandler *handler : m_handlers)
-            handler->abort();
+        abortHandlers();
 
         // Update invocation data
         m_documentRevision = documentRevision;
@@ -352,8 +352,6 @@ public:
 
     void onHandlerFinished(int documentRevision, int position, int priority)
     {
-        if (!m_widget)
-            return;
         QTC_ASSERT(m_currentHandlerIndex < m_handlers.size(), return);
         QTC_ASSERT(documentRevision == m_documentRevision, return);
         QTC_ASSERT(position == m_position, return);
@@ -379,7 +377,13 @@ public:
     }
 
 private:
-    QPointer<TextEditorWidget> m_widget;
+    void abortHandlers()
+    {
+        for (BaseHoverHandler *handler : m_handlers)
+            handler->abort();
+    }
+
+    TextEditorWidget *m_widget;
     const QList<BaseHoverHandler *> &m_handlers;
 
     struct LastHandlerInfo {
@@ -3025,14 +3029,6 @@ void TextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
 void TextEditorWidget::inputMethodEvent(QInputMethodEvent *e)
 {
-    if (e->commitString().isEmpty() && e->preeditString().isEmpty() && e->attributes().isEmpty()) {
-        // Avoid doing anything when getting bogus events as it can happen on Gnome desktop.
-        // Otherwise QPlainTextEdit will report content changes for locations where factually
-        // nothing changed.
-        // Workaround for QTCREATORBUG-19571
-        e->accept();
-        return;
-    }
     if (d->m_inBlockSelectionMode) {
         if (!e->commitString().isEmpty())
             d->insertIntoBlockSelection(e->commitString());

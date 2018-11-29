@@ -1083,6 +1083,7 @@ class Dumper(DumperBase):
             addr = frame.GetPCAddress().GetLoadAddress(self.target)
 
             functionName = frame.GetFunctionName()
+            module = frame.GetModule()
 
             if isNativeMixed and functionName == '::qt_qmlDebugMessageAvailable()':
                 interpreterStack = self.extractInterpreterStack()
@@ -1102,6 +1103,7 @@ class Dumper(DumperBase):
             result += ',address="0x%x"' % addr
             result += ',function="%s"' % functionName
             result += ',line="%d"' % lineNumber
+            result += ',module="%s"' % module
             result += ',file="%s"},' % fileName
         result += ']'
         result += ',hasmore="%d"' % isLimited
@@ -1652,7 +1654,7 @@ class Dumper(DumperBase):
 
     def selectThread(self, args):
         self.reportToken(args)
-        self.process.SetSelectedThreadByID(args['id'])
+        self.process.SetSelectedThreadByID(int(args['id']))
         self.reportResult('', args)
 
     def fetchFullBacktrace(self, _ = None):

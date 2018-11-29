@@ -47,25 +47,25 @@ class BuildDependenciesStorage final : public BuildDependenciesStorageInterface
     using WriteStatement = typename Database::WriteStatement;
 public:
     BuildDependenciesStorage(Database &database)
-        : m_transaction(database),
-          m_database(database)
+        : transaction(database),
+          database(database)
     {
-        m_transaction.commit();
+        transaction.commit();
     }
 
     void updateSources(const SourceEntries &sourceEntries) override
     {
         for (const SourceEntry &entry : sourceEntries) {
-            m_updateBuildDependencyTimeStampStatement.write(static_cast<long long>(entry.lastModified),
+            updateBuildDependencyTimeStampStatement.write(static_cast<long long>(entry.lastModified),
                                                             entry.sourceId.filePathId);
-            m_updateSourceTypeStatement.write(static_cast<uchar>(entry.sourceType),
+            updateSourceTypeStatement.write(static_cast<uchar>(entry.sourceType),
                                               entry.sourceId.filePathId);
         }
     }
 
     void insertFileStatuses(const FileStatuses &fileStatuses) override
     {
-        WriteStatement &statement = m_insertFileStatusesStatement;
+        WriteStatement &statement = insertFileStatusesStatement;
 
         for (const FileStatus &fileStatus : fileStatuses)
             statement.write(fileStatus.filePathId.filePathId,
@@ -76,41 +76,41 @@ public:
 
     long long fetchLowestLastModifiedTime(FilePathId sourceId) const override
     {
-        ReadStatement &statement = m_getLowestLastModifiedTimeOfDependencies;
+        ReadStatement &statement = getLowestLastModifiedTimeOfDependencies;
 
         return statement.template value<long long>(sourceId.filePathId).value_or(0);
     }
 
     void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) override
     {
-        WriteStatement &insertStatement = m_insertIntoNewUsedMacrosStatement;
+        WriteStatement &insertStatement = insertIntoNewUsedMacrosStatement;
         for (const UsedMacro &usedMacro : usedMacros)
             insertStatement.write(usedMacro.filePathId.filePathId, usedMacro.macroName);
 
-        m_syncNewUsedMacrosStatement.execute();
-        m_deleteOutdatedUsedMacrosStatement.execute();
-        m_deleteNewUsedMacrosTableStatement.execute();
+        syncNewUsedMacrosStatement.execute();
+        deleteOutdatedUsedMacrosStatement.execute();
+        deleteNewUsedMacrosTableStatement.execute();
     }
 
     void insertOrUpdateSourceDependencies(const SourceDependencies &sourceDependencies) override
     {
-        WriteStatement &insertStatement = m_insertIntoNewSourceDependenciesStatement;
+        WriteStatement &insertStatement = insertIntoNewSourceDependenciesStatement;
         for (SourceDependency sourceDependency : sourceDependencies)
             insertStatement.write(sourceDependency.filePathId.filePathId,
                                   sourceDependency.dependencyFilePathId.filePathId);
 
-        m_syncNewSourceDependenciesStatement.execute();
-        m_deleteOutdatedSourceDependenciesStatement.execute();
-        m_deleteNewSourceDependenciesStatement.execute();
+        syncNewSourceDependenciesStatement.execute();
+        deleteOutdatedSourceDependenciesStatement.execute();
+        deleteNewSourceDependenciesStatement.execute();
     }
 
     SourceEntries fetchDependSources(FilePathId sourceId,
                                      Utils::SmallStringView projectPartName) const override
     {
-        auto projectPartId = m_fetchProjectPartIdStatement.template value<int>(projectPartName);
+        auto projectPartId = fetchProjectPartIdStatement.template value<int>(projectPartName);
 
         if (projectPartId) {
-           return m_fetchSourceDependenciesStatement.template values<SourceEntry, 3>(
+           return fetchSourceDependenciesStatement.template values<SourceEntry, 3>(
                        300,
                        sourceId.filePathId,
                        projectPartId.value());
@@ -120,7 +120,7 @@ public:
 
     UsedMacros fetchUsedMacros(FilePathId sourceId) const override
     {
-        return m_fetchUsedMacrosStatement.template values<UsedMacro, 2>(128, sourceId.filePathId);
+        return fetchUsedMacrosStatement.template values<UsedMacro, 2>(128, sourceId.filePathId);
     }
 
     static Utils::SmallString toJson(const Utils::SmallStringVector &strings)
@@ -159,7 +159,7 @@ public:
         const Sqlite::Column &macroNameColumn = table.addColumn("macroName", Sqlite::ColumnType::Text);
         table.addIndex({sourceIdColumn, macroNameColumn});
 
-        table.initialize(m_database);
+        table.initialize(database);
 
         return table;
     }
@@ -173,75 +173,75 @@ public:
         const Sqlite::Column &dependencySourceIdColumn = table.addColumn("dependencySourceId", Sqlite::ColumnType::Text);
         table.addIndex({sourceIdColumn, dependencySourceIdColumn});
 
-        table.initialize(m_database);
+        table.initialize(database);
 
         return table;
     }
 
 public:
-    Sqlite::ImmediateNonThrowingDestructorTransaction m_transaction;
-    Database &m_database;
+    Sqlite::ImmediateNonThrowingDestructorTransaction transaction;
+    Database &database;
     Sqlite::Table newUsedMacroTable{createNewUsedMacrosTable()};
     Sqlite::Table newNewSourceDependenciesTable{createNewSourceDependenciesTable()};
-    WriteStatement m_insertIntoNewUsedMacrosStatement{
+    WriteStatement insertIntoNewUsedMacrosStatement{
         "INSERT INTO newUsedMacros(sourceId, macroName) VALUES (?,?)",
-        m_database
+        database
     };
-    WriteStatement m_syncNewUsedMacrosStatement{
+    WriteStatement syncNewUsedMacrosStatement{
         "INSERT INTO usedMacros(sourceId, macroName) SELECT sourceId, macroName FROM newUsedMacros WHERE NOT EXISTS (SELECT sourceId FROM usedMacros WHERE usedMacros.sourceId == newUsedMacros.sourceId AND usedMacros.macroName == newUsedMacros.macroName)",
-        m_database
+        database
     };
-    WriteStatement m_deleteOutdatedUsedMacrosStatement{
+    WriteStatement deleteOutdatedUsedMacrosStatement{
         "DELETE FROM usedMacros WHERE sourceId IN (SELECT sourceId FROM newUsedMacros) AND NOT EXISTS (SELECT sourceId FROM newUsedMacros WHERE newUsedMacros.sourceId == usedMacros.sourceId AND newUsedMacros.macroName == usedMacros.macroName)",
-        m_database
+        database
     };
-    WriteStatement m_deleteNewUsedMacrosTableStatement{
+    WriteStatement deleteNewUsedMacrosTableStatement{
         "DELETE FROM newUsedMacros",
-        m_database
+        database
     };
-    mutable ReadStatement m_getLowestLastModifiedTimeOfDependencies{
+    mutable ReadStatement getLowestLastModifiedTimeOfDependencies{
         "WITH RECURSIVE sourceIds(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM sourceDependencies, sourceIds WHERE sourceDependencies.sourceId = sourceIds.sourceId) SELECT min(lastModified) FROM fileStatuses, sourceIds WHERE fileStatuses.sourceId = sourceIds.sourceId",
-        m_database
+        database
     };
-    WriteStatement m_insertIntoNewSourceDependenciesStatement{
+    WriteStatement insertIntoNewSourceDependenciesStatement{
         "INSERT INTO newSourceDependencies(sourceId, dependencySourceId) VALUES (?,?)",
-        m_database
+        database
     };
-    WriteStatement m_insertFileStatusesStatement{
+    WriteStatement insertFileStatusesStatement{
         "INSERT OR REPLACE INTO fileStatuses(sourceId, size, lastModified, isInPrecompiledHeader) VALUES (?,?,?,?)",
-        m_database
+        database
     };
-    WriteStatement m_syncNewSourceDependenciesStatement{
+    WriteStatement syncNewSourceDependenciesStatement{
         "INSERT INTO sourceDependencies(sourceId, dependencySourceId) SELECT sourceId, dependencySourceId FROM newSourceDependencies WHERE NOT EXISTS (SELECT sourceId FROM sourceDependencies WHERE sourceDependencies.sourceId == newSourceDependencies.sourceId AND sourceDependencies.dependencySourceId == newSourceDependencies.dependencySourceId)",
-        m_database
+        database
     };
-    WriteStatement m_deleteOutdatedSourceDependenciesStatement{
+    WriteStatement deleteOutdatedSourceDependenciesStatement{
         "DELETE FROM sourceDependencies WHERE sourceId IN (SELECT sourceId FROM newSourceDependencies) AND NOT EXISTS (SELECT sourceId FROM newSourceDependencies WHERE newSourceDependencies.sourceId == sourceDependencies.sourceId AND newSourceDependencies.dependencySourceId == sourceDependencies.dependencySourceId)",
-        m_database
+        database
     };
-    WriteStatement m_deleteNewSourceDependenciesStatement{
+    WriteStatement deleteNewSourceDependenciesStatement{
         "DELETE FROM newSourceDependencies",
-        m_database
+        database
     };
-    WriteStatement m_updateBuildDependencyTimeStampStatement{
+    WriteStatement updateBuildDependencyTimeStampStatement{
         "UPDATE fileStatuses SET buildDependencyTimeStamp = ? WHERE sourceId == ?",
-        m_database
+        database
     };
-    WriteStatement m_updateSourceTypeStatement{
+    WriteStatement updateSourceTypeStatement{
         "UPDATE projectPartsSources SET sourceType = ? WHERE sourceId == ?",
-        m_database
+        database
     };
-    mutable ReadStatement m_fetchSourceDependenciesStatement{
+    mutable ReadStatement fetchSourceDependenciesStatement{
         "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT dependencySourceId FROM sourceDependencies, collectedDependencies WHERE sourceDependencies.sourceId == collectedDependencies.sourceId) SELECT sourceId, buildDependencyTimeStamp, sourceType FROM collectedDependencies NATURAL JOIN projectPartsSources NATURAL JOIN fileStatuses WHERE projectPartId = ?",
-        m_database
+        database
     };
-    mutable ReadStatement m_fetchProjectPartIdStatement{
+    mutable ReadStatement fetchProjectPartIdStatement{
         "SELECT projectPartId FROM projectParts WHERE projectPartName = ?",
-        m_database
+        database
     };
-    mutable ReadStatement m_fetchUsedMacrosStatement{
+    mutable ReadStatement fetchUsedMacrosStatement{
         "SELECT macroName, sourceId FROM usedMacros WHERE sourceId = ?",
-        m_database
+        database
     };
 };
 }

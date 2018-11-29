@@ -1679,6 +1679,24 @@ TEST_F(TokenProcessor, QtOldStyleSignalFunctionPointerType)
     ASSERT_THAT(infos[10], HasOnlyType(HighlightingType::Type));
 }
 
+TEST_F(TokenProcessor, NonConstParameterConstructor)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(681, 90));
+
+    infos[1];
+
+    ASSERT_THAT(infos[4], Not(HasMixin(HighlightingType::OutputArgument)));
+}
+
+TEST_F(TokenProcessor, DISABLED_NonConstArgumentConstructor)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(686, 47));
+
+    infos[2];
+
+    ASSERT_THAT(infos[3], HasMixin(HighlightingType::OutputArgument));
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()
