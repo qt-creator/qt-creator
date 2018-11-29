@@ -87,6 +87,7 @@ public:
     void addMsvcCompatibilityVersion();
     void undefineCppLanguageFeatureMacrosForMsvc2015();
     void addDefineFunctionMacrosMsvc();
+    void addBoostWorkaroundMacros();
 
     void addProjectConfigFileInclude();
     void undefineClangVersionMacrosForMsvc();

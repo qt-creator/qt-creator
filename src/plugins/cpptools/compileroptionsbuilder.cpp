@@ -84,6 +84,7 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
     undefineClangVersionMacrosForMsvc();
     undefineCppLanguageFeatureMacrosForMsvc2015();
     addDefineFunctionMacrosMsvc();
+    addBoostWorkaroundMacros();
 
     addToolchainFlags();
     addPrecompiledHeaderOptions(pchUsage);
@@ -558,6 +559,14 @@ void CompilerOptionsBuilder::addDefineFunctionMacrosMsvc()
 {
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
         addMacros({{"__FUNCSIG__", "\"\""}, {"__FUNCTION__", "\"\""}, {"__FUNCDNAME__", "\"\""}});
+}
+
+void CompilerOptionsBuilder::addBoostWorkaroundMacros()
+{
+    if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
+          && m_projectPart.toolchainType != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
+        addMacros({{"BOOST_TYPE_INDEX_CTTI_USER_DEFINED_PARSING", "(39, 1, true, \"T = \")"}});
+    }
 }
 
 QString CompilerOptionsBuilder::includeDirOptionForPath(const QString &path) const
