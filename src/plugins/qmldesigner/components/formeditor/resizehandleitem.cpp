@@ -60,7 +60,7 @@ void ResizeHandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setPen(pen);
     painter->setRenderHint(QPainter::Antialiasing, false);
     painter->setBrush(QColor(255, 255, 255));
-    painter->drawRect(QRectF(-2., -2., 4., 4.));
+    painter->drawRect(QRectF(-3., -3., 5., 5.));
 
     painter->restore();
 }
