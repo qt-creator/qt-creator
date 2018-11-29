@@ -246,17 +246,13 @@ class Dumper(DumperBase):
             #warn('TARGET TYPE: %s' % targetType)
             if targetType.code == gdb.TYPE_CODE_ARRAY:
                 val = self.Value(self)
-                val.laddress = toInteger(nativeValue.address)
-                val.nativeValue = nativeValue
             else:
                 # Cast may fail (e.g for arrays, see test for Bug5799)
                 val = self.fromNativeValue(nativeValue.cast(targetType))
-            val.type = self.fromNativeType(nativeType)
-            val.nativeValue = nativeValue
             #warn('CREATED TYPEDEF: %s' % val)
-            return val
+        else:
+            val = self.Value(self)
 
-        val = self.Value(self)
         val.nativeValue = nativeValue
         if not nativeValue.address is None:
             val.laddress = toInteger(nativeValue.address)
