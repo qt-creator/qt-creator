@@ -97,7 +97,6 @@ protected:
     LanguageVersion msvcLanguageVersion(const Core::Id &language,
                                         const Macros &macros) const override;
 
-private:
     struct GenerateEnvResult
     {
         Utils::optional<QString> error;
@@ -106,6 +105,8 @@ private:
     static void environmentModifications(QFutureInterface<GenerateEnvResult> &future,
                                          QString vcvarsBat, QString varsBatArg);
     void initEnvModWatcher(const QFuture<GenerateEnvResult> &future);
+
+private:
     void updateEnvironmentModifications(QList<Utils::EnvironmentItem> modifications);
 
     mutable QList<Utils::EnvironmentItem> m_environmentModifications;

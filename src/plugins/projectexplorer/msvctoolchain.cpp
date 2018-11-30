@@ -1102,6 +1102,10 @@ void ClangClToolChain::resetMsvcToolChain(const MsvcToolChain *base)
     m_abi = base->targetAbi();
     m_vcvarsBat = base->varsBat();
     setVarsBatArg(base->varsBatArg());
+
+    initEnvModWatcher(Utils::runAsync(envModThreadPool(),
+                                      &ClangClToolChain::environmentModifications,
+                                      m_vcvarsBat, base->varsBatArg()));
 }
 
 bool ClangClToolChain::operator ==(const ToolChain &other) const
