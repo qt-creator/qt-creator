@@ -757,6 +757,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         if (state() == InferiorRunOk) {
             showStatusMessage(tr("Stopping temporarily."), 1000);
             m_onStop.append(cmd, wantContinue);
+            setState(InferiorStopRequested);
             interruptInferior();
             return;
         }
