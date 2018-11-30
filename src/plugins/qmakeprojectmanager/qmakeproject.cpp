@@ -1347,7 +1347,7 @@ QString QmakeProject::executableFor(const QmakeProFile *file)
     } else {
         const QString extension = file->singleVariableValue(Variable::TargetExt);
         if (extension.isEmpty())
-            target = HostOsInfo::withExecutableSuffix(ti.target);
+            target = OsSpecificAspects::withExecutableSuffix(Abi::abiOsToOsType(tc->targetAbi().os()), ti.target);
         else
             target = ti.target + extension;
     }

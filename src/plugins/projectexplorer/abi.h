@@ -27,6 +27,8 @@
 
 #include "projectexplorer_export.h"
 
+#include <utils/osspecificaspects.h>
+
 #include <QList>
 #include <QHash>
 
@@ -111,6 +113,8 @@ public:
         unsigned char w = 0);
 
     static Abi abiFromTargetTriplet(const QString &machineTriple);
+
+    static Utils::OsType abiOsToOsType(const OS os);
 
     bool operator != (const Abi &other) const;
     bool operator == (const Abi &other) const;
