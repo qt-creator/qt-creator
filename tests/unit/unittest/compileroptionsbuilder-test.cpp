@@ -89,8 +89,8 @@ TEST_F(CompilerOptionsBuilder, AddToolchainAndProjectMacrosWithoutSkipingLanguag
 {
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::SkipBuiltIn::No,
-                                                            CppTools:: SkipLanguageDefines::No};
+                                                            CppTools::UseBuiltin::Yes,
+                                                            CppTools::UseLanguageDefines::Yes};
 
     compilerOptionsBuilder.addToolchainAndProjectMacros();
 
@@ -147,8 +147,8 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersPath)
 {
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::SkipBuiltIn::No,
-                                                            CppTools::SkipLanguageDefines::Yes,
+                                                            CppTools::UseBuiltin::Yes,
+                                                            CppTools::UseLanguageDefines::No,
                                                             "7.0.0",
                                                             "");
 
@@ -176,8 +176,8 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderMacOs)
     projectPart.headerPaths.append(defaultPaths);
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::SkipBuiltIn::No,
-                                                            CppTools::SkipLanguageDefines::Yes,
+                                                            CppTools::UseBuiltin::Yes,
+                                                            CppTools::UseLanguageDefines::No,
                                                             "7.0.0",
                                                             "");
 
@@ -210,8 +210,8 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderLinux)
     projectPart.toolChainTargetTriple = "x86_64-linux-gnu";
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::SkipBuiltIn::No,
-                                                            CppTools::SkipLanguageDefines::Yes,
+                                                            CppTools::UseBuiltin::Yes,
+                                                            CppTools::UseLanguageDefines::No,
                                                             "7.0.0",
                                                             "");
 
@@ -240,8 +240,8 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderNoVersion)
     projectPart.toolChainTargetTriple = "x86_64-w64-windows-gnu";
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::SkipBuiltIn::No,
-                                                            CppTools::SkipLanguageDefines::Yes,
+                                                            CppTools::UseBuiltin::Yes,
+                                                            CppTools::UseLanguageDefines::No,
                                                             "7.0.0",
                                                             "");
 
@@ -277,8 +277,8 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
     projectPart.toolChainTargetTriple = "i686-linux-android";
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::SkipBuiltIn::No,
-                                                            CppTools::SkipLanguageDefines::Yes,
+                                                            CppTools::UseBuiltin::Yes,
+                                                            CppTools::UseLanguageDefines::No,
                                                             "7.0.0",
                                                             "");
 

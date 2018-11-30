@@ -33,16 +33,16 @@ namespace CppTools {
 
 enum class UsePrecompiledHeaders : char { Yes, No };
 enum class UseSystemHeader : char { Yes, No };
-enum class SkipBuiltIn : char { Yes, No };
-enum class SkipLanguageDefines : char { Yes, No };
+enum class UseBuiltin : char { Yes, No };
+enum class UseLanguageDefines : char { Yes, No };
 
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {
 public:
     CompilerOptionsBuilder(const ProjectPart &projectPart,
                            UseSystemHeader useSystemHeader = UseSystemHeader::No,
-                           SkipBuiltIn skipBuiltInHeaderPathsAndDefines = SkipBuiltIn::No,
-                           SkipLanguageDefines skipLanguageDefines = SkipLanguageDefines::Yes,
+                           UseBuiltin useBuiltInHeaderPathsAndDefines = UseBuiltin::Yes,
+                           UseLanguageDefines useLanguageDefines = UseLanguageDefines::No,
                            const QString &clangVersion = QString(),
                            const QString &clangResourceDirectory = QString());
 
@@ -85,8 +85,8 @@ private:
     const ProjectPart &m_projectPart;
 
     const UseSystemHeader m_useSystemHeader;
-    const SkipBuiltIn m_skipBuiltInHeaderPathsAndDefines;
-    const SkipLanguageDefines m_skipLanguageDefines;
+    const UseBuiltin m_useBuiltInHeaderPathsAndDefines;
+    const UseLanguageDefines m_useLanguageDefines;
 
     const QString m_clangVersion;
     const QString m_clangResourceDirectory;

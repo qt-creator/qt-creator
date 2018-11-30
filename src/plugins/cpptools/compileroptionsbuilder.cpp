@@ -73,14 +73,14 @@ static QString defineDirectiveToDefineOption(const ProjectExplorer::Macro &macro
 
 CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                UseSystemHeader useSystemHeader,
-                                               SkipBuiltIn skipBuiltInHeaderPathsAndDefines,
-                                               SkipLanguageDefines skipLanguageDefines,
+                                               UseBuiltin useBuiltInHeaderPathsAndDefines,
+                                               UseLanguageDefines useLanguageDefines,
                                                const QString &clangVersion,
                                                const QString &clangResourceDirectory)
     : m_projectPart(projectPart)
     , m_useSystemHeader(useSystemHeader)
-    , m_skipBuiltInHeaderPathsAndDefines(skipBuiltInHeaderPathsAndDefines)
-    , m_skipLanguageDefines(skipLanguageDefines)
+    , m_useBuiltInHeaderPathsAndDefines(useBuiltInHeaderPathsAndDefines)
+    , m_useLanguageDefines(useLanguageDefines)
     , m_clangVersion(clangVersion)
     , m_clangResourceDirectory(clangResourceDirectory)
 {
@@ -279,7 +279,7 @@ static int includeIndexForResourceDirectory(const QStringList &options, bool isM
 
 void CompilerOptionsBuilder::insertWrappedQtHeaders()
 {
-    if (m_skipBuiltInHeaderPathsAndDefines == SkipBuiltIn::Yes)
+    if (m_useBuiltInHeaderPathsAndDefines == UseBuiltin::No)
         return;
 
     QStringList wrappedQtHeaders;
@@ -343,7 +343,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     m_options.append(includes);
     m_options.append(systemIncludes);
 
-    if (m_skipBuiltInHeaderPathsAndDefines == SkipBuiltIn::Yes)
+    if (m_useBuiltInHeaderPathsAndDefines == UseBuiltin::No)
         return;
 
     // Exclude all built-in includes except Clang resource directory.
@@ -391,7 +391,7 @@ void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders u
 
 void CompilerOptionsBuilder::addToolchainAndProjectMacros()
 {
-    if (m_skipBuiltInHeaderPathsAndDefines == SkipBuiltIn::No)
+    if (m_useBuiltInHeaderPathsAndDefines == UseBuiltin::Yes)
         addMacros(m_projectPart.toolChainMacros);
     addMacros(m_projectPart.projectMacros);
 }
@@ -621,7 +621,7 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro
                                          "_MSVC_LANG",
                                          "_MSC_FULL_VER",
                                          "_MSC_VER"};
-    if (m_skipLanguageDefines == SkipLanguageDefines::Yes
+    if (m_useLanguageDefines == UseLanguageDefines::No
             && std::find(languageDefines.begin(),
                          languageDefines.end(),
                          macro.key) != languageDefines.end()) {
@@ -673,7 +673,7 @@ void CompilerOptionsBuilder::addToolchainFlags()
     // In case of MSVC we need builtin clang defines to correctly handle clang includes
     if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
             && m_projectPart.toolchainType != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-        if (m_skipBuiltInHeaderPathsAndDefines == SkipBuiltIn::No)
+        if (m_useBuiltInHeaderPathsAndDefines == UseBuiltin::Yes)
             add("-undef");
         else
             add("-fPIC");

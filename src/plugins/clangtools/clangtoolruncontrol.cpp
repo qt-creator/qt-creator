@@ -192,9 +192,9 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
     const UsePrecompiledHeaders usePrecompiledHeaders = CppTools::getPchUsage();
     for (const FileInfo &fileInfo : fileInfos) {
         CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
-                                              CppTools::UseSystemHeader::No,
-                                              CppTools::SkipBuiltIn::No,
-                                              CppTools::SkipLanguageDefines::Yes,
+                                              UseSystemHeader::No,
+                                              UseBuiltin::Yes,
+                                              UseLanguageDefines::No,
                                               QString(CLANG_VERSION),
                                               QString(CLANG_RESOURCE_DIR));
         QStringList arguments = extraClangToolsPrependOptions();
