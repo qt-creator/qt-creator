@@ -547,6 +547,27 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     return Abi(arch, os, flavor, format, width);
 }
 
+Utils::OsType Abi::abiOsToOsType(const Abi::OS os)
+{
+    switch (os) {
+    case ProjectExplorer::Abi::LinuxOS:
+        return Utils::OsType::OsTypeLinux;
+    case ProjectExplorer::Abi::DarwinOS:
+        return Utils::OsType::OsTypeMac;
+    case ProjectExplorer::Abi::BsdOS:
+    case ProjectExplorer::Abi::UnixOS:
+        return Utils::OsType::OsTypeOtherUnix;
+    case ProjectExplorer::Abi::WindowsOS:
+        return Utils::OsType::OsTypeWindows;
+    case ProjectExplorer::Abi::VxWorks:
+    case ProjectExplorer::Abi::QnxOS:
+    case ProjectExplorer::Abi::BareMetalOS:
+    case ProjectExplorer::Abi::UnknownOS:
+        return Utils::OsType::OsTypeOther;
+    }
+    return Utils::OsType::OsTypeOther;
+}
+
 QString Abi::toString() const
 {
     const QStringList dn = {toString(m_architecture), toString(m_os), toString(m_osFlavor),
