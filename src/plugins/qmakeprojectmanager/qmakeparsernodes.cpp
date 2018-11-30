@@ -42,6 +42,7 @@
 #include <qtsupport/profilereader.h>
 
 #include <utils/algorithm.h>
+#include <utils/filesystemwatcher.h>
 #include <utils/qtcprocess.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
@@ -151,6 +152,7 @@ public:
     InstallsList installsList;
     QHash<Variable, QStringList> newVarValues;
     QStringList errors;
+    QSet<QString> directoriesWithWildcards;
 };
 
 } // namespace Internal
@@ -1366,14 +1368,14 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
                 const QStringList vPathsExact = fullVPaths(
                             baseVPathsExact, exactReader, qmakeVariable, input.projectDir);
                 auto sourceFiles = exactReader->absoluteFileValues(
-                            qmakeVariable, input.projectDir, vPathsExact, &handled);
+                            qmakeVariable, input.projectDir, vPathsExact, &handled, result->directoriesWithWildcards);
                 exactSourceFiles[qmakeVariable] = sourceFiles;
                 extractSources(proToResult, &result->includedFiles.result, sourceFiles, type);
             }
             const QStringList vPathsCumulative = fullVPaths(
                         baseVPathsCumulative, cumulativeReader, qmakeVariable, input.projectDir);
             auto sourceFiles = cumulativeReader->absoluteFileValues(
-                        qmakeVariable, input.projectDir, vPathsCumulative, &handled);
+                        qmakeVariable, input.projectDir, vPathsCumulative, &handled, result->directoriesWithWildcards);
             cumulativeSourceFiles[qmakeVariable] = sourceFiles;
             extractSources(proToResult, &result->includedFiles.result, sourceFiles, type);
         }
@@ -1593,6 +1595,33 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
 
         m_displayName = singleVariableValue(Variable::QmakeProjectName);
     } // result == EvalOk
+
+    if (!result->directoriesWithWildcards.isEmpty()) {
+        if (!m_wildcardWatcher) {
+            m_wildcardWatcher = std::make_unique<Utils::FileSystemWatcher>();
+            QObject::connect(
+                m_wildcardWatcher.get(), &Utils::FileSystemWatcher::directoryChanged,
+                [this]() {
+                    scheduleUpdate();
+                });
+        }
+        m_wildcardWatcher->addDirectories(
+            Utils::filtered<QStringList>(result->directoriesWithWildcards.toList(),
+                [this](const QString &path) {
+                    return !m_wildcardWatcher->watchesDirectory(path);
+                }), Utils::FileSystemWatcher::WatchAllChanges);
+    }
+    if (m_wildcardWatcher) {
+        if (result->directoriesWithWildcards.isEmpty()) {
+            m_wildcardWatcher.reset();
+        } else {
+            m_wildcardWatcher->removeDirectories(
+                Utils::filtered<QStringList>(m_wildcardWatcher->directories(),
+                    [&result](const QString &path) {
+                        return !result->directoriesWithWildcards.contains(path);
+                    }));
+        }
+    }
 
     setParseInProgress(false);
 
