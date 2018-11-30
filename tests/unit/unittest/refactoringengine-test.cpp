@@ -150,9 +150,8 @@ void RefactoringEngine::SetUp()
     projectPart->files.push_back(projectFile);
 
     CompilerOptionsBuilder optionsBuilder(*projectPart);
-    commandLine = Utils::SmallStringVector(optionsBuilder.build(
-                                               projectFile.kind,
-                                               CompilerOptionsBuilder::PchUsage::None));
+    commandLine = Utils::SmallStringVector(
+        optionsBuilder.build(projectFile.kind, CppTools::UsePrecompiledHeaders::No));
     commandLine.push_back(qStringFilePath);
 }
 

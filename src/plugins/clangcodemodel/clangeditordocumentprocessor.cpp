@@ -568,14 +568,14 @@ private:
     {
         using namespace CppTools;
 
-        if (getPchUsage() == CompilerOptionsBuilder::PchUsage::None)
+        if (getPchUsage() == UsePrecompiledHeaders::No)
             return;
 
         if (m_projectPart.precompiledHeaders.contains(m_filePath))
             return;
 
         CompilerOptionsBuilder builder(m_projectPart);
-        builder.addPrecompiledHeaderOptions(CompilerOptionsBuilder::PchUsage::Use);
+        builder.addPrecompiledHeaderOptions(UsePrecompiledHeaders::Yes);
 
         m_options.append(builder.options());
     }

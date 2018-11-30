@@ -151,7 +151,7 @@ QStringList ProjectUpdater::compilerArguments(CppTools::ProjectPart *projectPart
 {
     using CppTools::CompilerOptionsBuilder;
     CompilerOptionsBuilder builder(*projectPart, CppTools::UseSystemHeader::Yes);
-    return builder.build(CppTools::ProjectFile::CXXHeader, CompilerOptionsBuilder::PchUsage::None);
+    return builder.build(CppTools::ProjectFile::CXXHeader, CppTools::UsePrecompiledHeaders::No);
 }
 
 ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(const ProjectExplorer::Macros &projectMacros)

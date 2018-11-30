@@ -75,7 +75,7 @@ void CPPTOOLS_EXPORT switchHeaderSource();
 class CppCodeModelSettings;
 QSharedPointer<CppCodeModelSettings> CPPTOOLS_EXPORT codeModelSettings();
 
-CompilerOptionsBuilder::PchUsage CPPTOOLS_EXPORT getPchUsage();
+UsePrecompiledHeaders CPPTOOLS_EXPORT getPchUsage();
 
 int indexerFileSizeLimitInMb();
 bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb);

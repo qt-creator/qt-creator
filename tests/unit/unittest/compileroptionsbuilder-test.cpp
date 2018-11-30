@@ -310,14 +310,14 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
 
 TEST_F(CompilerOptionsBuilder, NoPrecompiledHeader)
 {
-    compilerOptionsBuilder.addPrecompiledHeaderOptions(CppTools::CompilerOptionsBuilder::PchUsage::None);
+    compilerOptionsBuilder.addPrecompiledHeaderOptions(CppTools::UsePrecompiledHeaders::No);
 
     ASSERT_THAT(compilerOptionsBuilder.options().empty(), true);
 }
 
 TEST_F(CompilerOptionsBuilder, UsePrecompiledHeader)
 {
-    compilerOptionsBuilder.addPrecompiledHeaderOptions(CppTools::CompilerOptionsBuilder::PchUsage::Use);
+    compilerOptionsBuilder.addPrecompiledHeaderOptions(CppTools::UsePrecompiledHeaders::Yes);
 
     ASSERT_THAT(compilerOptionsBuilder.options(),
                 ElementsAre("-include", QDir::toNativeSeparators(TESTDATA_DIR "/compileroptionsbuilder.pch")));
@@ -434,7 +434,7 @@ TEST_F(CompilerOptionsBuilder, UndefineClangVersionMacrosForMsvc)
 
 TEST_F(CompilerOptionsBuilder, BuildAllOptions)
 {
-    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::CompilerOptionsBuilder::PchUsage::None);
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
 
     ASSERT_THAT(compilerOptionsBuilder.options(),
                 ElementsAre(

@@ -69,8 +69,8 @@ public:
     LibClangOptionsBuilder(const ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart,
                                  UseSystemHeader::No,
-                                 CppTools::SkipBuiltIn::No,
-                                 CppTools::SkipLanguageDefines::Yes,
+                                 SkipBuiltIn::No,
+                                 SkipLanguageDefines::Yes,
                                  QString(CLANG_VERSION),
                                  QString(CLANG_RESOURCE_DIR))
     {
@@ -105,8 +105,7 @@ private:
 
 QStringList createClangOptions(const ProjectPart &projectPart, ProjectFile::Kind fileKind)
 {
-    return LibClangOptionsBuilder(projectPart)
-        .build(fileKind, CompilerOptionsBuilder::PchUsage::None);
+    return LibClangOptionsBuilder(projectPart).build(fileKind, UsePrecompiledHeaders::No);
 }
 
 ProjectPart::Ptr projectPartForFile(const QString &filePath)
@@ -341,7 +340,7 @@ void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo p
                                               CppTools::UseSystemHeader::No,
                                               CppTools::SkipBuiltIn::Yes);
         optionsBuilder.build(CppTools::ProjectFile::Unclassified,
-                             CppTools::CompilerOptionsBuilder::PchUsage::None);
+                             CppTools::UsePrecompiledHeaders::No);
 
         for (const ProjectFile &projFile : projectPart->files) {
             const QJsonObject json = createFileObject(optionsBuilder, projFile, buildDir);

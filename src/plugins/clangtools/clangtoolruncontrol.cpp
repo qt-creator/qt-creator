@@ -189,7 +189,7 @@ private:
 static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
 {
     AnalyzeUnits unitsToAnalyze;
-    const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();
+    const UsePrecompiledHeaders usePrecompiledHeaders = CppTools::getPchUsage();
     for (const FileInfo &fileInfo : fileInfos) {
         CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
                                               CppTools::UseSystemHeader::No,
@@ -198,7 +198,7 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
                                               QString(CLANG_VERSION),
                                               QString(CLANG_RESOURCE_DIR));
         QStringList arguments = extraClangToolsPrependOptions();
-        arguments.append(optionsBuilder.build(fileInfo.kind, pchUsage));
+        arguments.append(optionsBuilder.build(fileInfo.kind, usePrecompiledHeaders));
         arguments.append(extraClangToolsAppendOptions());
         unitsToAnalyze << AnalyzeUnit(fileInfo.file.toString(), arguments);
     }

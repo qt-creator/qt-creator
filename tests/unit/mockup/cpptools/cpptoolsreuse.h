@@ -29,6 +29,6 @@
 
 namespace CppTools {
 
-inline CompilerOptionsBuilder::PchUsage getPchUsage() { return CompilerOptionsBuilder::PchUsage::None; }
+inline CppTools::UsePrecompiledHeaders getPchUsage() { return UsePrecompiledHeaders::No; }
 
 } // CppTools
