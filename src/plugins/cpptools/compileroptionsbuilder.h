@@ -33,7 +33,8 @@ namespace CppTools {
 
 enum class UsePrecompiledHeaders : char { Yes, No };
 enum class UseSystemHeader : char { Yes, No };
-enum class UseBuiltin : char { Yes, No };
+enum class UseTweakedHeaderPaths : char { Yes, No };
+enum class UseToolchainMacros : char { Yes, No };
 enum class UseLanguageDefines : char { Yes, No };
 
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
@@ -41,7 +42,8 @@ class CPPTOOLS_EXPORT CompilerOptionsBuilder
 public:
     CompilerOptionsBuilder(const ProjectPart &projectPart,
                            UseSystemHeader useSystemHeader = UseSystemHeader::No,
-                           UseBuiltin useBuiltInHeaderPathsAndDefines = UseBuiltin::Yes,
+                           UseToolchainMacros useToolchainMacros = UseToolchainMacros::Yes,
+                           UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::Yes,
                            UseLanguageDefines useLanguageDefines = UseLanguageDefines::No,
                            const QString &clangVersion = QString(),
                            const QString &clangResourceDirectory = QString());
@@ -85,7 +87,8 @@ private:
     const ProjectPart &m_projectPart;
 
     const UseSystemHeader m_useSystemHeader;
-    const UseBuiltin m_useBuiltInHeaderPathsAndDefines;
+    const UseToolchainMacros m_useToolchainMacros;
+    const UseTweakedHeaderPaths m_useTweakedHeaderPaths;
     const UseLanguageDefines m_useLanguageDefines;
 
     const QString m_clangVersion;

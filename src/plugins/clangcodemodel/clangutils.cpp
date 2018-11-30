@@ -69,7 +69,8 @@ public:
     LibClangOptionsBuilder(const ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart,
                                  UseSystemHeader::No,
-                                 UseBuiltin::Yes,
+                                 UseToolchainMacros::Yes,
+                                 UseTweakedHeaderPaths::Yes,
                                  UseLanguageDefines::No,
                                  QString(CLANG_VERSION),
                                  QString(CLANG_RESOURCE_DIR))
@@ -336,7 +337,10 @@ void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo p
     for (ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
         const ::Utils::FileName buildDir = buildDirectory(*projectPart);
 
-        CompilerOptionsBuilder optionsBuilder(*projectPart, UseSystemHeader::No, UseBuiltin::No);
+        CompilerOptionsBuilder optionsBuilder(*projectPart,
+                                              UseSystemHeader::No,
+                                              UseToolchainMacros::No,
+                                              UseTweakedHeaderPaths::No);
         optionsBuilder.build(CppTools::ProjectFile::Unclassified,
                              CppTools::UsePrecompiledHeaders::No);
 

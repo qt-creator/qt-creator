@@ -73,13 +73,15 @@ static QString defineDirectiveToDefineOption(const ProjectExplorer::Macro &macro
 
 CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                UseSystemHeader useSystemHeader,
-                                               UseBuiltin useBuiltInHeaderPathsAndDefines,
+                                               UseToolchainMacros useToolchainMacros,
+                                               UseTweakedHeaderPaths useTweakedHeaderPaths,
                                                UseLanguageDefines useLanguageDefines,
                                                const QString &clangVersion,
                                                const QString &clangResourceDirectory)
     : m_projectPart(projectPart)
     , m_useSystemHeader(useSystemHeader)
-    , m_useBuiltInHeaderPathsAndDefines(useBuiltInHeaderPathsAndDefines)
+    , m_useToolchainMacros(useToolchainMacros)
+    , m_useTweakedHeaderPaths(useTweakedHeaderPaths)
     , m_useLanguageDefines(useLanguageDefines)
     , m_clangVersion(clangVersion)
     , m_clangResourceDirectory(clangResourceDirectory)
@@ -279,7 +281,7 @@ static int includeIndexForResourceDirectory(const QStringList &options, bool isM
 
 void CompilerOptionsBuilder::insertWrappedQtHeaders()
 {
-    if (m_useBuiltInHeaderPathsAndDefines == UseBuiltin::No)
+    if (m_useTweakedHeaderPaths == UseTweakedHeaderPaths::No)
         return;
 
     QStringList wrappedQtHeaders;
@@ -343,7 +345,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     m_options.append(includes);
     m_options.append(systemIncludes);
 
-    if (m_useBuiltInHeaderPathsAndDefines == UseBuiltin::No)
+    if (m_useTweakedHeaderPaths == UseTweakedHeaderPaths::No)
         return;
 
     // Exclude all built-in includes except Clang resource directory.
@@ -391,7 +393,7 @@ void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders u
 
 void CompilerOptionsBuilder::addToolchainAndProjectMacros()
 {
-    if (m_useBuiltInHeaderPathsAndDefines == UseBuiltin::Yes)
+    if (m_useToolchainMacros == UseToolchainMacros::Yes)
         addMacros(m_projectPart.toolChainMacros);
     addMacros(m_projectPart.projectMacros);
 }
@@ -673,7 +675,7 @@ void CompilerOptionsBuilder::addToolchainFlags()
     // In case of MSVC we need builtin clang defines to correctly handle clang includes
     if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
             && m_projectPart.toolchainType != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-        if (m_useBuiltInHeaderPathsAndDefines == UseBuiltin::Yes)
+        if (m_useToolchainMacros == UseToolchainMacros::Yes)
             add("-undef");
         else
             add("-fPIC");
