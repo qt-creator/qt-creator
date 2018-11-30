@@ -98,7 +98,8 @@ protected:
     // Function must be thread-safe!
     virtual Macros msvcPredefinedMacros(const QStringList cxxflags,
                                         const Utils::Environment& env) const = 0;
-    virtual LanguageVersion msvcLanguageVersion(const Core::Id &language,
+    virtual LanguageVersion msvcLanguageVersion(const QStringList cxxflags,
+                                                const Core::Id &language,
                                                 const Macros &macros) const = 0;
 
     Utils::FileName m_debuggerCommand;

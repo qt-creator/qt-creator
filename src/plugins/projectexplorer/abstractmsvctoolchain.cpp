@@ -129,7 +129,8 @@ ToolChain::MacroInspectionRunner AbstractMsvcToolChain::createMacroInspectionRun
 
         const Macros macros = msvcPredefinedMacros(filteredFlags, env);
 
-        const auto report = MacroInspectionReport{macros, msvcLanguageVersion(lang, macros)};
+        const auto report = MacroInspectionReport{macros,
+                                                  msvcLanguageVersion(filteredFlags, lang, macros)};
         macroCache->insert(filteredFlags, report);
 
         return report;
