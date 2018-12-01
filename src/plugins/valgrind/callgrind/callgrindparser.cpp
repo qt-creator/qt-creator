@@ -285,11 +285,11 @@ void Parser::Private::parseHeader(QIODevice *device)
             continue;
         } else if (line.startsWith("positions: ")) {
             QString values = getValue(line, 11);
-            data->setPositions(values.split(QLatin1Char(' '), QString::SkipEmptyParts));
+            data->setPositions(values.split(' ', QString::SkipEmptyParts));
             addressValuesCount = data->positions().count();
         } else if (line.startsWith("events: ")) {
             QString values = getValue(line, 8);
-            data->setEvents(values.split(QLatin1Char(' '), QString::SkipEmptyParts));
+            data->setEvents(values.split(' ', QString::SkipEmptyParts));
             costValuesCount = data->events().count();
         } else if (line.startsWith("version: ")) {
             QString value = getValue(line, 9);
@@ -312,7 +312,7 @@ void Parser::Private::parseHeader(QIODevice *device)
         } else if (line.startsWith("summary: ")) {
             QString values = getValue(line, 9);
             uint i = 0;
-            foreach (const QStringRef &value, values.splitRef(QLatin1Char(' '), QString::SkipEmptyParts))
+            foreach (const QStringRef &value, values.splitRef(' ', QString::SkipEmptyParts))
                 data->setTotalCost(i++, value.toULongLong());
         } else if (!line.trimmed().isEmpty()) {
             // handle line and exit parseHeader
@@ -530,7 +530,7 @@ void Parser::Private::parseSourceFile(const char *begin, const char *end)
 
     if (!name.second.isEmpty()) {
         data->addCompressedFile(name.second, name.first);
-        if (name.second == QLatin1String("???"))
+        if (name.second == "???")
             unknownFiles << name.first;
     }
 
@@ -560,7 +560,7 @@ void Parser::Private::parseDifferingSourceFile(const char *begin, const char *en
 
     if (!name.second.isEmpty()) {
         data->addCompressedFile(name.second, name.first);
-        if (name.second == QLatin1String("???"))
+        if (name.second == "???")
             unknownFiles << name.first;
     }
 
@@ -611,7 +611,7 @@ void Parser::Private::parseCalledSourceFile(const char *begin, const char *end)
     NamePair name = parseName(begin, end);
     if (!name.second.isEmpty()) {
         data->addCompressedFile(name.second, name.first);
-        if (name.second == QLatin1String("???"))
+        if (name.second == "???")
             unknownFiles << name.first;
     }
 

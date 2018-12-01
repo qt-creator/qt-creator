@@ -79,7 +79,7 @@ static QString suppressionText(const Error &error)
             newName = frame.object();
 
         if (!newName.isEmpty())
-            sup.setName(newName + QLatin1Char('[') + sup.kind() + QLatin1Char(']'));
+            sup.setName(newName + '[' + sup.kind() + ']');
     }
 
     return sup.toString();
@@ -129,7 +129,7 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
     suppressionsLabel->setBuddy(m_suppressionEdit);
 
     QFont font;
-    font.setFamily(QLatin1String("Monospace"));
+    font.setFamily("Monospace");
     m_suppressionEdit->setFont(font);
 
     m_buttonBox = new QDialogButtonBox(this);
@@ -150,9 +150,9 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
     }
 
     m_fileChooser->setExpectedKind(Utils::PathChooser::File);
-    m_fileChooser->setHistoryCompleter(QLatin1String("Valgrind.Suppression.History"));
+    m_fileChooser->setHistoryCompleter("Valgrind.Suppression.History");
     m_fileChooser->setPath(defaultSuppFile.fileName());
-    m_fileChooser->setPromptDialogFilter(QLatin1String("*.supp"));
+    m_fileChooser->setPromptDialogFilter("*.supp");
     m_fileChooser->setPromptDialogTitle(tr("Select Suppression File"));
 
     QString suppressions;

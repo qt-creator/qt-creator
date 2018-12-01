@@ -145,7 +145,7 @@ QString Frame::filePath() const
 {
     QString f;
     if (!directory().isEmpty())
-        f.append(directory()).append(QLatin1Char('/'));
+        f.append(directory()).append('/');
     return f.append(fileName());
 }
 

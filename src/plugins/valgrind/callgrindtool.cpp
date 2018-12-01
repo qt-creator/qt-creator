@@ -220,7 +220,7 @@ public:
 
 CallgrindTool::CallgrindTool()
 {
-    setObjectName(QLatin1String("CallgrindTool"));
+    setObjectName("CallgrindTool");
 
     m_updateTimer.setInterval(200);
     m_updateTimer.setSingleShot(true);
@@ -310,14 +310,14 @@ CallgrindTool::CallgrindTool()
     //
     m_visualization = new Visualization;
     m_visualization->setFrameStyle(QFrame::NoFrame);
-    m_visualization->setObjectName(QLatin1String("Valgrind.CallgrindTool.Visualisation"));
+    m_visualization->setObjectName("Valgrind.CallgrindTool.Visualisation");
     m_visualization->setWindowTitle(tr("Visualization"));
     m_visualization->setModel(&m_dataModel);
     connect(m_visualization, &Visualization::functionActivated,
             this, &CallgrindTool::visualisationFunctionSelected);
 
     m_callersView = new CostView;
-    m_callersView->setObjectName(QLatin1String("Valgrind.CallgrindTool.CallersView"));
+    m_callersView->setObjectName("Valgrind.CallgrindTool.CallersView");
     m_callersView->setWindowTitle(tr("Callers"));
     m_callersView->setSettings(coreSettings, "Valgrind.CallgrindTool.CallersView");
     m_callersView->sortByColumn(CallModel::CostColumn);
@@ -330,7 +330,7 @@ CallgrindTool::CallgrindTool()
             this, &CallgrindTool::callerFunctionSelected);
 
     m_calleesView = new CostView;
-    m_calleesView->setObjectName(QLatin1String("Valgrind.CallgrindTool.CalleesView"));
+    m_calleesView->setObjectName("Valgrind.CallgrindTool.CalleesView");
     m_calleesView->setWindowTitle(tr("Callees"));
     m_calleesView->setSettings(coreSettings, "Valgrind.CallgrindTool.CalleesView");
     m_calleesView->sortByColumn(CallModel::CostColumn);
@@ -343,7 +343,7 @@ CallgrindTool::CallgrindTool()
             this, &CallgrindTool::calleeFunctionSelected);
 
     m_flatView = new CostView;
-    m_flatView->setObjectName(QLatin1String("Valgrind.CallgrindTool.FlatView"));
+    m_flatView->setObjectName("Valgrind.CallgrindTool.FlatView");
     m_flatView->setWindowTitle(tr("Functions"));
     m_flatView->setSettings(coreSettings, "Valgrind.CallgrindTool.FlatView");
     m_flatView->sortByColumn(DataModel::SelfCostColumn);
@@ -461,7 +461,7 @@ CallgrindTool::CallgrindTool()
     auto button = new QToolButton;
     button->addActions(group->actions());
     button->setPopupMode(QToolButton::InstantPopup);
-    button->setText(QLatin1String("$"));
+    button->setText("$");
     button->setToolTip(tr("Cost Format"));
     m_perspective.addToolBarWidget(button);
     }
@@ -469,15 +469,15 @@ CallgrindTool::CallgrindTool()
     ValgrindGlobalSettings *settings = ValgrindPlugin::globalSettings();
 
     // Cycle detection
-    //action = new QAction(QLatin1String("Cycle Detection"), this); ///FIXME: icon
-    action = m_cycleDetection = new QAction(QLatin1String("O"), this); ///FIXME: icon
+    //action = new QAction("Cycle Detection", this); ///FIXME: icon
+    action = m_cycleDetection = new QAction("O", this); ///FIXME: icon
     action->setToolTip(tr("Enable cycle detection to properly handle recursive or circular function calls."));
     action->setCheckable(true);
     connect(action, &QAction::toggled, &m_dataModel, &DataModel::enableCycleDetection);
     connect(action, &QAction::toggled, settings, &ValgrindGlobalSettings::setDetectCycles);
 
     // Shorter template signature
-    action = m_shortenTemplates = new QAction(QLatin1String("<>"), this);
+    action = m_shortenTemplates = new QAction("<>", this);
     action->setToolTip(tr("Remove template parameter lists when displaying function names."));
     action->setCheckable(true);
     connect(action, &QAction::toggled, &m_dataModel, &DataModel::setShortenTemplates);
@@ -873,7 +873,7 @@ void CallgrindTool::handleShowCostsOfFunction()
     CPlusPlus::Overview view;
     const QString qualifiedFunctionName = view.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(symbol));
 
-    m_toggleCollectFunction = qualifiedFunctionName + QLatin1String("()");
+    m_toggleCollectFunction = qualifiedFunctionName + "()";
     m_startAction->trigger();
 }
 
@@ -937,7 +937,7 @@ void CallgrindTool::createTextMarks()
         const QModelIndex index = m_dataModel.index(row, DataModel::InclusiveCostColumn);
 
         QString fileName = index.data(DataModel::FileNameRole).toString();
-        if (fileName.isEmpty() || fileName == QLatin1String("???"))
+        if (fileName.isEmpty() || fileName == "???")
             continue;
 
         bool ok = false;

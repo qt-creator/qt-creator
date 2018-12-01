@@ -63,7 +63,7 @@ static bool on64bit()
 
 static QString srcDirForApp(const QString &app)
 {
-    return QDir::cleanPath(appSrcDir + QLatin1Char('/') + app);
+    return QDir::cleanPath(appSrcDir + '/' + app);
 }
 
 ValgrindTestRunnerTest::ValgrindTestRunnerTest(QObject *parent)
@@ -147,7 +147,7 @@ void ValgrindTestRunnerTest::init()
 
 void ValgrindTestRunnerTest::testLeak1()
 {
-    const QString binary = runTestBinary(QLatin1String("leak1/leak1"));
+    const QString binary = runTestBinary("leak1/leak1");
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -166,24 +166,24 @@ void ValgrindTestRunnerTest::testLeak1()
     {
         const Frame frame = stack.frames().at(0);
         if (on64bit())
-            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+            QCOMPARE(frame.functionName(), "operator new(unsigned long)");
         else
-            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned int)"));
+            QCOMPARE(frame.functionName(), "operator new(unsigned int)");
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QLatin1String("main"));
+        QCOMPARE(frame.functionName(), "main");
         QCOMPARE(frame.line(), 5 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+        QCOMPARE(frame.fileName(), "main.cpp");
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak1"));
     }
 }
 
 void ValgrindTestRunnerTest::testLeak2()
 {
-    const QString binary = runTestBinary(QLatin1String("leak2/leak2"));
+    const QString binary = runTestBinary("leak2/leak2");
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -200,30 +200,30 @@ void ValgrindTestRunnerTest::testLeak2()
     QCOMPARE(stack.frames().count(), 3);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QLatin1String("malloc"));
+        QCOMPARE(frame.functionName(), "malloc");
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QLatin1String("strdup"));
+        QCOMPARE(frame.functionName(), "strdup");
     }
     {
         const Frame frame = stack.frames().at(2);
         if (on64bit()) {
-            QCOMPARE(frame.functionName(), QLatin1String("main"));
+            QCOMPARE(frame.functionName(), "main");
             QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
             QCOMPARE(frame.object(), binary);
-            QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+            QCOMPARE(frame.fileName(), "main.cpp");
             QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak2"));
         } else {
-           QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
+           QCOMPARE(frame.functionName(), "(below main)");
         }
     }
 }
 
 void ValgrindTestRunnerTest::testLeak3()
 {
-    const QString binary = runTestBinary(QLatin1String("leak3/leak3"), QStringList() << "--show-reachable=yes");
+    const QString binary = runTestBinary("leak3/leak3", QStringList{"--show-reachable=yes"});
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -240,23 +240,23 @@ void ValgrindTestRunnerTest::testLeak3()
     QCOMPARE(stack.frames().count(), 3);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QLatin1String("malloc"));
+        QCOMPARE(frame.functionName(), "malloc");
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QLatin1String("strdup"));
+        QCOMPARE(frame.functionName(), "strdup");
     }
     {
         const Frame frame = stack.frames().at(2);
         if (on64bit()) {
-            QCOMPARE(frame.functionName(), QLatin1String("main"));
+            QCOMPARE(frame.functionName(), "main");
             QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
             QCOMPARE(frame.object(), binary);
-            QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+            QCOMPARE(frame.fileName(), "main.cpp");
             QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak3"));
         } else {
-            QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
+            QCOMPARE(frame.functionName(), "(below main)");
         }
     }
 }
@@ -264,7 +264,7 @@ void ValgrindTestRunnerTest::testLeak3()
 void ValgrindTestRunnerTest::testLeak4()
 {
     const QString app("leak4");
-    const QString binary = runTestBinary(app + QLatin1Char('/') + app,
+    const QString binary = runTestBinary(app + '/' + app,
                                          QStringList() << "--show-reachable=yes");
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
@@ -290,26 +290,26 @@ void ValgrindTestRunnerTest::testLeak4()
     {
         const Frame frame = stack.frames().at(0);
         if (on64bit())
-            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+            QCOMPARE(frame.functionName(), "operator new(unsigned long)");
         else
-            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned int)"));
+            QCOMPARE(frame.functionName(), "operator new(unsigned int)");
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QLatin1String("Foo::Foo()"));
+        QCOMPARE(frame.functionName(), "Foo::Foo()");
         QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+        QCOMPARE(frame.fileName(), "main.cpp");
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     {
         const Frame frame = stack.frames().at(2);
-        QCOMPARE(frame.functionName(), QLatin1String("main"));
+        QCOMPARE(frame.functionName(), "main");
         QCOMPARE(frame.line(), 14 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+        QCOMPARE(frame.fileName(), "main.cpp");
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -331,17 +331,17 @@ void ValgrindTestRunnerTest::testLeak4()
     {
         const Frame frame = stack.frames().at(0);
         if (on64bit())
-            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+            QCOMPARE(frame.functionName(), "operator new(unsigned long)");
         else
-            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned int)"));
+            QCOMPARE(frame.functionName(), "operator new(unsigned int)");
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QLatin1String("main"));
+        QCOMPARE(frame.functionName(), "main");
         QCOMPARE(frame.line(), 14 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+        QCOMPARE(frame.fileName(), "main.cpp");
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -350,7 +350,7 @@ void ValgrindTestRunnerTest::testLeak4()
 void ValgrindTestRunnerTest::testUninit1()
 {
     const QString app("uninit1");
-    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    const QString binary = runTestBinary(app + '/' + app);
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -369,11 +369,11 @@ void ValgrindTestRunnerTest::testUninit1()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     //BEGIN second stack
@@ -383,11 +383,11 @@ void ValgrindTestRunnerTest::testUninit1()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -396,7 +396,7 @@ void ValgrindTestRunnerTest::testUninit2()
 {
     const QString app("uninit2");
     m_expectCrash = true;
-    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    const QString binary = runTestBinary(app + '/' + app);
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -417,11 +417,11 @@ void ValgrindTestRunnerTest::testUninit2()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     //BEGIN second stack
@@ -431,11 +431,11 @@ void ValgrindTestRunnerTest::testUninit2()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -450,11 +450,11 @@ void ValgrindTestRunnerTest::testUninit2()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -463,7 +463,7 @@ void ValgrindTestRunnerTest::testUninit3()
 {
     const QString app("uninit3");
     m_expectCrash = true;
-    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    const QString binary = runTestBinary(app + '/' + app);
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -484,11 +484,11 @@ void ValgrindTestRunnerTest::testUninit3()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     //BEGIN second stack
@@ -498,11 +498,11 @@ void ValgrindTestRunnerTest::testUninit3()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -517,11 +517,11 @@ void ValgrindTestRunnerTest::testUninit3()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -529,7 +529,7 @@ void ValgrindTestRunnerTest::testUninit3()
 void ValgrindTestRunnerTest::testSyscall()
 {
     const QString app("syscall");
-    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    const QString binary = runTestBinary(app + '/' + app);
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -550,25 +550,25 @@ void ValgrindTestRunnerTest::testSyscall()
 
         {
             const Frame frame = stack.frames().at(0);
-            QCOMPARE(frame.functionName(), QLatin1String("_Exit"));
+            QCOMPARE(frame.functionName(), "_Exit");
         }
         {
             const Frame frame = stack.frames().at(1);
-            QCOMPARE(frame.functionName(), QLatin1String("__run_exit_handlers"));
+            QCOMPARE(frame.functionName(), "__run_exit_handlers");
         }
         {
             const Frame frame = stack.frames().at(2);
-            QCOMPARE(frame.functionName(), QLatin1String("exit"));
+            QCOMPARE(frame.functionName(), "exit");
         }
         {
             const Frame frame = stack.frames().at(3);
-            QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
+            QCOMPARE(frame.functionName(), "(below main)");
         }
     } else {
         QCOMPARE(stack.frames().count(), 1);
         {
             const Frame frame = stack.frames().at(0);
-            QCOMPARE(frame.functionName(), QLatin1String("_Exit"));
+            QCOMPARE(frame.functionName(), "_Exit");
         }
     }
     }
@@ -579,11 +579,11 @@ void ValgrindTestRunnerTest::testSyscall()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -591,7 +591,7 @@ void ValgrindTestRunnerTest::testSyscall()
 void ValgrindTestRunnerTest::testFree1()
 {
     const QString app("free1");
-    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    const QString binary = runTestBinary(app + '/' + app);
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -611,15 +611,15 @@ void ValgrindTestRunnerTest::testFree1()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("operator delete(void*)"));
+    QCOMPARE(frame.functionName(), "operator delete(void*)");
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -631,15 +631,15 @@ void ValgrindTestRunnerTest::testFree1()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("operator delete(void*)"));
+    QCOMPARE(frame.functionName(), "operator delete(void*)");
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -648,7 +648,7 @@ void ValgrindTestRunnerTest::testFree1()
 void ValgrindTestRunnerTest::testFree2()
 {
     const QString app("free2");
-    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    const QString binary = runTestBinary(app + '/' + app);
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -668,15 +668,15 @@ void ValgrindTestRunnerTest::testFree2()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("free"));
+    QCOMPARE(frame.functionName(), "free");
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -690,17 +690,17 @@ void ValgrindTestRunnerTest::testFree2()
     {
     const Frame frame = stack.frames().first();
     if (on64bit())
-        QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+        QCOMPARE(frame.functionName(), "operator new(unsigned long)");
     else
-        QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned int)"));
+        QCOMPARE(frame.functionName(), "operator new(unsigned int)");
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), QLatin1String("main"));
+    QCOMPARE(frame.functionName(), "main");
     QCOMPARE(frame.line(), 5 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+    QCOMPARE(frame.fileName(), "main.cpp");
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -710,7 +710,7 @@ void ValgrindTestRunnerTest::testInvalidjump()
 {
     const QString app("invalidjump");
     m_expectCrash = true;
-    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    const QString binary = runTestBinary(app + '/' + app);
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -731,7 +731,7 @@ void ValgrindTestRunnerTest::testInvalidjump()
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
+        QCOMPARE(frame.functionName(), "(below main)");
     }
 }
 
@@ -739,7 +739,7 @@ void ValgrindTestRunnerTest::testOverlap()
 {
     const QString app("overlap");
     m_expectCrash = true;
-    const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    const QString binary = runTestBinary(app + '/' + app);
     if (binary.isEmpty())
         QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
               "manually before executing this test.");
@@ -756,15 +756,15 @@ void ValgrindTestRunnerTest::testOverlap()
     QCOMPARE(stack.frames().count(), 2);
     {
         const Frame frame = stack.frames().at(0);
-        QVERIFY(frame.functionName().startsWith(QLatin1String("memcpy")));
+        QVERIFY(frame.functionName().startsWith("memcpy"));
     }
     {
         const Frame frame = stack.frames().last();
-        QCOMPARE(frame.functionName(), QLatin1String("main"));
+        QCOMPARE(frame.functionName(), "main");
         QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
+        QCOMPARE(frame.fileName(), "main.cpp");
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }

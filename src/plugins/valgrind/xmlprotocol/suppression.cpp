@@ -102,9 +102,9 @@ void SuppressionFrame::setObject(const QString &obj)
 QString SuppressionFrame::toString() const
 {
     if (!d->fun.isEmpty())
-        return QLatin1String("fun:") + d->fun;
+        return "fun:" + d->fun;
     else
-        return QLatin1String("obj:") + d->obj;
+        return "obj:" + d->obj;
 }
 
 class Suppression::Private : public QSharedData
@@ -222,7 +222,7 @@ QString Suppression::toString() const
 {
     QString ret;
     QTextStream stream(&ret);
-    const QLatin1String indent("   ");
+    const QString indent("   ");
 
     stream << "{\n";
     stream << indent << d->name << '\n';

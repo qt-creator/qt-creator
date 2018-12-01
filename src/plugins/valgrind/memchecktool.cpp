@@ -276,8 +276,8 @@ static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &pr
 
         //if no frame belonging to the project was found, return the first one that is not malloc/new
         foreach (const Frame &frame, frames) {
-            if (!frame.functionName().isEmpty() && frame.functionName() != QLatin1String("malloc")
-                && !frame.functionName().startsWith(QLatin1String("operator new(")))
+            if (!frame.functionName().isEmpty() && frame.functionName() != "malloc"
+                && !frame.functionName().startsWith("operator new("))
             {
                 return frame;
             }
@@ -508,7 +508,7 @@ MemcheckTool::MemcheckTool()
 {
     m_settings = ValgrindPlugin::globalSettings();
 
-    setObjectName(QLatin1String("MemcheckTool"));
+    setObjectName("MemcheckTool");
 
     m_filterProjectAction = new QAction(tr("External Errors"), this);
     m_filterProjectAction->setToolTip(
@@ -539,7 +539,7 @@ MemcheckTool::MemcheckTool()
     m_errorFilterActions.append(a);
 
     m_errorView = new MemcheckErrorView;
-    m_errorView->setObjectName(QLatin1String("MemcheckErrorView"));
+    m_errorView->setObjectName("MemcheckErrorView");
     m_errorView->setFrameStyle(QFrame::NoFrame);
     m_errorView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_errorModel.setRelevantFrameFinder(makeFrameFinder(QStringList()));
@@ -551,7 +551,7 @@ MemcheckTool::MemcheckTool()
     m_errorView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_errorView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_errorView->setAutoScroll(false);
-    m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
+    m_errorView->setObjectName("Valgrind.MemcheckTool.ErrorView");
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
     m_perspective.addWindow(m_errorView, Perspective::SplitVertical, nullptr);

@@ -128,17 +128,17 @@ private:
 };
 
 #undef ADD_ENUM
-#define ADD_ENUM(tool,enumV) { errorKindsByName_##tool.insert(QLatin1String(#enumV), enumV); }
+#define ADD_ENUM(tool,enumV) { errorKindsByName_##tool.insert(#enumV, enumV); }
 
 
 Parser::Private::Private(Parser *qq)
     : q(qq)
 {
     tool = Parser::Unknown;
-    toolsByName.insert(QLatin1String("memcheck"), Parser::Memcheck);
-    toolsByName.insert(QLatin1String("ptrcheck"), Parser::Ptrcheck);
-    toolsByName.insert(QLatin1String("exp-ptrcheck"), Parser::Ptrcheck);
-    toolsByName.insert(QLatin1String("helgrind"), Parser::Helgrind);
+    toolsByName.insert("memcheck", Parser::Memcheck);
+    toolsByName.insert("ptrcheck", Parser::Ptrcheck);
+    toolsByName.insert("exp-ptrcheck", Parser::Ptrcheck);
+    toolsByName.insert("helgrind", Parser::Helgrind);
 
     ADD_ENUM(memcheck, ClientCheck)
     ADD_ENUM(memcheck, InvalidFree)
@@ -306,14 +306,14 @@ XWhat Parser::Private::parseXWhat()
         if (reader.isEndElement())
             break;
         const QStringRef name = reader.name();
-        if (name == QLatin1String("text"))
+        if (name == "text")
             what.text = blockingReadElementText();
-        else if (name == QLatin1String("leakedbytes"))
-            what.leakedbytes = parseInt64(blockingReadElementText(), QLatin1String("error/xwhat[memcheck]/leakedbytes"));
-        else if (name == QLatin1String("leakedblocks"))
-            what.leakedblocks = parseInt64(blockingReadElementText(), QLatin1String("error/xwhat[memcheck]/leakedblocks"));
-        else if (name == QLatin1String("hthreadid"))
-            what.hthreadid = parseInt64(blockingReadElementText(), QLatin1String("error/xwhat[memcheck]/hthreadid"));
+        else if (name == "leakedbytes")
+            what.leakedbytes = parseInt64(blockingReadElementText(), "error/xwhat[memcheck]/leakedbytes");
+        else if (name == "leakedblocks")
+            what.leakedblocks = parseInt64(blockingReadElementText(), "error/xwhat[memcheck]/leakedblocks");
+        else if (name == "hthreadid")
+            what.hthreadid = parseInt64(blockingReadElementText(), "error/xwhat[memcheck]/hthreadid");
         else if (reader.isStartElement())
             reader.skipCurrentElement();
     }
@@ -328,16 +328,16 @@ XauxWhat Parser::Private::parseXauxWhat()
         if (reader.isEndElement())
             break;
         const QStringRef name = reader.name();
-        if (name == QLatin1String("text"))
+        if (name == "text")
             what.text = blockingReadElementText();
-        else if (name == QLatin1String("file"))
+        else if (name == "file")
             what.file = blockingReadElementText();
-        else if (name == QLatin1String("dir"))
+        else if (name == "dir")
             what.dir = blockingReadElementText();
-        else if (name == QLatin1String("line"))
-            what.line = parseInt64(blockingReadElementText(), QLatin1String("error/xauxwhat/line"));
-        else if (name == QLatin1String("hthreadid"))
-            what.hthreadid = parseInt64(blockingReadElementText(), QLatin1String("error/xauxwhat/hthreadid"));
+        else if (name == "line")
+            what.line = parseInt64(blockingReadElementText(), "error/xauxwhat/line");
+        else if (name == "hthreadid")
+            what.hthreadid = parseInt64(blockingReadElementText(), "error/xauxwhat/hthreadid");
         else if (reader.isStartElement())
             reader.skipCurrentElement();
     }
@@ -395,9 +395,9 @@ int Parser::Private::parseErrorKind(const QString &kind)
 
 static Status::State parseState(const QString &state)
 {
-    if (state == QLatin1String("RUNNING"))
+    if (state == "RUNNING")
         return Status::Running;
-    if (state == QLatin1String("FINISHED"))
+    if (state == "FINISHED")
         return Status::Finished;
     throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
                                                       "Unknown state \"%1\"").arg(state));
@@ -436,27 +436,27 @@ void Parser::Private::parseError()
         if (reader.isStartElement())
             lastAuxWhat++;
         const QStringRef name = reader.name();
-        if (name == QLatin1String("unique")) {
-            e.setUnique(parseHex(blockingReadElementText(), QLatin1String("unique")));
-        } else if (name == QLatin1String("tid")) {
-            e.setTid(parseInt64(blockingReadElementText(), QLatin1String("error/tid")));
-        } else if (name == QLatin1String("kind")) { //TODO this is memcheck-specific:
+        if (name == "unique") {
+            e.setUnique(parseHex(blockingReadElementText(), "unique"));
+        } else if (name == "tid") {
+            e.setTid(parseInt64(blockingReadElementText(), "error/tid"));
+        } else if (name == "kind") { //TODO this is memcheck-specific:
             e.setKind(parseErrorKind(blockingReadElementText()));
-        } else if (name == QLatin1String("suppression")) {
+        } else if (name == "suppression") {
             e.setSuppression(parseSuppression());
-        } else if (name == QLatin1String("xwhat")) {
+        } else if (name == "xwhat") {
             const XWhat xw = parseXWhat();
             e.setWhat(xw.text);
             e.setLeakedBlocks(xw.leakedblocks);
             e.setLeakedBytes(xw.leakedbytes);
             e.setHelgrindThreadId(xw.hthreadid);
-        } else if (name == QLatin1String("what")) {
+        } else if (name == "what") {
             e.setWhat(blockingReadElementText());
-        } else if (name == QLatin1String("xauxwhat")) {
+        } else if (name == "xauxwhat") {
             if (!currentAux.text.isEmpty())
                 auxs.push_back(currentAux);
             currentAux = parseXauxWhat();
-        } else if (name == QLatin1String("auxwhat")) {
+        } else if (name == "auxwhat") {
             const QString aux = blockingReadElementText();
             //concatenate multiple consecutive <auxwhat> tags
             if (lastAuxWhat > 1) {
@@ -466,11 +466,11 @@ void Parser::Private::parseError()
                 currentAux.text = aux;
             } else {
                 if (!currentAux.text.isEmpty())
-                    currentAux.text.append(QLatin1Char(' '));
+                    currentAux.text.append(' ');
                 currentAux.text.append(aux);
             }
             lastAuxWhat = 0;
-        } else if (name == QLatin1String("stack")) {
+        } else if (name == "stack") {
             frames.push_back(parseStack());
         } else if (reader.isStartElement()) {
             reader.skipCurrentElement();
@@ -507,18 +507,18 @@ Frame Parser::Private::parseFrame()
             break;
         if (reader.isStartElement()) {
             const QStringRef name = reader.name();
-            if (name == QLatin1String("ip"))
-                frame.setInstructionPointer(parseHex(blockingReadElementText(), QLatin1String("error/frame/ip")));
-            else if (name == QLatin1String("obj"))
+            if (name == "ip")
+                frame.setInstructionPointer(parseHex(blockingReadElementText(), "error/frame/ip"));
+            else if (name == "obj")
                 frame.setObject(blockingReadElementText());
-            else if (name == QLatin1String("fn"))
+            else if (name == "fn")
                 frame.setFunctionName( blockingReadElementText());
-            else if (name == QLatin1String("dir"))
+            else if (name == "dir")
                 frame.setDirectory(blockingReadElementText());
-            else if (name == QLatin1String("file"))
+            else if (name == "file")
                 frame.setFileName(blockingReadElementText());
-            else if (name == QLatin1String("line"))
-                frame.setLine(parseInt64(blockingReadElementText(), QLatin1String("error/frame/line")));
+            else if (name == "line")
+                frame.setLine(parseInt64(blockingReadElementText(), "error/frame/line"));
             else if (reader.isStartElement())
                 reader.skipCurrentElement();
         }
@@ -537,9 +537,9 @@ void Parser::Private::parseAnnounceThread()
             break;
         if (reader.isStartElement()) {
             const QStringRef name = reader.name();
-            if (name == QLatin1String("hthreadid"))
-                at.setHelgrindThreadId(parseInt64(blockingReadElementText(), QLatin1String("announcethread/hthreadid")));
-            else if (name == QLatin1String("stack"))
+            if (name == "hthreadid")
+                at.setHelgrindThreadId(parseInt64(blockingReadElementText(), "announcethread/hthreadid"));
+            else if (name == "stack")
                 at.setStack(parseStack());
             else if (reader.isStartElement())
                 reader.skipCurrentElement();
@@ -556,7 +556,7 @@ void Parser::Private::parseErrorCounts()
         if (reader.isEndElement())
             break;
         if (reader.isStartElement()) {
-            if (reader.name() == QLatin1String("pair")) {
+            if (reader.name() == "pair") {
                 qint64 unique = 0;
                 qint64 count = 0;
                 while (notAtEnd()) {
@@ -565,10 +565,10 @@ void Parser::Private::parseErrorCounts()
                         break;
                     if (reader.isStartElement()) {
                         const QStringRef name = reader.name();
-                        if (name == QLatin1String("unique"))
-                            unique = parseHex(blockingReadElementText(), QLatin1String("errorcounts/pair/unique"));
-                        else if (name == QLatin1String("count"))
-                            count = parseInt64(blockingReadElementText(), QLatin1String("errorcounts/pair/count"));
+                        if (name == "unique")
+                            unique = parseHex(blockingReadElementText(), "errorcounts/pair/unique");
+                        else if (name == "count")
+                            count = parseInt64(blockingReadElementText(), "errorcounts/pair/count");
                         else if (reader.isStartElement())
                             reader.skipCurrentElement();
                     }
@@ -589,7 +589,7 @@ void Parser::Private::parseSuppressionCounts()
         if (reader.isEndElement())
             break;
         if (reader.isStartElement()) {
-            if (reader.name() == QLatin1String("pair")) {
+            if (reader.name() == "pair") {
                 QString pairName;
                 qint64 count = 0;
                 while (notAtEnd()) {
@@ -598,10 +598,10 @@ void Parser::Private::parseSuppressionCounts()
                         break;
                     if (reader.isStartElement()) {
                         const QStringRef name = reader.name();
-                        if (name == QLatin1String("name"))
+                        if (name == "name")
                             pairName = blockingReadElementText();
-                        else if (name == QLatin1String("count"))
-                            count = parseInt64(blockingReadElementText(), QLatin1String("suppcounts/pair/count"));
+                        else if (name == "count")
+                            count = parseInt64(blockingReadElementText(), "suppcounts/pair/count");
                         else if (reader.isStartElement())
                             reader.skipCurrentElement();
                     }
@@ -624,9 +624,9 @@ void Parser::Private::parseStatus()
             break;
         if (reader.isStartElement()) {
             const QStringRef name = reader.name();
-            if (name == QLatin1String("state"))
+            if (name == "state")
                 s.setState(parseState(blockingReadElementText()));
-            else if (name == QLatin1String("time"))
+            else if (name == "time")
                 s.setTime(blockingReadElementText());
             else if (reader.isStartElement())
                 reader.skipCurrentElement();
@@ -644,7 +644,7 @@ QVector<Frame> Parser::Private::parseStack()
         if (reader.isEndElement())
             break;
         if (reader.isStartElement()) {
-            if (reader.name() == QLatin1String("frame"))
+            if (reader.name() == "frame")
                 frames.append(parseFrame());
         }
     }
@@ -662,9 +662,9 @@ SuppressionFrame Parser::Private::parseSuppressionFrame()
             break;
         if (reader.isStartElement()) {
             const QStringRef name = reader.name();
-            if (name == QLatin1String("obj"))
+            if (name == "obj")
                 frame.setObject(blockingReadElementText());
-            else if (name == QLatin1String("fun"))
+            else if (name == "fun")
                 frame.setFunction( blockingReadElementText());
             else if (reader.isStartElement())
                 reader.skipCurrentElement();
@@ -684,15 +684,15 @@ Suppression Parser::Private::parseSuppression()
             break;
         if (reader.isStartElement()) {
             const QStringRef name = reader.name();
-            if (name == QLatin1String("sname"))
+            if (name == "sname")
                 supp.setName(blockingReadElementText());
-            else if (name == QLatin1String("skind"))
+            else if (name == "skind")
                 supp.setKind(blockingReadElementText());
-            else if (name == QLatin1String("skaux"))
+            else if (name == "skaux")
                 supp.setAuxKind(blockingReadElementText());
-            else if (name == QLatin1String("rawtext"))
+            else if (name == "rawtext")
                 supp.setRawText(blockingReadElementText());
-            else if (name == QLatin1String("sframe"))
+            else if (name == "sframe")
                 frames.push_back(parseSuppressionFrame());
         }
     }
@@ -710,19 +710,19 @@ void Parser::Private::parse(QIODevice *device)
         while (notAtEnd()) {
             blockingReadNext();
             QStringRef name = reader.name();
-            if (name == QLatin1String("error"))
+            if (name == "error")
                 parseError();
-            else if (name == QLatin1String("announcethread"))
+            else if (name == "announcethread")
                 parseAnnounceThread();
-            else if (name == QLatin1String("status"))
+            else if (name == "status")
                 parseStatus();
-            else if (name == QLatin1String("errorcounts"))
+            else if (name == "errorcounts")
                 parseErrorCounts();
-            else if (name == QLatin1String("suppcounts"))
+            else if (name == "suppcounts")
                 parseSuppressionCounts();
-            else if (name == QLatin1String("protocolversion"))
+            else if (name == "protocolversion")
                 checkProtocolVersion(blockingReadElementText());
-            else if (name == QLatin1String("protocoltool"))
+            else if (name == "protocoltool")
                 checkTool(blockingReadElementText());
         }
     } catch (const ParserException &e) {

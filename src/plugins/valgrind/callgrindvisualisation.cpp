@@ -223,7 +223,7 @@ Visualization::Private::Private(Visualization *qq)
     , m_model(new DataProxyModel(qq))
 {
     // setup scene
-    m_scene.setObjectName(QLatin1String("Visualisation Scene"));
+    m_scene.setObjectName("Visualisation Scene");
     ///NOTE: with size 100x100 the Qt-internal mouse selection fails...
     m_scene.setSceneRect(0, 0, 1024, 1024);
 
@@ -276,7 +276,7 @@ Visualization::Visualization(QWidget *parent)
     : QGraphicsView(parent)
     , d(new Private(this))
 {
-    setObjectName(QLatin1String("Visualisation View"));
+    setObjectName("Visualisation View");
     setScene(&d->m_scene);
     setRenderHint(QPainter::Antialiasing);
 }

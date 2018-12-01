@@ -88,30 +88,30 @@ ValgrindBaseSettings::ValgrindBaseSettings(const ConfigWidgetCreator &creator)
 void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 {
     // General
-    setIfPresent(map, QLatin1String(valgrindExeC), &m_valgrindExecutable);
-    setIfPresent(map, QLatin1String(selfModifyingCodeDetectionC),
+    setIfPresent(map, valgrindExeC, &m_valgrindExecutable);
+    setIfPresent(map, selfModifyingCodeDetectionC,
                  (int*) &m_selfModifyingCodeDetection);
 
     // Memcheck
-    setIfPresent(map, QLatin1String(numCallersC), &m_numCallers);
-    setIfPresent(map, QLatin1String(leakCheckOnFinishC), (int*) &m_leakCheckOnFinish);
-    setIfPresent(map, QLatin1String(showReachableC), &m_showReachable);
-    setIfPresent(map, QLatin1String(trackOriginsC), &m_trackOrigins);
-    setIfPresent(map, QLatin1String(filterExternalIssuesC), &m_filterExternalIssues);
-    if (map.contains(QLatin1String(visibleErrorKindsC))) {
+    setIfPresent(map, numCallersC, &m_numCallers);
+    setIfPresent(map, leakCheckOnFinishC, (int*) &m_leakCheckOnFinish);
+    setIfPresent(map, showReachableC, &m_showReachable);
+    setIfPresent(map, trackOriginsC, &m_trackOrigins);
+    setIfPresent(map, filterExternalIssuesC, &m_filterExternalIssues);
+    if (map.contains(visibleErrorKindsC)) {
         m_visibleErrorKinds.clear();
-        foreach (const QVariant &val, map.value(QLatin1String(visibleErrorKindsC)).toList())
+        foreach (const QVariant &val, map.value(visibleErrorKindsC).toList())
             m_visibleErrorKinds << val.toInt();
     }
 
     // Callgrind
-    setIfPresent(map, QLatin1String(callgrindEnableCacheSimC), &m_enableCacheSim);
-    setIfPresent(map, QLatin1String(callgrindEnableBranchSimC), &m_enableBranchSim);
-    setIfPresent(map, QLatin1String(callgrindCollectSystimeC), &m_collectSystime);
-    setIfPresent(map, QLatin1String(callgrindCollectBusEventsC), &m_collectBusEvents);
-    setIfPresent(map, QLatin1String(callgrindEnableEventToolTipsC), &m_enableEventToolTips);
-    setIfPresent(map, QLatin1String(callgrindMinimumCostRatioC), &m_minimumInclusiveCostRatio);
-    setIfPresent(map, QLatin1String(callgrindVisualisationMinimumCostRatioC),
+    setIfPresent(map, callgrindEnableCacheSimC, &m_enableCacheSim);
+    setIfPresent(map, callgrindEnableBranchSimC, &m_enableBranchSim);
+    setIfPresent(map, callgrindCollectSystimeC, &m_collectSystime);
+    setIfPresent(map, callgrindCollectBusEventsC, &m_collectBusEvents);
+    setIfPresent(map, callgrindEnableEventToolTipsC, &m_enableEventToolTips);
+    setIfPresent(map, callgrindMinimumCostRatioC, &m_minimumInclusiveCostRatio);
+    setIfPresent(map, callgrindVisualisationMinimumCostRatioC,
                  &m_visualisationMinimumInclusiveCostRatio);
 
     emit changed();
@@ -120,28 +120,28 @@ void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 void ValgrindBaseSettings::toMap(QVariantMap &map) const
 {
     // General
-    map.insert(QLatin1String(valgrindExeC), m_valgrindExecutable);
-    map.insert(QLatin1String(selfModifyingCodeDetectionC), m_selfModifyingCodeDetection);
+    map.insert(valgrindExeC, m_valgrindExecutable);
+    map.insert(selfModifyingCodeDetectionC, m_selfModifyingCodeDetection);
 
     // Memcheck
-    map.insert(QLatin1String(numCallersC), m_numCallers);
-    map.insert(QLatin1String(leakCheckOnFinishC), m_leakCheckOnFinish);
-    map.insert(QLatin1String(showReachableC), m_showReachable);
-    map.insert(QLatin1String(trackOriginsC), m_trackOrigins);
-    map.insert(QLatin1String(filterExternalIssuesC), m_filterExternalIssues);
+    map.insert(numCallersC, m_numCallers);
+    map.insert(leakCheckOnFinishC, m_leakCheckOnFinish);
+    map.insert(showReachableC, m_showReachable);
+    map.insert(trackOriginsC, m_trackOrigins);
+    map.insert(filterExternalIssuesC, m_filterExternalIssues);
     QVariantList errorKinds;
     foreach (int i, m_visibleErrorKinds)
         errorKinds << i;
-    map.insert(QLatin1String(visibleErrorKindsC), errorKinds);
+    map.insert(visibleErrorKindsC, errorKinds);
 
     // Callgrind
-    map.insert(QLatin1String(callgrindEnableCacheSimC), m_enableCacheSim);
-    map.insert(QLatin1String(callgrindEnableBranchSimC), m_enableBranchSim);
-    map.insert(QLatin1String(callgrindCollectSystimeC), m_collectSystime);
-    map.insert(QLatin1String(callgrindCollectBusEventsC), m_collectBusEvents);
-    map.insert(QLatin1String(callgrindEnableEventToolTipsC), m_enableEventToolTips);
-    map.insert(QLatin1String(callgrindMinimumCostRatioC), m_minimumInclusiveCostRatio);
-    map.insert(QLatin1String(callgrindVisualisationMinimumCostRatioC),
+    map.insert(callgrindEnableCacheSimC, m_enableCacheSim);
+    map.insert(callgrindEnableBranchSimC, m_enableBranchSim);
+    map.insert(callgrindCollectSystimeC, m_collectSystime);
+    map.insert(callgrindCollectBusEventsC, m_collectBusEvents);
+    map.insert(callgrindEnableEventToolTipsC, m_enableEventToolTips);
+    map.insert(callgrindMinimumCostRatioC, m_minimumInclusiveCostRatio);
+    map.insert(callgrindVisualisationMinimumCostRatioC,
                m_visualisationMinimumInclusiveCostRatio);
 }
 
@@ -299,16 +299,16 @@ void ValgrindGlobalSettings::fromMap(const QVariantMap &map)
     ValgrindBaseSettings::fromMap(map);
 
     // Memcheck
-    m_suppressionFiles = map.value(QLatin1String(suppressionFilesC)).toStringList();
-    m_lastSuppressionDirectory = map.value(QLatin1String(lastSuppressionDirectoryC)).toString();
-    m_lastSuppressionHistory = map.value(QLatin1String(lastSuppressionHistoryC)).toStringList();
+    m_suppressionFiles = map.value(suppressionFilesC).toStringList();
+    m_lastSuppressionDirectory = map.value(lastSuppressionDirectoryC).toString();
+    m_lastSuppressionHistory = map.value(lastSuppressionHistoryC).toStringList();
 
     // Callgrind
     // special code as the default one does not cope with the enum properly
-    if (map.contains(QLatin1String(callgrindCostFormatC)))
-        m_costFormat = static_cast<CostDelegate::CostFormat>(map.value(QLatin1String(callgrindCostFormatC)).toInt());
-    setIfPresent(map, QLatin1String(callgrindCycleDetectionC), &m_detectCycles);
-    setIfPresent(map, QLatin1String(callgrindShortenTemplates), &m_shortenTemplates);
+    if (map.contains(callgrindCostFormatC))
+        m_costFormat = static_cast<CostDelegate::CostFormat>(map.value(callgrindCostFormatC).toInt());
+    setIfPresent(map, callgrindCycleDetectionC, &m_detectCycles);
+    setIfPresent(map, callgrindShortenTemplates, &m_shortenTemplates);
 }
 
 void ValgrindGlobalSettings::toMap(QVariantMap &map) const
@@ -316,14 +316,14 @@ void ValgrindGlobalSettings::toMap(QVariantMap &map) const
     ValgrindBaseSettings::toMap(map);
 
     // Memcheck
-    map.insert(QLatin1String(suppressionFilesC), m_suppressionFiles);
-    map.insert(QLatin1String(lastSuppressionDirectoryC), m_lastSuppressionDirectory);
-    map.insert(QLatin1String(lastSuppressionHistoryC), m_lastSuppressionHistory);
+    map.insert(suppressionFilesC, m_suppressionFiles);
+    map.insert(lastSuppressionDirectoryC, m_lastSuppressionDirectory);
+    map.insert(lastSuppressionHistoryC, m_lastSuppressionHistory);
 
     // Callgrind
-    map.insert(QLatin1String(callgrindCostFormatC), m_costFormat);
-    map.insert(QLatin1String(callgrindCycleDetectionC), m_detectCycles);
-    map.insert(QLatin1String(callgrindShortenTemplates), m_shortenTemplates);
+    map.insert(callgrindCostFormatC, m_costFormat);
+    map.insert(callgrindCycleDetectionC, m_detectCycles);
+    map.insert(callgrindShortenTemplates, m_shortenTemplates);
 }
 
 //
@@ -375,40 +375,40 @@ void ValgrindGlobalSettings::readSettings()
     QVariantMap defaults;
 
     // General
-    defaults.insert(QLatin1String(valgrindExeC), QLatin1String("valgrind"));
-    defaults.insert(QLatin1String(selfModifyingCodeDetectionC), DetectSmcStackOnly);
+    defaults.insert(valgrindExeC, "valgrind");
+    defaults.insert(selfModifyingCodeDetectionC, DetectSmcStackOnly);
 
     // Memcheck
-    defaults.insert(QLatin1String(numCallersC), 25);
-    defaults.insert(QLatin1String(leakCheckOnFinishC), LeakCheckOnFinishSummaryOnly);
-    defaults.insert(QLatin1String(showReachableC), false);
-    defaults.insert(QLatin1String(trackOriginsC), true);
-    defaults.insert(QLatin1String(filterExternalIssuesC), true);
+    defaults.insert(numCallersC, 25);
+    defaults.insert(leakCheckOnFinishC, LeakCheckOnFinishSummaryOnly);
+    defaults.insert(showReachableC, false);
+    defaults.insert(trackOriginsC, true);
+    defaults.insert(filterExternalIssuesC, true);
     QVariantList defaultErrorKinds;
     for (int i = 0; i < Valgrind::XmlProtocol::MemcheckErrorKindCount; ++i)
         defaultErrorKinds << i;
-    defaults.insert(QLatin1String(visibleErrorKindsC), defaultErrorKinds);
+    defaults.insert(visibleErrorKindsC, defaultErrorKinds);
 
-    defaults.insert(QLatin1String(suppressionFilesC), QStringList());
-    defaults.insert(QLatin1String(lastSuppressionDirectoryC), QString());
-    defaults.insert(QLatin1String(lastSuppressionHistoryC), QStringList());
+    defaults.insert(suppressionFilesC, QStringList());
+    defaults.insert(lastSuppressionDirectoryC, QString());
+    defaults.insert(lastSuppressionHistoryC, QStringList());
 
     // Callgrind
-    defaults.insert(QLatin1String(callgrindEnableCacheSimC), false);
-    defaults.insert(QLatin1String(callgrindEnableBranchSimC), false);
-    defaults.insert(QLatin1String(callgrindCollectSystimeC), false);
-    defaults.insert(QLatin1String(callgrindCollectBusEventsC), false);
-    defaults.insert(QLatin1String(callgrindEnableEventToolTipsC), true);
-    defaults.insert(QLatin1String(callgrindMinimumCostRatioC), 0.01);
-    defaults.insert(QLatin1String(callgrindVisualisationMinimumCostRatioC), 10.0);
+    defaults.insert(callgrindEnableCacheSimC, false);
+    defaults.insert(callgrindEnableBranchSimC, false);
+    defaults.insert(callgrindCollectSystimeC, false);
+    defaults.insert(callgrindCollectBusEventsC, false);
+    defaults.insert(callgrindEnableEventToolTipsC, true);
+    defaults.insert(callgrindMinimumCostRatioC, 0.01);
+    defaults.insert(callgrindVisualisationMinimumCostRatioC, 10.0);
 
-    defaults.insert(QLatin1String(callgrindCostFormatC), CostDelegate::FormatRelative);
-    defaults.insert(QLatin1String(callgrindCycleDetectionC), true);
-    defaults.insert(QLatin1String(callgrindShortenTemplates), true);
+    defaults.insert(callgrindCostFormatC, CostDelegate::FormatRelative);
+    defaults.insert(callgrindCycleDetectionC, true);
+    defaults.insert(callgrindShortenTemplates, true);
 
     // Read stored values
     QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String(groupC));
+    settings->beginGroup(groupC);
     QVariantMap map = defaults;
     for (QVariantMap::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
         map.insert(it.key(), settings->value(it.key(), it.value()));
@@ -420,7 +420,7 @@ void ValgrindGlobalSettings::readSettings()
 void ValgrindGlobalSettings::writeSettings() const
 {
     QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String(groupC));
+    settings->beginGroup(groupC);
     QVariantMap map;
     toMap(map);
     for (QVariantMap::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
@@ -480,8 +480,8 @@ void ValgrindProjectSettings::fromMap(const QVariantMap &map)
     ValgrindBaseSettings::fromMap(map);
 
     // Memcheck
-    setIfPresent(map, QLatin1String(addedSuppressionFilesC), &m_addedSuppressionFiles);
-    setIfPresent(map, QLatin1String(removedSuppressionFilesC), &m_disabledGlobalSuppressionFiles);
+    setIfPresent(map, addedSuppressionFilesC, &m_addedSuppressionFiles);
+    setIfPresent(map, removedSuppressionFilesC, &m_disabledGlobalSuppressionFiles);
 }
 
 void ValgrindProjectSettings::toMap(QVariantMap &map) const
@@ -489,8 +489,8 @@ void ValgrindProjectSettings::toMap(QVariantMap &map) const
     ValgrindBaseSettings::toMap(map);
 
     // Memcheck
-    map.insert(QLatin1String(addedSuppressionFilesC), m_addedSuppressionFiles);
-    map.insert(QLatin1String(removedSuppressionFilesC), m_disabledGlobalSuppressionFiles);
+    map.insert(addedSuppressionFilesC, m_addedSuppressionFiles);
+    map.insert(removedSuppressionFilesC, m_disabledGlobalSuppressionFiles);
 }
 
 //

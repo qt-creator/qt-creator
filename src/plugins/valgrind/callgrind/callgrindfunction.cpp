@@ -200,7 +200,7 @@ QString Function::location() const
     QString o = object();
     if (o.isEmpty())
         return QString();
-    if (f.isEmpty() || f == QLatin1String("???"))
+    if (f.isEmpty() || f == "???")
         return o;
     if (pos.isEmpty())
         return QCoreApplication::translate("Valgrind::Callgrind::Function", "%1 in %2").arg(f, o);

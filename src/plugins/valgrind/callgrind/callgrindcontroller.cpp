@@ -46,7 +46,7 @@ using namespace Utils;
 namespace Valgrind {
 namespace Callgrind {
 
-const QLatin1String CALLGRIND_CONTROL_BINARY("callgrind_control");
+const char CALLGRIND_CONTROL_BINARY[] = "callgrind_control";
 
 CallgrindController::CallgrindController()
 {
@@ -229,7 +229,7 @@ void CallgrindController::getLocalDataFile()
         const QStringList outputFiles = dir.entryList();
         // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
         if (!outputFiles.isEmpty())
-            fileName = workingDir + QLatin1Char('/') + outputFiles.first();
+            fileName = workingDir + '/' + outputFiles.first();
 
         emit localParseDataAvailable(fileName);
     }

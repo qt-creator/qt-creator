@@ -174,7 +174,7 @@ QModelIndex DataModel::indexForObject(const Function *function) const
 static QString noWrap(const QString &str)
 {
     QString escapedStr = str;
-    return escapedStr.replace(QLatin1Char('-'), QLatin1String("&#8209;"));
+    return escapedStr.replace('-', "&#8209;");
 }
 
 static QString shortenTemplate(QString str)
@@ -219,16 +219,16 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         if (!d->m_verboseToolTips)
             return data(index, Qt::DisplayRole);
 
-        QString ret = QLatin1String("<html><head><style>\
-            dt { font-weight: bold; }\
-            dd { font-family: monospace; }\
-            tr.head, td.head { font-weight: bold; }\
-            tr.head { text-decoration: underline; }\
-            td.group { padding-left: 20px; }\
-            td { white-space: nowrap; }\
-            </style></head>\n<body><dl>");
+        QString ret = "<html><head><style>\n"
+            "dt { font-weight: bold; }\n"
+            "dd { font-family: monospace; }\n"
+            "tr.head, td.head { font-weight: bold; }\n"
+            "tr.head { text-decoration: underline; }\n"
+            "td.group { padding-left: 20px; }\n"
+            "td { white-space: nowrap; }\n"
+            "</style></head>\n<body><dl>\n";
 
-        QString entry = QLatin1String("<dt>%1</dt><dd>%2</dd>\n");
+        QString entry = "<dt>%1</dt><dd>%2</dd>\n";
         // body, function info first
         ret += entry.arg(tr("Function:")).arg(func->name().toHtmlEscaped());
         ret += entry.arg(tr("File:")).arg(func->file());
@@ -241,17 +241,17 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         }
         ret += entry.arg(tr("Object:")).arg(func->object());
         ret += entry.arg(tr("Called:")).arg(tr("%n time(s)", 0, func->called()));
-        ret += QLatin1String("</dl><p/>");
+        ret += "</dl><p/>";
 
         // self/inclusive costs
-        entry = QLatin1String("<td class='group'>%1</td><td>%2</td>");
-        ret += QLatin1String("<table>");
-        ret += QLatin1String("<thead><tr class='head'>");
-        ret += QLatin1String("<td>") + tr("Events") + QLatin1String("</td>");
+        entry = "<td class='group'>%1</td><td>%2</td>";
+        ret += "<table>";
+        ret += "<thead><tr class='head'>";
+        ret += "<td>" + tr("Events") + "</td>";
         ret += entry.arg(tr("Self costs")).arg(tr("(%)"));
         ret += entry.arg(tr("Incl. costs")).arg(tr("(%)"));
-        ret += QLatin1String("</tr></thead>");
-        ret += QLatin1String("<tbody>");
+        ret += "</tr></thead>";
+        ret += "<tbody>";
         for (int i = 0; i < d->m_data->events().size(); ++i) {
             quint64 selfCost = func->selfCost(i);
             quint64 inclCost = func->inclusiveCost(i);
@@ -260,16 +260,16 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
             const float relSelfCost = (float)qRound((float)selfCost / totalCost * 10000) / 100;
             const float relInclCost = (float)qRound((float)inclCost / totalCost * 10000) / 100;
 
-            ret += QLatin1String("<tr>");
-            ret += QLatin1String("<td class='head'><nobr>") +
+            ret += "<tr>";
+            ret += "<td class='head'><nobr>" +
                     noWrap(ParseData::prettyStringForEvent(d->m_data->events().at(i)))
-                    + QLatin1String("</nobr></td>");
+                    + "</nobr></td>";
             ret += entry.arg(selfCost).arg(tr("(%1%)").arg(relSelfCost));
             ret += entry.arg(inclCost).arg(tr("(%1%)").arg(relInclCost));
-            ret += QLatin1String("</tr>");
+            ret += "</tr>";
         }
-        ret += QLatin1String("</tbody></table>");
-        ret += QLatin1String("</body></html>");
+        ret += "</tbody></table>";
+        ret += "</body></html>";
         return ret;
     }
 

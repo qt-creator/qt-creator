@@ -166,19 +166,19 @@ QString ParseData::prettyStringForEvent(const QString &event)
 
     QTC_ASSERT(event.size() >= 2, return event); // should not happen
 
-    const bool isMiss = event.contains(QLatin1Char('m')); // else hit
-    const bool isRead = event.contains(QLatin1Char('r')); // else write
+    const bool isMiss = event.contains('m'); // else hit
+    const bool isRead = event.contains('r'); // else write
 
     QString type;
-    if (event.contains(QLatin1Char('L')))
+    if (event.contains('L'))
         type = ParseData::Private::tr("Last-level"); // first, "L" overwrites the others
-    else if (event.at(0) == QLatin1Char('I'))
+    else if (event.at(0) == 'I')
         type = ParseData::Private::tr("Instruction");
-    else if (event.at(0) == QLatin1Char('D'))
+    else if (event.at(0) == 'D')
         type = ParseData::Private::tr("Cache");
-    else if (event.leftRef(2) == QLatin1String("Bc"))
+    else if (event.leftRef(2) == "Bc")
         type = ParseData::Private::tr("Conditional branches");
-    else if (event.leftRef(2) == QLatin1String("Bi"))
+    else if (event.leftRef(2) == "Bi")
         type = ParseData::Private::tr("Indirect branches");
 
     QStringList prettyString;
@@ -188,14 +188,14 @@ QString ParseData::prettyStringForEvent(const QString &event)
         prettyString << ParseData::Private::tr("level %1").arg(event.at(1));
     prettyString << (isRead ? ParseData::Private::tr("read") : ParseData::Private::tr("write"));
 
-    if (event.at(0) == QLatin1Char('B'))
+    if (event.at(0) == 'B')
         prettyString << (isMiss ? ParseData::Private::tr("mispredicted") : ParseData::Private::tr("executed"));
     else
         prettyString << (isMiss ? ParseData::Private::tr("miss") : ParseData::Private::tr("access"));
 
     // add original abbreviation
-    prettyString << QLatin1Char('(') + event + QLatin1Char(')');
-    return prettyString.join(QLatin1Char(' '));
+    prettyString << '(' + event + ')';
+    return prettyString.join(' ');
 }
 
 QStringList ParseData::events() const
@@ -211,9 +211,9 @@ void ParseData::setEvents(const QStringList &events)
 
 QString ParseData::prettyStringForPosition(const QString &position)
 {
-    if (position == QLatin1String("line"))
+    if (position == "line")
         return ParseData::Private::tr("Line:"); // as in: "line number"
-    else if (position == QLatin1String("instr"))
+    else if (position == "instr")
         return ParseData::Private::tr("Instruction"); // as in: "instruction address"
     return ParseData::Private::tr("Position:"); // never reached, in theory
 }
@@ -233,7 +233,7 @@ void ParseData::setPositions(const QStringList &positions)
     d->m_positions = positions;
     d->m_lineNumberPositionIndex = -1;
     for (int i = 0; i < positions.size(); ++i) {
-        if (positions.at(i) == QLatin1String("line")) {
+        if (positions.at(i) == "line") {
             d->m_lineNumberPositionIndex = i;
             break;
         }

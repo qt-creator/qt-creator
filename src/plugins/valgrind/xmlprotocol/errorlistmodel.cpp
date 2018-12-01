@@ -121,7 +121,7 @@ static QString makeFrameName(const Frame &frame, bool withLocation)
         path = QFileInfo(path).canonicalFilePath();
 
     if (frame.line() != -1)
-        path += QLatin1Char(':') + QString::number(frame.line());
+        path += ':' + QString::number(frame.line());
 
     if (!fn.isEmpty()) {
         const QString location = withLocation || path == frame.object()
@@ -274,7 +274,7 @@ QVariant FrameItem::data(int column, int role) const
         const int padding = static_cast<int>(std::log10(parent()->childCount()))
                 - static_cast<int>(std::log10(row));
         return QString::fromLatin1("%1%2: %3")
-                .arg(QString(padding, QLatin1Char(' ')))
+                .arg(QString(padding, ' '))
                 .arg(row)
                 .arg(makeFrameName(m_frame, false));
     }

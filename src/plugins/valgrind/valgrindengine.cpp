@@ -76,7 +76,7 @@ void ValgrindToolRunner::start()
     m_progress.reportStarted();
 
 #if VALGRIND_DEBUG_OUTPUT
-    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(QLatin1Char(' '))), DebugFormat);
+    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(' ')), DebugFormat);
     emit outputReceived(tr("Working directory: %1").arg(runnable().workingDirectory), DebugFormat);
     emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), DebugFormat);
 #endif
@@ -126,17 +126,17 @@ QStringList ValgrindToolRunner::genericToolArguments() const
     QString smcCheckValue;
     switch (m_settings->selfModifyingCodeDetection()) {
     case ValgrindBaseSettings::DetectSmcNo:
-        smcCheckValue = QLatin1String("none");
+        smcCheckValue = "none";
         break;
     case ValgrindBaseSettings::DetectSmcEverywhere:
-        smcCheckValue = QLatin1String("all");
+        smcCheckValue = "all";
         break;
     case ValgrindBaseSettings::DetectSmcEverywhereButFile:
-        smcCheckValue = QLatin1String("all-non-file");
+        smcCheckValue = "all-non-file";
         break;
     case ValgrindBaseSettings::DetectSmcStackOnly:
     default:
-        smcCheckValue = QLatin1String("stack");
+        smcCheckValue = "stack";
         break;
     }
     return {"--smc-check=" + smcCheckValue};
@@ -189,7 +189,7 @@ void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::P
     if (m_isStopping)
         return;
 
-    QObject *obj = ExtensionSystem::PluginManager::getObjectByName(QLatin1String("AppOutputPane"));
+    QObject *obj = ExtensionSystem::PluginManager::getObjectByName("AppOutputPane");
     if (IOutputPane *pane = qobject_cast<IOutputPane *>(obj))
         pane->popup(IOutputPane::NoModeSwitch);
 }
