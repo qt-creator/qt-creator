@@ -36,6 +36,8 @@
 #include <QPointer>
 #include <qtimer.h>
 
+#include <cmath>
+
 namespace TextEditor {
 
 class SyntaxHighlighterPrivate
@@ -734,7 +736,7 @@ QList<QColor> SyntaxHighlighter::generateColors(int n, const QColor &background)
     // Assign a color gradient. Generate a sufficient number of colors
     // by using ceil and looping from 0..step.
     const double oneThird = 1.0 / 3.0;
-    const int step = qRound(ceil(pow(double(n), oneThird)));
+    const int step = qRound(std::ceil(std::pow(double(n), oneThird)));
     result.reserve(step * step * step);
     const int factor = 255 / step;
     const int half = factor / 2;
