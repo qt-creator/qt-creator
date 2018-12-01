@@ -80,6 +80,7 @@ public:
         EditorPlaceholderColor,
         FancyToolBarSeparatorColor,
         FancyTabBarBackgroundColor,
+        FancyTabBarSelectedBackgroundColor,
         FancyTabWidgetDisabledSelectedTextColor,
         FancyTabWidgetDisabledUnselectedTextColor,
         FancyTabWidgetEnabledSelectedTextColor,

@@ -354,7 +354,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     if (selected) {
         if (creatorTheme()->flag(Theme::FlatToolBars)) {
             // background color of a fancy tab that is active
-            painter->fillRect(rect, creatorTheme()->color(Theme::FancyToolButtonSelectedColor));
+            painter->fillRect(rect, creatorTheme()->color(Theme::FancyTabBarSelectedBackgroundColor));
         } else {
             paintSelectedTabBackground(painter, rect);
         }

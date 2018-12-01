@@ -17,6 +17,9 @@ text=ffdadada
 ;disabled text
 textDisabled=60a4a6a8
 
+;background for selected text
+selectedBackgroundText=aa1f75cc
+
 ;icons, spinbox ticks,
 ;toolBarItem=b6fbfdff
 toolBarItem=ffb3b3b3
@@ -50,7 +53,7 @@ hoverBackground=ff404244
 ;blended background color for controls 1 spinboxes, background selection square for snapping modes, publish as alias icon.
 ;color for filter background and overwrite width and height boxes
 ;selectedBackground=66000000
-selectedBackground=ff111111
+selectedBackground=aa1f75cc
 
 
 ;background for default "open a document" screen in the edit mode,
@@ -108,6 +111,7 @@ DoubleTabWidget2ndTabInactiveTextColor=text
 EditorPlaceholderColor=normalBackground
 FancyToolBarSeparatorColor=toolBarItemDisabled
 FancyTabBarBackgroundColor=shadowBackground
+FancyTabBarSelectedBackgroundColor=ff000000
 FancyTabWidgetDisabledSelectedTextColor=toolBarItemDisabled
 FancyTabWidgetDisabledUnselectedTextColor=toolBarItemDisabled
 FancyTabWidgetEnabledSelectedTextColor=fancyBarsBoldTextColor
@@ -378,7 +382,7 @@ PaletteToolTipBase=selectedBackground
 
 
 ;the selection highlight on the dropdown combo box in the file selection top menu and connections panel and tab mode selector dropdowns
-PaletteHighlight=selectedBackground
+PaletteHighlight=selectedBackgroundText
 ;PaletteHighlight=ffd3299a
 
 
