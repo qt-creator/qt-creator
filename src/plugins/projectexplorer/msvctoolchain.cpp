@@ -527,7 +527,8 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
 //
 // For _MSV_VER values, see https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2017.
 //
-LanguageVersion MsvcToolChain::msvcLanguageVersion(const Core::Id &language,
+LanguageVersion MsvcToolChain::msvcLanguageVersion(const QStringList & /*cxxflags*/,
+                                                   const Core::Id &language,
                                                    const Macros &macros) const
 {
     int mscVer = -1;
@@ -1368,6 +1369,10 @@ void ClangClToolChain::resetMsvcToolChain(const MsvcToolChain *base)
     m_abi = base->targetAbi();
     m_vcvarsBat = base->varsBat();
     setVarsBatArg(base->varsBatArg());
+
+    initEnvModWatcher(Utils::runAsync(envModThreadPool(),
+                                      &ClangClToolChain::environmentModifications,
+                                      m_vcvarsBat, base->varsBatArg()));
 }
 
 bool ClangClToolChain::operator ==(const ToolChain &other) const
@@ -1382,6 +1387,9 @@ bool ClangClToolChain::operator ==(const ToolChain &other) const
 Macros ClangClToolChain::msvcPredefinedMacros(const QStringList cxxflags,
                                               const Utils::Environment &env) const
 {
+    if (!cxxflags.contains("--driver-mode=g++"))
+        return MsvcToolChain::msvcPredefinedMacros(cxxflags, env);
+
     Utils::SynchronousProcess cpp;
     cpp.setEnvironment(env.toStringList());
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
@@ -1400,10 +1408,13 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList cxxflags,
     return Macro::toMacros(response.allRawOutput());
 }
 
-LanguageVersion ClangClToolChain::msvcLanguageVersion(const Core::Id &language,
+LanguageVersion ClangClToolChain::msvcLanguageVersion(const QStringList &cxxflags,
+                                                      const Core::Id &language,
                                                       const Macros &macros) const
 {
-    return ToolChain::languageVersion(language, macros);
+    if (cxxflags.contains("--driver-mode=g++"))
+        return ToolChain::languageVersion(language, macros);
+    return MsvcToolChain::msvcLanguageVersion(cxxflags, language, macros);
 }
 
 // --------------------------------------------------------------------------

@@ -73,7 +73,8 @@ signals:
 
 protected:
     void asyncStartHelper();
-    bool startDebuggerServer(QString packageDir, QString *errorStr = nullptr);
+    bool startDebuggerServer(const QString &packageDir, const QString &gdbServerPrefix,
+                             const QString &gdbServerExecutable, QString *errorStr = nullptr);
 
     enum class JDBState {
         Idle,

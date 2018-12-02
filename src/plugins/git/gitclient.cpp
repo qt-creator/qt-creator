@@ -1144,7 +1144,7 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
         return arguments;
 
     if (Utils::CheckableMessageBox::doNotAskAgainQuestion(
-                ICore::mainWindow() /*parent*/,
+                ICore::dialogParent() /*parent*/,
                 tr("Create Local Branch") /*title*/,
                 tr("Would you like to create a local branch?") /*message*/,
                 ICore::settings(), "Git.CreateLocalBranchOnCheckout" /*setting*/,
@@ -1181,7 +1181,7 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
         }
     }
 
-    BranchAddDialog branchAddDialog(localBranches, true, ICore::mainWindow());
+    BranchAddDialog branchAddDialog(localBranches, true, ICore::dialogParent());
     branchAddDialog.setTrackedBranchName(remoteBranch, true);
 
     if (branchAddDialog.exec() != QDialog::Accepted)
@@ -1207,7 +1207,7 @@ void GitClient::reset(const QString &workingDirectory, const QString &argument, 
     if (argument == "--hard") {
         if (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules)) != StatusUnchanged) {
             if (QMessageBox::question(
-                        Core::ICore::mainWindow(), tr("Reset"),
+                        Core::ICore::dialogParent(), tr("Reset"),
                         tr("All changes in working directory will be discarded. Are you sure?"),
                         QMessageBox::Yes | QMessageBox::No,
                         QMessageBox::No) == QMessageBox::No) {
@@ -1660,7 +1660,7 @@ QString GitClient::synchronousStash(const QString &workingDirectory, const QStri
         message = creatorStashMessage(messageKeyword);
         do {
             if ((flags & StashPromptDescription)) {
-                if (!inputText(ICore::mainWindow(),
+                if (!inputText(ICore::dialogParent(),
                                tr("Stash Description"), tr("Description:"), &message))
                     break;
             }
@@ -2058,7 +2058,7 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
     if (!updateNeeded)
         return;
 
-    if (prompt && QMessageBox::question(ICore::mainWindow(), tr("Submodules Found"),
+    if (prompt && QMessageBox::question(ICore::dialogParent(), tr("Submodules Found"),
             tr("Would you like to update submodules?"),
             QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
         return;
@@ -2226,7 +2226,7 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
     }
 
     QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText,
-                       QMessageBox::NoButton, ICore::mainWindow());
+                       QMessageBox::NoButton, ICore::dialogParent());
     if (hasChanges || isRebase)
         msgBox.addButton(hasChanges ? buttonName : tr("Skip"), QMessageBox::AcceptRole);
     msgBox.addButton(QMessageBox::Abort);
@@ -2808,7 +2808,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
 
     // Ask to revert (to do: Handle lists with a selection dialog)
     const QMessageBox::StandardButton answer
-        = QMessageBox::question(ICore::mainWindow(),
+        = QMessageBox::question(ICore::dialogParent(),
                                 tr("Revert"),
                                 tr("The file has been changed. Do you want to revert it?"),
                                 QMessageBox::Yes | QMessageBox::No,
@@ -2950,7 +2950,7 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
         message = tr("Conflicts detected.");
     }
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message,
-                             QMessageBox::NoButton, ICore::mainWindow());
+                             QMessageBox::NoButton, ICore::dialogParent());
     QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),
                                                           QMessageBox::AcceptRole);
     const QString mergeTool = readConfigValue(workingDir, "merge.tool");
@@ -3304,7 +3304,7 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
     QMessageBox msgBox(QMessageBox::Question, tr("Uncommitted Changes Found"),
                        tr("What would you like to do with local changes in:") + "\n\n"
                        + QDir::toNativeSeparators(m_workingDir) + '\"',
-                       QMessageBox::NoButton, ICore::mainWindow());
+                       QMessageBox::NoButton, ICore::dialogParent());
 
     msgBox.setDetailedText(statusOutput);
 

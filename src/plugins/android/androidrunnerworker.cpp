@@ -253,9 +253,10 @@ bool AndroidRunnerWorker::uploadFile(const QString &from, const QString &to, con
         return false;
     runAdb({"shell", "run-as", m_packageName, "rm", to});
     const QByteArray data = f.readAll();
+    QString output;
     const bool res = runAdb({"shell", "run-as", m_packageName, QString("sh -c 'base64 -d > %1'").arg(to)},
-                            nullptr, data.toBase64());
-    if (!res)
+                            &output, data.toBase64());
+    if (!res || output.contains("base64: not found"))
         return false;
     return runAdb({"shell", "run-as", m_packageName, "chmod", flags, to});
 }
@@ -400,13 +401,30 @@ void AndroidRunnerWorker::asyncStartHelper()
         // e.g. on Android 8 with NDK 10e
         runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir.trimmed()});
 
+        QString gdbServerExecutable;
+        QString gdbServerPrefix = "./lib/";
         if (m_gdbserverPath.isEmpty() || !uploadFile(m_gdbserverPath, "gdbserver")) {
-            emit remoteProcessFinished(tr("Cannot find/copy C++ debug server."));
-            return;
+            // upload failed - check for old devices
+            QString output;
+            if (runAdb({"shell", "run-as", m_packageName, "ls", "lib/"}, &output)) {
+                for (const auto &line: output.split('\n')) {
+                    if (line.indexOf("gdbserver") != -1/* || line.indexOf("lldb-server") != -1*/) {
+                        gdbServerExecutable = line.trimmed();
+                        break;
+                    }
+                }
+            }
+            if (gdbServerExecutable.isEmpty()) {
+                emit remoteProcessFinished(tr("Cannot find/copy C++ debug server."));
+                return;
+            }
+        } else {
+            gdbServerPrefix = "./";
+            gdbServerExecutable = "gdbserver";
         }
 
         QString debuggerServerErr;
-        if (!startDebuggerServer(packageDir, &debuggerServerErr)) {
+        if (!startDebuggerServer(packageDir, gdbServerPrefix, gdbServerExecutable, &debuggerServerErr)) {
             emit remoteProcessFinished(debuggerServerErr);
             return;
         }
@@ -450,16 +468,19 @@ void AndroidRunnerWorker::asyncStartHelper()
     }
 }
 
-bool AndroidRunnerWorker::startDebuggerServer(QString packageDir, QString *errorStr)
+bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
+                                              const QString &gdbServerPrefix,
+                                              const QString &gdbServerExecutable,
+                                              QString *errorStr)
 {
     QString gdbServerSocket = packageDir + "/debug-socket";
-    runAdb({"shell", "run-as", m_packageName, "killall", "gdbserver"});
+    runAdb({"shell", "run-as", m_packageName, "killall", gdbServerExecutable});
     runAdb({"shell", "run-as", m_packageName, "rm", gdbServerSocket});
 
     QString gdbProcessErr;
     QStringList gdbServerArgs = selector();
-    gdbServerArgs << "shell" << "run-as" << m_packageName << "./gdbserver" << "--multi"
-                  << "+" + gdbServerSocket;
+    gdbServerArgs << "shell" << "run-as" << m_packageName << gdbServerPrefix + gdbServerExecutable
+                  << "--multi" << "+" + gdbServerSocket;
     m_gdbServerProcess.reset(AndroidManager::runAdbCommandDetached(gdbServerArgs, &gdbProcessErr));
 
     if (!m_gdbServerProcess) {

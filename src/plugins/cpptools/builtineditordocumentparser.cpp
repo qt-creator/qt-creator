@@ -50,8 +50,10 @@ static QByteArray overwrittenToolchainDefines(const ProjectPart &projectPart)
     return defines;
 }
 
-BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath)
+BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath,
+                                                         int fileSizeLimitInMb)
     : BaseEditorDocumentParser(filePath)
+    , m_fileSizeLimitInMb(fileSizeLimitInMb)
 {
     qRegisterMetaType<CPlusPlus::Snapshot>("CPlusPlus::Snapshot");
 }
@@ -191,6 +193,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
             if (releaseSourceAndAST_)
                 doc->releaseSourceAndAST();
         });
+        sourceProcessor.setFileSizeLimitInMb(m_fileSizeLimitInMb);
         sourceProcessor.setCancelChecker([future]() {
            return future.isCanceled();
         });

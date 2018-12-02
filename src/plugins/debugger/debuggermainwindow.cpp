@@ -115,6 +115,7 @@ public:
     void registerPerspective(Perspective *perspective);
     void resetCurrentPerspective();
     int indexInChooser(Perspective *perspective) const;
+    void fixupLayoutIfNeeded();
 
     DebuggerMainWindow *q = nullptr;
     Perspective *m_currentPerspective = nullptr;
@@ -357,11 +358,37 @@ void DebuggerMainWindowPrivate::resetCurrentPerspective()
     }
     depopulateCurrentPerspective();
     populateCurrentPerspective();
+    if (m_currentPerspective)
+        m_currentPerspective->d->saveLayout();
 }
 
 int DebuggerMainWindowPrivate::indexInChooser(Perspective *perspective) const
 {
     return perspective ? m_perspectiveChooser->findData(perspective->d->m_id) : -1;
+}
+
+void DebuggerMainWindowPrivate::fixupLayoutIfNeeded()
+{
+    // Evil workaround for QTCREATORBUG-21455: In some so far unknown situation
+    // the saveLayout/restoreLayout process leads to a situation where some docks
+    // does not end up below the perspective toolbar even though they were there
+    // initially, leading to an awkward dock layout.
+    // This here tries to detect the situation (no other dock directly below the
+    // toolbar) and "corrects" that by restoring the default layout.
+    const QRect toolbarRect = m_toolBarDock->geometry();
+    const int targetX = toolbarRect.left();
+    const int targetY = toolbarRect.bottom();
+
+    const QList<QDockWidget *> docks = q->dockWidgets();
+    for (QDockWidget *dock : docks) {
+        const QRect dockRect = dock->geometry();
+        // 10 for some decoration wiggle room. Found something below? Good.
+        if (targetX == dockRect.left() && qAbs(targetY - dockRect.top()) < 10)
+            return;
+    }
+
+    qDebug() << "Scrambled dock layout found. Resetting it.";
+    resetCurrentPerspective();
 }
 
 void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
@@ -381,8 +408,10 @@ void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
 
     populateCurrentPerspective();
 
-    if (m_currentPerspective)
+    if (m_currentPerspective) {
         m_currentPerspective->d->restoreLayout();
+        fixupLayoutIfNeeded();
+    }
 
     int index = indexInChooser(m_currentPerspective);
     if (index == -1) {
@@ -450,6 +479,8 @@ void DebuggerMainWindowPrivate::populateCurrentPerspective()
         ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS)->addAction(cmd);
     }
 
+    m_currentPerspective->d->showToolBar();
+
     // Pre-arrange dock widgets.
     for (const DockOperation &op : m_currentPerspective->d->m_dockOperations) {
         QTC_ASSERT(op.widget, continue);
@@ -482,8 +513,6 @@ void DebuggerMainWindowPrivate::populateCurrentPerspective()
         }
         dock->setVisible(op.visibleByDefault);
     }
-
-    m_currentPerspective->d->showToolBar();
 
     QWidget *central = m_currentPerspective->centralWidget();
     m_centralWidgetStack->addWidget(central ? central : m_editorPlaceHolder);

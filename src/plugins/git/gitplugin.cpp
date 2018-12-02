@@ -797,7 +797,7 @@ void GitPlugin::resetRepository()
     QTC_ASSERT(state.hasTopLevel(), return);
     QString topLevel = state.topLevel();
 
-    LogChangeDialog dialog(true, ICore::mainWindow());
+    LogChangeDialog dialog(true, ICore::dialogParent());
     ResetItemDelegate delegate(dialog.widget());
     dialog.setWindowTitle(tr("Undo Changes to %1").arg(QDir::toNativeSeparators(topLevel)));
     if (dialog.runDialog(topLevel, QString(), LogChangeWidget::IncludeRemotes))
@@ -822,7 +822,7 @@ void GitPlugin::startRebase()
     const QString topLevel = state.topLevel();
     if (topLevel.isEmpty() || !m_gitClient->canRebase(topLevel))
         return;
-    LogChangeDialog dialog(false, ICore::mainWindow());
+    LogChangeDialog dialog(false, ICore::dialogParent());
     RebaseItemDelegate delegate(dialog.widget());
     dialog.setWindowTitle(tr("Interactive Rebase"));
     if (!dialog.runDialog(topLevel))
@@ -836,7 +836,7 @@ void GitPlugin::startChangeRelatedAction(const Id &id)
     const VcsBasePluginState state = currentState();
 
     ChangeSelectionDialog dialog(state.hasTopLevel() ? state.topLevel() : PathChooser::homePath(),
-                                 id, ICore::mainWindow());
+                                 id, ICore::dialogParent());
 
     int result = dialog.exec();
 
@@ -1234,7 +1234,7 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
     // Prompt for file
     if (file.isEmpty()) {
         const QString filter = tr("Patches (*.patch *.diff)");
-        file = QFileDialog::getOpenFileName(ICore::mainWindow(), tr("Choose Patch"), QString(), filter);
+        file = QFileDialog::getOpenFileName(ICore::dialogParent(), tr("Choose Patch"), QString(), filter);
         if (file.isEmpty()) {
             m_gitClient->endStashScope(workingDirectory);
             return;
@@ -1302,7 +1302,7 @@ template <class NonModalDialog>
         dialog->show();
         dialog->raise();
     } else {
-        dialog = new NonModalDialog(ICore::mainWindow());
+        dialog = new NonModalDialog(ICore::dialogParent());
         dialog->refresh(topLevel, true);
         dialog->show();
     }

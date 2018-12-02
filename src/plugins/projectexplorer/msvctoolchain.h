@@ -139,10 +139,10 @@ protected:
     // Function must be thread-safe!
     virtual Macros msvcPredefinedMacros(const QStringList cxxflags,
                                         const Utils::Environment &env) const;
-    virtual LanguageVersion msvcLanguageVersion(const Core::Id &language,
+    virtual LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
+                                                const Core::Id &language,
                                                 const Macros &macros) const;
 
-private:
     struct GenerateEnvResult
     {
         Utils::optional<QString> error;
@@ -151,6 +151,8 @@ private:
     static void environmentModifications(QFutureInterface<GenerateEnvResult> &future,
                                          QString vcvarsBat, QString varsBatArg);
     void initEnvModWatcher(const QFuture<GenerateEnvResult> &future);
+
+private:
     void updateEnvironmentModifications(QList<Utils::EnvironmentItem> modifications);
 
     mutable QList<Utils::EnvironmentItem> m_environmentModifications;
@@ -198,7 +200,8 @@ public:
     void resetMsvcToolChain(const MsvcToolChain *base = nullptr);
     Macros msvcPredefinedMacros(const QStringList cxxflags,
                                 const Utils::Environment &env) const override;
-    LanguageVersion msvcLanguageVersion(const Core::Id &language,
+    LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
+                                        const Core::Id &language,
                                         const Macros &macros) const override;
 
     bool operator ==(const ToolChain &) const override;

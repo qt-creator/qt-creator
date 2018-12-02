@@ -405,6 +405,9 @@ FileName AndroidConfig::clangPath() const
 {
     FileName clangPath = m_ndkLocation;
     clangPath.appendPath("toolchains/llvm/prebuilt/");
+    FileName oldNdkClangPath = m_ndkLocation;
+    oldNdkClangPath.appendPath("toolchains/llvm-3.6/prebuilt/");
+    const QVector<FileName> clangSearchPaths{clangPath, oldNdkClangPath};
 
     // detect toolchain host
     QStringList hostPatterns;
@@ -421,20 +424,30 @@ FileName AndroidConfig::clangPath() const
     default: /* unknown host */ return FileName();
     }
 
-    QDirIterator iter(clangPath.toString(), hostPatterns, QDir::Dirs);
-    if (iter.hasNext()) {
-        iter.next();
-        return clangPath.appendPath(iter.fileName())
-            .appendPath(HostOsInfo::withExecutableSuffix("bin/clang"));
+    for (const FileName &path : clangSearchPaths) {
+        QDirIterator iter(path.toString(), hostPatterns, QDir::Dirs);
+        if (iter.hasNext()) {
+            iter.next();
+            FileName found = path;
+            return found.appendPath(iter.fileName())
+                .appendPath(HostOsInfo::withExecutableSuffix("bin/clang"));
+        }
     }
 
-    return clangPath;
+    return {};
 }
 
-FileName AndroidConfig::gdbPath() const
+FileName AndroidConfig::gdbPath(const ProjectExplorer::Abi &abi) const
 {
     FileName path = m_ndkLocation;
     path.appendPath(QString("prebuilt/%1/bin/gdb%2").arg(toolchainHost(), QTC_HOST_EXE_SUFFIX));
+    if (path.exists())
+        return path;
+    // fallback for old NDKs (e.g. 10e)
+    path = m_ndkLocation;
+    path.appendPath(
+        QString("toolchains/%1-4.9/prebuilt/%2/bin/%3-gdb%4")
+            .arg(toolchainPrefix(abi), toolchainHost(), toolsPrefix(abi), QTC_HOST_EXE_SUFFIX));
     return path;
 }
 
@@ -991,6 +1004,26 @@ void AndroidConfigurations::removeOldToolChains()
     }
 }
 
+static QVariant findOrRegisterDebugger(ToolChain *tc)
+{
+    const FileName command = tc->suggestedDebugger();
+    // check if the debugger is already registered, but ignoring the display name
+    const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(command);
+    if (existing && existing->engineType() == Debugger::GdbEngineType && existing->isAutoDetected()
+            && existing->abis() == QList<Abi>{tc->targetAbi()})
+        return existing->id();
+    // debugger not found, register a new one
+    Debugger::DebuggerItem debugger;
+    debugger.setCommand(tc->suggestedDebugger());
+    debugger.setEngineType(Debugger::GdbEngineType);
+    debugger.setUnexpandedDisplayName(
+        AndroidConfigurations::tr("Android Debugger for %1").arg(tc->displayName()));
+    debugger.setAutoDetected(true);
+    debugger.setAbi(tc->targetAbi());
+    debugger.reinitializeFromFile();
+    return Debugger::DebuggerItemManager::registerDebugger(debugger);
+}
+
 void AndroidConfigurations::updateAutomaticKitList()
 {
     const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
@@ -1065,15 +1098,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                 toSetup = existingKit;
             }
 
-            Debugger::DebuggerItem debugger;
-            debugger.setCommand(tc->suggestedDebugger());
-            debugger.setEngineType(Debugger::GdbEngineType);
-            debugger.setUnexpandedDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
-            debugger.setAutoDetected(true);
-            debugger.setAbi(tc->targetAbi());
-            debugger.reinitializeFromFile();
-            QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
-            Debugger::DebuggerKitInformation::setDebugger(toSetup, id);
+            Debugger::DebuggerKitInformation::setDebugger(toSetup, findOrRegisterDebugger(tc));
 
             AndroidGdbServerKitInformation::setGdbSever(toSetup, currentConfig().gdbServer(tc->targetAbi()));
             toSetup->makeSticky();

@@ -74,7 +74,11 @@ template <> struct Compare<ReferenceType>
 {
     bool operator()(const ReferenceType &ty, const ReferenceType &otherTy) const
     {
-        return ty.elementType() < otherTy.elementType();
+        if (ty.elementType() < otherTy.elementType())
+            return true;
+        if (ty.elementType() == otherTy.elementType())
+            return (int)ty.isRvalueReference() < (int)otherTy.isRvalueReference();
+        return false;
     }
 };
 
