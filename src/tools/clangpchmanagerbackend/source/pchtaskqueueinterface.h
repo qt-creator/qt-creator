@@ -25,15 +25,19 @@
 
 #pragma once
 
+#include "queueinterface.h"
 #include "pchtask.h"
 
 namespace ClangBackEnd {
-class PchTasksMergerInterface
+
+class PchTaskQueueInterface : public QueueInterface
 {
 public:
-    virtual void mergeTasks(PchTaskSets &&taskSets) = 0;
+    virtual void addSystemPchTasks(PchTasks &&pchTasks) = 0;
+    virtual void addProjectPchTasks(PchTasks &&pchTasks) = 0;
+    virtual void removePchTasks(const Utils::SmallStringVector &projectsPartIds) = 0;
 
 protected:
-    ~PchTasksMergerInterface() = default;
+    ~PchTaskQueueInterface() = default;
 };
 } // namespace ClangBackEnd

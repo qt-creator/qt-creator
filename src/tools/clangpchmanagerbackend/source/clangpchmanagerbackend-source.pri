@@ -5,7 +5,8 @@ SOURCES += \
     $$PWD/pchmanagerserver.cpp \
     $$PWD/projectparts.cpp \
     $$PWD/projectpartqueue.cpp \
-    $$PWD/pchtaskgenerator.cpp
+    $$PWD/pchtaskgenerator.cpp \
+    $$PWD/pchtasksmerger.cpp
 
 HEADERS += \
     $$PWD/pchmanagerserver.h \
@@ -35,7 +36,9 @@ HEADERS += \
     $$PWD/builddependenciesstorage.h \
     $$PWD/builddependencygeneratorinterface.h \
     $$PWD/usedmacrofilter.h \
-    $$PWD/pchtasksmergerinterface.h
+    $$PWD/pchtasksmergerinterface.h \
+    $$PWD/pchtasksmerger.h \
+    $$PWD/pchtaskqueueinterface.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

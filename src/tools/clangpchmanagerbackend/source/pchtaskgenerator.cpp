@@ -36,23 +36,28 @@ namespace ClangBackEnd {
 
 void PchTaskGenerator::create(V2::ProjectPartContainers &&projectParts)
 {
+    PchTaskSets pchTaskSets;
+    pchTaskSets.reserve(projectParts.size());
+
     for (auto &projectPart : projectParts) {
         BuildDependency buildDependency = m_buildDependenciesProvider.create(projectPart);
         UsedMacroFilter filter{buildDependency.includes, buildDependency.usedMacros};
 
         filter.filter(projectPart.compilerMacros);
 
-        m_pchTasksMergerInterface.addTask({projectPart.projectPartId.clone(),
-                                           std::move(filter.systemIncludes),
-                                           std::move(filter.systemCompilerMacros),
-                                           std::move(filter.systemUsedMacros)
+        pchTaskSets.emplace_back(PchTask{projectPart.projectPartId.clone(),
+                                         std::move(filter.systemIncludes),
+                                         std::move(filter.systemCompilerMacros),
+                                         std::move(filter.systemUsedMacros)
 
-                                          },
-                                          {std::move(projectPart.projectPartId),
-                                           std::move(filter.projectIncludes),
-                                           std::move(filter.projectCompilerMacros),
-                                           std::move(filter.projectUsedMacros)});
+                                 },
+                                 PchTask{std::move(projectPart.projectPartId),
+                                         std::move(filter.projectIncludes),
+                                         std::move(filter.projectCompilerMacros),
+                                         std::move(filter.projectUsedMacros)});
     }
+
+    m_pchTasksMergerInterface.mergeTasks(std::move(pchTaskSets));
 }
 
 } // namespace ClangBackEnd

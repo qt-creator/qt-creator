@@ -23,17 +23,27 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "pchtasksmerger.h"
 
-#include "pchtask.h"
+#include "pchtaskqueueinterface.h"
 
 namespace ClangBackEnd {
-class PchTasksMergerInterface
-{
-public:
-    virtual void mergeTasks(PchTaskSets &&taskSets) = 0;
 
-protected:
-    ~PchTasksMergerInterface() = default;
-};
+void PchTasksMerger::mergeTasks(PchTaskSets &&taskSets)
+{
+    PchTasks systemTasks;
+    systemTasks.reserve(taskSets.size());
+    PchTasks projectTasks;
+    projectTasks.reserve(taskSets.size());
+
+    for (PchTaskSet &taskSet : taskSets) {
+        projectTasks.push_back(std::move(taskSet.project));
+        systemTasks.push_back(std::move(taskSet.system));
+    }
+
+    m_pchTaskQueue.addSystemPchTasks(std::move(systemTasks));
+    m_pchTaskQueue.addProjectPchTasks(std::move(projectTasks));
+    m_pchTaskQueue.processEntries();
+}
+
 } // namespace ClangBackEnd

@@ -29,7 +29,7 @@
 
 #include <utils/smallstring.h>
 
-#include <QDir>
+#include <utils/temporarydirectory.h>
 
 using testing::Contains;
 using testing::IsEmpty;
@@ -60,8 +60,8 @@ protected:
 
 protected:
     ClangBackEnd::RefactoringCompilationDatabase database;
-    Utils::SmallString temporaryDirectoryPath = QDir::toNativeSeparators(QDir::tempPath());
-    Utils::SmallString temporarySourceFilePath = QDir::toNativeSeparators(QDir::tempPath() + "/data.cpp");
+    Utils::SmallString temporaryDirectoryPath = QDir::toNativeSeparators(Utils::TemporaryDirectory::masterDirectoryPath());
+    Utils::SmallString temporarySourceFilePath = QDir::toNativeSeparators(Utils::TemporaryDirectory::masterDirectoryPath() + "/data.cpp");
 
 };
 

@@ -108,7 +108,8 @@ SOURCES += \
     compilationdatabaseutils-test.cpp \
     builddependenciesprovider-test.cpp \
     builddependenciesstorage-test.cpp \
-    usedmacrofilter-test.cpp
+    usedmacrofilter-test.cpp \
+    pchtasksmerger-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -258,7 +259,8 @@ HEADERS += \
     mockmodifiedtimechecker.h \
     mockbuilddependenciesstorage.h \
     mockbuilddependencygenerator.h \
-    mockpchtasksmerger.h
+    mockpchtasksmerger.h \
+    mockpchtaskqueue.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

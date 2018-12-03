@@ -32,6 +32,8 @@
 #include <sqlitewritestatement.h>
 #include <utf8string.h>
 
+#include <utils/temporarydirectory.h>
+
 #include <QSignalSpy>
 #include <QTemporaryFile>
 #include <QVariant>
@@ -127,7 +129,8 @@ TEST_F(SqliteDatabase, DatabaseIsInitializedIfDatabasePathExistsAtOpening)
 
 TEST_F(SqliteDatabase, DatabaseIsNotInitializedIfDatabasePathDoesNotExistAtOpening)
 {
-    Sqlite::Database database{Utils::PathString{QDir::tempPath() + "/database_does_not_exist.db"}};
+    Sqlite::Database database{Utils::PathString{Utils::TemporaryDirectory::masterDirectoryPath()
+                                                + "/database_does_not_exist.db"}};
 
     ASSERT_FALSE(database.isInitialized());
 }

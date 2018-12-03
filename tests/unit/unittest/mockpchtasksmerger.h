@@ -32,12 +32,7 @@
 class MockPchTasksMerger : public ClangBackEnd::PchTasksMergerInterface
 {
 public:
-    MOCK_METHOD2(addTask,
-                 void(const ClangBackEnd::PchTask &systemPchTask,
-                      const ClangBackEnd::PchTask &projectPchTask));
+    MOCK_METHOD1(mergeTasks, void(const ClangBackEnd::PchTaskSets &pchTaskSets));
 
-    void addTask(ClangBackEnd::PchTask &&systemPchTask, ClangBackEnd::PchTask &&projectPchTask)
-    {
-        addTask(systemPchTask, projectPchTask);
-    }
+    void mergeTasks(ClangBackEnd::PchTaskSets &&pchTaskSets) override { mergeTasks(pchTaskSets); }
 };

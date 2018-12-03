@@ -46,6 +46,15 @@ public:
         , usedMacros(usedMacros)
     {}
 
+    friend bool operator==(const PchTask &first, const PchTask &second)
+    {
+        return first.projectPartId == second.projectPartId
+               && first.dependentIds == second.dependentIds && first.includes == second.includes
+               && first.compilerMacros == second.compilerMacros
+               && first.usedMacros == second.usedMacros;
+    }
+
+public:
     Utils::SmallString projectPartId;
     Utils::SmallStringVector dependentIds;
     FilePathIds includes;
@@ -53,5 +62,19 @@ public:
     UsedMacros usedMacros;
 };
 
+class PchTaskSet
+{
+public:
+    PchTaskSet(PchTask &&system, PchTask &&project)
+        : system(std::move(system))
+        , project(std::move(project))
+    {}
+
+public:
+    PchTask system;
+    PchTask project;
+};
+
 using PchTasks = std::vector<PchTask>;
+using PchTaskSets = std::vector<PchTaskSet>;
 } // namespace ClangBackEnd

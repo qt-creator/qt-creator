@@ -37,6 +37,7 @@ using ClangBackEnd::BuildDependencies;
 using ClangBackEnd::CompilerMacro;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::PchTask;
+using ClangBackEnd::PchTaskSet;
 using ClangBackEnd::SourceEntries;
 using ClangBackEnd::SourceType;
 using ClangBackEnd::UsedMacro;
@@ -77,20 +78,24 @@ TEST_F(PchTaskGenerator, Create)
     ON_CALL(mockBuildDependenciesProvider, create(_)).WillByDefault(Return(buildDependency));
 
     EXPECT_CALL(mockPchTaskMerger,
-                addTask(AllOf(Field(&PchTask::projectPartId, Eq("ProjectPart1")),
-                              Field(&PchTask::includes, ElementsAre(4, 5)),
-                              Field(&PchTask::compilerMacros,
-                                    ElementsAre(CompilerMacro{"SE", "4", 4},
-                                                CompilerMacro{"WU", "5", 5})),
-                              Field(&PchTask::usedMacros,
-                                    ElementsAre(UsedMacro{"SE", 4}, UsedMacro{"WU", 5}))),
-                        AllOf(Field(&PchTask::projectPartId, Eq("ProjectPart1")),
-                              Field(&PchTask::includes, ElementsAre(1, 3)),
-                              Field(&PchTask::compilerMacros,
-                                    ElementsAre(CompilerMacro{"YI", "1", 1},
-                                                CompilerMacro{"SAN", "3", 3})),
-                              Field(&PchTask::usedMacros,
-                                    ElementsAre(UsedMacro{"YI", 1}, UsedMacro{"SAN", 3})))));
+                mergeTasks(ElementsAre(
+                    AllOf(Field(&PchTaskSet::system,
+                                AllOf(Field(&PchTask::projectPartId, Eq("ProjectPart1")),
+                                      Field(&PchTask::includes, ElementsAre(4, 5)),
+                                      Field(&PchTask::compilerMacros,
+                                            ElementsAre(CompilerMacro{"SE", "4", 4},
+                                                        CompilerMacro{"WU", "5", 5})),
+                                      Field(&PchTask::usedMacros,
+                                            ElementsAre(UsedMacro{"SE", 4}, UsedMacro{"WU", 5})))),
+                          AllOf(Field(&PchTaskSet::project,
+                                      AllOf(Field(&PchTask::projectPartId, Eq("ProjectPart1")),
+                                            Field(&PchTask::includes, ElementsAre(1, 3)),
+                                            Field(&PchTask::compilerMacros,
+                                                  ElementsAre(CompilerMacro{"YI", "1", 1},
+                                                              CompilerMacro{"SAN", "3", 3})),
+                                            Field(&PchTask::usedMacros,
+                                                  ElementsAre(UsedMacro{"YI", 1},
+                                                              UsedMacro{"SAN", 3})))))))));
 
     generator.create({projectPart1});
 }

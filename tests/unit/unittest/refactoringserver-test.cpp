@@ -36,7 +36,8 @@
 #include <refactoringserver.h>
 #include <sqlitedatabase.h>
 
-#include <QDir>
+#include <utils/temporarydirectory.h>
+
 #include <QTemporaryFile>
 
 namespace {
@@ -100,7 +101,7 @@ protected:
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),
                          {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp")}};
-    QTemporaryFile temporaryFile{QDir::tempPath() + "/clangQuery-XXXXXX.cpp"};
+    QTemporaryFile temporaryFile{Utils::TemporaryDirectory::masterDirectoryPath() + "/clangQuery-XXXXXX.cpp"};
     int processingSlotCount = 2;
 };
 

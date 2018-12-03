@@ -25,15 +25,25 @@
 
 #pragma once
 
-#include "pchtask.h"
+#include "googletest.h"
 
-namespace ClangBackEnd {
-class PchTasksMergerInterface
+#include <pchtaskqueueinterface.h>
+
+class MockPchTaskQueue : public ClangBackEnd::PchTaskQueueInterface
 {
 public:
-    virtual void mergeTasks(PchTaskSets &&taskSets) = 0;
+    MOCK_METHOD1(addSystemPchTasks, void(const ClangBackEnd::PchTasks &pchTasks));
+    MOCK_METHOD1(addProjectPchTasks, void(const ClangBackEnd::PchTasks &pchTasks));
+    MOCK_METHOD1(removePchTasks, void(const Utils::SmallStringVector &projectsPartIds));
+    MOCK_METHOD0(processEntries, void ());
 
-protected:
-    ~PchTasksMergerInterface() = default;
+    void addSystemPchTasks(ClangBackEnd::PchTasks &&pchTasks) override
+    {
+        addSystemPchTasks(pchTasks);
+    }
+
+    void addProjectPchTasks(ClangBackEnd::PchTasks &&pchTasks) override
+    {
+        addProjectPchTasks(pchTasks);
+    }
 };
-} // namespace ClangBackEnd
