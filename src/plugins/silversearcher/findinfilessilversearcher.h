@@ -32,7 +32,9 @@
 
 #include <QPointer>
 
+QT_BEGIN_NAMESPACE
 class QLineEdit;
+QT_END_NAMESPACE
 
 namespace SilverSearcher {
 
