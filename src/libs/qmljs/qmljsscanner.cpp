@@ -34,20 +34,25 @@ static const QString js_keywords[] = {
     QLatin1String("break"),
     QLatin1String("case"),
     QLatin1String("catch"),
+    QLatin1String("class"),
+    QLatin1String("const"),
     QLatin1String("continue"),
     QLatin1String("debugger"),
     QLatin1String("default"),
     QLatin1String("delete"),
     QLatin1String("do"),
     QLatin1String("else"),
+    QLatin1String("extends"),
     QLatin1String("finally"),
     QLatin1String("for"),
     QLatin1String("function"),
     QLatin1String("if"),
     QLatin1String("in"),
     QLatin1String("instanceof"),
+    QLatin1String("let"),
     QLatin1String("new"),
     QLatin1String("return"),
+    QLatin1String("super"),
     QLatin1String("switch"),
     QLatin1String("this"),
     QLatin1String("throw"),
@@ -56,7 +61,8 @@ static const QString js_keywords[] = {
     QLatin1String("var"),
     QLatin1String("void"),
     QLatin1String("while"),
-    QLatin1String("with")
+    QLatin1String("with"),
+    QLatin1String("yield")
 };
 } // end of anonymous namespace
 
@@ -274,6 +280,7 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
             break;
 
         case '\'':
+        case '`':
         case '"': {
             const QChar quote = ch;
             const int start = index;
