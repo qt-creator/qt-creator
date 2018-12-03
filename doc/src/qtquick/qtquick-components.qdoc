@@ -427,6 +427,7 @@
     \endlist
 
     \if defined(qtdesignstudio)
+    \include qtdesignstudio-visual-effects.qdocinc qml visual effects
     \include qtdesignstudio-components.qdocinc creating studio components
     \include qtdesignstudio-components.qdocinc studio components
     \endif
