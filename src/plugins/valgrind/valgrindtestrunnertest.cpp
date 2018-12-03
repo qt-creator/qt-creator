@@ -166,17 +166,17 @@ void ValgrindTestRunnerTest::testLeak1()
     {
         const Frame frame = stack.frames().at(0);
         if (on64bit())
-            QCOMPARE(frame.functionName(), "operator new(unsigned long)");
+            QCOMPARE(frame.functionName(), QString("operator new(unsigned long)"));
         else
-            QCOMPARE(frame.functionName(), "operator new(unsigned int)");
+            QCOMPARE(frame.functionName(), QString("operator new(unsigned int)"));
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), "main");
+        QCOMPARE(frame.functionName(), QString("main"));
         QCOMPARE(frame.line(), 5 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.fileName(), "main.cpp");
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak1"));
     }
 }
@@ -200,23 +200,23 @@ void ValgrindTestRunnerTest::testLeak2()
     QCOMPARE(stack.frames().count(), 3);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), "malloc");
+        QCOMPARE(frame.functionName(), QString("malloc"));
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), "strdup");
+        QCOMPARE(frame.functionName(), QString("strdup"));
     }
     {
         const Frame frame = stack.frames().at(2);
         if (on64bit()) {
-            QCOMPARE(frame.functionName(), "main");
+            QCOMPARE(frame.functionName(), QString("main"));
             QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
             QCOMPARE(frame.object(), binary);
-            QCOMPARE(frame.fileName(), "main.cpp");
+            QCOMPARE(frame.fileName(), QString("main.cpp"));
             QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak2"));
         } else {
-           QCOMPARE(frame.functionName(), "(below main)");
+           QCOMPARE(frame.functionName(), QString("(below main)"));
         }
     }
 }
@@ -240,23 +240,23 @@ void ValgrindTestRunnerTest::testLeak3()
     QCOMPARE(stack.frames().count(), 3);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), "malloc");
+        QCOMPARE(frame.functionName(), QString("malloc"));
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), "strdup");
+        QCOMPARE(frame.functionName(), QString("strdup"));
     }
     {
         const Frame frame = stack.frames().at(2);
         if (on64bit()) {
-            QCOMPARE(frame.functionName(), "main");
+            QCOMPARE(frame.functionName(), QString("main"));
             QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
             QCOMPARE(frame.object(), binary);
-            QCOMPARE(frame.fileName(), "main.cpp");
+            QCOMPARE(frame.fileName(), QString("main.cpp"));
             QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak3"));
         } else {
-            QCOMPARE(frame.functionName(), "(below main)");
+            QCOMPARE(frame.functionName(), QString("(below main)"));
         }
     }
 }
@@ -290,26 +290,26 @@ void ValgrindTestRunnerTest::testLeak4()
     {
         const Frame frame = stack.frames().at(0);
         if (on64bit())
-            QCOMPARE(frame.functionName(), "operator new(unsigned long)");
+            QCOMPARE(frame.functionName(), QString("operator new(unsigned long)"));
         else
-            QCOMPARE(frame.functionName(), "operator new(unsigned int)");
+            QCOMPARE(frame.functionName(), QString("operator new(unsigned int)"));
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), "Foo::Foo()");
+        QCOMPARE(frame.functionName(), QString("Foo::Foo()"));
         QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.fileName(), "main.cpp");
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     {
         const Frame frame = stack.frames().at(2);
-        QCOMPARE(frame.functionName(), "main");
+        QCOMPARE(frame.functionName(), QString("main"));
         QCOMPARE(frame.line(), 14 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.fileName(), "main.cpp");
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -331,17 +331,17 @@ void ValgrindTestRunnerTest::testLeak4()
     {
         const Frame frame = stack.frames().at(0);
         if (on64bit())
-            QCOMPARE(frame.functionName(), "operator new(unsigned long)");
+            QCOMPARE(frame.functionName(), QString("operator new(unsigned long)"));
         else
-            QCOMPARE(frame.functionName(), "operator new(unsigned int)");
+            QCOMPARE(frame.functionName(), QString("operator new(unsigned int)"));
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), "main");
+        QCOMPARE(frame.functionName(), QString("main"));
         QCOMPARE(frame.line(), 14 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.fileName(), "main.cpp");
+        QCOMPARE(frame.fileName(), QString("main.cpp"));
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -369,11 +369,11 @@ void ValgrindTestRunnerTest::testUninit1()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     //BEGIN second stack
@@ -383,11 +383,11 @@ void ValgrindTestRunnerTest::testUninit1()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -417,11 +417,11 @@ void ValgrindTestRunnerTest::testUninit2()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     //BEGIN second stack
@@ -431,11 +431,11 @@ void ValgrindTestRunnerTest::testUninit2()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -450,11 +450,11 @@ void ValgrindTestRunnerTest::testUninit2()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -484,11 +484,11 @@ void ValgrindTestRunnerTest::testUninit3()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     //BEGIN second stack
@@ -498,11 +498,11 @@ void ValgrindTestRunnerTest::testUninit3()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -517,11 +517,11 @@ void ValgrindTestRunnerTest::testUninit3()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -550,25 +550,25 @@ void ValgrindTestRunnerTest::testSyscall()
 
         {
             const Frame frame = stack.frames().at(0);
-            QCOMPARE(frame.functionName(), "_Exit");
+            QCOMPARE(frame.functionName(), QString("_Exit"));
         }
         {
             const Frame frame = stack.frames().at(1);
-            QCOMPARE(frame.functionName(), "__run_exit_handlers");
+            QCOMPARE(frame.functionName(), QString("__run_exit_handlers"));
         }
         {
             const Frame frame = stack.frames().at(2);
-            QCOMPARE(frame.functionName(), "exit");
+            QCOMPARE(frame.functionName(), QString("exit"));
         }
         {
             const Frame frame = stack.frames().at(3);
-            QCOMPARE(frame.functionName(), "(below main)");
+            QCOMPARE(frame.functionName(), QString("(below main)"));
         }
     } else {
         QCOMPARE(stack.frames().count(), 1);
         {
             const Frame frame = stack.frames().at(0);
-            QCOMPARE(frame.functionName(), "_Exit");
+            QCOMPARE(frame.functionName(), QString("_Exit"));
         }
     }
     }
@@ -579,11 +579,11 @@ void ValgrindTestRunnerTest::testSyscall()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
@@ -611,15 +611,15 @@ void ValgrindTestRunnerTest::testFree1()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "operator delete(void*)");
+    QCOMPARE(frame.functionName(), QString("operator delete(void*)"));
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -631,15 +631,15 @@ void ValgrindTestRunnerTest::testFree1()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "operator delete(void*)");
+    QCOMPARE(frame.functionName(), QString("operator delete(void*)"));
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -668,15 +668,15 @@ void ValgrindTestRunnerTest::testFree2()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), "free");
+    QCOMPARE(frame.functionName(), QString("free"));
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -690,17 +690,17 @@ void ValgrindTestRunnerTest::testFree2()
     {
     const Frame frame = stack.frames().first();
     if (on64bit())
-        QCOMPARE(frame.functionName(), "operator new(unsigned long)");
+        QCOMPARE(frame.functionName(), QString("operator new(unsigned long)"));
     else
-        QCOMPARE(frame.functionName(), "operator new(unsigned int)");
+        QCOMPARE(frame.functionName(), QString("operator new(unsigned int)"));
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), "main");
+    QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 5 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
-    QCOMPARE(frame.fileName(), "main.cpp");
+    QCOMPARE(frame.fileName(), QString("main.cpp"));
     QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
@@ -731,7 +731,7 @@ void ValgrindTestRunnerTest::testInvalidjump()
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), "(below main)");
+        QCOMPARE(frame.functionName(), QString("(below main)"));
     }
 }
 
