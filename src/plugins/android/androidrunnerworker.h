@@ -112,6 +112,7 @@ protected:
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
     QString m_gdbserverPath;
+    bool m_useAppParamsForQmlDebugger = false;
 };
 
 } // namespace Internal
