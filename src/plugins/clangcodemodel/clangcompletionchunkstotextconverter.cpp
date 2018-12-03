@@ -25,6 +25,8 @@
 
 #include "clangcompletionchunkstotextconverter.h"
 
+#include <QtGlobal>
+
 #include <algorithm>
 #include <functional>
 
@@ -68,6 +70,11 @@ void CompletionChunksToTextConverter::setAddResultType(bool addResultType)
 void CompletionChunksToTextConverter::setAddSpaces(bool addSpaces)
 {
     m_addSpaces = addSpaces;
+}
+
+void CompletionChunksToTextConverter::setHonorVerticalSpace(bool honor)
+{
+    m_honorVerticalSpace = honor;
 }
 
 void CompletionChunksToTextConverter::setAddExtraVerticalSpaceBetweenBraces(
@@ -145,6 +152,8 @@ QString CompletionChunksToTextConverter::convertToName(
 {
     CompletionChunksToTextConverter converter;
 
+    converter.setHonorVerticalSpace(false);
+
     converter.parseChunks(codeCompletionChunks);
 
     return converter.text();
@@ -183,6 +192,10 @@ void CompletionChunksToTextConverter::parse(
             parsePlaceHolder(codeCompletionChunk); break;
         case CodeCompletionChunk::LeftParen: parseLeftParen(codeCompletionChunk); break;
         case CodeCompletionChunk::LeftBrace: parseLeftBrace(codeCompletionChunk); break;
+        case CodeCompletionChunk::VerticalSpace:
+            if (!m_honorVerticalSpace)
+                break;
+            Q_FALLTHROUGH();
         default: parseText(codeCompletionChunk.text); break;
     }
 }

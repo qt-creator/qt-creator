@@ -256,7 +256,7 @@ TEST_F(CompletionChunksToTextConverter, Enumeration)
     ASSERT_THAT(converter.text(), QStringLiteral("Class"));
 }
 
-TEST_F(CompletionChunksToTextConverter, Switch)
+TEST_F(CompletionChunksToTextConverter, SwitchAsKeyword)
 {
     CodeCompletionChunks completionChunks({switchName,
                                            leftParen,
@@ -271,6 +271,22 @@ TEST_F(CompletionChunksToTextConverter, Switch)
 
     ASSERT_THAT(converter.text(), QStringLiteral("switch () {\n\n}"));
     ASSERT_THAT(converter.placeholderPositions().at(0), 8);
+}
+
+TEST_F(CompletionChunksToTextConverter, SwitchAsName)
+{
+    CodeCompletionChunks completionChunks({switchName,
+                                           leftParen,
+                                           condition,
+                                           rightParen,
+                                           leftBrace,
+                                           verticalSpace,
+                                           rightBrace});
+
+    const QString text = ClangCodeModel::Internal::CompletionChunksToTextConverter::convertToName(
+        completionChunks);
+
+    ASSERT_THAT(text, QStringLiteral("switch(){}"));
 }
 
 TEST_F(CompletionChunksToTextConverter, For)
