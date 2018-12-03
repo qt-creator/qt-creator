@@ -31,6 +31,7 @@
 #include <QByteArrayList>
 #include <QProcess>
 #include <QTemporaryFile>
+#include <QTimer>
 
 #include <botan/auto_rng.h>
 
@@ -142,8 +143,10 @@ void SshX11InfoRetriever::start()
 
 void SshX11InfoRetriever::emitFailure(const QString &reason)
 {
-    emit failure(tr("Could not retrieve X11 authentication cookie: %1").arg(reason));
-    deleteLater();
+    QTimer::singleShot(0, this, [this, reason] {
+        emit failure(tr("Could not retrieve X11 authentication cookie: %1").arg(reason));
+        deleteLater();
+    });
 }
 
 } // namespace Internal

@@ -849,7 +849,7 @@ void tst_Ssh::x11InfoRetriever()
     QFETCH(QString, displayName);
     QFETCH(bool, successExpected);
     using namespace QSsh::Internal;
-    SshX11InfoRetriever x11InfoRetriever(displayName);
+    auto * const x11InfoRetriever = new SshX11InfoRetriever(displayName);
     QEventLoop loop;
     bool success;
     X11DisplayInfo displayInfo;
@@ -859,19 +859,19 @@ void tst_Ssh::x11InfoRetriever()
         displayInfo = di;
         loop.quit();
     };
-    connect(&x11InfoRetriever, &SshX11InfoRetriever::success, successHandler);
+    connect(x11InfoRetriever, &SshX11InfoRetriever::success, successHandler);
     const auto failureHandler = [&loop, &success, &errorMessage](const QString &error) {
         success = false;
         errorMessage = error;
         loop.quit();
     };
-    connect(&x11InfoRetriever, &SshX11InfoRetriever::failure, failureHandler);
+    connect(x11InfoRetriever, &SshX11InfoRetriever::failure, failureHandler);
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     timer.setSingleShot(true);
     timer.setInterval(40000);
     timer.start();
-    x11InfoRetriever.start();
+    x11InfoRetriever->start();
     loop.exec();
     QVERIFY(timer.isActive());
     timer.stop();
