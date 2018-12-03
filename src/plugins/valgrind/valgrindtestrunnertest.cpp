@@ -760,11 +760,11 @@ void ValgrindTestRunnerTest::testOverlap()
     }
     {
         const Frame frame = stack.frames().last();
-        QCOMPARE(frame.functionName(), "main");
+        QCOMPARE(frame.functionName(), QLatin1String("main"));
         QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.fileName(), "main.cpp");
+        QCOMPARE(frame.fileName(), QLatin1String("main.cpp"));
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
