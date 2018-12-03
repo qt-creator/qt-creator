@@ -605,10 +605,10 @@ QString CompilerOptionsBuilder::includeDirOptionForPath(const QString &path) con
 {
     if (m_useSystemHeader == UseSystemHeader::No
             || path.startsWith(m_projectPart.project->rootProjectDirectory().toString())) {
-        return includeUserPathOption;
+        return QLatin1String(includeUserPathOption);
     }
 
-    return includeSystemPathOption;
+    return QLatin1String(includeSystemPathOption);
 }
 
 bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro &macro) const
