@@ -122,19 +122,15 @@ static QList<AssistProposalItemInterface *> toAssistProposalItems(
         const CodeCompletions &completions,
         const ClangCompletionAssistInterface *interface)
 {
-    bool signalCompletion = false; // TODO
-    bool slotCompletion = false; // TODO
+    // TODO: Handle Qt4's SIGNAL/SLOT
+    //   Possibly check for m_completionOperator == T_SIGNAL
+    //   Possibly check for codeCompletion.completionKind == CodeCompletion::SignalCompletionKind
 
     QList<AssistProposalItemInterface *> items;
     items.reserve(completions.size());
     for (const CodeCompletion &codeCompletion : completions) {
         if (codeCompletion.text.isEmpty())
             continue; // It's an OverloadCandidate which has text but no typedText.
-
-        if (signalCompletion && codeCompletion.completionKind != CodeCompletion::SignalCompletionKind)
-            continue;
-        if (slotCompletion && codeCompletion.completionKind != CodeCompletion::SlotCompletionKind)
-            continue;
 
         const QString name = codeCompletion.completionKind == CodeCompletion::KeywordCompletionKind
                 ? CompletionChunksToTextConverter::convertToName(codeCompletion.chunks)

@@ -82,8 +82,8 @@ private:
 private:
     CodeCompletion currentCodeCompletion_;
     const UnsavedFile &unsavedFile;
-    CXCompletionResult currentCxCodeCompleteResult;
-    CXCodeCompleteResults *cxCodeCompleteResults;
+    CXCompletionResult currentCxCodeCompleteResult{CXCursor_UnexposedDecl, nullptr};
+    CXCodeCompleteResults *cxCodeCompleteResults = nullptr;
     uint cxCodeCompleteResultIndex = 0;
 };
 

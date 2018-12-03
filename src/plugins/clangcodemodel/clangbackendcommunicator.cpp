@@ -261,14 +261,14 @@ void BackendCommunicator::unsavedFilesUpdatedForUiHeaders()
 void BackendCommunicator::documentsChangedFromCppEditorDocument(const QString &filePath)
 {
     const CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
-
+    QTC_ASSERT(document, return);
     documentsChanged(filePath, document->contents(), document->revision());
 }
 
 void BackendCommunicator::unsavedFielsUpdatedFromCppEditorDocument(const QString &filePath)
 {
     const CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
-
+    QTC_ASSERT(document, return);
     unsavedFilesUpdated(filePath, document->contents(), document->revision());
 }
 

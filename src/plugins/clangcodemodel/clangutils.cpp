@@ -332,7 +332,9 @@ void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo p
 {
     QFile compileCommandsFile(projectDir.toString() + "/compile_commands.json");
 
-    compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    if (!fileOpened)
+        return;
     compileCommandsFile.write("[");
     for (ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
         const ::Utils::FileName buildDir = buildDirectory(*projectPart);
