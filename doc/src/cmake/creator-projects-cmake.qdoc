@@ -125,8 +125,9 @@
     in the \c {Modules} directory of your CMake installation.
 
     \note If you provide your own libraries, you also need to provide your own
-    \c {FindFoo.cmake} file. For more information, see
-    \l{http://vtk.org/Wiki/CMake_FAQ#Writing_FindXXX.cmake_files}{CMake FAQ}.
+    \c {FindXXX.cmake} file. For more information, see
+    \l{https://gitlab.kitware.com/cmake/community/wikis/FAQ#writing-findxxxcmake-files}
+    {Writing FindXXX.cmake files}.
 
     Syntax completion and highlighting work once your project successfully
     builds and links against the external library.
