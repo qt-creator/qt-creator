@@ -45,7 +45,6 @@ public:
     bool parseInProgress(const ProjectExplorer::Target *target) const override;
     bool validParse(const ProjectExplorer::Target *target) const override;
     bool extraLibraryEnabled(const ProjectExplorer::Target *target) const override;
-    Utils::FileName projectFilePath(const ProjectExplorer::Target *target) const override;
 
     void addFiles(const ProjectExplorer::Target *target, const QString &buildKey,
                   const QStringList &addedFiles) const override;

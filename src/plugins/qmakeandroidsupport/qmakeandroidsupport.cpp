@@ -105,12 +105,6 @@ bool QmakeAndroidSupport::extraLibraryEnabled(const Target *target) const
     return pro && !pro->parseInProgress();
 }
 
-FileName QmakeAndroidSupport::projectFilePath(const Target *target) const
-{
-    QmakeProFile *pro = applicationProFile(target);
-    return pro ? pro->filePath() : FileName();
-}
-
 bool QmakeAndroidSupport::setTargetData(Core::Id role, const QVariant &value, const Target *target) const
 {
     QmakeProFile *pro = applicationProFile(target);

@@ -30,8 +30,11 @@
 #include <android/androidmanager.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+
+using namespace ProjectExplorer;
 
 namespace Android {
 
@@ -109,11 +112,16 @@ void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
 {
     AndroidQtSupport *qtSupport = Android::AndroidManager::androidQtSupport(m_target);
     QTC_ASSERT(qtSupport, return);
-    Utils::FileName projectFilePath = qtSupport->projectFilePath(m_target);
+
+    RunConfiguration *rc = m_target->activeRunConfiguration();
+    QTC_ASSERT(rc, return);
+
+    const ProjectNode *node = m_target->project()->findNodeForBuildKey(rc->buildKey());
+    QTC_ASSERT(node, return);
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
 
-    const QDir dir = qtSupport->projectFilePath(m_target).toFileInfo().absoluteDir();
+    const QDir dir = node->filePath().toFileInfo().absoluteDir();
     for (const QString &path : list)
         m_entries += "$$PWD/" + dir.relativeFilePath(path);
 
