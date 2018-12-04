@@ -106,7 +106,9 @@ enum FakeVimSettingsCode
     ConfigClipboard,
     ConfigShowCmd,
     ConfigScrollOff,
-    ConfigRelativeNumber
+    ConfigRelativeNumber,
+
+    ConfigBlinkingCursor
 };
 
 class FakeVimSettings

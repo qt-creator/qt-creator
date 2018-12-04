@@ -83,6 +83,7 @@
 #include <QAbstractTableModel>
 #include <QDebug>
 #include <QFile>
+#include <QGuiApplication>
 #include <QItemDelegate>
 #include <QPainter>
 #include <QPlainTextEdit>
@@ -91,6 +92,7 @@
 #include <QSettings>
 #include <QStackedWidget>
 #include <QStandardPaths>
+#include <QStyleHints>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextEdit>
@@ -426,6 +428,7 @@ QWidget *FakeVimOptionPage::widget()
         m_group.insert(theFakeVimSetting(ConfigShowCmd), m_ui.checkBoxShowCmd);
 
         m_group.insert(theFakeVimSetting(ConfigRelativeNumber), m_ui.checkBoxRelativeNumber);
+        m_group.insert(theFakeVimSetting(ConfigBlinkingCursor), m_ui.checkBoxBlinkingCursor);
 
         connect(m_ui.pushButtonCopyTextEditorSettings, &QAbstractButton::clicked,
                 this, &FakeVimOptionPage::copyTextEditorSettings);
@@ -529,6 +532,7 @@ public:
     void fold(FakeVimHandler *handler, int depth, bool fold);
     void maybeReadVimRc();
     void setShowRelativeLineNumbers(const QVariant &value);
+    void updateCursorBlinking(const QVariant &value);
 
     void resetCommandBuffer();
     void showCommandBuffer(FakeVimHandler *handler, const QString &contents,
@@ -569,6 +573,8 @@ public:
 
     MiniBuffer *m_miniBuffer = nullptr;
     FakeVimPluginRunData *runData = nullptr;
+
+    int m_savedCursorFlashTime = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -1223,6 +1229,8 @@ bool FakeVimPluginPrivate::initialize()
             this, &FakeVimPluginPrivate::maybeReadVimRc);
     connect(theFakeVimSetting(ConfigRelativeNumber), &SavedAction::valueChanged,
             this, &FakeVimPluginPrivate::setShowRelativeLineNumbers);
+    connect(theFakeVimSetting(ConfigBlinkingCursor), &SavedAction::valueChanged,
+            this, &FakeVimPluginPrivate::updateCursorBlinking);
 
     // Delayed operations.
     connect(this, &FakeVimPluginPrivate::delayedQuitRequested,
@@ -1234,6 +1242,8 @@ bool FakeVimPluginPrivate::initialize()
     if (!ExtensionSystem::PluginManager::testRunRequested())
         maybeReadVimRc();
     //    << "MODE: " << theFakeVimSetting(ConfigUseFakeVim)->value();
+
+    updateCursorBlinking(theFakeVimSetting(ConfigBlinkingCursor)->value());
 
     return true;
 }
@@ -1854,6 +1864,7 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
     Find::setUseFakeVim(on);
     setUseFakeVimInternal(on);
     setShowRelativeLineNumbers(theFakeVimSetting(ConfigRelativeNumber)->value());
+    updateCursorBlinking(theFakeVimSetting(ConfigBlinkingCursor)->value());
 }
 
 void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
@@ -1882,6 +1893,15 @@ void FakeVimPluginPrivate::setShowRelativeLineNumbers(const QVariant &value)
         foreach (IEditor *editor, m_editorToHandler.keys())
             createRelativeNumberWidget(editor);
     }
+}
+
+void FakeVimPluginPrivate::updateCursorBlinking(const QVariant &value)
+{
+    if (m_savedCursorFlashTime == 0)
+        m_savedCursorFlashTime = QGuiApplication::styleHints()->cursorFlashTime();
+
+    bool blink = value.toBool() || !theFakeVimSetting(ConfigUseFakeVim)->value().toBool();
+    QGuiApplication::styleHints()->setCursorFlashTime(blink ? m_savedCursorFlashTime : 0);
 }
 
 void FakeVimPluginPrivate::handleExCommand(FakeVimHandler *handler, bool *handled, const ExCommand &cmd)
