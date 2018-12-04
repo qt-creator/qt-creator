@@ -190,9 +190,10 @@ public:
         table.setUseIfNotExists(true);
         table.setName("precompiledHeaders");
         table.addColumn("projectPartId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
-        table.addColumn("pchPath", Sqlite::ColumnType::Text);
-        table.addColumn("pchBuildTime", Sqlite::ColumnType::Integer);
-
+        table.addColumn("projectPchPath", Sqlite::ColumnType::Text);
+        table.addColumn("projectPchBuildTime", Sqlite::ColumnType::Integer);
+        table.addColumn("systemPchPath", Sqlite::ColumnType::Text);
+        table.addColumn("systemPchBuildTime", Sqlite::ColumnType::Integer);
         table.initialize(database);
     }
 

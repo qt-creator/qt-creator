@@ -90,7 +90,7 @@ void ProjectPartQueue::removeProjectParts(const Utils::SmallStringVector &projec
 
 void ProjectPartQueue::processEntries()
 {
-    uint taskCount = m_taskScheduler.freeSlots();
+    uint taskCount = m_taskScheduler.slotUsage().free;
 
     auto newEnd = std::prev(m_projectParts.end(), std::min<int>(int(taskCount), int(m_projectParts.size())));
     m_taskScheduler.addTasks(
@@ -112,13 +112,13 @@ std::vector<ProjectPartQueue::Task> ProjectPartQueue::createPchTasks(
 
     auto convert = [this] (auto &&projectPart) {
         return [projectPart=std::move(projectPart), this] (PchCreatorInterface &pchCreator) {
-            pchCreator.generatePch(projectPart);
+            pchCreator.generatePchDeprecated(projectPart);
             const auto &projectPartPch = pchCreator.projectPartPch();
             Sqlite::ImmediateTransaction transaction(m_transactionsInterface);
             if (projectPartPch.pchPath.empty()) {
-                m_precompiledHeaderStorage.deletePrecompiledHeader(projectPartPch.projectPartId);
+                m_precompiledHeaderStorage.deleteProjectPrecompiledHeader(projectPartPch.projectPartId);
             } else {
-                m_precompiledHeaderStorage.insertPrecompiledHeader(projectPartPch.projectPartId,
+                m_precompiledHeaderStorage.insertProjectPrecompiledHeader(projectPartPch.projectPartId,
                                                                    projectPartPch.pchPath,
                                                                    projectPartPch.lastModified);
             }

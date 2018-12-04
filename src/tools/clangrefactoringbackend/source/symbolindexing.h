@@ -105,7 +105,7 @@ public:
         m_indexerScheduler.disable();
         while (!m_indexerScheduler.futures().empty()) {
             m_indexerScheduler.syncTasks();
-            m_indexerScheduler.freeSlots();
+            m_indexerScheduler.slotUsage();
         }
     }
 

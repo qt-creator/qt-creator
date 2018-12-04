@@ -32,10 +32,16 @@
 class MockPrecompiledHeaderStorage : public ClangBackEnd::PrecompiledHeaderStorageInterface
 {
 public:
-    MOCK_METHOD3(insertPrecompiledHeader,
-                 void (Utils::SmallStringView projectPartName,
-                       Utils::SmallStringView pchPath,
-                       long long pchBuildTime));
-
-    MOCK_METHOD1(deletePrecompiledHeader, void (Utils::SmallStringView projectPartName));
+    MOCK_METHOD3(insertProjectPrecompiledHeader,
+                 void(Utils::SmallStringView projectPartName,
+                      Utils::SmallStringView pchPath,
+                      long long pchBuildTime));
+    MOCK_METHOD1(deleteProjectPrecompiledHeader, void(Utils::SmallStringView projectPartName));
+    MOCK_METHOD3(insertSystemPrecompiledHeader,
+                 void(Utils::SmallStringView projectPartName,
+                      Utils::SmallStringView pchPath,
+                      long long pchBuildTime));
+    MOCK_METHOD1(deleteSystemPrecompiledHeader, void(Utils::SmallStringView projectPartName));
+    MOCK_METHOD1(fetchSystemPrecompiledHeaderPath,
+                 Utils::PathString(Utils::SmallStringView projectPartName));
 };

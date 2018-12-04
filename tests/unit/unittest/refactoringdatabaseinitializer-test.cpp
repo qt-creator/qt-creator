@@ -139,7 +139,7 @@ TEST_F(RefactoringDatabaseInitializer, AddPrecompiledHeaderTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS precompiledHeaders(projectPartId INTEGER PRIMARY KEY, pchPath TEXT, pchBuildTime INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS precompiledHeaders(projectPartId INTEGER PRIMARY KEY, projectPchPath TEXT, projectPchBuildTime INTEGER, systemPchPath TEXT, systemPchBuildTime INTEGER)")));
 
     initializer.createPrecompiledHeadersTable();
 }
@@ -171,7 +171,7 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS fileStatuses(sourceId INTEGER PRIMARY KEY, size INTEGER, lastModified INTEGER, buildDependencyTimeStamp INTEGER, isInPrecompiledHeader INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sourceDependencies(sourceId INTEGER, dependencySourceId INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_sourceDependencies_sourceId_dependencySourceId ON sourceDependencies(sourceId, dependencySourceId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS precompiledHeaders(projectPartId INTEGER PRIMARY KEY, pchPath TEXT, pchBuildTime INTEGER)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS precompiledHeaders(projectPartId INTEGER PRIMARY KEY, projectPchPath TEXT, projectPchBuildTime INTEGER, systemPchPath TEXT, systemPchBuildTime INTEGER)")));
     EXPECT_CALL(mockDatabase, commit());
     EXPECT_CALL(mockDatabase, setIsInitialized(true));
 

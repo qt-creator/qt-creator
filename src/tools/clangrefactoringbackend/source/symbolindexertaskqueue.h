@@ -94,7 +94,7 @@ public:
 
     void processEntries()
     {
-        uint taskCount = m_symbolIndexerScheduler.freeSlots();
+        uint taskCount = m_symbolIndexerScheduler.slotUsage().free;
 
         auto newEnd = std::prev(m_tasks.end(), std::min<int>(int(taskCount), int(m_tasks.size())));
         m_symbolIndexerScheduler.addTasks({std::make_move_iterator(newEnd),

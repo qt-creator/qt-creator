@@ -40,7 +40,17 @@ public:
             FilePathIds &&includes,
             CompilerMacros &&compilerMacros,
             UsedMacros &&usedMacros)
-        : projectPartId(projectPartId)
+        : projectPartIds({projectPartId})
+        , includes(includes)
+        , compilerMacros(compilerMacros)
+        , usedMacros(usedMacros)
+    {}
+
+    PchTask(Utils::SmallStringVector &&projectPartIds,
+            FilePathIds &&includes,
+            CompilerMacros &&compilerMacros,
+            UsedMacros &&usedMacros)
+        : projectPartIds(std::move(projectPartIds))
         , includes(includes)
         , compilerMacros(compilerMacros)
         , usedMacros(usedMacros)
@@ -48,15 +58,17 @@ public:
 
     friend bool operator==(const PchTask &first, const PchTask &second)
     {
-        return first.projectPartId == second.projectPartId
-               && first.dependentIds == second.dependentIds && first.includes == second.includes
+        return first.systemPchPath == second.systemPchPath
+               && first.projectPartIds == second.projectPartIds && first.includes == second.includes
                && first.compilerMacros == second.compilerMacros
                && first.usedMacros == second.usedMacros;
     }
 
+    Utils::SmallStringView projectPartId() const { return projectPartIds.front(); }
+
 public:
-    Utils::SmallString projectPartId;
-    Utils::SmallStringVector dependentIds;
+    Utils::PathString systemPchPath;
+    Utils::SmallStringVector projectPartIds;
     FilePathIds includes;
     CompilerMacros compilerMacros;
     UsedMacros usedMacros;

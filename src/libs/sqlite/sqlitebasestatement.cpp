@@ -133,10 +133,8 @@ bool BaseStatement::next() const
         return true;
     else if (resultCode == SQLITE_DONE)
         return false;
-    else
-        checkForStepError(resultCode);
 
-    return false;
+    checkForStepError(resultCode);
 }
 
 void BaseStatement::step() const

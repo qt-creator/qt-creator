@@ -31,6 +31,12 @@ namespace ClangBackEnd {
 
 using uint = unsigned int;
 
+struct SlotUsage
+{
+    uint free = 0;
+    uint used = 0;
+};
+
 template <typename Task>
 class TaskSchedulerInterface
 {
@@ -40,7 +46,7 @@ public:
     TaskSchedulerInterface &operator=(const TaskSchedulerInterface &) = delete;
 
     virtual void addTasks(std::vector<Task> &&tasks) = 0;
-    virtual uint freeSlots() = 0;
+    virtual SlotUsage slotUsage() = 0;
 
 protected:
     ~TaskSchedulerInterface() = default;

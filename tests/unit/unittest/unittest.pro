@@ -109,7 +109,8 @@ SOURCES += \
     builddependenciesprovider-test.cpp \
     builddependenciesstorage-test.cpp \
     usedmacrofilter-test.cpp \
-    pchtasksmerger-test.cpp
+    pchtasksmerger-test.cpp \
+    pchtaskqueue-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

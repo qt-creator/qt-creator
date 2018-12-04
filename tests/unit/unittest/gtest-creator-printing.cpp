@@ -1033,8 +1033,8 @@ std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes)
 }
 std::ostream &operator<<(std::ostream &out, const PchTask &task)
 {
-    return out << "(" << task.projectPartId << ", " << task.dependentIds << ", " << task.includes
-               << ", " << task.compilerMacros << ", " << task.usedMacros << ")";
+    return out << "(" << task.projectPartIds << ", " << task.includes << ", " << task.compilerMacros
+               << ", " << task.usedMacros << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency)
@@ -1046,6 +1046,11 @@ std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency)
                << "sourceFiles: " << dependency.sourceFiles  << ",\n"
                << "sourceDependencies: " << dependency.sourceDependencies  << ",\n"
                << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const SlotUsage &slotUsage)
+{
+    return out << "(" << slotUsage.free << ", " << slotUsage.used << ")";
 }
 
 const char *sourceTypeString(SourceType sourceType)

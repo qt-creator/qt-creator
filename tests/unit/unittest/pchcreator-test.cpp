@@ -223,14 +223,14 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
 
 TEST_F(PchCreatorVerySlowTest, IncludesForCreatePchsForProjectParts)
 {
-    creator.generatePch(projectPart1);
+    creator.generatePchDeprecated(projectPart1);
 
     ASSERT_THAT(creator.takeProjectIncludes().id, "project1");
 }
 
 TEST_F(PchCreatorVerySlowTest, ProjectPartPchsSendToPchManagerClient)
 {
-    creator.generatePch(projectPart1);
+    creator.generatePchDeprecated(projectPart1);
 
     EXPECT_CALL(mockPchManagerClient,
                 precompiledHeadersUpdated(
@@ -242,7 +242,7 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchsSendToPchManagerClient)
 
 TEST_F(PchCreatorVerySlowTest, UpdateFileWatcherIncludes)
 {
-    creator.generatePch(projectPart1);
+    creator.generatePchDeprecated(projectPart1);
 
     EXPECT_CALL(mockClangPathWatcher,
                 updateIdPaths(ElementsAre(creator.projectIncludes())));
@@ -252,7 +252,7 @@ TEST_F(PchCreatorVerySlowTest, UpdateFileWatcherIncludes)
 
 TEST_F(PchCreatorVerySlowTest, IdPathsForCreatePchsForProjectParts)
 {
-    creator.generatePch(projectPart1);
+    creator.generatePchDeprecated(projectPart1);
 
     ASSERT_THAT(creator.takeProjectIncludes(),
                 AllOf(Field(&IdPaths::id, "project1"),
@@ -263,7 +263,7 @@ TEST_F(PchCreatorVerySlowTest, IdPathsForCreatePchsForProjectParts)
 
 TEST_F(PchCreatorVerySlowTest, ProjectPartPchForCreatesPchForProjectPart)
 {
-    creator.generatePch(projectPart1);
+    creator.generatePchDeprecated(projectPart1);
 
     ASSERT_THAT(creator.projectPartPch(),
                 AllOf(Field(&ProjectPartPch::projectPartId, Eq("project1")),
@@ -273,7 +273,7 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchForCreatesPchForProjectPart)
 
 TEST_F(PchCreatorVerySlowTest, ProjectPartPchCleared)
 {
-    creator.generatePch(projectPart1);
+    creator.generatePchDeprecated(projectPart1);
 
     creator.clear();
 
@@ -283,7 +283,7 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchCleared)
 
 TEST_F(PchCreatorVerySlowTest, ProjectIncludesCleared)
 {
-    creator.generatePch(projectPart1);
+    creator.generatePchDeprecated(projectPart1);
 
     creator.clear();
 
@@ -299,7 +299,7 @@ TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesNoPchForProjectPart
                                            {},
                                            {id(TESTDATA_DIR "/builddependencycollector/project/faulty.cpp")}};
 
-    creator.generatePch(faultyProjectPart);
+    creator.generatePchDeprecated(faultyProjectPart);
 
     ASSERT_THAT(creator.projectPartPch(),
                 AllOf(Field(&ProjectPartPch::projectPartId, Eq("faultyProject")),

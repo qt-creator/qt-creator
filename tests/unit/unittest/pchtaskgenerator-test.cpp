@@ -80,7 +80,7 @@ TEST_F(PchTaskGenerator, Create)
     EXPECT_CALL(mockPchTaskMerger,
                 mergeTasks(ElementsAre(
                     AllOf(Field(&PchTaskSet::system,
-                                AllOf(Field(&PchTask::projectPartId, Eq("ProjectPart1")),
+                                AllOf(Field(&PchTask::projectPartIds, ElementsAre("ProjectPart1")),
                                       Field(&PchTask::includes, ElementsAre(4, 5)),
                                       Field(&PchTask::compilerMacros,
                                             ElementsAre(CompilerMacro{"SE", "4", 4},
@@ -88,7 +88,8 @@ TEST_F(PchTaskGenerator, Create)
                                       Field(&PchTask::usedMacros,
                                             ElementsAre(UsedMacro{"SE", 4}, UsedMacro{"WU", 5})))),
                           AllOf(Field(&PchTaskSet::project,
-                                      AllOf(Field(&PchTask::projectPartId, Eq("ProjectPart1")),
+                                      AllOf(Field(&PchTask::projectPartIds,
+                                                  ElementsAre("ProjectPart1")),
                                             Field(&PchTask::includes, ElementsAre(1, 3)),
                                             Field(&PchTask::compilerMacros,
                                                   ElementsAre(CompilerMacro{"YI", "1", 1},

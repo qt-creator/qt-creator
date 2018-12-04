@@ -332,7 +332,7 @@ public:
         m_database
     };
     mutable ReadStatement m_getPrecompiledHeader{
-        "SELECT pchPath, pchBuildTime FROM precompiledHeaders WHERE projectPartId = ?",
+        "SELECT projectPchPath, projectPchBuildTime FROM precompiledHeaders WHERE projectPartId = ?",
         m_database
     };
 };

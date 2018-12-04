@@ -26,6 +26,7 @@
 #pragma once
 
 #include "idpaths.h"
+#include "pchtask.h"
 #include "projectpartpch.h"
 #include "processorinterface.h"
 
@@ -41,7 +42,8 @@ public:
     PchCreatorInterface(const PchCreatorInterface &) = delete;
     PchCreatorInterface &operator=(const PchCreatorInterface &) = delete;
 
-    virtual void generatePch(const V2::ProjectPartContainer &projectsPart) = 0;
+    virtual void generatePchDeprecated(const V2::ProjectPartContainer &projectsPart) = 0;
+    virtual void generatePch(const PchTask &pchTask) = 0;
     virtual IdPaths takeProjectIncludes() = 0;
     virtual const ProjectPartPch &projectPartPch() = 0;
 

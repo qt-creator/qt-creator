@@ -175,6 +175,7 @@ class PchTask;
 class BuildDependency;
 class SourceEntry;
 class FilePathCaching;
+class SlotUsage;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -259,6 +260,7 @@ std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes);
 std::ostream &operator<<(std::ostream &out, const PchTask &task);
 std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency);
 std::ostream &operator<<(std::ostream &out, const SourceEntry &entry);
+std::ostream &operator<<(std::ostream &out, const SlotUsage &slotUsage);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);

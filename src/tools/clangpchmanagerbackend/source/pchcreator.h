@@ -69,7 +69,8 @@ public:
     {
     }
 
-    void generatePch(const V2::ProjectPartContainer &projectsPart) override;
+    void generatePchDeprecated(const V2::ProjectPartContainer &projectsPart) override;
+    void generatePch(const PchTask &pchTask) override;
     IdPaths takeProjectIncludes() override;
     const ProjectPartPch &projectPartPch() override;
     void setUnsavedFiles(const V2::FileContainers &fileContainers) override;

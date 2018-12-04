@@ -35,6 +35,9 @@
 
 namespace {
 
+using ClangBackEnd::SlotUsage;
+using ClangBackEnd::V2::ProjectPartContainer;
+
 class ProjectPartQueue : public testing::Test
 {
 protected:
@@ -83,7 +86,7 @@ TEST_F(ProjectPartQueue, AddProjectPartCallsProcessEntries)
 {
     InSequence s;
 
-    EXPECT_CALL(mockTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
+    EXPECT_CALL(mockTaskScheduler, slotUsage()).WillRepeatedly(Return(SlotUsage{2, 0}));
     EXPECT_CALL(mockTaskScheduler, addTasks(SizeIs(2)));
 
     queue.addProjectParts({projectPart1, projectPart2});
@@ -148,11 +151,11 @@ TEST_F(ProjectPartQueue, CreateTaskFromProjectPart)
     ClangBackEnd::ProjectPartPch projectPartPch{"project1", "/path/to/pch", 99};
     auto tasks = queue.createPchTasks({projectPart1});
 
-    EXPECT_CALL(mockPchCreator, generatePch(Eq(projectPart1)));
+    EXPECT_CALL(mockPchCreator, generatePchDeprecated(Eq(projectPart1)));
     EXPECT_CALL(mockPchCreator, projectPartPch()).WillOnce(ReturnRef(projectPartPch));
     EXPECT_CALL(mockSqliteTransactionBackend, lock());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockPrecompiledHeaderStorage, insertPrecompiledHeader(Eq("project1"), Eq("/path/to/pch"), 99));
+    EXPECT_CALL(mockPrecompiledHeaderStorage, insertProjectPrecompiledHeader(Eq("project1"), Eq("/path/to/pch"), 99));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockSqliteTransactionBackend, unlock());
 
@@ -166,24 +169,15 @@ TEST_F(ProjectPartQueue, DeletePchEntryInDatabaseIfNoPchIsGenerated)
     ClangBackEnd::ProjectPartPch projectPartPch{"project1", "", 0};
     auto tasks = queue.createPchTasks({projectPart1});
 
-    EXPECT_CALL(mockPchCreator, generatePch(Eq(projectPart1)));
+    EXPECT_CALL(mockPchCreator, generatePchDeprecated(Eq(projectPart1)));
     EXPECT_CALL(mockPchCreator, projectPartPch()).WillOnce(ReturnRef(projectPartPch));
     EXPECT_CALL(mockSqliteTransactionBackend, lock());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockPrecompiledHeaderStorage, deletePrecompiledHeader(Eq("project1")));
+    EXPECT_CALL(mockPrecompiledHeaderStorage, deleteProjectPrecompiledHeader(Eq("project1")));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockSqliteTransactionBackend, unlock());
 
     tasks.front()(mockPchCreator);
 }
-
-
-//TEST_F(PchManagerClient, ProjectPartPchRemovedFromDatabase)
-//{
-//    EXPECT_CALL(mockPrecompiledHeaderStorage, deletePrecompiledHeader(TypedEq<Utils::SmallStringView>(projectPartId)));
-
-//    projectUpdater.removeProjectParts({QString(projectPartId)});
-//}
-
 
 }

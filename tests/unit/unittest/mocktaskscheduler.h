@@ -36,8 +36,8 @@ class MockTaskScheduler : public ClangBackEnd::TaskSchedulerInterface<Task>
 public:
     MOCK_METHOD1_T(addTasks,
                  void (const std::vector<Task> &));
-    MOCK_METHOD0(freeSlots,
-                 uint ());
+    MOCK_METHOD0(slotUsage,
+                 ClangBackEnd::SlotUsage ());
 
     void addTasks(std::vector<Task> &&tasks)
     {

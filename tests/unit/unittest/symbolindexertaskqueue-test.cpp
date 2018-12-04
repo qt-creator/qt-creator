@@ -35,6 +35,7 @@ using ClangBackEnd::FilePathId;
 using ClangBackEnd::SymbolsCollectorInterface;
 using ClangBackEnd::SymbolIndexerTask;
 using ClangBackEnd::SymbolStorageInterface;
+using ClangBackEnd::SlotUsage;
 
 using Callable = ClangBackEnd::SymbolIndexerTask::Callable;
 
@@ -167,7 +168,7 @@ TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndAddTasksInScheduler)
                             {3, 1, Callable{}},
                             {5, 1, Callable{}}});
 
-    EXPECT_CALL(mockTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
+    EXPECT_CALL(mockTaskScheduler, slotUsage()).WillRepeatedly(Return(SlotUsage{2, 0}));
     EXPECT_CALL(mockTaskScheduler, addTasks(SizeIs(2)));
 
     queue.processEntries();
@@ -177,7 +178,7 @@ TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndAddTasksWithNoTaskIn
 {
     InSequence s;
 
-    EXPECT_CALL(mockTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
+    EXPECT_CALL(mockTaskScheduler, slotUsage()).WillRepeatedly(Return(SlotUsage{2, 0}));
     EXPECT_CALL(mockTaskScheduler, addTasks(IsEmpty()));
 
     queue.processEntries();
@@ -190,7 +191,7 @@ TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndMoveAllTasksInSchedu
                             {3, 1, Callable{}},
                             {5, 1, Callable{}}});
 
-    EXPECT_CALL(mockTaskScheduler, freeSlots()).WillRepeatedly(Return(4));
+    EXPECT_CALL(mockTaskScheduler, slotUsage()).WillRepeatedly(Return(SlotUsage{4, 0}));
     EXPECT_CALL(mockTaskScheduler, addTasks(SizeIs(3)));
 
     queue.processEntries();
@@ -201,7 +202,7 @@ TEST_F(SymbolIndexerTaskQueue, ProcessTasksRemovesProcessedTasks)
     queue.addOrUpdateTasks({{1, 1, Callable{}},
                             {3, 1, Callable{}},
                             {5, 1, Callable{}}});
-    ON_CALL(mockTaskScheduler, freeSlots()).WillByDefault(Return(2));
+    ON_CALL(mockTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 0}));
 
     queue.processEntries();
 

@@ -40,6 +40,7 @@ using Task = std::function<void(ClangBackEnd::ProcessorInterface&)>;
 using ClangBackEnd::ProcessorInterface;
 using ClangBackEnd::SymbolsCollectorInterface;
 using ClangBackEnd::SymbolStorageInterface;
+using ClangBackEnd::SlotUsage;
 using NiceMockProcessorManager = NiceMock<MockProcessorManager>;
 using Scheduler = ClangBackEnd::TaskScheduler<NiceMockProcessorManager, Task>;
 
@@ -95,18 +96,18 @@ TEST_F(TaskScheduler, FreeSlots)
 {
     deferredScheduler.addTasks({nocall, nocall});
 
-    auto count = deferredScheduler.freeSlots();
+    auto slotUsage = deferredScheduler.slotUsage();
 
-    ASSERT_THAT(count, 2);
+    ASSERT_THAT(slotUsage, AllOf(Field(&SlotUsage::free, 2), Field(&SlotUsage::used, 2)));
 }
 
 TEST_F(TaskScheduler, ReturnZeroFreeSlotsIfMoreCallsThanCores)
 {
     deferredScheduler.addTasks({nocall, nocall, nocall, nocall, nocall, nocall});
 
-    auto count = deferredScheduler.freeSlots();
+    auto slotUsage = deferredScheduler.slotUsage();
 
-    ASSERT_THAT(count, 0);
+    ASSERT_THAT(slotUsage, AllOf(Field(&SlotUsage::free, 0), Field(&SlotUsage::used, 6)));
 }
 
 TEST_F(TaskScheduler, FreeSlotsAfterFinishing)
@@ -114,9 +115,9 @@ TEST_F(TaskScheduler, FreeSlotsAfterFinishing)
     scheduler.addTasks({nocall, nocall});
     scheduler.syncTasks();
 
-    auto count = scheduler.freeSlots();
+    auto slotUsage = scheduler.slotUsage();
 
-    ASSERT_THAT(count, 4);
+    ASSERT_THAT(slotUsage, AllOf(Field(&SlotUsage::free, 4), Field(&SlotUsage::used, 0)));
 }
 
 TEST_F(TaskScheduler, NoFuturesAfterFreeSlots)
@@ -124,7 +125,7 @@ TEST_F(TaskScheduler, NoFuturesAfterFreeSlots)
     scheduler.addTasks({nocall, nocall});
     scheduler.syncTasks();
 
-    scheduler.freeSlots();
+    scheduler.slotUsage();
 
     ASSERT_THAT(scheduler.futures(), IsEmpty());
 }
@@ -142,7 +143,7 @@ TEST_F(TaskScheduler, FreeSlotsCallsCleanupMethodsAfterTheWorkIsDone)
     EXPECT_CALL(mockSymbolsCollector, setIsUsed(false));
     EXPECT_CALL(mockSymbolsCollector, clear());
 
-    scheduler.freeSlots();
+    scheduler.slotUsage();
 }
 
 TEST_F(TaskScheduler, FreeSlotsCallsProgressMethodsAfterTheWorkIsDone)
@@ -153,7 +154,7 @@ TEST_F(TaskScheduler, FreeSlotsCallsProgressMethodsAfterTheWorkIsDone)
 
     EXPECT_CALL(mockSetProgressCallback, Call(2, 100));
 
-    scheduler.freeSlots();
+    scheduler.slotUsage();
 }
 
 TEST_F(TaskScheduler, AddTaskCallSymbolsCollectorManagerUnusedSymbolsCollector)

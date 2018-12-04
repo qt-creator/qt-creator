@@ -326,9 +326,14 @@ IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &proje
     return {projectPart.projectPartId.clone(), allIncludeIds(includes)};
 }
 
-void PchCreator::generatePch(const V2::ProjectPartContainer &projectPart)
+void PchCreator::generatePchDeprecated(const V2::ProjectPartContainer &projectPart)
 {
     m_projectIncludeIds = generateProjectPartPch(projectPart);
+}
+
+void PchCreator::generatePch(const PchTask &pchTask)
+{
+
 }
 
 IdPaths PchCreator::takeProjectIncludes()

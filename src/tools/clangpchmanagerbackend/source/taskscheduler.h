@@ -99,14 +99,15 @@ public:
         return m_futures;
     }
 
-    uint freeSlots()
+    SlotUsage slotUsage()
     {
         removeFinishedFutures();
 
         if (m_isDisabled)
-            return 0;
+            return {};
 
-        return uint(std::max(int(m_hardwareConcurrency) - int(m_futures.size()), 0));
+        return {uint(std::max(int(m_hardwareConcurrency) - int(m_futures.size()), 0)),
+                uint(m_futures.size())};
     }
 
     void syncTasks()

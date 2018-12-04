@@ -90,7 +90,7 @@ protected:
                 .Times(AnyNumber());
         EXPECT_CALL(selectAllSources, valuesReturnStdVectorSource(_))
                 .Times(AnyNumber());
-        EXPECT_CALL(selectDirectoryPathFromDirectoriesByDirectoryId, valueReturnPathString(_))
+        EXPECT_CALL(selectDirectoryPathFromDirectoriesByDirectoryId, valueReturnPathString(An<int>()))
                 .Times(AnyNumber());
         EXPECT_CALL(selectSourceNameAndDirectoryIdFromSourcesBySourceId, valueReturnSourceNameAndDirectoryId(_))
                 .Times(AnyNumber());
