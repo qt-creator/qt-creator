@@ -94,6 +94,7 @@ public:
 
     QString buildKey() const override;
 
+    QStringList targetApplications() const override;
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
     QmakeProjectManager::ProjectType projectType() const;

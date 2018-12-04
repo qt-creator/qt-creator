@@ -37,6 +37,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectwindow.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -496,8 +497,13 @@ void AndroidManifestEditorWidget::updateTargetComboBox()
     QStringList items;
     if (project) {
         Kit *kit = project->activeTarget()->kit();
-        if (DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE)
-            items = AndroidManager::androidQtSupport(project->activeTarget())->projectTargetApplications(project->activeTarget());
+        if (DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE) {
+            ProjectNode *root = project->rootProjectNode();
+            root->forEachProjectNode([&items](const ProjectNode *projectNode) {
+                items << projectNode->targetApplications();
+            });
+            items.sort();
+        }
     }
 
     // QComboBox randomly resets what the user has entered

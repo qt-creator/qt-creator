@@ -166,28 +166,6 @@ QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *
     return res.toList();
 }
 
-QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer::Target *target) const
-{
-    QStringList apps;
-
-    ProjectNode *root = target->project()->rootProjectNode();
-    root->forEachProjectNode([&apps](const ProjectNode *node) {
-        auto qmakeNode = dynamic_cast<const QmakeProFileNode *>(node);
-        if (!qmakeNode || !qmakeNode->includedInExactParse())
-            return;
-        if (qmakeNode->projectType() == ProjectType::ApplicationTemplate) {
-            const QString target = qmakeNode->targetInformation().target;
-            if (target.startsWith("lib") && target.endsWith(".so"))
-                apps << target.mid(3, target.lastIndexOf('.') - 3);
-            else
-                apps << target;
-        }
-    });
-
-    apps.sort();
-    return apps;
-}
-
 void QmakeAndroidSupport::addFiles(const ProjectExplorer::Target *target,
                                    const QString &buildKey,
                                    const QStringList &addedFiles) const

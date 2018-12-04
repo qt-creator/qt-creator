@@ -62,7 +62,6 @@ public:
 
     virtual bool canHandle(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList soLibSearchPath(const ProjectExplorer::Target *target) const = 0;
-    virtual QStringList projectTargetApplications(const ProjectExplorer::Target *target) const = 0;
 
     virtual QVariant targetData(Core::Id role, const ProjectExplorer::Target *target) const = 0;
     virtual bool setTargetData(Core::Id role, const QVariant &value,

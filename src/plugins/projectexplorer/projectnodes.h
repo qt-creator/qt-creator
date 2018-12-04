@@ -341,6 +341,8 @@ public:
     ProjectNode *asProjectNode() final { return this; }
     const ProjectNode *asProjectNode() const final { return this; }
 
+    virtual QStringList targetApplications() const { return {}; }
+
 protected:
     explicit ProjectNode(const Utils::FileName &projectFilePath, const QByteArray &id = {});
 };

@@ -216,6 +216,19 @@ QString QmakeProFileNode::buildKey() const
     return filePath().toString();
 }
 
+QStringList QmakeProFileNode::targetApplications() const
+{
+    QStringList apps;
+    if (includedInExactParse() && projectType() == ProjectType::ApplicationTemplate) {
+        const QString target = targetInformation().target;
+        if (target.startsWith("lib") && target.endsWith(".so"))
+            apps << target.mid(3, target.lastIndexOf('.') - 3);
+        else
+            apps << target;
+    }
+    return apps;
+}
+
 QmakeProFile *QmakeProFileNode::proFile() const
 {
     return static_cast<QmakeProFile*>(QmakePriFileNode::priFile());

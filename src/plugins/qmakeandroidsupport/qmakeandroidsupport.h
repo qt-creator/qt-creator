@@ -37,7 +37,6 @@ class QmakeAndroidSupport : public Android::AndroidQtSupport
 public:
     bool canHandle(const ProjectExplorer::Target *target) const override;
     QStringList soLibSearchPath(const ProjectExplorer::Target *target) const override;
-    QStringList projectTargetApplications(const ProjectExplorer::Target *target) const override;
 
     QVariant targetData(Core::Id role, const ProjectExplorer::Target *target) const override;
     bool setTargetData(Core::Id role, const QVariant &value,
