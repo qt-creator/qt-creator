@@ -1083,6 +1083,10 @@ void GccToolChainConfigWidget::applyImpl()
     tc->setDisplayName(displayName); // reset display name
     tc->setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setPlatformLinkerFlags(splitString(m_platformLinkerFlagsLineEdit->text()));
+
+    if (m_macros.isEmpty())
+        return;
+
     tc->m_predefinedMacrosCache
         ->insert(tc->platformCodeGenFlags(),
                  ToolChain::MacroInspectionReport{m_macros,
