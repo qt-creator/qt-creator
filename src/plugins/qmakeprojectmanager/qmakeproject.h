@@ -66,9 +66,6 @@ public:
 
     QStringList filesGeneratedFrom(const QString &file) const final;
 
-    const QList<const QmakeProFileNode *> allProFiles(const QList<ProjectType> &projectTypes = {}) const;
-    QList<const QmakeProFileNode *> applicationProFiles() const;
-
     static void notifyChanged(const Utils::FileName &name);
 
     /// \internal

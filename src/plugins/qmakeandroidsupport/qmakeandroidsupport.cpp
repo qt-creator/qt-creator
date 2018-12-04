@@ -133,13 +133,13 @@ bool QmakeAndroidSupport::setTargetData(Core::Id role, const QVariant &value, co
 QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *target) const
 {
     QSet<QString> res;
-    auto project = qobject_cast<QmakeProject*>(target->project());
-    Q_ASSERT(project);
-    if (!project)
-        return {};
 
-    for (const QmakeProFileNode *file : project->allProFiles()) {
-        TargetInformation info = file->targetInformation();
+    ProjectNode *root = target->project()->rootProjectNode();
+    root->forEachProjectNode([&res](const ProjectNode *node) {
+        auto qmakeNode = dynamic_cast<const QmakeProFileNode *>(node);
+        if (!qmakeNode)
+            return;
+        TargetInformation info = qmakeNode->targetInformation();
         res.insert(info.buildDir.toString());
         Utils::FileName destDir = info.destDir;
         if (!destDir.isEmpty()) {
@@ -148,39 +148,42 @@ QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *
                                                                       + '/' + destDir.toString()));
             res.insert(destDir.toString());
         }
+    });
 
-        const QString jsonFile = targetData(Android::Constants::AndroidDeploySettingsFile, target).toString();
-        QFile deploymentSettings(jsonFile);
-        if (deploymentSettings.open(QIODevice::ReadOnly)) {
-            QJsonParseError error;
-            QJsonDocument doc = QJsonDocument::fromJson(deploymentSettings.readAll(), &error);
-            if (error.error != QJsonParseError::NoError)
-                continue;
-
+    const QString jsonFile = targetData(Android::Constants::AndroidDeploySettingsFile, target).toString();
+    QFile deploymentSettings(jsonFile);
+    if (deploymentSettings.open(QIODevice::ReadOnly)) {
+        QJsonParseError error;
+        QJsonDocument doc = QJsonDocument::fromJson(deploymentSettings.readAll(), &error);
+        if (error.error == QJsonParseError::NoError) {
             auto rootObj = doc.object();
             auto it = rootObj.find("stdcpp-path");
             if (it != rootObj.constEnd())
                 res.insert(QFileInfo(it.value().toString()).absolutePath());
         }
     }
+
     return res.toList();
 }
 
 QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer::Target *target) const
 {
     QStringList apps;
-    auto qmakeProject = qobject_cast<QmakeProject *>(target->project());
-    if (!qmakeProject)
-        return apps;
-    for (const QmakeProFileNode *proFile : qmakeProject->applicationProFiles()) {
-        if (proFile->projectType() == ProjectType::ApplicationTemplate) {
-            const QString target = proFile->targetInformation().target;
+
+    ProjectNode *root = target->project()->rootProjectNode();
+    root->forEachProjectNode([&apps](const ProjectNode *node) {
+        auto qmakeNode = dynamic_cast<const QmakeProFileNode *>(node);
+        if (!qmakeNode || !qmakeNode->includedInExactParse())
+            return;
+        if (qmakeNode->projectType() == ProjectType::ApplicationTemplate) {
+            const QString target = qmakeNode->targetInformation().target;
             if (target.startsWith("lib") && target.endsWith(".so"))
                 apps << target.mid(3, target.lastIndexOf('.') - 3);
             else
                 apps << target;
         }
-    }
+    });
+
     apps.sort();
     return apps;
 }

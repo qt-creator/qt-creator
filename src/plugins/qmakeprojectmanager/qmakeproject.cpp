@@ -755,30 +755,6 @@ QmakeProFileNode *QmakeProject::rootProjectNode() const
     return static_cast<QmakeProFileNode *>(Project::rootProjectNode());
 }
 
-QList<const QmakeProFileNode *> QmakeProject::applicationProFiles() const
-{
-    return allProFiles({ProjectType::ApplicationTemplate, ProjectType::ScriptTemplate});
-}
-
-const QList<const QmakeProFileNode *>
-    QmakeProject::allProFiles(const QList<ProjectType> &projectTypes) const
-{
-    QList<const QmakeProFileNode *> list;
-
-    rootProjectNode()->forEachProjectNode([&list, projectTypes](const ProjectNode *node) {
-        if (auto qmakeNode = dynamic_cast<const QmakeProFileNode *>(node)) {
-            QmakeProFile *file = qmakeNode->proFile();
-            QTC_ASSERT(file, return);
-            if (file->includedInExactParse()) {
-                if (projectTypes.isEmpty() || projectTypes.contains(file->projectType()))
-                    list.append(qmakeNode);
-            }
-        }
-    });
-
-    return list;
-}
-
 void QmakeProject::activeTargetWasChanged()
 {
     if (m_activeTarget) {
@@ -1031,10 +1007,19 @@ void QmakeProject::updateBuildSystemData()
     target->setDeploymentData(deploymentData);
 
     BuildTargetInfoList appTargetList;
-    for (const QmakeProFileNode * const node : applicationProFiles()) {
+
+    rootProjectNode()->forEachProjectNode([this, target, &appTargetList](const ProjectNode *pn) {
+        auto node = dynamic_cast<const QmakeProFileNode *>(pn);
+        if (!node || !node->includedInExactParse())
+            return;
+
+        if (node->projectType() != ProjectType::ApplicationTemplate
+                && node->projectType() != ProjectType::ScriptTemplate)
+            return;
+
         TargetInformation ti = node->targetInformation();
         if (!ti.valid)
-            continue;
+            return;
 
         const QStringList &config = node->variableValue(Variable::Config);
 
@@ -1100,7 +1085,8 @@ void QmakeProject::updateBuildSystemData()
         };
 
         appTargetList.list.append(bti);
-    }
+    });
+
     target->setApplicationTargets(appTargetList);
 }
 

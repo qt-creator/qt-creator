@@ -88,6 +88,7 @@ public:
 
     bool isDebugAndRelease() const;
     bool isQtcRunnable() const;
+    bool includedInExactParse() const;
 
     bool showInSimpleTree() const override;
 

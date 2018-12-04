@@ -243,6 +243,12 @@ bool QmakeProFileNode::isQtcRunnable() const
     return configValues.contains(QLatin1String("qtc_runnable"));
 }
 
+bool QmakeProFileNode::includedInExactParse() const
+{
+    const QmakeProFile *pro = proFile();
+    return pro && pro->includedInExactParse();
+}
+
 FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
