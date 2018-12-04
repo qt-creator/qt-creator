@@ -66,10 +66,8 @@ public:
 
     QStringList filesGeneratedFrom(const QString &file) const final;
 
-    enum Parsing {ExactParse, ExactAndCumulativeParse };
-    const QList<const QmakeProFileNode *> allProFiles(const QList<ProjectType> &projectTypes = {},
-                                                      Parsing parse = ExactParse) const;
-    QList<const QmakeProFileNode *> applicationProFiles(Parsing parse = ExactParse) const;
+    const QList<const QmakeProFileNode *> allProFiles(const QList<ProjectType> &projectTypes = {}) const;
+    QList<const QmakeProFileNode *> applicationProFiles() const;
 
     static void notifyChanged(const Utils::FileName &name);
 

@@ -753,21 +753,21 @@ QmakeProFileNode *QmakeProject::rootProjectNode() const
     return static_cast<QmakeProFileNode *>(Project::rootProjectNode());
 }
 
-QList<const QmakeProFileNode *> QmakeProject::applicationProFiles(Parsing parse) const
+QList<const QmakeProFileNode *> QmakeProject::applicationProFiles() const
 {
-    return allProFiles({ProjectType::ApplicationTemplate, ProjectType::ScriptTemplate}, parse);
+    return allProFiles({ProjectType::ApplicationTemplate, ProjectType::ScriptTemplate});
 }
 
 const QList<const QmakeProFileNode *>
-    QmakeProject::allProFiles(const QList<ProjectType> &projectTypes, Parsing parse) const
+    QmakeProject::allProFiles(const QList<ProjectType> &projectTypes) const
 {
     QList<const QmakeProFileNode *> list;
 
-    rootProjectNode()->forEachProjectNode([&list, projectTypes, parse](const ProjectNode *node) {
+    rootProjectNode()->forEachProjectNode([&list, projectTypes](const ProjectNode *node) {
         if (auto qmakeNode = dynamic_cast<const QmakeProFileNode *>(node)) {
             QmakeProFile *file = qmakeNode->proFile();
             QTC_ASSERT(file, return);
-            if (parse == ExactAndCumulativeParse || file->includedInExactParse()) {
+            if (file->includedInExactParse()) {
                 if (projectTypes.isEmpty() || projectTypes.contains(file->projectType()))
                     list.append(qmakeNode);
             }
