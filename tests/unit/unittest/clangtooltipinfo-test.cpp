@@ -584,6 +584,18 @@ TEST_F(ToolTipInfo, AutoTypeBuiltin)
     ASSERT_THAT(actual.text, Utf8StringLiteral("int"));
 }
 
+TEST_F(ToolTipInfo, PointerToPointerToClass)
+{
+    ::ToolTipInfo expected(Utf8StringLiteral("Nuu **"));
+    expected.qdocIdCandidates = {Utf8StringLiteral("Nuu")};
+    expected.qdocMark = Utf8StringLiteral("Nuu");
+    expected.qdocCategory = ::ToolTipInfo::ClassOrNamespace;
+
+    const ::ToolTipInfo actual = tooltip(200, 12);
+
+    ASSERT_THAT(actual, IsToolTip(expected));
+}
+
 // TODO: Test for qdoc entries, too.
 TEST_F(ToolTipInfo, AutoTypeEnum)
 {

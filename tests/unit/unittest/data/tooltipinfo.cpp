@@ -194,3 +194,8 @@ void constructor()
     ExplicitCon();
     ExplicitCon(2);
 }
+
+Nuu **pointers(Nuu **p1)
+{
+    return p1;
+}

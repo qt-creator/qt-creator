@@ -425,14 +425,24 @@ ToolTipInfo ToolTipInfoCollector::qDocInfo(const Cursor &cursor) const
         return result;
     }
 
-    if (cursor.kind() == CXCursor_VarDecl || cursor.kind() == CXCursor_FieldDecl) {
-        result.qdocMark = typeName(cursor.type());
+    if (cursor.kind() == CXCursor_VarDecl || cursor.kind() == CXCursor_ParmDecl
+        || cursor.kind() == CXCursor_FieldDecl) {
         // maybe template instantiation
         if (cursor.type().kind() == CXType_Unexposed && cursor.type().canonical().kind() == CXType_Record) {
             result.qdocIdCandidates = qDocIdCandidates(cursor.type().canonical().declaration());
+            result.qdocMark = typeName(cursor.type());
             result.qdocCategory = ToolTipInfo::ClassOrNamespace;
             return result;
         }
+
+        Type type = cursor.type();
+        while (type.pointeeType().isValid())
+            type = type.pointeeType();
+
+        const Cursor typeCursor = type.declaration();
+        result.qdocIdCandidates = qDocIdCandidates(typeCursor);
+        result.qdocCategory = qdocCategory(typeCursor);
+        result.qdocMark = typeName(type);
     }
 
     // TODO: Handle also RValueReference()
