@@ -4106,11 +4106,11 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     if (!blockUserData)
         return;
 
-    TextMarks marks = blockUserData->marks();
-
-    const bool annotationsVisible = Utils::anyOf(marks, [](const TextMark* mark) {
+    TextMarks marks = Utils::filtered(blockUserData->marks(), [](const TextMark* mark){
         return !mark->lineAnnotation().isEmpty();
     });
+
+    const bool annotationsVisible = !marks.isEmpty();
 
     if (updateAnnotationBounds(blockUserData, data.documentLayout, annotationsVisible)
             || !annotationsVisible) {
