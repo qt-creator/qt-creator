@@ -85,21 +85,27 @@ QVariant AndroidExtraLibraryListModel::data(const QModelIndex &index, int role) 
 
 void AndroidExtraLibraryListModel::updateModel()
 {
+    RunConfiguration *rc = m_target->activeRunConfiguration();
+    QTC_ASSERT(rc, return);
+
+    const ProjectNode *node = m_target->project()->findNodeForBuildKey(rc->buildKey());
+    QTC_ASSERT(node, return);
+
     AndroidQtSupport *qtSupport = Android::AndroidManager::androidQtSupport(m_target);
     QTC_ASSERT(qtSupport, return);
 
-    if (qtSupport->parseInProgress(m_target)) {
+    if (node->parseInProgress()) {
         emit enabledChanged(false);
         return;
     }
 
     bool enabled;
     beginResetModel();
-    if (qtSupport->validParse(m_target)) {
+    if (node->validParse()) {
         m_entries = qtSupport->targetData(Constants::AndroidExtraLibs, m_target).toStringList();
         enabled = true;
     } else {
-        // parsing error or not a application template
+        // parsing error
         m_entries.clear();
         enabled = false;
     }

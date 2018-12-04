@@ -216,6 +216,18 @@ QString QmakeProFileNode::buildKey() const
     return filePath().toString();
 }
 
+bool QmakeProFileNode::parseInProgress() const
+{
+    QmakeProjectManager::QmakeProFile *pro = proFile();
+    return !pro || pro->parseInProgress();
+}
+
+bool QmakeProFileNode::validParse() const
+{
+    QmakeProjectManager::QmakeProFile *pro = proFile();
+    return pro && pro->validParse();
+}
+
 QStringList QmakeProFileNode::targetApplications() const
 {
     QStringList apps;

@@ -42,8 +42,6 @@ public:
     bool setTargetData(Core::Id role, const QVariant &value,
                        const ProjectExplorer::Target *target) const override;
 
-    bool parseInProgress(const ProjectExplorer::Target *target) const override;
-    bool validParse(const ProjectExplorer::Target *target) const override;
     bool extraLibraryEnabled(const ProjectExplorer::Target *target) const override;
 
     void addFiles(const ProjectExplorer::Target *target, const QString &buildKey,

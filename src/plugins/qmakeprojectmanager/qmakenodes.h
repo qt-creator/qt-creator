@@ -93,6 +93,8 @@ public:
     bool showInSimpleTree() const override;
 
     QString buildKey() const override;
+    bool parseInProgress() const override;
+    bool validParse() const override;
 
     QStringList targetApplications() const override;
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;

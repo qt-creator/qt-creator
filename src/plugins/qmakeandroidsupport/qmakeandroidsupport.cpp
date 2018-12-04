@@ -87,18 +87,6 @@ static QmakeProFile *applicationProFile(const Target *target)
     return project->rootProFile()->findProFile(FileName::fromString(rc->buildKey()));
 }
 
-bool QmakeAndroidSupport::parseInProgress(const Target *target) const
-{
-    QmakeProjectManager::QmakeProFile *pro = applicationProFile(target);
-    return !pro || pro->parseInProgress();
-}
-
-bool QmakeAndroidSupport::validParse(const Target *target) const
-{
-    QmakeProjectManager::QmakeProFile *pro = applicationProFile(target);
-    return pro->validParse() && pro->projectType() == ProjectType::ApplicationTemplate;
-}
-
 bool QmakeAndroidSupport::extraLibraryEnabled(const Target *target) const
 {
     QmakeProFile *pro = applicationProFile(target);
