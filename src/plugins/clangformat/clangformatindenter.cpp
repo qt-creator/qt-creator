@@ -203,9 +203,12 @@ Replacements replacements(const Utils::FileName &fileName,
             extraOffset = Utils::Text::utf8NthLineOffset(
                         block->document(), buffer, block->blockNumber() - kMaxLinesFromCurrentBlock);
         }
-        buffer = buffer.mid(extraOffset,
-                            std::min(buffer.size(), utf8Offset + kMaxLinesFromCurrentBlock)
-                            - extraOffset);
+        int endOffset = Utils::Text::utf8NthLineOffset(
+            block->document(), buffer, block->blockNumber() + kMaxLinesFromCurrentBlock);
+        if (endOffset == -1)
+            endOffset = buffer.size();
+
+        buffer = buffer.mid(extraOffset, endOffset - extraOffset);
         utf8Offset -= extraOffset;
 
         const int emptySpaceLength = previousEmptyLinesLength(*block);
