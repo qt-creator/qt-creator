@@ -192,8 +192,8 @@ static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objc
 void CompilerOptionsBuilder::addWordWidth()
 {
     const QString argument = m_projectPart.toolChainWordWidth == ProjectPart::WordWidth64Bit
-                                 ? "-m64"
-                                 : "-m32";
+                                 ? QLatin1String("-m64")
+                                 : QLatin1String("-m32");
     add(argument);
 }
 
