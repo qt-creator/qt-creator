@@ -2638,7 +2638,10 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                         "experience for this binary format.").arg(preferredDebugger);
             break;
         }
-        if (warnOnRelease && rp.cppEngineType == CdbEngineType) {
+        if (warnOnRelease
+                && rp.cppEngineType == CdbEngineType
+                && rp.startMode != AttachToRemoteServer) {
+            QTC_ASSERT(!rp.symbolFile.isEmpty(), return);
             if (!rp.symbolFile.endsWith(".exe", Qt::CaseInsensitive))
                 rp.symbolFile.append(".exe");
             QString errorMessage;
