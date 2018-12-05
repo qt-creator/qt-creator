@@ -138,6 +138,8 @@ void ClangToolsUnitTests::testProject_data()
     QTest::addColumn<QString>("projectFilePath");
     QTest::addColumn<int>("expectedDiagCount");
 
+    // For the simple project, we expect the following warning:
+    //   warning: use nullptr [modernize-use-nullptr]
     addTestRow("simple/simple.qbs", 1);
     addTestRow("simple/simple.pro", 1);
 
@@ -147,8 +149,12 @@ void ClangToolsUnitTests::testProject_data()
     addTestRow("stdc++11-includes/stdc++11-includes.qbs", 0);
     addTestRow("stdc++11-includes/stdc++11-includes.pro", 0);
 
-    addTestRow("qt-widgets-app/qt-widgets-app.qbs", 0);
-    addTestRow("qt-widgets-app/qt-widgets-app.pro", 0);
+    // For qt-widgets-app, we expect the following warning for "a.exec()",
+    // "a" being the QApplication object:
+    //   warning: static member accessed through instance
+    //    [readability-static-accessed-through-instance]
+    addTestRow("qt-widgets-app/qt-widgets-app.qbs", 1);
+    addTestRow("qt-widgets-app/qt-widgets-app.pro", 1);
 
     addTestRow("qt-essential-includes/qt-essential-includes.qbs", 0);
     addTestRow("qt-essential-includes/qt-essential-includes.pro", 0);
