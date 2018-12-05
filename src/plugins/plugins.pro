@@ -51,7 +51,6 @@ SUBDIRS   = \
     ios \
     beautifier \
     modeleditor \
-    qmakeandroidsupport \
     winrt \
     updateinfo \
     scxmleditor \

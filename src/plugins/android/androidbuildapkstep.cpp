@@ -76,8 +76,6 @@ Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkstep", QtW
 
 namespace Android {
 
-const Core::Id ANDROID_BUILD_APK_ID("QmakeProjectManager.AndroidBuildApkStep");
-
 const QVersionNumber gradleScriptRevokedSdkVersion(25, 3, 0);
 const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
@@ -126,7 +124,7 @@ private:
 };
 
 AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent)
-    : AbstractProcessStep(parent, ANDROID_BUILD_APK_ID),
+    : AbstractProcessStep(parent, Constants::ANDROID_BUILD_APK_ID),
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::
                                          sdkManager()->latestAndroidSdkPlatform()))
 {
@@ -559,7 +557,7 @@ namespace Internal {
 
 AndroidBuildApkStepFactory::AndroidBuildApkStepFactory()
 {
-    registerStep<AndroidBuildApkStep>(ANDROID_BUILD_APK_ID);
+    registerStep<AndroidBuildApkStep>(Constants::ANDROID_BUILD_APK_ID);
     setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);

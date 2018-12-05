@@ -50,8 +50,11 @@
 #endif
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtversionmanager.h>
@@ -77,9 +80,37 @@ public:
     }
 };
 
-class AndroidPluginPrivate
+class AndroidPluginPrivate : public QObject
 {
 public:
+    AndroidPluginPrivate()
+    {
+        connect(SessionManager::instance(), &SessionManager::projectAdded, this, [=](Project *project) {
+            for (Target *target : project->targets())
+                handleNewTarget(target);
+            connect(project, &Project::addedTarget, this, &AndroidPluginPrivate::handleNewTarget);
+        });
+    }
+
+    void handleNewTarget(Target *target)
+    {
+        if (DeviceTypeKitInformation::deviceTypeId(target->kit()) != Android::Constants::ANDROID_DEVICE_TYPE)
+            return;
+
+        for (BuildConfiguration *bc : target->buildConfigurations())
+            handleNewBuildConfiguration(bc);
+
+        connect(target, &Target::addedBuildConfiguration,
+                this, &AndroidPluginPrivate::handleNewBuildConfiguration);
+    }
+
+    void handleNewBuildConfiguration(BuildConfiguration *bc)
+    {
+        connect(bc->target()->project(), &Project::parsingFinished, bc, [bc] {
+            AndroidManager::updateGradleProperties(bc->target());
+        });
+    }
+
     AndroidConfigurations androidConfiguration;
     AndroidSettingsPage settingsPage;
     AndroidDeployQtStepFactory deployQtStepFactory;

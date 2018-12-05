@@ -51,7 +51,6 @@ Project {
         "perfprofiler/perfprofiler.qbs",
         "projectexplorer/projectexplorer.qbs",
         "qbsprojectmanager/qbsprojectmanager.qbs",
-        "qmakeandroidsupport",
         "pythoneditor/pythoneditor.qbs",
         "qmldesigner/qmldesigner.qbs",
         "qmljseditor/qmljseditor.qbs",

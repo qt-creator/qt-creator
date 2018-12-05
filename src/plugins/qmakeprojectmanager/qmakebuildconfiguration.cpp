@@ -34,6 +34,9 @@
 #include "qmakestep.h"
 #include "qmakemakestep.h"
 #include "makefileparse.h"
+#include "qmakebuildconfiguration.h"
+
+#include <android/androidconstants.h>
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -160,6 +163,13 @@ void QmakeBuildConfiguration::initialize(const BuildInfo *info)
     }
 
     setBuildDirectory(directory);
+
+    if (DeviceTypeKitInformation::deviceTypeId(target()->kit())
+            == Android::Constants::ANDROID_DEVICE_TYPE) {
+        buildSteps->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALLATION_STEP_ID);
+        buildSteps->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
+    }
+
     updateCacheAndEmitEnvironmentChanged();
 }
 
