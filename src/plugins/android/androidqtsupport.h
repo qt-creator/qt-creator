@@ -67,8 +67,6 @@ public:
     virtual bool setTargetData(Core::Id role, const QVariant &value,
                                const ProjectExplorer::Target *target) const = 0;
 
-    virtual bool extraLibraryEnabled(const ProjectExplorer::Target *target) const = 0;
-
     virtual void addFiles(const ProjectExplorer::Target *target, const QString &buildKey,
                           const QStringList &addedFiles) const = 0;
 };

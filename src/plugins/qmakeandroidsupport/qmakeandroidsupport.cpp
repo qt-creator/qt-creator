@@ -87,12 +87,6 @@ static QmakeProFile *applicationProFile(const Target *target)
     return project->rootProFile()->findProFile(FileName::fromString(rc->buildKey()));
 }
 
-bool QmakeAndroidSupport::extraLibraryEnabled(const Target *target) const
-{
-    QmakeProFile *pro = applicationProFile(target);
-    return pro && !pro->parseInProgress();
-}
-
 bool QmakeAndroidSupport::setTargetData(Core::Id role, const QVariant &value, const Target *target) const
 {
     QmakeProFile *pro = applicationProFile(target);

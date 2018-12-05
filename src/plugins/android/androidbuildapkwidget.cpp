@@ -35,6 +35,8 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -52,6 +54,8 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+
+using namespace ProjectExplorer;
 
 namespace Android {
 namespace Internal {
@@ -291,9 +295,10 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step) :
     connect(m_extraLibraryListModel, &AndroidExtraLibraryListModel::enabledChanged,
             additionalLibrariesGroupBox, &QWidget::setEnabled);
 
-    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(m_step->target());
-    QTC_ASSERT(qtSupport, return);
-    additionalLibrariesGroupBox->setEnabled(qtSupport->extraLibraryEnabled(m_step->target()));
+    Target *target = m_step->target();
+    RunConfiguration *rc = target->activeRunConfiguration();
+    const ProjectNode *node = rc ? target->project()->findNodeForBuildKey(rc->buildKey()) : nullptr;
+    additionalLibrariesGroupBox->setEnabled(node && !node->parseInProgress());
 }
 
 void AndroidBuildApkWidget::addAndroidExtraLib()
