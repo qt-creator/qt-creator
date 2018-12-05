@@ -372,7 +372,8 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
             break;
         case CXCursor_ParmDecl:
         case CXCursor_VarDecl:
-            variableKind(cursor);
+        case CXCursor_VariableRef:
+            variableKind(cursor.referenced());
             break;
         case CXCursor_DeclRefExpr:
             identifierKind(cursor.referenced(), Recursion::RecursivePass);
