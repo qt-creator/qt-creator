@@ -133,7 +133,7 @@ void ClangFormatConfigWidget::initialize()
     m_ui->applyButton->show();
 
     QLayoutItem *lastItem = m_ui->verticalLayout->itemAt(m_ui->verticalLayout->count() - 1);
-    if (QSpacerItem *spacer = lastItem->spacerItem())
+    if (lastItem->spacerItem())
         m_ui->verticalLayout->removeItem(lastItem);
 
     if (m_project && !m_project->projectDirectory().appendPath(SETTINGS_FILE_NAME).exists()) {
