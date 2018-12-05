@@ -18,8 +18,6 @@ QtcPlugin {
     files: [
         "androidqmakebuildconfigurationfactory.cpp",
         "androidqmakebuildconfigurationfactory.h",
-        "qmakeandroidsupport.cpp",
-        "qmakeandroidsupport.h",
         "qmakeandroidsupportplugin.h",
         "qmakeandroidsupportplugin.cpp",
     ]

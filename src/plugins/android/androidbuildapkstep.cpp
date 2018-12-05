@@ -31,7 +31,6 @@
 #include "androidconstants.h"
 #include "androidmanager.h"
 #include "androidsdkmanager.h"
-#include "androidqtsupport.h"
 #include "certificatesmodel.h"
 
 #include "javaparser.h"
@@ -43,6 +42,8 @@
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -182,8 +183,10 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     parser->setProjectFileList(Utils::transform(target()->project()->files(ProjectExplorer::Project::AllFiles),
                                                 &Utils::FileName::toString));
 
-    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(target());
-    QFileInfo sourceDirInfo(qtSupport->targetData(Constants::AndroidPackageSourceDir, target()).toString());
+    RunConfiguration *rc = target()->activeRunConfiguration();
+    const ProjectNode *node = rc ? target()->project()->findNodeForBuildKey(rc->buildKey()) : nullptr;
+
+    QFileInfo sourceDirInfo(node ? node->targetData(Constants::AndroidPackageSourceDir, target()).toString() : QString());
     parser->setSourceDirectory(Utils::FileName::fromString(sourceDirInfo.canonicalFilePath()));
     parser->setBuildDirectory(Utils::FileName::fromString(bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString()));
     setOutputParser(parser);
@@ -204,8 +207,10 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 
     QString outputDir = bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString();
 
-    QString inputFile = AndroidManager::androidQtSupport(target())
-            ->targetData(Constants::AndroidDeploySettingsFile, target()).toString();
+    QString inputFile;
+    if (node)
+        inputFile = node->targetData(Constants::AndroidDeploySettingsFile, target()).toString();
+
     if (inputFile.isEmpty()) {
         m_skipBuilding = true;
         return true;

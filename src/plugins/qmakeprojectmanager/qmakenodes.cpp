@@ -35,6 +35,12 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <android/androidconstants.h>
+
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -239,6 +245,70 @@ QStringList QmakeProFileNode::targetApplications() const
             apps << target;
     }
     return apps;
+}
+
+QVariant QmakeProFileNode::targetData(Core::Id role, const Target *target) const
+{
+    RunConfiguration *rc = target->activeRunConfiguration();
+    if (!rc)
+        return {};
+
+    const FileName projectFilePath = FileName::fromString(rc->buildKey());
+    const ProjectNode *projectNode = target->project()->findNodeForBuildKey(rc->buildKey());
+    auto profileNode = dynamic_cast<const QmakeProFileNode *>(projectNode);
+    QTC_ASSERT(profileNode, return {});
+
+    if (role == Android::Constants::AndroidPackageSourceDir)
+        return profileNode->singleVariableValue(Variable::AndroidPackageSourceDir);
+    if (role == Android::Constants::AndroidDeploySettingsFile)
+        return profileNode->singleVariableValue(Variable::AndroidDeploySettingsFile);
+    if (role == Android::Constants::AndroidExtraLibs)
+        return profileNode->variableValue(Variable::AndroidExtraLibs);
+    if (role == Android::Constants::AndroidArch)
+        return profileNode->singleVariableValue(Variable::AndroidArch);
+    if (role == Android::Constants::AndroidSoLibPath) {
+        TargetInformation info = profileNode->targetInformation();
+        QStringList res = {info.buildDir.toString()};
+        Utils::FileName destDir = info.destDir;
+        if (!destDir.isEmpty()) {
+            if (destDir.toFileInfo().isRelative())
+                destDir = Utils::FileName::fromString(QDir::cleanPath(info.buildDir.toString()
+                                                                      + '/' + destDir.toString()));
+            res.append(destDir.toString());
+        }
+        res.removeDuplicates();
+        return res;
+    }
+    QTC_CHECK(false);
+    return {};
+}
+
+static QmakeProFile *applicationProFile(const Target *target)
+{
+    ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration();
+    if (!rc)
+        return nullptr;
+    auto project = static_cast<QmakeProject *>(target->project());
+    return project->rootProFile()->findProFile(FileName::fromString(rc->buildKey()));
+}
+
+bool QmakeProFileNode::setTargetData(Core::Id role, const QVariant &value, const Target *target) const
+{
+    QmakeProFile *pro = applicationProFile(target);
+    if (!pro)
+        return false;
+
+    const QString arch = pro->singleVariableValue(Variable::AndroidArch);
+    const QString scope = "contains(ANDROID_TARGET_ARCH," + arch + ')';
+    auto flags = QmakeProjectManager::Internal::ProWriter::ReplaceValues
+               | QmakeProjectManager::Internal::ProWriter::MultiLine;
+
+    if (role == Android::Constants::AndroidExtraLibs)
+        return pro->setProVariable("ANDROID_EXTRA_LIBS", value.toStringList(), scope, flags);
+    if (role == Android::Constants::AndroidPackageSourceDir)
+        return pro->setProVariable("ANDROID_PACKAGE_SOURCE_DIR", {value.toString()}, scope, flags);
+
+    return false;
 }
 
 QmakeProFile *QmakeProFileNode::proFile() const

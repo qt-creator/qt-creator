@@ -29,7 +29,6 @@
 #include "androidconstants.h"
 #include "androidmanifestdocument.h"
 #include "androidmanager.h"
-#include "androidqtsupport.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>

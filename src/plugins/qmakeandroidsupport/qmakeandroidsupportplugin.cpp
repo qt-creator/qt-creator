@@ -26,7 +26,6 @@
 #include "qmakeandroidsupportplugin.h"
 
 #include "androidqmakebuildconfigurationfactory.h"
-#include "qmakeandroidsupport.h"
 
 using namespace ProjectExplorer;
 
@@ -37,7 +36,6 @@ class QmakeAndroidSupportPluginPrivate
 {
 public:
     AndroidQmakeBuildConfigurationFactory buildConfigFactory;
-    QmakeAndroidSupport androidSupport;
 };
 
 QmakeAndroidSupportPlugin::~QmakeAndroidSupportPlugin()

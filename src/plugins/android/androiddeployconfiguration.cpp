@@ -28,7 +28,6 @@
 #include "androidconstants.h"
 #include "androiddeployqtstep.h"
 #include "androidmanager.h"
-#include "androidqtsupport.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>

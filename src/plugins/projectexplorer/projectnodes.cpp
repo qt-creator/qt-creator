@@ -525,16 +525,16 @@ void FolderNode::forEachProjectNode(const std::function<void(const ProjectNode *
     }
 }
 
-const ProjectNode *FolderNode::findProjectNode(const std::function<bool(const ProjectNode *)> &predicate) const
+ProjectNode *FolderNode::findProjectNode(const std::function<bool(const ProjectNode *)> &predicate)
 {
-    if (const ProjectNode *projectNode = asProjectNode()) {
+    if (ProjectNode *projectNode = asProjectNode()) {
         if (predicate(projectNode))
             return projectNode;
     }
 
     for (const std::unique_ptr<Node> &n : m_nodes) {
         if (FolderNode *fn = n->asFolderNode()) {
-            if (const ProjectNode *pn = fn->findProjectNode(predicate))
+            if (ProjectNode *pn = fn->findProjectNode(predicate))
                 return pn;
         }
     }
@@ -881,6 +881,21 @@ ProjectNode *ProjectNode::projectNode(const Utils::FileName &file) const
                 return pnode;
     }
     return nullptr;
+}
+
+QVariant ProjectNode::targetData(Core::Id role, const Target *target) const
+{
+    Q_UNUSED(role);
+    Q_UNUSED(target);
+    return QVariant();
+}
+
+bool ProjectNode::setTargetData(Core::Id role, const QVariant &value, const Target *target) const
+{
+    Q_UNUSED(role);
+    Q_UNUSED(target);
+    Q_UNUSED(value);
+    return false;
 }
 
 bool FolderNode::isEmpty() const

@@ -30,7 +30,6 @@
 
 #include "androidbuildapkstep.h"
 #include "androidextralibrarylistmodel.h"
-#include "androidqtsupport.h"
 
 #include <projectexplorer/buildstep.h>
 

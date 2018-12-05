@@ -6,7 +6,6 @@ else:ANDROID_EXPERIMENTAL_STR="false"
 QT += xml network
 
 HEADERS += \
-    androidqtsupport.h \
     androidconstants.h \
     androidconfigurations.h \
     androidmanager.h \

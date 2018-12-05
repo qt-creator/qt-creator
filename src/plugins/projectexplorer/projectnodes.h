@@ -31,8 +31,11 @@
 #include <QIcon>
 #include <QStringList>
 
+#include <coreplugin/id.h>
+
 #include <utils/fileutils.h>
 #include <utils/optional.h>
+
 #include <functional>
 
 namespace Utils { class MimeType; }
@@ -40,6 +43,7 @@ namespace Utils { class MimeType; }
 namespace ProjectExplorer {
 
 class Project;
+class Target;
 
 enum class NodeType : quint16 {
     File = 1,
@@ -219,7 +223,7 @@ public:
                      const std::function<bool(const FolderNode *)> &folderFilterTask = {}) const;
     void forEachGenericNode(const std::function<void(Node *)> &genericTask) const;
     void forEachProjectNode(const std::function<void(const ProjectNode *)> &genericTask) const;
-    const ProjectNode *findProjectNode(const std::function<bool(const ProjectNode *)> &predicate) const;
+    ProjectNode *findProjectNode(const std::function<bool(const ProjectNode *)> &predicate);
     const QList<Node *> nodes() const;
     QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FileName &file) const;
@@ -344,7 +348,10 @@ public:
 
     virtual QStringList targetApplications() const { return {}; }
     virtual bool parseInProgress() const { return false; }
+
     virtual bool validParse() const { return false; }
+    virtual QVariant targetData(Core::Id role, const Target *target) const;
+    virtual bool setTargetData(Core::Id role, const QVariant &value, const Target *target) const;
 
 protected:
     explicit ProjectNode(const Utils::FileName &projectFilePath, const QByteArray &id = {});

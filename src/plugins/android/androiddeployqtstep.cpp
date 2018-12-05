@@ -26,7 +26,6 @@
 
 #include "androiddeployqtstep.h"
 #include "androiddeployqtwidget.h"
-#include "androidqtsupport.h"
 #include "certificatesmodel.h"
 
 #include "javaparser.h"
@@ -43,6 +42,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -170,8 +170,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     if (m_uninstallPreviousPackageRun)
         m_manifestName = AndroidManager::manifestPath(target());
 
-    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(target());
-    m_useAndroiddeployqt = !deployQtLive && qtSupport &&
+    m_useAndroiddeployqt = !deployQtLive &&
             version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
     if (m_useAndroiddeployqt) {
@@ -192,11 +191,15 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, m_workingDirectory);
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--no-build"));
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--input"));
-        const QString jsonFile = qtSupport->targetData(Constants::AndroidDeploySettingsFile, target()).toString();
+
+        QString jsonFile;
+        if (const ProjectNode *node = target()->project()->findNodeForBuildKey(rc->buildKey()))
+            jsonFile = node->targetData(Constants::AndroidDeploySettingsFile, target()).toString();
         if (jsonFile.isEmpty()) {
             emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
             return false;
         }
+
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, jsonFile);
         if (androidBuildApkStep && androidBuildApkStep->useMinistro()) {
             qCDebug(deployStepLog) << "Using ministro";

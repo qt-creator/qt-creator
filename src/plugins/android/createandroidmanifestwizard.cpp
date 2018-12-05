@@ -26,11 +26,13 @@
 #include "createandroidmanifestwizard.h"
 
 #include <android/androidconfigurations.h>
+#include <android/androidconstants.h>
 #include <android/androidmanager.h>
-#include <android/androidqtsupport.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
@@ -177,13 +179,14 @@ bool ChooseDirectoryPage::isComplete() const
 
 void ChooseDirectoryPage::initializePage()
 {
+    const Target *target = m_wizard->target();
     const QString buildKey = m_wizard->buildKey();
-    const BuildTargetInfo bti = m_wizard->target()->applicationTargets().buildTargetInfo(buildKey);
+    const BuildTargetInfo bti = target->applicationTargets().buildTargetInfo(buildKey);
     const QString projectDir = bti.projectFilePath.toFileInfo().absolutePath();
 
-    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(m_wizard->target());
-    const QString androidPackageDir
-            = qtSupport->targetData(Android::Constants::AndroidPackageSourceDir, m_wizard->target()).toString();
+    QString androidPackageDir;
+    if (const ProjectNode *node = target->project()->findNodeForBuildKey(buildKey))
+        androidPackageDir = node->targetData(Android::Constants::AndroidPackageSourceDir, target).toString();
 
     if (androidPackageDir.isEmpty()) {
         m_label->setText(tr("Select the Android package source directory.\n\n"
@@ -344,17 +347,19 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         AndroidManager::updateGradleProperties(m_target);
     }
 
-    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(m_target);
-    qtSupport->addFiles(m_target, m_buildKey, addedFiles);
 
-    const QString androidPackageDir
-            = qtSupport->targetData(Android::Constants::AndroidPackageSourceDir, m_target).toString();
+    QString androidPackageDir;
+    ProjectNode *node = m_target->project()->findNodeForBuildKey(m_buildKey);
+    if (node) {
+        node->addFiles(addedFiles);
+        androidPackageDir = node->targetData(Android::Constants::AndroidPackageSourceDir, m_target).toString();
+    }
 
     if (androidPackageDir.isEmpty()) {
         // and now time for some magic
         const BuildTargetInfo bti = m_target->applicationTargets().buildTargetInfo(m_buildKey);
         const QString value = "$$PWD/" + bti.projectFilePath.toFileInfo().absoluteDir().relativeFilePath(m_directory);
-        bool result = qtSupport->setTargetData(Android::Constants::AndroidPackageSourceDir, value, m_target);
+        bool result = node->setTargetData(Android::Constants::AndroidPackageSourceDir, value, m_target);
 
         if (!result) {
             QMessageBox::warning(this, tr("Project File not Updated"),

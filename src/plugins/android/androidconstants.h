@@ -74,5 +74,11 @@ const char ANDROID_EXTRA_LIBS[] = "AndroidExtraLibs";
 const char ANDROID_PACKAGENAME[] = "Android.PackageName";
 const char ANDROID_PACKAGE_INSTALLATION_STEP_ID[] =  "Qt4ProjectManager.AndroidPackageInstallationStep";
 
+const char AndroidPackageSourceDir[] = "AndroidPackageSourceDir"; // QString
+const char AndroidDeploySettingsFile[] = "AndroidDeploySettingsFile"; // QString
+const char AndroidExtraLibs[] = "AndroidExtraLibs";  // QStringList
+const char AndroidArch[] = "AndroidArch"; // QString
+const char AndroidSoLibPath[] = "AndroidSoLibPath"; // QStringList
+
 } // namespace Constants;
 } // namespace Android

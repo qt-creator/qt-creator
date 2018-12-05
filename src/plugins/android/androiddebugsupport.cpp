@@ -25,10 +25,10 @@
 
 #include "androiddebugsupport.h"
 
+#include "androidconstants.h"
 #include "androidglobal.h"
 #include "androidrunner.h"
 #include "androidmanager.h"
-#include "androidqtsupport.h"
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
@@ -36,6 +36,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -44,8 +45,9 @@
 #include <utils/hostosinfo.h>
 
 #include <QDirIterator>
-#include <QLoggingCategory>
 #include <QHostAddress>
+#include <QJsonDocument>
+#include <QLoggingCategory>
 
 namespace {
 Q_LOGGING_CATEGORY(androidDebugSupportLog, "qtc.android.run.androiddebugsupport", QtWarningMsg)
@@ -90,6 +92,44 @@ static QStringList uniquePaths(const QStringList &files)
     return paths.toList();
 }
 
+static QStringList getSoLibSearchPath(const RunConfiguration *rc)
+{
+    Target *target = rc->target();
+    const ProjectNode *node = target->project()->findNodeForBuildKey(rc->buildKey());
+    if (!node)
+        return {};
+
+    QStringList res;
+    node->forEachProjectNode([&res, target](const ProjectNode *node) {
+         res.append(node->targetData(Constants::AndroidSoLibPath, target).toStringList());
+    });
+
+    const QString jsonFile = node->targetData(Android::Constants::AndroidDeploySettingsFile, target).toString();
+    QFile deploymentSettings(jsonFile);
+    if (deploymentSettings.open(QIODevice::ReadOnly)) {
+        QJsonParseError error;
+        QJsonDocument doc = QJsonDocument::fromJson(deploymentSettings.readAll(), &error);
+        if (error.error == QJsonParseError::NoError) {
+            auto rootObj = doc.object();
+            auto it = rootObj.find("stdcpp-path");
+            if (it != rootObj.constEnd())
+                res.append(QFileInfo(it.value().toString()).absolutePath());
+        }
+    }
+
+    res.removeDuplicates();
+    return res;
+}
+
+static QStringList getExtraLibs(const RunConfiguration *rc)
+{
+    const ProjectNode *node = rc->target()->project()->findNodeForBuildKey(rc->buildKey());
+    if (!node)
+        return {};
+
+    return node->targetData(Android::Constants::AndroidExtraLibs, rc->target()).toStringList();
+}
+
 static QString toNdkArch(const QString &arch)
 {
     if (arch == QLatin1String("armeabi-v7a") || arch == QLatin1String("armeabi"))
@@ -131,9 +171,8 @@ void AndroidDebugSupport::start()
 
     if (isCppDebugging()) {
         qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
-        AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(target);
-        QStringList solibSearchPath = qtSupport->soLibSearchPath(target);
-        QStringList extraLibs = qtSupport->targetData(Android::Constants::AndroidExtraLibs, target).toStringList();
+        QStringList solibSearchPath = getSoLibSearchPath(runConfig);
+        QStringList extraLibs = getExtraLibs(runConfig);
         solibSearchPath.append(qtSoPaths(qtVersion));
         solibSearchPath.append(uniquePaths(extraLibs));
         setSolibSearchPath(solibSearchPath);

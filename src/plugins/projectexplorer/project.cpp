@@ -883,7 +883,7 @@ bool Project::hasParsingData() const
     return d->m_hasParsingData;
 }
 
-const ProjectNode *Project::findNodeForBuildKey(const QString &buildKey) const
+ProjectNode *Project::findNodeForBuildKey(const QString &buildKey) const
 {
     if (!d->m_rootProjectNode)
         return nullptr;

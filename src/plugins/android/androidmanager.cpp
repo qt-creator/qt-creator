@@ -31,7 +31,6 @@
 #include "androidglobal.h"
 #include "androidtoolchain.h"
 #include "androiddeployqtstep.h"
-#include "androidqtsupport.h"
 #include "androidqtversion.h"
 #include "androidavdmanager.h"
 #include "androidsdkmanager.h"
@@ -42,6 +41,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -89,6 +89,7 @@ namespace {
 } // anonymous namespace
 
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Android {
@@ -111,16 +112,11 @@ static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
 static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
 static int parseMinSdk(const QDomElement &manifestElem);
 
-static QList<AndroidQtSupport *> g_androidQtSupportProviders;
-
-AndroidQtSupport::AndroidQtSupport()
+static const ProjectNode *currentProjectNode(Target *target)
 {
-    g_androidQtSupportProviders.append(this);
-}
-
-AndroidQtSupport::~AndroidQtSupport()
-{
-    g_androidQtSupportProviders.removeOne(this);
+    if (RunConfiguration *rc = target->activeRunConfiguration())
+        return target->project()->findNodeForBuildKey(rc->buildKey());
+    return nullptr;
 }
 
 QString AndroidManager::packageName(ProjectExplorer::Target *target)
@@ -306,9 +302,9 @@ Utils::FileName AndroidManager::apkPath(const ProjectExplorer::Target *target)
 
 Utils::FileName AndroidManager::manifestSourcePath(ProjectExplorer::Target *target)
 {
-    if (AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target)) {
+    if (const ProjectNode *node = currentProjectNode(target)) {
         const QString packageSource
-                = androidQtSupport->targetData(Android::Constants::AndroidPackageSourceDir, target).toString();
+                = node->targetData(Android::Constants::AndroidPackageSourceDir, target).toString();
         if (!packageSource.isEmpty()) {
             const FileName manifest = FileName::fromUserInput(packageSource + "/AndroidManifest.xml");
             if (manifest.exists())
@@ -559,15 +555,6 @@ bool AndroidManager::checkCertificateExists(const QString &keystorePath,
     return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
-AndroidQtSupport *AndroidManager::androidQtSupport(ProjectExplorer::Target *target)
-{
-    for (AndroidQtSupport *provider : g_androidQtSupportProviders) {
-        if (provider->canHandle(target))
-            return provider;
-    }
-    return nullptr;
-}
-
 using GradleProperties = QMap<QByteArray, QByteArray>;
 
 static GradleProperties readGradleProperties(const QString &path)
@@ -636,11 +623,11 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     if (!version)
         return false;
 
-    AndroidQtSupport *qtSupport = androidQtSupport(target);
-    if (!qtSupport)
+    const ProjectNode *node = currentProjectNode(target);
+    if (!node)
         return false;
 
-    QFileInfo sourceDirInfo(qtSupport->targetData(Constants::AndroidPackageSourceDir, target).toString());
+    QFileInfo sourceDirInfo(node->targetData(Constants::AndroidPackageSourceDir, target).toString());
     FileName packageSourceDir = FileName::fromString(sourceDirInfo.canonicalFilePath());
     if (!packageSourceDir.appendPath("gradlew").exists())
         return false;

@@ -44,8 +44,6 @@ namespace Utils { class FileName; }
 
 namespace Android {
 
-class AndroidQtSupport;
-
 class SdkToolResult {
 public:
     SdkToolResult() = default;
@@ -110,7 +108,6 @@ public:
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
     static bool checkCertificateExists(const QString &keystorePath, const QString &keystorePasswd,
                                        const QString &alias);
-    static AndroidQtSupport *androidQtSupport(ProjectExplorer::Target *target);
     static bool updateGradleProperties(ProjectExplorer::Target *target);
     static int findApiLevel(const Utils::FileName &platformPath);
 

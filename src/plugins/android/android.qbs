@@ -78,7 +78,6 @@ Project {
             "androidpotentialkit.h",
             "androidqmltoolingsupport.cpp",
             "androidqmltoolingsupport.h",
-            "androidqtsupport.h",
             "androidqtversion.cpp",
             "androidqtversion.h",
             "androidqtversionfactory.cpp",
