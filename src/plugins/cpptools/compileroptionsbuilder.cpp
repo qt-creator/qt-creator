@@ -117,7 +117,6 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     undefineClangVersionMacrosForMsvc();
     undefineCppLanguageFeatureMacrosForMsvc2015();
     addDefineFunctionMacrosMsvc();
-    addBoostWorkaroundMacros();
 
     addToolchainFlags();
     addPrecompiledHeaderOptions(usePrecompiledHeaders);
@@ -596,14 +595,6 @@ void CompilerOptionsBuilder::addDefineFunctionMacrosMsvc()
     }
 }
 
-void CompilerOptionsBuilder::addBoostWorkaroundMacros()
-{
-    if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
-          && m_projectPart.toolchainType != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-        addMacros({{"BOOST_TYPE_INDEX_CTTI_USER_DEFINED_PARSING", "(39, 1, true, \"T = \")"}});
-    }
-}
-
 QString CompilerOptionsBuilder::includeDirOptionForPath(const QString &path) const
 {
     if (m_useSystemHeader == UseSystemHeader::No
@@ -705,6 +696,12 @@ void CompilerOptionsBuilder::undefineClangVersionMacrosForMsvc()
         for (const QString &macroName : macroNames)
             add(undefineOption + macroName);
     }
+}
+
+UseToolchainMacros CompilerOptionsBuilder::useToolChainMacros()
+{
+    return qEnvironmentVariableIntValue("QTC_CLANG_USE_TOOLCHAIN_MACROS") ? UseToolchainMacros::Yes
+                                                                          : UseToolchainMacros::No;
 }
 
 } // namespace CppTools

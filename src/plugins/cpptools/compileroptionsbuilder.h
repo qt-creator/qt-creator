@@ -69,7 +69,6 @@ public:
     void addMsvcCompatibilityVersion();
     void undefineCppLanguageFeatureMacrosForMsvc2015();
     void addDefineFunctionMacrosMsvc();
-    void addBoostWorkaroundMacros();
 
     void addProjectConfigFileInclude();
     void undefineClangVersionMacrosForMsvc();
@@ -77,6 +76,8 @@ public:
     // Add custom options
     void add(const QString &option) { m_options.append(option); }
     virtual void addExtraOptions() {}
+
+    static UseToolchainMacros useToolChainMacros();
 
 private:
     bool excludeDefineDirective(const ProjectExplorer::Macro &macro) const;

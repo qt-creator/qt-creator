@@ -69,7 +69,7 @@ public:
     LibClangOptionsBuilder(const ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart,
                                  UseSystemHeader::No,
-                                 UseToolchainMacros::Yes,
+                                 useToolChainMacros(),
                                  UseTweakedHeaderPaths::Yes,
                                  UseLanguageDefines::No,
                                  QString(CLANG_VERSION),
