@@ -232,49 +232,15 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderLinux)
 
 TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderNoVersion)
 {
-    projectPart.headerPaths = {HeaderPath{"C:\\Qt\\Tools\\mingw530_32\\i686-w64-mingw32\\include", HeaderPathType::BuiltIn},
-                               HeaderPath{"C:\\Qt\\Tools\\mingw530_32\\i686-w64-mingw32\\include\\c++", HeaderPathType::BuiltIn},
-                               HeaderPath{"C:\\Qt\\Tools\\mingw530_32\\i686-w64-mingw32\\include\\c++\\i686-w64-mingw32", HeaderPathType::BuiltIn},
-                               HeaderPath{"C:\\Qt\\Tools\\mingw530_32\\i686-w64-mingw32\\include\\c++\\backward", HeaderPathType::BuiltIn}
-                              };
-    projectPart.toolChainTargetTriple = "x86_64-w64-windows-gnu";
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::SkipBuiltIn::No,
-                                                            CppTools::SkipLanguageDefines::Yes,
-                                                            "7.0.0",
-                                                            "");
-
-    compilerOptionsBuilder.addHeaderPathOptions();
-
-    ASSERT_THAT(compilerOptionsBuilder.options(),
-                ElementsAre("-nostdinc",
-                            "-nostdlibinc",
-                            "-isystem", QDir::toNativeSeparators("C:\\Qt\\Tools\\mingw530_32\\i686-w64-mingw32\\include"),
-                            "-isystem", QDir::toNativeSeparators("C:\\Qt\\Tools\\mingw530_32\\i686-w64-mingw32\\include\\c++"),
-                            "-isystem", QDir::toNativeSeparators("C:\\Qt\\Tools\\mingw530_32\\i686-w64-mingw32\\include\\c++\\i686-w64-mingw32"),
-                            "-isystem", QDir::toNativeSeparators("C:\\Qt\\Tools\\mingw530_32\\i686-w64-mingw32\\include\\c++\\backward"),
-                            "-isystem", QDir::toNativeSeparators(CLANG_RESOURCE_DIR "")));
-}
-
-TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
-{
     projectPart.headerPaths = {
-        HeaderPath{
-            "C:\\Users\\test\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sysroot\\usr\\include\\i686-linux-android",
-            HeaderPathType::BuiltIn},
-        HeaderPath{
-            "C:\\Users\\test\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sources\\cxx-stl\\llvm-libc++\\include",
-            HeaderPathType::BuiltIn},
-        HeaderPath{
-            "C:\\Users\\test\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sources\\android\\support\\include",
-            HeaderPathType::BuiltIn},
-        HeaderPath{
-            "C:\\Users\\test\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sources\\cxx-stl\\llvm-libc++abi\\include",
-            HeaderPathType::BuiltIn},
-        HeaderPath{"C:\\Users\\test\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sysroot\\usr\\include",
+        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include", HeaderPathType::BuiltIn},
+        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++",
+                   HeaderPathType::BuiltIn},
+        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32",
+                   HeaderPathType::BuiltIn},
+        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward",
                    HeaderPathType::BuiltIn}};
-    projectPart.toolChainTargetTriple = "i686-linux-android";
+    projectPart.toolChainTargetTriple = "x86_64-w64-windows-gnu";
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
                                                             CppTools::SkipBuiltIn::No,
@@ -290,22 +256,68 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
             "-nostdinc",
             "-nostdlibinc",
             "-isystem",
-            QDir::toNativeSeparators(
-                "C:\\Users\\test\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sysroot\\usr\\include\\i686-linux-android"),
+            QDir::toNativeSeparators("C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++"),
             "-isystem",
             QDir::toNativeSeparators(
-                "C:\\Users\\test\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sources\\cxx-stl\\llvm-libc++\\include"),
+                "C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
             "-isystem",
             QDir::toNativeSeparators(
-                "C:\\Users\\test\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sources\\android\\support\\include"),
-            "-isystem",
-            QDir::toNativeSeparators(
-                "C:\\Users\\test\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sources\\cxx-stl\\llvm-libc++abi\\include"),
+                "C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward"),
             "-isystem",
             QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
             "-isystem",
-            QDir::toNativeSeparators(
-                "C:\\Users\\test\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sysroot\\usr\\include")));
+            QDir::toNativeSeparators("C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include")));
+}
+
+TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
+{
+    projectPart.headerPaths
+        = {HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-"
+                      "bundle/sysroot/usr/include/i686-linux-android",
+                      HeaderPathType::BuiltIn},
+           HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-bundle/sources/cxx-"
+                      "stl/llvm-libc++/include",
+                      HeaderPathType::BuiltIn},
+           HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-"
+                      "bundle/sources/android/support/include",
+                      HeaderPathType::BuiltIn},
+           HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-bundle/sources/cxx-"
+                      "stl/llvm-libc++abi/include",
+                      HeaderPathType::BuiltIn},
+           HeaderPath{
+               "C:/Users/test/AppData/Local/Android/sdk/ndk-bundle/sysroot/usr/include",
+               HeaderPathType::BuiltIn}};
+    projectPart.toolChainTargetTriple = "i686-linux-android";
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
+                                                            CppTools::UseSystemHeader::No,
+                                                            CppTools::SkipBuiltIn::No,
+                                                            CppTools::SkipLanguageDefines::Yes,
+                                                            "7.0.0",
+                                                            "");
+
+    compilerOptionsBuilder.addHeaderPathOptions();
+
+    ASSERT_THAT(
+        compilerOptionsBuilder.options(),
+        ElementsAre("-nostdinc",
+                    "-nostdlibinc",
+                    "-isystem",
+                    QDir::toNativeSeparators("C:/Users/test/AppData/Local/Android/sdk/ndk-"
+                                             "bundle/sources/cxx-stl/llvm-libc++/include"),
+                    "-isystem",
+                    QDir::toNativeSeparators("C:/Users/test/AppData/Local/Android/sdk/ndk-"
+                                             "bundle/sources/cxx-stl/llvm-libc++abi/include"),
+                    "-isystem",
+                    QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
+                    "-isystem",
+                    QDir::toNativeSeparators("C:/Users/test/AppData/Local/Android/sdk/ndk-"
+                                             "bundle/sysroot/usr/include/i686-linux-android"),
+                    "-isystem",
+                    QDir::toNativeSeparators("C:/Users/test/AppData/Local/Android/sdk/ndk-"
+                                             "bundle/sources/android/support/include"),
+                    "-isystem",
+                    QDir::toNativeSeparators("C:/Users/test/AppData/Local/Android/sdk/ndk-"
+                                             "bundle/sysroot/usr/include")));
 }
 
 TEST_F(CompilerOptionsBuilder, NoPrecompiledHeader)
