@@ -38,11 +38,13 @@ lastToken = [None, None]
 stopTokens = ('OP', 'NAME', 'NUMBER', 'ENDMARKER')
 
 def parseCommandLine():
-    global directory, onlyRemovable, sharedFolders
+    global directory, onlyRemovable, sharedFolders, deleteObjects
     parser = OptionParser("\n%prog [OPTIONS] [DIRECTORY]")
     parser.add_option("-o", "--only-removable", dest="onlyRemovable",
                       action="store_true", default=False,
                       help="list removable objects only")
+    parser.add_option("-d", "--delete", dest="delete",
+                      action="store_true", default=False)
     parser.add_option("-s", dest="sharedFolders",
                       action="store", type="string", default="",
                       help="comma-separated list of shared folders")
@@ -56,6 +58,7 @@ def parseCommandLine():
         parser.print_help()
         sys.exit(1)
     onlyRemovable = options.onlyRemovable
+    deleteObjects = options.delete
     sharedFolders = map(os.path.abspath, options.sharedFolders.split(','))
 
 def collectObjects():
@@ -153,15 +156,53 @@ def printResult():
         print
     return None
 
-def main():
+def deleteRemovable():
     global useCounts, objMap
+
+    deletable = filter(lambda x: useCounts[x] == 0, useCounts)
+    if len(deletable) == 0:
+        print("Nothing to delete - leaving objects.map untouched")
+        return
+
+    data = ''
+    with open(objMap, "r") as objMapFile:
+        data = objMapFile.read()
+
+    objMapBackup = objMap + '~'
+    if os.path.exists(objMapBackup):
+        os.unlink(objMapBackup)
+    os.rename(objMap, objMapBackup)
+
+    count = 0
+    with open(objMap, "w") as objMapFile:
+        for line in data.splitlines():
+            try:
+                obj = line.split('\t')[0]
+                if obj in deletable:
+                    count += 1
+                    continue
+                objMapFile.write(line + '\n')
+            except:
+                print("Something's wrong in line '%s'" % line)
+
+    print("Deleted %d items, old objects.map has been moved to objects.map~" % count)
+    return count > 0
+
+def main():
+    global useCounts, objMap, deleteObjects
     objMap = checkDirectory(directory)
     useCounts = dict.fromkeys(collectObjects(), 0)
     findUsages()
     atLeastOneRemovable = printResult()
+    deletedAtLeastOne = deleteObjects and deleteRemovable()
+
+    mssg = None
     if atLeastOneRemovable:
-        print "\nAfter removing the listed objects you should re-run this tool"
-        print "to find objects that might have been used only by these objects.\n"
+        mssg = "\nAfter removing the listed objects you should re-run this tool\n"
+    if deletedAtLeastOne:
+        mssg = "\nYou should re-run this tool\n"
+    if mssg:
+        print(mssg + "to find objects that might have been referenced only by removed objects.\n")
     return 0
 
 if __name__ == '__main__':
