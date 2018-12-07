@@ -50,6 +50,7 @@ public:
     ClickableFixItHeader(Qt::Orientation orientation, QWidget *parent = nullptr)
         : QHeaderView(orientation, parent)
     {
+        setDefaultAlignment(Qt::AlignLeft);
     }
 
     void setState(QFlags<QStyle::StateFlag> newState)
@@ -68,6 +69,10 @@ protected:
             const int side = sizeHint().height();
             option.rect = QRect(rect.left() + 1, 1, side - 3, side - 3);
             option.state = state;
+            painter->save();
+            painter->translate(QPoint(side - 2, 0));
+            QHeaderView::paintSection(painter, rect, logicalIndex);
+            painter->restore();
             style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
         }
     }
@@ -181,6 +186,10 @@ void DiagnosticView::setModel(QAbstractItemModel *model)
     clickableFixItHeader->setSectionResizeMode(0, QHeaderView::Stretch);
     clickableFixItHeader->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     clickableFixItHeader->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+
+    const int fixitColumnWidth = clickableFixItHeader->sectionSizeHint(DiagnosticView::FixItColumn);
+    const int checkboxWidth = clickableFixItHeader->height();
+    clickableFixItHeader->setMinimumSectionSize(fixitColumnWidth + checkboxWidth);
 }
 
 } // namespace Internal
