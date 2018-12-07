@@ -26,6 +26,7 @@
 ############################################################################
 
 import os
+import platform
 import sys
 import tokenize
 from optparse import OptionParser
@@ -37,11 +38,14 @@ lastToken = [None, None]
 stopTokens = ('OP', 'NAME', 'NUMBER', 'ENDMARKER')
 
 def parseCommandLine():
-    global directory, onlyRemovable
+    global directory, onlyRemovable, sharedFolders
     parser = OptionParser("\n%prog [OPTIONS] [DIRECTORY]")
     parser.add_option("-o", "--only-removable", dest="onlyRemovable",
                       action="store_true", default=False,
                       help="list removable objects only")
+    parser.add_option("-s", dest="sharedFolders",
+                      action="store", type="string", default="",
+                      help="comma-separated list of shared folders")
     (options, args) = parser.parse_args()
     if len(args) == 0:
         directory = os.path.abspath(".")
@@ -52,6 +56,7 @@ def parseCommandLine():
         parser.print_help()
         sys.exit(1)
     onlyRemovable = options.onlyRemovable
+    sharedFolders = map(os.path.abspath, options.sharedFolders.split(','))
 
 def collectObjects():
     global objMap
@@ -97,18 +102,35 @@ def handleDataFiles(openFile, separator):
                 useCounts[stripped] = useCounts[stripped] + 1
 
 def findUsages():
-    global directory, objMap
+    global directory, objMap, sharedFolders
     suffixes = (".py", ".csv", ".tsv")
-    for root, dirnames, filenames in os.walk(directory):
-        for filename in filter(lambda x: x.endswith(suffixes), filenames):
-            currentFile = open(os.path.join(root, filename))
-            if filename.endswith(".py"):
-                tokenize.tokenize(currentFile.readline, handle_token)
-            elif filename.endswith(".csv"):
-                handleDataFiles(currentFile, ",")
-            elif filename.endswith(".tsv"):
-                handleDataFiles(currentFile, "\t")
-            currentFile.close()
+    directories = [directory]
+    # avoid folders that will be processed anyhow
+    for shared in sharedFolders:
+        skip = False
+        tmpS = shared + "/"
+        for folder in directories:
+            tmpD = folder + "/"
+            if platform.system() in ('Microsoft', 'Windows'):
+                tmpS = tmpS.lower()
+                tmpD = tmpD.lower()
+            if tmpS.startswith(tmpD):
+                skip = True
+                break
+        if not skip:
+            directories.append(shared)
+
+    for directory in directories:
+        for root, dirnames, filenames in os.walk(directory):
+            for filename in filter(lambda x: x.endswith(suffixes), filenames):
+                currentFile = open(os.path.join(root, filename))
+                if filename.endswith(".py"):
+                    tokenize.tokenize(currentFile.readline, handle_token)
+                elif filename.endswith(".csv"):
+                    handleDataFiles(currentFile, ",")
+                elif filename.endswith(".tsv"):
+                    handleDataFiles(currentFile, "\t")
+                currentFile.close()
     currentFile = open(objMap)
     tokenize.tokenize(currentFile.readline, handle_token)
     currentFile.close()
