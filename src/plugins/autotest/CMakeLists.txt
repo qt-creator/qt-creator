@@ -11,6 +11,16 @@ add_qtc_plugin(AutoTest
     autotesticons.h
     autotestplugin.cpp autotestplugin.h
     autotestunittests.qrc
+    boost/boostcodeparser.cpp boost/boostcodeparser.h
+    boost/boosttestconfiguration.cpp boost/boosttestconfiguration.h
+    boost/boosttestconstants.h
+    boost/boosttestframework.cpp boost/boosttestframework.h
+    boost/boosttestoutputreader.cpp boost/boosttestoutputreader.h
+    boost/boosttestparser.cpp boost/boosttestparser.h
+    boost/boosttestresult.cpp boost/boosttestresult.h
+    boost/boosttestsettings.cpp boost/boosttestsettings.h
+    boost/boosttestsettingspage.cpp boost/boosttestsettingspage.h boost/boosttestsettingspage.ui
+    boost/boosttesttreeitem.cpp boost/boosttesttreeitem.h
     gtest/gtest_utils.cpp gtest/gtest_utils.h
     gtest/gtestconfiguration.cpp gtest/gtestconfiguration.h
     gtest/gtestconstants.h

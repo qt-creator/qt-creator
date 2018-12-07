@@ -40,6 +40,7 @@
 #include "qtest/qttestframework.h"
 #include "quick/quicktestframework.h"
 #include "gtest/gtestframework.h"
+#include "boost/boosttestframework.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -176,6 +177,7 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     m_frameworkManager->registerTestFramework(new QtTestFramework);
     m_frameworkManager->registerTestFramework(new QuickTestFramework);
     m_frameworkManager->registerTestFramework(new GTestFramework);
+    m_frameworkManager->registerTestFramework(new BoostTestFramework);
 
     m_frameworkManager->synchronizeSettings(ICore::settings());
     m_testSettingPage = new TestSettingsPage(m_settings);

@@ -102,6 +102,13 @@ QtcPlugin {
     }
 
     Group {
+        name: "Boost Test framework files"
+        files: [
+            "boost/*"
+        ]
+    }
+
+    Group {
         name: "Test sources"
         condition: qtc.testsEnabled
         files: [

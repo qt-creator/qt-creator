@@ -49,6 +49,15 @@ SOURCES += \
     quick/quicktestvisitors.cpp \
     quick/quicktestframework.cpp \
     quick/quicktest_utils.cpp \
+    boost/boostcodeparser.cpp \
+    boost/boosttestframework.cpp \
+    boost/boosttesttreeitem.cpp \
+    boost/boosttestparser.cpp \
+    boost/boosttestconfiguration.cpp \
+    boost/boosttestoutputreader.cpp \
+    boost/boosttestresult.cpp \
+    boost/boosttestsettings.cpp \
+    boost/boosttestsettingspage.cpp \
     testframeworkmanager.cpp \
     testeditormark.cpp
 
@@ -104,6 +113,16 @@ HEADERS += \
     quick/quicktest_utils.h \
     quick/quicktestvisitors.h \
     quick/quicktestframework.h \
+    boost/boostcodeparser.h \
+    boost/boosttestframework.h \
+    boost/boosttestconstants.h \
+    boost/boosttesttreeitem.h \
+    boost/boosttestparser.h \
+    boost/boosttestconfiguration.h \
+    boost/boosttestoutputreader.h \
+    boost/boosttestresult.h \
+    boost/boosttestsettingspage.h \
+    boost/boosttestsettings.h \
     testframeworkmanager.h \
     testrunconfiguration.h \
     itestsettingspage.h \
@@ -114,6 +133,7 @@ RESOURCES += \
 
 FORMS += \
     testsettingspage.ui \
+    boost/boosttestsettingspage.ui \
     qtest/qttestsettingspage.ui \
     gtest/gtestsettingspage.ui
 
