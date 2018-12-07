@@ -102,6 +102,9 @@ public:
     static void addFixitOperations(DiagnosticItem *diagnosticItem,
                                    const FixitsRefactoringFile &file, bool apply)
     {
+        if (!diagnosticItem->hasNewFixIts())
+            return;
+
         // Did we already created the fixit operations?
         ReplacementOperations currentOps = diagnosticItem->fixitOperations();
         if (!currentOps.isEmpty()) {
@@ -135,7 +138,7 @@ public:
         diagnosticItem->setFixitOperations(replacements);
     }
 
-    void apply()
+    void apply(ClangToolsDiagnosticModel *model)
     {
         for (auto it = m_refactoringFileInfos.begin(); it != m_refactoringFileInfos.end(); ++it) {
             RefactoringFileInfo &fileInfo = it.value();
@@ -167,18 +170,24 @@ public:
             for (DiagnosticItem *item : itemsScheduledOrSchedulable)
                 ops += item->fixitOperations();
 
+            if (ops.empty())
+                continue;
+
             // Apply file
             QVector<DiagnosticItem *> itemsApplied;
             QVector<DiagnosticItem *> itemsFailedToApply;
             QVector<DiagnosticItem *> itemsInvalidated;
 
             fileInfo.file.setReplacements(ops);
+
+            model->removeWatchedPath(ops.first()->fileName);
             if (fileInfo.file.apply()) {
                 itemsApplied = itemsScheduled;
             } else {
                 itemsFailedToApply = itemsScheduled;
                 itemsInvalidated = itemsSchedulable;
             }
+            model->addWatchedPath(ops.first()->fileName);
 
             // Update DiagnosticItem state
             for (DiagnosticItem *diagnosticItem : itemsScheduled)
@@ -262,7 +271,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
             diagnosticItems += static_cast<DiagnosticItem *>(item);
         });
 
-        ApplyFixIts(diagnosticItems).apply();
+        ApplyFixIts(diagnosticItems).apply(m_diagnosticModel);
     });
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
@@ -354,7 +363,9 @@ void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
 
     m_perspective.select();
 
+    m_diagnosticModel->clearAndSetupCache();
     m_diagnosticModel->clear();
+
     setToolBusy(true);
     m_diagnosticFilterModel->setProject(project);
     m_running = true;

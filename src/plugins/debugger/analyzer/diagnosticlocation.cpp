@@ -46,6 +46,12 @@ bool operator==(const DiagnosticLocation &first, const DiagnosticLocation &secon
             && first.column == second.column;
 }
 
+bool operator<(const DiagnosticLocation &first, const DiagnosticLocation &second)
+{
+    return std::tie(first.filePath, first.line, first.column)
+           < std::tie(second.filePath, second.line, second.column);
+}
+
 QDebug operator<<(QDebug dbg, const DiagnosticLocation &location)
 {
     dbg.nospace() << "Location(" << location.filePath << ", "

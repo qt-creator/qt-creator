@@ -33,10 +33,14 @@
 #include <utils/fileutils.h>
 #include <utils/treemodel.h>
 
+#include <QFileSystemWatcher>
 #include <QPointer>
 #include <QSortFilterProxyModel>
+#include <QVector>
 
 #include <functional>
+#include <map>
+#include <memory>
 
 namespace ProjectExplorer { class Project; }
 
@@ -52,11 +56,14 @@ enum class FixitStatus {
     Invalidated,
 };
 
+class ClangToolsDiagnosticModel;
+
 class DiagnosticItem : public Utils::TreeItem
 {
 public:
     using OnFixitStatusChanged = std::function<void(FixitStatus newStatus)>;
-    DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChanged &onFixitStatusChanged);
+    DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChanged &onFixitStatusChanged,
+                   ClangToolsDiagnosticModel *parent);
     ~DiagnosticItem() override;
 
     const Diagnostic &diagnostic() const { return m_diagnostic; }
@@ -64,6 +71,7 @@ public:
     FixitStatus fixItStatus() const { return m_fixitStatus; }
     void setFixItStatus(const FixitStatus &status);
 
+    bool hasNewFixIts() const;
     ReplacementOperations &fixitOperations() { return m_fixitOperations; }
     void setFixitOperations(const ReplacementOperations &replacements);
 
@@ -78,11 +86,14 @@ private:
 
     ReplacementOperations  m_fixitOperations;
     FixitStatus m_fixitStatus = FixitStatus::NotAvailable;
+    ClangToolsDiagnosticModel *m_parentModel = nullptr;
 };
 
 class ClangToolsDiagnosticModel : public Utils::TreeModel<>
 {
     Q_OBJECT
+
+    friend class DiagnosticItem;
 
 public:
     ClangToolsDiagnosticModel(QObject *parent = nullptr);
@@ -96,10 +107,22 @@ public:
         DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1
     };
 
+    void clearAndSetupCache();
+    void removeWatchedPath(const QString &path);
+    void addWatchedPath(const QString &path);
+
 signals:
     void fixItsToApplyCountChanged(int count);
 
 private:
+    void connectFileWatcher();
+    void updateItems(const DiagnosticItem *changedItem);
+    void onFileChanged(const QString &path);
+
+private:
+    std::map<QVector<ExplainingStep>, QVector<DiagnosticItem *>> stepsToItemsCache;
+    std::unique_ptr<QFileSystemWatcher> m_filesWatcher;
+    QVector<QString> m_allowFileWriteOnce;
     int m_fixItsToApplyCount = 0;
 };
 

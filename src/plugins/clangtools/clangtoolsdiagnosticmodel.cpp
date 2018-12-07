@@ -54,8 +54,10 @@ private:
 
 ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     : Utils::TreeModel<>(parent)
+    , m_filesWatcher(std::make_unique<QFileSystemWatcher>())
 {
     setHeader({tr("Issue"), tr("Location"), tr("Fixit Status")});
+    connectFileWatcher();
 }
 
 void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)
@@ -68,8 +70,11 @@ void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnost
         emit fixItsToApplyCountChanged(m_fixItsToApplyCount);
     };
 
+    if (!diagnostics.empty())
+        addWatchedPath(diagnostics.front().location.filePath);
+
     for (const Diagnostic &d : diagnostics)
-        rootItem()->appendChild(new DiagnosticItem(d, onFixitStatusChanged));
+        rootItem()->appendChild(new DiagnosticItem(d, onFixitStatusChanged, this));
 }
 
 QList<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
@@ -83,6 +88,49 @@ QList<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
 int ClangToolsDiagnosticModel::diagnosticsCount() const
 {
     return rootItem()->childCount();
+}
+
+void ClangToolsDiagnosticModel::updateItems(const DiagnosticItem *changedItem)
+{
+    for (auto item : stepsToItemsCache[changedItem->diagnostic().explainingSteps]) {
+        if (item != changedItem)
+            item->setFixItStatus(changedItem->fixItStatus());
+    }
+}
+
+void ClangToolsDiagnosticModel::connectFileWatcher()
+{
+    connect(m_filesWatcher.get(),
+            &QFileSystemWatcher::fileChanged,
+            this,
+            &ClangToolsDiagnosticModel::onFileChanged);
+}
+
+void ClangToolsDiagnosticModel::clearAndSetupCache()
+{
+    m_filesWatcher = std::make_unique<QFileSystemWatcher>();
+    connectFileWatcher();
+    stepsToItemsCache.clear();
+}
+
+void ClangToolsDiagnosticModel::onFileChanged(const QString &path)
+{
+    for (Utils::TreeItem * const item : *rootItem()) {
+        auto diagnosticItem = static_cast<DiagnosticItem *>(item);
+        if (diagnosticItem->diagnostic().location.filePath == path)
+            diagnosticItem->setFixItStatus(FixitStatus::Invalidated);
+    }
+    removeWatchedPath(path);
+}
+
+void ClangToolsDiagnosticModel::removeWatchedPath(const QString &path)
+{
+    m_filesWatcher->removePath(path);
+}
+
+void ClangToolsDiagnosticModel::addWatchedPath(const QString &path)
+{
+    m_filesWatcher->addPath(path);
 }
 
 static QString createDiagnosticToolTipString(const Diagnostic &diagnostic)
@@ -216,10 +264,12 @@ static QString fullText(const Diagnostic &diagnostic)
     return text;
 }
 
-
-DiagnosticItem::DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChanged &onFixitStatusChanged)
+DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
+                               const OnFixitStatusChanged &onFixitStatusChanged,
+                               ClangToolsDiagnosticModel *parent)
     : m_diagnostic(diag)
     , m_onFixitStatusChanged(onFixitStatusChanged)
+    , m_parentModel(parent)
 {
     if (diag.hasFixits)
         m_fixitStatus = FixitStatus::NotScheduled;
@@ -230,6 +280,9 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChange
         if (step.message == diag.description && step.location == diag.location)
             return;
     }
+
+    if (!diag.explainingSteps.isEmpty())
+        m_parentModel->stepsToItemsCache[diag.explainingSteps].push_back(this);
 
     foreach (const ExplainingStep &s, diag.explainingSteps)
         appendChild(new ExplainingStepItem(s));
@@ -336,6 +389,7 @@ bool DiagnosticItem::setData(int column, const QVariant &data, int role)
                                           : FixitStatus::NotScheduled;
 
         setFixItStatus(newStatus);
+        m_parentModel->updateItems(this);
         return true;
     }
 
@@ -355,6 +409,14 @@ void DiagnosticItem::setFixitOperations(const ReplacementOperations &replacement
 {
     qDeleteAll(m_fixitOperations);
     m_fixitOperations = replacements;
+}
+
+bool DiagnosticItem::hasNewFixIts() const
+{
+    if (m_diagnostic.explainingSteps.empty())
+        return false;
+
+    return m_parentModel->stepsToItemsCache[m_diagnostic.explainingSteps].front() == this;
 }
 
 ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step)

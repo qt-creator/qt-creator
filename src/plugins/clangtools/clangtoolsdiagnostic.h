@@ -27,9 +27,9 @@
 
 #include <debugger/analyzer/diagnosticlocation.h>
 
-#include <QList>
 #include <QMetaType>
 #include <QString>
+#include <QVector>
 
 namespace ClangTools {
 namespace Internal {
@@ -38,11 +38,15 @@ class ExplainingStep
 {
 public:
     bool isValid() const;
+    bool operator<(const ExplainingStep &other) const {
+        return std::tie(location, ranges, message)
+               < std::tie(other.location, other.ranges, other.message);
+    }
 
     QString message;
     QString extendedMessage;
     Debugger::DiagnosticLocation location;
-    QList<Debugger::DiagnosticLocation> ranges;
+    QVector<Debugger::DiagnosticLocation> ranges;
     int depth = 0;
     bool isFixIt = false;
 };
@@ -58,7 +62,7 @@ public:
     QString issueContextKind;
     QString issueContext;
     Debugger::DiagnosticLocation location;
-    QList<ExplainingStep> explainingSteps;
+    QVector<ExplainingStep> explainingSteps;
     bool hasFixits = false;
 };
 

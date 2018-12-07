@@ -49,6 +49,7 @@ public:
 };
 
 DEBUGGER_EXPORT bool operator==(const DiagnosticLocation &first, const DiagnosticLocation &second);
+DEBUGGER_EXPORT bool operator<(const DiagnosticLocation &first, const DiagnosticLocation &second);
 DEBUGGER_EXPORT QDebug operator<<(QDebug dbg, const DiagnosticLocation &location);
 
 } // namespace Debugger
