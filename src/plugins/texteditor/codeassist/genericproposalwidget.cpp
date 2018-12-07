@@ -89,14 +89,19 @@ QVariant ModelAdapter::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= m_completionModel->size())
         return QVariant();
 
-    if (role == Qt::DisplayRole)
-        return m_completionModel->text(index.row());
-    else if (role == Qt::DecorationRole)
+    if (role == Qt::DisplayRole) {
+        const QString text = m_completionModel->text(index.row());
+        const int lineBreakPos = text.indexOf('\n');
+        if (lineBreakPos < 0)
+            return text;
+        return QString(text.leftRef(lineBreakPos) + QLatin1String(" (...)"));
+    } else if (role == Qt::DecorationRole) {
         return m_completionModel->icon(index.row());
-    else if (role == Qt::WhatsThisRole)
+    } else if (role == Qt::WhatsThisRole) {
         return m_completionModel->detail(index.row());
-    else if (role == Qt::UserRole)
+    } else if (role == Qt::UserRole) {
         return m_completionModel->proposalItem(index.row())->requiresFixIts();
+    }
 
     return QVariant();
 }

@@ -223,6 +223,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
                                  << "Before Start ADB cmds:" << m_beforeStartAdbCommands
                                  << "After finish ADB cmds:" << m_afterFinishAdbCommands;
     m_gdbserverPath = AndroidGdbServerKitInformation::gdbServer(target->kit()).toString();
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
+    m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
 }
 
 AndroidRunnerWorker::~AndroidRunnerWorker()
@@ -441,10 +443,18 @@ void AndroidRunnerWorker::asyncStartHelper()
         }
         m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
-        args << "-e" << "qml_debug" << "true"
-             << "-e" << "qmljsdebugger"
-             << QString("port:%1,block,services:%2")
+        const QString qmljsdebugger = QString("port:%1,block,services:%2")
                 .arg(m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(m_qmlDebugServices));
+
+        if (m_useAppParamsForQmlDebugger) {
+            if (!m_extraAppParams.isEmpty())
+                m_extraAppParams.prepend(' ');
+            m_extraAppParams.prepend("-qmljsdebugger=" + qmljsdebugger);
+        } else {
+            args << "-e" << "qml_debug" << "true"
+                 << "-e" << "qmljsdebugger"
+                 << qmljsdebugger;
+        }
     }
 
 

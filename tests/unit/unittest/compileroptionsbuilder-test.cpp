@@ -446,7 +446,9 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptions)
                 ElementsAre(
                     "-nostdlibinc", "-c", "-m64", "-target", "x86_64-apple-darwin10",
                     "-arch", "x86_64", "-x", "c++", "-std=c++17", "-fcxx-exceptions",
-                    "-fexceptions", "-Dfoo=bar", "-DprojectFoo=projectBar", "-undef",
+                    "-fexceptions", "-Dfoo=bar", "-DprojectFoo=projectBar",
+                    "-DBOOST_TYPE_INDEX_CTTI_USER_DEFINED_PARSING=(39, 1, true, \"T = \")",
+                    "-undef",
                     "-I", IsPartOfHeader("wrappedQtHeaders"),
                     "-I", IsPartOfHeader(QDir::toNativeSeparators("wrappedQtHeaders/QtCore").toStdString()),
                     "-I", QDir::toNativeSeparators("/tmp/path"),

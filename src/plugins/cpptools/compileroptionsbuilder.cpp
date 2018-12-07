@@ -504,7 +504,8 @@ static QByteArray msCompatibilityVersionFromDefines(const ProjectExplorer::Macro
 
 void CompilerOptionsBuilder::addMsvcCompatibilityVersion()
 {
-    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
+        || m_projectPart.toolchainType == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
         const ProjectExplorer::Macros macros = m_projectPart.toolChainMacros
                                                + m_projectPart.projectMacros;
         const QByteArray msvcVersion = msCompatibilityVersionFromDefines(macros);

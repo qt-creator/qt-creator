@@ -598,6 +598,8 @@ QList<Task> QmakeProject::projectIssues(const Kit *k) const
     QList<Task> result = Project::projectIssues(k);
     if (!QtSupport::QtKitInformation::qtVersion(k))
         result.append(createProjectTask(Task::TaskType::Error, tr("No Qt version set in kit.")));
+    else if (!QtSupport::QtKitInformation::qtVersion(k)->isValid())
+        result.append(createProjectTask(Task::TaskType::Error, tr("Qt version is invalid.")));
     if (!ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
         result.append(createProjectTask(Task::TaskType::Error, tr("No C++ compiler set in kit.")));
     return result;
