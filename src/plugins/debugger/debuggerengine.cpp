@@ -418,6 +418,8 @@ public:
         m_watchHandler.cleanup();
         m_engine->showMessage(tr("Debugger finished."), StatusBar);
         m_engine->setState(DebuggerFinished); // Also destroys views.
+        if (boolSetting(SwitchModeOnExit))
+            EngineManager::deactivateDebugMode();
     }
 
     void scheduleResetLocation()
