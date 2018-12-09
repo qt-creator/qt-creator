@@ -34,7 +34,7 @@ class TodoOutputTreeViewDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit TodoOutputTreeViewDelegate(QObject *parent = 0);
+    explicit TodoOutputTreeViewDelegate(QObject *parent = nullptr);
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
 

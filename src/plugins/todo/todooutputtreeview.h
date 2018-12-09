@@ -33,10 +33,10 @@ namespace Internal {
 class TodoOutputTreeView : public Utils::TreeView
 {
 public:
-    explicit TodoOutputTreeView(QWidget *parent = 0);
-    ~TodoOutputTreeView();
+    explicit TodoOutputTreeView(QWidget *parent = nullptr);
+    ~TodoOutputTreeView() override;
 
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     void todoColumnResized(int column, int oldSize, int newSize);
@@ -44,8 +44,8 @@ private:
     void saveDisplaySettings();
     void loadDisplaySettings();
 
-    qreal m_textColumnDefaultWidth;
-    qreal m_fileColumnDefaultWidth;
+    qreal m_textColumnDefaultWidth = 0.0;
+    qreal m_fileColumnDefaultWidth = 0.0;
 };
 
 } // namespace Internal

@@ -48,7 +48,7 @@ class TodoProjectSettingsWidget : public QWidget
 
 public:
     explicit TodoProjectSettingsWidget(ProjectExplorer::Project *project);
-    ~TodoProjectSettingsWidget();
+    ~TodoProjectSettingsWidget() override;
 
 signals:
     void projectSettingsChanged();

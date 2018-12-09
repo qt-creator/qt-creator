@@ -34,14 +34,13 @@
 #include <QIcon>
 #include <QMessageBox>
 
-Todo::Internal::OptionsDialog *some = 0;
+Todo::Internal::OptionsDialog *some = nullptr;
 
 namespace Todo {
 namespace Internal {
 
 OptionsPage::OptionsPage(const Settings &settings, QObject *parent) :
-    IOptionsPage(parent),
-    m_widget(0)
+    IOptionsPage(parent)
 {
     setSettings(settings);
 

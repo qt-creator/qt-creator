@@ -45,17 +45,12 @@
 namespace Todo {
 namespace Internal {
 
-TodoPlugin::TodoPlugin() :
-    m_todoOutputPane(0),
-    m_optionsPage(0),
-    m_todoItemsProvider(0)
+TodoPlugin::TodoPlugin()
 {
     qRegisterMetaType<TodoItem>("TodoItem");
 }
 
-TodoPlugin::~TodoPlugin()
-{
-}
+TodoPlugin::~TodoPlugin() = default;
 
 bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
 {

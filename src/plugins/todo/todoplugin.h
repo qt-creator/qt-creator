@@ -45,10 +45,10 @@ class TodoPlugin : public ExtensionSystem::IPlugin
 
 public:
     TodoPlugin();
-    ~TodoPlugin();
+    ~TodoPlugin() override;
 
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
+    void extensionsInitialized() override;
+    bool initialize(const QStringList &arguments, QString *errorString) override;
 
 private:
     void settingsChanged(const Settings &settings);
@@ -59,9 +59,9 @@ private:
     void createOptionsPage();
 
     Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
+    TodoOutputPane *m_todoOutputPane = nullptr;
+    OptionsPage *m_optionsPage = nullptr;
+    TodoItemsProvider *m_todoItemsProvider = nullptr;
 };
 
 } // namespace Internal

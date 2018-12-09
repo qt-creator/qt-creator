@@ -45,30 +45,30 @@ class TodoItem;
 class TodoItemsModel;
 class TodoOutputTreeView;
 
-typedef QList<QToolButton*> QToolButtonList;
+using QToolButtonList = QList<QToolButton *>;
 
 class TodoOutputPane : public Core::IOutputPane
 {
     Q_OBJECT
 
 public:
-    TodoOutputPane(TodoItemsModel *todoItemsModel, const Settings *settings, QObject *parent = 0);
-    ~TodoOutputPane();
+    TodoOutputPane(TodoItemsModel *todoItemsModel, const Settings *settings, QObject *parent = nullptr);
+    ~TodoOutputPane() override;
 
-    QWidget *outputWidget(QWidget *parent);
-    QList<QWidget*> toolBarWidgets() const;
-    QString displayName() const;
-    int priorityInStatusBar() const;
-    void clearContents();
-    void visibilityChanged(bool visible);
-    void setFocus();
-    bool hasFocus() const;
-    bool canFocus() const;
-    bool canNavigate() const;
-    bool canNext() const;
-    bool canPrevious() const;
-    void goToNext();
-    void goToPrev();
+    QWidget *outputWidget(QWidget *parent) override;
+    QList<QWidget*> toolBarWidgets() const override;
+    QString displayName() const override;
+    int priorityInStatusBar() const override;
+    void clearContents() override;
+    void visibilityChanged(bool visible) override;
+    void setFocus() override;
+    bool hasFocus() const override;
+    bool canFocus() const override;
+    bool canNavigate() const override;
+    bool canNext() const override;
+    bool canPrevious() const override;
+    void goToNext() override;
+    void goToPrev() override;
 
     void setScanningScope(ScanningScope scanningScope);
 

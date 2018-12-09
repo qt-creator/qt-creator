@@ -47,7 +47,7 @@ public:
     bool equals(const Keyword &other) const;
 };
 
-typedef QList<Keyword> KeywordList;
+using KeywordList = QList<Keyword>;
 
 bool operator ==(Keyword &k1, Keyword &k2);
 bool operator !=(Keyword &k1, Keyword &k2);

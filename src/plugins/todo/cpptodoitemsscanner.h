@@ -36,10 +36,10 @@ namespace Internal {
 class CppTodoItemsScanner : public TodoItemsScanner
 {
 public:
-    explicit CppTodoItemsScanner(const KeywordList &keywordList, QObject *parent = 0);
+    explicit CppTodoItemsScanner(const KeywordList &keywordList, QObject *parent = nullptr);
 
 protected:
-    void scannerParamsChanged();
+    void scannerParamsChanged() override;
 
 private:
     void documentUpdated(CPlusPlus::Document::Ptr doc);

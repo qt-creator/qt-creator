@@ -46,7 +46,7 @@ class TodoItemsProvider : public QObject
     Q_OBJECT
 
 public:
-    explicit TodoItemsProvider(Settings settings, QObject *parent = 0);
+    explicit TodoItemsProvider(Settings settings, QObject *parent = nullptr);
     TodoItemsModel *todoItemsModel();
 
     void settingsChanged(const Settings &newSettings);

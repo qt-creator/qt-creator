@@ -37,9 +37,7 @@ namespace Todo {
 namespace Internal {
 
 TodoOutputTreeView::TodoOutputTreeView(QWidget *parent) :
-    Utils::TreeView(parent),
-    m_textColumnDefaultWidth(0),
-    m_fileColumnDefaultWidth(0)
+    Utils::TreeView(parent)
 {
     setRootIsDecorated(false);
     setFrameStyle(QFrame::NoFrame);

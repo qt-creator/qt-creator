@@ -193,7 +193,7 @@ void TodoOutputPane::updateTodoCount()
 void TodoOutputPane::updateFilter()
 {
     QStringList keywords;
-    for (QToolButton *btn: m_filterButtons) {
+    for (const QToolButton *btn: qAsConst(m_filterButtons)) {
         if (btn->isChecked())
             keywords.append(btn->property(Constants::FILTER_KEYWORD_NAME).toString());
     }
@@ -210,7 +210,7 @@ void TodoOutputPane::updateFilter()
 
 void TodoOutputPane::clearFilter()
 {
-    for (QToolButton *btn: m_filterButtons)
+    for (QToolButton *btn: qAsConst(m_filterButtons))
         btn->setChecked(false);
 
     updateFilter();
@@ -225,7 +225,7 @@ void TodoOutputPane::createTreeView()
 
     m_todoTreeView = new TodoOutputTreeView();
     m_todoTreeView->setModel(m_filteredTodoItemsModel);
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    auto agg = new Aggregation::Aggregate;
     agg->add(m_todoTreeView);
     agg->add(new Core::ItemViewFind(m_todoTreeView));
 
@@ -240,7 +240,7 @@ void TodoOutputPane::freeTreeView()
 
 QToolButton *TodoOutputPane::createCheckableToolButton(const QString &text, const QString &toolTip, const QIcon &icon)
 {
-    QToolButton *button = new QToolButton();
+    auto button = new QToolButton;
 
     button->setCheckable(true);
     button->setText(text);

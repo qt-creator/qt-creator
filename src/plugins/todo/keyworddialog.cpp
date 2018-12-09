@@ -142,8 +142,8 @@ bool KeywordDialog::isKeywordNameCorrect()
     if (name.isEmpty())
         return false;
 
-    for (int i = 0; i < name.size(); ++i)
-        if (LineParser::isKeywordSeparator(name.at(i)))
+    for (const QChar i : name)
+        if (LineParser::isKeywordSeparator(i))
             return false;
 
     return true;

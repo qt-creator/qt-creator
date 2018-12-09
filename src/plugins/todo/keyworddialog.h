@@ -42,8 +42,8 @@ class KeywordDialog : public QDialog
     Q_OBJECT
 public:
     KeywordDialog(const Keyword &keyword, const QSet<QString> &alreadyUsedKeywordNames,
-                  QWidget *parent = 0);
-    ~KeywordDialog();
+                  QWidget *parent = nullptr);
+    ~KeywordDialog() override;
 
     Keyword keyword();
 

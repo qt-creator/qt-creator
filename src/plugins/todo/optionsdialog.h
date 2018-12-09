@@ -43,8 +43,8 @@ class Keyword;
 class OptionsDialog : public QWidget
 {
 public:
-    explicit OptionsDialog(QWidget *parent = 0);
-    ~OptionsDialog();
+    explicit OptionsDialog(QWidget *parent = nullptr);
+    ~OptionsDialog() override;
 
     void setSettings(const Settings &settings);
     Settings settings();

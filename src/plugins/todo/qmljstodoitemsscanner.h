@@ -36,7 +36,7 @@ namespace Internal {
 class QmlJsTodoItemsScanner : public TodoItemsScanner
 {
 public:
-    explicit QmlJsTodoItemsScanner(const KeywordList &keywordList, QObject *parent = 0);
+    explicit QmlJsTodoItemsScanner(const KeywordList &keywordList, QObject *parent = nullptr);
 
 protected:
     bool shouldProcessFile(const QString &fileName);

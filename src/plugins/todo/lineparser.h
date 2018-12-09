@@ -47,7 +47,7 @@ private:
 
     // map key here is keyword start position in the text line
     // and map value is keyword index in m_keywords
-    typedef QMap<int, int> KeywordEntryCandidates;
+    using KeywordEntryCandidates = QMap<int, int> ;
 
     struct KeywordEntry {
         int keywordIndex;

@@ -41,7 +41,7 @@ class TodoItemsScanner : public QObject
     Q_OBJECT
 
 public:
-    explicit TodoItemsScanner(const KeywordList &keywordList, QObject *parent = 0);
+    explicit TodoItemsScanner(const KeywordList &keywordList, QObject *parent = nullptr);
     void setParams(const KeywordList &keywordList);
 
 signals:

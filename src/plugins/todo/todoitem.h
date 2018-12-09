@@ -41,12 +41,10 @@ namespace Internal {
 class TodoItem
 {
 public:
-    TodoItem() : line(-1) {}
-
     QString text;
     Utils::FileName file;
-    int line;
-    IconType iconType;
+    int line = -1;
+    IconType iconType = IconType::Todo;
     QColor color;
 };
 
