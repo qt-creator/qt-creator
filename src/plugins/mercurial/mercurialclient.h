@@ -26,7 +26,12 @@
 #pragma once
 
 #include "mercurialsettings.h"
+#include <coreplugin/editormanager/ieditor.h>
 #include <vcsbase/vcsbaseclient.h>
+
+namespace DiffEditor {
+class DiffEditorController;
+}
 
 namespace Mercurial {
 namespace Internal {
@@ -85,6 +90,8 @@ signals:
     void needMerge();
 
 private:
+    void requestReload(const QString &documentId, const QString &source, const QString &title,
+                       std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const;
     void parsePullOutput(const QString &output);
 };
 

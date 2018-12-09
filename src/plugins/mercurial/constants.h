@@ -31,6 +31,7 @@ namespace Mercurial {
 namespace Constants {
 
 enum { debug = 0 };
+const char MERCURIAL_PLUGIN[] = "MercurialPlugin";
 const char MERCURIALREPO[] = ".hg";
 const char MERCURIALDEFAULT[] = "hg";
 const char MERCURIAL_CONTEXT[] = "Mercurial Context";

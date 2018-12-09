@@ -24,13 +24,17 @@
 ****************************************************************************/
 
 #include "mercurialclient.h"
+#include "mercurialplugin.h"
 #include "constants.h"
+
+#include <coreplugin/idocument.h>
 
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
+#include <vcsbase/vcsbasediffeditorcontroller.h>
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -43,32 +47,101 @@
 #include <QTextStream>
 #include <QVariant>
 
+using namespace Core;
+using namespace DiffEditor;
 using namespace Utils;
 using namespace VcsBase;
 
 namespace Mercurial {
 namespace Internal  {
 
-// Parameter widget controlling whitespace diff mode, associated with a parameter
-class MercurialDiffConfig : public VcsBaseEditorConfig
+class MercurialDiffEditorController : public VcsBaseDiffEditorController
 {
-    Q_OBJECT
 public:
-    MercurialDiffConfig(VcsBaseClientSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorConfig(toolBar)
+    MercurialDiffEditorController(IDocument *document, const QString &workingDirectory);
+
+protected:
+    void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
+    QStringList addConfigurationArguments(const QStringList &args) const;
+};
+
+MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document, const QString &workingDirectory):
+    VcsBaseDiffEditorController(document, MercurialPlugin::client(), workingDirectory)
+{
+}
+
+void MercurialDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
+{
+    // at this moment, don't ignore any errors
+    VcsBaseDiffEditorController::runCommand(args, 0u, codec);
+}
+
+QStringList MercurialDiffEditorController::addConfigurationArguments(const QStringList &args) const
+{
+    QStringList configArgs{ "-g", "-p" };
+    configArgs << "-U" << QString::number(contextLineCount());
+    if (ignoreWhitespace()) {
+        configArgs << "-w" << "-b" << "-B" << "-Z";
+    }
+    return args + configArgs;
+}
+
+class FileDiffController : public MercurialDiffEditorController
+{
+public:
+    FileDiffController(IDocument *document, const QString &dir, const QString &fileName) :
+        MercurialDiffEditorController(document, dir),
+        m_fileName(fileName)
+    { }
+
+    void reload() override
     {
-        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
-                   settings.boolPointer(MercurialSettings::diffIgnoreWhiteSpaceKey));
-        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
-                   settings.boolPointer(MercurialSettings::diffIgnoreBlankLinesKey));
+        QStringList args = { "diff", m_fileName };
+        runCommand({ addConfigurationArguments(args) });
+    }
+
+private:
+    const QString m_fileName;
+};
+
+class FileListDiffController : public MercurialDiffEditorController
+{
+public:
+    FileListDiffController(IDocument *document, const QString &dir, const QStringList &fileNames) :
+        MercurialDiffEditorController(document, dir),
+        m_fileNames(fileNames)
+    { }
+
+    void reload() override
+    {
+        QStringList args { "diff" };
+        args << m_fileNames;
+        runCommand({addConfigurationArguments(args)});
+    }
+
+private:
+    const QStringList m_fileNames;
+};
+
+
+class RepositoryDiffController : public MercurialDiffEditorController
+{
+public:
+    RepositoryDiffController(IDocument *document, const QString &dir) :
+        MercurialDiffEditorController(document, dir)
+    { }
+
+    void reload() override
+    {
+        QStringList args = { "diff" };
+        runCommand({addConfigurationArguments(args)});
     }
 };
 
+/////////////////////////////////////////////////////////////
+
 MercurialClient::MercurialClient() : VcsBaseClient(new MercurialSettings)
 {
-    setDiffConfigCreator([this](QToolBar *toolBar) {
-        return new MercurialDiffConfig(settings(), toolBar);
-    });
 }
 
 bool MercurialClient::manifestSync(const QString &repository, const QString &relativeFilename)
@@ -317,9 +390,39 @@ void MercurialClient::commit(const QString &repositoryRoot, const QStringList &f
 void MercurialClient::diff(const QString &workingDir, const QStringList &files,
                            const QStringList &extraOptions)
 {
-    QStringList args(extraOptions);
-    args << QLatin1String("-g") << QLatin1String("-p") << QLatin1String("-U 8");
-    VcsBaseClient::diff(workingDir, files, args);
+    Q_UNUSED(extraOptions);
+
+    QString fileName;
+
+    if (files.empty()) {
+        const QString title = tr("Mercurial Diff");
+        const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
+        const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
+                + ".DiffRepo." + sourceFile;
+        requestReload(documentId, sourceFile, title,
+                      [workingDir](IDocument *doc) {
+                          return new RepositoryDiffController(doc, workingDir);
+                      });
+    } else if (files.size() == 1) {
+        fileName = files.at(0);
+        const QString title = tr("Mercurial Diff \"%1\"").arg(fileName);
+        const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
+        const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
+                + ".DiffFile." + sourceFile;
+        requestReload(documentId, sourceFile, title,
+                      [workingDir, fileName](IDocument *doc) {
+                          return new FileDiffController(doc, workingDir, fileName);
+                      });
+    } else {
+        const QString title = tr("Mercurial Diff \"%1\"").arg(workingDir);
+        const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
+        const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
+                + ".DiffFile." + workingDir;
+        requestReload(documentId, sourceFile, title,
+                      [workingDir, files](IDocument *doc) {
+                          return new FileListDiffController(doc, workingDir, files);
+                      });
+    }
 }
 
 void MercurialClient::import(const QString &repositoryRoot, const QStringList &files,
@@ -404,6 +507,22 @@ MercurialClient::StatusItem MercurialClient::parseStatusLine(const QString &line
         item.file = QDir::fromNativeSeparators(line.mid(2));
     }
     return item;
+}
+
+void MercurialClient::requestReload(const QString &documentId, const QString &source, const QString &title,
+                   std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const
+{
+    // Creating document might change the referenced source. Store a copy and use it.
+    const QString sourceCopy = source;
+
+    IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
+    QTC_ASSERT(document, return);
+    DiffEditorController *controller = factory(document);
+    QTC_ASSERT(controller, return);
+
+    VcsBasePlugin::setSource(document, sourceCopy);
+    EditorManager::activateEditorForDocument(document);
+    controller->requestReload();
 }
 
 void MercurialClient::parsePullOutput(const QString &output)
