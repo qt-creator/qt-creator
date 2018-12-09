@@ -46,9 +46,9 @@ class SettingsPage : public Core::IOptionsPage
 public:
     explicit SettingsPage(UpdateInfoPlugin *plugin);
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     void newUpdatesAvailable(bool available);

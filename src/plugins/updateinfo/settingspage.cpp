@@ -42,8 +42,7 @@ static const char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("Update", "Update");
 }
 
 SettingsPage::SettingsPage(UpdateInfoPlugin *plugin)
-    : m_widget(0)
-    , m_plugin(plugin)
+    : m_plugin(plugin)
 {
     setId(FILTER_OPTIONS_PAGE_ID);
     setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
