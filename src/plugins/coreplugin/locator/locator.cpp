@@ -123,6 +123,7 @@ void Locator::initialize()
     mtools->addAction(cmd);
 
     auto locatorWidget = LocatorManager::createLocatorInputWidget(ICore::mainWindow());
+    locatorWidget->setObjectName("LocatorInput"); // used for UI introduction
     StatusBarManager::addStatusBarWidget(locatorWidget, StatusBarManager::First,
                                          Context("LocatorWidget"));
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &Locator::saveSettings);

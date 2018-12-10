@@ -117,6 +117,10 @@ public:
     QAbstractButton *clickedButton() const;
     QDialogButtonBox::StandardButton clickedStandardButton() const;
 
+    // check and set "ask again" status
+    static bool shouldAskAgain(QSettings *settings, const QString &settingsSubKey);
+    static void doNotAskAgain(QSettings *settings, const QString &settingsSubKey);
+
     // Conversion convenience
     static QMessageBox::StandardButton dialogButtonBoxToMessageBoxButton(QDialogButtonBox::StandardButton);
     static void resetAllDoNotAskAgainQuestions(QSettings *settings);

@@ -22,5 +22,6 @@
         <file>images/new@2x.png</file>
         <file>images/expandarrow.png</file>
         <file>images/expandarrow@2x.png</file>
+        <file>images/border.png</file>
     </qresource>
 </RCC>

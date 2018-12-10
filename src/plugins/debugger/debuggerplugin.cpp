@@ -1120,6 +1120,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_visibleStartAction.setAttribute(ProxyAction::UpdateIcon);
     m_visibleStartAction.setAction(&m_startAction);
 
+    m_visibleStartAction.setObjectName("Debug"); // used for UI introduction
     ModeManager::addAction(&m_visibleStartAction, Constants::P_ACTION_DEBUG);
 
     m_undisturbableAction.setIcon(interruptIcon(false));

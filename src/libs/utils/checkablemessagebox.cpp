@@ -277,7 +277,7 @@ QMessageBox::StandardButton CheckableMessageBox::dialogButtonBoxToMessageBoxButt
     return static_cast<QMessageBox::StandardButton>(int(db));
 }
 
-bool askAgain(QSettings *settings, const QString &settingsSubKey)
+bool CheckableMessageBox::shouldAskAgain(QSettings *settings, const QString &settingsSubKey)
 {
     if (QTC_GUARD(settings)) {
         settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
@@ -309,7 +309,7 @@ void initDoNotAskAgainMessageBox(CheckableMessageBox &messageBox, const QString 
     messageBox.setDefaultButton(defaultButton);
 }
 
-void doNotAskAgain(QSettings *settings, const QString &settingsSubKey)
+void CheckableMessageBox::doNotAskAgain(QSettings *settings, const QString &settingsSubKey)
 {
     if (!settings)
         return;
@@ -337,7 +337,7 @@ CheckableMessageBox::doNotAskAgainQuestion(QWidget *parent, const QString &title
                                            QDialogButtonBox::StandardButton acceptButton)
 
 {
-    if (!askAgain(settings, settingsSubKey))
+    if (!shouldAskAgain(settings, settingsSubKey))
         return acceptButton;
 
     CheckableMessageBox messageBox(parent);
@@ -365,7 +365,7 @@ CheckableMessageBox::doNotShowAgainInformation(QWidget *parent, const QString &t
                                            QDialogButtonBox::StandardButton defaultButton)
 
 {
-    if (!askAgain(settings, settingsSubKey))
+    if (!shouldAskAgain(settings, settingsSubKey))
             return defaultButton;
 
     CheckableMessageBox messageBox(parent);

@@ -984,6 +984,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // Add to mode bar
     dd->m_modeBarBuildAction = new Utils::ProxyAction(this);
+    dd->m_modeBarBuildAction->setObjectName("Build"); // used for UI introduction
     dd->m_modeBarBuildAction->initialize(cmd->action());
     dd->m_modeBarBuildAction->setAttribute(Utils::ProxyAction::UpdateText);
     dd->m_modeBarBuildAction->setAction(cmd->action());
@@ -1027,6 +1028,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
+    cmd->action()->setObjectName("Run"); // used for UI introduction
     ModeManager::addAction(cmd->action(), Constants::P_ACTION_RUN);
 
     // Run without deployment action
@@ -1213,6 +1215,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // target selector
     dd->m_projectSelectorAction = new QAction(this);
+    dd->m_projectSelectorAction->setObjectName("KitSelector"); // used for UI introduction
     dd->m_projectSelectorAction->setCheckable(true);
     dd->m_projectSelectorAction->setEnabled(false);
     QWidget *mainWindow = ICore::mainWindow();

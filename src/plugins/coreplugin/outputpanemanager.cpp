@@ -232,6 +232,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     setLayout(mainlayout);
 
     m_buttonsWidget = new QWidget;
+    m_buttonsWidget->setObjectName("OutputPaneButtons"); // used for UI introduction
     m_buttonsWidget->setLayout(new QHBoxLayout);
     m_buttonsWidget->layout()->setContentsMargins(5,0,0,0);
     m_buttonsWidget->layout()->setSpacing(

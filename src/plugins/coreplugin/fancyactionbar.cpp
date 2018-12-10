@@ -373,6 +373,8 @@ void FancyActionBar::addProjectSelector(QAction *action)
 void FancyActionBar::insertAction(int index, QAction *action)
 {
     auto *button = new FancyToolButton(action, this);
+    if (!action->objectName().isEmpty())
+        button->setObjectName(action->objectName() + ".Button"); // used for UI introduction
     button->setIconsOnly(m_iconsOnly);
     m_actionsLayout->insertWidget(index, button);
 }

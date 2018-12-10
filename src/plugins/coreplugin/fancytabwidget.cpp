@@ -458,6 +458,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     : QWidget(parent)
 {
     m_tabBar = new FancyTabBar(this);
+    m_tabBar->setObjectName("ModeSelector"); // used for UI introduction
 
     m_selectionWidget = new QWidget(this);
     auto selectionLayout = new QVBoxLayout;
@@ -473,7 +474,8 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     layout->addWidget(fancyButton);
     selectionLayout->addWidget(bar);
 
-    selectionLayout->addWidget(m_tabBar, 1);
+    selectionLayout->addWidget(m_tabBar);
+    selectionLayout->addStretch(1);
     m_selectionWidget->setLayout(selectionLayout);
     m_selectionWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
@@ -551,6 +553,7 @@ void FancyTabWidget::paintEvent(QPaintEvent *event)
         const QRectF boderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
 
         if (creatorTheme()->flag(Theme::FlatToolBars)) {
+            painter.fillRect(event->rect(), StyleHelper::baseColor());
             painter.setPen(StyleHelper::toolBarBorderColor());
             painter.drawLine(boderRect.topRight(), boderRect.bottomRight());
         } else {

@@ -23,11 +23,14 @@
 **
 ****************************************************************************/
 
+#include "introductionwidget.h"
+
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <app/app_version.h>
 
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
@@ -139,6 +142,18 @@ public:
     {
         m_welcomeMode->initPlugins();
         ModeManager::activateMode(m_welcomeMode->id());
+        auto introAction = new QAction(tr("UI Tour"), this);
+        connect(introAction, &QAction::triggered, this, []() {
+            auto intro = new IntroductionWidget(ICore::mainWindow());
+            intro->show();
+        });
+        Command *cmd = ActionManager::registerAction(introAction, "Welcome.UITour");
+        ActionContainer *mhelp = ActionManager::actionContainer(Core::Constants::M_HELP);
+        if (QTC_GUARD(mhelp))
+            mhelp->addAction(cmd, Core::Constants::G_HELP_HELP);
+        connect(ICore::instance(), &ICore::coreOpened, this, []() {
+            IntroductionWidget::askUserAboutIntroduction(ICore::mainWindow(), ICore::settings());
+        }, Qt::QueuedConnection);
     }
 
     WelcomeMode *m_welcomeMode = nullptr;

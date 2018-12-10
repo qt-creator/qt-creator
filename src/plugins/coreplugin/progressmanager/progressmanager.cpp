@@ -300,6 +300,7 @@ void ProgressManagerPrivate::init()
     readSettings();
 
     m_statusBarWidget = new QWidget;
+    m_statusBarWidget->setObjectName("ProgressInfo"); // used for UI introduction
     auto layout = new QHBoxLayout(m_statusBarWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
