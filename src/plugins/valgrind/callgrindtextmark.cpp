@@ -92,7 +92,7 @@ void CallgrindTextMark::paintIcon(QPainter *painter, const QRect &paintRect) con
 const Function *CallgrindTextMark::function() const
 {
     if (!m_modelIndex.isValid())
-        return 0;
+        return nullptr;
 
     return m_modelIndex.data(DataModel::FunctionRole).value<const Function *>();
 }

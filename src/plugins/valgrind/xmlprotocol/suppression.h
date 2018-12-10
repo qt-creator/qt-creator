@@ -63,7 +63,7 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-typedef QVector<SuppressionFrame> SuppressionFrames;
+using SuppressionFrames = QVector<SuppressionFrame>;
 
 class Suppression
 {

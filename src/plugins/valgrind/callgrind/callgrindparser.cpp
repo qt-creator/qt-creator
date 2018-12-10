@@ -152,7 +152,7 @@ public:
     void parse(QIODevice *device);
     void parseHeader(QIODevice *device);
 
-    typedef QPair<qint64, QString> NamePair;
+    using NamePair = QPair<qint64, QString>;
     NamePair parseName(const char *begin, const char *end);
 
     void dispatchLine(const QByteArray &line);
@@ -252,7 +252,7 @@ void Parser::Private::parse(QIODevice *device)
         callData.call->setCallee(calledFunction);
         calledFunction->addIncomingCall(callData.call);
 
-        Function *caller = const_cast<Function *>(callData.call->caller());
+        auto caller = const_cast<Function *>(callData.call->caller());
         caller->addOutgoingCall(callData.call);
         pendingFunctions.insert(caller);
     }
@@ -440,9 +440,9 @@ void Parser::Private::parseCostItem(const char *begin, const char *end)
     const char *current = begin;
 
     QTC_ASSERT(currentDifferingFile == -1 || currentDifferingFile != currentFunction->fileId(), return);
-    CostItem *costItem = new CostItem(data);
+    auto costItem = new CostItem(data);
     costItem->setDifferingFile(currentDifferingFile);
-    FunctionCall *call = 0;
+    FunctionCall *call = nullptr;
     if (isParsingFunctionCall) {
         call = new FunctionCall;
         call->setCaller(currentFunction);
@@ -477,7 +477,7 @@ void Parser::Private::parseCostItem(const char *begin, const char *end)
         currentCallData = CallData();
     }
 
-    const CostItem *lastCostItem = 0;
+    const CostItem *lastCostItem = nullptr;
     if (!currentFunction->costItems().isEmpty())
         lastCostItem = currentFunction->costItems().last();
 
@@ -652,7 +652,7 @@ Parser::~Parser()
 ParseData *Parser::takeData()
 {
     ParseData *data = d->data;
-    d->data = 0;
+    d->data = nullptr;
     return data;
 }
 

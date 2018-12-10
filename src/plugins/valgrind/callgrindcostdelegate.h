@@ -33,12 +33,12 @@ namespace Internal {
 class CostDelegate : public QStyledItemDelegate
 {
 public:
-    explicit CostDelegate(QObject *parent = 0);
-    virtual ~CostDelegate();
+    explicit CostDelegate(QObject *parent = nullptr);
+    ~CostDelegate() override;
 
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                       const QModelIndex &index) const;
-    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
     void setModel(QAbstractItemModel *model);
 

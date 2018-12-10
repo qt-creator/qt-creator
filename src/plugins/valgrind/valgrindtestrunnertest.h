@@ -42,7 +42,7 @@ class ValgrindTestRunnerTest : public QObject
     Q_OBJECT
 
 public:
-    explicit ValgrindTestRunnerTest(QObject *parent = 0);
+    explicit ValgrindTestRunnerTest(QObject *parent = nullptr);
 
 private slots:
     void init();

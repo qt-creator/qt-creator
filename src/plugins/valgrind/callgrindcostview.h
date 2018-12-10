@@ -40,14 +40,14 @@ class CostView : public Utils::BaseTreeView
     Q_OBJECT
 
 public:
-    explicit CostView(QWidget *parent = 0);
-    ~CostView();
+    explicit CostView(QWidget *parent = nullptr);
+    ~CostView() override;
 
     /**
      * Overload automatically updates the cost delegate
      * and sets it for the cost columns of DataModel and CallModel.
      */
-    void setModel(QAbstractItemModel *model);
+    void setModel(QAbstractItemModel *model) override;
 
     /**
      * How to format cost data columns in the view.

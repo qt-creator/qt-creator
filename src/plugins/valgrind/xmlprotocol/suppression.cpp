@@ -39,10 +39,6 @@ using namespace Valgrind::XmlProtocol;
 class SuppressionFrame::Private : public QSharedData
 {
 public:
-    Private()
-    {
-    }
-
     QString obj;
     QString fun;
 };
@@ -52,14 +48,9 @@ SuppressionFrame::SuppressionFrame()
 {
 }
 
-SuppressionFrame::SuppressionFrame(const SuppressionFrame &other)
-    : d(other.d)
-{
-}
+SuppressionFrame::SuppressionFrame(const SuppressionFrame &other) = default;
 
-SuppressionFrame::~SuppressionFrame()
-{
-}
+SuppressionFrame::~SuppressionFrame() = default;
 
 void SuppressionFrame::swap(SuppressionFrame &other)
 {
@@ -110,12 +101,7 @@ QString SuppressionFrame::toString() const
 class Suppression::Private : public QSharedData
 {
 public:
-    Private()
-        : isNull(true)
-    {
-    }
-
-    bool isNull;
+    bool isNull = true;
     QString name;
     QString kind;
     QString auxkind;
@@ -128,14 +114,9 @@ Suppression::Suppression()
 {
 }
 
-Suppression::Suppression(const Suppression &other)
-    : d(other.d)
-{
-}
+Suppression::Suppression(const Suppression &other) = default;
 
-Suppression::~Suppression()
-{
-}
+Suppression::~Suppression() = default;
 
 void Suppression::swap(Suppression &other)
 {

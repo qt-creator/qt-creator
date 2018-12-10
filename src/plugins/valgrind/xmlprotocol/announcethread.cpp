@@ -38,12 +38,7 @@ namespace XmlProtocol {
 class AnnounceThread::Private : public QSharedData
 {
 public:
-    Private()
-        : hThreadId( -1 )
-    {
-    }
-
-    qint64 hThreadId;
+    qint64 hThreadId = -1;
     QVector<Frame> stack;
 };
 
@@ -52,14 +47,9 @@ AnnounceThread::AnnounceThread()
 {
 }
 
-AnnounceThread::AnnounceThread(const AnnounceThread &other)
-    : d(other.d)
-{
-}
+AnnounceThread::AnnounceThread(const AnnounceThread &other) = default;
 
-AnnounceThread::~AnnounceThread()
-{
-}
+AnnounceThread::~AnnounceThread() = default;
 
 void AnnounceThread::swap(AnnounceThread &other)
 {

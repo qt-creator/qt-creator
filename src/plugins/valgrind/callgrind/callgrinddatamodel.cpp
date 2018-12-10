@@ -46,7 +46,7 @@ class DataModel::Private
 public:
     void updateFunctions();
 
-    const ParseData *m_data = 0;
+    const ParseData *m_data = nullptr;
     int m_event = 0;
     bool m_verboseToolTips = true;
     bool m_cycleDetection = false;

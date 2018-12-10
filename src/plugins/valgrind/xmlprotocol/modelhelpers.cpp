@@ -44,7 +44,7 @@ QString toolTipForFrame(const Frame &frame)
             location += ':' + QString::number(frame.line());
     }
 
-    typedef QPair<QString, QString> StringPair;
+    using StringPair = QPair<QString, QString>;
     QList<StringPair> lines;
 
     if (!frame.functionName().isEmpty())

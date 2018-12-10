@@ -37,17 +37,11 @@ namespace XmlProtocol {
 class Stack::Private : public QSharedData
 {
 public:
-    Private()
-        : line(-1)
-        , hthreadid(-1)
-    {
-    }
-
     QString auxwhat;
     QString file;
     QString dir;
-    qint64 line;
-    qint64 hthreadid;
+    qint64 line = -1;
+    qint64 hthreadid = -1;
     QVector<Frame> frames;
 };
 
@@ -56,14 +50,9 @@ Stack::Stack()
 {
 }
 
-Stack::Stack(const Stack &other)
-    : d(other.d)
-{
-}
+Stack::Stack(const Stack &other) = default;
 
-Stack::~Stack()
-{
-}
+Stack::~Stack() = default;
 
 void Stack::swap(Stack &other)
 {

@@ -190,7 +190,7 @@ void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::P
         return;
 
     QObject *obj = ExtensionSystem::PluginManager::getObjectByName("AppOutputPane");
-    if (IOutputPane *pane = qobject_cast<IOutputPane *>(obj))
+    if (auto pane = qobject_cast<IOutputPane *>(obj))
         pane->popup(IOutputPane::NoModeSwitch);
 }
 

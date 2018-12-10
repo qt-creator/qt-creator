@@ -42,20 +42,18 @@ namespace {
 class Thread : public QThread
 {
 public:
-    Thread() : parser(0) , device(0) {}
-
-    void run()
+    void run() override
     {
         QTC_ASSERT(QThread::currentThread() == this, return);
         parser->parse(device);
         delete parser;
-        parser = 0;
+        parser = nullptr;
         delete device;
-        device = 0;
+        device = nullptr;
     }
 
-    Valgrind::XmlProtocol::Parser *parser;
-    QIODevice *device;
+    Valgrind::XmlProtocol::Parser *parser = nullptr;
+    QIODevice *device = nullptr;
 };
 
 } // namespace anon
@@ -67,9 +65,6 @@ namespace XmlProtocol {
 class ThreadedParser::Private
 {
 public:
-    Private()
-    {}
-
     QPointer<Thread> parserThread;
     QString errorString;
 };
@@ -93,14 +88,14 @@ QString ThreadedParser::errorString() const
 
 bool ThreadedParser::isRunning() const
 {
-    return d->parserThread ? d->parserThread.data()->isRunning() : 0;
+    return d->parserThread ? d->parserThread.data()->isRunning() : false;
 }
 
 void ThreadedParser::parse(QIODevice *device)
 {
     QTC_ASSERT(!d->parserThread, return);
 
-    Parser *parser = new Parser;
+    auto parser = new Parser;
     qRegisterMetaType<Valgrind::XmlProtocol::Status>();
     qRegisterMetaType<Valgrind::XmlProtocol::Error>();
     connect(parser, &Parser::status,
@@ -123,11 +118,11 @@ void ThreadedParser::parse(QIODevice *device)
             Qt::QueuedConnection);
 
 
-    Thread *thread = new Thread;
+    auto thread = new Thread;
     d->parserThread = thread;
     connect(thread, &QThread::finished,
             thread, &QObject::deleteLater);
-    device->setParent(0);
+    device->setParent(nullptr);
     device->moveToThread(thread);
     parser->moveToThread(thread);
     thread->device = device;

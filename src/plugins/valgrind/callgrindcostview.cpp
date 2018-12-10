@@ -55,16 +55,14 @@ CostView::CostView(QWidget *parent)
     setRootIsDecorated(false);
 }
 
-CostView::~CostView()
-{
-}
+CostView::~CostView() = default;
 
 void CostView::setModel(QAbstractItemModel *model)
 {
-    QTreeView::setModel(model);
+    BaseTreeView::setModel(model);
 
     forever {
-        QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel *>(model);
+        auto proxy = qobject_cast<const QAbstractProxyModel *>(model);
         if (!proxy)
             break;
         model = proxy->sourceModel();

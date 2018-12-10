@@ -43,8 +43,8 @@ class Visualization : public QGraphicsView
     Q_OBJECT
 
 public:
-    explicit Visualization(QWidget *parent = 0);
-    virtual ~Visualization();
+    explicit Visualization(QWidget *parent = nullptr);
+    ~Visualization() override;
 
     void setModel(QAbstractItemModel *model);
 
@@ -64,9 +64,9 @@ signals:
 
 protected:
     void populateScene();
-    void mousePressEvent(QMouseEvent *event);
-    void mouseDoubleClickEvent(QMouseEvent *event);
-    void resizeEvent(QResizeEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     class Private;

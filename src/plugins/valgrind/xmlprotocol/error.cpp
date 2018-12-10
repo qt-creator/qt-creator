@@ -42,24 +42,15 @@ namespace XmlProtocol {
 class Error::Private : public QSharedData
 {
 public:
-    explicit Private() :
-        unique(0),
-        tid(0),
-        kind(0),
-        leakedBytes(0),
-        leakedBlocks(0),
-        hThreadId(-1)
-    {}
-
-    qint64 unique;
-    qint64 tid;
+    qint64 unique = 0;
+    qint64 tid = 0;
     QString what;
-    int kind;
+    int kind = 0;
     QVector<Stack> stacks;
     Suppression suppression;
-    quint64 leakedBytes;
-    qint64 leakedBlocks;
-    qint64 hThreadId;
+    quint64 leakedBytes = 0;
+    qint64 leakedBlocks = 0;
+    qint64 hThreadId = -1;
 
     bool operator==(const Private &other) const
     {
@@ -80,14 +71,9 @@ Error::Error() :
 {
 }
 
-Error::~Error()
-{
-}
+Error::~Error() = default;
 
-Error::Error(const Error &other) :
-    d( other.d )
-{
-}
+Error::Error(const Error &other) = default;
 
 void Error::swap(Error &other)
 {

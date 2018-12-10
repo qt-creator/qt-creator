@@ -50,7 +50,7 @@ namespace {
             : m_message(message)
         {}
 
-        ~ParserException() throw() {}
+        ~ParserException() noexcept = default;
 
         QString message() const { return m_message; }
 
@@ -60,23 +60,21 @@ namespace {
 
     struct XWhat
     {
-        XWhat() : leakedblocks(0), leakedbytes(0), hthreadid(-1) {}
         QString text;
-        qint64 leakedblocks;
-        qint64 leakedbytes;
-        qint64 hthreadid;
+        qint64 leakedblocks = 0;
+        qint64 leakedbytes = 0;
+        qint64 hthreadid = -1;
     };
 
     struct XauxWhat
     {
-        XauxWhat() : line(-1), hthreadid(-1) {}
         void clear() { *this = XauxWhat(); }
 
         QString text;
         QString file;
         QString dir;
-        qint64 line;
-        qint64 hthreadid;
+        qint64 line = -1;
+        qint64 hthreadid = -1;
     };
 
 } // namespace anon
@@ -215,7 +213,7 @@ QXmlStreamReader::TokenType Parser::Private::blockingReadNext()
                 // ...so we fall back to knowing it might be a QAbstractSocket.
 
                 QIODevice *dev = reader.device();
-                QAbstractSocket *sock = qobject_cast<QAbstractSocket *>(dev);
+                auto sock = qobject_cast<const QAbstractSocket *>(dev);
 
                 if (!sock || sock->state() != QAbstractSocket::ConnectedState)
                     throw ParserException(dev->errorString());

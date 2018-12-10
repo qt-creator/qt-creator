@@ -68,7 +68,7 @@ public:
 
     QHash<qint64, QHash<qint64, QVector<Function *> > > functionLookup;
 
-    typedef QHash<qint64, QString> NameLookupTable;
+    using NameLookupTable = QHash<qint64, QString>;
     QString stringForCompression(const NameLookupTable &lookup, qint64 id);
     void addCompressedString(NameLookupTable &lookup, const QString &string, qint64 &id);
 

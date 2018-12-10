@@ -46,9 +46,9 @@ public:
         ErrorRole = Debugger::DetailedErrorView::FullTextRole + 1,
     };
 
-    explicit ErrorListModel(QObject *parent = 0);
+    explicit ErrorListModel(QObject *parent = nullptr);
 
-    typedef std::function<Frame(const Error &)> RelevantFrameFinder;
+    using RelevantFrameFinder = std::function<Frame (const Error &)>;
     RelevantFrameFinder relevantFrameFinder() const;
     void setRelevantFrameFinder(const RelevantFrameFinder &relevantFrameFinder);
 

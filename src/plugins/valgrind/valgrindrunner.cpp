@@ -224,7 +224,7 @@ ValgrindRunner::~ValgrindRunner()
         waitForFinished();
     }
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 void ValgrindRunner::setValgrindExecutable(const QString &executable)

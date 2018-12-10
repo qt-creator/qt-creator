@@ -294,7 +294,7 @@ class MemcheckErrorFilterProxyModel : public QSortFilterProxyModel
 public:
     void setAcceptedKinds(const QList<int> &acceptedKinds);
     void setFilterExternalIssues(bool filter);
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
 private:
     QList<int> m_acceptedKinds;
@@ -388,7 +388,7 @@ class MemcheckTool : public QObject
 
 public:
     MemcheckTool();
-    ~MemcheckTool();
+    ~MemcheckTool() override;
 
     void setupRunner(MemcheckToolRunner *runTool);
     void loadShowXmlLogFile(const QString &filePath, const QString &exitMsg);
@@ -418,7 +418,7 @@ private:
 
 private:
     ValgrindBaseSettings *m_settings;
-    QMenu *m_filterMenu = 0;
+    QMenu *m_filterMenu = nullptr;
 
     Valgrind::XmlProtocol::ErrorListModel m_errorModel;
     MemcheckErrorFilterProxyModel m_errorProxyModel;
@@ -453,7 +453,7 @@ public:
     bool attach() const;
     QString path() const;
 
-    void keyPressEvent(QKeyEvent *e);
+    void keyPressEvent(QKeyEvent *e) override;
 
 private:
     void updateEnabled();
@@ -479,7 +479,7 @@ class HeobData : public QObject
 
 public:
     HeobData(MemcheckTool *mcTool, const QString &xmlPath, Kit *kit, bool attach);
-    ~HeobData();
+    ~HeobData() override;
 
     bool createErrorPipe(DWORD heobPid);
     void readExitData();
@@ -829,7 +829,7 @@ void MemcheckTool::heobAction()
     memset(&si, 0, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
     if (!CreateProcess(reinterpret_cast<LPCWSTR>(heobPath.utf16()),
-                       reinterpret_cast<LPWSTR>(argumentsCopy.data()), 0, 0, FALSE,
+                       reinterpret_cast<LPWSTR>(argumentsCopy.data()), NULL, NULL, FALSE,
                        CREATE_UNICODE_ENVIRONMENT | CREATE_SUSPENDED | CREATE_NEW_CONSOLE, envPtr,
                        reinterpret_cast<LPCWSTR>(workingDirectory.utf16()), &si, &pi)) {
         DWORD e = GetLastError();
@@ -840,7 +840,7 @@ void MemcheckTool::heobAction()
     }
 
     // heob finished signal handler
-    HeobData *hd = new HeobData(this, xmlPath, kit, dialog.attach());
+    auto hd = new HeobData(this, xmlPath, kit, dialog.attach());
     if (!hd->createErrorPipe(pi.dwProcessId)) {
         delete hd;
         hd = nullptr;
@@ -911,7 +911,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 {
     updateRunActions();
 
-    ValgrindBaseSettings *settings = 0;
+    ValgrindBaseSettings *settings = nullptr;
     if (Project *project = SessionManager::startupProject())
         if (Target *target = project->activeTarget())
             if (RunConfiguration *rc = target->activeRunConfiguration())
@@ -1000,7 +1000,7 @@ void MemcheckTool::loadExternalXmlLogFile()
 
 void MemcheckTool::loadXmlLogFile(const QString &filePath)
 {
-    QFile *logFile = new QFile(filePath);
+    auto logFile = new QFile(filePath);
     if (!logFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
         delete logFile;
         QString msg = tr("Memcheck: Failed to open file for reading: %1").arg(filePath);
@@ -1021,7 +1021,7 @@ void MemcheckTool::loadXmlLogFile(const QString &filePath)
         updateFromSettings();
     }
 
-    ThreadedParser *parser = new ThreadedParser;
+    auto parser = new ThreadedParser;
     connect(parser, &ThreadedParser::error, this, &MemcheckTool::parserError);
     connect(parser, &ThreadedParser::internalError, this, &MemcheckTool::internalParserError);
     connect(parser, &ThreadedParser::finished, this, &MemcheckTool::loadingExternalXmlLogFileFinished);
@@ -1090,13 +1090,13 @@ void MemcheckTool::engineFinished()
 
     const int issuesFound = updateUiAfterFinishedHelper();
     Debugger::showPermanentStatusMessage(
-        tr("Memory Analyzer Tool finished. %n issues were found.", 0, issuesFound));
+        tr("Memory Analyzer Tool finished. %n issues were found.", nullptr, issuesFound));
 }
 
 void MemcheckTool::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    QString statusMessage = tr("Log file processed. %n issues were found.", 0, issuesFound);
+    QString statusMessage = tr("Log file processed. %n issues were found.", nullptr, issuesFound);
     if (!m_exitMsg.isEmpty())
         statusMessage += ' ' + m_exitMsg;
     Debugger::showPermanentStatusMessage(statusMessage);
@@ -1195,20 +1195,20 @@ HeobDialog::HeobDialog(QWidget *parent) :
             path = QFileInfo(heobPath).path();
     }
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     // disable resizing
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
-    QHBoxLayout *xmlLayout = new QHBoxLayout;
-    QLabel *xmlLabel = new QLabel(tr("XML output file:"));
+    auto xmlLayout = new QHBoxLayout;
+    auto xmlLabel = new QLabel(tr("XML output file:"));
     xmlLayout->addWidget(xmlLabel);
     m_xmlEdit = new QLineEdit;
     m_xmlEdit->setText(xml);
     xmlLayout->addWidget(m_xmlEdit);
     layout->addLayout(xmlLayout);
 
-    QHBoxLayout *handleExceptionLayout = new QHBoxLayout;
-    QLabel *handleExceptionLabel = new QLabel(tr("Handle exceptions:"));
+    auto handleExceptionLayout = new QHBoxLayout;
+    auto handleExceptionLabel = new QLabel(tr("Handle exceptions:"));
     handleExceptionLayout->addWidget(handleExceptionLabel);
     m_handleExceptionCombo = new QComboBox;
     m_handleExceptionCombo->addItem(tr("Off"));
@@ -1220,8 +1220,8 @@ HeobDialog::HeobDialog(QWidget *parent) :
     handleExceptionLayout->addWidget(m_handleExceptionCombo);
     layout->addLayout(handleExceptionLayout);
 
-    QHBoxLayout *pageProtectionLayout = new QHBoxLayout;
-    QLabel *pageProtectionLabel = new QLabel(tr("Page protection:"));
+    auto pageProtectionLayout = new QHBoxLayout;
+    auto pageProtectionLabel = new QLabel(tr("Page protection:"));
     pageProtectionLayout->addWidget(pageProtectionLabel);
     m_pageProtectionCombo = new QComboBox;
     m_pageProtectionCombo->addItem(tr("Off"));
@@ -1241,8 +1241,8 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_breakpointCheck->setChecked(breakpoint);
     layout->addWidget(m_breakpointCheck);
 
-    QHBoxLayout *leakDetailLayout = new QHBoxLayout;
-    QLabel *leakDetailLabel = new QLabel(tr("Leak details:"));
+    auto leakDetailLayout = new QHBoxLayout;
+    auto leakDetailLabel = new QLabel(tr("Leak details:"));
     leakDetailLayout->addWidget(leakDetailLabel);
     m_leakDetailCombo = new QComboBox;
     m_leakDetailCombo->addItem(tr("None"));
@@ -1257,8 +1257,8 @@ HeobDialog::HeobDialog(QWidget *parent) :
     leakDetailLayout->addWidget(m_leakDetailCombo);
     layout->addLayout(leakDetailLayout);
 
-    QHBoxLayout *leakSizeLayout = new QHBoxLayout;
-    QLabel *leakSizeLabel = new QLabel(tr("Minimum leak size:"));
+    auto leakSizeLayout = new QHBoxLayout;
+    auto leakSizeLabel = new QLabel(tr("Minimum leak size:"));
     leakSizeLayout->addWidget(leakSizeLabel);
     m_leakSizeSpin = new QSpinBox;
     m_leakSizeSpin->setMinimum(0);
@@ -1268,8 +1268,8 @@ HeobDialog::HeobDialog(QWidget *parent) :
     leakSizeLayout->addWidget(m_leakSizeSpin);
     layout->addLayout(leakSizeLayout);
 
-    QHBoxLayout *leakRecordingLayout = new QHBoxLayout;
-    QLabel *leakRecordingLabel = new QLabel(tr("Control leak recording:"));
+    auto leakRecordingLayout = new QHBoxLayout;
+    auto leakRecordingLabel = new QLabel(tr("Control leak recording:"));
     leakRecordingLayout->addWidget(leakRecordingLabel);
     m_leakRecordingCombo = new QComboBox;
     m_leakRecordingCombo->addItem(tr("Off"));
@@ -1283,16 +1283,16 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_attachCheck->setChecked(attach);
     layout->addWidget(m_attachCheck);
 
-    QHBoxLayout *extraArgsLayout = new QHBoxLayout;
-    QLabel *extraArgsLabel = new QLabel(tr("Extra arguments:"));
+    auto extraArgsLayout = new QHBoxLayout;
+    auto extraArgsLabel = new QLabel(tr("Extra arguments:"));
     extraArgsLayout->addWidget(extraArgsLabel);
     m_extraArgsEdit = new QLineEdit;
     m_extraArgsEdit->setText(extraArgs);
     extraArgsLayout->addWidget(m_extraArgsEdit);
     layout->addLayout(extraArgsLayout);
 
-    QHBoxLayout *pathLayout = new QHBoxLayout;
-    QLabel *pathLabel = new QLabel(tr("Heob path:"));
+    auto pathLayout = new QHBoxLayout;
+    auto pathLabel = new QLabel(tr("Heob path:"));
     pathLabel->setToolTip(tr("The location of heob32.exe and heob64.exe."));
     pathLayout->addWidget(pathLabel);
     m_pathChooser = new PathChooser;
@@ -1300,18 +1300,18 @@ HeobDialog::HeobDialog(QWidget *parent) :
     pathLayout->addWidget(m_pathChooser);
     layout->addLayout(pathLayout);
 
-    QHBoxLayout *saveLayout = new QHBoxLayout;
+    auto saveLayout = new QHBoxLayout;
     saveLayout->addStretch(1);
-    QToolButton *saveButton = new QToolButton;
+    auto saveButton = new QToolButton;
     saveButton->setToolTip(tr("Save current settings as default."));
     saveButton->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
     connect(saveButton, &QAbstractButton::clicked, this, &HeobDialog::saveOptions);
     saveLayout->addWidget(saveButton);
     layout->addLayout(saveLayout);
 
-    QHBoxLayout *okLayout = new QHBoxLayout;
+    auto okLayout = new QHBoxLayout;
     okLayout->addStretch(1);
-    QPushButton *okButton = new QPushButton(tr("OK"));
+    auto okButton = new QPushButton(tr("OK"));
     okButton->setDefault(true);
     connect(okButton, &QAbstractButton::clicked, this, &QDialog::accept);
     okLayout->addWidget(okButton);

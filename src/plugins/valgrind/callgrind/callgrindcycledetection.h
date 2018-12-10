@@ -65,9 +65,9 @@ private:
     QHash<const Function *, Node *> m_nodes;
     QStack<Node *> m_stack;
     QVector<const Function *> m_ret;
-    int m_depth;
+    int m_depth = 0;
 
-    int m_cycle;
+    int m_cycle = 0;
 };
 
 } // namespace Internal

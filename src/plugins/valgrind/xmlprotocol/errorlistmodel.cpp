@@ -288,7 +288,7 @@ QVariant FrameItem::data(int column, int role) const
 const ErrorItem *FrameItem::getErrorItem() const
 {
     for (const TreeItem *parentItem = parent(); parentItem; parentItem = parentItem->parent()) {
-        const ErrorItem * const errorItem = dynamic_cast<const ErrorItem *>(parentItem);
+        auto const errorItem = dynamic_cast<const ErrorItem *>(parentItem);
         if (errorItem)
             return errorItem;
     }

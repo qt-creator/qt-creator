@@ -58,10 +58,8 @@ FunctionCycle::FunctionCycle(const ParseData *data)
 {
 }
 
-FunctionCycle::~FunctionCycle()
-{
-    // d should be deleted by Function::~Function()
-}
+// d should be deleted by Function::~Function()
+FunctionCycle::~FunctionCycle() = default;
 
 void FunctionCycle::setFunctions(const QVector<const Function *> &functions)
 {

@@ -48,9 +48,7 @@ namespace Callgrind {
 
 const char CALLGRIND_CONTROL_BINARY[] = "callgrind_control";
 
-CallgrindController::CallgrindController()
-{
-}
+CallgrindController::CallgrindController() = default;
 
 CallgrindController::~CallgrindController()
 {

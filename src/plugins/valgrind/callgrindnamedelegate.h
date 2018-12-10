@@ -33,10 +33,10 @@ namespace Internal {
 class NameDelegate : public QStyledItemDelegate
 {
 public:
-    explicit NameDelegate(QObject *parent = 0);
+    explicit NameDelegate(QObject *parent = nullptr);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
+               const QModelIndex &index) const override;
 };
 
 } // namespace Internal

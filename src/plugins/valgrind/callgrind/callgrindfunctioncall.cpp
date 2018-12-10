@@ -38,23 +38,13 @@ namespace Callgrind {
 class FunctionCall::Private
 {
 public:
-    explicit Private();
-
-    const Function *m_callee;
-    const Function *m_caller;
-    quint64 m_calls;
-    quint64 m_totalInclusiveCost;
+    const Function *m_callee = nullptr;
+    const Function *m_caller = nullptr;
+    quint64 m_calls = 0;
+    quint64 m_totalInclusiveCost = 0;
     QVector<quint64> m_destinations;
     QVector<quint64> m_costs;
 };
-
-FunctionCall::Private::Private()
-    : m_callee(0)
-    , m_caller(0)
-    , m_calls(0)
-    , m_totalInclusiveCost(0)
-{
-}
 
 //BEGIN FunctionCall
 

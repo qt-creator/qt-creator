@@ -123,9 +123,9 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
 {
     setWindowTitle(tr("Save Suppression"));
 
-    QLabel *fileLabel = new QLabel(tr("Suppression File:"), this);
+    auto fileLabel = new QLabel(tr("Suppression File:"), this);
 
-    QLabel *suppressionsLabel = new QLabel(tr("Suppression:"), this);
+    auto suppressionsLabel = new QLabel(tr("Suppression:"), this);
     suppressionsLabel->setBuddy(m_suppressionEdit);
 
     QFont font;
@@ -135,7 +135,7 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
     m_buttonBox = new QDialogButtonBox(this);
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Save);
 
-    QFormLayout *formLayout = new QFormLayout(this);
+    auto formLayout = new QFormLayout(this);
     formLayout->addRow(fileLabel, m_fileChooser);
     formLayout->addRow(suppressionsLabel);
     formLayout->addRow(m_suppressionEdit);

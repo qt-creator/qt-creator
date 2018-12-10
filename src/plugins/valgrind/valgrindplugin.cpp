@@ -53,7 +53,7 @@ using namespace ProjectExplorer;
 namespace Valgrind {
 namespace Internal {
 
-static ValgrindGlobalSettings *theGlobalSettings = 0;
+static ValgrindGlobalSettings *theGlobalSettings = nullptr;
 
 class ValgrindOptionsPage : public IOptionsPage
 {
@@ -68,19 +68,19 @@ public:
         setCategoryIcon(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
     }
 
-    QWidget *widget()
+    QWidget *widget() override
     {
         if (!m_widget)
             m_widget = new ValgrindConfigWidget(theGlobalSettings, true);
         return m_widget;
     }
 
-    void apply()
+    void apply() override
     {
         theGlobalSettings->writeSettings();
     }
 
-    void finish()
+    void finish() override
     {
         delete m_widget;
     }
@@ -108,7 +108,7 @@ public:
 ValgrindPlugin::~ValgrindPlugin()
 {
     delete theGlobalSettings;
-    theGlobalSettings = 0;
+    theGlobalSettings = nullptr;
 }
 
 bool ValgrindPlugin::initialize(const QStringList &, QString *)

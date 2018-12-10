@@ -36,8 +36,6 @@ namespace XmlProtocol {
 class Frame::Private : public QSharedData
 {
 public:
-    Private() : ip(0), line(-1) {}
-
     bool operator==(const Private &other) const
     {
         return ip == other.ip
@@ -48,26 +46,21 @@ public:
                 && line == other.line;
     }
 
-    quint64 ip;
+    quint64 ip = 0;
     QString object;
     QString functionName;
     QString fileName;
     QString directory;
-    int line;
+    int line = -1;
 };
 
 Frame::Frame() : d(new Private)
 {
 }
 
-Frame::~Frame()
-{
-}
+Frame::~Frame() = default;
 
-Frame::Frame(const Frame &other) :
-    d(other.d)
-{
-}
+Frame::Frame(const Frame &other) = default;
 
 Frame &Frame::operator=(const Frame &other)
 {

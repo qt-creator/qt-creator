@@ -39,10 +39,10 @@ namespace Callgrind {
 class CallModel::Private
 {
 public:
-    const ParseData *m_data = 0;
+    const ParseData *m_data = nullptr;
     QVector<const FunctionCall *> m_calls;
     int m_event = 0;
-    const Function *m_function = 0;
+    const Function *m_function = nullptr;
 };
 
 CallModel::CallModel()
@@ -58,7 +58,7 @@ CallModel::~CallModel()
 void CallModel::clear()
 {
     beginResetModel();
-    d->m_function = 0;
+    d->m_function = nullptr;
     d->m_calls.clear();
     endResetModel();
 }

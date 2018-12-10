@@ -80,14 +80,14 @@ public:
     };
 
     FunctionGraphicsItem(const QString &text, qreal x, qreal y,
-                         qreal width, qreal height, QGraphicsItem *parent = 0);
+                         qreal width, qreal height, QGraphicsItem *parent = nullptr);
 
     void paint(QPainter *painter,
                const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     FunctionGraphicsTextItem *textItem() const;
 
 private:
-    FunctionGraphicsTextItem *m_text;
+    FunctionGraphicsTextItem *m_text = nullptr;
 };
 
 FunctionGraphicsTextItem::FunctionGraphicsTextItem(const QString &text,
@@ -97,7 +97,7 @@ FunctionGraphicsTextItem::FunctionGraphicsTextItem(const QString &text,
     , m_previousViewportDimension(0)
 {
     setFlag(QGraphicsItem::ItemIgnoresTransformations);
-    setAcceptedMouseButtons(0); // do not steal focus from parent item
+    setAcceptedMouseButtons(nullptr); // do not steal focus from parent item
     setToolTip(text);
 }
 
@@ -155,7 +155,6 @@ QRectF FunctionGraphicsTextItem::boundingRect() const
 FunctionGraphicsItem::FunctionGraphicsItem(const QString &text,
         qreal x, qreal y, qreal width, qreal height, QGraphicsItem *parent)
     : QGraphicsRectItem(x, y, width, height, parent)
-    , m_text(0)
 {
     setFlag(QGraphicsItem::ItemIsSelectable);
     setFlag(QGraphicsItem::ItemClipsToShape);
@@ -237,7 +236,7 @@ void Visualization::Private::handleMousePressEvent(QMouseEvent *event,
                                                    bool doubleClicked)
 {
     // find the first item that accepts mouse presses under the cursor position
-    QGraphicsItem *itemAtPos = 0;
+    QGraphicsItem *itemAtPos = nullptr;
     foreach (QGraphicsItem *item, q->items(event->pos())) {
         if (!(item->acceptedMouseButtons() & event->button()))
             continue;
@@ -297,7 +296,7 @@ QGraphicsItem *Visualization::itemForFunction(const Function *function) const
         if (functionForItem(item) == function)
             return item;
     }
-    return 0;
+    return nullptr;
 }
 
 void Visualization::setFunction(const Function *function)
@@ -364,7 +363,7 @@ void Visualization::populateScene()
     // cache costs of each element, calculate total costs
     qreal total = 0;
 
-    typedef QPair<QModelIndex, qreal> Pair;
+    using Pair = QPair<QModelIndex, qreal>;
     QLinkedList<Pair> costs;
     for (int row = 0; row < d->m_model->rowCount(); ++row) {
         const QModelIndex index = d->m_model->index(row, DataModel::InclusiveCostColumn);
@@ -392,7 +391,7 @@ void Visualization::populateScene()
         }
 
         const qreal height = sceneHeight * (costs.isEmpty() ? 1.0 : 0.1);
-        FunctionGraphicsItem *item = new FunctionGraphicsItem(text, 0, 0, sceneWidth, height);
+        auto item = new FunctionGraphicsItem(text, 0, 0, sceneWidth, height);
         const QColor background = CallgrindHelper::colorForString(text);
         item->setBrush(background);
         item->setData(FunctionGraphicsItem::FunctionCallKey, QVariant::fromValue(d->m_model->filterFunction()));
@@ -409,7 +408,7 @@ void Visualization::populateScene()
 
         const qreal height = (sceneHeight * 0.9 * cost.second) / total;
 
-        FunctionGraphicsItem *item = new FunctionGraphicsItem(text, 0, used, sceneWidth, height);
+        auto item = new FunctionGraphicsItem(text, 0, used, sceneWidth, height);
         const QColor background = CallgrindHelper::colorForString(text);
         item->setBrush(background);
         item->setData(FunctionGraphicsItem::FunctionCallKey, index.data(DataModel::FunctionRole));

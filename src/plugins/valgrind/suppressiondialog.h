@@ -54,8 +54,8 @@ public:
 
 private:
     void validate();
-    void accept();
-    void reject();
+    void accept() override;
+    void reject() override;
 
     MemcheckErrorView *m_view;
     ValgrindBaseSettings *m_settings;

@@ -46,8 +46,8 @@ class ThreadedParser : public QObject
     Q_OBJECT
 
 public:
-    explicit ThreadedParser(QObject *parent = 0);
-    ~ThreadedParser();
+    explicit ThreadedParser(QObject *parent = nullptr);
+    ~ThreadedParser() override;
 
     QString errorString() const;
 

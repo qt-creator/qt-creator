@@ -53,7 +53,7 @@ protected:
     virtual QString progressTitle() const = 0;
     virtual QStringList toolArguments() const = 0;
 
-    ValgrindBaseSettings *m_settings = 0;
+    ValgrindBaseSettings *m_settings = nullptr;
     QFutureInterface<void> m_progress;
     ValgrindRunner m_runner;
 

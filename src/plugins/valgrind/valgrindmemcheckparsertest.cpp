@@ -145,11 +145,11 @@ void ValgrindMemcheckParserTest::cleanup()
 {
     if (m_socket) {
         delete m_socket;
-        m_socket = 0;
+        m_socket = nullptr;
     }
     if (m_process) {
         delete m_process;
-        m_process = 0;
+        m_process = nullptr;
     }
 }
 

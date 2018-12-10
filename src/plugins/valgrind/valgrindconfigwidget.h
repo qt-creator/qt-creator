@@ -45,7 +45,7 @@ class ValgrindConfigWidget : public QWidget
 
 public:
     ValgrindConfigWidget(ValgrindBaseSettings *settings, bool global);
-    virtual ~ValgrindConfigWidget();
+    ~ValgrindConfigWidget() override;
 
     void setSuppressions(const QStringList &files);
     QStringList suppressions() const;

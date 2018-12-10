@@ -44,19 +44,12 @@ namespace Internal {
 class CostDelegate::Private
 {
 public:
-    Private();
-
-    QAbstractItemModel *m_model;
-    CostDelegate::CostFormat m_format;
+    QAbstractItemModel *m_model = nullptr;
+    CostDelegate::CostFormat m_format = CostDelegate::FormatAbsolute;
 
     float relativeCost(const QModelIndex &index) const;
     QString displayText(const QModelIndex &index, const QLocale &locale) const;
 };
-
-CostDelegate::Private::Private()
-    : m_model(0)
-    , m_format(CostDelegate::FormatAbsolute)
-{}
 
 static int toNativeRole(CostDelegate::CostFormat format)
 {
@@ -145,7 +138,7 @@ void CostDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
     // Draw text.
     QLocale loc = opt.locale;
-    loc.setNumberOptions(0);
+    loc.setNumberOptions(nullptr);
     const QString text = d->displayText(index, loc);
     const QBrush &textBrush = (option.state & QStyle::State_Selected ? opt.palette.highlightedText() : opt.palette.text());
     painter->setBrush(Qt::NoBrush);

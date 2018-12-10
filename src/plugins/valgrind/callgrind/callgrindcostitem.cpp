@@ -44,18 +44,16 @@ public:
 
     QVector<quint64> m_positions;
     QVector<quint64> m_events;
-    const FunctionCall *m_call;
+    const FunctionCall *m_call = nullptr;
 
-    const ParseData *m_data;
-    qint64 m_differingFileId;
+    const ParseData *m_data = nullptr;
+    qint64 m_differingFileId = -1;
 };
 
 CostItem::Private::Private(ParseData *data)
     : m_positions(data->positions().size(), 0)
     , m_events(data->events().size(), 0)
-    , m_call(0)
     , m_data(data)
-    , m_differingFileId(-1)
 {
 }
 

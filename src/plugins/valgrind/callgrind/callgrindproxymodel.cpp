@@ -39,9 +39,6 @@ namespace Callgrind {
 
 DataProxyModel::DataProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent)
-    , m_function(0)
-    , m_maxRows(0)
-    , m_minimumInclusiveCostRatio(0.0)
 {
     setDynamicSortFilter(true);
 }
@@ -119,7 +116,7 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
     if (m_maxRows > 0 && source_row > m_maxRows)
         return false;
 
-    const Function *func = source_index.data(DataModel::FunctionRole).value<const Function *>();
+    auto func = source_index.data(DataModel::FunctionRole).value<const Function *>();
 
     if (!func)
         return false;

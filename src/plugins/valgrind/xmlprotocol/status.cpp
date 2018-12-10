@@ -35,12 +35,7 @@ namespace XmlProtocol {
 class Status::Private : public QSharedData
 {
 public:
-    Private()
-        : state(Running)
-    {
-    }
-
-    State state;
+    State state = Running;
     QString time;
 };
 
@@ -49,14 +44,9 @@ Status::Status()
 {
 }
 
-Status::Status(const Status &other)
-    : d(other.d)
-{
-}
+Status::Status(const Status &other) = default;
 
-Status::~Status()
-{
-}
+Status::~Status() = default;
 
 void Status::swap(Status &other)
 {

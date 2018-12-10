@@ -40,8 +40,6 @@ namespace Internal {
 
 CycleDetection::CycleDetection(ParseData *data)
     : m_data(data)
-    , m_depth(0)
-    , m_cycle(0)
 {
 }
 
@@ -87,7 +85,7 @@ void CycleDetection::tarjan(Node *node)
             m_ret.append(node->function);
         } else {
             // actual cycle
-            FunctionCycle *cycle = new FunctionCycle(m_data);
+            auto cycle = new FunctionCycle(m_data);
             cycle->setFile(node->function->fileId());
             m_cycle++;
             qint64 id = -1;

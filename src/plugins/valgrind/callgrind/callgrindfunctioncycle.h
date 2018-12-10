@@ -42,7 +42,7 @@ class FunctionCycle : public Function
 {
 public:
     explicit FunctionCycle(const ParseData *data);
-    virtual ~FunctionCycle();
+    ~FunctionCycle() override;
 
     /// sets the list of functions that make up this cycle
     /// NOTE: ownership is *not* transferred to the cycle

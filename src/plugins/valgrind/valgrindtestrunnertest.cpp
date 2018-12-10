@@ -114,7 +114,7 @@ void ValgrindTestRunnerTest::cleanup()
 {
     Q_ASSERT(m_runner);
     delete m_runner;
-    m_runner = 0;
+    m_runner = nullptr;
 
     m_logMessages.clear();
     m_errors.clear();

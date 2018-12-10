@@ -52,8 +52,7 @@ namespace Valgrind {
 namespace Internal {
 
 MemcheckErrorView::MemcheckErrorView(QWidget *parent)
-    : Debugger::DetailedErrorView(parent),
-      m_settings(0)
+    : Debugger::DetailedErrorView(parent)
 {
     m_suppressAction = new QAction(this);
     m_suppressAction->setText(tr("Suppress Error"));
@@ -68,9 +67,7 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
     addAction(m_suppressAction);
 }
 
-MemcheckErrorView::~MemcheckErrorView()
-{
-}
+MemcheckErrorView::~MemcheckErrorView() = default;
 
 void MemcheckErrorView::setDefaultSuppressionFile(const QString &suppFile)
 {

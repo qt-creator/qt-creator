@@ -112,7 +112,7 @@ class CallgrindTool : public QObject
 
 public:
     CallgrindTool();
-    ~CallgrindTool();
+    ~CallgrindTool() override;
 
     void setupRunner(CallgrindToolRunner *runner);
 
@@ -682,7 +682,7 @@ void CallgrindTool::handleFilterProjectCosts()
 
 void CallgrindTool::dataFunctionSelected(const QModelIndex &index)
 {
-    const Function *func = index.data(DataModel::FunctionRole).value<const Function *>();
+    auto func = index.data(DataModel::FunctionRole).value<const Function *>();
     QTC_ASSERT(func, return);
 
     selectFunction(func);
@@ -690,7 +690,7 @@ void CallgrindTool::dataFunctionSelected(const QModelIndex &index)
 
 void CallgrindTool::calleeFunctionSelected(const QModelIndex &index)
 {
-    const FunctionCall *call = index.data(CallModel::FunctionCallRole).value<const FunctionCall *>();
+    auto call = index.data(CallModel::FunctionCallRole).value<const FunctionCall *>();
     QTC_ASSERT(call, return);
 
     selectFunction(call->callee());
@@ -698,7 +698,7 @@ void CallgrindTool::calleeFunctionSelected(const QModelIndex &index)
 
 void CallgrindTool::callerFunctionSelected(const QModelIndex &index)
 {
-    const FunctionCall *call = index.data(CallModel::FunctionCallRole).value<const FunctionCall *>();
+    auto call = index.data(CallModel::FunctionCallRole).value<const FunctionCall *>();
     QTC_ASSERT(call, return);
 
     selectFunction(call->caller());

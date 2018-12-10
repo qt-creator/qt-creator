@@ -40,8 +40,8 @@ class MemcheckErrorView : public Debugger::DetailedErrorView
     Q_OBJECT
 
 public:
-    MemcheckErrorView(QWidget *parent = 0);
-    ~MemcheckErrorView();
+    MemcheckErrorView(QWidget *parent = nullptr);
+    ~MemcheckErrorView() override;
 
     void setDefaultSuppressionFile(const QString &suppFile);
     QString defaultSuppressionFile() const;
@@ -54,7 +54,7 @@ private:
 
     QAction *m_suppressAction;
     QString m_defaultSuppFile;
-    ValgrindBaseSettings *m_settings;
+    ValgrindBaseSettings *m_settings = nullptr;
 };
 
 } // namespace Internal

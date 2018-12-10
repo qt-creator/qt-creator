@@ -54,8 +54,8 @@ public:
         Helgrind
     };
 
-    explicit Parser(QObject *parent=0);
-    ~Parser();
+    explicit Parser(QObject *parent = nullptr);
+    ~Parser() override;
 
     QString errorString() const;
     void parse(QIODevice *stream);

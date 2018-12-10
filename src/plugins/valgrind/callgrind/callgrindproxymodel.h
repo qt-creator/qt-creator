@@ -69,9 +69,9 @@ private:
     DataModel *dataModel() const;
 
     QString m_baseDir;
-    const Function *m_function;
-    int m_maxRows;
-    double m_minimumInclusiveCostRatio;
+    const Function *m_function = nullptr;
+    int m_maxRows = 0;
+    double m_minimumInclusiveCostRatio = 0;
 };
 
 } // namespace Callgrind
