@@ -6678,8 +6678,12 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>未過濾</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;No documentation available.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;&lt;title&gt;沒有文件&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;沒有可用文件。&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>No Documentation</source>
+        <translation>沒有文件</translation>
+    </message>
+    <message>
+        <source>No documentation available.</source>
+        <translation>沒有可用文件。</translation>
     </message>
     <message>
         <source>Close current page</source>

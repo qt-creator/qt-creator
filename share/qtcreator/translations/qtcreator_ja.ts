@@ -19383,8 +19383,12 @@ msysgit が、git bash 外で実行された時に自身のインストール先
         <translation>バグの報告...</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;font color=&quot;%1&quot;&gt;&lt;b&gt;%2&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;%3&quot;&gt;No documentation available.&lt;/font&gt;&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;&lt;title&gt;ドキュメントがありません&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;font color=&quot;%1&quot;&gt;&lt;b&gt;%2&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;%3&quot;&gt;使用可能なドキュメントがありません。&lt;/font&gt;&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>No Documentation</source>
+        <translation>ドキュメントがありません</translation>
+    </message>
+    <message>
+        <source>No documentation available.</source>
+        <translation>使用可能なドキュメントがありません。</translation>
     </message>
     <message>
         <source>Open Pages</source>

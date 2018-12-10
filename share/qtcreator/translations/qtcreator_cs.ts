@@ -11172,8 +11172,12 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation>Žádný filtr</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;No documentation available.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;&lt;title&gt;Dokumentace chybí&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;Není dostupná žádná dokumentace.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>No Documentation</source>
+        <translation>Dokumentace chybí</translation>
+    </message>
+    <message>
+        <source>No documentation available.</source>
+        <translation>Není dostupná žádná dokumentace.</translation>
     </message>
     <message>
         <source>Close current page</source>

@@ -685,14 +685,16 @@ void HelpPluginPrivate::showContextHelp(const QString &contextHelpId)
     if (!source.isValid()) {
         // No link found or no context object
         showInHelpViewer(QUrl(Help::Constants::AboutBlank), viewer);
-        viewer->setHtml(HelpPlugin::tr("<html><head><title>No Documentation</title>"
+        viewer->setHtml(QString("<html><head><title>%1</title>"
             "</head><body><br/><center>"
-            "<font color=\"%1\"><b>%2</b></font><br/>"
-            "<font color=\"%3\">No documentation available.</font>"
+            "<font color=\"%2\"><b>%3</b></font><br/>"
+            "<font color=\"%4\">%5</font>"
             "</center></body></html>")
+            .arg(HelpPlugin::tr("No Documentation"))
             .arg(creatorTheme()->color(Theme::TextColorNormal).name())
             .arg(contextHelpId)
-            .arg(creatorTheme()->color(Theme::TextColorNormal).name()));
+            .arg(creatorTheme()->color(Theme::TextColorNormal).name())
+            .arg(HelpPlugin::tr("No documentation available.")));
     } else {
         showInHelpViewer(source, viewer);  // triggers loadFinished which triggers id highlighting
     }
