@@ -13,6 +13,7 @@ HEADERS += \
     $$PWD/projectinfo.h \
     $$PWD/cppprojectinfogenerator.cpp \
     $$PWD/cppprojectpartchooser.h \
+    $$PWD/headerpathfilter.h
 
 SOURCES += \
     $$PWD/cppprojectfile.cpp \
@@ -23,3 +24,4 @@ SOURCES += \
     $$PWD/projectinfo.cpp \
     $$PWD/cppprojectinfogenerator.cpp \
     $$PWD/cppprojectpartchooser.cpp \
+    $$PWD/headerpathfilter.cpp

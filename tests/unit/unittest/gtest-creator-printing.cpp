@@ -62,6 +62,7 @@
 #include <cpptools/usages.h>
 
 #include <projectexplorer/projectmacro.h>
+#include <projectexplorer/headerpath.h>
 
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/locator/ilocatorfilter.h>
@@ -143,6 +144,32 @@ std::ostream &operator<<(std::ostream &out, const Macro &macro)
         << macro.type << ")";
 
   return out;
+}
+
+static const char *typeToString(const HeaderPathType &type)
+{
+    switch (type) {
+    case HeaderPathType::User:
+        return "User";
+    case HeaderPathType::System:
+        return "System";
+    case HeaderPathType::BuiltIn:
+        return "BuiltIn";
+    case HeaderPathType::Framework:
+        return "Framework";
+    }
+
+    return "";
+}
+
+std::ostream &operator<<(std::ostream &out, const HeaderPathType &headerPathType)
+{
+    return out << "HeaderPathType::" << typeToString(headerPathType);
+}
+
+std::ostream &operator<<(std::ostream &out, const HeaderPath &headerPath)
+{
+    return out << "(" << headerPath.path << ", " << headerPath.type << ")";
 }
 
 } // namespace ProjectExplorer

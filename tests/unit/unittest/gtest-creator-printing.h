@@ -59,9 +59,13 @@ namespace ProjectExplorer {
 
 enum class MacroType;
 class Macro;
+enum class HeaderPathType;
+class HeaderPath;
 
 std::ostream &operator<<(std::ostream &out, const MacroType &type);
 std::ostream &operator<<(std::ostream &out, const Macro &macro);
+std::ostream &operator<<(std::ostream &out, const HeaderPathType &headerPathType);
+std::ostream &operator<<(std::ostream &out, const HeaderPath &headerPath);
 
 } // namespace ClangRefactoring
 
