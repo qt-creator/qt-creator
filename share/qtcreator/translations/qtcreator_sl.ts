@@ -8144,9 +8144,12 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Nefiltrirano</translation>
     </message>
     <message>
-        <location line="+359"/>
-        <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;No documentation available.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;&lt;title&gt;Ni dokumentacije&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;Na voljo ni nobene dokumentacije.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>No Documentation</source>
+        <translation>Ni dokumentacije</translation>
+    </message>
+    <message>
+        <source>No documentation available.</source>
+        <translation>Na voljo ni nobene dokumentacije.</translation>
     </message>
     <message>
         <location line="+99"/>
@@ -36872,7 +36875,7 @@ Preverite pravice za dostop do mape.</translation>
     <message>
         <location line="+6"/>
         <source>Timed out after %1s waiting for the process %2 to finish.</source>
-        <translation>Po %1 s čakanja na zaključek procesa %2 je potekel čas.</translation>
+        <translation>Po %1 s čakanja na zaključek procesa %2 je potekel čas.</translation>
     </message>
 </context>
 <context>
@@ -40106,7 +40109,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
-        <translation type="obsolete">Po %1 s čakanja na zaključek procesa mercurial je potekel čas.</translation>
+        <translation type="obsolete">Po %1 s čakanja na zaključek procesa mercurial je potekel čas.</translation>
     </message>
 </context>
 <context>
