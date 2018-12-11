@@ -154,11 +154,6 @@ QbsProject::QbsProject(const FileName &fileName) :
     subscribeSignal(&Target::activeBuildConfigurationChanged, this, delayedParsing);
 
     connect(&m_parsingDelay, &QTimer::timeout, this, &QbsProject::startParsing);
-
-    connect(m_cppCodeModelUpdater, &CppTools::CppProjectUpdater::projectInfoUpdated, this,
-            [this](const CppTools::ProjectInfo &projectInfo){
-        m_cppCodeModelProjectInfo = projectInfo;
-    });
 }
 
 QbsProject::~QbsProject()

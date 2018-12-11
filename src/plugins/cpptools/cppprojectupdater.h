@@ -49,9 +49,6 @@ public:
     void update(const ProjectUpdateInfo &projectUpdateInfo);
     void cancel();
 
-signals:
-    void projectInfoUpdated(const ProjectInfo &projectInfo);
-
 private:
     void cancelAndWaitForFinished();
 

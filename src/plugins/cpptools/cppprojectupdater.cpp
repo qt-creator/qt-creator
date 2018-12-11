@@ -100,10 +100,6 @@ void CppProjectUpdater::onProjectInfoGenerated()
     QFuture<void> future = CppModelManager::instance()
             ->updateProjectInfo(m_futureInterface, m_generateFutureWatcher.result());
     QTC_CHECK(future != QFuture<void>());
-
-    const ProjectInfo projectInfo = CppModelManager::instance()->projectInfo(m_project);
-    QTC_CHECK(projectInfo.isValid());
-    emit projectInfoUpdated(projectInfo);
 }
 
 } // namespace CppTools
