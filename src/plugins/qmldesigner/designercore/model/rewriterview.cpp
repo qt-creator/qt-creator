@@ -387,6 +387,17 @@ void RewriterView::deactivateTextMofifierChangeSignals()
         textModifier()->deactivateChangeSignals();
 }
 
+void RewriterView::auxiliaryDataChanged(const ModelNode &, const PropertyName &name, const QVariant &)
+{
+    if (name.endsWith("@NodeInstance"))
+        return;
+
+    if (name.endsWith("@Internal"))
+        return;
+
+    m_textModifier->textDocument()->setModified(true);
+}
+
 void RewriterView::applyModificationGroupChanges()
 {
     Q_ASSERT(transactionLevel == 0);
