@@ -492,15 +492,15 @@ def qdump__QEvent(d, value):
         with Children(d):
             # Add a sub-item with the event type.
             with SubItem(d, '[type]'):
-                (vtable, privateD, t) = value.split("pp{ushort}")
-                event_type_name = "QEvent::Type"
+                (vtable, privateD, t, flags) = value.split("pp{short}{short}")
+                event_type_name = d.qtNamespace() + "QEvent::Type"
                 type_value = t.cast(event_type_name)
-                d.putValue(type_value.displayEnum('0x%04x'))
+                d.putValue(type_value.displayEnum('0x%04x', bitsize=16))
                 d.putType(event_type_name)
                 d.putNumChild(0)
 
             # Show the rest of the class fields as usual.
-            d.putFields(value, dumpBase=True)
+            d.putFields(value)
 
 def qdump__QKeyEvent(d, value):
     # QEvent fields
@@ -531,9 +531,9 @@ def qdump__QKeyEvent(d, value):
     #data = d.encodeString(txt)
     key_txt_utf8 = d.encodeStringUtf8(txt)
 
-    k_type_name = "Qt::Key"
-    k_casted_to_enum_value = k.cast(k_type_name)
-    k_name = k_casted_to_enum_value.displayEnum()
+    k_type_name = d.qtNamespace() + "Qt::Key"
+    k_cast_to_enum_value = k.cast(k_type_name)
+    k_name = k_cast_to_enum_value.displayEnum(bitsize=32)
     matches = re.search(r'Key_(\w+)', k_name)
     if matches:
         k_name = matches.group(1)
@@ -587,8 +587,8 @@ def qdump__QKeyEvent(d, value):
         with Children(d):
             # Add a sub-item with the enum name and value.
             with SubItem(d, '[{}]'.format(k_type_name)):
-                k_casted_to_enum_value = k.cast(k_type_name)
-                d.putValue(k_casted_to_enum_value.displayEnum('0x%04x'))
+                k_cast_to_enum_value = k.cast(k_type_name)
+                d.putValue(k_cast_to_enum_value.displayEnum('0x%04x', bitsize=32))
                 d.putType(k_type_name)
                 d.putNumChild(0)
 
@@ -756,7 +756,7 @@ def qdump__QFlags(d, value):
     i = value.split('{int}')[0]
     enumType = value.type[0]
     v = i.cast(enumType.name)
-    d.putValue(v.displayEnum('0x%04x'))
+    d.putValue(v.displayEnum('0x%04x', bitsize=32))
     d.putNumChild(0)
 
 
