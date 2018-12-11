@@ -122,7 +122,7 @@ private:
 
 QbsProject::QbsProject(const FileName &fileName) :
     Project(Constants::MIME_TYPE, fileName, [this] { delayParsing(); }),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 

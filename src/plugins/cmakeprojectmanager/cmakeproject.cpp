@@ -78,7 +78,7 @@ static CMakeBuildConfiguration *activeBc(const CMakeProject *p)
   \class CMakeProject
 */
 CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEMIMETYPE, fileName),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));

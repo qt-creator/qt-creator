@@ -28,8 +28,6 @@
 #include "cpptools_global.h"
 #include "projectinfo.h"
 
-#include <projectexplorer/project.h>
-
 #include <QFutureInterface>
 #include <QFutureWatcher>
 
@@ -43,7 +41,7 @@ class CPPTOOLS_EXPORT CppProjectUpdater : public QObject
     Q_OBJECT
 
 public:
-    CppProjectUpdater(ProjectExplorer::Project *project);
+    CppProjectUpdater();
     ~CppProjectUpdater() override;
 
     void update(const ProjectUpdateInfo &projectUpdateInfo);
@@ -56,7 +54,6 @@ private:
     void onProjectInfoGenerated();
 
 private:
-    ProjectExplorer::Project * const m_project;
     ProjectUpdateInfo m_projectUpdateInfo;
 
     QFutureInterface<void> m_futureInterface;

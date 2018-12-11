@@ -35,8 +35,7 @@
 
 namespace CppTools {
 
-CppProjectUpdater::CppProjectUpdater(ProjectExplorer::Project *project)
-    : m_project(project)
+CppProjectUpdater::CppProjectUpdater()
 {
     connect(&m_generateFutureWatcher, &QFutureWatcher<void>::finished,
             this, &CppProjectUpdater::onProjectInfoGenerated);

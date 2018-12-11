@@ -166,7 +166,7 @@ private:
 
 GenericProject::GenericProject(const Utils::FileName &fileName) :
     Project(Constants::GENERICMIMETYPE, fileName, [this]() { refresh(Everything); }),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this)),
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater),
     m_deployFileWatcher(new FileSystemWatcher(this))
 {
     setId(Constants::GENERICPROJECT_ID);

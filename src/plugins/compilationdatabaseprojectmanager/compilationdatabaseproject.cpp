@@ -408,7 +408,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
 
 CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &projectFile)
     : Project(Constants::COMPILATIONDATABASEMIMETYPE, projectFile)
-    , m_cppCodeModelUpdater(std::make_unique<CppTools::CppProjectUpdater>(this))
+    , m_cppCodeModelUpdater(std::make_unique<CppTools::CppProjectUpdater>())
 {
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));

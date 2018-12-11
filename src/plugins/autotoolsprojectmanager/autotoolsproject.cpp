@@ -70,7 +70,7 @@ using namespace ProjectExplorer;
 AutotoolsProject::AutotoolsProject(const Utils::FileName &fileName) :
     Project(Constants::MAKEFILE_MIMETYPE, fileName),
     m_fileWatcher(new Utils::FileSystemWatcher(this)),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));

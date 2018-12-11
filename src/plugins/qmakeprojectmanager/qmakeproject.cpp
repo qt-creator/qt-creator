@@ -164,7 +164,7 @@ static QList<QmakeProject *> s_projects;
 QmakeProject::QmakeProject(const FileName &fileName) :
     Project(QmakeProjectManager::Constants::PROFILE_MIMETYPE, fileName),
     m_qmakeVfs(new QMakeVfs),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
     s_projects.append(this);
     setId(Constants::QMAKEPROJECT_ID);
