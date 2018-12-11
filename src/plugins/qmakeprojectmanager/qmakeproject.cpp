@@ -272,8 +272,6 @@ void QmakeProject::updateCppCodeModel()
     ToolChain *cxxToolChain
             = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
-    m_cppCodeModelUpdater->cancel();
-
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
     ProjectPart::QtVersion qtVersionForPart = ProjectPart::NoQt;
     if (qtVersion) {

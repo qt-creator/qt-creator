@@ -268,8 +268,6 @@ void AutotoolsProject::updateCppCodeModel()
     ToolChain *cxxToolChain
             = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
-    m_cppCodeModelUpdater->cancel();
-
     CppTools::RawProjectPart rpp;
     rpp.setDisplayName(displayName());
     rpp.setProjectFileLocation(projectFilePath().toString());
