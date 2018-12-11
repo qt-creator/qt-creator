@@ -118,7 +118,8 @@ public:
     static bool loadingSession();
 
 signals:
-    void projectAdded(ProjectExplorer::Project *project); void aboutToRemoveProject(ProjectExplorer::Project *project);
+    void projectAdded(ProjectExplorer::Project *project);
+    void aboutToRemoveProject(ProjectExplorer::Project *project);
     void projectDisplayNameChanged(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
 
