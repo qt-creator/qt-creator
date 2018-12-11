@@ -2488,15 +2488,17 @@ void GdbEngine::updateBreakpoint(const Breakpoint &bp)
     QTC_ASSERT(state2 == BreakpointUpdateProceeding, qDebug() << state2);
 
     DebuggerCommand cmd;
-    if (!bp->isPending() && requested.threadSpec != bp->threadSpec()) {
-        // The only way to change this seems to be to re-set the bp completely.
-        cmd.function = "-break-delete " + bpnr;
-        cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakThreadSpec(r, bp); };
-    } else if (!bp->isPending() && requested.lineNumber != bp->lineNumber()) {
-        // The only way to change this seems to be to re-set the bp completely.
-        cmd.function = "-break-delete " + bpnr;
-        cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakLineNumber(r, bp); };
-    } else if (requested.command != bp->command()) {
+    // FIXME: See QTCREATORBUG-21611, QTCREATORBUG-21616
+//    if (!bp->isPending() && requested.threadSpec != bp->threadSpec()) {
+//        // The only way to change this seems to be to re-set the bp completely.
+//        cmd.function = "-break-delete " + bpnr;
+//        cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakThreadSpec(r, bp); };
+//    } else if (!bp->isPending() && requested.lineNumber != bp->lineNumber()) {
+//      // The only way to change this seems to be to re-set the bp completely.
+//      cmd.function = "-break-delete " + bpnr;
+//      cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakLineNumber(r, bp); };
+//    } else if
+    if (requested.command != bp->command()) {
         cmd.function = "-break-commands " + bpnr;
         for (QString command : requested.command.split('\n')) {
             if (!command.isEmpty()) {
