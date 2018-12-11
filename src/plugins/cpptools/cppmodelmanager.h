@@ -116,7 +116,6 @@ public:
 
     QList<ProjectInfo> projectInfos() const;
     ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
-    QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo);
     QFuture<void> updateProjectInfo(QFutureInterface<void> &futureInterface,
                                     const ProjectInfo &newProjectInfo);
 

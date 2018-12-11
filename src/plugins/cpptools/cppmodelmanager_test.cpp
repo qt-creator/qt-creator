@@ -190,7 +190,8 @@ void CppToolsPlugin::test_modelmanager_paths_are_clean()
                          {testDataDir.frameworksDir(false), HeaderPathType::Framework}};
     pi.appendProjectPart(part);
 
-    mm->updateProjectInfo(pi);
+    QFutureInterface<void> dummy;
+    mm->updateProjectInfo(dummy, pi);
 
     ProjectExplorer::HeaderPaths headerPaths = mm->headerPaths();
     QCOMPARE(headerPaths.size(), 2);
@@ -222,7 +223,8 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     part->files << ProjectFile(source, ProjectFile::CXXSource);
     pi.appendProjectPart(part);
 
-    mm->updateProjectInfo(pi).waitForFinished();
+    QFutureInterface<void> dummy;
+    mm->updateProjectInfo(dummy, pi).waitForFinished();
     QCoreApplication::processEvents();
 
     QVERIFY(mm->snapshot().contains(source));
@@ -321,7 +323,8 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
     part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
-    mm->updateProjectInfo(pi);
+    QFutureInterface<void> dummy;
+    mm->updateProjectInfo(dummy, pi);
 
     CPlusPlus::Snapshot snapshot;
     QSet<QString> refreshedFiles;
@@ -384,7 +387,8 @@ void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
 
     // Reindexing triggers a reparsing thread
     helper.resetRefreshedSourceFiles();
-    QFuture<void> firstFuture = mm->updateProjectInfo(pi);
+    QFutureInterface<void> dummy;
+    QFuture<void> firstFuture = mm->updateProjectInfo(dummy, pi);
     QVERIFY(firstFuture.isStarted() || firstFuture.isRunning());
     firstFuture.waitForFinished();
     const QSet<QString> refreshedFiles = helper.waitForRefreshedSourceFiles();
@@ -392,7 +396,7 @@ void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
     QVERIFY(refreshedFiles.contains(testCpp));
 
     // No reindexing since nothing has changed
-    QFuture<void> subsequentFuture = mm->updateProjectInfo(pi);
+    QFuture<void> subsequentFuture = mm->updateProjectInfo(dummy, pi);
     QVERIFY(subsequentFuture.isCanceled() && subsequentFuture.isFinished());
 }
 

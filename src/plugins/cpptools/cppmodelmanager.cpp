@@ -1029,12 +1029,6 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
     }
 }
 
-QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectInfo)
-{
-    QFutureInterface<void> dummy;
-    return updateProjectInfo(dummy, newProjectInfo);
-}
-
 QFuture<void> CppModelManager::updateProjectInfo(QFutureInterface<void> &futureInterface,
                                                  const ProjectInfo &newProjectInfo)
 {
