@@ -36,6 +36,7 @@
 #include <utils/optional.h>
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_FORWARD_DECLARE_CLASS(QComboBox)
 QT_FORWARD_DECLARE_CLASS(QVersionNumber)
 
 namespace Utils {
@@ -153,6 +154,10 @@ protected:
                                          QString varsBatArg);
     void initEnvModWatcher(const QFuture<GenerateEnvResult> &future);
 
+protected:
+    mutable QMutex *m_headerPathsMutex = nullptr;
+    mutable HeaderPaths m_headerPaths;
+
 private:
     void updateEnvironmentModifications(QList<Utils::EnvironmentItem> modifications);
 
@@ -165,8 +170,6 @@ private:
 
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
-    mutable QMutex *m_headerPathsMutex = nullptr;
-    mutable HeaderPaths m_headerPaths;
 
 protected:
     Abi m_abi;
@@ -191,6 +194,7 @@ public:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
 
     const QList<MsvcToolChain *> &msvcToolchains() const;
     QString clangPath() const { return m_clangPath; }
@@ -204,6 +208,9 @@ public:
                                         const Macros &macros) const override;
 
     bool operator==(const ToolChain &) const override;
+
+private:
+    void toolChainUpdated() override;
 
 private:
     QString m_clangPath;
@@ -266,7 +273,7 @@ protected:
 
     void setFromMsvcToolChain();
 
-private:
+protected:
     QLabel *m_nameDisplayLabel;
     QLabel *m_varsBatDisplayLabel;
 };
@@ -297,11 +304,13 @@ public:
 protected:
     void applyImpl() override;
     void discardImpl() override;
+    void makeReadOnlyImpl() override;
 
 private:
     void setFromClangClToolChain();
 
     QLabel *m_llvmDirLabel = nullptr;
+    QComboBox *m_varsBatDisplayCombo = nullptr;
     Utils::PathChooser *m_compilerCommand = nullptr;
 };
 
