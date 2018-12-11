@@ -50,8 +50,7 @@ CppProjectUpdater::~CppProjectUpdater()
 void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo)
 {
     // Stop previous update.
-    cancel();
-    m_futureInterface.waitForFinished();
+    cancelAndWaitForFinished();
     m_futureInterface = QFutureInterface<void>();
 
     m_projectUpdateInfo = projectUpdateInfo;
