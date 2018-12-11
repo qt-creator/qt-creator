@@ -2,5 +2,6 @@ TEMPLATE = subdirs
 
 SUBDIRS += check \
     importscheck \
-    dependencies
+    dependencies \
+    ecmascript7
 
