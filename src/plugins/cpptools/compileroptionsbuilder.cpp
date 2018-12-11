@@ -626,4 +626,9 @@ UseToolchainMacros CompilerOptionsBuilder::useToolChainMacros()
                                                                           : UseToolchainMacros::No;
 }
 
+void CompilerOptionsBuilder::reset()
+{
+    m_options.clear();
+}
+
 } // namespace CppTools

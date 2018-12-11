@@ -78,6 +78,7 @@ public:
     virtual void addExtraOptions() {}
 
     static UseToolchainMacros useToolChainMacros();
+    void reset();
 
 private:
     bool excludeDefineDirective(const ProjectExplorer::Macro &macro) const;
