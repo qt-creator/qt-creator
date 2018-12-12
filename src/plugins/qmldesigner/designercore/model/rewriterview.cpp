@@ -498,8 +498,13 @@ QString RewriterView::auxiliaryDataAsQML() const
 
                 const QVariant value = data.value(key.toUtf8());
                 QString strValue = value.toString();
-                if (static_cast<QMetaType::Type>(value.type()) == QMetaType::QString)
+
+                auto metaType = static_cast<QMetaType::Type>(value.type());
+
+                if (metaType == QMetaType::QString
+                        || metaType == QMetaType::QColor) {
                     strValue = "\"" + strValue + "\"";
+                }
 
                 if (!strValue.isEmpty()) {
                     str += replaceIllegalPropertyNameChars(key) + ":";
