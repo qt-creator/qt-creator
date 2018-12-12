@@ -354,6 +354,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
                 }
                 break;
             }
+            result.project()->setNeedsInitialExpansion(true);
             openedSomething = true;
         }
         if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {

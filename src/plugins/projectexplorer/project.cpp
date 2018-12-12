@@ -160,6 +160,7 @@ public:
     Core::Id m_id;
     bool m_isParsing = false;
     bool m_hasParsingData = false;
+    bool m_needsInitialExpansion = false;
     std::unique_ptr<Core::IDocument> m_document;
     std::unique_ptr<ProjectNode> m_rootProjectNode;
     std::unique_ptr<ContainerNode> m_containerNode;
@@ -304,6 +305,16 @@ void Project::setActiveTarget(Target *target)
         emit activeProjectConfigurationChanged(d->m_activeTarget);
         emit activeTargetChanged(d->m_activeTarget);
     }
+}
+
+bool Project::needsInitialExpansion() const
+{
+    return d->m_needsInitialExpansion;
+}
+
+void Project::setNeedsInitialExpansion(bool needsExpansion)
+{
+    d->m_needsInitialExpansion = needsExpansion;
 }
 
 Target *Project::target(Core::Id id) const

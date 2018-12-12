@@ -239,6 +239,10 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
         if (m_trimEmptyDirectories)
             trimEmptyDirectories(container);
     }
+
+    if (project->needsInitialExpansion())
+        m_toExpand.insert(expandDataForNode(container->m_node));
+
     if (container->childCount() == 0) {
         auto projectFileNode = std::make_unique<FileNode>(project->projectFilePath(),
                                                           FileType::Project, false);
