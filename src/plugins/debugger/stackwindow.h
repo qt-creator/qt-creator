@@ -34,17 +34,16 @@ namespace Internal {
 
 class StackTreeView : public Utils::BaseTreeView
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::StackTreeView)
-
 public:
-    StackTreeView();
+    explicit StackTreeView(QWidget *parent = nullptr);
 
 private:
     void setModel(QAbstractItemModel *model) override;
 
     void showAddressColumn(bool on);
-    void reloadFullStack();
-    void copyContentsToClipboard();
+    void adjustForContents(bool refreshSpan = false);
+
+    bool m_contentsAdjusted = false;
 };
 
 } // namespace Internal

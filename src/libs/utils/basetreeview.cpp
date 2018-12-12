@@ -55,6 +55,40 @@ public:
         m_settingsTimer.setSingleShot(true);
         connect(&m_settingsTimer, &QTimer::timeout,
                 this, &BaseTreeViewPrivate::doSaveState);
+        connect(q->header(), &QHeaderView::sectionResized, this, [this](int logicalIndex, int oldSize, int newSize) {
+            if (m_processingSpans || m_spanColumn < 0)
+                return;
+
+            QHeaderView *h = q->header();
+            QTC_ASSERT(h, return);
+
+            // Last non-hidden column.
+            int count = h->count();
+            while (count > 0 && h->isSectionHidden(count - 1))
+                --count;
+
+            if (count == 0)
+                return;
+
+            int column = logicalIndex;
+            if (oldSize < newSize)
+            {
+                // Protect against sizing past the next section.
+                while (column + 1 < count && h->sectionSize(column + 1) == h->minimumSectionSize())
+                    ++column;
+            }
+
+            if (logicalIndex >= m_spanColumn) {
+                // Resize after the span column.
+                column = column + 1;
+            } else {
+                // Resize the span column or before it.
+                column = m_spanColumn;
+            }
+
+            rebalanceColumns(column, false);
+        });
+        connect(q->header(), &QHeaderView::geometriesChanged, this, QOverload<>::of(&BaseTreeViewPrivate::rebalanceColumns));
     }
 
     bool eventFilter(QObject *, QEvent *event) override
@@ -197,6 +231,17 @@ public:
         }
     }
 
+    void setSpanColumn(int column)
+    {
+        if (column == m_spanColumn)
+            return;
+
+        m_spanColumn = column;
+        if (m_spanColumn >= 0)
+            q->header()->setStretchLastSection(false);
+        rebalanceColumns();
+    }
+
     void toggleColumnWidth(int logicalIndex)
     {
         QHeaderView *h = q->header();
@@ -211,9 +256,70 @@ public:
             int minSize = 10 * fm.width(QLatin1Char('x'));
             targetSize = qMax(minSize, headerSize);
         }
+
+        // Prevent rebalance as part of this resize.
+        m_processingSpans = true;
         h->resizeSection(logicalIndex, targetSize);
+        m_processingSpans = false;
+
+        // Now trigger a rebalance so it resizes the span column. (if set)
+        rebalanceColumns();
+
         m_userHandled.remove(logicalIndex); // Reset.
         saveState();
+    }
+
+    void rebalanceColumns()
+    {
+        rebalanceColumns(m_spanColumn, true);
+    }
+
+    void rebalanceColumns(int column, bool allowResizePrevious)
+    {
+        if (m_spanColumn < 0 || column < 0 || m_processingSpans)
+            return;
+
+        QHeaderView *h = q->header();
+        QTC_ASSERT(h, return);
+
+        int count = h->count();
+        if (column >= count)
+            return;
+
+        // Start with the target column, and resize other columns as necessary.
+        int totalSize = q->viewport()->width();
+        if (tryRebalanceColumns(column, totalSize))
+            return;
+
+        for (int i = allowResizePrevious ? 0 : column + 1; i < count; ++i) {
+            if (i != column && tryRebalanceColumns(i, totalSize))
+                return;
+        }
+    }
+
+    bool tryRebalanceColumns(int column, int totalSize)
+    {
+        QHeaderView *h = q->header();
+
+        int count = h->count();
+        int otherColumnTotal = 0;
+        for (int i = 0; i < count; ++i) {
+            if (i != column)
+                otherColumnTotal += h->sectionSize(i);
+        }
+
+        if (otherColumnTotal < totalSize) {
+            m_processingSpans = true;
+            h->resizeSection(column, totalSize - otherColumnTotal);
+            m_processingSpans = false;
+        } else
+            return false;
+
+        // Make sure this didn't go over the total size.
+        int totalColumnSize = 0;
+        for (int i = 0; i < count; ++i)
+            totalColumnSize += h->sectionSize(i);
+        return totalColumnSize == totalSize;
     }
 
 public:
@@ -224,6 +330,8 @@ public:
     QString m_settingsKey;
     bool m_expectUserChanges = false;
     ProgressIndicator *m_progressIndicator = nullptr;
+    int m_spanColumn = -1;
+    bool m_processingSpans = false;
 };
 
 class BaseTreeViewDelegate : public QItemDelegate
@@ -369,6 +477,12 @@ void BaseTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
         TreeView::mouseDoubleClickEvent(ev);
 }
 
+void BaseTreeView::resizeEvent(QResizeEvent *ev)
+{
+    TreeView::resizeEvent(ev);
+    d->rebalanceColumns();
+}
+
 void BaseTreeView::showEvent(QShowEvent *ev)
 {
     emit aboutToShow();
@@ -414,6 +528,21 @@ void BaseTreeView::rowClicked(const QModelIndex &index)
 void BaseTreeView::resizeColumns()
 {
     d->resizeColumns();
+}
+
+int BaseTreeView::spanColumn() const
+{
+    return d->m_spanColumn;
+}
+
+void BaseTreeView::setSpanColumn(int column)
+{
+    d->setSpanColumn(column);
+}
+
+void BaseTreeView::refreshSpanColumn()
+{
+    d->rebalanceColumns();
 }
 
 void BaseTreeView::setSettings(QSettings *settings, const QByteArray &key)

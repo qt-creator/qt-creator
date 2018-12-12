@@ -642,7 +642,7 @@ void DebuggerEnginePrivate::setupViews()
     m_registerWindow->setObjectName(DOCKWIDGET_REGISTER);
     m_registerWindow->setWindowTitle(tr("Reg&isters"));
 
-    m_stackView = new BaseTreeView;
+    m_stackView = new StackTreeView;
     m_stackView->setModel(m_stackHandler.model());
     m_stackView->setSettings(settings, "Debugger.StackView");
     m_stackView->setIconSize(QSize(10, 10));
@@ -666,6 +666,7 @@ void DebuggerEnginePrivate::setupViews()
     m_threadsView->setSortingEnabled(true);
     m_threadsView->setSettings(settings, "Debugger.ThreadsView");
     m_threadsView->setIconSize(QSize(10, 10));
+    m_threadsView->setSpanColumn(ThreadData::FunctionColumn);
     m_threadsWindow = addSearch(m_threadsView);
     m_threadsWindow->setObjectName(DOCKWIDGET_THREADS);
     m_threadsWindow->setWindowTitle(tr("&Threads"));
@@ -711,6 +712,7 @@ void DebuggerEnginePrivate::setupViews()
     m_breakView->setIconSize(QSize(10, 10));
     m_breakView->setWindowIcon(Icons::BREAKPOINTS.icon());
     m_breakView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_breakView->setSpanColumn(BreakpointFunctionColumn);
     connect(action(UseAddressInBreakpointsView), &QAction::toggled,
             this, [this](bool on) { m_breakView->setColumnHidden(BreakpointAddressColumn, !on); });
     m_breakView->setSettings(settings, "Debugger.BreakWindow");

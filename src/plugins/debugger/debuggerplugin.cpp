@@ -1038,6 +1038,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_breakpointManagerView->setSettings(settings, "Debugger.BreakWindow");
     m_breakpointManagerView->setRootIsDecorated(true);
     m_breakpointManagerView->setModel(BreakpointManager::model());
+    m_breakpointManagerView->setSpanColumn(BreakpointFunctionColumn);
     m_breakpointManagerWindow = addSearch(m_breakpointManagerView);
     m_breakpointManagerWindow->setWindowTitle(tr("Breakpoint Preset"));
     m_breakpointManagerWindow->setObjectName(DOCKWIDGET_BREAKPOINTMANAGER);
