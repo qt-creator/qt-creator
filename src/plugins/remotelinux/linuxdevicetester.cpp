@@ -31,6 +31,7 @@
 #include <ssh/sftptransfer.h>
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
+#include <ssh/sshconnectionmanager.h>
 
 using namespace ProjectExplorer;
 using namespace QSsh;
@@ -65,6 +66,8 @@ GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester()
 {
+    if (d->connection)
+        releaseConnection(d->connection);
     delete d;
 }
 
@@ -73,7 +76,8 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::ConstPtr &deviceConfigu
     QTC_ASSERT(d->state == Inactive, return);
 
     d->deviceConfiguration = deviceConfiguration;
-    d->connection = new SshConnection(deviceConfiguration->sshParameters(), this);
+    forceNewConnection(deviceConfiguration->sshParameters());
+    d->connection = acquireConnection(deviceConfiguration->sshParameters());
     connect(d->connection, &SshConnection::connected,
             this, &GenericLinuxDeviceTester::handleConnected);
     connect(d->connection, &SshConnection::errorOccurred,
@@ -208,7 +212,7 @@ void GenericLinuxDeviceTester::setFinished(TestResult result)
     }
     if (d->connection) {
         disconnect(d->connection, nullptr, this, nullptr);
-        d->connection->deleteLater();
+        releaseConnection(d->connection);
         d->connection = nullptr;
     }
     emit finished(result);
