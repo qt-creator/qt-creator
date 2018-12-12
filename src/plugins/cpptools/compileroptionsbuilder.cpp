@@ -242,40 +242,43 @@ static QString clangIncludeDirectory(const QString &clangVersion,
 #endif
 }
 
-static int lastIncludeIndex(const QStringList &options, const QRegularExpression &includePathRegEx)
-{
-    int index = options.lastIndexOf(includePathRegEx);
-
-    while (index > 0 && options[index - 1] != includeUserPathOption
-           && options[index - 1] != includeSystemPathOption) {
-        index = options.lastIndexOf(includePathRegEx, index - 1);
-    }
-
-    if (index == 0)
-        index = -1;
-
-    return index;
-}
-
-static int includeIndexForResourceDirectory(const QStringList &options, bool isMacOs = false)
+static QStringList insertResourceDirectory(const QStringList &options,
+                                           const QString &resourceDir,
+                                           bool isMacOs = false)
 {
     // include/c++, include/g++, libc++\include and libc++abi\include
     static const QString cppIncludes = R"((.*[\/\\]include[\/\\].*(g\+\+|c\+\+).*))"
                                        R"(|(.*libc\+\+[\/\\]include))"
                                        R"(|(.*libc\+\+abi[\/\\]include))";
-    static const QRegularExpression includeRegExp("\\A(" + cppIncludes + ")\\z");
 
-    // The same as includeRegExp but also matches /usr/local/include
-    static const QRegularExpression includeRegExpMac(
-        "\\A(" + cppIncludes + R"(|([\/\\]usr[\/\\]local[\/\\]include))" + ")\\z");
+    QStringList optionsBeforeResourceDirectory;
+    QStringList optionsAfterResourceDirectory;
+    QRegularExpression includeRegExp;
+    if (!isMacOs) {
+        includeRegExp = QRegularExpression("\\A(" + cppIncludes + ")\\z");
+    } else {
+        // The same as includeRegExp but also matches /usr/local/include
+        includeRegExp = QRegularExpression(
+            "\\A(" + cppIncludes + R"(|([\/\\]usr[\/\\]local[\/\\]include))" + ")\\z");
+    }
 
-    const int cppIncludeIndex = lastIncludeIndex(options,
-                                                 isMacOs ? includeRegExpMac : includeRegExp);
+    for (const QString &option : options) {
+        if (option == includeSystemPathOption)
+            continue;
 
-    if (cppIncludeIndex > 0)
-        return cppIncludeIndex + 1;
+        if (includeRegExp.match(option).hasMatch()) {
+            optionsBeforeResourceDirectory.push_back(includeSystemPathOption);
+            optionsBeforeResourceDirectory.push_back(option);
+        } else {
+            optionsAfterResourceDirectory.push_back(includeSystemPathOption);
+            optionsAfterResourceDirectory.push_back(option);
+        }
+    }
 
-    return -1;
+    optionsBeforeResourceDirectory.push_back(includeSystemPathOption);
+    optionsBeforeResourceDirectory.push_back(resourceDir);
+
+    return optionsBeforeResourceDirectory + optionsAfterResourceDirectory;
 }
 
 void CompilerOptionsBuilder::insertWrappedQtHeaders()
@@ -354,20 +357,13 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         // Exclude all built-in includes and Clang resource directory.
         m_options.prepend("-nostdinc");
 
-        const QString clangIncludePath = clangIncludeDirectory(m_clangVersion,
-                                                               m_clangResourceDirectory);
-        const int includeIndexForResourceDir
-            = includeIndexForResourceDirectory(builtInIncludes,
-                                               m_projectPart.toolChainTargetTriple.contains(
-                                                   "darwin"));
+        const QString clangIncludePath
+                = clangIncludeDirectory(m_clangVersion, m_clangResourceDirectory);
 
-        if (includeIndexForResourceDir >= 0) {
-            builtInIncludes.insert(includeIndexForResourceDir, clangIncludePath);
-            builtInIncludes.insert(includeIndexForResourceDir, includeSystemPathOption);
-        } else {
-            builtInIncludes.prepend(clangIncludePath);
-            builtInIncludes.prepend(includeSystemPathOption);
-        }
+        builtInIncludes = insertResourceDirectory(builtInIncludes,
+                                                  clangIncludePath,
+                                                  m_projectPart.toolChainTargetTriple.contains(
+                                                      "darwin"));
     }
 
     m_options.append(builtInIncludes);

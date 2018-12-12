@@ -242,7 +242,7 @@ TextEditor::TabSettings CppCodeStyleSettings::currentProjectTabSettings()
     TextEditor::ICodeStylePreferences *codeStylePreferences
         = editorConfiguration->codeStyle(CppTools::Constants::CPP_SETTINGS_ID);
     QTC_ASSERT(codeStylePreferences, return currentGlobalTabSettings());
-    return codeStylePreferences->tabSettings();
+    return codeStylePreferences->currentTabSettings();
 }
 
 TextEditor::TabSettings CppCodeStyleSettings::currentGlobalTabSettings()
@@ -251,7 +251,7 @@ TextEditor::TabSettings CppCodeStyleSettings::currentGlobalTabSettings()
             = CppTools::CppToolsSettings::instance()->cppCodeStyle();
     QTC_ASSERT(cppCodeStylePreferences, return TextEditor::TabSettings());
 
-    return cppCodeStylePreferences->tabSettings();
+    return cppCodeStylePreferences->currentTabSettings();
 }
 
 

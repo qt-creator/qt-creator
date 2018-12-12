@@ -26,6 +26,7 @@
 #include "debuggermainwindow.h"
 #include "debuggerconstants.h"
 #include "debuggerinternalconstants.h"
+#include "enginemanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -696,7 +697,7 @@ void Perspective::addWindow(QWidget *widget,
 
 void Perspective::select()
 {
-    ModeManager::activateMode(Debugger::Constants::MODE_DEBUG);
+    Debugger::Internal::EngineManager::activateDebugMode();
     if (Perspective::currentPerspective() == this)
         return;
     theMainWindow->d->selectPerspective(this);

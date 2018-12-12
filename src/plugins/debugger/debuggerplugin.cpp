@@ -706,7 +706,6 @@ public:
     void runScheduled();
     void attachCore();
 
-    void runControlFinished(DebuggerRunTool *runTool);
     void remoteCommand(const QStringList &options);
 
     void dumpLog();

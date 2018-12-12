@@ -49,6 +49,7 @@ public:
     static void unregisterEngine(DebuggerEngine *engine);
     static void activateEngine(DebuggerEngine *engine);
     static void activateDebugMode();
+    static void deactivateDebugMode();
     static bool isLastOf(const QString &type);
 
     static QList<QPointer<DebuggerEngine> > engines();

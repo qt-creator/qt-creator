@@ -28666,7 +28666,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Empty qmake Project</source>
-        <translation>Пустрой проект qmake</translation>
+        <translation>Пустой проект qmake</translation>
     </message>
     <message>
         <source>Define Project Details</source>

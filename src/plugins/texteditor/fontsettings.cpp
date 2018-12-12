@@ -406,12 +406,9 @@ bool FontSettings::loadColorScheme(const QString &fileName,
         if (!m_scheme.contains(id)) {
             Format format;
             const Format &descFormat = desc.format();
-            if (descFormat == format && m_scheme.contains(C_TEXT)) {
-                // Default format -> Text
-                const Format textFormat = m_scheme.formatFor(C_TEXT);
-                format.setForeground(textFormat.foreground());
-                format.setBackground(textFormat.background());
-            } else {
+            // Default fallback for background and foreground is C_TEXT, which is set through
+            // the editor's palette, i.e. we leave these as invalid colors in that case
+            if (descFormat != format || !m_scheme.contains(C_TEXT)) {
                 format.setForeground(descFormat.foreground());
                 format.setBackground(descFormat.background());
             }

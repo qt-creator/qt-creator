@@ -77,8 +77,9 @@ def main():
                                                 proposalToolTips)
                         correction = testData.field(record, "correction")
                         if correction == 'all':
-                            test.compare(len(needCorrection), len(proposalToolTips),
-                                         "Verifying whether all proposal need correction.")
+                            __verifyLineUnderCursor__(cppwindow, record)
+                            test.compare(len(needCorrection), 0,
+                                         "Verifying whether operator has been already corrected.")
                         elif correction == 'mixed':
                             test.verify(len(proposalToolTips) > len(needCorrection) > 0,
                                         "Verifying whether some of the proposals need correction.")

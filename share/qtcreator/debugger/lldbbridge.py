@@ -2275,3 +2275,10 @@ def __lldb_init_module(debugger, internal_dict):
     if not __name__ == 'qt':
         # Make available under global 'qt' name for consistency
         internal_dict['qt'] = internal_dict[__name__]
+
+
+if __name__ == "lldbbridge":
+    try:
+        theDumper = Dumper()
+    except Exception as error:
+        print('@\nstate="enginesetupfailed",error="{}"@\n'.format(error))

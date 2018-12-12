@@ -427,7 +427,7 @@ void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaul
         syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);
 
     QStringList exclusionFilters = settings->value("exclusionFilters").toStringList();
-    if (exclusionFilters.isEmpty())
+    if (!exclusionFilters.contains(defaultExclusionFilter))
         exclusionFilters << defaultExclusionFilter;
     const QVariant currentExclusionFilter = settings->value("currentExclusionFilter");
     d->m_exclusionSetting = currentExclusionFilter.isValid() ? currentExclusionFilter.toString()
