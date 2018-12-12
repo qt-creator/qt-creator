@@ -7,6 +7,7 @@ QtcPlugin {
     Depends { name: "Utils"}
 
     Depends { name: "Core" }
+    Depends { name: "DiffEditor" }
     Depends { name: "TextEditor" }
     Depends { name: "VcsBase" }
 
