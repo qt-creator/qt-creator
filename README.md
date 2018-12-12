@@ -10,6 +10,17 @@ The standalone binary packages support the following platforms:
 * (K)Ubuntu Linux 16.04 (64-bit) or later
 * macOS 10.11 or later
 
+## Contributing
+
+For instructions on how to set up the Qt Creator repository to contribute
+patches back to Qt Creator, please check:
+
+https://wiki.qt.io/Setting_up_Gerrit
+
+See the following page for information about our coding standard:
+
+https://doc-snapshots.qt.io/qtcreator-extending/coding-style.html
+
 ## Compiling Qt Creator
 
 Prerequisites:
