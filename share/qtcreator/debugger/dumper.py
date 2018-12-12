@@ -3379,6 +3379,19 @@ class DumperBase:
     def type(self, typeId):
         return self.typeData.get(typeId)
 
+    def splitArrayType(self, type_name):
+        #  "foo[2][3][4]" ->  ("foo", "[3][4]", 2)
+        pos1 = len(type_name)
+        # In case there are more dimensions we need the inner one.
+        while True:
+            pos1 = type_name.rfind('[', 0, pos1 - 1)
+            pos2 = type_name.find(']', pos1)
+            if type_name[pos1 - 1] != ']':
+                break
+
+        item_count = type_name[pos1+1:pos2]
+        return (type_name[0:pos1].strip(), type_name[pos2+1:].strip(), int(item_count))
+
     def registerType(self, typeId, tdata):
         #warn('REGISTER TYPE: %s' % typeId)
         self.typeData[typeId] = tdata
@@ -3585,16 +3598,6 @@ class DumperBase:
         def pointer(self):
             return self.dumper.createPointerType(self)
 
-        def splitArrayType(self):
-            # -> (inner type, count)
-            if not self.code == TypeCodeArray:
-                error('Not an array')
-            s = self.name
-            pos1 = s.rfind('[')
-            pos2 = s.find(']', pos1)
-            itemCount = s[pos1+1:pos2]
-            return (self.dumper.createType(s[0:pos1].strip()), int(s[pos1+1:pos2]))
-
         def target(self):
             return self.typeData().ltarget
 
@@ -3613,9 +3616,6 @@ class DumperBase:
         def bitsize(self):
             if self.lbitsize is not None:
                 return self.lbitsize
-            if self.code == TypeCodeArray:
-                (innerType, itemCount) = self.splitArrayType()
-                return itemCount * innerType.bitsize()
             error('DONT KNOW SIZE: %s' % self)
 
         def isMovableType(self):
@@ -3748,14 +3748,23 @@ class DumperBase:
             error('Expected type in createArrayType(), got %s'
                 % type(targetType))
         targetTypeId = targetType.typeId
-        typeId = '%s[%d]' % (targetTypeId, count)
+
+        if targetTypeId.endswith(']'):
+            (prefix, suffix, inner_count) = self.splitArrayType(targetTypeId)
+            type_id = '%s[%d][%d]%s' % (prefix, count, inner_count, suffix)
+            type_name = type_id
+        else:
+            type_id = '%s[%d]' % (targetTypeId, count)
+            type_name = '%s[%d]' % (targetType.name, count)
+
         tdata = self.TypeData(self)
-        tdata.name = '%s[%d]' % (targetType.name, count)
-        tdata.typeId = typeId
+        tdata.name = type_name
+        tdata.typeId = type_id
         tdata.code = TypeCodeArray
         tdata.ltarget = targetType
-        self.registerType(typeId, tdata)
-        return self.Type(self, typeId)
+        tdata.lbitsize = targetType.lbitsize * count
+        self.registerType(type_id, tdata)
+        return self.Type(self, type_id)
 
     def createBitfieldType(self, targetType, bitsize):
         if not isinstance(targetType, self.Type):
@@ -3796,13 +3805,6 @@ class DumperBase:
             #typish.check()
             return typish
         if isinstance(typish, str):
-            if typish.endswith(']') and not typish.endswith('[]'):
-                # Array fallback.
-                pos1 = typish.rfind('[')
-                itemType = self.createType(typish[0:pos1].strip())
-                itemCount = int(typish[pos1+1:-1])
-                return self.createArrayType(itemType, itemCount)
-
             def knownSize(tn):
                 if tn[0] == 'Q':
                     if tn in ('QByteArray', 'QString', 'QList', 'QStringList',
