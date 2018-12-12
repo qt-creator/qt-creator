@@ -179,7 +179,8 @@ def __getExpectedCompilers__():
         expected.extend(__getWinCompilers__())
     compilers = ["g++", "gcc"]
     if platform.system() in ('Linux', 'Darwin'):
-        compilers.extend(["clang++", "clang"])
+        compilers.extend(["clang++", "clang", "afl-clang"])
+        compilers.extend(findAllFilesInPATH("clang-[0-9].[0-9]"))
         compilers.extend(findAllFilesInPATH("*g++*"))
         compilers.extend(findAllFilesInPATH("*gcc*"))
     if platform.system() == 'Darwin':
