@@ -169,7 +169,8 @@ SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject 
             if (!QFileInfo::exists(d->socketFilePath()))
                 return;
             d->socketWatcher->disconnect();
-            d->socketWatcher->removeDirectory(QFileInfo(d->socketFilePath()).path());
+            d->socketWatcher->deleteLater();
+            d->socketWatcher = nullptr;
             d->socketWatcherTimer.disconnect();
             d->socketWatcherTimer.stop();
             emitConnected();
