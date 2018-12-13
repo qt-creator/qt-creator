@@ -48,6 +48,8 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QSettings>
@@ -230,7 +232,79 @@ static Utils::optional<VisualStudioInstallation> detectCppBuildTools2017()
     return installation;
 }
 
-static QVector<VisualStudioInstallation> detectVisualStudio()
+static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QString &vswhere)
+{
+    QVector<VisualStudioInstallation> installations;
+    Utils::SynchronousProcess vsWhereProcess;
+    const int timeoutS = 5;
+    vsWhereProcess.setTimeoutS(timeoutS);
+    const QStringList arguments { "-products", "*", "-prerelease", "-legacy", "-format", "json",
+                                  "-utf8"};
+    Utils::SynchronousProcessResponse response = vsWhereProcess.run(vswhere, arguments);
+    switch (response.result) {
+    case Utils::SynchronousProcessResponse::Finished:
+        break;
+    case Utils::SynchronousProcessResponse::StartFailed:
+        qWarning().noquote() << QDir::toNativeSeparators(vswhere) << "could not be started.";
+        return installations;
+    case Utils::SynchronousProcessResponse::FinishedError:
+        qWarning().noquote().nospace() << QDir::toNativeSeparators(vswhere) << " finished with exit "
+                                          "code " << response.exitCode << ".";
+        return installations;
+    case Utils::SynchronousProcessResponse::TerminatedAbnormally:
+        qWarning().noquote().nospace() << QDir::toNativeSeparators(vswhere) << " crashed. Exit code: "
+                                       << response.exitCode;
+        return installations;
+    case Utils::SynchronousProcessResponse::Hang:
+        qWarning().noquote() << QDir::toNativeSeparators(vswhere) << "did not finish in" << timeoutS
+                             << "seconds.";
+        return installations;
+    }
+
+    QByteArray output = response.stdOut().toUtf8();
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(output, &error);
+    if (error.error != QJsonParseError::NoError || doc.isNull()) {
+        qWarning() << "Could not parse json document from vswhere output.";
+        return installations;
+    }
+
+    const QJsonArray versions = doc.array();
+    if (versions.isEmpty()) {
+        qWarning() << "Could not detect any versions from vswhere output.";
+        return installations;
+    }
+
+    for (const QJsonValue vsVersion : versions) {
+        const QJsonObject vsVersionObj = vsVersion.toObject();
+        if (vsVersionObj.isEmpty()) {
+            qWarning() << "Could not obtain object from vswhere version";
+            continue;
+        }
+
+        QJsonValue value = vsVersionObj.value("installationVersion");
+        if (value.isUndefined()) {
+            qWarning() << "Could not obtain VS version from json output";
+            continue;
+        }
+        const QString versionString = value.toString();
+        QVersionNumber version = QVersionNumber::fromString(versionString);
+        value = vsVersionObj.value("installationPath");
+        if (value.isUndefined()) {
+            qWarning() << "Could not obtain VS installation path from json output";
+            continue;
+        }
+        const QString installationPath = value.toString();
+        Utils::optional<VisualStudioInstallation> installation
+                = installationFromPathAndVersion(installationPath, version);
+
+        if (installation)
+            installations.append(*installation);
+    }
+    return installations;
+}
+
+static QVector<VisualStudioInstallation> detectVisualStudioFromRegistry()
 {
     QVector<VisualStudioInstallation> result;
 #ifdef Q_OS_WIN64
@@ -258,6 +332,20 @@ static QVector<VisualStudioInstallation> detectVisualStudio()
         result.append(*installation);
 
     return result;
+}
+
+static QVector<VisualStudioInstallation> detectVisualStudio()
+{
+    const QString vswhere = windowsProgramFilesDir()
+                                + "/Microsoft Visual Studio/Installer/vswhere.exe";
+    if (QFileInfo::exists(vswhere)) {
+        const QVector<VisualStudioInstallation> installations
+                = detectVisualStudioFromVsWhere(vswhere);
+        if (!installations.isEmpty())
+            return installations;
+    }
+
+    return detectVisualStudioFromRegistry();
 }
 
 static Abi findAbiOfMsvc(MsvcToolChain::Type type, MsvcToolChain::Platform platform, const QString &version)
