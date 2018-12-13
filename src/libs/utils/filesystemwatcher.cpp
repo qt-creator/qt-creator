@@ -206,7 +206,7 @@ FileSystemWatcher::~FileSystemWatcher()
     if (!d->m_directories.isEmpty())
         removeDirectories(directories());
 
-    if (--(d->m_staticData->m_objectCount) == 0) {
+    if (!fileSystemWatcherStaticDataMap.isDestroyed() && --(d->m_staticData->m_objectCount) == 0) {
         delete d->m_staticData->m_watcher;
         d->m_staticData->m_watcher = nullptr;
         d->m_staticData->m_fileCount.clear();
