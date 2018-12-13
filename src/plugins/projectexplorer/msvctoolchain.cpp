@@ -179,6 +179,36 @@ static QString windowsProgramFilesDir()
     return QDir::fromNativeSeparators(QFile::decodeName(qgetenv(programFilesC)));
 }
 
+static Utils::optional<VisualStudioInstallation> installationFromPathAndVersion(
+        const QString &installationPath,
+        const QVersionNumber &version)
+{
+    QString vcVarsPath = QDir::fromNativeSeparators(installationPath);
+    if (!vcVarsPath.endsWith('/'))
+        vcVarsPath += '/';
+    if (version.majorVersion() > 14)
+        vcVarsPath += QStringLiteral("VC/Auxiliary/Build");
+    else
+        vcVarsPath += QStringLiteral("VC");
+
+    const QString vcVarsAllPath = vcVarsPath + QStringLiteral("/vcvarsall.bat");
+    if (!QFileInfo(vcVarsAllPath).isFile()) {
+        qWarning().noquote() << "Unable to find MSVC setup script "
+            << QDir::toNativeSeparators(vcVarsPath) << " in version "
+            << version;
+        return Utils::nullopt;
+    }
+
+    const QString versionString = version.toString();
+    VisualStudioInstallation installation;
+    installation.path = installationPath;
+    installation.version = version;
+    installation.vsName = versionString;
+    installation.vcVarsPath = vcVarsPath;
+    installation.vcVarsAll = vcVarsAllPath;
+    return std::move(installation);
+}
+
 // Detect build tools introduced with MSVC2017
 static Utils::optional<VisualStudioInstallation> detectCppBuildTools2017()
 {
@@ -210,34 +240,15 @@ static QVector<VisualStudioInstallation> detectVisualStudio()
 #endif
     QSettings vsRegistry(keyRoot + QStringLiteral("VS7"), QSettings::NativeFormat);
     QScopedPointer<QSettings> vcRegistry;
-    const QString vcvarsall = QStringLiteral("/vcvarsall.bat");
     foreach (const QString &vsName, vsRegistry.allKeys()) {
         const QVersionNumber version = QVersionNumber::fromString(vsName);
         if (!version.isNull()) {
-            VisualStudioInstallation installation;
-            installation.vsName = vsName;
-            installation.version = version;
-            if (version.majorVersion() > 14) {
-                // Starting with 15 (MSVC2017): There are no more VC entries,
-                // build path from VS installation
-                installation.path = fixRegistryPath(vsRegistry.value(vsName).toString());
-                installation.vcVarsPath = installation.path + QStringLiteral("/VC/Auxiliary/Build");
-                installation.vcVarsAll =  installation.vcVarsPath + vcvarsall;
-            } else {
-                // Up to 14 (MSVC2015): Look up via matching VC entry
-                if (vcRegistry.isNull())
-                    vcRegistry.reset(new QSettings(keyRoot + QStringLiteral("VC7"), QSettings::NativeFormat));
-                installation.path = fixRegistryPath(vcRegistry->value(vsName).toString());
-                installation.vcVarsPath = installation.path;
-                installation.vcVarsAll = installation.vcVarsPath + vcvarsall;
-            }
-            if (QFileInfo(installation.vcVarsAll).isFile()) {
-                result.append(installation);
-            } else {
-                qWarning().noquote() << "Unable to find MSVC setup script "
-                    << QDir::toNativeSeparators(installation.vcVarsPath) << " in version "
-                    << version;
-            }
+            const QString installationPath = fixRegistryPath(vsRegistry.value(vsName).toString());
+
+            Utils::optional<VisualStudioInstallation> installation
+                    = installationFromPathAndVersion(installationPath, version);
+            if (installation)
+                result.append(*installation);
         }
     }
 
