@@ -105,9 +105,11 @@ static bool isArrayType(const std::string &typeName)
 static ULONG extractArraySize(const std::string &typeName, size_t openArrayPos = 0)
 {
     if (openArrayPos == 0)
-        openArrayPos = typeName.find_last_of('[');
-    const auto closeArrayPos = typeName.find_last_of(']');
-    if (openArrayPos == std::string::npos || closeArrayPos == std::string::npos)
+        openArrayPos = typeName.find_first_of('[');
+    if (openArrayPos == std::string::npos)
+        return 0;
+    const auto closeArrayPos = typeName.find_first_of(']', openArrayPos);
+    if (closeArrayPos == std::string::npos)
         return 0;
     const std::string arraySizeString = typeName.substr(openArrayPos + 1,
                                                         closeArrayPos - openArrayPos - 1);
