@@ -329,8 +329,15 @@ std::string PyType::targetName() const
     const std::string &typeName = name();
     if (isPointerType(typeName))
         return stripPointerType(typeName);
-    if (isArrayType(typeName))
-        return typeName.substr(0, typeName.find_last_of('['));
+    if (isArrayType(typeName)) {
+        const auto openArrayPos = typeName.find_first_of('[');
+        if (openArrayPos == std::string::npos)
+            return typeName;
+        const auto closeArrayPos = typeName.find_first_of(']', openArrayPos);
+        if (closeArrayPos == std::string::npos)
+            return typeName;
+        return typeName.substr(0, openArrayPos) + typeName.substr(closeArrayPos + 1);
+    }
     return typeName;
 }
 
