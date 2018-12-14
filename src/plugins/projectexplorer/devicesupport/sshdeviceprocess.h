@@ -60,7 +60,7 @@ private:
     void handleConnectionError();
     void handleDisconnected();
     void handleProcessStarted();
-    void handleProcessFinished();
+    void handleProcessFinished(const QString &error);
     void handleStdout();
     void handleStderr();
     void handleKillOperationFinished(const QString &errorMessage);

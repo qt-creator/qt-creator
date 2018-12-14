@@ -139,7 +139,7 @@ QProcess::ProcessState SshDeviceProcess::state() const
 
 QProcess::ExitStatus SshDeviceProcess::exitStatus() const
 {
-    return d->exitStatus == QSsh::SshRemoteProcess::NormalExit
+    return d->exitStatus == QSsh::SshRemoteProcess::NormalExit && d->exitCode != 255
             ? QProcess::NormalExit : QProcess::CrashExit;
 }
 
@@ -223,9 +223,9 @@ void SshDeviceProcess::handleProcessStarted()
     emit started();
 }
 
-void SshDeviceProcess::handleProcessFinished()
+void SshDeviceProcess::handleProcessFinished(const QString &error)
 {
-    d->errorMessage = d->process->errorString();
+    d->errorMessage = error;
     d->exitCode = d->process->exitCode();
     d->setState(SshDeviceProcessPrivate::Inactive);
     emit finished();
