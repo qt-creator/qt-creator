@@ -258,16 +258,11 @@ FolderNode *addChildFolderNode(FolderNode *parent, const QString &childName)
 
 FolderNode *addOrGetChildFolderNode(FolderNode *parent, const QString &childName)
 {
-    Node *childNode = parent->findNode([childName](const Node *node) {
-        if (!node->asFolderNode())
-            return false;
-        QString nodeDirName = node->filePath().fileName();
-        if (nodeDirName.isEmpty())
-            nodeDirName = node->filePath().toString();
-        return nodeDirName == childName;
-    });
-    if (childNode)
-        return childNode->asFolderNode();
+    for (FolderNode *folder : parent->folderNodes()) {
+        if (folder->filePath().fileName() == childName) {
+            return folder;
+        }
+    }
 
     return addChildFolderNode(parent, childName);
 }
