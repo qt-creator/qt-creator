@@ -1530,7 +1530,7 @@ void MiniProjectTargetSelector::updateActionAndSummary()
         lines << tr("<b>Run:</b> %1").arg(runConfig);
     if (!targetToolTipText.isEmpty())
         lines << tr("%1").arg(targetToolTipText);
-    QString toolTip = tr("<html><nobr>%1</html>")
+    QString toolTip = QString("<html><nobr>%1</html>")
             .arg(lines.join(QLatin1String("<br/>")));
     m_projectAction->setToolTip(toolTip);
     updateSummary();
