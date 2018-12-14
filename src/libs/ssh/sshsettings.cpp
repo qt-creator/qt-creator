@@ -62,12 +62,12 @@ private:
     QSettings * const m_settings;
 };
 
-static QString connectionSharingKey() { return "UseConnectionSharing"; }
-static QString connectionSharingTimeoutKey() { return "ConnectionSharingTimeout"; }
-static QString sshFilePathKey() { return "SshFilePath"; }
-static QString sftpFilePathKey() { return "SftpFilePath"; }
-static QString askPassFilePathKey() { return "AskpassFilePath"; }
-static QString keygenFilePathKey() { return "KeygenFilePath"; }
+static QString connectionSharingKey() { return QString("UseConnectionSharing"); }
+static QString connectionSharingTimeoutKey() { return QString("ConnectionSharingTimeout"); }
+static QString sshFilePathKey() { return QString("SshFilePath"); }
+static QString sftpFilePathKey() { return QString("SftpFilePath"); }
+static QString askPassFilePathKey() { return QString("AskpassFilePath"); }
+static QString keygenFilePathKey() { return QString("KeygenFilePath"); }
 
 void SshSettings::loadSettings(QSettings *settings)
 {
