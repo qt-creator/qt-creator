@@ -206,6 +206,9 @@ public:
     QString qmlsceneCommand() const;
     void setQmlsceneCommand(const QString &path);
 
+    void setExtraData(Core::Id kind, const QVariant &data);
+    QVariant extraData(Core::Id kind) const;
+
 protected:
     IDevice();
     IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id = Core::Id());
@@ -226,7 +229,7 @@ class PROJECTEXPLORER_EXPORT DeviceTester : public QObject
 public:
     enum TestResult { TestSuccess, TestFailure };
 
-    virtual void testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration) = 0;
+    virtual void testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration) = 0;
     virtual void stopTest() = 0;
 
 signals:

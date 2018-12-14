@@ -40,7 +40,7 @@ class QnxDeviceTester : public ProjectExplorer::DeviceTester
 public:
     explicit QnxDeviceTester(QObject *parent = nullptr);
 
-    void testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration) override;
+    void testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration) override;
     void stopTest() override;
 
 private slots:

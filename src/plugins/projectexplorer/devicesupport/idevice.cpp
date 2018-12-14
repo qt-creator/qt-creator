@@ -112,6 +112,7 @@ const char IdKey[] = "InternalId";
 const char OriginKey[] = "Origin";
 const char MachineTypeKey[] = "Type";
 const char VersionKey[] = "Version";
+const char ExtraDataKey[] = "ExtraData";
 
 // Connection
 const char HostKey[] = "Host";
@@ -152,6 +153,7 @@ public:
     QString qmlsceneCommand;
 
     QList<Utils::Icon> deviceIcons;
+    QVariantHash extraData;
 };
 } // namespace Internal
 
@@ -347,6 +349,7 @@ void IDevice::fromMap(const QVariantMap &map)
 
     d->debugServerPath = map.value(QLatin1String(DebugServerKey)).toString();
     d->qmlsceneCommand = map.value(QLatin1String(QmlsceneKey)).toString();
+    d->extraData = map.value(ExtraDataKey).toHash();
 }
 
 /*!
@@ -377,6 +380,7 @@ QVariantMap IDevice::toMap() const
 
     map.insert(QLatin1String(DebugServerKey), d->debugServerPath);
     map.insert(QLatin1String(QmlsceneKey), d->qmlsceneCommand);
+    map.insert(ExtraDataKey, d->extraData);
 
     return map;
 }
@@ -444,6 +448,16 @@ QString IDevice::qmlsceneCommand() const
 void IDevice::setQmlsceneCommand(const QString &path)
 {
     d->qmlsceneCommand = path;
+}
+
+void IDevice::setExtraData(Core::Id kind, const QVariant &data)
+{
+    d->extraData.insert(kind.toString(), data);
+}
+
+QVariant IDevice::extraData(Core::Id kind) const
+{
+    return d->extraData.value(kind.toString());
 }
 
 int IDevice::version() const

@@ -39,6 +39,7 @@
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxcustomcommanddeploymentstep.h"
 #include "remotelinuxkillappstep.h"
+#include "rsyncdeploystep.h"
 #include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
 
@@ -73,6 +74,7 @@ public:
     GenericDeployStepFactory<TarPackageCreationStep> tarPackageCreationStepFactory;
     GenericDeployStepFactory<UploadAndInstallTarPackageStep> uploadAndInstallTarPackageStepFactory;
     GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
+    GenericDeployStepFactory<RsyncDeployStep> rsyncDeployStepFactory;
     GenericDeployStepFactory<RemoteLinuxCustomCommandDeploymentStep>
         customCommandDeploymentStepFactory;
     GenericDeployStepFactory<RemoteLinuxCheckForFreeDiskSpaceStep>

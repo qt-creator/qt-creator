@@ -256,7 +256,7 @@ void DeviceSettingsWidget::testDevice()
 {
     const IDevice::ConstPtr &device = currentDevice();
     QTC_ASSERT(device && device->hasDeviceTester(), return);
-    DeviceTestDialog dlg(device, this);
+    DeviceTestDialog dlg(m_deviceManager->mutableDevice(device->id()), this);
     dlg.exec();
 }
 

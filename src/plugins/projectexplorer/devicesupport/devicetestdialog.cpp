@@ -48,7 +48,7 @@ public:
     bool finished;
 };
 
-DeviceTestDialog::DeviceTestDialog(const IDevice::ConstPtr &deviceConfiguration,
+DeviceTestDialog::DeviceTestDialog(const IDevice::Ptr &deviceConfiguration,
                                    QWidget *parent)
     : QDialog(parent)
     , d(std::make_unique<DeviceTestDialogPrivate>(deviceConfiguration->createDeviceTester()))

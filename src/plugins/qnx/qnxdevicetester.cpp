@@ -66,7 +66,7 @@ QnxDeviceTester::QnxDeviceTester(QObject *parent)
                      << QLatin1String("uname");
 }
 
-void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration)
+void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration)
 {
     QTC_ASSERT(m_state == Inactive, return);
 

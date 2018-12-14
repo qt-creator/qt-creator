@@ -111,7 +111,7 @@ struct SshConnection::SshConnectionPrivate
         return masterSocketDir->path() + "/control_socket";
     }
 
-    QStringList connectionArgs() const
+    QStringList connectionOptions() const
     {
         QString hostKeyCheckingString;
         switch (connParams.hostKeyCheckingMode) {
@@ -137,7 +137,12 @@ struct SshConnection::SshConnectionPrivate
             args << "-o" << ("ControlPath=" + socketFilePath());
         if (connParams.timeout != 0)
             args << "-o" << ("ConnectTimeout=" + QString::number(connParams.timeout));
-        return args << connParams.host();
+        return args;
+    }
+
+    QStringList connectionArgs() const
+    {
+        return connectionOptions() << connParams.host();
     }
 
     SshConnectionParameters connParams;
@@ -287,6 +292,11 @@ SshConnectionInfo SshConnection::connectionInfo() const
     d->connInfo.peerPort = d->connParams.port();
     d->connInfo.peerAddress.setAddress(d->connParams.host());
     return d->connInfo;
+}
+
+QStringList SshConnection::connectionOptions() const
+{
+    return d->connectionOptions();
 }
 
 bool SshConnection::sharingEnabled() const

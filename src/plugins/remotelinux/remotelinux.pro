@@ -40,6 +40,7 @@ HEADERS += \
     remotelinuxkillappservice.h \
     remotelinuxkillappstep.h \
     remotelinuxqmltoolingsupport.h \
+    rsyncdeploystep.h \
     linuxdeviceprocess.h \
     remotelinuxcustomrunconfiguration.h \
     remotelinuxsignaloperation.h \
@@ -82,6 +83,7 @@ SOURCES += \
     remotelinuxkillappservice.cpp \
     remotelinuxkillappstep.cpp \
     remotelinuxqmltoolingsupport.cpp \
+    rsyncdeploystep.cpp \
     linuxdeviceprocess.cpp \
     remotelinuxcustomrunconfiguration.cpp \
     remotelinuxsignaloperation.cpp \

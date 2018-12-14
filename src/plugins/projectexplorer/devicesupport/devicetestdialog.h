@@ -39,7 +39,7 @@ class DeviceTestDialog : public QDialog
     Q_OBJECT
 
 public:
-    DeviceTestDialog(const IDevice::ConstPtr &deviceConfiguration, QWidget *parent = nullptr);
+    DeviceTestDialog(const IDevice::Ptr &deviceConfiguration, QWidget *parent = nullptr);
     ~DeviceTestDialog() override;
 
     void reject() override;

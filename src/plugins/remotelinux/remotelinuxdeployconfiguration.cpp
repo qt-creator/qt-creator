@@ -26,12 +26,15 @@
 #include "remotelinuxdeployconfiguration.h"
 
 #include "genericdirectuploadstep.h"
+#include "linuxdevice.h"
 #include "remotelinuxcheckforfreediskspacestep.h"
 #include "remotelinuxkillappstep.h"
 #include "remotelinux_constants.h"
+#include "rsyncdeploystep.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/deploymentdataview.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
@@ -51,7 +54,12 @@ void RemoteLinuxDeployConfiguration::initialize()
 {
     stepList()->appendStep(new RemoteLinuxCheckForFreeDiskSpaceStep(stepList()));
     stepList()->appendStep(new RemoteLinuxKillAppStep(stepList()));
-    stepList()->appendStep(new GenericDirectUploadStep(stepList()));
+    const LinuxDevice::ConstPtr device = DeviceKitInformation::device(target()->kit())
+            .staticCast<const LinuxDevice>();
+    if (device && device->supportsRSync())
+        stepList()->appendStep(new RsyncDeployStep(stepList()));
+    else
+        stepList()->appendStep(new GenericDirectUploadStep(stepList()));
 }
 
 NamedWidget *RemoteLinuxDeployConfiguration::createConfigWidget()

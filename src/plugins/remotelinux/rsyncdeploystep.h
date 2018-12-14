@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,36 +25,41 @@
 
 #pragma once
 
+#include "abstractremotelinuxdeploystep.h"
 #include "remotelinux_export.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
+namespace QSsh { class SshConnection; }
 
 namespace RemoteLinux {
 
-namespace Internal { class GenericLinuxDeviceTesterPrivate; }
+class RsyncCommandLine
+{
+public:
+    RsyncCommandLine(const QStringList &o, const QString &h) : options(o), remoteHostSpec(h) {}
+    const QStringList options;
+    const QString remoteHostSpec;
+};
 
-class REMOTELINUX_EXPORT GenericLinuxDeviceTester : public ProjectExplorer::DeviceTester
+class REMOTELINUX_EXPORT RsyncDeployStep : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 
 public:
-    explicit GenericLinuxDeviceTester(QObject *parent = nullptr);
-    ~GenericLinuxDeviceTester() override;
+    explicit RsyncDeployStep(ProjectExplorer::BuildStepList *bsl);
+    ~RsyncDeployStep() override;
 
-    void testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration) override;
-    void stopTest() override;
+    static Core::Id stepId();
+    static QString displayName();
+
+    static RsyncCommandLine rsyncCommand(const QSsh::SshConnection &sshConnection);
 
 private:
-    void handleConnected();
-    void handleConnectionFailure();
-    void handleProcessFinished(const QString &error);
-    void handlePortsGatheringError(const QString &message);
-    void handlePortListReady();
-    void handleSftpFinished(const QString &error);
-    void handleRsyncFinished();
-    void setFinished(ProjectExplorer::DeviceTester::TestResult result);
+    AbstractRemoteLinuxDeployService *deployService() const override;
 
-    Internal::GenericLinuxDeviceTesterPrivate * const d;
+    bool initInternal(QString *error = nullptr) override;
+
+    class RsyncDeployStepPrivate;
+    RsyncDeployStepPrivate * const d;
 };
 
 } // namespace RemoteLinux

@@ -107,6 +107,7 @@ public:
     QString errorString() const;
     SshConnectionParameters connectionParameters() const;
     SshConnectionInfo connectionInfo() const;
+    QStringList connectionOptions() const;
     bool sharingEnabled() const;
     ~SshConnection();
 
