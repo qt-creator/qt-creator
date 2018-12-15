@@ -114,8 +114,9 @@ void NimProject::collectProjectFiles()
     QTC_ASSERT(!m_futureWatcher.future().isRunning(), return);
     FileName prjDir = projectDirectory();
     QFuture<QList<ProjectExplorer::FileNode *>> future = Utils::runAsync([prjDir] {
-        return FileNode::scanForFiles(
-                    prjDir, [](const FileName &fn) { return new FileNode(fn, FileType::Source, false); });
+        return FileNode::scanForFiles(prjDir, [](const FileName &fn) {
+            return new FileNode(fn, FileType::Source, false);
+        });
     });
     m_futureWatcher.setFuture(future);
     Core::ProgressManager::addTask(future, tr("Scanning for Nim files"), "Nim.Project.Scan");
@@ -124,33 +125,33 @@ void NimProject::collectProjectFiles()
 void NimProject::updateProject()
 {
     emitParsingStarted();
-    const QStringList oldFiles = m_files;
-    m_files.clear();
 
-    std::vector<std::unique_ptr<FileNode>> fileNodes
-            = transform<std::vector>(m_futureWatcher.future().result(),
-                                     [](FileNode *fn) { return std::unique_ptr<FileNode>(fn); });
-    std::remove_if(std::begin(fileNodes), std::end(fileNodes),
-                   [this](const std::unique_ptr<FileNode> &fn) {
-        const FileName path = fn->filePath();
+    auto fileNodes = Utils::transform<std::vector>(m_futureWatcher.future().result(), [](FileNode *node) {
+        return std::unique_ptr<FileNode>(node);
+    });
+
+    Utils::erase(fileNodes, [this](const std::unique_ptr<FileNode> &fn) {
+        const FileName &path = fn->filePath();
         const QString fileName = path.fileName();
         return m_excludedFiles.contains(path.toString())
                 || fileName.endsWith(".nimproject", HostOsInfo::fileNameCaseSensitivity())
                 || fileName.contains(".nimproject.user", HostOsInfo::fileNameCaseSensitivity());
     });
 
-    m_files = transform<QList>(fileNodes, [](const std::unique_ptr<FileNode> &fn) {
+    QStringList files = Utils::transform<QList>(fileNodes, [](const std::unique_ptr<FileNode> &fn) {
         return fn->filePath().toString();
     });
-    Utils::sort(m_files);
 
-    if (oldFiles == m_files)
-        return;
+    Utils::sort(files);
 
-    auto newRoot = std::make_unique<NimProjectNode>(*this, projectDirectory());
-    newRoot->setDisplayName(displayName());
-    newRoot->addNestedNodes(std::move(fileNodes));
-    setRootProjectNode(std::move(newRoot));
+    if (files != m_files) {
+        m_files = std::move(files);
+        auto newRoot = std::make_unique<NimProjectNode>(*this, projectDirectory());
+        newRoot->setDisplayName(displayName());
+        newRoot->addNestedNodes(std::move(fileNodes));
+        setRootProjectNode(std::move(newRoot));
+    }
+
     emitParsingFinished(true);
 }
 
