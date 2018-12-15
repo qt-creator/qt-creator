@@ -174,7 +174,6 @@ bool NimToolChain::fromMap(const QVariantMap &data)
 bool NimToolChain::parseVersion(const FileName &path, std::tuple<int, int, int> &result)
 {
     QProcess process;
-    process.setReadChannel(QProcess::StandardError);
     process.start(path.toString(), {"--version"});
     if (!process.waitForFinished())
         return false;
