@@ -44,6 +44,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/fileutils.h>
+#include <utils/globalfilechangeblocker.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
@@ -229,7 +230,13 @@ DocumentManager::DocumentManager(QObject *parent)
 {
     d = new DocumentManagerPrivate;
     m_instance = this;
-    qApp->installEventFilter(this);
+
+    connect(Utils::GlobalFileChangeBlocker::instance(), &Utils::GlobalFileChangeBlocker::stateChanged,
+            this, [this](bool blocked) {
+        d->m_postponeAutoReload = blocked;
+        if (!blocked)
+            QTimer::singleShot(500, m_instance, &DocumentManager::checkForReload);
+    });
 
     readSettings();
 
@@ -595,13 +602,6 @@ void DocumentManager::unexpectFileChange(const QString &fileName)
     const QString resolvedCleanAbsFilePath = cleanAbsoluteFilePath(fileName, ResolveLinks);
     if (cleanAbsFilePath != resolvedCleanAbsFilePath)
         updateExpectedState(filePathKey(fileName, ResolveLinks));
-}
-
-void DocumentManager::setAutoReloadPostponed(bool postponed)
-{
-    d->m_postponeAutoReload = postponed;
-    if (!postponed)
-        QTimer::singleShot(500, m_instance, &DocumentManager::checkForReload);
 }
 
 static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
@@ -1468,14 +1468,6 @@ void DocumentManager::setFileDialogLastVisitedDirectory(const QString &directory
 void DocumentManager::notifyFilesChangedInternally(const QStringList &files)
 {
     emit m_instance->filesChangedInternally(files);
-}
-
-bool DocumentManager::eventFilter(QObject *obj, QEvent *e)
-{
-    if (obj == qApp && e->type() == QEvent::ApplicationStateChange) {
-        QTimer::singleShot(0, this, &DocumentManager::checkForReload);
-    }
-    return false;
 }
 
 // -------------- FileChangeBlocker

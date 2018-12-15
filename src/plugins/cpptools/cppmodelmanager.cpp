@@ -1318,11 +1318,6 @@ void CppModelManager::renameIncludes(const QString &oldFileName, const QString &
     }
 }
 
-void CppModelManager::setBackendJobsPostponed(bool postponed)
-{
-    d->m_activeModelManagerSupport->setBackendJobsPostponed(postponed);
-}
-
 void CppModelManager::onCoreAboutToClose()
 {
     Core::ProgressManager::cancelTasks(CppTools::Constants::TASK_INDEX);

@@ -230,8 +230,6 @@ public:
 
     void renameIncludes(const QString &oldFileName, const QString &newFileName);
 
-    void setBackendJobsPostponed(bool postponed);
-
 signals:
     /// Project data might be locked while this is emitted.
     void aboutToRemoveFiles(const QStringList &files);

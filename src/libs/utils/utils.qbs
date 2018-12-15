@@ -122,6 +122,8 @@ Project {
             "functiontraits.h",
             "fuzzymatcher.cpp",
             "fuzzymatcher.h",
+            "globalfilechangeblocker.cpp",
+            "globalfilechangeblocker.h",
             "guard.cpp",
             "guard.h",
             "highlightingitemdelegate.cpp",

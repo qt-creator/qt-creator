@@ -136,7 +136,7 @@ private:
     QTimer m_backendStartTimeOut;
     QScopedPointer<ClangBackEnd::ClangCodeModelServerInterface> m_sender;
     int m_connectedCount = 0;
-    int m_postponeBackendJobs = 1; // Initial application state is inactive, so no jobs should be run.
+    bool m_postponeBackendJobs = false;
 };
 
 } // namespace Internal

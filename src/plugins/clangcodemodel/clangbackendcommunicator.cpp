@@ -48,6 +48,7 @@
 #include <clangsupport/filecontainer.h>
 #include <clangsupport/clangcodemodelservermessages.h>
 
+#include <utils/globalfilechangeblocker.h>
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
@@ -104,6 +105,10 @@ BackendCommunicator::BackendCommunicator()
             this, &BackendCommunicator::onEditorAboutToClose);
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
             this, &BackendCommunicator::setupDummySender);
+    auto globalFCB = ::Utils::GlobalFileChangeBlocker::instance();
+    m_postponeBackendJobs = globalFCB->isBlocked();
+    connect(globalFCB, &::Utils::GlobalFileChangeBlocker::stateChanged,
+            this, &BackendCommunicator::setBackendJobsPostponed);
 
     initializeBackend();
 }
@@ -210,14 +215,11 @@ bool BackendCommunicator::isNotWaitingForCompletion() const
 void BackendCommunicator::setBackendJobsPostponed(bool postponed)
 {
     if (postponed) {
-        if (!m_postponeBackendJobs)
-            documentVisibilityChanged(Utf8String(), {});
-        ++m_postponeBackendJobs;
+        documentVisibilityChanged(Utf8String(), {});
+        m_postponeBackendJobs = postponed;
     } else {
-        if (QTC_GUARD(m_postponeBackendJobs > 0))
-            --m_postponeBackendJobs;
-        if (!m_postponeBackendJobs)
-            documentVisibilityChanged();
+        m_postponeBackendJobs = postponed;
+        documentVisibilityChanged();
     }
 }
 

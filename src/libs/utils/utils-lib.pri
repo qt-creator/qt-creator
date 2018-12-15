@@ -22,6 +22,7 @@ win32: LIBS += -luser32 -lshell32
 win32: LIBS += -liphlpapi -lws2_32
 
 SOURCES += \
+    $$PWD/globalfilechangeblocker.cpp \
     $$PWD/benchmarker.cpp \
     $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
@@ -128,6 +129,7 @@ win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
 
 HEADERS += \
+    $$PWD/globalfilechangeblocker.h \
     $$PWD/benchmarker.h \
     $$PWD/environment.h \
     $$PWD/environmentmodel.h \

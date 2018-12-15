@@ -76,8 +76,6 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     QTC_CHECK(!m_instance);
     m_instance = this;
 
-    QApplication::instance()->installEventFilter(this);
-
     CppTools::CppModelManager::instance()->setCurrentDocumentFilter(
                 std::make_unique<ClangCurrentDocumentFilter>());
 
@@ -139,11 +137,6 @@ CppTools::RefactoringEngineInterface &ClangModelManagerSupport::refactoringEngin
 std::unique_ptr<CppTools::AbstractOverviewModel> ClangModelManagerSupport::createOverviewModel()
 {
     return std::make_unique<OverviewModel>();
-}
-
-void ClangModelManagerSupport::setBackendJobsPostponed(bool postponed)
-{
-    m_communicator.setBackendJobsPostponed(postponed);
 }
 
 CppTools::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(
@@ -217,20 +210,6 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
         connect(widget, &TextEditor::TextEditorWidget::markContextMenuRequested,
                 this, &ClangModelManagerSupport::onTextMarkContextMenuRequested);
     }
-}
-
-bool ClangModelManagerSupport::eventFilter(QObject *obj, QEvent *e)
-{
-    if (obj == QApplication::instance() && e->type() == QEvent::ApplicationStateChange) {
-        switch (QApplication::applicationState()) {
-        case Qt::ApplicationInactive: setBackendJobsPostponed(true); break;
-        case Qt::ApplicationActive: setBackendJobsPostponed(false); break;
-        default:
-            QTC_CHECK(false && "Unexpected Qt::ApplicationState");
-        }
-    }
-
-    return false;
 }
 
 void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
