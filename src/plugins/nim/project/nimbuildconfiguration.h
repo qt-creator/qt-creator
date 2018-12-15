@@ -73,8 +73,9 @@ private:
                                                         const QString &projectPath) const override;
 
     ProjectExplorer::BuildInfo *createBuildInfo(const ProjectExplorer::Kit *k,
-                                                const QString &projectPath,
                                                 ProjectExplorer::BuildConfiguration::BuildType buildType) const;
+
+    QString displayName(ProjectExplorer::BuildConfiguration::BuildType buildType) const;
 };
 
 }

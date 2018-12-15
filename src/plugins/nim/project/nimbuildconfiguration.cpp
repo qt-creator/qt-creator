@@ -183,37 +183,45 @@ NimBuildConfigurationFactory::NimBuildConfigurationFactory()
 
 QList<BuildInfo *> NimBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
-    // Retrieve the project path
-    auto project = qobject_cast<NimProject *>(parent->project());
-    QTC_ASSERT(project, return {});
-
-    // Create the build info
-    BuildInfo *info = createBuildInfo(parent->kit(), project->projectFilePath().toString(),
-                                      BuildConfiguration::Debug);
-
-    info->displayName.clear(); // ask for a name
-    info->buildDirectory.clear(); // This depends on the displayName
-
-    return {info};
+    QList<BuildInfo *> result;
+    for (auto buildType : {BuildConfiguration::Debug, BuildConfiguration::Release})
+        result.push_back(createBuildInfo(parent->kit(), buildType));
+    return result;
 }
 
 QList<BuildInfo *> NimBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
-    BuildInfo *debug = createBuildInfo(k, projectPath, BuildConfiguration::Debug);
-    BuildInfo *release = createBuildInfo(k, projectPath, BuildConfiguration::Release);
-    return {debug, release};
+    QList<BuildInfo *> result;
+    for (auto buildType : {BuildConfiguration::Debug, BuildConfiguration::Release}) {
+        BuildInfo *info = createBuildInfo(k, buildType);
+        info->displayName = info->typeName;
+        info->buildDirectory = defaultBuildDirectory(k, projectPath, info->typeName, buildType);
+        result.push_back(info);
+    }
+    return result;
 }
 
-BuildInfo *NimBuildConfigurationFactory::createBuildInfo(const Kit *k, const QString &projectFilePath,
-                                                         BuildConfiguration::BuildType buildType) const
+BuildInfo *NimBuildConfigurationFactory::createBuildInfo(const Kit *k, BuildConfiguration::BuildType buildType) const
 {
-    auto result = new BuildInfo(this);
-    result->buildType = buildType;
-    result->displayName = BuildConfiguration::buildTypeName(buildType);
-    result->buildDirectory = defaultBuildDirectory(k, projectFilePath, result->displayName, buildType);
-    result->kitId = k->id();
-    result->typeName = tr("Build");
-    return result;
+    auto info = new BuildInfo(this);
+    info->buildType = buildType;
+    info->kitId = k->id();
+    info->typeName = displayName(buildType);
+    return info;
+}
+
+QString NimBuildConfigurationFactory::displayName(BuildConfiguration::BuildType buildType) const
+{
+    switch (buildType) {
+    case ProjectExplorer::BuildConfiguration::Debug:
+        return tr("Debug");
+    case ProjectExplorer::BuildConfiguration::Profile:
+        return tr("Profile");
+    case ProjectExplorer::BuildConfiguration::Release:
+        return tr("Release");
+    default:
+        return QString();
+    }
 }
 
 } // namespace Nim
