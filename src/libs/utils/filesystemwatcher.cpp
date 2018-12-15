@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "filesystemwatcher.h"
+#include "globalfilechangeblocker.h"
 
 #include <QDebug>
 #include <QDir>
@@ -137,15 +138,30 @@ using WatchEntryMapIterator = WatchEntryMap::iterator;
 class FileSystemWatcherPrivate
 {
 public:
-    explicit FileSystemWatcherPrivate(int id) : m_id(id), m_staticData(nullptr) {}
+    explicit FileSystemWatcherPrivate(FileSystemWatcher *q, int id) : m_id(id), q(q)
+    {
+        QObject::connect(Utils::GlobalFileChangeBlocker::instance(),
+                         &Utils::GlobalFileChangeBlocker::stateChanged,
+                         [this](bool blocked) { autoReloadPostponed(blocked); });
+    }
 
     WatchEntryMap m_files;
     WatchEntryMap m_directories;
 
+    QSet<QString> m_postponedFiles;
+    QSet<QString> m_postponedDirectories;
+
     bool checkLimit() const;
+    void fileChanged(const QString &path);
+    void directoryChanged(const QString &path);
 
     const int m_id;
-    FileSystemWatcherStaticData *m_staticData;
+    FileSystemWatcherStaticData *m_staticData = nullptr;
+
+private:
+    void autoReloadPostponed(bool postponed);
+    bool m_postponed = false;
+    FileSystemWatcher *q;
 };
 
 bool FileSystemWatcherPrivate::checkLimit() const
@@ -158,12 +174,43 @@ bool FileSystemWatcherPrivate::checkLimit() const
            (m_staticData->maxFileOpen / 2);
 }
 
+void FileSystemWatcherPrivate::fileChanged(const QString &path)
+{
+    if (m_postponed)
+        m_postponedFiles.insert(path);
+    else
+        emit q->fileChanged(path);
+}
+
+void FileSystemWatcherPrivate::directoryChanged(const QString &path)
+{
+    if (m_postponed)
+        m_postponedDirectories.insert(path);
+    else
+        emit q->directoryChanged(path);
+}
+
+void FileSystemWatcherPrivate::autoReloadPostponed(bool postponed)
+{
+    if (m_postponed == postponed)
+        return;
+    m_postponed = postponed;
+    if (!postponed) {
+        for (const QString &file : qAsConst(m_postponedFiles))
+            emit q->fileChanged(file);
+        m_postponedFiles.clear();
+        for (const QString &directory : qAsConst(m_postponedDirectories))
+            emit q->directoryChanged(directory);
+        m_postponedDirectories.clear();
+    }
+}
+
 /*!
     Adds directories to watcher 0.
 */
 
 FileSystemWatcher::FileSystemWatcher(QObject *parent) :
-    QObject(parent), d(new FileSystemWatcherPrivate(0))
+    QObject(parent), d(new FileSystemWatcherPrivate(this, 0))
 {
     init();
 }
@@ -173,7 +220,7 @@ FileSystemWatcher::FileSystemWatcher(QObject *parent) :
 */
 
 FileSystemWatcher::FileSystemWatcher(int id, QObject *parent) :
-    QObject(parent), d(new FileSystemWatcherPrivate(id))
+    QObject(parent), d(new FileSystemWatcherPrivate(this, id))
 {
     init();
 }
@@ -391,7 +438,7 @@ void FileSystemWatcher::slotFileChanged(const QString &path)
             qDebug() << this << "triggers on file " << path
                      << it.value().watchMode
                      << it.value().modifiedTime.toString(Qt::ISODate);
-        emit fileChanged(path);
+        d->fileChanged(path);
     }
 }
 
@@ -403,7 +450,7 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
             qDebug() << this << "triggers on dir " << path
                      << it.value().watchMode
                      << it.value().modifiedTime.toString(Qt::ISODate);
-        emit directoryChanged(path);
+        d->directoryChanged(path);
     }
 
     QStringList toReadd;
@@ -420,7 +467,7 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
 
         // If we've successfully added the file, that means it was deleted and replaced.
         for (const QString &reAdded : toReadd)
-            emit fileChanged(reAdded);
+            d->fileChanged(reAdded);
     }
 }
 
