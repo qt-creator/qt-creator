@@ -775,12 +775,12 @@ RefactorMarkers CppEditorWidget::refactorMarkersWithoutClangMarkers() const
 
 RefactoringEngineInterface &CppEditorWidget::refactoringEngine() const
 {
-    return *CppTools::CppModelManager::instance();
+    return *d->m_modelManager;
 }
 
 CppTools::FollowSymbolInterface &CppEditorWidget::followSymbolInterface() const
 {
-    return CppTools::CppModelManager::instance()->followSymbolInterface();
+    return d->m_modelManager->followSymbolInterface();
 }
 
 bool CppEditorWidget::isSemanticInfoValidExceptLocalUses() const
@@ -1092,7 +1092,7 @@ void CppEditorWidget::updateFunctionDeclDefLinkNow()
     if (!isSemanticInfoValidExceptLocalUses())
         return;
 
-    Snapshot snapshot = CppModelManager::instance()->snapshot();
+    Snapshot snapshot = d->m_modelManager->snapshot();
     snapshot.insert(semanticDoc);
 
     d->m_declDefLinkFinder->startFindLinkAt(textCursor(), semanticDoc, snapshot);
