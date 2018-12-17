@@ -1173,6 +1173,7 @@ void QmakeProject::collectLibraryData(const QmakeProFile *file, DeploymentData &
     const QStringList config = file->variableValue(Variable::Config);
     const bool isStatic = config.contains(QLatin1String("static"));
     const bool isPlugin = config.contains(QLatin1String("plugin"));
+    const bool nameIsVersioned = !isPlugin && !config.contains("unversioned_libname");
     switch (toolchain->targetAbi().os()) {
     case Abi::WindowsOS: {
         QString targetVersionExt = file->singleVariableValue(Variable::TargetVersionExt);
@@ -1197,7 +1198,7 @@ void QmakeProject::collectLibraryData(const QmakeProFile *file, DeploymentData &
             if (!(isPlugin && config.contains(QLatin1String("no_plugin_name_prefix"))))
                 targetFileName.prepend(QLatin1String("lib"));
 
-            if (!isPlugin) {
+            if (nameIsVersioned) {
                 targetFileName += QLatin1Char('.');
                 const QString version = file->singleVariableValue(Variable::Version);
                 QString majorVersion = version.left(version.indexOf(QLatin1Char('.')));
@@ -1225,7 +1226,7 @@ void QmakeProject::collectLibraryData(const QmakeProFile *file, DeploymentData &
         } else {
             targetFileName += QLatin1String("so");
             deploymentData.addFile(destDirFor(ti).toString() + '/' + targetFileName, targetPath);
-            if (!isPlugin) {
+            if (nameIsVersioned) {
                 QString version = file->singleVariableValue(Variable::Version);
                 if (version.isEmpty())
                     version = QLatin1String("1.0.0");

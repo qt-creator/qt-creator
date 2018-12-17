@@ -738,7 +738,7 @@ void DebuggerEnginePrivate::setupViews()
     connect(&m_continueAction, &QAction::triggered,
             m_engine, &DebuggerEngine::handleExecContinue);
 
-    m_exitAction.setIcon(Icons::DEBUG_EXIT_SMALL.icon());
+    m_exitAction.setIcon(Icons::DEBUG_EXIT_SMALL_TOOLBAR.icon());
     connect(&m_exitAction, &QAction::triggered,
             m_engine, &DebuggerEngine::requestRunControlStop);
 

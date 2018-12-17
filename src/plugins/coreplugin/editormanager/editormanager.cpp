@@ -3040,9 +3040,16 @@ void EditorManager::hideEditorStatusBar(const QString &id)
 QTextCodec *EditorManager::defaultTextCodec()
 {
     QSettings *settings = ICore::settings();
-    if (QTextCodec *candidate = QTextCodec::codecForName(
-            settings->value(Constants::SETTINGS_DEFAULTTEXTENCODING).toByteArray()))
+    const QByteArray codecName =
+            settings->value(Constants::SETTINGS_DEFAULTTEXTENCODING).toByteArray();
+    if (QTextCodec *candidate = QTextCodec::codecForName(codecName))
         return candidate;
+    // Qt5 doesn't return a valid codec when looking up the "System" codec, but will return
+    // such a codec when asking for the codec for locale and no matching codec is available.
+    // So check whether such a codec was saved to the settings.
+    QTextCodec *localeCodec = QTextCodec::codecForLocale();
+    if (codecName == localeCodec->name())
+        return localeCodec;
     if (QTextCodec *defaultUTF8 = QTextCodec::codecForName("UTF-8"))
         return defaultUTF8;
     return QTextCodec::codecForLocale();

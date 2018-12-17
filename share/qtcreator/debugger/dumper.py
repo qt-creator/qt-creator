@@ -2931,8 +2931,8 @@ class DumperBase:
                     % (self.name, self.type.name, self.lbitsize, self.lbitpos,
                        self.dumper.hexencode(self.ldata), addr)
 
-        def displayEnum(self, form='%d'):
-            intval = self.integer()
+        def displayEnum(self, form='%d', bitsize=None):
+            intval = self.integer(bitsize)
             dd = self.type.typeData().enumDisplay
             if dd is None:
                 return str(intval)
@@ -2957,7 +2957,7 @@ class DumperBase:
                 return self.detypedef().pointer()
             return self.extractInteger(self.dumper.ptrSize() * 8, True)
 
-        def integer(self):
+        def integer(self, bitsize=None):
             if self.type.code == TypeCodeTypedef:
                 return self.detypedef().integer()
             elif self.type.code == TypeCodeBitfield:
@@ -2966,7 +2966,8 @@ class DumperBase:
             unsigned = self.type.name == 'unsigned' \
                     or self.type.name.startswith('unsigned ') \
                     or self.type.name.find(' unsigned ') != -1
-            bitsize = self.type.bitsize()
+            if bitsize is None:
+                bitsize = self.type.bitsize()
             return self.extractInteger(bitsize, unsigned)
 
         def floatingPoint(self):

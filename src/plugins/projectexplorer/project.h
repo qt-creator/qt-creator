@@ -191,6 +191,9 @@ public:
         }, recv, this);
     }
 
+    bool needsInitialExpansion() const;
+    void setNeedsInitialExpansion(bool needsInitialExpansion);
+
 signals:
     void displayNameChanged();
     void fileListChanged();

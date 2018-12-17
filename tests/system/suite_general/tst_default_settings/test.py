@@ -29,9 +29,10 @@ currentSelectedTreeItem = None
 warningOrError = re.compile('<p><b>((Error|Warning).*?)</p>')
 
 def main():
+    global appContext
     emptySettings = tempDir()
     __createMinimumIni__(emptySettings)
-    startQC(['-settingspath', '"%s"' % emptySettings], False)
+    appContext = startQC(['-settingspath', '"%s"' % emptySettings], False)
     if not startedWithoutPluginError():
         return
     invokeMenuItem("Tools", "Options...")
@@ -172,6 +173,37 @@ def __kitFunc__(it, foundQt, foundCompNames):
             details = details.replace("<b>", "").replace("</b>", "")
             test.warning("Detected error and/or warning: %s" % details)
 
+def __extendExpectedCompilersWithInternalClang__(expected):
+    global appContext
+    # QC ships a clang itself
+    regex = '^(.*(qtcreator(.exe)?|Qt Creator))( .*)?$' # QC with optional arguments
+    qcPath = re.match(regex, appContext.commandLine)
+    if qcPath is None:
+        test.warning("Regular expression failed.")
+    else:
+        qcPath = qcPath.group(1)
+        if platform.system() == 'Darwin':
+            internalClang = os.path.join(qcPath, '..', '..', 'Resources')
+        elif platform.system() in ('Windows', 'Microsoft'):
+            internalClang = os.path.join(qcPath, '..')
+        else:
+            internalClang = os.path.join(qcPath, '..', '..', 'libexec', 'qtcreator')
+        internalClang = os.path.join(internalClang, 'clang', 'bin', 'clang')
+        if platform.system() in ('Microsoft', 'Windows'):
+            internalClang += '-cl.exe'
+        internalClang = os.path.abspath(internalClang)
+        if os.path.exists(internalClang):
+            if platform.system() in ('Microsoft', 'Windows'):
+                # just add a fuzzy comparable name - everything else is not worth the effort here
+                expected.append({'^Default LLVM \d{2} bit based on MSVC\d{4}$':''})
+            else:
+                expected.append(internalClang)
+        else:
+            test.fail("QC package seems to be faulty - missing internal provided clang.\nIf this "
+                      "is not a package, but a self-compiled QC, just copy the clang executable "
+                      "located inside the LLVM_INSTALL_DIR/bin (used while building) to the "
+                      "expected path.", "Expected '%s'" % internalClang)
+
 def __getExpectedCompilers__():
     # TODO: enhance this to distinguish between C and C++ compilers
     expected = []
@@ -179,7 +211,8 @@ def __getExpectedCompilers__():
         expected.extend(__getWinCompilers__())
     compilers = ["g++", "gcc"]
     if platform.system() in ('Linux', 'Darwin'):
-        compilers.extend(["clang++", "clang"])
+        compilers.extend(["clang++", "clang", "afl-clang"])
+        compilers.extend(findAllFilesInPATH("clang-[0-9].[0-9]"))
         compilers.extend(findAllFilesInPATH("*g++*"))
         compilers.extend(findAllFilesInPATH("*gcc*"))
     if platform.system() == 'Darwin':
@@ -187,6 +220,9 @@ def __getExpectedCompilers__():
             xcodeClang = getOutputFromCmdline(["xcrun", "--find", compilerExe]).strip("\n")
             if xcodeClang and os.path.exists(xcodeClang) and xcodeClang not in expected:
                 expected.append(xcodeClang)
+
+    __extendExpectedCompilersWithInternalClang__(expected)
+
     for compiler in compilers:
         compilerPath = which(compiler)
         if compilerPath:
@@ -275,6 +311,13 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
                 if isinstance(currentExp, (str, unicode)):
                     continue
                 key = currentExp.keys()[0]
+                # special case for (fuzzy) regex comparison on Windows (internal LLVM)
+                if isWin and key.startswith('^') and key.endswith('$'):
+                    if re.match(key, currentFound.keys()[0], flags):
+                        test.verify(os.path.exists(currentFound.values()[0].rsplit(" ", 1)[0]),
+                                    "Verifying whether shipped clang got set up.")
+                        foundExp = True
+                        break
                 # the regex .*? is used for the different possible version strings of the WinSDK
                 # if it's present a regex will be validated otherwise simple string comparison
                 if (((".*?" in key and re.match(key, currentFound.keys()[0], flags))

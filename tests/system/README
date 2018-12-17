@@ -63,8 +63,9 @@ Fifth - you'll have to make sure that some needed tools are available (no matter
 Normally it should be okay to just install them as usual and add their executables' path(s) to the PATH variable.
 
 Sixth - Qt Creator must be built on a Qt without Qt WebEngine or Qt WebKit. Its ClangCodeModel
-plugin should be built. How to do so, see QTCREATOR_REPO/README.md. Without the plugin, the tests
-for ClangCodeModel will be skipped but will not cause failures.
+plugin should be linked to LLVM/Clang 7.0.0 or later. How to do so, see QTCREATOR_REPO/README.md.
+With a lower version, the tests for the ClangCodeModel might fail. Without the plugin, the tests for
+the ClangCodeModel will be skipped but will not cause failures.
 
 On macOS make sure you are using the correct keyboard layout to avoid problems when using keyboard interaction. Tested and known to be
 working would be 'U.S. International - PC', while pure 'U.S.' had problems.
