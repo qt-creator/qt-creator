@@ -149,9 +149,7 @@ struct SshConnection::SshConnectionPrivate
     SshConnectionInfo connInfo;
     SshProcess masterProcess;
     QString errorString;
-    QTimer socketWatcherTimer;
     std::unique_ptr<TemporaryDirectory> masterSocketDir;
-    FileSystemWatcher *socketWatcher = nullptr;
     State state = Unconnected;
     const bool sharingEnabled = SshSettings::connectionSharingEnabled();
 };
@@ -163,30 +161,31 @@ SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject 
     qRegisterMetaType<QSsh::SftpFileInfo>("QSsh::SftpFileInfo");
     qRegisterMetaType<QList <QSsh::SftpFileInfo> >("QList<QSsh::SftpFileInfo>");
     d->connParams = serverInfo;
-    d->socketWatcher = new FileSystemWatcher(this);
     connect(&d->masterProcess, &QProcess::started, [this] {
         QFileInfo socketInfo(d->socketFilePath());
         if (socketInfo.exists()) {
             emitConnected();
             return;
         }
-        const auto socketFileChecker = [this] {
+        auto * const socketWatcher = new FileSystemWatcher(this);
+        auto * const socketWatcherTimer = new QTimer(this);
+        const auto socketFileChecker = [this, socketWatcher, socketWatcherTimer] {
             if (!QFileInfo::exists(d->socketFilePath()))
                 return;
-            d->socketWatcher->disconnect();
-            d->socketWatcher->deleteLater();
-            d->socketWatcher = nullptr;
-            d->socketWatcherTimer.disconnect();
-            d->socketWatcherTimer.stop();
+            socketWatcher->disconnect();
+            socketWatcher->deleteLater();
+            socketWatcherTimer->disconnect();
+            socketWatcherTimer->stop();
+            socketWatcherTimer->deleteLater();
             emitConnected();
         };
-        connect(d->socketWatcher, &FileSystemWatcher::directoryChanged, socketFileChecker);
-        d->socketWatcher->addDirectory(socketInfo.path(), FileSystemWatcher::WatchAllChanges);
+        connect(socketWatcher, &FileSystemWatcher::directoryChanged, socketFileChecker);
+        socketWatcher->addDirectory(socketInfo.path(), FileSystemWatcher::WatchAllChanges);
         if (HostOsInfo::isMacHost()) {
             // QTBUG-72455
-            d->socketWatcherTimer.setInterval(1000);
-            connect(&d->socketWatcherTimer, &QTimer::timeout, socketFileChecker);
-            d->socketWatcherTimer.start();
+            socketWatcherTimer->setInterval(1000);
+            connect(socketWatcherTimer, &QTimer::timeout, socketFileChecker);
+            socketWatcherTimer->start();
         }
     });
     connect(&d->masterProcess, &QProcess::errorOccurred, [this] (QProcess::ProcessError error) {
