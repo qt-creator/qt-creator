@@ -240,7 +240,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
     vsWhereProcess.setTimeoutS(timeoutS);
     const QStringList arguments { "-products", "*", "-prerelease", "-legacy", "-format", "json",
                                   "-utf8"};
-    Utils::SynchronousProcessResponse response = vsWhereProcess.run(vswhere, arguments);
+    Utils::SynchronousProcessResponse response = vsWhereProcess.runBlocking(vswhere, arguments);
     switch (response.result) {
     case Utils::SynchronousProcessResponse::Finished:
         break;
