@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "projectpartcontainerv2.h"
+#include "projectpartcontainer.h"
 
 namespace ClangBackEnd {
 

@@ -29,7 +29,8 @@
 
 namespace ClangBackEnd {
 
-void PchTasksMerger::mergeTasks(PchTaskSets &&taskSets)
+void PchTasksMerger::mergeTasks(PchTaskSets &&taskSets,
+                                Utils::SmallStringVector &&/*toolChainArguments*/)
 {
     PchTasks systemTasks;
     systemTasks.reserve(taskSets.size());
@@ -44,6 +45,11 @@ void PchTasksMerger::mergeTasks(PchTaskSets &&taskSets)
     m_pchTaskQueue.addSystemPchTasks(std::move(systemTasks));
     m_pchTaskQueue.addProjectPchTasks(std::move(projectTasks));
     m_pchTaskQueue.processEntries();
+}
+
+void PchTasksMerger::removePchTasks(const Utils::SmallStringVector &projectPartIds)
+{
+    m_pchTaskQueue.removePchTasks(projectPartIds);
 }
 
 } // namespace ClangBackEnd

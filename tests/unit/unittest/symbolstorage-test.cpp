@@ -35,18 +35,21 @@
 
 namespace {
 
-using Utils::PathString;
-using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathCachingInterface;
-using ClangBackEnd::SymbolEntries;
-using ClangBackEnd::SymbolEntry;
+using ClangBackEnd::FilePathId;
+using ClangBackEnd::IncludeSearchPath;
+using ClangBackEnd::IncludeSearchPaths;
+using ClangBackEnd::IncludeSearchPathType;
 using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
-using ClangBackEnd::SymbolIndex;
 using ClangBackEnd::SourceLocationKind;
+using ClangBackEnd::SymbolEntries;
+using ClangBackEnd::SymbolEntry;
+using ClangBackEnd::SymbolIndex;
 using ClangBackEnd::SymbolKind;
 using Sqlite::Database;
 using Sqlite::Table;
+using Utils::PathString;
 
 using Storage = ClangBackEnd::SymbolStorage<MockSqliteDatabase>;
 
@@ -65,8 +68,7 @@ protected:
     MockSqliteWriteStatement &insertNewLocationsInLocationsStatement = storage.m_insertNewLocationsInLocationsStatement;
     MockSqliteWriteStatement &deleteNewSymbolsTableStatement = storage.m_deleteNewSymbolsTableStatement;
     MockSqliteWriteStatement &deleteNewLocationsTableStatement = storage.m_deleteNewLocationsTableStatement;
-    MockSqliteWriteStatement &insertProjectPartStatement = storage.m_insertProjectPartStatement;
-    MockSqliteWriteStatement &updateProjectPartStatement = storage.m_updateProjectPartStatement;
+    MockSqliteWriteStatement &insertOrUpdateProjectPartStatement = storage.m_insertOrUpdateProjectPartStatement;
     MockSqliteReadStatement &getProjectPartIdStatement = storage.m_getProjectPartIdStatement;
     MockSqliteWriteStatement &deleteAllProjectPartsSourcesWithProjectPartIdStatement = storage.m_deleteAllProjectPartsSourcesWithProjectPartIdStatement;
     MockSqliteWriteStatement &insertProjectPartSourcesStatement = storage.m_insertProjectPartSourcesStatement;
@@ -78,7 +80,21 @@ protected:
                                 {2, {"function2USR", "function2", SymbolKind::Function}}};
     SourceLocationEntries sourceLocations{{1, 3, {42, 23}, SourceLocationKind::Declaration},
                                           {2, 4, {7, 11}, SourceLocationKind::Definition}};
-    ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\"}", "[\"/includes\"]", 74};
+    IncludeSearchPaths systemIncludeSearchPaths{
+        {"/includes", 1, IncludeSearchPathType::BuiltIn},
+        {"/other/includes", 2, IncludeSearchPathType::System}};
+    IncludeSearchPaths projectIncludeSearchPaths{
+        {"/project/includes", 1, IncludeSearchPathType::User},
+        {"/other/project/includes", 2, IncludeSearchPathType::User}};
+    Utils::SmallString systemIncludeSearchPathsText{
+        R"([["/includes",1,2],["/other/includes",2,3]])"};
+    Utils::SmallString projectIncludeSearchPathsText{
+        R"([["/project/includes",1,1],["/other/project/includes",2,1]])"};
+    ClangBackEnd::ProjectPartArtefact artefact{R"(["-DFOO"])",
+                                               R"([["FOO","1",1]])",
+                                               systemIncludeSearchPathsText,
+                                               projectIncludeSearchPathsText,
+                                               74};
 };
 
 TEST_F(SymbolStorage, CreateAndFillTemporaryLocationsTable)
@@ -167,43 +183,24 @@ TEST_F(SymbolStorage, ConvertStringsToJson)
     ASSERT_THAT(jsonText, Eq("[\"foo\",\"bar\",\"foo\"]"));
 }
 
-TEST_F(SymbolStorage, InsertProjectPart)
+TEST_F(SymbolStorage, InsertOrUpdateProjectPart)
 {
     InSequence sequence;
-    ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(1));
 
-    EXPECT_CALL(mockDatabase, setLastInsertedRowId(-1));
-    EXPECT_CALL(insertProjectPartStatement,
+    EXPECT_CALL(insertOrUpdateProjectPartStatement,
                 write(TypedEq<Utils::SmallStringView>("project"),
-                      TypedEq<Utils::SmallStringView>("[\"foo\"]"),
-                      TypedEq<Utils::SmallStringView>("{\"FOO\":\"1\"}"),
-                      TypedEq<Utils::SmallStringView>("[\"/includes\"]")));
-    EXPECT_CALL(mockDatabase, lastInsertedRowId()).Times(2);
+                      TypedEq<Utils::SmallStringView>(R"(["foo"])"),
+                      TypedEq<Utils::SmallStringView>(R"([["FOO","1",1]])"),
+                      TypedEq<Utils::SmallStringView>(systemIncludeSearchPathsText),
+                      TypedEq<Utils::SmallStringView>(projectIncludeSearchPathsText)));
+    EXPECT_CALL(
+        getProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("project")))
+        .WillOnce(Return(74));
 
-    storage.insertOrUpdateProjectPart("project",  {"foo"}, {{"FOO", "1", 1}}, {"/includes"});
+    storage.insertOrUpdateProjectPart(
+        "project", {"foo"}, {{"FOO", "1", 1}}, systemIncludeSearchPaths, projectIncludeSearchPaths);
 }
 
-TEST_F(SymbolStorage, UpdateProjectPart)
-{
-    InSequence sequence;
-    ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(-1));
-
-    EXPECT_CALL(mockDatabase, setLastInsertedRowId(-1));
-    EXPECT_CALL(insertProjectPartStatement,
-                write(TypedEq<Utils::SmallStringView>("project"),
-                      TypedEq<Utils::SmallStringView>("[\"foo\"]"),
-                      TypedEq<Utils::SmallStringView>("{\"FOO\":\"1\"}"),
-                      TypedEq<Utils::SmallStringView>("[\"/includes\"]")));
-    EXPECT_CALL(mockDatabase, lastInsertedRowId());
-    EXPECT_CALL(updateProjectPartStatement,
-                write(TypedEq<Utils::SmallStringView>("[\"foo\"]"),
-                      TypedEq<Utils::SmallStringView>("{\"FOO\":\"1\"}"),
-                      TypedEq<Utils::SmallStringView>("[\"/includes\"]"),
-                      TypedEq<Utils::SmallStringView>("project")));
-    EXPECT_CALL(mockDatabase, lastInsertedRowId());
-
-    storage.insertOrUpdateProjectPart("project",  {"foo"}, {{"FOO", "1", 1}}, {"/includes"});
-}
 
 TEST_F(SymbolStorage, UpdateProjectPartSources)
 {

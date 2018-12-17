@@ -39,6 +39,8 @@
 
 #include <cplusplus/Token.h>
 
+#include <utils/cpplanguage_details.h>
+
 #include <QString>
 #include <QSharedPointer>
 
@@ -91,6 +93,7 @@ public:
     QString callGroupId;
 
     // Versions, features and extensions
+    ::Utils::Language language = Utils::Language::Cxx;
     ::Utils::LanguageVersion languageVersion = ::Utils::LanguageVersion::LatestCxx;
     ::Utils::LanguageExtensions languageExtensions = ::Utils::LanguageExtension::None;
     CPlusPlus::LanguageFeatures languageFeatures;

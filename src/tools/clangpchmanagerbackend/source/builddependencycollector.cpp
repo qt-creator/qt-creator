@@ -26,6 +26,7 @@
 #include "builddependencycollector.h"
 
 #include "collectbuilddependencytoolaction.h"
+#include "commandlinebuilder.h"
 
 #include <utils/smallstring.h>
 
@@ -44,9 +45,12 @@ FilePathIds operator+(const FilePathIds &first, const FilePathIds &second)
 }
 }
 
-BuildDependency BuildDependencyCollector::create(const V2::ProjectPartContainer &projectPart)
+BuildDependency BuildDependencyCollector::create(const ProjectPartContainer &projectPart)
 {
-    addFiles(projectPart.sourcePathIds, projectPart.arguments);
+    CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector> builder{
+        projectPart, projectPart.toolChainArguments};
+
+    addFiles(projectPart.sourcePathIds, builder.commandLine);
 
     setExcludedFilePaths(
         m_filePathCache.filePaths(projectPart.headerPathIds + projectPart.sourcePathIds));

@@ -38,6 +38,7 @@ using testing::Assign;
 using testing::ByMove;
 using testing::ByRef;
 using testing::Contains;
+using testing::ContainerEq;
 using testing::ElementsAre;
 using testing::Field;
 using testing::HasSubstr;

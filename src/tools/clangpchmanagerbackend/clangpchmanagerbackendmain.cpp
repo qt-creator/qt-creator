@@ -23,18 +23,24 @@
 **
 ****************************************************************************/
 
+#include <builddependenciesprovider.h>
+#include <builddependenciesstorage.h>
+#include <builddependencycollector.h>
 #include <clangpathwatcher.h>
 #include <connectionserver.h>
 #include <environment.h>
 #include <generatedfiles.h>
+#include <modifiedtimechecker.h>
 #include <pchcreator.h>
 #include <pchmanagerserver.h>
 #include <pchmanagerclientproxy.h>
+#include <pchtaskgenerator.h>
+#include <pchtaskqueue.h>
+#include <pchtasksmerger.h>
 #include <precompiledheaderstorage.h>
 #include <processormanager.h>
 #include <progresscounter.h>
 #include <projectparts.h>
-#include <projectpartqueue.h>
 #include <filepathcaching.h>
 #include <refactoringdatabaseinitializer.h>
 #include <sqlitedatabase.h>
@@ -42,12 +48,12 @@
 
 #include <QCommandLineParser>
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
 #include <QProcess>
 #include <QTemporaryDir>
 #include <QTimer>
-
 #include <chrono>
 #include <thread>
 
@@ -62,6 +68,8 @@ using ClangBackEnd::PchManagerServer;
 using ClangBackEnd::PrecompiledHeaderStorage;
 using ClangBackEnd::ProjectParts;
 using ClangBackEnd::FilePathCache;
+using ClangBackEnd::FilePathView;
+using ClangBackEnd::TimeStamp;
 
 class PchManagerApplication final : public QCoreApplication
 {
@@ -91,11 +99,6 @@ public:
     QString pchBuildDirectory() const override
     {
         return m_pchBuildDirectoryPath;
-    }
-
-    QString clangCompilerPath() const override
-    {
-        return QString(CLANG_COMPILER_PATH);
     }
 
     uint hardwareConcurrency() const override
@@ -132,13 +135,11 @@ public:
     PchCreatorManager(const ClangBackEnd::GeneratedFiles &generatedFiles,
                       ClangBackEnd::Environment &environment,
                       Sqlite::Database &database,
-                      PchManagerServer &pchManagerServer,
-                      ClangBackEnd::ClangPathWatcherInterface &fileSystemWatcher)
+                      PchManagerServer &pchManagerServer)
         : ProcessorManager(generatedFiles),
           m_environment(environment),
           m_database(database),
-          m_pchManagerServer(pchManagerServer),
-          m_fileSystemWatcher(fileSystemWatcher)
+          m_pchManagerServer(pchManagerServer)
     {}
 
 protected:
@@ -146,25 +147,22 @@ protected:
     {
         return std::make_unique<PchCreator>(m_environment,
                                             m_database,
-                                            *m_pchManagerServer.client(),
-                                            m_fileSystemWatcher);
+                                            *m_pchManagerServer.client());
     }
 
 private:
     ClangBackEnd::Environment &m_environment;
     Sqlite::Database &m_database;
     ClangBackEnd::PchManagerServer &m_pchManagerServer;
-    ClangBackEnd::ClangPathWatcherInterface &m_fileSystemWatcher;
 };
 
 struct Data // because we have a cycle dependency
 {
-    using TaskScheduler = ClangBackEnd::TaskScheduler<PchCreatorManager, ClangBackEnd::ProjectPartQueue::Task>;
+    using TaskScheduler = ClangBackEnd::TaskScheduler<PchCreatorManager, ClangBackEnd::PchTaskQueue::Task>;
 
-    Data(const QString &databasePath,
-         const QString &pchsPath)
-        : database{Utils::PathString{databasePath}, 100000ms},
-          environment{pchsPath}
+    Data(const QString &databasePath, const QString &pchsPath)
+        : database{Utils::PathString{databasePath}, 100000ms}
+        , environment{pchsPath}
     {}
     Sqlite::Database database;
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
@@ -173,12 +171,39 @@ struct Data // because we have a cycle dependency
     ApplicationEnvironment environment;
     ProjectParts projectParts;
     GeneratedFiles generatedFiles;
-    PchCreatorManager pchCreatorManager{generatedFiles, environment, database, clangPchManagerServer, includeWatcher};
+    PchCreatorManager pchCreatorManager{generatedFiles, environment, database, clangPchManagerServer};
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
-    ClangBackEnd::ProgressCounter progressCounter{[&] (int progress, int total) { clangPchManagerServer.setProgress(progress, total); }};
-    TaskScheduler taskScheduler{pchCreatorManager, projectPartQueue, progressCounter, std::thread::hardware_concurrency()};
-    ClangBackEnd::ProjectPartQueue projectPartQueue{taskScheduler, preCompiledHeaderStorage, database, progressCounter};
-    PchManagerServer clangPchManagerServer{includeWatcher, projectPartQueue, projectParts, generatedFiles};
+    ClangBackEnd::ProgressCounter progressCounter{
+        [&](int progress, int total) { clangPchManagerServer.setProgress(progress, total); }};
+    TaskScheduler systemTaskScheduler{pchCreatorManager,
+                                      pchTaskQueue,
+                                      progressCounter,
+                                      std::thread::hardware_concurrency(),
+                                      ClangBackEnd::CallDoInMainThreadAfterFinished::No};
+    TaskScheduler projectTaskScheduler{pchCreatorManager,
+                                       pchTaskQueue,
+                                       progressCounter,
+                                       std::thread::hardware_concurrency(),
+                                       ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
+    ClangBackEnd::PchTaskQueue pchTaskQueue{systemTaskScheduler,
+                                            projectTaskScheduler,
+                                            progressCounter,
+                                            preCompiledHeaderStorage,
+                                            database};
+    ClangBackEnd::PchTasksMerger pchTaskMerger{pchTaskQueue};
+    ClangBackEnd::BuildDependenciesStorage<> buildDependencyStorage{database};
+    ClangBackEnd::BuildDependencyCollector buildDependencyCollector{filePathCache};
+    std::function<TimeStamp(FilePathView filePath)> getModifiedTime{
+        [&](ClangBackEnd::FilePathView path) -> TimeStamp {
+            return QFileInfo(QString(path)).lastModified().toSecsSinceEpoch();
+        }};
+    ClangBackEnd::ModifiedTimeChecker modifiedTimeChecker{getModifiedTime, filePathCache};
+    ClangBackEnd::BuildDependenciesProvider buildDependencyProvider{buildDependencyStorage,
+                                                                    modifiedTimeChecker,
+                                                                    buildDependencyCollector,
+                                                                    database};
+    ClangBackEnd::PchTaskGenerator pchTaskGenerator{buildDependencyProvider, pchTaskMerger};
+    PchManagerServer clangPchManagerServer{includeWatcher, pchTaskGenerator, projectParts, generatedFiles};
 };
 
 int main(int argc, char *argv[])

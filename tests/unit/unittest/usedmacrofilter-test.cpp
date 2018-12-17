@@ -69,6 +69,20 @@ TEST_F(UsedMacroFilter, ProjectIncludes)
     ASSERT_THAT(filter.projectIncludes, ElementsAre(FilePathId{3}, FilePathId{5}));
 }
 
+TEST_F(UsedMacroFilter, TopSystemIncludes)
+{
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
+
+    ASSERT_THAT(filter.topSystemIncludes, ElementsAre(FilePathId{4}));
+}
+
+TEST_F(UsedMacroFilter, TopProjectIncludes)
+{
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
+
+    ASSERT_THAT(filter.topProjectIncludes, ElementsAre(FilePathId{5}));
+}
+
 TEST_F(UsedMacroFilter, SystemUsedMacros)
 {
     ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);

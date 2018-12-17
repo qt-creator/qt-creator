@@ -62,10 +62,10 @@ protected:
     ClangBackEnd::FilePathCaching filePathCache{database};
     ClangPchManager::PchManagerProjectUpdater projectUpdater{mockPchManagerServer, client, filePathCache};
     Utils::SmallString projectPartId{"projectPartId"};
-    Utils::SmallString pchFilePath{"/path/to/pch"};
+    ClangBackEnd::FilePath pchFilePath{"/path/to/pch"};
     PrecompiledHeadersUpdatedMessage message{{{projectPartId.clone(), pchFilePath.clone(), 1}}};
     Utils::SmallString projectPartId2{"projectPartId2"};
-    Utils::SmallString pchFilePath2{"/path/to/pch2"};
+    ClangBackEnd::FilePath pchFilePath2{"/path/to/pch2"};
     PrecompiledHeadersUpdatedMessage message2{{{projectPartId2.clone(), pchFilePath2.clone(), 1}}};
 };
 

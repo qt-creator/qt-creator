@@ -28,6 +28,7 @@
 #include "clangsupport_global.h"
 
 #include <utils/smallstringio.h>
+#include <filepath.h>
 
 namespace ClangBackEnd {
 
@@ -36,15 +37,16 @@ class ProjectPartPch
 public:
     ProjectPartPch() = default;
     ProjectPartPch(Utils::SmallString &&projectPartId,
-                   Utils::SmallString &&pchPath,
+                   FilePath &&pchPath,
                    long long lastModified)
         : projectPartId(std::move(projectPartId)),
           pchPath(std::move(pchPath)),
           lastModified(lastModified)
     {}
+
     ProjectPartPch(Utils::SmallStringView pchPath,
                    long long lastModified)
-        : pchPath(pchPath),
+        : pchPath(FilePathView(pchPath)),
           lastModified(lastModified)
     {}
 
@@ -78,7 +80,7 @@ public:
 
 public:
     Utils::SmallString projectPartId;
-    Utils::SmallString pchPath;
+    FilePath pchPath;
     long long lastModified = -1;
 };
 

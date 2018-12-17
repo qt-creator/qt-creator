@@ -33,6 +33,7 @@
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 #include <gtest/gtest-printers.h>
+#include <gtest/gtest-typed-test.h>
 
 #include "compare-operators.h"
 

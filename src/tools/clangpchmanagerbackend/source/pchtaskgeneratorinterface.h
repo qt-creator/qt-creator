@@ -25,19 +25,20 @@
 
 #pragma once
 
-#include "queueinterface.h"
-
-#include <projectpartcontainerv2.h>
+#include <projectpartcontainer.h>
 
 namespace ClangBackEnd {
 
-class ProjectPartQueueInterface : public QueueInterface
+class PchTaskGeneratorInterface
 {
 public:
-    virtual void addProjectParts(V2::ProjectPartContainers &&projectParts) = 0;
+    virtual void addProjectParts(ProjectPartContainers &&projectParts,
+                                 Utils::SmallStringVector &&toolChainArguments)
+        = 0;
     virtual void removeProjectParts(const Utils::SmallStringVector &projectsPartIds) = 0;
 
 protected:
-    ~ProjectPartQueueInterface() = default;
+    ~PchTaskGeneratorInterface() = default;
 };
+
 } // namespace ClangBackEnd

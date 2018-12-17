@@ -50,7 +50,7 @@ public:
         , m_transactionBackend(transactionBackend)
     {}
 
-    BuildDependency create(const V2::ProjectPartContainer &projectPart) override;
+    BuildDependency create(const ProjectPartContainer &projectPart) override;
 
 private:
     BuildDependency createBuildDependencyFromStorage(SourceEntries &&includes) const;

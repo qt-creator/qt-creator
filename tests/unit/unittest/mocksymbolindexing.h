@@ -33,9 +33,9 @@ class MockSymbolIndexing : public ClangBackEnd::SymbolIndexingInterface
 {
 public:
    MOCK_METHOD1(updateProjectParts,
-                void(const ClangBackEnd::V2::ProjectPartContainers &projectParts));
+                void(const ClangBackEnd::ProjectPartContainers &projectParts));
 
-   void updateProjectParts(ClangBackEnd::V2::ProjectPartContainers &&projectParts) override
+   void updateProjectParts(ClangBackEnd::ProjectPartContainers &&projectParts) override
    {
        updateProjectParts(projectParts);
    }

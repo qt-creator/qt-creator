@@ -29,16 +29,21 @@
 
 #include <pchtasksmerger.h>
 
+namespace {
+
+using ClangBackEnd::IncludeSearchPath;
+using ClangBackEnd::IncludeSearchPathType;
 using ClangBackEnd::PchTask;
 using ClangBackEnd::PchTaskSet;
 
 class PchTasksMerger : public testing::Test
 {
 protected:
-    template<class T>
-    T clone(T entry)
+    PchTask clone(PchTask entry) const
     {
-        return *&entry;
+        // entry.toolChainArguments = toolChainArguments;
+
+        return entry;
     }
 
 protected:
@@ -47,19 +52,44 @@ protected:
     PchTask systemTask1{"ProjectPart1",
                         {1, 2},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
-                        {{"LIANG", 0}, {"YI", 1}}};
+                        {{"LIANG", 0}, {"YI", 1}},
+                        {"--yi"},
+                        {IncludeSearchPath{"/system/path", 2, IncludeSearchPathType::System},
+                         IncludeSearchPath{"/builtin/path", 3, IncludeSearchPathType::BuiltIn},
+                         IncludeSearchPath{"/framework/path", 1, IncludeSearchPathType::System}},
+                        {IncludeSearchPath{"/to/path1", 1, IncludeSearchPathType::User},
+                         IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User}}};
     PchTask projectTask1{"ProjectPart1",
                          {11, 12},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
-                         {{"ER", 2}, {"SAN", 3}}};
+                         {{"ER", 2}, {"SAN", 3}},
+                         {"--yi"},
+                         {IncludeSearchPath{"/system/path", 2, IncludeSearchPathType::System},
+                          IncludeSearchPath{"/builtin/path", 3, IncludeSearchPathType::BuiltIn},
+                          IncludeSearchPath{"/framework/path", 1, IncludeSearchPathType::System}},
+                         {IncludeSearchPath{"/to/path1", 1, IncludeSearchPathType::User},
+                          IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User}}};
     PchTask systemTask2{"ProjectPart2",
                         {1, 2},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
-                        {{"LIANG", 0}, {"YI", 1}}};
+                        {{"LIANG", 0}, {"YI", 1}},
+                        {"--yi"},
+                        {IncludeSearchPath{"/system/path", 2, IncludeSearchPathType::System},
+                         IncludeSearchPath{"/builtin/path", 3, IncludeSearchPathType::BuiltIn},
+                         IncludeSearchPath{"/framework/path", 1, IncludeSearchPathType::System}},
+                        {IncludeSearchPath{"/to/path1", 1, IncludeSearchPathType::User},
+                         IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User}}};
     PchTask projectTask2{"ProjectPart2",
                          {11, 12},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
-                         {{"ER", 2}, {"SAN", 3}}};
+                         {{"ER", 2}, {"SAN", 3}},
+                         {"--yi"},
+                         {IncludeSearchPath{"/system/path", 2, IncludeSearchPathType::System},
+                          IncludeSearchPath{"/builtin/path", 3, IncludeSearchPathType::BuiltIn},
+                          IncludeSearchPath{"/framework/path", 1, IncludeSearchPathType::System}},
+                         {IncludeSearchPath{"/to/path1", 1, IncludeSearchPathType::User},
+                          IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User}}};
+    Utils::SmallStringVector toolChainArguments = {"toolChainArguments"};
 };
 
 TEST_F(PchTasksMerger, AddProjectTasks)
@@ -70,8 +100,8 @@ TEST_F(PchTasksMerger, AddProjectTasks)
     EXPECT_CALL(mockPchTaskQueue, processEntries());
 
     merger.mergeTasks(
-        {{clone(systemTask1), clone(projectTask1)}, {clone(systemTask1), clone(projectTask2)}});
-
+        {{clone(systemTask1), clone(projectTask1)}, {clone(systemTask1), clone(projectTask2)}},
+        std::move(toolChainArguments));
 }
 
 TEST_F(PchTasksMerger, AddSystemTasks)
@@ -82,5 +112,14 @@ TEST_F(PchTasksMerger, AddSystemTasks)
     EXPECT_CALL(mockPchTaskQueue, processEntries());
 
     merger.mergeTasks(
-        {{clone(systemTask1), clone(projectTask1)}, {clone(systemTask2), clone(projectTask2)}});
+        {{clone(systemTask1), clone(projectTask1)}, {clone(systemTask2), clone(projectTask2)}},
+        std::move(toolChainArguments));
+}
+
+TEST_F(PchTasksMerger, RemoveTasks)
+{
+    EXPECT_CALL(mockPchTaskQueue, removePchTasks(ElementsAre("project1", "project2")));
+
+    merger.removePchTasks({"project1", "project2"});
+}
 }

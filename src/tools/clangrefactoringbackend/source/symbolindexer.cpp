@@ -25,8 +25,10 @@
 
 #include "symbolindexer.h"
 
-#include <symbolscollectorinterface.h>
-#include <symbolindexertaskqueue.h>
+#include "symbolscollectorinterface.h"
+#include "symbolindexertaskqueue.h"
+
+#include <commandlinebuilder.h>
 
 #include <chrono>
 #include <iostream>
@@ -65,7 +67,7 @@ SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQ
                              Sqlite::TransactionInterface &transactionInterface)
     : m_symbolIndexerTaskQueue(symbolIndexerTaskQueue),
       m_symbolStorage(symbolStorage),
-      m_usedMacroAndSourceStorage(usedMacroAndSourceStorage),
+      m_buildDependencyStorage(usedMacroAndSourceStorage),
       m_pathWatcher(pathWatcher),
       m_filePathCache(filePathCache),
       m_fileStatusCache(fileStatusCache),
@@ -74,20 +76,22 @@ SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQ
     pathWatcher.setNotifier(this);
 }
 
-void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts)
+void SymbolIndexer::updateProjectParts(ProjectPartContainers &&projectParts)
 {
-        for (V2::ProjectPartContainer &projectPart : projectParts)
+        for (ProjectPartContainer &projectPart : projectParts)
             updateProjectPart(std::move(projectPart));
 }
 
-void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart)
+void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
 {
     Sqlite::ImmediateTransaction transaction{m_transactionInterface};
     const auto optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(projectPart.projectPartId);
-    int projectPartId = m_symbolStorage.insertOrUpdateProjectPart(projectPart.projectPartId,
-                                                                  projectPart.arguments,
-                                                                  projectPart.compilerMacros,
-                                                                  projectPart.includeSearchPaths);
+    int projectPartId = m_symbolStorage.insertOrUpdateProjectPart(
+        projectPart.projectPartId,
+        projectPart.toolChainArguments,
+        projectPart.compilerMacros,
+        projectPart.systemIncludeSearchPaths,
+        projectPart.projectIncludeSearchPaths);
     if (optionalArtefact)
         projectPartId = optionalArtefact->projectPartId;
     const Utils::optional<ProjectPartPch> optionalProjectPartPch = m_symbolStorage.fetchPrecompiledHeader(projectPartId);
@@ -97,14 +101,20 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart)
     if (sourcePathIds.empty())
         return;
 
-    const Utils::SmallStringVector arguments = compilerArguments(projectPart.arguments,
-                                                                 optionalProjectPartPch);
+    using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
+    Builder commandLineBuilder{projectPart,
+                               projectPart.toolChainArguments,
+                               {},
+                               {},
+                               optionalProjectPartPch
+                                   ? FilePathView{optionalProjectPartPch.value().pchPath}
+                                   : FilePathView{}};
 
     std::vector<SymbolIndexerTask> symbolIndexerTask;
     symbolIndexerTask.reserve(projectPart.sourcePathIds.size());
     for (FilePathId sourcePathId : projectPart.sourcePathIds) {
-        auto indexing = [projectPartId, arguments, sourcePathId, this]
-                (SymbolsCollectorInterface &symbolsCollector) {
+        auto indexing = [projectPartId, arguments = commandLineBuilder.commandLine, sourcePathId, this](
+                            SymbolsCollectorInterface &symbolsCollector) {
             symbolsCollector.setFile(sourcePathId, arguments);
 
             symbolsCollector.collectSymbols();
@@ -114,14 +124,14 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart)
             m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
                                                          symbolsCollector.sourceLocations());
 
-            m_symbolStorage.updateProjectPartSources(projectPartId,
-                                                     symbolsCollector.sourceFiles());
+            m_symbolStorage.updateProjectPartSources(projectPartId, symbolsCollector.sourceFiles());
 
-            m_usedMacroAndSourceStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
+            m_buildDependencyStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
 
-            m_usedMacroAndSourceStorage.insertFileStatuses(symbolsCollector.fileStatuses());
+            m_buildDependencyStorage.insertFileStatuses(symbolsCollector.fileStatuses());
 
-            m_usedMacroAndSourceStorage.insertOrUpdateSourceDependencies(symbolsCollector.sourceDependencies());
+            m_buildDependencyStorage.insertOrUpdateSourceDependencies(
+                symbolsCollector.sourceDependencies());
 
             transaction.commit();
         };
@@ -155,22 +165,23 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
     m_fileStatusCache.update(filePathId);
 
     Sqlite::DeferredTransaction transaction{m_transactionInterface};
-    const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(filePathId);
+    const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(
+        filePathId);
     if (!optionalArtefact)
         return;
 
-    const Utils::optional<ProjectPartPch> optionalProjectPartPch = m_symbolStorage.fetchPrecompiledHeader(optionalArtefact->projectPartId);
+    const Utils::optional<ProjectPartPch> optionalProjectPartPch = m_symbolStorage.fetchPrecompiledHeader(
+        optionalArtefact->projectPartId);
     transaction.commit();
 
     if (!optionalArtefact.value().compilerArguments.empty()) {
-
         const ProjectPartArtefact &artefact = optionalArtefact.value();
 
         const Utils::SmallStringVector arguments = compilerArguments(artefact.compilerArguments,
                                                                      optionalProjectPartPch);
 
-        auto indexing = [projectPartId=artefact.projectPartId, arguments, filePathId, this]
-                (SymbolsCollectorInterface &symbolsCollector) {
+        auto indexing = [projectPartId = artefact.projectPartId, arguments, filePathId, this](
+                            SymbolsCollectorInterface &symbolsCollector) {
             symbolsCollector.setFile(filePathId, arguments);
 
             symbolsCollector.collectSymbols();
@@ -182,39 +193,43 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
 
             m_symbolStorage.updateProjectPartSources(projectPartId, symbolsCollector.sourceFiles());
 
-            m_usedMacroAndSourceStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
+            m_buildDependencyStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
 
-            m_usedMacroAndSourceStorage.insertFileStatuses(symbolsCollector.fileStatuses());
+            m_buildDependencyStorage.insertFileStatuses(symbolsCollector.fileStatuses());
 
-            m_usedMacroAndSourceStorage.insertOrUpdateSourceDependencies(symbolsCollector.sourceDependencies());
+            m_buildDependencyStorage.insertOrUpdateSourceDependencies(
+                symbolsCollector.sourceDependencies());
 
             transaction.commit();
         };
 
-        symbolIndexerTask.emplace_back(filePathId, optionalArtefact->projectPartId, std::move(indexing));
+        symbolIndexerTask.emplace_back(filePathId,
+                                       optionalArtefact->projectPartId,
+                                       std::move(indexing));
     }
 }
 
 bool SymbolIndexer::compilerMacrosOrIncludeSearchPathsAreDifferent(
-        const V2::ProjectPartContainer &projectPart,
+        const ProjectPartContainer &projectPart,
         const Utils::optional<ProjectPartArtefact> &optionalArtefact) const
 {
     if (optionalArtefact) {
         const ProjectPartArtefact &artefact = optionalArtefact.value();
         return projectPart.compilerMacros != artefact.compilerMacros
-             || projectPart.includeSearchPaths != artefact.includeSearchPaths;
+               || projectPart.systemIncludeSearchPaths != artefact.systemIncludeSearchPaths
+               || projectPart.projectIncludeSearchPaths != artefact.projectIncludeSearchPaths;
     }
 
     return true;
 }
 
-FilePathIds SymbolIndexer::filterChangedFiles(const V2::ProjectPartContainer &projectPart) const
+FilePathIds SymbolIndexer::filterChangedFiles(const ProjectPartContainer &projectPart) const
 {
     FilePathIds ids;
     ids.reserve(projectPart.sourcePathIds.size());
 
     for (const FilePathId &sourceId : projectPart.sourcePathIds) {
-        long long oldLastModified = m_usedMacroAndSourceStorage.fetchLowestLastModifiedTime(sourceId);
+        long long oldLastModified = m_buildDependencyStorage.fetchLowestLastModifiedTime(sourceId);
         long long currentLastModified =  m_fileStatusCache.lastModifiedTime(sourceId);
         if (oldLastModified < currentLastModified)
             ids.push_back(sourceId);
@@ -223,7 +238,7 @@ FilePathIds SymbolIndexer::filterChangedFiles(const V2::ProjectPartContainer &pr
     return ids;
 }
 
-FilePathIds SymbolIndexer::updatableFilePathIds(const V2::ProjectPartContainer &projectPart,
+FilePathIds SymbolIndexer::updatableFilePathIds(const ProjectPartContainer &projectPart,
                                                 const Utils::optional<ProjectPartArtefact> &optionalArtefact) const
 {
     if (compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart, optionalArtefact))
@@ -233,8 +248,8 @@ FilePathIds SymbolIndexer::updatableFilePathIds(const V2::ProjectPartContainer &
 }
 
 Utils::SmallStringVector SymbolIndexer::compilerArguments(
-        Utils::SmallStringVector arguments,
-        const Utils::optional<ProjectPartPch> optionalProjectPartPch) const
+    Utils::SmallStringVector arguments,
+    const Utils::optional<ProjectPartPch> optionalProjectPartPch) const
 {
     if (optionalProjectPartPch) {
         arguments.emplace_back("-Xclang");

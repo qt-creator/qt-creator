@@ -52,6 +52,8 @@ public:
     {
         systemIncludes.reserve(includes.size());
         projectIncludes.reserve(includes.size());
+        topSystemIncludes.reserve(includes.size() / 10);
+        topProjectIncludes.reserve(includes.size() / 10);
 
         for (SourceEntry include : includes)
             filterInclude(include);
@@ -76,10 +78,16 @@ private:
     {
         switch (include.sourceType) {
         case SourceType::TopSystemInclude:
+            topSystemIncludes.emplace_back(include.sourceId);
+            systemIncludes.emplace_back(include.sourceId);
+            break;
         case SourceType::SystemInclude:
             systemIncludes.emplace_back(include.sourceId);
             break;
         case SourceType::TopProjectInclude:
+            topProjectIncludes.emplace_back(include.sourceId);
+            projectIncludes.emplace_back(include.sourceId);
+            break;
         case SourceType::ProjectInclude:
             projectIncludes.emplace_back(include.sourceId);
             break;
@@ -173,6 +181,8 @@ private:
 public:
     FilePathIds projectIncludes;
     FilePathIds systemIncludes;
+    FilePathIds topProjectIncludes;
+    FilePathIds topSystemIncludes;
     UsedMacros projectUsedMacros;
     UsedMacros systemUsedMacros;
     CompilerMacros projectCompilerMacros;

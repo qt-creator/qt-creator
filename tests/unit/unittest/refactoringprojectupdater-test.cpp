@@ -52,7 +52,7 @@ MATCHER_P(IsProjectPartContainer, projectPartId,
           std::string(negation ? "hasn't" : "has")
           + " name " + std::string(projectPartId))
 {
-    const ClangBackEnd::V2::ProjectPartContainer &container = arg;
+    const ClangBackEnd::ProjectPartContainer &container = arg;
 
     return  container.projectPartId == projectPartId;
 }

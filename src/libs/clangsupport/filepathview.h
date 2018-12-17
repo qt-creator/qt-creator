@@ -37,6 +37,7 @@ template <char WindowsSlash>
 class AbstractFilePathView : public Utils::SmallStringView
 {
 public:
+    constexpr AbstractFilePathView() = default;
     explicit AbstractFilePathView(const char *const string, const size_type size) noexcept
         : Utils::SmallStringView(string, size),
           m_slashIndex(lastSlashIndex(*this))

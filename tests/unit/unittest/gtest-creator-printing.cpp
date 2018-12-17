@@ -42,6 +42,7 @@
 #include <filestatus.h>
 #include <filepath.h>
 #include <fulltokeninfo.h>
+#include <includesearchpath.h>
 #include <nativefilepath.h>
 #include <pchcreator.h>
 #include <pchtask.h>
@@ -56,6 +57,7 @@
 #include <symbolindexertaskqueue.h>
 #include <symbol.h>
 #include <tooltipinfo.h>
+#include <toolchainargumentscache.h>
 #include <projectpartentry.h>
 #include <usedmacro.h>
 
@@ -179,6 +181,100 @@ namespace Utils {
 std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn)
 {
     return out << "(" << lineColumn.line << ", " << lineColumn.column << ")";
+}
+
+const char * toText(Utils::Language language)
+{
+    using Utils::Language;
+
+    switch (language) {
+    case Language::C:
+        return "C";
+    case Language::Cxx:
+        return "Cxx";
+    }
+
+    return "";
+}
+
+std::ostream &operator<<(std::ostream &out, const Utils::Language &language)
+{
+    return out << "Utils::" << toText(language);
+}
+
+const char * toText(Utils::LanguageVersion languageVersion)
+{
+    using Utils::LanguageVersion;
+
+    switch (languageVersion) {
+    case LanguageVersion::C11:
+        return "C11";
+    case LanguageVersion::C18:
+        return "C18";
+    case LanguageVersion::C89:
+        return "C89";
+    case LanguageVersion::C99:
+        return "C99";
+    case LanguageVersion::CXX03:
+        return "CXX03";
+    case LanguageVersion::CXX11:
+        return "CXX11";
+    case LanguageVersion::CXX14:
+        return "CXX14";
+    case LanguageVersion::CXX17:
+        return "CXX17";
+    case LanguageVersion::CXX2a:
+        return "CXX2a";
+    case LanguageVersion::CXX98:
+        return "CXX98";
+    }
+
+    return "";
+}
+
+std::ostream &operator<<(std::ostream &out, const Utils::LanguageVersion &languageVersion)
+{
+     return out << "Utils::" << toText(languageVersion);
+}
+
+const std::string toText(Utils::LanguageExtension extension, std::string prefix = {})
+{
+    std::stringstream out;
+    using Utils::LanguageExtension;
+
+    if (extension == LanguageExtension::None) {
+        out << prefix << "None";
+    } else if (extension == LanguageExtension::All) {
+        out << prefix << "All";
+    } else {
+        std::string split = "";
+        if (extension == LanguageExtension::Gnu) {
+            out << prefix << "Gnu";
+            split = " | ";
+        }
+        if (extension == LanguageExtension::Microsoft) {
+            out << split << prefix << "Microsoft";
+            split = " | ";
+        }
+        if (extension == LanguageExtension::Borland) {
+            out << split << prefix << "Borland";
+            split = " | ";
+        }
+        if (extension == LanguageExtension::OpenMP) {
+            out << split << prefix << "OpenMP";
+            split = " | ";
+        }
+        if (extension == LanguageExtension::ObjectiveC) {
+            out << split << prefix << "ObjectiveC";
+        }
+    }
+
+    return out.str();
+}
+
+std::ostream &operator<<(std::ostream &out, const Utils::LanguageExtension &languageExtension)
+{
+    return out << toText(languageExtension, "Utils::");
 }
 
 void PrintTo(Utils::SmallStringView text, ::std::ostream *os)
@@ -1061,7 +1157,15 @@ std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes)
 std::ostream &operator<<(std::ostream &out, const PchTask &task)
 {
     return out << "(" << task.projectPartIds << ", " << task.includes << ", " << task.compilerMacros
-               << ", " << task.usedMacros << ")";
+               << ", " << task.usedMacros << ", " << toText(task.language) << ", "
+               << task.systemIncludeSearchPaths << ", " << task.projectIncludeSearchPaths << ", "
+               << task.toolChainArguments << ", " << toText(task.languageVersion) << ", "
+               << toText(task.languageExtension) << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const PchTaskSet &taskSet)
+{
+    return out << "(" << taskSet.system << ", " << taskSet.project << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency)
@@ -1105,6 +1209,50 @@ std::ostream &operator<<(std::ostream &out, const SourceEntry &entry)
     return out  << "(" << entry.sourceId << ", " << sourceTypeString(entry.sourceType) << ")";
 }
 
+const char *typeToString(IncludeSearchPathType type)
+{
+    switch (type) {
+    case IncludeSearchPathType::Invalid:
+        return "Invalid";
+    case IncludeSearchPathType::User:
+        return "User";
+    case IncludeSearchPathType::System:
+        return "System";
+    case IncludeSearchPathType::BuiltIn:
+        return "BuiltIn";
+    case IncludeSearchPathType::Framework:
+        return "Framework";
+    }
+
+    return nullptr;
+}
+
+std::ostream &operator<<(std::ostream &out, const IncludeSearchPathType &pathType)
+{
+    return out << "IncludeSearchPathType::" << typeToString(pathType);
+}
+
+std::ostream &operator<<(std::ostream &out, const IncludeSearchPath &path)
+{
+    return out << "(" << path.path << ", " << path.index << ", " << typeToString(path.type) << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ArgumentsEntry &entry)
+{
+    return out << "(" << entry.ids << ", " << entry.arguments << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container)
+{
+    out << "(" << container.projectPartId << ", " << container.toolChainArguments << ", "
+        << container.headerPathIds << ", " << container.sourcePathIds << ", "
+        << container.compilerMacros << ", " << container.systemIncludeSearchPaths << ", "
+        << container.projectIncludeSearchPaths << ", " << toText(container.language) << ", "
+        << toText(container.languageVersion) << ", " << toText(container.languageExtension) << ")";
+
+    return out;
+}
+
 void PrintTo(const FilePath &filePath, ::std::ostream *os)
 {
     *os << filePath;
@@ -1136,19 +1284,6 @@ std::ostream &operator<<(std::ostream &os, const FileContainer &container)
     os << "\")";
 
     return os;
-}
-
-std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container)
-{
-    out << "("
-        << container.projectPartId << ", "
-        << container.arguments << ", "
-        << container.headerPathIds << ", "
-        << container.sourcePathIds << ", "
-        << container.compilerMacros << ", "
-        << container.includeSearchPaths << ")";
-
-    return out;
 }
 
 std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)

@@ -28,7 +28,7 @@
 #include <pchmanagerclientinterface.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <progressmessage.h>
-#include <projectpartqueue.h>
+#include <pchtaskgeneratorinterface.h>
 #include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
 #include <updategeneratedfilesmessage.h>
@@ -41,11 +41,11 @@
 namespace ClangBackEnd {
 
 PchManagerServer::PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
-                                   ProjectPartQueueInterface &projectPartQueue,
+                                   PchTaskGeneratorInterface &pchTaskGenerator,
                                    ProjectPartsInterface &projectParts,
                                    GeneratedFilesInterface &generatedFiles)
     : m_fileSystemWatcher(fileSystemWatcher),
-      m_projectPartQueue(projectPartQueue),
+      m_pchTaskGenerator(pchTaskGenerator),
       m_projectParts(projectParts),
       m_generatedFiles(generatedFiles)
 {
@@ -55,12 +55,14 @@ PchManagerServer::PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
 void PchManagerServer::end()
 {
     QCoreApplication::exit();
-
 }
 
 void PchManagerServer::updateProjectParts(UpdateProjectPartsMessage &&message)
 {
-    m_projectPartQueue.addProjectParts(m_projectParts.update(message.takeProjectsParts()));
+    m_toolChainsArgumentsCache.update(message.projectsParts, message.toolChainArguments);
+
+    m_pchTaskGenerator.addProjectParts(
+        m_projectParts.update(message.takeProjectsParts()), std::move(message.toolChainArguments));
 }
 
 void PchManagerServer::removeProjectParts(RemoveProjectPartsMessage &&message)
@@ -69,7 +71,9 @@ void PchManagerServer::removeProjectParts(RemoveProjectPartsMessage &&message)
 
     m_projectParts.remove(message.projectsPartIds);
 
-    m_projectPartQueue.removeProjectParts(message.projectsPartIds);
+    m_pchTaskGenerator.removeProjectParts(message.projectsPartIds);
+
+    m_toolChainsArgumentsCache.remove(message.projectsPartIds);
 }
 
 void PchManagerServer::updateGeneratedFiles(UpdateGeneratedFilesMessage &&message)
@@ -84,7 +88,12 @@ void PchManagerServer::removeGeneratedFiles(RemoveGeneratedFilesMessage &&messag
 
 void PchManagerServer::pathsWithIdsChanged(const Utils::SmallStringVector &ids)
 {
-    m_projectPartQueue.addProjectParts(m_projectParts.projects(ids));
+    ArgumentsEntries entries = m_toolChainsArgumentsCache.arguments(ids);
+
+    for (ArgumentsEntry &entry : entries) {
+        m_pchTaskGenerator.addProjectParts(
+            m_projectParts.projects(entry.ids), std::move(entry.arguments));
+    }
 }
 
 void PchManagerServer::pathsChanged(const FilePathIds &/*filePathIds*/)

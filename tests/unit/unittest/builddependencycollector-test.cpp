@@ -529,25 +529,27 @@ TEST_F(BuildDependencyCollector, MissingInclude)
 
 TEST_F(BuildDependencyCollector, Create)
 {
+    using ClangBackEnd::IncludeSearchPathType;
     ClangBackEnd::BuildDependencyCollector collector{filePathCache};
-    ClangBackEnd::V2::ProjectPartContainer
-        projectPart{"project1",
-                    {"cc",
-                     "-I",
-                     TESTDATA_DIR "/builddependencycollector/external",
-                     "-I",
-                     TESTDATA_DIR "/builddependencycollector/project",
-                     "-isystem",
-                     TESTDATA_DIR "/builddependencycollector/system"},
-                    {},
-                    {},
-                    {
-                        id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
-                        id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
-                        id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
-                        id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
-                    },
-                    {id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp")}};
+    ClangBackEnd::ProjectPartContainer projectPart{
+        "project1",
+        {},
+        {},
+        {{TESTDATA_DIR "/builddependencycollector/system", 1, IncludeSearchPathType::System}},
+        {
+            {TESTDATA_DIR "/builddependencycollector/project", 1, IncludeSearchPathType::User},
+            {TESTDATA_DIR "/builddependencycollector/external", 2, IncludeSearchPathType::User},
+        },
+        {
+            id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
+        },
+        {id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp")},
+        Utils::Language::Cxx,
+        Utils::LanguageVersion::CXX11,
+        Utils::LanguageExtension::None};
 
     auto buildDependency = collector.create(projectPart);
 

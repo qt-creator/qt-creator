@@ -33,6 +33,6 @@ class MockBuildDependencyGenerator : public ClangBackEnd::BuildDependencyGenerat
 {
 public:
     MOCK_METHOD1(create,
-                 ClangBackEnd::BuildDependency (const ClangBackEnd::V2::ProjectPartContainer &projectPart));
+                 ClangBackEnd::BuildDependency (const ClangBackEnd::ProjectPartContainer &projectPart));
 };
 

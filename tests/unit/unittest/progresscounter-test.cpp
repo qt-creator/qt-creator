@@ -56,6 +56,15 @@ TEST_F(ProgressCounter, AddTotal)
     counter.addTotal(7);
 }
 
+TEST_F(ProgressCounter, AddTotalZero)
+{
+    counter.addTotal(5);
+
+    EXPECT_CALL(mockSetProgressCallback, Call(_, _)).Times(0);
+
+    counter.addTotal(0);
+}
+
 TEST_F(ProgressCounter, RemoveTotal)
 {
     counter.addTotal(11);
@@ -66,6 +75,15 @@ TEST_F(ProgressCounter, RemoveTotal)
     counter.removeTotal(7);
 }
 
+TEST_F(ProgressCounter, RemoveTotalZero)
+{
+    counter.addTotal(11);
+
+    EXPECT_CALL(mockSetProgressCallback, Call(_, _)).Times(0);
+
+    counter.removeTotal(0);
+}
+
 TEST_F(ProgressCounter, AddProgress)
 {
     counter.addTotal(11);
@@ -74,6 +92,16 @@ TEST_F(ProgressCounter, AddProgress)
     EXPECT_CALL(mockSetProgressCallback, Call(7, 11));
 
     counter.addProgress(4);
+}
+
+TEST_F(ProgressCounter, AddProgressZero)
+{
+    counter.addTotal(11);
+    counter.addProgress(3);
+
+    EXPECT_CALL(mockSetProgressCallback, Call(_, _)).Times(0);
+
+    counter.addProgress(0);
 }
 
 TEST_F(ProgressCounter, AddTotalAfterFinishingProgress)

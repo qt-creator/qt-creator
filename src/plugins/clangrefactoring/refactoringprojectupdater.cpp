@@ -35,7 +35,7 @@ void RefactoringProjectUpdater::precompiledHeaderUpdated(const QString &projectP
 {
     auto projectPart = m_cppModelManager.projectPartForId(projectPartId);
     if (projectPart)
-        updateProjectParts({projectPart.data()});
+        updateProjectParts({projectPart.data()}, {});
 }
 
 void RefactoringProjectUpdater::precompiledHeaderRemoved(const QString &projectPartId)

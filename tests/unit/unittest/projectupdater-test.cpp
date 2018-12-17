@@ -43,6 +43,7 @@
 #include <updategeneratedfilesmessage.h>
 #include <updateprojectpartsmessage.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
@@ -57,8 +58,10 @@ using testing::NiceMock;
 using testing::AnyNumber;
 
 using ClangBackEnd::CompilerMacro;
+using ClangBackEnd::IncludeSearchPath;
+using ClangBackEnd::IncludeSearchPathType;
 using ClangBackEnd::V2::FileContainer;
-using ClangBackEnd::V2::ProjectPartContainer;
+using ClangBackEnd::ProjectPartContainer;
 using CppTools::CompilerOptionsBuilder;
 using ProjectExplorer::HeaderPath;
 
@@ -96,23 +99,31 @@ protected:
         projectPartId2 = projectPart2.id();
 
 
-        Utils::SmallStringVector arguments{ClangPchManager::ProjectUpdater::compilerArguments(
+        Utils::SmallStringVector arguments{ClangPchManager::ProjectUpdater::toolChainArguments(
                         &projectPart)};
-        Utils::SmallStringVector arguments2{ClangPchManager::ProjectUpdater::compilerArguments(
+        Utils::SmallStringVector arguments2{ClangPchManager::ProjectUpdater::toolChainArguments(
                         &projectPart2)};
 
         expectedContainer = {projectPartId.clone(),
                              arguments.clone(),
                              Utils::clone(compilerMacros),
+                             {{CLANG_RESOURCE_DIR, 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
                              {},
                              {filePathId(headerPaths[1])},
-                             {filePathIds(sourcePaths)}};
+                             {filePathIds(sourcePaths)},
+                             Utils::Language::Cxx,
+                             Utils::LanguageVersion::LatestCxx,
+                             Utils::LanguageExtension::None};
         expectedContainer2 = {projectPartId2.clone(),
                               arguments2.clone(),
                               Utils::clone(compilerMacros),
+                              {{CLANG_RESOURCE_DIR, 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
                               {},
                               {filePathId(headerPaths[1])},
-                              {filePathIds(sourcePaths)}};
+                              {filePathIds(sourcePaths)},
+                              Utils::Language::Cxx,
+                              Utils::LanguageVersion::LatestCxx,
+                              Utils::LanguageExtension::None};
     }
 
 protected:
@@ -145,12 +156,13 @@ protected:
 TEST_F(ProjectUpdater, CallUpdateProjectParts)
 {
     std::vector<CppTools::ProjectPart*> projectParts = {&projectPart2, &projectPart};
-    ClangBackEnd::UpdateProjectPartsMessage message{{expectedContainer.clone(), expectedContainer2.clone()}};
+    ClangBackEnd::UpdateProjectPartsMessage message{
+        {expectedContainer.clone(), expectedContainer2.clone()}, {"toolChainArgument"}};
     updater.updateGeneratedFiles({generatedFile});
 
     EXPECT_CALL(mockPchManagerServer, updateProjectParts(message));
 
-    updater.updateProjectParts(projectParts);
+    updater.updateProjectParts(projectParts, {"toolChainArgument"});
 }
 
 TEST_F(ProjectUpdater, CallUpdateGeneratedFilesWithSortedEntries)
@@ -253,14 +265,109 @@ TEST_F(ProjectUpdater, CreateSortedCompilerMacros)
 
 TEST_F(ProjectUpdater, CreateSortedIncludeSearchPaths)
 {
+    CppTools::ProjectPart projectPart;
     ProjectExplorer::HeaderPath includePath{"/to/path1", ProjectExplorer::HeaderPathType::User};
     ProjectExplorer::HeaderPath includePath2{"/to/path2", ProjectExplorer::HeaderPathType::User};
     ProjectExplorer::HeaderPath invalidPath;
-    ProjectExplorer::HeaderPath frameworkPath{"/framework/path", ProjectExplorer::HeaderPathType::Framework};
+    ProjectExplorer::HeaderPath frameworkPath{"/framework/path",
+                                              ProjectExplorer::HeaderPathType::Framework};
+    ProjectExplorer::HeaderPath builtInPath{"/builtin/path", ProjectExplorer::HeaderPathType::BuiltIn};
+    ProjectExplorer::HeaderPath systemPath{"/system/path", ProjectExplorer::HeaderPathType::System};
+    projectPart.headerPaths = {
+        systemPath, builtInPath, frameworkPath, includePath2, includePath, invalidPath};
 
-    auto paths = updater.createIncludeSearchPaths({frameworkPath, includePath2, includePath, invalidPath});
+    auto paths = updater.createIncludeSearchPaths(projectPart);
 
-    ASSERT_THAT(paths, ElementsAre(includePath.path, includePath2.path, frameworkPath.path));
+    ASSERT_THAT(paths.system,
+                ElementsAre(Eq(IncludeSearchPath{systemPath.path, 1, IncludeSearchPathType::System}),
+                            Eq(IncludeSearchPath{builtInPath.path, 4, IncludeSearchPathType::BuiltIn}),
+                            Eq(IncludeSearchPath{frameworkPath.path, 2, IncludeSearchPathType::Framework}),
+                            Eq(IncludeSearchPath{CLANG_RESOURCE_DIR,
+                                                 3,
+                                                 ClangBackEnd::IncludeSearchPathType::BuiltIn})));
+    ASSERT_THAT(paths.project,
+                ElementsAre(Eq(IncludeSearchPath{includePath.path, 2, IncludeSearchPathType::User}),
+                            Eq(IncludeSearchPath{includePath2.path, 1, IncludeSearchPathType::User})));
+}
+
+TEST_F(ProjectUpdater, ToolChainArguments)
+{
+    projectPart.toolChainTargetTriple = "target";
+    projectPart.extraCodeModelFlags.push_back("extraflags");
+    projectPart.compilerFlags.push_back("-fPIC");
+    projectPart.projectConfigFile = "config.h";
+
+    auto arguments = updater.toolChainArguments(&projectPart);
+
+    ASSERT_THAT(arguments,
+                ElementsAre("-m32", "-fPIC", "--target=target", "extraflags", "-include", "config.h"));
+}
+
+TEST_F(ProjectUpdater, ToolChainArgumentsMSVC)
+{
+    projectPart.toolChainTargetTriple = "target";
+    projectPart.extraCodeModelFlags.push_back("extraflags");
+    projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    projectPart.isMsvc2015Toolchain = true;
+
+    auto arguments = updater.toolChainArguments(&projectPart);
+
+    ASSERT_THAT(arguments,
+                ElementsAre("-m32",
+                            "--target=target",
+                            "extraflags",
+                            "-U__clang__",
+                            "-U__clang_major__",
+                            "-U__clang_minor__",
+                            "-U__clang_patchlevel__",
+                            "-U__clang_version__",
+                            "-U__cpp_aggregate_bases",
+                            "-U__cpp_aggregate_nsdmi",
+                            "-U__cpp_alias_templates",
+                            "-U__cpp_aligned_new",
+                            "-U__cpp_attributes",
+                            "-U__cpp_binary_literals",
+                            "-U__cpp_capture_star_this",
+                            "-U__cpp_constexpr",
+                            "-U__cpp_decltype",
+                            "-U__cpp_decltype_auto",
+                            "-U__cpp_deduction_guides",
+                            "-U__cpp_delegating_constructors",
+                            "-U__cpp_digit_separators",
+                            "-U__cpp_enumerator_attributes",
+                            "-U__cpp_exceptions",
+                            "-U__cpp_fold_expressions",
+                            "-U__cpp_generic_lambdas",
+                            "-U__cpp_guaranteed_copy_elision",
+                            "-U__cpp_hex_float",
+                            "-U__cpp_if_constexpr",
+                            "-U__cpp_inheriting_constructors",
+                            "-U__cpp_init_captures",
+                            "-U__cpp_initializer_lists",
+                            "-U__cpp_inline_variables",
+                            "-U__cpp_lambdas",
+                            "-U__cpp_namespace_attributes",
+                            "-U__cpp_nested_namespace_definitions",
+                            "-U__cpp_noexcept_function_type",
+                            "-U__cpp_nontype_template_args",
+                            "-U__cpp_nontype_template_parameter_auto",
+                            "-U__cpp_nsdmi",
+                            "-U__cpp_range_based_for",
+                            "-U__cpp_raw_strings",
+                            "-U__cpp_ref_qualifiers",
+                            "-U__cpp_return_type_deduction",
+                            "-U__cpp_rtti",
+                            "-U__cpp_rvalue_references",
+                            "-U__cpp_static_assert",
+                            "-U__cpp_structured_bindings",
+                            "-U__cpp_template_auto",
+                            "-U__cpp_threadsafe_static_init",
+                            "-U__cpp_unicode_characters",
+                            "-U__cpp_unicode_literals",
+                            "-U__cpp_user_defined_literals",
+                            "-U__cpp_variable_templates",
+                            "-U__cpp_variadic_templates",
+                            "-U__cpp_variadic_using"));
 }
 
 }

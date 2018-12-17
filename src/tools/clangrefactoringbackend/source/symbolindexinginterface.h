@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <projectpartcontainerv2.h>
+#include <projectpartcontainer.h>
 #include <filecontainerv2.h>
 
 namespace ClangBackEnd {
@@ -37,7 +37,7 @@ public:
     SymbolIndexingInterface(const SymbolIndexingInterface&) = delete;
     SymbolIndexingInterface &operator=(const SymbolIndexingInterface&) = delete;
 
-    virtual void updateProjectParts(V2::ProjectPartContainers &&projectParts) = 0;
+    virtual void updateProjectParts(ProjectPartContainers &&projectParts) = 0;
 
 protected:
     ~SymbolIndexingInterface() = default;

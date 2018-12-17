@@ -39,7 +39,8 @@ public:
         : m_pchTaskQueue(pchTaskQueue)
     {}
 
-    void mergeTasks(PchTaskSets &&taskSets) override;
+    void mergeTasks(PchTaskSets &&taskSets, Utils::SmallStringVector &&toolChainArguments) override;
+    void removePchTasks(const Utils::SmallStringVector &projectPartIds) override;
 
 private:
     PchTaskQueueInterface &m_pchTaskQueue;

@@ -49,7 +49,7 @@ using ClangBackEnd::UpdateProjectPartsMessage;
 using ClangBackEnd::RemoveGeneratedFilesMessage;
 using ClangBackEnd::RemoveProjectPartsMessage;
 using ClangBackEnd::V2::FileContainer;
-using ClangBackEnd::V2::ProjectPartContainer;
+using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::PrecompiledHeadersUpdatedMessage;
 
 using ::testing::Args;
@@ -97,13 +97,18 @@ TEST_F(PchManagerClientServerInProcess, SendAliveMessage)
 
 TEST_F(PchManagerClientServerInProcess, SendUpdateProjectPartsMessage)
 {
-    ProjectPartContainer projectPart2{"projectPartId",
-                                      {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
-                                      {{"DEFINE", "1", 1}},
-                                      {"/includes"},
-                                      {{1, 1}},
-                                      {{1, 2}}};
-    UpdateProjectPartsMessage message{{projectPart2}};
+    ProjectPartContainer projectPart2{
+        "projectPartId",
+        {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
+        {{"DEFINE", "1", 1}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+        {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {{1, 1}},
+        {{1, 2}},
+        Utils::Language::C,
+        Utils::LanguageVersion::C11,
+        Utils::LanguageExtension::All};
+    UpdateProjectPartsMessage message{{projectPart2}, {"-m32"}};
 
     EXPECT_CALL(mockPchManagerServer, updateProjectParts(message));
 

@@ -63,6 +63,7 @@ public:
 
     void addTargetTriple();
     void addExtraCodeModelFlags();
+    void addPicIfCompilerFlagsContainsIt();
     void addCompilerFlags();
     void insertWrappedQtHeaders();
     void addLanguageVersionAndExtensions();

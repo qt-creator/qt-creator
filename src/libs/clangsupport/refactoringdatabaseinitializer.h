@@ -125,7 +125,8 @@ public:
         const Sqlite::Column &projectPartNameColumn = table.addColumn("projectPartName", Sqlite::ColumnType::Text);
         table.addColumn("compilerArguments", Sqlite::ColumnType::Text);
         table.addColumn("compilerMacros", Sqlite::ColumnType::Text);
-        table.addColumn("includeSearchPaths", Sqlite::ColumnType::Text);
+        table.addColumn("systemIncludeSearchPaths", Sqlite::ColumnType::Text);
+        table.addColumn("projectIncludeSearchPaths", Sqlite::ColumnType::Text);
         table.addUniqueIndex({projectPartNameColumn});
 
         table.initialize(database);

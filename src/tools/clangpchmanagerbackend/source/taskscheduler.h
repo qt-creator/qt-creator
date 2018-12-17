@@ -56,6 +56,8 @@ class ProcessorManagerInterface;
 class QueueInterface;
 class SymbolStorageInterface;
 
+enum class CallDoInMainThreadAfterFinished : char { Yes, No };
+
 template <typename ProcessorManager,
           typename Task>
 class TaskScheduler : public TaskSchedulerInterface<Task>
@@ -68,23 +70,22 @@ public:
                   QueueInterface &queue,
                   ProgressCounter &progressCounter,
                   uint hardwareConcurrency,
+                  CallDoInMainThreadAfterFinished callDoInMainThreadAfterFinished,
                   std::launch launchPolicy = std::launch::async)
-        : m_processorManager(processorManager),
-          m_queue(queue),
-          m_progressCounter(progressCounter),
-          m_hardwareConcurrency(hardwareConcurrency),
-          m_launchPolicy(launchPolicy)
+        : m_processorManager(processorManager)
+        , m_queue(queue)
+        , m_progressCounter(progressCounter)
+        , m_hardwareConcurrency(hardwareConcurrency)
+        , m_launchPolicy(launchPolicy)
+        , m_callDoInMainThreadAfterFinished(callDoInMainThreadAfterFinished)
     {}
 
     void addTasks(std::vector<Task> &&tasks)
     {
         for (auto &task : tasks) {
-            auto callWrapper = [&, task=std::move(task)] (auto processor)
-                    -> ProcessorInterface& {
+            auto callWrapper = [&, task = std::move(task)](auto processor) -> ProcessorInterface & {
                 task(processor.get());
-                executeInLoop([&] {
-                    m_queue.processEntries();
-                });
+                executeInLoop([&] { m_queue.processEntries(); });
 
                 return processor;
             };
@@ -130,9 +131,10 @@ private:
 
         auto split = std::partition(m_futures.begin(), m_futures.end(), notReady);
 
-        std::for_each(split, m_futures.end(), [] (Future &future) {
+        std::for_each(split, m_futures.end(), [&] (Future &future) {
             ProcessorInterface &processor = future.get();
-            processor.doInMainThreadAfterFinished();
+            if (m_callDoInMainThreadAfterFinished == CallDoInMainThreadAfterFinished::Yes)
+                processor.doInMainThreadAfterFinished();
             processor.setIsUsed(false);
             processor.clear();
         });
@@ -191,6 +193,7 @@ private:
     uint m_hardwareConcurrency;
     std::launch m_launchPolicy;
     bool m_isDisabled = false;
+    CallDoInMainThreadAfterFinished m_callDoInMainThreadAfterFinished;
 };
 
 } // namespace ClangBackEnd

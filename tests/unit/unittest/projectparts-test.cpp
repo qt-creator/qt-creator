@@ -27,7 +27,7 @@
 
 #include <projectparts.h>
 
-#include <projectpartcontainerv2.h>
+#include <projectpartcontainer.h>
 
 namespace {
 
@@ -35,7 +35,7 @@ using testing::ElementsAre;
 using testing::UnorderedElementsAre;
 using testing::IsEmpty;
 
-using ClangBackEnd::V2::ProjectPartContainer;
+using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::FilePathId;
 
 class ProjectParts : public testing::Test
@@ -47,24 +47,39 @@ protected:
     FilePathId firstSource{11};
     FilePathId secondSource{12};
     FilePathId thirdSource{13};
-    ProjectPartContainer projectPartContainer1{"id",
-                                               {"-DUNIX", "-O2"},
-                                               {{"DEFINE", "1", 1}},
-                                               {"/includes"},
-                                               {firstHeader, secondHeader},
-                                               {firstSource, secondSource}};
-    ProjectPartContainer updatedProjectPartContainer1{"id",
-                                                      {"-DUNIX", "-O2"},
-                                                      {{"DEFINE", "1", 1}},
-                                                      {"/includes"},
-                                                      {firstHeader, secondHeader},
-                                                      {firstSource, secondSource, thirdSource}};
-    ProjectPartContainer projectPartContainer2{"id2",
-                                              {"-DUNIX", "-O2"},
-                                              {{"DEFINE", "1", 1}},
-                                              {"/includes"},
-                                              {firstHeader, secondHeader},
-                                              {firstSource, secondSource}};
+    ProjectPartContainer projectPartContainer1{
+        "id",
+        {"-DUNIX", "-O2"},
+        {{"DEFINE", "1", 1}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+        {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {firstHeader, secondHeader},
+        {firstSource, secondSource},
+        Utils::Language::C,
+        Utils::LanguageVersion::C11,
+        Utils::LanguageExtension::All};
+    ProjectPartContainer updatedProjectPartContainer1{
+        "id",
+        {"-DUNIX", "-O2"},
+        {{"DEFINE", "1", 1}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+        {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {firstHeader, secondHeader},
+        {firstSource, secondSource, thirdSource},
+        Utils::Language::C,
+        Utils::LanguageVersion::C11,
+        Utils::LanguageExtension::All};
+    ProjectPartContainer projectPartContainer2{
+        "id2",
+        {"-DUNIX", "-O2"},
+        {{"DEFINE", "1", 1}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+        {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {firstHeader, secondHeader},
+        {firstSource, secondSource},
+        Utils::Language::C,
+        Utils::LanguageVersion::C11,
+        Utils::LanguageExtension::All};
 };
 
 TEST_F(ProjectParts, GetNoProjectPartsForAddingEmptyProjectParts)

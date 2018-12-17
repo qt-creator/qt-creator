@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <projectpartcontainerv2.h>
+#include <projectpartcontainer.h>
 
 namespace ClangBackEnd {
 
@@ -36,9 +36,9 @@ public:
     ProjectPartsInterface(const ProjectPartsInterface &) = delete;
     ProjectPartsInterface &operator=(const ProjectPartsInterface &) = delete;
 
-    virtual V2::ProjectPartContainers update(V2::ProjectPartContainers &&projectsParts) = 0;
+    virtual ProjectPartContainers update(ProjectPartContainers &&projectsParts) = 0;
     virtual void remove(const Utils::SmallStringVector &projectPartIds) = 0;
-    virtual V2::ProjectPartContainers projects(const Utils::SmallStringVector &projectPartIds) const = 0;
+    virtual ProjectPartContainers projects(const Utils::SmallStringVector &projectPartIds) const = 0;
 
 protected:
     ~ProjectPartsInterface() = default;

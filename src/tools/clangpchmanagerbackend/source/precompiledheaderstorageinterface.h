@@ -25,7 +25,9 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include <filepath.h>
+
+#include <utils/smallstringvector.h>
 
 namespace ClangBackEnd {
 
@@ -42,13 +44,12 @@ public:
                                                 long long pchBuildTime)
         = 0;
     virtual void deleteProjectPrecompiledHeader(Utils::SmallStringView projectPartName) = 0;
-    virtual void insertSystemPrecompiledHeader(Utils::SmallStringView projectPartName,
-                                               Utils::SmallStringView pchPath,
-                                               long long pchBuildTime)
+    virtual void insertSystemPrecompiledHeaders(const Utils::SmallStringVector &projectPartNames,
+                                                Utils::SmallStringView pchPath,
+                                                long long pchBuildTime)
         = 0;
-    virtual void deleteSystemPrecompiledHeader(Utils::SmallStringView projectPartName) = 0;
-    virtual Utils::PathString fetchSystemPrecompiledHeaderPath(
-        Utils::SmallStringView projectPartName) = 0;
+    virtual void deleteSystemPrecompiledHeaders(const Utils::SmallStringVector &projectPartNames) = 0;
+    virtual FilePath fetchSystemPrecompiledHeaderPath(Utils::SmallStringView projectPartName) = 0;
 
 protected:
     ~PrecompiledHeaderStorageInterface() = default;

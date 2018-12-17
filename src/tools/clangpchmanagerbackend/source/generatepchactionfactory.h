@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,22 +23,19 @@
 **
 ****************************************************************************/
 
-#include "projectpartcontainerv2.h"
+#pragma once
+
+#include <clang/Tooling/Tooling.h>
+
+#include "clang/Frontend/FrontendActions.h"
 
 namespace ClangBackEnd {
-namespace V2 {
-
-QDebug operator<<(QDebug debug, const ProjectPartContainer &container)
+class GeneratePCHActionFactory final : public clang::tooling::FrontendActionFactory
 {
-    debug.nospace() << "ProjectPartContainer("
-                    << container.projectPartId << ","
-                    << container.arguments << ", "
-                    << container.headerPathIds << ", "
-                    << container.sourcePathIds
-                    << ")";
-
-    return debug;
-}
-
-} // namespace V2
+public:
+    clang::FrontendAction *create() override
+    {
+        return new clang::GeneratePCHAction;
+    }
+};
 } // namespace ClangBackEnd

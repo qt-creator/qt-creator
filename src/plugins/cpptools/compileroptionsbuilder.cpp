@@ -249,6 +249,12 @@ void CompilerOptionsBuilder::addExtraCodeModelFlags()
     add(m_projectPart.extraCodeModelFlags);
 }
 
+void CompilerOptionsBuilder::addPicIfCompilerFlagsContainsIt()
+{
+    if (m_projectPart.compilerFlags.contains("-fPIC"))
+        add("-fPIC");
+}
+
 void CompilerOptionsBuilder::addCompilerFlags()
 {
     add(m_compilerFlags.flags);

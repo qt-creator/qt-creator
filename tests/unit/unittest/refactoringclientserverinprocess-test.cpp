@@ -52,7 +52,7 @@ using ClangBackEnd::RemoveProjectPartsMessage;
 using ClangBackEnd::UpdateProjectPartsMessage;
 using ClangBackEnd::UpdateGeneratedFilesMessage;
 using ClangBackEnd::V2::FileContainer;
-using ClangBackEnd::V2::ProjectPartContainer;
+using ClangBackEnd::ProjectPartContainer;
 
 class RefactoringClientServerInProcess : public ::testing::Test
 {
@@ -192,10 +192,17 @@ TEST_F(RefactoringClientServerInProcess, SendUpdateProjectPartsMessage)
     ProjectPartContainer projectPart2{"projectPartId",
                                       {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
                                       {{"DEFINE", "1", 1}},
-                                      {"/includes"},
+                                      {IncludeSearchPath{"/system/path", 2, IncludeSearchPathType::System},
+                                       IncludeSearchPath{"/builtin/path", 3, IncludeSearchPathType::BuiltIn},
+                                       IncludeSearchPath{"/framework/path", 1, IncludeSearchPathType::System}},
+                                      {IncludeSearchPath{"/to/path1", 1, IncludeSearchPathType::User},
+                                       IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User}},
                                       {{1, 1}},
-                                      {{1, 2}}};
-    UpdateProjectPartsMessage message{{projectPart2}};
+                                      {{1, 2}},
+                                      Utils::Language::C,
+                                      Utils::LanguageVersion::C11,
+                                      Utils::LanguageExtension::All};
+    UpdateProjectPartsMessage message{{projectPart2}, {"toolChainArgument"}};
 
     EXPECT_CALL(mockRefactoringServer, updateProjectParts(message));
 

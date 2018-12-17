@@ -33,16 +33,7 @@
 
 namespace ClangBackEnd {
 
-ProjectPartArtefact::ProjectPartArtefact(Utils::SmallStringView compilerArgumentsText,
-                                         Utils::SmallStringView compilerMacrosText,
-                                         Utils::SmallStringView includeSearchPaths,
-                                         int projectPartId)
-    : compilerArguments(toStringVector(compilerArgumentsText)),
-      compilerMacros(toCompilerMacros(compilerMacrosText)),
-      includeSearchPaths(toStringVector(includeSearchPaths)),
-      projectPartId(projectPartId)
-{
-}
+
 
 Utils::SmallStringVector ProjectPartArtefact::toStringVector(Utils::SmallStringView jsonText)
 {
@@ -58,17 +49,33 @@ Utils::SmallStringVector ProjectPartArtefact::toStringVector(Utils::SmallStringV
 
 CompilerMacros ProjectPartArtefact::createCompilerMacrosFromDocument(const QJsonDocument &document)
 {
-    QJsonObject object = document.object();
+    QJsonArray array = document.array();
     CompilerMacros macros;
-    macros.reserve(object.size());
+    macros.reserve(array.size());
 
-    int index = 0;
-    for (auto current = object.constBegin(); current != object.constEnd(); ++current)
-        macros.emplace_back(current.key(), current.value().toString(), ++index);
+    for (const QJsonValueRef entry : array) {
+        const QJsonArray entryArray = entry.toArray();
+        macros.emplace_back(
+            entryArray[0].toString(), entryArray[1].toString(), entryArray[2].toInt());
+    }
 
     std::sort(macros.begin(), macros.end());
 
     return macros;
+}
+
+IncludeSearchPaths ProjectPartArtefact::createIncludeSearchPathsFromDocument(const QJsonDocument &document)
+{
+    QJsonArray array = document.array();
+    IncludeSearchPaths paths;
+    paths.reserve(array.size());
+
+    for (const QJsonValueRef entry : array) {
+        const QJsonArray entryArray = entry.toArray();
+        paths.emplace_back(entryArray[0].toString(), entryArray[1].toInt(), entryArray[2].toInt());
+    }
+
+    return paths;
 }
 
 CompilerMacros ProjectPartArtefact::toCompilerMacros(Utils::SmallStringView jsonText)
@@ -93,6 +100,17 @@ QJsonDocument ProjectPartArtefact::createJsonDocument(Utils::SmallStringView jso
     return document;
 }
 
+IncludeSearchPaths ProjectPartArtefact::toIncludeSearchPaths(Utils::SmallStringView jsonText)
+{
+
+    if (jsonText.isEmpty())
+        return {};
+
+    QJsonDocument document = createJsonDocument(jsonText, "Include search paths parsing error");
+
+    return createIncludeSearchPathsFromDocument(document);
+}
+
 void ProjectPartArtefact::checkError(const char *whatError, const QJsonParseError &error)
 {
     if (error.error != QJsonParseError::NoError) {
@@ -104,7 +122,9 @@ void ProjectPartArtefact::checkError(const char *whatError, const QJsonParseErro
 bool operator==(const ProjectPartArtefact &first, const ProjectPartArtefact &second)
 {
     return first.compilerArguments == second.compilerArguments
-            && first.compilerMacros == second.compilerMacros;
+           && first.compilerMacros == second.compilerMacros
+           && first.systemIncludeSearchPaths == second.systemIncludeSearchPaths
+           && first.projectIncludeSearchPaths == second.projectIncludeSearchPaths;
 }
 
 } // namespace ClangBackEnd

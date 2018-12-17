@@ -99,7 +99,6 @@ SOURCES += \
     sourcesmanager-test.cpp \
     symbolindexertaskqueue-test.cpp \
     refactoringprojectupdater-test.cpp \
-    projectpartqueue-test.cpp \
     processormanager-test.cpp \
     taskscheduler-test.cpp \
     compileroptionsbuilder-test.cpp \
@@ -111,7 +110,10 @@ SOURCES += \
     usedmacrofilter-test.cpp \
     pchtasksmerger-test.cpp \
     pchtaskqueue-test.cpp \
-    headerpathfilter-test.cpp
+    commandlinebuilder-test.cpp \
+    headerpathfilter-test.cpp \
+    toolchainargumentscache-test.cpp \
+    modifiedtimechecker-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -262,7 +264,8 @@ HEADERS += \
     mockbuilddependenciesstorage.h \
     mockbuilddependencygenerator.h \
     mockpchtasksmerger.h \
-    mockpchtaskqueue.h
+    mockpchtaskqueue.h \
+    mockpchtaskgenerator.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

@@ -4,7 +4,6 @@ SOURCES += \
     $$PWD/builddependenciesprovider.cpp \
     $$PWD/pchmanagerserver.cpp \
     $$PWD/projectparts.cpp \
-    $$PWD/projectpartqueue.cpp \
     $$PWD/pchtaskgenerator.cpp \
     $$PWD/pchtasksmerger.cpp \
     $$PWD/pchtaskqueue.cpp
@@ -17,9 +16,7 @@ HEADERS += \
     $$PWD/projectparts.h \
     $$PWD/pchcreatorinterface.h \
     $$PWD/projectpartsinterface.h \
-    $$PWD/projectpartqueue.h \
     $$PWD/queueinterface.h \
-    $$PWD/projectpartqueueinterface.h \
     $$PWD/processormanagerinterface.h \
     $$PWD/processorinterface.h \
     $$PWD/taskscheduler.h \
@@ -40,7 +37,11 @@ HEADERS += \
     $$PWD/pchtasksmergerinterface.h \
     $$PWD/pchtasksmerger.h \
     $$PWD/pchtaskqueueinterface.h \
-    $$PWD/pchtaskqueue.h
+    $$PWD/pchtaskqueue.h \
+    $$PWD/generatepchactionfactory.h \
+    $$PWD/pchtaskgeneratorinterface.h \
+    $$PWD/toolchainargumentscache.h \
+    $$PWD/modifiedtimechecker.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

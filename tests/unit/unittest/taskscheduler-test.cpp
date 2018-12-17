@@ -68,14 +68,16 @@ protected:
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
     Scheduler scheduler{mockProcessorManager,
-                mockSymbolIndexerTaskQueue,
-                progressCounter,
-                4};
+                        mockSymbolIndexerTaskQueue,
+                        progressCounter,
+                        4,
+                        ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
     Scheduler deferredScheduler{mockProcessorManager,
-                mockSymbolIndexerTaskQueue,
-                progressCounter,
-                4,
-                std::launch::deferred};
+                                mockSymbolIndexerTaskQueue,
+                                progressCounter,
+                                4,
+                                ClangBackEnd::CallDoInMainThreadAfterFinished::Yes,
+                                std::launch::deferred};
 };
 
 TEST_F(TaskScheduler, AddTasks)
@@ -144,6 +146,24 @@ TEST_F(TaskScheduler, FreeSlotsCallsCleanupMethodsAfterTheWorkIsDone)
     EXPECT_CALL(mockSymbolsCollector, clear());
 
     scheduler.slotUsage();
+}
+
+TEST_F(TaskScheduler, FreeSlotsDoNotCallsDoInMainThreadAfterFinishedAfterTheWorkIsDoneIfForbidden)
+{
+    Scheduler scheduler{mockProcessorManager,
+                        mockSymbolIndexerTaskQueue,
+                        progressCounter,
+                        4,
+                        ClangBackEnd::CallDoInMainThreadAfterFinished::No};
+    scheduler.addTasks({nocall, nocall});
+    scheduler.syncTasks();
+    InSequence s;
+
+    EXPECT_CALL(mockSymbolsCollector, doInMainThreadAfterFinished()).Times(0);
+
+    scheduler.slotUsage();
+    scheduler.syncTasks();
+    QCoreApplication::processEvents();
 }
 
 TEST_F(TaskScheduler, FreeSlotsCallsProgressMethodsAfterTheWorkIsDone)

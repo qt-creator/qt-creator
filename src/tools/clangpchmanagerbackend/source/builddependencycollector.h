@@ -42,7 +42,7 @@ public:
     {
     }
 
-    BuildDependency create(const V2::ProjectPartContainer &projectPart) override;
+    BuildDependency create(const ProjectPartContainer &projectPart) override;
 
     void collect();
 

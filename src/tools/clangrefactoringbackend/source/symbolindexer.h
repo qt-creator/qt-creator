@@ -31,7 +31,7 @@
 #include "builddependenciesstorageinterface.h"
 #include "clangpathwatcher.h"
 
-#include <projectpartcontainerv2.h>
+#include <projectpartcontainer.h>
 #include <filecontainerv2.h>
 
 namespace ClangBackEnd {
@@ -49,8 +49,8 @@ public:
                   FileStatusCache &fileStatusCache,
                   Sqlite::TransactionInterface &transactionInterface);
 
-    void updateProjectParts(V2::ProjectPartContainers &&projectParts);
-    void updateProjectPart(V2::ProjectPartContainer &&projectPart);
+    void updateProjectParts(ProjectPartContainers &&projectParts);
+    void updateProjectPart(ProjectPartContainer &&projectPart);
 
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;
@@ -58,22 +58,23 @@ public:
                            std::vector<SymbolIndexerTask> &symbolIndexerTask);
 
     bool compilerMacrosOrIncludeSearchPathsAreDifferent(
-            const V2::ProjectPartContainer &projectPart,
+            const ProjectPartContainer &projectPart,
             const Utils::optional<ProjectPartArtefact> &optionalArtefact) const;
 
     FilePathIds filterChangedFiles(
-            const V2::ProjectPartContainer &projectPart) const;
+            const ProjectPartContainer &projectPart) const;
 
-    FilePathIds updatableFilePathIds(const V2::ProjectPartContainer &projectPart,
+    FilePathIds updatableFilePathIds(const ProjectPartContainer &projectPart,
                                      const Utils::optional<ProjectPartArtefact> &optionalArtefact) const;
 
-    Utils::SmallStringVector compilerArguments(Utils::SmallStringVector arguments,
-                                               const Utils::optional<ProjectPartPch> optionalProjectPartPch) const;
+    Utils::SmallStringVector compilerArguments(
+        Utils::SmallStringVector arguments,
+        const Utils::optional<ProjectPartPch> optionalProjectPartPch) const;
 
 private:
     SymbolIndexerTaskQueueInterface &m_symbolIndexerTaskQueue;
     SymbolStorageInterface &m_symbolStorage;
-    BuildDependenciesStorageInterface &m_usedMacroAndSourceStorage;
+    BuildDependenciesStorageInterface &m_buildDependencyStorage;
     ClangPathWatcherInterface &m_pathWatcher;
     FilePathCachingInterface &m_filePathCache;
     FileStatusCache &m_fileStatusCache;

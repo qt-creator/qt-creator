@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <utils/cpplanguage_details.h>
 #include <utils/smallstringio.h>
 #include <utils/optional.h>
 
@@ -74,6 +75,9 @@ class LineColumn;
 class SmallStringView;
 
 std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn);
+std::ostream &operator<<(std::ostream &out, const Utils::Language &language);
+std::ostream &operator<<(std::ostream &out, const Utils::LanguageVersion &languageVersion);
+std::ostream &operator<<(std::ostream &out, const Utils::LanguageExtension &languageExtension);
 
 template <typename Type>
 std::ostream &operator<<(std::ostream &out, const Utils::optional<Type> &optional)
@@ -176,10 +180,15 @@ class SymbolIndexerTask;
 class ProgressMessage;
 class PchCreatorIncludes;
 class PchTask;
+class PchTaskSet;
 class BuildDependency;
 class SourceEntry;
 class FilePathCaching;
 class SlotUsage;
+class IncludeSearchPath;
+enum class IncludeSearchPathType : unsigned char;
+class ArgumentsEntry;
+class ProjectPartContainer;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -262,9 +271,14 @@ std::ostream &operator<<(std::ostream &out, const SymbolIndexerTask &task);
 std::ostream &operator<<(std::ostream &out, const ProgressMessage &message);
 std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes);
 std::ostream &operator<<(std::ostream &out, const PchTask &task);
+std::ostream &operator<<(std::ostream &out, const PchTaskSet &taskSet);
 std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency);
 std::ostream &operator<<(std::ostream &out, const SourceEntry &entry);
 std::ostream &operator<<(std::ostream &out, const SlotUsage &slotUsage);
+std::ostream &operator<<(std::ostream &out, const IncludeSearchPathType &pathType);
+std::ostream &operator<<(std::ostream &out, const IncludeSearchPath &path);
+std::ostream &operator<<(std::ostream &out, const ArgumentsEntry &entry);
+std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);
@@ -272,12 +286,10 @@ void PrintTo(const FilePathId &filePathId, ::std::ostream *os);
 
 namespace V2 {
 class FileContainer;
-class ProjectPartContainer;
 class SourceRangeContainer;
 class SourceLocationContainer;
 
 std::ostream &operator<<(std::ostream &out, const FileContainer &container);
-std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container);
 std::ostream &operator<<(std::ostream &out, const SourceLocationContainer &container);
 std::ostream &operator<<(std::ostream &out, const SourceRangeContainer &container);
 }  // namespace V2

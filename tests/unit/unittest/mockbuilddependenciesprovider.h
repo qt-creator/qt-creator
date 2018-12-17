@@ -34,5 +34,5 @@ class MockBuildDependenciesProvider : public ClangBackEnd::BuildDependenciesProv
 public:
     MOCK_METHOD1(
         create,
-        ClangBackEnd::BuildDependency(const ClangBackEnd::V2::ProjectPartContainer &projectPart));
+        ClangBackEnd::BuildDependency(const ClangBackEnd::ProjectPartContainer &projectPart));
 };

@@ -1,0 +1,149 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#pragma once
+
+#include "modifiedtimecheckerinterface.h"
+
+#include <filepathcachinginterface.h>
+
+#include <algorithm>
+#include <iterator>
+
+namespace ClangBackEnd {
+
+class ModifiedTimeChecker final : public ModifiedTimeCheckerInterface
+{
+public:
+    using GetModifiedTime = std::function<ClangBackEnd::TimeStamp(ClangBackEnd::FilePathView filePath)>;
+    ModifiedTimeChecker(GetModifiedTime &getModifiedTime, FilePathCachingInterface &filePathCache)
+        : m_getModifiedTime(getModifiedTime)
+        , m_filePathCache(filePathCache)
+    {}
+
+    bool isUpToDate(const SourceEntries &sourceEntries) const
+    {
+        if (sourceEntries.empty())
+            return false;
+
+        updateCurrentSourceTimeStamps(sourceEntries);
+
+        return compareEntries(sourceEntries);
+    }
+
+    void pathsChanged(const FilePathIds &filePathIds)
+    {
+        using SourceTimeStampPointers = std::vector<SourceTimeStamp*>;
+
+        class BackInserterIterator : public std::back_insert_iterator<SourceTimeStampPointers>
+        {
+        public:
+            BackInserterIterator(SourceTimeStampPointers &container)
+                : std::back_insert_iterator<SourceTimeStampPointers>(container)
+            {}
+
+            BackInserterIterator &operator=(SourceTimeStamp &timeStamp)
+            {
+                container->push_back(&timeStamp);
+
+                return *this;
+            }
+
+            BackInserterIterator &operator*() { return *this; }
+        };
+
+        SourceTimeStampPointers timeStampsToUpdate;
+        timeStampsToUpdate.reserve(filePathIds.size());
+
+        std::set_intersection(m_currentSourceTimeStamps.begin(),
+                              m_currentSourceTimeStamps.end(),
+                              filePathIds.begin(),
+                              filePathIds.end(),
+                              BackInserterIterator(timeStampsToUpdate));
+
+        for (SourceTimeStamp *sourceTimeStamp : timeStampsToUpdate) {
+            sourceTimeStamp->lastModified = m_getModifiedTime(
+                m_filePathCache.filePath(sourceTimeStamp->sourceId));
+        }
+    }
+
+private:
+    bool compareEntries(const SourceEntries &sourceEntries) const
+    {
+        SourceTimeStamps currentSourceTimeStamp;
+        currentSourceTimeStamp.reserve(sourceEntries.size());
+        std::set_intersection(m_currentSourceTimeStamps.begin(),
+                              m_currentSourceTimeStamps.end(),
+                              sourceEntries.begin(),
+                              sourceEntries.end(),
+                              std::back_inserter(currentSourceTimeStamp));
+
+        return std::equal(currentSourceTimeStamp.begin(),
+                          currentSourceTimeStamp.end(),
+                          sourceEntries.begin(),
+                          sourceEntries.end(),
+                          [](SourceTimeStamp first, SourceTimeStamp second) {
+                              return first.lastModified <= second.lastModified;
+                          });
+    }
+
+    void updateCurrentSourceTimeStamps(const SourceEntries &sourceEntries) const
+    {
+        SourceTimeStamps sourceTimeStamps = newSourceTimeStamps(sourceEntries);
+
+        for (SourceTimeStamp &newSourceTimeStamp : sourceTimeStamps) {
+            newSourceTimeStamp.lastModified = m_getModifiedTime(
+                m_filePathCache.filePath(newSourceTimeStamp.sourceId));
+        }
+
+        auto split = sourceTimeStamps.insert(sourceTimeStamps.end(),
+                                        m_currentSourceTimeStamps.begin(),
+                                        m_currentSourceTimeStamps.end());
+        std::inplace_merge(sourceTimeStamps.begin(), split, sourceTimeStamps.end());
+
+        m_currentSourceTimeStamps = sourceTimeStamps;
+    }
+
+    SourceTimeStamps newSourceTimeStamps(const SourceEntries &sourceEntries) const
+    {
+        SourceTimeStamps newTimeStamps;
+        newTimeStamps.reserve(sourceEntries.size() + m_currentSourceTimeStamps.size());
+
+        std::set_difference(sourceEntries.begin(),
+                            sourceEntries.end(),
+                            m_currentSourceTimeStamps.begin(),
+                            m_currentSourceTimeStamps.end(),
+                            std::back_inserter(newTimeStamps));
+
+        return newTimeStamps;
+    }
+
+private:
+    mutable SourceTimeStamps m_currentSourceTimeStamps;
+    GetModifiedTime &m_getModifiedTime;
+    FilePathCachingInterface &m_filePathCache;
+};
+
+} // namespace ClangBackEnd

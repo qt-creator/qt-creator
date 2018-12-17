@@ -34,7 +34,8 @@
 
 namespace ClangBackEnd {
 
-void PchTaskGenerator::create(V2::ProjectPartContainers &&projectParts)
+void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
+                                       Utils::SmallStringVector &&toolChainArguments)
 {
     PchTaskSets pchTaskSets;
     pchTaskSets.reserve(projectParts.size());
@@ -46,18 +47,33 @@ void PchTaskGenerator::create(V2::ProjectPartContainers &&projectParts)
         filter.filter(projectPart.compilerMacros);
 
         pchTaskSets.emplace_back(PchTask{projectPart.projectPartId.clone(),
-                                         std::move(filter.systemIncludes),
+                                         std::move(filter.topSystemIncludes),
                                          std::move(filter.systemCompilerMacros),
-                                         std::move(filter.systemUsedMacros)
-
-                                 },
+                                         std::move(filter.systemUsedMacros),
+                                         projectPart.toolChainArguments,
+                                         projectPart.systemIncludeSearchPaths,
+                                         projectPart.projectIncludeSearchPaths,
+                                         projectPart.language,
+                                         projectPart.languageVersion,
+                                         projectPart.languageExtension},
                                  PchTask{std::move(projectPart.projectPartId),
-                                         std::move(filter.projectIncludes),
+                                         std::move(filter.topProjectIncludes),
                                          std::move(filter.projectCompilerMacros),
-                                         std::move(filter.projectUsedMacros)});
+                                         std::move(filter.projectUsedMacros),
+                                         projectPart.toolChainArguments,
+                                         projectPart.systemIncludeSearchPaths,
+                                         projectPart.projectIncludeSearchPaths,
+                                         projectPart.language,
+                                         projectPart.languageVersion,
+                                         projectPart.languageExtension});
     }
 
-    m_pchTasksMergerInterface.mergeTasks(std::move(pchTaskSets));
+    m_pchTasksMergerInterface.mergeTasks(std::move(pchTaskSets), std::move(toolChainArguments));
+}
+
+void PchTaskGenerator::removeProjectParts(const Utils::SmallStringVector &projectsPartIds)
+{
+    m_pchTasksMergerInterface.removePchTasks(projectsPartIds);
 }
 
 } // namespace ClangBackEnd

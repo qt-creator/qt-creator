@@ -53,7 +53,7 @@ OutputContainer setUnion(InputContainer1 &&input1,
     return results;
 }
 
-BuildDependency BuildDependenciesProvider::create(const V2::ProjectPartContainer &projectPart)
+BuildDependency BuildDependenciesProvider::create(const ProjectPartContainer &projectPart)
 {
     SourceEntries includes = createSourceEntriesFromStorage(projectPart.sourcePathIds,
                                                             projectPart.projectPartId);

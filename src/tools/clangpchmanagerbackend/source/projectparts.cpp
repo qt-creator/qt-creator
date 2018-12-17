@@ -25,7 +25,7 @@
 
 #include "projectparts.h"
 
-#include <projectpartcontainerv2.h>
+#include <projectpartcontainer.h>
 
 #include <algorithm>
 
@@ -33,7 +33,7 @@ namespace ClangBackEnd {
 
 inline namespace Pch {
 
-V2::ProjectPartContainers ProjectParts::update(V2::ProjectPartContainers &&projectsParts)
+ProjectPartContainers ProjectParts::update(ProjectPartContainers &&projectsParts)
 {
     auto updatedProjectPartContainers = newProjectParts(std::move(projectsParts));
 
@@ -44,7 +44,7 @@ V2::ProjectPartContainers ProjectParts::update(V2::ProjectPartContainers &&proje
 
 void ProjectParts::remove(const Utils::SmallStringVector &ids)
 {
-    auto shouldRemove = [&] (const V2::ProjectPartContainer &projectPart) {
+    auto shouldRemove = [&] (const ProjectPartContainer &projectPart) {
         return std::find(ids.begin(), ids.end(), projectPart.projectPartId) != ids.end();
     };
 
@@ -52,23 +52,23 @@ void ProjectParts::remove(const Utils::SmallStringVector &ids)
     m_projectParts.erase(newEnd, m_projectParts.end());
 }
 
-V2::ProjectPartContainers ProjectParts::projects(const Utils::SmallStringVector &projectPartIds) const
+ProjectPartContainers ProjectParts::projects(const Utils::SmallStringVector &projectPartIds) const
 {
-    V2::ProjectPartContainers projectPartsWithIds;
+    ProjectPartContainers projectPartsWithIds;
 
     std::copy_if(m_projectParts.begin(),
                  m_projectParts.end(),
                  std::back_inserter(projectPartsWithIds),
-                 [&] (const V2::ProjectPartContainer &projectPart) {
+                 [&] (const ProjectPartContainer &projectPart) {
         return std::binary_search(projectPartIds.begin(), projectPartIds.end(), projectPart.projectPartId);
     });
 
     return projectPartsWithIds;
 }
 
-V2::ProjectPartContainers ProjectParts::newProjectParts(V2::ProjectPartContainers &&projectsParts) const
+ProjectPartContainers ProjectParts::newProjectParts(ProjectPartContainers &&projectsParts) const
 {
-    V2::ProjectPartContainers updatedProjectPartContainers;
+    ProjectPartContainers updatedProjectPartContainers;
     updatedProjectPartContainers.reserve(projectsParts.size());
 
     std::set_difference(std::make_move_iterator(projectsParts.begin()),
@@ -80,12 +80,12 @@ V2::ProjectPartContainers ProjectParts::newProjectParts(V2::ProjectPartContainer
     return updatedProjectPartContainers;
 }
 
-void ProjectParts::mergeProjectParts(const V2::ProjectPartContainers &projectsParts)
+void ProjectParts::mergeProjectParts(const ProjectPartContainers &projectsParts)
 {
-    V2::ProjectPartContainers newProjectParts;
+    ProjectPartContainers newProjectParts;
     newProjectParts.reserve(m_projectParts.size() + projectsParts.size());
 
-    auto compare = [] (const V2::ProjectPartContainer &first, const V2::ProjectPartContainer &second) {
+    auto compare = [] (const ProjectPartContainer &first, const ProjectPartContainer &second) {
         return first.projectPartId < second.projectPartId;
     };
 
@@ -99,7 +99,7 @@ void ProjectParts::mergeProjectParts(const V2::ProjectPartContainers &projectsPa
     m_projectParts = newProjectParts;
 }
 
-const V2::ProjectPartContainers &ProjectParts::projectParts() const
+const ProjectPartContainers &ProjectParts::projectParts() const
 {
     return m_projectParts;
 }

@@ -119,7 +119,7 @@ TEST_F(PrecompiledHeaderStorage, DeleteProjectPrecompiledHeaderStatementIsBusy)
     storage.deleteProjectPrecompiledHeader("project1");
 }
 
-TEST_F(PrecompiledHeaderStorage, InsertSystemPrecompiledHeader)
+TEST_F(PrecompiledHeaderStorage, InsertSystemPrecompiledHeaders)
 {
     InSequence s;
 
@@ -129,12 +129,17 @@ TEST_F(PrecompiledHeaderStorage, InsertSystemPrecompiledHeader)
                 write(TypedEq<Utils::SmallStringView>("project1"),
                       TypedEq<Utils::SmallStringView>("/path/to/pch"),
                       TypedEq<long long>(22)));
+    EXPECT_CALL(insertProjectPartStatement, write(TypedEq<Utils::SmallStringView>("project2")));
+    EXPECT_CALL(insertSystemPrecompiledHeaderStatement,
+                write(TypedEq<Utils::SmallStringView>("project2"),
+                      TypedEq<Utils::SmallStringView>("/path/to/pch"),
+                      TypedEq<long long>(22)));
     EXPECT_CALL(database, commit());
 
-    storage.insertSystemPrecompiledHeader("project1", "/path/to/pch", 22);
+    storage.insertSystemPrecompiledHeaders({"project1", "project2"}, "/path/to/pch", 22);
 }
 
-TEST_F(PrecompiledHeaderStorage, InsertSystemPrecompiledHeaderStatementIsBusy)
+TEST_F(PrecompiledHeaderStorage, InsertSystemPrecompiledHeadersStatementIsBusy)
 {
     InSequence s;
 
@@ -145,32 +150,43 @@ TEST_F(PrecompiledHeaderStorage, InsertSystemPrecompiledHeaderStatementIsBusy)
                 write(TypedEq<Utils::SmallStringView>("project1"),
                       TypedEq<Utils::SmallStringView>("/path/to/pch"),
                       TypedEq<long long>(22)));
+    EXPECT_CALL(insertProjectPartStatement, write(TypedEq<Utils::SmallStringView>("project2")));
+    EXPECT_CALL(insertSystemPrecompiledHeaderStatement,
+                write(TypedEq<Utils::SmallStringView>("project2"),
+                      TypedEq<Utils::SmallStringView>("/path/to/pch"),
+                      TypedEq<long long>(22)));
     EXPECT_CALL(database, commit());
 
-    storage.insertSystemPrecompiledHeader("project1", "/path/to/pch", 22);
+    storage.insertSystemPrecompiledHeaders({"project1", "project2"}, "/path/to/pch", 22);
 }
 
-TEST_F(PrecompiledHeaderStorage, DeleteSystemPrecompiledHeader)
+TEST_F(PrecompiledHeaderStorage, DeleteSystemPrecompiledHeaders)
 {
     InSequence s;
 
     EXPECT_CALL(database, immediateBegin());
-    EXPECT_CALL(deleteSystemPrecompiledHeaderStatement, write(TypedEq<Utils::SmallStringView>("project1")));
+    EXPECT_CALL(deleteSystemPrecompiledHeaderStatement,
+                write(TypedEq<Utils::SmallStringView>("project1")));
+    EXPECT_CALL(deleteSystemPrecompiledHeaderStatement,
+                write(TypedEq<Utils::SmallStringView>("project2")));
     EXPECT_CALL(database, commit());
 
-    storage.deleteSystemPrecompiledHeader("project1");
+    storage.deleteSystemPrecompiledHeaders({"project1", "project2"});
 }
 
-TEST_F(PrecompiledHeaderStorage, DeleteSystemPrecompiledHeaderStatementIsBusy)
+TEST_F(PrecompiledHeaderStorage, DeleteSystemPrecompiledHeadersStatementIsBusy)
 {
     InSequence s;
 
     EXPECT_CALL(database, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
     EXPECT_CALL(database, immediateBegin());
-    EXPECT_CALL(deleteSystemPrecompiledHeaderStatement, write(TypedEq<Utils::SmallStringView>("project1")));
+    EXPECT_CALL(deleteSystemPrecompiledHeaderStatement,
+                write(TypedEq<Utils::SmallStringView>("project1")));
+    EXPECT_CALL(deleteSystemPrecompiledHeaderStatement,
+                write(TypedEq<Utils::SmallStringView>("project2")));
     EXPECT_CALL(database, commit());
 
-    storage.deleteSystemPrecompiledHeader("project1");
+    storage.deleteSystemPrecompiledHeaders({"project1", "project2"});
 }
 
 TEST_F(PrecompiledHeaderStorage, CompilePrecompiledHeaderStatements)
@@ -187,7 +203,7 @@ TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderCalls)
 
     EXPECT_CALL(database, deferredBegin());
     EXPECT_CALL(fetchSystemPrecompiledHeaderPathStatement,
-                valueReturnPathString(TypedEq<Utils::SmallStringView>("project1")));
+                valueReturnFilePath(TypedEq<Utils::SmallStringView>("project1")));
     EXPECT_CALL(database, commit());
 
     storage.fetchSystemPrecompiledHeaderPath("project1");
@@ -196,8 +212,8 @@ TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderCalls)
 TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeader)
 {
     EXPECT_CALL(fetchSystemPrecompiledHeaderPathStatement,
-                valueReturnPathString(TypedEq<Utils::SmallStringView>("project1")))
-        .WillOnce(Return(Utils::PathString{"/path/to/pch"}));
+                valueReturnFilePath(TypedEq<Utils::SmallStringView>("project1")))
+        .WillOnce(Return(ClangBackEnd::FilePath{"/path/to/pch"}));
 
     auto path = storage.fetchSystemPrecompiledHeaderPath("project1");
 
@@ -207,8 +223,8 @@ TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeader)
 TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderReturnsEmptyPath)
 {
     EXPECT_CALL(fetchSystemPrecompiledHeaderPathStatement,
-                valueReturnPathString(TypedEq<Utils::SmallStringView>("project1")))
-        .WillOnce(Return(Utils::PathString{}));
+                valueReturnFilePath(TypedEq<Utils::SmallStringView>("project1")))
+        .WillOnce(Return(ClangBackEnd::FilePath{}));
 
     auto path = storage.fetchSystemPrecompiledHeaderPath("project1");
 
@@ -218,8 +234,8 @@ TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderReturnsEmptyPath)
 TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderReturnsNullOptional)
 {
     EXPECT_CALL(fetchSystemPrecompiledHeaderPathStatement,
-                valueReturnPathString(TypedEq<Utils::SmallStringView>("project1")))
-        .WillOnce(Return(Utils::optional<Utils::PathString>{}));
+                valueReturnFilePath(TypedEq<Utils::SmallStringView>("project1")))
+        .WillOnce(Return(Utils::optional<ClangBackEnd::FilePath>{}));
 
     auto path = storage.fetchSystemPrecompiledHeaderPath("project1");
 

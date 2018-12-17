@@ -54,18 +54,20 @@ using testing::Property;
 using testing::_;
 
 using ClangBackEnd::FilePath;
+using ClangBackEnd::IncludeSearchPaths;
+using ClangBackEnd::IncludeSearchPathType;
 using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
 using ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage;
 using ClangBackEnd::RequestSourceRangesForQueryMessage;
 using ClangBackEnd::SourceLocationsContainer;
 using ClangBackEnd::SourceLocationsForRenamingMessage;
 using ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage;
-using ClangBackEnd::SourceRangesForQueryMessage;
 using ClangBackEnd::SourceRangesContainer;
+using ClangBackEnd::SourceRangesForQueryMessage;
 using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::FileContainers;
-using ClangBackEnd::V2::ProjectPartContainer;
-using ClangBackEnd::V2::ProjectPartContainers;
+using ClangBackEnd::ProjectPartContainer;
+using ClangBackEnd::ProjectPartContainers;
 
 MATCHER_P2(IsSourceLocation, line, column,
            std::string(negation ? "isn't " : "is ")
@@ -325,18 +327,24 @@ TEST_F(RefactoringServer, RemoveGeneratedFilesSetMemberWhichIsUsedForSymbolIndex
 
 TEST_F(RefactoringServer, UpdateProjectPartsCallsSymbolIndexingUpdateProjectParts)
 {
-    ProjectPartContainers projectParts{{{"projectPartId",
-                                        {"-I", TESTDATA_DIR},
-                                        {{"DEFINE", "1", 1}},
-                                        {"/includes"},
-                                        {filePathId("header1.h")},
-                                        {filePathId("main.cpp")}}}};
-
+    ProjectPartContainers projectParts{
+        {{"projectPartId",
+          {"-I", TESTDATA_DIR},
+          {{"DEFINE", "1", 1}},
+          IncludeSearchPaths{{"/includes", 1, IncludeSearchPathType::BuiltIn},
+                             {"/other/includes", 2, IncludeSearchPathType::System}},
+          IncludeSearchPaths{{"/project/includes", 1, IncludeSearchPathType::User},
+                             {"/other/project/includes", 2, IncludeSearchPathType::User}},
+          {filePathId("header1.h")},
+          {filePathId("main.cpp")},
+          Utils::Language::C,
+          Utils::LanguageVersion::C11,
+          Utils::LanguageExtension::All}}};
 
     EXPECT_CALL(mockSymbolIndexing,
                 updateProjectParts(projectParts));
 
-    refactoringServer.updateProjectParts({Utils::clone(projectParts)});
+    refactoringServer.updateProjectParts({Utils::clone(projectParts), {}});
 }
 
 TEST_F(RefactoringServer, SetProgress)

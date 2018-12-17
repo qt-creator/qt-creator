@@ -27,14 +27,14 @@
 
 #include "builddependency.h"
 
-#include "projectpartcontainerv2.h"
+#include "projectpartcontainer.h"
 
 namespace ClangBackEnd {
 
 class BuildDependencyGeneratorInterface
 {
 public:
-    virtual BuildDependency create(const V2::ProjectPartContainer &projectPart) = 0;
+    virtual BuildDependency create(const ProjectPartContainer &projectPart) = 0;
 
 protected:
     ~BuildDependencyGeneratorInterface() = default;

@@ -40,23 +40,29 @@ public:
 
     void addTotal(int total)
     {
-        m_total += total;
+        if (total) {
+            m_total += total;
 
-        m_progressCallback(m_progress, m_total);
+            m_progressCallback(m_progress, m_total);
+        }
     }
 
     void removeTotal(int total)
     {
-        m_total -= total;
+        if (total) {
+            m_total -= total;
 
-        sendProgress();
+            sendProgress();
+        }
     }
 
     void addProgress(int progress)
     {
-        m_progress += progress;
+        if (progress) {
+            m_progress += progress;
 
-        sendProgress();
+            sendProgress();
+        }
     }
 
     void sendProgress()

@@ -30,6 +30,7 @@
 #include <utils/smallstringvector.h>
 
 #include <compilermacro.h>
+#include <includesearchpath.h>
 
 QT_FORWARD_DECLARE_CLASS(QJsonDocument)
 QT_FORWARD_DECLARE_STRUCT(QJsonParseError)
@@ -41,27 +42,30 @@ class ProjectPartArtefact
 public:
     ProjectPartArtefact(Utils::SmallStringView compilerArgumentsText,
                         Utils::SmallStringView compilerMacrosText,
-                        Utils::SmallStringView includeSearchPaths,
-                        int projectPartId);
+                        Utils::SmallStringView systemIncludeSearchPathsText,
+                        Utils::SmallStringView projectIncludeSearchPathsText,
+                        int projectPartId)
+        : compilerArguments(toStringVector(compilerArgumentsText))
+        , compilerMacros(toCompilerMacros(compilerMacrosText))
+        , systemIncludeSearchPaths(toIncludeSearchPaths(systemIncludeSearchPathsText))
+        , projectIncludeSearchPaths(toIncludeSearchPaths(projectIncludeSearchPathsText))
+        , projectPartId(projectPartId)
+    {}
 
-    static
-    Utils::SmallStringVector toStringVector(Utils::SmallStringView jsonText);
-    static
-    CompilerMacros createCompilerMacrosFromDocument(const QJsonDocument &document);
-    static
-    CompilerMacros toCompilerMacros(Utils::SmallStringView jsonText);
-    static
-    QJsonDocument createJsonDocument(Utils::SmallStringView jsonText,
-                                     const char *whatError);
-    static
-    void checkError(const char *whatError, const QJsonParseError &error);
-    friend
-    bool operator==(const ProjectPartArtefact &first, const ProjectPartArtefact &second);
+    static Utils::SmallStringVector toStringVector(Utils::SmallStringView jsonText);
+    static CompilerMacros createCompilerMacrosFromDocument(const QJsonDocument &document);
+    static IncludeSearchPaths createIncludeSearchPathsFromDocument(const QJsonDocument &document);
+    static CompilerMacros toCompilerMacros(Utils::SmallStringView jsonText);
+    static QJsonDocument createJsonDocument(Utils::SmallStringView jsonText, const char *whatError);
+    static IncludeSearchPaths toIncludeSearchPaths(Utils::SmallStringView jsonText);
+    static void checkError(const char *whatError, const QJsonParseError &error);
+    friend bool operator==(const ProjectPartArtefact &first, const ProjectPartArtefact &second);
 
 public:
     Utils::SmallStringVector compilerArguments;
     CompilerMacros compilerMacros;
-    Utils::SmallStringVector includeSearchPaths;
+    IncludeSearchPaths systemIncludeSearchPaths;
+    IncludeSearchPaths projectIncludeSearchPaths;
     int projectPartId = -1;
 };
 

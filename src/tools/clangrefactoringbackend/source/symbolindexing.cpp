@@ -27,7 +27,7 @@
 
 namespace ClangBackEnd {
 
-void SymbolIndexing::updateProjectParts(V2::ProjectPartContainers &&projectParts)
+void SymbolIndexing::updateProjectParts(ProjectPartContainers &&projectParts)
 {
     m_indexer.updateProjectParts(std::move(projectParts));
 }

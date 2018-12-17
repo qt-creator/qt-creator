@@ -27,20 +27,20 @@
 
 #include "googletest.h"
 
-#include <projectpartqueueinterface.h>
+#include <pchtaskgeneratorinterface.h>
 
-class MockProjectPartQueue : public ClangBackEnd::ProjectPartQueueInterface
+class MockPchTaskGenerator : public ClangBackEnd::PchTaskGeneratorInterface
 {
 public:
-    MOCK_METHOD1(addProjectParts,
-                 void (const ClangBackEnd::ProjectPartContainers &projectParts));
+    MOCK_METHOD2(addProjectParts,
+                 void(const ClangBackEnd::ProjectPartContainers &projectParts,
+                      const Utils::SmallStringVector &toolChainArguments));
     MOCK_METHOD1(removeProjectParts,
                  void (const Utils::SmallStringVector &projectsPartIds));
 
-    MOCK_METHOD0(processEntries, void ());
-
-    void addProjectParts(ClangBackEnd::ProjectPartContainers &&projectParts) override
+    void addProjectParts(ClangBackEnd::ProjectPartContainers &&projectParts,
+                         Utils::SmallStringVector &&toolChainArguments) override
     {
-        addProjectParts(projectParts);
+        addProjectParts(projectParts, toolChainArguments);
     }
 };

@@ -51,6 +51,14 @@ public:
         m_slashIndex = view.slashIndex();
     }
 
+    explicit FilePath(Utils::SmallStringView &&filePath)
+        : Utils::PathString(filePath)
+    {
+        FilePathView view{*this};
+
+        m_slashIndex = view.slashIndex();
+    }
+
     FilePath(FilePathView filePathView)
         : Utils::PathString(filePathView.toStringView()),
           m_slashIndex(filePathView.slashIndex())

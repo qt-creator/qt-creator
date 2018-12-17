@@ -164,6 +164,7 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
     part->extraCodeModelFlags = tcInfo.extraCodeModelFlags;
     part->compilerFlags = flags.commandLineFlags;
     part->warningFlags = flags.warningFlags;
+    part->language = language;
     part->languageExtensions = flags.languageExtensions;
 
     // Toolchain macros and language version

@@ -71,7 +71,8 @@ public:
 
     void projectPartsUpdated(ProjectExplorer::Project *project)
     {
-        ProjectUpdaterType::updateProjectParts(Internal::createProjectParts(project));
+
+        ProjectUpdaterType::updateProjectParts(Internal::createProjectParts(project), {}); // TODO add support for toolchainarguments
     }
 
     void projectPartsRemoved(const QStringList &projectPartIds)

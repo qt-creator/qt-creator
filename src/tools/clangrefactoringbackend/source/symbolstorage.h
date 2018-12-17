@@ -31,6 +31,7 @@
 #include <sqliteexception.h>
 #include <sqlitetransaction.h>
 #include <sqlitetable.h>
+#include <includesearchpath.h>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -68,45 +69,39 @@ public:
     }
 
     int insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
-                                   const Utils::SmallStringVector &commandLineArguments,
-                                   const CompilerMacros &compilerMacros,
-                                   const Utils::SmallStringVector &includeSearchPaths) override
+                                  const Utils::SmallStringVector &commandLineArguments,
+                                  const CompilerMacros &compilerMacros,
+                                  const IncludeSearchPaths &systemIncludeSearchPaths,
+                                  const IncludeSearchPaths &projectIncludeSearchPaths) override
     {
-        m_database.setLastInsertedRowId(-1);
-
         Utils::SmallString compilerArguementsAsJson = toJson(commandLineArguments);
         Utils::SmallString compilerMacrosAsJson = toJson(compilerMacros);
-        Utils::SmallString includeSearchPathsAsJason = toJson(includeSearchPaths);
+        Utils::SmallString systemIncludeSearchPathsAsJason = toJson(systemIncludeSearchPaths);
+        Utils::SmallString projectIncludeSearchPathsAsJason = toJson(projectIncludeSearchPaths);
 
-        WriteStatement &insertStatement = m_insertProjectPartStatement;
-        insertStatement.write(projectPartName,
-                              compilerArguementsAsJson,
-                              compilerMacrosAsJson,
-                              includeSearchPathsAsJason);
+        m_insertOrUpdateProjectPartStatement.write(projectPartName,
+                                                   compilerArguementsAsJson,
+                                                   compilerMacrosAsJson,
+                                                   systemIncludeSearchPathsAsJason,
+                                                   projectIncludeSearchPathsAsJason);
 
-        if (m_database.lastInsertedRowId() == -1) {
-            WriteStatement &updateStatement = m_updateProjectPartStatement;
-            updateStatement.write(compilerArguementsAsJson,
-                                  compilerMacrosAsJson,
-                                  includeSearchPathsAsJason,
-                                  projectPartName);
-        }
+        auto projectPartId = m_getProjectPartIdStatement.template value<int>(projectPartName);
 
-        return int(m_database.lastInsertedRowId());
+        return projectPartId.value();
     }
 
     Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const override
     {
         ReadStatement &statement = m_getProjectPartArtefactsBySourceId;
 
-        return statement.template value<ProjectPartArtefact, 4>(sourceId.filePathId);
+        return statement.template value<ProjectPartArtefact, 5>(sourceId.filePathId);
     }
 
     Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(Utils::SmallStringView projectPartName) const override
     {
         ReadStatement &statement = m_getProjectPartArtefactsByProjectPartName;
 
-        return statement.template value<ProjectPartArtefact, 4>(projectPartName);
+        return statement.template value<ProjectPartArtefact, 5>(projectPartName);
     }
 
     void updateProjectPartSources(int projectPartId,
@@ -137,12 +132,25 @@ public:
     static Utils::SmallString toJson(const CompilerMacros &compilerMacros)
     {
         QJsonDocument document;
-        QJsonObject object;
+        QJsonArray array;
 
         for (const CompilerMacro &macro : compilerMacros)
-            object.insert(QString(macro.key), QString(macro.value));
+            array.push_back(QJsonArray{{QString(macro.key), QString(macro.value), macro.index}});
 
-        document.setObject(object);
+        document.setArray(array);
+
+        return document.toJson(QJsonDocument::Compact);
+    }
+
+    static Utils::SmallString toJson(const IncludeSearchPaths &includeSearchPaths)
+    {
+        QJsonDocument document;
+        QJsonArray array;
+
+        for (const IncludeSearchPath &path : includeSearchPaths)
+            array.push_back(QJsonArray{{path.path.data(), path.index, int(path.type)}});
+
+        document.setArray(array);
 
         return document.toJson(QJsonDocument::Compact);
     }
@@ -299,14 +307,12 @@ public:
         "DELETE FROM newLocations",
         m_database
     };
-    WriteStatement m_insertProjectPartStatement{
-        "INSERT OR IGNORE INTO projectParts(projectPartName, compilerArguments, compilerMacros, includeSearchPaths) VALUES (?,?,?,?)",
-        m_database
-    };
-    WriteStatement m_updateProjectPartStatement{
-        "UPDATE projectParts SET compilerArguments = ?, compilerMacros = ?, includeSearchPaths = ? WHERE projectPartName = ?",
-        m_database
-    };
+    WriteStatement m_insertOrUpdateProjectPartStatement{
+        "INSERT INTO projectParts(projectPartName, compilerArguments, compilerMacros, "
+        "systemIncludeSearchPaths, projectIncludeSearchPaths) VALUES (?001,?002,?003,?004,?005) ON "
+        "CONFLICT(projectPartName) DO UPDATE SET compilerArguments=?002, compilerMacros=?003, "
+        "systemIncludeSearchPaths=?004, projectIncludeSearchPaths=?005",
+        m_database};
     mutable ReadStatement m_getProjectPartIdStatement{
         "SELECT projectPartId FROM projectParts WHERE projectPartName = ?",
         m_database
@@ -324,13 +330,14 @@ public:
         m_database
     };
     mutable ReadStatement m_getProjectPartArtefactsBySourceId{
-        "SELECT compilerArguments, compilerMacros, includeSearchPaths, projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)",
-        m_database
-    };
+        "SELECT compilerArguments, compilerMacros, systemIncludeSearchPaths, projectIncludeSearchPaths, "
+        "projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM "
+        "projectPartsSources WHERE sourceId = ?)",
+        m_database};
     mutable ReadStatement m_getProjectPartArtefactsByProjectPartName{
-        "SELECT compilerArguments, compilerMacros, includeSearchPaths, projectPartId FROM projectParts WHERE projectPartName = ?",
-        m_database
-    };
+        "SELECT compilerArguments, compilerMacros, systemIncludeSearchPaths, "
+        "projectIncludeSearchPaths, projectPartId FROM projectParts WHERE projectPartName = ?",
+        m_database};
     mutable ReadStatement m_getPrecompiledHeader{
         "SELECT projectPchPath, projectPchBuildTime FROM precompiledHeaders WHERE projectPartId = ?",
         m_database

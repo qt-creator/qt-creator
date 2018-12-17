@@ -33,7 +33,7 @@
 
 #include <filepathcaching.h>
 #include <filestatuscache.h>
-#include <projectpartcontainerv2.h>
+#include <projectpartcontainer.h>
 #include <refactoringdatabaseinitializer.h>
 #include <processormanager.h>
 #include <symbolindexer.h>
@@ -54,8 +54,8 @@ using ClangBackEnd::FileStatuses;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathIds;
 using ClangBackEnd::FilePathView;
-using ClangBackEnd::V2::ProjectPartContainer;
-using ClangBackEnd::V2::ProjectPartContainers;
+using ClangBackEnd::ProjectPartContainer;
+using ClangBackEnd::ProjectPartContainers;
 using ClangBackEnd::V2::FileContainers;
 using ClangBackEnd::SymbolEntries;
 using ClangBackEnd::SymbolEntry;
@@ -164,24 +164,43 @@ protected:
     ClangBackEnd::FilePathId header1PathId{filePathId(TESTDATA_DIR "/symbolindexer_header2.h")};
     PathString generatedFileName = "BuildDependencyCollector_generated_file.h";
     ClangBackEnd::FilePathId generatedFilePathId21;
+    ClangBackEnd::IncludeSearchPaths systemIncludeSearchPaths{
+        {"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn},
+        {TESTDATA_DIR, 2, ClangBackEnd::IncludeSearchPathType::System},
+        {"/other/includes", 3, ClangBackEnd::IncludeSearchPathType::System}};
+    ClangBackEnd::IncludeSearchPaths projectIncludeSearchPaths{
+        {"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User},
+        {"/other/project/includes", 2, ClangBackEnd::IncludeSearchPathType::User}};
     ProjectPartContainer projectPart1{"project1",
-                                      {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
+                                      {"-Wno-pragma-once-outside-header"},
                                       {{"BAR", "1", 1}, {"FOO", "1", 2}},
-                                      {"/includes"},
+                                      Utils::clone(systemIncludeSearchPaths),
+                                      Utils::clone(projectIncludeSearchPaths),
                                       {header1PathId},
-                                      {main1PathId}};
+                                      {main1PathId},
+                                      Utils::Language::Cxx,
+                                      Utils::LanguageVersion::CXX14,
+                                      Utils::LanguageExtension::None};
     ProjectPartContainer projectPart2{"project2",
-                                      {"-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"},
+                                      {"-Wno-pragma-once-outside-header"},
                                       {{"BAR", "1", 1}, {"FOO", "0", 2}},
-                                      {"/includes"},
+                                      Utils::clone(systemIncludeSearchPaths),
+                                      Utils::clone(projectIncludeSearchPaths),
                                       {header2PathId},
-                                      {main2PathId}};
+                                      {main2PathId},
+                                      Utils::Language::Cxx,
+                                      Utils::LanguageVersion::CXX14,
+                                      Utils::LanguageExtension::None};
     ProjectPartContainer projectPart3{"project3",
-                                      {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
+                                      {"-Wno-pragma-once-outside-header"},
                                       {{"BAR", "1", 1}, {"FOO", "1", 2}},
-                                      {"/includes", "/other/includes"},
+                                      Utils::clone(systemIncludeSearchPaths),
+                                      Utils::clone(projectIncludeSearchPaths),
                                       {header1PathId},
-                                      {main1PathId}};
+                                      {main1PathId},
+                                      Utils::Language::Cxx,
+                                      Utils::LanguageVersion::CXX14,
+                                      Utils::LanguageExtension::None};
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
                             "void f();",
                             {}}};
@@ -191,8 +210,16 @@ protected:
     UsedMacros usedMacros{{"Foo", 1}};
     FileStatuses fileStatus{{2, 3, 4, false}};
     SourceDependencies sourceDependencies{{1, 2}, {1, 3}};
-    ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\",\"BAR\":\"1\"}", "[\"/includes\"]", 74};
-    ClangBackEnd::ProjectPartArtefact emptyArtefact{"", "", "", 74};
+    Utils::SmallString systemIncludeSearchPathsText{
+         R"([["/includes", 1, 2], [")" TESTDATA_DIR R"(" ,2 , 3], ["/other/includes", 3, 3]])"};
+    Utils::SmallString projectIncludeSearchPathsText{
+        R"([["/project/includes", 1, 1], ["/other/project/includes", 2, 1]])"};
+    ClangBackEnd::ProjectPartArtefact artefact{R"(["-DFOO"])",
+                                               R"([["FOO","1", 2],["BAR","1", 1]])",
+                                               systemIncludeSearchPathsText,
+                                               projectIncludeSearchPathsText,
+                                               74};
+    ClangBackEnd::ProjectPartArtefact emptyArtefact{"", "", "", "", 74};
     Utils::optional<ClangBackEnd::ProjectPartArtefact > nullArtefact;
     ClangBackEnd::ProjectPartPch projectPartPch{"/path/to/pch", 4};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
@@ -204,7 +231,11 @@ protected:
     Manager collectorManger{generatedFiles};
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
-    Scheduler indexerScheduler{collectorManger, indexerQueue, progressCounter, 1};
+    Scheduler indexerScheduler{collectorManger,
+                               indexerQueue,
+                               progressCounter,
+                               1,
+                               ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
     SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter};
     ClangBackEnd::SymbolIndexer indexer{indexerQueue,
                                         mockSymbolStorage,
@@ -220,7 +251,25 @@ std::unique_ptr<Data> SymbolIndexer::data;
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
 {
-    EXPECT_CALL(mockCollector, setFile(main1PathId, projectPart1.arguments));
+    EXPECT_CALL(mockCollector,
+                setFile(main1PathId,
+                        ElementsAre("clang++",
+                                    "-Wno-pragma-once-outside-header",
+                                    "-x",
+                                    "c++-header",
+                                    "-std=c++14",
+                                    "-nostdinc",
+                                    "-nostdlibinc",
+                                    "-I",
+                                    "/project/includes",
+                                    "-I",
+                                    "/other/project/includes",
+                                    "-isystem",
+                                    TESTDATA_DIR,
+                                    "-isystem",
+                                    "/other/includes",
+                                    "-isystem",
+                                    "/includes")));
 
     indexer.updateProjectParts({projectPart1});
 }
@@ -230,14 +279,29 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInColl
     ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillByDefault(Return(emptyArtefact));
     ON_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId))).WillByDefault(Return(projectPartPch));
 
-    EXPECT_CALL(mockCollector, setFile(main1PathId,
-                                       ElementsAre(Eq("-I"),
-                                                   Eq(TESTDATA_DIR),
-                                                   Eq("-Wno-pragma-once-outside-header"),
-                                                   Eq("-Xclang"),
-                                                   Eq("-include-pch"),
-                                                   Eq("-Xclang"),
-                                                   Eq("/path/to/pch"))));
+    EXPECT_CALL(mockCollector,
+                setFile(main1PathId,
+                        ElementsAre("clang++",
+                                    "-Wno-pragma-once-outside-header",
+                                    "-x",
+                                    "c++-header",
+                                    "-std=c++14",
+                                    "-nostdinc",
+                                    "-nostdlibinc",
+                                    "-I",
+                                    "/project/includes",
+                                    "-I",
+                                    "/other/project/includes",
+                                    "-isystem",
+                                    TESTDATA_DIR,
+                                    "-isystem",
+                                    "/other/includes",
+                                    "-isystem",
+                                    "/includes",
+                                    "-Xclang",
+                                    "-include-pch",
+                                    "-Xclang",
+                                    "/path/to/pch")));
 
     indexer.updateProjectParts({projectPart1});
 }
@@ -246,10 +310,25 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithoutPrecompiledHeaderInC
 {
     ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillByDefault(Return(emptyArtefact));
 
-    EXPECT_CALL(mockCollector, setFile(main1PathId,
-                                       ElementsAre(Eq("-I"),
-                                                   Eq(TESTDATA_DIR),
-                                                   Eq("-Wno-pragma-once-outside-header"))));
+    EXPECT_CALL(mockCollector,
+                setFile(main1PathId,
+                        ElementsAre("clang++",
+                                    "-Wno-pragma-once-outside-header",
+                                    "-x",
+                                    "c++-header",
+                                    "-std=c++14",
+                                    "-nostdinc",
+                                    "-nostdlibinc",
+                                    "-I",
+                                    "/project/includes",
+                                    "-I",
+                                    "/other/project/includes",
+                                    "-isystem",
+                                    TESTDATA_DIR,
+                                    "-isystem",
+                                    "/other/includes",
+                                    "-isystem",
+                                    "/includes")));
 
     indexer.updateProjectParts({projectPart1});
 }
@@ -313,14 +392,21 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddSymbolsAndSourceLocationsInStora
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
 {
-    EXPECT_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project1"),
-                                                       ElementsAre("-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"),
-                                                       ElementsAre(CompilerMacro{"BAR", "1", 1}, CompilerMacro{"FOO", "1", 2}),
-                                                       ElementsAre("/includes")));
-    EXPECT_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project2"),
-                                                       ElementsAre("-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"),
-                                                       ElementsAre(CompilerMacro{"BAR", "1", 1}, CompilerMacro{"FOO", "0", 2}),
-                                                       ElementsAre("/includes")));
+    EXPECT_CALL(mockSymbolStorage,
+                insertOrUpdateProjectPart(
+                    Eq("project1"),
+                    ElementsAre("-Wno-pragma-once-outside-header"),
+                    ElementsAre(CompilerMacro{"BAR", "1", 1}, CompilerMacro{"FOO", "1", 2}),
+                    Eq(systemIncludeSearchPaths),
+                    Eq(projectIncludeSearchPaths)));
+    EXPECT_CALL(
+        mockSymbolStorage,
+        insertOrUpdateProjectPart(
+            Eq("project2"),
+            ElementsAre("-Wno-pragma-once-outside-header"),
+            ElementsAre(CompilerMacro{"BAR", "1", 1}, CompilerMacro{"FOO", "0", 2}),
+            Eq(systemIncludeSearchPaths),
+            Eq(projectIncludeSearchPaths)));
 
     indexer.updateProjectParts({projectPart1, projectPart2});
 }
@@ -328,7 +414,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSourcesWithArtifact)
 {
     ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>("project1"))).WillByDefault(Return(artefact));
-    ON_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project1"), _, _, _)).WillByDefault(Return(-1));
+    ON_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project1"), _, _, _, _)).WillByDefault(Return(-1));
 
     EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(_, _));
 
@@ -338,7 +424,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSourcesWithArtifac
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSourcesWithoutArtifact)
 {
     ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>("project2"))).WillByDefault(Return(nullArtefact));
-    ON_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project2"), _, _, _)).WillByDefault(Return(3));
+    ON_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project2"), _, _, _, _)).WillByDefault(Return(3));
 
     EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(3, ElementsAre(IsFileId(1), IsFileId(23))));
 
@@ -383,11 +469,35 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithoutProjectPartArtifact)
 
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillOnce(Return(nullArtefact));
-    EXPECT_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId), Eq(projectPart1.arguments), Eq(projectPart1.compilerMacros), Eq(projectPart1.includeSearchPaths))).WillOnce(Return(12));
+    EXPECT_CALL(mockSymbolStorage,
+                insertOrUpdateProjectPart(Eq(projectPart1.projectPartId),
+                                          Eq(projectPart1.toolChainArguments),
+                                          Eq(projectPart1.compilerMacros),
+                                          Eq(projectPart1.systemIncludeSearchPaths),
+                                          Eq(projectPart1.projectIncludeSearchPaths)))
+        .WillOnce(Return(12));
     EXPECT_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(12)));
     EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(Eq(main1PathId))).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
-    EXPECT_CALL(mockCollector, setFile(main1PathId, projectPart1.arguments));
+    EXPECT_CALL(mockCollector,
+                setFile(main1PathId,
+                        ElementsAre("clang++",
+                                    "-Wno-pragma-once-outside-header",
+                                    "-x",
+                                    "c++-header",
+                                    "-std=c++14",
+                                    "-nostdinc",
+                                    "-nostdlibinc",
+                                    "-I",
+                                    "/project/includes",
+                                    "-I",
+                                    "/other/project/includes",
+                                    "-isystem",
+                                    TESTDATA_DIR,
+                                    "-isystem",
+                                    "/other/includes",
+                                    "-isystem",
+                                    "/includes")));
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
@@ -406,11 +516,35 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithProjectPartArtifact)
 
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillRepeatedly(Return(artefact));
-    EXPECT_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId), Eq(projectPart1.arguments), Eq(projectPart1.compilerMacros), Eq(projectPart1.includeSearchPaths))).WillOnce(Return(-1));
+    EXPECT_CALL(mockSymbolStorage,
+                insertOrUpdateProjectPart(Eq(projectPart1.projectPartId),
+                                          Eq(projectPart1.toolChainArguments),
+                                          Eq(projectPart1.compilerMacros),
+                                          Eq(projectPart1.systemIncludeSearchPaths),
+                                          Eq(projectPart1.projectIncludeSearchPaths)))
+        .WillOnce(Return(-1));
     EXPECT_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
     EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(Eq(main1PathId))).WillOnce(Return(-1));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
-    EXPECT_CALL(mockCollector, setFile(Eq(main1PathId), Eq(projectPart1.arguments)));
+    EXPECT_CALL(mockCollector,
+                setFile(Eq(main1PathId),
+                        ElementsAre("clang++",
+                                    "-Wno-pragma-once-outside-header",
+                                    "-x",
+                                    "c++-header",
+                                    "-std=c++14",
+                                    "-nostdinc",
+                                    "-nostdlibinc",
+                                    "-I",
+                                    "/project/includes",
+                                    "-I",
+                                    "/other/project/includes",
+                                    "-isystem",
+                                    TESTDATA_DIR,
+                                    "-isystem",
+                                    "/other/includes",
+                                    "-isystem",
+                                    "/includes")));
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
@@ -531,22 +665,57 @@ TEST_F(SymbolIndexer, CompilerMacrosAreDifferent)
     ASSERT_TRUE(areDifferent);
 }
 
-TEST_F(SymbolIndexer, IncludeSearchPathsAreDifferent)
+TEST_F(SymbolIndexer, SystemIncludeSearchPathsAreDifferent)
 {
-    ProjectPartContainer projectPart3{"project3",
-                                      {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
-                                      {{"BAR", "1", 1}, {"FOO", "1", 2}},
-                                      {"/includes", "/other/includes"},
-                                      {header1PathId},
-                                      {main1PathId}};
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ClangBackEnd::IncludeSearchPaths newSystemIncludeSearchPaths{
+        {"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn},
+        {"/other/includes2", 2, ClangBackEnd::IncludeSearchPathType::System}};
+    ClangBackEnd::IncludeSearchPaths newProjectIncludeSearchPaths{
+        {"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User},
+        {"/other/project/includes2", 2, ClangBackEnd::IncludeSearchPathType::User}};
+    ProjectPartContainer projectPart3{
+        "project3",
+        {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
+        {{"BAR", "1", 1}, {"FOO", "1", 2}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn},
+         {"/other/includes2", 2, ClangBackEnd::IncludeSearchPathType::System}},
+        Utils::clone(projectIncludeSearchPaths),
+        {header1PathId},
+        {main1PathId},
+        Utils::Language::C,
+        Utils::LanguageVersion::C11,
+        Utils::LanguageExtension::All};
+    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>()))
+        .WillByDefault(Return(artefact));
 
-    auto areDifferent = indexer.compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart3,
-                                                                               artefact);
+    auto areDifferent = indexer.compilerMacrosOrIncludeSearchPathsAreDifferent(
+        projectPart3, artefact);
 
     ASSERT_TRUE(areDifferent);
 }
 
+TEST_F(SymbolIndexer, ProjectIncludeSearchPathsAreDifferent)
+{
+    ProjectPartContainer projectPart3{
+        "project3",
+        {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
+        {{"BAR", "1", 1}, {"FOO", "1", 2}},
+        Utils::clone(systemIncludeSearchPaths),
+        {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User},
+         {"/other/project/includes2", 2, ClangBackEnd::IncludeSearchPathType::User}},
+        {header1PathId},
+        {main1PathId},
+        Utils::Language::C,
+        Utils::LanguageVersion::C11,
+        Utils::LanguageExtension::All};
+    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>()))
+        .WillByDefault(Return(artefact));
+
+    auto areDifferent = indexer.compilerMacrosOrIncludeSearchPathsAreDifferent(
+        projectPart3, artefact);
+
+    ASSERT_TRUE(areDifferent);
+}
 TEST_F(SymbolIndexer, DontReparseInUpdateProjectPartsIfDefinesAreTheSame)
 {
     InSequence s;
@@ -554,7 +723,12 @@ TEST_F(SymbolIndexer, DontReparseInUpdateProjectPartsIfDefinesAreTheSame)
 
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillRepeatedly(Return(artefact));
-    EXPECT_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId), Eq(projectPart1.arguments), Eq(projectPart1.compilerMacros), Eq(projectPart1.includeSearchPaths)));
+    EXPECT_CALL(mockSymbolStorage,
+                insertOrUpdateProjectPart(Eq(projectPart1.projectPartId),
+                                          Eq(projectPart1.toolChainArguments),
+                                          Eq(projectPart1.compilerMacros),
+                                          Eq(projectPart1.systemIncludeSearchPaths),
+                                          Eq(projectPart1.projectIncludeSearchPaths)));
     EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>())).WillRepeatedly(Return(QDateTime::currentSecsSinceEpoch()));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector, setFile(_, _)).Times(0);
@@ -649,6 +823,7 @@ TEST_F(SymbolIndexer, OutdatedFilesAreParsedInUpdateProjectParts)
 TEST_F(SymbolIndexer, UpToDateFilesAreNotParsedInUpdateProjectParts)
 {
     indexer.pathsChanged({main1PathId});
+
     indexerScheduler.syncTasks();
     ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
     ON_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>()))

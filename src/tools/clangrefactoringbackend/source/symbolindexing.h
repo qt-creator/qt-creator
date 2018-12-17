@@ -81,12 +81,16 @@ public:
                    FilePathCachingInterface &filePathCache,
                    const GeneratedFiles &generatedFiles,
                    ProgressCounter::SetProgressCallback &&setProgressCallback)
-        : m_filePathCache(filePathCache),
-          m_usedMacroAndSourceStorage(database),
-          m_symbolStorage(database),
-          m_collectorManger(generatedFiles, database),
-          m_progressCounter(std::move(setProgressCallback)),
-          m_indexerScheduler(m_collectorManger, m_indexerQueue, m_progressCounter, std::thread::hardware_concurrency())
+        : m_filePathCache(filePathCache)
+        , m_buildDependencyStorage(database)
+        , m_symbolStorage(database)
+        , m_collectorManger(generatedFiles, database)
+        , m_progressCounter(std::move(setProgressCallback))
+        , m_indexerScheduler(m_collectorManger,
+                             m_indexerQueue,
+                             m_progressCounter,
+                             std::thread::hardware_concurrency(),
+                             CallDoInMainThreadAfterFinished::Yes)
     {
     }
 
@@ -109,12 +113,12 @@ public:
         }
     }
 
-    void updateProjectParts(V2::ProjectPartContainers &&projectParts) override;
+    void updateProjectParts(ProjectPartContainers &&projectParts) override;
 
 private:
     using SymbolIndexerTaskScheduler = TaskScheduler<SymbolsCollectorManager, SymbolIndexerTask::Callable>;
     FilePathCachingInterface &m_filePathCache;
-    BuildDependenciesStorage m_usedMacroAndSourceStorage;
+    BuildDependenciesStorage m_buildDependencyStorage;
     SymbolStorage m_symbolStorage;
     ClangPathWatcher<QFileSystemWatcher, QTimer> m_sourceWatcher{m_filePathCache};
     FileStatusCache m_fileStatusCache{m_filePathCache};
@@ -124,7 +128,7 @@ private:
     SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler, m_progressCounter};
     SymbolIndexer m_indexer{m_indexerQueue,
                             m_symbolStorage,
-                            m_usedMacroAndSourceStorage,
+                            m_buildDependencyStorage,
                             m_sourceWatcher,
                             m_filePathCache,
                             m_fileStatusCache,

@@ -26,8 +26,9 @@
 #pragma once
 
 #include "pchtask.h"
+#include "pchtaskgeneratorinterface.h"
 
-#include <projectpartcontainerv2.h>
+#include <projectpartcontainer.h>
 
 namespace ClangBackEnd {
 
@@ -35,7 +36,7 @@ class PchTasksMergerInterface;
 
 class BuildDependenciesProviderInterface;
 
-class PchTaskGenerator
+class PchTaskGenerator : public PchTaskGeneratorInterface
 {
 public:
     PchTaskGenerator(BuildDependenciesProviderInterface &buildDependenciesProvider,
@@ -44,7 +45,9 @@ public:
         , m_pchTasksMergerInterface(pchTasksMergerInterface)
     {}
 
-    void create(V2::ProjectPartContainers &&projectParts);
+    void addProjectParts(ProjectPartContainers &&projectParts,
+                         Utils::SmallStringVector &&toolChainArguments);
+    void removeProjectParts(const Utils::SmallStringVector &projectsPartIds);
 
 private:
     BuildDependenciesProviderInterface &m_buildDependenciesProvider;

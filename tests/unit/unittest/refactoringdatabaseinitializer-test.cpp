@@ -88,7 +88,7 @@ TEST_F(RefactoringDatabaseInitializer, AddProjectPartsTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS projectParts(projectPartId INTEGER PRIMARY KEY, projectPartName TEXT, compilerArguments TEXT, compilerMacros TEXT, includeSearchPaths TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS projectParts(projectPartId INTEGER PRIMARY KEY, projectPartName TEXT, compilerArguments TEXT, compilerMacros TEXT, systemIncludeSearchPaths TEXT, projectIncludeSearchPaths TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectParts_projectPartName ON projectParts(projectPartName)")));
 
     initializer.createProjectPartsTable();
@@ -160,7 +160,7 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_sources_directoryId_sourceName ON sources(directoryId, sourceName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS directories(directoryId INTEGER PRIMARY KEY, directoryPath TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_directories_directoryPath ON directories(directoryPath)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS projectParts(projectPartId INTEGER PRIMARY KEY, projectPartName TEXT, compilerArguments TEXT, compilerMacros TEXT, includeSearchPaths TEXT)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS projectParts(projectPartId INTEGER PRIMARY KEY, projectPartName TEXT, compilerArguments TEXT, compilerMacros TEXT, systemIncludeSearchPaths TEXT, projectIncludeSearchPaths TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectParts_projectPartName ON projectParts(projectPartName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsSources(projectPartId INTEGER, sourceId INTEGER, sourceType INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsSources_sourceId_projectPartId ON projectPartsSources(sourceId, projectPartId)")));

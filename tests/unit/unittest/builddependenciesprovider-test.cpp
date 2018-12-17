@@ -63,18 +63,28 @@ protected:
                                                      mockModifiedTimeChecker,
                                                      mockBuildDependenciesGenerator,
                                                      mockSqliteTransactionBackend};
-    ClangBackEnd::V2::ProjectPartContainer projectPart1{"ProjectPart1",
-                                                        {"--yi"},
-                                                        {{"YI", "1", 1}},
-                                                        {"/yi"},
-                                                        {1},
-                                                        {2}};
-    ClangBackEnd::V2::ProjectPartContainer projectPart2{"ProjectPart2",
-                                                        {"--er"},
-                                                        {{"ER", "2", 1}},
-                                                        {"/er"},
-                                                        {1},
-                                                        {2, 3, 4}};
+    ClangBackEnd::ProjectPartContainer projectPart1{
+        "ProjectPart1",
+        {"--yi"},
+        {{"YI", "1", 1}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+        {{"/project/yi", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {1},
+        {2},
+        Utils::Language::C,
+        Utils::LanguageVersion::C11,
+        Utils::LanguageExtension::All};
+    ClangBackEnd::ProjectPartContainer projectPart2{
+        "ProjectPart2",
+        {"--er"},
+        {{"ER", "2", 1}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+        {{"/project/er", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {1},
+        {2, 3, 4},
+        Utils::Language::C,
+        Utils::LanguageVersion::C11,
+        Utils::LanguageExtension::All};
     SourceEntries firstSources{{1, SourceType::UserInclude, 1},
                                {2, SourceType::UserInclude, 1},
                                {10, SourceType::UserInclude, 1}};

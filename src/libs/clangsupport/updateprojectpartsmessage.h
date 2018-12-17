@@ -26,7 +26,7 @@
 #pragma once
 
 #include "filecontainerv2.h"
-#include "projectpartcontainerv2.h"
+#include "projectpartcontainer.h"
 
 namespace ClangBackEnd {
 
@@ -34,11 +34,13 @@ class UpdateProjectPartsMessage
 {
 public:
     UpdateProjectPartsMessage() = default;
-    UpdateProjectPartsMessage(V2::ProjectPartContainers &&projectsParts)
+    UpdateProjectPartsMessage(ProjectPartContainers &&projectsParts,
+                              Utils::SmallStringVector &&toolChainArguments)
         : projectsParts(std::move(projectsParts))
+        , toolChainArguments(toolChainArguments)
     {}
 
-    V2::ProjectPartContainers takeProjectsParts()
+    ProjectPartContainers takeProjectsParts()
     {
         return std::move(projectsParts);
     }
@@ -46,6 +48,7 @@ public:
     friend QDataStream &operator<<(QDataStream &out, const UpdateProjectPartsMessage &message)
     {
         out << message.projectsParts;
+        out << message.toolChainArguments;
 
         return out;
     }
@@ -53,6 +56,7 @@ public:
     friend QDataStream &operator>>(QDataStream &in, UpdateProjectPartsMessage &message)
     {
         in >> message.projectsParts;
+        in >> message.toolChainArguments;
 
         return in;
     }
@@ -60,7 +64,8 @@ public:
     friend bool operator==(const UpdateProjectPartsMessage &first,
                            const UpdateProjectPartsMessage &second)
     {
-        return first.projectsParts == second.projectsParts;
+        return first.projectsParts == second.projectsParts
+               && first.toolChainArguments == second.toolChainArguments;
     }
 
     UpdateProjectPartsMessage clone() const
@@ -69,7 +74,8 @@ public:
     }
 
 public:
-    V2::ProjectPartContainers projectsParts;
+    ProjectPartContainers projectsParts;
+    Utils::SmallStringVector toolChainArguments;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdateProjectPartsMessage &message);

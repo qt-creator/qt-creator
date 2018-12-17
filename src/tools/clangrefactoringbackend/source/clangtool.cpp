@@ -50,9 +50,9 @@ void ClangTool::addFile(std::string &&directory,
                         std::vector<std::string> &&commandLine)
 {
     m_fileContents.emplace_back(toNativePath(std::move(directory)),
-                              std::move(fileName),
-                              std::move(content),
-                              std::move(commandLine));
+                                std::move(fileName),
+                                std::move(content),
+                                std::move(commandLine));
 
     const auto &fileContent = m_fileContents.back();
 
@@ -136,6 +136,15 @@ clang::tooling::ClangTool ClangTool::createTool() const
                                 toStringRef(unsavedFileContent.content));
 
     tool.mapVirtualFile("/dummyFile", "#pragma once");
+
+    return tool;
+}
+
+clang::tooling::ClangTool ClangTool::createOutputTool() const
+{
+    clang::tooling::ClangTool tool = createTool();
+
+    tool.clearArgumentsAdjusters();
 
     return tool;
 }

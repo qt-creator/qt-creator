@@ -48,8 +48,8 @@ public:
     }
 
     void insertProjectPrecompiledHeader(Utils::SmallStringView projectPartName,
-                                 Utils::SmallStringView pchPath,
-                                 long long pchBuildTime) override
+                                        Utils::SmallStringView pchPath,
+                                        long long pchBuildTime) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{m_database};
@@ -76,42 +76,44 @@ public:
         }
     }
 
-    void insertSystemPrecompiledHeader(Utils::SmallStringView projectPartName,
-                                       Utils::SmallStringView pchPath,
-                                       long long pchBuildTime) override
+    void insertSystemPrecompiledHeaders(const Utils::SmallStringVector &projectPartNames,
+                                        Utils::SmallStringView pchPath,
+                                        long long pchBuildTime) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{m_database};
 
-            m_insertProjectPartStatement.write(projectPartName);
-            m_insertSystemPrecompiledHeaderStatement.write(projectPartName, pchPath, pchBuildTime);
-
+            for (Utils::SmallStringView projectPartName : projectPartNames) {
+                m_insertProjectPartStatement.write(projectPartName);
+                m_insertSystemPrecompiledHeaderStatement.write(projectPartName, pchPath, pchBuildTime);
+            }
             transaction.commit();
         } catch (const Sqlite::StatementIsBusy) {
-            insertSystemPrecompiledHeader(projectPartName, pchPath, pchBuildTime);
+            insertSystemPrecompiledHeaders(projectPartNames, pchPath, pchBuildTime);
         }
     }
 
-    void deleteSystemPrecompiledHeader(Utils::SmallStringView projectPartName) override
+    void deleteSystemPrecompiledHeaders(const Utils::SmallStringVector &projectPartNames) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{m_database};
 
-            m_deleteSystemPrecompiledHeaderStatement.write(projectPartName);
+            for (Utils::SmallStringView projectPartName : projectPartNames)
+                m_deleteSystemPrecompiledHeaderStatement.write(projectPartName);
 
             transaction.commit();
         } catch (const Sqlite::StatementIsBusy) {
-            deleteSystemPrecompiledHeader(projectPartName);
+            deleteSystemPrecompiledHeaders(projectPartNames);
         }
     }
 
-    Utils::PathString fetchSystemPrecompiledHeaderPath(Utils::SmallStringView projectPartName) override
+    FilePath fetchSystemPrecompiledHeaderPath(Utils::SmallStringView projectPartName) override
     {
         try {
             Sqlite::DeferredTransaction transaction{m_database};
 
-            auto value = m_fetchSystemPrecompiledHeaderPathStatement
-                             .template value<Utils::PathString>(projectPartName);
+            auto value = m_fetchSystemPrecompiledHeaderPathStatement.template value<FilePath>(
+                projectPartName);
 
             if (value)
                 return value.value();
@@ -121,7 +123,7 @@ public:
             return fetchSystemPrecompiledHeaderPath(projectPartName);
         }
 
-        return Utils::SmallStringView("");
+        return FilePath("");
     }
 
 public:

@@ -44,7 +44,6 @@ SOURCES += \
     $$PWD/pchmanagerserverinterface.cpp \
     $$PWD/pchmanagerserverproxy.cpp \
     $$PWD/precompiledheadersupdatedmessage.cpp \
-    $$PWD/projectpartcontainerv2.cpp \
     $$PWD/projectpartpch.cpp \
     $$PWD/readmessageblock.cpp \
     $$PWD/refactoringclientinterface.cpp \
@@ -87,7 +86,8 @@ SOURCES += \
     $$PWD/baseserverproxy.cpp \
     $$PWD/updategeneratedfilesmessage.cpp \
     $$PWD/removegeneratedfilesmessage.cpp \
-    $$PWD/generatedfiles.cpp
+    $$PWD/generatedfiles.cpp \
+    $$PWD/projectpartcontainer.cpp
 
 HEADERS += \
     $$PWD/cancelmessage.h \
@@ -138,7 +138,6 @@ HEADERS += \
     $$PWD/pchmanagerserverinterface.h \
     $$PWD/pchmanagerserverproxy.h \
     $$PWD/precompiledheadersupdatedmessage.h \
-    $$PWD/projectpartcontainerv2.h \
     $$PWD/projectpartpch.h \
     $$PWD/readmessageblock.h \
     $$PWD/refactoringclientinterface.h \
@@ -205,6 +204,9 @@ HEADERS += \
     $$PWD/generatedfiles.h \
     $$PWD/generatedfilesinterface.h \
     $$PWD/progressmessage.h \
-    $$PWD/progresscounter.h
+    $$PWD/progresscounter.h \
+    $$PWD/includesearchpath.h \
+    $$PWD/commandlinebuilder.h \
+    $$PWD/projectpartcontainer.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

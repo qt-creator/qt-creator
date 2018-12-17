@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,24 +23,19 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "projectpartcontainer.h"
 
-#include "googletest.h"
+namespace ClangBackEnd {
 
-#include <projectpartqueueinterface.h>
-
-class MockProjectPartQueue : public ClangBackEnd::ProjectPartQueueInterface
+QDebug operator<<(QDebug debug, const ProjectPartContainer &container)
 {
-public:
-    MOCK_METHOD1(addProjectParts,
-                 void (const ClangBackEnd::ProjectPartContainers &projectParts));
-    MOCK_METHOD1(removeProjectParts,
-                 void (const Utils::SmallStringVector &projectsPartIds));
+    debug.nospace() << "ProjectPartContainer("
+                    << container.projectPartId << ","
+                    << container.toolChainArguments << ", "
+                    << container.headerPathIds << ", "
+                    << container.sourcePathIds
+                    << ")";
 
-    MOCK_METHOD0(processEntries, void ());
-
-    void addProjectParts(ClangBackEnd::ProjectPartContainers &&projectParts) override
-    {
-        addProjectParts(projectParts);
-    }
-};
+    return debug;
+}
+} // namespace ClangBackEnd

@@ -44,11 +44,6 @@ public:
         return temporaryDirectory.path();
     }
 
-    QString clangCompilerPath() const override
-    {
-        return QString::fromUtf8(CLANG_COMPILER_PATH);
-    }
-
     uint hardwareConcurrency() const
     {
         return 2;

@@ -52,8 +52,6 @@ void PchTaskQueue::addPchTasks(PchTasks &&newPchTasks, PchTasks &destination)
     destination = std::move(mergedPchTasks);
 
     m_progressCounter.addTotal(int(destination.size() - oldSize));
-
-    processEntries();
 }
 
 void PchTaskQueue::removePchTasksByProjectPartId(const Utils::SmallStringVector &projectsPartIds,
@@ -143,22 +141,17 @@ std::vector<PchTaskQueue::Task> PchTaskQueue::createProjectTasks(PchTasks &&pchT
 
     auto convert = [this](auto &&pchTask) {
         return [pchTask = std::move(pchTask), this](PchCreatorInterface &pchCreator) mutable {
-            Sqlite::DeferredTransaction readTransaction(m_transactionsInterface);
+            const auto projectPartId = pchTask.projectPartId();
             pchTask.systemPchPath = m_precompiledHeaderStorage.fetchSystemPrecompiledHeaderPath(
-                pchTask.projectPartId());
-            readTransaction.commit();
-            pchCreator.generatePch(pchTask);
+                projectPartId);
+            pchCreator.generatePch(std::move(pchTask));
             const auto &projectPartPch = pchCreator.projectPartPch();
-            Sqlite::ImmediateTransaction writeTransaction(m_transactionsInterface);
             if (projectPartPch.pchPath.empty()) {
-                m_precompiledHeaderStorage.deleteProjectPrecompiledHeader(pchTask.projectPartId());
+                m_precompiledHeaderStorage.deleteProjectPrecompiledHeader(projectPartId);
             } else {
-                m_precompiledHeaderStorage
-                    .insertProjectPrecompiledHeader(pchTask.projectPartId(),
-                                                    projectPartPch.pchPath,
-                                                    projectPartPch.lastModified);
+                m_precompiledHeaderStorage.insertProjectPrecompiledHeader(
+                    projectPartId, projectPartPch.pchPath, projectPartPch.lastModified);
             }
-            writeTransaction.commit();
         };
     };
 
@@ -176,21 +169,17 @@ std::vector<PchTaskQueue::Task> PchTaskQueue::createSystemTasks(PchTasks &&pchTa
     tasks.reserve(pchTasks.size());
 
     auto convert = [this](auto &&pchTask) {
-        return [pchTask = std::move(pchTask), this](PchCreatorInterface &pchCreator) {
-            pchCreator.generatePch(pchTask);
+        return [pchTask = std::move(pchTask), this](PchCreatorInterface &pchCreator) mutable {
+            const auto projectPartIds = pchTask.projectPartIds;
+            pchCreator.generatePch(std::move(pchTask));
             const auto &projectPartPch = pchCreator.projectPartPch();
-            Sqlite::ImmediateTransaction transaction(m_transactionsInterface);
-            for (Utils::SmallStringView projectPartId : pchTask.projectPartIds) {
-                if (projectPartPch.pchPath.empty()) {
-                    m_precompiledHeaderStorage.deleteSystemPrecompiledHeader(projectPartId);
-                } else {
-                    m_precompiledHeaderStorage
-                        .insertSystemPrecompiledHeader(projectPartId,
-                                                       projectPartPch.pchPath,
-                                                       projectPartPch.lastModified);
-                }
+            if (projectPartPch.pchPath.empty()) {
+                m_precompiledHeaderStorage.deleteSystemPrecompiledHeaders(projectPartIds);
+            } else {
+                m_precompiledHeaderStorage.insertSystemPrecompiledHeaders(projectPartIds,
+                                                                          projectPartPch.pchPath,
+                                                                          projectPartPch.lastModified);
             }
-            transaction.commit();
         };
     };
 

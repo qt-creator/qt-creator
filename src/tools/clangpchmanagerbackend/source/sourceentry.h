@@ -56,41 +56,81 @@ public:
     int64 value = -1;
 };
 
-class SourceEntry
+class SourceTimeStamp
 {
+protected:
     using int64 = long long;
 public:
-    SourceEntry(int sourceId, int64 lastModified, int sourceType)
-        : lastModified(lastModified),
-          sourceId(sourceId),
-          sourceType(static_cast<SourceType>(sourceType))
+    SourceTimeStamp(int sourceId, int64 lastModified)
+        : lastModified(lastModified)
+        , sourceId(sourceId)
     {}
 
-    SourceEntry(FilePathId sourceId, SourceType sourceType, TimeStamp lastModified)
-        : lastModified(lastModified),
-          sourceId(sourceId),
-          sourceType(sourceType)
+    SourceTimeStamp(FilePathId sourceId, TimeStamp lastModified)
+        : lastModified(lastModified)
+        , sourceId(sourceId)
     {}
 
-    friend
-    bool operator<(SourceEntry first, SourceEntry second)
+    friend bool operator<(SourceTimeStamp first, SourceTimeStamp second)
     {
         return first.sourceId < second.sourceId;
     }
 
-    friend
-    bool operator==(SourceEntry first, SourceEntry second)
+    friend bool operator<(SourceTimeStamp first, FilePathId second)
     {
-        return first.sourceId == second.sourceId
-            && first.sourceType == second.sourceType
-            && first.lastModified == second.lastModified ;
+        return first.sourceId < second;
+    }
+
+    friend bool operator<(FilePathId first, SourceTimeStamp second)
+    {
+        return first < second.sourceId;
+    }
+
+    friend bool operator==(SourceTimeStamp first, SourceTimeStamp second)
+    {
+        return first.sourceId == second.sourceId && first.lastModified == second.lastModified;
+    }
+
+    friend bool operator!=(SourceTimeStamp first, SourceTimeStamp second)
+    {
+        return !(first == second);
+    }
+
+public:
+    TimeStamp lastModified;
+    FilePathId sourceId;
+};
+
+using SourceTimeStamps = std::vector<SourceTimeStamp>;
+
+class SourceEntry : public SourceTimeStamp
+{
+
+public:
+    SourceEntry(int sourceId, int64 lastModified, int sourceType)
+        : SourceTimeStamp(sourceId, lastModified)
+        , sourceType(static_cast<SourceType>(sourceType))
+    {}
+
+    SourceEntry(FilePathId sourceId, SourceType sourceType, TimeStamp lastModified)
+        : SourceTimeStamp(sourceId, lastModified)
+        , sourceType(sourceType)
+    {}
+
+    friend bool operator<(SourceEntry first, SourceEntry second)
+    {
+        return first.sourceId < second.sourceId;
+    }
+
+    friend bool operator==(SourceEntry first, SourceEntry second)
+    {
+        return first.sourceId == second.sourceId && first.sourceType == second.sourceType
+               && first.lastModified == second.lastModified;
     }
 
     friend bool operator!=(SourceEntry first, SourceEntry second) { return !(first == second); }
 
 public:
-    TimeStamp lastModified;
-    FilePathId sourceId;
     SourceType sourceType = SourceType::UserInclude;
 };
 

@@ -91,6 +91,7 @@ public:
     void addUnsavedFiles(const V2::FileContainers &unsavedFiles);
 
     clang::tooling::ClangTool createTool() const;
+    clang::tooling::ClangTool createOutputTool() const;
 
 private:
     RefactoringCompilationDatabase m_compilationDatabase;

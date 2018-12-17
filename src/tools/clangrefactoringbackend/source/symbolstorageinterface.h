@@ -34,6 +34,8 @@
 #include "symbolentry.h"
 #include "usedmacro.h"
 
+#include <includesearchpath.h>
+
 #include <sqlitetransaction.h>
 
 #include <compilermacro.h>
@@ -48,15 +50,20 @@ public:
     SymbolStorageInterface &operator=(const SymbolStorageInterface &) = delete;
 
     virtual void addSymbolsAndSourceLocations(const SymbolEntries &symbolEntries,
-                                              const SourceLocationEntries &sourceLocations) = 0;
-    virtual int insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
-                                          const Utils::SmallStringVector &commandLineArguments,
-                                          const CompilerMacros &compilerMacros,
-                                          const Utils::SmallStringVector &includeSearchPaths) = 0;
-    virtual void updateProjectPartSources(int projectPartId,
-                                          const FilePathIds &sourceFilePathIds) = 0;
-    virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const = 0;
-    virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(Utils::SmallStringView projectPartName) const = 0;
+                                              const SourceLocationEntries &sourceLocations)
+        = 0;
+    virtual int insertOrUpdateProjectPart(
+        Utils::SmallStringView projectPartName,
+        const Utils::SmallStringVector &commandLineArguments,
+        const CompilerMacros &compilerMacros,
+        const ClangBackEnd::IncludeSearchPaths &systemIncludeSearchPaths,
+        const ClangBackEnd::IncludeSearchPaths &projectIncludeSearchPaths)
+        = 0;
+    virtual void updateProjectPartSources(int projectPartId, const FilePathIds &sourceFilePathIds) = 0;
+    virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(
+        FilePathId sourceId) const = 0;
+    virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(
+        Utils::SmallStringView projectPartName) const = 0;
     virtual Utils::optional<ProjectPartPch> fetchPrecompiledHeader(int projectPartId) const = 0;
 
 protected:

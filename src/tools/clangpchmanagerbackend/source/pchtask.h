@@ -28,8 +28,11 @@
 #include "builddependency.h"
 
 #include <compilermacro.h>
+#include <filepath.h>
+#include <includesearchpath.h>
 
 #include <utils/smallstringvector.h>
+#include <utils/cpplanguage_details.h>
 
 namespace ClangBackEnd {
 
@@ -39,21 +42,45 @@ public:
     PchTask(Utils::SmallString &&projectPartId,
             FilePathIds &&includes,
             CompilerMacros &&compilerMacros,
-            UsedMacros &&usedMacros)
+            UsedMacros &&usedMacros,
+            Utils::SmallStringVector toolChainArguments,
+            IncludeSearchPaths systemIncludeSearchPaths,
+            IncludeSearchPaths projectIncludeSearchPaths,
+            Utils::Language language = Utils::Language::Cxx,
+            Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX98,
+            Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None)
         : projectPartIds({projectPartId})
         , includes(includes)
         , compilerMacros(compilerMacros)
         , usedMacros(usedMacros)
+        , systemIncludeSearchPaths(std::move(systemIncludeSearchPaths))
+        , projectIncludeSearchPaths(std::move(projectIncludeSearchPaths))
+        , toolChainArguments(std::move(toolChainArguments))
+        , language(language)
+        , languageVersion(languageVersion)
+        , languageExtension(languageExtension)
     {}
 
     PchTask(Utils::SmallStringVector &&projectPartIds,
             FilePathIds &&includes,
             CompilerMacros &&compilerMacros,
-            UsedMacros &&usedMacros)
+            UsedMacros &&usedMacros,
+            Utils::SmallStringVector toolChainArguments,
+            IncludeSearchPaths systemIncludeSearchPaths,
+            IncludeSearchPaths projectIncludeSearchPaths,
+            Utils::Language language = Utils::Language::Cxx,
+            Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX98,
+            Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None)
         : projectPartIds(std::move(projectPartIds))
         , includes(includes)
         , compilerMacros(compilerMacros)
         , usedMacros(usedMacros)
+        , systemIncludeSearchPaths(std::move(systemIncludeSearchPaths))
+        , projectIncludeSearchPaths(std::move(projectIncludeSearchPaths))
+        , toolChainArguments(std::move(toolChainArguments))
+        , language(language)
+        , languageVersion(languageVersion)
+        , languageExtension(languageExtension)
     {}
 
     friend bool operator==(const PchTask &first, const PchTask &second)
@@ -61,17 +88,29 @@ public:
         return first.systemPchPath == second.systemPchPath
                && first.projectPartIds == second.projectPartIds && first.includes == second.includes
                && first.compilerMacros == second.compilerMacros
-               && first.usedMacros == second.usedMacros;
+               && first.usedMacros == second.usedMacros
+               && first.systemIncludeSearchPaths == second.systemIncludeSearchPaths
+               && first.projectIncludeSearchPaths == second.projectIncludeSearchPaths
+               && first.toolChainArguments == second.toolChainArguments
+               && first.language == second.language
+               && first.languageVersion == second.languageVersion
+               && first.languageExtension == second.languageExtension;
     }
 
     Utils::SmallStringView projectPartId() const { return projectPartIds.front(); }
 
 public:
-    Utils::PathString systemPchPath;
+    FilePath systemPchPath;
     Utils::SmallStringVector projectPartIds;
     FilePathIds includes;
     CompilerMacros compilerMacros;
     UsedMacros usedMacros;
+    IncludeSearchPaths systemIncludeSearchPaths;
+    IncludeSearchPaths projectIncludeSearchPaths;
+    Utils::SmallStringVector toolChainArguments;
+    Utils::Language language = Utils::Language::Cxx;
+    Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX98;
+    Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None;
 };
 
 class PchTaskSet

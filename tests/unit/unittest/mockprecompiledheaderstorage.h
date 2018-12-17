@@ -37,11 +37,12 @@ public:
                       Utils::SmallStringView pchPath,
                       long long pchBuildTime));
     MOCK_METHOD1(deleteProjectPrecompiledHeader, void(Utils::SmallStringView projectPartName));
-    MOCK_METHOD3(insertSystemPrecompiledHeader,
-                 void(Utils::SmallStringView projectPartName,
+    MOCK_METHOD3(insertSystemPrecompiledHeaders,
+                 void(const Utils::SmallStringVector &projectPartNames,
                       Utils::SmallStringView pchPath,
                       long long pchBuildTime));
-    MOCK_METHOD1(deleteSystemPrecompiledHeader, void(Utils::SmallStringView projectPartName));
+    MOCK_METHOD1(deleteSystemPrecompiledHeaders,
+                 void(const Utils::SmallStringVector &projectPartNames));
     MOCK_METHOD1(fetchSystemPrecompiledHeaderPath,
-                 Utils::PathString(Utils::SmallStringView projectPartName));
+                 ClangBackEnd::FilePath(Utils::SmallStringView projectPartName));
 };
