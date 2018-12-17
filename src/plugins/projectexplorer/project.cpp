@@ -886,9 +886,11 @@ bool Project::hasParsingData() const
 const ProjectNode *Project::findNodeForBuildKey(const QString &buildKey) const
 {
     const ProjectNode *result = nullptr;
-    d->m_rootProjectNode->forEachProjectNode([buildKey](const ProjectNode *node) {
-        return node->buildKey() == buildKey;
-    });
+    if (d->m_rootProjectNode) {
+        d->m_rootProjectNode->forEachProjectNode([buildKey](const ProjectNode *node) {
+            return node->buildKey() == buildKey;
+        });
+    }
     return result;
 }
 
