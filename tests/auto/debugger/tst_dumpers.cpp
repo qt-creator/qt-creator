@@ -5383,6 +5383,23 @@ void tst_Dumpers::dumper_data()
                + Check("s32s", "-2147483648", TypeDef("int", "@qint32"));
 
 
+    QTest::newRow("Int128")
+            << Data("#include <limits.h>\n",
+                    "using typedef_s128 = __int128_t;\n"
+                    "using typedef_u128 = __uint128_t;\n"
+                    "__int128_t s128 = 12;\n"
+                    "__uint128_t u128 = 12;\n"
+                    "typedef_s128 ts128 = 12;\n"
+                    "typedef_u128 tu128 = 12;\n"
+                    "unused(&u128, &s128, &tu128, &ts128);\n")
+                // Sic! The expected type is what gcc 8.2.0 records.
+               + GdbEngine
+               + Check("s128", "12", "__int128")
+               + Check("u128", "12", "__int128 unsigned")
+               + Check("ts128", "12", "typedef_s128")
+               + Check("tu128", "12", "typedef_u128") ;
+
+
     QTest::newRow("Float")
             << Data("#include <QFloat16>\n",
                     "qfloat16 f1 = 45.3f; unused(&f1);\n"
