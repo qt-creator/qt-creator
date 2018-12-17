@@ -27,6 +27,7 @@
 
 #include <ssh/sftpfilesystemmodel.h>
 #include <ssh/sshconnection.h>
+#include <utils/temporarydirectory.h>
 
 #include <QApplication>
 #include <QTreeView>
@@ -34,6 +35,8 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
+                                                           + "/qtc-ssh-shelltest-XXXXXX");
     SftpFsWindow w;
     w.show();
     return app.exec();

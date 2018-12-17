@@ -25,7 +25,6 @@
 
 #include "shell.h"
 
-#include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocess.h>
 
 #include <QCoreApplication>
@@ -44,7 +43,7 @@ Shell::Shell(const SshConnectionParameters &parameters, QObject *parent)
 {
     connect(m_connection, &SshConnection::connected, this, &Shell::handleConnected);
     connect(m_connection, &SshConnection::dataAvailable, this, &Shell::handleShellMessage);
-    connect(m_connection, &SshConnection::error, this, &Shell::handleConnectionError);
+    connect(m_connection, &SshConnection::errorOccurred, this, &Shell::handleConnectionError);
 }
 
 Shell::~Shell()
@@ -77,12 +76,12 @@ void Shell::handleShellMessage(const QString &message)
 void Shell::handleConnected()
 {
     m_shell = m_connection->createRemoteShell();
-    connect(m_shell.data(), &SshRemoteProcess::started, this, &Shell::handleShellStarted);
-    connect(m_shell.data(), &SshRemoteProcess::readyReadStandardOutput,
+    connect(m_shell.get(), &SshRemoteProcess::started, this, &Shell::handleShellStarted);
+    connect(m_shell.get(), &SshRemoteProcess::readyReadStandardOutput,
             this, &Shell::handleRemoteStdout);
-    connect(m_shell.data(), &SshRemoteProcess::readyReadStandardError,
+    connect(m_shell.get(), &SshRemoteProcess::readyReadStandardError,
             this, &Shell::handleRemoteStderr);
-    connect(m_shell.data(), &SshRemoteProcess::closed, this, &Shell::handleChannelClosed);
+    connect(m_shell.get(), &SshRemoteProcess::done, this, &Shell::handleChannelClosed);
     m_shell->start();
 }
 
@@ -102,11 +101,10 @@ void Shell::handleRemoteStderr()
     std::cerr << m_shell->readAllStandardError().data() << std::flush;
 }
 
-void Shell::handleChannelClosed(int exitStatus)
+void Shell::handleChannelClosed(const QString &error)
 {
-    std::cerr << "Shell closed. Exit status was " << exitStatus << ", exit code was "
-        << m_shell->exitCode() << "." << std::endl;
-    QCoreApplication::exit(exitStatus == SshRemoteProcess::NormalExit && m_shell->exitCode() == 0
+    std::cerr << "Shell closed. Exit code was " << m_shell->exitCode() << "." << std::endl;
+    QCoreApplication::exit(error.isEmpty() && m_shell->exitCode() == 0
         ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 

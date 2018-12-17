@@ -42,58 +42,33 @@ ArgumentsCollector::ArgumentsCollector(const QStringList &args)
 SshConnectionParameters ArgumentsCollector::collect(bool &success) const
 {
     SshConnectionParameters parameters;
-    parameters.options &= ~SshIgnoreDefaultProxy;
     try {
         bool authTypeGiven = false;
         bool portGiven = false;
         bool timeoutGiven = false;
-        bool proxySettingGiven = false;
         int pos;
         int port = 22;
 
         for (pos = 1; pos < m_arguments.count() - 1; ++pos) {
-            QString host;
-            QString user;
-            if (checkAndSetStringArg(pos, host, "-h") || checkAndSetStringArg(pos, user, "-u")) {
-                parameters.setHost(host);
-                parameters.setUserName(user);
+            QString str;
+            if (checkAndSetStringArg(pos, str, "-h")) {
+                parameters.setHost(str);
+            } else if (checkAndSetStringArg(pos, str, "-u")) {
+                parameters.setUserName(str);
+            } else if (checkAndSetIntArg(pos, port, portGiven, "-p")
+                       || checkAndSetIntArg(pos, parameters.timeout, timeoutGiven, "-t")) {
                 continue;
-            }
-            if (checkAndSetIntArg(pos, port, portGiven, "-p")
-                || checkAndSetIntArg(pos, parameters.timeout, timeoutGiven, "-t"))
-                continue;
-            QString pass;
-            if (checkAndSetStringArg(pos, pass, "-pwd")) {
-                parameters.setPassword(pass);
-                if (!parameters.privateKeyFile.isEmpty())
-                    throw ArgumentErrorException(QLatin1String("-pwd and -k are mutually exclusive."));
+            } else  if (checkAndSetStringArg(pos, parameters.privateKeyFile, "-k")) {
                 parameters.authenticationType
-                    = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
+                        = SshConnectionParameters::AuthenticationTypeSpecificKey;
                 authTypeGiven = true;
-                continue;
             }
-            if (checkAndSetStringArg(pos, parameters.privateKeyFile, "-k")) {
-                if (!parameters.password().isEmpty())
-                    throw ArgumentErrorException(QLatin1String("-pwd and -k are mutually exclusive."));
-                parameters.authenticationType
-                    = SshConnectionParameters::AuthenticationTypePublicKey;
-                authTypeGiven = true;
-                continue;
-            }
-            if (!checkForNoProxy(pos, parameters.options, proxySettingGiven))
-                throw ArgumentErrorException(QLatin1String("unknown option ") + m_arguments.at(pos));
         }
 
         Q_ASSERT(pos <= m_arguments.count());
-        if (pos == m_arguments.count() - 1) {
-            if (!checkForNoProxy(pos, parameters.options, proxySettingGiven))
-                throw ArgumentErrorException(QLatin1String("unknown option ") + m_arguments.at(pos));
-        }
 
-        if (!authTypeGiven) {
-            parameters.authenticationType = SshConnectionParameters::AuthenticationTypePublicKey;
-            parameters.privateKeyFile = QDir::homePath() + QLatin1String("/.ssh/id_rsa");
-        }
+        if (!authTypeGiven)
+            parameters.authenticationType = SshConnectionParameters::AuthenticationTypeAll;
 
         if (parameters.userName().isEmpty())
             parameters.setUserName(QProcessEnvironment::systemEnvironment().value("USER"));
@@ -119,7 +94,7 @@ void ArgumentsCollector::printUsage() const
 {
     cerr << "Usage: " << qPrintable(m_arguments.first())
         << " -h <host> [ -u <user> ] "
-        << "[ -pwd <password> | -k <private key file> ] [ -p <port> ] "
+        << "[ -k <private key file> ] [ -p <port> ] "
         << "[ -t <timeout> ] [ -no-proxy ]" << endl;
 }
 
@@ -152,19 +127,6 @@ bool ArgumentsCollector::checkAndSetIntArg(int &pos, int &val,
             throw ArgumentErrorException(QLatin1String("option ") + QLatin1String(opt)
                  + QLatin1String(" needs integer argument"));
         }
-        alreadyGiven = true;
-        return true;
-    }
-    return false;
-}
-
-bool ArgumentsCollector::checkForNoProxy(int &pos, SshConnectionOptions &options,
-                                         bool &alreadyGiven) const
-{
-    if (m_arguments.at(pos) == QLatin1String("-no-proxy")) {
-        if (alreadyGiven)
-            throw ArgumentErrorException(QLatin1String("proxy setting given twice."));
-        options |= SshIgnoreDefaultProxy;
         alreadyGiven = true;
         return true;
     }

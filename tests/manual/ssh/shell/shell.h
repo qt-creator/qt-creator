@@ -25,14 +25,9 @@
 
 #pragma once
 
-#include <QObject>
-#include <QSharedPointer>
+#include <ssh/sshconnection.h>
 
-namespace QSsh {
-class SshConnection;
-class SshConnectionParameters;
-class SshRemoteProcess;
-}
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;
@@ -55,11 +50,11 @@ private:
     void handleRemoteStdout();
     void handleRemoteStderr();
     void handleShellMessage(const QString &message);
-    void handleChannelClosed(int exitStatus);
+    void handleChannelClosed(const QString &error);
     void handleShellStarted();
     void handleStdin();
 
     QSsh::SshConnection *m_connection;
-    QSharedPointer<QSsh::SshRemoteProcess> m_shell;
+    QSsh::SshRemoteProcessPtr m_shell;
     QFile * const m_stdin;
 };

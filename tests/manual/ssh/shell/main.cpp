@@ -27,8 +27,10 @@
 #include "shell.h"
 
 #include <ssh/sshconnection.h>
+#include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QObject>
 #include <QStringList>
 
@@ -43,6 +45,8 @@ int main(int argc, char *argv[])
         = ArgumentsCollector(app.arguments()).collect(parseSuccess);
     if (!parseSuccess)
         return EXIT_FAILURE;
+    Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
+                                                           + "/qtc-ssh-shelltest-XXXXXX");
     Shell shell(parameters);
     shell.run();
     return app.exec();

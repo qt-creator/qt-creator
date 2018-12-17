@@ -60,8 +60,7 @@ void SftpFsWindow::connectToHost()
     sshParams.setHost(m_ui->hostLineEdit->text());
     sshParams.setUserName(m_ui->userLineEdit->text());
     sshParams.authenticationType
-            = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
-    sshParams.setPassword(m_ui->passwordLineEdit->text());
+            = SshConnectionParameters::AuthenticationTypeAll;
     sshParams.setPort(m_ui->portSpinBox->value());
     sshParams.timeout = 10;
     m_fsModel = new SftpFileSystemModel(this);
