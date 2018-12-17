@@ -109,6 +109,7 @@ public:
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
+    QStringList targetApplications() const override;
 
     QString buildKey() const override;
 
