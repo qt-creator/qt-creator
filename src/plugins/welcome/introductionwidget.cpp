@@ -109,7 +109,7 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
     layout->addWidget(m_continueLabel);
     m_bodyCss = "font-size: 16px;";
     m_items = {
-        {"ModeSelector",
+        {QLatin1String("ModeSelector"),
          tr("Mode Selector"),
          tr("Select different modes depending on the task at hand."),
          tr("<p style=\"margin-top: 30px\"><table>"
@@ -122,17 +122,20 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
             "<tr><td>Projects:</td><td>Manage project settings.</td></tr>"
             "<tr><td>Help:</td><td>Browse the help database.</td></tr>"
             "</table></p>")},
-        {"KitSelector.Button",
+        {QLatin1String("KitSelector.Button"),
          tr("Kit Selector"),
          tr("Select the active project or project configuration."),
-         ""},
-        {"Run.Button",
+         {}},
+        {QLatin1String("Run.Button"),
          tr("Run Button"),
          tr("Run the active project. By default this builds the project first."),
-         ""},
-        {"Debug.Button", tr("Debug Button"), tr("Run the active project in a debugger."), ""},
-        {"Build.Button", tr("Build Button"), tr("Build the active project."), ""},
-        {"LocatorInput",
+         {}},
+        {QLatin1String("Debug.Button"),
+         tr("Debug Button"),
+         tr("Run the active project in a debugger."),
+         {}},
+        {QLatin1String("Build.Button"), tr("Build Button"), tr("Build the active project."), ""},
+        {QLatin1String("LocatorInput"),
          tr("Locator"),
          tr("Type here to open a file from any open project."),
          tr("Or:"
@@ -142,29 +145,29 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
             "system</li>"
             "<li>click on the magnifier icon for a complete list of possible options</li>"
             "</ul>")},
-        {"OutputPaneButtons",
+        {QLatin1String("OutputPaneButtons"),
          tr("Output Panes"),
          tr("Find compile and application output here, "
             "as well as a list of configuration and build issues, "
             "and the panel for global searches."),
-         ""},
-        {"ProgressInfo",
+         {}},
+        {QLatin1String("ProgressInfo"),
          tr("Progress Indicator"),
          tr("Progress information about running tasks is shown here."),
-         ""},
+         {}},
         {{},
          tr("Escape to Editor"),
          tr("Pressing the Escape key brings you back to the editor. Press it "
             "multiple times to also hide output panes and context help, giving the editor more "
             "space."),
-         ""},
+         {}},
         {{},
          tr("The End"),
          tr("You have now completed the UI tour. To learn more about the highlighted "
             "controls, see <a style=\"color: #41CD52\" "
             "href=\"qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html\">User "
             "Interface</a>."),
-         ""}};
+         {}}};
     setStep(0);
     resizeToParent();
 }
