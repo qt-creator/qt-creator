@@ -74,7 +74,7 @@ void IntroductionWidget::askUserAboutIntroduction(QWidget *parent, QSettings *se
 
 IntroductionWidget::IntroductionWidget(QWidget *parent)
     : QWidget(parent),
-      m_borderImage(std::make_unique<QImage>(":/welcome/images/border.png"))
+      m_borderImage(":/welcome/images/border.png")
 {
     setFocusPolicy(Qt::StrongFocus);
     setFocus();
@@ -321,7 +321,7 @@ void IntroductionWidget::paintEvent(QPaintEvent *)
         }
 
         // smooth borders of the spotlighted area by gradients
-        StyleHelper::drawCornerImage(*m_borderImage,
+        StyleHelper::drawCornerImage(m_borderImage,
                                      &p,
                                      spotlightRect,
                                      SPOTLIGHTMARGIN,

@@ -71,7 +71,7 @@ private:
     QWidget *m_textWidget;
     QLabel *m_stepText;
     QLabel *m_continueLabel;
-    std::unique_ptr<QImage> m_borderImage;
+    QImage m_borderImage;
     QString m_bodyCss;
     std::vector<Item> m_items;
     QPointer<QWidget> m_stepPointerAnchor;
