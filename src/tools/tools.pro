@@ -1,3 +1,5 @@
+include(../../qtcreator.pri)
+
 TEMPLATE = subdirs
 
 SUBDIRS = qtpromaker \
