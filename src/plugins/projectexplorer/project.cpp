@@ -887,8 +887,9 @@ const ProjectNode *Project::findNodeForBuildKey(const QString &buildKey) const
 {
     const ProjectNode *result = nullptr;
     if (d->m_rootProjectNode) {
-        d->m_rootProjectNode->forEachProjectNode([buildKey](const ProjectNode *node) {
-            return node->buildKey() == buildKey;
+        d->m_rootProjectNode->forEachProjectNode([&result, buildKey](const ProjectNode *node) {
+            if (node->buildKey() == buildKey)
+                result = node;
         });
     }
     return result;
