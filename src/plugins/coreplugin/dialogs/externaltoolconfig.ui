@@ -28,7 +28,7 @@
         <bool>false</bool>
        </attribute>
        <attribute name="headerDefaultSectionSize">
-        <number>0</number>
+        <number>21</number>
        </attribute>
       </widget>
      </item>
@@ -82,196 +82,249 @@
     </layout>
    </item>
    <item>
-    <widget class="QWidget" name="infoWidget" native="true">
+    <widget class="QScrollArea" name="scrollArea">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>10</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <layout class="QFormLayout" name="formLayout">
-      <property name="fieldGrowthPolicy">
-       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>396</width>
+        <height>444</height>
+       </rect>
       </property>
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="descriptionLabel">
-        <property name="text">
-         <string>Description:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="description"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="executableLabel">
-        <property name="text">
-         <string>Executable:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="Utils::PathChooser" name="executable">
-        <property name="expectedKind">
-         <enum>Utils::PathChooser::Command</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="argumentsLabel">
-        <property name="text">
-         <string>Arguments:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="arguments"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="workingDirectoryLabel">
-        <property name="text">
-         <string>Working directory:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="Utils::PathChooser" name="workingDirectory">
-        <property name="expectedKind">
-         <enum>Utils::PathChooser::Directory</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="outputLabel">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QWidget" name="infoWidget" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>10</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::ExpandingFieldsGrow</enum>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="descriptionLabel">
+            <property name="text">
+             <string>Description:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="description"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="executableLabel">
+            <property name="text">
+             <string>Executable:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="Utils::PathChooser" name="executable" native="true"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="argumentsLabel">
+            <property name="text">
+             <string>Arguments:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="arguments"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="workingDirectoryLabel">
+            <property name="text">
+             <string>Working directory:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="Utils::PathChooser" name="workingDirectory" native="true"/>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="outputLabel">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;What to do with the executable's standard output.
 &lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it.&lt;/li&gt;&lt;li&gt;Show in pane: Show it in the general output pane.&lt;/li&gt;&lt;li&gt;Replace selection: Replace the current selection in the current document with it.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </string>
-        </property>
-        <property name="text">
-         <string>Output:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QComboBox" name="outputBehavior">
-        <item>
-         <property name="text">
-          <string>Ignore</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Show in Pane</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Replace Selection</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="errorOutputLabel">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head&gt;&lt;body&gt;
+            </property>
+            <property name="text">
+             <string>Output:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QComboBox" name="outputBehavior">
+            <item>
+             <property name="text">
+              <string>Ignore</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Show in Pane</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Replace Selection</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="errorOutputLabel">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head&gt;&lt;body&gt;
 &lt;p &gt;What to do with the executable's standard error output.&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it.&lt;/li&gt;
 &lt;li&gt;Show in pane: Show it in the general output pane.&lt;/li&gt;
 &lt;li&gt;Replace selection: Replace the current selection in the current document with it.&lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Error output:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QComboBox" name="errorOutputBehavior">
-        <item>
-         <property name="text">
-          <string>Ignore</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Show in Pane</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Replace Selection</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Environment:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="environmentLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>No changes to apply.</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="environmentButton">
-          <property name="text">
-           <string>Change...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="7" column="1">
-       <widget class="QCheckBox" name="modifiesDocumentCheckbox">
-        <property name="toolTip">
-         <string>If the tool modifies the current document, set this flag to ensure that the document is saved before running the tool and is reloaded after the tool finished.</string>
-        </property>
-        <property name="text">
-         <string>Modifies current document</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="inputLabel">
-        <property name="toolTip">
-         <string>Text to pass to the executable via standard input. Leave empty if the executable should not receive any input.</string>
-        </property>
-        <property name="text">
-         <string>Input:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QPlainTextEdit" name="inputText">
-        <property name="lineWrapMode">
-         <enum>QPlainTextEdit::NoWrap</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
+            </property>
+            <property name="text">
+             <string>Error output:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QComboBox" name="errorOutputBehavior">
+            <item>
+             <property name="text">
+              <string>Ignore</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Show in Pane</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Replace Selection</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Environment:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="environmentLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>No changes to apply.</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="environmentButton">
+              <property name="text">
+               <string>Change...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="7" column="1">
+           <widget class="QCheckBox" name="modifiesDocumentCheckbox">
+            <property name="toolTip">
+             <string>If the tool modifies the current document, set this flag to ensure that the document is saved before running the tool and is reloaded after the tool finished.</string>
+            </property>
+            <property name="text">
+             <string>Modifies current document</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QLabel" name="inputLabel">
+            <property name="toolTip">
+             <string>Text to pass to the executable via standard input. Leave empty if the executable should not receive any input.</string>
+            </property>
+            <property name="text">
+             <string>Input:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QPlainTextEdit" name="inputText">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>10</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="lineWrapMode">
+             <enum>QPlainTextEdit::NoWrap</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
