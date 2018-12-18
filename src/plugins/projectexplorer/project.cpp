@@ -885,14 +885,12 @@ bool Project::hasParsingData() const
 
 const ProjectNode *Project::findNodeForBuildKey(const QString &buildKey) const
 {
-    const ProjectNode *result = nullptr;
-    if (d->m_rootProjectNode) {
-        d->m_rootProjectNode->forEachProjectNode([&result, buildKey](const ProjectNode *node) {
-            if (node->buildKey() == buildKey)
-                result = node;
-        });
-    }
-    return result;
+    if (!d->m_rootProjectNode)
+        return nullptr;
+
+    return d->m_rootProjectNode->findProjectNode([buildKey](const ProjectNode *node) {
+        return node->buildKey() == buildKey;
+    });
 }
 
 ProjectImporter *Project::projectImporter() const

@@ -525,6 +525,22 @@ void FolderNode::forEachProjectNode(const std::function<void(const ProjectNode *
     }
 }
 
+const ProjectNode *FolderNode::findProjectNode(const std::function<bool(const ProjectNode *)> &predicate) const
+{
+    if (const ProjectNode *projectNode = asProjectNode()) {
+        if (predicate(projectNode))
+            return projectNode;
+    }
+
+    for (const std::unique_ptr<Node> &n : m_nodes) {
+        if (FolderNode *fn = n->asFolderNode()) {
+            if (const ProjectNode *pn = fn->findProjectNode(predicate))
+                return pn;
+        }
+    }
+    return nullptr;
+}
+
 const QList<Node *> FolderNode::nodes() const
 {
     return Utils::toRawPointer<QList>(m_nodes);
