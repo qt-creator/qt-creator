@@ -340,14 +340,19 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="editable">
            <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="terminalOpenArgs">
-         </widget>
+         <widget class="QLineEdit" name="terminalOpenArgs"/>
         </item>
         <item>
          <widget class="QLineEdit" name="terminalExecuteArgs">
