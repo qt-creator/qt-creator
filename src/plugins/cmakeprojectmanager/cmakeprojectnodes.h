@@ -72,6 +72,7 @@ public:
 
     bool showInSimpleTree() const final;
     QString tooltip() const final;
+    QString buildKey() const final;
 
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;

@@ -196,6 +196,11 @@ QString CMakeTargetNode::tooltip() const
     return m_tooltip;
 }
 
+QString CMakeTargetNode::buildKey() const
+{
+    return QString::fromUtf8(id());
+}
+
 bool CMakeTargetNode::supportsAction(ProjectExplorer::ProjectAction action,
                                      const ProjectExplorer::Node *) const
 {
