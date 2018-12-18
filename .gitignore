@@ -217,6 +217,7 @@ tmp/
 /tests/auto/qtcprocess/tst_qtcprocess
 /tests/auto/runextensions/tst_runextensions
 /tests/auto/sdktool/tst_sdktool
+/tests/auto/ssh/tst_ssh
 /tests/auto/timeline/timelineabstractrenderer/tst_timelineabstractrenderer
 /tests/auto/timeline/timelineitemsrenderpass/tst_timelineitemsrenderpass
 /tests/auto/timeline/timelinemodel/tst_timelinemodel
@@ -262,12 +263,8 @@ tmp/
 /tests/manual/proparser/testreader
 /tests/manual/qml-ast2dot/qml-ast2dot
 /tests/manual/shootout/shootout
-/tests/manual/ssh/errorhandling/errorhandling
-/tests/manual/ssh/remoteprocess/remoteprocess
-/tests/manual/ssh/sftp/sftp
 /tests/manual/ssh/sftpfsmodel/sftpfsmodel
 /tests/manual/ssh/shell/shell
-/tests/manual/ssh/tunnel/tunnel
 /tests/tools/qml-ast2dot/qml-ast2dot
 /tests/unit/echoserver/echo
 /tests/unit/unittest/unittest
