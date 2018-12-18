@@ -66,10 +66,9 @@ NimProject::NimProject(const FileName &fileName) : Project(Constants::C_NIM_MIME
 
     m_projectScanTimer.setSingleShot(true);
     connect(&m_projectScanTimer, &QTimer::timeout, this, &NimProject::collectProjectFiles);
+    connect(this, &Project::settingsLoaded, this, &NimProject::collectProjectFiles);
 
     connect(&m_futureWatcher, &QFutureWatcher<QList<FileNode *>>::finished, this, &NimProject::updateProject);
-
-    collectProjectFiles();
 }
 
 void NimProject::scheduleProjectScan()
@@ -113,8 +112,13 @@ void NimProject::collectProjectFiles()
     m_lastProjectScan.start();
     QTC_ASSERT(!m_futureWatcher.future().isRunning(), return);
     FileName prjDir = projectDirectory();
-    QFuture<QList<ProjectExplorer::FileNode *>> future = Utils::runAsync([prjDir] {
-        return FileNode::scanForFiles(prjDir, [](const FileName &fn) {
+    QFuture<QList<ProjectExplorer::FileNode *>> future = Utils::runAsync([prjDir, excluded = m_excludedFiles] {
+        return FileNode::scanForFiles(prjDir, [excluded](const FileName &fn) -> FileNode * {
+            const QString fileName = fn.fileName();
+            if (excluded.contains(fn.toString())
+                    || fileName.endsWith(".nimproject", HostOsInfo::fileNameCaseSensitivity())
+                    || fileName.contains(".nimproject.user", HostOsInfo::fileNameCaseSensitivity()))
+                return nullptr;
             return new FileNode(fn, FileType::Source, false);
         });
     });
@@ -126,31 +130,13 @@ void NimProject::updateProject()
 {
     emitParsingStarted();
 
-    auto fileNodes = Utils::transform<std::vector>(m_futureWatcher.future().result(), [](FileNode *node) {
-        return std::unique_ptr<FileNode>(node);
-    });
+    auto newRoot = std::make_unique<NimProjectNode>(*this, projectDirectory());
 
-    Utils::erase(fileNodes, [this](const std::unique_ptr<FileNode> &fn) {
-        const FileName &path = fn->filePath();
-        const QString fileName = path.fileName();
-        return m_excludedFiles.contains(path.toString())
-                || fileName.endsWith(".nimproject", HostOsInfo::fileNameCaseSensitivity())
-                || fileName.contains(".nimproject.user", HostOsInfo::fileNameCaseSensitivity());
-    });
+    for (FileNode *node : m_futureWatcher.future().result())
+        newRoot->addNestedNode(std::unique_ptr<FileNode>(node));
 
-    QStringList files = Utils::transform<QList>(fileNodes, [](const std::unique_ptr<FileNode> &fn) {
-        return fn->filePath().toString();
-    });
-
-    Utils::sort(files);
-
-    if (files != m_files) {
-        m_files = std::move(files);
-        auto newRoot = std::make_unique<NimProjectNode>(*this, projectDirectory());
-        newRoot->setDisplayName(displayName());
-        newRoot->addNestedNodes(std::move(fileNodes));
-        setRootProjectNode(std::move(newRoot));
-    }
+    newRoot->setDisplayName(displayName());
+    setRootProjectNode(std::move(newRoot));
 
     emitParsingFinished(true);
 }
