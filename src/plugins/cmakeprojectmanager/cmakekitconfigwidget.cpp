@@ -63,6 +63,7 @@ CMakeKitConfigWidget::CMakeKitConfigWidget(Kit *kit,
     m_comboBox(new QComboBox),
     m_manageButton(new QPushButton(KitConfigWidget::msgManage()))
 {
+    m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
     m_comboBox->setEnabled(false);
     m_comboBox->setToolTip(toolTip());
 

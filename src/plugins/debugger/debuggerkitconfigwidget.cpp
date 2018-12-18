@@ -67,6 +67,7 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInfo
     : KitConfigWidget(workingCopy, ki)
 {
     m_comboBox = new QComboBox;
+    m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
     m_comboBox->setEnabled(true);
 
     refresh();
