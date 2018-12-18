@@ -76,6 +76,7 @@ public:
     void setJobCountOverrideMakeflags(bool override);
     bool makeflagsContainsJobCount() const;
     bool userArgsContainsJobCount() const;
+    bool makeflagsJobCountMismatch() const;
 
     Utils::Environment environment(BuildConfiguration *bc) const;
 

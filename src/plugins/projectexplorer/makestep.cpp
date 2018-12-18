@@ -40,6 +40,7 @@
 #include <coreplugin/variablechooser.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/optional.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
@@ -198,10 +199,37 @@ void MakeStep::setJobCountOverrideMakeflags(bool override)
     m_overrideMakeflags = override;
 }
 
-static bool argsContainsJobCount(const QString &str)
+static Utils::optional<int> argsJobCount(const QString &str)
 {
     const QStringList args = Utils::QtcProcess::splitArgs(str, Utils::HostOsInfo::hostOs());
-    return Utils::anyOf(args, [](const QString &arg) { return arg.startsWith("-j"); });
+    const int argIndex = Utils::indexOf(args, [](const QString &arg) { return arg.startsWith("-j"); });
+    if (argIndex == -1)
+        return Utils::nullopt;
+    QString arg = args.at(argIndex);
+    bool requireNumber = false;
+    // -j [4] as separate arguments (or no value)
+    if (arg == "-j") {
+        if (args.size() <= argIndex + 1)
+            return 1000; // unlimited
+        arg = args.at(argIndex + 1);
+    } else { // -j4
+        arg = arg.mid(2).trimmed();
+        requireNumber = true;
+    }
+    bool ok = false;
+    const int res = arg.toInt(&ok);
+    if (!ok && requireNumber)
+        return Utils::nullopt;
+    return Utils::make_optional(ok && res > 0 ? res : 1000);
+}
+
+bool MakeStep::makeflagsJobCountMismatch() const
+{
+    const Utils::Environment env = environment(buildConfiguration());
+    if (!env.hasKey(MAKEFLAGS))
+        return false;
+    Utils::optional<int> makeFlagsJobCount = argsJobCount(env.value(MAKEFLAGS));
+    return makeFlagsJobCount.has_value() && *makeFlagsJobCount != m_userJobCount;
 }
 
 bool MakeStep::makeflagsContainsJobCount() const
@@ -209,12 +237,12 @@ bool MakeStep::makeflagsContainsJobCount() const
     const Utils::Environment env = environment(buildConfiguration());
     if (!env.hasKey(MAKEFLAGS))
         return false;
-    return argsContainsJobCount(env.value(MAKEFLAGS));
+    return argsJobCount(env.value(MAKEFLAGS)).has_value();
 }
 
 bool MakeStep::userArgsContainsJobCount() const
 {
-    return argsContainsJobCount(m_makeArguments);
+    return argsJobCount(m_makeArguments).has_value();
 }
 
 Utils::Environment MakeStep::environment(BuildConfiguration *bc) const
@@ -452,7 +480,7 @@ void MakeStepConfigWidget::updateDetails()
     m_ui->userJobCount->setValue(m_makeStep->jobCount());
     m_ui->overrideMakeflags->setCheckState(
         m_makeStep->jobCountOverridesMakeflags() ? Qt::Checked : Qt::Unchecked);
-    m_ui->nonOverrideWarning->setVisible(m_makeStep->makeflagsContainsJobCount()
+    m_ui->nonOverrideWarning->setVisible(m_makeStep->makeflagsJobCountMismatch()
                                          && !m_makeStep->jobCountOverridesMakeflags());
 
     ProcessParameters param;
