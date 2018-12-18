@@ -12,6 +12,7 @@ Project {
         "qml2puppet/qml2puppet.qbs",
         "qtcdebugger/qtcdebugger.qbs",
         "qtcreatorcrashhandler/qtcreatorcrashhandler.qbs",
+        "qtc-askpass/qtc-askpass.qbs",
         "qtpromaker/qtpromaker.qbs",
         "sdktool/sdktool.qbs",
         "valgrindfake/valgrindfake.qbs",

@@ -113,12 +113,23 @@ int SshSettings::connectionSharingTimeout()
     return sshSettings->connectionSharingTimeOutInMinutes;
 }
 
-static FileName filePathValue(const FileName &value, const QString &defaultFileName)
+static FileName filePathValue(const FileName &value, const QStringList &candidateFileNames)
 {
-    return !value.isEmpty()
-            ? value
-            : Environment::systemEnvironment().searchInPath(defaultFileName,
-                                                            sshSettings->searchPathRetriever());
+    if (!value.isEmpty())
+        return value;
+    const QList<FileName> additionalSearchPaths = sshSettings->searchPathRetriever();
+    for (const QString &candidate : candidateFileNames) {
+        const FileName filePath = Environment::systemEnvironment()
+                .searchInPath(candidate, additionalSearchPaths);
+        if (!filePath.isEmpty())
+            return filePath;
+    }
+    return FileName();
+}
+
+static FileName filePathValue(const FileName &value, const QString &candidateFileName)
+{
+    return filePathValue(value, QStringList(candidateFileName));
 }
 
 void SshSettings::setSshFilePath(const FileName &ssh) { sshSettings->sshFilePath = ssh; }
@@ -138,7 +149,7 @@ FileName SshSettings::askpassFilePath()
     candidate = sshSettings->askpassFilePath;
     if (candidate.isEmpty())
         candidate = FileName::fromString(Environment::systemEnvironment().value("SSH_ASKPASS"));
-    return filePathValue(candidate, "ssh-askpass");
+    return filePathValue(candidate, QStringList{"qtc-askpass", "ssh-askpass"});
 }
 
 void SshSettings::setKeygenFilePath(const FileName &keygen)

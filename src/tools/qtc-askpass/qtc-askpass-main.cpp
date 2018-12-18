@@ -23,52 +23,25 @@
 **
 ****************************************************************************/
 
-#include "sshprocess_p.h"
+#include <QApplication>
+#include <QInputDialog>
+#include <QTimer>
+#include <iostream>
 
-#include "sshsettings.h"
-
-#include <utils/environment.h>
-
-#ifdef Q_OS_UNIX
-#include <sys/types.h>
-#include <unistd.h>
-#endif
-
-namespace QSsh {
-namespace Internal {
-
-SshProcess::SshProcess()
+int main(int argc, char *argv[])
 {
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    if (SshSettings::askpassFilePath().exists()) {
-        env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());
-
-        // OpenSSH only uses the askpass program if DISPLAY is set, regardless of the platform.
-        if (!env.hasKey("DISPLAY"))
-            env.set("DISPLAY", ":0");
-    }
-    setProcessEnvironment(env.toProcessEnvironment());
+    QApplication app(argc, argv);
+    QTimer::singleShot(0, [] {
+        QInputDialog dlg;
+        const QStringList appArgs = qApp->arguments();
+        QString labelText = QCoreApplication::translate("qtc-askpass",
+                                                        "Password required for SSH login.");
+        if (appArgs.count() > 1)
+            labelText.append('\n').append(appArgs.at(1));
+        dlg.setLabelText(labelText);
+        dlg.setTextEchoMode(QLineEdit::Password);
+        if (dlg.exec() == QDialog::Accepted)
+            std::cout << qPrintable(dlg.textValue()) << std::endl;
+    });
+    return app.exec();
 }
-
-SshProcess::~SshProcess()
-{
-    if (state() == QProcess::NotRunning)
-        return;
-    disconnect();
-    terminate();
-    waitForFinished(1000);
-    if (state() == QProcess::NotRunning)
-        return;
-    kill();
-    waitForFinished(1000);
-}
-
-void SshProcess::setupChildProcess()
-{
-#ifdef Q_OS_UNIX
-    setsid(); // Otherwise, ssh will ignore SSH_ASKPASS and read from /dev/tty directly.
-#endif
-}
-
-} // namespace Internal
-} // namespace QSsh

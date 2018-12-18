@@ -6,7 +6,8 @@ SUBDIRS = qtpromaker \
      ../plugins/cpaster/frontend \
      valgrindfake \
      3rdparty \
-     buildoutputparser
+     buildoutputparser \
+     qtc-askpass
 
 isEmpty(QTC_SKIP_SDKTOOL): SUBDIRS += sdktool
 

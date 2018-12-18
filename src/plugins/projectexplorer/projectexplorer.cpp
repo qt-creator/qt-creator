@@ -1723,8 +1723,10 @@ void ProjectExplorerPlugin::extensionsInitialized()
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
 
     QSsh::SshSettings::loadSettings(Core::ICore::settings());
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        const auto searchPathRetriever = [] {
+    const auto searchPathRetriever = [] {
+        Utils::FileNameList searchPaths;
+        searchPaths << Utils::FileName::fromString(Core::ICore::libexecPath());
+        if (Utils::HostOsInfo::isWindowsHost()) {
             const QString gitBinary = Core::ICore::settings()->value("Git/BinaryPath", "git")
                     .toString();
             const QStringList rawGitSearchPaths = Core::ICore::settings()->value("Git/Path")
@@ -1733,15 +1735,14 @@ void ProjectExplorerPlugin::extensionsInitialized()
                     [](const QString &rawPath) { return Utils::FileName::fromString(rawPath); });
             const Utils::FileName fullGitPath = Utils::Environment::systemEnvironment()
                     .searchInPath(gitBinary, gitSearchPaths);
-            if (fullGitPath.isEmpty())
-                return Utils::FileNameList();
-            return Utils::FileNameList{
-                fullGitPath.parentDir(),
-                fullGitPath.parentDir().parentDir() + "/usr/bin"
-            };
-        };
-        QSsh::SshSettings::setExtraSearchPathRetriever(searchPathRetriever);
-    }
+            if (!fullGitPath.isEmpty()) {
+                searchPaths << fullGitPath.parentDir()
+                            << fullGitPath.parentDir().parentDir() + "/usr/bin";
+            }
+        }
+        return searchPaths;
+    };
+    QSsh::SshSettings::setExtraSearchPathRetriever(searchPathRetriever);
 
     // delay restoring kits until UI is shown for improved perceived startup performance
     QTimer::singleShot(0, this, &ProjectExplorerPlugin::restoreKits);
