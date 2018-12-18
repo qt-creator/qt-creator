@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>614</width>
+    <width>639</width>
     <height>306</height>
    </rect>
   </property>
@@ -173,7 +173,7 @@
       <item row="1" column="0" colspan="3">
        <widget class="TextEditor::Internal::ColorSchemeEdit" name="schemeEdit" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>1</verstretch>
          </sizepolicy>
