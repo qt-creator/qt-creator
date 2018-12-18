@@ -84,9 +84,9 @@ set_simple_tracepoint() {
 
 set_symbolic_tracepoint() {
     >&2 echo "</pre><h4>Trying symbolic trace point for $4 on $1 ...</h4><pre>"
-    set_simple_tracepoint "$1" "$2" "$3" "$4" "$5" "\$params" || return 1
-    PARAM=`perf probe -l | awk "/perfprofiler_$1_$3"'/{sub(/\)$/, ""); print $(NF)}'`
-    perf probe -d "perfprofiler_$1_$3"
+    set_simple_tracepoint "$1" "$2" "$3_paramstest" "$4" "\$params" "$5" || return 1
+    PARAM=`perf probe -l | awk "/perfprofiler_$1_$3_paramstest"'/{sub(/\)$/, ""); print $(NF)}'`
+    perf probe -d "perfprofiler_$1_$3_paramstest"
     set_simple_tracepoint "$1" "$2" "$3" "$4" "$5" "$PARAM" || return 1
     return 0
 }
