@@ -98,10 +98,8 @@ public:
 
     QStringList targetApplications() const override;
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
-    QVariant targetData(Core::Id role,
-                        const ProjectExplorer::Target *target) const override;
-    bool setTargetData(Core::Id role, const QVariant &value,
-                       const ProjectExplorer::Target *target) const override;
+    QVariant data(Core::Id role) const override;
+    bool setData(Core::Id role, const QVariant &value) const override;
 
     QmakeProjectManager::ProjectType projectType() const;
     QString buildDir() const;

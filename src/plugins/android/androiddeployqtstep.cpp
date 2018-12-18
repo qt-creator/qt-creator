@@ -194,7 +194,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
 
         QString jsonFile;
         if (const ProjectNode *node = target()->project()->findNodeForBuildKey(rc->buildKey()))
-            jsonFile = node->targetData(Constants::AndroidDeploySettingsFile, target()).toString();
+            jsonFile = node->data(Constants::AndroidDeploySettingsFile).toString();
         if (jsonFile.isEmpty()) {
             emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
             return false;

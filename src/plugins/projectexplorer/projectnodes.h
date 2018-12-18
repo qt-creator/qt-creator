@@ -43,7 +43,6 @@ namespace Utils { class MimeType; }
 namespace ProjectExplorer {
 
 class Project;
-class Target;
 
 enum class NodeType : quint16 {
     File = 1,
@@ -350,8 +349,8 @@ public:
     virtual bool parseInProgress() const { return false; }
 
     virtual bool validParse() const { return false; }
-    virtual QVariant targetData(Core::Id role, const Target *target) const;
-    virtual bool setTargetData(Core::Id role, const QVariant &value, const Target *target) const;
+    virtual QVariant data(Core::Id role) const;
+    virtual bool setData(Core::Id role, const QVariant &value) const;
 
 protected:
     explicit ProjectNode(const Utils::FileName &projectFilePath, const QByteArray &id = {});

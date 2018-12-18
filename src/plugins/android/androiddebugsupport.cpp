@@ -100,11 +100,11 @@ static QStringList getSoLibSearchPath(const RunConfiguration *rc)
         return {};
 
     QStringList res;
-    node->forEachProjectNode([&res, target](const ProjectNode *node) {
-         res.append(node->targetData(Constants::AndroidSoLibPath, target).toStringList());
+    node->forEachProjectNode([&res](const ProjectNode *node) {
+         res.append(node->data(Constants::AndroidSoLibPath).toStringList());
     });
 
-    const QString jsonFile = node->targetData(Android::Constants::AndroidDeploySettingsFile, target).toString();
+    const QString jsonFile = node->data(Android::Constants::AndroidDeploySettingsFile).toString();
     QFile deploymentSettings(jsonFile);
     if (deploymentSettings.open(QIODevice::ReadOnly)) {
         QJsonParseError error;
@@ -127,7 +127,7 @@ static QStringList getExtraLibs(const RunConfiguration *rc)
     if (!node)
         return {};
 
-    return node->targetData(Android::Constants::AndroidExtraLibs, rc->target()).toStringList();
+    return node->data(Android::Constants::AndroidExtraLibs).toStringList();
 }
 
 static QString toNdkArch(const QString &arch)

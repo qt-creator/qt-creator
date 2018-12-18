@@ -99,7 +99,7 @@ void AndroidExtraLibraryListModel::updateModel()
     bool enabled;
     beginResetModel();
     if (node->validParse()) {
-        m_entries = node->targetData(Constants::AndroidExtraLibs, m_target).toStringList();
+        m_entries = node->data(Constants::AndroidExtraLibs).toStringList();
         enabled = true;
     } else {
         // parsing error
@@ -125,7 +125,7 @@ void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
     for (const QString &path : list)
         m_entries += "$$PWD/" + dir.relativeFilePath(path);
 
-    node->setTargetData(Constants::AndroidExtraLibs, m_entries, m_target);
+    node->setData(Constants::AndroidExtraLibs, m_entries);
     endInsertRows();
 }
 
@@ -159,7 +159,7 @@ void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
     QTC_ASSERT(rc, return);
     const ProjectNode *node = m_target->project()->findNodeForBuildKey(rc->buildKey());
     QTC_ASSERT(node, return);
-    node->setTargetData(Constants::AndroidExtraLibs, m_entries, m_target);
+    node->setData(Constants::AndroidExtraLibs, m_entries);
 }
 
 } // Android

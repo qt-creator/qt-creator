@@ -247,27 +247,18 @@ QStringList QmakeProFileNode::targetApplications() const
     return apps;
 }
 
-QVariant QmakeProFileNode::targetData(Core::Id role, const Target *target) const
+QVariant QmakeProFileNode::data(Core::Id role) const
 {
-    RunConfiguration *rc = target->activeRunConfiguration();
-    if (!rc)
-        return {};
-
-    const FileName projectFilePath = FileName::fromString(rc->buildKey());
-    const ProjectNode *projectNode = target->project()->findNodeForBuildKey(rc->buildKey());
-    auto profileNode = dynamic_cast<const QmakeProFileNode *>(projectNode);
-    QTC_ASSERT(profileNode, return {});
-
     if (role == Android::Constants::AndroidPackageSourceDir)
-        return profileNode->singleVariableValue(Variable::AndroidPackageSourceDir);
+        return singleVariableValue(Variable::AndroidPackageSourceDir);
     if (role == Android::Constants::AndroidDeploySettingsFile)
-        return profileNode->singleVariableValue(Variable::AndroidDeploySettingsFile);
+        return singleVariableValue(Variable::AndroidDeploySettingsFile);
     if (role == Android::Constants::AndroidExtraLibs)
-        return profileNode->variableValue(Variable::AndroidExtraLibs);
+        return variableValue(Variable::AndroidExtraLibs);
     if (role == Android::Constants::AndroidArch)
-        return profileNode->singleVariableValue(Variable::AndroidArch);
+        return singleVariableValue(Variable::AndroidArch);
     if (role == Android::Constants::AndroidSoLibPath) {
-        TargetInformation info = profileNode->targetInformation();
+        TargetInformation info = targetInformation();
         QStringList res = {info.buildDir.toString()};
         Utils::FileName destDir = info.destDir;
         if (!destDir.isEmpty()) {
@@ -283,18 +274,9 @@ QVariant QmakeProFileNode::targetData(Core::Id role, const Target *target) const
     return {};
 }
 
-static QmakeProFile *applicationProFile(const Target *target)
+bool QmakeProFileNode::setData(Core::Id role, const QVariant &value) const
 {
-    ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration();
-    if (!rc)
-        return nullptr;
-    auto project = static_cast<QmakeProject *>(target->project());
-    return project->rootProFile()->findProFile(FileName::fromString(rc->buildKey()));
-}
-
-bool QmakeProFileNode::setTargetData(Core::Id role, const QVariant &value, const Target *target) const
-{
-    QmakeProFile *pro = applicationProFile(target);
+    QmakeProFile *pro = proFile();
     if (!pro)
         return false;
 

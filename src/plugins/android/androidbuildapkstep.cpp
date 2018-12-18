@@ -186,7 +186,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     RunConfiguration *rc = target()->activeRunConfiguration();
     const ProjectNode *node = rc ? target()->project()->findNodeForBuildKey(rc->buildKey()) : nullptr;
 
-    QFileInfo sourceDirInfo(node ? node->targetData(Constants::AndroidPackageSourceDir, target()).toString() : QString());
+    QFileInfo sourceDirInfo(node ? node->data(Constants::AndroidPackageSourceDir).toString() : QString());
     parser->setSourceDirectory(Utils::FileName::fromString(sourceDirInfo.canonicalFilePath()));
     parser->setBuildDirectory(Utils::FileName::fromString(bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString()));
     setOutputParser(parser);
@@ -209,7 +209,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 
     QString inputFile;
     if (node)
-        inputFile = node->targetData(Constants::AndroidDeploySettingsFile, target()).toString();
+        inputFile = node->data(Constants::AndroidDeploySettingsFile).toString();
 
     if (inputFile.isEmpty()) {
         m_skipBuilding = true;

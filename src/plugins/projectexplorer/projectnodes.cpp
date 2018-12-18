@@ -883,17 +883,15 @@ ProjectNode *ProjectNode::projectNode(const Utils::FileName &file) const
     return nullptr;
 }
 
-QVariant ProjectNode::targetData(Core::Id role, const Target *target) const
+QVariant ProjectNode::data(Core::Id role) const
 {
     Q_UNUSED(role);
-    Q_UNUSED(target);
     return QVariant();
 }
 
-bool ProjectNode::setTargetData(Core::Id role, const QVariant &value, const Target *target) const
+bool ProjectNode::setData(Core::Id role, const QVariant &value) const
 {
     Q_UNUSED(role);
-    Q_UNUSED(target);
     Q_UNUSED(value);
     return false;
 }
