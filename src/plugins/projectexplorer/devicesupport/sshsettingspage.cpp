@@ -28,6 +28,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <ssh/sshsettings.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
 #include <QCheckBox>
@@ -58,6 +59,7 @@ private:
     void setupAskpassPathChooser();
     void setupKeygenPathChooser();
     void setupPathChooser(PathChooser &chooser, const FileName &initialPath, bool &changedFlag);
+    void updateCheckboxEnabled();
     void updateSpinboxEnabled();
 
     QCheckBox m_connectionSharingCheckBox;
@@ -115,6 +117,7 @@ SshSettingsWidget::SshSettingsWidget()
     layout->addRow(tr("Path to sftp executable:"), &m_sftpChooser);
     layout->addRow(tr("Path to ssh-askpass executable:"), &m_askpassChooser);
     layout->addRow(tr("Path to ssh-keygen executable:"), &m_keygenChooser);
+    updateCheckboxEnabled();
     updateSpinboxEnabled();
 }
 
@@ -173,6 +176,15 @@ void SshSettingsWidget::setupPathChooser(PathChooser &chooser, const FileName &i
     chooser.setExpectedKind(PathChooser::ExistingCommand);
     chooser.setFileName(initialPath);
     connect(&chooser, &PathChooser::pathChanged, [&changedFlag] { changedFlag = true; });
+}
+
+void SshSettingsWidget::updateCheckboxEnabled()
+{
+    if (!Utils::HostOsInfo::isWindowsHost())
+        return;
+    m_connectionSharingCheckBox.setEnabled(false);
+    static_cast<QFormLayout *>(layout())->labelForField(&m_connectionSharingCheckBox)
+            ->setEnabled(false);
 }
 
 void SshSettingsWidget::updateSpinboxEnabled()

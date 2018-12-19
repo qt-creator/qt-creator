@@ -26,6 +26,7 @@
 #include "sshsettings.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QSettings>
 
@@ -36,7 +37,7 @@ namespace Internal {
 
 struct SshSettings
 {
-    bool useConnectionSharing = true;
+    bool useConnectionSharing = !HostOsInfo::isWindowsHost();
     int connectionSharingTimeOutInMinutes = 10;
     FileName sshFilePath;
     FileName sftpFilePath;
@@ -73,7 +74,7 @@ void SshSettings::loadSettings(QSettings *settings)
 {
     AccessSettingsGroup g(settings);
     QVariant value = settings->value(connectionSharingKey());
-    if (value.isValid())
+    if (value.isValid() && !HostOsInfo::isWindowsHost())
         sshSettings->useConnectionSharing = value.toBool();
     value = settings->value(connectionSharingTimeoutKey());
     if (value.isValid())
