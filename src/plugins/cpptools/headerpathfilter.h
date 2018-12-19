@@ -25,13 +25,11 @@
 
 #pragma once
 
+#include "compileroptionsbuilder.h"
 #include "projectpart.h"
 
 namespace CppTools {
-
-enum class UseTweakedHeaderPaths : char { Yes, No };
-
-class HeaderPathFilter
+class CPPTOOLS_EXPORT HeaderPathFilter
 {
 public:
     HeaderPathFilter(const ProjectPart &projectPart,
@@ -46,6 +44,7 @@ public:
 
     void process();
 
+private:
     void filterHeaderPath(const ProjectExplorer::HeaderPath &headerPath);
 
     void tweakHeaderPaths();

@@ -83,6 +83,7 @@ private:
     bool excludeDefineDirective(const ProjectExplorer::Macro &macro) const;
     QString includeDirOptionForPath(const QString &path) const;
     void addWrappedQtHeadersIncludePath(QStringList &list) const;
+    QString includeDirOptionForSystemPath(ProjectExplorer::HeaderPathType type) const;
 
 private:
     const ProjectPart &m_projectPart;

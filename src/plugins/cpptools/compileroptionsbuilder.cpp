@@ -26,6 +26,7 @@
 #include "compileroptionsbuilder.h"
 
 #include "cppmodelmanager.h"
+#include "headerpathfilter.h"
 
 #include <coreplugin/icore.h>
 
@@ -230,57 +231,6 @@ static QString creatorResourcePath()
 #endif
 }
 
-static QString clangIncludeDirectory(const QString &clangVersion,
-                                     const QString &clangResourceDirectory)
-{
-#ifndef UNIT_TESTS
-    return Core::ICore::clangIncludeDirectory(clangVersion, clangResourceDirectory);
-#else
-    Q_UNUSED(clangVersion);
-    Q_UNUSED(clangResourceDirectory);
-    return QDir::toNativeSeparators(QString::fromUtf8(CLANG_RESOURCE_DIR ""));
-#endif
-}
-
-static QStringList insertResourceDirectory(const QStringList &options,
-                                           const QString &resourceDir,
-                                           bool isMacOs = false)
-{
-    // include/c++, include/g++, libc++\include and libc++abi\include
-    static const QString cppIncludes = R"((.*[\/\\]include[\/\\].*(g\+\+|c\+\+).*))"
-                                       R"(|(.*libc\+\+[\/\\]include))"
-                                       R"(|(.*libc\+\+abi[\/\\]include))";
-
-    QStringList optionsBeforeResourceDirectory;
-    QStringList optionsAfterResourceDirectory;
-    QRegularExpression includeRegExp;
-    if (!isMacOs) {
-        includeRegExp = QRegularExpression("\\A(" + cppIncludes + ")\\z");
-    } else {
-        // The same as includeRegExp but also matches /usr/local/include
-        includeRegExp = QRegularExpression(
-            "\\A(" + cppIncludes + R"(|([\/\\]usr[\/\\]local[\/\\]include))" + ")\\z");
-    }
-
-    for (const QString &option : options) {
-        if (option == includeSystemPathOption)
-            continue;
-
-        if (includeRegExp.match(option).hasMatch()) {
-            optionsBeforeResourceDirectory.push_back(includeSystemPathOption);
-            optionsBeforeResourceDirectory.push_back(option);
-        } else {
-            optionsAfterResourceDirectory.push_back(includeSystemPathOption);
-            optionsAfterResourceDirectory.push_back(option);
-        }
-    }
-
-    optionsBeforeResourceDirectory.push_back(includeSystemPathOption);
-    optionsBeforeResourceDirectory.push_back(resourceDir);
-
-    return optionsBeforeResourceDirectory + optionsAfterResourceDirectory;
-}
-
 void CompilerOptionsBuilder::insertWrappedQtHeaders()
 {
     if (m_useTweakedHeaderPaths == UseTweakedHeaderPaths::No)
@@ -296,77 +246,42 @@ void CompilerOptionsBuilder::insertWrappedQtHeaders()
         m_options = m_options.mid(0, index) + wrappedQtHeaders + m_options.mid(index);
 }
 
-static bool excludeHeaderPath(const QString &headerPath)
-{
-    // Always exclude clang system includes (including intrinsics) which do not come with libclang
-    // that Qt Creator uses for code model.
-    // For example GCC on macOS uses system clang include path which makes clang code model
-    // include incorrect system headers.
-    static const QRegularExpression clangIncludeDir(
-        R"(\A.*[\/\\]lib\d*[\/\\]clang[\/\\]\d+\.\d+(\.\d+)?[\/\\]include\z)");
-    return clangIncludeDir.match(headerPath).hasMatch();
-}
-
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
+    HeaderPathFilter filter{m_projectPart,
+                            m_useTweakedHeaderPaths,
+                            m_clangVersion,
+                            m_clangResourceDirectory};
+
+    filter.process();
+
+    using ProjectExplorer::HeaderPath;
     using ProjectExplorer::HeaderPathType;
 
-    QStringList includes;
-    QStringList systemIncludes;
-    QStringList builtInIncludes;
-
-    for (const ProjectExplorer::HeaderPath &headerPath : qAsConst(m_projectPart.headerPaths)) {
-        if (headerPath.path.isEmpty())
-            continue;
-
-        if (excludeHeaderPath(headerPath.path))
-            continue;
-
-        switch (headerPath.type) {
-        case HeaderPathType::Framework:
-            includes.append("-F");
-            includes.append(QDir::toNativeSeparators(headerPath.path));
-            break;
-        case HeaderPathType::User:
-            includes.append(includeDirOptionForPath(headerPath.path));
-            includes.append(QDir::toNativeSeparators(headerPath.path));
-            break;
-        case HeaderPathType::BuiltIn:
-            builtInIncludes.append(includeSystemPathOption);
-            builtInIncludes.append(QDir::toNativeSeparators(headerPath.path));
-            break;
-        case HeaderPathType::System:
-            systemIncludes.append(m_useSystemHeader == UseSystemHeader::Yes
-                                      ? QLatin1String(includeSystemPathOption)
-                                      : QLatin1String(includeUserPathOption));
-            systemIncludes.append(QDir::toNativeSeparators(headerPath.path));
-            break;
+    if (m_useTweakedHeaderPaths == UseTweakedHeaderPaths::Yes) {
+        // Exclude all built-in includes except Clang resource directory.
+        m_options.prepend("-nostdlibinc");
+        if (!m_clangVersion.isEmpty()) {
+            // Exclude all built-in includes and Clang resource directory.
+            m_options.prepend("-nostdinc");
         }
     }
 
-    m_options.append(includes);
-    m_options.append(systemIncludes);
 
-    if (m_useTweakedHeaderPaths == UseTweakedHeaderPaths::No)
-        return;
-
-    // Exclude all built-in includes except Clang resource directory.
-    m_options.prepend("-nostdlibinc");
-
-    if (!m_clangVersion.isEmpty()) {
-        // Exclude all built-in includes and Clang resource directory.
-        m_options.prepend("-nostdinc");
-
-        const QString clangIncludePath
-                = clangIncludeDirectory(m_clangVersion, m_clangResourceDirectory);
-
-        builtInIncludes = insertResourceDirectory(builtInIncludes,
-                                                  clangIncludePath,
-                                                  m_projectPart.toolChainTargetTriple.contains(
-                                                      "darwin"));
+    for (const HeaderPath &headerPath : filter.userHeaderPaths) {
+        m_options.push_back(includeDirOptionForPath(headerPath.path));
+        m_options.push_back(QDir::toNativeSeparators(headerPath.path));
     }
 
-    m_options.append(builtInIncludes);
+    for (const HeaderPath &headerPath : filter.systemHeaderPaths) {
+        m_options.push_back(includeDirOptionForSystemPath(headerPath.type));
+        m_options.push_back(QDir::toNativeSeparators(headerPath.path));
+    }
+
+    for (const HeaderPath &headerPath : filter.builtInHeaderPaths) {
+        m_options.push_back(includeSystemPathOption);
+        m_options.push_back(QDir::toNativeSeparators(headerPath.path));
+    }
 }
 
 void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders usePrecompiledHeaders)
@@ -656,6 +571,17 @@ void CompilerOptionsBuilder::addWrappedQtHeadersIncludePath(QStringList &list) c
         list.append(includeDirOptionForPath(wrappedQtHeadersPath));
         list.append(QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
     }
+}
+
+QString CompilerOptionsBuilder::includeDirOptionForSystemPath(ProjectExplorer::HeaderPathType type) const
+{
+    if (type == ProjectExplorer::HeaderPathType::Framework)
+        return "-F";
+
+    if (m_useSystemHeader == UseSystemHeader::Yes)
+        return includeSystemPathOption;
+
+    return includeUserPathOption;
 }
 
 void CompilerOptionsBuilder::addToolchainFlags()
