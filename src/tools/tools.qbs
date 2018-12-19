@@ -1,4 +1,5 @@
 import qbs
+import qbs.File
 
 Project {
     name: "Tools"

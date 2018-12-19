@@ -16,7 +16,6 @@ QtcPlugin {
     }
 
     files: [
-        "memoryprofiling.txt",
         "perfconfigeventsmodel.cpp",
         "perfconfigeventsmodel.h",
         "perfconfigwidget.cpp",
