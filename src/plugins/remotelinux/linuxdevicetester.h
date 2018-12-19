@@ -50,7 +50,9 @@ private:
     void handleProcessFinished(const QString &error);
     void handlePortsGatheringError(const QString &message);
     void handlePortListReady();
+    void handleSftpStarted();
     void handleSftpFinished(const QString &error);
+    void testRsync();
     void handleRsyncFinished();
     void setFinished(ProjectExplorer::DeviceTester::TestResult result);
 
