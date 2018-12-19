@@ -69,7 +69,7 @@ private:
 
     mutable QList<DeployableFile> m_deployableFiles;
     bool m_ignoreMissingFiles = false;
-    QProcess m_rsync;
+    SshProcess m_rsync;
     SshRemoteProcessPtr m_mkdir;
 };
 

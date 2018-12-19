@@ -25,12 +25,13 @@
 
 #pragma once
 
+#include "ssh_global.h"
+
 #include <QProcess>
 
 namespace QSsh {
-namespace Internal {
 
-class SshProcess : public QProcess
+class QSSH_EXPORT SshProcess : public QProcess
 {
 public:
     SshProcess();
@@ -40,5 +41,4 @@ private:
     void setupChildProcess() override;
 };
 
-} // namespace Internal
 } // namespace QSsh

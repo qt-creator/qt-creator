@@ -25,7 +25,7 @@
 
 #include "sftptransfer.h"
 
-#include "sshprocess_p.h"
+#include "sshprocess.h"
 #include "sshsettings.h"
 
 #include <QDir>
@@ -43,7 +43,7 @@ namespace QSsh {
 
 struct SftpTransfer::SftpTransferPrivate
 {
-    Internal::SshProcess sftpProc;
+    SshProcess sftpProc;
     FilesToTransfer files;
     Internal::FileTransferType transferType;
     FileTransferErrorHandling errorHandlingMode;

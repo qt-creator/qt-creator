@@ -26,7 +26,7 @@ HEADERS = \
     sshconnectionmanager.h \
     sshkeycreationdialog.h \
     sshlogging_p.h \
-    sshprocess_p.h \
+    sshprocess.h \
     sshremoteprocess.h \
     sshremoteprocessrunner.h \
     sshsettings.h \

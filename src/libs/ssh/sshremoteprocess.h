@@ -26,7 +26,7 @@
 #pragma once
 
 #include "ssh_global.h"
-#include "sshprocess_p.h"
+#include "sshprocess.h"
 
 #include <QStringList>
 
@@ -37,7 +37,7 @@ QT_END_NAMESPACE
 namespace QSsh {
 class SshConnection;
 
-class QSSH_EXPORT SshRemoteProcess : public Internal::SshProcess
+class QSSH_EXPORT SshRemoteProcess : public SshProcess
 {
     Q_OBJECT
 

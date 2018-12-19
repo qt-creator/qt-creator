@@ -32,7 +32,7 @@ Project {
             "sshlogging.cpp",
             "sshlogging_p.h",
             "sshprocess.cpp",
-            "sshprocess_p.h",
+            "sshprocess.h",
             "sshremoteprocess.cpp",
             "sshremoteprocess.h",
             "sshremoteprocessrunner.cpp",

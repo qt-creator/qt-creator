@@ -26,7 +26,7 @@
 #include "sftpsession.h"
 
 #include "sshlogging_p.h"
-#include "sshprocess_p.h"
+#include "sshprocess.h"
 #include "sshsettings.h"
 
 #include <utils/fileutils.h>

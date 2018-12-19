@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "sshprocess_p.h"
+#include "sshprocess.h"
 
 #include "sshsettings.h"
 
@@ -35,7 +35,6 @@
 #endif
 
 namespace QSsh {
-namespace Internal {
 
 SshProcess::SshProcess()
 {
@@ -70,5 +69,4 @@ void SshProcess::setupChildProcess()
 #endif
 }
 
-} // namespace Internal
 } // namespace QSsh

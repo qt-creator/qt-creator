@@ -55,7 +55,7 @@ public:
     SshRemoteProcessPtr process;
     DeviceUsedPortsGatherer portsGatherer;
     SftpSessionPtr sftpSession;
-    QProcess rsyncProcess;
+    SshProcess rsyncProcess;
     State state = Inactive;
     bool sftpWorks = false;
 };
