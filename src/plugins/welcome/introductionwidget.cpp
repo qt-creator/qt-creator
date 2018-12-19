@@ -134,7 +134,7 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
          tr("Debug Button"),
          tr("Run the active project in a debugger."),
          {}},
-        {QLatin1String("Build.Button"), tr("Build Button"), tr("Build the active project."), ""},
+        {QLatin1String("Build.Button"), tr("Build Button"), tr("Build the active project."), {}},
         {QLatin1String("LocatorInput"),
          tr("Locator"),
          tr("Type here to open a file from any open project."),
