@@ -53,6 +53,7 @@ private:
     enum State {
         Inactive,
         GenericTest,
+        VarRunTest,
         CommandsTest
     };
 
@@ -60,6 +61,8 @@ private:
     void setFinished();
 
     QStringList versionSpecificCommandsToTest(int versionNumber) const;
+
+    void handleVarRunProcessFinished(const QString &error);
 
     RemoteLinux::GenericLinuxDeviceTester *m_genericTester;
     ProjectExplorer::IDevice::ConstPtr m_deviceConfiguration;
