@@ -401,7 +401,7 @@ void TypePrettyPrinter::visit(Function *type)
     if (_overview->showReturnTypes) {
         const QString returnType = _overview->prettyType(type->returnType());
         if (!returnType.isEmpty()) {
-            if (!endsWithPtrOrRef(returnType))
+            if (!endsWithPtrOrRef(returnType) || !(_overview->starBindFlags & Overview::BindToIdentifier))
                 _text.prepend(QLatin1Char(' '));
             _text.prepend(returnType);
         }

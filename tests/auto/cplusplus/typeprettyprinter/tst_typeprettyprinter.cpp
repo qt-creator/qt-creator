@@ -438,16 +438,20 @@ void tst_TypePrettyPrinter::basic_data()
     addRow(fnTy("foo", voidTy(), ptr(voidTy())), bindToAll, "void foo(void*)", "foo");
 
     // Functions with pointer or reference returns
-    addRow(ptr(fnTy("foo", ptr(voidTy()), intTy())), bindToNothing, "void *(*foo)(int)", "foo");
+    addRow(ptr(fnTy("foo", ptr(voidTy()), intTy())), bindToNothing, "void * (*foo)(int)", "foo");
+    addRow(ptr(fnTy("foo", ptr(voidTy()), intTy())), Overview::BindToTypeName, "void* (*foo)(int)", "foo");
     addRow(ptr(fnTy("foo", ptr(voidTy()), intTy())), bindToAll, "void*(*foo)(int)", "foo");
 
-    addRow(ptr(fnTy("foo", ref(voidTy()), ptr(voidTy()))), bindToNothing, "void &(*foo)(void *)", "foo");
+    addRow(ptr(fnTy("foo", ref(voidTy()), ptr(voidTy()))), bindToNothing, "void & (*foo)(void *)", "foo");
+    addRow(ptr(fnTy("foo", ref(voidTy()), ptr(voidTy()))), Overview::BindToTypeName, "void& (*foo)(void*)", "foo");
     addRow(ptr(fnTy("foo", ref(voidTy()), ptr(voidTy()))), bindToAll, "void&(*foo)(void*)", "foo");
 
-    addRow(fnTy("foo", ptr(voidTy()), intTy()), bindToNothing, "void *foo(int)", "foo");
+    addRow(fnTy("foo", ptr(voidTy()), intTy()), bindToNothing, "void * foo(int)", "foo");
+    addRow(fnTy("foo", ptr(voidTy()), intTy()), Overview::BindToTypeName, "void* foo(int)", "foo");
     addRow(fnTy("foo", ptr(voidTy()), intTy()), bindToAll, "void*foo(int)", "foo");
 
-    addRow(fnTy("foo", ref(voidTy()), ptr(voidTy())), bindToNothing, "void &foo(void *)", "foo");
+    addRow(fnTy("foo", ref(voidTy()), ptr(voidTy())), bindToNothing, "void & foo(void *)", "foo");
+    addRow(fnTy("foo", ref(voidTy()), ptr(voidTy())), Overview::BindToTypeName, "void& foo(void*)", "foo");
     addRow(fnTy("foo", ref(voidTy()), ptr(voidTy())), bindToAll, "void&foo(void*)", "foo");
 
     addRow(templTy(fnTy("foo", voidTy(), voidTy()), true), bindToNothing, "template<class T>\nvoid foo()", "foo");
