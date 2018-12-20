@@ -276,7 +276,9 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
         setRootProjectNode(std::move(newRoot));
     }
 
-    updateApplicationAndDeploymentTargets();
+    t->setApplicationTargets(bc->appTargets());
+    t->setDeploymentData(bc->deploymentData());
+
     t->updateDefaultRunConfigurations();
 
     createGeneratedCodeModelSupport();
@@ -425,13 +427,6 @@ void CMakeProject::clearCMakeCache()
     m_buildDirManager.clearCache();
 }
 
-QList<CMakeBuildTarget> CMakeProject::buildTargets() const
-{
-    CMakeBuildConfiguration *bc = activeBc(this);
-
-    return bc ? bc->buildTargets() : QList<CMakeBuildTarget>();
-}
-
 void CMakeProject::handleReparseRequest(int reparseParameters)
 {
     QTC_ASSERT(!(reparseParameters & BuildDirManager::REPARSE_FAIL), return);
@@ -474,7 +469,8 @@ void CMakeProject::startParsing(int reparseParameters)
 
 QStringList CMakeProject::buildTargetTitles() const
 {
-    return transform(buildTargets(), &CMakeBuildTarget::title);
+    CMakeBuildConfiguration *bc = activeBc(this);
+    return bc ? bc->buildTargetTitles() : QStringList();
 }
 
 Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *errorMessage)
@@ -587,57 +583,6 @@ QStringList CMakeProject::filesGeneratedFrom(const QString &sourceFile) const
         // TODO: Other types will be added when adapters for their compilers become available.
         return QStringList();
     }
-}
-
-void CMakeProject::updateApplicationAndDeploymentTargets()
-{
-    Target *t = activeTarget();
-    if (!t)
-        return;
-
-    QDir sourceDir(t->project()->projectDirectory().toString());
-    QDir buildDir(t->activeBuildConfiguration()->buildDirectory().toString());
-
-    BuildTargetInfoList appTargetList;
-    DeploymentData deploymentData;
-
-    QString deploymentPrefix;
-    QString deploymentFilePath = sourceDir.filePath("QtCreatorDeployment.txt");
-    bool hasDeploymentFile = QFileInfo::exists(deploymentFilePath);
-    if (!hasDeploymentFile) {
-        deploymentFilePath = buildDir.filePath("QtCreatorDeployment.txt");
-        hasDeploymentFile = QFileInfo::exists(deploymentFilePath);
-    }
-    if (hasDeploymentFile) {
-        deploymentPrefix = deploymentData.addFilesFromDeploymentFile(deploymentFilePath,
-                                                                     sourceDir.absolutePath());
-    }
-
-    foreach (const CMakeBuildTarget &ct, buildTargets()) {
-        if (ct.targetType == UtilityType)
-            continue;
-
-        if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType) {
-            if (!ct.executable.isEmpty()) {
-                deploymentData.addFile(ct.executable.toString(),
-                                       deploymentPrefix + buildDir.relativeFilePath(ct.executable.toFileInfo().dir().path()),
-                                       DeployableFile::TypeExecutable);
-            }
-        }
-        if (ct.targetType == ExecutableType) {
-            BuildTargetInfo bti;
-            bti.displayName = ct.title;
-            bti.targetFilePath = ct.executable;
-            bti.projectFilePath = ct.sourceDirectory;
-            bti.projectFilePath.appendString('/');
-            bti.workingDirectory = ct.workingDirectory;
-            bti.buildKey = ct.title + QChar('\n') + bti.projectFilePath.toString();
-            appTargetList.list.append(bti);
-        }
-    }
-
-    t->setApplicationTargets(appTargetList);
-    t->setDeploymentData(deploymentData);
 }
 
 bool CMakeProject::mustUpdateCMakeStateBeforeBuild()

@@ -32,6 +32,8 @@
 #include <cpptools/cpprawprojectpart.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/deploymentdata.h>
 
 namespace CMakeProjectManager {
 class CMakeBuildInfo;
@@ -60,7 +62,9 @@ public:
     QString error() const;
     QString warning() const;
 
-    QList<CMakeBuildTarget> buildTargets() const;
+    QStringList buildTargetTitles() const;
+    ProjectExplorer::BuildTargetInfoList appTargets() const;
+    ProjectExplorer::DeploymentData deploymentData() const;
 
     static Utils::FileName
     shadowBuildDirectory(const Utils::FileName &projectFilePath, const ProjectExplorer::Kit *k,

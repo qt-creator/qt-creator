@@ -143,9 +143,65 @@ bool CMakeBuildConfiguration::isParsing() const
     return project()->isParsing() && isActive();
 }
 
-QList<CMakeBuildTarget> CMakeBuildConfiguration::buildTargets() const
+BuildTargetInfoList CMakeBuildConfiguration::appTargets() const
 {
-    return m_buildTargets;
+    BuildTargetInfoList appTargetList;
+
+    for (const CMakeBuildTarget &ct : m_buildTargets) {
+        if (ct.targetType == UtilityType)
+            continue;
+
+        if (ct.targetType == ExecutableType) {
+            BuildTargetInfo bti;
+            bti.displayName = ct.title;
+            bti.targetFilePath = ct.executable;
+            bti.projectFilePath = ct.sourceDirectory;
+            bti.projectFilePath.appendString('/');
+            bti.workingDirectory = ct.workingDirectory;
+            bti.buildKey = ct.title + QChar('\n') + bti.projectFilePath.toString();
+            appTargetList.list.append(bti);
+        }
+    }
+
+    return appTargetList;
+}
+
+DeploymentData CMakeBuildConfiguration::deploymentData() const
+{
+    DeploymentData result;
+
+    QDir sourceDir = target()->project()->projectDirectory().toString();
+    QDir buildDir = buildDirectory().toString();
+
+    QString deploymentPrefix;
+    QString deploymentFilePath = sourceDir.filePath("QtCreatorDeployment.txt");
+
+    bool hasDeploymentFile = QFileInfo::exists(deploymentFilePath);
+    if (!hasDeploymentFile) {
+        deploymentFilePath = buildDir.filePath("QtCreatorDeployment.txt");
+        hasDeploymentFile = QFileInfo::exists(deploymentFilePath);
+    }
+    if (hasDeploymentFile) {
+        deploymentPrefix = result.addFilesFromDeploymentFile(deploymentFilePath,
+                                                             sourceDir.absolutePath());
+    }
+
+    for (const CMakeBuildTarget &ct : m_buildTargets) {
+        if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType) {
+            if (!ct.executable.isEmpty()) {
+                result.addFile(ct.executable.toString(),
+                               deploymentPrefix + buildDir.relativeFilePath(ct.executable.toFileInfo().dir().path()),
+                               DeployableFile::TypeExecutable);
+            }
+        }
+    }
+
+    return result;
+}
+
+QStringList CMakeBuildConfiguration::buildTargetTitles() const
+{
+    return transform(m_buildTargets, &CMakeBuildTarget::title);
 }
 
 FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFilePath,

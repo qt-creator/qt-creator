@@ -86,8 +86,6 @@ protected:
     bool setupTarget(ProjectExplorer::Target *t) final;
 
 private:
-    QList<CMakeBuildTarget> buildTargets() const;
-
     void handleReparseRequest(int reparseParameters);
 
     void startParsing(int reparseParameters);
@@ -104,7 +102,6 @@ private:
 
     void createGeneratedCodeModelSupport();
     QStringList filesGeneratedFrom(const QString &sourceFile) const final;
-    void updateApplicationAndDeploymentTargets();
 
     // TODO probably need a CMake specific node structure
     QList<CMakeBuildTarget> m_buildTargets;
