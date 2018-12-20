@@ -553,7 +553,7 @@ void FancyTabWidget::paintEvent(QPaintEvent *event)
         const QRectF boderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
 
         if (creatorTheme()->flag(Theme::FlatToolBars)) {
-            painter.fillRect(event->rect(), StyleHelper::baseColor());
+            painter.fillRect(rect, StyleHelper::baseColor());
             painter.setPen(StyleHelper::toolBarBorderColor());
             painter.drawLine(boderRect.topRight(), boderRect.bottomRight());
         } else {
