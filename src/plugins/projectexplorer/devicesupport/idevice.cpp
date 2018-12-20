@@ -153,7 +153,7 @@ public:
     QString qmlsceneCommand;
 
     QList<Utils::Icon> deviceIcons;
-    QVariantHash extraData;
+    QVariantMap extraData;
 };
 } // namespace Internal
 
@@ -349,7 +349,7 @@ void IDevice::fromMap(const QVariantMap &map)
 
     d->debugServerPath = map.value(QLatin1String(DebugServerKey)).toString();
     d->qmlsceneCommand = map.value(QLatin1String(QmlsceneKey)).toString();
-    d->extraData = map.value(ExtraDataKey).toHash();
+    d->extraData = map.value(ExtraDataKey).toMap();
 }
 
 /*!
