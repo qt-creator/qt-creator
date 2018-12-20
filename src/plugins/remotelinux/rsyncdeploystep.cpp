@@ -102,7 +102,7 @@ void RsyncDeployService::createRemoteDirectories()
     remoteDirs.removeDuplicates();
     m_mkdir = connection()->createRemoteProcess("mkdir -p " + QtcProcess::Arguments
                                                 ::createUnixArgs(remoteDirs).toString().toUtf8());
-    connect(m_mkdir.get(), &SshRemoteProcess::done, [this](const QString &error) {
+    connect(m_mkdir.get(), &SshRemoteProcess::done, this, [this](const QString &error) {
         QString userError;
         if (!error.isEmpty())
             userError = error;
@@ -120,19 +120,19 @@ void RsyncDeployService::createRemoteDirectories()
 
 void RsyncDeployService::deployFiles()
 {
-    connect(&m_rsync, &QProcess::readyReadStandardOutput, [this] {
+    connect(&m_rsync, &QProcess::readyReadStandardOutput, this, [this] {
         emit progressMessage(QString::fromLocal8Bit(m_rsync.readAllStandardOutput()));
     });
-    connect(&m_rsync, &QProcess::readyReadStandardError, [this] {
+    connect(&m_rsync, &QProcess::readyReadStandardError, this, [this] {
         emit warningMessage(QString::fromLocal8Bit(m_rsync.readAllStandardError()));
     });
-    connect(&m_rsync, &QProcess::errorOccurred, [this] {
+    connect(&m_rsync, &QProcess::errorOccurred, this, [this] {
         if (m_rsync.error() == QProcess::FailedToStart) {
             emit errorMessage(tr("rsync failed to start: %1").arg(m_rsync.errorString()));
             setFinished();
         }
     });
-    connect(&m_rsync, static_cast<void (QProcess::*)(int)>(&QProcess::finished), [this] {
+    connect(&m_rsync, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, [this] {
         if (m_rsync.exitStatus() == QProcess::CrashExit) {
             emit errorMessage(tr("rsync crashed."));
             setFinished();
