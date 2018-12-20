@@ -48,7 +48,6 @@ public:
     ~AndroidRunnerWorker() override;
     bool adbShellAmNeedsQuotes();
     bool runAdb(const QStringList &args, int timeoutS = 10, const QByteArray &writeData = {});
-    bool uploadFile(const QString &from, const QString &to, const QString &flags = QString("+x"));
     void adbKill(qint64 pid);
     QStringList selector() const;
     void forceStop();
@@ -71,8 +70,11 @@ signals:
     void remoteOutput(const QString &output);
     void remoteErrorOutput(const QString &output);
 
-protected:
+private:
     void asyncStartHelper();
+    bool deviceFileExists(const QString &filePath);
+    bool packageFileExists(const QString& filePath);
+    bool uploadGdbServer();
 
     enum class JDBState {
         Idle,
