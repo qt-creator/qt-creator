@@ -108,7 +108,7 @@ struct SshConnection::SshConnectionPrivate
     QString socketFilePath() const
     {
         QTC_ASSERT(masterSocketDir, return QString());
-        return masterSocketDir->path() + "/control_socket";
+        return masterSocketDir->path() + "/cs";
     }
 
     QStringList connectionOptions() const
@@ -352,7 +352,7 @@ void SshConnection::doConnectToHost()
     if (!d->sharingEnabled)
         emitConnected();
     QTC_ASSERT(TemporaryDirectory::masterTemporaryDirectory(), return);
-    d->masterSocketDir.reset(new TemporaryDirectory("qtc-ssh-XXXXXX"));
+    d->masterSocketDir.reset(new TemporaryDirectory("ssh-XXXXXX"));
     if (!d->masterSocketDir->isValid()) {
         emitError(tr("Cannot establish SSH connection: Failed to create temporary "
                      "directory for control socket: %1")
