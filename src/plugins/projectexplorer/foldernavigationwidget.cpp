@@ -203,7 +203,7 @@ static QVector<FolderNode *> renamableFolderNodes(const Utils::FileName &before,
     ProjectTree::forEachNode([&](Node *node) {
         if (node->nodeType() == NodeType::File && node->filePath() == before
                 && node->parentFolderNode()
-                && node->parentFolderNode()->renameFile(before.toString(), after.toString())) {
+                && node->parentFolderNode()->canRenameFile(before.toString(), after.toString())) {
             folderNodes.append(node->parentFolderNode());
         }
     });
@@ -239,7 +239,7 @@ bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &va
                                    Utils::FileName::fromString(afterFilePath));
         QVector<FolderNode *> failedNodes;
         for (FolderNode *folder : folderNodes) {
-            if (!folder->canRenameFile(beforeFilePath, afterFilePath))
+            if (!folder->renameFile(beforeFilePath, afterFilePath))
                 failedNodes.append(folder);
         }
         if (!failedNodes.isEmpty()) {
