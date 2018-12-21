@@ -42,10 +42,6 @@ public:
     void setPlainText(const QString &text) override;
 
 private:
-    void checkoutChange();
-    void cherryPickChange();
-    void revertChange();
-    void logChange();
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
 
     void init() override;

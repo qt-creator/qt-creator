@@ -189,31 +189,10 @@ void GitEditorWidget::setPlainText(const QString &text)
     textDocument()->setPlainText(modText);
 }
 
-void GitEditorWidget::checkoutChange()
-{
-    GitPlugin::client()->checkout(sourceWorkingDirectory(), m_currentChange);
-}
-
 void GitEditorWidget::resetChange(const QByteArray &resetType)
 {
     GitPlugin::client()->reset(
                 sourceWorkingDirectory(), QLatin1String("--" + resetType), m_currentChange);
-}
-
-void GitEditorWidget::cherryPickChange()
-{
-    GitPlugin::client()->synchronousCherryPick(sourceWorkingDirectory(), m_currentChange);
-}
-
-void GitEditorWidget::revertChange()
-{
-    GitPlugin::client()->synchronousRevert(sourceWorkingDirectory(), m_currentChange);
-}
-
-void GitEditorWidget::logChange()
-{
-    GitPlugin::client()->log(
-                sourceWorkingDirectory(), QString(), false, {m_currentChange});
 }
 
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
@@ -313,13 +292,22 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
     m_currentChange = change;
     if (contentType() != OtherContent) {
         connect(menu->addAction(tr("Cherr&y-Pick Change %1").arg(change)), &QAction::triggered,
-                this, &GitEditorWidget::cherryPickChange);
+                this, [this]() {
+            GitPlugin::client()->synchronousCherryPick(sourceWorkingDirectory(), m_currentChange);
+        });
         connect(menu->addAction(tr("Re&vert Change %1").arg(change)), &QAction::triggered,
-                this, &GitEditorWidget::revertChange);
+                this, [this]() {
+            GitPlugin::client()->synchronousRevert(sourceWorkingDirectory(), m_currentChange);
+        });
         connect(menu->addAction(tr("C&heckout Change %1").arg(change)), &QAction::triggered,
-                this, &GitEditorWidget::checkoutChange);
+                this, [this]() {
+            GitPlugin::client()->checkout(sourceWorkingDirectory(), m_currentChange);
+        });
         connect(menu->addAction(tr("&Log for Change %1").arg(change)), &QAction::triggered,
-                this, &GitEditorWidget::logChange);
+                this, [this]() {
+            GitPlugin::client()->log(
+                        sourceWorkingDirectory(), QString(), false, {m_currentChange});
+        });
 
         QMenu *resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
         connect(resetMenu->addAction(tr("&Hard")), &QAction::triggered,
