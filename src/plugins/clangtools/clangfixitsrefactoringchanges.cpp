@@ -206,7 +206,7 @@ bool FixitsRefactoringFile::hasIntersection(const QString &fileName,
         // Usually the number of replacements is from 1 to 3.
         if (std::any_of(replacements.begin(),
                         replacements.end(),
-                        [&current](const const Replacement &replacement) {
+                        [&current](const Replacement &replacement) {
                             return replacement.offset + replacement.length > current.pos
                                    && replacement.offset < current.pos + current.length;
                         })) {
