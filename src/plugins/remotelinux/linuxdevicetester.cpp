@@ -251,7 +251,10 @@ void GenericLinuxDeviceTester::handleRsyncFinished()
     TestResult result = TestSuccess;
     if (!error.isEmpty()) {
         emit errorMessage(error);
-        if (!d->sftpWorks) {
+        if (d->sftpWorks) {
+            emit progressMessage(tr("SFTP will be used for deployment, because rsync "
+                                    "is not available.\n"));
+        } else {
             emit errorMessage(tr("Deployment to this device will not work out of the box.\n"));
             result = TestFailure;
         }
