@@ -803,6 +803,7 @@ void CallgrindTool::updateRunActions()
 {
     if (m_toolBusy) {
         m_startAction->setEnabled(false);
+        m_startKCachegrind->setEnabled(false);
         m_startAction->setToolTip(tr("A Valgrind Callgrind analysis is still in progress."));
         m_stopAction->setEnabled(true);
     } else {
@@ -934,11 +935,8 @@ void CallgrindTool::takeParserData(ParseData *data)
 {
     showParserResults(data);
 
-    if (!data) {
-        m_lastFileName.clear();
-        m_startKCachegrind->setEnabled(false);
+    if (!data)
         return;
-    }
 
     // clear first
     clearTextMarks();
