@@ -123,7 +123,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     m_scrollbar->setStyleSheet(css);
     m_scrollbar->setOrientation(Qt::Horizontal);
 
-    QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+    QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Preferred);
     sizePolicy1.setHorizontalStretch(0);
     sizePolicy1.setVerticalStretch(0);
     sizePolicy1.setHeightForWidth(m_graphicsView->sizePolicy().hasHeightForWidth());
@@ -163,6 +163,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     contentLayout->addLayout(scrollBarLayout);
     contentLayout->addWidget(m_statusBar);
     m_statusBar->setIndent(2);
+    m_statusBar->setFixedHeight(TimelineConstants::rulerHeight);
 
     auto *widgetLayout = new QVBoxLayout;
     widgetLayout->setContentsMargins(0, 0, 0, 0);
