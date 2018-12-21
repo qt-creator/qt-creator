@@ -579,9 +579,9 @@ QString CompilerOptionsBuilder::includeDirOptionForSystemPath(ProjectExplorer::H
         return QString("-F");
 
     if (m_useSystemHeader == UseSystemHeader::Yes)
-        return includeSystemPathOption;
+        return QString(includeSystemPathOption);
 
-    return includeUserPathOption;
+    return QString(includeUserPathOption);
 }
 
 void CompilerOptionsBuilder::addToolchainFlags()
