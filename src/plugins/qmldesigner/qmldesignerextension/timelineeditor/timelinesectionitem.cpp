@@ -44,6 +44,7 @@
 #include <utils/qtcassert.h>
 
 #include <QAction>
+#include <QColorDialog>
 #include <QComboBox>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
@@ -198,6 +199,11 @@ AbstractView *TimelineSectionItem::view() const
 bool TimelineSectionItem::isSelected() const
 {
     return m_targetNode.isValid() && m_targetNode.isSelected();
+}
+
+ModelNode TimelineSectionItem::targetNode() const
+{
+    return m_targetNode;
 }
 
 QVector<qreal> TimelineSectionItem::keyframePositions() const
@@ -841,16 +847,23 @@ void TimelineBarItem::scrollOffsetChanged()
     sectionItem()->invalidateBar();
 }
 
-void TimelineBarItem::paint(QPainter *painter,
-                            const QStyleOptionGraphicsItem *option,
-                            QWidget *widget)
+void TimelineBarItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    const QColor brushColorSelected = Theme::getColor(Theme::QmlDesigner_HighlightColor);
-    const QColor brushColor = Theme::getColor(Theme::QmlDesigner_HighlightColor).darker(120);
+    QColor brushColorSelected = Theme::getColor(Theme::QmlDesigner_HighlightColor);
+    QColor brushColor = Theme::getColor(Theme::QmlDesigner_HighlightColor).darker(120);
     const QColor indicatorColor = Theme::getColor(Theme::PanelTextColorLight);
+
+    ModelNode target = sectionItem()->targetNode();
+    if (target.isValid()) {
+        QColor overrideColor = target.auxiliaryData(TimelineConstants::C_BAR_ITEM_OVERRIDE).value<QColor>();
+        if (overrideColor.isValid()) {
+            brushColorSelected = overrideColor;
+            brushColor = brushColorSelected.darker(120);
+        }
+    }
 
     const QRectF itemRect = rect();
 
@@ -900,6 +913,34 @@ void TimelineBarItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
         if (rect().contains(p))
             setCursor(QCursor(Qt::ClosedHandCursor));
     }
+}
+
+void TimelineBarItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
+{
+    QMenu menu;
+    QAction* overrideColor = menu.addAction(tr("Override Color"));
+
+    auto setColor = [this] () {
+        ModelNode target = sectionItem()->targetNode();
+        if (target.isValid()) {
+            QColor current = target.auxiliaryData(TimelineConstants::C_BAR_ITEM_OVERRIDE).value<QColor>();
+            QColor color = QColorDialog::getColor(current, nullptr);
+            if (color.isValid())
+                target.setAuxiliaryData(TimelineConstants::C_BAR_ITEM_OVERRIDE, color);
+        }
+    };
+
+    QObject::connect(overrideColor, &QAction::triggered, setColor);
+
+    QAction* resetColor = menu.addAction(tr("Reset Color"));
+    auto reset = [this]() {
+        ModelNode target = sectionItem()->targetNode();
+        if (target.isValid())
+            target.removeAuxiliaryData(TimelineConstants::C_BAR_ITEM_OVERRIDE);
+    };
+    QObject::connect(resetColor, &QAction::triggered, reset);
+
+    menu.exec(event->screenPos());
 }
 
 TimelineSectionItem *TimelineBarItem::sectionItem() const

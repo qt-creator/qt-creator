@@ -54,7 +54,7 @@ protected:
                const QStyleOptionGraphicsItem *option,
                QWidget *widget = nullptr) override;
     void hoverMoveEvent(QGraphicsSceneHoverEvent *) override;
-
+    void contextMenuEvent(QGraphicsSceneContextMenuEvent * event) override;
 private:
     TimelineSectionItem *sectionItem() const;
 
@@ -105,6 +105,7 @@ public:
     AbstractView *view() const;
     bool isSelected() const;
 
+    ModelNode targetNode() const;
     QVector<qreal> keyframePositions() const;
 
 protected:
