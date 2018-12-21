@@ -188,6 +188,8 @@ Project {
             "functionutils.h",
             "generatedcodemodelsupport.cpp",
             "generatedcodemodelsupport.h",
+            "headerpathfilter.cpp",
+            "headerpathfilter.h",
             "includeutils.cpp",
             "includeutils.h",
             "indexitem.cpp",

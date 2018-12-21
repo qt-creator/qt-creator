@@ -576,7 +576,7 @@ void CompilerOptionsBuilder::addWrappedQtHeadersIncludePath(QStringList &list) c
 QString CompilerOptionsBuilder::includeDirOptionForSystemPath(ProjectExplorer::HeaderPathType type) const
 {
     if (type == ProjectExplorer::HeaderPathType::Framework)
-        return "-F";
+        return QString("-F");
 
     if (m_useSystemHeader == UseSystemHeader::Yes)
         return includeSystemPathOption;
