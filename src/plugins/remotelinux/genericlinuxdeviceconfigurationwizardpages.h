@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "linuxdevice.h"
 #include "remotelinux_export.h"
 
 #include <ssh/sshconnection.h>
@@ -32,6 +33,7 @@
 #include <QWizardPage>
 
 namespace RemoteLinux {
+class LinuxDevice;
 namespace Internal {
 class GenericLinuxDeviceConfigurationWizardSetupPagePrivate;
 class GenericLinuxDeviceConfigurationWizardFinalPagePrivate;
@@ -45,25 +47,41 @@ public:
     explicit GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent = nullptr);
     ~GenericLinuxDeviceConfigurationWizardSetupPage() override;
 
+    void setDevice(const LinuxDevice::Ptr &device);
+
+private:
     void initializePage() override;
     bool isComplete() const override;
+    bool validatePage() override;
 
     QString configurationName() const;
     QUrl url() const;
-    QSsh::SshConnectionParameters::AuthenticationType authenticationType() const;
-    QString privateKeyFilePath() const;
-
-    virtual QString defaultConfigurationName() const;
-    virtual QString defaultHostName() const;
-    virtual QString defaultUserName() const;
-    virtual QString defaultPassWord() const;
-
-private:
-    void handleAuthTypeChanged();
 
     Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate * const d;
 };
 
+class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardKeyDeploymentPage : public QWizardPage
+{
+    Q_OBJECT
+
+public:
+    explicit GenericLinuxDeviceConfigurationWizardKeyDeploymentPage(QWidget *parent = nullptr);
+    ~GenericLinuxDeviceConfigurationWizardKeyDeploymentPage() override;
+
+    void setDevice(const LinuxDevice::Ptr &device);
+
+private:
+    void initializePage() override;
+    bool isComplete() const override;
+    bool validatePage() override;
+
+    QString privateKeyFilePath() const;
+    void createKey();
+    void deployKey();
+
+    struct Private;
+    Private * const d;
+};
 
 class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardFinalPage : public QWizardPage
 {
@@ -72,12 +90,12 @@ public:
     GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent);
     ~GenericLinuxDeviceConfigurationWizardFinalPage() override;
 
-    void initializePage() override;
-
 protected:
     virtual QString infoText() const;
 
 private:
+    void initializePage() override;
+
     Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate * const d;
 };
 

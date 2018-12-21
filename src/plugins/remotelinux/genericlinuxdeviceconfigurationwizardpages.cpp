@@ -26,7 +26,19 @@
 #include "genericlinuxdeviceconfigurationwizardpages.h"
 #include "ui_genericlinuxdeviceconfigurationwizardsetuppage.h"
 
+#include "publickeydeploymentdialog.h"
+
 #include <projectexplorer/devicesupport/idevice.h>
+#include <ssh/sshkeycreationdialog.h>
+#include <utils/utilsicons.h>
+#include <utils/pathchooser.h>
+
+#include <QDir>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QStringList>
+#include <QVBoxLayout>
 
 namespace RemoteLinux {
 namespace Internal {
@@ -35,6 +47,7 @@ class GenericLinuxDeviceConfigurationWizardSetupPagePrivate
 {
 public:
     Ui::GenericLinuxDeviceConfigurationWizardSetupPage ui;
+    LinuxDevice::Ptr device;
 };
 
 class GenericLinuxDeviceConfigurationWizardFinalPagePrivate
@@ -54,18 +67,9 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
     d->ui.setupUi(this);
     setTitle(tr("Connection"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-    d->ui.privateKeyPathChooser->setExpectedKind(PathChooser::File);
-    d->ui.privateKeyPathChooser->setHistoryCompleter(QLatin1String("Ssh.KeyFile.History"));
-    d->ui.privateKeyPathChooser->setPromptDialogTitle(tr("Choose a Private Key File"));
     connect(d->ui.nameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
     connect(d->ui.hostNameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
     connect(d->ui.userNameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
-    connect(d->ui.privateKeyPathChooser, &PathChooser::validChanged,
-            this, &QWizardPage::completeChanged);
-    connect(d->ui.defaultAuthButton, &QAbstractButton::toggled,
-            this, &GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged);
-    connect(d->ui.keyButton, &QAbstractButton::toggled,
-            this, &GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged);
 }
 
 GenericLinuxDeviceConfigurationWizardSetupPage::~GenericLinuxDeviceConfigurationWizardSetupPage()
@@ -75,21 +79,25 @@ GenericLinuxDeviceConfigurationWizardSetupPage::~GenericLinuxDeviceConfiguration
 
 void GenericLinuxDeviceConfigurationWizardSetupPage::initializePage()
 {
-    d->ui.nameLineEdit->setText(defaultConfigurationName());
-    d->ui.hostNameLineEdit->setText(defaultHostName());
-    d->ui.userNameLineEdit->setText(defaultUserName());
-    d->ui.defaultAuthButton->setChecked(true);
-    d->ui.privateKeyPathChooser->setPath(ProjectExplorer::IDevice::defaultPrivateKeyFilePath());
-    handleAuthTypeChanged();
+    d->ui.nameLineEdit->setText(d->device->displayName());
+    d->ui.hostNameLineEdit->setText(d->device->sshParameters().host());
+    d->ui.userNameLineEdit->setText(d->device->sshParameters().userName());
 }
 
 bool GenericLinuxDeviceConfigurationWizardSetupPage::isComplete() const
 {
     return !configurationName().isEmpty()
             && !d->ui.hostNameLineEdit->text().trimmed().isEmpty()
-            && !d->ui.userNameLineEdit->text().trimmed().isEmpty()
-            && (authenticationType() != SshConnectionParameters::AuthenticationTypeSpecificKey
-                || d->ui.privateKeyPathChooser->isValid());
+            && !d->ui.userNameLineEdit->text().trimmed().isEmpty();
+}
+
+bool GenericLinuxDeviceConfigurationWizardSetupPage::validatePage()
+{
+    d->device->setDisplayName(configurationName());
+    SshConnectionParameters sshParams = d->device->sshParameters();
+    sshParams.url = url();
+    d->device->setSshParameters(sshParams);
+    return true;
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::configurationName() const
@@ -106,44 +114,10 @@ QUrl GenericLinuxDeviceConfigurationWizardSetupPage::url() const
     return url;
 }
 
-SshConnectionParameters::AuthenticationType GenericLinuxDeviceConfigurationWizardSetupPage::authenticationType() const
+void GenericLinuxDeviceConfigurationWizardSetupPage::setDevice(const LinuxDevice::Ptr &device)
 {
-    return d->ui.keyButton->isChecked() ? SshConnectionParameters::AuthenticationTypeSpecificKey
-                                        : SshConnectionParameters::AuthenticationTypeAll;
+    d->device = device;
 }
-
-QString GenericLinuxDeviceConfigurationWizardSetupPage::privateKeyFilePath() const
-{
-    return d->ui.privateKeyPathChooser->path();
-}
-
-QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultConfigurationName() const
-{
-    return tr("Generic Linux Device");
-}
-
-QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultHostName() const
-{
-    return QString();
-}
-
-QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultUserName() const
-{
-    return QString();
-}
-
-QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultPassWord() const
-{
-    return QString();
-}
-
-void GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged()
-{
-    d->ui.privateKeyPathChooser->setEnabled(authenticationType()
-            == SshConnectionParameters::AuthenticationTypeSpecificKey);
-    emit completeChanged();
-}
-
 
 GenericLinuxDeviceConfigurationWizardFinalPage::GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent)
     : QWizardPage(parent), d(new Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate)
@@ -168,7 +142,119 @@ void GenericLinuxDeviceConfigurationWizardFinalPage::initializePage()
 QString GenericLinuxDeviceConfigurationWizardFinalPage::infoText() const
 {
     return tr("The new device configuration will now be created.\n"
-        "In addition, device connectivity will be tested.");
+              "In addition, device connectivity will be tested.");
+}
+
+struct GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::Private
+{
+    QStringList defaultKeys() const
+    {
+        const QString baseDir = QDir::homePath() + "/.ssh";
+        return QStringList{baseDir + "/id_rsa", baseDir + "/id_ecdsa", baseDir + "/id_ed25519"};
+    }
+
+    PathChooser keyFileChooser;
+    QLabel iconLabel;
+    LinuxDevice::Ptr device;
+};
+
+GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::GenericLinuxDeviceConfigurationWizardKeyDeploymentPage(QWidget *parent)
+    : QWizardPage(parent), d(new Private)
+{
+    setTitle(tr("Key Deployment"));
+    setSubTitle(" ");
+    const QString info = tr("We recommend that you log into your device using public key "
+                            "authentication.\n"
+                            "If your device is already set up for this, you do not have to do "
+                            "anything here.\n"
+                            "Otherwise, please deploy the public key for the private key "
+                            "with which to connect in the future.\n"
+                            "If you do not have a private key yet, you can also "
+                            "create one here.");
+    d->keyFileChooser.setExpectedKind(PathChooser::File);
+    d->keyFileChooser.setHistoryCompleter("Ssh.KeyFile.History");
+    d->keyFileChooser.setPromptDialogTitle(tr("Choose a Private Key File"));
+    auto const deployButton = new QPushButton(tr("Deploy Public Key"), this);
+    connect(deployButton, &QPushButton::clicked,
+            this, &GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::deployKey);
+    auto const createButton = new QPushButton(tr("Create New Key Pair"), this);
+    connect(createButton, &QPushButton::clicked,
+            this, &GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::createKey);
+    auto const mainLayout = new QVBoxLayout(this);
+    auto const keyLayout = new QHBoxLayout;
+    auto const deployLayout = new QHBoxLayout;
+    mainLayout->addWidget(new QLabel(info));
+    keyLayout->addWidget(new QLabel(tr("Private key file:")));
+    keyLayout->addWidget(&d->keyFileChooser);
+    keyLayout->addWidget(createButton);
+    keyLayout->addStretch();
+    mainLayout->addLayout(keyLayout);
+    deployLayout->addWidget(deployButton);
+    deployLayout->addWidget(&d->iconLabel);
+    deployLayout->addStretch();
+    mainLayout->addLayout(deployLayout);
+    connect(&d->keyFileChooser, &PathChooser::pathChanged, this, [this, deployButton] {
+        deployButton->setEnabled(d->keyFileChooser.fileName().exists());
+        d->iconLabel.clear();
+        emit completeChanged();
+    });
+    for (const QString &defaultKey : d->defaultKeys()) {
+        if (QFileInfo::exists(defaultKey)) {
+            d->keyFileChooser.setPath(defaultKey);
+            break;
+        }
+    }
+}
+
+GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::~GenericLinuxDeviceConfigurationWizardKeyDeploymentPage()
+{
+    delete d;
+}
+
+void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::setDevice(const LinuxDevice::Ptr &device)
+{
+    d->device = device;
+}
+
+void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::initializePage()
+{
+    if (!d->device->sshParameters().privateKeyFile.isEmpty())
+        d->keyFileChooser.setPath(privateKeyFilePath());
+    d->iconLabel.clear();
+}
+
+bool GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::isComplete() const
+{
+    return d->keyFileChooser.path().isEmpty() || d->keyFileChooser.fileName().exists();
+}
+
+bool GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::validatePage()
+{
+    if (!d->defaultKeys().contains(d->keyFileChooser.path())) {
+        SshConnectionParameters sshParams = d->device->sshParameters();
+        sshParams.authenticationType = SshConnectionParameters::AuthenticationTypeSpecificKey;
+        sshParams.privateKeyFile = d->keyFileChooser.path();
+        d->device->setSshParameters(sshParams);
+    }
+    return true;
+}
+
+QString GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::privateKeyFilePath() const
+{
+    return d->keyFileChooser.path();
+}
+
+void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::createKey()
+{
+    SshKeyCreationDialog dlg(this);
+    if (dlg.exec() == QDialog::Accepted)
+        d->keyFileChooser.setPath(dlg.privateKeyFilePath());
+}
+
+void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::deployKey()
+{
+    PublicKeyDeploymentDialog dlg(d->device, privateKeyFilePath() + ".pub", this);
+    d->iconLabel.setPixmap((dlg.exec() == QDialog::Accepted ? Icons::OK : Icons::BROKEN).pixmap());
 }
 
 } // namespace RemoteLinux

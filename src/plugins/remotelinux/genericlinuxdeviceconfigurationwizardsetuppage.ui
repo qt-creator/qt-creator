@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>590</width>
-    <height>188</height>
+    <width>564</width>
+    <height>119</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -82,81 +82,8 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>The authentication type:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="QRadioButton" name="defaultAuthButton">
-       <property name="text">
-        <string>Default</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="keyButton">
-       <property name="text">
-        <string>Specific key</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>The file containing the user's private key:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
-     <item>
-      <widget class="Utils::PathChooser" name="privateKeyPathChooser" native="true"/>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

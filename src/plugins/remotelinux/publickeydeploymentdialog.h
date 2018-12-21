@@ -42,11 +42,12 @@ public:
     static PublicKeyDeploymentDialog *createDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
         QWidget *parent = nullptr);
 
+    PublicKeyDeploymentDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
+                              const QString &publicKeyFileName, QWidget *parent = nullptr);
+
     ~PublicKeyDeploymentDialog() override;
 
 private:
-    explicit PublicKeyDeploymentDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
-        const QString &publicKeyFileName, QWidget *parent = nullptr);
     void handleDeploymentFinished(const QString &errorMsg);
     void handleDeploymentError(const QString &errorMsg);
     void handleDeploymentSuccess();

@@ -26,7 +26,6 @@
 #include "qnxdevicewizard.h"
 
 #include "qnxconstants.h"
-#include "qnxdevice.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
@@ -37,44 +36,33 @@ using namespace ProjectExplorer;
 namespace Qnx {
 namespace Internal {
 
-class QnxDeviceWizardSetupPage : public RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage
-{
-public:
-    QnxDeviceWizardSetupPage(QWidget *parent) :
-        RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage(parent)
-    {}
-
-    QString defaultConfigurationName() const override { return QnxDeviceWizard::tr("QNX Device"); }
-};
-
 QnxDeviceWizard::QnxDeviceWizard(QWidget *parent) :
     Utils::Wizard(parent)
 {
     setWindowTitle(tr("New QNX Device Configuration Setup"));
 
-    m_setupPage = new QnxDeviceWizardSetupPage(this);
+    m_setupPage = new RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage(this);
+    m_keyDeploymentPage
+            = new RemoteLinux::GenericLinuxDeviceConfigurationWizardKeyDeploymentPage(this);
     m_finalPage = new RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage(this);
 
     setPage(SetupPageId, m_setupPage);
+    setPage(KeyDeploymenPageId, m_keyDeploymentPage);
     setPage(FinalPageId, m_finalPage);
     m_finalPage->setCommitPage(true);
+    QSsh::SshConnectionParameters sshParams;
+    sshParams.timeout = 10;
+    m_device = QnxDevice::create(tr("QNX Device"), Core::Id(Constants::QNX_QNX_OS_TYPE),
+                                 IDevice::Hardware);
+    m_device->setSshParameters(sshParams);
+    m_device->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
+    m_setupPage->setDevice(m_device);
+    m_keyDeploymentPage->setDevice(m_device);
 }
 
 IDevice::Ptr QnxDeviceWizard::device()
 {
-    QSsh::SshConnectionParameters sshParams;
-    sshParams.url = m_setupPage->url();
-    sshParams.timeout = 10;
-    sshParams.authenticationType = m_setupPage->authenticationType();
-    if (sshParams.authenticationType == QSsh::SshConnectionParameters::AuthenticationTypeSpecificKey)
-        sshParams.privateKeyFile = m_setupPage->privateKeyFilePath();
-
-    QnxDevice::Ptr device = QnxDevice::create(m_setupPage->configurationName(),
-        Core::Id(Constants::QNX_QNX_OS_TYPE), IDevice::Hardware);
-    device->setSshParameters(sshParams);
-    device->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
-
-    return device;
+    return m_device;
 }
 
 } // namespace Internal
