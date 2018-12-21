@@ -91,6 +91,7 @@ private:
     void createCenterControls();
     void createRightControls();
     void addSpacing(int width);
+    void setupCurrentFrameValidator();
 
     QList<QObject *> m_grp;
 

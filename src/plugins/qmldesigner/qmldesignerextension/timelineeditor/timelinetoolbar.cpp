@@ -48,6 +48,7 @@
 #include <QLineEdit>
 #include <QResizeEvent>
 #include <QSlider>
+#include <QIntValidator>
 
 namespace QmlDesigner {
 
@@ -154,6 +155,7 @@ void TimelineToolBar::setStartFrame(qreal frame)
 {
     auto text = QString::number(frame, 'f', 0);
     m_firstFrame->setText(text);
+    setupCurrentFrameValidator();
 }
 
 void TimelineToolBar::setCurrentFrame(qreal frame)
@@ -166,6 +168,7 @@ void TimelineToolBar::setEndFrame(qreal frame)
 {
     auto text = QString::number(frame, 'f', 0);
     m_lastFrame->setText(text);
+    setupCurrentFrameValidator();
 }
 
 void TimelineToolBar::setScaleFactor(int factor)
@@ -234,6 +237,8 @@ static QLineEdit *createToolBarLineEdit(QWidget *parent)
     QPalette pal = parent->palette();
     pal.setColor(QPalette::Text, Theme::instance()->color(Utils::Theme::PanelTextColorLight));
     lineEdit->setPalette(pal);
+    QValidator *validator = new QIntValidator(-100000, 100000, lineEdit);
+    lineEdit->setValidator(validator);
 
     return lineEdit;
 }
@@ -425,6 +430,12 @@ void TimelineToolBar::addSpacing(int width)
     auto *widget = new QWidget;
     widget->setFixedWidth(width);
     addWidget(widget);
+}
+
+void TimelineToolBar::setupCurrentFrameValidator()
+{
+    auto validator = static_cast<const QIntValidator*>(m_currentFrame->validator());
+    const_cast<QIntValidator*>(validator)->setRange(m_firstFrame->text().toInt(), m_lastFrame->text().toInt());
 }
 
 void TimelineToolBar::resizeEvent(QResizeEvent *event)
