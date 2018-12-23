@@ -85,8 +85,9 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
 
     connect(m_ui.findEdit, &Utils::FancyLineEdit::editingFinished,
             this, &FindToolBar::invokeResetIncrementalSearch);
+    connect(m_ui.findEdit, &Utils::FancyLineEdit::textChanged,
+            this, &FindToolBar::updateFindReplaceEnabled);
 
-    setLightColoredIcon(false);
     connect(m_ui.close, &QToolButton::clicked,
             this, &FindToolBar::hideAndResetFocus);
 
@@ -302,15 +303,17 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     connect(m_currentDocumentFind, &CurrentDocumentFind::candidateChanged,
             this, &FindToolBar::adaptToCandidate);
     connect(m_currentDocumentFind, &CurrentDocumentFind::changed,
-            this, &FindToolBar::updateGlobalActions);
+            this, &FindToolBar::updateActions);
     connect(m_currentDocumentFind, &CurrentDocumentFind::changed, this, &FindToolBar::updateToolBar);
-    updateGlobalActions();
+    updateActions();
     updateToolBar();
 
     m_findIncrementalTimer.setSingleShot(true);
     m_findStepTimer.setSingleShot(true);
     connect(&m_findIncrementalTimer, &QTimer::timeout, this, &FindToolBar::invokeFindIncremental);
     connect(&m_findStepTimer, &QTimer::timeout, this, &FindToolBar::invokeFindStep);
+
+    setLightColoredIcon(isLightColored());
 }
 
 FindToolBar::~FindToolBar() = default;
@@ -381,7 +384,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
 
 void FindToolBar::adaptToCandidate()
 {
-    updateGlobalActions();
+    updateActions();
     if (findToolBarPlaceHolder() == FindToolBarPlaceHolder::getCurrent()) {
         m_currentDocumentFind->acceptCandidate();
         if (isVisible() && m_currentDocumentFind->isEnabled())
@@ -389,37 +392,26 @@ void FindToolBar::adaptToCandidate()
     }
 }
 
-void FindToolBar::updateGlobalActions()
+void FindToolBar::updateActions()
 {
     IFindSupport *candidate = m_currentDocumentFind->candidate();
     bool enabled = (candidate != nullptr);
-    bool replaceEnabled = enabled && candidate->supportsReplace();
     m_findInDocumentAction->setEnabled(enabled || (toolBarHasFocus() && isEnabled()));
     m_findNextSelectedAction->setEnabled(enabled);
     m_findPreviousSelectedAction->setEnabled(enabled);
     if (m_enterFindStringAction)
         m_enterFindStringAction->setEnabled(enabled);
-    m_findNextAction->setEnabled(enabled);
-    m_findPreviousAction->setEnabled(enabled);
-    m_replaceAction->setEnabled(replaceEnabled);
-    m_replaceNextAction->setEnabled(replaceEnabled);
-    m_replacePreviousAction->setEnabled(replaceEnabled);
-    m_replaceAllAction->setEnabled(replaceEnabled);
+    updateFindReplaceEnabled();
 }
 
 void FindToolBar::updateToolBar()
 {
     bool enabled = m_currentDocumentFind->isEnabled();
     bool replaceEnabled = enabled && m_currentDocumentFind->supportsReplace();
-    bool showAllControls = canShowAllControls(replaceEnabled);
-
-    m_localFindNextAction->setEnabled(enabled);
-    m_localFindPreviousAction->setEnabled(enabled);
-
-    m_localReplaceAction->setEnabled(replaceEnabled);
-    m_localReplacePreviousAction->setEnabled(replaceEnabled);
-    m_localReplaceNextAction->setEnabled(replaceEnabled);
-    m_localReplaceAllAction->setEnabled(replaceEnabled);
+    const ControlStyle style = controlStyle(replaceEnabled);
+    const bool showAllControls = style != ControlStyle::Hidden;
+    setFindButtonStyle(style == ControlStyle::Text ? Qt::ToolButtonTextOnly
+                                                   : Qt::ToolButtonIconOnly);
 
     m_caseSensitiveAction->setEnabled(enabled);
     m_wholeWordAction->setEnabled(enabled);
@@ -759,24 +751,39 @@ bool FindToolBar::toolBarHasFocus() const
     return QApplication::focusWidget() == focusWidget();
 }
 
-bool FindToolBar::canShowAllControls(bool replaceIsVisible) const
+FindToolBar::ControlStyle FindToolBar::controlStyle(bool replaceIsVisible)
 {
-    int fullWidth = width();
-    int findFixedWidth = m_ui.findLabel->sizeHint().width()
-            + m_ui.findNextButton->sizeHint().width()
-            + m_ui.findPreviousButton->sizeHint().width()
-            + FINDBUTTON_SPACER_WIDTH
-            + m_ui.close->sizeHint().width();
-    if (fullWidth - findFixedWidth < MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT)
-        return false;
+    const Qt::ToolButtonStyle currentFindButtonStyle = m_ui.findNextButton->toolButtonStyle();
+    const int fullWidth = width();
+    const auto findWidth = [this] {
+        return m_ui.findLabel->sizeHint().width() + m_ui.findNextButton->sizeHint().width()
+               + m_ui.findPreviousButton->sizeHint().width() + FINDBUTTON_SPACER_WIDTH
+               + m_ui.close->sizeHint().width();
+    };
+    setFindButtonStyle(Qt::ToolButtonTextOnly);
+    const int findWithTextWidth = findWidth();
+    setFindButtonStyle(Qt::ToolButtonIconOnly);
+    const int findWithIconsWidth = findWidth();
+    setFindButtonStyle(currentFindButtonStyle);
+    if (fullWidth - findWithIconsWidth < MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT)
+        return ControlStyle::Hidden;
+    if (fullWidth - findWithTextWidth < MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT)
+        return ControlStyle::Icon;
     if (!replaceIsVisible)
-        return true;
-    int replaceFixedWidth = m_ui.replaceLabel->sizeHint().width()
+        return ControlStyle::Text;
+    const int replaceFixedWidth = m_ui.replaceLabel->sizeHint().width()
             + m_ui.replaceButton->sizeHint().width()
             + m_ui.replaceNextButton->sizeHint().width()
             + m_ui.replaceAllButton->sizeHint().width()
             + m_ui.advancedButton->sizeHint().width();
-    return fullWidth - replaceFixedWidth >= MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT;
+    return fullWidth - replaceFixedWidth >= MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT ? ControlStyle::Text
+                                                                             : ControlStyle::Hidden;
+}
+
+void FindToolBar::setFindButtonStyle(Qt::ToolButtonStyle style)
+{
+    m_ui.findPreviousButton->setToolButtonStyle(style);
+    m_ui.findNextButton->setToolButtonStyle(style);
 }
 
 /*!
@@ -970,15 +977,42 @@ void FindToolBar::setBackward(bool backward)
 
 void FindToolBar::setLightColoredIcon(bool lightColored)
 {
-    if (lightColored) {
-        m_ui.findNextButton->setIcon(Utils::Icons::NEXT.icon());
-        m_ui.findPreviousButton->setIcon(Utils::Icons::PREV.icon());
-        m_ui.close->setIcon(Utils::Icons::CLOSE_FOREGROUND.icon());
-    } else {
-        m_ui.findNextButton->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
-        m_ui.findPreviousButton->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
-        m_ui.close->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
+    m_localFindNextAction->setIcon(lightColored ? Utils::Icons::NEXT.icon()
+                                                : Utils::Icons::NEXT_TOOLBAR.icon());
+    m_localFindPreviousAction->setIcon(lightColored ? Utils::Icons::PREV.icon()
+                                                    : Utils::Icons::PREV_TOOLBAR.icon());
+    m_ui.close->setIcon(lightColored ? Utils::Icons::CLOSE_FOREGROUND.icon()
+                                     : Utils::Icons::CLOSE_TOOLBAR.icon());
+}
+
+void FindToolBar::updateFindReplaceEnabled()
+{
+    bool enabled = !getFindText().isEmpty();
+    if (enabled != m_findEnabled) {
+        m_localFindNextAction->setEnabled(enabled);
+        m_localFindPreviousAction->setEnabled(enabled);
+        m_findEnabled = enabled;
     }
+    m_findNextAction->setEnabled(enabled && m_findInDocumentAction->isEnabled());
+    m_findPreviousAction->setEnabled(enabled && m_findInDocumentAction->isEnabled());
+
+    updateReplaceEnabled();
+}
+
+void FindToolBar::updateReplaceEnabled()
+{
+    const bool enabled = m_findEnabled && m_currentDocumentFind->supportsReplace();
+    m_localReplaceAction->setEnabled(enabled);
+    m_localReplaceAllAction->setEnabled(enabled);
+    m_localReplaceNextAction->setEnabled(enabled);
+    m_localReplacePreviousAction->setEnabled(enabled);
+
+    IFindSupport *currentCandidate = m_currentDocumentFind->candidate();
+    bool globalsEnabled = currentCandidate ? currentCandidate->supportsReplace() : false;
+    m_replaceAction->setEnabled(globalsEnabled);
+    m_replaceAllAction->setEnabled(globalsEnabled);
+    m_replaceNextAction->setEnabled(globalsEnabled);
+    m_replacePreviousAction->setEnabled(globalsEnabled);
 }
 
 OptionsPopup::OptionsPopup(QWidget *parent)

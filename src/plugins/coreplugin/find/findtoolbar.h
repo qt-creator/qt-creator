@@ -95,6 +95,12 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    enum class ControlStyle {
+        Text,
+        Icon,
+        Hidden
+    };
+
     void invokeFindNext();
     void invokeGlobalFindNext();
     void invokeFindPrevious();
@@ -121,7 +127,7 @@ private:
     void openFind(bool focus = true);
     void findNextSelected();
     void findPreviousSelected();
-    void updateGlobalActions();
+    void updateActions();
     void updateToolBar();
     void findFlagsChanged();
     void findEditButtonClicked();
@@ -143,7 +149,8 @@ private:
     FindFlags effectiveFindFlags();
     FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
     bool toolBarHasFocus() const;
-    bool canShowAllControls(bool replaceIsVisible) const;
+    ControlStyle controlStyle(bool replaceIsVisible);
+    void setFindButtonStyle(Qt::ToolButtonStyle style);
     void acceptCandidateAndMoveToolBar();
     void indicateSearchState(IFindSupport::Result searchState);
 
@@ -154,6 +161,8 @@ private:
     void selectFindText();
     void updateIcons();
     void updateFlagMenus();
+    void updateFindReplaceEnabled();
+    void updateReplaceEnabled();
 
     CurrentDocumentFind *m_currentDocumentFind = nullptr;
     Ui::FindWidget m_ui;
@@ -189,6 +198,7 @@ private:
     IFindSupport::Result m_lastResult = IFindSupport::NotYetFound;
     bool m_useFakeVim = false;
     bool m_eventFiltersInstalled = false;
+    bool m_findEnabled = true;
 };
 
 } // namespace Internal

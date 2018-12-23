@@ -76,7 +76,8 @@ IFindSupport *CurrentDocumentFind::candidate() const
 
 bool CurrentDocumentFind::supportsReplace() const
 {
-    QTC_ASSERT(m_currentFind, return false);
+    if (!m_currentFind)
+        return false;
     return m_currentFind->supportsReplace();
 }
 
@@ -88,7 +89,8 @@ FindFlags CurrentDocumentFind::supportedFindFlags() const
 
 QString CurrentDocumentFind::currentFindString() const
 {
-    QTC_ASSERT(m_currentFind, return QString());
+    if (!m_currentFind)
+        return QString();
     return m_currentFind->currentFindString();
 }
 
@@ -100,7 +102,8 @@ QString CurrentDocumentFind::completedFindString() const
 
 void CurrentDocumentFind::highlightAll(const QString &txt, FindFlags findFlags)
 {
-    QTC_ASSERT(m_currentFind, return);
+    if (!m_currentFind)
+        return;
     m_currentFind->highlightAll(txt, findFlags);
 }
 
@@ -141,7 +144,8 @@ int CurrentDocumentFind::replaceAll(const QString &before, const QString &after,
 
 void CurrentDocumentFind::defineFindScope()
 {
-    QTC_ASSERT(m_currentFind, return);
+    if (!m_currentFind)
+        return;
     m_currentFind->defineFindScope();
 }
 
