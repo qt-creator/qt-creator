@@ -26,6 +26,7 @@
 #include "nimeditorfactory.h"
 #include "nimindenter.h"
 #include "nimhighlighter.h"
+#include "nimcompletionassistprovider.h"
 
 #include "../nimconstants.h"
 #include "../nimplugin.h"
@@ -65,6 +66,7 @@ NimEditorFactory::NimEditorFactory()
     setSyntaxHighlighterCreator([]() {
         return new NimHighlighter;
     });
+    setCompletionAssistProvider(new NimCompletionAssistProvider());
     setCommentDefinition(CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
     setCodeFoldingSupported(true);

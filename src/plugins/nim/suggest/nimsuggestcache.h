@@ -25,39 +25,42 @@
 
 #pragma once
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 
-namespace TextEditor { class SimpleCodeStylePreferences; }
+#include <unordered_map>
+
+namespace Core { class IEditor; }
 
 namespace Nim {
+namespace Suggest {
 
-class NimSettings : public QObject
+class NimSuggest;
+
+class NimSuggestCache : public QObject
 {
     Q_OBJECT
 
 public:
-    NimSettings(QObject *parent = nullptr);
-    ~NimSettings() override;
+    static NimSuggestCache &instance();
 
-    QString nimSuggestPath() const;
-    void setNimSuggestPath(const QString &path);
+    NimSuggest *get(const Utils::FileName &filename);
 
-    void save();
-
-    static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
-
-signals:
-    void nimSuggestPathChanged(QString path);
+    QString executablePath() const;
+    void setExecutablePath(const QString &path);
 
 private:
-    void InitializeCodeStyleSettings();
-    void TerminateCodeStyleSettings();
+    NimSuggestCache();
+    ~NimSuggestCache();
 
-    void InitializeNimSuggestSettings();
-    void TerminateNimSuggestSettings();
+    void onEditorOpened(Core::IEditor *editor);
+    void onEditorClosed(Core::IEditor *editor);
 
-    QString m_nimSuggestPath;
+    std::unordered_map<Utils::FileName, std::unique_ptr<Suggest::NimSuggest>> m_nimSuggestInstances;
+
+    QString m_executablePath;
 };
 
+} // namespace Suggest
 } // namespace Nim
-

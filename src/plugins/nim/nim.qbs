@@ -27,7 +27,8 @@ QtcPlugin {
         files: [
             "nimeditorfactory.h", "nimeditorfactory.cpp",
             "nimhighlighter.h", "nimhighlighter.cpp",
-            "nimindenter.h", "nimindenter.cpp"
+            "nimindenter.h", "nimindenter.cpp",
+            "nimcompletionassistprovider.h", "nimcompletionassistprovider.cpp"
         ]
     }
 
@@ -57,6 +58,7 @@ QtcPlugin {
             "nimcodestylepreferenceswidget.h", "nimcodestylepreferenceswidget.cpp", "nimcodestylepreferenceswidget.ui",
             "nimcodestylesettingspage.h", "nimcodestylesettingspage.cpp",
             "nimsettings.h", "nimsettings.cpp",
+            "nimtoolssettingspage.h", "nimtoolssettingspage.cpp", "nimtoolssettingswidget.ui"
         ]
     }
 
@@ -66,6 +68,20 @@ QtcPlugin {
         files: [
             "nimlexer.h", "nimlexer.cpp",
             "sourcecodestream.h"
+        ]
+    }
+
+    Group {
+        name: "Suggest"
+        prefix: "suggest/"
+        files: [
+            "client.h", "client.cpp",
+            "clientrequests.h", "clientrequests.cpp",
+            "nimsuggest.h", "nimsuggest.cpp",
+            "nimsuggestcache.h", "nimsuggestcache.cpp",
+            "server.h", "server.cpp",
+            "sexprlexer.h",
+            "sexprparser.h",
         ]
     }
 }

@@ -23,41 +23,46 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clientrequests.h"
 
-#include <QObject>
-
-namespace TextEditor { class SimpleCodeStylePreferences; }
+#include <QDebug>
+#include <QMetaEnum>
 
 namespace Nim {
+namespace Suggest {
 
-class NimSettings : public QObject
+bool Line::fromString(Line::LineType &type, const std::string &str)
 {
-    Q_OBJECT
+    static const auto metaobject = QMetaEnum::fromType<LineType>();
+    bool result = false;
+    type = static_cast<LineType>(metaobject.keyToValue(str.c_str(), &result));
+    return result;
+}
 
-public:
-    NimSettings(QObject *parent = nullptr);
-    ~NimSettings() override;
+bool Line::fromString(Line::SymbolKind &type, const std::string &str)
+{
+    static const auto metaobject = QMetaEnum::fromType<SymbolKind>();
+    bool result = false;
+    type = static_cast<SymbolKind>(metaobject.keyToValue(str.c_str(), &result));
+    return result;
+}
 
-    QString nimSuggestPath() const;
-    void setNimSuggestPath(const QString &path);
+BaseNimSuggestClientRequest::BaseNimSuggestClientRequest(quint64 id)
+    : m_id(id)
+{}
 
-    void save();
+quint64 BaseNimSuggestClientRequest::id() const
+{
+    return m_id;
+}
 
-    static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
-
-signals:
-    void nimSuggestPathChanged(QString path);
-
-private:
-    void InitializeCodeStyleSettings();
-    void TerminateCodeStyleSettings();
-
-    void InitializeNimSuggestSettings();
-    void TerminateNimSuggestSettings();
-
-    QString m_nimSuggestPath;
-};
-
+} // namespace Suggest
 } // namespace Nim
 
+QDebug operator<<(QDebug debug, const Nim::Suggest::Line &c)
+{
+    QDebugStateSaver saver(debug);
+    debug.space() << c.line_type << c.symbol_kind << c.symbol_type << c.data << c.row << c.column <<
+                  c.abs_path;
+    return debug;
+}

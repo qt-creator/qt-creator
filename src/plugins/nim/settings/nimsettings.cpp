@@ -39,10 +39,50 @@ using namespace TextEditor;
 
 namespace Nim {
 
-SimpleCodeStylePreferences *m_globalCodeStyle = nullptr;
+static SimpleCodeStylePreferences *m_globalCodeStyle = nullptr;
 
 NimSettings::NimSettings(QObject *parent)
     : QObject(parent)
+{
+    InitializeCodeStyleSettings();
+    InitializeNimSuggestSettings();
+}
+
+NimSettings::~NimSettings()
+{
+    TerminateCodeStyleSettings();
+}
+
+QString NimSettings::nimSuggestPath() const
+{
+    return m_nimSuggestPath;
+}
+
+void NimSettings::setNimSuggestPath(const QString &path)
+{
+    if (m_nimSuggestPath == path)
+        return;
+    m_nimSuggestPath = path;
+    emit nimSuggestPathChanged(path);
+}
+
+void NimSettings::save()
+{
+    QSettings *s = Core::ICore::settings();
+    s->beginGroup(Constants::C_NIM_SETTINGS_GROUP);
+    s->beginGroup(Constants::C_NIM_SETTINGS_NIMSUGGEST_GROUP);
+    s->setValue(QString::fromStdString(Constants::C_NIM_SETTINGS_COMMAND), nimSuggestPath());
+    s->endGroup();
+    s->endGroup();
+    s->sync();
+}
+
+SimpleCodeStylePreferences *NimSettings::globalCodeStyle()
+{
+    return m_globalCodeStyle;
+}
+
+void NimSettings::InitializeCodeStyleSettings()
 {
     // code style factory
     auto factory = new NimCodeStylePreferencesFactory();
@@ -63,12 +103,14 @@ NimSettings::NimSettings(QObject *parent)
     nimCodeStyle->setId("nim");
     nimCodeStyle->setDisplayName(tr("Nim"));
     nimCodeStyle->setReadOnly(true);
+
     TabSettings nimTabSettings;
     nimTabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
     nimTabSettings.m_tabSize = 2;
     nimTabSettings.m_indentSize = 2;
     nimTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
     nimCodeStyle->setTabSettings(nimTabSettings);
+
     pool->addCodeStyle(nimCodeStyle);
 
     m_globalCodeStyle->setCurrentDelegate(nimCodeStyle);
@@ -79,11 +121,24 @@ NimSettings::NimSettings(QObject *parent)
     QSettings *s = Core::ICore::settings();
     m_globalCodeStyle->fromSettings(QLatin1String(Nim::Constants::C_NIMLANGUAGE_ID), s);
 
-    TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_MIMETYPE, Nim::Constants::C_NIMLANGUAGE_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE, Nim::Constants::C_NIMLANGUAGE_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_MIMETYPE,
+                                                      Nim::Constants::C_NIMLANGUAGE_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE,
+                                                      Nim::Constants::C_NIMLANGUAGE_ID);
 }
 
-NimSettings::~NimSettings()
+void NimSettings::InitializeNimSuggestSettings()
+{
+    QSettings *s = Core::ICore::settings();
+    s->beginGroup(Constants::C_NIM_SETTINGS_GROUP);
+    s->beginGroup(Constants::C_NIM_SETTINGS_NIMSUGGEST_GROUP);
+    setNimSuggestPath(s->value(QString::fromStdString(Constants::C_NIM_SETTINGS_COMMAND),
+                               QString()).toString());
+    s->endGroup();
+    s->endGroup();
+}
+
+void NimSettings::TerminateCodeStyleSettings()
 {
     TextEditorSettings::unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
     TextEditorSettings::unregisterCodeStylePool(Nim::Constants::C_NIMLANGUAGE_ID);
@@ -91,11 +146,6 @@ NimSettings::~NimSettings()
 
     delete m_globalCodeStyle;
     m_globalCodeStyle = nullptr;
-}
-
-SimpleCodeStylePreferences *NimSettings::globalCodeStyle()
-{
-    return m_globalCodeStyle;
 }
 
 } // namespace Nim

@@ -57,7 +57,6 @@ private:
     void collectProjectFiles();
     void updateProject();
 
-    QStringList m_files;
     QStringList m_excludedFiles;
     QFutureWatcher<QList<ProjectExplorer::FileNode *>> m_futureWatcher;
     QElapsedTimer m_lastProjectScan;

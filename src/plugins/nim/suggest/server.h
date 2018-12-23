@@ -25,39 +25,56 @@
 
 #pragma once
 
+#include <QDebug>
+#include <QFile>
 #include <QObject>
-
-namespace TextEditor { class SimpleCodeStylePreferences; }
+#include <QProcess>
 
 namespace Nim {
+namespace Suggest {
 
-class NimSettings : public QObject
+class NimSuggestServer : public QObject
 {
     Q_OBJECT
 
 public:
-    NimSettings(QObject *parent = nullptr);
-    ~NimSettings() override;
+    NimSuggestServer(QObject *parent = nullptr);
 
-    QString nimSuggestPath() const;
-    void setNimSuggestPath(const QString &path);
+    ~NimSuggestServer();
 
-    void save();
+    bool start(const QString &executablePath, const QString &projectFilePath);
 
-    static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
+    void kill();
+
+    quint16 port() const;
+
+    QString executablePath() const;
+
+    QString projectFilePath() const;
 
 signals:
-    void nimSuggestPathChanged(QString path);
+    void started();
+
+    void finished();
+
+    void crashed();
 
 private:
-    void InitializeCodeStyleSettings();
-    void TerminateCodeStyleSettings();
+    void onStarted();
 
-    void InitializeNimSuggestSettings();
-    void TerminateNimSuggestSettings();
+    void onStandardOutputAvailable();
 
-    QString m_nimSuggestPath;
+    void onFinished(int exitCode, QProcess::ExitStatus exitStatus);
+
+    void clearState();
+
+    bool m_started = false;
+    bool m_portAvailable = false;
+    QProcess m_process;
+    quint16 m_port = 0;
+    QString m_projectFilePath;
+    QString m_executablePath;
 };
 
+} // namespace Suggest
 } // namespace Nim
-

@@ -26,38 +26,50 @@
 #pragma once
 
 #include <QObject>
+#include <QString>
+#include <QTcpSocket>
 
-namespace TextEditor { class SimpleCodeStylePreferences; }
+#include <memory>
+#include <unordered_map>
+#include <vector>
+
+#include "clientrequests.h"
 
 namespace Nim {
+namespace Suggest {
 
-class NimSettings : public QObject
+class NimSuggestClient : public QObject
 {
     Q_OBJECT
 
 public:
-    NimSettings(QObject *parent = nullptr);
-    ~NimSettings() override;
+    NimSuggestClient(QObject *parent = nullptr);
 
-    QString nimSuggestPath() const;
-    void setNimSuggestPath(const QString &path);
+    bool connectToServer(quint16 port);
 
-    void save();
+    bool disconnectFromServer();
 
-    static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
+    std::shared_ptr<SugRequest> sug(const QString &nimFile,
+                                    int line, int column,
+                                    const QString &dirtyFile);
 
 signals:
-    void nimSuggestPathChanged(QString path);
+    void connected();
+    void disconnected();
 
 private:
-    void InitializeCodeStyleSettings();
-    void TerminateCodeStyleSettings();
+    void clear();
+    void onDisconnectedFromServer();
+    void onReadyRead();
+    void parsePayload(const char *payload, std::size_t size);
 
-    void InitializeNimSuggestSettings();
-    void TerminateNimSuggestSettings();
-
-    QString m_nimSuggestPath;
+    QTcpSocket m_socket;
+    quint16 m_port;
+    std::unordered_map<quint64, std::weak_ptr<BaseNimSuggestClientRequest>> m_requests;
+    std::vector<QString> m_lines;
+    std::vector<char> m_readBuffer;
+    quint64 m_lastMessageId = 0;
 };
 
+} // namespace Suggest
 } // namespace Nim
-

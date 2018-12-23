@@ -25,39 +25,19 @@
 
 #pragma once
 
-#include <QObject>
-
-namespace TextEditor { class SimpleCodeStylePreferences; }
+#include <texteditor/codeassist/completionassistprovider.h>
 
 namespace Nim {
 
-class NimSettings : public QObject
+class NimCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
     Q_OBJECT
 
 public:
-    NimSettings(QObject *parent = nullptr);
-    ~NimSettings() override;
-
-    QString nimSuggestPath() const;
-    void setNimSuggestPath(const QString &path);
-
-    void save();
-
-    static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
-
-signals:
-    void nimSuggestPathChanged(QString path);
-
-private:
-    void InitializeCodeStyleSettings();
-    void TerminateCodeStyleSettings();
-
-    void InitializeNimSuggestSettings();
-    void TerminateNimSuggestSettings();
-
-    QString m_nimSuggestPath;
+    TextEditor::IAssistProcessor *createProcessor() const final;
+    int activationCharSequenceLength() const final;
+    bool isActivationCharSequence(const QString &sequence) const final;
+    RunType runType() const final;
 };
 
-} // namespace Nim
-
+}

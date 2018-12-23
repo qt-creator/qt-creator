@@ -25,39 +25,52 @@
 
 #pragma once
 
-#include <QObject>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/fileutils.h>
 
-namespace TextEditor { class SimpleCodeStylePreferences; }
+#include <QWidget>
+
+#include <memory>
 
 namespace Nim {
 
-class NimSettings : public QObject
+class NimSettings;
+
+namespace Ui { class NimToolsSettingsWidget; }
+
+class NimToolsSettingsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    NimSettings(QObject *parent = nullptr);
-    ~NimSettings() override;
+    explicit NimToolsSettingsWidget(NimSettings *settings, QWidget *parent = nullptr);
 
-    QString nimSuggestPath() const;
-    void setNimSuggestPath(const QString &path);
+    ~NimToolsSettingsWidget();
 
-    void save();
-
-    static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
-
-signals:
-    void nimSuggestPathChanged(QString path);
+    QString command() const;
+    void setCommand(const QString &filename);
 
 private:
-    void InitializeCodeStyleSettings();
-    void TerminateCodeStyleSettings();
-
-    void InitializeNimSuggestSettings();
-    void TerminateNimSuggestSettings();
-
-    QString m_nimSuggestPath;
+    Ui::NimToolsSettingsWidget *ui;
+    NimSettings *m_settings = nullptr;
 };
 
-} // namespace Nim
+class NimToolsSettingsPage : public Core::IOptionsPage
+{
+    Q_OBJECT
 
+public:
+    NimToolsSettingsPage(NimSettings *settings, QWidget *parent = nullptr);
+
+    ~NimToolsSettingsPage();
+
+    QWidget *widget() final;
+    void apply() final;
+    void finish() final;
+
+private:
+    std::unique_ptr<NimToolsSettingsWidget> m_widget;
+    NimSettings *m_settings = nullptr;
+};
+
+}

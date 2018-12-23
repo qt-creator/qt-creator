@@ -1,0 +1,93 @@
+/****************************************************************************
+**
+** Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#include "nimtoolssettingspage.h"
+#include "nimconstants.h"
+#include "nimsettings.h"
+#include "ui_nimtoolssettingswidget.h"
+
+#include <coreplugin/icore.h>
+
+namespace Nim {
+
+NimToolsSettingsWidget::NimToolsSettingsWidget(NimSettings *settings, QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::NimToolsSettingsWidget)
+    , m_settings(settings)
+{
+    ui->setupUi(this);
+    ui->pathWidget->setExpectedKind(Utils::PathChooser::ExistingCommand);
+}
+
+NimToolsSettingsWidget::~NimToolsSettingsWidget()
+{
+    delete ui;
+}
+
+QString NimToolsSettingsWidget::command() const
+{
+    return ui->pathWidget->path();
+}
+
+void NimToolsSettingsWidget::setCommand(const QString &filename)
+{
+    ui->pathWidget->setPath(filename);
+}
+
+NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings, QWidget *parent)
+    : Core::IOptionsPage(parent)
+    , m_settings(settings)
+{
+    setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
+    setDisplayName(tr(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_DISPLAY));
+    setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
+    setDisplayCategory(tr("Nim"));
+    setCategoryIcon(Utils::Icon({{":/nim/images/settingscategory_nim.png",
+            Utils::Theme::PanelTextColorDark
+        }}, Utils::Icon::Tint));
+}
+
+NimToolsSettingsPage::~NimToolsSettingsPage() = default;
+
+QWidget *NimToolsSettingsPage::widget()
+{
+    if (!m_widget)
+        m_widget.reset(new NimToolsSettingsWidget(m_settings));
+    m_widget->setCommand(m_settings->nimSuggestPath());
+    return m_widget.get();
+}
+
+void NimToolsSettingsPage::apply()
+{
+    m_settings->setNimSuggestPath(m_widget->command());
+    m_settings->save();
+}
+
+void NimToolsSettingsPage::finish()
+{
+    m_widget.reset();
+}
+
+}
