@@ -50,11 +50,30 @@ QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFil
     if (m_manager->rowCount() == 0)
         return QList<LocatorFilterEntry>();
 
-    const QModelIndexList matches = filteredUnique(
-                m_manager->match(m_manager->index(0, 0), BookmarkManager::Filename, entry, -1,
-                                 Qt::MatchContains | Qt::MatchWrap)
-                + m_manager->match(m_manager->index(0, 0), BookmarkManager::Note, entry, -1,
-                                   Qt::MatchContains | Qt::MatchWrap));
+    auto match = [this](const QString &name, BookmarkManager::Roles role) {
+        return m_manager->match(m_manager->index(0, 0), role, name, -1,
+                                Qt::MatchContains | Qt::MatchWrap);
+    };
+
+    int colonIndex = entry.lastIndexOf(':');
+    QModelIndexList fileNameLineNumberMatches;
+    if (colonIndex >= 0) {
+        // Filter by "fileName:lineNumber" pattern
+        const QString fileName = entry.left(colonIndex);
+        const QString lineNumber = entry.mid(colonIndex + 1);
+        fileNameLineNumberMatches = match(fileName, BookmarkManager::Filename);
+        fileNameLineNumberMatches =
+                Utils::filtered(fileNameLineNumberMatches, [lineNumber](const QModelIndex &index) {
+                    return index.data(BookmarkManager::LineNumber).toString().contains(lineNumber);
+                });
+    }
+
+    const QModelIndexList matches = filteredUnique(fileNameLineNumberMatches
+                                                   + match(entry, BookmarkManager::Filename)
+                                                   + match(entry, BookmarkManager::LineNumber)
+                                                   + match(entry, BookmarkManager::Note)
+                                                   + match(entry, BookmarkManager::LineText));
+
     QList<LocatorFilterEntry> entries;
     for (const QModelIndex &idx : matches) {
         const Bookmark *bookmark = m_manager->bookmarkForIndex(idx);
@@ -76,6 +95,19 @@ QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFil
             if (highlightIndex >= 0) {
                 filterEntry.highlightInfo = {highlightIndex, entry.length(),
                                              LocatorFilterEntry::HighlightInfo::ExtraInfo};
+            } else if (colonIndex >= 0) {
+                const QString fileName = entry.left(colonIndex);
+                const QString lineNumber = entry.mid(colonIndex + 1);
+                highlightIndex = filterEntry.displayName.indexOf(fileName, 0, Qt::CaseInsensitive);
+                if (highlightIndex >= 0) {
+                    filterEntry.highlightInfo = {highlightIndex, fileName.length()};
+                    highlightIndex = filterEntry.displayName.indexOf(
+                        lineNumber, highlightIndex, Qt::CaseInsensitive);
+                    if (highlightIndex >= 0) {
+                        filterEntry.highlightInfo.starts += highlightIndex;
+                        filterEntry.highlightInfo.lengths += lineNumber.length();
+                    }
+                }
             }
         }
 
