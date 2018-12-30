@@ -66,7 +66,8 @@ SUBDIRS   = \
     webassembly \
     mcusupport \
     marketplace \
-    incredibuild
+    incredibuild \
+    conan
 
 qtHaveModule(serialport) {
     SUBDIRS += serialterminal

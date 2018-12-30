@@ -27,6 +27,7 @@ add_subdirectory(resourceeditor)
 add_subdirectory(tasklist)
 add_subdirectory(nim)
 add_subdirectory(incredibuild)
+add_subdirectory(conan)
 
 # Level 4: (only depends on Level 3 and below)
 add_subdirectory(clangpchmanager)
