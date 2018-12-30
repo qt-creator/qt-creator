@@ -127,7 +127,7 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FileName &baseDir, Tree
                                                                               QDir::NoDotAndDotDot);
     bool allChecked = true;
     bool allUnchecked = true;
-    foreach (const QFileInfo &fileInfo, fileInfoList) {
+    for (const QFileInfo &fileInfo : fileInfoList) {
         Utils::FileName fn = Utils::FileName(fileInfo);
         if (m_futureCount % 100) {
             emit parsingProgress(fn);
@@ -314,7 +314,7 @@ void SelectableFilesModel::collectPaths(Tree *root, Utils::FileNameList *result)
     if (root->checked == Qt::Unchecked)
         return;
     result->append(root->fullPath);
-    foreach (Tree *t, root->childDirectories)
+    for (Tree *t : qAsConst(root->childDirectories))
         collectPaths(t, result);
 }
 
@@ -339,9 +339,9 @@ void SelectableFilesModel::collectFiles(Tree *root, Utils::FileNameList *result)
 {
     if (root->checked == Qt::Unchecked)
         return;
-    foreach (Tree *t, root->childDirectories)
+    for (Tree *t : qAsConst(root->childDirectories))
         collectFiles(t, result);
-    foreach (Tree *t, root->visibleFiles)
+    for (Tree *t : qAsConst(root->visibleFiles))
         if (t->checked == Qt::Checked)
             result->append(t->fullPath);
 }
@@ -349,8 +349,8 @@ void SelectableFilesModel::collectFiles(Tree *root, Utils::FileNameList *result)
 QList<Glob> SelectableFilesModel::parseFilter(const QString &filter)
 {
     QList<Glob> result;
-    QStringList list = filter.split(QLatin1Char(';'), QString::SkipEmptyParts);
-    foreach (const QString &e, list) {
+    const QStringList list = filter.split(QLatin1Char(';'), QString::SkipEmptyParts);
+    for (const QString &e : list) {
         QString entry = e.trimmed();
         Glob g;
         if (entry.indexOf(QLatin1Char('*')) == -1 && entry.indexOf(QLatin1Char('?')) == -1) {
@@ -392,10 +392,10 @@ void SelectableFilesModel::selectAllFiles(Tree *root)
 {
     root->checked = Qt::Checked;
 
-    foreach (Tree *t, root->childDirectories)
+    for (Tree *t : qAsConst(root->childDirectories))
         selectAllFiles(t);
 
-    foreach (Tree *t, root->visibleFiles)
+    for (Tree *t : qAsConst(root->visibleFiles))
         t->checked = Qt::Checked;
 
     emit checkedFilesChanged();
