@@ -25,16 +25,17 @@
 
 #pragma once
 
-#include <QAbstractItemModel>
-#include <QSet>
-#include <QFutureInterface>
-#include <QFutureWatcher>
-#include <QDialog>
-#include <QTreeView>
-#include <QLabel>
 #include "projectexplorer_export.h"
 
 #include <utils/fileutils.h>
+
+#include <QAbstractItemModel>
+#include <QDialog>
+#include <QFutureInterface>
+#include <QFutureWatcher>
+#include <QLabel>
+#include <QSet>
+#include <QTreeView>
 
 namespace Utils {
 class FancyLineEdit;
