@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -64,6 +64,9 @@
 
     You can use the locator (6) to to browse through projects, files, classes,
     functions, documentation, and file systems.
+
+    For a quick tour of the user interface that takes you to the locations of
+    these controls, select \uicontrol Help > \uicontrol {UI Tour}.
 
     \section1 Modes
 
