@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -78,8 +78,8 @@
         \li \l{Analyzing CPU Usage}{Performance Analyzer}
 
             You can analyze the CPU usage of embedded applications and Linux
-            desktop applications with the Performance Analyzer (commercial only)
-            that integrates the Linux Perf tool.
+            desktop applications with the Performance Analyzer that integrates
+            the Linux Perf tool.
 
         \li \l{Analyzing Code with Cppcheck}
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -41,7 +41,6 @@
     \l{http://qt.io/licensing/}{Qt license}:
 
     \list
-        \li \l{Analyzing CPU Usage}{Performance Analyzer}
         \li \l{Browsing ISO 7000 Icons} in the Design mode
         \li \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Developing for
             embedded devices}

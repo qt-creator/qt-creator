@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -37,9 +37,7 @@
 
     \title Analyzing CPU Usage
 
-    \commercial
-
-    \QC is integrated with the Linux Perf tool (commercial only) that can be
+    \QC is integrated with the Linux Perf tool that can be
     used to analyze the CPU and memory usage of an application on embedded
     devices and, to a limited extent, on Linux desktop platforms. The
     Performance Analyzer uses the Perf tool bundled with the Linux kernel to
