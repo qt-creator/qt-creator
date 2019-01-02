@@ -112,6 +112,13 @@ QtcPlugin {
     }
 
     Group {
+        name: "Catch framework files"
+        files: [
+            "catch/*"
+        ]
+    }
+
+    Group {
         name: "Test sources"
         condition: qtc.testsEnabled
         files: [

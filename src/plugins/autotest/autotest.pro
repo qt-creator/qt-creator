@@ -27,6 +27,12 @@ SOURCES += \
     testtreeitemdelegate.cpp \
     testtreemodel.cpp \
     testtreeview.cpp \
+    catch/catchconfiguration.cpp \
+    catch/catchframework.cpp \
+    catch/catchoutputreader.cpp \
+    catch/catchresult.cpp \
+    catch/catchtestparser.cpp \
+    catch/catchtreeitem.cpp \
     gtest/gtestconfiguration.cpp \
     gtest/gtestparser.cpp \
     gtest/gtesttreeitem.cpp \
@@ -91,6 +97,12 @@ HEADERS += \
     testtreeitemdelegate.h \
     testtreemodel.h \
     testtreeview.h \
+    catch/catchconfiguration.h \
+    catch/catchframework.h \
+    catch/catchoutputreader.h \
+    catch/catchresult.h \
+    catch/catchtestparser.h \
+    catch/catchtreeitem.h \
     gtest/gtestconfiguration.h \
     gtest/gtestparser.h \
     gtest/gtesttreeitem.h \

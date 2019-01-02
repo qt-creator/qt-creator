@@ -21,6 +21,10 @@ add_qtc_plugin(AutoTest
     boost/boosttestsettings.cpp boost/boosttestsettings.h
     boost/boosttestsettingspage.cpp boost/boosttestsettingspage.h boost/boosttestsettingspage.ui
     boost/boosttesttreeitem.cpp boost/boosttesttreeitem.h
+    catch/catchconfiguration.h catch/catchconfiguration.cpp
+    catch/catchframework.h catch/catchframework.cpp catch/catchoutputreader.h
+    catch/catchoutputreader.cpp catch/catchresult.h catch/catchresult.cpp catch/catchtestparser.h
+    catch/catchtestparser.cpp catch/catchtreeitem.h catch/catchtreeitem.cpp
     gtest/gtest_utils.cpp gtest/gtest_utils.h
     gtest/gtestconfiguration.cpp gtest/gtestconfiguration.h
     gtest/gtestconstants.h

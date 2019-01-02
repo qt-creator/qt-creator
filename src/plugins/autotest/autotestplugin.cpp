@@ -43,6 +43,7 @@
 #include "quick/quicktestframework.h"
 #include "gtest/gtestframework.h"
 #include "boost/boosttestframework.h"
+#include "catch/catchframework.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -133,6 +134,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     m_frameworkManager.registerTestFramework(new QuickTestFramework);
     m_frameworkManager.registerTestFramework(new GTestFramework);
     m_frameworkManager.registerTestFramework(new BoostTestFramework);
+    m_frameworkManager.registerTestFramework(new CatchFramework);
 
     m_frameworkManager.synchronizeSettings(ICore::settings());
     m_navigationWidgetFactory = new TestNavigationWidgetFactory;
