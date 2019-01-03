@@ -40,7 +40,7 @@ Module {
             llvmToolingIncludes = toolingParams.includes;
             llvmToolingCxxFlags = toolingParams.cxxFlags;
             if (toolchain.contains("gcc"))
-                res.push("-Wno-unused-parameter");
+                llvmToolingCxxFlags.push("-Wno-unused-parameter");
             llvmFormattingLibs = ClangFunctions.formattingLibs(llvmConfig, QtcFunctions, targetOS);
             found = llvmConfig && File.exists(llvmIncludeDir.concat("/clang-c/Index.h"));
         }
