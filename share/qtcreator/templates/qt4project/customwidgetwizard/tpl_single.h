@@ -1,5 +1,9 @@
+@if '%{Cpp:PragmaOnce}'
+#pragma once
+@else
 #ifndef @SINGLE_INCLUDE_GUARD@
 #define @SINGLE_INCLUDE_GUARD@
+@endif
 
 #include <QDesignerCustomWidgetInterface>
 
@@ -28,4 +32,6 @@ private:
     bool m_initialized;
 };
 
-#endif
+@if ! '%{Cpp:PragmaOnce}'
+#endif // @SINGLE_INCLUDE_GUARD@
+@endif

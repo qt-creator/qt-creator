@@ -104,8 +104,12 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
 
     // 1) Header file
     QTextStream headerStr(header);
-    headerStr << headerLicense << "#ifndef " << guard
-              << "\n#define " <<  guard << '\n' << '\n';
+    headerStr << headerLicense;
+
+    if (parameters.usePragmaOnce)
+        headerStr << "#pragma once\n\n";
+    else
+        headerStr << "#ifndef " << guard << "\n#define " << guard << "\n\n";
 
     // Include 'ui_'
     if (generationParameters.embedding != QtSupport::CodeGenSettings::PointerAggregatedUiClass) {
@@ -165,7 +169,9 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     }
     headerStr << namespaceIndent << "};\n\n";
     Utils::writeClosingNameSpaces(namespaceList, QString(), headerStr);
-    headerStr << "#endif // "<<  guard << '\n';
+
+    if (!parameters.usePragmaOnce)
+        headerStr << "#endif // " << guard << '\n';
 
     // 2) Source file
     QTextStream sourceStr(source);

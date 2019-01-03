@@ -31,25 +31,6 @@
 #include <QTextStream>
 #include <QStringList>
 
-// Contents of the header defining the shared library export.
-#define GUARD_VARIABLE "<GUARD>"
-#define EXPORT_MACRO_VARIABLE "<EXPORT_MACRO>"
-#define LIBRARY_MACRO_VARIABLE "<LIBRARY_MACRO>"
-
-static const char *globalHeaderContentsC =
-"#ifndef " GUARD_VARIABLE "\n"
-"#define " GUARD_VARIABLE "\n"
-"\n"
-"#include <QtCore/qglobal.h>\n"
-"\n"
-"#if defined(" LIBRARY_MACRO_VARIABLE ")\n"
-"#  define " EXPORT_MACRO_VARIABLE " Q_DECL_EXPORT\n"
-"#else\n"
-"#  define " EXPORT_MACRO_VARIABLE " Q_DECL_IMPORT\n"
-"#endif\n"
-"\n"
-"#endif // " GUARD_VARIABLE "\n";
-
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -60,6 +41,7 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
                                      const QString &exportMacro,
                                      const QString &pluginJsonFileName,
                                      int indentation,
+                                     bool usePragmaOnce,
                                      QString *header,
                                      QString *source) const
 {
@@ -76,8 +58,10 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
 
     // 1) Header
     const QString guard = Utils::headerGuard(headerFileName, namespaceList);
-    headerStr << "#ifndef " << guard
-        << "\n#define " <<  guard << '\n' << '\n';
+    if (usePragmaOnce)
+        headerStr << "#pragma once\n\n";
+    else
+        headerStr << "#ifndef " << guard << "\n#define " << guard << "\n\n";
 
     if (!sharedHeader.isEmpty())
         Utils::writeIncludeFileDirective(sharedHeader, false, headerStr);
@@ -123,7 +107,9 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
         headerStr << namespaceIndent << indent << unqualifiedClassName << "();\n";
     headerStr << namespaceIndent << "};\n\n";
     Utils::writeClosingNameSpaces(namespaceList, indent, headerStr);
-    headerStr <<  "#endif // "<<  guard << '\n';
+    if (!usePragmaOnce)
+        headerStr <<  "#endif // " << guard << '\n';
+
     /// 2) Source
     QTextStream sourceStr(source);
 
@@ -152,12 +138,28 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
 
 QString  LibraryParameters::generateSharedHeader(const QString &globalHeaderFileName,
                                                  const QString &projectTarget,
-                                                 const QString &exportMacro)
+                                                 const QString &exportMacro,
+                                                 bool usePragmaOnce)
 {
-    QString contents = QLatin1String(globalHeaderContentsC);
-    contents.replace(QLatin1String(GUARD_VARIABLE), Utils::headerGuard(globalHeaderFileName));
-    contents.replace(QLatin1String(EXPORT_MACRO_VARIABLE), exportMacro);
-    contents.replace(QLatin1String(LIBRARY_MACRO_VARIABLE), QtProjectParameters::libraryMacro(projectTarget));
+    QString contents;
+    if (usePragmaOnce) {
+        contents += "#pragma once\n";
+    } else {
+        contents += "#ifndef " + Utils::headerGuard(globalHeaderFileName) + "\n";
+        contents += "#define " + Utils::headerGuard(globalHeaderFileName) + "\n";
+    }
+    contents += "\n";
+    contents += "#include <QtCore/qglobal.h>\n";
+    contents += "\n";
+    contents += "#if defined(" + QtProjectParameters::libraryMacro(projectTarget) + ")\n";
+    contents += "#  define " + exportMacro + " Q_DECL_EXPORT\n";
+    contents += "#else\n";
+    contents += "#  define " + exportMacro + " Q_DECL_IMPORT\n";
+    contents += "#endif\n";
+    contents += "\n";
+    if (!usePragmaOnce)
+        contents += "#endif // " + Utils::headerGuard(globalHeaderFileName) + '\n';
+
     return contents;
 }
 

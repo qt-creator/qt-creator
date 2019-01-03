@@ -80,6 +80,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     const QtProjectParameters projectParams = dialog->parameters();
     const QString projectPath = projectParams.projectPath();
     const LibraryParameters params = dialog->libraryParameters();
+    const bool usePragmaOnce = CppTools::AbstractEditorSupport::usePragmaOnce();
 
     const QString sharedLibExportMacro = QtProjectParameters::exportMacro(projectParams.fileName);
 
@@ -107,7 +108,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
         Core::GeneratedFile globalHeader(globalHeaderName);
         globalHeaderFileName = Utils::FileName::fromString(globalHeader.path()).fileName();
         globalHeader.setContents(CppTools::AbstractEditorSupport::licenseTemplate(globalHeaderFileName)
-                                 + LibraryParameters::generateSharedHeader(globalHeaderFileName, projectParams.fileName, sharedLibExportMacro));
+                                 + LibraryParameters::generateSharedHeader(globalHeaderFileName, projectParams.fileName, sharedLibExportMacro, usePragmaOnce));
         rc.push_back(globalHeader);
     }
 
@@ -115,7 +116,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     QString headerContents, sourceContents;
     params.generateCode(projectParams.type, projectParams.fileName,  headerFileName,
                         globalHeaderFileName, sharedLibExportMacro, pluginJsonFileName,
-                        /* indentation*/ 4, &headerContents, &sourceContents);
+                        /* indentation*/ 4, usePragmaOnce, &headerContents, &sourceContents);
 
     source.setContents(CppTools::AbstractEditorSupport::licenseTemplate(sourceFileName, params.className)
                        + sourceContents);

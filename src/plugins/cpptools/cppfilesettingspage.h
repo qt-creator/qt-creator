@@ -42,16 +42,15 @@ namespace Ui { class CppFileSettingsPage; }
 
 struct CppFileSettings
 {
-    CppFileSettings();
-
     QStringList headerPrefixes;
     QString headerSuffix;
     QStringList headerSearchPaths;
     QStringList sourcePrefixes;
     QString sourceSuffix;
     QStringList sourceSearchPaths;
-    bool lowerCaseFiles;
     QString licenseTemplatePath;
+    bool headerPragmaOnce = false;
+    bool lowerCaseFiles = false;
 
     void toSettings(QSettings *) const;
     void fromSettings(QSettings *);

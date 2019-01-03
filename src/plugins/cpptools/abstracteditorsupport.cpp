@@ -27,6 +27,7 @@
 
 #include "cppfilesettingspage.h"
 #include "cppmodelmanager.h"
+#include "cpptools/cpptoolsplugin.h"
 
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
@@ -66,6 +67,11 @@ QString AbstractEditorSupport::licenseTemplate(const QString &file, const QStrin
                               [className]() { return className; });
 
     return Utils::TemplateEngine::processText(&expander, license, nullptr);
+}
+
+bool AbstractEditorSupport::usePragmaOnce()
+{
+    return Internal::CppToolsPlugin::instance()->usePragmaOnce();
 }
 
 } // namespace CppTools

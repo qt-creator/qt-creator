@@ -1,5 +1,9 @@
+@if '%{Cpp:PragmaOnce}'
+#pragma once
+@else
 #ifndef %ObjectName:u%_H
 #define %ObjectName:u%_H
+@endif
 
 #include <QQuickItem>
 
@@ -13,4 +17,6 @@ public:
     ~%ObjectName%();
 };
 
+@if ! '%{Cpp:PragmaOnce}'
 #endif // %ObjectName:u%_H
+@endif

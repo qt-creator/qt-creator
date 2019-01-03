@@ -105,6 +105,7 @@ static inline bool generateFormClass(const GuiAppParameters &params,
     fp.className = params.className;
     fp.sourceFile = params.sourceFileName;
     fp.headerFile = params.headerFileName;
+    fp.usePragmaOnce = CppTools::AbstractEditorSupport::usePragmaOnce();
     QString headerContents;
     QString sourceContents;
     // Invoke code generation service of Qt Designer plugin.
@@ -224,7 +225,6 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
     if (!reader.fetch(fileName, QIODevice::Text, errorMessage))
         return false;
     QString contents = QString::fromUtf8(reader.data());
-
     contents.replace(QLatin1String("%QAPP_INCLUDE%"), QLatin1String("QApplication"));
     contents.replace(QLatin1String("%INCLUDE%"), params.headerFileName);
     contents.replace(QLatin1String("%CLASS%"), params.className);
@@ -236,6 +236,11 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
     else
         contents.replace(QLatin1String("%SHOWMETHOD%"), QString::fromLatin1(mainSourceShowC));
 
+    // Replace include guards with pragma once
+    if (CppTools::AbstractEditorSupport::usePragmaOnce()) {
+        contents.replace(QLatin1String("#ifndef %PRE_DEF%\n#define %PRE_DEF%"), "#pragma once");
+        contents.replace(QLatin1String("#endif // %PRE_DEF%\n"), QString());
+    }
 
     const QChar dot = QLatin1Char('.');
 

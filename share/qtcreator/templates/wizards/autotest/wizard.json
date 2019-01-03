@@ -37,6 +37,10 @@
           "value": "%{JS: 'tst_%{TestCaseName}.'.toLowerCase() + Util.preferredSuffix('text/x-c++hdr') }"
         },
         {
+          "key": "GUARD",
+          "value": "%{JS: '%{TestCaseFileWithHeaderSuffix}'.toUpperCase().replace('.', '_') }"
+        },
+        {
           "key": "TestCaseFileWithCppSuffix",
           "value": "%{JS: 'tst_%{TestCaseName}.'.toLowerCase() + Util.preferredSuffix('text/x-c++src') }"
         },

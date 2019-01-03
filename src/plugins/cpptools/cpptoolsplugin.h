@@ -65,6 +65,7 @@ public:
     static void clearHeaderSourceCache();
     static Utils::FileName licenseTemplatePath();
     static QString licenseTemplate();
+    static bool usePragmaOnce();
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final;

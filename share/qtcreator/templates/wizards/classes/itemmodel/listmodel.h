@@ -1,6 +1,10 @@
 %{Cpp:LicenseTemplate}\
+@if '%{Cpp:PragmaOnce}'
+#pragma once
+@else
 #ifndef %{GUARD}
 #define %{GUARD}
+@endif
 
 %{JS: QtSupport.qtIncludes([ 'QtCore/%{Base}' ], [ 'QtCore/%{Base}' ])}\
 %{JS: Cpp.openNamespaces('%{Class}')}\
@@ -47,4 +51,6 @@ public:
 private:
 };
 %{JS: Cpp.closeNamespaces('%{Class}')}
-#endif // %{GUARD}\
+@if ! '%{Cpp:PragmaOnce}'
+#endif // %{GUARD}
+@endif

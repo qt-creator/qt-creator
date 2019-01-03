@@ -1,5 +1,9 @@
+@if '%{Cpp:PragmaOnce}'
+#pragma once
+@else
 #ifndef @COLLECTION_INCLUDE_GUARD@
 #define @COLLECTION_INCLUDE_GUARD@
+@endif
 
 #include <QtDesigner>
 #include <qplugin.h>
@@ -19,4 +23,6 @@ private:
     QList<QDesignerCustomWidgetInterface*> m_widgets;
 };
 
-#endif
+@if ! '%{Cpp:PragmaOnce}'
+#endif // @COLLECTION_INCLUDE_GUARD@
+@endif

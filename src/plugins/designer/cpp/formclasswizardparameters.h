@@ -43,6 +43,7 @@ public:
     QString sourceFile;
     QString headerFile;
     QString uiFile;
+    bool usePragmaOnce = false;
 };
 } // namespace Designer
 

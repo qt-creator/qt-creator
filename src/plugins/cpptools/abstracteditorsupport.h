@@ -49,6 +49,7 @@ public:
     unsigned revision() const { return m_revision; }
 
     static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());
+    static bool usePragmaOnce();
 
 private:
     CppModelManager *m_modelmanager;

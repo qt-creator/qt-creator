@@ -140,6 +140,11 @@ QString CppToolsPlugin::licenseTemplate()
     return m_instance->m_fileSettings->licenseTemplate();
 }
 
+bool CppToolsPlugin::usePragmaOnce()
+{
+    return m_instance->m_fileSettings->headerPragmaOnce;
+}
+
 const QStringList &CppToolsPlugin::headerSearchPaths()
 {
     return m_instance->m_fileSettings->headerSearchPaths;
@@ -203,6 +208,11 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     expander->registerFileVariables("Cpp:LicenseTemplatePath",
                                     tr("The configured path to the license template"),
                                     []() { return CppToolsPlugin::licenseTemplatePath().toString(); });
+
+    expander->registerVariable(
+                "Cpp:PragmaOnce",
+                tr("Insert #pragma once instead of #ifndef include guards into header file"),
+                [] { return usePragmaOnce() ? QString("true") : QString(); });
 
     return true;
 }

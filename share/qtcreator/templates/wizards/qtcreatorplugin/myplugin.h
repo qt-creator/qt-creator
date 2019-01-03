@@ -1,4 +1,9 @@
+@if '%{Cpp:PragmaOnce}'
 #pragma once
+@else
+#ifndef %ProjectName:h%_H
+#define %ProjectName:h%_H
+@endif
 
 #include "%PluginName:l%_global.%CppHeaderSuffix%"
 
@@ -26,3 +31,7 @@ private:
 
 } // namespace Internal
 } // namespace %PluginName%
+
+@if ! '%{Cpp:PragmaOnce}'
+#endif // %ProjectName:h%_H
+@endif

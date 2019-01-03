@@ -30,6 +30,8 @@
 #include <cpptools/abstracteditorsupport.h>
 
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
+#include <utils/templateengine.h>
 
 #include <QFileInfo>
 #include <QDir>
@@ -311,7 +313,20 @@ QString PluginGenerator::processTemplate(const QString &tmpl,
     if (!reader.fetch(tmpl, errorMessage))
         return QString();
 
+
     QString cont = QString::fromUtf8(reader.data());
+
+    // Expander needed to handle extra variable "Cpp:PragmaOnce"
+    Utils::MacroExpander *expander = Utils::globalMacroExpander();
+    QString errMsg;
+    cont = Utils::TemplateEngine::processText(expander, cont, &errMsg);
+    if (!errMsg.isEmpty()) {
+        qWarning("Error processing custom plugin file: %s\nFile:\n%s",
+                 qPrintable(errMsg), qPrintable(cont));
+        errorMessage = &errMsg;
+        return QString();
+    }
+
     const QChar atChar = QLatin1Char('@');
     int offset = 0;
     for (;;) {
