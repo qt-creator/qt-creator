@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -92,7 +92,7 @@
     development PC and specify the device in a kit.
 
     To add devices, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol Devices > \uicontrol Add.
+    \uicontrol Devices > \uicontrol Devices > \uicontrol Add.
 
     For more information, see \l{Connecting Devices}.
 
