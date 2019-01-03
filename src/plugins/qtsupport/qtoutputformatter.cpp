@@ -61,7 +61,8 @@ public:
         , qtError(QLatin1String("Object::.*in (.*:\\d+)"))
         , qtAssert(QLatin1String("ASSERT: .* in file (.+, line \\d+)"))
         , qtAssertX(QLatin1String("ASSERT failure in .*: \".*\", file (.+, line \\d+)"))
-        , qtTestFail(QLatin1String("^   Loc: \\[(.*)\\]"))
+        , qtTestFailUnix(QLatin1String("^   Loc: \\[(.*)\\]"))
+        , qtTestFailWin(QLatin1String("^(.*\\(\\d+\\)) : failure location\\s*$"))
         , project(proj)
     {
     }
@@ -74,7 +75,8 @@ public:
     QRegExp qtError;
     QRegExp qtAssert;
     QRegExp qtAssertX;
-    QRegExp qtTestFail;
+    QRegExp qtTestFailUnix;
+    QRegExp qtTestFailWin;
     QPointer<Project> project;
     QString lastLine;
     FileInProjectFinder projectFinder;
@@ -122,9 +124,13 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
         lr.href = d->qtAssertX.cap(1);
         lr.start = d->qtAssertX.pos(1);
         lr.end = lr.start + lr.href.length();
-    } else if (d->qtTestFail.indexIn(line) != -1) {
-        lr.href = d->qtTestFail.cap(1);
-        lr.start = d->qtTestFail.pos(1);
+    } else if (d->qtTestFailUnix.indexIn(line) != -1) {
+        lr.href = d->qtTestFailUnix.cap(1);
+        lr.start = d->qtTestFailUnix.pos(1);
+        lr.end = lr.start + lr.href.length();
+    } else if (d->qtTestFailWin.indexIn(line) != -1) {
+        lr.href = d->qtTestFailWin.cap(1);
+        lr.start = d->qtTestFailWin.pos(1);
         lr.end = lr.start + lr.href.length();
     }
     return lr;
@@ -362,6 +368,21 @@ void QtSupportPlugin::testQtOutputFormatter_data()
             << QString::fromLatin1("file:///main.qml:20 Unexpected token `identifier'")
             << 0 << 19 << QString::fromLatin1("file:///main.qml:20")
             << QString::fromLatin1("/main.qml") << 20 << -1;
+
+    QTest::newRow("Unix failed QTest link")
+            << QString::fromLatin1("   Loc: [../TestProject/test.cpp(123)]")
+            << 9 << 37 << QString::fromLatin1("../TestProject/test.cpp(123)")
+            << QString::fromLatin1("../TestProject/test.cpp") << 123 << -1;
+
+    QTest::newRow("Windows failed QTest link")
+            << QString::fromLatin1("..\\TestProject\\test.cpp(123) : failure location")
+            << 0 << 28 << QString::fromLatin1("..\\TestProject\\test.cpp(123)")
+            << QString::fromLatin1("..\\TestProject\\test.cpp") << 123 << -1;
+
+    QTest::newRow("Windows failed QTest link with carriage return")
+            << QString::fromLatin1("..\\TestProject\\test.cpp(123) : failure location\r")
+            << 0 << 28 << QString::fromLatin1("..\\TestProject\\test.cpp(123)")
+            << QString::fromLatin1("..\\TestProject\\test.cpp") << 123 << -1;
 }
 
 void QtSupportPlugin::testQtOutputFormatter()
