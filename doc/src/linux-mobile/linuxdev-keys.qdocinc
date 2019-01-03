@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -24,6 +24,50 @@
 ****************************************************************************/
 
 /*!
+
+//! [configuring ssh]
+    \section2 Configuring SSH Connections
+
+    SSH connections are established via an OpenSSH client running in master
+    mode, if possible. Connection sharing is enabled by default to allow
+    sharing multiple sessions over a single SSH connection. This way, a
+    connection is only established once and then re-used by subsequent run
+    and deploy procedures, saving connection setup overhead particularly
+    with embedded devices. Because connection sharing is not supported on
+    Windows, a new SSH connection is created for each deploy or run procedure.
+
+    To create SSH connections, you must install the \l{https://www.openssh.com/}
+    {OpenSSH} suite, which includes the ssh, sftp, and ssh-keygen tools on the
+    development PC.
+
+    To tell \QC where it can find the tools, specify the paths to the
+    directories where the tools are installed in \uicontrol Tools >
+    \uicontrol Options > \uicontrol Devices > \uicontrol SSH:
+
+    \image qtcreator-ssh-options.png
+
+    \list
+        \li Deselect the \uicontrol {Enable connection sharing} check box to
+            create a new SSH connection for each deploy and run procedure. This
+            option is grayed on Windows, where connection sharing is not
+            supported.
+        \li In the \uicontrol {Connection sharing timeout} field, specify the
+            timeout for reusing the SSH connection in minutes.
+        \li In the \uicontrol {Path to ssh executable} field, enter the path
+            to the directory where the OpenSSH executable is installed.
+        \li In the \uicontrol {Path to sftp executable} field, enter the path
+            to the directory where the SFTP executable is installed.
+        \li In the \uicontrol {Path to ssh-askpass executable} field, enter the
+            path to the directory where the ssh-askpass executable is installed.
+            Usually, you can use the default path that points to the
+            implementation of the tool delivered with \QC, qtc-askpass.
+        \li In the \uicontrol {Path to ssh-keygen executable} field, enter the
+            path to the directory where the ssh-keygen executable is installed.
+    \endlist
+
+//! [configuring ssh]
+
+
 //! [generating ssh keys]
 
     \section2 Generating SSH Keys
@@ -39,7 +83,7 @@
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices
-            > \uicontrol {Create New}.
+            > \uicontrol Devices > \uicontrol {Create New}.
 
             \image qtcreator-ssh-key-configuration.png "SSH Key Configuration dialog"
 

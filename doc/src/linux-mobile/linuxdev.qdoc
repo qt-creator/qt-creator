@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -50,13 +50,21 @@
     add devices and select them in the \QC \l{glossary-buildandrun-kit}{kit}.
 
     You use a wizard to create the connections. You can edit the settings later
-    in \uicontrol Tools > \uicontrol Options > \uicontrol Devices.
+    in \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+    \uicontrol Devices.
 
     \image qtcreator-linux-device-configurations.png "Devices dialog"
 
-    You can protect the connections between \QC and a device by using
-    either a password or an SSH key. If you do not have an SSH key, you can
-    create it in \QC. For more information, see \l {Generating SSH Keys}.
+    You can protect the connections between \QC and a device by using an
+    \l{https://www.openssh.com/}{OpenSSH} connection. OpenSSH is a
+    connectivity tool for remote login using the SSH protocol. The OpenSSH
+    suite is not delivered with \QC, so you must download it and install it
+    on the development PC. Then, you must configure the paths to the tools in
+    \QC. For more information, see \l {Configuring SSH Connections}.
+
+    You need either a password or an SSH public and private key pair for
+    authentication. If you do not have an SSH key, you can use the ssh-keygen
+    tool to create it in \QC. For more information, see \l {Generating SSH Keys}.
 
     To configure connections between \QC and an embedded Linux device and to
     specify build and run settings for the device:
@@ -78,8 +86,9 @@
 
             \list 1
 
-                \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices
-                    > \uicontrol Add > \uicontrol {Generic Linux Device}
+                \li Select \uicontrol Tools > \uicontrol Options >
+                    \uicontrol Devices > \uicontrol Devices > \uicontrol Add >
+                    \uicontrol {Generic Linux Device}
                     > \uicontrol {Start Wizard}.
 
                     \image qtcreator-screenshot-devconf-linux.png "Connection Data wizard"
@@ -96,11 +105,12 @@
                     application as.
                     This value will be available in the variable \c %{Device:UserName}.
 
-                \li In the \uicontrol {The authentication type} field, select whether
-                    to use \uicontrol Password or \uicontrol Key authentication, and enter
-                    the user's password or the file that contains the user's
-                    private key.
-                    The latter will be available in the variable \c %{Device:PrivateKeyFile}.
+                \li In the \uicontrol {The authentication type} field, select
+                    \uicontrol Default to use the currently displayed private
+                    key file for authentication. Select \uicontrol {Specific Key}
+                    to use some other key, and enter the path to the file that
+                    contains the private key in the field below. This value will
+                    be available in the variable \c %{Device:PrivateKeyFile}.
 
                 \li  Click \uicontrol {Next} to create the connection.
 
@@ -137,6 +147,7 @@
 
     \endlist
 
+    \include linux-mobile/linuxdev-keys.qdocinc configuring ssh
     \include linux-mobile/linuxdev-keys.qdocinc generating ssh keys
     \include linux-mobile/linuxdev-processes.qdocinc managing device processes
 */

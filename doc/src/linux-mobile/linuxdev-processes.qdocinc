@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -30,10 +30,10 @@
 
     You can view processes running on devices and kill them. Select
     \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
-    \uicontrol {Remote Processes}.
+    \uicontrol Devices > \uicontrol {Show Running Processes}.
 
-    You can filter the processes by name in the \uicontrol {List of Processes}
-    dialog.
+    You can filter the processes by name or ID in the
+    \uicontrol {List of Processes} dialog.
 
     To update the process list, select \uicontrol {Update List}.
 
