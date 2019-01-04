@@ -115,6 +115,8 @@ Project {
             "cppincludesfilter.h",
             "cppindexingsupport.cpp",
             "cppindexingsupport.h",
+            "cppkitinfo.cpp",
+            "cppkitinfo.h",
             "cpplocalsymbols.cpp",
             "cpplocalsymbols.h",
             "cpplocatordata.cpp",

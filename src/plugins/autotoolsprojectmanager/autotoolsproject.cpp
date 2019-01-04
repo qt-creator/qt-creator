@@ -49,6 +49,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -256,37 +257,19 @@ static QStringList filterIncludes(const QString &absSrc, const QString &absBuild
 
 void AutotoolsProject::updateCppCodeModel()
 {
-    const Kit *k = nullptr;
-    if (Target *target = activeTarget())
-        k = target->kit();
-    else
-        k = KitManager::defaultKit();
-    QTC_ASSERT(k, return);
-
-    ToolChain *cToolChain
-            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
-    ToolChain *cxxToolChain
-            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    QtSupport::CppKitInfo kitInfo(this);
+    QTC_ASSERT(kitInfo.isValid(), return);
 
     CppTools::RawProjectPart rpp;
     rpp.setDisplayName(displayName());
     rpp.setProjectFileLocation(projectFilePath().toString());
-
-    CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
-    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
-        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            activeQtVersion = CppTools::ProjectPart::Qt4;
-        else
-            activeQtVersion = CppTools::ProjectPart::Qt5;
-    }
-
-    rpp.setQtVersion(activeQtVersion);
+    rpp.setQtVersion(kitInfo.projectPartQtVersion);
     const QStringList cflags = m_makefileParserThread->cflags();
     QStringList cxxflags = m_makefileParserThread->cxxflags();
     if (cxxflags.isEmpty())
         cxxflags = cflags;
-    rpp.setFlagsForC({cToolChain, cflags});
-    rpp.setFlagsForCxx({cxxToolChain, cxxflags});
+    rpp.setFlagsForC({kitInfo.cToolChain, cflags});
+    rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxflags});
 
     const QString absSrc = projectDirectory().toString();
     const Target *target = activeTarget();
@@ -297,5 +280,6 @@ void AutotoolsProject::updateCppCodeModel()
     rpp.setMacros(m_makefileParserThread->macros());
     rpp.setFiles(m_files);
 
-    m_cppCodeModelUpdater->update({this, cToolChain, cxxToolChain, k, {rpp}});
+    m_cppCodeModelUpdater->update(
+        {this, kitInfo.cToolChain, kitInfo.cxxToolChain, kitInfo.kit, {rpp}});
 }

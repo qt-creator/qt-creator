@@ -57,6 +57,7 @@
 #include <projectexplorer/toolchain.h>
 #include <proparser/qmakevfs.h>
 #include <qtsupport/profilereader.h>
+#include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <cpptools/generatedcodemodelsupport.h>
@@ -260,32 +261,12 @@ void QmakeProject::updateCppCodeModel()
 
     m_toolChainWarnings.clear();
 
-    const Kit *k = nullptr;
-    if (Target *target = activeTarget())
-        k = target->kit();
-    else
-        k = KitManager::defaultKit();
-    QTC_ASSERT(k, return);
-
-    ToolChain *cToolChain
-            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
-    ToolChain *cxxToolChain
-            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-    ProjectPart::QtVersion qtVersionForPart = ProjectPart::NoQt;
-    if (qtVersion) {
-        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            qtVersionForPart = ProjectPart::Qt4;
-        else
-            qtVersionForPart = ProjectPart::Qt5;
-    }
-
-    const QList<QmakeProFile *> proFiles = rootProFile()->allProFiles();
+    QtSupport::CppKitInfo kitInfo(this);
+    QTC_ASSERT(kitInfo.isValid(), return);
 
     QList<ProjectExplorer::ExtraCompiler *> generators;
     CppTools::RawProjectParts rpps;
-    for (const QmakeProFile *pro : proFiles) {
+    for (const QmakeProFile *pro : rootProFile()->allProFiles()) {
         warnOnToolChainMismatch(pro);
 
         CppTools::RawProjectPart rpp;
@@ -296,15 +277,15 @@ void QmakeProject::updateCppCodeModel()
         rpp.setBuildTargetType(isExecutable ? CppTools::ProjectPart::Executable
                                             : CppTools::ProjectPart::Library);
 
-        rpp.setFlagsForCxx({cxxToolChain, pro->variableValue(Variable::CppFlags)});
-        rpp.setFlagsForC({cToolChain, pro->variableValue(Variable::CFlags)});
+        rpp.setFlagsForCxx({kitInfo.cxxToolChain, pro->variableValue(Variable::CppFlags)});
+        rpp.setFlagsForC({kitInfo.cToolChain, pro->variableValue(Variable::CFlags)});
         rpp.setMacros(ProjectExplorer::Macro::toMacros(pro->cxxDefines()));
         rpp.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
         rpp.setSelectedForBuilding(pro->includedInExactParse());
 
         // Qt Version
         if (pro->variableValue(Variable::Config).contains(QLatin1String("qt")))
-            rpp.setQtVersion(qtVersionForPart);
+            rpp.setQtVersion(kitInfo.projectPartQtVersion);
         else
             rpp.setQtVersion(ProjectPart::NoQt);
 
@@ -316,9 +297,8 @@ void QmakeProject::updateCppCodeModel()
                 headerPaths += headerPath;
         }
 
-        if (qtVersion && !qtVersion->frameworkInstallPath().isEmpty()) {
-            headerPaths += {qtVersion->frameworkInstallPath(), HeaderPathType::Framework};
-        }
+        if (kitInfo.qtVersion && !kitInfo.qtVersion->frameworkInstallPath().isEmpty())
+            headerPaths += {kitInfo.qtVersion->frameworkInstallPath(), HeaderPathType::Framework};
         rpp.setHeaderPaths(headerPaths);
 
         // Files and generators
@@ -343,7 +323,8 @@ void QmakeProject::updateCppCodeModel()
     }
 
     CppTools::GeneratedCodeModelSupport::update(generators);
-    m_cppCodeModelUpdater->update({this, cToolChain, cxxToolChain, k, rpps});
+    m_cppCodeModelUpdater->update(
+        {this, kitInfo.cToolChain, kitInfo.cxxToolChain, kitInfo.kit, rpps});
 }
 
 void QmakeProject::updateQmlJSCodeModel()

@@ -63,6 +63,8 @@ Project {
             "codegensettingspagewidget.ui",
             "qtconfigwidget.cpp",
             "qtconfigwidget.h",
+            "qtcppkitinfo.cpp",
+            "qtcppkitinfo.h",
             "qtprojectimporter.cpp",
             "qtprojectimporter.h",
             "qtsupport.qrc",

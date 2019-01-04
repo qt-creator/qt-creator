@@ -51,6 +51,7 @@
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
@@ -426,37 +427,19 @@ QStringList GenericProject::processEntries(const QStringList &paths,
 
 void GenericProject::refreshCppCodeModel()
 {
-    const Kit *k = nullptr;
-    if (Target *target = activeTarget())
-        k = target->kit();
-    else
-        k = KitManager::defaultKit();
-    QTC_ASSERT(k, return);
-
-    ToolChain *cToolChain
-            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
-    ToolChain *cxxToolChain
-            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-
-    CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
-    if (QtSupport::BaseQtVersion *qtVersion =
-            QtSupport::QtKitInformation::qtVersion(activeTarget()->kit())) {
-        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            activeQtVersion = CppTools::ProjectPart::Qt4;
-        else
-            activeQtVersion = CppTools::ProjectPart::Qt5;
-    }
+    QtSupport::CppKitInfo kitInfo(this);
+    QTC_ASSERT(kitInfo.isValid(), return);
 
     CppTools::RawProjectPart rpp;
     rpp.setDisplayName(displayName());
     rpp.setProjectFileLocation(projectFilePath().toString());
-    rpp.setQtVersion(activeQtVersion);
+    rpp.setQtVersion(kitInfo.projectPartQtVersion);
     rpp.setIncludePaths(m_projectIncludePaths);
     rpp.setConfigFileName(m_configFileName);
     rpp.setFiles(m_files);
 
-    const CppTools::ProjectUpdateInfo projectInfoUpdate(this, cToolChain, cxxToolChain, k, {rpp});
-    m_cppCodeModelUpdater->update(projectInfoUpdate);
+    m_cppCodeModelUpdater->update(
+        {this, kitInfo.cToolChain, kitInfo.cxxToolChain, kitInfo.kit, {rpp}});
 }
 
 void GenericProject::updateDeploymentData()

@@ -46,6 +46,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -264,9 +265,6 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     QTC_ASSERT(bc == aBc, return);
     QTC_ASSERT(m_treeScanner.isFinished() && !m_buildDirManager.isParsing(), return);
 
-    Target *t = bc->target();
-    Kit *k = t->kit();
-
     bc->setBuildTargets(m_buildDirManager.takeBuildTargets());
     bc->setConfigurationFromCMake(m_buildDirManager.takeCMakeConfiguration());
 
@@ -276,6 +274,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
         setRootProjectNode(std::move(newRoot));
     }
 
+    Target *t = bc->target();
     t->setApplicationTargets(bc->appTargets());
     t->setDeploymentData(bc->deploymentData());
 
@@ -283,30 +282,22 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     createGeneratedCodeModelSupport();
 
-    ToolChain *tcC = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
-    ToolChain *tcCxx = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-
-    CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
-    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
-        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            activeQtVersion = CppTools::ProjectPart::Qt4;
-        else
-            activeQtVersion = CppTools::ProjectPart::Qt5;
-    }
+    QtSupport::CppKitInfo kitInfo(this);
+    QTC_ASSERT(kitInfo.isValid(), return);
 
     CppTools::RawProjectParts rpps;
     m_buildDirManager.updateCodeModel(rpps);
 
     for (CppTools::RawProjectPart &rpp : rpps) {
-        // TODO: Set the Qt version only if target actually depends on Qt.
-        rpp.setQtVersion(activeQtVersion);
-        if (tcCxx)
-            rpp.setFlagsForCxx({tcCxx, rpp.flagsForCxx.commandLineFlags});
-        if (tcC)
-            rpp.setFlagsForC({tcC, rpp.flagsForC.commandLineFlags});
+        rpp.setQtVersion(kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
+        if (kitInfo.cxxToolChain)
+            rpp.setFlagsForCxx({kitInfo.cxxToolChain, rpp.flagsForCxx.commandLineFlags});
+        if (kitInfo.cToolChain)
+            rpp.setFlagsForC({kitInfo.cToolChain, rpp.flagsForC.commandLineFlags});
     }
 
-    m_cppCodeModelUpdater->update({this, tcC, tcCxx, k, rpps});
+    m_cppCodeModelUpdater->update(
+        {this, kitInfo.cToolChain, kitInfo.cxxToolChain, kitInfo.kit, rpps});
 
     updateQmlJSCodeModel();
 

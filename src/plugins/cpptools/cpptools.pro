@@ -102,7 +102,8 @@ HEADERS += \
     cpptools_clangtidychecks.h \
     cppmodelmanagerinterface.h \
     cppbuiltinmodelmanagersupport.h \
-    headerpathfilter.h
+    headerpathfilter.h \
+    cppkitinfo.h
 
 SOURCES += \
     abstracteditorsupport.cpp \
@@ -189,7 +190,8 @@ SOURCES += \
     cppprojectpartchooser.cpp \
     wrappablelineedit.cpp \
     cppbuiltinmodelmanagersupport.cpp \
-    headerpathfilter.cpp
+    headerpathfilter.cpp \
+    cppkitinfo.cpp
 
 FORMS += \
     clangdiagnosticconfigswidget.ui \

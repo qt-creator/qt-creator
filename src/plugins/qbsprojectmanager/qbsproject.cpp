@@ -59,6 +59,7 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/headerpath.h>
+#include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
 #include <cpptools/generatedcodemodelsupport.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -894,29 +895,6 @@ void QbsProject::updateCppCodeModel()
     if (!m_projectData.isValid())
         return;
 
-    const Kit *k = nullptr;
-    if (Target *target = activeTarget())
-        k = target->kit();
-    else
-        k = KitManager::defaultKit();
-    QTC_ASSERT(k, return);
-
-    ToolChain *cToolChain
-            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
-    ToolChain *cxxToolChain
-            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-
-    QtSupport::BaseQtVersion *qtVersion =
-            QtSupport::QtKitInformation::qtVersion(activeTarget()->kit());
-
-    CppTools::ProjectPart::QtVersion qtVersionFromKit = CppTools::ProjectPart::NoQt;
-    if (qtVersion) {
-        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            qtVersionFromKit = CppTools::ProjectPart::Qt4;
-        else
-            qtVersionFromKit = CppTools::ProjectPart::Qt5;
-    }
-
     QList<ProjectExplorer::ExtraCompilerFactory *> factories =
             ProjectExplorer::ExtraCompilerFactory::extraCompilerFactories();
     const auto factoriesBegin = factories.constBegin();
@@ -924,6 +902,9 @@ void QbsProject::updateCppCodeModel()
 
     qDeleteAll(m_extraCompilers);
     m_extraCompilers.clear();
+
+    QtSupport::CppKitInfo kitInfo(this);
+    QTC_ASSERT(kitInfo.isValid(), return);
 
     CppTools::RawProjectParts rpps;
     foreach (const qbs::ProductData &prd, m_projectData.allProducts()) {
@@ -951,7 +932,7 @@ void QbsProject::updateCppCodeModel()
 
         const CppTools::ProjectPart::QtVersion qtVersionForPart =
                  prd.moduleProperties().getModuleProperty("Qt.core", "version").isValid()
-                    ? qtVersionFromKit
+                    ? kitInfo.projectPartQtVersion
                     : CppTools::ProjectPart::NoQt;
 
         foreach (const qbs::GroupData &grp, prd.groups()) {
@@ -963,8 +944,8 @@ void QbsProject::updateCppCodeModel()
             QStringList cFlags;
             QStringList cxxFlags;
             getExpandedCompilerFlags(cFlags, cxxFlags, props);
-            rpp.setFlagsForC({cToolChain, cFlags});
-            rpp.setFlagsForCxx({cxxToolChain, cxxFlags});
+            rpp.setFlagsForC({kitInfo.cToolChain, cFlags});
+            rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxFlags});
 
             QStringList list = props.getModulePropertiesAsStringList(
                         QLatin1String(CONFIG_CPP_MODULE),
@@ -1071,7 +1052,8 @@ void QbsProject::updateCppCodeModel()
     }
 
     CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
-    m_cppCodeModelUpdater->update({this, cToolChain, cxxToolChain, k, rpps});
+    m_cppCodeModelUpdater->update(
+        {this, kitInfo.cToolChain, kitInfo.cxxToolChain, kitInfo.kit, rpps});
 }
 
 void QbsProject::updateQmlJsCodeModel()
