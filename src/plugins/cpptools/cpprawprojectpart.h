@@ -57,7 +57,7 @@ public:
     void setDisplayName(const QString &displayName);
 
     // FileClassifier must be thread-safe.
-    using FileClassifier = std::function<ProjectFile::Kind (const QString &filePath)>;
+    using FileClassifier = std::function<ProjectFile(const QString &filePath)>;
     void setFiles(const QStringList &files, FileClassifier fileClassifier = FileClassifier());
 
     void setProjectFileLocation(const QString &projectFile, int line = -1, int column = -1);

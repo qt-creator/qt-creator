@@ -1061,7 +1061,8 @@ void QbsProject::updateCppCodeModel()
             rpp.setPreCompiledHeaders(pchFiles.toList());
             rpp.setFiles(grp.allFilePaths(), [filePathToSourceArtifact](const QString &filePath) {
                 // Keep this lambda thread-safe!
-                return cppFileType(filePathToSourceArtifact.value(filePath));
+                return CppTools::ProjectFile(filePath,
+                                             cppFileType(filePathToSourceArtifact.value(filePath)));
             });
 
             rpps.append(rpp);

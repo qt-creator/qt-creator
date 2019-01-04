@@ -322,7 +322,8 @@ void QmakeProject::updateCppCodeModel()
         rpp.setHeaderPaths(headerPaths);
 
         // Files and generators
-        QStringList fileList = pro->variableValue(Variable::Source);
+        const QStringList cumulativeSourceFiles = pro->variableValue(Variable::CumulativeSource);
+        QStringList fileList = pro->variableValue(Variable::ExactSource) + cumulativeSourceFiles;
         QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
         foreach (ProjectExplorer::ExtraCompiler *ec, proGenerators) {
             ec->forEachTarget([&](const Utils::FileName &generatedFile) {
@@ -331,7 +332,12 @@ void QmakeProject::updateCppCodeModel()
         }
         generators.append(proGenerators);
         fileList.prepend(CppTools::CppModelManager::configurationFileName());
-        rpp.setFiles(fileList);
+        rpp.setFiles(fileList, [cumulativeSourceFiles](const QString &filePath) {
+            // Keep this lambda thread-safe!
+            return CppTools::ProjectFile(filePath,
+                                         CppTools::ProjectFile::classify(filePath),
+                                         !cumulativeSourceFiles.contains(filePath));
+        });
 
         rpps.append(rpp);
     }

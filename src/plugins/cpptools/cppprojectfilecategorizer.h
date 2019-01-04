@@ -59,8 +59,8 @@ public:
     QString partName(const QString &languageName) const;
 
 private:
-    QStringList classifyFiles(const QStringList &filePaths, FileClassifier fileClassifier);
-    void expandSourcesWithAmbiguousHeaders(const QStringList &ambiguousHeaders);
+    ProjectFiles classifyFiles(const QStringList &filePaths, FileClassifier fileClassifier);
+    void expandSourcesWithAmbiguousHeaders(const ProjectFiles &ambiguousHeaders);
 
 private:
     QString m_partName;

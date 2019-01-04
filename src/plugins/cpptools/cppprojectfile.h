@@ -61,12 +61,13 @@ public:
 
 public:
     ProjectFile() = default;
-    ProjectFile(const QString &filePath, Kind kind);
+    ProjectFile(const QString &filePath, Kind kind, bool active = true);
 
     bool operator==(const ProjectFile &other) const;
 
     QString path;
     Kind kind = Unclassified;
+    bool active = true;
 };
 
 using ProjectFiles = QVector<ProjectFile>;

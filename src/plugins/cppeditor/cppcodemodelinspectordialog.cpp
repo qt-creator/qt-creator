@@ -262,6 +262,11 @@ QVariant ProjectFilesModel::data(const QModelIndex &index, int role) const
         } else if (column == FilePathColumn) {
             return m_files.at(row).path;
         }
+    } else if (role == Qt::ForegroundRole) {
+        if (!m_files.at(index.row()).active) {
+            return QApplication::palette().color(QPalette::ColorGroup::Disabled,
+                                                 QPalette::ColorRole::Text);
+        }
     }
     return QVariant();
 }

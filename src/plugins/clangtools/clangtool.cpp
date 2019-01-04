@@ -77,8 +77,10 @@ static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::Ptr> &proj
             if (file.path == CppTools::CppModelManager::configurationFileName())
                 continue;
 
-            if (CppTools::ProjectFile::isSource(file.kind)) {
-                fileInfos.emplace_back(Utils::FileName::fromString(file.path), file.kind, projectPart);
+            if (file.active && CppTools::ProjectFile::isSource(file.kind)) {
+                fileInfos.emplace_back(Utils::FileName::fromString(file.path),
+                                       file.kind,
+                                       projectPart);
             }
         }
     }

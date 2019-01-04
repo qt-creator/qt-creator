@@ -1400,12 +1400,13 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
                                                             input.buildDirectory, input.projectDir);
         result->newVarValues[Variable::CppFlags] = exactReader->values(QLatin1String("QMAKE_CXXFLAGS"));
         result->newVarValues[Variable::CFlags] = exactReader->values(QLatin1String("QMAKE_CFLAGS"));
-        result->newVarValues[Variable::Source] =
+        result->newVarValues[Variable::ExactSource] =
                 fileListForVar(exactSourceFiles, QLatin1String("SOURCES")) +
-                fileListForVar(cumulativeSourceFiles, QLatin1String("SOURCES")) +
                 fileListForVar(exactSourceFiles, QLatin1String("HEADERS")) +
+                fileListForVar(exactSourceFiles, QLatin1String("OBJECTIVE_HEADERS"));
+        result->newVarValues[Variable::CumulativeSource] =
+                fileListForVar(cumulativeSourceFiles, QLatin1String("SOURCES")) +
                 fileListForVar(cumulativeSourceFiles, QLatin1String("HEADERS")) +
-                fileListForVar(exactSourceFiles, QLatin1String("OBJECTIVE_HEADERS")) +
                 fileListForVar(cumulativeSourceFiles, QLatin1String("OBJECTIVE_HEADERS"));
         result->newVarValues[Variable::UiDir] = QStringList() << uiDirPath(exactReader, input.buildDirectory);
         result->newVarValues[Variable::HeaderExtension] = QStringList() << exactReader->value(QLatin1String("QMAKE_EXT_H"));

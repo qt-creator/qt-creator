@@ -33,16 +33,18 @@
 
 namespace CppTools {
 
-ProjectFile::ProjectFile(const QString &filePath, Kind kind)
+ProjectFile::ProjectFile(const QString &filePath, Kind kind, bool active)
     : path(filePath)
     , kind(kind)
+    , active(active)
 {
 }
 
 bool ProjectFile::operator==(const ProjectFile &other) const
 {
-    return path == other.path
-        && kind == other.kind;
+    return active == other.active
+        && kind == other.kind
+        && path == other.path;
 }
 
 ProjectFile::Kind ProjectFile::classify(const QString &filePath)

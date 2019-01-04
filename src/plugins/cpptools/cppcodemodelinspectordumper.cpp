@@ -515,8 +515,10 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
             if (!part->files.isEmpty()) {
                 m_out << i3 << "Files:{{{4\n";
                 foreach (const ProjectFile &projectFile, part->files) {
-                    m_out << i4 << Utils::toString(projectFile.kind) << ": " << projectFile.path
-                          << "\n";
+                    m_out << i4 << Utils::toString(projectFile.kind) << ": " << projectFile.path;
+                    if (!projectFile.active)
+                        m_out << " (inactive)";
+                    m_out << "\n";
                 }
             }
 
