@@ -1555,7 +1555,8 @@ void SimpleTargetRunner::start()
     const QString displayName = isDesktop
             ? QDir::toNativeSeparators(rawDisplayName)
             : rawDisplayName;
-    const QString msg = RunControl::tr("Starting %1...").arg(displayName);
+    const QString msg = RunControl::tr("Starting %1 %2...")
+            .arg(displayName).arg(m_runnable.commandLineArguments);
     appendMessage(msg, Utils::NormalMessageFormat);
 
     if (isDesktop) {
