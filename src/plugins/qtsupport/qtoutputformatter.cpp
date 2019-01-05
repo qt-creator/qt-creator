@@ -65,6 +65,7 @@ public:
         , qtTestFailWin(QLatin1String("^(.*\\(\\d+\\)) : failure location\\s*$"))
         , project(proj)
     {
+        qmlError.setMinimal(true);
     }
 
     ~QtOutputFormatterPrivate()
@@ -368,6 +369,19 @@ void QtSupportPlugin::testQtOutputFormatter_data()
             << QString::fromLatin1("file:///main.qml:20 Unexpected token `identifier'")
             << 0 << 19 << QString::fromLatin1("file:///main.qml:20")
             << QString::fromLatin1("/main.qml") << 20 << -1;
+
+    QTest::newRow("Unix file link with timestamp")
+            << QString::fromLatin1("file:///home/user/main.cpp:157 2018-03-21 10:54:45.706")
+            << 0 << 30 << QString::fromLatin1("file:///home/user/main.cpp:157")
+            << QString::fromLatin1("/home/user/main.cpp") << 157 << -1;
+
+    QTest::newRow("Windows file link with timestamp")
+            << QString::fromLatin1("file:///e:/path/main.cpp:157 2018-03-21 10:54:45.706")
+            << 0 << 28 << QString::fromLatin1("file:///e:/path/main.cpp:157")
+            << (Utils::HostOsInfo::isWindowsHost()
+                ? QString::fromLatin1("e:/path/main.cpp")
+                : QString::fromLatin1("/e:/path/main.cpp"))
+            << 157 << -1;
 
     QTest::newRow("Unix failed QTest link")
             << QString::fromLatin1("   Loc: [../TestProject/test.cpp(123)]")
