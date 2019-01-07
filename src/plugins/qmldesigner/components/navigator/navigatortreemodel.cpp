@@ -600,7 +600,7 @@ bool NavigatorTreeModel::setData(const QModelIndex &index, const QVariant &value
 void NavigatorTreeModel::notifyDataChanged(const ModelNode &modelNode)
 {
     const QModelIndex index = indexForModelNode(modelNode);
-    dataChanged(index, index);
+    dataChanged(index, index.siblingAtColumn(2));
 }
 
 static QList<ModelNode> collectParents(const QList<ModelNode> &modelNodes)
