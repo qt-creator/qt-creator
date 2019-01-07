@@ -38,7 +38,9 @@
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QVersionNumber)
 
-namespace Utils { class PathChooser; }
+namespace Utils {
+class PathChooser;
+}
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -51,20 +53,14 @@ class MsvcToolChain : public ToolChain
 {
 public:
     enum Type { WindowsSDK, VS };
-    enum Platform { x86,
-                    amd64,
-                    x86_amd64,
-                    ia64,
-                    x86_ia64,
-                    arm,
-                    x86_arm,
-                    amd64_arm,
-                    amd64_x86
-                  };
+    enum Platform { x86, amd64, x86_amd64, ia64, x86_ia64, arm, x86_arm, amd64_arm, amd64_x86 };
 
-    explicit MsvcToolChain(const QString &name, const Abi &abi,
-                           const QString &varsBat, const QString &varsBatArg,
-                           Core::Id l, Detection d = ManualDetection);
+    explicit MsvcToolChain(const QString &name,
+                           const Abi &abi,
+                           const QString &varsBat,
+                           const QString &varsBatArg,
+                           Core::Id l,
+                           Detection d = ManualDetection);
     MsvcToolChain(const MsvcToolChain &other);
     MsvcToolChain();
     ~MsvcToolChain() override;
@@ -104,14 +100,13 @@ public:
     QString varsBat() const { return m_vcvarsBat; }
     void setVarsBatArg(const QString &varsBA) { m_varsBatArg = varsBA; }
 
-    bool operator == (const ToolChain &) const override;
+    bool operator==(const ToolChain &) const override;
 
     static void cancelMsvcToolChainDetection();
     static Utils::optional<QString> generateEnvironmentSettings(const Utils::Environment &env,
                                                                 const QString &batchFile,
                                                                 const QString &batchArgs,
                                                                 QMap<QString, QString> &envPairs);
-
 
 protected:
     class WarningFlagAdder
@@ -120,22 +115,27 @@ protected:
         WarningFlags &m_flags;
         bool m_doesEnable = false;
         bool m_triggered = false;
+
     public:
         WarningFlagAdder(const QString &flag, WarningFlags &flags);
-        void operator ()(int warningCode, WarningFlags flagsSet);
+        void operator()(int warningCode, WarningFlags flagsSet);
 
         bool triggered() const;
     };
 
-    explicit MsvcToolChain(Core::Id typeId, const QString &name, const Abi &abi,
-                           const QString &varsBat, const QString &varsBatArg,
-                           Core::Id l, Detection d);
+    explicit MsvcToolChain(Core::Id typeId,
+                           const QString &name,
+                           const Abi &abi,
+                           const QString &varsBat,
+                           const QString &varsBatArg,
+                           Core::Id l,
+                           Detection d);
     explicit MsvcToolChain(Core::Id typeId);
 
     static void inferWarningsForLevel(int warningLevel, WarningFlags &flags);
     void toolChainUpdated() override;
 
-    Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const;
+    Utils::Environment readEnvironmentSetting(const Utils::Environment &env) const;
     // Function must be thread-safe!
     virtual Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                         const Utils::Environment &env) const;
@@ -149,7 +149,8 @@ protected:
         QList<Utils::EnvironmentItem> environmentItems;
     };
     static void environmentModifications(QFutureInterface<GenerateEnvResult> &future,
-                                         QString vcvarsBat, QString varsBatArg);
+                                         QString vcvarsBat,
+                                         QString varsBatArg);
     void initEnvModWatcher(const QFuture<GenerateEnvResult> &future);
 
 private:
@@ -177,9 +178,7 @@ protected:
 class ClangClToolChain : public MsvcToolChain
 {
 public:
-    ClangClToolChain(const QString &name, const QString &llvmDir,
-                     Core::Id language,
-                     Detection d);
+    ClangClToolChain(const QString &name, const QString &llvmDir, Core::Id language, Detection d);
     ClangClToolChain();
 
     bool isValid() const override;
@@ -204,7 +203,8 @@ public:
                                         const Core::Id &language,
                                         const Macros &macros) const override;
 
-    bool operator ==(const ToolChain &) const override;
+    bool operator==(const ToolChain &) const override;
+
 private:
     QString m_clangPath;
 };
@@ -226,7 +226,8 @@ public:
     bool canRestore(const QVariantMap &data) override;
     ToolChain *restore(const QVariantMap &data) override;
 
-    static QString vcVarsBatFor(const QString &basePath, MsvcToolChain::Platform platform,
+    static QString vcVarsBatFor(const QString &basePath,
+                                MsvcToolChain::Platform platform,
                                 const QVersionNumber &v);
 };
 
@@ -246,7 +247,6 @@ public:
     ToolChain *create(Core::Id l) override;
 };
 
-
 // --------------------------------------------------------------------------
 // MsvcBasedToolChainConfigWidget
 // --------------------------------------------------------------------------
@@ -259,10 +259,10 @@ public:
     explicit MsvcBasedToolChainConfigWidget(ToolChain *);
 
 protected:
-    void applyImpl() override { }
+    void applyImpl() override {}
     void discardImpl() override { setFromMsvcToolChain(); }
     bool isDirtyImpl() const override { return false; }
-    void makeReadOnlyImpl() override { }
+    void makeReadOnlyImpl() override {}
 
     void setFromMsvcToolChain();
 
