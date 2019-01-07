@@ -107,7 +107,7 @@ static QString testClass(const CppTools::CppModelManager *modelManager,
         if (!macro.isFunctionLike())
             continue;
         const QByteArray name = macro.macro().name();
-        if (QTestUtils::isQTestMacro(name)) {
+        if (QTestUtils::isQTestMacro(name) && !macro.arguments().isEmpty()) {
             const CPlusPlus::Document::Block arg = macro.arguments().at(0);
             return QLatin1String(fileContent.mid(int(arg.bytesBegin()),
                                                  int(arg.bytesEnd() - arg.bytesBegin())));

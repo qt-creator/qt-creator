@@ -186,9 +186,10 @@ void AndroidDebugSupport::start()
         gdbServer.setPort(m_runner->gdbServerPort().number());
         setRemoteChannel(gdbServer);
 
+        int sdkVersion = qMax(AndroidManager::minimumSDK(target), AndroidManager::minimumNDK(target));
         Utils::FileName sysRoot = AndroidConfigurations::currentConfig().ndkLocation()
                 .appendPath("platforms")
-                .appendPath(QString("android-%1").arg(AndroidManager::minimumSDK(target)))
+                .appendPath(QString("android-%1").arg(sdkVersion))
                 .appendPath(toNdkArch(AndroidManager::targetArch(target)));
         setSysRoot(sysRoot);
         qCDebug(androidDebugSupportLog) << "Sysroot: " << sysRoot;

@@ -619,6 +619,11 @@
     Double-click on entries in the \uicontrol {Debugger Perspectives} view to
     switch between snapshots. The debugger views are updated to reflect the state
     of the program at time of taking the snapshot.
+
+    \note Creating snapshots involves creating core files of the debugged process,
+    requiring significant amount of disk space. For details, see
+    \l{https://sourceware.org/gdb/onlinedocs/gdb/Core-File-Generation.html}.
+
     \endomit
 */
 

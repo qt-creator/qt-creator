@@ -5383,6 +5383,23 @@ void tst_Dumpers::dumper_data()
                + Check("s32s", "-2147483648", TypeDef("int", "@qint32"));
 
 
+    QTest::newRow("Int128")
+            << Data("#include <limits.h>\n",
+                    "using typedef_s128 = __int128_t;\n"
+                    "using typedef_u128 = __uint128_t;\n"
+                    "__int128_t s128 = 12;\n"
+                    "__uint128_t u128 = 12;\n"
+                    "typedef_s128 ts128 = 12;\n"
+                    "typedef_u128 tu128 = 12;\n"
+                    "unused(&u128, &s128, &tu128, &ts128);\n")
+                // Sic! The expected type is what gcc 8.2.0 records.
+               + GdbEngine
+               + Check("s128", "12", "__int128")
+               + Check("u128", "12", "__int128 unsigned")
+               + Check("ts128", "12", "typedef_s128")
+               + Check("tu128", "12", "typedef_u128") ;
+
+
     QTest::newRow("Float")
             << Data("#include <QFloat16>\n",
                     "qfloat16 f1 = 45.3f; unused(&f1);\n"
@@ -5441,10 +5458,10 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("Array")
             << Data("",
-                    "double a1[3][3];\n"
+                    "double a1[3][4];\n"
                     "for (int i = 0; i != 3; ++i)\n"
                     "    for (int j = 0; j != 3; ++j)\n"
-                    "        a1[i][j] = i + j;\n"
+                    "        a1[i][j] = i + 10 * j;\n"
                     "unused(&a1);\n\n"
 
                     "char a2[20] = { 0 };\n"
@@ -5455,11 +5472,11 @@ void tst_Dumpers::dumper_data()
                     "a2[4] = 0;\n"
                     "unused(&a2);\n")
 
-               + Check("a1", Pointer(), "double [3][3]")
-               + Check("a1.0", "[0]", Pointer(), "double [3]")
+               + Check("a1", Pointer(), "double[3][4]")
+               + Check("a1.0", "[0]", Pointer(), "double[4]")
                + Check("a1.0.0", "[0]", FloatValue("0"), "double")
-               + Check("a1.0.2", "[2]", FloatValue("2"), "double")
-               + Check("a1.2", "[2]", Pointer(), "double [3]")
+               + Check("a1.0.2", "[2]", FloatValue("20"), "double")
+               + Check("a1.2", "[2]", Pointer(), "double[4]")
 
                + Check("a2", Value("\"abcd" + QString(16, 0) + '"'), "char [20]")
                + Check("a2.0", "[0]", "97", "char")

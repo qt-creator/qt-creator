@@ -109,6 +109,8 @@ public:
     void reactivateTextMofifierChangeSignals();
     void deactivateTextMofifierChangeSignals();
 
+    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
+
     Internal::ModelNodePositionStorage *positionStorage() const;
 
     QList<DocumentMessage> warnings() const;

@@ -102,6 +102,8 @@ public:
         TextMark::updateLineNumber(lineNumber);
         QTC_ASSERT(m_bp, return);
         m_bp->setLineNumber(lineNumber);
+        if (GlobalBreakpoint gbp = m_bp->globalBreakpoint())
+            gbp->m_params.lineNumber = lineNumber;
     }
 
     void updateFileName(const FileName &fileName) final
@@ -109,6 +111,8 @@ public:
         TextMark::updateFileName(fileName);
         QTC_ASSERT(m_bp, return);
         m_bp->setFileName(fileName.toString());
+        if (GlobalBreakpoint gbp = m_bp->globalBreakpoint())
+            gbp->m_params.fileName = fileName.toString();
     }
 
     bool isDraggable() const final { return true; }

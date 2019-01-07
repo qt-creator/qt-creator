@@ -387,6 +387,17 @@ void RewriterView::deactivateTextMofifierChangeSignals()
         textModifier()->deactivateChangeSignals();
 }
 
+void RewriterView::auxiliaryDataChanged(const ModelNode &, const PropertyName &name, const QVariant &)
+{
+    if (name.endsWith("@NodeInstance"))
+        return;
+
+    if (name.endsWith("@Internal"))
+        return;
+
+    m_textModifier->textDocument()->setModified(true);
+}
+
 void RewriterView::applyModificationGroupChanges()
 {
     Q_ASSERT(transactionLevel == 0);
@@ -498,8 +509,13 @@ QString RewriterView::auxiliaryDataAsQML() const
 
                 const QVariant value = data.value(key.toUtf8());
                 QString strValue = value.toString();
-                if (static_cast<QMetaType::Type>(value.type()) == QMetaType::QString)
+
+                auto metaType = static_cast<QMetaType::Type>(value.type());
+
+                if (metaType == QMetaType::QString
+                        || metaType == QMetaType::QColor) {
                     strValue = "\"" + strValue + "\"";
+                }
 
                 if (!strValue.isEmpty()) {
                     str += replaceIllegalPropertyNameChars(key) + ":";

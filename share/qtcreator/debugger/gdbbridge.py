@@ -247,8 +247,14 @@ class Dumper(DumperBase):
             if targetType.code == gdb.TYPE_CODE_ARRAY:
                 val = self.Value(self)
             else:
-                # Cast may fail (e.g for arrays, see test for Bug5799)
-                val = self.fromNativeValue(nativeValue.cast(targetType))
+                try:
+                    # Cast may fail for arrays, for typedefs to __uint128_t with
+                    # gdb.error: That operation is not available on integers
+                    # of more than 8 bytes.
+                    # See test for Bug5799, QTCREATORBUG-18450.
+                    val = self.fromNativeValue(nativeValue.cast(targetType))
+                except:
+                    val = self.Value(self)
             #warn('CREATED TYPEDEF: %s' % val)
         else:
             val = self.Value(self)

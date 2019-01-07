@@ -237,7 +237,7 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
 
 void TestResultsPane::addOutput(const QByteArray &output)
 {
-    m_textOutput->appendPlainText(QString::fromLatin1(TestOutputReader::chopLineBreak(output)));
+    m_textOutput->appendPlainText(QString::fromUtf8(TestOutputReader::chopLineBreak(output)));
 }
 
 QWidget *TestResultsPane::outputWidget(QWidget *parent)

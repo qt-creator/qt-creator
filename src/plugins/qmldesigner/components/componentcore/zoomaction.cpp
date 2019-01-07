@@ -99,29 +99,29 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
     }
 
     comboBox->setCurrentIndex(m_currentComboBoxIndex);
+    comboBox->setToolTip(comboBox->currentText());
     connect(this, &ZoomAction::reseted, comboBox, [this, comboBox]() {
         blockSignals(true);
         comboBox->setCurrentIndex(m_currentComboBoxIndex);
         blockSignals(false);
     });
     connect(comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &ZoomAction::emitZoomLevelChanged);
+            [this, comboBox](int index) {
+        m_currentComboBoxIndex = index;
+
+        if (index == -1)
+            return;
+
+        const QModelIndex modelIndex(m_comboBoxModel.data()->index(index, 0));
+        setZoomLevel(m_comboBoxModel.data()->data(modelIndex, Qt::UserRole).toFloat());
+        comboBox->setToolTip(modelIndex.data().toString());
+    });
+
     connect(this, &ZoomAction::indexChanged, comboBox, &QComboBox::setCurrentIndex);
 
     comboBox->setProperty("hideborder", true);
     comboBox->setMaximumWidth(qMax(comboBox->view()->sizeHintForColumn(0) / 2, 16));
     return comboBox;
-}
-
-void ZoomAction::emitZoomLevelChanged(int index)
-{
-    m_currentComboBoxIndex = index;
-
-    if (index == -1)
-        return;
-
-    const QModelIndex modelIndex(m_comboBoxModel.data()->index(index, 0));
-    setZoomLevel(m_comboBoxModel.data()->data(modelIndex, Qt::UserRole).toFloat());
 }
 
 } // namespace QmlDesigner

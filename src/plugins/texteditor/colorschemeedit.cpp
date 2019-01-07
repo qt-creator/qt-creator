@@ -152,6 +152,8 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
 {
     setContentsMargins(0, layoutSpacing, 0, 0);
     m_ui->setupUi(this);
+    m_ui->detailsScrollArea->viewport()->setAutoFillBackground(false);
+    m_ui->scrollAreaWidgetContents->setAutoFillBackground(false);
     m_ui->itemList->setModel(m_formatsModel);
 
     populateUnderlineStyleComboBox();

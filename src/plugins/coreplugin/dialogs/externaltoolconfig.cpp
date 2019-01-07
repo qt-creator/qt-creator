@@ -411,6 +411,8 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     m_model(new ExternalToolModel(this))
 {
     ui->setupUi(this);
+    ui->scrollArea->viewport()->setAutoFillBackground(false);
+    ui->scrollAreaWidgetContents->setAutoFillBackground(false);
     ui->toolTree->setModel(m_model);
     ui->toolTree->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
 

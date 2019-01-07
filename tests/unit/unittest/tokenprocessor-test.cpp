@@ -1697,6 +1697,13 @@ TEST_F(TokenProcessor, DISABLED_NonConstArgumentConstructor)
     ASSERT_THAT(infos[3], HasMixin(HighlightingType::OutputArgument));
 }
 
+TEST_F(TokenProcessor, LambdaLocalVariableCapture)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(442, 47));
+
+    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::LocalVariable));
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()
