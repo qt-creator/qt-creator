@@ -26,6 +26,7 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangfollowsymbol.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <texteditor/texteditor.h>
 
@@ -155,6 +156,12 @@ static ::Utils::ProcessLinkCallback extendedCallback(::Utils::ProcessLinkCallbac
     };
 }
 
+static bool isSameInvocationContext(const Utils::FileName &filePath)
+{
+    return TextEditor::BaseTextEditor::currentTextEditor()->editorWidget()->isVisible()
+        && Core::EditorManager::currentDocument()->filePath() == filePath;
+}
+
 void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
                                  ::Utils::ProcessLinkCallback &&processLinkCallback,
                                  bool resolveTarget,
@@ -194,9 +201,9 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
 
     m_watcher.reset(new FutureSymbolWatcher());
 
-    QObject::connect(m_watcher.get(), &FutureSymbolWatcher::finished,
-                     [=, callback=std::move(processLinkCallback)]() mutable {
-        if (m_watcher->isCanceled())
+    QObject::connect(m_watcher.get(), &FutureSymbolWatcher::finished, [=, filePath=data.filePath(),
+                     callback=std::move(processLinkCallback)]() mutable {
+        if (m_watcher->isCanceled() || !isSameInvocationContext(filePath))
             return callback(Utils::Link());
         CppTools::SymbolInfo result = m_watcher->result();
         // We did not fail but the result is empty
