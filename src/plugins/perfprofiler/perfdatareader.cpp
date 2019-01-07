@@ -318,26 +318,35 @@ QStringList PerfDataReader::collectArguments(const QString &executableDirPath,
     return arguments;
 }
 
+static bool checkedWrite(QIODevice *device, const QByteArray &input)
+{
+    qint64 written = 0;
+    const qint64 size = input.size();
+    while (written < size) {
+        const qint64 bytes = device->write(input.constData() + written, size - written);
+        if (bytes < 0)
+            return false;
+
+        written += bytes;
+    }
+    return true;
+}
+
 void PerfDataReader::writeChunk()
 {
     if (!m_buffer.isEmpty()) {
         if (m_input.bytesToWrite() < s_maxBufferSize) {
-            QScopedPointer<TempFile> file(m_buffer.takeFirst());
+            std::unique_ptr<Utils::TemporaryFile> file(m_buffer.takeFirst());
             file->reset();
             const QByteArray data(file->readAll());
-            for (qint64 i = 0, end = data.length(); i < end;) {
-                const qint64 written = m_input.write(data.constData() + i, end - i);
-                if (written >= 0) {
-                    i += written;
-                } else {
-                    m_input.disconnect();
-                    m_input.kill();
-                    emit finished();
-                    QMessageBox::warning(Core::ICore::mainWindow(),
-                                         tr("Cannot send data to Perf data parser"),
-                                         tr("The perf data parser doesn't accept further input. "
-                                            "Your trace is incomplete."));
-                }
+            if (!checkedWrite(&m_input, data)) {
+                m_input.disconnect();
+                m_input.kill();
+                emit finished();
+                QMessageBox::warning(Core::ICore::mainWindow(),
+                                     tr("Cannot send data to Perf data parser"),
+                                     tr("The perf data parser doesn't accept further input. "
+                                        "Your trace is incomplete."));
             }
         }
     } else if (m_dataFinished) {
@@ -360,25 +369,23 @@ void PerfDataReader::clear()
     PerfProfilerTraceFile::clear();
 }
 
-void PerfDataReader::feedParser(const QByteArray &input)
+bool PerfDataReader::feedParser(const QByteArray &input)
 {
-    if (m_buffer.isEmpty()) {
-        if (m_input.isOpen() && m_input.bytesToWrite() < s_maxBufferSize) {
-            m_input.write(input);
-            return;
-        }
-        TempFile *file = new TempFile;
-        m_buffer.append(file);
-        connect(file, &QIODevice::bytesWritten, this, &PerfDataReader::writeChunk);
-        file->write(input);
-    } else {
-        TempFile *file = m_buffer.last();
-        if (file->pos() > s_maxBufferSize) {
-            file = new TempFile;
-            m_buffer.append(file);
-        }
-        file->write(input);
+    if (!m_buffer.isEmpty()) {
+        auto *file = m_buffer.last();
+        if (file->pos() < s_maxBufferSize)
+            return checkedWrite(file, input);
+    } else if (m_input.isOpen() && m_input.bytesToWrite() < s_maxBufferSize) {
+        return checkedWrite(&m_input, input);
     }
+
+    auto file = std::make_unique<Utils::TemporaryFile>("perfdatareader");
+    connect(file.get(), &QIODevice::bytesWritten, this, &PerfDataReader::writeChunk);
+    if (!file->open() || !checkedWrite(file.get(), input))
+        return false;
+
+    m_buffer.append(file.release());
+    return true;
 }
 
 QStringList PerfDataReader::findTargetArguments(const ProjectExplorer::RunConfiguration *rc) const

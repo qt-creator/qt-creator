@@ -54,7 +54,7 @@ public:
     QStringList findTargetArguments(const ProjectExplorer::RunConfiguration *rc) const;
     void clear();
 
-    void feedParser(const QByteArray &input);
+    bool feedParser(const QByteArray &input);
 
     // Trigger after delay has passed
     void triggerRecordingStateChange(bool recording);
@@ -81,12 +81,6 @@ protected:
 private:
     static const int s_maxBufferSize = 1 << 29;
 
-    class TempFile : public Utils::TemporaryFile
-    {
-    public:
-        TempFile() : Utils::TemporaryFile("perfdatareader") { open(); }
-    };
-
     QStringList collectArguments(const QString &executableDirPath,
                                  const ProjectExplorer::Kit *kit) const;
     void writeChunk();
@@ -94,7 +88,7 @@ private:
     bool m_recording;
     bool m_dataFinished;
     QProcess m_input;
-    QQueue<TempFile *> m_buffer;
+    QQueue<Utils::TemporaryFile *> m_buffer;
     qint64 m_localProcessStart;
     qint64 m_localRecordingEnd;
     qint64 m_localRecordingStart;

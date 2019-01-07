@@ -225,8 +225,9 @@ void PerfProfilerRunner::start()
             appendMessage(QString::fromLocal8Bit(recorder->readAllStandardError()),
                           Utils::StdErrFormat);
         });
-        connect(recorder, &DeviceProcess::readyReadStandardOutput, this, [reader, recorder] {
-            reader->feedParser(recorder->readAllStandardOutput());
+        connect(recorder, &DeviceProcess::readyReadStandardOutput, this, [this, reader, recorder] {
+            if (!reader->feedParser(recorder->readAllStandardOutput()))
+                reportFailure(tr("Failed to transfer perf data to perfparser"));
         });
     }
 
