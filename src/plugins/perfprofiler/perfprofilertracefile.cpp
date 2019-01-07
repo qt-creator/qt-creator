@@ -376,6 +376,7 @@ public:
         device()->reset();
     }
 
+    void clear() { m_content.clear(); }
     int length() const { return m_content.length(); }
 
 private:
@@ -492,12 +493,16 @@ void PerfProfilerTraceFile::writeToDevice()
 
             ++i;
             if (bufferStream.length() > (1 << 25)) {
-                updateProgress(progress + (remainingProgress * i / traceManager->numEvents()));
-                bufferStream.flush();
+                if (updateProgress(progress + (remainingProgress * i / traceManager->numEvents())))
+                    bufferStream.flush();
+                else
+                    bufferStream.clear();
             }
         }, nullptr, [&](){
             if (updateProgress(progress += remainingProgress))
                 bufferStream.flush();
+            else
+                bufferStream.clear();
         }, [this](const QString &message) {
             fail(message);
         }, future());
