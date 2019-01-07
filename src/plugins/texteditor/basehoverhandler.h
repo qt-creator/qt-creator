@@ -71,6 +71,8 @@ protected:
     void setLastHelpItemIdentified(const HelpItem &help);
     const HelpItem &lastHelpItemIdentified() const;
 
+    bool isContextHelpRequest() const;
+
     void propagateHelpId(TextEditorWidget *widget, const Core::IContext::HelpIdCallback &callback);
 
     // identifyMatch() is required to report a priority by using the "report" callback.
@@ -87,6 +89,7 @@ private:
     QString m_toolTip;
     HelpItem m_lastHelpItemIdentified;
     int m_priority = -1;
+    bool m_isContextHelpRequest = false;
 };
 
 } // namespace TextEditor

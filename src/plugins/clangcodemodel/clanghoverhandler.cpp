@@ -114,7 +114,7 @@ void ClangHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
     m_cursorPosition = -1;
 
     // Check for diagnostics (sync)
-    if (editorDocumentProcessorHasDiagnosticAt(editorWidget, pos)) {
+    if (!isContextHelpRequest() && editorDocumentProcessorHasDiagnosticAt(editorWidget, pos)) {
         qCDebug(hoverLog) << "Checking for diagnostic at" << pos;
         setPriority(Priority_Diagnostic);
         m_cursorPosition = pos;

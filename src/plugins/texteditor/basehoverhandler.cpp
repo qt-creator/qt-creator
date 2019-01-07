@@ -73,6 +73,8 @@ void BaseHoverHandler::contextHelpId(TextEditorWidget *widget,
                                      int pos,
                                      const Core::IContext::HelpIdCallback &callback)
 {
+    m_isContextHelpRequest = true;
+
     // If the tooltip is visible and there is a help match, this match is used to update
     // the help id. Otherwise, let the identification process happen.
     if (!Utils::ToolTip::isVisible() || !lastHelpItemIdentified().isValid()) {
@@ -83,6 +85,8 @@ void BaseHoverHandler::contextHelpId(TextEditorWidget *widget,
     } else {
         propagateHelpId(widget, callback);
     }
+
+    m_isContextHelpRequest = false;
 }
 
 void BaseHoverHandler::setToolTip(const QString &tooltip)
@@ -103,6 +107,11 @@ void BaseHoverHandler::setLastHelpItemIdentified(const HelpItem &help)
 const HelpItem &BaseHoverHandler::lastHelpItemIdentified() const
 {
     return m_lastHelpItemIdentified;
+}
+
+bool BaseHoverHandler::isContextHelpRequest() const
+{
+    return m_isContextHelpRequest;
 }
 
 void BaseHoverHandler::propagateHelpId(TextEditorWidget *widget,
