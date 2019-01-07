@@ -57,9 +57,6 @@ signals:
     void reseted();
 
 private:
-    void emitZoomLevelChanged(int index);
-
-private:
     QPointer<QAbstractItemModel> m_comboBoxModel;
     float m_zoomLevel;
     int m_currentComboBoxIndex;

@@ -144,7 +144,7 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
     if (originalPath.isEmpty()) // e.g. qrc://
         originalPath = fileUrl.path();
 
-    QString result;
+    QString result = originalPath;
     bool found = findFileOrDirectory(originalPath, [&](const QString &fileName, int) {
         result = fileName;
     });

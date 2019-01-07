@@ -77,7 +77,8 @@ void AndroidQmakeBuildConfiguration::initialize(const BuildInfo *info)
 
 void AndroidQmakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
-    QString androidNdkPlatform = AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target()));
+    QString androidNdkPlatform = AndroidConfigurations::currentConfig().bestNdkPlatformMatch(
+                qMax(AndroidManager::minimumNDK(target()), AndroidManager::minimumSDK(target())));
     env.set(QLatin1String("ANDROID_NDK_PLATFORM"), androidNdkPlatform);
 }
 

@@ -186,7 +186,8 @@ bool SaveFile::commit()
         const QString &renameError = m_tempFile->errorString();
         m_tempFile->remove();
         setErrorString(renameError);
-        result = false;
+        QFile::rename(backupName, finalFileName); // rollback to backup if possible ...
+        return false; // ... or keep the backup copy at least
     }
 
     QFile::remove(backupName);

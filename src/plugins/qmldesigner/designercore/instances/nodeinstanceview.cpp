@@ -26,8 +26,6 @@
 #include "nodeinstanceview.h"
 
 #include <QUrl>
-#include <QGraphicsView>
-#include <QGraphicsScene>
 #include <QMultiHash>
 #include <QTimerEvent>
 

@@ -47,7 +47,6 @@ ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
     auto centralWidget = new Utils::DetailsWidget;
     centralWidget->setState(Utils::DetailsWidget::NoSummary);
 
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameShape(QFrame::NoFrame);
     setWidgetResizable(true);
     setFocusPolicy(Qt::NoFocus);

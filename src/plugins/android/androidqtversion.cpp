@@ -123,9 +123,25 @@ QString AndroidQtVersion::targetArch() const
     return m_targetArch;
 }
 
+int AndroidQtVersion::mininmumNDK() const
+{
+    ensureMkSpecParsed();
+    return m_minNdk;
+}
+
 void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
     m_targetArch = evaluator->value(QLatin1String("ANDROID_TARGET_ARCH"));
+    const QString androidPlatform = evaluator->value(QLatin1String("ANDROID_PLATFORM"));
+    if (!androidPlatform.isEmpty()) {
+        const QRegExp regex("android-(\\d+)");
+        if (regex.exactMatch(androidPlatform)) {
+            bool ok = false;
+            int tmp = regex.cap(1).toInt(&ok);
+            if (ok)
+                m_minNdk = tmp;
+        }
+    }
     BaseQtVersion::parseMkSpec(evaluator);
 }
 

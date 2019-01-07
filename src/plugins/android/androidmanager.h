@@ -89,6 +89,7 @@ public:
 
     static int minimumSDK(ProjectExplorer::Target *target);
     static int minimumSDK(const ProjectExplorer::Kit *kit);
+    static int minimumNDK(ProjectExplorer::Target *target);
 
     static QString targetArch(ProjectExplorer::Target *target);
 
