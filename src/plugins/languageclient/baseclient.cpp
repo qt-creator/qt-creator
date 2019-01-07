@@ -617,7 +617,7 @@ void BaseClient::handleMethod(const QString &method, MessageId id, const IConten
         } else {
             ShowMessageRequest::Response response;
             response.setId(request->id());
-            ResponseError<LanguageClientNull> error;
+            ResponseError<std::nullptr_t> error;
             const QString errorMessage =
                     QString("Could not parse ShowMessageRequest parameter of '%1': \"%2\"")
                     .arg(request->id().toString(),
@@ -696,9 +696,9 @@ void BaseClient::intializeCallback(const InitializeRequest::Response &initRespon
 void BaseClient::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
 {
     QTC_ASSERT(m_state == ShutdownRequested, return);
-    optional<ResponseError<JsonObject>> errorValue = shutdownResponse.error();
+    optional<ShutdownRequest::Response::Error> errorValue = shutdownResponse.error();
     if (errorValue.has_value()) {
-        ResponseError<JsonObject> error = errorValue.value();
+        ShutdownRequest::Response::Error error = errorValue.value();
         qDebug() << error;
         return;
     }

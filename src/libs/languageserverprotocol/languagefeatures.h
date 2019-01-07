@@ -85,8 +85,8 @@ public:
     { return check<MarkedString>(error, contentKey) && checkOptional<Range>(error, rangeKey); }
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT HoverRequest : public Request<
-        Hover, LanguageClientNull, TextDocumentPositionParams>
+class LANGUAGESERVERPROTOCOL_EXPORT HoverRequest
+    : public Request<Hover, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
     HoverRequest(const TextDocumentPositionParams &params = TextDocumentPositionParams());
@@ -180,8 +180,8 @@ public:
     bool isValid(QStringList *error) const override;
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT SignatureHelpRequest : public Request<
-        LanguageClientValue<SignatureHelp>, LanguageClientNull, TextDocumentPositionParams>
+class LANGUAGESERVERPROTOCOL_EXPORT SignatureHelpRequest
+    : public Request<LanguageClientValue<SignatureHelp>, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
     SignatureHelpRequest(const TextDocumentPositionParams &params = TextDocumentPositionParams());
@@ -198,8 +198,8 @@ public:
     using variant::variant;
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT GotoDefinitionRequest : public Request<
-        GotoResult, LanguageClientNull, TextDocumentPositionParams>
+class LANGUAGESERVERPROTOCOL_EXPORT GotoDefinitionRequest
+    : public Request<GotoResult, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
     GotoDefinitionRequest(const TextDocumentPositionParams &params = TextDocumentPositionParams());
@@ -208,7 +208,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT GotoTypeDefinitionRequest : public Request<
-        GotoResult, LanguageClientNull, TextDocumentPositionParams>
+        GotoResult, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
     GotoTypeDefinitionRequest(
@@ -218,7 +218,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT GotoImplementationRequest : public Request<
-        GotoResult, LanguageClientNull, TextDocumentPositionParams>
+        GotoResult, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
     GotoImplementationRequest(
@@ -254,7 +254,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT FindReferencesRequest : public Request<
-        LanguageClientArray<Location>, LanguageClientNull, ReferenceParams>
+        LanguageClientArray<Location>, std::nullptr_t, ReferenceParams>
 {
 public:
     FindReferencesRequest(const ReferenceParams &params = ReferenceParams());
@@ -295,7 +295,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentHighlightsRequest : public Request<
-        DocumentHighlightsResult, LanguageClientNull, TextDocumentPositionParams>
+        DocumentHighlightsResult, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
     DocumentHighlightsRequest(
@@ -333,7 +333,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentSymbolsRequest
-        : public Request<DocumentSymbolsResult, LanguageClientNull, DocumentSymbolParams>
+        : public Request<DocumentSymbolsResult, std::nullptr_t, DocumentSymbolParams>
 {
 public:
     DocumentSymbolsRequest(const DocumentSymbolParams &params = DocumentSymbolParams());
@@ -373,7 +373,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CodeActionRequest : public Request<
-        LanguageClientArray<Command>, LanguageClientNull, CodeActionParams>
+        LanguageClientArray<Command>, std::nullptr_t, CodeActionParams>
 {
 public:
     CodeActionRequest(const CodeActionParams &params = CodeActionParams());
@@ -404,7 +404,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CodeLensRequest : public Request<
-        LanguageClientArray<CodeLens>, LanguageClientNull, CodeLensParams>
+        LanguageClientArray<CodeLens>, std::nullptr_t, CodeLensParams>
 {
 public:
     CodeLensRequest(const CodeLensParams &params = CodeLensParams());
@@ -413,7 +413,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CodeLensResolveRequest : public Request<
-        CodeLens, LanguageClientNull, CodeLens>
+        CodeLens, std::nullptr_t, CodeLens>
 {
 public:
     CodeLensResolveRequest(const CodeLens &params = CodeLens());
@@ -444,7 +444,7 @@ public:
 using DocumentLinkParams = TextDocumentParams;
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentLinkRequest : public Request<
-        LanguageClientValue<DocumentLink>, LanguageClientNull, DocumentLinkParams>
+        LanguageClientValue<DocumentLink>, std::nullptr_t, DocumentLinkParams>
 {
 public:
     DocumentLinkRequest(const DocumentLinkParams &params = DocumentLinkParams());
@@ -453,7 +453,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentLinkResolveRequest : public Request<
-        DocumentLink, LanguageClientNull, DocumentLink>
+        DocumentLink, std::nullptr_t, DocumentLink>
 {
 public:
     DocumentLinkResolveRequest(const DocumentLink &params = DocumentLink());
@@ -499,7 +499,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentColorRequest : public Request<
-        QList<ColorInformation>, LanguageClientNull, DocumentColorParams>
+        QList<ColorInformation>, std::nullptr_t, DocumentColorParams>
 {
 public:
     DocumentColorRequest(const DocumentColorParams &params = DocumentColorParams());
@@ -553,7 +553,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ColorPresentationRequest : public Request<
-        QList<ColorPresentation>, LanguageClientNull, ColorPresentationParams>
+        QList<ColorPresentation>, std::nullptr_t, ColorPresentationParams>
 {
 public:
     ColorPresentationRequest(const ColorPresentationParams &params = ColorPresentationParams());
@@ -610,7 +610,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentFormattingRequest : public Request<
-        LanguageClientArray<TextEdit>, LanguageClientNull, DocumentFormattingParams>
+        LanguageClientArray<TextEdit>, std::nullptr_t, DocumentFormattingParams>
 {
 public:
     DocumentFormattingRequest(const DocumentFormattingParams &params = DocumentFormattingParams());
@@ -638,7 +638,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentRangeFormattingRequest : public Request<
-        QList<TextEdit>, LanguageClientNull, DocumentFormattingParams>
+        QList<TextEdit>, std::nullptr_t, DocumentFormattingParams>
 {
 public:
     DocumentRangeFormattingRequest(const DocumentFormattingParams &params = DocumentFormattingParams());
@@ -669,7 +669,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentOnTypeFormattingRequest : public Request<
-        QList<TextEdit>, LanguageClientNull, DocumentFormattingParams>
+        QList<TextEdit>, std::nullptr_t, DocumentFormattingParams>
 {
 public:
     DocumentOnTypeFormattingRequest(
@@ -698,7 +698,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT RenameRequest : public Request<
-        WorkspaceEdit, LanguageClientNull, RenameParams>
+        WorkspaceEdit, std::nullptr_t, RenameParams>
 {
 public:
     RenameRequest(const RenameParams &params = RenameParams());

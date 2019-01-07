@@ -70,7 +70,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT RegisterCapabilityRequest : public Request<
-        LanguageClientNull, LanguageClientNull, RegistrationParams>
+        std::nullptr_t, std::nullptr_t, RegistrationParams>
 {
 public:
     RegisterCapabilityRequest(const RegistrationParams &params = RegistrationParams());
@@ -108,7 +108,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT UnregisterCapabilityRequest : public Request<
-        LanguageClientNull, LanguageClientNull, UnregistrationParams>
+        std::nullptr_t, std::nullptr_t, UnregistrationParams>
 {
 public:
     UnregisterCapabilityRequest(const UnregistrationParams &params = UnregistrationParams());

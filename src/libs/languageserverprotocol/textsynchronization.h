@@ -165,7 +165,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT WillSaveWaitUntilTextDocumentRequest : public Request<
-        LanguageClientArray<TextEdit>, LanguageClientNull, WillSaveTextDocumentParams>
+        LanguageClientArray<TextEdit>, std::nullptr_t, WillSaveTextDocumentParams>
 {
 public:
     WillSaveWaitUntilTextDocumentRequest(

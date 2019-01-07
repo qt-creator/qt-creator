@@ -124,7 +124,7 @@ public:
     bool isValid(QStringList *error) const override;
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT InitializeNotification : public Notification<LanguageClientNull>
+class LANGUAGESERVERPROTOCOL_EXPORT InitializeNotification : public Notification<std::nullptr_t>
 {
 public:
     InitializeNotification();

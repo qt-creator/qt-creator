@@ -42,8 +42,6 @@
 
 namespace LanguageServerProtocol {
 
-using LanguageClientNull = JsonObject;
-
 class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessage : public IContent
 {
 public:
@@ -130,6 +128,37 @@ public:
                                                         "No parameters in \"%1\".").arg(method());
         return false;
     }
+};
+
+template <>
+class Notification<std::nullptr_t> : public JsonRpcMessage
+{
+public:
+    Notification() : Notification(QString()) {}
+    Notification(const QString &methodName, const std::nullptr_t &/*params*/ = nullptr)
+    { setMethod(methodName); }
+    using JsonRpcMessage::JsonRpcMessage;
+
+    QString method() const
+    { return fromJsonValue<QString>(m_jsonObject.value(methodKey)); }
+    void setMethod(const QString &method)
+    { m_jsonObject.insert(methodKey, method); }
+
+    Utils::optional<std::nullptr_t> params() const
+    { return nullptr; }
+    void setParams(const std::nullptr_t &/*params*/)
+    { m_jsonObject.insert(parametersKey, QJsonValue::Null); }
+    void clearParams() { m_jsonObject.remove(parametersKey); }
+
+    bool isValid(QString *errorMessage) const override
+    {
+        return JsonRpcMessage::isValid(errorMessage)
+               && m_jsonObject.value(methodKey).isString()
+               && parametersAreValid(errorMessage);
+    }
+
+    virtual bool parametersAreValid(QString * /*errorMessage*/) const
+    { return true; }
 };
 
 template <typename Error>

@@ -253,7 +253,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CompletionRequest : public Request<
-        CompletionResult, LanguageClientNull, CompletionParams>
+        CompletionResult, std::nullptr_t, CompletionParams>
 {
 public:
     CompletionRequest(const CompletionParams &params = CompletionParams());
@@ -262,7 +262,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CompletionItemResolveRequest : public Request<
-        CompletionItem, LanguageClientNull, CompletionItem>
+        CompletionItem, std::nullptr_t, CompletionItem>
 {
 public:
     CompletionItemResolveRequest(const CompletionItem &params = CompletionItem());
