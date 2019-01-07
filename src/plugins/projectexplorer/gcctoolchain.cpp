@@ -968,8 +968,9 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const FileName &com
     if (compilerPath.isEmpty())
         return result;
 
-    result = Utils::filtered(alreadyKnown, [requiredTypeId, compilerPath](ToolChain *tc) {
-        return tc->typeId() == requiredTypeId && tc->compilerCommand() == compilerPath;
+    result = Utils::filtered(alreadyKnown, [=](ToolChain *tc) {
+        return tc->typeId() == requiredTypeId && tc->compilerCommand() == compilerPath
+               && tc->language() == language;
     });
     if (!result.isEmpty()) {
         for (ToolChain *tc : result) {
