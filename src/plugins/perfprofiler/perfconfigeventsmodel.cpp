@@ -68,9 +68,8 @@ QVariant PerfConfigEventsModel::data(const QModelIndex &index, int role) const
             auto meta = QMetaEnum::fromType<EventType>();
             return QString::fromLatin1(meta.valueToKey(description.eventType))
                     .mid(static_cast<int>(strlen("EventType"))).toLower();
-        } else {
-            return description.eventType;
         }
+        return description.eventType;
     }
     case ColumnSubType: {
         switch (description.eventType) {
@@ -79,8 +78,7 @@ QVariant PerfConfigEventsModel::data(const QModelIndex &index, int role) const
         case EventTypeCache:
             if (role == Qt::DisplayRole)
                 return subTypeString(description.eventType, description.subType);
-            else
-                return description.subType;
+            return description.subType;
         case EventTypeRaw:
             if (role == Qt::DisplayRole)
                 return QString("r%1").arg(description.numericEvent, 3, 16, QLatin1Char('0'));
@@ -108,18 +106,20 @@ QVariant PerfConfigEventsModel::data(const QModelIndex &index, int role) const
                 if (description.operation & OperationExecute)
                     result += 'x';
                 return result;
-            } else if (description.eventType == EventTypeCache) {
+            }
+
+            if (description.eventType == EventTypeCache) {
                 if (description.operation == OperationInvalid)
                     return QVariant();
                 auto meta = QMetaEnum::fromType<Operation>();
                 return QString::fromLatin1(meta.valueToKey(description.operation)).mid(
                             static_cast<int>(strlen("Operation"))).toLower();
-            } else {
-                return QVariant();
             }
-        } else {
-            return description.operation;
+
+            return QVariant();
         }
+
+        return description.operation;
     case ColumnResult:
         if (role == Qt::DisplayRole) {
             if (description.result == ResultInvalid)
@@ -127,9 +127,8 @@ QVariant PerfConfigEventsModel::data(const QModelIndex &index, int role) const
             auto meta = QMetaEnum::fromType<Result>();
             return QString::fromLatin1(meta.valueToKey(description.result)).mid(
                         static_cast<int>(strlen("Result"))).toLower();
-        } else {
-            return description.result;
         }
+        return description.result;
     default:
         return QVariant();
     }
@@ -352,7 +351,9 @@ PerfConfigEventsModel::EventDescription PerfConfigEventsModel::parseEvent(
             }
         }
         return description;
-    } else if (event.startsWith('r') && event.length() == 4) {
+    }
+
+    if (event.startsWith('r') && event.length() == 4) {
         bool ok = false;
         const uint eventNumber = event.mid(1).toUInt(&ok, 16);
         if (ok) {
@@ -385,9 +386,9 @@ PerfConfigEventsModel::EventDescription PerfConfigEventsModel::parseEvent(
 
     if (subtype != -1) {
         description.subType = SubType(subtype);
-        if (subtype < SubTypeEventTypeSoftware)
+        if (subtype < int(SubTypeEventTypeSoftware))
             description.eventType = EventTypeHardware;
-        else if (subtype < SubTypeEventTypeCache)
+        else if (subtype < int(SubTypeEventTypeCache))
             description.eventType = EventTypeSoftware;
         else
             description.eventType = EventTypeCache;

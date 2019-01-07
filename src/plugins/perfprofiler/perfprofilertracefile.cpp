@@ -133,7 +133,7 @@ struct PerfFeatures
     PerfNrCpus nrCpus;
     QByteArray cpuDesc;
     QByteArray cpuId;
-    quint64 totalMem;
+    quint64 totalMem = 0;
     QList<QByteArray> cmdline;
     QList<PerfBuildId> buildIds;
     PerfCpuTopology cpuTopology;
@@ -336,6 +336,7 @@ void PerfProfilerTraceFile::load(QIODevice *file)
 }
 
 class Packet : public QDataStream {
+    Q_DISABLE_COPY(Packet)
 public:
     Packet(QDataStream *parent) :
         QDataStream(&m_content, QIODevice::WriteOnly), m_parent(parent)
@@ -347,12 +348,16 @@ public:
         (*m_parent) << m_content;
     }
 
+    Packet(Packet &&) = delete;
+    Packet &operator=(Packet &&) = delete;
+
 private:
     QByteArray m_content;
     QDataStream *m_parent;
 };
 
 class CompressedDataStream : public QDataStream {
+    Q_DISABLE_COPY(CompressedDataStream)
 public:
     CompressedDataStream(QIODevice *device) :
         QDataStream(&m_content, QIODevice::WriteOnly), m_device(device)
@@ -363,6 +368,9 @@ public:
     {
         flush();
     }
+
+    CompressedDataStream(CompressedDataStream &&) = delete;
+    CompressedDataStream &operator=(CompressedDataStream &&) = delete;
 
     void flush()
     {

@@ -271,11 +271,12 @@ qint64 PerfDataReader::adjustTimestamp(qint64 timestamp)
                     + m_localProcessStart;
         }
         return timestamp - m_remoteProcessStart;
-    } else if (m_remoteProcessStart != std::numeric_limits<qint64>::max()) {
-        return m_remoteProcessStart;
-    } else {
-        return -1;
     }
+
+    if (m_remoteProcessStart != std::numeric_limits<qint64>::max())
+        return m_remoteProcessStart;
+
+    return -1;
 }
 
 bool PerfDataReader::acceptsSamples() const
