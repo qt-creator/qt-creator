@@ -59,8 +59,12 @@ PerfTracePointDialog::PerfTracePointDialog() :
     QTC_ASSERT(m_device, return);
 
     QFile file(":/perfprofiler/tracepoints.sh");
-    file.open(QIODevice::ReadOnly);
-    m_ui->textEdit->setPlainText(QString::fromUtf8(file.readAll()));
+    if (file.open(QIODevice::ReadOnly)) {
+        m_ui->textEdit->setPlainText(QString::fromUtf8(file.readAll()));
+    } else {
+        m_ui->textEdit->setPlainText(tr("Error: Failed to load trace point script %1: %2.")
+                                         .arg(file.fileName()).arg(file.errorString()));
+    }
 
     m_ui->privilegesChooser->setCurrentText(m_device->type() == Constants::DESKTOP_DEVICE_TYPE
                                             ? QLatin1String("pkexec") : QLatin1String("n.a."));
