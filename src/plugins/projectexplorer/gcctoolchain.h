@@ -42,6 +42,7 @@ namespace ProjectExplorer {
 
 namespace Internal {
 class ClangToolChainFactory;
+class ClangToolChainConfigWidget;
 class GccToolChainConfigWidget;
 class GccToolChainFactory;
 class MingwToolChainFactory;
@@ -208,6 +209,7 @@ class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 public:
     explicit ClangToolChain(Detection d);
     ClangToolChain(Core::Id typeId, Detection d);
+    ClangToolChain(const ClangToolChain &other);
     QString typeDisplayName() const override;
     QString makeCommand(const Utils::Environment &environment) const override;
 
@@ -221,11 +223,25 @@ public:
     Utils::FileNameList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
 
+    QString originalTargetTriple() const override;
+    QString sysRoot() const override;
+
+    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
+
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &data) override;
+
 protected:
     Utils::LanguageExtensions defaultLanguageExtensions() const override;
+    void syncAutodetectedWithParentToolchains();
 
 private:
+    QByteArray m_parentToolChainId;
+    QMetaObject::Connection m_mingwToolchainAddedConnection;
+    QMetaObject::Connection m_thisToolchainRemovedConnection;
+
     friend class Internal::ClangToolChainFactory;
+    friend class Internal::ClangToolChainConfigWidget;
     friend class ToolChainFactory;
 };
 

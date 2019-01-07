@@ -40,6 +40,7 @@ QT_END_NAMESPACE
 namespace Utils { class PathChooser; }
 
 namespace ProjectExplorer {
+class ClangToolChain;
 class GccToolChain;
 
 namespace Internal {
@@ -91,7 +92,7 @@ public:
     explicit GccToolChainConfigWidget(GccToolChain *tc);
     static QStringList splitString(const QString &s);
 
-private:
+protected:
     void handleCompilerCommandChange();
     void handlePlatformCodeGenFlagsChange();
     void handlePlatformLinkerFlagsChange();
@@ -103,13 +104,37 @@ private:
 
     void setFromToolchain();
 
+    AbiWidget *m_abiWidget;
+
+private:
     Utils::PathChooser *m_compilerCommand;
     QLineEdit *m_platformCodeGenFlagsLineEdit;
     QLineEdit *m_platformLinkerFlagsLineEdit;
-    AbiWidget *m_abiWidget;
 
     bool m_isReadOnly = false;
     ProjectExplorer::Macros m_macros;
+};
+
+// --------------------------------------------------------------------------
+// ClangToolChainConfigWidget
+// --------------------------------------------------------------------------
+
+class ClangToolChainConfigWidget : public GccToolChainConfigWidget
+{
+    Q_OBJECT
+public:
+    explicit ClangToolChainConfigWidget(ClangToolChain *tc);
+
+private:
+    void applyImpl() override;
+    void discardImpl() override { setFromClangToolchain(); }
+    bool isDirtyImpl() const override;
+    void makeReadOnlyImpl() override;
+
+    void setFromClangToolchain();
+    void updateParentToolChainComboBox();
+    QList<QMetaObject::Connection> m_parentToolChainConnections;
+    QComboBox *m_parentToolchainCombo = nullptr;
 };
 
 // --------------------------------------------------------------------------

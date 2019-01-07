@@ -362,6 +362,11 @@ QList<Task> ToolChain::validateKit(const Kit *) const
     return QList<Task>();
 }
 
+QString ToolChain::sysRoot() const
+{
+    return QString();
+}
+
 /*!
     \class ProjectExplorer::ToolChainFactory
     \brief The ToolChainFactory class creates tool chains from settings or

@@ -110,6 +110,7 @@ public:
 
     virtual Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const = 0;
     virtual WarningFlags warningFlags(const QStringList &cflags) const = 0;
+    virtual QString sysRoot() const;
 
     class MacroInspectionReport
     {

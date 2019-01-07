@@ -121,13 +121,34 @@ Utils::FileName SysRootKitInformation::sysRoot(const Kit *k)
 {
     if (!k)
         return Utils::FileName();
-    return Utils::FileName::fromString(k->value(SysRootKitInformation::id()).toString());
+
+    if (!k->value(SysRootKitInformation::id()).toString().isEmpty())
+        return Utils::FileName::fromString(k->value(SysRootKitInformation::id()).toString());
+
+    for (ToolChain *tc : ToolChainKitInformation::toolChains(k)) {
+        if (!tc->sysRoot().isEmpty())
+            return Utils::FileName::fromString(tc->sysRoot());
+    }
+
+    return Utils::FileName();
 }
 
 void SysRootKitInformation::setSysRoot(Kit *k, const Utils::FileName &v)
 {
-    if (k)
-        k->setValue(SysRootKitInformation::id(), v.toString());
+    if (!k)
+        return;
+
+    for (ToolChain *tc : ToolChainKitInformation::toolChains(k)) {
+        if (!tc->sysRoot().isEmpty()) {
+            // It's the sysroot from toolchain, don't set it.
+            if (tc->sysRoot() == v.toString())
+                return;
+
+            // We've changed the default toolchain sysroot, set it.
+            break;
+        }
+    }
+    k->setValue(SysRootKitInformation::id(), v.toString());
 }
 
 // --------------------------------------------------------------------------

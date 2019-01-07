@@ -40,6 +40,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
@@ -499,6 +500,18 @@ CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExp
 
     if (!buildTypeItem.isNull())
         info->configuration.append(buildTypeItem);
+
+    const QString sysRoot = SysRootKitInformation::sysRoot(k).toString();
+    if (!sysRoot.isEmpty()) {
+        info->configuration.append(CMakeConfigItem("CMAKE_SYSROOT", sysRoot.toUtf8()));
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(
+            k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+        if (tc) {
+            const QByteArray targetTriple = tc->originalTargetTriple().toUtf8();
+            info->configuration.append(CMakeConfigItem("CMAKE_C_COMPILER_TARGET", targetTriple));
+            info->configuration.append(CMakeConfigItem("CMAKE_CXX_COMPILER_TARGET ", targetTriple));
+        }
+    }
 
     return info;
 }

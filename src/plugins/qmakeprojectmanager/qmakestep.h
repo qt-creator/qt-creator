@@ -76,6 +76,8 @@ public:
     QStringList toArguments() const;
 
     // Actual data
+    QString sysRoot;
+    QString targetTriple;
     TargetArchConfig archConfig = NoArch;
     OsType osType = NoOsType;
     bool linkQmlDebuggingQQ2 = false;

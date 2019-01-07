@@ -145,8 +145,14 @@ QMakeStepConfig QMakeStep::deducedArguments() const
     ProjectExplorer::ToolChain *tc
             = ProjectExplorer::ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     ProjectExplorer::Abi targetAbi;
-    if (tc)
+    if (tc) {
         targetAbi = tc->targetAbi();
+        if (HostOsInfo::isWindowsHost()
+            && tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
+            config.sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+            config.targetTriple = tc->originalTargetTriple();
+        }
+    }
 
     BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
 
@@ -901,6 +907,17 @@ QStringList QMakeStepConfig::toArguments() const
 
     if (separateDebugInfo)
         arguments << "CONFIG+=force_debug_info" << "CONFIG+=separate_debug_info";
+
+    if (!sysRoot.isEmpty()) {
+        arguments << ("QMAKE_CFLAGS+=--sysroot=\"" + sysRoot + "\"");
+        arguments << ("QMAKE_CXXFLAGS+=--sysroot=\"" + sysRoot + "\"");
+        arguments << ("QMAKE_LFLAGS+=--sysroot=\"" + sysRoot + "\"");
+        if (!targetTriple.isEmpty()) {
+            arguments << ("QMAKE_CFLAGS+=--target=" + targetTriple);
+            arguments << ("QMAKE_CXXFLAGS+=--target=" + targetTriple);
+            arguments << ("QMAKE_LFLAGS+=--target=" + targetTriple);
+        }
+    }
 
     return arguments;
 }
