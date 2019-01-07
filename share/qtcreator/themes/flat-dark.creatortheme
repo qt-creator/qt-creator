@@ -4,16 +4,16 @@ PreferredStyles=Fusion
 DefaultTextEditorColorScheme=creator-dark.xml
 
 [Palette]
-shadowBackground=ff404244
+shadowBackground=ff404142
 text=ffd0d0d0
 textDisabled=60a4a6a8
 textHighlighted=fff0f0f0
-toolBarItem=b6fbfdff
-toolBarItemDisabled=60a4a6a8
+toolBarItem=bcfbfdff
+toolBarItemDisabled=56a5a6a7
 fancyBarsNormalTextColor=ffd0d0d0
 fancyBarsBoldTextColor=b6fbfdff
-hoverBackground=22ffffff
-selectedBackground=66000000
+hoverBackground=28ffffff
+selectedBackground=7a000000
 selectedBackgroundText=ff1d545c
 normalBackground=ff2E2F30
 alternateBackground=ff353637

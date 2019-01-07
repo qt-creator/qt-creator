@@ -3,15 +3,15 @@ ThemeName=Flat
 PreferredStyles=
 
 [Palette]
-shadowBackground=ff404244
+shadowBackground=ff404142
 text=ff000000
 textDisabled=55000000
-toolBarItem=b6fbfdff
-toolBarItemDisabled=60a4a6a8
+toolBarItem=bcfbfdff
+toolBarItemDisabled=56a5a6a7
 fancyBarsNormalTextColor=ffffffff
 fancyBarsBoldTextColor=b6fbfdff
-hoverBackground=22ffffff
-selectedBackground=66000000
+hoverBackground=28ffffff
+selectedBackground=7a000000
 normalBackground=ffffffff
 alternateBackground=ff515151
 error=ffdf4f4f
