@@ -546,15 +546,19 @@ QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
     for (int i = 0; i < allFlags.size(); ++i) {
         const QString &flag = allFlags.at(i);
         if (flag.startsWith("-stdlib=") || flag.startsWith("--gcc-toolchain=")
-            || flag.startsWith("-B") || (flag.startsWith("-isystem") && flag.length() > 8)) {
+            || flag.startsWith("-B") || flag.startsWith("--target=")
+            || (flag.startsWith("-isystem") && flag.length() > 8)) {
             arguments << flag;
+        } else if ((flag == "-target" || flag == "-gcc-toolchain" || flag == "-isystem")
+                   && i < flags.size() - 1) {
+            arguments << flag << allFlags.at(i + 1);
+            ++i;
         } else if (!hasKitSysroot) {
             // pass build system's sysroot to compiler, if we didn't pass one from kit
-            if (flag.startsWith("--sysroot=")) {
+            if (flag.startsWith("--sysroot=")
+                || (flag.startsWith("-isysroot") && flag.length() > 9)) {
                 arguments << flag;
-            } else if ((flag.startsWith("-isysroot") || flag.startsWith("--sysroot")
-                        || flag == "-target" || flag == "-gcc-toolchain" || flag == "-isystem")
-                       && i < flags.size() - 1) {
+            } else if (flag == "-isysroot" && i < flags.size() - 1) {
                 arguments << flag << allFlags.at(i + 1);
                 ++i;
             }
