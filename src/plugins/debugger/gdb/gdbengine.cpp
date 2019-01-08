@@ -90,33 +90,6 @@ enum { debugPending = 0 };
 
 #define CHECK_STATE(s) do { checkState(s, __FILE__, __LINE__); } while (0)
 
-static bool stateAcceptsGdbCommands(DebuggerState state)
-{
-    switch (state) {
-    case EngineSetupRequested:
-    case EngineSetupOk:
-    case EngineSetupFailed:
-    case InferiorUnrunnable:
-    case EngineRunRequested:
-    case InferiorRunRequested:
-    case InferiorRunOk:
-    case InferiorStopRequested:
-    case InferiorStopOk:
-    case InferiorShutdownRequested:
-    case InferiorShutdownFinished:
-    case EngineShutdownRequested:
-        return true;
-    case DebuggerNotReady:
-    case InferiorStopFailed:
-    case EngineRunFailed:
-    case InferiorRunFailed:
-    case EngineShutdownFinished:
-    case DebuggerFinished:
-        return false;
-    }
-    return false;
-}
-
 static int &currentToken()
 {
     static int token = 0;
@@ -733,9 +706,14 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         QTC_ASSERT(false, return);
     }
 
-    if (!stateAcceptsGdbCommands(state())) {
+    if (m_gdbProc.state() != QProcess::Running) {
         showMessage(QString("NO GDB PROCESS RUNNING, CMD IGNORED: %1 %2")
             .arg(cmd.function).arg(state()));
+        if (cmd.callback) {
+            DebuggerResponse response;
+            response.resultClass = ResultError;
+            cmd.callback(response);
+        }
         return;
     }
 
@@ -1686,14 +1664,14 @@ void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
         // notifyInferiorShutdownFinished();
         return;
     }
-    // "kill" got stuck, or similar.
+    // "kill" got stuck, gdb was kill -9'd, or similar.
     CHECK_STATE(InferiorShutdownRequested);
     QString msg = response.data["msg"].data();
     if (msg.contains(": No such file or directory.")) {
         // This happens when someone removed the binary behind our back.
         // It is not really an error from a user's point of view.
         showMessage("NOTE: " + msg);
-    } else {
+    } else if (m_gdbProc.state() == QProcess::Running) {
         AsynchronousMessageBox::critical(tr("Failed to Shut Down Application"),
                                          msgInferiorStopFailed(msg));
     }
@@ -3798,9 +3776,8 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
         // This should be handled by the code trying to start the process.
         break;
     case QProcess::Crashed:
-        // This does not seem to get processFinished() in all cases.
-        m_gdbProc.disconnect();
-        handleGdbFinished(m_gdbProc.exitCode(), QProcess::CrashExit);
+        // At this time, m_gdbProc.state() can still return Running.
+        // Wait for finished() instead.
         break;
     case QProcess::ReadError:
     case QProcess::WriteError:
