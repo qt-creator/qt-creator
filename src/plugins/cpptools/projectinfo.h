@@ -40,12 +40,14 @@
 
 namespace CppTools {
 
+class KitInfo;
+
 class ToolChainInfo
 {
 public:
     ToolChainInfo() = default;
     ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
-                  const ProjectExplorer::Kit *kit);
+                  const QString &sysRootPath);
 
     bool isValid() const { return type.isValid(); }
 
@@ -66,13 +68,7 @@ class CPPTOOLS_EXPORT ProjectUpdateInfo
 public:
     ProjectUpdateInfo() = default;
     ProjectUpdateInfo(ProjectExplorer::Project *project,
-                      const ProjectExplorer::ToolChain *cToolChain,
-                      const ProjectExplorer::ToolChain *cxxToolChain,
-                      const ProjectExplorer::Kit *kit,
-                      const RawProjectParts &rawProjectParts);
-    ProjectUpdateInfo(ProjectExplorer::Project *project,
-                      const ToolChainInfo &cToolChainInfo,
-                      const ToolChainInfo &cxxToolChainInfo,
+                      const KitInfo &kitInfo,
                       const RawProjectParts &rawProjectParts);
     bool isValid() const { return project && !rawProjectParts.isEmpty(); }
 

@@ -25,6 +25,8 @@
 
 #include "projectinfo.h"
 
+#include "cppkitinfo.h"
+
 #include <projectexplorer/abi.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/kitinformation.h>
@@ -33,7 +35,7 @@
 namespace CppTools {
 
 ToolChainInfo::ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
-                             const ProjectExplorer::Kit *kit)
+                             const QString &sysRootPath)
 {
     if (toolChain) {
         // Keep the following cheap/non-blocking for the ui thread...
@@ -46,36 +48,21 @@ ToolChainInfo::ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
 
         // ...and save the potentially expensive operations for later so that
         // they can be run from a worker thread.
-        sysRootPath = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+        this->sysRootPath = sysRootPath;
         headerPathsRunner = toolChain->createBuiltInHeaderPathsRunner();
         macroInspectionRunner = toolChain->createMacroInspectionRunner();
     }
 }
 
 ProjectUpdateInfo::ProjectUpdateInfo(ProjectExplorer::Project *project,
-                                     const ProjectExplorer::ToolChain *cToolChain,
-                                     const ProjectExplorer::ToolChain *cxxToolChain,
-                                     const ProjectExplorer::Kit *kit,
+                                     const KitInfo &kitInfo,
                                      const RawProjectParts &rawProjectParts)
     : project(project)
     , rawProjectParts(rawProjectParts)
-    , cToolChain(cToolChain)
-    , cxxToolChain(cxxToolChain)
-    , cToolChainInfo(ToolChainInfo(cToolChain, kit))
-    , cxxToolChainInfo(ToolChainInfo(cxxToolChain, kit))
-{
-}
-
-ProjectUpdateInfo::ProjectUpdateInfo(ProjectExplorer::Project *project,
-                  const ToolChainInfo &cToolChainInfo,
-                  const ToolChainInfo &cxxToolChainInfo,
-                  const RawProjectParts &rawProjectParts)
-    : project(project)
-    , rawProjectParts(rawProjectParts)
-    , cToolChain(nullptr)
-    , cxxToolChain(nullptr)
-    , cToolChainInfo(cToolChainInfo)
-    , cxxToolChainInfo(cxxToolChainInfo)
+    , cToolChain(kitInfo.cToolChain)
+    , cxxToolChain(kitInfo.cxxToolChain)
+    , cToolChainInfo(ToolChainInfo(cToolChain, kitInfo.sysRootPath))
+    , cxxToolChainInfo(ToolChainInfo(cxxToolChain, kitInfo.sysRootPath))
 {
 }
 

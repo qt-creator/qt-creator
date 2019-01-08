@@ -51,6 +51,9 @@ KitInfo::KitInfo(Project *project)
         cToolChain = ToolChainKitInformation::toolChain(kit, Constants::C_LANGUAGE_ID);
         cxxToolChain = ToolChainKitInformation::toolChain(kit, Constants::CXX_LANGUAGE_ID);
     }
+
+    // Sysroot
+    sysRootPath = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
 }
 
 bool KitInfo::isValid() const

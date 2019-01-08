@@ -296,8 +296,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
             rpp.setFlagsForC({kitInfo.cToolChain, rpp.flagsForC.commandLineFlags});
     }
 
-    m_cppCodeModelUpdater->update(
-        {this, kitInfo.cToolChain, kitInfo.cxxToolChain, kitInfo.kit, rpps});
+    m_cppCodeModelUpdater->update({this, kitInfo, rpps});
 
     updateQmlJSCodeModel();
 

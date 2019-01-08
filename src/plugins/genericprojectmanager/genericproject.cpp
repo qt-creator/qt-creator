@@ -438,8 +438,7 @@ void GenericProject::refreshCppCodeModel()
     rpp.setConfigFileName(m_configFileName);
     rpp.setFiles(m_files);
 
-    m_cppCodeModelUpdater->update(
-        {this, kitInfo.cToolChain, kitInfo.cxxToolChain, kitInfo.kit, {rpp}});
+    m_cppCodeModelUpdater->update({this, kitInfo, {rpp}});
 }
 
 void GenericProject::updateDeploymentData()

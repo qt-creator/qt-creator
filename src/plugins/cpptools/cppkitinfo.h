@@ -49,6 +49,8 @@ public:
     ProjectExplorer::ToolChain *cxxToolChain = nullptr;
 
     ProjectPart::QtVersion projectPartQtVersion = ProjectPart::NoQt;
+
+    QString sysRootPath;
 };
 
 } // namespace CppTools

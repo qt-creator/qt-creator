@@ -30,6 +30,7 @@
 
 #include <coreplugin/icontext.h>
 #include <cpptools/projectinfo.h>
+#include <cpptools/cppkitinfo.h>
 #include <cpptools/cppprojectupdater.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/headerpath.h>
@@ -358,10 +359,10 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
 
     auto root = std::make_unique<DBProjectNode>(projectDirectory());
 
+    CppTools::KitInfo kitInfo(this);
+    QTC_ASSERT(kitInfo.isValid(), return);
     CppTools::RawProjectParts rpps;
     Utils::FileName commonPath;
-    ToolChain *cToolchain = nullptr;
-    ToolChain *cxxToolchain = nullptr;
 
     std::sort(array.begin(), array.end(), [](const Entry &lhs, const Entry &rhs) {
         return std::lexicographical_compare(lhs.flags.begin(), lhs.flags.end(),
@@ -383,8 +384,8 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
 
         CppTools::RawProjectPart rpp = makeRawProjectPart(projectFile,
                                                           m_kit.get(),
-                                                          cToolchain,
-                                                          cxxToolchain,
+                                                          kitInfo.cToolChain,
+                                                          kitInfo.cxxToolChain,
                                                           entry.workingDir,
                                                           entry.fileName,
                                                           entry.flags);
@@ -401,7 +402,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
 
     setRootProjectNode(std::move(root));
 
-    m_cppCodeModelUpdater->update({this, cToolchain, cxxToolchain, m_kit.get(), rpps});
+    m_cppCodeModelUpdater->update({this, kitInfo, rpps});
 
     emitParsingFinished(true);
 }

@@ -280,6 +280,5 @@ void AutotoolsProject::updateCppCodeModel()
     rpp.setMacros(m_makefileParserThread->macros());
     rpp.setFiles(m_files);
 
-    m_cppCodeModelUpdater->update(
-        {this, kitInfo.cToolChain, kitInfo.cxxToolChain, kitInfo.kit, {rpp}});
+    m_cppCodeModelUpdater->update({this, kitInfo, {rpp}});
 }
