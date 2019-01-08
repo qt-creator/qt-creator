@@ -87,32 +87,38 @@ public:
     QString projectFile;
     int projectFileLine = -1;
     int projectFileColumn = -1;
-    QString projectConfigFile; // currently only used by the Generic Project Manager
     QString callGroupId;
-    QString buildSystemTarget;
 
-    ProjectFiles files;
-
-    QStringList precompiledHeaders;
-    ProjectExplorer::HeaderPaths headerPaths;
-
-    ProjectExplorer::Macros projectMacros;
-
+    // Versions, features and extensions
     ProjectExplorer::LanguageVersion languageVersion = ProjectExplorer::LanguageVersion::LatestCxx;
     ProjectExplorer::LanguageExtensions languageExtensions = ProjectExplorer::LanguageExtension::None;
-    ProjectExplorer::WarningFlags warningFlags = ProjectExplorer::WarningFlags::Default;
-    QtVersion qtVersion = UnknownQt;
     CPlusPlus::LanguageFeatures languageFeatures;
+    QtVersion qtVersion = UnknownQt;
 
+    // Files
+    ProjectFiles files;
+    QStringList precompiledHeaders;
+    ProjectExplorer::HeaderPaths headerPaths;
+    QString projectConfigFile; // Generic Project Manager only
+
+    // Macros
+    ProjectExplorer::Macros projectMacros;
+    ProjectExplorer::Macros toolChainMacros;
+
+    // Build system
+    QString buildSystemTarget;
+    BuildTargetType buildTargetType = Unknown;
     bool selectedForBuilding = true;
 
+    // ToolChain
     Core::Id toolchainType;
     bool isMsvc2015Toolchain = false;
-    ProjectExplorer::Macros toolChainMacros;
-    ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
     QString toolChainTargetTriple;
+    ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
+    ProjectExplorer::WarningFlags warningFlags = ProjectExplorer::WarningFlags::Default;
+
+    // Misc
     QStringList extraCodeModelFlags;
-    BuildTargetType buildTargetType = Unknown;
 };
 
 } // namespace CppTools
