@@ -5976,6 +5976,17 @@ void tst_Dumpers::dumper_data()
                + Check("x2", "", "X &")
                + Check("x3", "", "X &");
 
+    QTest::newRow("RValueReference")
+            << Data("",
+                    "struct S { int a = 32; };\n"
+                    "auto foo = [](int && i, S && s) { BREAK; return i + s.a; };\n"
+                    "foo(int(1), S());\n")
+               + Cxx11Profile()
+               + GdbVersion(80200)
+               + Check("i", "1", "int &&")
+               + CheckType("s", "S &&")
+               + Check("s.a", "32", "int");
+
     QTest::newRow("SSE")
             << Data("#include <xmmintrin.h>\n"
                     "#include <stddef.h>\n",

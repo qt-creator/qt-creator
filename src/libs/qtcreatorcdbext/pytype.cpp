@@ -59,7 +59,9 @@ enum TypeCodes {
     TypeCodeFunction,
     TypeCodeMemberPointer,
     TypeCodeFortranString,
-    TypeCodeUnresolvable
+    TypeCodeUnresolvable,
+    TypeCodeBitField,
+    TypeCodeRValueReference,
 };
 
 static bool isType(const std::string &typeName, const std::vector<std::string> &types)
