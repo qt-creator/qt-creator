@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "coreplugin/core_global.h"
+#include "core_global.h"
 
 QT_BEGIN_NAMESPACE
 class QWidget;

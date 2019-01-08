@@ -26,7 +26,7 @@
 #include "remotelinuxenvironmentaspect.h"
 
 #include "remotelinuxenvironmentaspectwidget.h"
-#include "utils/algorithm.h"
+#include <utils/algorithm.h>
 
 namespace RemoteLinux {
 

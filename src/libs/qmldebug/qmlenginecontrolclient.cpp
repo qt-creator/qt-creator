@@ -25,7 +25,7 @@
 
 #include "qmlenginecontrolclient.h"
 #include "qpacketprotocol.h"
-#include "utils/qtcassert.h"
+#include <utils/qtcassert.h>
 
 #include <functional>
 

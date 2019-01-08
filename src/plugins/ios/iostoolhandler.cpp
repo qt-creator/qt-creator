@@ -33,8 +33,8 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
-#include "utils/runextensions.h"
-#include "utils/synchronousprocess.h"
+#include <utils/runextensions.h>
+#include <utils/synchronousprocess.h>
 
 #include <QCoreApplication>
 #include <QDir>

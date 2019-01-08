@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "coreplugin/externaltool.h"
+#include "../externaltool.h"
 
 #include <QWidget>
 #include <QAbstractItemModel>

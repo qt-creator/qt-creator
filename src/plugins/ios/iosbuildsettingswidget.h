@@ -24,7 +24,7 @@
 ****************************************************************************/
 #pragma once
 
-#include "coreplugin/id.h"
+#include <coreplugin/id.h>
 #include "projectexplorer/namedwidget.h"
 
 #include <QWidget>

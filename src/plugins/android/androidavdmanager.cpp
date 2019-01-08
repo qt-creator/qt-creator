@@ -26,11 +26,11 @@
 
 #include "androidtoolmanager.h"
 
-#include "coreplugin/icore.h"
-#include "utils/algorithm.h"
-#include "utils/qtcassert.h"
-#include "utils/runextensions.h"
-#include "utils/synchronousprocess.h"
+#include <coreplugin/icore.h>
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/runextensions.h>
+#include <utils/synchronousprocess.h>
 
 #include <QApplication>
 #include <QFileInfo>

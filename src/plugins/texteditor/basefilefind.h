@@ -26,7 +26,7 @@
 #pragma once
 
 #include "texteditor_global.h"
-#include "utils/filesearch.h"
+#include <utils/filesearch.h>
 
 #include <coreplugin/find/ifindfilter.h>
 #include <coreplugin/find/searchresultwindow.h>

@@ -29,7 +29,7 @@
 #include "qmt/project/project.h"
 #include "qmt/project_controller/projectcontroller.h"
 
-#include "utils/pathchooser.h"
+#include <utils/pathchooser.h>
 
 #include <QLabel>
 #include <QFileInfo>

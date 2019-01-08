@@ -28,7 +28,7 @@
 #include "projectexplorer/projectnodes.h"
 
 #include <utils/mimetypes/mimedatabase.h>
-#include "utils/fileutils.h"
+#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QFuture>

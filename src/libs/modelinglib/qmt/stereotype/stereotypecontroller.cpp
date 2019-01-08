@@ -32,7 +32,7 @@
 
 #include "qmt/infrastructure/qmtassert.h"
 #include "qmt/style/style.h"
-#include "utils/algorithm.h"
+#include <utils/algorithm.h>
 
 #include <QHash>
 #include <QPainter>

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "coreplugin/id.h"
+#include "id.h"
 
 #include <QSharedDataPointer>
 #include <QList>

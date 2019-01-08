@@ -26,7 +26,7 @@
 #pragma once
 
 #include "qmt/diagram_widgets_ui/diagramview.h"
-#include "utils/dropsupport.h"
+#include <utils/dropsupport.h>
 
 namespace ModelEditor {
 namespace Internal {

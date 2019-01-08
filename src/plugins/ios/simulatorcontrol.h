@@ -24,9 +24,10 @@
 ****************************************************************************/
 #pragma once
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 #include <QFuture>
-#include "utils/fileutils.h"
 #include <QDebug>
 #include <memory>
 

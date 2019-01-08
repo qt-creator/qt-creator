@@ -32,7 +32,7 @@
 #include "iassistprocessor.h"
 #include "../snippets/snippetassistcollector.h"
 
-#include "utils/runextensions.h"
+#include <utils/runextensions.h>
 
 #include <QElapsedTimer>
 #include <QRegularExpression>

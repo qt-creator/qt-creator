@@ -28,7 +28,7 @@
 #include "iosconstants.h"
 #include "iossimulator.h"
 
-#include "utils/qtcassert.h"
+#include <utils/qtcassert.h>
 
 namespace Ios {
 namespace Internal {

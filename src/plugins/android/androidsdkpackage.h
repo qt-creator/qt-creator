@@ -22,7 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#include "utils/fileutils.h"
+#include <utils/fileutils.h>
 
 #include <QList>
 #include <QObject>

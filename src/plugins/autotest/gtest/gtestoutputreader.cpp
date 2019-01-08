@@ -27,7 +27,7 @@
 #include "gtestresult.h"
 #include "../testtreemodel.h"
 #include "../testtreeitem.h"
-#include "utils/hostosinfo.h"
+#include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QFileInfo>

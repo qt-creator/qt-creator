@@ -24,7 +24,7 @@
 ****************************************************************************/
 #include "androidsdkpackage.h"
 
-#include "utils/algorithm.h"
+#include <utils/algorithm.h>
 
 namespace Android {
 

@@ -28,11 +28,11 @@
 #include "androidmanager.h"
 #include "androidtoolmanager.h"
 
-#include "utils/algorithm.h"
-#include "utils/qtcassert.h"
-#include "utils/runextensions.h"
-#include "utils/synchronousprocess.h"
-#include "utils/qtcprocess.h"
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/runextensions.h>
+#include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QFutureWatcher>
 #include <QLoggingCategory>

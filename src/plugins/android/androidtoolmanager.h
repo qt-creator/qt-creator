@@ -24,8 +24,9 @@
 ****************************************************************************/
 #pragma once
 
-#include "utils/fileutils.h"
 #include "androidconfigurations.h"
+
+#include <utils/fileutils.h>
 
 #include <QStringList>
 

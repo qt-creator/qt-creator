@@ -24,8 +24,9 @@
 ****************************************************************************/
 #pragma once
 
-#include "utils/fileutils.h"
 #include "androidsdkpackage.h"
+
+#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QFuture>

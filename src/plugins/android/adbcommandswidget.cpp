@@ -25,7 +25,7 @@
 #include "adbcommandswidget.h"
 #include "ui_adbcommandswidget.h"
 
-#include "utils/utilsicons.h"
+#include <utils/utilsicons.h>
 
 #include <QGroupBox>
 #include <QItemSelectionModel>

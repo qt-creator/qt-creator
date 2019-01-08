@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include "coreplugin/core_global.h"
-#include "coreplugin/coreconstants.h"
-#include "coreplugin/icontext.h"
-#include <coreplugin/actionmanager/command.h>
+#include "../core_global.h"
+#include "../coreconstants.h"
+#include "../icontext.h"
+#include "command.h"
 
 #include <QObject>
 #include <QList>

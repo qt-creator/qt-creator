@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "utils/qtcassert.h"
+#include <utils/qtcassert.h>
 
 #define QMT_CHECK(condition) QTC_CHECK(condition)
 #define QMT_ASSERT(condition, action) QTC_ASSERT(condition, action)

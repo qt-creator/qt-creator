@@ -29,11 +29,11 @@
 #include "androidsdkmanager.h"
 #include "androidsdkmodel.h"
 
-#include "utils/runextensions.h"
-#include "utils/outputformatter.h"
-#include "utils/runextensions.h"
-#include "utils/qtcassert.h"
-#include "utils/utilsicons.h"
+#include <utils/runextensions.h>
+#include <utils/outputformatter.h>
+#include <utils/runextensions.h>
+#include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QDialogButtonBox>
 #include <QLabel>

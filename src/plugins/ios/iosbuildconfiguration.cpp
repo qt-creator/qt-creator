@@ -36,7 +36,7 @@
 #include "qmakeprojectmanager/qmakebuildinfo.h"
 #include "qmakeprojectmanager/qmakeprojectmanagerconstants.h"
 
-#include "utils/algorithm.h"
+#include <utils/algorithm.h>
 
 using namespace QmakeProjectManager;
 using namespace ProjectExplorer;

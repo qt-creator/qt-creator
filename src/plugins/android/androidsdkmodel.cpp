@@ -26,9 +26,9 @@
 #include "androidmanager.h"
 #include "androidsdkmanager.h"
 
-#include "utils/algorithm.h"
-#include "utils/qtcassert.h"
-#include "utils/utilsicons.h"
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QIcon>
 
