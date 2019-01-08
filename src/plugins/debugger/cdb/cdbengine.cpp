@@ -764,9 +764,9 @@ bool CdbEngine::hasCapability(unsigned cap) const
 
 void CdbEngine::executeStepIn(bool byInstruction)
 {
+    adjustOperateByInstruction(byInstruction);
     if (!m_lastOperateByInstruction)
         m_sourceStepInto = true; // See explanation at handleStackTrace().
-    adjustOperateByInstruction(byInstruction);
     runCommand({"t", NoFlags}); // Step into-> t (trace)
     STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunRequested")
     notifyInferiorRunRequested();
