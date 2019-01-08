@@ -37,9 +37,30 @@
            <attribute name="title">
             <string notr="true">&amp;General</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QTreeView" name="partGeneralView"/>
+             <widget class="QTreeView" name="partGeneralView">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Compiler Flags</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPlainTextEdit" name="partGeneralCompilerFlagsEdit"/>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>

@@ -120,6 +120,7 @@ public:
 
     // Misc
     QStringList extraCodeModelFlags;
+    QStringList compilerFlags;
 };
 
 } // namespace CppTools

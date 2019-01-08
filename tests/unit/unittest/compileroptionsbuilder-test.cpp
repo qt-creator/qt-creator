@@ -85,6 +85,72 @@ TEST_F(CompilerOptionsBuilder, AddToolchainAndProjectMacros)
     ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-Dfoo=bar", "-DprojectFoo=projectBar"));
 }
 
+TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_UnknownOptionsAreForwarded)
+{
+    ProjectPart part = projectPart;
+    part.compilerFlags = QStringList{"-fancyFlag"};
+
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
+                                                            CppTools::UseSystemHeader::No,
+                                                            CppTools::UseToolchainMacros::Yes,
+                                                            CppTools::UseTweakedHeaderPaths::Yes,
+                                                            CppTools::UseLanguageDefines::Yes};
+
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), Contains(part.compilerFlags.first()));
+}
+
+TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_DiagnosticOptionsAreRemoved)
+{
+    ProjectPart part = projectPart;
+    part.compilerFlags = QStringList{"-Wbla", "-pedantic"};
+
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
+                                                            CppTools::UseSystemHeader::No,
+                                                            CppTools::UseToolchainMacros::Yes,
+                                                            CppTools::UseTweakedHeaderPaths::Yes,
+                                                            CppTools::UseLanguageDefines::Yes};
+
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), Not(Contains(part.compilerFlags[0])));
+    ASSERT_THAT(compilerOptionsBuilder.options(), Not(Contains(part.compilerFlags[1])));
+}
+
+TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_CLanguageVersionIsRewritten)
+{
+    ProjectPart part = projectPart;
+    part.compilerFlags = QStringList{"-std=c18"};
+    // We need to set the language version here to overcome a QTC_ASSERT checking
+    // consistency between ProjectFile::Kind and ProjectPart::LanguageVersion
+    part.languageVersion = Utils::LanguageVersion::C18;
+
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
+                                                            CppTools::UseSystemHeader::No,
+                                                            CppTools::UseToolchainMacros::Yes,
+                                                            CppTools::UseTweakedHeaderPaths::Yes,
+                                                            CppTools::UseLanguageDefines::Yes};
+
+    compilerOptionsBuilder.build(ProjectFile::CSource, CppTools::UsePrecompiledHeaders::No);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), Not(Contains(part.compilerFlags.first())));
+    ASSERT_THAT(compilerOptionsBuilder.options(), Contains("-std=c17"));
+}
+
+TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_LanguageVersionIsExplicitlySetIfNotProvided)
+{
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart,
+                                                            CppTools::UseSystemHeader::No,
+                                                            CppTools::UseToolchainMacros::Yes,
+                                                            CppTools::UseTweakedHeaderPaths::Yes,
+                                                            CppTools::UseLanguageDefines::Yes};
+
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), Contains("-std=c++17"));
+}
+
 TEST_F(CompilerOptionsBuilder, AddToolchainAndProjectMacrosWithoutSkipingLanguageDefines)
 {
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart,
@@ -441,7 +507,7 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptions)
     ASSERT_THAT(compilerOptionsBuilder.options(),
                 ElementsAre(
                     "-nostdlibinc", "-c", "-m64", "-target", "x86_64-apple-darwin10",
-                    "-arch", "x86_64", "-x", "c++", "-std=c++17", "-Dfoo=bar",
+                    "-x", "c++", "-std=c++17", "-arch", "x86_64", "-Dfoo=bar",
                     "-DprojectFoo=projectBar", "-undef",
                     "-I", IsPartOfHeader("wrappedQtHeaders"),
                     "-I", IsPartOfHeader(QDir::toNativeSeparators("wrappedQtHeaders/QtCore").toStdString()),

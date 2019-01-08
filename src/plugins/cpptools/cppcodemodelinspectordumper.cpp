@@ -505,6 +505,7 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
             m_out << i3 << "Project Part Name    : " << part->displayName << "\n";
             m_out << i3 << "Project Name         : " << projectName << "\n";
             m_out << i3 << "Project File         : " << projectFilePath << "\n";
+            m_out << i3 << "Compiler Flags       : " << part->compilerFlags.join(", ") << "\n";
             m_out << i3 << "Selected For Building: " << part->selectedForBuilding << "\n";
             m_out << i3 << "Build Target Type    : " << Utils::toString(part->buildTargetType) << "\n";
             m_out << i3 << "Lanugage Version     : " << Utils::toString(part->languageVersion)<<"\n";

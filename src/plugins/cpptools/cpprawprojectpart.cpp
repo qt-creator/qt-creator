@@ -36,8 +36,8 @@ RawProjectPartFlags::RawProjectPartFlags(const ProjectExplorer::ToolChain *toolC
 {
     // Keep the following cheap/non-blocking for the ui thread. Expensive
     // operations are encapsulated in ToolChainInfo as "runners".
+    this->commandLineFlags = commandLineFlags;
     if (toolChain) {
-        this->commandLineFlags = commandLineFlags;
         warningFlags = toolChain->warningFlags(commandLineFlags);
         languageExtensions = toolChain->languageExtensions(commandLineFlags);
     }

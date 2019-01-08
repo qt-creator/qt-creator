@@ -162,6 +162,7 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
                                                       : ProjectPart::WordWidth32Bit;
     part->toolChainTargetTriple = tcInfo.targetTriple;
     part->extraCodeModelFlags = tcInfo.extraCodeModelFlags;
+    part->compilerFlags = flags.commandLineFlags;
     part->warningFlags = flags.warningFlags;
     part->languageExtensions = flags.languageExtensions;
 

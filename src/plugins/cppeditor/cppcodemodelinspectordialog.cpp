@@ -76,6 +76,13 @@ QString fileInCurrentEditor()
     return QString();
 }
 
+QSizePolicy sizePolicyWithStretchFactor(int stretchFactor)
+{
+    QSizePolicy policy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    policy.setHorizontalStretch(stretchFactor);
+    return policy;
+}
+
 class DepthFinder : public SymbolVisitor {
 public:
     DepthFinder() : m_symbol(0), m_depth(-1), m_foundDepth(-1), m_stop(false) {}
@@ -1357,6 +1364,9 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
     setAttribute(Qt::WA_DeleteOnClose);
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, this, &QWidget::close);
 
+    m_ui->partGeneralView->setSizePolicy(sizePolicyWithStretchFactor(2));
+    m_ui->partGeneralCompilerFlagsEdit->setSizePolicy(sizePolicyWithStretchFactor(1));
+
     m_proxySnapshotModel->setSourceModel(m_snapshotModel);
     m_proxySnapshotModel->setFilterKeyColumn(SnapshotModel::FilePathColumn);
     m_snapshotView->setModel(m_proxySnapshotModel);
@@ -1814,6 +1824,9 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
         table.prepend({QString::fromLatin1("Project Config File"), part->projectConfigFile});
     m_partGenericInfoModel->configure(table);
     resizeColumns<KeyValueModel>(m_ui->partGeneralView);
+
+    // Compiler Flags
+    m_ui->partGeneralCompilerFlagsEdit->setPlainText(part->compilerFlags.join("\n"));
 
     // Project Files
     m_projectFilesModel->configure(part->files);

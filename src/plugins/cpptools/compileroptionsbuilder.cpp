@@ -93,6 +93,7 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
                                           UsePrecompiledHeaders usePrecompiledHeaders)
 {
     m_options.clear();
+    evaluateCompilerFlags();
 
     if (fileKind == ProjectFile::CHeader || fileKind == ProjectFile::CSource) {
         QTC_ASSERT(m_projectPart.languageVersion <= Utils::LanguageVersion::LatestC,
@@ -108,22 +109,23 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
 
     addWordWidth();
     addTargetTriple();
-    addExtraCodeModelFlags();
-
     updateFileLanguage(fileKind);
     addLanguageVersionAndExtensions();
 
+    addPrecompiledHeaderOptions(usePrecompiledHeaders);
+    addProjectConfigFileInclude();
+
+    addExtraCodeModelFlags();
+    addCompilerFlags();
+
+    addMsvcCompatibilityVersion();
     addToolchainAndProjectMacros();
     undefineClangVersionMacrosForMsvc();
     undefineCppLanguageFeatureMacrosForMsvc2015();
     addDefineFunctionMacrosMsvc();
 
     addToolchainFlags();
-    addPrecompiledHeaderOptions(usePrecompiledHeaders);
     addHeaderPathOptions();
-    addProjectConfigFileInclude();
-
-    addMsvcCompatibilityVersion();
 
     addExtraOptions();
 
@@ -212,6 +214,12 @@ void CompilerOptionsBuilder::addExtraCodeModelFlags()
     // In case of iOS build target triple has aarch64 archtecture set which makes
     // code model fail with CXError_Failure. To fix that we explicitly provide architecture.
     m_options.append(m_projectPart.extraCodeModelFlags);
+}
+
+void CompilerOptionsBuilder::addCompilerFlags()
+{
+    if (m_compilerFlags.forward)
+        m_options.append(m_compilerFlags.flags);
 }
 
 static QString creatorResourcePath()
@@ -341,48 +349,53 @@ void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
     const Utils::LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
     const bool gnuExtensions = languageExtensions & LanguageExtension::Gnu;
 
-    switch (m_projectPart.languageVersion) {
-    case LanguageVersion::C89:
-        options << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
-        break;
-    case LanguageVersion::C99:
-        options << (gnuExtensions ? QLatin1String("-std=gnu99") : QLatin1String("-std=c99"));
-        break;
-    case LanguageVersion::C11:
-        options << (gnuExtensions ? QLatin1String("-std=gnu11") : QLatin1String("-std=c11"));
-        break;
-    case LanguageVersion::C18:
-        // Clang 6, 7 and current trunk do not accept "gnu18"/"c18", so use the "*17" variants.
-        options << (gnuExtensions ? QLatin1String("-std=gnu17") : QLatin1String("-std=c17"));
-        break;
-    case LanguageVersion::CXX11:
-        options << (gnuExtensions ? QLatin1String("-std=gnu++11") : QLatin1String("-std=c++11"));
-        break;
-    case LanguageVersion::CXX98:
-        options << (gnuExtensions ? QLatin1String("-std=gnu++98") : QLatin1String("-std=c++98"));
-        break;
-    case LanguageVersion::CXX03:
-        options << (gnuExtensions ? QLatin1String("-std=gnu++03") : QLatin1String("-std=c++03"));
-        break;
-    case LanguageVersion::CXX14:
-        options << (gnuExtensions ? QLatin1String("-std=gnu++14") : QLatin1String("-std=c++14"));
-        break;
-    case LanguageVersion::CXX17:
-        options << (gnuExtensions ? QLatin1String("-std=gnu++17") : QLatin1String("-std=c++17"));
-        break;
-    case LanguageVersion::CXX2a:
-        options << (gnuExtensions ? QLatin1String("-std=gnu++2a") : QLatin1String("-std=c++2a"));
-        break;
+    if (!m_compilerFlags.forward
+        || (m_compilerFlags.forward && !m_compilerFlags.isLanguageVersionSpecified)) {
+        switch (m_projectPart.languageVersion) {
+        case LanguageVersion::C89:
+            options << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
+            break;
+        case LanguageVersion::C99:
+            options << (gnuExtensions ? QLatin1String("-std=gnu99") : QLatin1String("-std=c99"));
+            break;
+        case LanguageVersion::C11:
+            options << (gnuExtensions ? QLatin1String("-std=gnu11") : QLatin1String("-std=c11"));
+            break;
+        case LanguageVersion::C18:
+            // Clang 6, 7 and current trunk do not accept "gnu18"/"c18", so use the "*17" variants.
+            options << (gnuExtensions ? QLatin1String("-std=gnu17") : QLatin1String("-std=c17"));
+            break;
+        case LanguageVersion::CXX11:
+            options << (gnuExtensions ? QLatin1String("-std=gnu++11") : QLatin1String("-std=c++11"));
+            break;
+        case LanguageVersion::CXX98:
+            options << (gnuExtensions ? QLatin1String("-std=gnu++98") : QLatin1String("-std=c++98"));
+            break;
+        case LanguageVersion::CXX03:
+            options << (gnuExtensions ? QLatin1String("-std=gnu++03") : QLatin1String("-std=c++03"));
+            break;
+        case LanguageVersion::CXX14:
+            options << (gnuExtensions ? QLatin1String("-std=gnu++14") : QLatin1String("-std=c++14"));
+            break;
+        case LanguageVersion::CXX17:
+            options << (gnuExtensions ? QLatin1String("-std=gnu++17") : QLatin1String("-std=c++17"));
+            break;
+        case LanguageVersion::CXX2a:
+            options << (gnuExtensions ? QLatin1String("-std=gnu++2a") : QLatin1String("-std=c++2a"));
+            break;
+        }
     }
 
-    if (languageExtensions & LanguageExtension::Microsoft)
-        options << "-fms-extensions";
+    if (!m_compilerFlags.forward) {
+        if (languageExtensions & LanguageExtension::Microsoft)
+            options << "-fms-extensions";
 
-    if (languageExtensions & LanguageExtension::OpenMP)
-        options << "-fopenmp";
+        if (languageExtensions & LanguageExtension::OpenMP)
+            options << "-fopenmp";
 
-    if (languageExtensions & LanguageExtension::Borland)
-        options << "-fborland-extensions";
+        if (languageExtensions & LanguageExtension::Borland)
+            options << "-fborland-extensions";
+    }
 
     m_options.append(options);
 }
@@ -587,7 +600,7 @@ void CompilerOptionsBuilder::addToolchainFlags()
             && m_projectPart.toolchainType != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
         if (m_useToolchainMacros == UseToolchainMacros::Yes)
             add("-undef");
-        else
+        else if (!m_compilerFlags.forward)
             add("-fPIC");
     }
 }
@@ -630,6 +643,39 @@ UseToolchainMacros CompilerOptionsBuilder::useToolChainMacros()
 void CompilerOptionsBuilder::reset()
 {
     m_options.clear();
+}
+
+// Some example command lines for a "Qt Console Application":
+//  CMakeProject: -fPIC -std=gnu++11
+//  QbsProject: -m64 -fPIC -std=c++11 -fexceptions
+//  QMakeProject: -pipe -Whello -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC
+void CompilerOptionsBuilder::evaluateCompilerFlags()
+{
+    const Core::Id &toolChain = m_projectPart.toolchainType;
+    if (toolChain == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
+            || toolChain == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
+        m_compilerFlags.forward = true;
+
+        for (const QString &option : m_projectPart.compilerFlags) {
+            // Ignore warning flags as these interfere with ouser user-configured diagnostics.
+            // Note that once "-w" is provided, no warnings will be emitted, even if "-Wall" follows.
+            if (option.startsWith("-w", Qt::CaseInsensitive) // -w, -W...
+                    || option.startsWith("-pedantic")) {
+                continue;
+            }
+
+            // Check whether a language version is already used.
+            // Modify if needed as clang accepts c18/gnu18, but not c17/gnu17.
+            QString theOption = option;
+            if (theOption.startsWith("-std=")) {
+                m_compilerFlags.isLanguageVersionSpecified = true;
+                theOption.replace("=c18", "=c17");
+                theOption.replace("=gnu18", "=gnu17");
+            }
+
+            m_compilerFlags.flags.append(theOption);
+        }
+    }
 }
 
 } // namespace CppTools

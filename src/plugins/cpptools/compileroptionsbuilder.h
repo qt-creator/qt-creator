@@ -61,6 +61,7 @@ public:
 
     void addTargetTriple();
     void addExtraCodeModelFlags();
+    void addCompilerFlags();
     void insertWrappedQtHeaders();
     void addLanguageVersionAndExtensions();
     void updateFileLanguage(ProjectFile::Kind fileKind);
@@ -80,10 +81,12 @@ public:
     void reset();
 
 private:
+    void evaluateCompilerFlags();
     bool excludeDefineDirective(const ProjectExplorer::Macro &macro) const;
     QString includeDirOptionForPath(const QString &path) const;
     void addWrappedQtHeadersIncludePath(QStringList &list) const;
     QString includeDirOptionForSystemPath(ProjectExplorer::HeaderPathType type) const;
+    QByteArray msvcVersion() const;
 
 private:
     const ProjectPart &m_projectPart;
@@ -96,7 +99,11 @@ private:
     const QString m_clangVersion;
     const QString m_clangResourceDirectory;
 
-    QByteArray msvcVersion() const;
+    struct {
+        bool forward = false;
+        QStringList flags;
+        bool isLanguageVersionSpecified = false;
+    } m_compilerFlags;
 
     QStringList m_options;
 };
