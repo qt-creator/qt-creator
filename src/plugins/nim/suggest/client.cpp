@@ -27,6 +27,8 @@
 
 #include "sexprparser.h"
 
+#include <array>
+
 namespace Nim {
 namespace Suggest {
 
