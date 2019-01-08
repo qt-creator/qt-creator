@@ -684,8 +684,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *
         }
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-        m_qmakeSysroot = SysRootKitInformation::hasSysRoot(k)
-                ? SysRootKitInformation::sysRoot(k).toString() : QString();
+        m_qmakeSysroot = SysRootKitInformation::sysRoot(k).toString();
 
         if (qtVersion && qtVersion->isValid()) {
             m_qmakeGlobals->qmake_abslocation = QDir::cleanPath(qtVersion->qmakeCommand().toString());

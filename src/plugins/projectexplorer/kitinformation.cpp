@@ -117,13 +117,6 @@ Core::Id SysRootKitInformation::id()
     return "PE.Profile.SysRoot";
 }
 
-bool SysRootKitInformation::hasSysRoot(const Kit *k)
-{
-    if (k)
-        return !k->value(SysRootKitInformation::id()).toString().isEmpty();
-    return false;
-}
-
 Utils::FileName SysRootKitInformation::sysRoot(const Kit *k)
 {
     if (!k)

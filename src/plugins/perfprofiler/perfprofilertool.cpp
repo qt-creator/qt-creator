@@ -551,9 +551,7 @@ static Utils::FileNameList collectQtIncludePaths(const ProjectExplorer::Kit *kit
 
 static Utils::FileName sysroot(const Kit *kit)
 {
-    if (kit && SysRootKitInformation::hasSysRoot(kit))
-        return SysRootKitInformation::sysRoot(kit);
-    return Utils::FileName();
+    return SysRootKitInformation::sysRoot(kit);
 }
 
 static Utils::FileNameList sourceFiles(const Project *currentProject = nullptr)
