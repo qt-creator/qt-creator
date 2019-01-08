@@ -61,7 +61,6 @@ public:
 
     void addTargetTriple();
     void addExtraCodeModelFlags();
-    void enableExceptions();
     void insertWrappedQtHeaders();
     void addOptionsForLanguage(bool checkForBorlandExtensions = true);
     void updateLanguageOption(ProjectFile::Kind fileKind);

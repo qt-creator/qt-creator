@@ -355,22 +355,6 @@ TEST_F(CompilerOptionsBuilder, AddTargetTriple)
     ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-target", "x86_64-apple-darwin10"));
 }
 
-TEST_F(CompilerOptionsBuilder, EnableCExceptions)
-{
-    projectPart.languageVersion = ProjectExplorer::LanguageVersion::C99;
-
-    compilerOptionsBuilder.enableExceptions();
-
-    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-fexceptions"));
-}
-
-TEST_F(CompilerOptionsBuilder, EnableCXXExceptions)
-{
-    compilerOptionsBuilder.enableExceptions();
-
-    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-fcxx-exceptions", "-fexceptions"));
-}
-
 TEST_F(CompilerOptionsBuilder, InsertWrappedQtHeaders)
 {
     compilerOptionsBuilder.insertWrappedQtHeaders();
@@ -457,9 +441,8 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptions)
     ASSERT_THAT(compilerOptionsBuilder.options(),
                 ElementsAre(
                     "-nostdlibinc", "-c", "-m64", "-target", "x86_64-apple-darwin10",
-                    "-arch", "x86_64", "-x", "c++", "-std=c++17", "-fcxx-exceptions",
-                    "-fexceptions", "-Dfoo=bar", "-DprojectFoo=projectBar",
-                    "-undef",
+                    "-arch", "x86_64", "-x", "c++", "-std=c++17", "-Dfoo=bar",
+                    "-DprojectFoo=projectBar", "-undef",
                     "-I", IsPartOfHeader("wrappedQtHeaders"),
                     "-I", IsPartOfHeader(QDir::toNativeSeparators("wrappedQtHeaders/QtCore").toStdString()),
                     "-I", QDir::toNativeSeparators("/tmp/path"),

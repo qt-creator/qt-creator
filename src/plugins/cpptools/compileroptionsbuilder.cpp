@@ -112,7 +112,6 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
 
     updateLanguageOption(fileKind);
     addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
-    enableExceptions();
 
     addToolchainAndProjectMacros();
     undefineClangVersionMacrosForMsvc();
@@ -213,13 +212,6 @@ void CompilerOptionsBuilder::addExtraCodeModelFlags()
     // In case of iOS build target triple has aarch64 archtecture set which makes
     // code model fail with CXError_Failure. To fix that we explicitly provide architecture.
     m_options.append(m_projectPart.extraCodeModelFlags);
-}
-
-void CompilerOptionsBuilder::enableExceptions()
-{
-    if (m_projectPart.languageVersion > ProjectExplorer::LanguageVersion::LatestC)
-        add("-fcxx-exceptions");
-    add("-fexceptions");
 }
 
 static QString creatorResourcePath()
