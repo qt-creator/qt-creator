@@ -151,6 +151,17 @@ void BuildStepList::insertStep(int position, BuildStep *step)
     emit stepInserted(position);
 }
 
+void BuildStepList::insertStep(int position, Core::Id stepId)
+{
+    for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
+        if (BuildStep *step = factory->create(this, stepId)) {
+            insertStep(position, step);
+            return;
+        }
+    }
+    QTC_ASSERT(false, qDebug() << "No factory for build step" << stepId.toString() << "found.");
+}
+
 bool BuildStepList::removeStep(int position)
 {
     BuildStep *bs = at(position);
