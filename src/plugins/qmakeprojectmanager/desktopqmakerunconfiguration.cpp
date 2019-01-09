@@ -54,8 +54,6 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
-const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
-
 //
 // DesktopQmakeRunConfiguration
 //
@@ -105,15 +103,6 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
         terminalAspect->setUseTerminal(bti.usesTerminal);
 
     aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-}
-
-QVariantMap DesktopQmakeRunConfiguration::toMap() const
-{
-    // FIXME: For compatibility purposes in the 4.7 dev cycle only.
-    const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
-    QVariantMap map(RunConfiguration::toMap());
-    map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(proFilePath().toString()));
-    return map;
 }
 
 bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
