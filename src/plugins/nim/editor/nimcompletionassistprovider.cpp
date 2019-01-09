@@ -274,7 +274,7 @@ int NimCompletionAssistProvider::activationCharSequenceLength() const
 
 bool NimCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
 {
-    return sequence.size() && isActivationChar(sequence.front());
+    return !sequence.isEmpty() && isActivationChar(sequence.at(0));
 }
 
 IAssistProvider::RunType NimCompletionAssistProvider::runType() const
