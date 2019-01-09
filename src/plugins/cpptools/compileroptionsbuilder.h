@@ -62,8 +62,8 @@ public:
     void addTargetTriple();
     void addExtraCodeModelFlags();
     void insertWrappedQtHeaders();
-    void addOptionsForLanguage(bool checkForBorlandExtensions = true);
-    void updateLanguageOption(ProjectFile::Kind fileKind);
+    void addLanguageVersionAndExtensions();
+    void updateFileLanguage(ProjectFile::Kind fileKind);
 
     void addMsvcCompatibilityVersion();
     void undefineCppLanguageFeatureMacrosForMsvc2015();

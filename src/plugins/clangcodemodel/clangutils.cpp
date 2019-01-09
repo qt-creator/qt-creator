@@ -316,7 +316,7 @@ static QJsonObject createFileObject(CompilerOptionsBuilder &optionsBuilder,
                                     const ::Utils::FileName &buildDir)
 {
     const ProjectFile::Kind kind = ProjectFile::classify(projFile.path);
-    optionsBuilder.updateLanguageOption(kind);
+    optionsBuilder.updateFileLanguage(kind);
 
     QJsonObject fileObject;
     fileObject["file"] = projFile.path;

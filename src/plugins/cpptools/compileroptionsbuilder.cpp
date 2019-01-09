@@ -110,8 +110,8 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     addTargetTriple();
     addExtraCodeModelFlags();
 
-    updateLanguageOption(fileKind);
-    addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
+    updateFileLanguage(fileKind);
+    addLanguageVersionAndExtensions();
 
     addToolchainAndProjectMacros();
     undefineClangVersionMacrosForMsvc();
@@ -316,7 +316,7 @@ void CompilerOptionsBuilder::addMacros(const ProjectExplorer::Macros &macros)
     m_options.append(options);
 }
 
-void CompilerOptionsBuilder::updateLanguageOption(ProjectFile::Kind fileKind)
+void CompilerOptionsBuilder::updateFileLanguage(ProjectFile::Kind fileKind)
 {
     const bool objcExt = m_projectPart.languageExtensions
                          & ProjectExplorer::LanguageExtension::ObjectiveC;
@@ -332,7 +332,7 @@ void CompilerOptionsBuilder::updateLanguageOption(ProjectFile::Kind fileKind)
         m_options[langOptIndex + 1] = options[1];
 }
 
-void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtensions)
+void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
 {
     using ProjectExplorer::LanguageExtension;
     using ProjectExplorer::LanguageVersion;
@@ -381,7 +381,7 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
     if (languageExtensions & LanguageExtension::OpenMP)
         options << "-fopenmp";
 
-    if (checkForBorlandExtensions && (languageExtensions & LanguageExtension::Borland))
+    if (languageExtensions & LanguageExtension::Borland)
         options << "-fborland-extensions";
 
     m_options.append(options);

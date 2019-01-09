@@ -364,7 +364,7 @@ TEST_F(CompilerOptionsBuilder, InsertWrappedQtHeaders)
 
 TEST_F(CompilerOptionsBuilder, SetLanguageVersion)
 {
-    compilerOptionsBuilder.updateLanguageOption(ProjectFile::CXXSource);
+    compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXSource);
 
     ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-x", "c++"));
 }
@@ -373,16 +373,16 @@ TEST_F(CompilerOptionsBuilder, HandleLanguageExtension)
 {
     projectPart.languageExtensions = ProjectExplorer::LanguageExtension::ObjectiveC;
 
-    compilerOptionsBuilder.updateLanguageOption(ProjectFile::CXXSource);
+    compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXSource);
 
     ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-x", "objective-c++"));
 }
 
 TEST_F(CompilerOptionsBuilder, UpdateLanguageVersion)
 {
-    compilerOptionsBuilder.updateLanguageOption(ProjectFile::CXXSource);
+    compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXSource);
 
-    compilerOptionsBuilder.updateLanguageOption(ProjectFile::CXXHeader);
+    compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXHeader);
 
     ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-x", "c++-header"));
 }
