@@ -52,7 +52,7 @@ protected:
     {
         projectPart.project = project.get();
         projectPart.toolchainType = ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID;
-        projectPart.languageVersion = ProjectExplorer::LanguageVersion::CXX17;
+        projectPart.languageVersion = Utils::LanguageVersion::CXX17;
         projectPart.toolChainWordWidth = CppTools::ProjectPart::WordWidth64Bit;
         projectPart.toolChainTargetTriple = "x86_64-apple-darwin10";
         projectPart.extraCodeModelFlags = QStringList{"-arch", "x86_64"};
@@ -371,7 +371,7 @@ TEST_F(CompilerOptionsBuilder, SetLanguageVersion)
 
 TEST_F(CompilerOptionsBuilder, HandleLanguageExtension)
 {
-    projectPart.languageExtensions = ProjectExplorer::LanguageExtension::ObjectiveC;
+    projectPart.languageExtensions = Utils::LanguageExtension::ObjectiveC;
 
     compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXSource);
 

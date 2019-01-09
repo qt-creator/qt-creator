@@ -262,7 +262,8 @@ HEADERS += \
     $$PWD/link.h \
     $$PWD/fixedsizeclicklabel.h \
     $$PWD/removefiledialog.h \
-    $$PWD/differ.h
+    $$PWD/differ.h \
+    $$PWD/cpplanguage_details.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/newclasswidget.ui \

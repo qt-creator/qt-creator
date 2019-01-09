@@ -1162,9 +1162,9 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart()
 
     // Do not activate ObjectiveCExtensions since this will lead to the
     // "objective-c++" language option for a project-less *.cpp file.
-    part->languageExtensions = ProjectExplorer::LanguageExtension::All;
-    part->languageExtensions &= ~ProjectExplorer::LanguageExtensions(
-        ProjectExplorer::LanguageExtension::ObjectiveC);
+    part->languageExtensions = Utils::LanguageExtension::All;
+    part->languageExtensions &= ~Utils::LanguageExtensions(
+        Utils::LanguageExtension::ObjectiveC);
 
     part->qtVersion = ProjectPart::Qt5;
     part->updateLanguageFeatures();

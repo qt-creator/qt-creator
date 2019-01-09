@@ -297,8 +297,9 @@ static long toLanguageVersionAsLong(QByteArray dateAsByteArray)
     return result;
 }
 
-LanguageVersion ToolChain::cxxLanguageVersion(const QByteArray &cplusplusMacroValue)
+Utils::LanguageVersion ToolChain::cxxLanguageVersion(const QByteArray &cplusplusMacroValue)
 {
+    using Utils::LanguageVersion;
     const long version = toLanguageVersionAsLong(cplusplusMacroValue);
 
     if (version > 201703L)
@@ -313,8 +314,10 @@ LanguageVersion ToolChain::cxxLanguageVersion(const QByteArray &cplusplusMacroVa
     return LanguageVersion::CXX03;
 }
 
-LanguageVersion ToolChain::languageVersion(const Core::Id &language, const Macros &macros)
+Utils::LanguageVersion ToolChain::languageVersion(const Core::Id &language, const Macros &macros)
 {
+    using Utils::LanguageVersion;
+
     if (language == Constants::CXX_LANGUAGE_ID) {
         for (const ProjectExplorer::Macro &macro : macros) {
             if (macro.key == "__cplusplus") // Check for the C++ identifying macro

@@ -31,11 +31,11 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/language.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
 
+#include <utils/cpplanguage_details.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -95,12 +95,12 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     m_options.clear();
 
     if (fileKind == ProjectFile::CHeader || fileKind == ProjectFile::CSource) {
-        QTC_ASSERT(m_projectPart.languageVersion <= ProjectExplorer::LanguageVersion::LatestC,
+        QTC_ASSERT(m_projectPart.languageVersion <= Utils::LanguageVersion::LatestC,
                    return QStringList(););
     }
 
     if (fileKind == ProjectFile::CXXHeader || fileKind == ProjectFile::CXXSource) {
-        QTC_ASSERT(m_projectPart.languageVersion > ProjectExplorer::LanguageVersion::LatestC,
+        QTC_ASSERT(m_projectPart.languageVersion > Utils::LanguageVersion::LatestC,
                    return QStringList(););
     }
 
@@ -319,7 +319,7 @@ void CompilerOptionsBuilder::addMacros(const ProjectExplorer::Macros &macros)
 void CompilerOptionsBuilder::updateFileLanguage(ProjectFile::Kind fileKind)
 {
     const bool objcExt = m_projectPart.languageExtensions
-                         & ProjectExplorer::LanguageExtension::ObjectiveC;
+                         & Utils::LanguageExtension::ObjectiveC;
     const QStringList options = createLanguageOptionGcc(fileKind, objcExt);
     if (options.isEmpty())
         return;
@@ -334,11 +334,11 @@ void CompilerOptionsBuilder::updateFileLanguage(ProjectFile::Kind fileKind)
 
 void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
 {
-    using ProjectExplorer::LanguageExtension;
-    using ProjectExplorer::LanguageVersion;
+    using Utils::LanguageExtension;
+    using Utils::LanguageVersion;
 
     QStringList options;
-    const ProjectExplorer::LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
+    const Utils::LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
     const bool gnuExtensions = languageExtensions & LanguageExtension::Gnu;
 
     switch (m_projectPart.languageVersion) {

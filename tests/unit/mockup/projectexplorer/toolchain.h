@@ -27,9 +27,9 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/language.h>
 #include <projectexplorer/projectmacro.h>
 #include <coreplugin/id.h>
+#include <utils/cpplanguage_details.h>
 
 #include <functional>
 
@@ -49,7 +49,7 @@ public:
     {
     public:
         Macros macros;
-        LanguageVersion languageVersion; // Derived from macros.
+        Utils::LanguageVersion languageVersion; // Derived from macros.
     };
     using MacroInspectionRunner = std::function<MacroInspectionReport(const QStringList &cxxflags)>;
     virtual MacroInspectionRunner createMacroInspectionRunner() const = 0;

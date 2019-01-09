@@ -27,9 +27,11 @@
 
 #include <QFlags>
 
-namespace ProjectExplorer {
+namespace Utils {
 
-enum class LanguageVersion {
+enum class Language : unsigned char { C, Cxx };
+
+enum class LanguageVersion : unsigned char {
     C89,
     C99,
     C11,
@@ -44,22 +46,18 @@ enum class LanguageVersion {
     LatestCxx = CXX2a,
 };
 
-enum class LanguageExtension {
-    None       = 0,
+enum class LanguageExtension : unsigned char {
+    None = 0,
 
-    Gnu        = 1 << 0,
-    Microsoft  = 1 << 1,
-    Borland    = 1 << 2,
-    OpenMP     = 1 << 3,
+    Gnu = 1 << 0,
+    Microsoft = 1 << 1,
+    Borland = 1 << 2,
+    OpenMP = 1 << 3,
     ObjectiveC = 1 << 4,
 
-    All = Gnu
-        | Microsoft
-        | Borland
-        | OpenMP
-        | ObjectiveC
+    All = Gnu | Microsoft | Borland | OpenMP | ObjectiveC
 };
 
 Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
 
-} // namespace ProjectExplorer
+} // namespace Utils

@@ -342,12 +342,12 @@ QList<ProjectPart::Ptr> ProjectPartChooser::createCAndCxxProjectParts()
 
     // Create project part for C
     const ProjectPart::Ptr cprojectpart{new ProjectPart};
-    cprojectpart->languageVersion = ProjectExplorer::LanguageVersion::C11;
+    cprojectpart->languageVersion = Utils::LanguageVersion::C11;
     projectParts.append(cprojectpart);
 
     // Create project part for CXX
     const ProjectPart::Ptr cxxprojectpart{new ProjectPart};
-    cxxprojectpart->languageVersion = ProjectExplorer::LanguageVersion::CXX98;
+    cxxprojectpart->languageVersion = Utils::LanguageVersion::CXX98;
     projectParts.append(cxxprojectpart);
 
     return projectParts;

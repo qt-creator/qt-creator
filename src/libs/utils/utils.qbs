@@ -66,6 +66,7 @@ Project {
             "consoleprocess.cpp",
             "consoleprocess.h",
             "consoleprocess_p.h",
+            "cpplanguage_details.h",
             "crumblepath.cpp",
             "crumblepath.h",
             "declarationmacros.h",

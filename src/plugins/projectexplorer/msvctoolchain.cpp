@@ -628,10 +628,12 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
 //
 // For _MSV_VER values, see https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2017.
 //
-LanguageVersion MsvcToolChain::msvcLanguageVersion(const QStringList & /*cxxflags*/,
-                                                   const Core::Id &language,
-                                                   const Macros &macros) const
+Utils::LanguageVersion MsvcToolChain::msvcLanguageVersion(const QStringList & /*cxxflags*/,
+                                                          const Core::Id &language,
+                                                          const Macros &macros) const
 {
+    using Utils::LanguageVersion;
+
     int mscVer = -1;
     QByteArray msvcLang;
     for (const ProjectExplorer::Macro &macro : macros) {
@@ -1053,15 +1055,16 @@ Macros MsvcToolChain::predefinedMacros(const QStringList &cxxflags) const
     return createMacroInspectionRunner()(cxxflags).macros;
 }
 
-LanguageExtensions MsvcToolChain::languageExtensions(const QStringList &cxxflags) const
+Utils::LanguageExtensions MsvcToolChain::languageExtensions(const QStringList &cxxflags) const
 {
-    LanguageExtensions extensions(LanguageExtension::Microsoft);
+    using Utils::LanguageExtension;
+    Utils::LanguageExtensions extensions(LanguageExtension::Microsoft);
     if (cxxflags.contains(QLatin1String("/openmp")))
         extensions |= LanguageExtension::OpenMP;
 
     // see http://msdn.microsoft.com/en-us/library/0k0w269d%28v=vs.71%29.aspx
     if (cxxflags.contains(QLatin1String("/Za")))
-        extensions &= ~LanguageExtensions(LanguageExtension::Microsoft);
+        extensions &= ~Utils::LanguageExtensions(LanguageExtension::Microsoft);
 
     return extensions;
 }
@@ -1596,9 +1599,9 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     return Macro::toMacros(response.allRawOutput());
 }
 
-LanguageVersion ClangClToolChain::msvcLanguageVersion(const QStringList &cxxflags,
-                                                      const Core::Id &language,
-                                                      const Macros &macros) const
+Utils::LanguageVersion ClangClToolChain::msvcLanguageVersion(const QStringList &cxxflags,
+                                                             const Core::Id &language,
+                                                             const Macros &macros) const
 {
     if (cxxflags.contains("--driver-mode=g++"))
         return ToolChain::languageVersion(language, macros);

@@ -103,7 +103,7 @@ TEST_F(ProjectInfoGenerator, ProjectPartIndicatesObjectiveCExtensionsByDefault)
 
     ASSERT_THAT(projectInfo.projectParts().size(), Eq(1));
     const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
-    ASSERT_TRUE(projectPart.languageExtensions & ProjectExplorer::LanguageExtension::ObjectiveC);
+    ASSERT_TRUE(projectPart.languageExtensions & Utils::LanguageExtension::ObjectiveC);
 }
 
 TEST_F(ProjectInfoGenerator, ProjectPartHasLatestLanguageVersionByDefault)
@@ -114,13 +114,13 @@ TEST_F(ProjectInfoGenerator, ProjectPartHasLatestLanguageVersionByDefault)
 
     ASSERT_THAT(projectInfo.projectParts().size(), Eq(1));
     const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
-    ASSERT_THAT(projectPart.languageVersion, Eq(ProjectExplorer::LanguageVersion::LatestCxx));
+    ASSERT_THAT(projectPart.languageVersion, Eq(Utils::LanguageVersion::LatestCxx));
 }
 
 TEST_F(ProjectInfoGenerator, UseMacroInspectionReportForLanguageVersion)
 {
     projectUpdateInfo.cxxToolChainInfo.macroInspectionRunner = [](const QStringList &) {
-        return ToolChain::MacroInspectionReport{Macros(), ProjectExplorer::LanguageVersion::CXX17};
+        return ToolChain::MacroInspectionReport{Macros(), Utils::LanguageVersion::CXX17};
     };
     rawProjectPart.files = QStringList{ "foo.cpp" };
 
@@ -128,19 +128,19 @@ TEST_F(ProjectInfoGenerator, UseMacroInspectionReportForLanguageVersion)
 
     ASSERT_THAT(projectInfo.projectParts().size(), Eq(1));
     const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
-    ASSERT_THAT(projectPart.languageVersion, Eq(ProjectExplorer::LanguageVersion::CXX17));
+    ASSERT_THAT(projectPart.languageVersion, Eq(Utils::LanguageVersion::CXX17));
 }
 
 TEST_F(ProjectInfoGenerator, UseCompilerFlagsForLanguageExtensions)
 {
     rawProjectPart.files = QStringList{ "foo.cpp" };
-    rawProjectPart.flagsForCxx.languageExtensions = ProjectExplorer::LanguageExtension::Microsoft;
+    rawProjectPart.flagsForCxx.languageExtensions = Utils::LanguageExtension::Microsoft;
 
     const ProjectInfo projectInfo = generate();
 
     ASSERT_THAT(projectInfo.projectParts().size(), Eq(1));
     const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
-    ASSERT_TRUE(projectPart.languageExtensions & ProjectExplorer::LanguageExtension::Microsoft);
+    ASSERT_TRUE(projectPart.languageExtensions & Utils::LanguageExtension::Microsoft);
 }
 
 TEST_F(ProjectInfoGenerator, ProjectFileKindsMatchProjectPartVersion)
@@ -150,10 +150,10 @@ TEST_F(ProjectInfoGenerator, ProjectFileKindsMatchProjectPartVersion)
     const ProjectInfo projectInfo = generate();
 
     ASSERT_THAT(projectInfo.projectParts(),
-                UnorderedElementsAre(IsProjectPart(ProjectExplorer::LanguageVersion::LatestC, ProjectFile::CHeader),
-                                     IsProjectPart(ProjectExplorer::LanguageVersion::LatestC, ProjectFile::ObjCHeader),
-                                     IsProjectPart(ProjectExplorer::LanguageVersion::LatestCxx, ProjectFile::CXXHeader),
-                                     IsProjectPart(ProjectExplorer::LanguageVersion::LatestCxx, ProjectFile::ObjCXXHeader)));
+                UnorderedElementsAre(IsProjectPart(Utils::LanguageVersion::LatestC, ProjectFile::CHeader),
+                                     IsProjectPart(Utils::LanguageVersion::LatestC, ProjectFile::ObjCHeader),
+                                     IsProjectPart(Utils::LanguageVersion::LatestCxx, ProjectFile::CXXHeader),
+                                     IsProjectPart(Utils::LanguageVersion::LatestCxx, ProjectFile::ObjCXXHeader)));
 }
 
 void ProjectInfoGenerator::SetUp()

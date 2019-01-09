@@ -29,7 +29,7 @@
 
 namespace CppTools {
 
-enum class Language { C, Cxx };
+using Utils::Language;
 
 class ProjectPartInfo {
 public:

@@ -48,7 +48,7 @@ private:
                                        const ProjectFiles &projectFiles,
                                        const QString &partName,
                                        Language language,
-                                       ProjectExplorer::LanguageExtensions languageExtensions);
+                                       Utils::LanguageExtensions languageExtensions);
 
 private:
     const QFutureInterface<void> m_futureInterface;

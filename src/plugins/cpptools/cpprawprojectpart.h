@@ -28,8 +28,8 @@
 #include "cpptools_global.h"
 #include "projectpart.h"
 
-#include <projectexplorer/language.h>
 #include <projectexplorer/toolchain.h>
+#include <utils/cpplanguage_details.h>
 
 #include <functional>
 
@@ -46,7 +46,7 @@ public:
     QStringList commandLineFlags;
     // The following are deduced from commandLineFlags.
     ProjectExplorer::WarningFlags warningFlags = ProjectExplorer::WarningFlags::Default;
-    ProjectExplorer::LanguageExtensions languageExtensions = ProjectExplorer::LanguageExtension::None;
+    Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
 };
 
 class CPPTOOLS_EXPORT RawProjectPart

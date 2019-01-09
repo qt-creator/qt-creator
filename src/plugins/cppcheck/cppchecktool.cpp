@@ -137,7 +137,7 @@ QStringList CppcheckTool::additionalArguments(const CppTools::ProjectPart &part)
     if (!m_options.guessArguments)
         return result;
 
-    using Version = ProjectExplorer::LanguageVersion;
+    using Version = Utils::LanguageVersion;
     switch (part.languageVersion) {
     case Version::C89:
         result.push_back("--std=c89 --language=c");

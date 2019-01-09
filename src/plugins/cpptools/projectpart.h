@@ -30,11 +30,12 @@
 #include "cppprojectfile.h"
 
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/language.h>
 #include <projectexplorer/projectexplorer_global.h>
 #include <projectexplorer/projectmacro.h>
 
 #include <coreplugin/id.h>
+
+#include <utils/cpplanguage_details.h>
 
 #include <cplusplus/Token.h>
 
@@ -90,8 +91,8 @@ public:
     QString callGroupId;
 
     // Versions, features and extensions
-    ProjectExplorer::LanguageVersion languageVersion = ProjectExplorer::LanguageVersion::LatestCxx;
-    ProjectExplorer::LanguageExtensions languageExtensions = ProjectExplorer::LanguageExtension::None;
+    Utils::LanguageVersion languageVersion = Utils::LanguageVersion::LatestCxx;
+    Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
     CPlusPlus::LanguageFeatures languageFeatures;
     QtVersion qtVersion = UnknownQt;
 

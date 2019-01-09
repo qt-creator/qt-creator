@@ -47,8 +47,8 @@ struct CPPTOOLS_EXPORT Utils
     static QString toString(CPlusPlus::Document::CheckMode checkMode);
     static QString toString(CPlusPlus::Document::DiagnosticMessage::Level level);
     static QString toString(ProjectExplorer::HeaderPathType type);
-    static QString toString(ProjectExplorer::LanguageVersion languageVersion);
-    static QString toString(ProjectExplorer::LanguageExtensions languageExtension);
+    static QString toString(::Utils::LanguageVersion languageVersion);
+    static QString toString(::Utils::LanguageExtensions languageExtension);
     static QString toString(CppTools::ProjectPart::QtVersion qtVersion);
     static QString toString(CppTools::ProjectPart::BuildTargetType buildTargetType);
     static QString toString(const QVector<CppTools::ProjectFile> &projectFiles);

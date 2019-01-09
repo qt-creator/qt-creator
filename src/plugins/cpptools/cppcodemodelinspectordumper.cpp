@@ -103,9 +103,9 @@ QString Utils::toString(ProjectExplorer::HeaderPathType type)
     return QString();
 }
 
-QString Utils::toString(ProjectExplorer::LanguageVersion languageVersion)
+QString Utils::toString(::Utils::LanguageVersion languageVersion)
 {
-#define CASE_LANGUAGEVERSION(x) case ProjectExplorer::LanguageVersion::x: return QLatin1String(#x)
+#define CASE_LANGUAGEVERSION(x) case ::Utils::LanguageVersion::x: return QLatin1String(#x)
     switch (languageVersion) {
     CASE_LANGUAGEVERSION(C89);
     CASE_LANGUAGEVERSION(C99);
@@ -123,11 +123,11 @@ QString Utils::toString(ProjectExplorer::LanguageVersion languageVersion)
     return QString();
 }
 
-QString Utils::toString(ProjectExplorer::LanguageExtensions languageExtension)
+QString Utils::toString(::Utils::LanguageExtensions languageExtension)
 {
     QString result;
 
-#define CASE_LANGUAGE_EXTENSION(ext) if (languageExtension & ProjectExplorer::LanguageExtension::ext) \
+#define CASE_LANGUAGE_EXTENSION(ext) if (languageExtension & ::Utils::LanguageExtension::ext) \
     result += QLatin1String(#ext ", ");
 
     CASE_LANGUAGE_EXTENSION(None);

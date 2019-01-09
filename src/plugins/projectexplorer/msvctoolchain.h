@@ -86,7 +86,7 @@ public:
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
-    LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
+    Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
     HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,
@@ -140,9 +140,9 @@ protected:
     // Function must be thread-safe!
     virtual Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                         const Utils::Environment &env) const;
-    virtual LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
-                                                const Core::Id &language,
-                                                const Macros &macros) const;
+    virtual Utils::LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
+                                                       const Core::Id &language,
+                                                       const Macros &macros) const;
 
     struct GenerateEnvResult
     {
@@ -203,9 +203,9 @@ public:
     void resetMsvcToolChain(const MsvcToolChain *base = nullptr);
     Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                 const Utils::Environment &env) const override;
-    LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
-                                        const Core::Id &language,
-                                        const Macros &macros) const override;
+    Utils::LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
+                                               const Core::Id &language,
+                                               const Macros &macros) const override;
 
     bool operator==(const ToolChain &) const override;
 

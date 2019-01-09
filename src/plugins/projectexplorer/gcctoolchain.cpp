@@ -464,7 +464,7 @@ ProjectExplorer::Macros GccToolChain::predefinedMacros(const QStringList &cxxfla
  * @brief Parses gcc flags -std=*, -fopenmp, -fms-extensions.
  * @see http://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html
  */
-LanguageExtensions GccToolChain::languageExtensions(const QStringList &cxxflags) const
+Utils::LanguageExtensions GccToolChain::languageExtensions(const QStringList &cxxflags) const
 {
     LanguageExtensions extensions = defaultLanguageExtensions();
 

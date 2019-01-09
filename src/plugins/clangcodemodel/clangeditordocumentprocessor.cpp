@@ -470,7 +470,7 @@ private:
         // Determine file kind with respect to ambiguous headers.
         CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::classify(m_filePath);
         if (fileKind == CppTools::ProjectFile::AmbiguousHeader) {
-            fileKind = m_projectPart.languageVersion <= ProjectExplorer::LanguageVersion::LatestC
+            fileKind = m_projectPart.languageVersion <= ::Utils::LanguageVersion::LatestC
                  ? CppTools::ProjectFile::CHeader
                  : CppTools::ProjectFile::CXXHeader;
         }

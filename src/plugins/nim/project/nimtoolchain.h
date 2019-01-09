@@ -42,7 +42,7 @@ public:
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     ProjectExplorer::Macros predefinedMacros(const QStringList &flags) const final;
-    ProjectExplorer::LanguageExtensions languageExtensions(const QStringList &flags) const final;
+    Utils::LanguageExtensions languageExtensions(const QStringList &flags) const final;
     ProjectExplorer::WarningFlags warningFlags(const QStringList &flags) const final;
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
