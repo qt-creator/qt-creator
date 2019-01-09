@@ -53,6 +53,11 @@
 #define unittest_public private
 #endif
 
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 namespace Utils {
 
 template<uint Size>
@@ -976,3 +981,7 @@ SmallString operator+(const char(&first)[Size], SmallStringView second)
 }
 
 } // namespace Utils
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
