@@ -163,7 +163,7 @@ int previousEmptyLinesLength(const QTextBlock &currentBlock)
     return length;
 }
 
-void modifyToIndentEmptyLines(QByteArray &buffer, int &offset, int &length, const QTextBlock &block)
+void modifyToIndentEmptyLines(QByteArray &buffer, int offset, int &length, const QTextBlock &block)
 {
     const QString blockText = block.text().trimmed();
     const bool closingParenBlock = blockText.startsWith(')');
