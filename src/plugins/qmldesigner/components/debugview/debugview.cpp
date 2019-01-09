@@ -36,6 +36,8 @@
 
 #include <qmlitemnode.h>
 
+#include <utils/algorithm.h>
+
 namespace   {
 const QString lineBreak = QStringLiteral("<br>");
 
@@ -226,9 +228,19 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
         QString string;
         message.setString(&string);
         message << selectedNode;
-        foreach (const VariantProperty &property, selectedNode.variantProperties()) {
-            message << property;
+        for (const VariantProperty &property : selectedNode.variantProperties())
+            message << property << lineBreak;
+
+        message << lineBreak;
+
+        const QHash<PropertyName, QVariant> data = selectedNode.auxiliaryData();
+
+        PropertyNameList names = data.keys();
+        Utils::sort(names);
+        for (const PropertyName &name : qAsConst(names)) {
+            message << name << ' ' << data.value(name).toString() << lineBreak;
         }
+
         log("::selectedNodesChanged:", string);
     }
 }
