@@ -171,6 +171,8 @@ public:
     QString getRawAuxiliaryData() const;
     QString auxiliaryDataAsQML() const;
 
+    ModelNode getNodeForCanonicalIndex(int index);
+
 protected: // functions
     void importAdded(const Import &import);
     void importRemoved(const Import &import);
@@ -186,6 +188,7 @@ protected: // functions
 
 private: //variables
     ModelNode nodeAtTextCursorPositionRekursive(const ModelNode &root, int cursorPosition) const;
+    void setupCanonicalHashes() const;
 
     TextModifier *m_textModifier = nullptr;
     int transactionLevel = 0;
@@ -205,6 +208,9 @@ private: //variables
     bool m_instantQmlTextUpdate = false;
     std::function<void(bool)> m_setWidgetStatusCallback;
     bool m_hasIncompleteTypeInformation = false;
+
+    mutable QHash<int, ModelNode> m_canonicalIntModelNode;
+    mutable QHash<ModelNode, int> m_canonicalModelNodeInt;
 };
 
 } //QmlDesigner
