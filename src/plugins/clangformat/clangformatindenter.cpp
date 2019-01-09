@@ -163,32 +163,46 @@ int previousEmptyLinesLength(const QTextBlock &currentBlock)
     return length;
 }
 
-void modifyToIndentEmptyLines(QByteArray &buffer, int offset, int &length, const QTextBlock &block)
+void modifyToIndentEmptyLines(
+    QByteArray &buffer, int offset, int &length, const QTextBlock &block, bool secondTry)
 {
     const QString blockText = block.text().trimmed();
     const bool closingParenBlock = blockText.startsWith(')');
-    if (!blockText.isEmpty() && !closingParenBlock)
-        return;
+    if (blockText.isEmpty() || closingParenBlock) {
+        //This extra text works for the most cases.
+        QByteArray dummyText("a;");
 
-    //This extra text works for the most cases.
-    QByteArray extraText("a;");
-
-    // Search for previous character
-    QTextBlock prevBlock = block.previous();
-    while (prevBlock.position() > 0 && prevBlock.text().trimmed().isEmpty())
-        prevBlock = prevBlock.previous();
-    if (prevBlock.text().endsWith(','))
-        extraText = "int a,";
-
-    if (closingParenBlock) {
+        // Search for previous character
+        QTextBlock prevBlock = block.previous();
+        bool prevBlockIsEmpty = prevBlock.position() > 0 && prevBlock.text().trimmed().isEmpty();
+        while (prevBlockIsEmpty) {
+            prevBlock = prevBlock.previous();
+            prevBlockIsEmpty = prevBlock.position() > 0 && prevBlock.text().trimmed().isEmpty();
+        }
         if (prevBlock.text().endsWith(','))
-            extraText = "int a";
-        else
-            extraText = "&& a";
+            dummyText = "int a";
+
+        if (closingParenBlock) {
+            if (prevBlock.text().endsWith(','))
+                dummyText = "int a";
+            else
+                dummyText = "&& a";
+        }
+
+        length += dummyText.length();
+        buffer.insert(offset, dummyText);
     }
 
-    length += extraText.length();
-    buffer.insert(offset, extraText);
+    if (secondTry) {
+        int nextLinePos = buffer.indexOf('\n', offset);
+        if (nextLinePos > 0) {
+            // If first try was not successful try to put ')' in the end of the line to close possibly
+            // unclosed parentheses.
+            // TODO: Does it help to add different endings depending on the context?
+            buffer.insert(nextLinePos, ')');
+            length += 1;
+        }
+    }
 }
 
 static const int kMaxLinesFromCurrentBlock = 200;
@@ -253,11 +267,13 @@ QtReplacements replacements(const Utils::FileName &fileName,
                             int utf8Length,
                             const QTextBlock &block,
                             const QChar &typedChar = QChar::Null,
-                            bool onlyIndention = true)
+                            bool onlyIndention = true,
+                            bool secondTry = false)
 {
     FormatStyle style = styleForFile(fileName);
 
-    int blockOffsetUtf8 = utf8Offset;
+    int originalOffsetUtf8 = utf8Offset;
+    int originalLengthUtf8 = utf8Length;
     QByteArray originalBuffer = buffer;
 
     int extraOffset = 0;
@@ -282,27 +298,40 @@ QtReplacements replacements(const Utils::FileName &fileName,
 
         adjustFormatStyleForLineBreak(style);
         if (typedChar == QChar::Null)
-            modifyToIndentEmptyLines(buffer, utf8Offset, utf8Length, block);
+            modifyToIndentEmptyLines(buffer, utf8Offset, utf8Length, block, secondTry);
     }
 
     std::vector<Range> ranges{{static_cast<unsigned int>(utf8Offset),
                                static_cast<unsigned int>(utf8Length)}};
     FormattingAttemptStatus status;
 
-    ClangReplacements replacements = reformat(style,
-                                              buffer.data(),
-                                              ranges,
-                                              fileName.toString().toStdString(),
-                                              &status);
+    ClangReplacements clangReplacements = reformat(style,
+                                                   buffer.data(),
+                                                   ranges,
+                                                   fileName.toString().toStdString(),
+                                                   &status);
 
     if (!status.FormatComplete)
         QtReplacements();
 
-    const ClangReplacements filtered = filteredReplacements(replacements,
+    const ClangReplacements filtered = filteredReplacements(clangReplacements,
                                                             utf8Offset,
                                                             extraOffset,
                                                             onlyIndention);
-    return utf16Replacements(block, blockOffsetUtf8, originalBuffer, filtered);
+
+    const bool canTryAgain = onlyIndention && typedChar == QChar::Null && !secondTry;
+    if (canTryAgain && filtered.empty()) {
+        return replacements(fileName,
+                            originalBuffer,
+                            originalOffsetUtf8,
+                            originalLengthUtf8,
+                            block,
+                            typedChar,
+                            onlyIndention,
+                            true);
+    }
+
+    return utf16Replacements(block, originalOffsetUtf8, originalBuffer, filtered);
 }
 
 void applyReplacements(const QTextBlock &block, const QtReplacements &replacements)
