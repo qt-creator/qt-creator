@@ -105,16 +105,6 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
     aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
 }
 
-bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
-{
-    const bool res = RunConfiguration::fromMap(map);
-    if (!res)
-        return false;
-
-    updateTargetInformation();
-    return true;
-}
-
 void DesktopQmakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
 {
     updateTargetInformation();

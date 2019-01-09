@@ -42,8 +42,6 @@ public:
     void addToBaseEnvironment(Utils::Environment &env) const;
 
 private:
-    bool fromMap(const QVariantMap &map) override;
-
     void updateTargetInformation();
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
 
