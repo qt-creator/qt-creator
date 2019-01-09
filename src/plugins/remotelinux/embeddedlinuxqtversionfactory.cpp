@@ -33,8 +33,10 @@
 namespace RemoteLinux {
 namespace Internal {
 
-EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory(QObject *parent) : QtSupport::QtVersionFactory(parent)
-{ }
+EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory(QObject *parent)
+    : QtSupport::QtVersionFactory(parent)
+{
+}
 
 EmbeddedLinuxQtVersionFactory::~EmbeddedLinuxQtVersionFactory() = default;
 

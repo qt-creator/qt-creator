@@ -95,8 +95,7 @@ RemoteLinuxPlugin::~RemoteLinuxPlugin()
     delete dd;
 }
 
-bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
-    QString *errorMessage)
+bool RemoteLinuxPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)

@@ -57,8 +57,7 @@ int TypeSpecificDeviceConfigurationListModel::rowCount(const QModelIndex &parent
     return count;
 }
 
-QVariant TypeSpecificDeviceConfigurationListModel::data(const QModelIndex &index,
-    int role) const
+QVariant TypeSpecificDeviceConfigurationListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= rowCount() || role != Qt::DisplayRole)
         return QVariant();

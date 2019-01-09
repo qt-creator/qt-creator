@@ -46,8 +46,8 @@ public:
 
 using namespace Internal;
 
-PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(const IDevice::ConstPtr &deviceConfig,
-    QWidget *parent)
+PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
+        const IDevice::ConstPtr &deviceConfig, QWidget *parent)
 {
     const QString &dir = QFileInfo(deviceConfig->sshParameters().privateKeyFile).path();
     const QString publicKeyFileName = QFileDialog::getOpenFileName(parent
@@ -108,7 +108,8 @@ void PublicKeyDeploymentDialog::handleDeploymentFinished(const QString &errorMsg
         buttonText = errorMsg;
         textColor = "red";
     }
-    setLabelText(QString::fromLatin1("<font color=\"%1\">%2</font>").arg(QLatin1String(textColor), buttonText));
+    setLabelText(QString::fromLatin1("<font color=\"%1\">%2</font>").arg(QLatin1String(textColor),
+                                                                         buttonText));
     setCancelButtonText(tr("Close"));
 }
 

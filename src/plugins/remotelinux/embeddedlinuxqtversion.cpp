@@ -35,7 +35,8 @@
 namespace RemoteLinux {
 namespace Internal {
 
-EmbeddedLinuxQtVersion::EmbeddedLinuxQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
+EmbeddedLinuxQtVersion::EmbeddedLinuxQtVersion(const Utils::FileName &path, bool isAutodetected,
+                                               const QString &autodetectionSource)
     : BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));

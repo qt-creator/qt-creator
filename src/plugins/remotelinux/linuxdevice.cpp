@@ -140,7 +140,8 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
         // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
         Runnable runnable;
         runnable.executable = "sed";
-        runnable.commandLineArguments = "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*";
+        runnable.commandLineArguments
+                = "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*";
         return runnable;
     }
 

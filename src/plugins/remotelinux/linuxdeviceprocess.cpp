@@ -38,7 +38,7 @@ namespace RemoteLinux {
 static QString quote(const QString &s) { return Utils::QtcProcess::quoteArgUnix(s); }
 
 LinuxDeviceProcess::LinuxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
-        QObject *parent)
+                                       QObject *parent)
     : ProjectExplorer::SshDeviceProcess(device, parent), m_processId(0)
 {
     connect(this, &DeviceProcess::finished, this, [this]() {

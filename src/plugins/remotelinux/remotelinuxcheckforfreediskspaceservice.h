@@ -30,7 +30,8 @@
 namespace RemoteLinux {
 namespace Internal { class RemoteLinuxCheckForFreeDiskSpaceServicePrivate; }
 
-class REMOTELINUX_EXPORT RemoteLinuxCheckForFreeDiskSpaceService : public AbstractRemoteLinuxDeployService
+class REMOTELINUX_EXPORT RemoteLinuxCheckForFreeDiskSpaceService :
+        public AbstractRemoteLinuxDeployService
 {
     Q_OBJECT
 public:

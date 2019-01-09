@@ -61,7 +61,8 @@ public:
 using namespace QSsh;
 using namespace Utils;
 
-GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent) :
+GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationWizardSetupPage(
+        QWidget *parent) :
     QWizardPage(parent), d(new Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate)
 {
     d->ui.setupUi(this);
@@ -119,7 +120,8 @@ void GenericLinuxDeviceConfigurationWizardSetupPage::setDevice(const LinuxDevice
     d->device = device;
 }
 
-GenericLinuxDeviceConfigurationWizardFinalPage::GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent)
+GenericLinuxDeviceConfigurationWizardFinalPage::GenericLinuxDeviceConfigurationWizardFinalPage(
+        QWidget *parent)
     : QWizardPage(parent), d(new Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate)
 {
     setTitle(tr("Summary"));
