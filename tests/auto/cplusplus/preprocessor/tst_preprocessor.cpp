@@ -406,6 +406,7 @@ private slots:
     void excessive_nesting();
     void multi_byte_code_point_in_expansion();
     void trigraph();
+    void nested_arguments_expansion();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -2042,6 +2043,62 @@ void tst_Preprocessor::concat()
         "                           ;\n"
     );
     QVERIFY(compare(prep, output));
+}
+
+void tst_Preprocessor::nested_arguments_expansion()
+{
+    Environment env;
+    Preprocessor preprocess(nullptr, &env);
+    QByteArray input = "#define LPL_CAT_IMPL(x, y) x##y\n"
+                       "#define LPL_CAT(x, y) LPL_CAT_IMPL(x, y)\n"
+                       "#define LPL_COMPL_1 0\n"
+                       "#define LPL_COMPL_0 1\n"
+                       "#define LPL_COMPL(x) LPL_CAT(LPL_COMPL_, x)\n"
+                       "#define LPL_DEC_1 0\n"
+                       "#define LPL_DEC_2 1\n"
+                       "#define LPL_DEC(x) LPL_CAT(LPL_DEC_, x)\n"
+                       "#define LPL_CHECK_IMPL(unused, n, ...) n\n"
+                       "#define LPL_CHECK(expressionToTest) LPL_CHECK_IMPL(expressionToTest, 0, 0)\n"
+                       "#define LPL_IS_0_0 LPL_PROBE\n"
+                       "#define LPL_IS_0(x) LPL_CHECK(LPL_CAT(LPL_IS_0_, x))\n"
+                       "#define LPL_IS_NOT_0(x) LPL_COMPL(LPL_IS_0(x))\n"
+                       "#define EMPTY()\n"
+                       "#define LPL_EXPAND(id) id\n"
+                       "#define LPL_DEFER(id) id EMPTY()\n"
+                       "#define LPL_DEFER_TWICE(id) id EMPTY EMPTY()()\n"
+                       "#define LPL_EVAL1(id) LPL_EXPAND(LPL_EXPAND(id))\n"
+                       "#define LPL_EVAL2(id) LPL_EVAL1(LPL_EVAL1(id))\n"
+                       "#define LPL_EVAL3(id) LPL_EVAL2(LPL_EVAL2(id))\n"
+                       "#define LPL_EVAL4(id) LPL_EVAL3(LPL_EVAL3(id))\n"
+                       "#define LPL_EVAL5(id) LPL_EVAL4(LPL_EVAL4(id))\n"
+                       "#define LPL_EVAL6(id) LPL_EVAL5(LPL_EVAL5(id))\n"
+                       "#define LPL_EVAL(id) LPL_EVAL6(LPL_EVAL6(id))\n"
+                       "#define LPL_IF_0(t, f) f\n"
+                       "#define LPL_IF_1(t, f) t\n"
+                       "#define LPL_IF(c) LPL_CAT(LPL_IF_, LPL_IS_NOT_0(c))\n"
+                       "#define LPL_WHEN(c) LPL_IF(c)(LPL_EXPAND, LPL_EAT)\n"
+                       "#define LPL_WHILE_IMPL(x, predicat, macroToApply) \\\n"
+                       "  LPL_WHEN(predicat(x)) \\\n"
+                       "  (x LPL_DEFER_TWICE(LPL_WHILE_IMPL_I)()(macroToApply(x), predicat, \\\n"
+                       "                                         macroToApply))\n"
+                       "#define LPL_WHILE_IMPL_I() LPL_WHILE_IMPL\n"
+                       "#define LPL_WHILE(x, predicat, macroToApply) \\\n"
+                       "  LPL_EVAL(LPL_WHILE_IMPL(x, predicat, macroToApply))\n"
+                       "#define LPL_AND_IMPL_TREAT_PARENTHESIS_1(x, ...) 1\n"
+                       "#define LPL_AND_IMPL_TREAT_PARENTHESIS_0(x, ...) \\\n"
+                       "  LPL_IF(LPL_IS_0(x))(0, LPL_DEFER_TWICE(LPL_AND_IMPL_I)()(__VA_ARGS__))\n"
+                       "#define LPL_AND_IMPL(x, ...) \\\n"
+                       "  LPL_CAT(LPL_AND_IMPL_TREAT_PARENTHESIS_, LPL_IS_PARENTHESIS(x)) \\\n"
+                       "  (x, __VA_ARGS__)\n"
+                       "#define LPL_AND_IMPL_I() LPL_AND_IMPL\n"
+                       "#define LPL_AND(...) LPL_EVAL(LPL_AND_IMPL(__VA_ARGS__, (), 0))\n"
+                       "LPL_WHILE(2, LPL_IS_NOT_0, LPL_DEC);";
+
+    QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
+    qDebug() << prep;
+    const QByteArray output = "# 1 \"<stdin>\"\n";
+    // Check that it does not crash.
+    QVERIFY(prep.contains(output));
 }
 
 void tst_Preprocessor::excessive_nesting()
