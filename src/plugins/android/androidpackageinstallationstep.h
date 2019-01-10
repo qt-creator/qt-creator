@@ -40,7 +40,7 @@ class ANDROID_EXPORT AndroidPackageInstallationStep : public ProjectExplorer::Ab
 
 public:
     explicit AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl);
-    bool init(QList<const BuildStep *> &earlierSteps) override;
+    bool init() override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 

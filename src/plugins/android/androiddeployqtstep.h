@@ -86,7 +86,7 @@ signals:
 private:
     void runCommand(const QString &program, const QStringList &arguments);
 
-    bool init(QList<const BuildStep *> &earlierSteps) override;
+    bool init() override;
     void run(QFutureInterface<bool> &fi) override;
     void gatherFilesToPull();
     DeployErrorCode runDeploy(QFutureInterface<bool> &fi);

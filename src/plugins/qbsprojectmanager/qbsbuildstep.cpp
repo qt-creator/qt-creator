@@ -142,9 +142,8 @@ QbsBuildStep::~QbsBuildStep()
     delete m_parser;
 }
 
-bool QbsBuildStep::init(QList<const BuildStep *> &earlierSteps)
+bool QbsBuildStep::init()
 {
-    Q_UNUSED(earlierSteps);
     if (project()->isParsing() || m_job)
         return false;
 

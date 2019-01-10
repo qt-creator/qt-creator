@@ -41,7 +41,7 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
     Q_OBJECT
 
 public:
-    bool init(QList<const BuildStep *> &earlierSteps) override;
+    bool init() override;
     void run(QFutureInterface<bool> &) override;
 
     ProcessParameters *processParameters();

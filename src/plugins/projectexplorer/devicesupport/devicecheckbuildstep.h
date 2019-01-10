@@ -38,8 +38,7 @@ class PROJECTEXPLORER_EXPORT DeviceCheckBuildStep : public BuildStep
 public:
     explicit DeviceCheckBuildStep(BuildStepList *bsl);
 
-    bool init(QList<const BuildStep *> &earlierSteps) override;
-
+    bool init() override;
     void run(QFutureInterface<bool> &fi) override;
 
     static Core::Id stepId();

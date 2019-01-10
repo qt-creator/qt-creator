@@ -69,9 +69,8 @@ QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
     return BuildStep::toMap().unite(deployService()->exportDeployTimes());
 }
 
-bool AbstractRemoteLinuxDeployStep::init(QList<const BuildStep *> &earlierSteps)
+bool AbstractRemoteLinuxDeployStep::init()
 {
-    Q_UNUSED(earlierSteps);
     QString error;
     deployService()->setTarget(target());
     const bool canDeploy = initInternal(&error);

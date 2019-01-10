@@ -123,9 +123,8 @@ bool AbstractPackagingStep::isPackagingNeeded() const
     return false;
 }
 
-bool AbstractPackagingStep::init(QList<const BuildStep *> &earlierSteps)
+bool AbstractPackagingStep::init()
 {
-    Q_UNUSED(earlierSteps);
     d->cachedPackageDirectory = packageDirectory();
     d->cachedPackageFilePath = packageFilePath();
     return true;

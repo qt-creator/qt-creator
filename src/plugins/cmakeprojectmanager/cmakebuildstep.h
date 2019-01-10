@@ -56,7 +56,7 @@ public:
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
-    bool init(QList<const BuildStep *> &earlierSteps) override;
+    bool init() override;
     void run(QFutureInterface<bool> &fi) override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;

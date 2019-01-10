@@ -106,9 +106,8 @@ AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent)
             this, &AndroidDeployQtStep::slotSetSerialNumber);
 }
 
-bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
+bool AndroidDeployQtStep::init()
 {
-    Q_UNUSED(earlierSteps);
     m_androiddeployqtArgs.clear();
 
     m_targetArch = AndroidManager::targetArch(target());

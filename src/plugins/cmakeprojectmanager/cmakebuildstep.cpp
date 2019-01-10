@@ -146,7 +146,7 @@ bool CMakeBuildStep::fromMap(const QVariantMap &map)
 }
 
 
-bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
+bool CMakeBuildStep::init()
 {
     bool canInit = true;
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
@@ -228,7 +228,7 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 void CMakeBuildStep::run(QFutureInterface<bool> &fi)

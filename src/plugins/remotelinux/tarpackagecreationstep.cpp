@@ -84,9 +84,9 @@ TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl)
     m_incrementalDeploymentAspect->setSettingsKey(IncrementalDeploymentKey);
 }
 
-bool TarPackageCreationStep::init(QList<const BuildStep *> &earlierSteps)
+bool TarPackageCreationStep::init()
 {
-    if (!AbstractPackagingStep::init(earlierSteps))
+    if (!AbstractPackagingStep::init())
         return false;
 
     m_packagingNeeded = isPackagingNeeded();

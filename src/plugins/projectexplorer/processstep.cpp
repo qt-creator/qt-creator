@@ -56,7 +56,7 @@ ProcessStep::ProcessStep(BuildStepList *bsl)
         m_workingDirectory = Constants::DEFAULT_WORKING_DIR;
 }
 
-bool ProcessStep::init(QList<const BuildStep *> &earlierSteps)
+bool ProcessStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
     ProcessParameters *pp = processParameters();
@@ -68,7 +68,7 @@ bool ProcessStep::init(QList<const BuildStep *> &earlierSteps)
     pp->resolveAll();
 
     setOutputParser(target()->kit()->createOutputParser());
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 void ProcessStep::run(QFutureInterface<bool> & fi)

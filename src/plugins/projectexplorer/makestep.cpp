@@ -72,7 +72,7 @@ MakeStep::MakeStep(BuildStepList *parent,
         setBuildTarget(buildTarget, true);
 }
 
-bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
+bool MakeStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
@@ -106,7 +106,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 void MakeStep::setClean(bool clean)

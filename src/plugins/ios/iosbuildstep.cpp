@@ -70,7 +70,7 @@ IosBuildStep::IosBuildStep(BuildStepList *parent) :
     }
 }
 
-bool IosBuildStep::init(QList<const BuildStep *> &earlierSteps)
+bool IosBuildStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
@@ -106,7 +106,7 @@ bool IosBuildStep::init(QList<const BuildStep *> &earlierSteps)
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 QVariantMap IosBuildStep::toMap() const

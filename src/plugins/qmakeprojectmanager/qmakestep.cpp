@@ -164,8 +164,7 @@ QMakeStepConfig QMakeStep::deducedArguments() const
     return config;
 }
 
-
-bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
+bool QMakeStep::init()
 {
     if (m_commandFuture)
         return false;
@@ -254,7 +253,7 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
 
     m_scriptTemplate = node->projectType() == ProjectType::ScriptTemplate;
 
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 void QMakeStep::run(QFutureInterface<bool> &fi)

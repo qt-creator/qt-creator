@@ -70,7 +70,7 @@ AutogenStep::AutogenStep(BuildStepList *bsl) : AbstractProcessStep(bsl, AUTOGEN_
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
 }
 
-bool AutogenStep::init(QList<const BuildStep *> &earlierSteps)
+bool AutogenStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
 
@@ -83,7 +83,7 @@ bool AutogenStep::init(QList<const BuildStep *> &earlierSteps)
     pp->setArguments(m_additionalArgumentsAspect->value());
     pp->resolveAll();
 
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 void AutogenStep::run(QFutureInterface<bool> &fi)

@@ -90,7 +90,7 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl) : AbstractProcessStep(bsl, CONF
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
 }
 
-bool ConfigureStep::init(QList<const BuildStep *> &earlierSteps)
+bool ConfigureStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
 
@@ -102,7 +102,7 @@ bool ConfigureStep::init(QList<const BuildStep *> &earlierSteps)
     pp->setArguments(m_additionalArgumentsAspect->value());
     pp->resolveAll();
 
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 void ConfigureStep::run(QFutureInterface<bool>& fi)

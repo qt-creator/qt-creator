@@ -58,7 +58,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
     setImmutable(true);
 }
 
-bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps)
+bool AndroidPackageInstallationStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
     QString dirPath = bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString();
@@ -92,7 +92,7 @@ bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps
     m_androidDirsToClean << dirPath + "/assets";
     m_androidDirsToClean << dirPath + "/libs";
 
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 void AndroidPackageInstallationStep::run(QFutureInterface<bool> &fi)

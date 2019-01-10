@@ -48,7 +48,7 @@ class IosBuildStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit IosBuildStep(ProjectExplorer::BuildStepList *parent);
 
-    bool init(QList<const BuildStep *> &earlierSteps) override;
+    bool init() override;
     void run(QFutureInterface<bool> &fi) override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;

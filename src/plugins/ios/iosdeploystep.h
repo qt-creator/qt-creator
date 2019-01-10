@@ -70,7 +70,7 @@ private:
     void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void updateDisplayNames();
 
-    bool init(QList<const BuildStep *> &earlierSteps) override;
+    bool init() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     ProjectExplorer::IDevice::ConstPtr device() const;
     IosDevice::ConstPtr iosdevice() const;

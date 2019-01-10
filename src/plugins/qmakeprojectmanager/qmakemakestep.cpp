@@ -66,7 +66,7 @@ QmakeBuildConfiguration *QmakeMakeStep::qmakeBuildConfiguration() const
     return static_cast<QmakeBuildConfiguration *>(buildConfiguration());
 }
 
-bool QmakeMakeStep::init(QList<const BuildStep *> &earlierSteps)
+bool QmakeMakeStep::init()
 {
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     if (!bc)
@@ -169,7 +169,7 @@ bool QmakeMakeStep::init(QList<const BuildStep *> &earlierSteps)
 
     m_scriptTarget = (static_cast<QmakeProject *>(bc->target()->project())->rootProjectNode()->projectType() == ProjectType::ScriptTemplate);
 
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 void QmakeMakeStep::run(QFutureInterface<bool> & fi)

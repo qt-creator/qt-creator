@@ -42,9 +42,8 @@ DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl)
     setWidgetExpandedByDefault(false);
 }
 
-bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
+bool DeviceCheckBuildStep::init()
 {
-    Q_UNUSED(earlierSteps);
     IDevice::ConstPtr device = DeviceKitInformation::device(target()->kit());
     if (!device) {
         Core::Id deviceTypeId = DeviceTypeKitInformation::deviceTypeId(target()->kit());

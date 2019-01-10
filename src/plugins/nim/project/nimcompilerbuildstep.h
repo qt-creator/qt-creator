@@ -41,7 +41,7 @@ public:
 
     NimCompilerBuildStep(ProjectExplorer::BuildStepList *parentList);
 
-    bool init(QList<const ProjectExplorer::BuildStep *> &earlierSteps) override;
+    bool init() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     bool fromMap(const QVariantMap &map) override;

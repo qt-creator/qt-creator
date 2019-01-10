@@ -77,7 +77,7 @@ public:
 private:
     Q_INVOKABLE void showInGraphicalShell();
 
-    bool init(QList<const BuildStep *> &earlierSteps) override;
+    bool init() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     void processStarted() override;
     void processFinished(int exitCode, QProcess::ExitStatus status) override;

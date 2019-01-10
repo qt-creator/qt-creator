@@ -197,10 +197,8 @@ void AbstractProcessStep::setIgnoreReturnValue(bool b)
     YourBuildStep::init().
 */
 
-bool AbstractProcessStep::init(QList<const BuildStep *> &earlierSteps)
+bool AbstractProcessStep::init()
 {
-    Q_UNUSED(earlierSteps);
-
     d->m_candidates.clear();
     const Utils::FileNameList fl = project()->files(Project::AllFiles);
     for (const Utils::FileName &file : fl)

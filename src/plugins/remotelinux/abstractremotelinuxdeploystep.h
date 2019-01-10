@@ -45,7 +45,7 @@ public:
     ~AbstractRemoteLinuxDeployStep() override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
-    bool init(QList<const BuildStep *> &earlierSteps) override;
+    bool init() override;
     void run(QFutureInterface<bool> &fi) override;
     void cancel() override;
     RemoteLinuxDeployConfiguration *deployConfiguration() const;

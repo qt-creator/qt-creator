@@ -77,9 +77,8 @@ void IosDeployStep::updateDisplayNames()
     setDisplayName(tr("Deploy to %1").arg(devName));
 }
 
-bool IosDeployStep::init(QList<const BuildStep *> &earlierSteps)
+bool IosDeployStep::init()
 {
-    Q_UNUSED(earlierSteps);
     QTC_ASSERT(m_transferStatus == NoTransfer, return false);
     m_device = DeviceKitInformation::device(target()->kit());
     auto runConfig = qobject_cast<const IosRunConfiguration *>(

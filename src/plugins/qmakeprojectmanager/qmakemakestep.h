@@ -54,7 +54,7 @@ public:
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
 
-    bool init(QList<const BuildStep *> &earlierSteps) override;
+    bool init() override;
     void run(QFutureInterface<bool> &) override;
 
 private:

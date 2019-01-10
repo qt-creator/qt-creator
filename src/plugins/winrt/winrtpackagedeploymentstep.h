@@ -38,7 +38,7 @@ class WinRtPackageDeploymentStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit WinRtPackageDeploymentStep(ProjectExplorer::BuildStepList *bsl);
 
-    bool init(QList<const BuildStep *> &earlierSteps) override;
+    bool init() override;
     void run(QFutureInterface<bool> &fi) override;
     bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
     void stdOutput(const QString &line) override;

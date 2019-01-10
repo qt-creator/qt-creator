@@ -62,7 +62,7 @@ IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent) :
 {
 }
 
-bool IosDsymBuildStep::init(QList<const BuildStep *> &earlierSteps)
+bool IosDsymBuildStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
 
@@ -85,7 +85,7 @@ bool IosDsymBuildStep::init(QList<const BuildStep *> &earlierSteps)
     if (outputParser())
         outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 QVariantMap IosDsymBuildStep::toMap() const

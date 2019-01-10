@@ -476,7 +476,6 @@ bool BuildManager::buildQueueAppend(const QList<BuildStep *> &steps, QStringList
             addToOutputWindow(str, BuildStep::OutputFormat::NormalMessage, BuildStep::DontAppendNewline);
     }
 
-    QList<const BuildStep *> earlierSteps;
     int count = steps.size();
     bool init = true;
     int i = 0;
@@ -485,10 +484,9 @@ bool BuildManager::buildQueueAppend(const QList<BuildStep *> &steps, QStringList
         connect(bs, &BuildStep::addTask, m_instance, &BuildManager::addToTaskWindow);
         connect(bs, &BuildStep::addOutput, m_instance, &BuildManager::addToOutputWindow);
         if (bs->enabled()) {
-            init = bs->init(earlierSteps);
+            init = bs->init();
             if (!init)
                 break;
-            earlierSteps.append(bs);
         }
     }
     if (!init) {

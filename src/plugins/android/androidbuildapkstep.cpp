@@ -133,7 +133,7 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent)
     setImmutable(true);
 }
 
-bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
+bool AndroidBuildApkStep::init()
 {
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
 
@@ -193,7 +193,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     m_apkPath = AndroidManager::apkPath(target()).toString();
     qCDebug(buildapkstepLog) << "APK path:" << m_apkPath;
 
-    if (!AbstractProcessStep::init(earlierSteps))
+    if (!AbstractProcessStep::init())
         return false;
 
     QString command = version->qmakeProperty("QT_HOST_BINS");

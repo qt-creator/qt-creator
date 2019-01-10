@@ -64,7 +64,7 @@ WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl)
     m_argsAspect->setLabelText(tr("Arguments:"));
 }
 
-bool WinRtPackageDeploymentStep::init(QList<const BuildStep *> &earlierSteps)
+bool WinRtPackageDeploymentStep::init()
 {
     RunConfiguration *rc = target()->activeRunConfiguration();
     QTC_ASSERT(rc, return false);
@@ -111,7 +111,7 @@ bool WinRtPackageDeploymentStep::init(QList<const BuildStep *> &earlierSteps)
     params->setArguments(args);
     params->setEnvironment(buildConfiguration()->environment());
 
-    return AbstractProcessStep::init(earlierSteps);
+    return AbstractProcessStep::init();
 }
 
 void WinRtPackageDeploymentStep::run(QFutureInterface<bool> &fi)

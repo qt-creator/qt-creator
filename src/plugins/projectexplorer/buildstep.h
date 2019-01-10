@@ -53,7 +53,7 @@ protected:
     explicit BuildStep(BuildStepList *bsl, Core::Id id);
 
 public:
-    virtual bool init(QList<const BuildStep *> &earlierSteps) = 0;
+    virtual bool init() = 0;
     virtual void run(QFutureInterface<bool> &fi) = 0;
     virtual BuildStepConfigWidget *createConfigWidget();
 
