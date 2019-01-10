@@ -28,10 +28,13 @@
 #include "clangdiagnosticconfigswidget.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
+#include "cpptoolsreuse.h"
 #include "ui_cppcodemodelsettingspage.h"
 
+#include <clangtools/clangtoolsconstants.h> // for opening the respective options page
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
+#include <utils/utilsicons.h>
 
 #include <QTextStream>
 
@@ -43,6 +46,12 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(QWidget *parent)
     , m_ui(new Ui::CppCodeModelSettingsPage)
 {
     m_ui->setupUi(this);
+    m_ui->expensiveChecksHintIcon->setPixmap(Utils::Icons::WARNING.pixmap());
+    m_ui->expensiveChecksHintIcon->setVisible(false);
+    m_ui->expensiveChecksHintText->setVisible(false);
+    connect(m_ui->expensiveChecksHintText, &QLabel::linkActivated, [](const QString &){
+        Core::ICore::showOptionsDialog(ClangTools::Constants::SETTINGS_PAGE_ID);
+    });
 }
 
 CppCodeModelSettingsWidget::~CppCodeModelSettingsWidget()
@@ -69,6 +78,20 @@ void CppCodeModelSettingsWidget::applyToSettings() const
         m_settings->toSettings(Core::ICore::settings());
 }
 
+static bool hasConfigExpensiveChecks(const Core::Id &configId)
+{
+    if (!configId.isValid())
+        return false;
+
+    const ClangDiagnosticConfig config
+        = ClangDiagnosticConfigsModel(
+              codeModelSettings()->clangCustomDiagnosticConfigs())
+              .configWithId(configId);
+
+    return !config.clazyChecks().isEmpty()
+        || config.clangTidyMode() != ClangDiagnosticConfig::TidyMode::Disabled;
+}
+
 void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
 {
     const bool isClangActive = CppModelManager::instance()->isClangCodeModelActive();
@@ -88,6 +111,17 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
         if (applyClangCodeModelWidgetsToSettings())
             m_settings->toSettings(Core::ICore::settings());
     });
+
+    const auto checkForExpensiveChecks = [this](const Core::Id &configId) {
+        const bool visible = hasConfigExpensiveChecks(configId);
+        m_ui->expensiveChecksHintIcon->setVisible(visible);
+        m_ui->expensiveChecksHintText->setVisible(visible);
+    };
+
+    checkForExpensiveChecks(m_ui->clangDiagnosticConfigsSelectionWidget->currentConfigId());
+    connect(m_ui->clangDiagnosticConfigsSelectionWidget,
+            &ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
+            checkForExpensiveChecks);
 }
 
 void CppCodeModelSettingsWidget::setupGeneralWidgets()

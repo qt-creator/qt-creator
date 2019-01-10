@@ -73,7 +73,7 @@ class ClangToolsOptionsPage : public Core::IOptionsPage
 public:
     explicit ClangToolsOptionsPage()
     {
-        setId("Analyzer.ClangTools.Settings");
+        setId(Constants::SETTINGS_PAGE_ID);
         setDisplayName(QCoreApplication::translate(
                            "ClangTools::Internal::ClangToolsOptionsPage",
                            "Clang Tools"));
