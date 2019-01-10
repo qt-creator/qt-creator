@@ -106,13 +106,6 @@ AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent)
             this, &AndroidDeployQtStep::slotSetSerialNumber);
 }
 
-static AndroidDeviceInfo earlierDeviceInfo(QList<const ProjectExplorer::BuildStep *> &earlierSteps, Core::Id id)
-{
-    const ProjectExplorer::BuildStep *bs
-            = Utils::findOrDefault(earlierSteps, Utils::equal(&ProjectExplorer::BuildStep::id, id));
-    return bs ? static_cast<const AndroidDeployQtStep *>(bs)->deviceInfo() : AndroidDeviceInfo();
-}
-
 bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
 {
     Q_UNUSED(earlierSteps);
@@ -141,7 +134,16 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     int minTargetApi = AndroidManager::minimumSDK(target());
     qCDebug(deployStepLog) << "Target architecture:" << m_targetArch
                            << "Min target API" << minTargetApi;
-    AndroidDeviceInfo info = earlierDeviceInfo(earlierSteps, Id);
+
+    // Try to re-use user-provided information from an earlier step of the same type.
+    auto bsl = qobject_cast<BuildStepList *>(parent());
+    QTC_ASSERT(bsl, return false);
+    auto androidDeployQtStep = bsl->firstOfType<AndroidDeployQtStep>();
+    QTC_ASSERT(androidDeployQtStep, return false);
+    AndroidDeviceInfo info;
+    if (androidDeployQtStep != this)
+        info = androidDeployQtStep->m_deviceInfo;
+
     if (!info.isValid()) {
         info = AndroidConfigurations::showDeviceDialog(project(), minTargetApi, m_targetArch);
         m_deviceInfo = info; // Keep around for later steps
@@ -496,11 +498,6 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
     Utils::SynchronousProcessResponse response = buildProc.run(program, arguments);
     if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0)
         emit addOutput(response.exitMessage(program, 2 * 60), BuildStep::OutputFormat::ErrorMessage);
-}
-
-AndroidDeviceInfo AndroidDeployQtStep::deviceInfo() const
-{
-    return m_deviceInfo;
 }
 
 ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()

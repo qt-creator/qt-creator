@@ -77,9 +77,6 @@ public:
     QVariantMap toMap() const override;
 
     UninstallType uninstallPreviousPackage();
-
-    AndroidDeviceInfo deviceInfo() const;
-
     void setUninstallPreviousPackage(bool uninstall);
 
 signals:
