@@ -136,7 +136,10 @@ class Notification<std::nullptr_t> : public JsonRpcMessage
 public:
     Notification() : Notification(QString()) {}
     Notification(const QString &methodName, const std::nullptr_t &/*params*/ = nullptr)
-    { setMethod(methodName); }
+    {
+        setMethod(methodName);
+        setParams(nullptr);
+    }
     using JsonRpcMessage::JsonRpcMessage;
 
     QString method() const
