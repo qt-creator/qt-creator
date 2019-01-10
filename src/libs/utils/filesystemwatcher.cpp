@@ -142,6 +142,7 @@ public:
     {
         QObject::connect(Utils::GlobalFileChangeBlocker::instance(),
                          &Utils::GlobalFileChangeBlocker::stateChanged,
+                         q,
                          [this](bool blocked) { autoReloadPostponed(blocked); });
     }
 
