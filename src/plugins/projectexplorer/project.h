@@ -184,9 +184,9 @@ public:
 
     template<typename S, typename R, typename T, typename ...Args1>
     void subscribeSignal(void (S::*sig)(Args1...), R*recv, T sl) {
-        new Internal::ProjectSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
+        new Internal::ProjectSubscription([sig, recv, sl](ProjectConfiguration *pc) {
             if (S* sender = qobject_cast<S*>(pc))
-                return connect(sender, sig, recv, sl);
+                return QObject::connect(sender, sig, recv, sl);
             return QMetaObject::Connection();
         }, recv, this);
     }
