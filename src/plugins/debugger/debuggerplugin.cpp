@@ -1363,7 +1363,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
                 font.setPointSizeF(size);
                 m_breakpointManagerWindow->setFont(font);
                 m_globalLogWindow->setFont(font);
-//                m_snapshotWindow->setFont(font);
+                m_engineManagerWindow->setFont(font);
             });
 
 
