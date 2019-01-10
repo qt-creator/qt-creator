@@ -85,9 +85,9 @@ public:
     PerfProfilerStatisticsRelativesModel *children() const { return m_children; }
     PerfProfilerStatisticsRelativesModel *parents() const { return m_parents; }
 
-    int rowCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    void sort(int column, Qt::SortOrder order);
+    int rowCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    void sort(int column, Qt::SortOrder order) override;
     void resort();
 
     QByteArray metaInfo(int typeId, Column column) const;
