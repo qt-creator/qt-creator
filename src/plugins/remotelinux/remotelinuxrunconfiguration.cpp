@@ -38,6 +38,8 @@
 
 #include <qtsupport/qtoutputformatter.h>
 
+#include <utils/hostosinfo.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -60,6 +62,8 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
 
     addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>();
+    if (HostOsInfo::isAnyUnixHost())
+        addAspect<TerminalAspect>();
     addAspect<RemoteLinuxEnvironmentAspect>(target);
     if (id == IdPrefix && Utils::HostOsInfo::isAnyUnixHost())
         addAspect<X11ForwardingAspect>();

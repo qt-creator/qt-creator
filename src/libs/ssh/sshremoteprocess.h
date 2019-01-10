@@ -50,6 +50,7 @@ public:
     void start();
 
     bool isRunning() const;
+    QStringList fullLocalCommandLine() const;
 
 signals:
     void done(const QString &error);

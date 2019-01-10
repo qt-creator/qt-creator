@@ -60,6 +60,8 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
 
     addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>();
+    if (HostOsInfo::isAnyUnixHost())
+        addAspect<TerminalAspect>();
     addAspect<RemoteLinuxEnvironmentAspect>(target);
     if (Utils::HostOsInfo::isAnyUnixHost())
         addAspect<X11ForwardingAspect>();

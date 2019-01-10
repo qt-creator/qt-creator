@@ -34,7 +34,7 @@ namespace RemoteLinux {
 namespace Internal {
 
 LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
-    : DebuggerRunTool(runControl)
+    : DebuggerRunTool(runControl, nullptr, false)
 {
     setId("LinuxDeviceDebugSupport");
 

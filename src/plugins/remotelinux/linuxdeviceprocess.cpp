@@ -54,7 +54,7 @@ void LinuxDeviceProcess::setRcFilesToSource(const QStringList &filePaths)
 QByteArray LinuxDeviceProcess::readAllStandardOutput()
 {
     QByteArray output = SshDeviceProcess::readAllStandardOutput();
-    if (m_processId != 0)
+    if (m_processId != 0 || runInTerminal())
         return output;
 
     m_processIdString.append(output);
@@ -91,10 +91,12 @@ QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
         envString.append(env.key(it)).append(QLatin1String("='")).append(env.value(it))
                 .append(QLatin1Char('\''));
     }
-    fullCommandLine.append("echo $$ && ");
+    if (!runInTerminal())
+        fullCommandLine.append("echo $$ && ");
     if (!envString.isEmpty())
         fullCommandLine.append(envString);
-    fullCommandLine.append(" exec ");
+    if (!runInTerminal())
+        fullCommandLine.append(" exec ");
     fullCommandLine.append(quote(runnable.executable));
     if (!runnable.commandLineArguments.isEmpty()) {
         fullCommandLine.append(QLatin1Char(' '));

@@ -31,11 +31,14 @@
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
 #include <ssh/sshremoteprocess.h>
+#include <utils/consoleprocess.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 #include <QString>
 #include <QTimer>
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 
@@ -49,6 +52,7 @@ public:
     SshDeviceProcess * const q;
     QSsh::SshConnection *connection = nullptr;
     QSsh::SshRemoteProcessPtr process;
+    ConsoleProcess consoleProcess;
     Runnable runnable;
     QString errorMessage;
     QProcess::ExitStatus exitStatus = QProcess::NormalExit;
@@ -114,11 +118,15 @@ void SshDeviceProcess::interrupt()
 void SshDeviceProcess::terminate()
 {
     d->doSignal(Signal::Terminate);
+    if (runInTerminal())
+        d->consoleProcess.stop();
 }
 
 void SshDeviceProcess::kill()
 {
     d->doSignal(Signal::Kill);
+    if (runInTerminal())
+        d->consoleProcess.stop();
 }
 
 QProcess::ProcessState SshDeviceProcess::state() const
@@ -178,15 +186,31 @@ void SshDeviceProcess::handleConnected()
     d->setState(SshDeviceProcessPrivate::Connected);
 
     d->process = d->connection->createRemoteProcess(fullCommandLine(d->runnable).toUtf8());
-    connect(d->process.get(), &QSsh::SshRemoteProcess::started, this, &SshDeviceProcess::handleProcessStarted);
-    connect(d->process.get(), &QSsh::SshRemoteProcess::done, this, &SshDeviceProcess::handleProcessFinished);
-    connect(d->process.get(), &QSsh::SshRemoteProcess::readyReadStandardOutput, this, &SshDeviceProcess::handleStdout);
-    connect(d->process.get(), &QSsh::SshRemoteProcess::readyReadStandardError, this, &SshDeviceProcess::handleStderr);
-
     const QString display = d->displayName();
     if (!display.isEmpty())
         d->process->requestX11Forwarding(display);
-    d->process->start();
+    if (runInTerminal()) {
+        d->process->requestTerminal();
+        const QStringList cmdLine = d->process->fullLocalCommandLine();
+        connect(&d->consoleProcess,
+                static_cast<void (ConsoleProcess::*)(QProcess::ProcessError)>(&ConsoleProcess::error),
+                this, &DeviceProcess::error);
+        connect(&d->consoleProcess, &ConsoleProcess::processStarted,
+                this, &SshDeviceProcess::handleProcessStarted);
+        connect(&d->consoleProcess, &ConsoleProcess::stubStopped,
+                this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
+        d->consoleProcess.start(cmdLine.first(), cmdLine.mid(1).join(' '));
+    } else {
+        connect(d->process.get(), &QSsh::SshRemoteProcess::started,
+                this, &SshDeviceProcess::handleProcessStarted);
+        connect(d->process.get(), &QSsh::SshRemoteProcess::done,
+                this, &SshDeviceProcess::handleProcessFinished);
+        connect(d->process.get(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
+                this, &SshDeviceProcess::handleStdout);
+        connect(d->process.get(), &QSsh::SshRemoteProcess::readyReadStandardError,
+                this, &SshDeviceProcess::handleStderr);
+        d->process->start();
+    }
 }
 
 void SshDeviceProcess::handleConnectionError()
@@ -226,7 +250,7 @@ void SshDeviceProcess::handleProcessStarted()
 void SshDeviceProcess::handleProcessFinished(const QString &error)
 {
     d->errorMessage = error;
-    d->exitCode = d->process->exitCode();
+    d->exitCode = runInTerminal() ? d->consoleProcess.exitCode() : d->process->exitCode();
     d->setState(SshDeviceProcessPrivate::Inactive);
     emit finished();
 }
@@ -327,6 +351,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
         killOperation.clear();
     }
     killTimer.stop();
+    consoleProcess.disconnect();
     if (process)
         process->disconnect(q);
     if (connection) {
@@ -338,6 +363,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
 
 qint64 SshDeviceProcess::write(const QByteArray &data)
 {
+    QTC_ASSERT(!runInTerminal(), return -1);
     return d->process->write(data);
 }
 

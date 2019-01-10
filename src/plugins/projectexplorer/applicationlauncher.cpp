@@ -411,6 +411,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
         m_success = true;
 
         m_deviceProcess = device->createProcess(this);
+        m_deviceProcess->setRunInTerminal(m_useTerminal);
         connect(m_deviceProcess, &DeviceProcess::started,
                 q, &ApplicationLauncher::remoteProcessStarted);
         connect(m_deviceProcess, &DeviceProcess::readyReadStandardOutput,
