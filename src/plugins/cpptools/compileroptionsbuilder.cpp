@@ -469,19 +469,21 @@ static QByteArray msCompatibilityVersionFromDefines(const ProjectExplorer::Macro
     return QByteArray();
 }
 
+QByteArray CompilerOptionsBuilder::msvcVersion() const
+{
+    const QByteArray version = msCompatibilityVersionFromDefines(m_projectPart.toolChainMacros);
+    return !version.isEmpty() ? version
+                              : msCompatibilityVersionFromDefines(m_projectPart.projectMacros);
+}
+
 void CompilerOptionsBuilder::addMsvcCompatibilityVersion()
 {
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
         || m_projectPart.toolchainType == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-        const ProjectExplorer::Macros macros = m_projectPart.toolChainMacros
-                                               + m_projectPart.projectMacros;
-        const QByteArray msvcVersion = msCompatibilityVersionFromDefines(macros);
+        const QByteArray msvcVer = msvcVersion();
 
-        if (!msvcVersion.isEmpty()) {
-            const QString option = QLatin1String("-fms-compatibility-version=")
-                                   + QLatin1String(msvcVersion);
-            m_options.append(option);
-        }
+        if (!msvcVer.isEmpty())
+            add(QLatin1String("-fms-compatibility-version=") + msvcVer);
     }
 }
 
@@ -707,16 +709,21 @@ void CompilerOptionsBuilder::addProjectConfigFileInclude()
 void CompilerOptionsBuilder::undefineClangVersionMacrosForMsvc()
 {
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        static QStringList macroNames {
-            "__clang__",
-            "__clang_major__",
-            "__clang_minor__",
-            "__clang_patchlevel__",
-            "__clang_version__"
-        };
+        const QByteArray msvcVer = msvcVersion();
+        if (msvcVer.toFloat() < 14.f) {
+            // Original fix was only for msvc 2013 (version 12.0)
+            // Undefying them for newer versions is not necessary and breaks boost.
+            static QStringList macroNames {
+                "__clang__",
+                "__clang_major__",
+                "__clang_minor__",
+                "__clang_patchlevel__",
+                "__clang_version__"
+            };
 
-        foreach (const QString &macroName, macroNames)
-            add(undefineOption() + macroName);
+            foreach (const QString &macroName, macroNames)
+                add(undefineOption() + macroName);
+        }
     }
 }
 

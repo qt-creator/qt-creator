@@ -114,6 +114,8 @@ private:
 
     void addWrappedQtHeadersIncludePath(QStringList &list);
 
+    QByteArray msvcVersion() const;
+
     QStringList m_options;
 
     QString m_clangVersion;
