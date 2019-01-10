@@ -86,6 +86,7 @@ SshDeviceProcess::~SshDeviceProcess()
 void SshDeviceProcess::start(const Runnable &runnable)
 {
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Inactive, return);
+    QTC_ASSERT(runInTerminal() || !runnable.executable.isEmpty(), return);
     d->setState(SshDeviceProcessPrivate::Connecting);
 
     d->errorMessage.clear();
@@ -185,7 +186,9 @@ void SshDeviceProcess::handleConnected()
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Connecting, return);
     d->setState(SshDeviceProcessPrivate::Connected);
 
-    d->process = d->connection->createRemoteProcess(fullCommandLine(d->runnable).toUtf8());
+    d->process = runInTerminal() && d->runnable.executable.isEmpty()
+            ? d->connection->createRemoteShell()
+            : d->connection->createRemoteProcess(fullCommandLine(d->runnable).toUtf8());
     const QString display = d->displayName();
     if (!display.isEmpty())
         d->process->requestX11Forwarding(display);
@@ -303,6 +306,8 @@ QString SshDeviceProcess::fullCommandLine(const Runnable &runnable) const
 
 void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
 {
+    if (runnable.executable.isEmpty())
+        return;
     switch (state) {
     case SshDeviceProcessPrivate::Inactive:
         QTC_ASSERT(false, return);

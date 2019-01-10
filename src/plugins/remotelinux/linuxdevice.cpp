@@ -34,10 +34,12 @@
 #include "remotelinuxenvironmentreader.h"
 
 #include <coreplugin/id.h>
+#include <coreplugin/messagemanager.h>
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
 #include <projectexplorer/runconfiguration.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
 
@@ -49,6 +51,9 @@ namespace RemoteLinux {
 
 const char Delimiter0[] = "x--";
 const char Delimiter1[] = "---";
+
+
+static Core::Id openShellActionId() { return "RemoteLinux.OpenShellAction"; }
 
 static QString visualizeNull(QString s)
 {
@@ -182,7 +187,10 @@ IDeviceWidget *LinuxDevice::createWidget()
 
 QList<Core::Id> LinuxDevice::actionIds() const
 {
-    return QList<Core::Id>() << Core::Id(Constants::GenericDeployKeyToDeviceActionId);
+    QList<Core::Id> ids({Core::Id(Constants::GenericDeployKeyToDeviceActionId)});
+    if (Utils::HostOsInfo::isAnyUnixHost())
+        ids << openShellActionId();
+    return ids;
 }
 
 QString LinuxDevice::displayNameForActionId(Core::Id actionId) const
@@ -191,6 +199,8 @@ QString LinuxDevice::displayNameForActionId(Core::Id actionId) const
 
     if (actionId == Constants::GenericDeployKeyToDeviceActionId)
         return tr("Deploy Public Key...");
+    if (actionId == openShellActionId())
+        return tr("Open Remote Shell");
     return QString(); // Can't happen.
 }
 
@@ -198,13 +208,35 @@ void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent)
 {
     QTC_ASSERT(actionIds().contains(actionId), return);
 
-    QDialog *d = nullptr;
-    const LinuxDevice::ConstPtr device = sharedFromThis().staticCast<const LinuxDevice>();
-    if (actionId == Constants::GenericDeployKeyToDeviceActionId)
-        d = PublicKeyDeploymentDialog::createDialog(device, parent);
-    if (d)
-        d->exec();
-    delete d;
+    if (actionId == Constants::GenericDeployKeyToDeviceActionId) {
+        const LinuxDevice::ConstPtr device = sharedFromThis().staticCast<const LinuxDevice>();
+        QDialog * const d = PublicKeyDeploymentDialog::createDialog(device, parent);
+        if (d)
+            d->exec();
+        delete d;
+        return;
+    }
+    if (actionId == openShellActionId()) {
+        DeviceProcess * const proc = createProcess(nullptr);
+        QObject::connect(proc, &DeviceProcess::finished, [proc] {
+            if (!proc->errorString().isEmpty()) {
+                Core::MessageManager::write(tr("Error running remote shell: %1")
+                                            .arg(proc->errorString()),
+                                            Core::MessageManager::ModeSwitch);
+            }
+            proc->deleteLater();
+        });
+        QObject::connect(proc, &DeviceProcess::error, [proc] {
+            Core::MessageManager::write(tr("Error starting remote shell."),
+                                        Core::MessageManager::ModeSwitch);
+            proc->deleteLater();
+        });
+        Runnable runnable;
+        runnable.device = sharedFromThis().staticCast<const LinuxDevice>();
+        proc->setRunInTerminal(true);
+        proc->start(runnable);
+        return;
+    }
 }
 
 Utils::OsType LinuxDevice::osType() const
