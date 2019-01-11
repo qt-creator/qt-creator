@@ -27,6 +27,7 @@
 
 #include "clangtoolssettings.h"
 
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cpptoolsreuse.h>
 
@@ -56,51 +57,45 @@ ClangTidyClazyRunner::ClangTidyClazyRunner(const CppTools::ClangDiagnosticConfig
 {
 }
 
-static void addXclangArg(QStringList &arguments,
-                         const QString &argName,
-                         const QString &argValue = QString())
-{
-    arguments << QString("-Xclang")
-              << argName;
-    if (!argValue.isEmpty()) {
-        arguments << QString("-Xclang")
-                  << argValue;
-    }
-}
-
 QStringList ClangTidyClazyRunner::constructCommandLineArguments(const QStringList &options)
 {
     using namespace CppTools;
     QStringList arguments;
 
     if (LOG().isDebugEnabled())
-        arguments << QString("-v");
+        arguments << QLatin1String("-v");
 
-    arguments << QString("-fsyntax-only")
-              << QString("-serialize-diagnostics")
-              << QString(m_logFile)
-              << ClangDiagnosticConfigsModel::globalDiagnosticOptions()
+    const QStringList serializeArgs{"-serialize-diagnostics", m_logFile};
+    if (options.contains("--driver-mode=cl"))
+        arguments << clangArgsForCl(serializeArgs);
+    else
+        arguments << serializeArgs;
+
+    arguments << ClangDiagnosticConfigsModel::globalDiagnosticOptions()
               << m_diagnosticConfig.clangOptions();
 
     const ClangDiagnosticConfig::TidyMode tidyMode = m_diagnosticConfig.clangTidyMode();
     if (tidyMode != ClangDiagnosticConfig::TidyMode::Disabled) {
-        addXclangArg(arguments, QString("-add-plugin"), QString("clang-tidy"));
+        arguments << XclangArgs({"-add-plugin", "clang-tidy"});
         if (tidyMode != ClangDiagnosticConfig::TidyMode::File) {
             const QString tidyChecks = m_diagnosticConfig.clangTidyChecks();
-            addXclangArg(arguments, QString("-plugin-arg-clang-tidy"), "-checks=" + tidyChecks);
+            arguments << XclangArgs({"-plugin-arg-clang-tidy", "-checks=" + tidyChecks});
         }
     }
 
     const QString clazyChecks = m_diagnosticConfig.clazyChecks();
     if (!clazyChecks.isEmpty()) {
-        addXclangArg(arguments, QString("-add-plugin"), QString("clang-lazy"));
-        addXclangArg(arguments, QString("-plugin-arg-clang-lazy"), QString("enable-all-fixits"));
-        addXclangArg(arguments, QString("-plugin-arg-clang-lazy"), QString("no-autowrite-fixits"));
-        addXclangArg(arguments, QString("-plugin-arg-clang-lazy"), m_diagnosticConfig.clazyChecks());
+        arguments << XclangArgs({"-add-plugin",
+                                 "clang-lazy",
+                                 "-plugin-arg-clang-lazy",
+                                 "enable-all-fixits",
+                                 "-plugin-arg-clang-lazy",
+                                 "no-autowrite-fixits",
+                                 "-plugin-arg-clang-lazy",
+                                 m_diagnosticConfig.clazyChecks()});
     }
 
-    arguments += options;
-    arguments << QDir::toNativeSeparators(filePath());
+    arguments << options << QDir::toNativeSeparators(filePath());
     return arguments;
 }
 

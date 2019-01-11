@@ -86,10 +86,10 @@ public:
     void addExtraOptions() final
     {
         addDummyUiHeaderOnDiskIncludePath();
-        add("-fmessage-length=0");
-        add("-fdiagnostics-show-note-include-stack");
+        add("-fmessage-length=0", /*gccOnlyOption=*/true);
+        add("-fdiagnostics-show-note-include-stack", /*gccOnlyOption=*/true);
+        add("-fretain-comments-from-system-headers", /*gccOnlyOption=*/true);
         add("-fmacro-backtrace-limit=0");
-        add("-fretain-comments-from-system-headers");
         add("-ferror-limit=1000");
     }
 
@@ -97,10 +97,8 @@ private:
     void addDummyUiHeaderOnDiskIncludePath()
     {
         const QString path = ClangModelManagerSupport::instance()->dummyUiHeaderOnDiskDirPath();
-        if (!path.isEmpty()) {
-            add("-I");
-            add(QDir::toNativeSeparators(path));
-        }
+        if (!path.isEmpty())
+            add({"-I", QDir::toNativeSeparators(path)});
     }
 };
 

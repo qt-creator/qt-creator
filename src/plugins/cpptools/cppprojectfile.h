@@ -54,10 +54,15 @@ public:
 
     static bool isSource(Kind kind);
     static bool isHeader(Kind kind);
+    static bool isC(Kind kind);
+    static bool isCxx(Kind kind);
     static bool isAmbiguousHeader(const QString &filePath);
 
     bool isHeader() const;
     bool isSource() const;
+
+    bool isC() const;
+    bool isCxx() const;
 
 public:
     ProjectFile() = default;

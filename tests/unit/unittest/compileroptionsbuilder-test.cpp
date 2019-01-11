@@ -55,8 +55,6 @@ protected:
         projectPart.languageVersion = Utils::LanguageVersion::CXX17;
         projectPart.toolChainWordWidth = CppTools::ProjectPart::WordWidth64Bit;
         projectPart.toolChainTargetTriple = "x86_64-apple-darwin10";
-        projectPart.extraCodeModelFlags = QStringList{"-arch", "x86_64"};
-
         projectPart.precompiledHeaders = QStringList{TESTDATA_DIR "/compileroptionsbuilder.pch"};
         projectPart.toolChainMacros = {ProjectExplorer::Macro{"foo", "bar"},
                                        ProjectExplorer::Macro{"__cplusplus", "2"},
@@ -151,6 +149,20 @@ TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_LanguageVersionIsExplicitl
     ASSERT_THAT(compilerOptionsBuilder.options(), Contains("-std=c++17"));
 }
 
+TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_ClLanguageVersionIsExplicitlySetIfNotProvided)
+{
+    projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart,
+                                                            CppTools::UseSystemHeader::No,
+                                                            CppTools::UseToolchainMacros::Yes,
+                                                            CppTools::UseTweakedHeaderPaths::Yes,
+                                                            CppTools::UseLanguageDefines::Yes};
+
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), Contains("/std:c++17"));
+}
+
 TEST_F(CompilerOptionsBuilder, AddToolchainAndProjectMacrosWithoutSkipingLanguageDefines)
 {
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart,
@@ -195,6 +207,20 @@ TEST_F(CompilerOptionsBuilder, HeaderPathOptionsOrder)
                             "-I", QDir::toNativeSeparators("/tmp/path"),
                             "-I", QDir::toNativeSeparators("/tmp/system_path"),
                             "-isystem", QDir::toNativeSeparators("/tmp/builtin_path")));
+}
+
+TEST_F(CompilerOptionsBuilder, HeaderPathOptionsOrderCl)
+{
+    projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
+    compilerOptionsBuilder.evaluateCompilerFlags();
+
+    compilerOptionsBuilder.addHeaderPathOptions();
+
+    ASSERT_THAT(compilerOptionsBuilder.options(),
+                ElementsAre("-I", QDir::toNativeSeparators("/tmp/path"),
+                            "-I", QDir::toNativeSeparators("/tmp/system_path"),
+                            "/clang:-isystem", "/clang:" + QDir::toNativeSeparators("/tmp/builtin_path")));
 }
 
 TEST_F(CompilerOptionsBuilder, UseSystemHeader)
@@ -407,6 +433,19 @@ TEST_F(CompilerOptionsBuilder, UsePrecompiledHeader)
                 ElementsAre("-include", QDir::toNativeSeparators(TESTDATA_DIR "/compileroptionsbuilder.pch")));
 }
 
+TEST_F(CompilerOptionsBuilder, UsePrecompiledHeaderCl)
+{
+    projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
+    compilerOptionsBuilder.evaluateCompilerFlags();
+
+    compilerOptionsBuilder.addPrecompiledHeaderOptions(CppTools::UsePrecompiledHeaders::Yes);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(),
+                ElementsAre("/FI",
+                            QDir::toNativeSeparators(TESTDATA_DIR "/compileroptionsbuilder.pch")));
+}
+
 TEST_F(CompilerOptionsBuilder, AddMacros)
 {
     compilerOptionsBuilder.addMacros(ProjectExplorer::Macros{ProjectExplorer::Macro{"key", "value"}});
@@ -418,7 +457,7 @@ TEST_F(CompilerOptionsBuilder, AddTargetTriple)
 {
     compilerOptionsBuilder.addTargetTriple();
 
-    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-target", "x86_64-apple-darwin10"));
+    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("--target=x86_64-apple-darwin10"));
 }
 
 TEST_F(CompilerOptionsBuilder, InsertWrappedQtHeaders)
@@ -433,6 +472,17 @@ TEST_F(CompilerOptionsBuilder, SetLanguageVersion)
     compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXSource);
 
     ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-x", "c++"));
+}
+
+TEST_F(CompilerOptionsBuilder, SetLanguageVersionCl)
+{
+    projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
+    compilerOptionsBuilder.evaluateCompilerFlags();
+
+    compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXSource);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("/TP"));
 }
 
 TEST_F(CompilerOptionsBuilder, HandleLanguageExtension)
@@ -451,6 +501,18 @@ TEST_F(CompilerOptionsBuilder, UpdateLanguageVersion)
     compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXHeader);
 
     ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-x", "c++-header"));
+}
+
+TEST_F(CompilerOptionsBuilder, UpdateLanguageVersionCl)
+{
+    projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
+    compilerOptionsBuilder.evaluateCompilerFlags();
+    compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXSource);
+
+    compilerOptionsBuilder.updateFileLanguage(ProjectFile::CSource);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("/TC"));
 }
 
 TEST_F(CompilerOptionsBuilder, AddMsvcCompatibilityVersion)
@@ -491,9 +553,32 @@ TEST_F(CompilerOptionsBuilder, AddProjectConfigFileInclude)
     ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-include", "dummy_file.h"));
 }
 
-TEST_F(CompilerOptionsBuilder, UndefineClangVersionMacrosForMsvc)
+TEST_F(CompilerOptionsBuilder, AddProjectConfigFileIncludeCl)
+{
+    projectPart.projectConfigFile = "dummy_file.h";
+    projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
+    compilerOptionsBuilder.evaluateCompilerFlags();
+
+    compilerOptionsBuilder.addProjectConfigFileInclude();
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("/FI", "dummy_file.h"));
+}
+
+TEST_F(CompilerOptionsBuilder, NoUndefineClangVersionMacrosForNewMsvc)
 {
     projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+
+    compilerOptionsBuilder.undefineClangVersionMacrosForMsvc();
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), Not(Contains(QString{"-U__clang__"})));
+}
+
+TEST_F(CompilerOptionsBuilder, UndefineClangVersionMacrosForOldMsvc)
+{
+    projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    projectPart.toolChainMacros = {ProjectExplorer::Macro{"_MSC_FULL_VER", "1300"},
+                                   ProjectExplorer::Macro{"_MSC_VER", "13"}};
 
     compilerOptionsBuilder.undefineClangVersionMacrosForMsvc();
 
@@ -502,19 +587,67 @@ TEST_F(CompilerOptionsBuilder, UndefineClangVersionMacrosForMsvc)
 
 TEST_F(CompilerOptionsBuilder, BuildAllOptions)
 {
+    projectPart.extraCodeModelFlags = QStringList{"-arch", "x86_64"};
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
+
     compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
 
     ASSERT_THAT(compilerOptionsBuilder.options(),
-                ElementsAre(
-                    "-nostdlibinc", "-c", "-m64", "-target", "x86_64-apple-darwin10",
-                    "-x", "c++", "-std=c++17", "-arch", "x86_64", "-Dfoo=bar",
-                    "-DprojectFoo=projectBar", "-undef",
-                    "-I", IsPartOfHeader("wrappedQtHeaders"),
-                    "-I", IsPartOfHeader(QDir::toNativeSeparators("wrappedQtHeaders/QtCore").toStdString()),
-                    "-I", QDir::toNativeSeparators("/tmp/path"),
-                    "-I", QDir::toNativeSeparators("/tmp/system_path"),
-                    "-isystem", QDir::toNativeSeparators("/tmp/builtin_path")
-                    ));
+                ElementsAre("-nostdlibinc",
+                            "-fsyntax-only",
+                            "-m64",
+                            "--target=x86_64-apple-darwin10",
+                            "-x",
+                            "c++",
+                            "-std=c++17",
+                            "-arch",
+                            "x86_64",
+                            "-Dfoo=bar",
+                            "-DprojectFoo=projectBar",
+                            "-undef",
+                            "-I",
+                            IsPartOfHeader("wrappedQtHeaders"),
+                            "-I",
+                            IsPartOfHeader(
+                                QDir::toNativeSeparators("wrappedQtHeaders/QtCore").toStdString()),
+                            "-I",
+                            QDir::toNativeSeparators("/tmp/path"),
+                            "-I",
+                            QDir::toNativeSeparators("/tmp/system_path"),
+                            "-isystem",
+                            QDir::toNativeSeparators("/tmp/builtin_path")));
 }
 
+TEST_F(CompilerOptionsBuilder, BuildAllOptionsCl)
+{
+    projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
+
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(),
+                ElementsAre("--driver-mode=cl",
+                            "/Zs",
+                            "-m64",
+                            "--target=x86_64-apple-darwin10",
+                            "/TP",
+                            "/std:c++17",
+                            "-fms-compatibility-version=19.00",
+                            "-Dfoo=bar",
+                            "-DprojectFoo=projectBar",
+                            "-D__FUNCSIG__=\"\"",
+                            "-D__FUNCTION__=\"\"",
+                            "-D__FUNCDNAME__=\"\"",
+                            "-I",
+                            IsPartOfHeader("wrappedQtHeaders"),
+                            "-I",
+                            IsPartOfHeader(
+                                QDir::toNativeSeparators("wrappedQtHeaders/QtCore").toStdString()),
+                            "-I",
+                            QDir::toNativeSeparators("/tmp/path"),
+                            "-I",
+                            QDir::toNativeSeparators("/tmp/system_path"),
+                            "/clang:-isystem",
+                            "/clang:" + QDir::toNativeSeparators("/tmp/builtin_path")));
+}
 }

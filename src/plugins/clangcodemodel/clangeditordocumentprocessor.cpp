@@ -453,7 +453,11 @@ public:
     FileOptionsBuilder(const QString &filePath, CppTools::ProjectPart &projectPart)
         : m_filePath(filePath)
         , m_projectPart(projectPart)
+        , m_builder(projectPart)
     {
+        // Determine the driver mode from toolchain and flags.
+        m_builder.evaluateCompilerFlags();
+
         addLanguageOptions();
         addGlobalDiagnosticOptions(); // Before addDiagnosticOptions() so users still can overwrite.
         addDiagnosticOptions();
@@ -475,10 +479,10 @@ private:
                  : CppTools::ProjectFile::CXXHeader;
         }
 
-        CppTools::CompilerOptionsBuilder builder(m_projectPart);
-        builder.updateFileLanguage(fileKind);
+        m_builder.reset();
+        m_builder.updateFileLanguage(fileKind);
 
-        m_options.append(builder.options());
+        m_options.append(m_builder.options());
     }
 
     void addDiagnosticOptions()
@@ -508,16 +512,6 @@ private:
         addClazyOptions(diagnosticConfig.clazyChecks());
     }
 
-    void addXclangArg(const QString &argName, const QString &argValue = QString())
-    {
-        m_options.append("-Xclang");
-        m_options.append(argName);
-        if (!argValue.isEmpty()) {
-            m_options.append("-Xclang");
-            m_options.append(argValue);
-        }
-    }
-
     void addClangTidyOptions(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
     {
         using Mode = CppTools::ClangDiagnosticConfig::TidyMode;
@@ -525,14 +519,14 @@ private:
         if (tidyMode == Mode::Disabled)
             return;
 
-        addXclangArg("-add-plugin", "clang-tidy");
+        m_options.append(CppTools::XclangArgs({"-add-plugin", "clang-tidy"}));
 
         if (tidyMode == Mode::File)
             return;
 
         const QString checks = diagnosticConfig.clangTidyChecks();
         if (!checks.isEmpty())
-            addXclangArg("-plugin-arg-clang-tidy", "-checks=" + checks);
+            m_options.append(CppTools::XclangArgs({"-plugin-arg-clang-tidy", "-checks=" + checks}));
     }
 
     void addClazyOptions(const QString &checks)
@@ -540,15 +534,16 @@ private:
         if (checks.isEmpty())
             return;
 
-        addXclangArg("-add-plugin", "clang-lazy");
-        addXclangArg("-plugin-arg-clang-lazy", "enable-all-fixits");
-        addXclangArg("-plugin-arg-clang-lazy", "no-autowrite-fixits");
-        addXclangArg("-plugin-arg-clang-lazy", checks);
-
-        // NOTE: we already use -isystem for all include paths to make libclang skip diagnostics for
-        // all of them. That means that ignore-included-files will not change anything unless we decide
-        // to return the original -I prefix for some include paths.
-        addXclangArg("-plugin-arg-clang-lazy", "ignore-included-files");
+        m_options.append(CppTools::XclangArgs({"-add-plugin",
+                                               "clang-lazy",
+                                               "-plugin-arg-clang-lazy",
+                                               "enable-all-fixits",
+                                               "-plugin-arg-clang-lazy",
+                                               "no-autowrite-fixits",
+                                               "-plugin-arg-clang-lazy",
+                                               checks,
+                                               "-plugin-arg-clang-lazy",
+                                               "ignore-included-files"}));
     }
 
     void addGlobalDiagnosticOptions()
@@ -574,10 +569,10 @@ private:
         if (m_projectPart.precompiledHeaders.contains(m_filePath))
             return;
 
-        CompilerOptionsBuilder builder(m_projectPart);
-        builder.addPrecompiledHeaderOptions(UsePrecompiledHeaders::Yes);
+        m_builder.reset();
+        m_builder.addPrecompiledHeaderOptions(UsePrecompiledHeaders::Yes);
 
-        m_options.append(builder.options());
+        m_options.append(m_builder.options());
     }
 
 private:
@@ -585,6 +580,7 @@ private:
     const CppTools::ProjectPart &m_projectPart;
 
     Core::Id m_diagnosticConfigId;
+    CppTools::CompilerOptionsBuilder m_builder;
     QStringList m_options;
 };
 } // namespace

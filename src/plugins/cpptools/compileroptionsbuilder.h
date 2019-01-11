@@ -37,6 +37,9 @@ enum class UseTweakedHeaderPaths : char { Yes, No };
 enum class UseToolchainMacros : char { Yes, No };
 enum class UseLanguageDefines : char { Yes, No };
 
+CPPTOOLS_EXPORT QStringList XclangArgs(const QStringList &args);
+CPPTOOLS_EXPORT QStringList clangArgsForCl(const QStringList &args);
+
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {
 public:
@@ -53,6 +56,7 @@ public:
 
     // Add options based on project part
     virtual void addToolchainAndProjectMacros();
+    void addSyntaxOnly();
     void addWordWidth();
     void addToolchainFlags();
     void addHeaderPathOptions();
@@ -74,18 +78,20 @@ public:
     void undefineClangVersionMacrosForMsvc();
 
     // Add custom options
-    void add(const QString &option) { m_options.append(option); }
+    void add(const QString &arg, bool gccOnlyOption = false);
+    void add(const QStringList &args, bool gccOnlyOptions = false);
     virtual void addExtraOptions() {}
 
     static UseToolchainMacros useToolChainMacros();
     void reset();
 
-private:
     void evaluateCompilerFlags();
+    bool isClStyle() const;
+
+private:
+    void addIncludeDirOptionForPath(const ProjectExplorer::HeaderPath &path);
     bool excludeDefineDirective(const ProjectExplorer::Macro &macro) const;
-    QString includeDirOptionForPath(const QString &path) const;
     void addWrappedQtHeadersIncludePath(QStringList &list) const;
-    QString includeDirOptionForSystemPath(ProjectExplorer::HeaderPathType type) const;
     QByteArray msvcVersion() const;
 
 private:
@@ -100,12 +106,12 @@ private:
     const QString m_clangResourceDirectory;
 
     struct {
-        bool forward = false;
         QStringList flags;
         bool isLanguageVersionSpecified = false;
     } m_compilerFlags;
 
     QStringList m_options;
+    bool m_clStyle = false;
 };
 
 } // namespace CppTools
