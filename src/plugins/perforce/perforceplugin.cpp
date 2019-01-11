@@ -812,7 +812,7 @@ bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
         return entry.m_isManaged;
     }
     if (!m_settings.isValid()) {
-        if (m_settings.topLevel().isEmpty() && m_settings.defaultEnv())
+        if (m_settings.topLevel().isEmpty())
             getTopLevel(directory, true);
 
         if (!m_settings.isValid())
