@@ -52,9 +52,6 @@ namespace RemoteLinux {
 const char Delimiter0[] = "x--";
 const char Delimiter1[] = "---";
 
-
-static Core::Id openShellActionId() { return "RemoteLinux.OpenShellAction"; }
-
 static QString visualizeNull(QString s)
 {
     return s.replace(QLatin1Char('\0'), QLatin1String("<null>"));
@@ -185,60 +182,6 @@ IDeviceWidget *LinuxDevice::createWidget()
     return new GenericLinuxDeviceConfigurationWidget(sharedFromThis());
 }
 
-QList<Core::Id> LinuxDevice::actionIds() const
-{
-    QList<Core::Id> ids({Core::Id(Constants::GenericDeployKeyToDeviceActionId)});
-    if (Utils::HostOsInfo::isAnyUnixHost())
-        ids << openShellActionId();
-    return ids;
-}
-
-QString LinuxDevice::displayNameForActionId(Core::Id actionId) const
-{
-    QTC_ASSERT(actionIds().contains(actionId), return QString());
-
-    if (actionId == Constants::GenericDeployKeyToDeviceActionId)
-        return tr("Deploy Public Key...");
-    if (actionId == openShellActionId())
-        return tr("Open Remote Shell");
-    return QString(); // Can't happen.
-}
-
-void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent)
-{
-    QTC_ASSERT(actionIds().contains(actionId), return);
-
-    if (actionId == Constants::GenericDeployKeyToDeviceActionId) {
-        const LinuxDevice::ConstPtr device = sharedFromThis().staticCast<const LinuxDevice>();
-        QDialog * const d = PublicKeyDeploymentDialog::createDialog(device, parent);
-        if (d)
-            d->exec();
-        delete d;
-        return;
-    }
-    if (actionId == openShellActionId()) {
-        DeviceProcess * const proc = createProcess(nullptr);
-        QObject::connect(proc, &DeviceProcess::finished, [proc] {
-            if (!proc->errorString().isEmpty()) {
-                Core::MessageManager::write(tr("Error running remote shell: %1")
-                                            .arg(proc->errorString()),
-                                            Core::MessageManager::ModeSwitch);
-            }
-            proc->deleteLater();
-        });
-        QObject::connect(proc, &DeviceProcess::error, [proc] {
-            Core::MessageManager::write(tr("Error starting remote shell."),
-                                        Core::MessageManager::ModeSwitch);
-            proc->deleteLater();
-        });
-        Runnable runnable;
-        runnable.device = sharedFromThis().staticCast<const LinuxDevice>();
-        proc->setRunInTerminal(true);
-        proc->start(runnable);
-        return;
-    }
-}
-
 Utils::OsType LinuxDevice::osType() const
 {
     return Utils::OsTypeLinux;
@@ -249,9 +192,43 @@ LinuxDevice::LinuxDevice(const QString &name, Core::Id type, MachineType machine
     : IDevice(type, origin, machineType, id)
 {
     setDisplayName(name);
+    init();
 }
 
 LinuxDevice::LinuxDevice(const LinuxDevice &other) = default;
+
+void LinuxDevice::init()
+{
+    addDeviceAction({tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
+        if (auto d = PublicKeyDeploymentDialog::createDialog(device, parent)) {
+            d->exec();
+            delete d;
+        }
+    }});
+
+    if (Utils::HostOsInfo::isAnyUnixHost()) {
+        addDeviceAction({tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
+            DeviceProcess * const proc = device->createProcess(nullptr);
+            QObject::connect(proc, &DeviceProcess::finished, [proc] {
+                if (!proc->errorString().isEmpty()) {
+                    Core::MessageManager::write(tr("Error running remote shell: %1")
+                                                .arg(proc->errorString()),
+                                                Core::MessageManager::ModeSwitch);
+                }
+                proc->deleteLater();
+            });
+            QObject::connect(proc, &DeviceProcess::error, [proc] {
+                Core::MessageManager::write(tr("Error starting remote shell."),
+                                            Core::MessageManager::ModeSwitch);
+                proc->deleteLater();
+            });
+            Runnable runnable;
+            runnable.device = device;
+            proc->setRunInTerminal(true);
+            proc->start(runnable);
+        }});
+    }
+}
 
 LinuxDevice::Ptr LinuxDevice::create()
 {

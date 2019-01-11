@@ -47,9 +47,6 @@ public:
     ~BareMetalDevice() override;
     QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
-    QList<Core::Id> actionIds() const override;
-    QString displayNameForActionId(Core::Id actionId) const override;
-    void executeAction(Core::Id actionId, QWidget *parent) override;
     Utils::OsType osType() const override;
     ProjectExplorer::IDevice::Ptr clone() const override;
 

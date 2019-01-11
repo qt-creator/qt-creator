@@ -153,9 +153,13 @@ public:
 
     virtual QString displayType() const = 0;
     virtual IDeviceWidget *createWidget() = 0;
-    virtual QList<Core::Id> actionIds() const = 0;
-    virtual QString displayNameForActionId(Core::Id actionId) const = 0;
-    virtual void executeAction(Core::Id actionId, QWidget *parent = nullptr) = 0;
+
+    struct DeviceAction {
+        QString display;
+        std::function<void(const IDevice::Ptr &device, QWidget *parent)> execute;
+    };
+    void addDeviceAction(const DeviceAction &deviceAction);
+    const QList<DeviceAction> deviceActions() const;
 
     // Devices that can auto detect ports need not return a ports gathering method. Such devices can
     // obtain a free port on demand. eg: Desktop device.

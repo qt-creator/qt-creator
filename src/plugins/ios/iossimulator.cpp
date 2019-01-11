@@ -89,23 +89,6 @@ IDeviceWidget *IosSimulator::createWidget()
     return nullptr;
 }
 
-QList<Core::Id> IosSimulator::actionIds() const
-{
-    return QList<Core::Id>();
-}
-
-QString IosSimulator::displayNameForActionId(Core::Id actionId) const
-{
-    Q_UNUSED(actionId)
-    return QString();
-}
-
-void IosSimulator::executeAction(Core::Id actionId, QWidget *parent)
-{
-    Q_UNUSED(actionId)
-    Q_UNUSED(parent)
-}
-
 DeviceProcessSignalOperation::Ptr IosSimulator::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr();

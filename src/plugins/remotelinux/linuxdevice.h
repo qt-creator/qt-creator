@@ -48,9 +48,6 @@ public:
 
     QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
-    QList<Core::Id> actionIds() const override;
-    QString displayNameForActionId(Core::Id actionId) const override;
-    void executeAction(Core::Id actionId, QWidget *parent) override;
     Utils::OsType osType() const override;
     ProjectExplorer::IDevice::Ptr clone() const override;
 
@@ -69,13 +66,14 @@ public:
     bool supportsRSync() const;
 
 protected:
-    LinuxDevice() = default;
+    LinuxDevice() { init(); }
     LinuxDevice(const QString &name, Core::Id type,
                              MachineType machineType, Origin origin, Core::Id id);
     LinuxDevice(const LinuxDevice &other);
 
 private:
     LinuxDevice &operator=(const LinuxDevice &);
+    void init();
 };
 
 } // namespace RemoteLinux

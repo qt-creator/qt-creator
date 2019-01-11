@@ -130,23 +130,6 @@ IDeviceWidget *IosDevice::createWidget()
     return nullptr;
 }
 
-QList<Core::Id> IosDevice::actionIds() const
-{
-    return QList<Core::Id>(); // add activation action?
-}
-
-QString IosDevice::displayNameForActionId(Core::Id actionId) const
-{
-    Q_UNUSED(actionId)
-    return QString();
-}
-
-void IosDevice::executeAction(Core::Id actionId, QWidget *parent)
-{
-    Q_UNUSED(actionId)
-    Q_UNUSED(parent)
-}
-
 DeviceProcessSignalOperation::Ptr IosDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr();

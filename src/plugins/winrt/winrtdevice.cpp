@@ -77,23 +77,6 @@ IDeviceWidget *WinRtDevice::createWidget()
     return nullptr;
 }
 
-QList<Core::Id> WinRtDevice::actionIds() const
-{
-    return QList<Core::Id>();
-}
-
-QString WinRtDevice::displayNameForActionId(Core::Id actionId) const
-{
-    Q_UNUSED(actionId);
-    return QString();
-}
-
-void WinRtDevice::executeAction(Core::Id actionId, QWidget *parent)
-{
-    Q_UNUSED(actionId);
-    Q_UNUSED(parent);
-}
-
 DeviceProcessSignalOperation::Ptr WinRtDevice::signalOperation() const
 {
     class WinRtDesktopSignalOperation : public DesktopProcessSignalOperation

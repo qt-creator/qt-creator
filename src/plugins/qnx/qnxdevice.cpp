@@ -50,7 +50,6 @@ namespace Qnx {
 using namespace Internal;
 
 const char QnxVersionKey[] = "QnxVersion";
-const char DeployQtLibrariesActionId [] = "Qnx.Qnx.DeployQtLibrariesAction";
 
 class QnxPortsGatheringMethod : public PortsGatheringMethod
 {
@@ -79,18 +78,25 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
 };
 
 QnxDevice::QnxDevice()
-    : RemoteLinux::LinuxDevice()
-    , m_versionNumber(0)
 {
+    init();
 }
 
 QnxDevice::QnxDevice(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
     : RemoteLinux::LinuxDevice(name, type, machineType, origin, id)
-    , m_versionNumber(0)
 {
+    init();
 }
 
 QnxDevice::QnxDevice(const QnxDevice &other) = default;
+
+void QnxDevice::init()
+{
+    addDeviceAction({tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
+        QnxDeployQtLibrariesDialog dialog(device, parent);
+        dialog.exec();
+    }});
+}
 
 QnxDevice::Ptr QnxDevice::create()
 {
@@ -188,33 +194,6 @@ DeviceTester *QnxDevice::createDeviceTester() const
 DeviceProcess *QnxDevice::createProcess(QObject *parent) const
 {
     return new QnxDeviceProcess(sharedFromThis(), parent);
-}
-
-QList<Core::Id> QnxDevice::actionIds() const
-{
-    QList<Core::Id> actions = RemoteLinux::LinuxDevice::actionIds();
-    actions << Core::Id(DeployQtLibrariesActionId);
-    return actions;
-}
-
-QString QnxDevice::displayNameForActionId(Core::Id actionId) const
-{
-    if (actionId == Core::Id(DeployQtLibrariesActionId))
-        return tr("Deploy Qt libraries...");
-
-    return RemoteLinux::LinuxDevice::displayNameForActionId(actionId);
-}
-
-void QnxDevice::executeAction(Core::Id actionId, QWidget *parent)
-{
-    const QnxDevice::ConstPtr device =
-            sharedFromThis().staticCast<const QnxDevice>();
-    if (actionId == Core::Id(DeployQtLibrariesActionId)) {
-        QnxDeployQtLibrariesDialog dialog(device, parent);
-        dialog.exec();
-    } else {
-        RemoteLinux::LinuxDevice::executeAction(actionId, parent);
-    }
 }
 
 DeviceProcessSignalOperation::Ptr QnxDevice::signalOperation() const

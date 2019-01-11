@@ -413,9 +413,6 @@ private:
     TestDevice(const TestDevice &other) = default;
     QString displayType() const override { return QLatin1String("blubb"); }
     IDeviceWidget *createWidget() override { return nullptr; }
-    QList<Core::Id> actionIds() const override { return QList<Core::Id>(); }
-    QString displayNameForActionId(Core::Id) const override { return QString(); }
-    void executeAction(Core::Id, QWidget *) override { }
     Ptr clone() const override { return Ptr(new TestDevice(*this)); }
     DeviceProcessSignalOperation::Ptr signalOperation() const override
     {

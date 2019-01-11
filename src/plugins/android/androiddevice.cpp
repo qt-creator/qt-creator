@@ -78,23 +78,6 @@ IDeviceWidget *AndroidDevice::createWidget()
     return nullptr;
 }
 
-QList<Core::Id> AndroidDevice::actionIds() const
-{
-    return QList<Core::Id>();
-}
-
-QString AndroidDevice::displayNameForActionId(Core::Id actionId) const
-{
-    Q_UNUSED(actionId)
-    return QString();
-}
-
-void AndroidDevice::executeAction(Core::Id actionId, QWidget *parent)
-{
-    Q_UNUSED(actionId)
-    Q_UNUSED(parent)
-}
-
 bool AndroidDevice::canAutoDetectPorts() const
 {
     return true;

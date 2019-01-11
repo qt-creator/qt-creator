@@ -42,9 +42,6 @@ public:
 
     QString displayType() const override;
     IDeviceWidget *createWidget() override;
-    QList<Core::Id> actionIds() const override;
-    QString displayNameForActionId(Core::Id actionId) const override;
-    void executeAction(Core::Id actionId, QWidget *parent = nullptr) override;
     bool canAutoDetectPorts() const override;
     bool canCreateProcessModel() const override;
     DeviceProcessList *createProcessListModel(QObject *parent) const override;

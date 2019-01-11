@@ -45,6 +45,15 @@
 #include <QUuid>
 
 /*!
+ * \class ProjectExplorer::IDevice::DeviceAction
+ * \brief The DeviceAction class describes an action that can be run on a device.
+ *
+ * The description consists of a human-readable string that will be displayed
+ * on a button which, when clicked, executes a functor, and the functor itself.
+ * This is typically some sort of dialog or wizard, so \a parent widget is provided.
+ */
+
+/*!
  * \class ProjectExplorer::IDevice
  * \brief The IDevice class is the base class for all devices.
  *
@@ -76,21 +85,9 @@
  */
 
 /*!
- * \fn QStringList ProjectExplorer::IDevice::actionIds() const
- * Returns a list of ids representing actions that can be run on this device.
+ * \fn void ProjectExplorer::IDevice::addDeviceAction(const DeviceAction &deviceAction)
+ * Adds an actions that can be run on this device.
  * These actions will be available in the \gui Devices options page.
- */
-
-/*!
- * \fn QString ProjectExplorer::IDevice::displayNameForActionId(Core::Id actionId) const
- * A human-readable string for \a actionId. Will be displayed on a button which,
- *        when clicked, starts the respective action.
- */
-
-/*!
- * \fn void ProjectExplorer::IDevice::executeAction(Core::Id actionId, QWidget *parent) const
- * Executes the action specified by \a actionId. This is typically done via some
- * sort of dialog or wizard, so \a parent widget is provided.
  */
 
 /*!
@@ -153,6 +150,7 @@ public:
     QString qmlsceneCommand;
 
     QList<Utils::Icon> deviceIcons;
+    QList<IDevice::DeviceAction> deviceActions;
     QVariantMap extraData;
 };
 } // namespace Internal
@@ -250,6 +248,16 @@ Core::Id IDevice::id() const
 bool IDevice::isCompatibleWith(const Kit *k) const
 {
     return DeviceTypeKitInformation::deviceTypeId(k) == type();
+}
+
+void IDevice::addDeviceAction(const DeviceAction &deviceAction)
+{
+    d->deviceActions.append(deviceAction);
+}
+
+const QList<IDevice::DeviceAction> IDevice::deviceActions() const
+{
+    return d->deviceActions;
 }
 
 PortsGatheringMethod::Ptr IDevice::portsGatheringMethod() const

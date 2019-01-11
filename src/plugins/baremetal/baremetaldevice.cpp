@@ -159,23 +159,6 @@ IDeviceWidget *BareMetalDevice::createWidget()
     return new BareMetalDeviceConfigurationWidget(sharedFromThis());
 }
 
-QList<Core::Id> BareMetalDevice::actionIds() const
-{
-    return QList<Core::Id>(); // no actions
-}
-
-QString BareMetalDevice::displayNameForActionId(Core::Id actionId) const
-{
-    QTC_ASSERT(actionIds().contains(actionId), return QString());
-    return QString();
-}
-
-void BareMetalDevice::executeAction(Core::Id actionId, QWidget *parent)
-{
-    QTC_ASSERT(actionIds().contains(actionId), return);
-    Q_UNUSED(parent);
-}
-
 Utils::OsType BareMetalDevice::osType() const
 {
     return Utils::OsTypeOther;

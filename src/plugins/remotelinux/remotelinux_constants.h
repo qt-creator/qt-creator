@@ -30,8 +30,6 @@ namespace Constants {
 
 const char GenericLinuxOsType[] = "GenericLinuxOsType";
 
-const char GenericDeployKeyToDeviceActionId[] = "RemoteLinux.GenericDeployKeyToDeviceAction";
-
 const char EMBEDDED_LINUX_QT[] = "RemoteLinux.EmbeddedLinuxQt";
 
 } // Constants

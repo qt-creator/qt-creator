@@ -51,10 +51,6 @@ public:
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
     ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
 
-    QList<Core::Id> actionIds() const override;
-    QString displayNameForActionId(Core::Id actionId) const override;
-    void executeAction(Core::Id actionId, QWidget *parent) override;
-
     QString displayType() const override;
     Utils::OsType osType() const override;
 
@@ -74,8 +70,9 @@ protected:
 
 private:
     void updateVersionNumber() const;
+    void init();
 
-    mutable int m_versionNumber;
+    mutable int m_versionNumber = 0;
 };
 
 } // namespace Qnx

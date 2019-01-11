@@ -65,7 +65,6 @@ private:
     void handleProcessListRequested();
 
     void initGui();
-    void handleAdditionalActionRequest(Core::Id actionId);
     void displayCurrent();
     void setDeviceInfoWidgetsEnabled(bool enable);
     IDevice::ConstPtr currentDevice() const;

@@ -80,23 +80,6 @@ IDeviceWidget *DesktopDevice::createWidget()
     // range can be confusing to the user. Hence, disabling the widget for now.
 }
 
-QList<Core::Id> DesktopDevice::actionIds() const
-{
-    return QList<Core::Id>();
-}
-
-QString DesktopDevice::displayNameForActionId(Core::Id actionId) const
-{
-    Q_UNUSED(actionId);
-    return QString();
-}
-
-void DesktopDevice::executeAction(Core::Id actionId, QWidget *parent)
-{
-    Q_UNUSED(actionId);
-    Q_UNUSED(parent);
-}
-
 bool DesktopDevice::canAutoDetectPorts() const
 {
     return true;
