@@ -69,7 +69,6 @@ public:
     LibClangOptionsBuilder(const ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart,
                                  UseSystemHeader::No,
-                                 useToolChainMacros(),
                                  UseTweakedHeaderPaths::Yes,
                                  UseLanguageDefines::No,
                                  QString(CLANG_VERSION),
@@ -77,10 +76,10 @@ public:
     {
     }
 
-    void addToolchainAndProjectMacros() final
+    void addProjectMacros() final
     {
         addMacros({ProjectExplorer::Macro("Q_CREATOR_RUN", "1")});
-        CompilerOptionsBuilder::addToolchainAndProjectMacros();
+        CompilerOptionsBuilder::addProjectMacros();
     }
 
     void addExtraOptions() final
@@ -339,7 +338,6 @@ void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo p
 
         CompilerOptionsBuilder optionsBuilder(*projectPart,
                                               UseSystemHeader::No,
-                                              UseToolchainMacros::No,
                                               UseTweakedHeaderPaths::No);
         optionsBuilder.build(CppTools::ProjectFile::Unclassified,
                              CppTools::UsePrecompiledHeaders::No);

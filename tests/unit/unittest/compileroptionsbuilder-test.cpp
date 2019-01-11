@@ -76,11 +76,11 @@ protected:
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
 };
 
-TEST_F(CompilerOptionsBuilder, AddToolchainAndProjectMacros)
+TEST_F(CompilerOptionsBuilder, AddProjectMacros)
 {
-    compilerOptionsBuilder.addToolchainAndProjectMacros();
+    compilerOptionsBuilder.addProjectMacros();
 
-    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-Dfoo=bar", "-DprojectFoo=projectBar"));
+    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-DprojectFoo=projectBar"));
 }
 
 TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_UnknownOptionsAreForwarded)
@@ -90,7 +90,6 @@ TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_UnknownOptionsAreForwarded
 
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::Yes};
 
@@ -106,7 +105,6 @@ TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_DiagnosticOptionsAreRemove
 
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::Yes};
 
@@ -126,7 +124,6 @@ TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_CLanguageVersionIsRewritte
 
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::Yes};
 
@@ -140,7 +137,6 @@ TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_LanguageVersionIsExplicitl
 {
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::Yes};
 
@@ -154,7 +150,6 @@ TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_ClLanguageVersionIsExplici
     projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::Yes};
 
@@ -163,39 +158,11 @@ TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_ClLanguageVersionIsExplici
     ASSERT_THAT(compilerOptionsBuilder.options(), Contains("/std:c++17"));
 }
 
-TEST_F(CompilerOptionsBuilder, AddToolchainAndProjectMacrosWithoutSkipingLanguageDefines)
-{
-    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart,
-                                                            CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
-                                                            CppTools::UseTweakedHeaderPaths::Yes,
-                                                            CppTools::UseLanguageDefines::Yes};
-
-    compilerOptionsBuilder.addToolchainAndProjectMacros();
-
-    ASSERT_THAT(compilerOptionsBuilder.options(),
-                ElementsAre("-Dfoo=bar",
-                            "-D__cplusplus=2",
-                            "-D__STDC_VERSION__=2",
-                            "-D_MSVC_LANG=2",
-                            "-D_MSC_BUILD=2",
-                            "-D_MSC_FULL_VER=1900",
-                            "-D_MSC_VER=19",
-                            "-DprojectFoo=projectBar"));
-}
-
 TEST_F(CompilerOptionsBuilder, AddWordWidth)
 {
     compilerOptionsBuilder.addWordWidth();
 
     ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-m64"));
-}
-
-TEST_F(CompilerOptionsBuilder, AddToolchainFlags)
-{
-    compilerOptionsBuilder.addToolchainFlags();
-
-    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-undef"));
 }
 
 TEST_F(CompilerOptionsBuilder, HeaderPathOptionsOrder)
@@ -240,7 +207,6 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersPath)
 {
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
                                                             "7.0.0",
@@ -270,7 +236,6 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderMacOs)
     projectPart.headerPaths.append(defaultPaths);
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
                                                             "7.0.0",
@@ -305,7 +270,6 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderLinux)
     projectPart.toolChainTargetTriple = "x86_64-linux-gnu";
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
                                                             "7.0.0",
@@ -339,7 +303,6 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderNoVersion)
     projectPart.toolChainTargetTriple = "x86_64-w64-windows-gnu";
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
                                                             "7.0.0",
@@ -387,7 +350,6 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
     projectPart.toolChainTargetTriple = "i686-linux-android";
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
-                                                            CppTools::UseToolchainMacros::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
                                                             "7.0.0",
@@ -602,9 +564,7 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptions)
                             "-std=c++17",
                             "-arch",
                             "x86_64",
-                            "-Dfoo=bar",
                             "-DprojectFoo=projectBar",
-                            "-undef",
                             "-I",
                             IsPartOfHeader("wrappedQtHeaders"),
                             "-I",
@@ -633,7 +593,6 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptionsCl)
                             "/TP",
                             "/std:c++17",
                             "-fms-compatibility-version=19.00",
-                            "-Dfoo=bar",
                             "-DprojectFoo=projectBar",
                             "-D__FUNCSIG__=\"\"",
                             "-D__FUNCTION__=\"\"",

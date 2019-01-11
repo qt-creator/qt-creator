@@ -45,7 +45,6 @@ class CPPTOOLS_EXPORT CompilerOptionsBuilder
 public:
     CompilerOptionsBuilder(const ProjectPart &projectPart,
                            UseSystemHeader useSystemHeader = UseSystemHeader::No,
-                           UseToolchainMacros useToolchainMacros = UseToolchainMacros::Yes,
                            UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::Yes,
                            UseLanguageDefines useLanguageDefines = UseLanguageDefines::No,
                            const QString &clangVersion = QString(),
@@ -55,10 +54,9 @@ public:
     QStringList options() const { return m_options; }
 
     // Add options based on project part
-    virtual void addToolchainAndProjectMacros();
+    virtual void addProjectMacros();
     void addSyntaxOnly();
     void addWordWidth();
-    void addToolchainFlags();
     void addHeaderPathOptions();
     void addPrecompiledHeaderOptions(UsePrecompiledHeaders usePrecompiledHeaders);
     void addMacros(const ProjectExplorer::Macros &macros);
@@ -98,7 +96,6 @@ private:
     const ProjectPart &m_projectPart;
 
     const UseSystemHeader m_useSystemHeader;
-    const UseToolchainMacros m_useToolchainMacros;
     const UseTweakedHeaderPaths m_useTweakedHeaderPaths;
     const UseLanguageDefines m_useLanguageDefines;
 

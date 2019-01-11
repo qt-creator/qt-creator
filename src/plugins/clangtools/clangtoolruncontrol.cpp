@@ -193,7 +193,6 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
     for (const FileInfo &fileInfo : fileInfos) {
         CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
                                               UseSystemHeader::No,
-                                              CompilerOptionsBuilder::useToolChainMacros(),
                                               UseTweakedHeaderPaths::Yes,
                                               UseLanguageDefines::No,
                                               QString(CLANG_VERSION),

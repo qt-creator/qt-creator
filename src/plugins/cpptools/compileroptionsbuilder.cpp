@@ -96,14 +96,12 @@ QStringList clangArgsForCl(const QStringList &args)
 
 CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                UseSystemHeader useSystemHeader,
-                                               UseToolchainMacros useToolchainMacros,
                                                UseTweakedHeaderPaths useTweakedHeaderPaths,
                                                UseLanguageDefines useLanguageDefines,
                                                const QString &clangVersion,
                                                const QString &clangResourceDirectory)
     : m_projectPart(projectPart)
     , m_useSystemHeader(useSystemHeader)
-    , m_useToolchainMacros(useToolchainMacros)
     , m_useTweakedHeaderPaths(useTweakedHeaderPaths)
     , m_useLanguageDefines(useLanguageDefines)
     , m_clangVersion(clangVersion)
@@ -141,12 +139,11 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     addExtraCodeModelFlags();
 
     addMsvcCompatibilityVersion();
-    addToolchainAndProjectMacros();
+    addProjectMacros();
     undefineClangVersionMacrosForMsvc();
     undefineCppLanguageFeatureMacrosForMsvc2015();
     addDefineFunctionMacrosMsvc();
 
-    addToolchainFlags();
     addHeaderPathOptions();
 
     addExtraOptions();
@@ -330,10 +327,8 @@ void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders u
     }
 }
 
-void CompilerOptionsBuilder::addToolchainAndProjectMacros()
+void CompilerOptionsBuilder::addProjectMacros()
 {
-    if (m_useToolchainMacros == UseToolchainMacros::Yes)
-        addMacros(m_projectPart.toolChainMacros);
     addMacros(m_projectPart.projectMacros);
 }
 
@@ -662,16 +657,6 @@ void CompilerOptionsBuilder::addWrappedQtHeadersIncludePath(QStringList &list) c
     }
 }
 
-void CompilerOptionsBuilder::addToolchainFlags()
-{
-    // In case of MSVC we need builtin clang defines to correctly handle clang includes
-    if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
-        && m_projectPart.toolchainType != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-        if (m_useToolchainMacros == UseToolchainMacros::Yes)
-            add("-undef");
-    }
-}
-
 void CompilerOptionsBuilder::addProjectConfigFileInclude()
 {
     if (!m_projectPart.projectConfigFile.isEmpty()) {
@@ -699,12 +684,6 @@ void CompilerOptionsBuilder::undefineClangVersionMacrosForMsvc()
                 add(undefineOption + macroName);
         }
     }
-}
-
-UseToolchainMacros CompilerOptionsBuilder::useToolChainMacros()
-{
-    return qEnvironmentVariableIntValue("QTC_CLANG_USE_TOOLCHAIN_MACROS") ? UseToolchainMacros::Yes
-                                                                          : UseToolchainMacros::No;
 }
 
 void CompilerOptionsBuilder::reset()
