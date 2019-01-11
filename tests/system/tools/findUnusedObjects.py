@@ -2,7 +2,7 @@
 
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2019 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -147,10 +147,9 @@ def printResult():
             print "%s" % obj
         return True
     else:
-        length = max(map(len, useCounts.keys()))
-        outFormat = "%%%ds %%3d" % length
+        outFormat = "%3d %s"
         for obj,useCount in useCounts.iteritems():
-            print outFormat % (obj, useCount)
+            print outFormat % (useCount, obj)
         print
     return None
 
