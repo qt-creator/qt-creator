@@ -72,14 +72,20 @@ private:
     QString m_filesFileName;
     QString m_includesFileName;
     QString m_configFileName;
+    QString m_cxxflagsFileName;
+    QString m_cflagsFileName;
     ProjectExplorer::ProjectDocument *m_filesIDocument;
     ProjectExplorer::ProjectDocument *m_includesIDocument;
     ProjectExplorer::ProjectDocument *m_configIDocument;
+    ProjectExplorer::ProjectDocument *m_cxxFlagsIDocument;
+    ProjectExplorer::ProjectDocument *m_cFlagsIDocument;
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
     QStringList m_rawProjectIncludePaths;
     QStringList m_projectIncludePaths;
+    QStringList m_cxxflags;
+    QStringList m_cflags;
 
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 

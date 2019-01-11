@@ -149,6 +149,8 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     const QString filesFileName = QFileInfo(dir, projectName + QLatin1String(".files")).absoluteFilePath();
     const QString includesFileName = QFileInfo(dir, projectName + QLatin1String(".includes")).absoluteFilePath();
     const QString configFileName = QFileInfo(dir, projectName + QLatin1String(".config")).absoluteFilePath();
+    const QString cxxflagsFileName = QFileInfo(dir, projectName + QLatin1String(".cxxflags")).absoluteFilePath();
+    const QString cflagsFileName = QFileInfo(dir, projectName + QLatin1String(".cflags")).absoluteFilePath();
     const QStringList paths = Utils::transform(wizard->selectedPaths(), &Utils::FileName::toString);
 
     Utils::MimeType headerTy = Utils::mimeTypeForName(QLatin1String("text/x-chdr"));
@@ -188,11 +190,20 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     Core::GeneratedFile generatedConfigFile(configFileName);
     generatedConfigFile.setContents(QLatin1String(ConfigFileTemplate));
 
+    Core::GeneratedFile generatedCxxFlagsFile(cxxflagsFileName);
+    generatedCxxFlagsFile.setContents(
+        QLatin1String(Constants::GENERICPROJECT_CXXFLAGS_FILE_TEMPLATE));
+
+    Core::GeneratedFile generatedCFlagsFile(cflagsFileName);
+    generatedCFlagsFile.setContents(QLatin1String(Constants::GENERICPROJECT_CFLAGS_FILE_TEMPLATE));
+
     Core::GeneratedFiles files;
     files.append(generatedFilesFile);
     files.append(generatedIncludesFile);
     files.append(generatedConfigFile);
     files.append(generatedCreatorFile);
+    files.append(generatedCxxFlagsFile);
+    files.append(generatedCFlagsFile);
 
     return files;
 }

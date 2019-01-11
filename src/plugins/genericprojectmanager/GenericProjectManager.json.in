@@ -45,6 +45,18 @@
         \"    <glob pattern=\'*.config\'/>\",
         \"  </mime-type>\",
 
+        \"  <mime-type type=\'application/vnd.qtcreator.generic.cxxflags\'>\",
+        \"    <sub-class-of type=\'text/plain\'/>\",
+        \"    <comment>Generic Project CXXFLAGS File</comment>\",
+        \"    <glob pattern=\'*.cxxflags\'/>\",
+        \"  </mime-type>\",
+
+        \"  <mime-type type=\'application/vnd.qtcreator.generic.cflags\'>\",
+        \"    <sub-class-of type=\'text/plain\'/>\",
+        \"    <comment>Generic Project CFLAGS File</comment>\",
+        \"    <glob pattern=\'*.cflags\'/>\",
+        \"  </mime-type>\",
+
         \"</mime-info>\"
     ]
 }

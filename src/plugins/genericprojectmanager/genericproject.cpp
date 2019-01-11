@@ -58,6 +58,7 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -165,6 +166,12 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
+static bool writeFile(const QString &filePath, const QString &contents)
+{
+    Utils::FileSaver saver(filePath, QIODevice::Text | QIODevice::WriteOnly);
+    return saver.write(contents.toUtf8()) && saver.finalize();
+}
+
 GenericProject::GenericProject(const Utils::FileName &fileName) :
     Project(Constants::GENERICMIMETYPE, fileName, [this]() { refresh(Everything); }),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater),
@@ -183,6 +190,18 @@ GenericProject::GenericProject(const Utils::FileName &fileName) :
     m_includesFileName = QFileInfo(dir, projectName + ".includes").absoluteFilePath();
     m_configFileName   = QFileInfo(dir, projectName + ".config").absoluteFilePath();
 
+    const QFileInfo cxxflagsFileInfo(dir, projectName + ".cxxflags");
+    m_cxxflagsFileName = cxxflagsFileInfo.absoluteFilePath();
+    if (!cxxflagsFileInfo.exists()) {
+        QTC_CHECK(writeFile(m_cxxflagsFileName, Constants::GENERICPROJECT_CXXFLAGS_FILE_TEMPLATE));
+    }
+
+    const QFileInfo cflagsFileInfo(dir, projectName + ".cflags");
+    m_cflagsFileName = cflagsFileInfo.absoluteFilePath();
+    if (!cflagsFileInfo.exists()) {
+        QTC_CHECK(writeFile(m_cflagsFileName, Constants::GENERICPROJECT_CFLAGS_FILE_TEMPLATE));
+    }
+
     m_filesIDocument
             = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_filesFileName),
                                   [this]() { refresh(Files); });
@@ -192,6 +211,13 @@ GenericProject::GenericProject(const Utils::FileName &fileName) :
     m_configIDocument
             = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_configFileName),
                                   [this]() { refresh(Configuration); });
+    m_cxxFlagsIDocument
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_cxxflagsFileName),
+                                  [this]() { refresh(Configuration); });
+    m_cFlagsIDocument
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_cflagsFileName),
+                                  [this]() { refresh(Configuration); });
+
     connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
             this, &GenericProject::updateDeploymentData);
 }
@@ -326,6 +352,14 @@ bool GenericProject::renameFile(const QString &filePath, const QString &newFileP
     return saveRawFileList(newList);
 }
 
+static QStringList readFlags(const QString &filePath)
+{
+    const QStringList lines = readLines(filePath);
+    if (lines.isEmpty())
+        return QStringList();
+    return QtcProcess::splitArgs(lines.first());
+}
+
 void GenericProject::parseProject(RefreshOptions options)
 {
     if (options & Files) {
@@ -337,6 +371,8 @@ void GenericProject::parseProject(RefreshOptions options)
     if (options & Configuration) {
         m_rawProjectIncludePaths = readLines(m_includesFileName);
         m_projectIncludePaths = processEntries(m_rawProjectIncludePaths);
+        m_cxxflags = readFlags(m_cxxflagsFileName);
+        m_cflags = readFlags(m_cflagsFileName);
 
         // TODO: Possibly load some configuration from the project file
         //QSettings projectInfo(m_fileName, QSettings::IniFormat);
@@ -366,6 +402,12 @@ void GenericProject::refresh(RefreshOptions options)
                                                           FileType::Project,
                                                           /* generated = */ false));
         newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_configFileName),
+                                                          FileType::Project,
+                                                          /* generated = */ false));
+        newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_cxxflagsFileName),
+                                                          FileType::Project,
+                                                          /* generated = */ false));
+        newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_cflagsFileName),
                                                           FileType::Project,
                                                           /* generated = */ false));
 
@@ -436,6 +478,8 @@ void GenericProject::refreshCppCodeModel()
     rpp.setQtVersion(kitInfo.projectPartQtVersion);
     rpp.setIncludePaths(m_projectIncludePaths);
     rpp.setConfigFileName(m_configFileName);
+    rpp.setFlagsForCxx({nullptr, m_cxxflags});
+    rpp.setFlagsForC({nullptr, m_cflags});
     rpp.setFiles(m_files);
 
     m_cppCodeModelUpdater->update({this, kitInfo, {rpp}});
