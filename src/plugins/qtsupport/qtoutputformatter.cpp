@@ -44,24 +44,21 @@ using namespace Utils;
 
 namespace QtSupport {
 
-// "file" or "qrc", colon, optional '//', '/' and further characters
-#define QML_URL_REGEXP "(?:file|qrc):(?://)?/.+"
-
 namespace Internal {
 
 class QtOutputFormatterPrivate
 {
 public:
     QtOutputFormatterPrivate(Project *proj)
-        : qmlError("(" QML_URL_REGEXP  // url
-                   ":\\d+"             // colon, line
-                   "(?::\\d+)?)"       // colon, column (optional)
-                   "[: \t)]")          // colon, space, tab or brace
+        : qmlError("(" QT_QML_URL_REGEXP  // url
+                   ":\\d+"              // colon, line
+                   "(?::\\d+)?)"        // colon, column (optional)
+                   "[: \t)]")           // colon, space, tab or brace
         , qtError("Object::.*in (.*:\\d+)")
-        , qtAssert("ASSERT: .* in file (.+, line \\d+)")
-        , qtAssertX("ASSERT failure in .*: \".*\", file (.+, line \\d+)")
-        , qtTestFailUnix("^   Loc: \\[(.*)\\]")
-        , qtTestFailWin("^(.*\\(\\d+\\)) : failure location\\s*$")
+        , qtAssert(QT_ASSERT_REGEXP)
+        , qtAssertX(QT_ASSERT_X_REGEXP)
+        , qtTestFailUnix(QT_TEST_FAIL_UNIX_REGEXP)
+        , qtTestFailWin(QT_TEST_FAIL_WIN_REGEXP)
         , project(proj)
     {
         qmlError.setMinimal(true);
@@ -213,7 +210,7 @@ void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line,
 void QtOutputFormatter::handleLink(const QString &href)
 {
     if (!href.isEmpty()) {
-        QRegExp qmlLineColumnLink("^(" QML_URL_REGEXP ")" // url
+        QRegExp qmlLineColumnLink("^(" QT_QML_URL_REGEXP ")" // url
                                   ":(\\d+)"               // line
                                   ":(\\d+)$");            // column
 
@@ -227,7 +224,7 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
 
-        QRegExp qmlLineLink("^(" QML_URL_REGEXP ")" // url
+        QRegExp qmlLineLink("^(" QT_QML_URL_REGEXP ")" // url
                             ":(\\d+)$");            // line
 
         if (qmlLineLink.indexIn(href) != -1) {

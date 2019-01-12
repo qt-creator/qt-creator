@@ -29,6 +29,13 @@
 
 #include <utils/outputformatter.h>
 
+// "file" or "qrc", colon, optional '//', '/' and further characters
+#define QT_QML_URL_REGEXP "(?:file|qrc):(?://)?/.+"
+#define QT_ASSERT_REGEXP "ASSERT: .* in file (.+, line \\d+)"
+#define QT_ASSERT_X_REGEXP "ASSERT failure in .*: \".*\", file (.+, line \\d+)"
+#define QT_TEST_FAIL_UNIX_REGEXP "^   Loc: \\[(.*)\\]$"
+#define QT_TEST_FAIL_WIN_REGEXP "^(.*\\(\\d+\\)) : failure location\\s*$"
+
 namespace ProjectExplorer { class Project; }
 
 namespace QtSupport {

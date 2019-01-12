@@ -27,6 +27,7 @@
 #include "qttestresult.h"
 #include "../testtreeitem.h"
 
+#include <qtsupport/qtoutputformatter.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -355,8 +356,8 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLineWith
                           "|INFO   |QWARN  |WARNING|QDEBUG |QSYSTEM): (.*)$");
 
     static QRegExp benchDetails("^\\s+([\\d,.]+ .* per iteration \\(total: [\\d,.]+, iterations: \\d+\\))$");
-    static QRegExp locationUnix("^   Loc: \\[(.*)\\]$");
-    static QRegExp locationWin("^(.*\\(\\d+\\)) : failure location$");
+    static QRegExp locationUnix(QT_TEST_FAIL_UNIX_REGEXP);
+    static QRegExp locationWin(QT_TEST_FAIL_WIN_REGEXP);
 
     if (m_futureInterface.isCanceled())
         return;
