@@ -315,6 +315,11 @@ static void paintIconAndText(QPainter *painter, const QRect &rect,
     }
 
     painter->setOpacity(1.0); //FIXME: was 0.7 before?
+    if (selected && creatorTheme()->flag(Theme::FlatToolBars)) {
+        QRect accentRect = rect;
+        accentRect.setWidth(2);
+        painter->fillRect(accentRect, creatorTheme()->color(Theme::IconsBaseColor));
+    }
     if (enabled) {
         painter->setPen(
             selected ? creatorTheme()->color(Theme::FancyTabWidgetEnabledSelectedTextColor)
