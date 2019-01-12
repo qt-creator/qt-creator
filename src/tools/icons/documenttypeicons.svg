@@ -523,7 +523,7 @@
          y="-7649" />
     </g>
     <g
-       id="profile_icon_16x16"
+       id="qtcreator-project_icon_16x16"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="translate(0,-2600)">
@@ -545,7 +545,7 @@
          height="100%" />
     </g>
     <g
-       id="profile_icon_32x32"
+       id="qtcreator-project_icon_32x32"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="translate(0,-2600)">
@@ -582,7 +582,7 @@
            style="font-weight:bold;-inkscape-font-specification:'Sans Bold'">PRO</tspan></text>
     </g>
     <g
-       id="profile_icon_128x128"
+       id="qtcreator-project_icon_128x128"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="translate(0,-2600)">
@@ -619,7 +619,7 @@
            style="font-weight:bold;-inkscape-font-specification:'Sans Bold';text-align:center;text-anchor:middle">PRO</tspan></text>
     </g>
     <g
-       id="profile_icon_256x256"
+       id="qtcreator-project_icon_256x256"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="translate(0,-2600)">
@@ -656,7 +656,7 @@
            style="font-weight:bold;-inkscape-font-specification:'Sans Bold';text-align:center;text-anchor:middle">PRO</tspan></text>
     </g>
     <g
-       id="profile_icon_512x512"
+       id="qtcreator-project_icon_512x512"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="translate(0,-2600)">
@@ -696,7 +696,7 @@
        transform="translate(0,-3124)"
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
-       id="profile_icon_16x16@2x">
+       id="qtcreator-project_icon_16x16@2x">
       <image
          sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_16x16@2x.png"
          xlink:href="GenericDocumentIcon.iconset\icon_16x16@2x.png"
@@ -726,7 +726,7 @@
     </g>
     <g
        transform="translate(0,-1564)"
-       id="profile_icon_32x32@2x">
+       id="qtcreator-project_icon_32x32@2x">
       <image
          sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_32x32@2x.png"
          xlink:href="GenericDocumentIcon.iconset\icon_32x32@2x.png"
@@ -763,7 +763,7 @@
        transform="translate(0,-3124)"
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
-       id="profile_icon_128x128@2x">
+       id="qtcreator-project_icon_128x128@2x">
       <image
          sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_128x128@2x.png"
          xlink:href="GenericDocumentIcon.iconset\icon_128x128@2x.png"
@@ -800,7 +800,7 @@
        transform="translate(0,-3124)"
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
-       id="profile_icon_256x256@2x">
+       id="qtcreator-project_icon_256x256@2x">
       <image
          sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_256x256@2x.png"
          xlink:href="GenericDocumentIcon.iconset\icon_256x256@2x.png"
@@ -835,7 +835,7 @@
     </g>
     <g
        transform="translate(0,-1564)"
-       id="profile_icon_512x512@2x"
+       id="qtcreator-project_icon_512x512@2x"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <image

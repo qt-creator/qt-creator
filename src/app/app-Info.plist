@@ -6,7 +6,7 @@
 	<array>
 		<dict>
 			<key>UTTypeIconFile</key>
-			<string>profile.icns</string>
+			<string>qtcreator-project.icns</string>
 			<key>UTTypeDescription</key>
 			<string>Qt Creator Makefile Based Project File</string>
 			<key>UTTypeConformsTo</key>
@@ -25,7 +25,7 @@
 		</dict>
 		<dict>
 			<key>UTTypeIconFile</key>
-			<string>profile.icns</string>
+			<string>qtcreator-project.icns</string>
 			<key>UTTypeDescription</key>
 			<string>Quick Project File</string>
 			<key>UTTypeConformsTo</key>
@@ -48,7 +48,7 @@
 	<array>
 		<dict>
 			<key>UTTypeIconFile</key>
-			<string>profile.icns</string>
+			<string>qtcreator-project.icns</string>
 			<key>UTTypeDescription</key>
 			<string>Qt Project File</string>
 			<key>UTTypeConformsTo</key>
@@ -67,7 +67,7 @@
 		</dict>
 		<dict>
 			<key>UTTypeIconFile</key>
-			<string>profile.icns</string>
+			<string>qtcreator-project.icns</string>
 			<key>UTTypeDescription</key>
 			<string>Qt Project Include File</string>
 			<key>UTTypeConformsTo</key>
@@ -87,7 +87,7 @@
 		</dict>
 		<dict>
 			<key>UTTypeIconFile</key>
-			<string>profile.icns</string>
+			<string>qtcreator-project.icns</string>
 			<key>UTTypeDescription</key>
 			<string>Qbs Project File</string>
 			<key>UTTypeConformsTo</key>
