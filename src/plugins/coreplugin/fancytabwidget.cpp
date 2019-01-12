@@ -288,6 +288,13 @@ static void paintIcon(QPainter *painter, const QRect &rect,
     if (!enabled && !creatorTheme()->flag(Theme::FlatToolBars))
         painter->setOpacity(0.7);
     StyleHelper::drawIconWithShadow(icon, iconRect, painter, iconMode);
+
+    if (selected && creatorTheme()->flag(Theme::FlatToolBars)) {
+        painter->setOpacity(1.0);
+        QRect accentRect = rect;
+        accentRect.setWidth(2);
+        painter->fillRect(accentRect, creatorTheme()->color(Theme::IconsBaseColor));
+    }
 }
 
 static void paintIconAndText(QPainter *painter, const QRect &rect,
