@@ -34,7 +34,7 @@ fi
 cd `dirname $0`
 
 # Adding the icons for the OSX document type icon for .ui files
-for documentTypeName in "uifile" "profile" "prifile";\
+for documentTypeName in "uifile" "profile";\
 do
     inconsetName=${documentTypeName}.iconset
     rm -rf $inconsetName

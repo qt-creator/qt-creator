@@ -67,7 +67,7 @@
 		</dict>
 		<dict>
 			<key>UTTypeIconFile</key>
-			<string>prifile.icns</string>
+			<string>profile.icns</string>
 			<key>UTTypeDescription</key>
 			<string>Qt Project Include File</string>
 			<key>UTTypeConformsTo</key>
