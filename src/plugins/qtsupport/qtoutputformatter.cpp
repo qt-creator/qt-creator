@@ -45,8 +45,7 @@ using namespace Utils;
 namespace QtSupport {
 
 // "file" or "qrc", colon, optional '//', '/' and further characters
-#define QML_URL_REGEXP \
-    "(?:file|qrc):(?://)?/.+"
+#define QML_URL_REGEXP "(?:file|qrc):(?://)?/.+"
 
 namespace Internal {
 
@@ -54,15 +53,15 @@ class QtOutputFormatterPrivate
 {
 public:
     QtOutputFormatterPrivate(Project *proj)
-        : qmlError(QLatin1String("(" QML_URL_REGEXP    // url
-                                  ":\\d+"           // colon, line
-                                  "(?::\\d+)?)"     // colon, column (optional)
-                                  "[: \t)]"))       // colon, space, tab or brace
-        , qtError(QLatin1String("Object::.*in (.*:\\d+)"))
-        , qtAssert(QLatin1String("ASSERT: .* in file (.+, line \\d+)"))
-        , qtAssertX(QLatin1String("ASSERT failure in .*: \".*\", file (.+, line \\d+)"))
-        , qtTestFailUnix(QLatin1String("^   Loc: \\[(.*)\\]"))
-        , qtTestFailWin(QLatin1String("^(.*\\(\\d+\\)) : failure location\\s*$"))
+        : qmlError("(" QML_URL_REGEXP  // url
+                   ":\\d+"             // colon, line
+                   "(?::\\d+)?)"       // colon, column (optional)
+                   "[: \t)]")          // colon, space, tab or brace
+        , qtError("Object::.*in (.*:\\d+)")
+        , qtAssert("ASSERT: .* in file (.+, line \\d+)")
+        , qtAssertX("ASSERT failure in .*: \".*\", file (.+, line \\d+)")
+        , qtTestFailUnix("^   Loc: \\[(.*)\\]")
+        , qtTestFailWin("^(.*\\(\\d+\\)) : failure location\\s*$")
         , project(proj)
     {
         qmlError.setMinimal(true);
@@ -148,7 +147,7 @@ void QtOutputFormatter::appendMessagePart(const QString &txt, const QTextCharFor
 
     const int length = txt.length();
     for (int start = 0, pos = -1; start < length; start = pos + 1) {
-        pos = txt.indexOf(QLatin1Char('\n'), start);
+        pos = txt.indexOf('\n', start);
         const QString newPart = txt.mid(start, (pos == -1) ? -1 : pos - start + 1);
         const QString line = d->lastLine + newPart;
 
@@ -180,7 +179,8 @@ void QtOutputFormatter::appendMessage(const QString &txt, const QTextCharFormat 
         d->cursor.movePosition(QTextCursor::End);
     d->cursor.beginEditBlock();
 
-    foreach (const FormattedText &output, parseAnsi(txt, format))
+    const QList<FormattedText> ansiTextList = parseAnsi(txt, format);
+    for (const FormattedText &output : ansiTextList)
         appendMessagePart(output.text, output.format);
 
     d->cursor.endEditBlock();
@@ -213,9 +213,9 @@ void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line,
 void QtOutputFormatter::handleLink(const QString &href)
 {
     if (!href.isEmpty()) {
-        QRegExp qmlLineColumnLink(QLatin1String("^(" QML_URL_REGEXP ")" // url
-                                                ":(\\d+)"               // line
-                                                ":(\\d+)$"));           // column
+        QRegExp qmlLineColumnLink("^(" QML_URL_REGEXP ")" // url
+                                  ":(\\d+)"               // line
+                                  ":(\\d+)$");            // column
 
         if (qmlLineColumnLink.indexIn(href) != -1) {
             const QUrl fileUrl = QUrl(qmlLineColumnLink.cap(1));
@@ -227,8 +227,8 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
 
-        QRegExp qmlLineLink(QLatin1String("^(" QML_URL_REGEXP ")" // url
-                                          ":(\\d+)$"));  // line
+        QRegExp qmlLineLink("^(" QML_URL_REGEXP ")" // url
+                            ":(\\d+)$");            // line
 
         if (qmlLineLink.indexIn(href) != -1) {
             const QUrl fileUrl = QUrl(qmlLineLink.cap(1));
@@ -240,19 +240,19 @@ void QtOutputFormatter::handleLink(const QString &href)
         QString fileName;
         int line = -1;
 
-        QRegExp qtErrorLink(QLatin1String("^(.*):(\\d+)$"));
+        QRegExp qtErrorLink("^(.*):(\\d+)$");
         if (qtErrorLink.indexIn(href) != -1) {
             fileName = qtErrorLink.cap(1);
             line = qtErrorLink.cap(2).toInt();
         }
 
-        QRegExp qtAssertLink(QLatin1String("^(.+), line (\\d+)$"));
+        QRegExp qtAssertLink("^(.+), line (\\d+)$");
         if (qtAssertLink.indexIn(href) != -1) {
             fileName = qtAssertLink.cap(1);
             line = qtAssertLink.cap(2).toInt();
         }
 
-        QRegExp qtTestFailLink(QLatin1String("^(.*)\\((\\d+)\\)$"));
+        QRegExp qtTestFailLink("^(.*)\\((\\d+)\\)$");
         if (qtTestFailLink.indexIn(href) != -1) {
             fileName = qtTestFailLink.cap(1);
             line = qtTestFailLink.cap(2).toInt();
@@ -309,9 +309,7 @@ class TestQtOutputFormatter : public QtOutputFormatter
 {
 public:
     TestQtOutputFormatter() :
-        QtOutputFormatter(0),
-        line(-1),
-        column(-1)
+        QtOutputFormatter(nullptr)
     {
     }
 
@@ -324,8 +322,8 @@ public:
 
 public:
     QString fileName;
-    int line;
-    int column;
+    int line = -1;
+    int column = -1;
 };
 
 
@@ -344,57 +342,57 @@ void QtSupportPlugin::testQtOutputFormatter_data()
     QTest::addColumn<int>("column");
 
     QTest::newRow("pass through")
-            << QString::fromLatin1("Pass through plain text.")
+            << "Pass through plain text."
             << -1 << -1 << QString()
             << QString() << -1 << -1;
 
     QTest::newRow("qrc:/main.qml:20")
-            << QString::fromLatin1("qrc:/main.qml:20 Unexpected token `identifier'")
-            << 0 << 16 << QString::fromLatin1("qrc:/main.qml:20")
-            << QString::fromLatin1("/main.qml") << 20 << -1;
+            << "qrc:/main.qml:20 Unexpected token `identifier'"
+            << 0 << 16 << "qrc:/main.qml:20"
+            << "/main.qml" << 20 << -1;
 
     QTest::newRow("qrc:///main.qml:20")
-            << QString::fromLatin1("qrc:///main.qml:20 Unexpected token `identifier'")
-            << 0 << 18 << QString::fromLatin1("qrc:///main.qml:20")
-            << QString::fromLatin1("/main.qml") << 20 << -1;
+            << "qrc:///main.qml:20 Unexpected token `identifier'"
+            << 0 << 18 << "qrc:///main.qml:20"
+            << "/main.qml" << 20 << -1;
 
     QTest::newRow("onClicked (qrc:/main.qml:20)")
-            << QString::fromLatin1("onClicked (qrc:/main.qml:20)")
-            << 11 << 27 << QString::fromLatin1("qrc:/main.qml:20")
-            << QString::fromLatin1("/main.qml") << 20 << -1;
+            << "onClicked (qrc:/main.qml:20)"
+            << 11 << 27 << "qrc:/main.qml:20"
+            << "/main.qml" << 20 << -1;
 
     QTest::newRow("file:///main.qml:20")
-            << QString::fromLatin1("file:///main.qml:20 Unexpected token `identifier'")
-            << 0 << 19 << QString::fromLatin1("file:///main.qml:20")
-            << QString::fromLatin1("/main.qml") << 20 << -1;
+            << "file:///main.qml:20 Unexpected token `identifier'"
+            << 0 << 19 << "file:///main.qml:20"
+            << "/main.qml" << 20 << -1;
 
     QTest::newRow("Unix file link with timestamp")
-            << QString::fromLatin1("file:///home/user/main.cpp:157 2018-03-21 10:54:45.706")
-            << 0 << 30 << QString::fromLatin1("file:///home/user/main.cpp:157")
-            << QString::fromLatin1("/home/user/main.cpp") << 157 << -1;
+            << "file:///home/user/main.cpp:157 2018-03-21 10:54:45.706"
+            << 0 << 30 << "file:///home/user/main.cpp:157"
+            << "/home/user/main.cpp" << 157 << -1;
 
     QTest::newRow("Windows file link with timestamp")
-            << QString::fromLatin1("file:///e:/path/main.cpp:157 2018-03-21 10:54:45.706")
-            << 0 << 28 << QString::fromLatin1("file:///e:/path/main.cpp:157")
+            << "file:///e:/path/main.cpp:157 2018-03-21 10:54:45.706"
+            << 0 << 28 << "file:///e:/path/main.cpp:157"
             << (Utils::HostOsInfo::isWindowsHost()
-                ? QString::fromLatin1("e:/path/main.cpp")
-                : QString::fromLatin1("/e:/path/main.cpp"))
+                ? "e:/path/main.cpp"
+                : "/e:/path/main.cpp")
             << 157 << -1;
 
     QTest::newRow("Unix failed QTest link")
-            << QString::fromLatin1("   Loc: [../TestProject/test.cpp(123)]")
-            << 9 << 37 << QString::fromLatin1("../TestProject/test.cpp(123)")
-            << QString::fromLatin1("../TestProject/test.cpp") << 123 << -1;
+            << "   Loc: [../TestProject/test.cpp(123)]"
+            << 9 << 37 << "../TestProject/test.cpp(123)"
+            << "../TestProject/test.cpp" << 123 << -1;
 
     QTest::newRow("Windows failed QTest link")
-            << QString::fromLatin1("..\\TestProject\\test.cpp(123) : failure location")
-            << 0 << 28 << QString::fromLatin1("..\\TestProject\\test.cpp(123)")
-            << QString::fromLatin1("..\\TestProject\\test.cpp") << 123 << -1;
+            << "..\\TestProject\\test.cpp(123) : failure location"
+            << 0 << 28 << "..\\TestProject\\test.cpp(123)"
+            << "..\\TestProject\\test.cpp" << 123 << -1;
 
     QTest::newRow("Windows failed QTest link with carriage return")
-            << QString::fromLatin1("..\\TestProject\\test.cpp(123) : failure location\r")
-            << 0 << 28 << QString::fromLatin1("..\\TestProject\\test.cpp(123)")
-            << QString::fromLatin1("..\\TestProject\\test.cpp") << 123 << -1;
+            << "..\\TestProject\\test.cpp(123) : failure location\r"
+            << 0 << 28 << "..\\TestProject\\test.cpp(123)"
+            << "..\\TestProject\\test.cpp" << 123 << -1;
 }
 
 void QtSupportPlugin::testQtOutputFormatter()
@@ -438,23 +436,23 @@ void QtSupportPlugin::testQtOutputFormatter_appendMessage_data()
     QTest::addColumn<QTextCharFormat>("outputFormat");
 
     QTest::newRow("pass through")
-            << QString::fromLatin1("test\n123")
-            << QString::fromLatin1("test\n123")
+            << "test\n123"
+            << "test\n123"
             << QTextCharFormat()
             << QTextCharFormat();
     QTest::newRow("Qt error")
-            << QString::fromLatin1("Object::Test in test.cpp:123")
-            << QString::fromLatin1("Object::Test in test.cpp:123")
+            << "Object::Test in test.cpp:123"
+            << "Object::Test in test.cpp:123"
             << QTextCharFormat()
-            << linkFormat(QTextCharFormat(), QLatin1String("test.cpp:123"));
+            << linkFormat(QTextCharFormat(), "test.cpp:123");
     QTest::newRow("colored")
-            << QString::fromLatin1("blue da ba dee")
-            << QString::fromLatin1("blue da ba dee")
+            << "blue da ba dee"
+            << "blue da ba dee"
             << blueFormat()
             << blueFormat();
     QTest::newRow("ANSI color change")
-            << QString::fromLatin1("\x1b[38;2;0;0;127mHello")
-            << QString::fromLatin1("Hello")
+            << "\x1b[38;2;0;0;127mHello"
+            << "Hello"
             << QTextCharFormat()
             << blueFormat();
 }
@@ -482,14 +480,14 @@ void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
     TestQtOutputFormatter formatter;
     formatter.setPlainTextEdit(&edit);
 
-    const QString inputText = QString::fromLatin1(
+    const QString inputText =
                 "\x1b[38;2;0;0;127mHello\n"
                 "Object::Test in test.cpp:123\n"
-                "\x1b[38;2;0;0;127mHello\n");
-    const QString outputText = QString::fromLatin1(
+                "\x1b[38;2;0;0;127mHello\n";
+    const QString outputText =
                 "Hello\n"
                 "Object::Test in test.cpp:123\n"
-                "Hello\n");
+                "Hello\n";
 
     formatter.appendMessage(inputText, QTextCharFormat());
 
@@ -500,7 +498,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
 
     edit.moveCursor(QTextCursor::Down);
     edit.moveCursor(QTextCursor::EndOfLine);
-    QCOMPARE(edit.currentCharFormat(), linkFormat(QTextCharFormat(), QLatin1String("test.cpp:123")));
+    QCOMPARE(edit.currentCharFormat(), linkFormat(QTextCharFormat(), "test.cpp:123"));
 
     edit.moveCursor(QTextCursor::End);
     QCOMPARE(edit.currentCharFormat(), blueFormat());
