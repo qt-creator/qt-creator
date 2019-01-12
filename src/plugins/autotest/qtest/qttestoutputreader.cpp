@@ -162,6 +162,21 @@ TestResultPtr QtTestOutputReader::createDefaultResult() const
     return TestResultPtr(result);
 }
 
+static QString trQtVersion(const QString &version)
+{
+    return QtTestOutputReader::tr("Qt version: %1").arg(version);
+}
+
+static QString trQtBuild(const QString &build)
+{
+    return QtTestOutputReader::tr("Qt build: %1").arg(build);
+}
+
+static QString trQtestVersion(const QString &test)
+{
+    return QtTestOutputReader::tr("QTest version: %1").arg(test);
+}
+
 void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
 {
     static QStringList validEndTags = {QStringLiteral("Incident"),
@@ -257,13 +272,13 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
                 m_description.append(text);
                 break;
             case QtVersion:
-                m_description = tr("Qt version: %1").arg(text.toString());
+                m_description = trQtVersion(text.toString());
                 break;
             case QtBuild:
-                m_description = tr("Qt build: %1").arg(text.toString());
+                m_description = trQtBuild(text.toString());
                 break;
             case QTestVersion:
-                m_description = tr("QTest version: %1").arg(text.toString());
+                m_description = trQtestVersion(text.toString());
                 break;
             default:
                 // this must come from plain printf() calls - but this will be ignored anyhow
@@ -490,20 +505,19 @@ void QtTestOutputReader::sendFinishMessage(bool isFunction)
     reportResult(testResult);
 }
 
-// TODO factor out tr() strings to avoid duplication (see XML processing of Characters)
 void QtTestOutputReader::handleAndSendConfigMessage(const QRegExp &config)
 {
     TestResultPtr testResult = createDefaultResult();
     testResult->setResult(Result::MessageInternal);
-    testResult->setDescription(tr("Qt version: %1").arg(config.cap(3)));
+    testResult->setDescription(trQtVersion(config.cap(3)));
     reportResult(testResult);
     testResult = createDefaultResult();
     testResult->setResult(Result::MessageInternal);
-    testResult->setDescription(tr("Qt build: %1").arg(config.cap(2)));
+    testResult->setDescription(trQtBuild(config.cap(2)));
     reportResult(testResult);
     testResult = createDefaultResult();
     testResult->setResult(Result::MessageInternal);
-    testResult->setDescription(tr("QTest version: %1").arg(config.cap(1)));
+    testResult->setDescription(trQtestVersion(config.cap(1)));
     reportResult(testResult);
 }
 
