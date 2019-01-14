@@ -203,6 +203,7 @@ public:
     void setFreePorts(const Utils::PortList &freePorts);
 
     MachineType machineType() const;
+    void setMachineType(MachineType machineType);
 
     QString debugServerPath() const;
     void setDebugServerPath(const QString &path);
@@ -215,7 +216,7 @@ public:
 
 protected:
     IDevice();
-    IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id = Core::Id());
+    IDevice(Core::Id type, Origin origin, Core::Id id = Core::Id());
     IDevice(const IDevice &other);
 
 private:

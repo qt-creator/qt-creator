@@ -82,8 +82,8 @@ QnxDevice::QnxDevice()
     init();
 }
 
-QnxDevice::QnxDevice(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
-    : RemoteLinux::LinuxDevice(name, type, machineType, origin, id)
+QnxDevice::QnxDevice(const QString &name, Core::Id type, Origin origin, Core::Id id)
+    : RemoteLinux::LinuxDevice(name, type, origin, id)
 {
     init();
 }
@@ -103,9 +103,9 @@ QnxDevice::Ptr QnxDevice::create()
     return Ptr(new QnxDevice);
 }
 
-QnxDevice::Ptr QnxDevice::create(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
+QnxDevice::Ptr QnxDevice::create(const QString &name, Core::Id type, Origin origin, Core::Id id)
 {
-    return Ptr(new QnxDevice(name, type, machineType, origin, id));
+    return Ptr(new QnxDevice(name, type, origin, id));
 }
 
 QString QnxDevice::displayType() const

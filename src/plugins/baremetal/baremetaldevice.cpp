@@ -49,9 +49,9 @@ BareMetalDevice::Ptr BareMetalDevice::create()
     return Ptr(new BareMetalDevice);
 }
 
-BareMetalDevice::Ptr BareMetalDevice::create(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
+BareMetalDevice::Ptr BareMetalDevice::create(const QString &name, Core::Id type, Origin origin, Core::Id id)
 {
-    return Ptr(new BareMetalDevice(name, type, machineType, origin, id));
+    return Ptr(new BareMetalDevice(name, type, origin, id));
 }
 
 BareMetalDevice::Ptr BareMetalDevice::create(const BareMetalDevice &other)
@@ -169,8 +169,8 @@ DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
     return new GdbServerProviderProcess(sharedFromThis(), parent);
 }
 
-BareMetalDevice::BareMetalDevice(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
-    : IDevice(type, origin, machineType, id)
+BareMetalDevice::BareMetalDevice(const QString &name, Core::Id type, Origin origin, Core::Id id)
+    : IDevice(type, origin, id)
 {
     setDisplayName(name);
 }

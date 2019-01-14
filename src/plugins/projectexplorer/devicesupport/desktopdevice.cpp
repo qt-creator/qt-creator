@@ -50,11 +50,11 @@ namespace ProjectExplorer {
 
 DesktopDevice::DesktopDevice() : IDevice(Core::Id(DESKTOP_DEVICE_TYPE),
                                          IDevice::AutoDetected,
-                                         IDevice::Hardware,
                                          Core::Id(DESKTOP_DEVICE_ID))
 {
     setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Local PC"));
     setDeviceState(IDevice::DeviceStateUnknown);
+    setMachineType(IDevice::Hardware);
     const QString portRange =
             QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
     setFreePorts(Utils::PortList::fromString(portRange));

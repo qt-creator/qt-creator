@@ -47,21 +47,21 @@ static const QLatin1String iosDeviceTypeIdentifierKey = QLatin1String("identifie
 IosSimulator::IosSimulator(Core::Id id)
     : IDevice(Core::Id(Constants::IOS_SIMULATOR_TYPE),
               IDevice::AutoDetected,
-              IDevice::Emulator,
               id),
       m_lastPort(Constants::IOS_SIMULATOR_PORT_START)
 {
+    setMachineType(IDevice::Emulator);
     setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
 }
 
 IosSimulator::IosSimulator()
     : IDevice(Core::Id(Constants::IOS_SIMULATOR_TYPE),
-                             IDevice::AutoDetected,
-                             IDevice::Emulator,
-                             Core::Id(Constants::IOS_SIMULATOR_DEVICE_ID)),
+              IDevice::AutoDetected,
+              Core::Id(Constants::IOS_SIMULATOR_DEVICE_ID)),
       m_lastPort(Constants::IOS_SIMULATOR_PORT_START)
 {
+    setMachineType(IDevice::Emulator);
     setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
 }

@@ -47,11 +47,11 @@ namespace Internal {
 
 AndroidDevice::AndroidDevice()
     : IDevice(Core::Id(Constants::ANDROID_DEVICE_TYPE),
-                             IDevice::AutoDetected,
-                             IDevice::Hardware,
-                             Core::Id(Constants::ANDROID_DEVICE_ID))
+              IDevice::AutoDetected,
+              Core::Id(Constants::ANDROID_DEVICE_ID))
 {
     setDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice", "Run on Android"));
+    setMachineType(IDevice::Hardware);
     setDeviceState(DeviceReadyToUse);
     QString activityPath;
     const AndroidConfig &config = AndroidConfigurations::currentConfig();

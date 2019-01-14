@@ -81,11 +81,11 @@ namespace Internal {
 IosDevice::IosDevice()
     : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
                              IDevice::AutoDetected,
-                             IDevice::Hardware,
                              Constants::IOS_DEVICE_ID),
       m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setDisplayName(IosDevice::name());
+    setMachineType(IDevice::Hardware);
     setDeviceState(DeviceDisconnected);
     Utils::PortList ports;
     ports.addRange(Utils::Port(Constants::IOS_DEVICE_PORT_START),
@@ -98,11 +98,11 @@ IosDevice::IosDevice(const IosDevice &other) = default;
 IosDevice::IosDevice(const QString &uid)
     : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
                              IDevice::AutoDetected,
-                             IDevice::Hardware,
                              Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid)),
     m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setDisplayName(IosDevice::name());
+    setMachineType(IDevice::Hardware);
     setDeviceState(DeviceDisconnected);
 }
 

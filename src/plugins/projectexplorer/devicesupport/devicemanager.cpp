@@ -406,7 +406,10 @@ class TestDevice : public IDevice
 {
 public:
     TestDevice()
-        : IDevice(testTypeId(), AutoDetected, Hardware, Core::Id::fromString(QUuid::createUuid().toString())) {}
+        : IDevice(testTypeId(), AutoDetected, Core::Id::fromString(QUuid::createUuid().toString()))
+    {
+        setMachineType(Hardware);
+    }
 
     static Core::Id testTypeId() { return "TestType"; }
 private:

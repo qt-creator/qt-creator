@@ -161,12 +161,11 @@ IDevice::IDevice() : d(new Internal::IDevicePrivate)
 {
 }
 
-IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id)
+IDevice::IDevice(Core::Id type, Origin origin, Core::Id id)
     : d(std::make_unique<Internal::IDevicePrivate>())
 {
     d->type = type;
     d->origin = origin;
-    d->machineType = machineType;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
     d->id = id.isValid() ? id : newId();
 }
@@ -436,6 +435,11 @@ Utils::PortList IDevice::freePorts() const
 IDevice::MachineType IDevice::machineType() const
 {
     return d->machineType;
+}
+
+void IDevice::setMachineType(MachineType machineType)
+{
+    d->machineType = machineType;
 }
 
 QString IDevice::debugServerPath() const

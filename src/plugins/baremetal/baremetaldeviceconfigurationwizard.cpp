@@ -46,9 +46,8 @@ BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *
 ProjectExplorer::IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
 {
     auto dev = BareMetalDevice::create(m_setupPage->configurationName(),
-                                       Constants::BareMetalOsType,
-                                       ProjectExplorer::IDevice::Hardware);
-
+                                       Constants::BareMetalOsType);
+    dev->setMachineType(ProjectExplorer::IDevice::Hardware);
     dev->setGdbServerProviderId(m_setupPage->gdbServerProviderId());
     return dev;
 }

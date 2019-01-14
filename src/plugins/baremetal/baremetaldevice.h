@@ -40,7 +40,7 @@ public:
     using ConstPtr = QSharedPointer<const BareMetalDevice>;
 
     static Ptr create();
-    static Ptr create(const QString &name, Core::Id type, MachineType machineType,
+    static Ptr create(const QString &name, Core::Id type,
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
     static Ptr create(const BareMetalDevice &other);
 
@@ -66,7 +66,7 @@ public:
 protected:
     BareMetalDevice() = default;
     BareMetalDevice(const QString &name, Core::Id type,
-                    MachineType machineType, Origin origin, Core::Id id);
+                    Origin origin, Core::Id id);
     BareMetalDevice(const BareMetalDevice &other);
 
 private:
