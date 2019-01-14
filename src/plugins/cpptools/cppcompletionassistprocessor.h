@@ -45,7 +45,7 @@ namespace CppTools {
 class CPPTOOLS_EXPORT CppCompletionAssistProcessor : public TextEditor::IAssistProcessor
 {
 public:
-    CppCompletionAssistProcessor(int snippetItemOrder = 0);
+    explicit CppCompletionAssistProcessor(int snippetItemOrder = 0);
 
 protected:
     void addSnippets();
@@ -60,10 +60,10 @@ protected:
                                 DotAtIncludeCompletionHandler dotAtIncludeCompletionHandler
                                     = DotAtIncludeCompletionHandler());
 
-    int m_positionForProposal;
+    int m_positionForProposal = -1;
     QList<TextEditor::AssistProposalItemInterface *> m_completions;
     QStringList m_preprocessorCompletions;
-    TextEditor::IAssistProposal *m_hintProposal;
+    TextEditor::IAssistProposal *m_hintProposal = nullptr;
 
 private:
     TextEditor::SnippetAssistCollector m_snippetCollector;

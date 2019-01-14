@@ -41,7 +41,7 @@ public:
 public:
     ProjectFileCategorizer(const QString &projectPartName,
                            const QStringList &filePaths,
-                           FileClassifier fileClassifier = FileClassifier());
+                           const FileClassifier &fileClassifier = FileClassifier());
 
     bool hasCSources() const { return !m_cSources.isEmpty(); }
     bool hasCxxSources() const { return !m_cxxSources.isEmpty(); }
@@ -59,7 +59,7 @@ public:
     QString partName(const QString &languageName) const;
 
 private:
-    ProjectFiles classifyFiles(const QStringList &filePaths, FileClassifier fileClassifier);
+    ProjectFiles classifyFiles(const QStringList &filePaths, const FileClassifier &fileClassifier);
     void expandSourcesWithAmbiguousHeaders(const ProjectFiles &ambiguousHeaders);
 
 private:

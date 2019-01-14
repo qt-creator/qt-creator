@@ -86,9 +86,7 @@ bool operator<(const FileIterationOrder::Entry &first, const FileIterationOrder:
     }
 }
 
-FileIterationOrder::FileIterationOrder()
-{
-}
+FileIterationOrder::FileIterationOrder() = default;
 
 FileIterationOrder::FileIterationOrder(const QString &referenceFilePath,
                                        const QString &referenceProjectPartId)

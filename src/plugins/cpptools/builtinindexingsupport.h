@@ -36,13 +36,13 @@ namespace Internal {
 class BuiltinIndexingSupport: public CppIndexingSupport {
 public:
     BuiltinIndexingSupport();
-    ~BuiltinIndexingSupport();
+    ~BuiltinIndexingSupport() override;
 
     QFuture<void> refreshSourceFiles(const QFutureInterface<void> &superFuture,
                                      const QSet<QString> &sourceFiles,
                                      CppModelManager::ProgressNotificationMode mode) override;
-    SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
-                                         QSet<QString> fileNames)  override;
+    SymbolSearcher *createSymbolSearcher(const SymbolSearcher::Parameters &parameters,
+                                         const QSet<QString> &fileNames) override;
 
 public:
     static bool isFindErrorsIndexingActive();

@@ -48,7 +48,7 @@ void RawProjectPart::setDisplayName(const QString &displayName)
     this->displayName = displayName;
 }
 
-void RawProjectPart::setFiles(const QStringList &files, FileClassifier fileClassifier)
+void RawProjectPart::setFiles(const QStringList &files, const FileClassifier &fileClassifier)
 {
     this->files = files;
     this->fileClassifier = fileClassifier;

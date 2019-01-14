@@ -63,8 +63,8 @@ class CppFindReferences: public QObject
     Q_OBJECT
 
 public:
-    CppFindReferences(CppModelManager *modelManager);
-    virtual ~CppFindReferences();
+    explicit CppFindReferences(CppModelManager *modelManager);
+    ~CppFindReferences() override;
 
     QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) const;
 

@@ -61,9 +61,7 @@ BuiltinModelManagerSupport::BuiltinModelManagerSupport()
 {
 }
 
-BuiltinModelManagerSupport::~BuiltinModelManagerSupport()
-{
-}
+BuiltinModelManagerSupport::~BuiltinModelManagerSupport() = default;
 
 BaseEditorDocumentProcessor *BuiltinModelManagerSupport::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)

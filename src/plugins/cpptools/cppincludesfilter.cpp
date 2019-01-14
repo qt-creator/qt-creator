@@ -48,11 +48,11 @@ class CppIncludesIterator : public BaseFileFilter::Iterator
 public:
     CppIncludesIterator(CPlusPlus::Snapshot snapshot, const QSet<QString> &seedPaths);
 
-    void toFront();
-    bool hasNext() const;
-    QString next();
-    QString filePath() const;
-    QString fileName() const;
+    void toFront() override;
+    bool hasNext() const override;
+    QString next() override;
+    QString filePath() const override;
+    QString fileName() const override;
 
 private:
     void fetchMore();
@@ -184,5 +184,5 @@ void CppIncludesFilter::refresh(QFutureInterface<void> &future)
 void CppIncludesFilter::markOutdated()
 {
     m_needsUpdate = true;
-    setFileIterator(0); // clean up
+    setFileIterator(nullptr); // clean up
 }

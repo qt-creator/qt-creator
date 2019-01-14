@@ -77,7 +77,7 @@ public:
     { return _elements.size(); }
 
 private:
-    typedef QHash<Utils::FileName, QPair<QByteArray, unsigned> > Table;
+    using Table = QHash<Utils::FileName, QPair<QByteArray, unsigned> >;
     Table _elements;
 };
 

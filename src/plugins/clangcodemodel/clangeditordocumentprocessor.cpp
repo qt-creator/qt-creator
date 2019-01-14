@@ -323,7 +323,7 @@ void ClangEditorDocumentProcessor::invalidateDiagnostics()
 }
 
 void ClangEditorDocumentProcessor::setParserConfig(
-        const CppTools::BaseEditorDocumentParser::Configuration config)
+        const CppTools::BaseEditorDocumentParser::Configuration &config)
 {
     m_parser->setConfiguration(config);
     m_builtinProcessor.parser()->setConfiguration(config);

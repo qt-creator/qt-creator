@@ -39,9 +39,7 @@ CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)
     setIncludedByDefault(false);
 }
 
-CppClassesFilter::~CppClassesFilter()
-{
-}
+CppClassesFilter::~CppClassesFilter() = default;
 
 Core::LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {

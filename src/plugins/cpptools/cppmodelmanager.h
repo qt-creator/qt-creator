@@ -90,7 +90,7 @@ class CPPTOOLS_EXPORT CppModelManager final : public CPlusPlus::CppModelManagerB
     Q_OBJECT
 
 public:
-    typedef CPlusPlus::Document Document;
+    using Document = CPlusPlus::Document;
 
 public:
     CppModelManager();
@@ -136,7 +136,7 @@ public:
     Document::Ptr document(const QString &fileName) const;
     bool replaceDocument(Document::Ptr newDoc);
 
-    void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
+    void emitDocumentUpdated(Document::Ptr doc);
     void emitAbstractEditorSupportContentsUpdated(const QString &filePath,
                                                   const QByteArray &contents);
     void emitAbstractEditorSupportRemoved(const QString &filePath);
@@ -165,7 +165,7 @@ public:
     void globalFollowSymbol(const CursorInEditor &data,
                             Utils::ProcessLinkCallback &&processLinkCallback,
                             const CPlusPlus::Snapshot &snapshot,
-                            const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                            const Document::Ptr &documentFromSemanticInfo,
                             SymbolFinder *symbolFinder,
                             bool inNextSplit) const final;
 

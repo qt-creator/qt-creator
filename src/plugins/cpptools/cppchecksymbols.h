@@ -47,12 +47,12 @@ class CPPTOOLS_EXPORT CheckSymbols:
 public:
     ~CheckSymbols() override;
 
-    typedef TextEditor::HighlightingResult Result;
-    typedef SemanticHighlighter::Kind Kind;
+    using Result = TextEditor::HighlightingResult;
+    using Kind = SemanticHighlighter::Kind;
 
     void run() override;
 
-    typedef QFuture<Result> Future;
+    using Future = QFuture<Result>;
 
     Future start()
     {
@@ -88,7 +88,7 @@ public:
 
 signals:
     void codeWarningsUpdated(CPlusPlus::Document::Ptr document,
-                             const QList<CPlusPlus::Document::DiagnosticMessage> selections);
+                             const QList<CPlusPlus::Document::DiagnosticMessage> &selections);
 
 protected:
     using ASTVisitor::visit;

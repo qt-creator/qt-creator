@@ -77,7 +77,7 @@ public:
     }
 
 private:
-    QList<PrioritizedProjectPart> prioritize(const QList<ProjectPart::Ptr> &projectParts)
+    QList<PrioritizedProjectPart> prioritize(const QList<ProjectPart::Ptr> &projectParts) const
     {
         // Prioritize
         QList<PrioritizedProjectPart> prioritized = Utils::transform(projectParts,

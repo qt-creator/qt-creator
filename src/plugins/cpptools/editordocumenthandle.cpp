@@ -34,9 +34,7 @@ namespace CppTools {
            C++ editor document.
 */
 
-CppEditorDocumentHandle::~CppEditorDocumentHandle()
-{
-}
+CppEditorDocumentHandle::~CppEditorDocumentHandle() = default;
 
 SendDocumentTracker &CppEditorDocumentHandle::sendTracker()
 {

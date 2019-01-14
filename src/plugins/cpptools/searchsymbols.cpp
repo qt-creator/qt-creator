@@ -37,8 +37,8 @@ using namespace CPlusPlus;
 
 namespace CppTools {
 
-typedef Utils::ScopedSwap<IndexItem::Ptr> ScopedIndexItemPtr;
-typedef Utils::ScopedSwap<QString> ScopedScope;
+using ScopedIndexItemPtr = Utils::ScopedSwap<IndexItem::Ptr>;
+using ScopedScope = Utils::ScopedSwap<QString>;
 
 SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
         SymbolSearcher::Classes

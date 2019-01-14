@@ -53,7 +53,7 @@ class CPPTOOLS_EXPORT ModelManagerTestHelper: public QObject
     Q_OBJECT
 
 public:
-    typedef ProjectExplorer::Project Project;
+    using Project = ProjectExplorer::Project;
 
     explicit ModelManagerTestHelper(QObject *parent = nullptr,
                                     bool testOnlyForCleanedProjects = true);
@@ -70,8 +70,8 @@ public:
     void waitForFinishedGc();
 
 signals:
-    void aboutToRemoveProject(ProjectExplorer::Project *project);
-    void projectAdded(ProjectExplorer::Project*);
+    void aboutToRemoveProject(Project *project);
+    void projectAdded(Project*);
 
 public slots:
     void sourceFilesRefreshed(const QSet<QString> &files);

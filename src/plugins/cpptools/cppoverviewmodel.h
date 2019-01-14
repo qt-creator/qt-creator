@@ -36,7 +36,7 @@ class SymbolItem : public Utils::TreeItem
 {
 public:
     SymbolItem() = default;
-    SymbolItem(CPlusPlus::Symbol *symbol) : symbol(symbol) {}
+    explicit SymbolItem(CPlusPlus::Symbol *symbol) : symbol(symbol) {}
 
     QVariant data(int column, int role) const override;
 

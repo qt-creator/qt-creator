@@ -39,7 +39,7 @@ class CPPTOOLS_EXPORT IndexItem
 {
     Q_DISABLE_COPY(IndexItem)
 
-    IndexItem() {}
+    IndexItem() = default;
 
 public:
     enum ItemType {
@@ -52,7 +52,7 @@ public:
     };
 
 public:
-    typedef QSharedPointer<IndexItem> Ptr;
+    using Ptr = QSharedPointer<IndexItem>;
     static Ptr create(const QString &symbolName,
                       const QString &symbolType,
                       const QString &symbolScope,
@@ -94,7 +94,7 @@ public:
         Recurse, /// continues traversal with the children
     };
 
-    typedef std::function<VisitorResult (const IndexItem::Ptr &)> Visitor;
+    using Visitor = std::function<VisitorResult (const IndexItem::Ptr &)>;
 
     VisitorResult visitAllChildren(Visitor callback) const
     {

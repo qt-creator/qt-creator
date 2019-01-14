@@ -40,7 +40,7 @@ namespace CppTools {
 class CPPTOOLS_EXPORT KitInfo
 {
 public:
-    KitInfo(ProjectExplorer::Project *project);
+    explicit KitInfo(ProjectExplorer::Project *project);
 
     bool isValid() const;
 

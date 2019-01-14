@@ -40,8 +40,9 @@
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
+using Tests::TestDocument;
 
-Q_DECLARE_METATYPE(QList<Tests::TestDocument>)
+Q_DECLARE_METATYPE(QList<TestDocument>)
 
 namespace {
 
@@ -64,7 +65,7 @@ QString toString(const TypeHierarchy &hierarchy, int indent = 0)
 class FindFirstClassInDocument: private SymbolVisitor
 {
 public:
-    FindFirstClassInDocument() : m_clazz(0) {}
+    FindFirstClassInDocument() = default;
 
     Class *operator()(const Document::Ptr &document)
     {
@@ -73,7 +74,7 @@ public:
     }
 
 private:
-    bool preVisit(Symbol *symbol)
+    bool preVisit(Symbol *symbol) override
     {
         if (m_clazz)
             return false;
@@ -87,13 +88,13 @@ private:
     }
 
 private:
-    Class *m_clazz;
+    Class *m_clazz = nullptr;
 };
 
 class TypeHierarchyBuilderTestCase : public Tests::TestCase
 {
 public:
-    TypeHierarchyBuilderTestCase(const QList<Tests::TestDocument> &documents,
+    TypeHierarchyBuilderTestCase(const QList<TestDocument> &documents,
                                  const QString &expectedHierarchy)
     {
         QVERIFY(succeededSoFar());
@@ -101,14 +102,14 @@ public:
         Tests::TemporaryDir temporaryDir;
         QVERIFY(temporaryDir.isValid());
 
-        QList<Tests::TestDocument> documents_ = documents;
+        QList<TestDocument> documents_ = documents;
 
         // Write files
         QSet<QString> filePaths;
-        for (int i = 0, size = documents_.size(); i < size; ++i) {
-            documents_[i].setBaseDirectory(temporaryDir.path());
-            QVERIFY(documents_[i].writeToDisk());
-            filePaths << documents_[i].filePath();
+        for (auto &document : documents_) {
+            document.setBaseDirectory(temporaryDir.path());
+            QVERIFY(document.writeToDisk());
+            filePaths << document.filePath();
         }
 
         // Parse files
@@ -137,10 +138,8 @@ public:
 
 void CppToolsPlugin::test_typehierarchy_data()
 {
-    QTest::addColumn<QList<Tests::TestDocument> >("documents");
+    QTest::addColumn<QList<TestDocument> >("documents");
     QTest::addColumn<QString>("expectedHierarchy");
-
-    typedef Tests::TestDocument TestDocument;
 
     QTest::newRow("basic-single-document")
         << (QList<TestDocument>()
@@ -184,7 +183,7 @@ void CppToolsPlugin::test_typehierarchy_data()
 
 void CppToolsPlugin::test_typehierarchy()
 {
-    QFETCH(QList<Tests::TestDocument>, documents);
+    QFETCH(QList<TestDocument>, documents);
     QFETCH(QString, expectedHierarchy);
 
     TypeHierarchyBuilderTestCase(documents, expectedHierarchy);

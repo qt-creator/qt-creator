@@ -49,7 +49,7 @@ using namespace CppTools::Tests;
 using namespace CppTools::Internal;
 using ProjectExplorer::HeaderPathType;
 
-typedef Document::Include Include;
+using Include = Document::Include;
 
 class SourcePreprocessor
 {
@@ -60,7 +60,7 @@ public:
         cleanUp();
     }
 
-    Document::Ptr run(const QString &filePath)
+    Document::Ptr run(const QString &filePath) const
     {
         QScopedPointer<CppSourceProcessor> sourceProcessor(
                     CppModelManager::createSourceProcessor());

@@ -43,7 +43,7 @@ class CppCurrentDocumentFilter : public  Core::ILocatorFilter
 
 public:
     explicit CppCurrentDocumentFilter(CppModelManager *manager);
-    ~CppCurrentDocumentFilter() {}
+    ~CppCurrentDocumentFilter() override = default;
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;

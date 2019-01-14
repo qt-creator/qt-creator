@@ -218,7 +218,7 @@ public:
         }
 
         CPlusPlus::Control *control = doc->control();
-        if (control->findIdentifier(symbolId->chars(), symbolId->size()) != 0) {
+        if (control->findIdentifier(symbolId->chars(), symbolId->size()) != nullptr) {
             if (doc != symbolDocument)
                 doc->check();
 
@@ -239,7 +239,7 @@ class UpdateUI
     QFutureInterface<CPlusPlus::Usage> *future;
 
 public:
-    UpdateUI(QFutureInterface<CPlusPlus::Usage> *future): future(future) {}
+    explicit UpdateUI(QFutureInterface<CPlusPlus::Usage> *future): future(future) {}
 
     void operator()(QList<CPlusPlus::Usage> &, const QList<CPlusPlus::Usage> &usages)
     {
@@ -258,9 +258,7 @@ CppFindReferences::CppFindReferences(CppModelManager *modelManager)
 {
 }
 
-CppFindReferences::~CppFindReferences()
-{
-}
+CppFindReferences::~CppFindReferences() = default;
 
 QList<int> CppFindReferences::references(CPlusPlus::Symbol *symbol,
                                          const CPlusPlus::LookupContext &context) const
@@ -276,11 +274,11 @@ QList<int> CppFindReferences::references(CPlusPlus::Symbol *symbol,
 
 static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
                         const WorkingCopy workingCopy,
-                        const CPlusPlus::LookupContext context,
+                        const CPlusPlus::LookupContext &context,
                         CPlusPlus::Symbol *symbol)
 {
     const CPlusPlus::Identifier *symbolId = symbol->identifier();
-    QTC_ASSERT(symbolId != 0, return);
+    QTC_ASSERT(symbolId != nullptr, return);
 
     const CPlusPlus::Snapshot snapshot = context.snapshot();
 
@@ -465,7 +463,7 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
 
 void CppFindReferences::searchAgain()
 {
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
+    auto search = qobject_cast<SearchResult *>(sender());
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
     parameters.filesToRename.clear();
     CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
@@ -483,10 +481,10 @@ namespace {
 class UidSymbolFinder : public CPlusPlus::SymbolVisitor
 {
 public:
-    UidSymbolFinder(const QList<QByteArray> &uid) : m_uid(uid), m_index(0), m_result(0) { }
+    explicit UidSymbolFinder(const QList<QByteArray> &uid) : m_uid(uid) { }
     CPlusPlus::Symbol *result() const { return m_result; }
 
-    bool preVisit(CPlusPlus::Symbol *symbol)
+    bool preVisit(CPlusPlus::Symbol *symbol) override
     {
         if (m_result)
             return false;
@@ -505,7 +503,7 @@ public:
         return true;
     }
 
-    void postVisit(CPlusPlus::Symbol *symbol)
+    void postVisit(CPlusPlus::Symbol *symbol) override
     {
         if (symbol->asScope())
             --m_index;
@@ -513,8 +511,8 @@ public:
 
 private:
     QList<QByteArray> m_uid;
-    int m_index;
-    CPlusPlus::Symbol *m_result;
+    int m_index = 0;
+    CPlusPlus::Symbol *m_result = nullptr;
 };
 }
 
@@ -522,10 +520,10 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
                                                  const CPlusPlus::Snapshot &snapshot,
                                                  CPlusPlus::LookupContext *context)
 {
-    QTC_ASSERT(context, return 0);
+    QTC_ASSERT(context, return nullptr);
     QString symbolFile = QLatin1String(parameters.symbolFileName);
     if (!snapshot.contains(symbolFile))
-        return 0;
+        return nullptr;
 
     CPlusPlus::Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
     // document is not parsed and has no bindings yet, do it
@@ -542,7 +540,7 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
         *context = CPlusPlus::LookupContext(doc, snapshot);
         return finder.result();
     }
-    return 0;
+    return nullptr;
 }
 
 static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage> *watcher,
@@ -661,7 +659,7 @@ restart_search:
     }
 
     static QString matchingLine(unsigned bytesOffsetOfUseStart, const QByteArray &utf8Source,
-                                unsigned *columnOfUseStart = 0)
+                                unsigned *columnOfUseStart = nullptr)
     {
         int lineBegin = utf8Source.lastIndexOf('\n', bytesOffsetOfUseStart) + 1;
         int lineEnd = utf8Source.indexOf('\n', bytesOffsetOfUseStart);
@@ -765,7 +763,7 @@ void CppFindReferences::renameMacroUses(const CPlusPlus::Macro &macro, const QSt
 
 void CppFindReferences::createWatcher(const QFuture<CPlusPlus::Usage> &future, SearchResult *search)
 {
-    QFutureWatcher<CPlusPlus::Usage> *watcher = new QFutureWatcher<CPlusPlus::Usage>();
+    auto watcher = new QFutureWatcher<CPlusPlus::Usage>();
     // auto-delete:
     connect(watcher, &QFutureWatcherBase::finished, watcher, [search, watcher]() {
                 searchFinished(search, watcher);

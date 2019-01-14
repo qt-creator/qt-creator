@@ -665,8 +665,8 @@ void Dumper::dumpDocuments(const QList<CPlusPlus::Document::Ptr> &documents, boo
         if (!diagnosticMessages.isEmpty()) {
             m_out << i3 << "Diagnostic Messages:{{{4\n";
             foreach (const CPlusPlus::Document::DiagnosticMessage &msg, diagnosticMessages) {
-                const CPlusPlus::Document::DiagnosticMessage::Level level
-                        = static_cast<CPlusPlus::Document::DiagnosticMessage::Level>(msg.level());
+                auto level =
+                    static_cast<const CPlusPlus::Document::DiagnosticMessage::Level>(msg.level());
                 m_out << i4 << "at " << msg.line() << ":" << msg.column() << ", " << Utils::toString(level)
                       << ": " << msg.text() << "\n";
             }

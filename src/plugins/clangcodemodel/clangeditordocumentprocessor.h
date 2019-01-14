@@ -88,7 +88,7 @@ public:
 
     void editorDocumentTimerRestarted() override;
 
-    void setParserConfig(const CppTools::BaseEditorDocumentParser::Configuration config) override;
+    void setParserConfig(const CppTools::BaseEditorDocumentParser::Configuration &config) override;
 
     QFuture<CppTools::CursorInfo> cursorInfo(const CppTools::CursorInfoParams &params) override;
     QFuture<CppTools::CursorInfo> requestLocalReferences(const QTextCursor &cursor) override;

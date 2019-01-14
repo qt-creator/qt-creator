@@ -91,7 +91,7 @@ CursorInfo::Ranges toRanges(const SemanticUses &uses)
     return ranges;
 }
 
-CursorInfo::Ranges toRanges(const QList<int> tokenIndices, TranslationUnit *translationUnit)
+CursorInfo::Ranges toRanges(const QList<int> &tokenIndices, TranslationUnit *translationUnit)
 {
     CursorInfo::Ranges ranges;
     ranges.reserve(tokenIndices.size());
@@ -109,7 +109,7 @@ class FunctionDefinitionUnderCursor: protected ASTVisitor
     DeclarationAST *m_functionDefinition = nullptr;
 
 public:
-    FunctionDefinitionUnderCursor(TranslationUnit *translationUnit)
+    explicit FunctionDefinitionUnderCursor(TranslationUnit *translationUnit)
         : ASTVisitor(translationUnit)
     { }
 

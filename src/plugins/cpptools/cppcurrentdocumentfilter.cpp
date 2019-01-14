@@ -70,7 +70,7 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         return goodEntries;
 
     const QList<IndexItem::Ptr> items = itemsOfCurrentDocument();
-    for (IndexItem::Ptr info : items) {
+    for (const IndexItem::Ptr &info : items) {
         if (future.isCanceled())
             break;
 

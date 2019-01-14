@@ -87,7 +87,7 @@ public:
     static QString accessSpecToString(InsertionPointLocator::AccessSpec xsSpec);
 
 public:
-    InsertionPointLocator(const CppRefactoringChanges &refactoringChanges);
+    explicit InsertionPointLocator(const CppRefactoringChanges &refactoringChanges);
 
     InsertionLocation methodDeclarationInClass(const QString &fileName,
                                                const CPlusPlus::Class *clazz,

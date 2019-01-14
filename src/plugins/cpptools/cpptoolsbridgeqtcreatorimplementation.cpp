@@ -79,7 +79,7 @@ CppToolsBridgeQtCreatorImplementation::baseEditorDocumentProcessor(const QString
     if (document)
         return document->processor();
 
-    return 0;
+    return nullptr;
 }
 
 void CppToolsBridgeQtCreatorImplementation::finishedRefreshingSourceFiles(

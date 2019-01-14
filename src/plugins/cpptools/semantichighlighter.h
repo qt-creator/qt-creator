@@ -61,7 +61,7 @@ public:
         VirtualFunctionDeclarationUse,
     };
 
-    typedef std::function<QFuture<TextEditor::HighlightingResult> ()> HighlightingRunner;
+    using HighlightingRunner = std::function<QFuture<TextEditor::HighlightingResult> ()>;
 
 public:
     explicit SemanticHighlighter(TextEditor::TextDocument *baseTextDocument);
@@ -84,7 +84,7 @@ private:
 private:
     TextEditor::TextDocument *m_baseTextDocument;
 
-    unsigned m_revision;
+    unsigned m_revision = 0;
     QScopedPointer<QFutureWatcher<TextEditor::HighlightingResult>> m_watcher;
     QHash<int, QTextCharFormat> m_formatMap;
 

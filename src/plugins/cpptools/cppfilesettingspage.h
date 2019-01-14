@@ -71,8 +71,8 @@ class CppFileSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit CppFileSettingsWidget(QWidget *parent = 0);
-    virtual ~CppFileSettingsWidget();
+    explicit CppFileSettingsWidget(QWidget *parent = nullptr);
+    ~CppFileSettingsWidget() override;
 
     CppFileSettings settings() const;
     void setSettings(const CppFileSettings &s);
@@ -89,11 +89,11 @@ class CppFileSettingsPage : public Core::IOptionsPage
 {
 public:
     explicit CppFileSettingsPage(QSharedPointer<CppFileSettings> &settings,
-                                 QObject *parent = 0);
+                                 QObject *parent = nullptr);
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     const QSharedPointer<CppFileSettings> m_settings;

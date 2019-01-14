@@ -38,7 +38,7 @@ class CPPTOOLS_EXPORT CppClassesFilter : public Internal::CppLocatorFilter
     Q_OBJECT
 
 public:
-    CppClassesFilter(CppLocatorData *locatorData);
+    explicit CppClassesFilter(CppLocatorData *locatorData);
     ~CppClassesFilter() override;
 
 protected:

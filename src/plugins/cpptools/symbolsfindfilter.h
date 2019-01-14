@@ -48,20 +48,20 @@ class SymbolsFindFilter : public Core::IFindFilter
     Q_OBJECT
 
 public:
-    typedef SymbolSearcher::SearchScope SearchScope;
+    using SearchScope = SymbolSearcher::SearchScope;
 
 public:
     explicit SymbolsFindFilter(CppModelManager *manager);
 
-    QString id() const;
-    QString displayName() const;
-    bool isEnabled() const;
+    QString id() const override;
+    QString displayName() const override;
+    bool isEnabled() const override;
 
-    void findAll(const QString &txt, Core::FindFlags findFlags);
+    void findAll(const QString &txt, Core::FindFlags findFlags) override;
 
-    QWidget *createConfigWidget();
-    void writeSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    QWidget *createConfigWidget() override;
+    void writeSettings(QSettings *settings) override;
+    void readSettings(QSettings *settings) override;
 
     void setSymbolsToSearch(const SearchSymbols::SymbolTypes &types) { m_symbolsToSearch = types; }
     SearchSymbols::SymbolTypes symbolsToSearch() const { return m_symbolsToSearch; }
@@ -99,7 +99,7 @@ class SymbolsFindFilterConfigWidget : public QWidget
 {
     Q_OBJECT
 public:
-    SymbolsFindFilterConfigWidget(SymbolsFindFilter *filter);
+    explicit SymbolsFindFilterConfigWidget(SymbolsFindFilter *filter);
 
 private:
     void setState() const;

@@ -213,7 +213,7 @@ QString identifierUnderCursor(QTextCursor *cursor)
 
 const Macro *findCanonicalMacro(const QTextCursor &cursor, Document::Ptr document)
 {
-    QTC_ASSERT(document, return 0);
+    QTC_ASSERT(document, return nullptr);
 
     int line, column;
     Utils::Text::convertPosition(cursor.document(), cursor.position(), &line, &column);
@@ -227,7 +227,7 @@ const Macro *findCanonicalMacro(const QTextCursor &cursor, Document::Ptr documen
         return &use->macro();
     }
 
-    return 0;
+    return nullptr;
 }
 
 QSharedPointer<CppCodeModelSettings> codeModelSettings()

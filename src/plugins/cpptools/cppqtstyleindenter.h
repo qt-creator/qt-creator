@@ -63,7 +63,7 @@ public:
                                                          const TextEditor::TabSettings &tabSettings) override;
 private:
     CppCodeStyleSettings codeStyleSettings() const;
-    CppCodeStylePreferences *m_cppCodeStylePreferences;
+    CppCodeStylePreferences *m_cppCodeStylePreferences = nullptr;
 };
 
 } // CppTools

@@ -52,8 +52,6 @@ public:
 class CPPTOOLS_EXPORT RawProjectPart
 {
 public:
-    RawProjectPart() {}
-
     void setDisplayName(const QString &displayName);
 
     void setProjectFileLocation(const QString &projectFile, int line = -1, int column = -1);
@@ -62,7 +60,7 @@ public:
 
     // FileClassifier must be thread-safe.
     using FileClassifier = std::function<ProjectFile(const QString &filePath)>;
-    void setFiles(const QStringList &files, FileClassifier fileClassifier = FileClassifier());
+    void setFiles(const QStringList &files, const FileClassifier &fileClassifier = FileClassifier());
     void setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths);
     void setIncludePaths(const QStringList &includePaths);
     void setPreCompiledHeaders(const QStringList &preCompiledHeaders);

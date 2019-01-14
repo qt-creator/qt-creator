@@ -27,6 +27,4 @@
 
 using namespace CppTools;
 
-ModelManagerSupport::~ModelManagerSupport()
-{
-}
+ModelManagerSupport::~ModelManagerSupport() = default;

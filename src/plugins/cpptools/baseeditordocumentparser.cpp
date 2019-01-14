@@ -58,9 +58,7 @@ BaseEditorDocumentParser::BaseEditorDocumentParser(const QString &filePath)
     Q_UNUSED(meta);
 }
 
-BaseEditorDocumentParser::~BaseEditorDocumentParser()
-{
-}
+BaseEditorDocumentParser::~BaseEditorDocumentParser() = default;
 
 QString BaseEditorDocumentParser::filePath() const
 {

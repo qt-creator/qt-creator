@@ -44,7 +44,7 @@ using namespace CppTools::Internal;
 
 namespace {
 
-Document::Ptr createDocument(const QString filePath, const QByteArray text,
+Document::Ptr createDocument(const QString &filePath, const QByteArray &text,
                              unsigned expectedGlobalSymbolCount)
 {
     Document::Ptr document = Document::create(filePath);

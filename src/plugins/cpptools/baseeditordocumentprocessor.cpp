@@ -52,9 +52,7 @@ BaseEditorDocumentProcessor::BaseEditorDocumentProcessor(QTextDocument *textDocu
 {
 }
 
-BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor()
-{
-}
+BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor() = default;
 
 void BaseEditorDocumentProcessor::run(bool projectsUpdated)
 {
@@ -92,7 +90,7 @@ void BaseEditorDocumentProcessor::invalidateDiagnostics()
 }
 
 void BaseEditorDocumentProcessor::setParserConfig(
-        const BaseEditorDocumentParser::Configuration config)
+        const BaseEditorDocumentParser::Configuration &config)
 {
     parser()->setConfiguration(config);
 }

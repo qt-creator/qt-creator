@@ -50,7 +50,7 @@ QVariant SymbolItem::data(int /*column*/, int role) const
         }
     }
 
-    OverviewModel *overviewModel = qobject_cast<OverviewModel *>(model());
+    auto overviewModel = qobject_cast<const OverviewModel*>(model());
     if (!symbol || !overviewModel)
         return QVariant();
 
@@ -150,7 +150,7 @@ Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
 {
     if (!index.isValid())
         return nullptr;
-    SymbolItem *item = static_cast<SymbolItem *>(itemForIndex(index));
+    auto item = static_cast<const SymbolItem*>(itemForIndex(index));
     return item ? item->symbol : nullptr;
 }
 

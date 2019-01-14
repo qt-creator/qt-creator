@@ -46,7 +46,7 @@ class CppCodeModelSettingsWidget: public QWidget
     Q_OBJECT
 
 public:
-    explicit CppCodeModelSettingsWidget(QWidget *parent = 0);
+    explicit CppCodeModelSettingsWidget(QWidget *parent = nullptr);
     ~CppCodeModelSettingsWidget() override;
 
     void setSettings(const QSharedPointer<CppCodeModelSettings> &s);
@@ -68,11 +68,11 @@ class CppCodeModelSettingsPage: public Core::IOptionsPage
 {
 public:
     explicit CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings,
-                                      QObject *parent = 0);
+                                      QObject *parent = nullptr);
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     const QSharedPointer<CppCodeModelSettings> m_settings;

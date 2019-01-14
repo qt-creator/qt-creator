@@ -87,7 +87,7 @@ class CPPTOOLS_EXPORT ProjectInfo
 {
 public:
     ProjectInfo() = default;
-    ProjectInfo(QPointer<ProjectExplorer::Project> project);
+    explicit ProjectInfo(QPointer<ProjectExplorer::Project> project);
 
     bool isValid() const;
 

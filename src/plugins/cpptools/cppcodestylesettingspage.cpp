@@ -224,7 +224,7 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
 {
     // Preprocess source
     Environment env;
-    Preprocessor preprocess(0, &env);
+    Preprocessor preprocess(nullptr, &env);
     const QByteArray preprocessedSource
         = preprocess.run(QLatin1String("<no-file>"), textDocument->toPlainText());
 
@@ -238,7 +238,7 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
     // Run the formatter
     Overview overview;
     overview.showReturnTypes = true;
-    overview.starBindFlags = Overview::StarBindFlags(0);
+    overview.starBindFlags = Overview::StarBindFlags(nullptr);
 
     if (settings.bindStarToIdentifier)
         overview.starBindFlags |= Overview::BindToIdentifier;
@@ -261,9 +261,7 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
 
 CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
     : QWidget(parent),
-      m_preferences(0),
-      m_ui(new Ui::CppCodeStyleSettingsPage),
-      m_blockUpdates(false)
+      m_ui(new Ui::CppCodeStyleSettingsPage)
 {
     m_ui->setupUi(this);
     m_ui->categoryTab->setProperty("_q_custom_style_disabled", true);
@@ -442,7 +440,7 @@ void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
         return;
 
     if (m_preferences) {
-        CppCodeStylePreferences *current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
         if (current)
             current->setCodeStyleSettings(cppCodeStyleSettings());
     }
@@ -456,7 +454,7 @@ void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettings &se
         return;
 
     if (m_preferences) {
-        CppCodeStylePreferences *current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
         if (current)
             current->setTabSettings(settings);
     }
@@ -512,9 +510,8 @@ void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
 
 // ------------------ CppCodeStyleSettingsPage
 
-CppCodeStyleSettingsPage::CppCodeStyleSettingsPage(QWidget *parent) :
-    Core::IOptionsPage(parent),
-    m_pageCppCodeStylePreferences(0)
+CppCodeStyleSettingsPage::CppCodeStyleSettingsPage(QWidget *parent)
+    : Core::IOptionsPage(parent)
 {
     setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("CppTools", Constants::CPP_CODE_STYLE_SETTINGS_NAME));

@@ -59,7 +59,7 @@ public:
     using RenameCallback = ClangBackEnd::RefactoringClientInterface::RenameCallback;
     using Link = Utils::Link;
 
-    virtual ~RefactoringEngineInterface() {}
+    virtual ~RefactoringEngineInterface() = default;
 
     virtual void startLocalRenaming(const CursorInEditor &data,
                                     CppTools::ProjectPart *projectPart,

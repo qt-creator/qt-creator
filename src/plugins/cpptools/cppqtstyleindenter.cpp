@@ -37,15 +37,13 @@
 using namespace CppTools;
 
 CppQtStyleIndenter::CppQtStyleIndenter()
-    : m_cppCodeStylePreferences(0)
 {
     // Just for safety. setCodeStylePreferences should be called when the editor the
     // indenter belongs to gets initialized.
     m_cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
 }
 
-CppQtStyleIndenter::~CppQtStyleIndenter()
-{}
+CppQtStyleIndenter::~CppQtStyleIndenter() = default;
 
 bool CppQtStyleIndenter::isElectricCharacter(const QChar &ch) const
 {
@@ -157,8 +155,7 @@ void CppQtStyleIndenter::indent(QTextDocument *doc,
 
 void CppQtStyleIndenter::setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences)
 {
-    CppCodeStylePreferences *cppCodeStylePreferences
-            = qobject_cast<CppCodeStylePreferences *>(preferences);
+    auto cppCodeStylePreferences = qobject_cast<CppCodeStylePreferences *>(preferences);
     if (cppCodeStylePreferences)
         m_cppCodeStylePreferences = cppCodeStylePreferences;
 }

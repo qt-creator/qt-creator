@@ -74,7 +74,7 @@ class CPPTOOLS_EXPORT TestCase
     Q_DISABLE_COPY(TestCase)
 
 public:
-    TestCase(bool runGarbageCollector = true);
+    explicit TestCase(bool runGarbageCollector = true);
     ~TestCase();
 
     bool succeededSoFar() const;
@@ -145,7 +145,7 @@ protected:
 class CPPTOOLS_EXPORT TemporaryCopiedDir : public TemporaryDir
 {
 public:
-    TemporaryCopiedDir(const QString &sourceDirPath);
+    explicit TemporaryCopiedDir(const QString &sourceDirPath);
     QString absolutePath(const QByteArray &relativePath) const;
 
 private:

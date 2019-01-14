@@ -65,7 +65,7 @@ public:
 class CPPTOOLS_EXPORT ModelManagerSupportProvider
 {
 public:
-    virtual ~ModelManagerSupportProvider() {}
+    virtual ~ModelManagerSupportProvider() = default;
 
     virtual QString id() const = 0;
     virtual QString displayName() const = 0;

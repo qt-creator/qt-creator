@@ -35,6 +35,6 @@ public:
     virtual ProjectPart::Ptr projectPartForId(const QString &projectPartId) const = 0;
 
 protected:
-    ~CppModelManagerInterface() = default;
+    virtual ~CppModelManagerInterface() = default;
 };
 }

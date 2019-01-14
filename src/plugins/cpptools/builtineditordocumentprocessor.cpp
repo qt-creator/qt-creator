@@ -95,14 +95,14 @@ CppTools::CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
                                           const CPlusPlus::Snapshot &snapshot,
                                           QTextDocument *textDocument)
 {
-    QTC_ASSERT(doc, return 0);
-    QTC_ASSERT(doc->translationUnit(), return 0);
-    QTC_ASSERT(doc->translationUnit()->ast(), return 0);
-    QTC_ASSERT(textDocument, return 0);
+    QTC_ASSERT(doc, return nullptr);
+    QTC_ASSERT(doc->translationUnit(), return nullptr);
+    QTC_ASSERT(doc->translationUnit()->ast(), return nullptr);
+    QTC_ASSERT(textDocument, return nullptr);
 
     using namespace CPlusPlus;
     using namespace CppTools;
-    typedef TextEditor::HighlightingResult Result;
+    using Result = TextEditor::HighlightingResult;
     QList<Result> macroUses;
 
     using Utils::Text::convertPosition;
@@ -168,7 +168,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
     , m_codeWarningsUpdated(false)
     , m_semanticHighlighter(enableSemanticHighlighter
                             ? new CppTools::SemanticHighlighter(document)
-                            : 0)
+                            : nullptr)
 {
     using namespace Internal;
 

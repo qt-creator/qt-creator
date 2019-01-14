@@ -82,8 +82,8 @@ public:
     }
 
 private:
-    void doBeforeLocatorRun() { QVERIFY(parseFiles(m_fileName)); }
-    void doAfterLocatorRun() { QVERIFY(garbageCollectGlobalSnapshot()); }
+    void doBeforeLocatorRun() override { QVERIFY(parseFiles(m_fileName)); }
+    void doAfterLocatorRun() override { QVERIFY(garbageCollectGlobalSnapshot()); }
 
 private:
     const QString m_fileName;
@@ -97,7 +97,6 @@ public:
     CppCurrentDocumentFilterTestCase(const QString &fileName,
                                      const ResultDataList &expectedResults)
         : BasicLocatorFilterTest(CppTools::CppModelManager::instance()->currentDocumentFilter())
-        , m_editor(0)
         , m_fileName(fileName)
     {
         QVERIFY(succeededSoFar());
@@ -113,7 +112,7 @@ public:
     }
 
 private:
-    void doBeforeLocatorRun()
+    void doBeforeLocatorRun() override
     {
         QVERIFY(DocumentModel::openedDocuments().isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
@@ -124,7 +123,7 @@ private:
         QVERIFY(waitForFileInGlobalSnapshot(m_fileName));
     }
 
-    void doAfterLocatorRun()
+    void doAfterLocatorRun() override
     {
         QVERIFY(closeEditorWithoutGarbageCollectorInvocation(m_editor));
         QCoreApplication::processEvents();
@@ -133,7 +132,7 @@ private:
     }
 
 private:
-    IEditor *m_editor;
+    IEditor *m_editor = nullptr;
     const QString m_fileName;
 };
 

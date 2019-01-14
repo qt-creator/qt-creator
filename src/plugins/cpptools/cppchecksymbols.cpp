@@ -185,7 +185,7 @@ protected:
 
     bool visit(Declaration *symbol) override
     {
-        if (symbol->enclosingEnum() != 0)
+        if (symbol->enclosingEnum() != nullptr)
             addStatic(symbol->name());
 
         if (symbol->type()->isFunctionType())
@@ -303,9 +303,9 @@ CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &co
 CheckSymbols * CheckSymbols::create(Document::Ptr doc, const LookupContext &context,
                                     const QList<CheckSymbols::Result> &macroUses)
 {
-    QTC_ASSERT(doc, return NULL);
-    QTC_ASSERT(doc->translationUnit(), return NULL);
-    QTC_ASSERT(doc->translationUnit()->ast(), return NULL);
+    QTC_ASSERT(doc, return nullptr);
+    QTC_ASSERT(doc->translationUnit(), return nullptr);
+    QTC_ASSERT(doc->translationUnit()->ast(), return nullptr);
 
     return new CheckSymbols(doc, context, macroUses);
 }
@@ -315,7 +315,7 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context, cons
     , _lineOfLastUsage(0), _macroUses(macroUses)
 {
     unsigned line = 0;
-    getTokenEndPosition(translationUnit()->ast()->lastToken(), &line, 0);
+    getTokenEndPosition(translationUnit()->ast()->lastToken(), &line, nullptr);
     _chunkSize = qMax(50U, line / 200);
     _usages.reserve(_chunkSize);
 
@@ -326,8 +326,7 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context, cons
     typeOfExpression.setExpandTemplates(true);
 }
 
-CheckSymbols::~CheckSymbols()
-{ }
+CheckSymbols::~CheckSymbols() = default;
 
 void CheckSymbols::run()
 {
@@ -385,7 +384,7 @@ FunctionDefinitionAST *CheckSymbols::enclosingFunctionDefinition(bool skipTopOfS
             return funDef;
     }
 
-    return 0;
+    return nullptr;
 }
 
 TemplateDeclarationAST *CheckSymbols::enclosingTemplateDeclaration() const
@@ -397,7 +396,7 @@ TemplateDeclarationAST *CheckSymbols::enclosingTemplateDeclaration() const
             return funDef;
     }
 
-    return 0;
+    return nullptr;
 }
 
 Scope *CheckSymbols::enclosingScope() const
@@ -508,7 +507,7 @@ bool CheckSymbols::visit(DotDesignatorAST *ast)
 
 bool CheckSymbols::visit(SimpleDeclarationAST *ast)
 {
-    NameAST *declrIdNameAST = 0;
+    NameAST *declrIdNameAST = nullptr;
     if (ast->declarator_list && !ast->declarator_list->next) {
         if (ast->symbols && !ast->symbols->next && !ast->symbols->value->isGenerated()) {
             Symbol *decl = ast->symbols->value;
@@ -606,7 +605,7 @@ bool CheckSymbols::visit(ObjCClassForwardDeclarationAST *ast)
 {
     accept(ast->attribute_list);
     accept(ast->identifier_list);
-    for (NameListAST *i = ast->identifier_list ; i != 0; i = i->next)
+    for (NameListAST *i = ast->identifier_list; i; i = i->next)
         addUse(i->value, SemanticHighlighter::TypeUse);
     return false;
 }
@@ -680,7 +679,7 @@ bool CheckSymbols::visit(CallAST *ast)
         } else if (IdExpressionAST *idExpr = ast->base_expression->asIdExpression()) {
             if (const Name *name = idExpr->name->name) {
                 if (maybeFunction(name)) {
-                    expr = 0;
+                    expr = nullptr;
 
                     NameAST *exprName = idExpr->name;
                     if (QualifiedNameAST *q = exprName->asQualifiedName()) {
@@ -723,8 +722,8 @@ bool CheckSymbols::visit(NewExpressionAST *ast)
     if (highlightCtorDtorAsType) {
         accept(ast->new_type_id);
     } else {
-        ClassOrNamespace *binding = 0;
-        NameAST *nameAST = 0;
+        ClassOrNamespace *binding = nullptr;
+        NameAST *nameAST = nullptr;
         if (ast->new_type_id) {
             for (SpecifierListAST *it = ast->new_type_id->type_specifier_list; it; it = it->next) {
                 if (NamedTypeSpecifierAST *spec = it->value->asNamedTypeSpecifier()) {
@@ -746,7 +745,7 @@ bool CheckSymbols::visit(NewExpressionAST *ast)
         if (binding && nameAST) {
             int arguments = 0;
             if (ast->new_initializer) {
-                ExpressionListAST *list = 0;
+                ExpressionListAST *list = nullptr;
                 if (ExpressionListParenAST *exprListParen = ast->new_initializer->asExpressionListParen())
                     list = exprListParen->expression_list;
                 else if (BracedInitializerAST *braceInit = ast->new_initializer->asBracedInitializer())
@@ -853,7 +852,7 @@ void CheckSymbols::checkName(NameAST *ast, Scope *scope)
         if (!scope)
             scope = enclosingScope();
 
-        if (ast->asDestructorName() != 0) {
+        if (ast->asDestructorName() != nullptr) {
             Class *klass = scope->asClass();
             if (!klass && scope->asFunction())
                 klass = scope->asFunction()->enclosingScope()->asClass();
@@ -915,7 +914,7 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
         ClassOrNamespace *binding = checkNestedName(ast);
 
         if (binding && ast->unqualified_name) {
-            if (ast->unqualified_name->asDestructorName() != 0) {
+            if (ast->unqualified_name->asDestructorName() != nullptr) {
                 if (hasVirtualDestructor(binding)) {
                     addUse(ast->unqualified_name, SemanticHighlighter::VirtualFunctionDeclarationUse);
                 } else {
@@ -943,7 +942,7 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
 
 ClassOrNamespace *CheckSymbols::checkNestedName(QualifiedNameAST *ast)
 {
-    ClassOrNamespace *binding = 0;
+    ClassOrNamespace *binding = nullptr;
 
     if (ast->name) {
         if (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list) {
@@ -969,7 +968,7 @@ ClassOrNamespace *CheckSymbols::checkNestedName(QualifiedNameAST *ast)
                         if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId()) {
                             if (template_id->template_token) {
                                 addUse(template_id, SemanticHighlighter::TypeUse);
-                                binding = 0; // there's no way we can find a binding.
+                                binding = nullptr; // there's no way we can find a binding.
                             }
 
                             accept(template_id->template_argument_list);
@@ -1026,7 +1025,7 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
                             // It's a constructor, count the number of arguments
                             unsigned arguments = 0;
                             if (ast->expression) {
-                                ExpressionListAST *expr_list = 0;
+                                ExpressionListAST *expr_list = nullptr;
                                 if (ExpressionListParenAST *parenExprList = ast->expression->asExpressionListParen())
                                     expr_list = parenExprList->expression_list;
                                 else if (BracedInitializerAST *bracedInitList = ast->expression->asBracedInitializer())
@@ -1165,7 +1164,7 @@ void CheckSymbols::addUse(NameAST *ast, Kind kind)
 
     if (!ast)
         return; // nothing to do
-    else if (ast->asOperatorFunctionId() != 0 || ast->asConversionFunctionId() != 0)
+    else if (ast->asOperatorFunctionId() != nullptr || ast->asConversionFunctionId() != nullptr)
         return; // nothing to do
 
     unsigned startToken = ast->firstToken();
@@ -1262,14 +1261,14 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
         else if (c->isTypedef() || c->isNamespace() ||
                  c->isStatic() || //consider also static variable
                  c->isClass() || c->isEnum() || isTemplateClass(c) ||
-                 c->isForwardClassDeclaration() || c->isTypenameArgument() || c->enclosingEnum() != 0) {
+                 c->isForwardClassDeclaration() || c->isTypenameArgument() || c->enclosingEnum() != nullptr) {
 
             unsigned line, column;
             getTokenStartPosition(startToken, &line, &column);
             const unsigned length = tok.utf16chars();
 
             Kind kind = SemanticHighlighter::TypeUse;
-            if (c->enclosingEnum() != 0)
+            if (c->enclosingEnum() != nullptr)
                 kind = SemanticHighlighter::EnumerationUse;
             else if (c->isStatic())
                 // treat static variable as a field(highlighting)
@@ -1428,7 +1427,7 @@ NameAST *CheckSymbols::declaratorId(DeclaratorAST *ast) const
             return declId->name;
     }
 
-    return 0;
+    return nullptr;
 }
 
 bool CheckSymbols::maybeType(const Name *name) const

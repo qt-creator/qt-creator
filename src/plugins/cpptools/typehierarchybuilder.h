@@ -43,7 +43,7 @@ class CPPTOOLS_EXPORT TypeHierarchy
 
 public:
     TypeHierarchy();
-    TypeHierarchy(CPlusPlus::Symbol *symbol);
+    explicit TypeHierarchy(CPlusPlus::Symbol *symbol);
 
     CPlusPlus::Symbol *symbol() const;
     const QList<TypeHierarchy> &hierarchy() const;
@@ -52,7 +52,7 @@ public:
     { return _symbol == other._symbol; }
 
 private:
-    CPlusPlus::Symbol *_symbol;
+    CPlusPlus::Symbol *_symbol = nullptr;
     QList<TypeHierarchy> _hierarchy;
 };
 

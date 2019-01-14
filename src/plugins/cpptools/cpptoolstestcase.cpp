@@ -120,8 +120,8 @@ bool TestCase::succeededSoFar() const
 
 bool TestCase::openBaseTextEditor(const QString &fileName, TextEditor::BaseTextEditor **editor)
 {
-    typedef TextEditor::BaseTextEditor BTEditor;
-    if (BTEditor *e = qobject_cast<BTEditor *>(Core::EditorManager::openEditor(fileName))) {
+    using BTEditor = TextEditor::BaseTextEditor;
+    if (auto e = qobject_cast<BTEditor *>(Core::EditorManager::openEditor(fileName))) {
         if (editor) {
             *editor = e;
             return true;

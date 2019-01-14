@@ -65,7 +65,7 @@ QString AbstractEditorSupport::licenseTemplate(const QString &file, const QStrin
     expander.registerVariable("Cpp:License:ClassName", tr("The class name."),
                               [className]() { return className; });
 
-    return Utils::TemplateEngine::processText(&expander, license, 0);
+    return Utils::TemplateEngine::processText(&expander, license, nullptr);
 }
 
 } // namespace CppTools

@@ -217,7 +217,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
     if (m_includes.empty())
         return findInsertLineForVeryFirstInclude(newLinesToPrepend, newLinesToAppend);
 
-    typedef QList<IncludeGroup> IncludeGroups;
+    using IncludeGroups = QList<IncludeGroup>;
 
     const IncludeGroups groupsNewline = IncludeGroup::detectIncludeGroupsByNewLines(m_includes);
     const bool includeAtTop
@@ -241,8 +241,8 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
                 = IncludeGroup::detectIncludeGroupsByIncludeType(bestMixedGroup.includes());
             groupsMatchingIncludeType = getGroupsByIncludeType(groupsIncludeType, newIncludeType);
             // Avoid extra new lines for include groups which are not separated by new lines
-            newLinesToPrepend = 0;
-            newLinesToAppend = 0;
+            newLinesToPrepend = nullptr;
+            newLinesToAppend = nullptr;
         }
     }
 

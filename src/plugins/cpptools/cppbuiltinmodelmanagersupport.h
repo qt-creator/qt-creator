@@ -38,7 +38,7 @@ class BuiltinModelManagerSupport: public ModelManagerSupport
 
 public:
     BuiltinModelManagerSupport();
-    virtual ~BuiltinModelManagerSupport();
+    ~BuiltinModelManagerSupport() override;
 
     CppCompletionAssistProvider *completionAssistProvider() final;
     TextEditor::BaseHoverHandler *createHoverHandler() final;

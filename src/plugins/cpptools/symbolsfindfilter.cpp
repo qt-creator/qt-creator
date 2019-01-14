@@ -84,7 +84,7 @@ bool SymbolsFindFilter::isEnabled() const
 
 void SymbolsFindFilter::cancel()
 {
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
+    auto search = qobject_cast<SearchResult *>(sender());
     QTC_ASSERT(search, return);
     QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
     QTC_ASSERT(watcher, return);
@@ -93,7 +93,7 @@ void SymbolsFindFilter::cancel()
 
 void SymbolsFindFilter::setPaused(bool paused)
 {
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
+    auto search = qobject_cast<SearchResult *>(sender());
     QTC_ASSERT(search, return);
     QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
     QTC_ASSERT(watcher, return);
@@ -132,7 +132,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
             projectFileNames += Utils::transform(project->files(ProjectExplorer::Project::AllFiles), &Utils::FileName::toString).toSet();
     }
 
-    QFutureWatcher<SearchResultItem> *watcher = new QFutureWatcher<SearchResultItem>();
+    auto watcher = new QFutureWatcher<SearchResultItem>;
     m_watchers.insert(watcher, search);
     connect(watcher, &QFutureWatcherBase::finished,
             this, &SymbolsFindFilter::finish);
@@ -150,8 +150,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
 
 void SymbolsFindFilter::addResults(int begin, int end)
 {
-    QFutureWatcher<SearchResultItem> *watcher =
-            static_cast<QFutureWatcher<SearchResultItem> *>(sender());
+    auto watcher = static_cast<QFutureWatcher<SearchResultItem> *>(sender());
     SearchResult *search = m_watchers.value(watcher);
     if (!search) {
         // search was removed from search history while the search is running
@@ -166,8 +165,7 @@ void SymbolsFindFilter::addResults(int begin, int end)
 
 void SymbolsFindFilter::finish()
 {
-    QFutureWatcher<SearchResultItem> *watcher =
-            static_cast<QFutureWatcher<SearchResultItem> *>(sender());
+    auto watcher = static_cast<QFutureWatcher<SearchResultItem> *>(sender());
     SearchResult *search = m_watchers.value(watcher);
     if (search)
         search->finishSearch(watcher->isCanceled());
@@ -227,7 +225,7 @@ void SymbolsFindFilter::onAllTasksFinished(Id type)
 
 void SymbolsFindFilter::searchAgain()
 {
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
+    auto search = qobject_cast<SearchResult *>(sender());
     QTC_ASSERT(search, return);
     search->restart();
     startSearch(search);
@@ -263,11 +261,11 @@ SymbolsFindFilterConfigWidget::SymbolsFindFilterConfigWidget(SymbolsFindFilter *
     connect(m_filter, &SymbolsFindFilter::symbolsToSearchChanged,
             this, &SymbolsFindFilterConfigWidget::getState);
 
-    QGridLayout *layout = new QGridLayout(this);
+    auto layout = new QGridLayout(this);
     setLayout(layout);
     layout->setMargin(0);
 
-    QLabel *typeLabel = new QLabel(tr("Types:"));
+    auto typeLabel = new QLabel(tr("Types:"));
     layout->addWidget(typeLabel, 0, 0);
 
     m_typeClasses = new QCheckBox(tr("Classes"));

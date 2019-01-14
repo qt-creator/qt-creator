@@ -91,7 +91,7 @@ public:
 
         // Preprocess source
         Environment env;
-        Preprocessor preprocess(0, &env);
+        Preprocessor preprocess(nullptr, &env);
         const QByteArray preprocessedSource = preprocess.run(filePath, sourceWithoutCursorMarker);
 
         Document::Ptr document = Document::create(filePath);
@@ -122,7 +122,7 @@ public:
         Overview overview;
         overview.showReturnTypes = true;
         overview.showArgumentNames = true;
-        overview.starBindFlags = Overview::StarBindFlags(0);
+        overview.starBindFlags = Overview::StarBindFlags(nullptr);
 
         // Run the formatter
         PointerDeclarationFormatter formatter(cppRefactoringFile, overview, cursorHandling);

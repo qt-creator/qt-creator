@@ -100,10 +100,10 @@ protected:
 private:
     class TokenRange {
     public:
-        TokenRange() : start(0), end(0) {}
+        TokenRange() = default;
         TokenRange(unsigned start, unsigned end) : start(start), end(end) {}
-        unsigned start;
-        unsigned end;
+        unsigned start = 0;
+        unsigned end = 0;
     };
 
     void processIfWhileForStatement(ExpressionAST *expression, Symbol *symbol);

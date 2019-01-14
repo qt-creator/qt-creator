@@ -62,8 +62,6 @@ class CppAssistProposalModel : public TextEditor::GenericProposalModel
 public:
     CppAssistProposalModel()
         : TextEditor::GenericProposalModel()
-        , m_completionOperator(CPlusPlus::T_EOF_SYMBOL)
-        , m_replaceDotForArrow(false)
         , m_typeOfExpression(new CPlusPlus::TypeOfExpression)
     {
         m_typeOfExpression->setExpandTemplates(true);
@@ -72,8 +70,8 @@ public:
     bool isSortable(const QString &prefix) const override;
     TextEditor::AssistProposalItemInterface *proposalItem(int index) const override;
 
-    unsigned m_completionOperator;
-    bool m_replaceDotForArrow;
+    unsigned m_completionOperator = CPlusPlus::T_EOF_SYMBOL;
+    bool m_replaceDotForArrow = false;
     QSharedPointer<CPlusPlus::TypeOfExpression> m_typeOfExpression;
 };
 
@@ -98,7 +96,7 @@ class InternalCppCompletionAssistProcessor : public CppCompletionAssistProcessor
 {
 public:
     InternalCppCompletionAssistProcessor();
-    ~InternalCppCompletionAssistProcessor();
+    ~InternalCppCompletionAssistProcessor() override;
 
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 

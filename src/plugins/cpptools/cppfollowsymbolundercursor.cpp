@@ -59,6 +59,7 @@ public:
                           const Document::Ptr &document,
                           const Snapshot &snapshot,
                           SymbolFinder *symbolFinder);
+    VirtualFunctionHelper() = delete;
 
     bool canLookupVirtualFunctionOverrides(Function *function);
 
@@ -67,7 +68,6 @@ public:
     { return m_staticClassOfFunctionCallExpression; }
 
 private:
-    VirtualFunctionHelper();
     Q_DISABLE_COPY(VirtualFunctionHelper)
 
     Class *staticClassOfFunctionCallExpression_internal() const;
@@ -82,10 +82,10 @@ private:
     SymbolFinder *m_finder;
 
     // Determined
-    ExpressionAST *m_baseExpressionAST;
-    Function *m_function;
-    int m_accessTokenKind;
-    Class *m_staticClassOfFunctionCallExpression; // Output
+    ExpressionAST *m_baseExpressionAST = nullptr;
+    Function *m_function = nullptr;
+    int m_accessTokenKind = 0;
+    Class *m_staticClassOfFunctionCallExpression = nullptr; // Output
 };
 
 VirtualFunctionHelper::VirtualFunctionHelper(TypeOfExpression &typeOfExpression,
@@ -99,10 +99,6 @@ VirtualFunctionHelper::VirtualFunctionHelper(TypeOfExpression &typeOfExpression,
     , m_snapshot(snapshot)
     , m_typeOfExpression(typeOfExpression)
     , m_finder(finder)
-    , m_baseExpressionAST(0)
-    , m_function(0)
-    , m_accessTokenKind(0)
-    , m_staticClassOfFunctionCallExpression(0)
 {
     if (ExpressionAST *expressionAST = typeOfExpression.expressionAST()) {
         if (CallAST *callAST = expressionAST->asCall()) {
@@ -160,9 +156,9 @@ bool VirtualFunctionHelper::canLookupVirtualFunctionOverrides(Function *function
 Class *VirtualFunctionHelper::staticClassOfFunctionCallExpression_internal() const
 {
     if (!m_finder)
-        return 0;
+        return nullptr;
 
-    Class *result = 0;
+    Class *result = nullptr;
 
     if (m_baseExpressionAST->asIdExpression()) {
         for (Scope *s = m_scope; s ; s = s->enclosingScope()) {
@@ -323,14 +319,14 @@ Link attemptFuncDeclDef(const QTextCursor &cursor, Snapshot snapshot,
     for (int i = path.size() - 1; i != -1; --i) {
         AST *node = path.at(i);
 
-        if (node->asParameterDeclaration() != 0)
+        if (node->asParameterDeclaration() != nullptr)
             return result;
     }
 
-    AST *declParent = 0;
-    DeclaratorAST *decl = 0;
+    AST *declParent = nullptr;
+    DeclaratorAST *decl = nullptr;
     for (int i = path.size() - 2; i > 0; --i) {
-        if ((decl = path.at(i)->asDeclarator()) != 0) {
+        if ((decl = path.at(i)->asDeclarator()) != nullptr) {
             declParent = path.at(i - 1);
             break;
         }
@@ -343,7 +339,7 @@ Link attemptFuncDeclDef(const QTextCursor &cursor, Snapshot snapshot,
     if (!funcDecl)
         return result;
 
-    Symbol *target = 0;
+    Symbol *target = nullptr;
     if (FunctionDefinitionAST *funDef = declParent->asFunctionDefinition()) {
         QList<Declaration *> candidates =
                 symbolFinder->findMatchingDeclaration(LookupContext(document, snapshot),
@@ -376,10 +372,10 @@ Link attemptFuncDeclDef(const QTextCursor &cursor, Snapshot snapshot,
 Symbol *findDefinition(Symbol *symbol, const Snapshot &snapshot, SymbolFinder *symbolFinder)
 {
     if (symbol->isFunction())
-        return 0; // symbol is a function definition.
+        return nullptr; // symbol is a function definition.
 
     else if (!symbol->type()->isFunctionType())
-        return 0; // not a function declaration
+        return nullptr; // not a function declaration
 
     return symbolFinder->findMatchingDefinition(symbol, snapshot);
 }
@@ -724,7 +720,7 @@ void FollowSymbolUnderCursor::findLink(
         }
 
         if (Symbol *symbol = result.declaration()) {
-            Symbol *def = 0;
+            Symbol *def = nullptr;
 
             if (resolveTarget) {
                 // Consider to show a pop-up displaying overrides for the function
@@ -759,7 +755,7 @@ void FollowSymbolUnderCursor::findLink(
                 def = findDefinition(symbol, snapshot, symbolFinder);
 
                 if (def == lastVisibleSymbol)
-                    def = 0; // jump to declaration then.
+                    def = nullptr; // jump to declaration then.
 
                 if (symbol->isForwardClassDeclaration()) {
                     def = symbolFinder->findMatchingClassDeclaration(symbol, snapshot);

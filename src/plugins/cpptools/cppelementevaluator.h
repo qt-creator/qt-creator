@@ -93,7 +93,7 @@ public:
 
     virtual CppClass *toCppClass();
 
-    TextEditor::HelpItem::Category helpCategory;
+    TextEditor::HelpItem::Category helpCategory = TextEditor::HelpItem::Unknown;
     QStringList helpIdCandidates;
     QString helpMark;
     Utils::Link link;

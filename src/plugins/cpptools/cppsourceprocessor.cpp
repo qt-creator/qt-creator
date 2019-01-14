@@ -56,7 +56,7 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-typedef Document::DiagnosticMessage Message;
+using Message = Document::DiagnosticMessage;
 
 static Q_LOGGING_CATEGORY(log, "qtc.cpptools.sourceprocessor", QtWarningMsg)
 
@@ -119,8 +119,7 @@ CppSourceProcessor::CppSourceProcessor(const Snapshot &snapshot, DocumentCallbac
     m_preprocess.setKeepComments(true);
 }
 
-CppSourceProcessor::~CppSourceProcessor()
-{ }
+CppSourceProcessor::~CppSourceProcessor() = default;
 
 void CppSourceProcessor::setCancelChecker(const CppSourceProcessor::CancelChecker &cancelChecker)
 {
@@ -135,10 +134,8 @@ void CppSourceProcessor::setHeaderPaths(const ProjectExplorer::HeaderPaths &head
     using ProjectExplorer::HeaderPathType;
     m_headerPaths.clear();
 
-    for (int i = 0, ei = headerPaths.size(); i < ei; ++i) {
-        const ProjectExplorer::HeaderPath &path = headerPaths.at(i);
-
-        if (path.type == HeaderPathType::Framework )
+    for (const auto &path : headerPaths) {
+         if (path.type == HeaderPathType::Framework )
             addFrameworkPath(path);
         else
             m_headerPaths.append({cleanPath(path.path), path.type});

@@ -303,13 +303,13 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     }
 
 
-    for (const HeaderPath &headerPath : filter.userHeaderPaths)
+    for (const HeaderPath &headerPath : qAsConst(filter.userHeaderPaths))
         addIncludeDirOptionForPath(headerPath);
 
-    for (const HeaderPath &headerPath : filter.systemHeaderPaths)
+    for (const HeaderPath &headerPath : qAsConst(filter.systemHeaderPaths))
         addIncludeDirOptionForPath(headerPath);
 
-    for (const HeaderPath &headerPath : filter.builtInHeaderPaths)
+    for (const HeaderPath &headerPath : qAsConst(filter.builtInHeaderPaths))
         addIncludeDirOptionForPath(headerPath);
 }
 

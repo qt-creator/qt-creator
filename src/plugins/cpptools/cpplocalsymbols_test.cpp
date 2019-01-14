@@ -38,9 +38,8 @@ namespace {
 class FindFirstFunctionDefinition: protected CPlusPlus::ASTVisitor
 {
 public:
-    FindFirstFunctionDefinition(CPlusPlus::TranslationUnit *translationUnit)
+    explicit FindFirstFunctionDefinition(CPlusPlus::TranslationUnit *translationUnit)
         : ASTVisitor(translationUnit)
-        , m_definition(0)
     {}
 
     CPlusPlus::FunctionDefinitionAST *operator()()
@@ -50,7 +49,7 @@ public:
     }
 
 private:
-    bool preVisit(CPlusPlus::AST *ast)
+    bool preVisit(CPlusPlus::AST *ast) override
     {
         if (CPlusPlus::FunctionDefinitionAST *f = ast->asFunctionDefinition()) {
             m_definition = f;
@@ -60,20 +59,20 @@ private:
     }
 
 private:
-    CPlusPlus::FunctionDefinitionAST *m_definition;
+    CPlusPlus::FunctionDefinitionAST *m_definition = nullptr;
 };
 
 struct Result
 {
-    Result() : line(0), column(0), length(0) {}
+    Result() = default;
     Result(const QByteArray &name, unsigned line, unsigned column, unsigned length)
         : name(name), line(line), column(column), length(length)
     {}
 
     QByteArray name;
-    unsigned line;
-    unsigned column;
-    unsigned length;
+    unsigned line = 0;
+    unsigned column = 0;
+    unsigned length = 0;
 
     bool operator==(const Result &other) const
     {
@@ -139,7 +138,7 @@ void CppToolsPlugin::test_cpplocalsymbols_data()
     QTest::addColumn<QByteArray>("source");
     QTest::addColumn<QList<Result>>("expectedUses");
 
-    typedef QByteArray _;
+    using _ = QByteArray;
 
     QTest::newRow("basic")
         << _("int f(int arg)\n"

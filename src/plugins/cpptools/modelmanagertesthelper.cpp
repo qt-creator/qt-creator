@@ -85,7 +85,7 @@ void ModelManagerTestHelper::cleanup()
 
 ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(const QString &name)
 {
-    TestProject *tp = new TestProject(name, this);
+    auto tp = new TestProject(name, this);
     emit projectAdded(tp);
     return tp;
 }

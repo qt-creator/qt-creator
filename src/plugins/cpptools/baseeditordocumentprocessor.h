@@ -86,7 +86,7 @@ public:
 
     virtual void editorDocumentTimerRestarted();
 
-    virtual void setParserConfig(const BaseEditorDocumentParser::Configuration config);
+    virtual void setParserConfig(const BaseEditorDocumentParser::Configuration &config);
 
     virtual QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) = 0;
     virtual QFuture<CursorInfo> requestLocalReferences(const QTextCursor &cursor) = 0;
@@ -103,12 +103,12 @@ signals:
     void projectPartInfoUpdated(const CppTools::ProjectPartInfo &projectPartInfo);
 
     void codeWarningsUpdated(unsigned revision,
-                             const QList<QTextEdit::ExtraSelection> selections,
+                             const QList<QTextEdit::ExtraSelection> &selections,
                              const HeaderErrorDiagnosticWidgetCreator &creator,
                              const TextEditor::RefactorMarkers &refactorMarkers);
 
     void ifdefedOutBlocksUpdated(unsigned revision,
-                                 const QList<TextEditor::BlockRange> ifdefedOutBlocks);
+                                 const QList<TextEditor::BlockRange> &ifdefedOutBlocks);
 
     void cppDocumentUpdated(const CPlusPlus::Document::Ptr document);    // TODO: Remove me
     void semanticInfoUpdated(const CppTools::SemanticInfo semanticInfo); // TODO: Remove me

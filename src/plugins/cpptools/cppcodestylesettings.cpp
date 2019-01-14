@@ -214,8 +214,8 @@ Utils::optional<CppCodeStyleSettings> CppCodeStyleSettings::currentProjectCodeSt
         = editorConfiguration->codeStyle(Constants::CPP_SETTINGS_ID);
     QTC_ASSERT(codeStylePreferences, return OptSettings());
 
-    CppCodeStylePreferences *cppCodeStylePreferences
-        = dynamic_cast<CppCodeStylePreferences *>(codeStylePreferences);
+    auto cppCodeStylePreferences =
+            dynamic_cast<const CppCodeStylePreferences *>(codeStylePreferences);
     if (!cppCodeStylePreferences)
         return OptSettings();
 
@@ -258,7 +258,7 @@ TextEditor::TabSettings CppCodeStyleSettings::currentGlobalTabSettings()
 static void configureOverviewWithCodeStyleSettings(CPlusPlus::Overview &overview,
                                                    const CppCodeStyleSettings &settings)
 {
-    overview.starBindFlags = CPlusPlus::Overview::StarBindFlags(0);
+    overview.starBindFlags = CPlusPlus::Overview::StarBindFlags(nullptr);
     if (settings.bindStarToIdentifier)
         overview.starBindFlags |= CPlusPlus::Overview::BindToIdentifier;
     if (settings.bindStarToTypeName)

@@ -41,9 +41,7 @@ CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
     setIncludedByDefault(false);
 }
 
-CppFunctionsFilter::~CppFunctionsFilter()
-{
-}
+CppFunctionsFilter::~CppFunctionsFilter() = default;
 
 Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {

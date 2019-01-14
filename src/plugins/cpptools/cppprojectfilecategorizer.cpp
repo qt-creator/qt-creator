@@ -31,7 +31,7 @@ namespace CppTools {
 
 ProjectFileCategorizer::ProjectFileCategorizer(const QString &projectPartName,
                                                const QStringList &filePaths,
-                                               FileClassifier fileClassifier)
+                                               const FileClassifier &fileClassifier)
     : m_partName(projectPartName)
 {
     const ProjectFiles ambiguousHeaders = classifyFiles(filePaths, fileClassifier);
@@ -53,7 +53,7 @@ QString ProjectFileCategorizer::partName(const QString &languageName) const
 }
 
 ProjectFiles ProjectFileCategorizer::classifyFiles(const QStringList &filePaths,
-                                                   FileClassifier fileClassifier)
+                                                   const FileClassifier &fileClassifier)
 {
     ProjectFiles ambiguousHeaders;
 

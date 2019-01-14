@@ -95,7 +95,7 @@ class DumpAST: protected ASTVisitor
 public:
     int depth;
 
-    DumpAST(Control *control)
+    explicit DumpAST(Control *control)
         : ASTVisitor(control), depth(0)
     { }
 
@@ -511,7 +511,7 @@ CppModelManager::CppModelManager()
     : CppModelManagerBase(nullptr)
     , d(new CppModelManagerPrivate)
 {
-    d->m_indexingSupporter = 0;
+    d->m_indexingSupporter = nullptr;
     d->m_enableGC = true;
 
     qRegisterMetaType<QSet<QString> >();
@@ -696,7 +696,7 @@ void CppModelManager::removeExtraEditorSupport(AbstractEditorSupport *editorSupp
 CppEditorDocumentHandle *CppModelManager::cppEditorDocument(const QString &filePath) const
 {
     if (filePath.isEmpty())
-        return 0;
+        return nullptr;
 
     QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
     return d->m_cppEditorDocuments.value(filePath, 0);
@@ -987,7 +987,7 @@ void CppModelManager::watchForCanceledProjectIndexer(const QVector<QFuture<void>
         if (future.isCanceled() || future.isFinished())
             continue;
 
-        QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
+        auto watcher = new QFutureWatcher<void>();
         connect(watcher, &QFutureWatcher<void>::canceled, this, [this, project, watcher]() {
             if (d->m_projectToIndexerCanceled.contains(project)) // Project not yet removed
                 d->m_projectToIndexerCanceled.insert(project, true);
@@ -1411,7 +1411,7 @@ void CppModelManager::setIndexingSupport(CppIndexingSupport *indexingSupport)
 {
     if (indexingSupport) {
         if (dynamic_cast<BuiltinIndexingSupport *>(indexingSupport))
-            d->m_indexingSupporter = 0;
+            d->m_indexingSupporter = nullptr;
         else
             d->m_indexingSupporter = indexingSupport;
     }

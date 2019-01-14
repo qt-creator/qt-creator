@@ -57,11 +57,9 @@ static QStringList stripName(const QString &name)
     return all;
 }
 
-CppElement::CppElement() : helpCategory(TextEditor::HelpItem::Unknown)
-{}
+CppElement::CppElement() = default;
 
-CppElement::~CppElement()
-{}
+CppElement::~CppElement() = default;
 
 CppClass *CppElement::toCppClass()
 {
@@ -168,7 +166,7 @@ CppClass *CppClass::toCppClass()
 
 void CppClass::lookupBases(Symbol *declaration, const LookupContext &context)
 {
-    typedef QPair<ClassOrNamespace *, CppClass *> Data;
+    using Data = QPair<ClassOrNamespace*, CppClass*>;
 
     if (ClassOrNamespace *clazz = context.lookupType(declaration)) {
         QSet<ClassOrNamespace *> visited;
@@ -199,7 +197,7 @@ void CppClass::lookupBases(Symbol *declaration, const LookupContext &context)
 
 void CppClass::lookupDerived(Symbol *declaration, const Snapshot &snapshot)
 {
-    typedef QPair<CppClass *, CppTools::TypeHierarchy> Data;
+    using Data = QPair<CppClass*, CppTools::TypeHierarchy>;
 
     CppTools::TypeHierarchyBuilder builder(declaration, snapshot);
     const CppTools::TypeHierarchy &completeHierarchy = builder.buildDerivedTypeHierarchy();
@@ -268,7 +266,7 @@ public:
     {
         const FullySpecifiedType &type = declaration->type();
 
-        const Name *typeName = 0;
+        const Name *typeName = nullptr;
         if (type->isNamedType()) {
             typeName = type->asNamedType()->name();
         } else if (type->isPointerType() || type->isReferenceType()) {
@@ -462,7 +460,7 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
                 }
             }
 
-            CppClass *cppClass = new CppClass(declaration);
+            auto cppClass = new CppClass(declaration);
             if (m_lookupBaseClasses)
                 cppClass->lookupBases(declaration, contextToUse);
             if (m_lookupDerivedClasses)
@@ -470,7 +468,7 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
             m_element = QSharedPointer<CppElement>(cppClass);
         } else if (Enum *enumDecl = declaration->asEnum()) {
             m_element = QSharedPointer<CppElement>(new CppEnum(enumDecl));
-        } else if (EnumeratorDeclaration *enumerator = dynamic_cast<EnumeratorDeclaration *>(declaration)) {
+        } else if (auto enumerator = dynamic_cast<EnumeratorDeclaration *>(declaration)) {
             m_element = QSharedPointer<CppElement>(new CppEnumerator(enumerator));
         } else if (declaration->isTypedef()) {
             m_element = QSharedPointer<CppElement>(new CppTypedef(declaration));

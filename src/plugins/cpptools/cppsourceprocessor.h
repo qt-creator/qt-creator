@@ -51,13 +51,13 @@ class CppSourceProcessor: public CPlusPlus::Client
     Q_DISABLE_COPY(CppSourceProcessor)
 
 public:
-    typedef std::function<void (const CPlusPlus::Document::Ptr &)> DocumentCallback;
+    using DocumentCallback = std::function<void (const CPlusPlus::Document::Ptr &)>;
 
 public:
     static QString cleanPath(const QString &path);
 
     CppSourceProcessor(const CPlusPlus::Snapshot &snapshot, DocumentCallback documentFinished);
-    ~CppSourceProcessor();
+    ~CppSourceProcessor() override;
 
     using CancelChecker = std::function<bool()>;
     void setCancelChecker(const CancelChecker &cancelChecker);

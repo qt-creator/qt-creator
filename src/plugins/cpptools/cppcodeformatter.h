@@ -175,7 +175,7 @@ public: // must be public to make Q_GADGET introspection work
         string_open
 
     };
-    Q_ENUMS(StateType)
+    Q_ENUM(StateType)
 
 protected:
     class State {

@@ -27,16 +27,13 @@
 
 namespace CppTools {
 
-CppIndexingSupport::~CppIndexingSupport()
-{
-}
+CppIndexingSupport::~CppIndexingSupport() = default;
 
 SymbolSearcher::SymbolSearcher(QObject *parent)
     : QObject(parent)
 {
 }
 
-SymbolSearcher::~SymbolSearcher()
-{}
+SymbolSearcher::~SymbolSearcher() = default;
 
 } // namespace CppTools

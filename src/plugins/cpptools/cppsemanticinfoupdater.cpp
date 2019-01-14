@@ -52,15 +52,15 @@ public:
     class FuturizedTopLevelDeclarationProcessor: public TopLevelDeclarationProcessor
     {
     public:
-        FuturizedTopLevelDeclarationProcessor(QFutureInterface<void> &future): m_future(future) {}
-        bool processDeclaration(DeclarationAST *) { return !isCanceled(); }
+        explicit FuturizedTopLevelDeclarationProcessor(QFutureInterface<void> &future): m_future(future) {}
+        bool processDeclaration(DeclarationAST *) override { return !isCanceled(); }
         bool isCanceled() { return m_future.isCanceled(); }
     private:
         QFutureInterface<void> m_future;
     };
 
 public:
-    SemanticInfoUpdaterPrivate(SemanticInfoUpdater *q);
+    explicit SemanticInfoUpdaterPrivate(SemanticInfoUpdater *q);
     ~SemanticInfoUpdaterPrivate();
 
     SemanticInfo semanticInfo() const;
@@ -72,7 +72,7 @@ public:
 
     bool reuseCurrentSemanticInfo(const SemanticInfo::Source &source, bool emitSignalWhenFinished);
 
-    void update_helper(QFutureInterface<void> &future, const SemanticInfo::Source source);
+    void update_helper(QFutureInterface<void> &future, const SemanticInfo::Source &source);
 
 public:
     SemanticInfoUpdater *q;
@@ -159,7 +159,7 @@ bool SemanticInfoUpdaterPrivate::reuseCurrentSemanticInfo(const SemanticInfo::So
 }
 
 void SemanticInfoUpdaterPrivate::update_helper(QFutureInterface<void> &future,
-                                               const SemanticInfo::Source source)
+                                               const SemanticInfo::Source &source)
 {
     FuturizedTopLevelDeclarationProcessor processor(future);
     update(source, true, &processor);
@@ -187,10 +187,10 @@ SemanticInfo SemanticInfoUpdater::update(const SemanticInfo::Source &source)
         return semanticInfo();
     }
 
-    return d->update(source, emitSignalWhenFinished, 0);
+    return d->update(source, emitSignalWhenFinished, nullptr);
 }
 
-void SemanticInfoUpdater::updateDetached(const SemanticInfo::Source source)
+void SemanticInfoUpdater::updateDetached(const SemanticInfo::Source &source)
 {
     qCDebug(log) << "updateDetached() - asynchronous";
     d->m_future.cancel();

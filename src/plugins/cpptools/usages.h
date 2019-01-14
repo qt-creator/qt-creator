@@ -37,7 +37,7 @@ namespace CppTools {
 class Usage
 {
 public:
-    Usage() {}
+    Usage() = default;
     Usage(Utils::SmallStringView path, int line, int column)
         : path(QString::fromUtf8(path.data(), int(path.size()))),
           line(line),

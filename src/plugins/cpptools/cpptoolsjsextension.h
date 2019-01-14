@@ -40,7 +40,7 @@ class CppToolsJsExtension : public QObject
     Q_OBJECT
 
 public:
-    CppToolsJsExtension(QObject *parent = 0) : QObject(parent) { }
+    explicit CppToolsJsExtension(QObject *parent = nullptr) : QObject(parent) { }
 
     // Generate header guard:
     Q_INVOKABLE QString headerGuard(const QString &in) const;

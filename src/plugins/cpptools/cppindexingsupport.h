@@ -81,8 +81,8 @@ public:
     virtual QFuture<void> refreshSourceFiles(const QFutureInterface<void> &superFuture,
                                              const QSet<QString> &sourceFiles,
                                              CppModelManager::ProgressNotificationMode mode) = 0;
-    virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
-                                                 QSet<QString> fileNames) = 0;
+    virtual SymbolSearcher *createSymbolSearcher(const SymbolSearcher::Parameters &parameters,
+                                                 const QSet<QString> &fileNames) = 0;
 };
 
 } // namespace CppTools

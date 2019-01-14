@@ -57,7 +57,7 @@ public:
         StringTablePrivate &m_stringTable;
 
     public:
-        GCRunner(StringTablePrivate &stringTable): m_stringTable(stringTable) {}
+        explicit GCRunner(StringTablePrivate &stringTable): m_stringTable(stringTable) {}
         void run() override { m_stringTable.GC(); }
     } m_gcRunner;
 

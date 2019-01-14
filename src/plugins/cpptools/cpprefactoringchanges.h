@@ -36,8 +36,8 @@ namespace CppTools {
 class CppRefactoringChanges;
 class CppRefactoringFile;
 class CppRefactoringChangesData;
-typedef QSharedPointer<CppRefactoringFile> CppRefactoringFilePtr;
-typedef QSharedPointer<const CppRefactoringFile> CppRefactoringFileConstPtr;
+using CppRefactoringFilePtr = QSharedPointer<CppRefactoringFile>;
+using CppRefactoringFileConstPtr = QSharedPointer<const CppRefactoringFile>;
 
 class CPPTOOLS_EXPORT CppRefactoringFile: public TextEditor::RefactoringFile
 {
@@ -69,7 +69,7 @@ public:
 protected:
     CppRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data);
     CppRefactoringFile(QTextDocument *document, const QString &fileName);
-    CppRefactoringFile(TextEditor::TextEditorWidget *editor);
+    explicit CppRefactoringFile(TextEditor::TextEditorWidget *editor);
 
     CppRefactoringChangesData *data() const;
     void fileChanged() override;
@@ -82,7 +82,7 @@ protected:
 class CPPTOOLS_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
 {
 public:
-    CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot);
+    explicit CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot);
 
     static CppRefactoringFilePtr file(TextEditor::TextEditorWidget *editor,
                                       const CPlusPlus::Document::Ptr &document);

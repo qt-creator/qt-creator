@@ -45,12 +45,13 @@ QTC_DECLARE_MYTESTDATADIR("../../../tests/cppsymbolsearcher/")
 
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
+class ResultData;
+using ResultDataList = QList<ResultData>;
+
 class ResultData
 {
 public:
-    typedef QList<ResultData> ResultDataList;
-
-    ResultData() {}
+    ResultData() = default;
     ResultData(const QString &symbolName, const QString &scope)
         : m_symbolName(symbolName), m_scope(scope) {}
 
@@ -82,8 +83,6 @@ public:
     QString m_scope;
 };
 
-typedef ResultData::ResultDataList ResultDataList;
-
 class SymbolSearcherTestCase : public Tests::TestCase
 {
 public:
@@ -92,8 +91,7 @@ public:
                            CppIndexingSupport *indexingSupportToUse,
                            const SymbolSearcher::Parameters &searchParameters,
                            const ResultDataList &expectedResults)
-        : m_indexingSupportToRestore(0)
-        , m_indexingSupportToUse(indexingSupportToUse)
+        : m_indexingSupportToUse(indexingSupportToUse)
     {
         QVERIFY(succeededSoFar());
 
@@ -119,8 +117,8 @@ public:
     }
 
 private:
-    CppIndexingSupport *m_indexingSupportToRestore;
-    CppIndexingSupport *m_indexingSupportToUse;
+    CppIndexingSupport *m_indexingSupportToRestore = nullptr;
+    CppIndexingSupport *m_indexingSupportToUse = nullptr;
 };
 
 } // anonymous namespace
@@ -166,7 +164,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     // Check All Symbol Types
     searchParameters = SymbolSearcher::Parameters();
     searchParameters.text = _("");
-    searchParameters.flags = 0;
+    searchParameters.flags = nullptr;
     searchParameters.types = SearchSymbols::AllTypes;
     searchParameters.scope = SymbolSearcher::SearchGlobal;
     QTest::newRow("BuiltinSymbolSearcher::AllTypes")
@@ -220,7 +218,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     // Check Classes
     searchParameters = SymbolSearcher::Parameters();
     searchParameters.text = _("myclass");
-    searchParameters.flags = 0;
+    searchParameters.flags = nullptr;
     searchParameters.types = SymbolSearcher::Classes;
     searchParameters.scope = SymbolSearcher::SearchGlobal;
     QTest::newRow("BuiltinSymbolSearcher::Classes")
@@ -235,7 +233,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     // Check Functions
     searchParameters = SymbolSearcher::Parameters();
     searchParameters.text = _("fun");
-    searchParameters.flags = 0;
+    searchParameters.flags = nullptr;
     searchParameters.types = SymbolSearcher::Functions;
     searchParameters.scope = SymbolSearcher::SearchGlobal;
     QTest::newRow("BuiltinSymbolSearcher::Functions")
@@ -260,7 +258,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     // Check Enums
     searchParameters = SymbolSearcher::Parameters();
     searchParameters.text = _("enum");
-    searchParameters.flags = 0;
+    searchParameters.flags = nullptr;
     searchParameters.types = SymbolSearcher::Enums;
     searchParameters.scope = SymbolSearcher::SearchGlobal;
     QTest::newRow("BuiltinSymbolSearcher::Enums")
@@ -275,7 +273,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     // Check Declarations
     searchParameters = SymbolSearcher::Parameters();
     searchParameters.text = _("myvar");
-    searchParameters.flags = 0;
+    searchParameters.flags = nullptr;
     searchParameters.types = SymbolSearcher::Declarations;
     searchParameters.scope = SymbolSearcher::SearchGlobal;
     QTest::newRow("BuiltinSymbolSearcher::Declarations")

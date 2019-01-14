@@ -36,7 +36,7 @@ namespace {
 class FindLocalSymbols: protected ASTVisitor
 {
 public:
-    FindLocalSymbols(Document::Ptr doc)
+    explicit FindLocalSymbols(Document::Ptr doc)
         : ASTVisitor(doc->translationUnit())
     { }
 
@@ -65,7 +65,7 @@ protected:
     using ASTVisitor::visit;
     using ASTVisitor::endVisit;
 
-    typedef TextEditor::HighlightingResult HighlightingResult;
+    using HighlightingResult = TextEditor::HighlightingResult;
 
     void enterScope(Scope *scope)
     {

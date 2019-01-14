@@ -37,8 +37,8 @@ class CppFunctionsFilter : public CppLocatorFilter
     Q_OBJECT
 
 public:
-    CppFunctionsFilter(CppLocatorData *locatorData);
-    ~CppFunctionsFilter();
+    explicit CppFunctionsFilter(CppLocatorData *locatorData);
+    ~CppFunctionsFilter() override;
 
 protected:
     IndexItem::ItemType matchTypes() const override { return IndexItem::Function; }

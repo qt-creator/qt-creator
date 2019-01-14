@@ -40,8 +40,6 @@
 
 namespace CppTools {
 
-WorkingCopy::WorkingCopy()
-{
-}
+WorkingCopy::WorkingCopy() = default;
 
 } // namespace CppTools

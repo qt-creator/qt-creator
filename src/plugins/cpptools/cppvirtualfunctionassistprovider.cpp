@@ -70,7 +70,7 @@ protected:
     bool eventFilter(QObject *o, QEvent *e) override
     {
         if (e->type() == QEvent::ShortcutOverride && m_sequence.count() == 1) {
-            QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+            auto ke = static_cast<const QKeyEvent*>(e);
             const QKeySequence seq(ke->key());
             if (seq == m_sequence) {
                 activateCurrentProposalItem();
@@ -124,7 +124,7 @@ public:
 
     IAssistProposal *immediateProposal(const AssistInterface *) override
     {
-        QTC_ASSERT(m_params.function, return 0);
+        QTC_ASSERT(m_params.function, return nullptr);
 
         auto *hintItem = new VirtualFunctionProposalItem(Utils::Link());
         hintItem->setText(QCoreApplication::translate("VirtualFunctionsAssistProcessor",
@@ -141,19 +141,19 @@ public:
     {
         delete assistInterface;
 
-        QTC_ASSERT(m_params.function, return 0);
-        QTC_ASSERT(m_params.staticClass, return 0);
-        QTC_ASSERT(!m_params.snapshot.isEmpty(), return 0);
+        QTC_ASSERT(m_params.function, return nullptr);
+        QTC_ASSERT(m_params.staticClass, return nullptr);
+        QTC_ASSERT(!m_params.snapshot.isEmpty(), return nullptr);
 
         Class *functionsClass = m_finder.findMatchingClassDeclaration(m_params.function,
                                                                       m_params.snapshot);
         if (!functionsClass)
-            return 0;
+            return nullptr;
 
         const QList<Function *> overrides = FunctionUtils::overrides(
             m_params.function, functionsClass, m_params.staticClass, m_params.snapshot);
         if (overrides.isEmpty())
-            return 0;
+            return nullptr;
 
         QList<AssistProposalItemInterface *> items;
         foreach (Function *func, overrides)
@@ -190,9 +190,7 @@ private:
     mutable SymbolFinder m_finder;
 };
 
-VirtualFunctionAssistProvider::VirtualFunctionAssistProvider()
-{
-}
+VirtualFunctionAssistProvider::VirtualFunctionAssistProvider() = default;
 
 bool VirtualFunctionAssistProvider::configure(const Parameters &parameters)
 {

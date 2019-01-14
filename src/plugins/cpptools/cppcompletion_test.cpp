@@ -54,14 +54,13 @@ using namespace Core;
 
 namespace {
 
-typedef QByteArray _;
+using _ = QByteArray;
 
 class CompletionTestCase : public Tests::TestCase
 {
 public:
     CompletionTestCase(const QByteArray &sourceText, const QByteArray &textToInsert = QByteArray(),
                        bool isObjC = false)
-        : m_position(-1), m_editorWidget(0), m_textDocument(0), m_editor(0)
     {
         QVERIFY(succeededSoFar());
         m_succeededSoFar = false;
@@ -100,7 +99,7 @@ public:
         m_succeededSoFar = true;
     }
 
-    QStringList getCompletions(bool *replaceAccessOperator = 0) const
+    QStringList getCompletions(bool *replaceAccessOperator = nullptr) const
     {
         QStringList completions;
         LanguageFeatures languageFeatures = LanguageFeatures::defaultFeatures();
@@ -153,12 +152,12 @@ public:
 
 private:
     QByteArray m_source;
-    int m_position;
+    int m_position = -1;
     Snapshot m_snapshot;
     QScopedPointer<Tests::TemporaryDir> m_temporaryDir;
-    TextEditorWidget *m_editorWidget;
-    QTextDocument *m_textDocument;
-    IEditor *m_editor;
+    TextEditorWidget *m_editorWidget = nullptr;
+    QTextDocument *m_textDocument = nullptr;
+    IEditor *m_editor = nullptr;
 };
 
 bool isProbablyGlobalCompletion(const QStringList &list)

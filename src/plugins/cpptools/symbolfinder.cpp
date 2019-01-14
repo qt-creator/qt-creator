@@ -47,14 +47,13 @@ namespace {
 
 class FindMatchingDefinition: public SymbolVisitor
 {
-    Symbol *_declaration;
-    const OperatorNameId *_oper;
+    Symbol *_declaration = nullptr;
+    const OperatorNameId *_oper = nullptr;
     QList<Function *> _result;
 
 public:
-    FindMatchingDefinition(Symbol *declaration)
+    explicit FindMatchingDefinition(Symbol *declaration)
         : _declaration(declaration)
-        , _oper(0)
     {
         if (_declaration->name())
             _oper = _declaration->name()->asOperatorNameId();
@@ -89,8 +88,7 @@ public:
 
 static const int kMaxCacheSize = 10;
 
-SymbolFinder::SymbolFinder()
-{}
+SymbolFinder::SymbolFinder() = default;
 
 // strict means the returned symbol has to match exactly,
 // including argument count, argument types, constness and volatileness.
@@ -99,21 +97,21 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
                                              bool strict)
 {
     if (!declaration)
-        return 0;
+        return nullptr;
 
     QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
 
     Document::Ptr thisDocument = snapshot.document(declFile);
     if (!thisDocument) {
         qWarning() << "undefined document:" << declaration->fileName();
-        return 0;
+        return nullptr;
     }
 
     Function *declarationTy = declaration->type()->asFunctionType();
     if (!declarationTy) {
         qWarning() << "not a function:" << declaration->fileName()
                    << declaration->line() << declaration->column();
-        return 0;
+        return nullptr;
     }
 
     foreach (const QString &fileName, fileIterationOrder(declFile, snapshot)) {
@@ -169,7 +167,7 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
             else if (!strict && viableFunctions.length() == 1)
                 return viableFunctions.first();
 
-            Function *best = 0;
+            Function *best = nullptr;
 
             foreach (Function *fun, viableFunctions) {
                 if (!(fun->unqualifiedName()
@@ -206,13 +204,13 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Snapshot &snapshot)
 {
     if (!declaration->identifier())
-        return 0;
+        return nullptr;
 
     QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
 
@@ -239,7 +237,7 @@ Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Sna
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 static void findDeclarationOfSymbol(Symbol *s,
@@ -272,13 +270,13 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
     Scope *enclosingScope = functionType->enclosingScope();
     while (!(enclosingScope->isNamespace() || enclosingScope->isClass()))
         enclosingScope = enclosingScope->enclosingScope();
-    QTC_ASSERT(enclosingScope != 0, return);
+    QTC_ASSERT(enclosingScope != nullptr, return);
 
     const Name *functionName = functionType->name();
     if (!functionName)
         return;
 
-    ClassOrNamespace *binding = 0;
+    ClassOrNamespace *binding = nullptr;
     const QualifiedNameId *qName = functionName->asQualifiedNameId();
     if (qName) {
         if (qName->base())

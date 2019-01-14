@@ -47,7 +47,6 @@ namespace CppTools {
 SemanticHighlighter::SemanticHighlighter(TextDocument *baseTextDocument)
     : QObject(baseTextDocument)
     , m_baseTextDocument(baseTextDocument)
-    , m_revision(0)
 {
     QTC_CHECK(m_baseTextDocument);
     updateFormatMapFromFontSettings();
@@ -113,7 +112,7 @@ void SemanticHighlighter::onHighlighterFinished()
 
 void SemanticHighlighter::connectWatcher()
 {
-    typedef QFutureWatcher<HighlightingResult> Watcher;
+    using Watcher = QFutureWatcher<HighlightingResult>;
     connect(m_watcher.data(), &Watcher::resultsReadyAt,
             this, &SemanticHighlighter::onHighlighterResultAvailable);
     connect(m_watcher.data(), &Watcher::finished,
@@ -122,7 +121,7 @@ void SemanticHighlighter::connectWatcher()
 
 void SemanticHighlighter::disconnectWatcher()
 {
-    typedef QFutureWatcher<HighlightingResult> Watcher;
+    using Watcher = QFutureWatcher<HighlightingResult>;
     disconnect(m_watcher.data(), &Watcher::resultsReadyAt,
                this, &SemanticHighlighter::onHighlighterResultAvailable);
     disconnect(m_watcher.data(), &Watcher::finished,

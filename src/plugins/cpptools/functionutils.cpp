@@ -47,7 +47,7 @@ static bool isVirtualFunction_helper(const Function *function,
     enum { Unknown, False, True } res = Unknown;
 
     if (firstVirtual)
-        *firstVirtual = 0;
+        *firstVirtual = nullptr;
 
     if (!function)
         return false;
@@ -170,7 +170,7 @@ enum Virtuality
     Virtual,
     PureVirtual
 };
-typedef QList<Virtuality> VirtualityList;
+using VirtualityList = QList<Virtuality>;
 } // Internal namespace
 } // CppTools namespace
 
@@ -191,7 +191,7 @@ void CppToolsPlugin::test_functionutils_virtualFunctions()
     QCOMPARE(document->diagnosticMessages().size(), 0);
     QVERIFY(document->translationUnit()->ast());
     QList<const Function *> allFunctions;
-    const Function *firstVirtual = 0;
+    const Function *firstVirtual = nullptr;
 
     // Iterate through Function symbols
     Snapshot snapshot;
@@ -236,7 +236,7 @@ void CppToolsPlugin::test_functionutils_virtualFunctions()
 
 void CppToolsPlugin::test_functionutils_virtualFunctions_data()
 {
-    typedef QByteArray _;
+    using _ = QByteArray;
     QTest::addColumn<QByteArray>("source");
     QTest::addColumn<VirtualityList>("virtualityList");
     QTest::addColumn<QList<int> >("firstVirtualList");

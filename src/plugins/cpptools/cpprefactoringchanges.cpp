@@ -43,7 +43,7 @@ namespace CppTools {
 class CppRefactoringChangesData : public TextEditor::RefactoringChangesData
 {
 public:
-    CppRefactoringChangesData(const Snapshot &snapshot)
+    explicit CppRefactoringChangesData(const Snapshot &snapshot)
         : m_snapshot(snapshot)
         , m_modelManager(CppModelManager::instance())
         , m_workingCopy(m_modelManager->workingCopy())
@@ -107,7 +107,7 @@ CppRefactoringFilePtr CppRefactoringChanges::file(const QString &fileName) const
 
 CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const QString &fileName) const
 {
-    QTextDocument *document = 0;
+    QTextDocument *document = nullptr;
     if (data()->m_workingCopy.contains(fileName))
         document = new QTextDocument(QString::fromUtf8(data()->m_workingCopy.source(fileName)));
     CppRefactoringFilePtr result(new CppRefactoringFile(document, fileName));
