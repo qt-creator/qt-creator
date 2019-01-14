@@ -39,9 +39,7 @@ public:
     using Ptr = QSharedPointer<QnxDevice>;
     using ConstPtr = QSharedPointer<const QnxDevice>;
 
-    static Ptr create();
-    static Ptr create(const QString &name,
-                      Origin origin = ManuallyAdded, Core::Id id = Core::Id());
+    static Ptr create() { return Ptr(new QnxDevice); }
     ProjectExplorer::IDevice::Ptr clone() const override;
 
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const override;
@@ -60,17 +58,13 @@ public:
     QVariantMap toMap() const override;
 
 protected:
-    QnxDevice();
-    QnxDevice(const QString &name,
-                           Origin origin, Core::Id id);
-    QnxDevice(const QnxDevice &other);
-
     QString interruptProcessByNameCommandLine(const QString &filePath) const;
     QString killProcessByNameCommandLine(const QString &filePath) const;
 
 private:
+    QnxDevice();
+
     void updateVersionNumber() const;
-    void init();
 
     mutable int m_versionNumber = 0;
 };

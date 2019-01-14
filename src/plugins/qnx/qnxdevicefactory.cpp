@@ -41,7 +41,7 @@ QnxDeviceFactory::QnxDeviceFactory()
     setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
                     ":/qnx/images/qnxdevice.png");
     setCanCreate(true);
-    setConstructionFunction([] { return QnxDevice::create(); });
+    setConstructionFunction(&QnxDevice::create);
 }
 
 ProjectExplorer::IDevice::Ptr QnxDeviceFactory::create() const

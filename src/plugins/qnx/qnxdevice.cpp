@@ -79,34 +79,10 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
 
 QnxDevice::QnxDevice()
 {
-    init();
-}
-
-QnxDevice::QnxDevice(const QString &name, Origin origin, Core::Id id)
-{
-    setupId(origin, id);
-    setDisplayName(name);
-    init();
-}
-
-QnxDevice::QnxDevice(const QnxDevice &other) = default;
-
-void QnxDevice::init()
-{
     addDeviceAction({tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
         QnxDeployQtLibrariesDialog dialog(device, parent);
         dialog.exec();
     }});
-}
-
-QnxDevice::Ptr QnxDevice::create()
-{
-    return Ptr(new QnxDevice);
-}
-
-QnxDevice::Ptr QnxDevice::create(const QString &name, Origin origin, Core::Id id)
-{
-    return Ptr(new QnxDevice(name, origin, id));
 }
 
 QString QnxDevice::displayType() const

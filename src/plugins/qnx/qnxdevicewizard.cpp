@@ -52,7 +52,9 @@ QnxDeviceWizard::QnxDeviceWizard(QWidget *parent) :
     m_finalPage->setCommitPage(true);
     QSsh::SshConnectionParameters sshParams;
     sshParams.timeout = 10;
-    m_device = QnxDevice::create(tr("QNX Device"));
+    m_device = QnxDevice::create();
+    m_device->setupId(IDevice::ManuallyAdded);
+    m_device->setDisplayName(tr("QNX Device"));
     m_device->setType(Constants::QNX_QNX_OS_TYPE);
     m_device->setMachineType(IDevice::Hardware);
     m_device->setSshParameters(sshParams);
