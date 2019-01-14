@@ -406,8 +406,8 @@ class TestDevice : public IDevice
 {
 public:
     TestDevice()
-        : IDevice(AutoDetected, Core::Id::fromString(QUuid::createUuid().toString()))
     {
+        setupId(AutoDetected, Core::Id::fromString(QUuid::createUuid().toString()));
         setType(testTypeId());
         setMachineType(Hardware);
     }

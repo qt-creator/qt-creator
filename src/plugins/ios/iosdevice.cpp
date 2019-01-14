@@ -79,9 +79,9 @@ namespace Ios {
 namespace Internal {
 
 IosDevice::IosDevice()
-    : IDevice(IDevice::AutoDetected, Constants::IOS_DEVICE_ID),
-      m_lastPort(Constants::IOS_DEVICE_PORT_START)
+    : m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
+    setupId(IDevice::AutoDetected, Constants::IOS_DEVICE_ID);
     setType(Constants::IOS_DEVICE_TYPE);
     setDisplayName(IosDevice::name());
     setMachineType(IDevice::Hardware);
@@ -95,9 +95,9 @@ IosDevice::IosDevice()
 IosDevice::IosDevice(const IosDevice &other) = default;
 
 IosDevice::IosDevice(const QString &uid)
-    : IDevice(IDevice::AutoDetected, Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid)),
-    m_lastPort(Constants::IOS_DEVICE_PORT_START)
+    : m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
+    setupId(IDevice::AutoDetected, Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid));
     setType(Constants::IOS_DEVICE_TYPE);
     setDisplayName(IosDevice::name());
     setMachineType(IDevice::Hardware);

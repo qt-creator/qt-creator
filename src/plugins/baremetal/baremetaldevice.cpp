@@ -170,8 +170,8 @@ DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
 }
 
 BareMetalDevice::BareMetalDevice(const QString &name, Origin origin, Core::Id id)
-    : IDevice(origin, id)
 {
+    setupId(origin, id);
     setDisplayName(name);
 }
 

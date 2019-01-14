@@ -161,8 +161,7 @@ IDevice::IDevice() : d(new Internal::IDevicePrivate)
 {
 }
 
-IDevice::IDevice(Origin origin, Core::Id id)
-    : d(std::make_unique<Internal::IDevicePrivate>())
+void IDevice::setupId(Origin origin, Core::Id id)
 {
     d->origin = origin;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());

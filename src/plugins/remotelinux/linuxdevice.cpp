@@ -187,8 +187,8 @@ Utils::OsType LinuxDevice::osType() const
 }
 
 LinuxDevice::LinuxDevice(const QString &name, Origin origin, Core::Id id)
-    : IDevice(origin, id)
 {
+    setupId(origin, id);
     setDisplayName(name);
     init();
 }

@@ -46,8 +46,8 @@ namespace Android {
 namespace Internal {
 
 AndroidDevice::AndroidDevice()
-    : IDevice(IDevice::AutoDetected, Core::Id(Constants::ANDROID_DEVICE_ID))
 {
+    setupId(IDevice::AutoDetected, Constants::ANDROID_DEVICE_ID);
     setType(Constants::ANDROID_DEVICE_TYPE);
     setDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice", "Run on Android"));
     setMachineType(IDevice::Hardware);

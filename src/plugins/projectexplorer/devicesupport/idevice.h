@@ -216,9 +216,10 @@ public:
     void setExtraData(Core::Id kind, const QVariant &data);
     QVariant extraData(Core::Id kind) const;
 
+    void setupId(Origin origin, Core::Id id = Core::Id());
+
 protected:
     IDevice();
-    IDevice(Origin origin, Core::Id id = Core::Id());
     IDevice(const IDevice &other);
 
 private:
