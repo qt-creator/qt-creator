@@ -83,7 +83,7 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
     emit itemNodeChanged();
     emit parentChanged();
 
-    emit emitAnchorSignals();
+    emitAnchorSignals();
 
     if (m_qmlItemNode.hasNodeParent()) {
         emit topTargetChanged();

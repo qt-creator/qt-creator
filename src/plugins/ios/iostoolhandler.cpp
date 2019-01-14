@@ -488,7 +488,7 @@ void IosDeviceToolHandlerPrivate::processXml()
                     status = Ios::IosToolHandler::Success;
                 else if (statusStr.compare(QLatin1String("failure"), Qt::CaseInsensitive) == 0)
                     status = Ios::IosToolHandler::Failure;
-                emit didTransferApp(m_bundlePath, m_deviceId, status);
+                didTransferApp(m_bundlePath, m_deviceId, status);
             } else if (elName == QLatin1String("device_info") || elName == QLatin1String("deviceinfo")) {
                 stack.append(ParserState(ParserState::DeviceInfo));
             } else if (elName == QLatin1String("inferior_pid")) {
