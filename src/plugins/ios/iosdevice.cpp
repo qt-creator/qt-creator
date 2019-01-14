@@ -79,11 +79,10 @@ namespace Ios {
 namespace Internal {
 
 IosDevice::IosDevice()
-    : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
-                             IDevice::AutoDetected,
-                             Constants::IOS_DEVICE_ID),
+    : IDevice(IDevice::AutoDetected, Constants::IOS_DEVICE_ID),
       m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
+    setType(Constants::IOS_DEVICE_TYPE);
     setDisplayName(IosDevice::name());
     setMachineType(IDevice::Hardware);
     setDeviceState(DeviceDisconnected);
@@ -96,11 +95,10 @@ IosDevice::IosDevice()
 IosDevice::IosDevice(const IosDevice &other) = default;
 
 IosDevice::IosDevice(const QString &uid)
-    : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
-                             IDevice::AutoDetected,
-                             Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid)),
+    : IDevice(IDevice::AutoDetected, Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid)),
     m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
+    setType(Constants::IOS_DEVICE_TYPE);
     setDisplayName(IosDevice::name());
     setMachineType(IDevice::Hardware);
     setDeviceState(DeviceDisconnected);

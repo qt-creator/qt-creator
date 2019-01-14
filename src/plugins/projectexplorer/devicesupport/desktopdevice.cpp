@@ -48,10 +48,9 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-DesktopDevice::DesktopDevice() : IDevice(Core::Id(DESKTOP_DEVICE_TYPE),
-                                         IDevice::AutoDetected,
-                                         Core::Id(DESKTOP_DEVICE_ID))
+DesktopDevice::DesktopDevice() : IDevice(IDevice::AutoDetected, Core::Id(DESKTOP_DEVICE_ID))
 {
+    setType(DESKTOP_DEVICE_TYPE);
     setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Local PC"));
     setDeviceState(IDevice::DeviceStateUnknown);
     setMachineType(IDevice::Hardware);

@@ -166,9 +166,9 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
 };
 
 
-LinuxDevice::Ptr LinuxDevice::create(const QString &name, Core::Id type, Origin origin, Core::Id id)
+LinuxDevice::Ptr LinuxDevice::create(const QString &name, Origin origin, Core::Id id)
 {
-    return Ptr(new LinuxDevice(name, type, origin, id));
+    return Ptr(new LinuxDevice(name, origin, id));
 }
 
 QString LinuxDevice::displayType() const
@@ -186,8 +186,8 @@ Utils::OsType LinuxDevice::osType() const
     return Utils::OsTypeLinux;
 }
 
-LinuxDevice::LinuxDevice(const QString &name, Core::Id type, Origin origin, Core::Id id)
-    : IDevice(type, origin, id)
+LinuxDevice::LinuxDevice(const QString &name, Origin origin, Core::Id id)
+    : IDevice(origin, id)
 {
     setDisplayName(name);
     init();

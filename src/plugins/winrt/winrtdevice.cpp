@@ -47,8 +47,8 @@ WinRtDevice::WinRtDevice()
     initFreePorts();
 }
 
-WinRtDevice::WinRtDevice(Core::Id type, Core::Id internalId, int deviceId)
-    : IDevice(type, AutoDetected, internalId), m_deviceId(deviceId)
+WinRtDevice::WinRtDevice(Core::Id internalId, int deviceId)
+    : IDevice(AutoDetected, internalId), m_deviceId(deviceId)
 {
     initFreePorts();
 }

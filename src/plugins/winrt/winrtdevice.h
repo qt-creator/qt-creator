@@ -50,7 +50,7 @@ public:
 
 protected:
     WinRtDevice();
-    WinRtDevice(Core::Id type, Core::Id internalId, int deviceId);
+    WinRtDevice(Core::Id internalId, int deviceId);
     WinRtDevice(const WinRtDevice &other);
 
 private:

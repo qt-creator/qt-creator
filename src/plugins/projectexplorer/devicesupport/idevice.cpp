@@ -161,10 +161,9 @@ IDevice::IDevice() : d(new Internal::IDevicePrivate)
 {
 }
 
-IDevice::IDevice(Core::Id type, Origin origin, Core::Id id)
+IDevice::IDevice(Origin origin, Core::Id id)
     : d(std::make_unique<Internal::IDevicePrivate>())
 {
-    d->type = type;
     d->origin = origin;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
     d->id = id.isValid() ? id : newId();
@@ -211,6 +210,11 @@ IDevice::DeviceInfo IDevice::deviceInformation() const
 Core::Id IDevice::type() const
 {
     return d->type;
+}
+
+void IDevice::setType(Core::Id type)
+{
+    d->type = type;
 }
 
 /*!

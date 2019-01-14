@@ -146,6 +146,8 @@ public:
     virtual DeviceInfo deviceInformation() const;
 
     Core::Id type() const;
+    void setType(Core::Id type);
+
     bool isAutoDetected() const;
     Core::Id id() const;
 
@@ -216,7 +218,7 @@ public:
 
 protected:
     IDevice();
-    IDevice(Core::Id type, Origin origin, Core::Id id = Core::Id());
+    IDevice(Origin origin, Core::Id id = Core::Id());
     IDevice(const IDevice &other);
 
 private:

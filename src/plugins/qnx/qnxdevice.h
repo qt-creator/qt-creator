@@ -40,7 +40,7 @@ public:
     using ConstPtr = QSharedPointer<const QnxDevice>;
 
     static Ptr create();
-    static Ptr create(const QString &name, Core::Id type,
+    static Ptr create(const QString &name,
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
     ProjectExplorer::IDevice::Ptr clone() const override;
 
@@ -61,7 +61,7 @@ public:
 
 protected:
     QnxDevice();
-    QnxDevice(const QString &name, Core::Id type,
+    QnxDevice(const QString &name,
                            Origin origin, Core::Id id);
     QnxDevice(const QnxDevice &other);
 

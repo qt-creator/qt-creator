@@ -43,7 +43,7 @@ public:
     using ConstPtr = QSharedPointer<const LinuxDevice>;
 
     static Ptr create();
-    static Ptr create(const QString &name, Core::Id type,
+    static Ptr create(const QString &name,
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
 
     QString displayType() const override;
@@ -67,7 +67,7 @@ public:
 
 protected:
     LinuxDevice() { init(); }
-    LinuxDevice(const QString &name, Core::Id type, Origin origin, Core::Id id);
+    LinuxDevice(const QString &name, Origin origin, Core::Id id);
     LinuxDevice(const LinuxDevice &other);
 
 private:

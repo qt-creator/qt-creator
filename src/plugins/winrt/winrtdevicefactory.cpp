@@ -281,7 +281,8 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
                 continue;
             }
 
-            WinRtDevice *device = new WinRtDevice(deviceType, internalId, deviceId);
+            WinRtDevice *device = new WinRtDevice(internalId, deviceId);
+            device->setType(deviceType);
             device->setMachineType(machineType);
             device->setDisplayName(name);
             deviceManager->addDevice(ProjectExplorer::IDevice::ConstPtr(device));
