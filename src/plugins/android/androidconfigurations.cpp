@@ -1297,7 +1297,7 @@ void AndroidConfigurations::updateAndroidDevice()
 {
     DeviceManager * const devMgr = DeviceManager::instance();
     if (m_instance->m_config.adbToolPath().exists())
-        devMgr->addDevice(IDevice::Ptr(new AndroidDevice));
+        devMgr->addDevice(AndroidDevice::create());
     else if (devMgr->find(Constants::ANDROID_DEVICE_ID))
         devMgr->removeDevice(Core::Id(Constants::ANDROID_DEVICE_ID));
 }

@@ -38,7 +38,7 @@ AndroidDeviceFactory::AndroidDeviceFactory()
     setDisplayName(tr("Android Device"));
     setCombinedIcon(":/android/images/androiddevicesmall.png",
                     ":/android/images/androiddevice.png");
-    setConstructionFunction([] { return ProjectExplorer::IDevice::Ptr(new AndroidDevice); });
+    setConstructionFunction(&AndroidDevice::create);
 }
 
 } // namespace Internal

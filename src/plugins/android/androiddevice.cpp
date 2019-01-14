@@ -60,8 +60,6 @@ AndroidDevice::AndroidDevice()
     setQmlsceneCommand(activityPath);
 }
 
-AndroidDevice::AndroidDevice(const AndroidDevice &other) = default;
-
 IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 {
     return IDevice::DeviceInfo();

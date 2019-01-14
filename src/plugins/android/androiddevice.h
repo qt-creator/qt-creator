@@ -28,13 +28,16 @@
 #include <projectexplorer/devicesupport/idevice.h>
 
 namespace Android {
-class AndroidConfigurations; // needed for friend declaration
-
 namespace Internal {
 
 class AndroidDevice : public ProjectExplorer::IDevice
 {
 public:
+    static IDevice::Ptr create() { return IDevice::Ptr(new AndroidDevice); };
+
+private:
+    AndroidDevice();
+
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
 
     QString displayType() const override;
@@ -45,12 +48,6 @@ public:
 
     ProjectExplorer::IDevice::Ptr clone() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
-
-protected:
-    friend class AndroidDeviceFactory;
-    friend class Android::AndroidConfigurations;
-    AndroidDevice();
-    AndroidDevice(const AndroidDevice &other);
 };
 
 } // namespace Internal
