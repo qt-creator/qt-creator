@@ -83,8 +83,9 @@ QnxDevice::QnxDevice()
 }
 
 QnxDevice::QnxDevice(const QString &name, Origin origin, Core::Id id)
-    : RemoteLinux::LinuxDevice(name, origin, id)
 {
+    setupId(origin, id);
+    setDisplayName(name);
     init();
 }
 

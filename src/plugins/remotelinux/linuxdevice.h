@@ -67,7 +67,6 @@ public:
 
 protected:
     LinuxDevice() { init(); }
-    LinuxDevice(const QString &name, Origin origin, Core::Id id);
     LinuxDevice(const LinuxDevice &other);
 
 private:

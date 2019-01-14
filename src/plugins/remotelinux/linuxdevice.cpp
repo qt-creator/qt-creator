@@ -168,7 +168,10 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
 
 LinuxDevice::Ptr LinuxDevice::create(const QString &name, Origin origin, Core::Id id)
 {
-    return Ptr(new LinuxDevice(name, origin, id));
+    auto device = new LinuxDevice;
+    device->setupId(origin, id);
+    device->setDisplayName(name);
+    return Ptr(device);
 }
 
 QString LinuxDevice::displayType() const
@@ -186,12 +189,6 @@ Utils::OsType LinuxDevice::osType() const
     return Utils::OsTypeLinux;
 }
 
-LinuxDevice::LinuxDevice(const QString &name, Origin origin, Core::Id id)
-{
-    setupId(origin, id);
-    setDisplayName(name);
-    init();
-}
 
 LinuxDevice::LinuxDevice(const LinuxDevice &other) = default;
 
