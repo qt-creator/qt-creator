@@ -44,21 +44,6 @@ namespace Internal {
 
 const char gdbServerProviderIdKeyC[] = "GdbServerProviderId";
 
-BareMetalDevice::Ptr BareMetalDevice::create()
-{
-    return Ptr(new BareMetalDevice);
-}
-
-BareMetalDevice::Ptr BareMetalDevice::create(const QString &name, Origin origin, Core::Id id)
-{
-    return Ptr(new BareMetalDevice(name, origin, id));
-}
-
-BareMetalDevice::Ptr BareMetalDevice::create(const BareMetalDevice &other)
-{
-    return Ptr(new BareMetalDevice(other));
-}
-
 BareMetalDevice::~BareMetalDevice()
 {
     if (GdbServerProvider *provider = GdbServerProviderManager::findProvider(m_gdbServerProviderId))
@@ -167,12 +152,6 @@ Utils::OsType BareMetalDevice::osType() const
 DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
 {
     return new GdbServerProviderProcess(sharedFromThis(), parent);
-}
-
-BareMetalDevice::BareMetalDevice(const QString &name, Origin origin, Core::Id id)
-{
-    setupId(origin, id);
-    setDisplayName(name);
 }
 
 BareMetalDevice::BareMetalDevice(const BareMetalDevice &other)

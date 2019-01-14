@@ -39,12 +39,9 @@ public:
     using Ptr = QSharedPointer<BareMetalDevice>;
     using ConstPtr = QSharedPointer<const BareMetalDevice>;
 
-    static Ptr create();
-    static Ptr create(const QString &name,
-                      Origin origin = ManuallyAdded, Core::Id id = Core::Id());
-    static Ptr create(const BareMetalDevice &other);
-
+    static Ptr create() { return Ptr(new BareMetalDevice); }
     ~BareMetalDevice() override;
+
     QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     Utils::OsType osType() const override;
@@ -63,12 +60,10 @@ public:
     void fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-protected:
+private:
     BareMetalDevice() = default;
-    BareMetalDevice(const QString &name, Origin origin, Core::Id id);
     BareMetalDevice(const BareMetalDevice &other);
 
-private:
     void setChannelByServerProvider(GdbServerProvider *provider);
     BareMetalDevice &operator=(const BareMetalDevice &);
     QString m_gdbServerProviderId;

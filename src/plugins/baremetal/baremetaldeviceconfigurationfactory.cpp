@@ -43,7 +43,7 @@ BareMetalDeviceConfigurationFactory::BareMetalDeviceConfigurationFactory()
     setCombinedIcon(":/baremetal/images/baremetaldevicesmall.png",
                     ":/baremetal/images/baremetaldevice.png");
     setCanCreate(true);
-    setConstructionFunction([] { return BareMetalDevice::create(); });
+    setConstructionFunction(&BareMetalDevice::create);
 }
 
 IDevice::Ptr BareMetalDeviceConfigurationFactory::create() const
