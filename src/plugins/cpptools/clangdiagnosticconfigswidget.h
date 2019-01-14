@@ -38,7 +38,6 @@
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;
 class QPushButton;
-class QRadioButton;
 QT_END_NAMESPACE
 
 namespace CppTools {
@@ -51,6 +50,8 @@ class TidyChecks;
 }
 
 class TidyChecksTreeModel;
+class ClazyChecksTreeModel;
+class ClazyChecksSortFilterModel;
 
 class CPPTOOLS_EXPORT ClangDiagnosticConfigsWidget : public QWidget
 {
@@ -73,8 +74,8 @@ private:
     void onRemoveButtonClicked();
     void onClangTidyModeChanged(int index);
     void onClangTidyTreeChanged();
+    void onClazyTreeChanged();
     void onClangTidyTreeItemClicked(const QModelIndex &index);
-    void onClazyRadioButtonChanged(bool checked);
 
     void onDiagnosticOptionsEdited();
 
@@ -83,6 +84,7 @@ private:
     void syncOtherWidgetsToComboBox();
     void syncClangTidyWidgets(const ClangDiagnosticConfig &config);
     void syncClazyWidgets(const ClangDiagnosticConfig &config);
+    void syncClazyChecksGroupBox();
     void syncTidyChecksToTree(const ClangDiagnosticConfig &config);
 
     void updateConfig(const CppTools::ClangDiagnosticConfig &config);
@@ -97,7 +99,8 @@ private:
     void connectClangTidyItemChanged();
     void disconnectClangTidyItemChanged();
 
-    void connectClazyRadioButtonClicked(QRadioButton *button);
+    void connectClazyItemChanged();
+    void disconnectClazyItemChanged();
 
     void connectConfigChooserCurrentIndex();
     void disconnectConfigChooserCurrentIndex();
@@ -114,6 +117,8 @@ private:
 
     std::unique_ptr<CppTools::Ui::ClazyChecks> m_clazyChecks;
     QWidget *m_clazyChecksWidget = nullptr;
+    std::unique_ptr<ClazyChecksTreeModel> m_clazyTreeModel;
+    ClazyChecksSortFilterModel *m_clazySortFilterProxyModel = nullptr;
 
     std::unique_ptr<CppTools::Ui::TidyChecks> m_tidyChecks;
     QWidget *m_tidyChecksWidget = nullptr;

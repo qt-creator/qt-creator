@@ -64,6 +64,9 @@ static QString clangDiagnosticConfigsArrayClangTidyModeKey()
 static QString clangDiagnosticConfigsArrayClazyChecksKey()
 { return QLatin1String("clazyChecks"); }
 
+static QString enableLowerClazyLevelsKey()
+{ return QLatin1String("enableLowerClazyLevels"); }
+
 static QString pchUsageKey()
 { return QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE); }
 
@@ -124,6 +127,8 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
             setClangDiagnosticConfigId(initialClangDiagnosticConfigId());
     }
 
+    setEnableLowerClazyLevels(s->value(enableLowerClazyLevelsKey(), true).toBool());
+
     const QVariant pchUsageVariant = s->value(pchUsageKey(), initialPchUsage());
     setPCHUsage(static_cast<PCHUsage>(pchUsageVariant.toInt()));
 
@@ -165,6 +170,7 @@ void CppCodeModelSettings::toSettings(QSettings *s)
     s->endArray();
 
     s->setValue(clangDiagnosticConfigKey(), clangDiagnosticConfigId().toSetting());
+    s->setValue(enableLowerClazyLevelsKey(), enableLowerClazyLevels());
     s->setValue(pchUsageKey(), pchUsage());
 
     s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
@@ -255,4 +261,14 @@ int CppCodeModelSettings::indexerFileSizeLimitInMb() const
 void CppCodeModelSettings::setIndexerFileSizeLimitInMb(int sizeInMB)
 {
     m_indexerFileSizeLimitInMB = sizeInMB;
+}
+
+bool CppCodeModelSettings::enableLowerClazyLevels() const
+{
+    return m_enableLowerClazyLevels;
+}
+
+void CppCodeModelSettings::setEnableLowerClazyLevels(bool yesno)
+{
+    m_enableLowerClazyLevels = yesno;
 }

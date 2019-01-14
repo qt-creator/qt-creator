@@ -120,12 +120,14 @@ void ClangDiagnosticConfigsSelectionWidget::connectToClangDiagnosticConfigsDialo
         connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
         connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
-        connect(&dialog, &QDialog::accepted, [widget]() {
+        const bool previousEnableLowerClazyLevels = codeModelSettings()->enableLowerClazyLevels();
+        connect(&dialog, &QDialog::accepted, [widget, previousEnableLowerClazyLevels]() {
             QSharedPointer<CppCodeModelSettings> settings = codeModelSettings();
             const ClangDiagnosticConfigs oldDiagnosticConfigs
                     = settings->clangCustomDiagnosticConfigs();
             const ClangDiagnosticConfigs currentDiagnosticConfigs = widget->customConfigs();
-            if (oldDiagnosticConfigs != currentDiagnosticConfigs) {
+            if (oldDiagnosticConfigs != currentDiagnosticConfigs
+                 || previousEnableLowerClazyLevels != codeModelSettings()->enableLowerClazyLevels()) {
                 const ClangDiagnosticConfigsModel configsModel(currentDiagnosticConfigs);
                 if (!configsModel.hasConfigWithId(settings->clangDiagnosticConfigId()))
                     settings->resetClangDiagnosticConfigId();

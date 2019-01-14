@@ -103,7 +103,8 @@ HEADERS += \
     cppmodelmanagerinterface.h \
     cppbuiltinmodelmanagersupport.h \
     headerpathfilter.h \
-    cppkitinfo.h
+    cppkitinfo.h \
+    cpptools_clazychecks.h
 
 SOURCES += \
     abstracteditorsupport.cpp \

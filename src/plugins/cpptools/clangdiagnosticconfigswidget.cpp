@@ -27,6 +27,7 @@
 
 #include "cppcodemodelsettings.h"
 #include "cpptools_clangtidychecks.h"
+#include "cpptools_clazychecks.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsreuse.h"
 #include "ui_clangdiagnosticconfigswidget.h"
@@ -45,9 +46,13 @@
 #include <QDialogButtonBox>
 #include <QInputDialog>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
+#include <QStringListModel>
 #include <QUuid>
 
 namespace CppTools {
+
+using namespace Constants;
 
 static constexpr const char CLANG_STATIC_ANALYZER_URL[]
     = "https://clang-analyzer.llvm.org/available_checks.html";
@@ -75,13 +80,99 @@ static bool needsLink(ProjectExplorer::Tree *node) {
     return !node->isDir && !node->fullPath.toString().startsWith("clang-analyzer-");
 }
 
-class TidyChecksTreeModel final : public ProjectExplorer::SelectableFilesModel
+static void selectAll(QAbstractItemView *view)
+{
+    view->setSelectionMode(QAbstractItemView::MultiSelection);
+    view->selectAll();
+    view->setSelectionMode(QAbstractItemView::SingleSelection);
+}
+
+class BaseChecksTreeModel : public ProjectExplorer::SelectableFilesModel
+{
+    Q_OBJECT
+
+public:
+    enum Roles { LinkRole = Qt::UserRole + 1 };
+    enum Columns { NameColumn, LinkColumn };
+
+    BaseChecksTreeModel()
+        : ProjectExplorer::SelectableFilesModel(nullptr)
+    {}
+
+    int columnCount(const QModelIndex &) const override { return 2; }
+
+    QVariant data(const QModelIndex &fullIndex, int role = Qt::DisplayRole) const override
+    {
+        if (fullIndex.column() == LinkColumn) {
+            switch (role) {
+            case Qt::DisplayRole:
+                return tr("Web Page");
+            case Qt::FontRole: {
+                QFont font = QApplication::font();
+                font.setUnderline(true);
+                return font;
+            }
+            case Qt::ForegroundRole:
+                return QApplication::palette().link().color();
+            }
+            return QVariant();
+        }
+        return QVariant();
+    }
+
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override
+    {
+        if (role == Qt::CheckStateRole && !m_enabled)
+            return false;
+        ProjectExplorer::SelectableFilesModel::setData(index, value, role);
+        return true;
+    }
+
+    void setEnabled(bool enabled)
+    {
+        m_enabled = enabled;
+    }
+
+    // TODO: Remove/replace this method after base class refactoring is done.
+    void traverse(const QModelIndex &index,
+                  const std::function<bool(const QModelIndex &)> &visit) const
+    {
+        if (!index.isValid())
+            return;
+
+        if (!visit(index))
+            return;
+
+        if (!hasChildren(index))
+            return;
+
+        const int rows = rowCount(index);
+        const int cols = columnCount(index);
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j)
+                traverse(this->index(i, j, index), visit);
+        }
+    }
+
+protected:
+    bool m_enabled = true;
+};
+
+static void openUrl(QAbstractItemModel *model, const QModelIndex &index)
+{
+    const QString link = model->data(index, BaseChecksTreeModel::LinkRole).toString();
+    if (link.isEmpty())
+        return;
+
+    QDesktopServices::openUrl(QUrl(link));
+};
+
+class TidyChecksTreeModel final : public BaseChecksTreeModel
 {
     Q_OBJECT
 
 public:
     TidyChecksTreeModel()
-        : ProjectExplorer::SelectableFilesModel(nullptr)
     {
         buildTree(nullptr, m_root, Constants::CLANG_TIDY_CHECKS_ROOT);
     }
@@ -119,11 +210,7 @@ public:
         }
     }
 
-    int columnCount(const QModelIndex &/*parent*/) const override
-    {
-        return 2;
-    }
-
+private:
     QVariant data(const QModelIndex &fullIndex, int role = Qt::DisplayRole) const final
     {
         if (!fullIndex.isValid() || role == Qt::DecorationRole)
@@ -134,66 +221,22 @@ public:
         if (fullIndex.column() == 1) {
             if (!needsLink(node))
                 return QVariant();
-            switch (role) {
-            case Qt::DisplayRole:
-                return tr("Web Page");
-            case Qt::FontRole: {
-                QFont font = QApplication::font();
-                font.setUnderline(true);
-                return font;
-            }
-            case Qt::ForegroundRole:
-                return QApplication::palette().link().color();
-            case Qt::UserRole: {
+
+            if (role == LinkRole) {
                 // 'clang-analyzer-' group
                 if (node->isDir)
                     return QString::fromUtf8(CLANG_STATIC_ANALYZER_URL);
                 return QString::fromUtf8(Constants::TIDY_DOCUMENTATION_URL_TEMPLATE)
                         .arg(node->fullPath.toString());
             }
-            }
-            return QVariant();
+
+            return BaseChecksTreeModel::data(fullIndex, role);
         }
 
         if (role == Qt::DisplayRole)
             return node->isDir ? (node->name + "*") : node->name;
 
         return ProjectExplorer::SelectableFilesModel::data(index, role);
-    }
-
-    void setEnabled(bool enabled)
-    {
-        m_enabled = enabled;
-    }
-
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override
-    {
-        if (role == Qt::CheckStateRole && !m_enabled)
-            return false;
-        return ProjectExplorer::SelectableFilesModel::setData(index, value, role);
-    }
-
-private:
-
-    // TODO: Remove/replace this method after base class refactoring is done.
-    void traverse(const QModelIndex &index,
-                  const std::function<bool(const QModelIndex &)> &visit) const
-    {
-        if (!index.isValid())
-            return;
-
-        if (!visit(index))
-            return;
-
-        if (!hasChildren(index))
-            return;
-
-        const int rows = rowCount(index);
-        const int cols = columnCount(index);
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j)
-                traverse(this->index(i, j, index), visit);
-        }
     }
 
     QModelIndex indexForCheck(const QString &check) const {
@@ -232,8 +275,321 @@ private:
         for (const ProjectExplorer::Tree *t : root->childDirectories)
             collectChecks(t, checks);
     }
+};
 
-    bool m_enabled = true;
+class ClazyChecksTree : public ProjectExplorer::Tree
+{
+public:
+    enum Kind { TopLevelNode, LevelNode, CheckNode };
+    ClazyChecksTree(const QString &name, Kind kind)
+    {
+        this->name = name;
+        this->kind = kind;
+        this->isDir = kind == TopLevelNode || kind == LevelNode;
+    }
+
+    static ClazyChecksTree *fromIndex(const QModelIndex &index)
+    {
+        return static_cast<ClazyChecksTree *>(index.internalPointer());
+    }
+
+public:
+    ClazyCheckInfo checkInfo;
+    Kind kind = TopLevelNode;
+};
+
+class ClazyChecksTreeModel final : public BaseChecksTreeModel
+{
+    Q_OBJECT
+
+public:
+    ClazyChecksTreeModel() { buildTree(); }
+
+    QStringList enabledChecks() const
+    {
+        QStringList checks;
+        collectChecks(m_root, checks);
+        return checks;
+    }
+
+    void enableChecks(const QStringList &checks)
+    {
+        // Unselect all
+        m_root->checked = Qt::Unchecked;
+        propagateDown(index(0, 0, QModelIndex()));
+
+        // <= Qt Creator 4.8 settings provide specific levels: {"level0"}
+        if (checks.size() == 1 && checks.first().startsWith("level")) {
+            bool ok = false;
+            const int level = checks.first().mid(5).toInt(&ok);
+            QTC_ASSERT(ok, return);
+            enableChecksByLevel(level);
+            return;
+        }
+
+        // >= Qt Creator 4.9 settings provide specific checks: {c1, c2, ...}
+        for (const QString &check : checks) {
+            const QModelIndex index = indexForCheck(check);
+            if (!index.isValid())
+                continue;
+            ClazyChecksTree::fromIndex(index)->checked = Qt::Checked;
+            propagateUp(index);
+            propagateDown(index);
+        }
+    }
+
+    bool hasEnabledButNotVisibleChecks(
+        const std::function<bool(const QModelIndex &index)> &isHidden) const
+    {
+        bool enabled = false;
+        traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
+            if (enabled)
+                return false;
+            const auto *node = ClazyChecksTree::fromIndex(index);
+            if (node->kind == ClazyChecksTree::CheckNode && index.column() == NameColumn) {
+                const bool isChecked = data(index, Qt::CheckStateRole).toInt() == Qt::Checked;
+                const bool isVisible = isHidden(index);
+                if (isChecked && isVisible) {
+                    enabled = true;
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        return enabled;
+    }
+
+    bool enableLowerLevels() const { return m_enableLowerLevels; }
+    void setEnableLowerLevels(bool enable) { m_enableLowerLevels = enable; }
+
+    QSet<QString> topics() const { return m_topics; }
+
+private:
+    void buildTree()
+    {
+        // Top level node
+        m_root = new ClazyChecksTree("*", ClazyChecksTree::TopLevelNode);
+
+        for (const ClazyCheckInfo &check : CLAZY_CHECKS) {
+            // Level node
+            ClazyChecksTree *&levelNode = m_levelNodes[check.level];
+            if (!levelNode) {
+                levelNode = new ClazyChecksTree(levelDescription(check.level), ClazyChecksTree::LevelNode);
+                levelNode->parent = m_root;
+                levelNode->checkInfo.level = check.level; // Pass on the level for sorting
+                m_root->childDirectories << levelNode;
+            }
+
+            // Check node
+            auto checkNode = new ClazyChecksTree(check.name, ClazyChecksTree::CheckNode);
+            checkNode->parent = levelNode;
+            checkNode->checkInfo = check;
+
+            levelNode->childDirectories.append(checkNode);
+
+            m_topics.unite(check.topics.toSet());
+        }
+    }
+
+    QVariant data(const QModelIndex &fullIndex, int role = Qt::DisplayRole) const override final
+    {
+        if (!fullIndex.isValid() || role == Qt::DecorationRole)
+            return QVariant();
+        const QModelIndex index = this->index(fullIndex.row(), 0, fullIndex.parent());
+        const auto *node = ClazyChecksTree::fromIndex(index);
+
+        if (fullIndex.column() == LinkColumn) {
+            if (role == LinkRole) {
+                if (node->checkInfo.name.isEmpty())
+                    return QVariant();
+                return QString::fromUtf8(Constants::CLAZY_DOCUMENTATION_URL_TEMPLATE).arg(node->name);
+            }
+            if (role == Qt::DisplayRole && node->kind != ClazyChecksTree::CheckNode)
+                return QVariant();
+
+            return BaseChecksTreeModel::data(fullIndex, role);
+        }
+
+        if (role == Qt::DisplayRole)
+            return node->name;
+
+        return ProjectExplorer::SelectableFilesModel::data(index, role);
+    }
+
+    static QString levelDescription(int level)
+    {
+        switch (level) {
+        case -1:
+            return tr("Manual Level: Very few false positives");
+        case 0:
+            return tr("Level 0: No false positives");
+        case 1:
+            return tr("Level 1: Very few false positives");
+        case 2:
+            return tr("Level 2: More false positives");
+        case 3:
+            return tr("Level 3: Experimental checks");
+        default:
+            QTC_CHECK(false && "No clazy level description");
+            return tr("Level %1").arg(QString::number(level));
+        }
+    }
+
+    void enableChecksByLevel(int level)
+    {
+        if (level < 0)
+            return;
+
+        ClazyChecksTree *node = m_levelNodes.value(level);
+        QTC_ASSERT(node, return);
+        const QModelIndex index = indexForTree(node);
+        QTC_ASSERT(index.isValid(), return);
+
+        node->checked = Qt::Checked;
+        propagateUp(index);
+        propagateDown(index);
+
+        enableChecksByLevel(--level);
+    }
+
+    QModelIndex indexForCheck(const QString &check) const {
+        if (check == "*")
+            return index(0, 0, QModelIndex());
+
+        QModelIndex result;
+        traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
+            if (result.isValid())
+                return false;
+            const auto *node = ClazyChecksTree::fromIndex(index);
+            if (node->kind == ClazyChecksTree::CheckNode && node->checkInfo.name == check) {
+                result = index;
+                return false;
+            }
+            return true;
+        });
+        return result;
+    }
+
+    QModelIndex indexForTree(const ClazyChecksTree *tree) const {
+        if (!tree)
+            return QModelIndex();
+
+        QModelIndex result;
+        traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
+            if (result.isValid())
+                return false;
+            if (index.internalPointer() == tree) {
+                result = index;
+                return false;
+            }
+            return true;
+        });
+        return result;
+    }
+
+    static void collectChecks(const ProjectExplorer::Tree *root, QStringList &checks)
+    {
+        if (root->checked == Qt::Unchecked)
+            return;
+        if (root->checked == Qt::Checked && !root->isDir) {
+            checks.append(root->name);
+            return;
+        }
+        for (const ProjectExplorer::Tree *t : root->childDirectories)
+            collectChecks(t, checks);
+    }
+
+    static QStringList toStringList(const QVariantList &variantList)
+    {
+        QStringList list;
+        for (auto &item : variantList)
+            list.append(item.toString());
+        return list;
+    }
+
+private:
+    QHash<int, ClazyChecksTree *> m_levelNodes;
+    QSet<QString> m_topics;
+    bool m_enableLowerLevels = true;
+};
+
+class ClazyChecksSortFilterModel : public QSortFilterProxyModel
+{
+public:
+    ClazyChecksSortFilterModel(QObject *parent)
+        : QSortFilterProxyModel(parent)
+    {}
+
+    void setTopics(const QStringList &value)
+    {
+        m_topics = value;
+        invalidateFilter();
+    }
+
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
+    {
+        const QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+        if (!index.isValid())
+            return false;
+
+        const auto *node = ClazyChecksTree::fromIndex(index);
+        if (node->kind == ClazyChecksTree::CheckNode) {
+            const QStringList topics = node->checkInfo.topics;
+            return Utils::anyOf(m_topics, [this, topics](const QString &topic) {
+                return topics.contains(topic);
+            });
+        }
+
+        return true;
+    }
+
+private:
+    // Note that sort order of levels is important for "enableLowerLevels" mode, see setData().
+    bool lessThan(const QModelIndex &l, const QModelIndex &r) const override
+    {
+        const int leftLevel = adaptLevel(ClazyChecksTree::fromIndex(l)->checkInfo.level);
+        const int rightLevel = adaptLevel(ClazyChecksTree::fromIndex(r)->checkInfo.level);
+
+        if (leftLevel == rightLevel)
+            return sourceModel()->data(l).toString() < sourceModel()->data(r).toString();
+        return leftLevel < rightLevel;
+    }
+
+    static bool adaptLevel(int level)
+    {
+        if (level == -1) // "Manual Level"
+            return 1000;
+        return level;
+    }
+
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override
+    {
+        if (!index.isValid())
+            return false;
+
+        if (role == Qt::CheckStateRole
+              && static_cast<ClazyChecksTreeModel *>(sourceModel())->enableLowerLevels()
+              && QSortFilterProxyModel::setData(index, value, role)) {
+            const auto *node = ClazyChecksTree::fromIndex(mapToSource(index));
+            if (node->kind == ClazyChecksTree::LevelNode && node->checkInfo.level >= 0) {
+                // Rely on the sort order to find the lower level index/node
+                const auto previousIndex = this->index(index.row() - 1,
+                                                       index.column(),
+                                                       index.parent());
+                if (previousIndex.isValid()
+                    && ClazyChecksTree::fromIndex(mapToSource(previousIndex))->checkInfo.level
+                           >= 0) {
+                    setData(previousIndex, value, role);
+                }
+            }
+        }
+
+        return QSortFilterProxyModel::setData(index, value, role);
+    }
+
+private:
+    QStringList m_topics;
 };
 
 ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const Core::Id &configToSelect,
@@ -241,6 +597,7 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const Core::Id &confi
     : QWidget(parent)
     , m_ui(new Ui::ClangDiagnosticConfigsWidget)
     , m_diagnosticConfigsModel(codeModelSettings()->clangCustomDiagnosticConfigs())
+    , m_clazyTreeModel(new ClazyChecksTreeModel())
     , m_tidyTreeModel(new TidyChecksTreeModel())
 {
     m_ui->setupUi(this);
@@ -256,14 +613,12 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const Core::Id &confi
             this, &ClangDiagnosticConfigsWidget::onRemoveButtonClicked);
     connectDiagnosticOptionsChanged();
 
-    connect(m_tidyChecks->checksPrefixesTree, &QTreeView::clicked,
-            [this](const QModelIndex &index) {
-        const QString link = m_tidyTreeModel->data(index, Qt::UserRole).toString();
-        if (link.isEmpty())
-            return;
-
-        QDesktopServices::openUrl(QUrl(link));
-    });
+    connect(m_tidyChecks->checksPrefixesTree,
+            &QTreeView::clicked,
+            [model = m_tidyTreeModel.get()](const QModelIndex &index) { openUrl(model, index); });
+    connect(m_clazyChecks->checksView,
+            &QTreeView::clicked,
+            [model = m_clazySortFilterProxyModel](const QModelIndex &index) { openUrl(model, index); });
 
     syncWidgetsToModel(configToSelect);
 }
@@ -344,25 +699,12 @@ void ClangDiagnosticConfigsWidget::onClangTidyTreeChanged()
     updateConfig(config);
 }
 
-void ClangDiagnosticConfigsWidget::onClazyRadioButtonChanged(bool checked)
+void ClangDiagnosticConfigsWidget::onClazyTreeChanged()
 {
-    if (!checked)
-        return;
-
-    QString checks;
-    if (m_clazyChecks->clazyRadioDisabled->isChecked())
-        checks = QString();
-    else if (m_clazyChecks->clazyRadioLevel0->isChecked())
-        checks = "level0";
-    else if (m_clazyChecks->clazyRadioLevel1->isChecked())
-        checks = "level1";
-    else if (m_clazyChecks->clazyRadioLevel2->isChecked())
-        checks = "level2";
-    else if (m_clazyChecks->clazyRadioLevel3->isChecked())
-        checks = "level3";
+    syncClazyChecksGroupBox();
 
     ClangDiagnosticConfig config = selectedConfig();
-    config.setClazyChecks(checks);
+    config.setClazyChecks(m_clazyTreeModel->enabledChecks().join(","));
     updateConfig(config);
 }
 
@@ -518,22 +860,35 @@ void ClangDiagnosticConfigsWidget::syncTidyChecksToTree(const ClangDiagnosticCon
 
 void ClangDiagnosticConfigsWidget::syncClazyWidgets(const ClangDiagnosticConfig &config)
 {
+    disconnectClazyItemChanged();
+
     const QString clazyChecks = config.clazyChecks();
 
-    QRadioButton *button = m_clazyChecks->clazyRadioDisabled;
-    if (clazyChecks.isEmpty())
-        button = m_clazyChecks->clazyRadioDisabled;
-    else if (clazyChecks == "level0")
-        button = m_clazyChecks->clazyRadioLevel0;
-    else if (clazyChecks == "level1")
-        button = m_clazyChecks->clazyRadioLevel1;
-    else if (clazyChecks == "level2")
-        button = m_clazyChecks->clazyRadioLevel2;
-    else if (clazyChecks == "level3")
-        button = m_clazyChecks->clazyRadioLevel3;
+    m_clazyTreeModel->enableChecks(clazyChecks.split(',', QString::SkipEmptyParts));
 
-    button->setChecked(true);
-    m_clazyChecksWidget->setEnabled(!config.isReadOnly());
+    syncClazyChecksGroupBox();
+
+    const bool enabled = !config.isReadOnly();
+    m_clazyChecks->topicsResetButton->setEnabled(enabled);
+    m_clazyChecks->enableLowerLevelsCheckBox->setEnabled(enabled);
+    selectAll(m_clazyChecks->topicsView);
+    m_clazyChecks->topicsView->setEnabled(enabled);
+    m_clazyTreeModel->setEnabled(enabled);
+
+    connectClazyItemChanged();
+}
+
+void ClangDiagnosticConfigsWidget::syncClazyChecksGroupBox()
+{
+    const auto isHidden = [this](const QModelIndex &index) {
+        return !m_clazySortFilterProxyModel->filterAcceptsRow(index.row(), index.parent());
+    };
+    const bool hasEnabledButHidden = m_clazyTreeModel->hasEnabledButNotVisibleChecks(isHidden);
+    const QString title = hasEnabledButHidden ? tr("Checks (%1 enabled, some are filtered out)")
+                                              : tr("Checks (%1 enabled)");
+
+    const QStringList checks = m_clazyTreeModel->enabledChecks();
+    m_clazyChecks->checksGroupBox->setTitle(title.arg(checks.count()));
 }
 
 void ClangDiagnosticConfigsWidget::updateConfig(const ClangDiagnosticConfig &config)
@@ -599,12 +954,16 @@ void ClangDiagnosticConfigsWidget::disconnectClangTidyItemChanged()
                this, &ClangDiagnosticConfigsWidget::onClangTidyTreeChanged);
 }
 
-void ClangDiagnosticConfigsWidget::connectClazyRadioButtonClicked(QRadioButton *button)
+void ClangDiagnosticConfigsWidget::connectClazyItemChanged()
 {
-    connect(button,
-            &QRadioButton::clicked,
-            this,
-            &ClangDiagnosticConfigsWidget::onClazyRadioButtonChanged);
+    connect(m_clazyTreeModel.get(), &ClazyChecksTreeModel::dataChanged,
+            this, &ClangDiagnosticConfigsWidget::onClazyTreeChanged);
+}
+
+void ClangDiagnosticConfigsWidget::disconnectClazyItemChanged()
+{
+    disconnect(m_clazyTreeModel.get(), &ClazyChecksTreeModel::dataChanged,
+               this, &ClangDiagnosticConfigsWidget::onClazyTreeChanged);
 }
 
 void ClangDiagnosticConfigsWidget::connectConfigChooserCurrentIndex()
@@ -644,6 +1003,15 @@ ClangDiagnosticConfigs ClangDiagnosticConfigsWidget::customConfigs() const
     });
 }
 
+static void setupTreeView(QTreeView *view, QAbstractItemModel *model, int expandToDepth = 0)
+{
+    view->setModel(model);
+    view->expandToDepth(expandToDepth);
+    view->header()->setStretchLastSection(false);
+    view->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    view->setHeaderHidden(true);
+}
+
 void ClangDiagnosticConfigsWidget::setupTabs()
 {
     m_clangBaseChecks.reset(new CppTools::Ui::ClangBaseChecks);
@@ -653,20 +1021,45 @@ void ClangDiagnosticConfigsWidget::setupTabs()
     m_clazyChecks.reset(new CppTools::Ui::ClazyChecks);
     m_clazyChecksWidget = new QWidget();
     m_clazyChecks->setupUi(m_clazyChecksWidget);
+    m_clazySortFilterProxyModel = new ClazyChecksSortFilterModel(this);
+    m_clazySortFilterProxyModel->setSourceModel(m_clazyTreeModel.get());
+    setupTreeView(m_clazyChecks->checksView, m_clazySortFilterProxyModel, 2);
+    m_clazyChecks->checksView->setSortingEnabled(true);
+    m_clazyChecks->checksView->sortByColumn(0, Qt::AscendingOrder);
+    auto topicsModel = new QStringListModel(m_clazyTreeModel->topics().toList(), this);
+    topicsModel->sort(0);
+    m_clazyChecks->topicsView->setModel(topicsModel);
+    connect(m_clazyChecks->topicsResetButton, &QPushButton::clicked, [this](){
+        selectAll(m_clazyChecks->topicsView);
+    });
+    connect(m_clazyChecks->topicsView->selectionModel(),
+            &QItemSelectionModel::selectionChanged,
+            [this, topicsModel](const QItemSelection &, const QItemSelection &) {
+                const auto indexes = m_clazyChecks->topicsView->selectionModel()->selectedIndexes();
+                const QStringList topics
+                    = Utils::transform(indexes, [topicsModel](const QModelIndex &index) {
+                          return topicsModel->data(index).toString();
+                      });
+                m_clazySortFilterProxyModel->setTopics(topics);
+                this->syncClazyChecksGroupBox();
+            });
 
-    connectClazyRadioButtonClicked(m_clazyChecks->clazyRadioDisabled);
-    connectClazyRadioButtonClicked(m_clazyChecks->clazyRadioLevel0);
-    connectClazyRadioButtonClicked(m_clazyChecks->clazyRadioLevel1);
-    connectClazyRadioButtonClicked(m_clazyChecks->clazyRadioLevel2);
-    connectClazyRadioButtonClicked(m_clazyChecks->clazyRadioLevel3);
+    selectAll(m_clazyChecks->topicsView);
+    connect(m_clazyChecks->enableLowerLevelsCheckBox, &QCheckBox::stateChanged, [this](int) {
+        const bool enable = m_clazyChecks->enableLowerLevelsCheckBox->isChecked();
+        m_clazyTreeModel->setEnableLowerLevels(enable);
+        codeModelSettings()->setEnableLowerClazyLevels(
+            m_clazyChecks->enableLowerLevelsCheckBox->isChecked());
+    });
+    const Qt::CheckState checkEnableLowerClazyLevels
+        = codeModelSettings()->enableLowerClazyLevels() ? Qt::Checked : Qt::Unchecked;
+    m_clazyChecks->enableLowerLevelsCheckBox->setCheckState(checkEnableLowerClazyLevels);
 
     m_tidyChecks.reset(new CppTools::Ui::TidyChecks);
     m_tidyChecksWidget = new QWidget();
     m_tidyChecks->setupUi(m_tidyChecksWidget);
-    m_tidyChecks->checksPrefixesTree->setModel(m_tidyTreeModel.get());
-    m_tidyChecks->checksPrefixesTree->expandToDepth(0);
-    m_tidyChecks->checksPrefixesTree->header()->setStretchLastSection(false);
-    m_tidyChecks->checksPrefixesTree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    setupTreeView(m_tidyChecks->checksPrefixesTree, m_tidyTreeModel.get());
+
     connect(m_tidyChecks->plainTextEditButton, &QPushButton::clicked, this, [this]() {
         const bool readOnly = selectedConfig().isReadOnly();
 
@@ -702,6 +1095,7 @@ void ClangDiagnosticConfigsWidget::setupTabs()
     });
 
     connectClangTidyItemChanged();
+    connectClazyItemChanged();
 
     m_ui->tabWidget->addTab(m_clangBaseChecksWidget, tr("Clang"));
     m_ui->tabWidget->addTab(m_tidyChecksWidget, tr("Clang-Tidy"));

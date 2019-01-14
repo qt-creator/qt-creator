@@ -158,6 +158,7 @@ Project {
             "cppsourceprocessor.h",
             "cpptools.qrc",
             "cpptools_clangtidychecks.h",
+            "cpptools_clazychecks.h",
             "cpptools_global.h",
             "cpptools_utils.h",
             "cpptoolsbridge.cpp",
