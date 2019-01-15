@@ -43,7 +43,7 @@ GenericLinuxDeviceConfigurationFactory::GenericLinuxDeviceConfigurationFactory()
     setDisplayName(tr("Generic Linux Device"));
     setIcon(QIcon());
     setCanCreate(true);
-    setConstructionFunction([] { return LinuxDevice::create(); });
+    setConstructionFunction(&LinuxDevice::create);
 }
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const

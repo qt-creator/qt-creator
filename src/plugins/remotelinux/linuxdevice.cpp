@@ -166,15 +166,6 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
     }
 };
 
-
-LinuxDevice::Ptr LinuxDevice::create(const QString &name, Origin origin, Core::Id id)
-{
-    auto device = new LinuxDevice;
-    device->setupId(origin, id);
-    device->setDisplayName(name);
-    return Ptr(device);
-}
-
 QString LinuxDevice::displayType() const
 {
     return tr("Generic Linux");
@@ -190,10 +181,7 @@ Utils::OsType LinuxDevice::osType() const
     return Utils::OsTypeLinux;
 }
 
-
-LinuxDevice::LinuxDevice(const LinuxDevice &other) = default;
-
-void LinuxDevice::init()
+LinuxDevice::LinuxDevice()
 {
     addDeviceAction({tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
         if (auto d = PublicKeyDeploymentDialog::createDialog(device, parent)) {
@@ -224,11 +212,6 @@ void LinuxDevice::init()
             proc->start(runnable);
         }});
     }
-}
-
-LinuxDevice::Ptr LinuxDevice::create()
-{
-    return Ptr(new LinuxDevice);
 }
 
 IDevice::Ptr LinuxDevice::clone() const

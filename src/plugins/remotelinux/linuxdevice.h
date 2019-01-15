@@ -32,7 +32,6 @@
 #include <QCoreApplication>
 
 namespace RemoteLinux {
-namespace Internal { class LinuxDevicePrivate; }
 
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
 {
@@ -42,9 +41,7 @@ public:
     using Ptr = QSharedPointer<LinuxDevice>;
     using ConstPtr = QSharedPointer<const LinuxDevice>;
 
-    static Ptr create();
-    static Ptr create(const QString &name,
-                      Origin origin = ManuallyAdded, Core::Id id = Core::Id());
+    static Ptr create() { return Ptr(new LinuxDevice); }
 
     QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
@@ -66,12 +63,7 @@ public:
     bool supportsRSync() const;
 
 protected:
-    LinuxDevice() { init(); }
-    LinuxDevice(const LinuxDevice &other);
-
-private:
-    LinuxDevice &operator=(const LinuxDevice &);
-    void init();
+    LinuxDevice();
 };
 
 } // namespace RemoteLinux

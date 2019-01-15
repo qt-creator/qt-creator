@@ -62,7 +62,9 @@ GenericLinuxDeviceConfigurationWizard::GenericLinuxDeviceConfigurationWizard(QWi
     setPage(Internal::KeyDeploymentPageId, &d->keyDeploymentPage);
     setPage(Internal::FinalPageId, &d->finalPage);
     d->finalPage.setCommitPage(true);
-    d->device = LinuxDevice::create(tr("Generic Linux Device"));
+    d->device = LinuxDevice::create();
+    d->device->setupId(IDevice::ManuallyAdded, Core::Id());
+    d->device->setDisplayName(tr("Generic Linux Device"));
     d->device->setType(Constants::GenericLinuxOsType);
     d->device->setMachineType(IDevice::Hardware);
     d->device->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
