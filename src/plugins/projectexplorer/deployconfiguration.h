@@ -98,7 +98,7 @@ public:
 
 protected:
     virtual bool canHandle(ProjectExplorer::Target *target) const;
-    virtual QList<QString> availableBuildTargets(Target *parent) const;
+    virtual bool hasAvailableBuildTargets(Target *parent) const;
     virtual QString displayNameForBuildTarget(const QString &buildTarget) const;
 
     using DeployConfigurationCreator = std::function<DeployConfiguration *(Target *)>;

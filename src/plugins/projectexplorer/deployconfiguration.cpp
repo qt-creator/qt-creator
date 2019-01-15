@@ -153,16 +153,14 @@ DeployConfigurationFactory::~DeployConfigurationFactory()
 
 QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    if (!canHandle(parent))
-        return {};
-    return Utils::transform(availableBuildTargets(parent), [this](const QString &suffix) {
-        return m_deployConfigBaseId.withSuffix(suffix);
-    });
+    if (canHandle(parent) && hasAvailableBuildTargets(parent))
+        return {m_deployConfigBaseId};
+    return {};
 }
 
-QList<QString> DeployConfigurationFactory::availableBuildTargets(Target *) const
+bool DeployConfigurationFactory::hasAvailableBuildTargets(Target *) const
 {
-    return {QString()};
+    return true;
 }
 
 QString DeployConfigurationFactory::displayNameForBuildTarget(const QString &) const

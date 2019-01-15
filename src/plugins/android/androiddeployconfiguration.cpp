@@ -60,20 +60,18 @@ AndroidDeployConfigurationFactory::AndroidDeployConfigurationFactory()
     setDefaultDisplayName(AndroidDeployConfiguration::tr("Deploy to Android device"));
 }
 
-QList<QString> AndroidDeployConfigurationFactory::availableBuildTargets(Target *parent) const
+bool AndroidDeployConfigurationFactory::hasAvailableBuildTargets(Target *parent) const
 {
     if (!parent->project()->id().name().startsWith("QmlProjectManager.QmlProject")) {
         // Avoid tool chain check for QML Project
         Core::Id cxxLangId(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         ToolChain *tc = ToolChainKitInformation::toolChain(parent->kit(), cxxLangId);
         if (!tc || tc->targetAbi().osFlavor() != Abi::AndroidLinuxFlavor)
-            return {};
+            return false;
     }
 
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(parent->kit());
-    if (!qt || qt->type() != Constants::ANDROIDQT)
-        return {};
-    return {QString()};
+    return qt && qt->type() == Constants::ANDROIDQT;
 }
 
 } // namespace Internal

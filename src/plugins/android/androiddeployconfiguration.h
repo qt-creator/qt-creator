@@ -44,7 +44,7 @@ class AndroidDeployConfigurationFactory : public ProjectExplorer::DeployConfigur
 public:
     AndroidDeployConfigurationFactory();
 
-    QList<QString> availableBuildTargets(ProjectExplorer::Target *parent) const override;
+    bool hasAvailableBuildTargets(ProjectExplorer::Target *parent) const override;
 };
 
 } // namespace Internal
