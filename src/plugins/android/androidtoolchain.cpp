@@ -139,7 +139,11 @@ QString AndroidToolChain::makeCommand(const Environment &env) const
 
 GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 {
-    return GccToolChain::DetectedAbisResult({targetAbi()}, originalTargetTriple());
+    for (auto itr = ClangTargets.constBegin();itr != ClangTargets.constEnd(); ++itr) {
+        if (itr.value() == targetAbi())
+            return GccToolChain::DetectedAbisResult({targetAbi()}, itr.key());
+    }
+    return GccToolChain::DetectedAbisResult({targetAbi()}, "");
 }
 
 

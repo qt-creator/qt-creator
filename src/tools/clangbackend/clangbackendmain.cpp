@@ -34,6 +34,7 @@
 #include <clangcodemodelclientproxy.h>
 
 #include <iostream>
+#include <clocale>
 
 using ClangBackEnd::ClangCodeModelClientProxy;
 using ClangBackEnd::ClangCodeModelServer;
@@ -75,6 +76,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationVersion(QStringLiteral("1.0.0"));
 
     QCoreApplication application(argc, argv);
+
+    // Some tidy checks use locale-dependent conversion functions and thus might throw exceptions.
+    std::setlocale(LC_NUMERIC, "C");
+
     CrashHandlerSetup setupCrashHandler(QCoreApplication::applicationName(),
                                         CrashHandlerSetup::DisableRestart);
 

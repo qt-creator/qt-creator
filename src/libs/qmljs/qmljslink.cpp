@@ -393,13 +393,8 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     }
 
     // TODO: at the moment there is not any types information on Qbs imports.
-    // Just check that tha the import is listed in the Qbs bundle.
-    if (doc->language() == Dialect::QmlQbs) {
-        QmlBundle qbs = ModelManagerInterface::instance()
-                ->activeBundles().bundleForLanguage(Dialect::QmlQbs);
-        if (qbs.supportedImports().contains(importInfo.name()))
-            importFound = true;
-    }
+    if (doc->language() == Dialect::QmlQbs)
+        importFound = true;
 
     if (!importFound && importInfo.ast()) {
         import.valid = false;

@@ -96,6 +96,8 @@ private:
     const QString m_clangVersion;
     const QString m_clangResourceDirectory;
 
+    QByteArray msvcVersion() const;
+
     QStringList m_options;
 };
 

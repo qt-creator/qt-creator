@@ -109,6 +109,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.wrapAppOutput = m_ui.wrapAppOutputCheckBox->isChecked();
     m_settings.useJom = m_ui.jomCheckbox->isChecked();
     m_settings.addLibraryPathsToRunEnv = m_ui.addLibraryPathsToRunEnvCheckBox->isChecked();
+    m_settings.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
     m_settings.automaticallyCreateRunConfigurations = m_ui.automaticallyCreateRunConfiguration->isChecked();
     m_settings.maxAppOutputChars = m_ui.maxAppOutputBox->value();
     m_settings.maxBuildOutputChars = m_ui.maxBuildOutputBox->value();

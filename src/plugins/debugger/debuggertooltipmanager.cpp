@@ -1185,7 +1185,6 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
 {
     QTC_ASSERT(handled, return);
     QTC_ASSERT(editorWidget, return);
-    *handled = false;
 
     if (!boolSetting(UseToolTipsInMainEditor))
         return;
