@@ -44,24 +44,6 @@ namespace Internal {
 
 WinRtDevice::WinRtDevice()
 {
-    initFreePorts();
-}
-
-WinRtDevice::WinRtDevice(Core::Id internalId, int deviceId)
-    : m_deviceId(deviceId)
-{
-    setupId(AutoDetected, internalId);
-    initFreePorts();
-}
-
-WinRtDevice::WinRtDevice(const WinRtDevice &other)
-    : IDevice(other), m_deviceId(other.m_deviceId)
-{
-    initFreePorts();
-}
-
-void WinRtDevice::initFreePorts()
-{
     Utils::PortList portList;
     portList.addRange(Utils::Port(ProjectExplorer::Constants::DESKTOP_PORT_START),
                       Utils::Port(ProjectExplorer::Constants::DESKTOP_PORT_END));
