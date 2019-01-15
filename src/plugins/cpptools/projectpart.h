@@ -91,8 +91,8 @@ public:
     QString callGroupId;
 
     // Versions, features and extensions
-    Utils::LanguageVersion languageVersion = Utils::LanguageVersion::LatestCxx;
-    Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
+    ::Utils::LanguageVersion languageVersion = ::Utils::LanguageVersion::LatestCxx;
+    ::Utils::LanguageExtensions languageExtensions = ::Utils::LanguageExtension::None;
     CPlusPlus::LanguageFeatures languageFeatures;
     QtVersion qtVersion = UnknownQt;
 
