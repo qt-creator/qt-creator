@@ -369,7 +369,7 @@ void RunSettingsWidget::aboutToShowDeployMenu()
     foreach (DeployConfigurationFactory *factory, factories) {
         QList<Core::Id> ids = factory->availableCreationIds(m_target);
         foreach (Core::Id id, ids) {
-            QAction *action = m_addDeployMenu->addAction(factory->displayNameForId(id));
+            QAction *action = m_addDeployMenu->addAction(factory->defaultDisplayName());
             DeployFactoryAndId data = {factory, id};
             action->setData(QVariant::fromValue(data));
             connect(action, &QAction::triggered, [factory, id, this]() {

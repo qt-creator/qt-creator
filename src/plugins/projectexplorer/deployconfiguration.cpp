@@ -163,14 +163,9 @@ bool DeployConfigurationFactory::hasAvailableBuildTargets(Target *) const
     return true;
 }
 
-QString DeployConfigurationFactory::displayNameForBuildTarget(const QString &) const
+QString DeployConfigurationFactory::defaultDisplayName() const
 {
     return m_defaultDisplayName;
-}
-
-QString DeployConfigurationFactory::displayNameForId(Core::Id id) const
-{
-    return displayNameForBuildTarget(id.suffixAfter(m_deployConfigBaseId));
 }
 
 bool DeployConfigurationFactory::canHandle(Target *target) const

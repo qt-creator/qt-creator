@@ -82,8 +82,8 @@ public:
 
     // used to show the list of possible additons to a target, returns a list of types
     QList<Core::Id> availableCreationIds(Target *parent) const;
-    // used to translate the types to names to display to the user
-    QString displayNameForId(Core::Id id) const;
+    // the name to display to the user
+    QString defaultDisplayName() const;
 
     bool canCreate(Target *parent, Core::Id id) const;
     virtual DeployConfiguration *create(Target *parent, Core::Id id);
@@ -99,7 +99,6 @@ public:
 protected:
     virtual bool canHandle(ProjectExplorer::Target *target) const;
     virtual bool hasAvailableBuildTargets(Target *parent) const;
-    virtual QString displayNameForBuildTarget(const QString &buildTarget) const;
 
     using DeployConfigurationCreator = std::function<DeployConfiguration *(Target *)>;
 
