@@ -34,6 +34,7 @@ Project {
         }
 
         Depends { name: "Qt"; submodules: ["concurrent", "network", "qml", "widgets"] }
+        Depends { name: "Qt.macextras"; condition: qbs.targetOS.contains("macos") }
         Depends { name: "app_version_header" }
 
         files: [
@@ -357,6 +358,27 @@ Project {
                 "mimetypeparser.cpp",
                 "mimetypeparser_p.h",
             ]
+        }
+
+        Group {
+            name: "TouchBar support"
+            prefix: "touchbar/"
+            files: "touchbar.h"
+            Group {
+                name: "TouchBar implementation"
+                condition: qbs.targetOS.contains("macos")
+                files: [
+                    "touchbar_appdelegate_mac_p.h",
+                    "touchbar_mac_p.h",
+                    "touchbar_mac.mm",
+                    "touchbar_appdelegate_mac.mm",
+                ]
+            }
+            Group {
+                name: "TouchBar stub"
+                condition: !qbs.targetOS.contains("macos")
+                files: "touchbar.cpp"
+            }
         }
 
         Export {
