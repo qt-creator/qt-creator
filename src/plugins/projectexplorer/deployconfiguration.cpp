@@ -151,11 +151,14 @@ DeployConfigurationFactory::~DeployConfigurationFactory()
     g_deployConfigurationFactories.removeOne(this);
 }
 
-QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent) const
+bool DeployConfigurationFactory::canOffer(Target *parent) const
 {
-    if (canHandle(parent) && hasAvailableBuildTargets(parent))
-        return {m_deployConfigBaseId};
-    return {};
+    return canHandle(parent) && hasAvailableBuildTargets(parent);
+}
+
+Core::Id DeployConfigurationFactory::creationId() const
+{
+    return m_deployConfigBaseId;
 }
 
 bool DeployConfigurationFactory::hasAvailableBuildTargets(Target *) const
@@ -239,7 +242,7 @@ QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *par
 {
     return Utils::filtered(g_deployConfigurationFactories,
         [&parent](DeployConfigurationFactory *factory) {
-            return !factory->availableCreationIds(parent).isEmpty();
+            return factory->canOffer(parent);
         });
 }
 

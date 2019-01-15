@@ -367,23 +367,21 @@ void RunSettingsWidget::aboutToShowDeployMenu()
         return;
 
     foreach (DeployConfigurationFactory *factory, factories) {
-        QList<Core::Id> ids = factory->availableCreationIds(m_target);
-        foreach (Core::Id id, ids) {
-            QAction *action = m_addDeployMenu->addAction(factory->defaultDisplayName());
-            DeployFactoryAndId data = {factory, id};
-            action->setData(QVariant::fromValue(data));
-            connect(action, &QAction::triggered, [factory, id, this]() {
-                if (!factory->canCreate(m_target, id))
-                    return;
-                DeployConfiguration *newDc = factory->create(m_target, id);
-                if (!newDc)
-                    return;
-                QTC_CHECK(!newDc || newDc->id() == id);
-                m_target->addDeployConfiguration(newDc);
-                SessionManager::setActiveDeployConfiguration(m_target, newDc, SetActive::Cascade);
-                m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
-            });
-        }
+        QAction *action = m_addDeployMenu->addAction(factory->defaultDisplayName());
+        const Core::Id id = factory->creationId();
+        DeployFactoryAndId data = {factory, id};
+        action->setData(QVariant::fromValue(data));
+        connect(action, &QAction::triggered, [factory, id, this]() {
+            if (!factory->canCreate(m_target, id))
+                return;
+            DeployConfiguration *newDc = factory->create(m_target, id);
+            if (!newDc)
+                return;
+            QTC_CHECK(!newDc || newDc->id() == id);
+            m_target->addDeployConfiguration(newDc);
+            SessionManager::setActiveDeployConfiguration(m_target, newDc, SetActive::Cascade);
+            m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
+        });
     }
 }
 

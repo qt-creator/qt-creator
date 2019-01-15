@@ -513,7 +513,7 @@ void Target::updateDefaultDeployConfigurations()
 
     QList<Core::Id> dcIds;
     foreach (DeployConfigurationFactory *dcFactory, dcFactories)
-        dcIds.append(dcFactory->availableCreationIds(this));
+        dcIds.append(dcFactory->creationId());
 
     QList<DeployConfiguration *> dcList = deployConfigurations();
     QList<Core::Id> toCreate = dcIds;

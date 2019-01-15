@@ -80,11 +80,12 @@ public:
     DeployConfigurationFactory operator=(const DeployConfigurationFactory &) = delete;
     virtual ~DeployConfigurationFactory();
 
-    // used to show the list of possible additons to a target, returns a list of types
-    QList<Core::Id> availableCreationIds(Target *parent) const;
+    // return possible addition to a target, invalid if there is none
+    Core::Id creationId() const;
     // the name to display to the user
     QString defaultDisplayName() const;
 
+    bool canOffer(Target *parent) const;
     bool canCreate(Target *parent, Core::Id id) const;
     virtual DeployConfiguration *create(Target *parent, Core::Id id);
 
