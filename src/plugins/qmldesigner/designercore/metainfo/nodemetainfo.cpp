@@ -1519,7 +1519,7 @@ bool NodeMetaInfo::availableInVersion(int majorVersion, int minorVersion) const
 bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int minorVersion) const
 {
     if (!isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
+        qWarning() << "NodeMetaInfo is invalid" << type;
         return false;
     }
 
