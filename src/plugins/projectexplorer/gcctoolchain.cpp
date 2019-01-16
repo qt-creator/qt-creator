@@ -787,7 +787,8 @@ bool GccToolChain::fromMap(const QVariantMap &data)
     m_compilerCommand = FileName::fromString(data.value(compilerCommandKeyC).toString());
     m_platformCodeGenFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
     m_platformLinkerFlags = data.value(compilerPlatformLinkerFlagsKeyC).toStringList();
-    m_targetAbi = Abi::fromString(data.value(targetAbiKeyC).toString());
+    const QString targetAbiString = data.value(targetAbiKeyC).toString();
+    m_targetAbi = Abi::fromString(targetAbiString);
     m_originalTargetTriple = data.value(originalTargetTripleKeyC).toString();
     const QStringList abiList = data.value(supportedAbisKeyC).toStringList();
     m_supportedAbis.clear();
@@ -798,7 +799,7 @@ bool GccToolChain::fromMap(const QVariantMap &data)
         m_supportedAbis.append(abi);
     }
 
-    if (!m_targetAbi.isValid())
+    if (targetAbiString.isEmpty())
         resetToolChain(m_compilerCommand);
 
     return true;
