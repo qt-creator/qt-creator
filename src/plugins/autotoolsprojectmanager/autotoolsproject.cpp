@@ -175,6 +175,7 @@ void AutotoolsProject::makefileParsingFinished()
     foreach (const QString& watchedFile, m_watchedFiles)
         m_fileWatcher->removeFile(watchedFile);
 
+    m_files.clear();
     m_watchedFiles.clear();
 
     // Apply sources to m_files, which are returned at AutotoolsProject::files()
