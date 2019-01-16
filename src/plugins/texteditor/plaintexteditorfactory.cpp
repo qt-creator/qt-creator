@@ -65,7 +65,7 @@ PlainTextEditorFactory::PlainTextEditorFactory()
 
     setDocumentCreator([]() { return new TextDocument(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); });
     setEditorWidgetCreator([]() { return new PlainTextEditorWidget; });
-    setIndenterCreator([]() { return new NormalIndenter; });
+    setIndenterCreator([](QTextDocument *doc) { return new NormalIndenter(doc); });
     setUseGenericHighlighter(true);
 
     setEditorActionHandlers(TextEditorActionHandler::Format |

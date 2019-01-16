@@ -25,19 +25,14 @@
 
 #pragma once
 
+#include <texteditor/indenter.h>
+
 #include <utils/changeset.h>
 #include <utils/textfileformat.h>
 
 #include <QString>
 #include <QTextDocument>
 #include <QVector>
-
-namespace TextEditor {
-class Indenter;
-class Replacement;
-using Replacements = std::vector<Replacement>;
-class TabSettings;
-}
 
 namespace ClangTools {
 namespace Internal {

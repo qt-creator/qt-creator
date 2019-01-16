@@ -153,11 +153,20 @@ LLVM_VERSION = $$extractVersion($$output)
 !isEmpty(LLVM_VERSION) {
     versionIsAtLeast($$LLVM_VERSION, 7, 0, 0): {
         CLANGFORMAT_LIBS=-lclangFormat -lclangToolingInclusions -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
-        win32:CLANGFORMAT_LIBS += -lversion
+        ALL_CLANG_LIBS=-lclangFormat -lclangToolingInclusions -lclangTooling -lclangToolingCore \
+                       -lclangRewrite -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
+                       -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
+                       -lclangASTMatchers -lclangAST -lclangLex -lclangBasic
     } else:versionIsAtLeast($$LLVM_VERSION, 6, 0, 0): {
         CLANGFORMAT_LIBS=-lclangFormat -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
-        win32:CLANGFORMAT_LIBS += -lversion
+        ALL_CLANG_LIBS=-lclangFormat -lclangTooling -lclangToolingCore \
+                       -lclangRewrite -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
+                       -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
+                       -lclangASTMatchers -lclangAST -lclangLex -lclangBasic
     }
+
+    win32:CLANGFORMAT_LIBS += -lversion
+    win32:ALL_CLANG_LIBS += -lversion
 }
 
 isEmpty(LLVM_VERSION) {
@@ -223,6 +232,7 @@ isEmpty(LLVM_VERSION) {
     }
 
     CLANGFORMAT_LIBS = -L$${LLVM_LIBDIR} $$CLANGFORMAT_LIBS $$LLVM_STATIC_LIBS
+    ALL_CLANG_LIBS = -L$${LLVM_LIBDIR} $$ALL_CLANG_LIBS $$CLANG_LIB $$LLVM_STATIC_LIBS
 
     contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
 

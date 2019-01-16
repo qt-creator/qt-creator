@@ -111,9 +111,9 @@ QWidget *CppCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePref
     return widget;
 }
 
-TextEditor::Indenter *CppCodeStylePreferencesFactory::createIndenter() const
+TextEditor::Indenter *CppCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
 {
-    return new CppQtStyleIndenter();
+    return new CppQtStyleIndenter(doc);
 }
 
 QString CppCodeStylePreferencesFactory::snippetProviderGroupId() const

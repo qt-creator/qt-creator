@@ -49,7 +49,6 @@ namespace CPlusPlus { class LookupContext; }
 namespace ProjectExplorer { class Project; }
 namespace TextEditor {
 class BaseHoverHandler;
-class Indenter;
 class TextDocument;
 } // namespace TextEditor
 

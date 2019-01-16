@@ -23,30 +23,32 @@
 **
 ****************************************************************************/
 
-#include "indenter.h"
-#include "tabsettings.h"
-#include "textdocumentlayout.h"
+#include "textindenter.h"
 
 #include <QTextDocument>
 #include <QTextCursor>
 
 using namespace TextEditor;
 
-Indenter::Indenter() = default;
+TextIndenter::TextIndenter(QTextDocument *doc)
+    : Indenter(doc)
+{}
 
-Indenter::~Indenter() = default;
+TextIndenter::~TextIndenter() = default;
 
-bool Indenter::isElectricCharacter(const QChar &) const
+IndentationForBlock TextIndenter::indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                                       const TabSettings &tabSettings)
 {
-    return false;
+    IndentationForBlock ret;
+    for (QTextBlock block : blocks)
+        ret.insert(block.blockNumber(), indentFor(block, tabSettings));
+    return ret;
 }
 
-void Indenter::indentBlock(QTextDocument *doc,
-                           const QTextBlock &block,
-                           const QChar &typedChar,
-                           const TabSettings &tabSettings)
+void TextIndenter::indentBlock(const QTextBlock &block,
+                               const QChar &typedChar,
+                               const TabSettings &tabSettings)
 {
-    Q_UNUSED(doc);
     Q_UNUSED(typedChar);
     const int indent = indentFor(block, tabSettings);
     if (indent < 0)
@@ -54,41 +56,39 @@ void Indenter::indentBlock(QTextDocument *doc,
     tabSettings.indentLine(block, indent);
 }
 
-void Indenter::indent(QTextDocument *doc,
-                      const QTextCursor &cursor,
-                      const QChar &typedChar,
-                      const TabSettings &tabSettings,
-                      bool /*autoTriggered*/)
+void TextIndenter::indent(const QTextCursor &cursor,
+                          const QChar &typedChar,
+                          const TabSettings &tabSettings)
 {
     if (cursor.hasSelection()) {
-        QTextBlock block = doc->findBlock(cursor.selectionStart());
-        const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
+        QTextBlock block = m_doc->findBlock(cursor.selectionStart());
+        const QTextBlock end = m_doc->findBlock(cursor.selectionEnd()).next();
         do {
-            indentBlock(doc, block, typedChar, tabSettings);
+            indentBlock(block, typedChar, tabSettings);
             block = block.next();
         } while (block.isValid() && block != end);
     } else {
-        indentBlock(doc, cursor.block(), typedChar, tabSettings);
+        indentBlock(cursor.block(), typedChar, tabSettings);
     }
 }
 
-void Indenter::reindent(QTextDocument *doc, const QTextCursor &cursor, const TabSettings &tabSettings)
+void TextIndenter::reindent(const QTextCursor &cursor, const TabSettings &tabSettings)
 {
     if (cursor.hasSelection()) {
-        QTextBlock block = doc->findBlock(cursor.selectionStart());
-        const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
+        QTextBlock block = m_doc->findBlock(cursor.selectionStart());
+        const QTextBlock end = m_doc->findBlock(cursor.selectionEnd()).next();
 
         // skip empty blocks
         while (block.isValid() && block != end) {
             QString bt = block.text();
             if (tabSettings.firstNonSpace(bt) < bt.size())
                 break;
-            indentBlock(doc, block, QChar::Null, tabSettings);
+            indentBlock(block, QChar::Null, tabSettings);
             block = block.next();
         }
 
         int previousIndentation = tabSettings.indentationColumn(block.text());
-        indentBlock(doc, block, QChar::Null, tabSettings);
+        indentBlock(block, QChar::Null, tabSettings);
         int currentIndentation = tabSettings.indentationColumn(block.text());
         int delta = currentIndentation - previousIndentation;
 
@@ -98,40 +98,17 @@ void Indenter::reindent(QTextDocument *doc, const QTextCursor &cursor, const Tab
             block = block.next();
         }
     } else {
-        indentBlock(doc, cursor.block(), QChar::Null, tabSettings);
+        indentBlock(cursor.block(), QChar::Null, tabSettings);
     }
 }
 
-Replacements Indenter::format(QTextDocument *doc,
-                              const Utils::FileName & /*fileName*/,
-                              const QTextCursor &cursor,
-                              const TabSettings &tabSettings)
+Replacements TextIndenter::format(const QTextCursor &cursor, const TabSettings &tabSettings)
 {
-    indent(doc, cursor, QChar::Null, tabSettings);
+    indent(cursor, QChar::Null, tabSettings);
     return Replacements();
 }
 
-void Indenter::setCodeStylePreferences(ICodeStylePreferences *)
+Utils::optional<TabSettings> TextIndenter::tabSettings() const
 {
-
-}
-
-void Indenter::invalidateCache(QTextDocument *)
-{
-}
-
-int Indenter::indentFor(const QTextBlock &block, const TabSettings &tabSettings)
-{
-    Q_UNUSED(block)
-    Q_UNUSED(tabSettings)
-    return -1;
-}
-
-IndentationForBlock Indenter::indentationForBlocks(const QVector<QTextBlock> &blocks,
-                                                   const TabSettings &tabSettings)
-{
-    IndentationForBlock ret;
-    foreach (QTextBlock block, blocks)
-        ret.insert(block.blockNumber(), indentFor(block, tabSettings));
-    return ret;
+    return Utils::optional<TabSettings>();
 }

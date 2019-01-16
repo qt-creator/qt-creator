@@ -421,8 +421,8 @@ void QuickToolBar::indentLines(int startLine, int endLine)
             QTextBlock start = m_editorWidget->document()->findBlockByNumber(i);
 
             if (start.isValid()) {
-                QmlJSEditor::Internal::Indenter indenterMy;
-                indenterMy.indentBlock(m_editorWidget->document(), start, QChar::Null, tabSettings);
+                QmlJSEditor::Internal::Indenter indenterMy(m_editorWidget->document());
+                indenterMy.indentBlock(start, QChar::Null, tabSettings);
             }
         }
     }

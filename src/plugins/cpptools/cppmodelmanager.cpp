@@ -61,7 +61,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/session.h>
-#include <texteditor/indenter.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 

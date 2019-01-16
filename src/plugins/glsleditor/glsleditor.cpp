@@ -319,7 +319,7 @@ GlslEditorFactory::GlslEditorFactory()
 
     setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
     setEditorWidgetCreator([]() { return new GlslEditorWidget; });
-    setIndenterCreator([]() { return new GlslIndenter; });
+    setIndenterCreator([](QTextDocument *doc) { return new GlslIndenter(doc); });
     setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
     setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(new GlslCompletionAssistProvider);

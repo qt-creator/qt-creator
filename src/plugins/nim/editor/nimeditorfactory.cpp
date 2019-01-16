@@ -60,8 +60,8 @@ NimEditorFactory::NimEditorFactory()
     setDocumentCreator([]() {
         return new TextDocument(Constants::C_NIMEDITOR_ID);
     });
-    setIndenterCreator([]() {
-        return new NimIndenter;
+    setIndenterCreator([](QTextDocument *doc) {
+        return new NimIndenter(doc);
     });
     setSyntaxHighlighterCreator([]() {
         return new NimHighlighter;
@@ -80,7 +80,7 @@ Core::IEditor *NimEditorFactory::createEditor()
 void NimEditorFactory::decorateEditor(TextEditorWidget *editor)
 {
     editor->textDocument()->setSyntaxHighlighter(new NimHighlighter());
-    editor->textDocument()->setIndenter(new NimIndenter());
+    editor->textDocument()->setIndenter(new NimIndenter(editor->textDocument()->document()));
 }
 
 }

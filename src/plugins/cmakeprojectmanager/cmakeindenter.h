@@ -27,17 +27,19 @@
 
 #include "cmake_global.h"
 
-#include <texteditor/indenter.h>
+#include <texteditor/textindenter.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMAKE_EXPORT CMakeIndenter : public TextEditor::Indenter
+class CMAKE_EXPORT CMakeIndenter : public TextEditor::TextIndenter
 {
 public:
+    explicit CMakeIndenter(QTextDocument *doc);
     bool isElectricCharacter(const QChar &ch) const override;
 
-    int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
+    int indentFor(const QTextBlock &block,
+                  const TextEditor::TabSettings &tabSettings) override;
 };
 
 } // namespace Internal

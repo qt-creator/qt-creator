@@ -41,7 +41,7 @@ public:
     TextEditor::ICodeStylePreferences *createCodeStyle() const override;
     QWidget *createEditor(TextEditor::ICodeStylePreferences *settings,
                           QWidget *parent) const override;
-    TextEditor::Indenter *createIndenter() const override;
+    TextEditor::Indenter *createIndenter(QTextDocument *doc) const override;
     QString snippetProviderGroupId() const override;
     QString previewText() const override;
 };

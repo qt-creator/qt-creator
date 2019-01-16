@@ -194,6 +194,10 @@ SOURCES += \
     builddependencycollector-test.cpp
 }
 
+!isEmpty(CLANGFORMAT_LIBS) {
+    SOURCES += clangformat-test.cpp
+}
+
 exists($$GOOGLEBENCHMARK_DIR) {
 SOURCES += \
     smallstring-benchmark.cpp

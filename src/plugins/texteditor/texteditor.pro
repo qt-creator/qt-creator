@@ -31,7 +31,7 @@ SOURCES += texteditorplugin.cpp \
     textdocumentlayout.cpp \
     completionsettings.cpp \
     normalindenter.cpp \
-    indenter.cpp \
+    textindenter.cpp \
     quickfix.cpp \
     syntaxhighlighter.cpp \
     highlighterutils.cpp \
@@ -135,7 +135,7 @@ HEADERS += texteditorplugin.h \
     textdocumentlayout.h \
     completionsettings.h \
     normalindenter.h \
-    indenter.h \
+    textindenter.h \
     quickfix.h \
     syntaxhighlighter.h \
     highlighterutils.h \
@@ -218,7 +218,8 @@ HEADERS += texteditorplugin.h \
     commentssettings.h \
     textstyles.h \
     formattexteditor.h \
-    command.h
+    command.h \
+    indenter.h
 
 FORMS += \
     displaysettingspage.ui \

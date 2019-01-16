@@ -1,4 +1,5 @@
 include(../../qtcreatorplugin.pri)
+include(clangformat-source.pri)
 include(../../shared/clang/clang_installation.pri)
 
 include(../../shared/clang/clang_defines.pri)
@@ -19,17 +20,16 @@ QMAKE_CXXFLAGS *= $$LLVM_CXXFLAGS
 gcc:QMAKE_CXXFLAGS *= -Wno-comment
 unix:!macos:QMAKE_LFLAGS += -Wl,--exclude-libs,ALL
 
-SOURCES = \
+SOURCES += \
     clangformatconfigwidget.cpp \
     clangformatindenter.cpp \
     clangformatplugin.cpp \
     clangformatutils.cpp
 
-HEADERS = \
+HEADERS += \
     clangformatconfigwidget.h \
     clangformatindenter.h \
     clangformatplugin.h \
-    clangformatconstants.h \
     clangformatutils.h
 
 FORMS += \

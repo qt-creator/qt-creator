@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,35 +25,20 @@
 
 #pragma once
 
-#include <texteditor/indenter.h>
+#include "clangformatbaseindenter.h"
+
+#include <texteditor/tabsettings.h>
 
 namespace ClangFormat {
 
-class ClangFormatIndenter final : public TextEditor::Indenter
+class ClangFormatIndenter final : public ClangFormatBaseIndenter
 {
 public:
-    void indent(QTextDocument *doc,
-                const QTextCursor &cursor,
-                const QChar &typedChar,
-                const TextEditor::TabSettings &tabSettings,
-                bool autoTriggered = true) override;
-    void reindent(QTextDocument *doc,
-                  const QTextCursor &cursor,
-                  const TextEditor::TabSettings &tabSettings) override;
-    TextEditor::Replacements format(QTextDocument *doc,
-                                    const Utils::FileName &fileName,
-                                    const QTextCursor &cursor,
-                                    const TextEditor::TabSettings &tabSettings) override;
-    void indentBlock(QTextDocument *doc,
-                     const QTextBlock &block,
-                     const QChar &typedChar,
-                     const TextEditor::TabSettings &tabSettings) override;
-    int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
+    ClangFormatIndenter(QTextDocument *doc);
+    Utils::optional<TextEditor::TabSettings> tabSettings() const override;
 
-    bool isElectricCharacter(const QChar &ch) const override;
-
-    bool hasTabSettings() const override { return true; }
-    TextEditor::TabSettings tabSettings() const override;
+private:
+    clang::format::FormatStyle styleForFile() const override;
 };
 
 } // namespace ClangFormat

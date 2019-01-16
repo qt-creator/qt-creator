@@ -42,7 +42,8 @@ CppEditor::CppEditor()
 void CppEditor::decorateEditor(TextEditor::TextEditorWidget *editor)
 {
     editor->textDocument()->setSyntaxHighlighter(new CppHighlighter);
-    editor->textDocument()->setIndenter(new CppTools::CppQtStyleIndenter);
+    editor->textDocument()->setIndenter(
+        new CppTools::CppQtStyleIndenter(editor->textDocument()->document()));
     editor->setAutoCompleter(new CppAutoCompleter);
 }
 

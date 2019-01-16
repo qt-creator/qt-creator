@@ -34,6 +34,10 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
+CMakeIndenter::CMakeIndenter(QTextDocument *doc)
+    : TextEditor::TextIndenter(doc)
+{}
+
 bool CMakeIndenter::isElectricCharacter(const QChar &ch) const
 {
     return ch == QLatin1Char('(') || ch == QLatin1Char(')');
@@ -98,7 +102,8 @@ static int paranthesesLevel(const QString &line)
         return -1;
 }
 
-int CMakeIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
+int CMakeIndenter::indentFor(const QTextBlock &block,
+                             const TextEditor::TabSettings &tabSettings)
 {
     QTextBlock previousBlock = block.previous();
     // find the next previous block that is non-empty (contains non-whitespace characters)

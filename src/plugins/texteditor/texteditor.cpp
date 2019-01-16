@@ -8738,7 +8738,7 @@ IEditor *TextEditorFactory::createEditor()
     TextDocumentPtr doc(d->m_documentCreator());
 
     if (d->m_indenterCreator)
-        doc->setIndenter(d->m_indenterCreator());
+        doc->setIndenter(d->m_indenterCreator(doc->document()));
 
     if (d->m_syntaxHighlighterCreator)
         doc->setSyntaxHighlighter(d->m_syntaxHighlighterCreator());

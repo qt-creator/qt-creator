@@ -80,9 +80,9 @@ QWidget *QmlJSCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePr
     return widget;
 }
 
-TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter() const
+TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
 {
-    return new QmlJSEditor::Internal::Indenter();
+    return new QmlJSEditor::Internal::Indenter(doc);
 }
 
 QString QmlJSCodeStylePreferencesFactory::snippetProviderGroupId() const

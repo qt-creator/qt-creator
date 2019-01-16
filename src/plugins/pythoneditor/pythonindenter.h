@@ -25,12 +25,14 @@
 
 #pragma once
 
-#include <texteditor/indenter.h>
+#include <texteditor/textindenter.h>
 
 namespace PythonEditor {
 
-class PythonIndenter : public TextEditor::Indenter
+class PythonIndenter : public TextEditor::TextIndenter
 {
+public:
+    explicit PythonIndenter(QTextDocument *doc);
 private:
     bool isElectricCharacter(const QChar &ch) const override;
     int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;

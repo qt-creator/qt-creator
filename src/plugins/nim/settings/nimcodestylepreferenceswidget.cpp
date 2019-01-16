@@ -96,8 +96,7 @@ void NimCodeStylePreferencesWidget::updatePreview()
     QTextCursor tc = m_ui->previewTextEdit->textCursor();
     tc.beginEditBlock();
     while (block.isValid()) {
-        m_ui->previewTextEdit->textDocument()->indenter()
-                ->indentBlock(doc, block, QChar::Null, ts);
+        m_ui->previewTextEdit->textDocument()->indenter()->indentBlock(block, QChar::Null, ts);
         block = block.next();
     }
     tc.endEditBlock();

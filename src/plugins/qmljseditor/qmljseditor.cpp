@@ -1071,7 +1071,7 @@ QmlJSEditorFactory::QmlJSEditorFactory()
 void QmlJSEditorFactory::decorateEditor(TextEditorWidget *editor)
 {
     editor->textDocument()->setSyntaxHighlighter(new QmlJSHighlighter);
-    editor->textDocument()->setIndenter(new Indenter);
+    editor->textDocument()->setIndenter(new Indenter(editor->textDocument()->document()));
     editor->setAutoCompleter(new AutoCompleter);
 }
 

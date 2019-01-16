@@ -1633,7 +1633,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
                 while (!cursor.atBlockEnd())
                     cursor.deleteChar();
             } else {
-                tew->textDocument()->indenter()->indentBlock(doc, block, typedChar, tabSettings);
+                tew->textDocument()->indenter()->indentBlock(block, typedChar, tabSettings);
             }
             block = block.next();
         }

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
-** Contact: http://www.qt.io/licensing
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
 **
@@ -25,38 +25,39 @@
 
 #pragma once
 
-#include <texteditor/textindenter.h>
+#include "texteditor_global.h"
+
+#include "indenter.h"
+#include "tabsettings.h"
+
+QT_BEGIN_NAMESPACE
+class QTextDocument;
+class QTextCursor;
+class QChar;
+QT_END_NAMESPACE
 
 namespace TextEditor {
-class SimpleCodeStylePreferences;
-}
 
-namespace Nim {
-
-class NimLexer;
-
-class NimIndenter : public TextEditor::TextIndenter
+class TEXTEDITOR_EXPORT TextIndenter : public Indenter
 {
 public:
-    explicit NimIndenter(QTextDocument *doc);
+    explicit TextIndenter(QTextDocument *doc);
+    ~TextIndenter() override;
 
-    bool isElectricCharacter(const QChar &ch) const override;
-
+    IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                             const TabSettings &tabSettings) override;
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TextEditor::TabSettings &settings) override;
+                     const TabSettings &tabSettings) override;
 
-private:
-    static const QSet<QChar> &electricCharacters();
+    void indent(const QTextCursor &cursor,
+                const QChar &typedChar,
+                const TabSettings &tabSettings) override;
 
-    bool startsBlock(const QString &line, int state) const;
-    bool endsBlock(const QString &line, int state) const;
+    Replacements format(const QTextCursor &cursor, const TabSettings &tabSettings) override;
 
-    int calculateIndentationDiff(const QString &previousLine,
-                                 int previousState,
-                                 int indentSize) const;
-
-    static QString rightTrimmed(const QString &other);
+    void reindent(const QTextCursor &cursor, const TabSettings &tabSettings) override;
+    Utils::optional<TabSettings> tabSettings() const override;
 };
 
-} // namespace Nim
+} // namespace TextEditor

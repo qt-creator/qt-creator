@@ -67,9 +67,9 @@ QWidget *NimCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePref
     return result;
 }
 
-TextEditor::Indenter *NimCodeStylePreferencesFactory::createIndenter() const
+TextEditor::Indenter *NimCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
 {
-    return new NimIndenter();
+    return new NimIndenter(doc);
 }
 
 QString NimCodeStylePreferencesFactory::snippetProviderGroupId() const

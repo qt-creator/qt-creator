@@ -481,7 +481,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
         QTextCursor tc = preview->textCursor();
         tc.beginEditBlock();
         while (block.isValid()) {
-            preview->textDocument()->indenter()->indentBlock(doc, block, QChar::Null, ts);
+            preview->textDocument()->indenter()->indentBlock(block, QChar::Null, ts);
 
             block = block.next();
         }

@@ -25,20 +25,19 @@
 
 #pragma once
 
-#include <texteditor/indenter.h>
+#include <texteditor/textindenter.h>
 
 namespace Android {
 namespace Internal {
-class JavaIndenter : public TextEditor::Indenter
+class JavaIndenter : public TextEditor::TextIndenter
 {
 public:
-    JavaIndenter();
+    explicit JavaIndenter(QTextDocument *doc);
     ~JavaIndenter() override;
 
     bool isElectricCharacter(const QChar &ch) const override;
 
-    void indentBlock(QTextDocument *doc,
-                     const QTextBlock &block,
+    void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
                      const TextEditor::TabSettings &tabSettings) override;
 

@@ -26,6 +26,7 @@
 #pragma once
 
 #include "texteditor_global.h"
+#include "indenter.h"
 
 #include <coreplugin/id.h>
 #include <coreplugin/textdocument.h>
@@ -48,7 +49,6 @@ namespace TextEditor {
 class CompletionAssistProvider;
 class ExtraEncodingSettings;
 class FontSettings;
-class Indenter;
 class IAssistProvider;
 class StorageSettings;
 class SyntaxHighlighter;
@@ -87,8 +87,7 @@ public:
 
     void setIndenter(Indenter *indenter);
     Indenter *indenter() const;
-    void autoIndent(const QTextCursor &cursor, QChar typedChar = QChar::Null,
-                    bool autoTriggered = true);
+    void autoIndent(const QTextCursor &cursor, QChar typedChar = QChar::Null);
     void autoReindent(const QTextCursor &cursor);
     void autoFormat(const QTextCursor &cursor);
     QTextCursor indent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,

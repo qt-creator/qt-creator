@@ -84,9 +84,9 @@ public:
         return nullptr;
     }
 
-    TextEditor::Indenter *createIndenter() const override
+    TextEditor::Indenter *createIndenter(QTextDocument *doc) const override
     {
-        return new ClangFormatIndenter();
+        return new ClangFormatIndenter(doc);
     }
 };
 

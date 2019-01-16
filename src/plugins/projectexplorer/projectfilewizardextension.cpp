@@ -252,18 +252,23 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
 
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
 
+    QTextDocument doc(file->contents());
     Indenter *indenter = nullptr;
-    if (factory)
-        indenter = factory->createIndenter();
+    if (factory) {
+        indenter = factory->createIndenter(&doc);
+        indenter->setFileName(Utils::FileName::fromString(file->path()));
+    }
     if (!indenter)
-        indenter = new NormalIndenter();
+        indenter = new NormalIndenter(&doc);
 
     ICodeStylePreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
     indenter->setCodeStylePreferences(codeStylePrefs);
-    QTextDocument doc(file->contents());
+
     QTextCursor cursor(&doc);
     cursor.select(QTextCursor::Document);
-    indenter->indent(&doc, cursor, QChar::Null, codeStylePrefs->currentTabSettings());
+    indenter->indent(cursor,
+                     QChar::Null,
+                     codeStylePrefs->currentTabSettings());
     delete indenter;
     if (TextEditorSettings::storageSettings().m_cleanWhitespace) {
         QTextBlock block = doc.firstBlock();

@@ -32,6 +32,7 @@
 
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
+#include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QDebug>
@@ -83,7 +84,6 @@ bool FixitsRefactoringFile::apply()
 
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(
         CppTools::Constants::CPP_SETTINGS_ID);
-    std::unique_ptr<TextEditor::Indenter> indenter(factory->createIndenter());
 
     const TextEditor::TabSettings tabSettings
             = CppTools::CppCodeStyleSettings::currentProjectTabSettings();
@@ -103,6 +103,9 @@ bool FixitsRefactoringFile::apply()
 
             // Apply
             QTextDocument *doc = document(op.fileName);
+            std::unique_ptr<TextEditor::Indenter> indenter(factory->createIndenter(doc));
+            indenter->setFileName(Utils::FileName::fromString(op.fileName));
+
             QTextCursor cursor(doc);
             cursor.setPosition(op.pos);
             cursor.setPosition(op.pos + op.length, QTextCursor::KeepAnchor);
@@ -139,10 +142,7 @@ void FixitsRefactoringFile::tryToFormat(TextEditor::Indenter &indenter,
     cursor.movePosition(QTextCursor::Right,
                         QTextCursor::KeepAnchor,
                         op.text.length());
-    const Replacements replacements = indenter.format(doc,
-                                                      Utils::FileName::fromString(op.fileName),
-                                                      cursor,
-                                                      tabSettings);
+    const Replacements replacements = indenter.format(cursor, tabSettings);
     cursor.endEditBlock();
 
     if (replacements.empty())

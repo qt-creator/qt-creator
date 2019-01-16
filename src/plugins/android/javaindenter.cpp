@@ -31,7 +31,9 @@
 using namespace Android;
 using namespace Android::Internal;
 
-JavaIndenter::JavaIndenter() = default;
+JavaIndenter::JavaIndenter(QTextDocument *doc)
+    : TextEditor::TextIndenter(doc)
+{}
 
 JavaIndenter::~JavaIndenter() = default;
 
@@ -44,20 +46,17 @@ bool JavaIndenter::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
-void JavaIndenter::indentBlock(QTextDocument *doc,
-                               const QTextBlock &block,
+void JavaIndenter::indentBlock(const QTextBlock &block,
                                const QChar &typedChar,
                                const TextEditor::TabSettings &tabSettings)
 {
-    Q_UNUSED(doc);
     int indent = indentFor(block, tabSettings);
     if (typedChar == QLatin1Char('}'))
         indent -= tabSettings.m_indentSize;
     tabSettings.indentLine(block, qMax(0, indent));
 }
 
-int JavaIndenter::indentFor(const QTextBlock &block,
-                            const TextEditor::TabSettings &tabSettings)
+int JavaIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
 {
     QTextBlock previous = block.previous();
     if (!previous.isValid())

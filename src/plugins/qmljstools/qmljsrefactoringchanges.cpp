@@ -77,8 +77,8 @@ public:
         const TextEditor::TabSettings &tabSettings =
             ProjectExplorer::actualTabSettings(fileName, textDocument);
 
-        QmlJSEditor::Internal::Indenter indenter;
-        indenter.reindent(selection.document(), selection, tabSettings);
+        QmlJSEditor::Internal::Indenter indenter(selection.document());
+        indenter.reindent(selection, tabSettings);
     }
 
     void fileChanged(const QString &fileName) override

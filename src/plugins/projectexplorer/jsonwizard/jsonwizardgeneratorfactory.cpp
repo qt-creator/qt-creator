@@ -36,7 +36,6 @@
 #include <coreplugin/dialogs/promptoverwritedialog.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
-#include <texteditor/indenter.h>
 #include <texteditor/normalindenter.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/tabsettings.h>
@@ -94,18 +93,22 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     auto baseProject = qobject_cast<Project *>(wizard->property("SelectedProject").value<QObject *>());
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
 
-    Indenter *indenter = nullptr;
-    if (factory)
-        indenter = factory->createIndenter();
-    if (!indenter)
-        indenter = new NormalIndenter();
-
-    ICodeStylePreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
-    indenter->setCodeStylePreferences(codeStylePrefs);
     QTextDocument doc(file->contents());
     QTextCursor cursor(&doc);
+    Indenter *indenter = nullptr;
+    if (factory) {
+        indenter = factory->createIndenter(&doc);
+        indenter->setFileName(Utils::FileName::fromString(file->path()));
+    }
+    if (!indenter)
+        indenter = new NormalIndenter(&doc);
+    ICodeStylePreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
+    indenter->setCodeStylePreferences(codeStylePrefs);
+
     cursor.select(QTextCursor::Document);
-    indenter->indent(&doc, cursor, QChar::Null, codeStylePrefs->currentTabSettings());
+    indenter->indent(cursor,
+                     QChar::Null,
+                     codeStylePrefs->currentTabSettings());
     delete indenter;
     if (TextEditorSettings::storageSettings().m_cleanWhitespace) {
         QTextBlock block = doc.firstBlock();

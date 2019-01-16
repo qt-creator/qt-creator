@@ -27,7 +27,7 @@
 
 #include "extraencodingsettings.h"
 #include "fontsettings.h"
-#include "indenter.h"
+#include "textindenter.h"
 #include "storagesettings.h"
 #include "syntaxhighlighter.h"
 #include "tabsettings.h"
@@ -78,7 +78,7 @@ class TextDocumentPrivate
 {
 public:
     TextDocumentPrivate()
-        : m_indenter(new Indenter)
+        : m_indenter(new TextIndenter(&m_document))
     {
     }
 
@@ -416,19 +416,19 @@ void TextDocument::setExtraEncodingSettings(const ExtraEncodingSettings &extraEn
     d->m_extraEncodingSettings = extraEncodingSettings;
 }
 
-void TextDocument::autoIndent(const QTextCursor &cursor, QChar typedChar, bool autoTriggered)
+void TextDocument::autoIndent(const QTextCursor &cursor, QChar typedChar)
 {
-    d->m_indenter->indent(&d->m_document, cursor, typedChar, tabSettings(), autoTriggered);
+    d->m_indenter->indent(cursor, typedChar, tabSettings());
 }
 
 void TextDocument::autoReindent(const QTextCursor &cursor)
 {
-    d->m_indenter->reindent(&d->m_document, cursor, tabSettings());
+    d->m_indenter->reindent(cursor, tabSettings());
 }
 
 void TextDocument::autoFormat(const QTextCursor &cursor)
 {
-    d->m_indenter->format(&d->m_document, filePath(), cursor, tabSettings());
+    d->m_indenter->format(cursor, tabSettings());
 }
 
 QTextCursor TextDocument::indent(const QTextCursor &cursor, bool blockSelection, int column,
@@ -824,8 +824,8 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, b
         return;
 
     const TabSettings currentTabSettings = tabSettings();
-    const IndentationForBlock &indentations =
-            d->m_indenter->indentationForBlocks(blocks, currentTabSettings);
+    const IndentationForBlock &indentations
+        = d->m_indenter->indentationForBlocks(blocks, currentTabSettings);
 
     foreach (block, blocks) {
         QString blockText = block.text();

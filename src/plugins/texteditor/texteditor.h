@@ -27,6 +27,7 @@
 
 #include "texteditor_global.h"
 #include "blockrange.h"
+#include "indenter.h"
 #include "codeassist/assistenums.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -85,7 +86,6 @@ class CompletionSettings;
 class DisplaySettings;
 class ExtraEncodingSettings;
 class FontSettings;
-class Indenter;
 class MarginSettings;
 class StorageSettings;
 class TypingSettings;
@@ -635,7 +635,7 @@ public:
     using DocumentCreator = std::function<TextDocument *()>;
     using EditorWidgetCreator = std::function<TextEditorWidget *()>;
     using SyntaxHighLighterCreator = std::function<SyntaxHighlighter *()>;
-    using IndenterCreator = std::function<Indenter *()>;
+    using IndenterCreator = std::function<Indenter *(QTextDocument *)>;
     using AutoCompleterCreator = std::function<AutoCompleter *()>;
 
     void setDocumentCreator(const DocumentCreator &creator);

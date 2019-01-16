@@ -61,8 +61,8 @@ void BaseTextEditModifier::indentLines(int startLine, int endLine)
         QTextBlock start = textDocument->findBlockByNumber(i);
 
         if (start.isValid()) {
-            QmlJSEditor::Internal::Indenter indenter;
-            indenter.indentBlock(textDocument, start, QChar::Null, tabSettings);
+            QmlJSEditor::Internal::Indenter indenter(textDocument);
+            indenter.indentBlock(start, QChar::Null, tabSettings);
         }
     }
     tc.endEditBlock();

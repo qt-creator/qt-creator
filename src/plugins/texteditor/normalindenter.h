@@ -25,14 +25,14 @@
 
 #pragma once
 
-#include "indenter.h"
+#include "textindenter.h"
 
 namespace TextEditor {
 
-class TEXTEDITOR_EXPORT NormalIndenter : public Indenter
+class TEXTEDITOR_EXPORT NormalIndenter : public TextIndenter
 {
 public:
-    NormalIndenter() = default;
+    explicit NormalIndenter(QTextDocument *doc);
     ~NormalIndenter() override = default;
 
     int indentFor(const QTextBlock &block, const TabSettings &tabSettings) override;

@@ -50,6 +50,10 @@
 
 using namespace TextEditor;
 
+NormalIndenter::NormalIndenter(QTextDocument *doc)
+    : TextIndenter(doc)
+{}
+
 int NormalIndenter::indentFor(const QTextBlock &block, const TabSettings &tabSettings)
 {
     Q_UNUSED(tabSettings);

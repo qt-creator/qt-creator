@@ -30,6 +30,8 @@ QtcPlugin {
     cpp.rpaths: base.concat(libclang.llvmLibDir)
 
     files: [
+        "clangformatbaseindenter.h",
+        "clangformatbaseindenter.cpp",
         "clangformatconfigwidget.cpp",
         "clangformatconfigwidget.h",
         "clangformatconfigwidget.ui",

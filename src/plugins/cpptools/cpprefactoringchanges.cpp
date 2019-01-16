@@ -56,8 +56,8 @@ public:
         const TextEditor::TabSettings &tabSettings =
             ProjectExplorer::actualTabSettings(fileName, textDocument);
 
-        CppQtStyleIndenter indenter;
-        indenter.indent(selection.document(), selection, QChar::Null, tabSettings);
+        CppQtStyleIndenter indenter(selection.document());
+        indenter.indent(selection, QChar::Null, tabSettings);
     }
 
     void reindentSelection(const QTextCursor &selection,
@@ -67,8 +67,9 @@ public:
         const TextEditor::TabSettings &tabSettings =
             ProjectExplorer::actualTabSettings(fileName, textDocument);
 
-        CppQtStyleIndenter indenter;
-        indenter.reindent(selection.document(), selection, tabSettings);
+        CppQtStyleIndenter indenter(selection.document());
+        indenter.reindent(selection,
+                          tabSettings);
     }
 
     void fileChanged(const QString &fileName) override

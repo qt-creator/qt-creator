@@ -653,7 +653,7 @@ QmlJSEditorDocument::QmlJSEditorDocument()
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
             d, &Internal::QmlJSEditorDocumentPrivate::invalidateFormatterCache);
     setSyntaxHighlighter(new QmlJSHighlighter(document()));
-    setIndenter(new Internal::Indenter);
+    setIndenter(new Internal::Indenter(document()));
 }
 
 QmlJSEditorDocument::~QmlJSEditorDocument()

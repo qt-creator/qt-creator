@@ -111,7 +111,7 @@ CppEditorDocument::CppEditorDocument()
 
     ICodeStylePreferencesFactory *factory
         = TextEditorSettings::codeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID);
-    setIndenter(factory->createIndenter());
+    setIndenter(factory->createIndenter(document()));
 
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
             this, &CppEditorDocument::invalidateFormatterCache);
@@ -243,6 +243,7 @@ void CppEditorDocument::onFilePathChanged(const Utils::FileName &oldPath,
     Q_UNUSED(oldPath);
 
     if (!newPath.isEmpty()) {
+        indenter()->setFileName(newPath);
         setMimeType(Utils::mimeTypeForFile(newPath.toFileInfo()).name());
 
         connect(this, &Core::IDocument::contentsChanged,
@@ -443,9 +444,7 @@ CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()
 
 TextEditor::TabSettings CppEditorDocument::tabSettings() const
 {
-    return indenter()->hasTabSettings()
-            ? indenter()->tabSettings()
-            : TextEditor::TextDocument::tabSettings();
+    return indenter()->tabSettings().value_or(TextEditor::TextDocument::tabSettings());
 }
 
 } // namespace Internal
