@@ -60,8 +60,11 @@ AndroidDeployConfigurationFactory::AndroidDeployConfigurationFactory()
     setDefaultDisplayName(AndroidDeployConfiguration::tr("Deploy to Android device"));
 }
 
-bool AndroidDeployConfigurationFactory::hasAvailableBuildTargets(Target *parent) const
+bool AndroidDeployConfigurationFactory::canHandle(Target *parent) const
 {
+    if (!DeployConfigurationFactory::canHandle(parent))
+        return false;
+
     if (!parent->project()->id().name().startsWith("QmlProjectManager.QmlProject")) {
         // Avoid tool chain check for QML Project
         Core::Id cxxLangId(ProjectExplorer::Constants::CXX_LANGUAGE_ID);

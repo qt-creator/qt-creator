@@ -85,7 +85,6 @@ public:
     // the name to display to the user
     QString defaultDisplayName() const;
 
-    bool canOffer(Target *parent) const;
     bool canCreate(Target *parent, Core::Id id) const;
     virtual DeployConfiguration *create(Target *parent, Core::Id id);
 
@@ -97,10 +96,9 @@ public:
     void setDefaultDisplayName(const QString &defaultDisplayName);
     void setSupportedProjectType(Core::Id id);
 
-protected:
     virtual bool canHandle(ProjectExplorer::Target *target) const;
-    virtual bool hasAvailableBuildTargets(Target *parent) const;
 
+protected:
     using DeployConfigurationCreator = std::function<DeployConfiguration *(Target *)>;
 
     template <class DeployConfig>

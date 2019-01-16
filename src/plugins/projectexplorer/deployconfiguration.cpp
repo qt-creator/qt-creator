@@ -151,19 +151,9 @@ DeployConfigurationFactory::~DeployConfigurationFactory()
     g_deployConfigurationFactories.removeOne(this);
 }
 
-bool DeployConfigurationFactory::canOffer(Target *parent) const
-{
-    return canHandle(parent) && hasAvailableBuildTargets(parent);
-}
-
 Core::Id DeployConfigurationFactory::creationId() const
 {
     return m_deployConfigBaseId;
-}
-
-bool DeployConfigurationFactory::hasAvailableBuildTargets(Target *) const
-{
-    return true;
 }
 
 QString DeployConfigurationFactory::defaultDisplayName() const
@@ -242,7 +232,7 @@ const QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Targe
 {
     return Utils::filtered(g_deployConfigurationFactories,
         [&parent](DeployConfigurationFactory *factory) {
-            return factory->canOffer(parent);
+            return factory->canHandle(parent);
         });
 }
 

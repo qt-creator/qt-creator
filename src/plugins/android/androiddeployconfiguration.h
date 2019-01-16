@@ -44,7 +44,7 @@ class AndroidDeployConfigurationFactory : public ProjectExplorer::DeployConfigur
 public:
     AndroidDeployConfigurationFactory();
 
-    bool hasAvailableBuildTargets(ProjectExplorer::Target *parent) const override;
+    bool canHandle(ProjectExplorer::Target *parent) const override;
 };
 
 } // namespace Internal
