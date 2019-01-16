@@ -6,7 +6,7 @@
     "trDescription": "Creates new Python class file.",
     "trDisplayName": "Python Class",
     "trDisplayCategory": "Python",
-    "iconText": "py",
+    "icon": "../../files/python/icon.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('PythonEditor') >= 0}",
 
     "options":
@@ -29,6 +29,15 @@
                     "mandatory": true,
                     "type": "LineEdit",
                     "data": { "validator": "^(?:[^\\d\\W]\\w*|)$" }
+                },
+                {
+                    "name": "Module",
+                    "trDisplayName": "Python module:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "items": ["PySide2", "PyQt5"]
+                    }
                 },
                 {
                     "name": "BaseCB",

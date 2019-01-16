@@ -59,6 +59,10 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QTextCursor>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QJsonArray>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -340,6 +344,35 @@ static QStringList readLines(const Utils::FileName &projectFile)
     return lines;
 }
 
+static QStringList readLinesJson(const Utils::FileName &projectFile)
+{
+    const QString projectFileName = projectFile.fileName();
+    QStringList lines = { projectFileName };
+
+    QFile file(projectFile.toString());
+    if (!file.open(QFile::ReadOnly))
+        return lines;
+    const QByteArray content = file.readAll();
+
+    // This assumes te project file is formed with only one field called
+    // 'files' that has a list associated of the files to include in the project.
+    if (!content.isEmpty()) {
+        const QJsonDocument doc = QJsonDocument::fromJson(content);
+        const QJsonObject obj = doc.object();
+        if (obj.contains("files")) {
+            QJsonValue files = obj.value("files");
+            QJsonArray files_array = files.toArray();
+            QSet<QString> visited;
+            for (const auto &file : files_array)
+                visited.insert(file.toString());
+
+            lines.append(visited.toList());
+        }
+    }
+
+    return lines;
+}
+
 bool PythonProject::saveRawFileList(const QStringList &rawFileList)
 {
     bool result = saveRawList(rawFileList, projectFilePath().toString());
@@ -418,7 +451,15 @@ bool PythonProject::renameFile(const QString &filePath, const QString &newFilePa
 void PythonProject::parseProject()
 {
     m_rawListEntries.clear();
-    m_rawFileList = readLines(projectFilePath());
+    const Utils::FileName filePath = projectFilePath();
+    // The PySide project file is JSON based
+    if (filePath.endsWith(".pyproject"))
+        m_rawFileList = readLinesJson(filePath);
+    // To keep compatibility with PyQt we keep the compatibility with plain
+    // text files as project files.
+    else if (filePath.endsWith(".pyqtc"))
+        m_rawFileList = readLines(filePath);
+
     m_files = processEntries(m_rawFileList, &m_rawListEntries);
 }
 
@@ -449,7 +490,7 @@ void PythonProject::refresh(Target *target)
     auto newRoot = std::make_unique<PythonProjectNode>(this);
     for (const QString &f : m_files) {
         const QString displayName = baseDir.relativeFilePath(f);
-        FileType fileType = f.endsWith(".pyqtc") ? FileType::Project : FileType::Source;
+        FileType fileType = f.endsWith(".pyproject") || f.endsWith(".pyqtc") ? FileType::Project : FileType::Source;
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(FileName::fromString(f),
                                                                 displayName, fileType));
         if (fileType == FileType::Source) {
