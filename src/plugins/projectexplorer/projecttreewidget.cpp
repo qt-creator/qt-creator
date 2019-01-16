@@ -413,6 +413,11 @@ void ProjectTreeWidget::collapseAll()
     m_view->collapseAll();
 }
 
+void ProjectTreeWidget::expandAll()
+{
+    m_view->expandAll();
+}
+
 void ProjectTreeWidget::editCurrentItem()
 {
     m_delayedRename.clear();

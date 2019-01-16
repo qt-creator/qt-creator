@@ -66,6 +66,7 @@ public:
     void toggleAutoSynchronization();
     void editCurrentItem();
     void collapseAll();
+    void expandAll();
 
 private:
     void setProjectFilter(bool filter);

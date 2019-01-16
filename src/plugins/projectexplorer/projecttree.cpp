@@ -277,6 +277,12 @@ void ProjectTree::collapseAll()
         w->collapseAll();
 }
 
+void ProjectTree::expandAll()
+{
+    if (auto w = Utils::findOrDefault(s_instance->m_projectTreeWidgets, &ProjectTree::hasFocus))
+        w->expandAll();
+}
+
 void ProjectTree::updateExternalFileWarning()
 {
     auto document = qobject_cast<Core::IDocument *>(sender());
