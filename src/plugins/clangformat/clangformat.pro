@@ -15,6 +15,8 @@ INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 QMAKE_CXXFLAGS_WARN_ON *= $$LLVM_CXXFLAGS_WARNINGS
 QMAKE_CXXFLAGS *= $$LLVM_CXXFLAGS
+# clang/Format/Format.h has intentional multiline comments
+gcc:QMAKE_CXXFLAGS *= -Wno-comment
 unix:!macos:QMAKE_LFLAGS += -Wl,--exclude-libs,ALL
 
 SOURCES = \

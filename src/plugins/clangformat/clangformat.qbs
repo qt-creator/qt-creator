@@ -17,7 +17,12 @@ QtcPlugin {
     condition: libclang.present
                && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
 
-    cpp.cxxFlags: base.concat(libclang.llvmToolingCxxFlags)
+    cpp.cxxFlags: {
+        var res = base.concat(libclang.llvmToolingCxxFlags);
+        if (qbs.toolchain.contains("gcc"))
+            res.push("-Wno-comment"); // clang/Format/Format.h has intentional multiline comments
+        return res;
+    }
     cpp.defines: base.concat("CLANGPCHMANAGER_LIB")
     cpp.includePaths: base.concat(libclang.llvmIncludeDir)
     cpp.libraryPaths: base.concat(libclang.llvmLibDir)
