@@ -45,7 +45,7 @@ namespace ProjectExplorer {
 
 const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; *.files;"
                                         " *.config; *.creator; *.user*; *.includes; *.autosave";
-const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
+const char SELECT_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
 
 SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel(parent)
 {
@@ -109,8 +109,7 @@ SelectableFilesModel::FilterState SelectableFilesModel::filter(Tree *t)
         return g.isMatch(t->name);
     };
 
-    //If one of the "show file" filters matches just return false
-    if (Utils::anyOf(m_showFilesFilter, matchesTreeName))
+    if (Utils::anyOf(m_selectFilesFilter, matchesTreeName))
         return FilterState::CHECKED;
 
     return Utils::anyOf(m_hideFilesFilter, matchesTreeName) ? FilterState::HIDDEN : FilterState::SHOWN;
@@ -369,11 +368,11 @@ QList<Glob> SelectableFilesModel::parseFilter(const QString &filter)
     return result;
 }
 
-void SelectableFilesModel::applyFilter(const QString &showFilesfilter, const QString &hideFilesfilter)
+void SelectableFilesModel::applyFilter(const QString &selectFilesfilter, const QString &hideFilesfilter)
 {
-    QList<Glob> filter = parseFilter(showFilesfilter);
-    bool mustApply = filter != m_showFilesFilter;
-    m_showFilesFilter = filter;
+    QList<Glob> filter = parseFilter(selectFilesfilter);
+    bool mustApply = filter != m_selectFilesFilter;
+    m_selectFilesFilter = filter;
 
     filter = parseFilter(hideFilesfilter);
     mustApply = mustApply || (filter != m_hideFilesFilter);
@@ -523,7 +522,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &idx)
 namespace {
 
 enum class SelectableFilesWidgetRows {
-    BaseDirectory, ShowFileFilter, HideFileFilter, ApplyButton, View, Progress, PreservedInformation
+    BaseDirectory, SelectFileFilter, HideFileFilter, ApplyButton, View, Progress, PreservedInformation
 };
 
 } // namespace
@@ -533,18 +532,18 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     m_baseDirChooser(new Utils::PathChooser),
     m_baseDirLabel(new QLabel),
     m_startParsingButton(new QPushButton),
-    m_showFilesFilterLabel(new QLabel),
-    m_showFilesFilterEdit(new QLineEdit),
+    m_selectFilesFilterLabel(new QLabel),
+    m_selectFilesFilterEdit(new QLineEdit),
     m_hideFilesFilterLabel(new QLabel),
     m_hideFilesFilterEdit(new QLineEdit),
-    m_applyFilterButton(new QPushButton),
+    m_applyFiltersButton(new QPushButton),
     m_view(new QTreeView),
     m_preservedFilesLabel(new QLabel),
     m_progressLabel(new QLabel)
 {
-    const QString showFilter
+    const QString selectFilter
             = Core::ICore::settings()->value("GenericProject/ShowFileFilter",
-                                             QLatin1String(SHOW_FILE_FILTER_DEFAULT)).toString();
+                                             QLatin1String(SELECT_FILE_FILTER_DEFAULT)).toString();
     const QString hideFilter
             = Core::ICore::settings()->value("GenericProject/FileFilter",
                                              QLatin1String(HIDE_FILE_FILTER_DEFAULT)).toString();
@@ -565,20 +564,20 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     connect(m_startParsingButton, &QAbstractButton::clicked,
             this, [this]() { startParsing(m_baseDirChooser->fileName()); });
 
-    m_showFilesFilterLabel->setText(tr("Show files matching:"));
-    m_showFilesFilterEdit->setText(showFilter);
-    layout->addWidget(m_showFilesFilterLabel, static_cast<int>(SelectableFilesWidgetRows::ShowFileFilter), 0);
-    layout->addWidget(m_showFilesFilterEdit, static_cast<int>(SelectableFilesWidgetRows::ShowFileFilter), 1, 1, 3);
+    m_selectFilesFilterLabel->setText(tr("Select files matching:"));
+    m_selectFilesFilterEdit->setText(selectFilter);
+    layout->addWidget(m_selectFilesFilterLabel, static_cast<int>(SelectableFilesWidgetRows::SelectFileFilter), 0);
+    layout->addWidget(m_selectFilesFilterEdit, static_cast<int>(SelectableFilesWidgetRows::SelectFileFilter), 1, 1, 3);
 
     m_hideFilesFilterLabel->setText(tr("Hide files matching:"));
     m_hideFilesFilterEdit->setText(hideFilter);
     layout->addWidget(m_hideFilesFilterLabel, static_cast<int>(SelectableFilesWidgetRows::HideFileFilter), 0);
     layout->addWidget(m_hideFilesFilterEdit, static_cast<int>(SelectableFilesWidgetRows::HideFileFilter), 1, 1, 3);
 
-    m_applyFilterButton->setText(tr("Apply Filter"));
-    layout->addWidget(m_applyFilterButton, static_cast<int>(SelectableFilesWidgetRows::ApplyButton), 3);
+    m_applyFiltersButton->setText(tr("Apply Filters"));
+    layout->addWidget(m_applyFiltersButton, static_cast<int>(SelectableFilesWidgetRows::ApplyButton), 3);
 
-    connect(m_applyFilterButton, &QAbstractButton::clicked,
+    connect(m_applyFiltersButton, &QAbstractButton::clicked,
             this, &SelectableFilesWidget::applyFilter);
 
     m_view->setMinimumSize(500, 400);
@@ -600,7 +599,7 @@ SelectableFilesWidget::SelectableFilesWidget(const Utils::FileName &path,
 
 void SelectableFilesWidget::setAddFileFilter(const QString &filter)
 {
-    m_showFilesFilterEdit->setText(filter);
+    m_selectFilesFilterEdit->setText(filter);
 }
 
 void SelectableFilesWidget::setBaseDirEditable(bool edit)
@@ -656,8 +655,8 @@ void SelectableFilesWidget::cancelParsing()
 void SelectableFilesWidget::enableWidgets(bool enabled)
 {
     m_hideFilesFilterEdit->setEnabled(enabled);
-    m_showFilesFilterEdit->setEnabled(enabled);
-    m_applyFilterButton->setEnabled(enabled);
+    m_selectFilesFilterEdit->setEnabled(enabled);
+    m_applyFiltersButton->setEnabled(enabled);
     m_view->setEnabled(enabled);
     m_baseDirChooser->setEnabled(enabled);
 
@@ -670,7 +669,7 @@ void SelectableFilesWidget::enableWidgets(bool enabled)
 void SelectableFilesWidget::applyFilter()
 {
     if (m_model)
-        m_model->applyFilter(m_showFilesFilterEdit->text(), m_hideFilesFilterEdit->text());
+        m_model->applyFilter(m_selectFilesFilterEdit->text(), m_hideFilesFilterEdit->text());
 }
 
 void SelectableFilesWidget::baseDirectoryChanged(bool validState)

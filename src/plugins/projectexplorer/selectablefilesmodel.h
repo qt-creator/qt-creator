@@ -149,7 +149,7 @@ protected:
 
 private:
     QList<Glob> m_hideFilesFilter;
-    QList<Glob> m_showFilesFilter;
+    QList<Glob> m_selectFilesFilter;
 };
 
 class PROJECTEXPLORER_EXPORT SelectableFilesFromDirModel : public SelectableFilesModel
@@ -222,13 +222,13 @@ private:
     QLabel *m_baseDirLabel;
     QPushButton *m_startParsingButton;
 
-    QLabel *m_showFilesFilterLabel;
-    QLineEdit *m_showFilesFilterEdit;
+    QLabel *m_selectFilesFilterLabel;
+    QLineEdit *m_selectFilesFilterEdit;
 
     QLabel *m_hideFilesFilterLabel;
     QLineEdit *m_hideFilesFilterEdit;
 
-    QPushButton *m_applyFilterButton;
+    QPushButton *m_applyFiltersButton;
 
     QTreeView *m_view;
 
