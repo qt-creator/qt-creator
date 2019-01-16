@@ -63,12 +63,15 @@ Core::BaseFileWizard *LibraryWizard::create(QWidget *parent, const Core::WizardD
     return dialog;
 }
 
-static void writeLinuxProFile(QTextStream &str)
+static void writeLinuxProFile(QTextStream &str, const QtProjectParameters &params)
 {
     str << "\n"
-           "unix {\n"
-           "    target.path = /usr/lib\n"
-           "    INSTALLS += target\n"
+           "unix {\n";
+    if (!params.targetDirectory.isEmpty())
+        str << "    target.path = " << params.targetDirectory << '\n';
+    else
+        str << "    target.path = /usr/lib\n";
+    str << "    INSTALLS += target\n"
            "}\n";
 }
 
@@ -94,7 +97,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     const QString headerFileName = Utils::FileName::fromString(headerFileFullName).fileName();
     QString pluginJsonFileFullName;
     QString pluginJsonFileName;
-    if (projectParams.type == QtProjectParameters::Qt4Plugin) {
+    if (projectParams.type == QtProjectParameters::QtPlugin) {
         pluginJsonFileFullName = buildFileName(projectPath, projectParams.fileName, QLatin1String("json"));
         pluginJsonFileName = Utils::FileName::fromString(pluginJsonFileFullName).fileName();
     }
@@ -114,7 +117,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
 
     // Generate code
     QString headerContents, sourceContents;
-    params.generateCode(projectParams.type, projectParams.fileName,  headerFileName,
+    params.generateCode(projectParams.type, headerFileName,
                         globalHeaderFileName, sharedLibExportMacro, pluginJsonFileName,
                         /* indentation*/ 4, usePragmaOnce, &headerContents, &sourceContents);
 
@@ -141,7 +144,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
             proStr << " \\\n        " << globalHeaderFileName << " \n";
         if (!pluginJsonFileName.isEmpty())
             proStr << "\nDISTFILES += " << pluginJsonFileName << " \n";
-        writeLinuxProFile(proStr);
+        writeLinuxProFile(proStr, projectParams);
     }
     profile.setContents(profileContents);
     rc.push_back(profile);

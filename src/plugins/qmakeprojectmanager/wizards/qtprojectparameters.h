@@ -42,7 +42,7 @@ QString createMacro(const QString &name, const QString &suffix);
 // write a .pro-file section.
 
 struct QtProjectParameters {
-    enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, Qt4Plugin, EmptyProject };
+    enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, QtPlugin, EmptyProject };
     enum QtVersionSupport { SupportQt4And5, SupportQt4Only, SupportQt5Only };
     enum Flags { WidgetsRequiredFlag = 0x1 };
 

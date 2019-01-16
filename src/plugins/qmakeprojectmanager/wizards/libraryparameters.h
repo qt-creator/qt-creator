@@ -27,7 +27,7 @@
 
 #include "qtprojectparameters.h"
 
-#include <QString>
+#include <QStringList>
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -38,7 +38,6 @@ struct LibraryParameters {
 
     // generate class
     void generateCode(QtProjectParameters:: Type t,
-                      const QString &projectTarget,
                       const QString &headerName,
                       const QString &sharedHeader,
                       const QString &exportMacro,
@@ -58,6 +57,7 @@ struct LibraryParameters {
     QString baseClassName;
     QString sourceFileName;
     QString headerFileName;
+    QStringList pureVirtualSignatures;
 };
 
 } // namespace Internal

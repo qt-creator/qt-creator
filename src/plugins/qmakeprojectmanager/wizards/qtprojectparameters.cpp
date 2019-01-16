@@ -100,14 +100,14 @@ void QtProjectParameters::writeProFile(QTextStream &str) const
     case SharedLibrary:
         str << "TEMPLATE = lib\n\nDEFINES += " << libraryMacro(fileName) << '\n';
         break;
-    case Qt4Plugin:
+    case QtPlugin:
         str << "TEMPLATE = lib\nCONFIG += plugin\n";
         break;
     default:
         break;
     }
 
-    if (!targetDirectory.isEmpty())
+    if (!targetDirectory.isEmpty() && !targetDirectory.contains("QT_INSTALL_"))
         str << "\nDESTDIR = " << targetDirectory << '\n';
 
     if (qtVersionSupport != SupportQt4Only) {
