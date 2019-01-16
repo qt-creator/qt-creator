@@ -238,7 +238,7 @@ DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const Q
     return dc;
 }
 
-QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *parent)
+const QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *parent)
 {
     return Utils::filtered(g_deployConfigurationFactories,
         [&parent](DeployConfigurationFactory *factory) {

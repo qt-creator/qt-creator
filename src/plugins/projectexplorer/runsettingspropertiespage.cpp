@@ -362,11 +362,8 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
 void RunSettingsWidget::aboutToShowDeployMenu()
 {
     m_addDeployMenu->clear();
-    QList<DeployConfigurationFactory *> factories = DeployConfigurationFactory::find(m_target);
-    if (factories.isEmpty())
-        return;
 
-    foreach (DeployConfigurationFactory *factory, factories) {
+    for (DeployConfigurationFactory *factory : DeployConfigurationFactory::find(m_target)) {
         QAction *action = m_addDeployMenu->addAction(factory->defaultDisplayName());
         const Core::Id id = factory->creationId();
         DeployFactoryAndId data = {factory, id};
