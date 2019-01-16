@@ -493,7 +493,9 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &idx)
     }
 
     for (int i=0; i < t->visibleFiles.size(); ++i) {
-        if (t->visibleFiles.at(i)->checked == Qt::Checked)
+        Tree * const fileNode = t->visibleFiles.at(i);
+        fileNode->checked = filter(fileNode) == FilterState::CHECKED ? Qt::Checked : Qt::Unchecked;
+        if (fileNode->checked)
             allUnchecked = false;
         else
             allChecked = false;
