@@ -2776,7 +2776,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
     }
     const QString commands = stringSetting(ExtraDumperCommands);
     if (!commands.isEmpty()) {
-        for (auto command : commands.split('\n', QString::SkipEmptyParts))
+        for (const auto &command : commands.split('\n', QString::SkipEmptyParts))
             runCommand({command, ScriptCommand});
     }
 }

@@ -136,7 +136,7 @@ void LanguageClientManager::removeMarks(const Utils::FileName &fileName)
     if (!doc)
         return;
 
-    for (auto marks : managerInstance->m_marks[fileName]) {
+    for (const auto &marks : qAsConst(managerInstance->m_marks[fileName])) {
         for (TextEditor::TextMark *mark : marks) {
             doc->removeMark(mark);
             delete mark;

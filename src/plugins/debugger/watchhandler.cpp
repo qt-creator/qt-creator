@@ -2114,7 +2114,7 @@ void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
             item->forAllChildren(marker);
         });
     } else {
-        for (auto iname : inames) {
+        for (const QString &iname : qAsConst(inames)) {
             if (WatchItem *item = m_model->findItem(iname))
                 item->forAllChildren(marker);
         }

@@ -781,7 +781,8 @@ bool DebuggerRunTool::fixupParameters()
         rp.symbolFile = rp.inferior.executable;
 
     // Copy over DYLD_IMAGE_SUFFIX etc
-    for (auto var : QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
+    for (const auto &var :
+         QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
         if (rp.inferior.environment.hasKey(var))
             rp.debugger.environment.set(var, rp.inferior.environment.value(var));
 

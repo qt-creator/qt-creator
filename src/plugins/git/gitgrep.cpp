@@ -134,7 +134,7 @@ public:
         }
         single.matchingLine = text;
 
-        for (auto match : qAsConst(matches)) {
+        for (const auto &match : qAsConst(matches)) {
             single.matchStart = match.matchStart;
             single.matchLength = match.matchLength;
             single.regexpCapturedTexts = match.regexpCapturedTexts;

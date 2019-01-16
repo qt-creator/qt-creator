@@ -524,7 +524,7 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     Q_ASSERT(tc);
 
     const QList<CustomToolChain::Parser> parsers = CustomToolChain::parsers();
-    for (auto parser : parsers)
+    for (const auto &parser : parsers)
         m_errorParserComboBox->addItem(parser.displayName, parser.parserId.toString());
 
     auto parserLayoutWidget = new QWidget;

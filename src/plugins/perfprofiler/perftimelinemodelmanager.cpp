@@ -128,7 +128,7 @@ void PerfTimelineModelManager::clear()
 {
     QVariantList perfModels = models();
     Timeline::TimelineModelAggregator::clear();
-    for (QVariant var : perfModels)
+    for (QVariant &var : perfModels)
         delete qvariant_cast<PerfTimelineModel *>(var);
     qDeleteAll(m_unfinished);
     m_unfinished.clear();

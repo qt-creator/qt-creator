@@ -281,7 +281,7 @@ template<typename Symbol>
 QList<Symbol> documentSymbolsResultArray(const QJsonArray &array)
 {
     QList<Symbol> ret;
-    for (auto arrayValue : array) {
+    for (const auto &arrayValue : array) {
         if (arrayValue.isObject())
             ret << Symbol(arrayValue.toObject());
     }

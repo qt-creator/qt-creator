@@ -295,7 +295,7 @@ void HighlightScrollBarOverlay::updateCache()
     m_highlightCache.clear();
 
     const QHash<Id, QVector<Highlight>> highlightsForId = m_highlightController->highlights();
-    for (QVector<Highlight> highlights : highlightsForId) {
+    for (const QVector<Highlight> &highlights : highlightsForId) {
         for (const auto &highlight : highlights) {
             auto &highlightMap = m_highlightCache[highlight.priority][highlight.color];
             insertPosition(&highlightMap, highlight.position);

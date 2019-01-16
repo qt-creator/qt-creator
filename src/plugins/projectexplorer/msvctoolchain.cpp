@@ -274,7 +274,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
         return installations;
     }
 
-    for (const QJsonValue vsVersion : versions) {
+    for (const QJsonValue &vsVersion : versions) {
         const QJsonObject vsVersionObj = vsVersion.toObject();
         if (vsVersionObj.isEmpty()) {
             qWarning() << "Could not obtain object from vswhere version";
@@ -1751,7 +1751,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                 {MsvcToolChain::amd64, "x64"},
                 {MsvcToolChain::ia64, "ia64"},
             };
-            for (auto platform : platforms) {
+            for (const auto &platform : platforms) {
                 tmp.append(findOrCreateToolChain(alreadyKnown,
                                                  generateDisplayName(name,
                                                                      MsvcToolChain::WindowsSDK,

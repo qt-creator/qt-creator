@@ -156,7 +156,7 @@ bool BreakpointParameters::isQmlFileAndLineBreakpoint() const
         qmlExtensionString = ".qml;.js";
 
     const auto qmlFileExtensions = qmlExtensionString.splitRef(';', QString::SkipEmptyParts);
-    for (QStringRef extension : qmlFileExtensions) {
+    for (const QStringRef &extension : qmlFileExtensions) {
         if (fileName.endsWith(extension, Qt::CaseInsensitive))
             return true;
     }

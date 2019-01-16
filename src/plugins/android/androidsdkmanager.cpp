@@ -609,7 +609,7 @@ bool SdkManagerOutputParser::parseAbstractData(SdkManagerOutputParser::GenericPa
     extraKeys << installLocationKey << revisionKey << descriptionKey;
     foreach (QString line, input) {
         QString value;
-        for (auto key: extraKeys) {
+        for (const auto &key: qAsConst(extraKeys)) {
             if (valueForKey(key, line, &value)) {
                 if (key == installLocationKey)
                     output.installedLocation = Utils::FileName::fromString(value);

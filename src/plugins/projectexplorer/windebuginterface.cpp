@@ -192,7 +192,7 @@ void WinDebugInterface::dispatchDebugOutput()
         m_readySignalEmitted = false;
     m_outputMutex.unlock();
 
-    for (auto p : output)
+    for (const auto &p : qAsConst(output))
         emit debugOutput(p.first, p.second);
     if (hasMoreOutput)
         emit _q_debugOutputReady();
