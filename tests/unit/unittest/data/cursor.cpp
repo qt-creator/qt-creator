@@ -135,3 +135,13 @@ extern int ExternVarStorageClass;
 static void StaticMethodStorageClass() {}
 
 template<class T> const T &InvalidStorageClass(const T &type) { return type; }
+
+namespace Outer {
+namespace {
+
+}
+
+enum {
+    X, Y
+};
+}

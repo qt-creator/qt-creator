@@ -49,11 +49,9 @@ FullTokenInfo::operator TokenInfoContainer() const
 
 static Utf8String fullyQualifiedType(const Cursor &cursor) {
     Utf8String prefix;
-    if (cursor.kind() == CXCursor_ClassTemplate || cursor.kind() == CXCursor_Namespace) {
-        if (cursor.unifiedSymbolResolution() == "c:@aN")
-            return Utf8String::fromUtf8("(anonymous)");
+    if (cursor.kind() == CXCursor_ClassTemplate || cursor.kind() == CXCursor_Namespace)
         return qualificationPrefix(cursor) + cursor.displayName();
-    }
+
     return cursor.type().canonical().spelling();
 }
 
@@ -207,18 +205,8 @@ void FullTokenInfo::keywordKind()
 {
     TokenInfo::keywordKind();
 
-    CXCursorKind cursorKind = m_originalCursor.kind();
-    bool anonymous = false;
-    if (clang_Cursor_isAnonymous(m_originalCursor.cx())) {
-        anonymous = true;
-    } else {
-        const Utf8String type = fullyQualifiedType(m_originalCursor);
-        if (type.endsWith(Utf8StringLiteral(")"))
-                && static_cast<const QByteArray &>(type).indexOf("(anonymous") >= 0) {
-            anonymous = true;
-        }
-    }
-    if (anonymous) {
+    if (m_originalCursor.isAnonymous()) {
+        CXCursorKind cursorKind = m_originalCursor.kind();
         if (cursorKind == CXCursor_EnumDecl)
             m_types.mixinHighlightingTypes.push_back(HighlightingType::Enum);
         else if (cursorKind == CXCursor_ClassDecl)
@@ -228,7 +216,7 @@ void FullTokenInfo::keywordKind()
         else if (cursorKind == CXCursor_Namespace)
             m_types.mixinHighlightingTypes.push_back(HighlightingType::Namespace);
         m_extraInfo.declaration = m_extraInfo.definition = true;
-        m_extraInfo.token = Utf8StringLiteral("anonymous");
+        m_extraInfo.token = m_originalCursor.displayName();
         updateTypeSpelling(m_originalCursor);
         m_extraInfo.cursorRange = m_originalCursor.sourceRange();
     }

@@ -888,6 +888,42 @@ TEST_F(Cursor, InvalidStorageClass)
     ASSERT_THAT(storageClass, ClangBackEnd::StorageClass::Invalid);
 }
 
+TEST_F(Cursor, IsAnonymousNamespace)
+{
+    auto anonymousCursor = translationUnit.cursorAt(140, 1);
+
+    bool anonymous = anonymousCursor.isAnonymous();
+
+    ASSERT_THAT(anonymous, true);
+}
+
+TEST_F(Cursor, IsNotAnonymousNamespace)
+{
+    auto anonymousCursor = translationUnit.cursorAt(139, 1);
+
+    bool anonymous = anonymousCursor.isAnonymous();
+
+    ASSERT_THAT(anonymous, false);
+}
+
+TEST_F(Cursor, AnonymousNamespaceDisplayName)
+{
+    auto anonymousCursor = translationUnit.cursorAt(140, 1);
+
+    auto name = anonymousCursor.displayName();
+
+    ASSERT_THAT(name, Utf8String("(anonymous)"));
+}
+
+TEST_F(Cursor, AnonymousEnumDisplayName)
+{
+    auto anonymousCursor = translationUnit.cursorAt(144, 1);
+
+    auto name = anonymousCursor.displayName();
+
+    ASSERT_THAT(name, Utf8String("(anonymous)"));
+}
+
 Data *Cursor::d;
 
 void Cursor::SetUpTestCase()

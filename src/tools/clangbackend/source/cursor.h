@@ -72,11 +72,12 @@ public:
     bool hasFinalFunctionAttribute() const;
     bool hasFinalClassAttribute() const;
     bool isUnexposed() const;
+    bool isAnonymous() const;
 
+    Utf8String displayName() const;
     ClangString unifiedSymbolResolution() const;
     ClangString mangling() const;
     ClangString spelling() const;
-    ClangString displayName() const;
     ClangString briefComment() const;
     ClangString rawComment() const;
     int argumentCount() const;
