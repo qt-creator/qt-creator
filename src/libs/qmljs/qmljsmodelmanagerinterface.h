@@ -136,7 +136,7 @@ public:
     typedef QHashIterator<QString, CppData> CppDataHashIterator;
 
 public:
-    ModelManagerInterface(QObject *parent = 0);
+    ModelManagerInterface(QObject *parent = nullptr);
     ~ModelManagerInterface() override;
 
     static Dialect guessLanguageOfFile(const QString &fileName);
@@ -153,15 +153,15 @@ public:
                            bool emitDocumentOnDiskChanged);
     void fileChangedOnDisk(const QString &path);
     void removeFiles(const QStringList &files);
-    QStringList qrcPathsForFile(const QString &file, const QLocale *locale = 0,
-                                ProjectExplorer::Project *project = 0,
+    QStringList qrcPathsForFile(const QString &file, const QLocale *locale = nullptr,
+                                ProjectExplorer::Project *project = nullptr,
                                 QrcResourceSelector resources = AllQrcResources);
-    QStringList filesAtQrcPath(const QString &path, const QLocale *locale = 0,
-                               ProjectExplorer::Project *project = 0,
+    QStringList filesAtQrcPath(const QString &path, const QLocale *locale = nullptr,
+                               ProjectExplorer::Project *project = nullptr,
                                QrcResourceSelector resources = AllQrcResources);
     QMap<QString,QStringList> filesInQrcPath(const QString &path,
-                                             const QLocale *locale = 0,
-                                             ProjectExplorer::Project *project = 0,
+                                             const QLocale *locale = nullptr,
+                                             ProjectExplorer::Project *project = nullptr,
                                              bool addDirs = false,
                                              QrcResourceSelector resources = AllQrcResources);
 
@@ -188,9 +188,9 @@ public:
     CppDataHash cppData() const;
     LibraryInfo builtins(const Document::Ptr &doc) const;
     ViewerContext completeVContext(const ViewerContext &vCtx,
-                                   const Document::Ptr &doc = Document::Ptr(0)) const;
+                                   const Document::Ptr &doc = Document::Ptr(nullptr)) const;
     ViewerContext defaultVContext(Dialect language = Dialect::Qml,
-                                  const Document::Ptr &doc = Document::Ptr(0),
+                                  const Document::Ptr &doc = Document::Ptr(nullptr),
                                   bool autoComplete = true) const;
     void setDefaultVContext(const ViewerContext &vContext);
     virtual ProjectInfo defaultProjectInfo() const;

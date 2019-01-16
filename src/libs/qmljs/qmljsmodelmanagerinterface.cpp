@@ -75,7 +75,7 @@ QMLJS_EXPORT Q_LOGGING_CATEGORY(qmljsLog, "qtc.qmljs.common", QtWarningMsg)
     ModelManagerInterface::newestSnapshot().
 */
 
-static ModelManagerInterface *g_instance = 0;
+static ModelManagerInterface *g_instance = nullptr;
 
 const char qtQuickUISuffix[] = "ui.qml";
 
@@ -98,7 +98,7 @@ static QStringList environmentImportPaths()
 ModelManagerInterface::ModelManagerInterface(QObject *parent)
     : QObject(parent),
       m_shouldScanImports(false),
-      m_defaultProject(0),
+      m_defaultProject(nullptr),
       m_pluginDumper(new PluginDumper(this))
 {
     m_indexerEnabled = qgetenv("QTC_NO_CODE_INDEXER") != "1";
@@ -137,7 +137,7 @@ ModelManagerInterface::~ModelManagerInterface()
     m_cppQmlTypesUpdater.cancel();
     m_cppQmlTypesUpdater.waitForFinished();
     Q_ASSERT(g_instance == this);
-    g_instance = 0;
+    g_instance = nullptr;
 }
 
 static QHash<QString, Dialect> defaultLanguageMapping()
@@ -1368,7 +1368,7 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
     ProjectInfo info;
     if (!doc.isNull())
         info = projectInfoForPath(doc->fileName());
-    ViewerContext defaultVCtx = defaultVContext(res.language, Document::Ptr(0), false);
+    ViewerContext defaultVCtx = defaultVContext(res.language, Document::Ptr(nullptr), false);
     ProjectInfo defaultInfo = defaultProjectInfo();
     if (info.qtImportsPath.isEmpty())
         info.qtImportsPath = defaultInfo.qtImportsPath;

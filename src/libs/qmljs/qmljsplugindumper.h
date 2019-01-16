@@ -84,7 +84,7 @@ private:
                           QStringList &errors,
                           QStringList &warnings,
                           QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects,
-                          QSet<QString> *visited=0) const;
+                          QSet<QString> *visited = nullptr) const;
     void loadQmltypesFile(const QStringList &qmltypesFilePaths,
                           const QString &libraryPath,
                           QmlJS::LibraryInfo libraryInfo);
