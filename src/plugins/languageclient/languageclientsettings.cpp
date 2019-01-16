@@ -144,9 +144,6 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     m_view->setSelectionBehavior(QAbstractItemView::SelectItems);
     connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &LanguageClientSettingsPageWidget::currentChanged);
-    auto mimeTypes = Utils::transform(Utils::allMimeTypes(), [](const Utils::MimeType &mimeType){
-        return mimeType.name();
-    });
     auto buttonLayout = new QVBoxLayout();
     auto addButton = new QPushButton(LanguageClientSettingsPage::tr("&Add"));
     connect(addButton, &QPushButton::pressed, this, &LanguageClientSettingsPageWidget::addItem);

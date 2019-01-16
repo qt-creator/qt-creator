@@ -291,7 +291,6 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
     QString originalLocation;
     QString file;
     QString fullName;
-    QString internalId;
 
     enabled = true;
     pending = false;

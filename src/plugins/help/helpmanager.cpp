@@ -231,7 +231,6 @@ QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
 
 QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
 {
-    QMap<QString, QUrl> empty;
     QTC_ASSERT(!d->m_needsSetup, return {});
     return d->m_helpEngine->linksForIdentifier(id);
 }

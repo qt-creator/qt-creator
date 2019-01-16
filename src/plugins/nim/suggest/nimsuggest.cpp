@@ -49,7 +49,6 @@ void NimSuggest::setProjectFile(const QString &file)
     if (m_projectFile == file)
         return;
 
-    auto old = m_projectFile;
     m_projectFile = file;
     emit projectFileChanged(file);
 
@@ -66,7 +65,6 @@ void NimSuggest::setExecutablePath(const QString &path)
     if (m_executablePath == path)
         return;
 
-    auto old = m_executablePath;
     m_executablePath = path;
     emit executablePathChanged(path);
 

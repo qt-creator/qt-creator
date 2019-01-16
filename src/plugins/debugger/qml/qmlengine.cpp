@@ -1847,7 +1847,6 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                     const QVariantList v8BreakpointIdList = breakData.value("breakpoints").toList();
                     for (const QVariant &breakpointId : v8BreakpointIdList) {
-                        const QString x = breakpointId.toString();
                         const QString responseId = QString::number(breakpointId.toInt());
                         Breakpoint bp = engine->breakHandler()->findBreakpointByResponseId(responseId);
                         QTC_ASSERT(bp, continue);

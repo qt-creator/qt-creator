@@ -162,7 +162,6 @@ void SftpTransfer::doStart()
             QFileInfo fi(f.sourceFile);
             if (fi.isSymLink()) {
                 link = true;
-                const QString target = fi.dir().relativeFilePath(fi.symLinkTarget()); // see QTBUG-5817.
                 d->batchFile.write("-rm " + QtcProcess::quoteArgUnix(f.targetFile).toLocal8Bit()
                                    + '\n');
             }
