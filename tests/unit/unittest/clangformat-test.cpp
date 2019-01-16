@@ -56,7 +56,7 @@ class ClangFormat : public ::testing::Test
 protected:
     void SetUp() final
     {
-        indenter.setFileName(Utils::FileName::fromString(TESTDATA_DIR"/test.cpp"));
+        indenter.setFileName(Utils::FileName::fromString(TESTDATA_DIR "/clangformat/test.cpp"));
     }
 
     void insertLines(const std::vector<QString> &lines)
@@ -88,7 +88,7 @@ protected:
     QTextCursor cursor{&doc};
 };
 
-TEST_F(ClangFormat, SimpleIndent)
+TEST_F(ClangFormat, IndentBasicFile)
 {
     insertLines({"int main()",
                  "{",
@@ -101,6 +101,332 @@ TEST_F(ClangFormat, SimpleIndent)
                                              "{",
                                              "    int a;",
                                              "}"));
+}
+
+TEST_F(ClangFormat, IndentEmptyLine)
+{
+    insertLines({"int main",
+                 "{",
+                 "",
+                 "}"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("int main",
+                                             "{",
+                                             "    ",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, IndentLambda)
+{
+    insertLines({"int b = foo([](){",
+                 "",
+                 "});"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("int b = foo([](){",
+                                             "    ",
+                                             "});"));
+}
+
+TEST_F(ClangFormat, IndentNestedIfElse)
+{
+    insertLines({"if (a)",
+                 "if (b)",
+                 "foo();",
+                 "else",
+                 "bar();",
+                 "else",
+                 "baz();"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(),
+                ElementsAre("if (a)",
+                            "    if (b)",
+                            "        foo();",
+                            "    else",
+                            "        bar();",
+                            "else",
+                            "    baz();"));
+}
+
+TEST_F(ClangFormat, IndentInitializerListInArguments)
+{
+    insertLines({"foo(arg1,",
+                 "args,",
+                 "{1, 2});"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("foo(arg1,",
+                                             "    args,",
+                                             "    {1, 2});"));
+}
+
+TEST_F(ClangFormat, IndentLambdaWithReturnType)
+{
+    insertLines({"{",
+                 "auto lambda = []() -> bool {",
+                 "",
+                 "};",
+                 "}"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(),
+                ElementsAre("{",
+                            "    auto lambda = []() -> bool {",
+                            "        ",
+                            "    };",
+                            "}"));
+}
+
+TEST_F(ClangFormat, IndentFunctionArgumentLambdaWithNextLineScope)
+{
+    insertLines({"foo([]()",
+                 "{",
+                 "",
+                 "});"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(),
+                ElementsAre("foo([]()",
+                            "    {",
+                            "        ",
+                            "    });"));
+}
+
+TEST_F(ClangFormat, IndentScopeAsFunctionArgument)
+{
+    insertLines({"foo(",
+                 "{",
+                 "",
+                 "});"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(),
+                ElementsAre("foo(",
+                            "    {",
+                            "        ",
+                            "    });"));
+}
+
+TEST_F(ClangFormat, IndentInsideStructuredBinding)
+{
+    insertLines({"auto [a,",
+                 "b] = c;"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("auto [a,",
+                                             "      b] = c;"));
+}
+
+TEST_F(ClangFormat, IndentMacrosWithoutSemicolon)
+{
+    insertLines({"void test()",
+                 "{",
+                 "ASSERT(1);",
+                 "ASSERT(2)",
+                 "ASSERT(3)",
+                 "ASSERT(4);",
+                 "ASSERT(5)",
+                 "}"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("void test()",
+                                             "{",
+                                             "    ASSERT(1);",
+                                             "    ASSERT(2)",
+                                             "    ASSERT(3)",
+                                             "    ASSERT(4);",
+                                             "    ASSERT(5)",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, IndentAfterSquareBracesInsideBraceInitialization)
+{
+    insertLines({"int foo() {",
+                 "char a = char{b[0]};",
+                 "int c;",
+                 "}"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("int foo() {",
+                                             "    char a = char{b[0]};",
+                                             "    int c;",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, IndentStringLiteralContinuation)
+{
+    insertLines({"foo(bar, \"foo\"",
+                 "\"bar\");"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("foo(bar, \"foo\"",
+                                             "         \"bar\");"));
+}
+
+TEST_F(ClangFormat, IndentTemplateparameters)
+{
+    insertLines({"using Alias = Template<A,",
+                 "B,",
+                 "C>"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("using Alias = Template<A,",
+                                             "                       B,",
+                                             "                       C>"));
+}
+
+TEST_F(ClangFormat, NoExtraIndentAfterStatementInsideSquareBraces)
+{
+    insertLines({"{",
+                 "    x[y=z];",
+                 "    int a;",
+                 "}"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("{",
+                                             "    x[y=z];",
+                                             "    int a;",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, NoExtraIndentAfterBraceInitialization)
+{
+    insertLines({"int j{i?5:10};",
+                 "return 0;"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("int j{i?5:10};",
+                                             "return 0;"));
+}
+
+TEST_F(ClangFormat, FormatBasicFile)
+{
+    insertLines({"int main()",
+                 "{",
+                 "int a;",
+                 "}"});
+
+    indenter.format(cursor, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("int main()",
+                                             "{",
+                                             "    int a;",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, FormatEmptyLine)
+{
+    insertLines({"int main()",
+                 "{",
+                 "",
+                 "}"});
+
+    indenter.format(cursor, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("int main() {}"));
+}
+
+TEST_F(ClangFormat, FormatLambda)
+{
+    insertLines({"int b = foo([](){",
+                 "",
+                 "});"});
+
+    indenter.format(cursor, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("int b = foo([]() {",
+                                             "",
+                                             "});"));
+}
+
+TEST_F(ClangFormat, FormatInitializerListInArguments)
+{
+    insertLines({"foo(arg1,",
+                 "args,",
+                 "{1, 2});"});
+
+    indenter.format(cursor, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("foo(arg1, args, {1, 2});"));
+}
+
+TEST_F(ClangFormat, FormatFunctionArgumentLambdaWithScope)
+{
+    insertLines({"foo([]()",
+                 "{",
+                 "",
+                 "});"});
+
+    indenter.format(cursor, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(),
+                ElementsAre("foo([]() {",
+                            "",
+                            "});"));
+}
+
+TEST_F(ClangFormat, FormatScopeAsFunctionArgument)
+{
+    insertLines({"foo(",
+                 "{",
+                 "",
+                 "});"});
+
+    indenter.format(cursor, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(),
+                ElementsAre("foo({",
+                            "",
+                            "});"));
+}
+
+TEST_F(ClangFormat, FormatStructuredBinding)
+{
+    insertLines({"auto [a,",
+                 "b] = c;"});
+
+    indenter.format(cursor, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("auto [a, b] = c;"));
+}
+
+TEST_F(ClangFormat, FormatStringLiteralContinuation)
+{
+    insertLines({"foo(bar, \"foo\"",
+                 "\"bar\");"});
+
+    indenter.format(cursor, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("foo(bar,",
+                                             "    \"foo\"",
+                                             "    \"bar\");"));
+}
+
+TEST_F(ClangFormat, FormatTemplateparameters)
+{
+    insertLines({"using Alias = Template<A,",
+                 "B,",
+                 "C>"});
+
+    indenter.format(cursor, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("using Alias = Template<A, B, C>"));
 }
 
 }
