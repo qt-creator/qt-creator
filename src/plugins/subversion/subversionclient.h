@@ -43,10 +43,10 @@ class SubversionClient : public VcsBase::VcsBaseClient
 public:
     SubversionClient();
 
-    VcsBase::VcsCommand *createCommitCmd(const QString &repositoryRoot,
-                                         const QStringList &files,
-                                         const QString &commitMessageFile,
-                                         const QStringList &extraOptions = QStringList()) const;
+    bool doCommit(const QString &repositoryRoot,
+                  const QStringList &files,
+                  const QString &commitMessageFile,
+                  const QStringList &extraOptions = QStringList()) const;
     void commit(const QString &repositoryRoot,
                 const QStringList &files,
                 const QString &commitMessageFile,

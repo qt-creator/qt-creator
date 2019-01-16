@@ -442,15 +442,10 @@ bool SubversionPlugin::submitEditorAboutToClose()
     bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & commit
-        closeEditor = DocumentManager::saveDocument(editorDocument);
-        if (closeEditor) {
-            VcsCommand *commitCmd = m_client->createCommitCmd(m_commitRepository,
-                                                              fileList,
-                                                              m_commitMessageFileName);
-            QObject::connect(commitCmd, &VcsCommand::finished,
-                             this, [this]() { cleanCommitMessageFile(); });
-            commitCmd->execute();
-        }
+        closeEditor = DocumentManager::saveDocument(editorDocument)
+                && m_client->doCommit(m_commitRepository, fileList, m_commitMessageFileName);
+        if (closeEditor)
+            cleanCommitMessageFile();
     }
     return closeEditor;
 }

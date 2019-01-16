@@ -76,10 +76,10 @@ SubversionClient::SubversionClient() : VcsBaseClient(new SubversionSettings)
     });
 }
 
-VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
-                                              const QStringList &files,
-                                              const QString &commitMessageFile,
-                                              const QStringList &extraOptions) const
+bool SubversionClient::doCommit(const QString &repositoryRoot,
+                                const QStringList &files,
+                                const QString &commitMessageFile,
+                                const QStringList &extraOptions) const
 {
     const QStringList svnExtraOptions =
             QStringList(extraOptions)
@@ -88,11 +88,11 @@ VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
             << QLatin1String("--encoding") << QLatin1String("UTF-8")
             << QLatin1String("--file") << commitMessageFile;
 
-    VcsCommand *cmd = createCommand(repositoryRoot);
-    cmd->addFlags(VcsCommand::ShowStdOut);
     QStringList args(vcsCommandString(CommitCommand));
-    cmd->addJob(vcsBinary(), args << svnExtraOptions << escapeFiles(files));
-    return cmd;
+    SynchronousProcessResponse resp =
+            vcsSynchronousExec(repositoryRoot, args << svnExtraOptions << escapeFiles(files),
+                               VcsCommand::ShowStdOut | VcsCommand::NoFullySync);
+    return resp.result == SynchronousProcessResponse::Finished;
 }
 
 void SubversionClient::commit(const QString &repositoryRoot,
@@ -103,8 +103,7 @@ void SubversionClient::commit(const QString &repositoryRoot,
     if (Subversion::Constants::debug)
         qDebug() << Q_FUNC_INFO << commitMessageFile << files;
 
-    VcsCommand *cmd = createCommitCmd(repositoryRoot, files, commitMessageFile, extraOptions);
-    cmd->execute();
+    doCommit(repositoryRoot, files, commitMessageFile, extraOptions);
 }
 
 Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
