@@ -248,7 +248,7 @@ void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer
 
 qmt::MComponent *UpdateIncludeDependenciesVisitor::findComponentFromFilePath(const QString &filePath)
 {
-    const auto it = m_filePathComponentsMap.find(filePath);
+    const auto it = m_filePathComponentsMap.constFind(filePath);
     if (it != m_filePathComponentsMap.cend())
         return it.value();
 
