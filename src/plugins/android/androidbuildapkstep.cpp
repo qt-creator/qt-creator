@@ -289,8 +289,8 @@ void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus sta
 bool AndroidBuildApkStep::verifyKeystorePassword()
 {
     if (!m_keystorePath.exists()) {
-        addOutput(tr("Cannot sign the package. Invalid keystore path (%1).")
-                  .arg(m_keystorePath.toString()), OutputFormat::ErrorMessage);
+        emit addOutput(tr("Cannot sign the package. Invalid keystore path (%1).")
+                           .arg(m_keystorePath.toString()), OutputFormat::ErrorMessage);
         return false;
     }
 
@@ -309,8 +309,8 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
 {
     if (!AndroidManager::checkCertificateExists(m_keystorePath.toString(), m_keystorePasswd,
                                                  m_certificateAlias)) {
-        addOutput(tr("Cannot sign the package. Certificate alias %1 does not exist.")
-                  .arg(m_certificateAlias), OutputFormat::ErrorMessage);
+        emit addOutput(tr("Cannot sign the package. Certificate alias %1 does not exist.")
+                           .arg(m_certificateAlias), OutputFormat::ErrorMessage);
         return false;
     }
 

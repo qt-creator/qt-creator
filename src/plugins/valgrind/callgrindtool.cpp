@@ -897,7 +897,7 @@ void CallgrindTool::slotRequestDump()
 {
     //setBusy(true);
     m_visualization->setText(tr("Populating..."));
-    dumpRequested();
+    emit dumpRequested();
 }
 
 void CallgrindTool::loadExternalLogFile()

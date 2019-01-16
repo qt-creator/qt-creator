@@ -736,7 +736,7 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
     if (current && current == sender)
         enableButtons(current);
 
-    ProjectExplorerPlugin::instance()->updateRunActions();
+    emit ProjectExplorerPlugin::instance()->updateRunActions();
 
 #ifdef Q_OS_WIN
     const bool isRunning = Utils::anyOf(m_runControlTabs, [](const RunControlTab &rt) {

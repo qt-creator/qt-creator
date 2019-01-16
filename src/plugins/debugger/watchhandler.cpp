@@ -1856,7 +1856,7 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
     auto addBaseChangeAction = [this, menu](const QString &text, int base) {
         addCheckableAction(menu, text, true, theUnprintableBase == base, [this, base] {
             theUnprintableBase = base;
-            layoutChanged(); // FIXME
+            emit layoutChanged(); // FIXME
         });
     };
 

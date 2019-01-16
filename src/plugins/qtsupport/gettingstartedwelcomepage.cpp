@@ -307,9 +307,11 @@ public:
         m_sourceModel = newModel;
         if (newModel) {
             connect(newModel, &QAbstractItemModel::layoutAboutToBeChanged, this, [this] {
-                layoutAboutToBeChanged();
+                emit layoutAboutToBeChanged();
             });
-            connect(newModel, &QAbstractItemModel::layoutChanged, this, [this] { layoutChanged(); });
+            connect(newModel, &QAbstractItemModel::layoutChanged, this, [this] {
+                emit layoutChanged();
+            });
             connect(newModel, &QAbstractItemModel::modelAboutToBeReset, this, [this] {
                 beginResetModel();
             });
@@ -360,7 +362,7 @@ public:
             return;
         QTC_ASSERT(columnCount >= 1, columnCount = 1);
         m_columnCount = columnCount;
-        layoutChanged();
+        emit layoutChanged();
     }
 
     int rowCount(const QModelIndex &parent) const final

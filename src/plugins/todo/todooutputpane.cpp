@@ -165,7 +165,7 @@ void TodoOutputPane::scopeButtonClicked(QAbstractButton *button)
         emit scanningScopeChanged(ScanningScopeSubProject);
     else if (button == m_wholeProjectButton)
         emit scanningScopeChanged(ScanningScopeProject);
-    setBadgeNumber(m_todoTreeView->model()->rowCount());
+    emit setBadgeNumber(m_todoTreeView->model()->rowCount());
 }
 
 void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
@@ -187,7 +187,7 @@ void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
 
 void TodoOutputPane::updateTodoCount()
 {
-    setBadgeNumber(m_todoTreeView->model()->rowCount());
+    emit setBadgeNumber(m_todoTreeView->model()->rowCount());
 }
 
 void TodoOutputPane::updateFilter()

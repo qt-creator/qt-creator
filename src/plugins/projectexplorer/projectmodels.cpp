@@ -86,7 +86,7 @@ FlatModel::FlatModel(QObject *parent)
     connect(sm, &SessionManager::aboutToLoadSession, this, &FlatModel::loadExpandData);
     connect(sm, &SessionManager::aboutToSaveSession, this, &FlatModel::saveExpandData);
     connect(sm, &SessionManager::projectAdded, this, &FlatModel::handleProjectAdded);
-    connect(sm, &SessionManager::startupProjectChanged, this, [this] { layoutChanged(); });
+    connect(sm, &SessionManager::startupProjectChanged, this, [this] { emit layoutChanged(); });
 
     for (Project *project : SessionManager::projects())
         handleProjectAdded(project);

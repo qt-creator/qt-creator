@@ -895,7 +895,7 @@ void DebuggerToolTipHolder::releaseEngine()
 
     setState(Released);
     widget->model.m_enabled = false;
-    widget->model.layoutChanged();
+    emit widget->model.layoutChanged();
     widget->titleLabel->setText(DebuggerToolTipManager::tr("%1 (Previous)").arg(context.expression));
 }
 

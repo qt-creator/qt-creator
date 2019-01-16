@@ -474,7 +474,7 @@ void QmlDesignerPlugin::switchToTextModeDeferred()
 void QmlDesignerPlugin::emitCurrentTextEditorChanged(Core::IEditor *editor)
 {
     d->blockEditorChange = true;
-    Core::EditorManager::instance()->currentEditorChanged(editor);
+    emit Core::EditorManager::instance()->currentEditorChanged(editor);
     d->blockEditorChange = false;
 }
 

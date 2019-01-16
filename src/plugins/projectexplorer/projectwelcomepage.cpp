@@ -385,7 +385,7 @@ public:
                     m_expandedSessions.removeOne(sessionName);
                 else
                     m_expandedSessions.append(sessionName);
-                model->layoutChanged({QPersistentModelIndex(idx)});
+                emit model->layoutChanged({QPersistentModelIndex(idx)});
                 return true;
             }
             if (button == Qt::LeftButton) {
@@ -404,7 +404,7 @@ public:
             }
         }
         if (ev->type() == QEvent::MouseMove) {
-            model->layoutChanged({QPersistentModelIndex(idx)}); // Somewhat brutish.
+            emit model->layoutChanged({QPersistentModelIndex(idx)}); // Somewhat brutish.
             //update(option.rect);
             return true;
         }

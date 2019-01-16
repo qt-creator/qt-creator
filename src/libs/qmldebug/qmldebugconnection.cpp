@@ -399,7 +399,7 @@ void QmlDebugConnection::newConnection()
 
     connect(socket, &QLocalSocket::stateChanged,
             this, [this](QLocalSocket::LocalSocketState state) {
-        logStateChange(socketStateToString(static_cast<QAbstractSocket::SocketState>(state)));
+        emit logStateChange(socketStateToString(static_cast<QAbstractSocket::SocketState>(state)));
     });
 
     socketConnected();

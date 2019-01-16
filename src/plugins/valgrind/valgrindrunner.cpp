@@ -125,13 +125,13 @@ void ValgrindRunner::Private::run()
 void ValgrindRunner::Private::handleRemoteStderr(const QString &b)
 {
     if (!b.isEmpty())
-        q->processOutputReceived(b, Utils::StdErrFormat);
+        emit q->processOutputReceived(b, Utils::StdErrFormat);
 }
 
 void ValgrindRunner::Private::handleRemoteStdout(const QString &b)
 {
     if (!b.isEmpty())
-        q->processOutputReceived(b, Utils::StdOutFormat);
+        emit q->processOutputReceived(b, Utils::StdOutFormat);
 }
 
 void ValgrindRunner::Private::localProcessStarted()

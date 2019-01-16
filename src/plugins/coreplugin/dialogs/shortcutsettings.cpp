@@ -425,7 +425,7 @@ void ShortcutSettingsWidget::importAction()
                 item->m_key = mapping.value(sid);
                 item->m_item->setText(2, item->m_key.toString(QKeySequence::NativeText));
                 if (item->m_item == commandList()->currentItem())
-                    currentCommandChanged(item->m_item);
+                    emit currentCommandChanged(item->m_item);
 
                 if (item->m_cmd->defaultKeySequence() != item->m_key)
                     setModified(item->m_item, true);
@@ -446,7 +446,7 @@ void ShortcutSettingsWidget::defaultAction()
         item->m_item->setText(2, item->m_key.toString(QKeySequence::NativeText));
         setModified(item->m_item, false);
         if (item->m_item == commandList()->currentItem())
-            currentCommandChanged(item->m_item);
+            emit currentCommandChanged(item->m_item);
     }
 
     foreach (ShortcutItem *item, m_scitems)

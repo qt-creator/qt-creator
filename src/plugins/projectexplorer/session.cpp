@@ -381,7 +381,7 @@ void SessionManager::addProject(Project *pro)
     d->m_projects.append(pro);
 
     connect(pro, &Project::displayNameChanged,
-            m_instance, [pro]() { m_instance->projectDisplayNameChanged(pro); });
+            m_instance, [pro]() { emit m_instance->projectDisplayNameChanged(pro); });
 
     emit m_instance->projectAdded(pro);
     const auto updateFolderNavigation = [pro] {

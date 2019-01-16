@@ -126,7 +126,7 @@ void ItemLibraryModel::setSearchText(const QString &searchText)
         bool changed = false;
         updateVisibility(&changed);
         if (changed)
-            dataChanged(QModelIndex(), QModelIndex());
+            emit dataChanged(QModelIndex(), QModelIndex());
     }
 }
 

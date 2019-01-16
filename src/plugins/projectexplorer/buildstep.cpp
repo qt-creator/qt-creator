@@ -405,7 +405,7 @@ void BuildStepConfigWidget::setSummaryText(const QString &summaryText)
 {
     if (summaryText != m_summaryText) {
         m_summaryText = summaryText;
-        updateSummary();
+        emit updateSummary();
     }
 }
 

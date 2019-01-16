@@ -201,7 +201,7 @@ void LanguageClientSettingsPageWidget::applyCurrentSettings()
 
     m_currentSettings.setting->applyFromSettingsWidget(m_currentSettings.widget);
     auto index = m_settings.indexForSetting(m_currentSettings.setting);
-    m_settings.dataChanged(index, index);
+    emit m_settings.dataChanged(index, index);
 }
 
 void LanguageClientSettingsPageWidget::addItem()

@@ -602,7 +602,7 @@ void NavigatorTreeModel::notifyDataChanged(const ModelNode &modelNode)
     const QModelIndex index = indexForModelNode(modelNode);
     const QAbstractItemModel *model = index.model();
     const QModelIndex sibling = model ? model->sibling(index.row(), 2, index) : QModelIndex();
-    dataChanged(index, sibling);
+    emit dataChanged(index, sibling);
 }
 
 static QList<ModelNode> collectParents(const QList<ModelNode> &modelNodes)
@@ -628,22 +628,22 @@ QList<QPersistentModelIndex> NavigatorTreeModel::nodesToPersistentIndex(const QL
 void NavigatorTreeModel::notifyModelNodesRemoved(const QList<ModelNode> &modelNodes)
 {
     QList<QPersistentModelIndex> indexes = nodesToPersistentIndex(collectParents(modelNodes));
-    layoutAboutToBeChanged(indexes);
-    layoutChanged(indexes);
+    emit layoutAboutToBeChanged(indexes);
+    emit layoutChanged(indexes);
 }
 
 void NavigatorTreeModel::notifyModelNodesInserted(const QList<ModelNode> &modelNodes)
 {
     QList<QPersistentModelIndex> indexes = nodesToPersistentIndex(collectParents(modelNodes));
-    layoutAboutToBeChanged(indexes);
-    layoutChanged(indexes);
+    emit layoutAboutToBeChanged(indexes);
+    emit layoutChanged(indexes);
 }
 
 void NavigatorTreeModel::notifyModelNodesMoved(const QList<ModelNode> &modelNodes)
 {
     QList<QPersistentModelIndex> indexes = nodesToPersistentIndex(collectParents(modelNodes));
-    layoutAboutToBeChanged(indexes);
-    layoutChanged(indexes);
+    emit layoutAboutToBeChanged(indexes);
+    emit layoutChanged(indexes);
 }
 
 void NavigatorTreeModel::setFilter(bool showOnlyVisibleItems)

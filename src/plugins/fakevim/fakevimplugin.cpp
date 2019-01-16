@@ -796,7 +796,7 @@ void FakeVimExCommandsWidget::defaultAction()
             setModified(item, false);
             item->setText(2, regex);
             if (item == commandList()->currentItem())
-                currentCommandChanged(item);
+                emit currentCommandChanged(item);
         }
     }
 }
@@ -1933,7 +1933,7 @@ void FakeVimPluginPrivate::handleExCommand(FakeVimHandler *handler, bool *handle
                     handler->showMessage(MessageInfo, Tr::tr("\"%1\" %2 %3L, %4C written")
                         .arg(fileName).arg(' ').arg(ba.count('\n')).arg(ba.size()));
                     if (cmd.cmd == "wq")
-                        delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
+                        emit delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
                 }
             }
         }

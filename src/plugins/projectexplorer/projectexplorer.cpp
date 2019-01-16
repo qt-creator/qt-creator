@@ -2120,7 +2120,7 @@ void ProjectExplorerPluginPrivate::restoreSession()
     // delay opening projects from the command line even more
     QTimer::singleShot(0, m_instance, []() {
         ICore::openFiles(dd->m_arguments, ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers | ICore::SwitchMode));
-        m_instance->finishedInitialization();
+        emit m_instance->finishedInitialization();
     });
     updateActions();
 }
@@ -2197,13 +2197,13 @@ void ProjectExplorerPluginPrivate::checkForShutdown()
     --m_activeRunControlCount;
     QTC_ASSERT(m_activeRunControlCount >= 0, m_activeRunControlCount = 0);
     if (m_shuttingDown && m_activeRunControlCount == 0)
-        m_instance->asynchronousShutdownFinished();
+        emit m_instance->asynchronousShutdownFinished();
 }
 
 void ProjectExplorerPluginPrivate::timerEvent(QTimerEvent *ev)
 {
     if (m_shutdownWatchDogId == ev->timerId())
-        m_instance->asynchronousShutdownFinished();
+        emit m_instance->asynchronousShutdownFinished();
 }
 
 void ProjectExplorerPlugin::initiateInlineRenaming()

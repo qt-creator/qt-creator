@@ -693,7 +693,7 @@ void PathChooserField::setup(JsonFieldPage *page, const QString &name)
     QTC_ASSERT(w, return);
     page->registerFieldWithName(name, w, "path", SIGNAL(rawPathChanged(QString)));
     QObject::connect(w, &PathChooser::rawPathChanged,
-                     page, [page](QString) { page->completeChanged(); });
+                     page, [page](QString) { emit page->completeChanged(); });
 }
 
 bool PathChooserField::validate(MacroExpander *expander, QString *message)
@@ -1061,7 +1061,7 @@ void IconListField::setup(JsonFieldPage *page, const QString &name)
         return QString();
     });
     QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, page, [page]() {
-        page->completeChanged();
+        emit page->completeChanged();
     });
 }
 

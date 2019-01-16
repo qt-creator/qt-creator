@@ -910,7 +910,7 @@ void IosSimulatorToolHandlerPrivate::stop(int errorCode)
     }
 
     toolExited(errorCode);
-    q->finished(q);
+    emit q->finished(q);
 }
 
 void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
@@ -991,7 +991,7 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
                      .arg(response.commandOutput));
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
             stop(-1);
-            q->finished(q);
+            emit q->finished(q);
         }
     };
 

@@ -65,7 +65,7 @@ void QmlProfilerTextMark::clicked()
 {
     int typeId = m_typeIds.takeFirst();
     m_typeIds.append(typeId);
-    m_viewManager->typeSelected(typeId);
+    emit m_viewManager->typeSelected(typeId);
 }
 
 QmlProfilerTextMarkModel::QmlProfilerTextMarkModel(QObject *parent) : QObject(parent)

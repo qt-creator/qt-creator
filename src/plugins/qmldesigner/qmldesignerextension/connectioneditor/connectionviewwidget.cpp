@@ -193,20 +193,20 @@ void ConnectionViewWidget::invalidateButtonStatus()
 {
     if (currentTab() == ConnectionTab) {
         emit setEnabledRemoveButton(ui->connectionView->selectionModel()->hasSelection());
-        setEnabledAddButton(true);
+        emit setEnabledAddButton(true);
     } else if (currentTab() == BindingTab) {
         emit setEnabledRemoveButton(ui->bindingView->selectionModel()->hasSelection());
         auto bindingModel = qobject_cast<BindingModel*>(ui->bindingView->model());
-        setEnabledAddButton(bindingModel->connectionView()->model() &&
-            bindingModel->connectionView()->selectedModelNodes().count() == 1);
+        emit setEnabledAddButton(bindingModel->connectionView()->model() &&
+                                 bindingModel->connectionView()->selectedModelNodes().count() == 1);
 
     } else if (currentTab() == DynamicPropertiesTab) {
         emit setEnabledRemoveButton(ui->dynamicPropertiesView->selectionModel()->hasSelection());
         auto dynamicPropertiesModel = qobject_cast<DynamicPropertiesModel*>(ui->dynamicPropertiesView->model());
-        setEnabledAddButton(dynamicPropertiesModel->connectionView()->model() &&
-            dynamicPropertiesModel->connectionView()->selectedModelNodes().count() == 1);
+        emit setEnabledAddButton(dynamicPropertiesModel->connectionView()->model() &&
+                       dynamicPropertiesModel->connectionView()->selectedModelNodes().count() == 1);
     } else if (currentTab() == BackendTab) {
-        setEnabledAddButton(true);
+        emit setEnabledAddButton(true);
         emit setEnabledRemoveButton(ui->backendView->selectionModel()->hasSelection());
     }
 }

@@ -354,7 +354,7 @@ void Manager::onProjectListChanged()
         return;
 
     // update to the latest state
-    requestTreeDataUpdate();
+    emit requestTreeDataUpdate();
 }
 
 /*!

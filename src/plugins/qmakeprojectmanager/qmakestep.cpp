@@ -242,7 +242,7 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
     if (!tasks.isEmpty()) {
         bool canContinue = true;
         foreach (const ProjectExplorer::Task &t, tasks) {
-            addTask(t);
+            emit addTask(t);
             if (t.type == Task::Error)
                 canContinue = false;
         }

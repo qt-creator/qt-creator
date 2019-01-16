@@ -71,10 +71,10 @@ void SearchResultTreeModel::setShowReplaceUI(bool show)
 
 void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColor &color)
 {
-    layoutAboutToBeChanged();
+    emit layoutAboutToBeChanged();
     m_textEditorFont = font;
     m_color = color;
-    layoutChanged();
+    emit layoutChanged();
 }
 
 Qt::ItemFlags SearchResultTreeModel::flags(const QModelIndex &idx) const
@@ -355,7 +355,7 @@ void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultIt
                 existingItem->setGenerated(false);
                 existingItem->item = item;
                 QModelIndex itemIndex = index(insertionIndex, 0, m_currentIndex);
-                dataChanged(itemIndex, itemIndex);
+                emit dataChanged(itemIndex, itemIndex);
             } else {
                 beginInsertRows(m_currentIndex, insertionIndex, insertionIndex);
                 m_currentParent->insertChild(insertionIndex, item);
@@ -363,7 +363,7 @@ void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultIt
             }
         }
     }
-    dataChanged(m_currentIndex, m_currentIndex); // Make sure that the number after the file name gets updated
+    emit dataChanged(m_currentIndex, m_currentIndex); // Make sure that the number after the file name gets updated
 }
 
 static bool lessThanByPath(const SearchResultItem &a, const SearchResultItem &b)

@@ -53,7 +53,7 @@ void QmlModelNodeProxy::emitSelectionToBeChanged()
 
 void QmlModelNodeProxy::emitSelectionChanged()
 {
-    selectionChanged();
+    emit selectionChanged();
 }
 
 QmlItemNode QmlModelNodeProxy::qmlItemNode() const

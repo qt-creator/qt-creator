@@ -224,7 +224,7 @@ void KitModel::apply()
     foreach (KitNode *n, m_toRemoveList)
         n->widget->removeKit();
 
-    layoutChanged(); // Force update.
+    emit layoutChanged(); // Force update.
 }
 
 void KitModel::markForRemoval(Kit *k)

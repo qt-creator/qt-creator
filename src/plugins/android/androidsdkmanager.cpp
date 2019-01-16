@@ -793,14 +793,14 @@ const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages(bool forceUpd
 
 void AndroidSdkManagerPrivate::reloadSdkPackages()
 {
-    m_sdkManager.packageReloadBegin();
+    emit m_sdkManager.packageReloadBegin();
     clearPackages();
 
     lastSdkManagerPath = m_config.sdkManagerToolPath();
 
     if (m_config.sdkToolsVersion().isNull()) {
         // Configuration has invalid sdk path or corrupt installation.
-        m_sdkManager.packageReloadFinished();
+        emit m_sdkManager.packageReloadFinished();
         return;
     }
 
@@ -820,7 +820,7 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
             parser.parsePackageListing(packageListing);
         }
     }
-    m_sdkManager.packageReloadFinished();
+    emit m_sdkManager.packageReloadFinished();
 }
 
 void AndroidSdkManagerPrivate::refreshSdkPackages(bool forceReload)

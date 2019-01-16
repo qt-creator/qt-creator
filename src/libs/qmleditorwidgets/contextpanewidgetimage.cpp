@@ -380,7 +380,7 @@ void ContextPaneWidgetImage::onPixmapDoubleClicked()
 void ContextPaneWidgetImage::onLeftMarginsChanged()
 {
     if (previewDialog()->previewLabel()->leftMarging())
-        propertyChanged(QLatin1String("border.left"), previewDialog()->previewLabel()->leftMarging());
+        emit propertyChanged("border.left", previewDialog()->previewLabel()->leftMarging());
     else
         emit removeProperty(QLatin1String("border.left"));
 }
@@ -388,7 +388,7 @@ void ContextPaneWidgetImage::onLeftMarginsChanged()
 void ContextPaneWidgetImage::onRightMarginsChanged()
 {
     if (previewDialog()->previewLabel()->rightMarging())
-        propertyChanged(QLatin1String("border.right"), previewDialog()->previewLabel()->rightMarging());
+        emit propertyChanged("border.right", previewDialog()->previewLabel()->rightMarging());
     else
         emit removeProperty(QLatin1String("border.right"));
 
@@ -398,7 +398,7 @@ void ContextPaneWidgetImage::onRightMarginsChanged()
 void ContextPaneWidgetImage::onTopMarginsChanged()
 {
     if (previewDialog()->previewLabel()->topMarging())
-        propertyChanged(QLatin1String("border.top"), previewDialog()->previewLabel()->topMarging());
+        emit propertyChanged("border.top", previewDialog()->previewLabel()->topMarging());
     else
         emit removeProperty(QLatin1String("border.top"));
 }
@@ -406,7 +406,7 @@ void ContextPaneWidgetImage::onTopMarginsChanged()
 void ContextPaneWidgetImage::onBottomMarginsChanged()
 {
     if (previewDialog()->previewLabel()->bottomMarging())
-        propertyChanged(QLatin1String("border.bottom"), previewDialog()->previewLabel()->bottomMarging());
+        emit propertyChanged("border.bottom", previewDialog()->previewLabel()->bottomMarging());
     else
         emit removeProperty(QLatin1String("border.bottom"));
 

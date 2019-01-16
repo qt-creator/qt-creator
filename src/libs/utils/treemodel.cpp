@@ -748,7 +748,8 @@ void TreeItem::update()
 {
     if (m_model) {
         QModelIndex idx = index();
-        m_model->dataChanged(idx.sibling(idx.row(), 0), idx.sibling(idx.row(), m_model->m_columnCount - 1));
+        emit m_model->dataChanged(idx.sibling(idx.row(), 0),
+                                  idx.sibling(idx.row(), m_model->m_columnCount - 1));
     }
 }
 
@@ -756,7 +757,7 @@ void TreeItem::updateAll()
 {
     if (m_model) {
         QModelIndex idx = index();
-        m_model->dataChanged(idx, idx.sibling(idx.row(), m_model->m_columnCount - 1));
+        emit m_model->dataChanged(idx, idx.sibling(idx.row(), m_model->m_columnCount - 1));
         for (TreeItem *item : *this)
             item->updateAll();
     }
@@ -766,7 +767,7 @@ void TreeItem::updateColumn(int column)
 {
     if (m_model) {
         QModelIndex idx = index();
-        m_model->dataChanged(idx.sibling(idx.row(), column), idx.sibling(idx.row(), column));
+        emit m_model->dataChanged(idx.sibling(idx.row(), column), idx.sibling(idx.row(), column));
     }
 }
 
@@ -893,13 +894,13 @@ void TreeItem::removeItemAt(int pos)
 void TreeItem::expand()
 {
     QTC_ASSERT(m_model, return);
-    m_model->requestExpansion(index());
+    emit m_model->requestExpansion(index());
 }
 
 void TreeItem::collapse()
 {
     QTC_ASSERT(m_model, return);
-    m_model->requestCollapse(index());
+    emit m_model->requestCollapse(index());
 }
 
 void TreeItem::propagateModel(BaseTreeModel *m)

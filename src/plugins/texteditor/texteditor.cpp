@@ -8038,10 +8038,10 @@ RefactorMarkers TextEditorWidget::refactorMarkers() const
 void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &markers)
 {
     foreach (const RefactorMarker &marker, d->m_refactorOverlay->markers())
-        requestBlockUpdate(marker.cursor.block());
+        emit requestBlockUpdate(marker.cursor.block());
     d->m_refactorOverlay->setMarkers(markers);
     foreach (const RefactorMarker &marker, markers)
-        requestBlockUpdate(marker.cursor.block());
+        emit requestBlockUpdate(marker.cursor.block());
 }
 
 TextBlockSelection::TextBlockSelection(const TextBlockSelection &other)

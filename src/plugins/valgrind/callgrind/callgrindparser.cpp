@@ -264,7 +264,7 @@ void Parser::Private::parse(QIODevice *device)
     foreach (Function *func, pendingFunctions)
         func->finalize();
 
-    q->parserDataReady(); // emit
+    emit q->parserDataReady();
 }
 
 inline QString getValue(const QByteArray &line, const int prefixLength)
