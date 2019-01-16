@@ -66,7 +66,6 @@ ToolWidget::ToolWidget(QWidget *parent) : FadingPanel(parent)
 
     m_disableButton = new QToolButton(m_firstWidget);
     m_disableButton->setAutoRaise(true);
-    m_disableButton->setToolTip(BuildStepListWidget::tr("Disable"));
     m_disableButton->setFixedSize(buttonSize);
     m_disableButton->setIcon(Icons::BUILDSTEP_DISABLE.icon());
     m_disableButton->setCheckable(true);
@@ -140,6 +139,8 @@ void ToolWidget::setBuildStepEnabled(bool b)
             m_firstWidget->fadeTo(.999);
     }
     m_disableButton->setChecked(!b);
+    m_disableButton->setToolTip(b ? BuildStepListWidget::tr("Disable")
+                                  : BuildStepListWidget::tr("Enable"));
 }
 
 void ToolWidget::setUpEnabled(bool b)
