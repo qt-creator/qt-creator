@@ -1626,28 +1626,32 @@ bool Check::visit(CallExpression *ast)
 
     // We have to allow the translation functions
 
-    const QStringList translationFunctions = {"qsTr", "qsTrId", "qsTranslate",
-                                              "qsTrNoOp", "qsTrIdNoOp", "qsTranslateNoOp"};
+    static const QStringList translationFunctions = {"qsTr", "qsTrId", "qsTranslate",
+                                                     "qsTrNoOp", "qsTrIdNoOp", "qsTranslateNoOp"};
 
-    const bool isTranslationFunction = translationFunctions.contains(name);
+    static const QStringList whiteListedFunctions = {"toString", "toFixed", "toExponential", "toPrecision", "isFinite", "isNaN", "valueOf",
+                                                     "toLowerCase", "toLocaleString", "toLocaleLowerCase", "toUpperCase", "toLocaleUpperCase",
+                                                     "substring" , "charAt", "charCodeAt", "concat", "endsWith", "includes", "indexOf", "lastIndexOf"};
+
+    static const QStringList colorFunctions = {"lighter", "darker", "rgba",  "tint", "hsla", "hsva"};
+
+    static const QStringList qtFunction = {"point", "rect", "size", "vector2d", "vector3d", "vector4d", "quaternion" "matrix4x4", "formatDate",
+                                           "formatDateTime", "formatTime"};
+
+    const bool whiteListedFunction =  translationFunctions.contains(name) || whiteListedFunctions.contains(name) || colorFunctions.contains(name) || qtFunction.contains(name);
 
     // We allow the Math. functions
     const bool isMathFunction = namespaceName == "Math";
+    const bool isDateFunction = namespaceName == "Date";
     // allow adding connections with the help of the qt quick designer ui
     bool isDirectInConnectionsScope =
             (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("Connections"));
-    if (!isTranslationFunction && !isMathFunction && !isDirectInConnectionsScope)
+    if (!whiteListedFunction && !isMathFunction && !isDirectInConnectionsScope)
         addMessage(ErrFunctionsNotSupportedInQmlUi, location);
 
-    if (!name.isEmpty() && name.at(0).isUpper()
-            && name != QLatin1String("String")
-            && name != QLatin1String("Boolean")
-            && name != QLatin1String("Date")
-            && name != QLatin1String("Number")
-            && name != QLatin1String("Object")
-            && name != QLatin1String("QT_TR_NOOP")
-            && name != QLatin1String("QT_TRANSLATE_NOOP")
-            && name != QLatin1String("QT_TRID_NOOP")) {
+    static const QStringList globalFunctions = {"String", "Boolean", "Date", "Number", "Object", "QT_TR_NOOP", "QT_TRANSLATE_NOOP", "QT_TRID_NOOP"};
+
+    if (!name.isEmpty() && name.at(0).isUpper() && !globalFunctions.contains(name)) {
         addMessage(WarnExpectedNewWithUppercaseFunction, location);
     }
     if (cast<IdentifierExpression *>(ast->base) && name == QLatin1String("eval"))
