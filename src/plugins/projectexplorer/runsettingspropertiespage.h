@@ -106,6 +106,7 @@ private:
     QPushButton *m_addRunToolButton;
     QPushButton *m_removeRunToolButton;
     QPushButton *m_renameRunButton;
+    QPushButton *m_cloneRunButton;
     QPushButton *m_renameDeployButton;
     QLabel *m_disabledIcon;
     QLabel *m_disabledText;

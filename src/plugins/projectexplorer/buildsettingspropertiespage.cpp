@@ -104,6 +104,11 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
         m_renameButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         hbox->addWidget(m_renameButton);
 
+        m_cloneButton = new QPushButton(this);
+        m_cloneButton->setText(tr("Clone..."));
+        m_cloneButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        hbox->addWidget(m_cloneButton);
+
         hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
         vbox->addLayout(hbox);
     }
@@ -123,6 +128,9 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
 
     connect(m_renameButton, &QAbstractButton::clicked,
             this, &BuildSettingsWidget::renameConfiguration);
+
+    connect(m_cloneButton, &QAbstractButton::clicked,
+            this, &BuildSettingsWidget::cloneConfiguration);
 
     connect(m_target, &Target::activeBuildConfigurationChanged,
             this, &BuildSettingsWidget::updateActiveConfiguration);
@@ -172,11 +180,6 @@ void BuildSettingsWidget::updateAddButtonMenu()
     m_buildInfoList.clear();
 
     if (m_target) {
-        if (m_target->activeBuildConfiguration()) {
-            QAction *cloneAction = m_addButtonMenu->addAction(tr("&Clone Selected"));
-            connect(cloneAction, &QAction::triggered,
-                    this, [this]() { cloneConfiguration(m_buildConfiguration); });
-        }
         IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(m_target);
         if (!factory)
             return;
@@ -198,6 +201,7 @@ void BuildSettingsWidget::updateBuildSettings()
     QList<BuildConfiguration *> bcs = m_target->buildConfigurations();
     m_removeButton->setEnabled(bcs.size() > 1);
     m_renameButton->setEnabled(!bcs.isEmpty());
+    m_cloneButton->setEnabled(!bcs.isEmpty());
 
     if (!m_buildConfiguration)
         return;
@@ -294,10 +298,9 @@ void BuildSettingsWidget::renameConfiguration()
 
 }
 
-void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfiguration)
+void BuildSettingsWidget::cloneConfiguration()
 {
-    if (!sourceConfiguration)
-        return;
+    QTC_ASSERT(m_buildConfiguration, return);
     IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(m_target);
     if (!factory)
         return;
@@ -311,7 +314,7 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
     if (name.isEmpty())
         return;
 
-    BuildConfiguration *bc = factory->clone(m_target, sourceConfiguration);
+    BuildConfiguration *bc = factory->clone(m_target, m_buildConfiguration);
     if (!bc)
         return;
 
