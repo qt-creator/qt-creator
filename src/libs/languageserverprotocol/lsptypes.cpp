@@ -284,7 +284,7 @@ QMap<QString, QString> languageIds()
 
 QString TextDocumentItem::mimeTypeToLanguageId(const Utils::MimeType &mimeType)
 {
-    return mimeTypeLanguageIdMap()[mimeType];
+    return mimeTypeLanguageIdMap().value(mimeType);
 }
 
 QString TextDocumentItem::mimeTypeToLanguageId(const QString &mimeTypeName)

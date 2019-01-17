@@ -58,7 +58,7 @@ QVariant PerfConfigEventsModel::data(const QModelIndex &index, int role) const
         return QVariant(); // ignore
     }
 
-    QString event = m_settings->events()[index.row()];
+    QString event = m_settings->events().value(index.row());
     const EventDescription description = parseEvent(event);
     switch (index.column()) {
     case ColumnEventType: {

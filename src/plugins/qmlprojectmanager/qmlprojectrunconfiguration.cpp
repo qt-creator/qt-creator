@@ -410,7 +410,7 @@ bool MainQmlFileAspect::isQmlFilePresent()
             for (const Utils::FileName &filename : files) {
                 const QFileInfo fi = filename.toFileInfo();
 
-                if (!filename.isEmpty() && fi.baseName()[0].isLower()) {
+                if (!filename.isEmpty() && fi.baseName().at(0).isLower()) {
                     Utils::MimeType type = Utils::mimeTypeForFile(fi);
                     if (type.matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE))
                             || type.matchesName(

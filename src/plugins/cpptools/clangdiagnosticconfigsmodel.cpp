@@ -237,7 +237,7 @@ QVector<Core::Id> ClangDiagnosticConfigsModel::changedOrRemovedConfigs(
         const int i = newConfigsModel.indexOfConfig(old.id());
         if (i == -1)
             changedConfigs.append(old.id()); // Removed
-        else if (newConfigsModel.configs()[i] != old)
+        else if (newConfigsModel.configs().value(i) != old)
             changedConfigs.append(old.id()); // Changed
     }
 

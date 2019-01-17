@@ -221,7 +221,7 @@ void layout(const QList<QGraphicsItem*> &items)
     // Change initial-item position
     ConnectableItem *firstItem = nullptr;
     if (initialItem && initialItem->outputTransitionCount() == 1) {
-        firstItem = initialItem->outputTransitions()[0]->connectedItem(initialItem);
+        firstItem = initialItem->outputTransitions().constFirst()->connectedItem(initialItem);
         int index = childItems.indexOf(firstItem);
         if (index > 0)
             childItems.swap(index, 0);
@@ -230,7 +230,7 @@ void layout(const QList<QGraphicsItem*> &items)
     // Search final-item
     ConnectableItem *lastItem = nullptr;
     if (finalItem && finalItem->inputTransitionCount() > 0)
-        lastItem = finalItem->inputTransitions()[0]->connectedItem(finalItem);
+        lastItem = finalItem->inputTransitions().constFirst()->connectedItem(finalItem);
 
     int startAngle = qrand() % 2 == 0 ? 180 : 90;
     int startDistance = 40 + childItems.count() * 10;
