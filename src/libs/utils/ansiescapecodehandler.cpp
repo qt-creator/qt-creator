@@ -122,7 +122,7 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                 strippedText.remove(0, 1);
                 continue;
             }
-            m_pendingText += strippedText.mid(0, escape.length());
+            m_pendingText += strippedText.midRef(0, escape.length());
             strippedText.remove(0, escape.length());
 
             // \e[K is not supported. Just strip it.
@@ -144,7 +144,7 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                         break;
                     strNumber.clear();
                 }
-                m_pendingText += strippedText.mid(0, 1);
+                m_pendingText += strippedText.midRef(0, 1);
                 strippedText.remove(0, 1);
             }
             if (strippedText.isEmpty())

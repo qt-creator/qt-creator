@@ -167,7 +167,7 @@ static QString msgWinException(const QString &data, unsigned *exCodeIn = nullptr
     const int addressPos = blankPos != -1 ? data.indexOf("0x", blankPos + 1) : -1;
     if (addressPos < 0)
         return GdbEngine::tr("An exception was triggered.");
-    const unsigned exCode = data.mid(exCodePos, blankPos - exCodePos).toUInt(nullptr, 0);
+    const unsigned exCode = data.midRef(exCodePos, blankPos - exCodePos).toUInt(nullptr, 0);
     if (exCodeIn)
         *exCodeIn = exCode;
     const quint64 address = data.mid(addressPos).trimmed().toULongLong(nullptr, 0);
@@ -1390,7 +1390,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
         const GdbMi wpt = data["wpt"];
         const QString rid = wpt["number"].data();
         const Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid);
-        const quint64 bpAddress = wpt["exp"].data().mid(1).toULongLong(nullptr, 0);
+        const quint64 bpAddress = wpt["exp"].data().midRef(1).toULongLong(nullptr, 0);
         QString msg;
         if (bp) {
             if (bp->type() == WatchpointAtExpression)
@@ -2154,7 +2154,7 @@ void GdbEngine::handleWatchInsert(const DebuggerResponse &response, const Breakp
             bp->setResponseId(wpt["number"].data());
             QString exp = wpt["exp"].data();
             if (exp.startsWith('*'))
-                bp->setAddress(exp.mid(1).toULongLong(nullptr, 0));
+                bp->setAddress(exp.midRef(1).toULongLong(nullptr, 0));
             QTC_CHECK(!bp->needsChange());
             notifyBreakpointInsertOk(bp);
         } else if (ba.startsWith("Hardware watchpoint ")
@@ -2165,7 +2165,7 @@ void GdbEngine::handleWatchInsert(const DebuggerResponse &response, const Breakp
             const QString address = ba.mid(end + 2).trimmed();
             bp->setResponseId(ba.mid(begin, end - begin));
             if (address.startsWith('*'))
-                bp->setAddress(address.mid(1).toULongLong(nullptr, 0));
+                bp->setAddress(address.midRef(1).toULongLong(nullptr, 0));
             QTC_CHECK(!bp->needsChange());
             notifyBreakpointInsertOk(bp);
         } else {

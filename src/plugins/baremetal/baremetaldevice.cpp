@@ -90,7 +90,7 @@ void BareMetalDevice::setChannelByServerProvider(GdbServerProvider *provider)
         return;
     QSsh::SshConnectionParameters sshParams = sshParameters();
     sshParams.setHost(channel.left(colon));
-    sshParams.setPort(channel.mid(colon + 1).toUShort());
+    sshParams.setPort(channel.midRef(colon + 1).toUShort());
     setSshParameters(sshParams);
 }
 

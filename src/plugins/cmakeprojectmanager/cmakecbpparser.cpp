@@ -49,8 +49,8 @@ namespace {
 int distance(const FileName &targetDirectory, const FileName &fileName)
 {
     const QString commonParent = commonPath(QStringList({targetDirectory.toString(), fileName.toString()}));
-    return targetDirectory.toString().mid(commonParent.size()).count('/')
-            + fileName.toString().mid(commonParent.size()).count('/');
+    return targetDirectory.toString().midRef(commonParent.size()).count('/')
+            + fileName.toString().midRef(commonParent.size()).count('/');
 }
 } // namespace
 

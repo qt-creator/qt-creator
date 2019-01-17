@@ -106,7 +106,7 @@ public:
             filePath.remove(0, m_ref.length());
         single.fileName = m_directory + '/' + filePath;
         const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
-        single.lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
+        single.lineNumber = line.midRef(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
         QString text = line.mid(textSeparator + 1);
         QRegularExpression regexp;
         QVector<Match> matches;

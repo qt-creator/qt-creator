@@ -72,7 +72,7 @@ const QString QtTestResult::outputString(bool selected) const
             int breakPos = desc.indexOf('(');
             output.append(": ").append(desc.left(breakPos));
             if (selected)
-                output.append('\n').append(desc.mid(breakPos));
+                output.append('\n').append(desc.midRef(breakPos));
         }
         break;
     default:

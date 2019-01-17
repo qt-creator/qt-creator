@@ -296,7 +296,7 @@ static QString filterPasswordFromUrls(const QString &input)
     while ((pos = d->passwordRegExp.indexIn(result, pos)) >= 0) {
         QString tmp = result.left(pos + 3) + d->passwordRegExp.cap(1) + QLatin1String(":***@");
         int newStart = tmp.count();
-        tmp += result.mid(pos + d->passwordRegExp.matchedLength());
+        tmp += result.midRef(pos + d->passwordRegExp.matchedLength());
         result = tmp;
         pos = newStart;
     }

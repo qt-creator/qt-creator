@@ -136,7 +136,7 @@ void BreakpointParameters::updateLocation(const QString &location)
 {
     if (location.size()) {
         int pos = location.indexOf(':');
-        lineNumber = location.mid(pos + 1).toInt();
+        lineNumber = location.midRef(pos + 1).toInt();
         QString file = location.left(pos);
         if (file.startsWith('"') && file.endsWith('"'))
             file = file.mid(1, file.size() - 2);
@@ -345,7 +345,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
                 QString what = bkpt["what"].data();
                 if (what.startsWith("*0x")) {
                     type = WatchpointAtAddress;
-                    address = what.mid(1).toULongLong(0, 0);
+                    address = what.midRef(1).toULongLong(0, 0);
                 } else {
                     type = WatchpointAtExpression;
                     expression = what;

@@ -399,7 +399,7 @@ void QtTestOutputReader::processResultOutput(const QString &result, const QStrin
     if (!description.isEmpty()) {
         if (!m_description.isEmpty())
             m_description.append('\n');
-        m_description.append(description.mid(1)); // cut the first whitespace
+        m_description.append(description.midRef(1)); // cut the first whitespace
     }
     m_formerTestCase = m_testCase;
 }

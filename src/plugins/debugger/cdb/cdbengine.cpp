@@ -2245,7 +2245,7 @@ static inline bool checkCommandToken(const QString &tokenPrefix, const QString &
     if (!c.startsWith(tokenPrefix))
         return false;
     bool ok;
-    *token = c.mid(tokenPrefixSize, size - tokenPrefixSize - 1).toInt(&ok);
+    *token = c.midRef(tokenPrefixSize, size - tokenPrefixSize - 1).toInt(&ok);
     return ok;
 }
 
@@ -2266,19 +2266,19 @@ void CdbEngine::parseOutputLine(QString line)
         const int tokenPos = creatorExtPrefix.size() + 2;
         const int tokenEndPos = line.indexOf('|', tokenPos);
         QTC_ASSERT(tokenEndPos != -1, return);
-        const int token = line.mid(tokenPos, tokenEndPos - tokenPos).toInt();
+        const int token = line.midRef(tokenPos, tokenEndPos - tokenPos).toInt();
         // remainingChunks
         const int remainingChunksPos = tokenEndPos + 1;
         const int remainingChunksEndPos = line.indexOf('|', remainingChunksPos);
         QTC_ASSERT(remainingChunksEndPos != -1, return);
-        const int remainingChunks = line.mid(remainingChunksPos, remainingChunksEndPos - remainingChunksPos).toInt();
+        const int remainingChunks = line.midRef(remainingChunksPos, remainingChunksEndPos - remainingChunksPos).toInt();
         // const char 'serviceName'
         const int whatPos = remainingChunksEndPos + 1;
         const int whatEndPos = line.indexOf('|', whatPos);
         QTC_ASSERT(whatEndPos != -1, return);
         const QString what = line.mid(whatPos, whatEndPos - whatPos);
         // Build up buffer, call handler once last chunk was encountered
-        m_extensionMessageBuffer += line.mid(whatEndPos + 1);
+        m_extensionMessageBuffer += line.midRef(whatEndPos + 1);
         if (remainingChunks == 0) {
             handleExtensionMessage(type, token, what, m_extensionMessageBuffer);
             m_extensionMessageBuffer.clear();
@@ -2843,7 +2843,7 @@ void CdbEngine::handleWidgetAt(const DebuggerResponse &response)
             break;
         }
         // 0x000 -> nothing found
-        if (!watchExp.mid(sepPos + 1).toULongLong(nullptr, 0)) {
+        if (!watchExp.midRef(sepPos + 1).toULongLong(nullptr, 0)) {
             message = QString("No widget could be found at %1, %2.").arg(m_watchPointX).arg(m_watchPointY);
             break;
         }

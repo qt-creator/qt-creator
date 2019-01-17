@@ -79,7 +79,7 @@ static inline QString xmlFromClassName(const QString &name)
     if (!name.isEmpty()) {
         rc += name.left(1).toLower();
         if (name.size() > 1)
-            rc += name.mid(1);
+            rc += name.midRef(1);
     }
     rc += QLatin1String("\">\n</widget>\n");
     return rc;

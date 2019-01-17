@@ -620,11 +620,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                 for (const ProString &opt : opts) {
                     opt.toQString(m_tmp3);
                     if (m_tmp3.startsWith(QLatin1String("ibase="))) {
-                        ibase = m_tmp3.mid(6).toInt();
+                        ibase = m_tmp3.midRef(6).toInt();
                     } else if (m_tmp3.startsWith(QLatin1String("obase="))) {
-                        obase = m_tmp3.mid(6).toInt();
+                        obase = m_tmp3.midRef(6).toInt();
                     } else if (m_tmp3.startsWith(QLatin1String("width="))) {
-                        width = m_tmp3.mid(6).toInt();
+                        width = m_tmp3.midRef(6).toInt();
                     } else if (m_tmp3 == QLatin1String("zeropad")) {
                         zeropad = true;
                     } else if (m_tmp3 == QLatin1String("padsign")) {
