@@ -395,7 +395,8 @@ void IosConfigurations::load()
     m_ignoreAllDevices = settings->value(ignoreAllDevicesKey, false).toBool();
     m_screenshotDir = FileName::fromString(settings->value(screenshotDirPathKey).toString());
     if (!m_screenshotDir.exists()) {
-        QString defaultDir = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first();
+        QString defaultDir =
+                QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).constFirst();
         m_screenshotDir = FileName::fromString(defaultDir);
     }
 

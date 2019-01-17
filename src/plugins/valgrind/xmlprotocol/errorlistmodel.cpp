@@ -167,8 +167,8 @@ ErrorItem::ErrorItem(const ErrorListModel *model, const Error &error)
     if (m_error.stacks().count() > 1) {
         foreach (const Stack &s, m_error.stacks())
             appendChild(new StackItem(s));
-    } else if (m_error.stacks().first().frames().count() > 1) {
-        foreach (const Frame &f, m_error.stacks().first().frames())
+    } else if (m_error.stacks().constFirst().frames().count() > 1) {
+        foreach (const Frame &f, m_error.stacks().constFirst().frames())
             appendChild(new FrameItem(f));
     }
 }
@@ -211,12 +211,12 @@ QVariant ErrorItem::data(int column, int role) const
     case Qt::DisplayRole:
         // If and only if there is exactly one frame, we have omitted creating a child item for it
         // (see the constructor) and display the function name in the error item instead.
-        if (m_error.stacks().count() != 1 || m_error.stacks().first().frames().count() != 1
-                || m_error.stacks().first().frames().first().functionName().isEmpty()) {
+        if (m_error.stacks().count() != 1 || m_error.stacks().constFirst().frames().count() != 1
+                || m_error.stacks().constFirst().frames().constFirst().functionName().isEmpty()) {
             return m_error.what();
         }
         return ErrorListModel::tr("%1 in function %2")
-                .arg(m_error.what(), m_error.stacks().first().frames().first().functionName());
+                .arg(m_error.what(), m_error.stacks().constFirst().frames().constFirst().functionName());
     case Qt::ToolTipRole:
         return toolTipForFrame(m_model->findRelevantFrame(m_error));
     default:

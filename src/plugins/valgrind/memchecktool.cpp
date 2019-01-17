@@ -355,7 +355,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
             }
         }
 
-        const QVector< Frame > frames = error.stacks().first().frames();
+        const QVector<Frame> frames = error.stacks().constFirst().frames();
 
         const int framesToLookAt = qMin(6, frames.size());
 

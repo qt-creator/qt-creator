@@ -393,9 +393,9 @@ bool Semantic::visit(FunctionCallExpressionAST *ast)
                 // ### error, unresolved call.
                 Q_ASSERT(! overloads->functions().isEmpty());
 
-                _expr.type = overloads->functions().first()->returnType();
+                _expr.type = overloads->functions().constFirst()->returnType();
             } else {
-                _expr.type = candidates.first()->returnType();
+                _expr.type = candidates.constFirst()->returnType();
 
                 if (candidates.size() != 1) {
                     // ### error, ambiguous call

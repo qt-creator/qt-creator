@@ -1919,7 +1919,7 @@ void ProjectExplorerPlugin::showOpenProjectError(const OpenProjectResult &result
         QMessageBox::critical(ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);
     } else {
         // ignore multiple alreadyOpen
-        Project *alreadyOpen = result.alreadyOpen().first();
+        Project *alreadyOpen = result.alreadyOpen().constFirst();
         ProjectTree::highlightProject(alreadyOpen,
                                       tr("<h3>Project already open</h3>"));
     }

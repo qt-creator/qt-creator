@@ -799,7 +799,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                 ClassOrNamespace *targetNamespaceBinding = binding->lookupType(name);
                 //there can be many namespace definitions
                 if (targetNamespaceBinding && targetNamespaceBinding->symbols().size() > 0) {
-                    Symbol *resolvedSymbol = targetNamespaceBinding->symbols().first();
+                    Symbol *resolvedSymbol = targetNamespaceBinding->symbols().constFirst();
                     item.setType(resolvedSymbol->type()); // override the type
                 }
             }

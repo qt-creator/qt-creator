@@ -253,7 +253,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
         const QString key = document->filePath().toString();
         if (auto textDocument = qobject_cast<const TextEditor::TextDocument *>(document)) {
             // TODO the language should be a property on the document, not the editor
-            if (DocumentModel::editorsForDocument(document).first()
+            if (DocumentModel::editorsForDocument(document).constFirst()
                     ->context().contains(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID)) {
                 workingCopy.insert(key, textDocument->plainText(),
                                    textDocument->document()->revision());

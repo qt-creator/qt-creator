@@ -239,7 +239,7 @@ QIcon Icon::modeIcon(const Icon &classic, const Icon &flat, const Icon &flatActi
 QIcon Icon::combinedIcon(const QList<QIcon> &icons)
 {
     QIcon result;
-    QWindow *window = QApplication::allWidgets().first()->windowHandle();
+    QWindow *window = QApplication::allWidgets().constFirst()->windowHandle();
     for (const QIcon &icon: icons)
         for (const QIcon::Mode mode: {QIcon::Disabled, QIcon::Normal})
             for (const QSize &size: icon.availableSizes(mode))

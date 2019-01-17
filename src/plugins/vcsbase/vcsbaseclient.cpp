@@ -67,7 +67,7 @@ static Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
         if (document->property(property).toString() == entry)
-            return Core::DocumentModel::editorsForDocument(document).first();
+            return Core::DocumentModel::editorsForDocument(document).constFirst();
     return nullptr;
 }
 

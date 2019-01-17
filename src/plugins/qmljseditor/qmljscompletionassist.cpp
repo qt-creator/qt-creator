@@ -788,7 +788,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
             if (ScopeBuilder::isPropertyChangesObject(context, qmlScopeType)
                     && scopeChain.qmlScopeObjects().size() == 2) {
                 CompletionAdder completionAdder(&m_completions, QmlJSCompletionAssistInterface::symbolIcon(), SymbolOrder);
-                processProperties(scopeChain.qmlScopeObjects().first(), &completionAdder);
+                processProperties(scopeChain.qmlScopeObjects().constFirst(), &completionAdder);
             }
         }
 

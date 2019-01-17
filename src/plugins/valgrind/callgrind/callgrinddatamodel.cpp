@@ -233,7 +233,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         ret += entry.arg(tr("Function:")).arg(func->name().toHtmlEscaped());
         ret += entry.arg(tr("File:")).arg(func->file());
         if (!func->costItems().isEmpty()) {
-            const CostItem *firstItem = func->costItems().first();
+            const CostItem *firstItem = func->costItems().constFirst();
             for (int i = 0; i < d->m_data->positions().size(); ++i) {
                 ret += entry.arg(ParseData::prettyStringForPosition(d->m_data->positions().at(i)))
                        .arg(firstItem->position(i));

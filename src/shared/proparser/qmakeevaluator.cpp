@@ -941,7 +941,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProVariable(
         m_dirSep = first(varName);
     else if (varName == statics.strQMAKESPEC) {
         if (!values(varName).isEmpty()) {
-            QString spec = values(varName).first().toQString();
+            QString spec = values(varName).constFirst().toQString();
             if (IoUtils::isAbsolutePath(spec)) {
                 m_qmakespec = spec;
                 m_qmakespecName = IoUtils::fileName(m_qmakespec).toString();

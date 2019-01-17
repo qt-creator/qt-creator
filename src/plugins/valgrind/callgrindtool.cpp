@@ -847,7 +847,8 @@ void CallgrindTool::showParserResults(const ParseData *data)
         if (data->events().isEmpty()) {
             msg = tr("Parsing finished, no data.");
         } else {
-            const QString costStr = QString::fromLatin1("%1 %2").arg(QString::number(data->totalCost(0)), data->events().first());
+            const QString costStr = QString::fromLatin1("%1 %2")
+                    .arg(QString::number(data->totalCost(0)), data->events().constFirst());
             msg = tr("Parsing finished, total cost of %1 reported.").arg(costStr);
         }
     } else {

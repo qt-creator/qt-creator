@@ -2109,7 +2109,7 @@ public:
         QString description;
         if (m_change.operationList().size() == 1) {
             description = QApplication::translate("CppTools::QuickFix",
-                "Reformat to \"%1\"").arg(m_change.operationList().first().text);
+                "Reformat to \"%1\"").arg(m_change.operationList().constFirst().text);
         } else { // > 1
             description = QApplication::translate("CppTools::QuickFix",
                 "Reformat Pointers or References");

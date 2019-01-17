@@ -69,8 +69,8 @@ static QString suppressionText(const Error &error)
     // try to set some useful name automatically, instead of "insert_name_here"
     // we take the last stack frame and append the suppression kind, e.g.:
     // QDebug::operator<<(bool) [Memcheck:Cond]
-    if (!error.stacks().isEmpty() && !error.stacks().first().frames().isEmpty()) {
-        const Frame frame = error.stacks().first().frames().first();
+    if (!error.stacks().isEmpty() && !error.stacks().constFirst().frames().isEmpty()) {
+        const Frame frame = error.stacks().constFirst().frames().constFirst();
 
         QString newName;
         if (!frame.functionName().isEmpty())
