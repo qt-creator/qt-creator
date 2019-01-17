@@ -45,7 +45,7 @@ class CPPTOOLS_EXPORT CompilerOptionsBuilder
 public:
     CompilerOptionsBuilder(const ProjectPart &projectPart,
                            UseSystemHeader useSystemHeader = UseSystemHeader::No,
-                           UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::Yes,
+                           UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::No,
                            UseLanguageDefines useLanguageDefines = UseLanguageDefines::No,
                            const QString &clangVersion = QString(),
                            const QString &clangResourceDirectory = QString());

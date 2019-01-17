@@ -296,27 +296,22 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     using ProjectExplorer::HeaderPath;
     using ProjectExplorer::HeaderPathType;
 
+    for (const HeaderPath &headerPath : filter.userHeaderPaths)
+        addIncludeDirOptionForPath(headerPath);
+    for (const HeaderPath &headerPath : filter.systemHeaderPaths)
+        addIncludeDirOptionForPath(headerPath);
+
     if (m_useTweakedHeaderPaths == UseTweakedHeaderPaths::Yes) {
-        // Exclude all built-in includes except Clang resource directory.
+        QTC_CHECK(!m_clangVersion.isEmpty()
+                  && "Clang resource directory is required with UseTweakedHeaderPaths::Yes.");
 
-        if (!isClStyle()) // MSVC does not have such include directories - ignore it for cl driver.
-            m_options.prepend("-nostdlibinc");
+        // Exclude all built-in includes and Clang resource directory.
+        m_options.prepend("-nostdinc++");
+        m_options.prepend("-nostdinc");
 
-        if (!m_clangVersion.isEmpty()) {
-            // Exclude all built-in includes and Clang resource directory.
-            m_options.prepend("-nostdinc");
-        }
+        for (const HeaderPath &headerPath : filter.builtInHeaderPaths)
+            addIncludeDirOptionForPath(headerPath);
     }
-
-
-    for (const HeaderPath &headerPath : qAsConst(filter.userHeaderPaths))
-        addIncludeDirOptionForPath(headerPath);
-
-    for (const HeaderPath &headerPath : qAsConst(filter.systemHeaderPaths))
-        addIncludeDirOptionForPath(headerPath);
-
-    for (const HeaderPath &headerPath : qAsConst(filter.builtInHeaderPaths))
-        addIncludeDirOptionForPath(headerPath);
 }
 
 void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders usePrecompiledHeaders)
