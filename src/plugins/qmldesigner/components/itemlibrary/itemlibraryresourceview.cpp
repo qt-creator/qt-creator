@@ -115,7 +115,7 @@ void ItemLibraryResourceView::startDrag(Qt::DropActions /* supportedActions */)
 
     auto fileSystemModel = qobject_cast<CustomFileSystemModel*>(model());
     Q_ASSERT(fileSystemModel);
-    QFileInfo fileInfo = fileSystemModel->fileInfo(selectedIndexes().front());
+    QFileInfo fileInfo = fileSystemModel->fileInfo(selectedIndexes().constFirst());
     QPixmap pixmap(fileInfo.absoluteFilePath());
     if (!pixmap.isNull()) {
         auto drag = new QDrag(this);

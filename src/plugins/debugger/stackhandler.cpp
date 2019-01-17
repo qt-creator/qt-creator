@@ -347,7 +347,7 @@ void StackHandler::saveTaskFile()
     while (!file.isOpen()) {
         if (fileDialog.exec() != QDialog::Accepted)
             return;
-        const QString fileName = fileDialog.selectedFiles().front();
+        const QString fileName = fileDialog.selectedFiles().constFirst();
         file.setFileName(fileName);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QString msg = tr("Cannot open \"%1\": %2")

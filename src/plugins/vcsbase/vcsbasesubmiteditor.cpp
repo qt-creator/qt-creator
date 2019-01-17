@@ -624,7 +624,7 @@ void VcsBaseSubmitEditor::slotInsertNickName()
 
 void VcsBaseSubmitEditor::slotSetFieldNickName(int i)
 {
-    if (SubmitFieldWidget *sfw = d->m_widget->submitFieldWidgets().front()) {
+    if (SubmitFieldWidget *sfw = d->m_widget->submitFieldWidgets().constFirst()) {
         const QString nick = promptForNickName();
         if (!nick.isEmpty())
             sfw->setFieldValue(i, nick);
