@@ -58,7 +58,6 @@ public:
 
     bool dryRun() const;
     bool keepGoing() const;
-    int maxJobs() const;
 
 signals:
     void changed();
@@ -73,7 +72,6 @@ private:
 
     void setDryRun(bool dr);
     void setKeepGoing(bool kg);
-    void setMaxJobs(int jobcount);
 
     qbs::CleanOptions m_qbsCleanOptions;
     QStringList m_products;
@@ -101,7 +99,6 @@ private:
 
     void changeDryRun(bool dr);
     void changeKeepGoing(bool kg);
-    void changeJobCount(int jobcount);
 
     Ui::QbsCleanStepConfigWidget *m_ui;
 

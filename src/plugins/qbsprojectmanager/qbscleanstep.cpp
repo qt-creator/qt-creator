@@ -124,12 +124,6 @@ bool QbsCleanStep::keepGoing() const
     return m_qbsCleanOptions.keepGoing();
 }
 
-int QbsCleanStep::maxJobs() const
-{
-    return 1;
-}
-
-
 bool QbsCleanStep::fromMap(const QVariantMap &map)
 {
     if (!ProjectExplorer::BuildStep::fromMap(map))
@@ -204,12 +198,6 @@ void QbsCleanStep::setKeepGoing(bool kg)
     emit changed();
 }
 
-void QbsCleanStep::setMaxJobs(int jobcount)
-{
-    Q_UNUSED(jobcount); // TODO: Remove all job count-related stuff.
-    emit changed();
-}
-
 
 // --------------------------------------------------------------------
 // QbsCleanStepConfigWidget:
@@ -261,11 +249,6 @@ void QbsCleanStepConfigWidget::changeDryRun(bool dr)
 void QbsCleanStepConfigWidget::changeKeepGoing(bool kg)
 {
     m_step->setKeepGoing(kg);
-}
-
-void QbsCleanStepConfigWidget::changeJobCount(int count)
-{
-    m_step->setMaxJobs(count);
 }
 
 // --------------------------------------------------------------------
