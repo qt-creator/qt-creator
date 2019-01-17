@@ -94,7 +94,6 @@ public:
         QString qmlDumpPath;
         ::Utils::Environment qmlDumpEnvironment;
 
-        QString qtImportsPath;
         QString qtQmlPath;
         QString qtVersionString;
         QmlJS::QmlLanguageBundles activeBundle;

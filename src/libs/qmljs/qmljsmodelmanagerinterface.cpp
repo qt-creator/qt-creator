@@ -120,8 +120,6 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
     qRegisterMetaType<QmlJS::PathAndLanguage>("QmlJS::PathAndLanguage");
     qRegisterMetaType<QmlJS::PathsAndLanguages>("QmlJS::PathsAndLanguages");
 
-    m_defaultProjectInfo.qtImportsPath = QFileInfo(
-                QLibraryInfo::location(QLibraryInfo::ImportsPath)).canonicalFilePath();
     m_defaultProjectInfo.qtQmlPath = QFileInfo(
                 QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)).canonicalFilePath();
 
@@ -410,10 +408,6 @@ bool pInfoLessThanImports(const ModelManagerInterface::ProjectInfo &p1, const Mo
         return true;
     if (p1.qtQmlPath > p2.qtQmlPath)
         return false;
-    if (p1.qtImportsPath < p2.qtImportsPath)
-        return true;
-    if (p1.qtImportsPath > p2.qtImportsPath)
-        return false;
     const PathsAndLanguages &s1 = p1.importPaths;
     const PathsAndLanguages &s2 = p2.importPaths;
     if (s1.size() < s2.size())
@@ -537,7 +531,6 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
     if (oldInfo.qmlDumpPath != pinfo.qmlDumpPath
             || oldInfo.qmlDumpEnvironment != pinfo.qmlDumpEnvironment) {
         m_pluginDumper->scheduleRedumpPlugins();
-        m_pluginDumper->scheduleMaybeRedumpBuiltins(pinfo);
     }
 
 
@@ -609,12 +602,8 @@ void ModelManagerInterface::removeProjectInfo(ProjectExplorer::Project *project)
  */
 ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(const QString &path) const
 {
-    QList<ProjectInfo> infos = allProjectInfosForPath(path);
-
     ProjectInfo res;
-    foreach (const ProjectInfo &pInfo, infos) {
-        if (res.qtImportsPath.isEmpty())
-            res.qtImportsPath = pInfo.qtImportsPath;
+    foreach (const ProjectInfo &pInfo, allProjectInfosForPath(path)) {
         if (res.qtQmlPath.isEmpty())
             res.qtQmlPath = pInfo.qtQmlPath;
         for (int i = 0; i < pInfo.importPaths.size(); ++i)
@@ -1346,12 +1335,10 @@ ModelManagerInterface::CppDataHash ModelManagerInterface::cppData() const
 
 LibraryInfo ModelManagerInterface::builtins(const Document::Ptr &doc) const
 {
-    ProjectInfo info = projectInfoForPath(doc->fileName());
-    if (!info.isValid())
-        return LibraryInfo();
-    if (!info.qtQmlPath.isEmpty())
+    const ProjectInfo info = projectInfoForPath(doc->fileName());
+    if (info.isValid() && !info.qtQmlPath.isEmpty())
         return m_validSnapshot.libraryInfo(info.qtQmlPath);
-    return m_validSnapshot.libraryInfo(info.qtImportsPath);
+    return LibraryInfo();
 }
 
 ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
@@ -1370,8 +1357,6 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         info = projectInfoForPath(doc->fileName());
     ViewerContext defaultVCtx = defaultVContext(res.language, Document::Ptr(nullptr), false);
     ProjectInfo defaultInfo = defaultProjectInfo();
-    if (info.qtImportsPath.isEmpty())
-        info.qtImportsPath = defaultInfo.qtImportsPath;
     if (info.qtQmlPath.isEmpty())
         info.qtQmlPath = defaultInfo.qtQmlPath;
     switch (res.flags) {
@@ -1388,7 +1373,6 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         case Dialect::AnyLanguage:
         case Dialect::Qml:
             res.maybeAddPath(info.qtQmlPath);
-            res.maybeAddPath(info.qtImportsPath);
             Q_FALLTHROUGH();
         case Dialect::QmlQtQuick2:
         case Dialect::QmlQtQuick2Ui:
@@ -1429,9 +1413,6 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
     case ViewerContext::AddDefaultPaths:
         foreach (const QString &path, defaultVCtx.paths)
             res.maybeAddPath(path);
-        if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml
-                || res.language == Dialect::QmlQtQuick2 || res.language == Dialect::QmlQtQuick2Ui)
-            res.maybeAddPath(info.qtImportsPath);
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml)
             res.maybeAddPath(info.qtQmlPath);
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml

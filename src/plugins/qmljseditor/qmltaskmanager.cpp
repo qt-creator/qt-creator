@@ -88,7 +88,7 @@ void QmlTaskManager::collectMessages(
         QHash<QString, QList<DiagnosticMessage> > linkMessages;
         ContextPtr context;
         if (updateSemantic) {
-            QmlJS::Link link(snapshot, vContext, snapshot.libraryInfo(info.qtImportsPath));
+            QmlJS::Link link(snapshot, vContext, QmlJS::LibraryInfo());
             context = link(&linkMessages);
         }
 

@@ -119,11 +119,9 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     if (qtVersion && qtVersion->isValid()) {
         projectInfo.tryQmlDump = project && qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
         projectInfo.qtQmlPath = qtVersion->qmlPath().toFileInfo().canonicalFilePath();
-        projectInfo.qtImportsPath = QFileInfo(qtVersion->qmakeProperty("QT_INSTALL_IMPORTS")).canonicalFilePath();
         projectInfo.qtVersionString = qtVersion->qtVersionString();
     } else {
         projectInfo.qtQmlPath = QFileInfo(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)).canonicalFilePath();
-        projectInfo.qtImportsPath = QFileInfo(QLibraryInfo::location(QLibraryInfo::ImportsPath)).canonicalFilePath();
         projectInfo.qtVersionString = QLatin1String(qVersion());
     }
 
@@ -149,9 +147,7 @@ void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
     if (projectInfo.project)
         activeTarget = projectInfo.project->activeTarget();
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
-    QHash<QString, QString> replacements;
-    replacements.insert(QLatin1String("$(QT_INSTALL_IMPORTS)"), projectInfo.qtImportsPath);
-    replacements.insert(QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath);
+    const QHash<QString, QString> replacements = {{QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath}};
 
     for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
         bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);

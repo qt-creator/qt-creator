@@ -2229,12 +2229,6 @@ ImportInfo::ImportInfo()
 ImportInfo ImportInfo::moduleImport(QString uri, ComponentVersion version,
                                     const QString &as, UiImport *ast)
 {
-    // treat Qt 4.7 as QtQuick 1.0
-    if (uri == QLatin1String("Qt") && version == ComponentVersion(4, 7)) {
-        uri = QLatin1String("QtQuick");
-        version = ComponentVersion(1, 0);
-    }
-
     ImportInfo info;
     info.m_type = ImportType::Library;
     info.m_name = uri;

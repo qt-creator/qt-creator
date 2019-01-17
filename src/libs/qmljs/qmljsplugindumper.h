@@ -50,14 +50,12 @@ public:
     void loadPluginTypes(const QString &libraryPath, const QString &importPath,
                          const QString &importUri, const QString &importVersion);
     void scheduleRedumpPlugins();
-    void scheduleMaybeRedumpBuiltins(const QmlJS::ModelManagerInterface::ProjectInfo &info);
 
 private:
     Q_INVOKABLE void onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info,
                                         bool force = false);
     Q_INVOKABLE void onLoadPluginTypes(const QString &libraryPath, const QString &importPath,
                                        const QString &importUri, const QString &importVersion);
-    Q_INVOKABLE void dumpBuiltins(const QmlJS::ModelManagerInterface::ProjectInfo &info);
     Q_INVOKABLE void dumpAllPlugins();
     void qmlPluginTypeDumpDone(int exitCode);
     void qmlPluginTypeDumpError(QProcess::ProcessError error);
