@@ -120,10 +120,8 @@ public:
                 } else {
                     QString fileName = url.toLocalFile();
                     if (!fileName.isEmpty()) {
-                        if (QFileInfo(fileName).isRelative()) {
-                            fileName.prepend(QLatin1Char('/'));
-                            fileName.prepend(_doc->path());
-                        }
+                        if (QFileInfo(fileName).isRelative())
+                            fileName = QString("/%1%2").arg(_doc->path(), fileName);
                         if (!QFileInfo::exists(fileName))
                             setMessage(WarnFileOrDirectoryDoesNotExist);
                     }
@@ -138,7 +136,8 @@ public:
             if (!toQColor(stringLiteral->value.toString()).isValid())
                 setMessage(ErrInvalidColor);
         } else {
-            visit((StringValue *)0);
+            static const StringValue *nullStringValue = nullptr;
+            visit(nullStringValue);
         }
     }
 
@@ -515,30 +514,38 @@ public:
                                                       "scale",
                                                       "enabled",
                                                       "anchors"})
-    {
-    }
-
+    {}
 };
 
 class VisualAspectsPropertyBlackList : public QStringList
 {
 public:
-   VisualAspectsPropertyBlackList()
-   {
-       (*this) << QLatin1String("x") << QLatin1String("y") << QLatin1String("z")
-            << QLatin1String("width") << QLatin1String("height") << QLatin1String("color")
-            << QLatin1String("opacity") << QLatin1String("scale")
-            << QLatin1String("rotation") << QLatin1String("margins")
-            << QLatin1String("verticalCenterOffset") << QLatin1String("horizontalCenterOffset")
-            << QLatin1String("baselineOffset") << QLatin1String("bottomMargin")
-            << QLatin1String("topMargin") << QLatin1String("leftMargin")
-            << QLatin1String("rightMargin") << QLatin1String("baseline")
-            << QLatin1String("centerIn") << QLatin1String("fill")
-            << QLatin1String("left") << QLatin1String("right")
-            << QLatin1String("mirrored") << QLatin1String("verticalCenter")
-            << QLatin1String("horizontalCenter");
-
-   }
+   VisualAspectsPropertyBlackList() : QStringList({"x",
+                                                   "y",
+                                                   "z",
+                                                   "width",
+                                                   "height",
+                                                   "color",
+                                                   "opacity",
+                                                   "scale",
+                                                   "rotation",
+                                                   "margins",
+                                                   "verticalCenterOffset",
+                                                   "horizontalCenterOffset",
+                                                   "baselineOffset",
+                                                   "bottomMargin",
+                                                   "topMargin",
+                                                   "leftMargin",
+                                                   "rightMargin",
+                                                   "baseline",
+                                                   "centerIn",
+                                                   "fill",
+                                                   "left",
+                                                   "right",
+                                                   "mirrored",
+                                                   "verticalCenter"
+                                                   "horizontalCenter"})
+   {}
 };
 
 class UnsupportedTypesByVisualDesigner : public QStringList
@@ -551,9 +558,7 @@ public:
                                                       "Translate",
                                                       "Package",
                                                       "Particles"})
-    {
-
-    }
+    {}
 };
 
 class UnsupportedTypesByQmlUi : public QStringList
@@ -578,24 +583,20 @@ public:
 class UnsupportedRootObjectTypesByVisualDesigner : public QStringList
 {
 public:
-    UnsupportedRootObjectTypesByVisualDesigner()
-    {
-        (*this) << QLatin1String("QtObject") << QLatin1String("ListModel")
-            << QLatin1String("Component") << QLatin1String("Timer")
-            << QLatin1String("Package");
-    }
-
+    UnsupportedRootObjectTypesByVisualDesigner() : QStringList({"QtObject"
+                                                                "ListModel"
+                                                                "Component"
+                                                                "Timer"
+                                                                "Package"})
+    {}
 };
 
 class UnsupportedRootObjectTypesByQmlUi : public QStringList
 {
 public:
-    UnsupportedRootObjectTypesByQmlUi()
-    {
-        (*this) << UnsupportedRootObjectTypesByVisualDesigner()
-                << QLatin1String("Window") << QLatin1String("ApplicationWindow");
-    }
-
+    UnsupportedRootObjectTypesByQmlUi() : QStringList({"Window",
+                                                       "ApplicationWindow"})
+    {}
 };
 
 } // end of anonymous namespace
@@ -614,7 +615,7 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     , _scopeBuilder(&_scopeChain)
     , _importsOk(false)
     , _inStatementBinding(false)
-    , _imports(0)
+    , _imports(nullptr)
     , _isQtQuick2(false)
 
 {
@@ -731,7 +732,7 @@ bool Check::visit(UiObjectInitializer *)
     UiQualifiedId *qualifiedTypeId = qualifiedTypeNameId(parent());
     if (qualifiedTypeId) {
         typeName = qualifiedTypeId->name.toString();
-        if (typeName == QLatin1String("Component"))
+        if (typeName == "Component")
             m_idStack.push(StringSet());
     }
 
@@ -748,10 +749,10 @@ void Check::endVisit(UiObjectInitializer *)
     m_propertyStack.pop();
     m_typeStack.pop();
     UiObjectDefinition *objectDenition = cast<UiObjectDefinition *>(parent());
-    if (objectDenition && objectDenition->qualifiedTypeNameId->name == QLatin1String("Component"))
+    if (objectDenition && objectDenition->qualifiedTypeNameId->name == "Component")
         m_idStack.pop();
     UiObjectBinding *objectBinding = cast<UiObjectBinding *>(parent());
-    if (objectBinding && objectBinding->qualifiedTypeNameId->name == QLatin1String("Component"))
+    if (objectBinding && objectBinding->qualifiedTypeNameId->name == "Component")
         m_idStack.pop();
 }
 
@@ -838,7 +839,7 @@ static bool checkTopLevelBindingForParentReference(ExpressionStatement *expStmt,
     SourceLocation location = locationFromRange(expStmt->firstSourceLocation(), expStmt->lastSourceLocation());
     QString stmtSource = source.mid(location.begin(), location.length);
 
-    if (stmtSource.contains(QRegExp(QLatin1String("(^|\\W)parent\\."))))
+    if (stmtSource.contains(QRegExp("(^|\\W)parent\\.")))
         return true;
 
     return false;
@@ -863,7 +864,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 
     const QString typeName = getRightMostIdentifier(typeId)->name.toString();
 
-    if (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("State")
+    if (!m_typeStack.isEmpty() && m_typeStack.last() == "State"
             && typeId->name.toString() != "AnchorChanges"
             && typeId->name.toString() != "ParentChange"
             && typeId->name.toString() != "PropertyChanges"
@@ -876,7 +877,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     if (checkTypeForQmlUiSupport(typeId))
         addMessage(ErrUnsupportedTypeInQmlUi, typeErrorLocation, typeName);
 
-    if (m_typeStack.count() > 1 && getRightMostIdentifier(typeId)->name.toString() == QLatin1String("State")) {
+    if (m_typeStack.count() > 1 && getRightMostIdentifier(typeId)->name.toString() == "State") {
         addMessage(WarnStatesOnlyInRootItemForVisualDesigner, typeErrorLocation);
         addMessage(ErrStatesOnlyInRootItemInQmlUi, typeErrorLocation);
     }
@@ -937,7 +938,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 bool Check::visit(UiScriptBinding *ast)
 {
     // special case for id property
-    if (ast->qualifiedId->name == QLatin1String("id") && ! ast->qualifiedId->next) {
+    if (ast->qualifiedId->name == "id" && !ast->qualifiedId->next) {
         if (! ast->statement)
             return false;
 
@@ -961,7 +962,7 @@ bool Check::visit(UiScriptBinding *ast)
             return false;
         }
 
-        if (id.isEmpty() || (!id.at(0).isLower() && id.at(0) != QLatin1Char('_'))) {
+        if (id.isEmpty() || (!id.at(0).isLower() && id.at(0) != '_')) {
             addMessage(ErrInvalidId, loc);
             return false;
         }
@@ -1047,34 +1048,34 @@ bool Check::visit(UiPublicMember *ast)
                 addMessage(ErrInvalidPropertyName, ast->identifierToken, name.toString());
 
             // warn about dubious use of var/variant
-            if (typeName == QLatin1String("variant") || typeName == QLatin1String("var")) {
+            if (typeName == "variant" || typeName == "var") {
                 Evaluate evaluator(&_scopeChain);
                 const Value *init = evaluator(ast->statement);
                 QString preferredType;
                 if (init->asNumberValue())
                     preferredType = tr("'int' or 'real'");
                 else if (init->asStringValue())
-                    preferredType = QLatin1String("'string'");
+                    preferredType = "'string'";
                 else if (init->asBooleanValue())
-                    preferredType = QLatin1String("'bool'");
+                    preferredType = "'bool'";
                 else if (init->asColorValue())
-                    preferredType = QLatin1String("'color'");
+                    preferredType = "'color'";
                 else if (init == _context->valueOwner()->qmlPointObject())
-                    preferredType = QLatin1String("'point'");
+                    preferredType = "'point'";
                 else if (init == _context->valueOwner()->qmlRectObject())
-                    preferredType = QLatin1String("'rect'");
+                    preferredType = "'rect'";
                 else if (init == _context->valueOwner()->qmlSizeObject())
-                    preferredType = QLatin1String("'size'");
+                    preferredType = "'size'";
                 else if (init == _context->valueOwner()->qmlVector2DObject())
-                    preferredType = QLatin1String("'vector2d'");
+                    preferredType = "'vector2d'";
                 else if (init == _context->valueOwner()->qmlVector3DObject())
-                    preferredType = QLatin1String("'vector3d'");
+                    preferredType = "'vector3d'";
                 else if (init == _context->valueOwner()->qmlVector4DObject())
-                    preferredType = QLatin1String("'vector4d'");
+                    preferredType = "'vector4d'";
                 else if (init == _context->valueOwner()->qmlQuaternionObject())
-                    preferredType = QLatin1String("'quaternion'");
+                    preferredType = "'quaternion'";
                 else if (init == _context->valueOwner()->qmlMatrix4x4Object())
-                    preferredType = QLatin1String("'matrix4x4'");
+                    preferredType = "'matrix4x4'";
 
                 if (!preferredType.isEmpty())
                     addMessage(HintPreferNonVarPropertyType, ast->typeToken, preferredType);
@@ -1229,11 +1230,11 @@ bool Check::visit(BinaryExpression *ast)
         QChar match;
         Type msg;
         if (ast->op == QSOperator::Add) {
-            match = QLatin1Char('+');
+            match = '+';
             msg = WarnConfusingPluses;
         } else {
             QTC_CHECK(ast->op == QSOperator::Sub);
-            match = QLatin1Char('-');
+            match = '-';
             msg = WarnConfusingMinuses;
         }
 
@@ -1258,7 +1259,7 @@ bool Check::visit(Block *ast)
 {
 
     bool isDirectInConnectionsScope =
-            (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("Connections"));
+            (!m_typeStack.isEmpty() && m_typeStack.last() == "Connections");
 
     if (!isDirectInConnectionsScope)
         addMessage(ErrBlocksNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
@@ -1496,7 +1497,7 @@ void Check::scanCommentsForAnnotations()
         const QString &comment = _doc->source().mid(commentLoc.begin(), commentLoc.length);
 
         // enable all checks annotation
-        if (comment.contains(QLatin1String("@enable-all-checks")))
+        if (comment.contains("@enable-all-checks"))
             _enabledMessages = Message::allMessageTypes().toSet();
 
         // find all disable annotations
@@ -1548,7 +1549,7 @@ bool Check::isQtQuick2() const
 {
     if (_doc->language() == Dialect::Qml) {
         foreach (const Import &import, _imports->all()) {
-            if (import.info.name() == QLatin1String("QtQuick")
+            if (import.info.name() == "QtQuick"
                     && import.info.version().majorVersion() == 2)
                 return true;
         }
@@ -1575,15 +1576,15 @@ bool Check::visit(NewMemberExpression *ast)
     // check for Number, Boolean, etc constructor usage
     if (IdentifierExpression *idExp = cast<IdentifierExpression *>(ast->base)) {
         const QStringRef name = idExp->name;
-        if (name == QLatin1String("Number")) {
+        if (name == "Number") {
             addMessage(WarnNumberConstructor, idExp->identifierToken);
-        } else if (name == QLatin1String("Boolean")) {
+        } else if (name == "Boolean") {
             addMessage(WarnBooleanConstructor, idExp->identifierToken);
-        } else if (name == QLatin1String("String")) {
+        } else if (name == "String") {
             addMessage(WarnStringConstructor, idExp->identifierToken);
-        } else if (name == QLatin1String("Object")) {
+        } else if (name == "Object") {
             addMessage(WarnObjectConstructor, idExp->identifierToken);
-        } else if (name == QLatin1String("Array")) {
+        } else if (name == "Array") {
             bool ok = false;
             if (ast->arguments && ast->arguments->expression && !ast->arguments->next) {
                 Evaluate evaluate(&_scopeChain);
@@ -1593,7 +1594,7 @@ bool Check::visit(NewMemberExpression *ast)
             }
             if (!ok)
                 addMessage(WarnArrayConstructor, idExp->identifierToken);
-        } else if (name == QLatin1String("Function")) {
+        } else if (name == "Function") {
             addMessage(WarnFunctionConstructor, idExp->identifierToken);
         }
     }
@@ -1701,11 +1702,11 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
 
     if (!_importsOk)
-        return 0;
+        return nullptr;
 
     QList<const ObjectValue *> scopeObjects = _scopeChain.qmlScopeObjects();
     if (scopeObjects.isEmpty())
-        return 0;
+        return nullptr;
 
     const auto getAttachedTypes = [this, &scopeObjects](const QString &propertyName) {
         bool isAttachedProperty = false;
@@ -1719,24 +1720,24 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 
 
     if (! id)
-        return 0; // ### error?
+        return nullptr; // ### error?
 
     if (id->name.isEmpty()) // possible after error recovery
-        return 0;
+        return nullptr;
 
     QString propertyName = id->name.toString();
 
-    if (propertyName == QLatin1String("id") && ! id->next)
-        return 0; // ### should probably be a special value
+    if (propertyName == "id" && !id->next)
+        return nullptr; // ### should probably be a special value
 
     // attached properties
     bool isAttachedProperty = getAttachedTypes(propertyName);
 
     if (scopeObjects.isEmpty())
-        return 0;
+        return nullptr;
 
     // global lookup for first part of id
-    const Value *value = 0;
+    const Value *value = nullptr;
     for (int i = scopeObjects.size() - 1; i >= 0; --i) {
         value = scopeObjects[i]->lookupMember(propertyName, _context);
         if (value)
@@ -1744,12 +1745,12 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     }
     if (!value) {
         addMessage(ErrInvalidPropertyName, id->identifierToken, propertyName);
-        return 0;
+        return nullptr;
     }
 
     // can't look up members for attached properties
     if (isAttachedProperty)
-        return 0;
+        return nullptr;
 
     // resolve references
     if (const Reference *ref = value->asReference())
@@ -1761,25 +1762,25 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         const ObjectValue *objectValue = value_cast<ObjectValue>(value);
         if (! objectValue) {
             addMessage(ErrDoesNotHaveMembers, idPart->identifierToken, propertyName);
-            return 0;
+            return nullptr;
         }
 
         if (idPart->next->name.isEmpty()) {
             // somebody typed "id." and error recovery still gave us a valid tree,
             // so just bail out here.
-            return 0;
+            return nullptr;
         }
 
         idPart = idPart->next;
         propertyName = idPart->name.toString();
         isAttachedProperty = getAttachedTypes(propertyName);
         if (isAttachedProperty)
-            return 0;
+            return nullptr;
 
         value = objectValue->lookupMember(propertyName, _context);
         if (! value) {
             addMessage(ErrInvalidMember, idPart->identifierToken, propertyName, objectValue->className());
-            return 0;
+            return nullptr;
         }
         // resolve references
         if (const Reference *ref = value->asReference())
@@ -1818,9 +1819,9 @@ void Check::checkCaseFallthrough(StatementList *statements, SourceLocation error
                     continue;
 
                 const QString &commentText = _doc->source().mid(comment.begin(), comment.length);
-                if (commentText.contains(QLatin1String("fall through"))
-                        || commentText.contains(QLatin1String("fall-through"))
-                        || commentText.contains(QLatin1String("fallthrough"))) {
+                if (commentText.contains("fall through")
+                        || commentText.contains("fall-through")
+                        || commentText.contains("fallthrough")) {
                     return;
                 }
             }
@@ -1834,6 +1835,6 @@ Node *Check::parent(int distance)
 {
     const int index = _chain.size() - 2 - distance;
     if (index < 0)
-        return 0;
+        return nullptr;
     return _chain.at(index);
 }
