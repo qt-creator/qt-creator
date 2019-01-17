@@ -33,6 +33,7 @@
 #include <QMetaType>
 #include <QString>
 
+#include <cstring>
 #include <iosfwd>
 
 class Utf8StringVector;
@@ -45,10 +46,13 @@ class Utf8String
 public:
     Utf8String() = default;
 
+    explicit Utf8String(const char *utf8Text)
+        : byteArray(utf8Text, utf8Text ? static_cast<int>(std::strlen(utf8Text)) : -1)
+    {}
+
     explicit Utf8String(const char *utf8Text, int size)
         : byteArray(utf8Text, size)
-    {
-    }
+    {}
 
     Utf8String(const QString &text)
         : byteArray(text.toUtf8())
