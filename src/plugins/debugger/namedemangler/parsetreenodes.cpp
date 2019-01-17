@@ -98,7 +98,7 @@ void ParseTreeNode::print(int indentation) const
 {
     for (int i = 0; i < indentation; ++i)
         std::cerr << ' ';
-    std::cerr << description().data() << std::endl;
+    std::cerr << description().constData() << std::endl;
     for (const ParseTreeNode::Ptr &n : m_children)
         n->print(indentation + 2);
 }
