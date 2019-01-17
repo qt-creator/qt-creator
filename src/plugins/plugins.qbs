@@ -55,6 +55,7 @@ Project {
         "qmldesigner/qmldesigner.qbs",
         "qmljseditor/qmljseditor.qbs",
         "qmljstools/qmljstools.qbs",
+        "qmlpreview/qmlpreview.qbs",
         "qmlprofiler/qmlprofiler.qbs",
         "qmlprojectmanager/qmlprojectmanager.qbs",
         "qnx/qnx.qbs",
