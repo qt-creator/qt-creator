@@ -573,7 +573,7 @@ void CompilerOptionsBuilder::addDefineFunctionMacrosMsvc()
 void CompilerOptionsBuilder::addIncludeDirOptionForPath(const ProjectExplorer::HeaderPath &path)
 {
     if (path.type == ProjectExplorer::HeaderPathType::Framework) {
-        QTC_ASSERT(isClStyle(), return;);
+        QTC_ASSERT(!isClStyle(), return;);
         add({"-F", QDir::toNativeSeparators(path.path)});
         return;
     }
