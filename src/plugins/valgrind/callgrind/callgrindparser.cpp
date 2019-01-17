@@ -479,7 +479,7 @@ void Parser::Private::parseCostItem(const char *begin, const char *end)
 
     const CostItem *lastCostItem = nullptr;
     if (!currentFunction->costItems().isEmpty())
-        lastCostItem = currentFunction->costItems().last();
+        lastCostItem = currentFunction->costItems().constLast();
 
     // parse positions ("where")
     for (int i = 0; i < addressValuesCount; ++i) {

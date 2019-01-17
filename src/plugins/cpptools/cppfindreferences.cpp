@@ -350,7 +350,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
 
     if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
         CPlusPlus::Overview overview;
-        parameters.prettySymbolName = overview.prettyName(context.path(symbol).last());
+        parameters.prettySymbolName = overview.prettyName(context.path(symbol).constLast());
     }
 
     search->setUserData(qVariantFromValue(parameters));
