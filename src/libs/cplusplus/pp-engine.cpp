@@ -52,6 +52,7 @@
 #include <cplusplus/Literals.h>
 #include <cplusplus/cppassert.h>
 
+#include <utils/executeondestruction.h>
 #include <utils/scopedswap.h>
 
 #include <QDebug>
@@ -161,6 +162,7 @@ namespace Internal {
 struct TokenBuffer
 {
     std::deque<PPToken> tokens;
+    std::vector<QByteArray> blockedMacroNames;
     const Macro *macro;
     TokenBuffer *next;
 
@@ -172,10 +174,14 @@ struct TokenBuffer
         if (!macro)
             return false;
 
-        for (const TokenBuffer *it = this; it; it = it->next)
-            if (it->macro)
-                if (it->macro == macro || (it->macro->name() == macro->name()))
-                    return true;
+        for (const TokenBuffer *it = this; it; it = it->next) {
+            if (it->macro && (it->macro == macro || it->macro->name() == macro->name()))
+                return true;
+        }
+        for (const QByteArray &blockedMacroName : blockedMacroNames) {
+            if (macro->name() == blockedMacroName)
+                return true;
+        }
         return false;
     }
 };
@@ -956,9 +962,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 
     Macro *macro = m_env->resolve(macroNameRef);
     if (!macro
-            || (tk->expanded()
-                && m_state.m_tokenBuffer
-                && m_state.m_tokenBuffer->isBlocked(macro))) {
+        || (tk->expanded() && m_state.m_tokenBuffer && m_state.m_tokenBuffer->isBlocked(macro))) {
         return false;
     }
 //    qDebug() << "expanding" << macro->name() << "on line" << tk->lineno;
@@ -991,7 +995,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 
         // Collect individual tokens that form the macro arguments.
         QVector<QVector<PPToken> > allArgTks;
-        bool hasArgs = collectActualArguments(tk, &allArgTks);
+        bool hasArgs = collectActualArguments(tk, &allArgTks, macro->name());
 
         // Check whether collecting arguments failed due to a previously added marker
         // that goot nested in a sequence of expansions. If so, store it and try again.
@@ -1001,7 +1005,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
                 && (m_state.m_expansionStatus == Expanding
                     || m_state.m_expansionStatus == ReadyForExpansion)) {
             oldMarkerTk = *tk;
-            hasArgs = collectActualArguments(tk, &allArgTks);
+            hasArgs = collectActualArguments(tk, &allArgTks, macro->name());
         }
 
         // Check for matching parameter/argument count.
@@ -1498,10 +1502,20 @@ bool Preprocessor::consumeComments(PPToken *tk)
     return tk->isNot(T_EOF_SYMBOL);
 }
 
-bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> > *actuals)
+bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> > *actuals,
+                                          const QByteArray &parentMacroName)
 {
     Q_ASSERT(tk);
     Q_ASSERT(actuals);
+
+    ExecuteOnDestruction removeBlockedName;
+    if (m_state.m_tokenBuffer) {
+        removeBlockedName.reset([this] {
+            if (m_state.m_tokenBuffer && !m_state.m_tokenBuffer->blockedMacroNames.empty())
+                m_state.m_tokenBuffer->blockedMacroNames.pop_back();
+        });
+        m_state.m_tokenBuffer->blockedMacroNames.push_back(parentMacroName);
+    }
 
     lex(tk); // consume the identifier
 

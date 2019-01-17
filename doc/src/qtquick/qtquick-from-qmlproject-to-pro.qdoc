@@ -1,0 +1,138 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \page quick-converting-ui-projects.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-importing-designs.html
+    \nextpage studio-prototyping.html
+    \else
+    \previouspage creator-qml-modules-with-plugins.html
+    \nextpage creator-using-qt-designer.html
+    \endif
+
+    \title Converting Qt Quick UI Prototypes to Applications
+
+    Qt Quick UI projects are useful for prototyping user interfaces. To
+    use them for application development in Qt Creator you have to add:
+
+    \list
+        \li Project configuration file (.pro)
+        \li C++ code (.cpp)
+        \li Resource files (.qrc)
+        \li Code needed for deploying applications to \l{glossary-device}
+            {devices}
+    \endlist
+
+    You can use a Qt Creator wizard to create a Qt Quick application that is
+    built using the qmake build system and then copy the source files from the
+    Qt UI Quick prototype project to the application project.
+
+    You can use the \c RESOURCES option in the project configuration file to
+    automatically add all the QML files and related assets to a Qt resource
+    file.
+
+    The wizard automatically adds the \c QML_IMPORT_PATH option to the project
+    file for specifying the required
+    \l{https://doc.qt.io/qt-5/qtqml-syntax-imports.html#qml-import-path}
+    {QML import path}. The path is only needed if more than one subdirectory
+    contains QML files.
+
+    Then you can use the \l QQuickView class in the main C++ source file to
+    show the main QML file when the application starts.
+
+    At the time of this writing, the Qt Quick Timeline module is delivered with
+    \QDS, but not with Qt. If you use a timeline in a \QDS project that you
+    import to \QC, you must build the Qt Quick Timeline module and install it to
+    your Qt to be able to build your project.
+
+    \section1 Converting Projects
+
+    To convert a Qt Quick UI prototype project that has a .qmlproject file to
+    a Qt Quick application that has a .pro file:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Application > \uicontrol {Qt Quick Application - Empty} >
+            \uicontrol Choose.
+        \li In the \uicontrol {Build system} field, select \l qmake as the build
+            system to use for building and running the project, and then select
+            \uicontrol Next (or \uicontrol Continue on \macos).
+        \li Follow the instructions of the wizard to create the project.
+        \li In the file explorer, copy the source files from the Qt Quick UI
+            prototype project directory to a subdirectory in the application
+            project directory. For the purpose of these instructions, the
+            directory is called \c qml.
+        \li Open the application project file, and edit the value of the
+            \c RESOURCES option to add the following line:
+            \badcode
+            RESOURCES += \
+                $$files(qml/*)
+            \endcode
+        \li Select \uicontrol Build > \uicontrol {Run qmake} to apply the
+            \c RESOURCES option to the build configuration.
+        \li Open the \e {main.cpp} file and replace the QQmlApplicationEngine
+            object with a QQuickView object:
+            \quotefromfile progressbar/main.cpp
+            \skipto QQuickView view;
+            \printuntil view.show()
+            Where \c {qml\main.qml} is the path to and the name of the main QML
+            file in the Qt Quick UI prototype project.
+        \li Select \uicontrol Build > \uicontrol Run to build and run your
+            project.
+    \endlist
+
+    For example, if you copy the source files of the \e ProgressBar
+    example from your \QDS installation (located in the
+    \c{\share\qtcreator\examples\ProgressBar} directory) to an empty
+    Qt Quick application project and make the necessary changes, the
+    \e {main.cpp} file should look as follows:
+
+    \quotefile progressbar/main.cpp
+
+    \section1 Adding Qt Quick Timeline Module to Qt Installations
+
+    Check out the Qt Quick Timeline module from
+    \l{https://codereview.qt-project.org/#/admin/projects/qt/qtquicktimeline}
+    {Qt Code Review}.
+
+    For example:
+    \badcode
+    git clone ssh://user@codereview.qt-project.org:29418/qt/qtquicktimeline
+    \endcode
+
+    Then use qmake from your Qt installation to build the module and to add it
+    to your Qt. Switch to the directory that contains the sources (usually,
+    \c qtquicktimeline), and enter the following commands:
+
+    \badcode
+    <path_to_qmake>\qmake -r
+    make
+    make install
+    \endcode
+
+    On Windows, use the \c nmake and \c {nmake install} commands instead.
+*/

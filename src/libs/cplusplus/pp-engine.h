@@ -220,7 +220,8 @@ private:
 
     bool scanComment(PPToken *tk);
     bool consumeComments(PPToken *tk);
-    bool collectActualArguments(PPToken *tk, QVector<QVector<PPToken> > *actuals);
+    bool collectActualArguments(PPToken *tk, QVector<QVector<PPToken> > *actuals,
+                                const QByteArray &parentMacroName);
     void scanActualArgument(PPToken *tk, QVector<PPToken> *tokens);
 
     void handlePreprocessorDirective(PPToken *tk);
