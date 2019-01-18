@@ -177,7 +177,6 @@ int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject,
 void FlameGraph::rebuild()
 {
     qDeleteAll(childItems());
-    childItems().clear();
     m_depth = 0;
 
     if (!m_model) {
