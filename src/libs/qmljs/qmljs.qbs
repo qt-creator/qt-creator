@@ -28,7 +28,6 @@ Project {
                 "qmljscompletioncontextfinder.cpp", "qmljscompletioncontextfinder.h",
                 "qmljsconstants.h",
                 "qmljscontext.cpp", "qmljscontext.h",
-                "qmljsdescribevalue.cpp", "qmljsdescribevalue.h",
                 "qmljsdocument.cpp", "qmljsdocument.h",
                 "qmljsevaluate.cpp", "qmljsevaluate.h",
                 "qmljsfindexportedcpptypes.cpp", "qmljsfindexportedcpptypes.h",
