@@ -47,7 +47,6 @@ protected:
 
 public:
     ~DeployConfiguration() override = default;
-    virtual void initialize();
 
     BuildStepList *stepList();
     const BuildStepList *stepList() const;

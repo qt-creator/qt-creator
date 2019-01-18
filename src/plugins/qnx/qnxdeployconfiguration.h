@@ -36,7 +36,6 @@ class QnxDeployConfiguration : public ProjectExplorer::DeployConfiguration
 
 public:
     QnxDeployConfiguration(ProjectExplorer::Target *target, Core::Id id);
-    void initialize() override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;
 };
 

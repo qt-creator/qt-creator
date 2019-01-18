@@ -45,13 +45,6 @@ QnxDeployConfiguration::QnxDeployConfiguration(Target *target, Core::Id id)
 {
 }
 
-void QnxDeployConfiguration::initialize()
-{
-    stepList()->appendStep(new DeviceCheckBuildStep(stepList()));
-    stepList()->appendStep(new RemoteLinuxCheckForFreeDiskSpaceStep(stepList()));
-    stepList()->appendStep(new GenericDirectUploadStep(stepList()));
-}
-
 NamedWidget *QnxDeployConfiguration::createConfigWidget()
 {
     return new DeploymentDataView(target());
@@ -59,10 +52,14 @@ NamedWidget *QnxDeployConfiguration::createConfigWidget()
 
 QnxDeployConfigurationFactory::QnxDeployConfigurationFactory()
 {
-    registerDeployConfiguration<QnxDeployConfiguration>
+    registerDeployConfiguration<DeployConfiguration>
             (Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
     setDefaultDisplayName(QnxDeployConfiguration::tr("Deploy to QNX Device"));
     addSupportedTargetDeviceType(QnxDeviceFactory::deviceType());
+
+    addInitialStep(DeviceCheckBuildStep::stepId());
+    addInitialStep(RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
+    addInitialStep(GenericDirectUploadStep::stepId());
 }
 
 } // namespace Internal

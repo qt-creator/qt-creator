@@ -57,10 +57,6 @@ DeployConfiguration::DeployConfiguration(Target *target, Core::Id id)
     setDefaultDisplayName(tr("Deploy locally"));
 }
 
-void DeployConfiguration::initialize()
-{
-}
-
 BuildStepList *DeployConfiguration::stepList()
 {
     return &m_stepList;
@@ -197,7 +193,6 @@ DeployConfiguration *DeployConfigurationFactory::create(Target *parent, Core::Id
     DeployConfiguration *dc = m_creator(parent);
     if (!dc)
         return nullptr;
-    dc->initialize();
     for (const DeployStepCreationInfo &info : qAsConst(m_initialSteps)) {
         if (!info.condition || info.condition(parent))
             dc->stepList()->appendStep(info.deployStepId);
