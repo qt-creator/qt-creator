@@ -215,7 +215,12 @@ void DocumentManagerPrivate::onApplicationFocusChange()
 
 DocumentManagerPrivate::DocumentManagerPrivate()
 {
-    connect(qApp, &QApplication::focusChanged, this, &DocumentManagerPrivate::onApplicationFocusChange);
+    // we do not want to do too much directly in the focus change event, so queue the connection
+    connect(qApp,
+            &QApplication::focusChanged,
+            this,
+            &DocumentManagerPrivate::onApplicationFocusChange,
+            Qt::QueuedConnection);
 }
 
 } // namespace Internal
