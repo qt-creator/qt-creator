@@ -35,7 +35,7 @@ namespace Internal {
 
 IosDeployStepFactory::IosDeployStepFactory()
 {
-    registerStep<IosDeployStep>(IosDeployStep::Id);
+    registerStep<IosDeployStep>(IosDeployStep::stepId());
     setDisplayName(IosDeployStep::tr("Deploy to iOS device or emulator"));
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});

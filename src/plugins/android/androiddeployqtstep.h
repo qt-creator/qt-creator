@@ -73,6 +73,8 @@ public:
 public:
     explicit AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc);
 
+    static Core::Id stepId();
+
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 

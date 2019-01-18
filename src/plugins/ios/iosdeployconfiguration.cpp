@@ -37,23 +37,14 @@ using namespace ProjectExplorer;
 namespace Ios {
 namespace Internal {
 
-IosDeployConfiguration::IosDeployConfiguration(Target *parent, Core::Id id)
-    : DeployConfiguration(parent, id)
-{
-}
-
-void IosDeployConfiguration::initialize()
-{
-    stepList()->appendStep(new IosDeployStep(stepList()));
-}
-
 IosDeployConfigurationFactory::IosDeployConfigurationFactory()
 {
-    registerDeployConfiguration<IosDeployConfiguration>("Qt4ProjectManager.IosDeployConfiguration");
+    registerDeployConfiguration<DeployConfiguration>("Qt4ProjectManager.IosDeployConfiguration");
     setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
     addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
-    setDefaultDisplayName(IosDeployConfiguration::tr("Deploy on iOS"));
+    setDefaultDisplayName(QCoreApplication::translate("Ios::Internal", "Deploy on iOS"));
+    addInitialStep(IosDeployStep::stepId());
 }
 
 } // namespace Internal

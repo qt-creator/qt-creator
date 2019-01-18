@@ -54,10 +54,8 @@ using namespace ProjectExplorer;
 namespace Ios {
 namespace Internal {
 
-const Core::Id IosDeployStep::Id("Qt4ProjectManager.IosDeployStep");
-
 IosDeployStep::IosDeployStep(BuildStepList *parent)
-    : BuildStep(parent, Id)
+    : BuildStep(parent, stepId())
 {
     setImmutable(true);
     setRunInGuiThread(true);
@@ -66,6 +64,11 @@ IosDeployStep::IosDeployStep(BuildStepList *parent)
             this, &IosDeployStep::updateDisplayNames);
     connect(target(), &Target::kitChanged,
             this, &IosDeployStep::updateDisplayNames);
+}
+
+Core::Id IosDeployStep::stepId()
+{
+    return "Qt4ProjectManager.IosDeployStep";
 }
 
 void IosDeployStep::updateDisplayNames()

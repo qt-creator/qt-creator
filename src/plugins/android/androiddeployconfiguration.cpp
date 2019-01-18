@@ -43,21 +43,14 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-AndroidDeployConfiguration::AndroidDeployConfiguration(Target *parent, Core::Id id)
-    : DeployConfiguration(parent, id)
-{}
-
-void AndroidDeployConfiguration::initialize()
-{
-    stepList()->appendStep(new AndroidDeployQtStep(stepList()));
-}
-
 AndroidDeployConfigurationFactory::AndroidDeployConfigurationFactory()
 {
-    registerDeployConfiguration<AndroidDeployConfiguration>
+    registerDeployConfiguration<DeployConfiguration>
             ("Qt4ProjectManager.AndroidDeployConfiguration2");
     addSupportedTargetDeviceType(Constants::ANDROID_DEVICE_TYPE);
-    setDefaultDisplayName(AndroidDeployConfiguration::tr("Deploy to Android device"));
+    setDefaultDisplayName(QCoreApplication::translate("Android::Internal",
+                                                      "Deploy to Android device"));
+    addInitialStep(AndroidDeployQtStep::stepId());
 }
 
 bool AndroidDeployConfigurationFactory::canHandle(Target *parent) const

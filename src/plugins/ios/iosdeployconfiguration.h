@@ -30,15 +30,6 @@
 namespace Ios {
 namespace Internal {
 
-class IosDeployConfiguration : public ProjectExplorer::DeployConfiguration
-{
-    Q_OBJECT
-
-public:
-    IosDeployConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-    void initialize() override;
-};
-
 class IosDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
 public:

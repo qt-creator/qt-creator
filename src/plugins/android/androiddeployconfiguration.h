@@ -30,15 +30,6 @@
 namespace Android {
 namespace Internal {
 
-class AndroidDeployConfiguration : public ProjectExplorer::DeployConfiguration
-{
-    Q_OBJECT
-
-public:
-    AndroidDeployConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-    void initialize() override;
-};
-
 class AndroidDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
 public:

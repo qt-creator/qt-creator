@@ -55,8 +55,6 @@ public:
         }
         return 0;
     }
-
-    void initialize() override;
 };
 
 namespace Internal {

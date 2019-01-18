@@ -72,7 +72,6 @@ const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_F
 const QLatin1String InstallFailedUpdateIncompatible("INSTALL_FAILED_UPDATE_INCOMPATIBLE");
 const QLatin1String InstallFailedPermissionModelDowngrade("INSTALL_FAILED_PERMISSION_MODEL_DOWNGRADE");
 const QLatin1String InstallFailedVersionDowngrade("INSTALL_FAILED_VERSION_DOWNGRADE");
-const Core::Id AndroidDeployQtStep::Id("Qt4ProjectManager.AndroidDeployQtStep");
 static const char *qmlProjectRunConfigIdName = "QmlProjectManager.QmlRunConfiguration";
 
 
@@ -80,7 +79,7 @@ static const char *qmlProjectRunConfigIdName = "QmlProjectManager.QmlRunConfigur
 
 AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
 {
-    registerStep<AndroidDeployQtStep>(AndroidDeployQtStep::Id);
+    registerStep<AndroidDeployQtStep>(AndroidDeployQtStep::stepId());
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
     setRepeatable(false);
@@ -90,7 +89,7 @@ AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
 // AndroidDeployQtStep
 
 AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent)
-    : ProjectExplorer::BuildStep(parent, Id)
+    : ProjectExplorer::BuildStep(parent, stepId())
 {
     setImmutable(true);
     m_uninstallPreviousPackage = QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
@@ -104,6 +103,11 @@ AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent)
 
     connect(this, &AndroidDeployQtStep::setSerialNumber,
             this, &AndroidDeployQtStep::slotSetSerialNumber);
+}
+
+Core::Id AndroidDeployQtStep::stepId()
+{
+    return "Qt4ProjectManager.AndroidDeployQtStep";
 }
 
 bool AndroidDeployQtStep::init()
