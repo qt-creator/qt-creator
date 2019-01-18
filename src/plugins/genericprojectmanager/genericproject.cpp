@@ -225,6 +225,11 @@ GenericProject::GenericProject(const Utils::FileName &fileName) :
 GenericProject::~GenericProject()
 {
     delete m_cppCodeModelUpdater;
+    m_filesIDocument->deleteLater();
+    m_includesIDocument->deleteLater();
+    m_configIDocument->deleteLater();
+    m_cxxFlagsIDocument->deleteLater();
+    m_cFlagsIDocument->deleteLater();
 }
 
 static QStringList readLines(const QString &absoluteFileName)

@@ -74,11 +74,11 @@ private:
     QString m_configFileName;
     QString m_cxxflagsFileName;
     QString m_cflagsFileName;
-    ProjectExplorer::ProjectDocument *m_filesIDocument;
-    ProjectExplorer::ProjectDocument *m_includesIDocument;
-    ProjectExplorer::ProjectDocument *m_configIDocument;
-    ProjectExplorer::ProjectDocument *m_cxxFlagsIDocument;
-    ProjectExplorer::ProjectDocument *m_cFlagsIDocument;
+    ProjectExplorer::ProjectDocument *m_filesIDocument = nullptr;
+    ProjectExplorer::ProjectDocument *m_includesIDocument = nullptr;
+    ProjectExplorer::ProjectDocument *m_configIDocument = nullptr;
+    ProjectExplorer::ProjectDocument *m_cxxFlagsIDocument = nullptr;
+    ProjectExplorer::ProjectDocument *m_cFlagsIDocument = nullptr;
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
@@ -90,7 +90,7 @@ private:
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
     ProjectExplorer::Target *m_activeTarget = nullptr;
-    Utils::FileSystemWatcher * const m_deployFileWatcher;
+    Utils::FileSystemWatcher * const m_deployFileWatcher = nullptr;
 };
 
 } // namespace Internal
