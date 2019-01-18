@@ -208,6 +208,7 @@ private: //variables
     bool m_instantQmlTextUpdate = false;
     std::function<void(bool)> m_setWidgetStatusCallback;
     bool m_hasIncompleteTypeInformation = false;
+    bool m_restoringAuxData = false;
 
     mutable QHash<int, ModelNode> m_canonicalIntModelNode;
     mutable QHash<ModelNode, int> m_canonicalModelNodeInt;
