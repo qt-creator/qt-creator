@@ -198,6 +198,10 @@ DeployConfiguration *DeployConfigurationFactory::create(Target *parent, Core::Id
     if (!dc)
         return nullptr;
     dc->initialize();
+    for (const DeployStepCreationInfo &info : qAsConst(m_initialSteps)) {
+        if (!info.condition || info.condition(parent))
+            dc->stepList()->appendStep(info.deployStepId);
+    }
     return dc;
 }
 
@@ -249,6 +253,11 @@ void DeployConfigurationFactory::setDefaultDisplayName(const QString &defaultDis
 void DeployConfigurationFactory::setSupportedProjectType(Core::Id id)
 {
     m_supportedProjectType = id;
+}
+
+void DeployConfigurationFactory::addInitialStep(Core::Id stepId, const std::function<bool (Target *)> &condition)
+{
+    m_initialSteps.append({stepId, condition});
 }
 
 ///

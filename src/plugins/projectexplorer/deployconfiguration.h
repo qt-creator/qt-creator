@@ -96,6 +96,9 @@ public:
     void setDefaultDisplayName(const QString &defaultDisplayName);
     void setSupportedProjectType(Core::Id id);
 
+    // Step is only added if condition is not set, or returns true when called.
+    void addInitialStep(Core::Id stepId, const std::function<bool(Target *)> &condition = {});
+
     virtual bool canHandle(ProjectExplorer::Target *target) const;
 
 protected:
@@ -113,10 +116,15 @@ protected:
     }
 
 private:
+    struct DeployStepCreationInfo {
+        Core::Id deployStepId;
+        std::function<bool(Target *)> condition; // unset counts as unrestricted
+    };
     DeployConfigurationCreator m_creator;
     Core::Id m_deployConfigBaseId;
     Core::Id m_supportedProjectType;
     QList<Core::Id> m_supportedTargetDeviceTypes;
+    QList<DeployStepCreationInfo> m_initialSteps;
     QString m_defaultDisplayName;
 };
 
