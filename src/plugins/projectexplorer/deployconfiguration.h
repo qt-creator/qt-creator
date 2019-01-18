@@ -51,10 +51,10 @@ public:
     BuildStepList *stepList();
     const BuildStepList *stepList() const;
 
+    NamedWidget *createConfigWidget() const;
+
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
-
-    virtual NamedWidget *createConfigWidget();
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
@@ -69,6 +69,7 @@ signals:
 
 private:
     BuildStepList m_stepList;
+    std::function<NamedWidget *(Target *)> m_configWidgetCreator;
 };
 
 class PROJECTEXPLORER_EXPORT DeployConfigurationFactory
@@ -100,6 +101,9 @@ public:
 
     virtual bool canHandle(ProjectExplorer::Target *target) const;
 
+    void setConfigWidgetCreator(const std::function<NamedWidget *(Target *)> &configWidgetCreator);
+    void setUseDeploymentDataView();
+
 protected:
     using DeployConfigurationCreator = std::function<DeployConfiguration *(Target *)>;
 
@@ -109,6 +113,7 @@ protected:
         m_creator = [this, deployConfigBaseId](Target *t) {
             auto dc = new DeployConfig(t, deployConfigBaseId);
             dc->setDefaultDisplayName(m_defaultDisplayName);
+            dc->m_configWidgetCreator = m_configWidgetCreator;
             return dc;
         };
         m_deployConfigBaseId = deployConfigBaseId;
@@ -125,6 +130,7 @@ private:
     QList<Core::Id> m_supportedTargetDeviceTypes;
     QList<DeployStepCreationInfo> m_initialSteps;
     QString m_defaultDisplayName;
+    std::function<NamedWidget *(Target *)> m_configWidgetCreator;
 };
 
 class DefaultDeployConfigurationFactory : public DeployConfigurationFactory

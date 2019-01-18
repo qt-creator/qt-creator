@@ -33,7 +33,6 @@
 #include "rsyncdeploystep.h"
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/deploymentdataview.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -50,11 +49,6 @@ RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(Target *target, C
     : DeployConfiguration(target, id)
 {}
 
-NamedWidget *RemoteLinuxDeployConfiguration::createConfigWidget()
-{
-    return new DeploymentDataView(target());
-}
-
 Core::Id RemoteLinuxDeployConfiguration::genericDeployConfigurationId()
 {
     return "DeployToGenericLinux";
@@ -69,6 +63,7 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
     setDefaultDisplayName(QCoreApplication::translate("RemoteLinux",
                                                       "Deploy to Remote Linux Host"));
+    setUseDeploymentDataView();
 
     addInitialStep(RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
     addInitialStep(RemoteLinuxKillAppStep::stepId());

@@ -42,8 +42,6 @@ public:
 
     static Core::Id genericDeployConfigurationId();
 
-    ProjectExplorer::NamedWidget *createConfigWidget() override;
-
     template<class T> T *earlierBuildStep(const ProjectExplorer::BuildStep *laterBuildStep) const
     {
         const QList<ProjectExplorer::BuildStep *> &buildSteps = stepList()->steps();

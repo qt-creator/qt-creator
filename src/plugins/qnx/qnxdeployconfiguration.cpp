@@ -29,7 +29,6 @@
 #include "qnxdevicefactory.h"
 
 #include <projectexplorer/devicesupport/devicecheckbuildstep.h>
-#include <projectexplorer/deploymentdataview.h>
 
 #include <remotelinux/genericdirectuploadstep.h>
 #include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
@@ -40,22 +39,14 @@ using namespace RemoteLinux;
 namespace Qnx {
 namespace Internal {
 
-QnxDeployConfiguration::QnxDeployConfiguration(Target *target, Core::Id id)
-    : DeployConfiguration(target, id)
-{
-}
-
-NamedWidget *QnxDeployConfiguration::createConfigWidget()
-{
-    return new DeploymentDataView(target());
-}
-
 QnxDeployConfigurationFactory::QnxDeployConfigurationFactory()
 {
     registerDeployConfiguration<DeployConfiguration>
             (Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
-    setDefaultDisplayName(QnxDeployConfiguration::tr("Deploy to QNX Device"));
+    setDefaultDisplayName(QCoreApplication::translate("Qnx::Internal::QnxDeployConfiguration",
+                                                      "Deploy to QNX Device"));
     addSupportedTargetDeviceType(QnxDeviceFactory::deviceType());
+    setUseDeploymentDataView();
 
     addInitialStep(DeviceCheckBuildStep::stepId());
     addInitialStep(RemoteLinuxCheckForFreeDiskSpaceStep::stepId());

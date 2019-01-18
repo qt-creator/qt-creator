@@ -27,6 +27,7 @@
 
 #include "buildsteplist.h"
 #include "buildconfiguration.h"
+#include "deploymentdataview.h"
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
@@ -67,17 +68,19 @@ const BuildStepList *DeployConfiguration::stepList() const
     return &m_stepList;
 }
 
+NamedWidget *DeployConfiguration::createConfigWidget() const
+{
+    if (!m_configWidgetCreator)
+        return nullptr;
+    return m_configWidgetCreator(target());
+}
+
 QVariantMap DeployConfiguration::toMap() const
 {
     QVariantMap map(ProjectConfiguration::toMap());
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 1);
     map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0'), m_stepList.toMap());
     return map;
-}
-
-NamedWidget *DeployConfiguration::createConfigWidget()
-{
-    return nullptr;
 }
 
 bool DeployConfiguration::isEnabled() const
@@ -176,6 +179,16 @@ bool DeployConfigurationFactory::canHandle(Target *target) const
     return true;
 }
 
+void DeployConfigurationFactory::setConfigWidgetCreator(const std::function<NamedWidget *(Target *)> &configWidgetCreator)
+{
+    m_configWidgetCreator = configWidgetCreator;
+}
+
+void DeployConfigurationFactory::setUseDeploymentDataView()
+{
+    m_configWidgetCreator = [](Target *target) { return new DeploymentDataView(target); };
+}
+
 bool DeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
@@ -197,6 +210,7 @@ DeployConfiguration *DeployConfigurationFactory::create(Target *parent, Core::Id
         if (!info.condition || info.condition(parent))
             dc->stepList()->appendStep(info.deployStepId);
     }
+    dc->m_configWidgetCreator = m_configWidgetCreator;
     return dc;
 }
 
