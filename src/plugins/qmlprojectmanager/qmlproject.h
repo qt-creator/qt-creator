@@ -64,6 +64,7 @@ public:
 
     Utils::FileName canonicalProjectDir() const;
     QString mainFile() const;
+    void setMainFile(const QString &mainFilePath);
     Utils::FileName targetDirectory(const ProjectExplorer::Target *target) const;
     Utils::FileName targetFile(const Utils::FileName &sourceFile,
                                const ProjectExplorer::Target *target) const;

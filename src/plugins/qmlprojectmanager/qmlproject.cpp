@@ -180,6 +180,12 @@ QString QmlProject::mainFile() const
     return QString();
 }
 
+void QmlProject::setMainFile(const QString &mainFilePath)
+{
+    if (m_projectItem)
+        m_projectItem.data()->setMainFile(mainFilePath);
+}
+
 Utils::FileName QmlProject::targetDirectory(const Target *target) const
 {
     if (DeviceTypeKitInformation::deviceTypeId(target->kit())
