@@ -30,5 +30,7 @@ QtcPlugin {
         "languageclientplugin.h",
         "languageclientsettings.cpp",
         "languageclientsettings.h",
+        "languageclientutils.cpp",
+        "languageclientutils.h",
     ]
 }

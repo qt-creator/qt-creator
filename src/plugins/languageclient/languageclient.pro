@@ -10,7 +10,8 @@ HEADERS += \
     languageclientmanager.h \
     languageclientoutline.h \
     languageclientplugin.h \
-    languageclientsettings.h
+    languageclientsettings.h \
+    languageclientutils.h
 
 
 SOURCES += \
@@ -20,7 +21,8 @@ SOURCES += \
     languageclientmanager.cpp \
     languageclientoutline.cpp \
     languageclientplugin.cpp \
-    languageclientsettings.cpp
+    languageclientsettings.cpp \
+    languageclientutils.cpp
 
 RESOURCES += \
     languageclient.qrc

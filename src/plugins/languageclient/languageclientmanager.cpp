@@ -25,8 +25,8 @@
 
 #include "languageclientmanager.h"
 
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/editormanager/documentmodel.h>
+#include "languageclientutils.h"
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/searchresultwindow.h>
@@ -108,17 +108,16 @@ void LanguageClientManager::init()
 void LanguageClientManager::publishDiagnostics(const Core::Id &id,
                                                const PublishDiagnosticsParams &params)
 {
-    const Utils::FileName filePath = params.uri().toFileName();
-    auto doc = qobject_cast<TextEditor::TextDocument *>(
-                    Core::DocumentModel::documentForFilePath(filePath.toString()));
+    const Utils::FileName fileName = params.uri().toFileName();
+    TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
     if (!doc)
         return;
 
-    removeMarks(filePath, id);
-    managerInstance->m_marks[filePath][id].reserve(params.diagnostics().size());
+    removeMarks(fileName, id);
+    managerInstance->m_marks[fileName][id].reserve(params.diagnostics().size());
     for (const Diagnostic& diagnostic : params.diagnostics()) {
-        auto mark = new LanguageClientMark(filePath, diagnostic);
-        managerInstance->m_marks[filePath][id].append(mark);
+        auto mark = new LanguageClientMark(fileName, diagnostic);
+        managerInstance->m_marks[fileName][id].append(mark);
         doc->addMark(mark);
     }
 }
@@ -132,8 +131,7 @@ void LanguageClientManager::removeMark(LanguageClientMark *mark)
 
 void LanguageClientManager::removeMarks(const Utils::FileName &fileName)
 {
-    auto doc = qobject_cast<TextEditor::TextDocument *>(
-                    Core::DocumentModel::documentForFilePath(fileName.toString()));
+    TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
     if (!doc)
         return;
 
@@ -148,8 +146,7 @@ void LanguageClientManager::removeMarks(const Utils::FileName &fileName)
 
 void LanguageClientManager::removeMarks(const Utils::FileName &fileName, const Core::Id &id)
 {
-    auto doc = qobject_cast<TextEditor::TextDocument *>(
-                    Core::DocumentModel::documentForFilePath(fileName.toString()));
+    TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
     if (!doc)
         return;
 
