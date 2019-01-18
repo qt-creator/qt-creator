@@ -76,7 +76,6 @@ public:
     static QString intentName(ProjectExplorer::Target *target);
     static QString activityName(ProjectExplorer::Target *target);
 
-    static bool bundleQt(ProjectExplorer::Target *target);
     static QString deviceSerialNumber(ProjectExplorer::Target *target);
     static void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
 
@@ -84,8 +83,6 @@ public:
     static void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
 
     static QString buildTargetSDK(ProjectExplorer::Target *target);
-
-    static bool signPackage(ProjectExplorer::Target *target);
 
     static int minimumSDK(ProjectExplorer::Target *target);
     static int minimumSDK(const ProjectExplorer::Kit *kit);

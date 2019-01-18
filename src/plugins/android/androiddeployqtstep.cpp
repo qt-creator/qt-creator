@@ -128,7 +128,7 @@ bool AndroidDeployQtStep::init()
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
     QTC_ASSERT(deployQtLive || bc, return false);
 
-    auto androidBuildApkStep = AndroidGlobal::buildStep<AndroidBuildApkStep>(bc);
+    auto androidBuildApkStep = AndroidBuildApkStep::findInBuild(bc);
     if (!androidBuildApkStep && !deployQtLive) {
         emit addOutput(tr("Cannot find the android build step."), OutputFormat::Stderr);
         return false;

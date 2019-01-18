@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "androidmanager.h"
+
+#include "androidbuildapkstep.h"
 #include "androidconstants.h"
 #include "androiddeployconfiguration.h"
 #include "androidconfigurations.h"
@@ -255,23 +257,12 @@ int AndroidManager::minimumNDK(const Kit *kit)
 
 QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
 {
-    auto androidBuildApkStep
-            = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
-    if (androidBuildApkStep)
+    if (auto androidBuildApkStep = AndroidBuildApkStep::findInBuild(target->activeBuildConfiguration()))
         return androidBuildApkStep->buildTargetSdk();
 
     QString fallback = AndroidConfig::apiLevelNameFor(
                 AndroidConfigurations::sdkManager()->latestAndroidSdkPlatform());
     return fallback;
-}
-
-bool AndroidManager::signPackage(ProjectExplorer::Target *target)
-{
-    auto androidBuildApkStep
-            = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
-    if (androidBuildApkStep)
-        return androidBuildApkStep->signPackage();
-    return false;
 }
 
 QString AndroidManager::targetArch(ProjectExplorer::Target *target)
@@ -291,9 +282,7 @@ Utils::FileName AndroidManager::apkPath(const ProjectExplorer::Target *target)
 {
     QTC_ASSERT(target, return Utils::FileName());
 
-    auto buildApkStep
-        = Android::AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
-
+    auto buildApkStep = AndroidBuildApkStep::findInBuild(target->activeBuildConfiguration());
     if (!buildApkStep)
         return Utils::FileName();
 
@@ -328,16 +317,6 @@ Utils::FileName AndroidManager::manifestPath(ProjectExplorer::Target *target)
 Utils::FileName AndroidManager::defaultPropertiesPath(ProjectExplorer::Target *target)
 {
     return dirPath(target).appendPath(AndroidDefaultPropertiesName);
-}
-
-bool AndroidManager::bundleQt(ProjectExplorer::Target *target)
-{
-    auto androidBuildApkStep
-            = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
-    if (androidBuildApkStep)
-        return !androidBuildApkStep->useMinistro();
-
-    return false;
 }
 
 QString AndroidManager::deviceSerialNumber(ProjectExplorer::Target *target)

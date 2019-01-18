@@ -39,6 +39,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -131,6 +132,17 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent)
     //: AndroidBuildApkStep default display name
     setDefaultDisplayName(tr("Build Android APK"));
     setImmutable(true);
+}
+
+AndroidBuildApkStep *AndroidBuildApkStep::findInBuild(const BuildConfiguration *bc)
+{
+    if (!bc)
+        return nullptr;
+    for (const Core::Id &id : bc->knownStepLists()) {
+        if (auto step = bc->stepList(id)->firstOfType<AndroidBuildApkStep>())
+            return step;
+    }
+    return nullptr;
 }
 
 bool AndroidBuildApkStep::init()

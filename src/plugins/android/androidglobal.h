@@ -38,19 +38,6 @@ namespace Android {
 class AndroidGlobal
 {
 public:
-
-    template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *dc)
-    {
-        if (!dc)
-            return nullptr;
-        foreach (const Core::Id &id, dc->knownStepLists()) {
-            T *const step = dc->stepList(id)->firstOfType<T>();
-            if (step)
-                return step;
-        }
-        return nullptr;
-    }
-
     template<typename State> static void assertState(State expected,
         State actual, const char *func)
     {
