@@ -115,7 +115,7 @@ void BuildConfiguration::initialize(const BuildInfo *info)
 
 QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
 {
-    return QList<NamedWidget *>() << new BuildEnvironmentWidget(this);
+    return {new BuildEnvironmentWidget(this)};
 }
 
 QList<Core::Id> BuildConfiguration::knownStepLists() const

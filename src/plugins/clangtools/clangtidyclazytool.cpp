@@ -218,7 +218,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     m_diagnosticView->setWindowTitle(tr("Clang-Tidy and Clazy Issues"));
 
     foreach (auto * const model,
-             QList<QAbstractItemModel *>() << m_diagnosticModel << m_diagnosticFilterModel) {
+             QList<QAbstractItemModel *>({m_diagnosticModel, m_diagnosticFilterModel})) {
         connect(model, &QAbstractItemModel::rowsInserted,
                 this, &ClangTidyClazyTool::handleStateUpdate);
         connect(model, &QAbstractItemModel::rowsRemoved,

@@ -2189,7 +2189,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
         // close existing editors for the new file name
         IDocument *otherDocument = DocumentModel::documentForFilePath(absoluteFilePath);
         if (otherDocument)
-            EditorManager::closeDocuments(QList<IDocument *>() << otherDocument, false);
+            EditorManager::closeDocuments({otherDocument}, false);
     }
 
     emit m_instance->aboutToSave(document);
@@ -2569,9 +2569,8 @@ void EditorManager::revertToSaved()
 
 void EditorManager::closeEditor(IEditor *editor, bool askAboutModifiedEditors)
 {
-    if (!editor)
-        return;
-    closeEditors(QList<IEditor *>() << editor, askAboutModifiedEditors);
+    if (editor)
+        closeEditors({editor}, askAboutModifiedEditors);
 }
 
 void EditorManager::closeDocument(DocumentModel::Entry *entry)
@@ -2581,7 +2580,7 @@ void EditorManager::closeDocument(DocumentModel::Entry *entry)
     if (entry->isSuspended)
         DocumentModelPrivate::removeEntry(entry);
     else
-        closeDocuments(QList<IDocument *>() << entry->document);
+        closeDocuments({entry->document});
 }
 
 bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
@@ -2856,7 +2855,7 @@ QList<IEditor*> EditorManager::visibleEditors()
 
 bool EditorManager::closeDocument(IDocument *document, bool askAboutModifiedEditors)
 {
-    return closeDocuments(QList<IDocument *>() << document, askAboutModifiedEditors);
+    return closeDocuments({document}, askAboutModifiedEditors);
 }
 
 bool EditorManager::closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors)

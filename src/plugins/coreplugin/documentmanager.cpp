@@ -895,7 +895,7 @@ bool DocumentManager::saveModifiedDocumentsSilently(const QList<IDocument *> &do
 bool DocumentManager::saveModifiedDocumentSilently(IDocument *document, bool *canceled,
                                                    QList<IDocument *> *failedToClose)
 {
-    return saveModifiedDocumentsSilently(QList<IDocument *>() << document, canceled, failedToClose);
+    return saveModifiedDocumentsSilently({document}, canceled, failedToClose);
 }
 
 /*!
@@ -957,7 +957,7 @@ bool DocumentManager::saveModifiedDocument(IDocument *document, const QString &m
                                            const QString &alwaysSaveMessage, bool *alwaysSave,
                                            QList<IDocument *> *failedToClose)
 {
-    return saveModifiedDocuments(QList<IDocument *>() << document, message, canceled,
+    return saveModifiedDocuments({document}, message, canceled,
                                  alwaysSaveMessage, alwaysSave, failedToClose);
 }
 

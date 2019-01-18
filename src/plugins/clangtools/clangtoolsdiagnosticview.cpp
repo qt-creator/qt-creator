@@ -132,7 +132,7 @@ void DiagnosticView::suppressCurrentDiagnostic()
 
 QList<QAction *> DiagnosticView::customActions() const
 {
-    return QList<QAction *>() << m_suppressAction;
+    return {m_suppressAction};
 }
 
 bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)

@@ -395,13 +395,10 @@ void HelpWidget::addSideBar()
         shortcutMap.insert(Constants::HELP_OPENPAGES, cmd);
     }
 
-    QList<Core::SideBarItem *> itemList;
-    itemList << contentItem << indexItem << bookmarkItem << searchItem;
+    QList<Core::SideBarItem *> itemList = {contentItem, indexItem, bookmarkItem, searchItem};
     if (openPagesItem)
          itemList << openPagesItem;
-    m_sideBar = new Core::SideBar(itemList,
-                                  QList<Core::SideBarItem *>() << contentItem
-                                  << (openPagesItem ? openPagesItem : indexItem));
+    m_sideBar = new Core::SideBar(itemList, {contentItem, (openPagesItem ? openPagesItem : indexItem)});
     m_sideBar->setShortcutMap(shortcutMap);
     m_sideBar->setCloseWhenEmpty(true);
     m_sideBarSplitter->insertWidget(0, m_sideBar);

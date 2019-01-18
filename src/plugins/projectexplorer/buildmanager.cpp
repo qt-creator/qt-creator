@@ -553,7 +553,7 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &pr
 
 void BuildManager::appendStep(BuildStep *step, const QString &name)
 {
-    bool success = buildQueueAppend(QList<BuildStep *>() << step, QStringList() << name);
+    bool success = buildQueueAppend({step}, {name});
     if (!success) {
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
         return;

@@ -281,5 +281,5 @@ QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()
     reindexButton->setToolTip(tr("Regenerate Index"));
     connect(reindexButton, &QAbstractButton::clicked,
             static_cast<SearchWidget *>(widget()), &SearchWidget::reindexDocumentation);
-    return QList<QToolButton *>() << reindexButton;
+    return {reindexButton};
 }

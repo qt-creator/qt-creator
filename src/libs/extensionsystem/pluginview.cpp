@@ -180,7 +180,7 @@ public:
     bool setData(int column, const QVariant &data, int role) override
     {
         if (column == LoadedColumn && role == Qt::CheckStateRole)
-            return m_view->setPluginsEnabled(QSet<PluginSpec *>() << m_spec, data.toBool());
+            return m_view->setPluginsEnabled({m_spec}, data.toBool());
         return false;
     }
 

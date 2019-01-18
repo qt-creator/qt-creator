@@ -172,7 +172,7 @@ QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const IWizardFac
     // Init context with page and projects
     m_context->page = new ProjectWizardPage;
     m_context->wizard = wizard;
-    return QList<QWizardPage *>() << m_context->page;
+    return {m_context->page};
 }
 
 bool ProjectFileWizardExtension::processFiles(

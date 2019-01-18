@@ -510,9 +510,9 @@ void Wizard::_q_pageAdded(int pageId)
         nextItem = d->m_wizardProgress->item(nextId);
 
     if (prevItem)
-        prevItem->setNextItems(QList<WizardProgressItem *>() << item);
+        prevItem->setNextItems({item});
     if (nextItem)
-        item->setNextItems(QList<WizardProgressItem *>() << nextItem);
+        item->setNextItems({nextItem});
 }
 
 void Wizard::_q_pageRemoved(int pageId)
@@ -626,7 +626,7 @@ QList<WizardProgressItem *> WizardProgressPrivate::singlePathBetween(WizardProgr
     // When we had X->A in addition and "from" was X and "to" was C, this would not work
     // (it should return the shortest path which would be X->A->C).
     if (item->nextItems().contains(toItem))
-        return QList<WizardProgressItem *>() << toItem;
+        return {toItem};
 
     QHash<WizardProgressItem *, QHash<WizardProgressItem *, bool> > visitedItemsToParents;
     QList<QPair<WizardProgressItem *, WizardProgressItem *> > workingItems; // next to prev item
@@ -662,7 +662,7 @@ QList<WizardProgressItem *> WizardProgressPrivate::singlePathBetween(WizardProgr
             return path;
         itItem = visitedItemsToParents.constFind(it);
     }
-    return QList<WizardProgressItem *>();
+    return {};
 }
 
 void WizardProgressPrivate::updateReachableItems()

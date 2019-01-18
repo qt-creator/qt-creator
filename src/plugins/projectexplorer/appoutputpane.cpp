@@ -688,7 +688,7 @@ void AppOutputPane::tabChanged(int i)
 
 void AppOutputPane::contextMenuRequested(const QPoint &pos, int index)
 {
-    QList<QAction *> actions = QList<QAction *>() << m_closeCurrentTabAction << m_closeAllTabsAction << m_closeOtherTabsAction;
+    const QList<QAction *> actions = {m_closeCurrentTabAction, m_closeAllTabsAction, m_closeOtherTabsAction};
     QAction *action = QMenu::exec(actions, m_tabWidget->mapToGlobal(pos), nullptr, m_tabWidget);
     const int currentIdx = index != -1 ? index : currentIndex();
     if (action == m_closeCurrentTabAction) {

@@ -83,7 +83,7 @@ void Search::rowEntered(const QModelIndex &index)
     if (m_scene) {
         ScxmlTag *tag = m_model->tag(m_proxyModel->mapToSource(index));
         if (tag)
-            m_scene->highlightItems(QVector<ScxmlTag*>() << tag);
+            m_scene->highlightItems({tag});
         else
             m_scene->unhighlightAll();
     }

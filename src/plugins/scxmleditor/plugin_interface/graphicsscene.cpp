@@ -870,7 +870,7 @@ void GraphicsScene::highlightWarningItem(const ScxmlEditor::OutputPane::Warning 
     ScxmlTag *tag = tagByWarning(w);
 
     if (tag)
-        highlightItems(QVector<ScxmlTag*>() << tag);
+        highlightItems({tag});
     else
         unhighlightAll();
 }

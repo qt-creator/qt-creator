@@ -46,10 +46,9 @@ BasicLocatorFilterTest::~BasicLocatorFilterTest() = default;
 QList<LocatorFilterEntry> BasicLocatorFilterTest::matchesFor(const QString &searchText)
 {
     doBeforeLocatorRun();
-    const QList<ILocatorFilter *> filters = QList<ILocatorFilter *>() << m_filter;
     m_filter->prepareSearch(searchText);
-    QFuture<LocatorFilterEntry> locatorSearch = Utils::runAsync(&Internal::runSearch, filters,
-                                                                searchText);
+    QFuture<LocatorFilterEntry> locatorSearch = Utils::runAsync(
+        &Internal::runSearch, QList<ILocatorFilter *>({m_filter}), searchText);
     locatorSearch.waitForFinished();
     doAfterLocatorRun();
     return locatorSearch.results();

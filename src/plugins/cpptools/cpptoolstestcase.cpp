@@ -195,7 +195,7 @@ void TestCase::closeEditorAtEndOfTestCase(Core::IEditor *editor)
 
 bool TestCase::closeEditorWithoutGarbageCollectorInvocation(Core::IEditor *editor)
 {
-    return closeEditorsWithoutGarbageCollectorInvocation(QList<Core::IEditor *>() << editor);
+    return closeEditorsWithoutGarbageCollectorInvocation({editor});
 }
 
 CPlusPlus::Document::Ptr TestCase::waitForFileInGlobalSnapshot(const QString &filePath,

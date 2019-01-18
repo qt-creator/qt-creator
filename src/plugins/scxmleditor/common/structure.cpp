@@ -202,7 +202,7 @@ void Structure::rowEntered(const QModelIndex &index)
     QModelIndex ind = m_proxyModel->mapToSource(index);
     auto tag = static_cast<ScxmlTag*>(ind.internalPointer());
     if (tag)
-        m_scene->highlightItems(QVector<ScxmlTag*>() << tag);
+        m_scene->highlightItems({tag});
     else
         m_scene->unhighlightAll();
 }

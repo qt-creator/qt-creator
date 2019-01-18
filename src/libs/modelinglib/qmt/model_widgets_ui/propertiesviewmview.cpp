@@ -1202,7 +1202,7 @@ void PropertiesView::MView::onClassMembersChanged(QList<MClassMember> &classMemb
                                                      &MClass::members, &MClass::setMembers);
     foreach (DElement *element, m_diagramElements) {
         if (showMembers.contains(element->modelUid())) {
-            assignModelElement<DClass, bool>(QList<DElement *>() << element, SelectionSingle, true,
+            assignModelElement<DClass, bool>(QList<DElement *>({element}), SelectionSingle, true,
                                              &DClass::showAllMembers, &DClass::setShowAllMembers);
         }
     }
