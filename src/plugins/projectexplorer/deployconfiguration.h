@@ -100,18 +100,7 @@ public:
 
 protected:
     using DeployConfigurationCreator = std::function<DeployConfiguration *(Target *)>;
-
-    template <class DeployConfig>
-    void registerDeployConfiguration(Core::Id deployConfigBaseId)
-    {
-        m_creator = [this, deployConfigBaseId](Target *t) {
-            auto dc = new DeployConfig(t, deployConfigBaseId);
-            dc->setDefaultDisplayName(m_defaultDisplayName);
-            dc->m_configWidgetCreator = m_configWidgetCreator;
-            return dc;
-        };
-        m_deployConfigBaseId = deployConfigBaseId;
-    }
+    void setConfigBaseId(Core::Id deployConfigBaseId);
 
 private:
     struct DeployStepCreationInfo {

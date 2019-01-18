@@ -35,7 +35,7 @@ namespace Internal {
 
 QbsDeployConfigurationFactory::QbsDeployConfigurationFactory()
 {
-    registerDeployConfiguration<ProjectExplorer::DeployConfiguration>("Qbs.Deploy");
+    setConfigBaseId("Qbs.Deploy");
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     setSupportedProjectType(Constants::PROJECT_ID);
     setDefaultDisplayName(QCoreApplication::translate("Qbs", "Qbs Install"));

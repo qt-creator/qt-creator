@@ -179,6 +179,17 @@ void DeployConfigurationFactory::setUseDeploymentDataView()
     m_configWidgetCreator = [](Target *target) { return new DeploymentDataView(target); };
 }
 
+void DeployConfigurationFactory::setConfigBaseId(Core::Id deployConfigBaseId)
+{
+    m_creator = [this, deployConfigBaseId](Target *t) {
+        auto dc = new DeployConfiguration(t, deployConfigBaseId);
+        dc->setDefaultDisplayName(m_defaultDisplayName);
+        dc->m_configWidgetCreator = m_configWidgetCreator;
+        return dc;
+    };
+    m_deployConfigBaseId = deployConfigBaseId;
+}
+
 bool DeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
@@ -265,7 +276,7 @@ void DeployConfigurationFactory::addInitialStep(Core::Id stepId, const std::func
 
 DefaultDeployConfigurationFactory::DefaultDeployConfigurationFactory()
 {
-    registerDeployConfiguration<DeployConfiguration>("ProjectExplorer.DefaultDeployConfiguration");
+    setConfigBaseId("ProjectExplorer.DefaultDeployConfiguration");
     addSupportedTargetDeviceType(Constants::DESKTOP_DEVICE_TYPE);
     //: Display name of the default deploy configuration
     setDefaultDisplayName(DeployConfiguration::tr("Deploy Configuration"));

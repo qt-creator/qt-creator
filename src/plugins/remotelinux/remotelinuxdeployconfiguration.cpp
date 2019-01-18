@@ -54,7 +54,7 @@ namespace Internal {
 
 RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
 {
-    registerDeployConfiguration<DeployConfiguration>(genericDeployConfigurationId());
+    setConfigBaseId(genericDeployConfigurationId());
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
     setDefaultDisplayName(QCoreApplication::translate("RemoteLinux",
                                                       "Deploy to Remote Linux Host"));

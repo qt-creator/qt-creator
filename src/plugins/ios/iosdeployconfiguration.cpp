@@ -39,7 +39,7 @@ namespace Internal {
 
 IosDeployConfigurationFactory::IosDeployConfigurationFactory()
 {
-    registerDeployConfiguration<DeployConfiguration>("Qt4ProjectManager.IosDeployConfiguration");
+    setConfigBaseId("Qt4ProjectManager.IosDeployConfiguration");
     setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
     addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);

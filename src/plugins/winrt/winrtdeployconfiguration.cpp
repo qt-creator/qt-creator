@@ -41,7 +41,7 @@ namespace Internal {
 
 WinRtAppDeployConfigurationFactory::WinRtAppDeployConfigurationFactory()
 {
-    registerDeployConfiguration<DeployConfiguration>("WinRTAppxDeployConfiguration");
+    setConfigBaseId("WinRTAppxDeployConfiguration");
     setDefaultDisplayName(QCoreApplication::translate("WinRt::Internal::WinRtDeployConfiguration",
                                                       "Run windeployqt"));
     addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_LOCAL);
@@ -50,7 +50,7 @@ WinRtAppDeployConfigurationFactory::WinRtAppDeployConfigurationFactory()
 
 WinRtPhoneDeployConfigurationFactory::WinRtPhoneDeployConfigurationFactory()
 {
-    registerDeployConfiguration<DeployConfiguration>("WinRTPhoneDeployConfiguration");
+    setConfigBaseId("WinRTPhoneDeployConfiguration");
     setDefaultDisplayName(QCoreApplication::translate("WinRt::Internal::WinRtDeployConfiguration",
                                                       "Deploy to Windows Phone"));
     addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_PHONE);
@@ -59,7 +59,7 @@ WinRtPhoneDeployConfigurationFactory::WinRtPhoneDeployConfigurationFactory()
 
 WinRtEmulatorDeployConfigurationFactory::WinRtEmulatorDeployConfigurationFactory()
 {
-    registerDeployConfiguration<DeployConfiguration>("WinRTEmulatorDeployConfiguration");
+    setConfigBaseId("WinRTEmulatorDeployConfiguration");
     setDefaultDisplayName(QCoreApplication::translate("WinRt::Internal::WinRtDeployConfiguration",
                                                       "Deploy to Windows Phone Emulator"));
     addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_EMULATOR);

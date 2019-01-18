@@ -45,8 +45,7 @@ namespace Internal {
 
 AndroidDeployConfigurationFactory::AndroidDeployConfigurationFactory()
 {
-    registerDeployConfiguration<DeployConfiguration>
-            ("Qt4ProjectManager.AndroidDeployConfiguration2");
+    setConfigBaseId("Qt4ProjectManager.AndroidDeployConfiguration2");
     addSupportedTargetDeviceType(Constants::ANDROID_DEVICE_TYPE);
     setDefaultDisplayName(QCoreApplication::translate("Android::Internal",
                                                       "Deploy to Android device"));

@@ -41,8 +41,7 @@ namespace Internal {
 
 QnxDeployConfigurationFactory::QnxDeployConfigurationFactory()
 {
-    registerDeployConfiguration<DeployConfiguration>
-            (Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
+    setConfigBaseId(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
     setDefaultDisplayName(QCoreApplication::translate("Qnx::Internal::QnxDeployConfiguration",
                                                       "Deploy to QNX Device"));
     addSupportedTargetDeviceType(QnxDeviceFactory::deviceType());
