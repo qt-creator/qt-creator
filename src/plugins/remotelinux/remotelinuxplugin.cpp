@@ -59,7 +59,7 @@ public:
     {
         registerStep<Step>(Step::stepId());
         setDisplayName(Step::displayName());
-        setSupportedConfiguration(RemoteLinuxDeployConfiguration::genericDeployConfigurationId());
+        setSupportedConfiguration(genericDeployConfigurationId());
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
 };

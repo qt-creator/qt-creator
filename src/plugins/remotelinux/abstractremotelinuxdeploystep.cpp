@@ -110,11 +110,6 @@ void AbstractRemoteLinuxDeployStep::cancel()
     deployService()->stop();
 }
 
-RemoteLinuxDeployConfiguration *AbstractRemoteLinuxDeployStep::deployConfiguration() const
-{
-    return qobject_cast<RemoteLinuxDeployConfiguration *>(BuildStep::deployConfiguration());
-}
-
 void AbstractRemoteLinuxDeployStep::handleProgressMessage(const QString &message)
 {
     emit addOutput(message, OutputFormat::NormalMessage);

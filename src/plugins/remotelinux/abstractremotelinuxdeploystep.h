@@ -33,7 +33,6 @@
 
 namespace RemoteLinux {
 class AbstractRemoteLinuxDeployService;
-class RemoteLinuxDeployConfiguration;
 
 namespace Internal { class AbstractRemoteLinuxDeployStepPrivate; }
 
@@ -48,7 +47,6 @@ public:
     bool init() override;
     void run(QFutureInterface<bool> &fi) override;
     void cancel() override;
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
 
     virtual AbstractRemoteLinuxDeployService *deployService() const = 0;
 

@@ -32,28 +32,7 @@
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
-    : public ProjectExplorer::DeployConfiguration
-{
-    Q_OBJECT
-
-public:
-    RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-    static Core::Id genericDeployConfigurationId();
-
-    template<class T> T *earlierBuildStep(const ProjectExplorer::BuildStep *laterBuildStep) const
-    {
-        const QList<ProjectExplorer::BuildStep *> &buildSteps = stepList()->steps();
-        for (int i = 0; i < buildSteps.count(); ++i) {
-            if (buildSteps.at(i) == laterBuildStep)
-                return 0;
-            if (T * const step = dynamic_cast<T *>(buildSteps.at(i)))
-                return step;
-        }
-        return 0;
-    }
-};
+Core::Id genericDeployConfigurationId();
 
 namespace Internal {
 

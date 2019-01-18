@@ -71,8 +71,14 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
 
 bool UploadAndInstallTarPackageStep::initInternal(QString *error)
 {
-    const TarPackageCreationStep * const pStep
-        = deployConfiguration()->earlierBuildStep<TarPackageCreationStep>(this);
+    const TarPackageCreationStep *pStep = nullptr;
+
+    for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
+        if (step == this)
+            break;
+        if ((pStep = dynamic_cast<TarPackageCreationStep *>(step)))
+            break;
+    }
     if (!pStep) {
         if (error)
             *error = tr("No tarball creation step found.");
