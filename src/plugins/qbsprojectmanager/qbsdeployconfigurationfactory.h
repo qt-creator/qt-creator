@@ -30,14 +30,6 @@
 namespace QbsProjectManager {
 namespace Internal {
 
-class QbsDeployConfiguration : public ProjectExplorer::DeployConfiguration
-{
-    Q_OBJECT
-
-public:
-    QbsDeployConfiguration(ProjectExplorer::Target *target, Core::Id id);
-};
-
 class QbsDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
 public:

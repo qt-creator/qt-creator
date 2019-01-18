@@ -27,22 +27,15 @@
 
 #include "qbsprojectmanagerconstants.h"
 #include "qbsinstallstep.h"
-#include "qbsproject.h"
 
-#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 namespace QbsProjectManager {
 namespace Internal {
 
-QbsDeployConfiguration::QbsDeployConfiguration(ProjectExplorer::Target *target, Core::Id id) :
-    ProjectExplorer::DeployConfiguration(target, id)
-{
-}
-
 QbsDeployConfigurationFactory::QbsDeployConfigurationFactory()
 {
-    registerDeployConfiguration<QbsDeployConfiguration>("Qbs.Deploy");
+    registerDeployConfiguration<ProjectExplorer::DeployConfiguration>("Qbs.Deploy");
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     setSupportedProjectType(Constants::PROJECT_ID);
     setDefaultDisplayName(QCoreApplication::translate("Qbs", "Qbs Install"));
