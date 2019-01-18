@@ -83,11 +83,11 @@ static QStringList environmentImportPaths()
 {
     QStringList paths;
 
-    QByteArray envImportPath = qgetenv("QML_IMPORT_PATH");
+    const QStringList importPaths = QString::fromLocal8Bit(qgetenv("QML_IMPORT_PATH")).split(
+        Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
 
-    foreach (const QString &path, QString::fromLatin1(envImportPath)
-             .split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts)) {
-        QString canonicalPath = QDir(path).canonicalPath();
+    for (const QString &path : importPaths) {
+        const QString canonicalPath = QDir(path).canonicalPath();
         if (!canonicalPath.isEmpty() && !paths.contains(canonicalPath))
             paths.append(canonicalPath);
     }
@@ -97,11 +97,10 @@ static QStringList environmentImportPaths()
 
 ModelManagerInterface::ModelManagerInterface(QObject *parent)
     : QObject(parent),
-      m_shouldScanImports(false),
-      m_defaultProject(nullptr),
+      m_defaultImportPaths(environmentImportPaths()),
       m_pluginDumper(new PluginDumper(this))
 {
-    m_indexerEnabled = qgetenv("QTC_NO_CODE_INDEXER") != "1";
+    m_indexerDisabled = qEnvironmentVariableIsSet("QTC_NO_CODE_INDEXER");
 
     m_updateCppQmlTypesTimer = new QTimer(this);
     m_updateCppQmlTypesTimer->setInterval(1000);
@@ -123,7 +122,6 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
     m_defaultProjectInfo.qtQmlPath = QFileInfo(
                 QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)).canonicalFilePath();
 
-    m_defaultImportPaths << environmentImportPaths();
     updateImportPaths();
 
     Q_ASSERT(! g_instance);
@@ -298,7 +296,7 @@ Snapshot ModelManagerInterface::newestSnapshot() const
 void ModelManagerInterface::updateSourceFiles(const QStringList &files,
                                      bool emitDocumentOnDiskChanged)
 {
-    if (!m_indexerEnabled)
+    if (m_indexerDisabled)
         return;
     refreshSourceFiles(files, emitDocumentOnDiskChanged);
 }
@@ -514,7 +512,7 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfo(
 
 void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectExplorer::Project *p)
 {
-    if (! pinfo.isValid() || !p || !m_indexerEnabled)
+    if (! pinfo.isValid() || !p || m_indexerDisabled)
         return;
 
     Snapshot snapshot;
@@ -1063,7 +1061,7 @@ QmlLanguageBundles ModelManagerInterface::extendedBundles() const
 
 void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
 {
-    if (!m_indexerEnabled)
+    if (m_indexerDisabled)
         return;
     PathsAndLanguages pathToScan;
     {
@@ -1086,7 +1084,7 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
 
 void ModelManagerInterface::updateImportPaths()
 {
-    if (!m_indexerEnabled)
+    if (m_indexerDisabled)
         return;
     PathsAndLanguages allImportPaths;
     QmlLanguageBundles activeBundles;

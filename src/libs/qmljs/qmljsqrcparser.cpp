@@ -418,7 +418,7 @@ void QrcParserPrivate::collectResourceFilesForSourceFile(const QString &sourceFi
                                                          QStringList *results,
                                                          const QLocale *locale) const
 {
-    // TODO: use FileName from fileutils for file pathes
+    // TODO: use FileName from fileutils for file paths
 
     QStringList langs = allUiLanguages(locale);
     SMap::const_iterator file = m_files.find(sourceFile);

@@ -265,11 +265,11 @@ private:
     QmlJS::QmlLanguageBundles m_activeBundles;
     QmlJS::QmlLanguageBundles m_extendedBundles;
     QHash<Dialect, QmlJS::ViewerContext> m_defaultVContexts;
-    bool m_shouldScanImports;
+    bool m_shouldScanImports = false;
     QSet<QString> m_scannedPaths;
 
-    QTimer *m_updateCppQmlTypesTimer;
-    QTimer *m_asyncResetTimer;
+    QTimer *m_updateCppQmlTypesTimer = nullptr;
+    QTimer *m_asyncResetTimer = nullptr;
     QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > m_queuedCppDocuments;
     QFuture<void> m_cppQmlTypesUpdater;
     QrcCache m_qrcCache;
@@ -282,13 +282,13 @@ private:
     // project integration
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
     ProjectInfo m_defaultProjectInfo;
-    ProjectExplorer::Project *m_defaultProject;
+    ProjectExplorer::Project *m_defaultProject = nullptr;
     QMultiHash<QString, ProjectExplorer::Project *> m_fileToProject;
 
-    PluginDumper *m_pluginDumper;
+    PluginDumper *m_pluginDumper = nullptr;
 
     QList<QFuture<void>> m_futures;
-    bool m_indexerEnabled;
+    bool m_indexerDisabled = false;
 };
 
 } // namespace QmlJS
