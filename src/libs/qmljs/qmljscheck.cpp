@@ -1646,7 +1646,7 @@ bool Check::visit(CallExpression *ast)
     // allow adding connections with the help of the qt quick designer ui
     bool isDirectInConnectionsScope =
             (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("Connections"));
-    if (!whiteListedFunction && !isMathFunction && !isDirectInConnectionsScope)
+    if (!whiteListedFunction && !isMathFunction && !isDateFunction && !isDirectInConnectionsScope)
         addMessage(ErrFunctionsNotSupportedInQmlUi, location);
 
     static const QStringList globalFunctions = {"String", "Boolean", "Date", "Number", "Object", "QT_TR_NOOP", "QT_TRANSLATE_NOOP", "QT_TRID_NOOP"};
