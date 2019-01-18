@@ -1384,9 +1384,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
     m_perspective.addToolBarAction(&m_startAction);
 
-    m_perspective.addWindow(m_breakpointManagerWindow, Perspective::SplitVertical, nullptr);
-    m_perspective.addWindow(m_globalLogWindow, Perspective::SplitHorizontal, m_breakpointManagerWindow, false);
-    m_perspective.addWindow(m_engineManagerWindow, Perspective::AddToTab, m_globalLogWindow);
+    m_perspective.addWindow(m_engineManagerWindow, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(m_breakpointManagerWindow, Perspective::SplitHorizontal, m_engineManagerWindow);
+    m_perspective.addWindow(m_globalLogWindow, Perspective::AddToTab, m_breakpointManagerWindow, false);
 
     setInitialState();
 
