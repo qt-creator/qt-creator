@@ -40,7 +40,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <qmljseditor/qmljseditorconstants.h>
-#include <qmljseditor/qmljseditordocument.h>
 
 #include <coreplugin/icore.h>
 
