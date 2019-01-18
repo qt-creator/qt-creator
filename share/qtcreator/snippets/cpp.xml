@@ -43,6 +43,9 @@ public:
 <snippet group="C++" trigger="for" id="cpp_for">for (int $var$ = 0; $var$ &lt; $total$; ++$var$) {
     $$
 }</snippet>
+<snippet group="C++" trigger="for" id="cpp_for_rangebased" complement="range-based">for ($var$ : $container$) {
+    $$
+}</snippet>
 <snippet group="C++" trigger="foreach" id="cpp_foreach">foreach ($var$, $container$) {
     $$
 }</snippet>
