@@ -37,11 +37,11 @@ class Target;
 class DeployConfigurationFactory;
 class NamedWidget;
 
-class PROJECTEXPLORER_EXPORT DeployConfiguration : public ProjectConfiguration
+class PROJECTEXPLORER_EXPORT DeployConfiguration final : public ProjectConfiguration
 {
     Q_OBJECT
 
-protected:
+private:
     friend class DeployConfigurationFactory;
     explicit DeployConfiguration(Target *target, Core::Id id);
 
@@ -56,16 +56,10 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    virtual bool isEnabled() const;
-    virtual QString disabledReason() const;
-
     Target *target() const;
     Project *project() const override;
 
     bool isActive() const override;
-
-signals:
-    void enabledChanged();
 
 private:
     BuildStepList m_stepList;
