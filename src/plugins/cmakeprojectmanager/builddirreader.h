@@ -67,7 +67,7 @@ public:
     virtual CMakeConfig takeParsedConfiguration() = 0;
     virtual void generateProjectTree(CMakeProjectNode *root,
                                      const QList<const ProjectExplorer::FileNode *> &allFiles) = 0;
-    virtual void updateCodeModel(CppTools::RawProjectParts &rpps) = 0;
+    virtual CppTools::RawProjectParts createRawProjectParts() const = 0;
 
 signals:
     void isReadyNow() const;

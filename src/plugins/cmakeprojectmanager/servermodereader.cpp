@@ -356,8 +356,10 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
                        std::move(cmakeFilesOther));
 }
 
-void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
+CppTools::RawProjectParts ServerModeReader::createRawProjectParts() const
 {
+    CppTools::RawProjectParts rpps;
+
     int counter = 0;
     for (const FileGroup *fg : qAsConst(m_fileGroups)) {
         // CMake users worked around Creator's inability of listing header files by creating
@@ -399,6 +401,8 @@ void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
                                             : CppTools::ProjectPart::Library);
         rpps.append(rpp);
     }
+
+    return rpps;
 }
 
 void ServerModeReader::handleReply(const QVariantMap &data, const QString &inReplyTo)

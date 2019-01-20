@@ -57,7 +57,7 @@ public:
     CMakeConfig takeParsedConfiguration() final;
     void generateProjectTree(CMakeProjectNode *root,
                              const QList<const ProjectExplorer::FileNode *> &allFiles) final;
-    void updateCodeModel(CppTools::RawProjectParts &rpps) final;
+    CppTools::RawProjectParts createRawProjectParts() const final;
 
 private:
     void cleanUpProcess();
@@ -69,9 +69,9 @@ private:
     void processCMakeOutput();
     void processCMakeError();
 
-    QStringList getFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang);
-    bool extractFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang);
-    bool extractFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang);
+    QStringList getFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang) const;
+    bool extractFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang) const;
+    bool extractFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang) const;
 
     Utils::QtcProcess *m_cmakeProcess = nullptr;
 

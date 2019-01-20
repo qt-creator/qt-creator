@@ -76,7 +76,7 @@ public:
 
     void generateProjectTree(CMakeProjectNode *root,
                              const QList<const ProjectExplorer::FileNode *> &allFiles) const;
-    void updateCodeModel(CppTools::RawProjectParts &rpps);
+    CppTools::RawProjectParts createRawProjectParts() const;
 
     QList<CMakeBuildTarget> takeBuildTargets() const;
     CMakeConfig takeCMakeConfiguration() const;

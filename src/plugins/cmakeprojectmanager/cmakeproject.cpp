@@ -285,8 +285,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     QtSupport::CppKitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
 
-    CppTools::RawProjectParts rpps;
-    m_buildDirManager.updateCodeModel(rpps);
+    CppTools::RawProjectParts rpps = m_buildDirManager.createRawProjectParts();
 
     for (CppTools::RawProjectPart &rpp : rpps) {
         rpp.setQtVersion(kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.

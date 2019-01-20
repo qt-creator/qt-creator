@@ -298,11 +298,11 @@ void BuildDirManager::generateProjectTree(CMakeProjectNode *root, const QList<co
     m_reader->generateProjectTree(root, allFiles);
 }
 
-void BuildDirManager::updateCodeModel(CppTools::RawProjectParts &rpps)
+CppTools::RawProjectParts BuildDirManager::createRawProjectParts() const
 {
-    QTC_ASSERT(!m_isHandlingError, return);
-    QTC_ASSERT(m_reader, return);
-    return m_reader->updateCodeModel(rpps);
+    QTC_ASSERT(!m_isHandlingError, return {});
+    QTC_ASSERT(m_reader, return {});
+    return m_reader->createRawProjectParts();
 }
 
 void BuildDirManager::clearCache()
