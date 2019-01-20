@@ -100,7 +100,7 @@ private:
     std::unique_ptr<Internal::CMakeProjectNode>
     generateProjectTree(const QList<const ProjectExplorer::FileNode*> &allFiles) const;
 
-    void createGeneratedCodeModelSupport();
+    QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers() const;
     QStringList filesGeneratedFrom(const QString &sourceFile) const final;
 
     // TODO probably need a CMake specific node structure
