@@ -592,7 +592,9 @@ VcsBaseSubmitEditor::PromptSubmitResult
     // On Windows there is no mnemonic for Close. Set it explicitly.
     mb.button(QDialogButtonBox::Close)->setText(tr("&Close"));
     cancelButton->setText(tr("&Keep Editing"));
-    cancelButton->setDefault(true);
+    // forcePrompt is true when the editor is closed, and false when triggered by the submit action
+    if (forcePrompt)
+        cancelButton->setDefault(true);
     if (QPushButton *commitButton = mb.button(QDialogButtonBox::Ok)) {
         commitButton->setText(withUnusedMnemonic(commitName,
                               {cancelButton, mb.button(QDialogButtonBox::Close)}));
