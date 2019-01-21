@@ -33,11 +33,13 @@ class MockProjectParts : public ClangBackEnd::ProjectPartsInterface
 {
 public:
     MOCK_METHOD1(update,
-                 ClangBackEnd::ProjectPartContainers(const ClangBackEnd::ProjectPartContainers &projectsParts));
-    MOCK_METHOD1(remove,
-                 void(const Utils::SmallStringVector &projectPartIds));
-    MOCK_CONST_METHOD1(projects,
-                       ClangBackEnd::ProjectPartContainers(const Utils::SmallStringVector &projectPartIds));
+                 ClangBackEnd::ProjectPartContainers(
+                     const ClangBackEnd::ProjectPartContainers &projectsParts));
+    MOCK_METHOD1(remove, void(const Utils::SmallStringVector &projectPartIds));
+    MOCK_CONST_METHOD1(
+        projects, ClangBackEnd::ProjectPartContainers(const Utils::SmallStringVector &projectPartIds));
+    MOCK_METHOD1(updateDeferred, void(const ClangBackEnd::ProjectPartContainers &projectsParts));
+    MOCK_METHOD0(deferredUpdates, ClangBackEnd::ProjectPartContainers());
 
     ClangBackEnd::ProjectPartContainers update(ClangBackEnd::ProjectPartContainers &&projectsParts) override
     {

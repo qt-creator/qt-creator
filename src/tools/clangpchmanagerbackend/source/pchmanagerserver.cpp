@@ -61,8 +61,12 @@ void PchManagerServer::updateProjectParts(UpdateProjectPartsMessage &&message)
 {
     m_toolChainsArgumentsCache.update(message.projectsParts, message.toolChainArguments);
 
-    m_pchTaskGenerator.addProjectParts(
-        m_projectParts.update(message.takeProjectsParts()), std::move(message.toolChainArguments));
+    ProjectPartContainers newProjectParts = m_projectParts.update(message.takeProjectsParts());
+
+    if (m_generatedFiles.isValid()) {
+        m_pchTaskGenerator.addProjectParts(std::move(newProjectParts),
+                                           std::move(message.toolChainArguments));
+    }
 }
 
 void PchManagerServer::removeProjectParts(RemoveProjectPartsMessage &&message)
@@ -76,9 +80,35 @@ void PchManagerServer::removeProjectParts(RemoveProjectPartsMessage &&message)
     m_toolChainsArgumentsCache.remove(message.projectsPartIds);
 }
 
+namespace {
+Utils::SmallStringVector projectPartIds(const ProjectPartContainers &projectParts)
+{
+    Utils::SmallStringVector ids;
+    ids.reserve(projectParts.size());
+
+    std::transform(projectParts.cbegin(),
+                   projectParts.cend(),
+                   std::back_inserter(ids),
+                   [](const ProjectPartContainer &projectPart) { return projectPart.projectPartId; });
+
+    return ids;
+}
+}
+
 void PchManagerServer::updateGeneratedFiles(UpdateGeneratedFilesMessage &&message)
 {
     m_generatedFiles.update(message.takeGeneratedFiles());
+
+    if (m_generatedFiles.isValid()) {
+        ProjectPartContainers deferredProjectParts = m_projectParts.deferredUpdates();
+        ArgumentsEntries entries = m_toolChainsArgumentsCache.arguments(
+            projectPartIds(deferredProjectParts));
+
+        for (ArgumentsEntry &entry : entries) {
+            m_pchTaskGenerator.addProjectParts(std::move(deferredProjectParts),
+                                               std::move(entry.arguments));
+        }
+    }
 }
 
 void PchManagerServer::removeGeneratedFiles(RemoveGeneratedFilesMessage &&message)

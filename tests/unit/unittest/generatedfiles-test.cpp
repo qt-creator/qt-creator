@@ -69,4 +69,21 @@ TEST_F(GeneratedFiles, RemoveGeneratedFiles)
     ASSERT_THAT(generatedFiles.fileContainers(), ElementsAre(file1, file3));
 }
 
+TEST_F(GeneratedFiles, IsValidForNoGeneratedFiles)
+{
+    ASSERT_TRUE(generatedFiles.isValid());
 }
+
+TEST_F(GeneratedFiles, IsNotValidIfFilesWithNotContentExists)
+{
+    generatedFiles.update({{"/file2", ""}});
+
+    ASSERT_FALSE(generatedFiles.isValid());
+}
+
+TEST_F(GeneratedFiles, IsValidIfAllFilesHasContent)
+{
+    generatedFiles.update({file1, file2, file3, file4});
+
+    ASSERT_TRUE(generatedFiles.isValid());
+}}

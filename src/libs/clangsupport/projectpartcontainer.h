@@ -156,6 +156,7 @@ public:
     Utils::Language language = Utils::Language::Cxx;
     Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX98;
     Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None;
+    bool updateIsDeferred = false;
 };
 
 using ProjectPartContainers = std::vector<ProjectPartContainer>;

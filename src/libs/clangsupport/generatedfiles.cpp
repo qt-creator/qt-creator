@@ -100,6 +100,15 @@ void GeneratedFiles::remove(const FilePaths &filePaths)
     m_fileContainers = std::move(differenceFileContainers);
 }
 
+bool GeneratedFiles::isValid() const
+{
+    return std::all_of(m_fileContainers.begin(),
+                       m_fileContainers.end(),
+                       [](const V2::FileContainer &container) {
+                           return container.unsavedFileContent.hasContent();
+                       });
+}
+
 const V2::FileContainers &GeneratedFiles::fileContainers() const
 {
     return m_fileContainers;

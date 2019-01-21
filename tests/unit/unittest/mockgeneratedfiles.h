@@ -38,6 +38,7 @@ public:
                  void (const ClangBackEnd::FilePaths &filePaths));
     MOCK_CONST_METHOD0(fileContainers,
                        const ClangBackEnd::V2::FileContainers &());
+    MOCK_CONST_METHOD0(isValid, bool());
 
     void update(ClangBackEnd::V2::FileContainers &&fileContainers)
     {

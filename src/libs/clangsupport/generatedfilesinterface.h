@@ -35,6 +35,7 @@ public:
     virtual void update(V2::FileContainers &&fileContainers) = 0;
     virtual void update(const V2::FileContainers &fileContainers) = 0;
     virtual void remove(const FilePaths &filePaths) = 0;
+    virtual bool isValid() const = 0;
 
     virtual const V2::FileContainers &fileContainers() const = 0;
 

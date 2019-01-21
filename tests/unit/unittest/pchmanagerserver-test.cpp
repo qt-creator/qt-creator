@@ -54,8 +54,8 @@ class PchManagerServer : public ::testing::Test
     {
         server.setClient(&mockPchManagerClient);
 
-        ON_CALL(mockProjectParts, update(projectParts))
-                .WillByDefault(Return(projectParts));
+        ON_CALL(mockProjectParts, update(projectParts)).WillByDefault(Return(projectParts));
+        ON_CALL(mockGeneratedFiles, isValid()).WillByDefault(Return(true));
    }
 
     ClangBackEnd::FilePathId id(Utils::SmallStringView path) const
@@ -183,7 +183,6 @@ TEST_F(PchManagerServer, SetProgress)
     server.setProgress(20, 30);
 }
 
-
 TEST_F(PchManagerServer, RemoveToolChainsArguments)
 {
     server.updateProjectParts(
@@ -195,5 +194,60 @@ TEST_F(PchManagerServer, RemoveToolChainsArguments)
     server.pathsWithIdsChanged({projectPart1.projectPartId});
 }
 
+TEST_F(PchManagerServer, DontGeneratePchIfGeneratedFilesAreNotValid)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockGeneratedFiles, isValid()).WillOnce(Return(false));
+    EXPECT_CALL(mockPchTaskGenerator, addProjectParts(_, _)).Times(0);
+
+    server.updateProjectParts(
+        ClangBackEnd::UpdateProjectPartsMessage{{projectPart1}, {"toolChainArgument"}});
+}
+
+TEST_F(PchManagerServer, GeneratePchIfGeneratedFilesAreValid)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockGeneratedFiles, isValid()).WillOnce(Return(true));
+    EXPECT_CALL(mockPchTaskGenerator, addProjectParts(_, _));
+
+    server.updateProjectParts(
+        ClangBackEnd::UpdateProjectPartsMessage{{projectPart1}, {"toolChainArgument"}});
+}
+
+TEST_F(PchManagerServer, AfterUpdatingGeneratedFilesAreValidSoGeneratePchs)
+{
+    InSequence s;
+    ClangBackEnd::UpdateGeneratedFilesMessage updateGeneratedFilesMessage{{generatedFile}};
+    ON_CALL(mockGeneratedFiles, isValid()).WillByDefault(Return(false));
+    server.updateProjectParts(
+        ClangBackEnd::UpdateProjectPartsMessage{{projectPart1}, {"toolChainArgument"}});
+
+    EXPECT_CALL(mockGeneratedFiles, update(updateGeneratedFilesMessage.generatedFiles));
+    EXPECT_CALL(mockGeneratedFiles, isValid()).WillOnce(Return(true));
+    EXPECT_CALL(mockProjectParts, deferredUpdates())
+        .WillOnce(Return(ClangBackEnd::ProjectPartContainers{projectPart1}));
+    EXPECT_CALL(mockPchTaskGenerator,
+                addProjectParts(ElementsAre(projectPart1), ElementsAre("toolChainArgument")));
+
+    server.updateGeneratedFiles(updateGeneratedFilesMessage.clone());
+}
+
+TEST_F(PchManagerServer, AfterUpdatingGeneratedFilesAreStillInvalidSoNoPchsGeneration)
+{
+    InSequence s;
+    ClangBackEnd::UpdateGeneratedFilesMessage updateGeneratedFilesMessage{{generatedFile}};
+    ON_CALL(mockGeneratedFiles, isValid()).WillByDefault(Return(false));
+    server.updateProjectParts(
+        ClangBackEnd::UpdateProjectPartsMessage{{projectPart1}, {"toolChainArgument"}});
+
+    EXPECT_CALL(mockGeneratedFiles, update(updateGeneratedFilesMessage.generatedFiles));
+    EXPECT_CALL(mockGeneratedFiles, isValid()).WillOnce(Return(false));
+    EXPECT_CALL(mockProjectParts, deferredUpdates()).Times(0);
+    EXPECT_CALL(mockPchTaskGenerator, addProjectParts(_, _)).Times(0);
+
+    server.updateGeneratedFiles(updateGeneratedFilesMessage.clone());
+}
 
 }

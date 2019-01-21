@@ -191,7 +191,6 @@ TEST_F(ProjectParts, GetProjectById)
     ASSERT_THAT(projectPartContainers, ElementsAre(projectPartContainer1));
 }
 
-
 TEST_F(ProjectParts, GetProjectsByIds)
 {
     projectParts.update({projectPartContainer1, projectPartContainer2});
@@ -201,4 +200,31 @@ TEST_F(ProjectParts, GetProjectsByIds)
     ASSERT_THAT(projectPartContainers, UnorderedElementsAre(projectPartContainer1, projectPartContainer2));
 }
 
+TEST_F(ProjectParts, UpdateDeferred)
+{
+    auto projectPartContainers = projectParts.update({projectPartContainer1, projectPartContainer2});
+
+    projectParts.updateDeferred({projectPartContainer1});
+
+    ASSERT_THAT(projectParts.deferredUpdates(), ElementsAre(projectPartContainer1));
+
+}
+
+TEST_F(ProjectParts, NotUpdateDeferred)
+{
+    auto projectPartContainers = projectParts.update({projectPartContainer1, projectPartContainer2});
+
+    ASSERT_THAT(projectParts.deferredUpdates(), IsEmpty());
+}
+
+TEST_F(ProjectParts, UpdateDeferredCleansDeferredUpdates)
+{
+    auto projectPartContainers = projectParts.update({projectPartContainer1, projectPartContainer2});
+    projectParts.updateDeferred({projectPartContainer1});
+
+    projectParts.deferredUpdates();
+
+    ASSERT_THAT(projectParts.deferredUpdates(), IsEmpty());
+
+}
 }

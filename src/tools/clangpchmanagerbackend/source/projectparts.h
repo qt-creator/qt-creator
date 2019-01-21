@@ -41,8 +41,9 @@ public:
     ProjectPartContainers update(ProjectPartContainers &&projectsParts) override;
     void remove(const Utils::SmallStringVector &projectPartIds) override;
     ProjectPartContainers projects(const Utils::SmallStringVector &projectPartIds) const override;
+    void updateDeferred(const ProjectPartContainers &projectsParts) override;
+    ProjectPartContainers deferredUpdates() override;
 
-unittest_public:
     ProjectPartContainers newProjectParts(ProjectPartContainers &&projectsParts) const;
     void mergeProjectParts(const ProjectPartContainers &projectsParts);
     const ProjectPartContainers &projectParts() const;

@@ -66,6 +66,59 @@ ProjectPartContainers ProjectParts::projects(const Utils::SmallStringVector &pro
     return projectPartsWithIds;
 }
 
+void ProjectParts::updateDeferred(const ProjectPartContainers &deferredProjectsParts)
+{
+    using ProjectPartContainerReferences = std::vector<std::reference_wrapper<ProjectPartContainer>>;
+
+    class BackInserterIterator : public std::back_insert_iterator<ProjectPartContainerReferences>
+    {
+    public:
+        BackInserterIterator(ProjectPartContainerReferences &container)
+            : std::back_insert_iterator<ProjectPartContainerReferences>(container)
+        {}
+
+        BackInserterIterator &operator=(ProjectPartContainer &projectPart)
+        {
+            container->push_back(std::ref(projectPart));
+
+            return *this;
+        }
+
+        BackInserterIterator &operator*() { return *this; }
+    };
+
+    ProjectPartContainerReferences deferredProjectPartPointers;
+    deferredProjectPartPointers.reserve(deferredProjectsParts.size());
+
+    std::set_intersection(m_projectParts.begin(),
+                          m_projectParts.end(),
+                          deferredProjectsParts.begin(),
+                          deferredProjectsParts.end(),
+                          BackInserterIterator(deferredProjectPartPointers),
+                          [](const ProjectPartContainer &first, const ProjectPartContainer &second) {
+                              return first.projectPartId < second.projectPartId;
+                          });
+
+    for (ProjectPartContainer &projectPart : deferredProjectPartPointers)
+        projectPart.updateIsDeferred = true;
+}
+
+ProjectPartContainers ProjectParts::deferredUpdates()
+{
+    ProjectPartContainers deferredProjectParts;
+    deferredProjectParts.reserve(m_projectParts.size());
+
+    std::copy_if(m_projectParts.cbegin(),
+                 m_projectParts.cend(),
+                 std::back_inserter(deferredProjectParts),
+                 [](const ProjectPartContainer &projectPart) { return projectPart.updateIsDeferred; });
+
+    for (ProjectPartContainer &projectPart : m_projectParts)
+        projectPart.updateIsDeferred = false;
+
+    return deferredProjectParts;
+}
+
 ProjectPartContainers ProjectParts::newProjectParts(ProjectPartContainers &&projectsParts) const
 {
     ProjectPartContainers updatedProjectPartContainers;
