@@ -302,7 +302,7 @@ void FancyLineEdit::setHistoryCompleter(const QString &historyKey, bool restoreL
 {
     QTC_ASSERT(!d->m_historyCompleter, return);
     d->m_historyCompleter = new HistoryCompleter(historyKey, this);
-    if (restoreLastItemFromHistory)
+    if (restoreLastItemFromHistory && d->m_historyCompleter->hasHistory())
         setText(d->m_historyCompleter->historyItem());
     QLineEdit::setCompleter(d->m_historyCompleter);
 

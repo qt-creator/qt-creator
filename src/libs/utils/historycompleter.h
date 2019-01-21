@@ -46,6 +46,7 @@ public:
     HistoryCompleter(const QString &historyKey, QObject *parent = nullptr);
     bool removeHistoryItem(int index);
     QString historyItem() const;
+    bool hasHistory() const { return historySize() > 0; }
     static bool historyExistsFor(const QString &historyKey);
 
 private:
