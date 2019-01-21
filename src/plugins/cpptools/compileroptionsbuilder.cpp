@@ -48,6 +48,7 @@ static const char defineOption[] = "-D";
 static const char undefineOption[] = "-U";
 
 static const char includeUserPathOption[] = "-I";
+static const char includeUserPathOptionWindows[] = "/I";
 static const char includeSystemPathOption[] = "-isystem";
 
 static const char includeFileOptionGcc[] = "-include";
@@ -699,7 +700,13 @@ void CompilerOptionsBuilder::reset()
 void CompilerOptionsBuilder::evaluateCompilerFlags()
 {
     bool containsDriverMode = false;
+    bool skipNext = false;
     for (const QString &option : m_projectPart.compilerFlags) {
+        if (skipNext) {
+            skipNext = false;
+            continue;
+        }
+
         // Ignore warning flags as these interfere with ouser user-configured diagnostics.
         // Note that once "-w" is provided, no warnings will be emitted, even if "-Wall" follows.
         if (option.startsWith("-w", Qt::CaseInsensitive)
@@ -708,8 +715,17 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             continue;
         }
 
+        if (option == includeUserPathOption || option == includeSystemPathOption
+            || option == includeUserPathOptionWindows) {
+            skipNext = true;
+            continue;
+        }
+
         if (option.startsWith("-O", Qt::CaseSensitive) || option.startsWith("/O", Qt::CaseSensitive)
-            || option.startsWith("/M", Qt::CaseSensitive)) {
+            || option.startsWith("/M", Qt::CaseSensitive)
+            || option.startsWith(includeUserPathOption)
+            || option.startsWith(includeSystemPathOption)
+            || option.startsWith(includeUserPathOptionWindows)) {
             // Optimization and run-time flags.
             continue;
         }

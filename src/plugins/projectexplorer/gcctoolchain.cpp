@@ -1241,8 +1241,10 @@ static const MingwToolChain *mingwToolChainFromId(const QByteArray &id)
 
 void ClangToolChain::syncAutodetectedWithParentToolchains()
 {
-    if (!HostOsInfo::isWindowsHost() || !isAutoDetected())
+    if (!HostOsInfo::isWindowsHost() || typeId() != Constants::CLANG_TOOLCHAIN_TYPEID
+        || !isAutoDetected()) {
         return;
+    }
 
     QObject::disconnect(m_thisToolchainRemovedConnection);
     QObject::disconnect(m_mingwToolchainAddedConnection);
@@ -1491,7 +1493,7 @@ GccToolChain *ClangToolChainFactory::createToolChain(bool autoDetect)
 ClangToolChainConfigWidget::ClangToolChainConfigWidget(ClangToolChain *tc) :
     GccToolChainConfigWidget(tc)
 {
-    if (!HostOsInfo::isWindowsHost())
+    if (!HostOsInfo::isWindowsHost() || tc->typeId() != Constants::CLANG_TOOLCHAIN_TYPEID)
         return;
 
     // Remove m_abiWidget row because the parent toolchain abi is going to be used.
