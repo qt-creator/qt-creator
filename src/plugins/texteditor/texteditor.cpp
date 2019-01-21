@@ -553,7 +553,7 @@ public:
 
     QTextBlock foldedBlockAt(const QPoint &pos, QRect *box = nullptr) const;
 
-    void requestUpdateLink(QMouseEvent *e, bool immediate = false);
+    void requestUpdateLink(QMouseEvent *e);
     void updateLink();
     void showLink(const Utils::Link &);
     void clearLink();
@@ -5414,6 +5414,7 @@ void TextEditorWidgetPrivate::clearVisibleFoldedBlock()
 void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
 {
     d->requestUpdateLink(e);
+    d->m_linkPressed = false;
 
     if (e->buttons() == Qt::NoButton) {
         const QTextBlock collapsedBlock = d->foldedBlockAt(e->pos());
@@ -5527,10 +5528,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
                 if (refactorMarker.callback)
                     refactorMarker.callback(this);
             } else {
-                d->requestUpdateLink(e, true);
-
-                if (d->m_currentLink.hasValidLinkText())
-                    d->m_linkPressed = true;
+                d->m_linkPressed = true;
             }
         }
     } else if (e->button() == Qt::RightButton) {
@@ -6144,7 +6142,7 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
                                        Id(), flags);
 }
 
-void TextEditorWidgetPrivate::requestUpdateLink(QMouseEvent *e, bool immediate)
+void TextEditorWidgetPrivate::requestUpdateLink(QMouseEvent *e)
 {
     if (!q->mouseNavigationEnabled())
         return;
@@ -6167,12 +6165,7 @@ void TextEditorWidgetPrivate::requestUpdateLink(QMouseEvent *e, bool immediate)
 
         if (onText) {
             m_pendingLinkUpdate = cursor;
-
-            if (immediate)
-                updateLink();
-            else
-                QTimer::singleShot(0, this, &TextEditorWidgetPrivate::updateLink);
-
+            QTimer::singleShot(0, this, &TextEditorWidgetPrivate::updateLink);
             return;
         }
     }
@@ -6214,7 +6207,6 @@ void TextEditorWidgetPrivate::showLink(const Utils::Link &link)
     q->setExtraSelections(TextEditorWidget::OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
     q->viewport()->setCursor(Qt::PointingHandCursor);
     m_currentLink = link;
-    m_linkPressed = false;
 }
 
 void TextEditorWidgetPrivate::clearLink()
@@ -6227,7 +6219,6 @@ void TextEditorWidgetPrivate::clearLink()
     q->setExtraSelections(TextEditorWidget::OtherSelection, QList<QTextEdit::ExtraSelection>());
     q->viewport()->setCursor(Qt::IBeamCursor);
     m_currentLink = Utils::Link();
-    m_linkPressed = false;
 }
 
 void TextEditorWidgetPrivate::highlightSearchResultsSlot(const QString &txt, FindFlags findFlags)
