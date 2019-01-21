@@ -207,7 +207,7 @@ QWidget *CustomWizardFieldPage::registerComboBox(const QString &fieldName,
             break;
         combo->setCurrentIndex(currentIndex);
     } while (false);
-    registerField(fieldName, combo, "text", SIGNAL(text4Changed(QString)));
+    registerField(fieldName, combo, "indexText", SIGNAL(text4Changed(QString)));
     // Connect to completeChanged() for derived classes that reimplement isComplete()
     connect(combo, &TextFieldComboBox::text4Changed, this, &QWizardPage::completeChanged);
     return combo;
@@ -271,7 +271,7 @@ QWidget *CustomWizardFieldPage::registerCheckBox(const QString &fieldName,
     const AttributeMapConstIt falseTextIt = field.controlAttributes.constFind(QLatin1String("falsevalue"));
     if (falseTextIt != field.controlAttributes.constEnd()) // Also set empty texts
         checkBox->setFalseText(falseTextIt.value());
-    registerField(fieldName, checkBox, "text", SIGNAL(textChanged(QString)));
+    registerField(fieldName, checkBox, "compareText", SIGNAL(textChanged(QString)));
     // Connect to completeChanged() for derived classes that reimplement isComplete()
     connect(checkBox, &TextFieldCheckBox::textChanged, this, &QWizardPage::completeChanged);
     return checkBox;
