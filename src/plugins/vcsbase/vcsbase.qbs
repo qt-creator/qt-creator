@@ -72,8 +72,6 @@ QtcPlugin {
         "vcsoutputwindow.h",
         "vcsplugin.cpp",
         "vcsplugin.h",
-        "vcsprojectcache.cpp",
-        "vcsprojectcache.h",
         "wizard/vcsconfigurationpage.cpp",
         "wizard/vcsconfigurationpage.h",
         "wizard/vcscommandpage.cpp",

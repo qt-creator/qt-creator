@@ -34,7 +34,6 @@
 #include "vcsbaseplugin.h"
 #include "vcsoutputwindow.h"
 #include "vcsplugin.h"
-#include "vcsprojectcache.h"
 
 #include <aggregation/aggregate.h>
 #include <cpptools/cppmodelmanager.h>

@@ -31,7 +31,6 @@
 #include "commonsettingspage.h"
 #include "nicknamedialog.h"
 #include "vcsoutputwindow.h"
-#include "vcsprojectcache.h"
 #include "wizard/vcscommandpage.h"
 #include "wizard/vcsconfigurationpage.h"
 #include "wizard/vcsjsextension.h"
@@ -72,7 +71,6 @@ VcsPlugin::VcsPlugin()
 
 VcsPlugin::~VcsPlugin()
 {
-    VcsProjectCache::destroy();
     VcsOutputWindow::destroy();
     m_instance = nullptr;
 }
@@ -138,7 +136,6 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 void VcsPlugin::extensionsInitialized()
 {
-    VcsProjectCache::create();
 }
 
 VcsPlugin *VcsPlugin::instance()
