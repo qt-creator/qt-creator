@@ -34,9 +34,9 @@
     \nextpage creator-using-qt-designer.html
     \endif
 
-    \title Converting Qt Quick UI Prototypes to Applications
+    \title Converting UI Projects to Applications
 
-    Qt Quick UI projects are useful for prototyping user interfaces. To
+    Qt Quick UI projects are useful for creating user interfaces. To
     use them for application development in Qt Creator you have to add:
 
     \list
@@ -49,7 +49,7 @@
 
     You can use a Qt Creator wizard to create a Qt Quick application that is
     built using the qmake build system and then copy the source files from the
-    Qt UI Quick prototype project to the application project.
+    Qt UI Quick project to the application project.
 
     You can use the \c RESOURCES option in the project configuration file to
     automatically add all the QML files and related assets to a Qt resource
@@ -71,8 +71,8 @@
 
     \section1 Converting Projects
 
-    To convert a Qt Quick UI prototype project that has a .qmlproject file to
-    a Qt Quick application that has a .pro file:
+    To convert a project that has a .qmlproject file to one that has a .pro
+    file:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
@@ -83,7 +83,7 @@
             \uicontrol Next (or \uicontrol Continue on \macos).
         \li Follow the instructions of the wizard to create the project.
         \li In the file explorer, copy the source files from the Qt Quick UI
-            prototype project directory to a subdirectory in the application
+            project directory to a subdirectory in the application
             project directory. For the purpose of these instructions, the
             directory is called \c qml.
         \li Open the application project file, and edit the value of the
@@ -100,7 +100,7 @@
             \skipto QQuickView view;
             \printuntil view.show()
             Where \c {qml\main.qml} is the path to and the name of the main QML
-            file in the Qt Quick UI prototype project.
+            file in the Qt Quick UI project.
         \li Select \uicontrol Build > \uicontrol Run to build and run your
             project.
     \endlist

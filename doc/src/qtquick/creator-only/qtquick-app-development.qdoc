@@ -105,12 +105,12 @@
             details of the contained components, and therefore, the modules must
             provide extra type information for code completion and the semantic
             checks to work correctly.
-        \li \l {Converting Qt Quick UI Prototypes to Applications}
+        \li \l {Converting UI Projects to Applications}
 
-            Qt Quick UI projects are useful for prototyping user interfaces. To
-            use them for application development, you have to convert them to
-            Qt Quick Application projects that contain .pro, .cpp, and .qrc
-            files.
+            Qt Quick UI projects (.qmlproject) are useful for creating user
+            interfaces. To use them for application development, you have to
+            convert them to Qt Quick Application projects that contain .pro,
+            .cpp, and .qrc files.
 
     \endlist
 
