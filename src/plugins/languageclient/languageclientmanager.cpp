@@ -384,8 +384,8 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
         if (TextEditorWidget *widget = textEditor->editorWidget()) {
             connect(widget, &TextEditorWidget::requestLinkAt, this,
                     [this, document = textEditor->textDocument()]
-                    (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback) {
-                        findLinkAt(document, cursor, callback);
+                    (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback, bool resolveTarget) {
+                        findLinkAt(document, cursor, callback, resolveTarget);
                     });
             connect(widget, &TextEditorWidget::requestUsages, this,
                     [this, document = textEditor->textDocument()](const QTextCursor &cursor) {
@@ -483,23 +483,35 @@ void LanguageClientManager::documentWillSave(Core::IDocument *document)
 
 void LanguageClientManager::findLinkAt(TextEditor::TextDocument *document,
                                        const QTextCursor &cursor,
-                                       Utils::ProcessLinkCallback callback)
+                                       Utils::ProcessLinkCallback callback,
+                                       bool resolveTarget)
 {
     const DocumentUri uri = DocumentUri::fromFilePath(document->filePath());
     const TextDocumentIdentifier documentId(uri);
     const Position pos(cursor);
     TextDocumentPositionParams params(documentId, pos);
     GotoDefinitionRequest request(params);
-    request.setResponseCallback([callback](const GotoDefinitionRequest::Response &response){
+    request.setResponseCallback([callback, filePath = document->filePath(), cursor, resolveTarget]
+                                (const GotoDefinitionRequest::Response &response) {
         if (Utils::optional<GotoResult> _result = response.result()) {
             const GotoResult result = _result.value();
             if (Utils::holds_alternative<std::nullptr_t>(result))
                 return;
+            auto wordUnderCursor = [cursor, filePath]() {
+                QTextCursor linkCursor = cursor;
+                linkCursor.select(QTextCursor::WordUnderCursor);
+                Utils::Link link(filePath.toString(),
+                                 linkCursor.blockNumber() + 1,
+                                 linkCursor.positionInBlock());
+                link.linkTextStart = linkCursor.selectionStart();
+                link.linkTextEnd = linkCursor.selectionEnd();
+                return link;
+            };
             if (auto ploc = Utils::get_if<Location>(&result)) {
-                callback(ploc->toLink());
+                callback(resolveTarget ? ploc->toLink() : wordUnderCursor());
             } else if (auto plloc = Utils::get_if<QList<Location>>(&result)) {
                 if (!plloc->isEmpty())
-                    callback(plloc->value(0).toLink());
+                    callback(resolveTarget ? plloc->value(0).toLink() : wordUnderCursor());
             }
         }
     });
