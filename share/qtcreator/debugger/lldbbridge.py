@@ -434,6 +434,8 @@ class Dumper(DumperBase):
                     tdata.code = TypeCodeFloat
                 elif isIntegralTypeName(typeName):
                     tdata.code = TypeCodeIntegral
+                elif typeName in ('__int128', 'unsigned __int128'):
+                    tdata.code = TypeCodeIntegral
                 elif typeName == 'void':
                     tdata.code = TypeCodeVoid
                 else:
