@@ -211,5 +211,7 @@ const char FILEOVERLAY_H[]=":/projectexplorer/images/fileoverlay_h.png";
 const char FILEOVERLAY_SCXML[]=":/projectexplorer/images/fileoverlay_scxml.png";
 const char FILEOVERLAY_UNKNOWN[]=":/projectexplorer/images/fileoverlay_unknown.png";
 
+const char ADD_FILES_DIALOG_FILTER_HISTORY_KEY[] = "ProjectExplorer.AddFilesFilterKey";
+
 } // namespace Constants
 } // namespace ProjectExplorer

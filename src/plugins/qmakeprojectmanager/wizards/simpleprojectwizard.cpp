@@ -86,6 +86,8 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(SimpleProjectWizardDialog *si
 
     layout->addWidget(m_filesWidget);
     m_filesWidget->setBaseDirEditable(false);
+    m_filesWidget->enableFilterHistoryCompletion
+            (ProjectExplorer::Constants::ADD_FILES_DIALOG_FILTER_HISTORY_KEY);
     connect(m_filesWidget, &SelectableFilesWidget::selectedFilesChanged,
             this, &FilesSelectionWizardPage::completeChanged);
 

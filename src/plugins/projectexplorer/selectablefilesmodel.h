@@ -36,7 +36,10 @@
 
 #include <utils/fileutils.h>
 
-namespace Utils { class PathChooser; }
+namespace Utils {
+class FancyLineEdit;
+class PathChooser;
+}
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
@@ -202,6 +205,8 @@ public:
     void resetModel(const Utils::FileName &path, const Utils::FileNameList &files);
     void cancelParsing();
 
+    void enableFilterHistoryCompletion(const QString &keyPrefix);
+
 signals:
     void selectedFilesChanged();
 
@@ -223,10 +228,10 @@ private:
     QPushButton *m_startParsingButton;
 
     QLabel *m_selectFilesFilterLabel;
-    QLineEdit *m_selectFilesFilterEdit;
+    Utils::FancyLineEdit *m_selectFilesFilterEdit;
 
     QLabel *m_hideFilesFilterLabel;
-    QLineEdit *m_hideFilesFilterEdit;
+    Utils::FancyLineEdit *m_hideFilesFilterEdit;
 
     QPushButton *m_applyFiltersButton;
 
@@ -259,8 +264,6 @@ class SelectableFilesDialogAddDirectory : public SelectableFilesDialogEditFiles
 public:
     SelectableFilesDialogAddDirectory(const Utils::FileName &path, const Utils::FileNameList &files,
                                       QWidget *parent);
-
-    void setAddFileFilter(const QString &filter) { m_filesWidget->setAddFileFilter(filter); }
 };
 
 } // namespace ProjectExplorer

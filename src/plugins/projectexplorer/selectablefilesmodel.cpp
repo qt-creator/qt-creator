@@ -29,8 +29,10 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 
-#include <utils/runextensions.h>
 #include <utils/algorithm.h>
+#include <utils/fancylineedit.h>
+#include <utils/pathchooser.h>
+#include <utils/runextensions.h>
 
 #include <QDialogButtonBox>
 #include <QGridLayout>
@@ -39,7 +41,6 @@
 #include <QPushButton>
 #include <QTreeView>
 #include <QDir>
-#include <utils/pathchooser.h>
 
 namespace ProjectExplorer {
 
@@ -533,9 +534,9 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     m_baseDirLabel(new QLabel),
     m_startParsingButton(new QPushButton),
     m_selectFilesFilterLabel(new QLabel),
-    m_selectFilesFilterEdit(new QLineEdit),
+    m_selectFilesFilterEdit(new Utils::FancyLineEdit),
     m_hideFilesFilterLabel(new QLabel),
-    m_hideFilesFilterEdit(new QLineEdit),
+    m_hideFilesFilterEdit(new Utils::FancyLineEdit),
     m_applyFiltersButton(new QPushButton),
     m_view(new QTreeView),
     m_preservedFilesLabel(new QLabel),
@@ -652,6 +653,12 @@ void SelectableFilesWidget::cancelParsing()
         m_model->cancel();
 }
 
+void SelectableFilesWidget::enableFilterHistoryCompletion(const QString &keyPrefix)
+{
+    m_selectFilesFilterEdit->setHistoryCompleter(keyPrefix + ".select", true);
+    m_hideFilesFilterEdit->setHistoryCompleter(keyPrefix + ".hide", true);
+}
+
 void SelectableFilesWidget::enableWidgets(bool enabled)
 {
     m_hideFilesFilterEdit->setEnabled(enabled);
@@ -733,6 +740,7 @@ SelectableFilesDialogEditFiles::SelectableFilesDialogEditFiles(const Utils::File
     layout->addWidget(m_filesWidget);
 
     m_filesWidget->setBaseDirEditable(false);
+    m_filesWidget->enableFilterHistoryCompletion(Constants::ADD_FILES_DIALOG_FILTER_HISTORY_KEY);
 
     auto buttonBox = new QDialogButtonBox(Qt::Horizontal, this);
     buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -748,6 +756,7 @@ Utils::FileNameList SelectableFilesDialogEditFiles::selectedFiles() const
 {
     return m_filesWidget->selectedFiles();
 }
+
 
 //////////
 // SelectableFilesDialogAddDirectory
