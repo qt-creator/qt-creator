@@ -57,7 +57,11 @@ BuildDependency BuildDependencyCollector::create(const ProjectPartContainer &pro
 
     collect();
 
-    return std::move(m_buildDependency);
+    auto buildDependency = std::move(m_buildDependency);
+
+    clear();
+
+    return buildDependency;
 }
 
 void BuildDependencyCollector::collect()

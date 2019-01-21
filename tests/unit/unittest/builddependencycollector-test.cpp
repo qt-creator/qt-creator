@@ -667,4 +667,34 @@ TEST_F(BuildDependencyCollector, Create)
                                      id(TESTDATA_DIR
                                         "/builddependencycollector/system/indirect_system2.h"))))));
 }
+
+TEST_F(BuildDependencyCollector, Clear)
+{
+    using ClangBackEnd::IncludeSearchPathType;
+    ClangBackEnd::BuildDependencyCollector collector{filePathCache};
+    ClangBackEnd::ProjectPartContainer projectPart{
+        "project1",
+        {},
+        {},
+        {{TESTDATA_DIR "/builddependencycollector/system", 1, IncludeSearchPathType::System}},
+        {
+            {TESTDATA_DIR "/builddependencycollector/project", 1, IncludeSearchPathType::User},
+            {TESTDATA_DIR "/builddependencycollector/external", 2, IncludeSearchPathType::User},
+        },
+        {
+            id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
+        },
+        {},
+        Utils::Language::Cxx,
+        Utils::LanguageVersion::CXX11,
+        Utils::LanguageExtension::None};
+    collector.create(projectPart);
+
+    auto buildDependency = collector.create(projectPart);
+
+    ASSERT_THAT(buildDependency.includes, IsEmpty());
+}
 } // namespace
