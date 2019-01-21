@@ -309,10 +309,11 @@ class Dumper(DumperBase):
             targetType = self.fromNativeType(nativeType.target().unqualified())
             return self.createReferenceType(targetType)
 
-        if code == gdb.TYPE_CODE_RVALUE_REF:
-            #warn('RVALUEREF')
-            targetType = self.fromNativeType(nativeType.target())
-            return self.createRValueReferenceType(targetType)
+        if hasattr(gdb, "TYPE_CODE_RVALUE_REF"):
+            if code == gdb.TYPE_CODE_RVALUE_REF:
+                #warn('RVALUEREF')
+                targetType = self.fromNativeType(nativeType.target())
+                return self.createRValueReferenceType(targetType)
 
         if code == gdb.TYPE_CODE_ARRAY:
             #warn('ARRAY')
