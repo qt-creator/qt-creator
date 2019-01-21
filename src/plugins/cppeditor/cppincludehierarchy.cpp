@@ -278,7 +278,7 @@ QStringList CppIncludeHierarchyModel::mimeTypes() const
 QMimeData *CppIncludeHierarchyModel::mimeData(const QModelIndexList &indexes) const
 {
     auto data = new DropMimeData;
-    foreach (const QModelIndex &index, indexes) {
+    for (const QModelIndex &index : indexes) {
         auto link = index.data(LinkRole).value<Utils::Link>();
         if (link.hasValidTarget())
             data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
@@ -357,7 +357,7 @@ public:
 
 private:
     void onItemActivated(const QModelIndex &index);
-    void editorsClosed(QList<IEditor *> editors);
+    void editorsClosed(const QList<IEditor *> &editors);
     void showNoIncludeHierarchyLabel();
     void showIncludeHierarchy();
     void syncFromEditorManager();
@@ -468,9 +468,9 @@ void CppIncludeHierarchyWidget::onItemActivated(const QModelIndex &index)
                                     Constants::CPPEDITOR_ID);
 }
 
-void CppIncludeHierarchyWidget::editorsClosed(QList<IEditor *> editors)
+void CppIncludeHierarchyWidget::editorsClosed(const QList<IEditor *> &editors)
 {
-    foreach (IEditor *editor, editors) {
+    for (const IEditor *editor : editors) {
         if (m_editor == editor)
             perform();
     }
