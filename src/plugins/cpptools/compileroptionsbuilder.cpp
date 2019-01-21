@@ -357,7 +357,7 @@ void CompilerOptionsBuilder::updateFileLanguage(ProjectFile::Kind fileKind)
         else if (ProjectFile::isCxx(fileKind))
             option = "/TP";
         else
-            QTC_ASSERT(false && "File kind not supported by cl driver mode", return;);
+            return; // Do not add anything if we haven't set a file kind yet.
 
         int langOptIndex = m_options.indexOf("/TC");
         if (langOptIndex == -1)
