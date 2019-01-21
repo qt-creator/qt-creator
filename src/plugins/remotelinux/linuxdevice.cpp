@@ -280,16 +280,6 @@ DeviceEnvironmentFetcher::Ptr LinuxDevice::environmentFetcher() const
     return DeviceEnvironmentFetcher::Ptr(new LinuxDeviceEnvironmentFetcher(sharedFromThis()));
 }
 
-void LinuxDevice::setSupportsRsync(bool supportsRsync)
-{
-    setExtraData("RemoteLinux.SupportsRSync", supportsRsync);
-}
-
-bool LinuxDevice::supportsRSync() const
-{
-    return extraData("RemoteLinux.SupportsRSync").toBool();
-}
-
 namespace Internal {
 
 // Factory

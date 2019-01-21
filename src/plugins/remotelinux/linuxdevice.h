@@ -55,9 +55,6 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
 
-    void setSupportsRsync(bool supportsRsync);
-    bool supportsRSync() const;
-
 protected:
     LinuxDevice();
 };
