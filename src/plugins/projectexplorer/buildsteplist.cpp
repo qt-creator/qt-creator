@@ -162,6 +162,14 @@ void BuildStepList::insertStep(int position, Core::Id stepId)
     QTC_ASSERT(false, qDebug() << "No factory for build step" << stepId.toString() << "found.");
 }
 
+void BuildStepList::appendSteps(const QList<StepCreationInfo> &infos)
+{
+    for (const StepCreationInfo &info : infos) {
+        if (!info.condition || info.condition(target()))
+            appendStep(info.stepId);
+    }
+}
+
 bool BuildStepList::removeStep(int position)
 {
     BuildStep *bs = at(position);

@@ -76,6 +76,13 @@ public:
     void insertStep(int position, Core::Id id);
     void appendStep(BuildStep *step) { insertStep(count(), step); }
     void appendStep(Core::Id stepId) { insertStep(count(), stepId); }
+
+    struct StepCreationInfo {
+        Core::Id stepId;
+        std::function<bool(Target *)> condition; // unset counts as unrestricted
+    };
+    void appendSteps(const QList<StepCreationInfo> &infos);
+
     bool removeStep(int position);
     void moveStepUp(int position);
     BuildStep *at(int position);

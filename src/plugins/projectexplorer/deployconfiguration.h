@@ -102,15 +102,11 @@ protected:
     void setConfigBaseId(Core::Id deployConfigBaseId);
 
 private:
-    struct DeployStepCreationInfo {
-        Core::Id deployStepId;
-        std::function<bool(Target *)> condition; // unset counts as unrestricted
-    };
-    DeployConfiguration *createDeployConfiguration(Target *t);
+    DeployConfiguration *createDeployConfiguration(Target *target);
     Core::Id m_deployConfigBaseId;
     Core::Id m_supportedProjectType;
     QList<Core::Id> m_supportedTargetDeviceTypes;
-    QList<DeployStepCreationInfo> m_initialSteps;
+    QList<BuildStepList::StepCreationInfo> m_initialSteps;
     QString m_defaultDisplayName;
     std::function<NamedWidget *(Target *)> m_configWidgetCreator;
 };

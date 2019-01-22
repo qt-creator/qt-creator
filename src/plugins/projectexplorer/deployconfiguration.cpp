@@ -197,10 +197,7 @@ DeployConfiguration *DeployConfigurationFactory::create(Target *parent)
     QTC_ASSERT(canHandle(parent), return nullptr);
     DeployConfiguration *dc = createDeployConfiguration(parent);
     QTC_ASSERT(dc, return nullptr);
-    for (const DeployStepCreationInfo &info : qAsConst(m_initialSteps)) {
-        if (!info.condition || info.condition(parent))
-            dc->stepList()->appendStep(info.deployStepId);
-    }
+    dc->stepList()->appendSteps(m_initialSteps);
     return dc;
 }
 
