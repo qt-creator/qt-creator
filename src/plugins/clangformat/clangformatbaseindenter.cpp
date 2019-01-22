@@ -23,8 +23,6 @@
 **
 ****************************************************************************/
 
-#pragma once
-
 #include "clangformatbaseindenter.h"
 
 #include <clang/Tooling/Core/Replacement.h>
