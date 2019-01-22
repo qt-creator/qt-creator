@@ -69,6 +69,7 @@ private:
 
     QAction *m_goBack = nullptr;
     QAction *m_goNext = nullptr;
+    QAction *m_clear = nullptr;
 
     Utils::Perspective m_perspective{ClangTidyClazyPerspectiveId, tr("Clang-Tidy and Clazy")};
 };

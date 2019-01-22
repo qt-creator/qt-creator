@@ -90,6 +90,12 @@ int ClangToolsDiagnosticModel::diagnosticsCount() const
     return rootItem()->childCount();
 }
 
+void ClangToolsDiagnosticModel::clear()
+{
+    clearAndSetupCache();
+    Utils::TreeModel<>::clear();
+}
+
 void ClangToolsDiagnosticModel::updateItems(const DiagnosticItem *changedItem)
 {
     for (auto item : stepsToItemsCache[changedItem->diagnostic().explainingSteps]) {

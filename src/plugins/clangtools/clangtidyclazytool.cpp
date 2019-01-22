@@ -245,6 +245,18 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     m_goNext = action;
 
+    // Clear data
+    action = new QAction(this);
+    action->setDisabled(true);
+    action->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
+    action->setToolTip(tr("Clear"));
+    connect(action, &QAction::triggered, [this](){
+        m_clear->setEnabled(false);
+        m_diagnosticModel->clear();
+        Debugger::showPermanentStatusMessage(QString());
+    });
+    m_clear = action;
+
     // Filter line edit
     m_filterLineEdit = new Utils::FancyLineEdit();
     m_filterLineEdit->setFiltering(true);
@@ -291,6 +303,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
 
     m_perspective.addToolBarAction(m_startAction);
     m_perspective.addToolBarAction(m_stopAction);
+    m_perspective.addToolBarAction(m_clear);
     m_perspective.addToolBarAction(m_goBack);
     m_perspective.addToolBarAction(m_goNext);
     m_perspective.addToolBarWidget(m_filterLineEdit);
@@ -362,7 +375,6 @@ void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
 
     m_perspective.select();
 
-    m_diagnosticModel->clearAndSetupCache();
     m_diagnosticModel->clear();
 
     setToolBusy(true);
@@ -381,6 +393,7 @@ void ClangTidyClazyTool::updateRunActions()
         QString tooltipText = tr("Clang-Tidy and Clazy are still running.");
         m_startAction->setToolTip(tooltipText);
         m_stopAction->setEnabled(true);
+        m_clear->setEnabled(false);
     } else {
         QString toolTip = tr("Start Clang-Tidy and Clazy.");
         Project *project = SessionManager::startupProject();
@@ -394,6 +407,7 @@ void ClangTidyClazyTool::updateRunActions()
         m_startAction->setToolTip(toolTip);
         m_startAction->setEnabled(canRun);
         m_stopAction->setEnabled(false);
+        m_clear->setEnabled(m_diagnosticModel->diagnosticsCount());
     }
 }
 

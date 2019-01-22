@@ -107,7 +107,7 @@ public:
         DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1
     };
 
-    void clearAndSetupCache();
+    void clear();
     void removeWatchedPath(const QString &path);
     void addWatchedPath(const QString &path);
 
@@ -118,6 +118,7 @@ private:
     void connectFileWatcher();
     void updateItems(const DiagnosticItem *changedItem);
     void onFileChanged(const QString &path);
+    void clearAndSetupCache();
 
 private:
     std::map<QVector<ExplainingStep>, QVector<DiagnosticItem *>> stepsToItemsCache;
