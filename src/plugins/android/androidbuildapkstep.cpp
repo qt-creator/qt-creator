@@ -138,11 +138,9 @@ AndroidBuildApkStep *AndroidBuildApkStep::findInBuild(const BuildConfiguration *
 {
     if (!bc)
         return nullptr;
-    for (const Core::Id &id : bc->knownStepLists()) {
-        if (auto step = bc->stepList(id)->firstOfType<AndroidBuildApkStep>())
-            return step;
-    }
-    return nullptr;
+    BuildStepList *bsl = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    QTC_ASSERT(bsl, return nullptr);
+    return bsl->firstOfType<AndroidBuildApkStep>();
 }
 
 bool AndroidBuildApkStep::init()
