@@ -148,7 +148,7 @@ const ProjectPartPch &PchCreator::projectPartPch()
 
 void PchCreator::setUnsavedFiles(const V2::FileContainers &fileContainers)
 {
-    m_unsavedFiles = fileContainers;
+    m_clangTool.addUnsavedFiles(fileContainers);
 }
 
 void PchCreator::setIsUsed(bool isUsed)
@@ -163,6 +163,7 @@ bool PchCreator::isUsed() const
 
 void PchCreator::clear()
 {
+    m_clangTool = ClangTool{};
     m_projectPartPch = {};
 }
 

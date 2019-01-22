@@ -227,6 +227,15 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchCleared)
     ASSERT_THAT(creator.projectPartPch(), ClangBackEnd::ProjectPartPch{});
 }
 
+TEST_F(PchCreatorVerySlowTest, ClangToolCleared)
+{
+    creator.generatePch(std::move(pchTask1));
+
+    creator.clear();
+
+    ASSERT_TRUE(creator.clangTool().isClean());
+}
+
 TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesFaultyPchForPchTask)
 {
     PchTask faultyPchTask{"faultyProjectPart",
@@ -245,4 +254,12 @@ TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesFaultyPchForPchTask
                       Field(&ProjectPartPch::lastModified, Eq(-1))));
 }
 
+TEST_F(PchCreatorVerySlowTest, GeneratedFile)
+{
+    creator.clear();
+
+    creator.setUnsavedFiles({generatedFile});
+
+    ASSERT_FALSE(creator.clangTool().isClean());
+}
 }

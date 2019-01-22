@@ -93,6 +93,10 @@ public:
     clang::tooling::ClangTool createTool() const;
     clang::tooling::ClangTool createOutputTool() const;
 
+    bool isClean() const;
+
+
+
 private:
     RefactoringCompilationDatabase m_compilationDatabase;
     std::vector<FileContent> m_fileContents;

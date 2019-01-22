@@ -149,4 +149,10 @@ clang::tooling::ClangTool ClangTool::createOutputTool() const
     return tool;
 }
 
+bool ClangTool::isClean() const
+{
+    return m_sourceFilePaths.empty() && m_fileContents.empty()
+           && m_compilationDatabase.getAllFiles().empty() && m_unsavedFileContents.empty();
+}
+
 } // namespace ClangBackEnd

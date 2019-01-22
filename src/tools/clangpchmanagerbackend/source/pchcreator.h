@@ -89,12 +89,16 @@ public:
     static std::unique_ptr<QFile> generateFileWithContent(const Utils::SmallString &filePath,
                                                           const Utils::SmallString &content);
 
+    const ClangTool &clangTool() const
+    {
+        return m_clangTool;
+    }
+
 private:
     mutable std::mt19937_64 randomNumberGenator{std::random_device{}()};
     ClangTool m_clangTool;
     ProjectPartPch m_projectPartPch;
     FilePathCaching m_filePathCache;
-    V2::FileContainers m_unsavedFiles;
     Environment &m_environment;
     PchManagerClientInterface &m_pchManagerClient;
     bool m_isUsed = false;
