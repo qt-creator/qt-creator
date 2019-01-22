@@ -143,6 +143,14 @@ uint qHash(const TextStyle &textStyle)
     return ::qHash(quint8(textStyle));
 }
 
+static bool isOverlayCategory(TextStyle category)
+{
+    return category == C_OCCURRENCES
+           || category == C_OCCURRENCES_RENAME
+           || category == C_SEARCH_RESULT
+           || category == C_PARENTHESES_MISMATCH;
+}
+
 /**
  * Returns the QTextCharFormat of the given format category.
  */
@@ -166,18 +174,18 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
                                                   "Unused variable"));
     }
 
-    if (f.foreground().isValid()
-            && category != C_OCCURRENCES
-            && category != C_OCCURRENCES_RENAME
-            && category != C_SEARCH_RESULT
-            && category != C_PARENTHESES_MISMATCH)
+    if (f.foreground().isValid() && !isOverlayCategory(category))
         tf.setForeground(f.foreground());
-    if (f.background().isValid() && (category == C_TEXT || f.background() != m_scheme.formatFor(C_TEXT).background()))
-        tf.setBackground(f.background());
-
-    // underline does not need to fill without having background color
-    if (f.underlineStyle() != QTextCharFormat::NoUnderline && !f.background().isValid())
-        tf.setBackground(QBrush(Qt::BrushStyle::NoBrush));
+    if (f.background().isValid()) {
+        if (category == C_TEXT || f.background() != m_scheme.formatFor(C_TEXT).background())
+            tf.setBackground(f.background());
+    } else if (isOverlayCategory(category)) {
+        // overlays without a background schouldn't get painted
+        tf.setBackground(QColor());
+    } else if (f.underlineStyle() != QTextCharFormat::NoUnderline) {
+        // underline does not need to fill without having background color
+        tf.setBackground(Qt::BrushStyle::NoBrush);
+    }
 
     tf.setFontWeight(f.bold() ? QFont::Bold : QFont::Normal);
     tf.setFontItalic(f.italic());
