@@ -133,7 +133,7 @@ public:
     void setupHelpEngineIfNeeded();
 
     void highlightSearchTermsInContextHelp();
-    void handleHelpRequest(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
+    void showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
 
     void slotSystemInformation();
 
@@ -190,6 +190,11 @@ HelpPlugin::~HelpPlugin()
     m_helpManager = nullptr;
 }
 
+void HelpPlugin::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
+{
+    dd->showHelpUrl(url, location);
+}
+
 bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
@@ -225,7 +230,7 @@ HelpPluginPrivate::HelpPluginPrivate()
     connect(LocalHelpManager::instance(), &LocalHelpManager::returnOnCloseChanged,
             m_centralWidget, &CentralWidget::updateCloseButton);
     connect(HelpManager::instance(), &HelpManager::helpRequested,
-            this, &HelpPluginPrivate::handleHelpRequest);
+            this, &HelpPluginPrivate::showHelpUrl);
     connect(&m_searchTaskHandler, &SearchTaskHandler::search,
             this, &QDesktopServices::openUrl);
 
@@ -585,11 +590,6 @@ HelpWidget *HelpPluginPrivate::helpWidgetForWindow(QWidget *window)
     return m_centralWidget;
 }
 
-HelpViewer *HelpPlugin::viewerForHelpViewerLocation(Core::HelpManager::HelpViewerLocation location)
-{
-    return dd->viewerForHelpViewerLocation(location);
-}
-
 HelpViewer *HelpPluginPrivate::viewerForHelpViewerLocation(
     Core::HelpManager::HelpViewerLocation location)
 {
@@ -611,11 +611,6 @@ HelpViewer *HelpPluginPrivate::viewerForHelpViewerLocation(
     QTC_CHECK(actualLocation == Core::HelpManager::HelpModeAlways);
 
     return helpModeHelpViewer();
-}
-
-void HelpPlugin::showInHelpViewer(const QUrl &url, HelpViewer *viewer)
-{
-    dd->showInHelpViewer(url, viewer);
 }
 
 void HelpPluginPrivate::showInHelpViewer(const QUrl &url, HelpViewer *viewer)
@@ -726,8 +721,7 @@ void HelpPluginPrivate::highlightSearchTermsInContextHelp()
     m_contextHelpHighlightId.clear();
 }
 
-void HelpPluginPrivate::handleHelpRequest(const QUrl &url,
-                                          Core::HelpManager::HelpViewerLocation location)
+void HelpPluginPrivate::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
 {
     static const QString qtcreatorUnversionedID = "org.qt-project.qtcreator";
     if (url.host() == qtcreatorUnversionedID) {
@@ -735,7 +729,7 @@ void HelpPluginPrivate::handleHelpRequest(const QUrl &url,
         QUrl versioned = url;
         versioned.setHost(qtcreatorUnversionedID + "."
                           + QString::fromLatin1(Core::Constants::IDE_VERSION_LONG).remove('.'));
-        handleHelpRequest(versioned, location);
+        showHelpUrl(versioned, location);
         return;
     }
 

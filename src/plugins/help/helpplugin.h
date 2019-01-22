@@ -46,8 +46,7 @@ public:
     HelpPlugin();
     ~HelpPlugin() final;
 
-    static HelpViewer *viewerForHelpViewerLocation(Core::HelpManager::HelpViewerLocation location);
-    static void showInHelpViewer(const QUrl &url, HelpViewer *viewer);
+    static void showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
     static HelpViewer *createHelpViewer(qreal zoom);
 
 private:

@@ -69,8 +69,7 @@ namespace Internal {
 
 static void openUrlInWindow(const QUrl &url)
 {
-    HelpViewer *viewer = HelpPlugin::viewerForHelpViewerLocation(Core::HelpManager::ExternalHelpAlways);
-    HelpPlugin::showInHelpViewer(url, viewer);
+    HelpPlugin::showHelpUrl(url, Core::HelpManager::ExternalHelpAlways);
 }
 
 static bool isBookmarkable(const QUrl &url)
