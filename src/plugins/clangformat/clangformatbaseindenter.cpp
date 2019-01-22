@@ -402,8 +402,6 @@ bool ClangFormatBaseIndenter::isElectricCharacter(const QChar &ch) const
     case ';':
     case '(':
     case ')':
-    case ',':
-    case '.':
         return true;
     }
     return false;
