@@ -35,6 +35,7 @@ namespace ClangTools {
 namespace Internal {
 
 QList<Diagnostic> readSerializedDiagnostics(const QString &filePath,
+                                            const Utils::FileName &projectRootDir,
                                             const QString &logFilePath,
                                             QString *errorMessage);
 

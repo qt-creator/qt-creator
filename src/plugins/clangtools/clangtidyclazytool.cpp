@@ -407,7 +407,7 @@ void ClangTidyClazyTool::updateRunActions()
         m_startAction->setToolTip(toolTip);
         m_startAction->setEnabled(canRun);
         m_stopAction->setEnabled(false);
-        m_clear->setEnabled(m_diagnosticModel->diagnosticsCount());
+        m_clear->setEnabled(m_diagnosticModel->diagnostics().count());
     }
 }
 
@@ -418,7 +418,7 @@ void ClangTidyClazyTool::handleStateUpdate()
     QTC_ASSERT(m_diagnosticModel, return);
     QTC_ASSERT(m_diagnosticFilterModel, return);
 
-    const int issuesFound = m_diagnosticModel->diagnosticsCount();
+    const int issuesFound = m_diagnosticModel->diagnostics().count();
     const int issuesVisible = m_diagnosticFilterModel->rowCount();
     m_goBack->setEnabled(issuesVisible > 1);
     m_goNext->setEnabled(issuesVisible > 1);
@@ -439,10 +439,11 @@ void ClangTidyClazyTool::handleStateUpdate()
 }
 
 QList<Diagnostic> ClangTidyClazyTool::read(const QString &filePath,
+                                           const Utils::FileName &projectRootDir,
                                            const QString &logFilePath,
                                            QString *errorMessage) const
 {
-    return readSerializedDiagnostics(filePath, logFilePath, errorMessage);
+    return readSerializedDiagnostics(filePath, projectRootDir, logFilePath, errorMessage);
 }
 
 } // namespace Internal

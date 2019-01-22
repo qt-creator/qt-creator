@@ -135,7 +135,7 @@ void ClangTool::initDiagnosticView()
     m_diagnosticView->setAutoScroll(false);
 }
 
-QList<Diagnostic> ClangTool::diagnostics() const
+QSet<Diagnostic> ClangTool::diagnostics() const
 {
     return m_diagnosticModel->diagnostics();
 }

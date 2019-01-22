@@ -66,6 +66,8 @@ public:
     bool hasFixits = false;
 };
 
+quint32 qHash(const Diagnostic &diagnostic);
+
 } // namespace Internal
 } // namespace ClangTools
 

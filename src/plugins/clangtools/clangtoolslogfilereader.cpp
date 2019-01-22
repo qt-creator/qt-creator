@@ -59,6 +59,7 @@ static Debugger::DiagnosticLocation diagLocationFromSourceLocation(CXSourceLocat
 
     Debugger::DiagnosticLocation location;
     location.filePath = fromCXString(clang_getFileName(file));
+    location.filePath = QDir::cleanPath(location.filePath); // Normalize to find duplicates later
     location.line = line;
     location.column = column;
     return location;
@@ -118,7 +119,9 @@ static ExplainingStep buildFixIt(const CXDiagnostic cxDiagnostic, unsigned index
     return fixItStep;
 }
 
-static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic, const QString &nativeFilePath)
+static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
+                                  const Utils::FileName &projectRootDir,
+                                  const QString &nativeFilePath)
 {
     Diagnostic diagnostic;
     diagnostic.type = cxDiagnosticType(cxDiagnostic);
@@ -130,7 +133,13 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic, const QString
         return diagnostic;
 
     diagnostic.location = diagLocationFromSourceLocation(cxLocation);
-    if (diagnostic.location.filePath != nativeFilePath)
+    const auto diagnosticFilePath = Utils::FileName::fromString(diagnostic.location.filePath);
+    if (!diagnosticFilePath.isChildOf(projectRootDir))
+        return diagnostic;
+
+    // TODO: Introduce CppTools::ProjectFile::isGenerated to filter these out properly
+    const QString fileName = diagnosticFilePath.fileName();
+    if ((fileName.startsWith("ui_") && fileName.endsWith(".h")) || fileName.endsWith(".moc"))
         return diagnostic;
 
     CXDiagnosticSet cxChildDiagnostics = clang_getChildDiagnostics(cxDiagnostic);
@@ -165,6 +174,7 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic, const QString
 }
 
 static QList<Diagnostic> readSerializedDiagnostics_helper(const QString &filePath,
+                                                          const Utils::FileName &projectRootDir,
                                                           const QString &logFilePath)
 {
     QList<Diagnostic> list;
@@ -187,7 +197,7 @@ static QList<Diagnostic> readSerializedDiagnostics_helper(const QString &filePat
         Utils::ExecuteOnDestruction cleanUpDiagnostic([&]() {
             clang_disposeDiagnostic(cxDiagnostic);
         });
-        const Diagnostic diagnostic = buildDiagnostic(cxDiagnostic, nativeFilePath);
+        const Diagnostic diagnostic = buildDiagnostic(cxDiagnostic, projectRootDir, nativeFilePath);
         if (!diagnostic.isValid())
             continue;
 
@@ -213,13 +223,14 @@ static bool checkFilePath(const QString &filePath, QString *errorMessage)
 }
 
 QList<Diagnostic> readSerializedDiagnostics(const QString &filePath,
+                                            const Utils::FileName &projectRootDir,
                                             const QString &logFilePath,
                                             QString *errorMessage)
 {
     if (!checkFilePath(logFilePath, errorMessage))
         return QList<Diagnostic>();
 
-    return readSerializedDiagnostics_helper(filePath, logFilePath);
+    return readSerializedDiagnostics_helper(filePath, projectRootDir, logFilePath);
 }
 
 } // namespace Internal

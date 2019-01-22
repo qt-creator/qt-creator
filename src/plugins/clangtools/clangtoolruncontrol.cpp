@@ -387,13 +387,24 @@ void ClangToolRunControl::analyzeNextFile()
                   Utils::StdOutFormat);
 }
 
+static Utils::FileName cleanPath(const Utils::FileName &filePath)
+{
+    return Utils::FileName::fromString(QDir::cleanPath(filePath.toString()));
+}
+
 void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
 {
     const QString logFilePath = qobject_cast<ClangToolRunner *>(sender())->logFilePath();
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
 
+    QTC_ASSERT(m_projectInfo.project(), return);
+    const Utils::FileName projectRootDir = cleanPath(m_projectInfo.project()->projectDirectory());
+
     QString errorMessage;
-    const QList<Diagnostic> diagnostics = tool()->read(filePath, logFilePath, &errorMessage);
+    const QList<Diagnostic> diagnostics = tool()->read(filePath,
+                                                       projectRootDir,
+                                                       logFilePath,
+                                                       &errorMessage);
     QFile::remove(logFilePath); // Clean-up.
 
     if (!errorMessage.isEmpty()) {

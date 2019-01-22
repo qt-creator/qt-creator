@@ -35,8 +35,11 @@
 #include <utils/utilsicons.h>
 
 #include <QFileInfo>
+#include <QLoggingCategory>
 
 #include <cmath>
+
+static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.model", QtWarningMsg)
 
 namespace ClangTools {
 namespace Internal {
@@ -60,6 +63,19 @@ ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     connectFileWatcher();
 }
 
+QDebug operator<<(QDebug debug, const Diagnostic &d)
+{
+    return debug << "category:" << d.category
+                 << "type:" << d.type
+                 << "context:" << d.issueContext
+                 << "contextKind:" << d.issueContextKind
+                 << "hasFixits:" << d.hasFixits
+                 << "explainingSteps:" << d.explainingSteps.size()
+                 << "location:" << d.location
+                 << "description:" << d.description
+                 ;
+}
+
 void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)
 {
     const auto onFixitStatusChanged = [this](FixitStatus newStatus) {
@@ -70,28 +86,28 @@ void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnost
         emit fixItsToApplyCountChanged(m_fixItsToApplyCount);
     };
 
-    if (!diagnostics.empty())
-        addWatchedPath(diagnostics.front().location.filePath);
+    for (const Diagnostic &d : diagnostics) {
+        const int previousItemCount = m_diagnostics.count();
+        m_diagnostics.insert(d);
+        if (m_diagnostics.count() == previousItemCount) {
+            qCDebug(LOG) << "Not adding duplicate diagnostic:" << d;
+            continue;
+        }
 
-    for (const Diagnostic &d : diagnostics)
+        qCDebug(LOG) << "Adding diagnostic:" << d;
+        addWatchedPath(d.location.filePath);
         rootItem()->appendChild(new DiagnosticItem(d, onFixitStatusChanged, this));
+    }
 }
 
-QList<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
+QSet<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
 {
-    QList<Diagnostic> diags;
-    for (const Utils::TreeItem * const item : *rootItem())
-        diags << static_cast<const DiagnosticItem *>(item)->diagnostic();
-    return diags;
-}
-
-int ClangToolsDiagnosticModel::diagnosticsCount() const
-{
-    return rootItem()->childCount();
+    return m_diagnostics;
 }
 
 void ClangToolsDiagnosticModel::clear()
 {
+    m_diagnostics.clear();
     clearAndSetupCache();
     Utils::TreeModel<>::clear();
 }

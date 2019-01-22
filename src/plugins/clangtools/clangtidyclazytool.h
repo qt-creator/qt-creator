@@ -54,6 +54,7 @@ public:
     void startTool(bool askUserForFileSelection) final;
 
     QList<Diagnostic> read(const QString &filePath,
+                           const Utils::FileName &projectRootDir,
                            const QString &logFilePath,
                            QString *errorMessage) const final;
 

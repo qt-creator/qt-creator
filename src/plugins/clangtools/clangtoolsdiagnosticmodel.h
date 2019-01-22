@@ -98,10 +98,8 @@ class ClangToolsDiagnosticModel : public Utils::TreeModel<>
 public:
     ClangToolsDiagnosticModel(QObject *parent = nullptr);
 
-    virtual void addDiagnostics(const QList<Diagnostic> &diagnostics);
-    virtual QList<Diagnostic> diagnostics() const;
-
-    int diagnosticsCount() const;
+    void addDiagnostics(const QList<Diagnostic> &diagnostics);
+    QSet<Diagnostic> diagnostics() const;
 
     enum ItemRole {
         DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1
@@ -121,6 +119,7 @@ private:
     void clearAndSetupCache();
 
 private:
+    QSet<Diagnostic> m_diagnostics;
     std::map<QVector<ExplainingStep>, QVector<DiagnosticItem *>> stepsToItemsCache;
     std::unique_ptr<QFileSystemWatcher> m_filesWatcher;
     int m_fixItsToApplyCount = 0;

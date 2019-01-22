@@ -38,5 +38,13 @@ bool Diagnostic::isValid() const
     return !description.isEmpty();
 }
 
+quint32 qHash(const Diagnostic &diagnostic)
+{
+    return qHash(diagnostic.description)
+         ^ qHash(diagnostic.location.filePath)
+         ^ diagnostic.location.line
+         ^ diagnostic.location.column;
+}
+
 } // namespace Internal
 } // namespace ClangTools
