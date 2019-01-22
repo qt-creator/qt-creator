@@ -33,6 +33,11 @@ using uint = unsigned int;
 
 struct SlotUsage
 {
+    SlotUsage() = default;
+    SlotUsage(uint free, uint used)
+        : free(free)
+        , used(used)
+    {}
     uint free = 0;
     uint used = 0;
 };

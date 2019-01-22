@@ -60,14 +60,13 @@ enum class LanguageExtension : unsigned char {
 
 Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
 
-constexpr enum LanguageExtension operator|(const LanguageExtension first,
-                                           const LanguageExtension second)
+constexpr LanguageExtension operator|(LanguageExtension first, LanguageExtension second)
 {
     return static_cast<LanguageExtension>(
         (static_cast<unsigned char>(first) | static_cast<unsigned char>(second)));
 }
 
-constexpr bool operator&&(const LanguageExtension first, const LanguageExtension second)
+constexpr bool operator&&(LanguageExtension first, LanguageExtension second)
 {
     return static_cast<unsigned char>(first) & static_cast<unsigned char>(second);
 }

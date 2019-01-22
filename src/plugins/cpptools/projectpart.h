@@ -93,7 +93,7 @@ public:
     QString callGroupId;
 
     // Versions, features and extensions
-    ::Utils::Language language = Utils::Language::Cxx;
+    ::Utils::Language language = ::Utils::Language::Cxx;
     ::Utils::LanguageVersion languageVersion = ::Utils::LanguageVersion::LatestCxx;
     ::Utils::LanguageExtensions languageExtensions = ::Utils::LanguageExtension::None;
     CPlusPlus::LanguageFeatures languageFeatures;

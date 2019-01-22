@@ -55,18 +55,18 @@ public:
 
     void pathsChanged(const FilePathIds &filePathIds)
     {
-        using SourceTimeStampPointers = std::vector<SourceTimeStamp*>;
+        using SourceTimeStampReferences = std::vector<std::reference_wrapper<SourceTimeStamp>>;
 
-        class BackInserterIterator : public std::back_insert_iterator<SourceTimeStampPointers>
+        class BackInserterIterator : public std::back_insert_iterator<SourceTimeStampReferences>
         {
         public:
-            BackInserterIterator(SourceTimeStampPointers &container)
-                : std::back_insert_iterator<SourceTimeStampPointers>(container)
+            BackInserterIterator(SourceTimeStampReferences &container)
+                : std::back_insert_iterator<SourceTimeStampReferences>(container)
             {}
 
             BackInserterIterator &operator=(SourceTimeStamp &timeStamp)
             {
-                container->push_back(&timeStamp);
+                container->push_back(std::ref(timeStamp));
 
                 return *this;
             }
@@ -74,7 +74,7 @@ public:
             BackInserterIterator &operator*() { return *this; }
         };
 
-        SourceTimeStampPointers timeStampsToUpdate;
+        SourceTimeStampReferences timeStampsToUpdate;
         timeStampsToUpdate.reserve(filePathIds.size());
 
         std::set_intersection(m_currentSourceTimeStamps.begin(),
@@ -83,9 +83,9 @@ public:
                               filePathIds.end(),
                               BackInserterIterator(timeStampsToUpdate));
 
-        for (SourceTimeStamp *sourceTimeStamp : timeStampsToUpdate) {
-            sourceTimeStamp->lastModified = m_getModifiedTime(
-                m_filePathCache.filePath(sourceTimeStamp->sourceId));
+        for (SourceTimeStamp &sourceTimeStamp : timeStampsToUpdate) {
+            sourceTimeStamp.lastModified = m_getModifiedTime(
+                m_filePathCache.filePath(sourceTimeStamp.sourceId));
         }
     }
 
