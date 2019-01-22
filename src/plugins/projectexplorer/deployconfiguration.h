@@ -79,8 +79,7 @@ public:
     // the name to display to the user
     QString defaultDisplayName() const;
 
-    bool canCreate(Target *parent, Core::Id id) const;
-    virtual DeployConfiguration *create(Target *parent, Core::Id id);
+    DeployConfiguration *create(Target *parent);
 
     static const QList<DeployConfigurationFactory *> find(Target *parent);
     static DeployConfiguration *restore(Target *parent, const QVariantMap &map);

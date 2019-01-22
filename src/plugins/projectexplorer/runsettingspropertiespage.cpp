@@ -61,19 +61,10 @@ struct FactoryAndId
     Core::Id id;
 };
 
-class DeployFactoryAndId
-{
-public:
-    DeployConfigurationFactory *factory;
-    Core::Id id;
-};
-
-
 } // namespace Internal
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Internal::FactoryAndId)
-Q_DECLARE_METATYPE(ProjectExplorer::Internal::DeployFactoryAndId)
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -367,16 +358,10 @@ void RunSettingsWidget::aboutToShowDeployMenu()
 
     for (DeployConfigurationFactory *factory : DeployConfigurationFactory::find(m_target)) {
         QAction *action = m_addDeployMenu->addAction(factory->defaultDisplayName());
-        const Core::Id id = factory->creationId();
-        DeployFactoryAndId data = {factory, id};
-        action->setData(QVariant::fromValue(data));
-        connect(action, &QAction::triggered, [factory, id, this]() {
-            if (!factory->canCreate(m_target, id))
-                return;
-            DeployConfiguration *newDc = factory->create(m_target, id);
+        connect(action, &QAction::triggered, [factory, this]() {
+            DeployConfiguration *newDc = factory->create(m_target);
             if (!newDc)
                 return;
-            QTC_CHECK(!newDc || newDc->id() == id);
             m_target->addDeployConfiguration(newDc);
             SessionManager::setActiveDeployConfiguration(m_target, newDc, SetActive::Cascade);
             m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);

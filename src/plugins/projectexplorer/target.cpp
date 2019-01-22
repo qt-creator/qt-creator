@@ -527,8 +527,8 @@ void Target::updateDefaultDeployConfigurations()
 
     foreach (Core::Id id, toCreate) {
         foreach (DeployConfigurationFactory *dcFactory, dcFactories) {
-            if (dcFactory->canCreate(this, id)) {
-                DeployConfiguration *dc = dcFactory->create(this, id);
+            if (dcFactory->creationId() == id) {
+                DeployConfiguration *dc = dcFactory->create(this);
                 if (dc) {
                     QTC_CHECK(dc->id() == id);
                     addDeployConfiguration(dc);

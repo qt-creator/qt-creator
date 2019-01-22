@@ -190,19 +190,9 @@ void DeployConfigurationFactory::setConfigBaseId(Core::Id deployConfigBaseId)
     m_deployConfigBaseId = deployConfigBaseId;
 }
 
-bool DeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+DeployConfiguration *DeployConfigurationFactory::create(Target *parent)
 {
-    if (!canHandle(parent))
-        return false;
-    if (!id.name().startsWith(m_deployConfigBaseId.name()))
-        return false;
-    return true;
-}
-
-DeployConfiguration *DeployConfigurationFactory::create(Target *parent, Core::Id id)
-{
-    if (!canCreate(parent, id))
-        return nullptr;
+    QTC_ASSERT(canHandle(parent), return nullptr);
     QTC_ASSERT(m_creator, return nullptr);
     DeployConfiguration *dc = m_creator(parent);
     if (!dc)
