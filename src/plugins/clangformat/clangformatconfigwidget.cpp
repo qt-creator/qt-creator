@@ -117,7 +117,7 @@ static QByteArray tableToYAML(QTableWidget *table)
 
 ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *project,
                                                  QWidget *parent)
-    : QWidget(parent)
+    : CodeStyleEditorWidget(parent)
     , m_project(project)
     , m_ui(std::make_unique<Ui::ClangFormatConfigWidget>())
 {
@@ -136,7 +136,8 @@ void ClangFormatConfigWidget::initialize()
     if (lastItem->spacerItem())
         m_ui->verticalLayout->removeItem(lastItem);
 
-    if (m_project && !m_project->projectDirectory().appendPath(SETTINGS_FILE_NAME).exists()) {
+    if (m_project
+        && !m_project->projectDirectory().appendPath(Constants::SETTINGS_FILE_NAME).exists()) {
         m_ui->projectHasClangFormat->setText(tr("No .clang-format file for the project."));
         m_ui->clangFormatOptionsTable->hide();
         m_ui->applyButton->hide();
@@ -158,7 +159,9 @@ void ClangFormatConfigWidget::initialize()
     } else {
         const Project *currentProject = SessionManager::startupProject();
         if (!currentProject
-                || !currentProject->projectDirectory().appendPath(SETTINGS_FILE_NAME).exists()) {
+            || !currentProject->projectDirectory()
+                    .appendPath(Constants::SETTINGS_FILE_NAME)
+                    .exists()) {
             m_ui->projectHasClangFormat->hide();
         } else {
             m_ui->projectHasClangFormat->setText(
@@ -189,9 +192,9 @@ void ClangFormatConfigWidget::apply()
     const QByteArray text = tableToYAML(m_ui->clangFormatOptionsTable);
     QString filePath;
     if (m_project)
-        filePath = m_project->projectDirectory().appendPath(SETTINGS_FILE_NAME).toString();
+        filePath = m_project->projectDirectory().appendPath(Constants::SETTINGS_FILE_NAME).toString();
     else
-        filePath = Core::ICore::userResourcePath() + "/" + SETTINGS_FILE_NAME;
+        filePath = Core::ICore::userResourcePath() + "/" + Constants::SETTINGS_FILE_NAME;
     QFile file(filePath);
     if (!file.open(QFile::WriteOnly))
         return;

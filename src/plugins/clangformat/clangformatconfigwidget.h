@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QWidget>
+#include <texteditor/icodestylepreferencesfactory.h>
 
 #include <memory>
 
@@ -37,7 +37,7 @@ namespace Ui {
 class ClangFormatConfigWidget;
 }
 
-class ClangFormatConfigWidget : public QWidget
+class ClangFormatConfigWidget : public TextEditor::CodeStyleEditorWidget
 {
     Q_OBJECT
 
@@ -45,7 +45,7 @@ public:
     explicit ClangFormatConfigWidget(ProjectExplorer::Project *project = nullptr,
                                      QWidget *parent = nullptr);
     ~ClangFormatConfigWidget() override;
-    void apply();
+    void apply() override;
 
 private:
     void initialize();

@@ -30,6 +30,7 @@
 #include "cppcodeformatter.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <texteditor/icodestylepreferencesfactory.h>
 
 #include <QWidget>
 #include <QPointer>
@@ -37,7 +38,6 @@
 namespace TextEditor {
     class FontSettings;
     class TabSettings;
-    class ICodeStylePreferences;
     class SnippetEditorWidget;
     class CodeStyleEditor;
 }
@@ -91,7 +91,7 @@ public:
 
 private:
     CppCodeStylePreferences *m_pageCppCodeStylePreferences = nullptr;
-    QPointer<QWidget> m_widget;
+    QPointer<TextEditor::CodeStyleEditorWidget> m_widget;
 };
 
 } // namespace Internal

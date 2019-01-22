@@ -43,7 +43,7 @@ using namespace TextEditor;
 
 CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
                                  ICodeStylePreferences *codeStyle, QWidget *parent)
-    : QWidget(parent),
+    : CodeStyleEditorWidget(parent),
       m_factory(factory),
       m_codeStyle(codeStyle)
 {

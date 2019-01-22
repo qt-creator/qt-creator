@@ -556,6 +556,8 @@ void CppCodeStyleSettingsPage::apply()
             originalCppCodeStylePreferences->setCurrentDelegate(m_pageCppCodeStylePreferences->currentDelegate());
             originalCppCodeStylePreferences->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
         }
+
+        m_widget->apply();
     }
 }
 

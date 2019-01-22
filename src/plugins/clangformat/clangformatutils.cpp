@@ -106,9 +106,11 @@ static Utils::FileName globalPath()
     return Utils::FileName::fromString(Core::ICore::userResourcePath());
 }
 
-static bool configForFileExists(Utils::FileName fileName) {
+static bool configForFileExists(Utils::FileName fileName)
+{
     QDir projectDir(fileName.parentDir().toString());
-    while (!projectDir.exists(SETTINGS_FILE_NAME) && !projectDir.exists(SETTINGS_FILE_ALT_NAME)) {
+    while (!projectDir.exists(Constants::SETTINGS_FILE_NAME)
+           && !projectDir.exists(Constants::SETTINGS_FILE_ALT_NAME)) {
         if (!projectDir.cdUp())
             return false;
     }
@@ -137,7 +139,7 @@ static clang::format::FormatStyle constructStyle(bool isGlobal)
 void createStyleFileIfNeeded(bool isGlobal)
 {
     Utils::FileName path = isGlobal ? globalPath() : projectPath();
-    const QString configFile = path.appendPath(SETTINGS_FILE_NAME).toString();
+    const QString configFile = path.appendPath(Constants::SETTINGS_FILE_NAME).toString();
 
     if (QFile::exists(configFile))
         return;
@@ -159,7 +161,7 @@ clang::format::FormatStyle styleForFile(Utils::FileName fileName)
             fileName = globalPath();
             isGlobal = true;
         }
-        fileName.appendPath(SAMPLE_FILE_NAME);
+        fileName.appendPath(Constants::SAMPLE_FILE_NAME);
         createStyleFileIfNeeded(isGlobal);
     }
 
@@ -178,12 +180,12 @@ clang::format::FormatStyle styleForFile(Utils::FileName fileName)
 
 clang::format::FormatStyle currentProjectStyle()
 {
-    return styleForFile(projectPath().appendPath(SAMPLE_FILE_NAME));
+    return styleForFile(projectPath().appendPath(Constants::SAMPLE_FILE_NAME));
 }
 
 clang::format::FormatStyle currentGlobalStyle()
 {
-    return styleForFile(globalPath().appendPath(SAMPLE_FILE_NAME));
+    return styleForFile(globalPath().appendPath(Constants::SAMPLE_FILE_NAME));
 }
 
 }

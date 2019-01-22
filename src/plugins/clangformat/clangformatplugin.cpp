@@ -46,6 +46,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <clang/Format/Format.h>
@@ -71,8 +72,8 @@ ClangFormatPlugin::~ClangFormatPlugin() = default;
 class ClangFormatStyleFactory : public CppTools::CppCodeStylePreferencesFactory
 {
 public:
-    QWidget *createCodeStyleEditor(TextEditor::ICodeStylePreferences *,
-                                   QWidget *parent = nullptr) override
+    TextEditor::CodeStyleEditorWidget *createCodeStyleEditor(
+        TextEditor::ICodeStylePreferences *preferences, QWidget *parent = nullptr) override
     {
         if (!parent)
             return new ClangFormatConfigWidget;

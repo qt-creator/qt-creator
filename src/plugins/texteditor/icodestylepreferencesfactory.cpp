@@ -34,8 +34,8 @@ ICodeStylePreferencesFactory::ICodeStylePreferencesFactory(QObject *parent) :
 {
 }
 
-QWidget *ICodeStylePreferencesFactory::createCodeStyleEditor(ICodeStylePreferences *codeStyle,
-                                                             QWidget *parent)
+CodeStyleEditorWidget *ICodeStylePreferencesFactory::createCodeStyleEditor(
+    ICodeStylePreferences *codeStyle, QWidget *parent)
 {
     return new CodeStyleEditor(this, codeStyle, parent);
 }
