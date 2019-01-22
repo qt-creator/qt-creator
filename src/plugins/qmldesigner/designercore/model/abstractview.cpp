@@ -591,8 +591,6 @@ void AbstractView::activateTimeline(const ModelNode &timeline)
     if (currentTimeline().isValid())
         currentTimeline().toogleRecording(false);
 
-    Internal::WriteLocker locker(m_model.data());
-
     if (model())
         model()->d->notifyCurrentTimelineChanged(timeline);
 }
@@ -614,8 +612,6 @@ void AbstractView::deactivateTimelineRecording()
         currentTimeline().toogleRecording(false);
         currentTimeline().resetGroupRecording();
     }
-
-    Internal::WriteLocker locker(m_model.data());
 
     if (model())
         model()->d->notifyCurrentTimelineChanged(ModelNode());
