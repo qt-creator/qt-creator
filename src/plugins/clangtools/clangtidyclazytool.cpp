@@ -442,7 +442,7 @@ QList<Diagnostic> ClangTidyClazyTool::read(const QString &filePath,
                                            const QString &logFilePath,
                                            QString *errorMessage) const
 {
-    return LogFileReader::readSerialized(filePath, logFilePath, errorMessage);
+    return readSerializedDiagnostics(filePath, logFilePath, errorMessage);
 }
 
 } // namespace Internal

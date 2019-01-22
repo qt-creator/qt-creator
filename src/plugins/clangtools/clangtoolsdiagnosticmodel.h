@@ -123,7 +123,6 @@ private:
 private:
     std::map<QVector<ExplainingStep>, QVector<DiagnosticItem *>> stepsToItemsCache;
     std::unique_ptr<QFileSystemWatcher> m_filesWatcher;
-    QVector<QString> m_allowFileWriteOnce;
     int m_fixItsToApplyCount = 0;
 };
 

@@ -28,21 +28,15 @@
 #include "clangtoolsdiagnostic.h"
 
 #include <QList>
-#include <QCoreApplication>
 
 namespace Utils { class FileName; }
 
 namespace ClangTools {
 namespace Internal {
 
-class LogFileReader
-{
-    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::LogFileReader)
-public:
-    static QList<Diagnostic> readSerialized(const QString &filePath,
+QList<Diagnostic> readSerializedDiagnostics(const QString &filePath,
                                             const QString &logFilePath,
                                             QString *errorMessage);
-};
 
 } // namespace Internal
 } // namespace ClangTools

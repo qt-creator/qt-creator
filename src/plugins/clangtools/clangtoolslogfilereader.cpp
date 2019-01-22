@@ -43,37 +43,6 @@
 namespace ClangTools {
 namespace Internal {
 
-class ClangSerializedDiagnosticsReader
-{
-public:
-    QList<Diagnostic> read(const QString &filePath, const QString &logFilePath);
-};
-
-static bool checkFilePath(const QString &filePath, QString *errorMessage)
-{
-    QFileInfo fi(filePath);
-    if (!fi.exists() || !fi.isReadable()) {
-        if (errorMessage) {
-            *errorMessage
-                    = QString(QT_TRANSLATE_NOOP("LogFileReader",
-                                                "File \"%1\" does not exist or is not readable."))
-                    .arg(filePath);
-        }
-        return false;
-    }
-    return true;
-}
-
-QList<Diagnostic> LogFileReader::readSerialized(const QString &filePath, const QString &logFilePath,
-                                                QString *errorMessage)
-{
-    if (!checkFilePath(logFilePath, errorMessage))
-        return QList<Diagnostic>();
-
-    ClangSerializedDiagnosticsReader reader;
-    return reader.read(filePath, logFilePath);
-}
-
 static QString fromCXString(CXString &&cxString)
 {
     QString result = QString::fromUtf8(clang_getCString(cxString));
@@ -195,8 +164,8 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic, const QString
     return diagnostic;
 }
 
-QList<Diagnostic> ClangSerializedDiagnosticsReader::read(const QString &filePath,
-                                                         const QString &logFilePath)
+static QList<Diagnostic> readSerializedDiagnostics_helper(const QString &filePath,
+                                                          const QString &logFilePath)
 {
     QList<Diagnostic> list;
     CXLoadDiag_Error error;
@@ -226,6 +195,31 @@ QList<Diagnostic> ClangSerializedDiagnosticsReader::read(const QString &filePath
     }
 
     return list;
+}
+
+static bool checkFilePath(const QString &filePath, QString *errorMessage)
+{
+    QFileInfo fi(filePath);
+    if (!fi.exists() || !fi.isReadable()) {
+        if (errorMessage) {
+            *errorMessage
+                    = QString(QT_TRANSLATE_NOOP("LogFileReader",
+                                                "File \"%1\" does not exist or is not readable."))
+                    .arg(filePath);
+        }
+        return false;
+    }
+    return true;
+}
+
+QList<Diagnostic> readSerializedDiagnostics(const QString &filePath,
+                                            const QString &logFilePath,
+                                            QString *errorMessage)
+{
+    if (!checkFilePath(logFilePath, errorMessage))
+        return QList<Diagnostic>();
+
+    return readSerializedDiagnostics_helper(filePath, logFilePath);
 }
 
 } // namespace Internal
