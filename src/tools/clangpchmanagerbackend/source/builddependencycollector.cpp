@@ -55,6 +55,8 @@ BuildDependency BuildDependencyCollector::create(const ProjectPartContainer &pro
     setExcludedFilePaths(
         m_filePathCache.filePaths(projectPart.headerPathIds + projectPart.sourcePathIds));
 
+    addUnsavedFiles(m_generatedFiles.fileContainers());
+
     collect();
 
     auto buildDependency = std::move(m_buildDependency);

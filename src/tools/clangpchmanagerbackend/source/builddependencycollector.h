@@ -28,6 +28,7 @@
 #include "builddependencygeneratorinterface.h"
 
 #include <clangtool.h>
+#include <generatedfilesinterface.h>
 #include <sourcesmanager.h>
 
 #include <filepathcachingfwd.h>
@@ -37,8 +38,10 @@ namespace ClangBackEnd {
 class BuildDependencyCollector : public BuildDependencyGeneratorInterface
 {
 public:
-    BuildDependencyCollector(const FilePathCachingInterface &filePathCache)
-        :  m_filePathCache(filePathCache)
+    BuildDependencyCollector(const FilePathCachingInterface &filePathCache,
+                             const GeneratedFilesInterface &generatedFiles)
+        : m_filePathCache(filePathCache)
+        , m_generatedFiles(generatedFiles)
     {
     }
 
@@ -92,6 +95,7 @@ private:
     Utils::SmallStringVector m_directories;
     SourcesManager m_sourcesManager;
     const FilePathCachingInterface &m_filePathCache;
+    const GeneratedFilesInterface &m_generatedFiles;
 };
 
 } // namespace ClangBackEnd

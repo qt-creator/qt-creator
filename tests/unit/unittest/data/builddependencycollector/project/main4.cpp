@@ -7,3 +7,4 @@
 #include <../external/external2.h>
 #include <system1.h>
 #include "macros.h"
+#include "generated_file.h"

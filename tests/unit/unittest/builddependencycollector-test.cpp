@@ -27,6 +27,7 @@
 
 #include <refactoringdatabaseinitializer.h>
 #include <filepathcaching.h>
+#include <generatedfiles.h>
 #include <builddependencycollector.h>
 
 #include <sqlitedatabase.h>
@@ -161,8 +162,9 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    ClangBackEnd::BuildDependencyCollector collector{filePathCache};
-    ClangBackEnd::BuildDependencyCollector emptyCollector{filePathCache};
+    ClangBackEnd::GeneratedFiles generatedFiles;
+    ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles};
+    ClangBackEnd::BuildDependencyCollector emptyCollector{filePathCache, generatedFiles};
     ClangBackEnd::FilePaths excludePaths = {TESTDATA_DIR "/builddependencycollector/project/main.cpp",
                                             TESTDATA_DIR "/builddependencycollector/project/main2.cpp",
                                             TESTDATA_DIR "/builddependencycollector/project/header1.h",
@@ -527,10 +529,35 @@ TEST_F(BuildDependencyCollector, MissingInclude)
                                SourceType::UserInclude)));
 }
 
+
+TEST_F(BuildDependencyCollector, GeneratedFile)
+{
+    generatedFiles.update(
+        {{TESTDATA_DIR "/builddependencycollector/project/generated_file.h", "#pragma once"}});
+    emptyCollector.addFile(id(TESTDATA_DIR "/builddependencycollector/project/main6.cpp"),
+                           {"cc",
+                            "-I",
+                            TESTDATA_DIR "/builddependencycollector/external",
+                            "-I",
+                            TESTDATA_DIR "/builddependencycollector/project",
+                            "-isystem",
+                            TESTDATA_DIR "/builddependencycollector/system"});
+    emptyCollector.addUnsavedFiles(generatedFiles.fileContainers());
+
+    emptyCollector.collect();
+
+    ASSERT_THAT(emptyCollector.includeIds(),
+                ElementsAre(
+                    HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/generated_file.h"),
+                               SourceType::UserInclude)));
+}
+
 TEST_F(BuildDependencyCollector, Create)
 {
     using ClangBackEnd::IncludeSearchPathType;
-    ClangBackEnd::BuildDependencyCollector collector{filePathCache};
+    ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles};
+    generatedFiles.update(
+        {{TESTDATA_DIR "/builddependencycollector/project/generated_file.h", "#pragma once"}});
     ClangBackEnd::ProjectPartContainer projectPart{
         "project1",
         {},
@@ -570,9 +597,15 @@ TEST_F(BuildDependencyCollector, Create)
                       fileStatus(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
                       fileStatus(TESTDATA_DIR "/builddependencycollector/system/system1.h"),
                       fileStatus(TESTDATA_DIR "/builddependencycollector/system/indirect_system.h"),
-                      fileStatus(TESTDATA_DIR "/builddependencycollector/system/indirect_system2.h"),
+                      fileStatus(TESTDATA_DIR
+                                 "/builddependencycollector/system/indirect_system2.h"),
                       fileStatus(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
-                      fileStatus(TESTDATA_DIR "/builddependencycollector/project/macros.h"))),
+                      fileStatus(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
+                      ClangBackEnd::FileStatus(
+                          id(TESTDATA_DIR "/builddependencycollector/project/generated_file.h"),
+                          12,
+                          0,
+                          false))),
             Field(&BuildDependency::includes,
                   UnorderedElementsAre(
                       HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
@@ -600,13 +633,14 @@ TEST_F(BuildDependencyCollector, Create)
                                     "/builddependencycollector/system/indirect_system2.h"),
                                  SourceType::SystemInclude),
                       HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
-                                 SourceType::UserInclude))),
+                                 SourceType::UserInclude),
+                      HasInclude(id(TESTDATA_DIR
+                                    "/builddependencycollector/project/generated_file.h"),
+                                 SourceType::TopProjectInclude))),
             Field(&BuildDependency::usedMacros,
                   UnorderedElementsAre(
-                      UsedMacro{"DEFINE",
-                                id(TESTDATA_DIR "/builddependencycollector/project/macros.h")},
-                      UsedMacro{"IFDEF",
-                                id(TESTDATA_DIR "/builddependencycollector/project/macros.h")},
+                      UsedMacro{"DEFINE", id(TESTDATA_DIR "/builddependencycollector/project/macros.h")},
+                      UsedMacro{"IFDEF", id(TESTDATA_DIR "/builddependencycollector/project/macros.h")},
                       UsedMacro{"DEFINED",
                                 id(TESTDATA_DIR "/builddependencycollector/project/macros.h")})),
             Field(&BuildDependency::sourceFiles,
@@ -623,14 +657,17 @@ TEST_F(BuildDependencyCollector, Create)
                       id(TESTDATA_DIR "/builddependencycollector/system/indirect_system.h"),
                       id(TESTDATA_DIR "/builddependencycollector/system/indirect_system2.h"),
                       id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
-                      id(TESTDATA_DIR "/builddependencycollector/project/macros.h"))),
+                      id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
+                      id(TESTDATA_DIR "/builddependencycollector/project/generated_file.h"))),
             Field(
                 &BuildDependency::sourceDependencies,
                 UnorderedElementsAre(
                     SourceDependency(id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp"),
-                                     id(TESTDATA_DIR "/builddependencycollector/project/header1.h")),
+                                     id(TESTDATA_DIR
+                                        "/builddependencycollector/project/header1.h")),
                     SourceDependency(id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp"),
-                                     id(TESTDATA_DIR "/builddependencycollector/project/header2.h")),
+                                     id(TESTDATA_DIR
+                                        "/builddependencycollector/project/header2.h")),
                     SourceDependency(id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp"),
                                      id(TESTDATA_DIR
                                         "/builddependencycollector/project/missingfile.h")),
@@ -644,34 +681,33 @@ TEST_F(BuildDependencyCollector, Create)
                                      id(TESTDATA_DIR "/builddependencycollector/system/system1.h")),
                     SourceDependency(id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp"),
                                      id(TESTDATA_DIR "/builddependencycollector/project/macros.h")),
+                    SourceDependency(id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp"),
+                                     id(TESTDATA_DIR
+                                        "/builddependencycollector/project/generated_file.h")),
                     SourceDependency(id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
                                      id(TESTDATA_DIR
                                         "/builddependencycollector/external/external3.h")),
-                    SourceDependency(id(TESTDATA_DIR
-                                        "/builddependencycollector/project/missingfile.h"),
-                                     id(TESTDATA_DIR
-                                        "/builddependencycollector/external/external1.h")),
-                    SourceDependency(id(TESTDATA_DIR
-                                        "/builddependencycollector/external/external1.h"),
-                                     id(TESTDATA_DIR
-                                        "/builddependencycollector/external/indirect_external.h")),
-                    SourceDependency(id(TESTDATA_DIR
-                                        "/builddependencycollector/external/indirect_external.h"),
-                                     id(TESTDATA_DIR
-                                        "/builddependencycollector/external/indirect_external2.h")),
+                    SourceDependency(
+                        id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
+                        id(TESTDATA_DIR "/builddependencycollector/external/external1.h")),
+                    SourceDependency(
+                        id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+                        id(TESTDATA_DIR "/builddependencycollector/external/indirect_external.h")),
+                    SourceDependency(
+                        id(TESTDATA_DIR "/builddependencycollector/external/indirect_external.h"),
+                        id(TESTDATA_DIR "/builddependencycollector/external/indirect_external2.h")),
                     SourceDependency(id(TESTDATA_DIR "/builddependencycollector/system/system1.h"),
                                      id(TESTDATA_DIR
                                         "/builddependencycollector/system/indirect_system.h")),
-                    SourceDependency(id(TESTDATA_DIR
-                                        "/builddependencycollector/system/indirect_system.h"),
-                                     id(TESTDATA_DIR
-                                        "/builddependencycollector/system/indirect_system2.h"))))));
+                    SourceDependency(
+                        id(TESTDATA_DIR "/builddependencycollector/system/indirect_system.h"),
+                        id(TESTDATA_DIR "/builddependencycollector/system/indirect_system2.h"))))));
 }
 
 TEST_F(BuildDependencyCollector, Clear)
 {
     using ClangBackEnd::IncludeSearchPathType;
-    ClangBackEnd::BuildDependencyCollector collector{filePathCache};
+    ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles};
     ClangBackEnd::ProjectPartContainer projectPart{
         "project1",
         {},

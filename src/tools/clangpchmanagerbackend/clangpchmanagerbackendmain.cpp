@@ -192,7 +192,7 @@ struct Data // because we have a cycle dependency
                                             database};
     ClangBackEnd::PchTasksMerger pchTaskMerger{pchTaskQueue};
     ClangBackEnd::BuildDependenciesStorage<> buildDependencyStorage{database};
-    ClangBackEnd::BuildDependencyCollector buildDependencyCollector{filePathCache};
+    ClangBackEnd::BuildDependencyCollector buildDependencyCollector{filePathCache, generatedFiles};
     std::function<TimeStamp(FilePathView filePath)> getModifiedTime{
         [&](ClangBackEnd::FilePathView path) -> TimeStamp {
             return QFileInfo(QString(path)).lastModified().toSecsSinceEpoch();
