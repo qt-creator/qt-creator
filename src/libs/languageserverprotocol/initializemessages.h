@@ -124,7 +124,9 @@ public:
     bool isValid(QStringList *error) const override;
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT InitializeNotification : public Notification<std::nullptr_t>
+using InitializedParams = JsonObject;
+
+class LANGUAGESERVERPROTOCOL_EXPORT InitializeNotification : public Notification<InitializedParams>
 {
 public:
     InitializeNotification();
