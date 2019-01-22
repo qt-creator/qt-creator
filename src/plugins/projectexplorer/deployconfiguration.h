@@ -106,7 +106,7 @@ private:
         Core::Id deployStepId;
         std::function<bool(Target *)> condition; // unset counts as unrestricted
     };
-    DeployConfigurationCreator m_creator;
+    DeployConfiguration *createDeployConfiguration(Target *t);
     Core::Id m_deployConfigBaseId;
     Core::Id m_supportedProjectType;
     QList<Core::Id> m_supportedTargetDeviceTypes;

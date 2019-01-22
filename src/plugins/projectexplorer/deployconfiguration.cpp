@@ -181,27 +181,26 @@ void DeployConfigurationFactory::setUseDeploymentDataView()
 
 void DeployConfigurationFactory::setConfigBaseId(Core::Id deployConfigBaseId)
 {
-    m_creator = [this, deployConfigBaseId](Target *t) {
-        auto dc = new DeployConfiguration(t, deployConfigBaseId);
-        dc->setDefaultDisplayName(m_defaultDisplayName);
-        dc->m_configWidgetCreator = m_configWidgetCreator;
-        return dc;
-    };
     m_deployConfigBaseId = deployConfigBaseId;
+}
+
+DeployConfiguration *DeployConfigurationFactory::createDeployConfiguration(Target *t)
+{
+    auto dc = new DeployConfiguration(t, m_deployConfigBaseId);
+    dc->setDefaultDisplayName(m_defaultDisplayName);
+    dc->m_configWidgetCreator = m_configWidgetCreator;
+    return dc;
 }
 
 DeployConfiguration *DeployConfigurationFactory::create(Target *parent)
 {
     QTC_ASSERT(canHandle(parent), return nullptr);
-    QTC_ASSERT(m_creator, return nullptr);
-    DeployConfiguration *dc = m_creator(parent);
-    if (!dc)
-        return nullptr;
+    DeployConfiguration *dc = createDeployConfiguration(parent);
+    QTC_ASSERT(dc, return nullptr);
     for (const DeployStepCreationInfo &info : qAsConst(m_initialSteps)) {
         if (!info.condition || info.condition(parent))
             dc->stepList()->appendStep(info.deployStepId);
     }
-    dc->m_configWidgetCreator = m_configWidgetCreator;
     return dc;
 }
 
@@ -222,8 +221,7 @@ DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const Q
         });
     if (!factory)
         return nullptr;
-    QTC_ASSERT(factory->m_creator, return nullptr);
-    DeployConfiguration *dc = factory->m_creator(parent);
+    DeployConfiguration *dc = factory->createDeployConfiguration(parent);
     QTC_ASSERT(dc, return nullptr);
     if (!dc->fromMap(map)) {
         delete dc;
