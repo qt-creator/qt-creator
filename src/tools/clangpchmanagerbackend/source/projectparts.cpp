@@ -70,23 +70,6 @@ void ProjectParts::updateDeferred(const ProjectPartContainers &deferredProjectsP
 {
     using ProjectPartContainerReferences = std::vector<std::reference_wrapper<ProjectPartContainer>>;
 
-    class BackInserterIterator : public std::back_insert_iterator<ProjectPartContainerReferences>
-    {
-    public:
-        BackInserterIterator(ProjectPartContainerReferences &container)
-            : std::back_insert_iterator<ProjectPartContainerReferences>(container)
-        {}
-
-        BackInserterIterator &operator=(ProjectPartContainer &projectPart)
-        {
-            container->push_back(std::ref(projectPart));
-
-            return *this;
-        }
-
-        BackInserterIterator &operator*() { return *this; }
-    };
-
     ProjectPartContainerReferences deferredProjectPartPointers;
     deferredProjectPartPointers.reserve(deferredProjectsParts.size());
 
@@ -94,7 +77,7 @@ void ProjectParts::updateDeferred(const ProjectPartContainers &deferredProjectsP
                           m_projectParts.end(),
                           deferredProjectsParts.begin(),
                           deferredProjectsParts.end(),
-                          BackInserterIterator(deferredProjectPartPointers),
+                          std::back_inserter(deferredProjectPartPointers),
                           [](const ProjectPartContainer &first, const ProjectPartContainer &second) {
                               return first.projectPartId < second.projectPartId;
                           });

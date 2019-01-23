@@ -57,23 +57,6 @@ public:
     {
         using SourceTimeStampReferences = std::vector<std::reference_wrapper<SourceTimeStamp>>;
 
-        class BackInserterIterator : public std::back_insert_iterator<SourceTimeStampReferences>
-        {
-        public:
-            BackInserterIterator(SourceTimeStampReferences &container)
-                : std::back_insert_iterator<SourceTimeStampReferences>(container)
-            {}
-
-            BackInserterIterator &operator=(SourceTimeStamp &timeStamp)
-            {
-                container->push_back(std::ref(timeStamp));
-
-                return *this;
-            }
-
-            BackInserterIterator &operator*() { return *this; }
-        };
-
         SourceTimeStampReferences timeStampsToUpdate;
         timeStampsToUpdate.reserve(filePathIds.size());
 
@@ -81,7 +64,7 @@ public:
                               m_currentSourceTimeStamps.end(),
                               filePathIds.begin(),
                               filePathIds.end(),
-                              BackInserterIterator(timeStampsToUpdate));
+                              std::back_inserter(timeStampsToUpdate));
 
         for (SourceTimeStamp &sourceTimeStamp : timeStampsToUpdate) {
             sourceTimeStamp.lastModified = m_getModifiedTime(

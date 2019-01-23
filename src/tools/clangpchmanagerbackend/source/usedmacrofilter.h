@@ -98,23 +98,6 @@ private:
 
     static UsedMacros filterUsedMarcos(const UsedMacros &usedMacros, const FilePathIds &filePathId)
     {
-        class BackInserterIterator : public std::back_insert_iterator<UsedMacros>
-        {
-        public:
-            BackInserterIterator(UsedMacros &container)
-                : std::back_insert_iterator<UsedMacros>(container)
-            {}
-
-            BackInserterIterator &operator=(const UsedMacro &usedMacro)
-            {
-                container->push_back(usedMacro);
-
-                return *this;
-            }
-
-            BackInserterIterator &operator*() { return *this; }
-        };
-
         struct Compare
         {
             bool operator()(const UsedMacro &usedMacro, FilePathId filePathId)
@@ -135,7 +118,7 @@ private:
                               usedMacros.end(),
                               filePathId.begin(),
                               filePathId.end(),
-                              BackInserterIterator(filtertedMacros),
+                              std::back_inserter(filtertedMacros),
                               Compare{});
 
         std::sort(filtertedMacros.begin(),
