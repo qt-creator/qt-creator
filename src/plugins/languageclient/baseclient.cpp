@@ -800,6 +800,11 @@ void BaseClient::parseData(const QByteArray &data)
         }
         m_currentMessage = BaseMessage();
     }
+    if (m_buffer.atEnd()) {
+        m_buffer.close();
+        m_buffer.setData(nullptr);
+        m_buffer.open(QIODevice::ReadWrite | QIODevice::Append);
+    }
 }
 
 StdIOClient::StdIOClient(const QString &executable, const QString &arguments)
