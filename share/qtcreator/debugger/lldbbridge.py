@@ -872,10 +872,8 @@ class Dumper(DumperBase):
         if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
 
-        if os.path.isfile(self.executable_):
-            self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
-        else:
-            self.target = self.debugger.CreateTarget(None, None, None, True, error)
+        exefile = None if self.attachPid_ > 0 else self.executable_
+        self.target = self.debugger.CreateTarget(exefile, None, None, True, error)
 
         if self.nativeMixed:
             self.interpreterEventBreakpoint = \
