@@ -856,16 +856,12 @@ class Dumper(DumperBase):
                 pass
 
         self.ignoreStops = 0
-        self.silentStops = 0
         if platform.system() == 'Linux':
             if self.startMode_ == AttachCore:
                 pass
             else:
                 if self.useTerminal_:
                     self.ignoreStops = 2
-                else:
-                    self.silentStops = 1
-
         else:
             if self.useTerminal_:
                 self.ignoreStops = 1
@@ -1343,8 +1339,6 @@ class Dumper(DumperBase):
                 elif self.ignoreStops > 0:
                     self.ignoreStops -= 1
                     self.process.Continue()
-                elif self.silentStops > 0:
-                    self.silentStops -= 1
                 else:
                     self.reportState("stopped")
             else:
