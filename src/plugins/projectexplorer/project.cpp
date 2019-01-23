@@ -912,15 +912,25 @@ void Project::setPreferredKitPredicate(const Kit::Predicate &predicate)
 
 } // namespace ProjectExplorer
 
+#include <utils/hostosinfo.h>
+
 #include <QTest>
 #include <QSignalSpy>
 
 namespace ProjectExplorer {
 
-const Utils::FileName TEST_PROJECT_PATH = Utils::FileName::fromString("/tmp/foobar/baz.project");
-const Utils::FileName TEST_PROJECT_NONEXISTING_FILE = Utils::FileName::fromString("/tmp/foobar/nothing.cpp");
-const Utils::FileName TEST_PROJECT_CPP_FILE = Utils::FileName::fromString("/tmp/foobar/main.cpp");
-const Utils::FileName TEST_PROJECT_GENERATED_FILE = Utils::FileName::fromString("/tmp/foobar/generated.foo");
+static Utils::FileName constructTestPath(const char *basePath)
+{
+    Utils::FileName drive;
+    if (Utils::HostOsInfo::isWindowsHost())
+        drive = Utils::FileName::fromString("C:");
+    return drive + QLatin1String(basePath);
+}
+
+const Utils::FileName TEST_PROJECT_PATH = constructTestPath("/tmp/foobar/baz.project");
+const Utils::FileName TEST_PROJECT_NONEXISTING_FILE = constructTestPath("/tmp/foobar/nothing.cpp");
+const Utils::FileName TEST_PROJECT_CPP_FILE = constructTestPath("/tmp/foobar/main.cpp");
+const Utils::FileName TEST_PROJECT_GENERATED_FILE = constructTestPath("/tmp/foobar/generated.foo");
 const QString TEST_PROJECT_MIMETYPE = "application/vnd.test.qmakeprofile";
 const QString TEST_PROJECT_DISPLAYNAME = "testProjectFoo";
 const char TEST_PROJECT_ID[] = "Test.Project.Id";
