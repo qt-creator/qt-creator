@@ -603,6 +603,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
         KitManager::deregisterKit(k);
 
     // Delete kit templates:
+    QVERIFY(kitTemplates.removeOne(defaultKit));
     qDeleteAll(kitTemplates);
 }
 
