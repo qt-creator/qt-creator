@@ -509,4 +509,20 @@ TYPED_TEST(CommandLineBuilder, IncludePchPath)
                             "/source/file.cpp"));
 }
 
+TYPED_TEST(CommandLineBuilder, CompilerMacros)
+{
+    this->emptyProjectInfo.compilerMacros = {{"YI", "1", 2}, {"ER", "2", 1}};
+
+    Builder<TypeParam> builder{this->emptyProjectInfo};
+
+    ASSERT_THAT(builder.commandLine,
+                ElementsAre("clang++",
+                            "-x",
+                            "c++-header",
+                            "-std=c++98",
+                            "-nostdinc",
+                            "-nostdlibinc",
+                            "-DER=2",
+                            "-DYI=1"));
+}
 } // namespace

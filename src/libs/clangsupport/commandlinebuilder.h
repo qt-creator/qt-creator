@@ -52,6 +52,7 @@ public:
         addLanguage(projectInfo);
         addLanguageVersion(projectInfo);
         addNoStdIncAndNoStdLibInc();
+        addCompilerMacros(projectInfo.compilerMacros);
         addProjectIncludeSearchPaths(
             sortedIncludeSearchPaths(projectInfo.projectIncludeSearchPaths));
         addSystemAndBuiltInIncludeSearchPaths(
@@ -175,6 +176,20 @@ public:
             commandLine.emplace_back(gnuLanguageVersion(projectInfo.languageVersion));
         else
             commandLine.emplace_back(standardLanguageVersion(projectInfo.languageVersion));
+    }
+
+    void addCompilerMacros(const CompilerMacros &compilerMacros)
+    {
+        CompilerMacros macros = compilerMacros;
+
+        std::sort(macros.begin(),
+                  macros.end(),
+                  [](const CompilerMacro &first, const CompilerMacro &second) {
+                      return first.index < second.index;
+                  });
+
+        for (const CompilerMacro &macro : macros)
+            commandLine.emplace_back(Utils::SmallString{"-D", macro.key, "=", macro.value});
     }
 
     IncludeSearchPaths sortedIncludeSearchPaths(const IncludeSearchPaths &unsortedPaths)
