@@ -48,7 +48,7 @@ private:
 
     QList<QAction *> customActions() const override;
     bool eventFilter(QObject *watched, QEvent *event) override;
-    void setModel(QAbstractItemModel *model) override;
+    void setModel(QAbstractItemModel *theProxyModel) override;
 
     QAction *m_suppressAction;
     bool m_ignoreSetSelectedFixItsCount = false;

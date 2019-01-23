@@ -70,8 +70,9 @@ protected:
             option.rect = QRect(rect.left() + 1, 1, side - 3, side - 3);
             option.state = state;
             painter->save();
-            painter->translate(QPoint(side - 2, 0));
-            QHeaderView::paintSection(painter, rect, logicalIndex);
+            const int shift = side - 2;
+            painter->translate(QPoint(shift, 0));
+            QHeaderView::paintSection(painter, rect.adjusted(0, 0, -shift, 0), logicalIndex);
             painter->restore();
             style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
         }
@@ -79,10 +80,15 @@ protected:
 
     void mouseReleaseEvent(QMouseEvent *event) override
     {
-        if (event->localPos().x() > sectionPosition(DiagnosticView::FixItColumn)) {
+        const int x = event->localPos().x();
+        const int fixItColumnX = sectionPosition(DiagnosticView::FixItColumn);
+        const bool isWithinFixitCheckBox = x > fixItColumnX
+                                           && x < fixItColumnX + sizeHint().height() - 3;
+        if (isWithinFixitCheckBox) {
             state = (state != QStyle::State_On) ? QStyle::State_On : QStyle::State_Off;
             viewport()->update();
             emit fixItColumnClicked(state == QStyle::State_On);
+            return; // Avoid changing sort order
         }
         QHeaderView::mouseReleaseEvent(event);
     }
@@ -168,16 +174,19 @@ void DiagnosticView::setSelectedFixItsCount(int fixItsCount)
     clickableFixItHeader->viewport()->update();
 }
 
-void DiagnosticView::setModel(QAbstractItemModel *model)
+void DiagnosticView::setModel(QAbstractItemModel *theProxyModel)
 {
-    Debugger::DetailedErrorView::setModel(model);
+    const auto proxyModel = static_cast<QSortFilterProxyModel *>(theProxyModel);
+    QAbstractItemModel *sourceModel = proxyModel->sourceModel();
+
+    Debugger::DetailedErrorView::setModel(proxyModel);
     auto *clickableFixItHeader = new ClickableFixItHeader(Qt::Horizontal, this);
     connect(clickableFixItHeader, &ClickableFixItHeader::fixItColumnClicked,
             this, [=](bool checked) {
         m_ignoreSetSelectedFixItsCount = true;
-        for (int row = 0; row < model->rowCount(); ++row) {
-            QModelIndex index = model->index(row, FixItColumn, QModelIndex());
-            model->setData(index, checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
+        for (int row = 0; row < sourceModel->rowCount(); ++row) {
+            QModelIndex index = sourceModel->index(row, FixItColumn, QModelIndex());
+            sourceModel->setData(index, checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
         }
         m_ignoreSetSelectedFixItsCount = false;
     });
@@ -189,7 +198,7 @@ void DiagnosticView::setModel(QAbstractItemModel *model)
 
     const int fixitColumnWidth = clickableFixItHeader->sectionSizeHint(DiagnosticView::FixItColumn);
     const int checkboxWidth = clickableFixItHeader->height();
-    clickableFixItHeader->setMinimumSectionSize(fixitColumnWidth + checkboxWidth);
+    clickableFixItHeader->setMinimumSectionSize(fixitColumnWidth + 1.2 * checkboxWidth);
 }
 
 } // namespace Internal

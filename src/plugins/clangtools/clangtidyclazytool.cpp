@@ -210,10 +210,13 @@ ClangTidyClazyTool::ClangTidyClazyTool()
 
     m_diagnosticFilterModel = new DiagnosticFilterModel(this);
     m_diagnosticFilterModel->setSourceModel(m_diagnosticModel);
+    m_diagnosticFilterModel->setDynamicSortFilter(true);
 
     m_diagnosticView = new DiagnosticView;
     initDiagnosticView();
     m_diagnosticView->setModel(m_diagnosticFilterModel);
+    m_diagnosticView->setSortingEnabled(true);
+    m_diagnosticView->sortByColumn(Debugger::DetailedErrorView::LocationColumn, Qt::AscendingOrder);
     m_diagnosticView->setObjectName(QLatin1String("ClangTidyClazyIssuesView"));
     m_diagnosticView->setWindowTitle(tr("Clang-Tidy and Clazy Issues"));
 
