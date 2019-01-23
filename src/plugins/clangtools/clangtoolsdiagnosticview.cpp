@@ -77,14 +77,14 @@ protected:
         }
     }
 
-    void mousePressEvent(QMouseEvent *event) override
+    void mouseReleaseEvent(QMouseEvent *event) override
     {
         if (event->localPos().x() > sectionPosition(DiagnosticView::FixItColumn)) {
             state = (state != QStyle::State_On) ? QStyle::State_On : QStyle::State_Off;
             viewport()->update();
             emit fixItColumnClicked(state == QStyle::State_On);
         }
-        QHeaderView::mousePressEvent(event);
+        QHeaderView::mouseReleaseEvent(event);
     }
 
 signals:
