@@ -131,7 +131,6 @@ public:
 
     void setupHelpEngineIfNeeded();
 
-    void highlightSearchTermsInContextHelp();
     HelpViewer *showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
 
     void slotSystemInformation();
@@ -163,8 +162,6 @@ public:
     bool m_setupNeeded = true;
     LocalHelpManager m_localHelpManager;
     OpenPagesManager m_openPagesManager;
-
-    QString m_contextHelpHighlightId;
 
     QPointer<HelpWidget> m_externalWindow;
     QRect m_externalWindowState;
@@ -408,8 +405,6 @@ HelpWidget *HelpPluginPrivate::createHelpWidget(const Context &context, HelpWidg
 {
     auto widget = new HelpWidget(context, style);
 
-    connect(widget->currentViewer(), &HelpViewer::loadFinished,
-            this, &HelpPluginPrivate::highlightSearchTermsInContextHelp);
     connect(widget, &HelpWidget::openHelpMode, this, [this](const QUrl &url) {
         showHelpUrl(url, Core::HelpManager::HelpModeAlways);
     });
@@ -624,10 +619,8 @@ HelpViewer *HelpPluginPrivate::viewerForContextHelp()
     return viewerForHelpViewerLocation(LocalHelpManager::contextHelpOption());
 }
 
-static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
+static QUrl findBestLink(const QMap<QString, QUrl> &links)
 {
-    if (highlightId)
-        highlightId->clear();
     if (links.isEmpty())
         return QUrl();
     QUrl source = links.constBegin().value();
@@ -643,8 +636,6 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
                 if (tmpVersion > version) {
                     source = link;
                     version = tmpVersion;
-                    if (highlightId)
-                        *highlightId = source.fragment();
                 }
             }
         }
@@ -670,7 +661,7 @@ void HelpPluginPrivate::showContextHelp(const QString &contextHelpId)
     if (links.isEmpty() && LocalHelpManager::isValidUrl(contextHelpId))
         links.insert(contextHelpId, contextHelpId);
 
-    QUrl source = findBestLink(links, &m_contextHelpHighlightId);
+    QUrl source = findBestLink(links);
     if (!source.isValid()) {
         // No link found or no context object
         HelpViewer *viewer = showHelpUrl(QUrl(Help::Constants::AboutBlank),
@@ -688,7 +679,7 @@ void HelpPluginPrivate::showContextHelp(const QString &contextHelpId)
                                 .arg(HelpPlugin::tr("No documentation available.")));
         }
     } else {
-        showHelpUrl(source, LocalHelpManager::contextHelpOption());  // triggers loadFinished which triggers id highlighting
+        showHelpUrl(source, LocalHelpManager::contextHelpOption());
     }
 }
 
@@ -702,16 +693,6 @@ void HelpPluginPrivate::activateContents()
 {
     activateHelpMode();
     m_centralWidget->activateSideBarItem(Constants::HELP_CONTENTS);
-}
-
-void HelpPluginPrivate::highlightSearchTermsInContextHelp()
-{
-    if (m_contextHelpHighlightId.isEmpty())
-        return;
-    HelpViewer *viewer = viewerForContextHelp();
-    QTC_ASSERT(viewer, return);
-    viewer->highlightId(m_contextHelpHighlightId);
-    m_contextHelpHighlightId.clear();
 }
 
 HelpViewer *HelpPluginPrivate::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location)

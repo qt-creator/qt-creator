@@ -81,7 +81,6 @@ public:
     QUrl source() const override;
     void setSource(const QUrl &url) override;
     void scrollToAnchor(const QString &anchor);
-    void highlightId(const QString &id) override { Q_UNUSED(id) }
 
     void setHtml(const QString &html) override;
 
