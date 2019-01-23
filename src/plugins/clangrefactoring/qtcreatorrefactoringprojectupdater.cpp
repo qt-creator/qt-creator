@@ -84,7 +84,7 @@ void QtCreatorRefactoringProjectUpdater::connectToCppModelManager()
 
     QObject::connect(cppModelManager(),
                      &CppTools::CppModelManager::abstractEditorSupportContentsUpdated,
-                     [&] (const QString &filePath, const QByteArray &contents) {
+                     [&] (const QString &filePath, const QString &, const QByteArray &contents) {
         abstractEditorUpdated(filePath, contents);
     });
 

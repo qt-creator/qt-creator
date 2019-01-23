@@ -103,9 +103,11 @@ private:
                          [&] (const QStringList &projectPartIds) { projectPartsRemoved(projectPartIds); });
         QObject::connect(Internal::cppModelManager(),
                          &CppTools::CppModelManager::abstractEditorSupportContentsUpdated,
-                         [&] (const QString &filePath, const QByteArray &contents) {
-            abstractEditorUpdated(filePath, contents);
-        });
+                         [&](const QString &filePath,
+                             const QString &,
+                             const QByteArray &contents) {
+                             abstractEditorUpdated(filePath, contents);
+                         });
         QObject::connect(Internal::cppModelManager(),
                          &CppTools::CppModelManager::abstractEditorSupportRemoved,
                          [&] (const QString &filePath) { abstractEditorRemoved(filePath); });

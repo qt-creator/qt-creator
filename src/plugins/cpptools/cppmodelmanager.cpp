@@ -1188,9 +1188,10 @@ void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
 }
 
 void CppModelManager::emitAbstractEditorSupportContentsUpdated(const QString &filePath,
+                                                               const QString &sourcePath,
                                                                const QByteArray &contents)
 {
-    emit abstractEditorSupportContentsUpdated(filePath, contents);
+    emit abstractEditorSupportContentsUpdated(filePath, sourcePath, contents);
 }
 
 void CppModelManager::emitAbstractEditorSupportRemoved(const QString &filePath)

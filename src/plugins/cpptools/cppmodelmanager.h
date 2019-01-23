@@ -137,6 +137,7 @@ public:
 
     void emitDocumentUpdated(Document::Ptr doc);
     void emitAbstractEditorSupportContentsUpdated(const QString &filePath,
+                                                  const QString &sourcePath,
                                                   const QByteArray &contents);
     void emitAbstractEditorSupportRemoved(const QString &filePath);
 
@@ -243,7 +244,9 @@ signals:
 
     void gcFinished(); // Needed for tests.
 
-    void abstractEditorSupportContentsUpdated(const QString &filePath, const QByteArray &contents);
+    void abstractEditorSupportContentsUpdated(const QString &filePath,
+                                              const QString &sourcePath,
+                                              const QByteArray &contents);
     void abstractEditorSupportRemoved(const QString &filePath);
 
 public slots:

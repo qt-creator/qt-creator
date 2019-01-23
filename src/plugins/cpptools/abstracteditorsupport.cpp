@@ -54,7 +54,7 @@ void AbstractEditorSupport::updateDocument()
 
 void AbstractEditorSupport::notifyAboutUpdatedContents() const
 {
-    m_modelmanager->emitAbstractEditorSupportContentsUpdated(fileName(), contents());
+    m_modelmanager->emitAbstractEditorSupportContentsUpdated(fileName(), sourceFileName(), contents());
 }
 
 QString AbstractEditorSupport::licenseTemplate(const QString &file, const QString &className)

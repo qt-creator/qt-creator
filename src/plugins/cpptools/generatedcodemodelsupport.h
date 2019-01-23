@@ -54,6 +54,7 @@ public:
     /// \returns the contents encoded in UTF-8.
     QByteArray contents() const override;
     QString fileName() const override; // The generated file
+    QString sourceFileName() const override;
 
     static void update(const QList<ProjectExplorer::ExtraCompiler *> &generators);
 

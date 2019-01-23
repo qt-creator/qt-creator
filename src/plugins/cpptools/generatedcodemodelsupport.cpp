@@ -108,6 +108,11 @@ QString GeneratedCodeModelSupport::fileName() const
     return m_generatedFileName.toString();
 }
 
+QString GeneratedCodeModelSupport::sourceFileName() const
+{
+    return m_generator->source().toString();
+}
+
 void GeneratedCodeModelSupport::update(const QList<ProjectExplorer::ExtraCompiler *> &generators)
 {
     static QObjectCache extraCompilerCache;

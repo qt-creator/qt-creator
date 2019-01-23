@@ -94,7 +94,9 @@ private:
     void onCppDocumentReloadFinishedOnUnsavedFile(bool success);
     void onCppDocumentContentsChangedOnUnsavedFile();
 
-    void onAbstractEditorSupportContentsUpdated(const QString &filePath, const QByteArray &content);
+    void onAbstractEditorSupportContentsUpdated(const QString &filePath,
+                                                const QString &sourceFilePath,
+                                                const QByteArray &content);
     void onAbstractEditorSupportRemoved(const QString &filePath);
 
     void onTextMarkContextMenuRequested(TextEditor::TextEditorWidget *widget,

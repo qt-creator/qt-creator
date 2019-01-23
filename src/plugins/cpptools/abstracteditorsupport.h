@@ -43,6 +43,7 @@ public:
     /// \returns the contents, encoded as UTF-8
     virtual QByteArray contents() const = 0;
     virtual QString fileName() const = 0;
+    virtual QString sourceFileName() const = 0;
 
     void updateDocument();
     void notifyAboutUpdatedContents() const;

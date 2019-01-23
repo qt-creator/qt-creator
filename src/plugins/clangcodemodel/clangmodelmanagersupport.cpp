@@ -293,6 +293,7 @@ void ClangModelManagerSupport::onCppDocumentContentsChangedOnUnsavedFile()
 }
 
 void ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated(const QString &filePath,
+                                                                      const QString &,
                                                                       const QByteArray &content)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
