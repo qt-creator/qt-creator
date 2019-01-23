@@ -57,7 +57,10 @@ public:
         const Utils::SmallStringVector &commandLineArguments,
         const CompilerMacros &compilerMacros,
         const ClangBackEnd::IncludeSearchPaths &systemIncludeSearchPaths,
-        const ClangBackEnd::IncludeSearchPaths &projectIncludeSearchPaths)
+        const ClangBackEnd::IncludeSearchPaths &projectIncludeSearchPaths,
+        Utils::Language language,
+        Utils::LanguageVersion languageVersion,
+        Utils::LanguageExtension languageExtension)
         = 0;
     virtual void updateProjectPartSources(int projectPartId, const FilePathIds &sourceFilePathIds) = 0;
     virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(

@@ -28,6 +28,7 @@
 #include <commandlinebuilder.h>
 #include <pchtask.h>
 #include <projectpartcontainer.h>
+#include <projectpartartefact.h>
 
 namespace {
 template<typename ProjectInfo>
@@ -86,7 +87,37 @@ public:
                                                       Utils::LanguageExtension::None};
 };
 
-using ProjectInfos = testing::Types<ClangBackEnd::PchTask, ClangBackEnd::ProjectPartContainer>;
+template <>
+class CommandLineBuilder<ClangBackEnd::ProjectPartArtefact> : public testing::Test
+{
+public:
+    CommandLineBuilder()
+    {
+        cppProjectInfo.language = Utils::Language::Cxx;
+    }
+
+public:
+    ClangBackEnd::ProjectPartArtefact emptyProjectInfo{{},
+                                                       {},
+                                                       {},
+                                                       {},
+                                                       {},
+                                                       Utils::Language::Cxx,
+                                                       Utils::LanguageVersion::CXX98,
+                                                       Utils::LanguageExtension::None};
+    ClangBackEnd::ProjectPartArtefact cppProjectInfo{{},
+                                                     {},
+                                                     {},
+                                                     {},
+                                                     {},
+                                                     Utils::Language::Cxx,
+                                                     Utils::LanguageVersion::CXX98,
+                                                     Utils::LanguageExtension::None};
+};
+
+using ProjectInfos = testing::Types<ClangBackEnd::PchTask,
+                                    ClangBackEnd::ProjectPartContainer,
+                                    ClangBackEnd::ProjectPartArtefact>;
 TYPED_TEST_SUITE(CommandLineBuilder, ProjectInfos);
 
 TYPED_TEST(CommandLineBuilder, AddToolChainArguments)

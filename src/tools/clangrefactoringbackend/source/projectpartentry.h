@@ -37,20 +37,22 @@ public:
     ProjectPartEntry(Utils::SmallStringView projectPathName,
                      const FilePathIds &filePathIds,
                      Utils::SmallStringVector &&compilerArguments)
-        : projectPathName(projectPathName), filePathIds(filePathIds), compilerArguments(compilerArguments)
+        : projectPathName(projectPathName)
+        , filePathIds(filePathIds)
+        , toolChainArguments(compilerArguments)
     {}
 
     friend bool operator==(const ProjectPartEntry &first, const ProjectPartEntry &second)
     {
         return first.projectPathName == second.projectPathName
-            && first.filePathIds == second.filePathIds
-            && first.compilerArguments == second.compilerArguments;
+               && first.filePathIds == second.filePathIds
+               && first.toolChainArguments == second.toolChainArguments;
     }
 
 public:
     Utils::PathString projectPathName;
     FilePathIds filePathIds;
-    Utils::SmallStringVector compilerArguments;
+    Utils::SmallStringVector toolChainArguments;
 };
 
 using ProjectPartEntries = std::vector<ProjectPartEntry>;

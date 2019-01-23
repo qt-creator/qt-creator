@@ -1023,7 +1023,7 @@ std::ostream &operator<<(std::ostream &out, const SourceDependency &sourceDepend
 std::ostream &operator<<(std::ostream &out, const ProjectPartArtefact &projectPartArtefact)
 {
     return out << "("
-               << projectPartArtefact.compilerArguments << ", "
+               << projectPartArtefact.toolChainArguments << ", "
                << projectPartArtefact.compilerMacros
                <<")";
 }

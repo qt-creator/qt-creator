@@ -94,7 +94,10 @@ protected:
                                                R"([["FOO","1",1]])",
                                                systemIncludeSearchPathsText,
                                                projectIncludeSearchPathsText,
-                                               74};
+                                               74,
+                                               Utils::Language::Cxx,
+                                               Utils::LanguageVersion::CXX11,
+                                               Utils::LanguageExtension::None};
 };
 
 TEST_F(SymbolStorage, CreateAndFillTemporaryLocationsTable)
@@ -192,13 +195,22 @@ TEST_F(SymbolStorage, InsertOrUpdateProjectPart)
                       TypedEq<Utils::SmallStringView>(R"(["foo"])"),
                       TypedEq<Utils::SmallStringView>(R"([["FOO","1",1]])"),
                       TypedEq<Utils::SmallStringView>(systemIncludeSearchPathsText),
-                      TypedEq<Utils::SmallStringView>(projectIncludeSearchPathsText)));
+                      TypedEq<Utils::SmallStringView>(projectIncludeSearchPathsText),
+                      1,
+                      34,
+                      0));
     EXPECT_CALL(
         getProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("project")))
         .WillOnce(Return(74));
 
-    storage.insertOrUpdateProjectPart(
-        "project", {"foo"}, {{"FOO", "1", 1}}, systemIncludeSearchPaths, projectIncludeSearchPaths);
+    storage.insertOrUpdateProjectPart("project",
+                                      {"foo"},
+                                      {{"FOO", "1", 1}},
+                                      systemIncludeSearchPaths,
+                                      projectIncludeSearchPaths,
+                                      Utils::Language::Cxx,
+                                      Utils::LanguageVersion::CXX11,
+                                      Utils::LanguageExtension::None);
 }
 
 

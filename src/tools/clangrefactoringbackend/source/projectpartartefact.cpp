@@ -121,7 +121,7 @@ void ProjectPartArtefact::checkError(const char *whatError, const QJsonParseErro
 
 bool operator==(const ProjectPartArtefact &first, const ProjectPartArtefact &second)
 {
-    return first.compilerArguments == second.compilerArguments
+    return first.toolChainArguments == second.toolChainArguments
            && first.compilerMacros == second.compilerMacros
            && first.systemIncludeSearchPaths == second.systemIncludeSearchPaths
            && first.projectIncludeSearchPaths == second.projectIncludeSearchPaths;

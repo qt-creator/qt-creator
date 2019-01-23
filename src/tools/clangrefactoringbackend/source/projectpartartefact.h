@@ -27,6 +27,7 @@
 
 #include "projectpartartefactexception.h"
 
+#include <utils/cpplanguage_details.h>
 #include <utils/smallstringvector.h>
 
 #include <compilermacro.h>
@@ -44,12 +45,36 @@ public:
                         Utils::SmallStringView compilerMacrosText,
                         Utils::SmallStringView systemIncludeSearchPathsText,
                         Utils::SmallStringView projectIncludeSearchPathsText,
-                        int projectPartId)
-        : compilerArguments(toStringVector(compilerArgumentsText))
+                        int projectPartId,
+                        int language,
+                        int languageVersion,
+                        int languageExtension)
+        : toolChainArguments(toStringVector(compilerArgumentsText))
         , compilerMacros(toCompilerMacros(compilerMacrosText))
         , systemIncludeSearchPaths(toIncludeSearchPaths(systemIncludeSearchPathsText))
         , projectIncludeSearchPaths(toIncludeSearchPaths(projectIncludeSearchPathsText))
         , projectPartId(projectPartId)
+        , language(static_cast<Utils::Language>(language))
+        , languageVersion(static_cast<Utils::LanguageVersion>(languageVersion))
+        , languageExtension(static_cast<Utils::LanguageExtension>(languageExtension))
+    {}
+
+    ProjectPartArtefact(Utils::SmallStringView compilerArgumentsText,
+                        Utils::SmallStringView compilerMacrosText,
+                        Utils::SmallStringView systemIncludeSearchPathsText,
+                        Utils::SmallStringView projectIncludeSearchPathsText,
+                        int projectPartId,
+                        Utils::Language language,
+                        Utils::LanguageVersion languageVersion,
+                        Utils::LanguageExtension languageExtension)
+        : toolChainArguments(toStringVector(compilerArgumentsText))
+        , compilerMacros(toCompilerMacros(compilerMacrosText))
+        , systemIncludeSearchPaths(toIncludeSearchPaths(systemIncludeSearchPathsText))
+        , projectIncludeSearchPaths(toIncludeSearchPaths(projectIncludeSearchPathsText))
+        , projectPartId(projectPartId)
+        , language(language)
+        , languageVersion(languageVersion)
+        , languageExtension(languageExtension)
     {}
 
     static Utils::SmallStringVector toStringVector(Utils::SmallStringView jsonText);
@@ -62,11 +87,14 @@ public:
     friend bool operator==(const ProjectPartArtefact &first, const ProjectPartArtefact &second);
 
 public:
-    Utils::SmallStringVector compilerArguments;
+    Utils::SmallStringVector toolChainArguments;
     CompilerMacros compilerMacros;
     IncludeSearchPaths systemIncludeSearchPaths;
     IncludeSearchPaths projectIncludeSearchPaths;
     int projectPartId = -1;
+    Utils::Language language = Utils::Language::Cxx;
+    Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX98;
+    Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None;
 };
 
 using ProjectPartArtefacts = std::vector<ProjectPartArtefact>;

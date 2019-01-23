@@ -123,10 +123,13 @@ public:
         table.setName("projectParts");
         table.addColumn("projectPartId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         const Sqlite::Column &projectPartNameColumn = table.addColumn("projectPartName", Sqlite::ColumnType::Text);
-        table.addColumn("compilerArguments", Sqlite::ColumnType::Text);
+        table.addColumn("toolChainArguments", Sqlite::ColumnType::Text);
         table.addColumn("compilerMacros", Sqlite::ColumnType::Text);
         table.addColumn("systemIncludeSearchPaths", Sqlite::ColumnType::Text);
         table.addColumn("projectIncludeSearchPaths", Sqlite::ColumnType::Text);
+        table.addColumn("language", Sqlite::ColumnType::Integer);
+        table.addColumn("languageVersion", Sqlite::ColumnType::Integer);
+        table.addColumn("languageExtension", Sqlite::ColumnType::Integer);
         table.addUniqueIndex({projectPartNameColumn});
 
         table.initialize(database);

@@ -33,6 +33,8 @@
 #include <sqlitetable.h>
 #include <includesearchpath.h>
 
+#include <utils/cpplanguage_details.h>
+
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -69,21 +71,27 @@ public:
     }
 
     int insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
-                                  const Utils::SmallStringVector &commandLineArguments,
+                                  const Utils::SmallStringVector &toolChainArguments,
                                   const CompilerMacros &compilerMacros,
                                   const IncludeSearchPaths &systemIncludeSearchPaths,
-                                  const IncludeSearchPaths &projectIncludeSearchPaths) override
+                                  const IncludeSearchPaths &projectIncludeSearchPaths,
+                                  Utils::Language language,
+                                  Utils::LanguageVersion languageVersion,
+                                  Utils::LanguageExtension languageExtension) override
     {
-        Utils::SmallString compilerArguementsAsJson = toJson(commandLineArguments);
+        Utils::SmallString toolChainArgumentsAsJson = toJson(toolChainArguments);
         Utils::SmallString compilerMacrosAsJson = toJson(compilerMacros);
         Utils::SmallString systemIncludeSearchPathsAsJason = toJson(systemIncludeSearchPaths);
         Utils::SmallString projectIncludeSearchPathsAsJason = toJson(projectIncludeSearchPaths);
 
         m_insertOrUpdateProjectPartStatement.write(projectPartName,
-                                                   compilerArguementsAsJson,
+                                                   toolChainArgumentsAsJson,
                                                    compilerMacrosAsJson,
                                                    systemIncludeSearchPathsAsJason,
-                                                   projectIncludeSearchPathsAsJason);
+                                                   projectIncludeSearchPathsAsJason,
+                                                   static_cast<int>(language),
+                                                   static_cast<int>(languageVersion),
+                                                   static_cast<int>(languageExtension));
 
         auto projectPartId = m_getProjectPartIdStatement.template value<int>(projectPartName);
 
@@ -94,14 +102,14 @@ public:
     {
         ReadStatement &statement = m_getProjectPartArtefactsBySourceId;
 
-        return statement.template value<ProjectPartArtefact, 5>(sourceId.filePathId);
+        return statement.template value<ProjectPartArtefact, 8>(sourceId.filePathId);
     }
 
     Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(Utils::SmallStringView projectPartName) const override
     {
         ReadStatement &statement = m_getProjectPartArtefactsByProjectPartName;
 
-        return statement.template value<ProjectPartArtefact, 5>(projectPartName);
+        return statement.template value<ProjectPartArtefact, 8>(projectPartName);
     }
 
     void updateProjectPartSources(int projectPartId,
@@ -308,10 +316,12 @@ public:
         m_database
     };
     WriteStatement m_insertOrUpdateProjectPartStatement{
-        "INSERT INTO projectParts(projectPartName, compilerArguments, compilerMacros, "
-        "systemIncludeSearchPaths, projectIncludeSearchPaths) VALUES (?001,?002,?003,?004,?005) ON "
-        "CONFLICT(projectPartName) DO UPDATE SET compilerArguments=?002, compilerMacros=?003, "
-        "systemIncludeSearchPaths=?004, projectIncludeSearchPaths=?005",
+        "INSERT INTO projectParts(projectPartName, toolChainArguments, compilerMacros, "
+        "systemIncludeSearchPaths, projectIncludeSearchPaths, language, languageVersion, "
+        "languageExtension) VALUES (?001,?002,?003,?004,?005,?006,?007,?008) ON "
+        "CONFLICT(projectPartName) DO UPDATE SET toolChainArguments=?002, compilerMacros=?003, "
+        "systemIncludeSearchPaths=?004, projectIncludeSearchPaths=?005, language=?006, "
+        "languageVersion=?007, languageExtension=?008",
         m_database};
     mutable ReadStatement m_getProjectPartIdStatement{
         "SELECT projectPartId FROM projectParts WHERE projectPartName = ?",
@@ -326,16 +336,16 @@ public:
         m_database
     };
     mutable ReadStatement m_getCompileArgumentsForFileIdStatement{
-        "SELECT compilerArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM projectPartsSources WHERE sourceId = ?)",
-        m_database
-    };
+        "SELECT toolChainArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId "
+        "FROM projectPartsSources WHERE sourceId = ?)",
+        m_database};
     mutable ReadStatement m_getProjectPartArtefactsBySourceId{
-        "SELECT compilerArguments, compilerMacros, systemIncludeSearchPaths, projectIncludeSearchPaths, "
-        "projectPartId FROM projectParts WHERE projectPartId = (SELECT projectPartId FROM "
-        "projectPartsSources WHERE sourceId = ?)",
+        "SELECT toolChainArguments, compilerMacros, systemIncludeSearchPaths, "
+        "projectIncludeSearchPaths, projectPartId FROM projectParts WHERE projectPartId = (SELECT "
+        "projectPartId FROM projectPartsSources WHERE sourceId = ?)",
         m_database};
     mutable ReadStatement m_getProjectPartArtefactsByProjectPartName{
-        "SELECT compilerArguments, compilerMacros, systemIncludeSearchPaths, "
+        "SELECT toolChainArguments, compilerMacros, systemIncludeSearchPaths, "
         "projectIncludeSearchPaths, projectPartId FROM projectParts WHERE projectPartName = ?",
         m_database};
     mutable ReadStatement m_getPrecompiledHeader{

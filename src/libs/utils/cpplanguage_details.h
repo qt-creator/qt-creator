@@ -37,7 +37,7 @@ enum class LanguageVersion : unsigned char {
     C11,
     C18,
     LatestC = C18,
-    CXX98,
+    CXX98 = 32,
     CXX03,
     CXX11,
     CXX14,
