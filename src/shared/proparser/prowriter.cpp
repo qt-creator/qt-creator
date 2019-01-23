@@ -244,23 +244,38 @@ bool ProWriter::locateVarValues(const ushort *tokPtr, const ushort *tokPtrEnd,
     return false;
 }
 
+struct LineInfo
+{
+    int continuationPos = 0;
+    bool hasComment = false;
+};
+
+static LineInfo lineInfo(const QString &line)
+{
+    LineInfo li;
+    li.continuationPos = line.length();
+    const int idx = line.indexOf('#');
+    li.hasComment = idx >= 0;
+    if (li.hasComment)
+        li.continuationPos = idx;
+    for (int i = idx - 1; i >= 0 && (line.at(i) == ' ' || line.at(i) == '\t'); --i)
+        --li.continuationPos;
+    return li;
+}
+
 static int skipContLines(QStringList *lines, int lineNo, bool addCont)
 {
     for (; lineNo < lines->count(); lineNo++) {
-        QString line = lines->at(lineNo);
-        int idx = line.indexOf(QLatin1Char('#'));
-        if (idx >= 0)
-            line.truncate(idx);
-        while (line.endsWith(QLatin1Char(' ')) || line.endsWith(QLatin1Char('\t')))
-            line.chop(1);
-        if (line.isEmpty()) {
-            if (idx >= 0)
+        const QString line = lines->at(lineNo);
+        LineInfo li = lineInfo(line);
+        if (li.continuationPos == 0) {
+            if (li.hasComment)
                 continue;
             break;
         }
-        if (!line.endsWith(QLatin1Char('\\'))) {
+        if (line.at(li.continuationPos - 1) != '\\') {
             if (addCont)
-                (*lines)[lineNo].insert(line.length(), QLatin1String(" \\"));
+                (*lines)[lineNo].insert(li.continuationPos, " \\");
             lineNo++;
             break;
         }
@@ -287,12 +302,21 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines,
             foreach (const QString &v, values)
                 line += ((flags & MultiLine) ? QLatin1String(" \\\n    ") + indent : QString::fromLatin1(" ")) + v;
         } else {
-            lineNo = skipContLines(lines, lineNo, true);
-            QString added;
-            foreach (const QString &v, values)
-                added += QLatin1String("    ") + indent + v + QLatin1String(" \\\n");
-            added.chop(3);
-            lines->insert(lineNo, added);
+            int endLineNo = skipContLines(lines, lineNo, false);
+            for (const QString &v : values) {
+                int curLineNo = lineNo + 1;
+                while (curLineNo < endLineNo && v >= lines->at(curLineNo).trimmed())
+                    ++curLineNo;
+                QString newLine = "    " + indent + v;
+                if (curLineNo == endLineNo) {
+                    QString &oldLastLine = (*lines)[endLineNo - 1];
+                    oldLastLine.insert(lineInfo(oldLastLine).continuationPos, " \\");
+                } else {
+                    newLine += " \\";
+                }
+                lines->insert(curLineNo, newLine);
+                ++endLineNo;
+            }
         }
     } else {
         // Create & append new variable item

@@ -208,6 +208,34 @@ void tst_ProFileWriter::adds_data()
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
+            "insert at end", f_foo_bar, 0,
+            "SOURCES = some files",
+            "SOURCES = some files \\\n"
+            "    bar \\\n"
+            "    foo"
+        },
+        {
+            PW::AppendValues|PW::AppendOperator|PW::MultiLine,
+            "insert into empty", f_foo_bar, 0,
+            "SOURCES =",
+            "SOURCES = \\\n"
+            "    bar \\\n"
+            "    foo"
+        },
+        {
+            PW::AppendValues|PW::AppendOperator|PW::MultiLine,
+            "insert into middle", f_foo_bar, 0,
+            "SOURCES = some files \\\n"
+            "    aargh \\\n"
+            "    zoo",
+            "SOURCES = some files \\\n"
+            "    aargh \\\n"
+            "    bar \\\n"
+            "    foo \\\n"
+            "    zoo"
+        },
+        {
+            PW::AppendValues|PW::AppendOperator|PW::MultiLine,
             "add to existing after comment (wrong operator)", f_foo, 0,
             "SOURCES = some files   # comment",
             "SOURCES = some files \\   # comment\n"

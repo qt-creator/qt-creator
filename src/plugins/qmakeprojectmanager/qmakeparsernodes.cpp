@@ -542,6 +542,7 @@ bool QmakePriFile::addFiles(const QStringList &filePaths, QStringList *notAdded)
             if (!m_recursiveEnumerateFiles.contains(FileName::fromString(file)))
                 uniqueFilePaths.append(file);
         }
+        uniqueFilePaths.sort();
 
         changeFiles(type, uniqueFilePaths, &failedFiles, AddToProFile);
         if (notAdded)
