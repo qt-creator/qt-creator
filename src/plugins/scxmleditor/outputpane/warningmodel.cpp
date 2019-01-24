@@ -158,7 +158,8 @@ QVariant WarningModel::data(const QModelIndex &index, int role) const
 
         switch (role) {
         case WarningModel::FilterRole:
-            return it->isActive() ? Constants::C_WARNINGMODEL_FILTER_ACTIVE : Constants::C_WARNINGMODEL_FILTER_NOT;
+            return QString::fromLatin1(it->isActive() ? Constants::C_WARNINGMODEL_FILTER_ACTIVE
+                                                      : Constants::C_WARNINGMODEL_FILTER_NOT);
         case Qt::DecorationRole: {
             if (col == 0)
                 return severityIcon(it->severity());

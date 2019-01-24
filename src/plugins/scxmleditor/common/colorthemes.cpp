@@ -89,7 +89,8 @@ void ColorThemes::updateColorThemeMenu()
     m_menu->clear();
 
     const QSettings *s = Core::ICore::settings();
-    const QString currentTheme = s->value(Constants::C_SETTINGS_COLORSETTINGS_CURRENTCOLORTHEME, Constants::C_COLOR_SCHEME_DEFAULT).toString();
+    const QString currentTheme = s->value(Constants::C_SETTINGS_COLORSETTINGS_CURRENTCOLORTHEME,
+                                          QString(Constants::C_COLOR_SCHEME_DEFAULT)).toString();
     const QVariantMap data = s->value(Constants::C_SETTINGS_COLORSETTINGS_COLORTHEMES).toMap();
     QStringList keys = data.keys();
     keys.append(Constants::C_COLOR_SCHEME_SCXMLDOCUMENT);
