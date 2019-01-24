@@ -108,7 +108,6 @@ protected:
                     bool resolveTarget = true,
                     bool inNextSplit = false) override;
     QString foldReplacementText(const QTextBlock &block) const override;
-    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
 private:
     void setSelectedElements();

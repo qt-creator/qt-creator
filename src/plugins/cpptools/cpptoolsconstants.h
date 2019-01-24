@@ -71,6 +71,7 @@ const char CPP_DIAGNOSTIC_CONFIG_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools",
 const char CPP_SETTINGS_CATEGORY[] = "I.C++";
 
 const char CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID[] = "ClangFixItAvailableMarker";
+const char CPP_FUNCTION_DECL_DEF_LINK_MARKER_ID[] = "FunctionDeclDefLinkMarker";
 
 const char CPP_SETTINGS_ID[] = "Cpp";
 const char CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++");

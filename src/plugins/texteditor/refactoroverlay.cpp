@@ -27,6 +27,7 @@
 #include "textdocumentlayout.h"
 #include "texteditor.h"
 
+#include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 
 #include <QPainter>
@@ -90,6 +91,13 @@ void RefactorOverlay::paintMarker(const RefactorMarker& marker, QPainter *painte
 
     icon.paint(painter, marker.rect);
     m_maxWidth = qMax(m_maxWidth, x + actualIconSize.width() - int(offset.x()));
+}
+
+RefactorMarkers RefactorMarker::filterOutType(const RefactorMarkers &markers, const Core::Id &type)
+{
+    return Utils::filtered(markers, [type](const RefactorMarker &marker) {
+        return marker.type != type;
+    });
 }
 
 } // namespace TextEditor

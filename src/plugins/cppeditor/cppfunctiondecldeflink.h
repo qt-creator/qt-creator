@@ -70,8 +70,6 @@ class FunctionDeclDefLink
     Q_DISABLE_COPY(FunctionDeclDefLink)
     FunctionDeclDefLink() = default;
 public:
-    class Marker {};
-
     bool isValid() const;
     bool isMarkerVisible() const;
 
@@ -113,5 +111,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-Q_DECLARE_METATYPE(CppEditor::Internal::FunctionDeclDefLink::Marker)

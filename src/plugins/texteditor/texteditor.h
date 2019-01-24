@@ -524,8 +524,6 @@ protected:
     virtual void triggerPendingUpdates();
     virtual void applyFontSettings();
 
-    virtual void onRefactorMarkerClicked(const RefactorMarker &) {}
-
     void showDefaultContextMenu(QContextMenuEvent *e, Core::Id menuContextId);
     virtual void finalizeInitialization() {}
     virtual void finalizeInitializationAfterDuplication(TextEditorWidget *) {}

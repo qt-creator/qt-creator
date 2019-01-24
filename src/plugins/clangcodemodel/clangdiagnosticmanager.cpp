@@ -38,6 +38,7 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/textutils.h>
@@ -268,7 +269,15 @@ TextEditor::RefactorMarker createFixItAvailableMarker(QTextDocument *textDocumen
     TextEditor::RefactorMarker marker;
     marker.tooltip = tooltipForFixItAvailableMarker();
     marker.cursor = cursorAtLastPositionOfLine(textDocument, lineNumber);
-    marker.data = QLatin1String(CppTools::Constants::CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID);
+    marker.callback = [marker](TextEditor::TextEditorWidget *editor) {
+        int line, column;
+        if (Utils::Text::convertPosition(marker.cursor.document(),
+                                         marker.cursor.position(), &line, &column)) {
+            editor->setTextCursor(marker.cursor);
+            editor->invokeAssist(TextEditor::QuickFix);
+        }
+    };
+    marker.type = CppTools::Constants::CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID;
 
     return marker;
 }

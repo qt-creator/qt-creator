@@ -105,8 +105,6 @@ protected:
                     bool resolveTarget = true,
                     bool inNextSplit = false) override;
 
-    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
-
     void slotCodeStyleSettingsChanged(const QVariant &) override;
 
 private:
@@ -137,8 +135,6 @@ private:
     unsigned documentRevision() const;
 
     QMenu *createRefactorMenu(QWidget *parent) const;
-
-    TextEditor::RefactorMarkers refactorMarkersWithoutClangMarkers() const;
 
     CppTools::FollowSymbolInterface &followSymbolInterface() const;
 

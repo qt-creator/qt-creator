@@ -32,6 +32,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpplocalsymbols.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/symbolfinder.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/texteditorconstants.h>
@@ -300,21 +301,12 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
     }
 }
 
-static QList<RefactorMarker> removeDeclDefLinkMarkers(const QList<RefactorMarker> &markers)
-{
-    QList<RefactorMarker> result;
-    foreach (const RefactorMarker &marker, markers) {
-        if (!marker.data.canConvert<FunctionDeclDefLink::Marker>())
-            result += marker;
-    }
-    return result;
-}
-
 void FunctionDeclDefLink::hideMarker(CppEditorWidget *editor)
 {
     if (!hasMarker)
         return;
-    editor->setRefactorMarkers(removeDeclDefLinkMarkers(editor->refactorMarkers()));
+    editor->setRefactorMarkers(RefactorMarker::filterOutType(
+        editor->refactorMarkers(), CppTools::Constants::CPP_FUNCTION_DECL_DEF_LINK_MARKER_ID));
     hasMarker = false;
 }
 
@@ -323,7 +315,8 @@ void FunctionDeclDefLink::showMarker(CppEditorWidget *editor)
     if (hasMarker)
         return;
 
-    QList<RefactorMarker> markers = removeDeclDefLinkMarkers(editor->refactorMarkers());
+    QList<RefactorMarker> markers = RefactorMarker::filterOutType(
+        editor->refactorMarkers(), CppTools::Constants::CPP_FUNCTION_DECL_DEF_LINK_MARKER_ID);
     RefactorMarker marker;
 
     // show the marker at the end of the linked area, with a special case
@@ -348,7 +341,11 @@ void FunctionDeclDefLink::showMarker(CppEditorWidget *editor)
         message = ProxyAction::stringWithAppendedShortcut(message, quickfixCommand->keySequence());
 
     marker.tooltip = message;
-    marker.data = QVariant::fromValue(Marker());
+    marker.type = CppTools::Constants::CPP_FUNCTION_DECL_DEF_LINK_MARKER_ID;
+    marker.callback = [](TextEditor::TextEditorWidget *widget) {
+        if (auto cppEditor = qobject_cast<CppEditorWidget *>(widget))
+            cppEditor->applyDeclDefLinkChanges(true);
+    };
     markers += marker;
     editor->setRefactorMarkers(markers);
 

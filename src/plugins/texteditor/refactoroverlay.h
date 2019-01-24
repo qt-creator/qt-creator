@@ -27,22 +27,30 @@
 
 #include "texteditor_global.h"
 
+#include <coreplugin/id.h>
+
 #include <QTextCursor>
 #include <QIcon>
 
 namespace TextEditor {
 class TextEditorWidget;
 
-struct  TEXTEDITOR_EXPORT RefactorMarker {
+struct TEXTEDITOR_EXPORT RefactorMarker;
+using RefactorMarkers = QList<RefactorMarker>;
+
+struct TEXTEDITOR_EXPORT RefactorMarker {
     inline bool isValid() const { return !cursor.isNull(); }
     QTextCursor cursor;
     QString tooltip;
     QIcon icon;
     mutable QRect rect; // used to cache last drawing positin in document coordinates
+    std::function<void(TextEditor::TextEditorWidget *)> callback;
+    Core::Id type;
     QVariant data;
+
+    static RefactorMarkers filterOutType(const RefactorMarkers &markers, const Core::Id &type);
 };
 
-using RefactorMarkers = QList<RefactorMarker>;
 
 class  TEXTEDITOR_EXPORT RefactorOverlay : public QObject
 {

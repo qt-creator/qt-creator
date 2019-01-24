@@ -60,5 +60,7 @@ const char QML_UI_FILE_WARNING[] = "QmlJSEditor.QmlUiFileWarning";
 const char AUTO_FORMAT_ON_SAVE[] = "QmlJSEditor.AutoFormatOnSave";
 const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "QmlJSEditor.AutoFormatOnlyCurrentProject";
 
+const char QT_QUICK_TOOLBAR_MARKER_ID[] = "QtQuickToolbarMarkerId";
+
 } // namespace Constants
 } // namespace QmlJSEditor

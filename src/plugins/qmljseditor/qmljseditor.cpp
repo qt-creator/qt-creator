@@ -269,22 +269,9 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
 } // namespace Internal
 } // namespace QmlJSEditor
 
-class QtQuickToolbarMarker {};
-Q_DECLARE_METATYPE(QtQuickToolbarMarker)
 
 namespace QmlJSEditor {
 namespace Internal {
-
-template <class T>
-static QList<RefactorMarker> removeMarkersOfType(const QList<RefactorMarker> &markers)
-{
-    QList<RefactorMarker> result;
-    foreach (const RefactorMarker &marker, markers) {
-        if (!marker.data.canConvert<T>())
-            result += marker;
-    }
-    return result;
-}
 
 void QmlJSEditorWidget::updateContextPane()
 {
@@ -299,7 +286,8 @@ void QmlJSEditorWidget::updateContextPane()
 
         if (m_contextPane->isAvailable(this, info.document, newNode) &&
             !m_contextPane->widget()->isVisible()) {
-            QList<RefactorMarker> markers = removeMarkersOfType<QtQuickToolbarMarker>(refactorMarkers());
+            QList<RefactorMarker> markers = RefactorMarker::filterOutType(
+                refactorMarkers(), Constants::QT_QUICK_TOOLBAR_MARKER_ID);
             if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
                 const int start = qualifiedTypeNameId(m)->identifierToken.begin();
                 for (UiQualifiedId *q = qualifiedTypeNameId(m); q; q = q->next) {
@@ -311,7 +299,10 @@ void QmlJSEditorWidget::updateContextPane()
                             tc.setPosition(end);
                             marker.cursor = tc;
                             marker.tooltip = tr("Show Qt Quick ToolBar");
-                            marker.data = QVariant::fromValue(QtQuickToolbarMarker());
+                            marker.type = Constants::QT_QUICK_TOOLBAR_MARKER_ID;
+                            marker.callback = [this](TextEditorWidget *) {
+                                showContextPane();
+                            };
                             markers.append(marker);
                         }
                     }
@@ -319,7 +310,8 @@ void QmlJSEditorWidget::updateContextPane()
             }
             setRefactorMarkers(markers);
         } else if (oldNode != newNode) {
-            setRefactorMarkers(removeMarkersOfType<QtQuickToolbarMarker>(refactorMarkers()));
+            setRefactorMarkers(RefactorMarker::filterOutType(
+                refactorMarkers(), Constants::QT_QUICK_TOOLBAR_MARKER_ID));
         }
         m_oldCursorPosition = position();
 
@@ -820,7 +812,8 @@ void QmlJSEditorWidget::showContextPane()
                              &scopeChain,
                              newNode, false, true);
         m_oldCursorPosition = position();
-        setRefactorMarkers(removeMarkersOfType<QtQuickToolbarMarker>(refactorMarkers()));
+        setRefactorMarkers(RefactorMarker::filterOutType(
+            refactorMarkers(), Constants::QT_QUICK_TOOLBAR_MARKER_ID));
     }
 }
 
@@ -937,12 +930,6 @@ void QmlJSEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
     }
 
     updateUses();
-}
-
-void QmlJSEditorWidget::onRefactorMarkerClicked(const RefactorMarker &marker)
-{
-    if (marker.data.canConvert<QtQuickToolbarMarker>())
-        showContextPane();
 }
 
 QModelIndex QmlJSEditorWidget::indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex) const
