@@ -101,7 +101,7 @@ private:
     void runImpl(QFutureInterface<bool> &fi);
     void handleProjectWasParsed(QFutureInterface<bool> &fi, bool success);
 
-    void handleBuildTargetChanges();
+    void handleBuildTargetChanges(bool success);
     CMakeRunConfiguration *targetsActiveRunConfiguration() const;
 
     QMetaObject::Connection m_runTrigger;

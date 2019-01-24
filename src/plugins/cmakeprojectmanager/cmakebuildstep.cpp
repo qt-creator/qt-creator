@@ -115,8 +115,10 @@ CMakeRunConfiguration *CMakeBuildStep::targetsActiveRunConfiguration() const
     return qobject_cast<CMakeRunConfiguration *>(target()->activeRunConfiguration());
 }
 
-void CMakeBuildStep::handleBuildTargetChanges()
+void CMakeBuildStep::handleBuildTargetChanges(bool success)
 {
+    if (!success)
+        return; // Do not change when parsing failed.
     if (isCurrentExecutableTarget(m_buildTarget))
         return; // Do not change just because a different set of build targets is there...
     if (!static_cast<CMakeProject *>(project())->buildTargetTitles().contains(m_buildTarget))
