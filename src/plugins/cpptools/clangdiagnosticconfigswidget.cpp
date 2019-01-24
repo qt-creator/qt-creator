@@ -556,7 +556,7 @@ private:
         return leftLevel < rightLevel;
     }
 
-    static bool adaptLevel(int level)
+    static int adaptLevel(int level)
     {
         if (level == -1) // "Manual Level"
             return 1000;
