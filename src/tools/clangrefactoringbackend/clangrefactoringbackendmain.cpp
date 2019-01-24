@@ -93,8 +93,8 @@ struct Data // because we have a cycle dependency
     RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     FilePathCaching filePathCache{database};
     GeneratedFiles generatedFiles;
-    SymbolIndexing symbolIndexing{database, filePathCache, generatedFiles, [&] (int progress, int total) { clangCodeModelServer.setProgress(progress, total); }};
     RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache, generatedFiles};
+    SymbolIndexing symbolIndexing{database, filePathCache, generatedFiles, [&] (int progress, int total) { clangCodeModelServer.setProgress(progress, total); }};
 };
 
 int main(int argc, char *argv[])

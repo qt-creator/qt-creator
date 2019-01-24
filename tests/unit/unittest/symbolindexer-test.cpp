@@ -241,12 +241,6 @@ protected:
     Manager collectorManger{generatedFiles};
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
-    Scheduler indexerScheduler{collectorManger,
-                               indexerQueue,
-                               progressCounter,
-                               1,
-                               ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
-    SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter};
     ClangBackEnd::SymbolIndexer indexer{indexerQueue,
                                         mockSymbolStorage,
                                         mockBuildDependenciesStorage,
@@ -254,6 +248,12 @@ protected:
                                         filePathCache,
                                         fileStatusCache,
                                         mockSqliteTransactionBackend};
+    SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter};
+    Scheduler indexerScheduler{collectorManger,
+                               indexerQueue,
+                               progressCounter,
+                               1,
+                               ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
     MockSymbolsCollector &mockCollector{static_cast<MockSymbolsCollector&>(collectorManger.unusedProcessor())};
 };
 

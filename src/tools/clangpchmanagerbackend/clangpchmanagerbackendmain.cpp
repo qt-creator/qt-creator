@@ -183,16 +183,6 @@ struct Data // because we have a cycle dependency
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
     ClangBackEnd::ProgressCounter progressCounter{
         [&](int progress, int total) { clangPchManagerServer.setProgress(progress, total); }};
-    TaskScheduler systemTaskScheduler{pchCreatorManager,
-                                      pchTaskQueue,
-                                      progressCounter,
-                                      std::thread::hardware_concurrency(),
-                                      ClangBackEnd::CallDoInMainThreadAfterFinished::No};
-    TaskScheduler projectTaskScheduler{pchCreatorManager,
-                                       pchTaskQueue,
-                                       progressCounter,
-                                       std::thread::hardware_concurrency(),
-                                       ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
     ClangBackEnd::PchTaskQueue pchTaskQueue{systemTaskScheduler,
                                             projectTaskScheduler,
                                             progressCounter,
@@ -212,6 +202,16 @@ struct Data // because we have a cycle dependency
                                                                     database};
     ClangBackEnd::PchTaskGenerator pchTaskGenerator{buildDependencyProvider, pchTaskMerger};
     PchManagerServer clangPchManagerServer{includeWatcher, pchTaskGenerator, projectParts, generatedFiles};
+    TaskScheduler systemTaskScheduler{pchCreatorManager,
+                                      pchTaskQueue,
+                                      progressCounter,
+                                      std::thread::hardware_concurrency(),
+                                      ClangBackEnd::CallDoInMainThreadAfterFinished::No};
+    TaskScheduler projectTaskScheduler{pchCreatorManager,
+                                       pchTaskQueue,
+                                       progressCounter,
+                                       std::thread::hardware_concurrency(),
+                                       ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
 };
 
 int main(int argc, char *argv[])
