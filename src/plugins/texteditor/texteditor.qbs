@@ -80,8 +80,6 @@ Project {
             "fontsettingspage.ui",
             "formattexteditor.cpp",
             "formattexteditor.h",
-            "helpitem.cpp",
-            "helpitem.h",
             "highlighterutils.cpp",
             "highlighterutils.h",
             "icodestylepreferences.cpp",

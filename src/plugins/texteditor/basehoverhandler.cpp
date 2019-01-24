@@ -99,12 +99,12 @@ const QString &BaseHoverHandler::toolTip() const
     return m_toolTip;
 }
 
-void BaseHoverHandler::setLastHelpItemIdentified(const HelpItem &help)
+void BaseHoverHandler::setLastHelpItemIdentified(const Core::HelpItem &help)
 {
     m_lastHelpItemIdentified = help;
 }
 
-const HelpItem &BaseHoverHandler::lastHelpItemIdentified() const
+const Core::HelpItem &BaseHoverHandler::lastHelpItemIdentified() const
 {
     return m_lastHelpItemIdentified;
 }
@@ -129,7 +129,7 @@ void BaseHoverHandler::process(TextEditorWidget *widget, int pos, ReportPriority
 {
     m_toolTip.clear();
     m_priority = -1;
-    m_lastHelpItemIdentified = HelpItem();
+    m_lastHelpItemIdentified = Core::HelpItem();
 
     identifyMatch(widget, pos, report);
 }

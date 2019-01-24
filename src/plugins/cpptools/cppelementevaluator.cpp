@@ -85,7 +85,7 @@ public:
         : path(QDir::toNativeSeparators(includeFile.resolvedFileName()))
         , fileName(Utils::FileName::fromString(includeFile.resolvedFileName()).fileName())
     {
-        helpCategory = TextEditor::HelpItem::Brief;
+        helpCategory = Core::HelpItem::Brief;
         helpIdCandidates = QStringList(fileName);
         helpMark = fileName;
         link = Utils::Link(path);
@@ -102,7 +102,7 @@ class CppMacro : public CppElement
 public:
     explicit CppMacro(const Macro &macro)
     {
-        helpCategory = TextEditor::HelpItem::Macro;
+        helpCategory = Core::HelpItem::Macro;
         const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
         helpIdCandidates = QStringList(macroName);
         helpMark = macroName;
@@ -142,7 +142,7 @@ public:
     explicit CppNamespace(Symbol *declaration)
         : CppDeclarableElement(declaration)
     {
-        helpCategory = TextEditor::HelpItem::ClassOrNamespace;
+        helpCategory = Core::HelpItem::ClassOrNamespace;
         tooltip = qualifiedName;
     }
 };
@@ -150,7 +150,7 @@ public:
 
 CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
 {
-    helpCategory = TextEditor::HelpItem::ClassOrNamespace;
+    helpCategory = Core::HelpItem::ClassOrNamespace;
     tooltip = qualifiedName;
 }
 
@@ -221,7 +221,7 @@ public:
     explicit CppFunction(Symbol *declaration)
         : CppDeclarableElement(declaration)
     {
-        helpCategory = TextEditor::HelpItem::Function;
+        helpCategory = Core::HelpItem::Function;
 
         const FullySpecifiedType &type = declaration->type();
 
@@ -242,7 +242,7 @@ public:
     explicit CppEnum(Enum *declaration)
         : CppDeclarableElement(declaration)
     {
-        helpCategory = TextEditor::HelpItem::Enum;
+        helpCategory = Core::HelpItem::Enum;
         tooltip = qualifiedName;
     }
 };
@@ -253,7 +253,7 @@ public:
     explicit CppTypedef(Symbol *declaration)
         : CppDeclarableElement(declaration)
     {
-        helpCategory = TextEditor::HelpItem::Typedef;
+        helpCategory = Core::HelpItem::Typedef;
         tooltip = Overview().prettyType(declaration->type(), qualifiedName);
     }
 };
@@ -288,7 +288,7 @@ public:
                         LookupContext::fullyQualifiedName(symbol));
                     if (!name.isEmpty()) {
                         tooltip = name;
-                        helpCategory = TextEditor::HelpItem::ClassOrNamespace;
+                        helpCategory = Core::HelpItem::ClassOrNamespace;
                         const QStringList &allNames = stripName(name);
                         if (!allNames.isEmpty()) {
                             helpMark = allNames.last();
@@ -307,7 +307,7 @@ public:
     explicit CppEnumerator(EnumeratorDeclaration *declaration)
         : CppDeclarableElement(declaration)
     {
-        helpCategory = TextEditor::HelpItem::Enum;
+        helpCategory = Core::HelpItem::Enum;
 
         Overview overview;
 

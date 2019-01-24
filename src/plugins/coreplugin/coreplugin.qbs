@@ -84,6 +84,8 @@ Project {
                 "generalsettings.ui",
                 "generatedfile.cpp",
                 "generatedfile.h",
+                "helpitem.cpp",
+                "helpitem.h",
                 "helpmanager.cpp",
                 "helpmanager.h",
                 "helpmanager_implementation.h",

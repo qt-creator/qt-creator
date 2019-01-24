@@ -32,6 +32,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/helpitem.h>
 #include <coreplugin/helpmanager.h>
 #include <utils/qtcassert.h>
 #include <extensionsystem/pluginmanager.h>
@@ -44,7 +45,6 @@
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsqrcparser.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/helpitem.h>
 #include <utils/executeondestruction.h>
 #include <utils/tooltip/tooltip.h>
 

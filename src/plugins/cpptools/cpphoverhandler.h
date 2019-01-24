@@ -34,7 +34,7 @@ namespace CppTools {
 class CPPTOOLS_EXPORT CppHoverHandler : public TextEditor::BaseHoverHandler
 {
 public:
-    static QString tooltipTextForHelpItem(const TextEditor::HelpItem &help);
+    static QString tooltipTextForHelpItem(const Core::HelpItem &help);
 
 private:
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget,

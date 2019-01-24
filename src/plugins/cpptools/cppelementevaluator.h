@@ -27,8 +27,8 @@
 
 #include "cpptools_global.h"
 
+#include <coreplugin/helpitem.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/helpitem.h>
 
 #include <cplusplus/CppDocument.h>
 
@@ -93,7 +93,7 @@ public:
 
     virtual CppClass *toCppClass();
 
-    TextEditor::HelpItem::Category helpCategory = TextEditor::HelpItem::Unknown;
+    Core::HelpItem::Category helpCategory = Core::HelpItem::Unknown;
     QStringList helpIdCandidates;
     QString helpMark;
     Utils::Link link;

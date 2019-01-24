@@ -277,26 +277,26 @@ void BackendReceiver::references(const ReferencesMessage &message)
     futureInterface.reportFinished();
 }
 
-static TextEditor::HelpItem::Category toHelpItemCategory(ToolTipInfo::QdocCategory category)
+static Core::HelpItem::Category toHelpItemCategory(ToolTipInfo::QdocCategory category)
 {
     switch (category) {
     case ToolTipInfo::Unknown:
-        return TextEditor::HelpItem::Unknown;
+        return Core::HelpItem::Unknown;
     case ToolTipInfo::ClassOrNamespace:
-        return TextEditor::HelpItem::ClassOrNamespace;
+        return Core::HelpItem::ClassOrNamespace;
     case ToolTipInfo::Enum:
-        return TextEditor::HelpItem::Enum;
+        return Core::HelpItem::Enum;
     case ToolTipInfo::Typedef:
-        return TextEditor::HelpItem::Typedef;
+        return Core::HelpItem::Typedef;
     case ToolTipInfo::Macro:
-        return TextEditor::HelpItem::Macro;
+        return Core::HelpItem::Macro;
     case ToolTipInfo::Brief:
-        return TextEditor::HelpItem::Brief;
+        return Core::HelpItem::Brief;
     case ToolTipInfo::Function:
-        return TextEditor::HelpItem::Function;
+        return Core::HelpItem::Function;
     }
 
-    return TextEditor::HelpItem::Unknown;
+    return Core::HelpItem::Unknown;
 }
 
 static QStringList toStringList(const Utf8StringVector &utf8StringVector)

@@ -26,8 +26,8 @@
 #pragma once
 
 #include "texteditor_global.h"
-#include "helpitem.h"
 
+#include <coreplugin/helpitem.h>
 #include <coreplugin/icontext.h>
 
 #include <functional>
@@ -68,8 +68,8 @@ protected:
     void setToolTip(const QString &tooltip);
     const QString &toolTip() const;
 
-    void setLastHelpItemIdentified(const HelpItem &help);
-    const HelpItem &lastHelpItemIdentified() const;
+    void setLastHelpItemIdentified(const Core::HelpItem &help);
+    const Core::HelpItem &lastHelpItemIdentified() const;
 
     bool isContextHelpRequest() const;
 
@@ -87,7 +87,7 @@ private:
     void process(TextEditorWidget *widget, int pos, ReportPriority report);
 
     QString m_toolTip;
-    HelpItem m_lastHelpItemIdentified;
+    Core::HelpItem m_lastHelpItemIdentified;
     int m_priority = -1;
     bool m_isContextHelpRequest = false;
 };

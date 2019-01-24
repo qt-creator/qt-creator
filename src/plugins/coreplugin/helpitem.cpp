@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 #include "helpitem.h"
+#include "helpmanager.h"
 
-#include <coreplugin/helpmanager.h>
 #include <utils/htmldocextractor.h>
 
-using namespace TextEditor;
+using namespace Core;
 
 HelpItem::HelpItem() = default;
 

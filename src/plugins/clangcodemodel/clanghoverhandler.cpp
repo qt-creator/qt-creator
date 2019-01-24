@@ -230,8 +230,8 @@ void ClangHoverHandler::abort()
     }
 }
 
-#define RETURN_TEXT_FOR_CASE(enumValue) case TextEditor::HelpItem::enumValue: return #enumValue
-static const char *helpItemCategoryAsString(TextEditor::HelpItem::Category category)
+#define RETURN_TEXT_FOR_CASE(enumValue) case Core::HelpItem::enumValue: return #enumValue
+static const char *helpItemCategoryAsString(Core::HelpItem::Category category)
 {
     switch (category) {
         RETURN_TEXT_FOR_CASE(Unknown);
@@ -267,7 +267,7 @@ void ClangHoverHandler::processToolTipInfo(const CppTools::ToolTipInfo &info)
         if (!helpLinks.isEmpty()) {
             qCDebug(hoverLog) << "  Match!";
             setLastHelpItemIdentified(
-                HelpItem(qdocIdCandidate, info.qDocMark, info.qDocCategory, helpLinks));
+                Core::HelpItem(qdocIdCandidate, info.qDocMark, info.qDocCategory, helpLinks));
             break;
         }
     }
@@ -283,7 +283,7 @@ void ClangHoverHandler::operateTooltip(TextEditor::TextEditorWidget *editorWidge
                                        const QPoint &point)
 {
     if (priority() == Priority_Diagnostic) {
-        const HelpItem helpItem = lastHelpItemIdentified();
+        const Core::HelpItem helpItem = lastHelpItemIdentified();
         const QString helpId = helpItem.isValid() ? helpItem.helpId() : QString();
         processWithEditorDocumentProcessor(editorWidget, point, m_cursorPosition, helpId);
         return;

@@ -80,6 +80,7 @@ SOURCES += corejsextensions.cpp \
     editormanager/systemeditor.cpp \
     designmode.cpp \
     editortoolbar.cpp \
+    helpitem.cpp \
     helpmanager.cpp \
     outputpanemanager.cpp \
     navigationsubwidget.cpp \
@@ -192,6 +193,7 @@ HEADERS += corejsextensions.h \
     editormanager/systemeditor.h \
     designmode.h \
     editortoolbar.h \
+    helpitem.h \
     helpmanager.h \
     helpmanager_implementation.h \
     outputpanemanager.h \

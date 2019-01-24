@@ -25,15 +25,15 @@
 
 #pragma once
 
-#include "texteditor_global.h"
+#include "core_global.h"
 
 #include <QMap>
 #include <QString>
 #include <QUrl>
 
-namespace TextEditor {
+namespace Core {
 
-class TEXTEDITOR_EXPORT HelpItem
+class CORE_EXPORT HelpItem
 {
 public:
     enum Category {
@@ -79,4 +79,4 @@ private:
     mutable QMap<QString, QUrl> m_helpLinks; // cached help links
 };
 
-} // namespace TextEditor
+} // namespace Core

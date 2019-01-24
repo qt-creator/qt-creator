@@ -31,8 +31,8 @@
 #include "cppsemanticinfo.h"
 #include "cpptools_global.h"
 
+#include <coreplugin/helpitem.h>
 #include <texteditor/codeassist/assistinterface.h>
-#include <texteditor/helpitem.h>
 #include <texteditor/quickfix.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
@@ -56,7 +56,7 @@ struct CPPTOOLS_EXPORT ToolTipInfo {
 
     QStringList qDocIdCandidates;
     QString qDocMark;
-    TextEditor::HelpItem::Category qDocCategory;
+    Core::HelpItem::Category qDocCategory;
 
     QString sizeInBytes;
 };
