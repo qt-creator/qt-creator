@@ -328,7 +328,7 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
                     int ret = mBox.exec();
                     switch (ret) {
                     case QMessageBox::Yes:
-                        Core::HelpManager::handleHelpRequest(
+                        Core::HelpManager::showHelpUrl(
                                     QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-developing-ios.html"));
                         break;
                     case QMessageBox::No:

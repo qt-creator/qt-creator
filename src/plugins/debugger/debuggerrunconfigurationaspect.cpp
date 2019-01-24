@@ -114,7 +114,7 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
     m_useMultiProcess->setVisible(env.toInt());
 
     connect(m_qmlDebuggerInfoLabel, &QLabel::linkActivated,
-            [](const QString &link) { Core::HelpManager::handleHelpRequest(link); });
+            [](const QString &link) { Core::HelpManager::showHelpUrl(link); });
     connect(m_useQmlDebugger, &QAbstractButton::toggled,
             this, &DebuggerRunConfigWidget::useQmlDebuggerToggled);
     connect(m_useQmlDebugger, &QAbstractButton::clicked,

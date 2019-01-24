@@ -366,7 +366,7 @@ void FormEditorData::fullInit()
     // Connect Qt Designer help request to HelpManager.
     QObject::connect(m_integration, &QtCreatorIntegration::creatorHelpRequested,
                      HelpManager::Signals::instance(),
-                     [](const QUrl &url) { HelpManager::handleHelpRequest(url, HelpManager::HelpModeAlways); });
+                     [](const QUrl &url) { HelpManager::showHelpUrl(url, HelpManager::HelpModeAlways); });
 
     /**
      * This will initialize our TabOrder, Signals and slots and Buddy editors.

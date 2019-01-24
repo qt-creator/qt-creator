@@ -76,7 +76,7 @@ public:
 
     static void aboutToShutdown();
 
-    Q_INVOKABLE void handleHelpRequest(
+    Q_INVOKABLE void showHelpUrl(
         const QUrl &url,
         Core::HelpManager::HelpViewerLocation location = Core::HelpManager::HelpModeAlways) override;
 

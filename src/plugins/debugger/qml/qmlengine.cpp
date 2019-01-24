@@ -460,7 +460,7 @@ void QmlEngine::errorMessageBoxFinished(int result)
         break;
     }
     case QMessageBox::Help: {
-        HelpManager::handleHelpRequest("qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
+        HelpManager::showHelpUrl("qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
         Q_FALLTHROUGH();
     }
     default:

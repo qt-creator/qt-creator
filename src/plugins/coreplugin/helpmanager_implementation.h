@@ -42,7 +42,7 @@ public:
     virtual void unregisterDocumentation(const QStringList &nameSpaces) = 0;
     virtual QMap<QString, QUrl> linksForIdentifier(const QString &id) = 0;
     virtual QByteArray fileData(const QUrl &url) = 0;
-    virtual void handleHelpRequest(const QUrl &url, HelpViewerLocation location = HelpModeAlways) = 0;
+    virtual void showHelpUrl(const QUrl &url, HelpViewerLocation location = HelpModeAlways) = 0;
 };
 
 } // HelpManager

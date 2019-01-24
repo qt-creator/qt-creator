@@ -219,7 +219,7 @@ void ExamplesWelcomePage::openProject(const ExampleItem &item)
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
         QUrl docUrl = QUrl::fromUserInput(item.docUrl);
         if (docUrl.isValid())
-            HelpManager::handleHelpRequest(docUrl, HelpManager::ExternalHelpAlways);
+            HelpManager::showHelpUrl(docUrl, HelpManager::ExternalHelpAlways);
         ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
     } else {
         ProjectExplorerPlugin::showOpenProjectError(result);
@@ -588,7 +588,7 @@ public:
                     else if (item.hasSourceCode)
                         ExamplesWelcomePage::openProject(item);
                     else
-                        HelpManager::handleHelpRequest(QUrl::fromUserInput(item.docUrl),
+                        HelpManager::showHelpUrl(QUrl::fromUserInput(item.docUrl),
                                                        HelpManager::ExternalHelpAlways);
                 }
             }

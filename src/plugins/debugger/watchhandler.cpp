@@ -1630,7 +1630,7 @@ void WatchModel::inputNewExpression()
     connect(buttons, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
     connect(hint, &QLabel::linkActivated, [](const QString &link) {
-            HelpManager::handleHelpRequest(link); });
+            HelpManager::showHelpUrl(link); });
 
     if (dlg.exec() == QDialog::Accepted)
         m_handler->watchExpression(lineEdit->text().trimmed());

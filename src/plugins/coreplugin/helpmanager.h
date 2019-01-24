@@ -66,8 +66,8 @@ CORE_EXPORT void unregisterDocumentation(const QStringList &nameSpaces);
 CORE_EXPORT QMap<QString, QUrl> linksForIdentifier(const QString &id);
 CORE_EXPORT QByteArray fileData(const QUrl &url);
 
-CORE_EXPORT void handleHelpRequest(const QUrl &url, HelpViewerLocation location = HelpModeAlways);
-CORE_EXPORT void handleHelpRequest(const QString &url, HelpViewerLocation location = HelpModeAlways);
+CORE_EXPORT void showHelpUrl(const QUrl &url, HelpViewerLocation location = HelpModeAlways);
+CORE_EXPORT void showHelpUrl(const QString &url, HelpViewerLocation location = HelpModeAlways);
 
 } // HelpManager
 } // Core

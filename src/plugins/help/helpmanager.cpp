@@ -247,7 +247,7 @@ QByteArray HelpManager::fileData(const QUrl &url)
     return d->m_helpEngine->fileData(url);
 }
 
-void HelpManager::handleHelpRequest(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
+void HelpManager::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
 {
     emit m_instance->helpRequested(url, location);
 }

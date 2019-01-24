@@ -368,7 +368,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
                 d->m_profilerConnections->retryConnect();
                 break;
             case QMessageBox::Help:
-                HelpManager::handleHelpRequest(
+                HelpManager::showHelpUrl(
                             "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
                 Q_FALLTHROUGH();
             case QMessageBox::Cancel:
