@@ -20,7 +20,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Build Adapter for the current Qt. Happens only once for every Qt installation.</string>
+      <string>Building Adapter for the current Qt. Happens only once for every Qt installation.</string>
      </property>
     </widget>
    </item>
