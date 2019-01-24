@@ -42,33 +42,6 @@ using namespace TextEditor;
 
 namespace CppTools {
 
-QString CppHoverHandler::tooltipTextForHelpItem(const HelpItem &helpItem)
-{
-    // If Qt is built with a namespace, we still show the tip without it, as
-    // it is in the docs and for consistency with the doc extraction mechanism.
-    const HelpItem::Category category = helpItem.category();
-    const QString &contents = helpItem.extractContent(false);
-    if (!contents.isEmpty()) {
-        if (category == HelpItem::ClassOrNamespace)
-            return helpItem.helpId() + contents;
-        else
-            return contents;
-    } else if (category == HelpItem::Typedef ||
-               category == HelpItem::Enum ||
-               category == HelpItem::ClassOrNamespace) {
-        // This approach is a bit limited since it cannot be used for functions
-        // because the help id doesn't really help in that case.
-        QString prefix;
-        if (category == HelpItem::Typedef)
-            prefix = QLatin1String("typedef ");
-        else if (category == HelpItem::Enum)
-            prefix = QLatin1String("enum ");
-        return prefix + helpItem.helpId();
-    }
-
-    return QString();
-}
-
 void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report)
 {
     Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
