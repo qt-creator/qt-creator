@@ -263,6 +263,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     // Filter line edit
     m_filterLineEdit = new Utils::FancyLineEdit();
     m_filterLineEdit->setFiltering(true);
+    m_filterLineEdit->setPlaceholderText(tr("Filter Issues"));
     m_filterLineEdit->setHistoryCompleter("CppTools.ClangTidyClazyIssueFilter", true);
     connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged, [this](const QString &filter) {
         m_diagnosticFilterModel->setFilterRegExp(
@@ -427,16 +428,17 @@ void ClangTidyClazyTool::handleStateUpdate()
     m_goNext->setEnabled(issuesVisible > 1);
 
     QString message;
-    if (m_running)
-        message = tr("Clang-Tidy and Clazy are running.");
-    else
-        message = tr("Clang-Tidy and Clazy finished.");
-
-    message += QLatin1Char(' ');
-    if (issuesFound == 0)
-        message += tr("No issues found.");
-    else
-        message += tr("%n issues found.", nullptr, issuesFound);
+    if (m_running) {
+        if (issuesFound)
+            message = tr("Running - %n issues found", nullptr, issuesFound);
+        else
+            message = tr("Running - No issues found", nullptr, issuesFound);
+    } else {
+        if (issuesFound)
+            message = tr("Finished - %n issues found", nullptr, issuesFound);
+        else
+            message = tr("Finished - No issues found", nullptr, issuesFound);
+    }
 
     Debugger::showPermanentStatusMessage(message);
 }
