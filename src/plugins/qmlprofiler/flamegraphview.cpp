@@ -91,8 +91,7 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addActions(QmlProfilerTool::profilerContextMenuActions());
     menu.addSeparator();
     QAction *getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
-    if (!m_model->modelManager()->isRestrictedToRange())
-        getGlobalStatsAction->setEnabled(false);
+    getGlobalStatsAction->setEnabled(m_model->modelManager()->isRestrictedToRange());
     QAction *resetAction = menu.addAction(tr("Reset Flame Graph"));
     resetAction->setEnabled(m_content->rootObject()->property("zoomed").toBool());
 
