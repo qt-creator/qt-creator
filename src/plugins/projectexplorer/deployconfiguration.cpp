@@ -272,10 +272,4 @@ DefaultDeployConfigurationFactory::DefaultDeployConfigurationFactory()
     setDefaultDisplayName(DeployConfiguration::tr("Deploy Configuration"));
 }
 
-bool DefaultDeployConfigurationFactory::canHandle(Target *parent) const
-{
-    return DeployConfigurationFactory::canHandle(parent)
-            && !parent->project()->needsSpecialDeployment();
-}
-
 } // namespace ProjectExplorer

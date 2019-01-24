@@ -158,7 +158,6 @@ public:
     Kit::Predicate requiredKitPredicate() const;
     Kit::Predicate preferredKitPredicate() const;
 
-    virtual bool needsSpecialDeployment() const;
     // The build system is able to report all executables that can be built, independent
     // of configuration.
     virtual bool knowsAllBuildExecutables() const;

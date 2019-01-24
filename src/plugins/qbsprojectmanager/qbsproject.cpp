@@ -432,11 +432,6 @@ qbs::ProjectData QbsProject::qbsProjectData() const
     return m_projectData;
 }
 
-bool QbsProject::needsSpecialDeployment() const
-{
-    return true;
-}
-
 bool QbsProject::checkCancelStatus()
 {
     const CancelStatus cancelStatus = m_cancelStatus;

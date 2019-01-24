@@ -133,6 +133,18 @@ public:
     static QVariant process(const QVariant &entry, const QStringList &path);
 };
 
+// Version 20 renames "Qbs.Deploy" to "ProjectExplorer.DefaultDeployConfiguration"
+// to account for the merging of the respective factories
+// run configuration fields use the same key in the settings file.
+class UserFileVersion20Upgrader : public VersionUpgrader
+{
+public:
+    UserFileVersion20Upgrader() : VersionUpgrader(20, "4.9-pre1") { }
+    QVariantMap upgrade(const QVariantMap &map) final;
+
+    static QVariant process(const QVariant &entry);
+};
+
 } // namespace
 
 //
@@ -293,6 +305,7 @@ UserFileAccessor::UserFileAccessor(Project *project) :
     addVersionUpgrader(std::make_unique<UserFileVersion17Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion18Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion19Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion20Upgrader>());
 }
 
 Project *UserFileAccessor::project() const
@@ -803,6 +816,32 @@ QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const QString
                 QStringList newPath = path;
                 newPath.append(item.first);
                 return qMakePair(item.first, UserFileVersion19Upgrader::process(item.second, newPath));
+            });
+    default:
+        return entry;
+    }
+}
+
+QVariantMap UserFileVersion20Upgrader::upgrade(const QVariantMap &map)
+{
+    return process(map).toMap();
+}
+
+QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
+{
+    switch (entry.type()) {
+    case QVariant::List:
+        return Utils::transform(entry.toList(), &UserFileVersion20Upgrader::process);
+    case QVariant::Map:
+        return Utils::transform<QMap<QString, QVariant>>(
+            entry.toMap().toStdMap(), [](const std::pair<const QString, QVariant> &item) {
+                auto res = qMakePair(item.first, item.second);
+                if (item.first == "ProjectExplorer.ProjectConfiguration.Id"
+                        && item.second == "Qbs.Deploy")
+                    res.second = QVariant("ProjectExplorer.DefaultDeployConfiguration");
+                else
+                    res.second = UserFileVersion20Upgrader::process(item.second);
+                return res;
             });
     default:
         return entry;

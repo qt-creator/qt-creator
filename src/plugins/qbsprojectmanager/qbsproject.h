@@ -94,7 +94,6 @@ public:
     qbs::Project qbsProject() const;
     qbs::ProjectData qbsProjectData() const;
 
-    bool needsSpecialDeployment() const override;
     void generateErrors(const qbs::ErrorInfo &e);
 
     static QString uniqueProductName(const qbs::ProductData &product);

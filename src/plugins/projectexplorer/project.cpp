@@ -819,11 +819,6 @@ void Project::configureAsExampleProject(const QSet<Core::Id> &platforms)
     Q_UNUSED(platforms);
 }
 
-bool Project::needsSpecialDeployment() const
-{
-    return false;
-}
-
 bool Project::knowsAllBuildExecutables() const
 {
     return true;

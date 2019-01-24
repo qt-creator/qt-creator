@@ -28,7 +28,6 @@
 #include "qbsbuildconfiguration.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
-#include "qbsdeployconfigurationfactory.h"
 #include "qbsinstallstep.h"
 #include "qbskitinformation.h"
 #include "qbsnodes.h"
@@ -91,7 +90,6 @@ public:
     QbsBuildStepFactory buildStepFactory;
     QbsCleanStepFactory cleanStepFactory;
     QbsInstallStepFactory installStepFactory;
-    QbsDeployConfigurationFactory deployConfigFactory;
     QbsRunConfigurationFactory runConfigFactory;
     QbsProfilesSettingsPage profilesSetttingsPage;
 };

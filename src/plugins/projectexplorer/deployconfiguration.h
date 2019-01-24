@@ -119,9 +119,6 @@ class DefaultDeployConfigurationFactory : public DeployConfigurationFactory
 {
 public:
     DefaultDeployConfigurationFactory();
-
-private:
-    bool canHandle(Target *parent) const override;
 };
 
 } // namespace ProjectExplorer
