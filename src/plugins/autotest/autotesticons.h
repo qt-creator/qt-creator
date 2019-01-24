@@ -63,6 +63,14 @@ const Utils::Icon RESULT_BLACKLISTEDFAIL({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestFailTextColor},
         {":/projectexplorer/images/buildstepdisable.png", Utils::Theme::PanelTextColorDark}},
         Utils::Icon::Tint | Utils::Icon::PunchEdges);
+const Utils::Icon RESULT_BLACKLISTEDXPASS({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestXPassTextColor},
+        {":/projectexplorer/images/buildstepdisable.png", Utils::Theme::PanelTextColorDark}},
+        Utils::Icon::Tint | Utils::Icon::PunchEdges);
+const Utils::Icon RESULT_BLACKLISTEDXFAIL({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestXFailTextColor},
+        {":/projectexplorer/images/buildstepdisable.png", Utils::Theme::PanelTextColorDark}},
+        Utils::Icon::Tint | Utils::Icon::PunchEdges);
 const Utils::Icon RESULT_BENCHMARK({
         {":/utils/images/filledcircle.png", Utils::Theme::BackgroundColorNormal},
         {":/autotest/images/benchmark.png", Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);

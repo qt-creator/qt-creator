@@ -51,6 +51,8 @@ static QIcon testResultIcon(Result::Type result) {
         Icons::RESULT_SKIP.icon(),
         Icons::RESULT_BLACKLISTEDPASS.icon(),
         Icons::RESULT_BLACKLISTEDFAIL.icon(),
+        Icons::RESULT_BLACKLISTEDXPASS.icon(),
+        Icons::RESULT_BLACKLISTEDXFAIL.icon(),
         Icons::RESULT_BENCHMARK.icon(),
         Icons::RESULT_MESSAGEDEBUG.icon(),
         Icons::RESULT_MESSAGEDEBUG.icon(), // Info gets the same handling as Debug for now
@@ -69,9 +71,9 @@ static QIcon testResultIcon(Result::Type result) {
         case Result::MessageTestCaseFail:
             return icons[Result::Fail];
         case Result::MessageTestCaseSuccessWarn:
-            return icons[14];
+            return icons[16];
         case Result::MessageTestCaseFailWarn:
-            return icons[15];
+            return icons[17];
         default:
             return QIcon();
         }
@@ -131,6 +133,8 @@ void TestResultItem::updateResult(bool &changed, Result::Type addedChildType)
     case Result::Skip:
     case Result::BlacklistedFail:
     case Result::BlacklistedPass:
+    case Result::BlacklistedXFail:
+    case Result::BlacklistedXPass:
     case Result::MessageTestCaseSuccessWarn:
         newResult = (old == Result::MessageTestCaseFail) ? Result::MessageTestCaseFailWarn
                                                          : Result::MessageTestCaseSuccessWarn;
@@ -363,7 +367,8 @@ void TestResultFilterModel::enableAllResultTypes()
               << Result::UnexpectedPass << Result::Skip << Result::MessageDebug
               << Result::MessageWarn << Result::MessageInternal << Result::MessageLocation
               << Result::MessageFatal << Result::Invalid << Result::BlacklistedPass
-              << Result::BlacklistedFail << Result::Benchmark << Result::MessageIntermediate
+              << Result::BlacklistedFail << Result::BlacklistedXFail << Result::BlacklistedXPass
+              << Result::Benchmark << Result::MessageIntermediate
               << Result::MessageCurrentTest << Result::MessageTestCaseStart
               << Result::MessageTestCaseSuccess << Result::MessageTestCaseSuccessWarn
               << Result::MessageTestCaseFail << Result::MessageTestCaseFailWarn

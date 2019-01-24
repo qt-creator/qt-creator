@@ -46,6 +46,8 @@ enum Type {
     Skip,
     BlacklistedPass,
     BlacklistedFail,
+    BlacklistedXPass,
+    BlacklistedXFail,
     Benchmark,
     MessageDebug,
     MessageInfo,
