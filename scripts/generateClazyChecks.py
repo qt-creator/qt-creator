@@ -67,7 +67,7 @@ public:
     bool isValid() const { return !name.isEmpty() && level >= -1; }
 
     QString name;
-    int level = -1; // "Manual level"
+    int level; // "Manual level"
     QStringList topics;
 };
 using ClazyCheckInfos = std::vector<ClazyCheckInfo>;
@@ -102,9 +102,9 @@ def categories_as_initializer_string(check):
     return '{' + out + '}'
 
 def check_as_initializer_string(check):
-    return '{%s, %d, %s}' %(quoted(check['name']),
-                            check['level'],
-                            categories_as_initializer_string(check))
+    return '{QString(%s), %d, %s}' %(quoted(check['name']),
+                                     check['level'],
+                                     categories_as_initializer_string(check))
 
 def checks_as_initializer_string(checks):
     out = ''
