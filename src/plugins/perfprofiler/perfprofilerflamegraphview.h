@@ -41,6 +41,8 @@ public:
     ~PerfProfilerFlameGraphView();
 
     void selectByTypeId(int typeId);
+    void resetRoot();
+    bool isZoomed() const;
 
 signals:
     void gotoSourceLocation(QString file, int line, int column);

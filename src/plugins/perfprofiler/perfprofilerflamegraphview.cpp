@@ -74,5 +74,15 @@ void PerfProfilerFlameGraphView::selectByTypeId(int typeId)
     rootObject()->setProperty("selectedTypeId", typeId);
 }
 
+void PerfProfilerFlameGraphView::resetRoot()
+{
+    QMetaObject::invokeMethod(rootObject(), "resetRoot");
+}
+
+bool PerfProfilerFlameGraphView::isZoomed() const
+{
+    return rootObject()->property("zoomed").toBool();
+}
+
 } // namespace Internal
 } // namespace PerfProfiler

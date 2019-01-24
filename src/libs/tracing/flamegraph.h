@@ -45,6 +45,7 @@ class TRACING_EXPORT FlameGraph : public QQuickItem
                NOTIFY maximumDepthChanged)
     Q_PROPERTY(int depth READ depth NOTIFY depthChanged)
     Q_PROPERTY(QPersistentModelIndex root READ root WRITE setRoot NOTIFY rootChanged)
+    Q_PROPERTY(bool zoomed READ isZoomed NOTIFY rootChanged)
     Q_PROPERTY(int selectedTypeId READ selectedTypeId WRITE setSelectedTypeId
                NOTIFY selectedTypeIdChanged)
 
@@ -81,6 +82,11 @@ public:
     QPersistentModelIndex root() const
     {
         return m_root;
+    }
+
+    bool isZoomed() const
+    {
+        return m_root.isValid();
     }
 
     void setRoot(const QPersistentModelIndex &root)

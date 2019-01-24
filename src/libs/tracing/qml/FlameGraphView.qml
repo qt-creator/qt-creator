@@ -42,6 +42,9 @@ ScrollView {
         flamegraph.selectedTypeId = selectedTypeId;
     }
 
+    function resetRoot() { flamegraph.resetRoot(); }
+    property bool zoomed: flamegraph.zoomed
+
     property int sizeRole: -1
     property var model: null
 

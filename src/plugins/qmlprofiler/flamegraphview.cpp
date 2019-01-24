@@ -93,9 +93,14 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
     if (!m_model->modelManager()->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
+    QAction *resetAction = menu.addAction(tr("Reset Flame Graph"));
+    resetAction->setEnabled(m_content->rootObject()->property("zoomed").toBool());
 
-    if (menu.exec(position) == getGlobalStatsAction)
+    const QAction *selected = menu.exec(position);
+    if (selected == getGlobalStatsAction)
         emit showFullRange();
+    else if (selected == resetAction)
+        QMetaObject::invokeMethod(m_content->rootObject(), "resetRoot");
 }
 
 } // namespace Internal
