@@ -51,6 +51,7 @@ protected:
     ClangBackEnd::PchTasksMerger merger{mockPchTaskQueue};
     PchTask systemTask1{"ProjectPart1",
                         {1, 2},
+                        {1, 2},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
                         {{"LIANG", 0}, {"YI", 1}},
                         {"--yi"},
@@ -60,6 +61,7 @@ protected:
                         {IncludeSearchPath{"/to/path1", 1, IncludeSearchPathType::User},
                          IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User}}};
     PchTask projectTask1{"ProjectPart1",
+                         {11, 12},
                          {11, 12},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
                          {{"ER", 2}, {"SAN", 3}},
@@ -71,6 +73,7 @@ protected:
                           IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User}}};
     PchTask systemTask2{"ProjectPart2",
                         {1, 2},
+                        {1, 2},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
                         {{"LIANG", 0}, {"YI", 1}},
                         {"--yi"},
@@ -80,6 +83,7 @@ protected:
                         {IncludeSearchPath{"/to/path1", 1, IncludeSearchPathType::User},
                          IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User}}};
     PchTask projectTask2{"ProjectPart2",
+                         {11, 12},
                          {11, 12},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
                          {{"ER", 2}, {"SAN", 3}},

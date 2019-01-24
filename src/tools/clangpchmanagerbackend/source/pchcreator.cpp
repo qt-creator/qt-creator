@@ -104,7 +104,7 @@ FilePath PchCreator::generatePchFilePath() const
 }
 
 std::vector<std::string> PchCreator::generateClangCompilerArguments(
-    PchTask &&pchTask,
+    const PchTask &pchTask,
     FilePathView sourceFilePath,
     FilePathView pchOutputPath)
 {
@@ -129,13 +129,14 @@ void PchCreator::generatePch(PchTask &&pchTask)
         pchSourceFilePath.directory(),
         pchSourceFilePath.name(),
         "",
-        generateClangCompilerArguments(std::move(pchTask), pchSourceFilePath, pchOutputPath));
+        generateClangCompilerArguments(pchTask, pchSourceFilePath, pchOutputPath));
 
     bool success = generatePch();
 
     m_projectPartPch.projectPartId = pchTask.projectPartId();
 
     if (success) {
+        m_allInclues = pchTask.allIncludes;
         m_projectPartPch.pchPath = std::move(pchOutputPath);
         m_projectPartPch.lastModified = lastModified;
     }
@@ -169,6 +170,7 @@ void PchCreator::clear()
 
 void PchCreator::doInMainThreadAfterFinished()
 {
+    m_clangPathwatcher.updateIdPaths({{m_projectPartPch.projectPartId, m_allInclues}});
     m_pchManagerClient.precompiledHeadersUpdated(ProjectPartPchs{m_projectPartPch});
 }
 

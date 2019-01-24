@@ -99,9 +99,13 @@ protected:
     TestEnvironment environment;
     FileContainer generatedFile{{TESTDATA_DIR, generatedFileName}, "#pragma once", {}};
     NiceMock<MockPchManagerClient> mockPchManagerClient;
-    ClangBackEnd::PchCreator creator{environment, database, mockPchManagerClient};
+    NiceMock<MockClangPathWatcher> mockClangPathWatcher;
+    ClangBackEnd::PchCreator creator{environment, database, mockPchManagerClient, mockClangPathWatcher};
     PchTask pchTask1{
         "project1",
+        {id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+         id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+         id(TESTDATA_DIR "/builddependencycollector/external/external2.h")},
         {id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
          id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
          id(TESTDATA_DIR "/builddependencycollector/external/external2.h")},
@@ -207,6 +211,37 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchsSendToPchManagerClient)
     creator.doInMainThreadAfterFinished();
 }
 
+TEST_F(PchCreatorVerySlowTest, AllIncludesAreWatchedAfterSucess)
+{
+    creator.generatePch(std::move(pchTask1));
+
+    EXPECT_CALL(
+        mockClangPathWatcher,
+        updateIdPaths(ElementsAre(
+            AllOf(Field(&ClangBackEnd::IdPaths::id, "project1"),
+                  Field(&ClangBackEnd::IdPaths::filePathIds,
+                        UnorderedElementsAre(
+                            id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+                            id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+                            id(TESTDATA_DIR "/builddependencycollector/external/external2.h")))))));
+
+    creator.doInMainThreadAfterFinished();
+}
+
+
+TEST_F(PchCreatorVerySlowTest, AllIncludesAreNotWatchedAfterFail)
+{
+    pchTask1.systemIncludeSearchPaths = {};
+    pchTask1.projectIncludeSearchPaths = {};
+    creator.generatePch(std::move(pchTask1));
+
+    EXPECT_CALL(mockClangPathWatcher,
+                updateIdPaths(
+                    ElementsAre(AllOf(Field(&ClangBackEnd::IdPaths::id, "project1"),
+                                      Field(&ClangBackEnd::IdPaths::filePathIds, IsEmpty())))));
+
+    creator.doInMainThreadAfterFinished();
+}
 
 TEST_F(PchCreatorVerySlowTest, ProjectPartPchForCreatesPchForPchTask)
 {
@@ -240,6 +275,7 @@ TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesFaultyPchForPchTask
 {
     PchTask faultyPchTask{"faultyProjectPart",
                           {id(TESTDATA_DIR "/builddependencycollector/project/faulty.cpp")},
+                          {},
                           {{"DEFINE", "1", 1}},
                           {},
                           {},

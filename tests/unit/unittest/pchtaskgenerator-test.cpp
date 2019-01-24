@@ -96,6 +96,7 @@ TEST_F(PchTaskGenerator, AddProjectParts)
                     AllOf(
                         Field(&PchTask::projectPartIds, ElementsAre("ProjectPart1")),
                         Field(&PchTask::includes, ElementsAre(5)),
+                        Field(&PchTask::allIncludes, IsEmpty()),
                         Field(&PchTask::compilerMacros,
                               ElementsAre(CompilerMacro{"SE", "4", 4}, CompilerMacro{"WU", "5", 5})),
                         Field(&PchTask::usedMacros, ElementsAre(UsedMacro{"SE", 4}, UsedMacro{"WU", 5})),
@@ -116,6 +117,7 @@ TEST_F(PchTaskGenerator, AddProjectParts)
                     AllOf(
                         Field(&PchTask::projectPartIds, ElementsAre("ProjectPart1")),
                         Field(&PchTask::includes, ElementsAre(3)),
+                        Field(&PchTask::allIncludes, ElementsAre(1, 2, 3, 4, 5)),
                         Field(&PchTask::compilerMacros,
                               ElementsAre(CompilerMacro{"YI", "1", 1}, CompilerMacro{"SAN", "3", 3})),
                         Field(&PchTask::usedMacros, ElementsAre(UsedMacro{"YI", 1}, UsedMacro{"SAN", 3})),

@@ -63,12 +63,14 @@ protected:
         {"/other/project/includes", 2, IncludeSearchPathType::User}};
     PchTask systemTask1{"ProjectPart1",
                         {1, 2},
+                        {1, 2},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
                         {{"LIANG", 0}, {"YI", 1}},
                         {"--yi"},
                         systemIncludeSearchPaths,
                         projectIncludeSearchPaths};
     PchTask systemTask2{"ProjectPart2",
+                        {1, 2},
                         {1, 2},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
                         {{"LIANG", 0}, {"YI", 1}},
@@ -77,12 +79,14 @@ protected:
                         projectIncludeSearchPaths};
     PchTask systemTask2b{"ProjectPart2",
                          {3, 4},
+                         {3, 4},
                          {{"YI", "1", 1}, {"SAN", "3", 3}},
                          {{"LIANG", 0}, {"YI", 1}},
                          {"--yi"},
                          systemIncludeSearchPaths,
                          projectIncludeSearchPaths};
     PchTask systemTask3{"ProjectPart3",
+                        {1, 2},
                         {1, 2},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
                         {{"LIANG", 0}, {"YI", 1}},
@@ -91,12 +95,14 @@ protected:
                         projectIncludeSearchPaths};
     PchTask projectTask1{"ProjectPart1",
                          {11, 12},
+                         {11, 12},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
                          {{"ER", 2}, {"SAN", 3}},
                          {"--yi"},
                          systemIncludeSearchPaths,
                          projectIncludeSearchPaths};
     PchTask projectTask2{"ProjectPart2",
+                         {11, 12},
                          {11, 12},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
                          {{"ER", 2}, {"SAN", 3}},
@@ -105,6 +111,7 @@ protected:
                          projectIncludeSearchPaths};
     PchTask projectTask2b{"ProjectPart2",
                           {21, 22},
+                          {11, 12},
                           {{"SE", "4", 4}, {"WU", "5", 5}},
                           {{"ER", 2}, {"SAN", 3}},
                           {"--yi"},
@@ -112,12 +119,14 @@ protected:
                           projectIncludeSearchPaths};
     PchTask projectTask3{"ProjectPart3",
                          {21, 22},
+                         {21, 22},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
                          {{"ER", 2}, {"SAN", 3}},
                          {"--yi"},
                          systemIncludeSearchPaths,
                          projectIncludeSearchPaths};
     PchTask systemTask4{Utils::SmallStringVector{"ProjectPart1", "ProjectPart3"},
+                        {1, 2},
                         {1, 2},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
                         {{"LIANG", 0}, {"YI", 1}},

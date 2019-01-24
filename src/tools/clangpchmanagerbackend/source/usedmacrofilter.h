@@ -94,6 +94,8 @@ private:
         case SourceType::UserInclude:
             break;
         }
+
+        allIncludes.emplace_back(include.sourceId);
     }
 
     static UsedMacros filterUsedMarcos(const UsedMacros &usedMacros, const FilePathIds &filePathId)
@@ -162,6 +164,7 @@ private:
     }
 
 public:
+    FilePathIds allIncludes;
     FilePathIds projectIncludes;
     FilePathIds systemIncludes;
     FilePathIds topProjectIncludes;

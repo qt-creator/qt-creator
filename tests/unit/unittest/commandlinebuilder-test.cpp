@@ -51,8 +51,8 @@ public:
     }
 
 public:
-    ClangBackEnd::PchTask emptyProjectInfo{"empty", {}, {}, {}, {}, {}, {}};
-    ClangBackEnd::PchTask cppProjectInfo{"project1", {}, {}, {}, {}, {}, {}};
+    ClangBackEnd::PchTask emptyProjectInfo{"empty", {}, {}, {}, {}, {}, {}, {}};
+    ClangBackEnd::PchTask cppProjectInfo{"project1", {}, {}, {}, {}, {}, {}, {}};
 };
 
 template <>

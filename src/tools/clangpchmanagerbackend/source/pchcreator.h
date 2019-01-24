@@ -62,10 +62,12 @@ class PchCreator final : public PchCreatorInterface
 public:
     PchCreator(Environment &environment,
                Sqlite::Database &database,
-               PchManagerClientInterface &pchManagerClient)
+               PchManagerClientInterface &pchManagerClient,
+               ClangPathWatcherInterface &clangPathwatcher)
         : m_filePathCache(database)
         , m_environment(environment)
         , m_pchManagerClient(pchManagerClient)
+        , m_clangPathwatcher(clangPathwatcher)
     {}
 
     void generatePch(PchTask &&pchTask) override;
@@ -83,7 +85,7 @@ public:
 
     FilePath generatePchHeaderFilePath() const;
     FilePath generatePchFilePath() const;
-    static std::vector<std::string> generateClangCompilerArguments(PchTask &&pchTask,
+    static std::vector<std::string> generateClangCompilerArguments(const PchTask &pchTask,
                                                                    FilePathView includePchHeaderPath,
                                                                    FilePathView pchPath);
     static std::unique_ptr<QFile> generateFileWithContent(const Utils::SmallString &filePath,
@@ -99,8 +101,10 @@ private:
     ClangTool m_clangTool;
     ProjectPartPch m_projectPartPch;
     FilePathCaching m_filePathCache;
+    FilePathIds m_allInclues;
     Environment &m_environment;
     PchManagerClientInterface &m_pchManagerClient;
+    ClangPathWatcherInterface &m_clangPathwatcher;
     bool m_isUsed = false;
 };
 
