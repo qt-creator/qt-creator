@@ -92,7 +92,7 @@ public:
     // Step is only added if condition is not set, or returns true when called.
     void addInitialStep(Core::Id stepId, const std::function<bool(Target *)> &condition = {});
 
-    virtual bool canHandle(ProjectExplorer::Target *target) const;
+    bool canHandle(ProjectExplorer::Target *target) const;
 
     void setConfigWidgetCreator(const std::function<NamedWidget *(Target *)> &configWidgetCreator);
     void setUseDeploymentDataView();
