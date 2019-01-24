@@ -21,7 +21,6 @@ HEADERS += \
     androiddebugsupport.h \
     androidqtversionfactory.h \
     androidqtversion.h \
-    androiddeployconfiguration.h \
     androidcreatekeystorecertificate.h \
     javaparser.h \
     androidplugin.h \
@@ -71,7 +70,6 @@ SOURCES += \
     androiddebugsupport.cpp \
     androidqtversionfactory.cpp \
     androidqtversion.cpp \
-    androiddeployconfiguration.cpp \
     androidcreatekeystorecertificate.cpp \
     javaparser.cpp \
     androidplugin.cpp \

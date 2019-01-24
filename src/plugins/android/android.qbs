@@ -44,8 +44,6 @@ Project {
             "androiddevicedialog.cpp",
             "androiddevicedialog.h",
             "androiddevicedialog.ui",
-            "androiddeployconfiguration.cpp",
-            "androiddeployconfiguration.h",
             "androiddeployqtwidget.cpp",
             "androiddeployqtwidget.h",
             "androiddeployqtwidget.ui",

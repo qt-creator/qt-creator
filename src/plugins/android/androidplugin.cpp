@@ -28,7 +28,6 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androiddebugsupport.h"
-#include "androiddeployconfiguration.h"
 #include "androiddeployqtstep.h"
 #include "androiddevice.h"
 #include "androiddevicefactory.h"
@@ -51,6 +50,7 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
@@ -64,6 +64,19 @@ using namespace ProjectExplorer::Constants;
 
 namespace Android {
 namespace Internal {
+
+class AndroidDeployConfigurationFactory : public DeployConfigurationFactory
+{
+public:
+    AndroidDeployConfigurationFactory()
+    {
+        setConfigBaseId("Qt4ProjectManager.AndroidDeployConfiguration2");
+        addSupportedTargetDeviceType(Constants::ANDROID_DEVICE_TYPE);
+        setDefaultDisplayName(QCoreApplication::translate("Android::Internal",
+                                                          "Deploy to Android device"));
+        addInitialStep(AndroidDeployQtStep::stepId());
+    }
+};
 
 class AndroidRunConfigurationFactory : public RunConfigurationFactory
 {
