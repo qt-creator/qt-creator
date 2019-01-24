@@ -271,7 +271,7 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     connect(menu1->addAction(tr("Limit to Selected Range")), &QAction::triggered,
             m_limitToRange, &QAction::trigger);
     menu1->addAction(m_showFullRange);
-    connect(menu1->addAction(tr("Reset Zoom")), &QAction::triggered, [this](){
+    connect(menu1->addAction(tr("Reset Zoom")), &QAction::triggered, this, [this](){
         m_zoomControl->setRange(m_zoomControl->traceStart(), m_zoomControl->traceEnd());
     });
 
