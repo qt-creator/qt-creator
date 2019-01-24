@@ -171,6 +171,12 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configTextFilterModel->setFilterKeyColumn(-1);
     m_configTextFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
+    connect(m_configTextFilterModel, &QAbstractItemModel::layoutChanged, this, [this]() {
+        QModelIndex selectedIdx = m_configView->currentIndex();
+        if (selectedIdx.isValid())
+            m_configView->scrollTo(selectedIdx);
+    });
+
     m_configView->setModel(m_configTextFilterModel);
     m_configView->setMinimumHeight(300);
     m_configView->setUniformRowHeights(true);
@@ -307,9 +313,13 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             value = QString::fromLatin1("OFF");
 
         m_configModel->appendConfiguration(tr("<UNSET>"), value, type);
-        QModelIndex idx;
-        idx = m_configView->model()->index(
-                    m_configView->model()->rowCount(idx) - 1, 0);
+        const Utils::TreeItem *item = m_configModel->findNonRootItem([&value, type](Utils::TreeItem *item) {
+                ConfigModel::DataItem dataItem = ConfigModel::dataItemFromIndex(item->index());
+                return dataItem.key == tr("<UNSET>") && dataItem.type == type && dataItem.value == value;
+        });
+        QModelIndex idx = m_configModel->indexForItem(item);
+        idx = m_configTextFilterModel->mapFromSource(m_configFilterModel->mapFromSource(idx));
+        m_configView->scrollTo(idx);
         m_configView->setCurrentIndex(idx);
         m_configView->edit(idx);
     });
