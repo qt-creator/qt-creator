@@ -1026,8 +1026,6 @@ public:
             return true;
         else if (b->text().isEmpty())
             return false;
-        else if (a->isValid() != b->isValid())
-            return a->isValid();
         else if (a->text().at(0).isUpper() && b->text().at(0).isLower())
             return false;
         else if (a->text().at(0).isLower() && b->text().at(0).isUpper())
