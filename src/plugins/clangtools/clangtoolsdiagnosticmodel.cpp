@@ -37,8 +37,6 @@
 #include <QFileInfo>
 #include <QLoggingCategory>
 
-#include <cmath>
-
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.model", QtWarningMsg)
 
 namespace ClangTools {
@@ -341,7 +339,7 @@ static QVariant iconData(const QString &type)
     if (type == "error" || type == "fatal")
         return Utils::Icons::CODEMODEL_ERROR.icon();
     if (type == "note")
-        return Utils::Icons::BOOKMARK.icon();
+        return Utils::Icons::INFO.icon();
     if (type == "fix-it")
         return Utils::Icons::CODEMODEL_FIXIT.icon();
     return QVariant();
@@ -445,6 +443,15 @@ ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step
 {
 }
 
+// We expect something like "note: ..."
+static QVariant iconForExplainingStepMessage(const QString &message)
+{
+    const int index = message.indexOf(':');
+    if (index == -1)
+        return QVariant();
+    return iconData(message.mid(0, index));
+}
+
 QVariant ExplainingStepItem::data(int column, int role) const
 {
     if (column == Debugger::DetailedErrorView::LocationColumn)
@@ -459,19 +466,12 @@ QVariant ExplainingStepItem::data(int column, int role) const
         return fullText(static_cast<DiagnosticItem *>(parent())->diagnostic());
     case ClangToolsDiagnosticModel::DiagnosticRole:
         return QVariant::fromValue(static_cast<DiagnosticItem *>(parent())->diagnostic());
-    case Qt::DisplayRole: {
-        const int row = indexInParent() + 1;
-        const int padding = static_cast<int>(std::log10(parent()->childCount()))
-                - static_cast<int>(std::log10(row));
-        return QString::fromLatin1("%1%2: %3")
-                .arg(QString(padding, QLatin1Char(' ')))
-                .arg(row)
-                .arg(m_step.message);
-    }
+    case Qt::DisplayRole:
+        return m_step.message;
     case Qt::ToolTipRole:
         return createExplainingStepToolTipString(m_step);
     case Qt::DecorationRole:
-        return (m_step.message.startsWith("fix-it:")) ? iconData("fix-it") : QVariant();
+        return iconForExplainingStepMessage(m_step.message);
     default:
         return QVariant();
     }
