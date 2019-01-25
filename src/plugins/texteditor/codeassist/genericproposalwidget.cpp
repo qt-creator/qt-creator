@@ -559,6 +559,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         switch (ke->key()) {
         case Qt::Key_N:
         case Qt::Key_P:
+        case Qt::Key_BracketLeft:
             if (ke->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
                 e->accept();
                 return true;
@@ -572,6 +573,16 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
             emit explicitlyAborted();
             e->accept();
             return true;
+
+        case Qt::Key_BracketLeft:
+            // vim-style behavior
+            if (ke->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
+                abort();
+                emit explicitlyAborted();
+                e->accept();
+                return true;
+            }
+            break;
 
         case Qt::Key_N:
         case Qt::Key_P:
