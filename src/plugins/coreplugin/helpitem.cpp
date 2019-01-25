@@ -40,10 +40,6 @@ HelpItem::HelpItem(const QString &helpId)
     : m_helpId(helpId)
 {}
 
-HelpItem::HelpItem(const QString &helpId, Category category) :
-    m_helpId(helpId), m_docMark(helpId), m_category(category)
-{}
-
 HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category) :
     m_helpId(helpId), m_docMark(docMark), m_category(category)
 {}
@@ -51,9 +47,6 @@ HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category categ
 HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category,
                    const QMap<QString, QUrl> &helpLinks) :
     m_helpId(helpId), m_docMark(docMark), m_category(category), m_helpLinks(helpLinks)
-{}
-
-HelpItem::~HelpItem()
 {}
 
 void HelpItem::setHelpId(const QString &id)

@@ -68,8 +68,7 @@ void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidg
                                                      Core::HelpItem::QMakeVariableOfFunction));
         } else {
             // General qmake manual will be shown outside any function or variable
-            setLastHelpItemIdentified(
-                Core::HelpItem(QLatin1String("qmake"), Core::HelpItem::Unknown));
+            setLastHelpItemIdentified("qmake");
         }
     }
 }

@@ -54,11 +54,9 @@ public:
     HelpItem();
     HelpItem(const char *helpId);
     HelpItem(const QString &helpId);
-    HelpItem(const QString &helpId, Category category);
     HelpItem(const QString &helpId, const QString &docMark, Category category);
     HelpItem(const QString &helpId, const QString &docMark, Category category,
              const QMap<QString, QUrl> &helpLinks);
-    ~HelpItem();
 
     void setHelpId(const QString &id);
     const QString &helpId() const;
