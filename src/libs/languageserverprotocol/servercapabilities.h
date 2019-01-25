@@ -120,6 +120,19 @@ enum class TextDocumentSyncKind
     Incremental = 2
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT CodeActionOptions : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    QList<QString> codeActionKinds() const { return array<QString>(codeActionKindsKey); }
+    void setCodeActionKinds(const QList<QString> &codeActionKinds)
+    { insertArray(codeActionKindsKey, codeActionKinds); }
+
+    bool isValid(QStringList *error) const override
+    { return checkArray<QString>(error, codeActionKindsKey); }
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT ServerCapabilities : public JsonObject
 {
 public:
@@ -305,10 +318,11 @@ public:
     void clearWorkspaceSymbolProvider() { remove(workspaceSymbolProviderKey); }
 
     // The server provides code actions.
-    Utils::optional<bool> codeActionProvider() const
-    { return optionalValue<bool>(codeActionProviderKey); }
+    Utils::optional<Utils::variant<bool, CodeActionOptions>> codeActionProvider() const;
     void setCodeActionProvider(bool codeActionProvider)
     { insert(codeActionProviderKey, codeActionProvider); }
+    void setCodeActionProvider(CodeActionOptions options)
+    { insert(codeActionProviderKey, options); }
     void clearCodeActionProvider() { remove(codeActionProviderKey); }
 
     // The server provides code lens.

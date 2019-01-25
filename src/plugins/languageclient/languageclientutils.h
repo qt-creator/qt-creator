@@ -26,11 +26,28 @@
 #pragma once
 
 #include <languageserverprotocol/workspace.h>
+#include <languageserverprotocol/languagefeatures.h>
 
-namespace TextEditor { class TextDocument; }
+#include <texteditor/refactoroverlay.h>
+
+namespace TextEditor {
+class TextDocument;
+class TextDocumentManipulatorInterface;
+} // namespace TextEditor
 
 namespace LanguageClient {
 
+class BaseClient;
+
+bool applyWorkspaceEdit(const LanguageServerProtocol::WorkspaceEdit &edit);
+bool applyTextDocumentEdit(const LanguageServerProtocol::TextDocumentEdit &edit);
+bool applyTextEdits(const LanguageServerProtocol::DocumentUri &uri,
+                    const QList<LanguageServerProtocol::TextEdit> &edits);
+void applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                   const LanguageServerProtocol::TextEdit &edit);
 TextEditor::TextDocument *textDocumentForFileName(const Utils::FileName &fileName);
+void updateCodeActionRefactoringMarker(BaseClient *client,
+                                       const LanguageServerProtocol::CodeAction &action,
+                                       const LanguageServerProtocol::DocumentUri &uri);
 
 } // namespace LanguageClient

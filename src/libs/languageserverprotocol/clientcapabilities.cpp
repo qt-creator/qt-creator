@@ -106,6 +106,12 @@ TextDocumentClientCapabilities::TextDocumentClientCapabilities()
     setSynchronization(SynchronizationCapabilities());
     setDocumentSymbol(SymbolCapabilities());
     setCompletion(CompletionCapabilities());
+    CodeActionCapabilities cac;
+    CodeActionCapabilities::CodeActionLiteralSupport literalSupport;
+    literalSupport.setCodeActionKind(
+                CodeActionCapabilities::CodeActionLiteralSupport::CodeActionKind(QList<QString>{"*"}));
+    cac.setCodeActionLiteralSupport(literalSupport);
+    setCodeAction(cac);
 }
 
 bool TextDocumentClientCapabilities::isValid(QStringList *error) const
@@ -123,7 +129,7 @@ bool TextDocumentClientCapabilities::isValid(QStringList *error) const
        && checkOptional<DynamicRegistrationCapabilities>(error, definitionKey)
        && checkOptional<DynamicRegistrationCapabilities>(error, typeDefinitionKey)
        && checkOptional<DynamicRegistrationCapabilities>(error, implementationKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, codeActionKey)
+       && checkOptional<CodeActionCapabilities>(error, codeActionKey)
        && checkOptional<DynamicRegistrationCapabilities>(error, codeLensKey)
        && checkOptional<DynamicRegistrationCapabilities>(error, documentLinkKey)
        && checkOptional<DynamicRegistrationCapabilities>(error, colorProviderKey)
@@ -166,6 +172,12 @@ bool TextDocumentClientCapabilities::SignatureHelpCapabilities::isValid(QStringL
 {
     return DynamicRegistrationCapabilities::isValid(error)
             && checkOptional<SignatureHelpCapabilities>(error, signatureInformationKey);
+}
+
+bool TextDocumentClientCapabilities::CodeActionCapabilities::isValid(QStringList *errorHierarchy) const
+{
+    return DynamicRegistrationCapabilities::isValid(errorHierarchy)
+            && checkOptional<CodeActionLiteralSupport>(errorHierarchy, codeActionLiteralSupportKey);
 }
 
 } // namespace LanguageServerProtocol

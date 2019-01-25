@@ -199,15 +199,16 @@ public:
 class LANGUAGESERVERPROTOCOL_EXPORT ExecuteCommandParams : public JsonObject
 {
 public:
-    using JsonObject::JsonObject;
+    explicit ExecuteCommandParams(const Command &command);
+    explicit ExecuteCommandParams(const QJsonValue &value) : JsonObject(value) {}
+    ExecuteCommandParams() : JsonObject() {}
 
     QString command() const { return typedValue<QString>(commandKey); }
     void setCommand(const QString &command) { insert(commandKey, command); }
+    void clearCommand() { remove(commandKey); }
 
-    Utils::optional<QList<QJsonValue>> arguments() const
-    { return optionalArray<QJsonValue>(argumentsKey); }
-    void setArguments(const QList<QJsonValue> &arguments)
-    { insertArray(argumentsKey, arguments); }
+    Utils::optional<QJsonArray> arguments() const { return typedValue<QJsonArray>(argumentsKey); }
+    void setArguments(const QJsonArray &arguments) { insert(argumentsKey, arguments); }
     void clearArguments() { remove(argumentsKey); }
 
     bool isValid(QStringList *error) const override

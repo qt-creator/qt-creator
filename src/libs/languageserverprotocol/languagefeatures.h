@@ -344,12 +344,37 @@ public:
     constexpr static const char methodName[] = "textDocument/documentSymbol";
 };
 
+/**
+ * The kind of a code action.
+ *
+ * Kinds are a hierarchical list of identifiers separated by `.`, e.g. `"refactor.extract.function"`.
+ *
+ * The set of kinds is open and client needs to announce the kinds it supports to the server during
+ * initialization.
+ */
+
+using CodeActionKind = QString;
+
+/**
+ * A set of predefined code action kinds
+ */
+
+namespace CodeActionKinds {
+constexpr char QuickFix[] = "quickfix";
+constexpr char Refactor[] = "refactor";
+constexpr char RefactorExtract[] = "refactor.extract";
+constexpr char RefactorInline[] = "refactor.inline";
+constexpr char RefactorRewrite[] = "refactor.rewrite";
+constexpr char Source[] = "source";
+constexpr char SourceOrganizeImports[] = "source.organizeImports";
+}
+
 class LANGUAGESERVERPROTOCOL_EXPORT CodeActionParams : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
 
-    class CodeActionContext : public JsonObject
+    class LANGUAGESERVERPROTOCOL_EXPORT CodeActionContext : public JsonObject
     {
     public:
         using JsonObject::JsonObject;
@@ -357,6 +382,10 @@ public:
         QList<Diagnostic> diagnostics() const { return array<Diagnostic>(diagnosticsKey); }
         void setDiagnostics(const QList<Diagnostic> &diagnostics)
         { insertArray(diagnosticsKey, diagnostics); }
+
+        Utils::optional<QList<CodeActionKind>> only() const;
+        void setOnly(const QList<CodeActionKind> &only);
+        void clearOnly() { remove(onlyKey); }
 
         bool isValid(QStringList *error) const override;
     };
@@ -375,8 +404,45 @@ public:
     bool isValid(QStringList *error) const override;
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT CodeAction : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    QString title() const { return typedValue<QString>(titleKey); }
+    void setTitle(QString title) { insert(titleKey, title); }
+
+    Utils::optional<CodeActionKind> kind() const { return optionalValue<CodeActionKind>(kindKey); }
+    void setKind(const CodeActionKind &kind) { insert(kindKey, kind); }
+    void clearKind() { remove(kindKey); }
+
+    Utils::optional<QList<Diagnostic>> diagnostics() const
+    { return optionalArray<Diagnostic>(diagnosticsKey); }
+    void setDiagnostics(const QList<Diagnostic> &diagnostics)
+    { insertArray(diagnosticsKey, diagnostics); }
+    void clearDiagnostics() { remove(diagnosticsKey); }
+
+    Utils::optional<WorkspaceEdit> edit() const { return optionalValue<WorkspaceEdit>(editKey); }
+    void setEdit(const WorkspaceEdit &edit) { insert(editKey, edit); }
+    void clearEdit() { remove(editKey); }
+
+    Utils::optional<Command> command() const { return optionalValue<Command>(commandKey); }
+    void setCommand(const Command &command) { insert(commandKey, command); }
+    void clearCommand() { remove(commandKey); }
+
+    bool isValid(QStringList *) const override;
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT CodeActionResult
+    : public Utils::variant<QList<Utils::variant<Command, CodeAction>>, nullptr_t>
+{
+public:
+    using variant::variant;
+    explicit CodeActionResult(const QJsonValue &val);
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT CodeActionRequest : public Request<
-        LanguageClientArray<Command>, std::nullptr_t, CodeActionParams>
+        CodeActionResult, std::nullptr_t, CodeActionParams>
 {
 public:
     CodeActionRequest(const CodeActionParams &params = CodeActionParams());

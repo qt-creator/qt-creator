@@ -40,6 +40,7 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
+#include <QTextBlock>
 #include <QTimer>
 
 using namespace LanguageServerProtocol;
@@ -75,6 +76,7 @@ public:
 LanguageClientManager::LanguageClientManager()
 {
     JsonRpcMessageHandler::registerMessageProvider<PublishDiagnosticsNotification>();
+    JsonRpcMessageHandler::registerMessageProvider<ApplyWorkspaceEditRequest>();
     JsonRpcMessageHandler::registerMessageProvider<LogMessageNotification>();
     JsonRpcMessageHandler::registerMessageProvider<ShowMessageRequest>();
     JsonRpcMessageHandler::registerMessageProvider<ShowMessageNotification>();
@@ -106,7 +108,8 @@ void LanguageClientManager::init()
 }
 
 void LanguageClientManager::publishDiagnostics(const Core::Id &id,
-                                               const PublishDiagnosticsParams &params)
+                                               const PublishDiagnosticsParams &params,
+                                               BaseClient *publishingClient)
 {
     const Utils::FileName fileName = params.uri().toFileName();
     TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
@@ -115,11 +118,14 @@ void LanguageClientManager::publishDiagnostics(const Core::Id &id,
 
     removeMarks(fileName, id);
     managerInstance->m_marks[fileName][id].reserve(params.diagnostics().size());
-    for (const Diagnostic& diagnostic : params.diagnostics()) {
+    QList<Diagnostic> diagnostics = params.diagnostics();
+    for (const Diagnostic& diagnostic : diagnostics) {
         auto mark = new LanguageClientMark(fileName, diagnostic);
         managerInstance->m_marks[fileName][id].append(mark);
         doc->addMark(mark);
     }
+
+    publishingClient->requestCodeActions(params.uri(), diagnostics);
 }
 
 void LanguageClientManager::removeMark(LanguageClientMark *mark)
