@@ -56,7 +56,7 @@ public:
         setIcon(QIcon());
         setPriority(0);
         setId("HelloWorld.HelloWorldMode");
-        setContextHelpId(QString());
+        setContextHelp(QString());
     }
 };
 

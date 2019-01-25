@@ -50,6 +50,8 @@ public:
     };
 
     HelpItem();
+    HelpItem(const char *helpId);
+    HelpItem(const QString &helpId);
     HelpItem(const QString &helpId, Category category);
     HelpItem(const QString &helpId, const QString &docMark, Category category);
     HelpItem(const QString &helpId, const QString &docMark, Category category,
@@ -69,8 +71,7 @@ public:
 
     QString extractContent(bool extended) const;
 
-private:
-    QMap<QString, QUrl> retrieveHelpLinks() const;
+    QMap<QString, QUrl> links() const;
 
 private:
     QString m_helpId;

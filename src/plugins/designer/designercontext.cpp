@@ -45,7 +45,7 @@ DesignerContext::DesignerContext(const Core::Context &context,
     setWidget(widget);
 }
 
-void DesignerContext::contextHelpId(const HelpIdCallback &callback) const
+void DesignerContext::contextHelp(const HelpIdCallback &callback) const
 {
     const QDesignerFormEditorInterface *core = FormEditorW::designerEditor();
     callback(core->integration()->contextHelpId());

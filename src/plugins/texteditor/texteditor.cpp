@@ -663,7 +663,7 @@ public:
     QRectF getLastLineLineRect(const QTextBlock &block);
 
     RefactorOverlay *m_refactorOverlay = nullptr;
-    QString m_contextHelpId;
+    HelpItem m_contextHelpItem;
 
     QBasicTimer foldedBlockTimer;
     int visibleFoldedBlockNumber = -1;
@@ -8000,36 +8000,36 @@ void BaseTextEditor::select(int toPos)
 
 void TextEditorWidgetPrivate::updateCursorPosition()
 {
-    m_contextHelpId.clear();
+    m_contextHelpItem = HelpItem();
     if (!q->textCursor().block().isVisible())
         q->ensureCursorVisible();
 }
 
-void BaseTextEditor::contextHelpId(const HelpIdCallback &callback) const
+void BaseTextEditor::contextHelp(const HelpIdCallback &callback) const
 {
-    editorWidget()->contextHelpId(callback);
+    editorWidget()->contextHelpItem(callback);
 }
 
-void BaseTextEditor::setContextHelpId(const QString &id)
+void BaseTextEditor::setContextHelp(const HelpItem &item)
 {
-    IEditor::setContextHelpId(id);
-    editorWidget()->setContextHelpId(id);
+    IEditor::setContextHelp(item);
+    editorWidget()->setContextHelpItem(item);
 }
 
-void TextEditorWidget::contextHelpId(const IContext::HelpIdCallback &callback)
+void TextEditorWidget::contextHelpItem(const IContext::HelpIdCallback &callback)
 {
-    if (d->m_contextHelpId.isEmpty() && !d->m_hoverHandlers.isEmpty()) {
+    if (!d->m_contextHelpItem.isValid() && !d->m_hoverHandlers.isEmpty()) {
         d->m_hoverHandlers.first()->contextHelpId(this,
                                                   Text::wordStartCursor(textCursor()).position(),
                                                   callback);
     } else {
-        callback(d->m_contextHelpId);
+        callback(d->m_contextHelpItem);
     }
 }
 
-void TextEditorWidget::setContextHelpId(const QString &id)
+void TextEditorWidget::setContextHelpItem(const HelpItem &item)
 {
-    d->m_contextHelpId = id;
+    d->m_contextHelpItem = item;
 }
 
 RefactorMarkers TextEditorWidget::refactorMarkers() const

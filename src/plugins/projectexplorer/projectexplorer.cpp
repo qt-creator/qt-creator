@@ -305,7 +305,7 @@ public:
                                       Icons::MODE_PROJECT_FLAT, Icons::MODE_PROJECT_FLAT_ACTIVE));
         setPriority(Constants::P_MODE_SESSION);
         setId(Constants::MODE_SESSION);
-        setContextHelpId(QLatin1String("Managing Projects"));
+        setContextHelp("Managing Projects");
     }
 };
 

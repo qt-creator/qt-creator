@@ -32,6 +32,14 @@ using namespace Core;
 
 HelpItem::HelpItem() = default;
 
+HelpItem::HelpItem(const char *helpId)
+    : m_helpId(QString::fromUtf8(helpId))
+{}
+
+HelpItem::HelpItem(const QString &helpId)
+    : m_helpId(helpId)
+{}
+
 HelpItem::HelpItem(const QString &helpId, Category category) :
     m_helpId(helpId), m_docMark(helpId), m_category(category)
 {}
@@ -70,7 +78,7 @@ bool HelpItem::isValid() const
 {
     if (m_helpId.isEmpty())
         return false;
-    if (!retrieveHelpLinks().isEmpty())
+    if (!links().isEmpty())
         return true;
     if (QUrl(m_helpId).isValid())
         return true;
@@ -86,7 +94,7 @@ QString HelpItem::extractContent(bool extended) const
         htmlExtractor.setMode(Utils::HtmlDocExtractor::FirstParagraph);
 
     QString contents;
-    QMap<QString, QUrl> helpLinks = retrieveHelpLinks();
+    QMap<QString, QUrl> helpLinks = links();
     if (helpLinks.isEmpty()) {
         // Maybe this is already an URL...
         QUrl url(m_helpId);
@@ -134,7 +142,7 @@ QString HelpItem::extractContent(bool extended) const
     return contents;
 }
 
-QMap<QString, QUrl> HelpItem::retrieveHelpLinks() const
+QMap<QString, QUrl> HelpItem::links() const
 {
     if (m_helpLinks.isEmpty())
         m_helpLinks = Core::HelpManager::linksForIdentifier(m_helpId);

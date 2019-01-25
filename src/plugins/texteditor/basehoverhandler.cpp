@@ -45,7 +45,7 @@ void BaseHoverHandler::checkPriority(TextEditorWidget *widget,
                                      int pos,
                                      ReportPriority report)
 {
-    widget->setContextHelpId(QString());
+    widget->setContextHelpItem({});
 
     process(widget, pos, report);
 }
@@ -117,12 +117,9 @@ bool BaseHoverHandler::isContextHelpRequest() const
 void BaseHoverHandler::propagateHelpId(TextEditorWidget *widget,
                                        const Core::IContext::HelpIdCallback &callback)
 {
-    QString id;
-    if (lastHelpItemIdentified().isValid())
-        id = lastHelpItemIdentified().helpId();
-
-    widget->setContextHelpId(id);
-    callback(id);
+    const Core::HelpItem contextHelp = lastHelpItemIdentified();
+    widget->setContextHelpItem(contextHelp);
+    callback(contextHelp);
 }
 
 void BaseHoverHandler::process(TextEditorWidget *widget, int pos, ReportPriority report)

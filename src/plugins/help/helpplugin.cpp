@@ -65,6 +65,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/helpitem.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
@@ -119,7 +120,7 @@ public:
     void modeChanged(Core::Id mode, Core::Id old);
 
     void requestContextHelp();
-    void showContextHelp(const QString &contextHelpId);
+    void showContextHelp(const HelpItem &contextHelp);
     void activateIndex();
     void activateContents();
 
@@ -649,17 +650,17 @@ void HelpPluginPrivate::requestContextHelp()
     QString contextHelpId = Utils::ToolTip::contextHelpId();
     IContext *context = ICore::currentContextObject();
     if (contextHelpId.isEmpty() && context)
-        context->contextHelpId([this](const QString &id) { showContextHelp(id); });
+        context->contextHelp([this](const HelpItem &item) { showContextHelp(item); });
     else
         showContextHelp(contextHelpId);
 }
 
-void HelpPluginPrivate::showContextHelp(const QString &contextHelpId)
+void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
 {
-    QMap<QString, QUrl> links = Core::HelpManager::linksForIdentifier(contextHelpId);
+    QMap<QString, QUrl> links = contextHelp.links();
     // Maybe the id is already an URL
-    if (links.isEmpty() && LocalHelpManager::isValidUrl(contextHelpId))
-        links.insert(contextHelpId, contextHelpId);
+    if (links.isEmpty() && LocalHelpManager::isValidUrl(contextHelp.helpId()))
+        links.insert(contextHelp.helpId(), contextHelp.helpId());
 
     QUrl source = findBestLink(links);
     if (!source.isValid()) {
@@ -675,7 +676,7 @@ void HelpPluginPrivate::showContextHelp(const QString &contextHelpId)
                                 .arg(HelpPlugin::tr("No Documentation"))
                                 .arg(creatorTheme()->color(Theme::BackgroundColorNormal).name())
                                 .arg(creatorTheme()->color(Theme::TextColorNormal).name())
-                                .arg(contextHelpId)
+                                .arg(contextHelp.helpId())
                                 .arg(HelpPlugin::tr("No documentation available.")));
         }
     } else {

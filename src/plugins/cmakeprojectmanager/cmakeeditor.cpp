@@ -60,7 +60,7 @@ namespace Internal {
 // CMakeEditor
 //
 
-void CMakeEditor::contextHelpId(const HelpIdCallback &callback) const
+void CMakeEditor::contextHelp(const HelpIdCallback &callback) const
 {
     int pos = position();
 
@@ -102,7 +102,7 @@ void CMakeEditor::contextHelpId(const HelpIdCallback &callback) const
     }
 
     QString command = textAt(begin, end - begin).toLower();
-    callback(QLatin1String("command/") + command);
+    callback(QString("command/" + command));
 }
 
 //

@@ -33,6 +33,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/helpitem.h>
 
 #include <utils/link.h>
 #include <utils/uncommentselection.h>
@@ -130,8 +131,8 @@ public:
     bool restoreState(const QByteArray &state) override;
     QWidget *toolBar() override;
 
-    void contextHelpId(const HelpIdCallback &callback) const override; // from IContext
-    void setContextHelpId(const QString &id) override;
+    void contextHelp(const HelpIdCallback &callback) const override; // from IContext
+    void setContextHelp(const Core::HelpItem &item) override;
 
     int currentLine() const override;
     int currentColumn() const override;
@@ -542,8 +543,8 @@ public:
     QChar characterAt(int pos) const;
     QString textAt(int from, int to) const;
 
-    void contextHelpId(const Core::IContext::HelpIdCallback &callback);
-    void setContextHelpId(const QString &id);
+    void contextHelpItem(const Core::IContext::HelpIdCallback &callback);
+    void setContextHelpItem(const Core::HelpItem &item);
 
     static TextEditorWidget *currentTextEditorWidget();
 

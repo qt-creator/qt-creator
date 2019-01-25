@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
+#include "core_global.h"
+#include "helpitem.h"
+#include "id.h"
 
 #include <QList>
 #include <QObject>
@@ -73,17 +74,17 @@ public:
 
     virtual Context context() const { return m_context; }
     virtual QWidget *widget() const { return m_widget; }
-    using HelpIdCallback = std::function<void(const QString &id)>;
-    virtual void contextHelpId(const HelpIdCallback &callback) const { callback(m_contextHelpId); }
+    using HelpIdCallback = std::function<void(const HelpItem &id)>;
+    virtual void contextHelp(const HelpIdCallback &callback) const { callback(m_contextHelp); }
 
     virtual void setContext(const Context &context) { m_context = context; }
     virtual void setWidget(QWidget *widget) { m_widget = widget; }
-    virtual void setContextHelpId(const QString &id) { m_contextHelpId = id; }
+    virtual void setContextHelp(const HelpItem &id) { m_contextHelp = id; }
 
 protected:
     Context m_context;
     QPointer<QWidget> m_widget;
-    QString m_contextHelpId;
+    HelpItem m_contextHelp;
 };
 
 } // namespace Core

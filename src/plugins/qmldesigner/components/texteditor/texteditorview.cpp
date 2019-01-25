@@ -160,7 +160,7 @@ void TextEditorView::contextHelpId(const Core::IContext::HelpIdCallback &callbac
 void TextEditorView::qmlJSEditorHelpId(const Core::IContext::HelpIdCallback &callback) const
 {
     if (m_widget->textEditor())
-        m_widget->textEditor()->contextHelpId(callback);
+        m_widget->textEditor()->contextHelp(callback);
     else
         callback(QString());
 }

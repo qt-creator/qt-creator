@@ -309,7 +309,7 @@ WelcomeMode::WelcomeMode()
 
     setPriority(Constants::P_MODE_WELCOME);
     setId(Constants::MODE_WELCOME);
-    setContextHelpId("Qt Creator Manual");
+    setContextHelp("Qt Creator Manual");
     setContext(Context(Constants::C_WELCOME_MODE));
 
     QPalette palette = creatorTheme()->palette();
