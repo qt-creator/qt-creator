@@ -169,9 +169,9 @@ QString IosBuildStep::buildCommand() const
     return QString("xcodebuild"); // add path?
 }
 
-void IosBuildStep::run(QFutureInterface<bool> &fi)
+void IosBuildStep::doRun()
 {
-    AbstractProcessStep::run(fi);
+    AbstractProcessStep::doRun();
 }
 
 BuildStepConfigWidget *IosBuildStep::createConfigWidget()

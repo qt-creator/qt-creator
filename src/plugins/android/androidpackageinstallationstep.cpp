@@ -95,7 +95,7 @@ bool AndroidPackageInstallationStep::init()
     return AbstractProcessStep::init();
 }
 
-void AndroidPackageInstallationStep::run(QFutureInterface<bool> &fi)
+void AndroidPackageInstallationStep::doRun()
 {
     QString error;
     foreach (const QString &dir, m_androidDirsToClean) {
@@ -104,12 +104,12 @@ void AndroidPackageInstallationStep::run(QFutureInterface<bool> &fi)
             emit addOutput(tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
             if (!FileUtils::removeRecursively(androidDir, &error)) {
                 emit addOutput(error, OutputFormat::Stderr);
-                reportRunResult(fi, false);
+                emit finished(false);
                 return;
             }
         }
     }
-    AbstractProcessStep::run(fi);
+    AbstractProcessStep::doRun();
 }
 
 BuildStepConfigWidget *AndroidPackageInstallationStep::createConfigWidget()

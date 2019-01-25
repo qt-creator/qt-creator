@@ -84,11 +84,13 @@ private:
     void runCommand(const QString &program, const QStringList &arguments);
 
     bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
+    void doRun() override;
     void gatherFilesToPull();
-    DeployErrorCode runDeploy(QFutureInterface<bool> &fi);
+    DeployErrorCode runDeploy();
     void slotAskForUninstall(DeployErrorCode errorCode);
     void slotSetSerialNumber(const QString &serialNumber);
+
+    bool runImpl();
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 

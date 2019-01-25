@@ -67,7 +67,7 @@ public:
     explicit AutoreconfStep(ProjectExplorer::BuildStepList *bsl);
 
     bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
+    void doRun() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
 private:

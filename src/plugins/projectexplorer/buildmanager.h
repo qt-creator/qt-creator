@@ -85,8 +85,7 @@ private:
                            BuildStep::OutputNewlineSetting newlineSettings = BuildStep::DoAppendNewline);
 
     static void nextBuildQueue();
-    static void progressChanged();
-    static void progressTextChanged();
+    static void progressChanged(int percent, const QString &text);
     static void emitCancelMessage();
     static void showBuildResults();
     static void updateTaskCount();

@@ -29,7 +29,6 @@
 #include <projectexplorer/abstractprocessstep.h>
 
 #include <QStringList>
-#include <QFutureWatcher>
 
 #include <memory>
 
@@ -116,7 +115,7 @@ public:
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
     bool init() override;
-    void run(QFutureInterface<bool> &) override;
+    void doRun() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     void setForced(bool b);
 
@@ -165,6 +164,9 @@ protected:
     bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
 
 private:
+    void doCancel() override;
+    void finish(bool success) override;
+
     void startOneCommand(const QString &command, const QString &args);
     void runNextCommand();
 
@@ -176,13 +178,9 @@ private:
     // Extra arguments for qmake.
     QStringList m_extraArgs;
 
-    QFutureInterface<bool> m_inputFuture;
-    QFutureWatcher<bool> m_inputWatcher;
-    std::unique_ptr<QFutureInterface<bool>> m_commandFuture;
-    QFutureWatcher<bool> m_commandWatcher;
-
     // last values
     enum class State { IDLE = 0, RUN_QMAKE, RUN_MAKE_QMAKE_ALL, POST_PROCESS };
+    bool m_wasSuccess = true;
     State m_nextState = State::IDLE;
     bool m_forced = false;
     bool m_needToRunQMake = false; // set in init(), read in run()

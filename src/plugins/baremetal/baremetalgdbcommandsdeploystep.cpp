@@ -66,12 +66,11 @@ BareMetalGdbCommandsDeployStep::BareMetalGdbCommandsDeployStep(BuildStepList *bs
     : BuildStep(bsl, stepId())
 {
     setDefaultDisplayName(displayName());
-    setRunInGuiThread(true);
 }
 
-void BareMetalGdbCommandsDeployStep::run(QFutureInterface<bool> &fi)
+void BareMetalGdbCommandsDeployStep::doRun()
 {
-    reportRunResult(fi, true);
+    emit finished(true);
 }
 
 bool BareMetalGdbCommandsDeployStep::fromMap(const QVariantMap &map)

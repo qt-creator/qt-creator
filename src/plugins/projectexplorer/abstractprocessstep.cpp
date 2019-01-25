@@ -104,7 +104,6 @@ public:
     Private(AbstractProcessStep *q) : q(q) {}
 
     AbstractProcessStep *q;
-    QFutureInterface<bool> *m_futureInterface = nullptr;
     std::unique_ptr<Utils::QtcProcess> m_process;
     std::unique_ptr<IOutputParser> m_outputParserChain;
     ProcessParameters m_param;
@@ -125,7 +124,6 @@ AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
     BuildStep(bsl, id),
     d(new Private(this))
 {
-    setRunInGuiThread(true);
 }
 
 AbstractProcessStep::~AbstractProcessStep()
@@ -209,7 +207,7 @@ bool AbstractProcessStep::init()
     YourBuildStep::run().
 */
 
-void AbstractProcessStep::run(QFutureInterface<bool> &fi)
+void AbstractProcessStep::doRun()
 {
     QDir wd(d->m_param.effectiveWorkingDirectory());
     if (!wd.exists()) {
@@ -217,7 +215,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
             emit addOutput(tr("Could not create directory \"%1\"")
                            .arg(QDir::toNativeSeparators(wd.absolutePath())),
                            BuildStep::OutputFormat::ErrorMessage);
-            reportRunResult(fi, false);
+            finish(false);
             return;
         }
     }
@@ -225,11 +223,9 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     QString effectiveCommand = d->m_param.effectiveCommand();
     if (!QFileInfo::exists(effectiveCommand)) {
         processStartupFailed();
-        reportRunResult(fi, false);
+        finish(false);
         return;
     }
-
-    d->m_futureInterface = &fi;
 
     d->m_process.reset(new Utils::QtcProcess());
     d->m_process->setUseCtrlCStub(Utils::HostOsInfo::isWindowsHost());
@@ -249,13 +245,13 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         processStartupFailed();
         d->m_process.reset();
         d->m_outputParserChain.reset();
-        reportRunResult(fi, false);
+        finish(false);
         return;
     }
     processStarted();
 }
 
-void AbstractProcessStep::cancel()
+void AbstractProcessStep::doCancel()
 {
     Core::Reaper::reap(d->m_process.release());
 }
@@ -275,7 +271,7 @@ void AbstractProcessStep::cleanUp(QProcess *process)
     d->m_process.reset();
 
     // Report result
-    reportRunResult(*d->m_futureInterface, returnValue);
+    finish(returnValue);
 }
 
 /*!
@@ -420,9 +416,9 @@ void AbstractProcessStep::stdError(const QString &line)
     emit addOutput(line, BuildStep::OutputFormat::Stderr, BuildStep::DontAppendNewline);
 }
 
-QFutureInterface<bool> *AbstractProcessStep::futureInterface() const
+void AbstractProcessStep::finish(bool success)
 {
-    return d->m_futureInterface;
+    emit finished(success);
 }
 
 void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int skipLines)

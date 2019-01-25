@@ -56,11 +56,6 @@ public:
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
-    bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
-
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
     QString buildTarget() const;
     bool buildsBuildTarget(const QString &target) const;
     void setBuildTarget(const QString &target);
@@ -98,8 +93,12 @@ protected:
 private:
     void ctor(ProjectExplorer::BuildStepList *bsl);
 
-    void runImpl(QFutureInterface<bool> &fi);
-    void handleProjectWasParsed(QFutureInterface<bool> &fi, bool success);
+    bool init() override;
+    void doRun() override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+
+    void runImpl();
+    void handleProjectWasParsed(bool success);
 
     void handleBuildTargetChanges(bool success);
     CMakeRunConfiguration *targetsActiveRunConfiguration() const;
@@ -112,6 +111,7 @@ private:
     QString m_buildTarget;
     QString m_toolArguments;
     bool m_useNinja = false;
+    bool m_waiting = false;
 };
 
 class CMakeBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

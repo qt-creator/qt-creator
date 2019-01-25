@@ -66,11 +66,12 @@ class AutogenStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit AutogenStep(ProjectExplorer::BuildStepList *bsl);
 
-    bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
 private:
+    bool init() override;
+    void doRun() override;
+
     ProjectExplorer::BaseStringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runAutogen = false;
 };

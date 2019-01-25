@@ -42,15 +42,15 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer:
 
 public:
     ~AbstractRemoteLinuxDeployStep() override;
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-    bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
-    void cancel() override;
-
     virtual AbstractRemoteLinuxDeployService *deployService() const = 0;
 
 protected:
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
+    bool init() override;
+    void doRun() override;
+    void doCancel() override;
+
     explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     virtual bool initInternal(QString *error = nullptr) = 0;
 

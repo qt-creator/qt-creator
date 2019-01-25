@@ -33,6 +33,9 @@
 #include <QFutureInterface>
 #include <QWidget>
 
+#include <functional>
+#include <memory>
+
 namespace ProjectExplorer {
 
 class BuildConfiguration;
@@ -54,10 +57,9 @@ protected:
 
 public:
     virtual bool init() = 0;
-    virtual void run(QFutureInterface<bool> &fi) = 0;
+    void run();
+    void cancel();
     virtual BuildStepConfigWidget *createConfigWidget();
-
-    virtual void cancel();
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
@@ -88,9 +90,6 @@ public:
     bool isImmutable() const { return m_immutable; }
     void setImmutable(bool immutable) { m_immutable = immutable; }
 
-    bool runInGuiThread() const;
-    void setRunInGuiThread(bool runInGuiThread);
-
 signals:
     /// Adds a \p task to the Issues pane.
     /// Do note that for linking compile output with tasks, you should first emit the task
@@ -104,11 +103,24 @@ signals:
 
     void enabledChanged();
 
+    void progress(int percentage, const QString &message);
+    void finished(bool result);
+
+protected:
+    void runInThread(const std::function<bool()> &syncImpl);
+
+    std::function<bool()> cancelChecker() const;
+    bool isCanceled() const;
+
 private:
+    virtual void doRun() = 0;
+    virtual void doCancel();
+
+    std::atomic_bool m_cancelFlag;
     bool m_enabled = true;
     bool m_immutable = false;
     bool m_widgetExpandedByDefault = true;
-    bool m_runInGuiThread = false;
+    bool m_runInGuiThread = true;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepInfo

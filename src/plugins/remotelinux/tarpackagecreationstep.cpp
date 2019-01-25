@@ -94,32 +94,9 @@ bool TarPackageCreationStep::init()
     return true;
 }
 
-void TarPackageCreationStep::run(QFutureInterface<bool> &fi)
+void TarPackageCreationStep::doRun()
 {
-    setPackagingStarted();
-
-    const QList<DeployableFile> &files = target()->deploymentData().allFiles();
-
-    if (m_incrementalDeploymentAspect->value()) {
-        m_files.clear();
-        for (const DeployableFile &file : files)
-            addNeededDeploymentFiles(file, target()->kit());
-    } else {
-        m_files = files;
-    }
-
-    const bool success = doPackage(fi);
-
-    setPackagingFinished(success);
-    if (success)
-        emit addOutput(tr("Packaging finished successfully."), OutputFormat::NormalMessage);
-    else
-        emit addOutput(tr("Packaging failed."), OutputFormat::ErrorMessage);
-
-    connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
-            this, &TarPackageCreationStep::deployFinished);
-
-    reportRunResult(fi, success);
+    runInThread([this] { return runImpl(); });
 }
 
 void TarPackageCreationStep::addNeededDeploymentFiles(
@@ -151,7 +128,7 @@ void TarPackageCreationStep::addNeededDeploymentFiles(
     }
 }
 
-bool TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi)
+bool TarPackageCreationStep::doPackage()
 {
     emit addOutput(tr("Creating tarball..."), OutputFormat::NormalMessage);
     if (!m_packagingNeeded) {
@@ -176,7 +153,7 @@ bool TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi)
         }
         QFileInfo fileInfo = d.localFilePath().toFileInfo();
         if (!appendFile(tarFile, fileInfo, d.remoteDirectory() + QLatin1Char('/')
-                + fileInfo.fileName(), fi)) {
+                + fileInfo.fileName())) {
             return false;
         }
     }
@@ -192,7 +169,7 @@ bool TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi)
 }
 
 bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInfo,
-    const QString &remoteFilePath, const QFutureInterface<bool> &fi)
+    const QString &remoteFilePath)
 {
     if (!writeHeader(tarFile, fileInfo, remoteFilePath))
         return false;
@@ -202,7 +179,7 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
                  dir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
             const QString thisLocalFilePath = dir.path() + QLatin1Char('/') + fileName;
             const QString thisRemoteFilePath  = remoteFilePath + QLatin1Char('/') + fileName;
-            if (!appendFile(tarFile, QFileInfo(thisLocalFilePath), thisRemoteFilePath, fi))
+            if (!appendFile(tarFile, QFileInfo(thisLocalFilePath), thisRemoteFilePath))
                 return false;
         }
         return true;
@@ -231,7 +208,7 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
     while (!file.atEnd() && file.error() == QFile::NoError && tarFile.error() == QFile::NoError) {
         const QByteArray data = file.read(chunkSize);
         tarFile.write(data);
-        if (fi.isCanceled())
+        if (isCanceled())
             return false;
     }
     if (file.error() != QFile::NoError) {
@@ -337,6 +314,34 @@ void TarPackageCreationStep::deployFinished(bool success)
 QString TarPackageCreationStep::packageFileName() const
 {
     return project()->displayName() + QLatin1String(".tar");
+}
+
+bool TarPackageCreationStep::runImpl()
+{
+    setPackagingStarted();
+
+    const QList<DeployableFile> &files = target()->deploymentData().allFiles();
+
+    if (m_incrementalDeploymentAspect->value()) {
+        m_files.clear();
+        for (const DeployableFile &file : files)
+            addNeededDeploymentFiles(file, target()->kit());
+    } else {
+        m_files = files;
+    }
+
+    const bool success = doPackage();
+
+    setPackagingFinished(success);
+    if (success)
+        emit addOutput(tr("Packaging finished successfully."), OutputFormat::NormalMessage);
+    else
+        emit addOutput(tr("Packaging failed."), OutputFormat::ErrorMessage);
+
+    connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
+            this, &TarPackageCreationStep::deployFinished);
+
+    return success;
 }
 
 BuildStepConfigWidget *TarPackageCreationStep::createConfigWidget()

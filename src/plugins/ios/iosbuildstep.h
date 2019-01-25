@@ -48,9 +48,6 @@ class IosBuildStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit IosBuildStep(ProjectExplorer::BuildStepList *parent);
 
-    bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
-
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     void setBaseArguments(const QStringList &args);
     void setExtraArguments(const QStringList &extraArgs);
@@ -60,6 +57,8 @@ public:
     QString buildCommand() const;
 
 private:
+    bool init() override;
+    void doRun() override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 

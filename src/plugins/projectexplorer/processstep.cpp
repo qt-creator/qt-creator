@@ -71,9 +71,9 @@ bool ProcessStep::init()
     return AbstractProcessStep::init();
 }
 
-void ProcessStep::run(QFutureInterface<bool> & fi)
+void ProcessStep::doRun()
 {
-    AbstractProcessStep::run(fi);
+    AbstractProcessStep::doRun();
 }
 
 BuildStepConfigWidget *ProcessStep::createConfigWidget()

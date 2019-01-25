@@ -34,8 +34,11 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QFormLayout>
+#include <QFutureWatcher>
+#include <QPointer>
 
 /*!
     \class ProjectExplorer::BuildStep
@@ -125,6 +128,18 @@ BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
     expander->setDisplayName(tr("Build Step"));
     expander->setAccumulating(true);
     expander->registerSubProvider([this] { return projectConfiguration()->macroExpander(); });
+}
+
+void BuildStep::run()
+{
+    m_cancelFlag = false;
+    doRun();
+}
+
+void BuildStep::cancel()
+{
+    m_cancelFlag = true;
+    doCancel();
 }
 
 BuildStepConfigWidget *BuildStep::createConfigWidget()
@@ -218,25 +233,32 @@ void BuildStep::setWidgetExpandedByDefault(bool widgetExpandedByDefault)
     immutable steps are run. The default implementation returns \c false.
 */
 
-bool BuildStep::runInGuiThread() const
+void BuildStep::runInThread(const std::function<bool()> &syncImpl)
 {
-    return m_runInGuiThread;
+    m_runInGuiThread = false;
+    m_cancelFlag = false;
+    auto * const watcher = new QFutureWatcher<bool>(this);
+    connect(watcher, &QFutureWatcher<bool>::finished, this, [this, watcher] {
+        emit finished(watcher->result());
+        watcher->deleteLater();
+    });
+    watcher->setFuture(Utils::runAsync(syncImpl));
 }
 
-void BuildStep::setRunInGuiThread(bool runInGuiThread)
+std::function<bool ()> BuildStep::cancelChecker() const
 {
-    m_runInGuiThread = runInGuiThread;
+    return [step = QPointer<const BuildStep>(this)] { return step && step->isCanceled(); };
 }
 
-/*!
-    This function needs to be reimplemented only for build steps that return
-    \c false from runInGuiThread().
-
-    \sa runInGuiThread()
-*/
-void BuildStep::cancel()
+bool BuildStep::isCanceled() const
 {
-    // Do nothing
+    return m_cancelFlag;
+}
+
+void BuildStep::doCancel()
+{
+    QTC_ASSERT(!m_runInGuiThread, qWarning() << "Build step" << displayName()
+               << "neeeds to implement the doCancel() function");
 }
 
 void BuildStep::setEnabled(bool b)

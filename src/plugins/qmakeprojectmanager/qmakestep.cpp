@@ -77,13 +77,6 @@ QMakeStep::QMakeStep(BuildStepList *bsl) : AbstractProcessStep(bsl, QMAKE_BS_ID)
 {
     //: QMakeStep default display name
     setDefaultDisplayName(tr("qmake"));
-
-    connect(&m_inputWatcher, &QFutureWatcher<bool>::canceled,
-            this, [this]() {
-                if (m_commandFuture)
-                    m_commandFuture->cancel();
-            });
-    connect(&m_commandWatcher, &QFutureWatcher<bool>::finished, this, &QMakeStep::runNextCommand);
 }
 
 QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
@@ -172,9 +165,6 @@ QMakeStepConfig QMakeStep::deducedArguments() const
 
 bool QMakeStep::init()
 {
-    if (m_commandFuture)
-        return false;
-
     QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
     const BaseQtVersion *qtVersion = QtKitInformation::qtVersion(target()->kit());
 
@@ -262,21 +252,16 @@ bool QMakeStep::init()
     return AbstractProcessStep::init();
 }
 
-void QMakeStep::run(QFutureInterface<bool> &fi)
+void QMakeStep::doRun()
 {
-    m_inputFuture = fi;
-    m_inputWatcher.setFuture(m_inputFuture.future());
-
-    fi.setProgressRange(0, static_cast<int>(State::POST_PROCESS));
-    fi.setProgressValue(0);
     if (m_scriptTemplate) {
-        reportRunResult(fi, true);
+        emit finished(true);
         return;
     }
 
     if (!m_needToRunQMake) {
         emit addOutput(tr("Configuration unchanged, skipping qmake step."), BuildStep::OutputFormat::NormalMessage);
-        reportRunResult(fi, true);
+        emit finished(true);
         return;
     }
 
@@ -312,6 +297,17 @@ bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
     return result;
 }
 
+void QMakeStep::doCancel()
+{
+    AbstractProcessStep::doCancel();
+}
+
+void QMakeStep::finish(bool success)
+{
+    m_wasSuccess = success;
+    runNextCommand();
+}
+
 void QMakeStep::startOneCommand(const QString &command, const QString &args)
 {
     ProcessParameters *pp = processParameters();
@@ -319,31 +315,19 @@ void QMakeStep::startOneCommand(const QString &command, const QString &args)
     pp->setArguments(args);
     pp->resolveAll();
 
-    QTC_ASSERT(!m_commandFuture || m_commandFuture->future().isFinished(), return);
-    m_commandFuture.reset(new QFutureInterface<bool>);
-
-    m_commandWatcher.setFuture(m_commandFuture->future());
-    AbstractProcessStep::run(*m_commandFuture);
+    AbstractProcessStep::doRun();
 }
 
 void QMakeStep::runNextCommand()
 {
-    bool wasSuccess = true;
-    if (m_commandFuture) {
-        if (m_commandFuture->isCanceled())
-            wasSuccess = false;
-        else if (m_commandFuture->isFinished())
-            wasSuccess = m_commandFuture->future().result();
-        else
-            wasSuccess = false; // should not happen
-    }
+    if (isCanceled())
+        m_wasSuccess = false;
 
-    m_commandFuture.reset();
-
-    if (!wasSuccess)
+    if (!m_wasSuccess)
         m_nextState = State::POST_PROCESS;
 
-    m_inputFuture.setProgressValue(static_cast<int>(m_nextState));
+    emit progress(static_cast<int>(m_nextState) * 100 / static_cast<int>(State::POST_PROCESS),
+                  QString());
 
     switch (m_nextState) {
     case State::IDLE:
@@ -364,8 +348,7 @@ void QMakeStep::runNextCommand()
         return;
     case State::POST_PROCESS:
         m_nextState = State::IDLE;
-        reportRunResult(m_inputFuture, wasSuccess);
-        m_inputFuture = QFutureInterface<bool>();
+        emit finished(m_wasSuccess);
         return;
     }
 }

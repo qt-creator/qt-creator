@@ -298,7 +298,7 @@ bool AndroidDeployQtStep::init()
     return true;
 }
 
-AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QFutureInterface<bool> &fi)
+AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 {
     QString args;
     if (m_useAndroiddeployqt) {
@@ -386,7 +386,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QFutureInter
         if (m_process->state() == QProcess::NotRunning)
             break;
 
-        if (fi.isCanceled()) {
+        if (isCanceled()) {
             m_process->kill();
             m_process->waitForFinished();
         }
@@ -472,25 +472,23 @@ void AndroidDeployQtStep::slotSetSerialNumber(const QString &serialNumber)
     AndroidManager::setDeviceSerialNumber(target(), serialNumber);
 }
 
-void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
+bool AndroidDeployQtStep::runImpl()
 {
     if (!m_avdName.isEmpty()) {
-        QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName, fi);
+        QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName, cancelChecker());
         qCDebug(deployStepLog) << "Deploying to AVD:" << m_avdName << serialNumber;
-        if (serialNumber.isEmpty()) {
-            reportRunResult(fi, false);
-            return;
-        }
+        if (serialNumber.isEmpty())
+            return false;
         m_serialNumber = serialNumber;
         emit setSerialNumber(serialNumber);
     }
 
-    DeployErrorCode returnValue = runDeploy(fi);
+    DeployErrorCode returnValue = runDeploy();
     if (returnValue > DeployErrorCode::NoError && returnValue < DeployErrorCode::Failure) {
         emit askForUninstall(returnValue);
         if (m_askForUninstall) {
             m_uninstallPreviousPackageRun = true;
-            returnValue = runDeploy(fi);
+            returnValue = runDeploy();
         }
     }
 
@@ -509,7 +507,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         }
     }
 
-    reportRunResult(fi, returnValue == NoError);
+    return returnValue == NoError;
 }
 
 void AndroidDeployQtStep::gatherFilesToPull()
@@ -548,6 +546,11 @@ void AndroidDeployQtStep::gatherFilesToPull()
     qCDebug(deployStepLog) << "Files to pull from device:";
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr)
         qCDebug(deployStepLog) << itr.key() << "to" << itr.value();
+}
+
+void AndroidDeployQtStep::doRun()
+{
+    runInThread([this] { return runImpl(); });
 }
 
 void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &arguments)
