@@ -228,6 +228,7 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
         QString string;
         message.setString(&string);
         message << selectedNode;
+        message << " version: " << selectedNode.majorVersion() << '.' << selectedNode.minorVersion();
         for (const VariantProperty &property : selectedNode.variantProperties())
             message << property << lineBreak;
 
