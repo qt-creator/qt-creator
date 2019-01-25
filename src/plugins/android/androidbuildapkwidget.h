@@ -29,41 +29,17 @@
 #include "android_global.h"
 
 #include "androidbuildapkstep.h"
-#include "androidextralibrarylistmodel.h"
 
 #include <projectexplorer/buildstep.h>
 
-#include <QListView>
-#include <QToolButton>
-
 QT_BEGIN_NAMESPACE
-namespace Ui { class AndroidBuildApkWidget; }
+class QCheckBox;
+class QComboBox;
+class QLabel;
 QT_END_NAMESPACE
 
 namespace Android {
 namespace Internal {
-
-class AndroidBuildApkInnerWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-
-public:
-    AndroidBuildApkInnerWidget(AndroidBuildApkStep *step);
-    ~AndroidBuildApkInnerWidget() override;
-
-private:
-    void createKeyStore();
-    void updateSigningWarning();
-    void openPackageLocationCheckBoxToggled(bool checked);
-    void verboseOutputCheckBoxToggled(bool checked);
-    void updateKeyStorePath(const QString &path);
-    void signPackageCheckBoxToggled(bool checked);
-
-    void setCertificates();
-
-    Ui::AndroidBuildApkWidget *m_ui;
-    AndroidBuildApkStep *m_step;
-};
 
 class AndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
 {
@@ -72,21 +48,24 @@ class AndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     explicit AndroidBuildApkWidget(AndroidBuildApkStep *step);
 
-signals:
-    void requestAndroidTemplates();
+private:
+    void setCertificates();
+    void updateSigningWarning();
+    void signPackageCheckBoxToggled(bool checked);
+
+    QWidget *createApplicationGroup();
+    QWidget *createSignPackageGroup();
+    QWidget *createAdvancedGroup();
+    QWidget *createCreateTemplatesGroup();
+    QWidget *createAdditionalLibrariesGroup();
 
 private:
-    void addAndroidExtraLib();
-    void removeAndroidExtraLib();
-    void checkEnableRemoveButton();
-
-private:
-    QListView *m_androidExtraLibsListView = nullptr;
-    QToolButton *m_removeAndroidExtraLibButton = nullptr;
-
     AndroidBuildApkStep *m_step = nullptr;
-    Android::AndroidExtraLibraryListModel *m_extraLibraryListModel = nullptr;
-    bool m_ignoreChange = false;
+    QCheckBox *m_signPackageCheckBox = nullptr;
+    QLabel *m_signingDebugWarningIcon = nullptr;
+    QLabel *m_signingDebugWarningLabel = nullptr;
+    QComboBox *m_certificatesAliasComboBox = nullptr;
+    QCheckBox *m_addDebuggerCheckBox = nullptr;
 };
 
 } // namespace Internal

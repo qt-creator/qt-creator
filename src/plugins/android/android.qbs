@@ -36,7 +36,6 @@ Project {
             "androidbuildapkstep.h",
             "androidbuildapkwidget.cpp",
             "androidbuildapkwidget.h",
-            "androidbuildapkwidget.ui",
             "androiddeployqtstep.cpp",
             "androiddeployqtstep.h",
             "androiddebugsupport.cpp",

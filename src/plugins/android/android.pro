@@ -101,7 +101,6 @@ FORMS += \
     addnewavddialog.ui \
     androidcreatekeystorecertificate.ui \
     androiddevicedialog.ui \
-    androidbuildapkwidget.ui \
     adbcommandswidget.ui \
     androidsdkmanagerwidget.ui
 
