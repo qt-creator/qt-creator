@@ -36,10 +36,6 @@
 
 namespace Utils { class QtcProcess; }
 
-QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
-QT_END_NAMESPACE
-
 namespace Android {
 namespace Internal {
 
@@ -52,7 +48,6 @@ public:
 class AndroidDeployQtStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
-    friend class AndroidDeployQtStepFactory;
 
     enum DeployErrorCode
     {

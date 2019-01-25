@@ -25,7 +25,6 @@
 ****************************************************************************/
 
 #include "androiddeployqtstep.h"
-#include "androiddeployqtwidget.h"
 #include "certificatesmodel.h"
 
 #include "javaparser.h"
@@ -54,10 +53,14 @@
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
+#include <QCheckBox>
+#include <QFileDialog>
+#include <QGroupBox>
 #include <QInputDialog>
-#include <QMessageBox>
 #include <QLoggingCategory>
-
+#include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Android;
@@ -85,6 +88,60 @@ AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
     setRepeatable(false);
     setDisplayName(AndroidDeployQtStep::tr("Deploy to Android device or emulator"));
 }
+
+// AndroidDeployQtWidget
+
+class AndroidDeployQtWidget : public BuildStepConfigWidget
+{
+public:
+    AndroidDeployQtWidget(AndroidDeployQtStep *step)
+        : ProjectExplorer::BuildStepConfigWidget(step)
+    {
+        setDisplayName(QString("<b>%1</b>").arg(step->displayName()));
+        setSummaryText(displayName());
+
+        auto uninstallPreviousPackage = new QCheckBox(this);
+        uninstallPreviousPackage->setText(tr("Uninstall previous package"));
+        uninstallPreviousPackage->setChecked(step->uninstallPreviousPackage() > AndroidDeployQtStep::Keep);
+        uninstallPreviousPackage->setEnabled(step->uninstallPreviousPackage() != AndroidDeployQtStep::ForceUnintall);
+
+        auto resetDefaultDevices = new QPushButton(this);
+        resetDefaultDevices->setText(AndroidDeployQtStep::tr("Reset Default Devices"));
+
+        auto cleanLibsPushButton = new QPushButton(this);
+        cleanLibsPushButton->setText(AndroidDeployQtStep::tr("Clean Temporary Libraries Directory on Device"));
+
+        auto installMinistroButton = new QPushButton(this);
+        installMinistroButton->setText(AndroidDeployQtStep::tr("Install Ministro from APK"));
+
+        connect(installMinistroButton, &QAbstractButton::clicked, this, [this, step] {
+            QString packagePath =
+                    QFileDialog::getOpenFileName(this,
+                                                 AndroidDeployQtStep::tr("Qt Android Smart Installer"),
+                                                 QDir::homePath(),
+                                                 AndroidDeployQtStep::tr("Android package (*.apk)"));
+            if (!packagePath.isEmpty())
+                AndroidManager::installQASIPackage(step->target(), packagePath);
+        });
+
+        connect(cleanLibsPushButton, &QAbstractButton::clicked, this, [step] {
+            AndroidManager::cleanLibsOnDevice(step->target());
+        });
+
+        connect(resetDefaultDevices, &QAbstractButton::clicked, this, [step] {
+            AndroidConfigurations::clearDefaultDevices(step->project());
+        });
+
+        connect(uninstallPreviousPackage, &QAbstractButton::toggled,
+                step, &AndroidDeployQtStep::setUninstallPreviousPackage);
+
+        auto layout = new QVBoxLayout(this);
+        layout->addWidget(uninstallPreviousPackage);
+        layout->addWidget(resetDefaultDevices);
+        layout->addWidget(cleanLibsPushButton);
+        layout->addWidget(installMinistroButton);
+    }
+};
 
 // AndroidDeployQtStep
 
