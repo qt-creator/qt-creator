@@ -42,8 +42,10 @@ public:
     DetailedErrorView(QWidget *parent = nullptr);
     ~DetailedErrorView() override;
 
-    void goNext();
-    void goBack();
+    virtual void goNext();
+    virtual void goBack();
+
+    void selectIndex(const QModelIndex &index);
 
     enum ItemRole {
         LocationRole = Qt::UserRole,

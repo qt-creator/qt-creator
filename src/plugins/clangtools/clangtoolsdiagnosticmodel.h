@@ -58,6 +58,16 @@ enum class FixitStatus {
 
 class ClangToolsDiagnosticModel;
 
+class FilePathItem : public Utils::TreeItem
+{
+public:
+    FilePathItem(const QString &filePath);
+    QVariant data(int column, int role) const override;
+
+private:
+    const QString m_filePath;
+};
+
 class DiagnosticItem : public Utils::TreeItem
 {
 public:
@@ -75,10 +85,11 @@ public:
     ReplacementOperations &fixitOperations() { return m_fixitOperations; }
     void setFixitOperations(const ReplacementOperations &replacements);
 
+    bool setData(int column, const QVariant &data, int role) override;
+
 private:
     Qt::ItemFlags flags(int column) const override;
     QVariant data(int column, int role) const override;
-    bool setData(int column, const QVariant &data, int role) override;
 
 private:
     const Diagnostic m_diagnostic;
@@ -101,9 +112,7 @@ public:
     void addDiagnostics(const QList<Diagnostic> &diagnostics);
     QSet<Diagnostic> diagnostics() const;
 
-    enum ItemRole {
-        DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1
-    };
+    enum ItemRole { DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1, TextRole };
 
     void clear();
     void removeWatchedPath(const QString &path);
@@ -119,6 +128,7 @@ private:
     void clearAndSetupCache();
 
 private:
+    QHash<QString, FilePathItem *> m_filePathToItem;
     QSet<Diagnostic> m_diagnostics;
     std::map<QVector<ExplainingStep>, QVector<DiagnosticItem *>> stepsToItemsCache;
     std::unique_ptr<QFileSystemWatcher> m_filesWatcher;
@@ -138,6 +148,7 @@ public:
 
 private:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
+    bool lessThan(const QModelIndex &l, const QModelIndex &r) const override;
     void handleSuppressedDiagnosticsChanged();
 
     QPointer<ProjectExplorer::Project> m_project;

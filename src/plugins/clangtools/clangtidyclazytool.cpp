@@ -216,7 +216,8 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     initDiagnosticView();
     m_diagnosticView->setModel(m_diagnosticFilterModel);
     m_diagnosticView->setSortingEnabled(true);
-    m_diagnosticView->sortByColumn(Debugger::DetailedErrorView::LocationColumn, Qt::AscendingOrder);
+    m_diagnosticView->sortByColumn(Debugger::DetailedErrorView::DiagnosticColumn,
+                                   Qt::AscendingOrder);
     m_diagnosticView->setObjectName(QLatin1String("ClangTidyClazyIssuesView"));
     m_diagnosticView->setWindowTitle(tr("Clang-Tidy and Clazy Issues"));
 
@@ -299,7 +300,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     });
     connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
         QVector<DiagnosticItem *> diagnosticItems;
-        m_diagnosticModel->rootItem()->forChildrenAtLevel(1, [&](TreeItem *item){
+        m_diagnosticModel->rootItem()->forChildrenAtLevel(2, [&](TreeItem *item){
             diagnosticItems += static_cast<DiagnosticItem *>(item);
         });
 
