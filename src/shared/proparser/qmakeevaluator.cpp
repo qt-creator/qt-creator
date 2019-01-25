@@ -1185,7 +1185,7 @@ bool QMakeEvaluator::loadSpecInternal()
 #  ifdef Q_OS_UNIX
     if (m_qmakespec.endsWith(QLatin1String("/default-host"))
         || m_qmakespec.endsWith(QLatin1String("/default"))) {
-        QString rspec = QFileInfo(m_qmakespec).readLink();
+        QString rspec = QFileInfo(m_qmakespec).symLinkTarget();
         if (!rspec.isEmpty())
             m_qmakespec = QDir::cleanPath(QDir(m_qmakespec).absoluteFilePath(rspec));
     }
