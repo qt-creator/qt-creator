@@ -1387,7 +1387,7 @@ void HeobDialog::keyPressEvent(QKeyEvent *e)
         return QDialog::keyPressEvent(e);
 
     reject();
-    Core::HelpManager::handleHelpRequest("qthelp://org.qt-project.qtcreator/doc/creator-heob.html");
+    Core::HelpManager::showHelpUrl("qthelp://org.qt-project.qtcreator/doc/creator-heob.html");
 }
 
 void HeobDialog::updateEnabled()
