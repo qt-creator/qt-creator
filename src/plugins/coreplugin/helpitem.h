@@ -27,6 +27,8 @@
 
 #include "core_global.h"
 
+#include <utils/optional.h>
+
 #include <QMap>
 #include <QString>
 #include <QUrl>
@@ -77,7 +79,7 @@ private:
     QString m_helpId;
     QString m_docMark;
     Category m_category = Unknown;
-    mutable QMap<QString, QUrl> m_helpLinks; // cached help links
+    mutable Utils::optional<QMap<QString, QUrl>> m_helpLinks; // cached help links
 };
 
 } // namespace Core

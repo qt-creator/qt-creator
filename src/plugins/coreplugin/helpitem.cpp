@@ -144,7 +144,7 @@ QString HelpItem::extractContent(bool extended) const
 
 QMap<QString, QUrl> HelpItem::links() const
 {
-    if (m_helpLinks.isEmpty())
+    if (!m_helpLinks)
         m_helpLinks = Core::HelpManager::linksForIdentifier(m_helpId);
-    return m_helpLinks;
+    return *m_helpLinks;
 }
