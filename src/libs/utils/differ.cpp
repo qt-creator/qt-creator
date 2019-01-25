@@ -1516,9 +1516,9 @@ QList<Diff> Differ::cleanupSemanticsLossless(const QList<Diff> &diffList)
                     + cleanupSemanticsScore(edit, equality2);
 
             while (!edit.isEmpty() && !equality2.isEmpty()
-                   && edit[0] == equality2[0]) {
-                equality1 += edit[0];
-                edit = edit.mid(1) + equality2[0];
+                   && edit.at(0) == equality2.at(0)) {
+                equality1 += edit.at(0);
+                edit = edit.mid(1) + equality2.at(0);
                 equality2 = equality2.mid(1);
                 const int score = cleanupSemanticsScore(equality1, edit)
                         + cleanupSemanticsScore(edit, equality2);

@@ -98,7 +98,7 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
 
     while (!strippedText.isEmpty()) {
         QTC_ASSERT(m_pendingText.isEmpty(), break);
-        const int escapePos = strippedText.indexOf(escape[0]);
+        const int escapePos = strippedText.indexOf(escape.at(0));
         if (escapePos < 0) {
             outputData << FormattedText(strippedText, charFormat);
             break;
@@ -106,9 +106,9 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
             outputData << FormattedText(strippedText.left(escapePos), charFormat);
             strippedText.remove(0, escapePos);
         }
-        QTC_ASSERT(strippedText[0] == escape[0], break);
+        QTC_ASSERT(strippedText.at(0) == escape.at(0), break);
 
-        while (!strippedText.isEmpty() && escape[0] == strippedText[0]) {
+        while (!strippedText.isEmpty() && escape.at(0) == strippedText.at(0)) {
             if (escape.startsWith(strippedText)) {
                 // control secquence is not complete
                 m_pendingText += strippedText;
