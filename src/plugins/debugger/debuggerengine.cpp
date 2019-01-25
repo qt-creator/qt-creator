@@ -2526,8 +2526,6 @@ bool DebuggerEngine::isNativeMixedActiveFrame() const
 void DebuggerEngine::startDying() const
 {
     d->m_isDying = true;
-    if (DebuggerEngine *other = d->m_companionEngine)
-        other->d->m_isDying = true;
 }
 
 QString DebuggerEngine::runId() const
