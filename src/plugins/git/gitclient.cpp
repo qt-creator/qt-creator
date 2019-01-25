@@ -355,6 +355,8 @@ QStringList GitDiffEditorController::addConfigurationArguments(const QStringList
     QTC_ASSERT(!args.isEmpty(), return args);
 
     QStringList realArgs = {
+        "-c",
+        "diff.color=false",
         args.at(0),
         "-m", // show diff against parents instead of merge commits
         "-M", "-C", // Detect renames and copies
