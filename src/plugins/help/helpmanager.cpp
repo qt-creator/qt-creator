@@ -226,12 +226,16 @@ QSet<QString> HelpManager::userDocumentationPaths()
 QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
 {
     QTC_ASSERT(!d->m_needsSetup, return {});
+    if (key.isEmpty())
+        return {};
     return d->m_helpEngine->linksForKeyword(key);
 }
 
 QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
 {
     QTC_ASSERT(!d->m_needsSetup, return {});
+    if (id.isEmpty())
+        return {};
     return d->m_helpEngine->linksForIdentifier(id);
 }
 
