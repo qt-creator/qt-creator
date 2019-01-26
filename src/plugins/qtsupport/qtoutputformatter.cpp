@@ -35,7 +35,7 @@
 
 #include <QPlainTextEdit>
 #include <QPointer>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextCursor>
 #include <QUrl>
 
@@ -61,19 +61,18 @@ public:
         , qtTestFailWin(QT_TEST_FAIL_WIN_REGEXP)
         , project(proj)
     {
-        qmlError.setMinimal(true);
     }
 
     ~QtOutputFormatterPrivate()
     {
     }
 
-    QRegExp qmlError;
-    QRegExp qtError;
-    QRegExp qtAssert;
-    QRegExp qtAssertX;
-    QRegExp qtTestFailUnix;
-    QRegExp qtTestFailWin;
+    const QRegularExpression qmlError;
+    const QRegularExpression qtError;
+    const QRegularExpression qtAssert;
+    const QRegularExpression qtAssertX;
+    const QRegularExpression qtTestFailUnix;
+    const QRegularExpression qtTestFailWin;
     QPointer<Project> project;
     QString lastLine;
     FileInProjectFinder projectFinder;
@@ -102,34 +101,31 @@ QtOutputFormatter::~QtOutputFormatter()
 LinkResult QtOutputFormatter::matchLine(const QString &line) const
 {
     LinkResult lr;
-    lr.start = -1;
-    lr.end = -1;
 
-    if (d->qmlError.indexIn(line) != -1) {
-        lr.href = d->qmlError.cap(1);
-        lr.start = d->qmlError.pos(1);
+    auto hasMatch = [&lr, line](const QRegularExpression &regex) {
+        const QRegularExpressionMatch match = regex.match(line);
+        if (!match.hasMatch())
+            return false;
+
+        lr.href = match.captured(1);
+        lr.start = match.capturedStart(1);
         lr.end = lr.start + lr.href.length();
-    } else if (d->qtError.indexIn(line) != -1) {
-        lr.href = d->qtError.cap(1);
-        lr.start = d->qtError.pos(1);
-        lr.end = lr.start + lr.href.length();
-    } else if (d->qtAssert.indexIn(line) != -1) {
-        lr.href = d->qtAssert.cap(1);
-        lr.start = d->qtAssert.pos(1);
-        lr.end = lr.start + lr.href.length();
-    } else if (d->qtAssertX.indexIn(line) != -1) {
-        lr.href = d->qtAssertX.cap(1);
-        lr.start = d->qtAssertX.pos(1);
-        lr.end = lr.start + lr.href.length();
-    } else if (d->qtTestFailUnix.indexIn(line) != -1) {
-        lr.href = d->qtTestFailUnix.cap(1);
-        lr.start = d->qtTestFailUnix.pos(1);
-        lr.end = lr.start + lr.href.length();
-    } else if (d->qtTestFailWin.indexIn(line) != -1) {
-        lr.href = d->qtTestFailWin.cap(1);
-        lr.start = d->qtTestFailWin.pos(1);
-        lr.end = lr.start + lr.href.length();
-    }
+        return true;
+    };
+
+    if (hasMatch(d->qmlError))
+        return lr;
+    if (hasMatch(d->qtError))
+        return lr;
+    if (hasMatch(d->qtAssert))
+        return lr;
+    if (hasMatch(d->qtAssertX))
+        return lr;
+    if (hasMatch(d->qtTestFailUnix))
+        return lr;
+    if (hasMatch(d->qtTestFailWin))
+        return lr;
+
     return lr;
 }
 
@@ -210,26 +206,28 @@ void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line,
 void QtOutputFormatter::handleLink(const QString &href)
 {
     if (!href.isEmpty()) {
-        QRegExp qmlLineColumnLink("^(" QT_QML_URL_REGEXP ")" // url
-                                  ":(\\d+)"               // line
-                                  ":(\\d+)$");            // column
+        static const QRegularExpression qmlLineColumnLink("^(" QT_QML_URL_REGEXP ")" // url
+                                                          ":(\\d+)"                  // line
+                                                          ":(\\d+)$");               // column
+        const QRegularExpressionMatch qmlLineColumnMatch = qmlLineColumnLink.match(href);
 
-        if (qmlLineColumnLink.indexIn(href) != -1) {
-            const QUrl fileUrl = QUrl(qmlLineColumnLink.cap(1));
-            const int line = qmlLineColumnLink.cap(2).toInt();
-            const int column = qmlLineColumnLink.cap(3).toInt();
+        if (qmlLineColumnMatch.hasMatch()) {
+            const QUrl fileUrl = QUrl(qmlLineColumnMatch.captured(1));
+            const int line = qmlLineColumnMatch.captured(2).toInt();
+            const int column = qmlLineColumnMatch.captured(3).toInt();
 
             openEditor(d->projectFinder.findFile(fileUrl), line, column - 1);
 
             return;
         }
 
-        QRegExp qmlLineLink("^(" QT_QML_URL_REGEXP ")" // url
-                            ":(\\d+)$");            // line
+        static const QRegularExpression qmlLineLink("^(" QT_QML_URL_REGEXP ")" // url
+                                                    ":(\\d+)$");               // line
+        const QRegularExpressionMatch qmlLineMatch = qmlLineLink.match(href);
 
-        if (qmlLineLink.indexIn(href) != -1) {
-            const QUrl fileUrl = QUrl(qmlLineLink.cap(1));
-            const int line = qmlLineLink.cap(2).toInt();
+        if (qmlLineMatch.hasMatch()) {
+            const QUrl fileUrl = QUrl(qmlLineMatch.captured(1));
+            const int line = qmlLineMatch.captured(2).toInt();
             openEditor(d->projectFinder.findFile(d->projectFinder.findFile(fileUrl)), line);
             return;
         }
@@ -237,22 +235,25 @@ void QtOutputFormatter::handleLink(const QString &href)
         QString fileName;
         int line = -1;
 
-        QRegExp qtErrorLink("^(.*):(\\d+)$");
-        if (qtErrorLink.indexIn(href) != -1) {
-            fileName = qtErrorLink.cap(1);
-            line = qtErrorLink.cap(2).toInt();
+        static const QRegularExpression qtErrorLink("^(.*):(\\d+)$");
+        const QRegularExpressionMatch qtErrorMatch = qtErrorLink.match(href);
+        if (qtErrorMatch.hasMatch()) {
+            fileName = qtErrorMatch.captured(1);
+            line = qtErrorMatch.captured(2).toInt();
         }
 
-        QRegExp qtAssertLink("^(.+), line (\\d+)$");
-        if (qtAssertLink.indexIn(href) != -1) {
-            fileName = qtAssertLink.cap(1);
-            line = qtAssertLink.cap(2).toInt();
+        static const QRegularExpression qtAssertLink("^(.+), line (\\d+)$");
+        const QRegularExpressionMatch qtAssertMatch = qtAssertLink.match(href);
+        if (qtAssertMatch.hasMatch()) {
+            fileName = qtAssertMatch.captured(1);
+            line = qtAssertMatch.captured(2).toInt();
         }
 
-        QRegExp qtTestFailLink("^(.*)\\((\\d+)\\)$");
-        if (qtTestFailLink.indexIn(href) != -1) {
-            fileName = qtTestFailLink.cap(1);
-            line = qtTestFailLink.cap(2).toInt();
+        static const QRegularExpression qtTestFailLink("^(.*)\\((\\d+)\\)$");
+        const QRegularExpressionMatch qtTestFailMatch = qtTestFailLink.match(href);
+        if (qtTestFailMatch.hasMatch()) {
+            fileName = qtTestFailMatch.captured(1);
+            line = qtTestFailMatch.captured(2).toInt();
         }
 
         if (!fileName.isEmpty()) {

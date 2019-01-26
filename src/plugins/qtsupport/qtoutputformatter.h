@@ -30,7 +30,7 @@
 #include <utils/outputformatter.h>
 
 // "file" or "qrc", colon, optional '//', '/' and further characters
-#define QT_QML_URL_REGEXP "(?:file|qrc):(?://)?/.+"
+#define QT_QML_URL_REGEXP "(?:file|qrc):(?://)?/.+?"
 #define QT_ASSERT_REGEXP "ASSERT: .* in file (.+, line \\d+)"
 #define QT_ASSERT_X_REGEXP "ASSERT failure in .*: \".*\", file (.+, line \\d+)"
 #define QT_TEST_FAIL_UNIX_REGEXP "^   Loc: \\[(.*)\\]$"
@@ -42,8 +42,8 @@ namespace QtSupport {
 
 struct LinkResult
 {
-    int start;
-    int end;
+    int start = -1;
+    int end = -1;
     QString href;
 };
 
