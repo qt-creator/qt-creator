@@ -352,7 +352,7 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLineWith
     static QRegExp summary("^Totals: \\d+ passed, \\d+ failed, \\d+ skipped(, \\d+ blacklisted)?$");
     static QRegExp finish("^[*]{9} Finished testing of (.*) [*]{9}$");
 
-    static QRegExp result("^(PASS   |FAIL!  |XFAIL  |XPASS  |SKIP   |BPASS   |BFAIL   |RESULT "
+    static QRegExp result("^(PASS   |FAIL!  |XFAIL  |XPASS  |SKIP   |BPASS  |BFAIL  |RESULT "
                           "|INFO   |QWARN  |WARNING|QDEBUG |QSYSTEM): (.*)$");
 
     static QRegExp benchDetails("^\\s+([\\d,.]+ .* per iteration \\(total: [\\d,.]+, iterations: \\d+\\))$");
