@@ -363,7 +363,7 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLineWith
     if (m_futureInterface.isCanceled())
         return;
 
-    const QString line = QString::fromLatin1(chopLineBreak(outputLineWithNewLine));
+    const QString line = QString::fromUtf8(chopLineBreak(outputLineWithNewLine));
 
     if (result.exactMatch(line)) {
         processResultOutput(result.cap(1).toLower().trimmed(), result.cap(2));
