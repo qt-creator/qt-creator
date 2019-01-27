@@ -51,11 +51,6 @@ namespace Utils {
     \endlist
 */
 
-AnsiEscapeCodeHandler::AnsiEscapeCodeHandler() :
-    m_previousFormatClosed(true)
-{
-}
-
 static QColor ansiColor(uint code)
 {
     QTC_ASSERT(code < 8, return QColor());
@@ -81,10 +76,10 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
         DefaultBackgroundColor = 49
     };
 
-    const QString escape = QLatin1String("\x1b[");
-    const QChar semicolon       = QLatin1Char(';');
-    const QChar colorTerminator = QLatin1Char('m');
-    const QChar eraseToEol      = QLatin1Char('K');
+    const QString escape        = "\x1b[";
+    const QChar semicolon       = ';';
+    const QChar colorTerminator = 'm';
+    const QChar eraseToEol      = 'K';
 
     QList<FormattedText> outputData;
     QTextCharFormat charFormat = m_previousFormatClosed ? input.format : m_previousFormat;
