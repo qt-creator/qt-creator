@@ -74,8 +74,8 @@ public:
 
     virtual Context context() const { return m_context; }
     virtual QWidget *widget() const { return m_widget; }
-    using HelpIdCallback = std::function<void(const HelpItem &id)>;
-    virtual void contextHelp(const HelpIdCallback &callback) const { callback(m_contextHelp); }
+    using HelpCallback = std::function<void(const HelpItem &item)>;
+    virtual void contextHelp(const HelpCallback &callback) const { callback(m_contextHelp); }
 
     virtual void setContext(const Context &context) { m_context = context; }
     virtual void setWidget(QWidget *widget) { m_widget = widget; }

@@ -60,7 +60,7 @@ namespace Internal {
 // CMakeEditor
 //
 
-void CMakeEditor::contextHelp(const HelpIdCallback &callback) const
+void CMakeEditor::contextHelp(const HelpCallback &callback) const
 {
     int pos = position();
 

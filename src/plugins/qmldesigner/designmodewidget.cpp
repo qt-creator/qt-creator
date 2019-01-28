@@ -554,7 +554,7 @@ void DesignModeWidget::showInternalTextEditor()
     m_centralTabWidget->switchTo(viewManager().widget("TextEditor"));
 }
 
-void DesignModeWidget::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
+void DesignModeWidget::contextHelpId(const Core::IContext::HelpCallback &callback) const
 {
     if (currentDesignDocument())
         currentDesignDocument()->contextHelpId(callback);

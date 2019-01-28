@@ -94,7 +94,7 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
         oldEditor->deleteLater();
 }
 
-void TextEditorWidget::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
+void TextEditorWidget::contextHelpId(const Core::IContext::HelpCallback &callback) const
 {
     m_textEditorView->contextHelpId(callback);
 }

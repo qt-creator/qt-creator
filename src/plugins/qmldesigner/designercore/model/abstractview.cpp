@@ -577,7 +577,7 @@ void AbstractView::enableWidget()
         widgetInfo().widget->setEnabled(true);
 }
 
-void AbstractView::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
+void AbstractView::contextHelpId(const Core::IContext::HelpCallback &callback) const
 {
 #ifndef QMLDESIGNER_TEST
     QmlDesignerPlugin::instance()->viewManager().qmlJSEditorHelpId(callback);

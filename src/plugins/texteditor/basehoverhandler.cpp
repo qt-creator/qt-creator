@@ -71,7 +71,7 @@ void BaseHoverHandler::setPriority(int priority)
 
 void BaseHoverHandler::contextHelpId(TextEditorWidget *widget,
                                      int pos,
-                                     const Core::IContext::HelpIdCallback &callback)
+                                     const Core::IContext::HelpCallback &callback)
 {
     m_isContextHelpRequest = true;
 
@@ -115,7 +115,7 @@ bool BaseHoverHandler::isContextHelpRequest() const
 }
 
 void BaseHoverHandler::propagateHelpId(TextEditorWidget *widget,
-                                       const Core::IContext::HelpIdCallback &callback)
+                                       const Core::IContext::HelpCallback &callback)
 {
     const Core::HelpItem contextHelp = lastHelpItemIdentified();
     widget->setContextHelpItem(contextHelp);

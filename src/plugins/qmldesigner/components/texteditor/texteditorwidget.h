@@ -50,7 +50,7 @@ public:
         return m_textEditor.get();
     }
 
-    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
+    void contextHelpId(const Core::IContext::HelpCallback &callback) const;
     void jumpTextCursorToSelectedModelNode();
     void gotoCursorPosition(int line, int column);
 

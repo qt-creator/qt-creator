@@ -40,7 +40,7 @@ DesignModeContext::DesignModeContext(QWidget *widget)
     setContext(Core::Context(Constants::C_QMLDESIGNER, Constants::C_QT_QUICK_TOOLS_MENU));
 }
 
-void DesignModeContext::contextHelp(const HelpIdCallback &callback) const
+void DesignModeContext::contextHelp(const HelpCallback &callback) const
 {
     qobject_cast<DesignModeWidget *>(m_widget)->contextHelpId(callback);
 }
@@ -52,7 +52,7 @@ FormEditorContext::FormEditorContext(QWidget *widget)
     setContext(Core::Context(Constants::C_QMLFORMEDITOR, Constants::C_QT_QUICK_TOOLS_MENU));
 }
 
-void FormEditorContext::contextHelp(const HelpIdCallback &callback) const
+void FormEditorContext::contextHelp(const HelpCallback &callback) const
 {
     qobject_cast<FormEditorWidget *>(m_widget)->contextHelpId(callback);
 }
@@ -64,7 +64,7 @@ NavigatorContext::NavigatorContext(QWidget *widget)
     setContext(Core::Context(Constants::C_QMLNAVIGATOR, Constants::C_QT_QUICK_TOOLS_MENU));
 }
 
-void NavigatorContext::contextHelp(const HelpIdCallback &callback) const
+void NavigatorContext::contextHelp(const HelpCallback &callback) const
 {
     qobject_cast<NavigatorWidget *>(m_widget)->contextHelpId(callback);
 }
@@ -76,7 +76,7 @@ TextEditorContext::TextEditorContext(QWidget *widget)
     setContext(Core::Context(Constants::C_QMLTEXTEDITOR, Constants::C_QT_QUICK_TOOLS_MENU));
 }
 
-void TextEditorContext::contextHelp(const HelpIdCallback &callback) const
+void TextEditorContext::contextHelp(const HelpCallback &callback) const
 {
     qobject_cast<TextEditorWidget *>(m_widget)->contextHelpId(callback);
 }

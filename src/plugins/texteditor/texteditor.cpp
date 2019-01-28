@@ -8005,7 +8005,7 @@ void TextEditorWidgetPrivate::updateCursorPosition()
         q->ensureCursorVisible();
 }
 
-void BaseTextEditor::contextHelp(const HelpIdCallback &callback) const
+void BaseTextEditor::contextHelp(const HelpCallback &callback) const
 {
     editorWidget()->contextHelpItem(callback);
 }
@@ -8016,7 +8016,7 @@ void BaseTextEditor::setContextHelp(const HelpItem &item)
     editorWidget()->setContextHelpItem(item);
 }
 
-void TextEditorWidget::contextHelpItem(const IContext::HelpIdCallback &callback)
+void TextEditorWidget::contextHelpItem(const IContext::HelpCallback &callback)
 {
     if (!d->m_contextHelpItem.isValid() && !d->m_hoverHandlers.isEmpty()) {
         d->m_hoverHandlers.first()->contextHelpId(this,

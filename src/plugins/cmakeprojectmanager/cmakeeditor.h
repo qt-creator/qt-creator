@@ -38,7 +38,7 @@ class CMakeEditor : public TextEditor::BaseTextEditor
     Q_OBJECT
 
 public:
-    void contextHelp(const HelpIdCallback &callback) const override;
+    void contextHelp(const HelpCallback &callback) const override;
 
     friend class CMakeEditorWidget;
 };

@@ -47,7 +47,7 @@ public:
 
     void contextHelpId(TextEditorWidget *widget,
                        int pos,
-                       const Core::IContext::HelpIdCallback &callback);
+                       const Core::IContext::HelpCallback &callback);
 
     using ReportPriority = std::function<void(int priority)>;
     void checkPriority(TextEditorWidget *widget, int pos, ReportPriority report);
@@ -73,7 +73,7 @@ protected:
 
     bool isContextHelpRequest() const;
 
-    void propagateHelpId(TextEditorWidget *widget, const Core::IContext::HelpIdCallback &callback);
+    void propagateHelpId(TextEditorWidget *widget, const Core::IContext::HelpCallback &callback);
 
     // identifyMatch() is required to report a priority by using the "report" callback.
     // It is recommended to use e.g.

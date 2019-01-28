@@ -333,7 +333,7 @@ double FormEditorWidget::containerPadding() const
 }
 
 
-void FormEditorWidget::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
+void FormEditorWidget::contextHelpId(const Core::IContext::HelpCallback &callback) const
 {
     if (m_formEditorView)
         m_formEditorView->contextHelpId(callback);

@@ -69,9 +69,9 @@ public:
 
     // TextEditorView
     WidgetInfo widgetInfo() override;
-    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
+    void contextHelpId(const Core::IContext::HelpCallback &callback) const override;
 
-    void qmlJSEditorHelpId(const Core::IContext::HelpIdCallback &callback) const;
+    void qmlJSEditorHelpId(const Core::IContext::HelpCallback &callback) const;
 
     TextEditor::BaseTextEditor *textEditor();
 

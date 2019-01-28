@@ -64,7 +64,7 @@ public:
     double spacing() const;
     double containerPadding() const;
 
-    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
+    void contextHelpId(const Core::IContext::HelpCallback &callback) const;
 
     void setRootItemRect(const QRectF &rect);
     QRectF rootItemRect() const;

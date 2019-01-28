@@ -661,7 +661,7 @@ void DesignDocument::updateCurrentProject()
     viewManager().setNodeInstanceViewProject(currentProject);
 }
 
-void DesignDocument::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
+void DesignDocument::contextHelpId(const Core::IContext::HelpCallback &callback) const
 {
     if (view())
         view()->contextHelpId(callback);

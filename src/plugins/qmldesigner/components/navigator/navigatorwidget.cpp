@@ -158,7 +158,7 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
     return buttons;
 }
 
-void NavigatorWidget::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
+void NavigatorWidget::contextHelpId(const Core::IContext::HelpCallback &callback) const
 {
     if (navigatorView())
         navigatorView()->contextHelpId(callback);
