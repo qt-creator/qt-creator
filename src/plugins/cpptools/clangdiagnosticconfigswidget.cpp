@@ -319,16 +319,6 @@ public:
         m_root->checked = Qt::Unchecked;
         propagateDown(index(0, 0, QModelIndex()));
 
-        // <= Qt Creator 4.8 settings provide specific levels: {"level0"}
-        if (checks.size() == 1 && checks.first().startsWith("level")) {
-            bool ok = false;
-            const int level = checks.first().mid(5).toInt(&ok);
-            QTC_ASSERT(ok, return);
-            enableChecksByLevel(level);
-            return;
-        }
-
-        // >= Qt Creator 4.9 settings provide specific checks: {c1, c2, ...}
         for (const QString &check : checks) {
             const QModelIndex index = indexForCheck(check);
             if (!index.isValid())
@@ -435,23 +425,6 @@ private:
             QTC_CHECK(false && "No clazy level description");
             return tr("Level %1").arg(QString::number(level));
         }
-    }
-
-    void enableChecksByLevel(int level)
-    {
-        if (level < 0)
-            return;
-
-        ClazyChecksTree *node = m_levelNodes.value(level);
-        QTC_ASSERT(node, return);
-        const QModelIndex index = indexForTree(node);
-        QTC_ASSERT(index.isValid(), return);
-
-        node->checked = Qt::Checked;
-        propagateUp(index);
-        propagateDown(index);
-
-        enableChecksByLevel(--level);
     }
 
     QModelIndex indexForCheck(const QString &check) const {

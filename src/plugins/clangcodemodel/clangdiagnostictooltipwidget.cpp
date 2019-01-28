@@ -25,6 +25,7 @@
 
 #include "clangdiagnostictooltipwidget.h"
 #include "clangfixitoperation.h"
+#include "clangutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -149,7 +150,7 @@ public:
                 QTC_CHECK(!"Link target cannot be handled.");
 
             if (hideToolTipAfterLinkActivation)
-                Utils::ToolTip::hideImmediately();
+                ::Utils::ToolTip::hideImmediately();
         });
 
         return label;
@@ -171,50 +172,6 @@ public:
 private:
     enum class IndentMode { Indent, DoNotIndent };
 
-    static bool isClazyOption(const QString &option) { return option.startsWith("-Wclazy"); }
-
-    class DiagnosticTextInfo
-    {
-    public:
-        DiagnosticTextInfo(const QString &text)
-            : m_text(text)
-            , m_squareBracketStartIndex(text.lastIndexOf('['))
-        {}
-
-        QString textWithoutOption() const
-        {
-            if (m_squareBracketStartIndex == -1)
-                return m_text;
-
-            return m_text.mid(0, m_squareBracketStartIndex - 1);
-        }
-
-        QString option() const
-        {
-            if (m_squareBracketStartIndex == -1)
-                return QString();
-
-            const int index = m_squareBracketStartIndex + 1;
-            return m_text.mid(index, m_text.count() - index - 1);
-        }
-
-        QString category() const
-        {
-            if (m_squareBracketStartIndex == -1)
-                return QString();
-
-            const int index = m_squareBracketStartIndex + 1;
-            if (isClazyOption(m_text.mid(index)))
-                return QCoreApplication::translate("ClangDiagnosticWidget", "Clazy Issue");
-            else
-                return QCoreApplication::translate("ClangDiagnosticWidget", "Clang-Tidy Issue");
-        }
-
-    private:
-        const QString m_text;
-        const int m_squareBracketStartIndex;
-    };
-
     // Diagnostics from clazy/tidy do not have any category or option set but
     // we will conclude them from the diagnostic message.
     //
@@ -233,6 +190,7 @@ private:
 
         ClangBackEnd::DiagnosticContainer supplementedDiagnostic = diagnostic;
 
+        using namespace ClangCodeModel::Utils;
         DiagnosticTextInfo info(diagnostic.text);
         supplementedDiagnostic.enableOption = info.option();
         supplementedDiagnostic.category = info.category();
@@ -269,7 +227,7 @@ private:
         QString option = optionAsUtf8String.toString();
 
         // Clazy
-        if (isClazyOption(option)) {
+        if (ClangCodeModel::Utils::DiagnosticTextInfo::isClazyOption(option)) {
             option = optionAsUtf8String.mid(8); // Remove "-Wclazy-" prefix.
             return QString::fromUtf8(CLAZY_DOCUMENTATION_URL_TEMPLATE).arg(option);
         }

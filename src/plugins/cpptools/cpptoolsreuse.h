@@ -80,4 +80,6 @@ UsePrecompiledHeaders CPPTOOLS_EXPORT getPchUsage();
 int indexerFileSizeLimitInMb();
 bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb);
 
+QString clazyChecksForLevel(int level);
+
 } // CppTools

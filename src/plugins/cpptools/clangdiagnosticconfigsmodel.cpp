@@ -25,6 +25,7 @@
 
 #include "clangdiagnosticconfigsmodel.h"
 
+#include "cpptoolsreuse.h"
 #include "cpptoolsconstants.h"
 
 #include <utils/algorithm.h>
@@ -73,7 +74,6 @@ constexpr const char *DEFAULT_TIDY_CHECKS = "-*,"
                                             "-readability-braces-around-statements,"
                                             "-readability-implicit-bool-conversion,"
                                             "-readability-named-parameter";
-constexpr const char *DEFAULT_CLAZY_CHECKS = "level0";
 
 static void addConfigForAlmostEveryWarning(ClangDiagnosticConfigsModel &model)
 {
@@ -141,7 +141,7 @@ static void addConfigForClazy(ClangDiagnosticConfigsModel &model)
                                                       "Clazy level0 checks"));
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{QStringLiteral("-w")});
-    config.setClazyChecks(QString::fromUtf8(DEFAULT_CLAZY_CHECKS));
+    config.setClazyChecks(clazyChecksForLevel(0));
 
     model.appendOrUpdate(config);
 }
@@ -157,7 +157,7 @@ static void addConfigForTidyAndClazy(ClangDiagnosticConfigsModel &model)
     config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
 
     config.setClangTidyChecks(QString::fromUtf8(DEFAULT_TIDY_CHECKS));
-    config.setClazyChecks(QString::fromUtf8(DEFAULT_CLAZY_CHECKS));
+    config.setClazyChecks(clazyChecksForLevel(0));
 
     model.appendOrUpdate(config);
 }

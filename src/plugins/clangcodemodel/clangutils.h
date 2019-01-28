@@ -72,6 +72,23 @@ QString diagnosticCategoryPrefixRemoved(const QString &text);
 
 void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo projectInfo);
 
+class DiagnosticTextInfo
+{
+public:
+    DiagnosticTextInfo(const QString &text);
+
+    QString textWithoutOption() const;
+    QString option() const;
+    QString category() const;
+
+    static bool isClazyOption(const QString &option);
+    static QString clazyCheckName(const QString &option);
+
+private:
+    const QString m_text;
+    const int m_squareBracketStartIndex;
+};
+
 namespace Text {
 
 template <class CharacterProvider>

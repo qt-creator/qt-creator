@@ -373,5 +373,51 @@ QString currentCppEditorDocumentFilePath()
     return filePath;
 }
 
+DiagnosticTextInfo::DiagnosticTextInfo(const QString &text)
+    : m_text(text)
+    , m_squareBracketStartIndex(text.lastIndexOf('['))
+{}
+
+QString DiagnosticTextInfo::textWithoutOption() const
+{
+    if (m_squareBracketStartIndex == -1)
+        return m_text;
+
+    return m_text.mid(0, m_squareBracketStartIndex - 1);
+}
+
+QString DiagnosticTextInfo::option() const
+{
+    if (m_squareBracketStartIndex == -1)
+        return QString();
+
+    const int index = m_squareBracketStartIndex + 1;
+    return m_text.mid(index, m_text.count() - index - 1);
+}
+
+QString DiagnosticTextInfo::category() const
+{
+    if (m_squareBracketStartIndex == -1)
+        return QString();
+
+    const int index = m_squareBracketStartIndex + 1;
+    if (isClazyOption(m_text.mid(index)))
+        return QCoreApplication::translate("ClangDiagnosticWidget", "Clazy Issue");
+    else
+        return QCoreApplication::translate("ClangDiagnosticWidget", "Clang-Tidy Issue");
+}
+
+bool DiagnosticTextInfo::isClazyOption(const QString &option)
+{
+    return option.startsWith("-Wclazy");
+}
+
+QString DiagnosticTextInfo::clazyCheckName(const QString &option)
+{
+    if (option.startsWith("-Wclazy"))
+        return option.mid(8); // Chop "-Wclazy-"
+    return option;
+}
+
 } // namespace Utils
 } // namespace Clang
