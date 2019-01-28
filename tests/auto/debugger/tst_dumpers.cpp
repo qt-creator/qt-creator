@@ -1699,6 +1699,8 @@ void tst_Dumpers::dumper()
             return static_cast<WatchItem *>(item)->internalName() == iname;
         }));
         if (!item) {
+            if (check.optionallyPresent)
+                return true;
             qDebug() << "NOT SEEN: " << check.iname;
             return false;
         }
