@@ -260,6 +260,23 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     });
     m_clear = action;
 
+    // Expand/Collapse
+    action = new QAction(this);
+    action->setDisabled(true);
+    action->setCheckable(true);
+    action->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
+    action->setToolTip(tr("Expand All"));
+    connect(action, &QAction::toggled, [this](bool checked){
+        if (checked) {
+            m_expandCollapse->setToolTip(tr("Collapse All"));
+            m_diagnosticView->expandAll();
+        } else {
+            m_expandCollapse->setToolTip(tr("Expand All"));
+            m_diagnosticView->collapseAll();
+        }
+    });
+    m_expandCollapse = action;
+
     // Filter line edit
     m_filterLineEdit = new Utils::FancyLineEdit();
     m_filterLineEdit->setFiltering(true);
@@ -310,6 +327,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     m_perspective.addToolBarAction(m_clear);
     m_perspective.addToolBarAction(m_goBack);
     m_perspective.addToolBarAction(m_goNext);
+    m_perspective.addToolBarAction(m_expandCollapse);
     m_perspective.addToolBarWidget(m_filterLineEdit);
     m_perspective.addToolBarWidget(m_applyFixitsButton);
 
@@ -426,6 +444,7 @@ void ClangTidyClazyTool::handleStateUpdate()
     const int issuesVisible = m_diagnosticFilterModel->rowCount();
     m_goBack->setEnabled(issuesVisible > 1);
     m_goNext->setEnabled(issuesVisible > 1);
+    m_expandCollapse->setEnabled(issuesVisible);
 
     QString message;
     if (m_running) {
