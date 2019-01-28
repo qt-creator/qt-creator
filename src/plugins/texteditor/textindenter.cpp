@@ -102,12 +102,6 @@ void TextIndenter::reindent(const QTextCursor &cursor, const TabSettings &tabSet
     }
 }
 
-Replacements TextIndenter::format(const QTextCursor &cursor, const TabSettings &tabSettings)
-{
-    indent(cursor, QChar::Null, tabSettings);
-    return Replacements();
-}
-
 Utils::optional<TabSettings> TextIndenter::tabSettings() const
 {
     return Utils::optional<TabSettings>();

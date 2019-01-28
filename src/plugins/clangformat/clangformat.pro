@@ -24,12 +24,14 @@ SOURCES += \
     clangformatconfigwidget.cpp \
     clangformatindenter.cpp \
     clangformatplugin.cpp \
+    clangformatsettings.cpp \
     clangformatutils.cpp
 
 HEADERS += \
     clangformatconfigwidget.h \
     clangformatindenter.h \
     clangformatplugin.h \
+    clangformatsettings.h \
     clangformatutils.h
 
 FORMS += \

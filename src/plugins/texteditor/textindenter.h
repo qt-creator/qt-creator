@@ -54,7 +54,6 @@ public:
                 const QChar &typedChar,
                 const TabSettings &tabSettings) override;
 
-    Replacements format(const QTextCursor &cursor, const TabSettings &tabSettings) override;
 
     void reindent(const QTextCursor &cursor, const TabSettings &tabSettings) override;
     Utils::optional<TabSettings> tabSettings() const override;

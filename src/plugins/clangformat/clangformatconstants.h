@@ -30,5 +30,7 @@ namespace Constants {
 static const char SETTINGS_FILE_NAME[] = ".clang-format";
 static const char SETTINGS_FILE_ALT_NAME[] = "_clang-format";
 static const char SAMPLE_FILE_NAME[] = "test.cpp";
+static const char SETTINGS_ID[] = "ClangFormat";
+static const char FORMAT_CODE_INSTEAD_OF_INDENT_ID[] = "ClangFormat.FormatCodeInsteadOfIndent";
 } // namespace Constants
 } // namespace ClangFormat

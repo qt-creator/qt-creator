@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "clangformatindenter.h"
+#include "clangformatsettings.h"
 #include "clangformatutils.h"
 
 #include <texteditor/tabsettings.h>
@@ -41,6 +42,11 @@ ClangFormatIndenter::ClangFormatIndenter(QTextDocument *doc)
 FormatStyle ClangFormatIndenter::styleForFile() const
 {
     return ClangFormat::styleForFile(m_fileName);
+}
+
+bool ClangFormatIndenter::formatCodeInsteadOfIndent() const
+{
+    return ClangFormatSettings::instance().formatCodeInsteadOfIndent();
 }
 
 Utils::optional<TabSettings> ClangFormatIndenter::tabSettings() const

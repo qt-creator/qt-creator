@@ -81,6 +81,21 @@ public:
         return -1;
     }
 
+    virtual void formatOrIndent(const QTextCursor &cursor,
+                                const TabSettings &tabSettings,
+                                int /*cursorPositionInEditor*/ = -1)
+    {
+        indent(cursor, QChar::Null, tabSettings);
+    }
+
+    // By default just calls indent with default settings.
+    virtual Replacements format(const QTextCursor &cursor,
+                                const TabSettings &tabSettings)
+    {
+        indent(cursor, QChar::Null, tabSettings);
+        return Replacements();
+    }
+
     // Expects a list of blocks in order of occurrence in the document.
     virtual IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
                                                      const TabSettings & /*tabSettings*/)
@@ -98,9 +113,6 @@ public:
                         const QChar &typedChar,
                         const TabSettings &tabSettings)
         = 0;
-
-    // By default just calls indent with default settings.
-    virtual Replacements format(const QTextCursor &cursor, const TabSettings &tabSettings) = 0;
 
     // Reindent at cursor. Selection will be adjusted according to the indentation
     // change of the first block.

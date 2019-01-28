@@ -422,9 +422,9 @@ void TextDocument::autoReindent(const QTextCursor &cursor)
     d->m_indenter->reindent(cursor, tabSettings());
 }
 
-void TextDocument::autoFormat(const QTextCursor &cursor)
+void TextDocument::autoFormatOrIndent(const QTextCursor &cursor)
 {
-    d->m_indenter->format(cursor, tabSettings());
+    d->m_indenter->formatOrIndent(cursor, tabSettings());
 }
 
 QTextCursor TextDocument::indent(const QTextCursor &cursor, bool blockSelection, int column,

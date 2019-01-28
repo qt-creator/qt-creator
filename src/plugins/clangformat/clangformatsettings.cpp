@@ -23,23 +23,45 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clangformatconstants.h"
+#include "clangformatsettings.h"
 
-#include "clangformatbaseindenter.h"
-
-#include <texteditor/tabsettings.h>
+#include <coreplugin/icore.h>
 
 namespace ClangFormat {
 
-class ClangFormatIndenter final : public ClangFormatBaseIndenter
+ClangFormatSettings &ClangFormatSettings::instance()
 {
-public:
-    ClangFormatIndenter(QTextDocument *doc);
-    Utils::optional<TextEditor::TabSettings> tabSettings() const override;
+    static ClangFormatSettings settings;
+    return settings;
+}
 
-private:
-    bool formatCodeInsteadOfIndent() const override;
-    clang::format::FormatStyle styleForFile() const override;
-};
+ClangFormatSettings::ClangFormatSettings()
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
+    m_formatCodeInsteadOfIndent
+        = settings->value(QLatin1String(Constants::FORMAT_CODE_INSTEAD_OF_INDENT_ID), false).toBool();
+    settings->endGroup();
+}
+
+void ClangFormatSettings::write() const
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
+    settings->setValue(QLatin1String(Constants::FORMAT_CODE_INSTEAD_OF_INDENT_ID),
+                       m_formatCodeInsteadOfIndent);
+    settings->endGroup();
+}
+
+void ClangFormatSettings::setFormatCodeInsteadOfIndent(bool enable)
+{
+    m_formatCodeInsteadOfIndent = enable;
+}
+
+bool ClangFormatSettings::formatCodeInsteadOfIndent() const
+{
+    return m_formatCodeInsteadOfIndent;
+}
 
 } // namespace ClangFormat

@@ -45,6 +45,9 @@ public:
     void reindent(const QTextCursor &cursor,
                   const TextEditor::TabSettings & /*tabSettings*/) override;
 
+    void formatOrIndent(const QTextCursor &cursor,
+                        const TextEditor::TabSettings &tabSettings,
+                        int cursorPositionInEditor = -1) override;
     TextEditor::Replacements format(const QTextCursor &cursor,
                                     const TextEditor::TabSettings & /*tabSettings*/) override;
 
@@ -58,8 +61,10 @@ public:
 
 protected:
     virtual clang::format::FormatStyle styleForFile() const;
+    virtual bool formatCodeInsteadOfIndent() const { return false; }
 
 private:
+    TextEditor::Replacements format(const QTextCursor &cursor);
     void indent(const QTextCursor &cursor, const QChar &typedChar);
     void indentBlock(const QTextBlock &block, const QChar &typedChar);
     int indentFor(const QTextBlock &block);

@@ -7135,21 +7135,11 @@ void TextEditorWidget::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
         documentLayout->requestUpdate();
 }
 
-static bool applyFormattingInsteadOfIndentation()
-{
-    constexpr const char option[] = "QTC_FORMAT_INSTEAD_OF_INDENT";
-    return qEnvironmentVariableIsSet(option);
-}
-
 void TextEditorWidget::format()
 {
-    static bool formattingInsteadOfIndentation = applyFormattingInsteadOfIndentation();
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
-    if (formattingInsteadOfIndentation)
-        d->m_document->autoFormat(cursor);
-    else
-        d->m_document->autoIndent(cursor);
+    d->m_document->autoFormatOrIndent(cursor);
     cursor.endEditBlock();
 }
 

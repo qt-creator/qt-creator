@@ -27,6 +27,13 @@
     <number>8</number>
    </property>
    <item>
+    <widget class="QCheckBox" name="formatAlways">
+     <property name="text">
+      <string>Format instead of indenting</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="projectHasClangFormat">
      <property name="text">
       <string/>

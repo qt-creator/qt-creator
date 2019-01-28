@@ -25,21 +25,20 @@
 
 #pragma once
 
-#include "clangformatbaseindenter.h"
-
-#include <texteditor/tabsettings.h>
-
 namespace ClangFormat {
 
-class ClangFormatIndenter final : public ClangFormatBaseIndenter
+class ClangFormatSettings
 {
 public:
-    ClangFormatIndenter(QTextDocument *doc);
-    Utils::optional<TextEditor::TabSettings> tabSettings() const override;
+    static ClangFormatSettings &instance();
 
+    ClangFormatSettings();
+    void write() const;
+
+    void setFormatCodeInsteadOfIndent(bool enable);
+    bool formatCodeInsteadOfIndent() const;
 private:
-    bool formatCodeInsteadOfIndent() const override;
-    clang::format::FormatStyle styleForFile() const override;
+    bool m_formatCodeInsteadOfIndent = false;
 };
 
 } // namespace ClangFormat
