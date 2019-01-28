@@ -68,7 +68,6 @@ class FileIconProviderImplementation : public QFileIconProvider
 {
 public:
     FileIconProviderImplementation()
-        : m_unknownFileIcon(QApplication::style()->standardIcon(QStyle::SP_FileIcon))
     {}
 
     QIcon icon(const QFileInfo &info) const override;
@@ -103,8 +102,6 @@ public:
     // Mapping of file suffix to icon.
     mutable QHash<QString, QIcon> m_suffixCache;
     QHash<QString, QIcon> m_filenameCache;
-
-    QIcon m_unknownFileIcon;
 };
 
 FileIconProviderImplementation *instance()
@@ -139,10 +136,12 @@ QIcon FileIconProviderImplementation::icon(const QFileInfo &fileInfo) const
 
     // Get icon from OS (and cache it based on suffix!)
     QIcon icon;
-    if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
+    if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost()) {
         icon = QFileIconProvider::icon(fileInfo);
-    else // File icons are unknown on linux systems.
-        icon = isDir ? QFileIconProvider::icon(fileInfo) : m_unknownFileIcon;
+    } else { // File icons are unknown on linux systems.
+        static const QIcon unknownFileIcon(QApplication::style()->standardIcon(QStyle::SP_FileIcon));
+        icon = isDir ? QFileIconProvider::icon(fileInfo) : unknownFileIcon;
+    }
     if (!isDir && !suffix.isEmpty())
         m_suffixCache.insert(suffix, icon);
     return icon;
