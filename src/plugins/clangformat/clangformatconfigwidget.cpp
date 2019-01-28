@@ -127,12 +127,27 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *proje
     initialize();
 }
 
+void ClangFormatConfigWidget::hideGlobalCheckboxes()
+{
+    m_ui->formatAlways->hide();
+    m_ui->formatWhileTyping->hide();
+}
+
+void ClangFormatConfigWidget::showGlobalCheckboxes()
+{
+    m_ui->formatAlways->setChecked(ClangFormatSettings::instance().formatCodeInsteadOfIndent());
+    m_ui->formatAlways->show();
+
+    m_ui->formatWhileTyping->setChecked(ClangFormatSettings::instance().formatWhileTyping());
+    m_ui->formatWhileTyping->show();
+}
+
 void ClangFormatConfigWidget::initialize()
 {
     m_ui->projectHasClangFormat->show();
     m_ui->clangFormatOptionsTable->show();
     m_ui->applyButton->show();
-    m_ui->formatAlways->hide();
+    hideGlobalCheckboxes();
 
     QLayoutItem *lastItem = m_ui->verticalLayout->itemAt(m_ui->verticalLayout->count() - 1);
     if (lastItem->spacerItem())
@@ -171,8 +186,7 @@ void ClangFormatConfigWidget::initialize()
                        "and can be configured in Projects > Code Style > C++."));
         }
         createStyleFileIfNeeded(true);
-        m_ui->formatAlways->setChecked(ClangFormatSettings::instance().formatCodeInsteadOfIndent());
-        m_ui->formatAlways->show();
+        showGlobalCheckboxes();
         m_ui->applyButton->hide();
     }
 
@@ -196,6 +210,7 @@ void ClangFormatConfigWidget::apply()
     if (!m_project) {
         ClangFormatSettings &settings = ClangFormatSettings::instance();
         settings.setFormatCodeInsteadOfIndent(m_ui->formatAlways->isChecked());
+        settings.setFormatWhileTyping(m_ui->formatWhileTyping->isChecked());
         settings.write();
     }
 

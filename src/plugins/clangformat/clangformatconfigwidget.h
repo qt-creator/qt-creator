@@ -51,6 +51,9 @@ private:
     void initialize();
     void fillTable();
 
+    void hideGlobalCheckboxes();
+    void showGlobalCheckboxes();
+
     ProjectExplorer::Project *m_project;
     std::unique_ptr<Ui::ClangFormatConfigWidget> m_ui;
 };

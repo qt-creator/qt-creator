@@ -34,6 +34,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="formatWhileTyping">
+     <property name="text">
+      <string>Format while typing</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="projectHasClangFormat">
      <property name="text">
       <string/>

@@ -37,8 +37,12 @@ public:
 
     void setFormatCodeInsteadOfIndent(bool enable);
     bool formatCodeInsteadOfIndent() const;
+
+    void setFormatWhileTyping(bool enable);
+    bool formatWhileTyping() const;
 private:
     bool m_formatCodeInsteadOfIndent = false;
+    bool m_formatWhileTyping = false;
 };
 
 } // namespace ClangFormat

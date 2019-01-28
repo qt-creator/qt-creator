@@ -31,6 +31,8 @@
 
 namespace ClangFormat {
 
+enum class ReplacementsToKeep { OnlyIndent, OnlyBeforeIndent, All };
+
 class ClangFormatBaseIndenter : public TextEditor::Indenter
 {
 public:
@@ -69,18 +71,24 @@ public:
 protected:
     virtual clang::format::FormatStyle styleForFile() const;
     virtual bool formatCodeInsteadOfIndent() const { return false; }
+    virtual bool formatWhileTyping() const { return false; }
+    virtual int lastSaveRevision() const { return 0; }
 
 private:
     TextEditor::Replacements format(const QTextCursor &cursor, int cursorPositionInEditor);
     void indent(const QTextCursor &cursor, const QChar &typedChar, int cursorPositionInEditor);
     void indentBlock(const QTextBlock &block, const QChar &typedChar, int cursorPositionInEditor);
     int indentFor(const QTextBlock &block, int cursorPositionInEditor);
+    int indentBeforeCursor(const QTextBlock &block,
+                           const QChar &typedChar,
+                           int cursorPositionInEditor);
     TextEditor::Replacements replacements(QByteArray buffer,
                                           int utf8Offset,
                                           int utf8Length,
                                           const QTextBlock &block,
+                                          int cursorPositionInEditor,
+                                          ReplacementsToKeep replacementsToKeep,
                                           const QChar &typedChar = QChar::Null,
-                                          bool onlyIndention = true,
                                           bool secondTry = false) const;
 };
 
