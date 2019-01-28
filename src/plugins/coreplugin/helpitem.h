@@ -57,6 +57,13 @@ public:
     HelpItem(const QString &helpId, const QString &docMark, Category category);
     HelpItem(const QString &helpId, const QString &docMark, Category category,
              const QMap<QString, QUrl> &helpLinks);
+    HelpItem(const QUrl &url);
+    HelpItem(const QUrl &url, const QString &docMark, Category category);
+    HelpItem(const QUrl &url, const QString &docMark, Category category,
+             const QMap<QString, QUrl> &helpLinks);
+
+    void setHelpUrl(const QUrl &url);
+    const QUrl &helpUrl() const;
 
     void setHelpId(const QString &id);
     const QString &helpId() const;
@@ -71,9 +78,10 @@ public:
 
     QString extractContent(bool extended) const;
 
-    QMap<QString, QUrl> links() const;
+    const QMap<QString, QUrl> &links() const;
 
 private:
+    QUrl m_helpUrl;
     QString m_helpId;
     QString m_docMark;
     Category m_category = Unknown;

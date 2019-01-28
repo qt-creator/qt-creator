@@ -40,6 +40,26 @@ HelpItem::HelpItem(const QString &helpId)
     : m_helpId(helpId)
 {}
 
+HelpItem::HelpItem(const QUrl &url)
+    : m_helpUrl(url)
+{}
+
+HelpItem::HelpItem(const QUrl &url, const QString &docMark, HelpItem::Category category)
+    : m_helpUrl(url)
+    , m_docMark(docMark)
+    , m_category(category)
+{}
+
+HelpItem::HelpItem(const QUrl &url,
+                   const QString &docMark,
+                   HelpItem::Category category,
+                   const QMap<QString, QUrl> &helpLinks)
+    : m_helpUrl(url)
+    , m_docMark(docMark)
+    , m_category(category)
+    , m_helpLinks(helpLinks)
+{}
+
 HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category) :
     m_helpId(helpId), m_docMark(docMark), m_category(category)
 {}
@@ -48,6 +68,16 @@ HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category categ
                    const QMap<QString, QUrl> &helpLinks) :
     m_helpId(helpId), m_docMark(docMark), m_category(category), m_helpLinks(helpLinks)
 {}
+
+void HelpItem::setHelpUrl(const QUrl &url)
+{
+    m_helpUrl = url;
+}
+
+const QUrl &HelpItem::helpUrl() const
+{
+    return m_helpUrl;
+}
 
 void HelpItem::setHelpId(const QString &id)
 { m_helpId = id; }
@@ -69,13 +99,9 @@ HelpItem::Category HelpItem::category() const
 
 bool HelpItem::isValid() const
 {
-    if (m_helpId.isEmpty())
+    if (m_helpUrl.isEmpty() && m_helpId.isEmpty())
         return false;
-    if (!links().isEmpty())
-        return true;
-    if (QUrl(m_helpId).isValid())
-        return true;
-    return false;
+    return !links().isEmpty();
 }
 
 QString HelpItem::extractContent(bool extended) const
@@ -87,14 +113,7 @@ QString HelpItem::extractContent(bool extended) const
         htmlExtractor.setMode(Utils::HtmlDocExtractor::FirstParagraph);
 
     QString contents;
-    QMap<QString, QUrl> helpLinks = links();
-    if (helpLinks.isEmpty()) {
-        // Maybe this is already an URL...
-        QUrl url(m_helpId);
-        if (url.isValid())
-            helpLinks.insert(m_helpId, m_helpId);
-    }
-    foreach (const QUrl &url, helpLinks) {
+    for (const QUrl &url : links()) {
         const QString html = QString::fromUtf8(Core::HelpManager::fileData(url));
         switch (m_category) {
         case Brief:
@@ -135,9 +154,13 @@ QString HelpItem::extractContent(bool extended) const
     return contents;
 }
 
-QMap<QString, QUrl> HelpItem::links() const
+const QMap<QString, QUrl> &HelpItem::links() const
 {
-    if (!m_helpLinks)
-        m_helpLinks = Core::HelpManager::linksForIdentifier(m_helpId);
+    if (!m_helpLinks) {
+        if (!m_helpUrl.isEmpty())
+            m_helpLinks.emplace(QMap<QString, QUrl>({{m_helpUrl.toString(), m_helpUrl}}));
+        else
+            m_helpLinks = Core::HelpManager::linksForIdentifier(m_helpId);
+    }
     return *m_helpLinks;
 }

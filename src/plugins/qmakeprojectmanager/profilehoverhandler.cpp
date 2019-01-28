@@ -63,9 +63,8 @@ void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidg
         if (m_manualKind != UnknownManual) {
             QUrl url(QString::fromLatin1("qthelp://org.qt-project.qmake/qmake/qmake-%1-reference.html#%2")
                      .arg(manualName()).arg(m_docFragment));
-            setLastHelpItemIdentified(Core::HelpItem(url.toString(),
-                                                     m_docFragment,
-                                                     Core::HelpItem::QMakeVariableOfFunction));
+            setLastHelpItemIdentified(
+                Core::HelpItem(url, m_docFragment, Core::HelpItem::QMakeVariableOfFunction));
         } else {
             // General qmake manual will be shown outside any function or variable
             setLastHelpItemIdentified("qmake");

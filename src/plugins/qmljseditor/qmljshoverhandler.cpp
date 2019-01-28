@@ -190,9 +190,11 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
                 filteredUrlMap.insert(x.key(), x.value());
         }
         if (!filteredUrlMap.isEmpty()) {
-            // Use the url as helpId, to disambiguate different versions
-            helpId = filteredUrlMap.first().toString();
-            const HelpItem helpItem(helpId, qName.join(QLatin1Char('.')), HelpItem::QmlComponent, filteredUrlMap);
+            // Use the URL, to disambiguate different versions
+            const HelpItem helpItem(filteredUrlMap.first(),
+                                    qName.join(QLatin1Char('.')),
+                                    HelpItem::QmlComponent,
+                                    filteredUrlMap);
             setLastHelpItemIdentified(helpItem);
             return true;
         }

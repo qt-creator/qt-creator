@@ -657,12 +657,9 @@ void HelpPluginPrivate::requestContextHelp()
 
 void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
 {
-    QMap<QString, QUrl> links = contextHelp.links();
-    // Maybe the id is already an URL
-    if (links.isEmpty() && LocalHelpManager::isValidUrl(contextHelp.helpId()))
-        links.insert(contextHelp.helpId(), contextHelp.helpId());
+    const QMap<QString, QUrl> &links = contextHelp.links();
 
-    QUrl source = findBestLink(links);
+    const QUrl source = findBestLink(links);
     if (!source.isValid()) {
         // No link found or no context object
         HelpViewer *viewer = showHelpUrl(QUrl(Help::Constants::AboutBlank),
