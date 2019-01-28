@@ -43,6 +43,7 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 public:
     bool init() override;
     void run(QFutureInterface<bool> &) override;
+    void cancel() override;
 
     ProcessParameters *processParameters();
 
@@ -72,7 +73,6 @@ private:
     void processReadyReadStdOutput();
     void processReadyReadStdError();
     void slotProcessFinished(int, QProcess::ExitStatus);
-    void checkForCancel();
 
     void cleanUp(QProcess *process);
 

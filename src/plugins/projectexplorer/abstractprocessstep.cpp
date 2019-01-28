@@ -104,7 +104,6 @@ public:
     Private(AbstractProcessStep *q) : q(q) {}
 
     AbstractProcessStep *q;
-    QTimer m_timer;
     QFutureInterface<bool> *m_futureInterface = nullptr;
     std::unique_ptr<Utils::QtcProcess> m_process;
     std::unique_ptr<IOutputParser> m_outputParserChain;
@@ -126,8 +125,6 @@ AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
     BuildStep(bsl, id),
     d(new Private(this))
 {
-    d->m_timer.setInterval(500);
-    connect(&d->m_timer, &QTimer::timeout, this, &AbstractProcessStep::checkForCancel);
     setRunInGuiThread(true);
 }
 
@@ -256,7 +253,11 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         return;
     }
     processStarted();
-    d->m_timer.start();
+}
+
+void AbstractProcessStep::cancel()
+{
+    Core::Reaper::reap(d->m_process.release());
 }
 
 ProcessParameters *AbstractProcessStep::processParameters()
@@ -328,7 +329,6 @@ void AbstractProcessStep::processStartupFailed()
                    .arg(QDir::toNativeSeparators(d->m_param.effectiveCommand()),
                         d->m_param.prettyArguments()),
                    BuildStep::OutputFormat::ErrorMessage);
-    d->m_timer.stop();
 }
 
 /*!
@@ -425,15 +425,6 @@ QFutureInterface<bool> *AbstractProcessStep::futureInterface() const
     return d->m_futureInterface;
 }
 
-void AbstractProcessStep::checkForCancel()
-{
-    if (d->m_futureInterface->isCanceled() && d->m_timer.isActive()) {
-        d->m_timer.stop();
-
-        Core::Reaper::reap(d->m_process.release());
-    }
-}
-
 void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int skipLines)
 {
     // Do not bother to report issues if we do not care about the results of
@@ -500,8 +491,6 @@ void AbstractProcessStep::outputAdded(const QString &string, BuildStep::OutputFo
 
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
-    d->m_timer.stop();
-
     QProcess *process = d->m_process.get();
     if (!process) // Happens when the process was canceled and handed over to the Reaper.
         process = qobject_cast<QProcess *>(sender()); // The process was canceled!
