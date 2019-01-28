@@ -661,10 +661,10 @@ void DesignDocument::updateCurrentProject()
     viewManager().setNodeInstanceViewProject(currentProject);
 }
 
-void DesignDocument::contextHelpId(const Core::IContext::HelpCallback &callback) const
+void DesignDocument::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
     if (view())
-        view()->contextHelpId(callback);
+        view()->contextHelp(callback);
     else
         callback(QString());
 }

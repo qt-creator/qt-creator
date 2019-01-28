@@ -96,7 +96,7 @@ public:
 
     void toggleStatesViewExpanded();
 
-    void qmlJSEditorHelpId(const Core::IContext::HelpCallback &callback) const;
+    void qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const;
     DesignDocument *currentDesignDocument() const;
 
     bool usesRewriterView(RewriterView *rewriterView);

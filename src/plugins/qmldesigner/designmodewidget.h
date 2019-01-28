@@ -61,7 +61,7 @@ public:
     DesignModeWidget();
     ~DesignModeWidget() override;
 
-    void contextHelpId(const Core::IContext::HelpCallback &callback) const;
+    void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     void initialize();
 

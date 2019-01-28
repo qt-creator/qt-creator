@@ -48,7 +48,7 @@ public:
     void setTreeModel(QAbstractItemModel *model);
     QTreeView *treeView() const;
     QList<QToolButton *> createToolBarWidgets();
-    void contextHelpId(const Core::IContext::HelpCallback &callback) const;
+    void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     void disableNavigator();
     void enableNavigator();

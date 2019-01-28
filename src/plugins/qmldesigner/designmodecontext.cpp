@@ -42,7 +42,7 @@ DesignModeContext::DesignModeContext(QWidget *widget)
 
 void DesignModeContext::contextHelp(const HelpCallback &callback) const
 {
-    qobject_cast<DesignModeWidget *>(m_widget)->contextHelpId(callback);
+    qobject_cast<DesignModeWidget *>(m_widget)->contextHelp(callback);
 }
 
 FormEditorContext::FormEditorContext(QWidget *widget)
@@ -54,7 +54,7 @@ FormEditorContext::FormEditorContext(QWidget *widget)
 
 void FormEditorContext::contextHelp(const HelpCallback &callback) const
 {
-    qobject_cast<FormEditorWidget *>(m_widget)->contextHelpId(callback);
+    qobject_cast<FormEditorWidget *>(m_widget)->contextHelp(callback);
 }
 
 NavigatorContext::NavigatorContext(QWidget *widget)
@@ -66,7 +66,7 @@ NavigatorContext::NavigatorContext(QWidget *widget)
 
 void NavigatorContext::contextHelp(const HelpCallback &callback) const
 {
-    qobject_cast<NavigatorWidget *>(m_widget)->contextHelpId(callback);
+    qobject_cast<NavigatorWidget *>(m_widget)->contextHelp(callback);
 }
 
 TextEditorContext::TextEditorContext(QWidget *widget)
@@ -78,7 +78,7 @@ TextEditorContext::TextEditorContext(QWidget *widget)
 
 void TextEditorContext::contextHelp(const HelpCallback &callback) const
 {
-    qobject_cast<TextEditorWidget *>(m_widget)->contextHelpId(callback);
+    qobject_cast<TextEditorWidget *>(m_widget)->contextHelp(callback);
 }
 
 }

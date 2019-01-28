@@ -94,9 +94,9 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
         oldEditor->deleteLater();
 }
 
-void TextEditorWidget::contextHelpId(const Core::IContext::HelpCallback &callback) const
+void TextEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
-    m_textEditorView->contextHelpId(callback);
+    m_textEditorView->contextHelp(callback);
 }
 
 void TextEditorWidget::updateSelectionByCursorPosition()

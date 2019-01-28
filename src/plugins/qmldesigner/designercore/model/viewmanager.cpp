@@ -424,9 +424,9 @@ void ViewManager::toggleStatesViewExpanded()
     d->statesEditorView.toggleStatesViewExpanded();
 }
 
-void ViewManager::qmlJSEditorHelpId(const Core::IContext::HelpCallback &callback) const
+void ViewManager::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const
 {
-    d->textEditorView.qmlJSEditorHelpId(callback);
+    d->textEditorView.qmlJSEditorContextHelp(callback);
 }
 
 Model *ViewManager::currentModel() const
