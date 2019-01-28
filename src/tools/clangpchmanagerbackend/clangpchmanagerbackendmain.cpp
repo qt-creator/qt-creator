@@ -135,11 +135,13 @@ public:
     PchCreatorManager(const ClangBackEnd::GeneratedFiles &generatedFiles,
                       ClangBackEnd::Environment &environment,
                       Sqlite::Database &database,
-                      PchManagerServer &pchManagerServer)
+                      PchManagerServer &pchManagerServer,
+                      ClangBackEnd::ClangPathWatcherInterface &pathWatcher)
         : ProcessorManager(generatedFiles),
           m_environment(environment),
           m_database(database),
-          m_pchManagerServer(pchManagerServer)
+          m_pchManagerServer(pchManagerServer),
+          m_pathWatcher(pathWatcher)
     {}
 
 protected:
@@ -147,13 +149,15 @@ protected:
     {
         return std::make_unique<PchCreator>(m_environment,
                                             m_database,
-                                            *m_pchManagerServer.client());
+                                            *m_pchManagerServer.client(),
+                                            m_pathWatcher);
     }
 
 private:
     ClangBackEnd::Environment &m_environment;
     Sqlite::Database &m_database;
     ClangBackEnd::PchManagerServer &m_pchManagerServer;
+    ClangBackEnd::ClangPathWatcherInterface &m_pathWatcher;
 };
 
 struct Data // because we have a cycle dependency
@@ -171,7 +175,11 @@ struct Data // because we have a cycle dependency
     ApplicationEnvironment environment;
     ProjectParts projectParts;
     GeneratedFiles generatedFiles;
-    PchCreatorManager pchCreatorManager{generatedFiles, environment, database, clangPchManagerServer};
+    PchCreatorManager pchCreatorManager{generatedFiles,
+                                        environment,
+                                        database,
+                                        clangPchManagerServer,
+                                        includeWatcher};
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
     ClangBackEnd::ProgressCounter progressCounter{
         [&](int progress, int total) { clangPchManagerServer.setProgress(progress, total); }};
