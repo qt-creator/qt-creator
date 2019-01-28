@@ -259,6 +259,8 @@ enum Kind {
     T_LAST_QT_KEYWORD = T_Q_GADGET,
     T_LAST_KEYWORD = T_LAST_QT_KEYWORD,
 
+    T_LAST_TOKEN = T_LAST_KEYWORD,  // keep this before the aliases below
+
     // aliases
     T_OR = T_PIPE_PIPE,
     T_AND = T_AMPER_AMPER,
@@ -291,7 +293,6 @@ enum Kind {
 
     T___ATTRIBUTE = T___ATTRIBUTE__,
     T___ALIGNOF__ = T_ALIGNOF,
-    T_LAST_TOKEN
 };
 
 class CPLUSPLUS_EXPORT Token
