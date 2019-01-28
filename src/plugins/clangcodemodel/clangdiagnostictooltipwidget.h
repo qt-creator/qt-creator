@@ -38,8 +38,10 @@ class ClangDiagnosticWidget {
 public:
     enum Destination { ToolTip, InfoBar };
 
-    static QWidget *create(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                           const Destination &destination);
+    static QString createText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                              const Destination &destination);
+    static QWidget *createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                                 const Destination &destination);
 };
 
 } // namespace Internal

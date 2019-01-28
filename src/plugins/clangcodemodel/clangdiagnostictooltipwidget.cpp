@@ -39,6 +39,7 @@
 #include <QFileInfo>
 #include <QHash>
 #include <QLabel>
+#include <QTextDocument>
 #include <QUrl>
 
 using namespace ClangCodeModel;
@@ -100,16 +101,6 @@ public:
         bool hideTooltipAfterLinkActivation;
         bool allowTextSelection;
     };
-
-    static QWidget *create(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                           const DisplayHints &displayHints)
-    {
-        WidgetFromDiagnostics converter(displayHints);
-        return converter.createWidget(diagnostics);
-    }
-
-private:
-    enum class IndentMode { Indent, DoNotIndent };
 
     WidgetFromDiagnostics(const DisplayHints &displayHints)
         : m_displayHints(displayHints)
@@ -176,6 +167,9 @@ private:
 
         return text;
     }
+
+private:
+    enum class IndentMode { Indent, DoNotIndent };
 
     static bool isClazyOption(const QString &option) { return option.startsWith("-Wclazy"); }
 
@@ -446,18 +440,11 @@ private:
     QString m_mainFilePath;
 };
 
-} // anonymous namespace
-
-namespace ClangCodeModel {
-namespace Internal {
-
-QWidget *ClangDiagnosticWidget::create(
-        const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-        const Destination &destination)
+WidgetFromDiagnostics::DisplayHints toHints(const ClangDiagnosticWidget::Destination &destination)
 {
     WidgetFromDiagnostics::DisplayHints hints;
 
-    if (destination == ToolTip) {
+    if (destination == ClangDiagnosticWidget::ToolTip) {
         hints.showCategoryAndEnableOption = true;
         hints.showFileNameInMainDiagnostic = false;
         hints.enableClickableFixits = true;
@@ -474,7 +461,28 @@ QWidget *ClangDiagnosticWidget::create(
         hints.allowTextSelection = true;
     }
 
-    return WidgetFromDiagnostics::create(diagnostics, hints);
+    return hints;
+}
+
+} // anonymous namespace
+
+namespace ClangCodeModel {
+namespace Internal {
+
+QString ClangDiagnosticWidget::createText(
+    const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+    const ClangDiagnosticWidget::Destination &destination)
+{
+    const QString htmlText = WidgetFromDiagnostics(toHints(destination)).htmlText(diagnostics);
+    QTextDocument document;
+    document.setHtml(htmlText);
+    return document.toPlainText();
+}
+
+QWidget *ClangDiagnosticWidget::createWidget(
+    const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics, const Destination &destination)
+{
+    return WidgetFromDiagnostics(toHints(destination)).createWidget(diagnostics);
 }
 
 } // namespace Internal

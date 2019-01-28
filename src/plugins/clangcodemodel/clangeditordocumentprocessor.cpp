@@ -306,7 +306,8 @@ void ClangEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint line,
     const QVector<ClangBackEnd::DiagnosticContainer> diagnostics
         = m_diagnosticManager.diagnosticsAt(line, column);
 
-    target->addWidget(ClangDiagnosticWidget::create(diagnostics, ClangDiagnosticWidget::ToolTip));
+    target->addWidget(
+        ClangDiagnosticWidget::createWidget(diagnostics, ClangDiagnosticWidget::ToolTip));
     auto link = TextEditor::DisplaySettings::createAnnotationSettingsLink();
     target->addWidget(link);
     target->setAlignment(link, Qt::AlignRight);
@@ -648,8 +649,8 @@ ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
         vbox->setContentsMargins(10, 0, 0, 2);
         vbox->setSpacing(2);
 
-        vbox->addWidget(ClangDiagnosticWidget::create({firstHeaderErrorDiagnostic},
-                                                      ClangDiagnosticWidget::InfoBar));
+        vbox->addWidget(ClangDiagnosticWidget::createWidget({firstHeaderErrorDiagnostic},
+                                                            ClangDiagnosticWidget::InfoBar));
 
         auto widget = new QWidget;
         widget->setLayout(vbox);

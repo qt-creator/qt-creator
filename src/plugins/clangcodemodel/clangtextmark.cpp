@@ -101,7 +101,8 @@ bool ClangTextMark::addToolTipContent(QLayout *target) const
 {
     using Internal::ClangDiagnosticWidget;
 
-    QWidget *widget = ClangDiagnosticWidget::create({m_diagnostic}, ClangDiagnosticWidget::ToolTip);
+    QWidget *widget = ClangDiagnosticWidget::createWidget({m_diagnostic},
+                                                          ClangDiagnosticWidget::ToolTip);
     target->addWidget(widget);
 
     return true;
