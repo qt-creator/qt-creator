@@ -51,7 +51,8 @@ bool GlslIndenter::isElectricCharacter(const QChar &ch) const
 
 void GlslIndenter::indentBlock(const QTextBlock &block,
                                const QChar &typedChar,
-                               const TextEditor::TabSettings &tabSettings)
+                               const TextEditor::TabSettings &tabSettings,
+                               int /*cursorPositionInEditor*/)
 {
     // TODO: do something with it
     CppTools::QtStyleCodeFormatter
@@ -78,7 +79,8 @@ void GlslIndenter::indentBlock(const QTextBlock &block,
 
 void GlslIndenter::indent(const QTextCursor &cursor,
                           const QChar &typedChar,
-                          const TextEditor::TabSettings &tabSettings)
+                          const TextEditor::TabSettings &tabSettings,
+                          int /*cursorPositionInEditor*/)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = m_doc->findBlock(cursor.selectionStart());
@@ -107,7 +109,9 @@ void GlslIndenter::indent(const QTextCursor &cursor,
     }
 }
 
-int GlslIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
+int GlslIndenter::indentFor(const QTextBlock &block,
+                            const TextEditor::TabSettings &tabSettings,
+                            int /*cursorPositionInEditor*/)
 {
     CppTools::QtStyleCodeFormatter
         codeFormatter(tabSettings,
@@ -122,7 +126,9 @@ int GlslIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettin
 }
 
 TextEditor::IndentationForBlock GlslIndenter::indentationForBlocks(
-    const QVector<QTextBlock> &blocks, const TextEditor::TabSettings &tabSettings)
+    const QVector<QTextBlock> &blocks,
+    const TextEditor::TabSettings &tabSettings,
+    int /*cursorPositionInEditor*/)
 {
     CppTools::QtStyleCodeFormatter
         codeFormatter(tabSettings,

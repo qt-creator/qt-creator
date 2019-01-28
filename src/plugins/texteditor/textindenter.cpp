@@ -37,7 +37,8 @@ TextIndenter::TextIndenter(QTextDocument *doc)
 TextIndenter::~TextIndenter() = default;
 
 IndentationForBlock TextIndenter::indentationForBlocks(const QVector<QTextBlock> &blocks,
-                                                       const TabSettings &tabSettings)
+                                                       const TabSettings &tabSettings,
+                                                       int /*cursorPositionInEditor*/)
 {
     IndentationForBlock ret;
     for (QTextBlock block : blocks)
@@ -47,7 +48,8 @@ IndentationForBlock TextIndenter::indentationForBlocks(const QVector<QTextBlock>
 
 void TextIndenter::indentBlock(const QTextBlock &block,
                                const QChar &typedChar,
-                               const TabSettings &tabSettings)
+                               const TabSettings &tabSettings,
+                               int /*cursorPositionInEditor*/)
 {
     Q_UNUSED(typedChar);
     const int indent = indentFor(block, tabSettings);
@@ -58,7 +60,8 @@ void TextIndenter::indentBlock(const QTextBlock &block,
 
 void TextIndenter::indent(const QTextCursor &cursor,
                           const QChar &typedChar,
-                          const TabSettings &tabSettings)
+                          const TabSettings &tabSettings,
+                          int /*cursorPositionInEditor*/)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = m_doc->findBlock(cursor.selectionStart());
@@ -72,7 +75,9 @@ void TextIndenter::indent(const QTextCursor &cursor,
     }
 }
 
-void TextIndenter::reindent(const QTextCursor &cursor, const TabSettings &tabSettings)
+void TextIndenter::reindent(const QTextCursor &cursor,
+                            const TabSettings &tabSettings,
+                            int /*cursorPositionInEditor*/)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = m_doc->findBlock(cursor.selectionStart());

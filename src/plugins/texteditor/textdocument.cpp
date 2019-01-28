@@ -412,14 +412,14 @@ void TextDocument::setExtraEncodingSettings(const ExtraEncodingSettings &extraEn
     d->m_extraEncodingSettings = extraEncodingSettings;
 }
 
-void TextDocument::autoIndent(const QTextCursor &cursor, QChar typedChar)
+void TextDocument::autoIndent(const QTextCursor &cursor, QChar typedChar, int currentCursorPosition)
 {
-    d->m_indenter->indent(cursor, typedChar, tabSettings());
+    d->m_indenter->indent(cursor, typedChar, tabSettings(), currentCursorPosition);
 }
 
-void TextDocument::autoReindent(const QTextCursor &cursor)
+void TextDocument::autoReindent(const QTextCursor &cursor, int currentCursorPosition)
 {
-    d->m_indenter->reindent(cursor, tabSettings());
+    d->m_indenter->reindent(cursor, tabSettings(), currentCursorPosition);
 }
 
 void TextDocument::autoFormatOrIndent(const QTextCursor &cursor)

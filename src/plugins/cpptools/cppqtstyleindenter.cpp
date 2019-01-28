@@ -93,7 +93,8 @@ static bool isElectricInLine(const QChar ch, const QString &text)
 
 void CppQtStyleIndenter::indentBlock(const QTextBlock &block,
                                      const QChar &typedChar,
-                                     const TextEditor::TabSettings &tabSettings)
+                                     const TextEditor::TabSettings &tabSettings,
+                                     int /*cursorPositionInEditor*/)
 {
     QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
 
@@ -121,7 +122,8 @@ void CppQtStyleIndenter::indentBlock(const QTextBlock &block,
 
 void CppQtStyleIndenter::indent(const QTextCursor &cursor,
                                 const QChar &typedChar,
-                                const TextEditor::TabSettings &tabSettings)
+                                const TextEditor::TabSettings &tabSettings,
+                                int /*cursorPositionInEditor*/)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = m_doc->findBlock(cursor.selectionStart());
@@ -160,7 +162,8 @@ void CppQtStyleIndenter::invalidateCache()
 }
 
 int CppQtStyleIndenter::indentFor(const QTextBlock &block,
-                                  const TextEditor::TabSettings &tabSettings)
+                                  const TextEditor::TabSettings &tabSettings,
+                                  int /*cursorPositionInEditor*/)
 {
     QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
 
@@ -180,7 +183,9 @@ CppCodeStyleSettings CppQtStyleIndenter::codeStyleSettings() const
 }
 
 TextEditor::IndentationForBlock CppQtStyleIndenter::indentationForBlocks(
-    const QVector<QTextBlock> &blocks, const TextEditor::TabSettings &tabSettings)
+    const QVector<QTextBlock> &blocks,
+    const TextEditor::TabSettings &tabSettings,
+    int /*cursorPositionInEditor*/)
 {
     QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
 

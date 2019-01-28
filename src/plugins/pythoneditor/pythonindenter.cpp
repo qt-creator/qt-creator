@@ -64,7 +64,9 @@ bool PythonIndenter::isElectricCharacter(const QChar &ch) const
     return ch == ':';
 }
 
-int PythonIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
+int PythonIndenter::indentFor(const QTextBlock &block,
+                              const TextEditor::TabSettings &tabSettings,
+                              int /*cursorPositionInEditor*/)
 {
     QTextBlock previousBlock = block.previous();
     if (!previousBlock.isValid())

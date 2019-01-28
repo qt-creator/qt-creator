@@ -48,7 +48,8 @@ bool JavaIndenter::isElectricCharacter(const QChar &ch) const
 
 void JavaIndenter::indentBlock(const QTextBlock &block,
                                const QChar &typedChar,
-                               const TextEditor::TabSettings &tabSettings)
+                               const TextEditor::TabSettings &tabSettings,
+                               int /*cursorPositionInEditor*/)
 {
     int indent = indentFor(block, tabSettings);
     if (typedChar == QLatin1Char('}'))
@@ -56,7 +57,9 @@ void JavaIndenter::indentBlock(const QTextBlock &block,
     tabSettings.indentLine(block, qMax(0, indent));
 }
 
-int JavaIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
+int JavaIndenter::indentFor(const QTextBlock &block,
+                            const TextEditor::TabSettings &tabSettings,
+                            int /*cursorPositionInEditor*/)
 {
     QTextBlock previous = block.previous();
     if (!previous.isValid())

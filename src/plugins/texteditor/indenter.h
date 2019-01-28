@@ -76,47 +76,56 @@ public:
 
     virtual void invalidateCache() {}
 
-    virtual int indentFor(const QTextBlock & /*block*/, const TabSettings & /*tabSettings*/)
+    virtual int indentFor(const QTextBlock & /*block*/,
+                          const TabSettings & /*tabSettings*/,
+                          int /*cursorPositionInEditor*/ = -1)
     {
         return -1;
     }
 
     virtual void formatOrIndent(const QTextCursor &cursor,
                                 const TabSettings &tabSettings,
-                                int /*cursorPositionInEditor*/ = -1)
+                                int cursorPositionInEditor = -1)
     {
-        indent(cursor, QChar::Null, tabSettings);
+        indent(cursor, QChar::Null, tabSettings, cursorPositionInEditor);
     }
 
     // By default just calls indent with default settings.
     virtual Replacements format(const QTextCursor &cursor,
-                                const TabSettings &tabSettings)
+                                const TabSettings &tabSettings,
+                                int cursorPositionInEditor = -1)
     {
-        indent(cursor, QChar::Null, tabSettings);
+        indent(cursor, QChar::Null, tabSettings, cursorPositionInEditor);
         return Replacements();
     }
 
     // Expects a list of blocks in order of occurrence in the document.
     virtual IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
-                                                     const TabSettings & /*tabSettings*/)
+                                                     const TabSettings &tabSettings,
+                                                     int cursorPositionInEditor = -1)
         = 0;
     virtual Utils::optional<TabSettings> tabSettings() const = 0;
 
     // Indent a text block based on previous line. Default does nothing
     virtual void indentBlock(const QTextBlock &block,
                              const QChar &typedChar,
-                             const TabSettings &tabSettings)
+                             const TabSettings &tabSettings,
+                             int cursorPositionInEditor = -1)
         = 0;
 
     // Indent at cursor. Calls indentBlock for selection or current line.
     virtual void indent(const QTextCursor &cursor,
                         const QChar &typedChar,
-                        const TabSettings &tabSettings)
+                        const TabSettings &tabSettings,
+                        int cursorPositionInEditor = -1)
         = 0;
 
     // Reindent at cursor. Selection will be adjusted according to the indentation
     // change of the first block.
-    virtual void reindent(const QTextCursor &cursor, const TabSettings &tabSettings) = 0;
+    virtual void reindent(const QTextCursor &cursor,
+                          const TabSettings &tabSettings,
+                          int cursorPositionInEditor = -1)
+        = 0;
 
 protected:
     QTextDocument *m_doc;

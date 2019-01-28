@@ -44,7 +44,8 @@ public:
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TextEditor::TabSettings &settings) override;
+                     const TextEditor::TabSettings &settings,
+                     int cursorPositionInEditor = -1) override;
 
 private:
     static const QSet<QChar> &electricCharacters();
