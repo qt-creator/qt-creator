@@ -131,6 +131,7 @@ void ClangFormatConfigWidget::hideGlobalCheckboxes()
 {
     m_ui->formatAlways->hide();
     m_ui->formatWhileTyping->hide();
+    m_ui->formatOnSave->hide();
 }
 
 void ClangFormatConfigWidget::showGlobalCheckboxes()
@@ -140,6 +141,9 @@ void ClangFormatConfigWidget::showGlobalCheckboxes()
 
     m_ui->formatWhileTyping->setChecked(ClangFormatSettings::instance().formatWhileTyping());
     m_ui->formatWhileTyping->show();
+
+    m_ui->formatOnSave->setChecked(ClangFormatSettings::instance().formatOnSave());
+    m_ui->formatOnSave->show();
 }
 
 void ClangFormatConfigWidget::initialize()
@@ -200,7 +204,6 @@ void ClangFormatConfigWidget::fillTable()
     std::string configText = clang::format::configurationAsText(style);
     std::istringstream stream(configText);
     readTable(m_ui->clangFormatOptionsTable, stream);
-
 }
 
 ClangFormatConfigWidget::~ClangFormatConfigWidget() = default;
@@ -211,6 +214,7 @@ void ClangFormatConfigWidget::apply()
         ClangFormatSettings &settings = ClangFormatSettings::instance();
         settings.setFormatCodeInsteadOfIndent(m_ui->formatAlways->isChecked());
         settings.setFormatWhileTyping(m_ui->formatWhileTyping->isChecked());
+        settings.setFormatOnSave(m_ui->formatOnSave->isChecked());
         settings.write();
     }
 

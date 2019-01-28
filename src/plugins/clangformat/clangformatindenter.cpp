@@ -87,4 +87,9 @@ int ClangFormatIndenter::lastSaveRevision() const
     return qobject_cast<TextEditor::TextDocumentLayout *>(m_doc->documentLayout())->lastSaveRevision;
 }
 
+bool ClangFormatIndenter::formatOnSave() const
+{
+    return ClangFormatSettings::instance().formatOnSave();
+}
+
 } // namespace ClangFormat

@@ -44,6 +44,7 @@
 #include <projectexplorer/session.h>
 
 #include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -445,6 +446,48 @@ CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()
 TextEditor::TabSettings CppEditorDocument::tabSettings() const
 {
     return indenter()->tabSettings().value_or(TextEditor::TextDocument::tabSettings());
+}
+
+static int formatRange(QTextDocument *doc,
+                       TextEditor::Indenter *indenter,
+                       std::pair<int, int> editedRange,
+                       const TextEditor::TabSettings &tabSettings)
+{
+    QTextCursor cursor(doc);
+    cursor.setPosition(editedRange.first);
+    cursor.setPosition(editedRange.second, QTextCursor::KeepAnchor);
+    const int oldBlockCount = doc->blockCount();
+    indenter->format(cursor, tabSettings);
+    return doc->blockCount() - oldBlockCount;
+}
+
+bool CppEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
+{
+    if (indenter()->formatOnSave()) {
+        auto *layout = qobject_cast<TextEditor::TextDocumentLayout *>(document()->documentLayout());
+        const int documentRevision = layout->lastSaveRevision;
+
+        std::pair<int, int> editedRange;
+        for (int i = 0; i < document()->blockCount(); ++i) {
+            const QTextBlock block = document()->findBlockByNumber(i);
+            if (block.revision() == documentRevision) {
+                if (editedRange.first != -1)
+                    i += formatRange(document(), indenter(), editedRange, tabSettings());
+
+                editedRange = std::make_pair(-1, -1);
+                continue;
+            }
+
+            // block.revision() != documentRevision
+            if (editedRange.first == -1)
+                editedRange.first = block.position();
+            editedRange.second = block.position() + block.length();
+        }
+        if (editedRange.first != -1)
+            formatRange(document(), indenter(), editedRange, tabSettings());
+    }
+
+    return TextEditor::TextDocument::save(errorString, fileName, autoSave);
 }
 
 } // namespace Internal

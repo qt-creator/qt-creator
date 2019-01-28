@@ -69,6 +69,10 @@ public:
     QFuture<CppTools::CursorInfo> cursorInfo(const CppTools::CursorInfoParams &params);
     TextEditor::TabSettings tabSettings() const override;
 
+    bool save(QString *errorString,
+              const QString &fileName = QString(),
+              bool autoSave = false) override;
+
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
                              const QList<QTextEdit::ExtraSelection> selections,

@@ -36,6 +36,7 @@ class ClangFormatIndenter final : public ClangFormatBaseIndenter
 public:
     ClangFormatIndenter(QTextDocument *doc);
     Utils::optional<TextEditor::TabSettings> tabSettings() const override;
+    bool formatOnSave() const override;
 
 private:
     bool formatCodeInsteadOfIndent() const override;

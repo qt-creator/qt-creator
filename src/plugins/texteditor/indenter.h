@@ -99,6 +99,8 @@ public:
         return Replacements();
     }
 
+    virtual bool formatOnSave() const { return false; }
+
     // Expects a list of blocks in order of occurrence in the document.
     virtual IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
                                                      const TabSettings &tabSettings,

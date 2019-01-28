@@ -41,6 +41,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="formatOnSave">
+     <property name="text">
+      <string>Format edited code on file save</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="projectHasClangFormat">
      <property name="text">
       <string/>

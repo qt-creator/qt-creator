@@ -40,9 +40,13 @@ public:
 
     void setFormatWhileTyping(bool enable);
     bool formatWhileTyping() const;
+
+    void setFormatOnSave(bool enable);
+    bool formatOnSave() const;
 private:
     bool m_formatCodeInsteadOfIndent = false;
     bool m_formatWhileTyping = false;
+    bool m_formatOnSave = false;
 };
 
 } // namespace ClangFormat

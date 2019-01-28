@@ -44,6 +44,8 @@ ClangFormatSettings::ClangFormatSettings()
         = settings->value(QLatin1String(Constants::FORMAT_CODE_INSTEAD_OF_INDENT_ID), false).toBool();
     m_formatWhileTyping = settings->value(QLatin1String(Constants::FORMAT_WHILE_TYPING_ID), false)
                               .toBool();
+    m_formatOnSave = settings->value(QLatin1String(Constants::FORMAT_CODE_ON_SAVE_ID), false)
+                         .toBool();
     settings->endGroup();
 }
 
@@ -54,6 +56,7 @@ void ClangFormatSettings::write() const
     settings->setValue(QLatin1String(Constants::FORMAT_CODE_INSTEAD_OF_INDENT_ID),
                        m_formatCodeInsteadOfIndent);
     settings->setValue(QLatin1String(Constants::FORMAT_WHILE_TYPING_ID), m_formatWhileTyping);
+    settings->setValue(QLatin1String(Constants::FORMAT_CODE_ON_SAVE_ID), m_formatOnSave);
     settings->endGroup();
 }
 
@@ -75,6 +78,16 @@ void ClangFormatSettings::setFormatWhileTyping(bool enable)
 bool ClangFormatSettings::formatWhileTyping() const
 {
     return m_formatWhileTyping;
+}
+
+void ClangFormatSettings::setFormatOnSave(bool enable)
+{
+    m_formatOnSave = enable;
+}
+
+bool ClangFormatSettings::formatOnSave() const
+{
+    return m_formatOnSave;
 }
 
 } // namespace ClangFormat
