@@ -72,8 +72,11 @@ public:
 signals:
     void recordingChanged(bool recording);
     void aggregatedChanged(bool aggregated);
+    void viewsCreated();
 
 private:
+    void createViews();
+
     void gotoSourceLocation(QString filePath, int lineNumber, int columnNumber);
     void showLoadPerfDialog();
     void showLoadTraceDialog();
@@ -111,6 +114,7 @@ private:
     QToolButton *m_filterButton = nullptr;
     QMenu *m_filterMenu = nullptr;
     QToolButton *m_aggregateButton = nullptr;
+    QToolButton *m_tracePointsButton = nullptr;
 
     PerfProfilerTraceView *m_traceView = nullptr;
     PerfProfilerStatisticsView *m_statisticsView = nullptr;

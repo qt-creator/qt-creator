@@ -137,6 +137,40 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     connect(tracePointsAction, &QAction::triggered, this, &PerfProfilerTool::createTracePoints);
     options->addAction(command);
 
+    m_tracePointsButton = new QToolButton;
+    m_tracePointsButton->setDefaultAction(tracePointsAction);
+
+    auto action = new QAction(tr("Performance Analyzer"), this);
+    action->setToolTip(tr("The Performance Analyzer can be used to find performance bottlenecks"));
+    menu->addAction(ActionManager::registerAction(action, Constants::PerfProfilerLocalActionId),
+                    Debugger::Constants::G_ANALYZER_TOOLS);
+    QObject::connect(action, &QAction::triggered, this, [this] {
+        m_perspective.select();
+        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+    });
+
+    m_startAction = Debugger::createStartAction();
+    m_stopAction = Debugger::createStopAction();
+
+    QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
+    QObject::connect(m_startAction, &QAction::changed, action, [action, tracePointsAction, this] {
+        action->setEnabled(m_startAction->isEnabled());
+        tracePointsAction->setEnabled(m_startAction->isEnabled());
+    });
+
+    m_recordButton = new QToolButton;
+    m_clearButton = new QToolButton;
+    m_filterButton = new QToolButton;
+    m_filterMenu = new QMenu(m_filterButton);
+    m_aggregateButton = new QToolButton;
+    m_recordedLabel = new QLabel;
+    m_delayLabel = new QLabel;
+
+    m_perspective.setAboutToActivateCallback([this]() { createViews(); });
+}
+
+void PerfProfilerTool::createViews()
+{
     m_traceView = new PerfProfilerTraceView(nullptr, this);
     m_traceView->setWindowTitle(tr("Timeline"));
     connect(m_traceView, &PerfProfilerTraceView::gotoSourceLocation,
@@ -186,7 +220,6 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     }
     settings->endGroup();
 
-    m_recordButton = new QToolButton;
     m_recordButton->setCheckable(true);
 
     QMenu *recordMenu = new QMenu(m_recordButton);
@@ -215,33 +248,24 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     setRecording(true);
     connect(m_recordButton, &QAbstractButton::clicked, this, &PerfProfilerTool::setRecording);
 
-    m_clearButton = new QToolButton;
     m_clearButton->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
     m_clearButton->setToolTip(tr("Discard data"));
     connect(m_clearButton, &QAbstractButton::clicked, this, &PerfProfilerTool::clear);
 
-    m_filterButton = new QToolButton;
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterButton->setProperty("noArrow", true);
-    m_filterMenu = new QMenu(m_filterButton);
     m_filterButton->setMenu(m_filterMenu);
 
-    m_aggregateButton = new QToolButton;
     m_aggregateButton->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
     m_aggregateButton->setCheckable(true);
     setAggregated(false);
     connect(m_aggregateButton, &QAbstractButton::toggled, this, &PerfProfilerTool::setAggregated);
 
-    m_recordedLabel = new QLabel;
     m_recordedLabel->setIndent(10);
     connect(m_clearButton, &QAbstractButton::clicked, m_recordedLabel, &QLabel::clear);
 
-    m_delayLabel = new QLabel;
     m_delayLabel->setIndent(10);
-
-    QToolButton *tracePointsButton = new QToolButton;
-    tracePointsButton->setDefaultAction(tracePointsAction);
 
     connect(m_traceManager, &PerfProfilerTraceManager::error, this, [](const QString &message) {
         QMessageBox *errorDialog = new QMessageBox(ICore::mainWindow());
@@ -318,23 +342,6 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &PerfProfilerTool::updateRunActions);
 
-    m_startAction = Debugger::createStartAction();
-    m_stopAction = Debugger::createStopAction();
-
-    auto action = new QAction(tr("Performance Analyzer"), this);
-    action->setToolTip(tr("The Performance Analyzer can be used to find performance bottlenecks"));
-    menu->addAction(ActionManager::registerAction(action, Constants::PerfProfilerLocalActionId),
-                    Debugger::Constants::G_ANALYZER_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [this] {
-        m_perspective.select();
-        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
-    });
-    QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
-    QObject::connect(m_startAction, &QAction::changed, action, [action, tracePointsAction, this] {
-        action->setEnabled(m_startAction->isEnabled());
-        tracePointsAction->setEnabled(m_startAction->isEnabled());
-    });
-
     m_perspective.addToolBarAction(m_startAction);
     m_perspective.addToolBarAction(m_stopAction);
     m_perspective.addToolBarWidget(m_recordButton);
@@ -343,7 +350,10 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     m_perspective.addToolBarWidget(m_aggregateButton);
     m_perspective.addToolBarWidget(m_recordedLabel);
     m_perspective.addToolBarWidget(m_delayLabel);
-    m_perspective.addToolBarWidget(tracePointsButton);
+    m_perspective.addToolBarWidget(m_tracePointsButton);
+
+    m_perspective.setAboutToActivateCallback(Perspective::Callback());
+    emit viewsCreated();
 }
 
 PerfProfilerTool *PerfProfilerTool::instance()
@@ -459,9 +469,12 @@ void PerfProfilerTool::setToolActionsEnabled(bool on)
     m_filterButton->setEnabled(on);
     m_aggregateButton->setEnabled(on);
     m_filterMenu->setEnabled(on);
-    m_traceView->setEnabled(on);
-    m_statisticsView->setEnabled(on);
-    m_flameGraphView->setEnabled(on);
+    if (m_traceView)
+        m_traceView->setEnabled(on);
+    if (m_statisticsView)
+        m_statisticsView->setEnabled(on);
+    if (m_flameGraphView)
+        m_flameGraphView->setEnabled(on);
 }
 
 PerfTimelineModelManager *PerfProfilerTool::modelManager() const
@@ -699,7 +712,8 @@ void PerfProfilerTool::clearData()
 
 void PerfProfilerTool::clearUi()
 {
-    m_traceView->clear();
+    if (m_traceView)
+        m_traceView->clear();
     updateTime(0, 0);
     updateFilterMenu();
     updateRunActions();
