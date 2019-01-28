@@ -31,9 +31,12 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/tooltip/tooltip.h>
 
+#include <QAction>
 #include <QGridLayout>
 #include <QPainter>
+#include <QToolButton>
 
 using namespace Core;
 using namespace Utils;
@@ -88,6 +91,8 @@ TextMark::TextMark(const FileName &fileName, int lineNumber, Id category, double
 
 TextMark::~TextMark()
 {
+    qDeleteAll(m_actions);
+    m_actions.clear();
     if (!m_fileName.isEmpty())
         TextMarkRegistry::remove(this);
     if (m_baseTextDocument)
@@ -269,14 +274,34 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
 {
     auto contentLayout = new QVBoxLayout;
     addToolTipContent(contentLayout);
-    if (contentLayout->count() > 0) {
-        const int row = target->rowCount();
-        if (!m_icon.isNull()) {
-            auto iconLabel = new QLabel;
-            iconLabel->setPixmap(m_icon.pixmap(16, 16));
-            target->addWidget(iconLabel, row, 0, Qt::AlignTop | Qt::AlignHCenter);
+    if (contentLayout->count() <= 0)
+        return;
+
+    // Left column: text mark icon
+    const int row = target->rowCount();
+    if (!m_icon.isNull()) {
+        auto iconLabel = new QLabel;
+        iconLabel->setPixmap(m_icon.pixmap(16, 16));
+        target->addWidget(iconLabel, row, 0, Qt::AlignTop | Qt::AlignHCenter);
+    }
+
+    // Middle column: tooltip content
+    target->addLayout(contentLayout, row, 1);
+
+    // Right column: action icons/button
+    if (!m_actions.isEmpty()) {
+        auto actionsLayout = new QHBoxLayout;
+        for (QAction *action : m_actions) {
+            QTC_ASSERT(!action->icon().isNull(), continue);
+            auto button = new QToolButton;
+            button->setIcon(action->icon());
+            QObject::connect(button, &QToolButton::clicked, action, &QAction::triggered);
+            QObject::connect(button, &QToolButton::clicked, []() {
+                Utils::ToolTip::hideImmediately();
+            });
+            actionsLayout->addWidget(button, 0, Qt::AlignTop | Qt::AlignRight);
         }
-        target->addLayout(contentLayout, row, 1);
+        target->addLayout(actionsLayout, row, 2);
     }
 }
 
@@ -309,6 +334,16 @@ void TextMark::setColor(const Theme::Color &color)
 {
     m_hasColor = true;
     m_color = color;
+}
+
+QVector<QAction *> TextMark::actions() const
+{
+    return m_actions;
+}
+
+void TextMark::setActions(const QVector<QAction *> &actions)
+{
+    m_actions = actions;
 }
 
 TextMarkRegistry::TextMarkRegistry(QObject *parent)

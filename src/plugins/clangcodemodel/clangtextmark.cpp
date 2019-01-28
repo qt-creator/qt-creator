@@ -33,7 +33,9 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
+#include <QAction>
 #include <QApplication>
+#include <QClipboard>
 #include <QLayout>
 #include <QString>
 
@@ -64,7 +66,6 @@ static Core::Id categoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
 
 } // anonymous namespace
 
-
 ClangTextMark::ClangTextMark(const FileName &fileName,
                              const ClangBackEnd::DiagnosticContainer &diagnostic,
                              const RemovedFromEditorHandler &removedHandler,
@@ -86,6 +87,16 @@ ClangTextMark::ClangTextMark(const FileName &fileName,
         setColor(warning ? ::Utils::Theme::CodeModel_Warning_TextMarkColor
                          : ::Utils::Theme::CodeModel_Error_TextMarkColor);
     }
+
+    QAction *action = new QAction();
+    action->setIcon(QIcon::fromTheme("edit-copy", ::Utils::Icons::COPY.icon()));
+    QObject::connect(action, &QAction::triggered, [diagnostic]() {
+        using namespace ClangCodeModel::Internal;
+        const QString text = ClangDiagnosticWidget::createText({diagnostic},
+                                                               ClangDiagnosticWidget::InfoBar);
+        QApplication::clipboard()->setText(text, QClipboard::Clipboard);
+    });
+    setActions({action});
 }
 
 void ClangTextMark::updateIcon(bool valid)

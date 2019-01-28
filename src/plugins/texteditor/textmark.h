@@ -32,8 +32,10 @@
 #include <utils/fileutils.h>
 
 #include <QIcon>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
+class QAction;
 class QGridLayout;
 class QLayout;
 class QPainter;
@@ -122,6 +124,9 @@ public:
     QString toolTip() const { return m_toolTip; }
     void setToolTip(const QString &toolTip) { m_toolTip = toolTip; }
 
+    QVector<QAction *> actions() const;
+    void setActions(const QVector<QAction *> &actions); // Takes ownership
+
 private:
     Q_DISABLE_COPY(TextMark)
 
@@ -138,6 +143,7 @@ private:
     QString m_lineAnnotation;
     QString m_toolTip;
     QString m_defaultToolTip;
+    QVector<QAction *> m_actions;
 };
 
 } // namespace TextEditor
