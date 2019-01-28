@@ -676,7 +676,7 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
                                 .arg(HelpPlugin::tr("No Documentation"))
                                 .arg(creatorTheme()->color(Theme::BackgroundColorNormal).name())
                                 .arg(creatorTheme()->color(Theme::TextColorNormal).name())
-                                .arg(contextHelp.helpId())
+                                .arg(contextHelp.helpIds().join(", "))
                                 .arg(HelpPlugin::tr("No documentation available.")));
         }
     } else {

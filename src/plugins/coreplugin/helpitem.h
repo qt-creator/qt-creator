@@ -56,9 +56,8 @@ public:
     HelpItem(const char *helpId);
     HelpItem(const QString &helpId);
     HelpItem(const QString &helpId, const QString &docMark, Category category);
-    HelpItem(const QString &helpId, const QString &docMark, Category category,
-             const QMap<QString, QUrl> &helpLinks);
-    HelpItem(const QUrl &url);
+    HelpItem(const QStringList &helpIds, const QString &docMark, Category category);
+    explicit HelpItem(const QUrl &url);
     HelpItem(const QUrl &url, const QString &docMark, Category category);
     HelpItem(const QUrl &url, const QString &docMark, Category category,
              const QMap<QString, QUrl> &helpLinks);
@@ -66,8 +65,8 @@ public:
     void setHelpUrl(const QUrl &url);
     const QUrl &helpUrl() const;
 
-    void setHelpId(const QString &id);
-    const QString &helpId() const;
+    void setHelpIds(const QStringList &ids);
+    const QStringList &helpIds() const;
 
     void setDocMark(const QString &mark);
     const QString &docMark() const;
@@ -83,7 +82,7 @@ public:
 
 private:
     QUrl m_helpUrl;
-    QString m_helpId;
+    QStringList m_helpIds;
     QString m_docMark;
     Category m_category = Unknown;
     mutable Utils::optional<QMap<QString, QUrl>> m_helpLinks; // cached help links

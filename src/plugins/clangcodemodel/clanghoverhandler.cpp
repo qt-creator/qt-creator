@@ -258,19 +258,11 @@ void ClangHoverHandler::processToolTipInfo(const CppTools::ToolTipInfo &info)
     if (!info.briefComment.isEmpty())
         text.append("\n\n" + info.briefComment);
 
-    for (const QString &qdocIdCandidate : info.qDocIdCandidates) {
-        qCDebug(hoverLog) << "Querying help manager with"
-                          << qdocIdCandidate
-                          << info.qDocMark
-                          << helpItemCategoryAsString(info.qDocCategory);
-        const QMap<QString, QUrl> helpLinks = Core::HelpManager::linksForIdentifier(qdocIdCandidate);
-        if (!helpLinks.isEmpty()) {
-            qCDebug(hoverLog) << "  Match!";
-            setLastHelpItemIdentified(
-                Core::HelpItem(qdocIdCandidate, info.qDocMark, info.qDocCategory, helpLinks));
-            break;
-        }
-    }
+    qCDebug(hoverLog) << "Querying help manager with"
+                      << info.qDocIdCandidates
+                      << info.qDocMark
+                      << helpItemCategoryAsString(info.qDocCategory);
+    setLastHelpItemIdentified({info.qDocIdCandidates, info.qDocMark, info.qDocCategory});
 
     if (!info.sizeInBytes.isEmpty())
         text.append("\n\n" + tr("%1 bytes").arg(info.sizeInBytes));

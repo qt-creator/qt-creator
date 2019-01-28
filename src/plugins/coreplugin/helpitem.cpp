@@ -26,6 +26,7 @@
 #include "helpitem.h"
 #include "helpmanager.h"
 
+#include <utils/algorithm.h>
 #include <utils/htmldocextractor.h>
 
 using namespace Core;
@@ -33,11 +34,11 @@ using namespace Core;
 HelpItem::HelpItem() = default;
 
 HelpItem::HelpItem(const char *helpId)
-    : m_helpId(QString::fromUtf8(helpId))
+    : HelpItem(QStringList(QString::fromUtf8(helpId)), {}, Unknown)
 {}
 
 HelpItem::HelpItem(const QString &helpId)
-    : m_helpId(helpId)
+    : HelpItem(QStringList(helpId), {}, Unknown)
 {}
 
 HelpItem::HelpItem(const QUrl &url)
@@ -60,14 +61,16 @@ HelpItem::HelpItem(const QUrl &url,
     , m_helpLinks(helpLinks)
 {}
 
-HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category) :
-    m_helpId(helpId), m_docMark(docMark), m_category(category)
+HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category)
+    : HelpItem(QStringList(helpId), docMark, category)
 {}
 
-HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category,
-                   const QMap<QString, QUrl> &helpLinks) :
-    m_helpId(helpId), m_docMark(docMark), m_category(category), m_helpLinks(helpLinks)
-{}
+HelpItem::HelpItem(const QStringList &helpIds, const QString &docMark, Category category)
+    : m_docMark(docMark)
+    , m_category(category)
+{
+    setHelpIds(helpIds);
+}
 
 void HelpItem::setHelpUrl(const QUrl &url)
 {
@@ -79,11 +82,16 @@ const QUrl &HelpItem::helpUrl() const
     return m_helpUrl;
 }
 
-void HelpItem::setHelpId(const QString &id)
-{ m_helpId = id; }
+void HelpItem::setHelpIds(const QStringList &ids)
+{
+    m_helpIds = Utils::filteredUnique(
+        Utils::filtered(ids, [](const QString &s) { return !s.isEmpty(); }));
+}
 
-const QString &HelpItem::helpId() const
-{ return m_helpId; }
+const QStringList &HelpItem::helpIds() const
+{
+    return m_helpIds;
+}
 
 void HelpItem::setDocMark(const QString &mark)
 { m_docMark = mark; }
@@ -99,7 +107,7 @@ HelpItem::Category HelpItem::category() const
 
 bool HelpItem::isValid() const
 {
-    if (m_helpUrl.isEmpty() && m_helpId.isEmpty())
+    if (m_helpUrl.isEmpty() && m_helpIds.isEmpty())
         return false;
     return !links().isEmpty();
 }
@@ -157,10 +165,16 @@ QString HelpItem::extractContent(bool extended) const
 const QMap<QString, QUrl> &HelpItem::links() const
 {
     if (!m_helpLinks) {
-        if (!m_helpUrl.isEmpty())
+        if (!m_helpUrl.isEmpty()) {
             m_helpLinks.emplace(QMap<QString, QUrl>({{m_helpUrl.toString(), m_helpUrl}}));
-        else
-            m_helpLinks = Core::HelpManager::linksForIdentifier(m_helpId);
+        } else {
+            m_helpLinks.emplace(); // set a value even if there are no help IDs
+            for (const QString &id : m_helpIds) {
+                m_helpLinks = Core::HelpManager::linksForIdentifier(id);
+                if (!m_helpLinks->isEmpty())
+                    break;
+            }
+        }
     }
     return *m_helpLinks;
 }

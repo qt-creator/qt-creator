@@ -147,36 +147,28 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
 {
     QString moduleName = getModuleName(scopeChain, qmlDocument, value);
 
-    QMap<QString, QUrl> urlMap;
-
     QString helpId;
-    do {
-        QStringList helpIdPieces(qName);
-        helpIdPieces.prepend(moduleName);
-        helpIdPieces.prepend(QLatin1String("QML"));
-        helpId = helpIdPieces.join(QLatin1Char('.'));
-        urlMap = HelpManager::linksForIdentifier(helpId);
-        if (!urlMap.isEmpty())
-            break;
-        if (helpIdPieces.size() > 3) {
-            QString lm = helpIdPieces.value(2);
-            helpIdPieces.removeAt(2);
-            helpId = helpIdPieces.join(QLatin1Char('.'));
-            urlMap = HelpManager::linksForIdentifier(helpId);
-            if (!urlMap.isEmpty())
-                break;
-            helpIdPieces.replace(1, lm);
-            urlMap = HelpManager::linksForIdentifier(helpId);
-            if (!urlMap.isEmpty())
-                break;
-        }
-        helpIdPieces.removeAt(1);
-        helpId = helpIdPieces.join(QLatin1Char('.'));
-        urlMap = HelpManager::linksForIdentifier(helpId);
-        if (!urlMap.isEmpty())
-            break;
-        return false;
-    } while (false);
+    QStringList helpIdCandidates;
+
+    QStringList helpIdPieces(qName);
+    helpIdPieces.prepend(moduleName);
+    helpIdPieces.prepend("QML");
+    helpIdCandidates += helpIdPieces.join('.');
+
+    if (helpIdPieces.size() > 3) {
+        QString lm = helpIdPieces.value(2);
+        helpIdPieces.removeAt(2);
+        helpIdCandidates += helpIdPieces.join('.');
+
+        helpIdPieces.replace(1, lm);
+        helpIdCandidates += helpIdPieces.join('.');
+    }
+
+    helpIdPieces.removeAt(1);
+    helpIdCandidates += helpIdPieces.join('.');
+
+    const HelpItem helpItem(helpIdCandidates, qName.join('.'), HelpItem::QmlComponent);
+    const QMap<QString, QUrl> urlMap = helpItem.links();
 
     // Check if the module name contains a major version.
     QRegularExpression version("^([^\\d]*)(\\d+)\\.*\\d*$");
@@ -199,7 +191,7 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
             return true;
         }
     }
-    setLastHelpItemIdentified(HelpItem(helpId, qName.join(QLatin1Char('.')), HelpItem::QmlComponent));
+    setLastHelpItemIdentified(helpItem);
     return true;
 }
 
@@ -500,23 +492,13 @@ bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
             const QString className = cur->className();
             if (!className.isEmpty()) {
                 moduleName = getModuleName(scopeChain, qmlDocument, cur);
-                QString helpId;
-                do {
-                    helpId = QLatin1String("QML.") + moduleName + QLatin1Char('.') + className
-                            + QLatin1String("::") + name;
-                    if (!HelpManager::linksForIdentifier(helpId).isEmpty())
-                        break;
-                    helpId = QLatin1String("QML.") + className + QLatin1String("::") + name;
-                    if (!HelpManager::linksForIdentifier(helpId).isEmpty())
-                        break;
-                    helpId = className + QLatin1String("::") + name;
-                    if (!HelpManager::linksForIdentifier(helpId).isEmpty())
-                        break;
-                    helpId.clear();
-                } while (false);
-
-                if (!helpId.isEmpty()) {
-                    setLastHelpItemIdentified(HelpItem(helpId, name, HelpItem::QmlProperty));
+                const QStringList helpIdCandidates = {"QML." + moduleName + '.' + className
+                                                          + "::" + name,
+                                                      "QML." + className + "::" + name,
+                                                      className + "::" + name};
+                const HelpItem helpItem(helpIdCandidates, name, HelpItem::QmlProperty);
+                if (helpItem.isValid()) {
+                    setLastHelpItemIdentified(helpItem);
                     return true;
                 }
             }

@@ -559,7 +559,7 @@ void DesignModeWidget::contextHelp(const Core::IContext::HelpCallback &callback)
     if (currentDesignDocument())
         currentDesignDocument()->contextHelp(callback);
     else
-        callback(QString());
+        callback({});
 }
 
 void DesignModeWidget::initialize()

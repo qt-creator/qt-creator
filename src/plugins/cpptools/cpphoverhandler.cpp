@@ -30,7 +30,6 @@
 #include <coreplugin/helpmanager.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/optional.h>
 #include <utils/textutils.h>
 #include <utils/executeondestruction.h>
 
@@ -61,19 +60,9 @@ void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, Rep
         const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
         QStringList candidates = cppElement->helpIdCandidates;
         candidates.removeDuplicates();
-        Utils::optional<HelpItem> helpItem;
-        foreach (const QString &helpId, candidates) {
-            if (helpId.isEmpty())
-                continue;
-            const QMap<QString, QUrl> helpLinks = HelpManager::linksForIdentifier(helpId);
-            if (!helpLinks.isEmpty()) {
-                helpItem.emplace(helpId, cppElement->helpMark, cppElement->helpCategory, helpLinks);
-                break;
-            }
-        }
-        if (helpItem)
-            setLastHelpItemIdentified(helpItem.value()); // tool tip appended by decorateToolTip
-        else
+        const HelpItem helpItem(candidates, cppElement->helpMark, cppElement->helpCategory);
+        setLastHelpItemIdentified(helpItem); // tool tip appended by decorateToolTip
+        if (!helpItem.isValid())
             tip += cppElement->tooltip;
     }
     setToolTip(tip);
