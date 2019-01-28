@@ -380,11 +380,9 @@ static QVariant iconData(const QString &type)
     return QVariant();
 }
 
-static QString withLineColumnPrefixed(const QString &text,
-                                      const Debugger::DiagnosticLocation &location)
+static QString lineColumnString(const Debugger::DiagnosticLocation &location)
 {
-    return QString("%1:%2: %3")
-        .arg(QString::number(location.line), QString::number(location.column), text);
+    return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
 }
 
 QVariant DiagnosticItem::data(int column, int role) const
@@ -428,7 +426,8 @@ QVariant DiagnosticItem::data(int column, int role) const
         case ClangToolsDiagnosticModel::TextRole:
             return m_diagnostic.description;
         case Qt::DisplayRole:
-            return withLineColumnPrefixed(m_diagnostic.description, m_diagnostic.location);
+            return QString("%1: %2").arg(lineColumnString(m_diagnostic.location),
+                                         m_diagnostic.description);
         case Qt::ToolTipRole:
             return createDiagnosticToolTipString(m_diagnostic);
         case Qt::DecorationRole:
@@ -495,6 +494,11 @@ static QVariant iconForExplainingStepMessage(const QString &message)
     return iconData(message.mid(0, index));
 }
 
+static QString rangeString(const QVector<Debugger::DiagnosticLocation> &ranges)
+{
+    return QString("%1-%2").arg(lineColumnString(ranges[0]), lineColumnString(ranges[1]));
+}
+
 QVariant ExplainingStepItem::data(int column, int role) const
 {
     if (column == DiagnosticView::FixItColumn)
@@ -511,11 +515,28 @@ QVariant ExplainingStepItem::data(int column, int role) const
             return m_step.message;
         case ClangToolsDiagnosticModel::DiagnosticRole:
             return QVariant::fromValue(static_cast<DiagnosticItem *>(parent())->diagnostic());
-        case Qt::DisplayRole:
-            return m_step.message;
+        case Qt::DisplayRole: {
+            if (m_step.isFixIt) {
+                if (m_step.ranges[0] == m_step.ranges[1]) {
+                    return QString("%1: Insertion of \"%2\".")
+                        .arg(lineColumnString(m_step.location), m_step.message);
+                }
+                if (m_step.message.isEmpty()) {
+                    return QString("%1: Removal of %2.")
+                        .arg(lineColumnString(m_step.location), rangeString(m_step.ranges));
+                }
+                return QString("%1: Replacement of %2 with: \"%3\".")
+                    .arg(lineColumnString(m_step.location),
+                         rangeString(m_step.ranges),
+                         m_step.message);
+            }
+            return QString("%1: %2").arg(lineColumnString(m_step.location), m_step.message);
+        }
         case Qt::ToolTipRole:
             return createExplainingStepToolTipString(m_step);
         case Qt::DecorationRole:
+            if (m_step.isFixIt)
+                return Utils::Icons::CODEMODEL_FIXIT.icon();
             return iconForExplainingStepMessage(m_step.message);
         default:
             return QVariant();
