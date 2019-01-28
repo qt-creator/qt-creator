@@ -52,11 +52,14 @@ void QmlProfilerTextMark::addTypeId(int typeId)
 
 void QmlProfilerTextMark::paintIcon(QPainter *painter, const QRect &paintRect) const
 {
+    const QmlProfilerStatisticsView *statisticsView = m_viewManager->statisticsView();
+    QTC_ASSERT(statisticsView, return);
+
     painter->save();
     painter->setPen(Qt::black);
     painter->fillRect(paintRect, Qt::white);
     painter->drawRect(paintRect);
-    painter->drawText(paintRect, m_viewManager->statisticsView()->summary(m_typeIds),
+    painter->drawText(paintRect, statisticsView->summary(m_typeIds),
                       Qt::AlignRight | Qt::AlignVCenter);
     painter->restore();
 }
@@ -133,10 +136,13 @@ void QmlProfilerTextMarkModel::hideTextMarks()
 
 bool QmlProfilerTextMark::addToolTipContent(QLayout *target) const
 {
+    const QmlProfilerStatisticsView *statisticsView = m_viewManager->statisticsView();
+    QTC_ASSERT(statisticsView, return false);
+
     auto layout = new QGridLayout;
     layout->setHorizontalSpacing(10);
     for (int row = 0, rowEnd = m_typeIds.length(); row != rowEnd; ++row) {
-        const QStringList typeDetails = m_viewManager->statisticsView()->details(m_typeIds[row]);
+        const QStringList typeDetails = statisticsView->details(m_typeIds[row]);
         for (int column = 0, columnEnd = typeDetails.length(); column != columnEnd; ++column) {
             QLabel *label = new QLabel;
             label->setAlignment(column == columnEnd - 1 ? Qt::AlignRight : Qt::AlignLeft);

@@ -58,8 +58,11 @@ public:
 signals:
     void typeSelected(int typeId);
     void gotoSourceLocation(QString,int,int);
+    void viewsCreated();
 
 private:
+    void createViews();
+
     QmlProfilerTraceView *m_traceView = nullptr;
     QmlProfilerStatisticsView *m_statisticsView = nullptr;
     FlameGraphView *m_flameGraphView = nullptr;

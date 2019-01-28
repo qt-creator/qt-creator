@@ -91,11 +91,7 @@ public:
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
-
-    if (!Utils::HostOsInfo::canCreateOpenGLContext(errorString))
-        return false;
-
-    return true;
+    return Utils::HostOsInfo::canCreateOpenGLContext(errorString);
 }
 
 void QmlProfilerPlugin::extensionsInitialized()

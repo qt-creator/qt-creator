@@ -51,6 +51,12 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     QTC_ASSERT(m_profilerModelManager, return);
     QTC_ASSERT(m_profilerState, return);
 
+    m_perspective = new Utils::Perspective(Constants::QmlProfilerPerspectiveId, tr("QML Profiler"));
+    m_perspective->setAboutToActivateCallback([this]() { createViews(); });
+}
+
+void QmlProfilerViewManager::createViews()
+{
     m_traceView = new QmlProfilerTraceView(nullptr, this, m_profilerModelManager);
     connect(m_traceView, &QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
@@ -60,8 +66,6 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
             m_traceView, &QmlProfilerTraceView::selectByTypeId);
 
     new QmlProfilerStateWidget(m_profilerState, m_profilerModelManager, m_traceView);
-
-    m_perspective = new Utils::Perspective(Constants::QmlProfilerPerspectiveId, tr("QML Profiler"));
 
     auto prepareEventsView = [this](QmlProfilerEventsView *view) {
         connect(view, &QmlProfilerEventsView::typeSelected,
@@ -93,6 +97,8 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     }
     m_perspective->addWindow(m_statisticsView, Perspective::AddToTab, anchorDock);
     m_perspective->addWindow(anchorDock, Perspective::Raise, nullptr);
+    m_perspective->setAboutToActivateCallback(Perspective::Callback());
+    emit viewsCreated();
 }
 
 QmlProfilerViewManager::~QmlProfilerViewManager()
@@ -105,7 +111,8 @@ QmlProfilerViewManager::~QmlProfilerViewManager()
 
 void QmlProfilerViewManager::clear()
 {
-    m_traceView->clear();
+    if (m_traceView)
+        m_traceView->clear();
 }
 
 } // namespace Internal
