@@ -30,8 +30,6 @@ QtcPlugin {
         "qnxanalyzesupport.h",
         "qnxdebugsupport.cpp",
         "qnxdebugsupport.h",
-        "qnxdeployconfiguration.cpp",
-        "qnxdeployconfiguration.h",
         "qnxdevice.cpp",
         "qnxdevice.h",
         "qnxdevicefactory.cpp",

@@ -29,7 +29,6 @@
 #include "qnxconfigurationmanager.h"
 #include "qnxconstants.h"
 #include "qnxdebugsupport.h"
-#include "qnxdeployconfiguration.h"
 #include "qnxdevice.h"
 #include "qnxdevicefactory.h"
 #include "qnxqtversion.h"
@@ -46,6 +45,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicecheckbuildstep.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -78,6 +78,23 @@ public:
         setDisplayName(Step::displayName());
         setSupportedConfiguration(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+class QnxDeployConfigurationFactory : public DeployConfigurationFactory
+{
+public:
+    QnxDeployConfigurationFactory()
+    {
+        setConfigBaseId(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
+        setDefaultDisplayName(QCoreApplication::translate("Qnx::Internal::QnxDeployConfiguration",
+                                                          "Deploy to QNX Device"));
+        addSupportedTargetDeviceType(QnxDeviceFactory::deviceType());
+        setUseDeploymentDataView();
+
+        addInitialStep(DeviceCheckBuildStep::stepId());
+        addInitialStep(RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
+        addInitialStep(RemoteLinux::GenericDirectUploadStep::stepId());
     }
 };
 
