@@ -61,8 +61,6 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
 
     m_ui.delayedTemplateParseCheckBox->setVisible(Utils::HostOsInfo::isWindowsHost());
 
-    m_ui.globalOrCustomComboBox->setCurrentIndex(m_projectSettings.useGlobalConfig() ? 0 : 1);
-
     connect(m_ui.clangDiagnosticConfigsSelectionWidget,
             &ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
             this, &ClangProjectSettingsWidget::onCurrentWarningConfigChanged);
@@ -75,10 +73,12 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
     connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
             this, &ClangProjectSettingsWidget::onAboutToSaveProjectSettings);
 
+    connect(&m_projectSettings, &ClangProjectSettings::changed,
+            this, &ClangProjectSettingsWidget::syncWidgets);
     connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
             this, &ClangProjectSettingsWidget::syncOtherWidgetsToComboBox);
 
-    syncOtherWidgetsToComboBox();
+    syncWidgets();
 }
 
 void ClangProjectSettingsWidget::onCurrentWarningConfigChanged(const Core::Id &currentConfigId)
@@ -113,6 +113,17 @@ void ClangProjectSettingsWidget::onGlobalCustomChanged(int index)
 void ClangProjectSettingsWidget::onAboutToSaveProjectSettings()
 {
     CppTools::codeModelSettings()->toSettings(Core::ICore::settings());
+}
+
+void ClangProjectSettingsWidget::syncWidgets()
+{
+    syncGlobalCustomComboBox();
+    syncOtherWidgetsToComboBox();
+}
+
+void ClangProjectSettingsWidget::syncGlobalCustomComboBox()
+{
+    m_ui.globalOrCustomComboBox->setCurrentIndex(m_projectSettings.useGlobalConfig() ? 0 : 1);
 }
 
 void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()

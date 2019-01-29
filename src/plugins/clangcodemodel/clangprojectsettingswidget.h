@@ -48,6 +48,9 @@ private:
     void onDelayedTemplateParseClicked(bool);
     void onGlobalCustomChanged(int index);
     void onAboutToSaveProjectSettings();
+
+    void syncWidgets();
+    void syncGlobalCustomComboBox();
     void syncOtherWidgetsToComboBox();
 
     void refreshDiagnosticConfigsWidgetFromSettings();
