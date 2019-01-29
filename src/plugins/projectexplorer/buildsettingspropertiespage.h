@@ -63,7 +63,7 @@ private:
 
     void updateActiveConfiguration();
 
-    void createConfiguration(BuildInfo *info);
+    void createConfiguration(const BuildInfo &info);
     void cloneConfiguration();
     void deleteConfiguration(BuildConfiguration *toDelete);
     QString uniqueName(const QString &name);
@@ -81,7 +81,6 @@ private:
 
     QList<NamedWidget *> m_subWidgets;
     QList<QLabel *> m_labels;
-    QList<BuildInfo *> m_buildInfoList;
 };
 
 } // namespace Internal

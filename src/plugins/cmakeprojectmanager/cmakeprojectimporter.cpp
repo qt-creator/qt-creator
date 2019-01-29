@@ -27,10 +27,10 @@
 
 #include "builddirmanager.h"
 #include "cmakebuildconfiguration.h"
-#include "cmakebuildinfo.h"
 #include "cmakekitinformation.h"
 #include "cmaketoolmanager.h"
 
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -347,9 +347,9 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
     });
 }
 
-QList<BuildInfo *> CMakeProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
+const QList<BuildInfo> CMakeProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
 {
-    QList<BuildInfo *> result;
+    QList<BuildInfo> result;
     auto data = static_cast<const DirectoryData *>(directoryData);
     auto factory = qobject_cast<CMakeBuildConfigurationFactory *>(
                 BuildConfigurationFactory::find(k, projectFilePath().toString()));
@@ -357,21 +357,20 @@ QList<BuildInfo *> CMakeProjectImporter::buildInfoListForKit(const Kit *k, void 
         return result;
 
     // create info:
-    std::unique_ptr<CMakeBuildInfo>
-            info(factory->createBuildInfo(k, projectDirectory().toString(),
-                                          CMakeBuildConfigurationFactory::buildTypeFromByteArray(data->cmakeBuildType)));
-    info->buildDirectory = data->buildDirectory;
-    info->displayName = info->typeName;
+    BuildInfo info = factory->createBuildInfo(k, projectDirectory().toString(),
+                                              CMakeBuildConfigurationFactory::buildTypeFromByteArray(data->cmakeBuildType));
+    info.buildDirectory = data->buildDirectory;
+    info.displayName = info.typeName;
 
     bool found = false;
-    foreach (BuildInfo *bInfo, result) {
-        if (*static_cast<CMakeBuildInfo *>(bInfo) == *info) {
+    foreach (BuildInfo bInfo, result) {
+        if (bInfo == info) {
             found = true;
             break;
         }
     }
     if (!found)
-        result << info.release();
+        result << info;
 
     qCDebug(cmInputLog()) << "BuildInfo configured.";
 

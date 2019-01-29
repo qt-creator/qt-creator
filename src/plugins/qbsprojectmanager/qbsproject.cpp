@@ -686,7 +686,7 @@ QString QbsProject::uniqueProductName(const qbs::ProductData &product)
 
 void QbsProject::configureAsExampleProject(const QSet<Id> &platforms)
 {
-    QList<const BuildInfo *> infoList;
+    QList<BuildInfo> infoList;
     QList<Kit *> kits = KitManager::kits();
     const auto qtVersionMatchesPlatform = [platforms](const QtSupport::BaseQtVersion *version) {
         return platforms.isEmpty() || platforms.intersects(version->targetDeviceTypes());
@@ -696,16 +696,10 @@ void QbsProject::configureAsExampleProject(const QSet<Id> &platforms)
                 = QtSupport::QtKitInformation::qtVersion(k);
         if (!qtVersion || !qtVersionMatchesPlatform(qtVersion))
             continue;
-        const BuildConfigurationFactory * const factory
-                = BuildConfigurationFactory::find(k, projectFilePath().toString());
-        if (!factory)
-            continue;
-        const auto &buildInfos = factory->availableSetups(k, projectFilePath().toString());
-        for (BuildInfo * const info : buildInfos)
-            infoList << info;
+        if (auto factory = BuildConfigurationFactory::find(k, projectFilePath().toString()))
+            infoList << factory->allAvailableSetups(k, projectFilePath().toString());
     }
     setup(infoList);
-    qDeleteAll(infoList);
     prepareForParsing();
 }
 

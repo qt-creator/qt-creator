@@ -34,7 +34,6 @@ namespace ProjectExplorer { class FileNode; }
 
 namespace QmakeProjectManager {
 
-class QmakeBuildInfo;
 class QMakeStep;
 class QmakeMakeStep;
 class QmakeBuildConfigurationFactory;
@@ -50,7 +49,7 @@ public:
     QmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
     ~QmakeBuildConfiguration() override;
 
-    void initialize(const ProjectExplorer::BuildInfo *info) override;
+    void initialize(const ProjectExplorer::BuildInfo &info) override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;
     bool isShadowBuild() const;
 
@@ -152,12 +151,12 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfigurationFactory : public Project
 public:
     QmakeBuildConfigurationFactory();
 
-    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const override;
-    QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k,
-                                                        const QString &projectPath) const override;
+    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Target *parent) const override;
+    QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *k,
+                                                      const QString &projectPath) const override;
 private:
-    QmakeBuildInfo *createBuildInfo(const ProjectExplorer::Kit *k, const QString &projectPath,
-                                    ProjectExplorer::BuildConfiguration::BuildType type) const;
+    ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k, const QString &projectPath,
+                                               ProjectExplorer::BuildConfiguration::BuildType type) const;
 };
 
 } // namespace QmakeProjectManager

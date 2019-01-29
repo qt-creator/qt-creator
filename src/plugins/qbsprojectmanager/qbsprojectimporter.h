@@ -42,8 +42,8 @@ private:
     QList<void *> examineDirectory(const Utils::FileName &importPath) const override;
     bool matchKit(void *directoryData, const ProjectExplorer::Kit *k) const override;
     ProjectExplorer::Kit *createKit(void *directoryData) const override;
-    QList<ProjectExplorer::BuildInfo *> buildInfoListForKit(const ProjectExplorer::Kit *k,
-                                                            void *directoryData) const override;
+    const QList<ProjectExplorer::BuildInfo> buildInfoListForKit(const ProjectExplorer::Kit *k,
+                                                                void *directoryData) const override;
     void deleteDirectoryData(void *directoryData) const override;
 };
 

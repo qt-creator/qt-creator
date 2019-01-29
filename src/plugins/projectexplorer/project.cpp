@@ -824,11 +824,11 @@ bool Project::knowsAllBuildExecutables() const
     return true;
 }
 
-void Project::setup(const QList<const BuildInfo *> &infoList)
+void Project::setup(const QList<BuildInfo> &infoList)
 {
     std::vector<std::unique_ptr<Target>> toRegister;
-    for (const BuildInfo *info : infoList) {
-        Kit *k = KitManager::kit(info->kitId);
+    for (const BuildInfo &info : infoList) {
+        Kit *k = KitManager::kit(info.kitId);
         if (!k)
             continue;
         Target *t = target(k);
@@ -840,13 +840,11 @@ void Project::setup(const QList<const BuildInfo *> &infoList)
             toRegister.emplace_back(std::move(newTarget));
         }
 
-        if (!info->factory())
+        if (!info.factory())
             continue;
 
-        BuildConfiguration *bc = info->factory()->create(t, info);
-        if (!bc)
-            continue;
-        t->addBuildConfiguration(bc);
+        if (BuildConfiguration *bc = info.factory()->create(t, info))
+            t->addBuildConfiguration(bc);
     }
     for (std::unique_ptr<Target> &t : toRegister) {
         t->updateDefaultDeployConfigurations();

@@ -550,18 +550,17 @@ public:
 
         Target *lastTarget = nullptr;
         BuildConfiguration *lastBc = nullptr;
-        const QList<BuildInfo *> toImport = projectImporter->import(path, false);
-        for (BuildInfo *info : toImport) {
-            Target *target = project->target(info->kitId);
+        for (const BuildInfo &info : projectImporter->import(path, false)) {
+            Target *target = project->target(info.kitId);
             if (!target) {
-                std::unique_ptr<Target> newTarget = project->createTarget(KitManager::kit(info->kitId));
+                std::unique_ptr<Target> newTarget = project->createTarget(KitManager::kit(info.kitId));
                 target = newTarget.get();
                 if (newTarget)
                     project->addTarget(std::move(newTarget));
             }
             if (target) {
                 projectImporter->makePersistent(target->kit());
-                BuildConfiguration *bc = info->factory()->create(target, info);
+                BuildConfiguration *bc = info.factory()->create(target, info);
                 QTC_ASSERT(bc, continue);
                 target->addBuildConfiguration(bc);
 
@@ -573,8 +572,6 @@ public:
             SessionManager::setActiveBuildConfiguration(lastTarget, lastBc, SetActive::Cascade);
             SessionManager::setActiveTarget(project, lastTarget, SetActive::Cascade);
         }
-
-        qDeleteAll(toImport);
     }
 
     void setPanel(QWidget *panel)

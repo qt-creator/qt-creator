@@ -56,7 +56,7 @@ public:
     const Utils::FileName projectFilePath() const { return m_projectPath; }
     const Utils::FileName projectDirectory() const { return m_projectPath.parentDir(); }
 
-    virtual QList<BuildInfo *> import(const Utils::FileName &importPath, bool silent = false);
+    virtual const QList<BuildInfo> import(const Utils::FileName &importPath, bool silent = false);
     virtual QStringList importCandidates() = 0;
     virtual Target *preferredTarget(const QList<Target *> &possibleTargets);
 
@@ -93,7 +93,7 @@ protected:
     // will get one of the results from examineDirectory
     virtual Kit *createKit(void *directoryData) const = 0;
     // will get one of the results from examineDirectory
-    virtual QList<BuildInfo *> buildInfoListForKit(const Kit *k, void *directoryData) const = 0;
+    virtual const QList<BuildInfo> buildInfoListForKit(const Kit *k, void *directoryData) const = 0;
 
     virtual void deleteDirectoryData(void *directoryData) const = 0;
 

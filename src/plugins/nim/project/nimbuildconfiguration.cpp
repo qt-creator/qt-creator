@@ -75,7 +75,7 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
 {
 }
 
-void NimBuildConfiguration::initialize(const BuildInfo *info)
+void NimBuildConfiguration::initialize(const BuildInfo &info)
 {
     BuildConfiguration::initialize(info);
 
@@ -85,15 +85,15 @@ void NimBuildConfiguration::initialize(const BuildInfo *info)
     // Create the build configuration and initialize it from build info
     setBuildDirectory(defaultBuildDirectory(target()->kit(),
                                             project->projectFilePath().toString(),
-                                            info->displayName,
-                                            info->buildType));
+                                            info.displayName,
+                                            info.buildType));
 
     // Add nim compiler build step
     {
         BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         auto nimCompilerBuildStep = new NimCompilerBuildStep(buildSteps);
         NimCompilerBuildStep::DefaultBuildOptions defaultOption;
-        switch (info->buildType) {
+        switch (info.buildType) {
         case BuildConfiguration::Release:
             defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Release;
             break;
@@ -181,32 +181,32 @@ NimBuildConfigurationFactory::NimBuildConfigurationFactory()
     setSupportedProjectMimeTypeName(Constants::C_NIM_PROJECT_MIMETYPE);
 }
 
-QList<BuildInfo *> NimBuildConfigurationFactory::availableBuilds(const Target *parent) const
+QList<BuildInfo> NimBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
-    QList<BuildInfo *> result;
+    QList<BuildInfo> result;
     for (auto buildType : {BuildConfiguration::Debug, BuildConfiguration::Release})
         result.push_back(createBuildInfo(parent->kit(), buildType));
     return result;
 }
 
-QList<BuildInfo *> NimBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+QList<BuildInfo> NimBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
-    QList<BuildInfo *> result;
+    QList<BuildInfo> result;
     for (auto buildType : {BuildConfiguration::Debug, BuildConfiguration::Release}) {
-        BuildInfo *info = createBuildInfo(k, buildType);
-        info->displayName = info->typeName;
-        info->buildDirectory = defaultBuildDirectory(k, projectPath, info->typeName, buildType);
+        BuildInfo info = createBuildInfo(k, buildType);
+        info.displayName = info.typeName;
+        info.buildDirectory = defaultBuildDirectory(k, projectPath, info.typeName, buildType);
         result.push_back(info);
     }
     return result;
 }
 
-BuildInfo *NimBuildConfigurationFactory::createBuildInfo(const Kit *k, BuildConfiguration::BuildType buildType) const
+BuildInfo NimBuildConfigurationFactory::createBuildInfo(const Kit *k, BuildConfiguration::BuildType buildType) const
 {
-    auto info = new BuildInfo(this);
-    info->buildType = buildType;
-    info->kitId = k->id();
-    info->typeName = displayName(buildType);
+    BuildInfo info(this);
+    info.buildType = buildType;
+    info.kitId = k->id();
+    info.typeName = displayName(buildType);
     return info;
 }
 

@@ -45,6 +45,8 @@
 #include <cpptools/cppprojectupdater.h>
 #include <cpptools/cppmodelmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
@@ -957,7 +959,7 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
 
 void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
 {
-    QList<const BuildInfo *> infoList;
+    QList<BuildInfo> infoList;
     QList<Kit *> kits = KitManager::kits();
     foreach (Kit *k, kits) {
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
@@ -966,14 +968,10 @@ void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
                     && !Utils::contains(version->targetDeviceTypes(), [platforms](Core::Id i) { return platforms.contains(i); })))
             continue;
 
-        BuildConfigurationFactory *factory = BuildConfigurationFactory::find(k, projectFilePath().toString());
-        if (!factory)
-            continue;
-        foreach (BuildInfo *info, factory->availableSetups(k, projectFilePath().toString()))
-            infoList << info;
+        if (auto factory = BuildConfigurationFactory::find(k, projectFilePath().toString()))
+            infoList << factory->allAvailableSetups(k, projectFilePath().toString());
     }
     setup(infoList);
-    qDeleteAll(infoList);
 }
 
 void QmakeProject::updateBuildSystemData()

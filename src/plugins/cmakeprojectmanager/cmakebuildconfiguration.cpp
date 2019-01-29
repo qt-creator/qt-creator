@@ -26,8 +26,8 @@
 #include "cmakebuildconfiguration.h"
 
 #include "builddirmanager.h"
-#include "cmakebuildinfo.h"
 #include "cmakebuildstep.h"
+#include "cmakeconfigitem.h"
 #include "cmakekitinformation.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
@@ -37,6 +37,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
@@ -55,6 +56,20 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager {
+
+class CMakeExtraBuildInfo
+{
+public:
+    QString sourceDirectory;
+    CMakeConfig configuration;
+};
+
+} // namespace CMakeProjectManager
+
+Q_DECLARE_METATYPE(CMakeProjectManager::CMakeExtraBuildInfo)
+
+
+namespace CMakeProjectManager {
 namespace Internal {
 
 const char INITIAL_ARGUMENTS[] = "CMakeProjectManager.CMakeBuildConfiguration.InitialArgument"; // Obsolete since QtC 3.7
@@ -70,7 +85,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
     connect(project, &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
 }
 
-void CMakeBuildConfiguration::initialize(const BuildInfo *info)
+void CMakeBuildConfiguration::initialize(const BuildInfo &info)
 {
     BuildConfiguration::initialize(info);
 
@@ -80,13 +95,14 @@ void CMakeBuildConfiguration::initialize(const BuildInfo *info)
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
     cleanSteps->appendStep(new CMakeBuildStep(cleanSteps));
 
-    if (info->buildDirectory.isEmpty()) {
+    if (info.buildDirectory.isEmpty()) {
         auto project = static_cast<const CMakeProject *>(target()->project());
         setBuildDirectory(CMakeBuildConfiguration::shadowBuildDirectory(project->projectFilePath(),
                                                                         target()->kit(),
-                                                                        info->displayName, info->buildType));
+                                                                        info.displayName, info.buildType));
     }
-    setConfigurationForCMake(static_cast<const CMakeBuildInfo *>(info)->configuration);
+    auto extraInfo = info.extraInfo.value<CMakeExtraBuildInfo>();
+    setConfigurationForCMake(extraInfo.configuration);
 }
 
 bool CMakeBuildConfiguration::isEnabled() const
@@ -424,74 +440,74 @@ BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBu
         return BuildConfiguration::Unknown;
 }
 
-QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableBuilds(const ProjectExplorer::Target *parent) const
+QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
-    QList<ProjectExplorer::BuildInfo *> result;
+    QList<BuildInfo> result;
 
     for (int type = BuildTypeNone; type != BuildTypeLast; ++type) {
-        CMakeBuildInfo *info = createBuildInfo(parent->kit(),
-                                               parent->project()->projectDirectory().toString(),
-                                               BuildType(type));
-        result << info;
+        result << createBuildInfo(parent->kit(),
+                                  parent->project()->projectDirectory().toString(),
+                                  BuildType(type));
     }
     return result;
 }
 
-QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k,
-                                                                                    const QString &projectPath) const
+QList<BuildInfo> CMakeBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
-    QList<ProjectExplorer::BuildInfo *> result;
+    QList<BuildInfo> result;
     const FileName projectPathName = FileName::fromString(projectPath);
     for (int type = BuildTypeNone; type != BuildTypeLast; ++type) {
-        CMakeBuildInfo *info = createBuildInfo(k,
-                                               ProjectExplorer::Project::projectDirectory(projectPathName).toString(),
-                                               BuildType(type));
+        BuildInfo info = createBuildInfo(k,
+                                         ProjectExplorer::Project::projectDirectory(projectPathName).toString(),
+                                         BuildType(type));
         if (type == BuildTypeNone) {
             //: The name of the build configuration created by default for a cmake project.
-            info->displayName = tr("Default");
+            info.displayName = tr("Default");
         } else {
-            info->displayName = info->typeName;
+            info.displayName = info.typeName;
         }
-        info->buildDirectory
+        info.buildDirectory
                 = CMakeBuildConfiguration::shadowBuildDirectory(projectPathName, k,
-                                                                info->displayName, info->buildType);
+                                                                info.displayName, info.buildType);
         result << info;
     }
     return result;
 }
 
-CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExplorer::Kit *k,
-                                                                const QString &sourceDir,
-                                                                BuildType buildType) const
+BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
+                                                          const QString &sourceDir,
+                                                          BuildType buildType) const
 {
-    auto info = new CMakeBuildInfo(this);
-    info->kitId = k->id();
-    info->sourceDirectory = sourceDir;
+    BuildInfo info(this);
+    info.kitId = k->id();
+
+    CMakeExtraBuildInfo extra;
+    extra.sourceDirectory = sourceDir;
 
     CMakeConfigItem buildTypeItem;
     switch (buildType) {
     case BuildTypeNone:
-        info->typeName = tr("Build");
+        info.typeName = tr("Build");
         break;
     case BuildTypeDebug:
         buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "Debug")};
-        info->typeName = tr("Debug");
-        info->buildType = BuildConfiguration::Debug;
+        info.typeName = tr("Debug");
+        info.buildType = BuildConfiguration::Debug;
         break;
     case BuildTypeRelease:
         buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "Release")};
-        info->typeName = tr("Release");
-        info->buildType = BuildConfiguration::Release;
+        info.typeName = tr("Release");
+        info.buildType = BuildConfiguration::Release;
         break;
     case BuildTypeMinSizeRel:
         buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "MinSizeRel")};
-        info->typeName = tr("Minimum Size Release");
-        info->buildType = BuildConfiguration::Release;
+        info.typeName = tr("Minimum Size Release");
+        info.buildType = BuildConfiguration::Release;
         break;
     case BuildTypeRelWithDebInfo:
         buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "RelWithDebInfo")};
-        info->typeName = tr("Release with Debug Information");
-        info->buildType = BuildConfiguration::Profile;
+        info.typeName = tr("Release with Debug Information");
+        info.buildType = BuildConfiguration::Profile;
         break;
     default:
         QTC_CHECK(false);
@@ -499,19 +515,20 @@ CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExp
     }
 
     if (!buildTypeItem.isNull())
-        info->configuration.append(buildTypeItem);
+        extra.configuration.append(buildTypeItem);
 
     const QString sysRoot = SysRootKitInformation::sysRoot(k).toString();
     if (!sysRoot.isEmpty()) {
-        info->configuration.append(CMakeConfigItem("CMAKE_SYSROOT", sysRoot.toUtf8()));
+        extra.configuration.append(CMakeConfigItem("CMAKE_SYSROOT", sysRoot.toUtf8()));
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(
             k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         if (tc) {
             const QByteArray targetTriple = tc->originalTargetTriple().toUtf8();
-            info->configuration.append(CMakeConfigItem("CMAKE_C_COMPILER_TARGET", targetTriple));
-            info->configuration.append(CMakeConfigItem("CMAKE_CXX_COMPILER_TARGET ", targetTriple));
+            extra.configuration.append(CMakeConfigItem("CMAKE_C_COMPILER_TARGET", targetTriple));
+            extra.configuration.append(CMakeConfigItem("CMAKE_CXX_COMPILER_TARGET ", targetTriple));
         }
     }
+    info.extraInfo = QVariant::fromValue(extra);
 
     return info;
 }

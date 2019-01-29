@@ -39,6 +39,7 @@ class BuildStepList;
 class Node;
 class Kit;
 class Target;
+class Task;
 class IOutputParser;
 
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
@@ -105,7 +106,7 @@ signals:
     void buildTypeChanged();
 
 protected:
-    virtual void initialize(const BuildInfo *info);
+    virtual void initialize(const BuildInfo &info);
 
 private:
     void emitBuildDirectoryChanged();
@@ -133,13 +134,13 @@ public:
     virtual int priority(const Target *parent) const;
     // List of build information that can be used to create a new build configuration via
     // "Add Build Configuration" button.
-    virtual QList<BuildInfo *> availableBuilds(const Target *parent) const = 0;
+    const QList<BuildInfo> allAvailableBuilds(const Target *parent) const;
 
     virtual int priority(const Kit *k, const QString &projectPath) const;
     // List of build information that can be used to initially set up a new build configuration.
-    virtual QList<BuildInfo *> availableSetups(const Kit *k, const QString &projectPath) const = 0;
+    const QList<BuildInfo> allAvailableSetups(const Kit *k, const QString &projectPath) const;
 
-    BuildConfiguration *create(Target *parent, const BuildInfo *info) const;
+    BuildConfiguration *create(Target *parent, const BuildInfo &info) const;
 
     static BuildConfiguration *restore(Target *parent, const QVariantMap &map);
     static BuildConfiguration *clone(Target *parent, const BuildConfiguration *source);
@@ -147,7 +148,15 @@ public:
     static BuildConfigurationFactory *find(const Kit *k, const QString &projectPath);
     static BuildConfigurationFactory *find(Target *parent);
 
+    using IssueReporter = std::function<QList<ProjectExplorer::Task>(Kit *, const QString &, const QString &)>;
+    void setIssueReporter(const IssueReporter &issueReporter);
+    const QList<Task> reportIssues(ProjectExplorer::Kit *kit,
+                                   const QString &projectPath, const QString &buildDir) const;
+
 protected:
+    virtual QList<BuildInfo> availableBuilds(const Target *parent) const = 0;
+    virtual QList<BuildInfo> availableSetups(const Kit *k, const QString &projectPath) const = 0;
+
     bool supportsTargetDeviceType(Core::Id id) const;
     void setSupportedProjectType(Core::Id id);
     void setSupportedProjectMimeTypeName(const QString &mimeTypeName);
@@ -173,6 +182,8 @@ private:
     Core::Id m_supportedProjectType;
     QList<Core::Id> m_supportedTargetDeviceTypes;
     QString m_supportedProjectMimeTypeName;
+    IssueReporter m_issueReporter;
+
     int m_basePriority = 0; // Use higher numbers (1, 2, ...) for higher priorities.
 };
 

@@ -181,7 +181,7 @@ protected:
     QList<void *> examineDirectory(const Utils::FileName &importPath) const override;
     bool matchKit(void *directoryData, const Kit *k) const override;
     Kit *createKit(void *directoryData) const override;
-    QList<BuildInfo *> buildInfoListForKit(const Kit *k, void *directoryData) const override;
+    const QList<BuildInfo> buildInfoListForKit(const Kit *k, void *directoryData) const override;
     void deleteDirectoryData(void *directoryData) const override;
 
 private:
@@ -241,20 +241,19 @@ Kit *TestQtProjectImporter::createKit(void *directoryData) const
     });
 }
 
-QList<BuildInfo *> TestQtProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
+const QList<BuildInfo> TestQtProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
 {
     Q_UNUSED(directoryData);
     assert(m_testData.contains(directoryData));
     assert(!m_deletedTestData.contains(directoryData));
     assert(static_cast<const DirectoryData *>(directoryData)->importPath == m_path);
 
-    BuildInfo *info = new BuildInfo(nullptr);
-    info->displayName = "Test Build info";
-    info->typeName = "Debug";
-    info->buildDirectory = m_path;
-    info->kitId = k->id();
-    info->buildType = BuildConfiguration::Debug;
-
+    BuildInfo info;
+    info.displayName = "Test Build info";
+    info.typeName = "Debug";
+    info.buildDirectory = m_path;
+    info.kitId = k->id();
+    info.buildType = BuildConfiguration::Debug;
     return {info};
 }
 
@@ -422,7 +421,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     // --------------------------------------------------------------------
 
     // choose an existing directory to "import"
-    const QList<BuildInfo *> buildInfo = importer.import(Utils::FileName::fromString(appDir), true);
+    const QList<BuildInfo> buildInfo = importer.import(Utils::FileName::fromString(appDir), true);
 
     // VALIDATE: Basic TestImporter state:
     QCOMPARE(importer.projectFilePath().toString(), tempDir1.path());
@@ -436,14 +435,14 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     // VALIDATE: Validate result:
     for (int i = 0; i < buildInfo.count(); ++i) {
         const DirectoryData *dd = testData.at(i);
-        const BuildInfo *bi = buildInfo.at(i);
+        const BuildInfo &bi = buildInfo.at(i);
 
         // VALIDATE: Kit id is unchanged (unless it is a new kit)
         if (!dd->isNewKit)
-            QCOMPARE(bi->kitId, defaultKit->id());
+            QCOMPARE(bi.kitId, defaultKit->id());
 
         // VALIDATE: Kit is registered with the KitManager
-        Kit *newKit = KitManager::kit(bi->kitId);
+        Kit *newKit = KitManager::kit(bi.kitId);
         QVERIFY(newKit);
 
         const int newQtId = QtKitInformation::qtVersionId(newKit);
@@ -596,7 +595,6 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     // Teardown:
     // --------------------------------------------------------------------
 
-    qDeleteAll(buildInfo);
     qDeleteAll(testData);
 
     foreach (Kit *k, toUnregisterLater)

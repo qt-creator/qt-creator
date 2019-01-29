@@ -134,9 +134,9 @@ void TargetSetupWidget::setKitSelected(bool b)
     m_ignoreChange = false;
 }
 
-void TargetSetupWidget::addBuildInfo(BuildInfo *info, bool isImport)
+void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
 {
-    QTC_ASSERT(info && info->kitId == m_kit->id(), return);
+    QTC_ASSERT(info.kitId == m_kit->id(), return);
 
     if (isImport && !m_haveImported) {
         // disable everything on first import
@@ -156,16 +156,16 @@ void TargetSetupWidget::addBuildInfo(BuildInfo *info, bool isImport)
     store.isEnabled = true;
     ++m_selected;
 
-    if (info->factory()) {
+    if (info.factory()) {
         store.checkbox = new QCheckBox;
-        store.checkbox->setText(info->displayName);
+        store.checkbox->setText(info.displayName);
         store.checkbox->setChecked(store.isEnabled);
         store.checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
         m_newBuildsLayout->addWidget(store.checkbox, pos * 2, 0);
 
         store.pathChooser = new Utils::PathChooser();
         store.pathChooser->setExpectedKind(Utils::PathChooser::Directory);
-        store.pathChooser->setFileName(info->buildDirectory);
+        store.pathChooser->setFileName(info.buildDirectory);
         store.pathChooser->setHistoryCompleter(QLatin1String("TargetSetup.BuildDir.History"));
         store.pathChooser->setReadOnly(isImport);
         m_newBuildsLayout->addWidget(store.pathChooser, pos * 2, 1);
@@ -217,7 +217,7 @@ void TargetSetupWidget::setProjectPath(const QString &projectPath)
     m_projectPath = projectPath;
     clear();
 
-    for (BuildInfo *info : buildInfoList(m_kit, projectPath))
+    for (const BuildInfo &info : buildInfoList(m_kit, projectPath))
         addBuildInfo(info, false);
 }
 
@@ -226,16 +226,14 @@ void TargetSetupWidget::expandWidget()
     m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
 }
 
-QList<BuildInfo *> TargetSetupWidget::buildInfoList(const Kit *k, const QString &projectPath)
+const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const QString &projectPath)
 {
-    const BuildConfigurationFactory *const factory
-            = BuildConfigurationFactory::find(k, projectPath);
-    if (factory)
-        return factory->availableSetups(k, projectPath);
+    if (auto factory = BuildConfigurationFactory::find(k, projectPath))
+        return factory->allAvailableSetups(k, projectPath);
 
-    auto *info = new BuildInfo(nullptr);
-    info->kitId = k->id();
-    return QList<BuildInfo *>({info});
+    BuildInfo info(nullptr);
+    info.kitId = k->id();
+    return {info};
 }
 
 void TargetSetupWidget::handleKitUpdate(Kit *k)
@@ -247,9 +245,9 @@ void TargetSetupWidget::handleKitUpdate(Kit *k)
     m_detailsWidget->setSummaryText(k->displayName());
 }
 
-QList<const BuildInfo *> TargetSetupWidget::selectedBuildInfoList() const
+const QList<BuildInfo> TargetSetupWidget::selectedBuildInfoList() const
 {
-    QList<const BuildInfo *> result;
+    QList<BuildInfo> result;
     for (const BuildInfoStore &store : m_infoStore) {
         if (store.isEnabled)
             result.append(store.buildInfo);
@@ -297,7 +295,7 @@ void TargetSetupWidget::pathChanged()
         return store.pathChooser == pathChooser;
     });
     QTC_ASSERT(it != m_infoStore.end(), return);
-    it->buildInfo->buildDirectory = pathChooser->fileName();
+    it->buildInfo.buildDirectory = pathChooser->fileName();
     reportIssues(static_cast<int>(std::distance(m_infoStore.begin(), it)));
 }
 
@@ -315,13 +313,15 @@ void TargetSetupWidget::reportIssues(int index)
     }
 }
 
-QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo *info)
+QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &info)
 {
-    if (m_projectPath.isEmpty() || !info->factory())
+    if (m_projectPath.isEmpty() || !info.factory())
         return qMakePair(Task::Unknown, QString());
 
-    QString buildDir = info->buildDirectory.toString();
-    QList<Task> issues = info->reportIssues(m_projectPath, buildDir);
+    QString buildDir = info.buildDirectory.toString();
+    QList<Task> issues;
+    if (info.factory())
+        issues = info.factory()->reportIssues(m_kit, m_projectPath, buildDir);
 
     QString text;
     Task::TaskType highestType = Task::Unknown;
@@ -347,7 +347,6 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo *in
 
 TargetSetupWidget::BuildInfoStore::~BuildInfoStore()
 {
-    delete buildInfo;
     delete checkbox;
     delete label;
     delete issuesLabel;

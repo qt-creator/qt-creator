@@ -162,7 +162,7 @@ public:
     // of configuration.
     virtual bool knowsAllBuildExecutables() const;
 
-    void setup(const QList<const BuildInfo *> &infoList);
+    void setup(const QList<BuildInfo> &infoList);
     Utils::MacroExpander *macroExpander() const;
 
     virtual QVariant additionalData(Core::Id id, const Target *target) const;

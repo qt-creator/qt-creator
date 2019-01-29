@@ -57,7 +57,6 @@ using namespace ProjectExplorer::Internal;
 BuildSettingsWidget::~BuildSettingsWidget()
 {
     clearWidgets();
-    qDeleteAll(m_buildInfoList);
 }
 
 BuildSettingsWidget::BuildSettingsWidget(Target *target) :
@@ -176,16 +175,13 @@ QList<NamedWidget *> BuildSettingsWidget::subWidgets() const
 void BuildSettingsWidget::updateAddButtonMenu()
 {
     m_addButtonMenu->clear();
-    qDeleteAll(m_buildInfoList);
-    m_buildInfoList.clear();
 
     if (m_target) {
         BuildConfigurationFactory *factory = BuildConfigurationFactory::find(m_target);
         if (!factory)
             return;
-        m_buildInfoList = factory->availableBuilds(m_target);
-        foreach (BuildInfo *info, m_buildInfoList) {
-            QAction *action = m_addButtonMenu->addAction(info->typeName);
+        for (const BuildInfo &info : factory->allAvailableBuilds(m_target)) {
+            QAction *action = m_addButtonMenu->addAction(info.typeName);
             connect(action, &QAction::triggered, this, [this, info] {
                 createConfiguration(info);
             });
@@ -239,28 +235,26 @@ void BuildSettingsWidget::updateActiveConfiguration()
     updateBuildSettings();
 }
 
-void BuildSettingsWidget::createConfiguration(BuildInfo *info)
+void BuildSettingsWidget::createConfiguration(const BuildInfo &info_)
 {
-    QString originalDisplayName = info->displayName;
-
-    if (info->displayName.isEmpty()) {
+    BuildInfo info = info_;
+    if (info.displayName.isEmpty()) {
         bool ok = false;
-        info->displayName = QInputDialog::getText(Core::ICore::mainWindow(),
+        info.displayName = QInputDialog::getText(Core::ICore::mainWindow(),
                                                   tr("New Configuration"),
                                                   tr("New configuration name:"),
                                                   QLineEdit::Normal,
                                                   QString(), &ok).trimmed();
-        if (!ok || info->displayName.isEmpty())
+        if (!ok || info.displayName.isEmpty())
             return;
     }
 
-    BuildConfiguration *bc = info->factory()->create(m_target, info);
+    BuildConfiguration *bc = info.factory()->create(m_target, info);
     if (!bc)
         return;
 
     m_target->addBuildConfiguration(bc);
     SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
-    info->displayName = originalDisplayName;
 }
 
 QString BuildSettingsWidget::uniqueName(const QString & name)

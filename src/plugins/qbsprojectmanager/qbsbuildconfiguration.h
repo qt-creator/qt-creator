@@ -49,7 +49,7 @@ class QbsBuildConfiguration : public ProjectExplorer::BuildConfiguration
     QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 public:
-    void initialize(const ProjectExplorer::BuildInfo *info) override;
+    void initialize(const ProjectExplorer::BuildInfo &info) override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;
 
     QbsBuildStep *qbsStep() const;
@@ -104,12 +104,12 @@ class QbsBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationF
 public:
     QbsBuildConfigurationFactory();
 
-    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const override;
-    QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k,
-                                                        const QString &projectPath) const override;
+    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Target *parent) const override;
+    QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *k,
+                                                      const QString &projectPath) const override;
 
 private:
-    ProjectExplorer::BuildInfo *createBuildInfo(const ProjectExplorer::Kit *k,
+    ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k,
                                                 ProjectExplorer::BuildConfiguration::BuildType type) const;
 };
 

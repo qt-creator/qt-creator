@@ -103,11 +103,11 @@ void BuildConfiguration::setBuildDirectory(const Utils::FileName &dir)
     emitBuildDirectoryChanged();
 }
 
-void BuildConfiguration::initialize(const BuildInfo *info)
+void BuildConfiguration::initialize(const BuildInfo &info)
 {
-    setDisplayName(info->displayName);
-    setDefaultDisplayName(info->displayName);
-    setBuildDirectory(info->buildDirectory);
+    setDisplayName(info.displayName);
+    setDefaultDisplayName(info.displayName);
+    setBuildDirectory(info.buildDirectory);
 
     m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_BUILD));
     m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_CLEAN));
@@ -338,6 +338,24 @@ int BuildConfigurationFactory::priority(const Target *parent) const
     return canHandle(parent) ? m_basePriority : -1;
 }
 
+const QList<Task> BuildConfigurationFactory::reportIssues(ProjectExplorer::Kit *kit, const QString &projectPath,
+                                                          const QString &buildDir) const
+{
+    if (m_issueReporter)
+        return m_issueReporter(kit, projectPath, buildDir);
+    return {};
+}
+
+const QList<BuildInfo> BuildConfigurationFactory::allAvailableBuilds(const Target *parent) const
+{
+    return availableBuilds(parent);
+}
+
+const QList<BuildInfo> BuildConfigurationFactory::allAvailableSetups(const Kit *k, const QString &projectPath) const
+{
+    return availableSetups(k, projectPath);
+}
+
 bool BuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const
 {
     if (m_supportedTargetDeviceTypes.isEmpty())
@@ -419,7 +437,12 @@ bool BuildConfigurationFactory::canHandle(const Target *target) const
     return true;
 }
 
-BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
+void BuildConfigurationFactory::setIssueReporter(const IssueReporter &issueReporter)
+{
+    m_issueReporter = issueReporter;
+}
+
+BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const BuildInfo &info) const
 {
     if (!canHandle(parent))
         return nullptr;

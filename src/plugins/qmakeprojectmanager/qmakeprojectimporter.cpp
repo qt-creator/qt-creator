@@ -32,10 +32,12 @@
 #include "makefileparse.h"
 #include "qmakestep.h"
 
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionfactory.h>
@@ -229,9 +231,9 @@ Kit *QmakeProjectImporter::createKit(void *directoryData) const
     return createTemporaryKit(data->qtVersionData, data->parsedSpec, data->archConfig, data->osType);
 }
 
-QList<BuildInfo *> QmakeProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
+const QList<BuildInfo> QmakeProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
 {
-    QList<BuildInfo *> result;
+    QList<BuildInfo> result;
     auto *data = static_cast<DirectoryData *>(directoryData);
     auto factory = qobject_cast<QmakeBuildConfigurationFactory *>(
                 BuildConfigurationFactory::find(k, projectFilePath().toString()));
@@ -239,29 +241,32 @@ QList<BuildInfo *> QmakeProjectImporter::buildInfoListForKit(const Kit *k, void 
         return result;
 
     // create info:
-    std::unique_ptr<QmakeBuildInfo> info(new QmakeBuildInfo(factory));
+    BuildInfo info(factory);
     if (data->buildConfig & BaseQtVersion::DebugBuild) {
-        info->buildType = BuildConfiguration::Debug;
-        info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Debug");
+        info.buildType = BuildConfiguration::Debug;
+        info.displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Debug");
     } else {
-        info->buildType = BuildConfiguration::Release;
-        info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Release");
+        info.buildType = BuildConfiguration::Release;
+        info.displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Release");
     }
-    info->kitId = k->id();
-    info->buildDirectory = data->buildDirectory;
-    info->additionalArguments = data->additionalArguments;
-    info->config = data->config;
-    info->makefile = data->makefile;
+    info.kitId = k->id();
+    info.buildDirectory = data->buildDirectory;
+
+    QmakeExtraBuildInfo extra;
+    extra.additionalArguments = data->additionalArguments;
+    extra.config = data->config;
+    extra.makefile = data->makefile;
+    info.extraInfo = QVariant::fromValue(extra);
 
     bool found = false;
-    foreach (BuildInfo *bInfo, result) {
-        if (*static_cast<QmakeBuildInfo *>(bInfo) == *info) {
+    foreach (const BuildInfo &bInfo, result) {
+        if (bInfo == info) {
             found = true;
             break;
         }
     }
     if (!found)
-        result << info.release();
+        result << info;
 
     return result;
 }

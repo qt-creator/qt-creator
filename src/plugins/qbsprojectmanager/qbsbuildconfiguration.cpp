@@ -26,7 +26,6 @@
 #include "qbsbuildconfiguration.h"
 
 #include "qbsbuildconfigurationwidget.h"
-#include "qbsbuildinfo.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
 #include "qbsinstallstep.h"
@@ -36,7 +35,8 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
-#include <utils/qtcassert.h>
+
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kit.h>
@@ -46,7 +46,11 @@
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+
+#include <qtsupport/qtkitinformation.h>
+
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
@@ -82,21 +86,20 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
     connect(project(), &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
 }
 
-void QbsBuildConfiguration::initialize(const BuildInfo *info)
+void QbsBuildConfiguration::initialize(const BuildInfo &info)
 {
     BuildConfiguration::initialize(info);
 
-    const auto * const bi = static_cast<const QbsBuildInfo *>(info);
-    QVariantMap configData = bi->config;
+    QVariantMap configData = info.extraInfo.value<QVariantMap>();
     configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                      (info->buildType == BuildConfiguration::Debug)
+                      (info.buildType == BuildConfiguration::Debug)
                       ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
                       : QLatin1String(Constants::QBS_VARIANT_RELEASE));
 
-    Utils::FileName buildDir = info->buildDirectory;
+    Utils::FileName buildDir = info.buildDirectory;
     if (buildDir.isEmpty())
         buildDir = defaultBuildDirectory(target()->project()->projectFilePath().toString(),
-                                         target()->kit(), info->displayName, info->buildType);
+                                         target()->kit(), info.displayName, info.buildType);
     setBuildDirectory(buildDir);
 
     // Add the build configuration.
@@ -104,13 +107,13 @@ void QbsBuildConfiguration::initialize(const BuildInfo *info)
     QString configName = bd.take("configName").toString();
     if (configName.isEmpty()) {
         configName = "qtc_" + target()->kit()->fileSystemFriendlyName() + '_'
-                + Utils::FileUtils::fileSystemFriendlyName(info->displayName);
+                + Utils::FileUtils::fileSystemFriendlyName(info.displayName);
     }
     setConfigurationName(configName);
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto bs = new QbsBuildStep(buildSteps);
-    if (info->buildType == Release)
+    if (info.buildType == Release)
         bs->setQmlDebuggingEnabled(false);
     bs->setQbsConfiguration(bd);
     buildSteps->appendStep(bs);
@@ -401,44 +404,51 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
     registerBuildConfiguration<QbsBuildConfiguration>(Constants::QBS_BC_ID);
     setSupportedProjectType(Constants::PROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::MIME_TYPE);
+    setIssueReporter([](Kit *k, const QString &projectPath, const QString &buildDir) -> QList<Task> {
+        const QtSupport::BaseQtVersion * const version = QtSupport::QtKitInformation::qtVersion(k);
+        return version ? version->reportIssues(projectPath, buildDir)
+                       : QList<ProjectExplorer::Task>();
+    });
 }
 
-BuildInfo *QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
-                                                         BuildConfiguration::BuildType type) const
+BuildInfo QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
+                                                        BuildConfiguration::BuildType type) const
 {
-    auto info = new QbsBuildInfo(this);
-    info->typeName = tr("Build");
-    info->kitId = k->id();
-    info->buildType = type;
-    info->config.insert("configName", type == BuildConfiguration::Debug ? "Debug" : "Release");
+    BuildInfo info(this);
+    info.kitId = k->id();
+    info.buildType = type;
+    info.typeName = tr("Build");
+    QVariantMap config;
+    config.insert("configName", type == BuildConfiguration::Debug ? "Debug" : "Release");
+    info.extraInfo = config;
     return info;
 }
 
-QList<BuildInfo *> QbsBuildConfigurationFactory::availableBuilds(const Target *parent) const
+QList<BuildInfo> QbsBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     return {createBuildInfo(parent->kit(), BuildConfiguration::Debug)};
 }
 
-QList<BuildInfo *> QbsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+QList<BuildInfo> QbsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
-    QList<BuildInfo *> result;
+    QList<BuildInfo> result;
 
-    BuildInfo *info = createBuildInfo(k, BuildConfiguration::Debug);
+    BuildInfo info = createBuildInfo(k, BuildConfiguration::Debug);
     //: The name of the debug build configuration created by default for a qbs project.
-    info->displayName = tr("Debug");
+    info.displayName = tr("Debug");
     //: Non-ASCII characters in directory suffix may cause build issues.
-    info->buildDirectory
+    info.buildDirectory
             = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"),
-                                    info->buildType);
+                                    info.buildType);
     result << info;
 
     info = createBuildInfo(k, BuildConfiguration::Release);
     //: The name of the release build configuration created by default for a qbs project.
-    info->displayName = tr("Release");
+    info.displayName = tr("Release");
     //: Non-ASCII characters in directory suffix may cause build issues.
-    info->buildDirectory
+    info.buildDirectory
             = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"),
-                                    info->buildType);
+                                    info.buildType);
     result << info;
 
     return result;

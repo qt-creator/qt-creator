@@ -37,11 +37,10 @@ namespace ProjectExplorer {
 
 class BuildConfigurationFactory;
 
-class PROJECTEXPLORER_EXPORT BuildInfo
+class PROJECTEXPLORER_EXPORT BuildInfo final
 {
 public:
-    BuildInfo(const BuildConfigurationFactory *f) : m_factory(f) { }
-    virtual ~BuildInfo();
+    BuildInfo(const BuildConfigurationFactory *f = nullptr) : m_factory(f) { }
 
     const BuildConfigurationFactory *factory() const { return m_factory; }
 
@@ -51,26 +50,16 @@ public:
     Core::Id kitId;
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
 
-    virtual bool operator==(const BuildInfo &o) const
+    QVariant extraInfo;
+    const BuildConfigurationFactory *m_factory = nullptr;
+
+    bool operator==(const BuildInfo &o) const
     {
         return m_factory == o.m_factory
                 && displayName == o.displayName && typeName == o.typeName
                 && buildDirectory == o.buildDirectory && kitId == o.kitId
                 && buildType == o.buildType;
     }
-
-    virtual QList<Task> reportIssues(const QString &projectPath,
-                                     const QString &buildDir) const
-    {
-        Q_UNUSED(projectPath);
-        Q_UNUSED(buildDir);
-        return QList<Task>();
-    }
-
-private:
-    const BuildConfigurationFactory *m_factory;
-
-    friend class BuildConfigurationFactory;
 };
 
 } // namespace ProjectExplorer

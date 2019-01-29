@@ -66,9 +66,9 @@ public:
     bool isKitSelected() const;
     void setKitSelected(bool b);
 
-    void addBuildInfo(BuildInfo *info, bool isImport);
+    void addBuildInfo(const BuildInfo &info, bool isImport);
 
-    QList<const BuildInfo *> selectedBuildInfoList() const;
+    const QList<BuildInfo> selectedBuildInfoList() const;
     void setProjectPath(const QString &projectPath);
     void expandWidget();
 
@@ -76,7 +76,7 @@ signals:
     void selectedToggled() const;
 
 private:
-    static QList<BuildInfo *> buildInfoList(const Kit *k, const QString &projectPath);
+    static const QList<BuildInfo> buildInfoList(const Kit *k, const QString &projectPath);
 
     void handleKitUpdate(ProjectExplorer::Kit *k);
 
@@ -86,7 +86,7 @@ private:
     void manageKit();
 
     void reportIssues(int index);
-    QPair<Task::TaskType, QString> findIssues(const BuildInfo *info);
+    QPair<Task::TaskType, QString> findIssues(const BuildInfo &info);
     void clear();
 
     Kit *m_kit;
@@ -104,7 +104,7 @@ private:
         BuildInfoStore &operator=(const BuildInfoStore &other) = delete;
         BuildInfoStore &operator=(BuildInfoStore &&other) = delete;
 
-        BuildInfo *buildInfo = nullptr;
+        BuildInfo buildInfo;
         QCheckBox *checkbox = nullptr;
         QLabel *label = nullptr;
         QLabel *issuesLabel = nullptr;

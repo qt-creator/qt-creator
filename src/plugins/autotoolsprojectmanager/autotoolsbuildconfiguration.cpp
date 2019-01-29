@@ -64,7 +64,7 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::I
     setBuildDirectory(Utils::FileName::fromString("/<foobar>"));
 }
 
-void AutotoolsBuildConfiguration::initialize(const BuildInfo *info)
+void AutotoolsBuildConfiguration::initialize(const BuildInfo &info)
 {
     BuildConfiguration::initialize(info);
 
@@ -114,30 +114,27 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
     setSupportedProjectMimeTypeName(Constants::MAKEFILE_MIMETYPE);
 }
 
-QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableBuilds(const Target *parent) const
+QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     return {createBuildInfo(parent->kit(), parent->project()->projectDirectory())};
 }
 
-QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
-    QList<BuildInfo *> result;
-    BuildInfo *info = createBuildInfo(k,
-                                      Utils::FileName::fromString(AutotoolsProject::defaultBuildDirectory(projectPath)));
+    BuildInfo info = createBuildInfo(k,
+                                     Utils::FileName::fromString(AutotoolsProject::defaultBuildDirectory(projectPath)));
     //: The name of the build configuration created by default for a autotools project.
-    info->displayName = tr("Default");
-    result << info;
-    return result;
+    info.displayName = tr("Default");
+    return {info};
 }
 
-BuildInfo *AutotoolsBuildConfigurationFactory::createBuildInfo(const Kit *k,
-                                                               const Utils::FileName &buildDir) const
+BuildInfo AutotoolsBuildConfigurationFactory::createBuildInfo(const Kit *k,
+                                                              const Utils::FileName &buildDir) const
 {
-    auto info = new BuildInfo(this);
-    info->typeName = tr("Build");
-    info->buildDirectory = buildDir;
-    info->kitId = k->id();
-
+    BuildInfo info(this);
+    info.typeName = tr("Build");
+    info.buildDirectory = buildDir;
+    info.kitId = k->id();
     return info;
 }
 

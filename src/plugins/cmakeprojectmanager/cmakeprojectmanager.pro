@@ -4,7 +4,6 @@ include(../../qtcreatorplugin.pri)
 HEADERS = builddirmanager.h \
     builddirparameters.h \
     builddirreader.h \
-    cmakebuildinfo.h \
     cmakebuildstep.h \
     cmakebuildtarget.h \
     cmakeconfigitem.h \

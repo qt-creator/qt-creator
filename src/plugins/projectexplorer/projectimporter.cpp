@@ -84,9 +84,9 @@ ProjectImporter::~ProjectImporter()
         removeProject(k);
 }
 
-QList<BuildInfo *> ProjectImporter::import(const Utils::FileName &importPath, bool silent)
+const QList<BuildInfo> ProjectImporter::import(const Utils::FileName &importPath, bool silent)
 {
-    QList<BuildInfo *> result;
+    QList<BuildInfo> result;
 
     const QLoggingCategory log("qtc.projectexplorer.import", QtWarningMsg);
     qCDebug(log) << "ProjectImporter::import" << importPath << silent;
@@ -124,14 +124,14 @@ QList<BuildInfo *> ProjectImporter::import(const Utils::FileName &importPath, bo
 
         foreach (Kit *k, kitList) {
             qCDebug(log) << "Creating buildinfos for kit" << k->displayName();
-            QList<BuildInfo *> infoList = buildInfoListForKit(k, data);
+            const QList<BuildInfo> infoList = buildInfoListForKit(k, data);
             if (infoList.isEmpty()) {
                 qCDebug(log) << "No build infos for kit" << k->displayName();
                 continue;
             }
 
-            foreach (BuildInfo *i, infoList) {
-                if (!Utils::contains(result, [i](const BuildInfo *o) { return (*i) == (*o); }))
+            for (const BuildInfo &i : infoList) {
+                if (!result.contains(i))
                     result += i;
             }
         }
