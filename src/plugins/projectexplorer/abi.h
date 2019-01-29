@@ -32,6 +32,8 @@
 #include <QList>
 #include <QHash>
 
+#include <vector>
+
 namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
