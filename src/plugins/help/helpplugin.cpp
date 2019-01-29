@@ -647,12 +647,15 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links)
 void HelpPluginPrivate::requestContextHelp()
 {
     // Find out what to show
-    QString contextHelpId = Utils::ToolTip::contextHelpId();
+    const QVariant tipHelpValue = Utils::ToolTip::contextHelp();
+    const HelpItem tipHelp = tipHelpValue.canConvert<HelpItem>()
+                                 ? tipHelpValue.value<HelpItem>()
+                                 : HelpItem(tipHelpValue.toString());
     IContext *context = ICore::currentContextObject();
-    if (contextHelpId.isEmpty() && context)
+    if (!tipHelp.isValid() && context)
         context->contextHelp([this](const HelpItem &item) { showContextHelp(item); });
     else
-        showContextHelp(contextHelpId);
+        showContextHelp(tipHelp);
 }
 
 void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)

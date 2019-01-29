@@ -53,15 +53,15 @@ TipLabel::TipLabel(QWidget *parent) :
 {
 }
 
-void TipLabel::setHelpId(const QString &id)
+void TipLabel::setContextHelp(const QVariant &help)
 {
-    m_helpId = id;
+    m_contextHelp = help;
     update();
 }
 
-QString TipLabel::helpId() const
+QVariant TipLabel::contextHelp() const
 {
-    return m_helpId;
+    return m_contextHelp;
 }
 
 const QMetaObject *TipLabel::metaObject() const
@@ -113,9 +113,9 @@ bool ColorTip::canHandleContentReplacement(int typeId) const
     return typeId == ToolTip::ColorContent;
 }
 
-bool ColorTip::equals(int typeId, const QVariant &other, const QString &otherHelpId) const
+bool ColorTip::equals(int typeId, const QVariant &other, const QVariant &otherContextHelp) const
 {
-    return typeId == ToolTip::ColorContent && otherHelpId == helpId() && other == m_color;
+    return typeId == ToolTip::ColorContent && otherContextHelp == contextHelp() && other == m_color;
 }
 
 void ColorTip::paintEvent(QPaintEvent *event)
@@ -165,7 +165,7 @@ bool TextTip::isInteractive() const
 
 void TextTip::configure(const QPoint &pos, QWidget *w)
 {
-    if (helpId().isEmpty())
+    if (contextHelp().isNull())
         setText(m_text);
     else
         setText(QString::fromLatin1("<table><tr><td valign=middle>%1</td><td>&nbsp;&nbsp;"
@@ -201,9 +201,10 @@ int TextTip::showTime() const
     return 10000 + 40 * qMax(0, m_text.size() - 100);
 }
 
-bool TextTip::equals(int typeId, const QVariant &other, const QString &otherHelpId) const
+bool TextTip::equals(int typeId, const QVariant &other, const QVariant &otherContextHelp) const
 {
-    return typeId == ToolTip::TextContent && otherHelpId == helpId() && other.toString() == m_text;
+    return typeId == ToolTip::TextContent && otherContextHelp == contextHelp()
+           && other.toString() == m_text;
 }
 
 void TextTip::paintEvent(QPaintEvent *event)
@@ -280,9 +281,9 @@ bool WidgetTip::canHandleContentReplacement(int typeId) const
     return false;
 }
 
-bool WidgetTip::equals(int typeId, const QVariant &other, const QString &otherHelpId) const
+bool WidgetTip::equals(int typeId, const QVariant &other, const QVariant &otherContextHelp) const
 {
-    return typeId == ToolTip::WidgetContent && otherHelpId == helpId()
+    return typeId == ToolTip::WidgetContent && otherContextHelp == contextHelp()
             && other.value<QWidget *>() == m_widget;
 }
 

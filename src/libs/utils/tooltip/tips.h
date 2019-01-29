@@ -46,15 +46,15 @@ public:
     virtual int showTime() const = 0;
     virtual void configure(const QPoint &pos, QWidget *w) = 0;
     virtual bool canHandleContentReplacement(int typeId) const = 0;
-    virtual bool equals(int typeId, const QVariant &other, const QString &helpId) const = 0;
-    virtual void setHelpId(const QString &id);
-    virtual QString helpId() const;
+    virtual bool equals(int typeId, const QVariant &other, const QVariant &contextHelp) const = 0;
+    virtual void setContextHelp(const QVariant &help);
+    virtual QVariant contextHelp() const;
 
 protected:
     const QMetaObject *metaObject() const override;
 
 private:
-    QString m_helpId;
+    QVariant m_contextHelp;
 };
 
 class TextTip : public TipLabel
@@ -67,7 +67,7 @@ public:
     void configure(const QPoint &pos, QWidget *w) override;
     bool canHandleContentReplacement(int typeId) const override;
     int showTime() const override;
-    bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const override;
+    bool equals(int typeId, const QVariant &other, const QVariant &otherContextHelp) const override;
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
@@ -84,7 +84,7 @@ public:
     void configure(const QPoint &pos, QWidget *w) override;
     bool canHandleContentReplacement(int typeId) const override;
     int showTime() const override { return 4000; }
-    bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const override;
+    bool equals(int typeId, const QVariant &other, const QVariant &otherContextHelp) const override;
     void paintEvent(QPaintEvent *event) override;
 
 private:
@@ -104,7 +104,7 @@ public:
     void configure(const QPoint &pos, QWidget *w) override;
     bool canHandleContentReplacement(int typeId) const override;
     int showTime() const override { return 30000; }
-    bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const override;
+    bool equals(int typeId, const QVariant &other, const QVariant &otherContextHelp) const override;
     bool isInteractive() const override { return true; }
 
 private:

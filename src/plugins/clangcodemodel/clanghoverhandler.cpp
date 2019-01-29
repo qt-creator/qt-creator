@@ -75,7 +75,7 @@ static bool editorDocumentProcessorHasDiagnosticAt(TextEditorWidget *editorWidge
 static void processWithEditorDocumentProcessor(TextEditorWidget *editorWidget,
                                                const QPoint &point,
                                                int position,
-                                               const QString &helpId)
+                                               const Core::HelpItem &helpItem)
 {
     if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
         int line, column;
@@ -84,7 +84,7 @@ static void processWithEditorDocumentProcessor(TextEditorWidget *editorWidget,
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(2);
             processor->addDiagnosticToolTipToLayout(line, column, layout);
-            Utils::ToolTip::show(point, layout, editorWidget, helpId);
+            Utils::ToolTip::show(point, layout, editorWidget, qVariantFromValue(helpItem));
         }
     }
 }
@@ -283,9 +283,10 @@ void ClangHoverHandler::operateTooltip(TextEditor::TextEditorWidget *editorWidge
                                        const QPoint &point)
 {
     if (priority() == Priority_Diagnostic) {
-        const Core::HelpItem helpItem = lastHelpItemIdentified();
-        const QString helpId = helpItem.isValid() ? helpItem.helpId() : QString();
-        processWithEditorDocumentProcessor(editorWidget, point, m_cursorPosition, helpId);
+        processWithEditorDocumentProcessor(editorWidget,
+                                           point,
+                                           m_cursorPosition,
+                                           lastHelpItemIdentified());
         return;
     }
 

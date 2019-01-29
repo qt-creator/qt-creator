@@ -32,6 +32,7 @@
 #include <QMap>
 #include <QString>
 #include <QUrl>
+#include <QVariant>
 
 namespace Core {
 
@@ -89,3 +90,5 @@ private:
 };
 
 } // namespace Core
+
+Q_DECLARE_METATYPE(Core::HelpItem)
