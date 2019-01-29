@@ -109,8 +109,6 @@ bool WinRtPackageDeploymentStep::init(QList<const BuildStep *> &earlierSteps)
 
 void WinRtPackageDeploymentStep::run(QFutureInterface<bool> &fi)
 {
-    AbstractProcessStep::run(fi);
-
     const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!qt)
         return;
@@ -137,6 +135,8 @@ void WinRtPackageDeploymentStep::run(QFutureInterface<bool> &fi)
             }
         }
     }
+
+    AbstractProcessStep::run(fi);
 }
 
 bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
