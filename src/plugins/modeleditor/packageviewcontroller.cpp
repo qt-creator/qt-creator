@@ -31,6 +31,8 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model_controller/modelcontroller.h"
 
+#include <QSet>
+
 namespace ModelEditor {
 namespace Internal {
 
