@@ -140,6 +140,7 @@ public:
 
     void setCompletionAssistProvider(CompletionAssistProvider *provider);
     virtual CompletionAssistProvider *completionAssistProvider() const;
+    void setQuickFixAssistProvider(IAssistProvider *provider) const;
     virtual IAssistProvider *quickFixAssistProvider() const;
 
     void setTabSettings(const TextEditor::TabSettings &tabSettings);

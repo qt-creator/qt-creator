@@ -25,30 +25,21 @@
 
 #pragma once
 
-#include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/iassistprovider.h>
 
 namespace LanguageClient {
 
 class Client;
 
-class LanguageClientCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+class LanguageClientQuickFixProvider : public TextEditor::IAssistProvider
 {
 public:
-    LanguageClientCompletionAssistProvider(Client *client);
-
+    explicit LanguageClientQuickFixProvider(Client *client);
+    IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor() const override;
-    RunType runType() const override;
-
-    int activationCharSequenceLength() const override;
-    bool isActivationCharSequence(const QString &sequence) const override;
-    bool isContinuationChar(const QChar &) const override { return true; }
-
-    void setTriggerCharacters(QList<QString> triggerChars);
 
 private:
-    QList<QString> m_triggerChars;
-    int m_activationCharSequenceLength = 0;
-    Client *m_client;
+    Client *m_client = nullptr; // not owned
 };
 
 } // namespace LanguageClient
