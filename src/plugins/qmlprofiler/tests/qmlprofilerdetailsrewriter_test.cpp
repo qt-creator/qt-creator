@@ -71,7 +71,7 @@ public:
     bool needsConfiguration() const final { return false; }
 };
 
-class DummyBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+class DummyBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
 {
 public:
     QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *) const final

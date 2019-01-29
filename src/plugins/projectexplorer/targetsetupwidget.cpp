@@ -228,8 +228,8 @@ void TargetSetupWidget::expandWidget()
 
 QList<BuildInfo *> TargetSetupWidget::buildInfoList(const Kit *k, const QString &projectPath)
 {
-    const IBuildConfigurationFactory *const factory
-            = IBuildConfigurationFactory::find(k, projectPath);
+    const BuildConfigurationFactory *const factory
+            = BuildConfigurationFactory::find(k, projectPath);
     if (factory)
         return factory->availableSetups(k, projectPath);
 

@@ -321,31 +321,31 @@ void BuildConfiguration::prependCompilerPathToEnvironment(Kit *k, Utils::Environ
 // IBuildConfigurationFactory
 ///
 
-static QList<IBuildConfigurationFactory *> g_buildConfigurationFactories;
+static QList<BuildConfigurationFactory *> g_buildConfigurationFactories;
 
-IBuildConfigurationFactory::IBuildConfigurationFactory()
+BuildConfigurationFactory::BuildConfigurationFactory()
 {
     g_buildConfigurationFactories.append(this);
 }
 
-IBuildConfigurationFactory::~IBuildConfigurationFactory()
+BuildConfigurationFactory::~BuildConfigurationFactory()
 {
     g_buildConfigurationFactories.removeOne(this);
 }
 
-int IBuildConfigurationFactory::priority(const Target *parent) const
+int BuildConfigurationFactory::priority(const Target *parent) const
 {
     return canHandle(parent) ? m_basePriority : -1;
 }
 
-bool IBuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const
+bool BuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const
 {
     if (m_supportedTargetDeviceTypes.isEmpty())
         return true;
     return m_supportedTargetDeviceTypes.contains(id);
 }
 
-int IBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
+int BuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
     QTC_ASSERT(!m_supportedProjectMimeTypeName.isEmpty(), return -1);
     if (k && Utils::mimeTypeForFile(projectPath).matchesName(m_supportedProjectMimeTypeName)
@@ -356,11 +356,11 @@ int IBuildConfigurationFactory::priority(const Kit *k, const QString &projectPat
 }
 
 // setup
-IBuildConfigurationFactory *IBuildConfigurationFactory::find(const Kit *k, const QString &projectPath)
+BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const QString &projectPath)
 {
-    IBuildConfigurationFactory *factory = nullptr;
+    BuildConfigurationFactory *factory = nullptr;
     int priority = -1;
-    for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
+    for (BuildConfigurationFactory *i : g_buildConfigurationFactories) {
         int iPriority = i->priority(k, projectPath);
         if (iPriority > priority) {
             factory = i;
@@ -371,11 +371,11 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(const Kit *k, const
 }
 
 // create
-IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
+BuildConfigurationFactory * BuildConfigurationFactory::find(Target *parent)
 {
-    IBuildConfigurationFactory *factory = nullptr;
+    BuildConfigurationFactory *factory = nullptr;
     int priority = -1;
-    for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
+    for (BuildConfigurationFactory *i : g_buildConfigurationFactories) {
         int iPriority = i->priority(parent);
         if (iPriority > priority) {
             factory = i;
@@ -385,27 +385,27 @@ IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
     return factory;
 }
 
-void IBuildConfigurationFactory::setSupportedProjectType(Core::Id id)
+void BuildConfigurationFactory::setSupportedProjectType(Core::Id id)
 {
     m_supportedProjectType = id;
 }
 
-void IBuildConfigurationFactory::setSupportedProjectMimeTypeName(const QString &mimeTypeName)
+void BuildConfigurationFactory::setSupportedProjectMimeTypeName(const QString &mimeTypeName)
 {
     m_supportedProjectMimeTypeName = mimeTypeName;
 }
 
-void IBuildConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)
+void BuildConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)
 {
     m_supportedTargetDeviceTypes = ids;
 }
 
-void IBuildConfigurationFactory::setBasePriority(int basePriority)
+void BuildConfigurationFactory::setBasePriority(int basePriority)
 {
     m_basePriority = basePriority;
 }
 
-bool IBuildConfigurationFactory::canHandle(const Target *target) const
+bool BuildConfigurationFactory::canHandle(const Target *target) const
 {
     if (m_supportedProjectType.isValid() && m_supportedProjectType != target->project()->id())
         return false;
@@ -419,7 +419,7 @@ bool IBuildConfigurationFactory::canHandle(const Target *target) const
     return true;
 }
 
-BuildConfiguration *IBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
+BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
 {
     if (!canHandle(parent))
         return nullptr;
@@ -431,11 +431,11 @@ BuildConfiguration *IBuildConfigurationFactory::create(Target *parent, const Bui
     return bc;
 }
 
-BuildConfiguration *IBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    IBuildConfigurationFactory *factory = nullptr;
+    BuildConfigurationFactory *factory = nullptr;
     int priority = -1;
-    for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
+    for (BuildConfigurationFactory *i : g_buildConfigurationFactories) {
         if (!i->canHandle(parent))
             continue;
         const Core::Id id = idFromMap(map);
@@ -461,7 +461,7 @@ BuildConfiguration *IBuildConfigurationFactory::restore(Target *parent, const QV
     return bc;
 }
 
-BuildConfiguration *IBuildConfigurationFactory::clone(Target *parent,
+BuildConfiguration *BuildConfigurationFactory::clone(Target *parent,
                                                       const BuildConfiguration *source)
 {
     return restore(parent, source->toMap());

@@ -226,7 +226,7 @@ QList<BuildInfo *> QbsProjectImporter::buildInfoListForKit(const Kit *k, void *d
     qCDebug(qbsPmLog) << "creating build info for kit" << k->displayName();
     QList<BuildInfo *> result;
     const auto factory = qobject_cast<QbsBuildConfigurationFactory *>(
-                IBuildConfigurationFactory::find(k, projectFilePath().toString()));
+                BuildConfigurationFactory::find(k, projectFilePath().toString()));
     if (!factory) {
         qCDebug(qbsPmLog) << "no build config factory found";
         return result;

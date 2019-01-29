@@ -45,7 +45,7 @@ class QbsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
-    friend class ProjectExplorer::IBuildConfigurationFactory;
+    friend class ProjectExplorer::BuildConfigurationFactory;
     QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 public:
@@ -97,7 +97,7 @@ private:
     friend class QbsBuildConfigurationWidget;
 };
 
-class QbsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+class QbsBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
 {
     Q_OBJECT
 

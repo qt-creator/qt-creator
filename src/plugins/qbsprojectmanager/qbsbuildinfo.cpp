@@ -30,7 +30,7 @@
 namespace QbsProjectManager {
 namespace Internal {
 
-QbsBuildInfo::QbsBuildInfo(const ProjectExplorer::IBuildConfigurationFactory *f)
+QbsBuildInfo::QbsBuildInfo(const ProjectExplorer::BuildConfigurationFactory *f)
     : ProjectExplorer::BuildInfo(f)
 {
 }

@@ -40,7 +40,7 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
-    friend class ProjectExplorer::IBuildConfigurationFactory;
+    friend class ProjectExplorer::BuildConfigurationFactory;
     GenericBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     void initialize(const ProjectExplorer::BuildInfo *info) override;
@@ -49,7 +49,7 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
     void addToEnvironment(Utils::Environment &env) const final;
 };
 
-class GenericBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+class GenericBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
 {
     Q_OBJECT
 

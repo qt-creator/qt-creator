@@ -488,7 +488,7 @@ QVariantMap Target::toMap() const
 
 void Target::updateDefaultBuildConfigurations()
 {
-    IBuildConfigurationFactory *bcFactory = IBuildConfigurationFactory::find(this);
+    BuildConfigurationFactory *bcFactory = BuildConfigurationFactory::find(this);
     if (!bcFactory) {
         qWarning("No build configuration factory found for target id '%s'.", qPrintable(id().toString()));
         return;
@@ -752,7 +752,7 @@ bool Target::fromMap(const QVariantMap &map)
         if (!map.contains(key))
             return false;
         const QVariantMap valueMap = map.value(key).toMap();
-        BuildConfiguration *bc = IBuildConfigurationFactory::restore(this, valueMap);
+        BuildConfiguration *bc = BuildConfigurationFactory::restore(this, valueMap);
         if (!bc) {
             qWarning("No factory found to restore build configuration!");
             continue;
@@ -762,7 +762,7 @@ bool Target::fromMap(const QVariantMap &map)
         if (i == activeConfiguration)
             setActiveBuildConfiguration(bc);
     }
-    if (buildConfigurations().isEmpty() && IBuildConfigurationFactory::find(this))
+    if (buildConfigurations().isEmpty() && BuildConfigurationFactory::find(this))
         return false;
 
     int dcCount = map.value(QLatin1String(DC_COUNT_KEY), 0).toInt(&ok);

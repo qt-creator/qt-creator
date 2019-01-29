@@ -38,7 +38,7 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
-    friend class ProjectExplorer::IBuildConfigurationFactory;
+    friend class ProjectExplorer::BuildConfigurationFactory;
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     void initialize(const ProjectExplorer::BuildInfo *info) override;
@@ -46,7 +46,7 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
     BuildType buildType() const override;
 };
 
-class AutotoolsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+class AutotoolsBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
 {
     Q_OBJECT
 

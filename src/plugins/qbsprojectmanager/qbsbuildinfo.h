@@ -35,7 +35,7 @@ namespace Internal {
 class QbsBuildInfo final : public ProjectExplorer::BuildInfo
 {
 public:
-    QbsBuildInfo(const ProjectExplorer::IBuildConfigurationFactory *f);
+    QbsBuildInfo(const ProjectExplorer::BuildConfigurationFactory *f);
 
     QVariantMap config;
 

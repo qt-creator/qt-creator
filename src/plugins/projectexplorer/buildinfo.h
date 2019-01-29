@@ -35,15 +35,15 @@
 
 namespace ProjectExplorer {
 
-class IBuildConfigurationFactory;
+class BuildConfigurationFactory;
 
 class PROJECTEXPLORER_EXPORT BuildInfo
 {
 public:
-    BuildInfo(const IBuildConfigurationFactory *f) : m_factory(f) { }
+    BuildInfo(const BuildConfigurationFactory *f) : m_factory(f) { }
     virtual ~BuildInfo();
 
-    const IBuildConfigurationFactory *factory() const { return m_factory; }
+    const BuildConfigurationFactory *factory() const { return m_factory; }
 
     QString displayName;
     QString typeName;
@@ -68,9 +68,9 @@ public:
     }
 
 private:
-    const IBuildConfigurationFactory *m_factory;
+    const BuildConfigurationFactory *m_factory;
 
-    friend class IBuildConfigurationFactory;
+    friend class BuildConfigurationFactory;
 };
 
 } // namespace ProjectExplorer

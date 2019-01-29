@@ -42,7 +42,7 @@ class BuildTargetInfoList;
 class DeployConfiguration;
 class DeployConfigurationFactory;
 class DeploymentData;
-class IBuildConfigurationFactory;
+class BuildConfigurationFactory;
 class RunConfigurationFactory;
 class Kit;
 class NamedWidget;

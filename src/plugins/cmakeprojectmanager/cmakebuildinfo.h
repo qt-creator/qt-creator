@@ -40,11 +40,11 @@ namespace CMakeProjectManager {
 class CMakeBuildInfo : public ProjectExplorer::BuildInfo
 {
 public:
-    CMakeBuildInfo(const ProjectExplorer::IBuildConfigurationFactory *f) : ProjectExplorer::BuildInfo(f)
+    CMakeBuildInfo(const ProjectExplorer::BuildConfigurationFactory *f) : ProjectExplorer::BuildInfo(f)
     { }
 
     CMakeBuildInfo(const Internal::CMakeBuildConfiguration *bc) :
-        ProjectExplorer::BuildInfo(ProjectExplorer::IBuildConfigurationFactory::find(bc->target()))
+        ProjectExplorer::BuildInfo(ProjectExplorer::BuildConfigurationFactory::find(bc->target()))
     {
         displayName = bc->displayName();
         buildDirectory = bc->buildDirectory();

@@ -48,7 +48,7 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
-    friend class ProjectExplorer::IBuildConfigurationFactory;
+    friend class ProjectExplorer::BuildConfigurationFactory;
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
 public:
@@ -117,7 +117,7 @@ private:
 
 class CMakeProjectImporter;
 
-class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+class CMakeBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
 {
     Q_OBJECT
 

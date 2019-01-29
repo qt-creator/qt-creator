@@ -68,7 +68,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 
-    if (!IBuildConfigurationFactory::find(m_target)) {
+    if (!BuildConfigurationFactory::find(m_target)) {
         auto noSettingsLabel = new QLabel(this);
         noSettingsLabel->setText(tr("No build settings available"));
         QFont f = noSettingsLabel->font();
@@ -180,7 +180,7 @@ void BuildSettingsWidget::updateAddButtonMenu()
     m_buildInfoList.clear();
 
     if (m_target) {
-        IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(m_target);
+        BuildConfigurationFactory *factory = BuildConfigurationFactory::find(m_target);
         if (!factory)
             return;
         m_buildInfoList = factory->availableBuilds(m_target);
@@ -301,7 +301,7 @@ void BuildSettingsWidget::renameConfiguration()
 void BuildSettingsWidget::cloneConfiguration()
 {
     QTC_ASSERT(m_buildConfiguration, return);
-    IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(m_target);
+    BuildConfigurationFactory *factory = BuildConfigurationFactory::find(m_target);
     if (!factory)
         return;
 

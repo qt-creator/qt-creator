@@ -966,7 +966,7 @@ void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
                     && !Utils::contains(version->targetDeviceTypes(), [platforms](Core::Id i) { return platforms.contains(i); })))
             continue;
 
-        IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(k, projectFilePath().toString());
+        BuildConfigurationFactory *factory = BuildConfigurationFactory::find(k, projectFilePath().toString());
         if (!factory)
             continue;
         foreach (BuildInfo *info, factory->availableSetups(k, projectFilePath().toString()))

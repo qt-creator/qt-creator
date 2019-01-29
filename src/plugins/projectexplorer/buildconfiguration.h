@@ -46,7 +46,7 @@ class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
     Q_OBJECT
 
 protected:
-    friend class IBuildConfigurationFactory;
+    friend class BuildConfigurationFactory;
     explicit BuildConfiguration(Target *target, Core::Id id);
 
 public:
@@ -118,13 +118,13 @@ private:
     mutable Utils::Environment m_cachedEnvironment;
 };
 
-class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject
+class PROJECTEXPLORER_EXPORT BuildConfigurationFactory : public QObject
 {
     Q_OBJECT
 
 protected:
-    IBuildConfigurationFactory();
-    ~IBuildConfigurationFactory() override;
+    BuildConfigurationFactory();
+    ~BuildConfigurationFactory() override;
 
 public:
     // The priority is negative if this factory cannot create anything for the target.
@@ -144,8 +144,8 @@ public:
     static BuildConfiguration *restore(Target *parent, const QVariantMap &map);
     static BuildConfiguration *clone(Target *parent, const BuildConfiguration *source);
 
-    static IBuildConfigurationFactory *find(const Kit *k, const QString &projectPath);
-    static IBuildConfigurationFactory *find(Target *parent);
+    static BuildConfigurationFactory *find(const Kit *k, const QString &projectPath);
+    static BuildConfigurationFactory *find(Target *parent);
 
 protected:
     bool supportsTargetDeviceType(Core::Id id) const;

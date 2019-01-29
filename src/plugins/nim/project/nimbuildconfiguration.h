@@ -36,7 +36,7 @@ class NimBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
-    friend class ProjectExplorer::IBuildConfigurationFactory;
+    friend class ProjectExplorer::BuildConfigurationFactory;
     NimBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     void initialize(const ProjectExplorer::BuildInfo *info) override;
@@ -59,7 +59,7 @@ private:
 };
 
 
-class NimBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+class NimBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
 {
     Q_OBJECT
 

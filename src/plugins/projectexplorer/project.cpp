@@ -237,7 +237,7 @@ Utils::FileName Project::projectFilePath() const
 
 bool Project::hasActiveBuildSettings() const
 {
-    return activeTarget() && IBuildConfigurationFactory::find(activeTarget());
+    return activeTarget() && BuildConfigurationFactory::find(activeTarget());
 }
 
 void Project::addTarget(std::unique_ptr<Target> &&t)
@@ -355,7 +355,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     QStringList runconfigurationError;
 
     foreach (BuildConfiguration *sourceBc, sourceTarget->buildConfigurations()) {
-        BuildConfiguration *newBc = IBuildConfigurationFactory::clone(newTarget, sourceBc);
+        BuildConfiguration *newBc = BuildConfigurationFactory::clone(newTarget, sourceBc);
         if (!newBc) {
             buildconfigurationError << sourceBc->displayName();
             continue;

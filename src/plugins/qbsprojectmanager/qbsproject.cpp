@@ -696,8 +696,8 @@ void QbsProject::configureAsExampleProject(const QSet<Id> &platforms)
                 = QtSupport::QtKitInformation::qtVersion(k);
         if (!qtVersion || !qtVersionMatchesPlatform(qtVersion))
             continue;
-        const IBuildConfigurationFactory * const factory
-                = IBuildConfigurationFactory::find(k, projectFilePath().toString());
+        const BuildConfigurationFactory * const factory
+                = BuildConfigurationFactory::find(k, projectFilePath().toString());
         if (!factory)
             continue;
         const auto &buildInfos = factory->availableSetups(k, projectFilePath().toString());
