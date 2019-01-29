@@ -354,5 +354,19 @@ void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo p
     compileCommandsFile.close();
 }
 
+QString currentCppEditorDocumentFilePath()
+{
+    QString filePath;
+
+    const auto currentEditor = Core::EditorManager::currentEditor();
+    if (currentEditor && CppTools::CppModelManager::isCppEditor(currentEditor)) {
+        const auto currentDocument = currentEditor->document();
+        if (currentDocument)
+            filePath = currentDocument->filePath().toString();
+    }
+
+    return filePath;
+}
+
 } // namespace Utils
 } // namespace Clang

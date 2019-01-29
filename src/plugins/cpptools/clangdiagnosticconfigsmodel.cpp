@@ -30,6 +30,7 @@
 #include <utils/algorithm.h>
 
 #include <QCoreApplication>
+#include <QUuid>
 
 namespace CppTools {
 
@@ -203,9 +204,16 @@ void ClangDiagnosticConfigsModel::removeConfigWithId(const Core::Id &id)
     m_diagnosticConfigs.removeOne(configWithId(id));
 }
 
-ClangDiagnosticConfigs ClangDiagnosticConfigsModel::configs() const
+ClangDiagnosticConfigs ClangDiagnosticConfigsModel::allConfigs() const
 {
     return m_diagnosticConfigs;
+}
+
+ClangDiagnosticConfigs ClangDiagnosticConfigsModel::customConfigs() const
+{
+    return Utils::filtered(allConfigs(), [](const ClangDiagnosticConfig &config) {
+        return !config.isReadOnly();
+    });
 }
 
 bool ClangDiagnosticConfigsModel::hasConfigWithId(const Core::Id &id) const
@@ -237,11 +245,22 @@ QVector<Core::Id> ClangDiagnosticConfigsModel::changedOrRemovedConfigs(
         const int i = newConfigsModel.indexOfConfig(old.id());
         if (i == -1)
             changedConfigs.append(old.id()); // Removed
-        else if (newConfigsModel.configs().value(i) != old)
+        else if (newConfigsModel.allConfigs().value(i) != old)
             changedConfigs.append(old.id()); // Changed
     }
 
     return changedConfigs;
+}
+
+ClangDiagnosticConfig ClangDiagnosticConfigsModel::createCustomConfig(
+    const ClangDiagnosticConfig &config, const QString &displayName)
+{
+    ClangDiagnosticConfig copied = config;
+    copied.setId(Core::Id::fromString(QUuid::createUuid().toString()));
+    copied.setDisplayName(displayName);
+    copied.setIsReadOnly(false);
+
+    return copied;
 }
 
 QStringList ClangDiagnosticConfigsModel::globalDiagnosticOptions()
