@@ -39,6 +39,7 @@
 #include <unordered_set>
 
 #include <QObject>
+#include <QSet>
 #include <QStringList>
 
 #include <memory>
