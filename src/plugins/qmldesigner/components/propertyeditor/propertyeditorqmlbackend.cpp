@@ -152,6 +152,12 @@ QVariant properDefaultLayoutAttachedProperties(const QmlObjectNode &qmlObjectNod
      if ("columnSpan" == propertyName || "rowSpan" == propertyName)
          return 1;
 
+     if ("topMargin" == propertyName || "bottomMargin" == propertyName)
+         return 0;
+
+     if ("leftMargin" == propertyName || "rightMargin" == propertyName)
+         return 0;
+
     return QVariant();
 }
 
@@ -161,7 +167,8 @@ void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode
 
         static const PropertyNameList propertyNames =
             {"alignment", "column", "columnSpan", "fillHeight", "fillWidth", "maximumHeight", "maximumWidth",
-             "minimumHeight", "minimumWidth", "preferredHeight", "preferredWidth", "row", "rowSpan"};
+                "minimumHeight", "minimumWidth", "preferredHeight", "preferredWidth", "row", "rowSpan",
+                "topMargin", "bottomMargin", "leftMargin", "rightMargin"};
 
         foreach (const PropertyName &propertyName, propertyNames) {
             createPropertyEditorValue(qmlObjectNode, "Layout." + propertyName, properDefaultLayoutAttachedProperties(qmlObjectNode, propertyName), propertyEditor);

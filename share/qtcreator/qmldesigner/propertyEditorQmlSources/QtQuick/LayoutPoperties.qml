@@ -40,12 +40,16 @@ SectionLayout {
     onBackendValueChanged: evaluateAlignment()
     onValueFromBackendChanged: evaluateAlignment()
 
+    property int spinBoxWidth: 62
+
     Connections {
         target: modelNodeBackend
         onSelectionChanged: {
             evaluateAlignment()
         }
     }
+
+    id: root
 
     Component.onCompleted: evaluateAlignment()
 
@@ -256,7 +260,7 @@ SectionLayout {
 
         Label {
             text: "W"
-            width: 12
+            width: 28
         }
 
         SpinBox {
@@ -264,6 +268,7 @@ SectionLayout {
             maximumValue: 0xffff
             minimumValue: -1
             decimals: 0
+            implicitWidth: root.spinBoxWidth
         }
 
         Item {
@@ -273,7 +278,7 @@ SectionLayout {
 
         Label {
             text: "H"
-            width: 12
+            width: 28
         }
 
         SpinBox {
@@ -281,6 +286,7 @@ SectionLayout {
             maximumValue: 0xffff
             minimumValue: -1
             decimals: 0
+            implicitWidth: root.spinBoxWidth
         }
         ExpandingSpacer {
 
@@ -297,7 +303,7 @@ SectionLayout {
 
         Label {
             text: "W"
-            width: 12
+            width: 28
         }
 
         SpinBox {
@@ -305,6 +311,7 @@ SectionLayout {
             maximumValue: 0xffff
             minimumValue: 0
             decimals: 0
+            implicitWidth: root.spinBoxWidth
         }
 
         Item {
@@ -314,7 +321,7 @@ SectionLayout {
 
         Label {
             text: "H"
-            width: 12
+            width: 28
         }
 
         SpinBox {
@@ -322,6 +329,7 @@ SectionLayout {
             maximumValue: 0xffff
             minimumValue: 0
             decimals: 0
+            implicitWidth: root.spinBoxWidth
         }
         ExpandingSpacer {
 
@@ -338,7 +346,7 @@ SectionLayout {
 
         Label {
             text: "W"
-            width: 12
+            width: 28
         }
 
         SpinBox {
@@ -346,6 +354,7 @@ SectionLayout {
             maximumValue: 0xffff
             minimumValue: 0
             decimals: 0
+            implicitWidth: root.spinBoxWidth
         }
 
         Item {
@@ -355,7 +364,7 @@ SectionLayout {
 
         Label {
             text: "H"
-            width: 12
+             width: 28
         }
 
         SpinBox {
@@ -363,6 +372,91 @@ SectionLayout {
             maximumValue: 0xffff
             minimumValue: 0
             decimals: 0
+            implicitWidth: root.spinBoxWidth
+        }
+        ExpandingSpacer {
+
+        }
+    }
+
+    Label {
+        text: qsTr("Margins")
+    }
+
+    SecondColumnLayout {
+        Layout.fillWidth: true
+
+        Label {
+            text: "Top"
+            width: 28
+        }
+
+        SpinBox {
+            backendValue: backendValues.Layout_topMargin
+            maximumValue: 0xffff
+            minimumValue: 0
+            decimals: 0
+            implicitWidth: root.spinBoxWidth
+        }
+
+        Item {
+            width: 4
+            height: 4
+        }
+
+        Label {
+            text: "Bottom"
+            width: 28
+        }
+
+        SpinBox {
+            backendValue: backendValues.Layout_bottomMargin
+            maximumValue: 0xffff
+            minimumValue: 0
+            decimals: 0
+            implicitWidth: root.spinBoxWidth
+        }
+        ExpandingSpacer {
+
+        }
+    }
+
+    Label {
+        text: ("")
+    }
+
+    SecondColumnLayout {
+        Layout.fillWidth: true
+
+        Label {
+            text: "Left"
+            width: 28
+        }
+
+        SpinBox {
+            backendValue: backendValues.Layout_leftMargin
+            maximumValue: 0xffff
+            minimumValue: 0
+            decimals: 0
+            implicitWidth: root.spinBoxWidth
+        }
+
+        Item {
+            width: 4
+            height: 4
+        }
+
+        Label {
+            text: "Right"
+            width: 28
+        }
+
+        SpinBox {
+            backendValue: backendValues.Layout_rightMargin
+            maximumValue: 0xffff
+            minimumValue: 0
+            decimals: 0
+            implicitWidth: root.spinBoxWidth
         }
         ExpandingSpacer {
 
@@ -379,7 +473,7 @@ SectionLayout {
 
         Item {
             height: 4
-            width: 12
+             width: 28
         }
 
         SpinBox {
@@ -387,6 +481,7 @@ SectionLayout {
             maximumValue: 0xffff
             minimumValue: 0
             decimals: 0
+            implicitWidth: root.spinBoxWidth
         }
 
         ExpandingSpacer {
@@ -404,7 +499,7 @@ SectionLayout {
 
         Item {
             height: 4
-            width: 12
+             width: 28
         }
 
         SpinBox {
@@ -412,6 +507,7 @@ SectionLayout {
             maximumValue: 0xffff
             minimumValue: 0
             decimals: 0
+            implicitWidth: root.spinBoxWidth
         }
 
         ExpandingSpacer {
