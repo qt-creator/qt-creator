@@ -25,9 +25,7 @@ HEADERS += \
     iosprobe.h \
     iosbuildstep.h \
     iostoolhandler.h \
-    iosdeployconfiguration.h \
     iosdeploystep.h \
-    iosdeploystepfactory.h \
     iosdeploystepwidget.h \
     simulatorcontrol.h \
     iosbuildconfiguration.h \
@@ -54,9 +52,7 @@ SOURCES += \
     iosprobe.cpp \
     iosbuildstep.cpp \
     iostoolhandler.cpp \
-    iosdeployconfiguration.cpp \
     iosdeploystep.cpp \
-    iosdeploystepfactory.cpp \
     iosdeploystepwidget.cpp \
     simulatorcontrol.cpp \
     iosbuildconfiguration.cpp \
