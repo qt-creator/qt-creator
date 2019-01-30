@@ -349,12 +349,11 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
 const QList<BuildInfo> CMakeProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
 {
-    QList<BuildInfo> result;
     auto data = static_cast<const DirectoryData *>(directoryData);
     auto factory = qobject_cast<CMakeBuildConfigurationFactory *>(
                 BuildConfigurationFactory::find(k, projectFilePath().toString()));
     if (!factory)
-        return result;
+        return {};
 
     // create info:
     BuildInfo info = factory->createBuildInfo(k, projectDirectory().toString(),
@@ -362,19 +361,8 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoListForKit(const Kit *k, v
     info.buildDirectory = data->buildDirectory;
     info.displayName = info.typeName;
 
-    bool found = false;
-    foreach (BuildInfo bInfo, result) {
-        if (bInfo == info) {
-            found = true;
-            break;
-        }
-    }
-    if (!found)
-        result << info;
-
     qCDebug(cmInputLog()) << "BuildInfo configured.";
-
-    return result;
+    return {info};
 }
 
 CMakeProjectImporter::CMakeToolData

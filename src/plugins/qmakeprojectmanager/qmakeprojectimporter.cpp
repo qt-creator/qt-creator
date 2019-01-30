@@ -233,12 +233,11 @@ Kit *QmakeProjectImporter::createKit(void *directoryData) const
 
 const QList<BuildInfo> QmakeProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
 {
-    QList<BuildInfo> result;
     auto *data = static_cast<DirectoryData *>(directoryData);
     auto factory = qobject_cast<QmakeBuildConfigurationFactory *>(
                 BuildConfigurationFactory::find(k, projectFilePath().toString()));
     if (!factory)
-        return result;
+        return {};
 
     // create info:
     BuildInfo info(factory);
@@ -258,17 +257,7 @@ const QList<BuildInfo> QmakeProjectImporter::buildInfoListForKit(const Kit *k, v
     extra.makefile = data->makefile;
     info.extraInfo = QVariant::fromValue(extra);
 
-    bool found = false;
-    foreach (const BuildInfo &bInfo, result) {
-        if (bInfo == info) {
-            found = true;
-            break;
-        }
-    }
-    if (!found)
-        result << info;
-
-    return result;
+    return {info};
 }
 
 void QmakeProjectImporter::deleteDirectoryData(void *directoryData) const
