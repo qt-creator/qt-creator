@@ -120,8 +120,10 @@ void TimelineGraphicsLayout::setTimeline(const QmlTimeline &timeline)
 
     if (timeline.isValid()) {
         for (const ModelNode &target : timeline.allTargets()) {
-            auto item = TimelineSectionItem::create(timeline, target, this);
-            m_layout->addItem(item);
+            if (target.isValid()) {
+                auto item = TimelineSectionItem::create(timeline, target, this);
+                m_layout->addItem(item);
+            }
         }
     }
 
