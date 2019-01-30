@@ -47,8 +47,8 @@ FilePathIds operator+(const FilePathIds &first, const FilePathIds &second)
 
 BuildDependency BuildDependencyCollector::create(const ProjectPartContainer &projectPart)
 {
-    CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector> builder{
-        projectPart, projectPart.toolChainArguments};
+    CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>
+        builder{projectPart, projectPart.toolChainArguments, InputFileType::Source};
 
     addFiles(projectPart.sourcePathIds, builder.commandLine);
 

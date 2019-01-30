@@ -107,6 +107,7 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
     using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
     Builder commandLineBuilder{projectPart,
                                projectPart.toolChainArguments,
+                               InputFileType::Source,
                                {},
                                {},
                                optionalProjectPartPch
@@ -181,8 +182,8 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
 
     auto pchPath = optionalProjectPartPch ? optionalProjectPartPch.value().pchPath : FilePath{};
 
-    CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector> builder{
-        artefact, artefact.toolChainArguments, {}, {}, pchPath};
+    CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector>
+        builder{artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
 
     auto indexing = [projectPartId = artefact.projectPartId, arguments=builder.commandLine, filePathId, this](
                         SymbolsCollectorInterface &symbolsCollector) {

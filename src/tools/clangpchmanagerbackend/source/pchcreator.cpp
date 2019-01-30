@@ -72,7 +72,6 @@ Utils::SmallString PchCreator::generatePchIncludeFileContent(const FilePathIds &
     return fileContent;
 }
 
-
 bool PchCreator::generatePch()
 {
     clang::tooling::ClangTool tool = m_clangTool.createOutputTool();
@@ -95,12 +94,12 @@ FilePath PchCreator::generatePchFilePath() const
 }
 
 Utils::SmallStringVector PchCreator::generateClangCompilerArguments(const PchTask &pchTask,
-                                                                    FilePathView sourceFilePath,
                                                                     FilePathView pchOutputPath)
 {
     CommandLineBuilder<PchTask> builder{pchTask,
                                         pchTask.toolChainArguments,
-                                        sourceFilePath,
+                                        InputFileType::Header,
+                                        {},
                                         pchOutputPath,
                                         pchTask.systemPchPath};
 
@@ -115,7 +114,6 @@ void PchCreator::generatePch(PchTask &&pchTask)
 
     FilePath headerFilePath{m_environment.pchBuildDirectory().toStdString(), "dummy.h"};
     Utils::SmallStringVector commandLine = generateClangCompilerArguments(pchTask,
-                                                                          headerFilePath,
                                                                           pchOutputPath);
 
     m_clangTool.addFile(std::move(headerFilePath), std::move(content), std::move(commandLine));

@@ -35,12 +35,15 @@
 
 namespace ClangBackEnd {
 
+enum class InputFileType : unsigned char { Header, Source };
+
 template<typename ProjectInfo, typename OutputContainer = Utils::SmallStringVector>
 class CommandLineBuilder
 {
 public:
     CommandLineBuilder(const ProjectInfo &projectInfo,
                        const Utils::SmallStringVector &toolChainArguments = {},
+                       InputFileType sourceType = InputFileType::Header,
                        FilePathView sourcePath = {},
                        FilePathView outputPath = {},
                        FilePathView includePchPath = {})
@@ -49,7 +52,7 @@ public:
 
         addCompiler(projectInfo.language);
         addToolChainArguments(toolChainArguments);
-        addLanguage(projectInfo);
+        addLanguage(projectInfo, sourceType);
         addLanguageVersion(projectInfo);
         addNoStdIncAndNoStdLibInc();
         addCompilerMacros(projectInfo.compilerMacros);
@@ -76,26 +79,27 @@ public:
             commandLine.emplace_back(argument);
     }
 
-    static const char *language(const ProjectInfo &projectInfo)
+    static const char *language(const ProjectInfo &projectInfo, InputFileType sourceType)
     {
         switch (projectInfo.language) {
         case Utils::Language::C:
             if (projectInfo.languageExtension && Utils::LanguageExtension::ObjectiveC)
-                return "objective-c-header";
+                return sourceType == InputFileType::Header ? "objective-c-header" : "objective-c";
 
-            return "c-header";
+            return sourceType == InputFileType::Header ? "c-header" : "c";
         case Utils::Language::Cxx:
             if (projectInfo.languageExtension && Utils::LanguageExtension::ObjectiveC)
-                return "objective-c++-header";
+                return sourceType == InputFileType::Header ? "objective-c++-header"
+                                                           : "objective-c++";
         }
 
-        return "c++-header";
+        return sourceType == InputFileType::Header ? "c++-header" : "c++";
     }
 
-    void addLanguage(const ProjectInfo &projectInfo)
+    void addLanguage(const ProjectInfo &projectInfo, InputFileType sourceType)
     {
         commandLine.emplace_back("-x");
-        commandLine.emplace_back(language(projectInfo));
+        commandLine.emplace_back(language(projectInfo, sourceType));
     }
 
     const char *standardLanguageVersion(Utils::LanguageVersion languageVersion)

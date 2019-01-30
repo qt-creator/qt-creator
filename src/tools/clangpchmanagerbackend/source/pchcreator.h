@@ -85,7 +85,6 @@ public:
 
     FilePath generatePchFilePath() const;
     static Utils::SmallStringVector generateClangCompilerArguments(const PchTask &pchTask,
-                                                                   FilePathView includePchHeaderPath,
                                                                    FilePathView pchPath);
 
     const ClangTool &clangTool() const

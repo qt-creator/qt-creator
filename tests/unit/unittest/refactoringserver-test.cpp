@@ -100,9 +100,7 @@ protected:
     ClangBackEnd::GeneratedFiles generatedFiles;
     ClangBackEnd::RefactoringServer refactoringServer{mockSymbolIndexing, filePathCache, generatedFiles};
     Utils::SmallString sourceContent{"void f()\n {}"};
-    FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
-                         sourceContent.clone(),
-                         {"cc", toNativePath(TESTDATA_DIR "/query_simplefunction.cpp").path()}};
+    FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"}, sourceContent.clone(), {"cc"}};
     QTemporaryFile temporaryFile{Utils::TemporaryDirectory::masterDirectoryPath()
                                  + "/clangQuery-XXXXXX.cpp"};
     int processingSlotCount = 2;
@@ -113,12 +111,8 @@ using RefactoringServerVerySlowTest = RefactoringServer;
 
 TEST_F(RefactoringServerSlowTest, RequestSourceLocationsForRenamingMessage)
 {
-    RequestSourceLocationsForRenamingMessage message{{TESTDATA_DIR, "renamevariable.cpp"},
-                                                     1,
-                                                     5,
-                                                     "int v;\n\nint x = v + 3;\n",
-                                                     {"cc", "renamevariable.cpp"},
-                                                     1};
+    RequestSourceLocationsForRenamingMessage message{
+        {TESTDATA_DIR, "renamevariable.cpp"}, 1, 5, "int v;\n\nint x = v + 3;\n", {"cc"}, 1};
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceLocationsForRenamingMessage(
@@ -152,13 +146,9 @@ TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesAndDiagnosticsWithUns
     Utils::SmallString unsavedContent{"void f();"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          "#include \"query_simplefunction.h\"",
-                         {"cc", "query_simplefunction.cpp"}};
-    FileContainer unsaved{{TESTDATA_DIR, "query_simplefunction.h"},
-                          unsavedContent.clone(),
-                          {}};
-    RequestSourceRangesForQueryMessage message{"functionDecl()",
-                                               {source.clone()},
-                                               {unsaved.clone()}};
+                         {"cc"}};
+    FileContainer unsaved{{TESTDATA_DIR, "query_simplefunction.h"}, unsavedContent.clone(), {}};
+    RequestSourceRangesForQueryMessage message{"functionDecl()", {source.clone()}, {unsaved.clone()}};
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesForQueryMessage(
@@ -267,11 +257,10 @@ TEST_F(RefactoringServer, PollTimerNotIsActiveAfterCanceling)
 
 TEST_F(RefactoringServerSlowTest, ForValidRequestSourceRangesAndDiagnosticsGetSourceRange)
 {
-    RequestSourceRangesAndDiagnosticsForQueryMessage message(
-        "functionDecl()",
-        {FilePath(temporaryFile.fileName()),
-         "void f() {}",
-         {"cc", toNativePath(temporaryFile.fileName()).path()}});
+    RequestSourceRangesAndDiagnosticsForQueryMessage message("functionDecl()",
+                                                             {FilePath(temporaryFile.fileName()),
+                                                              "void f() {}",
+                                                              {"cc"}});
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesAndDiagnosticsForQueryMessage(
@@ -287,11 +276,10 @@ TEST_F(RefactoringServerSlowTest, ForValidRequestSourceRangesAndDiagnosticsGetSo
 
 TEST_F(RefactoringServerSlowTest, ForInvalidRequestSourceRangesAndDiagnosticsGetDiagnostics)
 {
-    RequestSourceRangesAndDiagnosticsForQueryMessage message(
-        "func()",
-        {FilePath(temporaryFile.fileName()),
-         "void f() {}",
-         {"cc", toNativePath(temporaryFile.fileName()).path()}});
+    RequestSourceRangesAndDiagnosticsForQueryMessage message("func()",
+                                                             {FilePath(temporaryFile.fileName()),
+                                                              "void f() {}",
+                                                              {"cc"}});
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesAndDiagnosticsForQueryMessage(
