@@ -58,6 +58,7 @@ public:
           auto &preprocessor = compilerInstance.getPreprocessor();
 
           preprocessor.SetSuppressIncludeNotFoundError(true);
+          preprocessor.SetMacroExpansionOnlyInDirectives();
 
           auto macroPreprocessorCallbacks = new CollectBuildDependencyPreprocessorCallbacks(
                       m_buildDependency,

@@ -341,12 +341,14 @@ public:
         m_database};
     mutable ReadStatement m_getProjectPartArtefactsBySourceId{
         "SELECT toolChainArguments, compilerMacros, systemIncludeSearchPaths, "
-        "projectIncludeSearchPaths, projectPartId FROM projectParts WHERE projectPartId = (SELECT "
+        "projectIncludeSearchPaths, projectPartId, language, languageVersion, languageExtension "
+        "FROM projectParts WHERE projectPartId = (SELECT "
         "projectPartId FROM projectPartsSources WHERE sourceId = ?)",
         m_database};
     mutable ReadStatement m_getProjectPartArtefactsByProjectPartName{
         "SELECT toolChainArguments, compilerMacros, systemIncludeSearchPaths, "
-        "projectIncludeSearchPaths, projectPartId FROM projectParts WHERE projectPartName = ?",
+        "projectIncludeSearchPaths, projectPartId, language, languageVersion, languageExtension "
+        "FROM projectParts WHERE projectPartName = ?",
         m_database};
     mutable ReadStatement m_getPrecompiledHeader{
         "SELECT projectPchPath, projectPchBuildTime FROM precompiledHeaders WHERE projectPartId = ?",

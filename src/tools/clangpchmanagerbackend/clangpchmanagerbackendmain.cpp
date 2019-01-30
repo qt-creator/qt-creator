@@ -55,6 +55,7 @@
 #include <QTemporaryDir>
 #include <QTimer>
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 using namespace std::chrono_literals;
@@ -214,8 +215,20 @@ struct Data // because we have a cycle dependency
                                        ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
 };
 
+#ifdef Q_OS_WIN
+static void messageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
+{
+    std::wcout << msg.toStdWString() << std::endl;
+    if (type == QtFatalMsg)
+        abort();
+}
+#endif
+
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_WIN
+    qInstallMessageHandler(messageOutput);
+#endif
     try {
         QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
         QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));

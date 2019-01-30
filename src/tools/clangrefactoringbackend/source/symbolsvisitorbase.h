@@ -68,7 +68,8 @@ public:
     bool isAlreadyParsed(clang::FileID fileId)
     {
         const clang::FileEntry *fileEntry = m_sourceManager->getFileEntryForID(fileId);
-
+        if (!fileEntry)
+            return false;
         return m_sourcesManager.alreadyParsed(filePathId(fileEntry),
                                               fileEntry->getModificationTime());
     }

@@ -435,9 +435,7 @@ TEST_F(BuildDependencyCollector, CollectUsedMacrosWithExternalDefine)
                 ElementsAre(Eq(UsedMacro{"DEFINED", fileId}),
                             Eq(UsedMacro{"IF_DEFINE", fileId}),
                             Eq(UsedMacro{"__clang__", fileId}),
-                            Eq(UsedMacro{"CLASS_EXPORT", fileId}),
                             Eq(UsedMacro{"IF_NOT_DEFINE", fileId}),
-                            Eq(UsedMacro{"MACRO_EXPANSION", fileId}),
                             Eq(UsedMacro{"COMPILER_ARGUMENT", fileId})));
 }
 
@@ -452,9 +450,7 @@ TEST_F(BuildDependencyCollector, CollectUsedMacrosWithoutExternalDefine)
                 ElementsAre(Eq(UsedMacro{"DEFINED", fileId}),
                             Eq(UsedMacro{"IF_DEFINE", fileId}),
                             Eq(UsedMacro{"__clang__", fileId}),
-                            Eq(UsedMacro{"CLASS_EXPORT", fileId}),
                             Eq(UsedMacro{"IF_NOT_DEFINE", fileId}),
-                            Eq(UsedMacro{"MACRO_EXPANSION", fileId}),
                             Eq(UsedMacro{"COMPILER_ARGUMENT", fileId})));
 }
 
@@ -639,7 +635,6 @@ TEST_F(BuildDependencyCollector, Create)
                                  SourceType::TopProjectInclude))),
             Field(&BuildDependency::usedMacros,
                   UnorderedElementsAre(
-                      UsedMacro{"DEFINE", id(TESTDATA_DIR "/builddependencycollector/project/macros.h")},
                       UsedMacro{"IFDEF", id(TESTDATA_DIR "/builddependencycollector/project/macros.h")},
                       UsedMacro{"DEFINED",
                                 id(TESTDATA_DIR "/builddependencycollector/project/macros.h")})),

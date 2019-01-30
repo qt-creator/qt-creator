@@ -161,5 +161,6 @@ public:
 
 using ProjectPartContainers = std::vector<ProjectPartContainer>;
 
-QDebug operator<<(QDebug debug, const ProjectPartContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ProjectPartContainer &container);
+
 } // namespace ClangBackEnd

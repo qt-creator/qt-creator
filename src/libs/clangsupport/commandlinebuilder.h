@@ -270,7 +270,7 @@ public:
     void addNoStdIncAndNoStdLibInc()
     {
         commandLine.emplace_back("-nostdinc");
-        commandLine.emplace_back("-nostdlibinc");
+        commandLine.emplace_back("-nostdinc++");
     }
 
 public:
