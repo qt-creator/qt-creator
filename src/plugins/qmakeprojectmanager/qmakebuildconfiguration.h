@@ -36,10 +36,7 @@ namespace QmakeProjectManager {
 
 class QMakeStep;
 class QmakeMakeStep;
-class QmakeBuildConfigurationFactory;
 class QmakeProFileNode;
-
-namespace Internal { class QmakeProjectConfigWidget; }
 
 class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -139,9 +136,6 @@ private:
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;
-
-    friend class Internal::QmakeProjectConfigWidget;
-    friend class QmakeBuildConfigurationFactory;
 };
 
 class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
