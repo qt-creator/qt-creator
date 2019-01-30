@@ -42,12 +42,9 @@
 
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-
-#include <qtsupport/qtversionmanager.h>
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
@@ -127,19 +124,7 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     RunControl::registerWorker<Internal::IosQmlProfilerSupport>
             (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, constraint);
 
-    connect(KitManager::instance(), &KitManager::kitsLoaded,
-            this, &IosPlugin::kitsRestored);
-
     return true;
-}
-
-void IosPlugin::kitsRestored()
-{
-    disconnect(KitManager::instance(), &KitManager::kitsLoaded,
-               this, &IosPlugin::kitsRestored);
-    IosConfigurations::updateAutomaticKitList();
-    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
-            IosConfigurations::instance(), &IosConfigurations::updateAutomaticKitList);
 }
 
 } // namespace Internal

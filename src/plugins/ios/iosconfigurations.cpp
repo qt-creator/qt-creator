@@ -337,6 +337,15 @@ void IosConfigurations::initialize()
     m_instance = new IosConfigurations(nullptr);
 }
 
+void IosConfigurations::kitsRestored()
+{
+    disconnect(KitManager::instance(), &KitManager::kitsLoaded,
+               this, &IosConfigurations::kitsRestored);
+    IosConfigurations::updateAutomaticKitList();
+    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+            IosConfigurations::instance(), &IosConfigurations::updateAutomaticKitList);
+}
+
 bool IosConfigurations::ignoreAllDevices()
 {
     return m_instance->m_ignoreAllDevices;
@@ -386,6 +395,8 @@ IosConfigurations::IosConfigurations(QObject *parent)
     : QObject(parent)
 {
     load();
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
+            this, &IosConfigurations::kitsRestored);
 }
 
 void IosConfigurations::load()

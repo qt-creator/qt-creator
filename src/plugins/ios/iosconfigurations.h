@@ -129,6 +129,7 @@ private:
     IosConfigurations(QObject *parent);
     void load();
     void save();
+    void kitsRestored();
     void updateSimulators();
     static void setDeveloperPath(const Utils::FileName &devPath);
     void initializeProvisioningData();
