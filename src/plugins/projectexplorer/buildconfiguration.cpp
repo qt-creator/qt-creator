@@ -325,17 +325,13 @@ static QList<BuildConfigurationFactory *> g_buildConfigurationFactories;
 
 BuildConfigurationFactory::BuildConfigurationFactory()
 {
-    g_buildConfigurationFactories.append(this);
+    // Note: Order matters as first-in-queue wins.
+    g_buildConfigurationFactories.prepend(this);
 }
 
 BuildConfigurationFactory::~BuildConfigurationFactory()
 {
     g_buildConfigurationFactories.removeOne(this);
-}
-
-int BuildConfigurationFactory::priority(const Target *parent) const
-{
-    return canHandle(parent) ? m_basePriority : -1;
 }
 
 const QList<Task> BuildConfigurationFactory::reportIssues(ProjectExplorer::Kit *kit, const QString &projectPath,
@@ -363,44 +359,27 @@ bool BuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const
     return m_supportedTargetDeviceTypes.contains(id);
 }
 
-int BuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
-{
-    QTC_ASSERT(!m_supportedProjectMimeTypeName.isEmpty(), return -1);
-    if (k && Utils::mimeTypeForFile(projectPath).matchesName(m_supportedProjectMimeTypeName)
-          && supportsTargetDeviceType(DeviceTypeKitInformation::deviceTypeId(k))) {
-        return m_basePriority;
-    }
-    return -1;
-}
-
 // setup
 BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const QString &projectPath)
 {
-    BuildConfigurationFactory *factory = nullptr;
-    int priority = -1;
-    for (BuildConfigurationFactory *i : g_buildConfigurationFactories) {
-        int iPriority = i->priority(k, projectPath);
-        if (iPriority > priority) {
-            factory = i;
-            priority = iPriority;
-        }
+    QTC_ASSERT(k, return nullptr);
+    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(k);
+    for (BuildConfigurationFactory *factory : g_buildConfigurationFactories) {
+        if (Utils::mimeTypeForFile(projectPath).matchesName(factory->m_supportedProjectMimeTypeName)
+                && factory->supportsTargetDeviceType(deviceType))
+            return factory;
     }
-    return factory;
+    return nullptr;
 }
 
 // create
 BuildConfigurationFactory * BuildConfigurationFactory::find(Target *parent)
 {
-    BuildConfigurationFactory *factory = nullptr;
-    int priority = -1;
-    for (BuildConfigurationFactory *i : g_buildConfigurationFactories) {
-        int iPriority = i->priority(parent);
-        if (iPriority > priority) {
-            factory = i;
-            priority = iPriority;
-        }
+    for (BuildConfigurationFactory *factory : g_buildConfigurationFactories) {
+        if (factory->canHandle(parent))
+            return factory;
     }
-    return factory;
+    return nullptr;
 }
 
 void BuildConfigurationFactory::setSupportedProjectType(Core::Id id)
@@ -416,11 +395,6 @@ void BuildConfigurationFactory::setSupportedProjectMimeTypeName(const QString &m
 void BuildConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
 {
     m_supportedTargetDeviceTypes.append(id);
-}
-
-void BuildConfigurationFactory::setBasePriority(int basePriority)
-{
-    m_basePriority = basePriority;
 }
 
 bool BuildConfigurationFactory::canHandle(const Target *target) const
@@ -456,32 +430,22 @@ BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const Buil
 
 BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    BuildConfigurationFactory *factory = nullptr;
-    int priority = -1;
-    for (BuildConfigurationFactory *i : g_buildConfigurationFactories) {
-        if (!i->canHandle(parent))
+    const Core::Id id = idFromMap(map);
+    for (BuildConfigurationFactory *factory : g_buildConfigurationFactories) {
+        QTC_ASSERT(factory->m_creator, return nullptr);
+        if (!factory->canHandle(parent))
             continue;
-        const Core::Id id = idFromMap(map);
-        if (!id.name().startsWith(i->m_buildConfigId.name()))
+        if (!id.name().startsWith(factory->m_buildConfigId.name()))
             continue;
-        int iPriority = i->priority(parent);
-        if (iPriority > priority) {
-            factory = i;
-            priority = iPriority;
+        BuildConfiguration *bc = factory->m_creator(parent);
+        QTC_ASSERT(bc, return nullptr);
+        if (!bc->fromMap(map)) {
+            delete bc;
+            bc = nullptr;
         }
+        return bc;
     }
-
-    if (!factory)
-        return nullptr;
-
-    QTC_ASSERT(factory->m_creator, return nullptr);
-    BuildConfiguration *bc = factory->m_creator(parent);
-    QTC_ASSERT(bc, return nullptr);
-    if (!bc->fromMap(map)) {
-        delete bc;
-        bc = nullptr;
-    }
-    return bc;
+    return nullptr;
 }
 
 BuildConfiguration *BuildConfigurationFactory::clone(Target *parent,

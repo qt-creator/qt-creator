@@ -145,7 +145,6 @@ IosBuildConfigurationFactory::IosBuildConfigurationFactory()
     registerBuildConfiguration<IosBuildConfiguration>(QmakeProjectManager::Constants::QMAKE_BC_ID);
     addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
     addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
-    setBasePriority(1);
 }
 
 } // namespace Internal
