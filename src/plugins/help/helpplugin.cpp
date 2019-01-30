@@ -325,7 +325,7 @@ HelpPluginPrivate::HelpPluginPrivate()
     connect(&remoteHelpFilter, &RemoteHelpFilter::linkActivated,
             this, &QDesktopServices::openUrl);
 
-    QDesktopServices::setUrlHandler("qthelp", HelpManager::instance(), "handleHelpRequest");
+    QDesktopServices::setUrlHandler("qthelp", HelpManager::instance(), "showHelpUrl");
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &HelpPluginPrivate::modeChanged);
 
