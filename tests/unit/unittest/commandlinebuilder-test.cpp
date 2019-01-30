@@ -511,7 +511,7 @@ TYPED_TEST(CommandLineBuilder, IncludePchPath)
 
 TYPED_TEST(CommandLineBuilder, CompilerMacros)
 {
-    this->emptyProjectInfo.compilerMacros = {{"YI", "1", 2}, {"ER", "2", 1}};
+    this->emptyProjectInfo.compilerMacros = {{"YI", "1", 2}, {"ER", "2", 1}, {"SAN"}};
 
     Builder<TypeParam> builder{this->emptyProjectInfo};
 

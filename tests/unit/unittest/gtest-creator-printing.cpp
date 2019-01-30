@@ -1157,10 +1157,9 @@ std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes)
 std::ostream &operator<<(std::ostream &out, const PchTask &task)
 {
     return out << "(" << task.projectPartIds << ", " << task.includes << ", " << task.compilerMacros
-               << ", " << task.usedMacros << ", " << toText(task.language) << ", "
-               << task.systemIncludeSearchPaths << ", " << task.projectIncludeSearchPaths << ", "
-               << task.toolChainArguments << ", " << toText(task.languageVersion) << ", "
-               << toText(task.languageExtension) << ")";
+               << toText(task.language) << ", " << task.systemIncludeSearchPaths << ", "
+               << task.projectIncludeSearchPaths << ", " << task.toolChainArguments << ", "
+               << toText(task.languageVersion) << ", " << toText(task.languageExtension) << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const PchTaskSet &taskSet)

@@ -62,6 +62,10 @@ public:
     {
         return !(first == second);
     }
+
+    operator Utils::SmallStringView() const { return macroName; }
+    operator const Utils::SmallString &() const { return macroName; }
+
 public:
     Utils::SmallString macroName;
     FilePathId filePathId;

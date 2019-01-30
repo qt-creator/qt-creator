@@ -46,7 +46,7 @@ protected:
                            {3, SourceType::ProjectInclude, 0},
                            {4, SourceType::TopSystemInclude, 0},
                            {5, SourceType::TopProjectInclude, 0}};
-    UsedMacros usedMacros{{"YI", 1}, {"ER", 2}, {"SAN", 3}, {"SE", 4}, {"WU", 5}};
+    UsedMacros usedMacros{{"YI", 1}, {"ER", 2}, {"LIU", 2}, {"QI", 3}, {"SAN", 3}, {"SE", 4}, {"WU", 5}};
     CompilerMacros compileMacros{{"YI", "1", 1},
                                  {"ER", "2", 2},
                                  {"SAN", "3", 3},
@@ -57,36 +57,35 @@ protected:
 
 TEST_F(UsedMacroFilter, SystemIncludes)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.systemIncludes, ElementsAre(FilePathId{2}, FilePathId{4}));
 }
 
 TEST_F(UsedMacroFilter, ProjectIncludes)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.projectIncludes, ElementsAre(FilePathId{3}, FilePathId{5}));
 }
 
 TEST_F(UsedMacroFilter, TopSystemIncludes)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.topSystemIncludes, ElementsAre(FilePathId{4}));
 }
 
 TEST_F(UsedMacroFilter, TopProjectIncludes)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.topProjectIncludes, ElementsAre(FilePathId{5}));
 }
 
-
 TEST_F(UsedMacroFilter, AllIncludes)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.allIncludes,
                 ElementsAre(FilePathId{1}, FilePathId{2}, FilePathId{3}, FilePathId{4}, FilePathId{5}));
@@ -94,36 +93,36 @@ TEST_F(UsedMacroFilter, AllIncludes)
 
 TEST_F(UsedMacroFilter, SystemUsedMacros)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
 
-    ASSERT_THAT(filter.systemUsedMacros, ElementsAre(UsedMacro{"ER", 2}, UsedMacro{"SE", 4}));
+    ASSERT_THAT(filter.systemUsedMacros, ElementsAre("ER", "SE", "LIU"));
 }
 
 TEST_F(UsedMacroFilter, ProjectUsedMacros)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
 
-    ASSERT_THAT(filter.projectUsedMacros, ElementsAre(UsedMacro{"WU", 5}, UsedMacro{"SAN", 3}));
+    ASSERT_THAT(filter.projectUsedMacros, ElementsAre("QI", "WU", "SAN"));
 }
 
 TEST_F(UsedMacroFilter, SystemCompileMacros)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
-
-    filter.filter(compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.systemCompilerMacros,
-                ElementsAre(CompilerMacro{"ER", "2", 2}, CompilerMacro{"SE", "4", 4}));
+                ElementsAre(CompilerMacro{"ER", "2", 2},
+                            CompilerMacro{"SE", "4", 4},
+                            CompilerMacro{"LIU"}));
 }
 
 TEST_F(UsedMacroFilter, ProjectCompileMacros)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros);
-
-    filter.filter(compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.projectCompilerMacros,
-                ElementsAre(CompilerMacro{"WU", "5", 5}, CompilerMacro{"SAN", "3", 3}));
+                ElementsAre(CompilerMacro{"QI"},
+                            CompilerMacro{"WU", "5", 5},
+                            CompilerMacro{"SAN", "3", 3}));
 }
 
 } // namespace

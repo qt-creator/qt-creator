@@ -32,6 +32,27 @@
 
 namespace ClangBackEnd {
 
+template<typename InputIterator1, typename InputIterator2, typename OutputIterator, typename Compare>
+inline OutputIterator set_greedy_intersection(InputIterator1 first1,
+                                              InputIterator1 last1,
+                                              InputIterator2 first2,
+                                              InputIterator2 last2,
+                                              OutputIterator result,
+                                              Compare comp)
+{
+    while (first1 != last1 && first2 != last2)
+        if (comp(*first1, *first2))
+            ++first1;
+        else if (comp(*first2, *first1))
+            ++first2;
+        else {
+            *result = *first1;
+            ++first1;
+            ++result;
+        }
+    return result;
+}
+
 class UsedMacroFilter
 {
 public:
@@ -41,11 +62,14 @@ public:
         FilePathIds system;
     };
 
-    UsedMacroFilter(const SourceEntries &includes, const UsedMacros &usedMacros)
+    UsedMacroFilter(const SourceEntries &includes,
+                    const UsedMacros &usedMacros,
+                    const CompilerMacros &compilerMacros)
     {
         filterIncludes(includes);
         systemUsedMacros = filterUsedMarcos(usedMacros, systemIncludes);
         projectUsedMacros = filterUsedMarcos(usedMacros, projectIncludes);
+        filter(compilerMacros);
     }
 
     void filterIncludes(const SourceEntries &includes)
@@ -98,7 +122,8 @@ private:
         allIncludes.emplace_back(include.sourceId);
     }
 
-    static UsedMacros filterUsedMarcos(const UsedMacros &usedMacros, const FilePathIds &filePathId)
+    static Utils::SmallStringVector filterUsedMarcos(const UsedMacros &usedMacros,
+                                                     const FilePathIds &filePathId)
     {
         struct Compare
         {
@@ -113,52 +138,57 @@ private:
             }
         };
 
-        UsedMacros filtertedMacros;
+        Utils::SmallStringVector filtertedMacros;
         filtertedMacros.reserve(usedMacros.size());
 
-        std::set_intersection(usedMacros.begin(),
-                              usedMacros.end(),
-                              filePathId.begin(),
-                              filePathId.end(),
-                              std::back_inserter(filtertedMacros),
-                              Compare{});
+        set_greedy_intersection(usedMacros.begin(),
+                                usedMacros.end(),
+                                filePathId.begin(),
+                                filePathId.end(),
+                                std::back_inserter(filtertedMacros),
+                                Compare{});
 
-        std::sort(filtertedMacros.begin(),
-                  filtertedMacros.end(),
-                  [](const UsedMacro &first, const UsedMacro &second) {
-                      return first.macroName < second.macroName;
-                  });
+        std::sort(filtertedMacros.begin(), filtertedMacros.end());
 
         return filtertedMacros;
     }
 
     static CompilerMacros filtercompilerMacros(const CompilerMacros &indexedCompilerMacro,
-                                               const UsedMacros &usedMacros)
+                                               const Utils::SmallStringVector &usedMacros)
     {
+        CompilerMacros filtertedCompilerMacros;
+        filtertedCompilerMacros.reserve(indexedCompilerMacro.size() + usedMacros.size());
+
         struct Compare
         {
-            bool operator()(const UsedMacro &usedMacro,
-                            const CompilerMacro &compileMacro)
+            bool operator()(const CompilerMacro &compilerMacro, Utils::SmallStringView usedMacro)
             {
-                return usedMacro.macroName < compileMacro.key;
+                return compilerMacro.key < usedMacro;
             }
 
-            bool operator()(const CompilerMacro &compileMacro,
-                            const UsedMacro &usedMacro)
+            bool operator()(Utils::SmallStringView usedMacro, const CompilerMacro &compilerMacro)
             {
-                return compileMacro.key < usedMacro.macroName;
+                return usedMacro < compilerMacro.key;
             }
         };
 
-        CompilerMacros filtertedCompilerMacros;
-        filtertedCompilerMacros.reserve(indexedCompilerMacro.size());
+        set_greedy_intersection(indexedCompilerMacro.begin(),
+                                indexedCompilerMacro.end(),
+                                usedMacros.begin(),
+                                usedMacros.end(),
+                                std::back_inserter(filtertedCompilerMacros),
+                                Compare{});
 
-        std::set_intersection(indexedCompilerMacro.begin(),
-                              indexedCompilerMacro.end(),
-                              usedMacros.begin(),
-                              usedMacros.end(),
-                              std::back_inserter(filtertedCompilerMacros),
-                              Compare{});
+        auto split = filtertedCompilerMacros.end();
+
+        std::set_difference(usedMacros.begin(),
+                            usedMacros.end(),
+                            filtertedCompilerMacros.begin(),
+                            filtertedCompilerMacros.end(),
+                            std::back_inserter(filtertedCompilerMacros),
+                            Compare{});
+
+        std::inplace_merge(filtertedCompilerMacros.begin(), split, filtertedCompilerMacros.end());
 
         return filtertedCompilerMacros;
     }
@@ -169,8 +199,8 @@ public:
     FilePathIds systemIncludes;
     FilePathIds topProjectIncludes;
     FilePathIds topSystemIncludes;
-    UsedMacros projectUsedMacros;
-    UsedMacros systemUsedMacros;
+    Utils::SmallStringVector projectUsedMacros;
+    Utils::SmallStringVector systemUsedMacros;
     CompilerMacros projectCompilerMacros;
     CompilerMacros systemCompilerMacros;
 };

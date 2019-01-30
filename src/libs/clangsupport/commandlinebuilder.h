@@ -182,6 +182,13 @@ public:
     {
         CompilerMacros macros = compilerMacros;
 
+        macros.erase(std::remove_if(macros.begin(),
+                                    macros.end(),
+                                    [](const auto &macro) {
+                                        return macro.type == CompilerMacroType::NotDefined;
+                                    }),
+                     macros.end());
+
         std::sort(macros.begin(),
                   macros.end(),
                   [](const CompilerMacro &first, const CompilerMacro &second) {

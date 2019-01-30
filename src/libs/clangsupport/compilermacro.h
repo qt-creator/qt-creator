@@ -31,6 +31,8 @@
 
 namespace ClangBackEnd {
 
+enum class CompilerMacroType : unsigned char { Define, NotDefined };
+
 class CompilerMacro
 {
 public:
@@ -40,39 +42,57 @@ public:
         : key(std::move(key))
         , value(std::move(value))
         , index(index)
+        , type(CompilerMacroType::Define)
+    {}
+
+    CompilerMacro(Utils::SmallString &&key)
+        : key(std::move(key))
+    {}
+
+    CompilerMacro(const Utils::SmallString &key)
+        : key(key)
     {}
 
     friend QDataStream &operator<<(QDataStream &out, const CompilerMacro &compilerMacro)
     {
         out << compilerMacro.key;
         out << compilerMacro.value;
+        out << compilerMacro.index;
+        out << static_cast<unsigned char>(compilerMacro.type);
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, CompilerMacro &compilerMacro)
     {
+        unsigned char type;
+
         in >> compilerMacro.key;
         in >> compilerMacro.value;
+        in >> compilerMacro.index;
+        in >> type;
+
+        compilerMacro.type = static_cast<CompilerMacroType>(type);
 
         return in;
     }
 
     friend bool operator==(const CompilerMacro &first, const CompilerMacro &second)
     {
-        return first.key == second.key
-            && first.value == second.value;
+        return first.key == second.key && first.value == second.value && first.type == second.type;
     }
 
     friend bool operator<(const CompilerMacro &first, const CompilerMacro &second)
     {
-        return std::tie(first.key, first.value) < std::tie(second.key, second.value);
+        return std::tie(first.key, first.type, first.value)
+               < std::tie(second.key, second.type, second.value);
     }
 
 public:
     Utils::SmallString key;
     Utils::SmallString value;
-    int index = 0;
+    int index = -1;
+    CompilerMacroType type = CompilerMacroType::NotDefined;
 };
 
 using CompilerMacros = std::vector<CompilerMacro>;
