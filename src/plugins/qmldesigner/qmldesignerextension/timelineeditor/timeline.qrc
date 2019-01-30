@@ -57,9 +57,6 @@
         <file>images/to_first_frame@2x.png</file>
         <file>images/to_last_frame.png</file>
         <file>images/to_last_frame@2x.png</file>
-        <file>qml/BezierCanvas.qml</file>
-        <file>qml/EasingUI.qml</file>
-        <file>qml/StyledButton.qml</file>
         <file>images/pause_playback.png</file>
         <file>images/pause_playback@2x.png</file>
         <file>images/playhead.png</file>
