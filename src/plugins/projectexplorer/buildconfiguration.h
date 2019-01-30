@@ -160,7 +160,7 @@ protected:
     bool supportsTargetDeviceType(Core::Id id) const;
     void setSupportedProjectType(Core::Id id);
     void setSupportedProjectMimeTypeName(const QString &mimeTypeName);
-    void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
+    void addSupportedTargetDeviceType(Core::Id id);
     void setDefaultDisplayName(const QString &defaultDisplayName);
     void setBasePriority(int basePriority);
 

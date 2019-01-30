@@ -413,9 +413,9 @@ void BuildConfigurationFactory::setSupportedProjectMimeTypeName(const QString &m
     m_supportedProjectMimeTypeName = mimeTypeName;
 }
 
-void BuildConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)
+void BuildConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
 {
-    m_supportedTargetDeviceTypes = ids;
+    m_supportedTargetDeviceTypes.append(id);
 }
 
 void BuildConfigurationFactory::setBasePriority(int basePriority)
