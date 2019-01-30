@@ -64,6 +64,7 @@ const char NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS[] = "NavigatorShowOnlyVisibleItems"
 const char REFORMAT_UI_QML_FILES[] = "ReformatUiQmlFiles";        /* These settings are not exposed in ui. */
 const char IGNORE_DEVICE_PIXEL_RATIO[] = "IgnoreDevicePixelRaio"; /* The settings can be used to turn off the feature, if there are serious issues */
 const char STANDALONE_MODE[] = "StandAloneMode";
+const char ENABLE_TIMELINEVIEW[] = "EnableTimelineView";
 }
 
 class DesignerSettings : public QHash<QByteArray, QVariant>

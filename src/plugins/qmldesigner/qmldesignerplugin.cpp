@@ -36,6 +36,7 @@
 #include <sourcetool/sourcetool.h>
 #include <colortool/colortool.h>
 #include <texttool/texttool.h>
+#include <timelineeditor/timelineview.h>
 #include <pathtool/pathtool.h>
 
 #include <qmljseditor/qmljseditorconstants.h>
@@ -192,7 +193,9 @@ bool QmlDesignerPlugin::delayedInitialize()
 
     d->settings.fromSettings(Core::ICore::settings());
 
-    d->viewManager.registerViewTakingOwnership(new QmlDesigner::Internal::ConnectionView());
+    d->viewManager.registerViewTakingOwnership(new QmlDesigner::Internal::ConnectionView);
+    if (DesignerSettings::getValue(DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool())
+        d->viewManager.registerViewTakingOwnership(new QmlDesigner::TimelineView);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::SourceTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::ColorTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TextTool);
