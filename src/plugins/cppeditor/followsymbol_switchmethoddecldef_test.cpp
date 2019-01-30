@@ -102,7 +102,7 @@ QT_BEGIN_NAMESPACE
 namespace QTest {
 template<> char *toString(const OverrideItem &data)
 {
-    return qstrdup(data.toByteArray().data());
+    return qstrdup(data.toByteArray().constData());
 }
 }
 

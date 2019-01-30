@@ -94,7 +94,7 @@ void ClangToolsUnitTests::testProject()
     QFETCH(int, expectedDiagCount);
     if (projectFilePath.contains("mingw")) {
         const ToolChain * const toolchain
-                = ToolChainKitInformation::toolChain(KitManager::kits().first(),
+                = ToolChainKitInformation::toolChain(KitManager::kits().constFirst(),
                                                      Constants::CXX_LANGUAGE_ID);
         if (toolchain->typeId() != ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
             QSKIP("This test is mingw specific, does not run for other toolchains");
