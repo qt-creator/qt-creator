@@ -41,6 +41,7 @@ class PROJECTEXPLORER_EXPORT BuildTargetInfo
 public:
     QString buildKey; // Used to identify this BuildTargetInfo object in its list.
     QString displayName;
+    QString displayNameUniquifier;
 
     Utils::FileName targetFilePath;
     Utils::FileName projectFilePath;

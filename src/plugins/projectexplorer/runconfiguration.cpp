@@ -49,6 +49,7 @@
 
 #include <QDir>
 #include <QFormLayout>
+#include <QHash>
 #include <QPushButton>
 #include <QTimer>
 #include <QLoggingCategory>
@@ -466,6 +467,7 @@ RunConfigurationFactory::availableCreators(Target *parent) const
         rci.id = m_runConfigBaseId;
         rci.buildKey = ti.buildKey;
         rci.displayName = displayName;
+        rci.displayNameUniquifier = ti.displayNameUniquifier;
         rci.creationMode = ti.isQtcRunnable || !hasAnyQtcRunnable
                 ? RunConfigurationCreationInfo::AlwaysCreate
                 : RunConfigurationCreationInfo::ManualCreationOnly;
@@ -540,7 +542,7 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
 
     rc->m_buildKey = buildKey;
     rc->doAdditionalSetup(*this);
-    rc->setDefaultDisplayName(displayName);
+    rc->setDisplayName(displayName);
 
     return rc;
 }
@@ -574,6 +576,15 @@ const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTa
     for (RunConfigurationFactory *factory : g_runConfigurationFactories) {
         if (factory->canHandle(parent))
             items.append(factory->availableCreators(parent));
+    }
+    QHash<QString, QList<RunConfigurationCreationInfo *>> itemsPerDisplayName;
+    for (RunConfigurationCreationInfo &item : items)
+        itemsPerDisplayName[item.displayName] << &item;
+    for (auto it = itemsPerDisplayName.cbegin(); it != itemsPerDisplayName.cend(); ++it) {
+        if (it.value().size() == 1)
+            continue;
+        for (RunConfigurationCreationInfo * const rci : it.value())
+            rci->displayName += rci->displayNameUniquifier;
     }
     return items;
 }
