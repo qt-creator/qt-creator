@@ -101,7 +101,7 @@
       <item row="1" column="4">
        <widget class="QSpinBox" name="automaticProposalTimeoutSpinBox">
         <property name="maximum">
-         <number>500</number>
+         <number>2000</number>
         </property>
         <property name="singleStep">
          <number>50</number>

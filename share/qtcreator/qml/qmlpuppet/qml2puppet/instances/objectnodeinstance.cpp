@@ -44,6 +44,7 @@
 #include <QQmlParserStatus>
 #include <QTextDocument>
 #include <QLibraryInfo>
+#include <QJSValue>
 
 static bool isSimpleExpression(const QString &expression)
 {
@@ -264,11 +265,17 @@ static bool isList(const QQmlProperty &property)
     return property.propertyTypeCategory() == QQmlProperty::List;
 }
 
+static bool isQJSValue(const QQmlProperty &property)
+{
+    return !strcmp(property.propertyTypeName(), "QJSValue");
+}
+
 static bool isObject(const QQmlProperty &property)
 {
-    return (property.propertyTypeCategory() == QQmlProperty::Object) ||
-            //QVariant can also store QObjects. Lets trust our model.
-           (QLatin1String(property.propertyTypeName()) == QLatin1String("QVariant"));
+    /* QVariant and QJSValue can also store QObjects. Lets trust our model. */
+    return (property.propertyTypeCategory() == QQmlProperty::Object
+            || !strcmp(property.propertyTypeName(), "QVariant")
+            || isQJSValue(property));
 }
 
 static QVariant objectToVariant(QObject *object)
@@ -337,7 +344,10 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
 
         list.append(object);
     } else if (isObject(property)) {
-        property.write(objectToVariant(object));
+        if (isQJSValue(property)) /* In this case we have to explcitly generate and convert a QJSValue */
+            property.write(QVariant::fromValue(engine()->newQObject(object)));
+        else
+            property.write(objectToVariant(object));
 
         if (QQuickItem *item = qobject_cast<QQuickItem *>(object))
             if (QQuickItem *newParentItem = qobject_cast<QQuickItem *>(newParent))

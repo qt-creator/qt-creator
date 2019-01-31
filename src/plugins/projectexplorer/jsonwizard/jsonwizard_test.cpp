@@ -248,10 +248,10 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsComboBox()
     QCOMPARE(qPrintable(disabledComboBox->currentText()), "fgh");
 }
 
-static const char *iconInsideResource(const QString &relativePathToIcon)
+static QString iconInsideResource(const QString &relativePathToIcon)
 {
     const QDir resourcePath(Core::ICore::resourcePath());
-    return resourcePath.filePath(relativePathToIcon).toLocal8Bit().data();
+    return resourcePath.filePath(relativePathToIcon);
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()

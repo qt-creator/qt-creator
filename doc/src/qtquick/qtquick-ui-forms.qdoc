@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -53,8 +53,6 @@
 
     \list
         \li JavaScript blocks
-        \li Function definitions
-        \li Function calls (except \c qsTr)
         \li Other bindings than pure expressions
         \li Signal handlers
         \li States in other items than the root item
@@ -73,6 +71,98 @@
         \li Transform
         \li Transition
     \endlist
+
+    \section1 Supported Methods
+
+    \QC supports most JavaScript functions that are supported by the QML
+    engine, as well as a subset of Qt QML methods.
+
+    This section lists the functions that you can use in \e .ui.qml files.
+
+    \section2 JavaScript Functions
+
+    As a rule of thumb, \e {pure functions} are supported. They only depend on
+    and modify states of parameters that are within their scope, and therefore
+    always return the same results when given the same parameters. This makes
+    it possible to convert and reformat property bindings without breaking the
+    \e .ui.qml files.
+
+    The following JavaScript functions are supported:
+
+    \list
+        \li \c charAt()
+        \li \c charCodeAt()
+        \li \c concat()
+        \li \c endsWith()
+        \li \c includes()
+        \li \c indexOf()
+        \li \c isFinite()
+        \li \c isNaN()
+        \li \c lastIndexOf()
+        \li \c substring()
+        \li \c toExponential()
+        \li \c toFixed()
+        \li \c toLocaleLowerCase()
+        \li \c toLocaleString
+        \li \c toLocaleUpperCase()
+        \li \c toLowerCase()
+        \li \c toPrecision()
+        \li \c toString()
+        \li \c toUpperCase()
+        \li \c valueOf()
+    \endlist
+
+    In addition, all functions of the \c Math and \c Date objects are supported.
+
+    For more information, see
+    \l{https://doc.qt.io/qt-5/qtqml-javascript-functionlist.html}
+    {List of JavaScript Objects and Functions}.
+
+    \section2 Qt QML Methods
+
+    \QC supports color methods, helper methods for creating objects of
+    specific data types, and translation methods.
+
+    The following color methods are supported:
+
+    \list
+        \li \l{Qt::darker()}{Qt.darker()}
+        \li \l{Qt::hsla()}{Qt.hsla()}
+        \li \l{Qt::hsva()}{Qt.hsva()}
+        \li \l{Qt::lighter()}{Qt.lighter()}
+        \li \l{Qt::rgba()}{Qt.rgba()}
+        \li \l{Qt::tint()}{Qt.tint()}
+    \endlist
+
+    The following helper methods are supported:
+
+    \list
+        \li \l{Qt::formatDate()}{Qt.formatDate()}
+        \li \l{Qt::formatDateTime()}{Qt.formatDateTime()}
+        \li \l{Qt::formatTime()}{Qt.formatTime()}
+        \li \l{Qt::matrix4x4()}{Qt.matrix4x4()}
+        \li \l{Qt::point()}{Qt.point()}
+        \li \l{Qt::quaternion()}{Qt.quaternion()}
+        \li \l{Qt::rect()}{Qt.rect()}
+        \li \l{Qt::size()}{Qt.size()}
+        \li \l{Qt::vector2d()}{Qt.vector2d()}
+        \li \l{Qt::vector3d()}{Qt.vector3d()}
+        \li \l{Qt::vector4d()}{Qt.vector4d()}
+    \endlist
+
+    The following translation methods are supported:
+
+    \list
+        \li \l{Qt::}{qsTr()}
+        \li \l{Qt::}{qsTranslate()}
+        \li \l{Qt::}{qsTranslateNoOp()}
+        \li \l{Qt::}{qsTrId()}
+        \li \l{Qt::}{qsTrIdNoOp()}
+        \li \l{Qt::}{qsTrNoOp()}
+    \endlist
+
+    For more information about using the methods, see
+    \l{https://doc.qt.io/qt-5/qml-qtqml-qt.html}{Qt QML Methods}.
 
     \section1 Using Qt Quick UI Forms
 

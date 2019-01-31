@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -33,11 +33,7 @@
     \contentspage index.html
     \page quick-components.html
     \previouspage creator-using-qt-quick-designer.html
-    \if defined(qtdesignstudio)
-    \nextpage qtquick-navigator.html
-    \else
     \nextpage quick-buttons.html
-    \endif
 
     \title Creating Components
 
@@ -466,15 +462,17 @@
     Some ready-made controls, such as a gauge, dial, status indicator, and
     tumbler, are provided by the \l {Qt Quick Extras} module.
 
-    \if defined(qtcreator)
     \section1 Creating Components in Design Mode
 
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Files and Classes} > \uicontrol Qt >
-            \uicontrol {QML File (Qt Quick 2)} > \uicontrol Choose to create a new .qml
-            file.
+            \if defined(qtcreator)
+            \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)} >
+            \else
+            \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick File} >
+            \endif
+            \uicontrol Choose to create a new .qml file.
 
             \note Components are listed in the \uicontrol {QML Components} section of
             the \uicontrol Library only if the filename begins with a capital
@@ -501,7 +499,6 @@
         \li \l{Creating Scalable Buttons and Borders}
 
     \endlist
-    \endif
 
     \section1 Moving Within Components
 

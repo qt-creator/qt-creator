@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -42,7 +42,11 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \if defined(qtcreator)
             \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)} >
+            \else
+            \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick File} >
+            \endif
             \uicontrol Choose to create a QML file called Button.qml (for
             example).
 
@@ -147,7 +151,11 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \if defined(qtcreator)
             \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)} >
+            \else
+            \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick File} >
+            \endif
             \uicontrol Choose to create a QML file called Button.qml (for
             example).
 

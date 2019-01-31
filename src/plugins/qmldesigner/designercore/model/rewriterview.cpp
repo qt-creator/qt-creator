@@ -392,6 +392,9 @@ void RewriterView::deactivateTextMofifierChangeSignals()
 
 void RewriterView::auxiliaryDataChanged(const ModelNode &, const PropertyName &name, const QVariant &)
 {
+    if (m_restoringAuxData)
+        return;
+
     if (name.endsWith("@NodeInstance"))
         return;
 
@@ -1059,6 +1062,8 @@ void RewriterView::restoreAuxiliaryData()
 {
     QTC_ASSERT(m_textModifier, return);
 
+    m_restoringAuxData = true;
+
     setupCanonicalHashes();
 
     const QString text = m_textModifier->text();
@@ -1072,6 +1077,8 @@ void RewriterView::restoreAuxiliaryData()
         QmlJS::SimpleReader reader;
         checkChildNodes(reader.readFromSource(auxSource), this);
     }
+
+    m_restoringAuxData = false;
 }
 
 } //QmlDesigner

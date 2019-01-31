@@ -858,16 +858,12 @@ class Dumper(DumperBase):
                 pass
 
         self.ignoreStops = 0
-        self.silentStops = 0
         if platform.system() == 'Linux':
             if self.startMode_ == AttachCore:
                 pass
             else:
                 if self.useTerminal_:
                     self.ignoreStops = 2
-                else:
-                    self.silentStops = 1
-
         else:
             if self.useTerminal_:
                 self.ignoreStops = 1
@@ -878,10 +874,8 @@ class Dumper(DumperBase):
         if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
 
-        if os.path.isfile(self.executable_):
-            self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
-        else:
-            self.target = self.debugger.CreateTarget(None, None, None, True, error)
+        exefile = None if self.attachPid_ > 0 else self.executable_
+        self.target = self.debugger.CreateTarget(exefile, None, None, True, error)
 
         if self.nativeMixed:
             self.interpreterEventBreakpoint = \
@@ -1345,8 +1339,6 @@ class Dumper(DumperBase):
                 elif self.ignoreStops > 0:
                     self.ignoreStops -= 1
                     self.process.Continue()
-                elif self.silentStops > 0:
-                    self.silentStops -= 1
                 else:
                     self.reportState("stopped")
             else:
