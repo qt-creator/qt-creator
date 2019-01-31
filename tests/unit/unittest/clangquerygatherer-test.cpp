@@ -87,13 +87,22 @@ protected:
     Utils::SmallString sourceContent{"#include \"query_simplefunction.h\"\nvoid f() {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),
-                         {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-I", TESTDATA_DIR}};
+                         {"cc",
+                          toNativePath(TESTDATA_DIR "/query_simplefunction.cpp").path(),
+                          "-I",
+                          TESTDATA_DIR}};
     FileContainer source2{{TESTDATA_DIR, "query_simplefunction2.cpp"},
                           {},
-                          {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction2.cpp"), "-I", TESTDATA_DIR}};
+                          {"cc",
+                           toNativePath(TESTDATA_DIR "/query_simplefunction2.cpp").path(),
+                           "-I",
+                           TESTDATA_DIR}};
     FileContainer source3{{TESTDATA_DIR, "query_simplefunction3.cpp"},
                           {},
-                          {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction3.cpp"), "-I", TESTDATA_DIR}};
+                          {"cc",
+                           toNativePath(TESTDATA_DIR "/query_simplefunction3.cpp").path(),
+                           "-I",
+                           TESTDATA_DIR}};
     Utils::SmallString unsavedContent{"void f();"};
     FileContainer unsaved{{TESTDATA_DIR, "query_simplefunction.h"},
                           unsavedContent.clone(),

@@ -40,6 +40,14 @@
 class Utf8String;
 void PrintTo(const Utf8String &text, ::std::ostream *os);
 
+namespace clang {
+namespace tooling {
+struct CompileCommand;
+
+std::ostream &operator<<(std::ostream &out, const CompileCommand &command);
+} // namespace tooling
+} // namespace clang
+
 namespace Core {
 class LocatorFilterEntry;
 

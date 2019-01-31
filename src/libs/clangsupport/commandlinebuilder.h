@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "filepathview.h"
+#include "filepath.h"
 
 #include <compilermacro.h>
 #include <includesearchpath.h>
@@ -35,7 +35,7 @@
 
 namespace ClangBackEnd {
 
-template<typename ProjectInfo, typename OutputContainer = std::vector<std::string>>
+template<typename ProjectInfo, typename OutputContainer = Utils::SmallStringVector>
 class CommandLineBuilder
 {
 public:
@@ -213,7 +213,7 @@ public:
     {
         for (const IncludeSearchPath &path : projectIncludeSearchPaths) {
             commandLine.emplace_back("-I");
-            commandLine.emplace_back(path.path);
+            commandLine.emplace_back(NativeFilePath(FilePathView(path.path)));
         }
     }
 
@@ -228,7 +228,7 @@ public:
         for (const IncludeSearchPath &path : systemIncludeSearchPaths) {
             if (path.type != IncludeSearchPathType::BuiltIn) {
                 commandLine.emplace_back(includeOption(path.type));
-                commandLine.emplace_back(path.path);
+                commandLine.emplace_back(NativeFilePath(FilePathView(path.path)));
             }
         }
     }
@@ -238,7 +238,7 @@ public:
         for (const IncludeSearchPath &path : systemIncludeSearchPaths) {
             if (path.type == IncludeSearchPathType::BuiltIn) {
                 commandLine.emplace_back(includeOption(path.type));
-                commandLine.emplace_back(path.path);
+                commandLine.emplace_back(NativeFilePath(FilePathView(path.path)));
             }
         }
     }
@@ -247,23 +247,24 @@ public:
     {
         if (!outputPath.isEmpty()) {
             commandLine.emplace_back("-o");
-            commandLine.emplace_back(outputPath);
+            commandLine.emplace_back(NativeFilePath(outputPath));
         }
     }
 
     void addSourcePath(FilePathView sourcePath)
     {
         if (!sourcePath.isEmpty())
-            commandLine.emplace_back(sourcePath);
+            commandLine.emplace_back(NativeFilePath(sourcePath));
     }
 
     void addIncludePchPath(FilePathView includePchPath)
     {
+
         if (!includePchPath.isEmpty()) {
             commandLine.emplace_back("-Xclang");
             commandLine.emplace_back("-include-pch");
             commandLine.emplace_back("-Xclang");
-            commandLine.emplace_back(includePchPath);
+            commandLine.emplace_back(NativeFilePath(includePchPath));
         }
     }
 

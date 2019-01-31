@@ -30,10 +30,9 @@
 class TestClangTool : public ClangBackEnd::ClangTool
 {
 public:
-    TestClangTool(std::string &&directory,
-                  std::string &&fileName,
-                  std::string &&content,
-                  std::vector<std::string> &&commandLine);
+    TestClangTool(ClangBackEnd::FilePath &&filePath,
+                  Utils::SmallString &&content,
+                  Utils::SmallStringVector &&commandLine);
 
     const clang::ASTUnit *ast() const;
     const clang::SourceManager &sourceManager() const;

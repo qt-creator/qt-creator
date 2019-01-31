@@ -25,6 +25,8 @@
 
 #include "googletest.h"
 
+#include "filesystem-utilities.h"
+
 #include <commandlinebuilder.h>
 #include <pchtask.h>
 #include <projectpartcontainer.h>
@@ -136,7 +138,7 @@ TYPED_TEST(CommandLineBuilder, CTask)
 
     ASSERT_THAT(
         builder.commandLine,
-        ElementsAre("clang", "-x", "c-header", "-std=c11", "-nostdinc", "-nostdinc++", "/source/file.c"));
+        ElementsAre("clang", "-x", "c-header", "-std=c11", "-nostdinc", "-nostdinc++", toNativePath("/source/file.c").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCTask)
@@ -154,7 +156,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCTask)
                             "-std=c11",
                             "-nostdinc",
                             "-nostdinc++",
-                            "/source/file.c"));
+                            toNativePath("/source/file.c").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, CppTask)
@@ -171,7 +173,7 @@ TYPED_TEST(CommandLineBuilder, CppTask)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "/source/file.cpp"));
+                            toNativePath("/source/file.cpp").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCppTask)
@@ -189,7 +191,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppTask)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "/source/file.cpp"));
+                            toNativePath("/source/file.cpp").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, Cpp98)
@@ -422,18 +424,18 @@ TYPED_TEST(CommandLineBuilder, IncludesOrder)
                             "-nostdinc",
                             "-nostdinc++",
                             "-I",
-                            "/include/foo",
+                            toNativePath("/include/foo").path(),
                             "-I",
-                            "/include/bar",
+                            toNativePath("/include/bar").path(),
                             "-F",
-                            "/system/foo",
+                            toNativePath("/system/foo").path(),
                             "-isystem",
-                            "/system/bar",
+                            toNativePath("/system/bar").path(),
                             "-isystem",
-                            "/builtin/foo",
+                            toNativePath("/builtin/foo").path(),
                             "-isystem",
-                            "/builtin/bar",
-                            "/source/file.cpp"));
+                            toNativePath("/builtin/bar").path(),
+                            toNativePath("/source/file.cpp").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, EmptySourceFile)
@@ -455,7 +457,7 @@ TYPED_TEST(CommandLineBuilder, SourceFile)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "/source/file.cpp"));
+                            toNativePath("/source/file.cpp").path()));
 }
 
 
@@ -470,7 +472,7 @@ TYPED_TEST(CommandLineBuilder, EmptyOutputFile)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "/source/file.cpp"));
+                            toNativePath("/source/file.cpp").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, OutputFile)
@@ -485,8 +487,8 @@ TYPED_TEST(CommandLineBuilder, OutputFile)
                             "-nostdinc",
                             "-nostdinc++",
                             "-o",
-                            "/output/file.o",
-                            "/source/file.cpp"));
+                            toNativePath("/output/file.o").path(),
+                            toNativePath("/source/file.cpp").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, IncludePchPath)
@@ -503,10 +505,10 @@ TYPED_TEST(CommandLineBuilder, IncludePchPath)
                             "-Xclang",
                             "-include-pch",
                             "-Xclang",
-                            "/pch/file.pch",
+                            toNativePath("/pch/file.pch").path(),
                             "-o",
-                            "/output/file.o",
-                            "/source/file.cpp"));
+                            toNativePath("/output/file.o").path(),
+                            toNativePath("/source/file.cpp").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, CompilerMacros)

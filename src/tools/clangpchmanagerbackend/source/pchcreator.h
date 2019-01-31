@@ -84,7 +84,7 @@ public:
     bool generatePch();
 
     FilePath generatePchFilePath() const;
-    static std::vector<std::string> generateClangCompilerArguments(const PchTask &pchTask,
+    static Utils::SmallStringVector generateClangCompilerArguments(const PchTask &pchTask,
                                                                    FilePathView includePchHeaderPath,
                                                                    FilePathView pchPath);
 

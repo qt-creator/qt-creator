@@ -27,18 +27,13 @@
 
 #include "clangrefactoringbackend_global.h"
 
+#include <filepath.h>
+#include <nativefilepath.h>
+
 namespace ClangBackEnd {
 
 RefactoringCompilationDatabase::RefactoringCompilationDatabase()
 {
-}
-
-namespace {
-
-std::string concatFilePath(const clang::tooling::CompileCommand &compileCommand)
-{
-    return compileCommand.Directory + nativeSeparator + compileCommand.Filename;
-}
 }
 
 std::vector<clang::tooling::CompileCommand>
@@ -50,7 +45,7 @@ RefactoringCompilationDatabase::getCompileCommands(llvm::StringRef filePath) con
                  m_compileCommands.end(),
                  std::back_inserter(foundCommands),
                  [&] (const clang::tooling::CompileCommand &compileCommand) {
-        return filePath == concatFilePath(compileCommand);
+        return filePath == compileCommand.Filename;
     });
 
     return foundCommands;
@@ -66,7 +61,7 @@ RefactoringCompilationDatabase::getAllFiles() const
                    m_compileCommands.end(),
                    std::back_inserter(filePaths),
                    [&] (const clang::tooling::CompileCommand &compileCommand) {
-          return concatFilePath(compileCommand);
+          return compileCommand.Filename;
       });
 
     return filePaths;
@@ -78,12 +73,13 @@ RefactoringCompilationDatabase::getAllCompileCommands() const
     return m_compileCommands;
 }
 
-void RefactoringCompilationDatabase::addFile(const std::string &directory,
-                                             const std::string &fileName,
-                                             const std::vector<std::string> &commandLine)
+void RefactoringCompilationDatabase::addFile(NativeFilePathView filePath,
+                                             Utils::SmallStringVector &&commandLine)
 {
-
-    m_compileCommands.emplace_back(directory, fileName, commandLine, llvm::StringRef());
+    m_compileCommands.emplace_back(std::string(filePath.directory()),
+                                   std::string(filePath),
+                                   std::vector<std::string>(commandLine),
+                                   llvm::StringRef());
 }
 
 } // namespace ClangBackEnd

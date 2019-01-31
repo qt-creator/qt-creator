@@ -26,6 +26,7 @@
 #include "googletest.h"
 
 #include "fakeprocess.h"
+#include "filesystem-utilities.h"
 
 #include "mockclangpathwatcher.h"
 #include "mockpchmanagerclient.h"
@@ -144,11 +145,11 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
                             "-nostdinc",
                             "-nostdinc++",
                             "-I",
-                            TESTDATA_DIR "/builddependencycollector/project",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/project").path(),
                             "-isystem",
-                            TESTDATA_DIR "/builddependencycollector/external",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/external").path(),
                             "-isystem",
-                            TESTDATA_DIR "/builddependencycollector/system",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/system").path(),
                             "-o",
                             "project.pch",
                             "project.h"));
@@ -170,11 +171,11 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArgumentsWithSystemPch)
                             "-nostdinc",
                             "-nostdinc++",
                             "-I",
-                            TESTDATA_DIR "/builddependencycollector/project",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/project").path(),
                             "-isystem",
-                            TESTDATA_DIR "/builddependencycollector/external",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/external").path(),
                             "-isystem",
-                            TESTDATA_DIR "/builddependencycollector/system",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/system").path(),
                             "-Xclang",
                             "-include-pch",
                             "-Xclang",
