@@ -29,7 +29,6 @@
 #include "cmakebuildstep.h"
 #include "cmakeconfigitem.h"
 #include "cmakekitinformation.h"
-#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakebuildsettingswidget.h"
 #include "cmakeprojectmanager.h"
@@ -78,7 +77,7 @@ const char CONFIGURATION_KEY[] = "CMake.Configuration";
 CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
     : BuildConfiguration(parent, id)
 {
-    auto project = static_cast<const CMakeProject *>(target()->project());
+    auto project = target()->project();
     setBuildDirectory(shadowBuildDirectory(project->projectFilePath(),
                                            target()->kit(),
                                            displayName(), BuildConfiguration::Unknown));
@@ -96,7 +95,7 @@ void CMakeBuildConfiguration::initialize(const BuildInfo &info)
     cleanSteps->appendStep(new CMakeBuildStep(cleanSteps));
 
     if (info.buildDirectory.isEmpty()) {
-        auto project = static_cast<const CMakeProject *>(target()->project());
+        auto project = target()->project();
         setBuildDirectory(CMakeBuildConfiguration::shadowBuildDirectory(project->projectFilePath(),
                                                                         target()->kit(),
                                                                         info.displayName, info.buildType));
