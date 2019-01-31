@@ -45,7 +45,7 @@ public:
 
     int exec() override;
 
-    QString localExecutableFile() const;
+    QString symbolFile() const;
     QString localCoreFile() const;
     QString remoteCoreFile() const;
     QString overrideStartScript() const;
@@ -55,7 +55,7 @@ public:
 
     // For persistance.
     ProjectExplorer::Kit *kit() const;
-    void setLocalExecutableFile(const QString &executable);
+    void setSymbolFile(const QString &symbolFileName);
     void setLocalCoreFile(const QString &core);
     void setRemoteCoreFile(const QString &core);
     void setOverrideStartScript(const QString &scriptName);
