@@ -185,8 +185,7 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
             // Use the URL, to disambiguate different versions
             const HelpItem helpItem(filteredUrlMap.first(),
                                     qName.join(QLatin1Char('.')),
-                                    HelpItem::QmlComponent,
-                                    filteredUrlMap);
+                                    HelpItem::QmlComponent);
             setLastHelpItemIdentified(helpItem);
             return true;
         }

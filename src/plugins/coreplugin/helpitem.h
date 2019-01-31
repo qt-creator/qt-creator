@@ -59,8 +59,6 @@ public:
     HelpItem(const QStringList &helpIds, const QString &docMark, Category category);
     explicit HelpItem(const QUrl &url);
     HelpItem(const QUrl &url, const QString &docMark, Category category);
-    HelpItem(const QUrl &url, const QString &docMark, Category category,
-             const QMap<QString, QUrl> &helpLinks);
 
     void setHelpUrl(const QUrl &url);
     const QUrl &helpUrl() const;
