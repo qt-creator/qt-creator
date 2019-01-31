@@ -45,6 +45,7 @@ bool CollectMacrosSourceFileCallbacks::handleBeginSource(clang::CompilerInstance
                 compilerInstance.getPreprocessorPtr(),
                 m_sourcesManager);
 
+    compilerInstance.getPreprocessorPtr()->SetSuppressIncludeNotFoundError(true);
     compilerInstance.getPreprocessorPtr()->addPPCallbacks(std::move(callbacks));
 
     return true;
