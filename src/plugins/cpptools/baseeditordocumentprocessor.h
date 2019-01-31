@@ -81,8 +81,6 @@ public:
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface);
 
     virtual void invalidateDiagnostics();
-    virtual bool hasDiagnosticsAt(uint line, uint column) const;
-    virtual void addDiagnosticToolTipToLayout(uint line, uint column, QLayout *layout) const;
 
     virtual void editorDocumentTimerRestarted();
 

@@ -72,15 +72,6 @@ BaseEditorDocumentProcessor::extraRefactoringOperations(const TextEditor::Assist
     return TextEditor::QuickFixOperations();
 }
 
-bool BaseEditorDocumentProcessor::hasDiagnosticsAt(uint, uint) const
-{
-    return false;
-}
-
-void BaseEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint, uint, QLayout *) const
-{
-}
-
 void BaseEditorDocumentProcessor::editorDocumentTimerRestarted()
 {
 }

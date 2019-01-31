@@ -210,36 +210,6 @@ bool isDiagnosticAtLocation(const ClangBackEnd::DiagnosticContainer &diagnostic,
     return isDiagnosticRelatedToLocation(diagnostic, {cursorRange}, line, column);
 }
 
-QVector<ClangBackEnd::DiagnosticContainer>
-filteredDiagnosticsAtLocation(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                              uint line,
-                              uint column,
-                              QTextDocument *textDocument)
-{
-    QVector<ClangBackEnd::DiagnosticContainer> filteredDiagnostics;
-
-    foreach (const auto &diagnostic, diagnostics) {
-        if (isDiagnosticAtLocation(diagnostic, line, column, textDocument))
-            filteredDiagnostics.append(diagnostic);
-    }
-
-    return filteredDiagnostics;
-}
-
-bool editorDocumentProcessorHasDiagnosticAt(
-        const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-        uint line,
-        uint column,
-        QTextDocument *textDocument)
-{
-    foreach (const auto &diagnostic, diagnostics) {
-        if (isDiagnosticAtLocation(diagnostic, line, column, textDocument))
-            return true;
-    }
-
-    return false;
-}
-
 QTextCursor cursorAtLastPositionOfLine(QTextDocument *textDocument, int lineNumber)
 {
     const QTextBlock textBlock = textDocument->findBlockByNumber(lineNumber - 1);
@@ -399,24 +369,16 @@ TextEditor::RefactorMarkers ClangDiagnosticManager::takeFixItAvailableMarkers()
     return fixItAvailableMarkers;
 }
 
-bool ClangDiagnosticManager::hasDiagnosticsAt(uint line, uint column) const
+TextEditor::TextMarks ClangDiagnosticManager::diagnosticTextMarksAt(uint line, uint column) const
 {
-    QTextDocument *textDocument = m_textDocument->document();
+    QList<TextEditor::TextMark *> textMarks;
 
-    return editorDocumentProcessorHasDiagnosticAt(m_errorDiagnostics, line, column, textDocument)
-            || editorDocumentProcessorHasDiagnosticAt(m_warningDiagnostics, line, column, textDocument);
-}
+    for (ClangTextMark *textMark : m_clangTextMarks) {
+        if (isDiagnosticAtLocation(textMark->diagnostic(), line, column, m_textDocument->document()))
+            textMarks << textMark;
+    }
 
-QVector<ClangBackEnd::DiagnosticContainer>
-ClangDiagnosticManager::diagnosticsAt(uint line, uint column) const
-{
-    QTextDocument *textDocument = m_textDocument->document();
-
-    QVector<ClangBackEnd::DiagnosticContainer> diagnostics;
-    diagnostics += filteredDiagnosticsAtLocation(m_errorDiagnostics, line, column, textDocument);
-    diagnostics += filteredDiagnosticsAtLocation(m_warningDiagnostics, line, column, textDocument);
-
-    return diagnostics;
+    return textMarks;
 }
 
 void ClangDiagnosticManager::invalidateDiagnostics()

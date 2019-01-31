@@ -44,7 +44,9 @@ public:
                   const RemovedFromEditorHandler &removedHandler,
                   bool fullVisualization);
 
+    ClangBackEnd::DiagnosticContainer diagnostic() const { return m_diagnostic; }
     void updateIcon(bool valid = true);
+
 private:
     bool addToolTipContent(QLayout *target) const override;
     void removedFromEditor() override;

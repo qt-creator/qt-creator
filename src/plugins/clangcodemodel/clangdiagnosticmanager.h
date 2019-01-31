@@ -57,8 +57,7 @@ public:
     QList<QTextEdit::ExtraSelection> takeExtraSelections();
     TextEditor::RefactorMarkers takeFixItAvailableMarkers();
 
-    bool hasDiagnosticsAt(uint line, uint column) const;
-    QVector<ClangBackEnd::DiagnosticContainer> diagnosticsAt(uint line, uint column) const;
+    QList<TextEditor::TextMark *> diagnosticTextMarksAt(uint line, uint column) const;
 
     void invalidateDiagnostics();
     void clearDiagnosticsWithFixIts();

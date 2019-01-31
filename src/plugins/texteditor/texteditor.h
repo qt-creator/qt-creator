@@ -59,6 +59,7 @@ class HighlightScrollBarController;
 
 namespace TextEditor {
 class TextDocument;
+class TextMark;
 class BaseHoverHandler;
 class RefactorOverlay;
 struct RefactorMarker;
@@ -68,6 +69,7 @@ class IAssistProvider;
 class ICodeStylePreferences;
 class CompletionAssistProvider;
 using RefactorMarkers = QList<RefactorMarker>;
+using TextMarks = QList<TextMark *>;
 
 namespace Internal {
 class BaseTextEditorPrivate;
@@ -274,6 +276,9 @@ public:
     QRegion translatedLineRegion(int lineStart, int lineEnd) const;
 
     QPoint toolTipPosition(const QTextCursor &c) const;
+    void showTextMarksToolTip(const QPoint &pos,
+                              const TextMarks &marks,
+                              const TextMark *mainTextMark = nullptr) const;
 
     void invokeAssist(AssistKind assistKind, IAssistProvider *provider = nullptr);
 

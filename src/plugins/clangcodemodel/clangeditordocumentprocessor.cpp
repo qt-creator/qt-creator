@@ -48,7 +48,6 @@
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/editordocumenthandle.h>
 
-#include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -292,27 +291,6 @@ TextEditor::QuickFixOperations ClangEditorDocumentProcessor::extraRefactoringOpe
     return extractor.extract(assistInterface.fileName(), currentLine(assistInterface));
 }
 
-bool ClangEditorDocumentProcessor::hasDiagnosticsAt(uint line, uint column) const
-{
-    return m_diagnosticManager.hasDiagnosticsAt(line, column);
-}
-
-void ClangEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint line,
-                                                                uint column,
-                                                                QLayout *target) const
-{
-    using Internal::ClangDiagnosticWidget;
-
-    const QVector<ClangBackEnd::DiagnosticContainer> diagnostics
-        = m_diagnosticManager.diagnosticsAt(line, column);
-
-    target->addWidget(
-        ClangDiagnosticWidget::createWidget(diagnostics, ClangDiagnosticWidget::ToolTip));
-    auto link = TextEditor::DisplaySettings::createAnnotationSettingsLink();
-    target->addWidget(link);
-    target->setAlignment(link, Qt::AlignRight);
-}
-
 void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
 {
     m_updateBackendDocumentTimer.stop(); // Wait for the next call to run().
@@ -321,6 +299,12 @@ void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
 void ClangEditorDocumentProcessor::invalidateDiagnostics()
 {
     m_diagnosticManager.invalidateDiagnostics();
+}
+
+TextEditor::TextMarks ClangEditorDocumentProcessor::diagnosticTextMarksAt(uint line,
+                                                                          uint column) const
+{
+    return m_diagnosticManager.diagnosticTextMarksAt(line, column);
 }
 
 void ClangEditorDocumentProcessor::setParserConfig(
