@@ -25,7 +25,7 @@
 
 #include "languageclientsettings.h"
 
-#include "baseclient.h"
+#include "client.h"
 #include "languageclientmanager.h"
 #include "languageclient_global.h"
 #include "languageclientinterface.h"
@@ -398,11 +398,11 @@ bool BaseSettings::isValid() const
     return !m_name.isEmpty();
 }
 
-BaseClient *BaseSettings::createClient() const
+Client *BaseSettings::createClient() const
 {
     BaseClientInterface *interface = createInterface();
     if (QTC_GUARD(interface)) {
-        auto *client = new BaseClient(interface);
+        auto *client = new Client(interface);
         client->setName(m_name);
         client->setSupportedLanguage(m_languageFilter);
         return client;

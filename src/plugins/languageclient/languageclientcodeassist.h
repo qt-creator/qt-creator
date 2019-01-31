@@ -29,12 +29,12 @@
 
 namespace LanguageClient {
 
-class BaseClient;
+class Client;
 
 class LanguageClientCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
 public:
-    LanguageClientCompletionAssistProvider(BaseClient *client);
+    LanguageClientCompletionAssistProvider(Client *client);
 
     TextEditor::IAssistProcessor *createProcessor() const override;
     RunType runType() const override;
@@ -48,7 +48,7 @@ public:
 private:
     QList<QString> m_triggerChars;
     int m_activationCharSequenceLength = 0;
-    BaseClient *m_client;
+    Client *m_client;
 };
 
 } // namespace LanguageClient

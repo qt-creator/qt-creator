@@ -3,7 +3,7 @@ include(../../qtcreatorplugin.pri)
 DEFINES += LANGUAGECLIENT_LIBRARY
 
 HEADERS += \
-    baseclient.h \
+    client.h \
     dynamiccapabilities.h \
     languageclient_global.h \
     languageclientcodeassist.h \
@@ -16,7 +16,7 @@ HEADERS += \
 
 
 SOURCES += \
-    baseclient.cpp \
+    client.cpp \
     dynamiccapabilities.cpp \
     languageclientcodeassist.cpp \
     languageclientinterface.cpp \

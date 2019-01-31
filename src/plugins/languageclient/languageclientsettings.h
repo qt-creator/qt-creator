@@ -43,7 +43,7 @@ namespace LanguageClient {
 
 constexpr char noLanguageFilter[] = "No Filter";
 
-class BaseClient;
+class Client;
 class BaseClientInterface;
 
 struct LanguageFilter
@@ -67,14 +67,14 @@ public:
     QString m_name = QString("New Language Server");
     bool m_enabled = true;
     LanguageFilter m_languageFilter;
-    QPointer<BaseClient> m_client; // not owned
+    QPointer<Client> m_client; // not owned
 
     virtual void applyFromSettingsWidget(QWidget *widget);
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
     virtual BaseSettings *copy() const { return new BaseSettings(*this); }
     virtual bool needsRestart() const;
     virtual bool isValid() const ;
-    BaseClient *createClient() const;
+    Client *createClient() const;
     virtual QVariantMap toMap() const;
     virtual void fromMap(const QVariantMap &map);
 

@@ -58,18 +58,18 @@ namespace LanguageClient {
 
 class BaseClientInterface;
 
-class BaseClient : public QObject
+class Client : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit BaseClient(BaseClientInterface *clientInterface); // takes ownership
-     ~BaseClient() override;
+    explicit Client(BaseClientInterface *clientInterface); // takes ownership
+     ~Client() override;
 
-    BaseClient(const BaseClient &) = delete;
-    BaseClient(BaseClient &&) = delete;
-    BaseClient &operator=(const BaseClient &) = delete;
-    BaseClient &operator=(BaseClient &&) = delete;
+    Client(const Client &) = delete;
+    Client(Client &&) = delete;
+    Client &operator=(const Client &) = delete;
+    Client &operator=(Client &&) = delete;
 
     enum State {
         Uninitialized,

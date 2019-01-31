@@ -14,8 +14,8 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     files: [
-        "baseclient.cpp",
-        "baseclient.h",
+        "client.cpp",
+        "client.h",
         "dynamiccapabilities.cpp",
         "dynamiccapabilities.h",
         "languageclient.qrc",

@@ -25,7 +25,7 @@
 
 #include "languageclientcodeassist.h"
 
-#include "baseclient.h"
+#include "client.h"
 #include "languageclientutils.h"
 
 #include <languageserverprotocol/completion.h>
@@ -258,7 +258,7 @@ public:
 class LanguageClientCompletionAssistProcessor : public IAssistProcessor
 {
 public:
-    LanguageClientCompletionAssistProcessor(BaseClient *client);
+    LanguageClientCompletionAssistProcessor(Client *client);
     IAssistProposal *perform(const AssistInterface *interface) override;
     bool running() override;
     bool needsRestart() const override { return true; }
@@ -267,12 +267,12 @@ private:
     void handleCompletionResponse(const CompletionRequest::Response &response);
 
     QPointer<QTextDocument> m_document;
-    QPointer<BaseClient> m_client;
+    QPointer<Client> m_client;
     bool m_running = false;
     int m_pos = -1;
 };
 
-LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(BaseClient *client)
+LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(Client *client)
     : m_client(client)
 { }
 
@@ -367,7 +367,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
                               << items.count() << " completions handled";
 }
 
-LanguageClientCompletionAssistProvider::LanguageClientCompletionAssistProvider(BaseClient *client)
+LanguageClientCompletionAssistProvider::LanguageClientCompletionAssistProvider(Client *client)
     : m_client(client)
 { }
 
