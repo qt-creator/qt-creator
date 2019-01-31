@@ -99,6 +99,10 @@ public:
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
+    void dataChanged(const QModelIndex &topLeft,
+                     const QModelIndex &bottomRight,
+                     const QVector<int> &roles = QVector<int>()) override;
+
 private:
     QStringList allNames() const;
 

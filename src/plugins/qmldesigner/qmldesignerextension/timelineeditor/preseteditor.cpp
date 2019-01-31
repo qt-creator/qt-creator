@@ -32,7 +32,6 @@
 #include <QAbstractButton>
 #include <QApplication>
 #include <QContextMenuEvent>
-#include <QDebug>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
@@ -42,11 +41,12 @@
 #include <QString>
 
 #include <coreplugin/icore.h>
+#include <theme.h>
 
 namespace QmlDesigner {
 
-constexpr int iconWidth = 64;
-constexpr int iconHeight = 64;
+constexpr int iconWidth = 86;
+constexpr int iconHeight = 86;
 constexpr int itemFrame = 3;
 constexpr int itemWidth = iconWidth + 2 * itemFrame;
 constexpr int unsavedMarkSize = 18;
@@ -77,15 +77,15 @@ void PresetItemDelegate::paint(QPainter *painter,
     auto textRect = QRect(option.rect.topLeft(), textSize);
     textRect.moveBottom(option.rect.bottom());
 
-    QFontMetrics fm(option.font);
-    option.text = fm.elidedText(option.text, Qt::ElideRight, textRect.width());
+    option.font.setPixelSize(Theme::instance()->smallFontPixelSize());
 
+    painter->save();
     painter->fillRect(option.rect, canvasBackground);
 
     if (option.text.isEmpty())
         painter->fillRect(textRect, canvasBackground);
     else
-        painter->fillRect(textRect, labelBackground);
+        painter->fillRect(textRect, Theme::instance()->qmlDesignerButtonColor());
 
     style->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
 
@@ -108,6 +108,7 @@ void PresetItemDelegate::paint(QPainter *painter,
             painter->drawText(asteriskRect, Qt::AlignTop | Qt::AlignRight, "*");
         }
     }
+    painter->restore();
 }
 
 QSize PresetItemDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const
@@ -184,6 +185,8 @@ PresetList::PresetList(QSettings::Scope scope, QWidget *parent)
     setMovement(QListView::Static);
 
     setWrapping(true);
+
+    setTextElideMode(Qt::ElideMiddle);
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 }
@@ -278,6 +281,7 @@ void PresetList::readPresets()
         auto *item = new QStandardItem(paintPreview(curves[i].curve()), curves[i].name());
         item->setData(curveData, ItemRole_Data);
         item->setEditable(m_scope == QSettings::UserScope);
+        item->setToolTip(curves[i].name());
 
         simodel->setItem(i, item);
     }
@@ -318,6 +322,7 @@ void PresetList::revert(const QModelIndex &index)
                 item->setData(false, ItemRole_Dirty);
                 item->setData(paintPreview(curve.curve()), Qt::DecorationRole);
                 item->setData(QVariant::fromValue(curve.curve()), ItemRole_Data);
+                item->setToolTip(name);
                 return;
             }
         }
@@ -357,6 +362,16 @@ void PresetList::contextMenuEvent(QContextMenuEvent *event)
     menu.exec(event->globalPos());
 }
 
+void PresetList::dataChanged(const QModelIndex &topLeft,
+                             const QModelIndex &bottomRight,
+                             const QVector<int> &roles)
+{
+    if (topLeft == bottomRight && roles.contains(0)) {
+        QVariant name = model()->data(topLeft, 0);
+        model()->setData(topLeft, name, Qt::ToolTipRole);
+    }
+}
+
 void PresetList::createItem()
 {
     EasingCurve curve;
@@ -368,6 +383,7 @@ void PresetList::createItem(const QString &name, const EasingCurve &curve)
 {
     auto *item = new QStandardItem(paintPreview(curve), name);
     item->setData(QVariant::fromValue(curve), ItemRole_Data);
+    item->setToolTip(name);
 
     int row = model()->rowCount();
     qobject_cast<QStandardItemModel *>(model())->setItem(row, item);
