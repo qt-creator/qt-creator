@@ -162,6 +162,18 @@ static void addConfigForTidyAndClazy(ClangDiagnosticConfigsModel &model)
     model.appendOrUpdate(config);
 }
 
+static void addConfigForBuildSystem(ClangDiagnosticConfigsModel &model)
+{
+    ClangDiagnosticConfig config;
+    config.setId("Builtin.BuildSystem");
+    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
+                                                      "Build-systems' warnings"));
+    config.setIsReadOnly(true);
+    config.setUseBuildSystemWarnings(true);
+
+    model.appendOrUpdate(config);
+}
+
 static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
 {
     addConfigForPedanticWarnings(model);
@@ -171,6 +183,7 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
     addConfigForClangAnalyze(model);
     addConfigForClazy(model);
     addConfigForTidyAndClazy(model);
+    addConfigForBuildSystem(model);
 }
 
 ClangDiagnosticConfigsModel::ClangDiagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs)

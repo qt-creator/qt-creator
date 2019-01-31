@@ -77,7 +77,7 @@ private:
     void onClazyTreeChanged();
     void onClangTidyTreeItemClicked(const QModelIndex &index);
 
-    void onDiagnosticOptionsEdited();
+    void onClangOnlyOptionsChanged();
 
     void syncWidgetsToModel(const Core::Id &configToSelect = Core::Id());
     void syncConfigChooserToModel(const Core::Id &configToSelect = Core::Id());
@@ -104,8 +104,8 @@ private:
 
     void connectConfigChooserCurrentIndex();
     void disconnectConfigChooserCurrentIndex();
-    void connectDiagnosticOptionsChanged();
-    void disconnectDiagnosticOptionsChanged();
+    void connectClangOnlyOptionsChanged();
+    void disconnectClangOnlyOptionsChanged();
 
 private:
     Ui::ClangDiagnosticConfigsWidget *m_ui;

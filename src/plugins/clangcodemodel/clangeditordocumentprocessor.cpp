@@ -452,6 +452,10 @@ public:
 
     const QStringList &options() const { return m_options; }
     const Core::Id &diagnosticConfigId() const { return m_diagnosticConfigId; }
+    CppTools::UseBuildSystemWarnings useBuildSystemWarnings() const
+    {
+        return m_useBuildSystemWarnings;
+    }
 
 private:
     void addLanguageOptions()
@@ -491,6 +495,9 @@ private:
     void addDiagnosticOptionsForConfig(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
     {
         m_diagnosticConfigId = diagnosticConfig.id();
+        m_useBuildSystemWarnings = diagnosticConfig.useBuildSystemWarnings()
+                                       ? CppTools::UseBuildSystemWarnings::Yes
+                                       : CppTools::UseBuildSystemWarnings::No;
 
         m_options.append(diagnosticConfig.clangOptions());
         addClangTidyOptions(diagnosticConfig);
@@ -565,6 +572,7 @@ private:
     const CppTools::ProjectPart &m_projectPart;
 
     Core::Id m_diagnosticConfigId;
+    CppTools::UseBuildSystemWarnings m_useBuildSystemWarnings = CppTools::UseBuildSystemWarnings::No;
     CppTools::CompilerOptionsBuilder m_builder;
     QStringList m_options;
 };
@@ -586,12 +594,12 @@ void ClangEditorDocumentProcessor::updateBackendDocument(CppTools::ProjectPart &
             return;
     }
 
-    const QStringList projectPartOptions = ClangCodeModel::Utils::createClangOptions(
-        projectPart,
-        CppTools::ProjectFile::Unsupported); // No language option as FileOptionsBuilder adds it.
-
     const FileOptionsBuilder fileOptions(filePath(), projectPart);
     m_diagnosticConfigId = fileOptions.diagnosticConfigId();
+
+    const QStringList projectPartOptions = ClangCodeModel::Utils::createClangOptions(
+        projectPart, fileOptions.useBuildSystemWarnings(),
+        CppTools::ProjectFile::Unsupported); // No language option as FileOptionsBuilder adds it.
 
     const QStringList compilationArguments = projectPartOptions + fileOptions.options();
 

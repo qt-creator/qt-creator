@@ -65,6 +65,9 @@ public:
     bool isReadOnly() const;
     void setIsReadOnly(bool isReadOnly);
 
+    bool useBuildSystemWarnings() const;
+    void setUseBuildSystemWarnings(bool useBuildSystemWarnings);
+
     bool operator==(const ClangDiagnosticConfig &other) const;
     bool operator!=(const ClangDiagnosticConfig &other) const;
 
@@ -76,6 +79,7 @@ private:
     QString m_clangTidyChecks;
     QString m_clazyChecks;
     bool m_isReadOnly = false;
+    bool m_useBuildSystemWarnings = false;
 };
 
 using ClangDiagnosticConfigs = QVector<ClangDiagnosticConfig>;

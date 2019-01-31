@@ -195,6 +195,7 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
                                               UseSystemHeader::No,
                                               UseTweakedHeaderPaths::Yes,
                                               UseLanguageDefines::No,
+                                              UseBuildSystemWarnings::No,
                                               QString(CLANG_VERSION),
                                               QString(CLANG_RESOURCE_DIR));
         QStringList arguments = extraClangToolsPrependOptions();

@@ -66,11 +66,13 @@ namespace Utils {
 class LibClangOptionsBuilder final : public CompilerOptionsBuilder
 {
 public:
-    LibClangOptionsBuilder(const ProjectPart &projectPart)
+    LibClangOptionsBuilder(const ProjectPart &projectPart,
+                           UseBuildSystemWarnings useBuildSystemWarnings)
         : CompilerOptionsBuilder(projectPart,
                                  UseSystemHeader::No,
                                  UseTweakedHeaderPaths::Yes,
                                  UseLanguageDefines::No,
+                                 useBuildSystemWarnings,
                                  QString(CLANG_VERSION),
                                  QString(CLANG_RESOURCE_DIR))
     {
@@ -101,9 +103,12 @@ private:
     }
 };
 
-QStringList createClangOptions(const ProjectPart &projectPart, ProjectFile::Kind fileKind)
+QStringList createClangOptions(const ProjectPart &projectPart,
+                               UseBuildSystemWarnings useBuildSystemWarnings,
+                               ProjectFile::Kind fileKind)
 {
-    return LibClangOptionsBuilder(projectPart).build(fileKind, UsePrecompiledHeaders::No);
+    return LibClangOptionsBuilder(projectPart, useBuildSystemWarnings)
+        .build(fileKind, UsePrecompiledHeaders::No);
 }
 
 ProjectPart::Ptr projectPartForFile(const QString &filePath)

@@ -28,6 +28,7 @@
 #include <cplusplus/Icons.h>
 
 #include <cpptools/projectpart.h>
+#include <cpptools/compileroptionsbuilder.h>
 
 #include <QTextCursor>
 
@@ -53,6 +54,7 @@ CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath);
 void setLastSentDocumentRevision(const QString &filePath, uint revision);
 
 QStringList createClangOptions(const CppTools::ProjectPart &projectPart,
+                               CppTools::UseBuildSystemWarnings useBuildSystemWarnings,
                                CppTools::ProjectFile::Kind fileKind);
 
 CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
