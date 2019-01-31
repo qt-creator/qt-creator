@@ -7,6 +7,7 @@ HEADERS += \
     dynamiccapabilities.h \
     languageclient_global.h \
     languageclientcodeassist.h \
+    languageclientinterface.h \
     languageclientmanager.h \
     languageclientoutline.h \
     languageclientplugin.h \
@@ -18,6 +19,7 @@ SOURCES += \
     baseclient.cpp \
     dynamiccapabilities.cpp \
     languageclientcodeassist.cpp \
+    languageclientinterface.cpp \
     languageclientmanager.cpp \
     languageclientoutline.cpp \
     languageclientplugin.cpp \

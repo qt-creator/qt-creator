@@ -25,8 +25,9 @@
 
 #include "baseclient.h"
 
+#include "languageclientinterface.h"
 #include "languageclientmanager.h"
-#include "languageclient/languageclientutils.h"
+#include "languageclientutils.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -60,22 +61,23 @@ using namespace Utils;
 namespace LanguageClient {
 
 static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMsg);
-static Q_LOGGING_CATEGORY(LOGLSPCLIENTV, "qtc.languageclient.messages", QtWarningMsg);
-static Q_LOGGING_CATEGORY(LOGLSPCLIENTPARSE, "qtc.languageclient.parse", QtWarningMsg);
 
-BaseClient::BaseClient()
+BaseClient::BaseClient(BaseClientInterface *clientInterface)
     : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
     , m_completionProvider(this)
+    , m_clientInterface(clientInterface)
 {
-    m_buffer.open(QIODevice::ReadWrite | QIODevice::Append);
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
                             &JsonRpcMessageHandler::parseContent);
+    QTC_ASSERT(clientInterface, return);
+    connect(clientInterface, &BaseClientInterface::messageReceived, this, &BaseClient::handleMessage);
+    connect(clientInterface, &BaseClientInterface::error, this, &BaseClient::setError);
+    connect(clientInterface, &BaseClientInterface::finished, this, &BaseClient::finished);
 }
 
 BaseClient::~BaseClient()
 {
     using namespace TextEditor;
-    m_buffer.close();
     // FIXME: instead of replacing the completion provider in the text document store the
     // completion provider as a prioritised list in the text document
     for (TextDocument *document : m_resetCompletionProvider)
@@ -91,6 +93,7 @@ BaseClient::~BaseClient()
 void BaseClient::initialize()
 {
     using namespace ProjectExplorer;
+    QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << m_displayName;
     auto initRequest = new InitializeRequest();
@@ -108,7 +111,7 @@ void BaseClient::initialize()
     });
     // directly send data otherwise the state check would fail;
     initRequest->registerResponseHandler(&m_responseHandlers);
-    sendData(initRequest->toBaseMessage().toData());
+    m_clientInterface->sendMessage(initRequest->toBaseMessage());
     m_state = InitializeRequested;
 }
 
@@ -190,12 +193,13 @@ void BaseClient::openDocument(Core::IDocument *document)
 
 void BaseClient::sendContent(const IContent &content)
 {
+    QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Initialized, return);
     content.registerResponseHandler(&m_responseHandlers);
     QString error;
     if (!QTC_GUARD(content.isValid(&error)))
         Core::MessageManager::write(error);
-    sendData(content.toBaseMessage().toData());
+    m_clientInterface->sendMessage(content.toBaseMessage());
 }
 
 void BaseClient::sendContent(const DocumentUri &uri, const IContent &content)
@@ -652,6 +656,11 @@ bool BaseClient::needsRestart(const BaseSettings *settings) const
             || m_languagFilter.filePattern != settings->m_languageFilter.filePattern;
 }
 
+bool BaseClient::start()
+{
+    return m_clientInterface->start();
+}
+
 bool BaseClient::reset()
 {
     if (!m_restartsLeft)
@@ -659,9 +668,7 @@ bool BaseClient::reset()
     --m_restartsLeft;
     m_state = Uninitialized;
     m_responseHandlers.clear();
-    m_buffer.close();
-    m_buffer.setData(nullptr);
-    m_buffer.open(QIODevice::ReadWrite | QIODevice::Append);
+    m_clientInterface->resetBuffer();
     m_openedDocument.clear();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
@@ -672,6 +679,24 @@ void BaseClient::setError(const QString &message)
 {
     log(message);
     m_state = Error;
+}
+
+void BaseClient::handleMessage(const BaseMessage &message)
+{
+    if (auto handler = m_contentHandler[message.mimeType]) {
+        QString parseError;
+        handler(message.content, message.codec, parseError,
+                [this](MessageId id, const QByteArray &content, QTextCodec *codec){
+                    this->handleResponse(id, content, codec);
+                },
+                [this](const QString &method, MessageId id, const IContent *content){
+                    this->handleMethod(method, id, content);
+                });
+        if (!parseError.isEmpty())
+            log(parseError);
+    } else {
+        log(tr("Cannot handle content of type: %1").arg(QLatin1String(message.mimeType)));
+    }
 }
 
 void BaseClient::log(const QString &message, Core::MessageManager::PrintToOutputPaneFlag flag)
@@ -841,6 +866,7 @@ void BaseClient::intializeCallback(const InitializeRequest::Response &initRespon
 void BaseClient::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
 {
     QTC_ASSERT(m_state == ShutdownRequested, return);
+    QTC_ASSERT(m_clientInterface, return);
     optional<ShutdownRequest::Response::Error> errorValue = shutdownResponse.error();
     if (errorValue.has_value()) {
         ShutdownRequest::Response::Error error = errorValue.value();
@@ -848,7 +874,7 @@ void BaseClient::shutDownCallback(const ShutdownRequest::Response &shutdownRespo
         return;
     }
     // directly send data otherwise the state check would fail;
-    sendData(ExitNotification().toBaseMessage().toData());
+    m_clientInterface->sendMessage(ExitNotification().toBaseMessage());
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " shutdown";
     m_state = Shutdown;
 }
@@ -870,120 +896,6 @@ bool BaseClient::sendWorkspceFolderChanges() const
         }
     }
     return false;
-}
-
-void BaseClient::parseData(const QByteArray &data)
-{
-    const qint64 preWritePosition = m_buffer.pos();
-    qCDebug(LOGLSPCLIENTPARSE) << "parse buffer pos: " << preWritePosition;
-    qCDebug(LOGLSPCLIENTPARSE) << "  data: " << data;
-    if (!m_buffer.atEnd())
-        m_buffer.seek(preWritePosition + m_buffer.bytesAvailable());
-    m_buffer.write(data);
-    m_buffer.seek(preWritePosition);
-    while (!m_buffer.atEnd()) {
-        QString parseError;
-        BaseMessage::parse(&m_buffer, parseError, m_currentMessage);
-        qCDebug(LOGLSPCLIENTPARSE) << "  complete: " << m_currentMessage.isComplete();
-        qCDebug(LOGLSPCLIENTPARSE) << "  length: " << m_currentMessage.contentLength;
-        qCDebug(LOGLSPCLIENTPARSE) << "  content: " << m_currentMessage.content;
-        if (!parseError.isEmpty())
-            log(parseError);
-        if (!m_currentMessage.isComplete())
-            break;
-        if (auto handler = m_contentHandler[m_currentMessage.mimeType]){
-            QString parseError;
-            handler(m_currentMessage.content, m_currentMessage.codec, parseError,
-                    [this](MessageId id, const QByteArray &content, QTextCodec *codec){
-                this->handleResponse(id, content, codec);
-            },
-                    [this](const QString &method, MessageId id, const IContent *content){
-                this->handleMethod(method, id, content);
-            });
-            if (!parseError.isEmpty())
-                log(parseError);
-        } else {
-            log(tr("Cannot handle content of type: %1").arg(QLatin1String(m_currentMessage.mimeType)));
-        }
-        m_currentMessage = BaseMessage();
-    }
-    if (m_buffer.atEnd()) {
-        m_buffer.close();
-        m_buffer.setData(nullptr);
-        m_buffer.open(QIODevice::ReadWrite | QIODevice::Append);
-    }
-}
-
-StdIOClient::StdIOClient(const QString &executable, const QString &arguments)
-    : m_executable(executable)
-    , m_arguments(arguments)
-{
-    connect(&m_process, &QProcess::readyReadStandardError,
-            this, &StdIOClient::readError);
-    connect(&m_process, &QProcess::readyReadStandardOutput,
-            this, &StdIOClient::readOutput);
-    connect(&m_process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
-            this, &StdIOClient::onProcessFinished);
-
-    m_process.setArguments(Utils::QtcProcess::splitArgs(m_arguments));
-    m_process.setProgram(m_executable);
-}
-
-StdIOClient::~StdIOClient()
-{
-    Utils::SynchronousProcess::stopProcess(m_process);
-}
-
-bool StdIOClient::needsRestart(const StdIOSettings *settings)
-{
-    return m_executable != settings->m_executable || m_arguments != settings->m_arguments;
-}
-
-bool StdIOClient::start()
-{
-    m_process.start();
-    if (!m_process.waitForStarted() || m_process.state() != QProcess::Running) {
-        setError(m_process.errorString());
-        return false;
-    }
-    return true;
-}
-
-void StdIOClient::setWorkingDirectory(const QString &workingDirectory)
-{
-    m_process.setWorkingDirectory(workingDirectory);
-}
-
-void StdIOClient::sendData(const QByteArray &data)
-{
-    if (m_process.state() != QProcess::Running) {
-        log(tr("Cannot send data to unstarted server %1").arg(m_process.program()));
-        return;
-    }
-    qCDebug(LOGLSPCLIENTV) << "StdIOClient send data:";
-    qCDebug(LOGLSPCLIENTV).noquote() << data;
-    m_process.write(data);
-}
-
-void StdIOClient::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
-{
-    if (exitStatus == QProcess::CrashExit)
-        setError(tr("Crashed with exit code %1: %2").arg(exitCode, m_process.error()));
-    emit finished();
-}
-
-void StdIOClient::readError()
-{
-    qCDebug(LOGLSPCLIENTV) << "StdIOClient std err:\n";
-    qCDebug(LOGLSPCLIENTV).noquote() << m_process.readAllStandardError();
-}
-
-void StdIOClient::readOutput()
-{
-    const QByteArray &out = m_process.readAllStandardOutput();
-    qDebug(LOGLSPCLIENTV) << "StdIOClient std out:\n";
-    qDebug(LOGLSPCLIENTV).noquote() << out;
-    parseData(out);
 }
 
 } // namespace LanguageClient

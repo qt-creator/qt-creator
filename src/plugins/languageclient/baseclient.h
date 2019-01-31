@@ -56,12 +56,14 @@ namespace TextEditor
 
 namespace LanguageClient {
 
+class BaseClientInterface;
+
 class BaseClient : public QObject
 {
     Q_OBJECT
 
 public:
-    BaseClient();
+    explicit BaseClient(BaseClientInterface *clientInterface); // takes ownership
      ~BaseClient() override;
 
     BaseClient(const BaseClient &) = delete;
@@ -124,8 +126,8 @@ public:
 
     bool needsRestart(const BaseSettings *) const;
 
-    virtual bool start() { return true; }
-    virtual bool reset();
+    bool start();
+    bool reset();
 
     void log(const QString &message,
              Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);
@@ -143,8 +145,7 @@ signals:
 
 protected:
     void setError(const QString &message);
-    virtual void sendData(const QByteArray &data) = 0;
-    void parseData(const QByteArray &data);
+    void handleMessage(const LanguageServerProtocol::BaseMessage &message);
 
 private:
     void handleResponse(const LanguageServerProtocol::MessageId &id, const QByteArray &content,
@@ -168,7 +169,6 @@ private:
     State m_state = Uninitialized;
     QHash<LanguageServerProtocol::MessageId, LanguageServerProtocol::ResponseHandler> m_responseHandlers;
     QHash<QByteArray, ContentHandler> m_contentHandler;
-    QBuffer m_buffer;
     QString m_displayName;
     LanguageFilter m_languagFilter;
     QList<Utils::FileName> m_openedDocument;
@@ -177,41 +177,9 @@ private:
     DynamicCapabilities m_dynamicCapabilities;
     LanguageClientCompletionAssistProvider m_completionProvider;
     QSet<TextEditor::TextDocument *> m_resetCompletionProvider;
-    LanguageServerProtocol::BaseMessage m_currentMessage;
     QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;
-};
-
-class StdIOClient : public BaseClient
-{
-    Q_OBJECT
-public:
-    StdIOClient(const QString &executable, const QString &arguments);
-    ~StdIOClient() override;
-
-    StdIOClient() = delete;
-    StdIOClient(const StdIOClient &) = delete;
-    StdIOClient(StdIOClient &&) = delete;
-    StdIOClient &operator=(const StdIOClient &) = delete;
-    StdIOClient &operator=(StdIOClient &&) = delete;
-
-    bool needsRestart(const StdIOSettings *settings);
-
-    bool start() override;
-
-    void setWorkingDirectory(const QString &workingDirectory);
-
-protected:
-    void sendData(const QByteArray &data) final;
-    QProcess m_process;
-
-private:
-    void readError();
-    void readOutput();
-    void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
-    const QString m_executable;
-    const QString m_arguments;
+    QScopedPointer<BaseClientInterface> m_clientInterface;
 };
 
 } // namespace LanguageClient

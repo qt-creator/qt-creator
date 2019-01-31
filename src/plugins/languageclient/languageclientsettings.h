@@ -44,6 +44,7 @@ namespace LanguageClient {
 constexpr char noLanguageFilter[] = "No Filter";
 
 class BaseClient;
+class BaseClientInterface;
 
 struct LanguageFilter
 {
@@ -73,11 +74,13 @@ public:
     virtual BaseSettings *copy() const { return new BaseSettings(*this); }
     virtual bool needsRestart() const;
     virtual bool isValid() const ;
-    virtual BaseClient *createClient() const;
+    BaseClient *createClient() const;
     virtual QVariantMap toMap() const;
     virtual void fromMap(const QVariantMap &map);
 
 protected:
+    virtual BaseClientInterface *createInterface() const { return nullptr; }
+
     BaseSettings(const BaseSettings &other) = default;
     BaseSettings(BaseSettings &&other) = default;
     BaseSettings &operator=(const BaseSettings &other) = default;
@@ -105,11 +108,12 @@ public:
     BaseSettings *copy() const override { return new StdIOSettings(*this); }
     bool needsRestart() const override;
     bool isValid() const override;
-    BaseClient *createClient() const override;
     QVariantMap toMap() const override;
     void fromMap(const QVariantMap &map) override;
 
 protected:
+    BaseClientInterface *createInterface() const override;
+
     StdIOSettings(const StdIOSettings &other) = default;
     StdIOSettings(StdIOSettings &&other) = default;
     StdIOSettings &operator=(const StdIOSettings &other) = default;
