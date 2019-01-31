@@ -80,6 +80,7 @@ public:
     QString objectExtension() const;
 
     bool isDebugAndRelease() const;
+    bool isObjectParallelToSource() const;
     bool isQtcRunnable() const;
     bool includedInExactParse() const;
 

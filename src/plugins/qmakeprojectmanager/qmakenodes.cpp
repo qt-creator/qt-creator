@@ -452,6 +452,11 @@ bool QmakeProFileNode::isDebugAndRelease() const
     return configValues.contains(QLatin1String("debug_and_release"));
 }
 
+bool QmakeProFileNode::isObjectParallelToSource() const
+{
+    return variableValue(Variable::Config).contains("object_parallel_to_source");
+}
+
 bool QmakeProFileNode::isQtcRunnable() const
 {
     const QStringList configValues = variableValue(Variable::Config);

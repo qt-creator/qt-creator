@@ -140,6 +140,16 @@ bool QmakeMakeStep::init()
                     objectsDir += "/release";
             }
         }
+
+        if (subProFile->isObjectParallelToSource()) {
+            const Utils::FilePath sourceFileDir = bc->fileNodeBuild()->filePath().parentDir();
+            const Utils::FilePath proFileDir = subProFile->proFile()->sourceDir().canonicalPath();
+            if (!objectsDir.endsWith('/'))
+                objectsDir += QLatin1Char('/');
+            objectsDir += sourceFileDir.relativeChildPath(proFileDir).toString();
+            objectsDir = QDir::cleanPath(objectsDir);
+        }
+
         QString relObjectsDir = QDir(pp->workingDirectory().toString())
                 .relativeFilePath(objectsDir);
         if (relObjectsDir == ".")
