@@ -232,7 +232,7 @@ bool AutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor,
         }
 
         // never insert ' into string literals, it adds spurious ' when writing contractions
-        if (textToInsert.at(0) == QLatin1Char('\''))
+        if (textToInsert.at(0) == QLatin1Char('\'') && quote != '\'')
             return false;
 
         if (textToInsert.at(0) != quote || isCompleteStringLiteral(tokenText))
