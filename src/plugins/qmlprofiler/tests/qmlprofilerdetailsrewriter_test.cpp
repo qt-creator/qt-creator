@@ -85,11 +85,6 @@ public:
     {
         return {};
     }
-
-    int priority(const ProjectExplorer::Kit *, const QString &) const final
-    {
-        return 0;
-    }
 };
 
 QmlProfilerDetailsRewriterTest::QmlProfilerDetailsRewriterTest(QObject *parent) : QObject(parent)

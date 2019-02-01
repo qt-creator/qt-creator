@@ -274,15 +274,19 @@ ClangFormatBaseIndenter::ClangFormatBaseIndenter(QTextDocument *doc)
 {}
 
 TextEditor::IndentationForBlock ClangFormatBaseIndenter::indentationForBlocks(
-    const QVector<QTextBlock> &blocks, const TextEditor::TabSettings & /*tabSettings*/)
+    const QVector<QTextBlock> &blocks,
+    const TextEditor::TabSettings & /*tabSettings*/,
+    int cursorPositionInEditor)
 {
     TextEditor::IndentationForBlock ret;
     for (QTextBlock block : blocks)
-        ret.insert(block.blockNumber(), indentFor(block));
+        ret.insert(block.blockNumber(), indentFor(block, cursorPositionInEditor));
     return ret;
 }
 
-void ClangFormatBaseIndenter::indent(const QTextCursor &cursor, const QChar &typedChar)
+void ClangFormatBaseIndenter::indent(const QTextCursor &cursor,
+                                     const QChar &typedChar,
+                                     int cursorPositionInEditor)
 {
     if (cursor.hasSelection()) {
         // Calling currentBlock.next() might be unsafe because we change the document.
@@ -294,31 +298,33 @@ void ClangFormatBaseIndenter::indent(const QTextCursor &cursor, const QChar &typ
             const QTextBlock currentBlock = m_doc->findBlockByNumber(currentBlockNumber);
             if (currentBlock.isValid()) {
                 const int blocksAmount = m_doc->blockCount();
-                indentBlock(currentBlock, typedChar);
+                indentBlock(currentBlock, typedChar, cursorPositionInEditor);
                 QTC_CHECK(blocksAmount == m_doc->blockCount()
                           && "ClangFormat plugin indentation changed the amount of blocks.");
             }
         }
     } else {
-        indentBlock(cursor.block(), typedChar);
+        indentBlock(cursor.block(), typedChar, cursorPositionInEditor);
     }
 }
 
 void ClangFormatBaseIndenter::indent(const QTextCursor &cursor,
                                      const QChar &typedChar,
-                                     const TextEditor::TabSettings & /*tabSettings*/)
+                                     const TextEditor::TabSettings & /*tabSettings*/,
+                                     int cursorPositionInEditor)
 {
-    indent(cursor, typedChar);
+    indent(cursor, typedChar, cursorPositionInEditor);
 }
 
 void ClangFormatBaseIndenter::reindent(const QTextCursor &cursor,
-                                       const TextEditor::TabSettings & /*tabSettings*/)
+                                       const TextEditor::TabSettings & /*tabSettings*/,
+                                       int cursorPositionInEditor)
 {
-    indent(cursor, QChar::Null);
+    indent(cursor, QChar::Null, cursorPositionInEditor);
 }
 
-TextEditor::Replacements ClangFormatBaseIndenter::format(
-    const QTextCursor &cursor, const TextEditor::TabSettings & /*tabSettings*/)
+TextEditor::Replacements ClangFormatBaseIndenter::format(const QTextCursor &cursor,
+                                                         int cursorPositionInEditor)
 {
     int utf8Offset;
     int utf8Length;
@@ -345,7 +351,17 @@ TextEditor::Replacements ClangFormatBaseIndenter::format(
     return toReplace;
 }
 
-void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block, const QChar &typedChar)
+TextEditor::Replacements ClangFormatBaseIndenter::format(
+    const QTextCursor &cursor,
+    const TextEditor::TabSettings & /*tabSettings*/,
+    int cursorPositionInEditor)
+{
+    return format(cursor, cursorPositionInEditor);
+}
+
+void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
+                                          const QChar &typedChar,
+                                          int /*cursorPositionInEditor*/)
 {
     trimFirstNonEmptyBlock(block);
     trimCurrentBlock(block);
@@ -358,12 +374,13 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block, const QChar &
 
 void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
                                           const QChar &typedChar,
-                                          const TextEditor::TabSettings & /*tabSettings*/)
+                                          const TextEditor::TabSettings & /*tabSettings*/,
+                                          int cursorPositionInEditor)
 {
-    indentBlock(block, typedChar);
+    indentBlock(block, typedChar, cursorPositionInEditor);
 }
 
-int ClangFormatBaseIndenter::indentFor(const QTextBlock &block)
+int ClangFormatBaseIndenter::indentFor(const QTextBlock &block, int /*cursorPositionInEditor*/)
 {
     trimFirstNonEmptyBlock(block);
     trimCurrentBlock(block);
@@ -383,9 +400,10 @@ int ClangFormatBaseIndenter::indentFor(const QTextBlock &block)
 }
 
 int ClangFormatBaseIndenter::indentFor(const QTextBlock &block,
-                                       const TextEditor::TabSettings & /*tabSettings*/)
+                                       const TextEditor::TabSettings & /*tabSettings*/,
+                                       int cursorPositionInEditor)
 {
-    return indentFor(block);
+    return indentFor(block, cursorPositionInEditor);
 }
 
 bool ClangFormatBaseIndenter::isElectricCharacter(const QChar &ch) const
@@ -403,6 +421,16 @@ bool ClangFormatBaseIndenter::isElectricCharacter(const QChar &ch) const
         return true;
     }
     return false;
+}
+
+void ClangFormatBaseIndenter::formatOrIndent(const QTextCursor &cursor,
+                                             const TextEditor::TabSettings & /*tabSettings*/,
+                                             int cursorPositionInEditor)
+{
+    if (formatCodeInsteadOfIndent())
+        format(cursor, cursorPositionInEditor);
+    else
+        indent(cursor, QChar::Null, cursorPositionInEditor);
 }
 
 clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const

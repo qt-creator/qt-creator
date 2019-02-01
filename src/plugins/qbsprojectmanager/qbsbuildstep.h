@@ -58,13 +58,6 @@ public:
     explicit QbsBuildStep(ProjectExplorer::BuildStepList *bsl);
     ~QbsBuildStep() override;
 
-    bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
-
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
-    void cancel() override;
-
     QVariantMap qbsConfiguration(VariableHandling variableHandling) const;
     void setQbsConfiguration(const QVariantMap &config);
 
@@ -91,6 +84,10 @@ signals:
     void qbsBuildOptionsChanged();
 
 private:
+    bool init() override;
+    void doRun() override;
+    void doCancel() override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
@@ -129,9 +126,9 @@ private:
     QStringList m_activeFileTags;
     QStringList m_products;
 
-    QFutureInterface<bool> *m_fi;
     qbs::BuildJob *m_job = nullptr;
-    int m_progressBase;
+    QString m_currentTask;
+    int m_maxProgress;
     bool m_lastWasSuccess;
     ProjectExplorer::IOutputParser *m_parser = nullptr;
     bool m_parsingProject = false;

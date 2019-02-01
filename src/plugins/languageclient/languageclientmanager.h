@@ -56,7 +56,7 @@ public:
     static void init();
 
     static void publishDiagnostics(const Core::Id &id,
-                                   const LanguageServerProtocol::PublishDiagnosticsParams &params);
+                                   const LanguageServerProtocol::PublishDiagnosticsParams &params, BaseClient *publishingClient);
 
     static void removeMark(LanguageClientMark *mark);
     static void removeMarks(const Utils::FileName &fileName);

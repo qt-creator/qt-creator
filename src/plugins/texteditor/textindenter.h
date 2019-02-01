@@ -45,18 +45,21 @@ public:
     ~TextIndenter() override;
 
     IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
-                                             const TabSettings &tabSettings) override;
+                                             const TabSettings &tabSettings,
+                                             int cursorPositionInEditor = -1) override;
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TabSettings &tabSettings) override;
+                     const TabSettings &tabSettings,
+                     int cursorPositionInEditor = -1) override;
 
     void indent(const QTextCursor &cursor,
                 const QChar &typedChar,
-                const TabSettings &tabSettings) override;
+                const TabSettings &tabSettings,
+                int cursorPositionInEditor = -1) override;
 
-    Replacements format(const QTextCursor &cursor, const TabSettings &tabSettings) override;
-
-    void reindent(const QTextCursor &cursor, const TabSettings &tabSettings) override;
+    void reindent(const QTextCursor &cursor,
+                  const TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) override;
     Utils::optional<TabSettings> tabSettings() const override;
 };
 

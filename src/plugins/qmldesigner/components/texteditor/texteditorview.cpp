@@ -162,7 +162,7 @@ void TextEditorView::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &
     if (m_widget->textEditor())
         m_widget->textEditor()->contextHelp(callback);
     else
-        callback(QString());
+        callback({});
 }
 
 void TextEditorView::nodeIdChanged(const ModelNode& /*node*/, const QString &/*newId*/, const QString &/*oldId*/)

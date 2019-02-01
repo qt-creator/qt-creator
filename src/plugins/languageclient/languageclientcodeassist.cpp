@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "languageclientcodeassist.h"
+
 #include "baseclient.h"
+#include "languageclientutils.h"
 
 #include <languageserverprotocol/completion.h>
 #include <texteditor/codeassist/assistinterface.h>
@@ -88,17 +90,6 @@ bool LanguageClientCompletionItem::implicitlyApplies() const
 
 bool LanguageClientCompletionItem::prematurelyApplies(const QChar &/*typedCharacter*/) const
 { return false; }
-
-static void applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,
-                          const TextEdit &edit)
-{
-    using namespace Utils::Text;
-    const Range range = edit.range();
-    const QTextDocument *doc = manipulator.textCursorAt(manipulator.currentPosition()).document();
-    const int start = positionInText(doc, range.start().line() + 1, range.start().character() + 1);
-    const int end = positionInText(doc, range.end().line() + 1, range.end().character() + 1);
-    manipulator.replace(start, end - start, edit.newText());
-}
 
 void LanguageClientCompletionItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
                                          int /*basePosition*/) const

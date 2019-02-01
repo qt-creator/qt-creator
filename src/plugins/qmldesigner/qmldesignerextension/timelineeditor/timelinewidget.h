@@ -54,7 +54,7 @@ class TimelineWidget : public QWidget
 
 public:
     explicit TimelineWidget(TimelineView *view);
-    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
+    void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     TimelineGraphicsScene *graphicsScene() const;
     TimelineView *timelineView() const;

@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "baseclient.h"
+
 #include "languageclientmanager.h"
+#include "languageclient/languageclientutils.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -59,6 +61,7 @@ namespace LanguageClient {
 
 static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMsg);
 static Q_LOGGING_CATEGORY(LOGLSPCLIENTV, "qtc.languageclient.messages", QtWarningMsg);
+static Q_LOGGING_CATEGORY(LOGLSPCLIENTPARSE, "qtc.languageclient.parse", QtWarningMsg);
 
 BaseClient::BaseClient()
     : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
@@ -71,11 +74,18 @@ BaseClient::BaseClient()
 
 BaseClient::~BaseClient()
 {
+    using namespace TextEditor;
     m_buffer.close();
     // FIXME: instead of replacing the completion provider in the text document store the
     // completion provider as a prioritised list in the text document
-    for (TextEditor::TextDocument *document : m_resetCompletionProvider)
+    for (TextDocument *document : m_resetCompletionProvider)
         document->setCompletionAssistProvider(nullptr);
+    for (Core::IEditor * editor : Core::DocumentModel::editorsForOpenedDocuments()) {
+        if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+            TextEditorWidget *widget = textEditor->editorWidget();
+            widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
+        }
+    }
 }
 
 void BaseClient::initialize()
@@ -91,6 +101,7 @@ void BaseClient::initialize()
         params.setWorkSpaceFolders(Utils::transform(SessionManager::projects(), [](Project *pro){
             return WorkSpaceFolder(pro->projectDirectory().toString(), pro->displayName());
         }));
+        initRequest->setParams(params);
     }
     initRequest->setResponseCallback([this](const InitializeRequest::Response &initResponse){
         intializeCallback(initResponse);
@@ -282,6 +293,7 @@ void BaseClient::documentContentsChanged(Core::IDocument *document)
         }
     }
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+
     if (syncKind != TextDocumentSyncKind::None) {
         const auto uri = DocumentUri::fromFileName(document->filePath());
         VersionedTextDocumentIdentifier docId(uri);
@@ -289,8 +301,14 @@ void BaseClient::documentContentsChanged(Core::IDocument *document)
         const DidChangeTextDocumentParams params(docId, QString::fromUtf8(document->contents()));
         sendContent(DidChangeTextDocumentNotification(params));
     }
-    if (textDocument)
+
+    if (textDocument) {
+        using namespace TextEditor;
+        if (BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(textDocument))
+            if (TextEditorWidget *widget = editor->editorWidget())
+                widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
         requestDocumentSymbols(textDocument);
+    }
 }
 
 void BaseClient::registerCapabilities(const QList<Registration> &registrations)
@@ -493,6 +511,85 @@ void BaseClient::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
     sendContent(request);
 }
 
+void BaseClient::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
+{
+    const Utils::FileName fileName = uri.toFileName();
+    TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
+    if (!doc)
+        return;
+
+    const QString method(CodeActionRequest::methodName);
+    if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
+        if (!registered.value())
+            return;
+        const TextDocumentRegistrationOptions option(
+            m_dynamicCapabilities.option(method).toObject());
+        if (option.isValid(nullptr) && !option.filterApplies(fileName))
+            return;
+    } else {
+        Utils::variant<bool, CodeActionOptions> provider
+            = m_serverCapabilities.codeActionProvider().value_or(false);
+        if (!(Utils::holds_alternative<CodeActionOptions>(provider) || Utils::get<bool>(provider)))
+            return;
+    }
+
+    CodeActionParams codeActionParams;
+    CodeActionParams::CodeActionContext context;
+    context.setDiagnostics(diagnostics);
+    codeActionParams.setContext(context);
+    codeActionParams.setTextDocument(uri);
+    Position start(0, 0);
+    const QTextBlock &lastBlock = doc->document()->lastBlock();
+    Position end(lastBlock.blockNumber(), lastBlock.length() - 1);
+    codeActionParams.setRange(Range(start, end));
+    CodeActionRequest request(codeActionParams);
+    request.setResponseCallback(
+        [uri, self = QPointer<BaseClient>(this)](const CodeActionRequest::Response &response) {
+        if (self)
+            self->handleCodeActionResponse(response, uri);
+    });
+    sendContent(request);
+}
+
+void BaseClient::handleCodeActionResponse(const CodeActionRequest::Response &response,
+                                          const DocumentUri &uri)
+{
+    if (const Utils::optional<CodeActionRequest::Response::Error> &error = response.error())
+        log(*error);
+    if (const Utils::optional<CodeActionResult> &_result = response.result()) {
+        const CodeActionResult &result = _result.value();
+        if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&result)) {
+            for (const Utils::variant<Command, CodeAction> &item : *list) {
+                if (auto action = Utils::get_if<CodeAction>(&item))
+                    updateCodeActionRefactoringMarker(this, *action, uri);
+                else if (auto command = Utils::get_if<Command>(&item))
+                    ; // todo
+            }
+        }
+    }
+}
+
+void BaseClient::executeCommand(const Command &command)
+{
+    using CommandOptions = LanguageServerProtocol::ServerCapabilities::ExecuteCommandOptions;
+    const QString method(ExecuteCommandRequest::methodName);
+    if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
+        if (!registered.value())
+            return;
+        const CommandOptions option(m_dynamicCapabilities.option(method).toObject());
+        if (option.isValid(nullptr) && !option.commands().isEmpty() && !option.commands().contains(command.command()))
+            return;
+    } else if (Utils::optional<CommandOptions> option = m_serverCapabilities.executeCommandProvider()) {
+        if (option->isValid(nullptr) && !option->commands().isEmpty() && !option->commands().contains(command.command()))
+            return;
+    } else {
+        return;
+    }
+
+    const ExecuteCommandRequest request((ExecuteCommandParams(command)));
+    sendContent(request);
+}
+
 void BaseClient::projectOpened(ProjectExplorer::Project *project)
 {
     if (!sendWorkspceFolderChanges())
@@ -640,7 +737,7 @@ void BaseClient::handleMethod(const QString &method, MessageId id, const IConten
         auto params = dynamic_cast<const PublishDiagnosticsNotification *>(content)->params().value_or(PublishDiagnosticsParams());
         paramsValid = params.isValid(&error);
         if (paramsValid)
-            LanguageClientManager::publishDiagnostics(m_id, params);
+            LanguageClientManager::publishDiagnostics(m_id, params, this);
     } else if (method == LogMessageNotification::methodName) {
         auto params = dynamic_cast<const LogMessageNotification *>(content)->params().value_or(LogMessageParams());
         paramsValid = params.isValid(&error);
@@ -679,6 +776,11 @@ void BaseClient::handleMethod(const QString &method, MessageId id, const IConten
         paramsValid = params.isValid(&error);
         if (paramsValid)
             m_dynamicCapabilities.unregisterCapability(params.unregistrations());
+    } else if (method == ApplyWorkspaceEditRequest::methodName) {
+        auto params = dynamic_cast<const ApplyWorkspaceEditRequest *>(content)->params().value_or(ApplyWorkspaceEditParams());
+        paramsValid = params.isValid(&error);
+        if (paramsValid)
+            applyWorkspaceEdit(params.edit());
     } else if (id.isValid(&error)) {
         Response<JsonObject, JsonObject> response;
         response.setId(id);
@@ -773,6 +875,8 @@ bool BaseClient::sendWorkspceFolderChanges() const
 void BaseClient::parseData(const QByteArray &data)
 {
     const qint64 preWritePosition = m_buffer.pos();
+    qCDebug(LOGLSPCLIENTPARSE) << "parse buffer pos: " << preWritePosition;
+    qCDebug(LOGLSPCLIENTPARSE) << "  data: " << data;
     if (!m_buffer.atEnd())
         m_buffer.seek(preWritePosition + m_buffer.bytesAvailable());
     m_buffer.write(data);
@@ -780,6 +884,9 @@ void BaseClient::parseData(const QByteArray &data)
     while (!m_buffer.atEnd()) {
         QString parseError;
         BaseMessage::parse(&m_buffer, parseError, m_currentMessage);
+        qCDebug(LOGLSPCLIENTPARSE) << "  complete: " << m_currentMessage.isComplete();
+        qCDebug(LOGLSPCLIENTPARSE) << "  length: " << m_currentMessage.contentLength;
+        qCDebug(LOGLSPCLIENTPARSE) << "  content: " << m_currentMessage.content;
         if (!parseError.isEmpty())
             log(parseError);
         if (!m_currentMessage.isComplete())

@@ -55,7 +55,7 @@ public:
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
 
     bool init() override;
-    void run(QFutureInterface<bool> &) override;
+    void doRun() override;
 
 private:
     bool m_scriptTarget = false;

@@ -87,9 +87,11 @@ public:
 
     void setIndenter(Indenter *indenter);
     Indenter *indenter() const;
-    void autoIndent(const QTextCursor &cursor, QChar typedChar = QChar::Null);
-    void autoReindent(const QTextCursor &cursor);
-    void autoFormat(const QTextCursor &cursor);
+    void autoIndent(const QTextCursor &cursor,
+                    QChar typedChar = QChar::Null,
+                    int currentCursorPosition = -1);
+    void autoReindent(const QTextCursor &cursor, int currentCursorPosition = -1);
+    void autoFormatOrIndent(const QTextCursor &cursor);
     QTextCursor indent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,
                        int *offset = nullptr);
     QTextCursor unindent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,

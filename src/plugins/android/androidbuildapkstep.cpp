@@ -340,14 +340,14 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
     return success;
 }
 
-void AndroidBuildApkStep::run(QFutureInterface<bool> &fi)
+void AndroidBuildApkStep::doRun()
 {
     if (m_skipBuilding) {
         emit addOutput(tr("No application .pro file found, not building an APK."), BuildStep::OutputFormat::ErrorMessage);
-        reportRunResult(fi, true);
+        emit finished(true);
         return;
     }
-    AbstractProcessStep::run(fi);
+    AbstractProcessStep::doRun();
 }
 
 void AndroidBuildApkStep::processStarted()

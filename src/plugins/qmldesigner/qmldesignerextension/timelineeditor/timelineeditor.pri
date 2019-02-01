@@ -18,7 +18,6 @@ SOURCES += \
     timelineabstracttool.cpp \
     timelinemovetool.cpp \
     timelineselectiontool.cpp \
-    timelineplugin.cpp \
     timelineplaceholder.cpp \
     setframevaluedialog.cpp \
     timelinetoolbar.cpp \
@@ -52,7 +51,6 @@ HEADERS += \
     timelineabstracttool.h \
     timelinemovetool.h \
     timelineselectiontool.h \
-    timelineplugin.h \
     timelineplaceholder.h \
     timelineicons.h \
     timelinetoolbar.h \

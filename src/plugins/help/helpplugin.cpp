@@ -647,22 +647,22 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links)
 void HelpPluginPrivate::requestContextHelp()
 {
     // Find out what to show
-    QString contextHelpId = Utils::ToolTip::contextHelpId();
+    const QVariant tipHelpValue = Utils::ToolTip::contextHelp();
+    const HelpItem tipHelp = tipHelpValue.canConvert<HelpItem>()
+                                 ? tipHelpValue.value<HelpItem>()
+                                 : HelpItem(tipHelpValue.toString());
     IContext *context = ICore::currentContextObject();
-    if (contextHelpId.isEmpty() && context)
+    if (!tipHelp.isValid() && context)
         context->contextHelp([this](const HelpItem &item) { showContextHelp(item); });
     else
-        showContextHelp(contextHelpId);
+        showContextHelp(tipHelp);
 }
 
 void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
 {
-    QMap<QString, QUrl> links = contextHelp.links();
-    // Maybe the id is already an URL
-    if (links.isEmpty() && LocalHelpManager::isValidUrl(contextHelp.helpId()))
-        links.insert(contextHelp.helpId(), contextHelp.helpId());
+    const QMap<QString, QUrl> &links = contextHelp.links();
 
-    QUrl source = findBestLink(links);
+    const QUrl source = findBestLink(links);
     if (!source.isValid()) {
         // No link found or no context object
         HelpViewer *viewer = showHelpUrl(QUrl(Help::Constants::AboutBlank),
@@ -676,7 +676,7 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
                                 .arg(HelpPlugin::tr("No Documentation"))
                                 .arg(creatorTheme()->color(Theme::BackgroundColorNormal).name())
                                 .arg(creatorTheme()->color(Theme::TextColorNormal).name())
-                                .arg(contextHelp.helpId())
+                                .arg(contextHelp.helpIds().join(", "))
                                 .arg(HelpPlugin::tr("No documentation available.")));
         }
     } else {

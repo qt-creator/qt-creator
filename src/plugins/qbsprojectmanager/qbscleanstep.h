@@ -44,13 +44,6 @@ public:
     explicit QbsCleanStep(ProjectExplorer::BuildStepList *bsl);
     ~QbsCleanStep() override;
 
-    bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
-
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
-    void cancel() override;
-
     bool dryRun() const { return m_dryRunAspect->value(); }
     bool keepGoing() const { return m_keepGoingAspect->value(); }
 
@@ -58,6 +51,11 @@ signals:
     void stateChanged();
 
 private:
+    bool init() override;
+    void doRun() override;
+    void doCancel() override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+
     void cleaningDone(bool success);
     void handleTaskStarted(const QString &desciption, int max);
     void handleProgress(int value);
@@ -72,9 +70,9 @@ private:
 
     QStringList m_products;
 
-    QFutureInterface<bool> *m_fi = nullptr;
     qbs::CleanJob *m_job = nullptr;
-    int m_progressBase;
+    QString m_description;
+    int m_maxProgress;
     bool m_showCompilerOutput = true;
     ProjectExplorer::IOutputParser *m_parser = nullptr;
 };

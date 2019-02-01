@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,33 +23,22 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Controls 2.2
-import QtQuickDesignerTheme 1.0
+#pragma once
 
-Button {
-    id: control
-    text: qsTr("")
+namespace ClangFormat {
 
-    font.pixelSize: 12
-    topPadding: 0.5
-    bottomPadding: 0.5
+class ClangFormatSettings
+{
+public:
+    static ClangFormatSettings &instance();
 
-    contentItem: Text {
-        color: Theme.color(Theme.PanelTextColorLight)
-        text: control.text
-        font: control.font
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-    }
+    ClangFormatSettings();
+    void write() const;
 
-    background: Rectangle {
-        implicitWidth: 70
-        implicitHeight: 20
-        color: Theme.qmlDesignerButtonColor()
-        radius: 3
+    void setFormatCodeInsteadOfIndent(bool enable);
+    bool formatCodeInsteadOfIndent() const;
+private:
+    bool m_formatCodeInsteadOfIndent = false;
+};
 
-        border.width: 1
-        border.color: Theme.qmlDesignerBackgroundColorDarker()
-    }
-}
+} // namespace ClangFormat

@@ -29,8 +29,7 @@
 #include "iosbuildstep.h"
 #include "iosconfigurations.h"
 #include "iosconstants.h"
-#include "iosdeployconfiguration.h"
-#include "iosdeploystepfactory.h"
+#include "iosdeploystep.h"
 #include "iosdevicefactory.h"
 #include "iosdsymbuildstep.h"
 #include "iosqtversionfactory.h"
@@ -41,11 +40,11 @@
 #include "iostoolhandler.h"
 #include "iosrunconfiguration.h"
 
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/runconfiguration.h>
 
-#include <qtsupport/qtversionmanager.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
@@ -54,6 +53,33 @@ namespace Ios {
 namespace Internal {
 
 Q_LOGGING_CATEGORY(iosLog, "qtc.ios.common", QtWarningMsg)
+
+class IosDeployStepFactory : public BuildStepFactory
+{
+public:
+    IosDeployStepFactory()
+    {
+        registerStep<IosDeployStep>(IosDeployStep::stepId());
+        setDisplayName(IosDeployStep::tr("Deploy to iOS device or emulator"));
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
+        setRepeatable(false);
+    }
+};
+
+class IosDeployConfigurationFactory : public DeployConfigurationFactory
+{
+public:
+    IosDeployConfigurationFactory()
+    {
+        setConfigBaseId("Qt4ProjectManager.IosDeployConfiguration");
+        setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+        addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
+        addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+        setDefaultDisplayName(QCoreApplication::translate("Ios::Internal", "Deploy on iOS"));
+        addInitialStep(IosDeployStep::stepId());
+    }
+};
 
 class IosPluginPrivate
 {
@@ -98,19 +124,7 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     RunControl::registerWorker<Internal::IosQmlProfilerSupport>
             (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, constraint);
 
-    connect(KitManager::instance(), &KitManager::kitsLoaded,
-            this, &IosPlugin::kitsRestored);
-
     return true;
-}
-
-void IosPlugin::kitsRestored()
-{
-    disconnect(KitManager::instance(), &KitManager::kitsLoaded,
-               this, &IosPlugin::kitsRestored);
-    IosConfigurations::updateAutomaticKitList();
-    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
-            IosConfigurations::instance(), &IosConfigurations::updateAutomaticKitList);
 }
 
 } // namespace Internal

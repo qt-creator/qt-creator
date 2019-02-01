@@ -233,46 +233,47 @@ bool CMakeBuildStep::init()
     return AbstractProcessStep::init();
 }
 
-void CMakeBuildStep::run(QFutureInterface<bool> &fi)
+void CMakeBuildStep::doRun()
 {
     // Make sure CMake state was written to disk before trying to build:
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
     QTC_ASSERT(bc, return);
 
-    bool mustDelay = false;
+    m_waiting = false;
     auto p = static_cast<CMakeProject *>(bc->project());
     if (p->persistCMakeState()) {
         emit addOutput(tr("Persisting CMake state..."), BuildStep::OutputFormat::NormalMessage);
-        mustDelay = true;
+        m_waiting = true;
     } else if (p->mustUpdateCMakeStateBeforeBuild()) {
         emit addOutput(tr("Running CMake in preparation to build..."), BuildStep::OutputFormat::NormalMessage);
-        mustDelay = true;
-    } else {
-        mustDelay = false;
+        m_waiting = true;
     }
 
-    if (mustDelay) {
+    if (m_waiting) {
         m_runTrigger = connect(project(), &Project::parsingFinished,
-                               this, [this, &fi](bool success) { handleProjectWasParsed(fi, success); });
+                               this, [this](bool success) { handleProjectWasParsed(success); });
     } else {
-        runImpl(fi);
+        runImpl();
     }
 }
 
-void CMakeBuildStep::runImpl(QFutureInterface<bool> &fi)
+void CMakeBuildStep::runImpl()
 {
     // Do the actual build:
-    AbstractProcessStep::run(fi);
+    AbstractProcessStep::doRun();
 }
 
-void CMakeBuildStep::handleProjectWasParsed(QFutureInterface<bool> &fi, bool success)
+void CMakeBuildStep::handleProjectWasParsed(bool success)
 {
+    m_waiting = false;
     disconnect(m_runTrigger);
-    if (success) {
-        runImpl(fi);
+    if (isCanceled()) {
+        emit finished(false);
+    } else if (success) {
+        runImpl();
     } else {
         AbstractProcessStep::stdError(tr("Project did not parse successfully, cannot build."));
-        reportRunResult(fi, false);
+        emit finished(false);
     }
 }
 
@@ -288,7 +289,7 @@ void CMakeBuildStep::stdOutput(const QString &line)
         bool ok = false;
         int percent = m_percentProgress.cap(1).toInt(&ok);
         if (ok)
-            futureInterface()->setProgressValue(percent);
+            emit progress(percent, QString());
         return;
     } else if (m_ninjaProgress.indexIn(line) != -1) {
         AbstractProcessStep::stdOutput(line);
@@ -299,7 +300,7 @@ void CMakeBuildStep::stdOutput(const QString &line)
             int all = m_ninjaProgress.cap(2).toInt(&ok);
             if (ok && all != 0) {
                 const int percent = static_cast<int>(100.0 * done/all);
-                futureInterface()->setProgressValue(percent);
+                emit progress(percent, QString());
             }
         }
         return;
@@ -551,12 +552,11 @@ CMakeBuildStepFactory::CMakeBuildStepFactory()
 void CMakeBuildStep::processStarted()
 {
     m_useNinja = false;
-    futureInterface()->setProgressRange(0, 100);
     AbstractProcessStep::processStarted();
 }
 
 void CMakeBuildStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
     AbstractProcessStep::processFinished(exitCode, status);
-    futureInterface()->setProgressValue(100);
+    emit progress(100, QString());
 }

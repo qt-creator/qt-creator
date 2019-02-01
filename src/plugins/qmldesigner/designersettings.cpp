@@ -75,6 +75,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::STATESEDITOR_EXPANDED, true);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, true);
     restoreValue(settings, DesignerSettingsKey::STANDALONE_MODE, false);
+    restoreValue(settings, DesignerSettingsKey::ENABLE_TIMELINEVIEW, false);
 
     settings->endGroup();
     settings->endGroup();

@@ -36,33 +36,45 @@ class ClangFormatBaseIndenter : public TextEditor::Indenter
 public:
     ClangFormatBaseIndenter(QTextDocument *doc);
 
-    TextEditor::IndentationForBlock indentationForBlocks(
-        const QVector<QTextBlock> &blocks, const TextEditor::TabSettings & /*tabSettings*/) override;
+    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                                         const TextEditor::TabSettings &tabSettings,
+                                                         int cursorPositionInEditor = -1) override;
     void indent(const QTextCursor &cursor,
                 const QChar &typedChar,
-                const TextEditor::TabSettings & /*tabSettings*/) override;
+                const TextEditor::TabSettings &tabSettings,
+                int cursorPositionInEditor = -1) override;
 
     void reindent(const QTextCursor &cursor,
-                  const TextEditor::TabSettings & /*tabSettings*/) override;
+                  const TextEditor::TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) override;
 
+    void formatOrIndent(const QTextCursor &cursor,
+                        const TextEditor::TabSettings &tabSettings,
+                        int cursorPositionInEditor = -1) override;
     TextEditor::Replacements format(const QTextCursor &cursor,
-                                    const TextEditor::TabSettings & /*tabSettings*/) override;
+                                    const TextEditor::TabSettings &tabSettings,
+                                    int cursorPositionInEditor = -1) override;
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TextEditor::TabSettings & /*tabSettings*/) override;
+                     const TextEditor::TabSettings &tabSettings,
+                     int cursorPositionInEditor = -1) override;
 
-    int indentFor(const QTextBlock &block, const TextEditor::TabSettings & /*tabSettings*/) override;
+    int indentFor(const QTextBlock &block,
+                  const TextEditor::TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) override;
 
     bool isElectricCharacter(const QChar &ch) const override;
 
 protected:
     virtual clang::format::FormatStyle styleForFile() const;
+    virtual bool formatCodeInsteadOfIndent() const { return false; }
 
 private:
-    void indent(const QTextCursor &cursor, const QChar &typedChar);
-    void indentBlock(const QTextBlock &block, const QChar &typedChar);
-    int indentFor(const QTextBlock &block);
+    TextEditor::Replacements format(const QTextCursor &cursor, int cursorPositionInEditor);
+    void indent(const QTextCursor &cursor, const QChar &typedChar, int cursorPositionInEditor);
+    void indentBlock(const QTextBlock &block, const QChar &typedChar, int cursorPositionInEditor);
+    int indentFor(const QTextBlock &block, int cursorPositionInEditor);
     TextEditor::Replacements replacements(QByteArray buffer,
                                           int utf8Offset,
                                           int utf8Length,

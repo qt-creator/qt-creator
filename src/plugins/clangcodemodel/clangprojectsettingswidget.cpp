@@ -59,26 +59,26 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
 
     using namespace CppTools;
 
-    m_ui.delayedTemplateParse->setVisible(Utils::HostOsInfo::isWindowsHost());
-
-    m_ui.clangSettings->setCurrentIndex(m_projectSettings.useGlobalConfig() ? 0 : 1);
+    m_ui.delayedTemplateParseCheckBox->setVisible(Utils::HostOsInfo::isWindowsHost());
 
     connect(m_ui.clangDiagnosticConfigsSelectionWidget,
             &ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
             this, &ClangProjectSettingsWidget::onCurrentWarningConfigChanged);
 
-    connect(m_ui.delayedTemplateParse, &QCheckBox::toggled,
+    connect(m_ui.delayedTemplateParseCheckBox, &QCheckBox::toggled,
             this, &ClangProjectSettingsWidget::onDelayedTemplateParseClicked);
-    connect(m_ui.clangSettings,
+    connect(m_ui.globalOrCustomComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &ClangProjectSettingsWidget::onClangSettingsChanged);
+            this, &ClangProjectSettingsWidget::onGlobalCustomChanged);
     connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
             this, &ClangProjectSettingsWidget::onAboutToSaveProjectSettings);
 
+    connect(&m_projectSettings, &ClangProjectSettings::changed,
+            this, &ClangProjectSettingsWidget::syncWidgets);
     connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
             this, &ClangProjectSettingsWidget::syncOtherWidgetsToComboBox);
 
-    syncOtherWidgetsToComboBox();
+    syncWidgets();
 }
 
 void ClangProjectSettingsWidget::onCurrentWarningConfigChanged(const Core::Id &currentConfigId)
@@ -104,7 +104,7 @@ void ClangProjectSettingsWidget::onDelayedTemplateParseClicked(bool checked)
     m_projectSettings.setCommandLineOptions(options);
 }
 
-void ClangProjectSettingsWidget::onClangSettingsChanged(int index)
+void ClangProjectSettingsWidget::onGlobalCustomChanged(int index)
 {
     m_projectSettings.setUseGlobalConfig(index == 0 ? true : false);
     syncOtherWidgetsToComboBox();
@@ -115,14 +115,25 @@ void ClangProjectSettingsWidget::onAboutToSaveProjectSettings()
     CppTools::codeModelSettings()->toSettings(Core::ICore::settings());
 }
 
+void ClangProjectSettingsWidget::syncWidgets()
+{
+    syncGlobalCustomComboBox();
+    syncOtherWidgetsToComboBox();
+}
+
+void ClangProjectSettingsWidget::syncGlobalCustomComboBox()
+{
+    m_ui.globalOrCustomComboBox->setCurrentIndex(m_projectSettings.useGlobalConfig() ? 0 : 1);
+}
+
 void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()
 {
     const QStringList options = m_projectSettings.commandLineOptions();
-    m_ui.delayedTemplateParse->setChecked(
-                options.contains(QLatin1String{ClangProjectSettings::DelayedTemplateParsing}));
+    m_ui.delayedTemplateParseCheckBox->setChecked(
+        options.contains(QLatin1String{ClangProjectSettings::DelayedTemplateParsing}));
 
     const bool isCustom = !m_projectSettings.useGlobalConfig();
-    m_ui.delayedTemplateParse->setEnabled(isCustom);
+    m_ui.delayedTemplateParseCheckBox->setEnabled(isCustom);
 
     for (int i = 0; i < m_ui.clangDiagnosticConfigsSelectionWidget->layout()->count(); ++i) {
         QWidget *widget = m_ui.clangDiagnosticConfigsSelectionWidget->layout()->itemAt(i)->widget();

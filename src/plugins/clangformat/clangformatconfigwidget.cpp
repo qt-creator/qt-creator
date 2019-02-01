@@ -27,6 +27,7 @@
 #include "clangformatconfigwidget.h"
 
 #include "clangformatconstants.h"
+#include "clangformatsettings.h"
 #include "clangformatutils.h"
 #include "ui_clangformatconfigwidget.h"
 
@@ -131,6 +132,7 @@ void ClangFormatConfigWidget::initialize()
     m_ui->projectHasClangFormat->show();
     m_ui->clangFormatOptionsTable->show();
     m_ui->applyButton->show();
+    m_ui->formatAlways->hide();
 
     QLayoutItem *lastItem = m_ui->verticalLayout->itemAt(m_ui->verticalLayout->count() - 1);
     if (lastItem->spacerItem())
@@ -169,6 +171,8 @@ void ClangFormatConfigWidget::initialize()
                        "and can be configured in Projects > Code Style > C++."));
         }
         createStyleFileIfNeeded(true);
+        m_ui->formatAlways->setChecked(ClangFormatSettings::instance().formatCodeInsteadOfIndent());
+        m_ui->formatAlways->show();
         m_ui->applyButton->hide();
     }
 
@@ -189,6 +193,12 @@ ClangFormatConfigWidget::~ClangFormatConfigWidget() = default;
 
 void ClangFormatConfigWidget::apply()
 {
+    if (!m_project) {
+        ClangFormatSettings &settings = ClangFormatSettings::instance();
+        settings.setFormatCodeInsteadOfIndent(m_ui->formatAlways->isChecked());
+        settings.write();
+    }
+
     const QByteArray text = tableToYAML(m_ui->clangFormatOptionsTable);
     QString filePath;
     if (m_project)

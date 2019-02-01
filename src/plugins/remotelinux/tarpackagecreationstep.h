@@ -48,9 +48,6 @@ public:
     static Core::Id stepId();
     static QString displayName();
 
-    bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
-
     void setIgnoreMissingFiles(bool ignoreMissingFiles);
     bool ignoreMissingFiles() const;
 
@@ -58,6 +55,9 @@ public:
     bool isIncrementalDeployment() const;
 
 private:
+    bool init() override;
+    void doRun() override;
+
     void deployFinished(bool success);
 
     void addNeededDeploymentFiles(const ProjectExplorer::DeployableFile &deployable,
@@ -69,9 +69,10 @@ private:
 
     QString packageFileName() const override;
 
-    bool doPackage(QFutureInterface<bool> &fi);
+    bool runImpl();
+    bool doPackage();
     bool appendFile(QFile &tarFile, const QFileInfo &fileInfo,
-        const QString &remoteFilePath, const QFutureInterface<bool> &fi);
+        const QString &remoteFilePath);
     bool writeHeader(QFile &tarFile, const QFileInfo &fileInfo,
         const QString &remoteFilePath);
 

@@ -79,9 +79,8 @@ public:
     // is set to true while canceling, so that nextBuildStep knows that the BuildStep finished because of canceling
     bool m_skipDisabled = false;
     bool m_canceling = false;
-    QFutureWatcher<bool> m_watcher;
-    QFutureInterface<bool> m_futureInterfaceForAysnc;
-    BuildStep *m_currentBuildStep;
+    bool m_lastStepSucceeded = true;
+    BuildStep *m_currentBuildStep = nullptr;
     QString m_currentConfiguration;
     // used to decide if we are building a project to decide when to emit buildStateChanged(Project *)
     QHash<Project *, int>  m_activeBuildSteps;
@@ -106,16 +105,6 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     QTC_CHECK(!m_instance);
     m_instance = this;
     d = new BuildManagerPrivate;
-
-    connect(&d->m_watcher, &QFutureWatcherBase::finished,
-            this, &BuildManager::nextBuildQueue, Qt::QueuedConnection);
-
-    connect(&d->m_watcher, &QFutureWatcherBase::progressValueChanged,
-            this, &BuildManager::progressChanged);
-    connect(&d->m_watcher, &QFutureWatcherBase::progressTextChanged,
-            this, &BuildManager::progressTextChanged);
-    connect(&d->m_watcher, &QFutureWatcherBase::progressRangeChanged,
-            this, &BuildManager::progressChanged);
 
     connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject,
             this, &BuildManager::aboutToRemoveProject);
@@ -203,14 +192,9 @@ void BuildManager::cancel()
         if (d->m_canceling)
             return;
         d->m_canceling = true;
-        d->m_watcher.cancel();
-        if (d->m_currentBuildStep->runInGuiThread()) {
-            d->m_currentBuildStep->cancel();
-            while (d->m_canceling)
-                QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        } else {
-            d->m_watcher.waitForFinished();
-        }
+        d->m_currentBuildStep->cancel();
+        while (d->m_canceling)
+            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents); // TODO: Is this really necessary?
     }
 }
 
@@ -352,8 +336,6 @@ void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFor
 
 void BuildManager::nextBuildQueue()
 {
-    d->m_futureInterfaceForAysnc = QFutureInterface<bool>();
-
     d->m_outputWindow->flush();
     if (d->m_canceling) {
         d->m_canceling = false;
@@ -375,7 +357,7 @@ void BuildManager::nextBuildQueue()
     d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, msgProgress(d->m_progress, d->m_maxProgress));
     decrementActiveBuildSteps(d->m_currentBuildStep);
 
-    const bool success = d->m_skipDisabled || d->m_watcher.result();
+    const bool success = d->m_skipDisabled || d->m_lastStepSucceeded;
     if (success) {
         nextStep();
     } else {
@@ -397,28 +379,10 @@ void BuildManager::nextBuildQueue()
     }
 }
 
-void BuildManager::progressChanged()
+void BuildManager::progressChanged(int percent, const QString &text)
 {
-    if (!d->m_progressFutureInterface)
-        return;
-    int range = d->m_watcher.progressMaximum() - d->m_watcher.progressMinimum();
-    if (range != 0) {
-        int percent = (d->m_watcher.progressValue() - d->m_watcher.progressMinimum()) * 100 / range;
-        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress * 100 + percent, msgProgress(d->m_progress, d->m_maxProgress)
-                                                              + QLatin1Char('\n') + d->m_watcher.progressText());
-    }
-}
-
-void BuildManager::progressTextChanged()
-{
-    if (!d->m_progressFutureInterface)
-        return;
-    int range = d->m_watcher.progressMaximum() - d->m_watcher.progressMinimum();
-    int percent = 0;
-    if (range != 0)
-        percent = (d->m_watcher.progressValue() - d->m_watcher.progressMinimum()) * 100 / range;
-    d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100 + percent, msgProgress(d->m_progress, d->m_maxProgress) +
-                                                          QLatin1Char('\n') + d->m_watcher.progressText());
+    if (d->m_progressFutureInterface)
+        d->m_progressFutureInterface->setProgressValueAndText(percent, text);
 }
 
 void BuildManager::nextStep()
@@ -445,12 +409,16 @@ void BuildManager::nextStep()
             return;
         }
 
-        if (d->m_currentBuildStep->runInGuiThread()) {
-            d->m_watcher.setFuture(d->m_futureInterfaceForAysnc.future());
-            d->m_currentBuildStep->run(d->m_futureInterfaceForAysnc);
-        } else {
-            d->m_watcher.setFuture(Utils::runAsync(&BuildStep::run, d->m_currentBuildStep));
-        }
+        static const auto finishedHandler = [](bool success)  {
+            d->m_lastStepSucceeded = success;
+            disconnect(d->m_currentBuildStep, nullptr, instance(), nullptr);
+            BuildManager::nextBuildQueue();
+        };
+        connect(d->m_currentBuildStep, &BuildStep::finished, instance(), finishedHandler,
+                Qt::QueuedConnection);
+        connect(d->m_currentBuildStep, &BuildStep::progress,
+                instance(), &BuildManager::progressChanged);
+        d->m_currentBuildStep->run();
     } else {
         d->m_running = false;
         d->m_previousBuildStepProject = nullptr;

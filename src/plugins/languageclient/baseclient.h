@@ -97,6 +97,12 @@ public:
     void requestDocumentSymbols(TextEditor::TextDocument *document);
     void cursorPositionChanged(TextEditor::TextEditorWidget *widget);
 
+    void requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
+                            const QList<LanguageServerProtocol::Diagnostic> &diagnostics);
+    void handleCodeActionResponse(const LanguageServerProtocol::CodeActionRequest::Response &response,
+                                  const LanguageServerProtocol::DocumentUri &uri);
+    void executeCommand(const LanguageServerProtocol::Command &command);
+
     // workspace control
     void projectOpened(ProjectExplorer::Project *project);
     void projectClosed(ProjectExplorer::Project *project);

@@ -46,8 +46,11 @@ public:
 private:
     void onCurrentWarningConfigChanged(const Core::Id &currentConfigId);
     void onDelayedTemplateParseClicked(bool);
-    void onClangSettingsChanged(int index);
+    void onGlobalCustomChanged(int index);
     void onAboutToSaveProjectSettings();
+
+    void syncWidgets();
+    void syncGlobalCustomComboBox();
     void syncOtherWidgetsToComboBox();
 
     void refreshDiagnosticConfigsWidgetFromSettings();

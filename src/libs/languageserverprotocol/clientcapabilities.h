@@ -355,10 +355,53 @@ public:
     { insert(implementationKey, implementation); }
     void clearImplementation() { remove(implementationKey); }
 
+    class CodeActionCapabilities : public DynamicRegistrationCapabilities
+    {
+    public:
+        using DynamicRegistrationCapabilities::DynamicRegistrationCapabilities;
+
+        class CodeActionLiteralSupport : public JsonObject
+        {
+        public:
+            using JsonObject::JsonObject;
+
+            class CodeActionKind : public JsonObject
+            {
+            public:
+                using JsonObject::JsonObject;
+                CodeActionKind() : CodeActionKind(QList<QString>()) {}
+                explicit CodeActionKind(const QList<QString> &kinds) { setValueSet(kinds); }
+
+                QList<QString> valueSet() const { return array<QString>(valueSetKey); }
+                void setValueSet(const QList<QString> &valueSet)
+                { insertArray(valueSetKey, valueSet); }
+
+                bool isValid(QStringList *errorHierarchy) const override
+                { return checkArray<QString>(errorHierarchy, valueSetKey); }
+            };
+
+            CodeActionKind codeActionKind() const
+            { return typedValue<CodeActionKind>(codeActionKindKey); }
+            void setCodeActionKind(const CodeActionKind &codeActionKind)
+            { insert(codeActionKindKey, codeActionKind); }
+
+            bool isValid(QStringList *errorHierarchy) const override
+            { return check<CodeActionKind>(errorHierarchy, codeActionKindKey); }
+        };
+
+        Utils::optional<CodeActionLiteralSupport> codeActionLiteralSupport() const
+        { return optionalValue<CodeActionLiteralSupport>(codeActionLiteralSupportKey); }
+        void setCodeActionLiteralSupport(const CodeActionLiteralSupport &codeActionLiteralSupport)
+        { insert(codeActionLiteralSupportKey, codeActionLiteralSupport); }
+        void clearCodeActionLiteralSupport() { remove(codeActionLiteralSupportKey); }
+
+        bool isValid(QStringList *errorHierarchy) const override;
+    };
+
     // Whether code action supports dynamic registration.
-    Utils::optional<DynamicRegistrationCapabilities> codeAction() const
-    { return optionalValue<DynamicRegistrationCapabilities>(codeActionKey); }
-    void setCodeAction(const DynamicRegistrationCapabilities &codeAction)
+    Utils::optional<CodeActionCapabilities> codeAction() const
+    { return optionalValue<CodeActionCapabilities>(codeActionKey); }
+    void setCodeAction(const CodeActionCapabilities &codeAction)
     { insert(codeActionKey, codeAction); }
     void clearCodeAction() { remove(codeActionKey); }
 

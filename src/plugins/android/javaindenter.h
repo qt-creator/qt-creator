@@ -39,9 +39,12 @@ public:
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
-                     const TextEditor::TabSettings &tabSettings) override;
+                     const TextEditor::TabSettings &tabSettings,
+                     int cursorPositionInEditor = -1) override;
 
-    int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
+    int indentFor(const QTextBlock &block,
+                  const TextEditor::TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) override;
 };
 } // namespace Internal
 } // namespace Android

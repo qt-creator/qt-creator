@@ -26,6 +26,7 @@
 
 #include "androidconfigurations.h"
 
+#include <functional>
 #include <memory>
 
 namespace Android {
@@ -51,11 +52,12 @@ public:
     bool startAvdAsync(const QString &avdName) const;
     QString findAvd(const QString &avdName) const;
     QString waitForAvd(const QString &avdName,
-                       const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
+                       const std::function<bool()> &cancelChecker = {}) const;
     bool isAvdBooted(const QString &device) const;
 
 private:
-    bool waitForBooted(const QString &serialNumber, const QFutureInterface<bool> &fi) const;
+    bool waitForBooted(const QString &serialNumber,
+                       const std::function<bool()> &cancelChecker) const;
 
 private:
     const AndroidConfig &m_config;

@@ -41,10 +41,6 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
     Q_OBJECT
 
 public:
-    bool init() override;
-    void run(QFutureInterface<bool> &) override;
-    void cancel() override;
-
     ProcessParameters *processParameters();
 
     bool ignoreReturnValue();
@@ -59,6 +55,8 @@ public:
 protected:
     AbstractProcessStep(BuildStepList *bsl, Core::Id id);
     ~AbstractProcessStep() override;
+    bool init() override;
+    void doRun() override;
 
     virtual void processStarted();
     virtual void processFinished(int exitCode, QProcess::ExitStatus status);
@@ -67,9 +65,11 @@ protected:
     virtual void stdOutput(const QString &line);
     virtual void stdError(const QString &line);
 
-    QFutureInterface<bool> *futureInterface() const;
+    void doCancel() override;
 
 private:
+    virtual void finish(bool success);
+
     void processReadyReadStdOutput();
     void processReadyReadStdError();
     void slotProcessFinished(int, QProcess::ExitStatus);

@@ -39,7 +39,7 @@ public:
     explicit DeviceCheckBuildStep(BuildStepList *bsl);
 
     bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
+    void doRun() override;
 
     static Core::Id stepId();
     static QString displayName();

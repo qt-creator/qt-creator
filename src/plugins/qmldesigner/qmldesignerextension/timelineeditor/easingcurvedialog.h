@@ -30,9 +30,11 @@
 
 #include <modelnode.h>
 
+QT_BEGIN_NAMESPACE
 class QLabel;
 class QPlainTextEdit;
 class QHBoxLayout;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

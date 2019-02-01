@@ -150,4 +150,13 @@ QJsonArray enumArrayToJsonArray(const QList<T> &values)
     return array;
 }
 
+template <typename T>
+QList<T> jsonArrayToList(const QJsonArray &array)
+{
+    QList<T> list;
+    for (const QJsonValue &val : array)
+        list << fromJsonValue<T>(val);
+    return list;
+}
+
 } // namespace LanguageClient

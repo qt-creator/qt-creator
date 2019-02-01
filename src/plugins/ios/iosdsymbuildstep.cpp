@@ -187,9 +187,9 @@ bool IosDsymBuildStep::isDefault() const
     return arguments() == defaultArguments() && command() == defaultCommand();
 }
 
-void IosDsymBuildStep::run(QFutureInterface<bool> &fi)
+void IosDsymBuildStep::doRun()
 {
-    AbstractProcessStep::run(fi);
+    AbstractProcessStep::doRun();
 }
 
 BuildStepConfigWidget *IosDsymBuildStep::createConfigWidget()

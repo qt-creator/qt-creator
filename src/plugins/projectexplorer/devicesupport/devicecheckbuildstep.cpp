@@ -77,9 +77,9 @@ bool DeviceCheckBuildStep::init()
     return true;
 }
 
-void DeviceCheckBuildStep::run(QFutureInterface<bool> &fi)
+void DeviceCheckBuildStep::doRun()
 {
-    reportRunResult(fi, true);
+    emit finished(true);
 }
 
 Core::Id DeviceCheckBuildStep::stepId()

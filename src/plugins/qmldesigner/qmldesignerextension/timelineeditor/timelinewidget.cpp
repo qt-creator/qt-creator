@@ -315,12 +315,12 @@ void TimelineWidget::setTimelineRecording(bool value)
     graphicsScene()->invalidateRecordButtonsStatus();
 }
 
-void TimelineWidget::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
+void TimelineWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
     if (timelineView())
-        timelineView()->contextHelpId(callback);
+        timelineView()->contextHelp(callback);
     else
-        callback(QString());
+        callback({});
 }
 
 void TimelineWidget::init()

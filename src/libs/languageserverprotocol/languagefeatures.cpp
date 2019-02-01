@@ -105,6 +105,16 @@ DocumentSymbolsRequest::DocumentSymbolsRequest(const DocumentSymbolParams &param
     : Request(methodName, params)
 { }
 
+Utils::optional<QList<CodeActionKind> > CodeActionParams::CodeActionContext::only() const
+{
+    return optionalArray<CodeActionKind>(onlyKey);
+}
+
+void CodeActionParams::CodeActionContext::setOnly(const QList<CodeActionKind> &only)
+{
+    insertArray(onlyKey, only);
+}
+
 bool CodeActionParams::CodeActionContext::isValid(QStringList *error) const
 {
     return checkArray<Diagnostic>(error, diagnosticsKey);
@@ -379,5 +389,33 @@ bool DocumentFormattingProperty::isValid(QStringList *error) const
 SignatureHelpRequest::SignatureHelpRequest(const TextDocumentPositionParams &params)
     : Request(methodName, params)
 { }
+
+CodeActionResult::CodeActionResult(const QJsonValue &val)
+{
+    using ResultArray = QList<Utils::variant<Command, CodeAction>>;
+    if (val.isArray()) {
+        QJsonArray array = val.toArray();
+        ResultArray result;
+        for (const QJsonValue &val : array) {
+            Command command(val);
+            if (command.isValid(nullptr))
+                result << command;
+            else
+                result << CodeAction(val);
+        }
+        emplace<ResultArray>(result);
+        return;
+    }
+    emplace<nullptr_t>(nullptr);
+}
+
+bool CodeAction::isValid(QStringList *error) const
+{
+    return check<QString>(error, titleKey)
+           && checkOptional<CodeActionKind>(error, codeActionKindKey)
+           && checkOptionalArray<Diagnostic>(error, diagnosticsKey)
+           && checkOptional<WorkspaceEdit>(error, editKey)
+           && checkOptional<Command>(error, commandKey);
+}
 
 } // namespace LanguageServerProtocol

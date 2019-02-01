@@ -26,6 +26,7 @@
 #include "helpitem.h"
 #include "helpmanager.h"
 
+#include <utils/algorithm.h>
 #include <utils/htmldocextractor.h>
 
 using namespace Core;
@@ -33,27 +34,64 @@ using namespace Core;
 HelpItem::HelpItem() = default;
 
 HelpItem::HelpItem(const char *helpId)
-    : m_helpId(QString::fromUtf8(helpId))
+    : HelpItem(QStringList(QString::fromUtf8(helpId)), {}, Unknown)
 {}
 
 HelpItem::HelpItem(const QString &helpId)
-    : m_helpId(helpId)
+    : HelpItem(QStringList(helpId), {}, Unknown)
 {}
 
-HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category) :
-    m_helpId(helpId), m_docMark(docMark), m_category(category)
+HelpItem::HelpItem(const QUrl &url)
+    : m_helpUrl(url)
 {}
 
-HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category,
-                   const QMap<QString, QUrl> &helpLinks) :
-    m_helpId(helpId), m_docMark(docMark), m_category(category), m_helpLinks(helpLinks)
+HelpItem::HelpItem(const QUrl &url, const QString &docMark, HelpItem::Category category)
+    : m_helpUrl(url)
+    , m_docMark(docMark)
+    , m_category(category)
 {}
 
-void HelpItem::setHelpId(const QString &id)
-{ m_helpId = id; }
+HelpItem::HelpItem(const QUrl &url,
+                   const QString &docMark,
+                   HelpItem::Category category,
+                   const QMap<QString, QUrl> &helpLinks)
+    : m_helpUrl(url)
+    , m_docMark(docMark)
+    , m_category(category)
+    , m_helpLinks(helpLinks)
+{}
 
-const QString &HelpItem::helpId() const
-{ return m_helpId; }
+HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category)
+    : HelpItem(QStringList(helpId), docMark, category)
+{}
+
+HelpItem::HelpItem(const QStringList &helpIds, const QString &docMark, Category category)
+    : m_docMark(docMark)
+    , m_category(category)
+{
+    setHelpIds(helpIds);
+}
+
+void HelpItem::setHelpUrl(const QUrl &url)
+{
+    m_helpUrl = url;
+}
+
+const QUrl &HelpItem::helpUrl() const
+{
+    return m_helpUrl;
+}
+
+void HelpItem::setHelpIds(const QStringList &ids)
+{
+    m_helpIds = Utils::filteredUnique(
+        Utils::filtered(ids, [](const QString &s) { return !s.isEmpty(); }));
+}
+
+const QStringList &HelpItem::helpIds() const
+{
+    return m_helpIds;
+}
 
 void HelpItem::setDocMark(const QString &mark)
 { m_docMark = mark; }
@@ -69,13 +107,9 @@ HelpItem::Category HelpItem::category() const
 
 bool HelpItem::isValid() const
 {
-    if (m_helpId.isEmpty())
+    if (m_helpUrl.isEmpty() && m_helpIds.isEmpty())
         return false;
-    if (!links().isEmpty())
-        return true;
-    if (QUrl(m_helpId).isValid())
-        return true;
-    return false;
+    return !links().isEmpty();
 }
 
 QString HelpItem::extractContent(bool extended) const
@@ -87,14 +121,7 @@ QString HelpItem::extractContent(bool extended) const
         htmlExtractor.setMode(Utils::HtmlDocExtractor::FirstParagraph);
 
     QString contents;
-    QMap<QString, QUrl> helpLinks = links();
-    if (helpLinks.isEmpty()) {
-        // Maybe this is already an URL...
-        QUrl url(m_helpId);
-        if (url.isValid())
-            helpLinks.insert(m_helpId, m_helpId);
-    }
-    foreach (const QUrl &url, helpLinks) {
+    for (const QUrl &url : links()) {
         const QString html = QString::fromUtf8(Core::HelpManager::fileData(url));
         switch (m_category) {
         case Brief:
@@ -135,9 +162,19 @@ QString HelpItem::extractContent(bool extended) const
     return contents;
 }
 
-QMap<QString, QUrl> HelpItem::links() const
+const QMap<QString, QUrl> &HelpItem::links() const
 {
-    if (!m_helpLinks)
-        m_helpLinks = Core::HelpManager::linksForIdentifier(m_helpId);
+    if (!m_helpLinks) {
+        if (!m_helpUrl.isEmpty()) {
+            m_helpLinks.emplace(QMap<QString, QUrl>({{m_helpUrl.toString(), m_helpUrl}}));
+        } else {
+            m_helpLinks.emplace(); // set a value even if there are no help IDs
+            for (const QString &id : m_helpIds) {
+                m_helpLinks = Core::HelpManager::linksForIdentifier(id);
+                if (!m_helpLinks->isEmpty())
+                    break;
+            }
+        }
+    }
     return *m_helpLinks;
 }

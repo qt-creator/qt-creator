@@ -32,6 +32,7 @@
 #include <QMap>
 #include <QString>
 #include <QUrl>
+#include <QVariant>
 
 namespace Core {
 
@@ -55,11 +56,17 @@ public:
     HelpItem(const char *helpId);
     HelpItem(const QString &helpId);
     HelpItem(const QString &helpId, const QString &docMark, Category category);
-    HelpItem(const QString &helpId, const QString &docMark, Category category,
+    HelpItem(const QStringList &helpIds, const QString &docMark, Category category);
+    explicit HelpItem(const QUrl &url);
+    HelpItem(const QUrl &url, const QString &docMark, Category category);
+    HelpItem(const QUrl &url, const QString &docMark, Category category,
              const QMap<QString, QUrl> &helpLinks);
 
-    void setHelpId(const QString &id);
-    const QString &helpId() const;
+    void setHelpUrl(const QUrl &url);
+    const QUrl &helpUrl() const;
+
+    void setHelpIds(const QStringList &ids);
+    const QStringList &helpIds() const;
 
     void setDocMark(const QString &mark);
     const QString &docMark() const;
@@ -71,13 +78,16 @@ public:
 
     QString extractContent(bool extended) const;
 
-    QMap<QString, QUrl> links() const;
+    const QMap<QString, QUrl> &links() const;
 
 private:
-    QString m_helpId;
+    QUrl m_helpUrl;
+    QStringList m_helpIds;
     QString m_docMark;
     Category m_category = Unknown;
     mutable Utils::optional<QMap<QString, QUrl>> m_helpLinks; // cached help links
 };
 
 } // namespace Core
+
+Q_DECLARE_METATYPE(Core::HelpItem)

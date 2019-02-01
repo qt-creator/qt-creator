@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QComboBox" name="clangSettings">
+    <widget class="QComboBox" name="globalOrCustomComboBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -35,7 +35,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="delayedTemplateParse">
+    <widget class="QCheckBox" name="delayedTemplateParseCheckBox">
      <property name="toolTip">
       <string>Parse templates in a MSVC-compliant way. This helps to parse headers for example from Active Template Library (ATL) or Windows Runtime Library (WRL).
 However, using the relaxed and extended rules means also that no highlighting/completion can be provided within template functions.</string>

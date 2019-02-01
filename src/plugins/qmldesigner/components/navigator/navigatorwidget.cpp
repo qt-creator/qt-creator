@@ -163,7 +163,7 @@ void NavigatorWidget::contextHelp(const Core::IContext::HelpCallback &callback) 
     if (navigatorView())
         navigatorView()->contextHelp(callback);
     else
-        callback(QString());
+        callback({});
 }
 
 void NavigatorWidget::disableNavigator()

@@ -634,17 +634,6 @@ void ClangDiagnosticConfigsWidget::onCurrentConfigChanged(int index)
     syncOtherWidgetsToComboBox();
 }
 
-static ClangDiagnosticConfig createCustomConfig(const ClangDiagnosticConfig &config,
-                                                const QString &displayName)
-{
-    ClangDiagnosticConfig copied = config;
-    copied.setId(Core::Id::fromString(QUuid::createUuid().toString()));
-    copied.setDisplayName(displayName);
-    copied.setIsReadOnly(false);
-
-    return copied;
-}
-
 void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
 {
     const ClangDiagnosticConfig &config = selectedConfig();
@@ -657,7 +646,8 @@ void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
                                                   tr("%1 (Copy)").arg(config.displayName()),
                                                   &diaglogAccepted);
     if (diaglogAccepted) {
-        const ClangDiagnosticConfig customConfig = createCustomConfig(config, newName);
+        const ClangDiagnosticConfig customConfig
+            = ClangDiagnosticConfigsModel::createCustomConfig(config, newName);
         m_diagnosticConfigsModel.appendOrUpdate(customConfig);
         emit customConfigsChanged(customConfigs());
 
@@ -996,11 +986,7 @@ void ClangDiagnosticConfigsWidget::disconnectDiagnosticOptionsChanged()
 
 ClangDiagnosticConfigs ClangDiagnosticConfigsWidget::customConfigs() const
 {
-    const ClangDiagnosticConfigs allConfigs = m_diagnosticConfigsModel.configs();
-
-    return Utils::filtered(allConfigs, [](const ClangDiagnosticConfig &config){
-        return !config.isReadOnly();
-    });
+    return m_diagnosticConfigsModel.customConfigs();
 }
 
 static void setupTreeView(QTreeView *view, QAbstractItemModel *model, int expandToDepth = 0)

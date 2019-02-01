@@ -128,15 +128,10 @@ protected:
     ~BuildConfigurationFactory() override;
 
 public:
-    // The priority is negative if this factory cannot create anything for the target.
-    // It is 0 for the "default" factory that wants to handle the target.
-    // Add 100 for each specialization.
-    virtual int priority(const Target *parent) const;
     // List of build information that can be used to create a new build configuration via
     // "Add Build Configuration" button.
     const QList<BuildInfo> allAvailableBuilds(const Target *parent) const;
 
-    virtual int priority(const Kit *k, const QString &projectPath) const;
     // List of build information that can be used to initially set up a new build configuration.
     const QList<BuildInfo> allAvailableSetups(const Kit *k, const QString &projectPath) const;
 
@@ -160,9 +155,8 @@ protected:
     bool supportsTargetDeviceType(Core::Id id) const;
     void setSupportedProjectType(Core::Id id);
     void setSupportedProjectMimeTypeName(const QString &mimeTypeName);
-    void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
+    void addSupportedTargetDeviceType(Core::Id id);
     void setDefaultDisplayName(const QString &defaultDisplayName);
-    void setBasePriority(int basePriority);
 
     using BuildConfigurationCreator = std::function<BuildConfiguration *(Target *)>;
 
@@ -183,8 +177,6 @@ private:
     QList<Core::Id> m_supportedTargetDeviceTypes;
     QString m_supportedProjectMimeTypeName;
     IssueReporter m_issueReporter;
-
-    int m_basePriority = 0; // Use higher numbers (1, 2, ...) for higher priorities.
 };
 
 } // namespace ProjectExplorer

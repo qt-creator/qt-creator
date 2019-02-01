@@ -62,6 +62,8 @@ QString projectPartIdForFile(const QString &filePath);
 int clangColumn(const QTextBlock &line, int cppEditorColumn);
 int cppEditorColumn(const QTextBlock &line, int clangColumn);
 
+QString currentCppEditorDocumentFilePath();
+
 QString diagnosticCategoryPrefixRemoved(const QString &text);
 
 ::Utils::CodeModelIcon::Type iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token);

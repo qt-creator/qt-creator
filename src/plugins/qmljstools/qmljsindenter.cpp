@@ -53,7 +53,8 @@ bool Indenter::isElectricCharacter(const QChar &ch) const
 
 void Indenter::indentBlock(const QTextBlock &block,
                            const QChar &typedChar,
-                           const TextEditor::TabSettings &tabSettings)
+                           const TextEditor::TabSettings &tabSettings,
+                           int /*cursorPositionInEditor*/)
 {
     const int depth = indentFor(block, tabSettings);
     if (depth == -1)
@@ -79,7 +80,9 @@ void Indenter::invalidateCache()
     codeFormatter.invalidateCache(m_doc);
 }
 
-int Indenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
+int Indenter::indentFor(const QTextBlock &block,
+                        const TextEditor::TabSettings &tabSettings,
+                        int /*cursorPositionInEditor*/)
 {
     QmlJSTools::CreatorCodeFormatter codeFormatter(tabSettings);
     codeFormatter.updateStateUntil(block);
@@ -87,7 +90,9 @@ int Indenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &
 }
 
 TextEditor::IndentationForBlock Indenter::indentationForBlocks(
-    const QVector<QTextBlock> &blocks, const TextEditor::TabSettings &tabSettings)
+    const QVector<QTextBlock> &blocks,
+    const TextEditor::TabSettings &tabSettings,
+    int /*cursorPositionInEditor*/)
 {
     QmlJSTools::CreatorCodeFormatter codeFormatter(tabSettings);
 

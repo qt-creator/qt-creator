@@ -474,9 +474,17 @@ QString ClangDiagnosticWidget::createText(
     const ClangDiagnosticWidget::Destination &destination)
 {
     const QString htmlText = WidgetFromDiagnostics(toHints(destination)).htmlText(diagnostics);
+
     QTextDocument document;
     document.setHtml(htmlText);
-    return document.toPlainText();
+    QString text = document.toPlainText();
+
+    if (text.startsWith('\n'))
+        text = text.mid(1);
+    if (text.endsWith('\n'))
+        text.chop(1);
+
+    return text;
 }
 
 QWidget *ClangDiagnosticWidget::createWidget(

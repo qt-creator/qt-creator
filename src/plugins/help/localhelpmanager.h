@@ -93,8 +93,6 @@ public:
     static QHelpEngine& helpEngine();
     static BookmarkManager& bookmarkManager();
 
-    static bool isValidUrl(const QString &link);
-
     static QByteArray loadErrorMessage(const QUrl &url, const QString &errorString);
     Q_INVOKABLE static Help::Internal::LocalHelpManager::HelpData helpData(const QUrl &url);
 

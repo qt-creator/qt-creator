@@ -103,7 +103,8 @@ static int paranthesesLevel(const QString &line)
 }
 
 int CMakeIndenter::indentFor(const QTextBlock &block,
-                             const TextEditor::TabSettings &tabSettings)
+                             const TextEditor::TabSettings &tabSettings,
+                             int /*cursorPositionInEditor*/)
 {
     QTextBlock previousBlock = block.previous();
     // find the next previous block that is non-empty (contains non-whitespace characters)

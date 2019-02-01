@@ -48,9 +48,11 @@ bool NimIndenter::isElectricCharacter(const QChar &ch) const
 
 void NimIndenter::indentBlock(const QTextBlock &block,
                               const QChar &typedChar,
-                              const TextEditor::TabSettings &settings)
+                              const TextEditor::TabSettings &settings,
+                              int cursorPositionInEditor)
 {
     Q_UNUSED(typedChar);
+    Q_UNUSED(cursorPositionInEditor);
 
     const QString currentLine = block.text();
 

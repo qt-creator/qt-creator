@@ -39,10 +39,12 @@ public:
     NimCompilerCleanStep(ProjectExplorer::BuildStepList *parentList);
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool init() override;
-    void run(QFutureInterface<bool> &fi) override;
 
 private:
+    bool init() override;
+    void doRun() override;
+    void doCancel() override;
+
     bool removeCacheDirectory();
     bool removeOutFilePath();
 

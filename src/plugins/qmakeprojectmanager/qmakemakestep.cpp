@@ -172,10 +172,10 @@ bool QmakeMakeStep::init()
     return AbstractProcessStep::init();
 }
 
-void QmakeMakeStep::run(QFutureInterface<bool> & fi)
+void QmakeMakeStep::doRun()
 {
     if (m_scriptTarget) {
-        reportRunResult(fi, true);
+        emit finished(true);
         return;
     }
 
@@ -183,11 +183,11 @@ void QmakeMakeStep::run(QFutureInterface<bool> & fi)
         if (!ignoreReturnValue())
             emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::OutputFormat::NormalMessage);
         const bool success = ignoreReturnValue();
-        reportRunResult(fi, success);
+        emit finished(success);
         return;
     }
 
-    AbstractProcessStep::run(fi);
+    AbstractProcessStep::doRun();
 }
 
 ///

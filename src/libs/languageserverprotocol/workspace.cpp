@@ -91,4 +91,11 @@ DidChangeWatchedFilesNotification::DidChangeWatchedFilesNotification(
     : Notification(methodName, params)
 { }
 
+ExecuteCommandParams::ExecuteCommandParams(const Command &command)
+{
+    setCommand(command.command());
+    if (command.arguments().has_value())
+        setArguments(command.arguments().value());
+}
+
 } // namespace LanguageServerProtocol

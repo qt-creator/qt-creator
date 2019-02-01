@@ -35,7 +35,9 @@ public:
     explicit NormalIndenter(QTextDocument *doc);
     ~NormalIndenter() override = default;
 
-    int indentFor(const QTextBlock &block, const TabSettings &tabSettings) override;
+    int indentFor(const QTextBlock &block,
+                  const TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) override;
 };
 
 } // namespace TextEditor

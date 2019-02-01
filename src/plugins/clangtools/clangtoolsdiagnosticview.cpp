@@ -29,6 +29,8 @@
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -136,6 +138,51 @@ void DiagnosticView::suppressCurrentDiagnostic()
     }
 }
 
+void DiagnosticView::goNext()
+{
+    const QModelIndex currentIndex = selectionModel()->currentIndex();
+    selectIndex(getIndex(currentIndex, Next));
+}
+
+void DiagnosticView::goBack()
+{
+    const QModelIndex currentIndex = selectionModel()->currentIndex();
+    selectIndex(getIndex(currentIndex, Previous));
+}
+
+QModelIndex DiagnosticView::getIndex(const QModelIndex &index, Direction direction) const
+{
+    QModelIndex parentIndex = index.parent();
+
+    // Use direct sibling for level 2 and 3 items is possible
+    if (parentIndex.isValid()) {
+        const QModelIndex nextIndex = index.sibling(index.row() + direction, index.column());
+        if (nextIndex.isValid())
+            return nextIndex;
+    }
+
+    // Last level 3 item? Continue on level 2 item
+    if (parentIndex.parent().isValid())
+        return getIndex(parentIndex, direction);
+
+    // Find next/previous level 2 item
+    QModelIndex nextTopIndex = getTopLevelIndex(parentIndex.isValid() ? parentIndex : index,
+                                                direction);
+    while (!model()->hasChildren(nextTopIndex))
+        nextTopIndex = getTopLevelIndex(nextTopIndex, direction);
+    return model()->index(direction == Next ? 0 : model()->rowCount(nextTopIndex) - 1,
+                          0,
+                          nextTopIndex);
+}
+
+QModelIndex DiagnosticView::getTopLevelIndex(const QModelIndex &index, Direction direction) const
+{
+    QModelIndex below = index.sibling(index.row() + direction, 0);
+    if (below.isValid())
+        return below;
+    return model()->index(direction == Next ? 0 : model()->rowCount(index) - 1, 0);
+}
+
 QList<QAction *> DiagnosticView::customActions() const
 {
     return {m_suppressAction};
@@ -150,17 +197,19 @@ bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)
         case Qt::Key_Return:
         case Qt::Key_Enter:
         case Qt::Key_Space:
-            const QModelIndex current = currentIndex();
-            const QModelIndex location = model()->index(current.row(),
-                                                        LocationColumn,
-                                                        current.parent());
-            emit clicked(location);
+            openEditorForCurrentIndex();
         }
         return true;
     }
     default:
         return QObject::eventFilter(watched, event);
     }
+}
+
+void DiagnosticView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    openEditorForCurrentIndex();
+    Debugger::DetailedErrorView::mouseDoubleClickEvent(event);
 }
 
 void DiagnosticView::setSelectedFixItsCount(int fixItsCount)
@@ -174,27 +223,35 @@ void DiagnosticView::setSelectedFixItsCount(int fixItsCount)
     clickableFixItHeader->viewport()->update();
 }
 
+void DiagnosticView::openEditorForCurrentIndex()
+{
+    const QVariant v = model()->data(currentIndex(), Debugger::DetailedErrorView::LocationRole);
+    const auto loc = v.value<Debugger::DiagnosticLocation>();
+    if (loc.isValid())
+        Core::EditorManager::openEditorAt(loc.filePath, loc.line, loc.column - 1);
+}
+
 void DiagnosticView::setModel(QAbstractItemModel *theProxyModel)
 {
     const auto proxyModel = static_cast<QSortFilterProxyModel *>(theProxyModel);
-    QAbstractItemModel *sourceModel = proxyModel->sourceModel();
+    const auto sourceModel = static_cast<ClangToolsDiagnosticModel *>(proxyModel->sourceModel());
 
     Debugger::DetailedErrorView::setModel(proxyModel);
     auto *clickableFixItHeader = new ClickableFixItHeader(Qt::Horizontal, this);
-    connect(clickableFixItHeader, &ClickableFixItHeader::fixItColumnClicked,
-            this, [=](bool checked) {
+    connect(clickableFixItHeader, &ClickableFixItHeader::fixItColumnClicked, this, [=](bool checked) {
         m_ignoreSetSelectedFixItsCount = true;
-        for (int row = 0; row < sourceModel->rowCount(); ++row) {
-            QModelIndex index = sourceModel->index(row, FixItColumn, QModelIndex());
-            sourceModel->setData(index, checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
-        }
+        sourceModel->rootItem()->forChildrenAtLevel(2, [&](::Utils::TreeItem *item) {
+            auto diagnosticItem = static_cast<DiagnosticItem *>(item);
+            diagnosticItem->setData(FixItColumn,
+                                    checked ? Qt::Checked : Qt::Unchecked,
+                                    Qt::CheckStateRole);
+        });
         m_ignoreSetSelectedFixItsCount = false;
     });
     setHeader(clickableFixItHeader);
     clickableFixItHeader->setStretchLastSection(false);
     clickableFixItHeader->setSectionResizeMode(0, QHeaderView::Stretch);
     clickableFixItHeader->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    clickableFixItHeader->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     const int fixitColumnWidth = clickableFixItHeader->sectionSizeHint(DiagnosticView::FixItColumn);
     const int checkboxWidth = clickableFixItHeader->height();

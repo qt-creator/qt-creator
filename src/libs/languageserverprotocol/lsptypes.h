@@ -86,6 +86,7 @@ public:
     { return check<int>(error, lineKey) && check<int>(error, characterKey); }
 
     int toPositionInDocument(QTextDocument *doc) const;
+    QTextCursor toTextCursor(QTextDocument *doc) const;
 };
 
 static bool operator<=(const Position &first, const Position &second)
@@ -187,14 +188,17 @@ public:
     // Title of the command, like `save`.
     QString title() const { return typedValue<QString>(titleKey); }
     void setTitle(const QString &title) { insert(titleKey, title); }
+    void clearTitle() { remove(titleKey); }
 
     // The identifier of the actual command handler.
     QString command() const { return typedValue<QString>(commandKey); }
     void setCommand(const QString &command) { insert(commandKey, command); }
+    void clearCommand() { remove(commandKey); }
 
     // Arguments that the command handler should be invoked with.
     Utils::optional<QJsonArray> arguments() const { return typedValue<QJsonArray>(argumentsKey); }
-    void setArguments(const QJsonObject &arguments) { insert(argumentsKey, arguments); }
+    void setArguments(const QJsonArray &arguments) { insert(argumentsKey, arguments); }
+    void clearArguments() { remove(argumentsKey); }
 
     bool isValid(QStringList *error) const override
     { return check<QString>(error, titleKey)
@@ -276,8 +280,9 @@ public:
     using JsonObject::JsonObject;
 
     // Holds changes to existing resources.
-    Utils::optional<QMap<QString, QList<TextEdit>>> changes() const;
-    void setChanges(const QMap<QString, QList<TextEdit>> &changes);
+    using Changes = QMap<DocumentUri, QList<TextEdit>>;
+    Utils::optional<Changes> changes() const;
+    void setChanges(const Changes &changes);
 
     /*
      * An array of `TextDocumentEdit`s to express changes to n different text documents

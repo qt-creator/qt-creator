@@ -86,7 +86,7 @@ private:
     bool verifyKeystorePassword();
     bool verifyCertificatePassword();
 
-    void run(QFutureInterface<bool> &fi) override;
+    void doRun() override;
 
     bool m_signPackage = false;
     bool m_verbose = false;

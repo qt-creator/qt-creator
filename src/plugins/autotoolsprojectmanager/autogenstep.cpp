@@ -86,7 +86,7 @@ bool AutogenStep::init()
     return AbstractProcessStep::init();
 }
 
-void AutogenStep::run(QFutureInterface<bool> &fi)
+void AutogenStep::doRun()
 {
     BuildConfiguration *bc = buildConfiguration();
 
@@ -104,12 +104,12 @@ void AutogenStep::run(QFutureInterface<bool> &fi)
 
     if (!m_runAutogen) {
         emit addOutput(tr("Configuration unchanged, skipping autogen step."), BuildStep::OutputFormat::NormalMessage);
-        reportRunResult(fi, true);
+        emit finished(true);
         return;
     }
 
     m_runAutogen = false;
-    AbstractProcessStep::run(fi);
+    AbstractProcessStep::doRun();
 }
 
 BuildStepConfigWidget *AutogenStep::createConfigWidget()

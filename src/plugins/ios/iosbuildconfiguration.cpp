@@ -143,8 +143,8 @@ void IosBuildConfiguration::updateQmakeCommand()
 IosBuildConfigurationFactory::IosBuildConfigurationFactory()
 {
     registerBuildConfiguration<IosBuildConfiguration>(QmakeProjectManager::Constants::QMAKE_BC_ID);
-    setSupportedTargetDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
-    setBasePriority(1);
+    addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
+    addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
 }
 
 } // namespace Internal

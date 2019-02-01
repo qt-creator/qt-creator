@@ -302,24 +302,6 @@ BookmarkManager& LocalHelpManager::bookmarkManager()
     return *m_bookmarkManager;
 }
 
-/*!
- * Checks if the string does contain a scheme, and if that scheme is a "sensible" scheme for
- * opening in a internal or external browser (qthelp, about, file, http, https).
- * This is necessary to avoid trying to open e.g. "Foo::bar" in a external browser.
- */
-bool LocalHelpManager::isValidUrl(const QString &link)
-{
-    QUrl url(link);
-    if (!url.isValid())
-        return false;
-    const QString scheme = url.scheme();
-    return (scheme == "qthelp"
-            || scheme == "about"
-            || scheme == "file"
-            || scheme == "http"
-            || scheme == "https");
-}
-
 QByteArray LocalHelpManager::loadErrorMessage(const QUrl &url, const QString &errorString)
 {
     const char g_htmlPage[] =

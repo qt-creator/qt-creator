@@ -2491,7 +2491,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                 --extraBlocks;
                 ensureVisible.movePosition(QTextCursor::NextBlock);
                 if (tps.m_autoIndent)
-                    d->m_document->autoIndent(ensureVisible);
+                    d->m_document->autoIndent(ensureVisible, QChar::Null, cursorPosition);
                 else if (!previousIndentationString.isEmpty())
                     ensureVisible.insertText(previousIndentationString);
                 if (d->m_animateAutoComplete || d->m_highlightAutoComplete) {
@@ -2773,7 +2773,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             cursor.setPosition(pos, QTextCursor::KeepAnchor);
         }
         if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
-            d->m_document->autoIndent(cursor, electricChar);
+            d->m_document->autoIndent(cursor, electricChar, cursor.position());
         if (!autoText.isEmpty())
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
 
@@ -3565,7 +3565,7 @@ bool TextEditorWidget::viewportEvent(QEvent *event)
         RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(pos);
         if (refactorMarker.isValid() && !refactorMarker.tooltip.isEmpty()) {
             ToolTip::show(he->globalPos(), refactorMarker.tooltip,
-                          viewport(), QString(), refactorMarker.rect);
+                          viewport(), {}, refactorMarker.rect);
             return true;
         }
 
@@ -7135,21 +7135,11 @@ void TextEditorWidget::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
         documentLayout->requestUpdate();
 }
 
-static bool applyFormattingInsteadOfIndentation()
-{
-    constexpr const char option[] = "QTC_FORMAT_INSTEAD_OF_INDENT";
-    return qEnvironmentVariableIsSet(option);
-}
-
 void TextEditorWidget::format()
 {
-    static bool formattingInsteadOfIndentation = applyFormattingInsteadOfIndentation();
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
-    if (formattingInsteadOfIndentation)
-        d->m_document->autoFormat(cursor);
-    else
-        d->m_document->autoIndent(cursor);
+    d->m_document->autoFormatOrIndent(cursor);
     cursor.endEditBlock();
 }
 

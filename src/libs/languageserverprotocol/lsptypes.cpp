@@ -75,22 +75,20 @@ bool Diagnostic::isValid(QStringList *error) const
             && check<QString>(error, messageKey);
 }
 
-Utils::optional<QMap<QString, QList<TextEdit>>> WorkspaceEdit::changes() const
+Utils::optional<WorkspaceEdit::Changes> WorkspaceEdit::changes() const
 {
-    using Changes = Utils::optional<QMap<QString, QList<TextEdit>>>;
-    Changes changes;
     auto it = find(changesKey);
-    if (it != end())
+    if (it == end())
         return Utils::nullopt;
     QTC_ASSERT(it.value().type() == QJsonValue::Object, return Changes());
     QJsonObject changesObject(it.value().toObject());
-    QMap<QString, QList<TextEdit>> changesResult;
+    Changes changesResult;
     for (const QString &key : changesObject.keys())
-        changesResult[key] = LanguageClientArray<TextEdit>(changesObject.value(key)).toList();
+        changesResult[DocumentUri::fromProtocol(key)] = LanguageClientArray<TextEdit>(changesObject.value(key)).toList();
     return Utils::make_optional(changesResult);
 }
 
-void WorkspaceEdit::setChanges(const QMap<QString, QList<TextEdit> > &changes)
+void WorkspaceEdit::setChanges(const Changes &changes)
 {
     QJsonObject changesObject;
     const auto end = changes.end();
@@ -98,7 +96,7 @@ void WorkspaceEdit::setChanges(const QMap<QString, QList<TextEdit> > &changes)
         QJsonArray edits;
         for (const TextEdit &edit : it.value())
             edits.append(QJsonValue(edit));
-        changesObject.insert(it.key(), edits);
+        changesObject.insert(it.key().toFileName().toString(), edits);
     }
     insert(changesKey, changesObject);
 }
@@ -327,6 +325,13 @@ int Position::toPositionInDocument(QTextDocument *doc) const
     if (!block.isValid() || block.length() <= character())
         return -1;
     return block.position() + character();
+}
+
+QTextCursor Position::toTextCursor(QTextDocument *doc) const
+{
+    QTextCursor cursor(doc);
+    cursor.setPosition(toPositionInDocument(doc));
+    return cursor;
 }
 
 Range::Range(const Position &start, const Position &end)

@@ -140,20 +140,6 @@ void BackendCommunicator::initializeBackend()
 }
 
 namespace {
-Utf8String currentCppEditorDocumentFilePath()
-{
-    Utf8String currentCppEditorDocumentFilePath;
-
-    const auto currentEditor = Core::EditorManager::currentEditor();
-    if (currentEditor && CppTools::CppModelManager::isCppEditor(currentEditor)) {
-        const auto currentDocument = currentEditor->document();
-        if (currentDocument)
-            currentCppEditorDocumentFilePath = currentDocument->filePath().toString();
-    }
-
-    return currentCppEditorDocumentFilePath;
-}
-
 void removeDuplicates(Utf8StringVector &visibleEditorDocumentsFilePaths)
 {
     std::sort(visibleEditorDocumentsFilePaths.begin(),
@@ -204,7 +190,8 @@ Utf8StringVector visibleCppEditorDocumentsFilePaths()
 
 void BackendCommunicator::documentVisibilityChanged()
 {
-    documentVisibilityChanged(currentCppEditorDocumentFilePath(), visibleCppEditorDocumentsFilePaths());
+    documentVisibilityChanged(Utils::currentCppEditorDocumentFilePath(),
+                              visibleCppEditorDocumentsFilePaths());
 }
 
 bool BackendCommunicator::isNotWaitingForCompletion() const
@@ -480,7 +467,7 @@ void BackendCommunicator::documentsOpened(const FileContainers &fileContainers)
     Utf8String currentDocument;
     Utf8StringVector visibleDocuments;
     if (!m_postponeBackendJobs) {
-        currentDocument = currentCppEditorDocumentFilePath();
+        currentDocument = Utils::currentCppEditorDocumentFilePath();
         visibleDocuments = visibleCppEditorDocumentsFilePaths();
     }
 

@@ -666,7 +666,7 @@ void DesignDocument::contextHelp(const Core::IContext::HelpCallback &callback) c
     if (view())
         view()->contextHelp(callback);
     else
-        callback(QString());
+        callback({});
 }
 
 } // namespace QmlDesigner

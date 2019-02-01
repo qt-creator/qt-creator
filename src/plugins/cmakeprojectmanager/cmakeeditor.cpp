@@ -71,7 +71,7 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
             break;
         chr = characterAt(pos);
         if (chr == QLatin1Char('(')) {
-            callback(QString());
+            callback({});
             return;
         }
     } while (chr.unicode() != QChar::ParagraphSeparator);
@@ -97,12 +97,12 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
 
     // Not a command
     if (chr != QLatin1Char('(')) {
-        callback(QString());
+        callback({});
         return;
     }
 
-    QString command = textAt(begin, end - begin).toLower();
-    callback(QString("command/" + command));
+    const QString id = "command/" + textAt(begin, end - begin).toLower();
+    callback(id);
 }
 
 //

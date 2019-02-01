@@ -32,7 +32,6 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
-#include <QFutureInterface>
 #include <QProcess>
 
 namespace Ios {
@@ -54,14 +53,13 @@ public:
     explicit IosDeployStep(ProjectExplorer::BuildStepList *bc);
     static Core::Id stepId();
 
+    void cleanup();
+private:
+    void doRun() override;
+    void doCancel() override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    void run(QFutureInterface<bool> &fi) override;
-    void cleanup();
-    void cancel() override;
-
-private:
     void handleIsTransferringApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                            const QString &deviceId, int progress, int maxProgress,
                            const QString &info);
@@ -85,7 +83,6 @@ private:
 
     TransferStatus m_transferStatus = NoTransfer;
     IosToolHandler *m_toolHandler = nullptr;
-    QFutureInterface<bool> m_futureInterface;
     ProjectExplorer::IDevice::ConstPtr m_device;
     QString m_bundlePath;
     IosDeviceType m_deviceType;

@@ -39,7 +39,8 @@ public:
     bool isElectricCharacter(const QChar &ch) const override;
 
     int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings) override;
+                  const TextEditor::TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) override;
 };
 
 } // namespace Internal

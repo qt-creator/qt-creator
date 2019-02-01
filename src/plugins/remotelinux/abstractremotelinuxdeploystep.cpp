@@ -40,7 +40,6 @@ class AbstractRemoteLinuxDeployStepPrivate
 {
 public:
     bool hasError;
-    QFutureInterface<bool> future;
 };
 
 } // namespace Internal
@@ -48,7 +47,6 @@ public:
 AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl, Core::Id id)
     : BuildStep(bsl, id), d(new Internal::AbstractRemoteLinuxDeployStepPrivate)
 {
-    setRunInGuiThread(true);
 }
 
 AbstractRemoteLinuxDeployStep::~AbstractRemoteLinuxDeployStep()
@@ -79,7 +77,7 @@ bool AbstractRemoteLinuxDeployStep::init()
     return canDeploy;
 }
 
-void AbstractRemoteLinuxDeployStep::run(QFutureInterface<bool> &fi)
+void AbstractRemoteLinuxDeployStep::doRun()
 {
     connect(deployService(), &AbstractRemoteLinuxDeployService::errorMessage,
             this, &AbstractRemoteLinuxDeployStep::handleErrorMessage);
@@ -95,11 +93,10 @@ void AbstractRemoteLinuxDeployStep::run(QFutureInterface<bool> &fi)
             this, &AbstractRemoteLinuxDeployStep::handleFinished);
 
     d->hasError = false;
-    d->future = fi;
     deployService()->start();
 }
 
-void AbstractRemoteLinuxDeployStep::cancel()
+void AbstractRemoteLinuxDeployStep::doCancel()
 {
     if (d->hasError)
         return;
@@ -139,7 +136,7 @@ void AbstractRemoteLinuxDeployStep::handleFinished()
     else
         emit addOutput(tr("Deploy step finished."), OutputFormat::NormalMessage);
     disconnect(deployService(), nullptr, this, nullptr);
-    reportRunResult(d->future, !d->hasError);
+    emit finished(!d->hasError);
 }
 
 void AbstractRemoteLinuxDeployStep::handleStdOutData(const QString &data)

@@ -105,7 +105,7 @@ bool ConfigureStep::init()
     return AbstractProcessStep::init();
 }
 
-void ConfigureStep::run(QFutureInterface<bool>& fi)
+void ConfigureStep::doRun()
 {
     BuildConfiguration *bc = buildConfiguration();
 
@@ -121,12 +121,12 @@ void ConfigureStep::run(QFutureInterface<bool>& fi)
 
     if (!m_runConfigure) {
         emit addOutput(tr("Configuration unchanged, skipping configure step."), BuildStep::OutputFormat::NormalMessage);
-        reportRunResult(fi, true);
+        emit finished(true);
         return;
     }
 
     m_runConfigure = false;
-    AbstractProcessStep::run(fi);
+    AbstractProcessStep::doRun();
 }
 
 BuildStepConfigWidget *ConfigureStep::createConfigWidget()

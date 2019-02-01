@@ -49,7 +49,6 @@ QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
     ProjectExplorer::BuildStep(bsl, Constants::QBS_CLEANSTEP_ID)
 {
     setDisplayName(tr("Qbs Clean"));
-    setRunInGuiThread(true);
 
     m_dryRunAspect = addAspect<BaseBoolAspect>();
     m_dryRunAspect->setSettingsKey("Qbs.DryRun");
@@ -75,7 +74,7 @@ QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
 
 QbsCleanStep::~QbsCleanStep()
 {
-    cancel();
+    doCancel();
     if (m_job) {
         m_job->deleteLater();
         m_job = nullptr;
@@ -96,10 +95,8 @@ bool QbsCleanStep::init()
     return true;
 }
 
-void QbsCleanStep::run(QFutureInterface<bool> &fi)
+void QbsCleanStep::doRun()
 {
-    m_fi = &fi;
-
     auto pro = static_cast<QbsProject *>(project());
     qbs::CleanOptions options;
     options.setDryRun(m_dryRunAspect->value());
@@ -109,11 +106,11 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
     m_job = pro->clean(options, m_products, error);
     if (!m_job) {
         emit addOutput(error, OutputFormat::ErrorMessage);
-        reportRunResult(*m_fi, false);
+        emit finished(false);
         return;
     }
 
-    m_progressBase = 0;
+    m_maxProgress = 0;
 
     connect(m_job, &qbs::AbstractJob::finished, this, &QbsCleanStep::cleaningDone);
     connect(m_job, &qbs::AbstractJob::taskStarted,
@@ -131,7 +128,7 @@ ProjectExplorer::BuildStepConfigWidget *QbsCleanStep::createConfigWidget()
     return w;
 }
 
-void QbsCleanStep::cancel()
+void QbsCleanStep::doCancel()
 {
     if (m_job)
         m_job->cancel();
@@ -145,9 +142,7 @@ void QbsCleanStep::cleaningDone(bool success)
                             item.codeLocation().filePath(), item.codeLocation().line());
     }
 
-    QTC_ASSERT(m_fi, return);
-    reportRunResult(*m_fi, success);
-    m_fi = nullptr; // do not delete, it is not ours
+    emit finished(success);
     m_job->deleteLater();
     m_job = nullptr;
 }
@@ -155,15 +150,13 @@ void QbsCleanStep::cleaningDone(bool success)
 void QbsCleanStep::handleTaskStarted(const QString &desciption, int max)
 {
     Q_UNUSED(desciption);
-    QTC_ASSERT(m_fi, return);
-    m_progressBase = m_fi->progressValue();
-    m_fi->setProgressRange(0, m_progressBase + max);
+    m_maxProgress = max;
 }
 
 void QbsCleanStep::handleProgress(int value)
 {
-    QTC_ASSERT(m_fi, return);
-    m_fi->setProgressValue(m_progressBase + value);
+    if (m_maxProgress > 0)
+        emit progress(value * 100 / m_maxProgress, m_description);
 }
 
 void QbsCleanStep::updateState()

@@ -127,14 +127,13 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
 {
     setDisplayName(tr("Qbs Build"));
     setQbsConfiguration(QVariantMap());
-    setRunInGuiThread(true);
 
 //    setQbsConfiguration(other->qbsConfiguration(PreserveVariables));
 }
 
 QbsBuildStep::~QbsBuildStep()
 {
-    cancel();
+    doCancel();
     if (m_job) {
         m_job->deleteLater();
         m_job = nullptr;
@@ -171,10 +170,8 @@ bool QbsBuildStep::init()
     return true;
 }
 
-void QbsBuildStep::run(QFutureInterface<bool> &fi)
+void QbsBuildStep::doRun()
 {
-    m_fi = &fi;
-
     // We need a pre-build parsing step in order not to lose project file changes done
     // right before building (but before the delay has elapsed).
     parseProject();
@@ -185,7 +182,7 @@ ProjectExplorer::BuildStepConfigWidget *QbsBuildStep::createConfigWidget()
     return new QbsBuildStepConfigWidget(this);
 }
 
-void QbsBuildStep::cancel()
+void QbsBuildStep::doCancel()
 {
     if (m_parsingProject)
         qbsProject()->cancelParsing();
@@ -354,17 +351,14 @@ void QbsBuildStep::reparsingDone(bool success)
 
 void QbsBuildStep::handleTaskStarted(const QString &desciption, int max)
 {
-    Q_UNUSED(desciption);
-    QTC_ASSERT(m_fi, return);
-
-    m_progressBase = m_fi->progressValue();
-    m_fi->setProgressRange(0, m_progressBase + max);
+    m_currentTask = desciption;
+    m_maxProgress = max;
 }
 
 void QbsBuildStep::handleProgress(int value)
 {
-    QTC_ASSERT(m_fi, return);
-    m_fi->setProgressValue(m_progressBase + value);
+    if (m_maxProgress > 0)
+        emit progress(value * 100 / m_maxProgress, m_currentTask);
 }
 
 void QbsBuildStep::handleCommandDescriptionReport(const QString &highlight, const QString &message)
@@ -489,11 +483,11 @@ void QbsBuildStep::build()
     m_job = qbsProject()->build(options, m_products, error);
     if (!m_job) {
         emit addOutput(error, OutputFormat::ErrorMessage);
-        reportRunResult(*m_fi, false);
+        emit finished(false);
         return;
     }
 
-    m_progressBase = 0;
+    m_maxProgress = 0;
 
     connect(m_job, &qbs::AbstractJob::finished, this, &QbsBuildStep::buildingDone);
     connect(m_job, &qbs::AbstractJob::taskStarted,
@@ -509,9 +503,7 @@ void QbsBuildStep::build()
 
 void QbsBuildStep::finish()
 {
-    QTC_ASSERT(m_fi, return);
-    reportRunResult(*m_fi, m_lastWasSuccess);
-    m_fi = nullptr; // do not delete, it is not ours
+    emit finished(m_lastWasSuccess);
     if (m_job) {
         m_job->deleteLater();
         m_job = nullptr;

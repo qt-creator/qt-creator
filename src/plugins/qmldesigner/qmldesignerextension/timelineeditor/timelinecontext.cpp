@@ -36,10 +36,10 @@ TimelineContext::TimelineContext(QWidget *widget)
     setContext(Core::Context(TimelineConstants::C_QMLTIMELINE));
 }
 
-void TimelineContext::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
+void TimelineContext::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
     if (auto *widget = qobject_cast<TimelineWidget *>(m_widget))
-        widget->contextHelpId(callback);
+        widget->contextHelp(callback);
 }
 
 } // namespace QmlDesigner

@@ -38,16 +38,24 @@ public:
     DiagnosticView(QWidget *parent = nullptr);
 
     enum ExtraColumn {
-        FixItColumn = LocationColumn + 1,
+        FixItColumn = DiagnosticColumn + 1,
     };
 
     void setSelectedFixItsCount(int fixItsCount);
 
 private:
+    void openEditorForCurrentIndex();
     void suppressCurrentDiagnostic();
+
+    void goNext() override;
+    void goBack() override;
+    enum Direction { Next = 1, Previous = -1 };
+    QModelIndex getIndex(const QModelIndex &index, Direction direction) const;
+    QModelIndex getTopLevelIndex(const QModelIndex &index, Direction direction) const;
 
     QList<QAction *> customActions() const override;
     bool eventFilter(QObject *watched, QEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
     void setModel(QAbstractItemModel *theProxyModel) override;
 
     QAction *m_suppressAction;
