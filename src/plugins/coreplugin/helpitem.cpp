@@ -104,7 +104,7 @@ bool HelpItem::isValid() const
 {
     if (m_helpUrl.isEmpty() && m_helpIds.isEmpty())
         return false;
-    return !links().isEmpty();
+    return !links().empty();
 }
 
 QString HelpItem::extractContent(bool extended) const
@@ -116,7 +116,8 @@ QString HelpItem::extractContent(bool extended) const
         htmlExtractor.setMode(Utils::HtmlDocExtractor::FirstParagraph);
 
     QString contents;
-    for (const QUrl &url : links()) {
+    for (const Link &item : links()) {
+        const QUrl url = item.second;
         const QString html = QString::fromUtf8(Core::HelpManager::fileData(url));
         switch (m_category) {
         case Brief:
@@ -157,50 +158,124 @@ QString HelpItem::extractContent(bool extended) const
     return contents;
 }
 
-const QMap<QString, QUrl> &HelpItem::links() const
+static std::pair<QUrl, int> extractVersion(const QUrl &url)
+{
+    const QString host = url.host();
+    const QStringList hostParts = host.split('.');
+    if (hostParts.size() == 4 && (host.startsWith("com.trolltech.")
+            || host.startsWith("org.qt-project."))) {
+        bool ok = false;
+        // the following is only correct under the specific current conditions, and it will
+        // always be quite some guessing as long as the version information does not
+        // include separators for major vs minor vs patch version
+        const int version = hostParts.at(3).toInt(&ok);
+        if (ok) {
+            QUrl urlWithoutVersion(url);
+            urlWithoutVersion.setHost(hostParts.mid(0, 3).join('.'));
+            return {urlWithoutVersion, version};
+        }
+    }
+    return {url, 0};
+}
+
+// sort primary by "url without version" and seconday by "version"
+static bool helpUrlLessThan(const QUrl &a, const QUrl &b)
+{
+    const std::pair<QUrl, int> va = extractVersion(a);
+    const std::pair<QUrl, int> vb = extractVersion(b);
+    const QString sa = va.first.toString();
+    const QString sb = vb.first.toString();
+    if (sa == sb)
+        return va.second > vb.second;
+    return sa < sb;
+}
+
+static bool linkLessThan(const HelpItem::Link &a, const HelpItem::Link &b)
+{
+    return helpUrlLessThan(a.second, b.second);
+}
+
+// links are sorted with highest "version" first (for Qt help urls)
+const HelpItem::Links &HelpItem::links() const
 {
     if (!m_helpLinks) {
         if (!m_helpUrl.isEmpty()) {
-            m_helpLinks.emplace(QMap<QString, QUrl>({{m_helpUrl.toString(), m_helpUrl}}));
+            m_keyword = m_helpUrl.toString();
+            m_helpLinks.emplace(Links{{m_keyword, m_helpUrl}});
         } else {
             m_helpLinks.emplace(); // set a value even if there are no help IDs
+            QMap<QString, QUrl> helpLinks;
             for (const QString &id : m_helpIds) {
-                m_helpLinks = Core::HelpManager::linksForIdentifier(id);
-                if (!m_helpLinks->isEmpty())
+                helpLinks = Core::HelpManager::linksForIdentifier(id);
+                if (!helpLinks.isEmpty()) {
+                    m_keyword = id;
                     break;
+                }
+            }
+            if (helpLinks.isEmpty()) { // perform keyword lookup as well as a fallback
+                for (const QString &id : m_helpIds) {
+                    helpLinks = Core::HelpManager::linksForKeyword(id);
+                    if (!helpLinks.isEmpty()) {
+                        m_keyword = id;
+                        m_isFuzzyMatch = true;
+                        break;
+                    }
+                }
+            }
+            QMapIterator<QString, QUrl> it(helpLinks);
+            while (it.hasNext()) {
+                it.next();
+                m_helpLinks->emplace_back(it.key(), it.value());
             }
         }
+        Utils::sort(*m_helpLinks, linkLessThan);
     }
     return *m_helpLinks;
 }
 
-static QUrl findBestLink(const QMap<QString, QUrl> &links)
+static const HelpItem::Links getBestLinks(const HelpItem::Links &links)
 {
-    if (links.isEmpty())
-        return QUrl();
-    if (links.size() == 1)
-        return links.first();
-    QUrl source = links.first();
-    // workaround to show the latest Qt version
-    int version = 0;
-    QRegExp exp("(\\d+)");
-    foreach (const QUrl &link, links) {
-        const QString &authority = link.authority();
-        if (authority.startsWith("com.trolltech.")
-                || authority.startsWith("org.qt-project.")) {
-            if (exp.indexIn(authority) >= 0) {
-                const int tmpVersion = exp.cap(1).toInt();
-                if (tmpVersion > version) {
-                    source = link;
-                    version = tmpVersion;
-                }
-            }
+    // extract the highest version (== first) link of each individual topic
+    HelpItem::Links bestLinks;
+    QUrl currentUnversionedUrl;
+    for (const HelpItem::Link &link : links) {
+        const QUrl unversionedUrl = extractVersion(link.second).first;
+        if (unversionedUrl != currentUnversionedUrl) {
+            currentUnversionedUrl = unversionedUrl;
+            bestLinks.push_back(link);
         }
     }
-    return source;
+    return bestLinks;
 }
 
-const QUrl HelpItem::bestLink() const
+static const HelpItem::Links getBestLink(const HelpItem::Links &links)
 {
-    return findBestLink(links());
+    if (links.empty())
+        return {};
+    // Extract single link with highest version, from all topics.
+    // This is to ensure that if we succeeded with an ID lookup, and we have e.g. Qt5 and Qt4
+    // documentation, that we only return the Qt5 link even though the Qt5 and Qt4 URLs look
+    // different.
+    int highestVersion = -1;
+    HelpItem::Link bestLink;
+    for (const HelpItem::Link &link : links) {
+        const int version = extractVersion(link.second).second;
+        if (version > highestVersion) {
+            highestVersion = version;
+            bestLink = link;
+        }
+    }
+    return {bestLink};
+}
+
+const HelpItem::Links HelpItem::bestLinks() const
+{
+    if (m_isFuzzyMatch)
+        return getBestLinks(links());
+    return getBestLink(links());
+}
+
+const QString HelpItem::keyword() const
+{
+    return m_keyword;
 }
