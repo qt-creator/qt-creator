@@ -51,11 +51,12 @@ public:
 
     static void putVarValues(ProFile *profile, QStringList *lines,
         const QStringList &values, const QString &var, PutFlags flags,
-        const QString &scope = QString());
+        const QString &scope, const QString &continuationIndent);
     static QList<int> removeVarValues(ProFile *profile, QStringList *lines,
         const QStringList &values, const QStringList &vars);
 
-    static void addFiles(ProFile *profile, QStringList *lines, const QStringList &filePaths, const QString &var);
+    static void addFiles(ProFile *profile, QStringList *lines, const QStringList &filePaths,
+                         const QString &var, const QString &continuationIndent);
     static QStringList removeFiles(ProFile *profile, QStringList *lines,
         const QDir &proFileDir, const QStringList &filePaths, const QStringList &vars);
 

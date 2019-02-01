@@ -36,10 +36,14 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/profilereader.h>
+#include <texteditor/icodestylepreferences.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
@@ -376,6 +380,19 @@ void QmakePriFile::watchFolders(const QSet<FileName> &folders)
     m_project->watchFolders(toWatch.toList(), this);
 
     m_watchedFolders = folderStrings;
+}
+
+QString QmakePriFile::continuationIndent() const
+{
+    const EditorConfiguration *editorConf = project()->editorConfiguration();
+    const TextEditor::TabSettings &tabSettings = editorConf->useGlobalSettings()
+            ? TextEditor::TextEditorSettings::codeStyle()->tabSettings()
+            : editorConf->codeStyle()->tabSettings();
+    if (tabSettings.m_continuationAlignBehavior == TextEditor::TabSettings::ContinuationAlignWithIndent
+            && tabSettings.m_tabPolicy == TextEditor::TabSettings::TabsOnlyTabPolicy) {
+        return QString("\t");
+    }
+    return QString(tabSettings.m_indentSize, ' ');
 }
 
 bool QmakePriFile::knowsFile(const FileName &filePath) const
@@ -747,7 +764,8 @@ bool QmakePriFile::renameFile(const QString &oldName,
 
     ProWriter::addFiles(includeFile, &lines,
                         QStringList(newName),
-                        varNameForAdding(mimeType));
+                        varNameForAdding(mimeType),
+                        continuationIndent());
     if (mode == Change::Save)
         save(lines);
     includeFile->deref();
@@ -777,7 +795,8 @@ void QmakePriFile::changeFiles(const QString &mimeType,
 
     if (change == AddToProFile) {
         // Use the first variable for adding.
-        ProWriter::addFiles(includeFile, &lines, filePaths, varNameForAdding(mimeType));
+        ProWriter::addFiles(includeFile, &lines, filePaths, varNameForAdding(mimeType),
+                            continuationIndent());
         notChanged->clear();
     } else { // RemoveFromProFile
         QDir priFileDir = QDir(m_qmakeProFile->directoryPath().toString());
@@ -818,7 +837,7 @@ bool QmakePriFile::setProVariable(const QString &var, const QStringList &values,
 
     ProWriter::putVarValues(includeFile, &lines, values, var,
                             ProWriter::PutFlags(flags),
-                            scope);
+                            scope, continuationIndent());
 
     save(lines);
     includeFile->deref();
