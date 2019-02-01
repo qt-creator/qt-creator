@@ -434,7 +434,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CodeActionResult
-    : public Utils::variant<QList<Utils::variant<Command, CodeAction>>, nullptr_t>
+    : public Utils::variant<QList<Utils::variant<Command, CodeAction>>, std::nullptr_t>
 {
 public:
     using variant::variant;
