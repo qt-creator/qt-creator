@@ -8008,7 +8008,7 @@ void BaseTextEditor::setContextHelp(const HelpItem &item)
 
 void TextEditorWidget::contextHelpItem(const IContext::HelpCallback &callback)
 {
-    if (!d->m_contextHelpItem.isValid() && !d->m_hoverHandlers.isEmpty()) {
+    if (d->m_contextHelpItem.isEmpty() && !d->m_hoverHandlers.isEmpty()) {
         d->m_hoverHandlers.first()->contextHelpId(this,
                                                   Text::wordStartCursor(textCursor()).position(),
                                                   callback);

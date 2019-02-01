@@ -72,6 +72,7 @@ public:
     void setCategory(Category cat);
     Category category() const;
 
+    bool isEmpty() const;
     bool isValid() const;
 
     QString extractContent(bool extended) const;

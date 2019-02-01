@@ -95,6 +95,11 @@ void HelpItem::setCategory(Category cat)
 HelpItem::Category HelpItem::category() const
 { return m_category; }
 
+bool HelpItem::isEmpty() const
+{
+    return m_helpUrl.isEmpty() && m_helpIds.isEmpty();
+}
+
 bool HelpItem::isValid() const
 {
     if (m_helpUrl.isEmpty() && m_helpIds.isEmpty())

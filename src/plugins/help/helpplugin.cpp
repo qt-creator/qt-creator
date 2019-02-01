@@ -652,7 +652,7 @@ void HelpPluginPrivate::requestContextHelp()
                                  ? tipHelpValue.value<HelpItem>()
                                  : HelpItem(tipHelpValue.toString());
     IContext *context = ICore::currentContextObject();
-    if (!tipHelp.isValid() && context)
+    if (tipHelp.isEmpty() && context)
         context->contextHelp([this](const HelpItem &item) { showContextHelp(item); });
     else
         showContextHelp(tipHelp);
