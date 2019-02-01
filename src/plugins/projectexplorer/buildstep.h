@@ -33,6 +33,7 @@
 #include <QFutureInterface>
 #include <QWidget>
 
+#include <atomic>
 #include <functional>
 #include <memory>
 
