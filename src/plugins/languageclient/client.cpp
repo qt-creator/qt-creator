@@ -39,11 +39,13 @@
 #include <texteditor/semantichighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textmark.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
+#include <utils/utilsicons.h>
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -61,6 +63,25 @@ using namespace Utils;
 namespace LanguageClient {
 
 static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMsg);
+
+class TextMark : public TextEditor::TextMark
+{
+public:
+    TextMark(const Utils::FileName &fileName, const Diagnostic &diag)
+        : TextEditor::TextMark(fileName, diag.range().start().line() + 1, "lspmark")
+    {
+        using namespace Utils;
+        setLineAnnotation(diag.message());
+        setToolTip(diag.message());
+        const bool isError
+            = diag.severity().value_or(DiagnosticSeverity::Hint) == DiagnosticSeverity::Error;
+        setColor(isError ? Theme::CodeModel_Error_TextMarkColor
+                         : Theme::CodeModel_Warning_TextMarkColor);
+
+        setIcon(isError ? Icons::CODEMODEL_ERROR.icon()
+                        : Icons::CODEMODEL_WARNING.icon());
+    }
+};
 
 Client::Client(BaseClientInterface *clientInterface)
     : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
@@ -88,6 +109,8 @@ Client::~Client()
             widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
         }
     }
+    for (const DocumentUri &uri : m_diagnostics.keys())
+        removeDiagnostics(uri);
 }
 
 void Client::initialize()
@@ -155,10 +178,12 @@ void Client::openDocument(Core::IDocument *document)
                 return;
         }
     }
+    auto uri = DocumentUri::fromFileName(filePath);
+    showDiagnostics(uri);
     auto textDocument = qobject_cast<TextDocument *>(document);
     TextDocumentItem item;
     item.setLanguageId(TextDocumentItem::mimeTypeToLanguageId(document->mimeType()));
-    item.setUri(DocumentUri::fromFileName(filePath));
+    item.setUri(uri);
     item.setText(QString::fromUtf8(document->contents()));
     item.setVersion(textDocument ? textDocument->document()->revision() : 0);
 
@@ -672,6 +697,8 @@ bool Client::reset()
     m_openedDocument.clear();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
+    for (const DocumentUri &uri : m_diagnostics.keys())
+        removeDiagnostics(uri);
     return true;
 }
 
@@ -748,6 +775,25 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
     box->show();
 }
 
+void Client::showDiagnostics(const DocumentUri &uri)
+{
+    if (TextEditor::TextDocument *doc = textDocumentForFileName(uri.toFileName())) {
+        for (TextMark *mark : m_diagnostics.value(uri))
+            doc->addMark(mark);
+    }
+}
+
+void Client::removeDiagnostics(const DocumentUri &uri)
+{
+    TextEditor::TextDocument *doc = textDocumentForFileName(uri.toFileName());
+
+    for (TextMark *mark : m_diagnostics.take(uri)) {
+        if (doc)
+            doc->removeMark(mark);
+        delete mark;
+    }
+}
+
 void Client::handleResponse(const MessageId &id, const QByteArray &content, QTextCodec *codec)
 {
     if (auto handler = m_responseHandlers[id])
@@ -762,7 +808,7 @@ void Client::handleMethod(const QString &method, MessageId id, const IContent *c
         auto params = dynamic_cast<const PublishDiagnosticsNotification *>(content)->params().value_or(PublishDiagnosticsParams());
         paramsValid = params.isValid(&error);
         if (paramsValid)
-            LanguageClientManager::publishDiagnostics(m_id, params, this);
+            handleDiagnostics(params);
     } else if (method == LogMessageNotification::methodName) {
         auto params = dynamic_cast<const LogMessageNotification *>(content)->params().value_or(LogMessageParams());
         paramsValid = params.isValid(&error);
@@ -820,6 +866,21 @@ void Client::handleMethod(const QString &method, MessageId id, const IContent *c
             Core::MessageManager::Flash);
     }
     delete content;
+}
+
+void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
+{
+    const DocumentUri &uri = params.uri();
+
+    removeDiagnostics(uri);
+    const QList<Diagnostic> &diagnostics = params.diagnostics();
+    m_diagnostics[uri] =
+        Utils::transform(diagnostics, [fileName = uri.toFileName()](const Diagnostic &diagnostic) {
+            return new TextMark(fileName, diagnostic);
+    });
+    showDiagnostics(uri);
+
+    requestCodeActions(uri, diagnostics);
 }
 
 void Client::intializeCallback(const InitializeRequest::Response &initResponse)

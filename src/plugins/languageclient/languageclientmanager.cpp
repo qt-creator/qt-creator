@@ -49,30 +49,6 @@ namespace LanguageClient {
 
 static LanguageClientManager *managerInstance = nullptr;
 
-class LanguageClientMark : public TextEditor::TextMark
-{
-public:
-    LanguageClientMark(const Utils::FileName &fileName, const Diagnostic &diag)
-        : TextEditor::TextMark(fileName, diag.range().start().line() + 1, "lspmark")
-    {
-        using namespace Utils;
-        setLineAnnotation(diag.message());
-        setToolTip(diag.message());
-        const bool isError
-                = diag.severity().value_or(DiagnosticSeverity::Hint) == DiagnosticSeverity::Error;
-        setColor(isError ? Theme::CodeModel_Error_TextMarkColor
-                         : Theme::CodeModel_Warning_TextMarkColor);
-
-        setIcon(isError ? Icons::CODEMODEL_ERROR.icon()
-                        : Icons::CODEMODEL_WARNING.icon());
-    }
-
-    void removedFromEditor() override
-    {
-        LanguageClientManager::removeMark(this);
-    }
-};
-
 LanguageClientManager::LanguageClientManager()
 {
     JsonRpcMessageHandler::registerMessageProvider<PublishDiagnosticsNotification>();
@@ -105,68 +81,6 @@ void LanguageClientManager::init()
             managerInstance, &LanguageClientManager::projectAdded);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
             managerInstance, &LanguageClientManager::projectRemoved);
-}
-
-void LanguageClientManager::publishDiagnostics(const Core::Id &id,
-                                               const PublishDiagnosticsParams &params,
-                                               Client *publishingClient)
-{
-    const Utils::FileName fileName = params.uri().toFileName();
-    TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
-    if (!doc)
-        return;
-
-    removeMarks(fileName, id);
-    managerInstance->m_marks[fileName][id].reserve(params.diagnostics().size());
-    QList<Diagnostic> diagnostics = params.diagnostics();
-    for (const Diagnostic& diagnostic : diagnostics) {
-        auto mark = new LanguageClientMark(fileName, diagnostic);
-        managerInstance->m_marks[fileName][id].append(mark);
-        doc->addMark(mark);
-    }
-
-    publishingClient->requestCodeActions(params.uri(), diagnostics);
-}
-
-void LanguageClientManager::removeMark(LanguageClientMark *mark)
-{
-    for (auto &marks : managerInstance->m_marks[mark->fileName()])
-        marks.removeAll(mark);
-    delete mark;
-}
-
-void LanguageClientManager::removeMarks(const Utils::FileName &fileName)
-{
-    TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
-    if (!doc)
-        return;
-
-    for (const auto &marks : qAsConst(managerInstance->m_marks[fileName])) {
-        for (TextEditor::TextMark *mark : marks) {
-            doc->removeMark(mark);
-            delete mark;
-        }
-    }
-    managerInstance->m_marks[fileName].clear();
-}
-
-void LanguageClientManager::removeMarks(const Utils::FileName &fileName, const Core::Id &id)
-{
-    TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
-    if (!doc)
-        return;
-
-    for (TextEditor::TextMark *mark : managerInstance->m_marks[fileName][id]) {
-        doc->removeMark(mark);
-        delete mark;
-    }
-    managerInstance->m_marks[fileName][id].clear();
-}
-
-void LanguageClientManager::removeMarks(const Core::Id &id)
-{
-    for (const Utils::FileName &fileName : managerInstance->m_marks.keys())
-        removeMarks(fileName, id);
 }
 
 void LanguageClientManager::startClient(Client *client)
@@ -210,7 +124,6 @@ void LanguageClientManager::deleteClient(Client *client)
 {
     QTC_ASSERT(client, return);
     client->disconnect();
-    managerInstance->removeMarks(client->id());
     managerInstance->m_clients.removeAll(client);
     client->deleteLater();
 }
@@ -269,7 +182,6 @@ void LanguageClientManager::clientFinished(Client *client)
     const bool unexpectedFinish = client->state() != Client::Shutdown
             && client->state() != Client::ShutdownRequested;
     if (unexpectedFinish && !m_shuttingDown && client->reset()) {
-        removeMarks(client->id());
         client->disconnect(this);
         client->log(tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS),
                     Core::MessageManager::Flash);
@@ -312,7 +224,6 @@ void LanguageClientManager::editorsClosed(const QList<Core::IEditor *> &editors)
 {
     for (auto iEditor : editors) {
         if (auto editor = qobject_cast<TextEditor::BaseTextEditor *>(iEditor)) {
-            removeMarks(editor->document()->filePath());
             const DidCloseTextDocumentParams params(TextDocumentIdentifier(
                     DocumentUri::fromFileName(editor->document()->filePath())));
             for (Client *interface : reachableClients())
