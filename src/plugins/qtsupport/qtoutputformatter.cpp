@@ -53,7 +53,7 @@ public:
         : qmlError("(" QT_QML_URL_REGEXP  // url
                    ":\\d+"              // colon, line
                    "(?::\\d+)?)"        // colon, column (optional)
-                   "[: \t)]")           // colon, space, tab or brace
+                   "\\b")               // word boundary
         , qtError("Object::.*in (.*:\\d+)")
         , qtAssert(QT_ASSERT_REGEXP)
         , qtAssertX(QT_ASSERT_X_REGEXP)
@@ -363,6 +363,26 @@ void QtSupportPlugin::testQtOutputFormatter_data()
             << "file:///main.qml:20 Unexpected token `identifier'"
             << 0 << 19 << "file:///main.qml:20"
             << "/main.qml" << 20 << -1;
+
+    QTest::newRow("File link without further text")
+            << "file:///home/user/main.cpp:157"
+            << 0 << 30 << "file:///home/user/main.cpp:157"
+            << "/home/user/main.cpp" << 157 << -1;
+
+    QTest::newRow("File link with text before")
+            << "Text before: file:///home/user/main.cpp:157"
+            << 13 << 43 << "file:///home/user/main.cpp:157"
+            << "/home/user/main.cpp" << 157 << -1;
+
+    QTest::newRow("File link with text afterwards")
+            << "file:///home/user/main.cpp:157: Text afterwards"
+            << 0 << 30 << "file:///home/user/main.cpp:157"
+            << "/home/user/main.cpp" << 157 << -1;
+
+    QTest::newRow("File link with text before and afterwards")
+            << "Text before file:///home/user/main.cpp:157 and text afterwards"
+            << 12 << 42 << "file:///home/user/main.cpp:157"
+            << "/home/user/main.cpp" << 157 << -1;
 
     QTest::newRow("Unix file link with timestamp")
             << "file:///home/user/main.cpp:157 2018-03-21 10:54:45.706"
