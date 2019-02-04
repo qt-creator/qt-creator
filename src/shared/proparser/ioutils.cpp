@@ -75,7 +75,12 @@ bool IoUtils::isRelativePath(const QString &path)
         && (path.at(2) == QLatin1Char('/') || path.at(2) == QLatin1Char('\\'))) {
         return false;
     }
-    // (... unless, of course, they're UNC, which qmake fails on anyway)
+    // ... unless, of course, they're UNC:
+    if (path.length() >= 2
+        && (path.at(0).unicode() == '\\' || path.at(0).unicode() == '/')
+        && path.at(1) == path.at(0)) {
+            return false;
+    }
 #else
     if (path.startsWith(QLatin1Char('/')))
         return false;
