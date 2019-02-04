@@ -49,6 +49,7 @@ public:
         WindowsMsvc2013Flavor,
         WindowsMsvc2015Flavor,
         WindowsMsvc2017Flavor,
+        WindowsMsvc2019Flavor,
         WindowsMSysFlavor,
         WindowsCEFlavor,
 
