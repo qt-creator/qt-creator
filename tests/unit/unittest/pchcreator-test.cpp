@@ -130,21 +130,6 @@ TEST_F(PchCreator, CreateProjectPartPchFileContent)
                       HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/external/external2.h\"\n")));
 }
 
-TEST_F(PchCreator, CreatePchIncludeFile)
-{
-    auto content = creator.generatePchIncludeFileContent(pchTask1.includes);
-    auto pchIncludeFilePath = creator.generatePchHeaderFilePath();
-    auto file = creator.generateFileWithContent(pchIncludeFilePath, content);
-    file->open(QIODevice::ReadOnly);
-
-    auto fileContent = file->readAll();
-
-    ASSERT_THAT(fileContent.toStdString(),
-                AllOf(HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/project/header2.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/external/external1.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/external/external2.h\"\n")));
-}
-
 TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
 {
     auto arguments = creator.generateClangCompilerArguments(std::move(pchTask1),

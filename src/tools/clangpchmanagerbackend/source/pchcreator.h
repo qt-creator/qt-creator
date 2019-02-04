@@ -83,13 +83,10 @@ public:
     Utils::SmallString generatePchIncludeFileContent(const FilePathIds &includeIds) const;
     bool generatePch();
 
-    FilePath generatePchHeaderFilePath() const;
     FilePath generatePchFilePath() const;
     static std::vector<std::string> generateClangCompilerArguments(const PchTask &pchTask,
                                                                    FilePathView includePchHeaderPath,
                                                                    FilePathView pchPath);
-    static std::unique_ptr<QFile> generateFileWithContent(const Utils::SmallString &filePath,
-                                                          const Utils::SmallString &content);
 
     const ClangTool &clangTool() const
     {
