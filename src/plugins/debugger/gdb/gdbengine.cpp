@@ -1714,7 +1714,7 @@ void GdbEngine::detachDebugger()
 {
     CHECK_STATE(InferiorStopOk);
     QTC_CHECK(runParameters().startMode != AttachCore);
-    DebuggerCommand cmd("detach", ExitRequest);
+    DebuggerCommand cmd("detach", NativeCommand | ExitRequest);
     cmd.callback = [this](const DebuggerResponse &) {
         CHECK_STATE(InferiorStopOk);
         notifyInferiorExited();
