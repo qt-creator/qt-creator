@@ -25,6 +25,7 @@
 
 #include "pathitem.h"
 
+#include <exception.h>
 #include <nodeproperty.h>
 #include <variantproperty.h>
 #include <nodelistproperty.h>
@@ -840,13 +841,17 @@ void PathItem::updatePathModelNodes(const QList<SelectionPoint> &changedPoints)
 {
     PathUpdateDisabler pathUpdateDisabler(this, PathUpdateDisabler::DontUpdatePath);
 
-    RewriterTransaction rewriterTransaction =
-        formEditorItem()->qmlItemNode().view()->beginRewriterTransaction(QByteArrayLiteral("PathItem::createCubicSegmentContextMenu"));
+    try {
+        RewriterTransaction rewriterTransaction =
+            formEditorItem()->qmlItemNode().view()->beginRewriterTransaction(QByteArrayLiteral("PathItem::createCubicSegmentContextMenu"));
 
-    foreach (SelectionPoint changedPoint, changedPoints)
-        changedPoint.controlPoint.updateModelNode();
+        foreach (SelectionPoint changedPoint, changedPoints)
+            changedPoint.controlPoint.updateModelNode();
 
-    rewriterTransaction.commit();
+        rewriterTransaction.commit();
+    } catch (const Exception &e) {
+        e.showException();
+    }
 }
 
 void PathItem::disablePathUpdates()
