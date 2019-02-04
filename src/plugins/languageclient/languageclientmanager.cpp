@@ -109,7 +109,7 @@ void LanguageClientManager::init()
 
 void LanguageClientManager::publishDiagnostics(const Core::Id &id,
                                                const PublishDiagnosticsParams &params,
-                                               BaseClient *publishingClient)
+                                               Client *publishingClient)
 {
     const Utils::FileName fileName = params.uri().toFileName();
     TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
@@ -169,7 +169,7 @@ void LanguageClientManager::removeMarks(const Core::Id &id)
         removeMarks(fileName, id);
 }
 
-void LanguageClientManager::startClient(BaseClient *client)
+void LanguageClientManager::startClient(Client *client)
 {
     QTC_ASSERT(client, return);
     if (managerInstance->m_shuttingDown) {
@@ -178,7 +178,7 @@ void LanguageClientManager::startClient(BaseClient *client)
     }
     if (!managerInstance->m_clients.contains(client))
         managerInstance->m_clients.append(client);
-    connect(client, &BaseClient::finished, managerInstance, [client](){
+    connect(client, &Client::finished, managerInstance, [client](){
         managerInstance->clientFinished(client);
     });
     if (client->start())
@@ -187,26 +187,26 @@ void LanguageClientManager::startClient(BaseClient *client)
         managerInstance->clientFinished(client);
 }
 
-QVector<BaseClient *> LanguageClientManager::clients()
+QVector<Client *> LanguageClientManager::clients()
 {
     return managerInstance->m_clients;
 }
 
-void LanguageClientManager::addExclusiveRequest(const MessageId &id, BaseClient *client)
+void LanguageClientManager::addExclusiveRequest(const MessageId &id, Client *client)
 {
     managerInstance->m_exclusiveRequests[id] << client;
 }
 
-void LanguageClientManager::reportFinished(const MessageId &id, BaseClient *byClient)
+void LanguageClientManager::reportFinished(const MessageId &id, Client *byClient)
 {
-    for (BaseClient *client : managerInstance->m_exclusiveRequests[id]) {
+    for (Client *client : managerInstance->m_exclusiveRequests[id]) {
         if (client != byClient)
             client->cancelRequest(id);
     }
     managerInstance->m_exclusiveRequests.remove(id);
 }
 
-void LanguageClientManager::deleteClient(BaseClient *client)
+void LanguageClientManager::deleteClient(Client *client)
 {
     QTC_ASSERT(client, return);
     client->disconnect();
@@ -238,23 +238,23 @@ LanguageClientManager *LanguageClientManager::instance()
     return managerInstance;
 }
 
-QList<BaseClient *> LanguageClientManager::clientsSupportingDocument(
+QList<Client *> LanguageClientManager::clientsSupportingDocument(
     const TextEditor::TextDocument *doc)
 {
     QTC_ASSERT(doc, return {};);
-    return Utils::filtered(managerInstance->reachableClients(), [doc](BaseClient *client) {
+    return Utils::filtered(managerInstance->reachableClients(), [doc](Client *client) {
         return client->isSupportedDocument(doc);
     }).toList();
 }
 
-QVector<BaseClient *> LanguageClientManager::reachableClients()
+QVector<Client *> LanguageClientManager::reachableClients()
 {
-    return Utils::filtered(m_clients, &BaseClient::reachable);
+    return Utils::filtered(m_clients, &Client::reachable);
 }
 
-static void sendToInterfaces(const IContent &content, const QVector<BaseClient *> &interfaces)
+static void sendToInterfaces(const IContent &content, const QVector<Client *> &interfaces)
 {
-    for (BaseClient *interface : interfaces)
+    for (Client *interface : interfaces)
         interface->sendContent(content);
 }
 
@@ -263,11 +263,11 @@ void LanguageClientManager::sendToAllReachableServers(const IContent &content)
     sendToInterfaces(content, reachableClients());
 }
 
-void LanguageClientManager::clientFinished(BaseClient *client)
+void LanguageClientManager::clientFinished(Client *client)
 {
     constexpr int restartTimeoutS = 5;
-    const bool unexpectedFinish = client->state() != BaseClient::Shutdown
-            && client->state() != BaseClient::ShutdownRequested;
+    const bool unexpectedFinish = client->state() != Client::Shutdown
+            && client->state() != Client::ShutdownRequested;
     if (unexpectedFinish && !m_shuttingDown && client->reset()) {
         removeMarks(client->id());
         client->disconnect(this);
@@ -287,7 +287,7 @@ void LanguageClientManager::editorOpened(Core::IEditor *iEditor)
 {
     using namespace TextEditor;
     Core::IDocument *document = iEditor->document();
-    for (BaseClient *interface : reachableClients())
+    for (Client *interface : reachableClients())
         interface->openDocument(document);
 
     if (auto textDocument = qobject_cast<TextDocument *>(document)) {
@@ -315,7 +315,7 @@ void LanguageClientManager::editorsClosed(const QList<Core::IEditor *> &editors)
             removeMarks(editor->document()->filePath());
             const DidCloseTextDocumentParams params(TextDocumentIdentifier(
                     DocumentUri::fromFileName(editor->document()->filePath())));
-            for (BaseClient *interface : reachableClients())
+            for (Client *interface : reachableClients())
                 interface->closeDocument(params);
         }
     }
@@ -323,13 +323,13 @@ void LanguageClientManager::editorsClosed(const QList<Core::IEditor *> &editors)
 
 void LanguageClientManager::documentContentsSaved(Core::IDocument *document)
 {
-    for (BaseClient *interface : reachableClients())
+    for (Client *interface : reachableClients())
         interface->documentContentsSaved(document);
 }
 
 void LanguageClientManager::documentWillSave(Core::IDocument *document)
 {
-    for (BaseClient *interface : reachableClients())
+    for (Client *interface : reachableClients())
         interface->documentContentsSaved(document);
 }
 
@@ -355,7 +355,7 @@ void LanguageClientManager::findLinkAt(const Utils::FileName &filePath,
             }
         }
     });
-    for (BaseClient *interface : reachableClients()) {
+    for (Client *interface : reachableClients()) {
         if (interface->findLinkAt(request))
             m_exclusiveRequests[request.id()] << interface;
     }
@@ -421,7 +421,7 @@ void LanguageClientManager::findUsages(const Utils::FileName &filePath, const QT
             search->popup();
         }
     };
-    for (BaseClient *client : reachableClients()) {
+    for (Client *client : reachableClients()) {
         request.setResponseCallback([callback, clientName = client->name()]
                                     (const FindReferencesRequest::Response &response){
             callback(clientName, response);
@@ -433,13 +433,13 @@ void LanguageClientManager::findUsages(const Utils::FileName &filePath, const QT
 
 void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
 {
-    for (BaseClient *interface : reachableClients())
+    for (Client *interface : reachableClients())
         interface->projectOpened(project);
 }
 
 void LanguageClientManager::projectRemoved(ProjectExplorer::Project *project)
 {
-    for (BaseClient *interface : reachableClients())
+    for (Client *interface : reachableClients())
         interface->projectClosed(project);
 }
 

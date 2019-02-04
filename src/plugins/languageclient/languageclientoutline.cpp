@@ -147,7 +147,7 @@ public:
 class LanguageClientOutlineWidget : public TextEditor::IOutlineWidget
 {
 public:
-    LanguageClientOutlineWidget(BaseClient *client, TextEditor::BaseTextEditor *editor);
+    LanguageClientOutlineWidget(Client *client, TextEditor::BaseTextEditor *editor);
 
     // IOutlineWidget interface
 public:
@@ -160,14 +160,14 @@ private:
     void updateSelectionInTree(const QTextCursor &currentCursor);
     void onItemActivated(const QModelIndex &index);
 
-    QPointer<BaseClient> m_client;
+    QPointer<Client> m_client;
     QPointer<TextEditor::BaseTextEditor> m_editor;
     LanguageClientOutlineModel m_model;
     Utils::TreeView m_view;
     bool m_sync = false;
 };
 
-LanguageClientOutlineWidget::LanguageClientOutlineWidget(BaseClient *client,
+LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
                                                          TextEditor::BaseTextEditor *editor)
     : m_client(client)
     , m_editor(editor)
@@ -256,7 +256,7 @@ void LanguageClientOutlineWidget::onItemActivated(const QModelIndex &index)
     m_editor->widget()->setFocus();
 }
 
-static bool clientSupportsDocumentSymbols(const BaseClient *client, const TextEditor::TextDocument *doc)
+static bool clientSupportsDocumentSymbols(const Client *client, const TextEditor::TextDocument *doc)
 {
     DynamicCapabilities dc = client->dynamicCapabilities();
     if (dc.isRegistered(DocumentSymbolsRequest::methodName).value_or(false)) {
@@ -273,7 +273,7 @@ bool LanguageClientOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) c
     if (!doc)
         return false;
     auto clients = LanguageClientManager::clientsSupportingDocument(doc);
-    return Utils::anyOf(clients, [doc](const BaseClient *client){
+    return Utils::anyOf(clients, [doc](const Client *client){
         return clientSupportsDocumentSymbols(client, doc);
     });
 }
@@ -282,9 +282,9 @@ TextEditor::IOutlineWidget *LanguageClientOutlineWidgetFactory::createWidget(Cor
 {
     auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
     QTC_ASSERT(textEditor, return nullptr);
-    QList<BaseClient *> clients = LanguageClientManager::clientsSupportingDocument(textEditor->textDocument());
+    QList<Client *> clients = LanguageClientManager::clientsSupportingDocument(textEditor->textDocument());
     QTC_ASSERT(!clients.isEmpty(), return nullptr);
-    clients = Utils::filtered(clients, [doc = textEditor->textDocument()](const BaseClient *client){
+    clients = Utils::filtered(clients, [doc = textEditor->textDocument()](const Client *client){
         return clientSupportsDocumentSymbols(client, doc);
     });
     return new LanguageClientOutlineWidget(clients.first(), textEditor);

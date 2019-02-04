@@ -25,7 +25,7 @@
 
 #include "languageclientcodeassist.h"
 
-#include "baseclient.h"
+#include "client.h"
 #include "languageclientutils.h"
 
 #include <languageserverprotocol/completion.h>
@@ -48,10 +48,11 @@
 static Q_LOGGING_CATEGORY(LOGLSPCOMPLETION, "qtc.languageclient.completion", QtWarningMsg);
 
 using namespace LanguageServerProtocol;
+using namespace TextEditor;
 
 namespace LanguageClient {
 
-class LanguageClientCompletionItem : public TextEditor::AssistProposalItemInterface
+class LanguageClientCompletionItem : public AssistProposalItemInterface
 {
 public:
     LanguageClientCompletionItem(CompletionItem item);
@@ -60,7 +61,7 @@ public:
     QString text() const override;
     bool implicitlyApplies() const override;
     bool prematurelyApplies(const QChar &typedCharacter) const override;
-    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
+    void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
     QIcon icon() const override;
     QString detail() const override;
     bool isSnippet() const override;
@@ -91,7 +92,7 @@ bool LanguageClientCompletionItem::implicitlyApplies() const
 bool LanguageClientCompletionItem::prematurelyApplies(const QChar &/*typedCharacter*/) const
 { return false; }
 
-void LanguageClientCompletionItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
+void LanguageClientCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
                                          int /*basePosition*/) const
 {
     const int pos = manipulator.currentPosition();
@@ -207,7 +208,7 @@ bool LanguageClientCompletionItem::isPerfectMatch(int pos, QTextDocument *doc) c
     return textToInsert == textAt(QTextCursor(doc), pos - length, length);
 }
 
-class LanguageClientCompletionModel : public TextEditor::GenericProposalModel
+class LanguageClientCompletionModel : public GenericProposalModel
 {
 public:
     // GenericProposalModel interface
@@ -221,7 +222,6 @@ public:
 
 void LanguageClientCompletionModel::sort(const QString &/*prefix*/)
 {
-    using namespace TextEditor;
     std::sort(m_currentItems.begin(), m_currentItems.end(),
               [] (AssistProposalItemInterface *a, AssistProposalItemInterface *b){
         return *(dynamic_cast<LanguageClientCompletionItem *>(a)) < *(
@@ -229,16 +229,16 @@ void LanguageClientCompletionModel::sort(const QString &/*prefix*/)
     });
 }
 
-class LanguageClientCompletionProposal : public TextEditor::GenericProposal
+class LanguageClientCompletionProposal : public GenericProposal
 {
 public:
     LanguageClientCompletionProposal(int cursorPos, LanguageClientCompletionModel *model)
-        : TextEditor::GenericProposal(cursorPos, TextEditor::GenericProposalModelPtr(model))
+        : GenericProposal(cursorPos, GenericProposalModelPtr(model))
         , m_model(model)
     { }
 
     // IAssistProposal interface
-    bool hasItemsToPropose(const QString &/*text*/, TextEditor::AssistReason reason) const override
+    bool hasItemsToPropose(const QString &/*text*/, AssistReason reason) const override
     {
         if (m_model->size() <= 0 || m_document.isNull())
             return false;
@@ -255,11 +255,11 @@ public:
 };
 
 
-class LanguageClientCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class LanguageClientCompletionAssistProcessor : public IAssistProcessor
 {
 public:
-    LanguageClientCompletionAssistProcessor(BaseClient *client);
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    LanguageClientCompletionAssistProcessor(Client *client);
+    IAssistProposal *perform(const AssistInterface *interface) override;
     bool running() override;
     bool needsRestart() const override { return true; }
 
@@ -267,31 +267,30 @@ private:
     void handleCompletionResponse(const CompletionRequest::Response &response);
 
     QPointer<QTextDocument> m_document;
-    QPointer<BaseClient> m_client;
+    QPointer<Client> m_client;
     bool m_running = false;
     int m_pos = -1;
 };
 
-LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(BaseClient *client)
+LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(Client *client)
     : m_client(client)
 { }
 
-static QString assistReasonString(TextEditor::AssistReason reason)
+static QString assistReasonString(AssistReason reason)
 {
     switch (reason) {
-    case TextEditor::IdleEditor: return QString("idle editor");
-    case TextEditor::ActivationCharacter: return QString("activation character");
-    case TextEditor::ExplicitlyInvoked: return QString("explicitly invoking");
+    case IdleEditor: return QString("idle editor");
+    case ActivationCharacter: return QString("activation character");
+    case ExplicitlyInvoked: return QString("explicitly invoking");
     }
     return QString("unknown reason");
 }
 
-TextEditor::IAssistProposal *LanguageClientCompletionAssistProcessor::perform(
-        const TextEditor::AssistInterface *interface)
+IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistInterface *interface)
 {
     QTC_ASSERT(m_client, return nullptr);
     m_pos = interface->position();
-    if (interface->reason() == TextEditor::IdleEditor) {
+    if (interface->reason() == IdleEditor) {
         // Trigger an automatic completion request only when we are on a word with more than 2 "identifier" character
         const QRegExp regexp("[_a-zA-Z0-9]*");
         int delta = 0;
@@ -302,7 +301,7 @@ TextEditor::IAssistProposal *LanguageClientCompletionAssistProcessor::perform(
     }
     CompletionRequest completionRequest;
     CompletionParams::CompletionContext context;
-    context.setTriggerKind(interface->reason() == TextEditor::ActivationCharacter
+    context.setTriggerKind(interface->reason() == ActivationCharacter
                            ? CompletionParams::TriggerCharacter
                            : CompletionParams::Invoked);
     auto params = completionRequest.params().value_or(CompletionParams());
@@ -336,7 +335,6 @@ bool LanguageClientCompletionAssistProcessor::running()
 void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     const CompletionRequest::Response &response)
 {
-    using namespace TextEditor;
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : got completions";
     m_running = false;
     QTC_ASSERT(m_client, return);
@@ -369,18 +367,18 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
                               << items.count() << " completions handled";
 }
 
-LanguageClientCompletionAssistProvider::LanguageClientCompletionAssistProvider(BaseClient *client)
+LanguageClientCompletionAssistProvider::LanguageClientCompletionAssistProvider(Client *client)
     : m_client(client)
 { }
 
-TextEditor::IAssistProcessor *LanguageClientCompletionAssistProvider::createProcessor() const
+IAssistProcessor *LanguageClientCompletionAssistProvider::createProcessor() const
 {
     return new LanguageClientCompletionAssistProcessor(m_client);
 }
 
-TextEditor::IAssistProvider::RunType LanguageClientCompletionAssistProvider::runType() const
+IAssistProvider::RunType LanguageClientCompletionAssistProvider::runType() const
 {
-    return TextEditor::IAssistProvider::Asynchronous;
+    return IAssistProvider::Asynchronous;
 }
 
 int LanguageClientCompletionAssistProvider::activationCharSequenceLength() const

@@ -25,9 +25,10 @@
 
 #include "languageclientsettings.h"
 
-#include "baseclient.h"
+#include "client.h"
 #include "languageclientmanager.h"
 #include "languageclient_global.h"
+#include "languageclientinterface.h"
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -397,8 +398,15 @@ bool BaseSettings::isValid() const
     return !m_name.isEmpty();
 }
 
-BaseClient *BaseSettings::createClient() const
+Client *BaseSettings::createClient() const
 {
+    BaseClientInterface *interface = createInterface();
+    if (QTC_GUARD(interface)) {
+        auto *client = new Client(interface);
+        client->setName(m_name);
+        client->setSupportedLanguage(m_languageFilter);
+        return client;
+    }
     return nullptr;
 }
 
@@ -467,22 +475,14 @@ bool StdIOSettings::needsRestart() const
 {
     if (BaseSettings::needsRestart())
         return true;
-    if (auto stdIOClient = qobject_cast<StdIOClient *>(m_client))
-        return stdIOClient->needsRestart(this);
+    if (auto stdIOInterface = qobject_cast<StdIOClientInterface *>(m_client))
+        return stdIOInterface->needsRestart(this);
     return false;
 }
 
 bool StdIOSettings::isValid() const
 {
     return BaseSettings::isValid() && !m_executable.isEmpty();
-}
-
-BaseClient *StdIOSettings::createClient() const
-{
-    auto client = new StdIOClient(m_executable, m_arguments);
-    client->setName(m_name);
-    client->setSupportedLanguage(m_languageFilter);
-    return client;
 }
 
 QVariantMap StdIOSettings::toMap() const
@@ -498,6 +498,11 @@ void StdIOSettings::fromMap(const QVariantMap &map)
     BaseSettings::fromMap(map);
     m_executable = map[executableKey].toString();
     m_arguments = map[argumentsKey].toString();
+}
+
+BaseClientInterface *StdIOSettings::createInterface() const
+{
+    return new StdIOClientInterface(m_executable, m_arguments);
 }
 
 BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *parent)

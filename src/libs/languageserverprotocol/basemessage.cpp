@@ -176,7 +176,7 @@ bool BaseMessage::isValid() const
     return contentLength >= 0;
 }
 
-QByteArray BaseMessage::toData()
+QByteArray BaseMessage::toData() const
 {
     return header() + content;
 }

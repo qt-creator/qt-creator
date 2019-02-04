@@ -65,7 +65,7 @@ private:
     void sendMessageCurrentTest();
     void sendStartMessage(bool isFunction);
     void sendFinishMessage(bool isFunction);
-    void handleAndSendConfigMessage(const QRegExp &config);
+    void handleAndSendConfigMessage(const QRegularExpressionMatch &config);
 
     enum CDATAMode
     {

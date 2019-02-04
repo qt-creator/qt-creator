@@ -25,7 +25,7 @@
 
 #include "languageclientplugin.h"
 
-#include "baseclient.h"
+#include "client.h"
 
 namespace LanguageClient {
 

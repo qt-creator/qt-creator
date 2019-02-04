@@ -1,0 +1,51 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "PythonProject" ],
+    "id": "U.QtForPythonApplicationEmpty",
+    "category": "F.Application",
+    "trDescription": "Creates a Qt for Python application that only the main code for a QApplication",
+    "trDisplayName": "Qt for Python - Empty",
+    "trDisplayCategory": "Application",
+    "icon": "icon.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('PythonEditor') >= 0}",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt.5.6" ],
+
+    "options":
+    [
+        { "key": "MainPyFileName", "value": "main.py" },
+        { "key": "PyProjectFile", "value": "main.pyproject" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "../main.pyproject",
+                    "target": "%{PyProjectFile}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "../main_empty.py",
+                    "target": "%{MainPyFileName}",
+                    "openInEditor": true
+                }
+            ]
+        }
+    ]
+}

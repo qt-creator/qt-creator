@@ -234,6 +234,7 @@ public:
     Core::Id id;
     QString buildKey;
     QString displayName;
+    QString displayNameUniquifier;
     CreationMode creationMode = AlwaysCreate;
     bool useTerminal = false;
 };

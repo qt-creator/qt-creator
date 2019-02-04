@@ -55,7 +55,7 @@ public:
 
     bool isComplete() const;
     bool isValid() const;
-    QByteArray toData();
+    QByteArray toData() const;
 
     QByteArray mimeType;
     QByteArray content;

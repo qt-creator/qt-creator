@@ -14,14 +14,16 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     files: [
-        "baseclient.cpp",
-        "baseclient.h",
+        "client.cpp",
+        "client.h",
         "dynamiccapabilities.cpp",
         "dynamiccapabilities.h",
         "languageclient.qrc",
         "languageclient_global.h",
         "languageclientcodeassist.cpp",
         "languageclientcodeassist.h",
+        "languageclientinterface.cpp",
+        "languageclientinterface.h",
         "languageclientmanager.cpp",
         "languageclientmanager.h",
         "languageclientoutline.cpp",

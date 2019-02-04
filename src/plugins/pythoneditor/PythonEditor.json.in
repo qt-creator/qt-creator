@@ -28,6 +28,7 @@
         \"    <mime-type type=\'text/x-python-project\'>\",
         \"        <sub-class-of type=\'text/x-python\'/>\",
         \"        <comment>Qt Creator Python project file</comment>\",
+        \"        <glob pattern=\'*.pyproject\'/>\",
         \"        <glob pattern=\'*.pyqtc\'/>\",
         \"    </mime-type>\",
         \"</mime-info>\"

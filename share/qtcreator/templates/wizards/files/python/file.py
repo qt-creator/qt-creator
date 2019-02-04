@@ -1,2 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# This Python file uses the following encoding: utf-8
+
+# if__name__ == "__main__":
+#     pass

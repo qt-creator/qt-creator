@@ -25,7 +25,7 @@
 
 #include "languageclientutils.h"
 
-#include "baseclient.h"
+#include "client.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 
@@ -131,7 +131,7 @@ QTextCursor endOfLineCursor(const QTextCursor &cursor)
     return ret;
 }
 
-void updateCodeActionRefactoringMarker(BaseClient *client,
+void updateCodeActionRefactoringMarker(Client *client,
                                        const CodeAction &action,
                                        const DocumentUri &uri)
 {
@@ -176,7 +176,7 @@ void updateCodeActionRefactoringMarker(BaseClient *client,
         }
     } else if (action.command().has_value()) {
         const Command command = action.command().value();
-        marker.callback = [command, client = QPointer<BaseClient>(client)](const TextEditorWidget *) {
+        marker.callback = [command, client = QPointer<Client>(client)](const TextEditorWidget *) {
             if (client)
                 client->executeCommand(command);
         };

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "baseclient.h"
+#include "client.h"
 #include "languageclientsettings.h"
 
 #include <coreplugin/id.h>
@@ -56,26 +56,26 @@ public:
     static void init();
 
     static void publishDiagnostics(const Core::Id &id,
-                                   const LanguageServerProtocol::PublishDiagnosticsParams &params, BaseClient *publishingClient);
+                                   const LanguageServerProtocol::PublishDiagnosticsParams &params, Client *publishingClient);
 
     static void removeMark(LanguageClientMark *mark);
     static void removeMarks(const Utils::FileName &fileName);
     static void removeMarks(const Utils::FileName &fileName, const Core::Id &id);
     static void removeMarks(const Core::Id &id);
 
-    static void startClient(BaseClient *client);
-    static QVector<BaseClient *> clients();
+    static void startClient(Client *client);
+    static QVector<Client *> clients();
 
-    static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, BaseClient *client);
-    static void reportFinished(const LanguageServerProtocol::MessageId &id, BaseClient *byClient);
+    static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, Client *client);
+    static void reportFinished(const LanguageServerProtocol::MessageId &id, Client *byClient);
 
-    static void deleteClient(BaseClient *client);
+    static void deleteClient(Client *client);
 
     static void shutdown();
 
     static LanguageClientManager *instance();
 
-    static QList<BaseClient *> clientsSupportingDocument(const TextEditor::TextDocument *doc);
+    static QList<Client *> clientsSupportingDocument(const TextEditor::TextDocument *doc);
 
 signals:
     void shutdownFinished();
@@ -94,15 +94,15 @@ private:
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
 
-    QVector<BaseClient *> reachableClients();
+    QVector<Client *> reachableClients();
     void sendToAllReachableServers(const LanguageServerProtocol::IContent &content);
 
-    void clientFinished(BaseClient *client);
+    void clientFinished(Client *client);
 
     bool m_shuttingDown = false;
-    QVector<BaseClient *> m_clients;
+    QVector<Client *> m_clients;
     QHash<Utils::FileName, QHash<Core::Id, QVector<LanguageClientMark *>>> m_marks;
-    QHash<LanguageServerProtocol::MessageId, QList<BaseClient *>> m_exclusiveRequests;
+    QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
 
     friend class LanguageClientPlugin;
 };

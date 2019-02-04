@@ -1029,6 +1029,12 @@ void QmakeProject::updateBuildSystemData()
         bti.projectFilePath = node->filePath();
         bti.workingDirectory = FileName::fromString(workingDir);
         bti.displayName = bti.projectFilePath.toFileInfo().completeBaseName();
+        const FileName relativePathInProject
+                = bti.projectFilePath.relativeChildPath(projectDirectory());
+        if (!relativePathInProject.isEmpty()) {
+            bti.displayNameUniquifier = QString::fromLatin1(" (%1)")
+                    .arg(relativePathInProject.toUserOutput());
+        }
         bti.buildKey = bti.projectFilePath.toString();
         bti.isQtcRunnable = config.contains("qtc_runnable");
 

@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 
-#include "baseclient.h"
+#include "client.h"
 
+#include "languageclientinterface.h"
 #include "languageclientmanager.h"
-#include "languageclient/languageclientutils.h"
+#include "languageclientutils.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -60,22 +61,23 @@ using namespace Utils;
 namespace LanguageClient {
 
 static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMsg);
-static Q_LOGGING_CATEGORY(LOGLSPCLIENTV, "qtc.languageclient.messages", QtWarningMsg);
-static Q_LOGGING_CATEGORY(LOGLSPCLIENTPARSE, "qtc.languageclient.parse", QtWarningMsg);
 
-BaseClient::BaseClient()
+Client::Client(BaseClientInterface *clientInterface)
     : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
     , m_completionProvider(this)
+    , m_clientInterface(clientInterface)
 {
-    m_buffer.open(QIODevice::ReadWrite | QIODevice::Append);
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
                             &JsonRpcMessageHandler::parseContent);
+    QTC_ASSERT(clientInterface, return);
+    connect(clientInterface, &BaseClientInterface::messageReceived, this, &Client::handleMessage);
+    connect(clientInterface, &BaseClientInterface::error, this, &Client::setError);
+    connect(clientInterface, &BaseClientInterface::finished, this, &Client::finished);
 }
 
-BaseClient::~BaseClient()
+Client::~Client()
 {
     using namespace TextEditor;
-    m_buffer.close();
     // FIXME: instead of replacing the completion provider in the text document store the
     // completion provider as a prioritised list in the text document
     for (TextDocument *document : m_resetCompletionProvider)
@@ -88,9 +90,10 @@ BaseClient::~BaseClient()
     }
 }
 
-void BaseClient::initialize()
+void Client::initialize()
 {
     using namespace ProjectExplorer;
+    QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << m_displayName;
     auto initRequest = new InitializeRequest();
@@ -108,11 +111,11 @@ void BaseClient::initialize()
     });
     // directly send data otherwise the state check would fail;
     initRequest->registerResponseHandler(&m_responseHandlers);
-    sendData(initRequest->toBaseMessage().toData());
+    m_clientInterface->sendMessage(initRequest->toBaseMessage());
     m_state = InitializeRequested;
 }
 
-void BaseClient::shutdown()
+void Client::shutdown()
 {
     QTC_ASSERT(m_state == Initialized, emit finished(); return);
     qCDebug(LOGLSPCLIENT) << "shutdown language server " << m_displayName;
@@ -124,12 +127,12 @@ void BaseClient::shutdown()
     m_state = ShutdownRequested;
 }
 
-BaseClient::State BaseClient::state() const
+Client::State Client::state() const
 {
     return m_state;
 }
 
-void BaseClient::openDocument(Core::IDocument *document)
+void Client::openDocument(Core::IDocument *document)
 {
     using namespace TextEditor;
     if (!isSupportedDocument(document))
@@ -188,35 +191,36 @@ void BaseClient::openDocument(Core::IDocument *document)
         requestDocumentSymbols(textDocument);
 }
 
-void BaseClient::sendContent(const IContent &content)
+void Client::sendContent(const IContent &content)
 {
+    QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Initialized, return);
     content.registerResponseHandler(&m_responseHandlers);
     QString error;
     if (!QTC_GUARD(content.isValid(&error)))
         Core::MessageManager::write(error);
-    sendData(content.toBaseMessage().toData());
+    m_clientInterface->sendMessage(content.toBaseMessage());
 }
 
-void BaseClient::sendContent(const DocumentUri &uri, const IContent &content)
+void Client::sendContent(const DocumentUri &uri, const IContent &content)
 {
     if (!m_openedDocument.contains(uri.toFileName()))
         return;
     sendContent(content);
 }
 
-void BaseClient::cancelRequest(const MessageId &id)
+void Client::cancelRequest(const MessageId &id)
 {
     m_responseHandlers.remove(id);
     sendContent(CancelRequest(CancelParameter(id)));
 }
 
-void BaseClient::closeDocument(const DidCloseTextDocumentParams &params)
+void Client::closeDocument(const DidCloseTextDocumentParams &params)
 {
     sendContent(params.textDocument().uri(), DidCloseTextDocumentNotification(params));
 }
 
-void BaseClient::documentContentsSaved(Core::IDocument *document)
+void Client::documentContentsSaved(Core::IDocument *document)
 {
     if (!m_openedDocument.contains(document->filePath()))
         return;
@@ -250,7 +254,7 @@ void BaseClient::documentContentsSaved(Core::IDocument *document)
     sendContent(DidSaveTextDocumentNotification(params));
 }
 
-void BaseClient::documentWillSave(Core::IDocument *document)
+void Client::documentWillSave(Core::IDocument *document)
 {
     const FileName &filePath = document->filePath();
     if (!m_openedDocument.contains(filePath))
@@ -278,7 +282,7 @@ void BaseClient::documentWillSave(Core::IDocument *document)
     sendContent(WillSaveTextDocumentNotification(params));
 }
 
-void BaseClient::documentContentsChanged(Core::IDocument *document)
+void Client::documentContentsChanged(Core::IDocument *document)
 {
     if (!m_openedDocument.contains(document->filePath()))
         return;
@@ -311,18 +315,18 @@ void BaseClient::documentContentsChanged(Core::IDocument *document)
     }
 }
 
-void BaseClient::registerCapabilities(const QList<Registration> &registrations)
+void Client::registerCapabilities(const QList<Registration> &registrations)
 {
     m_dynamicCapabilities.registerCapability(registrations);
 }
 
-void BaseClient::unregisterCapabilities(const QList<Unregistration> &unregistrations)
+void Client::unregisterCapabilities(const QList<Unregistration> &unregistrations)
 {
     m_dynamicCapabilities.unregisterCapability(unregistrations);
 }
 
 template <typename Request>
-static bool sendTextDocumentPositionParamsRequest(BaseClient *client,
+static bool sendTextDocumentPositionParamsRequest(Client *client,
                                                   const Request &request,
                                                   const DynamicCapabilities &dynamicCapabilities,
                                                   const optional<bool> &serverCapability)
@@ -346,13 +350,13 @@ static bool sendTextDocumentPositionParamsRequest(BaseClient *client,
     return sendMessage;
 }
 
-bool BaseClient::findLinkAt(GotoDefinitionRequest &request)
+bool Client::findLinkAt(GotoDefinitionRequest &request)
 {
     return LanguageClient::sendTextDocumentPositionParamsRequest(
                 this, request, m_dynamicCapabilities, m_serverCapabilities.definitionProvider());
 }
 
-bool BaseClient::findUsages(FindReferencesRequest &request)
+bool Client::findUsages(FindReferencesRequest &request)
 {
     return LanguageClient::sendTextDocumentPositionParamsRequest(
                 this, request, m_dynamicCapabilities, m_serverCapabilities.referencesProvider());
@@ -367,7 +371,7 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
                                           info.name().length(), info.kind());
 }
 
-void BaseClient::requestDocumentSymbols(TextEditor::TextDocument *document)
+void Client::requestDocumentSymbols(TextEditor::TextDocument *document)
 {
     // TODO: Do not use this information for highlighting but the overview model
     return;
@@ -460,7 +464,7 @@ void BaseClient::requestDocumentSymbols(TextEditor::TextDocument *document)
     sendContent(request);
 }
 
-void BaseClient::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
+void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 {
     const auto uri = DocumentUri::fromFileName(widget->textDocument()->filePath());
     if (m_dynamicCapabilities.isRegistered(DocumentHighlightsRequest::methodName).value_or(false)) {
@@ -511,7 +515,7 @@ void BaseClient::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
     sendContent(request);
 }
 
-void BaseClient::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
+void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
 {
     const Utils::FileName fileName = uri.toFileName();
     TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
@@ -544,14 +548,14 @@ void BaseClient::requestCodeActions(const DocumentUri &uri, const QList<Diagnost
     codeActionParams.setRange(Range(start, end));
     CodeActionRequest request(codeActionParams);
     request.setResponseCallback(
-        [uri, self = QPointer<BaseClient>(this)](const CodeActionRequest::Response &response) {
+        [uri, self = QPointer<Client>(this)](const CodeActionRequest::Response &response) {
         if (self)
             self->handleCodeActionResponse(response, uri);
     });
     sendContent(request);
 }
 
-void BaseClient::handleCodeActionResponse(const CodeActionRequest::Response &response,
+void Client::handleCodeActionResponse(const CodeActionRequest::Response &response,
                                           const DocumentUri &uri)
 {
     if (const Utils::optional<CodeActionRequest::Response::Error> &error = response.error())
@@ -570,7 +574,7 @@ void BaseClient::handleCodeActionResponse(const CodeActionRequest::Response &res
     }
 }
 
-void BaseClient::executeCommand(const Command &command)
+void Client::executeCommand(const Command &command)
 {
     using CommandOptions = LanguageServerProtocol::ServerCapabilities::ExecuteCommandOptions;
     const QString method(ExecuteCommandRequest::methodName);
@@ -591,7 +595,7 @@ void BaseClient::executeCommand(const Command &command)
     sendContent(request);
 }
 
-void BaseClient::projectOpened(ProjectExplorer::Project *project)
+void Client::projectOpened(ProjectExplorer::Project *project)
 {
     if (!sendWorkspceFolderChanges())
         return;
@@ -603,7 +607,7 @@ void BaseClient::projectOpened(ProjectExplorer::Project *project)
     sendContent(change);
 }
 
-void BaseClient::projectClosed(ProjectExplorer::Project *project)
+void Client::projectClosed(ProjectExplorer::Project *project)
 {
     if (!sendWorkspceFolderChanges())
         return;
@@ -615,18 +619,18 @@ void BaseClient::projectClosed(ProjectExplorer::Project *project)
     sendContent(change);
 }
 
-void BaseClient::setSupportedLanguage(const LanguageFilter &filter)
+void Client::setSupportedLanguage(const LanguageFilter &filter)
 {
     m_languagFilter = filter;
 }
 
-bool BaseClient::isSupportedDocument(const Core::IDocument *document) const
+bool Client::isSupportedDocument(const Core::IDocument *document) const
 {
     QTC_ASSERT(document, return false);
     return isSupportedFile(document->filePath(), document->mimeType());
 }
 
-bool BaseClient::isSupportedFile(const Utils::FileName &filePath, const QString &mimeType) const
+bool Client::isSupportedFile(const Utils::FileName &filePath, const QString &mimeType) const
 {
     if (m_languagFilter.mimeTypes.isEmpty() && m_languagFilter.filePattern.isEmpty())
         return true;
@@ -640,63 +644,84 @@ bool BaseClient::isSupportedFile(const Utils::FileName &filePath, const QString 
     });
 }
 
-bool BaseClient::isSupportedUri(const DocumentUri &uri) const
+bool Client::isSupportedUri(const DocumentUri &uri) const
 {
     return isSupportedFile(uri.toFileName(),
                            Utils::mimeTypeForFile(uri.toFileName().fileName()).name());
 }
 
-bool BaseClient::needsRestart(const BaseSettings *settings) const
+bool Client::needsRestart(const BaseSettings *settings) const
 {
     QTC_ASSERT(settings, return false);
     return m_languagFilter.mimeTypes != settings->m_languageFilter.mimeTypes
             || m_languagFilter.filePattern != settings->m_languageFilter.filePattern;
 }
 
-bool BaseClient::reset()
+bool Client::start()
+{
+    return m_clientInterface->start();
+}
+
+bool Client::reset()
 {
     if (!m_restartsLeft)
         return false;
     --m_restartsLeft;
     m_state = Uninitialized;
     m_responseHandlers.clear();
-    m_buffer.close();
-    m_buffer.setData(nullptr);
-    m_buffer.open(QIODevice::ReadWrite | QIODevice::Append);
+    m_clientInterface->resetBuffer();
     m_openedDocument.clear();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
     return true;
 }
 
-void BaseClient::setError(const QString &message)
+void Client::setError(const QString &message)
 {
     log(message);
     m_state = Error;
 }
 
-void BaseClient::log(const QString &message, Core::MessageManager::PrintToOutputPaneFlag flag)
+void Client::handleMessage(const BaseMessage &message)
+{
+    if (auto handler = m_contentHandler[message.mimeType]) {
+        QString parseError;
+        handler(message.content, message.codec, parseError,
+                [this](MessageId id, const QByteArray &content, QTextCodec *codec){
+                    this->handleResponse(id, content, codec);
+                },
+                [this](const QString &method, MessageId id, const IContent *content){
+                    this->handleMethod(method, id, content);
+                });
+        if (!parseError.isEmpty())
+            log(parseError);
+    } else {
+        log(tr("Cannot handle content of type: %1").arg(QLatin1String(message.mimeType)));
+    }
+}
+
+void Client::log(const QString &message, Core::MessageManager::PrintToOutputPaneFlag flag)
 {
     Core::MessageManager::write(QString("LanguageClient %1: %2").arg(name(), message), flag);
 }
 
-const ServerCapabilities &BaseClient::capabilities() const
+const ServerCapabilities &Client::capabilities() const
 {
     return m_serverCapabilities;
 }
 
-const DynamicCapabilities &BaseClient::dynamicCapabilities() const
+const DynamicCapabilities &Client::dynamicCapabilities() const
 {
     return m_dynamicCapabilities;
 }
 
-void BaseClient::log(const ShowMessageParams &message,
+void Client::log(const ShowMessageParams &message,
                      Core::MessageManager::PrintToOutputPaneFlag flag)
 {
     log(message.toString(), flag);
 }
 
-void BaseClient::showMessageBox(const ShowMessageRequestParams &message, const MessageId &id)
+void Client::showMessageBox(const ShowMessageRequestParams &message, const MessageId &id)
 {
     auto box = new QMessageBox();
     box->setText(message.toString());
@@ -724,13 +749,13 @@ void BaseClient::showMessageBox(const ShowMessageRequestParams &message, const M
     box->show();
 }
 
-void BaseClient::handleResponse(const MessageId &id, const QByteArray &content, QTextCodec *codec)
+void Client::handleResponse(const MessageId &id, const QByteArray &content, QTextCodec *codec)
 {
     if (auto handler = m_responseHandlers[id])
         handler(content, codec);
 }
 
-void BaseClient::handleMethod(const QString &method, MessageId id, const IContent *content)
+void Client::handleMethod(const QString &method, MessageId id, const IContent *content)
 {
     QStringList error;
     bool paramsValid = true;
@@ -798,7 +823,7 @@ void BaseClient::handleMethod(const QString &method, MessageId id, const IConten
     delete content;
 }
 
-void BaseClient::intializeCallback(const InitializeRequest::Response &initResponse)
+void Client::intializeCallback(const InitializeRequest::Response &initResponse)
 {
     QTC_ASSERT(m_state == InitializeRequested, return);
     if (optional<ResponseError<InitializeError>> error = initResponse.error()) {
@@ -839,9 +864,10 @@ void BaseClient::intializeCallback(const InitializeRequest::Response &initRespon
         openDocument(openedDocument);
 }
 
-void BaseClient::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
+void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
 {
     QTC_ASSERT(m_state == ShutdownRequested, return);
+    QTC_ASSERT(m_clientInterface, return);
     optional<ShutdownRequest::Response::Error> errorValue = shutdownResponse.error();
     if (errorValue.has_value()) {
         ShutdownRequest::Response::Error error = errorValue.value();
@@ -849,12 +875,12 @@ void BaseClient::shutDownCallback(const ShutdownRequest::Response &shutdownRespo
         return;
     }
     // directly send data otherwise the state check would fail;
-    sendData(ExitNotification().toBaseMessage().toData());
+    m_clientInterface->sendMessage(ExitNotification().toBaseMessage());
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " shutdown";
     m_state = Shutdown;
 }
 
-bool BaseClient::sendWorkspceFolderChanges() const
+bool Client::sendWorkspceFolderChanges() const
 {
     if (m_dynamicCapabilities.isRegistered(
                 DidChangeWorkspaceFoldersNotification::methodName).value_or(false)) {
@@ -871,120 +897,6 @@ bool BaseClient::sendWorkspceFolderChanges() const
         }
     }
     return false;
-}
-
-void BaseClient::parseData(const QByteArray &data)
-{
-    const qint64 preWritePosition = m_buffer.pos();
-    qCDebug(LOGLSPCLIENTPARSE) << "parse buffer pos: " << preWritePosition;
-    qCDebug(LOGLSPCLIENTPARSE) << "  data: " << data;
-    if (!m_buffer.atEnd())
-        m_buffer.seek(preWritePosition + m_buffer.bytesAvailable());
-    m_buffer.write(data);
-    m_buffer.seek(preWritePosition);
-    while (!m_buffer.atEnd()) {
-        QString parseError;
-        BaseMessage::parse(&m_buffer, parseError, m_currentMessage);
-        qCDebug(LOGLSPCLIENTPARSE) << "  complete: " << m_currentMessage.isComplete();
-        qCDebug(LOGLSPCLIENTPARSE) << "  length: " << m_currentMessage.contentLength;
-        qCDebug(LOGLSPCLIENTPARSE) << "  content: " << m_currentMessage.content;
-        if (!parseError.isEmpty())
-            log(parseError);
-        if (!m_currentMessage.isComplete())
-            break;
-        if (auto handler = m_contentHandler[m_currentMessage.mimeType]){
-            QString parseError;
-            handler(m_currentMessage.content, m_currentMessage.codec, parseError,
-                    [this](MessageId id, const QByteArray &content, QTextCodec *codec){
-                this->handleResponse(id, content, codec);
-            },
-                    [this](const QString &method, MessageId id, const IContent *content){
-                this->handleMethod(method, id, content);
-            });
-            if (!parseError.isEmpty())
-                log(parseError);
-        } else {
-            log(tr("Cannot handle content of type: %1").arg(QLatin1String(m_currentMessage.mimeType)));
-        }
-        m_currentMessage = BaseMessage();
-    }
-    if (m_buffer.atEnd()) {
-        m_buffer.close();
-        m_buffer.setData(nullptr);
-        m_buffer.open(QIODevice::ReadWrite | QIODevice::Append);
-    }
-}
-
-StdIOClient::StdIOClient(const QString &executable, const QString &arguments)
-    : m_executable(executable)
-    , m_arguments(arguments)
-{
-    connect(&m_process, &QProcess::readyReadStandardError,
-            this, &StdIOClient::readError);
-    connect(&m_process, &QProcess::readyReadStandardOutput,
-            this, &StdIOClient::readOutput);
-    connect(&m_process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
-            this, &StdIOClient::onProcessFinished);
-
-    m_process.setArguments(Utils::QtcProcess::splitArgs(m_arguments));
-    m_process.setProgram(m_executable);
-}
-
-StdIOClient::~StdIOClient()
-{
-    Utils::SynchronousProcess::stopProcess(m_process);
-}
-
-bool StdIOClient::needsRestart(const StdIOSettings *settings)
-{
-    return m_executable != settings->m_executable || m_arguments != settings->m_arguments;
-}
-
-bool StdIOClient::start()
-{
-    m_process.start();
-    if (!m_process.waitForStarted() || m_process.state() != QProcess::Running) {
-        setError(m_process.errorString());
-        return false;
-    }
-    return true;
-}
-
-void StdIOClient::setWorkingDirectory(const QString &workingDirectory)
-{
-    m_process.setWorkingDirectory(workingDirectory);
-}
-
-void StdIOClient::sendData(const QByteArray &data)
-{
-    if (m_process.state() != QProcess::Running) {
-        log(tr("Cannot send data to unstarted server %1").arg(m_process.program()));
-        return;
-    }
-    qCDebug(LOGLSPCLIENTV) << "StdIOClient send data:";
-    qCDebug(LOGLSPCLIENTV).noquote() << data;
-    m_process.write(data);
-}
-
-void StdIOClient::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
-{
-    if (exitStatus == QProcess::CrashExit)
-        setError(tr("Crashed with exit code %1: %2").arg(exitCode, m_process.error()));
-    emit finished();
-}
-
-void StdIOClient::readError()
-{
-    qCDebug(LOGLSPCLIENTV) << "StdIOClient std err:\n";
-    qCDebug(LOGLSPCLIENTV).noquote() << m_process.readAllStandardError();
-}
-
-void StdIOClient::readOutput()
-{
-    const QByteArray &out = m_process.readAllStandardOutput();
-    qDebug(LOGLSPCLIENTV) << "StdIOClient std out:\n";
-    qDebug(LOGLSPCLIENTV).noquote() << out;
-    parseData(out);
 }
 
 } // namespace LanguageClient
