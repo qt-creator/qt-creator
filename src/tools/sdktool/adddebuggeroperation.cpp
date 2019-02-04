@@ -173,7 +173,7 @@ bool AddDebuggerOperation::test() const
 
 QVariantMap AddDebuggerOperation::addDebugger(const QVariantMap &map,
                                               const QString &id, const QString &displayName,
-                                              const quint32 &engine, const QString &binary,
+                                              int engine, const QString &binary,
                                               const QStringList &abis, const KeyValuePairList &extra)
 {
     // Sanity check: Make sure autodetection source is not in use already:
