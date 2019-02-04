@@ -47,6 +47,7 @@ using Utils::SmallString;
 using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::FileContainers;
 using ClangBackEnd::ProjectPartContainer;
+using ClangBackEnd::ProjectPartContainers;
 
 class PchManagerServer : public ::testing::Test
 {
@@ -198,8 +199,11 @@ TEST_F(PchManagerServer, DontGeneratePchIfGeneratedFilesAreNotValid)
 {
     InSequence s;
 
+    EXPECT_CALL(mockProjectParts, update(ElementsAre(projectPart1)))
+        .WillOnce(Return(ProjectPartContainers{projectPart1}));
     EXPECT_CALL(mockGeneratedFiles, isValid()).WillOnce(Return(false));
     EXPECT_CALL(mockPchTaskGenerator, addProjectParts(_, _)).Times(0);
+    EXPECT_CALL(mockProjectParts, updateDeferred(ElementsAre(projectPart1)));
 
     server.updateProjectParts(
         ClangBackEnd::UpdateProjectPartsMessage{{projectPart1}, {"toolChainArgument"}});
@@ -209,8 +213,11 @@ TEST_F(PchManagerServer, GeneratePchIfGeneratedFilesAreValid)
 {
     InSequence s;
 
+    EXPECT_CALL(mockProjectParts, update(ElementsAre(projectPart1)))
+        .WillOnce(Return(ProjectPartContainers{projectPart1}));
     EXPECT_CALL(mockGeneratedFiles, isValid()).WillOnce(Return(true));
     EXPECT_CALL(mockPchTaskGenerator, addProjectParts(_, _));
+    EXPECT_CALL(mockProjectParts, updateDeferred(_)).Times(0);
 
     server.updateProjectParts(
         ClangBackEnd::UpdateProjectPartsMessage{{projectPart1}, {"toolChainArgument"}});
