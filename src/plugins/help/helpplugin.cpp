@@ -620,30 +620,6 @@ HelpViewer *HelpPluginPrivate::viewerForContextHelp()
     return viewerForHelpViewerLocation(LocalHelpManager::contextHelpOption());
 }
 
-static QUrl findBestLink(const QMap<QString, QUrl> &links)
-{
-    if (links.isEmpty())
-        return QUrl();
-    QUrl source = links.constBegin().value();
-    // workaround to show the latest Qt version
-    int version = 0;
-    QRegExp exp("(\\d+)");
-    foreach (const QUrl &link, links) {
-        const QString &authority = link.authority();
-        if (authority.startsWith("com.trolltech.")
-                || authority.startsWith("org.qt-project.")) {
-            if (exp.indexIn(authority) >= 0) {
-                const int tmpVersion = exp.cap(1).toInt();
-                if (tmpVersion > version) {
-                    source = link;
-                    version = tmpVersion;
-                }
-            }
-        }
-    }
-    return source;
-}
-
 void HelpPluginPrivate::requestContextHelp()
 {
     // Find out what to show
@@ -660,9 +636,7 @@ void HelpPluginPrivate::requestContextHelp()
 
 void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
 {
-    const QMap<QString, QUrl> &links = contextHelp.links();
-
-    const QUrl source = findBestLink(links);
+    const QUrl source = contextHelp.bestLink();
     if (!source.isValid()) {
         // No link found or no context object
         HelpViewer *viewer = showHelpUrl(QUrl(Help::Constants::AboutBlank),

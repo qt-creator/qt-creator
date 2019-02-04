@@ -173,3 +173,34 @@ const QMap<QString, QUrl> &HelpItem::links() const
     }
     return *m_helpLinks;
 }
+
+static QUrl findBestLink(const QMap<QString, QUrl> &links)
+{
+    if (links.isEmpty())
+        return QUrl();
+    if (links.size() == 1)
+        return links.first();
+    QUrl source = links.first();
+    // workaround to show the latest Qt version
+    int version = 0;
+    QRegExp exp("(\\d+)");
+    foreach (const QUrl &link, links) {
+        const QString &authority = link.authority();
+        if (authority.startsWith("com.trolltech.")
+                || authority.startsWith("org.qt-project.")) {
+            if (exp.indexIn(authority) >= 0) {
+                const int tmpVersion = exp.cap(1).toInt();
+                if (tmpVersion > version) {
+                    source = link;
+                    version = tmpVersion;
+                }
+            }
+        }
+    }
+    return source;
+}
+
+const QUrl HelpItem::bestLink() const
+{
+    return findBestLink(links());
+}
