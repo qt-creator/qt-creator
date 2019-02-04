@@ -47,7 +47,6 @@ public:
     AndroidRunnerWorker(ProjectExplorer::RunWorker *runner, const QString &packageName);
     ~AndroidRunnerWorker() override;
 
-    bool uploadFile(const QString &from, const QString &to, const QString &flags = QString("+x"));
     bool runAdb(const QStringList &args, QString *stdOut = nullptr, const QByteArray &writeData = {});
     void adbKill(qint64 pid);
     QStringList selector() const;
@@ -71,10 +70,13 @@ signals:
     void remoteOutput(const QString &output);
     void remoteErrorOutput(const QString &output);
 
-protected:
+private:
     void asyncStartHelper();
     bool startDebuggerServer(const QString &packageDir, const QString &gdbServerPrefix,
                              const QString &gdbServerExecutable, QString *errorStr = nullptr);
+    bool deviceFileExists(const QString &filePath);
+    bool packageFileExists(const QString& filePath);
+    bool uploadGdbServer();
 
     enum class JDBState {
         Idle,

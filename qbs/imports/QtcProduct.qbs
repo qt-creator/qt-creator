@@ -19,7 +19,14 @@ Product {
 
     Depends { name: "cpp" }
     Depends { name: "qtc" }
-    Depends { name: product.name + " dev headers"; required: false }
+    Depends {
+        name: product.name + " dev headers";
+        required: false
+        Properties {
+            condition: Utilities.versionCompare(qbs.version, "1.13") >= 0
+            enableFallback: false
+        }
+    }
     Depends { name: "Qt.core"; versionAtLeast: "5.9.0" }
 
     // TODO: Should fall back to what came from Qt.core for Qt < 5.7, but we cannot express that

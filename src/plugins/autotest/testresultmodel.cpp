@@ -145,7 +145,7 @@ void TestResultItem::updateResult(bool &changed, Result::Type addedChildType)
                 ? Result::MessageTestCaseSuccess : old;
         break;
     default:
-        return;
+        break;
     }
     changed = old != newResult;
     if (changed)

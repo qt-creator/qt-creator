@@ -53,6 +53,7 @@
 
 namespace {
 Q_LOGGING_CATEGORY(androidRunWorkerLog, "qtc.android.run.androidrunnerworker", QtWarningMsg)
+static const int GdbTempFileMaxCounter = 20;
 }
 
 using namespace std;
@@ -248,19 +249,60 @@ bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut,
     return result.success();
 }
 
-bool AndroidRunnerWorker::uploadFile(const QString &from, const QString &to, const QString &flags)
+bool AndroidRunnerWorker::uploadGdbServer()
 {
-    QFile f(from);
-    if (!f.open(QIODevice::ReadOnly))
+    // Push the gdbserver to  temp location and then to package dir.
+    // the files can't be pushed directly to package because of permissions.
+    qCDebug(androidRunWorkerLog) << "Uploading GdbServer";
+
+    bool foundUnique = true;
+    auto cleanUp = [this, &foundUnique] (QString *p) {
+        if (foundUnique && !runAdb({"shell", "rm", "-f", *p}))
+            qCDebug(androidRunWorkerLog) << "Gdbserver cleanup failed.";
+        delete p;
+    };
+    std::unique_ptr<QString, decltype (cleanUp)>
+            tempGdbServerPath(new QString("/data/local/tmp/%1"), cleanUp);
+
+    // Get a unique temp file name for gdbserver copy
+    int count = 0;
+    while (deviceFileExists(tempGdbServerPath->arg(++count))) {
+        if (count > GdbTempFileMaxCounter) {
+            qCDebug(androidRunWorkerLog) << "Can not get temporary file name";
+            foundUnique = false;
+            return false;
+        }
+    }
+    *tempGdbServerPath = tempGdbServerPath->arg(count);
+
+    // Copy gdbserver to temp location
+    if (!runAdb({"push", m_gdbserverPath , *tempGdbServerPath})) {
+        qCDebug(androidRunWorkerLog) << "Gdbserver upload to temp directory failed";
         return false;
-    runAdb({"shell", "run-as", m_packageName, "rm", to});
-    const QByteArray data = f.readAll();
+    }
+
+    // Copy gdbserver from temp location to app directory
+    if (!runAdb({"shell", "run-as", m_packageName, "cp" , *tempGdbServerPath, "./gdbserver"})) {
+        qCDebug(androidRunWorkerLog) << "Gdbserver copy from temp directory failed";
+        return false;
+    }
+    QTC_ASSERT(runAdb({"shell", "run-as", m_packageName, "chmod", "+x", "./gdbserver"}),
+                   qCDebug(androidRunWorkerLog) << "Gdbserver chmod +x failed.");
+    return true;
+}
+
+bool AndroidRunnerWorker::deviceFileExists(const QString &filePath)
+{
     QString output;
-    const bool res = runAdb({"shell", "run-as", m_packageName, QString("sh -c 'base64 -d > %1'").arg(to)},
-                            &output, data.toBase64());
-    if (!res || output.contains("base64: not found"))
-        return false;
-    return runAdb({"shell", "run-as", m_packageName, "chmod", flags, to});
+    const bool success = runAdb({"shell", "ls", filePath, "2>/dev/null"}, &output);
+    return success && !output.trimmed().isEmpty();
+}
+
+bool AndroidRunnerWorker::packageFileExists(const QString &filePath)
+{
+    QString output;
+    const bool success = runAdb({"shell", "run-as", m_packageName, "ls", filePath, "2>/dev/null"}, &output);
+    return success && !output.trimmed().isEmpty();
 }
 
 void AndroidRunnerWorker::adbKill(qint64 pid)
@@ -403,26 +445,28 @@ void AndroidRunnerWorker::asyncStartHelper()
         // e.g. on Android 8 with NDK 10e
         runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir.trimmed()});
 
-        QString gdbServerExecutable;
+        QString gdbServerExecutable = "gdbserver";
         QString gdbServerPrefix = "./lib/";
-        if (m_gdbserverPath.isEmpty() || !uploadFile(m_gdbserverPath, "gdbserver")) {
-            // upload failed - check for old devices
-            QString output;
-            if (runAdb({"shell", "run-as", m_packageName, "ls", "lib/"}, &output)) {
-                for (const auto &line: output.split('\n')) {
-                    if (line.indexOf("gdbserver") != -1/* || line.indexOf("lldb-server") != -1*/) {
-                        gdbServerExecutable = line.trimmed();
-                        break;
-                    }
-                }
-            }
-            if (gdbServerExecutable.isEmpty()) {
+        auto findGdbServer = [this, &gdbServerExecutable, gdbServerPrefix](const QString& gdbEx) {
+            if (!packageFileExists(gdbServerPrefix + gdbEx))
+                return false;
+            gdbServerExecutable = gdbEx;
+            return true;
+        };
+
+        if (!findGdbServer("gdbserver") && !findGdbServer("libgdbserver.so")) {
+            // Armv8. symlink lib is not available.
+            // Kill the previous instances of gdbserver. Do this before copying the gdbserver.
+            runAdb({"shell", "run-as", m_packageName, "killall", gdbServerExecutable});
+            if (!m_gdbserverPath.isEmpty() && uploadGdbServer()) {
+                gdbServerPrefix = "./";
+            } else {
                 emit remoteProcessFinished(tr("Cannot find/copy C++ debug server."));
                 return;
             }
         } else {
-            gdbServerPrefix = "./";
-            gdbServerExecutable = "gdbserver";
+            qCDebug(androidRunWorkerLog) << "Found GDB server under ./lib";
+            runAdb({"shell", "run-as", m_packageName, "killall", gdbServerExecutable});
         }
 
         QString debuggerServerErr;
@@ -484,7 +528,6 @@ bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
                                               QString *errorStr)
 {
     QString gdbServerSocket = packageDir + "/debug-socket";
-    runAdb({"shell", "run-as", m_packageName, "killall", gdbServerExecutable});
     runAdb({"shell", "run-as", m_packageName, "rm", gdbServerSocket});
 
     QString gdbProcessErr;
