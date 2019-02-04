@@ -398,7 +398,7 @@ bool FlatModel::trimEmptyDirectories(WrapperNode *parent)
 
 Qt::DropActions FlatModel::supportedDragActions() const
 {
-    return Qt::MoveAction;
+    return Qt::CopyAction;
 }
 
 QStringList FlatModel::mimeTypes() const
