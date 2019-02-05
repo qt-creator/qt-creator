@@ -54,6 +54,7 @@ const char KIT_DATA_KEY[] = "Profile.";
 const char KIT_COUNT_KEY[] = "Profile.Count";
 const char KIT_FILE_VERSION_KEY[] = "Version";
 const char KIT_DEFAULT_KEY[] = "Profile.Default";
+const char KIT_IRRELEVANT_ASPECTS_KEY[] = "Kit.IrrelevantAspects";
 const char KIT_FILENAME[] = "/profiles.xml";
 
 static FileName settingsFileName()
@@ -73,6 +74,7 @@ public:
     std::vector<std::unique_ptr<KitAspect>> m_informationList;
     std::vector<std::unique_ptr<Kit>> m_kitList;
     std::unique_ptr<PersistentSettingsWriter> m_writer;
+    QSet<Id> m_irrelevantAspects;
 };
 
 } // namespace Internal
@@ -220,6 +222,8 @@ void KitManager::saveKits()
     data.insert(QLatin1String(KIT_COUNT_KEY), count);
     data.insert(QLatin1String(KIT_DEFAULT_KEY),
                 d->m_defaultKit ? QString::fromLatin1(d->m_defaultKit->id().name()) : QString());
+    data.insert(KIT_IRRELEVANT_ASPECTS_KEY,
+                transform<QVariantList>(d->m_irrelevantAspects, &Id::toSetting));
     d->m_writer->save(data, ICore::mainWindow());
 }
 
@@ -335,6 +339,9 @@ KitManager::KitList KitManager::restoreKits(const FileName &fileName)
 
     if (Utils::contains(result.kits, [id](const std::unique_ptr<Kit> &k) { return k->id() == id; }))
         result.defaultKit = id;
+    const auto it = data.constFind(KIT_IRRELEVANT_ASPECTS_KEY);
+    if (it != data.constEnd())
+        d->m_irrelevantAspects = transform<QSet<Id>>(it.value().toList(), &Id::fromSetting);
 
     return result;
 }
@@ -368,6 +375,16 @@ Kit *KitManager::defaultKit()
 const QList<KitAspect *> KitManager::kitAspects()
 {
     return Utils::toRawPointer<QList>(d->m_informationList);
+}
+
+const QSet<Id> KitManager::irrelevantAspects()
+{
+    return d->m_irrelevantAspects;
+}
+
+void KitManager::setIrrelevantAspects(const QSet<Id> &aspects)
+{
+    d->m_irrelevantAspects = aspects;
 }
 
 void KitManager::notifyAboutUpdate(Kit *k)

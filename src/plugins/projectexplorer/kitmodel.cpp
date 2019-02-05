@@ -266,6 +266,13 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     return k;
 }
 
+void KitModel::updateVisibility()
+{
+    forItemsAtLevel<2>([](const TreeItem *ti) {
+        static_cast<const KitNode *>(ti)->widget->updateVisibility();
+    });
+}
+
 KitNode *KitModel::findWorkingCopy(Kit *k) const
 {
     return findItemAtLevel<2>([k](KitNode *n) { return n->widget->workingCopy() == k; });

@@ -36,6 +36,7 @@
 #include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/macroexpander.h>
+#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -58,6 +59,7 @@ const char DATA_KEY[] = "PE.Profile.Data";
 const char ICON_KEY[] = "PE.Profile.Icon";
 const char MUTABLE_INFO_KEY[] = "PE.Profile.MutableInfo";
 const char STICKY_INFO_KEY[] = "PE.Profile.StickyInfo";
+const char IRRELEVANT_ASPECTS_KEY[] = "PE.Kit.IrrelevantAspects";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -122,6 +124,7 @@ public:
     QHash<Id, QVariant> m_data;
     QSet<Id> m_sticky;
     QSet<Id> m_mutable;
+    optional<QSet<Id>> m_irrelevantAspects;
     MacroExpander m_macroExpander;
 };
 
@@ -158,6 +161,9 @@ Kit::Kit(const QVariantMap &data) :
     d->m_fileSystemFriendlyName = data.value(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY)).toString();
     d->m_iconPath = FileName::fromString(data.value(QLatin1String(ICON_KEY),
                                                     d->m_iconPath.toString()).toString());
+    const auto it = data.constFind(IRRELEVANT_ASPECTS_KEY);
+    if (it != data.constEnd())
+        d->m_irrelevantAspects = transform<QSet<Id>>(it.value().toList(), &Id::fromSetting);
 
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
     d->m_data.clear(); // remove default values
@@ -206,6 +212,7 @@ Kit *Kit::clone(bool keepName) const
     k->d->m_iconPath = d->m_iconPath;
     k->d->m_sticky = d->m_sticky;
     k->d->m_mutable = d->m_mutable;
+    k->d->m_irrelevantAspects = d->m_irrelevantAspects;
     return k;
 }
 
@@ -222,6 +229,7 @@ void Kit::copyFrom(const Kit *k)
     d->m_mustNotify = true;
     d->m_sticky = k->d->m_sticky;
     d->m_mutable = k->d->m_mutable;
+    d->m_irrelevantAspects = k->d->m_irrelevantAspects;
 }
 
 bool Kit::isValid() const
@@ -461,8 +469,8 @@ bool Kit::isEqual(const Kit *other) const
             && d->m_iconPath == other->d->m_iconPath
             && d->m_unexpandedDisplayName == other->d->m_unexpandedDisplayName
             && d->m_fileSystemFriendlyName == other->d->m_fileSystemFriendlyName
+            && d->m_irrelevantAspects == other->d->m_irrelevantAspects
             && d->m_mutable == other->d->m_mutable;
-
 }
 
 QVariantMap Kit::toMap() const
@@ -488,6 +496,11 @@ QVariantMap Kit::toMap() const
     foreach (Id id, d->m_sticky)
         stickyInfo << id.toString();
     data.insert(QLatin1String(STICKY_INFO_KEY), stickyInfo);
+
+    if (d->m_irrelevantAspects) {
+        data.insert(IRRELEVANT_ASPECTS_KEY, transform<QVariantList>(d->m_irrelevantAspects.value(),
+                                                                    &Id::toSetting));
+    }
 
     QVariantMap extra;
 
@@ -609,6 +622,16 @@ void Kit::setMutable(Id id, bool b)
 bool Kit::isMutable(Id id) const
 {
     return d->m_mutable.contains(id);
+}
+
+void Kit::setIrrelevantAspects(const QSet<Id> &irrelevant)
+{
+    d->m_irrelevantAspects = irrelevant;
+}
+
+QSet<Id> Kit::irrelevantAspects() const
+{
+    return d->m_irrelevantAspects.value_or(KitManager::irrelevantAspects());
 }
 
 QSet<Id> Kit::supportedPlatforms() const

@@ -810,6 +810,7 @@ DeviceTypeKitAspect::DeviceTypeKitAspect()
     setDisplayName(tr("Device type"));
     setDescription(tr("The type of device to run applications on."));
     setPriority(33000);
+    makeEssential();
 }
 
 QVariant DeviceTypeKitAspect::defaultValue(const Kit *k) const

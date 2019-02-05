@@ -69,6 +69,7 @@ Project {
                 "expanddata.cpp", "expanddata.h",
                 "extraabi.cpp", "extraabi.h",
                 "extracompiler.cpp", "extracompiler.h",
+                "filterkitaspectsdialog.cpp", "filterkitaspectsdialog.h",
                 "foldernavigationwidget.cpp", "foldernavigationwidget.h",
                 "gccparser.cpp", "gccparser.h",
                 "gcctoolchain.cpp", "gcctoolchain.h",

@@ -123,6 +123,9 @@ public:
     void setMutable(Core::Id id, bool b);
     bool isMutable(Core::Id id) const;
 
+    void setIrrelevantAspects(const QSet<Core::Id> &irrelevant);
+    QSet<Core::Id> irrelevantAspects() const;
+
     QSet<Core::Id> supportedPlatforms() const;
     QSet<Core::Id> availableFeatures() const;
     bool hasFeatures(const QSet<Core::Id> &features) const;

@@ -45,6 +45,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPainter>
+#include <QPushButton>
 #include <QToolButton>
 #include <QScrollArea>
 #include <QSizePolicy>
@@ -262,7 +263,8 @@ void KitManagerConfigWidget::updateVisibility()
     int count = m_widgets.count();
     for (int i = 0; i < count; ++i) {
         KitAspectWidget *widget = m_widgets.at(i);
-        bool visible = widget->visibleInKit();
+        const bool visible = widget->visibleInKit()
+                && !m_modifiedKit->irrelevantAspects().contains(widget->kitInformationId());
         widget->mainWidget()->setVisible(visible);
         if (widget->buttonWidget())
             widget->buttonWidget()->setVisible(visible);

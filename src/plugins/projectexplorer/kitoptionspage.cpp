@@ -25,12 +25,15 @@
 
 #include "kitoptionspage.h"
 
+#include "filterkitaspectsdialog.h"
 #include "kitmodel.h"
 #include "kit.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
+
+#include <utils/qtcassert.h>
 
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -67,10 +70,12 @@ public:
     QPushButton *m_cloneButton = nullptr;
     QPushButton *m_delButton = nullptr;
     QPushButton *m_makeDefaultButton = nullptr;
+    QPushButton *m_filterButton = nullptr;
+    QPushButton *m_defaultFilterButton = nullptr;
 
     KitModel *m_model = nullptr;
     QItemSelectionModel *m_selectionModel = nullptr;
-    QWidget *m_currentWidget = nullptr;
+    KitManagerConfigWidget *m_currentWidget = nullptr;
 };
 
 KitOptionsPageWidget::KitOptionsPageWidget()
@@ -85,6 +90,12 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     m_cloneButton = new QPushButton(KitOptionsPage::tr("Clone"), this);
     m_delButton = new QPushButton(KitOptionsPage::tr("Remove"), this);
     m_makeDefaultButton = new QPushButton(KitOptionsPage::tr("Make Default"), this);
+    m_filterButton = new QPushButton(KitOptionsPage::tr("Settings Filter..."), this);
+    m_filterButton->setToolTip(KitOptionsPage::tr(
+                                   "Choose which settings to display for this kit."));
+    m_defaultFilterButton = new QPushButton(KitOptionsPage::tr("Default Settings Filter..."), this);
+    m_defaultFilterButton->setToolTip(KitOptionsPage::tr(
+                                          "Choose which kit settings to display by default."));
 
     auto buttonLayout = new QVBoxLayout;
     buttonLayout->setSpacing(6);
@@ -93,6 +104,8 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     buttonLayout->addWidget(m_cloneButton);
     buttonLayout->addWidget(m_delButton);
     buttonLayout->addWidget(m_makeDefaultButton);
+    buttonLayout->addWidget(m_filterButton);
+    buttonLayout->addWidget(m_defaultFilterButton);
     buttonLayout->addStretch();
 
     auto horizontalLayout = new QHBoxLayout;
@@ -131,14 +144,28 @@ KitOptionsPageWidget::KitOptionsPageWidget()
             this, &KitOptionsPageWidget::removeKit);
     connect(m_makeDefaultButton, &QAbstractButton::clicked,
             this, &KitOptionsPageWidget::makeDefaultKit);
-
+    connect(m_filterButton, &QAbstractButton::clicked, this, [this] {
+        QTC_ASSERT(m_currentWidget, return);
+        FilterKitAspectsDialog dlg(m_currentWidget->workingCopy(), this);
+        if (dlg.exec() == QDialog::Accepted) {
+            m_currentWidget->workingCopy()->setIrrelevantAspects(dlg.irrelevantAspects());
+            m_currentWidget->updateVisibility();
+        }
+    });
+    connect(m_defaultFilterButton, &QAbstractButton::clicked, this, [this] {
+        FilterKitAspectsDialog dlg(nullptr, this);
+        if (dlg.exec() == QDialog::Accepted) {
+            KitManager::setIrrelevantAspects(dlg.irrelevantAspects());
+            m_model->updateVisibility();
+        }
+    });
     updateState();
 }
 
 void KitOptionsPageWidget::kitSelectionChanged()
 {
     QModelIndex current = currentIndex();
-    QWidget *newWidget = m_model->widget(current);
+    KitManagerConfigWidget * const newWidget = m_model->widget(current);
     if (newWidget == m_currentWidget)
         return;
 
@@ -216,6 +243,7 @@ void KitOptionsPageWidget::updateState()
     m_cloneButton->setEnabled(canCopy);
     m_delButton->setEnabled(canDelete);
     m_makeDefaultButton->setEnabled(canMakeDefault);
+    m_filterButton->setEnabled(canCopy);
 }
 
 QModelIndex KitOptionsPageWidget::currentIndex() const

@@ -34,6 +34,7 @@
 
 #include <QObject>
 #include <QPair>
+#include <QSet>
 
 #include <functional>
 
@@ -76,6 +77,7 @@ public:
     int priority() const { return m_priority; }
     QString displayName() const { return m_displayName; }
     QString description() const { return m_description; }
+    bool isEssential() const { return m_essential; }
 
     virtual QVariant defaultValue(const Kit *) const = 0;
 
@@ -108,6 +110,7 @@ protected:
     void setId(Core::Id id) { m_id = id; }
     void setDisplayName(const QString &name) { m_displayName = name; }
     void setDescription(const QString &desc) { m_description = desc; }
+    void makeEssential() { m_essential = true; }
     void setPriority(int priority) { m_priority = priority; }
     void notifyAboutUpdate(Kit *k);
 
@@ -116,6 +119,7 @@ private:
     QString m_description;
     Core::Id m_id;
     int m_priority = 0; // The higher the closer to the top.
+    bool m_essential = false;
 };
 
 class PROJECTEXPLORER_EXPORT KitAspectWidget : public QObject
@@ -166,6 +170,8 @@ public:
     static Kit *defaultKit();
 
     static const QList<KitAspect *> kitAspects();
+    static const QSet<Core::Id> irrelevantAspects();
+    static void setIrrelevantAspects(const QSet<Core::Id> &aspects);
 
     static bool registerKit(std::unique_ptr<Kit> &&k);
     static void deregisterKit(Kit *k);

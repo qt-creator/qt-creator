@@ -69,6 +69,8 @@ public:
     void markForRemoval(Kit *k);
     Kit *markForAddition(Kit *baseKit);
 
+    void updateVisibility();
+
 signals:
     void kitStateChanged();
 
