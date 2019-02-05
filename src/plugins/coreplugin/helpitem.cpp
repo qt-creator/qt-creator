@@ -51,16 +51,6 @@ HelpItem::HelpItem(const QUrl &url, const QString &docMark, HelpItem::Category c
     , m_category(category)
 {}
 
-HelpItem::HelpItem(const QUrl &url,
-                   const QString &docMark,
-                   HelpItem::Category category,
-                   const QMap<QString, QUrl> &helpLinks)
-    : m_helpUrl(url)
-    , m_docMark(docMark)
-    , m_category(category)
-    , m_helpLinks(helpLinks)
-{}
-
 HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category)
     : HelpItem(QStringList(helpId), docMark, category)
 {}
@@ -104,6 +94,11 @@ void HelpItem::setCategory(Category cat)
 
 HelpItem::Category HelpItem::category() const
 { return m_category; }
+
+bool HelpItem::isEmpty() const
+{
+    return m_helpUrl.isEmpty() && m_helpIds.isEmpty();
+}
 
 bool HelpItem::isValid() const
 {

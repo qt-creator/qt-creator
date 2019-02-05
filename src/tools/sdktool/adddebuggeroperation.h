@@ -46,7 +46,7 @@ public:
 
     static QVariantMap addDebugger(const QVariantMap &map,
                                    const QString &id, const QString &displayName,
-                                   const quint32 &engine, const QString &binary,
+                                   int engine, const QString &binary,
                                    const QStringList &abis, const KeyValuePairList &extra);
 
     static QVariantMap initializeDebuggers();
@@ -54,7 +54,7 @@ public:
 private:
     QString m_id;
     QString m_displayName;
-    quint32 m_engine = 0;
+    int m_engine = 0;
     QString m_binary;
     QStringList m_abis;
     KeyValuePairList m_extra;

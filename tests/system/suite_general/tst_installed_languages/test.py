@@ -46,7 +46,7 @@ def main():
         invokeMenuItem("File", "Exit")
         waitForCleanShutdown()
         snooze(4) # wait for complete unloading of Creator
-        startQC()
+        startQC(cancelTour=False)
         try:
             # Use Locator for menu items which wouldn't work on macOS
             exitCommand = testData.field(lang, "Exit")

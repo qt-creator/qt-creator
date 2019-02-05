@@ -591,8 +591,9 @@ void Client::handleCodeActionResponse(const CodeActionRequest::Response &respons
             for (const Utils::variant<Command, CodeAction> &item : *list) {
                 if (auto action = Utils::get_if<CodeAction>(&item))
                     updateCodeActionRefactoringMarker(this, *action, uri);
-                else if (auto command = Utils::get_if<Command>(&item))
-                    ; // todo
+                else if (auto command = Utils::get_if<Command>(&item)) {
+                    Q_UNUSED(command); // todo
+                }
             }
         }
     }
