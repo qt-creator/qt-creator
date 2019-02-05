@@ -133,3 +133,5 @@ for(p, SUBDIRS) {
 linux-* {
      SUBDIRS += debugger/ptracepreload.pro
 }
+
+QMAKE_EXTRA_TARGETS += deployqt # dummy

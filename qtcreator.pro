@@ -150,4 +150,7 @@ win32 {
     bindist_installer.commands ~= s,/,\\\\,g
 }
 
+deployqt.CONFIG += recursive
+deployqt.recurse = src
+
 QMAKE_EXTRA_TARGETS += deployqt bindist bindist_installer bindist_debug

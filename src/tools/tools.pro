@@ -81,3 +81,8 @@ exists(perfparser/perfparser.pro) {
 }
 
 OTHER_FILES += tools.qbs
+
+# delegate deployqt target
+deployqt.CONFIG += recursive
+deployqt.recurse = perfparser
+QMAKE_EXTRA_TARGETS += deployqt
