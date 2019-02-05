@@ -471,7 +471,9 @@ void TestResultsPane::updateSummaryLabel()
     if (count)
         labelText += ", " + QString::number(count) + ' ' + tr("fatals");
     count = m_model->resultTypeCount(Result::BlacklistedFail)
-            + m_model->resultTypeCount(Result::BlacklistedPass);
+            + m_model->resultTypeCount(Result::BlacklistedXFail)
+            + m_model->resultTypeCount(Result::BlacklistedPass)
+            + m_model->resultTypeCount(Result::BlacklistedXPass);
     if (count)
         labelText += ", " + QString::number(count) + ' ' + tr("blacklisted");
     count = m_model->resultTypeCount(Result::Skip);
