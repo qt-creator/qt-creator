@@ -361,7 +361,7 @@ public:
     void handleRenameFile();
     void handleSetStartupProject();
     void setStartupProject(ProjectExplorer::Project *project);
-    void closeAllFilesInProject(const Project *project);
+    bool closeAllFilesInProject(const Project *project);
 
     void updateRecentProjectMenu();
     void clearRecentProjects();
@@ -1700,6 +1700,9 @@ void ProjectExplorerPlugin::unloadProject(Project *project)
     if (!DocumentManager::saveModifiedDocumentSilently(document))
         return;
 
+    if (!dd->closeAllFilesInProject(project))
+        return;
+
     dd->addToRecentProjects(document->filePath().toString(), project->displayName());
 
     SessionManager::removeProject(project);
@@ -1850,9 +1853,9 @@ void ProjectExplorerPluginPrivate::setStartupProject(Project *project)
     updateActions();
 }
 
-void ProjectExplorerPluginPrivate::closeAllFilesInProject(const Project *project)
+bool ProjectExplorerPluginPrivate::closeAllFilesInProject(const Project *project)
 {
-    QTC_ASSERT(project, return);
+    QTC_ASSERT(project, return false);
     const Utils::FileNameList filesInProject = project->files(Project::AllFiles);
     QList<IDocument *> openFiles = DocumentModel::openedDocuments();
     Utils::erase(openFiles, [filesInProject](const IDocument *doc) {
@@ -1867,7 +1870,7 @@ void ProjectExplorerPluginPrivate::closeAllFilesInProject(const Project *project
             return filesInOtherProject.contains(doc->filePath());
         });
     }
-    EditorManager::closeDocuments(openFiles);
+    return EditorManager::closeDocuments(openFiles);
 }
 
 void ProjectExplorerPluginPrivate::savePersistentSettings()
