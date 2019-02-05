@@ -51,49 +51,32 @@
 
     \section1 Generic Highlighting
 
-    Generic highlighting is based on highlight definition files that are
-    provided by the
-    \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
-    {Kate Editor}. You can download highlight definition files for use with \QC.
-    For more information about the definition files, see
-    \l{http://kde-files.org/index.php?xcontentmode=680}{KDE-Files.org}.
+    Generic highlighting is provided by
+    \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
+    {KSyntaxHighlighting}, which is the syntax highlighting engine for Kate
+    syntax definitions. \QC comes with most of the commonly used syntax files,
+    and you can download additional files. For more information about the
+    definition files, see
+    \l{https://docs.kde.org/stable5/en/applications/katepart/highlight.html}
+    {Working with Syntax Highlighting}.
 
-    If you have a Unix installation that comes with the Kate Editor, you might
-    already have the definition files installed. Typically, the files are
-    located in a read-only directory, and therefore, you cannot manage them. \QC
-    can try to locate them and use them as fallback files, when the primary
-    location does not contain the definition for the current file type. You can
-    also specify the directory that contains preinstalled highlight
-    definition files as the primary location.
+    If the editor cannot find the highlight definition for a file that you open
+    for editing, it prompts you to update the highlight definition files. Select
+    \uicontrol {Update Definitions} to update the files.
 
-    When you open a file for editing and the editor cannot find the highlight
-    definition for it, an alert appears. To suppress the alerts, you can specify
-    patterns for ignoring files.
+    To suppress the message for a particular file pattern, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor}
+    > \uicontrol {Generic Highlighter} and add the pattern to the
+    \uicontrol {Ignored file patterns} field.
 
-    To download highlight definition files:
+    \image qtcreator-syntax-highlighter.png "Generic Highlighter options"
 
-    \list 1
-        \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.
-            \image qtcreator-generic-highlighter.png "Generic Highlighter options"
-        \li In the \uicontrol Location field, specify the path to the primary
-            location for highlight definition files.
-        \li Click \uicontrol {Download Definitions} to open a list of highlight
-            definition files available for download.
-            \image qtcreator-manage-definitions.png "Download Definitions dialog"
-        \li Select highlight definition files in the list and click
-            \uicontrol {Download Selected Definitions}.
-        \li Select the \uicontrol {Use fallback location} check box to specify
-            the secondary location where the editor will look for highlight
-            definition files.
-        \li Click \uicontrol Autodetect to allow \QC to look for highlight
-            definition files on your system, or click \uicontrol Browse to
-            locate them in the file system yourself.
-        \li In the \uicontrol {Ignored file patterns} field, specify file
-            patterns to suppress alerts if the highlight definitions for the
-            specified files are not found.
-        \li Click \uicontrol OK to save your changes.
-    \endlist
+    If you have written your own syntax definition files, you
+    can provide an additional definition search path in the
+    \uicontrol {User Highlight Definition Files} field.
+
+    To manually update the highlight definition files, select
+    \uicontrol {Update Definitions}.
 
     \section1 Highlighting and Folding Blocks
 
