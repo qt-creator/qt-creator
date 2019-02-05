@@ -536,7 +536,7 @@ public:
         const auto *node = ClazyChecksTree::fromIndex(index);
         if (node->kind == ClazyChecksTree::CheckNode) {
             const QStringList topics = node->checkInfo.topics;
-            return Utils::anyOf(m_topics, [this, topics](const QString &topic) {
+            return Utils::anyOf(m_topics, [topics](const QString &topic) {
                 return topics.contains(topic);
             });
         }
