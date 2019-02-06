@@ -33,11 +33,6 @@
 namespace Autotest {
 namespace Internal {
 
-GTestResult::GTestResult(const QString &projectFile, const QString &name)
-    : TestResult(name), m_projectFile(projectFile)
-{
-}
-
 GTestResult::GTestResult(const QString &id, const QString &projectFile,
                          const QString &name)
     : TestResult(id, name), m_projectFile(projectFile)
@@ -49,8 +44,8 @@ const QString GTestResult::outputString(bool selected) const
     const QString &desc = description();
     QString output;
     switch (result()) {
-    case Result::Pass:
-    case Result::Fail:
+    case ResultType::Pass:
+    case ResultType::Fail:
         output = m_testSetName;
         if (selected && !desc.isEmpty())
             output.append('\n').append(desc);
@@ -70,9 +65,9 @@ bool GTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermedi
 
     const GTestResult *gtOther = static_cast<const GTestResult *>(other);
     if (m_testSetName == gtOther->m_testSetName) {
-        const Result::Type otherResult = other->result();
-        if (otherResult == Result::MessageInternal || otherResult == Result::MessageLocation)
-            return result() != Result::MessageInternal && result() != Result::MessageLocation;
+        const ResultType otherResult = other->result();
+        if (otherResult == ResultType::MessageInternal || otherResult == ResultType::MessageLocation)
+            return result() != ResultType::MessageInternal && result() != ResultType::MessageLocation;
     }
     if (m_iteration != gtOther->m_iteration)
         return false;

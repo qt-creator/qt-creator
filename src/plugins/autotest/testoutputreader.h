@@ -45,7 +45,7 @@ public:
     void processOutput(const QByteArray &output);
     virtual void processStdError(const QByteArray &outputLineWithNewLine);
     void reportCrash();
-    void createAndReportResult(const QString &message, Result::Type type);
+    void createAndReportResult(const QString &message, ResultType type);
     bool hadValidOutput() const { return m_hadValidOutput; }
     int disabledTests() const { return m_disabled; }
     void setId(const QString &id) { m_id = id; }

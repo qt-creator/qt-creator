@@ -74,11 +74,11 @@ void TestOutputReader::reportCrash()
 {
     TestResultPtr result = createDefaultResult();
     result->setDescription(tr("Test executable crashed."));
-    result->setResult(Result::MessageFatal);
+    result->setResult(ResultType::MessageFatal);
     m_futureInterface.reportResult(result);
 }
 
-void TestOutputReader::createAndReportResult(const QString &message, Result::Type type)
+void TestOutputReader::createAndReportResult(const QString &message, ResultType type)
 {
     TestResultPtr result = createDefaultResult();
     result->setDescription(message);

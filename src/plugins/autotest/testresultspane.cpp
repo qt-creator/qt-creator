@@ -230,9 +230,9 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
     m_atEnd = scrollBar ? scrollBar->value() == scrollBar->maximum() : true;
 
     m_model->addTestResult(result, m_expandCollapse->isChecked());
-    setIconBadgeNumber(m_model->resultTypeCount(Result::Fail)
-                       + m_model->resultTypeCount(Result::MessageFatal)
-                       + m_model->resultTypeCount(Result::UnexpectedPass));
+    setIconBadgeNumber(m_model->resultTypeCount(ResultType::Fail)
+                       + m_model->resultTypeCount(ResultType::MessageFatal)
+                       + m_model->resultTypeCount(ResultType::UnexpectedPass));
     flash();
     navigateStateChanged();
 }
@@ -425,24 +425,24 @@ void TestResultsPane::initializeFilterMenu()
     const bool omitIntern = AutotestPlugin::settings()->omitInternalMssg;
     // FilterModel has all messages enabled by default
     if (omitIntern)
-        m_filterModel->toggleTestResultType(Result::MessageInternal);
+        m_filterModel->toggleTestResultType(ResultType::MessageInternal);
 
-    QMap<Result::Type, QString> textAndType;
-    textAndType.insert(Result::Pass, tr("Pass"));
-    textAndType.insert(Result::Fail, tr("Fail"));
-    textAndType.insert(Result::ExpectedFail, tr("Expected Fail"));
-    textAndType.insert(Result::UnexpectedPass, tr("Unexpected Pass"));
-    textAndType.insert(Result::Skip, tr("Skip"));
-    textAndType.insert(Result::Benchmark, tr("Benchmarks"));
-    textAndType.insert(Result::MessageDebug, tr("Debug Messages"));
-    textAndType.insert(Result::MessageWarn, tr("Warning Messages"));
-    textAndType.insert(Result::MessageInternal, tr("Internal Messages"));
-    for (Result::Type result : textAndType.keys()) {
+    QMap<ResultType, QString> textAndType;
+    textAndType.insert(ResultType::Pass, tr("Pass"));
+    textAndType.insert(ResultType::Fail, tr("Fail"));
+    textAndType.insert(ResultType::ExpectedFail, tr("Expected Fail"));
+    textAndType.insert(ResultType::UnexpectedPass, tr("Unexpected Pass"));
+    textAndType.insert(ResultType::Skip, tr("Skip"));
+    textAndType.insert(ResultType::Benchmark, tr("Benchmarks"));
+    textAndType.insert(ResultType::MessageDebug, tr("Debug Messages"));
+    textAndType.insert(ResultType::MessageWarn, tr("Warning Messages"));
+    textAndType.insert(ResultType::MessageInternal, tr("Internal Messages"));
+    for (ResultType result : textAndType.keys()) {
         QAction *action = new QAction(m_filterMenu);
         action->setText(textAndType.value(result));
         action->setCheckable(true);
-        action->setChecked(result != Result::MessageInternal || !omitIntern);
-        action->setData(result);
+        action->setChecked(result != ResultType::MessageInternal || !omitIntern);
+        action->setData(int(result));
         m_filterMenu->addAction(action);
     }
     m_filterMenu->addSeparator();
@@ -459,26 +459,26 @@ void TestResultsPane::updateSummaryLabel()
     QString labelText = QString("<p>");
     labelText.append(tr("Test summary"));
     labelText.append(":&nbsp;&nbsp; ");
-    int count = m_model->resultTypeCount(Result::Pass);
+    int count = m_model->resultTypeCount(ResultType::Pass);
     labelText += QString::number(count) + ' ' + tr("passes");
-    count = m_model->resultTypeCount(Result::Fail);
+    count = m_model->resultTypeCount(ResultType::Fail);
     labelText += ", " + QString::number(count) + ' ' + tr("fails");
-    count = m_model->resultTypeCount(Result::UnexpectedPass);
+    count = m_model->resultTypeCount(ResultType::UnexpectedPass);
     if (count)
         labelText += ", " + QString::number(count) + ' ' + tr("unexpected passes");
-    count = m_model->resultTypeCount(Result::ExpectedFail);
+    count = m_model->resultTypeCount(ResultType::ExpectedFail);
     if (count)
         labelText += ", " + QString::number(count) + ' ' + tr("expected fails");
-    count = m_model->resultTypeCount(Result::MessageFatal);
+    count = m_model->resultTypeCount(ResultType::MessageFatal);
     if (count)
         labelText += ", " + QString::number(count) + ' ' + tr("fatals");
-    count = m_model->resultTypeCount(Result::BlacklistedFail)
-            + m_model->resultTypeCount(Result::BlacklistedXFail)
-            + m_model->resultTypeCount(Result::BlacklistedPass)
-            + m_model->resultTypeCount(Result::BlacklistedXPass);
+    count = m_model->resultTypeCount(ResultType::BlacklistedFail)
+            + m_model->resultTypeCount(ResultType::BlacklistedXFail)
+            + m_model->resultTypeCount(ResultType::BlacklistedPass)
+            + m_model->resultTypeCount(ResultType::BlacklistedXPass);
     if (count)
         labelText += ", " + QString::number(count) + ' ' + tr("blacklisted");
-    count = m_model->resultTypeCount(Result::Skip);
+    count = m_model->resultTypeCount(ResultType::Skip);
     if (count)
         labelText += ", " + QString::number(count) + ' ' + tr("skipped");
     count = m_model->disabledTests();
@@ -513,9 +513,9 @@ void TestResultsPane::onTestRunStarted()
 
 static bool hasFailedTests(const TestResultModel *model)
 {
-    return (model->resultTypeCount(Result::Fail) > 0
-            || model->resultTypeCount(Result::MessageFatal) > 0
-            || model->resultTypeCount(Result::UnexpectedPass) > 0);
+    return (model->resultTypeCount(ResultType::Fail) > 0
+            || model->resultTypeCount(ResultType::MessageFatal) > 0
+            || model->resultTypeCount(ResultType::UnexpectedPass) > 0);
 }
 
 void TestResultsPane::onTestRunFinished()
@@ -658,8 +658,8 @@ QString TestResultsPane::getWholeOutput(const QModelIndex &parent)
 void TestResultsPane::createMarks(const QModelIndex &parent)
 {
     const TestResult *parentResult = m_model->testResult(parent);
-    Result::Type parentType = parentResult ? parentResult->result() : Result::Invalid;
-    const QVector<Result::Type> interested{Result::Fail, Result::UnexpectedPass};
+    ResultType parentType = parentResult ? parentResult->result() : ResultType::Invalid;
+    const QVector<ResultType> interested{ResultType::Fail, ResultType::UnexpectedPass};
     for (int row = 0, count = m_model->rowCount(parent); row < count; ++row) {
         const QModelIndex index = m_model->index(row, 0, parent);
         const TestResult *result = m_model->testResult(index);
@@ -668,7 +668,7 @@ void TestResultsPane::createMarks(const QModelIndex &parent)
         if (m_model->hasChildren(index))
             createMarks(index);
 
-        bool isLocationItem = result->result() == Result::MessageLocation;
+        bool isLocationItem = result->result() == ResultType::MessageLocation;
         if (interested.contains(result->result())
                 || (isLocationItem && interested.contains(parentType))) {
             const Utils::FileName fileName = Utils::FileName::fromString(result->fileName());

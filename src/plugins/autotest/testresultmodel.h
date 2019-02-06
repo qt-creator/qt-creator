@@ -44,7 +44,7 @@ public:
     QVariant data(int column, int role) const override;
     const TestResult *testResult() const { return m_testResult.data(); }
     void updateDescription(const QString &description);
-    void updateResult(bool &changed, Result::Type addedChildType);
+    void updateResult(bool &changed, ResultType addedChildType);
 
     TestResultItem *intermediateFor(const TestResultItem *item) const;
     TestResultItem *createAndAddIntermediateFor(const TestResultItem *child);
@@ -67,7 +67,7 @@ public:
     int maxWidthOfFileName(const QFont &font);
     int maxWidthOfLineNumber(const QFont &font);
 
-    int resultTypeCount(Result::Type type) const { return m_testResultCount.value(type, 0); }
+    int resultTypeCount(ResultType type) const { return m_testResultCount.value(type, 0); }
     int disabledTests() const { return m_disabled; }
     void raiseDisabledTests(int amount) { m_disabled += amount; }
 
@@ -77,7 +77,7 @@ private:
     TestResultItem *findParentItemFor(const TestResultItem *item,
                                       const TestResultItem *startItem = nullptr) const;
     void updateParent(const TestResultItem *item);
-    QMap<Result::Type, int> m_testResultCount;
+    QMap<ResultType, int> m_testResultCount;
     int m_widthOfLineNumber = 0;
     int m_maxWidthOfFileName = 0;
     int m_disabled = 0;
@@ -92,7 +92,7 @@ public:
     explicit TestResultFilterModel(TestResultModel *sourceModel, QObject *parent = nullptr);
 
     void enableAllResultTypes();
-    void toggleTestResultType(Result::Type type);
+    void toggleTestResultType(ResultType type);
     void clearTestResults();
     bool hasResults();
     const TestResult *testResult(const QModelIndex &index) const;
@@ -103,7 +103,7 @@ protected:
 private:
     bool acceptTestCaseResult(const QModelIndex &srcIndex) const;
     TestResultModel *m_sourceModel;
-    QSet<Result::Type> m_enabled;
+    QSet<ResultType> m_enabled;
 };
 
 } // namespace Internal

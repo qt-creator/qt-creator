@@ -83,7 +83,7 @@ private:
     QString m_testCase;
     QString m_formerTestCase;
     QString m_dataTag;
-    Result::Type m_result = Result::Invalid;
+    ResultType m_result = ResultType::Invalid;
     QString m_description;
     QString m_file;
     int m_lineNumber = 0;

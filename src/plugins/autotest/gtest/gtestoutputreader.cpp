@@ -52,7 +52,7 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
                 this, [this] (int exitCode, QProcess::ExitStatus /*exitStatus*/) {
             if (exitCode == 1 && !m_description.isEmpty()) {
                 createAndReportResult(tr("Running tests failed.\n %1\nExecutable: %2")
-                        .arg(m_description).arg(id()), Result::MessageFatal);
+                        .arg(m_description).arg(id()), ResultType::MessageFatal);
             }
             // on Windows abort() will result in normal termination, but exit code will be set to 3
             if (Utils::HostOsInfo::isWindowsHost() && exitCode == 3)
@@ -87,7 +87,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
             if (m_iteration > 1)
                 m_description.append(' ' + tr("(iteration %1)").arg(m_iteration));
             TestResultPtr testResult = TestResultPtr(new GTestResult(id(), m_projectFile, QString()));
-            testResult->setResult(Result::MessageInternal);
+            testResult->setResult(ResultType::MessageInternal);
             testResult->setDescription(m_description);
             reportResult(testResult);
             m_description.clear();
@@ -100,7 +100,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
 
     if (testEnds.exactMatch(line)) {
         TestResultPtr testResult = createDefaultResult();
-        testResult->setResult(Result::MessageTestCaseEnd);
+        testResult->setResult(ResultType::TestEnd);
         testResult->setDescription(tr("Test execution took %1").arg(testEnds.cap(2)));
         reportResult(testResult);
         m_currentTestName.clear();
@@ -108,7 +108,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
     } else if (newTestStarts.exactMatch(line)) {
         setCurrentTestName(newTestStarts.cap(1));
         TestResultPtr testResult = createDefaultResult();
-        testResult->setResult(Result::MessageTestCaseStart);
+        testResult->setResult(ResultType::TestStart);
         if (m_iteration > 1) {
             testResult->setDescription(tr("Repeating test case %1 (iteration %2)")
                                        .arg(m_currentTestName).arg(m_iteration));
@@ -118,25 +118,26 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
         reportResult(testResult);
     } else if (newTestSetStarts.exactMatch(line)) {
         setCurrentTestSet(newTestSetStarts.cap(1));
-        TestResultPtr testResult = TestResultPtr(new GTestResult(m_projectFile));
-        testResult->setResult(Result::MessageCurrentTest);
+        TestResultPtr testResult = TestResultPtr(new GTestResult(QString(), m_projectFile,
+                                                                 QString()));
+        testResult->setResult(ResultType::MessageCurrentTest);
         testResult->setDescription(tr("Entering test set %1").arg(m_currentTestSet));
         reportResult(testResult);
         m_description.clear();
     } else if (testSetSuccess.exactMatch(line)) {
         TestResultPtr testResult = createDefaultResult();
-        testResult->setResult(Result::Pass);
+        testResult->setResult(ResultType::Pass);
         testResult->setDescription(m_description);
         reportResult(testResult);
         m_description.clear();
         testResult = createDefaultResult();
-        testResult->setResult(Result::MessageInternal);
+        testResult->setResult(ResultType::MessageInternal);
         testResult->setDescription(tr("Execution took %1.").arg(testSetSuccess.cap(2)));
         reportResult(testResult);
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
     } else if (testSetFail.exactMatch(line)) {
         TestResultPtr testResult = createDefaultResult();
-        testResult->setResult(Result::Fail);
+        testResult->setResult(ResultType::Fail);
         m_description.chop(1);
         QStringList resultDescription;
 
@@ -155,7 +156,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
             resultDescription.clear();
 
             testResult = createDefaultResult();
-            testResult->setResult(Result::MessageLocation);
+            testResult->setResult(ResultType::MessageLocation);
             testResult->setLine(match->cap(2).toInt());
             QString file = constructSourceFilePath(m_buildDir, match->cap(1));
             if (!file.isEmpty())
@@ -166,7 +167,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
         reportResult(testResult);
         m_description.clear();
         testResult = createDefaultResult();
-        testResult->setResult(Result::MessageInternal);
+        testResult->setResult(ResultType::MessageInternal);
         testResult->setDescription(tr("Execution took %1.").arg(testSetFail.cap(2)));
         reportResult(testResult);
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);

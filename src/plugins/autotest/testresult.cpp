@@ -31,22 +31,6 @@
 namespace Autotest {
 namespace Internal {
 
-FaultyTestResult::FaultyTestResult(Result::Type result, const QString &description)
-{
-    setResult(result);
-    setDescription(description);
-}
-
-TestResult::TestResult()
-    : TestResult(QString())
-{
-}
-
-TestResult::TestResult(const QString &name)
-    : m_name(name)
-{
-}
-
 TestResult::TestResult(const QString &id, const QString &name)
     : m_id(id)
     , m_name(name)
@@ -55,7 +39,7 @@ TestResult::TestResult(const QString &id, const QString &name)
 
 const QString TestResult::outputString(bool selected) const
 {
-    if (m_result == Result::Application)
+    if (m_result == ResultType::Application)
         return m_id;
     return selected ? m_description : m_description.split('\n').first();
 }
@@ -65,136 +49,136 @@ const TestTreeItem *TestResult::findTestTreeItem() const
     return nullptr;
 }
 
-Result::Type TestResult::resultFromString(const QString &resultString)
+ResultType TestResult::resultFromString(const QString &resultString)
 {
     if (resultString == "pass")
-        return Result::Pass;
+        return ResultType::Pass;
     if (resultString == "fail" || resultString == "fail!")
-        return Result::Fail;
+        return ResultType::Fail;
     if (resultString == "xfail")
-        return Result::ExpectedFail;
+        return ResultType::ExpectedFail;
     if (resultString == "xpass")
-        return Result::UnexpectedPass;
+        return ResultType::UnexpectedPass;
     if (resultString == "skip")
-        return Result::Skip;
+        return ResultType::Skip;
     if (resultString == "result")
-        return Result::Benchmark;
+        return ResultType::Benchmark;
     if (resultString == "qdebug")
-        return Result::MessageDebug;
+        return ResultType::MessageDebug;
     if (resultString == "qinfo" || resultString == "info")
-        return Result::MessageInfo;
+        return ResultType::MessageInfo;
     if (resultString == "warn" || resultString == "qwarn" || resultString == "warning")
-        return Result::MessageWarn;
+        return ResultType::MessageWarn;
     if (resultString == "qfatal")
-        return Result::MessageFatal;
+        return ResultType::MessageFatal;
     if ((resultString == "system") || (resultString == "qsystem"))
-        return Result::MessageSystem;
+        return ResultType::MessageSystem;
     if (resultString == "bpass")
-        return Result::BlacklistedPass;
+        return ResultType::BlacklistedPass;
     if (resultString == "bfail")
-        return Result::BlacklistedFail;
+        return ResultType::BlacklistedFail;
     if (resultString == "bxpass")
-        return Result::BlacklistedXPass;
+        return ResultType::BlacklistedXPass;
     if (resultString == "bxfail")
-        return Result::BlacklistedXFail;
+        return ResultType::BlacklistedXFail;
     qDebug("Unexpected test result: %s", qPrintable(resultString));
-    return Result::Invalid;
+    return ResultType::Invalid;
 }
 
-Result::Type TestResult::toResultType(int rt)
+ResultType TestResult::toResultType(int rt)
 {
-    if (rt < Result::FIRST_TYPE || rt > Result::LAST_TYPE)
-        return Result::Invalid;
+    if (rt < int(ResultType::FIRST_TYPE) || rt > int(ResultType::LAST_TYPE))
+        return ResultType::Invalid;
 
-    return Result::Type(rt);
+    return ResultType(rt);
 }
 
-QString TestResult::resultToString(const Result::Type type)
+QString TestResult::resultToString(const ResultType type)
 {
     switch (type) {
-    case Result::Pass:
-    case Result::MessageTestCaseSuccess:
-    case Result::MessageTestCaseSuccessWarn:
+    case ResultType::Pass:
+    case ResultType::MessageTestCaseSuccess:
+    case ResultType::MessageTestCaseSuccessWarn:
         return QString("PASS");
-    case Result::Fail:
-    case Result::MessageTestCaseFail:
-    case Result::MessageTestCaseFailWarn:
+    case ResultType::Fail:
+    case ResultType::MessageTestCaseFail:
+    case ResultType::MessageTestCaseFailWarn:
         return QString("FAIL");
-    case Result::ExpectedFail:
+    case ResultType::ExpectedFail:
         return QString("XFAIL");
-    case Result::UnexpectedPass:
+    case ResultType::UnexpectedPass:
         return QString("XPASS");
-    case Result::Skip:
+    case ResultType::Skip:
         return QString("SKIP");
-    case Result::Benchmark:
+    case ResultType::Benchmark:
         return QString("BENCH");
-    case Result::MessageDebug:
+    case ResultType::MessageDebug:
         return QString("DEBUG");
-    case Result::MessageInfo:
+    case ResultType::MessageInfo:
         return QString("INFO");
-    case Result::MessageWarn:
+    case ResultType::MessageWarn:
         return QString("WARN");
-    case Result::MessageFatal:
+    case ResultType::MessageFatal:
         return QString("FATAL");
-    case Result::MessageSystem:
+    case ResultType::MessageSystem:
         return QString("SYSTEM");
-    case Result::BlacklistedPass:
+    case ResultType::BlacklistedPass:
         return QString("BPASS");
-    case Result::BlacklistedFail:
+    case ResultType::BlacklistedFail:
         return QString("BFAIL");
-    case Result::BlacklistedXPass:
+    case ResultType::BlacklistedXPass:
         return QString("BXPASS");
-    case Result::BlacklistedXFail:
+    case ResultType::BlacklistedXFail:
         return QString("BXFAIL");
-    case Result::MessageLocation:
-    case Result::Application:
+    case ResultType::MessageLocation:
+    case ResultType::Application:
         return QString();
     default:
-        if (type >= Result::INTERNAL_MESSAGES_BEGIN && type <= Result::INTERNAL_MESSAGES_END)
+        if (type >= ResultType::INTERNAL_MESSAGES_BEGIN && type <= ResultType::INTERNAL_MESSAGES_END)
             return QString();
         return QString("UNKNOWN");
     }
 }
 
-QColor TestResult::colorForType(const Result::Type type)
+QColor TestResult::colorForType(const ResultType type)
 {
-    if (type >= Result::INTERNAL_MESSAGES_BEGIN && type <= Result::INTERNAL_MESSAGES_END)
+    if (type >= ResultType::INTERNAL_MESSAGES_BEGIN && type <= ResultType::INTERNAL_MESSAGES_END)
         return QColor("transparent");
 
     Utils::Theme *creatorTheme = Utils::creatorTheme();
     switch (type) {
-    case Result::Pass:
+    case ResultType::Pass:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestPassTextColor);
-    case Result::Fail:
+    case ResultType::Fail:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestFailTextColor);
-    case Result::ExpectedFail:
+    case ResultType::ExpectedFail:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestXFailTextColor);
-    case Result::UnexpectedPass:
+    case ResultType::UnexpectedPass:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestXPassTextColor);
-    case Result::Skip:
+    case ResultType::Skip:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestSkipTextColor);
-    case Result::MessageDebug:
-    case Result::MessageInfo:
+    case ResultType::MessageDebug:
+    case ResultType::MessageInfo:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestDebugTextColor);
-    case Result::MessageWarn:
+    case ResultType::MessageWarn:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestWarnTextColor);
-    case Result::MessageFatal:
-    case Result::MessageSystem:
+    case ResultType::MessageFatal:
+    case ResultType::MessageSystem:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestFatalTextColor);
-    case Result::BlacklistedPass:
-    case Result::BlacklistedFail:
-    case Result::BlacklistedXPass:
-    case Result::BlacklistedXFail:
+    case ResultType::BlacklistedPass:
+    case ResultType::BlacklistedFail:
+    case ResultType::BlacklistedXPass:
+    case ResultType::BlacklistedXFail:
     default:
         return creatorTheme->color(Utils::Theme::OutputPanes_StdOutTextColor);
     }
 }
 
-bool TestResult::isMessageCaseStart(const Result::Type type)
+bool TestResult::isMessageCaseStart(const ResultType type)
 {
-    return type == Result::MessageTestCaseStart || type == Result::MessageTestCaseSuccess
-            || type == Result::MessageTestCaseFail || type == Result::MessageTestCaseSuccessWarn
-            || type == Result::MessageTestCaseFailWarn || type == Result::MessageIntermediate;
+    return type == ResultType::TestStart || type == ResultType::MessageTestCaseSuccess
+            || type == ResultType::MessageTestCaseFail || type == ResultType::MessageTestCaseSuccessWarn
+            || type == ResultType::MessageTestCaseFailWarn;
 }
 
 bool TestResult::isDirectParentOf(const TestResult *other, bool * /*needsIntermediate*/) const

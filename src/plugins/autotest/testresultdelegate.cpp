@@ -40,12 +40,6 @@ namespace Internal {
 
 constexpr int outputLimit = 100000;
 
-static bool isSummaryItem(Result::Type type)
-{
-    return type == Result::MessageTestCaseSuccess || type == Result::MessageTestCaseSuccessWarn
-            || type == Result::MessageTestCaseFail || type == Result::MessageTestCaseFailWarn;
-}
-
 TestResultDelegate::TestResultDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
@@ -94,7 +88,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->drawText(positions.typeAreaLeft(), positions.top() + fm.ascent(), typeStr);
     } else {
         QPen tmp = painter->pen();
-        if (isSummaryItem(testResult->result()))
+        if (TestResult::isMessageCaseStart(testResult->result()))
             painter->setPen(opt.palette.mid().color());
         else
             painter->setPen(TestResult::colorForType(testResult->result()));

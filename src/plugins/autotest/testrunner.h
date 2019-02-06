@@ -86,6 +86,7 @@ private:
     void runTests();
     void debugTests();
     void runOrDebugTests();
+    void reportResult(ResultType type, const QString &description);
     explicit TestRunner(QObject *parent = nullptr);
 
     QFutureWatcher<TestResultPtr> m_futureWatcher;
