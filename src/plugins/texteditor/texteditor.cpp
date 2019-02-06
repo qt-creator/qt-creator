@@ -8499,14 +8499,8 @@ void TextEditorWidget::configureGenericHighlighter()
 
     setCodeFoldingSupported(false);
 
-    const QString type = textDocument()->mimeType();
-    const MimeType mimeType = Utils::mimeTypeForName(type);
-    const QString fileName = textDocument()->filePath().fileName();
-    KSyntaxHighlighting::Definition definition;
-    if (mimeType.isValid())
-        definition = Highlighter::definitionForMimeType(mimeType.name());
-    if (!definition.isValid())
-        definition = Highlighter::definitionForFileName(fileName);
+    const KSyntaxHighlighting::Definition definition =
+        Highlighter::definitionForDocument(textDocument());
 
     if (definition.isValid()) {
         highlighter->setDefinition(definition);
@@ -8518,7 +8512,8 @@ void TextEditorWidget::configureGenericHighlighter()
     }
 
     d->updateSyntaxInfoBar(!definition.isValid()
-            && !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName));
+            && !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(
+                                  textDocument()->filePath().fileName()));
 
     textDocument()->setFontSettings(TextEditorSettings::fontSettings());
 }

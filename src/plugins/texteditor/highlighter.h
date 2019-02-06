@@ -34,12 +34,14 @@
 
 namespace TextEditor {
 class FontSettings;
+class TextDocument;
 
 class Highlighter : public SyntaxHighlighter, public KSyntaxHighlighting::AbstractHighlighter
 {
 public:
     Highlighter();
 
+    static KSyntaxHighlighting::Definition definitionForDocument(const TextDocument *document);
     static KSyntaxHighlighting::Definition definitionForMimeType(const QString &mimeType);
     static KSyntaxHighlighting::Definition definitionForFileName(const QString &fileName);
 

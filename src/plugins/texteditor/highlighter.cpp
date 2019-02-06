@@ -32,6 +32,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <Format>
 #include <Repository>
@@ -97,6 +98,17 @@ Highlighter::Highlighter()
 {
     setTextFormatCategories(QMetaEnum::fromType<KSyntaxHighlighting::Theme::TextStyle>().keyCount(),
                             &categoryForTextStyle);
+}
+
+KSyntaxHighlighting::Definition Highlighter::definitionForDocument(const TextDocument *document)
+{
+    const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
+    KSyntaxHighlighting::Definition definition;
+    if (mimeType.isValid())
+        definition = Highlighter::definitionForMimeType(mimeType.name());
+    if (!definition.isValid())
+        definition = Highlighter::definitionForFileName(document->filePath().fileName());
+    return definition;
 }
 
 KSyntaxHighlighting::Definition Highlighter::definitionForMimeType(const QString &mimeType)
