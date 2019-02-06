@@ -57,11 +57,8 @@ public:
     AndroidGdbServerKitAspectWidget(Kit *kit, const KitAspect *ki);
     ~AndroidGdbServerKitAspectWidget() override;
 
-    QString displayName() const override;
-    QString toolTip() const override;
     void makeReadOnly() override;
     void refresh() override;
-    bool visibleInKit() override;
 
     QWidget *mainWidget() const override;
     QWidget *buttonWidget() const override;
@@ -78,6 +75,8 @@ private:
 AndroidGdbServerKitAspect::AndroidGdbServerKitAspect()
 {
     setId(AndroidGdbServerKitAspect::id());
+    setDisplayName(tr("Android GDB server"));
+    setDescription(tr("The GDB server to use for this kit."));
     setPriority(27999); // Just one less than Debugger!
 }
 
@@ -89,6 +88,11 @@ QVariant AndroidGdbServerKitAspect::defaultValue(const Kit *kit) const
 QList<Task> AndroidGdbServerKitAspect::validate(const Kit *) const
 {
     return QList<Task>();
+}
+
+bool AndroidGdbServerKitAspect::isApplicableToKit(const Kit *k) const
+{
+    return DeviceKitAspect::deviceId(k) == Constants::ANDROID_DEVICE_ID;
 }
 
 KitAspect::ItemList AndroidGdbServerKitAspect::toUserOutput(const Kit *kit) const
@@ -169,16 +173,6 @@ AndroidGdbServerKitAspectWidget::~AndroidGdbServerKitAspectWidget()
     delete m_label;
 }
 
-QString AndroidGdbServerKitAspectWidget::displayName() const
-{
-    return tr("Android GDB server");
-}
-
-QString AndroidGdbServerKitAspectWidget::toolTip() const
-{
-    return tr("The GDB server to use for this kit.");
-}
-
 void AndroidGdbServerKitAspectWidget::makeReadOnly()
 {
     m_button->setEnabled(false);
@@ -187,11 +181,6 @@ void AndroidGdbServerKitAspectWidget::makeReadOnly()
 void AndroidGdbServerKitAspectWidget::refresh()
 {
     m_label->setText(AndroidGdbServerKitAspect::gdbServer(m_kit).toString());
-}
-
-bool AndroidGdbServerKitAspectWidget::visibleInKit()
-{
-    return DeviceKitAspect::deviceId(m_kit) == Constants::ANDROID_DEVICE_ID;
 }
 
 QWidget *AndroidGdbServerKitAspectWidget::mainWidget() const

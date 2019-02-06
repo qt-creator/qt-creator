@@ -38,7 +38,6 @@ public:
     QmakeKitAspect();
 
     QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
-
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
     void setup(ProjectExplorer::Kit *k) override;
 

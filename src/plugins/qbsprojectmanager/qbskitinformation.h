@@ -37,7 +37,6 @@ class QbsKitAspect final : public ProjectExplorer::KitAspect
 public:
     QbsKitAspect();
 
-    static QString displayName();
     static QString representation(const ProjectExplorer::Kit *kit);
     static QVariantMap properties(const ProjectExplorer::Kit *kit);
     static void setProperties(ProjectExplorer::Kit *kit, const QVariantMap &properties);

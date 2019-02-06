@@ -54,7 +54,6 @@ public:
     }
 
 private:
-    QString displayName() const override { return QbsKitAspect::displayName(); }
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
     void refresh() override { m_contentLabel->setText(QbsKitAspect::representation(kit())); }
     QWidget *mainWidget() const override { return m_contentLabel; }
@@ -75,12 +74,8 @@ QbsKitAspect::QbsKitAspect()
 {
     setObjectName(QLatin1String("QbsKitAspect"));
     setId(QbsKitAspect::id());
+    setDisplayName(tr("Additional Qbs Profile Settings"));
     setPriority(22000);
-}
-
-QString QbsKitAspect::displayName()
-{
-    return tr("Additional Qbs Profile Settings");
 }
 
 QString QbsKitAspect::representation(const Kit *kit)

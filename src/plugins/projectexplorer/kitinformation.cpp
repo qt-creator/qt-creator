@@ -84,7 +84,6 @@ public:
     ~SysRootKitAspectWidget() override { delete m_chooser; }
 
 private:
-    QString displayName() const override { return tr("Sysroot"); }
     void makeReadOnly() override { m_chooser->setReadOnly(true); }
     QWidget *buttonWidget() const override { return m_chooser->buttonAtIndex(0); }
     QWidget *mainWidget() const override { return m_chooser->lineEdit(); }
@@ -93,12 +92,6 @@ private:
     {
         if (!m_ignoreChange)
             m_chooser->setFileName(SysRootKitAspect::sysRoot(m_kit));
-    }
-
-    QString toolTip() const override
-    {
-        return tr("The root directory of the system image to use.<br>"
-                  "Leave empty when building for the desktop.");
     }
 
     void setPalette(const QPalette &p) override
@@ -123,6 +116,9 @@ SysRootKitAspect::SysRootKitAspect()
 {
     setObjectName(QLatin1String("SysRootInformation"));
     setId(SysRootKitAspect::id());
+    setDisplayName(tr("Sysroot"));
+    setDescription(tr("The root directory of the system image to use.<br>"
+                      "Leave empty when building for the desktop."));
     setPriority(31000);
 }
 
@@ -272,7 +268,6 @@ public:
     }
 
 private:
-    QString displayName() const override { return tr("Compiler"); }
     QWidget *mainWidget() const override { return m_mainWidget; }
     QWidget *buttonWidget() const override { return m_manageButton; }
 
@@ -303,13 +298,6 @@ private:
         foreach (Core::Id l, m_languageComboboxMap.keys()) {
             m_languageComboboxMap.value(l)->setEnabled(false);
         }
-    }
-
-    QString toolTip() const override
-    {
-        return tr("The compiler to use for building.<br>"
-                  "Make sure the compiler will produce binaries compatible with the target device, "
-                  "Qt version and other libraries used.");
     }
 
     void manageToolChains()
@@ -353,6 +341,10 @@ ToolChainKitAspect::ToolChainKitAspect()
 {
     setObjectName(QLatin1String("ToolChainInformation"));
     setId(ToolChainKitAspect::id());
+    setDisplayName(tr("Compiler"));
+    setDescription(tr("The compiler to use for building.<br>"
+                      "Make sure the compiler will produce binaries compatible "
+                      "with the target device, Qt version and other libraries used."));
     setPriority(30000);
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
@@ -786,8 +778,6 @@ public:
 
 private:
     QWidget *mainWidget() const override { return m_comboBox; }
-    QString displayName() const override { return tr("Device type"); }
-    QString toolTip() const override { return tr("The type of device to run applications on."); }
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
     void refresh() override
@@ -817,6 +807,8 @@ DeviceTypeKitAspect::DeviceTypeKitAspect()
 {
     setObjectName(QLatin1String("DeviceTypeInformation"));
     setId(DeviceTypeKitAspect::id());
+    setDisplayName(tr("Device type"));
+    setDescription(tr("The type of device to run applications on."));
     setPriority(33000);
 }
 
@@ -923,8 +915,6 @@ public:
 private:
     QWidget *mainWidget() const override { return m_comboBox; }
     QWidget *buttonWidget() const override { return m_manageButton; }
-    QString displayName() const override { return tr("Device"); }
-    QString toolTip() const override { return tr("The device to run the applications on."); }
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
     void refresh() override
@@ -970,6 +960,8 @@ DeviceKitAspect::DeviceKitAspect()
 {
     setObjectName(QLatin1String("DeviceInformation"));
     setId(DeviceKitAspect::id());
+    setDisplayName(tr("Device"));
+    setDescription(tr("The device to run the applications on."));
     setPriority(32000);
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
@@ -1168,13 +1160,7 @@ public:
 private:
     QWidget *mainWidget() const override { return m_mainWidget; }
     QWidget *buttonWidget() const override { return m_manageButton; }
-    QString displayName() const override { return tr("Environment"); }
     void makeReadOnly() override { m_manageButton->setEnabled(false); }
-
-    QString toolTip() const override
-    {
-        return tr("Additional build environment settings when using this kit.");
-    }
 
     void refresh() override
     {
@@ -1257,6 +1243,8 @@ EnvironmentKitAspect::EnvironmentKitAspect()
 {
     setObjectName(QLatin1String("EnvironmentKitAspect"));
     setId(EnvironmentKitAspect::id());
+    setDisplayName(tr("Environment"));
+    setDescription(tr("Additional build environment settings when using this kit."));
     setPriority(29000);
 }
 

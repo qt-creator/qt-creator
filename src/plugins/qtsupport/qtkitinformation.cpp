@@ -82,7 +82,6 @@ public:
     }
 
 private:
-    QString displayName() const override { return tr("Qt version"); }
     void makeReadOnly() override { m_combo->setEnabled(false); }
     QWidget *mainWidget() const override { return m_combo; }
     QWidget *buttonWidget() const override { return m_manageButton; }
@@ -90,13 +89,6 @@ private:
     void refresh() override
     {
         m_combo->setCurrentIndex(findQtVersion(QtKitAspect::qtVersionId(m_kit)));
-    }
-
-    QString toolTip() const override
-    {
-        return tr("The Qt library to use for all projects using this kit.<br>"
-                  "A Qt version is required for qmake-based projects "
-                  "and optional when using other build systems.");
     }
 
 private:
@@ -158,6 +150,10 @@ QtKitAspect::QtKitAspect()
 {
     setObjectName(QLatin1String("QtKitAspect"));
     setId(QtKitAspect::id());
+    setDisplayName(tr("Qt version"));
+    setDescription(tr("The Qt library to use for all projects using this kit.<br>"
+                      "A Qt version is required for qmake-based projects "
+                      "and optional when using other build systems."));
     setPriority(26000);
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,

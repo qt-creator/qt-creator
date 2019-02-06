@@ -51,11 +51,8 @@ public:
     SysRootKitAspect();
 
     QVariant defaultValue(const Kit *k) const override;
-
     QList<Task> validate(const Kit *k) const override;
-
     KitAspectWidget *createConfigWidget(Kit *k) const override;
-
     ItemList toUserOutput(const Kit *k) const override;
     void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override;
 
@@ -76,7 +73,6 @@ public:
     ToolChainKitAspect();
 
     QVariant defaultValue(const Kit *k) const override;
-
     QList<Task> validate(const Kit *k) const override;
     void upgrade(Kit *k) override;
     void fix(Kit *k) override;
@@ -122,11 +118,8 @@ public:
     DeviceTypeKitAspect();
 
     QVariant defaultValue(const Kit *k) const override;
-
     QList<Task> validate(const Kit *k) const override;
-
     KitAspectWidget *createConfigWidget(Kit *k) const override;
-
     ItemList toUserOutput(const Kit *k) const override;
 
     static const Core::Id id();
@@ -151,7 +144,6 @@ public:
     DeviceKitAspect();
 
     QVariant defaultValue(const Kit *k) const override;
-
     QList<Task> validate(const Kit *k) const override;
     void fix(Kit *k) override;
     void setup(Kit *k) override;
@@ -189,7 +181,6 @@ public:
     EnvironmentKitAspect();
 
     QVariant defaultValue(const Kit *k) const override;
-
     QList<Task> validate(const Kit *k) const override;
     void fix(Kit *k) override;
 

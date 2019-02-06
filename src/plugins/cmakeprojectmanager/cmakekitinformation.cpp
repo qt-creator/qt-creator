@@ -111,7 +111,6 @@ public:
 
 private:
     // KitAspectWidget interface
-    QString displayName() const override { return tr("CMake Tool"); }
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
     QWidget *mainWidget() const override { return m_comboBox; }
     QWidget *buttonWidget() const override { return m_manageButton; }
@@ -120,12 +119,6 @@ private:
     {
         CMakeTool *tool = CMakeKitAspect::cmakeTool(m_kit);
         m_comboBox->setCurrentIndex(tool ? indexOf(tool->id()) : -1);
-    }
-
-    QString toolTip() const override
-    {
-        return tr("The CMake Tool to use when building a project with CMake.<br>"
-                  "This setting is ignored when using other build systems.");
     }
 
     int indexOf(const Core::Id &id)
@@ -213,6 +206,9 @@ CMakeKitAspect::CMakeKitAspect()
 {
     setObjectName(QLatin1String("CMakeKitAspect"));
     setId(TOOL_ID);
+    setDisplayName(tr("CMake Tool"));
+    setDescription(tr("The CMake Tool to use when building a project with CMake.<br>"
+                      "This setting is ignored when using other build systems."));
     setPriority(20000);
 
     //make sure the default value is set if a selected CMake is removed
@@ -347,7 +343,6 @@ public:
 
 private:
     // KitAspectWidget interface
-    QString displayName() const override { return tr("CMake generator"); }
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
     QWidget *mainWidget() const override { return m_label; }
     QWidget *buttonWidget() const override { return m_changeButton; }
@@ -373,12 +368,6 @@ private:
                 .arg(platform.isEmpty() ? tr("<none>") : platform)
                 .arg(toolset.isEmpty() ? tr("<none>") : toolset);
         m_label->setText(message);
-    }
-
-    QString toolTip() const override
-    {
-        return tr("CMake generator defines how a project is built when using CMake.<br>"
-                  "This setting is ignored when using other build systems.");
     }
 
     void changeGenerator()
@@ -531,6 +520,9 @@ CMakeGeneratorKitAspect::CMakeGeneratorKitAspect()
 {
     setObjectName(QLatin1String("CMakeGeneratorKitAspect"));
     setId(GENERATOR_ID);
+    setDisplayName(tr("CMake generator"));
+    setDescription(tr("CMake generator defines how a project is built when using CMake.<br>"
+                      "This setting is ignored when using other build systems."));
     setPriority(19000);
 }
 
@@ -804,7 +796,6 @@ public:
 
 private:
     // KitAspectWidget interface
-    QString displayName() const override { return tr("CMake Configuration"); }
     QWidget *mainWidget() const override { return m_summaryLabel; }
     QWidget *buttonWidget() const override { return m_manageButton; }
 
@@ -822,11 +813,6 @@ private:
         m_summaryLabel->setText(current.join("; "));
         if (m_editor)
             m_editor->setPlainText(current.join('\n'));
-    }
-
-    QString toolTip() const override
-    {
-        return tr("Default configuration passed to CMake when setting up a project.");
     }
 
     void editConfigurationChanges()
@@ -903,6 +889,8 @@ CMakeConfigurationKitAspect::CMakeConfigurationKitAspect()
 {
     setObjectName(QLatin1String("CMakeConfigurationKitAspect"));
     setId(CONFIGURATION_ID);
+    setDisplayName(tr("CMake Configuration"));
+    setDescription(tr("Default configuration passed to CMake when setting up a project."));
     setPriority(18000);
 }
 

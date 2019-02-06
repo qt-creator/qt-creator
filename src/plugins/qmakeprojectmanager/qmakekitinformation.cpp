@@ -61,14 +61,7 @@ public:
 
 private:
     QWidget *mainWidget() const override { return m_lineEdit; }
-    QString displayName() const override { return tr("Qt mkspec"); }
     void makeReadOnly() override { m_lineEdit->setEnabled(false); }
-
-    QString toolTip() const override
-    {
-        return tr("The mkspec to use when building the project with qmake.<br>"
-                  "This setting is ignored when using other build systems.");
-    }
 
     void refresh() override
     {
@@ -92,6 +85,9 @@ QmakeKitAspect::QmakeKitAspect()
 {
     setObjectName(QLatin1String("QmakeKitAspect"));
     setId(QmakeKitAspect::id());
+    setDisplayName(tr("Qt mkspec"));
+    setDescription(tr("The mkspec to use when building the project with qmake.<br>"
+                      "This setting is ignored when using other build systems."));
     setPriority(24000);
 }
 

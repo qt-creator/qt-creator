@@ -83,8 +83,6 @@ public:
     }
 
 private:
-    QString displayName() const override { return tr("Debugger"); }
-    QString toolTip() const override { return tr("The debugger to use for this kit."); }
     QWidget *buttonWidget() const override { return m_manageButton; }
     QWidget *mainWidget() const override { return m_comboBox; }
 
@@ -149,6 +147,8 @@ DebuggerKitAspect::DebuggerKitAspect()
 {
     setObjectName("DebuggerKitAspect");
     setId(DebuggerKitAspect::id());
+    setDisplayName(tr("Debugger"));
+    setDescription(tr("The debugger to use for this kit."));
     setPriority(28000);
 }
 

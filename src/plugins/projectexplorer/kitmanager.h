@@ -75,6 +75,8 @@ public:
 
     Core::Id id() const { return m_id; }
     int priority() const { return m_priority; }
+    QString displayName() const { return m_displayName; }
+    QString description() const { return m_description; }
 
     virtual QVariant defaultValue(const Kit *) const = 0;
 
@@ -101,12 +103,18 @@ public:
 
     virtual void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
 
+    virtual bool isApplicableToKit(const Kit *) const { return true; }
+
 protected:
     void setId(Core::Id id) { m_id = id; }
+    void setDisplayName(const QString &name) { m_displayName = name; }
+    void setDescription(const QString &desc) { m_description = desc; }
     void setPriority(int priority) { m_priority = priority; }
     void notifyAboutUpdate(Kit *k);
 
 private:
+    QString m_displayName;
+    QString m_description;
     Core::Id m_id;
     int m_priority = 0; // The higher the closer to the top.
 };
@@ -119,12 +127,12 @@ public:
     KitAspectWidget(Kit *kit, const KitAspect *ki);
 
     Core::Id kitInformationId() const;
+    QString displayName() const { return m_kitInformation->displayName(); }
+    QString toolTip() const { return m_kitInformation->description(); }
 
-    virtual QString displayName() const = 0;
-    virtual QString toolTip() const { return QString(); }
     virtual void makeReadOnly() = 0;
     virtual void refresh() = 0;
-    virtual bool visibleInKit() { return true; }
+    bool visibleInKit() { return m_kitInformation->isApplicableToKit(m_kit); }
 
     virtual QWidget *mainWidget() const = 0;
     virtual QWidget *buttonWidget() const { return nullptr; }
