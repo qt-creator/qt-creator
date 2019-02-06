@@ -167,6 +167,13 @@ public:
     Definition definitionForFileName(const QString &fileName) const;
 
     /**
+     * Returns all Definition%s for the file named @p fileName.
+     * The match is performed based on the \e extensions and @e mimetype of
+     * the definition files.
+     */
+    QVector<Definition> definitionsForFileName(const QString &fileName) const;
+
+    /**
      * Returns the best matching Definition to the type named @p mimeType
      *
      * If no match is found, Definition::isValid() of the returned instance
@@ -175,6 +182,11 @@ public:
      * @since 5.50
      */
     Definition definitionForMimeType(const QString &mimeType) const;
+
+    /**
+     * Returns all Definition%s to the type named @p mimeType
+     */
+    QVector<Definition> definitionsForMimeType(const QString &mimeType) const;
 
     /**
      * Returns all available Definition%s.
