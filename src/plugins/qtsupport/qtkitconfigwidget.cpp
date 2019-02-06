@@ -72,7 +72,7 @@ QtKitConfigWidget::~QtKitConfigWidget()
 
 QString QtKitConfigWidget::displayName() const
 {
-    return tr("Qt version:");
+    return tr("Qt version");
 }
 
 QString QtKitConfigWidget::toolTip() const

@@ -216,7 +216,7 @@ void KitManagerConfigWidget::addConfigWidget(KitConfigWidget *widget)
     QTC_ASSERT(widget, return);
     QTC_ASSERT(!m_widgets.contains(widget), return);
 
-    QString name = widget->displayName();
+    const QString name = widget->displayName() + ':';
     QString toolTip = widget->toolTip();
 
     auto action = new QAction(tr("Mark as Mutable"), nullptr);

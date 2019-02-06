@@ -97,7 +97,7 @@ CMakeKitConfigWidget::~CMakeKitConfigWidget()
 
 QString CMakeKitConfigWidget::displayName() const
 {
-    return tr("CMake Tool:");
+    return tr("CMake Tool");
 }
 
 void CMakeKitConfigWidget::makeReadOnly()
@@ -230,7 +230,7 @@ CMakeGeneratorKitConfigWidget::~CMakeGeneratorKitConfigWidget()
 
 QString CMakeGeneratorKitConfigWidget::displayName() const
 {
-    return tr("CMake generator:");
+    return tr("CMake generator");
 }
 
 void CMakeGeneratorKitConfigWidget::makeReadOnly()
