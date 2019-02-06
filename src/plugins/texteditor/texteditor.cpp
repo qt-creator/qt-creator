@@ -8574,8 +8574,6 @@ void TextEditorWidget::setupGenericHighlighter()
 
     connect(textDocument(), &IDocument::filePathChanged,
             d, &TextEditorWidgetPrivate::reconfigure);
-
-    updateEditorInfoBar(this);
 }
 
 //
