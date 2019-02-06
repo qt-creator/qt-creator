@@ -121,6 +121,27 @@ Highlighter::Definition Highlighter::definitionForFileName(const QString &fileNa
     return highlightRepository()->definitionForFileName(fileName);
 }
 
+Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument *document)
+{
+    const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
+    Definitions definitions;
+    if (mimeType.isValid())
+        definitions = Highlighter::definitionsForMimeType(mimeType.name());
+    if (definitions.isEmpty())
+        definitions = Highlighter::definitionsForFileName(document->filePath().fileName());
+    return definitions;
+}
+
+Highlighter::Definitions Highlighter::definitionsForMimeType(const QString &mimeType)
+{
+    return highlightRepository()->definitionsForMimeType(mimeType).toList();
+}
+
+Highlighter::Definitions Highlighter::definitionsForFileName(const QString &fileName)
+{
+    return highlightRepository()->definitionsForFileName(fileName).toList();
+}
+
 void Highlighter::addCustomHighlighterPath(const Utils::FileName &path)
 {
     highlightRepository()->addCustomSearchPath(path.toString());
