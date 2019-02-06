@@ -144,6 +144,7 @@ TextEditor::HighlightingResult toHighlightingResult(
 } // anonymous
 
 namespace ClangCodeModel {
+namespace Internal {
 
 HighlightingResultReporter::HighlightingResultReporter(
         const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos)
@@ -219,4 +220,5 @@ QFuture<TextEditor::HighlightingResult> HighlightingResultReporter::start()
     return future;
 }
 
+} // namespace Internal
 } // namespace ClangCodeModel

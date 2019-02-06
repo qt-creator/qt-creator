@@ -46,6 +46,7 @@
 
 using namespace ClangCodeModel;
 using Internal::ClangDiagnosticWidget;
+using Internal::ClangFixItOperation;
 
 namespace {
 
@@ -87,7 +88,7 @@ void openEditorAt(const ClangBackEnd::DiagnosticContainer &diagnostic)
 
 void applyFixit(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
-    ClangCodeModel::ClangFixItOperation operation(Utf8String(), diagnostic.fixIts);
+    ClangFixItOperation operation(Utf8String(), diagnostic.fixIts);
 
     operation.perform();
 }

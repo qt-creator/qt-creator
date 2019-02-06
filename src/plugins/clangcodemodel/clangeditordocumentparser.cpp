@@ -26,6 +26,7 @@
 #include "clangeditordocumentparser.h"
 
 namespace ClangCodeModel {
+namespace Internal {
 
 ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
     : BaseEditorDocumentParser(filePath)
@@ -46,4 +47,5 @@ void ClangEditorDocumentParser::updateImpl(const QFutureInterface<void> &,
     setState(state_);
 }
 
+} // namespace Internal
 } // namespace ClangCodeModel

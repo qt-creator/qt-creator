@@ -36,6 +36,7 @@ class RefactoringServerInterface;
 }
 
 namespace ClangCodeModel {
+namespace Internal {
 
 class RefactoringEngine : public CppTools::RefactoringEngineInterface
 {
@@ -60,4 +61,5 @@ private:
     std::unique_ptr<FutureCursorWatcher> m_watcher;
 };
 
+} // namespace Internal
 } // namespace ClangRefactoring

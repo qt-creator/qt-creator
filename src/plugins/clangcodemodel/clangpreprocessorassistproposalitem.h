@@ -31,6 +31,7 @@
 #include <QString>
 
 namespace ClangCodeModel {
+namespace Internal {
 
 class ClangPreprocessorAssistProposalItem final : public TextEditor::AssistProposalItemInterface
 {
@@ -68,4 +69,5 @@ private:
     mutable QChar m_typedCharacter;
 };
 
+} // namespace Internal
 } // namespace ClangCodeModel

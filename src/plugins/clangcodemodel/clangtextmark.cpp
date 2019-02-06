@@ -51,6 +51,7 @@
 using namespace Utils;
 
 namespace ClangCodeModel {
+namespace Internal {
 
 namespace {
 
@@ -228,8 +229,6 @@ void ClangTextMark::updateIcon(bool valid)
 
 bool ClangTextMark::addToolTipContent(QLayout *target) const
 {
-    using Internal::ClangDiagnosticWidget;
-
     QWidget *widget = ClangDiagnosticWidget::createWidget({m_diagnostic},
                                                           ClangDiagnosticWidget::ToolTip);
     target->addWidget(widget);
@@ -243,5 +242,6 @@ void ClangTextMark::removedFromEditor()
     m_removedFromEditorHandler(this);
 }
 
+} // namespace Internal
 } // namespace ClangCodeModel
 

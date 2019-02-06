@@ -33,6 +33,7 @@
 #include <functional>
 
 namespace ClangCodeModel {
+namespace Internal {
 
 class ClangTextMark : public TextEditor::TextMark
 {
@@ -56,4 +57,5 @@ private:
     RemovedFromEditorHandler m_removedFromEditorHandler;
 };
 
+} // namespace Internal
 } // namespace ClangCodeModel

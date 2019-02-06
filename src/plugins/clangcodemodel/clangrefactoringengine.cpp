@@ -30,13 +30,14 @@
 #include <utils/qtcassert.h>
 
 namespace ClangCodeModel {
+namespace Internal {
 
 void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
                                            CppTools::ProjectPart *,
                                            RenameCallback &&renameSymbolsCallback)
 {
-    Internal::ClangEditorDocumentProcessor *processor = Internal::ClangEditorDocumentProcessor::get(
-                data.filePath().toString());
+    ClangEditorDocumentProcessor *processor = ClangEditorDocumentProcessor::get(
+        data.filePath().toString());
     const int startRevision = data.cursor().document()->revision();
 
     using ClangBackEnd::SourceLocationsContainer;
@@ -79,4 +80,5 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
     m_watcher->setFuture(cursorFuture);
 }
 
-}
+} // namespace Internal
+} // namespace ClangCodeModel

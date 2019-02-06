@@ -34,13 +34,13 @@
 #include <QVector>
 #include <QSharedPointer>
 
-namespace TextEditor
-{
+namespace TextEditor {
 class RefactoringChanges;
 class RefactoringFile;
 }
 
 namespace ClangCodeModel {
+namespace Internal {
 
 class ClangFixItOperation : public TextEditor::QuickFixOperation
 {
@@ -67,4 +67,5 @@ private:
     QVector<ClangBackEnd::FixItContainer> fixItContainers;
 };
 
+} // namespace Internal
 } // namespace ClangCodeModel
