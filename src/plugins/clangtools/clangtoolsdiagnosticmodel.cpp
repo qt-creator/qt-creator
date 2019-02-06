@@ -524,21 +524,28 @@ QVariant ExplainingStepItem::data(int column, int role) const
         case ClangToolsDiagnosticModel::DiagnosticRole:
             return QVariant::fromValue(static_cast<DiagnosticItem *>(parent())->diagnostic());
         case Qt::DisplayRole: {
+            const QString mainFilePath = static_cast<DiagnosticItem *>(parent())->diagnostic().location.filePath;
+            const QString locationString
+                = m_step.location.filePath == mainFilePath
+                      ? lineColumnString(m_step.location)
+                      : QString("%1:%2").arg(QFileInfo(m_step.location.filePath).fileName(),
+                                             lineColumnString(m_step.location));
+
             if (m_step.isFixIt) {
                 if (m_step.ranges[0] == m_step.ranges[1]) {
                     return QString("%1: Insertion of \"%2\".")
-                        .arg(lineColumnString(m_step.location), m_step.message);
+                        .arg(locationString, m_step.message);
                 }
                 if (m_step.message.isEmpty()) {
                     return QString("%1: Removal of %2.")
-                        .arg(lineColumnString(m_step.location), rangeString(m_step.ranges));
+                        .arg(locationString, rangeString(m_step.ranges));
                 }
                 return QString("%1: Replacement of %2 with: \"%3\".")
-                    .arg(lineColumnString(m_step.location),
+                    .arg(locationString,
                          rangeString(m_step.ranges),
                          m_step.message);
             }
-            return QString("%1: %2").arg(lineColumnString(m_step.location), m_step.message);
+            return QString("%1: %2").arg(locationString, m_step.message);
         }
         case Qt::ToolTipRole:
             return createExplainingStepToolTipString(m_step);
