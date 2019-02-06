@@ -57,6 +57,8 @@ QVariant FilePathItem::data(int column, int role) const
             return m_filePath;
         case Qt::DecorationRole:
             return Core::FileIconProvider::icon(m_filePath);
+        case Debugger::DetailedErrorView::FullTextRole:
+            return m_filePath;
         default:
             return QVariant();
         }
@@ -295,15 +297,24 @@ static QString createExplainingStepString(const ExplainingStep &explainingStep, 
 {
     return createExplainingStepNumberString(number)
             + QLatin1Char(' ')
-            + explainingStep.extendedMessage
+            + explainingStep.message
             + QLatin1Char(' ')
             + createLocationString(explainingStep.location);
 }
 
+
+static QString lineColumnString(const Debugger::DiagnosticLocation &location)
+{
+    return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
+}
+
 static QString fullText(const Diagnostic &diagnostic)
 {
-    // Summary.
-    QString text = diagnostic.category + QLatin1String(": ") + diagnostic.type;
+    QString text = diagnostic.location.filePath + QLatin1Char(':');
+    text += lineColumnString(diagnostic.location) + QLatin1String(": ");
+    if (!diagnostic.category.isEmpty())
+        text += diagnostic.category + QLatin1String(": ");
+    text += diagnostic.type;
     if (diagnostic.type != diagnostic.description)
         text += QLatin1String(": ") + diagnostic.description;
     text += QLatin1Char('\n');
@@ -378,11 +389,6 @@ static QVariant iconData(const QString &type)
     if (type == "fix-it")
         return Utils::Icons::CODEMODEL_FIXIT.icon();
     return QVariant();
-}
-
-static QString lineColumnString(const Debugger::DiagnosticLocation &location)
-{
-    return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
 }
 
 QVariant DiagnosticItem::data(int column, int role) const
@@ -509,8 +515,10 @@ QVariant ExplainingStepItem::data(int column, int role) const
         switch (role) {
         case Debugger::DetailedErrorView::LocationRole:
             return QVariant::fromValue(m_step.location);
-        case Debugger::DetailedErrorView::FullTextRole:
-            return fullText(static_cast<DiagnosticItem *>(parent())->diagnostic());
+        case Debugger::DetailedErrorView::FullTextRole: {
+            return QString("%1:%2: %3")
+                .arg(m_step.location.filePath, lineColumnString(m_step.location), m_step.message);
+        }
         case ClangToolsDiagnosticModel::TextRole:
             return m_step.message;
         case ClangToolsDiagnosticModel::DiagnosticRole:
