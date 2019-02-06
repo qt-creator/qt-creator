@@ -249,7 +249,7 @@ Core::Id IDevice::id() const
 */
 bool IDevice::isCompatibleWith(const Kit *k) const
 {
-    return DeviceTypeKitInformation::deviceTypeId(k) == type();
+    return DeviceTypeKitAspect::deviceTypeId(k) == type();
 }
 
 void IDevice::addDeviceAction(const DeviceAction &deviceAction)

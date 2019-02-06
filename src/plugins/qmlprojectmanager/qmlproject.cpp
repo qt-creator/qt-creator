@@ -188,7 +188,7 @@ void QmlProject::setMainFile(const QString &mainFilePath)
 
 Utils::FileName QmlProject::targetDirectory(const Target *target) const
 {
-    if (DeviceTypeKitInformation::deviceTypeId(target->kit())
+    if (DeviceTypeKitAspect::deviceTypeId(target->kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return canonicalProjectDir();
 
@@ -277,11 +277,11 @@ QList<Task> QmlProject::projectIssues(const Kit *k) const
 {
     QList<Task> result = Project::projectIssues(k);
 
-    const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+    const QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (!version)
         result.append(createProjectTask(Task::TaskType::Error, tr("No Qt version set in kit.")));
 
-    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
     if (dev.isNull())
         result.append(createProjectTask(Task::TaskType::Error, tr("Kit has no device.")));
 
@@ -371,7 +371,7 @@ void QmlProject::updateDeploymentData(ProjectExplorer::Target *target)
     if (!m_projectItem)
         return;
 
-    if (DeviceTypeKitInformation::deviceTypeId(target->kit())
+    if (DeviceTypeKitAspect::deviceTypeId(target->kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         return;
     }

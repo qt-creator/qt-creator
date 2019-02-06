@@ -55,7 +55,7 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
     ProjectExplorer::Target *target = runConfiguration->target();
     m_device = runWorker->device().dynamicCast<const WinRtDevice>();
 
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target->kit());
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!qt) {
         *errorMessage = tr("The current kit has no Qt version.");
         return;

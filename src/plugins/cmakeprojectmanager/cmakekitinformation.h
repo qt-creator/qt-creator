@@ -35,11 +35,11 @@ namespace CMakeProjectManager {
 
 class CMakeTool;
 
-class CMAKE_EXPORT CMakeKitInformation : public ProjectExplorer::KitInformation
+class CMAKE_EXPORT CMakeKitAspect : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 public:
-    CMakeKitInformation();
+    CMakeKitAspect();
 
     static Core::Id id();
 
@@ -47,24 +47,24 @@ public:
     static CMakeTool *cmakeTool(const ProjectExplorer::Kit *k);
     static void setCMakeTool(ProjectExplorer::Kit *k, const Core::Id id);
 
-    // KitInformation interface
+    // KitAspect interface
     QVariant defaultValue(const ProjectExplorer::Kit *k) const final;
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const final;
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
 
     void addToMacroExpander(ProjectExplorer::Kit *k, Utils::MacroExpander *expander) const final;
 
     QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const final;
 };
 
-class CMAKE_EXPORT CMakeGeneratorKitInformation : public ProjectExplorer::KitInformation
+class CMAKE_EXPORT CMakeGeneratorKitAspect : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 public:
-    CMakeGeneratorKitInformation();
+    CMakeGeneratorKitAspect();
 
     static QString generator(const ProjectExplorer::Kit *k);
     static QString extraGenerator(const ProjectExplorer::Kit *k);
@@ -78,21 +78,21 @@ public:
                     const QString &extraGenerator, const QString &platform, const QString &toolset);
     static QStringList generatorArguments(const ProjectExplorer::Kit *k);
 
-    // KitInformation interface
+    // KitAspect interface
     QVariant defaultValue(const ProjectExplorer::Kit *k) const final;
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const final;
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
     void upgrade(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
 };
 
-class CMAKE_EXPORT CMakeConfigurationKitInformation : public ProjectExplorer::KitInformation
+class CMAKE_EXPORT CMakeConfigurationKitAspect : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 public:
-    CMakeConfigurationKitInformation();
+    CMakeConfigurationKitAspect();
 
     static CMakeConfig configuration(const ProjectExplorer::Kit *k);
     static void setConfiguration(ProjectExplorer::Kit *k, const CMakeConfig &config);
@@ -102,13 +102,13 @@ public:
 
     static CMakeConfig defaultConfiguration(const ProjectExplorer::Kit *k);
 
-    // KitInformation interface
+    // KitAspect interface
     QVariant defaultValue(const ProjectExplorer::Kit *k) const final;
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const final;
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
 };
 
 } // namespace CMakeProjectManager

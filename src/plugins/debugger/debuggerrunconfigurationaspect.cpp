@@ -278,7 +278,7 @@ void DebuggerRunConfigurationAspect::setUseMultiProcess(bool value)
 bool DebuggerRunConfigurationAspect::isQmlDebuggingSpinboxSuppressed() const
 {
     Kit *k = m_target->kit();
-    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
     if (dev.isNull())
         return false;
     return dev->canAutoDetectPorts();

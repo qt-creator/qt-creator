@@ -50,7 +50,7 @@ RemoteLinuxEnvironmentAspectWidget::RemoteLinuxEnvironmentAspectWidget
         (RemoteLinuxEnvironmentAspect *aspect, Target *target) :
     EnvironmentAspectWidget(aspect, new QPushButton)
 {
-    IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
+    IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
 
     deviceEnvReader = new RemoteLinuxEnvironmentReader(device, this);
     connect(target, &ProjectExplorer::Target::kitChanged,

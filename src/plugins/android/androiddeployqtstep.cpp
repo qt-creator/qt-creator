@@ -149,7 +149,7 @@ AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent)
     : ProjectExplorer::BuildStep(parent, stepId())
 {
     setImmutable(true);
-    m_uninstallPreviousPackage = QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
+    m_uninstallPreviousPackage = QtSupport::QtKitAspect::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
 
     //: AndroidDeployQtStep default display name
     setDefaultDisplayName(tr("Deploy to Android device"));
@@ -224,7 +224,7 @@ bool AndroidDeployQtStep::init()
 
     emit addOutput(tr("Deploying to %1").arg(m_serialNumber), OutputFormat::Stdout);
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target()->kit());
     if (!version)
         return false;
 
@@ -527,7 +527,7 @@ void AndroidDeployQtStep::gatherFilesToPull()
     if (m_deviceInfo.cpuAbi.contains(QLatin1String("arm64-v8a")) ||
             m_deviceInfo.cpuAbi.contains(QLatin1String("x86_64"))) {
         const Core::Id cxxLanguageId = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), cxxLanguageId);
+        ToolChain *tc = ToolChainKitAspect::toolChain(target()->kit(), cxxLanguageId);
         if (tc && tc->targetAbi().wordWidth() == 64) {
             m_filesToPull["/system/bin/app_process64"] = buildDir + "app_process";
             libDirName = "lib64";
@@ -634,7 +634,7 @@ void AndroidDeployQtStep::setUninstallPreviousPackage(bool uninstall)
 
 AndroidDeployQtStep::UninstallType AndroidDeployQtStep::uninstallPreviousPackage()
 {
-    if (QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))
+    if (QtSupport::QtKitAspect::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))
         return ForceUnintall;
     return m_uninstallPreviousPackage ? Uninstall : Keep;
 }

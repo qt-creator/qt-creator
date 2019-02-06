@@ -41,7 +41,7 @@
 
 #include <QTimer>
 
-using ProjectExplorer::DeviceKitInformation;
+using ProjectExplorer::DeviceKitAspect;
 using ProjectExplorer::IDevice;
 using ProjectExplorer::RunControl;
 using Core::Id;

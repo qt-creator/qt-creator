@@ -85,7 +85,7 @@ void QmlDumpTool::pathAndEnvironment(const ProjectExplorer::Kit *k, bool preferD
     if (!k)
         return;
 
-    const BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+    const BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (version && !version->hasQmlDump())
         return;
 

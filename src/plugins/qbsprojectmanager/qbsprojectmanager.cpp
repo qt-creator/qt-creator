@@ -166,7 +166,7 @@ void QbsManager::addProfile(const QString &name, const QVariantMap &data)
 
 void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k)
 {
-    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitInformation::qtVersion(k);
+    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(k);
     if (!qt)
         return;
 

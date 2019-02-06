@@ -49,7 +49,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
             return;
 
         const Kit *k = target->kit();
-        const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(k);
+        const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
         if (qt)
             env.prependOrSetPath(qt->qmakeProperty("QT_INSTALL_BINS"));
     };
@@ -63,7 +63,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
     connect(target->project(), &Project::parsingFinished,
             this, &CMakeRunConfiguration::updateTargetInformation);
 
-    if (QtSupport::QtKitInformation::qtVersion(target->kit()))
+    if (QtSupport::QtKitAspect::qtVersion(target->kit()))
         setOutputFormatter<QtSupport::QtOutputFormatter>();
 }
 

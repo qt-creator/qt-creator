@@ -61,76 +61,76 @@ namespace ProjectExplorer {
 namespace Internal {
 
 // --------------------------------------------------------------------------
-// SysRootInformationConfigWidget:
+// SysRootKitAspectWidget:
 // --------------------------------------------------------------------------
 
-SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, const KitInformation *ki) :
-    KitConfigWidget(k, ki)
+SysRootKitAspectWidget::SysRootKitAspectWidget(Kit *k, const KitAspect *ki) :
+    KitAspectWidget(k, ki)
 {
     m_chooser = new Utils::PathChooser;
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_chooser->setHistoryCompleter(QLatin1String("PE.SysRoot.History"));
-    m_chooser->setFileName(SysRootKitInformation::sysRoot(k));
+    m_chooser->setFileName(SysRootKitAspect::sysRoot(k));
     connect(m_chooser, &Utils::PathChooser::pathChanged,
-            this, &SysRootInformationConfigWidget::pathWasChanged);
+            this, &SysRootKitAspectWidget::pathWasChanged);
 }
 
-SysRootInformationConfigWidget::~SysRootInformationConfigWidget()
+SysRootKitAspectWidget::~SysRootKitAspectWidget()
 {
     delete m_chooser;
 }
 
-QString SysRootInformationConfigWidget::displayName() const
+QString SysRootKitAspectWidget::displayName() const
 {
     return tr("Sysroot");
 }
 
-QString SysRootInformationConfigWidget::toolTip() const
+QString SysRootKitAspectWidget::toolTip() const
 {
     return tr("The root directory of the system image to use.<br>"
               "Leave empty when building for the desktop.");
 }
 
-void SysRootInformationConfigWidget::setPalette(const QPalette &p)
+void SysRootKitAspectWidget::setPalette(const QPalette &p)
 {
-    KitConfigWidget::setPalette(p);
+    KitAspectWidget::setPalette(p);
     m_chooser->setOkColor(p.color(QPalette::Active, QPalette::Text));
 }
 
-void SysRootInformationConfigWidget::refresh()
+void SysRootKitAspectWidget::refresh()
 {
     if (!m_ignoreChange)
-        m_chooser->setFileName(SysRootKitInformation::sysRoot(m_kit));
+        m_chooser->setFileName(SysRootKitAspect::sysRoot(m_kit));
 }
 
-void SysRootInformationConfigWidget::makeReadOnly()
+void SysRootKitAspectWidget::makeReadOnly()
 {
     m_chooser->setReadOnly(true);
 }
 
-QWidget *SysRootInformationConfigWidget::mainWidget() const
+QWidget *SysRootKitAspectWidget::mainWidget() const
 {
     return m_chooser->lineEdit();
 }
 
-QWidget *SysRootInformationConfigWidget::buttonWidget() const
+QWidget *SysRootKitAspectWidget::buttonWidget() const
 {
     return m_chooser->buttonAtIndex(0);
 }
 
-void SysRootInformationConfigWidget::pathWasChanged()
+void SysRootKitAspectWidget::pathWasChanged()
 {
     m_ignoreChange = true;
-    SysRootKitInformation::setSysRoot(m_kit, m_chooser->fileName());
+    SysRootKitAspect::setSysRoot(m_kit, m_chooser->fileName());
     m_ignoreChange = false;
 }
 
 // --------------------------------------------------------------------------
-// ToolChainInformationConfigWidget:
+// ToolChainKitAspectWidget:
 // --------------------------------------------------------------------------
 
-ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, const KitInformation *ki) :
-    KitConfigWidget(k, ki)
+ToolChainKitAspectWidget::ToolChainKitAspectWidget(Kit *k, const KitAspect *ki) :
+    KitAspectWidget(k, ki)
 {
     m_mainWidget = new QWidget;
     m_mainWidget->setContentsMargins(0, 0, 0, 0);
@@ -163,31 +163,31 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, const
 
     refresh();
 
-    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
+    m_manageButton = new QPushButton(KitAspectWidget::msgManage());
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     connect(m_manageButton, &QAbstractButton::clicked,
-            this, &ToolChainInformationConfigWidget::manageToolChains);
+            this, &ToolChainKitAspectWidget::manageToolChains);
 }
 
-ToolChainInformationConfigWidget::~ToolChainInformationConfigWidget()
+ToolChainKitAspectWidget::~ToolChainKitAspectWidget()
 {
     delete m_mainWidget;
     delete m_manageButton;
 }
 
-QString ToolChainInformationConfigWidget::displayName() const
+QString ToolChainKitAspectWidget::displayName() const
 {
     return tr("Compiler");
 }
 
-QString ToolChainInformationConfigWidget::toolTip() const
+QString ToolChainKitAspectWidget::toolTip() const
 {
     return tr("The compiler to use for building.<br>"
               "Make sure the compiler will produce binaries compatible with the target device, "
               "Qt version and other libraries used.");
 }
 
-void ToolChainInformationConfigWidget::refresh()
+void ToolChainKitAspectWidget::refresh()
 {
     m_ignoreChanges = true;
 
@@ -203,13 +203,13 @@ void ToolChainInformationConfigWidget::refresh()
             cb->addItem(tc->displayName(), tc->id());
 
         cb->setEnabled(cb->count() > 1 && !m_isReadOnly);
-        const int index = indexOf(cb, ToolChainKitInformation::toolChain(m_kit, l));
+        const int index = indexOf(cb, ToolChainKitAspect::toolChain(m_kit, l));
         cb->setCurrentIndex(index);
     }
     m_ignoreChanges = false;
 }
 
-void ToolChainInformationConfigWidget::makeReadOnly()
+void ToolChainKitAspectWidget::makeReadOnly()
 {
     m_isReadOnly = true;
     foreach (Core::Id l, m_languageComboboxMap.keys()) {
@@ -217,22 +217,22 @@ void ToolChainInformationConfigWidget::makeReadOnly()
     }
 }
 
-QWidget *ToolChainInformationConfigWidget::mainWidget() const
+QWidget *ToolChainKitAspectWidget::mainWidget() const
 {
     return m_mainWidget;
 }
 
-QWidget *ToolChainInformationConfigWidget::buttonWidget() const
+QWidget *ToolChainKitAspectWidget::buttonWidget() const
 {
     return m_manageButton;
 }
 
-void ToolChainInformationConfigWidget::manageToolChains()
+void ToolChainKitAspectWidget::manageToolChains()
 {
     ICore::showOptionsDialog(Constants::TOOLCHAIN_SETTINGS_PAGE_ID, buttonWidget());
 }
 
-void ToolChainInformationConfigWidget::currentToolChainChanged(Id language, int idx)
+void ToolChainKitAspectWidget::currentToolChainChanged(Id language, int idx)
 {
     if (m_ignoreChanges || idx < 0)
         return;
@@ -241,12 +241,12 @@ void ToolChainInformationConfigWidget::currentToolChainChanged(Id language, int 
     ToolChain *tc = ToolChainManager::findToolChain(id);
     QTC_ASSERT(!tc || tc->language() == language, return);
     if (tc)
-        ToolChainKitInformation::setToolChain(m_kit, tc);
+        ToolChainKitAspect::setToolChain(m_kit, tc);
     else
-        ToolChainKitInformation::clearToolChain(m_kit, language);
+        ToolChainKitAspect::clearToolChain(m_kit, language);
 }
 
-int ToolChainInformationConfigWidget::indexOf(QComboBox *cb, const ToolChain *tc)
+int ToolChainKitAspectWidget::indexOf(QComboBox *cb, const ToolChain *tc)
 {
     const QByteArray id = tc ? tc->id() : QByteArray();
     for (int i = 0; i < cb->count(); ++i) {
@@ -257,11 +257,11 @@ int ToolChainInformationConfigWidget::indexOf(QComboBox *cb, const ToolChain *tc
 }
 
 // --------------------------------------------------------------------------
-// DeviceTypeInformationConfigWidget:
+// DeviceTypeKitAspectWidget:
 // --------------------------------------------------------------------------
 
-DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workingCopy, const KitInformation *ki) :
-    KitConfigWidget(workingCopy, ki), m_comboBox(new QComboBox)
+DeviceTypeKitAspectWidget::DeviceTypeKitAspectWidget(Kit *workingCopy, const KitAspect *ki) :
+    KitAspectWidget(workingCopy, ki), m_comboBox(new QComboBox)
 {
     for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
         m_comboBox->addItem(factory->displayName(), factory->deviceType().toSetting());
@@ -270,32 +270,32 @@ DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workin
 
     refresh();
     connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &DeviceTypeInformationConfigWidget::currentTypeChanged);
+            this, &DeviceTypeKitAspectWidget::currentTypeChanged);
 }
 
-DeviceTypeInformationConfigWidget::~DeviceTypeInformationConfigWidget()
+DeviceTypeKitAspectWidget::~DeviceTypeKitAspectWidget()
 {
     delete m_comboBox;
 }
 
-QWidget *DeviceTypeInformationConfigWidget::mainWidget() const
+QWidget *DeviceTypeKitAspectWidget::mainWidget() const
 {
     return m_comboBox;
 }
 
-QString DeviceTypeInformationConfigWidget::displayName() const
+QString DeviceTypeKitAspectWidget::displayName() const
 {
     return tr("Device type");
 }
 
-QString DeviceTypeInformationConfigWidget::toolTip() const
+QString DeviceTypeKitAspectWidget::toolTip() const
 {
     return tr("The type of device to run applications on.");
 }
 
-void DeviceTypeInformationConfigWidget::refresh()
+void DeviceTypeKitAspectWidget::refresh()
 {
-    Id devType = DeviceTypeKitInformation::deviceTypeId(m_kit);
+    Id devType = DeviceTypeKitAspect::deviceTypeId(m_kit);
     if (!devType.isValid())
         m_comboBox->setCurrentIndex(-1);
     for (int i = 0; i < m_comboBox->count(); ++i) {
@@ -306,112 +306,112 @@ void DeviceTypeInformationConfigWidget::refresh()
     }
 }
 
-void DeviceTypeInformationConfigWidget::makeReadOnly()
+void DeviceTypeKitAspectWidget::makeReadOnly()
 {
     m_comboBox->setEnabled(false);
 }
 
-void DeviceTypeInformationConfigWidget::currentTypeChanged(int idx)
+void DeviceTypeKitAspectWidget::currentTypeChanged(int idx)
 {
     Id type = idx < 0 ? Id() : Id::fromSetting(m_comboBox->itemData(idx));
-    DeviceTypeKitInformation::setDeviceTypeId(m_kit, type);
+    DeviceTypeKitAspect::setDeviceTypeId(m_kit, type);
 }
 
 // --------------------------------------------------------------------------
-// DeviceInformationConfigWidget:
+// DeviceKitAspectWidget:
 // --------------------------------------------------------------------------
 
-DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy, const KitInformation *ki) :
-    KitConfigWidget(workingCopy, ki),
+DeviceKitAspectWidget::DeviceKitAspectWidget(Kit *workingCopy, const KitAspect *ki) :
+    KitAspectWidget(workingCopy, ki),
     m_comboBox(new QComboBox),
     m_model(new DeviceManagerModel(DeviceManager::instance()))
 {
     m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
     m_comboBox->setModel(m_model);
 
-    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
+    m_manageButton = new QPushButton(KitAspectWidget::msgManage());
 
     refresh();
     m_comboBox->setToolTip(toolTip());
 
     connect(m_model, &QAbstractItemModel::modelAboutToBeReset,
-            this, &DeviceInformationConfigWidget::modelAboutToReset);
+            this, &DeviceKitAspectWidget::modelAboutToReset);
     connect(m_model, &QAbstractItemModel::modelReset,
-            this, &DeviceInformationConfigWidget::modelReset);
+            this, &DeviceKitAspectWidget::modelReset);
     connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &DeviceInformationConfigWidget::currentDeviceChanged);
+            this, &DeviceKitAspectWidget::currentDeviceChanged);
     connect(m_manageButton, &QAbstractButton::clicked,
-            this, &DeviceInformationConfigWidget::manageDevices);
+            this, &DeviceKitAspectWidget::manageDevices);
 }
 
-DeviceInformationConfigWidget::~DeviceInformationConfigWidget()
+DeviceKitAspectWidget::~DeviceKitAspectWidget()
 {
     delete m_comboBox;
     delete m_model;
     delete m_manageButton;
 }
 
-QWidget *DeviceInformationConfigWidget::mainWidget() const
+QWidget *DeviceKitAspectWidget::mainWidget() const
 {
     return m_comboBox;
 }
 
-QString DeviceInformationConfigWidget::displayName() const
+QString DeviceKitAspectWidget::displayName() const
 {
     return tr("Device");
 }
 
-QString DeviceInformationConfigWidget::toolTip() const
+QString DeviceKitAspectWidget::toolTip() const
 {
     return tr("The device to run the applications on.");
 }
 
-void DeviceInformationConfigWidget::refresh()
+void DeviceKitAspectWidget::refresh()
 {
-    m_model->setTypeFilter(DeviceTypeKitInformation::deviceTypeId(m_kit));
-    m_comboBox->setCurrentIndex(m_model->indexOf(DeviceKitInformation::device(m_kit)));
+    m_model->setTypeFilter(DeviceTypeKitAspect::deviceTypeId(m_kit));
+    m_comboBox->setCurrentIndex(m_model->indexOf(DeviceKitAspect::device(m_kit)));
 }
 
-void DeviceInformationConfigWidget::makeReadOnly()
+void DeviceKitAspectWidget::makeReadOnly()
 {
     m_comboBox->setEnabled(false);
 }
 
-QWidget *DeviceInformationConfigWidget::buttonWidget() const
+QWidget *DeviceKitAspectWidget::buttonWidget() const
 {
     return m_manageButton;
 }
 
-void DeviceInformationConfigWidget::manageDevices()
+void DeviceKitAspectWidget::manageDevices()
 {
     ICore::showOptionsDialog(Constants::DEVICE_SETTINGS_PAGE_ID, buttonWidget());
 }
 
-void DeviceInformationConfigWidget::modelAboutToReset()
+void DeviceKitAspectWidget::modelAboutToReset()
 {
     m_selectedId = m_model->deviceId(m_comboBox->currentIndex());
     m_ignoreChange = true;
 }
 
-void DeviceInformationConfigWidget::modelReset()
+void DeviceKitAspectWidget::modelReset()
 {
     m_comboBox->setCurrentIndex(m_model->indexForId(m_selectedId));
     m_ignoreChange = false;
 }
 
-void DeviceInformationConfigWidget::currentDeviceChanged()
+void DeviceKitAspectWidget::currentDeviceChanged()
 {
     if (m_ignoreChange)
         return;
-    DeviceKitInformation::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
+    DeviceKitAspect::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
 }
 
 // --------------------------------------------------------------------
-// KitEnvironmentConfigWidget:
+// EnvironmentKitAspectWidget:
 // --------------------------------------------------------------------
 
-KitEnvironmentConfigWidget::KitEnvironmentConfigWidget(Kit *workingCopy, const KitInformation *ki) :
-    KitConfigWidget(workingCopy, ki),
+EnvironmentKitAspectWidget::EnvironmentKitAspectWidget(Kit *workingCopy, const KitAspect *ki) :
+    KitAspectWidget(workingCopy, ki),
     m_summaryLabel(new QLabel),
     m_manageButton(new QPushButton),
     m_mainWidget(new QWidget)
@@ -427,25 +427,25 @@ KitEnvironmentConfigWidget::KitEnvironmentConfigWidget(Kit *workingCopy, const K
     refresh();
     m_manageButton->setText(tr("Change..."));
     connect(m_manageButton, &QAbstractButton::clicked,
-            this, &KitEnvironmentConfigWidget::editEnvironmentChanges);
+            this, &EnvironmentKitAspectWidget::editEnvironmentChanges);
 }
 
-QWidget *KitEnvironmentConfigWidget::mainWidget() const
+QWidget *EnvironmentKitAspectWidget::mainWidget() const
 {
     return m_mainWidget;
 }
 
-QString KitEnvironmentConfigWidget::displayName() const
+QString EnvironmentKitAspectWidget::displayName() const
 {
     return tr("Environment");
 }
 
-QString KitEnvironmentConfigWidget::toolTip() const
+QString EnvironmentKitAspectWidget::toolTip() const
 {
     return tr("Additional build environment settings when using this kit.");
 }
 
-void KitEnvironmentConfigWidget::refresh()
+void EnvironmentKitAspectWidget::refresh()
 {
     const QList<Utils::EnvironmentItem> changes = currentEnvironment();
     QString shortSummary = Utils::EnvironmentItem::toStringList(changes).join(QLatin1String("; "));
@@ -454,14 +454,14 @@ void KitEnvironmentConfigWidget::refresh()
     m_summaryLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
 }
 
-void KitEnvironmentConfigWidget::makeReadOnly()
+void EnvironmentKitAspectWidget::makeReadOnly()
 {
     m_manageButton->setEnabled(false);
 }
 
-QList<Utils::EnvironmentItem> KitEnvironmentConfigWidget::currentEnvironment() const
+QList<Utils::EnvironmentItem> EnvironmentKitAspectWidget::currentEnvironment() const
 {
-    QList<Utils::EnvironmentItem> changes = EnvironmentKitInformation::environmentChanges(m_kit);
+    QList<Utils::EnvironmentItem> changes = EnvironmentKitAspect::environmentChanges(m_kit);
 
     if (Utils::HostOsInfo::isWindowsHost()) {
         const Utils::EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
@@ -476,7 +476,7 @@ QList<Utils::EnvironmentItem> KitEnvironmentConfigWidget::currentEnvironment() c
     return changes;
 }
 
-void KitEnvironmentConfigWidget::editEnvironmentChanges()
+void EnvironmentKitAspectWidget::editEnvironmentChanges()
 {
     bool ok;
     Utils::MacroExpander *expander = m_kit->macroExpander();
@@ -498,15 +498,15 @@ void KitEnvironmentConfigWidget::editEnvironmentChanges()
             changes.append(forceMSVCEnglishItem);
     }
 
-    EnvironmentKitInformation::setEnvironmentChanges(m_kit, changes);
+    EnvironmentKitAspect::setEnvironmentChanges(m_kit, changes);
 }
 
-QWidget *KitEnvironmentConfigWidget::buttonWidget() const
+QWidget *EnvironmentKitAspectWidget::buttonWidget() const
 {
     return m_manageButton;
 }
 
-void KitEnvironmentConfigWidget::initMSVCOutputSwitch(QVBoxLayout *layout)
+void EnvironmentKitAspectWidget::initMSVCOutputSwitch(QVBoxLayout *layout)
 {
     m_vslangCheckbox = new QCheckBox(tr("Force UTF-8 MSVC compiler output"));
     layout->addWidget(m_vslangCheckbox);
@@ -515,13 +515,13 @@ void KitEnvironmentConfigWidget::initMSVCOutputSwitch(QVBoxLayout *layout)
                                     "compiler)."));
     connect(m_vslangCheckbox, &QCheckBox::toggled, this, [this](bool checked) {
         QList<Utils::EnvironmentItem> changes
-                = EnvironmentKitInformation::environmentChanges(m_kit);
+                = EnvironmentKitAspect::environmentChanges(m_kit);
         const Utils::EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
         if (!checked && changes.indexOf(forceMSVCEnglishItem) >= 0)
             changes.removeAll(forceMSVCEnglishItem);
         if (checked && changes.indexOf(forceMSVCEnglishItem) < 0)
             changes.append(forceMSVCEnglishItem);
-        EnvironmentKitInformation::setEnvironmentChanges(m_kit, changes);
+        EnvironmentKitAspect::setEnvironmentChanges(m_kit, changes);
     });
 }
 

@@ -126,7 +126,7 @@ bool TypeSpecificDeviceConfigurationListModel::deviceMatches(IDevice::ConstPtr d
 {
     if (dev.isNull())
         return false;
-    Core::Id typeId = DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    Core::Id typeId = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     return dev->type() == typeId;
 }
 

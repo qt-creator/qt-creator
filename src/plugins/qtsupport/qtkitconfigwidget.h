@@ -35,13 +35,13 @@ QT_END_NAMESPACE
 namespace QtSupport {
 namespace Internal {
 
-class QtKitConfigWidget : public ProjectExplorer::KitConfigWidget
+class QtKitAspectWidget : public ProjectExplorer::KitAspectWidget
 {
     Q_OBJECT
 
 public:
-    QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
-    ~QtKitConfigWidget() override;
+    QtKitAspectWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitAspect *ki);
+    ~QtKitAspectWidget() override;
 
     QString displayName() const override;
 

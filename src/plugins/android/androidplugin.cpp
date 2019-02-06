@@ -107,7 +107,7 @@ public:
 
     void handleNewTarget(Target *target)
     {
-        if (DeviceTypeKitInformation::deviceTypeId(target->kit()) != Android::Constants::ANDROID_DEVICE_TYPE)
+        if (DeviceTypeKitAspect::deviceTypeId(target->kit()) != Android::Constants::ANDROID_DEVICE_TYPE)
             return;
 
         for (BuildConfiguration *bc : target->buildConfigurations())
@@ -155,13 +155,13 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     }, [](RunConfiguration *runConfig) {
         return runConfig->isEnabled()
                 && runConfig->id().name().startsWith("QmlProjectManager.QmlRunConfiguration")
-                && DeviceTypeKitInformation::deviceTypeId(runConfig->target()->kit())
+                && DeviceTypeKitAspect::deviceTypeId(runConfig->target()->kit())
                     == Android::Constants::ANDROID_DEVICE_TYPE;
     });
 
     d = new AndroidPluginPrivate;
 
-    KitManager::registerKitInformation<Internal::AndroidGdbServerKitInformation>();
+    KitManager::registerKitAspect<Internal::AndroidGdbServerKitAspect>();
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &AndroidPlugin::kitsRestored);

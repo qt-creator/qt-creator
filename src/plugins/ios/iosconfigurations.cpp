@@ -168,7 +168,7 @@ static QHash<XcodePlatform::ToolchainTarget, ToolChainPair> findToolChains(const
 static QSet<Kit *> existingAutoDetectedIosKits()
 {
     return Utils::filtered(KitManager::kits(), [](Kit *kit) -> bool {
-        Core::Id deviceKind = DeviceTypeKitInformation::deviceTypeId(kit);
+        Core::Id deviceKind = DeviceTypeKitAspect::deviceTypeId(kit);
         return kit->isAutoDetected() && (deviceKind == Constants::IOS_DEVICE_TYPE
                                          || deviceKind == Constants::IOS_SIMULATOR_TYPE);
     }).toSet();
@@ -183,33 +183,33 @@ static void printKits(const QSet<Kit *> &kits)
 static void setupKit(Kit *kit, Core::Id pDeviceType, const ToolChainPair& toolChains,
                      const QVariant &debuggerId, const Utils::FileName &sdkPath, BaseQtVersion *qtVersion)
 {
-    DeviceTypeKitInformation::setDeviceTypeId(kit, pDeviceType);
+    DeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
     if (toolChains.first)
-        ToolChainKitInformation::setToolChain(kit, toolChains.first);
+        ToolChainKitAspect::setToolChain(kit, toolChains.first);
     else
-        ToolChainKitInformation::clearToolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID);
+        ToolChainKitAspect::clearToolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID);
     if (toolChains.second)
-        ToolChainKitInformation::setToolChain(kit, toolChains.second);
+        ToolChainKitAspect::setToolChain(kit, toolChains.second);
     else
-        ToolChainKitInformation::clearToolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+        ToolChainKitAspect::clearToolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
-    QtKitInformation::setQtVersion(kit, qtVersion);
+    QtKitAspect::setQtVersion(kit, qtVersion);
     // only replace debugger with the default one if we find an unusable one here
     // (since the user could have changed it)
-    if ((!DebuggerKitInformation::debugger(kit)
-            || !DebuggerKitInformation::debugger(kit)->isValid()
-            || DebuggerKitInformation::debugger(kit)->engineType() != LldbEngineType)
+    if ((!DebuggerKitAspect::debugger(kit)
+            || !DebuggerKitAspect::debugger(kit)->isValid()
+            || DebuggerKitAspect::debugger(kit)->engineType() != LldbEngineType)
             && debuggerId.isValid())
-        DebuggerKitInformation::setDebugger(kit, debuggerId);
+        DebuggerKitAspect::setDebugger(kit, debuggerId);
 
-    kit->setMutable(DeviceKitInformation::id(), true);
-    kit->setSticky(QtKitInformation::id(), true);
-    kit->setSticky(ToolChainKitInformation::id(), true);
-    kit->setSticky(DeviceTypeKitInformation::id(), true);
-    kit->setSticky(SysRootKitInformation::id(), true);
-    kit->setSticky(DebuggerKitInformation::id(), false);
+    kit->setMutable(DeviceKitAspect::id(), true);
+    kit->setSticky(QtKitAspect::id(), true);
+    kit->setSticky(ToolChainKitAspect::id(), true);
+    kit->setSticky(DeviceTypeKitAspect::id(), true);
+    kit->setSticky(SysRootKitAspect::id(), true);
+    kit->setSticky(DebuggerKitAspect::id(), false);
 
-    SysRootKitInformation::setSysRoot(kit, sdkPath);
+    SysRootKitAspect::setSysRoot(kit, sdkPath);
 }
 
 static QVersionNumber findXcodeVersion(const Utils::FileName &developerPath)
@@ -287,10 +287,10 @@ void IosConfigurations::updateAutomaticKitList()
                 Kit *kit = Utils::findOrDefault(existingKits, [&pDeviceType, &platformToolchains, &qtVersion](const Kit *kit) {
                     // we do not compare the sdk (thus automatically upgrading it in place if a
                     // new Xcode is used). Change?
-                    return DeviceTypeKitInformation::deviceTypeId(kit) == pDeviceType
-                            && ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID) == platformToolchains.second
-                            && ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID) == platformToolchains.first
-                            && QtKitInformation::qtVersion(kit) == qtVersion;
+                    return DeviceTypeKitAspect::deviceTypeId(kit) == pDeviceType
+                            && ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID) == platformToolchains.second
+                            && ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID) == platformToolchains.first
+                            && QtKitAspect::qtVersion(kit) == qtVersion;
                 });
                 QTC_ASSERT(!resultingKits.contains(kit), continue);
                 if (kit) {

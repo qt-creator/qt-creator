@@ -48,12 +48,12 @@ KitInfo::KitInfo(Project *project)
 
     // Toolchains
     if (kit) {
-        cToolChain = ToolChainKitInformation::toolChain(kit, Constants::C_LANGUAGE_ID);
-        cxxToolChain = ToolChainKitInformation::toolChain(kit, Constants::CXX_LANGUAGE_ID);
+        cToolChain = ToolChainKitAspect::toolChain(kit, Constants::C_LANGUAGE_ID);
+        cxxToolChain = ToolChainKitAspect::toolChain(kit, Constants::CXX_LANGUAGE_ID);
     }
 
     // Sysroot
-    sysRootPath = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+    sysRootPath = ProjectExplorer::SysRootKitAspect::sysRoot(kit).toString();
 }
 
 bool KitInfo::isValid() const

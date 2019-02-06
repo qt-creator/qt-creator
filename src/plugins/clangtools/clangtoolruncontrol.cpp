@@ -258,7 +258,7 @@ void ClangToolRunControl::init()
     QTC_ASSERT(buildConfiguration, return);
     m_environment = buildConfiguration->environment();
 
-    ToolChain *toolChain = ToolChainKitInformation::toolChain(m_target->kit(),
+    ToolChain *toolChain = ToolChainKitAspect::toolChain(m_target->kit(),
                                                               ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     QTC_ASSERT(toolChain, return);
     m_targetTriple = toolChain->originalTargetTriple();

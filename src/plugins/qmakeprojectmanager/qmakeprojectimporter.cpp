@@ -203,9 +203,9 @@ bool QmakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     auto *data = static_cast<DirectoryData *>(directoryData);
     const QLoggingCategory &logs = MakeFileParse::logging();
 
-    BaseQtVersion *kitVersion = QtKitInformation::qtVersion(k);
-    FileName kitSpec = QmakeKitInformation::mkspec(k);
-    ToolChain *tc = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    BaseQtVersion *kitVersion = QtKitAspect::qtVersion(k);
+    FileName kitSpec = QmakeKitAspect::mkspec(k);
+    ToolChain *tc = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (kitSpec.isEmpty() && kitVersion)
         kitSpec = kitVersion->mkspecFor(tc);
     QMakeStepConfig::TargetArchConfig kitTargetArch = QMakeStepConfig::NoArch;
@@ -288,9 +288,9 @@ Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersion
     Q_UNUSED(osType); // TODO use this to select the right toolchain?
     return QtProjectImporter::createTemporaryKit(data,
                                                  [&data, parsedSpec, archConfig](Kit *k) -> void {
-        ToolChainKitInformation::setToolChain(k, preferredToolChain(data.qt, parsedSpec, archConfig));
+        ToolChainKitAspect::setToolChain(k, preferredToolChain(data.qt, parsedSpec, archConfig));
         if (parsedSpec != data.qt->mkspec())
-            QmakeKitInformation::setMkspec(k, parsedSpec);
+            QmakeKitAspect::setMkspec(k, parsedSpec);
     });
 }
 

@@ -57,7 +57,7 @@ static bool isLocal(RunConfiguration *runConfiguration)
 {
     Target *target = runConfiguration ? runConfiguration->target() : nullptr;
     Kit *kit = target ? target->kit() : nullptr;
-    return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    return DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
 static QString ensureExeEnding(const QString& file)

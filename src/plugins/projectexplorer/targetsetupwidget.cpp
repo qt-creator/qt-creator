@@ -73,7 +73,7 @@ TargetSetupWidget::TargetSetupWidget(Kit *k, const QString &projectPath) :
 
     auto panel = new Utils::FadingWidget(m_detailsWidget);
     auto panelLayout = new QHBoxLayout(panel);
-    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
+    m_manageButton = new QPushButton(KitAspectWidget::msgManage());
     panelLayout->addWidget(m_manageButton);
     m_detailsWidget->setToolWidget(panel);
 

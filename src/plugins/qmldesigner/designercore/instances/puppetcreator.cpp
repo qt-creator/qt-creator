@@ -90,7 +90,7 @@ QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml2PuppetForKitPupp
 
 QByteArray PuppetCreator::qtHash() const
 {
-    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
+    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_kit);
     if (currentQtVersion) {
         return QCryptographicHash::hash(currentQtVersion->qmakeProperty("QT_INSTALL_DATA").toUtf8(),
                                         QCryptographicHash::Sha1)
@@ -102,7 +102,7 @@ QByteArray PuppetCreator::qtHash() const
 
 QDateTime PuppetCreator::qtLastModified() const
 {
-    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
+    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_kit);
     if (currentQtVersion)
         return QFileInfo(currentQtVersion->qmakeProperty("QT_INSTALL_LIBS")).lastModified();
 
@@ -419,7 +419,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     if (!useOnlyFallbackPuppet())
         m_kit->addToEnvironment(environment);
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(m_kit);
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_kit);
     if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
         // Update PATH to include QT_HOST_BINS
         const Utils::FileName qtBinPath = qt->binPath();
@@ -497,7 +497,7 @@ QString PuppetCreator::buildCommand() const
     m_kit->addToEnvironment(environment);
 
     ProjectExplorer::ToolChain *toolChain
-            = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit,
+            = ProjectExplorer::ToolChainKitAspect::toolChain(m_kit,
                                                                   ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (toolChain)
@@ -508,7 +508,7 @@ QString PuppetCreator::buildCommand() const
 
 QString PuppetCreator::qmakeCommand() const
 {
-    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
+    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_kit);
     if (currentQtVersion)
         return currentQtVersion->qmakeCommand().toString();
 
@@ -595,7 +595,7 @@ static bool nonEarlyQt5Version(const QtSupport::QtVersionNumber &currentQtVersio
 
 bool PuppetCreator::qtIsSupported() const
 {
-    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
+    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_kit);
 
     return currentQtVersion
             && currentQtVersion->isValid()

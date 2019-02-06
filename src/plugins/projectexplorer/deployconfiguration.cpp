@@ -162,7 +162,7 @@ bool DeployConfigurationFactory::canHandle(Target *target) const
 
     if (!m_supportedTargetDeviceTypes.isEmpty()) {
         if (!m_supportedTargetDeviceTypes.contains(
-                    DeviceTypeKitInformation::deviceTypeId(target->kit())))
+                    DeviceTypeKitAspect::deviceTypeId(target->kit())))
             return false;
     }
 

@@ -160,7 +160,7 @@ bool AndroidBuildApkStep::init()
                            OutputFormat::ErrorMessage);
     }
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target()->kit());
     if (!version)
         return false;
 

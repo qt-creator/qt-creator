@@ -91,7 +91,7 @@ Project *androidProject(const Utils::FileName &fileName)
         if (!project->activeTarget())
             continue;
         Kit *kit = project->activeTarget()->kit();
-        if (DeviceTypeKitInformation::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE
+        if (DeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE
                 && fileName.isChildOf(project->projectDirectory()))
             return project;
     }
@@ -492,7 +492,7 @@ void AndroidManifestEditorWidget::updateTargetComboBox()
     QStringList items;
     if (project) {
         Kit *kit = project->activeTarget()->kit();
-        if (DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE) {
+        if (DeviceTypeKitAspect::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE) {
             ProjectNode *root = project->rootProjectNode();
             root->forEachProjectNode([&items](const ProjectNode *projectNode) {
                 items << projectNode->targetApplications();

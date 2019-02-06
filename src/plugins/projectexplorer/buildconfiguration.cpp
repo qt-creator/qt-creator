@@ -307,7 +307,7 @@ void BuildConfiguration::prependCompilerPathToEnvironment(Utils::Environment &en
 void BuildConfiguration::prependCompilerPathToEnvironment(Kit *k, Utils::Environment &env)
 {
     const ToolChain *tc
-            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+            = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (!tc)
         return;
@@ -363,7 +363,7 @@ bool BuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const
 BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const QString &projectPath)
 {
     QTC_ASSERT(k, return nullptr);
-    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(k);
+    const Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
     for (BuildConfigurationFactory *factory : g_buildConfigurationFactories) {
         if (Utils::mimeTypeForFile(projectPath).matchesName(factory->m_supportedProjectMimeTypeName)
                 && factory->supportsTargetDeviceType(deviceType))
@@ -405,7 +405,7 @@ bool BuildConfigurationFactory::canHandle(const Target *target) const
     if (containsType(target->project()->projectIssues(target->kit()), Task::TaskType::Error))
         return false;
 
-    if (!supportsTargetDeviceType(DeviceTypeKitInformation::deviceTypeId(target->kit())))
+    if (!supportsTargetDeviceType(DeviceTypeKitAspect::deviceTypeId(target->kit())))
         return false;
 
     return true;

@@ -134,7 +134,7 @@ QString compilerPath(QString pathFlag)
 ToolChain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Core::Id &language)
 {
     if (flags.empty())
-        return ToolChainKitInformation::toolChain(kit, language);
+        return ToolChainKitAspect::toolChain(kit, language);
 
     // Try exact compiler match.
     const Utils::FileName compiler = Utils::FileName::fromString(compilerPath(flags.front()));
@@ -157,7 +157,7 @@ ToolChain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Co
             return toolchain;
     }
 
-    toolchain = ToolChainKitInformation::toolChain(kit, language);
+    toolchain = ToolChainKitAspect::toolChain(kit, language);
     qWarning() << "No matching toolchain found, use the default.";
     return toolchain;
 }
@@ -216,7 +216,7 @@ CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
         if (!cToolchain) {
             cToolchain = toolchainFromFlags(kit, originalFlags,
                                             ProjectExplorer::Constants::C_LANGUAGE_ID);
-            ToolChainKitInformation::setToolChain(kit, cToolchain);
+            ToolChainKitAspect::setToolChain(kit, cToolchain);
         }
         addDriverModeFlagIfNeeded(cToolchain, flags);
         rpp.setFlagsForC({cToolchain, flags});
@@ -224,7 +224,7 @@ CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
         if (!cxxToolchain) {
             cxxToolchain = toolchainFromFlags(kit, originalFlags,
                                               ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-            ToolChainKitInformation::setToolChain(kit, cxxToolchain);
+            ToolChainKitAspect::setToolChain(kit, cxxToolchain);
         }
         addDriverModeFlagIfNeeded(cxxToolchain, flags);
         rpp.setFlagsForCxx({cxxToolchain, flags});

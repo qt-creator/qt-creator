@@ -299,7 +299,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (!m_supportedDeviceTypes.isEmpty()) {
         Target *target = bsl->target();
         QTC_ASSERT(target, return false);
-        Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(target->kit());
+        Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(target->kit());
         if (!m_supportedDeviceTypes.contains(deviceType))
             return false;
     }

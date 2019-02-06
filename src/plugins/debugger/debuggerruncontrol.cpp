@@ -912,12 +912,12 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
         kit = runConfig->target()->kit();
     QTC_ASSERT(kit, return);
 
-    m_runParameters.sysRoot = SysRootKitInformation::sysRoot(kit);
+    m_runParameters.sysRoot = SysRootKitAspect::sysRoot(kit);
     m_runParameters.macroExpander = kit->macroExpander();
-    m_runParameters.debugger = DebuggerKitInformation::runnable(kit);
-    m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
+    m_runParameters.debugger = DebuggerKitAspect::runnable(kit);
+    m_runParameters.cppEngineType = DebuggerKitAspect::engineType(kit);
 
-    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit))
+    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
         m_runParameters.qtPackageSourceLocation = qtVersion->qtPackageSourcePath().toString();
 
     if (auto aspect = runConfig ? runConfig->aspect<DebuggerRunConfigurationAspect>() : nullptr) {
@@ -943,7 +943,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
         m_runParameters.projectSourceFiles = project->files(Project::SourceFiles);
     }
 
-    m_runParameters.toolChainAbi = ToolChainKitInformation::targetAbi(kit);
+    m_runParameters.toolChainAbi = ToolChainKitAspect::targetAbi(kit);
 
     bool ok = false;
     int nativeMixedOverride = qgetenv("QTC_DEBUGGER_NATIVE_MIXED").toInt(&ok);
@@ -952,7 +952,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
 
     // This will only be shown in some cases, but we don't want to access
     // the kit at that time anymore.
-    const QList<Task> tasks = DebuggerKitInformation::validateDebugger(kit);
+    const QList<Task> tasks = DebuggerKitAspect::validateDebugger(kit);
     for (const Task &t : tasks) {
         if (t.type != Task::Warning)
             m_runParameters.validationErrors.append(t.description);

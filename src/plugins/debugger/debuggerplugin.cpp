@@ -549,12 +549,12 @@ QWidget *addSearch(BaseTreeView *treeView)
 static Kit::Predicate cdbPredicate(char wordWidth = 0)
 {
     return [wordWidth](const Kit *k) -> bool {
-        if (DebuggerKitInformation::engineType(k) != CdbEngineType
-            || DebuggerKitInformation::configurationErrors(k)) {
+        if (DebuggerKitAspect::engineType(k) != CdbEngineType
+            || DebuggerKitAspect::configurationErrors(k)) {
             return false;
         }
         if (wordWidth)
-            return ToolChainKitInformation::targetAbi(k).wordWidth() == wordWidth;
+            return ToolChainKitAspect::targetAbi(k).wordWidth() == wordWidth;
         return true;
     };
 }
@@ -810,14 +810,14 @@ static Kit *guessKitFromAbis(const QList<Abi> &abis)
     if (!abis.isEmpty()) {
         // Try exact abis.
         kit = KitManager::kit([abis](const Kit *k) {
-            const Abi tcAbi = ToolChainKitInformation::targetAbi(k);
-            return abis.contains(tcAbi) && !DebuggerKitInformation::configurationErrors(k);
+            const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+            return abis.contains(tcAbi) && !DebuggerKitAspect::configurationErrors(k);
         });
         if (!kit) {
             // Or something compatible.
             kit = KitManager::kit([abis](const Kit *k) {
-                const Abi tcAbi = ToolChainKitInformation::targetAbi(k);
-                return !DebuggerKitInformation::configurationErrors(k)
+                const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+                return !DebuggerKitAspect::configurationErrors(k)
                         && Utils::contains(abis, [tcAbi](const Abi &a) { return a.isCompatibleWith(tcAbi); });
             });
         }
@@ -882,7 +882,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         if (!kit)
             kit = guessKitFromAbis(Abi::abisOfBinary(FileName::fromString(executable)));
 
-        IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+        IDevice::ConstPtr device = DeviceKitAspect::device(kit);
         auto runControl = new RunControl(device, ProjectExplorer::Constants::DEBUG_RUN_MODE);
         auto debugger = new DebuggerRunTool(runControl, kit);
         debugger->setInferiorExecutable(executable);
@@ -1577,7 +1577,7 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue("LastExternalStartScript", dlg.overrideStartScript());
     setConfigValue("LastForceLocalCoreFile", dlg.forcesLocalCoreFile());
 
-    IDevice::ConstPtr device = DeviceKitInformation::device(dlg.kit());
+    IDevice::ConstPtr device = DeviceKitAspect::device(dlg.kit());
     auto runControl = new RunControl(device, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto debugger = new DebuggerRunTool(runControl, dlg.kit());
     debugger->setInferiorExecutable(dlg.symbolFile());
@@ -1605,7 +1605,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
         return;
     setConfigValue(connectionKey, dlg.connection());
 
-    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+    IDevice::ConstPtr device = DeviceKitAspect::device(kit);
     auto runControl = new RunControl(device, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto debugger = new DebuggerRunTool(runControl, kit);
     debugger->setStartMode(AttachToRemoteServer);
@@ -1620,7 +1620,7 @@ public:
     RemoteAttachRunner(RunControl *runControl, Kit *kit, int pid)
         : DebuggerRunTool(runControl, kit)
     {
-        IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+        IDevice::ConstPtr device = DeviceKitAspect::device(kit);
         setId("AttachToRunningProcess");
         setUsePortsGatherer(true, false);
         portsGatherer()->setDevice(device);
@@ -1656,7 +1656,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     Kit *kit = kitChooser->currentKit();
     QTC_ASSERT(kit, return);
-    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+    IDevice::ConstPtr device = DeviceKitAspect::device(kit);
     QTC_ASSERT(device, return);
 
     DeviceProcessItem process = dlg->currentProcess();
@@ -1693,14 +1693,14 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     DeviceProcessItem process, bool contAfterAttach)
 {
     QTC_ASSERT(kit, return nullptr);
-    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+    IDevice::ConstPtr device = DeviceKitAspect::device(kit);
     QTC_ASSERT(device, return nullptr);
     if (process.pid == 0) {
         AsynchronousMessageBox::warning(tr("Warning"), tr("Cannot attach to process with PID 0"));
         return nullptr;
     }
 
-    const Abi tcAbi = ToolChainKitInformation::targetAbi(kit);
+    const Abi tcAbi = ToolChainKitAspect::targetAbi(kit);
     const bool isWindows = (tcAbi.os() == Abi::WindowsOS);
     if (isWindows && isWinProcessBeingDebugged(process.pid)) {
         AsynchronousMessageBox::warning(
@@ -1795,7 +1795,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     setConfigValue("LastQmlServerPort", dlg.port());
     setConfigValue("LastProfile", kit->id().toSetting());
 
-    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+    IDevice::ConstPtr device = DeviceKitAspect::device(kit);
     QTC_ASSERT(device, return);
 
     auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
@@ -2073,7 +2073,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
         if (runnable.device && runnable.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
             return true;
 
-        if (DeviceTypeKitInformation::deviceTypeId(runConfig->target()->kit())
+        if (DeviceTypeKitAspect::deviceTypeId(runConfig->target()->kit())
                     == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
             return true;
 
@@ -2251,7 +2251,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     mstart->addSeparator(Constants::G_GENERAL);
     mstart->addSeparator(Constants::G_SPECIAL);
 
-    KitManager::registerKitInformation<DebuggerKitInformation>();
+    KitManager::registerKitAspect<DebuggerKitAspect>();
 
     // Task integration.
     //: Category under which Analyzer tasks are listed in Issues view
@@ -2460,7 +2460,7 @@ void DebuggerUnitTests::initTestCase()
 //    const QList<Kit *> allKits = KitManager::kits();
 //    if (allKits.count() != 1)
 //        QSKIP("This test requires exactly one kit to be present");
-//    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(allKits.first());
+//    const ToolChain * const toolchain = ToolChainKitAspect::toolChain(allKits.first());
 //    if (!toolchain)
 //        QSKIP("This test requires that there is a kit with a toolchain.");
 //    bool hasClangExecutable;

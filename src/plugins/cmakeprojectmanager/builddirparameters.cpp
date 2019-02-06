@@ -61,25 +61,25 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
     if (Utils::HostOsInfo::isAnyUnixHost())
         environment.set("ICECC", "no");
 
-    cmakeToolId = CMakeKitInformation::cmakeToolId(k);
+    cmakeToolId = CMakeKitAspect::cmakeToolId(k);
 
-    auto tc = ToolChainKitInformation::toolChain(k, Constants::CXX_LANGUAGE_ID);
+    auto tc = ToolChainKitAspect::toolChain(k, Constants::CXX_LANGUAGE_ID);
     if (tc)
         cxxToolChainId = tc->id();
-    tc = ToolChainKitInformation::toolChain(k, Constants::C_LANGUAGE_ID);
+    tc = ToolChainKitAspect::toolChain(k, Constants::C_LANGUAGE_ID);
     if (tc)
         cToolChainId = tc->id();
-    sysRoot = SysRootKitInformation::sysRoot(k);
+    sysRoot = SysRootKitAspect::sysRoot(k);
 
     expander = k->macroExpander();
 
     configuration = bc->configurationForCMake();
 
-    generator = CMakeGeneratorKitInformation::generator(k);
-    extraGenerator = CMakeGeneratorKitInformation::extraGenerator(k);
-    platform = CMakeGeneratorKitInformation::platform(k);
-    toolset = CMakeGeneratorKitInformation::toolset(k);
-    generatorArguments = CMakeGeneratorKitInformation::generatorArguments(k);
+    generator = CMakeGeneratorKitAspect::generator(k);
+    extraGenerator = CMakeGeneratorKitAspect::extraGenerator(k);
+    platform = CMakeGeneratorKitAspect::platform(k);
+    toolset = CMakeGeneratorKitAspect::toolset(k);
+    generatorArguments = CMakeGeneratorKitAspect::generatorArguments(k);
 }
 
 bool BuildDirParameters::isValid() const { return buildConfiguration && cmakeTool(); }

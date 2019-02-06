@@ -226,7 +226,7 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
     QVERIFY(!doc->source().isEmpty());
 
     auto kit = std::make_unique<ProjectExplorer::Kit>();
-    ProjectExplorer::SysRootKitInformation::setSysRoot(
+    ProjectExplorer::SysRootKitAspect::setSysRoot(
                 kit.get(), Utils::FileName::fromLatin1("/nowhere"));
 
     DummyProject *project = new DummyProject(Utils::FileName::fromString(filename));

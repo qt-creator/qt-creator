@@ -45,17 +45,17 @@ namespace Debugger {
 namespace Internal {
 
 // -----------------------------------------------------------------------
-// DebuggerKitConfigWidget
+// DebuggerKitAspectWidget
 // -----------------------------------------------------------------------
 
-class DebuggerKitConfigWidget : public ProjectExplorer::KitConfigWidget
+class DebuggerKitAspectWidget : public ProjectExplorer::KitAspectWidget
 {
     Q_OBJECT
 
 public:
-    DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy,
-                            const ProjectExplorer::KitInformation *ki);
-    ~DebuggerKitConfigWidget() override;
+    DebuggerKitAspectWidget(ProjectExplorer::Kit *workingCopy,
+                            const ProjectExplorer::KitAspect *ki);
+    ~DebuggerKitAspectWidget() override;
 
     QString displayName() const override;
     QString toolTip() const override;

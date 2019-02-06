@@ -60,11 +60,11 @@ namespace Debugger {
 namespace Internal {
 
 // -----------------------------------------------------------------------
-// DebuggerKitConfigWidget
+// DebuggerKitAspectWidget
 // -----------------------------------------------------------------------
 
-DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInformation *ki)
-    : KitConfigWidget(workingCopy, ki)
+DebuggerKitAspectWidget::DebuggerKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
+    : KitAspectWidget(workingCopy, ki)
 {
     m_comboBox = new QComboBox;
     m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
@@ -72,37 +72,37 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInfo
 
     refresh();
     connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &DebuggerKitConfigWidget::currentDebuggerChanged);
+            this, &DebuggerKitAspectWidget::currentDebuggerChanged);
 
-    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
+    m_manageButton = new QPushButton(KitAspectWidget::msgManage());
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     connect(m_manageButton, &QAbstractButton::clicked,
-            this, &DebuggerKitConfigWidget::manageDebuggers);
+            this, &DebuggerKitAspectWidget::manageDebuggers);
 }
 
-DebuggerKitConfigWidget::~DebuggerKitConfigWidget()
+DebuggerKitAspectWidget::~DebuggerKitAspectWidget()
 {
     delete m_comboBox;
     delete m_manageButton;
 }
 
-QString DebuggerKitConfigWidget::toolTip() const
+QString DebuggerKitAspectWidget::toolTip() const
 {
     return tr("The debugger to use for this kit.");
 }
 
-QString DebuggerKitConfigWidget::displayName() const
+QString DebuggerKitAspectWidget::displayName() const
 {
     return tr("Debugger");
 }
 
-void DebuggerKitConfigWidget::makeReadOnly()
+void DebuggerKitAspectWidget::makeReadOnly()
 {
     m_manageButton->setEnabled(false);
     m_comboBox->setEnabled(false);
 }
 
-void DebuggerKitConfigWidget::refresh()
+void DebuggerKitAspectWidget::refresh()
 {
     m_ignoreChanges = true;
     m_comboBox->clear();
@@ -111,43 +111,43 @@ void DebuggerKitConfigWidget::refresh()
     for (const DebuggerItem &item : DebuggerItemManager::debuggers())
         m_comboBox->addItem(item.displayName(), item.id());
 
-    const DebuggerItem *item = DebuggerKitInformation::debugger(m_kit);
+    const DebuggerItem *item = DebuggerKitAspect::debugger(m_kit);
     updateComboBox(item ? item->id() : QVariant());
     m_ignoreChanges = false;
 }
 
-QWidget *DebuggerKitConfigWidget::buttonWidget() const
+QWidget *DebuggerKitAspectWidget::buttonWidget() const
 {
     return m_manageButton;
 }
 
-QWidget *DebuggerKitConfigWidget::mainWidget() const
+QWidget *DebuggerKitAspectWidget::mainWidget() const
 {
     return m_comboBox;
 }
 
-void DebuggerKitConfigWidget::manageDebuggers()
+void DebuggerKitAspectWidget::manageDebuggers()
 {
     Core::ICore::showOptionsDialog(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID,
                                    buttonWidget());
 }
 
-void DebuggerKitConfigWidget::currentDebuggerChanged(int)
+void DebuggerKitAspectWidget::currentDebuggerChanged(int)
 {
     if (m_ignoreChanges)
         return;
 
     int currentIndex = m_comboBox->currentIndex();
     QVariant id = m_comboBox->itemData(currentIndex);
-    m_kit->setValue(DebuggerKitInformation::id(), id);
+    m_kit->setValue(DebuggerKitAspect::id(), id);
 }
 
-QVariant DebuggerKitConfigWidget::currentId() const
+QVariant DebuggerKitAspectWidget::currentId() const
 {
     return m_comboBox->itemData(m_comboBox->currentIndex());
 }
 
-void DebuggerKitConfigWidget::updateComboBox(const QVariant &id)
+void DebuggerKitAspectWidget::updateComboBox(const QVariant &id)
 {
     for (int i = 0; i < m_comboBox->count(); ++i) {
         if (id == m_comboBox->itemData(i)) {

@@ -35,19 +35,19 @@ namespace Utils { class MacroExpander; }
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT QtKitInformation : public ProjectExplorer::KitInformation
+class QTSUPPORT_EXPORT QtKitAspect : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 
 public:
-    QtKitInformation();
+    QtKitAspect();
 
     QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
 
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
     void fix(ProjectExplorer::Kit *) override;
 
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
 
     QString displayNamePostfix(const ProjectExplorer::Kit *k) const override;
 

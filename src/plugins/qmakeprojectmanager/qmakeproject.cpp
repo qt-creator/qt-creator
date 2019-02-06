@@ -582,11 +582,11 @@ void QmakeProject::buildFinished(bool success)
 QList<Task> QmakeProject::projectIssues(const Kit *k) const
 {
     QList<Task> result = Project::projectIssues(k);
-    if (!QtSupport::QtKitInformation::qtVersion(k))
+    if (!QtSupport::QtKitAspect::qtVersion(k))
         result.append(createProjectTask(Task::TaskType::Error, tr("No Qt version set in kit.")));
-    else if (!QtSupport::QtKitInformation::qtVersion(k)->isValid())
+    else if (!QtSupport::QtKitAspect::qtVersion(k)->isValid())
         result.append(createProjectTask(Task::TaskType::Error, tr("Qt version is invalid.")));
-    if (!ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
+    if (!ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
         result.append(createProjectTask(Task::TaskType::Error, tr("No C++ compiler set in kit.")));
     return result;
 }
@@ -665,8 +665,8 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *
                 k->addToEnvironment(env);
         }
 
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-        m_qmakeSysroot = SysRootKitInformation::sysRoot(k).toString();
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(k);
+        m_qmakeSysroot = SysRootKitAspect::sysRoot(k).toString();
 
         if (qtVersion && qtVersion->isValid()) {
             m_qmakeGlobals->qmake_abslocation = QDir::cleanPath(qtVersion->qmakeCommand().toString());
@@ -962,7 +962,7 @@ void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
     QList<BuildInfo> infoList;
     QList<Kit *> kits = KitManager::kits();
     foreach (Kit *k, kits) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
         if (!version
                 || (!platforms.isEmpty()
                     && !Utils::contains(version->targetDeviceTypes(), [platforms](Core::Id i) { return platforms.contains(i); })))
@@ -1061,7 +1061,7 @@ void QmakeProject::updateBuildSystemData()
                 libraryPaths.append(dir);
             }
         }
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
         if (qtVersion)
             libraryPaths.append(qtVersion->librarySearchPath().toString());
 
@@ -1137,7 +1137,7 @@ void QmakeProject::collectLibraryData(const QmakeProFile *file, DeploymentData &
     if (targetPath.isEmpty())
         return;
     const Kit * const kit = activeTarget()->kit();
-    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    const ToolChain * const toolchain = ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!toolchain)
         return;
 
@@ -1224,7 +1224,7 @@ void QmakeProject::collectLibraryData(const QmakeProFile *file, DeploymentData &
 bool QmakeProject::matchesKit(const Kit *kit)
 {
     FileName filePath = projectFilePath();
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
 
     return QtSupport::QtVersionManager::version([&filePath, version](const QtSupport::BaseQtVersion *v) {
         return v->isValid() && v->isSubProject(filePath) && v == version;
@@ -1299,16 +1299,16 @@ void QmakeProject::warnOnToolChainMismatch(const QmakeProFile *pro) const
     if (!bc)
         return;
 
-    testToolChain(ToolChainKitInformation::toolChain(t->kit(), ProjectExplorer::Constants::C_LANGUAGE_ID),
+    testToolChain(ToolChainKitAspect::toolChain(t->kit(), ProjectExplorer::Constants::C_LANGUAGE_ID),
                   getFullPathOf(pro, Variable::QmakeCc, bc));
-    testToolChain(ToolChainKitInformation::toolChain(t->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID),
+    testToolChain(ToolChainKitAspect::toolChain(t->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID),
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)
 {
     const Kit *const kit = activeTarget() ? activeTarget()->kit() : nullptr;
-    const ToolChain *const tc = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    const ToolChain *const tc = ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc)
         return QString();
 

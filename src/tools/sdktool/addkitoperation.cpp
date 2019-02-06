@@ -57,7 +57,7 @@ const char SDK[] = "PE.Profile.SDK";
 const char ENV[] = "PE.Profile.Environment";
 const char DATA[] = "PE.Profile.Data";
 
-// Standard KitInformation:
+// Standard KitAspects:
 const char DEBUGGER[] = "Debugger.Information";
 const char DEBUGGER_ENGINE[] = "EngineType";
 const char DEBUGGER_BINARY[] = "Binary";

@@ -235,7 +235,7 @@ int AndroidManager::minimumSDK(ProjectExplorer::Target *target)
 int AndroidManager::minimumSDK(const ProjectExplorer::Kit *kit)
 {
     int minSDKVersion = -1;
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
     if (version && version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE)) {
         Utils::FileName stockManifestFilePath =
                 Utils::FileName::fromUserInput(version->qmakeProperty("QT_INSTALL_PREFIX") +
@@ -250,7 +250,7 @@ int AndroidManager::minimumSDK(const ProjectExplorer::Kit *kit)
 
 int AndroidManager::minimumNDK(const Kit *kit)
 {
-    auto qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitInformation::qtVersion(kit));
+    auto qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit));
     return qt->mininmumNDK();
 }
 
@@ -266,7 +266,7 @@ QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
 
 QString AndroidManager::targetArch(ProjectExplorer::Target *target)
 {
-    auto qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitInformation::qtVersion(target->kit()));
+    auto qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitAspect::qtVersion(target->kit()));
     return qt->targetArch();
 }
 
@@ -603,7 +603,7 @@ static bool mergeGradleProperties(const QString &path, GradleProperties properti
 
 bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!version)
         return false;
 

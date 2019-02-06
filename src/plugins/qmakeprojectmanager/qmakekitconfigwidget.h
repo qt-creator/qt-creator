@@ -34,13 +34,13 @@ QT_END_NAMESPACE
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
+class QmakeKitAspectWidget : public ProjectExplorer::KitAspectWidget
 {
     Q_OBJECT
 
 public:
-    QmakeKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
-    ~QmakeKitConfigWidget() override;
+    QmakeKitAspectWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitAspect *ki);
+    ~QmakeKitAspectWidget() override;
 
     QWidget *mainWidget() const override;
     QString displayName() const override;

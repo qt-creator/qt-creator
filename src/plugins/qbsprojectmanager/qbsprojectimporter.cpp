@@ -163,14 +163,14 @@ bool QbsProjectImporter::matchKit(void *directoryData, const Kit *k) const
     const auto * const bgData = static_cast<BuildGraphData *>(directoryData);
     qCDebug(qbsPmLog) << "matching kit" << k->displayName() << "against imported build"
                       << bgData->bgFilePath.toUserOutput();
-    if (ToolChainKitInformation::toolChains(k).isEmpty() && bgData->cCompilerPath.isEmpty()
+    if (ToolChainKitAspect::toolChains(k).isEmpty() && bgData->cCompilerPath.isEmpty()
             && bgData->cxxCompilerPath.isEmpty()) {
         return true;
     }
     const ToolChain * const cToolchain
-            = ToolChainKitInformation::toolChain(k, Constants::C_LANGUAGE_ID);
+            = ToolChainKitAspect::toolChain(k, Constants::C_LANGUAGE_ID);
     const ToolChain * const cxxToolchain
-            = ToolChainKitInformation::toolChain(k, Constants::CXX_LANGUAGE_ID);
+            = ToolChainKitAspect::toolChain(k, Constants::CXX_LANGUAGE_ID);
     if (!bgData->cCompilerPath.isEmpty()) {
         if (!cToolchain)
             return false;
@@ -183,14 +183,14 @@ bool QbsProjectImporter::matchKit(void *directoryData, const Kit *k) const
         if (bgData->cxxCompilerPath != cxxToolchain->compilerCommand())
             return false;
     }
-    const QtSupport::BaseQtVersion * const qtVersion = QtSupport::QtKitInformation::qtVersion(k);
+    const QtSupport::BaseQtVersion * const qtVersion = QtSupport::QtKitAspect::qtVersion(k);
     if (!bgData->qtBinPath.isEmpty()) {
         if (!qtVersion)
             return false;
         if (bgData->qtBinPath != qtVersion->binPath())
             return false;
     }
-    if (bgData->sysroot != SysRootKitInformation::sysRoot(k))
+    if (bgData->sysroot != SysRootKitAspect::sysRoot(k))
         return false;
 
     qCDebug(qbsPmLog) << "Kit matches";
@@ -215,9 +215,9 @@ Kit *QbsProjectImporter::createKit(void *directoryData) const
             tcData << findOrCreateToolChains(bgData->cCompilerPath, Constants::C_LANGUAGE_ID);
         foreach (const ToolChainData &tc, tcData) {
             if (!tc.tcs.isEmpty())
-                ToolChainKitInformation::setToolChain(k, tc.tcs.first());
+                ToolChainKitAspect::setToolChain(k, tc.tcs.first());
         }
-        SysRootKitInformation::setSysRoot(k, bgData->sysroot);
+        SysRootKitAspect::setSysRoot(k, bgData->sysroot);
     });
 }
 

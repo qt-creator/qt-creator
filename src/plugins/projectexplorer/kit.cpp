@@ -86,7 +86,7 @@ public:
             [kit] { return kit->id().toString(); });
         m_macroExpander.registerVariable("Kit:FileSystemName", tr("Kit filesystem-friendly name"),
             [kit] { return kit->fileSystemFriendlyName(); });
-        foreach (KitInformation *ki, KitManager::kitInformation())
+        foreach (KitAspect *ki, KitManager::kitInformation())
             ki->addToMacroExpander(kit, &m_macroExpander);
 
         // This provides the same global fall back as the global expander
@@ -134,7 +134,7 @@ public:
 Kit::Kit(Id id) :
     d(std::make_unique<Internal::KitPrivate>(id, this))
 {
-    foreach (KitInformation *sti, KitManager::kitInformation())
+    foreach (KitAspect *sti, KitManager::kitInformation())
         d->m_data.insert(sti->id(), sti->defaultValue(this));
 }
 
@@ -246,8 +246,8 @@ bool Kit::hasWarning() const
 QList<Task> Kit::validate() const
 {
     QList<Task> result;
-    QList<KitInformation *> infoList = KitManager::kitInformation();
-    for (KitInformation *i : infoList) {
+    QList<KitAspect *> infoList = KitManager::kitInformation();
+    for (KitAspect *i : infoList) {
         QList<Task> tmp = i->validate(this);
         result.append(tmp);
     }
@@ -262,7 +262,7 @@ QList<Task> Kit::validate() const
 void Kit::fix()
 {
     KitGuard g(this);
-    foreach (KitInformation *i, KitManager::kitInformation())
+    foreach (KitAspect *i, KitManager::kitInformation())
         i->fix(this);
 }
 
@@ -271,7 +271,7 @@ void Kit::setup()
     KitGuard g(this);
     // Process the KitInfos in reverse order: They may only be based on other information lower in
     // the stack.
-    QList<KitInformation *> info = KitManager::kitInformation();
+    QList<KitAspect *> info = KitManager::kitInformation();
     for (int i = info.count() - 1; i >= 0; --i)
         info.at(i)->setup(this);
 }
@@ -281,7 +281,7 @@ void Kit::upgrade()
     KitGuard g(this);
     // Process the KitInfos in reverse order: They may only be based on other information lower in
     // the stack.
-    for (KitInformation *ki : KitManager::kitInformation())
+    for (KitAspect *ki : KitManager::kitInformation())
         ki->upgrade(this);
 }
 
@@ -371,7 +371,7 @@ QIcon Kit::icon() const
         return d->m_cachedIcon;
     }
 
-    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(this);
+    const Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(this);
     const QIcon deviceTypeIcon = iconForDeviceType(deviceType);
     if (!deviceTypeIcon.isNull()) {
         d->m_cachedIcon = deviceTypeIcon;
@@ -503,16 +503,16 @@ QVariantMap Kit::toMap() const
 
 void Kit::addToEnvironment(Environment &env) const
 {
-    QList<KitInformation *> infoList = KitManager::kitInformation();
-    foreach (KitInformation *ki, infoList)
+    QList<KitAspect *> infoList = KitManager::kitInformation();
+    foreach (KitAspect *ki, infoList)
         ki->addToEnvironment(this, env);
 }
 
 IOutputParser *Kit::createOutputParser() const
 {
     auto first = new OsParser;
-    QList<KitInformation *> infoList = KitManager::kitInformation();
-    foreach (KitInformation *ki, infoList)
+    QList<KitAspect *> infoList = KitManager::kitInformation();
+    foreach (KitAspect *ki, infoList)
         first->appendOutputParser(ki->createOutputParser(this));
     return first;
 }
@@ -528,10 +528,10 @@ QString Kit::toHtml(const QList<Task> &additional) const
         str << "<p>" << ProjectExplorer::toHtml(additional + validate()) << "</p>";
 
     str << "<table>";
-    QList<KitInformation *> infoList = KitManager::kitInformation();
-    foreach (KitInformation *ki, infoList) {
-        KitInformation::ItemList list = ki->toUserOutput(this);
-        foreach (const KitInformation::Item &j, list) {
+    QList<KitAspect *> infoList = KitManager::kitInformation();
+    foreach (KitAspect *ki, infoList) {
+        KitAspect::ItemList list = ki->toUserOutput(this);
+        foreach (const KitAspect::Item &j, list) {
             QString contents = j.second;
             if (contents.count() > 256) {
                 int pos = contents.lastIndexOf("<br>", 256);
@@ -573,7 +573,7 @@ void Kit::setSdkProvided(bool sdkProvided)
 
 void Kit::makeSticky()
 {
-    foreach (KitInformation *ki, KitManager::kitInformation()) {
+    foreach (KitAspect *ki, KitManager::kitInformation()) {
         if (hasValue(ki->id()))
             setSticky(ki->id(), true);
     }
@@ -619,7 +619,7 @@ bool Kit::isMutable(Id id) const
 QSet<Id> Kit::supportedPlatforms() const
 {
     QSet<Id> platforms;
-    foreach (const KitInformation *ki, KitManager::kitInformation()) {
+    foreach (const KitAspect *ki, KitManager::kitInformation()) {
         const QSet<Id> ip = ki->supportedPlatforms(this);
         if (ip.isEmpty())
             continue;
@@ -634,7 +634,7 @@ QSet<Id> Kit::supportedPlatforms() const
 QSet<Id> Kit::availableFeatures() const
 {
     QSet<Id> features;
-    foreach (const KitInformation *ki, KitManager::kitInformation())
+    foreach (const KitAspect *ki, KitManager::kitInformation())
         features |= ki->availableFeatures(this);
     return features;
 }

@@ -164,7 +164,7 @@ bool CMakeBuildStep::init()
         canInit = false;
     }
 
-    CMakeTool *tool = CMakeKitInformation::cmakeTool(target()->kit());
+    CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit());
     if (!tool || !tool->isValid()) {
         emit addTask(Task(Task::Error,
                           tr("A CMake tool must be set up for building. "
@@ -375,7 +375,7 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
 
 QString CMakeBuildStep::cmakeCommand() const
 {
-    CMakeTool *tool = CMakeKitInformation::cmakeTool(target()->kit());
+    CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit());
     return tool ? tool->cmakeExecutable().toString() : QString();
 }
 

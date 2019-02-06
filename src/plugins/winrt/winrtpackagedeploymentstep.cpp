@@ -87,7 +87,7 @@ bool WinRtPackageDeploymentStep::init()
     if (!m_targetDirPath.endsWith(QLatin1Char('/')))
         m_targetDirPath += QLatin1Char('/');
 
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
     if (!qt)
         return false;
 
@@ -116,7 +116,7 @@ bool WinRtPackageDeploymentStep::init()
 
 void WinRtPackageDeploymentStep::doRun()
 {
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
     if (!qt)
         return;
 

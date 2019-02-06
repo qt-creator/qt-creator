@@ -37,7 +37,7 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class Kit;
-class KitConfigWidget;
+class KitAspectWidget;
 class Project;
 class Target;
 class BuildConfiguration;
@@ -101,7 +101,7 @@ private:
 
     QGridLayout *m_layout;
     Kit *m_kit = nullptr;
-    QList<KitConfigWidget *> m_widgets;
+    QList<KitAspectWidget *> m_widgets;
     QList<QLabel *> m_labels;
 };
 

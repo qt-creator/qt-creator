@@ -215,7 +215,7 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target
     setWindowTitle(tr("Create Android Template Files Wizard"));
 
     const BuildTargetInfoList buildTargets = target->applicationTargets();
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     m_copyGradle = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
     if (buildTargets.list.isEmpty()) {
@@ -319,7 +319,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         return;
 
     QStringList addedFiles;
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_target->kit());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(m_target->kit());
     if (!version)
         return;
     if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {

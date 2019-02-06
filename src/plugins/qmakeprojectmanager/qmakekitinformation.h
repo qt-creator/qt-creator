@@ -31,19 +31,19 @@
 
 namespace QmakeProjectManager {
 
-class QMAKEPROJECTMANAGER_EXPORT QmakeKitInformation : public ProjectExplorer::KitInformation
+class QMAKEPROJECTMANAGER_EXPORT QmakeKitAspect : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 
 public:
-    QmakeKitInformation();
+    QmakeKitAspect();
 
     QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
 
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
     void setup(ProjectExplorer::Kit *k) override;
 
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
 
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
 

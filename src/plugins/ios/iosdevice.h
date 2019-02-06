@@ -103,7 +103,7 @@ private:
     QStringList m_userModeDeviceIds;
 };
 
-namespace IosKitInformation {
+namespace IosKitAspect {
 IosDevice::ConstPtr device(ProjectExplorer::Kit *);
 }
 

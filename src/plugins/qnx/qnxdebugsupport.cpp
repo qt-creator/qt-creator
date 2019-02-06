@@ -72,7 +72,7 @@ namespace Internal {
 
 static QStringList searchPaths(Kit *kit)
 {
-    auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(kit));
+    auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit));
     if (!qtVersion)
         return {};
 
@@ -157,7 +157,7 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
     setCloseMode(KillAtClose);
     setUseCtrlCStub(true);
     setSolibSearchPath(searchPaths(k));
-    if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k)))
+    if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k)))
         setSysRoot(qtVersion->qnxTarget());
 }
 
@@ -241,7 +241,7 @@ void QnxAttachDebugSupport::showProcessesDialog()
 {
     auto kitChooser = new KitChooser;
     kitChooser->setKitPredicate([](const Kit *k) {
-        return k->isValid() && DeviceTypeKitInformation::deviceTypeId(k) == Constants::QNX_QNX_OS_TYPE;
+        return k->isValid() && DeviceTypeKitAspect::deviceTypeId(k) == Constants::QNX_QNX_OS_TYPE;
     });
 
     QnxAttachDebugDialog dlg(kitChooser);
@@ -279,7 +279,7 @@ void QnxAttachDebugSupport::showProcessesDialog()
 //    setRunControlName(tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
     debugger->setRunControlName(tr("Remote QNX process %1").arg(pid));
     debugger->setSolibSearchPath(searchPaths(kit));
-    if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(kit)))
+    if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit)))
         debugger->setSysRoot(qtVersion->qnxTarget());
     debugger->setUseContinueInsteadOfRun(true);
 

@@ -709,14 +709,14 @@ void MemcheckTool::heobAction()
             if (RunConfiguration *rc = target->activeRunConfiguration()) {
                 kit = target->kit();
                 if (kit) {
-                    abi = ToolChainKitInformation::targetAbi(kit);
+                    abi = ToolChainKitAspect::targetAbi(kit);
 
                     const Runnable runnable = rc->runnable();
                     sr = runnable;
                     const IDevice::ConstPtr device = sr.device;
                     hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
                     if (!hasLocalRc)
-                        hasLocalRc = DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+                        hasLocalRc = DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
                 }
             }
         }
@@ -1512,7 +1512,7 @@ void HeobData::processFinished()
             auto debugger = new DebuggerRunTool(m_runControl, m_kit);
             debugger->setAttachPid(ProcessHandle(m_data[1]));
             debugger->setRunControlName(tr("Process %1").arg(m_data[1]));
-            debugger->setInferiorDevice(DeviceKitInformation::device(m_kit));
+            debugger->setInferiorDevice(DeviceKitAspect::device(m_kit));
             debugger->setStartMode(AttachExternal);
             debugger->setCloseMode(DetachAtClose);
             debugger->setContinueAfterAttach(true);

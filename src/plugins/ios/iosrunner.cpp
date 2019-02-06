@@ -81,7 +81,7 @@ static void stopRunningRunControl(RunControl *runControl)
 
     RunConfiguration *runConfig = runControl->runConfiguration();
     Target *target = runConfig->target();
-    Core::Id devId = DeviceKitInformation::deviceId(target->kit());
+    Core::Id devId = DeviceKitAspect::deviceId(target->kit());
 
     // The device can only run an application at a time, if an app is running stop it.
     if (activeRunControls.contains(devId)) {
@@ -101,7 +101,7 @@ IosRunner::IosRunner(RunControl *runControl)
     auto runConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     m_bundleDir = runConfig->bundleDirectory().toString();
     m_arguments = runConfig->aspect<ArgumentsAspect>()->arguments(runConfig->macroExpander());
-    m_device = DeviceKitInformation::device(runConfig->target()->kit());
+    m_device = DeviceKitAspect::device(runConfig->target()->kit());
     m_deviceType = runConfig->deviceType();
 }
 

@@ -46,7 +46,7 @@ class MacroExpander;
 namespace ProjectExplorer {
 class Task;
 class IOutputParser;
-class KitConfigWidget;
+class KitAspectWidget;
 class KitManager;
 
 namespace Internal {
@@ -55,13 +55,13 @@ class KitModel;
 } // namespace Internal
 
 /**
- * @brief The KitInformation class
+ * @brief The KitAspect class
  *
  * One piece of information stored in the kit.
  *
  * This needs to get registered with the \a KitManager.
  */
-class PROJECTEXPLORER_EXPORT KitInformation : public QObject
+class PROJECTEXPLORER_EXPORT KitAspect : public QObject
 {
     Q_OBJECT
 
@@ -85,7 +85,7 @@ public:
 
     virtual ItemList toUserOutput(const Kit *) const = 0;
 
-    virtual KitConfigWidget *createConfigWidget(Kit *) const = 0;
+    virtual KitAspectWidget *createConfigWidget(Kit *) const = 0;
 
     virtual void addToEnvironment(const Kit *k, Utils::Environment &env) const;
     virtual IOutputParser *createOutputParser(const Kit *k) const;
@@ -120,7 +120,7 @@ public:
     static Kit *kit(Core::Id id);
     static Kit *defaultKit();
 
-    static QList<KitInformation *> kitInformation();
+    static QList<KitAspect *> kitInformation();
 
     static Internal::KitManagerConfigWidget *createConfigWidget(Kit *k);
 
@@ -129,8 +129,8 @@ public:
     static void setDefaultKit(Kit *k);
 
     template<typename KI, typename... Args>
-    static void registerKitInformation(Args&&... args) {
-        registerKitInformation(std::make_unique<KI>(std::forward<Args>(args)...));
+    static void registerKitAspect(Args&&... args) {
+        registerKitAspect(std::make_unique<KI>(std::forward<Args>(args)...));
     }
 
     static QSet<Core::Id> supportedPlatforms();
@@ -159,10 +159,10 @@ signals:
 private:
     explicit KitManager(QObject *parent = nullptr);
 
-    static void registerKitInformation(std::unique_ptr<KitInformation> &&ki);
+    static void registerKitAspect(std::unique_ptr<KitAspect> &&ki);
 
     // Make sure the this is only called after all
-    // KitInformation are registered!
+    // KitAspects are registered!
     void restoreKits();
     class KitList
     {
@@ -178,7 +178,7 @@ private:
     friend class ProjectExplorerPlugin; // for constructor
     friend class Kit;
     friend class Internal::KitModel;
-    friend class KitInformation; // for notifyAbutUpdate
+    friend class KitAspect; // for notifyAbutUpdate
 };
 
 } // namespace ProjectExplorer

@@ -40,8 +40,8 @@
 namespace QtSupport {
 namespace Internal {
 
-QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki) :
-    KitConfigWidget(k, ki)
+QtKitAspectWidget::QtKitAspectWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitAspect *ki) :
+    KitAspectWidget(k, ki)
 {
     m_combo = new QComboBox;
     m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
@@ -50,54 +50,54 @@ QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplo
     QList<int> versionIds = Utils::transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
     versionsChanged(versionIds, QList<int>(), QList<int>());
 
-    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
+    m_manageButton = new QPushButton(KitAspectWidget::msgManage());
 
     refresh();
     m_combo->setToolTip(toolTip());
 
     connect(m_combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &QtKitConfigWidget::currentWasChanged);
+            this, &QtKitAspectWidget::currentWasChanged);
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
-            this, &QtKitConfigWidget::versionsChanged);
+            this, &QtKitAspectWidget::versionsChanged);
 
-    connect(m_manageButton, &QAbstractButton::clicked, this, &QtKitConfigWidget::manageQtVersions);
+    connect(m_manageButton, &QAbstractButton::clicked, this, &QtKitAspectWidget::manageQtVersions);
 }
 
-QtKitConfigWidget::~QtKitConfigWidget()
+QtKitAspectWidget::~QtKitAspectWidget()
 {
     delete m_combo;
     delete m_manageButton;
 }
 
-QString QtKitConfigWidget::displayName() const
+QString QtKitAspectWidget::displayName() const
 {
     return tr("Qt version");
 }
 
-QString QtKitConfigWidget::toolTip() const
+QString QtKitAspectWidget::toolTip() const
 {
     return tr("The Qt library to use for all projects using this kit.<br>"
               "A Qt version is required for qmake-based projects "
               "and optional when using other build systems.");
 }
 
-void QtKitConfigWidget::makeReadOnly()
+void QtKitAspectWidget::makeReadOnly()
 {
     m_combo->setEnabled(false);
 }
 
-void QtKitConfigWidget::refresh()
+void QtKitAspectWidget::refresh()
 {
-    m_combo->setCurrentIndex(findQtVersion(QtKitInformation::qtVersionId(m_kit)));
+    m_combo->setCurrentIndex(findQtVersion(QtKitAspect::qtVersionId(m_kit)));
 }
 
-QWidget *QtKitConfigWidget::mainWidget() const
+QWidget *QtKitAspectWidget::mainWidget() const
 {
     return m_combo;
 }
 
-QWidget *QtKitConfigWidget::buttonWidget() const
+QWidget *QtKitAspectWidget::buttonWidget() const
 {
     return m_manageButton;
 }
@@ -111,7 +111,7 @@ static QString itemNameFor(const BaseQtVersion *v)
     return name;
 }
 
-void QtKitConfigWidget::versionsChanged(const QList<int> &added, const QList<int> &removed,
+void QtKitAspectWidget::versionsChanged(const QList<int> &added, const QList<int> &removed,
                                         const QList<int> &changed)
 {
     foreach (const int id, added) {
@@ -133,17 +133,17 @@ void QtKitConfigWidget::versionsChanged(const QList<int> &added, const QList<int
     }
 }
 
-void QtKitConfigWidget::manageQtVersions()
+void QtKitAspectWidget::manageQtVersions()
 {
     Core::ICore::showOptionsDialog(Constants::QTVERSION_SETTINGS_PAGE_ID, buttonWidget());
 }
 
-void QtKitConfigWidget::currentWasChanged(int idx)
+void QtKitAspectWidget::currentWasChanged(int idx)
 {
-    QtKitInformation::setQtVersionId(m_kit, m_combo->itemData(idx).toInt());
+    QtKitAspect::setQtVersionId(m_kit, m_combo->itemData(idx).toInt());
 }
 
-int QtKitConfigWidget::findQtVersion(const int id) const
+int QtKitAspectWidget::findQtVersion(const int id) const
 {
     for (int i = 0; i < m_combo->count(); ++i) {
         if (id == m_combo->itemData(i).toInt())

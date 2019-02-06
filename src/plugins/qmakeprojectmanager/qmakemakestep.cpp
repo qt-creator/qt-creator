@@ -156,7 +156,7 @@ bool QmakeMakeStep::init()
     pp->resolveAll();
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(),
+    ToolChain *tc = ToolChainKitAspect::toolChain(target()->kit(),
                                                        ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (tc && tc->targetAbi().os() == Abi::DarwinOS)
         appendOutputParser(new XcodebuildParser);

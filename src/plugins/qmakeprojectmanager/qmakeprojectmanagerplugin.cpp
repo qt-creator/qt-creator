@@ -140,7 +140,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     //create and register objects
     ProjectManager::registerProjectType<QmakeProject>(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 
-    ProjectExplorer::KitManager::registerKitInformation<QmakeKitInformation>();
+    ProjectExplorer::KitManager::registerKitAspect<QmakeKitAspect>();
 
     IWizardFactory::registerFactoryCreator([] {
         return QList<IWizardFactory *> {

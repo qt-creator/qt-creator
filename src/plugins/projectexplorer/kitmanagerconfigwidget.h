@@ -60,7 +60,7 @@ public:
     bool isValid() const;
     bool hasWarning() const;
     QString validityMessage() const;
-    void addConfigWidget(KitConfigWidget *widget);
+    void addConfigWidget(KitAspectWidget *widget);
     void makeStickySubWidgetsReadOnly();
 
     Kit *workingCopy() const;
@@ -97,7 +97,7 @@ private:
     QToolButton *m_iconButton;
     QLineEdit *m_nameEdit;
     QLineEdit *m_fileSystemFriendlyNameLineEdit;
-    QList<KitConfigWidget *> m_widgets;
+    QList<KitAspectWidget *> m_widgets;
     QList<QLabel *> m_labels;
     Kit *m_kit;
     std::unique_ptr<Kit> m_modifiedKit;

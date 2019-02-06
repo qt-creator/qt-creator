@@ -125,7 +125,7 @@ void IosDeviceTypeAspect::deviceChanges()
 
 void IosDeviceTypeAspect::updateDeviceType()
 {
-    if (DeviceTypeKitInformation::deviceTypeId(m_runConfiguration->target()->kit())
+    if (DeviceTypeKitAspect::deviceTypeId(m_runConfiguration->target()->kit())
             == Constants::IOS_DEVICE_TYPE)
         m_deviceType = IosDeviceType(IosDeviceType::IosDevice);
     else if (m_deviceType.type == IosDeviceType::IosDevice)
@@ -134,7 +134,7 @@ void IosDeviceTypeAspect::updateDeviceType()
 
 void IosRunConfiguration::updateDisplayNames()
 {
-    IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     setDefaultDisplayName(tr("Run on %1").arg(devName));
     setDisplayName(tr("Run %1 on %2").arg(applicationName()).arg(devName));
@@ -144,12 +144,12 @@ void IosRunConfiguration::updateDisplayNames()
 
 void IosRunConfiguration::updateEnabledState()
 {
-    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE) {
         setEnabled(false);
         return;
     }
-    IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
     if (dev.isNull() || dev->deviceState() != IDevice::DeviceReadyToUse) {
         setEnabled(false);
         return;
@@ -176,7 +176,7 @@ QString IosRunConfiguration::applicationName() const
 FileName IosRunConfiguration::bundleDirectory() const
 {
     FileName res;
-    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     bool isDevice = (devType == Constants::IOS_DEVICE_TYPE);
     if (!isDevice && devType != Constants::IOS_SIMULATOR_TYPE) {
         qCWarning(iosLog) << "unexpected device type in bundleDirForTarget: " << devType.toString();
@@ -238,10 +238,10 @@ void IosDeviceTypeAspect::toMap(QVariantMap &map) const
 
 QString IosRunConfiguration::disabledReason() const
 {
-    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return tr("Kit has incorrect device type for running on iOS devices.");
-    IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
     QString validDevName;
     bool hasConncetedDev = false;
     if (devType == Constants::IOS_DEVICE_TYPE) {

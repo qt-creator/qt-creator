@@ -69,7 +69,7 @@ class KitManagerPrivate
 public:
     Kit *m_defaultKit = nullptr;
     bool m_initialized = false;
-    std::vector<std::unique_ptr<KitInformation>> m_informationList;
+    std::vector<std::unique_ptr<KitAspect>> m_informationList;
     std::vector<std::unique_ptr<Kit>> m_kitList;
     std::unique_ptr<PersistentSettingsWriter> m_writer;
 };
@@ -151,7 +151,7 @@ void KitManager::restoreKits()
                 Kit *ptr = i->get();
 
                 // Overwrite settings that the SDK sets to those values:
-                foreach (const KitInformation *ki, KitManager::kitInformation()) {
+                foreach (const KitAspect *ki, KitManager::kitInformation()) {
                     // Copy sticky settings over:
                     if (ptr->isSticky(ki->id())) {
                         ptr->setValue(ki->id(), toStore->value(ki->id()));
@@ -227,7 +227,7 @@ bool KitManager::isLoaded()
     return d->m_initialized;
 }
 
-void KitManager::registerKitInformation(std::unique_ptr<KitInformation> &&ki)
+void KitManager::registerKitAspect(std::unique_ptr<KitAspect> &&ki)
 {
     QTC_ASSERT(ki->id().isValid(), return );
     QTC_ASSERT(!Utils::contains(d->m_informationList, ki.get()), return );
@@ -235,8 +235,8 @@ void KitManager::registerKitInformation(std::unique_ptr<KitInformation> &&ki)
     auto it = std::lower_bound(std::begin(d->m_informationList),
                                std::end(d->m_informationList),
                                ki,
-                               [](const std::unique_ptr<KitInformation> &a,
-                                  const std::unique_ptr<KitInformation> &b) {
+                               [](const std::unique_ptr<KitAspect> &a,
+                                  const std::unique_ptr<KitAspect> &b) {
                                    return a->priority() > b->priority();
                                });
     d->m_informationList.insert(it, std::move(ki));
@@ -364,7 +364,7 @@ Kit *KitManager::defaultKit()
     return d->m_defaultKit;
 }
 
-QList<KitInformation *> KitManager::kitInformation()
+QList<KitAspect *> KitManager::kitInformation()
 {
     return Utils::toRawPointer<QList>(d->m_informationList);
 }
@@ -372,7 +372,7 @@ QList<KitInformation *> KitManager::kitInformation()
 KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k)
 {
     auto *result = new KitManagerConfigWidget(k);
-    foreach (KitInformation *ki, kitInformation())
+    foreach (KitAspect *ki, kitInformation())
         result->addConfigWidget(ki->createConfigWidget(result->workingCopy()));
 
     result->updateVisibility();
@@ -442,7 +442,7 @@ void KitManager::completeKit(Kit *k)
 {
     QTC_ASSERT(k, return);
     KitGuard g(k);
-    for (const std::unique_ptr<KitInformation> &ki : d->m_informationList) {
+    for (const std::unique_ptr<KitAspect> &ki : d->m_informationList) {
         ki->upgrade(k);
         if (!k->hasValue(ki->id()))
             k->setValue(ki->id(), ki->defaultValue(k));
@@ -452,46 +452,46 @@ void KitManager::completeKit(Kit *k)
 }
 
 // --------------------------------------------------------------------
-// KitInformation:
+// KitAspect:
 // --------------------------------------------------------------------
 
-void KitInformation::addToEnvironment(const Kit *k, Environment &env) const
+void KitAspect::addToEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k);
     Q_UNUSED(env);
 }
 
-IOutputParser *KitInformation::createOutputParser(const Kit *k) const
+IOutputParser *KitAspect::createOutputParser(const Kit *k) const
 {
     Q_UNUSED(k);
     return nullptr;
 }
 
-QString KitInformation::displayNamePostfix(const Kit *k) const
+QString KitAspect::displayNamePostfix(const Kit *k) const
 {
     Q_UNUSED(k);
     return QString();
 }
 
-QSet<Id> KitInformation::supportedPlatforms(const Kit *k) const
+QSet<Id> KitAspect::supportedPlatforms(const Kit *k) const
 {
     Q_UNUSED(k);
     return QSet<Id>();
 }
 
-QSet<Id> KitInformation::availableFeatures(const Kit *k) const
+QSet<Id> KitAspect::availableFeatures(const Kit *k) const
 {
     Q_UNUSED(k);
     return QSet<Id>();
 }
 
-void KitInformation::addToMacroExpander(Kit *k, MacroExpander *expander) const
+void KitAspect::addToMacroExpander(Kit *k, MacroExpander *expander) const
 {
     Q_UNUSED(k);
     Q_UNUSED(expander);
 }
 
-void KitInformation::notifyAboutUpdate(Kit *k)
+void KitAspect::notifyAboutUpdate(Kit *k)
 {
     if (k)
         k->kitUpdated();

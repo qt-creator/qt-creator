@@ -34,51 +34,51 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
-QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki) :
-    ProjectExplorer::KitConfigWidget(k, ki),
+QmakeKitAspectWidget::QmakeKitAspectWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitAspect *ki) :
+    ProjectExplorer::KitAspectWidget(k, ki),
     m_lineEdit(new QLineEdit)
 {
     refresh(); // set up everything according to kit
     m_lineEdit->setToolTip(toolTip());
-    connect(m_lineEdit, &QLineEdit::textEdited, this, &QmakeKitConfigWidget::mkspecWasChanged);
+    connect(m_lineEdit, &QLineEdit::textEdited, this, &QmakeKitAspectWidget::mkspecWasChanged);
 }
 
-QmakeKitConfigWidget::~QmakeKitConfigWidget()
+QmakeKitAspectWidget::~QmakeKitAspectWidget()
 {
     delete m_lineEdit;
 }
 
-QWidget *QmakeKitConfigWidget::mainWidget() const
+QWidget *QmakeKitAspectWidget::mainWidget() const
 {
     return m_lineEdit;
 }
 
-QString QmakeKitConfigWidget::displayName() const
+QString QmakeKitAspectWidget::displayName() const
 {
     return tr("Qt mkspec");
 }
 
-QString QmakeKitConfigWidget::toolTip() const
+QString QmakeKitAspectWidget::toolTip() const
 {
     return tr("The mkspec to use when building the project with qmake.<br>"
               "This setting is ignored when using other build systems.");
 }
 
-void QmakeKitConfigWidget::makeReadOnly()
+void QmakeKitAspectWidget::makeReadOnly()
 {
     m_lineEdit->setEnabled(false);
 }
 
-void QmakeKitConfigWidget::refresh()
+void QmakeKitAspectWidget::refresh()
 {
     if (!m_ignoreChange)
-        m_lineEdit->setText(QmakeKitInformation::mkspec(m_kit).toUserOutput());
+        m_lineEdit->setText(QmakeKitAspect::mkspec(m_kit).toUserOutput());
 }
 
-void QmakeKitConfigWidget::mkspecWasChanged(const QString &text)
+void QmakeKitAspectWidget::mkspecWasChanged(const QString &text)
 {
     m_ignoreChange = true;
-    QmakeKitInformation::setMkspec(m_kit, Utils::FileName::fromString(text));
+    QmakeKitAspect::setMkspec(m_kit, Utils::FileName::fromString(text));
     m_ignoreChange = false;
 }
 

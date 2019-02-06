@@ -36,13 +36,13 @@ QT_END_NAMESPACE
 namespace Android {
 namespace Internal {
 
-class AndroidGdbServerKitInformationWidget : public ProjectExplorer::KitConfigWidget
+class AndroidGdbServerKitAspectWidget : public ProjectExplorer::KitAspectWidget
 {
     Q_OBJECT
 public:
-    AndroidGdbServerKitInformationWidget(ProjectExplorer::Kit *kit,
-                                         const ProjectExplorer::KitInformation *ki);
-    ~AndroidGdbServerKitInformationWidget() override;
+    AndroidGdbServerKitAspectWidget(ProjectExplorer::Kit *kit,
+                                         const ProjectExplorer::KitAspect *ki);
+    ~AndroidGdbServerKitAspectWidget() override;
 
     QString displayName() const override;
     QString toolTip() const override;
@@ -61,11 +61,11 @@ private:
     QPushButton *m_button;
 };
 
-class AndroidGdbServerKitInformation : public ProjectExplorer::KitInformation
+class AndroidGdbServerKitAspect : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 public:
-    AndroidGdbServerKitInformation();
+    AndroidGdbServerKitAspect();
 
     QVariant defaultValue(const ProjectExplorer::Kit *) const override;
 
@@ -73,7 +73,7 @@ public:
 
     ItemList toUserOutput(const ProjectExplorer::Kit *) const override;
 
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *) const override;
+    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *) const override;
 
     static Core::Id id();
     static bool isAndroidKit(const ProjectExplorer::Kit *kit);

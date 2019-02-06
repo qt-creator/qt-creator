@@ -177,8 +177,8 @@ void QnxConfiguration::deactivate()
 
     foreach (Kit *kit, KitManager::kits()) {
         if (kit->isAutoDetected()
-                && DeviceTypeKitInformation::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
-                && toolChainsToRemove.contains(ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID)))
+                && DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
+                && toolChainsToRemove.contains(ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID)))
             KitManager::deregisterKit(kit);
     }
 
@@ -304,14 +304,14 @@ ProjectExplorer::Kit *QnxConfiguration::createKit(
     auto kit = std::make_unique<Kit>();
     Kit *kptr = kit.get();
 
-    QtKitInformation::setQtVersion(kptr, qnxQt);
-    ToolChainKitInformation::setToolChain(kptr, toolChain);
-    ToolChainKitInformation::clearToolChain(kptr, ProjectExplorer::Constants::C_LANGUAGE_ID);
+    QtKitAspect::setQtVersion(kptr, qnxQt);
+    ToolChainKitAspect::setToolChain(kptr, toolChain);
+    ToolChainKitAspect::clearToolChain(kptr, ProjectExplorer::Constants::C_LANGUAGE_ID);
 
     if (debugger.isValid())
-        DebuggerKitInformation::setDebugger(kptr, debugger);
+        DebuggerKitAspect::setDebugger(kptr, debugger);
 
-    DeviceTypeKitInformation::setDeviceTypeId(kptr, Constants::QNX_QNX_OS_TYPE);
+    DeviceTypeKitAspect::setDeviceTypeId(kptr, Constants::QNX_QNX_OS_TYPE);
     // TODO: Add sysroot?
 
     kit->setUnexpandedDisplayName(
@@ -323,12 +323,12 @@ ProjectExplorer::Kit *QnxConfiguration::createKit(
 
     kit->setAutoDetected(true);
     kit->setAutoDetectionSource(envFile().toString());
-    kit->setMutable(DeviceKitInformation::id(), true);
+    kit->setMutable(DeviceKitAspect::id(), true);
 
-    kit->setSticky(ToolChainKitInformation::id(), true);
-    kit->setSticky(DeviceTypeKitInformation::id(), true);
-    kit->setSticky(SysRootKitInformation::id(), true);
-    kit->setSticky(DebuggerKitInformation::id(), true);
+    kit->setSticky(ToolChainKitAspect::id(), true);
+    kit->setSticky(DeviceTypeKitAspect::id(), true);
+    kit->setSticky(SysRootKitAspect::id(), true);
+    kit->setSticky(DebuggerKitAspect::id(), true);
     kit->setSticky(QmakeProjectManager::Constants::KIT_INFORMATION_ID, true);
 
     // add kit with device and qt version not sticky

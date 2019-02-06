@@ -267,7 +267,7 @@ void DeviceProcessesDialogPrivate::killProcess()
 
 void DeviceProcessesDialogPrivate::updateDevice()
 {
-    setDevice(DeviceKitInformation::device(kitChooser->currentKit()));
+    setDevice(DeviceKitAspect::device(kitChooser->currentKit()));
 }
 
 void DeviceProcessesDialogPrivate::handleProcessKilled()

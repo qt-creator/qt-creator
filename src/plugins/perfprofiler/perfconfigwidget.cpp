@@ -147,7 +147,7 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
     ProjectExplorer::IDevice::ConstPtr device;
     if (target) {
         if (ProjectExplorer::Kit *kit = target->kit())
-            device = ProjectExplorer::DeviceKitInformation::device(kit);
+            device = ProjectExplorer::DeviceKitAspect::device(kit);
     }
 
     if (device.isNull()) {

@@ -255,7 +255,7 @@ Utils::Environment ExtraCompiler::buildEnvironment() const
             return bc->environment();
         } else {
             QList<Utils::EnvironmentItem> changes =
-                    EnvironmentKitInformation::environmentChanges(target->kit());
+                    EnvironmentKitAspect::environmentChanges(target->kit());
             Utils::Environment env = Utils::Environment::systemEnvironment();
             env.modify(changes);
             return env;

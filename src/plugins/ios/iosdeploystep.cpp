@@ -73,7 +73,7 @@ Core::Id IosDeployStep::stepId()
 void IosDeployStep::updateDisplayNames()
 {
     IDevice::ConstPtr dev =
-            DeviceKitInformation::device(target()->kit());
+            DeviceKitAspect::device(target()->kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     setDefaultDisplayName(tr("Deploy to %1").arg(devName));
     setDisplayName(tr("Deploy to %1").arg(devName));
@@ -82,7 +82,7 @@ void IosDeployStep::updateDisplayNames()
 bool IosDeployStep::init()
 {
     QTC_ASSERT(m_transferStatus == NoTransfer, return false);
-    m_device = DeviceKitInformation::device(target()->kit());
+    m_device = DeviceKitAspect::device(target()->kit());
     auto runConfig = qobject_cast<const IosRunConfiguration *>(
         this->target()->activeRunConfiguration());
     QTC_ASSERT(runConfig, return false);

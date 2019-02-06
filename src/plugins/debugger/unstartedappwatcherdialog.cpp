@@ -59,7 +59,7 @@ static bool isLocal(RunConfiguration *runConfiguration)
 {
     Target *target = runConfiguration ? runConfiguration->target() : nullptr;
     Kit *kit = target ? target->kit() : nullptr;
-    return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    return DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
 /*!
@@ -275,7 +275,7 @@ void UnstartedAppWatcherDialog::stopAndCheckExecutable()
 
 void UnstartedAppWatcherDialog::kitChanged()
 {
-    const DebuggerItem *debugger = DebuggerKitInformation::debugger(m_kitChooser->currentKit());
+    const DebuggerItem *debugger = DebuggerKitAspect::debugger(m_kitChooser->currentKit());
     if (!debugger)
         return;
     if (debugger->engineType() == Debugger::CdbEngineType) {

@@ -303,14 +303,14 @@ QString DebuggerItem::displayName() const
         return m_unexpandedDisplayName;
 
     MacroExpander expander;
-    expander.registerVariable("Debugger:Type", DebuggerKitInformation::tr("Type of Debugger Backend"),
+    expander.registerVariable("Debugger:Type", DebuggerKitAspect::tr("Type of Debugger Backend"),
         [this] { return engineTypeName(); });
-    expander.registerVariable("Debugger:Version", DebuggerKitInformation::tr("Debugger"),
+    expander.registerVariable("Debugger:Version", DebuggerKitAspect::tr("Debugger"),
         [this] { return !m_version.isEmpty() ? m_version :
-                                               DebuggerKitInformation::tr("Unknown debugger version"); });
-    expander.registerVariable("Debugger:Abi", DebuggerKitInformation::tr("Debugger"),
+                                               DebuggerKitAspect::tr("Unknown debugger version"); });
+    expander.registerVariable("Debugger:Abi", DebuggerKitAspect::tr("Debugger"),
         [this] { return !m_abis.isEmpty() ? abiNames().join(' ') :
-                                            DebuggerKitInformation::tr("Unknown debugger ABI"); });
+                                            DebuggerKitAspect::tr("Unknown debugger ABI"); });
     return expander.expand(m_unexpandedDisplayName);
 }
 

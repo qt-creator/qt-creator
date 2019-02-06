@@ -211,7 +211,7 @@ QString KitManagerConfigWidget::validityMessage() const
     return m_modifiedKit->toHtml(tmp);
 }
 
-void KitManagerConfigWidget::addConfigWidget(KitConfigWidget *widget)
+void KitManagerConfigWidget::addConfigWidget(KitAspectWidget *widget)
 {
     QTC_ASSERT(widget, return);
     QTC_ASSERT(!m_widgets.contains(widget), return);
@@ -249,7 +249,7 @@ void KitManagerConfigWidget::updateVisibility()
 {
     int count = m_widgets.count();
     for (int i = 0; i < count; ++i) {
-        KitConfigWidget *widget = m_widgets.at(i);
+        KitAspectWidget *widget = m_widgets.at(i);
         bool visible = widget->visibleInKit();
         widget->mainWidget()->setVisible(visible);
         if (widget->buttonWidget())
@@ -265,7 +265,7 @@ void KitManagerConfigWidget::setHasUniqueName(bool unique)
 
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 {
-    foreach (KitConfigWidget *w, m_widgets) {
+    foreach (KitAspectWidget *w, m_widgets) {
         if (w->isSticky())
             w->makeReadOnly();
     }
@@ -348,7 +348,7 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
     k->fix();
     m_fixingKit = false;
 
-    foreach (KitConfigWidget *w, m_widgets)
+    foreach (KitAspectWidget *w, m_widgets)
         w->refresh();
 
     m_cachedDisplayName.clear();
@@ -376,7 +376,7 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
 void KitManagerConfigWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event);
-    foreach (KitConfigWidget *widget, m_widgets)
+    foreach (KitAspectWidget *widget, m_widgets)
         widget->refresh();
 }
 

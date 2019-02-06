@@ -111,7 +111,7 @@ bool QmlPreviewPlugin::initialize(const QStringList &arguments, QString *errorSt
     auto constraint = [](RunConfiguration *runConfiguration) {
         Target *target = runConfiguration ? runConfiguration->target() : nullptr;
         Kit *kit = target ? target->kit() : nullptr;
-        return DeviceTypeKitInformation::deviceTypeId(kit) == Constants::DESKTOP_DEVICE_TYPE;
+        return DeviceTypeKitAspect::deviceTypeId(kit) == Constants::DESKTOP_DEVICE_TYPE;
     };
 
     RunControl::registerWorker<LocalQmlPreviewSupport>(Constants::QML_PREVIEW_RUN_MODE, constraint);

@@ -122,7 +122,7 @@ BuildConfiguration::BuildType GenericBuildConfiguration::buildType() const
 void GenericBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
     prependCompilerPathToEnvironment(env);
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
     if (qt)
         env.prependOrSetPath(qt->binPath().toString());
 }

@@ -114,7 +114,7 @@ bool AbstractRemoteLinuxDeployService::hasRemoteFileChanged(
 void AbstractRemoteLinuxDeployService::setTarget(Target *target)
 {
     d->target = target;
-    d->deviceConfiguration = DeviceKitInformation::device(profile());
+    d->deviceConfiguration = DeviceKitAspect::device(profile());
 }
 
 void AbstractRemoteLinuxDeployService::setDevice(const IDevice::ConstPtr &device)

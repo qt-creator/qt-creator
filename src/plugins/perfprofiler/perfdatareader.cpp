@@ -291,7 +291,7 @@ QStringList PerfDataReader::collectArguments(const QString &executableDirPath,
     if (!executableDirPath.isEmpty())
         arguments << QLatin1String("--app") << executableDirPath;
 
-    if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(kit)) {
+    if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit)) {
         arguments << QLatin1String("--extra") << QString::fromLatin1("%1%5%2%5%3%5%4")
                      .arg(QDir::toNativeSeparators(qt->libraryPath().toString()))
                      .arg(QDir::toNativeSeparators(qt->pluginPath().toString()))
@@ -300,7 +300,7 @@ QStringList PerfDataReader::collectArguments(const QString &executableDirPath,
                      .arg(QDir::listSeparator());
     }
 
-    if (auto toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(
+    if (auto toolChain = ProjectExplorer::ToolChainKitAspect::toolChain(
                 kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID)) {
         ProjectExplorer::Abi::Architecture architecture = toolChain->targetAbi().architecture();
         if (architecture == ProjectExplorer::Abi::ArmArchitecture &&
@@ -311,7 +311,7 @@ QStringList PerfDataReader::collectArguments(const QString &executableDirPath,
         }
     }
 
-    QString sysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+    QString sysroot = ProjectExplorer::SysRootKitAspect::sysRoot(kit).toString();
     if (!sysroot.isEmpty())
         arguments << QLatin1String("--sysroot") << sysroot;
 

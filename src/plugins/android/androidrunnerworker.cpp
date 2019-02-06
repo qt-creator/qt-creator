@@ -223,8 +223,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
                                  << "Extra Start Args:" << m_amStartExtraArgs
                                  << "Before Start ADB cmds:" << m_beforeStartAdbCommands
                                  << "After finish ADB cmds:" << m_afterFinishAdbCommands;
-    m_gdbserverPath = AndroidGdbServerKitInformation::gdbServer(target->kit()).toString();
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
+    m_gdbserverPath = AndroidGdbServerKitAspect::gdbServer(target->kit()).toString();
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
 }
 

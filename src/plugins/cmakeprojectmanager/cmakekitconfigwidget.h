@@ -37,7 +37,7 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
     class Kit;
-    class KitInformation;
+    class KitAspect;
 } // namespace ProjectExplorer
 
 namespace CMakeProjectManager {
@@ -47,17 +47,17 @@ class CMakeTool;
 namespace Internal {
 
 // --------------------------------------------------------------------
-// CMakeKitConfigWidget:
+// CMakeKitAspectWidget:
 // --------------------------------------------------------------------
 
-class CMakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
+class CMakeKitAspectWidget : public ProjectExplorer::KitAspectWidget
 {
     Q_OBJECT
 public:
-    CMakeKitConfigWidget(ProjectExplorer::Kit *kit, const ProjectExplorer::KitInformation *ki);
-    ~CMakeKitConfigWidget() override;
+    CMakeKitAspectWidget(ProjectExplorer::Kit *kit, const ProjectExplorer::KitAspect *ki);
+    ~CMakeKitAspectWidget() override;
 
-    // KitConfigWidget interface
+    // KitAspectWidget interface
     QString displayName() const override;
     void makeReadOnly() override;
     void refresh() override;
@@ -80,17 +80,17 @@ private:
 };
 
 // --------------------------------------------------------------------
-// CMakeGeneratorKitConfigWidget:
+// CMakeGeneratorKitAspectWidget:
 // --------------------------------------------------------------------
 
-class CMakeGeneratorKitConfigWidget : public ProjectExplorer::KitConfigWidget
+class CMakeGeneratorKitAspectWidget : public ProjectExplorer::KitAspectWidget
 {
     Q_OBJECT
 public:
-    CMakeGeneratorKitConfigWidget(ProjectExplorer::Kit *kit, const ProjectExplorer::KitInformation *ki);
-    ~CMakeGeneratorKitConfigWidget() override;
+    CMakeGeneratorKitAspectWidget(ProjectExplorer::Kit *kit, const ProjectExplorer::KitAspect *ki);
+    ~CMakeGeneratorKitAspectWidget() override;
 
-    // KitConfigWidget interface
+    // KitAspectWidget interface
     QString displayName() const override;
     void makeReadOnly() override;
     void refresh() override;
@@ -108,16 +108,16 @@ private:
 };
 
 // --------------------------------------------------------------------
-// CMakeConfigurationKitConfigWidget:
+// CMakeConfigurationKitAspectWidget:
 // --------------------------------------------------------------------
 
-class CMakeConfigurationKitConfigWidget : public ProjectExplorer::KitConfigWidget
+class CMakeConfigurationKitAspectWidget : public ProjectExplorer::KitAspectWidget
 {
     Q_OBJECT
 public:
-    CMakeConfigurationKitConfigWidget(ProjectExplorer::Kit *kit, const ProjectExplorer::KitInformation *ki);
+    CMakeConfigurationKitAspectWidget(ProjectExplorer::Kit *kit, const ProjectExplorer::KitAspect *ki);
 
-    // KitConfigWidget interface
+    // KitAspectWidget interface
     QString displayName() const override;
     void makeReadOnly() override;
     void refresh() override;

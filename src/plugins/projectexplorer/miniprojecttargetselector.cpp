@@ -579,7 +579,7 @@ KitAreaWidget::~KitAreaWidget()
 
 void KitAreaWidget::setKit(Kit *k)
 {
-    foreach (KitConfigWidget *w, m_widgets)
+    foreach (KitAspectWidget *w, m_widgets)
         delete(w);
     m_widgets.clear();
 
@@ -591,9 +591,9 @@ void KitAreaWidget::setKit(Kit *k)
     m_labels.clear();
 
     int row = 0;
-    foreach (KitInformation *ki, KitManager::kitInformation()) {
+    foreach (KitAspect *ki, KitManager::kitInformation()) {
         if (k && k->isMutable(ki->id())) {
-            KitConfigWidget *widget = ki->createConfigWidget(k);
+            KitAspectWidget *widget = ki->createConfigWidget(k);
             m_widgets << widget;
             QLabel *label = new QLabel(widget->displayName());
             m_labels << label;
@@ -619,9 +619,9 @@ void KitAreaWidget::updateKit(Kit *k)
         return;
 
     bool addedMutables = false;
-    QList<Core::Id> knownIdList = Utils::transform(m_widgets, &KitConfigWidget::kitInformationId);
+    QList<Core::Id> knownIdList = Utils::transform(m_widgets, &KitAspectWidget::kitInformationId);
 
-    foreach (KitInformation *ki, KitManager::kitInformation()) {
+    foreach (KitAspect *ki, KitManager::kitInformation()) {
         Core::Id currentId = ki->id();
         if (m_kit->isMutable(currentId) && !knownIdList.removeOne(currentId)) {
             addedMutables = true;
@@ -635,7 +635,7 @@ void KitAreaWidget::updateKit(Kit *k)
         setKit(m_kit);
     } else {
         // Refresh all widgets if the number of mutable settings did not change
-        foreach (KitConfigWidget *w, m_widgets)
+        foreach (KitAspectWidget *w, m_widgets)
             w->refresh();
     }
 }

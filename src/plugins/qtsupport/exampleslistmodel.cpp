@@ -504,7 +504,7 @@ void ExampleSetModel::updateQtVersionList()
 
     // prioritize default qt version
     ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
-    BaseQtVersion *defaultVersion = QtKitInformation::qtVersion(defaultKit);
+    BaseQtVersion *defaultVersion = QtKitAspect::qtVersion(defaultKit);
     if (defaultVersion && versions.contains(defaultVersion))
         versions.move(versions.indexOf(defaultVersion), 0);
 

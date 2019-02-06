@@ -226,7 +226,7 @@ void NimCompilerBuildStep::updateCommand()
     QTC_ASSERT(target(), return);
     QTC_ASSERT(target()->kit(), return);
     Kit *kit = target()->kit();
-    auto tc = dynamic_cast<NimToolChain*>(ToolChainKitInformation::toolChain(kit, Constants::C_NIMLANGUAGE_ID));
+    auto tc = dynamic_cast<NimToolChain*>(ToolChainKitAspect::toolChain(kit, Constants::C_NIMLANGUAGE_ID));
     QTC_ASSERT(tc, return);
     processParameters()->setCommand(tc->compilerCommand().toString());
 }

@@ -76,7 +76,7 @@ bool IosBuildStep::init()
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    ToolChain *tc = ToolChainKitAspect::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc)
         emit addTask(Task::compilerMissingTask());
 
@@ -138,7 +138,7 @@ QStringList IosBuildStep::defaultArguments() const
 {
     QStringList res;
     Kit *kit = target()->kit();
-    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    ToolChain *tc = ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     switch (buildConfiguration()->buildType()) {
     case BuildConfiguration::Debug :
         res << "-configuration" << "Debug";
@@ -158,8 +158,8 @@ QStringList IosBuildStep::defaultArguments() const
         auto gtc = static_cast<GccToolChain *>(tc);
         res << gtc->platformCodeGenFlags();
     }
-    if (!SysRootKitInformation::sysRoot(kit).isEmpty())
-        res << "-sdk" << SysRootKitInformation::sysRoot(kit).toString();
+    if (!SysRootKitAspect::sysRoot(kit).isEmpty())
+        res << "-sdk" << SysRootKitAspect::sysRoot(kit).toString();
     res << "SYMROOT=" + buildConfiguration()->buildDirectory().toString();
     return res;
 }

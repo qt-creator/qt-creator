@@ -313,7 +313,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
 {
     if (mainScript().isEmpty())
         return tr("No script file to execute.");
-    if (DeviceTypeKitInformation::deviceTypeId(target()->kit())
+    if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !QFileInfo::exists(executable())) {
         return tr("No qmlscene found.");
@@ -329,11 +329,11 @@ QString QmlProjectRunConfiguration::executable() const
     if (!qmlViewer.isEmpty())
         return qmlViewer;
 
-    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
+    BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
     if (!version) // No Qt version in Kit. Don't try to run qmlscene.
         return QString();
 
-    const Id deviceType = DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     if (deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // If not given explicitly by Qt Version, try to pick it from $PATH.
         return version->type() == QtSupport::Constants::DESKTOPQT
@@ -341,7 +341,7 @@ QString QmlProjectRunConfiguration::executable() const
                 : QString("qmlscene");
     }
 
-    IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
     if (dev.isNull()) // No device set. We don't know where to run qmlscene.
         return QString();
 
@@ -355,7 +355,7 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
     // arguments in .user file
     QString args = aspect<ArgumentsAspect>()->arguments(macroExpander());
     const Target *currentTarget = target();
-    const IDevice::ConstPtr device = DeviceKitInformation::device(currentTarget->kit());
+    const IDevice::ConstPtr device = DeviceKitAspect::device(currentTarget->kit());
     const Utils::OsType osType = device ? device->osType() : Utils::HostOsInfo::hostOs();
 
     // arguments from .qmlproject file

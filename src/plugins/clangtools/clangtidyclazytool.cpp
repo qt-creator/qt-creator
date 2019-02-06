@@ -423,7 +423,7 @@ void ClangTidyClazyTool::updateRunActions()
         Target *target = project ? project->activeTarget() : nullptr;
         const Core::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
         bool canRun = target && project->projectLanguages().contains(cxx)
-                && ToolChainKitInformation::toolChain(target->kit(), cxx);
+                && ToolChainKitAspect::toolChain(target->kit(), cxx);
         if (!canRun)
             toolTip = tr("This is not a C++ project.");
 

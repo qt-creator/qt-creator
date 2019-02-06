@@ -44,9 +44,9 @@ DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl)
 
 bool DeviceCheckBuildStep::init()
 {
-    IDevice::ConstPtr device = DeviceKitInformation::device(target()->kit());
+    IDevice::ConstPtr device = DeviceKitAspect::device(target()->kit());
     if (!device) {
-        Core::Id deviceTypeId = DeviceTypeKitInformation::deviceTypeId(target()->kit());
+        Core::Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(target()->kit());
         IDeviceFactory *factory = IDeviceFactory::find(deviceTypeId);
         if (!factory || !factory->canCreate()) {
             emit addOutput(tr("No device configured."), BuildStep::OutputFormat::ErrorMessage);
@@ -71,7 +71,7 @@ bool DeviceCheckBuildStep::init()
         DeviceManager *dm = DeviceManager::instance();
         dm->addDevice(newDevice);
 
-        DeviceKitInformation::setDevice(target()->kit(), newDevice);
+        DeviceKitAspect::setDevice(target()->kit(), newDevice);
     }
 
     return true;

@@ -88,8 +88,8 @@ public:
         QString host;
 
         if (kit) {
-            systemRoot = SysRootKitInformation::sysRoot(kit).toString();
-            const IDevice::ConstPtr deviceConfiguration = DeviceKitInformation::device(kit);
+            systemRoot = SysRootKitAspect::sysRoot(kit).toString();
+            const IDevice::ConstPtr deviceConfiguration = DeviceKitAspect::device(kit);
             host = deviceConfiguration->sshParameters().host();
         }
 

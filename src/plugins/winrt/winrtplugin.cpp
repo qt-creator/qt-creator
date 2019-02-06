@@ -75,14 +75,14 @@ bool WinRtPlugin::initialize(const QStringList &arguments, QString *errorMessage
     m_runData = new WinRtPluginRunData;
 
     auto runConstraint = [](RunConfiguration *runConfig) {
-        IDevice::ConstPtr device = DeviceKitInformation::device(runConfig->target()->kit());
+        IDevice::ConstPtr device = DeviceKitAspect::device(runConfig->target()->kit());
         if (!device)
             return false;
         return qobject_cast<WinRtRunConfiguration *>(runConfig) != nullptr;
     };
 
     auto debugConstraint = [](RunConfiguration *runConfig) {
-        IDevice::ConstPtr device = DeviceKitInformation::device(runConfig->target()->kit());
+        IDevice::ConstPtr device = DeviceKitAspect::device(runConfig->target()->kit());
         if (!device)
             return false;
         if (device->type() != Internal::Constants::WINRT_DEVICE_TYPE_LOCAL)

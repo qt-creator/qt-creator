@@ -109,21 +109,21 @@ DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
 {
     setKitPredicate([this](const Kit *k) {
         // Match valid debuggers and restrict local debugging to compatible toolchains.
-        auto errors = DebuggerKitInformation::configurationErrors(k);
+        auto errors = DebuggerKitAspect::configurationErrors(k);
         // we do not care for mismatched ABI if we want *any* debugging
-        if (m_mode == AnyDebugging && errors == DebuggerKitInformation::DebuggerDoesNotMatch)
-            errors = DebuggerKitInformation::NoConfigurationError;
+        if (m_mode == AnyDebugging && errors == DebuggerKitAspect::DebuggerDoesNotMatch)
+            errors = DebuggerKitAspect::NoConfigurationError;
         if (errors)
             return false;
         if (m_mode == LocalDebugging)
-            return ToolChainKitInformation::targetAbi(k).os() == m_hostAbi.os();
+            return ToolChainKitAspect::targetAbi(k).os() == m_hostAbi.os();
         return true;
     });
 }
 
 QString DebuggerKitChooser::kitToolTip(Kit *k) const
 {
-    return DebuggerKitInformation::displayString(k);
+    return DebuggerKitAspect::displayString(k);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -229,7 +229,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
 
     d->kitChooser = new KitChooser(this);
     d->kitChooser->setKitPredicate([](const Kit *k) {
-        return !DebuggerKitInformation::configurationErrors(k);
+        return !DebuggerKitAspect::configurationErrors(k);
     });
     d->kitChooser->populate();
 
@@ -403,7 +403,7 @@ void StartApplicationDialog::run(bool attachRemote)
         return;
 
     Kit *k = dialog.d->kitChooser->currentKit();
-    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
 
     auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto debugger = new DebuggerRunTool(runControl, k);

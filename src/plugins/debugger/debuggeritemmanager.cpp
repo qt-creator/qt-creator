@@ -790,7 +790,7 @@ void DebuggerItemManagerPrivate::readLegacyDebuggers(const FileName &file)
         QVariantMap data1 = v.toMap();
         QString kitName = data1.value("PE.Profile.Name").toString();
         QVariantMap data2 = data1.value("PE.Profile.Data").toMap();
-        QVariant v3 = data2.value(DebuggerKitInformation::id().toString());
+        QVariant v3 = data2.value(DebuggerKitAspect::id().toString());
         QString fn;
         if (v3.type() == QVariant::String)
             fn = v3.toString();

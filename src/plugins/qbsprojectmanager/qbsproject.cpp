@@ -693,7 +693,7 @@ void QbsProject::configureAsExampleProject(const QSet<Id> &platforms)
     };
     foreach (Kit *k, kits) {
         const QtSupport::BaseQtVersion * const qtVersion
-                = QtSupport::QtKitInformation::qtVersion(k);
+                = QtSupport::QtKitAspect::qtVersion(k);
         if (!qtVersion || !qtVersionMatchesPlatform(qtVersion))
             continue;
         if (auto factory = BuildConfigurationFactory::find(k, projectFilePath().toString()))

@@ -105,7 +105,7 @@ void QmlProfilerPlugin::extensionsInitialized()
     auto constraint = [](RunConfiguration *runConfiguration) {
         Target *target = runConfiguration ? runConfiguration->target() : nullptr;
         Kit *kit = target ? target->kit() : nullptr;
-        return DeviceTypeKitInformation::deviceTypeId(kit)
+        return DeviceTypeKitAspect::deviceTypeId(kit)
                 == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     };
 

@@ -34,18 +34,18 @@
 namespace ProjectExplorer {
 
 class Kit;
-class KitInformation;
+class KitAspect;
 
 // --------------------------------------------------------------------------
-// KitConfigWidget
+// KitAspectWidget
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT KitConfigWidget : public QObject
+class PROJECTEXPLORER_EXPORT KitAspectWidget : public QObject
 {
     Q_OBJECT
 
 public:
-    KitConfigWidget(Kit *kit, const KitInformation *ki);
+    KitAspectWidget(Kit *kit, const KitAspect *ki);
 
     Core::Id kitInformationId() const;
 
@@ -74,7 +74,7 @@ signals:
 
 protected:
     Kit *m_kit;
-    const KitInformation *m_kitInformation;
+    const KitAspect *m_kitInformation;
     bool m_isSticky;
 };
 

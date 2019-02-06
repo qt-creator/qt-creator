@@ -68,7 +68,7 @@ bool AndroidPotentialKit::isEnabled() const
 {
     QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
     foreach (ProjectExplorer::Kit *kit, kits) {
-        Core::Id deviceId = ProjectExplorer::DeviceKitInformation::deviceId(kit);
+        Core::Id deviceId = ProjectExplorer::DeviceKitAspect::deviceId(kit);
         if (kit->isAutoDetected()
                 && deviceId == Core::Id(Constants::ANDROID_DEVICE_ID)
                 && !kit->isSdkProvided()) {
@@ -120,7 +120,7 @@ void AndroidPotentialKitWidget::recheck()
 {
     QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
     foreach (ProjectExplorer::Kit *kit, kits) {
-        Core::Id deviceId = ProjectExplorer::DeviceKitInformation::deviceId(kit);
+        Core::Id deviceId = ProjectExplorer::DeviceKitAspect::deviceId(kit);
         if (kit->isAutoDetected()
                 && deviceId == Core::Id(Constants::ANDROID_DEVICE_ID)
                 && !kit->isSdkProvided()) {

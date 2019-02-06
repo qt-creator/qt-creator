@@ -545,7 +545,7 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
 
     QUrl serverUrl;
 
-    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+    IDevice::ConstPtr device = DeviceKitAspect::device(kit);
     QTC_ASSERT(device, return nullptr);
     QUrl toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
     serverUrl.setScheme(Utils::urlTcpScheme());

@@ -137,7 +137,7 @@ void SelectRemoteFileDialog::attachToDevice(Kit *k)
 {
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     QTC_ASSERT(k, return);
-    IDevice::ConstPtr device = DeviceKitInformation::device(k);
+    IDevice::ConstPtr device = DeviceKitAspect::device(k);
     QTC_ASSERT(device, return);
     SshConnectionParameters sshParams = device->sshParameters();
     m_fileSystemModel.setSshConnection(sshParams);
@@ -352,7 +352,7 @@ bool AttachCoreDialog::isLocalKit() const
 {
     Kit *k = d->kitChooser->currentKit();
     QTC_ASSERT(k, return false);
-    IDevice::ConstPtr device = DeviceKitInformation::device(k);
+    IDevice::ConstPtr device = DeviceKitAspect::device(k);
     QTC_ASSERT(device, return false);
     return device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
@@ -367,7 +367,7 @@ void AttachCoreDialog::coreFileChanged(const QString &core)
     if (!HostOsInfo::isWindowsHost() && QFile::exists(core)) {
         Kit *k = d->kitChooser->currentKit();
         QTC_ASSERT(k, return);
-        Runnable debugger = DebuggerKitInformation::runnable(k);
+        Runnable debugger = DebuggerKitAspect::runnable(k);
         CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, core);
         if (!cinfo.foundExecutableName.isEmpty())
             d->symbolFileName->setFileName(FileName::fromString(cinfo.foundExecutableName));

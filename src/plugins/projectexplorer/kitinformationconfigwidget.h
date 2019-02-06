@@ -50,16 +50,16 @@ class DeviceManagerModel;
 namespace Internal {
 
 // --------------------------------------------------------------------------
-// SysRootInformationConfigWidget:
+// SysRootKitAspectWidget:
 // --------------------------------------------------------------------------
 
-class SysRootInformationConfigWidget : public KitConfigWidget
+class SysRootKitAspectWidget : public KitAspectWidget
 {
     Q_OBJECT
 
 public:
-    SysRootInformationConfigWidget(Kit *k, const KitInformation *ki);
-    ~SysRootInformationConfigWidget() override;
+    SysRootKitAspectWidget(Kit *k, const KitAspect *ki);
+    ~SysRootKitAspectWidget() override;
 
     QString displayName() const override;
     void refresh() override;
@@ -78,16 +78,16 @@ private:
 };
 
 // --------------------------------------------------------------------------
-// ToolChainInformationConfigWidget:
+// ToolChainKitAspectWidget:
 // --------------------------------------------------------------------------
 
-class ToolChainInformationConfigWidget : public KitConfigWidget
+class ToolChainKitAspectWidget : public KitAspectWidget
 {
     Q_OBJECT
 
 public:
-    ToolChainInformationConfigWidget(Kit *k, const KitInformation *ki);
-    ~ToolChainInformationConfigWidget() override;
+    ToolChainKitAspectWidget(Kit *k, const KitAspect *ki);
+    ~ToolChainKitAspectWidget() override;
 
     QString displayName() const override;
     void refresh() override;
@@ -110,16 +110,16 @@ private:
 };
 
 // --------------------------------------------------------------------------
-// DeviceTypeInformationConfigWidget:
+// DeviceTypeKitAspectWidget:
 // --------------------------------------------------------------------------
 
-class DeviceTypeInformationConfigWidget : public KitConfigWidget
+class DeviceTypeKitAspectWidget : public KitAspectWidget
 {
     Q_OBJECT
 
 public:
-    DeviceTypeInformationConfigWidget(Kit *workingCopy, const KitInformation *ki);
-    ~DeviceTypeInformationConfigWidget() override;
+    DeviceTypeKitAspectWidget(Kit *workingCopy, const KitAspect *ki);
+    ~DeviceTypeKitAspectWidget() override;
 
     QWidget *mainWidget() const override;
     QString displayName() const override;
@@ -134,16 +134,16 @@ private:
 };
 
 // --------------------------------------------------------------------------
-// DeviceInformationConfigWidget:
+// DeviceKitAspectWidget:
 // --------------------------------------------------------------------------
 
-class DeviceInformationConfigWidget : public KitConfigWidget
+class DeviceKitAspectWidget : public KitAspectWidget
 {
     Q_OBJECT
 
 public:
-    DeviceInformationConfigWidget(Kit *workingCopy, const KitInformation *ki);
-    ~DeviceInformationConfigWidget() override;
+    DeviceKitAspectWidget(Kit *workingCopy, const KitAspect *ki);
+    ~DeviceKitAspectWidget() override;
 
     QWidget *mainWidget() const override;
     QWidget *buttonWidget() const override;
@@ -166,12 +166,12 @@ private:
     Core::Id m_selectedId;
 };
 
-class KitEnvironmentConfigWidget : public KitConfigWidget
+class EnvironmentKitAspectWidget : public KitAspectWidget
 {
     Q_OBJECT
 
 public:
-    KitEnvironmentConfigWidget(Kit *workingCopy, const KitInformation *ki);
+    EnvironmentKitAspectWidget(Kit *workingCopy, const KitAspect *ki);
 
     QWidget *mainWidget() const override;
     QWidget *buttonWidget() const override;

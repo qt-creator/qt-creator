@@ -107,7 +107,7 @@ namespace Internal {
 
 CMakeProjectImporter::CMakeProjectImporter(const Utils::FileName &path) : QtProjectImporter(path)
 {
-    useTemporaryKitInformation(CMakeKitInformation::id(),
+    useTemporaryKitAspect(CMakeKitAspect::id(),
                                [this](Kit *k, const QVariantList &vl) { cleanupTemporaryCMake(k, vl); },
                                [this](Kit *k, const QVariantList &vl) { persistTemporaryCMake(k, vl); });
 
@@ -286,24 +286,24 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 {
     const DirectoryData *data = static_cast<DirectoryData *>(directoryData);
 
-    CMakeTool *cm = CMakeKitInformation::cmakeTool(k);
+    CMakeTool *cm = CMakeKitAspect::cmakeTool(k);
     if (!cm || cm->cmakeExecutable() != data->cmakeBinary)
         return false;
 
-    if (CMakeGeneratorKitInformation::generator(k) != QString::fromUtf8(data->generator)
-            || CMakeGeneratorKitInformation::extraGenerator(k) != QString::fromUtf8(data->extraGenerator)
-            || CMakeGeneratorKitInformation::platform(k) != QString::fromUtf8(data->platform)
-            || CMakeGeneratorKitInformation::toolset(k) != QString::fromUtf8(data->toolset))
+    if (CMakeGeneratorKitAspect::generator(k) != QString::fromUtf8(data->generator)
+            || CMakeGeneratorKitAspect::extraGenerator(k) != QString::fromUtf8(data->extraGenerator)
+            || CMakeGeneratorKitAspect::platform(k) != QString::fromUtf8(data->platform)
+            || CMakeGeneratorKitAspect::toolset(k) != QString::fromUtf8(data->toolset))
         return false;
 
-    if (SysRootKitInformation::sysRoot(k) != Utils::FileName::fromUtf8(data->sysroot))
+    if (SysRootKitAspect::sysRoot(k) != Utils::FileName::fromUtf8(data->sysroot))
         return false;
 
-    if (data->qt.qt && QtSupport::QtKitInformation::qtVersionId(k) != data->qt.qt->uniqueId())
+    if (data->qt.qt && QtSupport::QtKitAspect::qtVersionId(k) != data->qt.qt->uniqueId())
         return false;
 
     for (const CMakeToolChainData &tcd : data->toolChains) {
-        ToolChain *tc = ToolChainKitInformation::toolChain(k, tcd.mapLanguageIdToQtC());
+        ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.mapLanguageIdToQtC());
         if (!tc || tc->compilerCommand() != tcd.compilerPath)
             return false;
     }
@@ -321,14 +321,14 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         const CMakeToolData cmtd = findOrCreateCMakeTool(data->cmakeBinary);
         QTC_ASSERT(cmtd.cmakeTool, return);
         if (cmtd.isTemporary)
-            addTemporaryData(CMakeKitInformation::id(), cmtd.cmakeTool->id().toSetting(), k);
+            addTemporaryData(CMakeKitAspect::id(), cmtd.cmakeTool->id().toSetting(), k);
 
-        CMakeGeneratorKitInformation::setGenerator(k, QString::fromUtf8(data->generator));
-        CMakeGeneratorKitInformation::setExtraGenerator(k, QString::fromUtf8(data->extraGenerator));
-        CMakeGeneratorKitInformation::setPlatform(k, QString::fromUtf8(data->platform));
-        CMakeGeneratorKitInformation::setToolset(k, QString::fromUtf8(data->toolset));
+        CMakeGeneratorKitAspect::setGenerator(k, QString::fromUtf8(data->generator));
+        CMakeGeneratorKitAspect::setExtraGenerator(k, QString::fromUtf8(data->extraGenerator));
+        CMakeGeneratorKitAspect::setPlatform(k, QString::fromUtf8(data->platform));
+        CMakeGeneratorKitAspect::setToolset(k, QString::fromUtf8(data->toolset));
 
-        SysRootKitInformation::setSysRoot(k, Utils::FileName::fromUtf8(data->sysroot));
+        SysRootKitAspect::setSysRoot(k, Utils::FileName::fromUtf8(data->sysroot));
 
         for (const CMakeToolChainData &cmtcd : data->toolChains) {
             const ToolChainData tcd
@@ -337,10 +337,10 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
             if (tcd.areTemporary) {
                 for (ToolChain *tc : tcd.tcs)
-                    addTemporaryData(ToolChainKitInformation::id(), tc->id(), k);
+                    addTemporaryData(ToolChainKitAspect::id(), tc->id(), k);
             }
 
-            ToolChainKitInformation::setToolChain(k, tcd.tcs.at(0));
+            ToolChainKitAspect::setToolChain(k, tcd.tcs.at(0));
         }
 
         qCInfo(cmInputLog()) << "Temporary Kit created.";
@@ -388,7 +388,7 @@ void CMakeProjectImporter::cleanupTemporaryCMake(Kit *k, const QVariantList &vl)
     if (vl.isEmpty())
         return; // No temporary CMake
     QTC_ASSERT(vl.count() == 1, return);
-    CMakeKitInformation::setCMakeTool(k, Core::Id()); // Always mark Kit as not using this Qt
+    CMakeKitAspect::setCMakeTool(k, Core::Id()); // Always mark Kit as not using this Qt
     CMakeToolManager::deregisterCMakeTool(Core::Id::fromSetting(vl.at(0)));
     qCDebug(cmInputLog()) << "Temporary CMake tool cleaned up.";
 }
@@ -400,7 +400,7 @@ void CMakeProjectImporter::persistTemporaryCMake(Kit *k, const QVariantList &vl)
     QTC_ASSERT(vl.count() == 1, return);
     const QVariant data = vl.at(0);
     CMakeTool *tmpCmake = CMakeToolManager::findById(Core::Id::fromSetting(data));
-    CMakeTool *actualCmake = CMakeKitInformation::cmakeTool(k);
+    CMakeTool *actualCmake = CMakeKitAspect::cmakeTool(k);
 
     // User changed Kit away from temporary CMake that was set up:
     if (tmpCmake && actualCmake != tmpCmake)

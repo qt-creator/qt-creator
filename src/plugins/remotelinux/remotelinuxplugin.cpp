@@ -103,7 +103,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments, QString *errorM
     dd = new RemoteLinuxPluginPrivate;
 
     auto constraint = [](RunConfiguration *runConfig) {
-        const Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(
+        const Core::Id devType = ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(
                     runConfig->target()->kit());
 
         if (devType != Constants::GenericLinuxOsType)

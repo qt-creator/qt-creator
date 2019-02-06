@@ -64,7 +64,7 @@ IAssistProposal *CMakeFileCompletionAssist::perform(const AssistInterface *inter
     if (!fileName.isEmpty() && QFileInfo(fileName).isFile()) {
         Project *p = SessionManager::projectForFile(Utils::FileName::fromString(fileName));
         if (p && p->activeTarget()) {
-            CMakeTool *cmake = CMakeKitInformation::cmakeTool(p->activeTarget()->kit());
+            CMakeTool *cmake = CMakeKitAspect::cmakeTool(p->activeTarget()->kit());
             if (cmake && cmake->isValid())
                 kw = cmake->keywords();
         }

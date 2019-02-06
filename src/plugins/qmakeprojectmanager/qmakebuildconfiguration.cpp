@@ -140,7 +140,7 @@ void QmakeBuildConfiguration::initialize(const BuildInfo &info)
     cleanSteps->appendStep(new QmakeMakeStep(cleanSteps));
 
     const QmakeExtraBuildInfo qmakeExtra = info.extraInfo.value<QmakeExtraBuildInfo>();
-    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
+    BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
 
     BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
     if (info.buildType == BuildConfiguration::Debug)
@@ -165,7 +165,7 @@ void QmakeBuildConfiguration::initialize(const BuildInfo &info)
 
     setBuildDirectory(directory);
 
-    if (DeviceTypeKitInformation::deviceTypeId(target()->kit())
+    if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
             == Android::Constants::ANDROID_DEVICE_TYPE) {
         buildSteps->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALLATION_STEP_ID);
         buildSteps->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
@@ -210,13 +210,13 @@ void QmakeBuildConfiguration::kitChanged()
 
 void QmakeBuildConfiguration::toolChainUpdated(ToolChain *tc)
 {
-    if (ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID) == tc)
+    if (ToolChainKitAspect::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID) == tc)
         emitProFileEvaluateNeeded();
 }
 
 void QmakeBuildConfiguration::qtVersionsChanged(const QList<int> &,const QList<int> &, const QList<int> &changed)
 {
-    if (changed.contains(QtKitInformation::qtVersionId(target()->kit())))
+    if (changed.contains(QtKitAspect::qtVersionId(target()->kit())))
         emitProFileEvaluateNeeded();
 }
 
@@ -301,7 +301,7 @@ void QmakeBuildConfiguration::emitQMakeBuildConfigurationChanged()
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
 {
     QStringList result;
-    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
+    BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
     BaseQtVersion::QmakeBuildConfigs defaultBuildConfiguration =
             version ? version->defaultBuildConfig() : BaseQtVersion::QmakeBuildConfigs(BaseQtVersion::DebugBuild | BaseQtVersion::BuildAll);
     BaseQtVersion::QmakeBuildConfigs userBuildConfiguration = m_qmakeBuildConfiguration;
@@ -364,7 +364,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         return MakefileMissing;
     }
 
-    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
+    BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
     if (!version) {
         qCDebug(logs) << "**No qt version in kit";
         return MakefileForWrongProject;
@@ -567,7 +567,7 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::PROFILE_MIMETYPE);
     setIssueReporter([](Kit *k, const QString &projectPath, const QString &buildDir) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
         QList<Task> issues;
         if (version)
             issues << version->reportIssues(projectPath, buildDir);
@@ -594,7 +594,7 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                           const QString &projectPath,
                                                           BuildConfiguration::BuildType type) const
 {
-    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    BaseQtVersion *version = QtKitAspect::qtVersion(k);
     QmakeExtraBuildInfo extraInfo;
     BuildInfo info(this);
     QString suffix;
@@ -662,7 +662,7 @@ QList<BuildInfo> QmakeBuildConfigurationFactory::availableBuilds(const Target *p
     const QString projectFilePath = parent->project()->projectFilePath().toString();
 
     foreach (BuildConfiguration::BuildType buildType,
-             availableBuildTypes(QtKitInformation::qtVersion(parent->kit()))) {
+             availableBuildTypes(QtKitAspect::qtVersion(parent->kit()))) {
         BuildInfo info = createBuildInfo(parent->kit(), projectFilePath, buildType);
         info.displayName.clear(); // ask for a name
         info.buildDirectory.clear(); // This depends on the displayName
@@ -675,7 +675,7 @@ QList<BuildInfo> QmakeBuildConfigurationFactory::availableBuilds(const Target *p
 QList<BuildInfo> QmakeBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<BuildInfo> result;
-    BaseQtVersion *qtVersion = QtKitInformation::qtVersion(k);
+    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(k);
     if (!qtVersion || !qtVersion->isValid())
         return result;
 
@@ -704,7 +704,7 @@ void QmakeBuildConfiguration::addToEnvironment(Environment &env) const
 void QmakeBuildConfiguration::setupBuildEnvironment(Kit *k, Environment &env)
 {
     prependCompilerPathToEnvironment(k, env);
-    const BaseQtVersion *qt = QtKitInformation::qtVersion(k);
+    const BaseQtVersion *qt = QtKitAspect::qtVersion(k);
     if (qt && !qt->binPath().isEmpty())
         env.prependOrSetPath(qt->binPath().toString());
 }
@@ -712,11 +712,11 @@ void QmakeBuildConfiguration::setupBuildEnvironment(Kit *k, Environment &env)
 QmakeBuildConfiguration::LastKitState::LastKitState() = default;
 
 QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
-    : m_qtVersion(QtKitInformation::qtVersionId(k)),
-      m_sysroot(SysRootKitInformation::sysRoot(k).toString()),
-      m_mkspec(QmakeKitInformation::mkspec(k).toString())
+    : m_qtVersion(QtKitAspect::qtVersionId(k)),
+      m_sysroot(SysRootKitAspect::sysRoot(k).toString()),
+      m_mkspec(QmakeKitAspect::mkspec(k).toString())
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    ToolChain *tc = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     m_toolchain = tc ? tc->id() : QByteArray();
 }
 

@@ -30,12 +30,12 @@
 namespace QbsProjectManager {
 namespace Internal {
 
-class QbsKitInformation final : public ProjectExplorer::KitInformation
+class QbsKitAspect final : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 
 public:
-    QbsKitInformation();
+    QbsKitAspect();
 
     static QString displayName();
     static QString representation(const ProjectExplorer::Kit *kit);
@@ -48,7 +48,7 @@ private:
     QVariant defaultValue(const ProjectExplorer::Kit *) const override;
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *) const override;
     ItemList toUserOutput(const ProjectExplorer::Kit *) const override;
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *) const override;
+    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *) const override;
 };
 
 } // namespace Internal

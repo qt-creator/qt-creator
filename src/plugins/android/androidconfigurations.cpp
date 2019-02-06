@@ -976,13 +976,13 @@ static bool matchToolChain(const ToolChain *atc, const ToolChain *btc)
 
 static bool matchKits(const Kit *a, const Kit *b)
 {
-    if (QtSupport::QtKitInformation::qtVersion(a) != QtSupport::QtKitInformation::qtVersion(b))
+    if (QtSupport::QtKitAspect::qtVersion(a) != QtSupport::QtKitAspect::qtVersion(b))
         return false;
 
-    return matchToolChain(ToolChainKitInformation::toolChain(a, ProjectExplorer::Constants::CXX_LANGUAGE_ID),
-                          ToolChainKitInformation::toolChain(b, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
-            && matchToolChain(ToolChainKitInformation::toolChain(a, ProjectExplorer::Constants::C_LANGUAGE_ID),
-                              ToolChainKitInformation::toolChain(b, ProjectExplorer::Constants::C_LANGUAGE_ID));
+    return matchToolChain(ToolChainKitAspect::toolChain(a, ProjectExplorer::Constants::CXX_LANGUAGE_ID),
+                          ToolChainKitAspect::toolChain(b, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
+            && matchToolChain(ToolChainKitAspect::toolChain(a, ProjectExplorer::Constants::C_LANGUAGE_ID),
+                              ToolChainKitAspect::toolChain(b, ProjectExplorer::Constants::C_LANGUAGE_ID));
 }
 
 void AndroidConfigurations::registerNewToolChains()
@@ -1027,10 +1027,10 @@ static QVariant findOrRegisterDebugger(ToolChain *tc)
 void AndroidConfigurations::updateAutomaticKitList()
 {
     const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
-        Core::Id deviceTypeId = DeviceTypeKitInformation::deviceTypeId(k);
+        Core::Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(k);
         if (k->isAutoDetected() && !k->isSdkProvided()
                 && deviceTypeId == Core::Id(Constants::ANDROID_DEVICE_TYPE)) {
-            if (!QtSupport::QtKitInformation::qtVersion(k))
+            if (!QtSupport::QtKitAspect::qtVersion(k))
                 KitManager::deregisterKit(k); // Remove autoDetected kits without Qt.
             else
                 return true;
@@ -1076,11 +1076,11 @@ void AndroidConfigurations::updateAutomaticKitList()
         auto initBasicKitData = [allLanguages, device](Kit *k, const QtSupport::BaseQtVersion *qt) {
             k->setAutoDetected(true);
             k->setAutoDetectionSource("AndroidConfiguration");
-            DeviceTypeKitInformation::setDeviceTypeId(k, Core::Id(Constants::ANDROID_DEVICE_TYPE));
+            DeviceTypeKitAspect::setDeviceTypeId(k, Core::Id(Constants::ANDROID_DEVICE_TYPE));
             for (ToolChain *tc : allLanguages)
-                ToolChainKitInformation::setToolChain(k, tc);
-            QtSupport::QtKitInformation::setQtVersion(k, qt);
-            DeviceKitInformation::setDevice(k, device);
+                ToolChainKitAspect::setToolChain(k, tc);
+            QtSupport::QtKitAspect::setQtVersion(k, qt);
+            DeviceKitAspect::setDevice(k, device);
         };
 
         for (const QtSupport::BaseQtVersion *qt : qtVersionsForArch.value(tc->targetAbi())) {
@@ -1098,9 +1098,9 @@ void AndroidConfigurations::updateAutomaticKitList()
                 toSetup = existingKit;
             }
 
-            Debugger::DebuggerKitInformation::setDebugger(toSetup, findOrRegisterDebugger(tc));
+            Debugger::DebuggerKitAspect::setDebugger(toSetup, findOrRegisterDebugger(tc));
 
-            AndroidGdbServerKitInformation::setGdbSever(toSetup, currentConfig().gdbServer(tc->targetAbi()));
+            AndroidGdbServerKitAspect::setGdbSever(toSetup, currentConfig().gdbServer(tc->targetAbi()));
             toSetup->makeSticky();
 
             toSetup->setUnexpandedDisplayName(tr("Android for %1 (Clang %2)")

@@ -210,7 +210,7 @@ void QmakeProjectConfigWidget::updateProblemLabel()
     const QString proFileName = m_buildConfiguration->target()->project()->projectFilePath().toString();
 
     // Check for Qt version:
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (!version) {
         setProblemLabel(tr("This kit cannot build this project since it does not define a Qt version."));
         return;

@@ -435,9 +435,9 @@ QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, 
     QString displayName;
     if (!targetName.isEmpty())
         displayName = QFileInfo(targetName).completeBaseName();
-    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target->kit());
+    Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target->kit());
     if (devType != Constants::DESKTOP_DEVICE_TYPE) {
-        if (IDevice::ConstPtr dev = DeviceKitInformation::device(target->kit())) {
+        if (IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit())) {
             if (displayName.isEmpty()) {
                 //: Shown in Run configuration if no executable is given, %1 is device name
                 displayName = RunConfiguration::tr("Run on %1").arg(dev->displayName());
@@ -524,7 +524,7 @@ bool RunConfigurationFactory::canHandle(Target *target) const
 
     if (!m_supportedTargetDeviceTypes.isEmpty())
         if (!m_supportedTargetDeviceTypes.contains(
-                    DeviceTypeKitInformation::deviceTypeId(kit)))
+                    DeviceTypeKitAspect::deviceTypeId(kit)))
             return false;
 
     return true;
@@ -796,7 +796,7 @@ public:
             outputFormatter = runConfiguration->createOutputFormatter();
             device = runnable.device;
             if (!device)
-                device = DeviceKitInformation::device(runConfiguration->target()->kit());
+                device = DeviceKitAspect::device(runConfiguration->target()->kit());
             project = runConfiguration->target()->project();
         } else {
             outputFormatter = new OutputFormatter();

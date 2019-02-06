@@ -30,31 +30,31 @@
 
 namespace ProjectExplorer {
 
-KitConfigWidget::KitConfigWidget(Kit *kit, const KitInformation *ki) : m_kit(kit),
+KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki) : m_kit(kit),
     m_kitInformation(ki), m_isSticky(kit->isSticky(ki->id()))
 { }
 
-Core::Id KitConfigWidget::kitInformationId() const
+Core::Id KitAspectWidget::kitInformationId() const
 {
     return m_kitInformation->id();
 }
 
-bool KitConfigWidget::isMutable() const
+bool KitAspectWidget::isMutable() const
 {
     return m_kit->isMutable(m_kitInformation->id());
 }
 
-void KitConfigWidget::setMutable(bool b)
+void KitAspectWidget::setMutable(bool b)
 {
     m_kit->setMutable(m_kitInformation->id(), b);
 }
 
-QString KitConfigWidget::msgManage()
+QString KitAspectWidget::msgManage()
 {
     return tr("Manage...");
 }
 
-void KitConfigWidget::setPalette(const QPalette &p)
+void KitAspectWidget::setPalette(const QPalette &p)
 {
     if (mainWidget())
         mainWidget()->setPalette(p);
@@ -62,7 +62,7 @@ void KitConfigWidget::setPalette(const QPalette &p)
         buttonWidget()->setPalette(p);
 }
 
-void KitConfigWidget::setStyle(QStyle *s)
+void KitAspectWidget::setStyle(QStyle *s)
 {
     if (mainWidget())
         mainWidget()->setStyle(s);

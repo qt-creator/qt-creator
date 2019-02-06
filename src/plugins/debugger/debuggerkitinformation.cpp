@@ -46,19 +46,19 @@ using namespace Utils;
 namespace Debugger {
 
 // --------------------------------------------------------------------------
-// DebuggerKitInformation
+// DebuggerKitAspect
 // --------------------------------------------------------------------------
 
-DebuggerKitInformation::DebuggerKitInformation()
+DebuggerKitAspect::DebuggerKitAspect()
 {
-    setObjectName("DebuggerKitInformation");
-    setId(DebuggerKitInformation::id());
+    setObjectName("DebuggerKitAspect");
+    setId(DebuggerKitAspect::id());
     setPriority(28000);
 }
 
-QVariant DebuggerKitInformation::defaultValue(const Kit *k) const
+QVariant DebuggerKitAspect::defaultValue(const Kit *k) const
 {
-    const Abi toolChainAbi = ToolChainKitInformation::targetAbi(k);
+    const Abi toolChainAbi = ToolChainKitAspect::targetAbi(k);
     const Utils::FileNameList paths = Environment::systemEnvironment().path();
     QVariant nextBestFit;
     for (const DebuggerItem &item : DebuggerItemManager::debuggers()) {
@@ -75,7 +75,7 @@ QVariant DebuggerKitInformation::defaultValue(const Kit *k) const
     return nextBestFit;
 }
 
-void DebuggerKitInformation::setup(Kit *k)
+void DebuggerKitAspect::setup(Kit *k)
 {
     QTC_ASSERT(k, return);
 
@@ -92,9 +92,9 @@ void DebuggerKitInformation::setup(Kit *k)
     //    <value type="QString" key="Binary">auto</value>
     //    <value type="int" key="EngineType">4</value>
     //  </valuemap>
-    const QVariant rawId = k->value(DebuggerKitInformation::id());
+    const QVariant rawId = k->value(DebuggerKitAspect::id());
 
-    const Abi tcAbi = ToolChainKitInformation::targetAbi(k);
+    const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
 
     // Get the best of the available debugger matching the kit's toolchain.
     // The general idea is to find an item that exactly matches what
@@ -160,17 +160,17 @@ void DebuggerKitInformation::setup(Kit *k)
     }
 
     // Use the best id we found, or an invalid one.
-    k->setValue(DebuggerKitInformation::id(), bestLevel != DebuggerItem::DoesNotMatch ? bestItem.id() : QVariant());
+    k->setValue(DebuggerKitAspect::id(), bestLevel != DebuggerItem::DoesNotMatch ? bestItem.id() : QVariant());
 }
 
 
 // This handles the upgrade path from 2.8 to 3.0
-void DebuggerKitInformation::fix(Kit *k)
+void DebuggerKitAspect::fix(Kit *k)
 {
     QTC_ASSERT(k, return);
 
     // This can be Id, binary path, but not "auto" anymore.
-    const QVariant rawId = k->value(DebuggerKitInformation::id());
+    const QVariant rawId = k->value(DebuggerKitAspect::id());
 
     if (rawId.isNull()) // No debugger set, that is fine.
         return;
@@ -179,7 +179,7 @@ void DebuggerKitInformation::fix(Kit *k)
         if (!DebuggerItemManager::findById(rawId)) {
             qWarning("Unknown debugger id %s in kit %s",
                      qPrintable(rawId.toString()), qPrintable(k->displayName()));
-            k->setValue(DebuggerKitInformation::id(), QVariant());
+            k->setValue(DebuggerKitAspect::id(), QVariant());
         }
         return; // All fine (now).
     }
@@ -189,7 +189,7 @@ void DebuggerKitInformation::fix(Kit *k)
     if (binary == "auto") {
         // This should not happen as "auto" is handled by setup() already.
         QTC_CHECK(false);
-        k->setValue(DebuggerKitInformation::id(), QVariant());
+        k->setValue(DebuggerKitAspect::id(), QVariant());
         return;
     }
 
@@ -198,21 +198,21 @@ void DebuggerKitInformation::fix(Kit *k)
     if (!item) {
         qWarning("Debugger command %s invalid in kit %s",
                  qPrintable(binary), qPrintable(k->displayName()));
-        k->setValue(DebuggerKitInformation::id(), QVariant());
+        k->setValue(DebuggerKitAspect::id(), QVariant());
         return;
     }
 
-    k->setValue(DebuggerKitInformation::id(), item->id());
+    k->setValue(DebuggerKitAspect::id(), item->id());
 }
 
 // Check the configuration errors and return a flag mask. Provide a quick check and
 // a verbose one with a list of errors.
 
-DebuggerKitInformation::ConfigurationErrors DebuggerKitInformation::configurationErrors(const Kit *k)
+DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(const Kit *k)
 {
     QTC_ASSERT(k, return NoDebugger);
 
-    const DebuggerItem *item = DebuggerKitInformation::debugger(k);
+    const DebuggerItem *item = DebuggerKitAspect::debugger(k);
     if (!item)
         return NoDebugger;
 
@@ -226,10 +226,10 @@ DebuggerKitInformation::ConfigurationErrors DebuggerKitInformation::configuratio
     else if (!fi.isExecutable())
         result |= DebuggerNotExecutable;
 
-    const Abi tcAbi = ToolChainKitInformation::targetAbi(k);
+    const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
     if (item->matchTarget(tcAbi) == DebuggerItem::DoesNotMatch) {
         // currently restricting the check to desktop devices, may be extended to all device types
-        const IDevice::ConstPtr device = DeviceKitInformation::device(k);
+        const IDevice::ConstPtr device = DeviceKitAspect::device(k);
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
             result |= DebuggerDoesNotMatch;
     }
@@ -247,14 +247,14 @@ DebuggerKitInformation::ConfigurationErrors DebuggerKitInformation::configuratio
     return result;
 }
 
-const DebuggerItem *DebuggerKitInformation::debugger(const Kit *kit)
+const DebuggerItem *DebuggerKitAspect::debugger(const Kit *kit)
 {
     QTC_ASSERT(kit, return nullptr);
-    const QVariant id = kit->value(DebuggerKitInformation::id());
+    const QVariant id = kit->value(DebuggerKitAspect::id());
     return DebuggerItemManager::findById(id);
 }
 
-Runnable DebuggerKitInformation::runnable(const Kit *kit)
+Runnable DebuggerKitAspect::runnable(const Kit *kit)
 {
     Runnable runnable;
     if (const DebuggerItem *item = debugger(kit)) {
@@ -266,7 +266,7 @@ Runnable DebuggerKitInformation::runnable(const Kit *kit)
     return runnable;
 }
 
-QList<Task> DebuggerKitInformation::validateDebugger(const Kit *k)
+QList<Task> DebuggerKitAspect::validateDebugger(const Kit *k)
 {
     QList<Task> result;
 
@@ -303,12 +303,12 @@ QList<Task> DebuggerKitInformation::validateDebugger(const Kit *k)
     return result;
 }
 
-KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
+KitAspectWidget *DebuggerKitAspect::createConfigWidget(Kit *k) const
 {
-    return new Internal::DebuggerKitConfigWidget(k, this);
+    return new Internal::DebuggerKitAspectWidget(k, this);
 }
 
-void DebuggerKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
+void DebuggerKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
     expander->registerVariable("Debugger:Name", tr("Name of Debugger"),
@@ -339,19 +339,19 @@ void DebuggerKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expande
                                });
 }
 
-KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) const
+KitAspect::ItemList DebuggerKitAspect::toUserOutput(const Kit *k) const
 {
     return ItemList() << qMakePair(tr("Debugger"), displayString(k));
 }
 
-DebuggerEngineType DebuggerKitInformation::engineType(const Kit *k)
+DebuggerEngineType DebuggerKitAspect::engineType(const Kit *k)
 {
     const DebuggerItem *item = debugger(k);
     QTC_ASSERT(item, return NoEngineType);
     return item->engineType();
 }
 
-QString DebuggerKitInformation::displayString(const Kit *k)
+QString DebuggerKitAspect::displayString(const Kit *k)
 {
     const DebuggerItem *item = debugger(k);
     if (!item)
@@ -361,15 +361,15 @@ QString DebuggerKitInformation::displayString(const Kit *k)
     return binary.isEmpty() ? tr("%1 <None>").arg(name) : tr("%1 using \"%2\"").arg(name, binary);
 }
 
-void DebuggerKitInformation::setDebugger(Kit *k, const QVariant &id)
+void DebuggerKitAspect::setDebugger(Kit *k, const QVariant &id)
 {
     // Only register reasonably complete debuggers.
     QTC_ASSERT(DebuggerItemManager::findById(id), return);
     QTC_ASSERT(k, return);
-    k->setValue(DebuggerKitInformation::id(), id);
+    k->setValue(DebuggerKitAspect::id(), id);
 }
 
-Core::Id DebuggerKitInformation::id()
+Core::Id DebuggerKitAspect::id()
 {
     return "Debugger.Information";
 }

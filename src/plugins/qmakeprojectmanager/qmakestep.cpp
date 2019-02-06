@@ -136,18 +136,18 @@ QMakeStepConfig QMakeStep::deducedArguments() const
     ProjectExplorer::Kit *kit = target()->kit();
     QMakeStepConfig config;
     ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+            = ProjectExplorer::ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     ProjectExplorer::Abi targetAbi;
     if (tc) {
         targetAbi = tc->targetAbi();
         if (HostOsInfo::isWindowsHost()
             && tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-            config.sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+            config.sysRoot = ProjectExplorer::SysRootKitAspect::sysRoot(kit).toString();
             config.targetTriple = tc->originalTargetTriple();
         }
     }
 
-    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
+    BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
 
     config.archConfig = QMakeStepConfig::targetArchFor(targetAbi, version);
     config.osType = QMakeStepConfig::osTypeFor(targetAbi, version);
@@ -166,7 +166,7 @@ QMakeStepConfig QMakeStep::deducedArguments() const
 bool QMakeStep::init()
 {
     QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
-    const BaseQtVersion *qtVersion = QtKitInformation::qtVersion(target()->kit());
+    const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
 
     if (!qtVersion) {
         emit addOutput(tr("No Qt version configured."), BuildStep::OutputFormat::ErrorMessage);
@@ -452,7 +452,7 @@ QString QMakeStep::makeArguments(const QString &makefile) const
 
 QString QMakeStep::effectiveQMakeCall() const
 {
-    BaseQtVersion *qtVersion = QtKitInformation::qtVersion(target()->kit());
+    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
     QString qmake = qtVersion ? qtVersion->qmakeCommand().toUserOutput() : QString();
     if (qmake.isEmpty())
         qmake = tr("<no Qt version>");
@@ -474,7 +474,7 @@ QString QMakeStep::effectiveQMakeCall() const
 QStringList QMakeStep::parserArguments()
 {
     QStringList result;
-    BaseQtVersion *qt = QtKitInformation::qtVersion(target()->kit());
+    BaseQtVersion *qt = QtKitAspect::qtVersion(target()->kit());
     QTC_ASSERT(qt, return QStringList());
     for (QtcProcess::ConstArgIterator ait(allArguments(qt, ArgumentFlag::Expand)); ait.next(); ) {
         if (ait.isSimple())
@@ -499,7 +499,7 @@ FileName QMakeStep::mkspec() const
         }
     }
 
-    return QmakeProjectManager::QmakeKitInformation::effectiveMkspec(target()->kit());
+    return QmakeProjectManager::QmakeKitAspect::effectiveMkspec(target()->kit());
 }
 
 QVariantMap QMakeStep::toMap() const
@@ -743,7 +743,7 @@ void QMakeStepConfigWidget::separateDebugInfoChecked(bool checked)
 
 void QMakeStepConfigWidget::updateSummaryLabel()
 {
-    BaseQtVersion *qtVersion = QtKitInformation::qtVersion(m_step->target()->kit());
+    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(m_step->target()->kit());
     if (!qtVersion) {
         setSummaryText(tr("<b>qmake:</b> No Qt version set. Cannot run qmake."));
         return;

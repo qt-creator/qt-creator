@@ -603,12 +603,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
 
-    // Register KitInformation:
-    KitManager::registerKitInformation<DeviceTypeKitInformation>();
-    KitManager::registerKitInformation<DeviceKitInformation>();
-    KitManager::registerKitInformation<ToolChainKitInformation>();
-    KitManager::registerKitInformation<SysRootKitInformation>();
-    KitManager::registerKitInformation<EnvironmentKitInformation>();
+    // Register KitAspects:
+    KitManager::registerKitAspect<DeviceTypeKitAspect>();
+    KitManager::registerKitAspect<DeviceKitAspect>();
+    KitManager::registerKitAspect<ToolChainKitAspect>();
+    KitManager::registerKitAspect<SysRootKitAspect>();
+    KitManager::registerKitAspect<EnvironmentKitAspect>();
 
     IWizardFactory::registerFactoryCreator([]() -> QList<IWizardFactory *> {
         QList<IWizardFactory *> result;
@@ -1535,7 +1535,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         tr("The host address of the device in the currently active kit."),
         []() -> QString {
             Kit *kit = currentKit();
-            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
             return device ? device->sshParameters().host() : QString();
         });
 
@@ -1543,7 +1543,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         tr("The SSH port of the device in the currently active kit."),
         []() -> QString {
             Kit *kit = currentKit();
-            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
             return device ? QString::number(device->sshParameters().port()) : QString();
         });
 
@@ -1551,7 +1551,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         tr("The username with which to log into the device in the currently active kit."),
         []() -> QString {
             Kit *kit = currentKit();
-            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
             return device ? device->sshParameters().userName() : QString();
         });
 
@@ -1561,7 +1561,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
            "in the currently active kit."),
         []() -> QString {
             Kit *kit = currentKit();
-            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
             return device ? device->sshParameters().privateKeyFile : QString();
         });
 
@@ -2546,7 +2546,7 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
                                                   return false;
                                               IDevice::ConstPtr device = rc->runnable().device;
                                               if (device.isNull())
-                                                  device = DeviceKitInformation::device(t->kit());
+                                                  device = DeviceKitAspect::device(t->kit());
                                               return !device.isNull() && device->type() == Core::Id(Constants::DESKTOP_DEVICE_TYPE);
                                           });
                                       }

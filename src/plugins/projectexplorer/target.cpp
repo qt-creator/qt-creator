@@ -452,7 +452,7 @@ void Target::setOverlayIcon(const QIcon &icon)
 
 QString Target::overlayIconToolTip()
 {
-    IDevice::ConstPtr current = DeviceKitInformation::device(kit());
+    IDevice::ConstPtr current = DeviceKitAspect::device(kit());
     return current.isNull() ? QString() : formatDeviceInfo(current->deviceInformation());
 }
 
@@ -682,7 +682,7 @@ QVariant Target::additionalData(Core::Id id) const
 
 void Target::updateDeviceState()
 {
-    IDevice::ConstPtr current = DeviceKitInformation::device(kit());
+    IDevice::ConstPtr current = DeviceKitAspect::device(kit());
 
     QIcon overlay;
     static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR_OVERLAY.icon();

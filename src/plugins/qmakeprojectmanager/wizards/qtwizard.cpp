@@ -196,11 +196,11 @@ int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
     const Core::Id platform = selectedPlatform();
     QSet<Core::Id> features = {QtSupport::Constants::FEATURE_DESKTOP};
     if (!platform.isValid())
-        m_targetSetupPage->setPreferredKitPredicate(QtKitInformation::qtVersionPredicate(features));
+        m_targetSetupPage->setPreferredKitPredicate(QtKitAspect::qtVersionPredicate(features));
     else
-        m_targetSetupPage->setPreferredKitPredicate(QtKitInformation::platformPredicate(platform));
+        m_targetSetupPage->setPreferredKitPredicate(QtKitAspect::platformPredicate(platform));
 
-    m_targetSetupPage->setRequiredKitPredicate(QtKitInformation::qtVersionPredicate(requiredFeatures()));
+    m_targetSetupPage->setRequiredKitPredicate(QtKitAspect::qtVersionPredicate(requiredFeatures()));
 
     resize(900, 450);
     if (id >= 0)
@@ -262,7 +262,7 @@ bool BaseQmakeProjectWizardDialog::isQtPlatformSelected(Core::Id platform) const
 {
     QList<Core::Id> selectedKitList = selectedKits();
 
-    return Utils::contains(KitManager::kits(QtKitInformation::platformPredicate(platform)),
+    return Utils::contains(KitManager::kits(QtKitAspect::platformPredicate(platform)),
                            [selectedKitList](const Kit *k) { return selectedKitList.contains(k->id()); });
 }
 

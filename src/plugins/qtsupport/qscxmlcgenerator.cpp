@@ -77,9 +77,9 @@ Utils::FileName QScxmlcGenerator::command() const
     QtSupport::BaseQtVersion *version = nullptr;
     Target *target;
     if ((target = project()->activeTarget()))
-        version = QtSupport::QtKitInformation::qtVersion(target->kit());
+        version = QtSupport::QtKitAspect::qtVersion(target->kit());
     else
-        version = QtSupport::QtKitInformation::qtVersion(KitManager::defaultKit());
+        version = QtSupport::QtKitAspect::qtVersion(KitManager::defaultKit());
 
     if (!version)
         return Utils::FileName();

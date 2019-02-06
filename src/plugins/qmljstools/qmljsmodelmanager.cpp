@@ -98,7 +98,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         activeTarget = project->activeTarget();
     }
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(activeKit);
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(activeKit);
 
     bool preferDebugDump = false;
     bool setPreferDump = false;

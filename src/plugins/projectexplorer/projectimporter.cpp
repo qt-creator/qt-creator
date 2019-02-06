@@ -73,7 +73,7 @@ static bool hasOtherUsers(Core::Id id, const QVariant &v, Kit *k)
 
 ProjectImporter::ProjectImporter(const Utils::FileName &path) : m_projectPath(path)
 {
-    useTemporaryKitInformation(ToolChainKitInformation::id(),
+    useTemporaryKitAspect(ToolChainKitAspect::id(),
                                [this](Kit *k, const QVariantList &vl) { cleanupTemporaryToolChains(k, vl); },
                                [this](Kit *k, const QVariantList &vl) { persistTemporaryToolChains(k, vl); });
 }
@@ -167,7 +167,7 @@ Target *ProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
             return t;
         if (pickedFallback)
             continue;
-        if (DeviceTypeKitInformation::deviceTypeId(t->kit()) == Constants::DESKTOP_DEVICE_TYPE) {
+        if (DeviceTypeKitAspect::deviceTypeId(t->kit()) == Constants::DESKTOP_DEVICE_TYPE) {
             activeTarget = t;
             pickedFallback = true;
         }
@@ -294,12 +294,12 @@ Kit *ProjectImporter::createTemporaryKit(const KitSetupFunction &setup) const
         k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter", "Imported Kit"));;
 
         // Set up values:
-        foreach (KitInformation *ki, KitManager::kitInformation())
+        foreach (KitAspect *ki, KitManager::kitInformation())
             ki->setup(kptr);
 
         setup(kptr);
 
-        foreach (KitInformation *ki, KitManager::kitInformation())
+        foreach (KitAspect *ki, KitManager::kitInformation())
             ki->fix(kptr);
 
         markKitAsTemporary(kptr);
@@ -326,7 +326,7 @@ void ProjectImporter::cleanupTemporaryToolChains(Kit *k, const QVariantList &vl)
         ToolChain *tc = toolChainFromVariant(v);
         QTC_ASSERT(tc, continue);
         ToolChainManager::deregisterToolChain(tc);
-        ToolChainKitInformation::setToolChain(k, nullptr);
+        ToolChainKitAspect::setToolChain(k, nullptr);
     }
 }
 
@@ -335,13 +335,13 @@ void ProjectImporter::persistTemporaryToolChains(Kit *k, const QVariantList &vl)
     for (const QVariant &v : vl) {
         ToolChain *tmpTc = toolChainFromVariant(v);
         QTC_ASSERT(tmpTc, continue);
-        ToolChain *actualTc = ToolChainKitInformation::toolChain(k, tmpTc->language());
+        ToolChain *actualTc = ToolChainKitAspect::toolChain(k, tmpTc->language());
         if (tmpTc && actualTc != tmpTc)
             ToolChainManager::deregisterToolChain(tmpTc);
     }
 }
 
-void ProjectImporter::useTemporaryKitInformation(Core::Id id,
+void ProjectImporter::useTemporaryKitAspect(Core::Id id,
                                                  ProjectImporter::CleanupFunction cleanup,
                                                  ProjectImporter::PersistFunction persist)
 {
@@ -400,7 +400,7 @@ ProjectImporter::findOrCreateToolChains(const Utils::FileName &toolChainPath,
     });
     for (const ToolChain *tc : result.tcs) {
         const QByteArray tcId = tc->id();
-        result.areTemporary = result.areTemporary ? true : hasKitWithTemporaryData(ToolChainKitInformation::id(), tcId);
+        result.areTemporary = result.areTemporary ? true : hasKitWithTemporaryData(ToolChainKitAspect::id(), tcId);
     }
     if (!result.tcs.isEmpty())
         return result;

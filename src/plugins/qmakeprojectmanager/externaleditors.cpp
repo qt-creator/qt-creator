@@ -172,17 +172,17 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
         data->workingDirectory = project->projectDirectory().toString();
         // active kit
         if (const Target *target = project->activeTarget()) {
-            qtVersionsToCheck << QtSupport::QtKitInformation::qtVersion(target->kit());
+            qtVersionsToCheck << QtSupport::QtKitAspect::qtVersion(target->kit());
         }
         // all kits of project
         qtVersionsToCheck += Utils::transform<QVector>(project->targets(), [](Target *t) {
-            return QTC_GUARD(t) ? QtSupport::QtKitInformation::qtVersion(t->kit()) : nullptr;
+            return QTC_GUARD(t) ? QtSupport::QtKitAspect::qtVersion(t->kit()) : nullptr;
         });
     }
     // default kit
-    qtVersionsToCheck << QtSupport::QtKitInformation::qtVersion(KitManager::defaultKit());
+    qtVersionsToCheck << QtSupport::QtKitAspect::qtVersion(KitManager::defaultKit());
     // all kits
-    qtVersionsToCheck += Utils::transform<QVector>(KitManager::kits(), QtSupport::QtKitInformation::qtVersion);
+    qtVersionsToCheck += Utils::transform<QVector>(KitManager::kits(), QtSupport::QtKitAspect::qtVersion);
     qtVersionsToCheck = Utils::filteredUnique(qtVersionsToCheck); // can still contain nullptr
     data->binary = findFirstCommand(qtVersionsToCheck, m_commandForQtVersion);
     // fallback

@@ -138,7 +138,7 @@ bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
             return false;
         }
 
-        auto dev = DeviceKitInformation::device(runConfig->target()->kit())
+        auto dev = DeviceKitAspect::device(runConfig->target()->kit())
                 .dynamicCast<const QnxDevice>();
         return !dev.isNull();
     };
@@ -176,9 +176,9 @@ void QnxPluginPrivate::updateDebuggerActions()
 {
     bool hasValidQnxKit = false;
 
-    auto matcher = DeviceTypeKitInformation::deviceTypePredicate(Constants::QNX_QNX_OS_TYPE);
+    auto matcher = DeviceTypeKitAspect::deviceTypePredicate(Constants::QNX_QNX_OS_TYPE);
     foreach (Kit *qnxKit, KitManager::kits(matcher)) {
-        if (qnxKit->isValid() && !DeviceKitInformation::device(qnxKit).isNull()) {
+        if (qnxKit->isValid() && !DeviceKitAspect::device(qnxKit).isNull()) {
             hasValidQnxKit = true;
             break;
         }

@@ -63,11 +63,11 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
     addInitialStep(RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
     addInitialStep(RemoteLinuxKillAppStep::stepId());
     addInitialStep(RsyncDeployStep::stepId(), [](Target *target) {
-        auto device = DeviceKitInformation::device(target->kit()).staticCast<const LinuxDevice>();
+        auto device = DeviceKitAspect::device(target->kit()).staticCast<const LinuxDevice>();
         return device && device->supportsRSync();
     });
     addInitialStep(GenericDirectUploadStep::stepId(), [](Target *target) {
-        auto device = DeviceKitInformation::device(target->kit()).staticCast<const LinuxDevice>();
+        auto device = DeviceKitAspect::device(target->kit()).staticCast<const LinuxDevice>();
         return device && !device->supportsRSync();
     });
 }

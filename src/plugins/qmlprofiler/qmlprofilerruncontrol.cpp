@@ -206,7 +206,7 @@ static QUrl localServerUrl(RunControl *runControl)
     QUrl serverUrl;
     RunConfiguration *runConfiguration = runControl->runConfiguration();
     Kit *kit = runConfiguration->target()->kit();
-    const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+    const QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
     if (version) {
         if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0))
             serverUrl = Utils::urlFromLocalSocket();

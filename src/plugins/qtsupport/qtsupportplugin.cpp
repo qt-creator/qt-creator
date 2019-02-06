@@ -84,7 +84,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     d = new QtSupportPluginPrivate;
 
-    ProjectExplorer::KitManager::registerKitInformation<QtKitInformation>();
+    ProjectExplorer::KitManager::registerKitAspect<QtKitAspect>();
 
     (void) new UicGeneratorFactory(this);
     (void) new QScxmlcGeneratorFactory(this);
@@ -100,7 +100,7 @@ static QString qmakeProperty(const char *propertyName)
     if (!project || !project->activeTarget())
         return QString();
 
-    const BaseQtVersion *qtVersion = QtKitInformation::qtVersion(project->activeTarget()->kit());
+    const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(project->activeTarget()->kit());
     if (!qtVersion)
         return QString();
     return qtVersion->qmakeProperty(propertyName);

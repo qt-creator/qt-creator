@@ -167,7 +167,7 @@ void AndroidDebugSupport::start()
         setUseTargetAsync(true);
     }
 
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit);
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
 
     if (isCppDebugging()) {
         qCDebug(androidDebugSupportLog) << "C++ debugging enabled";

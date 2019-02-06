@@ -360,9 +360,9 @@ QList<Task> CMakeProject::projectIssues(const Kit *k) const
 {
     QList<Task> result = Project::projectIssues(k);
 
-    if (!CMakeKitInformation::cmakeTool(k))
+    if (!CMakeKitAspect::cmakeTool(k))
         result.append(createProjectTask(Task::TaskType::Error, tr("No cmake tool set.")));
-    if (ToolChainKitInformation::toolChains(k).isEmpty())
+    if (ToolChainKitAspect::toolChains(k).isEmpty())
         result.append(createProjectTask(Task::TaskType::Warning, tr("No compilers set in kit.")));
 
     return result;
