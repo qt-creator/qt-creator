@@ -152,27 +152,29 @@ void DiagnosticView::goBack()
 
 QModelIndex DiagnosticView::getIndex(const QModelIndex &index, Direction direction) const
 {
-    QModelIndex parentIndex = index.parent();
+    const QModelIndex parentIndex = index.parent();
+    QModelIndex followingTopIndex = index;
 
-    // Use direct sibling for level 2 and 3 items if possible
     if (parentIndex.isValid()) {
-        const QModelIndex followingIndex = index.sibling(index.row() + direction, index.column());
+        // Use direct sibling for level 2 and 3 items
+        const QModelIndex followingIndex = index.sibling(index.row() + direction, 0);
         if (followingIndex.isValid())
             return followingIndex;
+
+        // First/Last level 3 item? Continue on level 2 item.
+        if (parentIndex.parent().isValid())
+            return direction == Previous ? parentIndex : getIndex(parentIndex, direction);
+
+        followingTopIndex = getTopLevelIndex(parentIndex, direction);
     }
 
-    // Last level 3 item? Continue on level 2 item
-    if (parentIndex.parent().isValid())
-        return getIndex(parentIndex, direction);
-
-    // Find following level 2 item
-    QModelIndex followingTopIndex = getTopLevelIndex(parentIndex.isValid() ? parentIndex : index,
-                                                     direction);
+    // Skip top level items without children
     while (!model()->hasChildren(followingTopIndex))
         followingTopIndex = getTopLevelIndex(followingTopIndex, direction);
-    return model()->index(direction == Next ? 0 : model()->rowCount(followingTopIndex) - 1,
-                          0,
-                          followingTopIndex);
+
+    // Select first/last level 2 item
+    const int row = direction == Next ? 0 : model()->rowCount(followingTopIndex) - 1;
+    return model()->index(row, 0, followingTopIndex);
 }
 
 QModelIndex DiagnosticView::getTopLevelIndex(const QModelIndex &index, Direction direction) const
@@ -180,7 +182,8 @@ QModelIndex DiagnosticView::getTopLevelIndex(const QModelIndex &index, Direction
     QModelIndex following = index.sibling(index.row() + direction, 0);
     if (following.isValid())
         return following;
-    return model()->index(direction == Next ? 0 : model()->rowCount(index) - 1, 0);
+    const int row = direction == Next ? 0 : model()->rowCount() - 1;
+    return model()->index(row, 0);
 }
 
 QList<QAction *> DiagnosticView::customActions() const
