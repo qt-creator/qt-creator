@@ -27,8 +27,8 @@
 *~
 .#*
 .DS_Store
-/.qmake.cache
-/.qmake.stash
+.qmake.cache
+.qmake.stash
 Makefile*
 Thumbs.db
 core
