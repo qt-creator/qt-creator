@@ -1,16 +1,16 @@
-:*Qt Creator.Build Project_Core::Internal::FancyToolButton	{text?='Build Project*' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Build Project_Core::Internal::FancyToolButton	{name='Build.Button' text?='Build Project*' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Cancel Build_QToolButton	{text='Cancel Build' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Clear_QToolButton	{text='Clear' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Continue_Core::Internal::FancyToolButton	{toolTip?='Continue *' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Continue_Core::Internal::FancyToolButton	{name='Debug.Button' toolTip?='Continue *' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Find_Find::Internal::FindToolBar	{name='Core__Internal__FindWidget' type='Core::Internal::FindToolBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Find'}
 :*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack	{name='FormEditorStack' type='Designer::Internal::FormEditorStack' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{toolTip='Interrupt' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{name='Debug.Button' toolTip='Interrupt' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.ProjectSelectorDockWidget_QDockWidget	{name='ProjectSelectorDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Run_Core::Internal::FancyToolButton	{text='Run' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{toolTip?='Start debugging*' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Run_Core::Internal::FancyToolButton	{name='Run.Button' text='Run' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{name='Debug.Button' toolTip?='Start debugging*' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Widget Box_QDockWidget	{name='WidgetBoxDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Widget Box'}
 :*Qt Creator.findEdit_Utils::FilterLineEdit	{name='findEdit' type='Utils::FancyLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator_Core::Internal::FancyToolButton	{occurrence='3' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator_Core::Internal::FancyToolButton	{name='KitSelector.Button' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::FilterLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::IconButton	{occurrence='4' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :About Qt Creator_Core::Internal::VersionDialog	{type='Core::Internal::VersionDialog' unnamed='1' visible='1' windowTitle='About Qt Creator'}
