@@ -25,9 +25,7 @@
 
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
-#include "kitconfigwidget.h"
 #include "kit.h"
-#include "kitmanager.h"
 #include "kitmanager.h"
 #include "miniprojecttargetselector.h"
 #include "projectexplorer.h"

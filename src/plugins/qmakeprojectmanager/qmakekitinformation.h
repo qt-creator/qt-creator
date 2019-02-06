@@ -25,13 +25,12 @@
 
 #pragma once
 
-#include "qmakeprojectmanager_global.h"
-
 #include <projectexplorer/kitmanager.h>
 
 namespace QmakeProjectManager {
+namespace Internal {
 
-class QMAKEPROJECTMANAGER_EXPORT QmakeKitAspect : public ProjectExplorer::KitAspect
+class QmakeKitAspect : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 
@@ -56,4 +55,5 @@ public:
     static Utils::FileName defaultMkspec(const ProjectExplorer::Kit *k);
 };
 
+} // namespace Internal
 } // namespace QmakeProjectManager

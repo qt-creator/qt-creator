@@ -25,7 +25,6 @@
 
 #include "qmakekitinformation.h"
 
-#include "qmakekitconfigwidget.h"
 #include "qmakeprojectmanagerconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -37,10 +36,57 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QLineEdit>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QmakeProjectManager {
+namespace Internal {
+
+class QmakeKitAspectWidget : public KitAspectWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(QmakeProjectManager::Internal::QmakeKitAspect)
+
+public:
+    QmakeKitAspectWidget(Kit *k, const KitAspect *ki)
+        : KitAspectWidget(k, ki), m_lineEdit(new QLineEdit)
+    {
+        refresh(); // set up everything according to kit
+        m_lineEdit->setToolTip(toolTip());
+        connect(m_lineEdit, &QLineEdit::textEdited, this, &QmakeKitAspectWidget::mkspecWasChanged);
+    }
+
+    ~QmakeKitAspectWidget() override { delete m_lineEdit; }
+
+private:
+    QWidget *mainWidget() const override { return m_lineEdit; }
+    QString displayName() const override { return tr("Qt mkspec"); }
+    void makeReadOnly() override { m_lineEdit->setEnabled(false); }
+
+    QString toolTip() const override
+    {
+        return tr("The mkspec to use when building the project with qmake.<br>"
+                  "This setting is ignored when using other build systems.");
+    }
+
+    void refresh() override
+    {
+        if (!m_ignoreChange)
+            m_lineEdit->setText(QmakeKitAspect::mkspec(m_kit).toUserOutput());
+    }
+
+    void mkspecWasChanged(const QString &text)
+    {
+        m_ignoreChange = true;
+        QmakeKitAspect::setMkspec(m_kit, Utils::FileName::fromString(text));
+        m_ignoreChange = false;
+    }
+
+    QLineEdit *m_lineEdit = nullptr;
+    bool m_ignoreChange = false;
+};
+
 
 QmakeKitAspect::QmakeKitAspect()
 {
@@ -171,4 +217,5 @@ FileName QmakeKitAspect::defaultMkspec(const Kit *k)
                         ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 }
 
+} // namespace Internal
 } // namespace QmakeProjectManager

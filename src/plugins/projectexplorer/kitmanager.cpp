@@ -41,6 +41,7 @@
 #include <utils/stringutils.h>
 
 #include <QSettings>
+#include <QStyle>
 
 using namespace Core;
 using namespace Utils;
@@ -495,6 +496,46 @@ void KitAspect::notifyAboutUpdate(Kit *k)
 {
     if (k)
         k->kitUpdated();
+}
+
+KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki) : m_kit(kit),
+    m_kitInformation(ki), m_isSticky(kit->isSticky(ki->id()))
+{ }
+
+Core::Id KitAspectWidget::kitInformationId() const
+{
+    return m_kitInformation->id();
+}
+
+bool KitAspectWidget::isMutable() const
+{
+    return m_kit->isMutable(m_kitInformation->id());
+}
+
+void KitAspectWidget::setMutable(bool b)
+{
+    m_kit->setMutable(m_kitInformation->id(), b);
+}
+
+QString KitAspectWidget::msgManage()
+{
+    return tr("Manage...");
+}
+
+void KitAspectWidget::setPalette(const QPalette &p)
+{
+    if (mainWidget())
+        mainWidget()->setPalette(p);
+    if (buttonWidget())
+        buttonWidget()->setPalette(p);
+}
+
+void KitAspectWidget::setStyle(QStyle *s)
+{
+    if (mainWidget())
+        mainWidget()->setStyle(s);
+    if (buttonWidget())
+        buttonWidget()->setStyle(s);
 }
 
 // --------------------------------------------------------------------

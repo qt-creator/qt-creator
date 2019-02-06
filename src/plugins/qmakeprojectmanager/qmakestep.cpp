@@ -499,7 +499,7 @@ FileName QMakeStep::mkspec() const
         }
     }
 
-    return QmakeProjectManager::QmakeKitAspect::effectiveMkspec(target()->kit());
+    return QmakeKitAspect::effectiveMkspec(target()->kit());
 }
 
 QVariantMap QMakeStep::toMap() const

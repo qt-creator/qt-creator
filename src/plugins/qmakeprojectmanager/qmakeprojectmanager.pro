@@ -7,7 +7,6 @@ DEFINES += \
 HEADERS += \
     qmakebuildinfo.h \
     qmakekitinformation.h \
-    qmakekitconfigwidget.h \
     qmakeparsernodes.h \
     qmakeprojectimporter.h \
     qmakeprojectmanagerplugin.h \
@@ -46,7 +45,6 @@ HEADERS += \
     qmakemakestep.h
 
 SOURCES += \
-    qmakekitconfigwidget.cpp \
     qmakekitinformation.cpp \
     qmakeparsernodes.cpp \
     qmakeprojectimporter.cpp \

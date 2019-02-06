@@ -50,6 +50,31 @@ using namespace Utils;
 namespace Android {
 namespace Internal {
 
+class AndroidGdbServerKitAspectWidget : public KitAspectWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidGdbServerKitAspect)
+public:
+    AndroidGdbServerKitAspectWidget(Kit *kit, const KitAspect *ki);
+    ~AndroidGdbServerKitAspectWidget() override;
+
+    QString displayName() const override;
+    QString toolTip() const override;
+    void makeReadOnly() override;
+    void refresh() override;
+    bool visibleInKit() override;
+
+    QWidget *mainWidget() const override;
+    QWidget *buttonWidget() const override;
+
+private:
+    void autoDetectDebugger();
+    void showDialog();
+
+    QLabel *m_label;
+    QPushButton *m_button;
+};
+
+
 AndroidGdbServerKitAspect::AndroidGdbServerKitAspect()
 {
     setId(AndroidGdbServerKitAspect::id());

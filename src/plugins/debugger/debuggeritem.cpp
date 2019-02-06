@@ -26,7 +26,6 @@
 #include "debuggeritem.h"
 #include "debuggeritemmanager.h"
 #include "debuggerkitinformation.h"
-#include "debuggerkitconfigwidget.h"
 #include "debuggerprotocol.h"
 
 #include <projectexplorer/abi.h>

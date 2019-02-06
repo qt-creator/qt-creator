@@ -31,9 +31,7 @@ HEADERS += projectexplorer.h \
     targetsetupwidget.h \
     kit.h \
     kitchooser.h \
-    kitconfigwidget.h \
     kitinformation.h \
-    kitinformationconfigwidget.h \
     kitfeatureprovider.h \
     kitmanager.h \
     kitmanagerconfigwidget.h \
@@ -184,9 +182,7 @@ SOURCES += projectexplorer.cpp \
     targetsetupwidget.cpp \
     kit.cpp \
     kitchooser.cpp \
-    kitconfigwidget.cpp \
     kitinformation.cpp \
-    kitinformationconfigwidget.cpp \
     kitmanager.cpp \
     kitmanagerconfigwidget.cpp \
     kitmodel.cpp \

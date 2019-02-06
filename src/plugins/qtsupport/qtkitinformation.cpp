@@ -27,23 +27,132 @@
 
 #include <QRegExp>
 
-#include "qtkitconfigwidget.h"
 #include "qtsupportconstants.h"
 #include "qtversionmanager.h"
 #include "qtparser.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
-
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
+#include <QComboBox>
+#include <QPushButton>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QtSupport {
+namespace Internal {
+
+class QtKitAspectWidget : public KitAspectWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(QtSupport::QtKitAspectWidget)
+public:
+    QtKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
+    {
+        m_combo = new QComboBox;
+        m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
+        m_combo->addItem(tr("None"), -1);
+
+        QList<int> versionIds = Utils::transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
+        versionsChanged(versionIds, QList<int>(), QList<int>());
+
+        m_manageButton = new QPushButton(KitAspectWidget::msgManage());
+
+        refresh();
+        m_combo->setToolTip(toolTip());
+
+        connect(m_combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, &QtKitAspectWidget::currentWasChanged);
+
+        connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+                this, &QtKitAspectWidget::versionsChanged);
+
+        connect(m_manageButton, &QAbstractButton::clicked, this, &QtKitAspectWidget::manageQtVersions);
+    }
+
+    ~QtKitAspectWidget() override
+    {
+        delete m_combo;
+        delete m_manageButton;
+    }
+
+private:
+    QString displayName() const override { return tr("Qt version"); }
+    void makeReadOnly() override { m_combo->setEnabled(false); }
+    QWidget *mainWidget() const override { return m_combo; }
+    QWidget *buttonWidget() const override { return m_manageButton; }
+
+    void refresh() override
+    {
+        m_combo->setCurrentIndex(findQtVersion(QtKitAspect::qtVersionId(m_kit)));
+    }
+
+    QString toolTip() const override
+    {
+        return tr("The Qt library to use for all projects using this kit.<br>"
+                  "A Qt version is required for qmake-based projects "
+                  "and optional when using other build systems.");
+    }
+
+private:
+    static QString itemNameFor(const BaseQtVersion *v)
+    {
+        QTC_ASSERT(v, return QString());
+        QString name = v->displayName();
+        if (!v->isValid())
+            name = QCoreApplication::translate("QtSupport::Internal::QtKitConfigWidget", "%1 (invalid)").arg(v->displayName());
+        return name;
+    }
+
+    void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed)
+    {
+        foreach (const int id, added) {
+            BaseQtVersion *v = QtVersionManager::version(id);
+            QTC_CHECK(v);
+            QTC_CHECK(findQtVersion(id) < 0);
+            m_combo->addItem(itemNameFor(v), id);
+        }
+        foreach (const int id, removed) {
+            int pos = findQtVersion(id);
+            if (pos >= 0) // We do not include invalid Qt versions, so do not try to remove those.
+                m_combo->removeItem(pos);
+        }
+        foreach (const int id, changed) {
+            BaseQtVersion *v = QtVersionManager::version(id);
+            int pos = findQtVersion(id);
+            QTC_CHECK(pos >= 0);
+            m_combo->setItemText(pos, itemNameFor(v));
+        }
+    }
+
+    void manageQtVersions()
+    {
+        Core::ICore::showOptionsDialog(Constants::QTVERSION_SETTINGS_PAGE_ID, buttonWidget());
+    }
+
+    void currentWasChanged(int idx)
+    {
+        QtKitAspect::setQtVersionId(m_kit, m_combo->itemData(idx).toInt());
+    }
+
+    int findQtVersion(const int id) const
+    {
+        for (int i = 0; i < m_combo->count(); ++i) {
+            if (id == m_combo->itemData(i).toInt())
+                return i;
+        }
+        return -1;
+    }
+
+    QComboBox *m_combo;
+    QPushButton *m_manageButton;
+};
+} // namespace Internal
 
 QtKitAspect::QtKitAspect()
 {

@@ -26,40 +26,9 @@
 #pragma once
 
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/kitconfigwidget.h>
-
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QPushButton;
-QT_END_NAMESPACE
 
 namespace Android {
 namespace Internal {
-
-class AndroidGdbServerKitAspectWidget : public ProjectExplorer::KitAspectWidget
-{
-    Q_OBJECT
-public:
-    AndroidGdbServerKitAspectWidget(ProjectExplorer::Kit *kit,
-                                         const ProjectExplorer::KitAspect *ki);
-    ~AndroidGdbServerKitAspectWidget() override;
-
-    QString displayName() const override;
-    QString toolTip() const override;
-    void makeReadOnly() override;
-    void refresh() override;
-    bool visibleInKit() override;
-
-    QWidget *mainWidget() const override;
-    QWidget *buttonWidget() const override;
-
-private:
-    void autoDetectDebugger();
-    void showDialog();
-
-    QLabel *m_label;
-    QPushButton *m_button;
-};
 
 class AndroidGdbServerKitAspect : public ProjectExplorer::KitAspect
 {

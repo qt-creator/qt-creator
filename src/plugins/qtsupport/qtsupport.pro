@@ -15,7 +15,6 @@ HEADERS += \
     qtprojectimporter.h \
     qtsupportplugin.h \
     qtsupport_global.h \
-    qtkitconfigwidget.h \
     qtkitinformation.h \
     qtoutputformatter.h \
     qtversionmanager.h \
@@ -42,7 +41,6 @@ SOURCES += \
     qtcppkitinfo.cpp \
     qtprojectimporter.cpp \
     qtsupportplugin.cpp \
-    qtkitconfigwidget.cpp \
     qtkitinformation.cpp \
     qtoutputformatter.cpp \
     qtversionmanager.cpp \

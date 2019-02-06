@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "kitconfigwidget.h"
+#include "kitmanager.h"
 
 #include <QWidget>
 

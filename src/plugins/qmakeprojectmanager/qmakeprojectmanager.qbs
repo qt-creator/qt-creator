@@ -36,7 +36,6 @@ Project {
                 "profilehighlighter.cpp", "profilehighlighter.h",
                 "profilehoverhandler.cpp", "profilehoverhandler.h",
                 "qmakebuildinfo.h",
-                "qmakekitconfigwidget.cpp", "qmakekitconfigwidget.h",
                 "qmakekitinformation.cpp", "qmakekitinformation.h",
                 "qmakemakestep.cpp", "qmakemakestep.h",
                 "qmakeparser.cpp", "qmakeparser.h",

@@ -25,17 +25,16 @@
 
 #pragma once
 
-#include "cmake_global.h"
-
 #include "cmakeconfigitem.h"
 
 #include <projectexplorer/kitmanager.h>
 
 namespace CMakeProjectManager {
-
 class CMakeTool;
 
-class CMAKE_EXPORT CMakeKitAspect : public ProjectExplorer::KitAspect
+namespace Internal {
+
+class CMakeKitAspect : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 public:
@@ -60,7 +59,7 @@ public:
     QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const final;
 };
 
-class CMAKE_EXPORT CMakeGeneratorKitAspect : public ProjectExplorer::KitAspect
+class CMakeGeneratorKitAspect : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 public:
@@ -88,7 +87,7 @@ public:
     ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
 };
 
-class CMAKE_EXPORT CMakeConfigurationKitAspect : public ProjectExplorer::KitAspect
+class CMakeConfigurationKitAspect : public ProjectExplorer::KitAspect
 {
     Q_OBJECT
 public:
@@ -111,4 +110,5 @@ public:
     ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
 };
 
+} // namespace Internal
 } // namespace CMakeProjectManager

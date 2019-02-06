@@ -24,12 +24,13 @@
 ****************************************************************************/
 
 #include "cmakekitinformation.h"
-#include "cmakekitconfigwidget.h"
 #include "cmakeprojectconstants.h"
 #include "cmaketoolmanager.h"
 #include "cmaketool.h"
 
 #include <app/app_version.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/variablechooser.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/kit.h>
@@ -37,16 +38,26 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
-
 #include <utils/algorithm.h>
+#include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
+#include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QPointer>
+#include <QPushButton>
 #include <QVariant>
 
 using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
+namespace Internal {
 // --------------------------------------------------------------------
 // CMakeKitAspect:
 // --------------------------------------------------------------------
@@ -59,9 +70,144 @@ static Core::Id defaultCMakeToolId()
 
 static const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
 
-// --------------------------------------------------------------------
-// CMakeKitAspect:
-// --------------------------------------------------------------------
+class CMakeKitAspectWidget : public KitAspectWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeKitAspect)
+public:
+    CMakeKitAspectWidget(Kit *kit, const KitAspect *ki) : KitAspectWidget(kit, ki),
+        m_comboBox(new QComboBox),
+        m_manageButton(new QPushButton(KitAspectWidget::msgManage()))
+    {
+        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
+        m_comboBox->setEnabled(false);
+        m_comboBox->setToolTip(toolTip());
+
+        foreach (CMakeTool *tool, CMakeToolManager::cmakeTools())
+            cmakeToolAdded(tool->id());
+
+        updateComboBox();
+        refresh();
+        connect(m_comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, &CMakeKitAspectWidget::currentCMakeToolChanged);
+
+        m_manageButton->setContentsMargins(0, 0, 0, 0);
+        connect(m_manageButton, &QPushButton::clicked,
+                this, &CMakeKitAspectWidget::manageCMakeTools);
+
+        CMakeToolManager *cmakeMgr = CMakeToolManager::instance();
+        connect(cmakeMgr, &CMakeToolManager::cmakeAdded,
+                this, &CMakeKitAspectWidget::cmakeToolAdded);
+        connect(cmakeMgr, &CMakeToolManager::cmakeRemoved,
+                this, &CMakeKitAspectWidget::cmakeToolRemoved);
+        connect(cmakeMgr, &CMakeToolManager::cmakeUpdated,
+                this, &CMakeKitAspectWidget::cmakeToolUpdated);
+    }
+
+    ~CMakeKitAspectWidget() override
+    {
+        delete m_comboBox;
+        delete m_manageButton;
+    }
+
+private:
+    // KitAspectWidget interface
+    QString displayName() const override { return tr("CMake Tool"); }
+    void makeReadOnly() override { m_comboBox->setEnabled(false); }
+    QWidget *mainWidget() const override { return m_comboBox; }
+    QWidget *buttonWidget() const override { return m_manageButton; }
+
+    void refresh() override
+    {
+        CMakeTool *tool = CMakeKitAspect::cmakeTool(m_kit);
+        m_comboBox->setCurrentIndex(tool ? indexOf(tool->id()) : -1);
+    }
+
+    QString toolTip() const override
+    {
+        return tr("The CMake Tool to use when building a project with CMake.<br>"
+                  "This setting is ignored when using other build systems.");
+    }
+
+    int indexOf(const Core::Id &id)
+    {
+        for (int i = 0; i < m_comboBox->count(); ++i) {
+            if (id == Core::Id::fromSetting(m_comboBox->itemData(i)))
+                return i;
+        }
+        return -1;
+    }
+
+    void updateComboBox()
+    {
+        // remove unavailable cmake tool:
+        int pos = indexOf(Core::Id());
+        if (pos >= 0)
+            m_comboBox->removeItem(pos);
+
+        if (m_comboBox->count() == 0) {
+            m_comboBox->addItem(tr("<No CMake Tool available>"),
+                                Core::Id().toSetting());
+            m_comboBox->setEnabled(false);
+        } else {
+            m_comboBox->setEnabled(true);
+        }
+    }
+
+    void cmakeToolAdded(const Core::Id &id)
+    {
+        const CMakeTool *tool = CMakeToolManager::findById(id);
+        QTC_ASSERT(tool, return);
+
+        m_comboBox->addItem(tool->displayName(), tool->id().toSetting());
+        updateComboBox();
+        refresh();
+    }
+
+    void cmakeToolUpdated(const Core::Id &id)
+    {
+        const int pos = indexOf(id);
+        QTC_ASSERT(pos >= 0, return);
+
+        const CMakeTool *tool = CMakeToolManager::findById(id);
+        QTC_ASSERT(tool, return);
+
+        m_comboBox->setItemText(pos, tool->displayName());
+    }
+
+    void cmakeToolRemoved(const Core::Id &id)
+    {
+        const int pos = indexOf(id);
+        QTC_ASSERT(pos >= 0, return);
+
+        // do not handle the current index changed signal
+        m_removingItem = true;
+        m_comboBox->removeItem(pos);
+        m_removingItem = false;
+
+        // update the checkbox and set the current index
+        updateComboBox();
+        refresh();
+    }
+
+    void currentCMakeToolChanged(int index)
+    {
+        if (m_removingItem)
+            return;
+
+        const Core::Id id = Core::Id::fromSetting(m_comboBox->itemData(index));
+        CMakeKitAspect::setCMakeTool(m_kit, id);
+    }
+
+    void manageCMakeTools()
+    {
+        Core::ICore::showOptionsDialog(Constants::CMAKE_SETTINGSPAGE_ID,
+                                       buttonWidget());
+    }
+
+    bool m_removingItem = false;
+    QComboBox *m_comboBox;
+    QPushButton *m_manageButton;
+};
 
 CMakeKitAspect::CMakeKitAspect()
 {
@@ -146,7 +292,7 @@ KitAspect::ItemList CMakeKitAspect::toUserOutput(const Kit *k) const
 KitAspectWidget *CMakeKitAspect::createConfigWidget(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
-    return new Internal::CMakeKitAspectWidget(k, this);
+    return new CMakeKitAspectWidget(k, this);
 }
 
 void CMakeKitAspect::addToMacroExpander(Kit *k, Utils::MacroExpander *expander) const
@@ -176,6 +322,165 @@ static const char GENERATOR_KEY[] = "Generator";
 static const char EXTRA_GENERATOR_KEY[] = "ExtraGenerator";
 static const char PLATFORM_KEY[] = "Platform";
 static const char TOOLSET_KEY[] = "Toolset";
+
+class CMakeGeneratorKitAspectWidget : public KitAspectWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeGeneratorKitAspect)
+public:
+    CMakeGeneratorKitAspectWidget(Kit *kit, const ::KitAspect *ki)
+        : KitAspectWidget(kit, ki),
+          m_label(new QLabel),
+          m_changeButton(new QPushButton)
+    {
+        m_label->setToolTip(toolTip());
+        m_changeButton->setText(tr("Change..."));
+        refresh();
+        connect(m_changeButton, &QPushButton::clicked,
+                this, &CMakeGeneratorKitAspectWidget::changeGenerator);
+    }
+
+    ~CMakeGeneratorKitAspectWidget() override
+    {
+        delete m_label;
+        delete m_changeButton;
+    }
+
+private:
+    // KitAspectWidget interface
+    QString displayName() const override { return tr("CMake generator"); }
+    void makeReadOnly() override { m_changeButton->setEnabled(false); }
+    QWidget *mainWidget() const override { return m_label; }
+    QWidget *buttonWidget() const override { return m_changeButton; }
+
+    void refresh() override
+    {
+        if (m_ignoreChange)
+            return;
+
+        CMakeTool *const tool = CMakeKitAspect::cmakeTool(m_kit);
+        if (tool != m_currentTool)
+            m_currentTool = tool;
+
+        m_changeButton->setEnabled(m_currentTool);
+        const QString generator = CMakeGeneratorKitAspect::generator(kit());
+        const QString extraGenerator = CMakeGeneratorKitAspect::extraGenerator(kit());
+        const QString platform = CMakeGeneratorKitAspect::platform(kit());
+        const QString toolset = CMakeGeneratorKitAspect::toolset(kit());
+
+        const QString message = tr("%1 - %2, Platform: %3, Toolset: %4")
+                .arg(extraGenerator.isEmpty() ? tr("<none>") : extraGenerator)
+                .arg(generator.isEmpty() ? tr("<none>") : generator)
+                .arg(platform.isEmpty() ? tr("<none>") : platform)
+                .arg(toolset.isEmpty() ? tr("<none>") : toolset);
+        m_label->setText(message);
+    }
+
+    QString toolTip() const override
+    {
+        return tr("CMake generator defines how a project is built when using CMake.<br>"
+                  "This setting is ignored when using other build systems.");
+    }
+
+    void changeGenerator()
+    {
+        QPointer<QDialog> changeDialog = new QDialog(m_changeButton);
+
+        // Disable help button in titlebar on windows:
+        Qt::WindowFlags flags = changeDialog->windowFlags();
+        flags &= ~Qt::WindowContextHelpButtonHint;
+        flags |= Qt::MSWindowsFixedSizeDialogHint;
+        changeDialog->setWindowFlags(flags);
+
+        changeDialog->setWindowTitle(tr("CMake Generator"));
+
+        auto *layout = new QGridLayout(changeDialog);
+        layout->setSizeConstraint(QLayout::SetFixedSize);
+
+        auto *cmakeLabel = new QLabel;
+        cmakeLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+        auto *generatorCombo = new QComboBox;
+        auto *extraGeneratorCombo = new QComboBox;
+        auto *platformEdit = new QLineEdit;
+        auto *toolsetEdit = new QLineEdit;
+
+        int row = 0;
+        layout->addWidget(new QLabel(QLatin1String("Executable:")));
+        layout->addWidget(cmakeLabel, row, 1);
+
+        ++row;
+        layout->addWidget(new QLabel(tr("Generator:")), row, 0);
+        layout->addWidget(generatorCombo, row, 1);
+
+        ++row;
+        layout->addWidget(new QLabel(tr("Extra generator:")), row, 0);
+        layout->addWidget(extraGeneratorCombo, row, 1);
+
+        ++row;
+        layout->addWidget(new QLabel(tr("Platform:")), row, 0);
+        layout->addWidget(platformEdit, row, 1);
+
+        ++row;
+        layout->addWidget(new QLabel(tr("Toolset:")), row, 0);
+        layout->addWidget(toolsetEdit, row, 1);
+
+        ++row;
+        auto *bb = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+        layout->addWidget(bb, row, 0, 1, 2);
+
+        connect(bb, &QDialogButtonBox::accepted, changeDialog.data(), &QDialog::accept);
+        connect(bb, &QDialogButtonBox::rejected, changeDialog.data(), &QDialog::reject);
+
+        cmakeLabel->setText(m_currentTool->cmakeExecutable().toUserOutput());
+
+        QList<CMakeTool::Generator> generatorList = m_currentTool->supportedGenerators();
+        Utils::sort(generatorList, &CMakeTool::Generator::name);
+
+        for (auto it = generatorList.constBegin(); it != generatorList.constEnd(); ++it)
+            generatorCombo->addItem(it->name);
+
+        auto updateDialog = [&generatorList, generatorCombo, extraGeneratorCombo,
+                platformEdit, toolsetEdit](const QString &name) {
+            auto it = std::find_if(generatorList.constBegin(), generatorList.constEnd(),
+                                   [name](const CMakeTool::Generator &g) { return g.name == name; });
+            QTC_ASSERT(it != generatorList.constEnd(), return);
+            generatorCombo->setCurrentText(name);
+
+            extraGeneratorCombo->clear();
+            extraGeneratorCombo->addItem(tr("<none>"), QString());
+            foreach (const QString &eg, it->extraGenerators)
+                extraGeneratorCombo->addItem(eg, eg);
+            extraGeneratorCombo->setEnabled(extraGeneratorCombo->count() > 1);
+
+            platformEdit->setEnabled(it->supportsPlatform);
+            toolsetEdit->setEnabled(it->supportsToolset);
+        };
+
+        updateDialog(CMakeGeneratorKitAspect::generator(kit()));
+
+        generatorCombo->setCurrentText(CMakeGeneratorKitAspect::generator(kit()));
+        extraGeneratorCombo->setCurrentText(CMakeGeneratorKitAspect::extraGenerator(kit()));
+        platformEdit->setText(platformEdit->isEnabled() ? CMakeGeneratorKitAspect::platform(kit()) : QLatin1String("<unsupported>"));
+        toolsetEdit->setText(toolsetEdit->isEnabled() ? CMakeGeneratorKitAspect::toolset(kit()) : QLatin1String("<unsupported>"));
+
+        connect(generatorCombo, &QComboBox::currentTextChanged, updateDialog);
+
+        if (changeDialog->exec() == QDialog::Accepted) {
+            if (!changeDialog)
+                return;
+
+            CMakeGeneratorKitAspect::set(kit(), generatorCombo->currentText(),
+                                         extraGeneratorCombo->currentData().toString(),
+                                         platformEdit->isEnabled() ? platformEdit->text() : QString(),
+                                         toolsetEdit->isEnabled() ? toolsetEdit->text() : QString());
+        }
+    }
+
+    bool m_ignoreChange = false;
+    QLabel *m_label;
+    QPushButton *m_changeButton;
+    CMakeTool *m_currentTool = nullptr;
+};
 
 namespace {
 
@@ -468,7 +773,7 @@ KitAspect::ItemList CMakeGeneratorKitAspect::toUserOutput(const Kit *k) const
 
 KitAspectWidget *CMakeGeneratorKitAspect::createConfigWidget(Kit *k) const
 {
-    return new Internal::CMakeGeneratorKitAspectWidget(k, this);
+    return new CMakeGeneratorKitAspectWidget(k, this);
 }
 
 // --------------------------------------------------------------------
@@ -481,6 +786,118 @@ static const char CMAKE_C_TOOLCHAIN_KEY[] = "CMAKE_C_COMPILER";
 static const char CMAKE_CXX_TOOLCHAIN_KEY[] = "CMAKE_CXX_COMPILER";
 static const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
 static const char CMAKE_PREFIX_PATH_KEY[] = "CMAKE_PREFIX_PATH";
+
+class CMakeConfigurationKitAspectWidget : public KitAspectWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeConfigurationKitAspect)
+public:
+    CMakeConfigurationKitAspectWidget(Kit *kit, const KitAspect *ki)
+        : KitAspectWidget(kit, ki),
+          m_summaryLabel(new Utils::ElidingLabel),
+          m_manageButton(new QPushButton)
+    {
+        refresh();
+        m_manageButton->setText(tr("Change..."));
+        connect(m_manageButton, &QAbstractButton::clicked,
+                this, &CMakeConfigurationKitAspectWidget::editConfigurationChanges);
+    }
+
+private:
+    // KitAspectWidget interface
+    QString displayName() const override { return tr("CMake Configuration"); }
+    QWidget *mainWidget() const override { return m_summaryLabel; }
+    QWidget *buttonWidget() const override { return m_manageButton; }
+
+    void makeReadOnly() override
+    {
+        m_manageButton->setEnabled(false);
+        if (m_dialog)
+            m_dialog->reject();
+    }
+
+    void refresh() override
+    {
+        const QStringList current = CMakeConfigurationKitAspect::toStringList(kit());
+
+        m_summaryLabel->setText(current.join("; "));
+        if (m_editor)
+            m_editor->setPlainText(current.join('\n'));
+    }
+
+    QString toolTip() const override
+    {
+        return tr("Default configuration passed to CMake when setting up a project.");
+    }
+
+    void editConfigurationChanges()
+    {
+        if (m_dialog) {
+            m_dialog->activateWindow();
+            m_dialog->raise();
+            return;
+        }
+
+        QTC_ASSERT(!m_editor, return);
+
+        m_dialog = new QDialog(m_summaryLabel->window());
+        m_dialog->setWindowTitle(tr("Edit CMake Configuration"));
+        auto layout = new QVBoxLayout(m_dialog);
+        m_editor = new QPlainTextEdit;
+        m_editor->setToolTip(tr("Enter one variable per line with the variable name "
+                                "separated from the variable value by \"=\".<br>"
+                                "You may provide a type hint by adding \":TYPE\" before the \"=\"."));
+        m_editor->setMinimumSize(800, 200);
+
+        auto chooser = new Core::VariableChooser(m_dialog);
+        chooser->addSupportedWidget(m_editor);
+        chooser->addMacroExpanderProvider([this]() { return kit()->macroExpander(); });
+
+        auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Apply
+                                            |QDialogButtonBox::Reset|QDialogButtonBox::Cancel);
+
+        layout->addWidget(m_editor);
+        layout->addWidget(buttons);
+
+        connect(buttons, &QDialogButtonBox::accepted, m_dialog, &QDialog::accept);
+        connect(buttons, &QDialogButtonBox::rejected, m_dialog, &QDialog::reject);
+        connect(buttons, &QDialogButtonBox::clicked, m_dialog, [buttons, this](QAbstractButton *button) {
+            if (button != buttons->button(QDialogButtonBox::Reset))
+                return;
+            CMakeConfigurationKitAspect::setConfiguration(kit(),
+                                                          CMakeConfigurationKitAspect::defaultConfiguration(kit()));
+        });
+        connect(m_dialog, &QDialog::accepted, this, &CMakeConfigurationKitAspectWidget::acceptChangesDialog);
+        connect(m_dialog, &QDialog::rejected, this, &CMakeConfigurationKitAspectWidget::closeChangesDialog);
+        connect(buttons->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
+                this, &CMakeConfigurationKitAspectWidget::applyChanges);
+
+        refresh();
+        m_dialog->show();
+    }
+
+    void applyChanges()
+    {
+        QTC_ASSERT(m_editor, return);
+        CMakeConfigurationKitAspect::fromStringList(kit(), m_editor->toPlainText().split(QLatin1Char('\n')));
+    }
+    void closeChangesDialog()
+    {
+        m_dialog->deleteLater();
+        m_dialog = nullptr;
+        m_editor = nullptr;
+    }
+    void acceptChangesDialog()
+    {
+        applyChanges();
+        closeChangesDialog();
+    }
+
+    QLabel *m_summaryLabel;
+    QPushButton *m_manageButton;
+    QDialog *m_dialog = nullptr;
+    QPlainTextEdit *m_editor = nullptr;
+};
+
 
 CMakeConfigurationKitAspect::CMakeConfigurationKitAspect()
 {
@@ -671,7 +1088,8 @@ KitAspectWidget *CMakeConfigurationKitAspect::createConfigWidget(Kit *k) const
 {
     if (!k)
         return nullptr;
-    return new Internal::CMakeConfigurationKitAspectWidget(k, this);
+    return new CMakeConfigurationKitAspectWidget(k, this);
 }
 
+} // namespace Internal
 } // namespace CMakeProjectManager

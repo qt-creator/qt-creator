@@ -27,7 +27,8 @@
 
 #include "debuggeritemmanager.h"
 #include "debuggeritem.h"
-#include "debuggerkitconfigwidget.h"
+
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -37,7 +38,9 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
+#include <QComboBox>
 #include <QFileInfo>
+#include <QPushButton>
 #include <utility>
 
 using namespace ProjectExplorer;
@@ -48,6 +51,99 @@ namespace Debugger {
 // --------------------------------------------------------------------------
 // DebuggerKitAspect
 // --------------------------------------------------------------------------
+
+namespace Internal {
+
+class DebuggerKitAspectWidget : public KitAspectWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerKitAspect)
+
+public:
+    DebuggerKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
+        : KitAspectWidget(workingCopy, ki)
+    {
+        m_comboBox = new QComboBox;
+        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
+        m_comboBox->setEnabled(true);
+
+        refresh();
+        connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, &DebuggerKitAspectWidget::currentDebuggerChanged);
+
+        m_manageButton = new QPushButton(KitAspectWidget::msgManage());
+        m_manageButton->setContentsMargins(0, 0, 0, 0);
+        connect(m_manageButton, &QAbstractButton::clicked,
+                this, &DebuggerKitAspectWidget::manageDebuggers);
+    }
+
+    ~DebuggerKitAspectWidget() override
+    {
+        delete m_comboBox;
+        delete m_manageButton;
+    }
+
+private:
+    QString displayName() const override { return tr("Debugger"); }
+    QString toolTip() const override { return tr("The debugger to use for this kit."); }
+    QWidget *buttonWidget() const override { return m_manageButton; }
+    QWidget *mainWidget() const override { return m_comboBox; }
+
+    void makeReadOnly() override
+    {
+        m_manageButton->setEnabled(false);
+        m_comboBox->setEnabled(false);
+    }
+
+    void refresh() override
+    {
+        m_ignoreChanges = true;
+        m_comboBox->clear();
+        m_comboBox->setToolTip(toolTip());
+        m_comboBox->addItem(tr("None"), QString());
+        for (const DebuggerItem &item : DebuggerItemManager::debuggers())
+            m_comboBox->addItem(item.displayName(), item.id());
+
+        const DebuggerItem *item = DebuggerKitAspect::debugger(m_kit);
+        updateComboBox(item ? item->id() : QVariant());
+        m_ignoreChanges = false;
+    }
+
+    void manageDebuggers()
+    {
+        Core::ICore::showOptionsDialog(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID,
+                                       buttonWidget());
+    }
+
+    void currentDebuggerChanged(int idx)
+    {
+        Q_UNUSED(idx);
+        if (m_ignoreChanges)
+            return;
+
+        int currentIndex = m_comboBox->currentIndex();
+        QVariant id = m_comboBox->itemData(currentIndex);
+        m_kit->setValue(DebuggerKitAspect::id(), id);
+    }
+
+    QVariant currentId() const { return m_comboBox->itemData(m_comboBox->currentIndex()); }
+
+    void updateComboBox(const QVariant &id)
+    {
+        for (int i = 0; i < m_comboBox->count(); ++i) {
+            if (id == m_comboBox->itemData(i)) {
+                m_comboBox->setCurrentIndex(i);
+                return;
+            }
+        }
+        m_comboBox->setCurrentIndex(0);
+    }
+
+    bool m_isReadOnly;
+    bool m_ignoreChanges = false;
+    QComboBox *m_comboBox;
+    QPushButton *m_manageButton;
+};
+} // namespace Internal
 
 DebuggerKitAspect::DebuggerKitAspect()
 {

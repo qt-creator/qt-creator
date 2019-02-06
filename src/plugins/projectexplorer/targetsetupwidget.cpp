@@ -29,7 +29,6 @@
 #include "buildinfo.h"
 #include "projectexplorerconstants.h"
 #include "kit.h"
-#include "kitconfigwidget.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 

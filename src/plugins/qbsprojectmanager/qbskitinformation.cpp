@@ -27,7 +27,6 @@
 
 #include "customqbspropertiesdialog.h"
 
-#include <projectexplorer/kitconfigwidget.h>
 #include <projectexplorer/kitmanager.h>
 
 #include <utils/elidinglabel.h>
@@ -44,7 +43,7 @@ namespace Internal {
 
 class AspectWidget final : public KitAspectWidget
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(QbsProjectManager::Internal::AspectWidget)
 public:
     AspectWidget(Kit *kit, const KitAspect *kitInfo)
         : KitAspectWidget(kit, kitInfo),
@@ -128,5 +127,3 @@ KitAspectWidget *QbsKitAspect::createConfigWidget(Kit *k) const
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#include <qbskitinformation.moc>

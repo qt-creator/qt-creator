@@ -25,7 +25,6 @@
 
 #include "kitchooser.h"
 
-#include "kitconfigwidget.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
 #include "project.h"

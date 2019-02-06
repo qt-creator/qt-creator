@@ -51,7 +51,6 @@ Project {
                 "debuggerinternalconstants.h",
                 "debuggeritem.cpp", "debuggeritem.h",
                 "debuggeritemmanager.cpp", "debuggeritemmanager.h",
-                "debuggerkitconfigwidget.cpp", "debuggerkitconfigwidget.h",
                 "debuggerkitinformation.cpp", "debuggerkitinformation.h",
                 "debuggermainwindow.cpp", "debuggermainwindow.h",
                 "debuggerplugin.cpp", "debuggerplugin.h",

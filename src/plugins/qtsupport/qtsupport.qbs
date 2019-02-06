@@ -76,8 +76,6 @@ Project {
             "qmldumptool.h",
             "qscxmlcgenerator.cpp",
             "qscxmlcgenerator.h",
-            "qtkitconfigwidget.cpp",
-            "qtkitconfigwidget.h",
             "qtkitinformation.cpp",
             "qtkitinformation.h",
             "qtoptionspage.cpp",
