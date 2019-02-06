@@ -28,6 +28,7 @@
 #include <QWidget>
 
 namespace ClangTools {
+namespace Internal {
 
 namespace Ui { class ClangToolsBasicSettings; }
 
@@ -46,4 +47,5 @@ private:
     Ui::ClangToolsBasicSettings *m_ui;
 };
 
+} // namespace Internal
 } // namespace ClangTools
