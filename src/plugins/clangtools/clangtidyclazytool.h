@@ -58,6 +58,8 @@ public:
                            const QString &logFilePath,
                            QString *errorMessage) const final;
 
+    void onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics) override;
+
 private:
     void handleStateUpdate() final;
 

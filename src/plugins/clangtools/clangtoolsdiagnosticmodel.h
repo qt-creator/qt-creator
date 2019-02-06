@@ -146,6 +146,8 @@ public:
     void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);
     ProjectExplorer::Project *project() const { return m_project; }
 
+    void invalidateFilter();
+
 private:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     bool lessThan(const QModelIndex &l, const QModelIndex &r) const override;

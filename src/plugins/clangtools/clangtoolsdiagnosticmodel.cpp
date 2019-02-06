@@ -584,14 +584,32 @@ void DiagnosticFilterModel::addSuppressedDiagnostic(
     invalidate();
 }
 
+void DiagnosticFilterModel::invalidateFilter()
+{
+    QSortFilterProxyModel::invalidateFilter();
+}
+
 bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
         const QModelIndex &sourceParent) const
 {
     auto model = static_cast<ClangToolsDiagnosticModel *>(sourceModel());
-    Utils::TreeItem *item = model->itemForIndex(sourceParent);
+
+    // FilePathItem - hide if no diagnostics match
+    if (!sourceParent.isValid()) {
+        const QModelIndex filePathIndex = model->index(sourceRow, 0);
+        const int rowCount = model->rowCount(filePathIndex);
+        if (rowCount == 0)
+            return true; // Children not yet added.
+        for (int row = 0; row < rowCount; ++row) {
+            if (filterAcceptsRow(row, filePathIndex))
+                return true;
+        }
+        return false;
+    }
 
     // DiagnosticItem
-    if (auto filePathItem = dynamic_cast<FilePathItem *>(item)) {
+    Utils::TreeItem *parentItem = model->itemForIndex(sourceParent);
+    if (auto filePathItem = dynamic_cast<FilePathItem *>(parentItem)) {
         auto diagnosticItem = dynamic_cast<DiagnosticItem *>(filePathItem->childAt(sourceRow));
         QTC_ASSERT(diagnosticItem, return false);
 
@@ -612,7 +630,7 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
         return diag.description.contains(filterRegExp());
     }
 
-    return true;
+    return true; // ExplainingStepItem
 }
 
 bool DiagnosticFilterModel::lessThan(const QModelIndex &l, const QModelIndex &r) const
