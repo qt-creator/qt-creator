@@ -72,15 +72,27 @@ public:
     void FileChanged(clang::SourceLocation sourceLocation,
                      clang::PPCallbacks::FileChangeReason reason,
                      clang::SrcMgr::CharacteristicKind,
-                     clang::FileID) override
+                     clang::FileID previousFileId) override
     {
-        if (reason == clang::PPCallbacks::EnterFile)
-        {
-            const clang::FileEntry *fileEntry = m_sourceManager->getFileEntryForID(
-                        m_sourceManager->getFileID(sourceLocation));
-            if (fileEntry) {
-                addFileStatus(fileEntry);
-                addSourceFile(fileEntry);
+        if (reason == clang::PPCallbacks::EnterFile) {
+            clang::FileID currentFileId = m_sourceManager->getFileID(sourceLocation);
+            if (m_mainFileId.isInvalid()) {
+                m_mainFileId = currentFileId;
+            } else {
+                const clang::FileEntry *fileEntry = m_sourceManager->getFileEntryForID(
+                    currentFileId);
+                if (fileEntry) {
+                    if (previousFileId == m_mainFileId) {
+                        uint sourceFileUID = fileEntry->getUID();
+                        auto notAlreadyIncluded = isNotAlreadyIncluded(sourceFileUID);
+                        if (notAlreadyIncluded.first)
+                            m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second,
+                                                             sourceFileUID);
+                    } else {
+                        addFileStatus(fileEntry);
+                        addSourceFile(fileEntry);
+                    }
+                }
             }
         }
     }
@@ -96,7 +108,8 @@ public:
                             const clang::Module * /*imported*/,
                             clang::SrcMgr::CharacteristicKind fileType) override
     {
-        if (file) {
+        clang::FileID currentFileId = m_sourceManager->getFileID(hashLocation);
+        if (file && currentFileId != m_mainFileId) {
             addSourceDependency(file, hashLocation);
             auto fileUID = file->getUID();
             auto sourceFileUID = m_sourceManager
@@ -343,6 +356,7 @@ private:
     BuildDependency &m_buildDependency;
     const std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
+    clang::FileID m_mainFileId;
 };
 
 } // namespace ClangBackEnd

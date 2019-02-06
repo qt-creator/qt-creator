@@ -25,6 +25,8 @@
 
 #include "googletest.h"
 
+#include "testenvironment.h"
+
 #include <refactoringdatabaseinitializer.h>
 #include <filepathcaching.h>
 #include <generatedfiles.h>
@@ -67,22 +69,15 @@ protected:
     {
         setFilePathCache(&filePathCache);
 
-        collector.addFile(id(TESTDATA_DIR "/builddependencycollector/project/main.cpp"),
-                          {"cc",
-                           "-I",
-                           TESTDATA_DIR "/builddependencycollector/external",
-                           "-I",
-                           TESTDATA_DIR "/builddependencycollector/project",
-                           "-isystem",
-                           TESTDATA_DIR "/builddependencycollector/system"});
-        collector.addFile(id(TESTDATA_DIR "/builddependencycollector/project/main2.cpp"),
-                          {"cc",
-                           "-I",
-                           TESTDATA_DIR "/builddependencycollector/external",
-                           "-I",
-                           TESTDATA_DIR "/builddependencycollector/project",
-                           "-isystem",
-                           TESTDATA_DIR "/builddependencycollector/system"});
+        collector.addFiles({id(TESTDATA_DIR "/builddependencycollector/project/main.cpp"),
+                            id(TESTDATA_DIR "/builddependencycollector/project/main2.cpp")},
+                           {"cc",
+                            "-I",
+                            TESTDATA_DIR "/builddependencycollector/external",
+                            "-I",
+                            TESTDATA_DIR "/builddependencycollector/project",
+                            "-isystem",
+                            TESTDATA_DIR "/builddependencycollector/system"});
 
         collector.addUnsavedFiles(
             {{{TESTDATA_DIR, "BuildDependencyCollector/project/generated_file.h"},
@@ -160,16 +155,18 @@ protected:
 
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    TestEnvironment environment;
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
     ClangBackEnd::GeneratedFiles generatedFiles;
-    ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles};
-    ClangBackEnd::BuildDependencyCollector emptyCollector{filePathCache, generatedFiles};
-    ClangBackEnd::FilePaths excludePaths = {TESTDATA_DIR "/builddependencycollector/project/main.cpp",
-                                            TESTDATA_DIR "/builddependencycollector/project/main2.cpp",
-                                            TESTDATA_DIR "/builddependencycollector/project/header1.h",
-                                            TESTDATA_DIR "/builddependencycollector/project/header2.h",
-                                            TESTDATA_DIR "/builddependencycollector/project/generated_file.h"};
+    ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles, environment};
+    ClangBackEnd::BuildDependencyCollector emptyCollector{filePathCache, generatedFiles, environment};
+    ClangBackEnd::FilePaths excludePaths = {
+        TESTDATA_DIR "/builddependencycollector/project/main.cpp",
+        TESTDATA_DIR "/builddependencycollector/project/main2.cpp",
+        TESTDATA_DIR "/builddependencycollector/project/header1.h",
+        TESTDATA_DIR "/builddependencycollector/project/header2.h",
+        TESTDATA_DIR "/builddependencycollector/project/generated_file.h"};
 };
 
 TEST_F(BuildDependencyCollector, IncludesExternalHeader)
@@ -548,10 +545,26 @@ TEST_F(BuildDependencyCollector, GeneratedFile)
                                SourceType::UserInclude)));
 }
 
+TEST_F(BuildDependencyCollector, CreateFakeFileContent)
+{
+    auto content = collector.generateFakeFileContent(
+        {id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+         id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+         id(TESTDATA_DIR "/builddependencycollector/external/external2.h")});
+
+    ASSERT_THAT(std::string(content),
+                AllOf(HasSubstr("#include \"" TESTDATA_DIR
+                                "/builddependencycollector/project/header2.h\"\n"),
+                      HasSubstr("#include \"" TESTDATA_DIR
+                                "/builddependencycollector/external/external1.h\"\n"),
+                      HasSubstr("#include \"" TESTDATA_DIR
+                                "/builddependencycollector/external/external2.h\"\n")));
+}
+
 TEST_F(BuildDependencyCollector, Create)
 {
     using ClangBackEnd::IncludeSearchPathType;
-    ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles};
+    ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles, environment};
     generatedFiles.update(
         {{TESTDATA_DIR "/builddependencycollector/project/generated_file.h", "#pragma once"}});
     ClangBackEnd::ProjectPartContainer projectPart{
@@ -702,7 +715,7 @@ TEST_F(BuildDependencyCollector, Create)
 TEST_F(BuildDependencyCollector, Clear)
 {
     using ClangBackEnd::IncludeSearchPathType;
-    ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles};
+    ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles, environment};
     ClangBackEnd::ProjectPartContainer projectPart{
         "project1",
         {},
