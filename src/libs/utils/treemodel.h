@@ -148,6 +148,11 @@ public:
         };
         TreeItem::insertOrderedChild(item, cmp0);
     }
+
+    ChildType *reverseFindAnyChild(const std::function<bool(TreeItem *)> &pred) const
+    {
+        return static_cast<ChildType *>(TreeItem::reverseFindAnyChild(pred));
+    }
 };
 
 class QTCREATOR_UTILS_EXPORT StaticTreeItem : public TreeItem
