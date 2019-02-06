@@ -611,6 +611,7 @@ public:
     void updateCodeFoldingVisible();
 
     void reconfigure();
+    void updateSyntaxInfoBar(bool showInfo);
 
 public:
     TextEditorWidget *q;
@@ -768,8 +769,6 @@ public:
 
     QScopedPointer<ClipboardAssistProvider> m_clipboardAssistProvider;
 
-    bool m_isMissingSyntaxDefinition = false;
-
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
 
@@ -903,33 +902,6 @@ void TextEditorWidgetPrivate::showTextMarksToolTip(const QPoint &pos,
 }
 
 } // namespace Internal
-
-/*!
- * Test if syntax highlighter is available (or unneeded) for \a widget.
- * If not found, show a warning with a link to the relevant settings page.
- */
-static void updateEditorInfoBar(TextEditorWidget *widget)
-{
-    Id id(Constants::INFO_SYNTAX_DEFINITION);
-    InfoBar *infoBar = widget->textDocument()->infoBar();
-    if (!widget->isMissingSyntaxDefinition()) {
-        infoBar->removeInfo(id);
-    } else if (infoBar->canInfoBeAdded(id)) {
-        InfoBarEntry info(id,
-                          BaseTextEditor::tr("A highlight definition was not found for this file. "
-                                             "Would you like to update highlight definition files?"),
-                          InfoBarEntry::GlobalSuppressionEnabled);
-        info.setCustomButtonInfo(BaseTextEditor::tr("Update Definitions"), [id, widget]() {
-            widget->textDocument()->infoBar()->removeInfo(id);
-            Highlighter::updateDefinitions([widget = QPointer<TextEditorWidget>(widget)]() {
-                if (widget)
-                    widget->configureGenericHighlighter();
-            });
-        });
-
-        infoBar->addInfo(info);
-    }
-}
 
 QString TextEditorWidget::plainTextFromSelection(const QTextCursor &cursor) const
 {
@@ -3299,6 +3271,30 @@ void TextEditorWidgetPrivate::reconfigure()
 {
     m_document->setMimeType(Utils::mimeTypeForFile(m_document->filePath().toString()).name());
     q->configureGenericHighlighter();
+}
+
+void TextEditorWidgetPrivate::updateSyntaxInfoBar(bool showInfo)
+{
+    Id id(Constants::INFO_SYNTAX_DEFINITION);
+    InfoBar *infoBar = m_document->infoBar();
+
+    if (showInfo) {
+        InfoBarEntry info(id,
+                          BaseTextEditor::tr(
+                              "A highlight definition was not found for this file. "
+                              "Would you like to update highlight definition files?"),
+                          InfoBarEntry::GlobalSuppressionEnabled);
+        info.setCustomButtonInfo(BaseTextEditor::tr("Update Definitions"), [&]() {
+            m_document->infoBar()->removeInfo(id);
+            Highlighter::updateDefinitions([widget = QPointer<TextEditorWidget>(q)]() {
+                if (widget)
+                    widget->configureGenericHighlighter();
+            });
+        });
+        infoBar->addInfo(info);
+    } else {
+        infoBar->removeInfo(id);
+    }
 }
 
 bool TextEditorWidget::codeFoldingVisible() const
@@ -8514,20 +8510,17 @@ void TextEditorWidget::configureGenericHighlighter()
 
     if (definition.isValid()) {
         highlighter->setDefinition(definition);
-        d->m_isMissingSyntaxDefinition = false;
         d->m_commentDefinition.singleLine = definition.singleLineCommentMarker();
         d->m_commentDefinition.multiLineStart = definition.multiLineCommentMarker().first;
         d->m_commentDefinition.multiLineEnd = definition.multiLineCommentMarker().second;
 
         setCodeFoldingSupported(true);
-    } else {
-        d->m_isMissingSyntaxDefinition =
-            !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName);
     }
 
-    textDocument()->setFontSettings(TextEditorSettings::fontSettings());
+    d->updateSyntaxInfoBar(!definition.isValid()
+            && !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName));
 
-    updateEditorInfoBar(this);
+    textDocument()->setFontSettings(TextEditorSettings::fontSettings());
 }
 
 int TextEditorWidget::blockNumberForVisibleRow(int row) const
@@ -8560,11 +8553,6 @@ int TextEditorWidget::centerVisibleBlockNumber() const
 HighlightScrollBarController *TextEditorWidget::highlightScrollBarController() const
 {
     return d->m_highlightScrollBarController;
-}
-
-bool TextEditorWidget::isMissingSyntaxDefinition() const
-{
-    return d->m_isMissingSyntaxDefinition;
 }
 
 // The remnants of PlainTextEditor.
