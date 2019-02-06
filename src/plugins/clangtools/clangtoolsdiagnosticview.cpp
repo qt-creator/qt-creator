@@ -154,32 +154,32 @@ QModelIndex DiagnosticView::getIndex(const QModelIndex &index, Direction directi
 {
     QModelIndex parentIndex = index.parent();
 
-    // Use direct sibling for level 2 and 3 items is possible
+    // Use direct sibling for level 2 and 3 items if possible
     if (parentIndex.isValid()) {
-        const QModelIndex nextIndex = index.sibling(index.row() + direction, index.column());
-        if (nextIndex.isValid())
-            return nextIndex;
+        const QModelIndex followingIndex = index.sibling(index.row() + direction, index.column());
+        if (followingIndex.isValid())
+            return followingIndex;
     }
 
     // Last level 3 item? Continue on level 2 item
     if (parentIndex.parent().isValid())
         return getIndex(parentIndex, direction);
 
-    // Find next/previous level 2 item
-    QModelIndex nextTopIndex = getTopLevelIndex(parentIndex.isValid() ? parentIndex : index,
-                                                direction);
-    while (!model()->hasChildren(nextTopIndex))
-        nextTopIndex = getTopLevelIndex(nextTopIndex, direction);
-    return model()->index(direction == Next ? 0 : model()->rowCount(nextTopIndex) - 1,
+    // Find following level 2 item
+    QModelIndex followingTopIndex = getTopLevelIndex(parentIndex.isValid() ? parentIndex : index,
+                                                     direction);
+    while (!model()->hasChildren(followingTopIndex))
+        followingTopIndex = getTopLevelIndex(followingTopIndex, direction);
+    return model()->index(direction == Next ? 0 : model()->rowCount(followingTopIndex) - 1,
                           0,
-                          nextTopIndex);
+                          followingTopIndex);
 }
 
 QModelIndex DiagnosticView::getTopLevelIndex(const QModelIndex &index, Direction direction) const
 {
-    QModelIndex below = index.sibling(index.row() + direction, 0);
-    if (below.isValid())
-        return below;
+    QModelIndex following = index.sibling(index.row() + direction, 0);
+    if (following.isValid())
+        return following;
     return model()->index(direction == Next ? 0 : model()->rowCount(index) - 1, 0);
 }
 
