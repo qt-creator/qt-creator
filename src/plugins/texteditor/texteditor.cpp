@@ -8499,8 +8499,7 @@ void TextEditorWidget::configureGenericHighlighter()
 
     setCodeFoldingSupported(false);
 
-    const KSyntaxHighlighting::Definition definition =
-        Highlighter::definitionForDocument(textDocument());
+    const Highlighter::Definition definition = Highlighter::definitionForDocument(textDocument());
 
     if (definition.isValid()) {
         highlighter->setDefinition(definition);

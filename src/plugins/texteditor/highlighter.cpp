@@ -100,10 +100,10 @@ Highlighter::Highlighter()
                             &categoryForTextStyle);
 }
 
-KSyntaxHighlighting::Definition Highlighter::definitionForDocument(const TextDocument *document)
+Highlighter::Definition Highlighter::definitionForDocument(const TextDocument *document)
 {
     const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
-    KSyntaxHighlighting::Definition definition;
+    Definition definition;
     if (mimeType.isValid())
         definition = Highlighter::definitionForMimeType(mimeType.name());
     if (!definition.isValid())
@@ -111,12 +111,12 @@ KSyntaxHighlighting::Definition Highlighter::definitionForDocument(const TextDoc
     return definition;
 }
 
-KSyntaxHighlighting::Definition Highlighter::definitionForMimeType(const QString &mimeType)
+Highlighter::Definition Highlighter::definitionForMimeType(const QString &mimeType)
 {
     return highlightRepository()->definitionForMimeType(mimeType);
 }
 
-KSyntaxHighlighting::Definition Highlighter::definitionForFileName(const QString &fileName)
+Highlighter::Definition Highlighter::definitionForFileName(const QString &fileName)
 {
     return highlightRepository()->definitionForFileName(fileName);
 }

@@ -39,11 +39,12 @@ class TextDocument;
 class Highlighter : public SyntaxHighlighter, public KSyntaxHighlighting::AbstractHighlighter
 {
 public:
+    using Definition = KSyntaxHighlighting::Definition;
     Highlighter();
 
-    static KSyntaxHighlighting::Definition definitionForDocument(const TextDocument *document);
-    static KSyntaxHighlighting::Definition definitionForMimeType(const QString &mimeType);
-    static KSyntaxHighlighting::Definition definitionForFileName(const QString &fileName);
+    static Definition definitionForDocument(const TextDocument *document);
+    static Definition definitionForMimeType(const QString &mimeType);
+    static Definition definitionForFileName(const QString &fileName);
 
     static void addCustomHighlighterPath(const Utils::FileName &path);
     static void updateDefinitions(std::function<void()> callback = nullptr);
