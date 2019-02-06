@@ -61,6 +61,8 @@ public:
     void setCustomButtonInfo(const QString &_buttonText, CallBack callBack);
     void setCancelButtonInfo(CallBack callBack);
     void setCancelButtonInfo(const QString &_cancelButtonText, CallBack callBack);
+    using ComboCallBack = std::function<void(const QString &)>;
+    void setComboInfo(const QStringList &list, ComboCallBack callBack);
     void removeCancelButton();
 
     using DetailsWidgetCreator = std::function<QWidget*()>;
@@ -76,6 +78,8 @@ private:
     GlobalSuppressionMode m_globalSuppression;
     DetailsWidgetCreator m_detailsWidgetCreator;
     bool m_useCancelButton = true;
+    ComboCallBack m_comboCallBack;
+    QStringList m_comboInfo;
     friend class InfoBar;
     friend class InfoBarDisplay;
 };

@@ -36,6 +36,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QToolButton>
+#include <QComboBox>
 
 static const char C_SUPPRESSED_WARNINGS[] = "SuppressedWarnings";
 
@@ -71,6 +72,12 @@ void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, CallBac
     m_useCancelButton = true;
     m_cancelButtonText = _cancelButtonText;
     m_cancelButtonCallBack = callBack;
+}
+
+void InfoBarEntry::setComboInfo(const QStringList &list, InfoBarEntry::ComboCallBack callBack)
+{
+    m_comboCallBack = callBack;
+    m_comboInfo = list;
 }
 
 void InfoBarEntry::removeCancelButton()
@@ -242,7 +249,7 @@ void InfoBarDisplay::update()
 
         QLabel *infoWidgetLabel = new QLabel(info.m_infoText);
         infoWidgetLabel->setWordWrap(true);
-        hbox->addWidget(infoWidgetLabel);
+        hbox->addWidget(infoWidgetLabel, 1);
 
         if (info.m_detailsWidgetCreator) {
             if (m_isShowingDetailsWidget) {
@@ -268,6 +275,16 @@ void InfoBarDisplay::update()
             hbox->addWidget(showDetailsButton);
         } else {
             m_isShowingDetailsWidget = false;
+        }
+
+        if (!info.m_comboInfo.isEmpty()) {
+            auto cb = new QComboBox();
+            cb->addItems(info.m_comboInfo);
+            connect(cb, &QComboBox::currentTextChanged, [info](const QString &text) {
+                info.m_comboCallBack(text);
+            });
+
+            hbox->addWidget(cb);
         }
 
         if (!info.m_buttonText.isEmpty()) {
