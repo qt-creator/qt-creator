@@ -282,7 +282,7 @@ void BaseStringAspect::update()
     }
 
     if (d->m_lineEditDisplay) {
-        d->m_lineEditDisplay->setText(displayedString);
+        d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
         d->m_lineEditDisplay->setEnabled(enabled);
     }
 
