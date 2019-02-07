@@ -57,8 +57,6 @@ public:
 
     Internal::QbsProject *project() const override;
 
-    ProjectExplorer::IOutputParser *createOutputParser() const;
-
     bool isEnabled() const override;
     QString disabledReason() const override;
 

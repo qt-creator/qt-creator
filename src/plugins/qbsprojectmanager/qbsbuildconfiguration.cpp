@@ -179,12 +179,6 @@ Internal::QbsProject *QbsBuildConfiguration::project() const
     return qobject_cast<Internal::QbsProject *>(BuildConfiguration::project());
 }
 
-IOutputParser *QbsBuildConfiguration::createOutputParser() const
-{
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    return tc ? tc->outputParser() : nullptr;
-}
-
 bool QbsBuildConfiguration::isEnabled() const
 {
     return !project()->isParsing() && project()->hasParseResult();
