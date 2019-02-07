@@ -63,9 +63,7 @@ enum { backEndStartTimeOutInMs = 10000 };
 
 static QString backendProcessPath()
 {
-    return Core::ICore::libexecPath()
-            + QStringLiteral("/clangbackend")
-            + QStringLiteral(QTC_HOST_EXE_SUFFIX);
+    return Core::ICore::libexecPath() + "/clangbackend" + QTC_HOST_EXE_SUFFIX;
 }
 
 namespace ClangCodeModel {
@@ -121,7 +119,7 @@ BackendCommunicator::~BackendCommunicator()
 void BackendCommunicator::initializeBackend()
 {
     const QString clangBackEndProcessPath = backendProcessPath();
-    if (!QFileInfo(clangBackEndProcessPath).exists()) {
+    if (!QFileInfo::exists(clangBackEndProcessPath)) {
         logExecutableDoesNotExist();
         return;
     }
