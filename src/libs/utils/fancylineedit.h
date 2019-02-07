@@ -82,6 +82,8 @@ public:
     explicit FancyLineEdit(QWidget *parent = nullptr);
     ~FancyLineEdit() override;
 
+    void setTextKeepingActiveCursor(const QString &text);
+
     QIcon buttonIcon(Side side) const;
     void setButtonIcon(Side side, const QIcon &icon);
 
