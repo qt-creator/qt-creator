@@ -152,35 +152,38 @@ void DiagnosticView::goBack()
 
 QModelIndex DiagnosticView::getIndex(const QModelIndex &index, Direction direction) const
 {
-    QModelIndex parentIndex = index.parent();
+    const QModelIndex parentIndex = index.parent();
+    QModelIndex followingTopIndex = index;
 
-    // Use direct sibling for level 2 and 3 items is possible
     if (parentIndex.isValid()) {
-        const QModelIndex nextIndex = index.sibling(index.row() + direction, index.column());
-        if (nextIndex.isValid())
-            return nextIndex;
+        // Use direct sibling for level 2 and 3 items
+        const QModelIndex followingIndex = index.sibling(index.row() + direction, 0);
+        if (followingIndex.isValid())
+            return followingIndex;
+
+        // First/Last level 3 item? Continue on level 2 item.
+        if (parentIndex.parent().isValid())
+            return direction == Previous ? parentIndex : getIndex(parentIndex, direction);
+
+        followingTopIndex = getTopLevelIndex(parentIndex, direction);
     }
 
-    // Last level 3 item? Continue on level 2 item
-    if (parentIndex.parent().isValid())
-        return getIndex(parentIndex, direction);
+    // Skip top level items without children
+    while (!model()->hasChildren(followingTopIndex))
+        followingTopIndex = getTopLevelIndex(followingTopIndex, direction);
 
-    // Find next/previous level 2 item
-    QModelIndex nextTopIndex = getTopLevelIndex(parentIndex.isValid() ? parentIndex : index,
-                                                direction);
-    while (!model()->hasChildren(nextTopIndex))
-        nextTopIndex = getTopLevelIndex(nextTopIndex, direction);
-    return model()->index(direction == Next ? 0 : model()->rowCount(nextTopIndex) - 1,
-                          0,
-                          nextTopIndex);
+    // Select first/last level 2 item
+    const int row = direction == Next ? 0 : model()->rowCount(followingTopIndex) - 1;
+    return model()->index(row, 0, followingTopIndex);
 }
 
 QModelIndex DiagnosticView::getTopLevelIndex(const QModelIndex &index, Direction direction) const
 {
-    QModelIndex below = index.sibling(index.row() + direction, 0);
-    if (below.isValid())
-        return below;
-    return model()->index(direction == Next ? 0 : model()->rowCount(index) - 1, 0);
+    QModelIndex following = index.sibling(index.row() + direction, 0);
+    if (following.isValid())
+        return following;
+    const int row = direction == Next ? 0 : model()->rowCount() - 1;
+    return model()->index(row, 0);
 }
 
 QList<QAction *> DiagnosticView::customActions() const

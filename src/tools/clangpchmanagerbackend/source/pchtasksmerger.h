@@ -32,7 +32,7 @@ namespace ClangBackEnd {
 
 class PchTaskQueueInterface;
 
-class PchTasksMerger : public PchTasksMergerInterface
+class PchTasksMerger final : public PchTasksMergerInterface
 {
 public:
     PchTasksMerger(PchTaskQueueInterface &pchTaskQueue)
@@ -41,6 +41,18 @@ public:
 
     void mergeTasks(PchTaskSets &&taskSets, Utils::SmallStringVector &&toolChainArguments) override;
     void removePchTasks(const Utils::SmallStringVector &projectPartIds) override;
+
+    static CompilerMacros mergeMacros(const CompilerMacros &firstCompilerMacros,
+                                      const CompilerMacros &secondCompilerMacros);
+    static bool hasDuplicates(const CompilerMacros &compilerMacros);
+
+    static bool mergePchTasks(PchTask &first, PchTask &second);
+
+    static void mergePchTasks(PchTasks &tasks);
+
+private:
+    void addProjectTasksToQueue(PchTaskSets &taskSets);
+    void mergeSystemTasks(PchTaskSets &taskSets);
 
 private:
     PchTaskQueueInterface &m_pchTaskQueue;

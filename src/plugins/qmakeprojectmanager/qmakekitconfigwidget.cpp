@@ -55,7 +55,7 @@ QWidget *QmakeKitConfigWidget::mainWidget() const
 
 QString QmakeKitConfigWidget::displayName() const
 {
-    return tr("Qt mkspec:");
+    return tr("Qt mkspec");
 }
 
 QString QmakeKitConfigWidget::toolTip() const

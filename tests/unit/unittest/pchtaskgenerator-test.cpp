@@ -99,7 +99,6 @@ TEST_F(PchTaskGenerator, AddProjectParts)
                         Field(&PchTask::allIncludes, IsEmpty()),
                         Field(&PchTask::compilerMacros,
                               ElementsAre(CompilerMacro{"SE", "4", 4}, CompilerMacro{"WU", "5", 5})),
-                        Field(&PchTask::usedMacros, ElementsAre(UsedMacro{"SE", 4}, UsedMacro{"WU", 5})),
                         Field(&PchTask::systemIncludeSearchPaths,
                               ElementsAre(
                                   IncludeSearchPath{"/system/path", 2, IncludeSearchPathType::System},
@@ -120,7 +119,6 @@ TEST_F(PchTaskGenerator, AddProjectParts)
                         Field(&PchTask::allIncludes, ElementsAre(1, 2, 3, 4, 5)),
                         Field(&PchTask::compilerMacros,
                               ElementsAre(CompilerMacro{"YI", "1", 1}, CompilerMacro{"SAN", "3", 3})),
-                        Field(&PchTask::usedMacros, ElementsAre(UsedMacro{"YI", 1}, UsedMacro{"SAN", 3})),
                         Field(&PchTask::systemIncludeSearchPaths,
                               ElementsAre(
                                   IncludeSearchPath{"/system/path", 2, IncludeSearchPathType::System},

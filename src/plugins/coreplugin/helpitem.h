@@ -78,6 +78,7 @@ public:
     QString extractContent(bool extended) const;
 
     const QMap<QString, QUrl> &links() const;
+    const QUrl bestLink() const;
 
 private:
     QUrl m_helpUrl;

@@ -43,7 +43,7 @@ public:
             FilePathIds &&includes,
             FilePathIds &&allIncludes,
             CompilerMacros &&compilerMacros,
-            UsedMacros &&usedMacros,
+            Utils::SmallStringVector &&usedMacros,
             Utils::SmallStringVector toolChainArguments,
             IncludeSearchPaths systemIncludeSearchPaths,
             IncludeSearchPaths projectIncludeSearchPaths,
@@ -54,7 +54,6 @@ public:
         , includes(includes)
         , allIncludes(allIncludes)
         , compilerMacros(compilerMacros)
-        , usedMacros(usedMacros)
         , systemIncludeSearchPaths(std::move(systemIncludeSearchPaths))
         , projectIncludeSearchPaths(std::move(projectIncludeSearchPaths))
         , toolChainArguments(std::move(toolChainArguments))
@@ -67,7 +66,7 @@ public:
             FilePathIds &&includes,
             FilePathIds &&allIncludes,
             CompilerMacros &&compilerMacros,
-            UsedMacros &&usedMacros,
+            Utils::SmallStringVector &&usedMacros,
             Utils::SmallStringVector toolChainArguments,
             IncludeSearchPaths systemIncludeSearchPaths,
             IncludeSearchPaths projectIncludeSearchPaths,
@@ -78,7 +77,6 @@ public:
         , includes(includes)
         , allIncludes(allIncludes)
         , compilerMacros(compilerMacros)
-        , usedMacros(usedMacros)
         , systemIncludeSearchPaths(std::move(systemIncludeSearchPaths))
         , projectIncludeSearchPaths(std::move(projectIncludeSearchPaths))
         , toolChainArguments(std::move(toolChainArguments))
@@ -92,7 +90,6 @@ public:
         return first.systemPchPath == second.systemPchPath
                && first.projectPartIds == second.projectPartIds && first.includes == second.includes
                && first.compilerMacros == second.compilerMacros
-               && first.usedMacros == second.usedMacros
                && first.systemIncludeSearchPaths == second.systemIncludeSearchPaths
                && first.projectIncludeSearchPaths == second.projectIncludeSearchPaths
                && first.toolChainArguments == second.toolChainArguments
@@ -109,13 +106,13 @@ public:
     FilePathIds includes;
     FilePathIds allIncludes;
     CompilerMacros compilerMacros;
-    UsedMacros usedMacros;
     IncludeSearchPaths systemIncludeSearchPaths;
     IncludeSearchPaths projectIncludeSearchPaths;
     Utils::SmallStringVector toolChainArguments;
     Utils::Language language = Utils::Language::Cxx;
     Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX98;
     Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None;
+    bool isMerged = false;
 };
 
 class PchTaskSet

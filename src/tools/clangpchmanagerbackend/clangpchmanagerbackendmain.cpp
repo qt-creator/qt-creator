@@ -55,6 +55,7 @@
 #include <QTemporaryDir>
 #include <QTimer>
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 using namespace std::chrono_literals;
@@ -183,16 +184,6 @@ struct Data // because we have a cycle dependency
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
     ClangBackEnd::ProgressCounter progressCounter{
         [&](int progress, int total) { clangPchManagerServer.setProgress(progress, total); }};
-    TaskScheduler systemTaskScheduler{pchCreatorManager,
-                                      pchTaskQueue,
-                                      progressCounter,
-                                      std::thread::hardware_concurrency(),
-                                      ClangBackEnd::CallDoInMainThreadAfterFinished::No};
-    TaskScheduler projectTaskScheduler{pchCreatorManager,
-                                       pchTaskQueue,
-                                       progressCounter,
-                                       std::thread::hardware_concurrency(),
-                                       ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
     ClangBackEnd::PchTaskQueue pchTaskQueue{systemTaskScheduler,
                                             projectTaskScheduler,
                                             progressCounter,
@@ -212,10 +203,32 @@ struct Data // because we have a cycle dependency
                                                                     database};
     ClangBackEnd::PchTaskGenerator pchTaskGenerator{buildDependencyProvider, pchTaskMerger};
     PchManagerServer clangPchManagerServer{includeWatcher, pchTaskGenerator, projectParts, generatedFiles};
+    TaskScheduler systemTaskScheduler{pchCreatorManager,
+                                      pchTaskQueue,
+                                      progressCounter,
+                                      std::thread::hardware_concurrency(),
+                                      ClangBackEnd::CallDoInMainThreadAfterFinished::No};
+    TaskScheduler projectTaskScheduler{pchCreatorManager,
+                                       pchTaskQueue,
+                                       progressCounter,
+                                       std::thread::hardware_concurrency(),
+                                       ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
 };
+
+#ifdef Q_OS_WIN
+static void messageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
+{
+    std::wcout << msg.toStdWString() << std::endl;
+    if (type == QtFatalMsg)
+        abort();
+}
+#endif
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_WIN
+    qInstallMessageHandler(messageOutput);
+#endif
     try {
         QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
         QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));

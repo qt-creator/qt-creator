@@ -82,7 +82,7 @@ SysRootInformationConfigWidget::~SysRootInformationConfigWidget()
 
 QString SysRootInformationConfigWidget::displayName() const
 {
-    return tr("Sysroot:");
+    return tr("Sysroot");
 }
 
 QString SysRootInformationConfigWidget::toolTip() const
@@ -177,7 +177,7 @@ ToolChainInformationConfigWidget::~ToolChainInformationConfigWidget()
 
 QString ToolChainInformationConfigWidget::displayName() const
 {
-    return tr("Compiler:");
+    return tr("Compiler");
 }
 
 QString ToolChainInformationConfigWidget::toolTip() const
@@ -285,7 +285,7 @@ QWidget *DeviceTypeInformationConfigWidget::mainWidget() const
 
 QString DeviceTypeInformationConfigWidget::displayName() const
 {
-    return tr("Device type:");
+    return tr("Device type");
 }
 
 QString DeviceTypeInformationConfigWidget::toolTip() const
@@ -358,7 +358,7 @@ QWidget *DeviceInformationConfigWidget::mainWidget() const
 
 QString DeviceInformationConfigWidget::displayName() const
 {
-    return tr("Device:");
+    return tr("Device");
 }
 
 QString DeviceInformationConfigWidget::toolTip() const
@@ -437,7 +437,7 @@ QWidget *KitEnvironmentConfigWidget::mainWidget() const
 
 QString KitEnvironmentConfigWidget::displayName() const
 {
-    return tr("Environment:");
+    return tr("Environment");
 }
 
 QString KitEnvironmentConfigWidget::toolTip() const

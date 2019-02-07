@@ -67,13 +67,13 @@ public:
     void setDetailsWidgetCreator(const DetailsWidgetCreator &creator);
 
 private:
-    Id id;
-    QString infoText;
-    QString buttonText;
+    Id m_id;
+    QString m_infoText;
+    QString m_buttonText;
     CallBack m_buttonCallBack;
-    QString cancelButtonText;
+    QString m_cancelButtonText;
     CallBack m_cancelButtonCallBack;
-    GlobalSuppressionMode globalSuppression;
+    GlobalSuppressionMode m_globalSuppression;
     DetailsWidgetCreator m_detailsWidgetCreator;
     bool m_useCancelButton = true;
     friend class InfoBar;

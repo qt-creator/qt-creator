@@ -66,6 +66,8 @@ void PchManagerServer::updateProjectParts(UpdateProjectPartsMessage &&message)
     if (m_generatedFiles.isValid()) {
         m_pchTaskGenerator.addProjectParts(std::move(newProjectParts),
                                            std::move(message.toolChainArguments));
+    } else  {
+        m_projectParts.updateDeferred(newProjectParts);
     }
 }
 

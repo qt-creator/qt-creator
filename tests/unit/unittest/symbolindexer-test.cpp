@@ -241,12 +241,6 @@ protected:
     Manager collectorManger{generatedFiles};
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
-    Scheduler indexerScheduler{collectorManger,
-                               indexerQueue,
-                               progressCounter,
-                               1,
-                               ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
-    SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter};
     ClangBackEnd::SymbolIndexer indexer{indexerQueue,
                                         mockSymbolStorage,
                                         mockBuildDependenciesStorage,
@@ -254,6 +248,12 @@ protected:
                                         filePathCache,
                                         fileStatusCache,
                                         mockSqliteTransactionBackend};
+    SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter};
+    Scheduler indexerScheduler{collectorManger,
+                               indexerQueue,
+                               progressCounter,
+                               1,
+                               ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
     MockSymbolsCollector &mockCollector{static_cast<MockSymbolsCollector&>(collectorManger.unusedProcessor())};
 };
 
@@ -269,7 +269,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
                                     "c++-header",
                                     "-std=c++14",
                                     "-nostdinc",
-                                    "-nostdlibinc",
+                                    "-nostdinc++",
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
@@ -299,7 +299,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInColl
                                     "c++-header",
                                     "-std=c++14",
                                     "-nostdinc",
-                                    "-nostdlibinc",
+                                    "-nostdinc++",
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
@@ -332,7 +332,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithoutPrecompiledHeaderInC
                                     "c++-header",
                                     "-std=c++14",
                                     "-nostdinc",
-                                    "-nostdlibinc",
+                                    "-nostdinc++",
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
@@ -512,7 +512,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithoutProjectPartArtifact)
                                     "c++-header",
                                     "-std=c++14",
                                     "-nostdinc",
-                                    "-nostdlibinc",
+                                    "-nostdinc++",
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
@@ -564,7 +564,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithProjectPartArtifact)
                                     "c++-header",
                                     "-std=c++14",
                                     "-nostdinc",
-                                    "-nostdlibinc",
+                                    "-nostdinc++",
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
@@ -620,7 +620,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
                                     "c++-header",
                                     "-std=c++14",
                                     "-nostdinc",
-                                    "-nostdlibinc",
+                                    "-nostdinc++",
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
@@ -682,7 +682,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsUsingPrecompiledHeader)
                                     "c++-header",
                                     "-std=c++14",
                                     "-nostdinc",
-                                    "-nostdlibinc",
+                                    "-nostdinc++",
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
@@ -717,7 +717,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsNotUsingPrecompiledHeaderIfItNotExists)
                                     "c++-header",
                                     "-std=c++14",
                                     "-nostdinc",
-                                    "-nostdlibinc",
+                                    "-nostdinc++",
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",

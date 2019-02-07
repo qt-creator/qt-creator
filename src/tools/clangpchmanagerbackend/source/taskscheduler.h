@@ -80,6 +80,11 @@ public:
         , m_callDoInMainThreadAfterFinished(callDoInMainThreadAfterFinished)
     {}
 
+    ~TaskScheduler()
+    {
+        syncTasks();
+    }
+
     void addTasks(std::vector<Task> &&tasks)
     {
         for (auto &task : tasks) {

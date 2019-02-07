@@ -95,8 +95,6 @@ public:
 
     bool isClean() const;
 
-
-
 private:
     RefactoringCompilationDatabase m_compilationDatabase;
     std::vector<FileContent> m_fileContents;

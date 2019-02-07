@@ -48,15 +48,15 @@ QSettings *InfoBar::m_settings = nullptr;
 Utils::Theme *InfoBar::m_theme = nullptr;
 
 InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppressionMode _globalSuppression)
-    : id(_id)
-    , infoText(_infoText)
-    , globalSuppression(_globalSuppression)
+    : m_id(_id)
+    , m_infoText(_infoText)
+    , m_globalSuppression(_globalSuppression)
 {
 }
 
 void InfoBarEntry::setCustomButtonInfo(const QString &_buttonText, CallBack callBack)
 {
-    buttonText = _buttonText;
+    m_buttonText = _buttonText;
     m_buttonCallBack = callBack;
 }
 
@@ -69,14 +69,14 @@ void InfoBarEntry::setCancelButtonInfo(CallBack callBack)
 void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, CallBack callBack)
 {
     m_useCancelButton = true;
-    cancelButtonText = _cancelButtonText;
+    m_cancelButtonText = _cancelButtonText;
     m_cancelButtonCallBack = callBack;
 }
 
 void InfoBarEntry::removeCancelButton()
 {
     m_useCancelButton = false;
-    cancelButtonText.clear();
+    m_cancelButtonText.clear();
     m_cancelButtonCallBack = nullptr;
 }
 
@@ -94,14 +94,14 @@ void InfoBar::addInfo(const InfoBarEntry &info)
 void InfoBar::removeInfo(Id id)
 {
     const int size = m_infoBarEntries.size();
-    Utils::erase(m_infoBarEntries, Utils::equal(&InfoBarEntry::id, id));
+    Utils::erase(m_infoBarEntries, Utils::equal(&InfoBarEntry::m_id, id));
     if (size != m_infoBarEntries.size())
         emit changed();
 }
 
 bool InfoBar::containsInfo(Id id) const
 {
-    return Utils::anyOf(m_infoBarEntries, Utils::equal(&InfoBarEntry::id, id));
+    return Utils::anyOf(m_infoBarEntries, Utils::equal(&InfoBarEntry::m_id, id));
 }
 
 // Remove and suppress id
@@ -240,7 +240,7 @@ void InfoBarDisplay::update()
         vbox->setMargin(0);
         vbox->addLayout(hbox);
 
-        QLabel *infoWidgetLabel = new QLabel(info.infoText);
+        QLabel *infoWidgetLabel = new QLabel(info.m_infoText);
         infoWidgetLabel->setWordWrap(true);
         hbox->addWidget(infoWidgetLabel);
 
@@ -270,17 +270,17 @@ void InfoBarDisplay::update()
             m_isShowingDetailsWidget = false;
         }
 
-        if (!info.buttonText.isEmpty()) {
+        if (!info.m_buttonText.isEmpty()) {
             auto infoWidgetButton = new QToolButton;
-            infoWidgetButton->setText(info.buttonText);
+            infoWidgetButton->setText(info.m_buttonText);
             connect(infoWidgetButton, &QAbstractButton::clicked, [info]() { info.m_buttonCallBack(); });
 
             hbox->addWidget(infoWidgetButton);
         }
 
-        const Id id = info.id;
+        const Id id = info.m_id;
         QToolButton *infoWidgetSuppressButton = nullptr;
-        if (info.globalSuppression == InfoBarEntry::GlobalSuppressionEnabled) {
+        if (info.m_globalSuppression == InfoBarEntry::GlobalSuppressionEnabled) {
             infoWidgetSuppressButton = new QToolButton;
             infoWidgetSuppressButton->setText(tr("Do Not Show Again"));
             connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, id] {
@@ -301,7 +301,7 @@ void InfoBarDisplay::update()
             });
         }
 
-        if (info.cancelButtonText.isEmpty()) {
+        if (info.m_cancelButtonText.isEmpty()) {
             if (infoWidgetCloseButton) {
                 infoWidgetCloseButton->setAutoRaise(true);
                 infoWidgetCloseButton->setIcon(Utils::Icons::CLOSE_FOREGROUND.icon());
@@ -314,7 +314,7 @@ void InfoBarDisplay::update()
             if (infoWidgetCloseButton)
                 hbox->addWidget(infoWidgetCloseButton);
         } else {
-            infoWidgetCloseButton->setText(info.cancelButtonText);
+            infoWidgetCloseButton->setText(info.m_cancelButtonText);
             hbox->addWidget(infoWidgetCloseButton);
             if (infoWidgetSuppressButton)
                 hbox->addWidget(infoWidgetSuppressButton);

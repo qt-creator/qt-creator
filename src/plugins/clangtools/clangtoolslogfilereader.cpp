@@ -25,6 +25,8 @@
 
 #include "clangtoolslogfilereader.h"
 
+#include <cpptools/cppprojectfile.h>
+
 #include <QDebug>
 #include <QDir>
 #include <QObject>
@@ -147,6 +149,10 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
         clang_disposeDiagnosticSet(cxChildDiagnostics);
     });
 
+    using CppTools::ProjectFile;
+    const bool isHeaderFile = ProjectFile::isHeader(
+        ProjectFile::classify(diagnostic.location.filePath));
+
     for (unsigned i = 0; i < clang_getNumDiagnosticsInSet(cxChildDiagnostics); ++i) {
         CXDiagnostic cxDiagnostic = clang_getDiagnosticInSet(cxChildDiagnostics, i);
         Utils::ExecuteOnDestruction cleanUpDiagnostic([&]() {
@@ -154,6 +160,9 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
         });
         const ExplainingStep diagnosticStep = buildChildDiagnostic(cxDiagnostic);
         if (diagnosticStep.isValid())
+            continue;
+
+        if (isHeaderFile && diagnosticStep.message.contains("in file included from"))
             continue;
 
         if (isInvalidDiagnosticLocation(diagnostic, diagnosticStep, nativeFilePath))

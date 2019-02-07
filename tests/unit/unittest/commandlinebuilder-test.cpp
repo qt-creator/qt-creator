@@ -136,7 +136,7 @@ TYPED_TEST(CommandLineBuilder, CTask)
 
     ASSERT_THAT(
         builder.commandLine,
-        ElementsAre("clang", "-x", "c-header", "-std=c11", "-nostdinc", "-nostdlibinc", "/source/file.c"));
+        ElementsAre("clang", "-x", "c-header", "-std=c11", "-nostdinc", "-nostdinc++", "/source/file.c"));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCTask)
@@ -153,7 +153,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCTask)
                             "objective-c-header",
                             "-std=c11",
                             "-nostdinc",
-                            "-nostdlibinc",
+                            "-nostdinc++",
                             "/source/file.c"));
 }
 
@@ -170,7 +170,7 @@ TYPED_TEST(CommandLineBuilder, CppTask)
                             "c++-header",
                             "-std=c++98",
                             "-nostdinc",
-                            "-nostdlibinc",
+                            "-nostdinc++",
                             "/source/file.cpp"));
 }
 
@@ -188,7 +188,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppTask)
                             "objective-c++-header",
                             "-std=c++98",
                             "-nostdinc",
-                            "-nostdlibinc",
+                            "-nostdinc++",
                             "/source/file.cpp"));
 }
 
@@ -420,7 +420,7 @@ TYPED_TEST(CommandLineBuilder, IncludesOrder)
                             "c++-header",
                             "-std=c++11",
                             "-nostdinc",
-                            "-nostdlibinc",
+                            "-nostdinc++",
                             "-I",
                             "/include/foo",
                             "-I",
@@ -441,7 +441,7 @@ TYPED_TEST(CommandLineBuilder, EmptySourceFile)
     Builder<TypeParam> builder{this->emptyProjectInfo, {}, {}};
 
     ASSERT_THAT(builder.commandLine,
-                ElementsAre("clang++", "-x", "c++-header", "-std=c++98", "-nostdinc", "-nostdlibinc"));
+                ElementsAre("clang++", "-x", "c++-header", "-std=c++98", "-nostdinc", "-nostdinc++"));
 }
 
 TYPED_TEST(CommandLineBuilder, SourceFile)
@@ -454,7 +454,7 @@ TYPED_TEST(CommandLineBuilder, SourceFile)
                             "c++-header",
                             "-std=c++98",
                             "-nostdinc",
-                            "-nostdlibinc",
+                            "-nostdinc++",
                             "/source/file.cpp"));
 }
 
@@ -469,7 +469,7 @@ TYPED_TEST(CommandLineBuilder, EmptyOutputFile)
                             "c++-header",
                             "-std=c++98",
                             "-nostdinc",
-                            "-nostdlibinc",
+                            "-nostdinc++",
                             "/source/file.cpp"));
 }
 
@@ -483,7 +483,7 @@ TYPED_TEST(CommandLineBuilder, OutputFile)
                             "c++-header",
                             "-std=c++98",
                             "-nostdinc",
-                            "-nostdlibinc",
+                            "-nostdinc++",
                             "-o",
                             "/output/file.o",
                             "/source/file.cpp"));
@@ -499,7 +499,7 @@ TYPED_TEST(CommandLineBuilder, IncludePchPath)
                             "c++-header",
                             "-std=c++98",
                             "-nostdinc",
-                            "-nostdlibinc",
+                            "-nostdinc++",
                             "-Xclang",
                             "-include-pch",
                             "-Xclang",
@@ -511,7 +511,7 @@ TYPED_TEST(CommandLineBuilder, IncludePchPath)
 
 TYPED_TEST(CommandLineBuilder, CompilerMacros)
 {
-    this->emptyProjectInfo.compilerMacros = {{"YI", "1", 2}, {"ER", "2", 1}};
+    this->emptyProjectInfo.compilerMacros = {{"YI", "1", 2}, {"ER", "2", 1}, {"SAN"}};
 
     Builder<TypeParam> builder{this->emptyProjectInfo};
 
@@ -521,7 +521,7 @@ TYPED_TEST(CommandLineBuilder, CompilerMacros)
                             "c++-header",
                             "-std=c++98",
                             "-nostdinc",
-                            "-nostdlibinc",
+                            "-nostdinc++",
                             "-DER=2",
                             "-DYI=1"));
 }

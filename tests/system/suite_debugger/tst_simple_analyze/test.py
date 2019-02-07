@@ -103,7 +103,7 @@ def performTest(workingDir, projectName, availableConfigs):
             compareEventsTab(model, "events_qt%s.tsv" % qtVersion)
             test.compare(dumpItems(model, column=colPercent)[0], '100 %')
             # cannot run following test on colShortest (unstable)
-            for i in [colTotal, colMean, colMedian, colLongest]:
+            for i in [colMean, colMedian, colLongest]:
                 for item in dumpItems(model, column=i)[2:5]:
                     test.verify(item.endswith('ms'), "Verify that '%s' ends with 'ms'" % item)
             for i in [colTotal, colMean, colMedian, colLongest, colShortest]:

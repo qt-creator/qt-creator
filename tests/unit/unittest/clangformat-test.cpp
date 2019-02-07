@@ -51,12 +51,27 @@ public:
     }
 };
 
+class ClangFormatExtendedIndenter : public ClangFormatIndenter
+{
+public:
+    ClangFormatExtendedIndenter(QTextDocument *doc)
+        : ClangFormatIndenter(doc)
+    {}
+
+    bool formatWhileTyping() const override
+    {
+        return true;
+    }
+};
+
 class ClangFormat : public ::testing::Test
 {
 protected:
     void SetUp() final
     {
         indenter.setFileName(Utils::FileName::fromString(TESTDATA_DIR "/clangformat/test.cpp"));
+        extendedIndenter.setFileName(
+            Utils::FileName::fromString(TESTDATA_DIR "/clangformat/test.cpp"));
     }
 
     void insertLines(const std::vector<QString> &lines)
@@ -85,6 +100,7 @@ protected:
 
     QTextDocument doc;
     ClangFormatIndenter indenter{&doc};
+    ClangFormatExtendedIndenter extendedIndenter{&doc};
     QTextCursor cursor{&doc};
 };
 
@@ -313,6 +329,83 @@ TEST_F(ClangFormat, NoExtraIndentAfterBraceInitialization)
 
     ASSERT_THAT(documentLines(), ElementsAre("int j{i?5:10};",
                                              "return 0;"));
+}
+
+TEST_F(ClangFormat, IndentFunctionBodyAndFormatBeforeIt)
+{
+    insertLines({"int foo(int a, int b,",
+                 "        int c, int d",
+                 "        ) {",
+                 "",
+                 "}"});
+
+    extendedIndenter.indentBlock(doc.findBlockByNumber(3), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("int foo(int a, int b, int c, int d)",
+                                             "{",
+                                             "    ",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, IndentAfterFunctionBodyAndNotFormatBefore)
+{
+    insertLines({"int foo(int a, int b, int c, int d)",
+                 "{",
+                 "    ",
+                 "}"});
+
+    extendedIndenter.indentBlock(doc.findBlockByNumber(3),
+                                 QChar::Null,
+                                 TextEditor::TabSettings(),
+                                 doc.characterCount() - 3);
+
+    ASSERT_THAT(documentLines(), ElementsAre("int foo(int a, int b, int c, int d)",
+                                             "{",
+                                             "    ",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, ReformatToEmptyFunction)
+{
+    insertLines({"int foo(int a, int b, int c, int d)",
+                 "{",
+                 "    ",
+                 "}",
+                 ""});
+
+    extendedIndenter.indentBlock(doc.findBlockByNumber(4), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("int foo(int a, int b, int c, int d) {}",
+                                             ""));
+}
+
+TEST_F(ClangFormat, ReformatToNonEmptyFunction)
+{
+    insertLines({"int foo(int a, int b) {",
+                 "",
+                 "}"});
+
+    extendedIndenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("int foo(int a, int b)",
+                                             "{",
+                                             "    ",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, IndentIfBodyAndFormatBeforeIt)
+{
+    insertLines({"if(a && b",
+                 "   &&c && d",
+                 "   ) {",
+                 "",
+                 "}"});
+
+    extendedIndenter.indentBlock(doc.findBlockByNumber(3), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("if (a && b && c && d) {",
+                                             "    ",
+                                             "}"));
 }
 
 TEST_F(ClangFormat, FormatBasicFile)

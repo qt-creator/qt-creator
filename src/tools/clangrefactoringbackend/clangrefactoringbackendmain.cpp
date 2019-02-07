@@ -39,6 +39,7 @@
 #include <sqliteexception.h>
 
 #include <chrono>
+#include <iostream>
 
 using namespace std::chrono_literals;
 
@@ -93,12 +94,24 @@ struct Data // because we have a cycle dependency
     RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     FilePathCaching filePathCache{database};
     GeneratedFiles generatedFiles;
-    SymbolIndexing symbolIndexing{database, filePathCache, generatedFiles, [&] (int progress, int total) { clangCodeModelServer.setProgress(progress, total); }};
     RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache, generatedFiles};
+    SymbolIndexing symbolIndexing{database, filePathCache, generatedFiles, [&] (int progress, int total) { clangCodeModelServer.setProgress(progress, total); }};
 };
+
+#ifdef Q_OS_WIN
+static void messageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
+{
+    std::wcout << msg.toStdWString() << std::endl;
+    if (type == QtFatalMsg)
+        abort();
+}
+#endif
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_WIN
+    qInstallMessageHandler(messageOutput);
+#endif
     try {
         QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
         QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));

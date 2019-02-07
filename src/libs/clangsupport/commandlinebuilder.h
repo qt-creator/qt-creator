@@ -182,6 +182,13 @@ public:
     {
         CompilerMacros macros = compilerMacros;
 
+        macros.erase(std::remove_if(macros.begin(),
+                                    macros.end(),
+                                    [](const auto &macro) {
+                                        return macro.type == CompilerMacroType::NotDefined;
+                                    }),
+                     macros.end());
+
         std::sort(macros.begin(),
                   macros.end(),
                   [](const CompilerMacro &first, const CompilerMacro &second) {
@@ -263,7 +270,7 @@ public:
     void addNoStdIncAndNoStdLibInc()
     {
         commandLine.emplace_back("-nostdinc");
-        commandLine.emplace_back("-nostdlibinc");
+        commandLine.emplace_back("-nostdinc++");
     }
 
 public:

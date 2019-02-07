@@ -124,8 +124,6 @@ private:
     FileStatusCache m_fileStatusCache{m_filePathCache};
     SymbolsCollectorManager m_collectorManger;
     ProgressCounter m_progressCounter;
-    SymbolIndexerTaskScheduler m_indexerScheduler;
-    SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler, m_progressCounter};
     SymbolIndexer m_indexer{m_indexerQueue,
                             m_symbolStorage,
                             m_buildDependencyStorage,
@@ -133,6 +131,8 @@ private:
                             m_filePathCache,
                             m_fileStatusCache,
                             m_symbolStorage.m_database};
+    SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler, m_progressCounter};
+    SymbolIndexerTaskScheduler m_indexerScheduler;
 };
 
 } // namespace ClangBackEnd

@@ -93,7 +93,7 @@ QString DebuggerKitConfigWidget::toolTip() const
 
 QString DebuggerKitConfigWidget::displayName() const
 {
-    return tr("Debugger:");
+    return tr("Debugger");
 }
 
 void DebuggerKitConfigWidget::makeReadOnly()

@@ -28,6 +28,7 @@
 #include "clangformatutils.h"
 
 #include <texteditor/tabsettings.h>
+#include <texteditor/textdocumentlayout.h>
 
 using namespace clang;
 using namespace format;
@@ -47,6 +48,11 @@ FormatStyle ClangFormatIndenter::styleForFile() const
 bool ClangFormatIndenter::formatCodeInsteadOfIndent() const
 {
     return ClangFormatSettings::instance().formatCodeInsteadOfIndent();
+}
+
+bool ClangFormatIndenter::formatWhileTyping() const
+{
+    return ClangFormatSettings::instance().formatWhileTyping();
 }
 
 Utils::optional<TabSettings> ClangFormatIndenter::tabSettings() const
@@ -74,6 +80,16 @@ Utils::optional<TabSettings> ClangFormatIndenter::tabSettings() const
         tabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
 
     return tabSettings;
+}
+
+int ClangFormatIndenter::lastSaveRevision() const
+{
+    return qobject_cast<TextEditor::TextDocumentLayout *>(m_doc->documentLayout())->lastSaveRevision;
+}
+
+bool ClangFormatIndenter::formatOnSave() const
+{
+    return ClangFormatSettings::instance().formatOnSave();
 }
 
 } // namespace ClangFormat
