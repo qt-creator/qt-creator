@@ -43,6 +43,10 @@
 
 using namespace TextEditor;
 
+static const char kDefinitionForMimeType[] = "definitionForMimeType";
+static const char kDefinitionForExtension[] = "definitionForExtension";
+static const char kDefinitionForFilePath[] = "definitionForFilePath";
+
 KSyntaxHighlighting::Repository *highlightRepository()
 {
     static KSyntaxHighlighting::Repository *repository = nullptr;
@@ -107,18 +111,24 @@ Highlighter::Definition Highlighter::definitionForDocument(const TextDocument *d
     if (mimeType.isValid())
         definition = Highlighter::definitionForMimeType(mimeType.name());
     if (!definition.isValid())
-        definition = Highlighter::definitionForFileName(document->filePath().fileName());
+        definition = Highlighter::definitionForFilePath(document->filePath());
     return definition;
 }
 
 Highlighter::Definition Highlighter::definitionForMimeType(const QString &mimeType)
 {
+    const Definitions definitions = definitionsForMimeType(mimeType);
+    if (definitions.size() == 1)
+        return definitions.first();
     return highlightRepository()->definitionForMimeType(mimeType);
 }
 
-Highlighter::Definition Highlighter::definitionForFileName(const QString &fileName)
+Highlighter::Definition Highlighter::definitionForFilePath(const Utils::FileName &fileName)
 {
-    return highlightRepository()->definitionForFileName(fileName);
+    const Definitions definitions = definitionsForFileName(fileName);
+    if (definitions.size() == 1)
+        return definitions.first();
+    return highlightRepository()->definitionForFileName(fileName.fileName());
 }
 
 Highlighter::Definition Highlighter::definitionForName(const QString &name)
@@ -133,18 +143,88 @@ Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument 
     if (mimeType.isValid())
         definitions = Highlighter::definitionsForMimeType(mimeType.name());
     if (definitions.isEmpty())
-        definitions = Highlighter::definitionsForFileName(document->filePath().fileName());
+        definitions = Highlighter::definitionsForFileName(document->filePath());
     return definitions;
+}
+
+static Highlighter::Definition definitionForSetting(const QString &settingsKey,
+                                                    const QString &mapKey)
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);
+    const QString &definitionName = settings->value(settingsKey).toMap().value(mapKey).toString();
+    settings->endGroup();
+    return Highlighter::definitionForName(definitionName);
 }
 
 Highlighter::Definitions Highlighter::definitionsForMimeType(const QString &mimeType)
 {
-    return highlightRepository()->definitionsForMimeType(mimeType).toList();
+    Definitions definitions = highlightRepository()->definitionsForMimeType(mimeType).toList();
+    if (definitions.size() > 1) {
+        const Definition &rememberedDefinition = definitionForSetting(kDefinitionForMimeType,
+                                                                      mimeType);
+        if (rememberedDefinition.isValid() && definitions.contains(rememberedDefinition))
+            definitions = {rememberedDefinition};
+    }
+    return definitions;
 }
 
-Highlighter::Definitions Highlighter::definitionsForFileName(const QString &fileName)
+Highlighter::Definitions Highlighter::definitionsForFileName(const Utils::FileName &fileName)
 {
-    return highlightRepository()->definitionsForFileName(fileName).toList();
+    Definitions definitions
+        = highlightRepository()->definitionsForFileName(fileName.fileName()).toList();
+
+    if (definitions.size() > 1) {
+        const QString &fileExtension = fileName.toFileInfo().completeSuffix();
+        const Definition &rememberedDefinition
+            = fileExtension.isEmpty()
+                  ? definitionForSetting(kDefinitionForFilePath,
+                                         fileName.toFileInfo().canonicalFilePath())
+                  : definitionForSetting(kDefinitionForExtension, fileExtension);
+        if (rememberedDefinition.isValid() && definitions.contains(rememberedDefinition))
+            definitions = {rememberedDefinition};
+    }
+
+    return definitions;
+}
+
+void Highlighter::rememberDefintionForDocument(const Highlighter::Definition &definition,
+                                               const TextDocument *document)
+{
+    if (!definition.isValid())
+        return;
+    const QString &mimeType = document->mimeType();
+    const QString &fileExtension = document->filePath().toFileInfo().completeSuffix();
+    const QString &path = document->filePath().toFileInfo().canonicalFilePath();
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);
+    if (!mimeType.isEmpty()) {
+        const QString id(kDefinitionForMimeType);
+        QMap<QString, QVariant> map = settings->value(id).toMap();
+        map.insert(mimeType, definition.name());
+        settings->setValue(id, map);
+    } else if (!fileExtension.isEmpty()) {
+        const QString id(kDefinitionForExtension);
+        QMap<QString, QVariant> map = settings->value(id).toMap();
+        map.insert(fileExtension, definition.name());
+        settings->setValue(id, map);
+    } else if (!path.isEmpty()) {
+        const QString id(kDefinitionForFilePath);
+        QMap<QString, QVariant> map = settings->value(id).toMap();
+        map.insert(document->filePath().toFileInfo().absoluteFilePath(), definition.name());
+        settings->setValue(id, map);
+    }
+    settings->endGroup();
+}
+
+void Highlighter::clearDefintionForDocumentCache()
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);
+    settings->remove(kDefinitionForMimeType);
+    settings->remove(kDefinitionForExtension);
+    settings->remove(kDefinitionForFilePath);
+    settings->endGroup();
 }
 
 void Highlighter::addCustomHighlighterPath(const Utils::FileName &path)
