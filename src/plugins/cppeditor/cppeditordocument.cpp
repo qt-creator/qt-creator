@@ -80,7 +80,10 @@ public:
         mm()->registerCppEditorDocument(this);
     }
 
-    ~CppEditorDocumentHandleImpl() { mm()->unregisterCppEditorDocument(m_registrationFilePath); }
+    ~CppEditorDocumentHandleImpl() override
+    {
+        mm()->unregisterCppEditorDocument(m_registrationFilePath);
+    }
 
     QString filePath() const override { return m_cppEditorDocument->filePath().toString(); }
     QByteArray contents() const override { return m_cppEditorDocument->contentsText(); }
@@ -100,12 +103,7 @@ private:
 };
 
 CppEditorDocument::CppEditorDocument()
-    : m_fileIsBeingReloaded(false)
-    , m_isObjCEnabled(false)
-    , m_cachedContentsRevision(-1)
-    , m_processorRevision(0)
-    , m_completionAssistProvider(0)
-    , m_minimizableInfoBars(*infoBar())
+    : m_minimizableInfoBars(*infoBar())
 {
     setId(CppEditor::Constants::CPPEDITOR_ID);
     setSyntaxHighlighter(new CppHighlighter);
@@ -352,7 +350,7 @@ unsigned CppEditorDocument::contentsRevision() const
 void CppEditorDocument::releaseResources()
 {
     if (m_processor)
-        disconnect(m_processor.data(), 0, this, 0);
+        disconnect(m_processor.data(), nullptr, this, nullptr);
     m_processor.reset();
 }
 

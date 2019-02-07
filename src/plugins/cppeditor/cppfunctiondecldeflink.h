@@ -45,7 +45,7 @@ class FunctionDeclDefLinkFinder : public QObject
 {
     Q_OBJECT
 public:
-    FunctionDeclDefLinkFinder(QObject *parent = 0);
+    FunctionDeclDefLinkFinder(QObject *parent = nullptr);
 
     void startFindLinkAt(QTextCursor cursor,
                     const CPlusPlus::Document::Ptr &doc,

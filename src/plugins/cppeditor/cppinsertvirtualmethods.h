@@ -36,9 +36,9 @@ class InsertVirtualMethods : public CppQuickFixFactory
 {
     Q_OBJECT
 public:
-    InsertVirtualMethods(InsertVirtualMethodsDialog *dialog = 0);
-    ~InsertVirtualMethods();
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    InsertVirtualMethods(InsertVirtualMethodsDialog *dialog = nullptr);
+    ~InsertVirtualMethods() override;
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 #ifdef WITH_TESTS
     static InsertVirtualMethods *createTestFactory();
 #endif

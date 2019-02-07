@@ -261,7 +261,7 @@ void CppEditorWidget::finalizeInitialization()
 void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *other)
 {
     QTC_ASSERT(other, return);
-    CppEditorWidget *cppEditorWidget = qobject_cast<CppEditorWidget *>(other);
+    auto cppEditorWidget = qobject_cast<CppEditorWidget *>(other);
     QTC_ASSERT(cppEditorWidget, return);
 
     if (cppEditorWidget->isSemanticInfoValidExceptLocalUses())
@@ -278,10 +278,7 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
                 d->m_cppEditorDocument->parseContextModel().areMultipleAvailable());
 }
 
-CppEditorWidget::~CppEditorWidget()
-{
-    // non-inline destructor, see section "Forward Declared Pointers" of QScopedPointer.
-}
+CppEditorWidget::~CppEditorWidget() = default;
 
 CppEditorDocument *CppEditorWidget::cppEditorDocument() const
 {
@@ -357,7 +354,7 @@ static QString getDocumentLine(const QTextDocument &document, int line)
 static QString getFileLine(const QString &path, int line)
 {
     const IDocument *document = DocumentModel::documentForFilePath(path);
-    const TextDocument *textDocument = qobject_cast<const TextDocument *>(document);
+    const auto textDocument = qobject_cast<const TextDocument *>(document);
     if (textDocument)
         return getDocumentLine(*textDocument->document(), line);
 
@@ -543,7 +540,7 @@ ProjectPart *findProjectPartForCurrentProject(const QList<ProjectPart::Ptr> &pro
     if (found != projectParts.cend())
         return (*found).data();
 
-    return 0;
+    return nullptr;
 }
 
 } // namespace
@@ -551,7 +548,7 @@ ProjectPart *findProjectPartForCurrentProject(const QList<ProjectPart::Ptr> &pro
 ProjectPart *CppEditorWidget::projectPart() const
 {
     if (!d->m_modelManager)
-        return 0;
+        return nullptr;
 
     auto projectParts = fetchProjectParts(d->m_modelManager, textDocument()->filePath());
 
@@ -668,8 +665,8 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
         return;
 
     // Find function declaration or definition under cursor
-    Function *functionDefinitionSymbol = 0;
-    Symbol *functionDeclarationSymbol = 0;
+    Function *functionDefinitionSymbol = nullptr;
+    Symbol *functionDeclarationSymbol = nullptr;
 
     ASTPath astPathFinder(d->m_lastSemanticInfo.doc);
     const QList<AST *> astPath = astPathFinder(textCursor());
@@ -998,7 +995,7 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
     } else {
         return TextEditorWidget::createAssistInterface(kind, reason);
     }
-    return 0;
+    return nullptr;
 }
 
 QSharedPointer<FunctionDeclDefLink> CppEditorWidget::declDefLink() const

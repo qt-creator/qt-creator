@@ -51,7 +51,7 @@ public:
     static Actions createShowInfoBarActions(const ActionCreator &actionCreator);
 
 public:
-    explicit MinimizableInfoBars(Core::InfoBar &infoBar, QObject *parent = 0);
+    explicit MinimizableInfoBars(Core::InfoBar &infoBar, QObject *parent = nullptr);
 
     // Expected call order: processHasProjectPart(), processHeaderDiagnostics()
     void processHasProjectPart(bool hasProjectPart);

@@ -33,8 +33,6 @@ namespace Internal {
 class CppAutoCompleter : public TextEditor::AutoCompleter
 {
 public:
-    CppAutoCompleter() {}
-
     bool contextAllowsAutoBrackets(const QTextCursor &cursor,
                                    const QString &textToInsert = QString()) const override;
     bool contextAllowsAutoQuotes(const QTextCursor &cursor,

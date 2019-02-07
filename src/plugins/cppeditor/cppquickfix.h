@@ -39,7 +39,7 @@ class CPPEDITOR_EXPORT CppQuickFixOperation
 {
 public:
     explicit CppQuickFixOperation(const CppQuickFixInterface &interface, int priority = -1);
-    ~CppQuickFixOperation();
+    ~CppQuickFixOperation() override;
 };
 
 /*!
@@ -60,7 +60,7 @@ class CPPEDITOR_EXPORT CppQuickFixFactory : public QObject
 
 public:
     CppQuickFixFactory();
-    ~CppQuickFixFactory();
+    ~CppQuickFixFactory() override;
 
     using QuickFixOperations = TextEditor::QuickFixOperations;
 

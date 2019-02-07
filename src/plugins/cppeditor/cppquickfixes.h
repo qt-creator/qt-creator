@@ -65,7 +65,7 @@ class AddIncludeForUndefinedIdentifierOp: public CppQuickFixOperation
 public:
     AddIncludeForUndefinedIdentifierOp(const CppQuickFixInterface &interface, int priority,
                                        const QString &include);
-    void perform();
+    void perform() override;
 
 private:
     QString m_include;
@@ -383,7 +383,7 @@ public:
 class ExtractFunction : public CppQuickFixFactory
 {
 public:
-    typedef std::function<QString ()> FunctionNameGetter;
+    using FunctionNameGetter = std::function<QString()>;
 
     ExtractFunction(FunctionNameGetter functionNameGetter = FunctionNameGetter());
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;

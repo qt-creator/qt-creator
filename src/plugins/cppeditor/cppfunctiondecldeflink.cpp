@@ -96,19 +96,17 @@ static bool findDeclOrDef(const Document::Ptr &doc, int line, int column,
     //    by CompoundStatement/CtorInitializer
     // for function declarations, look for SimpleDeclarations with a single Declarator
     //    with a FunctionDeclarator postfix
-    FunctionDefinitionAST *funcDef = 0;
-    SimpleDeclarationAST *simpleDecl = 0;
-    *decl = 0;
+    *decl = nullptr;
     for (int i = path.size() - 1; i > 0; --i) {
         AST *ast = path.at(i);
         if (ast->asCompoundStatement() || ast->asCtorInitializer())
             break;
-        if ((funcDef = ast->asFunctionDefinition()) != 0) {
+        if (FunctionDefinitionAST *funcDef = ast->asFunctionDefinition()) {
             *parent = funcDef;
             *decl = funcDef->declarator;
             break;
         }
-        if ((simpleDecl = ast->asSimpleDeclaration()) != 0) {
+        if (SimpleDeclarationAST *simpleDecl = ast->asSimpleDeclaration()) {
             *parent = simpleDecl;
             if (!simpleDecl->declarator_list || !simpleDecl->declarator_list->value)
                 break;
@@ -142,12 +140,12 @@ static void declDefLinkStartEnd(const CppRefactoringFileConstPtr &file,
 static DeclaratorIdAST *getDeclaratorId(DeclaratorAST *declarator)
 {
     if (!declarator || !declarator->core_declarator)
-        return 0;
+        return nullptr;
     if (DeclaratorIdAST *id = declarator->core_declarator->asDeclaratorId())
         return id;
     if (NestedDeclaratorAST *nested = declarator->core_declarator->asNestedDeclarator())
         return getDeclaratorId(nested->declarator);
-    return 0;
+    return nullptr;
 }
 
 static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<FunctionDeclDefLink> link, CppRefactoringChanges changes)
@@ -156,7 +154,7 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
     const Snapshot &snapshot = changes.snapshot();
 
     // find the matching decl/def symbol
-    Symbol *target = 0;
+    Symbol *target = nullptr;
     SymbolFinder finder;
     if (FunctionDefinitionAST *funcDef = link->sourceDeclaration->asFunctionDefinition()) {
         QList<Declaration *> nameMatch, argumentCountMatch, typeMatch;
@@ -178,9 +176,9 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
     if (!targetFile->isValid())
         return noResult;
 
-    DeclarationAST *targetParent = 0;
-    FunctionDeclaratorAST *targetFuncDecl = 0;
-    DeclaratorAST *targetDeclarator = 0;
+    DeclarationAST *targetParent = nullptr;
+    FunctionDeclaratorAST *targetFuncDecl = nullptr;
+    DeclaratorAST *targetDeclarator = nullptr;
     if (!findDeclOrDef(targetFile->cppDocument(), target->line(), target->column(),
                        &targetParent, &targetDeclarator, &targetFuncDecl))
         return noResult;
@@ -213,9 +211,9 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
         QTextCursor cursor, const Document::Ptr &doc, const Snapshot &snapshot)
 {
     // check if cursor is on function decl/def
-    DeclarationAST *parent = 0;
-    FunctionDeclaratorAST *funcDecl = 0;
-    DeclaratorAST *declarator = 0;
+    DeclarationAST *parent = nullptr;
+    FunctionDeclaratorAST *funcDecl = nullptr;
+    DeclaratorAST *declarator = nullptr;
     if (!findDeclOrDef(doc, cursor.blockNumber() + 1, cursor.columnNumber() + 1,
                        &parent, &declarator, &funcDecl))
         return;
@@ -455,10 +453,10 @@ static SpecifierAST *findFirstReplaceableSpecifier(TranslationUnit *translationU
         if (canReplaceSpecifier(translationUnit, it->value))
             return it->value;
     }
-    return 0;
+    return nullptr;
 }
 
-typedef QVarLengthArray<int, 10> IndicesList;
+using IndicesList = QVarLengthArray<int, 10>;
 
 template <class IndicesListType>
 static int findUniqueTypeMatch(int sourceParamIndex, Function *sourceFunction, Function *newFunction,
@@ -597,8 +595,8 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
         Control *control = sourceContext.bindings()->control().data();
 
         // get return type start position and declarator info from declaration
-        DeclaratorAST *declarator = 0;
-        SpecifierAST *firstReplaceableSpecifier = 0;
+        DeclaratorAST *declarator = nullptr;
+        SpecifierAST *firstReplaceableSpecifier = nullptr;
         TranslationUnit *targetTranslationUnit = targetFile->cppDocument()->translationUnit();
         if (SimpleDeclarationAST *simple = targetDeclaration->asSimpleDeclaration()) {
             declarator = simple->declarator_list->value;
@@ -790,7 +788,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
                 if (hasCommentedName(targetFile->cppDocument()->translationUnit(),
                                      QString::fromUtf8(targetFile->cppDocument()->utf8Source()),
                                      targetFunctionDeclarator, existingParamIndex))
-                    replacementName = 0;
+                    replacementName = nullptr;
 
                 // track renames
                 if (replacementName != targetParam->name() && replacementName)
@@ -914,8 +912,8 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
             changes.insert(targetFile->endOf(targetFunctionDeclarator->rparen_token), cvString);
         // modify/remove existing specifiers
         } else {
-            SimpleSpecifierAST *constSpecifier = 0;
-            SimpleSpecifierAST *volatileSpecifier = 0;
+            SimpleSpecifierAST *constSpecifier = nullptr;
+            SimpleSpecifierAST *volatileSpecifier = nullptr;
             for (SpecifierListAST *it = targetFunctionDeclarator->cv_qualifier_list; it; it = it->next) {
                 if (SimpleSpecifierAST *simple = it->value->asSimpleSpecifier()) {
                     unsigned kind = targetFile->tokenAt(simple->specifier_token).kind();

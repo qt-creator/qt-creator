@@ -38,9 +38,9 @@ class CppPreProcessorDialog : public QDialog
 
 public:
     explicit CppPreProcessorDialog(const QString &filePath, QWidget *parent);
-    ~CppPreProcessorDialog();
+    ~CppPreProcessorDialog() override;
 
-    int exec();
+    int exec() override;
 
     QString extraPreprocessorDirectives() const;
 

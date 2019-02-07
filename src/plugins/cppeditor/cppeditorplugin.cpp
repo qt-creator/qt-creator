@@ -310,7 +310,7 @@ static CppEditorWidget *currentCppEditorWidget()
 {
     if (IEditor *currentEditor = EditorManager::currentEditor())
         return qobject_cast<CppEditorWidget*>(currentEditor->widget());
-    return 0;
+    return nullptr;
 }
 
 void CppEditorPlugin::switchDeclarationDefinition()

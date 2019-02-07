@@ -38,7 +38,7 @@ class CppIncludeHierarchyItem;
 class CppIncludeHierarchyModel : public Utils::TreeModel<CppIncludeHierarchyItem>
 {
     Q_OBJECT
-    typedef Utils::TreeModel<CppIncludeHierarchyItem> base_type;
+    using base_type = Utils::TreeModel<CppIncludeHierarchyItem>;
 
 public:
     CppIncludeHierarchyModel();

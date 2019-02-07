@@ -39,5 +39,4 @@ CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixInterface &interface
     : QuickFixOperation(priority), CppQuickFixInterface(interface)
 {}
 
-CppQuickFixOperation::~CppQuickFixOperation()
-{}
+CppQuickFixOperation::~CppQuickFixOperation() = default;
