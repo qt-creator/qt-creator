@@ -209,12 +209,12 @@ TextEditor::BlockRange
 toTextEditorBlock(QTextDocument *textDocument,
                   const ClangBackEnd::SourceRangeContainer &sourceRangeContainer)
 {
-    return TextEditor::BlockRange(::Utils::Text::positionInText(textDocument,
-                                                                sourceRangeContainer.start.line,
-                                                                sourceRangeContainer.start.column),
-                                  ::Utils::Text::positionInText(textDocument,
-                                                                sourceRangeContainer.end.line,
-                                                                sourceRangeContainer.end.column));
+    return {::Utils::Text::positionInText(textDocument,
+                                          sourceRangeContainer.start.line,
+                                          sourceRangeContainer.start.column),
+            ::Utils::Text::positionInText(textDocument,
+                                          sourceRangeContainer.end.line,
+                                          sourceRangeContainer.end.column)};
 }
 
 QList<TextEditor::BlockRange>

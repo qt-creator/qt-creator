@@ -39,6 +39,7 @@ class ClangCompletionAssistInterface;
 class ClangCompletionContextAnalyzer
 {
 public:
+    ClangCompletionContextAnalyzer() = delete;
     ClangCompletionContextAnalyzer(const ClangCompletionAssistInterface *assistInterface,
                                    CPlusPlus::LanguageFeatures languageFeatures);
     void analyze();
@@ -61,8 +62,6 @@ public:
     bool addSnippets() const { return m_addSnippets; }
 
 private:
-    ClangCompletionContextAnalyzer();
-
     int startOfFunctionCall(int endOfExpression) const;
 
     void setActionAndClangPosition(CompletionAction action,

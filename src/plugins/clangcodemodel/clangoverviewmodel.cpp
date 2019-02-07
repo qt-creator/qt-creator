@@ -233,8 +233,8 @@ bool OverviewModel::isGenerated(const QModelIndex &) const
     auto item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
     if (!item)
         return {};
-    return ::Utils::LineColumn(static_cast<int>(item->token.line),
-                               static_cast<int>(item->token.column));
+    return {static_cast<int>(item->token.line),
+            static_cast<int>(item->token.column)};
 }
 
 OverviewModel::Range OverviewModel::rangeFromIndex(const QModelIndex &sourceIndex) const

@@ -91,7 +91,7 @@ QChar selectionEndChar(const QChar startSymbol)
         return QLatin1Char('"');
     if (startSymbol == '<')
         return QLatin1Char('>');
-    return QChar();
+    return {};
 }
 
 void selectToLocationEnd(QTextCursor &cursor)
