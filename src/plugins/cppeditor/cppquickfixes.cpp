@@ -3101,13 +3101,13 @@ public:
 
         const QString declarationGetterTypeAndNameString = oo.prettyType(getterType, m_getterName);
         const QString declarationGetter = QString::fromLatin1("%1%2()%3;\n")
-                .arg(isStatic ? QLatin1String("static ") : QString())
-            .arg(declarationGetterTypeAndNameString)
-            .arg(isStatic ? QString() : QLatin1String(" const"));
+                                              .arg(isStatic ? QLatin1String("static ") : QString(),
+                                                   declarationGetterTypeAndNameString,
+                                                   isStatic ? QString() : QLatin1String(" const"));
         const QString declarationSetter = QString::fromLatin1("%1void %2(%3);\n")
-            .arg(isStatic ? QLatin1String("static ") : QString())
-            .arg(m_setterName)
-            .arg(paramString);
+                                              .arg(isStatic ? QLatin1String("static ") : QString(),
+                                                   m_setterName,
+                                                   paramString);
 
         if (generateGetter())
             declaration += declarationGetter;
@@ -3118,22 +3118,22 @@ public:
         // Construct implementation strings
         const QString implementationGetterTypeAndNameString = oo.prettyType(
             getterType, QString::fromLatin1("%1::%2").arg(classString, m_getterName));
-        const QString implementationGetter = QString::fromLatin1(
-                    "%1()%2\n"
-                    "{\n"
-                    "return %3;\n"
-                    "}")
-                .arg(implementationGetterTypeAndNameString)
-                .arg(isStatic ? QString() : QLatin1String(" const"))
-                .arg(m_variableString);
-        const QString implementationSetter = QString::fromLatin1(
-                    "void %1::%2(%3)\n"
-                    "{\n"
-                    "%4 = %5;\n"
-                    "}")
-                .arg(classString).arg(m_setterName)
-                .arg(paramString).arg(m_variableString)
-                .arg(paramName);
+        const QString implementationGetter = QString::fromLatin1("%1()%2\n"
+                                                                 "{\n"
+                                                                 "return %3;\n"
+                                                                 "}")
+                                                 .arg(implementationGetterTypeAndNameString,
+                                                      isStatic ? QString() : QLatin1String(" const"),
+                                                      m_variableString);
+        const QString implementationSetter = QString::fromLatin1("void %1::%2(%3)\n"
+                                                                 "{\n"
+                                                                 "%4 = %5;\n"
+                                                                 "}")
+                                                 .arg(classString,
+                                                      m_setterName,
+                                                      paramString,
+                                                      m_variableString,
+                                                      paramName);
 
         QString implementation;
         if (generateGetter())
