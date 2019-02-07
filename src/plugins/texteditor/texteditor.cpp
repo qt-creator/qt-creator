@@ -692,7 +692,8 @@ public:
     QTextCursor m_pendingLinkUpdate;
     QTextCursor m_lastLinkUpdate;
 
-    QRegExp m_searchExpr;
+    QRegularExpression m_searchExpr;
+    QString m_findText;
     FindFlags m_findFlags;
     void highlightSearchResults(const QTextBlock &block, const PaintEventData &data) const;
     QTimer m_delayedUpdateTimer;
@@ -3715,7 +3716,7 @@ QTextBlock TextEditorWidgetPrivate::foldedBlockAt(const QPoint &pos, QRect *box)
 
 void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, const PaintEventData &data) const
 {
-    if (m_searchExpr.isEmpty())
+    if (m_searchExpr.pattern().isEmpty())
         return;
 
     int blockPosition = block.position();
@@ -3734,10 +3735,11 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
             .toTextCharFormat(C_SEARCH_RESULT).background().color().darker(120);
 
     while (idx < text.length()) {
-        idx = m_searchExpr.indexIn(text, idx + l);
-        if (idx < 0)
+        const QRegularExpressionMatch match = m_searchExpr.match(text, idx + 1);
+        if (!match.hasMatch())
             break;
-        l = m_searchExpr.matchedLength();
+        idx = match.capturedStart();
+        l = match.capturedLength();
         if (l == 0)
             break;
         if ((m_findFlags & FindWholeWords)
@@ -4332,7 +4334,7 @@ void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &dat
                                                        QPainter &painter) const
 {
     m_searchResultOverlay->clear();
-    if (m_searchExpr.isEmpty())
+    if (m_searchExpr.pattern().isEmpty())
         return;
 
     const int margin = 5;
@@ -5335,7 +5337,7 @@ void TextEditorWidgetPrivate::slotUpdateRequest(const QRect &r, int dy)
         m_extraArea->scroll(0, dy);
     } else if (r.width() > 4) { // wider than cursor width, not just cursor blinking
         m_extraArea->update(0, r.y(), m_extraArea->width(), r.height());
-        if (!m_searchExpr.isEmpty()) {
+        if (!m_searchExpr.pattern().isEmpty()) {
             const int m = m_searchResultOverlay->dropShadowWidth();
             q->viewport()->update(r.adjusted(-m, -m, m, m));
         }
@@ -6350,13 +6352,16 @@ void TextEditorWidgetPrivate::clearLink()
 
 void TextEditorWidgetPrivate::highlightSearchResultsSlot(const QString &txt, FindFlags findFlags)
 {
-    if (m_searchExpr.pattern() == txt)
+    const QString pattern = (findFlags & FindRegularExpression) ? txt
+                                                                : QRegularExpression::escape(txt);
+    const QRegularExpression::PatternOptions options
+        = (findFlags & FindCaseSensitively) ? QRegularExpression::NoPatternOption
+                                            : QRegularExpression::CaseInsensitiveOption;
+    if (m_searchExpr.pattern() == pattern && m_searchExpr.patternOptions() == options)
         return;
-    m_searchExpr.setPattern(txt);
-    m_searchExpr.setPatternSyntax((findFlags & FindRegularExpression) ?
-                                     QRegExp::RegExp : QRegExp::FixedString);
-    m_searchExpr.setCaseSensitivity((findFlags & FindCaseSensitively) ?
-                                       Qt::CaseSensitive : Qt::CaseInsensitive);
+    m_searchExpr.setPattern(pattern);
+    m_searchExpr.setPatternOptions(options);
+    m_findText = txt;
     m_findFlags = findFlags;
 
     m_delayedUpdateTimer.start(50);
@@ -6414,7 +6419,7 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
         m_searchWatcher = nullptr;
     }
 
-    const QString &txt = m_searchExpr.pattern();
+    const QString &txt = m_findText;
     if (txt.isEmpty())
         return;
 
