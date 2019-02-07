@@ -24,8 +24,11 @@
 ****************************************************************************/
 
 #include "fileinprojectfinder.h"
+
+#include "algorithm.h"
 #include "fileutils.h"
 #include "hostosinfo.h"
+#include "qrcparser.h"
 #include "qtcassert.h"
 
 #include <QDebug>
@@ -102,6 +105,7 @@ void FileInProjectFinder::setProjectFiles(const FileNameList &projectFiles)
 
     m_projectFiles = projectFiles;
     m_cache.clear();
+    m_qrcUrlFinder.setProjectFiles(projectFiles);
 }
 
 void FileInProjectFinder::setSysroot(const FileName &sysroot)
@@ -139,6 +143,13 @@ void FileInProjectFinder::addMappedPath(const FileName &localFilePath, const QSt
 QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
 {
     qCDebug(finderLog) << "FileInProjectFinder: trying to find file" << fileUrl.toString() << "...";
+
+    if (fileUrl.scheme() == "qrc" || fileUrl.toString().startsWith(':')) {
+        const QString result = m_qrcUrlFinder.find(fileUrl);
+        if (success)
+            *success = !result.isEmpty();
+        return result;
+    }
 
     QString originalPath = fileUrl.toLocalFile();
     if (originalPath.isEmpty()) // e.g. qrc://
@@ -419,6 +430,36 @@ void FileInProjectFinder::setAdditionalSearchDirectories(const FileNameList &sea
 FileInProjectFinder::PathMappingNode::~PathMappingNode()
 {
     qDeleteAll(children);
+}
+
+QString FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
+{
+    QString result;
+    const auto fileIt = m_fileCache.constFind(fileUrl);
+    if (fileIt != m_fileCache.cend())
+        return fileIt.value();
+    for (const FileName &f : m_allQrcFiles) {
+        QrcParser::Ptr &qrcParser = m_parserCache[f];
+        if (!qrcParser)
+            qrcParser = QrcParser::parseQrcFile(f.toString(), QString());
+        if (!qrcParser->isValid())
+            continue;
+        QStringList hits;
+        qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &hits);
+        if (!hits.empty()) {
+            result = hits.first();
+            break;
+        }
+    }
+    m_fileCache.insert(fileUrl, result);
+    return result;
+}
+
+void FileInProjectFinder::QrcUrlFinder::setProjectFiles(const FileNameList &projectFiles)
+{
+    m_allQrcFiles = filtered(projectFiles, [](const FileName &f) { return f.endsWith(".qrc"); });
+    m_fileCache.clear();
+    m_parserCache.clear();
 }
 
 } // namespace Utils

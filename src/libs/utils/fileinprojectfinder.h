@@ -29,11 +29,13 @@
 #include <utils/fileutils.h>
 
 #include <QHash>
+#include <QSharedPointer>
 #include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace Utils {
+class QrcParser;
 
 class QTCREATOR_UTILS_EXPORT FileInProjectFinder
 {
@@ -73,6 +75,16 @@ private:
         int matchLength = 0;
     };
 
+    class QrcUrlFinder {
+    public:
+        QString find(const QUrl &fileUrl) const;
+        void setProjectFiles(const FileNameList &projectFiles);
+    private:
+        FileNameList m_allQrcFiles;
+        mutable QHash<QUrl, QString> m_fileCache;
+        mutable QHash<FileName, QSharedPointer<QrcParser>> m_parserCache;
+    };
+
     CacheEntry findInSearchPaths(const QString &filePath, FileHandler fileHandler,
                                  DirectoryHandler directoryHandler) const;
     static CacheEntry findInSearchPath(const QString &searchPath, const QString &filePath,
@@ -93,6 +105,7 @@ private:
     PathMappingNode m_pathMapRoot;
 
     mutable QHash<QString, CacheEntry> m_cache;
+    QrcUrlFinder m_qrcUrlFinder;
 };
 
 } // namespace Utils
