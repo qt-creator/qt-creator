@@ -3920,8 +3920,7 @@ public:
                 ASTPath astPath(result.file->cppDocument());
                 const QList<AST *> path = astPath(s->line(), s->column());
                 SimpleDeclarationAST *simpleDecl = nullptr;
-                for (int idx = 0; idx < path.size(); ++idx) {
-                    AST *node = path.at(idx);
+                for (AST *node : path) {
                     simpleDecl = node->asSimpleDeclaration();
                     if (simpleDecl) {
                         if (simpleDecl->symbols && !simpleDecl->symbols->next) {
@@ -3945,13 +3944,12 @@ public:
                 return FoundDeclaration();
             const LookupContext lc(result.file->cppDocument(), snapshot());
             const QList<LookupItem> candidates = lc.lookup(func->name(), matchingNamespace);
-            for (int i = 0; i < candidates.size(); ++i) {
-                if (Symbol *s = candidates.at(i).declaration()) {
+            for (const LookupItem &candidate : candidates) {
+                if (Symbol *s = candidate.declaration()) {
                     if (s->asDeclaration()) {
                         ASTPath astPath(result.file->cppDocument());
                         const QList<AST *> path = astPath(s->line(), s->column());
-                        for (int idx = 0; idx < path.size(); ++idx) {
-                            AST *node = path.at(idx);
+                        for (AST *node : path) {
                             SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration();
                             if (simpleDecl) {
                                 result.ast = functionDeclarator(simpleDecl);
@@ -5154,13 +5152,12 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
         const CppRefactoringFilePtr declFile = refactoring.file(declFileName);
         const LookupContext lc(declFile->cppDocument(), interface.snapshot());
         const QList<LookupItem> candidates = lc.lookup(func->name(), matchingNamespace);
-        for (int i = 0; i < candidates.size(); ++i) {
-            if (Symbol *s = candidates.at(i).declaration()) {
+        for (const LookupItem &candidate : candidates) {
+            if (Symbol *s = candidate.declaration()) {
                 if (s->asDeclaration()) {
                     ASTPath astPath(declFile->cppDocument());
                     const QList<AST *> path = astPath(s->line(), s->column());
-                    for (int idx = 0; idx < path.size(); ++idx) {
-                        AST *node = path.at(idx);
+                    for (AST *node : path) {
                         if (SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration()) {
                             declRange = declFile->range(simpleDecl);
                             declText = declFile->textOf(simpleDecl);
@@ -5604,8 +5601,7 @@ private:
     static QByteArray escapeString(const QByteArray &contents)
     {
         QByteArray newContents;
-        for (int i = 0; i < contents.length(); ++i) {
-            quint8 c = contents.at(i);
+        for (const quint8 c : contents) {
             if (isascii(c) && isprint(c)) {
                 newContents += c;
             } else {

@@ -674,8 +674,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     ASTPath astPathFinder(d->m_lastSemanticInfo.doc);
     const QList<AST *> astPath = astPathFinder(textCursor());
 
-    for (int i = 0, size = astPath.size(); i < size; ++i) {
-        AST *ast = astPath.at(i);
+    for (AST *ast : astPath) {
         if (FunctionDefinitionAST *functionDefinitionAST = ast->asFunctionDefinition()) {
             if ((functionDefinitionSymbol = functionDefinitionAST->symbol))
                 break; // Function definition found!
