@@ -70,12 +70,14 @@ QVariant FilePathItem::data(int column, int role) const
 class ExplainingStepItem : public Utils::TreeItem
 {
 public:
-    ExplainingStepItem(const ExplainingStep &step);
+    ExplainingStepItem(const ExplainingStep &step, int index);
+    int index() const { return m_index; }
 
 private:
     QVariant data(int column, int role) const override;
 
     const ExplainingStep m_step;
+    const int m_index = 0;
 };
 
 ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
@@ -350,8 +352,8 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
     if (!diag.explainingSteps.isEmpty())
         m_parentModel->stepsToItemsCache[diag.explainingSteps].push_back(this);
 
-    foreach (const ExplainingStep &s, diag.explainingSteps)
-        appendChild(new ExplainingStepItem(s));
+    for (int i = 0; i < diag.explainingSteps.size(); ++i )
+        appendChild(new ExplainingStepItem(diag.explainingSteps[i], i));
 }
 
 DiagnosticItem::~DiagnosticItem()
@@ -487,9 +489,10 @@ bool DiagnosticItem::hasNewFixIts() const
     return m_parentModel->stepsToItemsCache[m_diagnostic.explainingSteps].front() == this;
 }
 
-ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step)
-{
-}
+ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step, int index)
+    : m_step(step)
+    , m_index(index)
+{}
 
 // We expect something like "note: ..."
 static QVariant iconForExplainingStepMessage(const QString &message)
@@ -560,7 +563,6 @@ QVariant ExplainingStepItem::data(int column, int role) const
 
     return QVariant();
 }
-
 
 DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -655,22 +657,34 @@ bool DiagnosticFilterModel::lessThan(const QModelIndex &l, const QModelIndex &r)
     const bool isComparingDiagnostics = !dynamic_cast<FilePathItem *>(itemLeft);
 
     if (sortColumn() == Debugger::DetailedErrorView::DiagnosticColumn && isComparingDiagnostics) {
-        using Debugger::DiagnosticLocation;
-        const int role = Debugger::DetailedErrorView::LocationRole;
+        bool result = false;
+        if (dynamic_cast<DiagnosticItem *>(itemLeft)) {
+            using Debugger::DiagnosticLocation;
+            const int role = Debugger::DetailedErrorView::LocationRole;
 
-        const auto leftLoc = sourceModel()->data(l, role).value<DiagnosticLocation>();
-        const auto leftText = sourceModel()->data(l, ClangToolsDiagnosticModel::TextRole).toString();
+            const auto leftLoc = sourceModel()->data(l, role).value<DiagnosticLocation>();
+            const auto leftText
+                = sourceModel()->data(l, ClangToolsDiagnosticModel::TextRole).toString();
 
-        const auto rightLoc = sourceModel()->data(r, role).value<DiagnosticLocation>();
-        const auto rightText = sourceModel()->data(r, ClangToolsDiagnosticModel::TextRole).toString();
+            const auto rightLoc = sourceModel()->data(r, role).value<DiagnosticLocation>();
+            const auto rightText
+                = sourceModel()->data(r, ClangToolsDiagnosticModel::TextRole).toString();
 
-        const int result = std::tie(leftLoc.line, leftLoc.column, leftText)
-                           < std::tie(rightLoc.line, rightLoc.column, rightText);
+            result = std::tie(leftLoc.line, leftLoc.column, leftText)
+                     < std::tie(rightLoc.line, rightLoc.column, rightText);
+        } else if (auto left = dynamic_cast<ExplainingStepItem *>(itemLeft)) {
+            const auto right = dynamic_cast<ExplainingStepItem *>(model->itemForIndex(r));
+            result = left->index() < right->index();
+        } else {
+            QTC_CHECK(false && "Unexpected item");
+        }
+
         if (sortOrder() == Qt::DescendingOrder)
-            return !result; // Ensure that we always sort location from top to bottom.
+            return !result; // Do not change the order of these item as this might be confusing.
         return result;
     }
 
+    // FilePathItem
     return QSortFilterProxyModel::lessThan(l, r);
 }
 
