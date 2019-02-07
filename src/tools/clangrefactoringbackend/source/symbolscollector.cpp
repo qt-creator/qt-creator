@@ -121,12 +121,14 @@ newFrontendActionFactory(Factory *consumerFactory,
       new FrontendActionFactoryAdapter(consumerFactory, sourceFileCallbacks));
 }
 
-void SymbolsCollector::collectSymbols()
+bool SymbolsCollector::collectSymbols()
 {
     auto tool = m_clangTool.createTool();
 
-    tool.run(ClangBackEnd::newFrontendActionFactory(&m_collectSymbolsAction,
-                                                    &m_collectMacrosSourceFileCallbacks).get());
+    auto actionFactory = ClangBackEnd::newFrontendActionFactory(&m_collectSymbolsAction,
+                                                                &m_collectMacrosSourceFileCallbacks);
+
+    return tool.run(actionFactory.get()) != 1;
 }
 
 void SymbolsCollector::doInMainThreadAfterFinished()

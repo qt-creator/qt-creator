@@ -52,7 +52,7 @@ public:
 
     void clear() override;
 
-    void collectSymbols() override;
+    bool collectSymbols() override;
 
     void doInMainThreadAfterFinished() override;
 
