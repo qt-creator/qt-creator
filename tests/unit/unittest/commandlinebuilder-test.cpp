@@ -417,7 +417,7 @@ TYPED_TEST(CommandLineBuilder, C18)
 
     Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
-    ASSERT_THAT(builder.commandLine, Contains("-std=c18"));
+    ASSERT_THAT(builder.commandLine, Contains("-std=c17"));
 }
 
 TYPED_TEST(CommandLineBuilder, GnuC89)
@@ -461,7 +461,7 @@ TYPED_TEST(CommandLineBuilder, GnuC18)
 
     Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
-    ASSERT_THAT(builder.commandLine, Contains("-std=gnu18"));
+    ASSERT_THAT(builder.commandLine, Contains("-std=gnu17"));
 }
 
 TYPED_TEST(CommandLineBuilder, IncludesOrder)
