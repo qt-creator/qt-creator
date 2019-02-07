@@ -612,6 +612,7 @@ public:
 
     void reconfigure();
     void updateSyntaxInfoBar(bool showInfo);
+    void configureGenericHighlighter(const KSyntaxHighlighting::Definition &definition);
 
 public:
     TextEditorWidget *q;
@@ -3295,6 +3296,25 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(bool showInfo)
     } else {
         infoBar->removeInfo(id);
     }
+}
+
+void TextEditorWidgetPrivate::configureGenericHighlighter(
+    const KSyntaxHighlighting::Definition &definition)
+{
+    auto highlighter = new Highlighter();
+    m_document->setSyntaxHighlighter(highlighter);
+
+    if (definition.isValid()) {
+        highlighter->setDefinition(definition);
+        m_commentDefinition.singleLine = definition.singleLineCommentMarker();
+        m_commentDefinition.multiLineStart = definition.multiLineCommentMarker().first;
+        m_commentDefinition.multiLineEnd = definition.multiLineCommentMarker().second;
+        q->setCodeFoldingSupported(true);
+    } else {
+        q->setCodeFoldingSupported(false);
+    }
+
+    m_document->setFontSettings(TextEditorSettings::fontSettings());
 }
 
 bool TextEditorWidget::codeFoldingVisible() const
@@ -8494,27 +8514,11 @@ QString TextEditorWidget::textAt(int from, int to) const
 
 void TextEditorWidget::configureGenericHighlighter()
 {
-    auto highlighter = new Highlighter();
-    textDocument()->setSyntaxHighlighter(highlighter);
-
-    setCodeFoldingSupported(false);
-
     const Highlighter::Definition definition = Highlighter::definitionForDocument(textDocument());
-
-    if (definition.isValid()) {
-        highlighter->setDefinition(definition);
-        d->m_commentDefinition.singleLine = definition.singleLineCommentMarker();
-        d->m_commentDefinition.multiLineStart = definition.multiLineCommentMarker().first;
-        d->m_commentDefinition.multiLineEnd = definition.multiLineCommentMarker().second;
-
-        setCodeFoldingSupported(true);
-    }
-
+    d->configureGenericHighlighter(definition);
     d->updateSyntaxInfoBar(!definition.isValid()
             && !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(
                                   textDocument()->filePath().fileName()));
-
-    textDocument()->setFontSettings(TextEditorSettings::fontSettings());
 }
 
 int TextEditorWidget::blockNumberForVisibleRow(int row) const
