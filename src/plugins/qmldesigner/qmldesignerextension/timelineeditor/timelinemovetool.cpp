@@ -120,7 +120,7 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
     Q_UNUSED(event);
 
     if (auto *current = currentItem()) {
-        if (auto *playhead = current->asTimelineFrameHandle()) {
+        if (current->asTimelineFrameHandle()) {
             double mousePos = event->pos().x();
             double start = current->mapFromFrameToScene(scene()->startFrame());
             double end = current->mapFromFrameToScene(scene()->endFrame());
@@ -142,7 +142,7 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
 
             current->commitPosition(mapToItem(current, current->rect().center()));
 
-            if (TimelineKeyframeItem *currentKeyframe = current->asTimelineKeyframeItem()) {
+            if (current->asTimelineKeyframeItem()) {
                 double frame = std::round(
                     current->mapFromSceneToFrame(current->rect().center().x()));
 
