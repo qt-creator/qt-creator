@@ -38,6 +38,7 @@
 #include <projectexplorer/selectablefilesmodel.h>
 
 #include <utils/algorithm.h>
+#include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -318,16 +319,6 @@ public:
         m_root->checked = Qt::Unchecked;
         propagateDown(index(0, 0, QModelIndex()));
 
-        // <= Qt Creator 4.8 settings provide specific levels: {"level0"}
-        if (checks.size() == 1 && checks.first().startsWith("level")) {
-            bool ok = false;
-            const int level = checks.first().mid(5).toInt(&ok);
-            QTC_ASSERT(ok, return);
-            enableChecksByLevel(level);
-            return;
-        }
-
-        // >= Qt Creator 4.9 settings provide specific checks: {c1, c2, ...}
         for (const QString &check : checks) {
             const QModelIndex index = indexForCheck(check);
             if (!index.isValid())
@@ -436,23 +427,6 @@ private:
         }
     }
 
-    void enableChecksByLevel(int level)
-    {
-        if (level < 0)
-            return;
-
-        ClazyChecksTree *node = m_levelNodes.value(level);
-        QTC_ASSERT(node, return);
-        const QModelIndex index = indexForTree(node);
-        QTC_ASSERT(index.isValid(), return);
-
-        node->checked = Qt::Checked;
-        propagateUp(index);
-        propagateDown(index);
-
-        enableChecksByLevel(--level);
-    }
-
     QModelIndex indexForCheck(const QString &check) const {
         if (check == "*")
             return index(0, 0, QModelIndex());
@@ -536,7 +510,7 @@ public:
         const auto *node = ClazyChecksTree::fromIndex(index);
         if (node->kind == ClazyChecksTree::CheckNode) {
             const QStringList topics = node->checkInfo.topics;
-            return Utils::anyOf(m_topics, [this, topics](const QString &topic) {
+            return Utils::anyOf(m_topics, [topics](const QString &topic) {
                 return topics.contains(topic);
             });
         }
@@ -611,7 +585,7 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const Core::Id &confi
             this, &ClangDiagnosticConfigsWidget::onCopyButtonClicked);
     connect(m_ui->removeButton, &QPushButton::clicked,
             this, &ClangDiagnosticConfigsWidget::onRemoveButtonClicked);
-    connectDiagnosticOptionsChanged();
+    connectClangOnlyOptionsChanged();
 
     connect(m_tidyChecks->checksPrefixesTree,
             &QTreeView::clicked,
@@ -734,14 +708,17 @@ static QStringList normalizeDiagnosticInputOptions(const QString &options)
     return options.simplified().split(QLatin1Char(' '), QString::SkipEmptyParts);
 }
 
-void ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited()
+void ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged()
 {
-    // Clean up input
+    const bool useBuildSystemWarnings = m_clangBaseChecks->useFlagsFromBuildSystemCheckBox
+                                            ->isChecked();
+
+    // Clean up options input
     const QString diagnosticOptions = m_clangBaseChecks->diagnosticOptionsTextEdit->document()
                                           ->toPlainText();
     const QStringList normalizedOptions = normalizeDiagnosticInputOptions(diagnosticOptions);
 
-    // Validate
+    // Validate options input
     const QString errorMessage = validateDiagnosticOptions(normalizedOptions);
     updateValidityWidgets(errorMessage);
     if (!errorMessage.isEmpty()) {
@@ -754,6 +731,7 @@ void ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited()
     // Commit valid changes
     ClangDiagnosticConfig updatedConfig = selectedConfig();
     updatedConfig.setClangOptions(normalizedOptions);
+    updatedConfig.setUseBuildSystemWarnings(useBuildSystemWarnings);
     updateConfig(updatedConfig);
 }
 
@@ -793,10 +771,16 @@ void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
     if (isConfigChooserEmpty())
         return;
 
+    disconnectClangOnlyOptionsChanged();
+    Utils::ExecuteOnDestruction e([this]() { connectClangOnlyOptionsChanged(); });
+
     const ClangDiagnosticConfig &config = selectedConfig();
 
     // Update main button row
     m_ui->removeButton->setEnabled(!config.isReadOnly());
+
+    // Update check box
+    m_clangBaseChecks->useFlagsFromBuildSystemCheckBox->setChecked(config.useBuildSystemWarnings());
 
     // Update Text Edit
     const QString options = m_notAcceptedOptions.contains(config.id())
@@ -894,11 +878,8 @@ bool ClangDiagnosticConfigsWidget::isConfigChooserEmpty() const
 
 void ClangDiagnosticConfigsWidget::setDiagnosticOptions(const QString &options)
 {
-    if (options != m_clangBaseChecks->diagnosticOptionsTextEdit->document()->toPlainText()) {
-        disconnectDiagnosticOptionsChanged();
+    if (options != m_clangBaseChecks->diagnosticOptionsTextEdit->document()->toPlainText())
         m_clangBaseChecks->diagnosticOptionsTextEdit->document()->setPlainText(options);
-        connectDiagnosticOptionsChanged();
-    }
 
     const QString errorMessage
             = validateDiagnosticOptions(normalizeDiagnosticInputOptions(options));
@@ -968,20 +949,28 @@ void ClangDiagnosticConfigsWidget::disconnectConfigChooserCurrentIndex()
                this, &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
 }
 
-void ClangDiagnosticConfigsWidget::connectDiagnosticOptionsChanged()
+void ClangDiagnosticConfigsWidget::connectClangOnlyOptionsChanged()
 {
+    connect(m_clangBaseChecks->useFlagsFromBuildSystemCheckBox,
+            &QCheckBox::stateChanged,
+            this,
+            &ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged);
     connect(m_clangBaseChecks->diagnosticOptionsTextEdit->document(),
             &QTextDocument::contentsChanged,
             this,
-            &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
+            &ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged);
 }
 
-void ClangDiagnosticConfigsWidget::disconnectDiagnosticOptionsChanged()
+void ClangDiagnosticConfigsWidget::disconnectClangOnlyOptionsChanged()
 {
+    disconnect(m_clangBaseChecks->useFlagsFromBuildSystemCheckBox,
+               &QCheckBox::stateChanged,
+               this,
+               &ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged);
     disconnect(m_clangBaseChecks->diagnosticOptionsTextEdit->document(),
                &QTextDocument::contentsChanged,
                this,
-               &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
+               &ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged);
 }
 
 ClangDiagnosticConfigs ClangDiagnosticConfigsWidget::customConfigs() const

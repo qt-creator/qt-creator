@@ -1561,7 +1561,7 @@ void DebuggerPluginPrivate::attachCore()
     const QString lastExternalKit = configValue("LastExternalKit").toString();
     if (!lastExternalKit.isEmpty())
         dlg.setKitId(Id::fromString(lastExternalKit));
-    dlg.setLocalExecutableFile(configValue("LastExternalExecutableFile").toString());
+    dlg.setSymbolFile(configValue("LastExternalExecutableFile").toString());
     dlg.setLocalCoreFile(configValue("LastLocalCoreFile").toString());
     dlg.setRemoteCoreFile(configValue("LastRemoteCoreFile").toString());
     dlg.setOverrideStartScript(configValue("LastExternalStartScript").toString());
@@ -1570,7 +1570,7 @@ void DebuggerPluginPrivate::attachCore()
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    setConfigValue("LastExternalExecutableFile", dlg.localExecutableFile());
+    setConfigValue("LastExternalExecutableFile", dlg.symbolFile());
     setConfigValue("LastLocalCoreFile", dlg.localCoreFile());
     setConfigValue("LastRemoteCoreFile", dlg.remoteCoreFile());
     setConfigValue("LastExternalKit", dlg.kit()->id().toSetting());
@@ -1580,7 +1580,7 @@ void DebuggerPluginPrivate::attachCore()
     IDevice::ConstPtr device = DeviceKitInformation::device(dlg.kit());
     auto runControl = new RunControl(device, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto debugger = new DebuggerRunTool(runControl, dlg.kit());
-    debugger->setInferiorExecutable(dlg.localExecutableFile());
+    debugger->setInferiorExecutable(dlg.symbolFile());
     debugger->setCoreFileName(dlg.localCoreFile());
     debugger->setRunControlName(tr("Core file \"%1\"")
         .arg(dlg.useLocalCoreFile() ? dlg.localCoreFile() : dlg.remoteCoreFile()));

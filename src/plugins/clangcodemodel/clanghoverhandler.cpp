@@ -25,8 +25,9 @@
 
 #include "clanghoverhandler.h"
 
+#include "clangeditordocumentprocessor.h"
+
 #include <coreplugin/helpmanager.h>
-#include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/editordocumenthandle.h>
@@ -61,32 +62,17 @@ static CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(TextEditor
     return nullptr;
 }
 
-static bool editorDocumentProcessorHasDiagnosticAt(TextEditorWidget *editorWidget, int pos)
+static TextMarks diagnosticTextMarksAt(TextEditorWidget *editorWidget, int position)
 {
-    if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
-        int line, column;
-        if (Utils::Text::convertPosition(editorWidget->document(), pos, &line, &column))
-            return processor->hasDiagnosticsAt(line, column);
-    }
+    const auto processor = qobject_cast<ClangEditorDocumentProcessor *>(
+        editorDocumentProcessor(editorWidget));
+    QTC_ASSERT(processor, return TextMarks());
 
-    return false;
-}
+    int line, column;
+    const bool ok = Utils::Text::convertPosition(editorWidget->document(), position, &line, &column);
+    QTC_ASSERT(ok, return TextMarks());
 
-static void processWithEditorDocumentProcessor(TextEditorWidget *editorWidget,
-                                               const QPoint &point,
-                                               int position,
-                                               const Core::HelpItem &helpItem)
-{
-    if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
-        int line, column;
-        if (Utils::Text::convertPosition(editorWidget->document(), position, &line, &column)) {
-            auto layout = new QVBoxLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(2);
-            processor->addDiagnosticToolTipToLayout(line, column, layout);
-            Utils::ToolTip::show(point, layout, editorWidget, qVariantFromValue(helpItem));
-        }
-    }
+    return processor->diagnosticTextMarksAt(line, column);
 }
 
 static QFuture<CppTools::ToolTipInfo> editorDocumentHandlesToolTipInfo(
@@ -189,7 +175,7 @@ void ClangHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
     m_cursorPosition = -1;
 
     // Check for diagnostics (sync)
-    if (!isContextHelpRequest() && editorDocumentProcessorHasDiagnosticAt(editorWidget, pos)) {
+    if (!isContextHelpRequest() && !diagnosticTextMarksAt(editorWidget, pos).isEmpty()) {
         qCDebug(hoverLog) << "Checking for diagnostic at" << pos;
         setPriority(Priority_Diagnostic);
         m_cursorPosition = pos;
@@ -275,10 +261,8 @@ void ClangHoverHandler::operateTooltip(TextEditor::TextEditorWidget *editorWidge
                                        const QPoint &point)
 {
     if (priority() == Priority_Diagnostic) {
-        processWithEditorDocumentProcessor(editorWidget,
-                                           point,
-                                           m_cursorPosition,
-                                           lastHelpItemIdentified());
+        const TextMarks textMarks = diagnosticTextMarksAt(editorWidget, m_cursorPosition);
+        editorWidget->showTextMarksToolTip(point, textMarks);
         return;
     }
 

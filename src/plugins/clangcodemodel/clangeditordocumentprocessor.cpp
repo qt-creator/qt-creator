@@ -48,7 +48,6 @@
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/editordocumenthandle.h>
 
-#include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -292,27 +291,6 @@ TextEditor::QuickFixOperations ClangEditorDocumentProcessor::extraRefactoringOpe
     return extractor.extract(assistInterface.fileName(), currentLine(assistInterface));
 }
 
-bool ClangEditorDocumentProcessor::hasDiagnosticsAt(uint line, uint column) const
-{
-    return m_diagnosticManager.hasDiagnosticsAt(line, column);
-}
-
-void ClangEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint line,
-                                                                uint column,
-                                                                QLayout *target) const
-{
-    using Internal::ClangDiagnosticWidget;
-
-    const QVector<ClangBackEnd::DiagnosticContainer> diagnostics
-        = m_diagnosticManager.diagnosticsAt(line, column);
-
-    target->addWidget(
-        ClangDiagnosticWidget::createWidget(diagnostics, ClangDiagnosticWidget::ToolTip));
-    auto link = TextEditor::DisplaySettings::createAnnotationSettingsLink();
-    target->addWidget(link);
-    target->setAlignment(link, Qt::AlignRight);
-}
-
 void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
 {
     m_updateBackendDocumentTimer.stop(); // Wait for the next call to run().
@@ -321,6 +299,12 @@ void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
 void ClangEditorDocumentProcessor::invalidateDiagnostics()
 {
     m_diagnosticManager.invalidateDiagnostics();
+}
+
+TextEditor::TextMarks ClangEditorDocumentProcessor::diagnosticTextMarksAt(uint line,
+                                                                          uint column) const
+{
+    return m_diagnosticManager.diagnosticTextMarksAt(line, column);
 }
 
 void ClangEditorDocumentProcessor::setParserConfig(
@@ -468,6 +452,10 @@ public:
 
     const QStringList &options() const { return m_options; }
     const Core::Id &diagnosticConfigId() const { return m_diagnosticConfigId; }
+    CppTools::UseBuildSystemWarnings useBuildSystemWarnings() const
+    {
+        return m_useBuildSystemWarnings;
+    }
 
 private:
     void addLanguageOptions()
@@ -507,6 +495,9 @@ private:
     void addDiagnosticOptionsForConfig(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
     {
         m_diagnosticConfigId = diagnosticConfig.id();
+        m_useBuildSystemWarnings = diagnosticConfig.useBuildSystemWarnings()
+                                       ? CppTools::UseBuildSystemWarnings::Yes
+                                       : CppTools::UseBuildSystemWarnings::No;
 
         m_options.append(diagnosticConfig.clangOptions());
         addClangTidyOptions(diagnosticConfig);
@@ -581,6 +572,7 @@ private:
     const CppTools::ProjectPart &m_projectPart;
 
     Core::Id m_diagnosticConfigId;
+    CppTools::UseBuildSystemWarnings m_useBuildSystemWarnings = CppTools::UseBuildSystemWarnings::No;
     CppTools::CompilerOptionsBuilder m_builder;
     QStringList m_options;
 };
@@ -602,12 +594,12 @@ void ClangEditorDocumentProcessor::updateBackendDocument(CppTools::ProjectPart &
             return;
     }
 
-    const QStringList projectPartOptions = ClangCodeModel::Utils::createClangOptions(
-        projectPart,
-        CppTools::ProjectFile::Unsupported); // No language option as FileOptionsBuilder adds it.
-
     const FileOptionsBuilder fileOptions(filePath(), projectPart);
     m_diagnosticConfigId = fileOptions.diagnosticConfigId();
+
+    const QStringList projectPartOptions = ClangCodeModel::Utils::createClangOptions(
+        projectPart, fileOptions.useBuildSystemWarnings(),
+        CppTools::ProjectFile::Unsupported); // No language option as FileOptionsBuilder adds it.
 
     const QStringList compilationArguments = projectPartOptions + fileOptions.options();
 

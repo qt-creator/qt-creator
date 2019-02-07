@@ -55,14 +55,6 @@ public:
 
     static void init();
 
-    static void publishDiagnostics(const Core::Id &id,
-                                   const LanguageServerProtocol::PublishDiagnosticsParams &params, Client *publishingClient);
-
-    static void removeMark(LanguageClientMark *mark);
-    static void removeMarks(const Utils::FileName &fileName);
-    static void removeMarks(const Utils::FileName &fileName, const Core::Id &id);
-    static void removeMarks(const Core::Id &id);
-
     static void startClient(Client *client);
     static QVector<Client *> clients();
 
@@ -101,7 +93,6 @@ private:
 
     bool m_shuttingDown = false;
     QVector<Client *> m_clients;
-    QHash<Utils::FileName, QHash<Core::Id, QVector<LanguageClientMark *>>> m_marks;
     QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
 
     friend class LanguageClientPlugin;

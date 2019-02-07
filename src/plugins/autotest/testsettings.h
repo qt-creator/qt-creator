@@ -49,6 +49,7 @@ struct TestSettings
     bool autoScroll = true;
     bool filterScan = false;
     bool processArgs = false;
+    bool displayApplication = false;
     QHash<Core::Id, bool> frameworks;
     QHash<Core::Id, bool> frameworksGrouping;
     QStringList whiteListFilters;

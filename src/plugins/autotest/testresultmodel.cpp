@@ -24,9 +24,12 @@
 ****************************************************************************/
 
 #include "autotesticons.h"
+#include "autotestplugin.h"
 #include "testresultdelegate.h"
 #include "testresultmodel.h"
+#include "testsettings.h"
 
+#include <projectexplorer/projectexplorericons.h>
 #include <utils/qtcassert.h>
 
 #include <QFontMetrics>
@@ -62,6 +65,7 @@ static QIcon testResultIcon(Result::Type result) {
         QIcon(),
         Icons::RESULT_MESSAGEPASSWARN.icon(),
         Icons::RESULT_MESSAGEFAILWARN.icon(),
+        ProjectExplorer::Icons::DESKTOP_DEVICE.icon(),  // for now
     }; // provide an icon for unknown??
 
     if (result < 0 || result >= Result::MessageInternal) {
@@ -74,6 +78,8 @@ static QIcon testResultIcon(Result::Type result) {
             return icons[16];
         case Result::MessageTestCaseFailWarn:
             return icons[17];
+        case Result::Application:
+            return icons[18];
         default:
             return QIcon();
         }
@@ -224,7 +230,32 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
     m_testResultCount[testResult->result()]++;
 
     TestResultItem *newItem = new TestResultItem(testResult);
-    TestResultItem *parentItem = findParentItemFor(newItem);
+
+    TestResultItem *root = nullptr;
+    if (AutotestPlugin::settings()->displayApplication) {
+        const QString application = testResult->id();
+        if (!application.isEmpty()) {
+            for (int row = rootItem()->childCount() - 1; row >= 0; --row) {
+                TestResultItem *tmp = static_cast<TestResultItem *>(rootItem()->childAt(row));
+                auto tmpTestResult = tmp->testResult();
+                if (tmpTestResult->id() == application) {
+                    root = tmp;
+                    break;
+                }
+            }
+            if (!root) {
+                TestResult *tmpAppResult = new TestResult(application, application);
+                tmpAppResult->setResult(Result::Application);
+                root = new TestResultItem(TestResultPtr(tmpAppResult));
+                if (lastRow >= 0)
+                    rootItem()->insertChild(lastRow, root);
+                else
+                    rootItem()->appendChild(root);
+            }
+        }
+    }
+
+    TestResultItem *parentItem = findParentItemFor(newItem, root);
     addFileName(testResult->fileName()); // ensure we calculate the results pane correctly
     if (parentItem) {
         parentItem->appendChild(newItem);
@@ -373,7 +404,7 @@ void TestResultFilterModel::enableAllResultTypes()
               << Result::MessageTestCaseSuccess << Result::MessageTestCaseSuccessWarn
               << Result::MessageTestCaseFail << Result::MessageTestCaseFailWarn
               << Result::MessageTestCaseEnd
-              << Result::MessageInfo << Result::MessageSystem;
+              << Result::MessageInfo << Result::MessageSystem << Result::Application;
     invalidateFilter();
 }
 

@@ -223,7 +223,7 @@ bool PreconfiguredSessionTests::switchToProjectAndTarget(Project *project,
         SessionManager::setActiveTarget(project, target, ProjectExplorer::SetActive::NoCascade);
         QTC_ASSERT(spyFinishedParsing.wait(30000), return false);
 
-        const QVariant projectArgument = spyFinishedParsing.takeFirst().takeFirst();
+        const QVariant projectArgument = spyFinishedParsing.takeFirst().constFirst();
         QTC_ASSERT(projectArgument.canConvert<ProjectExplorer::Project *>(), return false);
 
         return projectArgument.value<ProjectExplorer::Project *>() == project;

@@ -42,6 +42,7 @@ static const char autoScrollKey[]           = "AutoScrollResults";
 static const char filterScanKey[]           = "FilterScan";
 static const char filtersKey[]              = "WhiteListFilters";
 static const char processArgsKey[]          = "ProcessArgs";
+static const char displayApplicationKey[]   = "DisplayApp";
 static const char groupSuffix[]             = ".group";
 
 constexpr int defaultTimeout = 60000;
@@ -60,6 +61,7 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(limitResultOutputKey, limitResultOutput);
     s->setValue(autoScrollKey, autoScroll);
     s->setValue(processArgsKey, processArgs);
+    s->setValue(displayApplicationKey, displayApplication);
     s->setValue(filterScanKey, filterScan);
     s->setValue(filtersKey, whiteListFilters);
     // store frameworks and their current active and grouping state
@@ -79,6 +81,7 @@ void TestSettings::fromSettings(QSettings *s)
     limitResultOutput = s->value(limitResultOutputKey, true).toBool();
     autoScroll = s->value(autoScrollKey, true).toBool();
     processArgs = s->value(processArgsKey, false).toBool();
+    displayApplication = s->value(displayApplicationKey, false).toBool();
     filterScan = s->value(filterScanKey, false).toBool();
     whiteListFilters = s->value(filtersKey, QStringList()).toStringList();
     // try to get settings for registered frameworks

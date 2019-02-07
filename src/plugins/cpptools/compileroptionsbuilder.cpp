@@ -99,12 +99,14 @@ CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                UseSystemHeader useSystemHeader,
                                                UseTweakedHeaderPaths useTweakedHeaderPaths,
                                                UseLanguageDefines useLanguageDefines,
+                                               UseBuildSystemWarnings useBuildSystemWarnings,
                                                const QString &clangVersion,
                                                const QString &clangResourceDirectory)
     : m_projectPart(projectPart)
     , m_useSystemHeader(useSystemHeader)
     , m_useTweakedHeaderPaths(useTweakedHeaderPaths)
     , m_useLanguageDefines(useLanguageDefines)
+    , m_useBuildSystemWarnings(useBuildSystemWarnings)
     , m_clangVersion(clangVersion)
     , m_clangResourceDirectory(clangResourceDirectory)
 {
@@ -707,10 +709,11 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             continue;
         }
 
-        // Ignore warning flags as these interfere with ouser user-configured diagnostics.
+        // Ignore warning flags as these interfere with our user-configured diagnostics.
         // Note that once "-w" is provided, no warnings will be emitted, even if "-Wall" follows.
-        if (option.startsWith("-w", Qt::CaseInsensitive)
-            || option.startsWith("/w", Qt::CaseInsensitive) || option.startsWith("-pedantic")) {
+        if (m_useBuildSystemWarnings == UseBuildSystemWarnings::No
+            && (option.startsWith("-w", Qt::CaseInsensitive)
+                || option.startsWith("/w", Qt::CaseInsensitive) || option.startsWith("-pedantic"))) {
             // -w, -W, /w, /W...
             continue;
         }

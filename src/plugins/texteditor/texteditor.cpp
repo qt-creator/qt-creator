@@ -563,6 +563,9 @@ public:
 
     void processTooltipRequest(const QTextCursor &c);
     bool processAnnotaionTooltipRequest(const QTextBlock &block, const QPoint &pos) const;
+    void showTextMarksToolTip(const QPoint &pos,
+                              const TextMarks &marks,
+                              const TextMark *mainTextMark = nullptr) const;
 
     void transformSelection(TransformationMethod method);
     void transformBlockSelection(TransformationMethod method);
@@ -834,6 +837,68 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
     q->disconnect(this);
     delete m_toolBarWidget;
     delete m_highlightScrollBarController;
+}
+
+static QFrame *createSeparator(const QString &styleSheet)
+{
+    QFrame* separator = new QFrame();
+    separator->setStyleSheet(styleSheet);
+    separator->setFrameShape(QFrame::HLine);
+    QSizePolicy sizePolicy = separator->sizePolicy();
+    sizePolicy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
+    separator->setSizePolicy(sizePolicy);
+
+    return separator;
+}
+
+static QLayout *createSeparatorLayout()
+{
+    QString styleSheet = "color: gray";
+
+    QFrame* separator1 = createSeparator(styleSheet);
+    QFrame* separator2 = createSeparator(styleSheet);
+    auto label = new QLabel(TextEditorWidget::tr("Other annotations"));
+    label->setStyleSheet(styleSheet);
+
+    auto layout = new QHBoxLayout;
+    layout->addWidget(separator1);
+    layout->addWidget(label);
+    layout->addWidget(separator2);
+
+    return layout;
+}
+
+void TextEditorWidgetPrivate::showTextMarksToolTip(const QPoint &pos,
+                                                   const TextMarks &marks,
+                                                   const TextMark *mainTextMark) const
+{
+    if (!mainTextMark && marks.isEmpty())
+        return; // Nothing to show
+
+    TextMarks allMarks = marks;
+
+    auto layout = new QGridLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(2);
+
+    if (mainTextMark) {
+        mainTextMark->addToToolTipLayout(layout);
+        if (allMarks.size() > 1)
+            layout->addLayout(createSeparatorLayout(), layout->rowCount(), 0, 1, -1);
+    }
+
+    Utils::sort(allMarks, [](const TextMark *mark1, const TextMark *mark2) {
+        return mark1->priority() > mark2->priority();
+    });
+
+    for (const TextMark *mark : qAsConst(allMarks)) {
+        if (mark != mainTextMark)
+            mark->addToToolTipLayout(layout);
+    }
+
+    layout->addWidget(DisplaySettings::createAnnotationSettingsLink(),
+                      layout->rowCount(), 0, 1, -1, Qt::AlignRight);
+    ToolTip::show(pos, layout, q);
 }
 
 } // namespace Internal
@@ -3490,6 +3555,13 @@ QPoint TextEditorWidget::toolTipPosition(const QTextCursor &c) const
     return cursorPos + QPoint(d->m_extraArea->width(), HostOsInfo::isWindowsHost() ? -24 : -16);
 }
 
+void TextEditorWidget::showTextMarksToolTip(const QPoint &pos,
+                                            const TextMarks &marks,
+                                            const TextMark *mainTextMark) const
+{
+    d->showTextMarksToolTip(pos, marks, mainTextMark);
+}
+
 void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
 {
     const QPoint toolTipPoint = q->toolTipPosition(c);
@@ -3516,33 +3588,7 @@ bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &b
     for (const AnnotationRect &annotationRect : m_annotationRects[block.blockNumber()]) {
         if (!annotationRect.rect.contains(pos))
             continue;
-
-        auto layout = new QGridLayout;
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->setSpacing(2);
-        annotationRect.mark->addToToolTipLayout(layout);
-        TextMarks marks = blockUserData->marks();
-        if (marks.size() > 1) {
-            QFrame* separator = new QFrame();
-            separator->setFrameShape(QFrame::HLine);
-            layout->addWidget(separator, layout->rowCount(), 0, 1, -1);
-            layout->addWidget(new QLabel(TextEditorWidget::tr("Other annotations:")),
-                              layout->rowCount(),
-                              0,
-                              1,
-                              -1);
-
-            Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
-                return mark1->priority() > mark2->priority();
-            });
-            for (const TextMark *mark : qAsConst(marks)) {
-                if (mark != annotationRect.mark)
-                    mark->addToToolTipLayout(layout);
-            }
-        }
-        layout->addWidget(DisplaySettings::createAnnotationSettingsLink(),
-                          layout->rowCount(), 0, 1, -1, Qt::AlignRight);
-        ToolTip::show(q->mapToGlobal(pos), layout, q);
+        showTextMarksToolTip(q->mapToGlobal(pos), blockUserData->marks(), annotationRect.mark);
         return true;
     }
     return false;
@@ -5787,16 +5833,10 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             int line = cursor.blockNumber() + 1;
             if (d->extraAreaPreviousMarkTooltipRequestedLine != line) {
                 if (auto data = static_cast<TextBlockUserData *>(cursor.block().userData())) {
-                    if (data->marks().isEmpty()) {
+                    if (data->marks().isEmpty())
                         ToolTip::hide();
-                    } else {
-                        auto layout = new QGridLayout;
-                        layout->setContentsMargins(0, 0, 0, 0);
-                        layout->setSpacing(2);
-                        foreach (TextMark *mark, data->marks())
-                            mark->addToToolTipLayout(layout);
-                        ToolTip::show(mapToGlobal(e->pos()), layout, this);
-                    }
+                    else
+                        d->showTextMarksToolTip(mapToGlobal(e->pos()), data->marks());
                 }
             }
             d->extraAreaPreviousMarkTooltipRequestedLine = line;

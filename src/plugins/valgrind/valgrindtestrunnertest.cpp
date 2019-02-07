@@ -160,7 +160,7 @@ void ValgrindTestRunnerTest::testLeak1()
     QCOMPARE(error.leakedBlocks(), qint64(1));
     QCOMPARE(error.leakedBytes(), quint64(8));
     QCOMPARE(error.stacks().count(), 1);
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 2);
     {
@@ -195,7 +195,7 @@ void ValgrindTestRunnerTest::testLeak2()
     QCOMPARE(error.leakedBlocks(), qint64(1));
     QCOMPARE(error.leakedBytes(), quint64(5));
     QCOMPARE(error.stacks().count(), 1);
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 3);
     {
@@ -235,7 +235,7 @@ void ValgrindTestRunnerTest::testLeak3()
     QCOMPARE(error.leakedBlocks(), qint64(1));
     QCOMPARE(error.leakedBytes(), quint64(5));
     QCOMPARE(error.stacks().count(), 1);
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 3);
     {
@@ -284,7 +284,7 @@ void ValgrindTestRunnerTest::testLeak4()
     QCOMPARE(error.leakedBlocks(), qint64(1));
     QCOMPARE(error.leakedBytes(), quint64(8));
     QCOMPARE(error.stacks().count(), 1);
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 3);
     {
@@ -325,7 +325,7 @@ void ValgrindTestRunnerTest::testLeak4()
     else
         QCOMPARE(error.leakedBytes(), quint64(12));
     QCOMPARE(error.stacks().count(), 1);
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 2);
     {
@@ -364,11 +364,11 @@ void ValgrindTestRunnerTest::testUninit1()
     QCOMPARE(error.stacks().count(), 2);
     //BEGIN first stack
     {
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 1);
 
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
@@ -378,11 +378,11 @@ void ValgrindTestRunnerTest::testUninit1()
     }
     //BEGIN second stack
     {
-    const Stack stack = error.stacks().last();
+    const Stack stack = error.stacks().constLast();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 1);
 
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
@@ -412,11 +412,11 @@ void ValgrindTestRunnerTest::testUninit2()
     QCOMPARE(error.stacks().count(), 2);
     //BEGIN first stack
     {
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 1);
 
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
@@ -426,11 +426,11 @@ void ValgrindTestRunnerTest::testUninit2()
     }
     //BEGIN second stack
     {
-    const Stack stack = error.stacks().last();
+    const Stack stack = error.stacks().constLast();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 1);
 
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
@@ -445,11 +445,11 @@ void ValgrindTestRunnerTest::testUninit2()
     QCOMPARE(error.kind(), int(InvalidWrite));
     QCOMPARE(error.stacks().count(), 1);
 
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 1);
 
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
@@ -479,11 +479,11 @@ void ValgrindTestRunnerTest::testUninit3()
     QCOMPARE(error.stacks().count(), 2);
     //BEGIN first stack
     {
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 1);
 
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
@@ -493,11 +493,11 @@ void ValgrindTestRunnerTest::testUninit3()
     }
     //BEGIN second stack
     {
-    const Stack stack = error.stacks().last();
+    const Stack stack = error.stacks().constLast();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 1);
 
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
@@ -512,11 +512,11 @@ void ValgrindTestRunnerTest::testUninit3()
     QCOMPARE(error.kind(), int(InvalidRead));
     QCOMPARE(error.stacks().count(), 1);
 
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 1);
 
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
@@ -543,7 +543,7 @@ void ValgrindTestRunnerTest::testSyscall()
     QCOMPARE(error.stacks().count(), 2);
     //BEGIN first stack
     {
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     if (on64bit()) {
         QCOMPARE(stack.frames().count(), 4);
@@ -574,11 +574,11 @@ void ValgrindTestRunnerTest::testSyscall()
     }
     //BEGIN second stack
     {
-    const Stack stack = error.stacks().last();
+    const Stack stack = error.stacks().constLast();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 1);
 
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 2 + HEADER_LENGTH);
 
@@ -605,16 +605,16 @@ void ValgrindTestRunnerTest::testFree1()
     QVERIFY(error.stacks().count() >= 2);
     //BEGIN first stack
     {
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 2);
 
     {
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("operator delete(void*)"));
     }
     {
-    const Frame frame = stack.frames().last();
+    const Frame frame = stack.frames().constLast();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
@@ -630,11 +630,11 @@ void ValgrindTestRunnerTest::testFree1()
     QCOMPARE(stack.frames().count(), 2);
 
     {
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("operator delete(void*)"));
     }
     {
-    const Frame frame = stack.frames().last();
+    const Frame frame = stack.frames().constLast();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
@@ -662,16 +662,16 @@ void ValgrindTestRunnerTest::testFree2()
     QCOMPARE(error.stacks().count(), 2);
     //BEGIN first stack
     {
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 2);
 
     {
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     QCOMPARE(frame.functionName(), QString("free"));
     }
     {
-    const Frame frame = stack.frames().last();
+    const Frame frame = stack.frames().constLast();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
@@ -682,20 +682,20 @@ void ValgrindTestRunnerTest::testFree2()
     }
     //BEGIN second stack
     {
-    const Stack stack = error.stacks().last();
+    const Stack stack = error.stacks().constLast();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 2);
 
 
     {
-    const Frame frame = stack.frames().first();
+    const Frame frame = stack.frames().constFirst();
     if (on64bit())
         QCOMPARE(frame.functionName(), QString("operator new(unsigned long)"));
     else
         QCOMPARE(frame.functionName(), QString("operator new(unsigned int)"));
     }
     {
-    const Frame frame = stack.frames().last();
+    const Frame frame = stack.frames().constLast();
     QCOMPARE(frame.functionName(), QString("main"));
     QCOMPARE(frame.line(), 5 + HEADER_LENGTH);
 
@@ -721,7 +721,7 @@ void ValgrindTestRunnerTest::testInvalidjump()
     const Error error = m_errors.first();
     QCOMPARE(error.kind(), int(InvalidJump));
     QCOMPARE(error.stacks().count(), 1);
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 2);
     QVERIFY(!stack.auxWhat().isEmpty());
@@ -751,7 +751,7 @@ void ValgrindTestRunnerTest::testOverlap()
     const Error error = m_errors.first();
     QCOMPARE(error.kind(), int(Overlap));
     QCOMPARE(error.stacks().count(), 1);
-    const Stack stack = error.stacks().first();
+    const Stack stack = error.stacks().constFirst();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 2);
     {
@@ -759,7 +759,7 @@ void ValgrindTestRunnerTest::testOverlap()
         QVERIFY(frame.functionName().startsWith("memcpy"));
     }
     {
-        const Frame frame = stack.frames().last();
+        const Frame frame = stack.frames().constLast();
         QCOMPARE(frame.functionName(), QLatin1String("main"));
         QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 

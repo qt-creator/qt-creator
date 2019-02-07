@@ -55,6 +55,8 @@ TestResult::TestResult(const QString &id, const QString &name)
 
 const QString TestResult::outputString(bool selected) const
 {
+    if (m_result == Result::Application)
+        return m_id;
     return selected ? m_description : m_description.split('\n').first();
 }
 
@@ -145,6 +147,7 @@ QString TestResult::resultToString(const Result::Type type)
     case Result::BlacklistedXFail:
         return QString("BXFAIL");
     case Result::MessageLocation:
+    case Result::Application:
         return QString();
     default:
         if (type >= Result::INTERNAL_MESSAGES_BEGIN && type <= Result::INTERNAL_MESSAGES_END)

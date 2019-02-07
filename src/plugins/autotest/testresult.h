@@ -67,6 +67,8 @@ enum Type {
     MessageIntermediate,
     MessageCurrentTest, INTERNAL_MESSAGES_END = MessageCurrentTest,
 
+    Application,
+
     Invalid,
     LAST_TYPE = Invalid
 };

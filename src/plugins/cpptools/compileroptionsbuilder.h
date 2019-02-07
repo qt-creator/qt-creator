@@ -36,6 +36,7 @@ enum class UseSystemHeader : char { Yes, No };
 enum class UseTweakedHeaderPaths : char { Yes, No };
 enum class UseToolchainMacros : char { Yes, No };
 enum class UseLanguageDefines : char { Yes, No };
+enum class UseBuildSystemWarnings : char { Yes, No };
 
 CPPTOOLS_EXPORT QStringList XclangArgs(const QStringList &args);
 CPPTOOLS_EXPORT QStringList clangArgsForCl(const QStringList &args);
@@ -43,12 +44,14 @@ CPPTOOLS_EXPORT QStringList clangArgsForCl(const QStringList &args);
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {
 public:
-    CompilerOptionsBuilder(const ProjectPart &projectPart,
-                           UseSystemHeader useSystemHeader = UseSystemHeader::No,
-                           UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::No,
-                           UseLanguageDefines useLanguageDefines = UseLanguageDefines::No,
-                           const QString &clangVersion = QString(),
-                           const QString &clangResourceDirectory = QString());
+    CompilerOptionsBuilder(
+        const ProjectPart &projectPart,
+        UseSystemHeader useSystemHeader = UseSystemHeader::No,
+        UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::No,
+        UseLanguageDefines useLanguageDefines = UseLanguageDefines::No,
+        UseBuildSystemWarnings useBuildSystemWarnings = UseBuildSystemWarnings::No,
+        const QString &clangVersion = QString(),
+        const QString &clangResourceDirectory = QString());
 
     QStringList build(ProjectFile::Kind fileKind, UsePrecompiledHeaders usePrecompiledHeaders);
     QStringList options() const { return m_options; }
@@ -99,6 +102,7 @@ private:
     const UseSystemHeader m_useSystemHeader;
     const UseTweakedHeaderPaths m_useTweakedHeaderPaths;
     const UseLanguageDefines m_useLanguageDefines;
+    const UseBuildSystemWarnings m_useBuildSystemWarnings;
 
     const QString m_clangVersion;
     const QString m_clangResourceDirectory;

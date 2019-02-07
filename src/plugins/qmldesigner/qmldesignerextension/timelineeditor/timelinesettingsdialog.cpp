@@ -43,6 +43,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QKeyEvent>
 #include <QToolBar>
 
 namespace QmlDesigner {

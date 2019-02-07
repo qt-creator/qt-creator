@@ -83,8 +83,8 @@ public:
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface) override;
 
     void invalidateDiagnostics() override;
-    bool hasDiagnosticsAt(uint line, uint column) const override;
-    void addDiagnosticToolTipToLayout(uint line, uint column, QLayout *target) const override;
+
+    TextEditor::TextMarks diagnosticTextMarksAt(uint line, uint column) const;
 
     void editorDocumentTimerRestarted() override;
 

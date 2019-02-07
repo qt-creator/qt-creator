@@ -207,7 +207,7 @@ public:
 
     QCheckBox *forceLocalCheckBox;
     QLabel *forceLocalLabel;
-    PathChooser *localExecFileName;
+    PathChooser *symbolFileName;
     PathChooser *localCoreFileName;
     QLineEdit *remoteCoreFileName;
     QPushButton *selectRemoteCoreButton;
@@ -220,11 +220,11 @@ public:
     {
         bool isValid() const
         {
-            return validKit && validLocalExecFilename && validCoreFilename;
+            return validKit && validSymbolFilename && validCoreFilename;
         }
 
         bool validKit;
-        bool validLocalExecFilename;
+        bool validSymbolFilename;
         bool validCoreFilename;
         bool localCoreFile;
         bool localKit;
@@ -235,7 +235,7 @@ public:
         State st;
         st.localCoreFile = p.useLocalCoreFile();
         st.validKit = (kitChooser->currentKit() != nullptr);
-        st.validLocalExecFilename = localExecFileName->isValid();
+        st.validSymbolFilename = symbolFileName->isValid();
 
         if (st.localCoreFile)
             st.validCoreFilename = localCoreFileName->isValid();
@@ -274,10 +274,14 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->localCoreFileName->setExpectedKind(PathChooser::File);
     d->localCoreFileName->setPromptDialogTitle(tr("Select Core File"));
 
-    d->localExecFileName = new PathChooser(this);
-    d->localExecFileName->setHistoryCompleter("LocalExecutable");
-    d->localExecFileName->setExpectedKind(PathChooser::File);
-    d->localExecFileName->setPromptDialogTitle(tr("Select Executable"));
+    d->symbolFileName = new PathChooser(this);
+    d->symbolFileName->setHistoryCompleter("LocalExecutable");
+    d->symbolFileName->setExpectedKind(PathChooser::File);
+    d->symbolFileName->setPromptDialogTitle(tr("Select Executable or Symbol File"));
+    d->symbolFileName->setToolTip(
+        tr("Select a file containing debug information corresponding to the core file. "
+           "Typically, this is the executable or a *.debug file if the debug "
+           "information is stored separately from the executable."));
 
     d->overrideStartScriptFileName = new PathChooser(this);
     d->overrideStartScriptFileName->setHistoryCompleter("Debugger.StartupScript.History");
@@ -296,7 +300,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     formLayout->addRow(tr("Kit:"), d->kitChooser);
     formLayout->addRow(d->forceLocalLabel, d->forceLocalCheckBox);
     formLayout->addRow(tr("Core file:"), coreLayout);
-    formLayout->addRow(tr("&Executable:"), d->localExecFileName);
+    formLayout->addRow(tr("&Executable or symbol file:"), d->symbolFileName);
     formLayout->addRow(tr("Override &start script:"), d->overrideStartScriptFileName);
 
     auto line = new QFrame(this);
@@ -321,7 +325,7 @@ int AttachCoreDialog::exec()
 {
     connect(d->selectRemoteCoreButton, &QAbstractButton::clicked, this, &AttachCoreDialog::selectRemoteCoreFile);
     connect(d->remoteCoreFileName, &QLineEdit::textChanged, this, &AttachCoreDialog::coreFileChanged);
-    connect(d->localExecFileName, &PathChooser::rawPathChanged, this, &AttachCoreDialog::changed);
+    connect(d->symbolFileName, &PathChooser::rawPathChanged, this, &AttachCoreDialog::changed);
     connect(d->localCoreFileName, &PathChooser::rawPathChanged, this, &AttachCoreDialog::coreFileChanged);
     connect(d->forceLocalCheckBox, &QCheckBox::stateChanged, this, &AttachCoreDialog::changed);
     connect(d->kitChooser, &KitChooser::currentIndexChanged, this, &AttachCoreDialog::changed);
@@ -337,8 +341,8 @@ int AttachCoreDialog::exec()
             d->localCoreFileName->setFocus();
         else
             d->remoteCoreFileName->setFocus();
-    } else if (!st.validLocalExecFilename) {
-        d->localExecFileName->setFocus();
+    } else if (!st.validSymbolFilename) {
+        d->symbolFileName->setFocus();
     }
 
     return QDialog::exec();
@@ -366,9 +370,9 @@ void AttachCoreDialog::coreFileChanged(const QString &core)
         Runnable debugger = DebuggerKitInformation::runnable(k);
         CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, core);
         if (!cinfo.foundExecutableName.isEmpty())
-            d->localExecFileName->setFileName(FileName::fromString(cinfo.foundExecutableName));
-        else if (!d->localExecFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
-            d->localExecFileName->setFileName(FileName::fromString(cinfo.rawStringFromCore));
+            d->symbolFileName->setFileName(FileName::fromString(cinfo.foundExecutableName));
+        else if (!d->symbolFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
+            d->symbolFileName->setFileName(FileName::fromString(cinfo.rawStringFromCore));
     }
     changed();
 }
@@ -411,14 +415,14 @@ QString AttachCoreDialog::localCoreFile() const
     return d->localCoreFileName->path();
 }
 
-QString AttachCoreDialog::localExecutableFile() const
+QString AttachCoreDialog::symbolFile() const
 {
-    return d->localExecFileName->path();
+    return d->symbolFileName->path();
 }
 
-void AttachCoreDialog::setLocalExecutableFile(const QString &fileName)
+void AttachCoreDialog::setSymbolFile(const QString &symbolFileName)
 {
-    d->localExecFileName->setPath(fileName);
+    d->symbolFileName->setPath(symbolFileName);
 }
 
 void AttachCoreDialog::setLocalCoreFile(const QString &fileName)

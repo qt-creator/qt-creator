@@ -33,12 +33,13 @@
 #include <coreplugin/messagemanager.h>
 #include <utils/link.h>
 
+#include <languageserverprotocol/client.h>
+#include <languageserverprotocol/diagnostics.h>
 #include <languageserverprotocol/initializemessages.h>
+#include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/messages.h>
 #include <languageserverprotocol/shutdownmessages.h>
 #include <languageserverprotocol/textsynchronization.h>
-#include <languageserverprotocol/messages.h>
-#include <languageserverprotocol/client.h>
-#include <languageserverprotocol/languagefeatures.h>
 
 #include <QBuffer>
 #include <QHash>
@@ -50,13 +51,15 @@ namespace Core { class IDocument; }
 namespace ProjectExplorer { class Project; }
 namespace TextEditor
 {
-    class TextDocument;
-    class TextEditorWidget;
+class TextDocument;
+class TextEditorWidget;
+class TextMark;
 }
 
 namespace LanguageClient {
 
 class BaseClientInterface;
+class TextMark;
 
 class Client : public QObject
 {
@@ -153,6 +156,8 @@ private:
     void handleMethod(const QString &method, LanguageServerProtocol::MessageId id,
                       const LanguageServerProtocol::IContent *content);
 
+    void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
+
     void intializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
     void shutDownCallback(const LanguageServerProtocol::ShutdownRequest::Response &shutdownResponse);
     bool sendWorkspceFolderChanges() const;
@@ -161,6 +166,9 @@ private:
 
     void showMessageBox(const LanguageServerProtocol::ShowMessageRequestParams &message,
                         const LanguageServerProtocol::MessageId &id);
+
+    void showDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
+    void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,
@@ -180,6 +188,7 @@ private:
     QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;
     QScopedPointer<BaseClientInterface> m_clientInterface;
+    QMap<LanguageServerProtocol::DocumentUri, QList<TextMark *>> m_diagnostics;
 };
 
 } // namespace LanguageClient

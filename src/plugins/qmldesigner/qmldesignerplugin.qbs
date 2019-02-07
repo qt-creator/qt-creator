@@ -27,7 +27,11 @@ Project {
         Depends { name: "QtSupport" }
         Depends { name: "app_version_header" }
 
-        cpp.defines: base.concat("DESIGNER_CORE_LIBRARY")
+        cpp.defines: base.concat([
+            "DESIGNER_CORE_LIBRARY",
+            "TIMELINE_QML_PATH=\"" + FileInfo.joinPaths(path, "qmldesignerextension",
+                                                        "timelineeditor", "qml") + "\""
+        ])
         cpp.enableExceptions: true
         cpp.includePaths: base.concat([
              ".",
@@ -51,6 +55,7 @@ Project {
              "components/texteditor",
              "qmldesignerextension",
              "qmldesignerextension/connectioneditor",
+             "qmldesignerextension/timelineeditor",
         ])
 
         Properties {
@@ -635,6 +640,72 @@ Project {
                 "texttool/textedititemwidget.h",
                 "texttool/texttool.cpp",
                 "texttool/texttool.h",
+                "timelineeditor/canvas.cpp",
+                "timelineeditor/canvas.h",
+                "timelineeditor/canvasstyledialog.cpp",
+                "timelineeditor/canvasstyledialog.h",
+                "timelineeditor/easingcurve.cpp",
+                "timelineeditor/easingcurve.h",
+                "timelineeditor/easingcurvedialog.cpp",
+                "timelineeditor/easingcurvedialog.h",
+                "timelineeditor/preseteditor.cpp",
+                "timelineeditor/preseteditor.h",
+                "timelineeditor/setframevaluedialog.cpp",
+                "timelineeditor/setframevaluedialog.h",
+                "timelineeditor/setframevaluedialog.ui",
+                "timelineeditor/splineeditor.cpp",
+                "timelineeditor/splineeditor.h",
+                "timelineeditor/timeline.qrc",
+                "timelineeditor/timelineabstracttool.cpp",
+                "timelineeditor/timelineabstracttool.h",
+                "timelineeditor/timelineactions.cpp",
+                "timelineeditor/timelineactions.h",
+                "timelineeditor/timelineanimationform.cpp",
+                "timelineeditor/timelineanimationform.h",
+                "timelineeditor/timelineanimationform.ui",
+                "timelineeditor/timelineconstants.h",
+                "timelineeditor/timelinecontext.cpp",
+                "timelineeditor/timelinecontext.h",
+                "timelineeditor/timelinecontrols.cpp",
+                "timelineeditor/timelinecontrols.h",
+                "timelineeditor/timelineform.cpp",
+                "timelineeditor/timelineform.h",
+                "timelineeditor/timelineform.ui",
+                "timelineeditor/timelinegraphicslayout.cpp",
+                "timelineeditor/timelinegraphicslayout.h",
+                "timelineeditor/timelinegraphicsscene.cpp",
+                "timelineeditor/timelinegraphicsscene.h",
+                "timelineeditor/timelineicons.h",
+                "timelineeditor/timelineitem.cpp",
+                "timelineeditor/timelineitem.h",
+                "timelineeditor/timelinemovableabstractitem.cpp",
+                "timelineeditor/timelinemovableabstractitem.h",
+                "timelineeditor/timelinemovetool.cpp",
+                "timelineeditor/timelinemovetool.h",
+                "timelineeditor/timelineplaceholder.cpp",
+                "timelineeditor/timelineplaceholder.h",
+                "timelineeditor/timelinepropertyitem.cpp",
+                "timelineeditor/timelinepropertyitem.h",
+                "timelineeditor/timelinesectionitem.cpp",
+                "timelineeditor/timelinesectionitem.h",
+                "timelineeditor/timelineselectiontool.cpp",
+                "timelineeditor/timelineselectiontool.h",
+                "timelineeditor/timelinesettingsdialog.cpp",
+                "timelineeditor/timelinesettingsdialog.h",
+                "timelineeditor/timelinesettingsdialog.ui",
+                "timelineeditor/timelinesettingsmodel.cpp",
+                "timelineeditor/timelinesettingsmodel.h",
+                "timelineeditor/timelinetoolbar.cpp",
+                "timelineeditor/timelinetoolbar.h",
+                "timelineeditor/timelinetoolbutton.cpp",
+                "timelineeditor/timelinetoolbutton.h",
+                "timelineeditor/timelinetooldelegate.cpp",
+                "timelineeditor/timelineutils.cpp",
+                "timelineeditor/timelineutils.h",
+                "timelineeditor/timelineview.cpp",
+                "timelineeditor/timelineview.h",
+                "timelineeditor/timelinewidget.cpp",
+                "timelineeditor/timelinewidget.h",
             ]
         }
 

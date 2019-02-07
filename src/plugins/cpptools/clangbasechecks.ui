@@ -25,6 +25,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="useFlagsFromBuildSystemCheckBox">
+     <property name="text">
+      <string>Use diagnostic flags from build system</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="CppTools::WrappableLineEdit" name="diagnosticOptionsTextEdit"/>
    </item>
   </layout>

@@ -28,6 +28,7 @@
 #include <cplusplus/Icons.h>
 
 #include <cpptools/projectpart.h>
+#include <cpptools/compileroptionsbuilder.h>
 
 #include <QTextCursor>
 
@@ -53,6 +54,7 @@ CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath);
 void setLastSentDocumentRevision(const QString &filePath, uint revision);
 
 QStringList createClangOptions(const CppTools::ProjectPart &projectPart,
+                               CppTools::UseBuildSystemWarnings useBuildSystemWarnings,
                                CppTools::ProjectFile::Kind fileKind);
 
 CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
@@ -69,6 +71,23 @@ QString diagnosticCategoryPrefixRemoved(const QString &text);
 ::Utils::CodeModelIcon::Type iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token);
 
 void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo projectInfo);
+
+class DiagnosticTextInfo
+{
+public:
+    DiagnosticTextInfo(const QString &text);
+
+    QString textWithoutOption() const;
+    QString option() const;
+    QString category() const;
+
+    static bool isClazyOption(const QString &option);
+    static QString clazyCheckName(const QString &option);
+
+private:
+    const QString m_text;
+    const int m_squareBracketStartIndex;
+};
 
 namespace Text {
 

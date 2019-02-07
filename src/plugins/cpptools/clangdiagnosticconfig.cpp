@@ -75,12 +75,23 @@ bool ClangDiagnosticConfig::operator==(const ClangDiagnosticConfig &other) const
         && m_clangTidyMode == other.m_clangTidyMode
         && m_clangTidyChecks == other.m_clangTidyChecks
         && m_clazyChecks == other.m_clazyChecks
-        && m_isReadOnly == other.m_isReadOnly;
+        && m_isReadOnly == other.m_isReadOnly
+        && m_useBuildSystemWarnings == other.m_useBuildSystemWarnings;
 }
 
 bool ClangDiagnosticConfig::operator!=(const ClangDiagnosticConfig &other) const
 {
     return !(*this == other);
+}
+
+bool ClangDiagnosticConfig::useBuildSystemWarnings() const
+{
+    return m_useBuildSystemWarnings;
+}
+
+void ClangDiagnosticConfig::setUseBuildSystemWarnings(bool useBuildSystemWarnings)
+{
+    m_useBuildSystemWarnings = useBuildSystemWarnings;
 }
 
 ClangDiagnosticConfig::TidyMode ClangDiagnosticConfig::clangTidyMode() const

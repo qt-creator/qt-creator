@@ -98,6 +98,22 @@ TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_UnknownOptionsAreForwarded
     ASSERT_THAT(compilerOptionsBuilder.options(), Contains(part.compilerFlags.first()));
 }
 
+TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_WarningsFlagsAreNotFilteredIfRequested)
+{
+    ProjectPart part = projectPart;
+    part.compilerFlags = QStringList{"-Whello"};
+
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder{part,
+                                                            CppTools::UseSystemHeader::No,
+                                                            CppTools::UseTweakedHeaderPaths::No,
+                                                            CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::Yes};
+
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), Contains(part.compilerFlags.first()));
+}
+
 TEST_F(CompilerOptionsBuilder, CompilerFlagsFiltering_DiagnosticOptionsAreRemoved)
 {
     ProjectPart part = projectPart;
@@ -171,6 +187,7 @@ TEST_F(CompilerOptionsBuilder, HeaderPathOptionsOrder)
                                                             CppTools::UseSystemHeader::No,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
                                                             "dummy_version",
                                                             ""};
 
@@ -196,6 +213,7 @@ TEST_F(CompilerOptionsBuilder, HeaderPathOptionsOrderCl)
                                                             CppTools::UseSystemHeader::No,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
                                                             "dummy_version",
                                                             ""};
     compilerOptionsBuilder.evaluateCompilerFlags();
@@ -221,6 +239,7 @@ TEST_F(CompilerOptionsBuilder, UseSystemHeader)
                                                             CppTools::UseSystemHeader::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
                                                             "dummy_version",
                                                             ""};
 
@@ -265,6 +284,7 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderMacOs)
                                                             CppTools::UseSystemHeader::No,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
                                                             "dummy_version",
                                                             "");
 
@@ -310,6 +330,7 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderLinux)
                                                             CppTools::UseSystemHeader::No,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
                                                             "dummy_version",
                                                             "");
 
@@ -356,6 +377,7 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderNoVersion)
                                                             CppTools::UseSystemHeader::No,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
                                                             "dummy_version",
                                                             "");
 
@@ -403,6 +425,7 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
                                                             CppTools::UseSystemHeader::No,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
                                                             "dummy_version",
                                                             "");
 
@@ -480,6 +503,7 @@ TEST_F(CompilerOptionsBuilder, InsertWrappedQtHeaders)
                                                             CppTools::UseSystemHeader::Yes,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
                                                             "dummy_version",
                                                             ""};
 
@@ -613,6 +637,7 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptions)
                                                             CppTools::UseSystemHeader::No,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
                                                             "dummy_version",
                                                             "");
 
@@ -652,6 +677,7 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptionsCl)
                                                             CppTools::UseSystemHeader::No,
                                                             CppTools::UseTweakedHeaderPaths::Yes,
                                                             CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
                                                             "dummy_version",
                                                             "");
 

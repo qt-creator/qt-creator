@@ -1621,7 +1621,7 @@ Core::IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
         const QVariant tagPropertyValue = document->property(tagPropertyC);
         if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag)
-            return Core::DocumentModel::editorsForDocument(document).first();
+            return Core::DocumentModel::editorsForDocument(document).constFirst();
     }
     return nullptr;
 }

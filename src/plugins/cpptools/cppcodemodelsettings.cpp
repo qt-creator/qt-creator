@@ -27,6 +27,7 @@
 
 #include "clangdiagnosticconfigsmodel.h"
 #include "cpptoolsconstants.h"
+#include "cpptoolsreuse.h"
 
 #include <utils/qtcassert.h>
 
@@ -79,6 +80,24 @@ static QString skipIndexingBigFilesKey()
 static QString indexerFileSizeLimitKey()
 { return QLatin1String(Constants::CPPTOOLS_INDEXER_FILE_SIZE_LIMIT); }
 
+static QString convertToNewClazyChecksFormat(const QString &checks)
+{
+    // Before Qt Creator 4.9 valid values for checks were: "", "levelN".
+    // Starting with Qt Creator 4.9, checks are a comma-separated string of checks: "x,y,z".
+
+    if (checks.isEmpty())
+        return checks;
+
+    if (checks.size() == 6 && checks.startsWith("level")) {
+        bool ok = false;
+        const int level = checks.mid(5).toInt(&ok);
+        QTC_ASSERT(ok, return QString());
+        return clazyChecksForLevel(level);
+    }
+
+    return checks;
+}
+
 static ClangDiagnosticConfigs customDiagnosticConfigsFromSettings(QSettings *s)
 {
     QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP),
@@ -98,7 +117,9 @@ static ClangDiagnosticConfigs customDiagnosticConfigsFromSettings(QSettings *s)
                                     s->value(clangDiagnosticConfigsArrayClangTidyModeKey()).toInt()));
         config.setClangTidyChecks(
                     s->value(clangDiagnosticConfigsArrayClangTidyChecksKey()).toString());
-        config.setClazyChecks(s->value(clangDiagnosticConfigsArrayClazyChecksKey()).toString());
+
+        const QString clazyChecks = s->value(clangDiagnosticConfigsArrayClazyChecksKey()).toString();
+        config.setClazyChecks(convertToNewClazyChecksFormat(clazyChecks));
         configs.append(config);
     }
     s->endArray();

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>585</width>
-    <height>431</height>
+    <height>458</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -70,6 +70,13 @@
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="displayAppCB">
+            <property name="text">
+             <string>Group results by application</string>
             </property>
            </widget>
           </item>

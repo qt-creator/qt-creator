@@ -102,7 +102,7 @@ void tst_ProFileWriter::adds_data()
             "add new append multi", f_foo, 0,
             "",
             "SOURCES += \\\n"
-            "    foo"
+            "\tfoo"
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
@@ -111,7 +111,7 @@ void tst_ProFileWriter::adds_data()
             "# test file\n"
             "\n"
             "SOURCES += \\\n"
-            "    foo"
+            "\tfoo"
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
@@ -120,7 +120,7 @@ void tst_ProFileWriter::adds_data()
             "\n"
             "\n",
             "SOURCES += \\\n"
-            "    foo\n"
+            "\tfoo\n"
             "\n"
             "\n"
             "\n"
@@ -135,7 +135,7 @@ void tst_ProFileWriter::adds_data()
             "# test file\n"
             "\n"
             "SOURCES += \\\n"
-            "    foo\n"
+            "\tfoo\n"
             "\n"
             "\n"
             "\n"
@@ -147,7 +147,7 @@ void tst_ProFileWriter::adds_data()
             "# test file\n"
             "\n"
             "SOURCES = \\\n"
-            "    foo"
+            "\tfoo"
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::OneLine,
@@ -184,43 +184,43 @@ void tst_ProFileWriter::adds_data()
             "unix:SOURCES = some files\n"
             "\n"
             "SOURCES += \\\n"
-            "    foo"
+            "\tfoo"
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
             "add new after some scope", f_foo, 0,
             "unix {\n"
-            "    SOMEVAR = foo\n"
+            "\tSOMEVAR = foo\n"
             "}",
             "unix {\n"
-            "    SOMEVAR = foo\n"
+            "\tSOMEVAR = foo\n"
             "}\n"
             "\n"
             "SOURCES += \\\n"
-            "    foo"
+            "\tfoo"
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
             "add to existing (wrong operator)", f_foo, 0,
             "SOURCES = some files",
             "SOURCES = some files \\\n"
-            "    foo"
+            "\tfoo"
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
             "insert at end", f_foo_bar, 0,
             "SOURCES = some files",
             "SOURCES = some files \\\n"
-            "    bar \\\n"
-            "    foo"
+            "\tbar \\\n"
+            "\tfoo"
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
             "insert into empty", f_foo_bar, 0,
             "SOURCES =",
             "SOURCES = \\\n"
-            "    bar \\\n"
-            "    foo"
+            "\tbar \\\n"
+            "\tfoo"
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
@@ -239,33 +239,33 @@ void tst_ProFileWriter::adds_data()
             "add to existing after comment (wrong operator)", f_foo, 0,
             "SOURCES = some files   # comment",
             "SOURCES = some files \\   # comment\n"
-            "    foo"
+            "\tfoo"
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
             "add to existing after comment line (wrong operator)", f_foo, 0,
             "SOURCES = some \\\n"
             "   # comment\n"
-            "    files",
+            "\tfiles",
             "SOURCES = some \\\n"
             "   # comment\n"
-            "    files \\\n"
-            "    foo"
+            "\tfiles \\\n"
+            "\tfoo"
         },
         {
             PW::AppendValues|PW::AssignOperator|PW::MultiLine,
             "add to existing", f_foo, 0,
             "SOURCES = some files",
             "SOURCES = some files \\\n"
-            "    foo"
+            "\tfoo"
         },
         {
             PW::ReplaceValues|PW::AssignOperator|PW::MultiLine,
             "replace existing multi", f_foo_bar, 0,
             "SOURCES = some files",
             "SOURCES = \\\n"
-            "    foo \\\n"
-            "    bar"
+            "\tfoo \\\n"
+            "\tbar"
         },
         {
             PW::ReplaceValues|PW::AssignOperator|PW::OneLine,
@@ -278,7 +278,7 @@ void tst_ProFileWriter::adds_data()
             "replace existing complex last", f_foo_bar, 0,
             "SOURCES = some \\\n"
             "   # comment\n"
-            "    files",
+            "\tfiles",
             "SOURCES = foo bar"
         },
         {
@@ -286,7 +286,7 @@ void tst_ProFileWriter::adds_data()
             "replace existing complex middle 1", f_foo_bar, 0,
             "SOURCES = some \\\n"
             "   # comment\n"
-            "    files\n"
+            "\tfiles\n"
             "HEADERS = blubb",
             "SOURCES = foo bar\n"
             "HEADERS = blubb"
@@ -296,7 +296,7 @@ void tst_ProFileWriter::adds_data()
             "replace existing complex middle 2", f_foo_bar, 0,
             "SOURCES = some \\\n"
             "   # comment\n"
-            "    files\n"
+            "\tfiles\n"
             "\n"
             "HEADERS = blubb",
             "SOURCES = foo bar\n"
@@ -308,7 +308,7 @@ void tst_ProFileWriter::adds_data()
             "replace existing complex middle 3", f_foo_bar, 0,
             "SOURCES = some \\\n"
             "   # comment\n"
-            "    files \\\n"
+            "\tfiles \\\n"
             "\n"
             "HEADERS = blubb",
             "SOURCES = foo bar\n"
@@ -324,7 +324,7 @@ void tst_ProFileWriter::adds_data()
             "SOURCES = yo\n"
             "\n"
             "dog {\n"
-            "    SOURCES += foo\n"
+            "\tSOURCES += foo\n"
             "}"
         },
         {
@@ -332,13 +332,13 @@ void tst_ProFileWriter::adds_data()
             "scoped new / extend scope", f_foo, "dog",
             "# test file\n"
             "dog {\n"
-            "    HEADERS += yo\n"
+            "\tHEADERS += yo\n"
             "}",
             "# test file\n"
             "dog {\n"
-            "    HEADERS += yo\n"
+            "\tHEADERS += yo\n"
             "\n"
-            "    SOURCES += foo\n"
+            "\tSOURCES += foo\n"
             "}"
         },
         {
@@ -356,7 +356,7 @@ void tst_ProFileWriter::adds_data()
             "        yo \\\n"
             "        blubb\n"
             "\n"
-            "    SOURCES += foo\n"
+            "\tSOURCES += foo\n"
             "}"
         },
         {
@@ -367,7 +367,7 @@ void tst_ProFileWriter::adds_data()
             "}",
             "# test file\n"
             "dog {\n"
-            "    SOURCES += foo\n"
+            "\tSOURCES += foo\n"
             "}"
         },
         {
@@ -377,9 +377,9 @@ void tst_ProFileWriter::adds_data()
             "dog:HEADERS += yo",
             "# test file\n"
             "dog {\n"
-            "    HEADERS += yo\n"
+            "\tHEADERS += yo\n"
             "\n"
-            "    SOURCES += foo\n"
+            "\tSOURCES += foo\n"
             "}"
         },
         {
@@ -392,10 +392,10 @@ void tst_ProFileWriter::adds_data()
             "blubb()",
             "# test file\n"
             "dog {\n"
-            "    HEADERS += yo \\\n"
+            "\tHEADERS += yo \\\n"
             "        you\n"
             "\n"
-            "    SOURCES += foo\n"
+            "\tSOURCES += foo\n"
             "}\n"
             "\n"
             "blubb()"
@@ -413,8 +413,8 @@ void tst_ProFileWriter::adds_data()
             "        SOMEVAR = foo\n"
             "    }\n"
             "\n"
-            "    SOURCES += \\\n"
-            "        foo\n"
+            "\tSOURCES += \\\n"
+            "\t\tfoo\n"
             "}"
         },
         {
@@ -425,7 +425,7 @@ void tst_ProFileWriter::adds_data()
             "}",
             "# test file\n"
             "dog: {\n"
-            "    SOURCES += foo\n"
+            "\tSOURCES += foo\n"
             "}"
         },
         {
@@ -435,7 +435,7 @@ void tst_ProFileWriter::adds_data()
             "dog:SOURCES = yo",
             "# test file\n"
             "dog:SOURCES = yo \\\n"
-            "        foo"
+            "\t\tfoo"
         },
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
@@ -446,8 +446,8 @@ void tst_ProFileWriter::adds_data()
             "animal:!dog:SOURCES = yo\n"
             "\n"
             "dog {\n"
-            "    SOURCES += \\\n"
-            "        foo\n"
+            "\tSOURCES += \\\n"
+            "\t\tfoo\n"
             "}"
         },
     };
@@ -478,7 +478,7 @@ void tst_ProFileWriter::adds()
     QMakeParser parser(0, &vfs, &parseHandler);
     ProFile *proFile = parser.parsedProBlock(QStringRef(&input), 0, QLatin1String(BASE_DIR "/test.pro"), 1);
     QVERIFY(proFile);
-    PW::putVarValues(proFile, &lines, values, var, PW::PutFlags(flags), scope);
+    PW::putVarValues(proFile, &lines, values, var, PW::PutFlags(flags), scope, "\t");
     proFile->deref();
 
     QCOMPARE(lines.join(QLatin1Char('\n')), output);
@@ -692,7 +692,7 @@ void tst_ProFileWriter::addFiles()
     QStringList lines = input.split(QLatin1Char('\n'));
     QString output = QLatin1String(
             "SOURCES = foo.cpp \\\n"
-            "    sub/bar.cpp"
+            "\tsub/bar.cpp"
             );
 
     QMakeVfs vfs;
@@ -701,7 +701,7 @@ void tst_ProFileWriter::addFiles()
     QVERIFY(proFile);
     QmakeProjectManager::Internal::ProWriter::addFiles(proFile, &lines,
             QStringList() << QString::fromLatin1(BASE_DIR "/sub/bar.cpp"),
-            QLatin1String("SOURCES"));
+            QLatin1String("SOURCES"), "\t");
     proFile->deref();
 
     QCOMPARE(lines.join(QLatin1Char('\n')), output);

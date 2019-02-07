@@ -216,6 +216,8 @@ private:
     static void processValues(Internal::QmakePriFileEvalResult &result);
     void watchFolders(const QSet<Utils::FileName> &folders);
 
+    QString continuationIndent() const;
+
     QmakeProject *m_project = nullptr;
     QmakeProFile *m_qmakeProFile = nullptr;
     QmakePriFile *m_parent = nullptr;
