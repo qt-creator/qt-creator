@@ -112,7 +112,7 @@ public:
         case Utils::LanguageVersion::C11:
             return "-std=c11";
         case Utils::LanguageVersion::C18:
-            return "-std=c18";
+            return "-std=c17";
         case Utils::LanguageVersion::CXX98:
             return "-std=c++98";
         case Utils::LanguageVersion::CXX03:
@@ -140,7 +140,7 @@ public:
         case Utils::LanguageVersion::C11:
             return "-std=gnu11";
         case Utils::LanguageVersion::C18:
-            return "-std=gnu18";
+            return "-std=gnu17";
         case Utils::LanguageVersion::CXX98:
             return "-std=gnu++98";
         case Utils::LanguageVersion::CXX03:
