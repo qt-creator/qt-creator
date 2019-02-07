@@ -43,9 +43,9 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsutils.h>
-#include <qmljs/qmljsqrcparser.h>
 #include <texteditor/texteditor.h>
 #include <utils/executeondestruction.h>
+#include <utils/qrcparser.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QDir>
@@ -133,7 +133,7 @@ static inline QString getModuleName(const ScopeChain &scopeChain, const Document
             const QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
             return name;
         } else if (importInfo.isValid() && importInfo.type() == ImportType::QrcDirectory) {
-            QString path = QrcParser::normalizedQrcDirectoryPath(importInfo.path());
+            QString path = Utils::QrcParser::normalizedQrcDirectoryPath(importInfo.path());
             path = path.mid(1, path.size() - ((path.size() > 1) ? 2 : 1));
             const QString name = path.replace(QLatin1Char('/'), QLatin1Char('.'));
             return name;

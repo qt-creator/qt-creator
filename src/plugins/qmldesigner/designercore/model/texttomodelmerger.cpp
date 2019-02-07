@@ -48,10 +48,10 @@
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljs/qmljsqrcparser.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsvalueowner.h>
 
+#include <utils/qrcparser.h>
 #include <utils/qtcassert.h>
 
 #include <QSet>
@@ -456,7 +456,7 @@ public:
                 if (!name.isEmpty() && name != QLatin1String("."))
                     typeName.prepend(name + QLatin1Char('.'));
             } else if (importInfo.isValid() && importInfo.type() == ImportType::QrcDirectory) {
-                QString path = QrcParser::normalizedQrcDirectoryPath(importInfo.path());
+                QString path = Utils::QrcParser::normalizedQrcDirectoryPath(importInfo.path());
                 path = path.mid(1, path.size() - ((path.size() > 1) ? 2 : 1));
                 const QString name = path.replace(QLatin1Char('/'), QLatin1Char('.'));
                 if (!name.isEmpty())

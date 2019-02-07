@@ -23,22 +23,26 @@
 **
 ****************************************************************************/
 
-#include "qmljsqrcparser.h"
-#include "qmljsconstants.h"
-#include <QFile>
-#include <QDir>
-#include <QFileInfo>
-#include <QStringList>
-#include <QDomDocument>
-#include <QLocale>
-#include <QMutex>
-#include <QSet>
-#include <QMutexLocker>
-#include <QMultiHash>
-#include <QCoreApplication>
+#include "qrcparser.h"
+
 #include <utils/qtcassert.h>
 
-namespace QmlJS {
+#include <QCoreApplication>
+#include <QDir>
+#include <QDomDocument>
+#include <QFile>
+#include <QFileInfo>
+#include <QLocale>
+#include <QLoggingCategory>
+#include <QMultiHash>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QSet>
+#include <QStringList>
+
+Q_LOGGING_CATEGORY(qrcParserLog, "qtc.qrcParser", QtWarningMsg)
+
+namespace Utils {
 
 namespace Internal {
 /*!
@@ -496,7 +500,7 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &cont
     }
     QrcParser::Ptr newParser = QrcParser::parseQrcFile(path, contents);
     if (!newParser->isValid())
-        qCWarning(qmljsLog) << "adding invalid qrc " << path << " to the cache:" << newParser->errorMessages();
+        qCWarning(qrcParserLog) << "adding invalid qrc " << path << " to the cache:" << newParser->errorMessages();
     {
         QMutexLocker l(&m_mutex);
         QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(0), 0});

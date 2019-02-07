@@ -25,9 +25,9 @@
 
 #include "qmljsimportdependencies.h"
 #include "qmljsinterpreter.h"
-#include "qmljsqrcparser.h"
 #include "qmljsviewercontext.h"
 
+#include <utils/qrcparser.h>
 #include <utils/qtcassert.h>
 
 #include <QCryptographicHash>
@@ -139,10 +139,10 @@ ImportKey::ImportKey(ImportType::Enum type, const QString &path, int majorVersio
         break;
     case ImportType::File:
     case ImportType::QrcFile:
-        splitPath = QrcParser::normalizedQrcFilePath(path).split(QLatin1Char('/'));
+        splitPath = Utils::QrcParser::normalizedQrcFilePath(path).split(QLatin1Char('/'));
         break;
     case ImportType::QrcDirectory:
-        splitPath = QrcParser::normalizedQrcDirectoryPath(path).split(QLatin1Char('/'));
+        splitPath = Utils::QrcParser::normalizedQrcDirectoryPath(path).split(QLatin1Char('/'));
         if (splitPath.length() > 1 && splitPath.last().isEmpty())
             splitPath.removeLast();
         break;

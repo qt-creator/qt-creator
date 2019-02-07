@@ -33,7 +33,7 @@ Project {
             cpp.frameworks: ["Foundation", "AppKit"]
         }
 
-        Depends { name: "Qt"; submodules: ["concurrent", "network", "qml", "widgets"] }
+        Depends { name: "Qt"; submodules: ["concurrent", "network", "qml", "widgets", "xml"] }
         Depends { name: "Qt.macextras"; condition: qbs.targetOS.contains("macos") }
         Depends { name: "app_version_header" }
 
@@ -189,6 +189,8 @@ Project {
             "proxycredentialsdialog.cpp",
             "proxycredentialsdialog.h",
             "proxycredentialsdialog.ui",
+            "qrcparser.cpp",
+            "qrcparser.h",
             "qtcassert.cpp",
             "qtcassert.h",
             "qtcolorbutton.cpp",

@@ -52,6 +52,8 @@
 
 #include <stdio.h>
 
+using namespace Utils;
+
 namespace QmlJS {
 
 QMLJS_EXPORT Q_LOGGING_CATEGORY(qmljsLog, "qtc.qmljs.common", QtWarningMsg)

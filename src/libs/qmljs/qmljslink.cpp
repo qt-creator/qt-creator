@@ -30,8 +30,9 @@
 #include "qmljsbind.h"
 #include "qmljsutils.h"
 #include "qmljsmodelmanagerinterface.h"
-#include "qmljsqrcparser.h"
 #include "qmljsconstants.h"
+
+#include <utils/qrcparser.h>
 
 #include <QDir>
 
@@ -557,7 +558,7 @@ void LinkPrivate::loadImplicitDirectoryImports(Imports *imports, Document::Ptr d
     foreach (const QString &path,
              ModelManagerInterface::instance()->qrcPathsForFile(doc->fileName())) {
         processImport(ImportInfo::qrcDirectoryImport(
-                          QrcParser::qrcDirectoryPathForQrcFilePath(path)));
+                          Utils::QrcParser::qrcDirectoryPathForQrcFilePath(path)));
     }
 }
 

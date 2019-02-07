@@ -42,7 +42,6 @@ Project {
                 "qmljsmodelmanagerinterface.cpp", "qmljsmodelmanagerinterface.h",
                 "qmljsplugindumper.cpp", "qmljsplugindumper.h",
                 "qmljspropertyreader.cpp", "qmljspropertyreader.h",
-                "qmljsqrcparser.cpp", "qmljsqrcparser.h",
                 "qmljsreformatter.cpp", "qmljsreformatter.h",
                 "qmljsrewriter.cpp", "qmljsrewriter.h",
                 "qmljsscanner.cpp", "qmljsscanner.h",

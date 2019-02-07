@@ -28,11 +28,11 @@
 #include "qmljs_global.h"
 #include "qmljsbundle.h"
 #include "qmljsdocument.h"
-#include "qmljsqrcparser.h"
 #include "qmljsdialect.h"
 
 #include <cplusplus/CppDocument.h>
 #include <utils/environment.h>
+#include <utils/qrcparser.h>
 
 #include <QFuture>
 #include <QHash>
@@ -255,7 +255,7 @@ private:
     void cleanupFutures();
     void iterateQrcFiles(ProjectExplorer::Project *project,
                          QrcResourceSelector resources,
-                         std::function<void(QrcParser::ConstPtr)> callback);
+                         std::function<void(Utils::QrcParser::ConstPtr)> callback);
 
     mutable QMutex m_mutex;
     QmlJS::Snapshot m_validSnapshot;
@@ -272,7 +272,7 @@ private:
     QTimer *m_asyncResetTimer = nullptr;
     QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > m_queuedCppDocuments;
     QFuture<void> m_cppQmlTypesUpdater;
-    QrcCache m_qrcCache;
+    Utils::QrcCache m_qrcCache;
     QHash<QString, QString> m_qrcContents;
 
     CppDataHash m_cppDataHash;

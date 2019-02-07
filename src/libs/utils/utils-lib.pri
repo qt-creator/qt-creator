@@ -13,7 +13,7 @@ shared {
     }
 }
 
-QT += widgets gui network qml
+QT += widgets gui network qml xml
 
 CONFIG += exceptions # used by portlist.cpp, textfileformat.cpp, and ssh/*
 
@@ -27,6 +27,7 @@ SOURCES += \
     $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
     $$PWD/environmentdialog.cpp \
+    $$PWD/qrcparser.cpp \
     $$PWD/qtcprocess.cpp \
     $$PWD/reloadpromptutils.cpp \
     $$PWD/settingsaccessor.cpp \
@@ -135,6 +136,7 @@ HEADERS += \
     $$PWD/environmentmodel.h \
     $$PWD/environmentdialog.h \
     $$PWD/pointeralgorithm.h \
+    $$PWD/qrcparser.h \
     $$PWD/qtcprocess.h \
     $$PWD/utils_global.h \
     $$PWD/reloadpromptutils.h \

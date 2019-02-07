@@ -27,9 +27,9 @@
 #include <QDebug>
 #include <QLocale>
 
-#include <qmljs/qmljsqrcparser.h>
+#include <utils/qrcparser.h>
 
-using namespace QmlJS;
+using namespace Utils;
 
 class tst_QrcParser: public QObject
 {
