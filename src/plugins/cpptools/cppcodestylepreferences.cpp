@@ -76,7 +76,7 @@ CppCodeStyleSettings CppCodeStylePreferences::currentCodeStyleSettings() const
     QVariant v = currentValue();
     if (!v.canConvert<CppCodeStyleSettings>()) {
         // warning
-        return CppCodeStyleSettings();
+        return {};
     }
     return v.value<CppCodeStyleSettings>();
 }

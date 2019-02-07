@@ -42,12 +42,7 @@
 using namespace CppTools;
 using namespace CPlusPlus;
 
-DoxygenGenerator::DoxygenGenerator()
-    : m_addLeadingAsterisks(true)
-    , m_generateBrief(true)
-    , m_startComment(true)
-    , m_style(QtStyle)
-{}
+DoxygenGenerator::DoxygenGenerator() = default;
 
 void DoxygenGenerator::setStyle(DocumentationStyle style)
 {

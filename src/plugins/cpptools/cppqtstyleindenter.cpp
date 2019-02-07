@@ -179,7 +179,7 @@ CppCodeStyleSettings CppQtStyleIndenter::codeStyleSettings() const
 {
     if (m_cppCodeStylePreferences)
         return m_cppCodeStylePreferences->currentCodeStyleSettings();
-    return CppCodeStyleSettings();
+    return {};
 }
 
 TextEditor::IndentationForBlock CppQtStyleIndenter::indentationForBlocks(

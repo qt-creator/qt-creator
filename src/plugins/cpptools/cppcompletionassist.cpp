@@ -1737,9 +1737,8 @@ void InternalCppCompletionAssistProcessor::addClassMembersToCompletion(Scope *sc
         else
             addCompletionItem(member);
     }
-    std::set<Class *>::const_iterator citEnd = nestedAnonymouses.end();
-    for (std::set<Class *>::const_iterator cit = nestedAnonymouses.begin(); cit != citEnd; ++cit)
-        addClassMembersToCompletion(*cit, staticLookup);
+    for (Class *klass : nestedAnonymouses)
+        addClassMembersToCompletion(klass, staticLookup);
 }
 
 bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupItem> &results,

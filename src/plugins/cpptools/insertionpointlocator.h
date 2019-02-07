@@ -63,8 +63,8 @@ private:
     QString m_fileName;
     QString m_prefix;
     QString m_suffix;
-    unsigned m_line;
-    unsigned m_column;
+    unsigned m_line = 0;
+    unsigned m_column = 0;
 };
 
 class CPPTOOLS_EXPORT InsertionPointLocator

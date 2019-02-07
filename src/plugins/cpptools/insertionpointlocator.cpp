@@ -248,10 +248,7 @@ private:
 
 } // end of anonymous namespace
 
-InsertionLocation::InsertionLocation()
-    : m_line(0)
-    , m_column(0)
-{}
+InsertionLocation::InsertionLocation() = default;
 
 InsertionLocation::InsertionLocation(const QString &fileName,
                                      const QString &prefix,
@@ -316,11 +313,9 @@ class HighestValue
 {
     Key _key;
     Value _value;
-    bool _set;
+    bool _set = false;
 public:
-    HighestValue()
-        : _key(), _set(false)
-    {}
+    HighestValue() = default;
 
     HighestValue(const Key &initialKey, const Value &initialValue)
         : _key(initialKey)

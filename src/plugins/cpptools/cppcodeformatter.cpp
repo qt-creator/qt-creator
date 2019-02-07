@@ -666,7 +666,7 @@ CodeFormatter::State CodeFormatter::state(int belowTop) const
     if (belowTop < m_currentState.size())
         return m_currentState.at(m_currentState.size() - 1 - belowTop);
     else
-        return State();
+        return {};
 }
 
 int CodeFormatter::tokenIndex() const
