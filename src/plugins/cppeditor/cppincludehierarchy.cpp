@@ -509,9 +509,9 @@ void CppIncludeHierarchyWidget::syncFromEditorManager()
 
     // Use cppDocumentUpdated to catch parsing finished and later file updates.
     // The timer limits the amount of hierarchy updates.
-    connect(document, &CppEditorDocument::cppDocumentUpdated, this, [this]() {
-        m_timer->start();
-    }, Qt::UniqueConnection);
+    connect(document, &CppEditorDocument::cppDocumentUpdated,
+            m_timer, QOverload<>::of(&QTimer::start),
+            Qt::UniqueConnection);
 }
 
 // CppIncludeHierarchyFactory
