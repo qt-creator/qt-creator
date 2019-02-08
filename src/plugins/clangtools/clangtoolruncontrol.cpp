@@ -267,6 +267,8 @@ void ClangToolRunControl::init()
 
 void ClangToolRunControl::start()
 {
+    TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
+
     if (ClangToolsSettings::instance()->savedBuildBeforeAnalysis()) {
         QTC_ASSERT(m_projectBuilder, return;);
         if (!m_projectBuilder->success()) {
