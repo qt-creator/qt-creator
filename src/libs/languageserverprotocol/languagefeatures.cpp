@@ -396,7 +396,7 @@ CodeActionResult::CodeActionResult(const QJsonValue &val)
 {
     using ResultArray = QList<Utils::variant<Command, CodeAction>>;
     if (val.isArray()) {
-        QJsonArray array = val.toArray();
+        const QJsonArray array = val.toArray();
         ResultArray result;
         for (const QJsonValue &val : array) {
             Command command(val);
