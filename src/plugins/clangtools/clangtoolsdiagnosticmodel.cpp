@@ -84,7 +84,7 @@ ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     : Utils::TreeModel<>(parent)
     , m_filesWatcher(std::make_unique<QFileSystemWatcher>())
 {
-    setHeader({tr("Issue"), tr("Fixit Status")});
+    setHeader({tr("Diagnostic"), tr("Fixit Status")});
     connectFileWatcher();
 }
 
