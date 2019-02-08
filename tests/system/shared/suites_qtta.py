@@ -55,6 +55,7 @@ def checkSyntaxError(issuesView, expectedTextsArray, warnIfMoreIssues = True):
                     test.warning("Expected error text found, but is not of type: 'error'")
                     return False
                 else:
+                    test.log("Found expected error (%s)" % expectedText)
                     return True
     return False
 
