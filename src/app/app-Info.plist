@@ -274,3 +274,5 @@
 	<string>A user application wants to access the photo library.</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>A user application wants to access the reminders.</string>
+</dict>
+</plist>
