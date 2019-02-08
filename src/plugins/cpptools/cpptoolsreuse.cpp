@@ -41,6 +41,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QRegularExpression>
 #include <QSet>
 #include <QStringRef>
 #include <QTextCursor>
@@ -50,29 +51,91 @@ using namespace CPlusPlus;
 
 namespace CppTools {
 
-static void moveCursorToStartOrEndOfIdentifier(QTextCursor *tc,
-                                               QTextCursor::MoveOperation op,
-                                               int posDiff = 0)
+static int skipChars(QTextCursor *tc,
+                      QTextCursor::MoveOperation op,
+                      int offset,
+                      std::function<bool(const QChar &)> skip)
 {
-    QTextDocument *doc = tc->document();
+    const QTextDocument *doc = tc->document();
     if (!doc)
-        return;
-
-    QChar ch = doc->characterAt(tc->position() - posDiff);
-    while (isValidIdentifierChar(ch)) {
-        tc->movePosition(op);
-        ch = doc->characterAt(tc->position() - posDiff);
+        return 0;
+    QChar ch = doc->characterAt(tc->position() + offset);
+    if (ch.isNull())
+        return 0;
+    int count = 0;
+    while (skip(ch)) {
+        if (tc->movePosition(op))
+            ++count;
+        else
+            break;
+        ch = doc->characterAt(tc->position() + offset);
     }
+    return count;
+}
+
+static int skipCharsForward(QTextCursor *tc, std::function<bool(const QChar &)> skip)
+{
+    return skipChars(tc, QTextCursor::NextCharacter, 0, skip);
+}
+
+static int skipCharsBackward(QTextCursor *tc, std::function<bool(const QChar &)> skip)
+{
+    return skipChars(tc, QTextCursor::PreviousCharacter, -1, skip);
+}
+
+QStringList identifierWordsUnderCursor(const QTextCursor &tc)
+{
+    const QTextDocument *document = tc.document();
+    if (!document)
+        return {};
+    const auto isSpace = [](const QChar &c) { return c.isSpace(); };
+    const auto isColon = [](const QChar &c) { return c == ':'; };
+    const auto isValidIdentifierCharAt = [document](const QTextCursor &tc) {
+        return isValidIdentifierChar(document->characterAt(tc.position()));
+    };
+    // move to the end
+    QTextCursor endCursor(tc);
+    do {
+        moveCursorToEndOfIdentifier(&endCursor);
+        // possibly skip ::
+        QTextCursor temp(endCursor);
+        skipCharsForward(&temp, isSpace);
+        const int colons = skipCharsForward(&temp, isColon);
+        skipCharsForward(&temp, isSpace);
+        if (colons == 2 && isValidIdentifierCharAt(temp))
+            endCursor = temp;
+    } while (isValidIdentifierCharAt(endCursor));
+
+    QStringList results;
+    QTextCursor startCursor(endCursor);
+    do {
+        moveCursorToStartOfIdentifier(&startCursor);
+        if (startCursor.position() == endCursor.position())
+            break;
+        QTextCursor temp(endCursor);
+        temp.setPosition(startCursor.position(), QTextCursor::KeepAnchor);
+        results.append(temp.selectedText().remove(QRegularExpression("\\s")));
+        // possibly skip ::
+        temp = startCursor;
+        skipCharsBackward(&temp, isSpace);
+        const int colons = skipCharsBackward(&temp, isColon);
+        skipCharsBackward(&temp, isSpace);
+        if (colons == 2
+                && isValidIdentifierChar(document->characterAt(temp.position() - 1))) {
+            startCursor = temp;
+        }
+    } while (!isValidIdentifierCharAt(startCursor));
+    return results;
 }
 
 void moveCursorToEndOfIdentifier(QTextCursor *tc)
 {
-    moveCursorToStartOrEndOfIdentifier(tc, QTextCursor::NextCharacter);
+    skipCharsForward(tc, isValidIdentifierChar);
 }
 
 void moveCursorToStartOfIdentifier(QTextCursor *tc)
 {
-    moveCursorToStartOrEndOfIdentifier(tc, QTextCursor::PreviousCharacter, 1);
+    skipCharsBackward(tc, isValidIdentifierChar);
 }
 
 static bool isOwnershipRAIIName(const QString &name)
