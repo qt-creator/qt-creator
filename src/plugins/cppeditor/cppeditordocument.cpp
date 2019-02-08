@@ -462,6 +462,8 @@ static int formatRange(QTextDocument *doc,
 bool CppEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     if (indenter()->formatOnSave()) {
+        QTextCursor cursor(document());
+        cursor.joinPreviousEditBlock();
         auto *layout = qobject_cast<TextEditor::TextDocumentLayout *>(document()->documentLayout());
         const int documentRevision = layout->lastSaveRevision;
 
@@ -483,6 +485,7 @@ bool CppEditorDocument::save(QString *errorString, const QString &fileName, bool
         }
         if (editedRange.first != -1)
             formatRange(document(), indenter(), editedRange, tabSettings());
+        cursor.endEditBlock();
     }
 
     return TextEditor::TextDocument::save(errorString, fileName, autoSave);
