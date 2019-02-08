@@ -25,6 +25,8 @@
 
 #include "languagefeatures.h"
 
+#include <cstddef>
+
 namespace LanguageServerProtocol {
 
 constexpr const char HoverRequest::methodName[];
@@ -406,7 +408,7 @@ CodeActionResult::CodeActionResult(const QJsonValue &val)
         emplace<ResultArray>(result);
         return;
     }
-    emplace<nullptr_t>(nullptr);
+    emplace<std::nullptr_t>(nullptr);
 }
 
 bool CodeAction::isValid(QStringList *error) const
