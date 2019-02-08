@@ -443,7 +443,7 @@ void ClangToolRunControl::onRunnerFinishedWithFailure(const QString &errorMessag
     m_success = false;
     appendMessage(message, Utils::StdErrFormat);
     appendMessage(errorDetails, Utils::StdErrFormat);
-    TaskHub::addTask(Task::Warning, message, Debugger::Constants::ANALYZERTASK_ID);
+    TaskHub::addTask(Task::Error, message, Debugger::Constants::ANALYZERTASK_ID);
     handleFinished();
 }
 
