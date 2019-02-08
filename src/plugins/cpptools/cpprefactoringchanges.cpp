@@ -198,12 +198,12 @@ Utils::ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
     unsigned line, column;
     cppDocument()->translationUnit()->getPosition(token.utf16charsBegin(), &line, &column);
     const int start = document()->findBlockByNumber(line - 1).position() + column - 1;
-    return Utils::ChangeSet::Range(start, start + token.utf16chars());
+    return {start, static_cast<int>(start + token.utf16chars())};
 }
 
 Utils::ChangeSet::Range CppRefactoringFile::range(AST *ast) const
 {
-    return Utils::ChangeSet::Range(startOf(ast), endOf(ast));
+    return {startOf(ast), endOf(ast)};
 }
 
 int CppRefactoringFile::startOf(unsigned index) const

@@ -47,7 +47,7 @@ ProjectFileCategorizer::ProjectFileCategorizer(const QString &projectPartName,
 QString ProjectFileCategorizer::partName(const QString &languageName) const
 {
     if (hasMultipleParts())
-        return QString::fromLatin1("%1 (%2)").arg(m_partName).arg(languageName);
+        return QString::fromLatin1("%1 (%2)").arg(m_partName, languageName);
 
     return m_partName;
 }

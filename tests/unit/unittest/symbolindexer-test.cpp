@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "filesystem-utilities.h"
 #include "mockclangpathwatcher.h"
 #include "mocksymbolscollector.h"
 #include "mocksymbolstorage.h"
@@ -273,15 +274,15 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    "/project/includes",
+                                    toNativePath("/project/includes").path(),
                                     "-I",
-                                    "/other/project/includes",
+                                    toNativePath("/other/project/includes").path(),
                                     "-isystem",
-                                    TESTDATA_DIR,
+                                    toNativePath(TESTDATA_DIR).path(),
                                     "-isystem",
-                                    "/other/includes",
+                                    toNativePath("/other/includes").path(),
                                     "-isystem",
-                                    "/includes")));
+                                    toNativePath("/includes").path())));
 
     indexer.updateProjectParts({projectPart1});
 }
@@ -303,19 +304,19 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInColl
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    "/project/includes",
+                                    toNativePath("/project/includes").path(),
                                     "-I",
-                                    "/other/project/includes",
+                                    toNativePath("/other/project/includes").path(),
                                     "-isystem",
-                                    TESTDATA_DIR,
+                                    toNativePath(TESTDATA_DIR).path(),
                                     "-isystem",
-                                    "/other/includes",
+                                    toNativePath("/other/includes").path(),
                                     "-isystem",
-                                    "/includes",
+                                    toNativePath("/includes").path(),
                                     "-Xclang",
                                     "-include-pch",
                                     "-Xclang",
-                                    "/path/to/pch")));
+                                    toNativePath("/path/to/pch").path())));
 
     indexer.updateProjectParts({projectPart1});
 }
@@ -336,15 +337,15 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithoutPrecompiledHeaderInC
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    "/project/includes",
+                                    toNativePath("/project/includes").path(),
                                     "-I",
-                                    "/other/project/includes",
+                                    toNativePath("/other/project/includes").path(),
                                     "-isystem",
-                                    TESTDATA_DIR,
+                                    toNativePath(TESTDATA_DIR).path(),
                                     "-isystem",
-                                    "/other/includes",
+                                    toNativePath("/other/includes").path(),
                                     "-isystem",
-                                    "/includes")));
+                                    toNativePath("/includes").path())));
 
     indexer.updateProjectParts({projectPart1});
 }
@@ -516,15 +517,15 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithoutProjectPartArtifact)
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    "/project/includes",
+                                    toNativePath("/project/includes").path(),
                                     "-I",
-                                    "/other/project/includes",
+                                    toNativePath("/other/project/includes").path(),
                                     "-isystem",
-                                    TESTDATA_DIR,
+                                    toNativePath(TESTDATA_DIR).path(),
                                     "-isystem",
-                                    "/other/includes",
+                                    toNativePath("/other/includes").path(),
                                     "-isystem",
-                                    "/includes")));
+                                    toNativePath("/includes").path())));
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
@@ -568,15 +569,15 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithProjectPartArtifact)
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    "/project/includes",
+                                    toNativePath("/project/includes").path(),
                                     "-I",
-                                    "/other/project/includes",
+                                    toNativePath("/other/project/includes").path(),
                                     "-isystem",
-                                    TESTDATA_DIR,
+                                    toNativePath(TESTDATA_DIR).path(),
                                     "-isystem",
-                                    "/other/includes",
+                                    toNativePath("/other/includes").path(),
                                     "-isystem",
-                                    "/includes")));
+                                    toNativePath("/includes").path())));
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
@@ -624,15 +625,15 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    "/project/includes",
+                                    toNativePath("/project/includes").path(),
                                     "-I",
-                                    "/other/project/includes",
+                                    toNativePath("/other/project/includes").path(),
                                     "-isystem",
-                                    TESTDATA_DIR,
+                                    toNativePath(TESTDATA_DIR).path(),
                                     "-isystem",
-                                    "/other/includes",
+                                    toNativePath("/other/includes").path(),
                                     "-isystem",
-                                    "/includes")));
+                                    toNativePath("/includes").path())));
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
@@ -686,19 +687,19 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsUsingPrecompiledHeader)
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    "/project/includes",
+                                    toNativePath("/project/includes").path(),
                                     "-I",
-                                    "/other/project/includes",
+                                    toNativePath("/other/project/includes").path(),
                                     "-isystem",
-                                    TESTDATA_DIR,
+                                    toNativePath(TESTDATA_DIR).path(),
                                     "-isystem",
-                                    "/other/includes",
+                                    toNativePath("/other/includes").path(),
                                     "-isystem",
-                                    "/includes",
+                                    toNativePath("/includes").path(),
                                     "-Xclang",
                                     "-include-pch",
                                     "-Xclang",
-                                    "/path/to/pch")));
+                                    toNativePath("/path/to/pch").path())));
 
     indexer.pathsChanged({sourceFileIds[0]});
 }
@@ -721,15 +722,15 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsNotUsingPrecompiledHeaderIfItNotExists)
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    "/project/includes",
+                                    toNativePath("/project/includes").path(),
                                     "-I",
-                                    "/other/project/includes",
+                                    toNativePath("/other/project/includes").path(),
                                     "-isystem",
-                                    TESTDATA_DIR,
+                                    toNativePath(TESTDATA_DIR).path(),
                                     "-isystem",
-                                    "/other/includes",
+                                    toNativePath("/other/includes").path(),
                                     "-isystem",
-                                    "/includes")));
+                                    toNativePath("/includes").path())));
 
     indexer.pathsChanged({sourceFileIds[0]});
 }

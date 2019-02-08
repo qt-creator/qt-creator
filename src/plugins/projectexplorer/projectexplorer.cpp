@@ -110,6 +110,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/vcsmanager.h>
@@ -360,6 +361,7 @@ public:
     void handleRenameFile();
     void handleSetStartupProject();
     void setStartupProject(ProjectExplorer::Project *project);
+    bool closeAllFilesInProject(const Project *project);
 
     void updateRecentProjectMenu();
     void clearRecentProjects();
@@ -441,6 +443,8 @@ public:
     QAction *m_openFileAction;
     QAction *m_projectTreeCollapseAllAction;
     QAction *m_projectTreeExpandAllAction;
+    Utils::ParameterAction *m_closeProjectFilesActionFileMenu;
+    Utils::ParameterAction *m_closeProjectFilesActionContextMenu;
     QAction *m_searchOnFileSystem;
     QAction *m_showInGraphicalShell;
     QAction *m_openTerminalHere;
@@ -933,6 +937,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDescription(dd->m_unloadAction->text());
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
 
+    dd->m_closeProjectFilesActionFileMenu = new Utils::ParameterAction(
+                tr("Close All Files in Project"), tr("Close All Files in Project \"%1\""),
+                Utils::ParameterAction::AlwaysEnabled, this);
+    cmd = ActionManager::registerAction(dd->m_closeProjectFilesActionFileMenu,
+                                        "ProjectExplorer.CloseProjectFilesFileMenu");
+    cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setDescription(dd->m_closeProjectFilesActionFileMenu->text());
+    mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
+
     ActionContainer *munload =
         ActionManager::createMenu(Constants::M_UNLOADPROJECTS);
     munload->menu()->setTitle(tr("Close Pro&ject"));
@@ -1138,6 +1151,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = ActionManager::registerAction(dd->m_unloadActionContextMenu, Constants::UNLOADCM);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_unloadActionContextMenu->text());
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
+
+    dd->m_closeProjectFilesActionContextMenu = new Utils::ParameterAction(
+                tr("Close All Files"), tr("Close All Files in Project \"%1\""),
+                Utils::ParameterAction::EnabledWithParameter, this);
+    cmd = ActionManager::registerAction(dd->m_closeProjectFilesActionContextMenu,
+                                        "ProjectExplorer.CloseAllFilesInProjectContextMenu");
+    cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setDescription(dd->m_closeProjectFilesActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
     // file properties action
@@ -1442,6 +1464,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::handleRenameFile);
     connect(dd->m_setStartupProjectAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::handleSetStartupProject);
+    connect(dd->m_closeProjectFilesActionFileMenu, &QAction::triggered,
+            dd, [] { dd->closeAllFilesInProject(SessionManager::projects().first()); });
+    connect(dd->m_closeProjectFilesActionContextMenu, &QAction::triggered,
+            dd, [] { dd->closeAllFilesInProject(ProjectTree::currentProject()); });
     connect(dd->m_projectTreeCollapseAllAction, &QAction::triggered,
             ProjectTree::instance(), &ProjectTree::collapseAll);
     connect(dd->m_projectTreeExpandAllAction, &QAction::triggered,
@@ -1674,6 +1700,9 @@ void ProjectExplorerPlugin::unloadProject(Project *project)
     if (!DocumentManager::saveModifiedDocumentSilently(document))
         return;
 
+    if (!dd->closeAllFilesInProject(project))
+        return;
+
     dd->addToRecentProjects(document->filePath().toString(), project->displayName());
 
     SessionManager::removeProject(project);
@@ -1822,6 +1851,26 @@ void ProjectExplorerPluginPrivate::setStartupProject(Project *project)
         return;
     SessionManager::setStartupProject(project);
     updateActions();
+}
+
+bool ProjectExplorerPluginPrivate::closeAllFilesInProject(const Project *project)
+{
+    QTC_ASSERT(project, return false);
+    const Utils::FileNameList filesInProject = project->files(Project::AllFiles);
+    QList<IDocument *> openFiles = DocumentModel::openedDocuments();
+    Utils::erase(openFiles, [filesInProject](const IDocument *doc) {
+        return !filesInProject.contains(doc->filePath());
+    });
+    for (const Project * const otherProject : SessionManager::projects()) {
+        if (otherProject == project)
+            continue;
+        const Utils::FileNameList filesInOtherProject
+                = otherProject->files(Project::AllFiles);
+        Utils::erase(openFiles, [filesInOtherProject](const IDocument *doc) {
+            return filesInOtherProject.contains(doc->filePath());
+        });
+    }
+    return EditorManager::closeDocuments(openFiles);
 }
 
 void ProjectExplorerPluginPrivate::savePersistentSettings()
@@ -2332,6 +2381,8 @@ void ProjectExplorerPluginPrivate::updateActions()
 
     m_unloadAction->setParameter(projectName);
     m_unloadActionContextMenu->setParameter(projectNameContextMenu);
+    m_closeProjectFilesActionFileMenu->setParameter(projectName);
+    m_closeProjectFilesActionContextMenu->setParameter(projectNameContextMenu);
 
     // mode bar build action
     QAction * const buildAction = ActionManager::command(Constants::BUILD)->action();
@@ -2390,6 +2441,9 @@ void ProjectExplorerPluginPrivate::updateActions()
     m_unloadAction->setVisible(SessionManager::projects().size() <= 1);
     m_unloadAction->setEnabled(SessionManager::projects().size() == 1);
     m_unloadActionContextMenu->setEnabled(SessionManager::hasProjects());
+    m_closeProjectFilesActionFileMenu->setVisible(SessionManager::projects().size() <= 1);
+    m_closeProjectFilesActionFileMenu->setEnabled(SessionManager::projects().size() == 1);
+    m_closeProjectFilesActionContextMenu->setEnabled(SessionManager::hasProjects());
 
     ActionContainer *aci =
         ActionManager::actionContainer(Constants::M_UNLOADPROJECTS);

@@ -50,10 +50,9 @@ ClangQueryGatherer::createSourceRangesForSource(
 {
     ClangQuery clangQuery(*filePathCache, std::move(query));
 
-    clangQuery.addFile(std::string(source.filePath.directory()),
-                       std::string(source.filePath.name()),
-                       std::string(source.unsavedFileContent),
-                       std::vector<std::string>(source.commandLineArguments));
+    clangQuery.addFile(std::move(source.filePath),
+                       std::move(source.unsavedFileContent),
+                       std::move(source.commandLineArguments));
 
     clangQuery.addUnsavedFiles(unsaved);
 

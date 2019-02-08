@@ -471,6 +471,13 @@ QList<Diagnostic> ClangTidyClazyTool::read(const QString &filePath,
     return readSerializedDiagnostics(filePath, projectRootDir, logFilePath, errorMessage);
 }
 
+void ClangTidyClazyTool::onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics)
+{
+    ClangTool::onNewDiagnosticsAvailable(diagnostics);
+    if (!m_diagnosticFilterModel->filterRegExp().pattern().isEmpty())
+        m_diagnosticFilterModel->invalidateFilter();
+}
+
 } // namespace Internal
 } // namespace ClangTools
 

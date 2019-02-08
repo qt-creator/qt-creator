@@ -85,10 +85,10 @@ private:
     void assignCommentOffset(QTextCursor cursor);
     QString offsetString() const;
 
-    bool m_addLeadingAsterisks;
-    bool m_generateBrief;
-    bool m_startComment;
-    DocumentationStyle m_style;
+    bool m_addLeadingAsterisks = true;
+    bool m_generateBrief = true;
+    bool m_startComment = true;
+    DocumentationStyle m_style = QtStyle;
     CPlusPlus::Overview m_printer;
     QString m_commentOffset;
 };

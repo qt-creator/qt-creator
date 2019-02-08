@@ -65,8 +65,8 @@ class CppCodeModelInspectorDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CppCodeModelInspectorDialog(QWidget *parent = 0);
-    ~CppCodeModelInspectorDialog();
+    explicit CppCodeModelInspectorDialog(QWidget *parent = nullptr);
+    ~CppCodeModelInspectorDialog() override;
 
 private:
     void onRefreshRequested();
@@ -90,7 +90,7 @@ private:
     void clearProjectPartData();
     void updateProjectPartData(const CppTools::ProjectPart::Ptr &part);
 
-    bool event(QEvent *e);
+    bool event(QEvent *e) override;
 
 private:
     Ui::CppCodeModelInspectorDialog *m_ui;

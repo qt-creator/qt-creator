@@ -35,7 +35,7 @@
 
 namespace CppTools {
 class CppRefactoringFile;
-typedef QSharedPointer<CppRefactoringFile> CppRefactoringFilePtr;
+using CppRefactoringFilePtr = QSharedPointer<CppRefactoringFile>;
 }
 
 namespace CppEditor {

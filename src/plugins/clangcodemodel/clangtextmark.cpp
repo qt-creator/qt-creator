@@ -133,7 +133,6 @@ void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticConta
         currentConfigId = globalSettings->clangDiagnosticConfigId();
 
     // Get config
-    const ClangDiagnosticConfigs originalConfigs = globalSettings->clangCustomDiagnosticConfigs();
     ClangDiagnosticConfigsModel configsModel(globalSettings->clangCustomDiagnosticConfigs());
     QTC_ASSERT(configsModel.hasConfigWithId(currentConfigId), return );
     ClangDiagnosticConfig config = configsModel.configWithId(currentConfigId);

@@ -332,7 +332,6 @@ public:
 
     // the blocks list must be sorted
     void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
-    bool isMissingSyntaxDefinition() const;
 
     enum Side { Left, Right };
     QAction *insertExtraToolBarWidget(Side side, QWidget *widget);

@@ -90,8 +90,7 @@ public:
     SmallStringView(const String &string) noexcept
         : m_pointer(string.data()),
           m_size(string.size())
-    {
-    }
+    {}
 
     static
     SmallStringView fromUtf8(const char *const characterPointer)

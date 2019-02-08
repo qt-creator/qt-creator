@@ -611,6 +611,8 @@ public:
     void updateCodeFoldingVisible();
 
     void reconfigure();
+    void updateSyntaxInfoBar(bool showInfo);
+    void configureGenericHighlighter(const KSyntaxHighlighting::Definition &definition);
 
 public:
     TextEditorWidget *q;
@@ -768,8 +770,6 @@ public:
 
     QScopedPointer<ClipboardAssistProvider> m_clipboardAssistProvider;
 
-    bool m_isMissingSyntaxDefinition = false;
-
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
 
@@ -903,33 +903,6 @@ void TextEditorWidgetPrivate::showTextMarksToolTip(const QPoint &pos,
 }
 
 } // namespace Internal
-
-/*!
- * Test if syntax highlighter is available (or unneeded) for \a widget.
- * If not found, show a warning with a link to the relevant settings page.
- */
-static void updateEditorInfoBar(TextEditorWidget *widget)
-{
-    Id id(Constants::INFO_SYNTAX_DEFINITION);
-    InfoBar *infoBar = widget->textDocument()->infoBar();
-    if (!widget->isMissingSyntaxDefinition()) {
-        infoBar->removeInfo(id);
-    } else if (infoBar->canInfoBeAdded(id)) {
-        InfoBarEntry info(id,
-                          BaseTextEditor::tr("A highlight definition was not found for this file. "
-                                             "Would you like to update highlight definition files?"),
-                          InfoBarEntry::GlobalSuppressionEnabled);
-        info.setCustomButtonInfo(BaseTextEditor::tr("Update Definitions"), [id, widget]() {
-            widget->textDocument()->infoBar()->removeInfo(id);
-            Highlighter::updateDefinitions([widget = QPointer<TextEditorWidget>(widget)]() {
-                if (widget)
-                    widget->configureGenericHighlighter();
-            });
-        });
-
-        infoBar->addInfo(info);
-    }
-}
 
 QString TextEditorWidget::plainTextFromSelection(const QTextCursor &cursor) const
 {
@@ -3299,6 +3272,49 @@ void TextEditorWidgetPrivate::reconfigure()
 {
     m_document->setMimeType(Utils::mimeTypeForFile(m_document->filePath().toString()).name());
     q->configureGenericHighlighter();
+}
+
+void TextEditorWidgetPrivate::updateSyntaxInfoBar(bool showInfo)
+{
+    Id id(Constants::INFO_SYNTAX_DEFINITION);
+    InfoBar *infoBar = m_document->infoBar();
+
+    if (showInfo) {
+        InfoBarEntry info(id,
+                          BaseTextEditor::tr(
+                              "A highlight definition was not found for this file. "
+                              "Would you like to update highlight definition files?"),
+                          InfoBarEntry::GlobalSuppressionEnabled);
+        info.setCustomButtonInfo(BaseTextEditor::tr("Update Definitions"), [&]() {
+            m_document->infoBar()->removeInfo(id);
+            Highlighter::updateDefinitions([widget = QPointer<TextEditorWidget>(q)]() {
+                if (widget)
+                    widget->configureGenericHighlighter();
+            });
+        });
+        infoBar->addInfo(info);
+    } else {
+        infoBar->removeInfo(id);
+    }
+}
+
+void TextEditorWidgetPrivate::configureGenericHighlighter(
+    const KSyntaxHighlighting::Definition &definition)
+{
+    auto highlighter = new Highlighter();
+    m_document->setSyntaxHighlighter(highlighter);
+
+    if (definition.isValid()) {
+        highlighter->setDefinition(definition);
+        m_commentDefinition.singleLine = definition.singleLineCommentMarker();
+        m_commentDefinition.multiLineStart = definition.multiLineCommentMarker().first;
+        m_commentDefinition.multiLineEnd = definition.multiLineCommentMarker().second;
+        q->setCodeFoldingSupported(true);
+    } else {
+        q->setCodeFoldingSupported(false);
+    }
+
+    m_document->setFontSettings(TextEditorSettings::fontSettings());
 }
 
 bool TextEditorWidget::codeFoldingVisible() const
@@ -8498,36 +8514,11 @@ QString TextEditorWidget::textAt(int from, int to) const
 
 void TextEditorWidget::configureGenericHighlighter()
 {
-    auto highlighter = new Highlighter();
-    textDocument()->setSyntaxHighlighter(highlighter);
-
-    setCodeFoldingSupported(false);
-
-    const QString type = textDocument()->mimeType();
-    const MimeType mimeType = Utils::mimeTypeForName(type);
-    const QString fileName = textDocument()->filePath().fileName();
-    KSyntaxHighlighting::Definition definition;
-    if (mimeType.isValid())
-        definition = Highlighter::definitionForMimeType(mimeType.name());
-    if (!definition.isValid())
-        definition = Highlighter::definitionForFileName(fileName);
-
-    if (definition.isValid()) {
-        highlighter->setDefinition(definition);
-        d->m_isMissingSyntaxDefinition = false;
-        d->m_commentDefinition.singleLine = definition.singleLineCommentMarker();
-        d->m_commentDefinition.multiLineStart = definition.multiLineCommentMarker().first;
-        d->m_commentDefinition.multiLineEnd = definition.multiLineCommentMarker().second;
-
-        setCodeFoldingSupported(true);
-    } else {
-        d->m_isMissingSyntaxDefinition =
-            !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName);
-    }
-
-    textDocument()->setFontSettings(TextEditorSettings::fontSettings());
-
-    updateEditorInfoBar(this);
+    const Highlighter::Definition definition = Highlighter::definitionForDocument(textDocument());
+    d->configureGenericHighlighter(definition);
+    d->updateSyntaxInfoBar(!definition.isValid()
+            && !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(
+                                  textDocument()->filePath().fileName()));
 }
 
 int TextEditorWidget::blockNumberForVisibleRow(int row) const
@@ -8562,11 +8553,6 @@ HighlightScrollBarController *TextEditorWidget::highlightScrollBarController() c
     return d->m_highlightScrollBarController;
 }
 
-bool TextEditorWidget::isMissingSyntaxDefinition() const
-{
-    return d->m_isMissingSyntaxDefinition;
-}
-
 // The remnants of PlainTextEditor.
 void TextEditorWidget::setupGenericHighlighter()
 {
@@ -8574,8 +8560,6 @@ void TextEditorWidget::setupGenericHighlighter()
 
     connect(textDocument(), &IDocument::filePathChanged,
             d, &TextEditorWidgetPrivate::reconfigure);
-
-    updateEditorInfoBar(this);
 }
 
 //

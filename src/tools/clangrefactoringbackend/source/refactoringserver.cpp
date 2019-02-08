@@ -62,10 +62,9 @@ void RefactoringServer::requestSourceLocationsForRenamingMessage(RequestSourceLo
 {
     SymbolFinder symbolFinder(message.line, message.column, m_filePathCache);
 
-    symbolFinder.addFile(std::string(message.filePath.directory()),
-                         std::string(message.filePath.name()),
-                         std::string(message.unsavedContent),
-                         std::vector<std::string>(message.commandLine));
+    symbolFinder.addFile(std::move(message.filePath),
+                         std::move(message.unsavedContent),
+                         std::move(message.commandLine));
 
     symbolFinder.findSymbol();
 
@@ -79,10 +78,9 @@ void RefactoringServer::requestSourceRangesAndDiagnosticsForQueryMessage(
 {
     ClangQuery clangQuery(m_filePathCache, message.takeQuery());
 
-    clangQuery.addFile(std::string(message.source.filePath.directory()),
-                       std::string(message.source.filePath.name()),
-                       std::string(message.source.unsavedFileContent),
-                       std::vector<std::string>(message.source.commandLineArguments));
+    clangQuery.addFile(std::move(message.source.filePath),
+                       std::move(message.source.unsavedFileContent),
+                       std::move(message.source.commandLineArguments));
 
     clangQuery.findLocations();
 

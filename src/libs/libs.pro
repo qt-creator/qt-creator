@@ -48,3 +48,5 @@ win32: isEmpty(QTC_SKIP_CDBEXT) {
         message("environment variable pointing to your CDB installation.")
     }
 }
+
+QMAKE_EXTRA_TARGETS += deployqt # dummy

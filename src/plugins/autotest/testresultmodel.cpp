@@ -163,7 +163,7 @@ TestResultItem *TestResultItem::intermediateFor(const TestResultItem *item) cons
     QTC_ASSERT(item, return nullptr);
     const TestResult *otherResult = item->testResult();
     for (int row = childCount() - 1; row >= 0; --row) {
-        TestResultItem *child = static_cast<TestResultItem *>(childAt(row));
+        TestResultItem *child = childAt(row);
         const TestResult *testResult = child->testResult();
         if (testResult->result() != Result::MessageIntermediate)
             continue;
@@ -186,7 +186,7 @@ TestResultItem *TestResultItem::createAndAddIntermediateFor(const TestResultItem
 /********************************* TestResultModel *****************************************/
 
 TestResultModel::TestResultModel(QObject *parent)
-    : Utils::TreeModel<>(parent)
+    : Utils::TreeModel<TestResultItem>(new TestResultItem(TestResultPtr()), parent)
 {
 }
 
@@ -194,16 +194,15 @@ void TestResultModel::updateParent(const TestResultItem *item)
 {
     QTC_ASSERT(item, return);
     QTC_ASSERT(item->testResult(), return);
-    Utils::TreeItem *parentItem = item->parent();
+    TestResultItem *parentItem = item->parent();
     if (parentItem == rootItem()) // do not update invisible root item
         return;
     bool changed = false;
-    TestResultItem *parentResultItem = static_cast<TestResultItem *>(parentItem);
-    parentResultItem->updateResult(changed, item->testResult()->result());
+    parentItem->updateResult(changed, item->testResult()->result());
     if (!changed)
         return;
     emit dataChanged(parentItem->index(), parentItem->index());
-    updateParent(parentResultItem);
+    updateParent(parentItem);
 }
 
 void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoExpand)
@@ -212,7 +211,7 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
     if (testResult->result() == Result::MessageCurrentTest) {
         // MessageCurrentTest should always be the last top level item
         if (lastRow >= 0) {
-            TestResultItem *current = static_cast<TestResultItem *>(rootItem()->childAt(lastRow));
+            TestResultItem *current = rootItem()->childAt(lastRow);
             const TestResult *result = current->testResult();
             if (result && result->result() == Result::MessageCurrentTest) {
                 current->updateDescription(testResult->description());
@@ -235,14 +234,11 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
     if (AutotestPlugin::settings()->displayApplication) {
         const QString application = testResult->id();
         if (!application.isEmpty()) {
-            for (int row = rootItem()->childCount() - 1; row >= 0; --row) {
-                TestResultItem *tmp = static_cast<TestResultItem *>(rootItem()->childAt(row));
-                auto tmpTestResult = tmp->testResult();
-                if (tmpTestResult->id() == application) {
-                    root = tmp;
-                    break;
-                }
-            }
+            root = rootItem()->findFirstLevelChild([&application](TestResultItem *child) {
+                QTC_ASSERT(child, return false);
+                return child->testResult()->id() == application;
+            });
+
             if (!root) {
                 TestResult *tmpAppResult = new TestResult(application, application);
                 tmpAppResult->setResult(Result::Application);
@@ -264,7 +260,7 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
         updateParent(newItem);
     } else {
         if (lastRow >= 0) {
-            TestResultItem *current = static_cast<TestResultItem *>(rootItem()->childAt(lastRow));
+            TestResultItem *current = rootItem()->childAt(lastRow);
             const TestResult *result = current->testResult();
             if (result && result->result() == Result::MessageCurrentTest) {
                 rootItem()->insertChild(current->index().row(), newItem);
@@ -278,15 +274,11 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
 
 void TestResultModel::removeCurrentTestMessage()
 {
-    std::vector<Utils::TreeItem *> topLevelItems(rootItem()->begin(), rootItem()->end());
-    auto end = topLevelItems.rend();
-    for (auto it = topLevelItems.rbegin(); it != end; ++it) {
-        TestResultItem *current = static_cast<TestResultItem *>(*it);
-        if (current->testResult()->result() == Result::MessageCurrentTest) {
-            destroyItem(current);
-            break;
-        }
-    }
+    TestResultItem *currentMessageItem = rootItem()->findFirstLevelChild([](TestResultItem *it) {
+            return (it->testResult()->result() == Result::MessageCurrentTest);
+    });
+    if (currentMessageItem)
+        destroyItem(currentMessageItem);
 }
 
 void TestResultModel::clearTestResults()
@@ -302,7 +294,7 @@ void TestResultModel::clearTestResults()
 const TestResult *TestResultModel::testResult(const QModelIndex &idx)
 {
     if (idx.isValid())
-        return static_cast<TestResultItem *>(itemForIndex(idx))->testResult();
+        return itemForIndex(idx)->testResult();
 
     return nullptr;
 }
@@ -353,7 +345,7 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
 
     if (root == nullptr && !name.isEmpty()) {
         for (int row = rootItem()->childCount() - 1; row >= 0; --row) {
-            TestResultItem *tmp = static_cast<TestResultItem *>(rootItem()->childAt(row));
+            TestResultItem *tmp = rootItem()->childAt(row);
             auto tmpTestResult = tmp->testResult();
             if (tmpTestResult->id() == id && tmpTestResult->name() == name) {
                 root = tmp;
@@ -369,7 +361,7 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
         TestResultItem *currentItem = static_cast<TestResultItem *>(it);
         return currentItem->testResult()->isDirectParentOf(result, &needsIntermediate);
     };
-    TestResultItem *parent = static_cast<TestResultItem *>(root->reverseFindAnyChild(predicate));
+    TestResultItem *parent = root->reverseFindAnyChild(predicate);
     if (parent) {
         if (needsIntermediate) {
             // check if the intermediate is present already

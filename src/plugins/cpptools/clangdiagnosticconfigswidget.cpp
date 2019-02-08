@@ -51,6 +51,8 @@
 #include <QStringListModel>
 #include <QUuid>
 
+#include <memory>
+
 namespace CppTools {
 
 using namespace Constants;
@@ -383,7 +385,7 @@ private:
         }
     }
 
-    QVariant data(const QModelIndex &fullIndex, int role = Qt::DisplayRole) const override final
+    QVariant data(const QModelIndex &fullIndex, int role = Qt::DisplayRole) const final
     {
         if (!fullIndex.isValid() || role == Qt::DecorationRole)
             return QVariant();
@@ -447,7 +449,7 @@ private:
 
     QModelIndex indexForTree(const ClazyChecksTree *tree) const {
         if (!tree)
-            return QModelIndex();
+            return {};
 
         QModelIndex result;
         traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
@@ -989,11 +991,11 @@ static void setupTreeView(QTreeView *view, QAbstractItemModel *model, int expand
 
 void ClangDiagnosticConfigsWidget::setupTabs()
 {
-    m_clangBaseChecks.reset(new CppTools::Ui::ClangBaseChecks);
+    m_clangBaseChecks = std::make_unique<CppTools::Ui::ClangBaseChecks>();
     m_clangBaseChecksWidget = new QWidget();
     m_clangBaseChecks->setupUi(m_clangBaseChecksWidget);
 
-    m_clazyChecks.reset(new CppTools::Ui::ClazyChecks);
+    m_clazyChecks = std::make_unique<CppTools::Ui::ClazyChecks>();
     m_clazyChecksWidget = new QWidget();
     m_clazyChecks->setupUi(m_clazyChecksWidget);
     m_clazySortFilterProxyModel = new ClazyChecksSortFilterModel(this);
@@ -1030,7 +1032,7 @@ void ClangDiagnosticConfigsWidget::setupTabs()
         = codeModelSettings()->enableLowerClazyLevels() ? Qt::Checked : Qt::Unchecked;
     m_clazyChecks->enableLowerLevelsCheckBox->setCheckState(checkEnableLowerClazyLevels);
 
-    m_tidyChecks.reset(new CppTools::Ui::TidyChecks);
+    m_tidyChecks = std::make_unique<CppTools::Ui::TidyChecks>();
     m_tidyChecksWidget = new QWidget();
     m_tidyChecks->setupUi(m_tidyChecksWidget);
     setupTreeView(m_tidyChecks->checksPrefixesTree, m_tidyTreeModel.get());

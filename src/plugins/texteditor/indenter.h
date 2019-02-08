@@ -91,11 +91,10 @@ public:
     }
 
     // By default just calls indent with default settings.
-    virtual Replacements format(const QTextCursor &cursor,
-                                const TabSettings &tabSettings,
-                                int cursorPositionInEditor = -1)
+    virtual Replacements format(const QTextCursor &/*cursor*/,
+                                const TabSettings &/*tabSettings*/,
+                                int /*cursorPositionInEditor*/ = -1)
     {
-        indent(cursor, QChar::Null, tabSettings, cursorPositionInEditor);
         return Replacements();
     }
 

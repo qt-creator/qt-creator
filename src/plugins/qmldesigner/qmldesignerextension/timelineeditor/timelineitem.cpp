@@ -152,12 +152,6 @@ static int devicePixelHeight(const QPixmap &pixmap)
     return pixmap.height() / pixmap.devicePixelRatioF();
 }
 
-static QString iconPath()
-{
-    return Core::ICore::resourcePath()
-           + QLatin1String("/qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/");
-}
-
 void TimelineFrameHandle::paint(QPainter *painter,
                                 const QStyleOptionGraphicsItem * /*option*/,
                                 QWidget * /*widget*/)

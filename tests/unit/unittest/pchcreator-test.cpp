@@ -26,6 +26,7 @@
 #include "googletest.h"
 
 #include "fakeprocess.h"
+#include "filesystem-utilities.h"
 
 #include "mockclangpathwatcher.h"
 #include "mockpchmanagerclient.h"
@@ -130,21 +131,6 @@ TEST_F(PchCreator, CreateProjectPartPchFileContent)
                       HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/external/external2.h\"\n")));
 }
 
-TEST_F(PchCreator, CreatePchIncludeFile)
-{
-    auto content = creator.generatePchIncludeFileContent(pchTask1.includes);
-    auto pchIncludeFilePath = creator.generatePchHeaderFilePath();
-    auto file = creator.generateFileWithContent(pchIncludeFilePath, content);
-    file->open(QIODevice::ReadOnly);
-
-    auto fileContent = file->readAll();
-
-    ASSERT_THAT(fileContent.toStdString(),
-                AllOf(HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/project/header2.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/external/external1.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/builddependencycollector/external/external2.h\"\n")));
-}
-
 TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
 {
     auto arguments = creator.generateClangCompilerArguments(std::move(pchTask1),
@@ -159,11 +145,11 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
                             "-nostdinc",
                             "-nostdinc++",
                             "-I",
-                            TESTDATA_DIR "/builddependencycollector/project",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/project").path(),
                             "-isystem",
-                            TESTDATA_DIR "/builddependencycollector/external",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/external").path(),
                             "-isystem",
-                            TESTDATA_DIR "/builddependencycollector/system",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/system").path(),
                             "-o",
                             "project.pch",
                             "project.h"));
@@ -185,11 +171,11 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArgumentsWithSystemPch)
                             "-nostdinc",
                             "-nostdinc++",
                             "-I",
-                            TESTDATA_DIR "/builddependencycollector/project",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/project").path(),
                             "-isystem",
-                            TESTDATA_DIR "/builddependencycollector/external",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/external").path(),
                             "-isystem",
-                            TESTDATA_DIR "/builddependencycollector/system",
+                            toNativePath(TESTDATA_DIR "/builddependencycollector/system").path(),
                             "-Xclang",
                             "-include-pch",
                             "-Xclang",

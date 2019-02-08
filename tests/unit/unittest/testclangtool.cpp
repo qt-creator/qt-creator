@@ -25,12 +25,11 @@
 
 #include "testclangtool.h"
 
-TestClangTool::TestClangTool(std::string &&directory,
-                             std::string &&fileName,
-                             std::string &&content,
-                             std::vector<std::string> &&commandLine)
+TestClangTool::TestClangTool(ClangBackEnd::FilePath &&filePath,
+                             Utils::SmallString &&content,
+                             Utils::SmallStringVector &&commandLine)
 {
-    addFile(std::move(directory), std::move(fileName), std::move(content), std::move(commandLine));
+    addFile(std::move(filePath), std::move(content), std::move(commandLine));
 
     auto clangTool = createTool();
 

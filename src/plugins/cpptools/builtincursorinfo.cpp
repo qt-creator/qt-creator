@@ -50,7 +50,7 @@ namespace {
 
 CursorInfo::Range toRange(const SemanticInfo::Use &use)
 {
-    return CursorInfo::Range(use.line, use.column, use.length);
+    return {use.line, use.column, use.length};
 }
 
 CursorInfo::Range toRange(int tokenIndex, TranslationUnit *translationUnit)
@@ -60,10 +60,9 @@ CursorInfo::Range toRange(int tokenIndex, TranslationUnit *translationUnit)
     if (column)
         --column;  // adjust the column position.
 
-    return CursorInfo::Range(
-                line,
-                column +1,
-                translationUnit->tokenAt(static_cast<unsigned>(tokenIndex)).utf16chars());
+    return {line,
+            column + 1,
+            translationUnit->tokenAt(static_cast<unsigned>(tokenIndex)).utf16chars()};
 }
 
 CursorInfo::Range toRange(const QTextCursor &textCursor,
@@ -74,10 +73,9 @@ CursorInfo::Range toRange(const QTextCursor &textCursor,
     cursor.setPosition(static_cast<int>(utf16offset));
     const QTextBlock textBlock = cursor.block();
 
-    return CursorInfo::Range(
-                static_cast<unsigned>(textBlock.blockNumber() + 1),
-                static_cast<unsigned>(cursor.position() - textBlock.position() + 1),
-                length);
+    return {static_cast<unsigned>(textBlock.blockNumber() + 1),
+            static_cast<unsigned>(cursor.position() - textBlock.position() + 1),
+            length};
 }
 
 CursorInfo::Ranges toRanges(const SemanticUses &uses)
@@ -216,8 +214,8 @@ private:
 
             bool good = false;
             foreach (const CppTools::SemanticInfo::Use &use, uses) {
-                unsigned l = static_cast<unsigned>(m_line);
-                unsigned c = static_cast<unsigned>(m_column);
+                const auto l = static_cast<unsigned>(m_line);
+                const auto c = static_cast<unsigned>(m_column);
                 if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
                     good = true;
                     break;

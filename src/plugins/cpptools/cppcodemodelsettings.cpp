@@ -36,7 +36,7 @@
 using namespace CppTools;
 
 static Core::Id initialClangDiagnosticConfigId()
-{ return Core::Id(Constants::CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS); }
+{ return {Constants::CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS}; }
 
 static CppCodeModelSettings::PCHUsage initialPchUsage()
 { return CppCodeModelSettings::PchUse_BuildSystem; }
@@ -90,7 +90,7 @@ static QString convertToNewClazyChecksFormat(const QString &checks)
 
     if (checks.size() == 6 && checks.startsWith("level")) {
         bool ok = false;
-        const int level = checks.mid(5).toInt(&ok);
+        const int level = checks.midRef(5).toInt(&ok);
         QTC_ASSERT(ok, return QString());
         return clazyChecksForLevel(level);
     }

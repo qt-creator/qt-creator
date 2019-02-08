@@ -26,7 +26,6 @@
 #include "pathchooser.h"
 
 #include "environment.h"
-#include "optional.h"
 #include "qtcassert.h"
 #include "macroexpander.h"
 
@@ -348,22 +347,14 @@ QString PathChooser::expandedDirectory(const QString &input, const Environment &
     return path;
 }
 
-void setTextKeepingActiveCursor(QLineEdit *edit, const QString &text)
-{
-    optional<int> cursor = edit->hasFocus() ? make_optional(edit->cursorPosition()) : nullopt;
-    edit->setText(text);
-    if (cursor)
-        edit->setCursorPosition(*cursor);
-}
-
 void PathChooser::setPath(const QString &path)
 {
-    setTextKeepingActiveCursor(d->m_lineEdit, QDir::toNativeSeparators(path));
+    d->m_lineEdit->setTextKeepingActiveCursor(QDir::toNativeSeparators(path));
 }
 
 void PathChooser::setFileName(const FileName &fn)
 {
-    setTextKeepingActiveCursor(d->m_lineEdit, fn.toUserOutput());
+    d->m_lineEdit->setTextKeepingActiveCursor(fn.toUserOutput());
 }
 
 void PathChooser::setErrorColor(const QColor &errorColor)

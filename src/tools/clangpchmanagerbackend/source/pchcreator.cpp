@@ -82,15 +82,6 @@ bool PchCreator::generatePch()
     return tool.run(action.get()) != 1;
 }
 
-FilePath PchCreator::generatePchHeaderFilePath() const
-{
-    std::uniform_int_distribution<std::mt19937_64::result_type> distribution;
-
-    return FilePathView{Utils::PathString{Utils::SmallString(m_environment.pchBuildDirectory()),
-                                          "/",
-                                          std::to_string(distribution(randomNumberGenator)),
-                                          ".h"}};
-}
 
 FilePath PchCreator::generatePchFilePath() const
 {
@@ -103,10 +94,9 @@ FilePath PchCreator::generatePchFilePath() const
                                           ".pch"}};
 }
 
-std::vector<std::string> PchCreator::generateClangCompilerArguments(
-    const PchTask &pchTask,
-    FilePathView sourceFilePath,
-    FilePathView pchOutputPath)
+Utils::SmallStringVector PchCreator::generateClangCompilerArguments(const PchTask &pchTask,
+                                                                    FilePathView sourceFilePath,
+                                                                    FilePathView pchOutputPath)
 {
     CommandLineBuilder<PchTask> builder{pchTask,
                                         pchTask.toolChainArguments,
@@ -121,15 +111,14 @@ void PchCreator::generatePch(PchTask &&pchTask)
 {
     long long lastModified = QDateTime::currentSecsSinceEpoch();
     auto content = generatePchIncludeFileContent(pchTask.includes);
-    auto pchSourceFilePath = generatePchHeaderFilePath();
     auto pchOutputPath = generatePchFilePath();
-    generateFileWithContent(pchSourceFilePath, content);
 
-    m_clangTool.addFile(
-        pchSourceFilePath.directory(),
-        pchSourceFilePath.name(),
-        "",
-        generateClangCompilerArguments(pchTask, pchSourceFilePath, pchOutputPath));
+    FilePath headerFilePath{m_environment.pchBuildDirectory().toStdString(), "dummy.h"};
+    Utils::SmallStringVector commandLine = generateClangCompilerArguments(pchTask,
+                                                                          headerFilePath,
+                                                                          pchOutputPath);
+
+    m_clangTool.addFile(std::move(headerFilePath), std::move(content), std::move(commandLine));
 
     bool success = generatePch();
 
@@ -177,19 +166,6 @@ void PchCreator::doInMainThreadAfterFinished()
 const FilePathCaching &PchCreator::filePathCache()
 {
     return m_filePathCache;
-}
-
-std::unique_ptr<QFile> PchCreator::generateFileWithContent(const Utils::SmallString &filePath,
-                                                           const Utils::SmallString &content)
-{
-    std::unique_ptr<QFile> precompiledIncludeFile(new QFile(QString(filePath)));
-
-    precompiledIncludeFile->open(QIODevice::WriteOnly);
-
-    precompiledIncludeFile->write(content.data(), qint64(content.size()));
-    precompiledIncludeFile->close();
-
-    return precompiledIncludeFile;
 }
 
 } // namespace ClangBackEnd

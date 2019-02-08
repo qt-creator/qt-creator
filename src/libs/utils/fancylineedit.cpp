@@ -27,6 +27,7 @@
 #include "fancylineedit.h"
 #include "historycompleter.h"
 #include "hostosinfo.h"
+#include "optional.h"
 #include "qtcassert.h"
 #include "stylehelper.h"
 #include "utilsicons.h"
@@ -173,6 +174,14 @@ FancyLineEdit::~FancyLineEdit()
         // QCoreApplicationPrivate::sendPostedEvents dispatch our queued signal.
         d->m_historyCompleter->addEntry(text());
     }
+}
+
+void FancyLineEdit::setTextKeepingActiveCursor(const QString &text)
+{
+    optional<int> cursor = hasFocus() ? make_optional(cursorPosition()) : nullopt;
+    setText(text);
+    if (cursor)
+        setCursorPosition(*cursor);
 }
 
 void FancyLineEdit::setButtonVisible(Side side, bool visible)

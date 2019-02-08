@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 
+#include <filepath.h>
 #include <nativefilepath.h>
 
 namespace {

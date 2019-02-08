@@ -26,6 +26,7 @@
 #include "perftracepointdialog.h"
 #include "ui_perftracepointdialog.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -46,17 +47,26 @@ PerfTracePointDialog::PerfTracePointDialog() :
 {
     m_ui->setupUi(this);
 
-    Project *currentProject = SessionManager::startupProject();
-    QTC_ASSERT(currentProject, return);
+    if (Project *currentProject = SessionManager::startupProject()) {
+        if (const Target *target = currentProject->activeTarget()) {
+            const Kit *kit = target->kit();
+            QTC_ASSERT(kit, return);
 
-    const Target *target = currentProject->activeTarget();
-    QTC_ASSERT(target, return);
+            m_device = DeviceKitInformation::device(kit);
+            if (!m_device) {
+                m_ui->textEdit->setPlainText(tr("Error: No device available for active target."));
+                return;
+            }
+        }
+    }
 
-    const Kit *kit = target->kit();
-    QTC_ASSERT(kit, return);
+    if (!m_device) {
+        const DeviceManager *deviceManager = DeviceManager::instance();
 
-    m_device = DeviceKitInformation::device(kit);
-    QTC_ASSERT(m_device, return);
+        // There should at least be a desktop device.
+        m_device = deviceManager->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
+        QTC_ASSERT(m_device, return);
+    }
 
     QFile file(":/perfprofiler/tracepoints.sh");
     if (file.open(QIODevice::ReadOnly)) {

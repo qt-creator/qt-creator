@@ -102,8 +102,9 @@ protected:
     Utils::SmallString sourceContent{"void f()\n {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),
-                         {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp")}};
-    QTemporaryFile temporaryFile{Utils::TemporaryDirectory::masterDirectoryPath() + "/clangQuery-XXXXXX.cpp"};
+                         {"cc", toNativePath(TESTDATA_DIR "/query_simplefunction.cpp").path()}};
+    QTemporaryFile temporaryFile{Utils::TemporaryDirectory::masterDirectoryPath()
+                                 + "/clangQuery-XXXXXX.cpp"};
     int processingSlotCount = 2;
 };
 
@@ -266,10 +267,11 @@ TEST_F(RefactoringServer, PollTimerNotIsActiveAfterCanceling)
 
 TEST_F(RefactoringServerSlowTest, ForValidRequestSourceRangesAndDiagnosticsGetSourceRange)
 {
-    RequestSourceRangesAndDiagnosticsForQueryMessage message("functionDecl()",
-                                                             {FilePath(temporaryFile.fileName()),
-                                                              "void f() {}",
-                                                              {"cc", toNativePath(temporaryFile.fileName())}});
+    RequestSourceRangesAndDiagnosticsForQueryMessage message(
+        "functionDecl()",
+        {FilePath(temporaryFile.fileName()),
+         "void f() {}",
+         {"cc", toNativePath(temporaryFile.fileName()).path()}});
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesAndDiagnosticsForQueryMessage(
@@ -285,10 +287,11 @@ TEST_F(RefactoringServerSlowTest, ForValidRequestSourceRangesAndDiagnosticsGetSo
 
 TEST_F(RefactoringServerSlowTest, ForInvalidRequestSourceRangesAndDiagnosticsGetDiagnostics)
 {
-    RequestSourceRangesAndDiagnosticsForQueryMessage message("func()",
-                                                             {FilePath(temporaryFile.fileName()),
-                                                              "void f() {}",
-                                                              {"cc", toNativePath(temporaryFile.fileName())}});
+    RequestSourceRangesAndDiagnosticsForQueryMessage message(
+        "func()",
+        {FilePath(temporaryFile.fileName()),
+         "void f() {}",
+         {"cc", toNativePath(temporaryFile.fileName()).path()}});
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceRangesAndDiagnosticsForQueryMessage(

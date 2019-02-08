@@ -41,7 +41,7 @@ namespace CppTools {
 class SearchSymbols: protected CPlusPlus::SymbolVisitor
 {
 public:
-    typedef SymbolSearcher::SymbolTypes SymbolTypes;
+    using SymbolTypes = SymbolSearcher::SymbolTypes;
 
     static SymbolTypes AllTypes;
 

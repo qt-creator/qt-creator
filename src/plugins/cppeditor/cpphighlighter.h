@@ -41,7 +41,7 @@ class CppHighlighter : public TextEditor::SyntaxHighlighter
     Q_OBJECT
 
 public:
-    CppHighlighter(QTextDocument *document = 0);
+    CppHighlighter(QTextDocument *document = nullptr);
 
     void setLanguageFeatures(const CPlusPlus::LanguageFeatures &languageFeatures);
     void highlightBlock(const QString &text) override;

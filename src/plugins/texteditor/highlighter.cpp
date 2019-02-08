@@ -32,6 +32,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <Format>
 #include <Repository>
@@ -99,14 +100,46 @@ Highlighter::Highlighter()
                             &categoryForTextStyle);
 }
 
-KSyntaxHighlighting::Definition Highlighter::definitionForMimeType(const QString &mimeType)
+Highlighter::Definition Highlighter::definitionForDocument(const TextDocument *document)
+{
+    const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
+    Definition definition;
+    if (mimeType.isValid())
+        definition = Highlighter::definitionForMimeType(mimeType.name());
+    if (!definition.isValid())
+        definition = Highlighter::definitionForFileName(document->filePath().fileName());
+    return definition;
+}
+
+Highlighter::Definition Highlighter::definitionForMimeType(const QString &mimeType)
 {
     return highlightRepository()->definitionForMimeType(mimeType);
 }
 
-KSyntaxHighlighting::Definition Highlighter::definitionForFileName(const QString &fileName)
+Highlighter::Definition Highlighter::definitionForFileName(const QString &fileName)
 {
     return highlightRepository()->definitionForFileName(fileName);
+}
+
+Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument *document)
+{
+    const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
+    Definitions definitions;
+    if (mimeType.isValid())
+        definitions = Highlighter::definitionsForMimeType(mimeType.name());
+    if (definitions.isEmpty())
+        definitions = Highlighter::definitionsForFileName(document->filePath().fileName());
+    return definitions;
+}
+
+Highlighter::Definitions Highlighter::definitionsForMimeType(const QString &mimeType)
+{
+    return highlightRepository()->definitionsForMimeType(mimeType).toList();
+}
+
+Highlighter::Definitions Highlighter::definitionsForFileName(const QString &fileName)
+{
+    return highlightRepository()->definitionsForFileName(fileName).toList();
 }
 
 void Highlighter::addCustomHighlighterPath(const Utils::FileName &path)

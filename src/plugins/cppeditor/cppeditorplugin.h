@@ -40,7 +40,7 @@ class CppEditorPlugin : public ExtensionSystem::IPlugin
 
 public:
     CppEditorPlugin();
-    ~CppEditorPlugin();
+    ~CppEditorPlugin() override;
 
     static CppEditorPlugin *instance();
 

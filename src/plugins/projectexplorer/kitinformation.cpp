@@ -390,8 +390,11 @@ void ToolChainKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander 
 
 IOutputParser *ToolChainKitInformation::createOutputParser(const Kit *k) const
 {
-    ToolChain *tc = toolChain(k, Constants::CXX_LANGUAGE_ID);
-    return tc ? tc->outputParser() : nullptr;
+    for (const Core::Id langId : {Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID}) {
+        if (const ToolChain * const tc = toolChain(k, langId))
+            return tc->outputParser();
+    }
+    return nullptr;
 }
 
 QSet<Core::Id> ToolChainKitInformation::availableFeatures(const Kit *k) const

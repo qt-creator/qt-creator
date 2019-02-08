@@ -94,7 +94,9 @@ TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFunctionDeclarationRange)
 TEST_F(ClangQuerySlowTest, SourceRangeInUnsavedFileDeclarationRange)
 {
     ::ClangQuery query(filePathCache);
-    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "#include \"unsaved.h\"", {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-std=c++14"});
+    query.addFile({TESTDATA_DIR "/query_simplefunction.cpp"},
+                  "#include \"unsaved.h\"",
+                  {"cc", toNativePath(TESTDATA_DIR "/query_simplefunction.cpp").path(), "-std=c++14"});
     query.setQuery("functionDecl()");
     ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "unsaved.h"}, "void unsaved();", {}};
     query.addUnsavedFiles({unsavedFile});
@@ -108,7 +110,9 @@ TEST_F(ClangQuerySlowTest, SourceRangeInUnsavedFileDeclarationRange)
 TEST_F(ClangQuerySlowTest, FileIsNotExistingButTheUnsavedDataIsParsed)
 {
     ::ClangQuery query(filePathCache);
-    query.addFile(TESTDATA_DIR, "foo.cpp", "void f() {}", {"cc", toNativePath(TESTDATA_DIR"/foo.cpp"), "-std=c++14"});
+    query.addFile({TESTDATA_DIR "/foo.cpp"},
+                  "void f() {}",
+                  {"cc", toNativePath(TESTDATA_DIR "/foo.cpp").path(), "-std=c++14"});
     query.setQuery("functionDecl()");
 
     query.findLocations();
@@ -120,9 +124,13 @@ TEST_F(ClangQuerySlowTest, FileIsNotExistingButTheUnsavedDataIsParsed)
 TEST_F(ClangQuerySlowTest, DISABLED_SourceRangeInUnsavedFileDeclarationRangeOverride) // seems not to work in Clang
 {
     ::ClangQuery query(filePathCache);
-    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "void f() {}", {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-std=c++14"});
+    query.addFile({TESTDATA_DIR "/query_simplefunction.cpp"},
+                  "void f() {}",
+                  {"cc", toNativePath(TESTDATA_DIR "/query_simplefunction.cpp").path(), "-std=c++14"});
     query.setQuery("functionDecl()");
-    ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "query_simplefunction.cpp"}, "void unsaved();", {}};
+    ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR "/query_simplefunction.cpp"},
+                                                "void unsaved();",
+                                                {}};
     query.addUnsavedFiles({unsavedFile});
 
     query.findLocations();
@@ -215,8 +223,15 @@ TEST_F(ClangQuerySlowTest, DiagnosticForWrongArgumenType)
 
 void ClangQuery::SetUp()
 {
-    simpleFunctionQuery.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "", {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-std=c++14"});
-    simpleClassQuery.addFile(TESTDATA_DIR, "query_simpleclass.cpp", "", {"cc", "query_simpleclass.cpp", "-std=c++14"});
-
+    simpleFunctionQuery.addFile({TESTDATA_DIR "/query_simplefunction.cpp"},
+                                "",
+                                {"cc",
+                                 toNativePath(TESTDATA_DIR "/query_simplefunction.cpp").path(),
+                                 "-std=c++14"});
+    simpleClassQuery.addFile({TESTDATA_DIR "/query_simpleclass.cpp"},
+                             "",
+                             {"cc",
+                              toNativePath(TESTDATA_DIR "/query_simpleclass.cpp").path(),
+                              "-std=c++14"});
 }
-}
+} // namespace

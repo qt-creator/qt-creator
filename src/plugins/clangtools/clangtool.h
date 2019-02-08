@@ -62,7 +62,7 @@ public:
 
     const QString &name() const;
 
-    void onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
+    virtual void onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
 
 signals:
     void finished(bool success); // For testing.

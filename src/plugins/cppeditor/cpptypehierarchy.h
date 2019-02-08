@@ -61,9 +61,9 @@ class CppTypeHierarchyModel : public QStandardItemModel
 public:
     CppTypeHierarchyModel(QObject *parent);
 
-    Qt::DropActions supportedDragActions() const;
-    QStringList mimeTypes() const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    Qt::DropActions supportedDragActions() const override;
+    QStringList mimeTypes() const override;
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
 };
 
 class CppTypeHierarchyWidget : public QWidget
@@ -71,7 +71,7 @@ class CppTypeHierarchyWidget : public QWidget
     Q_OBJECT
 public:
     CppTypeHierarchyWidget();
-    virtual ~CppTypeHierarchyWidget();
+    ~CppTypeHierarchyWidget() override;
 
     void perform();
 

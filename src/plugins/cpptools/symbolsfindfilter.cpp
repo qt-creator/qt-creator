@@ -248,9 +248,9 @@ QString SymbolsFindFilter::toolTip(FindFlags findFlags) const
     if (m_symbolsToSearch & SymbolSearcher::Declarations)
         types.append(tr("Declarations"));
     return tr("Scope: %1\nTypes: %2\nFlags: %3")
-            .arg(searchScope() == SymbolSearcher::SearchGlobal ? tr("All") : tr("Projects"))
-            .arg(types.join(tr(", ")))
-            .arg(IFindFilter::descriptionForFindFlags(findFlags));
+        .arg(searchScope() == SymbolSearcher::SearchGlobal ? tr("All") : tr("Projects"),
+             types.join(", "),
+             IFindFilter::descriptionForFindFlags(findFlags));
 }
 
 // #pragma mark -- SymbolsFindFilterConfigWidget

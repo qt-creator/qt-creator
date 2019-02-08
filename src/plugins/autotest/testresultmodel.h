@@ -37,7 +37,7 @@
 namespace Autotest {
 namespace Internal {
 
-class TestResultItem : public Utils::TreeItem
+class TestResultItem : public Utils::TypedTreeItem<TestResultItem, TestResultItem>
 {
 public:
     explicit TestResultItem(const TestResultPtr &testResult);
@@ -53,7 +53,7 @@ private:
     TestResultPtr m_testResult;
 };
 
-class TestResultModel : public Utils::TreeModel<>
+class TestResultModel : public Utils::TreeModel<TestResultItem>
 {
 public:
     explicit TestResultModel(QObject *parent = nullptr);

@@ -28,7 +28,7 @@
 #include "clangsupport_global.h"
 
 #include "filepathview.h"
-#include "filepathview.h"
+#include "nativefilepath.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/smallstringio.h>
@@ -36,6 +36,8 @@
 #include <QDataStream>
 
 namespace ClangBackEnd {
+
+class NativeFilePath;
 
 class FilePath : public Utils::PathString
 {

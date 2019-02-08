@@ -80,17 +80,26 @@ DocumentContentCompletionProcessor::~DocumentContentCompletionProcessor()
         m_watcher.cancel();
 }
 
-static void createProposal(QFutureInterface<QStringList> &future, const QString text)
+static void createProposal(QFutureInterface<QStringList> &future, const QString &text,
+                           const QString &wordUnderCursor)
 {
     const QRegularExpression wordRE("([a-zA-Z_][a-zA-Z0-9_]{2,})");
 
     QSet<QString> words;
     QRegularExpressionMatchIterator it = wordRE.globalMatch(text);
+    int wordUnderCursorFound = 0;
     while (it.hasNext()) {
         if (future.isCanceled())
             return;
         QRegularExpressionMatch match = it.next();
         const QString &word = match.captured();
+        if (word == wordUnderCursor) {
+            // Only add the word under cursor if it
+            // already appears elsewhere in the text
+            if (++wordUnderCursorFound < 2)
+                continue;
+        }
+
         if (!words.contains(word))
             words.insert(word);
     }
@@ -113,16 +122,18 @@ IAssistProposal *DocumentContentCompletionProcessor::perform(const AssistInterfa
     } while (chr.isLetterOrNumber() || chr == '_');
 
     ++pos;
+    int length = interface->position() - pos;
 
     if (interface->reason() == IdleEditor) {
         QChar characterUnderCursor = interface->characterAt(interface->position());
-        if (characterUnderCursor.isLetterOrNumber() || interface->position() - pos < 3)
+        if (characterUnderCursor.isLetterOrNumber() || length < 3)
             return nullptr;
     }
 
+    const QString wordUnderCursor = interface->textAt(pos, length);
     const QString text = interface->textDocument()->toPlainText();
 
-    m_watcher.setFuture(Utils::runAsync(&createProposal, text));
+    m_watcher.setFuture(Utils::runAsync(&createProposal, text, wordUnderCursor));
     QObject::connect(&m_watcher, &QFutureWatcher<QStringList>::resultReadyAt,
                      &m_watcher, [this, pos](int index){
         const TextEditor::SnippetAssistCollector snippetCollector(

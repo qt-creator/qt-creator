@@ -115,19 +115,19 @@ private:
     void initializeTimer();
 
 private:
-    bool m_fileIsBeingReloaded;
-    bool m_isObjCEnabled;
+    bool m_fileIsBeingReloaded = false;
+    bool m_isObjCEnabled = false;
 
     // Caching contents
     mutable QMutex m_cachedContentsLock;
     mutable QByteArray m_cachedContents;
-    mutable int m_cachedContentsRevision;
+    mutable int m_cachedContentsRevision = -1;
 
-    unsigned m_processorRevision;
+    unsigned m_processorRevision = 0;
     QTimer m_processorTimer;
     QScopedPointer<CppTools::BaseEditorDocumentProcessor> m_processor;
 
-    CppTools::CppCompletionAssistProvider *m_completionAssistProvider;
+    CppTools::CppCompletionAssistProvider *m_completionAssistProvider = nullptr;
 
     // (Un)Registration in CppModelManager
     QScopedPointer<CppTools::CppEditorDocumentHandle> m_editorDocumentHandle;

@@ -560,7 +560,6 @@ void CppSelectionChanger::fineTuneASTNodePositions(ASTNodePositions &positions) 
                 qDebug() << "Is raw literal.";
 
             // Start from positions that include quotes.
-            int newPosStart = positions.astPosStart;
             int newPosEnd = positions.astPosEnd;
 
             // Decrement last position to skip last quote.
@@ -572,7 +571,7 @@ void CppSelectionChanger::fineTuneASTNodePositions(ASTNodePositions &positions) 
 
             // Start position will be the end position minus the size of the actual contents of the
             // literal.
-            newPosStart = newPosEnd - static_cast<int>(firstToken.string->size());
+            int newPosStart = newPosEnd - static_cast<int>(firstToken.string->size());
 
             // Skip raw literal parentheses.
             if (isRawLiteral)
@@ -591,13 +590,8 @@ void CppSelectionChanger::fineTuneASTNodePositions(ASTNodePositions &positions) 
                 if (debug)
                     qDebug() << "Selecting inner contents of char literal.";
 
-                int newPosStart = positions.astPosStart;
-                int newPosEnd = positions.astPosEnd;
-                newPosEnd = newPosEnd - 1;
-                newPosStart = newPosEnd - static_cast<int>(firstToken.literal->size());
-
-                positions.astPosStart = newPosStart;
-                positions.astPosEnd = newPosEnd;
+                positions.astPosEnd = positions.astPosEnd - 1;
+                positions.astPosStart = positions.astPosEnd - int(firstToken.literal->size());
             }
         }
     } else if (ForStatementAST *forStatementAST = ast->asForStatement()) {

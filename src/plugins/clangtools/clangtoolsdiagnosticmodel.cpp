@@ -57,6 +57,8 @@ QVariant FilePathItem::data(int column, int role) const
             return m_filePath;
         case Qt::DecorationRole:
             return Core::FileIconProvider::icon(m_filePath);
+        case Debugger::DetailedErrorView::FullTextRole:
+            return m_filePath;
         default:
             return QVariant();
         }
@@ -68,12 +70,14 @@ QVariant FilePathItem::data(int column, int role) const
 class ExplainingStepItem : public Utils::TreeItem
 {
 public:
-    ExplainingStepItem(const ExplainingStep &step);
+    ExplainingStepItem(const ExplainingStep &step, int index);
+    int index() const { return m_index; }
 
 private:
     QVariant data(int column, int role) const override;
 
     const ExplainingStep m_step;
+    const int m_index = 0;
 };
 
 ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
@@ -295,15 +299,24 @@ static QString createExplainingStepString(const ExplainingStep &explainingStep, 
 {
     return createExplainingStepNumberString(number)
             + QLatin1Char(' ')
-            + explainingStep.extendedMessage
+            + explainingStep.message
             + QLatin1Char(' ')
             + createLocationString(explainingStep.location);
 }
 
+
+static QString lineColumnString(const Debugger::DiagnosticLocation &location)
+{
+    return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
+}
+
 static QString fullText(const Diagnostic &diagnostic)
 {
-    // Summary.
-    QString text = diagnostic.category + QLatin1String(": ") + diagnostic.type;
+    QString text = diagnostic.location.filePath + QLatin1Char(':');
+    text += lineColumnString(diagnostic.location) + QLatin1String(": ");
+    if (!diagnostic.category.isEmpty())
+        text += diagnostic.category + QLatin1String(": ");
+    text += diagnostic.type;
     if (diagnostic.type != diagnostic.description)
         text += QLatin1String(": ") + diagnostic.description;
     text += QLatin1Char('\n');
@@ -339,8 +352,8 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
     if (!diag.explainingSteps.isEmpty())
         m_parentModel->stepsToItemsCache[diag.explainingSteps].push_back(this);
 
-    foreach (const ExplainingStep &s, diag.explainingSteps)
-        appendChild(new ExplainingStepItem(s));
+    for (int i = 0; i < diag.explainingSteps.size(); ++i )
+        appendChild(new ExplainingStepItem(diag.explainingSteps[i], i));
 }
 
 DiagnosticItem::~DiagnosticItem()
@@ -378,11 +391,6 @@ static QVariant iconData(const QString &type)
     if (type == "fix-it")
         return Utils::Icons::CODEMODEL_FIXIT.icon();
     return QVariant();
-}
-
-static QString lineColumnString(const Debugger::DiagnosticLocation &location)
-{
-    return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
 }
 
 QVariant DiagnosticItem::data(int column, int role) const
@@ -481,9 +489,10 @@ bool DiagnosticItem::hasNewFixIts() const
     return m_parentModel->stepsToItemsCache[m_diagnostic.explainingSteps].front() == this;
 }
 
-ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step)
-{
-}
+ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step, int index)
+    : m_step(step)
+    , m_index(index)
+{}
 
 // We expect something like "note: ..."
 static QVariant iconForExplainingStepMessage(const QString &message)
@@ -509,28 +518,37 @@ QVariant ExplainingStepItem::data(int column, int role) const
         switch (role) {
         case Debugger::DetailedErrorView::LocationRole:
             return QVariant::fromValue(m_step.location);
-        case Debugger::DetailedErrorView::FullTextRole:
-            return fullText(static_cast<DiagnosticItem *>(parent())->diagnostic());
+        case Debugger::DetailedErrorView::FullTextRole: {
+            return QString("%1:%2: %3")
+                .arg(m_step.location.filePath, lineColumnString(m_step.location), m_step.message);
+        }
         case ClangToolsDiagnosticModel::TextRole:
             return m_step.message;
         case ClangToolsDiagnosticModel::DiagnosticRole:
             return QVariant::fromValue(static_cast<DiagnosticItem *>(parent())->diagnostic());
         case Qt::DisplayRole: {
+            const QString mainFilePath = static_cast<DiagnosticItem *>(parent())->diagnostic().location.filePath;
+            const QString locationString
+                = m_step.location.filePath == mainFilePath
+                      ? lineColumnString(m_step.location)
+                      : QString("%1:%2").arg(QFileInfo(m_step.location.filePath).fileName(),
+                                             lineColumnString(m_step.location));
+
             if (m_step.isFixIt) {
                 if (m_step.ranges[0] == m_step.ranges[1]) {
                     return QString("%1: Insertion of \"%2\".")
-                        .arg(lineColumnString(m_step.location), m_step.message);
+                        .arg(locationString, m_step.message);
                 }
                 if (m_step.message.isEmpty()) {
                     return QString("%1: Removal of %2.")
-                        .arg(lineColumnString(m_step.location), rangeString(m_step.ranges));
+                        .arg(locationString, rangeString(m_step.ranges));
                 }
                 return QString("%1: Replacement of %2 with: \"%3\".")
-                    .arg(lineColumnString(m_step.location),
+                    .arg(locationString,
                          rangeString(m_step.ranges),
                          m_step.message);
             }
-            return QString("%1: %2").arg(lineColumnString(m_step.location), m_step.message);
+            return QString("%1: %2").arg(locationString, m_step.message);
         }
         case Qt::ToolTipRole:
             return createExplainingStepToolTipString(m_step);
@@ -545,7 +563,6 @@ QVariant ExplainingStepItem::data(int column, int role) const
 
     return QVariant();
 }
-
 
 DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -584,14 +601,32 @@ void DiagnosticFilterModel::addSuppressedDiagnostic(
     invalidate();
 }
 
+void DiagnosticFilterModel::invalidateFilter()
+{
+    QSortFilterProxyModel::invalidateFilter();
+}
+
 bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
         const QModelIndex &sourceParent) const
 {
     auto model = static_cast<ClangToolsDiagnosticModel *>(sourceModel());
-    Utils::TreeItem *item = model->itemForIndex(sourceParent);
+
+    // FilePathItem - hide if no diagnostics match
+    if (!sourceParent.isValid()) {
+        const QModelIndex filePathIndex = model->index(sourceRow, 0);
+        const int rowCount = model->rowCount(filePathIndex);
+        if (rowCount == 0)
+            return true; // Children not yet added.
+        for (int row = 0; row < rowCount; ++row) {
+            if (filterAcceptsRow(row, filePathIndex))
+                return true;
+        }
+        return false;
+    }
 
     // DiagnosticItem
-    if (auto filePathItem = dynamic_cast<FilePathItem *>(item)) {
+    Utils::TreeItem *parentItem = model->itemForIndex(sourceParent);
+    if (auto filePathItem = dynamic_cast<FilePathItem *>(parentItem)) {
         auto diagnosticItem = dynamic_cast<DiagnosticItem *>(filePathItem->childAt(sourceRow));
         QTC_ASSERT(diagnosticItem, return false);
 
@@ -612,7 +647,7 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
         return diag.description.contains(filterRegExp());
     }
 
-    return true;
+    return true; // ExplainingStepItem
 }
 
 bool DiagnosticFilterModel::lessThan(const QModelIndex &l, const QModelIndex &r) const
@@ -622,22 +657,34 @@ bool DiagnosticFilterModel::lessThan(const QModelIndex &l, const QModelIndex &r)
     const bool isComparingDiagnostics = !dynamic_cast<FilePathItem *>(itemLeft);
 
     if (sortColumn() == Debugger::DetailedErrorView::DiagnosticColumn && isComparingDiagnostics) {
-        using Debugger::DiagnosticLocation;
-        const int role = Debugger::DetailedErrorView::LocationRole;
+        bool result = false;
+        if (dynamic_cast<DiagnosticItem *>(itemLeft)) {
+            using Debugger::DiagnosticLocation;
+            const int role = Debugger::DetailedErrorView::LocationRole;
 
-        const auto leftLoc = sourceModel()->data(l, role).value<DiagnosticLocation>();
-        const auto leftText = sourceModel()->data(l, ClangToolsDiagnosticModel::TextRole).toString();
+            const auto leftLoc = sourceModel()->data(l, role).value<DiagnosticLocation>();
+            const auto leftText
+                = sourceModel()->data(l, ClangToolsDiagnosticModel::TextRole).toString();
 
-        const auto rightLoc = sourceModel()->data(r, role).value<DiagnosticLocation>();
-        const auto rightText = sourceModel()->data(r, ClangToolsDiagnosticModel::TextRole).toString();
+            const auto rightLoc = sourceModel()->data(r, role).value<DiagnosticLocation>();
+            const auto rightText
+                = sourceModel()->data(r, ClangToolsDiagnosticModel::TextRole).toString();
 
-        const int result = std::tie(leftLoc.line, leftLoc.column, leftText)
-                           < std::tie(rightLoc.line, rightLoc.column, rightText);
+            result = std::tie(leftLoc.line, leftLoc.column, leftText)
+                     < std::tie(rightLoc.line, rightLoc.column, rightText);
+        } else if (auto left = dynamic_cast<ExplainingStepItem *>(itemLeft)) {
+            const auto right = dynamic_cast<ExplainingStepItem *>(model->itemForIndex(r));
+            result = left->index() < right->index();
+        } else {
+            QTC_CHECK(false && "Unexpected item");
+        }
+
         if (sortOrder() == Qt::DescendingOrder)
-            return !result; // Ensure that we always sort location from top to bottom.
+            return !result; // Do not change the order of these item as this might be confusing.
         return result;
     }
 
+    // FilePathItem
     return QSortFilterProxyModel::lessThan(l, r);
 }
 

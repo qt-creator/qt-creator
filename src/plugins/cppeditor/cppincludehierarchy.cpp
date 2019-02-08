@@ -80,7 +80,7 @@ static Snapshot globalSnapshot()
 
 struct FileAndLine
 {
-    FileAndLine() {}
+    FileAndLine() = default;
     FileAndLine(const QString &f, int l) : file(f), line(l) {}
 
     QString file;
@@ -122,7 +122,7 @@ class CppIncludeHierarchyItem
 {
 public:
     enum SubTree { RootItem, InIncludes, InIncludedBy };
-    CppIncludeHierarchyItem() {}
+    CppIncludeHierarchyItem() = default;
 
     void createChild(const QString &filePath, SubTree subTree,
                      int line = 0, bool definitelyNoChildren = false)
@@ -348,7 +348,7 @@ class CppIncludeHierarchyWidget : public QWidget
 
 public:
     CppIncludeHierarchyWidget();
-    ~CppIncludeHierarchyWidget() { delete m_treeView; }
+    ~CppIncludeHierarchyWidget() override { delete m_treeView; }
 
     void perform();
 
@@ -509,9 +509,9 @@ void CppIncludeHierarchyWidget::syncFromEditorManager()
 
     // Use cppDocumentUpdated to catch parsing finished and later file updates.
     // The timer limits the amount of hierarchy updates.
-    connect(document, &CppEditorDocument::cppDocumentUpdated, this, [this]() {
-        m_timer->start();
-    }, Qt::UniqueConnection);
+    connect(document, &CppEditorDocument::cppDocumentUpdated,
+            m_timer, QOverload<>::of(&QTimer::start),
+            Qt::UniqueConnection);
 }
 
 // CppIncludeHierarchyFactory
