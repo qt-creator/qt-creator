@@ -38,7 +38,7 @@ using namespace QmakeProjectManager::Internal;
 static uint getBlockLen(const ushort *&tokPtr)
 {
     uint len = *tokPtr++;
-    len |= (uint)*tokPtr++ << 16;
+    len |= uint(*tokPtr++ << 16);
     return len;
 }
 
@@ -53,10 +53,10 @@ static bool getLiteral(const ushort *tokPtr, const ushort *tokEnd, QString &tmp)
             break;
         case TokHashLiteral:
             tokPtr += 2;
-            // fallthrough
+            Q_FALLTHROUGH();
         case TokLiteral: {
-            uint len = *tokPtr++;
-            tmp.setRawData((const QChar *)tokPtr, len);
+            int len = *tokPtr++;
+            tmp.setRawData(reinterpret_cast<const QChar *>(tokPtr), len);
             count++;
             tokPtr += len;
             break; }
@@ -138,13 +138,13 @@ static const ushort *skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
     case TokRemove:
     case TokReplace:
         tokPtr++;
-        // fallthrough
+        Q_FALLTHROUGH();
     case TokTestCall:
         skipExpression(tokPtr, lineNo);
         break;
     case TokForLoop:
         skipHashStr(tokPtr);
-        // fallthrough
+        Q_FALLTHROUGH();
     case TokBranch:
         skipBlock(tokPtr);
         skipBlock(tokPtr);
@@ -170,14 +170,14 @@ static const ushort *skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
         }
         Q_ASSERT_X(false, "skipToken", "unexpected item type");
     }
-    return 0;
+    return nullptr;
 }
 
 QString ProWriter::compileScope(const QString &scope)
 {
     if (scope.isEmpty())
         return QString();
-    QMakeParser parser(0, 0, 0);
+    QMakeParser parser(nullptr, nullptr, nullptr);
     ProFile *includeFile = parser.parsedProBlock(QStringRef(&scope), 0, QLatin1String("no-file"), 1);
     if (!includeFile)
         return QString();
@@ -206,11 +206,11 @@ bool ProWriter::locateVarValues(const ushort *tokPtr, const ushort *tokPtrEnd,
     const bool inScope = scope.isEmpty();
     int lineNo = *scopeStart + 1;
     QString tmp;
-    const ushort *lastXpr = 0;
+    const ushort *lastXpr = nullptr;
     bool fresh = true;
 
     QString compiledScope = compileScope(scope);
-    const ushort *cTokPtr = (const ushort *)compiledScope.constData();
+    const ushort *cTokPtr = reinterpret_cast<const ushort *>(compiledScope.constData());
 
     while (ushort tok = *tokPtr++) {
         if (inScope && (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique)) {
@@ -418,7 +418,7 @@ static void findProVariables(const ushort *tokPtr, const QStringList &vars,
 {
     int lineNo = firstLine;
     QString tmp;
-    const ushort *lastXpr = 0;
+    const ushort *lastXpr = nullptr;
     while (ushort tok = *tokPtr++) {
         if (tok == TokBranch) {
             uint blockLen = getBlockLen(tokPtr);
