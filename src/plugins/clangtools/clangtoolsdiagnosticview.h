@@ -30,16 +30,16 @@
 namespace ClangTools {
 namespace Internal {
 
+class DiagnosticViewStyle;
+class DiagnosticViewDelegate;
+
 class DiagnosticView : public Debugger::DetailedErrorView
 {
     Q_OBJECT
 
 public:
     DiagnosticView(QWidget *parent = nullptr);
-
-    enum ExtraColumn {
-        FixItColumn = DiagnosticColumn + 1,
-    };
+    ~DiagnosticView() override;
 
     void setSelectedFixItsCount(int fixItsCount);
 
@@ -59,6 +59,8 @@ private:
     void setModel(QAbstractItemModel *theProxyModel) override;
 
     QAction *m_suppressAction;
+    DiagnosticViewStyle *m_style = nullptr;
+    DiagnosticViewDelegate *m_delegate = nullptr;
     bool m_ignoreSetSelectedFixItsCount = false;
 };
 
