@@ -136,7 +136,6 @@ private:
         m_comboBox->setCurrentIndex(0);
     }
 
-    bool m_isReadOnly;
     bool m_ignoreChanges = false;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
