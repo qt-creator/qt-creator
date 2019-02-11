@@ -321,8 +321,6 @@ void DiagnosticView::openEditorForCurrentIndex()
 void DiagnosticView::setModel(QAbstractItemModel *theProxyModel)
 {
     const auto proxyModel = static_cast<QSortFilterProxyModel *>(theProxyModel);
-    const auto sourceModel = static_cast<ClangToolsDiagnosticModel *>(proxyModel->sourceModel());
-
     Debugger::DetailedErrorView::setModel(proxyModel);
 
     auto *header = new HeaderWithCheckBoxInColumn(Qt::Horizontal,
@@ -330,12 +328,17 @@ void DiagnosticView::setModel(QAbstractItemModel *theProxyModel)
                                                   this);
     connect(header, &HeaderWithCheckBoxInColumn::checkBoxClicked, this, [=](bool checked) {
         m_ignoreSetSelectedFixItsCount = true;
-        sourceModel->rootItem()->forChildrenAtLevel(2, [&](::Utils::TreeItem *item) {
-            auto diagnosticItem = static_cast<DiagnosticItem *>(item);
-            diagnosticItem->setData(DiagnosticView::DiagnosticColumn,
-                                    checked ? Qt::Checked : Qt::Unchecked,
-                                    Qt::CheckStateRole);
-        });
+        for (int i = 0, count = proxyModel->rowCount(); i < count; ++i) {
+            const QModelIndex filePathItemIndex = proxyModel->index(i, 0);
+            for (int j = 0, count = proxyModel->rowCount(filePathItemIndex); j < count; ++j) {
+                const QModelIndex proxyIndex = proxyModel->index(j, 0, filePathItemIndex);
+                const QModelIndex diagnosticItemIndex = proxyModel->mapToSource(proxyIndex);
+                auto item = static_cast<DiagnosticItem *>(diagnosticItemIndex.internalPointer());
+                item->setData(DiagnosticView::DiagnosticColumn,
+                              checked ? Qt::Checked : Qt::Unchecked,
+                              Qt::CheckStateRole);
+            }
+        }
         m_ignoreSetSelectedFixItsCount = false;
     });
     setHeader(header);
