@@ -40,7 +40,7 @@ DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &
     : DeviceProcess(device, parent)
 {
     connect(&m_process, &QProcess::errorOccurred, this, &DeviceProcess::error);
-    connect(&m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &DeviceProcess::finished);
     connect(&m_process, &QProcess::readyReadStandardOutput,
             this, &DeviceProcess::readyReadStandardOutput);

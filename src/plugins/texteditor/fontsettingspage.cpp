@@ -254,16 +254,16 @@ QColor FormatDescription::defaultForeground(TextStyle id)
 {
     if (id == C_LINE_NUMBER) {
         const QPalette palette = Utils::Theme::initialPalette();
-        const QColor bg = palette.background().color();
+        const QColor bg = palette.window().color();
         if (bg.value() < 128)
-            return palette.foreground().color();
+            return palette.windowText().color();
         else
             return palette.dark().color();
     } else if (id == C_CURRENT_LINE_NUMBER) {
         const QPalette palette = Utils::Theme::initialPalette();
-        const QColor bg = palette.background().color();
+        const QColor bg = palette.window().color();
         if (bg.value() < 128)
-            return palette.foreground().color();
+            return palette.windowText().color();
         else
             return QColor();
     } else if (id == C_PARENTHESES) {
@@ -279,7 +279,7 @@ QColor FormatDescription::defaultBackground(TextStyle id)
     if (id == C_TEXT) {
         return Qt::white;
     } else if (id == C_LINE_NUMBER) {
-        return Utils::Theme::initialPalette().background().color();
+        return Utils::Theme::initialPalette().window().color();
     } else if (id == C_SEARCH_RESULT) {
         return QColor(0xffef0b);
     } else if (id == C_PARENTHESES) {

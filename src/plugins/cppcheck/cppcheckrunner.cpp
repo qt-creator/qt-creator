@@ -53,7 +53,7 @@ CppcheckRunner::CppcheckRunner(CppcheckTool &tool) :
             this, &CppcheckRunner::readError);
     connect(m_process, &QProcess::started,
             this, &CppcheckRunner::handleStarted);
-    connect(m_process, QOverload<int>::of(&QProcess::finished),
+    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &CppcheckRunner::handleFinished);
 
     m_queueTimer.setSingleShot(true);

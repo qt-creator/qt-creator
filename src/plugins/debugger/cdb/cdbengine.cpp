@@ -203,7 +203,7 @@ CdbEngine::CdbEngine() :
 
     connect(action(CreateFullBacktrace), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
-    connect(&m_process, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+    connect(&m_process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &CdbEngine::processFinished);
     connect(&m_process, &QProcess::errorOccurred, this, &CdbEngine::processError);
     connect(&m_process, &QProcess::readyReadStandardOutput,

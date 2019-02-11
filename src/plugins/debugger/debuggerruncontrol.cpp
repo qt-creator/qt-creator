@@ -105,7 +105,7 @@ public:
                 this, &LocalProcessRunner::handleStandardOutput);
         connect(&m_proc, &QProcess::readyReadStandardError,
                 this, &LocalProcessRunner::handleStandardError);
-        connect(&m_proc, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+        connect(&m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this, &LocalProcessRunner::handleFinished);
     }
 
@@ -213,7 +213,7 @@ private:
         }
 
         m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryPath());
-        connect(&m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+        connect(&m_coreUnpackProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this, &CoreUnpacker::reportStarted);
 
         const QString msg = DebuggerRunTool::tr("Unpacking core file to %1");

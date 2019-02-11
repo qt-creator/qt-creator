@@ -82,7 +82,7 @@ bool FileUtils::removeRecursively(const FileName &filePath, QString *error)
     QFile::setPermissions(filePath.toString(), fileInfo.permissions() | QFile::WriteUser);
     if (fileInfo.isDir()) {
         QDir dir(filePath.toString());
-        dir = dir.canonicalPath();
+        dir.setPath(dir.canonicalPath());
         if (dir.isRoot()) {
             if (error) {
                 *error = QCoreApplication::translate("Utils::FileUtils",

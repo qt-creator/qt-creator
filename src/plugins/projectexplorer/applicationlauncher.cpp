@@ -127,9 +127,9 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
     : q(parent), m_outputCodec(QTextCodec::codecForLocale())
 {
     if (ProjectExplorerPlugin::projectExplorerSettings().mergeStdErrAndStdOut){
-        m_guiProcess.setReadChannelMode(QProcess::MergedChannels);
+        m_guiProcess.setProcessChannelMode(QProcess::MergedChannels);
     } else {
-        m_guiProcess.setReadChannelMode(QProcess::SeparateChannels);
+        m_guiProcess.setProcessChannelMode(QProcess::SeparateChannels);
         connect(&m_guiProcess, &QProcess::readyReadStandardError,
                 this, &ApplicationLauncherPrivate::readLocalStandardError);
     }

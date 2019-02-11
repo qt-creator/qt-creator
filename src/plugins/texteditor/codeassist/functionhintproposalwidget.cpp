@@ -40,6 +40,7 @@
 #include <QDesktopWidget>
 #include <QKeyEvent>
 #include <QPointer>
+#include <QScreen>
 
 namespace TextEditor {
 
@@ -366,9 +367,10 @@ void FunctionHintProposalWidget::updateContent()
 void FunctionHintProposalWidget::updatePosition()
 {
     const QDesktopWidget *desktop = QApplication::desktop();
+    const int screenNumber = desktop->screenNumber(d->m_underlyingWidget);
+    auto widgetScreen = QGuiApplication::screens().value(screenNumber, QGuiApplication::primaryScreen());
     const QRect &screen = Utils::HostOsInfo::isMacHost()
-            ? desktop->availableGeometry(desktop->screenNumber(d->m_underlyingWidget))
-            : desktop->screenGeometry(desktop->screenNumber(d->m_underlyingWidget));
+        ? widgetScreen->availableGeometry() : widgetScreen->geometry();
 
     d->m_pager->setFixedWidth(d->m_pager->minimumSizeHint().width());
 

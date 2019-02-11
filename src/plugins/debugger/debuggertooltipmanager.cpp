@@ -62,6 +62,7 @@
 #include <QDesktopWidget>
 #include <QFileInfo>
 #include <QLabel>
+#include <QScreen>
 #include <QScrollBar>
 #include <QSortFilterProxyModel>
 #include <QStack>
@@ -624,7 +625,10 @@ void DebuggerToolTipWidget::computeSize()
     // touch the border of the screen.
     QPoint pos(x(), y());
     QTC_ASSERT(QApplication::desktop(), return);
-    QRect desktopRect = QApplication::desktop()->availableGeometry(pos);
+    auto screen = QGuiApplication::screenAt(pos);
+    if (!screen)
+        screen = QGuiApplication::primaryScreen();
+    QRect desktopRect = screen->availableGeometry();
     const int maxWidth = desktopRect.right() - pos.x() - 5 - 5;
     const int maxHeight = desktopRect.bottom() - pos.y() - 5 - 5;
 

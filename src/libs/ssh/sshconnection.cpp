@@ -202,7 +202,7 @@ SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject 
             break; // Cannot happen.
         }
     });
-    connect(&d->masterProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished), [this] {
+    connect(&d->masterProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [this] {
         if (d->state == Disconnecting) {
             emitDisconnected();
             return;

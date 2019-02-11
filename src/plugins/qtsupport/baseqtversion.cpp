@@ -1634,7 +1634,7 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<ProKey, ProString> &ve
         }
         if (!qt5) {
             //resolve mkspec link
-            QString rspec = mkspecFullPath.toFileInfo().readLink();
+            QString rspec = mkspecFullPath.toFileInfo().symLinkTarget();
             if (!rspec.isEmpty())
                 mkspecFullPath = FileName::fromUserInput(
                             QDir(baseMkspecDir.toString()).absoluteFilePath(rspec));

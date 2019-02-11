@@ -552,7 +552,7 @@ bool ShortcutSettingsWidget::markCollisions(ShortcutItem *item)
     }
     item->m_item->setForeground(2, hasCollision
                                 ? Utils::creatorTheme()->color(Utils::Theme::TextColorError)
-                                : commandList()->palette().foreground());
+                                : commandList()->palette().window());
     return hasCollision;
 }
 

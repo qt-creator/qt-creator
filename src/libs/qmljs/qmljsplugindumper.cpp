@@ -482,7 +482,7 @@ void PluginDumper::runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &i
     process->setEnvironment(info.qmlDumpEnvironment.toStringList());
     QString workingDir = wd.canonicalPath();
     process->setWorkingDirectory(workingDir);
-    connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &PluginDumper::qmlPluginTypeDumpDone);
     connect(process, &QProcess::errorOccurred, this, &PluginDumper::qmlPluginTypeDumpError);
     process->start(info.qmlDumpPath, arguments);

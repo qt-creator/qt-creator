@@ -346,7 +346,7 @@ void Visualization::setText(const QString &message)
     d->m_scene.clear();
 
     QGraphicsSimpleTextItem *textItem = d->m_scene.addSimpleText(message);
-    textItem->setBrush(palette().foreground());
+    textItem->setBrush(palette().windowText());
     textItem->setPos((d->sceneWidth() - textItem->boundingRect().width()) / 2,
                      (d->sceneHeight() - textItem->boundingRect().height()) / 2);
     textItem->setFlag(QGraphicsItem::ItemIgnoresTransformations);

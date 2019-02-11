@@ -385,7 +385,10 @@ private:
 
     static int widthLimit()
     {
-        return QApplication::desktop()->availableGeometry(QCursor::pos()).width() / 2;
+        auto screen = QGuiApplication::screenAt(QCursor::pos());
+        if (!screen)
+            screen = QGuiApplication::primaryScreen();
+        return screen->availableGeometry().width() / 2;
     }
 
 private:

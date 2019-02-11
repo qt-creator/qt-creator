@@ -396,7 +396,7 @@ void SideDiffEditorWidget::paintSeparator(QPainter &painter,
     if (!foreground.isValid())
         foreground = m_textForeground;
     if (!foreground.isValid())
-        foreground = palette().foreground().color();
+        foreground = palette().windowText().color();
 
     painter.setPen(foreground);
 
