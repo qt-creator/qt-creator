@@ -93,10 +93,9 @@ def main():
         if not virtualFunctionsAdded:
             checkLastBuild(True, False)
             if not openDocument("%s.Headers.%s\.h" % (projectName, className.lower())):
-                test.fail("Could not open %s.h - continuing." % className.lower())
+                test.fatal("Could not open %s.h - continuing." % className.lower())
                 continue
             editor = getEditorForFileSuffix("%s.h" % className.lower())
-            str(editor.plainText)
             placeCursorToLine(editor, "class %s.*" % className, True)
             snooze(4) # avoid timing issue with the parser
             invokeContextMenuItem(editor, "Refactor", "Insert Virtual Functions of Base Classes")
@@ -110,7 +109,7 @@ def main():
                         "Verifying whether create() declaration has been added to the header.")
 
             if not openDocument("%s.Sources.%s\.cpp" % (projectName, className.lower())):
-                test.fail("Could not open %s.cpp - continuing." % className.lower())
+                test.fatal("Could not open %s.cpp - continuing." % className.lower())
                 continue
             editor = getEditorForFileSuffix("%s.cpp" % className.lower())
             modifiedContent = str(editor.plainText)
