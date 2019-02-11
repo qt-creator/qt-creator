@@ -46,6 +46,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 
+#include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 #include <utils/utilsicons.h>
 
@@ -137,7 +138,10 @@ void ClangTool::initDiagnosticView()
 
 QSet<Diagnostic> ClangTool::diagnostics() const
 {
-    return m_diagnosticModel->diagnostics();
+    return Utils::filtered(m_diagnosticModel->diagnostics(), [](const Diagnostic &diagnostic) {
+        using CppTools::ProjectFile;
+        return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.filePath));
+    });
 }
 
 void ClangTool::onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics)
