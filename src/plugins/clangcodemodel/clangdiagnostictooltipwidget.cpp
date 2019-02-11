@@ -40,6 +40,7 @@
 #include <QFileInfo>
 #include <QHash>
 #include <QLabel>
+#include <QScreen>
 #include <QTextDocument>
 #include <QUrl>
 
