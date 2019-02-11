@@ -123,7 +123,9 @@ SOURCES += \
     $$PWD/filecrumblabel.cpp \
     $$PWD/fixedsizeclicklabel.cpp \
     $$PWD/removefiledialog.cpp \
-    $$PWD/differ.cpp
+    $$PWD/differ.cpp \
+    $$PWD/jsontreeitem.cpp
+
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -263,7 +265,8 @@ HEADERS += \
     $$PWD/fixedsizeclicklabel.h \
     $$PWD/removefiledialog.h \
     $$PWD/differ.h \
-    $$PWD/cpplanguage_details.h
+    $$PWD/cpplanguage_details.h \
+    $$PWD/jsontreeitem.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/newclasswidget.ui \
