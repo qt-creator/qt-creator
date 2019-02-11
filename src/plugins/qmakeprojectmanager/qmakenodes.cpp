@@ -171,7 +171,28 @@ bool QmakePriFileNode::removeSubProject(const QString &proFilePath)
 bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
     QmakePriFile *pri = priFile();
-    return pri ? pri->addFiles(filePaths, notAdded) : false;
+    if (!pri)
+        return false;
+    QList<Node *> matchingNodes = findNodes([filePaths](const Node *n) {
+        return n->nodeType() == NodeType::File && filePaths.contains(n->filePath().toString());
+    });
+    matchingNodes = filtered(matchingNodes, [](const Node *n) {
+        for (const Node *parent = n->parentFolderNode(); parent;
+             parent = parent->parentFolderNode()) {
+            if (dynamic_cast<const ResourceEditor::ResourceTopLevelNode *>(parent))
+                return false;
+        }
+        return true;
+    });
+    QStringList alreadyPresentFiles = transform<QStringList>(matchingNodes,
+            [](const Node *n) { return n->filePath().toString(); });
+    alreadyPresentFiles.removeDuplicates();
+    QStringList actualFilePaths = filePaths;
+    for (const QString &e : alreadyPresentFiles)
+        actualFilePaths.removeOne(e);
+    if (notAdded)
+        *notAdded = alreadyPresentFiles;
+    return pri->addFiles(actualFilePaths, notAdded);
 }
 
 bool QmakePriFileNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)

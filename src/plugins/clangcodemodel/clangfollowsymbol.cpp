@@ -35,6 +35,8 @@
 #include <utils/textutils.h>
 #include <utils/algorithm.h>
 
+#include <memory>
+
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -199,7 +201,7 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
     if (m_watcher)
         m_watcher->cancel();
 
-    m_watcher.reset(new FutureSymbolWatcher());
+    m_watcher = std::make_unique<FutureSymbolWatcher>();
 
     QObject::connect(m_watcher.get(), &FutureSymbolWatcher::finished, [=, filePath=data.filePath(),
                      callback=std::move(processLinkCallback)]() mutable {

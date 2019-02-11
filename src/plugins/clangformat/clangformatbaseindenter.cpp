@@ -408,6 +408,36 @@ int ClangFormatBaseIndenter::indentBeforeCursor(const QTextBlock &block,
     return cursorPositionInEditor;
 }
 
+static bool doNotIndentInContext(QTextDocument *doc, int pos)
+{
+    const QChar character = doc->characterAt(pos);
+    const QTextBlock currentBlock = doc->findBlock(pos);
+    const QString text = currentBlock.text().left(pos - currentBlock.position());
+    switch (character.toLatin1()) {
+    default:
+        break;
+    case ':':
+        // Do not indent when it's the first ':' and it's not the 'case' line.
+        if (text.contains(QLatin1String("case")) || text.contains(QLatin1String("default"))
+            || text.contains(QLatin1String("public")) || text.contains(QLatin1String("private"))
+            || text.contains(QLatin1String("protected")) || text.contains(QLatin1String("signals"))
+            || text.contains(QLatin1String("Q_SIGNALS"))) {
+            return false;
+        }
+        if (pos > 0 && doc->characterAt(pos - 1) != ':')
+            return true;
+        break;
+    case '<':
+    case '>':
+        // "<<" and ">>" could be problematic
+        if (pos > 0 && doc->characterAt(pos - 1) == character)
+            return true;
+        break;
+    }
+
+    return false;
+}
+
 void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
                                           const QChar &typedChar,
                                           int cursorPositionInEditor)
@@ -416,12 +446,21 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
     const int blockPosition = currentBlock.position();
     trimFirstNonEmptyBlock(currentBlock);
 
+    if (typedChar != QChar::Null && cursorPositionInEditor > 0
+        && m_doc->characterAt(cursorPositionInEditor - 1) == typedChar
+        && doNotIndentInContext(m_doc, cursorPositionInEditor - 1)) {
+        return;
+    }
+
     if (formatWhileTyping()
-        && (cursorPositionInEditor == -1 || cursorPositionInEditor >= blockPosition)) {
+        && (cursorPositionInEditor == -1 || cursorPositionInEditor >= blockPosition)
+        && (typedChar == QChar::Null || typedChar == ';' || typedChar == '}')) {
         // Format before current position only in case the cursor is inside the indented block.
         // So if cursor position is less then the block position then the current line is before
         // the indented block - don't trigger extra formatting in this case.
         // cursorPositionInEditor == -1 means the consition matches automatically.
+
+        // Format only before newline or complete statement not to break code.
         if (cursorPositionInEditor >= 0)
             cursorPositionInEditor += currentBlock.position() - blockPosition;
         else

@@ -138,10 +138,7 @@ TextEditor::HighlightingResult toHighlightingResult(
 {
     const auto textStyles = toTextStyles(tokenInfo.types);
 
-    return TextEditor::HighlightingResult(tokenInfo.line,
-                                          tokenInfo.column,
-                                          tokenInfo.length,
-                                          textStyles);
+    return {tokenInfo.line, tokenInfo.column, tokenInfo.length, textStyles};
 }
 
 } // anonymous

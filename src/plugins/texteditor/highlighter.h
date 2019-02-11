@@ -46,6 +46,7 @@ public:
     static Definition definitionForDocument(const TextDocument *document);
     static Definition definitionForMimeType(const QString &mimeType);
     static Definition definitionForFileName(const QString &fileName);
+    static Definition definitionForName(const QString &name);
 
     static Definitions definitionsForDocument(const TextDocument *document);
     static Definitions definitionsForMimeType(const QString &mimeType);

@@ -82,10 +82,6 @@ QVariantList PerfTimelineModel::labels() const
     sample.insert(QLatin1String("id"), PerfEvent::LastSpecialTypeId);
     result << sample;
 
-    QVariantMap kernel;
-    kernel.insert(QLatin1String("description"), tr("[kernel]"));
-    result << kernel;
-
     const PerfProfilerTraceManager *manager = traceManager();
     const bool aggregated = manager->aggregateAddresses();
     for (int i = 0; i < m_locationOrder.length(); ++i) {

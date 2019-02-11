@@ -213,9 +213,7 @@ QmlProfilerTool::QmlProfilerTool()
             this, &QmlProfilerTool::toggleVisibleFeature);
 
     d->m_timeLabel = new QLabel();
-    QPalette palette;
-    palette.setColor(QPalette::WindowText, Qt::white);
-    d->m_timeLabel->setPalette(palette);
+    d->m_timeLabel->setProperty("panelwidget", true);
     d->m_timeLabel->setIndent(10);
     updateTimeDisplay();
     connect(d->m_timeLabel, &QObject::destroyed, &d->m_recordingTimer, &QTimer::stop);

@@ -164,7 +164,9 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     m_filterMenu = new QMenu(m_filterButton);
     m_aggregateButton = new QToolButton;
     m_recordedLabel = new QLabel;
+    m_recordedLabel->setProperty("panelwidget", true);
     m_delayLabel = new QLabel;
+    m_delayLabel->setProperty("panelwidget", true);
 
     m_perspective.setAboutToActivateCallback([this]() { createViews(); });
 }

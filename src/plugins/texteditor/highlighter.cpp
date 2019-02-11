@@ -121,6 +121,11 @@ Highlighter::Definition Highlighter::definitionForFileName(const QString &fileNa
     return highlightRepository()->definitionForFileName(fileName);
 }
 
+Highlighter::Definition Highlighter::definitionForName(const QString &name)
+{
+    return highlightRepository()->definitionForName(name);
+}
+
 Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument *document)
 {
     const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());

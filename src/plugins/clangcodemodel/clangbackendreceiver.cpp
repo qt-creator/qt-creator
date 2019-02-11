@@ -221,7 +221,7 @@ CppTools::CursorInfo::Range toCursorInfoRange(const SourceRangeContainer &source
     const SourceLocationContainer &end = sourceRange.end;
     const unsigned length = end.column - start.column;
 
-    return CppTools::CursorInfo::Range(start.line, start.column, length);
+    return {start.line, start.column, length};
 }
 
 static

@@ -611,7 +611,7 @@ public:
     void updateCodeFoldingVisible();
 
     void reconfigure();
-    void updateSyntaxInfoBar(bool showInfo);
+    void updateSyntaxInfoBar(const Highlighter::Definitions &definitions, const QString &fileName);
     void configureGenericHighlighter(const KSyntaxHighlighting::Definition &definition);
 
 public:
@@ -3274,27 +3274,43 @@ void TextEditorWidgetPrivate::reconfigure()
     q->configureGenericHighlighter();
 }
 
-void TextEditorWidgetPrivate::updateSyntaxInfoBar(bool showInfo)
+void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions &definitions,
+                                                  const QString &fileName)
 {
-    Id id(Constants::INFO_SYNTAX_DEFINITION);
+    Id missing(Constants::INFO_MISSING_SYNTAX_DEFINITION);
+    Id multiple(Constants::INFO_MULTIPLE_SYNTAX_DEFINITIONS);
     InfoBar *infoBar = m_document->infoBar();
 
-    if (showInfo) {
-        InfoBarEntry info(id,
-                          BaseTextEditor::tr(
-                              "A highlight definition was not found for this file. "
-                              "Would you like to update highlight definition files?"),
+    if (definitions.isEmpty() && infoBar->canInfoBeAdded(missing)
+        && !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName)) {
+        InfoBarEntry info(missing,
+                          BaseTextEditor::tr("A highlight definition was not found for this file. "
+                                             "Would you like to update highlight definition files?"),
                           InfoBarEntry::GlobalSuppressionEnabled);
-        info.setCustomButtonInfo(BaseTextEditor::tr("Update Definitions"), [&]() {
-            m_document->infoBar()->removeInfo(id);
+        info.setCustomButtonInfo(BaseTextEditor::tr("Update Definitions"), [missing, this]() {
+            m_document->infoBar()->removeInfo(missing);
             Highlighter::updateDefinitions([widget = QPointer<TextEditorWidget>(q)]() {
                 if (widget)
                     widget->configureGenericHighlighter();
             });
         });
+
+        infoBar->removeInfo(multiple);
+        infoBar->addInfo(info);
+    } else if (definitions.size() > 1) {
+        InfoBarEntry info(multiple,
+                          BaseTextEditor::tr("More than one highlight definition was found for this file. "
+                                             "Which one should be used to highlight this file?"));
+        info.setComboInfo(Utils::transform(definitions, &Highlighter::Definition::name),
+                          [this](const QString &definition) {
+            this->configureGenericHighlighter(Highlighter::definitionForName(definition));
+        });
+
+        infoBar->removeInfo(missing);
         infoBar->addInfo(info);
     } else {
-        infoBar->removeInfo(id);
+        infoBar->removeInfo(multiple);
+        infoBar->removeInfo(missing);
     }
 }
 
@@ -8236,7 +8252,11 @@ void TextEditorWidgetPrivate::updateTabStops()
     // to be set as an int. A work around is to access directly the QTextOption.
     qreal charWidth = QFontMetricsF(q->font()).width(QLatin1Char(' '));
     QTextOption option = q->document()->defaultTextOption();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     option.setTabStopDistance(charWidth * m_document->tabSettings().m_tabSize);
+#else
+    option.setTabStop(charWidth * m_document->tabSettings().m_tabSize);
+#endif
     q->document()->setDefaultTextOption(option);
 }
 
@@ -8514,11 +8534,10 @@ QString TextEditorWidget::textAt(int from, int to) const
 
 void TextEditorWidget::configureGenericHighlighter()
 {
-    const Highlighter::Definition definition = Highlighter::definitionForDocument(textDocument());
-    d->configureGenericHighlighter(definition);
-    d->updateSyntaxInfoBar(!definition.isValid()
-            && !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(
-                                  textDocument()->filePath().fileName()));
+    const Highlighter::Definitions definitions = Highlighter::definitionsForDocument(textDocument());
+    d->configureGenericHighlighter(definitions.isEmpty() ? Highlighter::Definition()
+                                                         : definitions.first());
+    d->updateSyntaxInfoBar(definitions, textDocument()->filePath().fileName());
 }
 
 int TextEditorWidget::blockNumberForVisibleRow(int row) const
