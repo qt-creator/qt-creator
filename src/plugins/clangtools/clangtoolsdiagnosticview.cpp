@@ -283,7 +283,6 @@ bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)
         switch (key) {
         case Qt::Key_Return:
         case Qt::Key_Enter:
-        case Qt::Key_Space:
             openEditorForCurrentIndex();
         }
         return true;
