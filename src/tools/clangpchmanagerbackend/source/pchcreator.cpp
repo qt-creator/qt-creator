@@ -72,15 +72,19 @@ Utils::SmallString PchCreator::generatePchIncludeFileContent(const FilePathIds &
     return fileContent;
 }
 
-bool PchCreator::generatePch()
+bool PchCreator::generatePch(NativeFilePathView path, Utils::SmallStringView content)
 {
     clang::tooling::ClangTool tool = m_clangTool.createOutputTool();
 
-    auto action = std::make_unique<GeneratePCHActionFactory>();
+    NativeFilePath headerFilePath{m_environment.pchBuildDirectory().toStdString(), "dummy.h"};
+
+    auto action = std::make_unique<GeneratePCHActionFactory>(llvm::StringRef{path.data(),
+                                                                             path.size()},
+                                                             llvm::StringRef{content.data(),
+                                                                             content.size()});
 
     return tool.run(action.get()) != 1;
 }
-
 
 FilePath PchCreator::generatePchFilePath() const
 {
@@ -113,12 +117,10 @@ void PchCreator::generatePch(PchTask &&pchTask)
     auto pchOutputPath = generatePchFilePath();
 
     FilePath headerFilePath{m_environment.pchBuildDirectory().toStdString(), "dummy.h"};
-    Utils::SmallStringVector commandLine = generateClangCompilerArguments(pchTask,
-                                                                          pchOutputPath);
+    Utils::SmallStringVector commandLine = generateClangCompilerArguments(pchTask, pchOutputPath);
 
-    m_clangTool.addFile(std::move(headerFilePath), std::move(content), std::move(commandLine));
-
-    bool success = generatePch();
+    m_clangTool.addFile(std::move(headerFilePath), content.clone(), std::move(commandLine));
+    bool success = generatePch(NativeFilePath{headerFilePath}, content);
 
     m_projectPartPch.projectPartId = pchTask.projectPartId();
 

@@ -27,15 +27,49 @@
 
 #include <clang/Tooling/Tooling.h>
 
-#include "clang/Frontend/FrontendActions.h"
+#include <clang/Frontend/CompilerInstance.h>
+#include <clang/Frontend/FrontendActions.h>
+#include <clang/Lex/PreprocessorOptions.h>
 
 namespace ClangBackEnd {
+
+class GeneratePCHAction final : public clang::GeneratePCHAction
+{
+public:
+    GeneratePCHAction(llvm::StringRef filePath, llvm::StringRef fileContent)
+        : m_filePath(filePath)
+        , m_fileContent(fileContent)
+    {}
+
+    bool BeginInvocation(clang::CompilerInstance &compilerInstance) override
+    {
+        compilerInstance.getPreprocessorOpts().DisablePCHValidation = true;
+        std::unique_ptr<llvm::MemoryBuffer> Input = llvm::MemoryBuffer::getMemBuffer(m_fileContent);
+        compilerInstance.getPreprocessorOpts().addRemappedFile(m_filePath, Input.release());
+
+        return clang::GeneratePCHAction::BeginSourceFileAction(compilerInstance);
+    }
+
+private:
+    llvm::StringRef m_filePath;
+    llvm::StringRef m_fileContent;
+};
+
 class GeneratePCHActionFactory final : public clang::tooling::FrontendActionFactory
 {
 public:
+    GeneratePCHActionFactory(llvm::StringRef filePath, llvm::StringRef fileContent)
+        : m_filePath(filePath)
+        , m_fileContent(fileContent)
+    {}
+
     clang::FrontendAction *create() override
     {
-        return new clang::GeneratePCHAction;
+        return new GeneratePCHAction{m_filePath, m_fileContent};
     }
+
+private:
+    llvm::StringRef m_filePath;
+    llvm::StringRef m_fileContent;
 };
 } // namespace ClangBackEnd
