@@ -374,7 +374,7 @@ KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k)
 {
     auto *result = new KitManagerConfigWidget(k);
     foreach (KitAspect *ki, kitInformation())
-        result->addConfigWidget(ki->createConfigWidget(result->workingCopy()));
+        result->addAspectToWorkingCopy(ki);
 
     result->updateVisibility();
 

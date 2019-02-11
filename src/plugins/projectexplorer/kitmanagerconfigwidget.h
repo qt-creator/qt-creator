@@ -60,7 +60,7 @@ public:
     bool isValid() const;
     bool hasWarning() const;
     QString validityMessage() const;
-    void addConfigWidget(KitAspectWidget *widget);
+    void addAspectToWorkingCopy(KitAspect *aspect);
     void makeStickySubWidgetsReadOnly();
 
     Kit *workingCopy() const;

@@ -211,8 +211,10 @@ QString KitManagerConfigWidget::validityMessage() const
     return m_modifiedKit->toHtml(tmp);
 }
 
-void KitManagerConfigWidget::addConfigWidget(KitAspectWidget *widget)
+void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
 {
+    QTC_ASSERT(aspect, return);
+    KitAspectWidget *widget = aspect->createConfigWidget(workingCopy());
     QTC_ASSERT(widget, return);
     QTC_ASSERT(!m_widgets.contains(widget), return);
 
