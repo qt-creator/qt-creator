@@ -623,9 +623,10 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
 
     // DiagnosticItem
     Utils::TreeItem *parentItem = model->itemForIndex(sourceParent);
-    if (auto filePathItem = dynamic_cast<FilePathItem *>(parentItem)) {
-        auto diagnosticItem = dynamic_cast<DiagnosticItem *>(filePathItem->childAt(sourceRow));
-        QTC_ASSERT(diagnosticItem, return false);
+    QTC_ASSERT(parentItem, return true);
+    if (parentItem->level() == 1) {
+        auto filePathItem = static_cast<FilePathItem *>(parentItem);
+        auto diagnosticItem = static_cast<DiagnosticItem *>(filePathItem->childAt(sourceRow));
 
         // Is the diagnostic explicitly suppressed?
         const Diagnostic &diag = diagnosticItem->diagnostic();
@@ -651,11 +652,12 @@ bool DiagnosticFilterModel::lessThan(const QModelIndex &l, const QModelIndex &r)
 {
     auto model = static_cast<ClangToolsDiagnosticModel *>(sourceModel());
     Utils::TreeItem *itemLeft = model->itemForIndex(l);
-    const bool isComparingDiagnostics = !dynamic_cast<FilePathItem *>(itemLeft);
+    QTC_ASSERT(itemLeft, return QSortFilterProxyModel::lessThan(l, r));
+    const bool isComparingDiagnostics = itemLeft->level() > 1;
 
     if (sortColumn() == Debugger::DetailedErrorView::DiagnosticColumn && isComparingDiagnostics) {
         bool result = false;
-        if (dynamic_cast<DiagnosticItem *>(itemLeft)) {
+        if (itemLeft->level() == 2) {
             using Debugger::DiagnosticLocation;
             const int role = Debugger::DetailedErrorView::LocationRole;
 
@@ -669,8 +671,11 @@ bool DiagnosticFilterModel::lessThan(const QModelIndex &l, const QModelIndex &r)
 
             result = std::tie(leftLoc.line, leftLoc.column, leftText)
                      < std::tie(rightLoc.line, rightLoc.column, rightText);
-        } else if (auto left = dynamic_cast<ExplainingStepItem *>(itemLeft)) {
-            const auto right = dynamic_cast<ExplainingStepItem *>(model->itemForIndex(r));
+        } else if (itemLeft->level() == 3) {
+            Utils::TreeItem *itemRight = model->itemForIndex(r);
+            QTC_ASSERT(itemRight, QSortFilterProxyModel::lessThan(l, r));
+            const auto left = static_cast<ExplainingStepItem *>(itemLeft);
+            const auto right = static_cast<ExplainingStepItem *>(itemRight);
             result = left->index() < right->index();
         } else {
             QTC_CHECK(false && "Unexpected item");
