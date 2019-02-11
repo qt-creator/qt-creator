@@ -72,6 +72,48 @@ using ClangBackEnd::FilePathCache;
 using ClangBackEnd::FilePathView;
 using ClangBackEnd::TimeStamp;
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+template<typename CallableType>
+class CallableEvent : public QEvent
+{
+public:
+    using Callable = std::decay_t<CallableType>;
+    CallableEvent(Callable &&callable)
+        : QEvent(QEvent::None)
+        , callable(std::move(callable))
+    {}
+    CallableEvent(const Callable &callable)
+        : QEvent(QEvent::None)
+        , callable(callable)
+    {}
+
+    ~CallableEvent() { callable(); }
+
+public:
+    Callable callable;
+};
+
+template<typename Callable>
+void executeInLoop(Callable &&callable, QObject *object = QCoreApplication::instance())
+{
+    if (QThread *thread = qobject_cast<QThread *>(object))
+        object = QAbstractEventDispatcher::instance(thread);
+
+    QCoreApplication::postEvent(object,
+                                new CallableEvent<Callable>(std::forward<Callable>(callable)),
+                                Qt::HighEventPriority);
+}
+#else
+template<typename Callable>
+void executeInLoop(Callable &&callable, QObject *object = QCoreApplication::instance())
+{
+    if (QThread *thread = qobject_cast<QThread *>(object))
+        object = QAbstractEventDispatcher::instance(thread);
+
+    QMetaObject::invokeMethod(object, std::forward<Callable>(callable));
+}
+#endif
+
 class PchManagerApplication final : public QCoreApplication
 {
 public:
@@ -182,8 +224,9 @@ struct Data // because we have a cycle dependency
                                         clangPchManagerServer,
                                         includeWatcher};
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
-    ClangBackEnd::ProgressCounter progressCounter{
-        [&](int progress, int total) { clangPchManagerServer.setProgress(progress, total); }};
+    ClangBackEnd::ProgressCounter progressCounter{[&](int progress, int total) {
+        executeInLoop([&] { clangPchManagerServer.setProgress(progress, total); });
+    }};
     ClangBackEnd::PchTaskQueue pchTaskQueue{systemTaskScheduler,
                                             projectTaskScheduler,
                                             progressCounter,
