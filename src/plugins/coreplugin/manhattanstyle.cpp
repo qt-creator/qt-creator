@@ -721,11 +721,11 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
                 bool notElideAsterisk = widget && widget->property("notelideasterisk").toBool()
                                         && cb->currentText.endsWith(asterisk)
-                                        && option->fontMetrics.width(cb->currentText) > elideWidth;
+                                        && option->fontMetrics.horizontalAdvance(cb->currentText) > elideWidth;
 
                 QString text;
                 if (notElideAsterisk) {
-                    elideWidth -= option->fontMetrics.width(asterisk);
+                    elideWidth -= option->fontMetrics.horizontalAdvance(asterisk);
                     text = asterisk;
                 }
                 text.prepend(option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, elideWidth));
@@ -979,7 +979,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             QRect arrowRect((left + right) / 2 + (reverse ? 6 : -6), rect.center().y() - 3, 9, 9);
 
             if (!alignarrow) {
-                int labelwidth = option->fontMetrics.width(cb->currentText);
+                int labelwidth = option->fontMetrics.horizontalAdvance(cb->currentText);
                 if (reverse)
                     arrowRect.moveLeft(qMax(rect.width() - labelwidth - menuButtonWidth - 2, 4));
                 else

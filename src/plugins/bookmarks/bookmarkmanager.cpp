@@ -119,7 +119,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->save();
 
     QFontMetrics fm(opt.font);
-    static int lwidth = fm.width(QLatin1String("8888")) + 18;
+    static int lwidth = fm.horizontalAdvance(QLatin1String("8888")) + 18;
 
     QColor backgroundColor;
     QColor textColor;
@@ -155,13 +155,14 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     QString topRight = index.data(BookmarkManager::LineNumber).toString();
     // Check whether we need to be fancy and paint some background
-    int fwidth = fm.width(topLeft);
+    int fwidth = fm.horizontalAdvance(topLeft);
     if (fwidth + lwidth > opt.rect.width()) {
         int left = opt.rect.right() - lwidth;
         painter->drawPixmap(left, opt.rect.top(), selected ? m_selectedPixmap : m_normalPixmap);
     }
     // topRight
-    painter->drawText(opt.rect.right() - fm.width(topRight) - 6 , 2 + opt.rect.top() + fm.ascent(), topRight);
+    painter->drawText(opt.rect.right() - fm.horizontalAdvance(topRight) - 6,
+                      2 + opt.rect.top() + fm.ascent(), topRight);
 
     // Directory
     QColor mix;

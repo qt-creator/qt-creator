@@ -544,7 +544,7 @@ public:
         int xx = 0;
         int yy = y + tagsBase;
         for (const QString &tag : item.tags) {
-            const int ww = tagsFontMetrics.width(tag) + 5;
+            const int ww = tagsFontMetrics.horizontalAdvance(tag) + 5;
             if (xx + ww > w - 30) {
                 yy += 15;
                 xx = 0;

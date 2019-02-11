@@ -79,7 +79,7 @@ DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent), m_fader
 QSize DetailsButton::sizeHint() const
 {
     // TODO: Adjust this when icons become available!
-    const int w = fontMetrics().width(text()) + 32;
+    const int w = fontMetrics().horizontalAdvance(text()) + 32;
     if (HostOsInfo::isMacHost())
         return QSize(w, 34);
     return QSize(w, 22);

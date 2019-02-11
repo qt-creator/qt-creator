@@ -185,35 +185,35 @@ void BinEditorWidget::init()
     m_descent = fm.descent();
     m_ascent = fm.ascent();
     m_lineHeight = fm.lineSpacing();
-    m_charWidth = fm.width(QChar(QLatin1Char('M')));
+    m_charWidth = fm.horizontalAdvance(QChar(QLatin1Char('M')));
     m_margin = m_charWidth;
-    m_columnWidth = 2 * m_charWidth + fm.width(QChar(QLatin1Char(' ')));
+    m_columnWidth = 2 * m_charWidth + fm.horizontalAdvance(QChar(QLatin1Char(' ')));
     m_numLines = m_size / m_bytesPerLine + 1;
     m_numVisibleLines = viewport()->height() / m_lineHeight;
     m_textWidth = m_bytesPerLine * m_charWidth + m_charWidth;
-    int numberWidth = fm.width(QChar(QLatin1Char('9')));
+    int numberWidth = fm.horizontalAdvance(QChar(QLatin1Char('9')));
     m_labelWidth = 2*m_addressBytes * numberWidth + (m_addressBytes - 1)/2 * m_charWidth;
 
     int expectedCharWidth = m_columnWidth / 3;
     const char *hex = "0123456789abcdef";
     m_isMonospacedFont = true;
     while (*hex) {
-        if (fm.width(QLatin1Char(*hex)) != expectedCharWidth) {
+        if (fm.horizontalAdvance(QLatin1Char(*hex)) != expectedCharWidth) {
             m_isMonospacedFont = false;
             break;
         }
         ++hex;
     }
 
-    if (m_isMonospacedFont && fm.width(QLatin1String("M M ")) != m_charWidth * 4) {
+    if (m_isMonospacedFont && fm.horizontalAdvance(QLatin1String("M M ")) != m_charWidth * 4) {
         // On Qt/Mac, monospace font widths may have a fractional component
         // This breaks the assumption that width("MMM") == width('M') * 3
 
         m_isMonospacedFont = false;
-        m_columnWidth = fm.width(QLatin1String("MMM"));
+        m_columnWidth = fm.horizontalAdvance(QLatin1String("MMM"));
         m_labelWidth = m_addressBytes == 4
-            ? fm.width(QLatin1String("MMMM:MMMM"))
-            : fm.width(QLatin1String("MMMM:MMMM:MMMM:MMMM"));
+            ? fm.horizontalAdvance(QLatin1String("MMMM:MMMM"))
+            : fm.horizontalAdvance(QLatin1String("MMMM:MMMM:MMMM:MMMM"));
     }
 
     horizontalScrollBar()->setRange(0, 2 * m_margin + m_bytesPerLine * m_columnWidth
@@ -568,7 +568,7 @@ Utils::optional<qint64> BinEditorWidget::posAt(const QPoint &pos, bool includeEm
             QChar qc(QLatin1Char(dataAt(dataPos)));
             if (!qc.isPrint())
                 qc = 0xB7;
-            x -= fontMetrics().width(qc);
+            x -= fontMetrics().horizontalAdvance(qc);
             if (x <= 0)
                 break;
         }
@@ -913,18 +913,18 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                 if (color.isValid()) {
                     painter.fillRect(item_x - m_charWidth/2, y-m_ascent, m_columnWidth, m_lineHeight, color);
                     int printable_item_x = -xoffset + m_margin + m_labelWidth + m_bytesPerLine * m_columnWidth + m_charWidth
-                                           + fm.width(printable.left(c));
+                                           + fm.horizontalAdvance(printable.left(c));
                     painter.fillRect(printable_item_x, y-m_ascent,
-                                     fm.width(printable.at(c)),
+                                     fm.horizontalAdvance(printable.at(c)),
                                      m_lineHeight, color);
                 }
 
                 if (!isFullySelected && pos >= selStart && pos <= selEnd) {
                     selectionRect |= QRect(item_x - m_charWidth/2, y-m_ascent, m_columnWidth, m_lineHeight);
                     int printable_item_x = -xoffset + m_margin + m_labelWidth + m_bytesPerLine * m_columnWidth + m_charWidth
-                                           + fm.width(printable.left(c));
+                                           + fm.horizontalAdvance(printable.left(c));
                     printableSelectionRect |= QRect(printable_item_x, y-m_ascent,
-                                                    fm.width(printable.at(c)),
+                                                    fm.horizontalAdvance(printable.at(c)),
                                                     m_lineHeight);
                 }
             }
@@ -958,7 +958,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
             paintCursorBorder(&painter, cursorRect);
             if (m_hexCursor && m_cursorVisible) {
                 if (m_lowNibble)
-                    cursorRect.adjust(fm.width(itemString.left(1)), 0, 0, 0);
+                    cursorRect.adjust(fm.horizontalAdvance(itemString.left(1)), 0, 0, 0);
                 painter.fillRect(cursorRect, Qt::red);
                 painter.save();
                 painter.setClipRect(cursorRect);
@@ -972,7 +972,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
 
         if (isFullySelected) {
                 painter.save();
-                painter.fillRect(text_x, y-m_ascent, fm.width(printable), m_lineHeight,
+                painter.fillRect(text_x, y-m_ascent, fm.horizontalAdvance(printable), m_lineHeight,
                                  palette().highlight());
                 painter.setPen(palette().highlightedText().color());
                 painter.drawText(text_x, y, printable);
@@ -990,9 +990,9 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
         }
 
         if (cursor >= 0 && !printable.isEmpty()) {
-            QRect cursorRect(text_x + fm.width(printable.left(cursor)),
+            QRect cursorRect(text_x + fm.horizontalAdvance(printable.left(cursor)),
                              y-m_ascent,
-                             fm.width(printable.at(cursor)),
+                             fm.horizontalAdvance(printable.at(cursor)),
                              m_lineHeight);
             if (m_hexCursor || !m_cursorVisible) {
                 paintCursorBorder(&painter, cursorRect);

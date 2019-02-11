@@ -139,7 +139,7 @@ void FunctionGraphicsTextItem::paint(QPainter *painter,
     painter->save();
     int textLeft = 0;
     int textTop = 0;
-    const int textWidth = painter->fontMetrics().width(m_staticText.text());
+    const int textWidth = painter->fontMetrics().horizontalAdvance(m_staticText.text());
     textLeft = -textWidth/2;
     textTop = (maxHeight - textHeight)/2;
     painter->drawStaticText(textLeft, textTop, m_staticText);

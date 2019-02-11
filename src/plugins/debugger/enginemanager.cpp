@@ -362,7 +362,8 @@ void EngineManagerPrivate::selectUiForCurrentEngine()
         row = m_engineModel.rootItem()->indexOf(m_currentItem);
 
     m_engineChooser->setCurrentIndex(row);
-    const int contentWidth = m_engineChooser->fontMetrics().width(m_engineChooser->currentText() + "xx");
+    const int contentWidth =
+        m_engineChooser->fontMetrics().horizontalAdvance(m_engineChooser->currentText() + "xx");
     QStyleOptionComboBox option;
     option.initFrom(m_engineChooser);
     const QSize sz(contentWidth, 1);

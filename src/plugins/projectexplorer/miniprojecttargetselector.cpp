@@ -296,7 +296,7 @@ void ProjectListWidget::addProject(Project *project)
         setCurrentItem(item);
 
     QFontMetrics fn(font());
-    int width = fn.width(displayName) + padding();
+    int width = fn.horizontalAdvance(displayName) + padding();
     if (width > optimalWidth())
         setOptimalWidth(width);
 
@@ -331,7 +331,7 @@ void ProjectListWidget::removeProject(Project *project)
     // recheck optimal width
     int width = 0;
     for (int i = 0; i < count(); ++i)
-        width = qMax(fn.width(item(i)->text()) + padding(), width);
+        width = qMax(fn.horizontalAdvance(item(i)->text()) + padding(), width);
     setOptimalWidth(width);
 
     m_ignoreIndexChange = false;
@@ -375,7 +375,7 @@ void ProjectListWidget::projectDisplayNameChanged(Project *project)
     QFontMetrics fn(font());
     int width = 0;
     for (int i = 0; i < count(); ++i)
-        width = qMax(fn.width(item(i)->text()) + padding(), width);
+        width = qMax(fn.horizontalAdvance(item(i)->text()) + padding(), width);
     setOptimalWidth(width);
 
     m_ignoreIndexChange = false;
@@ -422,7 +422,7 @@ void GenericListWidget::setProjectConfigurations(const QList<ProjectConfiguratio
     int width = 0;
     foreach (ProjectConfiguration *pc, list) {
         addProjectConfiguration(pc);
-        width = qMax(width, fn.width(pc->displayName()) + padding());
+        width = qMax(width, fn.horizontalAdvance(pc->displayName()) + padding());
     }
     setOptimalWidth(width);
     setActiveProjectConfiguration(active);
@@ -461,7 +461,7 @@ void GenericListWidget::addProjectConfiguration(ProjectConfiguration *pc)
     connect(pc, &ProjectConfiguration::toolTipChanged, this, &GenericListWidget::toolTipChanged);
 
     QFontMetrics fn(font());
-    int width = fn.width(pc->displayName()) + padding();
+    int width = fn.horizontalAdvance(pc->displayName()) + padding();
     if (width > optimalWidth())
         setOptimalWidth(width);
 
@@ -479,7 +479,7 @@ void GenericListWidget::removeProjectConfiguration(ProjectConfiguration *pc)
     int width = 0;
     for (int i = 0; i < count(); ++i) {
         auto *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
-        width = qMax(width, fn.width(p->displayName()) + padding());
+        width = qMax(width, fn.horizontalAdvance(p->displayName()) + padding());
     }
     setOptimalWidth(width);
 
@@ -532,7 +532,7 @@ void GenericListWidget::displayNameChanged()
     int width = 0;
     for (int i = 0; i < count(); ++i) {
         auto *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
-        width = qMax(width, fn.width(p->displayName()) + padding());
+        width = qMax(width, fn.horizontalAdvance(p->displayName()) + padding());
     }
     setOptimalWidth(width);
 

@@ -119,7 +119,7 @@ public:
                 painter->setPen(lightColor);
             // FIXME: performance? this changes only on real font changes.
             QFontMetrics fm(option.font);
-            int charWidth = qMax(fm.width('x'), fm.width('0'));
+            int charWidth = qMax(fm.horizontalAdvance('x'), fm.horizontalAdvance('0'));
             QString str = index.data(Qt::DisplayRole).toString();
             int x = option.rect.x();
             bool light = !paintRed;

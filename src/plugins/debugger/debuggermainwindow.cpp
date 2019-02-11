@@ -137,7 +137,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_centralWidgetStack = new QStackedWidget;
     m_statusLabel = new Utils::StatusLabel;
     m_statusLabel->setProperty("panelwidget", true);
-    m_statusLabel->setIndent(2 * QFontMetrics(q->font()).width(QChar('x')));
+    m_statusLabel->setIndent(2 * QFontMetrics(q->font()).horizontalAdvance(QChar('x')));
     m_editorPlaceHolder = new EditorManagerPlaceHolder;
 
     m_perspectiveChooser = new QComboBox;
@@ -423,7 +423,8 @@ void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
     if (index != -1) {
         m_perspectiveChooser->setCurrentIndex(index);
 
-        const int contentWidth = m_perspectiveChooser->fontMetrics().width(perspective->d->m_name);
+        const int contentWidth =
+            m_perspectiveChooser->fontMetrics().horizontalAdvance(perspective->d->m_name);
         QStyleOptionComboBox option;
         option.initFrom(m_perspectiveChooser);
         const QSize sz(contentWidth, 1);

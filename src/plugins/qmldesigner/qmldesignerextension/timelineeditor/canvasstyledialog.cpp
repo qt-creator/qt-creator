@@ -54,7 +54,7 @@ CanvasStyleDialog::CanvasStyleDialog(const CanvasStyle &style, QWidget *parent)
     m_handleLineWidth->setValue(style.handleLineWidth);
     m_curveWidth->setValue(style.curveWidth);
 
-    int labelWidth = QFontMetrics(this->font()).width("Inter Handle ColorXX");
+    int labelWidth = QFontMetrics(this->font()).horizontalAdvance("Inter Handle ColorXX");
     auto addControl = [labelWidth](QVBoxLayout *layout, const QString &name, QWidget *control) {
         auto *hbox = new QHBoxLayout;
 

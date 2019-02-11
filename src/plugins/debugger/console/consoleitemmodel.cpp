@@ -92,7 +92,7 @@ int ConsoleItemModel::sizeOfFile(const QFont &font)
         filename = filename.mid(pos + 1);
 
     QFontMetrics fm(font);
-    m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.width(filename));
+    m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.horizontalAdvance(filename));
 
     return m_maxSizeOfFileName;
 }
@@ -100,7 +100,7 @@ int ConsoleItemModel::sizeOfFile(const QFont &font)
 int ConsoleItemModel::sizeOfLineNumber(const QFont &font)
 {
     QFontMetrics fm(font);
-    return fm.width("88888");
+    return fm.horizontalAdvance("88888");
 }
 
 } // Internal

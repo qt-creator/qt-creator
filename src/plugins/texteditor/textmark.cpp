@@ -182,7 +182,7 @@ TextMark::AnnotationRects TextMark::annotationRects(const QRectF &boundingRect,
     if (drawIcon)
         rects.iconRect.setWidth(rects.iconRect.height() * m_widthFactor);
     rects.textRect = QRectF(rects.iconRect.right() + margin, boundingRect.top(),
-                            qreal(fm.width(rects.text)), boundingRect.height());
+                            qreal(fm.horizontalAdvance(rects.text)), boundingRect.height());
     rects.annotationRect.setRight(rects.textRect.right() + margin);
     if (rects.annotationRect.right() > boundingRect.right()) {
         rects.textRect.setRight(boundingRect.right() - margin);

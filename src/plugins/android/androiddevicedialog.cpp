@@ -173,7 +173,7 @@ public:
 
             // topRight
             auto drawTopRight = [&](const QString text, const QFontMetrics &fm) {
-                painter->drawText(opt.rect.right() - fm.width(text) - 6 , 2 + opt.rect.top() + fm.ascent(), text);
+                painter->drawText(opt.rect.right() - fm.horizontalAdvance(text) - 6 , 2 + opt.rect.top() + fm.ascent(), text);
             };
 
             if (device.type == AndroidDeviceInfo::Hardware) {

@@ -2686,7 +2686,7 @@ void FakeVimHandler::Private::ensureCursorVisible()
 
 void FakeVimHandler::Private::updateEditor()
 {
-    const int charWidth = QFontMetrics(EDITOR(font())).width(' ');
+    const int charWidth = QFontMetrics(EDITOR(font())).horizontalAdvance(' ');
     EDITOR(setTabStopWidth(charWidth * config(ConfigTabStop).toInt()));
     setupCharClass();
 }
@@ -2695,7 +2695,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
 {
     //EDITOR(removeEventFilter(q));
     //EDITOR(setReadOnly(m_wasReadOnly));
-    const int charWidth = QFontMetrics(EDITOR(font())).width(' ');
+    const int charWidth = QFontMetrics(EDITOR(font())).horizontalAdvance(' ');
     EDITOR(setTabStopWidth(charWidth * tabSize));
     g.visualMode = NoVisualMode;
     // Force "ordinary" cursor.

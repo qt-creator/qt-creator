@@ -294,7 +294,7 @@ int TaskModel::sizeOfFile(const QFont &font)
         if (pos != -1)
             filename = filename.mid(pos +1);
 
-        m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.width(filename));
+        m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.horizontalAdvance(filename));
     }
     m_lastMaxSizeIndex = count - 1;
     return m_maxSizeOfFileName;
@@ -305,7 +305,7 @@ int TaskModel::sizeOfLineNumber(const QFont &font)
     if (m_sizeOfLineNumber == 0 || font != m_lineMeasurementFont) {
         QFontMetrics fm(font);
         m_lineMeasurementFont = font;
-        m_sizeOfLineNumber = fm.width(QLatin1String("88888"));
+        m_sizeOfLineNumber = fm.horizontalAdvance(QLatin1String("88888"));
     }
     return m_sizeOfLineNumber;
 }

@@ -703,7 +703,7 @@ void TimelineRulerSectionItem::paintTicks(QPainter *painter)
 
     QFontMetrics fm(painter->font());
 
-    int minSpacingText = fm.width(QString("X%1X").arg(rulerDuration()));
+    int minSpacingText = fm.horizontalAdvance(QString("X%1X").arg(rulerDuration()));
     int minSpacingLine = 5;
 
     int deltaText = 0;

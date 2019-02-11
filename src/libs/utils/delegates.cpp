@@ -84,7 +84,7 @@ void AnnotatedItemDelegate::paint(QPainter *painter,
         painter->save();
         painter->setPen(disabled.color(QPalette::WindowText));
 
-        static int extra = opt.fontMetrics.width(m_delimiter) + 10;
+        static int extra = opt.fontMetrics.horizontalAdvance(m_delimiter) + 10;
         const QPixmap &pixmap = opt.icon.pixmap(opt.decorationSize);
         const QRect &iconRect = style->itemPixmapRect(opt.rect, opt.decorationAlignment, pixmap);
         const QRect &displayRect = style->itemTextRect(opt.fontMetrics, opt.rect,

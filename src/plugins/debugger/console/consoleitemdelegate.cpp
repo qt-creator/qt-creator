@@ -186,7 +186,7 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
             const int pos = file.lastIndexOf('/');
             if (pos != -1)
                 file = file.mid(pos +1);
-            const int realFileWidth = fm.width(file);
+            const int realFileWidth = fm.horizontalAdvance(file);
             painter->setClipRect(positions.fileArea());
             painter->drawText(positions.fileAreaLeft(), positions.adjustedTop() + fm.ascent(),
                               file);
@@ -203,7 +203,7 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
             // Paint LineArea
             QString lineText  = index.data(ConsoleItem::LineRole).toString();
             painter->setClipRect(positions.lineArea());
-            const int realLineWidth = fm.width(lineText);
+            const int realLineWidth = fm.horizontalAdvance(lineText);
             painter->drawText(positions.lineAreaRight() - realLineWidth,
                               positions.adjustedTop() + fm.ascent(), lineText);
         }

@@ -305,7 +305,7 @@ void TestResultModel::recalculateMaxWidthOfFileName(const QFont &font)
     m_maxWidthOfFileName = 0;
     for (const QString &fileName : m_fileNames) {
         int pos = fileName.lastIndexOf('/');
-        m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.width(fileName.mid(pos + 1)));
+        m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.horizontalAdvance(fileName.mid(pos + 1)));
     }
 }
 
@@ -313,7 +313,7 @@ void TestResultModel::addFileName(const QString &fileName)
 {
     const QFontMetrics fm(m_measurementFont);
     int pos = fileName.lastIndexOf('/');
-    m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.width(fileName.mid(pos + 1)));
+    m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.horizontalAdvance(fileName.mid(pos + 1)));
     m_fileNames.insert(fileName);
 }
 
@@ -329,7 +329,7 @@ int TestResultModel::maxWidthOfLineNumber(const QFont &font)
     if (m_widthOfLineNumber == 0 || font != m_measurementFont) {
         QFontMetrics fm(font);
         m_measurementFont = font;
-        m_widthOfLineNumber = fm.width("88888");
+        m_widthOfLineNumber = fm.horizontalAdvance("88888");
     }
     return m_widthOfLineNumber;
 }

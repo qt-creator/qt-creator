@@ -401,7 +401,7 @@ void SideDiffEditorWidget::paintSeparator(QPainter &painter,
     painter.setPen(foreground);
 
     const QString replacementText = " {" + foldReplacementText(block) + "}; ";
-    const int replacementTextWidth = fontMetrics().width(replacementText) + 24;
+    const int replacementTextWidth = fontMetrics().horizontalAdvance(replacementText) + 24;
     int x = replacementTextWidth + int(offset.x());
     if (x < document()->documentMargin()
             || !TextDocumentLayout::isFolded(block)) {

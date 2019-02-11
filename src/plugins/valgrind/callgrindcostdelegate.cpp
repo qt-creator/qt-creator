@@ -154,7 +154,7 @@ QSize CostDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     initStyleOption(&opt, index);
 
     const QString text = d->displayText(index, opt.locale);
-    const QSize size = QSize(option.fontMetrics.width(text),
+    const QSize size = QSize(option.fontMetrics.horizontalAdvance(text),
                              option.fontMetrics.height());
     return size;
 }

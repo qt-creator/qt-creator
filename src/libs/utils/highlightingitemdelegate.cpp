@@ -114,7 +114,8 @@ int HighlightingItemDelegate::drawLineNumber(QPainter *painter, const QStyleOpti
     const bool isSelected = option.state & QStyle::State_Selected;
     const QString lineText = QString::number(lineNumber);
     const int minimumLineNumberDigits = qMax(kMinimumLineNumberDigits, lineText.count());
-    const int fontWidth = painter->fontMetrics().width(QString(minimumLineNumberDigits, '0'));
+    const int fontWidth =
+        painter->fontMetrics().horizontalAdvance(QString(minimumLineNumberDigits, '0'));
     const int lineNumberAreaWidth = lineNumberAreaHorizontalPadding + fontWidth
                                     + lineNumberAreaHorizontalPadding;
     QRect lineNumberAreaRect(rect);

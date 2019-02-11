@@ -3722,7 +3722,7 @@ QTextBlock TextEditorWidgetPrivate::foldedBlockAt(const QPoint &pos, QRect *box)
 
                 QRectF collapseRect(lineRect.right() + 12,
                                     lineRect.top(),
-                                    q->fontMetrics().width(replacement),
+                                    q->fontMetrics().horizontalAdvance(replacement),
                                     lineRect.height());
                 if (collapseRect.contains(pos)) {
                     QTextBlock result = block;
@@ -4213,7 +4213,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
 
     const qreal itemOffset = q->fontMetrics().lineSpacing();
     const qreal initialOffset = m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines ? itemOffset / 2 : itemOffset * 2;
-    const qreal minimalContentWidth = q->fontMetrics().width('X')
+    const qreal minimalContentWidth = q->fontMetrics().horizontalAdvance('X')
             * m_displaySettings.m_minimalAnnotationContent;
     qreal offset = initialOffset;
     qreal x = 0;
@@ -4529,7 +4529,7 @@ void TextEditorWidgetPrivate::paintBlockSelection(const PaintEventData &data, QP
     QString text = data.block.text();
     const TabSettings tabSettings = m_document->tabSettings();
     const qreal spacew = QFontMetricsF(q->font()).width(QLatin1Char(' '));
-    const int cursorw = q->overwriteMode() ? QFontMetrics(q->font()).width(QLatin1Char(' '))
+    const int cursorw = q->overwriteMode() ? QFontMetrics(q->font()).horizontalAdvance(QLatin1Char(' '))
                                            : q->cursorWidth();
 
     int startOffset = 0;
@@ -4688,7 +4688,7 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
 
         QRectF collapseRect(lineRect.right() + 12,
                             lineRect.top(),
-                            q->fontMetrics().width(rectReplacement),
+                            q->fontMetrics().horizontalAdvance(rectReplacement),
                             lineRect.height());
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.translate(.5, .5);
@@ -5084,7 +5084,7 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
         fnt.setItalic(currentLineNumberFormat.font().italic());
         const QFontMetrics linefm(fnt);
 
-        space += linefm.width(QLatin1Char('9')) * lineNumberDigits();
+        space += linefm.horizontalAdvance(QLatin1Char('9')) * lineNumberDigits();
     }
     int markWidth = 0;
 
@@ -6620,7 +6620,7 @@ void TextEditorAnimator::init(const QTextCursor &cursor, const QFont &f, const Q
     m_palette = pal;
     m_text = cursor.selectedText();
     QFontMetrics fm(m_font);
-    m_size = QSizeF(fm.width(m_text), fm.height());
+    m_size = QSizeF(fm.horizontalAdvance(m_text), fm.height());
 }
 
 void TextEditorAnimator::draw(QPainter *p, const QPointF &pos)
@@ -6630,7 +6630,7 @@ void TextEditorAnimator::draw(QPainter *p, const QPointF &pos)
     QFont f = m_font;
     f.setPointSizeF(f.pointSizeF() * (1.0 + m_value/2));
     QFontMetrics fm(f);
-    int width = fm.width(m_text);
+    int width = fm.horizontalAdvance(m_text);
     QRectF r((m_size.width()-width)/2, (m_size.height() - fm.height())/2, width, fm.height());
     r.translate(pos);
     p->fillRect(r, m_palette.base());
@@ -6648,7 +6648,7 @@ QRectF TextEditorAnimator::rect() const
     QFont f = m_font;
     f.setPointSizeF(f.pointSizeF() * (1.0 + m_value/2));
     QFontMetrics fm(f);
-    int width = fm.width(m_text);
+    int width = fm.horizontalAdvance(m_text);
     return QRectF((m_size.width()-width)/2, (m_size.height() - fm.height())/2, width, fm.height());
 }
 

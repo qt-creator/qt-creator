@@ -65,7 +65,7 @@ private:
             m_maxFileLength = srcModel->maxWidthOfFileName(options.font);
             m_maxLineLength = srcModel->maxWidthOfLineNumber(options.font);
             m_realFileLength = m_maxFileLength;
-            m_typeAreaWidth = QFontMetrics(options.font).width("XXXXXXXX");
+            m_typeAreaWidth = QFontMetrics(options.font).horizontalAdvance("XXXXXXXX");
             m_indentation = options.widget ? options.widget->style()->pixelMetric(
                                                  QStyle::PM_TreeViewIndentation, &options) : 0;
 

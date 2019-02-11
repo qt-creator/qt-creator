@@ -340,7 +340,7 @@ public:
             };
             for (int i = 0; i < 3; ++i) {
                 const QString &action = actions.at(i);
-                const int ww = fm.width(action);
+                const int ww = fm.horizontalAdvance(action);
                 const QRect actionRect(xx, yy - 10, ww, 15);
                 const bool isForcedDisabled = (i != 0 && sessionName == "default");
                 const bool isActive = actionRect.contains(mousePos) && !isForcedDisabled;
@@ -475,7 +475,8 @@ public:
         QString projectName = idx.data(Qt::DisplayRole).toString();
         QString projectPath = idx.data(ProjectModel::FilePathRole).toString();
         QFontMetrics fm(sizedFont(13, option.widget));
-        int width = std::max(fm.width(projectName), fm.width(projectPath)) + 36;
+        int width = std::max(fm.horizontalAdvance(projectName),
+                             fm.horizontalAdvance(projectPath)) + 36;
         return QSize(width, 48);
     }
 

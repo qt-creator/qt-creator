@@ -137,7 +137,7 @@ static QRect drawText(QPainter *painter,
 
     displayString = styleOption.fontMetrics.elidedText(displayString, Qt::ElideMiddle, styleOption.rect.width() - extraSpace);
     displayStringOffset = QPoint(5 + iconOffset, -5);
-    width = styleOption.fontMetrics.width(displayString);
+    width = styleOption.fontMetrics.horizontalAdvance(displayString);
 
     QPoint textPosition = styleOption.rect.bottomLeft() + displayStringOffset;
     painter->drawText(textPosition, displayString);
