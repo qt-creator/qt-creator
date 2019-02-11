@@ -248,7 +248,7 @@ void ChangeSelectionDialog::recalculateDetails()
     m_process->setWorkingDirectory(workingDir);
     m_process->setProcessEnvironment(m_gitEnvironment);
 
-    connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &ChangeSelectionDialog::setDetails);
 
     m_process->start(m_gitExecutable.toString(), {"show", "--decorate", "--stat=80", ref});

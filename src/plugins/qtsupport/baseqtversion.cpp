@@ -1634,7 +1634,7 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<ProKey, ProString> &ve
         }
         if (!qt5) {
             //resolve mkspec link
-            QString rspec = mkspecFullPath.toFileInfo().readLink();
+            QString rspec = mkspecFullPath.toFileInfo().symLinkTarget();
             if (!rspec.isEmpty())
                 mkspecFullPath = FileName::fromUserInput(
                             QDir(baseMkspecDir.toString()).absoluteFilePath(rspec));
@@ -1963,6 +1963,8 @@ static Abi refineAbiFromBuildString(const QByteArray &buildString, const Abi &pr
         flavor = Abi::WindowsMsvc2015Flavor;
     } else if (compiler.startsWith("MSVC 2017") && os == Abi::WindowsOS) {
         flavor = Abi::WindowsMsvc2017Flavor;
+    } else if (compiler.startsWith("MSVC 2019") && os == Abi::WindowsOS) {
+        flavor = Abi::WindowsMsvc2019Flavor;
     }
 
     return Abi(arch, os, flavor, format, wordWidth);

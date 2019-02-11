@@ -132,8 +132,8 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         if (!m_selectedPixmap)
             generateGradientPixmap(lwidth, fm.height()+1, backgroundColor, selected);
     } else {
-        painter->setBrush(opt.palette.background().color());
-        backgroundColor = opt.palette.background().color();
+        backgroundColor = opt.palette.window().color();
+        painter->setBrush(backgroundColor);
         if (!m_normalPixmap)
             generateGradientPixmap(lwidth, fm.height(), backgroundColor, selected);
     }

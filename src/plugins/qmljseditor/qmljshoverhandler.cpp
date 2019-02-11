@@ -147,7 +147,6 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
 {
     QString moduleName = getModuleName(scopeChain, qmlDocument, value);
 
-    QString helpId;
     QStringList helpIdCandidates;
 
     QStringList helpIdPieces(qName);
@@ -168,7 +167,7 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
     helpIdCandidates += helpIdPieces.join('.');
 
     const HelpItem helpItem(helpIdCandidates, qName.join('.'), HelpItem::QmlComponent);
-    const QMap<QString, QUrl> urlMap = helpItem.links();
+    const HelpItem::Links links = helpItem.links();
 
     // Check if the module name contains a major version.
     QRegularExpression version("^([^\\d]*)(\\d+)\\.*\\d*$");
@@ -176,10 +175,10 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
     if (m.hasMatch()) {
         QMap<QString, QUrl> filteredUrlMap;
         QStringRef maj = m.capturedRef(2);
-        for (auto x = urlMap.begin(); x != urlMap.end(); ++x) {
-            QString urlModuleName = x.value().path().split('/')[1];
+        for (const HelpItem::Link &link : links) {
+            QString urlModuleName = link.second.path().split('/')[1];
             if (urlModuleName.contains(maj))
-                filteredUrlMap.insert(x.key(), x.value());
+                filteredUrlMap.insert(link.first, link.second);
         }
         if (!filteredUrlMap.isEmpty()) {
             // Use the URL, to disambiguate different versions

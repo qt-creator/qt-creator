@@ -54,8 +54,8 @@ public:
     static void registerUserDocumentation(const QStringList &filePaths);
     static QSet<QString> userDocumentationPaths();
 
-    static QMap<QString, QUrl> linksForKeyword(const QString &key);
     QMap<QString, QUrl> linksForIdentifier(const QString &id) override;
+    QMap<QString, QUrl> linksForKeyword(const QString &key) override;
 
     static QUrl findFile(const QUrl &url);
     QByteArray fileData(const QUrl &url) override;

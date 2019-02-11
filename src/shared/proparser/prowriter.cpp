@@ -179,7 +179,7 @@ QString ProWriter::compileScope(const QString &scope)
     ProFile *includeFile = parser.parsedProBlock(QStringRef(&scope), 0, QLatin1String("no-file"), 1);
     if (!includeFile)
         return QString();
-    QString result = includeFile->items();
+    const QString result = includeFile->items();
     includeFile->deref();
     return result.mid(2); // chop of TokLine + linenumber
 }
@@ -307,7 +307,7 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
                              const QString &var, PutFlags flags, const QString &scope,
                              const QString &continuationIndent)
 {
-    QString indent = scope.isEmpty() ? QString() : continuationIndent;
+    const QString indent = scope.isEmpty() ? QString() : continuationIndent;
     const auto effectiveContIndent = [indent, continuationIndent](const ContinuationInfo &ci) {
         return !ci.indent.isEmpty() ? ci.indent : continuationIndent + indent;
     };
@@ -576,8 +576,8 @@ QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
     // maybe those files can be found via $$PWD/relativeToPriFile
 
     valuesToFind.clear();
-    QDir baseDir = QFileInfo(profile->fileName()).absoluteDir();
-    QString prefixPwd = QLatin1String("$$PWD/");
+    const QDir baseDir = QFileInfo(profile->fileName()).absoluteDir();
+    const QString prefixPwd = QLatin1String("$$PWD/");
     foreach (const QString &absoluteFilePath, notYetChanged)
         valuesToFind << (prefixPwd + baseDir.relativeFilePath(absoluteFilePath));
 

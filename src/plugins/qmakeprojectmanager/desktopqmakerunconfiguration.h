@@ -43,6 +43,7 @@ public:
 
 private:
     void updateTargetInformation();
+    bool fromMap(const QVariantMap &map) final;
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
 
     QString defaultDisplayName();

@@ -431,7 +431,7 @@ struct PaintEventData
         , searchResultFormat(fontSettings.toTextCharFormat(C_SEARCH_RESULT))
         , visualWhitespaceFormat(fontSettings.toTextCharFormat(C_VISUAL_WHITESPACE))
         , ifdefedOutFormat(fontSettings.toTextCharFormat(C_DISABLED_CODE))
-        , suppressSyntaxInIfdefedOutBlock(ifdefedOutFormat.foreground() != editor->palette().foreground())
+        , suppressSyntaxInIfdefedOutBlock(ifdefedOutFormat.foreground() != editor->palette().windowText())
     { }
     QPointF offset;
     const QRect viewportRect;
@@ -4719,7 +4719,7 @@ void TextEditorWidgetPrivate::paintWidgetBackground(const PaintEventData &data,
             && (q->centerOnScroll() || q->verticalScrollBar()->maximum() == q->verticalScrollBar()->minimum())) {
         const QRect backGroundRect(QPoint(data.eventRect.left(), int(data.offset.y())),
                                    data.eventRect.bottomRight());
-        painter.fillRect(backGroundRect, q->palette().background());
+        painter.fillRect(backGroundRect, q->palette().window());
     }
 }
 
@@ -8236,7 +8236,7 @@ void TextEditorWidgetPrivate::updateTabStops()
     // to be set as an int. A work around is to access directly the QTextOption.
     qreal charWidth = QFontMetricsF(q->font()).width(QLatin1Char(' '));
     QTextOption option = q->document()->defaultTextOption();
-    option.setTabStop(charWidth * m_document->tabSettings().m_tabSize);
+    option.setTabStopDistance(charWidth * m_document->tabSettings().m_tabSize);
     q->document()->setDefaultTextOption(option);
 }
 

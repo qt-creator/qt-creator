@@ -41,7 +41,7 @@ def clickItemVerifyHelpCombo(button, expectedHelpComboRegex, testDetails):
                        "Verifying: '%s' button is being displayed." % getStarted)
 def buttonActive(button):
     # colors of the default theme for active button on Welcome page
-    (activeRed, activeGreen, activeBlue) = (64, 66, 68)
+    (activeRed, activeGreen, activeBlue) = (64, 65, 66)
     # QPalette::Window (used background color of Welcome page buttons)
     enumQPaletteWindow = 10
     color = button.palette.color(enumQPaletteWindow)

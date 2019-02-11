@@ -185,7 +185,7 @@ bool BuildStepList::removeStep(int position)
 
 void BuildStepList::moveStepUp(int position)
 {
-    m_steps.swap(position - 1, position);
+    m_steps.swapItemsAt(position - 1, position);
     emit stepMoved(position, position - 1);
 }
 

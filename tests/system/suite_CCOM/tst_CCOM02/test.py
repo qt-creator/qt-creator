@@ -54,7 +54,7 @@ def main():
     ensureChecked(waitForObject(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton"))
     issuesView = waitForObject(":Qt Creator.Issues_QListView")
     # verify that error is properly reported
-    test.verify(checkSyntaxError(issuesView, ["Syntax error"], True),
+    test.verify(checkSyntaxError(issuesView, ["Expected token `:'"], True),
                 "Verifying QML syntax error while parsing complex qt quick application.")
     # exit qt creator
     invokeMenuItem("File", "Exit")

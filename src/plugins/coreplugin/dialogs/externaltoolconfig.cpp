@@ -27,32 +27,29 @@
 #include "ui_externaltoolconfig.h"
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
+#include <utils/environmentdialog.h>
+#include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/fancylineedit.h>
-#include <utils/environment.h>
-#include <utils/environmentdialog.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/variablechooser.h>
 
 #include <QDialogButtonBox>
-#include <QTextStream>
-#include <QMimeData>
 #include <QMenu>
+#include <QMimeData>
 #include <QPlainTextEdit>
+#include <QTextStream>
 
 using namespace Core;
 using namespace Core::Internal;
 
-
 static const Qt::ItemFlags TOOLSMENU_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
 static const Qt::ItemFlags CATEGORY_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
 static const Qt::ItemFlags TOOL_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsEditable;
-
-// #pragma mark -- ExternalToolModel
 
 ExternalToolModel::ExternalToolModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -133,7 +130,7 @@ QMimeData *ExternalToolModel::mimeData(const QModelIndexList &indexes) const
     QByteArray ba;
     QDataStream stream(&ba, QIODevice::WriteOnly);
     stream << category << m_tools.value(category).indexOf(tool);
-    md->setData(QLatin1String("application/qtcreator-externaltool-config"), ba);
+    md->setData("application/qtcreator-externaltool-config", ba);
     return md;
 }
 
@@ -149,7 +146,7 @@ bool ExternalToolModel::dropMimeData(const QMimeData *data,
     bool found;
     QString toCategory = categoryForIndex(parent, &found);
     QTC_ASSERT(found, return false);
-    QByteArray ba = data->data(QLatin1String("application/qtcreator-externaltool-config"));
+    QByteArray ba = data->data("application/qtcreator-externaltool-config");
     if (ba.isEmpty())
         return false;
     QDataStream stream(&ba, QIODevice::ReadOnly);
@@ -309,7 +306,7 @@ void ExternalToolModel::revertTool(const QModelIndex &modelIndex)
     ExternalTool *tool = toolForIndex(modelIndex);
     QTC_ASSERT(tool, return);
     QTC_ASSERT(tool->preset() && !tool->preset()->fileName().isEmpty(), return);
-    ExternalTool *resetTool = new ExternalTool(tool->preset().data());
+    auto resetTool = new ExternalTool(tool->preset().data());
     resetTool->setPreset(tool->preset());
     (*tool) = (*resetTool);
     delete resetTool;
@@ -350,10 +347,10 @@ QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
     //: Sample external tool text
     const QString text = tr("Useful text");
     if (Utils::HostOsInfo::isWindowsHost()) {
-        tool->setExecutables(QStringList(QLatin1String("cmd")));
-        tool->setArguments(QLatin1String("/c echo ") + text);
+        tool->setExecutables({"cmd"});
+        tool->setArguments("/c echo " + text);
     } else {
-        tool->setExecutables(QStringList(QLatin1String("echo")));
+        tool->setExecutables({"echo"});
         tool->setArguments(text);
     }
 
@@ -395,8 +392,6 @@ void ExternalToolModel::removeTool(const QModelIndex &modelIndex)
     delete tool;
 }
 
-// #pragma mark -- ExternalToolConfig
-
 static void fillBaseEnvironmentComboBox(QComboBox *box)
 {
     box->clear();
@@ -411,6 +406,7 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     m_model(new ExternalToolModel(this))
 {
     ui->setupUi(this);
+    ui->executable->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->scrollArea->viewport()->setAutoFillBackground(false);
     ui->scrollAreaWidgetContents->setAutoFillBackground(false);
     ui->toolTree->setModel(m_model);
@@ -433,7 +429,8 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
             this, &ExternalToolConfig::updateCurrentItem);
     connect(ui->executable, &Utils::PathChooser::browsingFinished,
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->arguments, &QLineEdit::editingFinished, this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->arguments, &QLineEdit::editingFinished,
+            this, &ExternalToolConfig::updateCurrentItem);
     connect(ui->arguments, &QLineEdit::editingFinished,
             this, &ExternalToolConfig::updateEffectiveArguments);
     connect(ui->workingDirectory, &Utils::PathChooser::editingFinished,
@@ -442,28 +439,30 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
             this, &ExternalToolConfig::updateCurrentItem);
     connect(ui->environmentButton, &QAbstractButton::clicked,
             this, &ExternalToolConfig::editEnvironmentChanges);
-    connect(ui->outputBehavior, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(ui->outputBehavior, QOverload<int>::of(&QComboBox::activated),
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->errorOutputBehavior, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(ui->errorOutputBehavior, QOverload<int>::of(&QComboBox::activated),
             this, &ExternalToolConfig::updateCurrentItem);
     connect(ui->modifiesDocumentCheckbox, &QAbstractButton::clicked,
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->inputText, &QPlainTextEdit::textChanged, this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->inputText, &QPlainTextEdit::textChanged,
+            this, &ExternalToolConfig::updateCurrentItem);
 
-    connect(ui->revertButton, &QAbstractButton::clicked, this, &ExternalToolConfig::revertCurrentItem);
-    connect(ui->removeButton, &QAbstractButton::clicked, this, &ExternalToolConfig::removeTool);
+    connect(ui->revertButton, &QAbstractButton::clicked,
+            this, &ExternalToolConfig::revertCurrentItem);
+    connect(ui->removeButton, &QAbstractButton::clicked,
+            this, &ExternalToolConfig::removeTool);
 
     auto menu = new QMenu(ui->addButton);
     ui->addButton->setMenu(menu);
-    QAction *addTool = new QAction(tr("Add Tool"), this);
+    auto addTool = new QAction(tr("Add Tool"), this);
     menu->addAction(addTool);
     connect(addTool, &QAction::triggered, this, &ExternalToolConfig::addTool);
-    QAction *addCategory = new QAction(tr("Add Category"), this);
+    auto addCategory = new QAction(tr("Add Category"), this);
     menu->addAction(addCategory);
     connect(addCategory, &QAction::triggered, this, &ExternalToolConfig::addCategory);
 
     showInfoForItem(QModelIndex());
-
 }
 
 ExternalToolConfig::~ExternalToolConfig()
@@ -478,7 +477,7 @@ void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &t
     while (it.hasNext()) {
         it.next();
         QList<ExternalTool *> itemCopy;
-        foreach (ExternalTool *tool, it.value())
+        for (ExternalTool *tool : it.value())
             itemCopy.append(new ExternalTool(tool));
         toolsCopy.insert(it.key(), itemCopy);
     }
@@ -648,7 +647,7 @@ void ExternalToolConfig::editEnvironmentChanges()
 
 void ExternalToolConfig::updateEnvironmentLabel()
 {
-    QString shortSummary = Utils::EnvironmentItem::toStringList(m_environment).join(QLatin1String("; "));
+    QString shortSummary = Utils::EnvironmentItem::toStringList(m_environment).join("; ");
     QFontMetrics fm(ui->environmentLabel->font());
     shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, ui->environmentLabel->width());
     ui->environmentLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);

@@ -384,7 +384,9 @@ static Abi findAbiOfMsvc(MsvcToolChain::Type type,
         else if (version == QLatin1String("v7.0A") || version == QLatin1String("v7.1"))
             msvcVersionString = QLatin1String("10.0");
     }
-    if (msvcVersionString.startsWith(QLatin1String("15.")))
+    if (msvcVersionString.startsWith(QLatin1String("16.")))
+        flavor = Abi::WindowsMsvc2019Flavor;
+    else if (msvcVersionString.startsWith(QLatin1String("15.")))
         flavor = Abi::WindowsMsvc2017Flavor;
     else if (msvcVersionString.startsWith(QLatin1String("14.")))
         flavor = Abi::WindowsMsvc2015Flavor;
@@ -954,6 +956,12 @@ Utils::FileNameList MsvcToolChain::suggestedMkspecList() const
                << Utils::FileName::fromLatin1("winrt-arm-msvc2017")
                << Utils::FileName::fromLatin1("winrt-x86-msvc2017")
                << Utils::FileName::fromLatin1("winrt-x64-msvc2017");
+        break;
+    case Abi::WindowsMsvc2019Flavor:
+        result << Utils::FileName::fromLatin1("win32-msvc2019")
+               << Utils::FileName::fromLatin1("winrt-arm-msvc2019")
+               << Utils::FileName::fromLatin1("winrt-x86-msvc2019")
+               << Utils::FileName::fromLatin1("winrt-x64-msvc2019");
         break;
     default:
         result.clear();

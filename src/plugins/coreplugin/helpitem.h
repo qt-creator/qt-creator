@@ -29,16 +29,20 @@
 
 #include <utils/optional.h>
 
-#include <QMap>
 #include <QString>
 #include <QUrl>
 #include <QVariant>
+
+#include <vector>
 
 namespace Core {
 
 class CORE_EXPORT HelpItem
 {
 public:
+    using Link = std::pair<QString, QUrl>;
+    using Links = std::vector<Link>;
+
     enum Category {
         ClassOrNamespace,
         Enum,
@@ -77,15 +81,18 @@ public:
 
     QString extractContent(bool extended) const;
 
-    const QMap<QString, QUrl> &links() const;
-    const QUrl bestLink() const;
+    const Links &links() const;
+    const Links bestLinks() const;
+    const QString keyword() const;
 
 private:
     QUrl m_helpUrl;
     QStringList m_helpIds;
     QString m_docMark;
     Category m_category = Unknown;
-    mutable Utils::optional<QMap<QString, QUrl>> m_helpLinks; // cached help links
+    mutable Utils::optional<Links> m_helpLinks; // cached help links
+    mutable QString m_keyword;
+    mutable bool m_isFuzzyMatch = false;
 };
 
 } // namespace Core

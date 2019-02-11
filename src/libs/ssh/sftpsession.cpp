@@ -119,7 +119,7 @@ SftpSession::SftpSession(const QStringList &connectionArgs) : d(new SftpSessionP
             emit done(tr("sftp failed to start: %1").arg(d->sftpProc.errorString()));
         }
     });
-    connect(&d->sftpProc, static_cast<void (QProcess::*)(int)>(&QProcess::finished), [this] {
+    connect(&d->sftpProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [this] {
         d->state = State::Inactive;
         if (d->sftpProc.exitStatus() != QProcess::NormalExit) {
             emit done(tr("sftp crashed."));

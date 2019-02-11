@@ -2386,7 +2386,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
         process->start(binary, arguments);
         success = process->waitForStarted();
         if (success)
-            connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                     process, &QProcess::deleteLater);
         else
             delete process;

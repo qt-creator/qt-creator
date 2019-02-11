@@ -1176,7 +1176,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // duplicate file action
-    dd->m_duplicateFileAction = new QAction(tr("Duplicate File..."), this);
+    dd->m_duplicateFileAction = new QAction(tr("Duplicate File"), this);
     cmd = ActionManager::registerAction(dd->m_duplicateFileAction, Constants::DUPLICATEFILE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);

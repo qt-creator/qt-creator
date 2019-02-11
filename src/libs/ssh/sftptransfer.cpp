@@ -114,7 +114,7 @@ SftpTransfer::SftpTransfer(const FilesToTransfer &files, Internal::FileTransferT
         if (error == QProcess::FailedToStart)
             emitError(tr("sftp failed to start: %1").arg(d->sftpProc.errorString()));
     });
-    connect(&d->sftpProc, static_cast<void (QProcess::*)(int)>(&QProcess::finished), [this] {
+    connect(&d->sftpProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [this] {
         if (d->sftpProc.exitStatus() != QProcess::NormalExit) {
             emitError(tr("sftp crashed."));
             return;

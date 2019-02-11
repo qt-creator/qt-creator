@@ -44,6 +44,7 @@
 #include "searchwidget.h"
 #include "searchtaskhandler.h"
 #include "textbrowserhelpviewer.h"
+#include "topicchooser.h"
 
 #ifdef QTC_MAC_NATIVE_HELPVIEWER
 #include "macwebkithelpviewer.h"
@@ -636,8 +637,8 @@ void HelpPluginPrivate::requestContextHelp()
 
 void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
 {
-    const QUrl source = contextHelp.bestLink();
-    if (!source.isValid()) {
+    const HelpItem::Links links = contextHelp.bestLinks();
+    if (links.empty()) {
         // No link found or no context object
         HelpViewer *viewer = showHelpUrl(QUrl(Help::Constants::AboutBlank),
                                          LocalHelpManager::contextHelpOption());
@@ -653,8 +654,19 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
                                 .arg(contextHelp.helpIds().join(", "))
                                 .arg(HelpPlugin::tr("No documentation available.")));
         }
+    } else if (links.size() == 1) {
+        showHelpUrl(links.front().second, LocalHelpManager::contextHelpOption());
     } else {
-        showHelpUrl(source, LocalHelpManager::contextHelpOption());
+        QMap<QString, QUrl> map;
+        for (const HelpItem::Link &link : links)
+            map.insert(link.first, link.second);
+        auto tc = new TopicChooser(ICore::dialogParent(), contextHelp.keyword(), map);
+        tc->setModal(true);
+        connect(tc, &QDialog::accepted, this, [this, tc] {
+            showHelpUrl(tc->link(), LocalHelpManager::contextHelpOption());
+        });
+        connect(tc, &QDialog::finished, tc, [tc] { tc->deleteLater(); });
+        tc->show();
     }
 }
 

@@ -93,7 +93,7 @@ static QPixmap segmentPixmap(CrumblePathButton::SegmentType type, QStyle::State 
     const QString pixmapKey = QStringLiteral("crumblePath-segment-%1-iconMode-%2-hover-%3")
             .arg(segmentName).arg(iconMode).arg(hover);
     QPixmap pixmap;
-    if (!QPixmapCache::find(pixmapKey, pixmap)) {
+    if (!QPixmapCache::find(pixmapKey, &pixmap)) {
         const QString maskFileName = QStringLiteral(":/utils/images/crumblepath-segment-%1%2.png")
                 .arg(segmentName).arg(QLatin1String(hover ? "-hover" : ""));
         pixmap = Icon({{maskFileName, Theme::IconsBaseColor}}).pixmap(iconMode);

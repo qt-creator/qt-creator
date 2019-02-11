@@ -91,6 +91,11 @@ QMap<QString, QUrl> linksForIdentifier(const QString &id)
     return checkInstance() ? m_instance->linksForIdentifier(id) : QMap<QString, QUrl>();
 }
 
+QMap<QString, QUrl> linksForKeyword(const QString &keyword)
+{
+    return checkInstance() ? m_instance->linksForKeyword(keyword) : QMap<QString, QUrl>();
+}
+
 QByteArray fileData(const QUrl &url)
 {
     return checkInstance() ? m_instance->fileData(url) : QByteArray();
