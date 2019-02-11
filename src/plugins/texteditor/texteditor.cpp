@@ -8252,7 +8252,11 @@ void TextEditorWidgetPrivate::updateTabStops()
     // to be set as an int. A work around is to access directly the QTextOption.
     qreal charWidth = QFontMetricsF(q->font()).width(QLatin1Char(' '));
     QTextOption option = q->document()->defaultTextOption();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     option.setTabStopDistance(charWidth * m_document->tabSettings().m_tabSize);
+#else
+    option.setTabStop(charWidth * m_document->tabSettings().m_tabSize);
+#endif
     q->document()->setDefaultTextOption(option);
 }
 
