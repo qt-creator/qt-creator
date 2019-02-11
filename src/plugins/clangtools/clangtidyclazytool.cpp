@@ -300,8 +300,8 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     });
     connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
         QVector<DiagnosticItem *> diagnosticItems;
-        m_diagnosticModel->rootItem()->forChildrenAtLevel(2, [&](TreeItem *item){
-            diagnosticItems += static_cast<DiagnosticItem *>(item);
+        m_diagnosticModel->forItemsAtLevel<2>([&](DiagnosticItem *item){
+            diagnosticItems += item;
         });
 
         ApplyFixIts(diagnosticItems).apply(m_diagnosticModel);

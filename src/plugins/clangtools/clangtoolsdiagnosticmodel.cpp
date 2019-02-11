@@ -81,7 +81,7 @@ private:
 };
 
 ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
-    : Utils::TreeModel<>(parent)
+    : ClangToolsDiagnosticModelBase(parent)
     , m_filesWatcher(std::make_unique<QFileSystemWatcher>())
 {
     setHeader({tr("Diagnostic")});
@@ -146,7 +146,7 @@ void ClangToolsDiagnosticModel::clear()
     m_filePathToItem.clear();
     m_diagnostics.clear();
     clearAndSetupCache();
-    Utils::TreeModel<>::clear();
+    ClangToolsDiagnosticModelBase::clear();
 }
 
 void ClangToolsDiagnosticModel::updateItems(const DiagnosticItem *changedItem)
@@ -174,10 +174,9 @@ void ClangToolsDiagnosticModel::clearAndSetupCache()
 
 void ClangToolsDiagnosticModel::onFileChanged(const QString &path)
 {
-    rootItem()->forChildrenAtLevel(2, [&](Utils::TreeItem *item){
-        auto diagnosticItem = static_cast<DiagnosticItem *>(item);
-        if (diagnosticItem->diagnostic().location.filePath == path)
-            diagnosticItem->setFixItStatus(FixitStatus::Invalidated);
+    forItemsAtLevel<2>([&](DiagnosticItem *item){
+        if (item->diagnostic().location.filePath == path)
+            item->setFixItStatus(FixitStatus::Invalidated);
     });
     removeWatchedPath(path);
 }

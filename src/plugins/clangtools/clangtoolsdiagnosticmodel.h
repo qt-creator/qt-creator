@@ -100,7 +100,11 @@ private:
     ClangToolsDiagnosticModel *m_parentModel = nullptr;
 };
 
-class ClangToolsDiagnosticModel : public Utils::TreeModel<>
+class ExplainingStepItem;
+
+using ClangToolsDiagnosticModelBase
+    = Utils::TreeModel<Utils::TreeItem, FilePathItem, DiagnosticItem, ExplainingStepItem>;
+class ClangToolsDiagnosticModel : public ClangToolsDiagnosticModelBase
 {
     Q_OBJECT
 
