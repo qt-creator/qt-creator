@@ -486,6 +486,8 @@ QString RewriterView::auxiliaryDataAsQML() const
 
     QString str = "Designer {\n    ";
 
+    QTC_ASSERT(!m_canonicalIntModelNode.isEmpty(), return {});
+
     int columnCount = 0;
     for (const auto &node : allModelNodes()) {
         QHash<PropertyName, QVariant> data = node.auxiliaryData();
@@ -727,8 +729,11 @@ void RewriterView::setupCanonicalHashes() const
     using myPair = std::pair<ModelNode,int>;
     std::vector<myPair> data;
 
-    for (const ModelNode &node : allModelNodes())
-        data.emplace_back(std::make_pair(node, nodeOffset(node)));
+    for (const ModelNode &node : allModelNodes()) {
+        int offset = nodeOffset(node);
+        QTC_ASSERT(offset > 0, qDebug() << Q_FUNC_INFO << "no offset" << node; return);
+        data.emplace_back(std::make_pair(node, offset));
+    }
 
     std::sort(data.begin(), data.end(), [](myPair a, myPair b) {
         return a.second < b.second;
@@ -1065,6 +1070,8 @@ void RewriterView::restoreAuxiliaryData()
     m_restoringAuxData = true;
 
     setupCanonicalHashes();
+
+    QTC_ASSERT(!m_canonicalIntModelNode.isEmpty(), return);
 
     const QString text = m_textModifier->text();
 
