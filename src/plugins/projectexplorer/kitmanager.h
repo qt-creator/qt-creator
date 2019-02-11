@@ -127,8 +127,6 @@ public:
     KitAspectWidget(Kit *kit, const KitAspect *ki);
 
     Core::Id kitInformationId() const;
-    QString displayName() const { return m_kitInformation->displayName(); }
-    QString toolTip() const { return m_kitInformation->description(); }
 
     virtual void makeReadOnly() = 0;
     virtual void refresh() = 0;

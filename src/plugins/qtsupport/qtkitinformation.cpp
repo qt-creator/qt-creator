@@ -64,7 +64,7 @@ public:
         m_manageButton = new QPushButton(KitAspectWidget::msgManage());
 
         refresh();
-        m_combo->setToolTip(toolTip());
+        m_combo->setToolTip(ki->description());
 
         connect(m_combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
                 this, &QtKitAspectWidget::currentWasChanged);

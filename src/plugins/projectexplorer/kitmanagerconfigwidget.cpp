@@ -218,8 +218,8 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
     QTC_ASSERT(widget, return);
     QTC_ASSERT(!m_widgets.contains(widget), return);
 
-    const QString name = widget->displayName() + ':';
-    QString toolTip = widget->toolTip();
+    const QString name = aspect->displayName() + ':';
+    QString toolTip = aspect->description();
 
     auto action = new QAction(tr("Mark as Mutable"), nullptr);
     action->setCheckable(true);

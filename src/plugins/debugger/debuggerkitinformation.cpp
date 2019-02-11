@@ -67,6 +67,7 @@ public:
         m_comboBox->setEnabled(true);
 
         refresh();
+        m_comboBox->setToolTip(ki->description());
         connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
                 this, &DebuggerKitAspectWidget::currentDebuggerChanged);
 
@@ -96,7 +97,6 @@ private:
     {
         m_ignoreChanges = true;
         m_comboBox->clear();
-        m_comboBox->setToolTip(toolTip());
         m_comboBox->addItem(tr("None"), QString());
         for (const DebuggerItem &item : DebuggerItemManager::debuggers())
             m_comboBox->addItem(item.displayName(), item.id());

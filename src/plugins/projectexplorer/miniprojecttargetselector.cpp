@@ -593,7 +593,7 @@ void KitAreaWidget::setKit(Kit *k)
         if (k && k->isMutable(ki->id())) {
             KitAspectWidget *widget = ki->createConfigWidget(k);
             m_widgets << widget;
-            QLabel *label = new QLabel(widget->displayName());
+            QLabel *label = new QLabel(ki->displayName());
             m_labels << label;
 
             widget->setStyle(QStyleFactory::create(QLatin1String("fusion")));

@@ -53,7 +53,7 @@ public:
         : KitAspectWidget(k, ki), m_lineEdit(new QLineEdit)
     {
         refresh(); // set up everything according to kit
-        m_lineEdit->setToolTip(toolTip());
+        m_lineEdit->setToolTip(ki->description());
         connect(m_lineEdit, &QLineEdit::textEdited, this, &QmakeKitAspectWidget::mkspecWasChanged);
     }
 

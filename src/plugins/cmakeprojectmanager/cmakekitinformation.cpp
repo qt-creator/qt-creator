@@ -80,7 +80,7 @@ public:
     {
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(false);
-        m_comboBox->setToolTip(toolTip());
+        m_comboBox->setToolTip(ki->description());
 
         foreach (CMakeTool *tool, CMakeToolManager::cmakeTools())
             cmakeToolAdded(tool->id());
@@ -328,7 +328,7 @@ public:
           m_label(new QLabel),
           m_changeButton(new QPushButton)
     {
-        m_label->setToolTip(toolTip());
+        m_label->setToolTip(ki->description());
         m_changeButton->setText(tr("Change..."));
         refresh();
         connect(m_changeButton, &QPushButton::clicked,

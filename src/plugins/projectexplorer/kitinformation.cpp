@@ -243,7 +243,7 @@ public:
             layout->addWidget(new QLabel(ToolChainManager::displayNameOfLanguageId(l) + ':'), row, 0);
             auto cb = new QComboBox;
             cb->setSizePolicy(QSizePolicy::Ignored, cb->sizePolicy().verticalPolicy());
-            cb->setToolTip(toolTip());
+            cb->setToolTip(ki->description());
 
             m_languageComboboxMap.insert(l, cb);
             layout->addWidget(cb, row, 1);
@@ -768,7 +768,7 @@ public:
     {
         for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
             m_comboBox->addItem(factory->displayName(), factory->deviceType().toSetting());
-        m_comboBox->setToolTip(toolTip());
+        m_comboBox->setToolTip(ki->description());
         refresh();
         connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
                 this, &DeviceTypeKitAspectWidget::currentTypeChanged);
@@ -893,7 +893,7 @@ public:
         m_comboBox->setModel(m_model);
         m_manageButton = new QPushButton(KitAspectWidget::msgManage());
         refresh();
-        m_comboBox->setToolTip(toolTip());
+        m_comboBox->setToolTip(ki->description());
 
         connect(m_model, &QAbstractItemModel::modelAboutToBeReset,
                 this, &DeviceKitAspectWidget::modelAboutToReset);
