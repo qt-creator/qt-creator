@@ -34,9 +34,8 @@
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
 #include <utils/fancylineedit.h>
-#include <utils/qtcprocess.h>
 #include <utils/mimetypes/mimedatabase.h>
-#include <languageserverprotocol/lsptypes.h>
+#include <utils/jsontreeitem.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -150,7 +149,6 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     connect(addButton, &QPushButton::pressed, this, &LanguageClientSettingsPageWidget::addItem);
     auto deleteButton = new QPushButton(LanguageClientSettingsPage::tr("&Delete"));
     connect(deleteButton, &QPushButton::pressed, this, &LanguageClientSettingsPageWidget::deleteItem);
-
     mainLayout->addLayout(layout);
     setLayout(mainLayout);
     layout->addWidget(m_view);
@@ -505,6 +503,24 @@ BaseClientInterface *StdIOSettings::createInterface() const
     return new StdIOClientInterface(m_executable, m_arguments);
 }
 
+static QWidget *createCapabilitiesView(
+    const LanguageServerProtocol::ServerCapabilities &capabilities)
+{
+    auto root = new Utils::JsonTreeItem("Capabilities", QJsonValue(capabilities));
+    if (root->canFetchMore())
+        root->fetchMore();
+
+    auto capabilitiesModel = new Utils::TreeModel<Utils::JsonTreeItem>(root);
+    capabilitiesModel->setHeader({BaseSettingsWidget::tr("Name"),
+                                  BaseSettingsWidget::tr("Value"),
+                                  BaseSettingsWidget::tr("Type")});
+    auto capabilitiesView = new QTreeView();
+    capabilitiesView->setModel(capabilitiesModel);
+    capabilitiesView->setAlternatingRowColors(true);
+    capabilitiesView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    return capabilitiesView;
+}
+
 BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *parent)
     : QWidget(parent)
     , m_name(new QLineEdit(settings->m_name, this))
@@ -527,6 +543,30 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
 
     connect(addMimeTypeButton, &QPushButton::pressed,
             this, &BaseSettingsWidget::showAddMimeTypeDialog);
+
+    auto createInfoLabel = []() {
+        return new QLabel(tr("Available after server was initialized"));
+    };
+
+    mainLayout->addWidget(new QLabel(tr("Capabilities:")), ++row, 0, Qt::AlignTop);
+    if (Client *client = settings->m_client.data()) {
+        if (client->state() == Client::Initialized)
+            mainLayout->addWidget(createCapabilitiesView(client->capabilities()));
+        else
+            mainLayout->addWidget(createInfoLabel(), row, 1);
+        connect(client, &Client::finished, mainLayout, [mainLayout, row, createInfoLabel]() {
+            delete mainLayout->itemAtPosition(row, 1)->widget();
+            mainLayout->addWidget(createInfoLabel(), row, 1);
+        });
+        connect(client, &Client::initialized, mainLayout,
+                [mainLayout, row](
+                    const LanguageServerProtocol::ServerCapabilities &capabilities) {
+                    delete mainLayout->itemAtPosition(row, 1)->widget();
+                    mainLayout->addWidget(createCapabilitiesView(capabilities), row, 1);
+                });
+    } else {
+        mainLayout->addWidget(createInfoLabel());
+    }
 
     setLayout(mainLayout);
 }
