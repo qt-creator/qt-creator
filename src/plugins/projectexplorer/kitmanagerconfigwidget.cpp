@@ -232,12 +232,13 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
 
     auto action = new QAction(tr("Mark as Mutable"), nullptr);
     action->setCheckable(true);
-    action->setChecked(widget->isMutable());
+    action->setChecked(workingCopy()->isMutable(aspect->id()));
+
     action->setEnabled(!widget->isSticky());
     widget->mainWidget()->addAction(action);
     widget->mainWidget()->setContextMenuPolicy(Qt::ActionsContextMenu);
-    connect(action, &QAction::toggled, this, [this, widget, action] {
-        widget->setMutable(action->isChecked());
+    connect(action, &QAction::toggled, this, [this, aspect, action] {
+        workingCopy()->setMutable(aspect->id(), action->isChecked());
         emit dirty();
     });
 

@@ -496,16 +496,6 @@ Core::Id KitAspectWidget::kitInformationId() const
     return m_kitInformation->id();
 }
 
-bool KitAspectWidget::isMutable() const
-{
-    return m_kit->isMutable(m_kitInformation->id());
-}
-
-void KitAspectWidget::setMutable(bool b)
-{
-    m_kit->setMutable(m_kitInformation->id(), b);
-}
-
 QString KitAspectWidget::msgManage()
 {
     return tr("Manage...");

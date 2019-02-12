@@ -135,8 +135,6 @@ public:
     virtual QWidget *buttonWidget() const { return nullptr; }
 
     bool isSticky() const { return m_isSticky; }
-    bool isMutable() const;
-    void setMutable(bool b);
 
     static QString msgManage();
 
