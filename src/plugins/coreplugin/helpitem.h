@@ -86,6 +86,8 @@ public:
     const QString keyword() const;
 
 private:
+    bool isFuzzyMatch() const;
+
     QUrl m_helpUrl;
     QStringList m_helpIds;
     QString m_docMark;
