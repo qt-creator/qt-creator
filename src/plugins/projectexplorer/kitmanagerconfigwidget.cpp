@@ -121,6 +121,11 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(m_nameEdit);
     chooser->addMacroExpanderProvider([this]() { return m_modifiedKit->macroExpander(); });
+
+    for (KitAspect *aspect : KitManager::kitAspects())
+        addAspectToWorkingCopy(aspect);
+
+    updateVisibility();
 }
 
 KitManagerConfigWidget::~KitManagerConfigWidget()

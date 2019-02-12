@@ -54,7 +54,6 @@ class KitAspectWidget;
 class KitManager;
 
 namespace Internal {
-class KitManagerConfigWidget;
 class KitModel;
 } // namespace Internal
 
@@ -169,8 +168,6 @@ public:
     static Kit *defaultKit();
 
     static const QList<KitAspect *> kitAspects();
-
-    static Internal::KitManagerConfigWidget *createConfigWidget(Kit *k);
 
     static bool registerKit(std::unique_ptr<Kit> &&k);
     static void deregisterKit(Kit *k);

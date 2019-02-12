@@ -370,17 +370,6 @@ const QList<KitAspect *> KitManager::kitAspects()
     return Utils::toRawPointer<QList>(d->m_informationList);
 }
 
-KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k)
-{
-    auto *result = new KitManagerConfigWidget(k);
-    for (KitAspect *aspect : kitAspects())
-        result->addAspectToWorkingCopy(aspect);
-
-    result->updateVisibility();
-
-    return result;
-}
-
 void KitManager::notifyAboutUpdate(Kit *k)
 {
     if (!k || !isLoaded())

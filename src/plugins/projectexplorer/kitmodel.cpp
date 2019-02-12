@@ -46,7 +46,7 @@ class KitNode : public TreeItem
 public:
     KitNode(Kit *k)
     {
-        widget = KitManager::createConfigWidget(k);
+        widget = new KitManagerConfigWidget(k);
         if (widget) {
             if (k && k->isAutoDetected())
                 widget->makeStickySubWidgetsReadOnly();
