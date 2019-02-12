@@ -1,0 +1,29 @@
+From 3c05e92c71f6675fa2071036dafbc8d337bd2d01 Mon Sep 17 00:00:00 2001
+From: Alessandro Portale <alessandro.portale@qt.io>
+Date: Tue, 12 Feb 2019 19:27:46 +0100
+Subject: [PATCH 5/6] Prevent assertion in RegExpr::doLoad
+
+---
+ src/lib/rule.cpp | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/lib/rule.cpp b/src/lib/rule.cpp
+index a201375..c48753b 100644
+--- a/src/lib/rule.cpp
++++ b/src/lib/rule.cpp
+@@ -575,7 +575,11 @@ bool RegExpr::doLoad(QXmlStreamReader& reader)
+     }
+ 
+     // always using m_regexp.isValid() would be better, but parses the regexp and thus is way too expensive for release builds
+-    Q_ASSERT(m_regexp.isValid());
++
++    if (Log().isDebugEnabled()) {
++        if (!m_regexp.isValid())
++            qCDebug(Log) << "Invalid regexp:" << m_regexp.pattern();
++    }
+     return !m_regexp.pattern().isEmpty();
+ }
+ 
+-- 
+2.20.1.windows.1
+
