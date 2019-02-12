@@ -351,8 +351,10 @@ void PerfDataReader::writeChunk()
                                         "Your trace is incomplete."));
             }
         }
-    } else if (m_dataFinished) {
-        m_input.closeWriteChannel();
+    } else if (m_dataFinished && m_input.isWritable()) {
+        // Delay closing of the write channel. Closing the channel from within a handler
+        // for bytesWritten() is dangerous on windows.
+        QTimer::singleShot(0, &m_input, &QProcess::closeWriteChannel);
     }
 }
 
