@@ -47,11 +47,6 @@ public:
     KitNode(Kit *k)
     {
         widget = new KitManagerConfigWidget(k);
-        if (widget) {
-            if (k && k->isAutoDetected())
-                widget->makeStickySubWidgetsReadOnly();
-            widget->setVisible(false);
-        }
     }
 
     ~KitNode() override

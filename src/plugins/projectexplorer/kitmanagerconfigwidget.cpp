@@ -126,6 +126,10 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
         addAspectToWorkingCopy(aspect);
 
     updateVisibility();
+
+    if (k && k->isAutoDetected())
+        makeStickySubWidgetsReadOnly();
+    setVisible(false);
 }
 
 KitManagerConfigWidget::~KitManagerConfigWidget()
