@@ -46,7 +46,6 @@
 #include <QVariantMap>
 
 #include <qbs.h>
-#include <qtprofilesetup.h>
 
 const QChar sep = QLatin1Char('.');
 
@@ -166,45 +165,9 @@ void QbsManager::addProfile(const QString &name, const QVariantMap &data)
 
 void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k)
 {
-    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitInformation::qtVersion(k);
-    if (!qt)
-        return;
-
-    qbs::QtEnvironment qtEnv;
-    const QList<ProjectExplorer::Abi> abi = qt->qtAbis();
-    if (!abi.empty()) {
-        qtEnv.architecture = ProjectExplorer::Abi::toString(abi.first().architecture());
-        if (abi.first().wordWidth() == 64)
-            qtEnv.architecture.append(QLatin1String("_64"));
-    }
-    qtEnv.binaryPath = qt->binPath().toString();
-    qtEnv.documentationPath = qt->docsPath().toString();
-    qtEnv.includePath = qt->headerPath().toString();
-    qtEnv.libraryPath = qt->libraryPath().toString();
-    qtEnv.pluginPath = qt->pluginPath().toString();
-    qtEnv.mkspecBasePath = qt->mkspecsPath().toString();
-    qtEnv.mkspecName = qt->mkspec().toString();
-    qtEnv.mkspecPath = qt->mkspecPath().toString();
-    qtEnv.qtNameSpace = qt->qtNamespace();
-    qtEnv.qtLibInfix = qt->qtLibInfix();
-    qtEnv.qtVersion = qt->qtVersionString();
-    qtEnv.qtMajorVersion = qt->qtVersion().majorVersion;
-    qtEnv.qtMinorVersion = qt->qtVersion().minorVersion;
-    qtEnv.qtPatchVersion = qt->qtVersion().patchVersion;
-    qtEnv.frameworkBuild = qt->isFrameworkBuild();
-    qtEnv.configItems = qt->configValues();
-    qtEnv.qtConfigItems = qt->qtConfigValues();
-    foreach (const QString &buildVariant,
-            QStringList() << QLatin1String("debug") << QLatin1String("release")) {
-        if (qtEnv.qtConfigItems.contains(buildVariant))
-            qtEnv.buildVariant << buildVariant;
-    }
-    qtEnv.qmlPath = qt->qmlPath().toString();
-    qtEnv.qmlImportPath = qt->qmakeProperty("QT_INSTALL_IMPORTS");
-    const qbs::ErrorInfo errorInfo = qbs::setupQtProfile(profileName, settings(), qtEnv);
-    if (errorInfo.hasError()) {
-        Core::MessageManager::write(tr("Failed to set up kit for Qbs: %1")
-                .arg(errorInfo.toString()), Core::MessageManager::ModeSwitch);
+    if (const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitInformation::qtVersion(k)) {
+        qbs::Profile(profileName, settings()).setValue("moduleProviders.Qt.qmakeFilePaths",
+                                                       qt->qmakeCommand().toString());
     }
 }
 

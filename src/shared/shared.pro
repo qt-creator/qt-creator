@@ -2,17 +2,14 @@ TEMPLATE = subdirs
 
 QBS_DIRS = \
     qbscorelib \
-    qbsqtprofilesetup \
     qbsapps \
     qbslibexec \
     qbsplugins \
     qbsstatic
 
 qbscorelib.subdir = qbs/src/lib/corelib
-qbsqtprofilesetup.subdir = qbs/src/lib/qtprofilesetup
-qbsqtprofilesetup.depends = qbscorelib
 qbsapps.subdir = qbs/src/app
-qbsapps.depends = qbsqtprofilesetup
+qbsapps.depends = qbscorelib
 qbslibexec.subdir = qbs/src/libexec
 qbslibexec.depends = qbscorelib
 qbsplugins.subdir = qbs/src/plugins
