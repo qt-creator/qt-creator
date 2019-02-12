@@ -178,22 +178,18 @@ private:
 DiagnosticView::DiagnosticView(QWidget *parent)
     : Debugger::DetailedErrorView(parent)
     , m_style(new DiagnosticViewStyle)
-    , m_delegate(new DiagnosticViewDelegate(m_style))
+    , m_delegate(new DiagnosticViewDelegate(m_style.get()))
 {
     m_suppressAction = new QAction(tr("Suppress This Diagnostic"), this);
     connect(m_suppressAction, &QAction::triggered,
             this, &DiagnosticView::suppressCurrentDiagnostic);
     installEventFilter(this);
 
-    setStyle(m_style);
-    setItemDelegate(m_delegate);
+    setStyle(m_style.get());
+    setItemDelegate(m_delegate.get());
 }
 
-DiagnosticView::~DiagnosticView()
-{
-    delete m_delegate;
-    delete m_style;
-}
+DiagnosticView::~DiagnosticView() = default;
 
 void DiagnosticView::suppressCurrentDiagnostic()
 {

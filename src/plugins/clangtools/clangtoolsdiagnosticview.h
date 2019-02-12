@@ -27,6 +27,8 @@
 
 #include <debugger/analyzer/detailederrorview.h>
 
+#include <memory>
+
 namespace ClangTools {
 namespace Internal {
 
@@ -59,8 +61,8 @@ private:
     void setModel(QAbstractItemModel *theProxyModel) override;
 
     QAction *m_suppressAction;
-    DiagnosticViewStyle *m_style = nullptr;
-    DiagnosticViewDelegate *m_delegate = nullptr;
+    std::unique_ptr<DiagnosticViewStyle> m_style;
+    std::unique_ptr<DiagnosticViewDelegate> m_delegate;
     bool m_ignoreSetSelectedFixItsCount = false;
 };
 
