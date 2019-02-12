@@ -66,9 +66,6 @@ private:
         CreateASTConsumer(clang::CompilerInstance &compilerInstance,
                           llvm::StringRef inFile) override
         {
-            compilerInstance.getPreprocessor().SetSuppressIncludeNotFoundError(true);
-            compilerInstance.getLangOpts().DelayedTemplateParsing = false;
-
             return WrapperFrontendAction::CreateASTConsumer(compilerInstance, inFile);
         }
     };

@@ -25,6 +25,7 @@
 
 #include "symbolscollector.h"
 
+#include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/FrontendActions.h>
 
 namespace ClangBackEnd {
@@ -96,14 +97,26 @@ newFrontendActionFactory(Factory *consumerFactory,
             }
 
         protected:
-            bool BeginSourceFileAction(clang::CompilerInstance &CI) override {
-                if (!clang::ASTFrontendAction::BeginSourceFileAction(CI))
+            bool BeginInvocation(clang::CompilerInstance &compilerInstance) override
+            {
+                compilerInstance.getLangOpts().DelayedTemplateParsing = false;
+
+                return clang::ASTFrontendAction::BeginInvocation(compilerInstance);
+            }
+
+            bool BeginSourceFileAction(clang::CompilerInstance &compilerInstance) override
+            {
+                compilerInstance.getPreprocessor().SetSuppressIncludeNotFoundError(true);
+
+                if (!clang::ASTFrontendAction::BeginSourceFileAction(compilerInstance))
                     return false;
                 if (m_sourceFileCallbacks)
-                    return m_sourceFileCallbacks->handleBeginSource(CI);
+                    return m_sourceFileCallbacks->handleBeginSource(compilerInstance);
                 return true;
             }
-            void EndSourceFileAction() override {
+
+            void EndSourceFileAction() override
+            {
                 if (m_sourceFileCallbacks)
                     m_sourceFileCallbacks->handleEndSource();
                 clang::ASTFrontendAction::EndSourceFileAction();
