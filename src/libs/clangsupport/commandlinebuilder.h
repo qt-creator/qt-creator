@@ -54,7 +54,7 @@ public:
         addToolChainArguments(toolChainArguments);
         addLanguage(projectInfo, sourceType);
         addLanguageVersion(projectInfo);
-        addNoStdIncAndNoStdLibInc();
+        addNoStdIncAndNoStdLibInc(projectInfo.language);
         addCompilerMacros(projectInfo.compilerMacros);
         addProjectIncludeSearchPaths(
             sortedIncludeSearchPaths(projectInfo.projectIncludeSearchPaths));
@@ -272,10 +272,11 @@ public:
         }
     }
 
-    void addNoStdIncAndNoStdLibInc()
+    void addNoStdIncAndNoStdLibInc(Utils::Language language)
     {
         commandLine.emplace_back("-nostdinc");
-        commandLine.emplace_back("-nostdinc++");
+        if (language == Utils::Language::Cxx)
+            commandLine.emplace_back("-nostdinc++");
     }
 
 public:

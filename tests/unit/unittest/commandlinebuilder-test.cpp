@@ -137,9 +137,13 @@ TYPED_TEST(CommandLineBuilder, CHeader)
 
     Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
-    ASSERT_THAT(
-        builder.commandLine,
-        ElementsAre("clang", "-x", "c-header", "-std=c11", "-nostdinc", "-nostdinc++", toNativePath("/source/file.c").path()));
+    ASSERT_THAT(builder.commandLine,
+                ElementsAre("clang",
+                            "-x",
+                            "c-header",
+                            "-std=c11",
+                            "-nostdinc",
+                            toNativePath("/source/file.c").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, CSource)
@@ -150,7 +154,7 @@ TYPED_TEST(CommandLineBuilder, CSource)
     Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Source, "/source/file.c"};
 
     ASSERT_THAT(builder.commandLine,
-                ElementsAre("clang", "-x", "c", "-std=c11", "-nostdinc", "-nostdinc++", "/source/file.c"));
+                ElementsAre("clang", "-x", "c", "-std=c11", "-nostdinc", "/source/file.c"));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCHeader)
@@ -167,7 +171,6 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCHeader)
                             "objective-c-header",
                             "-std=c11",
                             "-nostdinc",
-                            "-nostdinc++",
                             toNativePath("/source/file.c").path()));
 }
 
@@ -185,7 +188,6 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCSource)
                             "objective-c",
                             "-std=c11",
                             "-nostdinc",
-                            "-nostdinc++",
                             "/source/file.c"));
 }
 
