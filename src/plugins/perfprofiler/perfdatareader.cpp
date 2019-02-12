@@ -77,7 +77,8 @@ PerfDataReader::PerfDataReader(QObject *parent) :
             QMessageBox::warning(Core::ICore::mainWindow(),
                                  tr("Perf data parser failed"),
                                  tr("The perf data parser failed to process all the samples. "
-                                    "Your trace is incomplete."));
+                                    "Your trace is incomplete. The exit code was %1.")
+                                 .arg(exitCode));
         }
     });
 
@@ -120,6 +121,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
             qWarning() << "Cannot send data to perfparser";
             break;
         case QProcess::Timedout:
+            qWarning() << "QProcess::Timedout";
         default:
             break;
         }
