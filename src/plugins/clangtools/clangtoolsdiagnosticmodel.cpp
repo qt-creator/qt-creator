@@ -501,15 +501,6 @@ ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step, int index)
     , m_index(index)
 {}
 
-// We expect something like "note: ..."
-static QVariant iconForExplainingStepMessage(const QString &message)
-{
-    const int index = message.indexOf(':');
-    if (index == -1)
-        return QVariant();
-    return iconData(message.mid(0, index));
-}
-
 static QString rangeString(const QVector<Debugger::DiagnosticLocation> &ranges)
 {
     return QString("%1-%2").arg(lineColumnString(ranges[0]), lineColumnString(ranges[1]));
@@ -559,7 +550,7 @@ QVariant ExplainingStepItem::data(int column, int role) const
         case Qt::DecorationRole:
             if (m_step.isFixIt)
                 return Utils::Icons::CODEMODEL_FIXIT.icon();
-            return iconForExplainingStepMessage(m_step.message);
+            return Utils::Icons::INFO.icon();
         default:
             return QVariant();
         }
