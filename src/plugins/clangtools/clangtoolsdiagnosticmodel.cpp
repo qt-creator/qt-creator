@@ -428,6 +428,7 @@ QVariant DiagnosticItem::data(int column, int role) const
             case FixitStatus::NotScheduled:
                 return true;
             }
+            break;
         case Qt::CheckStateRole: {
             switch (m_fixitStatus) {
             case FixitStatus::NotAvailable:
@@ -439,6 +440,7 @@ QVariant DiagnosticItem::data(int column, int role) const
             case FixitStatus::Scheduled:
                 return Qt::Checked;
             }
+            break;
         }
         case Qt::DisplayRole:
             return QString("%1: %2").arg(lineColumnString(m_diagnostic.location),
