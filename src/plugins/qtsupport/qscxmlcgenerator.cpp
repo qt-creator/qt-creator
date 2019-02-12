@@ -149,6 +149,8 @@ ExtraCompiler *QScxmlcGeneratorFactory::create(
         const Project *project, const Utils::FileName &source,
         const Utils::FileNameList &targets)
 {
+    annouceCreation(project, source, targets);
+
     return new QScxmlcGenerator(project, source, targets, this);
 }
 

@@ -137,6 +137,20 @@ private:
     QFutureWatcher<FileNameToContentsHash> *m_watcher = nullptr;
 };
 
+class PROJECTEXPLORER_EXPORT ExtraCompilerFactoryObserver
+{
+    friend class ExtraCompilerFactory;
+
+protected:
+    ExtraCompilerFactoryObserver();
+    ~ExtraCompilerFactoryObserver();
+
+    virtual void newExtraCompiler(const Project *project,
+                                  const Utils::FileName &source,
+                                  const Utils::FileNameList &targets)
+        = 0;
+};
+
 class PROJECTEXPLORER_EXPORT ExtraCompilerFactory : public QObject
 {
     Q_OBJECT
@@ -147,8 +161,14 @@ public:
     virtual FileType sourceType() const = 0;
     virtual QString sourceTag() const = 0;
 
-    virtual ExtraCompiler *create(const Project *project, const Utils::FileName &source,
-                                  const Utils::FileNameList &targets) = 0;
+    virtual ExtraCompiler *create(const Project *project,
+                                  const Utils::FileName &source,
+                                  const Utils::FileNameList &targets)
+        = 0;
+
+    void annouceCreation(const Project *project,
+                         const Utils::FileName &source,
+                         const Utils::FileNameList &targets);
 
     static QList<ExtraCompilerFactory *> extraCompilerFactories();
 };
