@@ -294,13 +294,13 @@ Kit *ProjectImporter::createTemporaryKit(const KitSetupFunction &setup) const
         k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter", "Imported Kit"));;
 
         // Set up values:
-        foreach (KitAspect *ki, KitManager::kitInformation())
-            ki->setup(kptr);
+        for (KitAspect *aspect : KitManager::kitAspects())
+            aspect->setup(kptr);
 
         setup(kptr);
 
-        foreach (KitAspect *ki, KitManager::kitInformation())
-            ki->fix(kptr);
+        for (KitAspect *aspect : KitManager::kitAspects())
+            aspect->fix(kptr);
 
         markKitAsTemporary(kptr);
         addProject(kptr);

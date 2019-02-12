@@ -168,7 +168,7 @@ public:
     static Kit *kit(Core::Id id);
     static Kit *defaultKit();
 
-    static QList<KitAspect *> kitInformation();
+    static const QList<KitAspect *> kitAspects();
 
     static Internal::KitManagerConfigWidget *createConfigWidget(Kit *k);
 

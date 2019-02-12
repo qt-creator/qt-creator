@@ -86,8 +86,8 @@ public:
             [kit] { return kit->id().toString(); });
         m_macroExpander.registerVariable("Kit:FileSystemName", tr("Kit filesystem-friendly name"),
             [kit] { return kit->fileSystemFriendlyName(); });
-        foreach (KitAspect *ki, KitManager::kitInformation())
-            ki->addToMacroExpander(kit, &m_macroExpander);
+        for (KitAspect *aspect : KitManager::kitAspects())
+            aspect->addToMacroExpander(kit, &m_macroExpander);
 
         // This provides the same global fall back as the global expander
         // without relying on the currentKit() discovery process there.
@@ -134,8 +134,8 @@ public:
 Kit::Kit(Id id) :
     d(std::make_unique<Internal::KitPrivate>(id, this))
 {
-    foreach (KitAspect *sti, KitManager::kitInformation())
-        d->m_data.insert(sti->id(), sti->defaultValue(this));
+    for (KitAspect *aspect : KitManager::kitAspects())
+        d->m_data.insert(aspect->id(), aspect->defaultValue(this));
 }
 
 Kit::Kit(const QVariantMap &data) :
@@ -246,11 +246,9 @@ bool Kit::hasWarning() const
 QList<Task> Kit::validate() const
 {
     QList<Task> result;
-    QList<KitAspect *> infoList = KitManager::kitInformation();
-    for (KitAspect *i : infoList) {
-        QList<Task> tmp = i->validate(this);
-        result.append(tmp);
-    }
+    for (KitAspect *aspect : KitManager::kitAspects())
+        result.append(aspect->validate(this));
+
     d->m_hasError = containsType(result, Task::TaskType::Error);
     d->m_hasWarning = containsType(result, Task::TaskType::Warning);
 
@@ -262,27 +260,27 @@ QList<Task> Kit::validate() const
 void Kit::fix()
 {
     KitGuard g(this);
-    foreach (KitAspect *i, KitManager::kitInformation())
-        i->fix(this);
+    for (KitAspect *aspect : KitManager::kitAspects())
+        aspect->fix(this);
 }
 
 void Kit::setup()
 {
     KitGuard g(this);
-    // Process the KitInfos in reverse order: They may only be based on other information lower in
-    // the stack.
-    QList<KitAspect *> info = KitManager::kitInformation();
-    for (int i = info.count() - 1; i >= 0; --i)
-        info.at(i)->setup(this);
+    // Process the KitAspects in reverse order: They may only be based on other information
+    // lower in the stack.
+    const QList<KitAspect *> aspects = KitManager::kitAspects();
+    for (int i = aspects.count() - 1; i >= 0; --i)
+        aspects.at(i)->setup(this);
 }
 
 void Kit::upgrade()
 {
     KitGuard g(this);
-    // Process the KitInfos in reverse order: They may only be based on other information lower in
-    // the stack.
-    for (KitAspect *ki : KitManager::kitInformation())
-        ki->upgrade(this);
+    // Process the KitAspects in reverse order: They may only be based on other information
+    // lower in the stack.
+    for (KitAspect *aspect : KitManager::kitAspects())
+        aspect->upgrade(this);
 }
 
 QString Kit::unexpandedDisplayName() const
@@ -503,17 +501,15 @@ QVariantMap Kit::toMap() const
 
 void Kit::addToEnvironment(Environment &env) const
 {
-    QList<KitAspect *> infoList = KitManager::kitInformation();
-    foreach (KitAspect *ki, infoList)
-        ki->addToEnvironment(this, env);
+    for (KitAspect *aspect : KitManager::kitAspects())
+        aspect->addToEnvironment(this, env);
 }
 
 IOutputParser *Kit::createOutputParser() const
 {
     auto first = new OsParser;
-    QList<KitAspect *> infoList = KitManager::kitInformation();
-    foreach (KitAspect *ki, infoList)
-        first->appendOutputParser(ki->createOutputParser(this));
+    for (KitAspect *aspect : KitManager::kitAspects())
+        first->appendOutputParser(aspect->createOutputParser(this));
     return first;
 }
 
@@ -528,10 +524,9 @@ QString Kit::toHtml(const QList<Task> &additional) const
         str << "<p>" << ProjectExplorer::toHtml(additional + validate()) << "</p>";
 
     str << "<table>";
-    QList<KitAspect *> infoList = KitManager::kitInformation();
-    foreach (KitAspect *ki, infoList) {
-        KitAspect::ItemList list = ki->toUserOutput(this);
-        foreach (const KitAspect::Item &j, list) {
+    for (KitAspect *aspect : KitManager::kitAspects()) {
+        const KitAspect::ItemList list = aspect->toUserOutput(this);
+        for (const KitAspect::Item &j : list) {
             QString contents = j.second;
             if (contents.count() > 256) {
                 int pos = contents.lastIndexOf("<br>", 256);
@@ -573,9 +568,9 @@ void Kit::setSdkProvided(bool sdkProvided)
 
 void Kit::makeSticky()
 {
-    foreach (KitAspect *ki, KitManager::kitInformation()) {
-        if (hasValue(ki->id()))
-            setSticky(ki->id(), true);
+    for (KitAspect *aspect : KitManager::kitAspects()) {
+        if (hasValue(aspect->id()))
+            setSticky(aspect->id(), true);
     }
 }
 
@@ -619,8 +614,8 @@ bool Kit::isMutable(Id id) const
 QSet<Id> Kit::supportedPlatforms() const
 {
     QSet<Id> platforms;
-    foreach (const KitAspect *ki, KitManager::kitInformation()) {
-        const QSet<Id> ip = ki->supportedPlatforms(this);
+    for (const KitAspect *aspect : KitManager::kitAspects()) {
+        const QSet<Id> ip = aspect->supportedPlatforms(this);
         if (ip.isEmpty())
             continue;
         if (platforms.isEmpty())
@@ -634,8 +629,8 @@ QSet<Id> Kit::supportedPlatforms() const
 QSet<Id> Kit::availableFeatures() const
 {
     QSet<Id> features;
-    foreach (const KitAspect *ki, KitManager::kitInformation())
-        features |= ki->availableFeatures(this);
+    for (const KitAspect *aspect : KitManager::kitAspects())
+        features |= aspect->availableFeatures(this);
     return features;
 }
 

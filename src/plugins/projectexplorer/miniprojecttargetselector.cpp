@@ -589,11 +589,11 @@ void KitAreaWidget::setKit(Kit *k)
     m_labels.clear();
 
     int row = 0;
-    foreach (KitAspect *ki, KitManager::kitInformation()) {
-        if (k && k->isMutable(ki->id())) {
-            KitAspectWidget *widget = ki->createConfigWidget(k);
+    for (KitAspect *aspect : KitManager::kitAspects()) {
+        if (k && k->isMutable(aspect->id())) {
+            KitAspectWidget *widget = aspect->createConfigWidget(k);
             m_widgets << widget;
-            QLabel *label = new QLabel(ki->displayName());
+            QLabel *label = new QLabel(aspect->displayName());
             m_labels << label;
 
             widget->setStyle(QStyleFactory::create(QLatin1String("fusion")));
@@ -619,8 +619,8 @@ void KitAreaWidget::updateKit(Kit *k)
     bool addedMutables = false;
     QList<Core::Id> knownIdList = Utils::transform(m_widgets, &KitAspectWidget::kitInformationId);
 
-    foreach (KitAspect *ki, KitManager::kitInformation()) {
-        Core::Id currentId = ki->id();
+    for (KitAspect *aspect : KitManager::kitAspects()) {
+        const Core::Id currentId = aspect->id();
         if (m_kit->isMutable(currentId) && !knownIdList.removeOne(currentId)) {
             addedMutables = true;
             break;

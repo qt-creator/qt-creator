@@ -152,11 +152,11 @@ void KitManager::restoreKits()
                 Kit *ptr = i->get();
 
                 // Overwrite settings that the SDK sets to those values:
-                foreach (const KitAspect *ki, KitManager::kitInformation()) {
+                for (const KitAspect *aspect : KitManager::kitAspects()) {
                     // Copy sticky settings over:
-                    if (ptr->isSticky(ki->id())) {
-                        ptr->setValue(ki->id(), toStore->value(ki->id()));
-                        ptr->setSticky(ki->id(), true);
+                    if (ptr->isSticky(aspect->id())) {
+                        ptr->setValue(aspect->id(), toStore->value(aspect->id()));
+                        ptr->setSticky(aspect->id(), true);
                     }
                 }
                 toStore = std::move(*i);
@@ -365,7 +365,7 @@ Kit *KitManager::defaultKit()
     return d->m_defaultKit;
 }
 
-QList<KitAspect *> KitManager::kitInformation()
+const QList<KitAspect *> KitManager::kitAspects()
 {
     return Utils::toRawPointer<QList>(d->m_informationList);
 }
@@ -373,8 +373,8 @@ QList<KitAspect *> KitManager::kitInformation()
 KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k)
 {
     auto *result = new KitManagerConfigWidget(k);
-    foreach (KitAspect *ki, kitInformation())
-        result->addAspectToWorkingCopy(ki);
+    for (KitAspect *aspect : kitAspects())
+        result->addAspectToWorkingCopy(aspect);
 
     result->updateVisibility();
 
