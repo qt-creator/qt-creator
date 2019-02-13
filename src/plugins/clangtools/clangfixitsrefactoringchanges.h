@@ -67,11 +67,10 @@ private:
     QTextDocument *document(const QString &filePath) const;
     void shiftAffectedReplacements(const ReplacementOperation &op, int startIndex);
 
-    void tryToFormat(TextEditor::Indenter &indenter,
-                     const TextEditor::TabSettings &tabSettings,
-                     QTextDocument *doc,
-                     const ReplacementOperation &op,
-                     int currentIndex);
+    void format(TextEditor::Indenter &indenter,
+                QTextDocument *doc,
+                const ReplacementOperations &operationsForFile,
+                int firstOperationIndex);
     void shiftAffectedReplacements(const QString &fileName,
                                    const TextEditor::Replacements &replacements,
                                    int startIndex);
