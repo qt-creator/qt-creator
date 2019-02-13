@@ -46,8 +46,7 @@ WinRtQtVersionFactory::~WinRtQtVersionFactory()
 
 bool WinRtQtVersionFactory::canRestore(const QString &type)
 {
-    return type == QLatin1String(Constants::WINRT_WINRTQT)
-            || type == QLatin1String(Constants::WINRT_WINPHONEQT);
+    return type == QLatin1String(Constants::WINRT_WINRTQT);
 }
 
 QtSupport::BaseQtVersion *WinRtQtVersionFactory::restore(const QString &type,
@@ -55,11 +54,7 @@ QtSupport::BaseQtVersion *WinRtQtVersionFactory::restore(const QString &type,
 {
     if (!canRestore(type))
         return nullptr;
-    WinRtQtVersion *v = nullptr;
-    if (type == QLatin1String(Constants::WINRT_WINPHONEQT))
-        v = new WinRtPhoneQtVersion;
-    else
-        v = new WinRtQtVersion;
+    WinRtQtVersion *v = new WinRtQtVersion;
     v->fromMap(data);
     return v;
 }
@@ -76,23 +71,54 @@ QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(const Utils::FileName &q
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return nullptr;
 
-    bool isWinRt = false;
-    bool isPhone = false;
     foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
-        if (value == QStringLiteral("winrt")) {
-            isWinRt = true;
-        } else if (value == QStringLiteral("winphone")) {
-            isWinRt = true;
-            isPhone = true;
-            break;
-        }
+        if (value == QStringLiteral("winrt"))
+            return new WinRtQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
     }
 
-    if (!isWinRt)
+    return nullptr;
+}
+
+
+
+WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory(QObject *parent)
+    : QtSupport::QtVersionFactory(parent)
+{
+}
+
+bool WinRtPhoneQtVersionFactory::canRestore(const QString &type)
+{
+    return type == QLatin1String(Constants::WINRT_WINPHONEQT);
+}
+
+QtSupport::BaseQtVersion *WinRtPhoneQtVersionFactory::restore(const QString &type,
+        const QVariantMap &data)
+{
+    if (!canRestore(type))
+        return nullptr;
+    WinRtQtVersion *v = new WinRtPhoneQtVersion;
+    v->fromMap(data);
+    return v;
+}
+
+int WinRtPhoneQtVersionFactory::priority() const
+{
+    return 10;
+}
+
+QtSupport::BaseQtVersion *WinRtPhoneQtVersionFactory::create(const Utils::FileName &qmakePath,
+        ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+{
+    QFileInfo fi = qmakePath.toFileInfo();
+    if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return nullptr;
 
-    return isPhone ? new WinRtPhoneQtVersion(qmakePath, isAutoDetected, autoDetectionSource)
-                   : new WinRtQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
+    foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
+        if (value == QStringLiteral("winphone"))
+            return new WinRtPhoneQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
+    }
+
+    return nullptr;
 }
 
 } // Internal

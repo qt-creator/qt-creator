@@ -44,5 +44,18 @@ public:
             bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
 
+class WinRtPhoneQtVersionFactory : public QtSupport::QtVersionFactory
+{
+public:
+    explicit WinRtPhoneQtVersionFactory(QObject *parent = nullptr);
+
+    bool canRestore(const QString &type);
+    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
+
+    int priority() const;
+    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
+            bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+};
+
 } // Internal
 } // WinRt

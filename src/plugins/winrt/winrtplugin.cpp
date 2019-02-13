@@ -48,6 +48,7 @@ class WinRtPluginRunData
 public:
     WinRtRunConfigurationFactory runConfigFactory;
     WinRtQtVersionFactory qtVersionFactory;
+    WinRtPhoneQtVersionFactory phoneQtVersionFactory;
     WinRtAppDeployConfigurationFactory appDeployConfigFactory;
     WinRtPhoneDeployConfigurationFactory phoneDeployConfigFactory;
     WinRtEmulatorDeployConfigurationFactory emulatorDeployFactory;
