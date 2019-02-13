@@ -29,7 +29,7 @@ Prerequisites:
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
     * ActiveState Active Perl
-    * MinGW with g++ 5.3 or Visual Studio 2015 or later
+    * MinGW with g++ 5.3 or Visual Studio 2017 or later
     * jom
     * Python 3.5 or later (optional, needed for the python enabled debug helper)
 * On Mac OS X: latest Xcode
@@ -63,7 +63,7 @@ Installation ("make install") is not needed. It is however possible, using
 This section provides step by step instructions for compiling the latest
 versions of Qt and Qt Creator on Windows. Alternatively, to avoid having to
 compile Qt yourself, you can use one of the versions of Qt shipped with the Qt
-SDK (release builds of Qt using MinGW and Visual C++ 2015 or later).
+SDK (release builds of Qt using MinGW and Visual C++ 2017 or later).
 For detailed information on the supported compilers, see
 <https://wiki.qt.io/Building_Qt_5_from_Git> .
 
