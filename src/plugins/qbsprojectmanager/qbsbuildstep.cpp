@@ -573,8 +573,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
             &QbsBuildStepConfigWidget::changeForceProbes);
     connect(m_ui->qmlDebuggingLibraryCheckBox, &QAbstractButton::toggled,
             this, &QbsBuildStepConfigWidget::linkQmlDebuggingLibraryChecked);
-    connect(QtSupport::QtVersionManager::instance(), &QtSupport::QtVersionManager::dumpUpdatedFor,
-            this, &QbsBuildStepConfigWidget::updateQmlDebuggingOption);
     updateState();
 }
 

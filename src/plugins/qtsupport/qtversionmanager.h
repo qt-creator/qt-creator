@@ -67,7 +67,6 @@ public:
 
 signals:
     // content of BaseQtVersion objects with qmake path might have changed
-    void dumpUpdatedFor(const Utils::FileName &qmakeCommand);
     void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds, const QList<int> &changedIds);
     void qtVersionsLoaded();
 

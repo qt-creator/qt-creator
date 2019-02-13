@@ -588,8 +588,6 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(step->qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
             this, &QMakeStepConfigWidget::qmakeBuildConfigChanged);
     connect(step->target(), &Target::kitChanged, this, &QMakeStepConfigWidget::qtVersionChanged);
-    connect(QtVersionManager::instance(), &QtVersionManager::dumpUpdatedFor,
-            this, &QMakeStepConfigWidget::qtVersionChanged);
     auto chooser = new Core::VariableChooser(m_ui->qmakeAdditonalArgumentsLineEdit);
     chooser->addMacroExpanderProvider([step] { return step->macroExpander(); });
     chooser->addSupportedWidget(m_ui->qmakeAdditonalArgumentsLineEdit);

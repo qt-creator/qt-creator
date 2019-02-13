@@ -258,9 +258,6 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     userChangedCurrentVersion();
     updateCleanUpButton();
 
-    connect(QtVersionManager::instance(), &QtVersionManager::dumpUpdatedFor,
-            this, &QtOptionsPageWidget::qtVersionsDumpUpdated);
-
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtOptionsPageWidget::updateQtVersions);
 
