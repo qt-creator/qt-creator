@@ -27,8 +27,9 @@
 
 #include "builddependenciesproviderinterface.h"
 #include "pchtasksmergerinterface.h"
-
 #include "usedmacrofilter.h"
+
+#include <progresscounter.h>
 
 #include <utils/algorithm.h>
 
@@ -39,6 +40,8 @@ void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
 {
     PchTaskSets pchTaskSets;
     pchTaskSets.reserve(projectParts.size());
+
+    m_progressCounter.addTotal(static_cast<int>(projectParts.size()));
 
     for (auto &projectPart : projectParts) {
         BuildDependency buildDependency = m_buildDependenciesProvider.create(projectPart);
@@ -68,6 +71,7 @@ void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
                                          projectPart.language,
                                          projectPart.languageVersion,
                                          projectPart.languageExtension});
+        m_progressCounter.addProgress(1);
     }
 
     m_pchTasksMergerInterface.mergeTasks(std::move(pchTaskSets), std::move(toolChainArguments));

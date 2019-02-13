@@ -29,6 +29,7 @@
 #include "mockpchtasksmerger.h"
 
 #include <pchtaskgenerator.h>
+#include <progresscounter.h>
 
 namespace {
 
@@ -50,7 +51,11 @@ class PchTaskGenerator : public testing::Test
 protected:
     NiceMock<MockBuildDependenciesProvider> mockBuildDependenciesProvider;
     NiceMock<MockPchTasksMerger> mockPchTaskMerger;
-    ClangBackEnd::PchTaskGenerator generator{mockBuildDependenciesProvider, mockPchTaskMerger};
+    NiceMock<MockFunction<void(int, int)>> mockProgressCounterCallback;
+    ClangBackEnd::ProgressCounter progressCounter{mockProgressCounterCallback.AsStdFunction()};
+    ClangBackEnd::PchTaskGenerator generator{mockBuildDependenciesProvider,
+                                             mockPchTaskMerger,
+                                             progressCounter};
     ClangBackEnd::ProjectPartContainer projectPart1{
         "ProjectPart1",
         {"--yi"},
@@ -130,6 +135,18 @@ TEST_F(PchTaskGenerator, AddProjectParts)
             ElementsAre(Eq("ToolChainArgument"))));
 
     generator.addProjectParts({projectPart1}, {"ToolChainArgument"});
+}
+
+TEST_F(PchTaskGenerator, ProgressCounter)
+{
+    ON_CALL(mockBuildDependenciesProvider, create(_)).WillByDefault(Return(buildDependency));
+
+    EXPECT_CALL(mockProgressCounterCallback, Call(0, 3));
+    EXPECT_CALL(mockProgressCounterCallback, Call(1, 3));
+    EXPECT_CALL(mockProgressCounterCallback, Call(2, 3));
+    EXPECT_CALL(mockProgressCounterCallback, Call(3, 3));
+
+    generator.addProjectParts({projectPart1, projectPart1, projectPart1}, {"ToolChainArgument"});
 }
 
 TEST_F(PchTaskGenerator, RemoveProjectParts)

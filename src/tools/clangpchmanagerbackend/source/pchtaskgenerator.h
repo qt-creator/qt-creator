@@ -35,14 +35,18 @@ namespace ClangBackEnd {
 class PchTasksMergerInterface;
 
 class BuildDependenciesProviderInterface;
+class ProgressCounter;
 
 class PchTaskGenerator : public PchTaskGeneratorInterface
 {
 public:
     PchTaskGenerator(BuildDependenciesProviderInterface &buildDependenciesProvider,
-                     PchTasksMergerInterface &pchTasksMergerInterface)
+                     PchTasksMergerInterface &pchTasksMergerInterface,
+                     ProgressCounter &progressCounter)
         : m_buildDependenciesProvider(buildDependenciesProvider)
         , m_pchTasksMergerInterface(pchTasksMergerInterface)
+        , m_progressCounter(progressCounter)
+
     {}
 
     void addProjectParts(ProjectPartContainers &&projectParts,
@@ -52,7 +56,7 @@ public:
 private:
     BuildDependenciesProviderInterface &m_buildDependenciesProvider;
     PchTasksMergerInterface &m_pchTasksMergerInterface;
+    ProgressCounter &m_progressCounter;
 };
-
 
 } // namespace ClangBackEnd
