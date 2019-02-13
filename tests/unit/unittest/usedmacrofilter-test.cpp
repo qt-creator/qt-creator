@@ -46,7 +46,15 @@ protected:
                            {3, SourceType::ProjectInclude, 0},
                            {4, SourceType::TopSystemInclude, 0},
                            {5, SourceType::TopProjectInclude, 0}};
-    UsedMacros usedMacros{{"YI", 1}, {"ER", 2}, {"LIU", 2}, {"QI", 3}, {"SAN", 3}, {"SE", 4}, {"WU", 5}};
+    UsedMacros usedMacros{{"YI", 1},
+                          {"ER", 2},
+                          {"SE", 2},
+                          {"LIU", 2},
+                          {"QI", 3},
+                          {"WU", 3},
+                          {"SAN", 3},
+                          {"SE", 4},
+                          {"WU", 5}};
     CompilerMacros compileMacros{{"YI", "1", 1},
                                  {"ER", "2", 2},
                                  {"SAN", "3", 3},

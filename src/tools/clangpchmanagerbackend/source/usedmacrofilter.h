@@ -93,8 +93,8 @@ public:
                       return std::tie(first.key, first.value) < std::tie(second.key, second.value);
                   });
 
-        systemCompilerMacros = filtercompilerMacros(indexedCompilerMacro, systemUsedMacros);
-        projectCompilerMacros = filtercompilerMacros(indexedCompilerMacro, projectUsedMacros);
+        systemCompilerMacros = filterCompilerMacros(indexedCompilerMacro, systemUsedMacros);
+        projectCompilerMacros = filterCompilerMacros(indexedCompilerMacro, projectUsedMacros);
     }
 
 private:
@@ -150,10 +150,13 @@ private:
 
         std::sort(filtertedMacros.begin(), filtertedMacros.end());
 
+        auto newEnd = std::unique(filtertedMacros.begin(), filtertedMacros.end());
+        filtertedMacros.erase(newEnd, filtertedMacros.end());
+
         return filtertedMacros;
     }
 
-    static CompilerMacros filtercompilerMacros(const CompilerMacros &indexedCompilerMacro,
+    static CompilerMacros filterCompilerMacros(const CompilerMacros &indexedCompilerMacro,
                                                const Utils::SmallStringVector &usedMacros)
     {
         CompilerMacros filtertedCompilerMacros;
