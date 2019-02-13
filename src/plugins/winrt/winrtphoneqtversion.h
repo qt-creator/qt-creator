@@ -38,10 +38,10 @@ public:
     WinRtPhoneQtVersion(const Utils::FileName &path, bool isAutodetected,
                         const QString &autodetectionSource);
 
-    QString description() const;
-    BaseQtVersion *clone() const;
-    QString type() const;
-    QSet<Core::Id> targetDeviceTypes() const;
+    QString description() const override;
+    BaseQtVersion *clone() const override;
+    QString type() const override;
+    QSet<Core::Id> targetDeviceTypes() const override;
 };
 
 } // Internal

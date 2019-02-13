@@ -38,13 +38,13 @@ public:
     WinRtQtVersion(const Utils::FileName &path, bool isAutodetected,
                    const QString &autodetectionSource);
 
-    BaseQtVersion *clone() const;
-    QString type() const;
-    QString description() const;
-    QSet<Core::Id> availableFeatures() const;
-    QList<ProjectExplorer::Abi> detectQtAbis() const;
+    BaseQtVersion *clone() const override;
+    QString type() const override;
+    QString description() const override;
+    QSet<Core::Id> availableFeatures() const override;
+    QList<ProjectExplorer::Abi> detectQtAbis() const override;
 
-    QSet<Core::Id> targetDeviceTypes() const;
+    QSet<Core::Id> targetDeviceTypes() const override;
 };
 
 } // Internal
