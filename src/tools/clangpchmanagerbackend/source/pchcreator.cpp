@@ -76,8 +76,6 @@ bool PchCreator::generatePch(NativeFilePathView path, Utils::SmallStringView con
 {
     clang::tooling::ClangTool tool = m_clangTool.createOutputTool();
 
-    NativeFilePath headerFilePath{m_environment.pchBuildDirectory().toStdString(), "dummy.h"};
-
     auto action = std::make_unique<GeneratePCHActionFactory>(llvm::StringRef{path.data(),
                                                                              path.size()},
                                                              llvm::StringRef{content.data(),

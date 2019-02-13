@@ -134,6 +134,7 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
 
     ASSERT_THAT(arguments,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++98",
@@ -157,6 +158,7 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArgumentsWithSystemPch)
 
     ASSERT_THAT(arguments,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++98",

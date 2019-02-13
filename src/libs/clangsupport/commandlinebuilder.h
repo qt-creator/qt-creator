@@ -48,10 +48,11 @@ public:
                        FilePathView outputPath = {},
                        FilePathView includePchPath = {})
     {
-        commandLine.reserve(128);
+        commandLine.reserve(1024);
 
         addCompiler(projectInfo.language);
         addToolChainArguments(toolChainArguments);
+        addExtraFlags();
         addLanguage(projectInfo, sourceType);
         addLanguageVersion(projectInfo);
         addNoStdIncAndNoStdLibInc(projectInfo.language);
@@ -78,6 +79,8 @@ public:
         for (Utils::SmallStringView argument : toolChainArguments)
             commandLine.emplace_back(argument);
     }
+
+    void addExtraFlags() { commandLine.emplace_back("-DNOMINMAX"); }
 
     static const char *language(const ProjectInfo &projectInfo, InputFileType sourceType)
     {

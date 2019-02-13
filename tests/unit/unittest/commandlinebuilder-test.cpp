@@ -139,6 +139,7 @@ TYPED_TEST(CommandLineBuilder, CHeader)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang",
+                            "-DNOMINMAX",
                             "-x",
                             "c-header",
                             "-std=c11",
@@ -154,7 +155,7 @@ TYPED_TEST(CommandLineBuilder, CSource)
     Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Source, "/source/file.c"};
 
     ASSERT_THAT(builder.commandLine,
-                ElementsAre("clang", "-x", "c", "-std=c11", "-nostdinc", "/source/file.c"));
+                ElementsAre("clang", "-DNOMINMAX", "-x", "c", "-std=c11", "-nostdinc", "/source/file.c"));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCHeader)
@@ -167,6 +168,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCHeader)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang",
+                            "-DNOMINMAX",
                             "-x",
                             "objective-c-header",
                             "-std=c11",
@@ -184,6 +186,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCSource)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang",
+                            "-DNOMINMAX",
                             "-x",
                             "objective-c",
                             "-std=c11",
@@ -200,6 +203,7 @@ TYPED_TEST(CommandLineBuilder, CppHeader)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++98",
@@ -215,9 +219,15 @@ TYPED_TEST(CommandLineBuilder, CppSource)
 
     Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Source, "/source/file.cpp"};
 
-    ASSERT_THAT(
-        builder.commandLine,
-        ElementsAre("clang++", "-x", "c++", "-std=c++98", "-nostdinc", "-nostdinc++", "/source/file.cpp"));
+    ASSERT_THAT(builder.commandLine,
+                ElementsAre("clang++",
+                            "-DNOMINMAX",
+                            "-x",
+                            "c++",
+                            "-std=c++98",
+                            "-nostdinc",
+                            "-nostdinc++",
+                            "/source/file.cpp"));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCppHeader)
@@ -230,6 +240,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppHeader)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "objective-c++-header",
                             "-std=c++98",
@@ -248,6 +259,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppSource)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "objective-c++",
                             "-std=c++98",
@@ -480,6 +492,7 @@ TYPED_TEST(CommandLineBuilder, IncludesOrder)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++11",
@@ -505,7 +518,13 @@ TYPED_TEST(CommandLineBuilder, EmptySourceFile)
     Builder<TypeParam> builder{this->emptyProjectInfo, {}, {}};
 
     ASSERT_THAT(builder.commandLine,
-                ElementsAre("clang++", "-x", "c++-header", "-std=c++98", "-nostdinc", "-nostdinc++"));
+                ElementsAre("clang++",
+                            "-DNOMINMAX",
+                            "-x",
+                            "c++-header",
+                            "-std=c++98",
+                            "-nostdinc",
+                            "-nostdinc++"));
 }
 
 TYPED_TEST(CommandLineBuilder, SourceFile)
@@ -514,6 +533,7 @@ TYPED_TEST(CommandLineBuilder, SourceFile)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++98",
@@ -529,6 +549,7 @@ TYPED_TEST(CommandLineBuilder, EmptyOutputFile)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++98",
@@ -547,6 +568,7 @@ TYPED_TEST(CommandLineBuilder, OutputFile)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++98",
@@ -568,6 +590,7 @@ TYPED_TEST(CommandLineBuilder, IncludePchPath)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++98",
@@ -590,6 +613,7 @@ TYPED_TEST(CommandLineBuilder, CompilerMacros)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++98",
