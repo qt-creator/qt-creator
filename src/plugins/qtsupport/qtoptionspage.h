@@ -95,7 +95,6 @@ private:
     void cleanUpQtVersions();
     void toolChainsUpdated();
 
-    void qtVersionsDumpUpdated(const Utils::FileName &qmakeCommand);
     void setInfoWidgetVisibility();
     void infoAnchorClicked(const QUrl &);
 

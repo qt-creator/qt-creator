@@ -330,19 +330,6 @@ void QtOptionsPageWidget::toolChainsUpdated()
     });
 }
 
-void QtOptionsPageWidget::qtVersionsDumpUpdated(const FileName &qmakeCommand)
-{
-    m_model->forItemsAtLevel<2>([qmakeCommand](QtVersionItem *item) {
-        if (item->version()->qmakeCommand() == qmakeCommand)
-            item->version()->recheckDumper();
-    });
-
-    if (currentVersion() && currentVersion()->qmakeCommand() == qmakeCommand) {
-        updateWidgets();
-        updateDescriptionLabel();
-    }
-}
-
 void QtOptionsPageWidget::setInfoWidgetVisibility()
 {
     m_ui->versionInfoWidget->setVisible(m_ui->infoWidget->state() == DetailsWidget::Collapsed);
