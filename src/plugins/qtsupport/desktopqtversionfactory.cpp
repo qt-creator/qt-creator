@@ -35,7 +35,7 @@ using namespace QtSupport::Internal;
 DesktopQtVersionFactory::DesktopQtVersionFactory(QObject *parent)
     : QtVersionFactory(parent)
 {
-
+    setQtVersionCreator([] { return new DesktopQtVersion; });
 }
 
 DesktopQtVersionFactory::~DesktopQtVersionFactory() = default;
@@ -43,15 +43,6 @@ DesktopQtVersionFactory::~DesktopQtVersionFactory() = default;
 bool DesktopQtVersionFactory::canRestore(const QString &type)
 {
     return type == QLatin1String(Constants::DESKTOPQT);
-}
-
-BaseQtVersion *DesktopQtVersionFactory::restore(const QString &type, const QVariantMap &data)
-{
-    if (!canRestore(type))
-        return nullptr;
-    auto v = new DesktopQtVersion;
-    v->fromMap(data);
-    return v;
 }
 
 int DesktopQtVersionFactory::priority() const

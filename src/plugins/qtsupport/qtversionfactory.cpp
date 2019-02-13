@@ -30,8 +30,10 @@
 #include <proparser/qmakevfs.h>
 
 #include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/qtcassert.h>
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;
@@ -52,6 +54,15 @@ QtVersionFactory::~QtVersionFactory()
 const QList<QtVersionFactory *> QtVersionFactory::allQtVersionFactories()
 {
     return g_qtVersionFactories;
+}
+
+BaseQtVersion *QtVersionFactory::restore(const QString &type, const QVariantMap &data)
+{
+    QTC_ASSERT(canRestore(type), return nullptr);
+    QTC_ASSERT(m_creator, return nullptr);
+    BaseQtVersion *version = m_creator();
+    version->fromMap(data);
+    return version;
 }
 
 BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
@@ -87,4 +98,9 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     if (error)
         *error = tr("No factory found for qmake: \"%1\"").arg(qmakePath.toUserOutput());
     return 0;
+}
+
+void QtVersionFactory::setQtVersionCreator(const std::function<BaseQtVersion *()> &creator)
+{
+    m_creator = creator;
 }

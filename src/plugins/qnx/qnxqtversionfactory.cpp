@@ -39,6 +39,7 @@ using namespace Qnx::Internal;
 QnxQtVersionFactory::QnxQtVersionFactory(QObject *parent) :
     QtSupport::QtVersionFactory(parent)
 {
+    setQtVersionCreator([] { return new QnxQtVersion; });
 }
 
 QnxQtVersionFactory::~QnxQtVersionFactory() = default;
@@ -46,15 +47,6 @@ QnxQtVersionFactory::~QnxQtVersionFactory() = default;
 bool QnxQtVersionFactory::canRestore(const QString &type)
 {
     return type == QLatin1String(Constants::QNX_QNX_QT);
-}
-
-QtSupport::BaseQtVersion *QnxQtVersionFactory::restore(const QString &type, const QVariantMap &data)
-{
-    if (!canRestore(type))
-        return nullptr;
-    auto v = new QnxQtVersion;
-    v->fromMap(data);
-    return v;
 }
 
 int QnxQtVersionFactory::priority() const

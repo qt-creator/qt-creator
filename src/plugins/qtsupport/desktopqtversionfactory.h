@@ -37,7 +37,6 @@ public:
     ~DesktopQtVersionFactory() override;
 
     bool canRestore(const QString &type) override;
-    BaseQtVersion *restore(const QString &type, const QVariantMap &data) override;
 
     int priority() const override;
     BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,

@@ -38,20 +38,12 @@ namespace Internal {
 AndroidQtVersionFactory::AndroidQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
+    setQtVersionCreator([] { return new AndroidQtVersion; });
 }
 
 bool AndroidQtVersionFactory::canRestore(const QString &type)
 {
     return type == QLatin1String(Constants::ANDROIDQT);
-}
-
-QtSupport::BaseQtVersion *AndroidQtVersionFactory::restore(const QString &type,
-    const QVariantMap &data)
-{
-    QTC_ASSERT(canRestore(type), return nullptr);
-    auto v = new AndroidQtVersion;
-    v->fromMap(data);
-    return v;
 }
 
 int AndroidQtVersionFactory::priority() const

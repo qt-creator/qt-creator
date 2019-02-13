@@ -27,7 +27,6 @@
 #include "iosqtversion.h"
 #include "iosconstants.h"
 #include <qtsupport/qtsupportconstants.h>
-#include <utils/qtcassert.h>
 #include <proparser/profileevaluator.h>
 
 #include <QFileInfo>
@@ -38,20 +37,12 @@ namespace Internal {
 IosQtVersionFactory::IosQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
+    setQtVersionCreator([] { return new IosQtVersion; });
 }
 
 bool IosQtVersionFactory::canRestore(const QString &type)
 {
     return type == QLatin1String(Constants::IOSQT);
-}
-
-QtSupport::BaseQtVersion *IosQtVersionFactory::restore(const QString &type,
-    const QVariantMap &data)
-{
-    QTC_ASSERT(canRestore(type), return nullptr);
-    auto v = new IosQtVersion;
-    v->fromMap(data);
-    return v;
 }
 
 int IosQtVersionFactory::priority() const

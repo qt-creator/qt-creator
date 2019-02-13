@@ -36,6 +36,7 @@ namespace Internal {
 EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
+    setQtVersionCreator([] { return new EmbeddedLinuxQtVersion; });
 }
 
 EmbeddedLinuxQtVersionFactory::~EmbeddedLinuxQtVersionFactory() = default;
@@ -43,15 +44,6 @@ EmbeddedLinuxQtVersionFactory::~EmbeddedLinuxQtVersionFactory() = default;
 bool EmbeddedLinuxQtVersionFactory::canRestore(const QString &type)
 {
     return type == QLatin1String(RemoteLinux::Constants::EMBEDDED_LINUX_QT);
-}
-
-QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::restore(const QString &type, const QVariantMap &data)
-{
-    if (!canRestore(type))
-        return nullptr;
-    auto v = new EmbeddedLinuxQtVersion;
-    v->fromMap(data);
-    return v;
 }
 
 int EmbeddedLinuxQtVersionFactory::priority() const

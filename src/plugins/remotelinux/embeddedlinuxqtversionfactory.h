@@ -37,7 +37,6 @@ public:
     ~EmbeddedLinuxQtVersionFactory() override;
 
     bool canRestore(const QString &type) override;
-    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data) override;
 
     int priority() const override;
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,

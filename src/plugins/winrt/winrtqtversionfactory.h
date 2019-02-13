@@ -37,7 +37,6 @@ public:
     ~WinRtQtVersionFactory();
 
     bool canRestore(const QString &type);
-    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
     int priority() const;
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
@@ -50,7 +49,6 @@ public:
     explicit WinRtPhoneQtVersionFactory(QObject *parent = nullptr);
 
     bool canRestore(const QString &type);
-    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
     int priority() const;
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,

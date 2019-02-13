@@ -38,6 +38,7 @@ namespace Internal {
 WinRtQtVersionFactory::WinRtQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
+    setQtVersionCreator([] { return new WinRtQtVersion; });
 }
 
 WinRtQtVersionFactory::~WinRtQtVersionFactory()
@@ -47,16 +48,6 @@ WinRtQtVersionFactory::~WinRtQtVersionFactory()
 bool WinRtQtVersionFactory::canRestore(const QString &type)
 {
     return type == QLatin1String(Constants::WINRT_WINRTQT);
-}
-
-QtSupport::BaseQtVersion *WinRtQtVersionFactory::restore(const QString &type,
-        const QVariantMap &data)
-{
-    if (!canRestore(type))
-        return nullptr;
-    WinRtQtVersion *v = new WinRtQtVersion;
-    v->fromMap(data);
-    return v;
 }
 
 int WinRtQtVersionFactory::priority() const
@@ -84,21 +75,12 @@ QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(const Utils::FileName &q
 WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
+    setQtVersionCreator([] { return new WinRtPhoneQtVersion; });
 }
 
 bool WinRtPhoneQtVersionFactory::canRestore(const QString &type)
 {
     return type == QLatin1String(Constants::WINRT_WINPHONEQT);
-}
-
-QtSupport::BaseQtVersion *WinRtPhoneQtVersionFactory::restore(const QString &type,
-        const QVariantMap &data)
-{
-    if (!canRestore(type))
-        return nullptr;
-    WinRtQtVersion *v = new WinRtPhoneQtVersion;
-    v->fromMap(data);
-    return v;
 }
 
 int WinRtPhoneQtVersionFactory::priority() const
