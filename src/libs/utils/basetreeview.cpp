@@ -427,6 +427,14 @@ void BaseTreeView::mousePressEvent(QMouseEvent *ev)
 //        d->toggleColumnWidth(columnAt(ev->x()));
 }
 
+void BaseTreeView::mouseMoveEvent(QMouseEvent *ev)
+{
+    ItemViewEvent ive(ev, this);
+    QTC_ASSERT(model(), return);
+    if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
+        TreeView::mouseMoveEvent(ev);
+}
+
 void BaseTreeView::mouseReleaseEvent(QMouseEvent *ev)
 {
     ItemViewEvent ive(ev, this);
