@@ -36,19 +36,8 @@ DesktopQtVersionFactory::DesktopQtVersionFactory(QObject *parent)
     : QtVersionFactory(parent)
 {
     setQtVersionCreator([] { return new DesktopQtVersion; });
-}
-
-DesktopQtVersionFactory::~DesktopQtVersionFactory() = default;
-
-bool DesktopQtVersionFactory::canRestore(const QString &type)
-{
-    return type == QLatin1String(Constants::DESKTOPQT);
-}
-
-int DesktopQtVersionFactory::priority() const
-{
-    // Lowest of all, we want to be the fallback
-    return 0;
+    setSupportedType(Constants::DESKTOPQT);
+    setPriority(0); // Lowest of all, we want to be the fallback
 }
 
 BaseQtVersion *DesktopQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)

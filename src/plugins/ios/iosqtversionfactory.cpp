@@ -38,16 +38,8 @@ IosQtVersionFactory::IosQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
     setQtVersionCreator([] { return new IosQtVersion; });
-}
-
-bool IosQtVersionFactory::canRestore(const QString &type)
-{
-    return type == QLatin1String(Constants::IOSQT);
-}
-
-int IosQtVersionFactory::priority() const
-{
-    return 90;
+    setSupportedType(Constants::IOSQT);
+    setPriority(90);
 }
 
 QtSupport::BaseQtVersion *IosQtVersionFactory::create(const Utils::FileName &qmakePath,

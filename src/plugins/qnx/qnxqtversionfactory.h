@@ -35,11 +35,7 @@ class QnxQtVersionFactory : public QtSupport::QtVersionFactory
     Q_OBJECT
 public:
     explicit QnxQtVersionFactory(QObject *parent = nullptr);
-    ~QnxQtVersionFactory() override;
 
-    bool canRestore(const QString &type) override;
-
-    int priority() const override;
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath,
                                      ProFileEvaluator *evaluator,
                                      bool isAutoDetected = false,

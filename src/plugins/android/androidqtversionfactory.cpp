@@ -39,16 +39,8 @@ AndroidQtVersionFactory::AndroidQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
     setQtVersionCreator([] { return new AndroidQtVersion; });
-}
-
-bool AndroidQtVersionFactory::canRestore(const QString &type)
-{
-    return type == QLatin1String(Constants::ANDROIDQT);
-}
-
-int AndroidQtVersionFactory::priority() const
-{
-    return 90;
+    setSupportedType(Constants::ANDROIDQT);
+    setPriority(90);
 }
 
 QtSupport::BaseQtVersion *AndroidQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)

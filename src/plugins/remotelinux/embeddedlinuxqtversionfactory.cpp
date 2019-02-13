@@ -37,18 +37,8 @@ EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
     setQtVersionCreator([] { return new EmbeddedLinuxQtVersion; });
-}
-
-EmbeddedLinuxQtVersionFactory::~EmbeddedLinuxQtVersionFactory() = default;
-
-bool EmbeddedLinuxQtVersionFactory::canRestore(const QString &type)
-{
-    return type == QLatin1String(RemoteLinux::Constants::EMBEDDED_LINUX_QT);
-}
-
-int EmbeddedLinuxQtVersionFactory::priority() const
-{
-    return 10;
+    setSupportedType(RemoteLinux::Constants::EMBEDDED_LINUX_QT);
+    setPriority(10);
 }
 
 QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::create(const Utils::FileName &qmakePath,

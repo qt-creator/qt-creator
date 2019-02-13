@@ -51,13 +51,13 @@ public:
 
     static const QList<QtVersionFactory *> allQtVersionFactories();
 
-    virtual bool canRestore(const QString &type) = 0;
+    bool canRestore(const QString &type);
     BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
     /// factories with higher priority are asked first to identify
     /// a qtversion, the priority of the desktop factory is 0 and
     /// the desktop factory claims to handle all paths
-    virtual int priority() const = 0;
+    int priority() const { return m_priority; }
     virtual BaseQtVersion *create(const Utils::FileName &qmakePath,
                                   ProFileEvaluator *evaluator,
                                   bool isAutoDetected = false,
@@ -69,9 +69,13 @@ public:
 
 protected:
     void setQtVersionCreator(const std::function<BaseQtVersion *()> &creator);
+    void setSupportedType(const QString &type);
+    void setPriority(int priority);
 
 private:
     std::function<BaseQtVersion *()> m_creator;
+    QString m_supportedType;
+    int m_priority = 0;
 };
 
 } // namespace QtSupport

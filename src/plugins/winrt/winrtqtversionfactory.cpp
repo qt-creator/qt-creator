@@ -39,20 +39,8 @@ WinRtQtVersionFactory::WinRtQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
     setQtVersionCreator([] { return new WinRtQtVersion; });
-}
-
-WinRtQtVersionFactory::~WinRtQtVersionFactory()
-{
-}
-
-bool WinRtQtVersionFactory::canRestore(const QString &type)
-{
-    return type == QLatin1String(Constants::WINRT_WINRTQT);
-}
-
-int WinRtQtVersionFactory::priority() const
-{
-    return 10;
+    setSupportedType(Constants::WINRT_WINRTQT);
+    setPriority(10);
 }
 
 QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(const Utils::FileName &qmakePath,
@@ -76,16 +64,8 @@ WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
     setQtVersionCreator([] { return new WinRtPhoneQtVersion; });
-}
-
-bool WinRtPhoneQtVersionFactory::canRestore(const QString &type)
-{
-    return type == QLatin1String(Constants::WINRT_WINPHONEQT);
-}
-
-int WinRtPhoneQtVersionFactory::priority() const
-{
-    return 10;
+    setSupportedType(Constants::WINRT_WINPHONEQT);
+    setPriority(10);
 }
 
 QtSupport::BaseQtVersion *WinRtPhoneQtVersionFactory::create(const Utils::FileName &qmakePath,

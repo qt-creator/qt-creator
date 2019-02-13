@@ -40,18 +40,8 @@ QnxQtVersionFactory::QnxQtVersionFactory(QObject *parent) :
     QtSupport::QtVersionFactory(parent)
 {
     setQtVersionCreator([] { return new QnxQtVersion; });
-}
-
-QnxQtVersionFactory::~QnxQtVersionFactory() = default;
-
-bool QnxQtVersionFactory::canRestore(const QString &type)
-{
-    return type == QLatin1String(Constants::QNX_QNX_QT);
-}
-
-int QnxQtVersionFactory::priority() const
-{
-    return 50;
+    setSupportedType(Constants::QNX_QNX_QT);
+    setPriority(50);
 }
 
 QtSupport::BaseQtVersion *QnxQtVersionFactory::create(const Utils::FileName &qmakePath,

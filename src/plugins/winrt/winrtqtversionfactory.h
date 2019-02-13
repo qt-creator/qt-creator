@@ -34,11 +34,7 @@ class WinRtQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
     explicit WinRtQtVersionFactory(QObject *parent = nullptr);
-    ~WinRtQtVersionFactory();
 
-    bool canRestore(const QString &type);
-
-    int priority() const;
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
             bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
@@ -48,9 +44,6 @@ class WinRtPhoneQtVersionFactory : public QtSupport::QtVersionFactory
 public:
     explicit WinRtPhoneQtVersionFactory(QObject *parent = nullptr);
 
-    bool canRestore(const QString &type);
-
-    int priority() const;
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
             bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };

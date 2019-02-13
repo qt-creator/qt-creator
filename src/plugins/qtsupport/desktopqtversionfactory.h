@@ -34,11 +34,7 @@ class DesktopQtVersionFactory : public QtVersionFactory
 {
 public:
     explicit DesktopQtVersionFactory(QObject *parent = nullptr);
-    ~DesktopQtVersionFactory() override;
 
-    bool canRestore(const QString &type) override;
-
-    int priority() const override;
     BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
                           bool isAutoDetected = false, const QString &autoDetectionSource = QString()) override;
 };

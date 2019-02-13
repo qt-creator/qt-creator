@@ -56,6 +56,11 @@ const QList<QtVersionFactory *> QtVersionFactory::allQtVersionFactories()
     return g_qtVersionFactories;
 }
 
+bool QtVersionFactory::canRestore(const QString &type)
+{
+    return type == m_supportedType;
+}
+
 BaseQtVersion *QtVersionFactory::restore(const QString &type, const QVariantMap &data)
 {
     QTC_ASSERT(canRestore(type), return nullptr);
@@ -103,4 +108,14 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
 void QtVersionFactory::setQtVersionCreator(const std::function<BaseQtVersion *()> &creator)
 {
     m_creator = creator;
+}
+
+void QtVersionFactory::setSupportedType(const QString &type)
+{
+    m_supportedType = type;
+}
+
+void QtVersionFactory::setPriority(int priority)
+{
+    m_priority = priority;
 }
