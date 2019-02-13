@@ -483,15 +483,6 @@ static void updateDocumentation()
     Core::HelpManager::registerDocumentation(files);
 }
 
-void QtVersionManager::updateDumpFor(const FileName &qmakeCommand)
-{
-    foreach (BaseQtVersion *v, versions()) {
-        if (v->qmakeCommand() == qmakeCommand)
-            v->recheckDumper();
-    }
-    emit dumpUpdatedFor(qmakeCommand);
-}
-
 int QtVersionManager::getUniqueId()
 {
     return m_idcount++;

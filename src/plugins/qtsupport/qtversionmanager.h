@@ -71,9 +71,6 @@ signals:
     void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds, const QList<int> &changedIds);
     void qtVersionsLoaded();
 
-public slots:
-    void updateDumpFor(const Utils::FileName &qmakeCommand);
-
 private:
     void updateFromInstaller(bool emitSignal = true);
     void triggerQtVersionRestore();
