@@ -155,9 +155,9 @@ public:
     bool isSubProject(const Utils::FileName &filePath) const;
 
     // used by UiCodeModelSupport
-    virtual QString uicCommand() const;
-    virtual QString designerCommand() const;
-    virtual QString linguistCommand() const;
+    QString uicCommand() const;
+    QString designerCommand() const;
+    QString linguistCommand() const;
     QString qscxmlcCommand() const;
 
     QString qtVersionString() const;
@@ -172,7 +172,7 @@ public:
     bool hasDemos() const;
     QString demosPath() const;
 
-    virtual QString frameworkInstallPath() const;
+    QString frameworkInstallPath() const;
 
     // former local functions
     Utils::FileName qmakeCommand() const;
@@ -208,11 +208,11 @@ public:
     static bool isQtQuickCompilerSupported(ProjectExplorer::Kit *k, QString *reason = nullptr);
     bool isQtQuickCompilerSupported(QString *reason = nullptr) const;
 
-    virtual QString qmlDumpTool(bool debugVersion) const;
+    QString qmlDumpTool(bool debugVersion) const;
 
-    virtual bool hasQmlDump() const;
-    virtual bool hasQmlDumpWithRelocatableFlag() const;
-    virtual bool needsQmlDump() const;
+    bool hasQmlDump() const;
+    bool hasQmlDumpWithRelocatableFlag() const;
+    bool needsQmlDump() const;
 
     virtual QtConfigWidget *createConfigurationWidget() const;
 
