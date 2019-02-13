@@ -744,17 +744,12 @@ QString BaseQtVersion::toHtml(bool verbose) const
     return rc;
 }
 
-void BaseQtVersion::updateSourcePath() const
-{
-    if (!m_sourcePath.isEmpty())
-        return;
-    updateVersionInfo();
-    m_sourcePath = sourcePath(m_versionInfo);
-}
-
 FileName BaseQtVersion::sourcePath() const
 {
-    updateSourcePath();
+    if (m_sourcePath.isEmpty()) {
+        updateVersionInfo();
+        m_sourcePath = sourcePath(m_versionInfo);
+    }
     return m_sourcePath;
 }
 

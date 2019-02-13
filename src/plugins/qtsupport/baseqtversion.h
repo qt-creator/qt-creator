@@ -148,7 +148,7 @@ public:
     virtual Utils::Environment qmakeRunEnvironment() const;
 
     // source path defined by qmake property QT_INSTALL_PREFIX/src or by qmake.stash QT_SOURCE_TREE
-    virtual Utils::FileName sourcePath() const;
+    Utils::FileName sourcePath() const;
     // returns source path for installed qt packages and empty string for self build qt
     Utils::FileName qtPackageSourcePath() const;
     bool isInSourceDirectory(const Utils::FileName &filePath);
@@ -270,7 +270,6 @@ protected:
 
 private:
     void setAutoDetectionSource(const QString &autodetectionSource);
-    void updateSourcePath() const;
     void updateVersionInfo() const;
     enum HostBinaries { Designer, Linguist, Uic, QScxmlc };
     QString findHostBinary(HostBinaries binary) const;
