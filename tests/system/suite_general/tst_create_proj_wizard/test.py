@@ -61,8 +61,8 @@ def main():
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
             template = template.replace(".", "\\.")
             # skip non-configurable
-            if not template in ["Qt Quick UI Prototype", "Qt Canvas 3D Application",
-                                "Auto Test Project"]: # FIXME
+            if not template in ["Qt Quick UI Prototype", "Auto Test Project",  # FIXME
+                                "Qt for Python - Empty", "Qt for Python - Window"]:
                 availableProjectTypes.append({category:template})
     safeClickButton("Cancel")
     for current in availableProjectTypes:
