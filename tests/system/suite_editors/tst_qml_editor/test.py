@@ -97,7 +97,7 @@ def __invokeFindUsage__(filename, line, additionalKeyPresses, expectedCount):
         return
     for ty in additionalKeyPresses:
         type(editor, ty)
-    invokeContextMenuItem(editor, "Find Usages")
+    invokeContextMenuItem(editor, "Find References to Symbol Under Cursor")
     waitForSearchResults()
     validateSearchResult(expectedCount)
 

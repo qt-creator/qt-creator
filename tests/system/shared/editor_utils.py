@@ -361,7 +361,7 @@ def invokeFindUsage(editor, line, typeOperation, n=1):
     for _ in range(n):
         type(editor, typeOperation)
     snooze(1)
-    invokeContextMenuItem(editor, "Find Usages")
+    invokeContextMenuItem(editor, "Find References to Symbol Under Cursor")
     return True
 
 def addBranchWildcardToRoot(rootNode):
