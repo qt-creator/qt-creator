@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,22 +25,13 @@
 
 #pragma once
 
-#include "target.h"
-
-#include <projectexplorer/kit.h>
-
 #include <utils/fileutils.h>
 
 namespace ProjectExplorer {
 
-class Project : public QObject {
+class BuildConfiguration
+{
 public:
-    Project() = default;
-
-    Utils::FileName projectDirectory() const { return {}; }
-
-    Utils::FileName rootProjectDirectory() const { return {}; }
-
-    Target *activeTarget() const { return {}; }
-};
+    Utils::FileName buildDirectory() const { return {}; }
+}; // namespace Target
 } // namespace ProjectExplorer
