@@ -29,8 +29,6 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <proparser/profileevaluator.h>
 
-#include <QFileInfo>
-
 namespace Ios {
 namespace Internal {
 

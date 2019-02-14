@@ -30,8 +30,6 @@
 #include <utils/qtcassert.h>
 #include <proparser/profileevaluator.h>
 
-#include <QFileInfo>
-
 namespace Android {
 namespace Internal {
 
@@ -45,9 +43,6 @@ AndroidQtVersionFactory::AndroidQtVersionFactory(QObject *parent)
 
 QtSupport::BaseQtVersion *AndroidQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
-    QFileInfo fi = qmakePath.toFileInfo();
-    if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
-        return nullptr;
     if (!evaluator->values(QLatin1String("CONFIG")).contains(QLatin1String("android"))
             && evaluator->value(QLatin1String("QMAKE_PLATFORM")) != QLatin1String("android"))
         return nullptr;

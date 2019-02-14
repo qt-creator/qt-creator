@@ -27,8 +27,6 @@
 #include "desktopqtversion.h"
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QFileInfo>
-
 using namespace QtSupport;
 using namespace QtSupport::Internal;
 
@@ -44,8 +42,5 @@ BaseQtVersion *DesktopQtVersionFactory::create(const Utils::FileName &qmakePath,
 {
     Q_UNUSED(evaluator);
     // we are the fallback :) so we don't care what kind of qt it is
-    QFileInfo fi = qmakePath.toFileInfo();
-    if (fi.exists() && fi.isExecutable() && fi.isFile())
-        return new DesktopQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
-    return nullptr;
+    return new DesktopQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
 }

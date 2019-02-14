@@ -26,12 +26,9 @@
 #include "qnxqtversionfactory.h"
 
 #include "qnxconstants.h"
-#include "qnxutils.h"
 #include "qnxqtversion.h"
 
 #include <qtsupport/profilereader.h>
-
-#include <QFileInfo>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -49,10 +46,6 @@ QtSupport::BaseQtVersion *QnxQtVersionFactory::create(const Utils::FileName &qma
                                                       bool isAutoDetected,
                                                       const QString &autoDetectionSource)
 {
-    QFileInfo fi = qmakePath.toFileInfo();
-    if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
-        return nullptr;
-
     if (evaluator->contains(QLatin1String("QNX_CPUDIR"))) {
         return new QnxQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
     }

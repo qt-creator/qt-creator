@@ -35,6 +35,8 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
+
 using namespace QtSupport;
 using namespace QtSupport::Internal;
 
@@ -91,6 +93,10 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     Utils::sort(factories, [](const QtVersionFactory *l, const QtVersionFactory *r) {
         return l->priority() > r->priority();
     });
+
+    QFileInfo fi = qmakePath.toFileInfo();
+    if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
+        return nullptr;
 
     foreach (QtVersionFactory *factory, factories) {
         BaseQtVersion *ver = factory->create(qmakePath, &evaluator, isAutoDetected, autoDetectionSource);

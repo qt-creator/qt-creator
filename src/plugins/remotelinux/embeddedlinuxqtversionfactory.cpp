@@ -48,10 +48,6 @@ QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::create(const Utils::Fil
 {
     Q_UNUSED(evaluator);
 
-    QFileInfo fi = qmakePath.toFileInfo();
-    if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
-        return nullptr;
-
     auto version = new EmbeddedLinuxQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
 
     QList<ProjectExplorer::Abi> abis = version->qtAbis();

@@ -30,8 +30,6 @@
 
 #include <proparser/profileevaluator.h>
 
-#include <QFileInfo>
-
 namespace WinRt {
 namespace Internal {
 
@@ -46,10 +44,6 @@ WinRtQtVersionFactory::WinRtQtVersionFactory(QObject *parent)
 QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(const Utils::FileName &qmakePath,
         ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
-    QFileInfo fi = qmakePath.toFileInfo();
-    if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
-        return nullptr;
-
     foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
         if (value == QStringLiteral("winrt"))
             return new WinRtQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
@@ -71,10 +65,6 @@ WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory(QObject *parent)
 QtSupport::BaseQtVersion *WinRtPhoneQtVersionFactory::create(const Utils::FileName &qmakePath,
         ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
-    QFileInfo fi = qmakePath.toFileInfo();
-    if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
-        return nullptr;
-
     foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
         if (value == QStringLiteral("winphone"))
             return new WinRtPhoneQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
