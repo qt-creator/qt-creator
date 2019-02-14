@@ -28,8 +28,6 @@
 #include "winrtconstants.h"
 #include "winrtphoneqtversion.h"
 
-#include <proparser/profileevaluator.h>
-
 namespace WinRt {
 namespace Internal {
 
@@ -37,26 +35,16 @@ WinRtQtVersionFactory::WinRtQtVersionFactory()
 {
     setQtVersionCreator([] { return new WinRtQtVersion; });
     setSupportedType(Constants::WINRT_WINRTQT);
+    setRestrictionChecker([](const SetupData &setup) { return setup.platforms.contains("winrt"); });
     setPriority(10);
 }
-
-bool WinRtQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
-{
-    return evaluator->values("QMAKE_PLATFORM").contains("winrt");
-}
-
-
 
 WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory()
 {
     setQtVersionCreator([] { return new WinRtPhoneQtVersion; });
     setSupportedType(Constants::WINRT_WINPHONEQT);
+    setRestrictionChecker([](const SetupData &setup) { return setup.platforms.contains("winphone"); });
     setPriority(10);
-}
-
-bool WinRtPhoneQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
-{
-    return evaluator->values("QMAKE_PLATFORM").contains("winphone");
 }
 
 } // Internal

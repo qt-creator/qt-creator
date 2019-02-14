@@ -28,8 +28,6 @@
 #include "qnxconstants.h"
 #include "qnxqtversion.h"
 
-#include <qtsupport/profilereader.h>
-
 using namespace Qnx;
 using namespace Qnx::Internal;
 
@@ -38,9 +36,6 @@ QnxQtVersionFactory::QnxQtVersionFactory()
     setQtVersionCreator([] { return new QnxQtVersion; });
     setSupportedType(Constants::QNX_QNX_QT);
     setPriority(50);
+    setRestrictionChecker([](const SetupData &setup) { return setup.isQnx; });
 }
 
-bool QnxQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
-{
-    return evaluator->contains("QNX_CPUDIR");
-}

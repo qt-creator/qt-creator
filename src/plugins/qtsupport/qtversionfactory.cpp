@@ -71,18 +71,6 @@ BaseQtVersion *QtVersionFactory::restore(const QString &type, const QVariantMap 
     return version;
 }
 
-BaseQtVersion *QtVersionFactory::create() const
-{
-    QTC_ASSERT(m_creator, return nullptr);
-    return m_creator();
-}
-
-bool QtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
-{
-    Q_UNUSED(evaluator);
-    return true;
-}
-
 BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
 {
     QHash<ProKey, ProString> versionInfo;
@@ -109,9 +97,15 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return nullptr;
 
+    SetupData setup;
+    setup.config = evaluator.values("CONFIG");
+    setup.platforms = evaluator.values("QMAKE_PLATFORM"); // It's a list in general.
+    setup.isQnx = !evaluator.value("QNX_CPUDIR").isEmpty();
+
     foreach (QtVersionFactory *factory, factories) {
-        if (factory->canCreate(&evaluator)) {
-            BaseQtVersion *ver = factory->create();
+        if (!factory->m_restrictionChecker || factory->m_restrictionChecker(setup)) {
+            QTC_ASSERT(factory->m_creator, continue);
+            BaseQtVersion *ver = factory->m_creator();
             QTC_ASSERT(ver, continue);
             ver->setupQmakePathAndId(qmakePath);
             ver->setAutoDetectionSource(autoDetectionSource);
@@ -131,6 +125,11 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
 void QtVersionFactory::setQtVersionCreator(const std::function<BaseQtVersion *()> &creator)
 {
     m_creator = creator;
+}
+
+void QtVersionFactory::setRestrictionChecker(const std::function<bool(const SetupData &)> &checker)
+{
+    m_restrictionChecker = checker;
 }
 
 void QtVersionFactory::setSupportedType(const QString &type)

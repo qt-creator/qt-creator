@@ -26,9 +26,6 @@
 #include "androidqtversionfactory.h"
 #include "androidqtversion.h"
 #include "androidconstants.h"
-#include <qtsupport/qtsupportconstants.h>
-#include <utils/qtcassert.h>
-#include <proparser/profileevaluator.h>
 
 namespace Android {
 namespace Internal {
@@ -38,15 +35,12 @@ AndroidQtVersionFactory::AndroidQtVersionFactory()
     setQtVersionCreator([] { return new AndroidQtVersion; });
     setSupportedType(Constants::ANDROIDQT);
     setPriority(90);
-}
 
-bool AndroidQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
-{
-    if (evaluator->values("CONFIG").contains("android-no-sdk"))
-        return false;
-
-    return evaluator->values("CONFIG").contains("android")
-            || evaluator->value("QMAKE_PLATFORM") == "android";
+    setRestrictionChecker([](const SetupData &setup) {
+        return !setup.config.contains("android-no-sdk")
+              && (setup.config.contains("android")
+                  || setup.platforms.contains("android"));
+    });
 }
 
 } // Internal

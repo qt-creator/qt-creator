@@ -28,8 +28,6 @@
 #include "embeddedlinuxqtversion.h"
 #include "remotelinux_constants.h"
 
-#include <QFileInfo>
-
 namespace RemoteLinux {
 namespace Internal {
 
@@ -38,19 +36,16 @@ EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory()
     setQtVersionCreator([] { return new EmbeddedLinuxQtVersion; });
     setSupportedType(RemoteLinux::Constants::EMBEDDED_LINUX_QT);
     setPriority(10);
-}
 
-bool EmbeddedLinuxQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
-{
-    Q_UNUSED(evaluator);
+    setRestrictionChecker([](const SetupData &) {
+        EmbeddedLinuxQtVersion tempVersion;
+        QList<ProjectExplorer::Abi> abis = tempVersion.qtAbis();
 
-    EmbeddedLinuxQtVersion tempVersion;
-    QList<ProjectExplorer::Abi> abis = tempVersion.qtAbis();
-
-    // Note: This fails for e.g. intel/meego cross builds on x86 linux machines.
-    return  abis.count() == 1
-            && abis.at(0).os() == ProjectExplorer::Abi::LinuxOS
-            && !ProjectExplorer::Abi::hostAbi().isCompatibleWith(abis.at(0));
+        // Note: This fails for e.g. intel/meego cross builds on x86 linux machines.
+        return  abis.count() == 1
+                && abis.at(0).os() == ProjectExplorer::Abi::LinuxOS
+                && !ProjectExplorer::Abi::hostAbi().isCompatibleWith(abis.at(0));
+    });
 }
 
 } // namespace Internal

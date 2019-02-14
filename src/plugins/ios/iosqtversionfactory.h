@@ -34,8 +34,6 @@ class IosQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
     IosQtVersionFactory();
-
-    bool canCreate(ProFileEvaluator *evaluator) const override;
 };
 
 } // namespace Internal

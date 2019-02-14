@@ -34,8 +34,6 @@ class EmbeddedLinuxQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
     EmbeddedLinuxQtVersionFactory();
-
-    bool canCreate(ProFileEvaluator *evaluator) const override;
 };
 
 } // Internal

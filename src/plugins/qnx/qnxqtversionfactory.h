@@ -34,8 +34,6 @@ class QnxQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
     QnxQtVersionFactory();
-
-    bool canCreate(ProFileEvaluator *evaluator) const override;
 };
 
 } // namespace Internal

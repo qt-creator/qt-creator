@@ -26,8 +26,6 @@
 #include "iosqtversionfactory.h"
 #include "iosqtversion.h"
 #include "iosconstants.h"
-#include <qtsupport/qtsupportconstants.h>
-#include <proparser/profileevaluator.h>
 
 namespace Ios {
 namespace Internal {
@@ -37,11 +35,10 @@ IosQtVersionFactory::IosQtVersionFactory()
     setQtVersionCreator([] { return new IosQtVersion; });
     setSupportedType(Constants::IOSQT);
     setPriority(90);
-}
 
-bool IosQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
-{
-    return evaluator->values("QMAKE_PLATFORM").contains("ios");
+    setRestrictionChecker([](const SetupData &setup) {
+        return setup.platforms.contains("ios");
+    });
 }
 
 } // Internal

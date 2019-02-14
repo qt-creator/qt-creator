@@ -29,10 +29,6 @@
 
 #include <QVariantMap>
 
-QT_BEGIN_NAMESPACE
-class ProFileEvaluator;
-QT_END_NAMESPACE
-
 namespace Utils { class FileName; }
 
 namespace QtSupport {
@@ -55,20 +51,26 @@ public:
     /// the desktop factory claims to handle all paths
     int priority() const { return m_priority; }
 
-    BaseQtVersion *create() const;
-    virtual bool canCreate(ProFileEvaluator *evaluator) const;
-
     static BaseQtVersion *createQtVersionFromQMakePath(
             const Utils::FileName &qmakePath, bool isAutoDetected = false,
             const QString &autoDetectionSource = QString(), QString *error = nullptr);
 
 protected:
+    struct SetupData
+    {
+        QStringList platforms;
+        QStringList config;
+        bool isQnx = false; // eeks...
+    };
+
     void setQtVersionCreator(const std::function<BaseQtVersion *()> &creator);
+    void setRestrictionChecker(const std::function<bool(const SetupData &)> &checker);
     void setSupportedType(const QString &type);
     void setPriority(int priority);
 
 private:
     std::function<BaseQtVersion *()> m_creator;
+    std::function<bool(const SetupData &)> m_restrictionChecker;
     QString m_supportedType;
     int m_priority = 0;
 };
