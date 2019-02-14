@@ -49,6 +49,10 @@ You can build Qt Creator with
     export QBS_INSTALL_DIR=/path/to/qbs
     # Optional, needed for the Python enabled dumper on Windows
     set PYTHON_INSTALL_DIR=C:\path\to\python
+    # Optional, needed to use system KSyntaxHighlighting:
+    set KSYNTAXHIGHLIGHTING_LIB_DIR to folder holding the KSyntaxHighlighting library
+    # if automatic deducing of include folder fails set KSYNTAXHIGHLIGHTING_INCLUDE_DIR as well
+    # both variables can also be passed as qmake variables
 
     cd $SOURCE_DIRECTORY
     qmake -r
