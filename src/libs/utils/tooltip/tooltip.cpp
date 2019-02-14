@@ -263,6 +263,7 @@ void ToolTip::showInternal(const QPoint &pos, const QVariant &content,
                 m_tip = new WidgetTip(target);
                 break;
         }
+        m_tip->setObjectName("qcToolTip");
         m_tip->setContent(content);
         m_tip->setContextHelp(contextHelp);
         setUp(pos, w, rect);
