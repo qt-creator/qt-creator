@@ -34,8 +34,8 @@ class EmbeddedLinuxQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     EmbeddedLinuxQtVersion() = default;
-    EmbeddedLinuxQtVersion(const Utils::FileName &path, bool isAutodetected = false,
-                           const QString &autodetectionSource = QString());
+    explicit EmbeddedLinuxQtVersion(const Utils::FileName &path);
+
     EmbeddedLinuxQtVersion *clone() const override;
 
     QString type() const override;

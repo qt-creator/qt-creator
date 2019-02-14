@@ -42,9 +42,8 @@ using namespace ProjectExplorer;
 
 IosQtVersion::IosQtVersion() = default;
 
-IosQtVersion::IosQtVersion(const Utils::FileName &path, bool isAutodetected,
-                           const QString &autodetectionSource)
-    : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource)
+IosQtVersion::IosQtVersion(const Utils::FileName &path)
+    : QtSupport::BaseQtVersion(path)
 {
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }

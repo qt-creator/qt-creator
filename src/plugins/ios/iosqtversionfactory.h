@@ -35,9 +35,8 @@ class IosQtVersionFactory : public QtSupport::QtVersionFactory
 public:
     IosQtVersionFactory();
 
-    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
-                                     bool isAutoDetected = false,
-                                     const QString &autoDetectionSource = QString()) override;
+    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath,
+                                     ProFileEvaluator *evaluator) override;
 };
 
 } // namespace Internal

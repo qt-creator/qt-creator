@@ -33,9 +33,8 @@
 namespace WinRt {
 namespace Internal {
 
-WinRtQtVersion::WinRtQtVersion(const Utils::FileName &path, bool isAutodetected,
-        const QString &autodetectionSource)
-    : BaseQtVersion(path, isAutodetected, autodetectionSource)
+WinRtQtVersion::WinRtQtVersion(const Utils::FileName &path)
+    : BaseQtVersion(path)
 {
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }

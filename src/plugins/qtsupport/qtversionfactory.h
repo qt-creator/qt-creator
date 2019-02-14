@@ -55,9 +55,7 @@ public:
     /// the desktop factory claims to handle all paths
     int priority() const { return m_priority; }
     virtual BaseQtVersion *create(const Utils::FileName &qmakePath,
-                                  ProFileEvaluator *evaluator,
-                                  bool isAutoDetected = false,
-                                  const QString &autoDetectionSource = QString()) = 0;
+                                  ProFileEvaluator *evaluator) = 0;
 
     static BaseQtVersion *createQtVersionFromQMakePath(
             const Utils::FileName &qmakePath, bool isAutoDetected = false,

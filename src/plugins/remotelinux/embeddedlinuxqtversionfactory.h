@@ -35,9 +35,8 @@ class EmbeddedLinuxQtVersionFactory : public QtSupport::QtVersionFactory
 public:
     EmbeddedLinuxQtVersionFactory();
 
-    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
-                                     bool isAutoDetected = false,
-                                     const QString &autoDetectionSource = QString()) override;
+    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath,
+                                     ProFileEvaluator *evaluator) override;
 };
 
 } // Internal

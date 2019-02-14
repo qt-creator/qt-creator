@@ -253,10 +253,12 @@ public:
                                       const ProjectExplorer::Target *target);
 
     QSet<Core::Id> features() const;
+    void setIsAutodetected(bool isAutodetected);
+
 protected:
     virtual QSet<Core::Id> availableFeatures() const;
     BaseQtVersion();
-    BaseQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    explicit BaseQtVersion(const Utils::FileName &path);
     BaseQtVersion(const BaseQtVersion &other);
 
     virtual QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir) const;

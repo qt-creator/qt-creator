@@ -37,9 +37,9 @@ DesktopQtVersionFactory::DesktopQtVersionFactory()
     setPriority(0); // Lowest of all, we want to be the fallback
 }
 
-BaseQtVersion *DesktopQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+BaseQtVersion *DesktopQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator)
 {
     Q_UNUSED(evaluator);
     // we are the fallback :) so we don't care what kind of qt it is
-    return new DesktopQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
+    return new DesktopQtVersion(qmakePath);
 }

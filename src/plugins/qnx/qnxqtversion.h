@@ -39,9 +39,8 @@ class QnxQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     QnxQtVersion();
-    QnxQtVersion(const Utils::FileName &path,
-                 bool isAutoDetected = false,
-                 const QString &autoDetectionSource = QString());
+    explicit QnxQtVersion(const Utils::FileName &path);
+
     QnxQtVersion *clone() const override;
 
     QString type() const override;

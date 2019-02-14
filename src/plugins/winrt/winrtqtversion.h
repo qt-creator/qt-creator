@@ -35,8 +35,7 @@ class WinRtQtVersion : public QtSupport::BaseQtVersion
     Q_DECLARE_TR_FUNCTIONS(WinRt::Internal::WinRtQtVersion)
 public:
     WinRtQtVersion() = default;
-    WinRtQtVersion(const Utils::FileName &path, bool isAutodetected,
-                   const QString &autodetectionSource);
+    explicit WinRtQtVersion(const Utils::FileName &path);
 
     BaseQtVersion *clone() const override;
     QString type() const override;

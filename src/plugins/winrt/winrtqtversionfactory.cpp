@@ -41,11 +41,11 @@ WinRtQtVersionFactory::WinRtQtVersionFactory()
 }
 
 QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(const Utils::FileName &qmakePath,
-        ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+        ProFileEvaluator *evaluator)
 {
     foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
         if (value == QStringLiteral("winrt"))
-            return new WinRtQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
+            return new WinRtQtVersion(qmakePath);
     }
 
     return nullptr;
@@ -61,11 +61,11 @@ WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory()
 }
 
 QtSupport::BaseQtVersion *WinRtPhoneQtVersionFactory::create(const Utils::FileName &qmakePath,
-        ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+        ProFileEvaluator *evaluator)
 {
     foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
         if (value == QStringLiteral("winphone"))
-            return new WinRtPhoneQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
+            return new WinRtPhoneQtVersion(qmakePath);
     }
 
     return nullptr;

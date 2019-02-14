@@ -98,8 +98,9 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
         return nullptr;
 
     foreach (QtVersionFactory *factory, factories) {
-        BaseQtVersion *ver = factory->create(qmakePath, &evaluator, isAutoDetected, autoDetectionSource);
-        if (ver) {
+        if (BaseQtVersion *ver = factory->create(qmakePath, &evaluator)) {
+            ver->setAutoDetectionSource(autoDetectionSource);
+            ver->setIsAutodetected(isAutoDetected);
             ProFileCacheManager::instance()->decRefCount();
             return ver;
         }

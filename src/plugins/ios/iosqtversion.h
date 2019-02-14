@@ -38,8 +38,7 @@ class IosQtVersion : public QtSupport::BaseQtVersion
 
 public:
     IosQtVersion();
-    IosQtVersion(const Utils::FileName &path, bool isAutodetected = false,
-                 const QString &autodetectionSource = QString());
+    explicit IosQtVersion(const Utils::FileName &path);
 
     IosQtVersion *clone() const override;
     QString type() const override;

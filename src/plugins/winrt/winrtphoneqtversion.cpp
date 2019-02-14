@@ -35,9 +35,8 @@
 namespace WinRt {
 namespace Internal {
 
-WinRtPhoneQtVersion::WinRtPhoneQtVersion(const Utils::FileName &path, bool isAutodetected,
-                                         const QString &autodetectionSource)
-    : WinRtQtVersion(path, isAutodetected, autodetectionSource)
+WinRtPhoneQtVersion::WinRtPhoneQtVersion(const Utils::FileName &path)
+    : WinRtQtVersion(path)
 {
 }
 

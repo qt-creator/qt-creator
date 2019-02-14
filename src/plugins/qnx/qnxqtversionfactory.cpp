@@ -41,12 +41,10 @@ QnxQtVersionFactory::QnxQtVersionFactory()
 }
 
 QtSupport::BaseQtVersion *QnxQtVersionFactory::create(const Utils::FileName &qmakePath,
-                                                      ProFileEvaluator *evaluator,
-                                                      bool isAutoDetected,
-                                                      const QString &autoDetectionSource)
+                                                      ProFileEvaluator *evaluator)
 {
     if (evaluator->contains(QLatin1String("QNX_CPUDIR"))) {
-        return new QnxQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
+        return new QnxQtVersion(qmakePath);
     }
 
     return nullptr;

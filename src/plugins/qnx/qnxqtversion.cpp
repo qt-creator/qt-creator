@@ -46,9 +46,8 @@ static char SDP_PATH_KEY[] = "SDKPath";
 
 QnxQtVersion::QnxQtVersion() = default;
 
-QnxQtVersion::QnxQtVersion(const Utils::FileName &path, bool isAutoDetected,
-                           const QString &autoDetectionSource) :
-    QtSupport::BaseQtVersion(path, isAutoDetected, autoDetectionSource)
+QnxQtVersion::QnxQtVersion(const Utils::FileName &path) :
+    QtSupport::BaseQtVersion(path)
 {
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }

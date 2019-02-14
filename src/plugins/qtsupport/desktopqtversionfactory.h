@@ -35,8 +35,7 @@ class DesktopQtVersionFactory : public QtVersionFactory
 public:
     DesktopQtVersionFactory();
 
-    BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
-                          bool isAutoDetected = false, const QString &autoDetectionSource = QString()) override;
+    BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator) override;
 };
 
 } // Internal

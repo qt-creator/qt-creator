@@ -46,8 +46,8 @@ DesktopQtVersion::DesktopQtVersion()
 
 }
 
-DesktopQtVersion::DesktopQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
-    : BaseQtVersion(path, isAutodetected, autodetectionSource)
+DesktopQtVersion::DesktopQtVersion(const Utils::FileName &path)
+    : BaseQtVersion(path)
 {
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }

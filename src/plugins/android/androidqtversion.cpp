@@ -50,8 +50,8 @@ AndroidQtVersion::AndroidQtVersion()
 {
 }
 
-AndroidQtVersion::AndroidQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
-    : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource)
+AndroidQtVersion::AndroidQtVersion(const Utils::FileName &path)
+    : QtSupport::BaseQtVersion(path)
 {
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }

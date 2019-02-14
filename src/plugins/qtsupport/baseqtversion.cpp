@@ -193,10 +193,8 @@ bool QtVersionNumber::operator >=(const QtVersionNumber &b) const
 // BaseQtVersion
 ///////////////
 
-BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, const QString &autodetectionSource)
+BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand)
     : m_id(QtVersionManager::getUniqueId()),
-      m_isAutodetected(isAutodetected),
-      m_autodetectionSource(autodetectionSource),
       m_qmakeCommand(qmakeCommand)
 { }
 BaseQtVersion::BaseQtVersion(const BaseQtVersion &other) = default;
@@ -496,6 +494,11 @@ bool BaseQtVersion::hasReleaseBuild() const
 void BaseQtVersion::setId(int id)
 {
     m_id = id;
+}
+
+void BaseQtVersion::setIsAutodetected(bool isAutodetected)
+{
+    m_isAutodetected = isAutodetected;
 }
 
 void BaseQtVersion::fromMap(const QVariantMap &map)
