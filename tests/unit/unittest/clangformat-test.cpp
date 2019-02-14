@@ -408,6 +408,60 @@ TEST_F(ClangFormat, IndentIfBodyAndFormatBeforeIt)
                                              "}"));
 }
 
+TEST_F(ClangFormat, DoNotFormatAfterTheFirstColon)
+{
+    insertLines({"{",
+                 "    Qt:",
+                 "}"});
+
+    extendedIndenter.indentBlock(doc.findBlockByNumber(1), ':', TextEditor::TabSettings(), 9);
+
+    ASSERT_THAT(documentLines(), ElementsAre("{",
+                                             "    Qt:",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, OnlyIndentIncompleteStatementOnElectricalCharacter)
+{
+    insertLines({"{bar();",
+                 "foo()",
+                 "}"});
+
+    extendedIndenter.indentBlock(doc.findBlockByNumber(1), '(', TextEditor::TabSettings(), 12);
+
+    ASSERT_THAT(documentLines(), ElementsAre("{bar();",
+                                             "    foo()",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, IndentAndFormatCompleteStatementOnSemicolon)
+{
+    insertLines({"{bar();",
+                 "foo();",
+                 "}"});
+
+    extendedIndenter.indentBlock(doc.findBlockByNumber(1), ';', TextEditor::TabSettings(), 14);
+
+    ASSERT_THAT(documentLines(), ElementsAre("{",
+                                             "    bar();",
+                                             "    foo();",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, IndentAndFormatCompleteStatementOnClosingScope)
+{
+    insertLines({"{bar();",
+                 "foo();",
+                 "}"});
+
+    extendedIndenter.indentBlock(doc.findBlockByNumber(1), '}', TextEditor::TabSettings(), 16);
+
+    ASSERT_THAT(documentLines(), ElementsAre("{",
+                                             "    bar();",
+                                             "    foo();",
+                                             "}"));
+}
+
 TEST_F(ClangFormat, FormatBasicFile)
 {
     insertLines({"int main()",

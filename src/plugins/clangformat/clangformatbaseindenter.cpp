@@ -403,6 +403,7 @@ static bool doNotIndentInContext(QTextDocument *doc, int pos)
     const QChar character = doc->characterAt(pos);
     const QTextBlock currentBlock = doc->findBlock(pos);
     const QString text = currentBlock.text().left(pos - currentBlock.position());
+    // NOTE: check if "<<" and ">>" always work correctly.
     switch (character.toLatin1()) {
     default:
         break;
@@ -417,12 +418,6 @@ static bool doNotIndentInContext(QTextDocument *doc, int pos)
         if (pos > 0 && doc->characterAt(pos - 1) != ':')
             return true;
         break;
-    case '<':
-    case '>':
-        // "<<" and ">>" could be problematic
-        if (pos > 0 && doc->characterAt(pos - 1) == character)
-            return true;
-        break;
     }
 
     return false;
@@ -432,15 +427,18 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
                                           const QChar &typedChar,
                                           int cursorPositionInEditor)
 {
-    QTextBlock currentBlock = block;
-    const int blockPosition = currentBlock.position();
-    trimFirstNonEmptyBlock(currentBlock);
-
     if (typedChar != QChar::Null && cursorPositionInEditor > 0
         && m_doc->characterAt(cursorPositionInEditor - 1) == typedChar
         && doNotIndentInContext(m_doc, cursorPositionInEditor - 1)) {
         return;
     }
+
+    const int blockPosition = block.position();
+    trimFirstNonEmptyBlock(block);
+    if (cursorPositionInEditor >= 0)
+        cursorPositionInEditor += block.position() - blockPosition;
+    else
+        cursorPositionInEditor = block.position();
 
     if (formatWhileTyping()
         && (cursorPositionInEditor == -1 || cursorPositionInEditor >= blockPosition)
@@ -451,12 +449,7 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
         // cursorPositionInEditor == -1 means the consition matches automatically.
 
         // Format only before newline or complete statement not to break code.
-        if (cursorPositionInEditor >= 0)
-            cursorPositionInEditor += currentBlock.position() - blockPosition;
-        else
-            cursorPositionInEditor = currentBlock.position();
-
-        indentBeforeCursor(currentBlock, typedChar, cursorPositionInEditor);
+        indentBeforeCursor(block, typedChar, cursorPositionInEditor);
         return;
     }
 
@@ -464,11 +457,11 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
     const int utf8Offset = Utils::Text::utf8NthLineOffset(m_doc, buffer, block.blockNumber() + 1);
     QTC_ASSERT(utf8Offset >= 0, return;);
 
-    applyReplacements(currentBlock,
+    applyReplacements(block,
                       replacements(buffer,
                                    utf8Offset,
                                    0,
-                                   currentBlock,
+                                   block,
                                    cursorPositionInEditor,
                                    ReplacementsToKeep::OnlyIndent,
                                    typedChar));
@@ -484,7 +477,13 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
 
 int ClangFormatBaseIndenter::indentFor(const QTextBlock &block, int cursorPositionInEditor)
 {
+    const int blockPosition = block.position();
     trimFirstNonEmptyBlock(block);
+    if (cursorPositionInEditor >= 0)
+        cursorPositionInEditor += block.position() - blockPosition;
+    else
+        cursorPositionInEditor = block.position();
+
     const QByteArray buffer = m_doc->toPlainText().toUtf8();
     const int utf8Offset = Utils::Text::utf8NthLineOffset(m_doc, buffer, block.blockNumber() + 1);
     QTC_ASSERT(utf8Offset >= 0, return 0;);
