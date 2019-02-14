@@ -39,8 +39,7 @@
 #include <utils/qtcassert.h>
 
 GradientModel::GradientModel(QObject *parent) :
-    QAbstractListModel(parent), m_locked(false)
-    ,m_gradientTypeName("Gradient")
+    QAbstractListModel(parent)
 {
 }
 
