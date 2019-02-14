@@ -74,11 +74,7 @@ PerfProfilerTraceView::PerfProfilerTraceView(QWidget *parent, PerfProfilerTool *
 
 bool PerfProfilerTraceView::isUsable() const
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
     return quickWindow()->rendererInterface()->graphicsApi() == QSGRendererInterface::OpenGL;
-#else
-    return true;
-#endif
 }
 
 void PerfProfilerTraceView::selectByTypeId(int typeId)

@@ -323,18 +323,9 @@ bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb)
                     "C++ Indexer: Skipping file \"%1\" because it is too big.")
                         .arg(absoluteFilePath);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
         QMetaObject::invokeMethod(Core::MessageManager::instance(), [msg]() {
             Core::MessageManager::write(msg, Core::MessageManager::Silent);
         });
-#else
-        QMetaObject::invokeMethod(Core::MessageManager::instance(),
-                                  "write",
-                                  Qt::QueuedConnection,
-                                  Q_ARG(QString, msg),
-                                  Q_ARG(Core::MessageManager::PrintToOutputPaneFlags,
-                                        Core::MessageManager::Silent));
-#endif
 
         qWarning().noquote() << msg;
         return true;

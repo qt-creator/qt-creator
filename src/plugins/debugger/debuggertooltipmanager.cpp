@@ -624,15 +624,10 @@ void DebuggerToolTipWidget::computeSize()
     // Add a bit of space to account for tooltip border, and not
     // touch the border of the screen.
     QPoint pos(x(), y());
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     auto screen = QGuiApplication::screenAt(pos);
     if (!screen)
         screen = QGuiApplication::primaryScreen();
     QRect desktopRect = screen->availableGeometry();
-#else
-    QTC_ASSERT(QApplication::desktop(), return);
-    QRect desktopRect = QApplication::desktop()->availableGeometry();
-#endif
     const int maxWidth = desktopRect.right() - pos.x() - 5 - 5;
     const int maxHeight = desktopRect.bottom() - pos.y() - 5 - 5;
 

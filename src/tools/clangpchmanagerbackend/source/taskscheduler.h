@@ -149,38 +149,6 @@ private:
         m_futures.erase(split, m_futures.end());
     }
 
-    #if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
-    template <typename CallableType>
-    class CallableEvent : public QEvent {
-    public:
-       using Callable = std::decay_t<CallableType>;
-       CallableEvent(Callable &&callable)
-           : QEvent(QEvent::None),
-             callable(std::move(callable))
-       {}
-       CallableEvent(const Callable &callable)
-           : QEvent(QEvent::None),
-             callable(callable)
-       {}
-
-       ~CallableEvent()
-       {
-           callable();
-       }
-    public:
-       Callable callable;
-    };
-
-    template <typename Callable>
-    void executeInLoop(Callable &&callable, QObject *object = QCoreApplication::instance()) {
-       if (QThread *thread = qobject_cast<QThread*>(object))
-           object = QAbstractEventDispatcher::instance(thread);
-
-       QCoreApplication::postEvent(object,
-                                   new CallableEvent<Callable>(std::forward<Callable>(callable)),
-                                   Qt::HighEventPriority);
-    }
-    #else
     template <typename Callable>
     void executeInLoop(Callable &&callable, QObject *object = QCoreApplication::instance()) {
        if (QThread *thread = qobject_cast<QThread*>(object))
@@ -188,7 +156,6 @@ private:
 
        QMetaObject::invokeMethod(object, std::forward<Callable>(callable));
     }
-    #endif
 
 private:
     std::vector<Future> m_futures;

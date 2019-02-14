@@ -61,11 +61,7 @@ JsonObject &JsonObject::operator=(const JsonObject &other) = default;
 
 JsonObject &JsonObject::operator=(JsonObject &&other)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     m_jsonObject.swap(other.m_jsonObject);
-#else
-    m_jsonObject = other.m_jsonObject; // NOTE use QJsonObject::swap when minimum required Qt version >= 5.10
-#endif
     return *this;
 }
 

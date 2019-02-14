@@ -386,14 +386,10 @@ private:
 
     static int widthLimit()
     {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
         auto screen = QGuiApplication::screenAt(QCursor::pos());
         if (!screen)
             screen = QGuiApplication::primaryScreen();
         return screen->availableGeometry().width() / 2;
-#else
-        return QApplication::desktop()->availableGeometry(QCursor::pos()).width() / 2;
-#endif
     }
 
 private:

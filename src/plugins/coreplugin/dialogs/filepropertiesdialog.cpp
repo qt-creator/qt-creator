@@ -78,11 +78,7 @@ void FilePropertiesDialog::refresh()
 
         m_ui->owner->setText(fileInfo.owner());
         m_ui->group->setText(fileInfo.group());
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
         m_ui->size->setText(locale.formattedDataSize(fileInfo.size()));
-#else
-        m_ui->size->setText(tr("%1 Bytes").arg(locale.toString(fileInfo.size())));
-#endif
         m_ui->readable->setChecked(fileInfo.isReadable());
         m_ui->writable->setChecked(fileInfo.isWritable());
         m_ui->executable->setChecked(fileInfo.isExecutable());

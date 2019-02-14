@@ -436,12 +436,6 @@ bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &w
                                            const Utils::Environment &env)
 {
     const TerminalCommand term = terminalEmulator(settings);
-#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
-    // for 5.9 and below we cannot set the environment
-    Q_UNUSED(env);
-    return QProcess::startDetached(term.command, QtcProcess::splitArgs(term.openArgs),
-                                   workingDir);
-#else
     QProcess process;
     process.setProgram(term.command);
     process.setArguments(QtcProcess::splitArgs(term.openArgs));
@@ -449,7 +443,6 @@ bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &w
     process.setWorkingDirectory(workingDir);
 
     return process.startDetached();
-#endif
 }
 
 } // namespace Utils

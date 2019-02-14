@@ -168,7 +168,7 @@
 
         The source code of ANGLE is part of the Qt libraries. For more
         information about the licenses used in Qt GUI, see
-        \l{https://doc.qt.io/qt-5.9/licenses-used-in-qt.html#qt-gui}{Qt GUI}.
+        \l{https://doc.qt.io/qt-5.11/licenses-used-in-qt.html#qt-gui}{Qt GUI}.
 
         \l{https://spdx.org/licenses/BSD-3-Clause.html}
         {BSD 3-clause "New" or "Revised" License}
