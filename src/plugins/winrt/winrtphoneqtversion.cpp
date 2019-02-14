@@ -35,11 +35,6 @@
 namespace WinRt {
 namespace Internal {
 
-WinRtPhoneQtVersion::WinRtPhoneQtVersion(const Utils::FileName &path)
-    : WinRtQtVersion(path)
-{
-}
-
 QString WinRtPhoneQtVersion::description() const
 {
     return tr("Windows Phone");

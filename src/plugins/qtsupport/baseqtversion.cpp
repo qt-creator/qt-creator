@@ -193,14 +193,18 @@ bool QtVersionNumber::operator >=(const QtVersionNumber &b) const
 // BaseQtVersion
 ///////////////
 
-BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand)
-    : m_id(QtVersionManager::getUniqueId()),
-      m_qmakeCommand(qmakeCommand)
-{ }
 BaseQtVersion::BaseQtVersion(const BaseQtVersion &other) = default;
 BaseQtVersion::BaseQtVersion() = default;
 
 BaseQtVersion::~BaseQtVersion() = default;
+
+void BaseQtVersion::setupQmakePathAndId(const FileName &qmakeCommand)
+{
+    m_id = QtVersionManager::getUniqueId();
+    QTC_CHECK(m_qmakeCommand.isEmpty()); // Should only be used once.
+    m_qmakeCommand = qmakeCommand;
+    setUnexpandedDisplayName(defaultUnexpandedDisplayName(m_qmakeCommand, false));
+}
 
 QString BaseQtVersion::defaultUnexpandedDisplayName(const FileName &qmakePath, bool fromPath)
 {

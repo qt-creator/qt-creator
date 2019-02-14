@@ -33,7 +33,7 @@ class QTSUPPORT_EXPORT DesktopQtVersion : public BaseQtVersion
 {
 public:
     DesktopQtVersion();
-    explicit DesktopQtVersion(const Utils::FileName &path);
+
     DesktopQtVersion *clone() const override;
 
     QString type() const override;

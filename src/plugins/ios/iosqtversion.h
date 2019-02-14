@@ -38,7 +38,6 @@ class IosQtVersion : public QtSupport::BaseQtVersion
 
 public:
     IosQtVersion();
-    explicit IosQtVersion(const Utils::FileName &path);
 
     IosQtVersion *clone() const override;
     QString type() const override;

@@ -34,7 +34,6 @@ class EmbeddedLinuxQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     EmbeddedLinuxQtVersion() = default;
-    explicit EmbeddedLinuxQtVersion(const Utils::FileName &path);
 
     EmbeddedLinuxQtVersion *clone() const override;
 

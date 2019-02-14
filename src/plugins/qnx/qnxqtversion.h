@@ -39,7 +39,6 @@ class QnxQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     QnxQtVersion();
-    explicit QnxQtVersion(const Utils::FileName &path);
 
     QnxQtVersion *clone() const override;
 

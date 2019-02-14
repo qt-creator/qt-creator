@@ -38,7 +38,6 @@ class AndroidQtVersion : public QtSupport::BaseQtVersion
 
 public:
     AndroidQtVersion();
-    explicit AndroidQtVersion(const Utils::FileName &path);
 
     AndroidQtVersion *clone() const override;
     QString type() const override;

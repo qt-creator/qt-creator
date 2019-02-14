@@ -40,12 +40,11 @@ EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory()
     setPriority(10);
 }
 
-QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::create(const Utils::FileName &qmakePath,
-                                                                ProFileEvaluator *evaluator)
+QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::create(ProFileEvaluator *evaluator)
 {
     Q_UNUSED(evaluator);
 
-    auto version = new EmbeddedLinuxQtVersion(qmakePath);
+    auto version = new EmbeddedLinuxQtVersion;
 
     QList<ProjectExplorer::Abi> abis = version->qtAbis();
     // Note: This fails for e.g. intel/meego cross builds on x86 linux machines.

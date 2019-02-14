@@ -35,8 +35,7 @@ class QnxQtVersionFactory : public QtSupport::QtVersionFactory
 public:
     QnxQtVersionFactory();
 
-    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath,
-                                     ProFileEvaluator *evaluator) override;
+    QtSupport::BaseQtVersion *create(ProFileEvaluator *evaluator) override;
 };
 
 } // namespace Internal

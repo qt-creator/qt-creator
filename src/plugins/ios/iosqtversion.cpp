@@ -42,12 +42,6 @@ using namespace ProjectExplorer;
 
 IosQtVersion::IosQtVersion() = default;
 
-IosQtVersion::IosQtVersion(const Utils::FileName &path)
-    : QtSupport::BaseQtVersion(path)
-{
-    setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
-}
-
 IosQtVersion *IosQtVersion::clone() const
 {
     return new IosQtVersion(*this);

@@ -257,8 +257,8 @@ public:
 
 protected:
     virtual QSet<Core::Id> availableFeatures() const;
+
     BaseQtVersion();
-    explicit BaseQtVersion(const Utils::FileName &path);
     BaseQtVersion(const BaseQtVersion &other);
 
     virtual QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
@@ -271,6 +271,7 @@ protected:
     virtual void parseMkSpec(ProFileEvaluator *) const;
 
 private:
+    void setupQmakePathAndId(const Utils::FileName &path);
     void setAutoDetectionSource(const QString &autodetectionSource);
     void updateVersionInfo() const;
     enum HostBinaries { Designer, Linguist, Uic, QScxmlc };

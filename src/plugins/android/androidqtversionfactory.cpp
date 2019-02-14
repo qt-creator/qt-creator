@@ -40,14 +40,14 @@ AndroidQtVersionFactory::AndroidQtVersionFactory()
     setPriority(90);
 }
 
-QtSupport::BaseQtVersion *AndroidQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator)
+QtSupport::BaseQtVersion *AndroidQtVersionFactory::create(ProFileEvaluator *evaluator)
 {
     if (!evaluator->values(QLatin1String("CONFIG")).contains(QLatin1String("android"))
             && evaluator->value(QLatin1String("QMAKE_PLATFORM")) != QLatin1String("android"))
         return nullptr;
     if (evaluator->values(QLatin1String("CONFIG")).contains(QLatin1String("android-no-sdk")))
         return nullptr;
-    return new AndroidQtVersion(qmakePath);
+    return new AndroidQtVersion;
 }
 
 } // Internal

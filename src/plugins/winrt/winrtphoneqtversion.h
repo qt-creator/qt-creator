@@ -35,7 +35,6 @@ class WinRtPhoneQtVersion : public WinRtQtVersion
     Q_DECLARE_TR_FUNCTIONS(WinRt::Internal::WinRtQtVersion)
 public:
     WinRtPhoneQtVersion() = default;
-    explicit WinRtPhoneQtVersion(const Utils::FileName &path);
 
     QString description() const override;
     BaseQtVersion *clone() const override;

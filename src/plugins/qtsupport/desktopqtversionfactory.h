@@ -35,7 +35,7 @@ class DesktopQtVersionFactory : public QtVersionFactory
 public:
     DesktopQtVersionFactory();
 
-    BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator) override;
+    BaseQtVersion *create(ProFileEvaluator *evaluator) override;
 };
 
 } // Internal

@@ -35,8 +35,7 @@ class WinRtQtVersionFactory : public QtSupport::QtVersionFactory
 public:
     WinRtQtVersionFactory();
 
-    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath,
-                                     ProFileEvaluator *evaluator) override;
+    QtSupport::BaseQtVersion *create(ProFileEvaluator *evaluator) override;
 };
 
 class WinRtPhoneQtVersionFactory : public QtSupport::QtVersionFactory
@@ -44,8 +43,7 @@ class WinRtPhoneQtVersionFactory : public QtSupport::QtVersionFactory
 public:
     WinRtPhoneQtVersionFactory();
 
-    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath,
-                                     ProFileEvaluator *evaluator) override;
+    QtSupport::BaseQtVersion *create(ProFileEvaluator *evaluator) override;
 };
 
 } // Internal

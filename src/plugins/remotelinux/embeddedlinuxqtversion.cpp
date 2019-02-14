@@ -35,12 +35,6 @@
 namespace RemoteLinux {
 namespace Internal {
 
-EmbeddedLinuxQtVersion::EmbeddedLinuxQtVersion(const Utils::FileName &path)
-    : BaseQtVersion(path)
-{
-    setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
-}
-
 EmbeddedLinuxQtVersion *EmbeddedLinuxQtVersion::clone() const
 {
     return new EmbeddedLinuxQtVersion(*this);

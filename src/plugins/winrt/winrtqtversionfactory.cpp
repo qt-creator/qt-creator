@@ -40,12 +40,11 @@ WinRtQtVersionFactory::WinRtQtVersionFactory()
     setPriority(10);
 }
 
-QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(const Utils::FileName &qmakePath,
-        ProFileEvaluator *evaluator)
+QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(ProFileEvaluator *evaluator)
 {
     foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
         if (value == QStringLiteral("winrt"))
-            return new WinRtQtVersion(qmakePath);
+            return new WinRtQtVersion;
     }
 
     return nullptr;
@@ -60,12 +59,11 @@ WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory()
     setPriority(10);
 }
 
-QtSupport::BaseQtVersion *WinRtPhoneQtVersionFactory::create(const Utils::FileName &qmakePath,
-        ProFileEvaluator *evaluator)
+QtSupport::BaseQtVersion *WinRtPhoneQtVersionFactory::create(ProFileEvaluator *evaluator)
 {
     foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
         if (value == QStringLiteral("winphone"))
-            return new WinRtPhoneQtVersion(qmakePath);
+            return new WinRtPhoneQtVersion;
     }
 
     return nullptr;

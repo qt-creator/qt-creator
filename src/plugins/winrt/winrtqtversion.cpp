@@ -33,12 +33,6 @@
 namespace WinRt {
 namespace Internal {
 
-WinRtQtVersion::WinRtQtVersion(const Utils::FileName &path)
-    : BaseQtVersion(path)
-{
-    setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
-}
-
 QtSupport::BaseQtVersion *WinRtQtVersion::clone() const
 {
     return new WinRtQtVersion(*this);

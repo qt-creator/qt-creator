@@ -50,12 +50,6 @@ AndroidQtVersion::AndroidQtVersion()
 {
 }
 
-AndroidQtVersion::AndroidQtVersion(const Utils::FileName &path)
-    : QtSupport::BaseQtVersion(path)
-{
-    setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
-}
-
 AndroidQtVersion *AndroidQtVersion::clone() const
 {
     return new AndroidQtVersion(*this);
