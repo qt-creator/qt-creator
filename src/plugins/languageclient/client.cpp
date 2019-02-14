@@ -554,7 +554,7 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
 {
     const Utils::FileName fileName = uri.toFileName();
-    TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
+    TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFileName(fileName);
     if (!doc)
         return;
 
@@ -811,7 +811,8 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
 
 void Client::showDiagnostics(const DocumentUri &uri)
 {
-    if (TextEditor::TextDocument *doc = textDocumentForFileName(uri.toFileName())) {
+    if (TextEditor::TextDocument *doc
+        = TextEditor::TextDocument::textDocumentForFileName(uri.toFileName())) {
         for (TextMark *mark : m_diagnostics.value(uri))
             doc->addMark(mark);
     }
@@ -819,7 +820,8 @@ void Client::showDiagnostics(const DocumentUri &uri)
 
 void Client::removeDiagnostics(const DocumentUri &uri)
 {
-    TextEditor::TextDocument *doc = textDocumentForFileName(uri.toFileName());
+    TextEditor::TextDocument *doc
+        = TextEditor::TextDocument::textDocumentForFileName(uri.toFileName());
 
     for (TextMark *mark : m_diagnostics.take(uri)) {
         if (doc)

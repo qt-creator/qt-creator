@@ -40,6 +40,7 @@
 
 using namespace LanguageServerProtocol;
 using namespace Utils;
+using namespace TextEditor;
 
 namespace LanguageClient {
 
@@ -72,7 +73,7 @@ bool applyTextDocumentEdit(const TextDocumentEdit &edit)
     if (edits.isEmpty())
         return true;
     const DocumentUri &uri = edit.id().uri();
-    if (TextEditor::TextDocument* doc = textDocumentForFileName(uri.toFileName())) {
+    if (TextDocument* doc = TextDocument::textDocumentForFileName(uri.toFileName())) {
         LanguageClientValue<int> version = edit.id().version();
         if (!version.isNull() && version.value(0) < doc->document()->revision())
             return false;
@@ -84,14 +85,14 @@ bool applyTextEdits(const DocumentUri &uri, const QList<TextEdit> &edits)
 {
     if (edits.isEmpty())
         return true;
-    TextEditor::RefactoringChanges changes;
-    TextEditor::RefactoringFilePtr file;
+    RefactoringChanges changes;
+    RefactoringFilePtr file;
     file = changes.file(uri.toFileName().toString());
     file->setChangeSet(editsToChangeSet(edits, file->document()));
     return file->apply();
 }
 
-void applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator, const TextEdit &edit)
+void applyTextEdit(TextDocumentManipulatorInterface &manipulator, const TextEdit &edit)
 {
     using namespace Utils::Text;
     const Range range = edit.range();
@@ -118,12 +119,6 @@ bool applyWorkspaceEdit(const WorkspaceEdit &edit)
     return result;
 }
 
-TextEditor::TextDocument *textDocumentForFileName(const FileName &fileName)
-{
-    return qobject_cast<TextEditor::TextDocument *>(
-                Core::DocumentModel::documentForFilePath(fileName.toString()));
-}
-
 QTextCursor endOfLineCursor(const QTextCursor &cursor)
 {
     QTextCursor ret = cursor;
@@ -135,8 +130,7 @@ void updateCodeActionRefactoringMarker(Client *client,
                                        const CodeAction &action,
                                        const DocumentUri &uri)
 {
-    using namespace TextEditor;
-    TextDocument* doc = textDocumentForFileName(uri.toFileName());
+    TextDocument* doc = TextDocument::textDocumentForFileName(uri.toFileName());
     if (!doc)
         return;
     BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(doc);

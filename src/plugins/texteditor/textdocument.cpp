@@ -299,6 +299,11 @@ TextDocument *TextDocument::currentTextDocument()
     return qobject_cast<TextDocument *>(EditorManager::currentDocument());
 }
 
+TextDocument *TextDocument::textDocumentForFileName(const Utils::FileName &fileName)
+{
+    return qobject_cast<TextDocument *>(DocumentModel::documentForFilePath(fileName.toString()));
+}
+
 QString TextDocument::plainText() const
 {
     return document()->toPlainText();
