@@ -32,8 +32,7 @@
 namespace Ios {
 namespace Internal {
 
-IosQtVersionFactory::IosQtVersionFactory(QObject *parent)
-    : QtSupport::QtVersionFactory(parent)
+IosQtVersionFactory::IosQtVersionFactory()
 {
     setQtVersionCreator([] { return new IosQtVersion; });
     setSupportedType(Constants::IOSQT);

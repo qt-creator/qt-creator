@@ -33,8 +33,7 @@
 namespace WinRt {
 namespace Internal {
 
-WinRtQtVersionFactory::WinRtQtVersionFactory(QObject *parent)
-    : QtSupport::QtVersionFactory(parent)
+WinRtQtVersionFactory::WinRtQtVersionFactory()
 {
     setQtVersionCreator([] { return new WinRtQtVersion; });
     setSupportedType(Constants::WINRT_WINRTQT);
@@ -54,8 +53,7 @@ QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(const Utils::FileName &q
 
 
 
-WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory(QObject *parent)
-    : QtSupport::QtVersionFactory(parent)
+WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory()
 {
     setQtVersionCreator([] { return new WinRtPhoneQtVersion; });
     setSupportedType(Constants::WINRT_WINPHONEQT);

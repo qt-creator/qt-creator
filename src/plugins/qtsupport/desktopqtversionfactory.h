@@ -33,7 +33,7 @@ namespace Internal {
 class DesktopQtVersionFactory : public QtVersionFactory
 {
 public:
-    explicit DesktopQtVersionFactory(QObject *parent = nullptr);
+    DesktopQtVersionFactory();
 
     BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
                           bool isAutoDetected = false, const QString &autoDetectionSource = QString()) override;

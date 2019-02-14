@@ -32,9 +32,8 @@ namespace Internal {
 
 class QnxQtVersionFactory : public QtSupport::QtVersionFactory
 {
-    Q_OBJECT
 public:
-    explicit QnxQtVersionFactory(QObject *parent = nullptr);
+    QnxQtVersionFactory();
 
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath,
                                      ProFileEvaluator *evaluator,

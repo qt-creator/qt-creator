@@ -27,11 +27,9 @@
 
 #include "qtsupport_global.h"
 
-#include <QObject>
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class ProFileEvaluator;
 QT_END_NAMESPACE
 
@@ -41,13 +39,11 @@ namespace QtSupport {
 
 class BaseQtVersion;
 
-class QTSUPPORT_EXPORT QtVersionFactory : public QObject
+class QTSUPPORT_EXPORT QtVersionFactory
 {
-    Q_OBJECT
-
 public:
-    explicit QtVersionFactory(QObject *parent = nullptr);
-    ~QtVersionFactory() override;
+    QtVersionFactory();
+    virtual ~QtVersionFactory();
 
     static const QList<QtVersionFactory *> allQtVersionFactories();
 

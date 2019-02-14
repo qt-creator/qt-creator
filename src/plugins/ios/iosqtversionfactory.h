@@ -33,7 +33,7 @@ namespace Internal {
 class IosQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
-    explicit IosQtVersionFactory(QObject *parent = nullptr);
+    IosQtVersionFactory();
 
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
                                      bool isAutoDetected = false,

@@ -33,7 +33,7 @@ namespace Internal {
 class WinRtQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
-    explicit WinRtQtVersionFactory(QObject *parent = nullptr);
+    WinRtQtVersionFactory();
 
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
             bool isAutoDetected = false, const QString &autoDetectionSource = QString());
@@ -42,7 +42,7 @@ public:
 class WinRtPhoneQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
-    explicit WinRtPhoneQtVersionFactory(QObject *parent = nullptr);
+    WinRtPhoneQtVersionFactory();
 
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
             bool isAutoDetected = false, const QString &autoDetectionSource = QString());

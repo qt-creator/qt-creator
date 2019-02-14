@@ -42,8 +42,7 @@ using namespace QtSupport::Internal;
 
 static QList<QtVersionFactory *> g_qtVersionFactories;
 
-QtVersionFactory::QtVersionFactory(QObject *parent) :
-    QObject(parent)
+QtVersionFactory::QtVersionFactory()
 {
     g_qtVersionFactories.append(this);
 }
@@ -106,8 +105,10 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
         }
     }
     ProFileCacheManager::instance()->decRefCount();
-    if (error)
-        *error = tr("No factory found for qmake: \"%1\"").arg(qmakePath.toUserOutput());
+    if (error) {
+        *error = QCoreApplication::translate("QtSupport::QtVersionFactory",
+                    "No factory found for qmake: \"%1\"").arg(qmakePath.toUserOutput());
+    }
     return 0;
 }
 

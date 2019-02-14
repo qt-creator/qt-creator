@@ -33,7 +33,7 @@ namespace Internal {
 class AndroidQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
-    explicit AndroidQtVersionFactory(QObject *parent = nullptr);
+    AndroidQtVersionFactory();
 
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
                                      bool isAutoDetected = false, const QString &autoDetectionSource = QString()) override;

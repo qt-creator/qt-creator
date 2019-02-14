@@ -33,8 +33,7 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-QnxQtVersionFactory::QnxQtVersionFactory(QObject *parent) :
-    QtSupport::QtVersionFactory(parent)
+QnxQtVersionFactory::QnxQtVersionFactory()
 {
     setQtVersionCreator([] { return new QnxQtVersion; });
     setSupportedType(Constants::QNX_QNX_QT);

@@ -33,7 +33,7 @@ namespace Internal {
 class EmbeddedLinuxQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
-    explicit EmbeddedLinuxQtVersionFactory(QObject *parent = nullptr);
+    EmbeddedLinuxQtVersionFactory();
 
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
                                      bool isAutoDetected = false,

@@ -33,8 +33,7 @@
 namespace Android {
 namespace Internal {
 
-AndroidQtVersionFactory::AndroidQtVersionFactory(QObject *parent)
-    : QtSupport::QtVersionFactory(parent)
+AndroidQtVersionFactory::AndroidQtVersionFactory()
 {
     setQtVersionCreator([] { return new AndroidQtVersion; });
     setSupportedType(Constants::ANDROIDQT);

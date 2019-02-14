@@ -30,8 +30,7 @@
 using namespace QtSupport;
 using namespace QtSupport::Internal;
 
-DesktopQtVersionFactory::DesktopQtVersionFactory(QObject *parent)
-    : QtVersionFactory(parent)
+DesktopQtVersionFactory::DesktopQtVersionFactory()
 {
     setQtVersionCreator([] { return new DesktopQtVersion; });
     setSupportedType(Constants::DESKTOPQT);
