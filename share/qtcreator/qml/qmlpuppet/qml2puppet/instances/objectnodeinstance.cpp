@@ -267,13 +267,13 @@ static bool isList(const QQmlProperty &property)
 
 static bool isQJSValue(const QQmlProperty &property)
 {
-    return !strcmp(property.propertyTypeName(), "QJSValue");
+    return property.isValid() && !strcmp(property.propertyTypeName(), "QJSValue");
 }
 
 static bool isObject(const QQmlProperty &property)
 {
     /* QVariant and QJSValue can also store QObjects. Lets trust our model. */
-    return (property.propertyTypeCategory() == QQmlProperty::Object
+    return property.isValid() && (property.propertyTypeCategory() == QQmlProperty::Object
             || !strcmp(property.propertyTypeName(), "QVariant")
             || isQJSValue(property));
 }
