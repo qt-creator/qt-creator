@@ -9,6 +9,7 @@ SOURCES += \
     $$PWD/pchtaskqueue.cpp
 
 HEADERS += \
+    $$PWD/pchcreatorincludes.h \
     $$PWD/pchmanagerserver.h \
     $$PWD/clangpchmanagerbackend_global.h \
     $$PWD/pchnotcreatederror.h \

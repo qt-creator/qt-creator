@@ -27,6 +27,7 @@
 
 #include "pchcreatorinterface.h"
 
+#include "pchcreatorincludes.h"
 #include "idpaths.h"
 #include "sourceentry.h"
 #include "clangtool.h"
@@ -48,14 +49,6 @@ class Environment;
 class GeneratedFiles;
 class PchManagerClientInterface;
 class ClangPathWatcherInterface;
-
-class PchCreatorIncludes
-{
-public:
-    FilePathIds includeIds;
-    FilePathIds topIncludeIds;
-    FilePathIds topSystemIncludeIds;
-};
 
 class PchCreator final : public PchCreatorInterface
 {
