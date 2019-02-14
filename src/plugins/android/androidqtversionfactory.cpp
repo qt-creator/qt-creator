@@ -42,12 +42,11 @@ AndroidQtVersionFactory::AndroidQtVersionFactory()
 
 bool AndroidQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
 {
-    if (!evaluator->values("CONFIG").contains("android")
-            && evaluator->value("QMAKE_PLATFORM") != "android")
-        return false;
     if (evaluator->values("CONFIG").contains("android-no-sdk"))
         return false;
-    return true;
+
+    return evaluator->values("CONFIG").contains("android")
+            || evaluator->value("QMAKE_PLATFORM") == "android";
 }
 
 } // Internal
