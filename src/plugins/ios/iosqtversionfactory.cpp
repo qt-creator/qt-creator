@@ -39,11 +39,9 @@ IosQtVersionFactory::IosQtVersionFactory()
     setPriority(90);
 }
 
-QtSupport::BaseQtVersion *IosQtVersionFactory::create(ProFileEvaluator *evaluator)
+bool IosQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
 {
-    if (!(evaluator->values(QLatin1String("QMAKE_PLATFORM")).contains(QLatin1String("ios"))))
-        return nullptr;
-    return new IosQtVersion;
+    return evaluator->values("QMAKE_PLATFORM").contains("ios");
 }
 
 } // Internal

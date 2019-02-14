@@ -40,14 +40,9 @@ WinRtQtVersionFactory::WinRtQtVersionFactory()
     setPriority(10);
 }
 
-QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(ProFileEvaluator *evaluator)
+bool WinRtQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
 {
-    foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
-        if (value == QStringLiteral("winrt"))
-            return new WinRtQtVersion;
-    }
-
-    return nullptr;
+    return evaluator->values("QMAKE_PLATFORM").contains("winrt");
 }
 
 
@@ -59,14 +54,9 @@ WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory()
     setPriority(10);
 }
 
-QtSupport::BaseQtVersion *WinRtPhoneQtVersionFactory::create(ProFileEvaluator *evaluator)
+bool WinRtPhoneQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
 {
-    foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
-        if (value == QStringLiteral("winphone"))
-            return new WinRtPhoneQtVersion;
-    }
-
-    return nullptr;
+    return evaluator->values("QMAKE_PLATFORM").contains("winphone");
 }
 
 } // Internal

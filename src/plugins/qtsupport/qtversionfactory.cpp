@@ -71,6 +71,18 @@ BaseQtVersion *QtVersionFactory::restore(const QString &type, const QVariantMap 
     return version;
 }
 
+BaseQtVersion *QtVersionFactory::create() const
+{
+    QTC_ASSERT(m_creator, return nullptr);
+    return m_creator();
+}
+
+bool QtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
+{
+    Q_UNUSED(evaluator);
+    return true;
+}
+
 BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
 {
     QHash<ProKey, ProString> versionInfo;
@@ -98,7 +110,9 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
         return nullptr;
 
     foreach (QtVersionFactory *factory, factories) {
-        if (BaseQtVersion *ver = factory->create(&evaluator)) {
+        if (factory->canCreate(&evaluator)) {
+            BaseQtVersion *ver = factory->create();
+            QTC_ASSERT(ver, continue);
             ver->setupQmakePathAndId(qmakePath);
             ver->setAutoDetectionSource(autoDetectionSource);
             ver->setIsAutodetected(isAutoDetected);

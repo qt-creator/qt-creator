@@ -35,7 +35,7 @@ class AndroidQtVersionFactory : public QtSupport::QtVersionFactory
 public:
     AndroidQtVersionFactory();
 
-    QtSupport::BaseQtVersion *create(ProFileEvaluator *evaluator) override;
+    bool canCreate(ProFileEvaluator *evaluator) const override;
 };
 
 } // namespace Internal

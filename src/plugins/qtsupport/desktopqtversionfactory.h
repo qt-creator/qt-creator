@@ -34,8 +34,6 @@ class DesktopQtVersionFactory : public QtVersionFactory
 {
 public:
     DesktopQtVersionFactory();
-
-    BaseQtVersion *create(ProFileEvaluator *evaluator) override;
 };
 
 } // Internal

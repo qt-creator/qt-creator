@@ -40,21 +40,17 @@ EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory()
     setPriority(10);
 }
 
-QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::create(ProFileEvaluator *evaluator)
+bool EmbeddedLinuxQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
 {
     Q_UNUSED(evaluator);
 
-    auto version = new EmbeddedLinuxQtVersion;
+    EmbeddedLinuxQtVersion tempVersion;
+    QList<ProjectExplorer::Abi> abis = tempVersion.qtAbis();
 
-    QList<ProjectExplorer::Abi> abis = version->qtAbis();
     // Note: This fails for e.g. intel/meego cross builds on x86 linux machines.
-    if (abis.count() == 1
+    return  abis.count() == 1
             && abis.at(0).os() == ProjectExplorer::Abi::LinuxOS
-            && !ProjectExplorer::Abi::hostAbi().isCompatibleWith(abis.at(0)))
-        return version;
-
-    delete version;
-    return nullptr;
+            && !ProjectExplorer::Abi::hostAbi().isCompatibleWith(abis.at(0));
 }
 
 } // namespace Internal

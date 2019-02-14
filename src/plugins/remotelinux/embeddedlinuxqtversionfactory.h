@@ -35,7 +35,7 @@ class EmbeddedLinuxQtVersionFactory : public QtSupport::QtVersionFactory
 public:
     EmbeddedLinuxQtVersionFactory();
 
-    QtSupport::BaseQtVersion *create(ProFileEvaluator *evaluator) override;
+    bool canCreate(ProFileEvaluator *evaluator) const override;
 };
 
 } // Internal

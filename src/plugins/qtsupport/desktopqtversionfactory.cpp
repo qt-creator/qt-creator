@@ -35,11 +35,5 @@ DesktopQtVersionFactory::DesktopQtVersionFactory()
     setQtVersionCreator([] { return new DesktopQtVersion; });
     setSupportedType(Constants::DESKTOPQT);
     setPriority(0); // Lowest of all, we want to be the fallback
-}
-
-BaseQtVersion *DesktopQtVersionFactory::create(ProFileEvaluator *evaluator)
-{
-    Q_UNUSED(evaluator);
-    // we are the fallback :) so we don't care what kind of qt it is
-    return new DesktopQtVersion;
+    // No further restrictions. We are the fallback :) so we don't care what kind of qt it is.
 }

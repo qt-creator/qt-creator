@@ -40,10 +40,7 @@ QnxQtVersionFactory::QnxQtVersionFactory()
     setPriority(50);
 }
 
-QtSupport::BaseQtVersion *QnxQtVersionFactory::create(ProFileEvaluator *evaluator)
+bool QnxQtVersionFactory::canCreate(ProFileEvaluator *evaluator) const
 {
-    if (evaluator->contains(QLatin1String("QNX_CPUDIR")))
-        return new QnxQtVersion;
-
-    return nullptr;
+    return evaluator->contains("QNX_CPUDIR");
 }
