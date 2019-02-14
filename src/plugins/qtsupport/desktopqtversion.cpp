@@ -101,6 +101,7 @@ QSet<Core::Id> DesktopQtVersion::targetDeviceTypes() const
 void DesktopQtVersion::fromMap(const QVariantMap &map)
 {
     BaseQtVersion::fromMap(map);
+    // Clear the cached qmlscene command, it might not match the restored path anymore.
     m_qmlsceneCommand.clear();
 }
 
@@ -108,28 +109,19 @@ QString DesktopQtVersion::qmlsceneCommand() const
 {
     if (!isValid())
         return QString();
+
     if (!m_qmlsceneCommand.isNull())
         return m_qmlsceneCommand;
-    m_qmlsceneCommand = findTargetBinary(QmlScene);
+
+    ensureMkSpecParsed();
+
+    QString path =
+        qmlBinPath().appendPath(Utils::HostOsInfo::withExecutableSuffix("qmlscene")).toString();
+
+    m_qmlsceneCommand = QFileInfo(path).isFile() ? path : QString();
+
     return m_qmlsceneCommand;
 }
 
 DesktopQtVersion::DesktopQtVersion(const DesktopQtVersion &other) = default;
 
-QString DesktopQtVersion::findTargetBinary(TargetBinaries binary) const
-{
-    QString path;
-
-    ensureMkSpecParsed();
-    switch (binary) {
-    case QmlScene:
-        path = qmlBinPath().appendPath(
-                    Utils::HostOsInfo::withExecutableSuffix("qmlscene")).toString();
-        break;
-    default:
-        // Can't happen
-        QTC_ASSERT(false, return QString());
-    }
-
-    return QFileInfo(path).isFile() ? path : QString();
-}

@@ -55,10 +55,6 @@ protected:
     DesktopQtVersion(const DesktopQtVersion &other);
 
 private:
-
-    enum TargetBinaries { QmlScene };
-    QString findTargetBinary(TargetBinaries binary) const;
-
     mutable QString m_qmlsceneCommand;
 };
 
