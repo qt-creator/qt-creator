@@ -15,6 +15,7 @@ QtcPlugin {
     Depends { name: "Qt.widgets" }
 
     condition: libclang.present
+               && libclang.llvmFormattingLibs.length
                && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
 
     cpp.cxxFlags: {
