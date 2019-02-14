@@ -26,6 +26,7 @@
 #pragma once
 
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionfactory.h>
 
 #include <QCoreApplication>
 
@@ -52,6 +53,12 @@ public:
     QSet<Core::Id> targetDeviceTypes() const override;
 
     QString description() const override;
+};
+
+class IosQtVersionFactory : public QtSupport::QtVersionFactory
+{
+public:
+    IosQtVersionFactory();
 };
 
 } // namespace Internal

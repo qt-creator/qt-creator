@@ -42,8 +42,10 @@
 
 #include <proparser/profileevaluator.h>
 
-using namespace Android::Internal;
 using namespace ProjectExplorer;
+
+namespace Android {
+namespace Internal {
 
 AndroidQtVersion::AndroidQtVersion()
     : QtSupport::BaseQtVersion()
@@ -154,3 +156,22 @@ QSet<Core::Id> AndroidQtVersion::targetDeviceTypes() const
 {
     return {Constants::ANDROID_DEVICE_TYPE};
 }
+
+
+// Factory
+
+AndroidQtVersionFactory::AndroidQtVersionFactory()
+{
+    setQtVersionCreator([] { return new AndroidQtVersion; });
+    setSupportedType(Constants::ANDROIDQT);
+    setPriority(90);
+
+    setRestrictionChecker([](const SetupData &setup) {
+        return !setup.config.contains("android-no-sdk")
+                && (setup.config.contains("android")
+                    || setup.platforms.contains("android"));
+    });
+}
+
+} // Internal
+} // Android

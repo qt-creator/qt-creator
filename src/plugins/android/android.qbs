@@ -75,8 +75,6 @@ Project {
             "androidqmltoolingsupport.h",
             "androidqtversion.cpp",
             "androidqtversion.h",
-            "androidqtversionfactory.cpp",
-            "androidqtversionfactory.h",
             "androidrunconfiguration.cpp",
             "androidrunconfiguration.h",
             "androidrunenvironmentaspect.h",

@@ -42,5 +42,11 @@ public:
     QSet<Core::Id> targetDeviceTypes() const override;
 };
 
+class WinRtPhoneQtVersionFactory : public QtSupport::QtVersionFactory
+{
+public:
+    WinRtPhoneQtVersionFactory();
+};
+
 } // Internal
 } // WinRt

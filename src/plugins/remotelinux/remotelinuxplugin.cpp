@@ -25,7 +25,7 @@
 
 #include "remotelinuxplugin.h"
 
-#include "embeddedlinuxqtversionfactory.h"
+#include "embeddedlinuxqtversion.h"
 #include "genericlinuxdeviceconfigurationfactory.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxqmltoolingsupport.h"

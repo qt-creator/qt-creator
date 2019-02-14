@@ -68,5 +68,16 @@ QSet<Core::Id> WinRtQtVersion::targetDeviceTypes() const
     return {Constants::WINRT_DEVICE_TYPE_LOCAL, Constants::WINRT_DEVICE_TYPE_EMULATOR};
 }
 
+
+// Factory
+
+WinRtQtVersionFactory::WinRtQtVersionFactory()
+{
+    setQtVersionCreator([] { return new WinRtQtVersion; });
+    setSupportedType(Constants::WINRT_WINRTQT);
+    setRestrictionChecker([](const SetupData &setup) { return setup.platforms.contains("winrt"); });
+    setPriority(10);
+}
+
 } // Internal
 } // WinRt

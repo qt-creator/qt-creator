@@ -55,5 +55,16 @@ QSet<Core::Id> WinRtPhoneQtVersion::targetDeviceTypes() const
     return {Constants::WINRT_DEVICE_TYPE_PHONE, Constants::WINRT_DEVICE_TYPE_EMULATOR};
 }
 
+
+// Factory
+
+WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory()
+{
+    setQtVersionCreator([] { return new WinRtPhoneQtVersion; });
+    setSupportedType(Constants::WINRT_WINPHONEQT);
+    setRestrictionChecker([](const SetupData &setup) { return setup.platforms.contains("winphone"); });
+    setPriority(10);
+}
+
 } // Internal
 } // WinRt

@@ -60,5 +60,25 @@ QSet<Core::Id> EmbeddedLinuxQtVersion::targetDeviceTypes() const
     return {Constants::GenericLinuxOsType};
 }
 
+
+// Factory
+
+EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory()
+{
+    setQtVersionCreator([] { return new EmbeddedLinuxQtVersion; });
+    setSupportedType(RemoteLinux::Constants::EMBEDDED_LINUX_QT);
+    setPriority(10);
+
+    setRestrictionChecker([](const SetupData &) {
+        EmbeddedLinuxQtVersion tempVersion;
+        QList<ProjectExplorer::Abi> abis = tempVersion.qtAbis();
+
+        // Note: This fails for e.g. intel/meego cross builds on x86 linux machines.
+        return  abis.count() == 1
+                && abis.at(0).os() == ProjectExplorer::Abi::LinuxOS
+                && !ProjectExplorer::Abi::hostAbi().isCompatibleWith(abis.at(0));
+    });
+}
+
 } // namespace Internal
 } // namespace RemoteLinux

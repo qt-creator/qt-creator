@@ -10,7 +10,6 @@ HEADERS += \
     winrtphoneqtversion.h \
     winrtplugin.h \
     winrtqtversion.h \
-    winrtqtversionfactory.h \
     winrtrunconfiguration.h \
     winrtruncontrol.h \
     winrtrunnerhelper.h
@@ -24,7 +23,6 @@ SOURCES += \
     winrtphoneqtversion.cpp \
     winrtplugin.cpp \
     winrtqtversion.cpp \
-    winrtqtversionfactory.cpp \
     winrtrunconfiguration.cpp \
     winrtruncontrol.cpp \
     winrtrunnerhelper.cpp

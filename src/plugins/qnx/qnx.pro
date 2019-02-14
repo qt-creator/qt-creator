@@ -10,7 +10,6 @@ SOURCES += qnxplugin.cpp \
     qnxrunconfiguration.cpp \
     qnxanalyzesupport.cpp \
     qnxdebugsupport.cpp \
-    qnxqtversionfactory.cpp \
     qnxqtversion.cpp \
     qnxdevice.cpp \
     qnxdevicetester.cpp \
@@ -35,7 +34,6 @@ HEADERS += qnxplugin.h\
     qnxrunconfiguration.h \
     qnxanalyzesupport.h \
     qnxdebugsupport.h \
-    qnxqtversionfactory.h \
     qnxqtversion.h \
     qnxdevice.h \
     qnxdevicetester.h \

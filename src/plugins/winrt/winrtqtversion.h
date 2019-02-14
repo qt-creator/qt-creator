@@ -26,6 +26,7 @@
 #pragma once
 
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionfactory.h>
 
 namespace WinRt {
 namespace Internal {
@@ -43,6 +44,12 @@ public:
     QList<ProjectExplorer::Abi> detectQtAbis() const override;
 
     QSet<Core::Id> targetDeviceTypes() const override;
+};
+
+class WinRtQtVersionFactory : public QtSupport::QtVersionFactory
+{
+public:
+    WinRtQtVersionFactory();
 };
 
 } // Internal

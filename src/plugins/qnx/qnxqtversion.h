@@ -29,6 +29,7 @@
 #include "qnxqtversion.h"
 
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionfactory.h>
 
 #include <utils/environment.h>
 
@@ -83,6 +84,12 @@ private:
     mutable QString m_cpuDir;
     mutable bool m_environmentUpToDate = false;
     mutable QList<Utils::EnvironmentItem> m_qnxEnv;
+};
+
+class QnxQtVersionFactory : public QtSupport::QtVersionFactory
+{
+public:
+    QnxQtVersionFactory();
 };
 
 } // namespace Internal

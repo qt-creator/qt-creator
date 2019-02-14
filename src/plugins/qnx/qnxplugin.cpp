@@ -32,7 +32,6 @@
 #include "qnxdevice.h"
 #include "qnxdevicefactory.h"
 #include "qnxqtversion.h"
-#include "qnxqtversionfactory.h"
 #include "qnxrunconfiguration.h"
 #include "qnxsettingspage.h"
 #include "qnxtoolchain.h"

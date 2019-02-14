@@ -19,7 +19,6 @@ HEADERS += \
     androidrunner.h \
     androidrunnerworker.h \
     androiddebugsupport.h \
-    androidqtversionfactory.h \
     androidqtversion.h \
     androidcreatekeystorecertificate.h \
     javaparser.h \
@@ -67,7 +66,6 @@ SOURCES += \
     androidrunner.cpp \
     androidrunnerworker.cpp \
     androiddebugsupport.cpp \
-    androidqtversionfactory.cpp \
     androidqtversion.cpp \
     androidcreatekeystorecertificate.cpp \
     javaparser.cpp \

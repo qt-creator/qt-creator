@@ -47,8 +47,6 @@ QtcPlugin {
         "iosprobe.h",
         "iosqtversion.cpp",
         "iosqtversion.h",
-        "iosqtversionfactory.cpp",
-        "iosqtversionfactory.h",
         "iosrunconfiguration.cpp",
         "iosrunconfiguration.h",
         "iosrunner.cpp",

@@ -37,7 +37,7 @@
 #include "androidpackageinstallationstep.h"
 #include "androidpotentialkit.h"
 #include "androidqmltoolingsupport.h"
-#include "androidqtversionfactory.h"
+#include "androidqtversion.h"
 #include "androidrunconfiguration.h"
 #include "androidruncontrol.h"
 #include "androidsettingspage.h"

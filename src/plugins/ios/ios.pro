@@ -15,7 +15,6 @@ HEADERS += \
     iossettingswidget.h \
     iosrunner.h \
     iosdsymbuildstep.h \
-    iosqtversionfactory.h \
     iosqtversion.h \
     iosplugin.h \
     iosdevicefactory.h \
@@ -42,7 +41,6 @@ SOURCES += \
     iossettingswidget.cpp \
     iosrunner.cpp \
     iosdsymbuildstep.cpp \
-    iosqtversionfactory.cpp \
     iosqtversion.cpp \
     iosplugin.cpp \
     iosdevicefactory.cpp \

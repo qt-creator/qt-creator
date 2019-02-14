@@ -29,8 +29,6 @@ QtcPlugin {
         "winrtplugin.h",
         "winrtqtversion.cpp",
         "winrtqtversion.h",
-        "winrtqtversionfactory.cpp",
-        "winrtqtversionfactory.h",
         "winrtrunconfiguration.cpp",
         "winrtrunconfiguration.h",
         "winrtruncontrol.cpp",

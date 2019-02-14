@@ -57,8 +57,6 @@ QtcPlugin {
         "qnxplugin.h",
         "qnxqtversion.cpp",
         "qnxqtversion.h",
-        "qnxqtversionfactory.cpp",
-        "qnxqtversionfactory.h",
         "qnxrunconfiguration.cpp",
         "qnxrunconfiguration.h",
         "qnxutils.cpp",

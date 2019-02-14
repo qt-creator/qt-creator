@@ -104,8 +104,8 @@ Project {
         Group {
             name: "QtVersion"
             files: [
-                "desktopqtversion.cpp", "desktopqtversion.h",
-                "desktopqtversionfactory.cpp", "desktopqtversionfactory.h",
+                "desktopqtversion.cpp",
+                "desktopqtversion.h",
             ]
         }
 

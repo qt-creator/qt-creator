@@ -38,7 +38,7 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 
-using namespace QtSupport;
+namespace QtSupport {
 
 DesktopQtVersion::DesktopQtVersion()
     : BaseQtVersion()
@@ -119,3 +119,18 @@ QString DesktopQtVersion::qmlsceneCommand() const
 
 DesktopQtVersion::DesktopQtVersion(const DesktopQtVersion &other) = default;
 
+
+namespace Internal {
+
+// Factory
+
+DesktopQtVersionFactory::DesktopQtVersionFactory()
+{
+    setQtVersionCreator([] { return new DesktopQtVersion; });
+    setSupportedType(QtSupport::Constants::DESKTOPQT);
+    setPriority(0); // Lowest of all, we want to be the fallback
+    // No further restrictions. We are the fallback :) so we don't care what kind of qt it is.
+}
+
+} // Internal
+} // QtSupport

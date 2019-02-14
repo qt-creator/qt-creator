@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <qtsupport/qtversionfactory.h>
+
 #include "baseqtversion.h"
 
 namespace QtSupport {
@@ -58,4 +60,13 @@ private:
     mutable QString m_qmlsceneCommand;
 };
 
+namespace Internal {
+
+class DesktopQtVersionFactory : public QtVersionFactory
+{
+public:
+    DesktopQtVersionFactory();
+};
+
+} // Internal
 } // QtSupport

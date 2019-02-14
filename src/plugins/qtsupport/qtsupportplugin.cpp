@@ -27,14 +27,17 @@
 
 #include "codegenerator.h"
 #include "codegensettingspage.h"
-#include "desktopqtversionfactory.h"
+#include "desktopqtversion.h"
 #include "gettingstartedwelcomepage.h"
 #include "qtkitinformation.h"
 #include "qtoptionspage.h"
+#include "qtsupportconstants.h"
+#include "qtversionfactory.h"
 #include "qtversionmanager.h"
 #include "uicgenerator.h"
 #include "qscxmlcgenerator.h"
 
+#include "desktopqtversion.h"
 #include "profilereader.h"
 
 #include <coreplugin/icore.h>

@@ -199,5 +199,16 @@ QList<Utils::EnvironmentItem> QnxQtVersion::environment() const
     return QnxUtils::qnxEnvironment(sdpPath());
 }
 
+
+// Factory
+
+QnxQtVersionFactory::QnxQtVersionFactory()
+{
+    setQtVersionCreator([] { return new QnxQtVersion; });
+    setSupportedType(Constants::QNX_QNX_QT);
+    setPriority(50);
+    setRestrictionChecker([](const SetupData &setup) { return setup.isQnx; });
+}
+
 } // namespace Internal
 } // namespace Qnx

@@ -29,8 +29,6 @@ Project {
             "deploymenttimeinfo.h",
             "embeddedlinuxqtversion.cpp",
             "embeddedlinuxqtversion.h",
-            "embeddedlinuxqtversionfactory.cpp",
-            "embeddedlinuxqtversionfactory.h",
             "genericdirectuploadservice.cpp",
             "genericdirectuploadservice.h",
             "genericdirectuploadstep.cpp",

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionfactory.h>
 
 namespace RemoteLinux {
 namespace Internal {
@@ -44,6 +45,12 @@ public:
     QString description() const override;
 
     QSet<Core::Id> targetDeviceTypes() const override;
+};
+
+class EmbeddedLinuxQtVersionFactory : public QtSupport::QtVersionFactory
+{
+public:
+    EmbeddedLinuxQtVersionFactory();
 };
 
 } // namespace Internal

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionfactory.h>
 
 #include <QCoreApplication>
 
@@ -60,6 +61,12 @@ protected:
 private:
     mutable QString m_targetArch;
     mutable int m_minNdk = -1;
+};
+
+class AndroidQtVersionFactory : public QtSupport::QtVersionFactory
+{
+public:
+    AndroidQtVersionFactory();
 };
 
 } // namespace Internal

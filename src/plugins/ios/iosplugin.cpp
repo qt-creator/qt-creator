@@ -32,7 +32,7 @@
 #include "iosdeploystep.h"
 #include "iosdevicefactory.h"
 #include "iosdsymbuildstep.h"
-#include "iosqtversionfactory.h"
+#include "iosqtversion.h"
 #include "iosrunner.h"
 #include "iossettingspage.h"
 #include "iossimulator.h"
