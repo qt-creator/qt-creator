@@ -112,17 +112,6 @@ Core::Id AndroidGdbServerKitAspect::id()
     return "Android.GdbServer.Information";
 }
 
-bool AndroidGdbServerKitAspect::isAndroidKit(const Kit *kit)
-{
-    QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit);
-    ToolChain *tc = ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (qt && tc)
-        return qt->type() == QLatin1String(Constants::ANDROIDQT)
-                && tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID;
-    return false;
-
-}
-
 FileName AndroidGdbServerKitAspect::gdbServer(const Kit *kit)
 {
     QTC_ASSERT(kit, return FileName());
