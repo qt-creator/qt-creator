@@ -98,6 +98,7 @@ private:
     ProjectPartPch m_projectPartPch;
     FilePathCaching m_filePathCache;
     FilePathIds m_allInclues;
+    FilePathIds m_generatedFilePathIds;
     Environment &m_environment;
     PchManagerClientInterface &m_pchManagerClient;
     ClangPathWatcherInterface &m_clangPathwatcher;

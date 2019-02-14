@@ -138,6 +138,16 @@ const ProjectPartPch &PchCreator::projectPartPch()
 
 void PchCreator::setUnsavedFiles(const V2::FileContainers &fileContainers)
 {
+    m_generatedFilePathIds.clear();
+    m_generatedFilePathIds.reserve(fileContainers.size());
+    std::transform(fileContainers.begin(),
+                   fileContainers.end(),
+                   std::back_inserter(m_generatedFilePathIds),
+                   [&](const V2::FileContainer &fileContainer) {
+                       return m_filePathCache.filePathId(fileContainer.filePath);
+                   });
+    std::sort(m_generatedFilePathIds.begin(), m_generatedFilePathIds.end());
+
     m_clangTool.addUnsavedFiles(fileContainers);
 }
 
@@ -159,7 +169,14 @@ void PchCreator::clear()
 
 void PchCreator::doInMainThreadAfterFinished()
 {
-    m_clangPathwatcher.updateIdPaths({{m_projectPartPch.projectPartId, m_allInclues}});
+    FilePathIds existingIncludes;
+    existingIncludes.reserve(m_allInclues.size());
+    std::set_difference(m_allInclues.begin(),
+                        m_allInclues.end(),
+                        m_generatedFilePathIds.begin(),
+                        m_generatedFilePathIds.end(),
+                        std::back_inserter(existingIncludes));
+    m_clangPathwatcher.updateIdPaths({{m_projectPartPch.projectPartId, existingIncludes}});
     m_pchManagerClient.precompiledHeadersUpdated(ProjectPartPchs{m_projectPartPch});
 }
 
