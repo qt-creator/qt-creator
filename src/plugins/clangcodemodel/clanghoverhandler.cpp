@@ -93,79 +93,6 @@ ClangHoverHandler::~ClangHoverHandler()
     abort();
 }
 
-static int skipChars(QTextCursor *tc,
-                      QTextCursor::MoveOperation op,
-                      int offset,
-                      std::function<bool(const QChar &)> skip)
-{
-    const QTextDocument *doc = tc->document();
-    QChar ch = doc->characterAt(tc->position() + offset);
-    if (ch.isNull())
-        return 0;
-    int count = 0;
-    while (skip(ch)) {
-        if (tc->movePosition(op))
-            ++count;
-        else
-            break;
-        ch = doc->characterAt(tc->position() + offset);
-    }
-    return count;
-}
-
-static int skipCharsForward(QTextCursor *tc, std::function<bool(const QChar &)> skip)
-{
-    return skipChars(tc, QTextCursor::NextCharacter, 0, skip);
-}
-
-static int skipCharsBackward(QTextCursor *tc, std::function<bool(const QChar &)> skip)
-{
-    return skipChars(tc, QTextCursor::PreviousCharacter, -1, skip);
-}
-
-static QStringList fallbackWords(QTextDocument *document, int pos)
-{
-    const auto isSpace = [](const QChar &c) { return c.isSpace(); };
-    const auto isColon = [](const QChar &c) { return c == ':'; };
-    const auto isValidIdentifierChar = [document](const QTextCursor &tc) {
-        return CppTools::isValidIdentifierChar(document->characterAt(tc.position()));
-    };
-    // move to the end
-    QTextCursor endCursor(document);
-    endCursor.setPosition(pos);
-    do {
-        CppTools::moveCursorToEndOfIdentifier(&endCursor);
-        // possibly skip ::
-        QTextCursor temp(endCursor);
-        skipCharsForward(&temp, isSpace);
-        const int colons = skipCharsForward(&temp, isColon);
-        skipCharsForward(&temp, isSpace);
-        if (colons == 2 && isValidIdentifierChar(temp))
-            endCursor = temp;
-    } while (isValidIdentifierChar(endCursor));
-
-    QStringList results;
-    QTextCursor startCursor(endCursor);
-    do {
-        CppTools::moveCursorToStartOfIdentifier(&startCursor);
-        if (startCursor.position() == endCursor.position())
-            break;
-        QTextCursor temp(endCursor);
-        temp.setPosition(startCursor.position(), QTextCursor::KeepAnchor);
-        results.append(temp.selectedText().remove(QRegularExpression("\\s")));
-        // possibly skip ::
-        temp = startCursor;
-        skipCharsBackward(&temp, isSpace);
-        const int colons = skipCharsBackward(&temp, isColon);
-        skipCharsBackward(&temp, isSpace);
-        if (colons == 2
-                && CppTools::isValidIdentifierChar(document->characterAt(temp.position() - 1))) {
-            startCursor = temp;
-        }
-    } while (!isValidIdentifierChar(startCursor));
-    return results;
-}
-
 void ClangHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
                                       int pos,
                                       BaseHoverHandler::ReportPriority report)
@@ -187,7 +114,9 @@ void ClangHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
         qCDebug(hoverLog) << "Requesting tooltip info at" << pos;
         m_reportPriority = report;
         m_futureWatcher.reset(new QFutureWatcher<CppTools::ToolTipInfo>());
-        const QStringList fallback = fallbackWords(editorWidget->document(), pos);
+        QTextCursor tc(editorWidget->document());
+        tc.setPosition(pos);
+        const QStringList fallback = CppTools::identifierWordsUnderCursor(tc);
         QObject::connect(m_futureWatcher.data(),
                          &QFutureWatcherBase::finished,
                          [this, fallback]() {

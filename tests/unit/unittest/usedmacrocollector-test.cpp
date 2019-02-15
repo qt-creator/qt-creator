@@ -79,48 +79,48 @@ protected:
 
 TEST_F(UsedMacroAndSourcesCollector, SourceFiles)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
 
     collector.collect();
 
     ASSERT_THAT(collector.sourceFiles(),
-                UnorderedElementsAre(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"),
-                                     filePathId(TESTDATA_DIR "/symbolscollector_header1.h"),
-                                     filePathId(TESTDATA_DIR "/symbolscollector_header2.h")));
+                UnorderedElementsAre(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"),
+                                     filePathId(TESTDATA_DIR "/symbolscollector/header1.h"),
+                                     filePathId(TESTDATA_DIR "/symbolscollector/header2.h")));
 }
 
 TEST_F(UsedMacroAndSourcesCollector, MainFileInSourceFiles)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
 
     ASSERT_THAT(collector.sourceFiles(),
-                ElementsAre(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp")));
+                ElementsAre(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp")));
 }
 
 TEST_F(UsedMacroAndSourcesCollector, ResetMainFileInSourceFiles)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
 
     ASSERT_THAT(collector.sourceFiles(),
-                ElementsAre(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp")));
+                ElementsAre(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp")));
 }
 
 TEST_F(UsedMacroAndSourcesCollector, DontDuplicateSourceFiles)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
     collector.collect();
 
     collector.collect();
 
     ASSERT_THAT(collector.sourceFiles(),
-                UnorderedElementsAre(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"),
-                                     filePathId(TESTDATA_DIR "/symbolscollector_header1.h"),
-                                     filePathId(TESTDATA_DIR "/symbolscollector_header2.h")));
+                UnorderedElementsAre(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"),
+                                     filePathId(TESTDATA_DIR "/symbolscollector/header1.h"),
+                                     filePathId(TESTDATA_DIR "/symbolscollector/header2.h")));
 }
 
 TEST_F(UsedMacroAndSourcesCollector, ClearSourceFiles)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
 
     collector.clear();
 
@@ -129,7 +129,7 @@ TEST_F(UsedMacroAndSourcesCollector, ClearSourceFiles)
 
 TEST_F(UsedMacroAndSourcesCollector, ClearFileStatus)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
     collector.collect();
 
     collector.clear();
@@ -139,7 +139,7 @@ TEST_F(UsedMacroAndSourcesCollector, ClearFileStatus)
 
 TEST_F(UsedMacroAndSourcesCollector, ClearUsedMacros)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_defines.h"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/defines.h"), {"cc"});
     collector.collect();
 
     collector.clear();
@@ -149,7 +149,7 @@ TEST_F(UsedMacroAndSourcesCollector, ClearUsedMacros)
 
 TEST_F(UsedMacroAndSourcesCollector, ClearSourceDependencies)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main2.cpp"), {"cc", "-I" TESTDATA_DIR});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main2.cpp"), {"cc", "-I" TESTDATA_DIR});
     collector.collect();
 
     collector.clear();
@@ -159,7 +159,7 @@ TEST_F(UsedMacroAndSourcesCollector, ClearSourceDependencies)
 
 TEST_F(UsedMacroAndSourcesCollector, DontCollectSourceFilesAfterFilesAreCleared)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
 
     collector.clear();
     collector.collect();
@@ -169,7 +169,7 @@ TEST_F(UsedMacroAndSourcesCollector, DontCollectSourceFilesAfterFilesAreCleared)
 
 TEST_F(UsedMacroAndSourcesCollector, DontCollectFileStatusAfterFilesAreCleared)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
 
     collector.clear();
     collector.collect();
@@ -179,7 +179,7 @@ TEST_F(UsedMacroAndSourcesCollector, DontCollectFileStatusAfterFilesAreCleared)
 
 TEST_F(UsedMacroAndSourcesCollector, DontCollectUsedMacrosAfterFilesAreCleared)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
 
     collector.clear();
     collector.collect();
@@ -190,7 +190,7 @@ TEST_F(UsedMacroAndSourcesCollector, DontCollectUsedMacrosAfterFilesAreCleared)
 
 TEST_F(UsedMacroAndSourcesCollector, DontCollectSourceDependenciesAfterFilesAreCleared)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
 
     collector.clear();
     collector.collect();
@@ -200,7 +200,7 @@ TEST_F(UsedMacroAndSourcesCollector, DontCollectSourceDependenciesAfterFilesAreC
 
 TEST_F(UsedMacroAndSourcesCollector, CollectUsedMacrosWithExternalDefine)
 {
-    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector/defines.h");
     collector.addFile(fileId, {"cc", "-DCOMPILER_ARGUMENT"});
 
     collector.collect();
@@ -217,7 +217,7 @@ TEST_F(UsedMacroAndSourcesCollector, CollectUsedMacrosWithExternalDefine)
 
 TEST_F(UsedMacroAndSourcesCollector, CollectUsedMacrosWithoutExternalDefine)
 {
-    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector/defines.h");
     collector.addFile(fileId, {"cc"});
 
     collector.collect();
@@ -234,7 +234,7 @@ TEST_F(UsedMacroAndSourcesCollector, CollectUsedMacrosWithoutExternalDefine)
 
 TEST_F(UsedMacroAndSourcesCollector, DontCollectHeaderGuards)
 {
-    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector/defines.h");
     collector.addFile(fileId, {"cc"});
 
     collector.collect();
@@ -245,7 +245,7 @@ TEST_F(UsedMacroAndSourcesCollector, DontCollectHeaderGuards)
 
 TEST_F(UsedMacroAndSourcesCollector, DISABLED_DontCollectDynamicLibraryExports)
 {
-    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector_defines.h");
+    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector/defines.h");
     collector.addFile(fileId, {"cc"});
 
     collector.collect();
@@ -256,23 +256,23 @@ TEST_F(UsedMacroAndSourcesCollector, DISABLED_DontCollectDynamicLibraryExports)
 
 TEST_F(UsedMacroAndSourcesCollector, CollectFileStatuses)
 {
-    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector_main.cpp"), {"cc"});
+    collector.addFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
 
     collector.collect();
 
     ASSERT_THAT(collector.fileStatuses(),
                 ElementsAre(
-                    fileStatus(TESTDATA_DIR "/symbolscollector_main.cpp"),
-                    fileStatus(TESTDATA_DIR "/symbolscollector_header1.h"),
-                    fileStatus(TESTDATA_DIR "/symbolscollector_header2.h")));
+                    fileStatus(TESTDATA_DIR "/symbolscollector/main.cpp"),
+                    fileStatus(TESTDATA_DIR "/symbolscollector/header1.h"),
+                    fileStatus(TESTDATA_DIR "/symbolscollector/header2.h")));
 }
 
 TEST_F(UsedMacroAndSourcesCollector, CollectSourceDependencies)
 {
-    auto mainFileId = filePathId(TESTDATA_DIR "/symbolscollector_main2.cpp");
-    auto header1FileId = filePathId(TESTDATA_DIR "/symbolscollector_header1.h");
-    auto header2FileId = filePathId(TESTDATA_DIR "/symbolscollector_header2.h");
-    auto header3FileId = filePathId(TESTDATA_DIR "/symbolscollector_header3.h");
+    auto mainFileId = filePathId(TESTDATA_DIR "/symbolscollector/main2.cpp");
+    auto header1FileId = filePathId(TESTDATA_DIR "/symbolscollector/header1.h");
+    auto header2FileId = filePathId(TESTDATA_DIR "/symbolscollector/header2.h");
+    auto header3FileId = filePathId(TESTDATA_DIR "/symbolscollector/header3.h");
     collector.addFile(mainFileId, {"cc", "-I" TESTDATA_DIR});
 
     collector.collect();

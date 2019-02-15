@@ -25,7 +25,13 @@
 
 source("../../shared/qtcreator.py")
 
-def handleInsertVirtualFunctions(expected):
+def handleInsertVirtualFunctions(expected, toAdd):
+    def __checkVirtualFunction(treeView, classIndex, isCheckedF, child):
+        item = "%s.%s" % (str(classIndex.text), str(child.text))
+        test.log("Checking '%s'." % item)
+        clickItem(treeView, item.replace("_", "\\_"), 5, 5, 0, Qt.LeftButton)
+        test.verify(waitFor("isCheckedF(child)", 1000), "Function must be checked after clicking")
+
     treeView = waitForObject("{container={title='Functions to insert:' type='QGroupBox' unnamed='1'"
                              " visible='1'} type='QTreeView' unnamed='1' visible='1'}")
 
@@ -42,10 +48,10 @@ def handleInsertVirtualFunctions(expected):
                         if test.verify(isChecked(child), "Verifying: '%s' is checked." % curr):
                             found.add(curr)
                         else:
-                            item = "%s.%s" % (str(classIndex.text), str(child.text))
-                            test.log("Checking '%s'." % item)
-                            clickItem(treeView, item.replace("_", "\\_"), 5, 5, 0, Qt.LeftButton)
-                            waitFor("isChecked(child)", 1000)
+                            __checkVirtualFunction(treeView, classIndex, isChecked, child)
+                for curr in toAdd:
+                    if str(child.text).startswith(curr):
+                        __checkVirtualFunction(treeView, classIndex, isChecked, child)
 
     test.verify(len(set(expected).difference(found)) == 0,
                 "Verifying whether all expected functions have been found.")
@@ -79,58 +85,59 @@ def main():
     checkSimpleCppLib("SampleApp1", False)
     checkSimpleCppLib("SampleApp2", True)
 
-    projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin",
-                                               Targets.desktopTargetClasses())
+    pluginTargets = Targets.desktopTargetClasses()
+    pluginTargets.remove(Targets.DESKTOP_4_8_7_DEFAULT)
+    if platform.system() in ('Microsoft', 'Windows'):
+        # No C++11 in GCC 4.9
+        pluginTargets.remove(Targets.DESKTOP_5_4_1_GCC)
+    projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin", pluginTargets)
     virtualFunctionsAdded = False
     for kit, config in iterateBuildConfigs("Debug"):
-        is487Kit = kit in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX)
         verifyBuildConfig(kit, config, True, True)
-        if virtualFunctionsAdded and platform.system() in ('Microsoft', 'Windows') and is487Kit:
-            test.warning("Skipping building of Qt4.8 targets because of QTCREATORBUG-12251.")
-            continue
         invokeMenuItem('Build', 'Build Project "%s"' % projectName)
         waitForCompile(10000)
         if not virtualFunctionsAdded:
             checkLastBuild(True, False)
+            if not openDocument("%s.Sources.%s\.cpp" % (projectName, className.lower())):
+                test.fatal("Could not open %s.cpp - continuing." % className.lower())
+                continue
+            editor = getEditorForFileSuffix("%s.cpp" % className.lower())
+            initialContent = str(editor.plainText)
+            test.verify("QObject * %s::create(" % className in initialContent,
+                        "Verifying whether pure virtual function has been added to the source file.")
             if not openDocument("%s.Headers.%s\.h" % (projectName, className.lower())):
-                test.fail("Could not open %s.h - continuing." % className.lower())
+                test.fatal("Could not open %s.h - continuing." % className.lower())
                 continue
             editor = getEditorForFileSuffix("%s.h" % className.lower())
-            str(editor.plainText)
+            initialContent = str(editor.plainText)
+            test.verify(re.search("QObject \*create.*;", initialContent, re.MULTILINE),
+                        "Verifying whether create() declaration has been added to the header.")
             placeCursorToLine(editor, "class %s.*" % className, True)
             snooze(4) # avoid timing issue with the parser
             invokeContextMenuItem(editor, "Refactor", "Insert Virtual Functions of Base Classes")
-            handleInsertVirtualFunctions(["keys() const = 0 : QStringList",
-                                          "create(const QString &, const QString &) = 0 : QObject *"])
-            waitFor("'keys' in str(editor.plainText)", 2000)
+            handleInsertVirtualFunctions(["create(const QString &, const QString &) = 0 : QObject *"],
+                                         ["event(QEvent *) : bool"])
+            waitFor("'event' in str(editor.plainText)", 2000)
             modifiedContent = str(editor.plainText)
-            test.verify(re.search("QStringList keys.*;", modifiedContent, re.MULTILINE),
-                        "Verifying whether keys() declaration has been added to the header.")
-            test.verify(re.search("QObject \*create.*;", modifiedContent, re.MULTILINE),
-                        "Verifying whether create() declaration has been added to the header.")
+            test.verify(re.search("bool event\(QEvent \*event\);", modifiedContent, re.MULTILINE),
+                        "Verifying whether event() declaration has been added to the header.")
 
             if not openDocument("%s.Sources.%s\.cpp" % (projectName, className.lower())):
-                test.fail("Could not open %s.cpp - continuing." % className.lower())
+                test.fatal("Could not open %s.cpp - continuing." % className.lower())
                 continue
             editor = getEditorForFileSuffix("%s.cpp" % className.lower())
             modifiedContent = str(editor.plainText)
-            test.verify("QStringList %s::keys(" % className in modifiedContent,
-                        "Verifying whether keys() definition has been added to the source file.")
-            test.verify("QObject *%s::create(" % className in modifiedContent,
-                        "Verifying whether create() definition has been added to the source file.")
+            test.verify("bool %s::event(QEvent *event)" % className in modifiedContent,
+                        "Verifying whether event() definition has been added to the source file.")
             # add return to not run into build issues of missing return values
-            addReturn(editor, "QStringList %s::keys.*" % className, "QStringList()")
-            addReturn(editor, "QObject \*%s::create.*" % className, "0")
+            addReturn(editor, "bool %s::event.*" % className, "true")
+            addReturn(editor, "QObject \* %s::create.*" % className, "0")
+            placeCursorToLine(editor, 'static_assert\(false, .*', True)
+            invokeContextMenuItem(editor, "Toggle Comment Selection")
             virtualFunctionsAdded = True
             invokeMenuItem('File', 'Save All')
-            if platform.system() in ('Microsoft', 'Windows') and is487Kit: # QTCREATORBUG-12251
-                test.warning("Skipping building of Qt4.8 targets because of QTCREATORBUG-12251.")
-                continue
             invokeMenuItem('Build', 'Rebuild Project "%s"' % projectName)
             waitForCompile(10000)
-        if platform.system() == "Darwin" and is487Kit:
-            test.log("Skipping compile check (gcc on OSX is only clang with gcc frontend nowadays)")
-            continue
         checkCompile()
 
     invokeMenuItem("File", "Exit")

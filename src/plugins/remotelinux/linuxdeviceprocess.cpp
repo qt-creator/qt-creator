@@ -42,6 +42,9 @@ LinuxDeviceProcess::LinuxDeviceProcess(const QSharedPointer<const ProjectExplore
     : ProjectExplorer::SshDeviceProcess(device, parent), m_processId(0)
 {
     connect(this, &DeviceProcess::finished, this, [this]() {
+        m_processId = -1;
+    });
+    connect(this, &DeviceProcess::started, this, [this]() {
         m_processId = 0;
     });
 }
@@ -70,7 +73,7 @@ QByteArray LinuxDeviceProcess::readAllStandardOutput()
 
 qint64 LinuxDeviceProcess::processId() const
 {
-    return m_processId;
+    return m_processId < 0 ? 0 : m_processId;
 }
 
 QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const

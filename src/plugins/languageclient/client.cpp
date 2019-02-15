@@ -69,6 +69,7 @@ class TextMark : public TextEditor::TextMark
 public:
     TextMark(const Utils::FileName &fileName, const Diagnostic &diag)
         : TextEditor::TextMark(fileName, diag.range().start().line() + 1, "lspmark")
+        , m_diagnostic(diag)
     {
         using namespace Utils;
         setLineAnnotation(diag.message());
@@ -81,11 +82,17 @@ public:
         setIcon(isError ? Icons::CODEMODEL_ERROR.icon()
                         : Icons::CODEMODEL_WARNING.icon());
     }
+
+    const Diagnostic &diagnostic() const { return m_diagnostic; }
+
+private:
+    const Diagnostic m_diagnostic;
 };
 
 Client::Client(BaseClientInterface *clientInterface)
     : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
     , m_completionProvider(this)
+    , m_quickFixProvider(this)
     , m_clientInterface(clientInterface)
 {
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
@@ -101,8 +108,10 @@ Client::~Client()
     using namespace TextEditor;
     // FIXME: instead of replacing the completion provider in the text document store the
     // completion provider as a prioritised list in the text document
-    for (TextDocument *document : m_resetCompletionProvider)
+    for (TextDocument *document : m_resetAssistProvider) {
         document->setCompletionAssistProvider(nullptr);
+        document->setQuickFixAssistProvider(nullptr);
+    }
     for (Core::IEditor * editor : Core::DocumentModel::editorsForOpenedDocuments()) {
         if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
             TextEditorWidget *widget = textEditor->editorWidget();
@@ -192,10 +201,12 @@ void Client::openDocument(Core::IDocument *document)
         documentContentsChanged(document);
     });
     if (textDocument) {
-        m_resetCompletionProvider << textDocument;
+        textDocument->completionAssistProvider();
+        m_resetAssistProvider << textDocument;
         textDocument->setCompletionAssistProvider(&m_completionProvider);
+        textDocument->setQuickFixAssistProvider(&m_quickFixProvider);
         connect(textDocument, &QObject::destroyed, this, [this, textDocument]{
-            m_resetCompletionProvider.remove(textDocument);
+            m_resetAssistProvider.remove(textDocument);
         });
         if (BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(textDocument)) {
             if (QPointer<TextEditorWidget> widget = editor->editorWidget()) {
@@ -543,24 +554,9 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
 {
     const Utils::FileName fileName = uri.toFileName();
-    TextEditor::TextDocument *doc = textDocumentForFileName(fileName);
+    TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFileName(fileName);
     if (!doc)
         return;
-
-    const QString method(CodeActionRequest::methodName);
-    if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
-        if (!registered.value())
-            return;
-        const TextDocumentRegistrationOptions option(
-            m_dynamicCapabilities.option(method).toObject());
-        if (option.isValid(nullptr) && !option.filterApplies(fileName))
-            return;
-    } else {
-        Utils::variant<bool, CodeActionOptions> provider
-            = m_serverCapabilities.codeActionProvider().value_or(false);
-        if (!(Utils::holds_alternative<CodeActionOptions>(provider) || Utils::get<bool>(provider)))
-            return;
-    }
 
     CodeActionParams codeActionParams;
     CodeActionParams::CodeActionContext context;
@@ -577,6 +573,32 @@ void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> 
         if (self)
             self->handleCodeActionResponse(response, uri);
     });
+    requestCodeActions(request);
+}
+
+void Client::requestCodeActions(const CodeActionRequest &request)
+{
+    if (!request.isValid(nullptr))
+        return;
+
+    const Utils::FileName fileName
+        = request.params().value_or(CodeActionParams()).textDocument().uri().toFileName();
+
+    const QString method(CodeActionRequest::methodName);
+    if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
+        if (!registered.value())
+            return;
+        const TextDocumentRegistrationOptions option(
+            m_dynamicCapabilities.option(method).toObject());
+        if (option.isValid(nullptr) && !option.filterApplies(fileName))
+            return;
+    } else {
+        Utils::variant<bool, CodeActionOptions> provider
+            = m_serverCapabilities.codeActionProvider().value_or(false);
+        if (!(Utils::holds_alternative<CodeActionOptions>(provider) || Utils::get<bool>(provider)))
+            return;
+    }
+
     sendContent(request);
 }
 
@@ -682,6 +704,17 @@ bool Client::needsRestart(const BaseSettings *settings) const
             || m_languagFilter.filePattern != settings->m_languageFilter.filePattern;
 }
 
+QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const Range &range) const
+{
+    QList<Diagnostic> diagnostics;
+    for (const TextMark *mark : m_diagnostics[uri]) {
+        const Diagnostic diagnostic = mark->diagnostic();
+        if (diagnostic.range().overlaps(range))
+            diagnostics << diagnostic;
+    }
+    return diagnostics;
+}
+
 bool Client::start()
 {
     return m_clientInterface->start();
@@ -778,7 +811,8 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
 
 void Client::showDiagnostics(const DocumentUri &uri)
 {
-    if (TextEditor::TextDocument *doc = textDocumentForFileName(uri.toFileName())) {
+    if (TextEditor::TextDocument *doc
+        = TextEditor::TextDocument::textDocumentForFileName(uri.toFileName())) {
         for (TextMark *mark : m_diagnostics.value(uri))
             doc->addMark(mark);
     }
@@ -786,7 +820,8 @@ void Client::showDiagnostics(const DocumentUri &uri)
 
 void Client::removeDiagnostics(const DocumentUri &uri)
 {
-    TextEditor::TextDocument *doc = textDocumentForFileName(uri.toFileName());
+    TextEditor::TextDocument *doc
+        = TextEditor::TextDocument::textDocumentForFileName(uri.toFileName());
 
     for (TextMark *mark : m_diagnostics.take(uri)) {
         if (doc)

@@ -50,7 +50,7 @@ struct FileContent
     {}
 
     NativeFilePath filePath;
-    std::string content;
+    Utils::SmallString content;
 };
 
 struct UnsavedFileContent

@@ -27,14 +27,15 @@
 #include "lsputils.h"
 
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/textutils.h>
 
+#include <QFile>
 #include <QHash>
-#include <QTextBlock>
-#include <QTextDocument>
 #include <QJsonArray>
 #include <QMap>
+#include <QTextBlock>
+#include <QTextDocument>
 #include <QVector>
-#include <QFile>
 
 namespace LanguageServerProtocol {
 
@@ -338,6 +339,24 @@ Range::Range(const Position &start, const Position &end)
 {
     setStart(start);
     setEnd(end);
+}
+
+Range::Range(const QTextCursor &cursor)
+{
+    int line, character = 0;
+    Utils::Text::convertPosition(cursor.document(), cursor.selectionStart(), &line, &character);
+    if (line <= 0 || character <= 0)
+        return;
+    setStart(Position(line - 1, character - 1));
+    Utils::Text::convertPosition(cursor.document(), cursor.selectionEnd(), &line, &character);
+    if (line <= 0 || character <= 0)
+        return;
+    setEnd(Position(line - 1, character - 1));
+}
+
+bool Range::overlaps(const Range &range) const
+{
+    return contains(range.start()) || contains(range.end());
 }
 
 bool DocumentFilter::applies(const Utils::FileName &fileName, const Utils::MimeType &mimeType) const

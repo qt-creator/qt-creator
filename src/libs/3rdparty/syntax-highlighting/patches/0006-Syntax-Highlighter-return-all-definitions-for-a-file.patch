@@ -1,0 +1,101 @@
+From 4b64058fe7d788ac79c16a08b280ce05d500e9fb Mon Sep 17 00:00:00 2001
+From: Alessandro Portale <alessandro.portale@qt.io>
+Date: Tue, 12 Feb 2019 19:32:54 +0100
+Subject: [PATCH 6/6] Syntax Highlighter: return all definitions for a file
+ name/mimetype
+
+Can be used to create user controls to switch between
+multiple definitions for a file or mime type.
+
+Change-Id: I5fd3744db1e819d0d6f8448a53adaf9d2c7c168d
+Reviewed-by: Christian Stenger <christian.stenger@qt.io>
+---
+ src/lib/repository.cpp | 17 +++++++++++++----
+ src/lib/repository.h   | 12 ++++++++++++
+ 2 files changed, 25 insertions(+), 4 deletions(-)
+
+diff --git a/src/lib/repository.cpp b/src/lib/repository.cpp
+index 6b2fabd..922225a 100644
+--- a/src/lib/repository.cpp
++++ b/src/lib/repository.cpp
+@@ -78,7 +78,7 @@ Definition Repository::definitionForName(const QString& defName) const
+     return d->m_defs.value(defName);
+ }
+ 
+-static Definition bestCandidate(QVector<Definition>& candidates)
++static Definition bestCandidate(QVector<Definition> &&candidates)
+ {
+     if (candidates.isEmpty())
+         return Definition();
+@@ -91,6 +91,11 @@ static Definition bestCandidate(QVector<Definition>& candidates)
+ }
+ 
+ Definition Repository::definitionForFileName(const QString& fileName) const
++{
++    return bestCandidate(definitionsForFileName(fileName));
++}
++
++QVector<Definition> Repository::definitionsForFileName(const QString &fileName) const
+ {
+     QFileInfo fi(fileName);
+     const auto name = fi.fileName();
+@@ -106,10 +111,15 @@ Definition Repository::definitionForFileName(const QString& fileName) const
+         }
+     }
+ 
+-    return bestCandidate(candidates);
++    return candidates;
+ }
+ 
+ Definition Repository::definitionForMimeType(const QString& mimeType) const
++{
++    return bestCandidate(definitionsForMimeType(mimeType));
++}
++
++QVector<Definition> Repository::definitionsForMimeType(const QString &mimeType) const
+ {
+     QVector<Definition> candidates;
+     for (auto it = d->m_defs.constBegin(); it != d->m_defs.constEnd(); ++it) {
+@@ -121,8 +131,7 @@ Definition Repository::definitionForMimeType(const QString& mimeType) const
+             }
+         }
+     }
+-
+-    return bestCandidate(candidates);
++    return candidates;
+ }
+ 
+ QVector<Definition> Repository::definitions() const
+diff --git a/src/lib/repository.h b/src/lib/repository.h
+index c35da5e..e4e9bed 100644
+--- a/src/lib/repository.h
++++ b/src/lib/repository.h
+@@ -166,6 +166,13 @@ public:
+      */
+     Definition definitionForFileName(const QString &fileName) const;
+ 
++    /**
++     * Returns all Definition%s for the file named @p fileName.
++     * The match is performed based on the \e extensions and @e mimetype of
++     * the definition files.
++     */
++    QVector<Definition> definitionsForFileName(const QString &fileName) const;
++
+     /**
+      * Returns the best matching Definition to the type named @p mimeType
+      *
+@@ -176,6 +183,11 @@ public:
+      */
+     Definition definitionForMimeType(const QString &mimeType) const;
+ 
++    /**
++     * Returns all Definition%s to the type named @p mimeType
++     */
++    QVector<Definition> definitionsForMimeType(const QString &mimeType) const;
++
+     /**
+      * Returns all available Definition%s.
+      * Definition%ss are ordered by translated section and translated names,
+-- 
+2.20.1.windows.1
+

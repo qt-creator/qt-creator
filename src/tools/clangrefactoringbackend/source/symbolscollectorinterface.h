@@ -44,7 +44,7 @@ class SymbolsCollectorInterface : public ProcessorInterface
 {
 public:
     virtual void setFile(FilePathId filePathId, const Utils::SmallStringVector &arguments) = 0;
-    virtual void collectSymbols() = 0;
+    virtual bool collectSymbols() = 0;
 
     virtual const SymbolEntries &symbols() const = 0;
     virtual const SourceLocationEntries &sourceLocations() const = 0;

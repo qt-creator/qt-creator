@@ -270,7 +270,7 @@ static const HelpItem::Links getBestLink(const HelpItem::Links &links)
 
 const HelpItem::Links HelpItem::bestLinks() const
 {
-    if (m_isFuzzyMatch)
+    if (isFuzzyMatch())
         return getBestLinks(links());
     return getBestLink(links());
 }
@@ -278,4 +278,11 @@ const HelpItem::Links HelpItem::bestLinks() const
 const QString HelpItem::keyword() const
 {
     return m_keyword;
+}
+
+bool HelpItem::isFuzzyMatch() const
+{
+    // make sure m_isFuzzyMatch is correct
+    links();
+    return m_isFuzzyMatch;
 }

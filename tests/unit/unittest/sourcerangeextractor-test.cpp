@@ -57,9 +57,7 @@ protected:
     void TearDown() override;
 
 protected:
-    TestClangTool clangTool{{TESTDATA_DIR "/sourcerangeextractor_location.cpp"},
-                            "",
-                            {"cc", "sourcerangeextractor_location.cpp"}};
+    TestClangTool clangTool{{TESTDATA_DIR "/sourcerangeextractor_location.cpp"}, "", {"cc"}};
     ClangBackEnd::SourceRangesContainer sourceRangesContainer;
     const clang::SourceManager &sourceManager{clangTool.sourceManager()};
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};

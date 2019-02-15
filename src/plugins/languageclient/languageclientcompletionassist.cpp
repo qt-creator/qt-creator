@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "languageclientcodeassist.h"
+#include "languageclientcompletionassist.h"
 
 #include "client.h"
 #include "languageclientutils.h"

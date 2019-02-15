@@ -1,0 +1,1381 @@
+From 40ee252983bd0d74b43d204de195ef4426ccb690 Mon Sep 17 00:00:00 2001
+From: Alessandro Portale <alessandro.portale@qt.io>
+Date: Tue, 12 Feb 2019 19:43:26 +0100
+Subject: [PATCH 1/6] Remove highlight definitions with incompatible license
+
+---
+ data/syntax/4dos.xml              |  924 ----
+ data/syntax/abap.xml              |  285 --
+ data/syntax/abc.xml               |   86 -
+ data/syntax/actionscript.xml      |  336 --
+ data/syntax/ada.xml               |  201 -
+ data/syntax/adblock.xml           |   87 -
+ data/syntax/agda.xml              |  107 -
+ data/syntax/ahdl.xml              |  145 -
+ data/syntax/ahk.xml               | 1143 -----
+ data/syntax/ample.xml             | 3234 ------------
+ data/syntax/ansforth94.xml        |  595 ---
+ data/syntax/ansic89.xml           |  134 -
+ data/syntax/ansys.xml             | 2056 --------
+ data/syntax/apache.xml            |  633 ---
+ data/syntax/apparmor.xml          | 1555 ------
+ data/syntax/asm-avr.xml           |  212 -
+ data/syntax/asm-dsp56k.xml        |  329 --
+ data/syntax/asm-m68k.xml          |  651 ---
+ data/syntax/asm6502.xml           |  117 -
+ data/syntax/asn1.xml              |   70 -
+ data/syntax/asp.xml               |  389 --
+ data/syntax/awk.xml               |  288 --
+ data/syntax/bibtex.xml            |  108 -
+ data/syntax/bitbake.xml           |  183 -
+ data/syntax/bmethod.xml           |   96 -
+ data/syntax/boo.xml               |  304 --
+ data/syntax/c.xml                 |  260 -
+ data/syntax/carto-css.xml         |  405 --
+ data/syntax/ccss.xml              |  655 ---
+ data/syntax/cg.xml                |  273 -
+ data/syntax/cgis.xml              |  134 -
+ data/syntax/changelog.xml         |   29 -
+ data/syntax/chicken.xml           |  435 --
+ data/syntax/cisco.xml             |  302 --
+ data/syntax/clipper.xml           |  498 --
+ data/syntax/clojure.xml           |  883 ----
+ data/syntax/coffee.xml            |  340 --
+ data/syntax/coldfusion.xml        |  731 ---
+ data/syntax/commonlisp.xml        | 1177 -----
+ data/syntax/component-pascal.xml  |  172 -
+ data/syntax/context.xml           |  130 -
+ data/syntax/cpp.xml               | 2030 --------
+ data/syntax/crk.xml               |  163 -
+ data/syntax/cs.xml                |  168 -
+ data/syntax/cubescript.xml        |  456 --
+ data/syntax/cue.xml               |   74 -
+ data/syntax/curry.xml             |  364 --
+ data/syntax/d.xml                 |  819 ---
+ data/syntax/debianchangelog.xml   |  241 -
+ data/syntax/debiancontrol.xml     |   65 -
+ data/syntax/desktop.xml           |   30 -
+ data/syntax/diff.xml              |  118 -
+ data/syntax/djangotemplate.xml    |  330 --
+ data/syntax/dockerfile.xml        |   67 -
+ data/syntax/dosbat.xml            |  309 --
+ data/syntax/dot.xml               |  172 -
+ data/syntax/doxyfile.xml          |  350 --
+ data/syntax/doxygenlua.xml        |  497 --
+ data/syntax/e.xml                 |  260 -
+ data/syntax/eiffel.xml            |  125 -
+ data/syntax/elixir.xml            |  225 -
+ data/syntax/email.xml             |  101 -
+ data/syntax/erlang.xml            |  250 -
+ data/syntax/euphoria.xml          |  378 --
+ data/syntax/fasm.xml              |  898 ----
+ data/syntax/fastq.xml             |   35 -
+ data/syntax/ferite.xml            |  117 -
+ data/syntax/fgl-4gl.xml           |  363 --
+ data/syntax/fgl-per.xml           |  172 -
+ data/syntax/fortran.xml           |  584 ---
+ data/syntax/freebasic.xml         |  573 ---
+ data/syntax/fsharp.xml            |  283 --
+ data/syntax/fstab.xml             |   96 -
+ data/syntax/ftl.xml               |   84 -
+ data/syntax/gap.xml               | 7835 -----------------------------
+ data/syntax/gcc.xml               |  610 ---
+ data/syntax/gcode.xml             |  202 -
+ data/syntax/gdb-bt.xml            |   53 -
+ data/syntax/gdb.xml               |   72 -
+ data/syntax/gdbinit.xml           |   24 -
+ data/syntax/gdl.xml               |  313 --
+ data/syntax/gettext.xml           |  170 -
+ data/syntax/git-ignore.xml        |   41 -
+ data/syntax/git-rebase.xml        |   65 -
+ data/syntax/gitolite.xml          |   44 -
+ data/syntax/glosstex.xml          |   45 -
+ data/syntax/glsl.xml              | 1217 -----
+ data/syntax/gnuassembler.xml      |  303 --
+ data/syntax/gnuplot.xml           |  890 ----
+ data/syntax/go.xml                |  175 -
+ data/syntax/grammar.xml           |  145 -
+ data/syntax/groovy.xml            | 3889 --------------
+ data/syntax/haml.xml              |  500 --
+ data/syntax/hamlet.xml            |  104 -
+ data/syntax/haskell.xml           |  649 ---
+ data/syntax/haxe.xml              |  181 -
+ data/syntax/hunspell-aff.xml      |  239 -
+ data/syntax/hunspell-dat.xml      |   48 -
+ data/syntax/hunspell-dic.xml      |   85 -
+ data/syntax/hunspell-idx.xml      |   40 -
+ data/syntax/idconsole.xml         | 2145 --------
+ data/syntax/idl.xml               |  114 -
+ data/syntax/ilerpg.xml            |  701 ---
+ data/syntax/inform.xml            |  405 --
+ data/syntax/intelhex.xml          |   41 -
+ data/syntax/isocpp.xml            |  825 ---
+ data/syntax/j.xml                 |  119 -
+ data/syntax/jam.xml               |  340 --
+ data/syntax/javascript-react.xml  |  259 -
+ data/syntax/javascript.xml        |  283 --
+ data/syntax/jira.xml              |  718 ---
+ data/syntax/jsp.xml               | 3061 -----------
+ data/syntax/julia.xml             |  289 --
+ data/syntax/k.xml                 |  430 --
+ data/syntax/kbasic.xml            |   97 -
+ data/syntax/kconfig.xml           | 1144 -----
+ data/syntax/kdesrc-buildrc.xml    |  247 -
+ data/syntax/kotlin.xml            |  298 --
+ data/syntax/latex.xml             |  697 ---
+ data/syntax/ld.xml                |   84 -
+ data/syntax/ldif.xml              |  304 --
+ data/syntax/less.xml              | 1467 ------
+ data/syntax/lex.xml               |  144 -
+ data/syntax/lilypond.xml          | 1199 -----
+ data/syntax/literate-curry.xml    |   50 -
+ data/syntax/literate-haskell.xml  |   38 -
+ data/syntax/logcat.xml            |  202 -
+ data/syntax/logtalk.xml           |  248 -
+ data/syntax/lpc.xml               |  167 -
+ data/syntax/lsl.xml               | 1050 ----
+ data/syntax/lua.xml               |  538 --
+ data/syntax/m3u.xml               |   51 -
+ data/syntax/m4.xml                |  193 -
+ data/syntax/mab.xml               |   30 -
+ data/syntax/magma.xml             |  154 -
+ data/syntax/mako.xml              |  253 -
+ data/syntax/mandoc.xml            |   88 -
+ data/syntax/mason.xml             |  233 -
+ data/syntax/mathematica.xml       | 3229 ------------
+ data/syntax/matlab.xml            |  230 -
+ data/syntax/maxima.xml            | 1890 -------
+ data/syntax/mediawiki.xml         |  622 ---
+ data/syntax/mel.xml               | 1380 -----
+ data/syntax/mergetagtext.xml      |  145 -
+ data/syntax/meson.xml             |  117 -
+ data/syntax/metafont.xml          |  986 ----
+ data/syntax/metamath.xml          |  122 -
+ data/syntax/mib.xml               |  182 -
+ data/syntax/mips.xml              |  359 --
+ data/syntax/modelica.xml          |  260 -
+ data/syntax/modelines.xml         |  197 -
+ data/syntax/modula-2-iso-only.xml |  342 --
+ data/syntax/modula-2-pim-only.xml |  308 --
+ data/syntax/modula-2-r10-only.xml |  347 --
+ data/syntax/modula-2.xml          | 1191 -----
+ data/syntax/monobasic.xml         |  216 -
+ data/syntax/mup.xml               |  865 ----
+ data/syntax/nagios.xml            |   83 -
+ data/syntax/nasm.xml              |  893 ----
+ data/syntax/nemerle.xml           |  208 -
+ data/syntax/nesc.xml              |  185 -
+ data/syntax/noweb.xml             |   52 -
+ data/syntax/nsis.xml              |  494 --
+ data/syntax/objectivec.xml        |  130 -
+ data/syntax/objectivecpp.xml      |  300 --
+ data/syntax/ocaml.xml             |  624 ---
+ data/syntax/ocamllex.xml          |   81 -
+ data/syntax/ocamlyacc.xml         |  160 -
+ data/syntax/octave.xml            | 2218 --------
+ data/syntax/oors.xml              |   87 -
+ data/syntax/opal.xml              |  331 --
+ data/syntax/opencl.xml            |  260 -
+ data/syntax/openscad.xml          |  164 -
+ data/syntax/pango.xml             |  160 -
+ data/syntax/pascal.xml            |  219 -
+ data/syntax/pgn.xml               |  108 -
+ data/syntax/php.xml               | 5705 ---------------------
+ data/syntax/picsrc.xml            |  401 --
+ data/syntax/pig.xml               |  205 -
+ data/syntax/pike.xml              |  121 -
+ data/syntax/pli.xml               |  454 --
+ data/syntax/ply.xml               |   54 -
+ data/syntax/pony.xml              |  314 --
+ data/syntax/postscript.xml        |  434 --
+ data/syntax/povray.xml            |  967 ----
+ data/syntax/ppd.xml               |   58 -
+ data/syntax/praat.xml             |  510 --
+ data/syntax/progress.xml          | 1707 -------
+ data/syntax/prolog.xml            | 1031 ----
+ data/syntax/protobuf.xml          |  120 -
+ data/syntax/pug.xml               |  118 -
+ data/syntax/puppet.xml            |  711 ---
+ data/syntax/purebasic.xml         | 1767 -------
+ data/syntax/q.xml                 |  210 -
+ data/syntax/qmake.xml             |  659 ---
+ data/syntax/qml.xml               |  168 -
+ data/syntax/r.xml                 |  152 -
+ data/syntax/rapidq.xml            |  432 --
+ data/syntax/rdoc.xml              |  388 --
+ data/syntax/relaxng.xml           |  119 -
+ data/syntax/relaxngcompact.xml    |  108 -
+ data/syntax/replicode.xml         |  196 -
+ data/syntax/rest.xml              |  108 -
+ data/syntax/rexx.xml              |  199 -
+ data/syntax/rhtml.xml             | 1237 -----
+ data/syntax/rib.xml               |  143 -
+ data/syntax/rmarkdown.xml         |   81 -
+ data/syntax/roff.xml              |  197 -
+ data/syntax/rpmspec.xml           |  505 --
+ data/syntax/rsiidl.xml            |  440 --
+ data/syntax/rtf.xml               |   49 -
+ data/syntax/rust.xml              |  374 --
+ data/syntax/sather.xml            |  141 -
+ data/syntax/scala.xml             | 3505 -------------
+ data/syntax/scheme.xml            |  394 --
+ data/syntax/sci.xml               | 1191 -----
+ data/syntax/scss.xml              | 2242 ---------
+ data/syntax/sed.xml               |  267 -
+ data/syntax/selinux-cil.xml       |  683 ---
+ data/syntax/selinux-fc.xml        |  299 --
+ data/syntax/selinux.xml           | 1627 ------
+ data/syntax/sgml.xml              |   46 -
+ data/syntax/sieve.xml             |  152 -
+ data/syntax/sisu.xml              |  154 -
+ data/syntax/sml.xml               |  104 -
+ data/syntax/spice.xml             |   51 -
+ data/syntax/sql-mysql.xml         |  481 --
+ data/syntax/sql-oracle.xml        | 1954 -------
+ data/syntax/sql-postgresql.xml    | 1074 ----
+ data/syntax/sql.xml               |  955 ----
+ data/syntax/stan.xml              |  129 -
+ data/syntax/stata.xml             | 3223 ------------
+ data/syntax/stl.xml               |   31 -
+ data/syntax/systemc.xml           |  133 -
+ data/syntax/systemverilog.xml     | 1005 ----
+ data/syntax/tads3.xml             |  176 -
+ data/syntax/taskjuggler.xml       |  390 --
+ data/syntax/tcl.xml               |  565 ---
+ data/syntax/tcsh.xml              |  810 ---
+ data/syntax/template-toolkit.xml  |  321 --
+ data/syntax/texinfo.xml           |   63 -
+ data/syntax/textile.xml           |  100 -
+ data/syntax/tibasic.xml           |   71 -
+ data/syntax/tiger.xml             |   96 -
+ data/syntax/toml.xml              |  135 -
+ data/syntax/txt2tags.xml          |   67 -
+ data/syntax/uscript.xml           |  188 -
+ data/syntax/vala.xml              |  288 --
+ data/syntax/varnish.xml           |  349 --
+ data/syntax/varnish4.xml          |  372 --
+ data/syntax/varnishcc.xml         |  101 -
+ data/syntax/varnishcc4.xml        |  128 -
+ data/syntax/varnishtest.xml       |  547 --
+ data/syntax/varnishtest4.xml      |  706 ---
+ data/syntax/vcard.xml             |   45 -
+ data/syntax/velocity.xml          |   51 -
+ data/syntax/vera.xml              |  648 ---
+ data/syntax/verilog.xml           |  252 -
+ data/syntax/vhdl.xml              |  654 ---
+ data/syntax/vrml.xml              |  139 -
+ data/syntax/wavefront-obj.xml     |   69 -
+ data/syntax/winehq.xml            |   34 -
+ data/syntax/wml.xml               |  209 -
+ data/syntax/xharbour.xml          |  539 --
+ data/syntax/xmldebug.xml          |  592 ---
+ data/syntax/xonotic-console.xml   | 5660 ---------------------
+ data/syntax/xorg.xml              |   65 -
+ data/syntax/xslt.xml              |  440 --
+ data/syntax/xul.xml               |  624 ---
+ data/syntax/yacas.xml             |  236 -
+ data/syntax/yaml.xml              |  572 ---
+ data/syntax/yang.xml              |  155 -
+ data/syntax/zonnon.xml            |  144 -
+ data/syntax/zsh.xml               |  959 ----
+ 274 files changed, 145722 deletions(-)
+ delete mode 100644 data/syntax/4dos.xml
+ delete mode 100644 data/syntax/abap.xml
+ delete mode 100644 data/syntax/abc.xml
+ delete mode 100644 data/syntax/actionscript.xml
+ delete mode 100644 data/syntax/ada.xml
+ delete mode 100644 data/syntax/adblock.xml
+ delete mode 100644 data/syntax/agda.xml
+ delete mode 100644 data/syntax/ahdl.xml
+ delete mode 100644 data/syntax/ahk.xml
+ delete mode 100644 data/syntax/ample.xml
+ delete mode 100644 data/syntax/ansforth94.xml
+ delete mode 100644 data/syntax/ansic89.xml
+ delete mode 100644 data/syntax/ansys.xml
+ delete mode 100644 data/syntax/apache.xml
+ delete mode 100644 data/syntax/apparmor.xml
+ delete mode 100644 data/syntax/asm-avr.xml
+ delete mode 100644 data/syntax/asm-dsp56k.xml
+ delete mode 100644 data/syntax/asm-m68k.xml
+ delete mode 100644 data/syntax/asm6502.xml
+ delete mode 100644 data/syntax/asn1.xml
+ delete mode 100644 data/syntax/asp.xml
+ delete mode 100644 data/syntax/awk.xml
+ delete mode 100644 data/syntax/bibtex.xml
+ delete mode 100644 data/syntax/bitbake.xml
+ delete mode 100644 data/syntax/bmethod.xml
+ delete mode 100644 data/syntax/boo.xml
+ delete mode 100644 data/syntax/c.xml
+ delete mode 100644 data/syntax/carto-css.xml
+ delete mode 100644 data/syntax/ccss.xml
+ delete mode 100644 data/syntax/cg.xml
+ delete mode 100644 data/syntax/cgis.xml
+ delete mode 100644 data/syntax/changelog.xml
+ delete mode 100644 data/syntax/chicken.xml
+ delete mode 100644 data/syntax/cisco.xml
+ delete mode 100644 data/syntax/clipper.xml
+ delete mode 100644 data/syntax/clojure.xml
+ delete mode 100644 data/syntax/coffee.xml
+ delete mode 100644 data/syntax/coldfusion.xml
+ delete mode 100644 data/syntax/commonlisp.xml
+ delete mode 100644 data/syntax/component-pascal.xml
+ delete mode 100644 data/syntax/context.xml
+ delete mode 100644 data/syntax/cpp.xml
+ delete mode 100644 data/syntax/crk.xml
+ delete mode 100644 data/syntax/cs.xml
+ delete mode 100644 data/syntax/cubescript.xml
+ delete mode 100644 data/syntax/cue.xml
+ delete mode 100644 data/syntax/curry.xml
+ delete mode 100644 data/syntax/d.xml
+ delete mode 100644 data/syntax/debianchangelog.xml
+ delete mode 100644 data/syntax/debiancontrol.xml
+ delete mode 100644 data/syntax/desktop.xml
+ delete mode 100644 data/syntax/diff.xml
+ delete mode 100644 data/syntax/djangotemplate.xml
+ delete mode 100644 data/syntax/dockerfile.xml
+ delete mode 100644 data/syntax/dosbat.xml
+ delete mode 100644 data/syntax/dot.xml
+ delete mode 100644 data/syntax/doxyfile.xml
+ delete mode 100644 data/syntax/doxygenlua.xml
+ delete mode 100644 data/syntax/e.xml
+ delete mode 100644 data/syntax/eiffel.xml
+ delete mode 100644 data/syntax/elixir.xml
+ delete mode 100644 data/syntax/email.xml
+ delete mode 100644 data/syntax/erlang.xml
+ delete mode 100644 data/syntax/euphoria.xml
+ delete mode 100644 data/syntax/fasm.xml
+ delete mode 100644 data/syntax/fastq.xml
+ delete mode 100644 data/syntax/ferite.xml
+ delete mode 100644 data/syntax/fgl-4gl.xml
+ delete mode 100644 data/syntax/fgl-per.xml
+ delete mode 100644 data/syntax/fortran.xml
+ delete mode 100644 data/syntax/freebasic.xml
+ delete mode 100644 data/syntax/fsharp.xml
+ delete mode 100644 data/syntax/fstab.xml
+ delete mode 100644 data/syntax/ftl.xml
+ delete mode 100644 data/syntax/gap.xml
+ delete mode 100644 data/syntax/gcc.xml
+ delete mode 100644 data/syntax/gcode.xml
+ delete mode 100644 data/syntax/gdb-bt.xml
+ delete mode 100644 data/syntax/gdb.xml
+ delete mode 100644 data/syntax/gdbinit.xml
+ delete mode 100644 data/syntax/gdl.xml
+ delete mode 100644 data/syntax/gettext.xml
+ delete mode 100644 data/syntax/git-ignore.xml
+ delete mode 100644 data/syntax/git-rebase.xml
+ delete mode 100644 data/syntax/gitolite.xml
+ delete mode 100644 data/syntax/glosstex.xml
+ delete mode 100644 data/syntax/glsl.xml
+ delete mode 100644 data/syntax/gnuassembler.xml
+ delete mode 100644 data/syntax/gnuplot.xml
+ delete mode 100644 data/syntax/go.xml
+ delete mode 100644 data/syntax/grammar.xml
+ delete mode 100644 data/syntax/groovy.xml
+ delete mode 100644 data/syntax/haml.xml
+ delete mode 100644 data/syntax/hamlet.xml
+ delete mode 100644 data/syntax/haskell.xml
+ delete mode 100644 data/syntax/haxe.xml
+ delete mode 100644 data/syntax/hunspell-aff.xml
+ delete mode 100644 data/syntax/hunspell-dat.xml
+ delete mode 100644 data/syntax/hunspell-dic.xml
+ delete mode 100644 data/syntax/hunspell-idx.xml
+ delete mode 100644 data/syntax/idconsole.xml
+ delete mode 100644 data/syntax/idl.xml
+ delete mode 100644 data/syntax/ilerpg.xml
+ delete mode 100644 data/syntax/inform.xml
+ delete mode 100644 data/syntax/intelhex.xml
+ delete mode 100644 data/syntax/isocpp.xml
+ delete mode 100644 data/syntax/j.xml
+ delete mode 100644 data/syntax/jam.xml
+ delete mode 100644 data/syntax/javascript-react.xml
+ delete mode 100644 data/syntax/javascript.xml
+ delete mode 100644 data/syntax/jira.xml
+ delete mode 100644 data/syntax/jsp.xml
+ delete mode 100644 data/syntax/julia.xml
+ delete mode 100644 data/syntax/k.xml
+ delete mode 100644 data/syntax/kbasic.xml
+ delete mode 100644 data/syntax/kconfig.xml
+ delete mode 100644 data/syntax/kdesrc-buildrc.xml
+ delete mode 100644 data/syntax/kotlin.xml
+ delete mode 100644 data/syntax/latex.xml
+ delete mode 100644 data/syntax/ld.xml
+ delete mode 100644 data/syntax/ldif.xml
+ delete mode 100644 data/syntax/less.xml
+ delete mode 100644 data/syntax/lex.xml
+ delete mode 100644 data/syntax/lilypond.xml
+ delete mode 100644 data/syntax/literate-curry.xml
+ delete mode 100644 data/syntax/literate-haskell.xml
+ delete mode 100644 data/syntax/logcat.xml
+ delete mode 100644 data/syntax/logtalk.xml
+ delete mode 100644 data/syntax/lpc.xml
+ delete mode 100644 data/syntax/lsl.xml
+ delete mode 100644 data/syntax/lua.xml
+ delete mode 100644 data/syntax/m3u.xml
+ delete mode 100644 data/syntax/m4.xml
+ delete mode 100644 data/syntax/mab.xml
+ delete mode 100644 data/syntax/magma.xml
+ delete mode 100644 data/syntax/mako.xml
+ delete mode 100644 data/syntax/mandoc.xml
+ delete mode 100644 data/syntax/mason.xml
+ delete mode 100644 data/syntax/mathematica.xml
+ delete mode 100644 data/syntax/matlab.xml
+ delete mode 100644 data/syntax/maxima.xml
+ delete mode 100644 data/syntax/mediawiki.xml
+ delete mode 100644 data/syntax/mel.xml
+ delete mode 100644 data/syntax/mergetagtext.xml
+ delete mode 100644 data/syntax/meson.xml
+ delete mode 100644 data/syntax/metafont.xml
+ delete mode 100644 data/syntax/metamath.xml
+ delete mode 100644 data/syntax/mib.xml
+ delete mode 100644 data/syntax/mips.xml
+ delete mode 100644 data/syntax/modelica.xml
+ delete mode 100644 data/syntax/modelines.xml
+ delete mode 100644 data/syntax/modula-2-iso-only.xml
+ delete mode 100644 data/syntax/modula-2-pim-only.xml
+ delete mode 100644 data/syntax/modula-2-r10-only.xml
+ delete mode 100644 data/syntax/modula-2.xml
+ delete mode 100644 data/syntax/monobasic.xml
+ delete mode 100644 data/syntax/mup.xml
+ delete mode 100644 data/syntax/nagios.xml
+ delete mode 100644 data/syntax/nasm.xml
+ delete mode 100644 data/syntax/nemerle.xml
+ delete mode 100644 data/syntax/nesc.xml
+ delete mode 100644 data/syntax/noweb.xml
+ delete mode 100644 data/syntax/nsis.xml
+ delete mode 100644 data/syntax/objectivec.xml
+ delete mode 100644 data/syntax/objectivecpp.xml
+ delete mode 100644 data/syntax/ocaml.xml
+ delete mode 100644 data/syntax/ocamllex.xml
+ delete mode 100644 data/syntax/ocamlyacc.xml
+ delete mode 100644 data/syntax/octave.xml
+ delete mode 100644 data/syntax/oors.xml
+ delete mode 100644 data/syntax/opal.xml
+ delete mode 100644 data/syntax/opencl.xml
+ delete mode 100644 data/syntax/openscad.xml
+ delete mode 100644 data/syntax/pango.xml
+ delete mode 100644 data/syntax/pascal.xml
+ delete mode 100644 data/syntax/pgn.xml
+ delete mode 100644 data/syntax/php.xml
+ delete mode 100644 data/syntax/picsrc.xml
+ delete mode 100644 data/syntax/pig.xml
+ delete mode 100644 data/syntax/pike.xml
+ delete mode 100644 data/syntax/pli.xml
+ delete mode 100644 data/syntax/ply.xml
+ delete mode 100644 data/syntax/pony.xml
+ delete mode 100644 data/syntax/postscript.xml
+ delete mode 100644 data/syntax/povray.xml
+ delete mode 100644 data/syntax/ppd.xml
+ delete mode 100644 data/syntax/praat.xml
+ delete mode 100644 data/syntax/progress.xml
+ delete mode 100644 data/syntax/prolog.xml
+ delete mode 100644 data/syntax/protobuf.xml
+ delete mode 100644 data/syntax/pug.xml
+ delete mode 100644 data/syntax/puppet.xml
+ delete mode 100644 data/syntax/purebasic.xml
+ delete mode 100644 data/syntax/q.xml
+ delete mode 100644 data/syntax/qmake.xml
+ delete mode 100644 data/syntax/qml.xml
+ delete mode 100644 data/syntax/r.xml
+ delete mode 100644 data/syntax/rapidq.xml
+ delete mode 100644 data/syntax/rdoc.xml
+ delete mode 100644 data/syntax/relaxng.xml
+ delete mode 100644 data/syntax/relaxngcompact.xml
+ delete mode 100644 data/syntax/replicode.xml
+ delete mode 100644 data/syntax/rest.xml
+ delete mode 100644 data/syntax/rexx.xml
+ delete mode 100644 data/syntax/rhtml.xml
+ delete mode 100644 data/syntax/rib.xml
+ delete mode 100644 data/syntax/rmarkdown.xml
+ delete mode 100644 data/syntax/roff.xml
+ delete mode 100644 data/syntax/rpmspec.xml
+ delete mode 100644 data/syntax/rsiidl.xml
+ delete mode 100644 data/syntax/rtf.xml
+ delete mode 100644 data/syntax/rust.xml
+ delete mode 100644 data/syntax/sather.xml
+ delete mode 100644 data/syntax/scala.xml
+ delete mode 100644 data/syntax/scheme.xml
+ delete mode 100644 data/syntax/sci.xml
+ delete mode 100644 data/syntax/scss.xml
+ delete mode 100644 data/syntax/sed.xml
+ delete mode 100644 data/syntax/selinux-cil.xml
+ delete mode 100644 data/syntax/selinux-fc.xml
+ delete mode 100644 data/syntax/selinux.xml
+ delete mode 100644 data/syntax/sgml.xml
+ delete mode 100644 data/syntax/sieve.xml
+ delete mode 100644 data/syntax/sisu.xml
+ delete mode 100644 data/syntax/sml.xml
+ delete mode 100644 data/syntax/spice.xml
+ delete mode 100644 data/syntax/sql-mysql.xml
+ delete mode 100644 data/syntax/sql-oracle.xml
+ delete mode 100644 data/syntax/sql-postgresql.xml
+ delete mode 100644 data/syntax/sql.xml
+ delete mode 100644 data/syntax/stan.xml
+ delete mode 100644 data/syntax/stata.xml
+ delete mode 100644 data/syntax/stl.xml
+ delete mode 100644 data/syntax/systemc.xml
+ delete mode 100644 data/syntax/systemverilog.xml
+ delete mode 100644 data/syntax/tads3.xml
+ delete mode 100644 data/syntax/taskjuggler.xml
+ delete mode 100644 data/syntax/tcl.xml
+ delete mode 100644 data/syntax/tcsh.xml
+ delete mode 100644 data/syntax/template-toolkit.xml
+ delete mode 100644 data/syntax/texinfo.xml
+ delete mode 100644 data/syntax/textile.xml
+ delete mode 100644 data/syntax/tibasic.xml
+ delete mode 100644 data/syntax/tiger.xml
+ delete mode 100644 data/syntax/toml.xml
+ delete mode 100644 data/syntax/txt2tags.xml
+ delete mode 100644 data/syntax/uscript.xml
+ delete mode 100644 data/syntax/vala.xml
+ delete mode 100644 data/syntax/varnish.xml
+ delete mode 100644 data/syntax/varnish4.xml
+ delete mode 100644 data/syntax/varnishcc.xml
+ delete mode 100644 data/syntax/varnishcc4.xml
+ delete mode 100644 data/syntax/varnishtest.xml
+ delete mode 100644 data/syntax/varnishtest4.xml
+ delete mode 100644 data/syntax/vcard.xml
+ delete mode 100644 data/syntax/velocity.xml
+ delete mode 100644 data/syntax/vera.xml
+ delete mode 100644 data/syntax/verilog.xml
+ delete mode 100644 data/syntax/vhdl.xml
+ delete mode 100644 data/syntax/vrml.xml
+ delete mode 100644 data/syntax/wavefront-obj.xml
+ delete mode 100644 data/syntax/winehq.xml
+ delete mode 100644 data/syntax/wml.xml
+ delete mode 100644 data/syntax/xharbour.xml
+ delete mode 100644 data/syntax/xmldebug.xml
+ delete mode 100644 data/syntax/xonotic-console.xml
+ delete mode 100644 data/syntax/xorg.xml
+ delete mode 100644 data/syntax/xslt.xml
+ delete mode 100644 data/syntax/xul.xml
+ delete mode 100644 data/syntax/yacas.xml
+ delete mode 100644 data/syntax/yaml.xml
+ delete mode 100644 data/syntax/yang.xml
+ delete mode 100644 data/syntax/zonnon.xml
+ delete mode 100644 data/syntax/zsh.xml
+
+diff --git a/data/syntax/4dos.xml b/data/syntax/4dos.xml
+deleted file mode 100644
+index b5f72ec..0000000
+diff --git a/data/syntax/abap.xml b/data/syntax/abap.xml
+deleted file mode 100644
+index 12c604a..0000000
+diff --git a/data/syntax/abc.xml b/data/syntax/abc.xml
+deleted file mode 100644
+index a4c3d9f..0000000
+diff --git a/data/syntax/actionscript.xml b/data/syntax/actionscript.xml
+deleted file mode 100644
+index 89c91a9..0000000
+diff --git a/data/syntax/ada.xml b/data/syntax/ada.xml
+deleted file mode 100644
+index 64bb9b6..0000000
+diff --git a/data/syntax/adblock.xml b/data/syntax/adblock.xml
+deleted file mode 100644
+index 796b299..0000000
+diff --git a/data/syntax/agda.xml b/data/syntax/agda.xml
+deleted file mode 100644
+index 958bc95..0000000
+diff --git a/data/syntax/ahdl.xml b/data/syntax/ahdl.xml
+deleted file mode 100644
+index 76bd335..0000000
+diff --git a/data/syntax/ahk.xml b/data/syntax/ahk.xml
+deleted file mode 100644
+index 79965c4..0000000
+diff --git a/data/syntax/ample.xml b/data/syntax/ample.xml
+deleted file mode 100644
+index 2c77865..0000000
+diff --git a/data/syntax/ansforth94.xml b/data/syntax/ansforth94.xml
+deleted file mode 100644
+index 44876e8..0000000
+diff --git a/data/syntax/ansic89.xml b/data/syntax/ansic89.xml
+deleted file mode 100644
+index e442560..0000000
+diff --git a/data/syntax/ansys.xml b/data/syntax/ansys.xml
+deleted file mode 100644
+index d405220..0000000
+diff --git a/data/syntax/apache.xml b/data/syntax/apache.xml
+deleted file mode 100644
+index 732d769..0000000
+diff --git a/data/syntax/apparmor.xml b/data/syntax/apparmor.xml
+deleted file mode 100644
+index 0b81467..0000000
+diff --git a/data/syntax/asm-avr.xml b/data/syntax/asm-avr.xml
+deleted file mode 100644
+index 7075d10..0000000
+diff --git a/data/syntax/asm-dsp56k.xml b/data/syntax/asm-dsp56k.xml
+deleted file mode 100644
+index c9d7cd1..0000000
+diff --git a/data/syntax/asm-m68k.xml b/data/syntax/asm-m68k.xml
+deleted file mode 100644
+index bd5c36f..0000000
+diff --git a/data/syntax/asm6502.xml b/data/syntax/asm6502.xml
+deleted file mode 100644
+index 47e1179..0000000
+diff --git a/data/syntax/asn1.xml b/data/syntax/asn1.xml
+deleted file mode 100644
+index ec3432a..0000000
+diff --git a/data/syntax/asp.xml b/data/syntax/asp.xml
+deleted file mode 100644
+index e03e23b..0000000
+diff --git a/data/syntax/awk.xml b/data/syntax/awk.xml
+deleted file mode 100644
+index 9288a13..0000000
+diff --git a/data/syntax/bibtex.xml b/data/syntax/bibtex.xml
+deleted file mode 100644
+index 339f477..0000000
+diff --git a/data/syntax/bitbake.xml b/data/syntax/bitbake.xml
+deleted file mode 100644
+index 056edf6..0000000
+diff --git a/data/syntax/bmethod.xml b/data/syntax/bmethod.xml
+deleted file mode 100644
+index 153b114..0000000
+diff --git a/data/syntax/boo.xml b/data/syntax/boo.xml
+deleted file mode 100644
+index 26ec818..0000000
+diff --git a/data/syntax/c.xml b/data/syntax/c.xml
+deleted file mode 100644
+index 6f224fc..0000000
+diff --git a/data/syntax/carto-css.xml b/data/syntax/carto-css.xml
+deleted file mode 100644
+index 5ce4474..0000000
+diff --git a/data/syntax/ccss.xml b/data/syntax/ccss.xml
+deleted file mode 100644
+index 4648420..0000000
+diff --git a/data/syntax/cg.xml b/data/syntax/cg.xml
+deleted file mode 100644
+index 0ad61f1..0000000
+diff --git a/data/syntax/cgis.xml b/data/syntax/cgis.xml
+deleted file mode 100644
+index 5b718c7..0000000
+diff --git a/data/syntax/changelog.xml b/data/syntax/changelog.xml
+deleted file mode 100644
+index e004816..0000000
+diff --git a/data/syntax/chicken.xml b/data/syntax/chicken.xml
+deleted file mode 100644
+index eaa9e97..0000000
+diff --git a/data/syntax/cisco.xml b/data/syntax/cisco.xml
+deleted file mode 100644
+index c3d78f9..0000000
+diff --git a/data/syntax/clipper.xml b/data/syntax/clipper.xml
+deleted file mode 100644
+index 898ff31..0000000
+diff --git a/data/syntax/clojure.xml b/data/syntax/clojure.xml
+deleted file mode 100644
+index 855e01a..0000000
+diff --git a/data/syntax/coffee.xml b/data/syntax/coffee.xml
+deleted file mode 100644
+index 58dc498..0000000
+diff --git a/data/syntax/coldfusion.xml b/data/syntax/coldfusion.xml
+deleted file mode 100644
+index 1875eee..0000000
+diff --git a/data/syntax/commonlisp.xml b/data/syntax/commonlisp.xml
+deleted file mode 100644
+index 49dd7f5..0000000
+diff --git a/data/syntax/component-pascal.xml b/data/syntax/component-pascal.xml
+deleted file mode 100644
+index 5017e06..0000000
+diff --git a/data/syntax/context.xml b/data/syntax/context.xml
+deleted file mode 100644
+index c1f1296..0000000
+diff --git a/data/syntax/cpp.xml b/data/syntax/cpp.xml
+deleted file mode 100644
+index e370efb..0000000
+diff --git a/data/syntax/crk.xml b/data/syntax/crk.xml
+deleted file mode 100644
+index 211ddcc..0000000
+diff --git a/data/syntax/cs.xml b/data/syntax/cs.xml
+deleted file mode 100644
+index 264d1f4..0000000
+diff --git a/data/syntax/cubescript.xml b/data/syntax/cubescript.xml
+deleted file mode 100644
+index 5677dbf..0000000
+diff --git a/data/syntax/cue.xml b/data/syntax/cue.xml
+deleted file mode 100644
+index fc4eb1b..0000000
+diff --git a/data/syntax/curry.xml b/data/syntax/curry.xml
+deleted file mode 100644
+index b289f1c..0000000
+diff --git a/data/syntax/d.xml b/data/syntax/d.xml
+deleted file mode 100644
+index 91cb3e8..0000000
+diff --git a/data/syntax/debianchangelog.xml b/data/syntax/debianchangelog.xml
+deleted file mode 100644
+index 5de2900..0000000
+diff --git a/data/syntax/debiancontrol.xml b/data/syntax/debiancontrol.xml
+deleted file mode 100644
+index d3149c6..0000000
+diff --git a/data/syntax/desktop.xml b/data/syntax/desktop.xml
+deleted file mode 100644
+index fc508c4..0000000
+diff --git a/data/syntax/diff.xml b/data/syntax/diff.xml
+deleted file mode 100644
+index 0d2ade7..0000000
+diff --git a/data/syntax/djangotemplate.xml b/data/syntax/djangotemplate.xml
+deleted file mode 100644
+index 6b1fa4f..0000000
+diff --git a/data/syntax/dockerfile.xml b/data/syntax/dockerfile.xml
+deleted file mode 100644
+index 980fd04..0000000
+diff --git a/data/syntax/dosbat.xml b/data/syntax/dosbat.xml
+deleted file mode 100644
+index 807763b..0000000
+diff --git a/data/syntax/dot.xml b/data/syntax/dot.xml
+deleted file mode 100644
+index 6f8aacf..0000000
+diff --git a/data/syntax/doxyfile.xml b/data/syntax/doxyfile.xml
+deleted file mode 100644
+index 1002d67..0000000
+diff --git a/data/syntax/doxygenlua.xml b/data/syntax/doxygenlua.xml
+deleted file mode 100644
+index f3298b5..0000000
+diff --git a/data/syntax/e.xml b/data/syntax/e.xml
+deleted file mode 100644
+index 0b96d97..0000000
+diff --git a/data/syntax/eiffel.xml b/data/syntax/eiffel.xml
+deleted file mode 100644
+index 51420ec..0000000
+diff --git a/data/syntax/elixir.xml b/data/syntax/elixir.xml
+deleted file mode 100644
+index f7a4cab..0000000
+diff --git a/data/syntax/email.xml b/data/syntax/email.xml
+deleted file mode 100644
+index de1d44c..0000000
+diff --git a/data/syntax/erlang.xml b/data/syntax/erlang.xml
+deleted file mode 100644
+index 7bbcbc9..0000000
+diff --git a/data/syntax/euphoria.xml b/data/syntax/euphoria.xml
+deleted file mode 100644
+index ef28077..0000000
+diff --git a/data/syntax/fasm.xml b/data/syntax/fasm.xml
+deleted file mode 100644
+index 04158a5..0000000
+diff --git a/data/syntax/fastq.xml b/data/syntax/fastq.xml
+deleted file mode 100644
+index 30387fc..0000000
+diff --git a/data/syntax/ferite.xml b/data/syntax/ferite.xml
+deleted file mode 100644
+index 13951c7..0000000
+diff --git a/data/syntax/fgl-4gl.xml b/data/syntax/fgl-4gl.xml
+deleted file mode 100644
+index b546243..0000000
+diff --git a/data/syntax/fgl-per.xml b/data/syntax/fgl-per.xml
+deleted file mode 100644
+index b3cea4d..0000000
+diff --git a/data/syntax/fortran.xml b/data/syntax/fortran.xml
+deleted file mode 100644
+index 3baf579..0000000
+diff --git a/data/syntax/freebasic.xml b/data/syntax/freebasic.xml
+deleted file mode 100644
+index e7f3831..0000000
+diff --git a/data/syntax/fsharp.xml b/data/syntax/fsharp.xml
+deleted file mode 100644
+index ad42ca0..0000000
+diff --git a/data/syntax/fstab.xml b/data/syntax/fstab.xml
+deleted file mode 100644
+index c047037..0000000
+diff --git a/data/syntax/ftl.xml b/data/syntax/ftl.xml
+deleted file mode 100644
+index e20db76..0000000
+diff --git a/data/syntax/gap.xml b/data/syntax/gap.xml
+deleted file mode 100644
+index 43bcaff..0000000
+diff --git a/data/syntax/gcc.xml b/data/syntax/gcc.xml
+deleted file mode 100644
+index 258686d..0000000
+diff --git a/data/syntax/gcode.xml b/data/syntax/gcode.xml
+deleted file mode 100644
+index 23b6318..0000000
+diff --git a/data/syntax/gdb-bt.xml b/data/syntax/gdb-bt.xml
+deleted file mode 100644
+index 2ebe7e1..0000000
+diff --git a/data/syntax/gdb.xml b/data/syntax/gdb.xml
+deleted file mode 100644
+index ec385de..0000000
+diff --git a/data/syntax/gdbinit.xml b/data/syntax/gdbinit.xml
+deleted file mode 100644
+index 7999bf5..0000000
+diff --git a/data/syntax/gdl.xml b/data/syntax/gdl.xml
+deleted file mode 100644
+index 8966f5b..0000000
+diff --git a/data/syntax/gettext.xml b/data/syntax/gettext.xml
+deleted file mode 100644
+index 858fcf2..0000000
+diff --git a/data/syntax/git-ignore.xml b/data/syntax/git-ignore.xml
+deleted file mode 100644
+index ceb25e4..0000000
+diff --git a/data/syntax/git-rebase.xml b/data/syntax/git-rebase.xml
+deleted file mode 100644
+index 49c2dae..0000000
+diff --git a/data/syntax/gitolite.xml b/data/syntax/gitolite.xml
+deleted file mode 100644
+index d82838e..0000000
+diff --git a/data/syntax/glosstex.xml b/data/syntax/glosstex.xml
+deleted file mode 100644
+index 751cce4..0000000
+diff --git a/data/syntax/glsl.xml b/data/syntax/glsl.xml
+deleted file mode 100644
+index 09d171a..0000000
+diff --git a/data/syntax/gnuassembler.xml b/data/syntax/gnuassembler.xml
+deleted file mode 100644
+index 3820342..0000000
+diff --git a/data/syntax/gnuplot.xml b/data/syntax/gnuplot.xml
+deleted file mode 100644
+index 97ee96a..0000000
+diff --git a/data/syntax/go.xml b/data/syntax/go.xml
+deleted file mode 100644
+index 61d422d..0000000
+diff --git a/data/syntax/grammar.xml b/data/syntax/grammar.xml
+deleted file mode 100644
+index b797f3c..0000000
+diff --git a/data/syntax/groovy.xml b/data/syntax/groovy.xml
+deleted file mode 100644
+index 16118a9..0000000
+diff --git a/data/syntax/haml.xml b/data/syntax/haml.xml
+deleted file mode 100644
+index 1358edd..0000000
+diff --git a/data/syntax/hamlet.xml b/data/syntax/hamlet.xml
+deleted file mode 100644
+index 9d5b61b..0000000
+diff --git a/data/syntax/haskell.xml b/data/syntax/haskell.xml
+deleted file mode 100644
+index c105be9..0000000
+diff --git a/data/syntax/haxe.xml b/data/syntax/haxe.xml
+deleted file mode 100644
+index 3c8cd0d..0000000
+diff --git a/data/syntax/hunspell-aff.xml b/data/syntax/hunspell-aff.xml
+deleted file mode 100644
+index 843d505..0000000
+diff --git a/data/syntax/hunspell-dat.xml b/data/syntax/hunspell-dat.xml
+deleted file mode 100644
+index a57fd58..0000000
+diff --git a/data/syntax/hunspell-dic.xml b/data/syntax/hunspell-dic.xml
+deleted file mode 100644
+index d714d8d..0000000
+diff --git a/data/syntax/hunspell-idx.xml b/data/syntax/hunspell-idx.xml
+deleted file mode 100644
+index 27ba59a..0000000
+diff --git a/data/syntax/idconsole.xml b/data/syntax/idconsole.xml
+deleted file mode 100644
+index 5464bd9..0000000
+diff --git a/data/syntax/idl.xml b/data/syntax/idl.xml
+deleted file mode 100644
+index a8a2787..0000000
+diff --git a/data/syntax/ilerpg.xml b/data/syntax/ilerpg.xml
+deleted file mode 100644
+index 4858efb..0000000
+diff --git a/data/syntax/inform.xml b/data/syntax/inform.xml
+deleted file mode 100644
+index 8bc04a2..0000000
+diff --git a/data/syntax/intelhex.xml b/data/syntax/intelhex.xml
+deleted file mode 100644
+index cfadf67..0000000
+diff --git a/data/syntax/isocpp.xml b/data/syntax/isocpp.xml
+deleted file mode 100644
+index 56f171b..0000000
+diff --git a/data/syntax/j.xml b/data/syntax/j.xml
+deleted file mode 100644
+index fae5b2f..0000000
+diff --git a/data/syntax/jam.xml b/data/syntax/jam.xml
+deleted file mode 100644
+index 0d8e520..0000000
+diff --git a/data/syntax/javascript-react.xml b/data/syntax/javascript-react.xml
+deleted file mode 100644
+index 98d0612..0000000
+diff --git a/data/syntax/javascript.xml b/data/syntax/javascript.xml
+deleted file mode 100644
+index a76e9cc..0000000
+diff --git a/data/syntax/jira.xml b/data/syntax/jira.xml
+deleted file mode 100644
+index 8274223..0000000
+diff --git a/data/syntax/jsp.xml b/data/syntax/jsp.xml
+deleted file mode 100644
+index 90614ac..0000000
+diff --git a/data/syntax/julia.xml b/data/syntax/julia.xml
+deleted file mode 100644
+index ed21005..0000000
+diff --git a/data/syntax/k.xml b/data/syntax/k.xml
+deleted file mode 100644
+index 9cd0fe3..0000000
+diff --git a/data/syntax/kbasic.xml b/data/syntax/kbasic.xml
+deleted file mode 100644
+index 41fc705..0000000
+diff --git a/data/syntax/kconfig.xml b/data/syntax/kconfig.xml
+deleted file mode 100644
+index c430772..0000000
+diff --git a/data/syntax/kdesrc-buildrc.xml b/data/syntax/kdesrc-buildrc.xml
+deleted file mode 100644
+index 6eaddff..0000000
+diff --git a/data/syntax/kotlin.xml b/data/syntax/kotlin.xml
+deleted file mode 100644
+index db58f67..0000000
+diff --git a/data/syntax/latex.xml b/data/syntax/latex.xml
+deleted file mode 100644
+index 9583e55..0000000
+diff --git a/data/syntax/ld.xml b/data/syntax/ld.xml
+deleted file mode 100644
+index 0f7a8af..0000000
+diff --git a/data/syntax/ldif.xml b/data/syntax/ldif.xml
+deleted file mode 100644
+index c49dbf7..0000000
+diff --git a/data/syntax/less.xml b/data/syntax/less.xml
+deleted file mode 100644
+index 38eb490..0000000
+diff --git a/data/syntax/lex.xml b/data/syntax/lex.xml
+deleted file mode 100644
+index 7f60575..0000000
+diff --git a/data/syntax/lilypond.xml b/data/syntax/lilypond.xml
+deleted file mode 100644
+index fc92d54..0000000
+diff --git a/data/syntax/literate-curry.xml b/data/syntax/literate-curry.xml
+deleted file mode 100644
+index ceb53b2..0000000
+diff --git a/data/syntax/literate-haskell.xml b/data/syntax/literate-haskell.xml
+deleted file mode 100644
+index 0089cb1..0000000
+diff --git a/data/syntax/logcat.xml b/data/syntax/logcat.xml
+deleted file mode 100644
+index 3481bdc..0000000
+diff --git a/data/syntax/logtalk.xml b/data/syntax/logtalk.xml
+deleted file mode 100644
+index 43d063c..0000000
+diff --git a/data/syntax/lpc.xml b/data/syntax/lpc.xml
+deleted file mode 100644
+index bf1dac5..0000000
+diff --git a/data/syntax/lsl.xml b/data/syntax/lsl.xml
+deleted file mode 100644
+index 2d0fc51..0000000
+diff --git a/data/syntax/lua.xml b/data/syntax/lua.xml
+deleted file mode 100644
+index cb842c9..0000000
+diff --git a/data/syntax/m3u.xml b/data/syntax/m3u.xml
+deleted file mode 100644
+index 99171b0..0000000
+diff --git a/data/syntax/m4.xml b/data/syntax/m4.xml
+deleted file mode 100644
+index 687c3ea..0000000
+diff --git a/data/syntax/mab.xml b/data/syntax/mab.xml
+deleted file mode 100644
+index 387432d..0000000
+diff --git a/data/syntax/magma.xml b/data/syntax/magma.xml
+deleted file mode 100644
+index a2fe461..0000000
+diff --git a/data/syntax/mako.xml b/data/syntax/mako.xml
+deleted file mode 100644
+index 7e9a071..0000000
+diff --git a/data/syntax/mandoc.xml b/data/syntax/mandoc.xml
+deleted file mode 100644
+index ed23b82..0000000
+diff --git a/data/syntax/mason.xml b/data/syntax/mason.xml
+deleted file mode 100644
+index 32c2885..0000000
+diff --git a/data/syntax/mathematica.xml b/data/syntax/mathematica.xml
+deleted file mode 100644
+index 3deb3de..0000000
+diff --git a/data/syntax/matlab.xml b/data/syntax/matlab.xml
+deleted file mode 100644
+index 1a93ccc..0000000
+diff --git a/data/syntax/maxima.xml b/data/syntax/maxima.xml
+deleted file mode 100644
+index cd06a3a..0000000
+diff --git a/data/syntax/mediawiki.xml b/data/syntax/mediawiki.xml
+deleted file mode 100644
+index accd0ec..0000000
+diff --git a/data/syntax/mel.xml b/data/syntax/mel.xml
+deleted file mode 100644
+index 8806852..0000000
+diff --git a/data/syntax/mergetagtext.xml b/data/syntax/mergetagtext.xml
+deleted file mode 100644
+index efcc1f7..0000000
+diff --git a/data/syntax/meson.xml b/data/syntax/meson.xml
+deleted file mode 100644
+index 4ecf547..0000000
+diff --git a/data/syntax/metafont.xml b/data/syntax/metafont.xml
+deleted file mode 100644
+index 88166ef..0000000
+diff --git a/data/syntax/metamath.xml b/data/syntax/metamath.xml
+deleted file mode 100644
+index 232603a..0000000
+diff --git a/data/syntax/mib.xml b/data/syntax/mib.xml
+deleted file mode 100644
+index 0455206..0000000
+diff --git a/data/syntax/mips.xml b/data/syntax/mips.xml
+deleted file mode 100644
+index 6802706..0000000
+diff --git a/data/syntax/modelica.xml b/data/syntax/modelica.xml
+deleted file mode 100644
+index 76cf281..0000000
+diff --git a/data/syntax/modelines.xml b/data/syntax/modelines.xml
+deleted file mode 100644
+index 0f3c882..0000000
+diff --git a/data/syntax/modula-2-iso-only.xml b/data/syntax/modula-2-iso-only.xml
+deleted file mode 100644
+index 9da7ae3..0000000
+diff --git a/data/syntax/modula-2-pim-only.xml b/data/syntax/modula-2-pim-only.xml
+deleted file mode 100644
+index 9906339..0000000
+diff --git a/data/syntax/modula-2-r10-only.xml b/data/syntax/modula-2-r10-only.xml
+deleted file mode 100644
+index de4fd1b..0000000
+diff --git a/data/syntax/modula-2.xml b/data/syntax/modula-2.xml
+deleted file mode 100644
+index da3676b..0000000
+diff --git a/data/syntax/monobasic.xml b/data/syntax/monobasic.xml
+deleted file mode 100644
+index 558dded..0000000
+diff --git a/data/syntax/mup.xml b/data/syntax/mup.xml
+deleted file mode 100644
+index a33fb49..0000000
+diff --git a/data/syntax/nagios.xml b/data/syntax/nagios.xml
+deleted file mode 100644
+index 20b81ea..0000000
+diff --git a/data/syntax/nasm.xml b/data/syntax/nasm.xml
+deleted file mode 100644
+index ba50d50..0000000
+diff --git a/data/syntax/nemerle.xml b/data/syntax/nemerle.xml
+deleted file mode 100644
+index 208d70d..0000000
+diff --git a/data/syntax/nesc.xml b/data/syntax/nesc.xml
+deleted file mode 100644
+index 5a5d0db..0000000
+diff --git a/data/syntax/noweb.xml b/data/syntax/noweb.xml
+deleted file mode 100644
+index 09641af..0000000
+diff --git a/data/syntax/nsis.xml b/data/syntax/nsis.xml
+deleted file mode 100644
+index 567419d..0000000
+diff --git a/data/syntax/objectivec.xml b/data/syntax/objectivec.xml
+deleted file mode 100644
+index bdad6fe..0000000
+diff --git a/data/syntax/objectivecpp.xml b/data/syntax/objectivecpp.xml
+deleted file mode 100644
+index a48f9c9..0000000
+diff --git a/data/syntax/ocaml.xml b/data/syntax/ocaml.xml
+deleted file mode 100644
+index 4d47d7b..0000000
+diff --git a/data/syntax/ocamllex.xml b/data/syntax/ocamllex.xml
+deleted file mode 100644
+index 14b5837..0000000
+diff --git a/data/syntax/ocamlyacc.xml b/data/syntax/ocamlyacc.xml
+deleted file mode 100644
+index 6d4d7ba..0000000
+diff --git a/data/syntax/octave.xml b/data/syntax/octave.xml
+deleted file mode 100644
+index 5cdd261..0000000
+diff --git a/data/syntax/oors.xml b/data/syntax/oors.xml
+deleted file mode 100644
+index d28011c..0000000
+diff --git a/data/syntax/opal.xml b/data/syntax/opal.xml
+deleted file mode 100644
+index e390d13..0000000
+diff --git a/data/syntax/opencl.xml b/data/syntax/opencl.xml
+deleted file mode 100644
+index f18ac7f..0000000
+diff --git a/data/syntax/openscad.xml b/data/syntax/openscad.xml
+deleted file mode 100644
+index b5005df..0000000
+diff --git a/data/syntax/pango.xml b/data/syntax/pango.xml
+deleted file mode 100644
+index 2a4f420..0000000
+diff --git a/data/syntax/pascal.xml b/data/syntax/pascal.xml
+deleted file mode 100644
+index 54ae266..0000000
+diff --git a/data/syntax/pgn.xml b/data/syntax/pgn.xml
+deleted file mode 100644
+index ee508df..0000000
+diff --git a/data/syntax/php.xml b/data/syntax/php.xml
+deleted file mode 100644
+index acad510..0000000
+diff --git a/data/syntax/picsrc.xml b/data/syntax/picsrc.xml
+deleted file mode 100644
+index a60c890..0000000
+diff --git a/data/syntax/pig.xml b/data/syntax/pig.xml
+deleted file mode 100644
+index fe2a6f1..0000000
+diff --git a/data/syntax/pike.xml b/data/syntax/pike.xml
+deleted file mode 100644
+index 5a111e2..0000000
+diff --git a/data/syntax/pli.xml b/data/syntax/pli.xml
+deleted file mode 100644
+index 15148bc..0000000
+diff --git a/data/syntax/ply.xml b/data/syntax/ply.xml
+deleted file mode 100644
+index 852f4b3..0000000
+diff --git a/data/syntax/pony.xml b/data/syntax/pony.xml
+deleted file mode 100644
+index 43c24ae..0000000
+diff --git a/data/syntax/postscript.xml b/data/syntax/postscript.xml
+deleted file mode 100644
+index 474167d..0000000
+diff --git a/data/syntax/povray.xml b/data/syntax/povray.xml
+deleted file mode 100644
+index 152559a..0000000
+diff --git a/data/syntax/ppd.xml b/data/syntax/ppd.xml
+deleted file mode 100644
+index a049512..0000000
+diff --git a/data/syntax/praat.xml b/data/syntax/praat.xml
+deleted file mode 100644
+index a10219d..0000000
+diff --git a/data/syntax/progress.xml b/data/syntax/progress.xml
+deleted file mode 100644
+index c467ae1..0000000
+diff --git a/data/syntax/prolog.xml b/data/syntax/prolog.xml
+deleted file mode 100644
+index 7c1b15b..0000000
+diff --git a/data/syntax/protobuf.xml b/data/syntax/protobuf.xml
+deleted file mode 100644
+index bc05a15..0000000
+diff --git a/data/syntax/pug.xml b/data/syntax/pug.xml
+deleted file mode 100644
+index b960317..0000000
+diff --git a/data/syntax/puppet.xml b/data/syntax/puppet.xml
+deleted file mode 100644
+index 57b6eea..0000000
+diff --git a/data/syntax/purebasic.xml b/data/syntax/purebasic.xml
+deleted file mode 100644
+index be1a33b..0000000
+diff --git a/data/syntax/q.xml b/data/syntax/q.xml
+deleted file mode 100644
+index c8fbc8b..0000000
+diff --git a/data/syntax/qmake.xml b/data/syntax/qmake.xml
+deleted file mode 100644
+index bae7296..0000000
+diff --git a/data/syntax/qml.xml b/data/syntax/qml.xml
+deleted file mode 100644
+index b41680d..0000000
+diff --git a/data/syntax/r.xml b/data/syntax/r.xml
+deleted file mode 100644
+index 144418a..0000000
+diff --git a/data/syntax/rapidq.xml b/data/syntax/rapidq.xml
+deleted file mode 100644
+index 67a7a8e..0000000
+diff --git a/data/syntax/rdoc.xml b/data/syntax/rdoc.xml
+deleted file mode 100644
+index e6d73cd..0000000
+diff --git a/data/syntax/relaxng.xml b/data/syntax/relaxng.xml
+deleted file mode 100644
+index 28fdb31..0000000
+diff --git a/data/syntax/relaxngcompact.xml b/data/syntax/relaxngcompact.xml
+deleted file mode 100644
+index 6bcc484..0000000
+diff --git a/data/syntax/replicode.xml b/data/syntax/replicode.xml
+deleted file mode 100644
+index 189a0ff..0000000
+diff --git a/data/syntax/rest.xml b/data/syntax/rest.xml
+deleted file mode 100644
+index 6ca3a1a..0000000
+diff --git a/data/syntax/rexx.xml b/data/syntax/rexx.xml
+deleted file mode 100644
+index a51eb3f..0000000
+diff --git a/data/syntax/rhtml.xml b/data/syntax/rhtml.xml
+deleted file mode 100644
+index 291cea5..0000000
+diff --git a/data/syntax/rib.xml b/data/syntax/rib.xml
+deleted file mode 100644
+index e8ec3da..0000000
+diff --git a/data/syntax/rmarkdown.xml b/data/syntax/rmarkdown.xml
+deleted file mode 100644
+index 6d27305..0000000
+diff --git a/data/syntax/roff.xml b/data/syntax/roff.xml
+deleted file mode 100644
+index 6b428be..0000000
+diff --git a/data/syntax/rpmspec.xml b/data/syntax/rpmspec.xml
+deleted file mode 100644
+index 3ae4eb9..0000000
+diff --git a/data/syntax/rsiidl.xml b/data/syntax/rsiidl.xml
+deleted file mode 100644
+index 11c5c69..0000000
+diff --git a/data/syntax/rtf.xml b/data/syntax/rtf.xml
+deleted file mode 100644
+index 42ce267..0000000
+diff --git a/data/syntax/rust.xml b/data/syntax/rust.xml
+deleted file mode 100644
+index 6657cf2..0000000
+diff --git a/data/syntax/sather.xml b/data/syntax/sather.xml
+deleted file mode 100644
+index 89819cf..0000000
+diff --git a/data/syntax/scala.xml b/data/syntax/scala.xml
+deleted file mode 100644
+index 284281e..0000000
+diff --git a/data/syntax/scheme.xml b/data/syntax/scheme.xml
+deleted file mode 100644
+index 749a913..0000000
+diff --git a/data/syntax/sci.xml b/data/syntax/sci.xml
+deleted file mode 100644
+index 20af7ac..0000000
+diff --git a/data/syntax/scss.xml b/data/syntax/scss.xml
+deleted file mode 100644
+index e4efc0a..0000000
+diff --git a/data/syntax/sed.xml b/data/syntax/sed.xml
+deleted file mode 100644
+index 10e4b8c..0000000
+diff --git a/data/syntax/selinux-cil.xml b/data/syntax/selinux-cil.xml
+deleted file mode 100644
+index 8f6f972..0000000
+diff --git a/data/syntax/selinux-fc.xml b/data/syntax/selinux-fc.xml
+deleted file mode 100644
+index 5bab65f..0000000
+diff --git a/data/syntax/selinux.xml b/data/syntax/selinux.xml
+deleted file mode 100644
+index cb396d1..0000000
+diff --git a/data/syntax/sgml.xml b/data/syntax/sgml.xml
+deleted file mode 100644
+index 87f2fe3..0000000
+diff --git a/data/syntax/sieve.xml b/data/syntax/sieve.xml
+deleted file mode 100644
+index 448766a..0000000
+diff --git a/data/syntax/sisu.xml b/data/syntax/sisu.xml
+deleted file mode 100644
+index 8376855..0000000
+diff --git a/data/syntax/sml.xml b/data/syntax/sml.xml
+deleted file mode 100644
+index 7d63002..0000000
+diff --git a/data/syntax/spice.xml b/data/syntax/spice.xml
+deleted file mode 100644
+index b67763c..0000000
+diff --git a/data/syntax/sql-mysql.xml b/data/syntax/sql-mysql.xml
+deleted file mode 100644
+index f37b706..0000000
+diff --git a/data/syntax/sql-oracle.xml b/data/syntax/sql-oracle.xml
+deleted file mode 100644
+index 7bb32fc..0000000
+diff --git a/data/syntax/sql-postgresql.xml b/data/syntax/sql-postgresql.xml
+deleted file mode 100644
+index 6cf5a6a..0000000
+diff --git a/data/syntax/sql.xml b/data/syntax/sql.xml
+deleted file mode 100644
+index 1e33b86..0000000
+diff --git a/data/syntax/stan.xml b/data/syntax/stan.xml
+deleted file mode 100644
+index 10c1696..0000000
+diff --git a/data/syntax/stata.xml b/data/syntax/stata.xml
+deleted file mode 100644
+index ce3b435..0000000
+diff --git a/data/syntax/stl.xml b/data/syntax/stl.xml
+deleted file mode 100644
+index 41f4856..0000000
+diff --git a/data/syntax/systemc.xml b/data/syntax/systemc.xml
+deleted file mode 100644
+index eb43a8e..0000000
+diff --git a/data/syntax/systemverilog.xml b/data/syntax/systemverilog.xml
+deleted file mode 100644
+index b0e78aa..0000000
+diff --git a/data/syntax/tads3.xml b/data/syntax/tads3.xml
+deleted file mode 100644
+index 7df8690..0000000
+diff --git a/data/syntax/taskjuggler.xml b/data/syntax/taskjuggler.xml
+deleted file mode 100644
+index bb81dfe..0000000
+diff --git a/data/syntax/tcl.xml b/data/syntax/tcl.xml
+deleted file mode 100644
+index 3de1876..0000000
+diff --git a/data/syntax/tcsh.xml b/data/syntax/tcsh.xml
+deleted file mode 100644
+index dc63b3c..0000000
+diff --git a/data/syntax/template-toolkit.xml b/data/syntax/template-toolkit.xml
+deleted file mode 100644
+index b004cb5..0000000
+diff --git a/data/syntax/texinfo.xml b/data/syntax/texinfo.xml
+deleted file mode 100644
+index a43394a..0000000
+diff --git a/data/syntax/textile.xml b/data/syntax/textile.xml
+deleted file mode 100644
+index b0e8250..0000000
+diff --git a/data/syntax/tibasic.xml b/data/syntax/tibasic.xml
+deleted file mode 100644
+index d1a0fca..0000000
+diff --git a/data/syntax/tiger.xml b/data/syntax/tiger.xml
+deleted file mode 100644
+index 482fdc4..0000000
+diff --git a/data/syntax/toml.xml b/data/syntax/toml.xml
+deleted file mode 100644
+index 2369854..0000000
+diff --git a/data/syntax/txt2tags.xml b/data/syntax/txt2tags.xml
+deleted file mode 100644
+index 1635f99..0000000
+diff --git a/data/syntax/uscript.xml b/data/syntax/uscript.xml
+deleted file mode 100644
+index 13d3262..0000000
+diff --git a/data/syntax/vala.xml b/data/syntax/vala.xml
+deleted file mode 100644
+index 8f9aab7..0000000
+diff --git a/data/syntax/varnish.xml b/data/syntax/varnish.xml
+deleted file mode 100644
+index 5916872..0000000
+diff --git a/data/syntax/varnish4.xml b/data/syntax/varnish4.xml
+deleted file mode 100644
+index 03ad852..0000000
+diff --git a/data/syntax/varnishcc.xml b/data/syntax/varnishcc.xml
+deleted file mode 100644
+index 0a0052b..0000000
+diff --git a/data/syntax/varnishcc4.xml b/data/syntax/varnishcc4.xml
+deleted file mode 100644
+index 481ad93..0000000
+diff --git a/data/syntax/varnishtest.xml b/data/syntax/varnishtest.xml
+deleted file mode 100644
+index ceb94d2..0000000
+diff --git a/data/syntax/varnishtest4.xml b/data/syntax/varnishtest4.xml
+deleted file mode 100644
+index ec0d96f..0000000
+diff --git a/data/syntax/vcard.xml b/data/syntax/vcard.xml
+deleted file mode 100644
+index 5eafaa0..0000000
+diff --git a/data/syntax/velocity.xml b/data/syntax/velocity.xml
+deleted file mode 100644
+index cf901d8..0000000
+diff --git a/data/syntax/vera.xml b/data/syntax/vera.xml
+deleted file mode 100644
+index c3802c8..0000000
+diff --git a/data/syntax/verilog.xml b/data/syntax/verilog.xml
+deleted file mode 100644
+index 9f113b4..0000000
+diff --git a/data/syntax/vhdl.xml b/data/syntax/vhdl.xml
+deleted file mode 100644
+index 6a59911..0000000
+diff --git a/data/syntax/vrml.xml b/data/syntax/vrml.xml
+deleted file mode 100644
+index 25839fd..0000000
+diff --git a/data/syntax/wavefront-obj.xml b/data/syntax/wavefront-obj.xml
+deleted file mode 100644
+index 46d6ea7..0000000
+diff --git a/data/syntax/winehq.xml b/data/syntax/winehq.xml
+deleted file mode 100644
+index 112f67d..0000000
+diff --git a/data/syntax/wml.xml b/data/syntax/wml.xml
+deleted file mode 100644
+index 433649c..0000000
+diff --git a/data/syntax/xharbour.xml b/data/syntax/xharbour.xml
+deleted file mode 100644
+index 43336fd..0000000
+diff --git a/data/syntax/xmldebug.xml b/data/syntax/xmldebug.xml
+deleted file mode 100644
+index 68a1e8d..0000000
+diff --git a/data/syntax/xonotic-console.xml b/data/syntax/xonotic-console.xml
+deleted file mode 100644
+index 13ef083..0000000
+diff --git a/data/syntax/xorg.xml b/data/syntax/xorg.xml
+deleted file mode 100644
+index 8ea8855..0000000
+diff --git a/data/syntax/xslt.xml b/data/syntax/xslt.xml
+deleted file mode 100644
+index 37b8577..0000000
+diff --git a/data/syntax/xul.xml b/data/syntax/xul.xml
+deleted file mode 100644
+index 8dc6b65..0000000
+diff --git a/data/syntax/yacas.xml b/data/syntax/yacas.xml
+deleted file mode 100644
+index 12dd078..0000000
+diff --git a/data/syntax/yaml.xml b/data/syntax/yaml.xml
+deleted file mode 100644
+index 7c69ab6..0000000
+diff --git a/data/syntax/yang.xml b/data/syntax/yang.xml
+deleted file mode 100644
+index 051be6a..0000000
+diff --git a/data/syntax/zonnon.xml b/data/syntax/zonnon.xml
+deleted file mode 100644
+index ebe51e1..0000000
+diff --git a/data/syntax/zsh.xml b/data/syntax/zsh.xml
+deleted file mode 100644
+index be40144..0000000
+-- 
+2.20.1.windows.1
+

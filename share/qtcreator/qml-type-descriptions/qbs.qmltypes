@@ -19,6 +19,7 @@ Module {
         exports: [ "qbs/Depends 1.0" ]
         prototype: "QQuickItem"
         Property { name: "condition"; type: "bool" }
+        Property { name: "enableFallback"; type: "bool" }
         Property { name: "limitToSubProject"; type: "bool" }
         Property { name: "multiplexConfigurationIds"; type: "string"; isList: true }
         Property { name: "name"; type: "string" }
@@ -67,6 +68,14 @@ Module {
         Property { name: "prefix"; type: "string" }
     }
     Component {
+        name: "JobLimit"
+        exports: [ "qbs/JobLimit 1.0" ]
+        prototype: "QQuickItem"
+        Property { name: "condition"; type: "bool" }
+        Property { name: "jobCount"; type: "int" }
+        Property { name: "jobPool"; type: "string" }
+    }
+    Component {
         name: "Module"
         exports: [ "qbs/Module 1.0" ]
         prototype: "QQuickItem"
@@ -79,6 +88,14 @@ Module {
         Property { name: "setupRunEnvironment"; type: "QVariant" }
         Property { name: "validate"; type: "bool" }
         Property { name: "version"; type: "string" }
+    }
+    Component {
+        name: "ModuleProvider"
+        exports: [ "qbs/ModuleProvider 1.0" ]
+        prototype: "QQuickItem"
+        Property { name: "name"; type: "string" }
+        Property { name: "outputBaseDir"; type: "string" }
+        Property { name: "relativeSearchPaths"; type: "string"; isList: true }
     }
     Component {
         name: "Parameter"

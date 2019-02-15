@@ -322,10 +322,12 @@ protected:
 
     bool visit(AST::UiPublicMember *node) override
     {
-        if (node->memberType->name == _name){
-            const ObjectValue * tVal = _context->lookupType(_doc.data(), QStringList(_name));
-            if (tVal == _typeValue)
-                _usages.append(node->typeToken);
+        if (UiQualifiedId *memberType = node->memberType) {
+            if (memberType->name == _name) {
+                const ObjectValue * tVal = _context->lookupType(_doc.data(), QStringList(_name));
+                if (tVal == _typeValue)
+                    _usages.append(node->typeToken);
+            }
         }
         if (AST::cast<Block *>(node->statement)) {
             _builder.push(node);

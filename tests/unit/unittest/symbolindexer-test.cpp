@@ -114,6 +114,7 @@ protected:
         ON_CALL(mockCollector, sourceDependencies()).WillByDefault(ReturnRef(sourceDependencies));
         ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(A<FilePathId>())).WillByDefault(Return(artefact));
         ON_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>())).WillByDefault(Return(-1));
+        ON_CALL(mockCollector, collectSymbols()).WillByDefault(Return(true));
 
         mockCollector.setIsUsed(false);
 
@@ -267,7 +268,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
                         ElementsAre("clang++",
                                     "-Wno-pragma-once-outside-header",
                                     "-x",
-                                    "c++-header",
+                                    "c++",
                                     "-std=c++14",
                                     "-nostdinc",
                                     "-nostdinc++",
@@ -297,7 +298,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInColl
                         ElementsAre("clang++",
                                     "-Wno-pragma-once-outside-header",
                                     "-x",
-                                    "c++-header",
+                                    "c++",
                                     "-std=c++14",
                                     "-nostdinc",
                                     "-nostdinc++",
@@ -330,7 +331,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithoutPrecompiledHeaderInC
                         ElementsAre("clang++",
                                     "-Wno-pragma-once-outside-header",
                                     "-x",
-                                    "c++-header",
+                                    "c++",
                                     "-std=c++14",
                                     "-nostdinc",
                                     "-nostdinc++",
@@ -510,7 +511,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithoutProjectPartArtifact)
                         ElementsAre("clang++",
                                     "-Wno-pragma-once-outside-header",
                                     "-x",
-                                    "c++-header",
+                                    "c++",
                                     "-std=c++14",
                                     "-nostdinc",
                                     "-nostdinc++",
@@ -562,7 +563,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithProjectPartArtifact)
                         ElementsAre("clang++",
                                     "-Wno-pragma-once-outside-header",
                                     "-x",
-                                    "c++-header",
+                                    "c++",
                                     "-std=c++14",
                                     "-nostdinc",
                                     "-nostdinc++",
@@ -586,6 +587,61 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithProjectPartArtifact)
     EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(Eq(fileStatus)));
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
+
+    indexer.updateProjectParts({projectPart1});
+}
+
+TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderButGetsAnErrorForCollectingSymbols)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
+    EXPECT_CALL(mockSymbolStorage,
+                fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId)))
+        .WillOnce(Return(nullArtefact));
+    EXPECT_CALL(mockSymbolStorage,
+                insertOrUpdateProjectPart(Eq(projectPart1.projectPartId),
+                                          Eq(projectPart1.toolChainArguments),
+                                          Eq(projectPart1.compilerMacros),
+                                          Eq(projectPart1.systemIncludeSearchPaths),
+                                          Eq(projectPart1.projectIncludeSearchPaths),
+                                          Eq(Utils::Language::Cxx),
+                                          Eq(Utils::LanguageVersion::CXX14),
+                                          Eq(Utils::LanguageExtension::None)))
+        .WillOnce(Return(12));
+    EXPECT_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(12)));
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(Eq(main1PathId))).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
+    EXPECT_CALL(mockCollector,
+                setFile(main1PathId,
+                        ElementsAre("clang++",
+                                    "-Wno-pragma-once-outside-header",
+                                    "-x",
+                                    "c++",
+                                    "-std=c++14",
+                                    "-nostdinc",
+                                    "-nostdinc++",
+                                    "-DBAR=1",
+                                    "-DFOO=1",
+                                    "-I",
+                                    "/project/includes",
+                                    "-I",
+                                    "/other/project/includes",
+                                    "-isystem",
+                                    TESTDATA_DIR,
+                                    "-isystem",
+                                    "/other/includes",
+                                    "-isystem",
+                                    "/includes")));
+    EXPECT_CALL(mockCollector, collectSymbols()).WillOnce(Return(false));
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
+    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(0);
+    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(TypedEq<int>(12), Eq(sourceFileIds))).Times(0);
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros))).Times(0);
+    EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(Eq(fileStatus))).Times(0);
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)))
+        .Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
 
     indexer.updateProjectParts({projectPart1});
 }
@@ -618,7 +674,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
                         ElementsAre("clang++",
                                     "-DFOO",
                                     "-x",
-                                    "c++-header",
+                                    "c++",
                                     "-std=c++14",
                                     "-nostdinc",
                                     "-nostdinc++",
@@ -667,6 +723,50 @@ TEST_F(SymbolIndexer, HandleEmptyOptionalArtifactInUpdateChangedPath)
     indexer.pathsChanged({sourceFileIds[0]});
 }
 
+TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrderButGetsAnErrorForCollectingSymbols)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
+    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
+        .WillOnce(Return(artefact));
+    EXPECT_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
+    EXPECT_CALL(mockCollector,
+                setFile(Eq(sourceFileIds[0]),
+                        ElementsAre("clang++",
+                                    "-DFOO",
+                                    "-x",
+                                    "c++",
+                                    "-std=c++14",
+                                    "-nostdinc",
+                                    "-nostdinc++",
+                                    "-DBAR=1",
+                                    "-DFOO=1",
+                                    "-I",
+                                    "/project/includes",
+                                    "-I",
+                                    "/other/project/includes",
+                                    "-isystem",
+                                    TESTDATA_DIR,
+                                    "-isystem",
+                                    "/other/includes",
+                                    "-isystem",
+                                    "/includes")));
+    EXPECT_CALL(mockCollector, collectSymbols()).WillOnce(Return(false));
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
+    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(0);
+    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(artefact.projectPartId, Eq(sourceFileIds)))
+        .Times(0);
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros))).Times(0);
+    EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(Eq(fileStatus))).Times(0);
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)))
+        .Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
+
+    indexer.pathsChanged({sourceFileIds[0]});
+}
+
 TEST_F(SymbolIndexer, UpdateChangedPathIsUsingPrecompiledHeader)
 {
     ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
@@ -680,7 +780,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsUsingPrecompiledHeader)
                         ElementsAre("clang++",
                                     "-DFOO",
                                     "-x",
-                                    "c++-header",
+                                    "c++",
                                     "-std=c++14",
                                     "-nostdinc",
                                     "-nostdinc++",
@@ -715,7 +815,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsNotUsingPrecompiledHeaderIfItNotExists)
                         ElementsAre("clang++",
                                     "-DFOO",
                                     "-x",
-                                    "c++-header",
+                                    "c++",
                                     "-std=c++14",
                                     "-nostdinc",
                                     "-nostdinc++",

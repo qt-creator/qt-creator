@@ -133,9 +133,7 @@ TEST_F(PchCreator, CreateProjectPartPchFileContent)
 
 TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
 {
-    auto arguments = creator.generateClangCompilerArguments(std::move(pchTask1),
-                                                            "project.h",
-                                                            "project.pch");
+    auto arguments = creator.generateClangCompilerArguments(std::move(pchTask1), "project.pch");
 
     ASSERT_THAT(arguments,
                 ElementsAre("clang++",
@@ -151,17 +149,14 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
                             "-isystem",
                             toNativePath(TESTDATA_DIR "/builddependencycollector/system").path(),
                             "-o",
-                            "project.pch",
-                            "project.h"));
+                            "project.pch"));
 }
 
 TEST_F(PchCreator, CreateProjectPartClangCompilerArgumentsWithSystemPch)
 {
     pchTask1.systemPchPath = "system.pch";
 
-    auto arguments = creator.generateClangCompilerArguments(std::move(pchTask1),
-                                                            "project.h",
-                                                            "project.pch");
+    auto arguments = creator.generateClangCompilerArguments(std::move(pchTask1), "project.pch");
 
     ASSERT_THAT(arguments,
                 ElementsAre("clang++",
@@ -181,8 +176,7 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArgumentsWithSystemPch)
                             "-Xclang",
                             "system.pch",
                             "-o",
-                            "project.pch",
-                            "project.h"));
+                            "project.pch"));
 }
 
 TEST_F(PchCreatorVerySlowTest, ProjectPartPchsSendToPchManagerClient)

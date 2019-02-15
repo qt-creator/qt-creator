@@ -25,6 +25,15 @@
 
 source("../../shared/qtcreator.py")
 
+def __highlighterDefinitionsDirectory__():
+    if platform.system() in ('Microsoft', 'Windows'):
+        basePath = os.path.expandvars("%LOCALAPPDATA%")
+    elif platform.system() == 'Linux':
+        basePath = os.path.expanduser("~/.local/share")
+    else:  # macOS
+        basePath = os.path.expanduser("~/Library/Application Support")
+    return os.path.join(basePath, "org.kde.syntax-highlighting", "syntax")
+
 def createFile(folder, filename):
     __createProjectOrFileSelectType__("  General", "Empty File", isProject = False)
     replaceEditorContent(waitForObject("{name='nameLineEdit' visible='1' "
@@ -103,56 +112,34 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
     clickButton(":Options.Cancel_QPushButton")
     return result
 
-def uncheckGenericHighlighterFallback():
+def addHighlighterDefinition(*languages):
+    syntaxDirectory = __highlighterDefinitionsDirectory__()
+    toBeChecked = (os.path.join(syntaxDirectory, x + ".xml") for x in languages)
+    test.log("Updating highlighter definitions...")
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Text Editor")
     clickItem(":Options_QListView", "Text Editor", 14, 15, 0, Qt.LeftButton)
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
                   "text='Generic Highlighter'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Generic Highlighter")
-    ensureChecked("{name='useFallbackLocation' text='Use fallback location' type='QCheckBox' "
-                  "visible='1'}", False)
-    clickButton(":Options.OK_QPushButton")
 
-def addHighlighterDefinition(language):
-    global tmpSettingsDir
-    test.log("Adding highlighter definitions for '%s'." % language)
-    invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Text Editor")
-    clickItem(":Options_QListView", "Text Editor", 14, 15, 0, Qt.LeftButton)
-    waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
-                  "text='Generic Highlighter'}")
-    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Generic Highlighter")
-    clickButton("{text='Download Definitions...' type='QPushButton' unnamed='1' visible='1'}")
-    table = waitForObject("{name='definitionsTable' type='QTableWidget' visible='1'}")
-    model = table.model()
-    for row in range(model.rowCount()):
-        if str(model.data(model.index(row, 0)).toString()) == language:
-            clickItem(table, "%d/0" % row, 5, 5, 0, Qt.LeftButton)
-            clickButton("{name='downloadButton' text='Download Selected Definitions' "
-                        "type='QPushButton' visible='1'}")
-            # downloading happens asynchronously but may take a little time
-            progressBarWait(10000)
-            languageFile = os.path.join(tmpSettingsDir, "QtProject", "qtcreator",
-                                        "generic-highlighter", "%s.xml"
-                                        % language.lower().replace(" ", "-"))
-            test.verify(waitFor("os.path.exists(languageFile)", 10000),
-                        "Verifying whether highlight definition file for '%s' has been downloaded "
-                        "and placed to settings." % language)
-            clickButton("{text='Download Definitions...' type='QPushButton' unnamed='1' "
-                        "visible='1'}")
-            table = waitForObject("{name='definitionsTable' type='QTableWidget' visible='1'}")
-            model = table.model()
-            test.verify(str(model.data(model.index(row, 1))) != "",
-                        "Verifying a definition has been downloaded.")
-            clickButton("{text='Close' type='QPushButton' unnamed='1' visible='1'}")
-            clickButton(":Options.OK_QPushButton")
-            return True
-    test.fail("Could not find the specified language (%s) to download a highlighter definition"
-              % language)
-    clickButton("{text='Close' type='QPushButton' unnamed='1' visible='1'}")
-    clickButton(":Options.OK_QPushButton")
-    return False
+    clickButton("{text='Update Definitions' type='QPushButton' name='updateDefinitions' visible='1'}")
+    updateStatus = "{name='updateStatus' type='QLabel' visible='1'}"
+    waitFor("object.exists(updateStatus)", 5000)
+    if waitFor('str(findObject(updateStatus).text) == "Update finished"', 5000):
+        test.verify(os.path.exists(syntaxDirectory),
+                    "Directory for syntax highlighter files exists.")
+        xmlFiles = glob.glob(os.path.join(syntaxDirectory, "*.xml"))
+        test.verify(len(xmlFiles) > 0, "Verified presence of syntax highlighter files. "
+                    "(Found %d)" % len(xmlFiles))
+        # should we check output (General Messages) as well?
+        test.passes("Updated definitions")
+        clickButton(":Options.OK_QPushButton")
+        return map(os.path.exists, toBeChecked)
+    else:
+        test.fail("Could not update highlighter definitions")
+        clickButton(":Options.Cancel_QPushButton")
+        return map(os.path.exists, toBeChecked)
 
 def hasSuffix(fileName, suffixPatterns):
     for suffix in suffixPatterns:
@@ -170,11 +157,12 @@ def displayHintForHighlighterDefinition(fileName, patterns, lPatterns, added, ad
     return False
 
 def main():
-    miss = "A highlight definition was not found for this file. Would you like to try to find one?"
+    miss = ("A highlight definition was not found for this file. Would you like to update "
+            "highlight definition files?")
     startQC()
     if not startedWithoutPluginError():
         return
-    uncheckGenericHighlighterFallback()
+
     patterns = getOrModifyFilePatternsFor("text/x-haskell", "x-haskell")
     lPatterns = getOrModifyFilePatternsFor("text/x-literate-haskell", "literate-haskell")
 
@@ -204,8 +192,7 @@ def main():
 
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Close All")
-    addedHighlighterDefinition = addHighlighterDefinition("Haskell")
-    addedLiterateHighlighterDefinition = addHighlighterDefinition("Literate Haskell")
+    addedHaskell, addedLiterateHaskell = addHighlighterDefinition("haskell", "literate-haskell")
     patterns = getOrModifyFilePatternsFor('text/x-haskell', 'x-haskell', ['.hs'])
     lPatterns = getOrModifyFilePatternsFor('text/x-literate-haskell', 'literate-haskell', ['.lhs'])
 
@@ -217,8 +204,7 @@ def main():
         invokeMenuItem("File", "Recent Files", "(&\\d \| )?%s" % recentFile)
         editor = getEditorForFileSuffix(current)
         display = displayHintForHighlighterDefinition(current, patterns, lPatterns,
-                                                      addedHighlighterDefinition,
-                                                      addedLiterateHighlighterDefinition)
+                                                      addedHaskell, addedLiterateHaskell)
         try:
             waitForObject("{text='%s' type='QLabel' unnamed='1' visible='1' "
                           "window=':Qt Creator_Core::Internal::MainWindow'}" % miss, 2000)
@@ -237,3 +223,10 @@ def main():
 
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
+
+def init():
+    syntaxDirectory = __highlighterDefinitionsDirectory__()
+    if not os.path.exists(syntaxDirectory):
+        return
+    test.log("Removing existing highlighter definitions folder")
+    deleteDirIfExists(syntaxDirectory)

@@ -23,11 +23,15 @@
 #
 ############################################################################
 
+firstStart = True
+
 def startCreatorVerifyingClang(useClang):
+    global firstStart
     try:
         # start Qt Creator with / without enabled ClangCodeModel plugin (without modifying settings)
         loadOrNoLoad = '-load' if useClang else '-noload'
-        startQC([loadOrNoLoad, 'ClangCodeModel'])
+        startQC([loadOrNoLoad, 'ClangCodeModel'], cancelTour=firstStart)
+        firstStart = False
     except RuntimeError:
         t, v = sys.exc_info()[:2]
         strv = str(v)

@@ -34,32 +34,34 @@
 #include <filepathcachingfwd.h>
 
 namespace ClangBackEnd {
+class Environment;
 
 class BuildDependencyCollector : public BuildDependencyGeneratorInterface
 {
 public:
     BuildDependencyCollector(const FilePathCachingInterface &filePathCache,
-                             const GeneratedFilesInterface &generatedFiles)
+                             const GeneratedFilesInterface &generatedFiles,
+                             const Environment &environment)
         : m_filePathCache(filePathCache)
         , m_generatedFiles(generatedFiles)
-    {
-    }
+        , m_environment(environment)
+    {}
 
     BuildDependency create(const ProjectPartContainer &projectPart) override;
 
     void collect();
 
     void setExcludedFilePaths(ClangBackEnd::FilePaths &&excludedIncludes);
-    void addFiles(const FilePathIds &filePathIds,
-                  const Utils::SmallStringVector &arguments);
-    void addFile(FilePathId filePathId,
-                 const Utils::SmallStringVector &arguments);
+    void addFiles(const FilePathIds &filePathIds, Utils::SmallStringVector &&arguments);
+    void addFile(FilePathId filePathId, Utils::SmallStringVector &&arguments);
     void addFile(FilePath filePath,
                  const FilePathIds &sourceFileIds,
-                 const Utils::SmallStringVector &arguments);
+                 Utils::SmallStringVector &&arguments);
     void addUnsavedFiles(const V2::FileContainers &unsavedFiles);
 
     void clear();
+
+    Utils::SmallString generateFakeFileContent(const FilePathIds &includeIds) const;
 
     const FileStatuses &fileStatuses() const
     {
@@ -96,6 +98,7 @@ private:
     SourcesManager m_sourcesManager;
     const FilePathCachingInterface &m_filePathCache;
     const GeneratedFilesInterface &m_generatedFiles;
+    const Environment &m_environment;
 };
 
 } // namespace ClangBackEnd

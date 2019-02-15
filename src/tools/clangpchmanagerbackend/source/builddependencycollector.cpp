@@ -28,10 +28,12 @@
 #include "collectbuilddependencytoolaction.h"
 #include "commandlinebuilder.h"
 
+#include <environment.h>
+
 #include <utils/smallstring.h>
 
 #include <algorithm>
-
+#include <iostream>
 namespace ClangBackEnd {
 
 namespace {
@@ -47,10 +49,10 @@ FilePathIds operator+(const FilePathIds &first, const FilePathIds &second)
 
 BuildDependency BuildDependencyCollector::create(const ProjectPartContainer &projectPart)
 {
-    CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector> builder{
-        projectPart, projectPart.toolChainArguments};
+    CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>
+        builder{projectPart, projectPart.toolChainArguments, InputFileType::Source};
 
-    addFiles(projectPart.sourcePathIds, builder.commandLine);
+    addFiles(projectPart.sourcePathIds, std::move(builder.commandLine));
 
     setExcludedFilePaths(
         m_filePathCache.filePaths(projectPart.headerPathIds + projectPart.sourcePathIds));
@@ -64,6 +66,33 @@ BuildDependency BuildDependencyCollector::create(const ProjectPartContainer &pro
     clear();
 
     return buildDependency;
+}
+
+namespace {
+
+std::size_t contentSize(const FilePaths &includes)
+{
+    auto countIncludeSize = [](std::size_t size, const auto &include) {
+        return size + include.size();
+    };
+
+    return std::accumulate(includes.begin(), includes.end(), std::size_t(0), countIncludeSize);
+}
+} // namespace
+
+Utils::SmallString BuildDependencyCollector::generateFakeFileContent(
+    const FilePathIds &includeIds) const
+{
+    Utils::SmallString fileContent;
+    const std::size_t lineTemplateSize = 12;
+    auto includes = m_filePathCache.filePaths(includeIds);
+
+    fileContent.reserve(includes.size() * lineTemplateSize + contentSize(includes));
+
+    for (Utils::SmallStringView include : includes)
+        fileContent += {"#include \"", include, "\"\n"};
+
+    return fileContent;
 }
 
 void BuildDependencyCollector::collect()
@@ -96,25 +125,26 @@ void BuildDependencyCollector::setExcludedFilePaths(ClangBackEnd::FilePaths &&ex
 }
 
 void BuildDependencyCollector::addFiles(const FilePathIds &filePathIds,
-                                        const Utils::SmallStringVector &arguments)
+                                        Utils::SmallStringVector &&arguments)
 {
-    m_clangTool.addFiles(m_filePathCache.filePaths(filePathIds), arguments);
+    m_clangTool.addFile(FilePath{m_environment.pchBuildDirectory().toStdString(), "dummy.cpp"},
+                        generateFakeFileContent(filePathIds),
+                        std::move(arguments));
     m_buildDependency.sourceFiles.insert(m_buildDependency.sourceFiles.end(),
                                          filePathIds.begin(),
                                          filePathIds.end());
 }
 
-void BuildDependencyCollector::addFile(FilePathId filePathId,
-                                       const Utils::SmallStringVector &arguments)
+void BuildDependencyCollector::addFile(FilePathId filePathId, Utils::SmallStringVector &&arguments)
 {
-    addFiles({filePathId}, arguments);
+    addFiles({filePathId}, std::move(arguments));
 }
 
 void BuildDependencyCollector::addFile(FilePath filePath,
                                        const FilePathIds &sourceFileIds,
-                                       const Utils::SmallStringVector &arguments)
+                                       Utils::SmallStringVector &&arguments)
 {
-    m_clangTool.addFiles({filePath}, arguments);
+    m_clangTool.addFiles({filePath}, std::move(arguments));
     m_buildDependency.sourceFiles.insert(m_buildDependency.sourceFiles.end(),
                                          sourceFileIds.begin(),
                                          sourceFileIds.end());

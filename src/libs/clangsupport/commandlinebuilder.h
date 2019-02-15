@@ -35,12 +35,15 @@
 
 namespace ClangBackEnd {
 
+enum class InputFileType : unsigned char { Header, Source };
+
 template<typename ProjectInfo, typename OutputContainer = Utils::SmallStringVector>
 class CommandLineBuilder
 {
 public:
     CommandLineBuilder(const ProjectInfo &projectInfo,
                        const Utils::SmallStringVector &toolChainArguments = {},
+                       InputFileType sourceType = InputFileType::Header,
                        FilePathView sourcePath = {},
                        FilePathView outputPath = {},
                        FilePathView includePchPath = {})
@@ -49,9 +52,9 @@ public:
 
         addCompiler(projectInfo.language);
         addToolChainArguments(toolChainArguments);
-        addLanguage(projectInfo);
+        addLanguage(projectInfo, sourceType);
         addLanguageVersion(projectInfo);
-        addNoStdIncAndNoStdLibInc();
+        addNoStdIncAndNoStdLibInc(projectInfo.language);
         addCompilerMacros(projectInfo.compilerMacros);
         addProjectIncludeSearchPaths(
             sortedIncludeSearchPaths(projectInfo.projectIncludeSearchPaths));
@@ -76,26 +79,27 @@ public:
             commandLine.emplace_back(argument);
     }
 
-    static const char *language(const ProjectInfo &projectInfo)
+    static const char *language(const ProjectInfo &projectInfo, InputFileType sourceType)
     {
         switch (projectInfo.language) {
         case Utils::Language::C:
             if (projectInfo.languageExtension && Utils::LanguageExtension::ObjectiveC)
-                return "objective-c-header";
+                return sourceType == InputFileType::Header ? "objective-c-header" : "objective-c";
 
-            return "c-header";
+            return sourceType == InputFileType::Header ? "c-header" : "c";
         case Utils::Language::Cxx:
             if (projectInfo.languageExtension && Utils::LanguageExtension::ObjectiveC)
-                return "objective-c++-header";
+                return sourceType == InputFileType::Header ? "objective-c++-header"
+                                                           : "objective-c++";
         }
 
-        return "c++-header";
+        return sourceType == InputFileType::Header ? "c++-header" : "c++";
     }
 
-    void addLanguage(const ProjectInfo &projectInfo)
+    void addLanguage(const ProjectInfo &projectInfo, InputFileType sourceType)
     {
         commandLine.emplace_back("-x");
-        commandLine.emplace_back(language(projectInfo));
+        commandLine.emplace_back(language(projectInfo, sourceType));
     }
 
     const char *standardLanguageVersion(Utils::LanguageVersion languageVersion)
@@ -108,7 +112,7 @@ public:
         case Utils::LanguageVersion::C11:
             return "-std=c11";
         case Utils::LanguageVersion::C18:
-            return "-std=c18";
+            return "-std=c17";
         case Utils::LanguageVersion::CXX98:
             return "-std=c++98";
         case Utils::LanguageVersion::CXX03:
@@ -136,7 +140,7 @@ public:
         case Utils::LanguageVersion::C11:
             return "-std=gnu11";
         case Utils::LanguageVersion::C18:
-            return "-std=gnu18";
+            return "-std=gnu17";
         case Utils::LanguageVersion::CXX98:
             return "-std=gnu++98";
         case Utils::LanguageVersion::CXX03:
@@ -268,10 +272,11 @@ public:
         }
     }
 
-    void addNoStdIncAndNoStdLibInc()
+    void addNoStdIncAndNoStdLibInc(Utils::Language language)
     {
         commandLine.emplace_back("-nostdinc");
-        commandLine.emplace_back("-nostdinc++");
+        if (language == Utils::Language::Cxx)
+            commandLine.emplace_back("-nostdinc++");
     }
 
 public:

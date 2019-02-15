@@ -30,11 +30,13 @@
 #include "clangtoolsutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/manhattanstyle.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QDebug>
 #include <QHeaderView>
 #include <QPainter>
@@ -44,21 +46,22 @@ using namespace Debugger;
 namespace ClangTools {
 namespace Internal {
 
-class ClickableFixItHeader : public QHeaderView
+// A header view that puts a check box in front of a given column.
+class HeaderWithCheckBoxInColumn : public QHeaderView
 {
     Q_OBJECT
 
 public:
-    ClickableFixItHeader(Qt::Orientation orientation, QWidget *parent = nullptr)
+    HeaderWithCheckBoxInColumn(Qt::Orientation orientation,
+                               int column = 0,
+                               QWidget *parent = nullptr)
         : QHeaderView(orientation, parent)
+        , m_column(column)
     {
         setDefaultAlignment(Qt::AlignLeft);
     }
 
-    void setState(QFlags<QStyle::StateFlag> newState)
-    {
-        state = newState;
-    }
+    void setState(QFlags<QStyle::StateFlag> newState) { state = newState; }
 
 protected:
     void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const override
@@ -66,7 +69,7 @@ protected:
         painter->save();
         QHeaderView::paintSection(painter, rect, logicalIndex);
         painter->restore();
-        if (logicalIndex == DiagnosticView::FixItColumn) {
+        if (logicalIndex == m_column) {
             QStyleOptionButton option;
             const int side = sizeHint().height();
             option.rect = QRect(rect.left() + 1, 1, side - 3, side - 3);
@@ -83,33 +86,110 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override
     {
         const int x = event->localPos().x();
-        const int fixItColumnX = sectionPosition(DiagnosticView::FixItColumn);
-        const bool isWithinFixitCheckBox = x > fixItColumnX
-                                           && x < fixItColumnX + sizeHint().height() - 3;
-        if (isWithinFixitCheckBox) {
+        const int columnX = sectionPosition(m_column);
+        const bool isWithinCheckBox = x > columnX && x < columnX + sizeHint().height() - 3;
+        if (isWithinCheckBox) {
             state = (state != QStyle::State_On) ? QStyle::State_On : QStyle::State_Off;
             viewport()->update();
-            emit fixItColumnClicked(state == QStyle::State_On);
+            emit checkBoxClicked(state == QStyle::State_On);
             return; // Avoid changing sort order
         }
         QHeaderView::mouseReleaseEvent(event);
     }
 
 signals:
-    void fixItColumnClicked(bool checked);
+    void checkBoxClicked(bool checked);
 
 private:
+    const int m_column = 0;
     QFlags<QStyle::StateFlag> state = QStyle::State_Off;
+};
+
+static QString getBaseStyleName()
+{
+    QStyle *style = QApplication::style();
+    if (auto proxyStyle = qobject_cast<QProxyStyle *>(style))
+        style = proxyStyle->baseStyle();
+    return style->objectName();
+}
+
+// Paints the check box indicator disabled if requested by client.
+class DiagnosticViewStyle : public ManhattanStyle
+{
+public:
+    DiagnosticViewStyle(const QString &baseStyleName = getBaseStyleName())
+        : ManhattanStyle(baseStyleName)
+    {}
+
+    void setPaintCheckBoxDisabled(bool paintDisabledCheckbox)
+    {
+        m_paintCheckBoxDisabled = paintDisabledCheckbox;
+    }
+
+    void drawPrimitive(PrimitiveElement element,
+                       const QStyleOption *option,
+                       QPainter *painter,
+                       const QWidget *widget = nullptr) const final
+    {
+        if (element == QStyle::PE_IndicatorCheckBox && m_paintCheckBoxDisabled) {
+            if (const QStyleOptionButton *o = qstyleoption_cast<const QStyleOptionButton *>(
+                    option)) {
+                QStyleOptionButton myOption = *o;
+                myOption.palette.setCurrentColorGroup(QPalette::Disabled);
+                ManhattanStyle::drawPrimitive(element, &myOption, painter, widget);
+                return;
+            }
+        }
+        ManhattanStyle::drawPrimitive(element, option, painter, widget);
+    }
+
+private:
+    bool m_paintCheckBoxDisabled = false;
+};
+
+// A delegate that allows to paint a disabled check box (indicator).
+// This is useful if the rest of the item should not be disabled.
+class DiagnosticViewDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+public:
+    DiagnosticViewDelegate(DiagnosticViewStyle *style)
+        : m_style(style)
+    {}
+
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const final
+    {
+        const bool paintDisabled = !index.data(ClangToolsDiagnosticModel::CheckBoxEnabledRole)
+                                        .toBool();
+        if (paintDisabled)
+            m_style->setPaintCheckBoxDisabled(true);
+        QStyledItemDelegate::paint(painter, option, index);
+        if (paintDisabled)
+            m_style->setPaintCheckBoxDisabled(false);
+    }
+
+private:
+    DiagnosticViewStyle *m_style = nullptr;
 };
 
 DiagnosticView::DiagnosticView(QWidget *parent)
     : Debugger::DetailedErrorView(parent)
+    , m_style(new DiagnosticViewStyle)
+    , m_delegate(new DiagnosticViewDelegate(m_style.get()))
 {
     m_suppressAction = new QAction(tr("Suppress This Diagnostic"), this);
     connect(m_suppressAction, &QAction::triggered,
             this, &DiagnosticView::suppressCurrentDiagnostic);
     installEventFilter(this);
+
+    setStyle(m_style.get());
+    setItemDelegate(m_delegate.get());
 }
+
+DiagnosticView::~DiagnosticView() = default;
 
 void DiagnosticView::suppressCurrentDiagnostic()
 {
@@ -199,7 +279,6 @@ bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)
         switch (key) {
         case Qt::Key_Return:
         case Qt::Key_Enter:
-        case Qt::Key_Space:
             openEditorForCurrentIndex();
         }
         return true;
@@ -219,11 +298,11 @@ void DiagnosticView::setSelectedFixItsCount(int fixItsCount)
 {
     if (m_ignoreSetSelectedFixItsCount)
         return;
-    auto *clickableFixItHeader = static_cast<ClickableFixItHeader *>(header());
-    clickableFixItHeader->setState(fixItsCount
-                                   ? (QStyle::State_NoChange | QStyle::State_On | QStyle::State_Off)
-                                   : QStyle::State_Off);
-    clickableFixItHeader->viewport()->update();
+    auto checkBoxHeader = static_cast<HeaderWithCheckBoxInColumn *>(header());
+    checkBoxHeader->setState(fixItsCount
+                                 ? (QStyle::State_NoChange | QStyle::State_On | QStyle::State_Off)
+                                 : QStyle::State_Off);
+    checkBoxHeader->viewport()->update();
 }
 
 void DiagnosticView::openEditorForCurrentIndex()
@@ -237,28 +316,31 @@ void DiagnosticView::openEditorForCurrentIndex()
 void DiagnosticView::setModel(QAbstractItemModel *theProxyModel)
 {
     const auto proxyModel = static_cast<QSortFilterProxyModel *>(theProxyModel);
-    const auto sourceModel = static_cast<ClangToolsDiagnosticModel *>(proxyModel->sourceModel());
-
     Debugger::DetailedErrorView::setModel(proxyModel);
-    auto *clickableFixItHeader = new ClickableFixItHeader(Qt::Horizontal, this);
-    connect(clickableFixItHeader, &ClickableFixItHeader::fixItColumnClicked, this, [=](bool checked) {
+
+    auto *header = new HeaderWithCheckBoxInColumn(Qt::Horizontal,
+                                                  DiagnosticView::DiagnosticColumn,
+                                                  this);
+    connect(header, &HeaderWithCheckBoxInColumn::checkBoxClicked, this, [=](bool checked) {
         m_ignoreSetSelectedFixItsCount = true;
-        sourceModel->rootItem()->forChildrenAtLevel(2, [&](::Utils::TreeItem *item) {
-            auto diagnosticItem = static_cast<DiagnosticItem *>(item);
-            diagnosticItem->setData(FixItColumn,
-                                    checked ? Qt::Checked : Qt::Unchecked,
-                                    Qt::CheckStateRole);
-        });
+        for (int i = 0, count = proxyModel->rowCount(); i < count; ++i) {
+            const QModelIndex filePathItemIndex = proxyModel->index(i, 0);
+            for (int j = 0, count = proxyModel->rowCount(filePathItemIndex); j < count; ++j) {
+                const QModelIndex proxyIndex = proxyModel->index(j, 0, filePathItemIndex);
+                const QModelIndex diagnosticItemIndex = proxyModel->mapToSource(proxyIndex);
+                auto item = static_cast<DiagnosticItem *>(diagnosticItemIndex.internalPointer());
+                item->setData(DiagnosticView::DiagnosticColumn,
+                              checked ? Qt::Checked : Qt::Unchecked,
+                              Qt::CheckStateRole);
+            }
+        }
         m_ignoreSetSelectedFixItsCount = false;
     });
-    setHeader(clickableFixItHeader);
-    clickableFixItHeader->setStretchLastSection(false);
-    clickableFixItHeader->setSectionResizeMode(0, QHeaderView::Stretch);
-    clickableFixItHeader->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-
-    const int fixitColumnWidth = clickableFixItHeader->sectionSizeHint(DiagnosticView::FixItColumn);
-    const int checkboxWidth = clickableFixItHeader->height();
-    clickableFixItHeader->setMinimumSectionSize(fixitColumnWidth + 1.2 * checkboxWidth);
+    setHeader(header);
+    header->setSectionResizeMode(DiagnosticView::DiagnosticColumn, QHeaderView::Stretch);
+    const int columnWidth = header->sectionSizeHint(DiagnosticView::DiagnosticColumn);
+    const int checkboxWidth = header->height();
+    header->setMinimumSectionSize(columnWidth + 1.2 * checkboxWidth);
 }
 
 } // namespace Internal

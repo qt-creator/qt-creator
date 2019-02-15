@@ -45,7 +45,6 @@ bool applyTextEdits(const LanguageServerProtocol::DocumentUri &uri,
                     const QList<LanguageServerProtocol::TextEdit> &edits);
 void applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,
                    const LanguageServerProtocol::TextEdit &edit);
-TextEditor::TextDocument *textDocumentForFileName(const Utils::FileName &fileName);
 void updateCodeActionRefactoringMarker(Client *client,
                                        const LanguageServerProtocol::CodeAction &action,
                                        const LanguageServerProtocol::DocumentUri &uri);

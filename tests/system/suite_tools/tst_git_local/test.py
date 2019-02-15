@@ -146,7 +146,7 @@ def verifyClickCommit():
                         "Verifying whether diff editor contains pointless_header.h file.")
             test.verify(pointlessHeader not in diffOriginal,
                         "Verifying whether original does not contain pointless_header.h file.")
-            test.verify("HEADERS += \\\n        mainwindow.h \\\n    pointless_header.h\n" in diffChanged,
+            test.verify("HEADERS += \\\n        mainwindow.h \\\n        pointless_header.h\n" in diffChanged,
                         "Verifying whether diff editor has pointless_header.h listed in pro file.")
             test.verify("HEADERS += \\\n        mainwindow.h\n\n" in diffOriginal
                         and "pointless_header.h" not in diffOriginal,

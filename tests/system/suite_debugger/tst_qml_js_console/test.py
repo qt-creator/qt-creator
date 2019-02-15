@@ -140,10 +140,11 @@ def main():
         # start debugging
         clickButton(fancyDebugButton)
         waitForObject(":Locals and Expressions_Debugger::Internal::WatchTreeView")
-        rootIndex = getQModelIndexStr("text='Rectangle'",
+        rootIndex = getQModelIndexStr("text='QQmlEngine'",
                                       ":Locals and Expressions_Debugger::Internal::WatchTreeView")
-        # make sure the items inside the root item are visible
-        doubleClick(waitForObject(rootIndex))
+        # make sure the items inside the QQmlEngine's root are visible
+        mainRect = getQModelIndexStr("text='Rectangle'", rootIndex)
+        doubleClick(waitForObject(mainRect))
         if not object.exists(":DebugModeWidget_Debugger::Internal::ConsoleView"):
             invokeMenuItem("Window", "Output Panes", "Debugger Console")
         progressBarWait()
@@ -154,19 +155,19 @@ def main():
                   ("width=66", "66", "width"), ("anchors.centerIn", "<unnamed object>"),
                   ("opacity", "1"), ("opacity = .1875", u"0.\u200b1875", "opacity")]
         # check red inner Rectangle
-        runChecks("text='Rectangle' occurrence='2'", rootIndex, checks)
+        runChecks("text='Rectangle' occurrence='2'", mainRect, checks)
 
         checks = [("color", u"#\u200bff0000"), ("width", "100"), ("height", "100"),
                   ("radius = Math.min(width, height) / 2", "50", "radius"),
                   ("parent.objectName= 'mainRect'", "mainRect")]
         # check green inner Rectangle
-        runChecks("text='Rectangle'", rootIndex, checks)
+        runChecks("text='Rectangle'", mainRect, checks)
 
         checks = [("color", u"#\u200b000000"), ("font.pointSize=14", "14", "font.pointSize"),
                   ("font.bold", "false"), ("font.weight=Font.Bold", "75", "font.bold", "true"),
                   ("rotation", "0"), ("rotation = 180", "180", "rotation")]
         # check Text element
-        runChecks("text='Text'", rootIndex, checks)
+        runChecks("text='Text'", mainRect, checks)
         # extended check must be done separately
         originalVal = useDebuggerConsole("x", None)
         if originalVal:

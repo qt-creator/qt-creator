@@ -103,12 +103,8 @@ TEST_F(RefactoringClientServerInProcess, SendSourceLocationsForRenamingMessage)
 
 TEST_F(RefactoringClientServerInProcess, SendRequestSourceLocationsForRenamingMessage)
 {
-    RequestSourceLocationsForRenamingMessage message{{TESTDATA_DIR, "renamevariable.cpp"},
-                                                     1,
-                                                     5,
-                                                     "int v;\n\nint x = v + 3;\n",
-                                                     {"cc", "renamevariable.cpp"},
-                                                     1};
+    RequestSourceLocationsForRenamingMessage message{
+        {TESTDATA_DIR, "renamevariable.cpp"}, 1, 5, "int v;\n\nint x = v + 3;\n", {"cc"}, 1};
 
     EXPECT_CALL(mockRefactoringServer, requestSourceLocationsForRenamingMessage(message));
 
@@ -153,15 +149,10 @@ TEST_F(RefactoringClientServerInProcess, SendProgressMessage)
 
 TEST_F(RefactoringClientServerInProcess, RequestSourceRangesAndDiagnosticsForQueryMessage)
 {
-    RequestSourceRangesForQueryMessage message{"functionDecl()",
-                                               {{{TESTDATA_DIR, "query_simplefunction.cpp"},
-                                                  "void f();",
-                                                 {"cc", "query_simplefunction.cpp"},
-                                                 1}},
-                                               {{{TESTDATA_DIR, "query_simplefunction.h"},
-                                                  "void f();",
-                                                 {},
-                                                 1}}};
+    RequestSourceRangesForQueryMessage message{
+        "functionDecl()",
+        {{{TESTDATA_DIR, "query_simplefunction.cpp"}, "void f();", {"cc"}, 1}},
+        {{{TESTDATA_DIR, "query_simplefunction.h"}, "void f();", {}, 1}}};
 
     EXPECT_CALL(mockRefactoringServer, requestSourceRangesForQueryMessage(message));
 
@@ -171,15 +162,15 @@ TEST_F(RefactoringClientServerInProcess, RequestSourceRangesAndDiagnosticsForQue
 
 TEST_F(RefactoringClientServerInProcess, RequestSourceRangesForQueryMessage)
 {
-    RequestSourceRangesForQueryMessage message{"functionDecl()",
-                                               {{{TESTDATA_DIR, "query_simplefunction.cpp"},
-                                                  "void f();",
-                                                 {"cc", "query_simplefunction.cpp"},
-                                                 1}},
-                                               {{{TESTDATA_DIR, "query_simplefunction.h"},
-                                                  "void f();",
-                                                 {},
-                                                 1}}};
+    RequestSourceRangesForQueryMessage message{
+        "functionDecl()",
+        {{{TESTDATA_DIR, "query_simplefunction.cpp"},
+          "void f();",
+          {
+              "cc",
+          },
+          1}},
+        {{{TESTDATA_DIR, "query_simplefunction.h"}, "void f();", {}, 1}}};
 
     EXPECT_CALL(mockRefactoringServer, requestSourceRangesForQueryMessage(message));
 

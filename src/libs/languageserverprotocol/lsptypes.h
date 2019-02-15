@@ -100,6 +100,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT Range : public JsonObject
 public:
     Range() = default;
     Range(const Position &start, const Position &end);
+    explicit Range(const QTextCursor &cursor);
     using JsonObject::JsonObject;
 
     // The range's start position.
@@ -111,6 +112,7 @@ public:
     void setEnd(const Position &end) { insert(endKey, end); }
 
     bool contains(const Position &pos) const { return start() <= pos && pos <= end(); }
+    bool overlaps(const Range &range) const;
 
     bool isValid(QStringList *error) const override
     { return check<Position>(error, startKey) && check<Position>(error, endKey); }

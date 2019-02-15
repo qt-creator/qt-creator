@@ -192,10 +192,10 @@ class PchTaskSet;
 class BuildDependency;
 class SourceEntry;
 class FilePathCaching;
-class SlotUsage;
+struct SlotUsage;
 class IncludeSearchPath;
 enum class IncludeSearchPathType : unsigned char;
-class ArgumentsEntry;
+struct ArgumentsEntry;
 class ProjectPartContainer;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);

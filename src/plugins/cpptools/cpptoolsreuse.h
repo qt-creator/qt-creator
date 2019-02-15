@@ -58,6 +58,7 @@ bool CPPTOOLS_EXPORT isValidFirstIdentifierChar(const QChar &ch);
 bool CPPTOOLS_EXPORT isValidIdentifierChar(const QChar &ch);
 bool CPPTOOLS_EXPORT isValidIdentifier(const QString &s);
 
+QStringList CPPTOOLS_EXPORT identifierWordsUnderCursor(const QTextCursor &tc);
 QString CPPTOOLS_EXPORT identifierUnderCursor(QTextCursor *cursor);
 
 bool CPPTOOLS_EXPORT isOwnershipRAIIType(CPlusPlus::Symbol *symbol,

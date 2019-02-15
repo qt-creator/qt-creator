@@ -29,6 +29,7 @@
 #include "clangtoolsutils.h"
 
 namespace ClangTools {
+namespace Internal {
 
 ClangToolsBasicSettings::ClangToolsBasicSettings(QWidget *parent)
     : QWidget(parent)
@@ -47,4 +48,5 @@ Ui::ClangToolsBasicSettings *ClangToolsBasicSettings::ui()
     return m_ui;
 }
 
+} // namespace Internal
 } // namespace ClangTools

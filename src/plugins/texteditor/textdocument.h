@@ -70,6 +70,7 @@ public:
     static QMap<QString, QString> openedTextDocumentContents();
     static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
     static TextDocument *currentTextDocument();
+    static TextDocument *textDocumentForFileName(const Utils::FileName &fileName);
 
     virtual QString plainText() const;
     virtual QString textAt(int pos, int length) const;
@@ -140,6 +141,7 @@ public:
 
     void setCompletionAssistProvider(CompletionAssistProvider *provider);
     virtual CompletionAssistProvider *completionAssistProvider() const;
+    void setQuickFixAssistProvider(IAssistProvider *provider) const;
     virtual IAssistProvider *quickFixAssistProvider() const;
 
     void setTabSettings(const TextEditor::TabSettings &tabSettings);

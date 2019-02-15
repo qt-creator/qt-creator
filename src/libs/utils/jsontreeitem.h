@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,30 +25,32 @@
 
 #pragma once
 
-#include <texteditor/codeassist/completionassistprovider.h>
+#include "treemodel.h"
 
-namespace LanguageClient {
+#include "utils_global.h"
 
-class Client;
+#include <QJsonValue>
+#include <QCoreApplication>
 
-class LanguageClientCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+namespace Utils {
+
+class QTCREATOR_UTILS_EXPORT JsonTreeItem : public TypedTreeItem<JsonTreeItem>
 {
+    Q_DECLARE_TR_FUNCTIONS(JsonTreeModelItem)
 public:
-    LanguageClientCompletionAssistProvider(Client *client);
+    JsonTreeItem() = default;
+    JsonTreeItem(const QString &displayName, const QJsonValue &value);
 
-    TextEditor::IAssistProcessor *createProcessor() const override;
-    RunType runType() const override;
-
-    int activationCharSequenceLength() const override;
-    bool isActivationCharSequence(const QString &sequence) const override;
-    bool isContinuationChar(const QChar &) const override { return true; }
-
-    void setTriggerCharacters(QList<QString> triggerChars);
+    QVariant data(int column, int role) const override;
+    bool canFetchMore() const override;
+    void fetchMore() override;
 
 private:
-    QList<QString> m_triggerChars;
-    int m_activationCharSequenceLength = 0;
-    Client *m_client;
+    bool canFetchObjectChildren() const;
+    bool canFetchArrayChildren() const;
+
+    QString m_name;
+    QJsonValue m_value;
 };
 
-} // namespace LanguageClient
+} // namespace Utils

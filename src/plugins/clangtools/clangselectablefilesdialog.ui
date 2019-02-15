@@ -52,7 +52,7 @@
        </layout>
       </item>
       <item>
-       <widget class="ClangTools::ClangToolsBasicSettings" name="clangToolsBasicSettings" native="true"/>
+       <widget class="ClangTools::Internal::ClangToolsBasicSettings" name="clangToolsBasicSettings" native="true"/>
       </item>
      </layout>
     </widget>
@@ -87,7 +87,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ClangTools::ClangToolsBasicSettings</class>
+   <class>ClangTools::Internal::ClangToolsBasicSettings</class>
    <extends>QWidget</extends>
    <header>clangtools/clangtoolsbasicsettings.h</header>
   </customwidget>
