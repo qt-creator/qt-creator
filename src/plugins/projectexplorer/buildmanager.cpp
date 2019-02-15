@@ -193,8 +193,6 @@ void BuildManager::cancel()
             return;
         d->m_canceling = true;
         d->m_currentBuildStep->cancel();
-        while (d->m_canceling)
-            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents); // TODO: Is this really necessary?
     }
 }
 
