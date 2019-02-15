@@ -406,16 +406,6 @@ bool TextBrowserHelpWidget::eventFilter(QObject *obj, QEvent *event)
     return QTextBrowser::eventFilter(obj, event);
 }
 
-void TextBrowserHelpWidget::wheelEvent(QWheelEvent *e)
-{
-    if (e->modifiers() == Qt::ControlModifier) {
-        e->accept();
-        e->delta() > 0 ? scaleUp() : scaleDown();
-    } else {
-        QTextBrowser::wheelEvent(e);
-    }
-}
-
 void TextBrowserHelpWidget::mousePressEvent(QMouseEvent *e)
 {
     if (Utils::HostOsInfo::isLinuxHost() && m_parent->handleForwardBackwardMouseButtons(e))

@@ -91,6 +91,16 @@ HelpViewer::~HelpViewer()
     restoreOverrideCursor();
 }
 
+void HelpViewer::setScrollWheelZoomingEnabled(bool enabled)
+{
+    m_scrollWheelZoomingEnabled = enabled;
+}
+
+bool HelpViewer::isScrollWheelZoomingEnabled() const
+{
+    return m_scrollWheelZoomingEnabled;
+}
+
 void HelpViewer::setActionVisible(Action action, bool visible)
 {
     if (visible)
@@ -160,6 +170,16 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
 void HelpViewer::home()
 {
     setSource(LocalHelpManager::homePage());
+}
+
+void HelpViewer::wheelEvent(QWheelEvent *event)
+{
+    if (m_scrollWheelZoomingEnabled && event->modifiers() == Qt::ControlModifier) {
+        event->accept();
+        event->delta() > 0 ? scaleUp() : scaleDown();
+    } else {
+        QWidget::wheelEvent(event);
+    }
 }
 
 void HelpViewer::slotLoadStarted()

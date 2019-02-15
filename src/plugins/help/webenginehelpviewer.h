@@ -53,6 +53,9 @@ class WebView : public QWebEngineView
 public:
     explicit WebView(WebEngineHelpViewer *viewer);
 
+    bool event(QEvent *ev) override;
+    bool eventFilter(QObject *src, QEvent *e) override;
+
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 

@@ -289,6 +289,13 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
+       <widget class="QCheckBox" name="scrollWheelZooming">
+        <property name="text">
+         <string>Enable scroll wheel zooming</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="m_returnOnClose">
         <property name="toolTip">
          <string>Switches to editor context after last help page is closed.</string>

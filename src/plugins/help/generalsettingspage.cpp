@@ -119,6 +119,9 @@ QWidget *GeneralSettingsPage::widget()
 
         m_returnOnClose = LocalHelpManager::returnOnClose();
         m_ui->m_returnOnClose->setChecked(m_returnOnClose);
+
+        m_scrollWheelZoomingEnabled = LocalHelpManager::isScrollWheelZoomingEnabled();
+        m_ui->scrollWheelZooming->setChecked(m_scrollWheelZoomingEnabled);
     }
     return m_widget;
 }
@@ -158,6 +161,12 @@ void GeneralSettingsPage::apply()
     if (m_returnOnClose != close) {
         m_returnOnClose = close;
         LocalHelpManager::setReturnOnClose(m_returnOnClose);
+    }
+
+    const bool zoom = m_ui->scrollWheelZooming->isChecked();
+    if (m_scrollWheelZoomingEnabled != zoom) {
+        m_scrollWheelZoomingEnabled = zoom;
+        LocalHelpManager::setScrollWheelZoomingEnabled(m_scrollWheelZoomingEnabled);
     }
 }
 

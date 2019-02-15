@@ -65,6 +65,7 @@ static const char kFontSizeKey[] = "Help/FallbackFontSize";
 static const char kStartOptionKey[] = "Help/StartOption";
 static const char kContextHelpOptionKey[] = "Help/ContextHelpOption";
 static const char kReturnOnCloseKey[] = "Help/ReturnOnClose";
+static const char kUseScrollWheelZooming[] = "Help/UseScrollWheelZooming";
 static const char kLastShownPagesKey[] = "Help/LastShownPages";
 static const char kLastShownPagesZoomKey[] = "Help/LastShownPagesZoom";
 static const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
@@ -223,6 +224,17 @@ void LocalHelpManager::setReturnOnClose(bool returnOnClose)
 {
     Core::ICore::settings()->setValue(kReturnOnCloseKey, returnOnClose);
     emit m_instance->returnOnCloseChanged();
+}
+
+bool LocalHelpManager::isScrollWheelZoomingEnabled()
+{
+    return Core::ICore::settings()->value(kUseScrollWheelZooming, true).toBool();
+}
+
+void LocalHelpManager::setScrollWheelZoomingEnabled(bool enabled)
+{
+    Core::ICore::settings()->setValue(kUseScrollWheelZooming, enabled);
+    emit m_instance->scrollWheelZoomingEnabledChanged(enabled);
 }
 
 QStringList LocalHelpManager::lastShownPages()

@@ -57,6 +57,9 @@ public:
     virtual qreal scale() const = 0;
     virtual void setScale(qreal scale) = 0;
 
+    void setScrollWheelZoomingEnabled(bool enabled);
+    bool isScrollWheelZoomingEnabled() const;
+
     virtual QString title() const = 0;
 
     virtual QUrl source() const = 0;
@@ -105,12 +108,15 @@ signals:
     void externalPageRequested(const QUrl &url);
 
 protected:
+    void wheelEvent(QWheelEvent *event) override;
+
     void slotLoadStarted();
     void slotLoadFinished();
 
     void restoreOverrideCursor();
 
     Actions m_visibleActions;
+    bool m_scrollWheelZoomingEnabled = true;
     int m_loadOverrideStack = 0;
 };
 

@@ -495,6 +495,9 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
 
     // initialize zoom
     viewer->setScale(zoom);
+    viewer->setScrollWheelZoomingEnabled(LocalHelpManager::isScrollWheelZoomingEnabled());
+    connect(LocalHelpManager::instance(), &LocalHelpManager::scrollWheelZoomingEnabledChanged,
+            viewer, &HelpViewer::setScrollWheelZoomingEnabled);
 
     // add find support
     auto agg = new Aggregation::Aggregate;

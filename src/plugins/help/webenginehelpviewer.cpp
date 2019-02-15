@@ -292,6 +292,31 @@ WebView::WebView(WebEngineHelpViewer *viewer)
 {
 }
 
+bool WebView::event(QEvent *ev)
+{
+    // work around QTBUG-43602
+    if (ev->type() == QEvent::ChildAdded) {
+        auto ce = static_cast<QChildEvent *>(ev);
+        ce->child()->installEventFilter(this);
+    } else if (ev->type() == QEvent::ChildRemoved) {
+        auto ce = static_cast<QChildEvent *>(ev);
+        ce->child()->removeEventFilter(this);
+    }
+    return QWebEngineView::event(ev);
+}
+
+bool WebView::eventFilter(QObject *src, QEvent *e)
+{
+    Q_UNUSED(src)
+    // work around QTBUG-43602
+    if (m_viewer->isScrollWheelZoomingEnabled() && e->type() == QEvent::Wheel) {
+        auto we = static_cast<QWheelEvent *>(e);
+        if (we->modifiers() == Qt::ControlModifier)
+            return true;
+    }
+    return false;
+}
+
 void WebView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu *menu = page()->createStandardContextMenu();

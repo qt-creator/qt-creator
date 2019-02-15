@@ -78,6 +78,9 @@ public:
     static bool returnOnClose();
     static void setReturnOnClose(bool returnOnClose);
 
+    static bool isScrollWheelZoomingEnabled();
+    static void setScrollWheelZoomingEnabled(bool enabled);
+
     static QStringList lastShownPages();
     static void setLastShownPages(const QStringList &pages);
 
@@ -106,6 +109,7 @@ signals:
     void filterIndexChanged(int index);
     void fallbackFontChanged(const QFont &font);
     void returnOnCloseChanged();
+    void scrollWheelZoomingEnabledChanged(bool enabled);
 
 private:
     static bool m_guiNeedsSetup;
