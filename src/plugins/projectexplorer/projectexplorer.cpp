@@ -1145,14 +1145,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
 
-    // unload project again, in right position
-    dd->m_unloadActionContextMenu = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
-                                                              Utils::ParameterAction::EnabledWithParameter, this);
-    cmd = ActionManager::registerAction(dd->m_unloadActionContextMenu, Constants::UNLOADCM);
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(dd->m_unloadActionContextMenu->text());
-    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
-
     dd->m_closeProjectFilesActionContextMenu = new Utils::ParameterAction(
                 tr("Close All Files"), tr("Close All Files in Project \"%1\""),
                 Utils::ParameterAction::EnabledWithParameter, this);
@@ -1160,6 +1152,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                         "ProjectExplorer.CloseAllFilesInProjectContextMenu");
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_closeProjectFilesActionContextMenu->text());
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
+
+    // unload project again, in right position
+    dd->m_unloadActionContextMenu = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
+                                                              Utils::ParameterAction::EnabledWithParameter, this);
+    cmd = ActionManager::registerAction(dd->m_unloadActionContextMenu, Constants::UNLOADCM);
+    cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setDescription(dd->m_unloadActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
     // file properties action
