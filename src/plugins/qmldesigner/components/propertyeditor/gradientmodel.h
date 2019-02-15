@@ -90,7 +90,7 @@ private:
 private:
     QmlDesigner::QmlItemNode m_itemNode;
     QString m_gradientPropertyName;
-    QString m_gradientTypeName = "Gradient";
+    QString m_gradientTypeName = {"Gradient"};
     bool m_locked = false;
     bool hasShapesImport() const;
     void ensureShapesImport();
