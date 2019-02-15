@@ -41,6 +41,7 @@
 
 #include <QDir>
 #include <QRegularExpression>
+#include <QtGlobal>
 
 namespace CppTools {
 
@@ -701,6 +702,10 @@ void CompilerOptionsBuilder::reset()
 //  QMakeProject: -pipe -Whello -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC
 void CompilerOptionsBuilder::evaluateCompilerFlags()
 {
+    static QStringList userBlackList = QString::fromLocal8Bit(
+                                           qgetenv("QTC_CLANG_CMD_OPTIONS_BLACKLIST"))
+                                           .split(';', QString::SkipEmptyParts);
+
     bool containsDriverMode = false;
     bool skipNext = false;
     for (const QString &option : m_projectPart.compilerFlags) {
@@ -708,6 +713,9 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             skipNext = false;
             continue;
         }
+
+        if (userBlackList.contains(option))
+            continue;
 
         // Ignore warning flags as these interfere with our user-configured diagnostics.
         // Note that once "-w" is provided, no warnings will be emitted, even if "-Wall" follows.

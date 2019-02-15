@@ -94,7 +94,7 @@ static ExplainingStep buildChildDiagnostic(const CXDiagnostic cxDiagnostic)
 
     const CXSourceLocation cxLocation = clang_getDiagnosticLocation(cxDiagnostic);
     diagnosticStep.location = diagLocationFromSourceLocation(cxLocation);
-    diagnosticStep.message = type + ": " + fromCXString(clang_getDiagnosticSpelling(cxDiagnostic));
+    diagnosticStep.message = fromCXString(clang_getDiagnosticSpelling(cxDiagnostic));
     return diagnosticStep;
 }
 

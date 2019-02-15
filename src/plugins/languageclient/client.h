@@ -26,7 +26,8 @@
 #pragma once
 
 #include "dynamiccapabilities.h"
-#include "languageclientcodeassist.h"
+#include "languageclientcompletionassist.h"
+#include "languageclientquickfix.h"
 #include "languageclientsettings.h"
 
 #include <coreplugin/id.h>
@@ -104,6 +105,7 @@ public:
 
     void requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
                             const QList<LanguageServerProtocol::Diagnostic> &diagnostics);
+    void requestCodeActions(const LanguageServerProtocol::CodeActionRequest &request);
     void handleCodeActionResponse(const LanguageServerProtocol::CodeActionRequest::Response &response,
                                   const LanguageServerProtocol::DocumentUri &uri);
     void executeCommand(const LanguageServerProtocol::Command &command);
@@ -128,6 +130,10 @@ public:
     Core::Id id() const { return m_id; }
 
     bool needsRestart(const BaseSettings *) const;
+
+    QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
+        const LanguageServerProtocol::DocumentUri &uri,
+        const LanguageServerProtocol::Range &range) const;
 
     bool start();
     bool reset();
@@ -184,7 +190,8 @@ private:
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;
     LanguageClientCompletionAssistProvider m_completionProvider;
-    QSet<TextEditor::TextDocument *> m_resetCompletionProvider;
+    LanguageClientQuickFixProvider m_quickFixProvider;
+    QSet<TextEditor::TextDocument *> m_resetAssistProvider;
     QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;
     QScopedPointer<BaseClientInterface> m_clientInterface;

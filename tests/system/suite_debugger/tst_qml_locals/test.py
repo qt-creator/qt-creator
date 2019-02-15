@@ -71,6 +71,10 @@ def main():
         earlyExit("Could not find expected Inspector tree inside Locals and Expressions.")
         return
     # reduce items to outer Rectangle object
+    items = items.getChild("QQmlEngine")
+    if items == None:
+        earlyExit("Could not find expected QQmlEngine tree inside Locals and Expressions.")
+        return
     items = items.getChild("Rectangle")
     if items == None:
         earlyExit("Could not find expected Rectangle tree inside Locals and Expressions.")
@@ -91,12 +95,13 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def __unfoldTree__():
-    rootIndex = getQModelIndexStr("text='Rectangle'",
+    rootIndex = getQModelIndexStr("text='QQmlEngine'",
                                   ':Locals and Expressions_Debugger::Internal::WatchTreeView')
-    unfoldQModelIndexIncludingProperties(rootIndex)
+    mainRect = getQModelIndexStr("text='Rectangle'", rootIndex)
+    unfoldQModelIndexIncludingProperties(mainRect)
     subItems = ["text='Rectangle'", "text='Rectangle' occurrence='2'", "text='Text'"]
     for item in subItems:
-        unfoldQModelIndexIncludingProperties(getQModelIndexStr(item, rootIndex))
+        unfoldQModelIndexIncludingProperties(getQModelIndexStr(item, mainRect))
 
 def unfoldQModelIndexIncludingProperties(indexStr):
     tv = waitForObject(':Locals and Expressions_Debugger::Internal::WatchTreeView')

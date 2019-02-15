@@ -54,27 +54,28 @@ public:
 
     bool BeginSourceFileAction(clang::CompilerInstance &compilerInstance) override
     {
-      if (clang::PreprocessOnlyAction::BeginSourceFileAction(compilerInstance)) {
-          auto &preprocessor = compilerInstance.getPreprocessor();
+        if (clang::PreprocessOnlyAction::BeginSourceFileAction(compilerInstance)) {
+            auto &preprocessor = compilerInstance.getPreprocessor();
 
-          preprocessor.SetSuppressIncludeNotFoundError(true);
-          preprocessor.SetMacroExpansionOnlyInDirectives();
+            preprocessor.SetSuppressIncludeNotFoundError(true);
+            preprocessor.SetMacroExpansionOnlyInDirectives();
 
-          auto macroPreprocessorCallbacks = new CollectBuildDependencyPreprocessorCallbacks(
-                      m_buildDependency,
-                      m_filePathCache,
-                      m_excludedIncludeUID,
-                      m_alreadyIncludedFileUIDs,
-                      compilerInstance.getSourceManager(),
-                      m_sourcesManager,
-                      compilerInstance.getPreprocessorPtr());
+            auto macroPreprocessorCallbacks = new CollectBuildDependencyPreprocessorCallbacks(
+                m_buildDependency,
+                m_filePathCache,
+                m_excludedIncludeUID,
+                m_alreadyIncludedFileUIDs,
+                compilerInstance.getSourceManager(),
+                m_sourcesManager,
+                compilerInstance.getPreprocessorPtr());
 
-          preprocessor.addPPCallbacks(std::unique_ptr<clang::PPCallbacks>(macroPreprocessorCallbacks));
+            preprocessor.addPPCallbacks(
+                std::unique_ptr<clang::PPCallbacks>(macroPreprocessorCallbacks));
 
-          return true;
-      }
+            return true;
+        }
 
-      return false;
+        return false;
     }
 
     void EndSourceFileAction() override

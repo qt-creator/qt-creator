@@ -112,7 +112,11 @@ public:
     void addDiagnostics(const QList<Diagnostic> &diagnostics);
     QSet<Diagnostic> diagnostics() const;
 
-    enum ItemRole { DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1, TextRole };
+    enum ItemRole {
+        DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1,
+        TextRole,
+        CheckBoxEnabledRole
+    };
 
     void clear();
     void removeWatchedPath(const QString &path);

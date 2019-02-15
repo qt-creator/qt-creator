@@ -20,7 +20,7 @@ QtcPlugin {
             if (qbs.enableDebugCode)
                 suffix = "d";
         }
-        libs.push("qbscore" + suffix, "qbsqtprofilesetup" + suffix);
+        libs.push("qbscore" + suffix);
         return libs
     }
 
@@ -31,10 +31,6 @@ QtcPlugin {
     Depends { name: "Qt"; submodules: [ "widgets" ] }
     Depends {
         name: "qbscore"
-        condition: product.useInternalQbsProducts
-    }
-    Depends {
-        name: "qbsqtprofilesetup"
         condition: product.useInternalQbsProducts
     }
     Depends { name: "QmlJS" }

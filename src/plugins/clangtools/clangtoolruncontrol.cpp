@@ -267,6 +267,8 @@ void ClangToolRunControl::init()
 
 void ClangToolRunControl::start()
 {
+    TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
+
     if (ClangToolsSettings::instance()->savedBuildBeforeAnalysis()) {
         QTC_ASSERT(m_projectBuilder, return;);
         if (!m_projectBuilder->success()) {
@@ -441,7 +443,7 @@ void ClangToolRunControl::onRunnerFinishedWithFailure(const QString &errorMessag
     m_success = false;
     appendMessage(message, Utils::StdErrFormat);
     appendMessage(errorDetails, Utils::StdErrFormat);
-    TaskHub::addTask(Task::Warning, message, Debugger::Constants::ANALYZERTASK_ID);
+    TaskHub::addTask(Task::Error, message, Debugger::Constants::ANALYZERTASK_ID);
     handleFinished();
 }
 

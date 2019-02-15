@@ -51,6 +51,48 @@ using ClangBackEnd::RefactoringDatabaseInitializer;
 using ClangBackEnd::ConnectionServer;
 using ClangBackEnd::SymbolIndexing;
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+template<typename CallableType>
+class CallableEvent : public QEvent
+{
+public:
+    using Callable = std::decay_t<CallableType>;
+    CallableEvent(Callable &&callable)
+        : QEvent(QEvent::None)
+        , callable(std::move(callable))
+    {}
+    CallableEvent(const Callable &callable)
+        : QEvent(QEvent::None)
+        , callable(callable)
+    {}
+
+    ~CallableEvent() { callable(); }
+
+public:
+    Callable callable;
+};
+
+template<typename Callable>
+void executeInLoop(Callable &&callable, QObject *object = QCoreApplication::instance())
+{
+    if (QThread *thread = qobject_cast<QThread *>(object))
+        object = QAbstractEventDispatcher::instance(thread);
+
+    QCoreApplication::postEvent(object,
+                                new CallableEvent<Callable>(std::forward<Callable>(callable)),
+                                Qt::HighEventPriority);
+}
+#else
+template<typename Callable>
+void executeInLoop(Callable &&callable, QObject *object = QCoreApplication::instance())
+{
+    if (QThread *thread = qobject_cast<QThread *>(object))
+        object = QAbstractEventDispatcher::instance(thread);
+
+    QMetaObject::invokeMethod(object, std::forward<Callable>(callable));
+}
+#endif
+
 QStringList processArguments(QCoreApplication &application)
 {
     QCommandLineParser parser;
@@ -95,7 +137,14 @@ struct Data // because we have a cycle dependency
     FilePathCaching filePathCache{database};
     GeneratedFiles generatedFiles;
     RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache, generatedFiles};
-    SymbolIndexing symbolIndexing{database, filePathCache, generatedFiles, [&] (int progress, int total) { clangCodeModelServer.setProgress(progress, total); }};
+    SymbolIndexing symbolIndexing{database,
+                                  filePathCache,
+                                  generatedFiles,
+                                  [&](int progress, int total) {
+                                      executeInLoop([&] {
+                                          clangCodeModelServer.setProgress(progress, total);
+                                      });
+                                  }};
 };
 
 #ifdef Q_OS_WIN

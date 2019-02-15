@@ -142,6 +142,8 @@ Project {
             "itemviews.h",
             "json.cpp",
             "json.h",
+            "jsontreeitem.cpp",
+            "jsontreeitem.h",
             "linecolumn.h",
             "link.h",
             "listutils.h",

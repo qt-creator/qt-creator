@@ -37,6 +37,7 @@ template<typename ProjectInfo>
 using Builder = ClangBackEnd::CommandLineBuilder<ProjectInfo>;
 
 using ClangBackEnd::IncludeSearchPathType;
+using ClangBackEnd::InputFileType;
 
 template <typename ProjectInfo>
 class CommandLineBuilder : public testing::Test
@@ -124,30 +125,45 @@ TYPED_TEST_SUITE(CommandLineBuilder, ProjectInfos);
 
 TYPED_TEST(CommandLineBuilder, AddToolChainArguments)
 {
-    Builder<TypeParam> builder{this->emptyProjectInfo, {"-m64", "-PIC"}, {}};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {"-m64", "-PIC"}, InputFileType::Header, {}};
 
     ASSERT_THAT(builder.commandLine, AllOf(Contains("-m64"), Contains("-PIC")));
 }
 
-TYPED_TEST(CommandLineBuilder, CTask)
+TYPED_TEST(CommandLineBuilder, CHeader)
 {
     this->emptyProjectInfo.language = Utils::Language::C;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C11;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.c"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
-    ASSERT_THAT(
-        builder.commandLine,
-        ElementsAre("clang", "-x", "c-header", "-std=c11", "-nostdinc", "-nostdinc++", toNativePath("/source/file.c").path()));
+    ASSERT_THAT(builder.commandLine,
+                ElementsAre("clang",
+                            "-x",
+                            "c-header",
+                            "-std=c11",
+                            "-nostdinc",
+                            toNativePath("/source/file.c").path()));
 }
 
-TYPED_TEST(CommandLineBuilder, ObjectiveCTask)
+TYPED_TEST(CommandLineBuilder, CSource)
+{
+    this->emptyProjectInfo.language = Utils::Language::C;
+    this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C11;
+
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Source, "/source/file.c"};
+
+    ASSERT_THAT(builder.commandLine,
+                ElementsAre("clang", "-x", "c", "-std=c11", "-nostdinc", "/source/file.c"));
+}
+
+TYPED_TEST(CommandLineBuilder, ObjectiveCHeader)
 {
     this->emptyProjectInfo.language = Utils::Language::C;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::ObjectiveC;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C11;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.c"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang",
@@ -155,16 +171,32 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCTask)
                             "objective-c-header",
                             "-std=c11",
                             "-nostdinc",
-                            "-nostdinc++",
                             toNativePath("/source/file.c").path()));
 }
 
-TYPED_TEST(CommandLineBuilder, CppTask)
+TYPED_TEST(CommandLineBuilder, ObjectiveCSource)
+{
+    this->emptyProjectInfo.language = Utils::Language::C;
+    this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::ObjectiveC;
+    this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C11;
+
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Source, "/source/file.c"};
+
+    ASSERT_THAT(builder.commandLine,
+                ElementsAre("clang",
+                            "-x",
+                            "objective-c",
+                            "-std=c11",
+                            "-nostdinc",
+                            "/source/file.c"));
+}
+
+TYPED_TEST(CommandLineBuilder, CppHeader)
 {
     this->emptyProjectInfo.language = Utils::Language::Cxx;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX98;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
@@ -176,13 +208,25 @@ TYPED_TEST(CommandLineBuilder, CppTask)
                             toNativePath("/source/file.cpp").path()));
 }
 
-TYPED_TEST(CommandLineBuilder, ObjectiveCppTask)
+TYPED_TEST(CommandLineBuilder, CppSource)
+{
+    this->emptyProjectInfo.language = Utils::Language::Cxx;
+    this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX98;
+
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Source, "/source/file.cpp"};
+
+    ASSERT_THAT(
+        builder.commandLine,
+        ElementsAre("clang++", "-x", "c++", "-std=c++98", "-nostdinc", "-nostdinc++", "/source/file.cpp"));
+}
+
+TYPED_TEST(CommandLineBuilder, ObjectiveCppHeader)
 {
     this->emptyProjectInfo.language = Utils::Language::Cxx;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::ObjectiveC;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX98;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
@@ -194,12 +238,30 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppTask)
                             toNativePath("/source/file.cpp").path()));
 }
 
+TYPED_TEST(CommandLineBuilder, ObjectiveCppSource)
+{
+    this->emptyProjectInfo.language = Utils::Language::Cxx;
+    this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::ObjectiveC;
+    this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX98;
+
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Source, "/source/file.cpp"};
+
+    ASSERT_THAT(builder.commandLine,
+                ElementsAre("clang++",
+                            "-x",
+                            "objective-c++",
+                            "-std=c++98",
+                            "-nostdinc",
+                            "-nostdinc++",
+                            "/source/file.cpp"));
+}
+
 TYPED_TEST(CommandLineBuilder, Cpp98)
 {
     this->emptyProjectInfo.language = Utils::Language::Cxx;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX98;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=c++98"));
 }
@@ -209,7 +271,7 @@ TYPED_TEST(CommandLineBuilder, Cpp03)
     this->emptyProjectInfo.language = Utils::Language::Cxx;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX03;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=c++03"));
 }
@@ -219,7 +281,7 @@ TYPED_TEST(CommandLineBuilder, Cpp11)
     this->emptyProjectInfo.language = Utils::Language::Cxx;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX11;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=c++11"));
 }
@@ -229,7 +291,7 @@ TYPED_TEST(CommandLineBuilder, Cpp14)
     this->emptyProjectInfo.language = Utils::Language::Cxx;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX14;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=c++14"));
 }
@@ -239,7 +301,7 @@ TYPED_TEST(CommandLineBuilder, Cpp17)
     this->emptyProjectInfo.language = Utils::Language::Cxx;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX17;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=c++17"));
 }
@@ -249,7 +311,7 @@ TYPED_TEST(CommandLineBuilder, Cpp20)
     this->emptyProjectInfo.language = Utils::Language::Cxx;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX2a;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=c++2a"));
 }
@@ -260,7 +322,7 @@ TYPED_TEST(CommandLineBuilder, GnuCpp98)
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX98;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::Gnu;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=gnu++98"));
 }
@@ -271,7 +333,7 @@ TYPED_TEST(CommandLineBuilder, GnuCpp03)
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX03;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::Gnu;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=gnu++03"));
 }
@@ -282,7 +344,7 @@ TYPED_TEST(CommandLineBuilder, GnuCpp11)
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX11;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::Gnu;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=gnu++11"));
 }
@@ -293,7 +355,7 @@ TYPED_TEST(CommandLineBuilder, GnuCpp14)
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX14;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::Gnu;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=gnu++14"));
 }
@@ -304,7 +366,7 @@ TYPED_TEST(CommandLineBuilder, GnuCpp17)
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX17;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::Gnu;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=gnu++17"));
 }
@@ -315,7 +377,7 @@ TYPED_TEST(CommandLineBuilder, GnuCpp20)
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::CXX2a;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::Gnu;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=gnu++2a"));
 }
@@ -325,7 +387,7 @@ TYPED_TEST(CommandLineBuilder, C89)
     this->emptyProjectInfo.language = Utils::Language::C;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C89;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.c"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=c89"));
 }
@@ -335,7 +397,7 @@ TYPED_TEST(CommandLineBuilder, C99)
     this->emptyProjectInfo.language = Utils::Language::C;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C99;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.c"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=c99"));
 }
@@ -345,7 +407,7 @@ TYPED_TEST(CommandLineBuilder, C11)
     this->emptyProjectInfo.language = Utils::Language::C;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C11;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.c"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=c11"));
 }
@@ -355,9 +417,9 @@ TYPED_TEST(CommandLineBuilder, C18)
     this->emptyProjectInfo.language = Utils::Language::C;
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C18;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.c"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
-    ASSERT_THAT(builder.commandLine, Contains("-std=c18"));
+    ASSERT_THAT(builder.commandLine, Contains("-std=c17"));
 }
 
 TYPED_TEST(CommandLineBuilder, GnuC89)
@@ -366,7 +428,7 @@ TYPED_TEST(CommandLineBuilder, GnuC89)
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C89;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::Gnu;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.c"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=gnu89"));
 }
@@ -377,7 +439,7 @@ TYPED_TEST(CommandLineBuilder, GnuC99)
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C99;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::Gnu;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.c"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=gnu99"));
 }
@@ -388,7 +450,7 @@ TYPED_TEST(CommandLineBuilder, GnuC11)
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C11;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::Gnu;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.c"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
     ASSERT_THAT(builder.commandLine, Contains("-std=gnu11"));
 }
@@ -399,9 +461,9 @@ TYPED_TEST(CommandLineBuilder, GnuC18)
     this->emptyProjectInfo.languageVersion = Utils::LanguageVersion::C18;
     this->emptyProjectInfo.languageExtension = Utils::LanguageExtension::Gnu;
 
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.c"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.c"};
 
-    ASSERT_THAT(builder.commandLine, Contains("-std=gnu18"));
+    ASSERT_THAT(builder.commandLine, Contains("-std=gnu17"));
 }
 
 TYPED_TEST(CommandLineBuilder, IncludesOrder)
@@ -414,7 +476,7 @@ TYPED_TEST(CommandLineBuilder, IncludesOrder)
                                           {"/system/foo", 3, IncludeSearchPathType::Framework},
                                           {"/builtin/bar", 2, IncludeSearchPathType::BuiltIn},
                                           {"/builtin/foo", 1, IncludeSearchPathType::BuiltIn}};
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
@@ -448,7 +510,7 @@ TYPED_TEST(CommandLineBuilder, EmptySourceFile)
 
 TYPED_TEST(CommandLineBuilder, SourceFile)
 {
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
@@ -463,7 +525,7 @@ TYPED_TEST(CommandLineBuilder, SourceFile)
 
 TYPED_TEST(CommandLineBuilder, EmptyOutputFile)
 {
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp", ""};
+    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp", ""};
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
@@ -477,7 +539,11 @@ TYPED_TEST(CommandLineBuilder, EmptyOutputFile)
 
 TYPED_TEST(CommandLineBuilder, OutputFile)
 {
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp", "/output/file.o"};
+    Builder<TypeParam> builder{this->emptyProjectInfo,
+                               {},
+                               InputFileType::Header,
+                               "/source/file.cpp",
+                               "/output/file.o"};
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
@@ -493,7 +559,12 @@ TYPED_TEST(CommandLineBuilder, OutputFile)
 
 TYPED_TEST(CommandLineBuilder, IncludePchPath)
 {
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, "/source/file.cpp", "/output/file.o", "/pch/file.pch"};
+    Builder<TypeParam> builder{this->emptyProjectInfo,
+                               {},
+                               InputFileType::Header,
+                               "/source/file.cpp",
+                               "/output/file.o",
+                               "/pch/file.pch"};
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
@@ -527,4 +598,5 @@ TYPED_TEST(CommandLineBuilder, CompilerMacros)
                             "-DER=2",
                             "-DYI=1"));
 }
+
 } // namespace

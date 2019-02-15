@@ -52,6 +52,9 @@ void ClangTool::addFile(FilePath &&filePath,
 {
     NativeFilePath nativeFilePath{filePath};
 
+    if (commandLine.back() != nativeFilePath.path())
+        commandLine.emplace_back(nativeFilePath.path());
+
     m_compilationDatabase.addFile(nativeFilePath, std::move(commandLine));
     m_sourceFilePaths.push_back(Utils::SmallStringView{nativeFilePath});
 
@@ -60,15 +63,8 @@ void ClangTool::addFile(FilePath &&filePath,
 
 void ClangTool::addFiles(const FilePaths &filePaths, const Utils::SmallStringVector &arguments)
 {
-    for (const FilePath &filePath : filePaths) {
-        std::string filePathStr(filePath.path());
-        auto commandLine = arguments;
-        NativeFilePath nativeFilePath{filePath};
-
-        commandLine.push_back(nativeFilePath.path());
-
-        addFile(filePath.clone(), {}, std::move(commandLine));
-    }
+    for (const FilePath &filePath : filePaths)
+        addFile(filePath.clone(), {}, arguments.clone());
 }
 
 void ClangTool::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
@@ -104,13 +100,14 @@ clang::tooling::ClangTool ClangTool::createTool() const
     clang::tooling::ClangTool tool(m_compilationDatabase, m_sourceFilePaths);
 
     for (const auto &fileContent : m_fileContents) {
-        if (!fileContent.content.empty())
-            tool.mapVirtualFile(toStringRef(fileContent.filePath), fileContent.content);
+        if (fileContent.content.hasContent())
+            tool.mapVirtualFile(toStringRef(fileContent.filePath), toStringRef(fileContent.content));
     }
 
-    for (const auto &unsavedFileContent : m_unsavedFileContents)
-            tool.mapVirtualFile(toStringRef(unsavedFileContent.filePath),
-                                toStringRef(unsavedFileContent.content));
+    for (const auto &unsavedFileContent : m_unsavedFileContents) {
+        tool.mapVirtualFile(toStringRef(unsavedFileContent.filePath),
+                            toStringRef(unsavedFileContent.content));
+    }
 
     tool.mapVirtualFile("/dummyFile", "#pragma once");
 

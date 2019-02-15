@@ -1,0 +1,2901 @@
+From 5191890626af72cabcf49a2b6197ef2e29af218b Mon Sep 17 00:00:00 2001
+From: Alessandro Portale <alessandro.portale@qt.io>
+Date: Tue, 12 Feb 2019 19:35:08 +0100
+Subject: [PATCH 2/6] Remove autotests
+
+---
+ CMakeLists.txt                                |    3 -
+ autotests/CMakeLists.txt                      |   49 -
+ autotests/folding/Dockerfile.fold             |   19 -
+ autotests/folding/Doxyfile.example.fold       | 2406 ----------------
+ autotests/folding/Kconfig.fold                |   15 -
+ autotests/folding/Makefile.fold               |   28 -
+ autotests/folding/adblock.txt.fold            |   53 -
+ autotests/folding/apache.conf.fold            |   67 -
+ autotests/folding/basic.markdown.fold         |    6 -
+ autotests/folding/basic.xml.fold              |    4 -
+ autotests/folding/build.gradle.fold           |   57 -
+ autotests/folding/clojure.clj.fold            |   73 -
+ autotests/folding/complex.xml.fold            |   13 -
+ autotests/folding/craftenv.ps1.fold           |  109 -
+ autotests/folding/csharp.cs.fold              |   38 -
+ autotests/folding/cube.obj.fold               |   33 -
+ autotests/folding/cube.ply.fold               |   26 -
+ autotests/folding/cube.stl.fold               |   30 -
+ autotests/folding/example.rmd.fold            |   39 -
+ autotests/folding/firstNonSpace.c.fold        |    7 -
+ autotests/folding/folding.cpp.fold            |   15 -
+ autotests/folding/git-rebase.fold             |   32 -
+ autotests/folding/hello.exs.fold              |   11 -
+ autotests/folding/highlight.ahdl.fold         |   43 -
+ autotests/folding/highlight.asm-avr.fold      |   75 -
+ autotests/folding/highlight.asm-nasm.fold     |   27 -
+ autotests/folding/highlight.asp.fold          |   58 -
+ autotests/folding/highlight.awk.fold          |   52 -
+ autotests/folding/highlight.bib.fold          |   31 -
+ autotests/folding/highlight.bt.fold           |   31 -
+ autotests/folding/highlight.cmake.fold        |  111 -
+ autotests/folding/highlight.cpp.fold          |  507 ----
+ autotests/folding/highlight.css.fold          |  286 --
+ autotests/folding/highlight.d.fold            |  195 --
+ autotests/folding/highlight.do.fold           |   89 -
+ autotests/folding/highlight.dox.fold          |  227 --
+ autotests/folding/highlight.erl.fold          |   68 -
+ autotests/folding/highlight.exu.fold          |   97 -
+ autotests/folding/highlight.f90.fold          |  181 --
+ autotests/folding/highlight.gdb.fold          |  156 --
+ autotests/folding/highlight.gdbinit.fold      |    9 -
+ autotests/folding/highlight.glsl.fold         |   62 -
+ autotests/folding/highlight.hex.fold          |    8 -
+ autotests/folding/highlight.hs.fold           |  139 -
+ autotests/folding/highlight.java.fold         |   48 -
+ autotests/folding/highlight.js.fold           |  139 -
+ autotests/folding/highlight.jsp.fold          |  170 --
+ autotests/folding/highlight.less.fold         |  701 -----
+ autotests/folding/highlight.lex.fold          |   82 -
+ autotests/folding/highlight.lgt.fold          |  448 ---
+ autotests/folding/highlight.lhs.fold          |  124 -
+ autotests/folding/highlight.lisp.fold         |   36 -
+ autotests/folding/highlight.lua.fold          |  160 --
+ autotests/folding/highlight.ly.fold           |  114 -
+ autotests/folding/highlight.m.fold            |   61 -
+ autotests/folding/highlight.mac.fold          |  145 -
+ autotests/folding/highlight.mup.fold          |  103 -
+ autotests/folding/highlight.pb.fold           |   87 -
+ autotests/folding/highlight.php.fold          |   26 -
+ autotests/folding/highlight.pike.fold         |   24 -
+ autotests/folding/highlight.pl.fold           |   75 -
+ autotests/folding/highlight.pony.fold         |  219 --
+ autotests/folding/highlight.pov.fold          |   76 -
+ autotests/folding/highlight.prg.fold          |   71 -
+ autotests/folding/highlight.qml.fold          |   59 -
+ autotests/folding/highlight.rb.fold           |  551 ----
+ autotests/folding/highlight.scad.fold         |   23 -
+ autotests/folding/highlight.scheme.fold       |  186 --
+ autotests/folding/highlight.scss.fold         |  693 -----
+ autotests/folding/highlight.sh.fold           |  207 --
+ autotests/folding/highlight.spec.fold         |  212 --
+ autotests/folding/highlight.stan.fold         |  380 ---
+ autotests/folding/highlight.t2t.fold          |   90 -
+ autotests/folding/highlight.tcl.fold          |   50 -
+ autotests/folding/highlight.tex.fold          |   85 -
+ autotests/folding/highlight.tig.fold          |   78 -
+ autotests/folding/highlight.wrl.fold          |   41 -
+ autotests/folding/highlight.xml.fold          |   67 -
+ autotests/folding/highlight.xsl.fold          |  109 -
+ autotests/folding/highlight.y.fold            |   93 -
+ autotests/folding/highlight.yang.fold         |   38 -
+ autotests/folding/highlight_lpc.c.fold        |   64 -
+ autotests/folding/highlight_ocaml.ml.fold     |  105 -
+ autotests/folding/highlight_octave.m.fold     |   74 -
+ autotests/folding/learnelixir.exs.fold        |  397 ---
+ autotests/folding/light52_muldiv.vhdl.fold    |  239 --
+ autotests/folding/light52_tb.vhdl.fold        |  186 --
+ autotests/folding/meson.build.fold            |   21 -
+ autotests/folding/modelines.py.fold           |   10 -
+ autotests/folding/or1200_dc_fsm.v.fold        |  563 ----
+ autotests/folding/or1200_du.v.fold            | 1803 ------------
+ .../folding/preprocessor-bug363280.c.fold     |    8 -
+ .../folding/preprocessor-bug363280.cpp.fold   |    8 -
+ autotests/folding/review128925-1.css.fold     |  112 -
+ autotests/folding/review128925-1.scss.fold    |  211 --
+ autotests/folding/review128925-2.css.fold     |   62 -
+ autotests/folding/review128925-2.scss.fold    |   81 -
+ autotests/folding/review128935.html.fold      |  164 --
+ autotests/folding/test-iso.mod.fold           |   96 -
+ autotests/folding/test-pim.mod.fold           |   90 -
+ autotests/folding/test-r10.mod.fold           |  112 -
+ autotests/folding/test.Rd.fold                |   51 -
+ autotests/folding/test.bash.fold              |   23 -
+ autotests/folding/test.bb.fold                |   34 -
+ autotests/folding/test.c.fold                 |   56 -
+ autotests/folding/test.cil.fold               |  153 --
+ autotests/folding/test.coffee.fold            |   71 -
+ autotests/folding/test.css.fold               |   18 -
+ autotests/folding/test.desktop.fold           |   19 -
+ autotests/folding/test.diff.fold              |   48 -
+ autotests/folding/test.eml.fold               |   94 -
+ autotests/folding/test.fc.fold                |  116 -
+ autotests/folding/test.frag.fold              |   26 -
+ autotests/folding/test.htm.fold               |   17 -
+ autotests/folding/test.ijs.fold               |   61 -
+ autotests/folding/test.ini.fold               |   18 -
+ autotests/folding/test.js.fold                |   23 -
+ autotests/folding/test.json.fold              |   13 -
+ autotests/folding/test.jsx.fold               |   50 -
+ autotests/folding/test.logcat.fold            |   90 -
+ autotests/folding/test.markdown.fold          |   67 -
+ autotests/folding/test.mib.fold               |  526 ----
+ autotests/folding/test.mm.fold                |   42 -
+ autotests/folding/test.mod.fold               |   96 -
+ autotests/folding/test.mss.fold               |  215 --
+ autotests/folding/test.py.fold                |   50 -
+ autotests/folding/test.qdocconf.fold          |   65 -
+ autotests/folding/test.qml.fold               |   23 -
+ autotests/folding/test.rexx.fold              |   52 -
+ autotests/folding/test.rs.fold                |   87 -
+ autotests/folding/test.sieve.fold             |  387 ---
+ autotests/folding/test.sql.fold               |   65 -
+ autotests/folding/test.sql_oracle.fold        |   54 -
+ autotests/folding/test.te.fold                |  139 -
+ autotests/folding/test.tex.fold               |    5 -
+ autotests/folding/test.yaml.fold              |  151 --
+ autotests/folding/test.zsh.fold               |   66 -
+ .../usr.bin.apparmor-profile-test.fold        |  270 --
+ autotests/foldingtest.cpp                     |  191 --
+ autotests/highlighter_benchmark.cpp           |  145 -
+ autotests/html/Dockerfile.html                |   26 -
+ autotests/html/Doxyfile.example.html          | 2413 -----------------
+ autotests/html/Kconfig.html                   |   22 -
+ autotests/html/Makefile.html                  |   35 -
+ autotests/html/adblock.txt.html               |   60 -
+ autotests/html/apache.conf.html               |   74 -
+ autotests/html/basic.markdown.html            |   13 -
+ autotests/html/basic.xml.html                 |   11 -
+ autotests/html/build.gradle.html              |   64 -
+ autotests/html/clojure.clj.html               |   80 -
+ autotests/html/complex.xml.html               |   20 -
+ autotests/html/craftenv.ps1.html              |  116 -
+ autotests/html/csharp.cs.html                 |   45 -
+ autotests/html/cube.obj.html                  |   40 -
+ autotests/html/cube.ply.html                  |   33 -
+ autotests/html/cube.stl.html                  |   37 -
+ autotests/html/example.rmd.html               |   46 -
+ autotests/html/firstNonSpace.c.html           |   14 -
+ autotests/html/folding.cpp.html               |   22 -
+ autotests/html/git-rebase.html                |   39 -
+ autotests/html/hello.exs.html                 |   18 -
+ autotests/html/highlight.ahdl.html            |   50 -
+ autotests/html/highlight.asm-avr.html         |   82 -
+ autotests/html/highlight.asm-nasm.html        |   34 -
+ autotests/html/highlight.asp.html             |   65 -
+ autotests/html/highlight.awk.html             |   59 -
+ autotests/html/highlight.bib.html             |   38 -
+ autotests/html/highlight.bt.html              |   38 -
+ autotests/html/highlight.cmake.html           |  118 -
+ autotests/html/highlight.cpp.html             |  514 ----
+ autotests/html/highlight.css.html             |  293 --
+ autotests/html/highlight.d.html               |  202 --
+ autotests/html/highlight.do.html              |   96 -
+ autotests/html/highlight.dox.html             |  234 --
+ autotests/html/highlight.erl.html             |   75 -
+ autotests/html/highlight.exu.html             |  104 -
+ autotests/html/highlight.f90.html             |  188 --
+ autotests/html/highlight.gdb.html             |  163 --
+ autotests/html/highlight.gdbinit.html         |   16 -
+ autotests/html/highlight.glsl.html            |   69 -
+ autotests/html/highlight.hex.html             |   15 -
+ autotests/html/highlight.hs.html              |  146 -
+ autotests/html/highlight.java.html            |   55 -
+ autotests/html/highlight.js.html              |  146 -
+ autotests/html/highlight.jsp.html             |  177 --
+ autotests/html/highlight.less.html            |  708 -----
+ autotests/html/highlight.lex.html             |   89 -
+ autotests/html/highlight.lgt.html             |  455 ----
+ autotests/html/highlight.lhs.html             |  131 -
+ autotests/html/highlight.lisp.html            |   43 -
+ autotests/html/highlight.lua.html             |  167 --
+ autotests/html/highlight.ly.html              |  121 -
+ autotests/html/highlight.m.html               |   68 -
+ autotests/html/highlight.mac.html             |  152 --
+ autotests/html/highlight.mup.html             |  110 -
+ autotests/html/highlight.pb.html              |   94 -
+ autotests/html/highlight.php.html             |   33 -
+ autotests/html/highlight.pike.html            |   31 -
+ autotests/html/highlight.pl.html              |   82 -
+ autotests/html/highlight.pony.html            |  226 --
+ autotests/html/highlight.pov.html             |   83 -
+ autotests/html/highlight.prg.html             |   78 -
+ autotests/html/highlight.qml.html             |   66 -
+ autotests/html/highlight.rb.html              |  558 ----
+ autotests/html/highlight.scad.html            |   30 -
+ autotests/html/highlight.scheme.html          |  193 --
+ autotests/html/highlight.scss.html            |  700 -----
+ autotests/html/highlight.sh.html              |  214 --
+ autotests/html/highlight.spec.html            |  219 --
+ autotests/html/highlight.stan.html            |  387 ---
+ autotests/html/highlight.t2t.html             |   97 -
+ autotests/html/highlight.tcl.html             |   57 -
+ autotests/html/highlight.tex.html             |   92 -
+ autotests/html/highlight.tig.html             |   85 -
+ autotests/html/highlight.wrl.html             |   48 -
+ autotests/html/highlight.xml.html             |   74 -
+ autotests/html/highlight.xsl.html             |  116 -
+ autotests/html/highlight.y.html               |  100 -
+ autotests/html/highlight.yang.html            |   45 -
+ autotests/html/highlight_lpc.c.html           |   71 -
+ autotests/html/highlight_ocaml.ml.html        |  112 -
+ autotests/html/highlight_octave.m.html        |   81 -
+ autotests/html/learnelixir.exs.html           |  404 ---
+ autotests/html/light52_muldiv.vhdl.html       |  246 --
+ autotests/html/light52_tb.vhdl.html           |  193 --
+ autotests/html/meson.build.html               |   28 -
+ autotests/html/modelines.py.html              |   17 -
+ autotests/html/or1200_dc_fsm.v.html           |  570 ----
+ autotests/html/or1200_du.v.html               | 1810 -------------
+ autotests/html/preprocessor-bug363280.c.html  |   15 -
+ .../html/preprocessor-bug363280.cpp.html      |   15 -
+ autotests/html/review128925-1.css.html        |  119 -
+ autotests/html/review128925-1.scss.html       |  218 --
+ autotests/html/review128925-2.css.html        |   69 -
+ autotests/html/review128925-2.scss.html       |   88 -
+ autotests/html/review128935.html.html         |  171 --
+ autotests/html/test-iso.mod.html              |  103 -
+ autotests/html/test-pim.mod.html              |   97 -
+ autotests/html/test-r10.mod.html              |  119 -
+ autotests/html/test.Rd.html                   |   58 -
+ autotests/html/test.bash.html                 |   30 -
+ autotests/html/test.bb.html                   |   41 -
+ autotests/html/test.c.html                    |   63 -
+ autotests/html/test.cil.html                  |  160 --
+ autotests/html/test.coffee.html               |   78 -
+ autotests/html/test.css.html                  |   25 -
+ autotests/html/test.desktop.html              |   26 -
+ autotests/html/test.diff.html                 |   55 -
+ autotests/html/test.eml.html                  |  101 -
+ autotests/html/test.fc.html                   |  123 -
+ autotests/html/test.frag.html                 |   33 -
+ autotests/html/test.htm.html                  |   24 -
+ autotests/html/test.ijs.html                  |   68 -
+ autotests/html/test.ini.html                  |   25 -
+ autotests/html/test.js.html                   |   30 -
+ autotests/html/test.json.html                 |   20 -
+ autotests/html/test.jsx.html                  |   57 -
+ autotests/html/test.logcat.html               |   97 -
+ autotests/html/test.markdown.html             |   74 -
+ autotests/html/test.mib.html                  |  533 ----
+ autotests/html/test.mm.html                   |   49 -
+ autotests/html/test.mod.html                  |  103 -
+ autotests/html/test.mss.html                  |  222 --
+ autotests/html/test.py.html                   |   57 -
+ autotests/html/test.qdocconf.html             |   72 -
+ autotests/html/test.qml.html                  |   30 -
+ autotests/html/test.rexx.html                 |   59 -
+ autotests/html/test.rs.html                   |   94 -
+ autotests/html/test.sieve.html                |  394 ---
+ autotests/html/test.sql.html                  |   72 -
+ autotests/html/test.sql_oracle.html           |   61 -
+ autotests/html/test.te.html                   |  146 -
+ autotests/html/test.tex.html                  |   12 -
+ autotests/html/test.yaml.html                 |  158 --
+ autotests/html/test.zsh.html                  |   73 -
+ .../html/usr.bin.apparmor-profile-test.html   |  277 --
+ autotests/htmlhighlighter_test.cpp            |  121 -
+ autotests/input/Dockerfile                    |   19 -
+ autotests/input/Doxyfile.example              | 2406 ----------------
+ autotests/input/Kconfig                       |   15 -
+ autotests/input/Makefile                      |   28 -
+ autotests/input/adblock.txt                   |   53 -
+ autotests/input/adblock.txt.syntax            |    1 -
+ autotests/input/apache.conf                   |   67 -
+ autotests/input/apache.conf.syntax            |    1 -
+ autotests/input/basic.markdown                |    6 -
+ autotests/input/basic.xml                     |    4 -
+ autotests/input/build.gradle                  |   57 -
+ autotests/input/clojure.clj                   |   73 -
+ autotests/input/complex.xml                   |   13 -
+ autotests/input/craftenv.ps1                  |  109 -
+ autotests/input/csharp.cs                     |   38 -
+ autotests/input/cube.obj                      |   33 -
+ autotests/input/cube.ply                      |   26 -
+ autotests/input/cube.stl                      |   30 -
+ autotests/input/example.rmd                   |   39 -
+ autotests/input/firstNonSpace.c               |    7 -
+ autotests/input/folding.cpp                   |   15 -
+ autotests/input/git-rebase                    |   32 -
+ autotests/input/git-rebase.syntax             |    1 -
+ autotests/input/hello.exs                     |   11 -
+ autotests/input/highlight.ahdl                |   43 -
+ autotests/input/highlight.asm-avr             |   75 -
+ autotests/input/highlight.asm-nasm            |   27 -
+ autotests/input/highlight.asm-nasm.syntax     |    1 -
+ autotests/input/highlight.asp                 |   58 -
+ autotests/input/highlight.awk                 |   52 -
+ autotests/input/highlight.bib                 |   31 -
+ autotests/input/highlight.bt                  |   31 -
+ autotests/input/highlight.cmake               |  111 -
+ autotests/input/highlight.cpp                 |  507 ----
+ autotests/input/highlight.css                 |  286 --
+ autotests/input/highlight.d                   |  195 --
+ autotests/input/highlight.do                  |   89 -
+ autotests/input/highlight.dox                 |  227 --
+ autotests/input/highlight.erl                 |   68 -
+ autotests/input/highlight.exu                 |   97 -
+ autotests/input/highlight.f90                 |  181 --
+ autotests/input/highlight.gdb                 |  156 --
+ autotests/input/highlight.gdbinit             |    9 -
+ autotests/input/highlight.glsl                |   62 -
+ autotests/input/highlight.hex                 |    8 -
+ autotests/input/highlight.hs                  |  139 -
+ autotests/input/highlight.java                |   48 -
+ autotests/input/highlight.js                  |  139 -
+ autotests/input/highlight.jsp                 |  170 --
+ autotests/input/highlight.less                |  701 -----
+ autotests/input/highlight.lex                 |   82 -
+ autotests/input/highlight.lgt                 |  448 ---
+ autotests/input/highlight.lhs                 |  124 -
+ autotests/input/highlight.lisp                |   36 -
+ autotests/input/highlight.lua                 |  160 --
+ autotests/input/highlight.ly                  |  114 -
+ autotests/input/highlight.m                   |   61 -
+ autotests/input/highlight.m.syntax            |    1 -
+ autotests/input/highlight.mac                 |  145 -
+ autotests/input/highlight.mup                 |  103 -
+ autotests/input/highlight.pb                  |   87 -
+ autotests/input/highlight.php                 |   26 -
+ autotests/input/highlight.pike                |   24 -
+ autotests/input/highlight.pl                  |   75 -
+ autotests/input/highlight.pony                |  219 --
+ autotests/input/highlight.pov                 |   76 -
+ autotests/input/highlight.prg                 |   71 -
+ autotests/input/highlight.prg.syntax          |    1 -
+ autotests/input/highlight.qml                 |   59 -
+ autotests/input/highlight.rb                  |  551 ----
+ autotests/input/highlight.scad                |   23 -
+ autotests/input/highlight.scheme              |  186 --
+ autotests/input/highlight.scss                |  693 -----
+ autotests/input/highlight.sh                  |  207 --
+ autotests/input/highlight.sh.syntax           |    1 -
+ autotests/input/highlight.spec                |  212 --
+ autotests/input/highlight.stan                |  380 ---
+ autotests/input/highlight.t2t                 |   90 -
+ autotests/input/highlight.tcl                 |   50 -
+ autotests/input/highlight.tex                 |   85 -
+ autotests/input/highlight.tig                 |   78 -
+ autotests/input/highlight.wrl                 |   41 -
+ autotests/input/highlight.xml                 |   67 -
+ autotests/input/highlight.xsl                 |  109 -
+ autotests/input/highlight.y                   |   93 -
+ autotests/input/highlight.yang                |   38 -
+ autotests/input/highlight_lpc.c               |   64 -
+ autotests/input/highlight_lpc.c.syntax        |    1 -
+ autotests/input/highlight_ocaml.ml            |  105 -
+ autotests/input/highlight_octave.m            |   74 -
+ autotests/input/highlight_octave.m.syntax     |    1 -
+ autotests/input/learnelixir.exs               |  397 ---
+ autotests/input/light52_muldiv.vhdl           |  239 --
+ autotests/input/light52_tb.vhdl               |  186 --
+ autotests/input/meson.build                   |   21 -
+ autotests/input/modelines.py                  |   10 -
+ autotests/input/or1200_dc_fsm.v               |  563 ----
+ autotests/input/or1200_du.v                   | 1803 ------------
+ autotests/input/preprocessor-bug363280.c      |    8 -
+ autotests/input/preprocessor-bug363280.cpp    |    8 -
+ autotests/input/review128925-1.css            |  112 -
+ autotests/input/review128925-1.scss           |  211 --
+ autotests/input/review128925-2.css            |   62 -
+ autotests/input/review128925-2.scss           |   81 -
+ autotests/input/review128935.html             |  164 --
+ autotests/input/syntax/testlang.xml           |   27 -
+ autotests/input/test-iso.mod                  |   96 -
+ autotests/input/test-iso.mod.syntax           |    1 -
+ autotests/input/test-pim.mod                  |   90 -
+ autotests/input/test-pim.mod.syntax           |    1 -
+ autotests/input/test-r10.mod                  |  112 -
+ autotests/input/test-r10.mod.syntax           |    1 -
+ autotests/input/test.Rd                       |   51 -
+ autotests/input/test.bash                     |   23 -
+ autotests/input/test.bb                       |   34 -
+ autotests/input/test.c                        |   56 -
+ autotests/input/test.c.syntax                 |    1 -
+ autotests/input/test.cil                      |  153 --
+ autotests/input/test.coffee                   |   71 -
+ autotests/input/test.css                      |   18 -
+ autotests/input/test.css.syntax               |    1 -
+ autotests/input/test.desktop                  |   19 -
+ autotests/input/test.diff                     |   48 -
+ autotests/input/test.eml                      |   94 -
+ autotests/input/test.fc                       |  116 -
+ autotests/input/test.frag                     |   26 -
+ autotests/input/test.htm                      |   17 -
+ autotests/input/test.htm.syntax               |    1 -
+ autotests/input/test.ijs                      |   61 -
+ autotests/input/test.ini                      |   18 -
+ autotests/input/test.js                       |   23 -
+ autotests/input/test.json                     |   13 -
+ autotests/input/test.jsx                      |   50 -
+ autotests/input/test.logcat                   |   90 -
+ autotests/input/test.markdown                 |   67 -
+ autotests/input/test.mib                      |  526 ----
+ autotests/input/test.mm                       |   42 -
+ autotests/input/test.mm.syntax                |    1 -
+ autotests/input/test.mod                      |   96 -
+ autotests/input/test.mss                      |  215 --
+ autotests/input/test.py                       |   50 -
+ autotests/input/test.qdocconf                 |   65 -
+ autotests/input/test.qml                      |   23 -
+ autotests/input/test.rexx                     |   52 -
+ autotests/input/test.rs                       |   87 -
+ autotests/input/test.sieve                    |  387 ---
+ autotests/input/test.sql                      |   65 -
+ autotests/input/test.sql.syntax               |    1 -
+ autotests/input/test.sql_oracle               |   54 -
+ autotests/input/test.sql_oracle.syntax        |    1 -
+ autotests/input/test.te                       |  139 -
+ autotests/input/test.tex                      |    5 -
+ autotests/input/test.yaml                     |  151 --
+ autotests/input/test.zsh                      |   66 -
+ autotests/input/themes/customtheme.theme      |   46 -
+ autotests/input/usr.bin.apparmor-profile-test |  270 --
+ autotests/reference/Dockerfile.ref            |   19 -
+ autotests/reference/Doxyfile.example.ref      | 2406 ----------------
+ autotests/reference/Kconfig.ref               |   15 -
+ autotests/reference/Makefile.ref              |   28 -
+ autotests/reference/adblock.txt.ref           |   53 -
+ autotests/reference/apache.conf.ref           |   67 -
+ autotests/reference/basic.markdown.ref        |    6 -
+ autotests/reference/basic.xml.ref             |    4 -
+ autotests/reference/build.gradle.ref          |   57 -
+ autotests/reference/clojure.clj.ref           |   73 -
+ autotests/reference/complex.xml.ref           |   13 -
+ autotests/reference/craftenv.ps1.ref          |  109 -
+ autotests/reference/csharp.cs.ref             |   38 -
+ autotests/reference/cube.obj.ref              |   33 -
+ autotests/reference/cube.ply.ref              |   26 -
+ autotests/reference/cube.stl.ref              |   30 -
+ autotests/reference/example.rmd.ref           |   39 -
+ autotests/reference/firstNonSpace.c.ref       |    7 -
+ autotests/reference/folding.cpp.ref           |   15 -
+ autotests/reference/git-rebase.ref            |   32 -
+ autotests/reference/hello.exs.ref             |   11 -
+ autotests/reference/highlight.ahdl.ref        |   43 -
+ autotests/reference/highlight.asm-avr.ref     |   75 -
+ autotests/reference/highlight.asm-nasm.ref    |   27 -
+ autotests/reference/highlight.asp.ref         |   58 -
+ autotests/reference/highlight.awk.ref         |   52 -
+ autotests/reference/highlight.bib.ref         |   31 -
+ autotests/reference/highlight.bt.ref          |   31 -
+ autotests/reference/highlight.cmake.ref       |  111 -
+ autotests/reference/highlight.cpp.ref         |  507 ----
+ autotests/reference/highlight.css.ref         |  286 --
+ autotests/reference/highlight.d.ref           |  195 --
+ autotests/reference/highlight.do.ref          |   89 -
+ autotests/reference/highlight.dox.ref         |  227 --
+ autotests/reference/highlight.erl.ref         |   68 -
+ autotests/reference/highlight.exu.ref         |   97 -
+ autotests/reference/highlight.f90.ref         |  181 --
+ autotests/reference/highlight.gdb.ref         |  156 --
+ autotests/reference/highlight.gdbinit.ref     |    9 -
+ autotests/reference/highlight.glsl.ref        |   62 -
+ autotests/reference/highlight.hex.ref         |    8 -
+ autotests/reference/highlight.hs.ref          |  139 -
+ autotests/reference/highlight.java.ref        |   48 -
+ autotests/reference/highlight.js.ref          |  139 -
+ autotests/reference/highlight.jsp.ref         |  170 --
+ autotests/reference/highlight.less.ref        |  701 -----
+ autotests/reference/highlight.lex.ref         |   82 -
+ autotests/reference/highlight.lgt.ref         |  448 ---
+ autotests/reference/highlight.lhs.ref         |  124 -
+ autotests/reference/highlight.lisp.ref        |   36 -
+ autotests/reference/highlight.lua.ref         |  160 --
+ autotests/reference/highlight.ly.ref          |  114 -
+ autotests/reference/highlight.m.ref           |   61 -
+ autotests/reference/highlight.mac.ref         |  145 -
+ autotests/reference/highlight.mup.ref         |  103 -
+ autotests/reference/highlight.pb.ref          |   87 -
+ autotests/reference/highlight.php.ref         |   26 -
+ autotests/reference/highlight.pike.ref        |   24 -
+ autotests/reference/highlight.pl.ref          |   75 -
+ autotests/reference/highlight.pony.ref        |  219 --
+ autotests/reference/highlight.pov.ref         |   76 -
+ autotests/reference/highlight.prg.ref         |   71 -
+ autotests/reference/highlight.qml.ref         |   59 -
+ autotests/reference/highlight.rb.ref          |  551 ----
+ autotests/reference/highlight.scad.ref        |   23 -
+ autotests/reference/highlight.scheme.ref      |  186 --
+ autotests/reference/highlight.scss.ref        |  693 -----
+ autotests/reference/highlight.sh.ref          |  207 --
+ autotests/reference/highlight.spec.ref        |  212 --
+ autotests/reference/highlight.stan.ref        |  380 ---
+ autotests/reference/highlight.t2t.ref         |   90 -
+ autotests/reference/highlight.tcl.ref         |   50 -
+ autotests/reference/highlight.tex.ref         |   85 -
+ autotests/reference/highlight.tig.ref         |   78 -
+ autotests/reference/highlight.wrl.ref         |   41 -
+ autotests/reference/highlight.xml.ref         |   67 -
+ autotests/reference/highlight.xsl.ref         |  109 -
+ autotests/reference/highlight.y.ref           |   93 -
+ autotests/reference/highlight.yang.ref        |   38 -
+ autotests/reference/highlight_lpc.c.ref       |   64 -
+ autotests/reference/highlight_ocaml.ml.ref    |  105 -
+ autotests/reference/highlight_octave.m.ref    |   74 -
+ autotests/reference/learnelixir.exs.ref       |  397 ---
+ autotests/reference/light52_muldiv.vhdl.ref   |  239 --
+ autotests/reference/light52_tb.vhdl.ref       |  186 --
+ autotests/reference/meson.build.ref           |   21 -
+ autotests/reference/modelines.py.ref          |   10 -
+ autotests/reference/or1200_dc_fsm.v.ref       |  563 ----
+ autotests/reference/or1200_du.v.ref           | 1803 ------------
+ .../reference/preprocessor-bug363280.c.ref    |    8 -
+ .../reference/preprocessor-bug363280.cpp.ref  |    8 -
+ autotests/reference/review128925-1.css.ref    |  112 -
+ autotests/reference/review128925-1.scss.ref   |  211 --
+ autotests/reference/review128925-2.css.ref    |   62 -
+ autotests/reference/review128925-2.scss.ref   |   81 -
+ autotests/reference/review128935.html.ref     |  164 --
+ autotests/reference/test-iso.mod.ref          |   96 -
+ autotests/reference/test-pim.mod.ref          |   90 -
+ autotests/reference/test-r10.mod.ref          |  112 -
+ autotests/reference/test.Rd.ref               |   51 -
+ autotests/reference/test.bash.ref             |   23 -
+ autotests/reference/test.bb.ref               |   34 -
+ autotests/reference/test.c.ref                |   56 -
+ autotests/reference/test.cil.ref              |  153 --
+ autotests/reference/test.coffee.ref           |   71 -
+ autotests/reference/test.css.ref              |   18 -
+ autotests/reference/test.desktop.ref          |   19 -
+ autotests/reference/test.diff.ref             |   48 -
+ autotests/reference/test.eml.ref              |   94 -
+ autotests/reference/test.fc.ref               |  116 -
+ autotests/reference/test.frag.ref             |   26 -
+ autotests/reference/test.htm.ref              |   17 -
+ autotests/reference/test.ijs.ref              |   61 -
+ autotests/reference/test.ini.ref              |   18 -
+ autotests/reference/test.js.ref               |   23 -
+ autotests/reference/test.json.ref             |   13 -
+ autotests/reference/test.jsx.ref              |   50 -
+ autotests/reference/test.logcat.ref           |   90 -
+ autotests/reference/test.markdown.ref         |   67 -
+ autotests/reference/test.mib.ref              |  526 ----
+ autotests/reference/test.mm.ref               |   42 -
+ autotests/reference/test.mod.ref              |   96 -
+ autotests/reference/test.mss.ref              |  215 --
+ autotests/reference/test.py.ref               |   50 -
+ autotests/reference/test.qdocconf.ref         |   65 -
+ autotests/reference/test.qml.ref              |   23 -
+ autotests/reference/test.rexx.ref             |   52 -
+ autotests/reference/test.rs.ref               |   87 -
+ autotests/reference/test.sieve.ref            |  387 ---
+ autotests/reference/test.sql.ref              |   65 -
+ autotests/reference/test.sql_oracle.ref       |   54 -
+ autotests/reference/test.te.ref               |  139 -
+ autotests/reference/test.tex.ref              |    5 -
+ autotests/reference/test.yaml.ref             |  151 --
+ autotests/reference/test.zsh.ref              |   66 -
+ .../usr.bin.apparmor-profile-test.ref         |  270 --
+ autotests/repository_benchmark.cpp            |   49 -
+ autotests/syntaxrepository_test.cpp           |  406 ---
+ autotests/test-config.h.in                    |  103 -
+ autotests/testhighlighter.cpp                 |  189 --
+ autotests/theme_test.cpp                      |  311 ---
+ autotests/update-reference-data.sh.in         |    5 -
+ autotests/wildcardmatcher_test.cpp            |   91 -
+ 576 files changed, 79310 deletions(-)
+ delete mode 100644 autotests/CMakeLists.txt
+ delete mode 100644 autotests/folding/Dockerfile.fold
+ delete mode 100644 autotests/folding/Doxyfile.example.fold
+ delete mode 100644 autotests/folding/Kconfig.fold
+ delete mode 100644 autotests/folding/Makefile.fold
+ delete mode 100644 autotests/folding/adblock.txt.fold
+ delete mode 100644 autotests/folding/apache.conf.fold
+ delete mode 100644 autotests/folding/basic.markdown.fold
+ delete mode 100644 autotests/folding/basic.xml.fold
+ delete mode 100644 autotests/folding/build.gradle.fold
+ delete mode 100644 autotests/folding/clojure.clj.fold
+ delete mode 100644 autotests/folding/complex.xml.fold
+ delete mode 100644 autotests/folding/craftenv.ps1.fold
+ delete mode 100644 autotests/folding/csharp.cs.fold
+ delete mode 100644 autotests/folding/cube.obj.fold
+ delete mode 100644 autotests/folding/cube.ply.fold
+ delete mode 100644 autotests/folding/cube.stl.fold
+ delete mode 100644 autotests/folding/example.rmd.fold
+ delete mode 100644 autotests/folding/firstNonSpace.c.fold
+ delete mode 100644 autotests/folding/folding.cpp.fold
+ delete mode 100644 autotests/folding/git-rebase.fold
+ delete mode 100644 autotests/folding/hello.exs.fold
+ delete mode 100644 autotests/folding/highlight.ahdl.fold
+ delete mode 100644 autotests/folding/highlight.asm-avr.fold
+ delete mode 100644 autotests/folding/highlight.asm-nasm.fold
+ delete mode 100644 autotests/folding/highlight.asp.fold
+ delete mode 100644 autotests/folding/highlight.awk.fold
+ delete mode 100644 autotests/folding/highlight.bib.fold
+ delete mode 100644 autotests/folding/highlight.bt.fold
+ delete mode 100644 autotests/folding/highlight.cmake.fold
+ delete mode 100644 autotests/folding/highlight.cpp.fold
+ delete mode 100644 autotests/folding/highlight.css.fold
+ delete mode 100644 autotests/folding/highlight.d.fold
+ delete mode 100644 autotests/folding/highlight.do.fold
+ delete mode 100644 autotests/folding/highlight.dox.fold
+ delete mode 100644 autotests/folding/highlight.erl.fold
+ delete mode 100644 autotests/folding/highlight.exu.fold
+ delete mode 100644 autotests/folding/highlight.f90.fold
+ delete mode 100644 autotests/folding/highlight.gdb.fold
+ delete mode 100644 autotests/folding/highlight.gdbinit.fold
+ delete mode 100644 autotests/folding/highlight.glsl.fold
+ delete mode 100644 autotests/folding/highlight.hex.fold
+ delete mode 100644 autotests/folding/highlight.hs.fold
+ delete mode 100644 autotests/folding/highlight.java.fold
+ delete mode 100644 autotests/folding/highlight.js.fold
+ delete mode 100644 autotests/folding/highlight.jsp.fold
+ delete mode 100644 autotests/folding/highlight.less.fold
+ delete mode 100644 autotests/folding/highlight.lex.fold
+ delete mode 100644 autotests/folding/highlight.lgt.fold
+ delete mode 100644 autotests/folding/highlight.lhs.fold
+ delete mode 100644 autotests/folding/highlight.lisp.fold
+ delete mode 100644 autotests/folding/highlight.lua.fold
+ delete mode 100644 autotests/folding/highlight.ly.fold
+ delete mode 100644 autotests/folding/highlight.m.fold
+ delete mode 100644 autotests/folding/highlight.mac.fold
+ delete mode 100644 autotests/folding/highlight.mup.fold
+ delete mode 100644 autotests/folding/highlight.pb.fold
+ delete mode 100644 autotests/folding/highlight.php.fold
+ delete mode 100644 autotests/folding/highlight.pike.fold
+ delete mode 100644 autotests/folding/highlight.pl.fold
+ delete mode 100644 autotests/folding/highlight.pony.fold
+ delete mode 100644 autotests/folding/highlight.pov.fold
+ delete mode 100644 autotests/folding/highlight.prg.fold
+ delete mode 100644 autotests/folding/highlight.qml.fold
+ delete mode 100644 autotests/folding/highlight.rb.fold
+ delete mode 100644 autotests/folding/highlight.scad.fold
+ delete mode 100644 autotests/folding/highlight.scheme.fold
+ delete mode 100644 autotests/folding/highlight.scss.fold
+ delete mode 100644 autotests/folding/highlight.sh.fold
+ delete mode 100644 autotests/folding/highlight.spec.fold
+ delete mode 100644 autotests/folding/highlight.stan.fold
+ delete mode 100644 autotests/folding/highlight.t2t.fold
+ delete mode 100644 autotests/folding/highlight.tcl.fold
+ delete mode 100644 autotests/folding/highlight.tex.fold
+ delete mode 100644 autotests/folding/highlight.tig.fold
+ delete mode 100644 autotests/folding/highlight.wrl.fold
+ delete mode 100644 autotests/folding/highlight.xml.fold
+ delete mode 100644 autotests/folding/highlight.xsl.fold
+ delete mode 100644 autotests/folding/highlight.y.fold
+ delete mode 100644 autotests/folding/highlight.yang.fold
+ delete mode 100644 autotests/folding/highlight_lpc.c.fold
+ delete mode 100644 autotests/folding/highlight_ocaml.ml.fold
+ delete mode 100644 autotests/folding/highlight_octave.m.fold
+ delete mode 100644 autotests/folding/learnelixir.exs.fold
+ delete mode 100644 autotests/folding/light52_muldiv.vhdl.fold
+ delete mode 100644 autotests/folding/light52_tb.vhdl.fold
+ delete mode 100644 autotests/folding/meson.build.fold
+ delete mode 100644 autotests/folding/modelines.py.fold
+ delete mode 100644 autotests/folding/or1200_dc_fsm.v.fold
+ delete mode 100644 autotests/folding/or1200_du.v.fold
+ delete mode 100644 autotests/folding/preprocessor-bug363280.c.fold
+ delete mode 100644 autotests/folding/preprocessor-bug363280.cpp.fold
+ delete mode 100644 autotests/folding/review128925-1.css.fold
+ delete mode 100644 autotests/folding/review128925-1.scss.fold
+ delete mode 100644 autotests/folding/review128925-2.css.fold
+ delete mode 100644 autotests/folding/review128925-2.scss.fold
+ delete mode 100644 autotests/folding/review128935.html.fold
+ delete mode 100644 autotests/folding/test-iso.mod.fold
+ delete mode 100644 autotests/folding/test-pim.mod.fold
+ delete mode 100644 autotests/folding/test-r10.mod.fold
+ delete mode 100644 autotests/folding/test.Rd.fold
+ delete mode 100644 autotests/folding/test.bash.fold
+ delete mode 100644 autotests/folding/test.bb.fold
+ delete mode 100644 autotests/folding/test.c.fold
+ delete mode 100644 autotests/folding/test.cil.fold
+ delete mode 100644 autotests/folding/test.coffee.fold
+ delete mode 100644 autotests/folding/test.css.fold
+ delete mode 100644 autotests/folding/test.desktop.fold
+ delete mode 100644 autotests/folding/test.diff.fold
+ delete mode 100644 autotests/folding/test.eml.fold
+ delete mode 100644 autotests/folding/test.fc.fold
+ delete mode 100644 autotests/folding/test.frag.fold
+ delete mode 100644 autotests/folding/test.htm.fold
+ delete mode 100644 autotests/folding/test.ijs.fold
+ delete mode 100644 autotests/folding/test.ini.fold
+ delete mode 100644 autotests/folding/test.js.fold
+ delete mode 100644 autotests/folding/test.json.fold
+ delete mode 100644 autotests/folding/test.jsx.fold
+ delete mode 100644 autotests/folding/test.logcat.fold
+ delete mode 100644 autotests/folding/test.markdown.fold
+ delete mode 100644 autotests/folding/test.mib.fold
+ delete mode 100644 autotests/folding/test.mm.fold
+ delete mode 100644 autotests/folding/test.mod.fold
+ delete mode 100644 autotests/folding/test.mss.fold
+ delete mode 100644 autotests/folding/test.py.fold
+ delete mode 100644 autotests/folding/test.qdocconf.fold
+ delete mode 100644 autotests/folding/test.qml.fold
+ delete mode 100644 autotests/folding/test.rexx.fold
+ delete mode 100644 autotests/folding/test.rs.fold
+ delete mode 100644 autotests/folding/test.sieve.fold
+ delete mode 100644 autotests/folding/test.sql.fold
+ delete mode 100644 autotests/folding/test.sql_oracle.fold
+ delete mode 100644 autotests/folding/test.te.fold
+ delete mode 100644 autotests/folding/test.tex.fold
+ delete mode 100644 autotests/folding/test.yaml.fold
+ delete mode 100644 autotests/folding/test.zsh.fold
+ delete mode 100644 autotests/folding/usr.bin.apparmor-profile-test.fold
+ delete mode 100644 autotests/foldingtest.cpp
+ delete mode 100644 autotests/highlighter_benchmark.cpp
+ delete mode 100644 autotests/html/Dockerfile.html
+ delete mode 100644 autotests/html/Doxyfile.example.html
+ delete mode 100644 autotests/html/Kconfig.html
+ delete mode 100644 autotests/html/Makefile.html
+ delete mode 100644 autotests/html/adblock.txt.html
+ delete mode 100644 autotests/html/apache.conf.html
+ delete mode 100644 autotests/html/basic.markdown.html
+ delete mode 100644 autotests/html/basic.xml.html
+ delete mode 100644 autotests/html/build.gradle.html
+ delete mode 100644 autotests/html/clojure.clj.html
+ delete mode 100644 autotests/html/complex.xml.html
+ delete mode 100644 autotests/html/craftenv.ps1.html
+ delete mode 100644 autotests/html/csharp.cs.html
+ delete mode 100644 autotests/html/cube.obj.html
+ delete mode 100644 autotests/html/cube.ply.html
+ delete mode 100644 autotests/html/cube.stl.html
+ delete mode 100644 autotests/html/example.rmd.html
+ delete mode 100644 autotests/html/firstNonSpace.c.html
+ delete mode 100644 autotests/html/folding.cpp.html
+ delete mode 100644 autotests/html/git-rebase.html
+ delete mode 100644 autotests/html/hello.exs.html
+ delete mode 100644 autotests/html/highlight.ahdl.html
+ delete mode 100644 autotests/html/highlight.asm-avr.html
+ delete mode 100644 autotests/html/highlight.asm-nasm.html
+ delete mode 100644 autotests/html/highlight.asp.html
+ delete mode 100644 autotests/html/highlight.awk.html
+ delete mode 100644 autotests/html/highlight.bib.html
+ delete mode 100644 autotests/html/highlight.bt.html
+ delete mode 100644 autotests/html/highlight.cmake.html
+ delete mode 100644 autotests/html/highlight.cpp.html
+ delete mode 100644 autotests/html/highlight.css.html
+ delete mode 100644 autotests/html/highlight.d.html
+ delete mode 100644 autotests/html/highlight.do.html
+ delete mode 100644 autotests/html/highlight.dox.html
+ delete mode 100644 autotests/html/highlight.erl.html
+ delete mode 100644 autotests/html/highlight.exu.html
+ delete mode 100644 autotests/html/highlight.f90.html
+ delete mode 100644 autotests/html/highlight.gdb.html
+ delete mode 100644 autotests/html/highlight.gdbinit.html
+ delete mode 100644 autotests/html/highlight.glsl.html
+ delete mode 100644 autotests/html/highlight.hex.html
+ delete mode 100644 autotests/html/highlight.hs.html
+ delete mode 100644 autotests/html/highlight.java.html
+ delete mode 100644 autotests/html/highlight.js.html
+ delete mode 100644 autotests/html/highlight.jsp.html
+ delete mode 100644 autotests/html/highlight.less.html
+ delete mode 100644 autotests/html/highlight.lex.html
+ delete mode 100644 autotests/html/highlight.lgt.html
+ delete mode 100644 autotests/html/highlight.lhs.html
+ delete mode 100644 autotests/html/highlight.lisp.html
+ delete mode 100644 autotests/html/highlight.lua.html
+ delete mode 100644 autotests/html/highlight.ly.html
+ delete mode 100644 autotests/html/highlight.m.html
+ delete mode 100644 autotests/html/highlight.mac.html
+ delete mode 100644 autotests/html/highlight.mup.html
+ delete mode 100644 autotests/html/highlight.pb.html
+ delete mode 100644 autotests/html/highlight.php.html
+ delete mode 100644 autotests/html/highlight.pike.html
+ delete mode 100644 autotests/html/highlight.pl.html
+ delete mode 100644 autotests/html/highlight.pony.html
+ delete mode 100644 autotests/html/highlight.pov.html
+ delete mode 100644 autotests/html/highlight.prg.html
+ delete mode 100644 autotests/html/highlight.qml.html
+ delete mode 100644 autotests/html/highlight.rb.html
+ delete mode 100644 autotests/html/highlight.scad.html
+ delete mode 100644 autotests/html/highlight.scheme.html
+ delete mode 100644 autotests/html/highlight.scss.html
+ delete mode 100644 autotests/html/highlight.sh.html
+ delete mode 100644 autotests/html/highlight.spec.html
+ delete mode 100644 autotests/html/highlight.stan.html
+ delete mode 100644 autotests/html/highlight.t2t.html
+ delete mode 100644 autotests/html/highlight.tcl.html
+ delete mode 100644 autotests/html/highlight.tex.html
+ delete mode 100644 autotests/html/highlight.tig.html
+ delete mode 100644 autotests/html/highlight.wrl.html
+ delete mode 100644 autotests/html/highlight.xml.html
+ delete mode 100644 autotests/html/highlight.xsl.html
+ delete mode 100644 autotests/html/highlight.y.html
+ delete mode 100644 autotests/html/highlight.yang.html
+ delete mode 100644 autotests/html/highlight_lpc.c.html
+ delete mode 100644 autotests/html/highlight_ocaml.ml.html
+ delete mode 100644 autotests/html/highlight_octave.m.html
+ delete mode 100644 autotests/html/learnelixir.exs.html
+ delete mode 100644 autotests/html/light52_muldiv.vhdl.html
+ delete mode 100644 autotests/html/light52_tb.vhdl.html
+ delete mode 100644 autotests/html/meson.build.html
+ delete mode 100644 autotests/html/modelines.py.html
+ delete mode 100644 autotests/html/or1200_dc_fsm.v.html
+ delete mode 100644 autotests/html/or1200_du.v.html
+ delete mode 100644 autotests/html/preprocessor-bug363280.c.html
+ delete mode 100644 autotests/html/preprocessor-bug363280.cpp.html
+ delete mode 100644 autotests/html/review128925-1.css.html
+ delete mode 100644 autotests/html/review128925-1.scss.html
+ delete mode 100644 autotests/html/review128925-2.css.html
+ delete mode 100644 autotests/html/review128925-2.scss.html
+ delete mode 100644 autotests/html/review128935.html.html
+ delete mode 100644 autotests/html/test-iso.mod.html
+ delete mode 100644 autotests/html/test-pim.mod.html
+ delete mode 100644 autotests/html/test-r10.mod.html
+ delete mode 100644 autotests/html/test.Rd.html
+ delete mode 100644 autotests/html/test.bash.html
+ delete mode 100644 autotests/html/test.bb.html
+ delete mode 100644 autotests/html/test.c.html
+ delete mode 100644 autotests/html/test.cil.html
+ delete mode 100644 autotests/html/test.coffee.html
+ delete mode 100644 autotests/html/test.css.html
+ delete mode 100644 autotests/html/test.desktop.html
+ delete mode 100644 autotests/html/test.diff.html
+ delete mode 100644 autotests/html/test.eml.html
+ delete mode 100644 autotests/html/test.fc.html
+ delete mode 100644 autotests/html/test.frag.html
+ delete mode 100644 autotests/html/test.htm.html
+ delete mode 100644 autotests/html/test.ijs.html
+ delete mode 100644 autotests/html/test.ini.html
+ delete mode 100644 autotests/html/test.js.html
+ delete mode 100644 autotests/html/test.json.html
+ delete mode 100644 autotests/html/test.jsx.html
+ delete mode 100644 autotests/html/test.logcat.html
+ delete mode 100644 autotests/html/test.markdown.html
+ delete mode 100644 autotests/html/test.mib.html
+ delete mode 100644 autotests/html/test.mm.html
+ delete mode 100644 autotests/html/test.mod.html
+ delete mode 100644 autotests/html/test.mss.html
+ delete mode 100644 autotests/html/test.py.html
+ delete mode 100644 autotests/html/test.qdocconf.html
+ delete mode 100644 autotests/html/test.qml.html
+ delete mode 100644 autotests/html/test.rexx.html
+ delete mode 100644 autotests/html/test.rs.html
+ delete mode 100644 autotests/html/test.sieve.html
+ delete mode 100644 autotests/html/test.sql.html
+ delete mode 100644 autotests/html/test.sql_oracle.html
+ delete mode 100644 autotests/html/test.te.html
+ delete mode 100644 autotests/html/test.tex.html
+ delete mode 100644 autotests/html/test.yaml.html
+ delete mode 100644 autotests/html/test.zsh.html
+ delete mode 100644 autotests/html/usr.bin.apparmor-profile-test.html
+ delete mode 100644 autotests/htmlhighlighter_test.cpp
+ delete mode 100644 autotests/input/Dockerfile
+ delete mode 100644 autotests/input/Doxyfile.example
+ delete mode 100644 autotests/input/Kconfig
+ delete mode 100644 autotests/input/Makefile
+ delete mode 100644 autotests/input/adblock.txt
+ delete mode 100644 autotests/input/adblock.txt.syntax
+ delete mode 100644 autotests/input/apache.conf
+ delete mode 100644 autotests/input/apache.conf.syntax
+ delete mode 100644 autotests/input/basic.markdown
+ delete mode 100644 autotests/input/basic.xml
+ delete mode 100644 autotests/input/build.gradle
+ delete mode 100644 autotests/input/clojure.clj
+ delete mode 100644 autotests/input/complex.xml
+ delete mode 100644 autotests/input/craftenv.ps1
+ delete mode 100644 autotests/input/csharp.cs
+ delete mode 100644 autotests/input/cube.obj
+ delete mode 100644 autotests/input/cube.ply
+ delete mode 100644 autotests/input/cube.stl
+ delete mode 100644 autotests/input/example.rmd
+ delete mode 100644 autotests/input/firstNonSpace.c
+ delete mode 100644 autotests/input/folding.cpp
+ delete mode 100644 autotests/input/git-rebase
+ delete mode 100644 autotests/input/git-rebase.syntax
+ delete mode 100644 autotests/input/hello.exs
+ delete mode 100644 autotests/input/highlight.ahdl
+ delete mode 100644 autotests/input/highlight.asm-avr
+ delete mode 100644 autotests/input/highlight.asm-nasm
+ delete mode 100644 autotests/input/highlight.asm-nasm.syntax
+ delete mode 100644 autotests/input/highlight.asp
+ delete mode 100644 autotests/input/highlight.awk
+ delete mode 100644 autotests/input/highlight.bib
+ delete mode 100644 autotests/input/highlight.bt
+ delete mode 100644 autotests/input/highlight.cmake
+ delete mode 100644 autotests/input/highlight.cpp
+ delete mode 100644 autotests/input/highlight.css
+ delete mode 100644 autotests/input/highlight.d
+ delete mode 100644 autotests/input/highlight.do
+ delete mode 100644 autotests/input/highlight.dox
+ delete mode 100644 autotests/input/highlight.erl
+ delete mode 100644 autotests/input/highlight.exu
+ delete mode 100644 autotests/input/highlight.f90
+ delete mode 100644 autotests/input/highlight.gdb
+ delete mode 100644 autotests/input/highlight.gdbinit
+ delete mode 100644 autotests/input/highlight.glsl
+ delete mode 100644 autotests/input/highlight.hex
+ delete mode 100644 autotests/input/highlight.hs
+ delete mode 100644 autotests/input/highlight.java
+ delete mode 100644 autotests/input/highlight.js
+ delete mode 100644 autotests/input/highlight.jsp
+ delete mode 100644 autotests/input/highlight.less
+ delete mode 100644 autotests/input/highlight.lex
+ delete mode 100644 autotests/input/highlight.lgt
+ delete mode 100644 autotests/input/highlight.lhs
+ delete mode 100644 autotests/input/highlight.lisp
+ delete mode 100644 autotests/input/highlight.lua
+ delete mode 100644 autotests/input/highlight.ly
+ delete mode 100644 autotests/input/highlight.m
+ delete mode 100644 autotests/input/highlight.m.syntax
+ delete mode 100644 autotests/input/highlight.mac
+ delete mode 100644 autotests/input/highlight.mup
+ delete mode 100644 autotests/input/highlight.pb
+ delete mode 100644 autotests/input/highlight.php
+ delete mode 100644 autotests/input/highlight.pike
+ delete mode 100644 autotests/input/highlight.pl
+ delete mode 100644 autotests/input/highlight.pony
+ delete mode 100644 autotests/input/highlight.pov
+ delete mode 100644 autotests/input/highlight.prg
+ delete mode 100644 autotests/input/highlight.prg.syntax
+ delete mode 100644 autotests/input/highlight.qml
+ delete mode 100644 autotests/input/highlight.rb
+ delete mode 100644 autotests/input/highlight.scad
+ delete mode 100644 autotests/input/highlight.scheme
+ delete mode 100644 autotests/input/highlight.scss
+ delete mode 100644 autotests/input/highlight.sh
+ delete mode 100644 autotests/input/highlight.sh.syntax
+ delete mode 100644 autotests/input/highlight.spec
+ delete mode 100644 autotests/input/highlight.stan
+ delete mode 100644 autotests/input/highlight.t2t
+ delete mode 100644 autotests/input/highlight.tcl
+ delete mode 100644 autotests/input/highlight.tex
+ delete mode 100644 autotests/input/highlight.tig
+ delete mode 100644 autotests/input/highlight.wrl
+ delete mode 100644 autotests/input/highlight.xml
+ delete mode 100644 autotests/input/highlight.xsl
+ delete mode 100644 autotests/input/highlight.y
+ delete mode 100644 autotests/input/highlight.yang
+ delete mode 100644 autotests/input/highlight_lpc.c
+ delete mode 100644 autotests/input/highlight_lpc.c.syntax
+ delete mode 100644 autotests/input/highlight_ocaml.ml
+ delete mode 100644 autotests/input/highlight_octave.m
+ delete mode 100644 autotests/input/highlight_octave.m.syntax
+ delete mode 100644 autotests/input/learnelixir.exs
+ delete mode 100644 autotests/input/light52_muldiv.vhdl
+ delete mode 100644 autotests/input/light52_tb.vhdl
+ delete mode 100644 autotests/input/meson.build
+ delete mode 100644 autotests/input/modelines.py
+ delete mode 100644 autotests/input/or1200_dc_fsm.v
+ delete mode 100644 autotests/input/or1200_du.v
+ delete mode 100644 autotests/input/preprocessor-bug363280.c
+ delete mode 100644 autotests/input/preprocessor-bug363280.cpp
+ delete mode 100644 autotests/input/review128925-1.css
+ delete mode 100644 autotests/input/review128925-1.scss
+ delete mode 100644 autotests/input/review128925-2.css
+ delete mode 100644 autotests/input/review128925-2.scss
+ delete mode 100644 autotests/input/review128935.html
+ delete mode 100644 autotests/input/syntax/testlang.xml
+ delete mode 100644 autotests/input/test-iso.mod
+ delete mode 100644 autotests/input/test-iso.mod.syntax
+ delete mode 100644 autotests/input/test-pim.mod
+ delete mode 100644 autotests/input/test-pim.mod.syntax
+ delete mode 100644 autotests/input/test-r10.mod
+ delete mode 100644 autotests/input/test-r10.mod.syntax
+ delete mode 100644 autotests/input/test.Rd
+ delete mode 100644 autotests/input/test.bash
+ delete mode 100644 autotests/input/test.bb
+ delete mode 100644 autotests/input/test.c
+ delete mode 100644 autotests/input/test.c.syntax
+ delete mode 100644 autotests/input/test.cil
+ delete mode 100644 autotests/input/test.coffee
+ delete mode 100644 autotests/input/test.css
+ delete mode 100644 autotests/input/test.css.syntax
+ delete mode 100644 autotests/input/test.desktop
+ delete mode 100644 autotests/input/test.diff
+ delete mode 100644 autotests/input/test.eml
+ delete mode 100644 autotests/input/test.fc
+ delete mode 100644 autotests/input/test.frag
+ delete mode 100644 autotests/input/test.htm
+ delete mode 100644 autotests/input/test.htm.syntax
+ delete mode 100644 autotests/input/test.ijs
+ delete mode 100644 autotests/input/test.ini
+ delete mode 100644 autotests/input/test.js
+ delete mode 100644 autotests/input/test.json
+ delete mode 100644 autotests/input/test.jsx
+ delete mode 100644 autotests/input/test.logcat
+ delete mode 100644 autotests/input/test.markdown
+ delete mode 100644 autotests/input/test.mib
+ delete mode 100644 autotests/input/test.mm
+ delete mode 100644 autotests/input/test.mm.syntax
+ delete mode 100644 autotests/input/test.mod
+ delete mode 100644 autotests/input/test.mss
+ delete mode 100644 autotests/input/test.py
+ delete mode 100644 autotests/input/test.qdocconf
+ delete mode 100644 autotests/input/test.qml
+ delete mode 100644 autotests/input/test.rexx
+ delete mode 100644 autotests/input/test.rs
+ delete mode 100644 autotests/input/test.sieve
+ delete mode 100644 autotests/input/test.sql
+ delete mode 100644 autotests/input/test.sql.syntax
+ delete mode 100644 autotests/input/test.sql_oracle
+ delete mode 100644 autotests/input/test.sql_oracle.syntax
+ delete mode 100644 autotests/input/test.te
+ delete mode 100644 autotests/input/test.tex
+ delete mode 100644 autotests/input/test.yaml
+ delete mode 100644 autotests/input/test.zsh
+ delete mode 100644 autotests/input/themes/customtheme.theme
+ delete mode 100644 autotests/input/usr.bin.apparmor-profile-test
+ delete mode 100644 autotests/reference/Dockerfile.ref
+ delete mode 100644 autotests/reference/Doxyfile.example.ref
+ delete mode 100644 autotests/reference/Kconfig.ref
+ delete mode 100644 autotests/reference/Makefile.ref
+ delete mode 100644 autotests/reference/adblock.txt.ref
+ delete mode 100644 autotests/reference/apache.conf.ref
+ delete mode 100644 autotests/reference/basic.markdown.ref
+ delete mode 100644 autotests/reference/basic.xml.ref
+ delete mode 100644 autotests/reference/build.gradle.ref
+ delete mode 100644 autotests/reference/clojure.clj.ref
+ delete mode 100644 autotests/reference/complex.xml.ref
+ delete mode 100644 autotests/reference/craftenv.ps1.ref
+ delete mode 100644 autotests/reference/csharp.cs.ref
+ delete mode 100644 autotests/reference/cube.obj.ref
+ delete mode 100644 autotests/reference/cube.ply.ref
+ delete mode 100644 autotests/reference/cube.stl.ref
+ delete mode 100644 autotests/reference/example.rmd.ref
+ delete mode 100644 autotests/reference/firstNonSpace.c.ref
+ delete mode 100644 autotests/reference/folding.cpp.ref
+ delete mode 100644 autotests/reference/git-rebase.ref
+ delete mode 100644 autotests/reference/hello.exs.ref
+ delete mode 100644 autotests/reference/highlight.ahdl.ref
+ delete mode 100644 autotests/reference/highlight.asm-avr.ref
+ delete mode 100644 autotests/reference/highlight.asm-nasm.ref
+ delete mode 100644 autotests/reference/highlight.asp.ref
+ delete mode 100644 autotests/reference/highlight.awk.ref
+ delete mode 100644 autotests/reference/highlight.bib.ref
+ delete mode 100644 autotests/reference/highlight.bt.ref
+ delete mode 100644 autotests/reference/highlight.cmake.ref
+ delete mode 100644 autotests/reference/highlight.cpp.ref
+ delete mode 100644 autotests/reference/highlight.css.ref
+ delete mode 100644 autotests/reference/highlight.d.ref
+ delete mode 100644 autotests/reference/highlight.do.ref
+ delete mode 100644 autotests/reference/highlight.dox.ref
+ delete mode 100644 autotests/reference/highlight.erl.ref
+ delete mode 100644 autotests/reference/highlight.exu.ref
+ delete mode 100644 autotests/reference/highlight.f90.ref
+ delete mode 100644 autotests/reference/highlight.gdb.ref
+ delete mode 100644 autotests/reference/highlight.gdbinit.ref
+ delete mode 100644 autotests/reference/highlight.glsl.ref
+ delete mode 100644 autotests/reference/highlight.hex.ref
+ delete mode 100644 autotests/reference/highlight.hs.ref
+ delete mode 100644 autotests/reference/highlight.java.ref
+ delete mode 100644 autotests/reference/highlight.js.ref
+ delete mode 100644 autotests/reference/highlight.jsp.ref
+ delete mode 100644 autotests/reference/highlight.less.ref
+ delete mode 100644 autotests/reference/highlight.lex.ref
+ delete mode 100644 autotests/reference/highlight.lgt.ref
+ delete mode 100644 autotests/reference/highlight.lhs.ref
+ delete mode 100644 autotests/reference/highlight.lisp.ref
+ delete mode 100644 autotests/reference/highlight.lua.ref
+ delete mode 100644 autotests/reference/highlight.ly.ref
+ delete mode 100644 autotests/reference/highlight.m.ref
+ delete mode 100644 autotests/reference/highlight.mac.ref
+ delete mode 100644 autotests/reference/highlight.mup.ref
+ delete mode 100644 autotests/reference/highlight.pb.ref
+ delete mode 100644 autotests/reference/highlight.php.ref
+ delete mode 100644 autotests/reference/highlight.pike.ref
+ delete mode 100644 autotests/reference/highlight.pl.ref
+ delete mode 100644 autotests/reference/highlight.pony.ref
+ delete mode 100644 autotests/reference/highlight.pov.ref
+ delete mode 100644 autotests/reference/highlight.prg.ref
+ delete mode 100644 autotests/reference/highlight.qml.ref
+ delete mode 100644 autotests/reference/highlight.rb.ref
+ delete mode 100644 autotests/reference/highlight.scad.ref
+ delete mode 100644 autotests/reference/highlight.scheme.ref
+ delete mode 100644 autotests/reference/highlight.scss.ref
+ delete mode 100644 autotests/reference/highlight.sh.ref
+ delete mode 100644 autotests/reference/highlight.spec.ref
+ delete mode 100644 autotests/reference/highlight.stan.ref
+ delete mode 100644 autotests/reference/highlight.t2t.ref
+ delete mode 100644 autotests/reference/highlight.tcl.ref
+ delete mode 100644 autotests/reference/highlight.tex.ref
+ delete mode 100644 autotests/reference/highlight.tig.ref
+ delete mode 100644 autotests/reference/highlight.wrl.ref
+ delete mode 100644 autotests/reference/highlight.xml.ref
+ delete mode 100644 autotests/reference/highlight.xsl.ref
+ delete mode 100644 autotests/reference/highlight.y.ref
+ delete mode 100644 autotests/reference/highlight.yang.ref
+ delete mode 100644 autotests/reference/highlight_lpc.c.ref
+ delete mode 100644 autotests/reference/highlight_ocaml.ml.ref
+ delete mode 100644 autotests/reference/highlight_octave.m.ref
+ delete mode 100644 autotests/reference/learnelixir.exs.ref
+ delete mode 100644 autotests/reference/light52_muldiv.vhdl.ref
+ delete mode 100644 autotests/reference/light52_tb.vhdl.ref
+ delete mode 100644 autotests/reference/meson.build.ref
+ delete mode 100644 autotests/reference/modelines.py.ref
+ delete mode 100644 autotests/reference/or1200_dc_fsm.v.ref
+ delete mode 100644 autotests/reference/or1200_du.v.ref
+ delete mode 100644 autotests/reference/preprocessor-bug363280.c.ref
+ delete mode 100644 autotests/reference/preprocessor-bug363280.cpp.ref
+ delete mode 100644 autotests/reference/review128925-1.css.ref
+ delete mode 100644 autotests/reference/review128925-1.scss.ref
+ delete mode 100644 autotests/reference/review128925-2.css.ref
+ delete mode 100644 autotests/reference/review128925-2.scss.ref
+ delete mode 100644 autotests/reference/review128935.html.ref
+ delete mode 100644 autotests/reference/test-iso.mod.ref
+ delete mode 100644 autotests/reference/test-pim.mod.ref
+ delete mode 100644 autotests/reference/test-r10.mod.ref
+ delete mode 100644 autotests/reference/test.Rd.ref
+ delete mode 100644 autotests/reference/test.bash.ref
+ delete mode 100644 autotests/reference/test.bb.ref
+ delete mode 100644 autotests/reference/test.c.ref
+ delete mode 100644 autotests/reference/test.cil.ref
+ delete mode 100644 autotests/reference/test.coffee.ref
+ delete mode 100644 autotests/reference/test.css.ref
+ delete mode 100644 autotests/reference/test.desktop.ref
+ delete mode 100644 autotests/reference/test.diff.ref
+ delete mode 100644 autotests/reference/test.eml.ref
+ delete mode 100644 autotests/reference/test.fc.ref
+ delete mode 100644 autotests/reference/test.frag.ref
+ delete mode 100644 autotests/reference/test.htm.ref
+ delete mode 100644 autotests/reference/test.ijs.ref
+ delete mode 100644 autotests/reference/test.ini.ref
+ delete mode 100644 autotests/reference/test.js.ref
+ delete mode 100644 autotests/reference/test.json.ref
+ delete mode 100644 autotests/reference/test.jsx.ref
+ delete mode 100644 autotests/reference/test.logcat.ref
+ delete mode 100644 autotests/reference/test.markdown.ref
+ delete mode 100644 autotests/reference/test.mib.ref
+ delete mode 100644 autotests/reference/test.mm.ref
+ delete mode 100644 autotests/reference/test.mod.ref
+ delete mode 100644 autotests/reference/test.mss.ref
+ delete mode 100644 autotests/reference/test.py.ref
+ delete mode 100644 autotests/reference/test.qdocconf.ref
+ delete mode 100644 autotests/reference/test.qml.ref
+ delete mode 100644 autotests/reference/test.rexx.ref
+ delete mode 100644 autotests/reference/test.rs.ref
+ delete mode 100644 autotests/reference/test.sieve.ref
+ delete mode 100644 autotests/reference/test.sql.ref
+ delete mode 100644 autotests/reference/test.sql_oracle.ref
+ delete mode 100644 autotests/reference/test.te.ref
+ delete mode 100644 autotests/reference/test.tex.ref
+ delete mode 100644 autotests/reference/test.yaml.ref
+ delete mode 100644 autotests/reference/test.zsh.ref
+ delete mode 100644 autotests/reference/usr.bin.apparmor-profile-test.ref
+ delete mode 100644 autotests/repository_benchmark.cpp
+ delete mode 100644 autotests/syntaxrepository_test.cpp
+ delete mode 100644 autotests/test-config.h.in
+ delete mode 100644 autotests/testhighlighter.cpp
+ delete mode 100644 autotests/theme_test.cpp
+ delete mode 100755 autotests/update-reference-data.sh.in
+ delete mode 100644 autotests/wildcardmatcher_test.cpp
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b23d482..49923fb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -90,9 +90,6 @@ add_subdirectory(data)
+ add_subdirectory(src)
+ if(TARGET Qt5::Gui)
+     add_subdirectory(examples)
+-    if (BUILD_TESTING)
+-        add_subdirectory(autotests)
+-    endif()
+ endif()
+ 
+ #
+diff --git a/autotests/CMakeLists.txt b/autotests/CMakeLists.txt
+deleted file mode 100644
+index 827a182..0000000
+diff --git a/autotests/folding/Dockerfile.fold b/autotests/folding/Dockerfile.fold
+deleted file mode 100644
+index 95a81d3..0000000
+diff --git a/autotests/folding/Doxyfile.example.fold b/autotests/folding/Doxyfile.example.fold
+deleted file mode 100644
+index ef39bfc..0000000
+diff --git a/autotests/folding/Kconfig.fold b/autotests/folding/Kconfig.fold
+deleted file mode 100644
+index 26df6be..0000000
+diff --git a/autotests/folding/Makefile.fold b/autotests/folding/Makefile.fold
+deleted file mode 100644
+index 1cea5dd..0000000
+diff --git a/autotests/folding/adblock.txt.fold b/autotests/folding/adblock.txt.fold
+deleted file mode 100644
+index 7ad85dd..0000000
+diff --git a/autotests/folding/apache.conf.fold b/autotests/folding/apache.conf.fold
+deleted file mode 100644
+index 8d8baa5..0000000
+diff --git a/autotests/folding/basic.markdown.fold b/autotests/folding/basic.markdown.fold
+deleted file mode 100644
+index f9a5bb3..0000000
+diff --git a/autotests/folding/basic.xml.fold b/autotests/folding/basic.xml.fold
+deleted file mode 100644
+index 1d6ab4b..0000000
+diff --git a/autotests/folding/build.gradle.fold b/autotests/folding/build.gradle.fold
+deleted file mode 100644
+index 2d0d25f..0000000
+diff --git a/autotests/folding/clojure.clj.fold b/autotests/folding/clojure.clj.fold
+deleted file mode 100644
+index b2f3768..0000000
+diff --git a/autotests/folding/complex.xml.fold b/autotests/folding/complex.xml.fold
+deleted file mode 100644
+index 0c79e82..0000000
+diff --git a/autotests/folding/craftenv.ps1.fold b/autotests/folding/craftenv.ps1.fold
+deleted file mode 100644
+index 9a8fbfc..0000000
+diff --git a/autotests/folding/csharp.cs.fold b/autotests/folding/csharp.cs.fold
+deleted file mode 100644
+index 906705c..0000000
+diff --git a/autotests/folding/cube.obj.fold b/autotests/folding/cube.obj.fold
+deleted file mode 100644
+index ef06c98..0000000
+diff --git a/autotests/folding/cube.ply.fold b/autotests/folding/cube.ply.fold
+deleted file mode 100644
+index 08d5f89..0000000
+diff --git a/autotests/folding/cube.stl.fold b/autotests/folding/cube.stl.fold
+deleted file mode 100644
+index ae74fd9..0000000
+diff --git a/autotests/folding/example.rmd.fold b/autotests/folding/example.rmd.fold
+deleted file mode 100644
+index c198d13..0000000
+diff --git a/autotests/folding/firstNonSpace.c.fold b/autotests/folding/firstNonSpace.c.fold
+deleted file mode 100644
+index 570ba90..0000000
+diff --git a/autotests/folding/folding.cpp.fold b/autotests/folding/folding.cpp.fold
+deleted file mode 100644
+index be50e40..0000000
+diff --git a/autotests/folding/git-rebase.fold b/autotests/folding/git-rebase.fold
+deleted file mode 100644
+index 43041bb..0000000
+diff --git a/autotests/folding/hello.exs.fold b/autotests/folding/hello.exs.fold
+deleted file mode 100644
+index cca72a1..0000000
+diff --git a/autotests/folding/highlight.ahdl.fold b/autotests/folding/highlight.ahdl.fold
+deleted file mode 100644
+index 26924b4..0000000
+diff --git a/autotests/folding/highlight.asm-avr.fold b/autotests/folding/highlight.asm-avr.fold
+deleted file mode 100644
+index 62e3ee9..0000000
+diff --git a/autotests/folding/highlight.asm-nasm.fold b/autotests/folding/highlight.asm-nasm.fold
+deleted file mode 100644
+index a5da4d1..0000000
+diff --git a/autotests/folding/highlight.asp.fold b/autotests/folding/highlight.asp.fold
+deleted file mode 100644
+index b938201..0000000
+diff --git a/autotests/folding/highlight.awk.fold b/autotests/folding/highlight.awk.fold
+deleted file mode 100644
+index 2ad62f1..0000000
+diff --git a/autotests/folding/highlight.bib.fold b/autotests/folding/highlight.bib.fold
+deleted file mode 100644
+index 9d521ee..0000000
+diff --git a/autotests/folding/highlight.bt.fold b/autotests/folding/highlight.bt.fold
+deleted file mode 100644
+index 51d2075..0000000
+diff --git a/autotests/folding/highlight.cmake.fold b/autotests/folding/highlight.cmake.fold
+deleted file mode 100644
+index 30688fa..0000000
+diff --git a/autotests/folding/highlight.cpp.fold b/autotests/folding/highlight.cpp.fold
+deleted file mode 100644
+index 5f80fa2..0000000
+diff --git a/autotests/folding/highlight.css.fold b/autotests/folding/highlight.css.fold
+deleted file mode 100644
+index ff27482..0000000
+diff --git a/autotests/folding/highlight.d.fold b/autotests/folding/highlight.d.fold
+deleted file mode 100644
+index 44bcb09..0000000
+diff --git a/autotests/folding/highlight.do.fold b/autotests/folding/highlight.do.fold
+deleted file mode 100644
+index 83ae062..0000000
+diff --git a/autotests/folding/highlight.dox.fold b/autotests/folding/highlight.dox.fold
+deleted file mode 100644
+index ad907ab..0000000
+diff --git a/autotests/folding/highlight.erl.fold b/autotests/folding/highlight.erl.fold
+deleted file mode 100644
+index 5b485cb..0000000
+diff --git a/autotests/folding/highlight.exu.fold b/autotests/folding/highlight.exu.fold
+deleted file mode 100644
+index 84f561f..0000000
+diff --git a/autotests/folding/highlight.f90.fold b/autotests/folding/highlight.f90.fold
+deleted file mode 100644
+index 2ea0f76..0000000
+diff --git a/autotests/folding/highlight.gdb.fold b/autotests/folding/highlight.gdb.fold
+deleted file mode 100644
+index 7246b73..0000000
+diff --git a/autotests/folding/highlight.gdbinit.fold b/autotests/folding/highlight.gdbinit.fold
+deleted file mode 100644
+index 70c9820..0000000
+diff --git a/autotests/folding/highlight.glsl.fold b/autotests/folding/highlight.glsl.fold
+deleted file mode 100644
+index 53df4f1..0000000
+diff --git a/autotests/folding/highlight.hex.fold b/autotests/folding/highlight.hex.fold
+deleted file mode 100644
+index 7c3f3ea..0000000
+diff --git a/autotests/folding/highlight.hs.fold b/autotests/folding/highlight.hs.fold
+deleted file mode 100644
+index 71ee81f..0000000
+diff --git a/autotests/folding/highlight.java.fold b/autotests/folding/highlight.java.fold
+deleted file mode 100644
+index e3b4cbc..0000000
+diff --git a/autotests/folding/highlight.js.fold b/autotests/folding/highlight.js.fold
+deleted file mode 100644
+index 122c0ac..0000000
+diff --git a/autotests/folding/highlight.jsp.fold b/autotests/folding/highlight.jsp.fold
+deleted file mode 100644
+index b938095..0000000
+diff --git a/autotests/folding/highlight.less.fold b/autotests/folding/highlight.less.fold
+deleted file mode 100644
+index b6e9075..0000000
+diff --git a/autotests/folding/highlight.lex.fold b/autotests/folding/highlight.lex.fold
+deleted file mode 100644
+index d2336c7..0000000
+diff --git a/autotests/folding/highlight.lgt.fold b/autotests/folding/highlight.lgt.fold
+deleted file mode 100644
+index c444473..0000000
+diff --git a/autotests/folding/highlight.lhs.fold b/autotests/folding/highlight.lhs.fold
+deleted file mode 100644
+index 9dc52e5..0000000
+diff --git a/autotests/folding/highlight.lisp.fold b/autotests/folding/highlight.lisp.fold
+deleted file mode 100644
+index 5b6bf55..0000000
+diff --git a/autotests/folding/highlight.lua.fold b/autotests/folding/highlight.lua.fold
+deleted file mode 100644
+index 183a258..0000000
+diff --git a/autotests/folding/highlight.ly.fold b/autotests/folding/highlight.ly.fold
+deleted file mode 100644
+index a7e787b..0000000
+diff --git a/autotests/folding/highlight.m.fold b/autotests/folding/highlight.m.fold
+deleted file mode 100644
+index 302659f..0000000
+diff --git a/autotests/folding/highlight.mac.fold b/autotests/folding/highlight.mac.fold
+deleted file mode 100644
+index ad7ee63..0000000
+diff --git a/autotests/folding/highlight.mup.fold b/autotests/folding/highlight.mup.fold
+deleted file mode 100644
+index e9afd19..0000000
+diff --git a/autotests/folding/highlight.pb.fold b/autotests/folding/highlight.pb.fold
+deleted file mode 100644
+index aad9803..0000000
+diff --git a/autotests/folding/highlight.php.fold b/autotests/folding/highlight.php.fold
+deleted file mode 100644
+index d0a5bc8..0000000
+diff --git a/autotests/folding/highlight.pike.fold b/autotests/folding/highlight.pike.fold
+deleted file mode 100644
+index 5c65bae..0000000
+diff --git a/autotests/folding/highlight.pl.fold b/autotests/folding/highlight.pl.fold
+deleted file mode 100644
+index 6845697..0000000
+diff --git a/autotests/folding/highlight.pony.fold b/autotests/folding/highlight.pony.fold
+deleted file mode 100644
+index d89d314..0000000
+diff --git a/autotests/folding/highlight.pov.fold b/autotests/folding/highlight.pov.fold
+deleted file mode 100644
+index 01e848c..0000000
+diff --git a/autotests/folding/highlight.prg.fold b/autotests/folding/highlight.prg.fold
+deleted file mode 100644
+index 9f03189..0000000
+diff --git a/autotests/folding/highlight.qml.fold b/autotests/folding/highlight.qml.fold
+deleted file mode 100644
+index 2494d70..0000000
+diff --git a/autotests/folding/highlight.rb.fold b/autotests/folding/highlight.rb.fold
+deleted file mode 100644
+index 8ae2980..0000000
+diff --git a/autotests/folding/highlight.scad.fold b/autotests/folding/highlight.scad.fold
+deleted file mode 100644
+index 68de2e0..0000000
+diff --git a/autotests/folding/highlight.scheme.fold b/autotests/folding/highlight.scheme.fold
+deleted file mode 100644
+index c42b22f..0000000
+diff --git a/autotests/folding/highlight.scss.fold b/autotests/folding/highlight.scss.fold
+deleted file mode 100644
+index afef111..0000000
+diff --git a/autotests/folding/highlight.sh.fold b/autotests/folding/highlight.sh.fold
+deleted file mode 100644
+index 9f81112..0000000
+diff --git a/autotests/folding/highlight.spec.fold b/autotests/folding/highlight.spec.fold
+deleted file mode 100644
+index 6ed00cf..0000000
+diff --git a/autotests/folding/highlight.stan.fold b/autotests/folding/highlight.stan.fold
+deleted file mode 100644
+index 38bfe01..0000000
+diff --git a/autotests/folding/highlight.t2t.fold b/autotests/folding/highlight.t2t.fold
+deleted file mode 100644
+index 428f204..0000000
+diff --git a/autotests/folding/highlight.tcl.fold b/autotests/folding/highlight.tcl.fold
+deleted file mode 100644
+index 7b6264c..0000000
+diff --git a/autotests/folding/highlight.tex.fold b/autotests/folding/highlight.tex.fold
+deleted file mode 100644
+index 772b210..0000000
+diff --git a/autotests/folding/highlight.tig.fold b/autotests/folding/highlight.tig.fold
+deleted file mode 100644
+index 8f3d99e..0000000
+diff --git a/autotests/folding/highlight.wrl.fold b/autotests/folding/highlight.wrl.fold
+deleted file mode 100644
+index c800b08..0000000
+diff --git a/autotests/folding/highlight.xml.fold b/autotests/folding/highlight.xml.fold
+deleted file mode 100644
+index b120aea..0000000
+diff --git a/autotests/folding/highlight.xsl.fold b/autotests/folding/highlight.xsl.fold
+deleted file mode 100644
+index feea15b..0000000
+diff --git a/autotests/folding/highlight.y.fold b/autotests/folding/highlight.y.fold
+deleted file mode 100644
+index 4f6242b..0000000
+diff --git a/autotests/folding/highlight.yang.fold b/autotests/folding/highlight.yang.fold
+deleted file mode 100644
+index 2de6183..0000000
+diff --git a/autotests/folding/highlight_lpc.c.fold b/autotests/folding/highlight_lpc.c.fold
+deleted file mode 100644
+index 350ce06..0000000
+diff --git a/autotests/folding/highlight_ocaml.ml.fold b/autotests/folding/highlight_ocaml.ml.fold
+deleted file mode 100644
+index 2403ed1..0000000
+diff --git a/autotests/folding/highlight_octave.m.fold b/autotests/folding/highlight_octave.m.fold
+deleted file mode 100644
+index ee3fdbd..0000000
+diff --git a/autotests/folding/learnelixir.exs.fold b/autotests/folding/learnelixir.exs.fold
+deleted file mode 100644
+index 1f51bd1..0000000
+diff --git a/autotests/folding/light52_muldiv.vhdl.fold b/autotests/folding/light52_muldiv.vhdl.fold
+deleted file mode 100644
+index c5d461e..0000000
+diff --git a/autotests/folding/light52_tb.vhdl.fold b/autotests/folding/light52_tb.vhdl.fold
+deleted file mode 100644
+index 17be507..0000000
+diff --git a/autotests/folding/meson.build.fold b/autotests/folding/meson.build.fold
+deleted file mode 100644
+index f20c35b..0000000
+diff --git a/autotests/folding/modelines.py.fold b/autotests/folding/modelines.py.fold
+deleted file mode 100644
+index 9c02779..0000000
+diff --git a/autotests/folding/or1200_dc_fsm.v.fold b/autotests/folding/or1200_dc_fsm.v.fold
+deleted file mode 100644
+index c54fbe7..0000000
+diff --git a/autotests/folding/or1200_du.v.fold b/autotests/folding/or1200_du.v.fold
+deleted file mode 100644
+index 97a6319..0000000
+diff --git a/autotests/folding/preprocessor-bug363280.c.fold b/autotests/folding/preprocessor-bug363280.c.fold
+deleted file mode 100644
+index bf559fb..0000000
+diff --git a/autotests/folding/preprocessor-bug363280.cpp.fold b/autotests/folding/preprocessor-bug363280.cpp.fold
+deleted file mode 100644
+index f9aabcc..0000000
+diff --git a/autotests/folding/review128925-1.css.fold b/autotests/folding/review128925-1.css.fold
+deleted file mode 100644
+index 05621d3..0000000
+diff --git a/autotests/folding/review128925-1.scss.fold b/autotests/folding/review128925-1.scss.fold
+deleted file mode 100644
+index 0b1f50b..0000000
+diff --git a/autotests/folding/review128925-2.css.fold b/autotests/folding/review128925-2.css.fold
+deleted file mode 100644
+index f10e2f0..0000000
+diff --git a/autotests/folding/review128925-2.scss.fold b/autotests/folding/review128925-2.scss.fold
+deleted file mode 100644
+index 056e331..0000000
+diff --git a/autotests/folding/review128935.html.fold b/autotests/folding/review128935.html.fold
+deleted file mode 100644
+index 9a5887a..0000000
+diff --git a/autotests/folding/test-iso.mod.fold b/autotests/folding/test-iso.mod.fold
+deleted file mode 100644
+index 57faabc..0000000
+diff --git a/autotests/folding/test-pim.mod.fold b/autotests/folding/test-pim.mod.fold
+deleted file mode 100644
+index dd152a7..0000000
+diff --git a/autotests/folding/test-r10.mod.fold b/autotests/folding/test-r10.mod.fold
+deleted file mode 100644
+index 7dc2e0d..0000000
+diff --git a/autotests/folding/test.Rd.fold b/autotests/folding/test.Rd.fold
+deleted file mode 100644
+index 77d07c4..0000000
+diff --git a/autotests/folding/test.bash.fold b/autotests/folding/test.bash.fold
+deleted file mode 100644
+index 216f11c..0000000
+diff --git a/autotests/folding/test.bb.fold b/autotests/folding/test.bb.fold
+deleted file mode 100644
+index 98d9089..0000000
+diff --git a/autotests/folding/test.c.fold b/autotests/folding/test.c.fold
+deleted file mode 100644
+index 7b43b2d..0000000
+diff --git a/autotests/folding/test.cil.fold b/autotests/folding/test.cil.fold
+deleted file mode 100644
+index 6ff2ff2..0000000
+diff --git a/autotests/folding/test.coffee.fold b/autotests/folding/test.coffee.fold
+deleted file mode 100644
+index de7ad09..0000000
+diff --git a/autotests/folding/test.css.fold b/autotests/folding/test.css.fold
+deleted file mode 100644
+index 0edd45b..0000000
+diff --git a/autotests/folding/test.desktop.fold b/autotests/folding/test.desktop.fold
+deleted file mode 100644
+index 77db817..0000000
+diff --git a/autotests/folding/test.diff.fold b/autotests/folding/test.diff.fold
+deleted file mode 100644
+index 95ef591..0000000
+diff --git a/autotests/folding/test.eml.fold b/autotests/folding/test.eml.fold
+deleted file mode 100644
+index 1e43110..0000000
+diff --git a/autotests/folding/test.fc.fold b/autotests/folding/test.fc.fold
+deleted file mode 100644
+index 3b90d3c..0000000
+diff --git a/autotests/folding/test.frag.fold b/autotests/folding/test.frag.fold
+deleted file mode 100644
+index a6a7bc1..0000000
+diff --git a/autotests/folding/test.htm.fold b/autotests/folding/test.htm.fold
+deleted file mode 100644
+index 23df023..0000000
+diff --git a/autotests/folding/test.ijs.fold b/autotests/folding/test.ijs.fold
+deleted file mode 100644
+index 7ff269b..0000000
+diff --git a/autotests/folding/test.ini.fold b/autotests/folding/test.ini.fold
+deleted file mode 100644
+index 27d80c8..0000000
+diff --git a/autotests/folding/test.js.fold b/autotests/folding/test.js.fold
+deleted file mode 100644
+index 90eecbf..0000000
+diff --git a/autotests/folding/test.json.fold b/autotests/folding/test.json.fold
+deleted file mode 100644
+index 622ad42..0000000
+diff --git a/autotests/folding/test.jsx.fold b/autotests/folding/test.jsx.fold
+deleted file mode 100644
+index bb0ffe8..0000000
+diff --git a/autotests/folding/test.logcat.fold b/autotests/folding/test.logcat.fold
+deleted file mode 100644
+index 80f0657..0000000
+diff --git a/autotests/folding/test.markdown.fold b/autotests/folding/test.markdown.fold
+deleted file mode 100644
+index 5078865..0000000
+diff --git a/autotests/folding/test.mib.fold b/autotests/folding/test.mib.fold
+deleted file mode 100644
+index aa273c2..0000000
+diff --git a/autotests/folding/test.mm.fold b/autotests/folding/test.mm.fold
+deleted file mode 100644
+index 6c8c39a..0000000
+diff --git a/autotests/folding/test.mod.fold b/autotests/folding/test.mod.fold
+deleted file mode 100644
+index 57faabc..0000000
+diff --git a/autotests/folding/test.mss.fold b/autotests/folding/test.mss.fold
+deleted file mode 100644
+index 49e0b97..0000000
+diff --git a/autotests/folding/test.py.fold b/autotests/folding/test.py.fold
+deleted file mode 100644
+index 8f9cdf4..0000000
+diff --git a/autotests/folding/test.qdocconf.fold b/autotests/folding/test.qdocconf.fold
+deleted file mode 100644
+index 0a382be..0000000
+diff --git a/autotests/folding/test.qml.fold b/autotests/folding/test.qml.fold
+deleted file mode 100644
+index 316ff65..0000000
+diff --git a/autotests/folding/test.rexx.fold b/autotests/folding/test.rexx.fold
+deleted file mode 100644
+index 378f8b7..0000000
+diff --git a/autotests/folding/test.rs.fold b/autotests/folding/test.rs.fold
+deleted file mode 100644
+index 7e43837..0000000
+diff --git a/autotests/folding/test.sieve.fold b/autotests/folding/test.sieve.fold
+deleted file mode 100644
+index c3344eb..0000000
+diff --git a/autotests/folding/test.sql.fold b/autotests/folding/test.sql.fold
+deleted file mode 100644
+index b76fae2..0000000
+diff --git a/autotests/folding/test.sql_oracle.fold b/autotests/folding/test.sql_oracle.fold
+deleted file mode 100644
+index e123cdf..0000000
+diff --git a/autotests/folding/test.te.fold b/autotests/folding/test.te.fold
+deleted file mode 100644
+index e266975..0000000
+diff --git a/autotests/folding/test.tex.fold b/autotests/folding/test.tex.fold
+deleted file mode 100644
+index 8da60c9..0000000
+diff --git a/autotests/folding/test.yaml.fold b/autotests/folding/test.yaml.fold
+deleted file mode 100644
+index e044140..0000000
+diff --git a/autotests/folding/test.zsh.fold b/autotests/folding/test.zsh.fold
+deleted file mode 100644
+index 924d798..0000000
+diff --git a/autotests/folding/usr.bin.apparmor-profile-test.fold b/autotests/folding/usr.bin.apparmor-profile-test.fold
+deleted file mode 100644
+index 64deede..0000000
+diff --git a/autotests/foldingtest.cpp b/autotests/foldingtest.cpp
+deleted file mode 100644
+index 5d10166..0000000
+diff --git a/autotests/highlighter_benchmark.cpp b/autotests/highlighter_benchmark.cpp
+deleted file mode 100644
+index 0b945ff..0000000
+diff --git a/autotests/html/Dockerfile.html b/autotests/html/Dockerfile.html
+deleted file mode 100644
+index ef324f6..0000000
+diff --git a/autotests/html/Doxyfile.example.html b/autotests/html/Doxyfile.example.html
+deleted file mode 100644
+index 0f2a6a5..0000000
+diff --git a/autotests/html/Kconfig.html b/autotests/html/Kconfig.html
+deleted file mode 100644
+index ab4ca14..0000000
+diff --git a/autotests/html/Makefile.html b/autotests/html/Makefile.html
+deleted file mode 100644
+index 801c14a..0000000
+diff --git a/autotests/html/adblock.txt.html b/autotests/html/adblock.txt.html
+deleted file mode 100644
+index 04dc5d1..0000000
+diff --git a/autotests/html/apache.conf.html b/autotests/html/apache.conf.html
+deleted file mode 100644
+index 50f254c..0000000
+diff --git a/autotests/html/basic.markdown.html b/autotests/html/basic.markdown.html
+deleted file mode 100644
+index 8ee1f19..0000000
+diff --git a/autotests/html/basic.xml.html b/autotests/html/basic.xml.html
+deleted file mode 100644
+index 770b081..0000000
+diff --git a/autotests/html/build.gradle.html b/autotests/html/build.gradle.html
+deleted file mode 100644
+index 5f0e056..0000000
+diff --git a/autotests/html/clojure.clj.html b/autotests/html/clojure.clj.html
+deleted file mode 100644
+index 548e3ea..0000000
+diff --git a/autotests/html/complex.xml.html b/autotests/html/complex.xml.html
+deleted file mode 100644
+index 117029d..0000000
+diff --git a/autotests/html/craftenv.ps1.html b/autotests/html/craftenv.ps1.html
+deleted file mode 100644
+index cfdf0e2..0000000
+diff --git a/autotests/html/csharp.cs.html b/autotests/html/csharp.cs.html
+deleted file mode 100644
+index fb4b469..0000000
+diff --git a/autotests/html/cube.obj.html b/autotests/html/cube.obj.html
+deleted file mode 100644
+index 6ecd1df..0000000
+diff --git a/autotests/html/cube.ply.html b/autotests/html/cube.ply.html
+deleted file mode 100644
+index 39d9102..0000000
+diff --git a/autotests/html/cube.stl.html b/autotests/html/cube.stl.html
+deleted file mode 100644
+index 0a23eab..0000000
+diff --git a/autotests/html/example.rmd.html b/autotests/html/example.rmd.html
+deleted file mode 100644
+index 9d7b639..0000000
+diff --git a/autotests/html/firstNonSpace.c.html b/autotests/html/firstNonSpace.c.html
+deleted file mode 100644
+index 55e02dd..0000000
+diff --git a/autotests/html/folding.cpp.html b/autotests/html/folding.cpp.html
+deleted file mode 100644
+index a920612..0000000
+diff --git a/autotests/html/git-rebase.html b/autotests/html/git-rebase.html
+deleted file mode 100644
+index 17d6da9..0000000
+diff --git a/autotests/html/hello.exs.html b/autotests/html/hello.exs.html
+deleted file mode 100644
+index 43d76a5..0000000
+diff --git a/autotests/html/highlight.ahdl.html b/autotests/html/highlight.ahdl.html
+deleted file mode 100644
+index b833298..0000000
+diff --git a/autotests/html/highlight.asm-avr.html b/autotests/html/highlight.asm-avr.html
+deleted file mode 100644
+index 867894e..0000000
+diff --git a/autotests/html/highlight.asm-nasm.html b/autotests/html/highlight.asm-nasm.html
+deleted file mode 100644
+index 6ae4028..0000000
+diff --git a/autotests/html/highlight.asp.html b/autotests/html/highlight.asp.html
+deleted file mode 100644
+index 85a1bba..0000000
+diff --git a/autotests/html/highlight.awk.html b/autotests/html/highlight.awk.html
+deleted file mode 100644
+index d92268a..0000000
+diff --git a/autotests/html/highlight.bib.html b/autotests/html/highlight.bib.html
+deleted file mode 100644
+index 48cc672..0000000
+diff --git a/autotests/html/highlight.bt.html b/autotests/html/highlight.bt.html
+deleted file mode 100644
+index dca943a..0000000
+diff --git a/autotests/html/highlight.cmake.html b/autotests/html/highlight.cmake.html
+deleted file mode 100644
+index a70c5ad..0000000
+diff --git a/autotests/html/highlight.cpp.html b/autotests/html/highlight.cpp.html
+deleted file mode 100644
+index 07be9db..0000000
+diff --git a/autotests/html/highlight.css.html b/autotests/html/highlight.css.html
+deleted file mode 100644
+index a3efe69..0000000
+diff --git a/autotests/html/highlight.d.html b/autotests/html/highlight.d.html
+deleted file mode 100644
+index 5e97d7b..0000000
+diff --git a/autotests/html/highlight.do.html b/autotests/html/highlight.do.html
+deleted file mode 100644
+index 40ac67d..0000000
+diff --git a/autotests/html/highlight.dox.html b/autotests/html/highlight.dox.html
+deleted file mode 100644
+index 990dc60..0000000
+diff --git a/autotests/html/highlight.erl.html b/autotests/html/highlight.erl.html
+deleted file mode 100644
+index 8424c84..0000000
+diff --git a/autotests/html/highlight.exu.html b/autotests/html/highlight.exu.html
+deleted file mode 100644
+index 5631898..0000000
+diff --git a/autotests/html/highlight.f90.html b/autotests/html/highlight.f90.html
+deleted file mode 100644
+index 897b853..0000000
+diff --git a/autotests/html/highlight.gdb.html b/autotests/html/highlight.gdb.html
+deleted file mode 100644
+index 5341b3c..0000000
+diff --git a/autotests/html/highlight.gdbinit.html b/autotests/html/highlight.gdbinit.html
+deleted file mode 100644
+index 84f3083..0000000
+diff --git a/autotests/html/highlight.glsl.html b/autotests/html/highlight.glsl.html
+deleted file mode 100644
+index bb22782..0000000
+diff --git a/autotests/html/highlight.hex.html b/autotests/html/highlight.hex.html
+deleted file mode 100644
+index b43e169..0000000
+diff --git a/autotests/html/highlight.hs.html b/autotests/html/highlight.hs.html
+deleted file mode 100644
+index b0ae90c..0000000
+diff --git a/autotests/html/highlight.java.html b/autotests/html/highlight.java.html
+deleted file mode 100644
+index e2b38e2..0000000
+diff --git a/autotests/html/highlight.js.html b/autotests/html/highlight.js.html
+deleted file mode 100644
+index 9c0f8d3..0000000
+diff --git a/autotests/html/highlight.jsp.html b/autotests/html/highlight.jsp.html
+deleted file mode 100644
+index 919297f..0000000
+diff --git a/autotests/html/highlight.less.html b/autotests/html/highlight.less.html
+deleted file mode 100644
+index 1491037..0000000
+diff --git a/autotests/html/highlight.lex.html b/autotests/html/highlight.lex.html
+deleted file mode 100644
+index dc1a884..0000000
+diff --git a/autotests/html/highlight.lgt.html b/autotests/html/highlight.lgt.html
+deleted file mode 100644
+index 5edceb3..0000000
+diff --git a/autotests/html/highlight.lhs.html b/autotests/html/highlight.lhs.html
+deleted file mode 100644
+index 086360e..0000000
+diff --git a/autotests/html/highlight.lisp.html b/autotests/html/highlight.lisp.html
+deleted file mode 100644
+index 6d59f6b..0000000
+diff --git a/autotests/html/highlight.lua.html b/autotests/html/highlight.lua.html
+deleted file mode 100644
+index 6ea0df4..0000000
+diff --git a/autotests/html/highlight.ly.html b/autotests/html/highlight.ly.html
+deleted file mode 100644
+index 3eafd4b..0000000
+diff --git a/autotests/html/highlight.m.html b/autotests/html/highlight.m.html
+deleted file mode 100644
+index 3296705..0000000
+diff --git a/autotests/html/highlight.mac.html b/autotests/html/highlight.mac.html
+deleted file mode 100644
+index 62a6068..0000000
+diff --git a/autotests/html/highlight.mup.html b/autotests/html/highlight.mup.html
+deleted file mode 100644
+index 48c6a3b..0000000
+diff --git a/autotests/html/highlight.pb.html b/autotests/html/highlight.pb.html
+deleted file mode 100644
+index 09a3ee8..0000000
+diff --git a/autotests/html/highlight.php.html b/autotests/html/highlight.php.html
+deleted file mode 100644
+index 08cf9ad..0000000
+diff --git a/autotests/html/highlight.pike.html b/autotests/html/highlight.pike.html
+deleted file mode 100644
+index 7f63985..0000000
+diff --git a/autotests/html/highlight.pl.html b/autotests/html/highlight.pl.html
+deleted file mode 100644
+index 4e31dda..0000000
+diff --git a/autotests/html/highlight.pony.html b/autotests/html/highlight.pony.html
+deleted file mode 100644
+index 97ae59d..0000000
+diff --git a/autotests/html/highlight.pov.html b/autotests/html/highlight.pov.html
+deleted file mode 100644
+index e566558..0000000
+diff --git a/autotests/html/highlight.prg.html b/autotests/html/highlight.prg.html
+deleted file mode 100644
+index cc6f18a..0000000
+diff --git a/autotests/html/highlight.qml.html b/autotests/html/highlight.qml.html
+deleted file mode 100644
+index e74d91c..0000000
+diff --git a/autotests/html/highlight.rb.html b/autotests/html/highlight.rb.html
+deleted file mode 100644
+index 8e2bb99..0000000
+diff --git a/autotests/html/highlight.scad.html b/autotests/html/highlight.scad.html
+deleted file mode 100644
+index 31a7b10..0000000
+diff --git a/autotests/html/highlight.scheme.html b/autotests/html/highlight.scheme.html
+deleted file mode 100644
+index a561179..0000000
+diff --git a/autotests/html/highlight.scss.html b/autotests/html/highlight.scss.html
+deleted file mode 100644
+index ec36e31..0000000
+diff --git a/autotests/html/highlight.sh.html b/autotests/html/highlight.sh.html
+deleted file mode 100644
+index b661a14..0000000
+diff --git a/autotests/html/highlight.spec.html b/autotests/html/highlight.spec.html
+deleted file mode 100644
+index 459655b..0000000
+diff --git a/autotests/html/highlight.stan.html b/autotests/html/highlight.stan.html
+deleted file mode 100644
+index 44f7274..0000000
+diff --git a/autotests/html/highlight.t2t.html b/autotests/html/highlight.t2t.html
+deleted file mode 100644
+index 044837e..0000000
+diff --git a/autotests/html/highlight.tcl.html b/autotests/html/highlight.tcl.html
+deleted file mode 100644
+index cda9499..0000000
+diff --git a/autotests/html/highlight.tex.html b/autotests/html/highlight.tex.html
+deleted file mode 100644
+index f277153..0000000
+diff --git a/autotests/html/highlight.tig.html b/autotests/html/highlight.tig.html
+deleted file mode 100644
+index ea1b29e..0000000
+diff --git a/autotests/html/highlight.wrl.html b/autotests/html/highlight.wrl.html
+deleted file mode 100644
+index 4ddc08f..0000000
+diff --git a/autotests/html/highlight.xml.html b/autotests/html/highlight.xml.html
+deleted file mode 100644
+index cccbe3b..0000000
+diff --git a/autotests/html/highlight.xsl.html b/autotests/html/highlight.xsl.html
+deleted file mode 100644
+index 44208fb..0000000
+diff --git a/autotests/html/highlight.y.html b/autotests/html/highlight.y.html
+deleted file mode 100644
+index a11c230..0000000
+diff --git a/autotests/html/highlight.yang.html b/autotests/html/highlight.yang.html
+deleted file mode 100644
+index 0be31a1..0000000
+diff --git a/autotests/html/highlight_lpc.c.html b/autotests/html/highlight_lpc.c.html
+deleted file mode 100644
+index 2ac3653..0000000
+diff --git a/autotests/html/highlight_ocaml.ml.html b/autotests/html/highlight_ocaml.ml.html
+deleted file mode 100644
+index 0e85e63..0000000
+diff --git a/autotests/html/highlight_octave.m.html b/autotests/html/highlight_octave.m.html
+deleted file mode 100644
+index 25d8cd8..0000000
+diff --git a/autotests/html/learnelixir.exs.html b/autotests/html/learnelixir.exs.html
+deleted file mode 100644
+index 9c0a390..0000000
+diff --git a/autotests/html/light52_muldiv.vhdl.html b/autotests/html/light52_muldiv.vhdl.html
+deleted file mode 100644
+index e5e27d3..0000000
+diff --git a/autotests/html/light52_tb.vhdl.html b/autotests/html/light52_tb.vhdl.html
+deleted file mode 100644
+index 8e73226..0000000
+diff --git a/autotests/html/meson.build.html b/autotests/html/meson.build.html
+deleted file mode 100644
+index 66e7942..0000000
+diff --git a/autotests/html/modelines.py.html b/autotests/html/modelines.py.html
+deleted file mode 100644
+index 0b3feff..0000000
+diff --git a/autotests/html/or1200_dc_fsm.v.html b/autotests/html/or1200_dc_fsm.v.html
+deleted file mode 100644
+index 7f26b75..0000000
+diff --git a/autotests/html/or1200_du.v.html b/autotests/html/or1200_du.v.html
+deleted file mode 100644
+index daf06ab..0000000
+diff --git a/autotests/html/preprocessor-bug363280.c.html b/autotests/html/preprocessor-bug363280.c.html
+deleted file mode 100644
+index e7b930b..0000000
+diff --git a/autotests/html/preprocessor-bug363280.cpp.html b/autotests/html/preprocessor-bug363280.cpp.html
+deleted file mode 100644
+index 1cdb7cc..0000000
+diff --git a/autotests/html/review128925-1.css.html b/autotests/html/review128925-1.css.html
+deleted file mode 100644
+index 192353d..0000000
+diff --git a/autotests/html/review128925-1.scss.html b/autotests/html/review128925-1.scss.html
+deleted file mode 100644
+index 79db0f9..0000000
+diff --git a/autotests/html/review128925-2.css.html b/autotests/html/review128925-2.css.html
+deleted file mode 100644
+index f519726..0000000
+diff --git a/autotests/html/review128925-2.scss.html b/autotests/html/review128925-2.scss.html
+deleted file mode 100644
+index 3c6d98e..0000000
+diff --git a/autotests/html/review128935.html.html b/autotests/html/review128935.html.html
+deleted file mode 100644
+index 4e59fc3..0000000
+diff --git a/autotests/html/test-iso.mod.html b/autotests/html/test-iso.mod.html
+deleted file mode 100644
+index e931d2c..0000000
+diff --git a/autotests/html/test-pim.mod.html b/autotests/html/test-pim.mod.html
+deleted file mode 100644
+index 38457df..0000000
+diff --git a/autotests/html/test-r10.mod.html b/autotests/html/test-r10.mod.html
+deleted file mode 100644
+index b35222f..0000000
+diff --git a/autotests/html/test.Rd.html b/autotests/html/test.Rd.html
+deleted file mode 100644
+index de292d6..0000000
+diff --git a/autotests/html/test.bash.html b/autotests/html/test.bash.html
+deleted file mode 100644
+index 161a975..0000000
+diff --git a/autotests/html/test.bb.html b/autotests/html/test.bb.html
+deleted file mode 100644
+index 9be6849..0000000
+diff --git a/autotests/html/test.c.html b/autotests/html/test.c.html
+deleted file mode 100644
+index 06d8a22..0000000
+diff --git a/autotests/html/test.cil.html b/autotests/html/test.cil.html
+deleted file mode 100644
+index ef2aa91..0000000
+diff --git a/autotests/html/test.coffee.html b/autotests/html/test.coffee.html
+deleted file mode 100644
+index 6fe3b4d..0000000
+diff --git a/autotests/html/test.css.html b/autotests/html/test.css.html
+deleted file mode 100644
+index b08cd84..0000000
+diff --git a/autotests/html/test.desktop.html b/autotests/html/test.desktop.html
+deleted file mode 100644
+index 66cdb27..0000000
+diff --git a/autotests/html/test.diff.html b/autotests/html/test.diff.html
+deleted file mode 100644
+index 8aa506d..0000000
+diff --git a/autotests/html/test.eml.html b/autotests/html/test.eml.html
+deleted file mode 100644
+index 7231c81..0000000
+diff --git a/autotests/html/test.fc.html b/autotests/html/test.fc.html
+deleted file mode 100644
+index 7302ed7..0000000
+diff --git a/autotests/html/test.frag.html b/autotests/html/test.frag.html
+deleted file mode 100644
+index 9ad3654..0000000
+diff --git a/autotests/html/test.htm.html b/autotests/html/test.htm.html
+deleted file mode 100644
+index 4c5eca5..0000000
+diff --git a/autotests/html/test.ijs.html b/autotests/html/test.ijs.html
+deleted file mode 100644
+index b9b91dd..0000000
+diff --git a/autotests/html/test.ini.html b/autotests/html/test.ini.html
+deleted file mode 100644
+index e834c8a..0000000
+diff --git a/autotests/html/test.js.html b/autotests/html/test.js.html
+deleted file mode 100644
+index fb47bde..0000000
+diff --git a/autotests/html/test.json.html b/autotests/html/test.json.html
+deleted file mode 100644
+index 1c3ec27..0000000
+diff --git a/autotests/html/test.jsx.html b/autotests/html/test.jsx.html
+deleted file mode 100644
+index 4af3ffa..0000000
+diff --git a/autotests/html/test.logcat.html b/autotests/html/test.logcat.html
+deleted file mode 100644
+index 2b2f6ee..0000000
+diff --git a/autotests/html/test.markdown.html b/autotests/html/test.markdown.html
+deleted file mode 100644
+index 2a6f8d7..0000000
+diff --git a/autotests/html/test.mib.html b/autotests/html/test.mib.html
+deleted file mode 100644
+index 30c2806..0000000
+diff --git a/autotests/html/test.mm.html b/autotests/html/test.mm.html
+deleted file mode 100644
+index 8ae2f11..0000000
+diff --git a/autotests/html/test.mod.html b/autotests/html/test.mod.html
+deleted file mode 100644
+index c03fea4..0000000
+diff --git a/autotests/html/test.mss.html b/autotests/html/test.mss.html
+deleted file mode 100644
+index 47b6292..0000000
+diff --git a/autotests/html/test.py.html b/autotests/html/test.py.html
+deleted file mode 100644
+index 0420ef4..0000000
+diff --git a/autotests/html/test.qdocconf.html b/autotests/html/test.qdocconf.html
+deleted file mode 100644
+index 3a000d5..0000000
+diff --git a/autotests/html/test.qml.html b/autotests/html/test.qml.html
+deleted file mode 100644
+index 39cc95d..0000000
+diff --git a/autotests/html/test.rexx.html b/autotests/html/test.rexx.html
+deleted file mode 100644
+index d528f24..0000000
+diff --git a/autotests/html/test.rs.html b/autotests/html/test.rs.html
+deleted file mode 100644
+index dd4da52..0000000
+diff --git a/autotests/html/test.sieve.html b/autotests/html/test.sieve.html
+deleted file mode 100644
+index f619d21..0000000
+diff --git a/autotests/html/test.sql.html b/autotests/html/test.sql.html
+deleted file mode 100644
+index 91e2ff4..0000000
+diff --git a/autotests/html/test.sql_oracle.html b/autotests/html/test.sql_oracle.html
+deleted file mode 100644
+index 72486e3..0000000
+diff --git a/autotests/html/test.te.html b/autotests/html/test.te.html
+deleted file mode 100644
+index 88dac5e..0000000
+diff --git a/autotests/html/test.tex.html b/autotests/html/test.tex.html
+deleted file mode 100644
+index e3ab47c..0000000
+diff --git a/autotests/html/test.yaml.html b/autotests/html/test.yaml.html
+deleted file mode 100644
+index 94c5d71..0000000
+diff --git a/autotests/html/test.zsh.html b/autotests/html/test.zsh.html
+deleted file mode 100644
+index 12683d7..0000000
+diff --git a/autotests/html/usr.bin.apparmor-profile-test.html b/autotests/html/usr.bin.apparmor-profile-test.html
+deleted file mode 100644
+index 4e2a486..0000000
+diff --git a/autotests/htmlhighlighter_test.cpp b/autotests/htmlhighlighter_test.cpp
+deleted file mode 100644
+index f7cc30a..0000000
+diff --git a/autotests/input/Dockerfile b/autotests/input/Dockerfile
+deleted file mode 100644
+index 95a81d3..0000000
+diff --git a/autotests/input/Doxyfile.example b/autotests/input/Doxyfile.example
+deleted file mode 100644
+index ef39bfc..0000000
+diff --git a/autotests/input/Kconfig b/autotests/input/Kconfig
+deleted file mode 100644
+index 5ebfaf4..0000000
+diff --git a/autotests/input/Makefile b/autotests/input/Makefile
+deleted file mode 100644
+index 05e4590..0000000
+diff --git a/autotests/input/adblock.txt b/autotests/input/adblock.txt
+deleted file mode 100644
+index 7ad85dd..0000000
+diff --git a/autotests/input/adblock.txt.syntax b/autotests/input/adblock.txt.syntax
+deleted file mode 100644
+index 0ce0446..0000000
+diff --git a/autotests/input/apache.conf b/autotests/input/apache.conf
+deleted file mode 100644
+index 2afa0be..0000000
+diff --git a/autotests/input/apache.conf.syntax b/autotests/input/apache.conf.syntax
+deleted file mode 100644
+index eab529d..0000000
+diff --git a/autotests/input/basic.markdown b/autotests/input/basic.markdown
+deleted file mode 100644
+index f9a5bb3..0000000
+diff --git a/autotests/input/basic.xml b/autotests/input/basic.xml
+deleted file mode 100644
+index 20feae1..0000000
+diff --git a/autotests/input/build.gradle b/autotests/input/build.gradle
+deleted file mode 100644
+index 3ad9096..0000000
+diff --git a/autotests/input/clojure.clj b/autotests/input/clojure.clj
+deleted file mode 100644
+index b2f3768..0000000
+diff --git a/autotests/input/complex.xml b/autotests/input/complex.xml
+deleted file mode 100644
+index d738998..0000000
+diff --git a/autotests/input/craftenv.ps1 b/autotests/input/craftenv.ps1
+deleted file mode 100644
+index a58dfee..0000000
+diff --git a/autotests/input/csharp.cs b/autotests/input/csharp.cs
+deleted file mode 100644
+index 8a91459..0000000
+diff --git a/autotests/input/cube.obj b/autotests/input/cube.obj
+deleted file mode 100644
+index ef06c98..0000000
+diff --git a/autotests/input/cube.ply b/autotests/input/cube.ply
+deleted file mode 100644
+index 08d5f89..0000000
+diff --git a/autotests/input/cube.stl b/autotests/input/cube.stl
+deleted file mode 100644
+index ae74fd9..0000000
+diff --git a/autotests/input/example.rmd b/autotests/input/example.rmd
+deleted file mode 100644
+index ef9a33e..0000000
+diff --git a/autotests/input/firstNonSpace.c b/autotests/input/firstNonSpace.c
+deleted file mode 100644
+index 570ba90..0000000
+diff --git a/autotests/input/folding.cpp b/autotests/input/folding.cpp
+deleted file mode 100644
+index 9e26b3f..0000000
+diff --git a/autotests/input/git-rebase b/autotests/input/git-rebase
+deleted file mode 100644
+index 43041bb..0000000
+diff --git a/autotests/input/git-rebase.syntax b/autotests/input/git-rebase.syntax
+deleted file mode 100644
+index abf0034..0000000
+diff --git a/autotests/input/hello.exs b/autotests/input/hello.exs
+deleted file mode 100644
+index cca72a1..0000000
+diff --git a/autotests/input/highlight.ahdl b/autotests/input/highlight.ahdl
+deleted file mode 100644
+index e059aa8..0000000
+diff --git a/autotests/input/highlight.asm-avr b/autotests/input/highlight.asm-avr
+deleted file mode 100644
+index f1e0542..0000000
+diff --git a/autotests/input/highlight.asm-nasm b/autotests/input/highlight.asm-nasm
+deleted file mode 100644
+index a5da4d1..0000000
+diff --git a/autotests/input/highlight.asm-nasm.syntax b/autotests/input/highlight.asm-nasm.syntax
+deleted file mode 100644
+index 67140d2..0000000
+diff --git a/autotests/input/highlight.asp b/autotests/input/highlight.asp
+deleted file mode 100644
+index 07a8619..0000000
+diff --git a/autotests/input/highlight.awk b/autotests/input/highlight.awk
+deleted file mode 100644
+index a80c86a..0000000
+diff --git a/autotests/input/highlight.bib b/autotests/input/highlight.bib
+deleted file mode 100644
+index 0ae404c..0000000
+diff --git a/autotests/input/highlight.bt b/autotests/input/highlight.bt
+deleted file mode 100644
+index 51d2075..0000000
+diff --git a/autotests/input/highlight.cmake b/autotests/input/highlight.cmake
+deleted file mode 100644
+index b8a1842..0000000
+diff --git a/autotests/input/highlight.cpp b/autotests/input/highlight.cpp
+deleted file mode 100644
+index f293064..0000000
+diff --git a/autotests/input/highlight.css b/autotests/input/highlight.css
+deleted file mode 100644
+index 7a5ea67..0000000
+diff --git a/autotests/input/highlight.d b/autotests/input/highlight.d
+deleted file mode 100644
+index b3daaf6..0000000
+diff --git a/autotests/input/highlight.do b/autotests/input/highlight.do
+deleted file mode 100644
+index 0b90b16..0000000
+diff --git a/autotests/input/highlight.dox b/autotests/input/highlight.dox
+deleted file mode 100644
+index 39b404f..0000000
+diff --git a/autotests/input/highlight.erl b/autotests/input/highlight.erl
+deleted file mode 100644
+index 5b485cb..0000000
+diff --git a/autotests/input/highlight.exu b/autotests/input/highlight.exu
+deleted file mode 100644
+index 3651adf..0000000
+diff --git a/autotests/input/highlight.f90 b/autotests/input/highlight.f90
+deleted file mode 100644
+index e2008c2..0000000
+diff --git a/autotests/input/highlight.gdb b/autotests/input/highlight.gdb
+deleted file mode 100644
+index a4b6459..0000000
+diff --git a/autotests/input/highlight.gdbinit b/autotests/input/highlight.gdbinit
+deleted file mode 100644
+index d33f9ea..0000000
+diff --git a/autotests/input/highlight.glsl b/autotests/input/highlight.glsl
+deleted file mode 100644
+index 3495757..0000000
+diff --git a/autotests/input/highlight.hex b/autotests/input/highlight.hex
+deleted file mode 100644
+index 7c3f3ea..0000000
+diff --git a/autotests/input/highlight.hs b/autotests/input/highlight.hs
+deleted file mode 100644
+index 8c0b145..0000000
+diff --git a/autotests/input/highlight.java b/autotests/input/highlight.java
+deleted file mode 100644
+index c807d64..0000000
+diff --git a/autotests/input/highlight.js b/autotests/input/highlight.js
+deleted file mode 100644
+index d0e7533..0000000
+diff --git a/autotests/input/highlight.jsp b/autotests/input/highlight.jsp
+deleted file mode 100644
+index d912836..0000000
+diff --git a/autotests/input/highlight.less b/autotests/input/highlight.less
+deleted file mode 100644
+index e178263..0000000
+diff --git a/autotests/input/highlight.lex b/autotests/input/highlight.lex
+deleted file mode 100644
+index 33527bd..0000000
+diff --git a/autotests/input/highlight.lgt b/autotests/input/highlight.lgt
+deleted file mode 100644
+index d39b45c..0000000
+diff --git a/autotests/input/highlight.lhs b/autotests/input/highlight.lhs
+deleted file mode 100644
+index 9dc52e5..0000000
+diff --git a/autotests/input/highlight.lisp b/autotests/input/highlight.lisp
+deleted file mode 100644
+index e86c85f..0000000
+diff --git a/autotests/input/highlight.lua b/autotests/input/highlight.lua
+deleted file mode 100644
+index 85ac95d..0000000
+diff --git a/autotests/input/highlight.ly b/autotests/input/highlight.ly
+deleted file mode 100644
+index 29aa7a6..0000000
+diff --git a/autotests/input/highlight.m b/autotests/input/highlight.m
+deleted file mode 100644
+index f240138..0000000
+diff --git a/autotests/input/highlight.m.syntax b/autotests/input/highlight.m.syntax
+deleted file mode 100644
+index d22d99a..0000000
+diff --git a/autotests/input/highlight.mac b/autotests/input/highlight.mac
+deleted file mode 100644
+index cb9da2d..0000000
+diff --git a/autotests/input/highlight.mup b/autotests/input/highlight.mup
+deleted file mode 100644
+index ed5a03d..0000000
+diff --git a/autotests/input/highlight.pb b/autotests/input/highlight.pb
+deleted file mode 100644
+index 5560233..0000000
+diff --git a/autotests/input/highlight.php b/autotests/input/highlight.php
+deleted file mode 100644
+index bb50951..0000000
+diff --git a/autotests/input/highlight.pike b/autotests/input/highlight.pike
+deleted file mode 100644
+index 2f63144..0000000
+diff --git a/autotests/input/highlight.pl b/autotests/input/highlight.pl
+deleted file mode 100644
+index 7d15d24..0000000
+diff --git a/autotests/input/highlight.pony b/autotests/input/highlight.pony
+deleted file mode 100644
+index aefa3b7..0000000
+diff --git a/autotests/input/highlight.pov b/autotests/input/highlight.pov
+deleted file mode 100644
+index 0bb3077..0000000
+diff --git a/autotests/input/highlight.prg b/autotests/input/highlight.prg
+deleted file mode 100644
+index 713c605..0000000
+diff --git a/autotests/input/highlight.prg.syntax b/autotests/input/highlight.prg.syntax
+deleted file mode 100644
+index 3355ff8..0000000
+diff --git a/autotests/input/highlight.qml b/autotests/input/highlight.qml
+deleted file mode 100644
+index b860512..0000000
+diff --git a/autotests/input/highlight.rb b/autotests/input/highlight.rb
+deleted file mode 100644
+index 2e52e5f..0000000
+diff --git a/autotests/input/highlight.scad b/autotests/input/highlight.scad
+deleted file mode 100644
+index 3ca4ec3..0000000
+diff --git a/autotests/input/highlight.scheme b/autotests/input/highlight.scheme
+deleted file mode 100644
+index 08c7351..0000000
+diff --git a/autotests/input/highlight.scss b/autotests/input/highlight.scss
+deleted file mode 100644
+index 11a4028..0000000
+diff --git a/autotests/input/highlight.sh b/autotests/input/highlight.sh
+deleted file mode 100644
+index a354757..0000000
+diff --git a/autotests/input/highlight.sh.syntax b/autotests/input/highlight.sh.syntax
+deleted file mode 100644
+index 5b85af9..0000000
+diff --git a/autotests/input/highlight.spec b/autotests/input/highlight.spec
+deleted file mode 100644
+index bc3b95b..0000000
+diff --git a/autotests/input/highlight.stan b/autotests/input/highlight.stan
+deleted file mode 100644
+index a71c231..0000000
+diff --git a/autotests/input/highlight.t2t b/autotests/input/highlight.t2t
+deleted file mode 100644
+index 5b5f379..0000000
+diff --git a/autotests/input/highlight.tcl b/autotests/input/highlight.tcl
+deleted file mode 100644
+index d6b7276..0000000
+diff --git a/autotests/input/highlight.tex b/autotests/input/highlight.tex
+deleted file mode 100644
+index 34c0890..0000000
+diff --git a/autotests/input/highlight.tig b/autotests/input/highlight.tig
+deleted file mode 100644
+index 893cbfe..0000000
+diff --git a/autotests/input/highlight.wrl b/autotests/input/highlight.wrl
+deleted file mode 100644
+index 2fb4b41..0000000
+diff --git a/autotests/input/highlight.xml b/autotests/input/highlight.xml
+deleted file mode 100644
+index 007449c..0000000
+diff --git a/autotests/input/highlight.xsl b/autotests/input/highlight.xsl
+deleted file mode 100644
+index f6e0efb..0000000
+diff --git a/autotests/input/highlight.y b/autotests/input/highlight.y
+deleted file mode 100644
+index df42a54..0000000
+diff --git a/autotests/input/highlight.yang b/autotests/input/highlight.yang
+deleted file mode 100644
+index bd95152..0000000
+diff --git a/autotests/input/highlight_lpc.c b/autotests/input/highlight_lpc.c
+deleted file mode 100644
+index fe5c629..0000000
+diff --git a/autotests/input/highlight_lpc.c.syntax b/autotests/input/highlight_lpc.c.syntax
+deleted file mode 100644
+index 2016d4f..0000000
+diff --git a/autotests/input/highlight_ocaml.ml b/autotests/input/highlight_ocaml.ml
+deleted file mode 100644
+index dc1717a..0000000
+diff --git a/autotests/input/highlight_octave.m b/autotests/input/highlight_octave.m
+deleted file mode 100644
+index 1f96036..0000000
+diff --git a/autotests/input/highlight_octave.m.syntax b/autotests/input/highlight_octave.m.syntax
+deleted file mode 100644
+index 65d755f..0000000
+diff --git a/autotests/input/learnelixir.exs b/autotests/input/learnelixir.exs
+deleted file mode 100644
+index 1f51bd1..0000000
+diff --git a/autotests/input/light52_muldiv.vhdl b/autotests/input/light52_muldiv.vhdl
+deleted file mode 100644
+index 723f154..0000000
+diff --git a/autotests/input/light52_tb.vhdl b/autotests/input/light52_tb.vhdl
+deleted file mode 100644
+index c110c5a..0000000
+diff --git a/autotests/input/meson.build b/autotests/input/meson.build
+deleted file mode 100644
+index d6dd6e6..0000000
+diff --git a/autotests/input/modelines.py b/autotests/input/modelines.py
+deleted file mode 100644
+index cd624ea..0000000
+diff --git a/autotests/input/or1200_dc_fsm.v b/autotests/input/or1200_dc_fsm.v
+deleted file mode 100644
+index e3d80ec..0000000
+diff --git a/autotests/input/or1200_du.v b/autotests/input/or1200_du.v
+deleted file mode 100644
+index dbd3614..0000000
+diff --git a/autotests/input/preprocessor-bug363280.c b/autotests/input/preprocessor-bug363280.c
+deleted file mode 100644
+index 9908bf7..0000000
+diff --git a/autotests/input/preprocessor-bug363280.cpp b/autotests/input/preprocessor-bug363280.cpp
+deleted file mode 100644
+index 9908bf7..0000000
+diff --git a/autotests/input/review128925-1.css b/autotests/input/review128925-1.css
+deleted file mode 100644
+index b61b616..0000000
+diff --git a/autotests/input/review128925-1.scss b/autotests/input/review128925-1.scss
+deleted file mode 100644
+index 6aa1da6..0000000
+diff --git a/autotests/input/review128925-2.css b/autotests/input/review128925-2.css
+deleted file mode 100644
+index 05c20a8..0000000
+diff --git a/autotests/input/review128925-2.scss b/autotests/input/review128925-2.scss
+deleted file mode 100644
+index c71fe3b..0000000
+diff --git a/autotests/input/review128935.html b/autotests/input/review128935.html
+deleted file mode 100644
+index f373235..0000000
+diff --git a/autotests/input/syntax/testlang.xml b/autotests/input/syntax/testlang.xml
+deleted file mode 100644
+index 0a1f9ba..0000000
+diff --git a/autotests/input/test-iso.mod b/autotests/input/test-iso.mod
+deleted file mode 100644
+index c30b91f..0000000
+diff --git a/autotests/input/test-iso.mod.syntax b/autotests/input/test-iso.mod.syntax
+deleted file mode 100644
+index 6179cd9..0000000
+diff --git a/autotests/input/test-pim.mod b/autotests/input/test-pim.mod
+deleted file mode 100644
+index be72a09..0000000
+diff --git a/autotests/input/test-pim.mod.syntax b/autotests/input/test-pim.mod.syntax
+deleted file mode 100644
+index 2580222..0000000
+diff --git a/autotests/input/test-r10.mod b/autotests/input/test-r10.mod
+deleted file mode 100644
+index 5c8b97c..0000000
+diff --git a/autotests/input/test-r10.mod.syntax b/autotests/input/test-r10.mod.syntax
+deleted file mode 100644
+index 55f4a6c..0000000
+diff --git a/autotests/input/test.Rd b/autotests/input/test.Rd
+deleted file mode 100644
+index 392343e..0000000
+diff --git a/autotests/input/test.bash b/autotests/input/test.bash
+deleted file mode 100644
+index 6241e5a..0000000
+diff --git a/autotests/input/test.bb b/autotests/input/test.bb
+deleted file mode 100644
+index 98d9089..0000000
+diff --git a/autotests/input/test.c b/autotests/input/test.c
+deleted file mode 100644
+index b2462d7..0000000
+diff --git a/autotests/input/test.c.syntax b/autotests/input/test.c.syntax
+deleted file mode 100644
+index 3cc58df..0000000
+diff --git a/autotests/input/test.cil b/autotests/input/test.cil
+deleted file mode 100644
+index 6ff2ff2..0000000
+diff --git a/autotests/input/test.coffee b/autotests/input/test.coffee
+deleted file mode 100644
+index 56f8a69..0000000
+diff --git a/autotests/input/test.css b/autotests/input/test.css
+deleted file mode 100644
+index 763e2d6..0000000
+diff --git a/autotests/input/test.css.syntax b/autotests/input/test.css.syntax
+deleted file mode 100644
+index 30599f0..0000000
+diff --git a/autotests/input/test.desktop b/autotests/input/test.desktop
+deleted file mode 100644
+index f3edd78..0000000
+diff --git a/autotests/input/test.diff b/autotests/input/test.diff
+deleted file mode 100644
+index 7a6807c..0000000
+diff --git a/autotests/input/test.eml b/autotests/input/test.eml
+deleted file mode 100644
+index 1e43110..0000000
+diff --git a/autotests/input/test.fc b/autotests/input/test.fc
+deleted file mode 100644
+index 76935a1..0000000
+diff --git a/autotests/input/test.frag b/autotests/input/test.frag
+deleted file mode 100644
+index 67ccc99..0000000
+diff --git a/autotests/input/test.htm b/autotests/input/test.htm
+deleted file mode 100644
+index 24ed4aa..0000000
+diff --git a/autotests/input/test.htm.syntax b/autotests/input/test.htm.syntax
+deleted file mode 100644
+index f05185c..0000000
+diff --git a/autotests/input/test.ijs b/autotests/input/test.ijs
+deleted file mode 100644
+index 9acfe4b..0000000
+diff --git a/autotests/input/test.ini b/autotests/input/test.ini
+deleted file mode 100644
+index d67d83d..0000000
+diff --git a/autotests/input/test.js b/autotests/input/test.js
+deleted file mode 100644
+index 478bd6e..0000000
+diff --git a/autotests/input/test.json b/autotests/input/test.json
+deleted file mode 100644
+index 6c16ee6..0000000
+diff --git a/autotests/input/test.jsx b/autotests/input/test.jsx
+deleted file mode 100644
+index 52b35c5..0000000
+diff --git a/autotests/input/test.logcat b/autotests/input/test.logcat
+deleted file mode 100644
+index 80f0657..0000000
+diff --git a/autotests/input/test.markdown b/autotests/input/test.markdown
+deleted file mode 100644
+index 74bcb61..0000000
+diff --git a/autotests/input/test.mib b/autotests/input/test.mib
+deleted file mode 100644
+index aa273c2..0000000
+diff --git a/autotests/input/test.mm b/autotests/input/test.mm
+deleted file mode 100644
+index 7f2677a..0000000
+diff --git a/autotests/input/test.mm.syntax b/autotests/input/test.mm.syntax
+deleted file mode 100644
+index b3ddb33..0000000
+diff --git a/autotests/input/test.mod b/autotests/input/test.mod
+deleted file mode 100644
+index c30b91f..0000000
+diff --git a/autotests/input/test.mss b/autotests/input/test.mss
+deleted file mode 100644
+index 4f742c1..0000000
+diff --git a/autotests/input/test.py b/autotests/input/test.py
+deleted file mode 100644
+index ac2ad0d..0000000
+diff --git a/autotests/input/test.qdocconf b/autotests/input/test.qdocconf
+deleted file mode 100644
+index 0a382be..0000000
+diff --git a/autotests/input/test.qml b/autotests/input/test.qml
+deleted file mode 100644
+index d8f7cb5..0000000
+diff --git a/autotests/input/test.rexx b/autotests/input/test.rexx
+deleted file mode 100644
+index 3e25125..0000000
+diff --git a/autotests/input/test.rs b/autotests/input/test.rs
+deleted file mode 100644
+index ec0d188..0000000
+diff --git a/autotests/input/test.sieve b/autotests/input/test.sieve
+deleted file mode 100644
+index 596ac45..0000000
+diff --git a/autotests/input/test.sql b/autotests/input/test.sql
+deleted file mode 100644
+index b76fae2..0000000
+diff --git a/autotests/input/test.sql.syntax b/autotests/input/test.sql.syntax
+deleted file mode 100644
+index b433cc9..0000000
+diff --git a/autotests/input/test.sql_oracle b/autotests/input/test.sql_oracle
+deleted file mode 100644
+index 80ade14..0000000
+diff --git a/autotests/input/test.sql_oracle.syntax b/autotests/input/test.sql_oracle.syntax
+deleted file mode 100644
+index 679c648..0000000
+diff --git a/autotests/input/test.te b/autotests/input/test.te
+deleted file mode 100644
+index 4a5ec9d..0000000
+diff --git a/autotests/input/test.tex b/autotests/input/test.tex
+deleted file mode 100644
+index 8da60c9..0000000
+diff --git a/autotests/input/test.yaml b/autotests/input/test.yaml
+deleted file mode 100644
+index cebc411..0000000
+diff --git a/autotests/input/test.zsh b/autotests/input/test.zsh
+deleted file mode 100644
+index 9da5db2..0000000
+diff --git a/autotests/input/themes/customtheme.theme b/autotests/input/themes/customtheme.theme
+deleted file mode 100644
+index 9ef0eea..0000000
+diff --git a/autotests/input/usr.bin.apparmor-profile-test b/autotests/input/usr.bin.apparmor-profile-test
+deleted file mode 100644
+index d112068..0000000
+diff --git a/autotests/reference/Dockerfile.ref b/autotests/reference/Dockerfile.ref
+deleted file mode 100644
+index 4d075e5..0000000
+diff --git a/autotests/reference/Doxyfile.example.ref b/autotests/reference/Doxyfile.example.ref
+deleted file mode 100644
+index 05100a4..0000000
+diff --git a/autotests/reference/Kconfig.ref b/autotests/reference/Kconfig.ref
+deleted file mode 100644
+index 0871457..0000000
+diff --git a/autotests/reference/Makefile.ref b/autotests/reference/Makefile.ref
+deleted file mode 100644
+index aa6a7c8..0000000
+diff --git a/autotests/reference/adblock.txt.ref b/autotests/reference/adblock.txt.ref
+deleted file mode 100644
+index 0b70891..0000000
+diff --git a/autotests/reference/apache.conf.ref b/autotests/reference/apache.conf.ref
+deleted file mode 100644
+index 9b48e0b..0000000
+diff --git a/autotests/reference/basic.markdown.ref b/autotests/reference/basic.markdown.ref
+deleted file mode 100644
+index 8f32c5d..0000000
+diff --git a/autotests/reference/basic.xml.ref b/autotests/reference/basic.xml.ref
+deleted file mode 100644
+index 9e61a57..0000000
+diff --git a/autotests/reference/build.gradle.ref b/autotests/reference/build.gradle.ref
+deleted file mode 100644
+index fc3d280..0000000
+diff --git a/autotests/reference/clojure.clj.ref b/autotests/reference/clojure.clj.ref
+deleted file mode 100644
+index 0c9ae6d..0000000
+diff --git a/autotests/reference/complex.xml.ref b/autotests/reference/complex.xml.ref
+deleted file mode 100644
+index 4ffac2b..0000000
+diff --git a/autotests/reference/craftenv.ps1.ref b/autotests/reference/craftenv.ps1.ref
+deleted file mode 100644
+index 7d7f496..0000000
+diff --git a/autotests/reference/csharp.cs.ref b/autotests/reference/csharp.cs.ref
+deleted file mode 100644
+index bd5f806..0000000
+diff --git a/autotests/reference/cube.obj.ref b/autotests/reference/cube.obj.ref
+deleted file mode 100644
+index ff41fa3..0000000
+diff --git a/autotests/reference/cube.ply.ref b/autotests/reference/cube.ply.ref
+deleted file mode 100644
+index 2ba0fc5..0000000
+diff --git a/autotests/reference/cube.stl.ref b/autotests/reference/cube.stl.ref
+deleted file mode 100644
+index d3e273d..0000000
+diff --git a/autotests/reference/example.rmd.ref b/autotests/reference/example.rmd.ref
+deleted file mode 100644
+index 56eedaa..0000000
+diff --git a/autotests/reference/firstNonSpace.c.ref b/autotests/reference/firstNonSpace.c.ref
+deleted file mode 100644
+index 6c14dd6..0000000
+diff --git a/autotests/reference/folding.cpp.ref b/autotests/reference/folding.cpp.ref
+deleted file mode 100644
+index 5fb1ec8..0000000
+diff --git a/autotests/reference/git-rebase.ref b/autotests/reference/git-rebase.ref
+deleted file mode 100644
+index a0a99ab..0000000
+diff --git a/autotests/reference/hello.exs.ref b/autotests/reference/hello.exs.ref
+deleted file mode 100644
+index f81ebbf..0000000
+diff --git a/autotests/reference/highlight.ahdl.ref b/autotests/reference/highlight.ahdl.ref
+deleted file mode 100644
+index ee149c2..0000000
+diff --git a/autotests/reference/highlight.asm-avr.ref b/autotests/reference/highlight.asm-avr.ref
+deleted file mode 100644
+index af6b627..0000000
+diff --git a/autotests/reference/highlight.asm-nasm.ref b/autotests/reference/highlight.asm-nasm.ref
+deleted file mode 100644
+index d674717..0000000
+diff --git a/autotests/reference/highlight.asp.ref b/autotests/reference/highlight.asp.ref
+deleted file mode 100644
+index b64fd4e..0000000
+diff --git a/autotests/reference/highlight.awk.ref b/autotests/reference/highlight.awk.ref
+deleted file mode 100644
+index 0560d4b..0000000
+diff --git a/autotests/reference/highlight.bib.ref b/autotests/reference/highlight.bib.ref
+deleted file mode 100644
+index d3f79c4..0000000
+diff --git a/autotests/reference/highlight.bt.ref b/autotests/reference/highlight.bt.ref
+deleted file mode 100644
+index b4559d7..0000000
+diff --git a/autotests/reference/highlight.cmake.ref b/autotests/reference/highlight.cmake.ref
+deleted file mode 100644
+index 2f7136f..0000000
+diff --git a/autotests/reference/highlight.cpp.ref b/autotests/reference/highlight.cpp.ref
+deleted file mode 100644
+index 295b447..0000000
+diff --git a/autotests/reference/highlight.css.ref b/autotests/reference/highlight.css.ref
+deleted file mode 100644
+index a262282..0000000
+diff --git a/autotests/reference/highlight.d.ref b/autotests/reference/highlight.d.ref
+deleted file mode 100644
+index 68962b9..0000000
+diff --git a/autotests/reference/highlight.do.ref b/autotests/reference/highlight.do.ref
+deleted file mode 100644
+index afc5bac..0000000
+diff --git a/autotests/reference/highlight.dox.ref b/autotests/reference/highlight.dox.ref
+deleted file mode 100644
+index 3e8346a..0000000
+diff --git a/autotests/reference/highlight.erl.ref b/autotests/reference/highlight.erl.ref
+deleted file mode 100644
+index 3a38fb7..0000000
+diff --git a/autotests/reference/highlight.exu.ref b/autotests/reference/highlight.exu.ref
+deleted file mode 100644
+index 5ec9969..0000000
+diff --git a/autotests/reference/highlight.f90.ref b/autotests/reference/highlight.f90.ref
+deleted file mode 100644
+index 810a1d6..0000000
+diff --git a/autotests/reference/highlight.gdb.ref b/autotests/reference/highlight.gdb.ref
+deleted file mode 100644
+index 3b0fdc0..0000000
+diff --git a/autotests/reference/highlight.gdbinit.ref b/autotests/reference/highlight.gdbinit.ref
+deleted file mode 100644
+index ef8dc48..0000000
+diff --git a/autotests/reference/highlight.glsl.ref b/autotests/reference/highlight.glsl.ref
+deleted file mode 100644
+index d7d0ef3..0000000
+diff --git a/autotests/reference/highlight.hex.ref b/autotests/reference/highlight.hex.ref
+deleted file mode 100644
+index ae09fd7..0000000
+diff --git a/autotests/reference/highlight.hs.ref b/autotests/reference/highlight.hs.ref
+deleted file mode 100644
+index e59f9d3..0000000
+diff --git a/autotests/reference/highlight.java.ref b/autotests/reference/highlight.java.ref
+deleted file mode 100644
+index ce941bd..0000000
+diff --git a/autotests/reference/highlight.js.ref b/autotests/reference/highlight.js.ref
+deleted file mode 100644
+index 7ddd8c9..0000000
+diff --git a/autotests/reference/highlight.jsp.ref b/autotests/reference/highlight.jsp.ref
+deleted file mode 100644
+index de73f18..0000000
+diff --git a/autotests/reference/highlight.less.ref b/autotests/reference/highlight.less.ref
+deleted file mode 100644
+index b5ac4ae..0000000
+diff --git a/autotests/reference/highlight.lex.ref b/autotests/reference/highlight.lex.ref
+deleted file mode 100644
+index 85912dc..0000000
+diff --git a/autotests/reference/highlight.lgt.ref b/autotests/reference/highlight.lgt.ref
+deleted file mode 100644
+index 354d3ad..0000000
+diff --git a/autotests/reference/highlight.lhs.ref b/autotests/reference/highlight.lhs.ref
+deleted file mode 100644
+index 838c687..0000000
+diff --git a/autotests/reference/highlight.lisp.ref b/autotests/reference/highlight.lisp.ref
+deleted file mode 100644
+index fe8cbf0..0000000
+diff --git a/autotests/reference/highlight.lua.ref b/autotests/reference/highlight.lua.ref
+deleted file mode 100644
+index 26e640c..0000000
+diff --git a/autotests/reference/highlight.ly.ref b/autotests/reference/highlight.ly.ref
+deleted file mode 100644
+index f11654d..0000000
+diff --git a/autotests/reference/highlight.m.ref b/autotests/reference/highlight.m.ref
+deleted file mode 100644
+index e75ca5e..0000000
+diff --git a/autotests/reference/highlight.mac.ref b/autotests/reference/highlight.mac.ref
+deleted file mode 100644
+index 79f336a..0000000
+diff --git a/autotests/reference/highlight.mup.ref b/autotests/reference/highlight.mup.ref
+deleted file mode 100644
+index 7ec1480..0000000
+diff --git a/autotests/reference/highlight.pb.ref b/autotests/reference/highlight.pb.ref
+deleted file mode 100644
+index d6adb56..0000000
+diff --git a/autotests/reference/highlight.php.ref b/autotests/reference/highlight.php.ref
+deleted file mode 100644
+index b1d8139..0000000
+diff --git a/autotests/reference/highlight.pike.ref b/autotests/reference/highlight.pike.ref
+deleted file mode 100644
+index f40f3d9..0000000
+diff --git a/autotests/reference/highlight.pl.ref b/autotests/reference/highlight.pl.ref
+deleted file mode 100644
+index e9cedd1..0000000
+diff --git a/autotests/reference/highlight.pony.ref b/autotests/reference/highlight.pony.ref
+deleted file mode 100644
+index 525f712..0000000
+diff --git a/autotests/reference/highlight.pov.ref b/autotests/reference/highlight.pov.ref
+deleted file mode 100644
+index 4a21aaf..0000000
+diff --git a/autotests/reference/highlight.prg.ref b/autotests/reference/highlight.prg.ref
+deleted file mode 100644
+index 2888283..0000000
+diff --git a/autotests/reference/highlight.qml.ref b/autotests/reference/highlight.qml.ref
+deleted file mode 100644
+index 3df0de1..0000000
+diff --git a/autotests/reference/highlight.rb.ref b/autotests/reference/highlight.rb.ref
+deleted file mode 100644
+index 139825f..0000000
+diff --git a/autotests/reference/highlight.scad.ref b/autotests/reference/highlight.scad.ref
+deleted file mode 100644
+index 93d31eb..0000000
+diff --git a/autotests/reference/highlight.scheme.ref b/autotests/reference/highlight.scheme.ref
+deleted file mode 100644
+index d6887a3..0000000
+diff --git a/autotests/reference/highlight.scss.ref b/autotests/reference/highlight.scss.ref
+deleted file mode 100644
+index 081743f..0000000
+diff --git a/autotests/reference/highlight.sh.ref b/autotests/reference/highlight.sh.ref
+deleted file mode 100644
+index fbfba05..0000000
+diff --git a/autotests/reference/highlight.spec.ref b/autotests/reference/highlight.spec.ref
+deleted file mode 100644
+index 20b6c11..0000000
+diff --git a/autotests/reference/highlight.stan.ref b/autotests/reference/highlight.stan.ref
+deleted file mode 100644
+index 581f8a2..0000000
+diff --git a/autotests/reference/highlight.t2t.ref b/autotests/reference/highlight.t2t.ref
+deleted file mode 100644
+index 87bff65..0000000
+diff --git a/autotests/reference/highlight.tcl.ref b/autotests/reference/highlight.tcl.ref
+deleted file mode 100644
+index de12b4c..0000000
+diff --git a/autotests/reference/highlight.tex.ref b/autotests/reference/highlight.tex.ref
+deleted file mode 100644
+index bcd6926..0000000
+diff --git a/autotests/reference/highlight.tig.ref b/autotests/reference/highlight.tig.ref
+deleted file mode 100644
+index 056b891..0000000
+diff --git a/autotests/reference/highlight.wrl.ref b/autotests/reference/highlight.wrl.ref
+deleted file mode 100644
+index 0f2b724..0000000
+diff --git a/autotests/reference/highlight.xml.ref b/autotests/reference/highlight.xml.ref
+deleted file mode 100644
+index dde97a6..0000000
+diff --git a/autotests/reference/highlight.xsl.ref b/autotests/reference/highlight.xsl.ref
+deleted file mode 100644
+index 86c1736..0000000
+diff --git a/autotests/reference/highlight.y.ref b/autotests/reference/highlight.y.ref
+deleted file mode 100644
+index b3defa7..0000000
+diff --git a/autotests/reference/highlight.yang.ref b/autotests/reference/highlight.yang.ref
+deleted file mode 100644
+index d4708a6..0000000
+diff --git a/autotests/reference/highlight_lpc.c.ref b/autotests/reference/highlight_lpc.c.ref
+deleted file mode 100644
+index 474d5f0..0000000
+diff --git a/autotests/reference/highlight_ocaml.ml.ref b/autotests/reference/highlight_ocaml.ml.ref
+deleted file mode 100644
+index d036f0e..0000000
+diff --git a/autotests/reference/highlight_octave.m.ref b/autotests/reference/highlight_octave.m.ref
+deleted file mode 100644
+index 4b93a73..0000000
+diff --git a/autotests/reference/learnelixir.exs.ref b/autotests/reference/learnelixir.exs.ref
+deleted file mode 100644
+index d877463..0000000
+diff --git a/autotests/reference/light52_muldiv.vhdl.ref b/autotests/reference/light52_muldiv.vhdl.ref
+deleted file mode 100644
+index 11338ac..0000000
+diff --git a/autotests/reference/light52_tb.vhdl.ref b/autotests/reference/light52_tb.vhdl.ref
+deleted file mode 100644
+index b7a799b..0000000
+diff --git a/autotests/reference/meson.build.ref b/autotests/reference/meson.build.ref
+deleted file mode 100644
+index 75efe1a..0000000
+diff --git a/autotests/reference/modelines.py.ref b/autotests/reference/modelines.py.ref
+deleted file mode 100644
+index 59e5bf2..0000000
+diff --git a/autotests/reference/or1200_dc_fsm.v.ref b/autotests/reference/or1200_dc_fsm.v.ref
+deleted file mode 100644
+index 10a80e5..0000000
+diff --git a/autotests/reference/or1200_du.v.ref b/autotests/reference/or1200_du.v.ref
+deleted file mode 100644
+index a1e838c..0000000
+diff --git a/autotests/reference/preprocessor-bug363280.c.ref b/autotests/reference/preprocessor-bug363280.c.ref
+deleted file mode 100644
+index 4c23041..0000000
+diff --git a/autotests/reference/preprocessor-bug363280.cpp.ref b/autotests/reference/preprocessor-bug363280.cpp.ref
+deleted file mode 100644
+index 8025f16..0000000
+diff --git a/autotests/reference/review128925-1.css.ref b/autotests/reference/review128925-1.css.ref
+deleted file mode 100644
+index 136dd6f..0000000
+diff --git a/autotests/reference/review128925-1.scss.ref b/autotests/reference/review128925-1.scss.ref
+deleted file mode 100644
+index fee32c7..0000000
+diff --git a/autotests/reference/review128925-2.css.ref b/autotests/reference/review128925-2.css.ref
+deleted file mode 100644
+index 0bef602..0000000
+diff --git a/autotests/reference/review128925-2.scss.ref b/autotests/reference/review128925-2.scss.ref
+deleted file mode 100644
+index 082c1e4..0000000
+diff --git a/autotests/reference/review128935.html.ref b/autotests/reference/review128935.html.ref
+deleted file mode 100644
+index 0936f9c..0000000
+diff --git a/autotests/reference/test-iso.mod.ref b/autotests/reference/test-iso.mod.ref
+deleted file mode 100644
+index 027dfac..0000000
+diff --git a/autotests/reference/test-pim.mod.ref b/autotests/reference/test-pim.mod.ref
+deleted file mode 100644
+index 4fac4d1..0000000
+diff --git a/autotests/reference/test-r10.mod.ref b/autotests/reference/test-r10.mod.ref
+deleted file mode 100644
+index bc61067..0000000
+diff --git a/autotests/reference/test.Rd.ref b/autotests/reference/test.Rd.ref
+deleted file mode 100644
+index ae77db2..0000000
+diff --git a/autotests/reference/test.bash.ref b/autotests/reference/test.bash.ref
+deleted file mode 100644
+index adeaa9d..0000000
+diff --git a/autotests/reference/test.bb.ref b/autotests/reference/test.bb.ref
+deleted file mode 100644
+index f0ea3b8..0000000
+diff --git a/autotests/reference/test.c.ref b/autotests/reference/test.c.ref
+deleted file mode 100644
+index 61c3ca8..0000000
+diff --git a/autotests/reference/test.cil.ref b/autotests/reference/test.cil.ref
+deleted file mode 100644
+index cbc0125..0000000
+diff --git a/autotests/reference/test.coffee.ref b/autotests/reference/test.coffee.ref
+deleted file mode 100644
+index e499f72..0000000
+diff --git a/autotests/reference/test.css.ref b/autotests/reference/test.css.ref
+deleted file mode 100644
+index 26de9f8..0000000
+diff --git a/autotests/reference/test.desktop.ref b/autotests/reference/test.desktop.ref
+deleted file mode 100644
+index 12ca73f..0000000
+diff --git a/autotests/reference/test.diff.ref b/autotests/reference/test.diff.ref
+deleted file mode 100644
+index b3d7bd4..0000000
+diff --git a/autotests/reference/test.eml.ref b/autotests/reference/test.eml.ref
+deleted file mode 100644
+index 25de38c..0000000
+diff --git a/autotests/reference/test.fc.ref b/autotests/reference/test.fc.ref
+deleted file mode 100644
+index dee4455..0000000
+diff --git a/autotests/reference/test.frag.ref b/autotests/reference/test.frag.ref
+deleted file mode 100644
+index 1426b6e..0000000
+diff --git a/autotests/reference/test.htm.ref b/autotests/reference/test.htm.ref
+deleted file mode 100644
+index c3d98ff..0000000
+diff --git a/autotests/reference/test.ijs.ref b/autotests/reference/test.ijs.ref
+deleted file mode 100644
+index 30c9733..0000000
+diff --git a/autotests/reference/test.ini.ref b/autotests/reference/test.ini.ref
+deleted file mode 100644
+index f2d5e79..0000000
+diff --git a/autotests/reference/test.js.ref b/autotests/reference/test.js.ref
+deleted file mode 100644
+index ca23322..0000000
+diff --git a/autotests/reference/test.json.ref b/autotests/reference/test.json.ref
+deleted file mode 100644
+index b7f0e52..0000000
+diff --git a/autotests/reference/test.jsx.ref b/autotests/reference/test.jsx.ref
+deleted file mode 100644
+index e9eda2f..0000000
+diff --git a/autotests/reference/test.logcat.ref b/autotests/reference/test.logcat.ref
+deleted file mode 100644
+index e4c1c80..0000000
+diff --git a/autotests/reference/test.markdown.ref b/autotests/reference/test.markdown.ref
+deleted file mode 100644
+index aa5f06c..0000000
+diff --git a/autotests/reference/test.mib.ref b/autotests/reference/test.mib.ref
+deleted file mode 100644
+index a83156b..0000000
+diff --git a/autotests/reference/test.mm.ref b/autotests/reference/test.mm.ref
+deleted file mode 100644
+index 4412d36..0000000
+diff --git a/autotests/reference/test.mod.ref b/autotests/reference/test.mod.ref
+deleted file mode 100644
+index 027dfac..0000000
+diff --git a/autotests/reference/test.mss.ref b/autotests/reference/test.mss.ref
+deleted file mode 100644
+index f3f6ff7..0000000
+diff --git a/autotests/reference/test.py.ref b/autotests/reference/test.py.ref
+deleted file mode 100644
+index a226875..0000000
+diff --git a/autotests/reference/test.qdocconf.ref b/autotests/reference/test.qdocconf.ref
+deleted file mode 100644
+index a5e1727..0000000
+diff --git a/autotests/reference/test.qml.ref b/autotests/reference/test.qml.ref
+deleted file mode 100644
+index 6a84875..0000000
+diff --git a/autotests/reference/test.rexx.ref b/autotests/reference/test.rexx.ref
+deleted file mode 100644
+index 6e69ce4..0000000
+diff --git a/autotests/reference/test.rs.ref b/autotests/reference/test.rs.ref
+deleted file mode 100644
+index 9a27445..0000000
+diff --git a/autotests/reference/test.sieve.ref b/autotests/reference/test.sieve.ref
+deleted file mode 100644
+index a030180..0000000
+diff --git a/autotests/reference/test.sql.ref b/autotests/reference/test.sql.ref
+deleted file mode 100644
+index ba869cd..0000000
+diff --git a/autotests/reference/test.sql_oracle.ref b/autotests/reference/test.sql_oracle.ref
+deleted file mode 100644
+index d121a71..0000000
+diff --git a/autotests/reference/test.te.ref b/autotests/reference/test.te.ref
+deleted file mode 100644
+index 5b3998d..0000000
+diff --git a/autotests/reference/test.tex.ref b/autotests/reference/test.tex.ref
+deleted file mode 100644
+index 3f24c2a..0000000
+diff --git a/autotests/reference/test.yaml.ref b/autotests/reference/test.yaml.ref
+deleted file mode 100644
+index eeeabc0..0000000
+diff --git a/autotests/reference/test.zsh.ref b/autotests/reference/test.zsh.ref
+deleted file mode 100644
+index f8da406..0000000
+diff --git a/autotests/reference/usr.bin.apparmor-profile-test.ref b/autotests/reference/usr.bin.apparmor-profile-test.ref
+deleted file mode 100644
+index c55bd5c..0000000
+diff --git a/autotests/repository_benchmark.cpp b/autotests/repository_benchmark.cpp
+deleted file mode 100644
+index 80bba64..0000000
+diff --git a/autotests/syntaxrepository_test.cpp b/autotests/syntaxrepository_test.cpp
+deleted file mode 100644
+index 3dc654d..0000000
+diff --git a/autotests/test-config.h.in b/autotests/test-config.h.in
+deleted file mode 100644
+index 9e574d7..0000000
+diff --git a/autotests/testhighlighter.cpp b/autotests/testhighlighter.cpp
+deleted file mode 100644
+index fad0300..0000000
+diff --git a/autotests/theme_test.cpp b/autotests/theme_test.cpp
+deleted file mode 100644
+index 961cdb9..0000000
+diff --git a/autotests/update-reference-data.sh.in b/autotests/update-reference-data.sh.in
+deleted file mode 100755
+index 1b5e45e..0000000
+diff --git a/autotests/wildcardmatcher_test.cpp b/autotests/wildcardmatcher_test.cpp
+deleted file mode 100644
+index 8a2208a..0000000
+-- 
+2.20.1.windows.1
+

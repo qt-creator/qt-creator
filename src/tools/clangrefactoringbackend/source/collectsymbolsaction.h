@@ -34,6 +34,7 @@
 
 #include <filepathcachingfwd.h>
 
+#include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Index/IndexingAction.h>
 
@@ -52,13 +53,13 @@ public:
     std::unique_ptr<clang::ASTConsumer> newASTConsumer(clang::CompilerInstance &compilerInstance,
                                                        llvm::StringRef inFile);
 private:
-    class WrappedIndexAction : public clang::WrapperFrontendAction
+    class WrappedIndexAction final : public clang::WrapperFrontendAction
     {
     public:
-        WrappedIndexAction(std::shared_ptr<clang::index::IndexDataConsumer> m_indexDataConsumer,
+        WrappedIndexAction(std::shared_ptr<clang::index::IndexDataConsumer> indexDataConsumer,
                            clang::index::IndexingOptions indexingOptions)
             : clang::WrapperFrontendAction(
-                  clang::index::createIndexingAction(m_indexDataConsumer, indexingOptions, nullptr))
+                  clang::index::createIndexingAction(indexDataConsumer, indexingOptions, nullptr))
         {}
 
         std::unique_ptr<clang::ASTConsumer>

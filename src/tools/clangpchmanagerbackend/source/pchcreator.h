@@ -81,11 +81,10 @@ public:
     const FilePathCaching &filePathCache();
 
     Utils::SmallString generatePchIncludeFileContent(const FilePathIds &includeIds) const;
-    bool generatePch();
+    bool generatePch(NativeFilePathView path, Utils::SmallStringView content);
 
     FilePath generatePchFilePath() const;
     static Utils::SmallStringVector generateClangCompilerArguments(const PchTask &pchTask,
-                                                                   FilePathView includePchHeaderPath,
                                                                    FilePathView pchPath);
 
     const ClangTool &clangTool() const

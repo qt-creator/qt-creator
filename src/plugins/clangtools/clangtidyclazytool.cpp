@@ -219,7 +219,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     m_diagnosticView->sortByColumn(Debugger::DetailedErrorView::DiagnosticColumn,
                                    Qt::AscendingOrder);
     m_diagnosticView->setObjectName(QLatin1String("ClangTidyClazyIssuesView"));
-    m_diagnosticView->setWindowTitle(tr("Clang-Tidy and Clazy Issues"));
+    m_diagnosticView->setWindowTitle(tr("Clang-Tidy and Clazy Diagnostics"));
 
     foreach (auto * const model,
              QList<QAbstractItemModel *>({m_diagnosticModel, m_diagnosticFilterModel})) {
@@ -281,7 +281,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     // Filter line edit
     m_filterLineEdit = new Utils::FancyLineEdit();
     m_filterLineEdit->setFiltering(true);
-    m_filterLineEdit->setPlaceholderText(tr("Filter Issues"));
+    m_filterLineEdit->setPlaceholderText(tr("Filter Diagnostics"));
     m_filterLineEdit->setHistoryCompleter("CppTools.ClangTidyClazyIssueFilter", true);
     connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged, [this](const QString &filter) {
         m_diagnosticFilterModel->setFilterRegExp(
@@ -309,7 +309,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
-                               "Clang project to search for errors and warnings.");
+                               "Clang project to search for diagnostics.");
 
     m_perspective.addWindow(m_diagnosticView, Perspective::SplitVertical, nullptr);
 
@@ -450,14 +450,14 @@ void ClangTidyClazyTool::handleStateUpdate()
     QString message;
     if (m_running) {
         if (issuesFound)
-            message = tr("Running - %n issues found", nullptr, issuesFound);
+            message = tr("Running - %n diagnostics", nullptr, issuesFound);
         else
-            message = tr("Running - No issues found", nullptr, issuesFound);
+            message = tr("Running - No diagnostics", nullptr, issuesFound);
     } else {
         if (issuesFound)
-            message = tr("Finished - %n issues found", nullptr, issuesFound);
+            message = tr("Finished - %n diagnostics", nullptr, issuesFound);
         else
-            message = tr("Finished - No issues found", nullptr, issuesFound);
+            message = tr("Finished - No diagnostics", nullptr, issuesFound);
     }
 
     Debugger::showPermanentStatusMessage(message);

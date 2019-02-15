@@ -100,6 +100,7 @@ public:
     QTextDocument m_document;
     SyntaxHighlighter *m_highlighter = nullptr;
     CompletionAssistProvider *m_completionAssistProvider = nullptr;
+    IAssistProvider *m_quickFixProvider = nullptr;
     QScopedPointer<Indenter> m_indenter;
 
     bool m_fileIsReadOnly = false;
@@ -298,6 +299,11 @@ TextDocument *TextDocument::currentTextDocument()
     return qobject_cast<TextDocument *>(EditorManager::currentDocument());
 }
 
+TextDocument *TextDocument::textDocumentForFileName(const Utils::FileName &fileName)
+{
+    return qobject_cast<TextDocument *>(DocumentModel::documentForFilePath(fileName.toString()));
+}
+
 QString TextDocument::plainText() const
 {
     return document()->toPlainText();
@@ -388,9 +394,14 @@ CompletionAssistProvider *TextDocument::completionAssistProvider() const
     return d->m_completionAssistProvider;
 }
 
+void TextDocument::setQuickFixAssistProvider(IAssistProvider *provider) const
+{
+    d->m_quickFixProvider = provider;
+}
+
 IAssistProvider *TextDocument::quickFixAssistProvider() const
 {
-    return nullptr;
+    return d->m_quickFixProvider;
 }
 
 void TextDocument::applyFontSettings()

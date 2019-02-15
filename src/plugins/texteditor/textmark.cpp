@@ -361,11 +361,8 @@ TextMarkRegistry::TextMarkRegistry(QObject *parent)
 void TextMarkRegistry::add(TextMark *mark)
 {
     instance()->m_marks[mark->fileName()].insert(mark);
-    auto document = qobject_cast<TextDocument *>(
-        DocumentModel::documentForFilePath(mark->fileName().toString()));
-    if (!document)
-        return;
-    document->addMark(mark);
+    if (TextDocument *document = TextDocument::textDocumentForFileName(mark->fileName()))
+        document->addMark(mark);
 }
 
 bool TextMarkRegistry::remove(TextMark *mark)

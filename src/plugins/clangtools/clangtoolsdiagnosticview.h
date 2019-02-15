@@ -27,8 +27,13 @@
 
 #include <debugger/analyzer/detailederrorview.h>
 
+#include <memory>
+
 namespace ClangTools {
 namespace Internal {
+
+class DiagnosticViewStyle;
+class DiagnosticViewDelegate;
 
 class DiagnosticView : public Debugger::DetailedErrorView
 {
@@ -36,10 +41,7 @@ class DiagnosticView : public Debugger::DetailedErrorView
 
 public:
     DiagnosticView(QWidget *parent = nullptr);
-
-    enum ExtraColumn {
-        FixItColumn = DiagnosticColumn + 1,
-    };
+    ~DiagnosticView() override;
 
     void setSelectedFixItsCount(int fixItsCount);
 
@@ -59,6 +61,8 @@ private:
     void setModel(QAbstractItemModel *theProxyModel) override;
 
     QAction *m_suppressAction;
+    std::unique_ptr<DiagnosticViewStyle> m_style;
+    std::unique_ptr<DiagnosticViewDelegate> m_delegate;
     bool m_ignoreSetSelectedFixItsCount = false;
 };
 

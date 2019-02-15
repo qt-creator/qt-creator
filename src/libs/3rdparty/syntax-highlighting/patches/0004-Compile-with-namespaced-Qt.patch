@@ -1,0 +1,281 @@
+From 916af0204a45c91092e53241e6a867cadb9dedec Mon Sep 17 00:00:00 2001
+From: Alessandro Portale <alessandro.portale@qt.io>
+Date: Tue, 12 Feb 2019 19:21:57 +0100
+Subject: [PATCH 4/6] Compile with namespaced Qt
+
+---
+ src/lib/abstracthighlighter.h   | 4 ++++
+ src/lib/abstracthighlighter_p.h | 2 ++
+ src/lib/context_p.h             | 2 ++
+ src/lib/definition.h            | 4 ++++
+ src/lib/foldingregion.h         | 2 ++
+ src/lib/format.h                | 5 ++++-
+ src/lib/htmlhighlighter.h       | 2 ++
+ src/lib/keywordlist_p.h         | 2 ++
+ src/lib/repository.h            | 2 ++
+ src/lib/repository_p.h          | 2 ++
+ src/lib/rule_p.h                | 2 ++
+ src/lib/state.h                 | 2 ++
+ src/lib/theme.h                 | 2 ++
+ src/lib/themedata_p.h           | 2 ++
+ src/lib/wildcardmatcher.cpp     | 2 +-
+ src/lib/wildcardmatcher_p.h     | 4 ++++
+ 16 files changed, 39 insertions(+), 2 deletions(-)
+
+diff --git a/src/lib/abstracthighlighter.h b/src/lib/abstracthighlighter.h
+index 056f65b..2b88729 100644
+--- a/src/lib/abstracthighlighter.h
++++ b/src/lib/abstracthighlighter.h
+@@ -30,7 +30,9 @@
+ 
+ #include <memory>
+ 
++QT_BEGIN_NAMESPACE
+ class QString;
++QT_END_NAMESPACE
+ 
+ namespace KSyntaxHighlighting {
+ 
+@@ -186,6 +188,8 @@ private:
+ };
+ }
+ 
++QT_BEGIN_NAMESPACE
+ Q_DECLARE_INTERFACE(KSyntaxHighlighting::AbstractHighlighter, "org.kde.SyntaxHighlighting.AbstractHighlighter")
++QT_END_NAMESPACE
+ 
+ #endif // KSYNTAXHIGHLIGHTING_ABSTRACTHIGHLIGHTERM_H
+diff --git a/src/lib/abstracthighlighter_p.h b/src/lib/abstracthighlighter_p.h
+index 1690eb0..bdfdf23 100644
+--- a/src/lib/abstracthighlighter_p.h
++++ b/src/lib/abstracthighlighter_p.h
+@@ -27,7 +27,9 @@
+ #include "definition.h"
+ #include "theme.h"
+ 
++QT_BEGIN_NAMESPACE
+ class QStringList;
++QT_END_NAMESPACE
+ 
+ namespace KSyntaxHighlighting {
+ 
+diff --git a/src/lib/context_p.h b/src/lib/context_p.h
+index 3e3ab97..a034d0e 100644
+--- a/src/lib/context_p.h
++++ b/src/lib/context_p.h
+@@ -34,7 +34,9 @@
+ 
+ #include <vector>
+ 
++QT_BEGIN_NAMESPACE
+ class QXmlStreamReader;
++QT_END_NAMESPACE
+ 
+ namespace KSyntaxHighlighting {
+ 
+diff --git a/src/lib/definition.h b/src/lib/definition.h
+index 25996dd..6f0dba9 100644
+--- a/src/lib/definition.h
++++ b/src/lib/definition.h
+@@ -31,10 +31,12 @@
+ 
+ #include <memory>
+ 
++QT_BEGIN_NAMESPACE
+ class QChar;
+ class QString;
+ class QStringList;
+ template <typename T> class QVector;
++QT_END_NAMESPACE
+ 
+ namespace KSyntaxHighlighting {
+ 
+@@ -391,6 +393,8 @@ private:
+ 
+ }
+ 
++QT_BEGIN_NAMESPACE
+ Q_DECLARE_TYPEINFO(KSyntaxHighlighting::Definition, Q_MOVABLE_TYPE);
++QT_END_NAMESPACE
+ 
+ #endif
+diff --git a/src/lib/foldingregion.h b/src/lib/foldingregion.h
+index baf65d1..074b947 100644
+--- a/src/lib/foldingregion.h
++++ b/src/lib/foldingregion.h
+@@ -101,6 +101,8 @@ private:
+ 
+ }
+ 
++QT_BEGIN_NAMESPACE
+ Q_DECLARE_TYPEINFO(KSyntaxHighlighting::FoldingRegion, Q_PRIMITIVE_TYPE);
++QT_END_NAMESPACE
+ 
+ #endif
+diff --git a/src/lib/format.h b/src/lib/format.h
+index ba85f0d..24c58e7 100644
+--- a/src/lib/format.h
++++ b/src/lib/format.h
+@@ -30,10 +30,11 @@
+ #include <QExplicitlySharedDataPointer>
+ #include <QTypeInfo>
+ 
+-
++QT_BEGIN_NAMESPACE
+ class QColor;
+ class QString;
+ class QXmlStreamReader;
++QT_END_NAMESPACE
+ 
+ namespace KSyntaxHighlighting {
+ 
+@@ -144,6 +145,8 @@ private:
+ };
+ }
+ 
++QT_BEGIN_NAMESPACE
+ Q_DECLARE_TYPEINFO(KSyntaxHighlighting::Format, Q_MOVABLE_TYPE);
++QT_END_NAMESPACE
+ 
+ #endif // KSYNTAXHIGHLIGHTING_FORMAT_H
+diff --git a/src/lib/htmlhighlighter.h b/src/lib/htmlhighlighter.h
+index 22d33ad..b7eda02 100644
+--- a/src/lib/htmlhighlighter.h
++++ b/src/lib/htmlhighlighter.h
+@@ -32,8 +32,10 @@
+ 
+ #include <memory>
+ 
++QT_BEGIN_NAMESPACE
+ class QFile;
+ class QTextStream;
++QT_END_NAMESPACE
+ 
+ namespace KSyntaxHighlighting {
+ 
+diff --git a/src/lib/keywordlist_p.h b/src/lib/keywordlist_p.h
+index fa70f11..8c41aab 100644
+--- a/src/lib/keywordlist_p.h
++++ b/src/lib/keywordlist_p.h
+@@ -30,7 +30,9 @@
+ 
+ #include <vector>
+ 
++QT_BEGIN_NAMESPACE
+ class QXmlStreamReader;
++QT_END_NAMESPACE
+ 
+ namespace KSyntaxHighlighting {
+ 
+diff --git a/src/lib/repository.h b/src/lib/repository.h
+index 2c32d02..c35da5e 100644
+--- a/src/lib/repository.h
++++ b/src/lib/repository.h
+@@ -29,8 +29,10 @@
+ #include <qglobal.h>
+ #include <memory>
+ 
++QT_BEGIN_NAMESPACE
+ class QString;
+ template <typename T> class QVector;
++QT_END_NAMESPACE
+ 
+ /**
+  * @namespace KSyntaxHighlighting
+diff --git a/src/lib/repository_p.h b/src/lib/repository_p.h
+index da765a2..9db876b 100644
+--- a/src/lib/repository_p.h
++++ b/src/lib/repository_p.h
+@@ -27,7 +27,9 @@
+ #include <QHash>
+ #include <QVector>
+ 
++QT_BEGIN_NAMESPACE
+ class QString;
++QT_END_NAMESPACE
+ 
+ namespace KSyntaxHighlighting {
+ 
+diff --git a/src/lib/rule_p.h b/src/lib/rule_p.h
+index eccf0df..538fded 100644
+--- a/src/lib/rule_p.h
++++ b/src/lib/rule_p.h
+@@ -38,7 +38,9 @@
+ 
+ #include <memory>
+ 
++QT_BEGIN_NAMESPACE
+ class QXmlStreamReader;
++QT_END_NAMESPACE
+ 
+ namespace KSyntaxHighlighting {
+ 
+diff --git a/src/lib/state.h b/src/lib/state.h
+index c6e5344..fce4bc7 100644
+--- a/src/lib/state.h
++++ b/src/lib/state.h
+@@ -79,6 +79,8 @@ private:
+ 
+ }
+ 
++QT_BEGIN_NAMESPACE
+ Q_DECLARE_TYPEINFO(KSyntaxHighlighting::State, Q_MOVABLE_TYPE);
++QT_END_NAMESPACE
+ 
+ #endif // KSYNTAXHIGHLIGHTING_STATE_H
+diff --git a/src/lib/theme.h b/src/lib/theme.h
+index 5277429..adb8431 100644
+--- a/src/lib/theme.h
++++ b/src/lib/theme.h
+@@ -371,6 +371,8 @@ private:
+ 
+ }
+ 
++QT_BEGIN_NAMESPACE
+ Q_DECLARE_TYPEINFO(KSyntaxHighlighting::Theme, Q_MOVABLE_TYPE);
++QT_END_NAMESPACE
+ 
+ #endif // KSYNTAXHIGHLIGHTING_THEME_H
+diff --git a/src/lib/themedata_p.h b/src/lib/themedata_p.h
+index 68cb873..3b5f463 100644
+--- a/src/lib/themedata_p.h
++++ b/src/lib/themedata_p.h
+@@ -163,6 +163,8 @@ private:
+ 
+ }
+ 
++QT_BEGIN_NAMESPACE
+ Q_DECLARE_TYPEINFO(KSyntaxHighlighting::TextStyleData, Q_MOVABLE_TYPE);
++QT_END_NAMESPACE
+ 
+ #endif // KSYNTAXHIGHLIGHTING_THEMEDATA_P_H
+diff --git a/src/lib/wildcardmatcher.cpp b/src/lib/wildcardmatcher.cpp
+index 963e78d..167295a 100644
+--- a/src/lib/wildcardmatcher.cpp
++++ b/src/lib/wildcardmatcher.cpp
+@@ -79,5 +79,5 @@ static bool exactMatch(const QString &candidate, const QString &wildcard, int ca
+ bool WildcardMatcher::exactMatch(const QString &candidate, const QString &wildcard,
+                                  bool caseSensitive)
+ {
+-    return exactMatch(candidate, wildcard, candidate.length() - 1, wildcard.length() - 1, caseSensitive);
++    return ::exactMatch(candidate, wildcard, candidate.length() - 1, wildcard.length() - 1, caseSensitive);
+ }
+diff --git a/src/lib/wildcardmatcher_p.h b/src/lib/wildcardmatcher_p.h
+index 823dbd5..016b10f 100644
+--- a/src/lib/wildcardmatcher_p.h
++++ b/src/lib/wildcardmatcher_p.h
+@@ -24,7 +24,11 @@
+ #ifndef KSYNTAXHIGHLIGHTING_WILDCARDMATCHER_P_H
+ #define KSYNTAXHIGHLIGHTING_WILDCARDMATCHER_P_H
+ 
++#include <QtGlobal>
++
++QT_BEGIN_NAMESPACE
+ class QString;
++QT_END_NAMESPACE
+ 
+ namespace KSyntaxHighlighting {
+ 
+-- 
+2.20.1.windows.1
+

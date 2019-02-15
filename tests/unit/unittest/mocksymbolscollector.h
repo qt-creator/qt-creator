@@ -47,8 +47,7 @@ public:
         ON_CALL(*this, setUnsavedFiles(_)).WillByDefault(Invoke(this, &MockSymbolsCollector::setHasUnsavedFiles));
     }
 
-    MOCK_METHOD0(collectSymbols,
-                 void());
+    MOCK_METHOD0(collectSymbols, bool());
 
     MOCK_METHOD2(setFile,
                  void(ClangBackEnd::FilePathId filePathId,

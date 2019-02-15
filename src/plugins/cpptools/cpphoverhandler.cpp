@@ -26,6 +26,7 @@
 #include "cpphoverhandler.h"
 
 #include "cppelementevaluator.h"
+#include "cpptoolsreuse.h"
 
 #include <coreplugin/helpmanager.h>
 #include <texteditor/texteditor.h>
@@ -56,14 +57,16 @@ void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, Rep
         tip += evaluator.diagnosis();
         setPriority(Priority_Diagnostic);
     }
+    const QStringList fallback = identifierWordsUnderCursor(tc);
     if (evaluator.identifiedCppElement()) {
         const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
-        QStringList candidates = cppElement->helpIdCandidates;
-        candidates.removeDuplicates();
-        const HelpItem helpItem(candidates, cppElement->helpMark, cppElement->helpCategory);
+        const QStringList candidates = cppElement->helpIdCandidates;
+        const HelpItem helpItem(candidates + fallback, cppElement->helpMark, cppElement->helpCategory);
         setLastHelpItemIdentified(helpItem); // tool tip appended by decorateToolTip
         if (!helpItem.isValid())
             tip += cppElement->tooltip;
+    } else {
+        setLastHelpItemIdentified({fallback, {}, HelpItem::Unknown});
     }
     setToolTip(tip);
 }

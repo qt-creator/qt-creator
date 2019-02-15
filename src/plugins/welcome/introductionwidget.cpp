@@ -31,6 +31,7 @@
 #include <utils/stylehelper.h>
 
 #include <QEvent>
+#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPainter>
@@ -349,8 +350,17 @@ void IntroductionWidget::keyPressEvent(QKeyEvent *ke)
 {
     if (ke->key() == Qt::Key_Escape)
         finish();
-    else if (ke->modifiers() == Qt::NoModifier)
-        step();
+    else if ((ke->modifiers()
+              & (Qt::ControlModifier | Qt::AltModifier | Qt::ShiftModifier | Qt::MetaModifier))
+             == Qt::NoModifier) {
+        const Qt::Key backKey = QGuiApplication::isLeftToRight() ? Qt::Key_Left : Qt::Key_Right;
+        if (ke->key() == backKey) {
+            if (m_step > 0)
+                setStep(m_step - 1);
+        } else {
+            step();
+        }
+    }
 }
 
 void IntroductionWidget::mouseReleaseEvent(QMouseEvent *me)

@@ -84,7 +84,7 @@ ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     : Utils::TreeModel<>(parent)
     , m_filesWatcher(std::make_unique<QFileSystemWatcher>())
 {
-    setHeader({tr("Issue"), tr("Fixit Status")});
+    setHeader({tr("Diagnostic")});
     connectFileWatcher();
 }
 
@@ -192,7 +192,26 @@ void ClangToolsDiagnosticModel::addWatchedPath(const QString &path)
     m_filesWatcher->addPath(path);
 }
 
-static QString createDiagnosticToolTipString(const Diagnostic &diagnostic)
+static QString fixitStatus(FixitStatus status)
+{
+    switch (status) {
+    case FixitStatus::NotAvailable:
+        return ClangToolsDiagnosticModel::tr("No Fixits");
+    case FixitStatus::NotScheduled:
+        return ClangToolsDiagnosticModel::tr("Not Scheduled");
+    case FixitStatus::Invalidated:
+        return ClangToolsDiagnosticModel::tr("Invalidated");
+    case FixitStatus::Scheduled:
+        return ClangToolsDiagnosticModel::tr("Scheduled");
+    case FixitStatus::FailedToApply:
+        return ClangToolsDiagnosticModel::tr("Failed to Apply");
+    case FixitStatus::Applied:
+        return ClangToolsDiagnosticModel::tr("Applied");
+    }
+    return QString();
+}
+
+static QString createDiagnosticToolTipString(const Diagnostic &diagnostic, FixitStatus fixItStatus)
 {
     using StringPair = QPair<QString, QString>;
     QList<StringPair> lines;
@@ -225,6 +244,10 @@ static QString createDiagnosticToolTipString(const Diagnostic &diagnostic)
     lines << qMakePair(
         QCoreApplication::translate("ClangTools::Diagnostic", "Location:"),
                 createFullLocationString(diagnostic.location));
+
+    lines << qMakePair(
+        QCoreApplication::translate("ClangTools::Diagnostic", "Fixit Status:"),
+        fixitStatus(fixItStatus));
 
     QString html = QLatin1String("<html>"
                    "<head>"
@@ -364,19 +387,8 @@ DiagnosticItem::~DiagnosticItem()
 Qt::ItemFlags DiagnosticItem::flags(int column) const
 {
     const Qt::ItemFlags itemFlags = TreeItem::flags(column);
-    if (column == DiagnosticView::FixItColumn) {
-        switch (m_fixitStatus) {
-        case FixitStatus::NotAvailable:
-        case FixitStatus::Applied:
-        case FixitStatus::FailedToApply:
-        case FixitStatus::Invalidated:
-            return itemFlags & ~Qt::ItemIsEnabled;
-        case FixitStatus::Scheduled:
-        case FixitStatus::NotScheduled:
-            return itemFlags | Qt::ItemIsUserCheckable;
-        }
-    }
-
+    if (column == DiagnosticView::DiagnosticColumn)
+        return itemFlags | Qt::ItemIsUserCheckable;
     return itemFlags;
 }
 
@@ -395,35 +407,7 @@ static QVariant iconData(const QString &type)
 
 QVariant DiagnosticItem::data(int column, int role) const
 {
-    if (column == DiagnosticView::FixItColumn) {
-        if (role == Qt::CheckStateRole) {
-            switch (m_fixitStatus) {
-            case FixitStatus::NotAvailable:
-            case FixitStatus::NotScheduled:
-            case FixitStatus::Invalidated:
-            case FixitStatus::Applied:
-            case FixitStatus::FailedToApply:
-                return Qt::Unchecked;
-            case FixitStatus::Scheduled:
-                return Qt::Checked;
-            }
-        } else if (role == Qt::DisplayRole) {
-            switch (m_fixitStatus) {
-            case FixitStatus::NotAvailable:
-                return ClangToolsDiagnosticModel::tr("No Fixits");
-            case FixitStatus::NotScheduled:
-                return ClangToolsDiagnosticModel::tr("Not Scheduled");
-            case FixitStatus::Invalidated:
-                return ClangToolsDiagnosticModel::tr("Invalidated");
-            case FixitStatus::Scheduled:
-                return ClangToolsDiagnosticModel::tr("Scheduled");
-            case FixitStatus::FailedToApply:
-                return ClangToolsDiagnosticModel::tr("Failed to Apply");
-            case FixitStatus::Applied:
-                return ClangToolsDiagnosticModel::tr("Applied");
-            }
-        }
-    } else if (column == DiagnosticView::DiagnosticColumn) {
+    if (column == DiagnosticView::DiagnosticColumn) {
         switch (role) {
         case Debugger::DetailedErrorView::LocationRole:
             return QVariant::fromValue(m_diagnostic.location);
@@ -433,11 +417,36 @@ QVariant DiagnosticItem::data(int column, int role) const
             return QVariant::fromValue(m_diagnostic);
         case ClangToolsDiagnosticModel::TextRole:
             return m_diagnostic.description;
+        case ClangToolsDiagnosticModel::CheckBoxEnabledRole:
+            switch (m_fixitStatus) {
+            case FixitStatus::NotAvailable:
+            case FixitStatus::Applied:
+            case FixitStatus::FailedToApply:
+            case FixitStatus::Invalidated:
+                return false;
+            case FixitStatus::Scheduled:
+            case FixitStatus::NotScheduled:
+                return true;
+            }
+            break;
+        case Qt::CheckStateRole: {
+            switch (m_fixitStatus) {
+            case FixitStatus::NotAvailable:
+            case FixitStatus::Invalidated:
+            case FixitStatus::Applied:
+            case FixitStatus::FailedToApply:
+            case FixitStatus::NotScheduled:
+                return Qt::Unchecked;
+            case FixitStatus::Scheduled:
+                return Qt::Checked;
+            }
+            break;
+        }
         case Qt::DisplayRole:
             return QString("%1: %2").arg(lineColumnString(m_diagnostic.location),
                                          m_diagnostic.description);
         case Qt::ToolTipRole:
-            return createDiagnosticToolTipString(m_diagnostic);
+            return createDiagnosticToolTipString(m_diagnostic, m_fixitStatus);
         case Qt::DecorationRole:
             return iconData(m_diagnostic.type);
         default:
@@ -450,7 +459,7 @@ QVariant DiagnosticItem::data(int column, int role) const
 
 bool DiagnosticItem::setData(int column, const QVariant &data, int role)
 {
-    if (column == DiagnosticView::FixItColumn && role == Qt::CheckStateRole) {
+    if (column == DiagnosticView::DiagnosticColumn && role == Qt::CheckStateRole) {
         if (m_fixitStatus != FixitStatus::Scheduled && m_fixitStatus != FixitStatus::NotScheduled)
             return false;
 
@@ -494,15 +503,6 @@ ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step, int index)
     , m_index(index)
 {}
 
-// We expect something like "note: ..."
-static QVariant iconForExplainingStepMessage(const QString &message)
-{
-    const int index = message.indexOf(':');
-    if (index == -1)
-        return QVariant();
-    return iconData(message.mid(0, index));
-}
-
 static QString rangeString(const QVector<Debugger::DiagnosticLocation> &ranges)
 {
     return QString("%1-%2").arg(lineColumnString(ranges[0]), lineColumnString(ranges[1]));
@@ -510,9 +510,6 @@ static QString rangeString(const QVector<Debugger::DiagnosticLocation> &ranges)
 
 QVariant ExplainingStepItem::data(int column, int role) const
 {
-    if (column == DiagnosticView::FixItColumn)
-        return QVariant();
-
     if (column == DiagnosticView::DiagnosticColumn) {
         // DiagnosticColumn
         switch (role) {
@@ -555,7 +552,7 @@ QVariant ExplainingStepItem::data(int column, int role) const
         case Qt::DecorationRole:
             if (m_step.isFixIt)
                 return Utils::Icons::CODEMODEL_FIXIT.icon();
-            return iconForExplainingStepMessage(m_step.message);
+            return Utils::Icons::INFO.icon();
         default:
             return QVariant();
         }
