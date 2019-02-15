@@ -334,21 +334,8 @@
             \li BENCH
             \li Benchmark test.
         \row
-            \li BFAIL
-            \li Blacklisted test case failed. Since Qt 5.4, you can
-                provide a BLACKLIST file for tests. It is mainly used internally
-                by the Qt CI system.
-        \row
-            \li BPASS
-            \li Blacklisted test case passed.
-        \row
             \li DEBUG
             \li Debug message.
-        \row
-            \li XFAIL
-            \li Test case is expected to fail, so it is marked by using the
-                QEXPECT_FAIL macro. If the test case passes instead, an
-                unexpected pass (XPASS) is written to the test log.
         \row
             \li FAIL
             \li Test case failed. Double-click the line for more information.
@@ -372,11 +359,39 @@
             \li SYSTEM
             \li An error message received from or influenced by the OS.
         \row
+            \li XFAIL
+            \li Test case is expected to fail, so it is marked by using the
+                QEXPECT_FAIL macro. If the test case passes instead, an
+                unexpected pass (XPASS) is written to the test log.
+        \row
             \li XPASS
             \li Test case passed even though it was expected to fail.
         \row
             \li WARN
             \li Warning message.
+
+    \endtable
+
+    Since Qt 5.4, you can provide a BLACKLIST file for tests. It is mainly used
+    internally by the Qt CI system.
+
+    \table
+        \header
+            \li Result
+            \li Description
+        \row
+            \li BFAIL
+            \li Blacklisted test case failed.
+        \row
+            \li BPASS
+            \li Blacklisted test case passed.
+        \row
+            \li BXFAIL
+            \li Blacklisted test case failed but was marked to be expected to fail.
+        \row
+            \li BXPASS
+            \li Blacklisted test case passed even though it was expected to fail.
+
     \endtable
 
     To view only messages of a particular type, select
@@ -390,6 +405,11 @@
     \uicontrol {Testing} > \uicontrol General, and then deselect the
     \uicontrol {Limit result output} check box. To disable automatic scrolling,
     deselect the \uicontrol {Automatically scroll results} check box.
+
+    Test results can be grouped by the executable path that was used to run the
+    tests. This is useful if you have multiple test executables and run them all
+    at once. To enable this functionality you need to select the
+    \uicontrol {Group results by application} check box.
 
     Internal messages and run configuration warnings for deduced configurations
     are omitted by default. To view them, deselect the \uicontrol {Omit internal
