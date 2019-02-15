@@ -156,7 +156,7 @@ QtOptionsPage::QtOptionsPage()
     : m_widget(0)
 {
     setId(Constants::QTVERSION_SETTINGS_PAGE_ID);
-    setDisplayName(QCoreApplication::translate("QtSupport", Constants::QTVERSION_SETTINGS_PAGE_NAME));
+    setDisplayName(QCoreApplication::translate("QtSupport", "Qt Versions"));
     setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
 }
 
