@@ -48,6 +48,8 @@
 #include <QLayout>
 #include <QString>
 
+using namespace CppTools;
+using namespace ClangCodeModel::Internal;
 using namespace Utils;
 
 namespace ClangCodeModel {
@@ -76,9 +78,6 @@ static Core::Id categoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
 
 ProjectExplorer::Project *projectForCurrentEditor()
 {
-    using namespace CppTools;
-    using namespace ClangCodeModel::Internal;
-
     const QString filePath = Utils::currentCppEditorDocumentFilePath();
     if (filePath.isEmpty())
         return nullptr;
@@ -91,7 +90,7 @@ ProjectExplorer::Project *projectForCurrentEditor()
     return nullptr;
 }
 
-void disableDiagnosticInConfig(CppTools::ClangDiagnosticConfig &config,
+void disableDiagnosticInConfig(ClangDiagnosticConfig &config,
                                const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
     // Clang check
@@ -117,9 +116,6 @@ void disableDiagnosticInConfig(CppTools::ClangDiagnosticConfig &config,
 
 void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
-    using namespace CppTools;
-    using namespace ClangCodeModel::Internal;
-
     ProjectExplorer::Project *project = projectForCurrentEditor();
     QTC_ASSERT(project, return );
 
@@ -198,7 +194,6 @@ ClangTextMark::ClangTextMark(const FileName &fileName,
     QAction *action = new QAction();
     action->setIcon(QIcon::fromTheme("edit-copy", ::Utils::Icons::COPY.icon()));
     QObject::connect(action, &QAction::triggered, [diagnostic]() {
-        using namespace ClangCodeModel::Internal;
         const QString text = ClangDiagnosticWidget::createText({diagnostic},
                                                                ClangDiagnosticWidget::InfoBar);
         QApplication::clipboard()->setText(text, QClipboard::Clipboard);
