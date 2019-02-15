@@ -86,6 +86,7 @@ protected:
         projectPart.files.push_back(header2ProjectFile);
         projectPart.files.push_back(source1ProjectFile);
         projectPart.files.push_back(source2ProjectFile);
+        projectPart.files.push_back(nonActiveProjectFile);
         projectPart.displayName = "projectb";
         projectPart.projectMacros = {{"FOO", "2"}, {"BAR", "1"}};
         projectPartId = projectPart.id();
@@ -94,15 +95,19 @@ protected:
         projectPart2.files.push_back(header1ProjectFile);
         projectPart2.files.push_back(source2ProjectFile);
         projectPart2.files.push_back(source1ProjectFile);
+        projectPart2.files.push_back(nonActiveProjectFile);
         projectPart2.displayName = "projectaa";
         projectPart2.projectMacros = {{"BAR", "1"}, {"FOO", "2"}};
         projectPartId2 = projectPart2.id();
 
+        nonBuildingProjectPart.files.push_back(cannotBuildSourceProjectFile);
+        nonBuildingProjectPart.displayName = "nonbuilding";
+        nonBuildingProjectPart.selectedForBuilding = false;
 
-        Utils::SmallStringVector arguments{ClangPchManager::ProjectUpdater::toolChainArguments(
-                        &projectPart)};
-        Utils::SmallStringVector arguments2{ClangPchManager::ProjectUpdater::toolChainArguments(
-                        &projectPart2)};
+        Utils::SmallStringVector arguments{
+            ClangPchManager::ProjectUpdater::toolChainArguments(&projectPart)};
+        Utils::SmallStringVector arguments2{
+            ClangPchManager::ProjectUpdater::toolChainArguments(&projectPart2)};
 
         expectedContainer = {projectPartId.clone(),
                              arguments.clone(),
@@ -143,9 +148,14 @@ protected:
     CppTools::ProjectFile header1ProjectFile{QString(headerPaths[0]), CppTools::ProjectFile::CXXHeader};
     CppTools::ProjectFile header2ProjectFile{QString(headerPaths[1]), CppTools::ProjectFile::CXXHeader};
     CppTools::ProjectFile source1ProjectFile{QString(sourcePaths[0]), CppTools::ProjectFile::CXXSource};
-    CppTools::ProjectFile source2ProjectFile{QString(sourcePaths[1]), CppTools::ProjectFile::CXXSource};
+    CppTools::ProjectFile source2ProjectFile{QString(sourcePaths[1]),
+                                             CppTools::ProjectFile::CXXSource};
+    CppTools::ProjectFile cannotBuildSourceProjectFile{QString("/cannot/build"),
+                                                       CppTools::ProjectFile::CXXSource};
+    CppTools::ProjectFile nonActiveProjectFile{QString("/foo"), CppTools::ProjectFile::CXXSource, false};
     CppTools::ProjectPart projectPart;
     CppTools::ProjectPart projectPart2;
+    CppTools::ProjectPart nonBuildingProjectPart;
     ProjectPartContainer expectedContainer;
     ProjectPartContainer expectedContainer2;
     FileContainer generatedFile{{"/path/to", "header1.h"}, "content", {}};
@@ -240,7 +250,8 @@ TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainer)
 
 TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainersHaveSameSizeLikeProjectParts)
 {
-    auto containers = updater.toProjectPartContainers({&projectPart, &projectPart});
+    auto containers = updater.toProjectPartContainers(
+        {&projectPart, &projectPart, &nonBuildingProjectPart});
 
     ASSERT_THAT(containers, SizeIs(2));
 }

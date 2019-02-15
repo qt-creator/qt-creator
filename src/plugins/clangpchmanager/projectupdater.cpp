@@ -143,8 +143,10 @@ HeaderAndSources ProjectUpdater::headerAndSourcesFromProjectPart(
     HeaderAndSources headerAndSources;
     headerAndSources.reserve(std::size_t(projectPart->files.size()) * 3 / 2);
 
-    for (const CppTools::ProjectFile &projectFile : projectPart->files)
-        addToHeaderAndSources(headerAndSources, projectFile);
+    for (const CppTools::ProjectFile &projectFile : projectPart->files) {
+        if (projectFile.active)
+            addToHeaderAndSources(headerAndSources, projectFile);
+    }
 
     std::sort(headerAndSources.sources.begin(), headerAndSources.sources.end());
     std::sort(headerAndSources.headers.begin(), headerAndSources.headers.end());
@@ -296,6 +298,13 @@ ClangBackEnd::ProjectPartContainers ProjectUpdater::toProjectPartContainers(
 
     std::vector<ClangBackEnd::ProjectPartContainer> projectPartContainers;
     projectPartContainers.reserve(projectParts.size());
+
+    projectParts.erase(std::remove_if(projectParts.begin(),
+                                      projectParts.end(),
+                                      [](const CppTools::ProjectPart *projectPart) {
+                                          return !projectPart->selectedForBuilding;
+                                      }),
+                       projectParts.end());
 
     std::transform(projectParts.begin(),
                    projectParts.end(),
