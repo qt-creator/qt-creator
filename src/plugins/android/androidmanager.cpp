@@ -248,12 +248,6 @@ int AndroidManager::minimumSDK(const ProjectExplorer::Kit *kit)
     return minSDKVersion;
 }
 
-int AndroidManager::minimumNDK(const Kit *kit)
-{
-    auto qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit));
-    return qt->mininmumNDK();
-}
-
 QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
 {
     if (auto androidBuildApkStep = AndroidBuildApkStep::findInBuild(target->activeBuildConfiguration()))

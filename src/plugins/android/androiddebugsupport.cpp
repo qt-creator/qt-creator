@@ -29,6 +29,7 @@
 #include "androidglobal.h"
 #include "androidrunner.h"
 #include "androidmanager.h"
+#include "androidqtversion.h"
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
@@ -186,8 +187,11 @@ void AndroidDebugSupport::start()
         gdbServer.setPort(m_runner->gdbServerPort().number());
         setRemoteChannel(gdbServer);
 
-        int sdkVersion = qMax(AndroidManager::minimumSDK(target->kit()),
-                              AndroidManager::minimumNDK(target->kit()));
+        auto qt = static_cast<AndroidQtVersion *>(qtVersion);
+        QTC_CHECK(qt);
+        const int minimumNdk = qt ? qt->minimumNDK() : 0;
+
+        int sdkVersion = qMax(AndroidManager::minimumSDK(target->kit()), minimumNdk);
         Utils::FileName sysRoot = AndroidConfigurations::currentConfig().ndkLocation()
                 .appendPath("platforms")
                 .appendPath(QString("android-%1").arg(sdkVersion))

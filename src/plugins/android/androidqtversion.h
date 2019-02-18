@@ -55,7 +55,8 @@ public:
 
     QString description() const override;
     QString targetArch() const;
-    int mininmumNDK() const;
+    int minimumNDK() const;
+
 protected:
     void parseMkSpec(ProFileEvaluator *) const override;
 private:
