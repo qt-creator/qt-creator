@@ -41,10 +41,6 @@ class QnxQtVersion : public QtSupport::BaseQtVersion
 public:
     QnxQtVersion();
 
-    QnxQtVersion *clone() const override;
-
-    QString type() const override;
-
     QString description() const override;
 
     QSet<Core::Id> availableFeatures() const override;

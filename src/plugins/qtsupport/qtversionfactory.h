@@ -51,9 +51,13 @@ public:
     /// the desktop factory claims to handle all paths
     int priority() const { return m_priority; }
 
+    QString supportedType() const;
+
     static BaseQtVersion *createQtVersionFromQMakePath(
             const Utils::FileName &qmakePath, bool isAutoDetected = false,
             const QString &autoDetectionSource = QString(), QString *error = nullptr);
+
+    static BaseQtVersion *cloneQtVersion(const BaseQtVersion *source);
 
 protected:
     struct SetupData
@@ -69,6 +73,8 @@ protected:
     void setPriority(int priority);
 
 private:
+    BaseQtVersion *create() const;
+
     std::function<BaseQtVersion *()> m_creator;
     std::function<bool(const SetupData &)> m_restrictionChecker;
     QString m_supportedType;

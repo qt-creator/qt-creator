@@ -28,8 +28,10 @@
 #include "qmldumptool.h"
 #include "qtkitinformation.h"
 
+#include "qtversionfactory.h"
 #include "qtversionmanager.h"
 #include "profilereader.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <proparser/qmakevfs.h>
@@ -193,7 +195,6 @@ bool QtVersionNumber::operator >=(const QtVersionNumber &b) const
 // BaseQtVersion
 ///////////////
 
-BaseQtVersion::BaseQtVersion(const BaseQtVersion &other) = default;
 BaseQtVersion::BaseQtVersion() = default;
 
 BaseQtVersion::~BaseQtVersion() = default;
@@ -643,6 +644,12 @@ bool BaseQtVersion::equals(BaseQtVersion *other)
 int BaseQtVersion::uniqueId() const
 {
     return m_id;
+}
+
+QString BaseQtVersion::type() const
+{
+    QTC_ASSERT(m_factory, return QString());
+    return m_factory->supportedType();
 }
 
 bool BaseQtVersion::isAutodetected() const

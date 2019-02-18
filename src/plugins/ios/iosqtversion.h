@@ -40,8 +40,6 @@ class IosQtVersion : public QtSupport::BaseQtVersion
 public:
     IosQtVersion();
 
-    IosQtVersion *clone() const override;
-    QString type() const override;
     bool isValid() const override;
     QString invalidReason() const override;
 

@@ -46,16 +46,6 @@ DesktopQtVersion::DesktopQtVersion()
 
 }
 
-DesktopQtVersion *DesktopQtVersion::clone() const
-{
-    return new DesktopQtVersion(*this);
-}
-
-QString DesktopQtVersion::type() const
-{
-    return QLatin1String(Constants::DESKTOPQT);
-}
-
 QStringList DesktopQtVersion::warningReason() const
 {
     QStringList ret = BaseQtVersion::warningReason();
@@ -111,9 +101,6 @@ QString DesktopQtVersion::qmlsceneCommand() const
 
     return m_qmlsceneCommand;
 }
-
-DesktopQtVersion::DesktopQtVersion(const DesktopQtVersion &other) = default;
-
 
 namespace Internal {
 

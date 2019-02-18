@@ -52,16 +52,6 @@ AndroidQtVersion::AndroidQtVersion()
 {
 }
 
-AndroidQtVersion *AndroidQtVersion::clone() const
-{
-    return new AndroidQtVersion(*this);
-}
-
-QString AndroidQtVersion::type() const
-{
-    return QLatin1String(Constants::ANDROIDQT);
-}
-
 bool AndroidQtVersion::isValid() const
 {
     if (!BaseQtVersion::isValid())

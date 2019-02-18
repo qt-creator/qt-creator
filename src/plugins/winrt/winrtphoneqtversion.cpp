@@ -40,16 +40,6 @@ QString WinRtPhoneQtVersion::description() const
     return tr("Windows Phone");
 }
 
-QtSupport::BaseQtVersion *WinRtPhoneQtVersion::clone() const
-{
-    return new WinRtPhoneQtVersion(*this);
-}
-
-QString WinRtPhoneQtVersion::type() const
-{
-    return QLatin1String(Constants::WINRT_WINPHONEQT);
-}
-
 QSet<Core::Id> WinRtPhoneQtVersion::targetDeviceTypes() const
 {
     return {Constants::WINRT_DEVICE_TYPE_PHONE, Constants::WINRT_DEVICE_TYPE_EMULATOR};

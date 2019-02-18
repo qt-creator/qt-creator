@@ -64,6 +64,7 @@ namespace QtSupport
 class QtConfigWidget;
 
 class BaseQtVersion;
+class QtVersionFactory;
 
 // Wrapper to make the std::unique_ptr<Utils::MacroExpander> "copyable":
 class MacroExpanderWrapper
@@ -113,7 +114,6 @@ public:
     virtual ~BaseQtVersion();
 
     virtual void fromMap(const QVariantMap &map);
-    virtual BaseQtVersion *clone() const = 0;
     virtual bool equals(BaseQtVersion *other);
 
     bool isAutodetected() const;
@@ -126,7 +126,7 @@ public:
     // All valid Ids are >= 0
     int uniqueId() const;
 
-    virtual QString type() const = 0;
+    QString type() const;
 
     virtual QVariantMap toMap() const;
     virtual bool isValid() const;
@@ -259,7 +259,7 @@ protected:
     virtual QSet<Core::Id> availableFeatures() const;
 
     BaseQtVersion();
-    BaseQtVersion(const BaseQtVersion &other);
+    BaseQtVersion(const BaseQtVersion &other) = delete;
 
     virtual QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
 
@@ -292,6 +292,7 @@ private:
                         // and by the qtoptionspage to replace Qt versions
 
     int m_id = -1;
+    const QtVersionFactory *m_factory = nullptr; // The factory that created us.
 
     bool m_isAutodetected = false;
     mutable bool m_hasQmlDump = false;         // controlled by m_versionInfoUpToDate

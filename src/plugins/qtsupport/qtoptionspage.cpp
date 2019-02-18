@@ -522,7 +522,7 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
 
     // Add changed/added items:
     foreach (int a, toAdd) {
-        BaseQtVersion *version = QtVersionManager::version(a)->clone();
+        BaseQtVersion *version = QtVersionFactory::cloneQtVersion(QtVersionManager::version(a));
         auto *item = new QtVersionItem(version);
 
         // Insert in the right place:
@@ -753,7 +753,7 @@ void QtOptionsPageWidget::apply()
 
     m_model->forItemsAtLevel<2>([&versions](QtVersionItem *item) {
         item->setChanged(false);
-        versions.append(item->version()->clone());
+        versions.append(QtVersionFactory::cloneQtVersion(item->version()));
     });
 
     QtVersionManager::setNewQtVersions(versions);

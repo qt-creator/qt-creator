@@ -37,8 +37,6 @@ class WinRtQtVersion : public QtSupport::BaseQtVersion
 public:
     WinRtQtVersion() = default;
 
-    BaseQtVersion *clone() const override;
-    QString type() const override;
     QString description() const override;
     QSet<Core::Id> availableFeatures() const override;
 

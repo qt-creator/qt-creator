@@ -46,16 +46,6 @@ static char SDP_PATH_KEY[] = "SDKPath";
 
 QnxQtVersion::QnxQtVersion() = default;
 
-QnxQtVersion *QnxQtVersion::clone() const
-{
-    return new QnxQtVersion(*this);
-}
-
-QString QnxQtVersion::type() const
-{
-    return QLatin1String(Constants::QNX_QNX_QT);
-}
-
 QString QnxQtVersion::description() const
 {
     //: Qt Version is meant for QNX

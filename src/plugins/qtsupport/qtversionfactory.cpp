@@ -66,7 +66,7 @@ BaseQtVersion *QtVersionFactory::restore(const QString &type, const QVariantMap 
 {
     QTC_ASSERT(canRestore(type), return nullptr);
     QTC_ASSERT(m_creator, return nullptr);
-    BaseQtVersion *version = m_creator();
+    BaseQtVersion *version = create();
     version->fromMap(data);
     return version;
 }
@@ -104,8 +104,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
 
     foreach (QtVersionFactory *factory, factories) {
         if (!factory->m_restrictionChecker || factory->m_restrictionChecker(setup)) {
-            QTC_ASSERT(factory->m_creator, continue);
-            BaseQtVersion *ver = factory->m_creator();
+            BaseQtVersion *ver = factory->create();
             QTC_ASSERT(ver, continue);
             ver->setupQmakePathAndId(qmakePath);
             ver->setAutoDetectionSource(autoDetectionSource);
@@ -120,6 +119,35 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
                     "No factory found for qmake: \"%1\"").arg(qmakePath.toUserOutput());
     }
     return 0;
+}
+
+BaseQtVersion *QtVersionFactory::create() const
+{
+    QTC_ASSERT(m_creator, return nullptr);
+    BaseQtVersion *version = m_creator();
+    version->m_factory = this;
+    return version;
+}
+
+QString QtVersionFactory::supportedType() const
+{
+    return m_supportedType;
+}
+
+BaseQtVersion *QtVersionFactory::cloneQtVersion(const BaseQtVersion *source)
+{
+    QTC_ASSERT(source, return nullptr);
+    const QString sourceType = source->type();
+    for (QtVersionFactory *factory : g_qtVersionFactories) {
+        if (factory->m_supportedType == sourceType) {
+            BaseQtVersion *version = factory->create();
+            QTC_ASSERT(version, return nullptr);
+            version->fromMap(source->toMap());
+            return version;
+        }
+    }
+    QTC_CHECK(false);
+    return nullptr;
 }
 
 void QtVersionFactory::setQtVersionCreator(const std::function<BaseQtVersion *()> &creator)

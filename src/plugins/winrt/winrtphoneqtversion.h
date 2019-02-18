@@ -39,8 +39,6 @@ public:
     QSet<Core::Id> availableFeatures() const override;
 
     QString description() const override;
-    BaseQtVersion *clone() const override;
-    QString type() const override;
     QSet<Core::Id> targetDeviceTypes() const override;
 };
 

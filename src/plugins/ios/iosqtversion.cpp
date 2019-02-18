@@ -42,16 +42,6 @@ using namespace ProjectExplorer;
 
 IosQtVersion::IosQtVersion() = default;
 
-IosQtVersion *IosQtVersion::clone() const
-{
-    return new IosQtVersion(*this);
-}
-
-QString IosQtVersion::type() const
-{
-    return QLatin1String(Constants::IOSQT);
-}
-
 bool IosQtVersion::isValid() const
 {
     if (!BaseQtVersion::isValid())

@@ -35,16 +35,6 @@
 namespace RemoteLinux {
 namespace Internal {
 
-EmbeddedLinuxQtVersion *EmbeddedLinuxQtVersion::clone() const
-{
-    return new EmbeddedLinuxQtVersion(*this);
-}
-
-QString EmbeddedLinuxQtVersion::type() const
-{
-    return QLatin1String(RemoteLinux::Constants::EMBEDDED_LINUX_QT);
-}
-
 QString EmbeddedLinuxQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Embedded Linux", "Qt Version is used for embedded Linux development");

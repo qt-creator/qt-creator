@@ -36,10 +36,6 @@ class QTSUPPORT_EXPORT DesktopQtVersion : public BaseQtVersion
 public:
     DesktopQtVersion();
 
-    DesktopQtVersion *clone() const override;
-
-    QString type() const override;
-
     QStringList warningReason() const override;
 
     QString description() const override;
@@ -50,9 +46,6 @@ public:
     void fromMap(const QVariantMap &map) override;
 
     QString qmlsceneCommand() const;
-
-protected:
-    DesktopQtVersion(const DesktopQtVersion &other);
 
 private:
     mutable QString m_qmlsceneCommand;

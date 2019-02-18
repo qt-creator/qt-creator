@@ -33,16 +33,6 @@
 namespace WinRt {
 namespace Internal {
 
-QtSupport::BaseQtVersion *WinRtQtVersion::clone() const
-{
-    return new WinRtQtVersion(*this);
-}
-
-QString WinRtQtVersion::type() const
-{
-    return QLatin1String(Constants::WINRT_WINRTQT);
-}
-
 QString WinRtQtVersion::description() const
 {
     return tr("Windows Runtime");

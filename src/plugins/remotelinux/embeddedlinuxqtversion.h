@@ -36,10 +36,6 @@ class EmbeddedLinuxQtVersion : public QtSupport::BaseQtVersion
 public:
     EmbeddedLinuxQtVersion() = default;
 
-    EmbeddedLinuxQtVersion *clone() const override;
-
-    QString type() const override;
-
     QString description() const override;
 
     QSet<Core::Id> targetDeviceTypes() const override;
