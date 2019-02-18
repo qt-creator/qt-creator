@@ -30,11 +30,14 @@
 namespace WinRt {
 namespace Internal {
 
-class WinRtPhoneQtVersion : public WinRtQtVersion
+class WinRtPhoneQtVersion : public QtSupport::BaseQtVersion
 {
     Q_DECLARE_TR_FUNCTIONS(WinRt::Internal::WinRtQtVersion)
 public:
     WinRtPhoneQtVersion() = default;
+
+    QSet<Core::Id> availableFeatures() const override;
+    QList<ProjectExplorer::Abi> detectQtAbis() const override;
 
     QString description() const override;
     BaseQtVersion *clone() const override;

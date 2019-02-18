@@ -55,6 +55,20 @@ QSet<Core::Id> WinRtPhoneQtVersion::targetDeviceTypes() const
     return {Constants::WINRT_DEVICE_TYPE_PHONE, Constants::WINRT_DEVICE_TYPE_EMULATOR};
 }
 
+QSet<Core::Id> WinRtPhoneQtVersion::availableFeatures() const
+{
+    QSet<Core::Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    features.insert(QtSupport::Constants::FEATURE_MOBILE);
+    features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
+    features.remove(Core::Id::versionedId(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1));
+    features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
+    return features;
+}
+
+QList<ProjectExplorer::Abi> WinRtPhoneQtVersion::detectQtAbis() const
+{
+    return qtAbisFromLibrary(qtCorePaths());
+}
 
 // Factory
 
