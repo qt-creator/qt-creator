@@ -56,7 +56,7 @@ using QSL = QStringList;
 static const PluginBaseClasses pluginBaseClasses[] =
 {
     {"QAccessiblePlugin", "QtGui",
-     QSL{"QAccessibleInterface * create(const QString &key, QObject *object)"},
+     QSL{"QAccessibleInterface *create(const QString &key, QObject *object)"},
      "QtCore", "accessible", "QAccessibleFactoryInterface"},
     {"QGenericPlugin", "QtGui", QSL{"QObject *create(const QString &name, const QString &spec)"},
      "QtCore", "generic", "QGenericPluginFactoryInterface"},
