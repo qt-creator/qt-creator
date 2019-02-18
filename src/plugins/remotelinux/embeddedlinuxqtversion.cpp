@@ -45,11 +45,6 @@ QString EmbeddedLinuxQtVersion::type() const
     return QLatin1String(RemoteLinux::Constants::EMBEDDED_LINUX_QT);
 }
 
-QList<ProjectExplorer::Abi> EmbeddedLinuxQtVersion::detectQtAbis() const
-{
-    return qtAbisFromLibrary(qtCorePaths());
-}
-
 QString EmbeddedLinuxQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Embedded Linux", "Qt Version is used for embedded Linux development");

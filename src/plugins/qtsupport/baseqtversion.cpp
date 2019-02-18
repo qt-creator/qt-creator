@@ -619,6 +619,11 @@ QList<Abi> BaseQtVersion::qtAbis() const
     return m_qtAbis;
 }
 
+QList<Abi> BaseQtVersion::detectQtAbis() const
+{
+    return qtAbisFromLibrary(qtCorePaths());
+}
+
 bool BaseQtVersion::equals(BaseQtVersion *other)
 {
     if (m_qmakeCommand != other->m_qmakeCommand)

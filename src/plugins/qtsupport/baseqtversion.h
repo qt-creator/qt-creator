@@ -138,7 +138,7 @@ public:
     virtual QString toHtml(bool verbose) const;
 
     QList<ProjectExplorer::Abi> qtAbis() const;
-    virtual QList<ProjectExplorer::Abi> detectQtAbis() const = 0;
+    virtual QList<ProjectExplorer::Abi> detectQtAbis() const;
 
     enum PropertyVariant { PropertyVariantDev, PropertyVariantGet, PropertyVariantSrc };
     QString qmakeProperty(const QByteArray &name,

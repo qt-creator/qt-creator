@@ -66,11 +66,6 @@ QStringList DesktopQtVersion::warningReason() const
     return ret;
 }
 
-QList<ProjectExplorer::Abi> DesktopQtVersion::detectQtAbis() const
-{
-    return qtAbisFromLibrary(qtCorePaths());
-}
-
 QString DesktopQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Desktop", "Qt Version is meant for the desktop");

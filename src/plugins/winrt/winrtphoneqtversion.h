@@ -37,7 +37,6 @@ public:
     WinRtPhoneQtVersion() = default;
 
     QSet<Core::Id> availableFeatures() const override;
-    QList<ProjectExplorer::Abi> detectQtAbis() const override;
 
     QString description() const override;
     BaseQtVersion *clone() const override;

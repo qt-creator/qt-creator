@@ -42,8 +42,6 @@ public:
 
     QStringList warningReason() const override;
 
-    QList<ProjectExplorer::Abi> detectQtAbis() const override;
-
     QString description() const override;
 
     QSet<Core::Id> availableFeatures() const override;

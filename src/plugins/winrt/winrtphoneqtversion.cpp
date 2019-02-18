@@ -65,11 +65,6 @@ QSet<Core::Id> WinRtPhoneQtVersion::availableFeatures() const
     return features;
 }
 
-QList<ProjectExplorer::Abi> WinRtPhoneQtVersion::detectQtAbis() const
-{
-    return qtAbisFromLibrary(qtCorePaths());
-}
-
 // Factory
 
 WinRtPhoneQtVersionFactory::WinRtPhoneQtVersionFactory()
