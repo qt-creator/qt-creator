@@ -395,6 +395,11 @@ namespace Internal {
 
 const char DEBUGGER_START[] = "Debugger.Start";
 
+// Menu Groups
+const char MENU_GROUP_GENERAL[]              = "Debugger.Group.General";
+const char MENU_GROUP_SPECIAL[]              = "Debugger.Group.Special";
+const char MENU_GROUP_START_QML[]            = "Debugger.Group.Start.Qml";
+
 void addCdbOptionPages(QList<IOptionsPage*> *opts);
 void addGdbOptionPages(QList<IOptionsPage*> *opts);
 
@@ -1100,15 +1105,16 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     // "Start Debugging" sub-menu
     // groups:
     //   G_DEFAULT_ONE
-    //   G_START_LOCAL
-    //   G_START_REMOTE
-    //   G_START_QML
+    //   MENU_GROUP_START_LOCAL
+    //   MENU_GROUP_START_REMOTE
+    //   MENU_GROUP_START_QML
 
     ActionContainer *mstart = ActionManager::actionContainer(PE::M_DEBUG_STARTDEBUGGING);
     const QKeySequence startShortcut(useMacShortcuts ? tr("Ctrl+Y") : tr("F5"));
 
 
-    cmd = ActionManager::registerAction(&m_visibleStartAction, Constants::DEBUG);
+    cmd = ActionManager::registerAction(&m_visibleStartAction, "Debugger.Debug");
+
     cmd->setDescription(tr("Start Debugging or Continue"));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
@@ -1126,7 +1132,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_visibleStartAction.setAction(&m_startAction);
 
     m_visibleStartAction.setObjectName("Debug"); // used for UI introduction
-    ModeManager::addAction(&m_visibleStartAction, Constants::P_ACTION_DEBUG);
+    ModeManager::addAction(&m_visibleStartAction, /*priority*/ 90);
 
     m_undisturbableAction.setIcon(interruptIcon(false));
     m_undisturbableAction.setEnabled(false);
@@ -1139,40 +1145,40 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd = ActionManager::registerAction(&m_attachToRunningApplication,
          "Debugger.AttachToRemoteProcess");
     cmd->setDescription(tr("Attach to Running Application"));
-    mstart->addAction(cmd, G_GENERAL);
+    mstart->addAction(cmd, MENU_GROUP_GENERAL);
 
     cmd = ActionManager::registerAction(&m_attachToUnstartedApplication,
           "Debugger.AttachToUnstartedProcess");
     cmd->setDescription(tr("Attach to Unstarted Application"));
-    mstart->addAction(cmd, G_GENERAL);
+    mstart->addAction(cmd, MENU_GROUP_GENERAL);
 
     cmd = ActionManager::registerAction(&m_startAndDebugApplicationAction,
         "Debugger.StartAndDebugApplication");
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, G_GENERAL);
+    mstart->addAction(cmd, MENU_GROUP_GENERAL);
 
     cmd = ActionManager::registerAction(&m_attachToCoreAction,
          "Debugger.AttachCore");
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_GENERAL);
+    mstart->addAction(cmd, MENU_GROUP_GENERAL);
 
     cmd = ActionManager::registerAction(&m_attachToRemoteServerAction,
           "Debugger.AttachToRemoteServer");
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_SPECIAL);
+    mstart->addAction(cmd, MENU_GROUP_SPECIAL);
 
     if (HostOsInfo::isWindowsHost()) {
         cmd = ActionManager::registerAction(&m_startRemoteCdbAction,
              "Debugger.AttachRemoteCdb");
         cmd->setAttribute(Command::CA_Hide);
-        mstart->addAction(cmd, Constants::G_SPECIAL);
+        mstart->addAction(cmd, MENU_GROUP_SPECIAL);
     }
 
-    mstart->addSeparator(Context(CC::C_GLOBAL), Constants::G_START_QML);
+    mstart->addSeparator(Context(CC::C_GLOBAL), MENU_GROUP_START_QML);
 
     cmd = ActionManager::registerAction(&m_attachToQmlPortAction, "Debugger.AttachToQmlPort");
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_QML);
+    mstart->addAction(cmd, MENU_GROUP_START_QML);
 
     act = new QAction(tr("Detach Debugger"), this);
     act->setEnabled(false);
@@ -2243,13 +2249,13 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     // Menu groups
     ActionContainer *mstart = ActionManager::actionContainer(PE::M_DEBUG_STARTDEBUGGING);
-    mstart->appendGroup(Constants::G_GENERAL);
-    mstart->appendGroup(Constants::G_SPECIAL);
-    mstart->appendGroup(Constants::G_START_QML);
+    mstart->appendGroup(MENU_GROUP_GENERAL);
+    mstart->appendGroup(MENU_GROUP_SPECIAL);
+    mstart->appendGroup(MENU_GROUP_START_QML);
 
     // Separators
-    mstart->addSeparator(Constants::G_GENERAL);
-    mstart->addSeparator(Constants::G_SPECIAL);
+    mstart->addSeparator(MENU_GROUP_GENERAL);
+    mstart->addSeparator(MENU_GROUP_SPECIAL);
 
     KitManager::registerKitAspect<DebuggerKitAspect>();
 

@@ -33,81 +33,10 @@ namespace Constants {
 // Debug mode
 const char MODE_DEBUG[]             = "Mode.Debug";
 
-// Contexts
+// Debug mode context
 const char C_DEBUGMODE[]            = "Debugger.DebugMode";
-const char C_CPPDEBUGGER[]          = "Gdb Debugger";
-const char C_QMLDEBUGGER[]          = "Qml/JavaScript Debugger";
-const char C_DEBUGGER_NOTRUNNING[]  = "Debugger.NotRunning";
-
-const char PRESET_PERSPECTIVE_ID[]  = "Debugger.Perspective.Preset";
-
-// Menu Groups
-const char G_GENERAL[]              = "Debugger.Group.General";
-const char G_SPECIAL[]              = "Debugger.Group.Special";
-const char G_START_QML[]            = "Debugger.Group.Start.Qml";
-
-// Common actions
-const char INTERRUPT[]              = "Debugger.Interrupt";
-const char CONTINUE[]               = "Debugger.Continue";
-const char STOP[]                   = "Debugger.Stop";
-const char ABORT[]                  = "Debugger.Abort";
-const char STEP[]                   = "Debugger.StepLine";
-const char STEPOUT[]                = "Debugger.StepOut";
-const char NEXT[]                   = "Debugger.NextLine";
-const char RUNTOLINE[]              = "Debugger.RunToLine";
-const char RUNTOSELECTEDFUNCTION[]  = "Debugger.RunToSelectedFunction";
-const char JUMPTOLINE[]             = "Debugger.JumpToLine";
-const char RETURNFROMFUNCTION[]     = "Debugger.ReturnFromFunction";
-const char RESET[]                  = "Debugger.Reset";
-const char WATCH[]                  = "Debugger.AddToWatch";
-const char DETACH[]                 = "Debugger.Detach";
-const char OPERATE_BY_INSTRUCTION[] = "Debugger.OperateByInstruction";
-const char OPEN_MEMORY_EDITOR[]     = "Debugger.Views.OpenMemoryEditor";
-const char FRAME_UP[]               = "Debugger.FrameUp";
-const char FRAME_DOWN[]             = "Debugger.FrameDown";
-const char QML_SHOW_APP_ON_TOP[]    = "Debugger.QmlShowAppOnTop";
-const char QML_SELECTTOOL[]         = "Debugger.QmlSelectTool";
-
-const char TASK_CATEGORY_DEBUGGER_DEBUGINFO[] = "Debuginfo";
-const char TASK_CATEGORY_DEBUGGER_RUNTIME[]   = "DebugRuntime";
-
-const char TEXT_MARK_CATEGORY_BREAKPOINT[] = "Debugger.Mark.Breakpoint";
-const char TEXT_MARK_CATEGORY_LOCATION[] = "Debugger.Mark.Location";
-
-// Run Configuration Aspect defaults:
-const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
 
 } // namespace Constants
-
-enum DebuggerState
-{
-    DebuggerNotReady,          // Debugger not started
-
-    EngineSetupRequested,      // Engine starts
-    EngineSetupFailed,
-    EngineSetupOk,
-
-    EngineRunRequested,
-    EngineRunFailed,
-
-    InferiorUnrunnable,        // Used in the core dump adapter
-
-    InferiorRunRequested,      // Debuggee requested to run
-    InferiorRunOk,             // Debuggee running
-    InferiorRunFailed,         // Debuggee running
-
-    InferiorStopRequested,     // Debuggee running, stop requested
-    InferiorStopOk,            // Debuggee stopped
-    InferiorStopFailed,        // Debuggee not stopped, will kill debugger
-
-    InferiorShutdownRequested,
-    InferiorShutdownFinished,
-
-    EngineShutdownRequested,
-    EngineShutdownFinished,
-
-    DebuggerFinished
-};
 
 // Keep in sync with dumper.py
 enum DebuggerStartMode

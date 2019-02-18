@@ -56,6 +56,36 @@ namespace Debugger {
 
 class DebuggerRunTool;
 
+enum DebuggerState
+{
+    DebuggerNotReady,          // Debugger not started
+
+    EngineSetupRequested,      // Engine starts
+    EngineSetupFailed,
+    EngineSetupOk,
+
+    EngineRunRequested,
+    EngineRunFailed,
+
+    InferiorUnrunnable,        // Used in the core dump adapter
+
+    InferiorRunRequested,      // Debuggee requested to run
+    InferiorRunOk,             // Debuggee running
+    InferiorRunFailed,         // Debuggee not running
+
+    InferiorStopRequested,     // Debuggee running, stop requested
+    InferiorStopOk,            // Debuggee stopped
+    InferiorStopFailed,        // Debuggee not stopped, will kill debugger
+
+    InferiorShutdownRequested,
+    InferiorShutdownFinished,
+
+    EngineShutdownRequested,
+    EngineShutdownFinished,
+
+    DebuggerFinished
+};
+
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
 
 namespace Internal {

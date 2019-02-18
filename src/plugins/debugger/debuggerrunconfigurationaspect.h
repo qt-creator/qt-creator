@@ -45,7 +45,10 @@ class DEBUGGER_EXPORT DebuggerRunConfigurationAspectData
 public:
     DebuggerLanguageStatus useCppDebugger = AutoEnabledLanguage;
     DebuggerLanguageStatus useQmlDebugger = AutoEnabledLanguage;
-    uint qmlDebugServerPort = Constants::QML_DEFAULT_DEBUG_SERVER_PORT;
+
+    const uint QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
+    uint qmlDebugServerPort = QML_DEFAULT_DEBUG_SERVER_PORT;
+
     bool useMultiProcess = false;
 };
 
