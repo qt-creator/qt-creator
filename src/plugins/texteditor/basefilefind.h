@@ -67,6 +67,7 @@ class TEXTEDITOR_EXPORT SearchEngine : public QObject
 public:
     SearchEngine(QObject *parent = nullptr);
     ~SearchEngine() override;
+
     virtual QString title() const = 0;
     virtual QString toolTip() const = 0; // add %1 placeholder where the find flags should be put
     virtual QWidget *widget() const = 0;
@@ -132,13 +133,13 @@ signals:
     void currentSearchEngineChanged();
 
 private:
-    void openEditor(const Core::SearchResultItem &item);
+    void openEditor(Core::SearchResult *result, const Core::SearchResultItem &item);
     void doReplace(const QString &txt,
                    const QList<Core::SearchResultItem> &items,
                    bool preserveCase);
     void hideHighlightAll(bool visible);
-    void searchAgain();
-    void recheckEnabled();
+    void searchAgain(Core::SearchResult *search);
+    void recheckEnabled(Core::SearchResult *search);
 
     void runNewSearch(const QString &txt, Core::FindFlags findFlags,
                       Core::SearchResultWindow::SearchMode searchMode);
