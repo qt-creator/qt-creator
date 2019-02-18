@@ -62,7 +62,7 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id
 
 void BareMetalRunConfiguration::updateTargetInformation()
 {
-    const BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    const BuildTargetInfo bti = buildTargetInfo();
     aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
     emit enabledChanged();
 }

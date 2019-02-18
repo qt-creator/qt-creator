@@ -157,7 +157,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
 void ChooseDirectoryPage::checkPackageSourceDir()
 {
     const QString buildKey = m_wizard->buildKey();
-    const BuildTargetInfo bti = m_wizard->target()->applicationTargets().buildTargetInfo(buildKey);
+    const BuildTargetInfo bti = m_wizard->target()->buildTarget(buildKey);
     const QString projectDir = bti.projectFilePath.toFileInfo().absolutePath();
 
     const QString newDir = m_androidPackageSourceDir->path();
@@ -181,7 +181,7 @@ void ChooseDirectoryPage::initializePage()
 {
     const Target *target = m_wizard->target();
     const QString buildKey = m_wizard->buildKey();
-    const BuildTargetInfo bti = target->applicationTargets().buildTargetInfo(buildKey);
+    const BuildTargetInfo bti = target->buildTarget(buildKey);
     const QString projectDir = bti.projectFilePath.toFileInfo().absolutePath();
 
     QString androidPackageDir;
@@ -357,7 +357,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
 
     if (androidPackageDir.isEmpty()) {
         // and now time for some magic
-        const BuildTargetInfo bti = m_target->applicationTargets().buildTargetInfo(m_buildKey);
+        const BuildTargetInfo bti = m_target->buildTarget(m_buildKey);
         const QString value = "$$PWD/" + bti.projectFilePath.toFileInfo().absoluteDir().relativeFilePath(m_directory);
         bool result = node->setData(Android::Constants::AndroidPackageSourceDir, value);
 

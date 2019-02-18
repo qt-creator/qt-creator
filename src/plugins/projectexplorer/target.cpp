@@ -347,7 +347,7 @@ DeploymentData Target::deploymentData() const
 
 void Target::setApplicationTargets(const BuildTargetInfoList &appTargets)
 {
-    if (d->m_appTargets != appTargets) {
+    if (appTargets.list.toSet() != d->m_appTargets.list.toSet()) {
         d->m_appTargets = appTargets;
         emit applicationTargetsChanged();
     }
@@ -356,6 +356,13 @@ void Target::setApplicationTargets(const BuildTargetInfoList &appTargets)
 BuildTargetInfoList Target::applicationTargets() const
 {
     return d->m_appTargets;
+}
+
+BuildTargetInfo Target::buildTarget(const QString &buildKey) const
+{
+    return Utils::findOrDefault(d->m_appTargets.list, [&buildKey](const BuildTargetInfo &ti) {
+        return ti.buildKey == buildKey;
+    });
 }
 
 QList<ProjectConfiguration *> Target::projectConfigurations() const

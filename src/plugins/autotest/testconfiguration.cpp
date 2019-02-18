@@ -93,8 +93,7 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
     m_runnable = rc->runnable();
     m_displayName = rc->displayName();
 
-    const QString buildKey = rc->buildKey();
-    BuildTargetInfo targetInfo = target->applicationTargets().buildTargetInfo(buildKey);
+    BuildTargetInfo targetInfo = rc->buildTargetInfo();
     if (!targetInfo.targetFilePath.isEmpty())
         m_runnable.executable = ensureExeEnding(targetInfo.targetFilePath.toString());
 

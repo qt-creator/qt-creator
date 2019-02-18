@@ -79,23 +79,7 @@ inline uint qHash(const BuildTargetInfo &ti)
 class PROJECTEXPLORER_EXPORT BuildTargetInfoList
 {
 public:
-    BuildTargetInfo buildTargetInfo(const QString &buildKey) {
-        return Utils::findOrDefault(list, [&buildKey](const BuildTargetInfo &ti) {
-            return ti.buildKey == buildKey;
-        });
-    }
-
     QList<BuildTargetInfo> list;
 };
-
-inline bool operator==(const BuildTargetInfoList &til1, const BuildTargetInfoList &til2)
-{
-    return til1.list.toSet() == til2.list.toSet();
-}
-
-inline bool operator!=(const BuildTargetInfoList &til1, const BuildTargetInfoList &til2)
-{
-    return !(til1 == til2);
-}
 
 } // namespace ProjectExplorer

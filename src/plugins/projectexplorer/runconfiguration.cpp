@@ -313,7 +313,7 @@ QVariantMap RunConfiguration::toMap() const
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
 {
-    return target()->applicationTargets().buildTargetInfo(m_buildKey);
+    return target()->buildTarget(m_buildKey);
 }
 
 bool RunConfiguration::fromMap(const QVariantMap &map)

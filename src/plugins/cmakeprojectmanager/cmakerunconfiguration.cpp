@@ -97,7 +97,7 @@ QString CMakeRunConfiguration::disabledReason() const
 
 void CMakeRunConfiguration::updateTargetInformation()
 {
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    BuildTargetInfo bti = buildTargetInfo();
     aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
     aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
     aspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();

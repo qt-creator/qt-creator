@@ -37,6 +37,7 @@ QT_FORWARD_DECLARE_CLASS(QIcon)
 namespace ProjectExplorer {
 class BuildConfiguration;
 class BuildTargetInfoList;
+class BuildTargetInfo;
 class DeployConfiguration;
 class DeploymentData;
 class Kit;
@@ -82,6 +83,7 @@ public:
 
     void setApplicationTargets(const BuildTargetInfoList &appTargets);
     BuildTargetInfoList applicationTargets() const;
+    BuildTargetInfo buildTarget(const QString &buildKey) const;
 
     QList<ProjectConfiguration *> projectConfigurations() const;
 

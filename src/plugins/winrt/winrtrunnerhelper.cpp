@@ -68,7 +68,7 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
         return;
     }
 
-    const BuildTargetInfo bti = target->applicationTargets().buildTargetInfo(runConfiguration->buildKey());
+    const BuildTargetInfo bti = runConfiguration->buildTargetInfo();
     m_executableFilePath = bti.targetFilePath.toString();
 
     if (m_executableFilePath.isEmpty()) {
