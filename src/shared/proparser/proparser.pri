@@ -15,6 +15,7 @@ HEADERS += \
         proitems.h \
         prowriter.h \
         qmakevfs.h \
+        registry_p.h \
         ioutils.h
 
 SOURCES += \
@@ -26,6 +27,7 @@ SOURCES += \
         proitems.cpp \
         prowriter.cpp \
         qmakevfs.cpp \
+        registry.cpp \
         ioutils.cpp
 
 RESOURCES += proparser.qrc

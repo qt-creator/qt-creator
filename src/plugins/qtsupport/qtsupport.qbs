@@ -19,6 +19,10 @@ Project {
             "QMAKE_LIBRARY",
             "QMAKE_BUILTIN_PRFS",
         ])
+        Properties {
+            condition: qbs.targetOS.contains("windows")
+            cpp.dynamicLibraries: "advapi32"
+        }
 
         Export {
             Depends { name: "ProParser" }
@@ -48,6 +52,8 @@ Project {
                 "qmakeparser.h",
                 "qmakevfs.cpp",
                 "qmakevfs.h",
+                "registry.cpp",
+                "registry_p.h",
             ]
         }
 
