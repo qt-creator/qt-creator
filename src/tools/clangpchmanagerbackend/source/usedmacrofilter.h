@@ -53,6 +53,29 @@ inline OutputIterator set_greedy_intersection(InputIterator1 first1,
     return result;
 }
 
+template<typename InputIterator1, typename InputIterator2, typename OutputIterator, typename Compare>
+inline OutputIterator fill_with_second_values(InputIterator1 first1,
+                                              InputIterator1 last1,
+                                              InputIterator2 first2,
+                                              InputIterator2 last2,
+                                              OutputIterator result,
+                                              Compare comp)
+{
+    while (first1 != last1 && first2 != last2)
+        if (comp(*first1, *first2)) {
+            *result = *first1;
+            ++first1;
+            ++result;
+        } else if (comp(*first2, *first1))
+            ++first2;
+        else {
+            *result = *first2;
+            ++first1;
+            ++result;
+        }
+    return result;
+}
+
 class UsedMacroFilter
 {
 public:
@@ -160,7 +183,7 @@ private:
                                                const Utils::SmallStringVector &usedMacros)
     {
         CompilerMacros filtertedCompilerMacros;
-        filtertedCompilerMacros.reserve(indexedCompilerMacro.size() + usedMacros.size());
+        filtertedCompilerMacros.reserve(usedMacros.size());
 
         struct Compare
         {
@@ -175,23 +198,12 @@ private:
             }
         };
 
-        set_greedy_intersection(indexedCompilerMacro.begin(),
-                                indexedCompilerMacro.end(),
-                                usedMacros.begin(),
+        fill_with_second_values(usedMacros.begin(),
                                 usedMacros.end(),
+                                indexedCompilerMacro.begin(),
+                                indexedCompilerMacro.end(),
                                 std::back_inserter(filtertedCompilerMacros),
                                 Compare{});
-
-        auto split = filtertedCompilerMacros.end();
-
-        std::set_difference(usedMacros.begin(),
-                            usedMacros.end(),
-                            filtertedCompilerMacros.begin(),
-                            filtertedCompilerMacros.end(),
-                            std::back_inserter(filtertedCompilerMacros),
-                            Compare{});
-
-        std::inplace_merge(filtertedCompilerMacros.begin(), split, filtertedCompilerMacros.end());
 
         return filtertedCompilerMacros;
     }
