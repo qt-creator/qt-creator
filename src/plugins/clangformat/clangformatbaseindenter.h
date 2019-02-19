@@ -75,7 +75,7 @@ protected:
 
 private:
     void indent(const QTextCursor &cursor, const QChar &typedChar, int cursorPositionInEditor);
-    void indentBlocks(const QTextBlock &startBlock,
+    void indentBlocks(QTextBlock startBlock,
                       const QTextBlock &endBlock,
                       const QChar &typedChar,
                       int cursorPositionInEditor);

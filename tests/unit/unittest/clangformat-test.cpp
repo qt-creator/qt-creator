@@ -331,6 +331,40 @@ TEST_F(ClangFormat, NoExtraIndentAfterBraceInitialization)
                                              "return 0;"));
 }
 
+TEST_F(ClangFormat, IndentMultipleEmptyLines)
+{
+    insertLines({"{",
+                 "",
+                 "",
+                 "",
+                 "}"});
+
+    indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("{",
+                                             "    ",
+                                             "    ",
+                                             "    ",
+                                             "}"));
+}
+
+TEST_F(ClangFormat, IndentEmptyLineAndKeepPreviousEmptyLines)
+{
+    insertLines({"{",
+                 "    ",
+                 "    ",
+                 "",
+                 "}"});
+
+    indenter.indentBlock(doc.findBlockByNumber(3), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("{",
+                                             "    ",
+                                             "    ",
+                                             "    ",
+                                             "}"));
+}
+
 TEST_F(ClangFormat, IndentFunctionBodyAndFormatBeforeIt)
 {
     insertLines({"int foo(int a, int b,",
@@ -469,7 +503,7 @@ TEST_F(ClangFormat, FormatBasicFile)
                  "int a;",
                  "}"});
 
-    indenter.format(cursor);
+    indenter.format({{1, 4}});
 
     ASSERT_THAT(documentLines(), ElementsAre("int main()",
                                              "{",
@@ -484,7 +518,7 @@ TEST_F(ClangFormat, FormatEmptyLine)
                  "",
                  "}"});
 
-    indenter.format(cursor);
+    indenter.format({{1, 4}});
 
     ASSERT_THAT(documentLines(), ElementsAre("int main() {}"));
 }
@@ -495,7 +529,7 @@ TEST_F(ClangFormat, FormatLambda)
                  "",
                  "});"});
 
-    indenter.format(cursor);
+    indenter.format({{1, 3}});
 
     ASSERT_THAT(documentLines(), ElementsAre("int b = foo([]() {",
                                              "",
@@ -508,7 +542,7 @@ TEST_F(ClangFormat, FormatInitializerListInArguments)
                  "args,",
                  "{1, 2});"});
 
-    indenter.format(cursor);
+    indenter.format({{1, 3}});
 
     ASSERT_THAT(documentLines(), ElementsAre("foo(arg1, args, {1, 2});"));
 }
@@ -520,7 +554,7 @@ TEST_F(ClangFormat, FormatFunctionArgumentLambdaWithScope)
                  "",
                  "});"});
 
-    indenter.format(cursor);
+    indenter.format({{1, 4}});
 
     ASSERT_THAT(documentLines(),
                 ElementsAre("foo([]() {",
@@ -535,7 +569,7 @@ TEST_F(ClangFormat, FormatScopeAsFunctionArgument)
                  "",
                  "});"});
 
-    indenter.format(cursor);
+    indenter.format({{1, 4}});
 
     ASSERT_THAT(documentLines(),
                 ElementsAre("foo({",
@@ -548,7 +582,7 @@ TEST_F(ClangFormat, FormatStructuredBinding)
     insertLines({"auto [a,",
                  "b] = c;"});
 
-    indenter.format(cursor);
+    indenter.format({{1, 2}});
 
     ASSERT_THAT(documentLines(), ElementsAre("auto [a, b] = c;"));
 }
@@ -558,7 +592,7 @@ TEST_F(ClangFormat, FormatStringLiteralContinuation)
     insertLines({"foo(bar, \"foo\"",
                  "\"bar\");"});
 
-    indenter.format(cursor);
+    indenter.format({{1, 2}});
 
     ASSERT_THAT(documentLines(), ElementsAre("foo(bar,",
                                              "    \"foo\"",
@@ -571,7 +605,7 @@ TEST_F(ClangFormat, FormatTemplateparameters)
                  "B,",
                  "C>"});
 
-    indenter.format(cursor);
+    indenter.format({{1, 3}});
 
     ASSERT_THAT(documentLines(), ElementsAre("using Alias = Template<A, B, C>"));
 }
