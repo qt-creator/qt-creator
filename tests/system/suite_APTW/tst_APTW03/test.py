@@ -85,11 +85,7 @@ def main():
     checkSimpleCppLib("SampleApp1", False)
     checkSimpleCppLib("SampleApp2", True)
 
-    pluginTargets = Targets.desktopTargetClasses()
-    pluginTargets.remove(Targets.DESKTOP_4_8_7_DEFAULT)
-    if platform.system() in ('Microsoft', 'Windows'):
-        # No C++11 in GCC 4.9
-        pluginTargets.remove(Targets.DESKTOP_5_4_1_GCC)
+    pluginTargets = (Targets.DESKTOP_5_6_1_DEFAULT, Targets.DESKTOP_5_10_1_DEFAULT)
     projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin", pluginTargets)
     virtualFunctionsAdded = False
     for kit, config in iterateBuildConfigs("Debug"):
