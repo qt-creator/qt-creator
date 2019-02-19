@@ -1433,8 +1433,8 @@ def qdump__QSizePolicy(d, value):
         with Children(d):
             d.putIntItem('horStretch', (bits >> 0) & 0xff)
             d.putIntItem('verStretch', (bits >> 8) & 0xff)
-            d.putEnumItem('horPolicy', (bits >> 16) & 0xf, "QSizePolicy::Policy")
-            d.putEnumItem('verPolicy', (bits >> 20) & 0xf, "QSizePolicy::Policy")
+            d.putEnumItem('horPolicy', (bits >> 16) & 0xf, "@QSizePolicy::Policy")
+            d.putEnumItem('verPolicy', (bits >> 20) & 0xf, "@QSizePolicy::Policy")
 
 
 def qform__QStack():

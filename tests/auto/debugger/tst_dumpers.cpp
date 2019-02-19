@@ -5457,6 +5457,19 @@ void tst_Dumpers::dumper_data()
                 + Check("e.e2", "(E::b2 | E::c2) (3)", "E::Enum2")
                 + Check("e.e3", "(E::b3 | E::c3) (3)", "E::Enum3");
 
+    QTest::newRow("QSizePolicy")
+        << Data("#include <QSizePolicy>\n",
+                "QSizePolicy qsp1;\n"
+                "qsp1.setHorizontalStretch(6);\n"
+                "qsp1.setVerticalStretch(7);\n"
+                "QSizePolicy qsp2(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);\n")
+                + GuiProfile()
+                + NoCdbEngine
+                + Check("qsp1.horStretch", "6", "int")
+                + Check("qsp1.verStretch", "7", "int")
+                + Check("qsp2.horPolicy", "QSizePolicy::Preferred (GrowFlag|ShrinkFlag) (5)", "@QSizePolicy::Policy")
+                + Check("qsp2.verPolicy", "QSizePolicy::MinimumExpanding (GrowFlag|ExpandFlag) (3)", "@QSizePolicy::Policy");
+
 
     QTest::newRow("Array")
             << Data("",
