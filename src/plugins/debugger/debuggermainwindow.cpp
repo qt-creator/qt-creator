@@ -45,6 +45,7 @@
 #include <utils/qtcassert.h>
 #include <utils/proxyaction.h>
 #include <utils/utilsicons.h>
+#include <utils/stylehelper.h>
 
 #include <QAction>
 #include <QComboBox>
@@ -52,6 +53,7 @@
 #include <QDockWidget>
 #include <QHBoxLayout>
 #include <QMenu>
+#include <QScrollArea>
 #include <QStackedWidget>
 #include <QStandardItemModel>
 #include <QTimer>
@@ -189,14 +191,22 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     hbox->addWidget(viewButton);
     hbox->addWidget(closeButton);
 
+    auto scrolledToolbar = new QScrollArea;
+    scrolledToolbar->setWidget(toolbar);
+    scrolledToolbar->setFrameStyle(QFrame::NoFrame);
+    scrolledToolbar->setWidgetResizable(true);
+    scrolledToolbar->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrolledToolbar->setFixedHeight(StyleHelper::navigationWidgetHeight());
+    scrolledToolbar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
     auto dock = new QDockWidget(DebuggerMainWindow::tr("Toolbar"), q);
     dock->setObjectName("Toolbar");
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     dock->setAllowedAreas(Qt::BottomDockWidgetArea);
     dock->setTitleBarWidget(new QWidget(dock)); // hide title bar
     dock->setProperty("managed_dockwidget", "true");
-    toolbar->setParent(dock);
-    dock->setWidget(toolbar);
+    dock->setWidget(scrolledToolbar);
+
     m_toolBarDock = dock;
     q->addDockWidget(Qt::BottomDockWidgetArea, m_toolBarDock);
 
