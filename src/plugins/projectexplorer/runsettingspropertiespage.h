@@ -58,7 +58,7 @@ public:
 
 private:
     void currentRunConfigurationChanged(int index);
-    void aboutToShowAddMenu();
+    void showAddRunConfigDialog();
     void cloneRunConfiguration();
     void removeRunConfiguration();
     void activeRunConfigurationChanged();
@@ -91,7 +91,6 @@ private:
     NamedWidget *m_deployConfigurationWidget = nullptr;
     QVBoxLayout *m_deployLayout = nullptr;
     BuildStepListWidget *m_deploySteps = nullptr;
-    QMenu *m_addRunMenu;
     QMenu *m_addDeployMenu;
     bool m_ignoreChange = false;
     using RunConfigItem = QPair<QWidget *, QLabel *>;

@@ -235,6 +235,7 @@ public:
     QString buildKey;
     QString displayName;
     QString displayNameUniquifier;
+    Utils::FileName projectFilePath;
     CreationMode creationMode = AlwaysCreate;
     bool useTerminal = false;
 };

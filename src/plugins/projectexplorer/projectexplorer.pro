@@ -10,6 +10,7 @@ include(../../shared/clang/clang_defines.pri)
 HEADERS += projectexplorer.h \
     abi.h \
     abiwidget.h \
+    addrunconfigdialog.h \
     ansifilterparser.h \
     buildinfo.h \
     clangparser.h \
@@ -162,6 +163,7 @@ HEADERS += projectexplorer.h \
 SOURCES += projectexplorer.cpp \
     abi.cpp \
     abiwidget.cpp \
+    addrunconfigdialog.cpp \
     ansifilterparser.cpp \
     buildinfo.cpp \
     clangparser.cpp \

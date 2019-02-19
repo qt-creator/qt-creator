@@ -466,6 +466,7 @@ RunConfigurationFactory::availableCreators(Target *parent) const
         rci.factory = this;
         rci.id = m_runConfigBaseId;
         rci.buildKey = ti.buildKey;
+        rci.projectFilePath = ti.projectFilePath;
         rci.displayName = displayName;
         rci.displayNameUniquifier = ti.displayNameUniquifier;
         rci.creationMode = ti.isQtcRunnable || !hasAnyQtcRunnable

@@ -25,6 +25,7 @@
 
 #include "runsettingspropertiespage.h"
 
+#include "addrunconfigdialog.h"
 #include "buildstepspage.h"
 #include "deployconfiguration.h"
 #include "runconfiguration.h"
@@ -92,7 +93,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_runConfigurationCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_runConfigurationCombo->setMinimumContentsLength(15);
 
-    m_addRunToolButton = new QPushButton(tr("Add"), this);
+    m_addRunToolButton = new QPushButton(tr("Add..."), this);
     m_removeRunToolButton = new QPushButton(tr("Remove"), this);
     m_renameRunButton = new QPushButton(tr("Rename..."), this);
     m_cloneRunButton = new QPushButton(tr("Clone..."), this);
@@ -187,8 +188,6 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
     m_runLayout->addLayout(disabledHBox);
 
-    m_addRunMenu = new QMenu(m_addRunToolButton);
-    m_addRunToolButton->setMenu(m_addRunMenu);
     RunConfiguration *rc = m_target->activeRunConfiguration();
     m_runConfigurationCombo->setModel(m_runConfigurationsModel);
     m_runConfigurationCombo->setCurrentIndex(
@@ -200,8 +199,8 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
     setConfigurationWidget(rc);
 
-    connect(m_addRunMenu, &QMenu::aboutToShow,
-            this, &RunSettingsWidget::aboutToShowAddMenu);
+    connect(m_addRunToolButton, &QAbstractButton::clicked,
+            this, &RunSettingsWidget::showAddRunConfigDialog);
     connect(m_runConfigurationCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &RunSettingsWidget::currentRunConfigurationChanged);
     connect(m_removeRunToolButton, &QAbstractButton::clicked,
@@ -225,28 +224,20 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
             this, &RunSettingsWidget::activeRunConfigurationChanged);
 }
 
-void RunSettingsWidget::aboutToShowAddMenu()
+void RunSettingsWidget::showAddRunConfigDialog()
 {
-    m_addRunMenu->clear();
-    QList<QAction *> menuActions;
-    for (const RunConfigurationCreationInfo &item :
-            RunConfigurationFactory::creatorsForTarget(m_target)) {
-        auto action = new QAction(item.displayName, m_addRunMenu);
-        connect(action, &QAction::triggered, [item, this] {
-            RunConfiguration *newRC = item.create(m_target);
-            if (!newRC)
-                return;
-            QTC_CHECK(newRC->id() == item.id);
-            m_target->addRunConfiguration(newRC);
-            m_target->setActiveRunConfiguration(newRC);
-            m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
-        });
-        menuActions.append(action);
-    }
-
-    Utils::sort(menuActions, &QAction::text);
-    foreach (QAction *action, menuActions)
-        m_addRunMenu->addAction(action);
+    AddRunConfigDialog dlg(m_target, this);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+    RunConfigurationCreationInfo rci = dlg.creationInfo();
+    QTC_ASSERT(rci.id.isValid(), return);
+    RunConfiguration *newRC = rci.create(m_target);
+    if (!newRC)
+        return;
+    QTC_CHECK(newRC->id() == rci.id);
+    m_target->addRunConfiguration(newRC);
+    m_target->setActiveRunConfiguration(newRC);
+    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::cloneRunConfiguration()

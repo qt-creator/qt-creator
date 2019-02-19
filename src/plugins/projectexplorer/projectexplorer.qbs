@@ -24,6 +24,7 @@ Project {
                 "abi.cpp", "abi.h",
                 "abiwidget.cpp", "abiwidget.h",
                 "abstractprocessstep.cpp", "abstractprocessstep.h",
+                "addrunconfigdialog.cpp", "addrunconfigdialog.h",
                 "allprojectsfilter.cpp", "allprojectsfilter.h",
                 "allprojectsfind.cpp", "allprojectsfind.h",
                 "ansifilterparser.cpp", "ansifilterparser.h",
