@@ -833,6 +833,14 @@ class DumperBase:
             self.putType('int')
             self.putNumChild(0)
 
+    def putEnumItem(self, name, ival, typish):
+        buf = bytearray(struct.pack('i', ival))
+        val = self.Value(self)
+        val.ldata = bytes(buf)
+        val.type = self.createType(typish)
+        with SubItem(self, name):
+            self.putItem(val)
+
     def putBoolItem(self, name, value):
         with SubItem(self, name):
             self.putValue(value)
@@ -855,8 +863,7 @@ class DumperBase:
             self.putField('keyencoded', key.encoding)
         self.putValue(value.value, value.encoding)
 
-    def putEnumValue(self, value, vals):
-        ival = value.integer()
+    def putEnumValue(self, ival, vals):
         nice = vals.get(ival, None)
         display = ('%d' % ival) if nice is None else ('%s (%d)' % (nice, ival))
         self.putValue(display)
