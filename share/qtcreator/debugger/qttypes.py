@@ -1234,6 +1234,11 @@ def qdump__QPixmap(d, value):
     d.putPlainChildren(value)
 
 
+def qdump__QMargins(d, value):
+    d.putValue('left:%s, top:%s, right:%s, bottom:%s' % (value.split('iiii')))
+    d.putPlainChildren(value)
+
+
 def qdump__QPoint(d, value):
     d.putValue('(%s, %s)' % (value.split('ii')))
     d.putPlainChildren(value)
