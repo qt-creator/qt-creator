@@ -27,6 +27,7 @@
 
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/FrontendActions.h>
+#include <clang/Lex/PreprocessorOptions.h>
 
 namespace ClangBackEnd {
 
@@ -100,6 +101,7 @@ newFrontendActionFactory(Factory *consumerFactory,
             bool BeginInvocation(clang::CompilerInstance &compilerInstance) override
             {
                 compilerInstance.getLangOpts().DelayedTemplateParsing = false;
+                compilerInstance.getPreprocessorOpts().AllowPCHWithCompilerErrors = true;
 
                 return clang::ASTFrontendAction::BeginInvocation(compilerInstance);
             }

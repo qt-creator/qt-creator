@@ -89,6 +89,10 @@ bool FixitsRefactoringFile::apply()
             = CppTools::CppCodeStyleSettings::currentProjectTabSettings();
 
     // Apply changes
+    std::unique_ptr<TextEditor::Indenter> indenter;
+    QString lastFilename;
+    ReplacementOperations operationsForFile;
+
     for (int i=0; i < m_replacementOperations.size(); ++i) {
         ReplacementOperation &op = *m_replacementOperations[i];
         if (op.apply) {
@@ -103,15 +107,19 @@ bool FixitsRefactoringFile::apply()
 
             // Apply
             QTextDocument *doc = document(op.fileName);
-            std::unique_ptr<TextEditor::Indenter> indenter(factory->createIndenter(doc));
-            indenter->setFileName(Utils::FileName::fromString(op.fileName));
+            if (lastFilename != op.fileName) {
+                if (indenter)
+                    format(*indenter, doc, operationsForFile, i);
+                operationsForFile.clear();
+                indenter = std::unique_ptr<TextEditor::Indenter>(factory->createIndenter(doc));
+                indenter->setFileName(Utils::FileName::fromString(op.fileName));
+            }
 
             QTextCursor cursor(doc);
             cursor.setPosition(op.pos);
             cursor.setPosition(op.pos + op.length, QTextCursor::KeepAnchor);
             cursor.insertText(op.text);
-
-            tryToFormat(*indenter, tabSettings, doc, op, i);
+            operationsForFile.push_back(&op);
         }
     }
 
@@ -130,28 +138,29 @@ bool FixitsRefactoringFile::apply()
     return true;
 }
 
-void FixitsRefactoringFile::tryToFormat(TextEditor::Indenter &indenter,
-                                        const TextEditor::TabSettings &tabSettings,
-                                        QTextDocument *doc,
-                                        const ReplacementOperation &op,
-                                        int currentIndex)
+void FixitsRefactoringFile::format(TextEditor::Indenter &indenter,
+                                   QTextDocument *doc,
+                                   const ReplacementOperations &operationsForFile,
+                                   int firstOperationIndex)
 {
-    QTextCursor cursor(doc);
-    cursor.beginEditBlock();
-    cursor.setPosition(op.pos);
-    cursor.movePosition(QTextCursor::Right,
-                        QTextCursor::KeepAnchor,
-                        op.text.length());
-    const Replacements replacements = indenter.format(cursor, tabSettings);
-    cursor.endEditBlock();
+    if (operationsForFile.isEmpty())
+        return;
+
+    TextEditor::RangesInLines ranges;
+    for (int i = 0; i < operationsForFile.size(); ++i) {
+        const ReplacementOperation &op = *operationsForFile.at(i);
+        const int start = doc->findBlock(op.pos).blockNumber() + 1;
+        const int end = doc->findBlock(op.pos + op.length).blockNumber() + 1;
+        ranges.push_back({start, end});
+    }
+    const Replacements replacements = indenter.format(ranges);
 
     if (replacements.empty())
         return;
 
-    if (hasIntersection(op.fileName, replacements, currentIndex + 1))
-        doc->undo(&cursor);
-    else
-        shiftAffectedReplacements(op.fileName, replacements, currentIndex + 1);
+    shiftAffectedReplacements(operationsForFile.front()->fileName,
+                              replacements,
+                              firstOperationIndex + 1);
 }
 
 QTextDocument *FixitsRefactoringFile::document(const QString &filePath) const

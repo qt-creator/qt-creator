@@ -78,10 +78,7 @@ MATCHER_P2(HasIdAndType,
 class PchCreator: public ::testing::Test
 {
 protected:
-    PchCreator()
-    {
-        creator.setUnsavedFiles({generatedFile});
-    }
+    PchCreator() { creator.setUnsavedFiles({generatedFile}); }
 
     ClangBackEnd::FilePathId id(ClangBackEnd::FilePathView path)
     {
@@ -95,10 +92,9 @@ protected:
     FilePath main2Path = TESTDATA_DIR "/builddependencycollector/project/main2.cpp";
     FilePath header1Path = TESTDATA_DIR "/builddependencycollector/project/header1.h";
     FilePath header2Path = TESTDATA_DIR "/builddependencycollector/project/header2.h";
-    Utils::SmallStringView generatedFileName = "builddependencycollector/project/generated_file.h";
     FilePath generatedFilePath = TESTDATA_DIR "/builddependencycollector/project/generated_file.h";
     TestEnvironment environment;
-    FileContainer generatedFile{{TESTDATA_DIR, generatedFileName}, "#pragma once", {}};
+    FileContainer generatedFile{generatedFilePath.clone(), "#pragma once", {}};
     NiceMock<MockPchManagerClient> mockPchManagerClient;
     NiceMock<MockClangPathWatcher> mockClangPathWatcher;
     ClangBackEnd::PchCreator creator{environment, database, mockPchManagerClient, mockClangPathWatcher};
@@ -107,7 +103,8 @@ protected:
         {id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
          id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
          id(TESTDATA_DIR "/builddependencycollector/external/external2.h")},
-        {id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+        {id(generatedFilePath),
+         id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
          id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
          id(TESTDATA_DIR "/builddependencycollector/external/external2.h")},
         {},
@@ -137,6 +134,7 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
 
     ASSERT_THAT(arguments,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++98",
@@ -160,6 +158,7 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArgumentsWithSystemPch)
 
     ASSERT_THAT(arguments,
                 ElementsAre("clang++",
+                            "-DNOMINMAX",
                             "-x",
                             "c++-header",
                             "-std=c++98",

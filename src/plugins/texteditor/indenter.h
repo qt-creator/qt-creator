@@ -58,6 +58,15 @@ public:
 
 using Replacements = std::vector<Replacement>;
 
+class RangeInLines
+{
+public:
+    int startLine;
+    int endLine;
+};
+
+using RangesInLines = std::vector<RangeInLines>;
+
 class Indenter
 {
 public:
@@ -91,9 +100,7 @@ public:
     }
 
     // By default just calls indent with default settings.
-    virtual Replacements format(const QTextCursor &/*cursor*/,
-                                const TabSettings &/*tabSettings*/,
-                                int /*cursorPositionInEditor*/ = -1)
+    virtual Replacements format(const RangesInLines & /*rangesInLines*/ = RangesInLines())
     {
         return Replacements();
     }

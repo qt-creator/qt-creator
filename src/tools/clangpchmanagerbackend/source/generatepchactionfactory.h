@@ -27,6 +27,7 @@
 
 #include <clang/Tooling/Tooling.h>
 
+#include <clang/Basic/DiagnosticOptions.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/FrontendActions.h>
 #include <clang/Lex/PreprocessorOptions.h>
@@ -44,6 +45,9 @@ public:
     bool BeginInvocation(clang::CompilerInstance &compilerInstance) override
     {
         compilerInstance.getPreprocessorOpts().DisablePCHValidation = true;
+        compilerInstance.getPreprocessorOpts().AllowPCHWithCompilerErrors = true;
+        compilerInstance.getLangOpts().DelayedTemplateParsing = true;
+        compilerInstance.getDiagnosticOpts().ErrorLimit = 0;
         std::unique_ptr<llvm::MemoryBuffer> Input = llvm::MemoryBuffer::getMemBuffer(m_fileContent);
         compilerInstance.getPreprocessorOpts().addRemappedFile(m_filePath, Input.release());
 

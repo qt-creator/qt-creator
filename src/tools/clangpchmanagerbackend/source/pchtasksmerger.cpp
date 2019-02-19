@@ -71,7 +71,7 @@ bool PchTasksMerger::hasDuplicates(const CompilerMacros &compilerMacros)
                                         return first.key == second.key;
                                     });
 
-    return found == compilerMacros.end();
+    return found != compilerMacros.end();
 }
 
 IncludeSearchPaths mergeIncludeSearchPaths(IncludeSearchPaths &&first, IncludeSearchPaths &&second)
@@ -89,7 +89,8 @@ bool PchTasksMerger::mergePchTasks(PchTask &firstTask, PchTask &secondTask)
 
     CompilerMacros macros = mergeMacros(firstTask.compilerMacros, secondTask.compilerMacros);
 
-    secondTask.isMerged = hasDuplicates(macros);
+    secondTask.isMerged = !hasDuplicates(macros);
+
 
     if (secondTask.isMerged && firstTask.language == secondTask.language) {
         firstTask.projectPartIds = merge(std::move(firstTask.projectPartIds),

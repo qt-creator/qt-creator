@@ -291,6 +291,9 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
     // Right column: action icons/button
     if (!m_actions.isEmpty()) {
         auto actionsLayout = new QHBoxLayout;
+        QMargins margins = actionsLayout->contentsMargins();
+        margins.setLeft(margins.left() + 5);
+        actionsLayout->setContentsMargins(margins);
         for (QAction *action : m_actions) {
             QTC_ASSERT(!action->icon().isNull(), continue);
             auto button = new QToolButton;

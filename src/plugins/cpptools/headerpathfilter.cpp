@@ -48,6 +48,11 @@ void HeaderPathFilter::process()
         tweakHeaderPaths();
 }
 
+bool HeaderPathFilter::isProjectHeaderPath(const QString &path) const
+{
+    return path.startsWith(projectDirectory) || path.startsWith(buildDirectory);
+}
+
 void HeaderPathFilter::filterHeaderPath(const ProjectExplorer::HeaderPath &headerPath)
 {
     if (headerPath.path.isEmpty())
@@ -62,7 +67,10 @@ void HeaderPathFilter::filterHeaderPath(const ProjectExplorer::HeaderPath &heade
         systemHeaderPaths.push_back(headerPath);
         break;
     case HeaderPathType::User:
-        userHeaderPaths.push_back(headerPath);
+        if (isProjectHeaderPath(headerPath.path))
+            userHeaderPaths.push_back(headerPath);
+        else
+            systemHeaderPaths.push_back(headerPath);
         break;
     }
 }
@@ -131,6 +139,15 @@ void HeaderPathFilter::tweakHeaderPaths()
         const QString clangIncludePath = clangIncludeDirectory(clangVersion, clangResourceDirectory);
         builtInHeaderPaths.insert(split, HeaderPath{clangIncludePath, HeaderPathType::BuiltIn});
     }
+}
+
+QString HeaderPathFilter::ensurePathWithSlashEnding(const QString &path)
+{
+    QString pathWithSlashEnding = path;
+    if (!pathWithSlashEnding.isEmpty() && *pathWithSlashEnding.rbegin() != '/')
+        pathWithSlashEnding.push_back('/');
+
+    return pathWithSlashEnding;
 }
 
 } // namespace CppTools

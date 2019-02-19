@@ -8085,12 +8085,21 @@ void BaseTextEditor::setContextHelp(const HelpItem &item)
 
 void TextEditorWidget::contextHelpItem(const IContext::HelpCallback &callback)
 {
+    const QString fallbackWordUnderCursor = Text::wordUnderCursor(textCursor());
     if (d->m_contextHelpItem.isEmpty() && !d->m_hoverHandlers.isEmpty()) {
         d->m_hoverHandlers.first()->contextHelpId(this,
                                                   Text::wordStartCursor(textCursor()).position(),
-                                                  callback);
+                                                  [fallbackWordUnderCursor, callback](const HelpItem &item) {
+                                                      if (item.isEmpty())
+                                                          callback(fallbackWordUnderCursor);
+                                                      else
+                                                          callback(item);
+                                                  });
     } else {
-        callback(d->m_contextHelpItem);
+        if (d->m_contextHelpItem.isEmpty())
+            callback(fallbackWordUnderCursor);
+        else
+            callback(d->m_contextHelpItem);
     }
 }
 

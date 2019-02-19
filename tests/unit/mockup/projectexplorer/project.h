@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "target.h"
+
 #include <projectexplorer/kit.h>
 
 #include <utils/fileutils.h>
@@ -35,13 +37,10 @@ class Project : public QObject {
 public:
     Project() = default;
 
-    Utils::FileName projectDirectory() const {
-        return Utils::FileName();
-    }
+    Utils::FileName projectDirectory() const { return {}; }
 
-    Utils::FileName rootProjectDirectory() const {
-        return Utils::FileName();
-    }
+    Utils::FileName rootProjectDirectory() const { return {}; }
+
+    Target *activeTarget() const { return {}; }
 };
-
-}
+} // namespace ProjectExplorer

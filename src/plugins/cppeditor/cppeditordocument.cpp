@@ -446,46 +446,39 @@ TextEditor::TabSettings CppEditorDocument::tabSettings() const
     return indenter()->tabSettings().value_or(TextEditor::TextDocument::tabSettings());
 }
 
-static int formatRange(QTextDocument *doc,
-                       TextEditor::Indenter *indenter,
-                       std::pair<int, int> editedRange,
-                       const TextEditor::TabSettings &tabSettings)
-{
-    QTextCursor cursor(doc);
-    cursor.setPosition(editedRange.first);
-    cursor.setPosition(editedRange.second, QTextCursor::KeepAnchor);
-    const int oldBlockCount = doc->blockCount();
-    indenter->format(cursor, tabSettings);
-    return doc->blockCount() - oldBlockCount;
-}
-
 bool CppEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
 {
-    if (indenter()->formatOnSave()) {
-        QTextCursor cursor(document());
-        cursor.joinPreviousEditBlock();
+    if (indenter()->formatOnSave() && !autoSave) {
         auto *layout = qobject_cast<TextEditor::TextDocumentLayout *>(document()->documentLayout());
         const int documentRevision = layout->lastSaveRevision;
 
-        std::pair<int, int> editedRange;
+        TextEditor::RangesInLines editedRanges;
+        TextEditor::RangeInLines lastRange{-1, -1};
         for (int i = 0; i < document()->blockCount(); ++i) {
             const QTextBlock block = document()->findBlockByNumber(i);
             if (block.revision() == documentRevision) {
-                if (editedRange.first != -1)
-                    i += formatRange(document(), indenter(), editedRange, tabSettings());
+                if (lastRange.startLine != -1)
+                    editedRanges.push_back(lastRange);
 
-                editedRange = std::make_pair(-1, -1);
+                lastRange.startLine = lastRange.endLine = -1;
                 continue;
             }
 
             // block.revision() != documentRevision
-            if (editedRange.first == -1)
-                editedRange.first = block.position();
-            editedRange.second = block.position() + block.length();
+            if (lastRange.startLine == -1)
+                lastRange.startLine = block.blockNumber() + 1;
+            lastRange.endLine = block.blockNumber() + 1;
         }
-        if (editedRange.first != -1)
-            formatRange(document(), indenter(), editedRange, tabSettings());
-        cursor.endEditBlock();
+
+        if (lastRange.startLine != -1)
+            editedRanges.push_back(lastRange);
+
+        if (!editedRanges.empty()) {
+            QTextCursor cursor(document());
+            cursor.joinPreviousEditBlock();
+            indenter()->format(editedRanges);
+            cursor.endEditBlock();
+        }
     }
 
     return TextEditor::TextDocument::save(errorString, fileName, autoSave);

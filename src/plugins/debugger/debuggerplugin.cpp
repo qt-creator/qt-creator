@@ -1451,8 +1451,9 @@ void DebuggerPluginPrivate::updatePresetState()
     if (startupRunConfigName.isEmpty() && startupProject)
         startupRunConfigName = startupProject->displayName();
 
+    // Restrict width, otherwise Creator gets too wide, see QTCREATORBUG-21885
     const QString startToolTip =
-            canRun ? tr("Start debugging of \"%1\"").arg(startupRunConfigName) : whyNot;
+            canRun ? tr("Start debugging of startup project") : whyNot;
 
     m_startAction.setToolTip(startToolTip);
     m_startAction.setText(canRun ? startToolTip : tr("Start Debugging"));

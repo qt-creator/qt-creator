@@ -119,7 +119,7 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
             "<tr><td>Edit:</td><td>Work with code and navigate your project.</td></tr>"
             "<tr><td>Design:</td><td>Work with UI designs for Qt Widgets or Qt Quick.</td></tr>"
             "<tr><td>Debug:</td><td>Analyze your application with a debugger or other "
-            "analyzer.</td></tr>"
+            "analyzers.</td></tr>"
             "<tr><td>Projects:</td><td>Manage project settings.</td></tr>"
             "<tr><td>Help:</td><td>Browse the help database.</td></tr>"
             "</table></p>")},

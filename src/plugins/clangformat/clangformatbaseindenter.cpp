@@ -39,9 +39,6 @@ namespace ClangFormat {
 static void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
                                           ReplacementsToKeep replacementsToKeep)
 {
-    if (replacementsToKeep == ReplacementsToKeep::All)
-        return;
-
     style.MaxEmptyLinesToKeep = 2;
     style.SortIncludes = false;
     style.SortUsingDeclarations = false;
@@ -67,9 +64,10 @@ static llvm::StringRef clearExtraNewline(llvm::StringRef text)
 }
 
 static clang::tooling::Replacements filteredReplacements(
+    const QByteArray &buffer,
     const clang::tooling::Replacements &replacements,
-    int offset,
-    int utf8LineLengthBeforeCursor,
+    int utf8Offset,
+    int utf8Length,
     int extraEmptySpaceOffset,
     ReplacementsToKeep replacementsToKeep)
 {
@@ -77,14 +75,13 @@ static clang::tooling::Replacements filteredReplacements(
     for (const clang::tooling::Replacement &replacement : replacements) {
         int replacementOffset = static_cast<int>(replacement.getOffset());
         const bool replacementDoesNotMatchRestriction
-            = (replacementsToKeep == ReplacementsToKeep::OnlyIndent
-               && replacementOffset != offset - 1)
-              || (replacementsToKeep == ReplacementsToKeep::IndentAndBefore
-                  && replacementOffset > offset + utf8LineLengthBeforeCursor - 1);
+            = replacementOffset >= utf8Offset + utf8Length
+              || (replacementsToKeep == ReplacementsToKeep::OnlyIndent
+                  && (replacementOffset < utf8Offset - 1 || buffer.at(replacementOffset) != '\n'));
         if (replacementDoesNotMatchRestriction)
             continue;
 
-        if (replacementOffset >= offset - 1)
+        if (replacementOffset >= utf8Offset - 1)
             replacementOffset += extraEmptySpaceOffset;
 
         llvm::StringRef text = replacementsToKeep == ReplacementsToKeep::OnlyIndent
@@ -151,13 +148,13 @@ static int previousEmptyLinesLength(const QTextBlock &currentBlock)
 }
 
 static void modifyToIndentEmptyLines(
-    QByteArray &buffer, int offset, int &length, const QTextBlock &block, bool secondTry)
+    QByteArray &buffer, int utf8Offset, const QTextBlock &block, bool secondTry)
 {
     const QString blockText = block.text();
     int firstNonWhitespace = Utils::indexOf(blockText,
                                             [](const QChar &ch) { return !ch.isSpace(); });
     if (firstNonWhitespace > 0)
-        offset += firstNonWhitespace;
+        utf8Offset += firstNonWhitespace;
 
     const bool closingParenBlock = firstNonWhitespace >= 0
                                    && blockText.at(firstNonWhitespace) == ')';
@@ -176,12 +173,11 @@ static void modifyToIndentEmptyLines(
         if (closingParenBlock || prevBlock.text().endsWith(','))
             dummyText = "&& a";
 
-        length += dummyText.length();
-        buffer.insert(offset, dummyText);
+        buffer.insert(utf8Offset, dummyText);
     }
 
     if (secondTry) {
-        int nextLinePos = buffer.indexOf('\n', offset);
+        int nextLinePos = buffer.indexOf('\n', utf8Offset);
         if (nextLinePos < 0)
             nextLinePos = buffer.size() - 1;
 
@@ -190,7 +186,6 @@ static void modifyToIndentEmptyLines(
             // unclosed parentheses.
             // TODO: Does it help to add different endings depending on the context?
             buffer.insert(nextLinePos, ')');
-            length += 1;
         }
     }
 }
@@ -251,13 +246,13 @@ static TextEditor::Replacements utf16Replacements(const QTextBlock &block,
     return convertedReplacements;
 }
 
-static void applyReplacements(const QTextBlock &block, const TextEditor::Replacements &replacements)
+static void applyReplacements(QTextDocument *doc, const TextEditor::Replacements &replacements)
 {
     if (replacements.empty())
         return;
 
     int fullOffsetShift = 0;
-    QTextCursor editCursor(block);
+    QTextCursor editCursor(doc);
     for (const TextEditor::Replacement &replacement : replacements) {
         editCursor.beginEditBlock();
         editCursor.setPosition(replacement.offset + fullOffsetShift);
@@ -305,24 +300,12 @@ void ClangFormatBaseIndenter::indent(const QTextCursor &cursor,
                                      int cursorPositionInEditor)
 {
     if (cursor.hasSelection()) {
-        // Calling currentBlock.next() might be unsafe because we change the document.
-        // Let's operate with block numbers instead.
-        const int startNumber = m_doc->findBlock(cursor.selectionStart()).blockNumber();
-        const int endNumber = m_doc->findBlock(cursor.selectionEnd()).blockNumber();
-        for (int currentBlockNumber = startNumber; currentBlockNumber <= endNumber;
-             ++currentBlockNumber) {
-            const QTextBlock currentBlock = m_doc->findBlockByNumber(currentBlockNumber);
-            if (currentBlock.isValid()) {
-                const int blocksAmount = m_doc->blockCount();
-                indentBlock(currentBlock, typedChar, cursorPositionInEditor);
-
-                // Only blocks before current might be added/removed, so it's safe to modify the index.
-                if (blocksAmount != m_doc->blockCount())
-                    currentBlockNumber += (m_doc->blockCount() - blocksAmount);
-            }
-        }
+        indentBlocks(m_doc->findBlock(cursor.selectionStart()),
+                     m_doc->findBlock(cursor.selectionEnd()),
+                     typedChar,
+                     cursorPositionInEditor);
     } else {
-        indentBlock(cursor.block(), typedChar, cursorPositionInEditor);
+        indentBlocks(cursor.block(), cursor.block(), typedChar, cursorPositionInEditor);
     }
 }
 
@@ -341,63 +324,47 @@ void ClangFormatBaseIndenter::reindent(const QTextCursor &cursor,
     indent(cursor, QChar::Null, cursorPositionInEditor);
 }
 
-TextEditor::Replacements ClangFormatBaseIndenter::format(const QTextCursor &cursor,
-                                                         int cursorPositionInEditor)
+TextEditor::Replacements ClangFormatBaseIndenter::format(
+    const TextEditor::RangesInLines &rangesInLines)
 {
-    int utf8Offset;
-    int utf8Length;
+    if (rangesInLines.empty())
+        return TextEditor::Replacements();
+
+    int utf8Offset = -1;
     QTextBlock block;
 
     const QByteArray buffer = m_doc->toPlainText().toUtf8();
-    if (cursor.hasSelection()) {
-        block = m_doc->findBlock(cursor.selectionStart());
-        const QTextBlock end = m_doc->findBlock(cursor.selectionEnd());
-        utf8Offset = Utils::Text::utf8NthLineOffset(m_doc, buffer, block.blockNumber() + 1);
-        QTC_ASSERT(utf8Offset >= 0, return TextEditor::Replacements(););
-        utf8Length = selectedLines(m_doc, block, end).toUtf8().size();
-    } else {
-        block = cursor.block();
-        utf8Offset = Utils::Text::utf8NthLineOffset(m_doc, buffer, block.blockNumber() + 1);
-        QTC_ASSERT(utf8Offset >= 0, return TextEditor::Replacements(););
+    std::vector<clang::tooling::Range> ranges;
+    ranges.reserve(rangesInLines.size());
 
-        utf8Length = block.text().toUtf8().size();
+    for (auto &range : rangesInLines) {
+        const int utf8StartOffset = Utils::Text::utf8NthLineOffset(m_doc, buffer, range.startLine);
+        const QTextBlock end = m_doc->findBlockByNumber(range.endLine - 1);
+        int utf8RangeLength = end.text().toUtf8().size();
+        if (range.endLine > range.startLine) {
+            utf8RangeLength += Utils::Text::utf8NthLineOffset(m_doc, buffer, range.endLine)
+                               - utf8StartOffset;
+        }
+        ranges.emplace_back(static_cast<unsigned int>(utf8StartOffset),
+                            static_cast<unsigned int>(utf8RangeLength));
+
+        if (utf8Offset < 0) {
+            utf8Offset = utf8StartOffset;
+            block = m_doc->findBlockByNumber(range.startLine - 1);
+        }
     }
 
-    const TextEditor::Replacements toReplace = replacements(buffer,
-                                                            utf8Offset,
-                                                            utf8Length,
-                                                            block,
-                                                            cursorPositionInEditor,
-                                                            ReplacementsToKeep::All,
-                                                            QChar::Null);
-    applyReplacements(block, toReplace);
+    clang::format::FormatStyle style = styleForFile();
+    clang::format::FormattingAttemptStatus status;
+    const clang::tooling::Replacements clangReplacements
+        = reformat(style, buffer.data(), ranges, m_fileName.toString().toStdString(), &status);
+    const TextEditor::Replacements toReplace = utf16Replacements(block,
+                                                                 utf8Offset,
+                                                                 buffer,
+                                                                 clangReplacements);
+    applyReplacements(m_doc, toReplace);
 
     return toReplace;
-}
-
-TextEditor::Replacements ClangFormatBaseIndenter::format(
-    const QTextCursor &cursor,
-    const TextEditor::TabSettings & /*tabSettings*/,
-    int cursorPositionInEditor)
-{
-    return format(cursor, cursorPositionInEditor);
-}
-
-void ClangFormatBaseIndenter::indentBeforeCursor(const QTextBlock &block,
-                                                 const QChar &typedChar,
-                                                 int cursorPositionInEditor)
-{
-    const QByteArray buffer = m_doc->toPlainText().toUtf8();
-    const int utf8Offset = Utils::Text::utf8NthLineOffset(m_doc, buffer, block.blockNumber() + 1);
-    QTC_ASSERT(utf8Offset >= 0, return;);
-    const TextEditor::Replacements toReplace = replacements(buffer,
-                                                            utf8Offset,
-                                                            0,
-                                                            block,
-                                                            cursorPositionInEditor,
-                                                            ReplacementsToKeep::IndentAndBefore,
-                                                            typedChar);
-    applyReplacements(block, toReplace);
 }
 
 static bool doNotIndentInContext(QTextDocument *doc, int pos)
@@ -405,6 +372,7 @@ static bool doNotIndentInContext(QTextDocument *doc, int pos)
     const QChar character = doc->characterAt(pos);
     const QTextBlock currentBlock = doc->findBlock(pos);
     const QString text = currentBlock.text().left(pos - currentBlock.position());
+    // NOTE: check if "<<" and ">>" always work correctly.
     switch (character.toLatin1()) {
     default:
         break;
@@ -419,33 +387,30 @@ static bool doNotIndentInContext(QTextDocument *doc, int pos)
         if (pos > 0 && doc->characterAt(pos - 1) != ':')
             return true;
         break;
-    case '<':
-    case '>':
-        // "<<" and ">>" could be problematic
-        if (pos > 0 && doc->characterAt(pos - 1) == character)
-            return true;
-        break;
     }
 
     return false;
 }
 
-void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
-                                          const QChar &typedChar,
-                                          int cursorPositionInEditor)
+void ClangFormatBaseIndenter::indentBlocks(const QTextBlock &startBlock,
+                                           const QTextBlock &endBlock,
+                                           const QChar &typedChar,
+                                           int cursorPositionInEditor)
 {
-    QTextBlock currentBlock = block;
-    const int blockPosition = currentBlock.position();
-    trimFirstNonEmptyBlock(currentBlock);
-
     if (typedChar != QChar::Null && cursorPositionInEditor > 0
         && m_doc->characterAt(cursorPositionInEditor - 1) == typedChar
         && doNotIndentInContext(m_doc, cursorPositionInEditor - 1)) {
         return;
     }
 
+    const int startBlockPosition = startBlock.position();
+    trimFirstNonEmptyBlock(startBlock);
+    if (cursorPositionInEditor >= 0)
+        cursorPositionInEditor += startBlock.position() - startBlockPosition;
+
+    ReplacementsToKeep replacementsToKeep = ReplacementsToKeep::OnlyIndent;
     if (formatWhileTyping()
-        && (cursorPositionInEditor == -1 || cursorPositionInEditor >= blockPosition)
+        && (cursorPositionInEditor == -1 || cursorPositionInEditor >= startBlockPosition)
         && (typedChar == QChar::Null || typedChar == ';' || typedChar == '}')) {
         // Format before current position only in case the cursor is inside the indented block.
         // So if cursor position is less then the block position then the current line is before
@@ -453,26 +418,23 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
         // cursorPositionInEditor == -1 means the consition matches automatically.
 
         // Format only before newline or complete statement not to break code.
-        if (cursorPositionInEditor >= 0)
-            cursorPositionInEditor += currentBlock.position() - blockPosition;
-        else
-            cursorPositionInEditor = currentBlock.position();
-
-        indentBeforeCursor(currentBlock, typedChar, cursorPositionInEditor);
-        return;
+        replacementsToKeep = ReplacementsToKeep::IndentAndBefore;
     }
 
     const QByteArray buffer = m_doc->toPlainText().toUtf8();
-    const int utf8Offset = Utils::Text::utf8NthLineOffset(m_doc, buffer, block.blockNumber() + 1);
+    const int utf8Offset = Utils::Text::utf8NthLineOffset(m_doc,
+                                                          buffer,
+                                                          startBlock.blockNumber() + 1);
     QTC_ASSERT(utf8Offset >= 0, return;);
+    const int utf8Length = selectedLines(m_doc, startBlock, endBlock).toUtf8().size();
 
-    applyReplacements(currentBlock,
+    applyReplacements(m_doc,
                       replacements(buffer,
                                    utf8Offset,
-                                   0,
-                                   currentBlock,
-                                   cursorPositionInEditor,
-                                   ReplacementsToKeep::OnlyIndent,
+                                   utf8Length,
+                                   startBlock,
+                                   endBlock,
+                                   replacementsToKeep,
                                    typedChar));
 }
 
@@ -481,12 +443,13 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
                                           const TextEditor::TabSettings & /*tabSettings*/,
                                           int cursorPositionInEditor)
 {
-    indentBlock(block, typedChar, cursorPositionInEditor);
+    indentBlocks(block, block, typedChar, cursorPositionInEditor);
 }
 
-int ClangFormatBaseIndenter::indentFor(const QTextBlock &block, int cursorPositionInEditor)
+int ClangFormatBaseIndenter::indentFor(const QTextBlock &block, int /*cursorPositionInEditor*/)
 {
     trimFirstNonEmptyBlock(block);
+
     const QByteArray buffer = m_doc->toPlainText().toUtf8();
     const int utf8Offset = Utils::Text::utf8NthLineOffset(m_doc, buffer, block.blockNumber() + 1);
     QTC_ASSERT(utf8Offset >= 0, return 0;);
@@ -495,7 +458,7 @@ int ClangFormatBaseIndenter::indentFor(const QTextBlock &block, int cursorPositi
                                                             utf8Offset,
                                                             0,
                                                             block,
-                                                            cursorPositionInEditor,
+                                                            block,
                                                             ReplacementsToKeep::OnlyIndent);
 
     if (toReplace.empty())
@@ -535,10 +498,19 @@ void ClangFormatBaseIndenter::formatOrIndent(const QTextCursor &cursor,
                                              const TextEditor::TabSettings & /*tabSettings*/,
                                              int cursorPositionInEditor)
 {
-    if (formatCodeInsteadOfIndent())
-        format(cursor, cursorPositionInEditor);
-    else
+    if (formatCodeInsteadOfIndent()) {
+        QTextBlock start;
+        QTextBlock end;
+        if (cursor.hasSelection()) {
+            start = m_doc->findBlock(cursor.selectionStart());
+            end = m_doc->findBlock(cursor.selectionEnd());
+        } else {
+            start = end = cursor.block();
+        }
+        format({{start.blockNumber() + 1, end.blockNumber() + 1}});
+    } else {
         indent(cursor, QChar::Null, cursorPositionInEditor);
+    }
 }
 
 clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
@@ -574,43 +546,38 @@ static int formattingRangeStart(const QTextBlock &currentBlock,
 TextEditor::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffer,
                                                                int utf8Offset,
                                                                int utf8Length,
-                                                               const QTextBlock &block,
-                                                               int cursorPositionInEditor,
+                                                               const QTextBlock &startBlock,
+                                                               const QTextBlock &endBlock,
                                                                ReplacementsToKeep replacementsToKeep,
                                                                const QChar &typedChar,
                                                                bool secondTry) const
 {
+    QTC_ASSERT(replacementsToKeep != ReplacementsToKeep::All, return TextEditor::Replacements());
+
     clang::format::FormatStyle style = styleForFile();
 
     int originalOffsetUtf8 = utf8Offset;
     int originalLengthUtf8 = utf8Length;
     QByteArray originalBuffer = buffer;
 
-    int utf8LineLengthBeforeCursor = 0;
-    if (cursorPositionInEditor > 0 && typedChar != QChar::Null) {
-        // Format starting with the electric character if it's present.
-        utf8LineLengthBeforeCursor
-            = block.text().left(cursorPositionInEditor - block.position()).toUtf8().size();
+    int rangeStart = 0;
+    if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore)
+        rangeStart = formattingRangeStart(startBlock, buffer, lastSaveRevision());
+
+    int extraEmptySpaceOffset = previousEmptyLinesLength(startBlock);
+    utf8Offset -= extraEmptySpaceOffset;
+    buffer.remove(utf8Offset, extraEmptySpaceOffset);
+
+    adjustFormatStyleForLineBreak(style, replacementsToKeep);
+    if (typedChar == QChar::Null && startBlock == endBlock) {
+        modifyToIndentEmptyLines(buffer, utf8Offset, startBlock, secondTry);
+        utf8Length = 0;
     }
 
-    int extraEmptySpaceOffset = 0;
-    int rangeStart = 0;
-    if (replacementsToKeep != ReplacementsToKeep::All) {
-        if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore)
-            rangeStart = formattingRangeStart(block, buffer, lastSaveRevision());
-
-        extraEmptySpaceOffset = previousEmptyLinesLength(block);
-        utf8Offset -= extraEmptySpaceOffset;
-        buffer.remove(utf8Offset, extraEmptySpaceOffset);
-
-        adjustFormatStyleForLineBreak(style, replacementsToKeep);
-        modifyToIndentEmptyLines(buffer, utf8Offset, utf8Length, block, secondTry);
-
-        if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore) {
-            buffer.insert(utf8Offset - 1, " //");
-            extraEmptySpaceOffset -= 3;
-            utf8Offset += 3;
-        }
+    if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore) {
+        buffer.insert(utf8Offset - 1, " //");
+        extraEmptySpaceOffset -= 3;
+        utf8Offset += 3;
     }
 
     if (replacementsToKeep != ReplacementsToKeep::IndentAndBefore || utf8Offset < rangeStart)
@@ -630,9 +597,10 @@ TextEditor::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffer
 
     clang::tooling::Replacements filtered;
     if (status.FormatComplete) {
-        filtered = filteredReplacements(clangReplacements,
+        filtered = filteredReplacements(buffer,
+                                        clangReplacements,
                                         utf8Offset,
-                                        utf8LineLengthBeforeCursor,
+                                        utf8Length,
                                         extraEmptySpaceOffset,
                                         replacementsToKeep);
     }
@@ -642,14 +610,14 @@ TextEditor::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffer
         return replacements(originalBuffer,
                             originalOffsetUtf8,
                             originalLengthUtf8,
-                            block,
-                            cursorPositionInEditor,
+                            startBlock,
+                            endBlock,
                             replacementsToKeep,
                             typedChar,
                             true);
     }
 
-    return utf16Replacements(block, originalOffsetUtf8, originalBuffer, filtered);
+    return utf16Replacements(startBlock, originalOffsetUtf8, originalBuffer, filtered);
 }
 
 } // namespace ClangFormat

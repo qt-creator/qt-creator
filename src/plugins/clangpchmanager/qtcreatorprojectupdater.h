@@ -28,6 +28,7 @@
 #include "pchmanagerprojectupdater.h"
 
 #include <cpptools/cppmodelmanager.h>
+#include <projectexplorer/extracompiler.h>
 
 #include <filecontainerv2.h>
 
@@ -49,8 +50,9 @@ CLANGPCHMANAGER_EXPORT std::vector<ClangBackEnd::V2::FileContainer> createGenera
 CLANGPCHMANAGER_EXPORT std::vector<CppTools::ProjectPart*> createProjectParts(ProjectExplorer::Project *project);
 }
 
-template <typename ProjectUpdaterType>
-class QtCreatorProjectUpdater : public ProjectUpdaterType
+template<typename ProjectUpdaterType>
+class QtCreatorProjectUpdater : public ProjectUpdaterType,
+                                public ProjectExplorer::ExtraCompilerFactoryObserver
 {
 public:
     template <typename ClientType>
@@ -88,6 +90,15 @@ public:
     void abstractEditorRemoved(const QString &filePath)
     {
         ProjectUpdaterType::removeGeneratedFiles({ClangBackEnd::FilePath{filePath}});
+    }
+
+protected:
+    void newExtraCompiler(const ProjectExplorer::Project *,
+                          const Utils::FileName &,
+                          const Utils::FileNameList &targets) override
+    {
+        for (const Utils::FileName &target : targets)
+            abstractEditorUpdated(target.toString(), {});
     }
 
 private:

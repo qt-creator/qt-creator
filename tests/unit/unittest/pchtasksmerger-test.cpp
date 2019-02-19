@@ -173,7 +173,7 @@ TEST_F(PchTasksMerger, MacrosCanBeMerged)
     CompilerMacros compilerMacros1{{"ER", "2", 2}, {"QI"}, {"SE", "4", 1}, {"SAN", "3", 3}};
     CompilerMacros compilerMacros2{{"BA"}, {"ER", "2", 2}, {"YI", "1", 1}, {"SAN", "3", 3}};
 
-    auto canBeMerged = Merger::hasDuplicates(Merger::mergeMacros(compilerMacros1, compilerMacros2));
+    auto canBeMerged = !Merger::hasDuplicates(Merger::mergeMacros(compilerMacros1, compilerMacros2));
 
     ASSERT_TRUE(canBeMerged);
 }
@@ -183,7 +183,7 @@ TEST_F(PchTasksMerger, MacrosCannotBeMergedBecauseDifferentValue)
     CompilerMacros compilerMacros1{{"ER", "2", 2}, {"SE", "4", 1}, {"SAN", "3", 3}};
     CompilerMacros compilerMacros2{{"ER", "1", 2}, {"YI", "1", 1}, {"SAN", "3", 3}};
 
-    auto canBeMerged = Merger::hasDuplicates(Merger::mergeMacros(compilerMacros1, compilerMacros2));
+    auto canBeMerged = !Merger::hasDuplicates(Merger::mergeMacros(compilerMacros1, compilerMacros2));
 
     ASSERT_FALSE(canBeMerged);
 }
@@ -193,7 +193,7 @@ TEST_F(PchTasksMerger, MacrosCannotBeMergedBecauseUndefinedMacro)
     CompilerMacros compilerMacros1{{"ER", "2", 2}, {"SE", "4", 1}, {"YI"}, {"SAN", "3", 3}};
     CompilerMacros compilerMacros2{{"ER", "2", 2}, {"YI", "1", 1}, {"SAN", "3", 3}};
 
-    auto canBeMerged = Merger::hasDuplicates(Merger::mergeMacros(compilerMacros1, compilerMacros2));
+    auto canBeMerged = !Merger::hasDuplicates(Merger::mergeMacros(compilerMacros1, compilerMacros2));
 
     ASSERT_FALSE(canBeMerged);
 }

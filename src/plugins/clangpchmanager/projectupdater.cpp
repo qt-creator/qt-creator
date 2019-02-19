@@ -37,6 +37,9 @@
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 #include <cpptools/headerpathfilter.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/buildconfiguration.h>
 
 #include <utils/algorithm.h>
 
@@ -140,8 +143,10 @@ HeaderAndSources ProjectUpdater::headerAndSourcesFromProjectPart(
     HeaderAndSources headerAndSources;
     headerAndSources.reserve(std::size_t(projectPart->files.size()) * 3 / 2);
 
-    for (const CppTools::ProjectFile &projectFile : projectPart->files)
-        addToHeaderAndSources(headerAndSources, projectFile);
+    for (const CppTools::ProjectFile &projectFile : projectPart->files) {
+        if (projectFile.active)
+            addToHeaderAndSources(headerAndSources, projectFile);
+    }
 
     std::sort(headerAndSources.sources.begin(), headerAndSources.sources.end());
     std::sort(headerAndSources.headers.begin(), headerAndSources.headers.end());
@@ -231,6 +236,21 @@ ClangBackEnd::IncludeSearchPaths convertToIncludeSearchPaths(
     return paths;
 }
 
+QString projectDirectory(ProjectExplorer::Project *project)
+{
+    if (project)
+        return project->rootProjectDirectory().toString();
+
+    return {};
+}
+
+QString buildDirectory(ProjectExplorer::Project *project)
+{
+    if (project && project->activeTarget() && project->activeTarget()->activeBuildConfiguration())
+        return project->activeTarget()->activeBuildConfiguration()->buildDirectory().toString();
+
+    return {};
+}
 } // namespace
 
 ProjectUpdater::SystemAndProjectIncludeSearchPaths ProjectUpdater::createIncludeSearchPaths(
@@ -239,7 +259,9 @@ ProjectUpdater::SystemAndProjectIncludeSearchPaths ProjectUpdater::createInclude
     CppTools::HeaderPathFilter filter(projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
                                       CLANG_VERSION,
-                                      CLANG_RESOURCE_DIR);
+                                      CLANG_RESOURCE_DIR,
+                                      projectDirectory(projectPart.project),
+                                      buildDirectory(projectPart.project));
     filter.process();
 
     return {convertToIncludeSearchPaths(filter.systemHeaderPaths, filter.builtInHeaderPaths),
@@ -276,6 +298,13 @@ ClangBackEnd::ProjectPartContainers ProjectUpdater::toProjectPartContainers(
 
     std::vector<ClangBackEnd::ProjectPartContainer> projectPartContainers;
     projectPartContainers.reserve(projectParts.size());
+
+    projectParts.erase(std::remove_if(projectParts.begin(),
+                                      projectParts.end(),
+                                      [](const CppTools::ProjectPart *projectPart) {
+                                          return !projectPart->selectedForBuilding;
+                                      }),
+                       projectParts.end());
 
     std::transform(projectParts.begin(),
                    projectParts.end(),

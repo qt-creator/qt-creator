@@ -100,6 +100,8 @@ ExtraCompiler *UicGeneratorFactory::create(const Project *project,
                                            const Utils::FileName &source,
                                            const Utils::FileNameList &targets)
 {
+    annouceCreation(project, source, targets);
+
     return new UicGenerator(project, source, targets, this);
 }
 

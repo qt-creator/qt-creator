@@ -34,11 +34,15 @@ class CPPTOOLS_EXPORT HeaderPathFilter
 public:
     HeaderPathFilter(const ProjectPart &projectPart,
                      UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::Yes,
-                     const QString &clangVersion = QString(),
-                     const QString &clangResourceDirectory = QString())
+                     const QString &clangVersion = {},
+                     const QString &clangResourceDirectory = {},
+                     const QString &projectDirectory = {},
+                     const QString &buildDirectory = {})
         : projectPart{projectPart}
         , clangVersion{clangVersion}
         , clangResourceDirectory{clangResourceDirectory}
+        , projectDirectory(ensurePathWithSlashEnding(projectDirectory))
+        , buildDirectory(ensurePathWithSlashEnding(buildDirectory))
         , useTweakedHeaderPaths{useTweakedHeaderPaths}
     {}
 
@@ -49,6 +53,10 @@ private:
 
     void tweakHeaderPaths();
 
+    bool isProjectHeaderPath(const QString &path) const;
+
+    static QString ensurePathWithSlashEnding(const QString &path);
+
 public:
     ProjectExplorer::HeaderPaths builtInHeaderPaths;
     ProjectExplorer::HeaderPaths systemHeaderPaths;
@@ -56,6 +64,8 @@ public:
     const ProjectPart &projectPart;
     const QString clangVersion;
     const QString clangResourceDirectory;
+    const QString projectDirectory;
+    const QString buildDirectory;
     const UseTweakedHeaderPaths useTweakedHeaderPaths;
 };
 

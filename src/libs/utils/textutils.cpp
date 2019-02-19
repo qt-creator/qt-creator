@@ -140,6 +140,13 @@ QTextCursor wordStartCursor(const QTextCursor &textCursor)
     return cursor;
 }
 
+QString wordUnderCursor(const QTextCursor &cursor)
+{
+    QTextCursor tc(cursor);
+    tc.select(QTextCursor::WordUnderCursor);
+    return tc.selectedText();
+}
+
 int utf8NthLineOffset(const QTextDocument *textDocument, const QByteArray &buffer, int line)
 {
     if (textDocument->blockCount() < line)

@@ -53,9 +53,8 @@ public:
     void formatOrIndent(const QTextCursor &cursor,
                         const TextEditor::TabSettings &tabSettings,
                         int cursorPositionInEditor = -1) override;
-    TextEditor::Replacements format(const QTextCursor &cursor,
-                                    const TextEditor::TabSettings &tabSettings,
-                                    int cursorPositionInEditor = -1) override;
+    TextEditor::Replacements format(
+        const TextEditor::RangesInLines &rangesInLines = TextEditor::RangesInLines()) override;
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
@@ -75,18 +74,17 @@ protected:
     virtual int lastSaveRevision() const { return 0; }
 
 private:
-    TextEditor::Replacements format(const QTextCursor &cursor, int cursorPositionInEditor);
     void indent(const QTextCursor &cursor, const QChar &typedChar, int cursorPositionInEditor);
-    void indentBlock(const QTextBlock &block, const QChar &typedChar, int cursorPositionInEditor);
+    void indentBlocks(const QTextBlock &startBlock,
+                      const QTextBlock &endBlock,
+                      const QChar &typedChar,
+                      int cursorPositionInEditor);
     int indentFor(const QTextBlock &block, int cursorPositionInEditor);
-    void indentBeforeCursor(const QTextBlock &block,
-                            const QChar &typedChar,
-                            int cursorPositionInEditor);
     TextEditor::Replacements replacements(QByteArray buffer,
                                           int utf8Offset,
                                           int utf8Length,
-                                          const QTextBlock &block,
-                                          int cursorPositionInEditor,
+                                          const QTextBlock &startBlock,
+                                          const QTextBlock &endBlock,
                                           ReplacementsToKeep replacementsToKeep,
                                           const QChar &typedChar = QChar::Null,
                                           bool secondTry = false) const;
