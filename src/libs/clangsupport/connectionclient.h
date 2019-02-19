@@ -100,7 +100,7 @@ protected:
     QString connectionName() const;
     bool event(QEvent* event);
 
-    virtual void newConnectedServer(QIODevice *ioDevice) = 0;
+    virtual void newConnectedServer(QLocalSocket *localSocket) = 0;
 
 private:
     static bool isProcessRunning(QProcess *process);

@@ -46,6 +46,7 @@ class CLANGSUPPORT_EXPORT ClangCodeModelServerProxy : public BaseServerProxy,
                                                       public ClangCodeModelServerInterface
 {
 public:
+    ClangCodeModelServerProxy(ClangCodeModelClientInterface *client, QLocalSocket *localSocket = {});
     ClangCodeModelServerProxy(ClangCodeModelClientInterface *client, QIODevice *ioDevice);
 
     void end() override;

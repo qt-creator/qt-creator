@@ -29,16 +29,19 @@
 
 #include <QDataStream>
 #include <QDebug>
-#include <QIODevice>
+#include <QLocalSocket>
 #include <QVariant>
 
 namespace ClangBackEnd {
 
 WriteMessageBlock::WriteMessageBlock(QIODevice *ioDevice)
-    : m_messageCounter(0),
-      m_ioDevice(ioDevice)
-{
-}
+    : m_ioDevice(ioDevice)
+{}
+
+WriteMessageBlock::WriteMessageBlock(QLocalSocket *localSocket)
+    : m_ioDevice(localSocket)
+    , m_localSocket(localSocket)
+{}
 
 void WriteMessageBlock::write(const MessageEnvelop &message)
 {
@@ -74,8 +77,17 @@ void WriteMessageBlock::resetState()
 void WriteMessageBlock::setIoDevice(QIODevice *ioDevice)
 {
     m_ioDevice = ioDevice;
+    if (m_localSocket != ioDevice)
+        m_localSocket = nullptr;
 
     flushBlock();
+}
+
+void WriteMessageBlock::setLocalSocket(QLocalSocket *localSocket)
+{
+    m_localSocket = localSocket;
+
+    setIoDevice(localSocket);
 }
 
 void WriteMessageBlock::flushBlock()
@@ -85,6 +97,8 @@ void WriteMessageBlock::flushBlock()
         m_block.clear();
         if (bytesWritten == -1)
             qWarning() << "Failed to write data:" << m_ioDevice->errorString();
+        if (m_localSocket)
+            m_localSocket->flush();
     }
 }
 

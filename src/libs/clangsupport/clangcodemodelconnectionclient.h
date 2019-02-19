@@ -41,7 +41,7 @@ protected:
     void sendEndCommand() override;
     void resetState() override;
     QString outputName() const override;
-    void newConnectedServer(QIODevice *ioDevice) override;
+    void newConnectedServer(QLocalSocket *localSocket) override;
 
 private:
     ClangCodeModelServerProxy m_serverProxy;

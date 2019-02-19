@@ -47,6 +47,8 @@ class CLANGSUPPORT_EXPORT RefactoringServerProxy final : public BaseServerProxy,
                                                          public RefactoringServerInterface
 {
 public:
+    explicit RefactoringServerProxy(RefactoringClientInterface *client,
+                                    QLocalSocket *localSocket = {});
     explicit RefactoringServerProxy(RefactoringClientInterface *client, QIODevice *ioDevice);
 
     void end() override;

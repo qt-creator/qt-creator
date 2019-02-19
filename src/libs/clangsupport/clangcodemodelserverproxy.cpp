@@ -32,6 +32,11 @@
 namespace ClangBackEnd {
 
 ClangCodeModelServerProxy::ClangCodeModelServerProxy(ClangCodeModelClientInterface *client,
+                                                     QLocalSocket *localSocket)
+    : BaseServerProxy(client, localSocket)
+{}
+
+ClangCodeModelServerProxy::ClangCodeModelServerProxy(ClangCodeModelClientInterface *client,
                                                      QIODevice *ioDevice)
     : BaseServerProxy(client, ioDevice)
 {

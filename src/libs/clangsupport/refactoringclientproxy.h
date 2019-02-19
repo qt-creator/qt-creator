@@ -39,12 +39,13 @@ class RefactoringServerInterface;
 class CLANGSUPPORT_EXPORT RefactoringClientProxy : public RefactoringClientInterface
 {
 public:
+    explicit RefactoringClientProxy(RefactoringServerInterface *server, QLocalSocket *localSocket);
     explicit RefactoringClientProxy(RefactoringServerInterface *server, QIODevice *ioDevice);
     RefactoringClientProxy(const RefactoringClientProxy&) = delete;
     const RefactoringClientProxy &operator=(const RefactoringClientProxy&) = delete;
 
-    RefactoringClientProxy(RefactoringClientProxy&&other);
-    RefactoringClientProxy &operator=(RefactoringClientProxy&&other);
+    RefactoringClientProxy(RefactoringClientProxy &&other) = default;
+    RefactoringClientProxy &operator=(RefactoringClientProxy &&other) = default;
 
     void readMessages();
 
@@ -60,7 +61,6 @@ private:
     ClangBackEnd::WriteMessageBlock writeMessageBlock;
     ClangBackEnd::ReadMessageBlock readMessageBlock;
     RefactoringServerInterface *server = nullptr;
-    QIODevice *ioDevice = nullptr;
 };
 
 } // namespace ClangBackEnd

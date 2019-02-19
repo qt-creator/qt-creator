@@ -87,9 +87,9 @@ QString PchManagerConnectionClient::outputName() const
     return QStringLiteral("PchManagerConnectionClient");
 }
 
-void PchManagerConnectionClient::newConnectedServer(QIODevice *ioDevice)
+void PchManagerConnectionClient::newConnectedServer(QLocalSocket *localSocket)
 {
-    m_serverProxy.setIoDevice(ioDevice);
+    m_serverProxy.setLocalSocket(localSocket);
 }
 
 } // namespace ClangPchManager

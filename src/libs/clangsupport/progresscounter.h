@@ -84,7 +84,7 @@ public:
     {
         Lock lock(m_mutex);
 
-        return m_total;
+        return m_progress;
     }
 
 private:
