@@ -59,5 +59,9 @@ QTCREATOR_UTILS_EXPORT int utf8NthLineOffset(const QTextDocument *textDocument,
                                              const QByteArray &buffer,
                                              int line);
 
+QTCREATOR_UTILS_EXPORT LineColumn utf16LineColumn(const QByteArray &utf8Buffer, int utf8Offset);
+QTCREATOR_UTILS_EXPORT QString utf16LineTextInUtf8Buffer(const QByteArray &utf8Buffer,
+                                                         int currentUtf8Offset);
+
 } // Text
 } // Utils
