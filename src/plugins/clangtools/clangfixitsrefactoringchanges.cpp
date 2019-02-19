@@ -85,9 +85,6 @@ bool FixitsRefactoringFile::apply()
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(
         CppTools::Constants::CPP_SETTINGS_ID);
 
-    const TextEditor::TabSettings tabSettings
-            = CppTools::CppCodeStyleSettings::currentProjectTabSettings();
-
     // Apply changes
     std::unique_ptr<TextEditor::Indenter> indenter;
     QString lastFilename;
