@@ -351,6 +351,7 @@ public:
     void handleAddExistingFiles();
     void addExistingDirectory();
     void addNewSubproject();
+    void addExistingProjects();
     void removeProject();
     void openFile();
     void searchOnFileSystem();
@@ -433,6 +434,7 @@ public:
     QAction *m_addExistingFilesAction;
     QAction *m_addExistingDirectoryAction;
     QAction *m_addNewSubprojectAction;
+    QAction *m_addExistingProjectsAction;
     QAction *m_removeFileAction;
     QAction *m_duplicateFileAction;
     QAction *m_removeProjectAction;
@@ -1127,6 +1129,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
 
+    // add existing projects action
+    dd->m_addExistingProjectsAction = new QAction(tr("Add Existing Projects..."), this);
+    cmd = ActionManager::registerAction(dd->m_addExistingProjectsAction,
+                                        "ProjectExplorer.AddExistingProjects", projecTreeContext);
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
+    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
+
     // add existing directory action
     dd->m_addExistingDirectoryAction = new QAction(tr("Add Existing Directory..."), this);
     cmd = ActionManager::registerAction(dd->m_addExistingDirectoryAction,
@@ -1434,6 +1443,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::addExistingDirectory);
     connect(dd->m_addNewSubprojectAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::addNewSubproject);
+    connect(dd->m_addExistingProjectsAction, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::addExistingProjects);
     connect(dd->m_removeProjectAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::removeProject);
     connect(dd->m_openFileAction, &QAction::triggered,
@@ -3115,6 +3126,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     m_addExistingDirectoryAction->setEnabled(false);
     m_addNewFileAction->setEnabled(false);
     m_addNewSubprojectAction->setEnabled(false);
+    m_addExistingProjectsAction->setEnabled(false);
     m_removeProjectAction->setEnabled(false);
     m_removeFileAction->setEnabled(false);
     m_duplicateFileAction->setEnabled(false);
@@ -3126,6 +3138,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     m_addExistingDirectoryAction->setVisible(true);
     m_addNewFileAction->setVisible(true);
     m_addNewSubprojectAction->setVisible(true);
+    m_addExistingProjectsAction->setVisible(true);
     m_removeProjectAction->setVisible(true);
     m_removeFileAction->setVisible(true);
     m_duplicateFileAction->setVisible(false);
@@ -3196,6 +3209,8 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_addNewSubprojectAction->setEnabled(currentNode->nodeType() == NodeType::Project
                                                     && supports(AddSubProject)
                                                     && !ICore::isNewItemDialogRunning());
+            m_addExistingProjectsAction->setEnabled(currentNode->nodeType() == NodeType::Project
+                                                    && supports(AddExistingProject));
             m_removeProjectAction->setEnabled(currentNode->nodeType() == NodeType::Project
                                                     && supports(RemoveSubProject));
             m_addExistingFilesAction->setEnabled(supports(AddExistingFile));
@@ -3241,6 +3256,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
         if (supports(HideFolderActions)) {
             m_addNewFileAction->setVisible(false);
             m_addNewSubprojectAction->setVisible(false);
+            m_addExistingProjectsAction->setVisible(false);
             m_removeProjectAction->setVisible(false);
             m_addExistingFilesAction->setVisible(false);
             m_addExistingDirectoryAction->setVisible(false);
@@ -3340,6 +3356,44 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
                                                                                   : !f->supportedProjectTypes().isEmpty(); }),
                                  location, map);
     }
+}
+
+void ProjectExplorerPluginPrivate::addExistingProjects()
+{
+    Node * const currentNode = ProjectTree::findCurrentNode();
+    QTC_ASSERT(currentNode, return);
+    ProjectNode *projectNode = currentNode->asProjectNode();
+    if (!projectNode && currentNode->asContainerNode())
+        projectNode = currentNode->asContainerNode()->rootProjectNode();
+    QTC_ASSERT(projectNode, return);
+    const QString dir = directoryFor(currentNode);
+    QStringList subProjectFilePaths = QFileDialog::getOpenFileNames(
+                ICore::mainWindow(), tr("Please choose a project file"), dir,
+                projectNode->subProjectFileNamePatterns().join(";;"));
+    const QList<Node *> childNodes = projectNode->nodes();
+    Utils::erase(subProjectFilePaths, [childNodes](const QString &filePath) {
+        return Utils::anyOf(childNodes, [filePath](const Node *n) {
+            return n->filePath().toString() == filePath;
+        });
+    });
+    if (subProjectFilePaths.empty())
+        return;
+    QStringList failedProjects;
+    QStringList addedProjects;
+    for (const QString &filePath : subProjectFilePaths) {
+        if (projectNode->addSubProject(filePath))
+            addedProjects << filePath;
+        else
+            failedProjects << filePath;
+    }
+    if (!failedProjects.empty()) {
+        const QString message = tr("The following subprojects could not be added to project "
+                                   "\"%2\":").arg(projectNode->managingProject()->displayName());
+        QMessageBox::warning(ICore::mainWindow(), tr("Adding Subproject Failed"),
+                             message + "\n  " + failedProjects.join("\n  "));
+        return;
+    }
+    VcsManager::promptToAdd(dir, addedProjects);
 }
 
 void ProjectExplorerPluginPrivate::handleAddExistingFiles()

@@ -132,7 +132,7 @@ bool QmakePriFileNode::supportsAction(ProjectAction action, const Node *node) co
         break;
     }
     case ProjectType::SubDirsTemplate:
-        if (action == AddSubProject || action == RemoveSubProject)
+        if (action == AddSubProject || action == RemoveSubProject || action == AddExistingProject)
             return true;
         break;
     default:
@@ -166,6 +166,11 @@ bool QmakePriFileNode::removeSubProject(const QString &proFilePath)
 {
     QmakePriFile *pri = priFile();
     return pri ? pri->removeSubProjects(proFilePath) : false;
+}
+
+QStringList QmakePriFileNode::subProjectFileNamePatterns() const
+{
+    return QStringList("*.pro");
 }
 
 bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAdded)

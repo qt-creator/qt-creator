@@ -51,9 +51,9 @@ public:
     bool showInSimpleTree() const override { return false; }
 
     bool canAddSubProject(const QString &proFilePath) const override;
-
     bool addSubProject(const QString &proFilePath) override;
     bool removeSubProject(const QString &proFilePath) override;
+    QStringList subProjectFileNamePatterns() const override;
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;

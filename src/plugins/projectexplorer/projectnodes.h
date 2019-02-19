@@ -68,6 +68,7 @@ enum ProjectAction {
     // Special value to indicate that the actions are handled by the parent
     InheritedFromParent,
     AddSubProject,
+    AddExistingProject,
     RemoveSubProject,
     // Let's the user select to which project file
     // the file is added
@@ -325,6 +326,7 @@ class PROJECTEXPLORER_EXPORT ProjectNode : public FolderNode
 public:
     virtual bool canAddSubProject(const QString &proFilePath) const;
     virtual bool addSubProject(const QString &proFile);
+    virtual QStringList subProjectFileNamePatterns() const;
     virtual bool removeSubProject(const QString &proFilePath);
     virtual Utils::optional<Utils::FileName> visibleAfterAddFileAction() const {
         return Utils::nullopt;
