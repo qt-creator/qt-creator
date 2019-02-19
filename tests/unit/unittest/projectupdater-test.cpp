@@ -135,8 +135,10 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    NiceMock<MockProgressManager> mockProgressManager;
-    ClangPchManager::PchManagerClient pchManagerClient{mockProgressManager};
+    NiceMock<MockProgressManager> mockPchCreationProgressManager;
+    NiceMock<MockProgressManager> mockDependencyCreationProgressManager;
+    ClangPchManager::PchManagerClient pchManagerClient{mockPchCreationProgressManager,
+                                                       mockDependencyCreationProgressManager};
     MockPchManagerNotifier mockPchManagerNotifier{pchManagerClient};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
     ClangPchManager::ProjectUpdater updater{mockPchManagerServer, filePathCache};

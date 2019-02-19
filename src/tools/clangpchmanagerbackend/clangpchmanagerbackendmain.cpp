@@ -224,12 +224,19 @@ struct Data // because we have a cycle dependency
                                         clangPchManagerServer,
                                         includeWatcher};
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
-    ClangBackEnd::ProgressCounter progressCounter{[&](int progress, int total) {
-        executeInLoop([&] { clangPchManagerServer.setProgress(progress, total); });
+    ClangBackEnd::ProgressCounter pchCreationProgressCounter{[&](int progress, int total) {
+        executeInLoop([&] {
+            clangPchManagerServer.setPchCreationProgress(progress, total);
+        });
+    }};
+    ClangBackEnd::ProgressCounter dependencyCreationProgressCounter{[&](int progress, int total) {
+        executeInLoop([&] {
+            clangPchManagerServer.setDependencyCreationProgress(progress, total);
+        });
     }};
     ClangBackEnd::PchTaskQueue pchTaskQueue{systemTaskScheduler,
                                             projectTaskScheduler,
-                                            progressCounter,
+                                            pchCreationProgressCounter,
                                             preCompiledHeaderStorage,
                                             database};
     ClangBackEnd::PchTasksMerger pchTaskMerger{pchTaskQueue};
@@ -248,19 +255,19 @@ struct Data // because we have a cycle dependency
                                                                     database};
     ClangBackEnd::PchTaskGenerator pchTaskGenerator{buildDependencyProvider,
                                                     pchTaskMerger,
-                                                    progressCounter};
+                                                    dependencyCreationProgressCounter};
     PchManagerServer clangPchManagerServer{includeWatcher,
                                            pchTaskGenerator,
                                            projectParts,
                                            generatedFiles};
     TaskScheduler systemTaskScheduler{pchCreatorManager,
                                       pchTaskQueue,
-                                      progressCounter,
+                                      pchCreationProgressCounter,
                                       std::thread::hardware_concurrency(),
                                       ClangBackEnd::CallDoInMainThreadAfterFinished::No};
     TaskScheduler projectTaskScheduler{pchCreatorManager,
                                        pchTaskQueue,
-                                       progressCounter,
+                                       pchCreationProgressCounter,
                                        std::thread::hardware_concurrency(),
                                        ClangBackEnd::CallDoInMainThreadAfterFinished::Yes};
 };

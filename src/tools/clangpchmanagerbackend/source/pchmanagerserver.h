@@ -60,7 +60,8 @@ public:
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;
 
-    void setProgress(int progress, int total);
+    void setPchCreationProgress(int progress, int total);
+    void setDependencyCreationProgress(int progress, int total);
 
 private:
     ClangPathWatcherInterface &m_fileSystemWatcher;

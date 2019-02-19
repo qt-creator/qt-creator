@@ -235,11 +235,5 @@ enum class SymbolTag : uchar
 
 using SymbolTags = Utils::SizedArray<SymbolTag, 7>;
 
-enum class ProgressType
-{
-    Invalid,
-    PrecompiledHeader,
-    Indexing
-};
-
-}
+enum class ProgressType { Invalid, PrecompiledHeader, Indexing, DependencyCreation };
+} // namespace ClangBackEnd

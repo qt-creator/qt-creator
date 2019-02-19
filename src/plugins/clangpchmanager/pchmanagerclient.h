@@ -42,8 +42,10 @@ class CLANGPCHMANAGER_EXPORT PchManagerClient final : public ClangBackEnd::PchMa
 {
     friend class PchManagerNotifierInterface;
 public:
-    PchManagerClient(ProgressManagerInterface &progressManager)
-        : m_progressManager(progressManager)
+    PchManagerClient(ProgressManagerInterface &pchCreationProgressManager,
+                     ProgressManagerInterface &dependencyCreationProgressManager)
+        : m_pchCreationProgressManager(pchCreationProgressManager)
+        , m_dependencyCreationProgressManager(dependencyCreationProgressManager)
     {}
 
     void alive() override;
@@ -78,7 +80,8 @@ private:
     ClangBackEnd::ProjectPartPchs m_projectPartPchs;
     std::vector<PchManagerNotifierInterface*> m_notifiers;
     PchManagerConnectionClient *m_connectionClient=nullptr;
-    ProgressManagerInterface &m_progressManager;
+    ProgressManagerInterface &m_pchCreationProgressManager;
+    ProgressManagerInterface &m_dependencyCreationProgressManager;
 };
 
 } // namespace ClangPchManager

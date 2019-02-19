@@ -53,7 +53,16 @@ void PchManagerClient::precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeader
 
 void PchManagerClient::progress(ClangBackEnd::ProgressMessage &&message)
 {
-    m_progressManager.setProgress(message.progress, message.total);
+    switch (message.progressType) {
+    case ClangBackEnd::ProgressType::PrecompiledHeader:
+        m_pchCreationProgressManager.setProgress(message.progress, message.total);
+        break;
+    case ClangBackEnd::ProgressType::DependencyCreation:
+        m_dependencyCreationProgressManager.setProgress(message.progress, message.total);
+        break;
+    default:
+        break;
+    }
 }
 
 void PchManagerClient::precompiledHeaderRemoved(const QString &projectPartId)

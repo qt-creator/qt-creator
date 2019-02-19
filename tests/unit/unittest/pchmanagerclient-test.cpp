@@ -53,9 +53,11 @@ using testing::Not;
 class PchManagerClient : public ::testing::Test
 {
 protected:
-    NiceMock<MockProgressManager> mockProgressManager;
+    NiceMock<MockProgressManager> mockPchCreationProgressManager;
+    NiceMock<MockProgressManager> mockDependencyCreationProgressManager;
+    ClangPchManager::PchManagerClient client{mockPchCreationProgressManager,
+                                             mockDependencyCreationProgressManager};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
-    ClangPchManager::PchManagerClient client{mockProgressManager};
     NiceMock<MockPchManagerNotifier> mockPchManagerNotifier{client};
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
@@ -158,11 +160,17 @@ TEST_F(PchManagerClient, ProjectPartPchForProjectPartIdIsUpdated)
                 42);
 }
 
-TEST_F(PchManagerClient, SetProgress)
+TEST_F(PchManagerClient, SetPchCreationProgress)
 {
-    EXPECT_CALL(mockProgressManager, setProgress(10, 20));
+    EXPECT_CALL(mockPchCreationProgressManager, setProgress(10, 20));
 
     client.progress({ClangBackEnd::ProgressType::PrecompiledHeader, 10, 20});
 }
 
+TEST_F(PchManagerClient, SetDependencyCreationProgress)
+{
+    EXPECT_CALL(mockDependencyCreationProgressManager, setProgress(30, 40));
+
+    client.progress({ClangBackEnd::ProgressType::DependencyCreation, 30, 40});
 }
+} // namespace

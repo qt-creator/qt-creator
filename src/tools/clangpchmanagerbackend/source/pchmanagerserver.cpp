@@ -132,9 +132,14 @@ void PchManagerServer::pathsChanged(const FilePathIds &/*filePathIds*/)
 {
 }
 
-void PchManagerServer::setProgress(int progress, int total)
+void PchManagerServer::setPchCreationProgress(int progress, int total)
 {
     client()->progress({ProgressType::PrecompiledHeader, progress, total});
+}
+
+void PchManagerServer::setDependencyCreationProgress(int progress, int total)
+{
+    client()->progress({ProgressType::DependencyCreation, progress, total});
 }
 
 } // namespace ClangBackEnd
