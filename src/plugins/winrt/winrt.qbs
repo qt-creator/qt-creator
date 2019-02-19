@@ -12,6 +12,7 @@ QtcPlugin {
     Depends { name: "app_version_header" }
 
     files: [
+        "winrt.qrc",
         "winrtconstants.h",
         "winrtdebugsupport.cpp",
         "winrtdebugsupport.h",
