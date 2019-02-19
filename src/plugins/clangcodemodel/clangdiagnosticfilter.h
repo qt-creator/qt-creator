@@ -49,7 +49,7 @@ private:
     void filterFixits();
 
 private:
-    const QString &m_filePath;
+    const QString m_filePath;
 
     QVector<ClangBackEnd::DiagnosticContainer> m_warningDiagnostics;
     QVector<ClangBackEnd::DiagnosticContainer> m_errorDiagnostics;
