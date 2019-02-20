@@ -180,6 +180,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
                                                 &Utils::FileName::toString));
 
     AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(target());
+    QTC_ASSERT(qtSupport, return false);
     QFileInfo sourceDirInfo(qtSupport->targetData(Constants::AndroidPackageSourceDir, target()).toString());
     parser->setSourceDirectory(Utils::FileName::fromString(sourceDirInfo.canonicalFilePath()));
     parser->setBuildDirectory(Utils::FileName::fromString(bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString()));
