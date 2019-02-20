@@ -496,6 +496,19 @@ TEST_F(ClangFormat, IndentAndFormatCompleteStatementOnClosingScope)
                                              "}"));
 }
 
+TEST_F(ClangFormat, IndentAndFormatWithEmptyLines)
+{
+    insertLines({"foo(a,",
+                 "    ",
+                 ")"});
+
+    extendedIndenter.indentBlock(doc.findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("foo(a,",
+                                             "",
+                                             "    )"));
+}
+
 TEST_F(ClangFormat, FormatBasicFile)
 {
     insertLines({"int main()",
