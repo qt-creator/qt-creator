@@ -242,8 +242,15 @@
 
     You can add filters to specify the directories within the current project
     to scan for tests. Select the \uicontrol {Global Filters} check box, and
-    the select \uicontrol Add to specify paths to the directories to scan for
+    then select \uicontrol Add to specify paths to the directories to scan for
     tests. Wildcards are not supported in the filter expressions.
+
+    In some special setups, \QC cannot deduce which executable or run
+    configuration it should use. If \QC repeatedly asks you to select the
+    tests to run when trying to execute tests, you can enable it to cache
+    your choices and use them were appropriate. The cached information is
+    cleared when you switch to another project, close the current one, or
+    select \uicontrol {Reset Cached Choices}.
 
     To show or hide init and cleanup or data functions in the \uicontrol Tests
     view, select \inlineimage filtericon.png
