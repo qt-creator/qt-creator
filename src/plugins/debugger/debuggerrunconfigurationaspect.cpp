@@ -260,11 +260,6 @@ uint DebuggerRunConfigurationAspect::qmlDebugServerPort() const
     return d.qmlDebugServerPort;
 }
 
-void DebuggerRunConfigurationAspect::setQmllDebugServerPort(uint port)
-{
-    d.qmlDebugServerPort = port;
-}
-
 bool DebuggerRunConfigurationAspect::useMultiProcess() const
 {
     return d.useMultiProcess;

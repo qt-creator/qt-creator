@@ -67,7 +67,6 @@ public:
     bool useQmlDebugger() const;
     void setUseQmlDebugger(bool value);
     uint qmlDebugServerPort() const;
-    void setQmllDebugServerPort(uint port);
     bool useMultiProcess() const;
     void setUseMultiProcess(bool on);
     bool isQmlDebuggingSpinboxSuppressed() const;
