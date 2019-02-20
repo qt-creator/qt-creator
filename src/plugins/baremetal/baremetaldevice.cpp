@@ -25,7 +25,10 @@
 ****************************************************************************/
 
 #include "baremetaldevice.h"
+
+#include "baremetalconstants.h"
 #include "baremetaldeviceconfigurationwidget.h"
+#include "baremetaldeviceconfigurationwizard.h"
 #include "defaultgdbserverprovider.h"
 #include "gdbserverprovidermanager.h"
 #include "gdbserverproviderprocess.h"
@@ -158,6 +161,27 @@ BareMetalDevice::BareMetalDevice(const BareMetalDevice &other)
     : IDevice(other)
 {
     setGdbServerProviderId(other.gdbServerProviderId());
+}
+
+
+// Factory
+
+BareMetalDeviceFactory::BareMetalDeviceFactory()
+    : IDeviceFactory(Constants::BareMetalOsType)
+{
+    setDisplayName(tr("Bare Metal Device"));
+    setCombinedIcon(":/baremetal/images/baremetaldevicesmall.png",
+                    ":/baremetal/images/baremetaldevice.png");
+    setCanCreate(true);
+    setConstructionFunction(&BareMetalDevice::create);
+}
+
+IDevice::Ptr BareMetalDeviceFactory::create() const
+{
+    BareMetalDeviceConfigurationWizard wizard;
+    if (wizard.exec() != QDialog::Accepted)
+        return IDevice::Ptr();
+    return wizard.device();
 }
 
 } //namespace Internal

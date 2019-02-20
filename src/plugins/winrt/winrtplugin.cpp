@@ -26,7 +26,6 @@
 #include "winrtplugin.h"
 #include "winrtconstants.h"
 #include "winrtdevice.h"
-#include "winrtdevicefactory.h"
 #include "winrtdeployconfiguration.h"
 #include "winrtqtversion.h"
 #include "winrtphoneqtversion.h"

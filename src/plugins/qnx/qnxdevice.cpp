@@ -24,11 +24,14 @@
 ****************************************************************************/
 
 #include "qnxdevice.h"
+
+#include "qnxconstants.h"
 #include "qnxdevicetester.h"
 #include "qnxdeviceprocesslist.h"
 #include "qnxdeviceprocesssignaloperation.h"
 #include "qnxdeployqtlibrariesdialog.h"
 #include "qnxdeviceprocess.h"
+#include "qnxdevicewizard.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
 
@@ -46,8 +49,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Qnx {
-
-using namespace Internal;
+namespace Internal {
 
 const char QnxVersionKey[] = "QnxVersion";
 
@@ -179,4 +181,30 @@ DeviceProcessSignalOperation::Ptr QnxDevice::signalOperation() const
                 new QnxDeviceProcessSignalOperation(sshParameters()));
 }
 
+// Factory
+
+QnxDeviceFactory::QnxDeviceFactory()
+    : ProjectExplorer::IDeviceFactory(Constants::QNX_QNX_OS_TYPE)
+{
+    setDisplayName(tr("QNX Device"));
+    setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
+                    ":/qnx/images/qnxdevice.png");
+    setCanCreate(true);
+    setConstructionFunction(&QnxDevice::create);
+}
+
+ProjectExplorer::IDevice::Ptr QnxDeviceFactory::create() const
+{
+    QnxDeviceWizard wizard;
+    if (wizard.exec() != QDialog::Accepted)
+        return ProjectExplorer::IDevice::Ptr();
+    return wizard.device();
+}
+
+Core::Id QnxDeviceFactory::deviceType()
+{
+    return Core::Id(Constants::QNX_QNX_OS_TYPE);
+}
+
+} // namespace Internal
 } // namespace Qnx

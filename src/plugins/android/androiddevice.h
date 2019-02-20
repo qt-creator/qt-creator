@@ -26,6 +26,7 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
 
 namespace Android {
 namespace Internal {
@@ -48,6 +49,13 @@ private:
 
     ProjectExplorer::IDevice::Ptr clone() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
+};
+
+class AndroidDeviceFactory : public ProjectExplorer::IDeviceFactory
+{
+    Q_OBJECT
+public:
+    AndroidDeviceFactory();
 };
 
 } // namespace Internal

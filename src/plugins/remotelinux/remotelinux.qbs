@@ -33,8 +33,6 @@ Project {
             "genericdirectuploadservice.h",
             "genericdirectuploadstep.cpp",
             "genericdirectuploadstep.h",
-            "genericlinuxdeviceconfigurationfactory.cpp",
-            "genericlinuxdeviceconfigurationfactory.h",
             "genericlinuxdeviceconfigurationwidget.cpp",
             "genericlinuxdeviceconfigurationwidget.h",
             "genericlinuxdeviceconfigurationwidget.ui",

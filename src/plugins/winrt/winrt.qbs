@@ -20,8 +20,6 @@ QtcPlugin {
         "winrtdeployconfiguration.h",
         "winrtdevice.cpp",
         "winrtdevice.h",
-        "winrtdevicefactory.cpp",
-        "winrtdevicefactory.h",
         "winrtpackagedeploymentstep.cpp",
         "winrtpackagedeploymentstep.h",
         "winrtphoneqtversion.cpp",

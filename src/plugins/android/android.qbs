@@ -46,8 +46,6 @@ Project {
             "androiddevicedialog.ui",
             "androiddevice.cpp",
             "androiddevice.h",
-            "androiddevicefactory.cpp",
-            "androiddevicefactory.h",
             "androiderrormessage.h",
             "androiderrormessage.cpp",
             "androidextralibrarylistmodel.cpp",

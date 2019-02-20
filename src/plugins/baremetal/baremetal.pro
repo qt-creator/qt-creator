@@ -11,7 +11,6 @@ SOURCES += baremetalplugin.cpp \
     baremetaldeviceconfigurationwizardpages.cpp \
     baremetaldeviceconfigurationwizard.cpp \
     baremetaldeviceconfigurationwidget.cpp \
-    baremetaldeviceconfigurationfactory.cpp \
     baremetaldebugsupport.cpp \
     gdbserverproviderprocess.cpp \
     gdbserverproviderssettingspage.cpp \
@@ -28,7 +27,6 @@ HEADERS += baremetalplugin.h \
     baremetaldevice.h \
     baremetalrunconfiguration.h \
     baremetalgdbcommandsdeploystep.h \
-    baremetaldeviceconfigurationfactory.h \
     baremetaldeviceconfigurationwidget.h \
     baremetaldeviceconfigurationwizard.h \
     baremetaldeviceconfigurationwizardpages.h \

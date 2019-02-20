@@ -27,7 +27,7 @@
 #include "baremetalplugin.h"
 #include "baremetalconstants.h"
 #include "baremetalcustomrunconfiguration.h"
-#include "baremetaldeviceconfigurationfactory.h"
+#include "baremetaldevice.h"
 #include "baremetaldebugsupport.h"
 #include "baremetalrunconfiguration.h"
 
@@ -49,7 +49,7 @@ namespace Internal {
 class BareMetalPluginRunData
 {
 public:
-    BareMetalDeviceConfigurationFactory deviceConfigurationFactory;
+    BareMetalDeviceFactory deviceFactory;
     BareMetalRunConfigurationFactory runConfigurationFactory;
     BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;
     GdbServerProvidersSettingsPage gdbServerProviderSettinsPage;

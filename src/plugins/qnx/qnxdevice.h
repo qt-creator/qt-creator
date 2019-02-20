@@ -30,8 +30,9 @@
 #include <remotelinux/linuxdevice.h>
 
 namespace Qnx {
+namespace Internal {
 
-class QNX_EXPORT QnxDevice : public RemoteLinux::LinuxDevice
+class QnxDevice : public RemoteLinux::LinuxDevice
 {
     Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxDevice)
 
@@ -69,4 +70,17 @@ private:
     mutable int m_versionNumber = 0;
 };
 
+class QnxDeviceFactory : public ProjectExplorer::IDeviceFactory
+{
+    Q_OBJECT
+
+public:
+    QnxDeviceFactory();
+
+    ProjectExplorer::IDevice::Ptr create() const override;
+
+    static Core::Id deviceType();
+};
+
+} // namespace Internal
 } // namespace Qnx

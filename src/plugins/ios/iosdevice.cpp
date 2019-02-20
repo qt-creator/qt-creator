@@ -547,5 +547,27 @@ IosDevice::ConstPtr IosKitAspect::device(Kit *kit)
     return res;
 }
 
+
+// Factory
+
+IosDeviceFactory::IosDeviceFactory()
+    : IDeviceFactory(Constants::IOS_DEVICE_ID)
+{
+    setObjectName(QLatin1String("IosDeviceFactory"));
+    setDisplayName(IosDevice::name());
+    setCombinedIcon(":/ios/images/iosdevicesmall.png",
+                     ":/ios/images/iosdevice.png");
+    setConstructionFunction([] { return IDevice::Ptr(new IosDevice); });
+}
+
+bool IosDeviceFactory::canRestore(const QVariantMap &map) const
+{
+    QVariantMap vMap = map.value(QLatin1String(Constants::EXTRA_INFO_KEY)).toMap();
+    if (vMap.isEmpty()
+            || vMap.value(QLatin1String("deviceName")).toString() == QLatin1String("*unknown*"))
+        return false; // transient device (probably generated during an activation)
+    return true;
+}
+
 } // namespace Internal
 } // namespace Ios

@@ -16,7 +16,6 @@ QtcPlugin {
         "baremetalconstants.h",
         "baremetalcustomrunconfiguration.cpp", "baremetalcustomrunconfiguration.h",
         "baremetaldevice.cpp", "baremetaldevice.h",
-        "baremetaldeviceconfigurationfactory.cpp", "baremetaldeviceconfigurationfactory.h",
         "baremetaldeviceconfigurationwidget.cpp", "baremetaldeviceconfigurationwidget.h",
         "baremetaldeviceconfigurationwizard.cpp", "baremetaldeviceconfigurationwizard.h",
         "baremetaldeviceconfigurationwizardpages.cpp", "baremetaldeviceconfigurationwizardpages.h",

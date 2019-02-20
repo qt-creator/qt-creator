@@ -26,6 +26,9 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
+
+#include <utils/qtcprocess.h>
 
 namespace WinRt {
 namespace Internal {
@@ -54,6 +57,27 @@ private:
     WinRtDevice();
 
     int m_deviceId = -1;
+};
+
+class WinRtDeviceFactory : public ProjectExplorer::IDeviceFactory
+{
+    Q_OBJECT
+public:
+    explicit WinRtDeviceFactory(Core::Id deviceType);
+
+    void autoDetect();
+    void onPrerequisitesLoaded();
+
+private:
+    void onProcessError();
+    void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+
+    static bool allPrerequisitesLoaded();
+    QString findRunnerFilePath() const;
+    void parseRunnerOutput(const QByteArray &output) const;
+
+    Utils::QtcProcess *m_process = nullptr;
+    bool m_initialized = false;
 };
 
 } // Internal

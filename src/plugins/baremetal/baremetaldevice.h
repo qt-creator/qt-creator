@@ -27,6 +27,7 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
 
 namespace BareMetal {
 namespace Internal {
@@ -67,6 +68,16 @@ private:
     void setChannelByServerProvider(GdbServerProvider *provider);
     BareMetalDevice &operator=(const BareMetalDevice &);
     QString m_gdbServerProviderId;
+};
+
+class BareMetalDeviceFactory : public ProjectExplorer::IDeviceFactory
+{
+    Q_OBJECT
+
+public:
+   BareMetalDeviceFactory();
+
+   ProjectExplorer::IDevice::Ptr create() const override;
 };
 
 } //namespace Internal

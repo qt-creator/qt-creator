@@ -28,6 +28,7 @@
 #include "remotelinux_export.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
 
 #include <QCoreApplication>
 
@@ -66,4 +67,17 @@ protected:
     LinuxDevice();
 };
 
+namespace Internal {
+
+class LinuxDeviceFactory : public ProjectExplorer::IDeviceFactory
+{
+    Q_OBJECT
+
+public:
+    LinuxDeviceFactory();
+
+    ProjectExplorer::IDevice::Ptr create() const override;
+};
+
+} // namespace Internal
 } // namespace RemoteLinux

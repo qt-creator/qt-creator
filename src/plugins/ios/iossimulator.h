@@ -26,11 +26,11 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
+
 #include <utils/fileutils.h>
 
-#include <QMutex>
 #include <QDebug>
-#include <QSharedPointer>
 
 namespace ProjectExplorer { class Kit; }
 namespace Ios {
@@ -85,6 +85,13 @@ protected:
     IosSimulator(const IosSimulator &other);
 private:
     mutable quint16 m_lastPort;
+};
+
+class IosSimulatorFactory : public ProjectExplorer::IDeviceFactory
+{
+    Q_OBJECT
+public:
+    IosSimulatorFactory();
 };
 
 namespace IosKitInformation {

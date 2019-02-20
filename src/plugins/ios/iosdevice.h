@@ -28,11 +28,11 @@
 #include "iostoolhandler.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
 
 #include <QVariantMap>
 #include <QMap>
 #include <QString>
-#include <QSharedPointer>
 #include <QStringList>
 #include <QTimer>
 
@@ -77,6 +77,15 @@ protected:
     Dict m_extraInfo;
     bool m_ignoreDevice = false;
     mutable quint16 m_lastPort;
+};
+
+class IosDeviceFactory : public ProjectExplorer::IDeviceFactory
+{
+    Q_OBJECT
+public:
+    IosDeviceFactory();
+
+    bool canRestore(const QVariantMap &map) const override;
 };
 
 class IosDeviceManager : public QObject {

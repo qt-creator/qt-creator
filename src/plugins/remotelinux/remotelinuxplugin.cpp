@@ -26,7 +26,7 @@
 #include "remotelinuxplugin.h"
 
 #include "embeddedlinuxqtversion.h"
-#include "genericlinuxdeviceconfigurationfactory.h"
+#include "linuxdevice.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxqmltoolingsupport.h"
 #include "remotelinuxcustomrunconfiguration.h"
@@ -67,7 +67,7 @@ public:
 class RemoteLinuxPluginPrivate
 {
 public:
-    GenericLinuxDeviceConfigurationFactory deviceConfigurationFactory;
+    LinuxDeviceFactory linuxDeviceFactory;
     RemoteLinuxRunConfigurationFactory runConfigurationFactory;
     RemoteLinuxCustomRunConfigurationFactory customRunConfigurationFactory;
     RemoteLinuxDeployConfigurationFactory deployConfigurationFactory;

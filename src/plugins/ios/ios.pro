@@ -17,10 +17,8 @@ HEADERS += \
     iosdsymbuildstep.h \
     iosqtversion.h \
     iosplugin.h \
-    iosdevicefactory.h \
     iosdevice.h \
     iossimulator.h \
-    iossimulatorfactory.h \
     iosprobe.h \
     iosbuildstep.h \
     iostoolhandler.h \
@@ -43,10 +41,8 @@ SOURCES += \
     iosdsymbuildstep.cpp \
     iosqtversion.cpp \
     iosplugin.cpp \
-    iosdevicefactory.cpp \
     iosdevice.cpp \
     iossimulator.cpp \
-    iossimulatorfactory.cpp \
     iosprobe.cpp \
     iosbuildstep.cpp \
     iostoolhandler.cpp \

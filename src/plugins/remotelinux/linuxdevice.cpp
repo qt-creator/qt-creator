@@ -26,6 +26,7 @@
 #include "linuxdevice.h"
 
 #include "genericlinuxdeviceconfigurationwidget.h"
+#include "genericlinuxdeviceconfigurationwizard.h"
 #include "linuxdeviceprocess.h"
 #include "linuxdevicetester.h"
 #include "publickeydeploymentdialog.h"
@@ -33,6 +34,7 @@
 #include "remotelinuxsignaloperation.h"
 #include "remotelinuxenvironmentreader.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/id.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
@@ -284,4 +286,27 @@ bool LinuxDevice::supportsRSync() const
     return extraData("RemoteLinux.SupportsRSync").toBool();
 }
 
+
+namespace Internal {
+
+// Factory
+
+LinuxDeviceFactory::LinuxDeviceFactory()
+    : IDeviceFactory(Constants::GenericLinuxOsType)
+{
+    setDisplayName(tr("Generic Linux Device"));
+    setIcon(QIcon());
+    setCanCreate(true);
+    setConstructionFunction(&LinuxDevice::create);
+}
+
+IDevice::Ptr LinuxDeviceFactory::create() const
+{
+    GenericLinuxDeviceConfigurationWizard wizard(Core::ICore::mainWindow());
+    if (wizard.exec() != QDialog::Accepted)
+        return IDevice::Ptr();
+    return wizard.device();
+}
+
+}
 } // namespace RemoteLinux

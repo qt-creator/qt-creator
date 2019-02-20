@@ -23,7 +23,6 @@ HEADERS += \
     androidcreatekeystorecertificate.h \
     javaparser.h \
     androidplugin.h \
-    androiddevicefactory.h \
     androiddevice.h \
     androidgdbserverkitinformation.h \
     androidqmltoolingsupport.h \
@@ -70,7 +69,6 @@ SOURCES += \
     androidcreatekeystorecertificate.cpp \
     javaparser.cpp \
     androidplugin.cpp \
-    androiddevicefactory.cpp \
     androiddevice.cpp \
     androidgdbserverkitinformation.cpp \
     androidqmltoolingsupport.cpp \

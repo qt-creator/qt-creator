@@ -5,7 +5,6 @@ HEADERS += \
     winrtdebugsupport.h \
     winrtdeployconfiguration.h \
     winrtdevice.h \
-    winrtdevicefactory.h \
     winrtpackagedeploymentstep.h \
     winrtphoneqtversion.h \
     winrtplugin.h \
@@ -18,7 +17,6 @@ SOURCES += \
     winrtdebugsupport.cpp \
     winrtdeployconfiguration.cpp \
     winrtdevice.cpp \
-    winrtdevicefactory.cpp \
     winrtpackagedeploymentstep.cpp \
     winrtphoneqtversion.cpp \
     winrtplugin.cpp \

@@ -103,5 +103,18 @@ QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
     return url;
 }
 
+
+// Factory
+
+AndroidDeviceFactory::AndroidDeviceFactory()
+    : ProjectExplorer::IDeviceFactory(Constants::ANDROID_DEVICE_TYPE)
+{
+    setObjectName(QLatin1String("AndroidDeviceFactory"));
+    setDisplayName(tr("Android Device"));
+    setCombinedIcon(":/android/images/androiddevicesmall.png",
+                    ":/android/images/androiddevice.png");
+    setConstructionFunction(&AndroidDevice::create);
+}
+
 } // namespace Internal
 } // namespace Android

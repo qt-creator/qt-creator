@@ -30,17 +30,6 @@
 namespace Qnx {
 namespace Internal {
 
-class QnxDeviceFactory : public ProjectExplorer::IDeviceFactory
-{
-    Q_OBJECT
-
-public:
-    QnxDeviceFactory();
-
-    ProjectExplorer::IDevice::Ptr create() const override;
-
-    static Core::Id deviceType();
-};
 
 } // namespace Internal
 } // namespace Qnx

@@ -281,5 +281,17 @@ QDebug operator <<(QDebug debug, const IosDeviceType &deviceType)
     return debug;
 }
 
+// Factory
+
+IosSimulatorFactory::IosSimulatorFactory()
+    : ProjectExplorer::IDeviceFactory(Constants::IOS_SIMULATOR_TYPE)
+{
+    setObjectName(QLatin1String("IosSimulatorFactory"));
+    setDisplayName(tr("iOS Simulator"));
+    setCombinedIcon(":/ios/images/iosdevicesmall.png",
+                    ":/ios/images/iosdevice.png");
+    setConstructionFunction([] { return ProjectExplorer::IDevice::Ptr(new IosSimulator()); });
+}
+
 } // namespace Internal
 } // namespace Ios

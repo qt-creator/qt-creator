@@ -12,7 +12,6 @@ HEADERS += \
     remotelinuxrunconfiguration.h \
     publickeydeploymentdialog.h \
     genericlinuxdeviceconfigurationwizard.h \
-    genericlinuxdeviceconfigurationfactory.h \
     remotelinuxdebugsupport.h \
     genericlinuxdeviceconfigurationwizardpages.h \
     abstractremotelinuxdeploystep.h \
@@ -55,7 +54,6 @@ SOURCES += \
     remotelinuxrunconfiguration.cpp \
     publickeydeploymentdialog.cpp \
     genericlinuxdeviceconfigurationwizard.cpp \
-    genericlinuxdeviceconfigurationfactory.cpp \
     remotelinuxdebugsupport.cpp \
     genericlinuxdeviceconfigurationwizardpages.cpp \
     abstractremotelinuxdeploystep.cpp \
