@@ -140,10 +140,12 @@ AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
     d->m_wordWidthComboBox = new QComboBox(this);
     layout->addWidget(d->m_wordWidthComboBox);
 
+    d->m_wordWidthComboBox->addItem(Abi::toString(16), 16);
     d->m_wordWidthComboBox->addItem(Abi::toString(32), 32);
     d->m_wordWidthComboBox->addItem(Abi::toString(64), 64);
     d->m_wordWidthComboBox->addItem(Abi::toString(0), 0);
-    d->m_wordWidthComboBox->setCurrentIndex(2);
+    // Setup current word width of 0 by default.
+    d->m_wordWidthComboBox->setCurrentIndex(d->m_wordWidthComboBox->count() - 1);
     connect(d->m_wordWidthComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &AbiWidget::customComboBoxesChanged);
 
