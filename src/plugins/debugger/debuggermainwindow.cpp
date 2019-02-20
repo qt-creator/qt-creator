@@ -119,6 +119,7 @@ public:
     void resetCurrentPerspective();
     int indexInChooser(Perspective *perspective) const;
     void fixupLayoutIfNeeded();
+    void updatePerspectiveChooserWidth();
 
     DebuggerMainWindow *q = nullptr;
     Perspective *m_currentPerspective = nullptr;
@@ -416,10 +417,17 @@ void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
         fixupLayoutIfNeeded();
     }
 
+    updatePerspectiveChooserWidth();
+}
+
+void DebuggerMainWindowPrivate::updatePerspectiveChooserWidth()
+{
+    Perspective *perspective = m_currentPerspective;
     int index = indexInChooser(m_currentPerspective);
     if (index == -1) {
-        if (Perspective *parent = Perspective::findPerspective(m_currentPerspective->d->m_parentPerspectiveId))
-            index = indexInChooser(parent);
+        perspective = Perspective::findPerspective(m_currentPerspective->d->m_parentPerspectiveId);
+        if (perspective)
+            index = indexInChooser(perspective);
     }
 
     if (index != -1) {
