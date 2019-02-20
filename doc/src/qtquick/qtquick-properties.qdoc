@@ -50,7 +50,7 @@
     \uicontrol Properties pane, and enter the name of another QML type in the
     field. If you have specified properties for the item that are not supported
     for the new type, the type cannot be changed and an error message is
-    displayed. Select the \uicontrol Nut menu next to the property name, and
+    displayed. Select the \uicontrol Settings menu next to the property name, and
     then select \uicontrol Reset to remove the property values before trying
     again.
 

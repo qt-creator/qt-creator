@@ -163,7 +163,7 @@
 
     Property bindings are created implicitly in QML whenever a property is
     assigned a JavaScript expression. To set JavaScript expressions as values
-    of properties in the Design mode, select the \uicontrol Nut menu next to
+    of properties in the Design mode, select the \uicontrol Settings menu next to
     a property, and then select \uicontrol {Set Binding}.
 
     \image qmldesigner-set-expression.png "Type properties context menu"
