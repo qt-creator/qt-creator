@@ -3406,15 +3406,12 @@ void ProjectExplorerPluginPrivate::removeProject()
     Node *node = ProjectTree::findCurrentNode();
     if (!node)
         return;
-    ProjectNode *subProjectNode = node->managingProject();
-    if (!subProjectNode)
-        return;
-    ProjectNode *projectNode = subProjectNode->managingProject();
+    ProjectNode *projectNode = node->managingProject();
     if (projectNode) {
-        Utils::RemoveFileDialog removeFileDialog(subProjectNode->filePath().toString(), ICore::mainWindow());
+        Utils::RemoveFileDialog removeFileDialog(node->filePath().toString(), ICore::mainWindow());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
-            projectNode->removeSubProject(subProjectNode->filePath().toString());
+            projectNode->removeSubProject(node->filePath().toString());
     }
 }
 

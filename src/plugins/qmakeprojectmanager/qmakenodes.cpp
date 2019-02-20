@@ -132,7 +132,7 @@ bool QmakePriFileNode::supportsAction(ProjectAction action, const Node *node) co
         break;
     }
     case ProjectType::SubDirsTemplate:
-        if (action == AddSubProject || action == RemoveSubProject)
+        if (action == AddSubProject)
             return true;
         break;
     default:
@@ -345,6 +345,13 @@ bool QmakeProFileNode::includedInExactParse() const
 {
     const QmakeProFile *pro = proFile();
     return pro && pro->includedInExactParse();
+}
+
+bool QmakeProFileNode::supportsAction(ProjectAction action, const Node *node) const
+{
+    if (action == RemoveSubProject)
+        return parentProjectNode() && !parentProjectNode()->asContainerNode();
+    return QmakePriFileNode::supportsAction(action, node);
 }
 
 FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const
