@@ -35,6 +35,7 @@
 
 #include <QSysInfo>
 #include <QApplication>
+#include <QStandardPaths>
 
 /*!
     \namespace Core
@@ -437,6 +438,11 @@ QString ICore::userResourcePath()
     }
 
     return urp;
+}
+
+QString ICore::cacheResourcePath()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 }
 
 QString ICore::installerResourcePath()
