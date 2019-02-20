@@ -72,6 +72,7 @@ bool hasFixItAt(const QVector<ClangBackEnd::FixItContainer> &fixits,
 } // anonymous namespace
 
 namespace ClangCodeModel {
+namespace Internal {
 
 ClangFixItOperationsExtractor::ClangFixItOperationsExtractor(
         const QVector<DiagnosticContainer> &diagnosticContainers)
@@ -114,4 +115,5 @@ void ClangFixItOperationsExtractor::extractFromDiagnostic(
     }
 }
 
+} // namespace Internal
 } // namespace ClangCodeModel

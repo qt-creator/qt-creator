@@ -28,6 +28,7 @@
 #include <cpptools/baseeditordocumentparser.h>
 
 namespace ClangCodeModel {
+namespace Internal {
 
 class ClangEditorDocumentParser : public CppTools::BaseEditorDocumentParser
 {
@@ -41,4 +42,5 @@ private:
                     const UpdateParams &updateParams) override;
 };
 
+} // namespace Internal
 } // namespace ClangCodeModel

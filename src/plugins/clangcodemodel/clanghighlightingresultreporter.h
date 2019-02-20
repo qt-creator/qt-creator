@@ -35,6 +35,7 @@
 #include <clangsupport/tokeninfocontainer.h>
 
 namespace ClangCodeModel {
+namespace Internal {
 
 class HighlightingResultReporter:
         public QObject,
@@ -67,4 +68,5 @@ private:
     unsigned m_flushLine = 0;
 };
 
+} // namespace Internal
 } // namespace ClangCodeModel

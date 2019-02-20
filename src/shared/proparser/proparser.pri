@@ -15,6 +15,7 @@ HEADERS += \
         proitems.h \
         prowriter.h \
         qmakevfs.h \
+        registry_p.h \
         ioutils.h
 
 SOURCES += \
@@ -26,7 +27,9 @@ SOURCES += \
         proitems.cpp \
         prowriter.cpp \
         qmakevfs.cpp \
+        registry.cpp \
         ioutils.cpp
 
 RESOURCES += proparser.qrc
 DEFINES += QMAKE_BUILTIN_PRFS QMAKE_OVERRIDE_PRFS
+win32: LIBS *= -ladvapi32

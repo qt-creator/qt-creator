@@ -194,7 +194,7 @@ def qdump_X_QModelIndex(d, value):
     #gdb.execute('call free($mi)')
 
 def qdump__Qt__ItemDataRole(d, value):
-    d.putEnumValue(value, {
+    d.putEnumValue(value.integer(), {
         0  : "Qt::DisplayRole",
         1  : "Qt::DecorationRole",
         2  : "Qt::EditRole",
@@ -1410,6 +1410,31 @@ def qdump__QSize(d, value):
 def qdump__QSizeF(d, value):
     d.putValue('(%s, %s)' % value.split('dd'))
     d.putPlainChildren(value)
+
+
+def qdump__QSizePolicy__Policy(d, value):
+    d.putEnumValue(value.integer(), {
+        0  : 'QSizePolicy::Fixed',
+        1  : 'QSizePolicy::GrowFlag',
+        2  : 'QSizePolicy::ExpandFlag',
+        3  : 'QSizePolicy::MinimumExpanding (GrowFlag|ExpandFlag)',
+        4  : 'QSizePolicy::ShrinkFlag',
+        5  : 'QSizePolicy::Preferred (GrowFlag|ShrinkFlag)',
+        7  : 'QSizePolicy::Expanding (GrowFlag|ShrinkFlag|ExpandFlag)',
+        8  : 'QSizePolicy::IgnoreFlag',
+       13  : 'QSizePolicy::Ignored (ShrinkFlag|GrowFlag|IgnoreFlag)',
+    })
+
+def qdump__QSizePolicy(d, value):
+    bits = value.integer()
+    d.putEmptyValue(-99)
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            d.putIntItem('horStretch', (bits >> 0) & 0xff)
+            d.putIntItem('verStretch', (bits >> 8) & 0xff)
+            d.putEnumItem('horPolicy', (bits >> 16) & 0xf, "@QSizePolicy::Policy")
+            d.putEnumItem('verPolicy', (bits >> 20) & 0xf, "@QSizePolicy::Policy")
 
 
 def qform__QStack():

@@ -79,10 +79,12 @@ private:
                       const QTextBlock &endBlock,
                       const QChar &typedChar,
                       int cursorPositionInEditor);
-    int indentFor(const QTextBlock &block, int cursorPositionInEditor);
+    TextEditor::Replacements indentsFor(QTextBlock startBlock,
+                                        const QTextBlock &endBlock,
+                                        const QByteArray &buffer,
+                                        const QChar &typedChar,
+                                        int cursorPositionInEditor);
     TextEditor::Replacements replacements(QByteArray buffer,
-                                          int utf8Offset,
-                                          int utf8Length,
                                           const QTextBlock &startBlock,
                                           const QTextBlock &endBlock,
                                           ReplacementsToKeep replacementsToKeep,

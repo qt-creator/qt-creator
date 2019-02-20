@@ -30,6 +30,7 @@
 namespace Core { class IEditor; }
 
 namespace ClangCodeModel {
+namespace Internal {
 
 class ClangCurrentDocumentFilter : public  Core::ILocatorFilter
 {
@@ -53,4 +54,5 @@ private:
     QString m_currentPath;
 };
 
+} // namespace Internal
 } // namespace ClangCodeModel

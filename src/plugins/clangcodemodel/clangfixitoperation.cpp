@@ -32,6 +32,7 @@
 #include <QTextDocument>
 
 namespace ClangCodeModel {
+namespace Internal {
 
 using FileToFixits = QMap<QString, QVector<ClangBackEnd::FixItContainer>>;
 using FileToFixitsIterator = QMapIterator<QString, QVector<ClangBackEnd::FixItContainer>>;
@@ -50,7 +51,7 @@ int ClangFixItOperation::priority() const
     return 10;
 }
 
-QString ClangCodeModel::ClangFixItOperation::description() const
+QString ClangFixItOperation::description() const
 {
     return QStringLiteral("Apply Fix: ") + fixItText.toString();
 }
@@ -120,5 +121,5 @@ Utils::ChangeSet ClangFixItOperation::toChangeSet(
     return changeSet;
 }
 
+} // namespace Internal
 } // namespace ClangCodeModel
-

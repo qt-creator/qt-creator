@@ -34,7 +34,7 @@
 #include <QVector>
 
 using ClangBackEnd::FixItContainer;
-using ClangCodeModel::ClangFixItOperation;
+using ClangCodeModel::Internal::ClangFixItOperation;
 
 using ::testing::PrintToString;
 

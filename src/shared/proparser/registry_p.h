@@ -25,49 +25,31 @@
 
 #pragma once
 
-#include <texteditor/codeassist/assistproposaliteminterface.h>
+#include <QtCore/qglobal.h>
 
-#include <QIcon>
-#include <QString>
+#ifdef Q_OS_WIN32
+   #include <QtCore/qt_windows.h>
+#else
+    typedef void* HKEY;
+#endif
 
-namespace ClangCodeModel {
-namespace Internal {
+#include <QtCore/qstring.h>
 
-class ClangPreprocessorAssistProposalItem final : public TextEditor::AssistProposalItemInterface
-{
-public:
-    ~ClangPreprocessorAssistProposalItem() noexcept override = default;
-    bool prematurelyApplies(const QChar &typedChar) const final;
-    bool implicitlyApplies() const final;
-    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
-               int basePosition) const final;
+namespace QMakeInternal {
 
-    void setText(const QString &text);
-    QString text() const final;
+/**
+ * Read a value from the Windows registry.
+ *
+ * If the key is not found, or the registry cannot be accessed (for example
+ * if this code is compiled for a platform other than Windows), a null
+ * string is returned.
+ *
+ * 32-bit code reads from the registry's 32 bit view (Wow6432Node),
+ * 64 bit code reads from the 64 bit view.
+ * Pass KEY_WOW64_32KEY to access the 32 bit view regardless of the
+ * application's architecture, KEY_WOW64_64KEY respectively.
+ */
+QString qt_readRegistryKey(HKEY parentHandle, const QString &rSubkey,
+                           unsigned long options = 0);
 
-    void setIcon(const QIcon &icon);
-    QIcon icon() const final;
-
-    void setDetail(const QString &detail);
-    QString detail() const final;
-
-    bool isSnippet() const final;
-    bool isValid() const final;
-
-    quint64 hash() const final;
-
-    void setCompletionOperator(uint completionOperator);
-
-private:
-    bool isInclude() const;
-
-private:
-    QString m_text;
-    QString m_detail;
-    QIcon m_icon;
-    uint m_completionOperator;
-    mutable QChar m_typedCharacter;
-};
-
-} // namespace Internal
-} // namespace ClangCodeModel
+}  // namespace QMakeInternal

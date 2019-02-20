@@ -18,7 +18,8 @@ QtcAutotest {
             "qmakeevaluator.h", "qmakeevaluator_p.h", "qmakeevaluator.cpp",
             "qmakeglobals.h", "qmakeglobals.cpp",
             "qmakeparser.h", "qmakeparser.cpp",
-            "qmakevfs.h", "qmakevfs.cpp"
+            "qmakevfs.h", "qmakevfs.cpp",
+            "registry_p.h", "registry.cpp",
         ]
     }
     Group {
@@ -27,4 +28,8 @@ QtcAutotest {
     }
     cpp.includePaths: base.concat([proParserGroup.prefix])
     cpp.defines: base.concat("QT_USE_FAST_OPERATOR_PLUS")
+    Properties {
+        condition: qbs.targetOS.contains("windows")
+        cpp.dynamicLibraries: "advapi32"
+    }
 }

@@ -48,6 +48,7 @@
 #include <QRegularExpression>
 
 namespace ClangCodeModel {
+namespace Internal {
 
 ClangCurrentDocumentFilter::ClangCurrentDocumentFilter()
 {
@@ -108,7 +109,6 @@ QList<Core::LocatorFilterEntry> ClangCurrentDocumentFilter::matchesFor(
     if (!regexp.isValid())
         return goodEntries;
 
-    using Internal::ClangEditorDocumentProcessor;
     ClangEditorDocumentProcessor *processor = ClangEditorDocumentProcessor::get(m_currentPath);
     if (!processor)
         return goodEntries;
@@ -170,4 +170,5 @@ void ClangCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor *newCurren
     reset();
 }
 
+} // namespace Internal
 } // namespace ClangCodeModel
