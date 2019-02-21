@@ -32,13 +32,14 @@
 
 #include <QDebug>
 
-namespace ProjectExplorer { class Kit; }
 namespace Ios {
 namespace Internal {
+
 class IosConfigurations;
 class IosSimulatorFactory;
 
-class IosDeviceType {
+class IosDeviceType
+{
 public:
     enum Type {
         IosDevice,
@@ -58,6 +59,7 @@ public:
     QString identifier;
     QString displayName;
 };
+
 QDebug operator <<(QDebug debug, const IosDeviceType &deviceType);
 
 class IosSimulator : public ProjectExplorer::IDevice
@@ -70,8 +72,6 @@ public:
     QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
-    void fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
     Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
     Utils::OsType osType() const override;
@@ -94,9 +94,6 @@ public:
     IosSimulatorFactory();
 };
 
-namespace IosKitInformation {
-IosSimulator::ConstPtr simulator(ProjectExplorer::Kit *kit);
-} // namespace IosKitInformation
 } // namespace Internal
 } // namespace Ios
 

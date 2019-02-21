@@ -36,9 +36,6 @@
 #include <QStringList>
 #include <QTimer>
 
-namespace ProjectExplorer{
-class Kit;
-}
 namespace Ios {
 class IosConfigurations;
 
@@ -61,7 +58,6 @@ public:
     void fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
     QString uniqueDeviceID() const;
-    IosDevice(const QString &uid);
     QString osVersion() const;
     Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
@@ -74,6 +70,8 @@ protected:
     friend class Ios::Internal::IosDeviceManager;
     IosDevice();
     IosDevice(const IosDevice &other);
+    IosDevice(const QString &uid);
+
     Dict m_extraInfo;
     bool m_ignoreDevice = false;
     mutable quint16 m_lastPort;
@@ -88,7 +86,8 @@ public:
     bool canRestore(const QVariantMap &map) const override;
 };
 
-class IosDeviceManager : public QObject {
+class IosDeviceManager : public QObject
+{
     Q_OBJECT
 public:
     using TranslationMap = QHash<QString, QString>;
@@ -112,10 +111,5 @@ private:
     QStringList m_userModeDeviceIds;
 };
 
-namespace IosKitAspect {
-IosDevice::ConstPtr device(ProjectExplorer::Kit *);
-}
-
 } // namespace Internal
-
 } // namespace Ios

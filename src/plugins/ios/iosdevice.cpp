@@ -538,16 +538,6 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
     }
 }
 
-IosDevice::ConstPtr IosKitAspect::device(Kit *kit)
-{
-    if (!kit)
-        return IosDevice::ConstPtr();
-    IDevice::ConstPtr dev = DeviceKitAspect::device(kit);
-    IosDevice::ConstPtr res = dev.dynamicCast<const IosDevice>();
-    return res;
-}
-
-
 // Factory
 
 IosDeviceFactory::IosDeviceFactory()
