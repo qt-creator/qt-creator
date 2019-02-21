@@ -54,6 +54,7 @@ public:
         ShArchitecture,
         AvrArchitecture,
         XtensaArchitecture,
+        Mcs51Architecture,
         UnknownArchitecture
     };
 
@@ -108,6 +109,7 @@ public:
         MachOFormat,
         PEFormat,
         RuntimeQmlFormat,
+        UbrofFormat,
         UnknownFormat
     };
 

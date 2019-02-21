@@ -29,6 +29,7 @@
 #include "qbsprojectmanagerconstants.h"
 
 #include <coreplugin/messagemanager.h>
+#include <baremetal/baremetalconstants.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kit.h>
@@ -130,6 +131,8 @@ static QStringList toolchainList(const ProjectExplorer::ToolChain *tc)
         list << QLatin1String("mingw") << QLatin1String("gcc");
     else if (tc->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
         list << QLatin1String("msvc");
+    else if (tc->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID)
+        list << QLatin1String("iar");
     return list;
 }
 

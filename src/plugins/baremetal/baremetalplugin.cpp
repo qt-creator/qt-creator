@@ -34,6 +34,8 @@
 #include "gdbserverproviderssettingspage.h"
 #include "gdbserverprovidermanager.h"
 
+#include "iarewtoolchain.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -49,6 +51,7 @@ namespace Internal {
 class BareMetalPluginPrivate
 {
 public:
+    IarToolChainFactory iarToolChainFactory;
     BareMetalDeviceFactory deviceFactory;
     BareMetalRunConfigurationFactory runConfigurationFactory;
     BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;

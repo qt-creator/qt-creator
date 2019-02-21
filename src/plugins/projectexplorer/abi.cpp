@@ -661,6 +661,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("xtensa");
     case X86Architecture:
         return QLatin1String("x86");
+    case Mcs51Architecture:
+        return QLatin1String("mcs51");
     case MipsArchitecture:
         return QLatin1String("mips");
     case PowerPCArchitecture:
@@ -722,6 +724,8 @@ QString Abi::toString(const BinaryFormat &bf)
         return QLatin1String("mach_o");
     case RuntimeQmlFormat:
         return QLatin1String("qml_rt");
+    case UbrofFormat:
+        return "ubrof";
     case UnknownFormat:
         Q_FALLTHROUGH();
     default:

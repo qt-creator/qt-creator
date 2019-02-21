@@ -31,5 +31,6 @@ QtcPlugin {
         "openocdgdbserverprovider.cpp", "openocdgdbserverprovider.h",
         "defaultgdbserverprovider.cpp", "defaultgdbserverprovider.h",
         "stlinkutilgdbserverprovider.cpp", "stlinkutilgdbserverprovider.h",
+        "iarewtoolchain.cpp", "iarewtoolchain.h",
     ]
 }
