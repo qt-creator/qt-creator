@@ -859,11 +859,6 @@ void DeviceTypeKitAspect::setDeviceTypeId(Kit *k, Core::Id type)
     k->setValue(DeviceTypeKitAspect::id(), type.toSetting());
 }
 
-Kit::Predicate DeviceTypeKitAspect::deviceTypePredicate(Core::Id type)
-{
-    return [type](const Kit *kit) { return type.isValid() && deviceTypeId(kit) == type; };
-}
-
 QSet<Core::Id> DeviceTypeKitAspect::supportedPlatforms(const Kit *k) const
 {
     return {deviceTypeId(k)};

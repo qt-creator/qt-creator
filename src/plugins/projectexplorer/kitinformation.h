@@ -126,8 +126,6 @@ public:
     static const Core::Id deviceTypeId(const Kit *k);
     static void setDeviceTypeId(Kit *k, Core::Id type);
 
-    static Kit::Predicate deviceTypePredicate(Core::Id type);
-
     QSet<Core::Id> supportedPlatforms(const Kit *k) const override;
     QSet<Core::Id> availableFeatures(const Kit *k) const override;
 };

@@ -173,15 +173,11 @@ void QnxPlugin::extensionsInitialized()
 
 void QnxPluginPrivate::updateDebuggerActions()
 {
-    bool hasValidQnxKit = false;
-
-    auto matcher = DeviceTypeKitAspect::deviceTypePredicate(Constants::QNX_QNX_OS_TYPE);
-    foreach (Kit *qnxKit, KitManager::kits(matcher)) {
-        if (qnxKit->isValid() && !DeviceKitAspect::device(qnxKit).isNull()) {
-            hasValidQnxKit = true;
-            break;
-        }
-    }
+    const bool hasValidQnxKit = KitManager::kit([](const Kit *kit) {
+        return kit->isValid()
+                && DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
+                && !DeviceKitAspect::device(kit).isNull();
+    }) != nullptr;
 
     m_attachToQnxApplication.setVisible(hasValidQnxKit);
     m_debugSeparator->setVisible(hasValidQnxKit);
