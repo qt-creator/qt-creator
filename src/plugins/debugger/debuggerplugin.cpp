@@ -1405,7 +1405,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_perspective.addWindow(m_engineManagerWindow, Perspective::SplitVertical, nullptr);
     m_perspective.addWindow(m_breakpointManagerWindow, Perspective::SplitHorizontal, m_engineManagerWindow);
-    m_perspective.addWindow(m_globalLogWindow, Perspective::AddToTab, m_breakpointManagerWindow, false);
+    m_perspective.addWindow(m_globalLogWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
 
     setInitialState();
 
