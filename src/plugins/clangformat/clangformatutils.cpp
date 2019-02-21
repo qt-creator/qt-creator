@@ -106,19 +106,44 @@ static Utils::FileName globalPath()
     return Utils::FileName::fromString(Core::ICore::userResourcePath());
 }
 
-static bool configForFileExists(Utils::FileName fileName)
+static QString configForFile(Utils::FileName fileName)
 {
+    Utils::FileName topProjectPath = projectPath();
+    if (topProjectPath.isEmpty())
+        return QString();
+
     QDir projectDir(fileName.parentDir().toString());
     while (!projectDir.exists(Constants::SETTINGS_FILE_NAME)
            && !projectDir.exists(Constants::SETTINGS_FILE_ALT_NAME)) {
-        if (!projectDir.cdUp())
-            return false;
+        if (projectDir.path() == topProjectPath.toString()
+            || !Utils::FileName::fromString(projectDir.path()).isChildOf(topProjectPath)
+            || !projectDir.cdUp()) {
+            return QString();
+        }
     }
-    return true;
+
+    if (projectDir.exists(Constants::SETTINGS_FILE_NAME))
+        return projectDir.filePath(Constants::SETTINGS_FILE_NAME);
+    return projectDir.filePath(Constants::SETTINGS_FILE_ALT_NAME);
 }
 
-static clang::format::FormatStyle constructStyle(bool isGlobal)
+static clang::format::FormatStyle constructStyle(bool isGlobal,
+                                                 const QByteArray &baseStyle = QByteArray())
 {
+    if (!baseStyle.isEmpty()) {
+        // Try to get the style for this base style.
+        Expected<FormatStyle> style = getStyle(baseStyle.toStdString(),
+                                               "dummy.cpp",
+                                               baseStyle.toStdString());
+        if (style)
+            return *style;
+
+        handleAllErrors(style.takeError(), [](const ErrorInfoBase &) {
+            // do nothing
+        });
+        // Fallthrough to the default style.
+    }
+
     FormatStyle style = getLLVMStyle();
     style.BreakBeforeBraces = FormatStyle::BS_Custom;
 
@@ -151,18 +176,37 @@ void createStyleFileIfNeeded(bool isGlobal)
     }
 }
 
+static QByteArray configBaseStyleName(const QString &configFile)
+{
+    if (configFile.isEmpty())
+        return QByteArray();
+
+    QFile config(configFile);
+    if (!config.open(QIODevice::ReadOnly))
+        return QByteArray();
+
+    const QByteArray content = config.readAll();
+    const char basedOnStyle[] = "BasedOnStyle:";
+    int basedOnStyleIndex = content.indexOf(basedOnStyle);
+    if (basedOnStyleIndex < 0)
+        return QByteArray();
+
+    basedOnStyleIndex += sizeof(basedOnStyle) - 1;
+    const int endOfLineIndex = content.indexOf('\n', basedOnStyleIndex);
+    return content
+        .mid(basedOnStyleIndex, endOfLineIndex < 0 ? -1 : endOfLineIndex - basedOnStyleIndex)
+        .trimmed();
+}
+
 clang::format::FormatStyle styleForFile(Utils::FileName fileName)
 {
     bool isGlobal = false;
-    if (!configForFileExists(fileName)) {
-        if (fileName.isChildOf(projectPath()) && CppCodeStyleSettings::currentProjectCodeStyle()) {
-            fileName = projectPath();
-        } else {
-            fileName = globalPath();
-            isGlobal = true;
-        }
+    QString configFile = configForFile(fileName);
+    if (configFile.isEmpty()) {
+        Utils::FileName path = fileName = globalPath();
         fileName.appendPath(Constants::SAMPLE_FILE_NAME);
-        createStyleFileIfNeeded(isGlobal);
+        createStyleFileIfNeeded(true);
+        configFile = path.appendPath(Constants::SETTINGS_FILE_NAME).toString();
     }
 
     Expected<FormatStyle> style = format::getStyle("file",
@@ -175,7 +219,7 @@ clang::format::FormatStyle styleForFile(Utils::FileName fileName)
         // do nothing
     });
 
-    return constructStyle(isGlobal);
+    return constructStyle(isGlobal, configBaseStyleName(configFile));
 }
 
 clang::format::FormatStyle currentProjectStyle()
