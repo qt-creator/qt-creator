@@ -63,10 +63,6 @@ static void readTable(QTableWidget *table, std::istringstream &stream)
         if (firstLetter == std::string::npos || line.at(firstLetter) == '#')
             continue;
 
-        // Increase indent where it already exists.
-        if (firstLetter > 0 && firstLetter < 5)
-            line = "    " + line;
-
         table->insertRow(table->rowCount());
         const size_t colonPos = line.find_first_of(':');
         auto *keyItem = new QTableWidgetItem;
@@ -104,8 +100,6 @@ static QByteArray tableToYAML(QTableWidget *table)
         auto *valueItem = table->item(i, 1);
 
         QByteArray itemText = keyItem->text().toUtf8();
-        // Change the indent back to 2 spaces
-        itemText.replace("      ", "  ");
         if (!valueItem->text().isEmpty() || !itemText.trimmed().startsWith('-'))
             itemText += ": ";
         itemText += valueItem->text().toUtf8() + '\n';
