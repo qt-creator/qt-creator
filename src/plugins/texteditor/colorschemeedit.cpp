@@ -155,6 +155,7 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     m_ui->detailsScrollArea->viewport()->setAutoFillBackground(false);
     m_ui->scrollAreaWidgetContents->setAutoFillBackground(false);
     m_ui->itemList->setModel(m_formatsModel);
+    m_ui->builtinSchemeLabel->setVisible(m_readOnly);
 
     populateUnderlineStyleComboBox();
 
@@ -186,6 +187,7 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
             this, &ColorSchemeEdit::eraseUnderlineColor);
     connect(m_ui->underlineComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &ColorSchemeEdit::changeUnderlineStyle);
+    connect(m_ui->builtinSchemeLabel, &QLabel::linkActivated, this, &ColorSchemeEdit::copyScheme);
 }
 
 ColorSchemeEdit::~ColorSchemeEdit()
@@ -214,31 +216,9 @@ void ColorSchemeEdit::setReadOnly(bool readOnly)
 
     m_readOnly = readOnly;
 
-    const bool enabled = !readOnly;
-    m_ui->foregroundLabel->setEnabled(enabled);
-    m_ui->foregroundToolButton->setEnabled(enabled);
-    m_ui->backgroundLabel->setEnabled(enabled);
-    m_ui->backgroundToolButton->setEnabled(enabled);
-    m_ui->eraseBackgroundToolButton->setEnabled(enabled);
-    m_ui->eraseForegroundToolButton->setEnabled(enabled);
-    m_ui->relativeForegroundHeadline->setEnabled(enabled);
-    m_ui->foregroundSaturationLabel->setEnabled(enabled);
-    m_ui->foregroundLightnessLabel->setEnabled(enabled);
-    m_ui->foregroundSaturationSpinBox->setEnabled(enabled);
-    m_ui->foregroundLightnessSpinBox->setEnabled(enabled);
-    m_ui->relativeBackgroundHeadline->setEnabled(enabled);
-    m_ui->backgroundSaturationLabel->setEnabled(enabled);
-    m_ui->backgroundLightnessLabel->setEnabled(enabled);
-    m_ui->backgroundSaturationSpinBox->setEnabled(enabled);
-    m_ui->backgroundLightnessSpinBox->setEnabled(enabled);
-    m_ui->fontHeadline->setEnabled(enabled);
-    m_ui->boldCheckBox->setEnabled(enabled);
-    m_ui->italicCheckBox->setEnabled(enabled);
-    m_ui->underlineHeadline->setEnabled(enabled);
-    m_ui->underlineLabel->setEnabled(enabled);
-    m_ui->underlineColorToolButton->setEnabled(enabled);
-    m_ui->eraseUnderlineColorToolButton->setEnabled(enabled);
-    m_ui->underlineComboBox->setEnabled(enabled);
+    m_ui->detailsScrollArea->setVisible(!readOnly);
+    m_ui->builtinSchemeLabel->setVisible(readOnly);
+    updateControls();
 }
 
 void ColorSchemeEdit::setColorScheme(const ColorScheme &colorScheme)
@@ -278,7 +258,8 @@ void ColorSchemeEdit::updateForegroundControls()
     const auto &formatDescription = m_descriptions[m_curItem];
     const Format &format = m_scheme.formatFor(formatDescription.id());
 
-    bool isVisible = formatDescription.showControl(FormatDescription::ShowForegroundControl);
+    bool isVisible = !m_readOnly
+                     && formatDescription.showControl(FormatDescription::ShowForegroundControl);
 
     m_ui->relativeForegroundHeadline->setEnabled(isVisible);
     m_ui->foregroundLabel->setVisible(isVisible);
@@ -297,7 +278,8 @@ void ColorSchemeEdit::updateBackgroundControls()
     const auto formatDescription = m_descriptions[m_curItem];
     const Format &format = m_scheme.formatFor(formatDescription.id());
 
-    bool isVisible = formatDescription.showControl(FormatDescription::ShowBackgroundControl);
+    bool isVisible = !m_readOnly
+                     && formatDescription.showControl(FormatDescription::ShowBackgroundControl);
 
     m_ui->relativeBackgroundHeadline->setVisible(isVisible);
     m_ui->backgroundLabel->setVisible(isVisible);
@@ -319,7 +301,8 @@ void ColorSchemeEdit::updateRelativeForegroundControls()
     QSignalBlocker saturationSignalBlocker(m_ui->foregroundSaturationSpinBox);
     QSignalBlocker lightnessSignalBlocker(m_ui->foregroundLightnessSpinBox);
 
-    bool isVisible = formatDescription.showControl(FormatDescription::ShowRelativeForegroundControl);
+    bool isVisible = !m_readOnly
+                     && formatDescription.showControl(FormatDescription::ShowRelativeForegroundControl);
 
     m_ui->relativeForegroundHeadline->setVisible(isVisible);
     m_ui->foregroundSaturationLabel->setVisible(isVisible);
@@ -350,7 +333,8 @@ void ColorSchemeEdit::updateRelativeBackgroundControls()
     QSignalBlocker saturationSignalBlocker(m_ui->backgroundSaturationSpinBox);
     QSignalBlocker lightnessSignalBlocker(m_ui->backgroundLightnessSpinBox);
 
-    bool isVisible = formatDescription.showControl(FormatDescription::ShowRelativeBackgroundControl);
+    bool isVisible = !m_readOnly
+                     && formatDescription.showControl(FormatDescription::ShowRelativeBackgroundControl);
 
     m_ui->relativeBackgroundHeadline->setVisible(isVisible);
     m_ui->backgroundSaturationLabel->setVisible(isVisible);
@@ -381,7 +365,8 @@ void ColorSchemeEdit::updateFontControls()
     QSignalBlocker boldSignalBlocker(m_ui->boldCheckBox);
     QSignalBlocker italicSignalBlocker(m_ui->italicCheckBox);
 
-    bool isVisible= formatDescription.showControl(FormatDescription::ShowFontControls);
+    bool isVisible = !m_readOnly
+                     && formatDescription.showControl(FormatDescription::ShowFontControls);
 
     m_ui->fontHeadline->setVisible(isVisible);
     m_ui->boldCheckBox->setVisible(isVisible);
@@ -401,7 +386,8 @@ void ColorSchemeEdit::updateUnderlineControls()
 
     QSignalBlocker comboBoxSignalBlocker(m_ui->underlineComboBox);
 
-    bool isVisible= formatDescription.showControl(FormatDescription::ShowUnderlineControl);
+    bool isVisible = !m_readOnly
+                     && formatDescription.showControl(FormatDescription::ShowUnderlineControl);
 
     m_ui->underlineHeadline->setVisible(isVisible);
     m_ui->underlineLabel->setVisible(isVisible);

@@ -377,6 +377,8 @@ QWidget *FontSettingsPage::widget()
                 this, &FontSettingsPage::colorSchemeSelected);
         connect(d_ptr->m_ui->copyButton, &QPushButton::clicked,
                 this, &FontSettingsPage::openCopyColorSchemeDialog);
+        connect(d_ptr->m_ui->schemeEdit, &ColorSchemeEdit::copyScheme,
+                this, &FontSettingsPage::openCopyColorSchemeDialog);
         connect(d_ptr->m_ui->deleteButton, &QPushButton::clicked,
                 this, &FontSettingsPage::confirmDeleteColorScheme);
 
