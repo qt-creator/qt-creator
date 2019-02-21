@@ -88,7 +88,7 @@ public:
         setConfigBaseId(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
         setDefaultDisplayName(QCoreApplication::translate("Qnx::Internal::QnxDeployConfiguration",
                                                           "Deploy to QNX Device"));
-        addSupportedTargetDeviceType(QnxDeviceFactory::deviceType());
+        addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
         setUseDeploymentDataView();
 
         addInitialStep(DeviceCheckBuildStep::stepId());

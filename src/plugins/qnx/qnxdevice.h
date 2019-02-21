@@ -78,8 +78,6 @@ public:
     QnxDeviceFactory();
 
     ProjectExplorer::IDevice::Ptr create() const override;
-
-    static Core::Id deviceType();
 };
 
 } // namespace Internal

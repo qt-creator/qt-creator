@@ -201,10 +201,5 @@ ProjectExplorer::IDevice::Ptr QnxDeviceFactory::create() const
     return wizard.device();
 }
 
-Core::Id QnxDeviceFactory::deviceType()
-{
-    return Core::Id(Constants::QNX_QNX_OS_TYPE);
-}
-
 } // namespace Internal
 } // namespace Qnx
