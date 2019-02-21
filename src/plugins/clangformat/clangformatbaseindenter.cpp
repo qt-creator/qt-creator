@@ -357,8 +357,10 @@ TextEditor::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffer
     adjustFormatStyleForLineBreak(style, replacementsToKeep);
     if (typedChar == QChar::Null) {
         if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore) {
-            buffer.insert(utf8Offset - 1, " //");
-            utf8Offset += 3;
+            if (utf8Offset > 0) {
+                buffer.insert(utf8Offset - 1, " //");
+                utf8Offset += 3;
+            }
             utf8Length += forceIndentWithExtraText(buffer,
                                                    cursorPositionInEditor < 0
                                                        ? endBlock
