@@ -38,6 +38,7 @@
 #include <projectexplorer/session.h>
 
 #include <QFile>
+#include <QMessageBox>
 
 #include <sstream>
 
@@ -219,6 +220,17 @@ void ClangFormatConfigWidget::apply()
     }
 
     const QByteArray text = tableToYAML(m_ui->clangFormatOptionsTable);
+    clang::format::FormatStyle style;
+    style.Language = clang::format::FormatStyle::LK_Cpp;
+    const std::error_code error = clang::format::parseConfiguration(text.data(), &style);
+    if (error.value() != static_cast<int>(clang::format::ParseError::Success)) {
+        QMessageBox::warning(this,
+                             tr("Error in ClangFormat configuration"),
+                             QString::fromStdString(error.message()));
+        fillTable();
+        return;
+    }
+
     QString filePath;
     if (m_project)
         filePath = m_project->projectDirectory().appendPath(Constants::SETTINGS_FILE_NAME).toString();
