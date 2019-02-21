@@ -39,7 +39,7 @@
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-class AutotoolsProjectPluginRunData
+class AutotoolsProjectPluginPrivate
 {
 public:
     AutotoolsBuildConfigurationFactory buildConfigurationFactory;
@@ -51,7 +51,7 @@ public:
 
 AutotoolsProjectPlugin::~AutotoolsProjectPlugin()
 {
-    delete m_runData;
+    delete d;
 }
 
 void AutotoolsProjectPlugin::extensionsInitialized()
@@ -63,7 +63,7 @@ bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    m_runData = new AutotoolsProjectPluginRunData;
+    d = new AutotoolsProjectPluginPrivate;
     ProjectExplorer::ProjectManager::registerProjectType<AutotoolsProject>(Constants::MAKEFILE_MIMETYPE);
 
     return true;

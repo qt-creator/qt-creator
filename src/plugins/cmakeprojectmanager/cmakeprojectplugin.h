@@ -26,8 +26,9 @@
 #pragma once
 
 #include "cmakespecificsettingspage.h"
+
 #include <extensionsystem/iplugin.h>
-#include <memory>
+
 namespace CMakeProjectManager {
 namespace Internal {
 

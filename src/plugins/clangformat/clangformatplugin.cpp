@@ -65,9 +65,6 @@ using namespace ProjectExplorer;
 
 namespace ClangFormat {
 
-ClangFormatPlugin::ClangFormatPlugin() = default;
-ClangFormatPlugin::~ClangFormatPlugin() = default;
-
 #ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
 class ClangFormatStyleFactory : public CppTools::CppCodeStylePreferencesFactory
 {

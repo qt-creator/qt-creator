@@ -60,8 +60,6 @@ namespace Internal {
  *   be executed in the build process)
  */
 
-class AutotoolsProjectPluginRunData;
-
 class AutotoolsProjectPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -72,7 +70,7 @@ class AutotoolsProjectPlugin : public ExtensionSystem::IPlugin
     void extensionsInitialized() final;
     bool initialize(const QStringList &arguments, QString *errorString) final;
 
-    AutotoolsProjectPluginRunData *m_runData;
+    class AutotoolsProjectPluginPrivate *d;
 };
 
 } // namespace Internal

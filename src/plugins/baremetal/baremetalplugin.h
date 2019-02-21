@@ -31,23 +31,17 @@
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalPluginRunData;
-
 class BareMetalPlugin : public ExtensionSystem::IPlugin
 {
    Q_OBJECT
    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BareMetal.json")
 
-public:
-   BareMetalPlugin();
-
-private:
    ~BareMetalPlugin() final;
 
    bool initialize(const QStringList &arguments, QString *errorString) final;
    void extensionsInitialized() final;
 
-   BareMetalPluginRunData *m_runData;
+   class BareMetalPluginPrivate *d;
 };
 
 } // namespace Internal

@@ -54,10 +54,10 @@ using namespace Bookmarks::Constants;
 namespace Bookmarks {
 namespace Internal {
 
-class BookmarksPluginRunData : public QObject
+class BookmarksPluginPrivate : public QObject
 {
 public:
-    BookmarksPluginRunData();
+    BookmarksPluginPrivate();
 
     void updateActions(bool enableToggle, int stateMask);
     void editorOpened(Core::IEditor *editor);
@@ -84,16 +84,16 @@ public:
 
 BookmarksPlugin::~BookmarksPlugin()
 {
-    delete m_runData;
+    delete d;
 }
 
 bool BookmarksPlugin::initialize(const QStringList &, QString *)
 {
-    m_runData = new BookmarksPluginRunData;
+    d = new BookmarksPluginPrivate;
     return true;
 }
 
-BookmarksPluginRunData::BookmarksPluginRunData()
+BookmarksPluginPrivate::BookmarksPluginPrivate()
     : m_bookmarkFilter(&m_bookmarkManager)
     , m_bookmarkViewFactory(&m_bookmarkManager)
 {
@@ -162,7 +162,7 @@ BookmarksPluginRunData::BookmarksPluginRunData()
     });
 
     connect(&m_bookmarkManager, &BookmarkManager::updateActions,
-            this, &BookmarksPluginRunData::updateActions);
+            this, &BookmarksPluginPrivate::updateActions);
     updateActions(false, m_bookmarkManager.state());
 
     connect(&m_bookmarkMarginAction, &QAction::triggered, this, [this] {
@@ -171,12 +171,12 @@ BookmarksPluginRunData::BookmarksPluginRunData()
 
     // EditorManager
     connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
-        this, &BookmarksPluginRunData::editorAboutToClose);
+        this, &BookmarksPluginPrivate::editorAboutToClose);
     connect(EditorManager::instance(), &EditorManager::editorOpened,
-        this, &BookmarksPluginRunData::editorOpened);
+        this, &BookmarksPluginPrivate::editorOpened);
 }
 
-void BookmarksPluginRunData::updateActions(bool enableToggle, int state)
+void BookmarksPluginPrivate::updateActions(bool enableToggle, int state)
 {
     const bool hasbm    = state >= BookmarkManager::HasBookMarks;
     const bool hasdocbm = state == BookmarkManager::HasBookmarksInDocument;
@@ -188,7 +188,7 @@ void BookmarksPluginRunData::updateActions(bool enableToggle, int state)
     m_docNextAction.setEnabled(hasdocbm);
 }
 
-void BookmarksPluginRunData::editorOpened(IEditor *editor)
+void BookmarksPluginPrivate::editorOpened(IEditor *editor)
 {
     if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
         connect(widget, &TextEditorWidget::markRequested,
@@ -198,19 +198,19 @@ void BookmarksPluginRunData::editorOpened(IEditor *editor)
                 });
 
         connect(widget, &TextEditorWidget::markContextMenuRequested,
-                this, &BookmarksPluginRunData::requestContextMenu);
+                this, &BookmarksPluginPrivate::requestContextMenu);
     }
 }
 
-void BookmarksPluginRunData::editorAboutToClose(IEditor *editor)
+void BookmarksPluginPrivate::editorAboutToClose(IEditor *editor)
 {
     if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
         disconnect(widget, &TextEditorWidget::markContextMenuRequested,
-                   this, &BookmarksPluginRunData::requestContextMenu);
+                   this, &BookmarksPluginPrivate::requestContextMenu);
     }
 }
 
-void BookmarksPluginRunData::requestContextMenu(TextEditorWidget *widget,
+void BookmarksPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     int lineNumber, QMenu *menu)
 {
     if (widget->textDocument()->isTemporary())

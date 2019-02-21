@@ -46,7 +46,7 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalPluginRunData
+class BareMetalPluginPrivate
 {
 public:
     BareMetalDeviceFactory deviceFactory;
@@ -56,14 +56,9 @@ public:
     GdbServerProviderManager gdbServerProviderManager;
 };
 
-BareMetalPlugin::BareMetalPlugin()
-{
-    setObjectName(QLatin1String("BareMetalPlugin"));
-}
-
 BareMetalPlugin::~BareMetalPlugin()
 {
-    delete m_runData;
+    delete d;
 }
 
 bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -71,7 +66,7 @@ bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorStr
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    m_runData = new BareMetalPluginRunData;
+    d = new BareMetalPluginPrivate;
 
     auto constraint = [](RunConfiguration *runConfig) {
         const QByteArray idStr = runConfig->id().name();
