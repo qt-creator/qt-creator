@@ -55,7 +55,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTableWidget" name="clangFormatOptionsTable"/>
+    <widget class="QPlainTextEdit" name="clangFormatOptionsTable"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
