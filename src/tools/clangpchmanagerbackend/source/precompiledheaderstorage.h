@@ -160,9 +160,10 @@ public:
         "SELECT systemPchPath FROM precompiledHeaders WHERE projectPartId = (SELECT projectPartId "
         "FROM projectParts WHERE projectPartName = ?)",
         m_database};
-    mutable ReadStatement m_getPrecompiledHeader{"SELECT projectPchPath, projectPchBuildTime FROM "
-                                                 "precompiledHeaders WHERE projectPartId = ?",
-                                                 m_database};
+    mutable ReadStatement m_getPrecompiledHeader{
+        "SELECT ifnull(nullif(projectPchPath, ''), systemPchPath), "
+        "projectPchBuildTime FROM precompiledHeaders WHERE projectPartId = ?",
+        m_database};
 };
 
 }
