@@ -108,6 +108,7 @@ HEADERS += \
     $$PWD/clangrefactoringservermessages.h \
     $$PWD/alivemessage.h \
     $$PWD/completionsmessage.h \
+    $$PWD/executeinloop.h \
     $$PWD/requestcompletionsmessage.h \
     $$PWD/echomessage.h \
     $$PWD/endmessage.h \
