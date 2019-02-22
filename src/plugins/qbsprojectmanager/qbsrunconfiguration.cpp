@@ -163,14 +163,6 @@ void QbsRunConfiguration::updateTargetInformation()
     emit enabledChanged();
 }
 
-bool QbsRunConfiguration::canRunForNode(const Node *node) const
-{
-    if (auto pn = dynamic_cast<const QbsProductNode *>(node))
-        return buildKey() == pn->buildKey();
-
-    return false;
-}
-
 // --------------------------------------------------------------------
 // QbsRunConfigurationFactory:
 // --------------------------------------------------------------------

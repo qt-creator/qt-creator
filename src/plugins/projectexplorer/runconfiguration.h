@@ -182,7 +182,6 @@ public:
     BuildTargetInfo buildTargetInfo() const;
 
     static RunConfiguration *startupRunConfiguration();
-    virtual bool canRunForNode(const ProjectExplorer::Node *) const { return false; }
 
     template <class T = ISettingsAspect> T *currentSettings(Core::Id id) const
     {

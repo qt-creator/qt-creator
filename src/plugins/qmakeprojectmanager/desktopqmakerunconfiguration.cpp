@@ -130,11 +130,6 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
     }
 }
 
-bool DesktopQmakeRunConfiguration::canRunForNode(const Node *node) const
-{
-    return node->filePath() == proFilePath();
-}
-
 FileName DesktopQmakeRunConfiguration::proFilePath() const
 {
     return FileName::fromString(buildKey());

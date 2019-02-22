@@ -3176,8 +3176,9 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             } else {
                 QList<RunConfiguration *> runConfigs;
                 if (Target *t = project->activeTarget()) {
+                    const QString buildKey = pn->buildKey();
                     for (RunConfiguration *rc : t->runConfigurations()) {
-                        if (rc->canRunForNode(pn))
+                        if (rc->buildKey() == buildKey)
                             runConfigs.append(rc);
                     }
                 }

@@ -57,7 +57,6 @@ private:
     friend class IosDeviceTypeAspect;
     void updateDisplayNames();
     void updateEnabledState() final;
-    bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
     IosDeviceTypeAspect *m_deviceTypeAspect = nullptr;
 };

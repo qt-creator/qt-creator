@@ -157,11 +157,6 @@ void IosRunConfiguration::updateEnabledState()
     return RunConfiguration::updateEnabledState();
 }
 
-bool IosRunConfiguration::canRunForNode(const Node *node) const
-{
-    return node->filePath().toString() == buildKey();
-}
-
 QString IosRunConfiguration::applicationName() const
 {
     Project *project = target()->project();

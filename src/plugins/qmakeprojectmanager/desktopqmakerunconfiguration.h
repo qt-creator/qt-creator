@@ -47,8 +47,6 @@ private:
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
 
     QString defaultDisplayName();
-    bool canRunForNode(const ProjectExplorer::Node *node) const final;
-
     Utils::FileName proFilePath() const;
 };
 

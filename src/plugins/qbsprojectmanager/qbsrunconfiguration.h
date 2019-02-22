@@ -48,7 +48,6 @@ private:
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &map) final;
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci) final;
-    bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
     void updateTargetInformation();
 
