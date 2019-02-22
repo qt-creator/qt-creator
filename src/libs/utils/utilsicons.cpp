@@ -43,6 +43,8 @@ const Icon LOCKED({
         {QLatin1String(":/utils/images/locked.png"), Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon UNLOCKED_TOOLBAR({
         {QLatin1String(":/utils/images/unlocked.png"), Theme::IconsBaseColor}});
+const Icon PINNED({
+        {QLatin1String(":/utils/images/pinned.png"), Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon NEXT({
         {QLatin1String(":/utils/images/next.png"), Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
 const Icon NEXT_TOOLBAR({

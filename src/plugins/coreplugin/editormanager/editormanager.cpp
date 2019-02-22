@@ -216,7 +216,8 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_openGraphicalShellAction(new QAction(FileUtils::msgGraphicalShellAction(), this)),
     m_openTerminalAction(new QAction(FileUtils::msgTerminalAction(), this)),
     m_findInDirectoryAction(new QAction(FileUtils::msgFindInDirectory(), this)),
-    m_filePropertiesAction(new QAction(tr("Properties..."), this))
+    m_filePropertiesAction(new QAction(tr("Properties..."), this)),
+    m_pinAction(new QAction(tr("Pin"), this))
 {
     d = this;
 }
@@ -302,8 +303,7 @@ void EditorManagerPrivate::init()
     cmd = ActionManager::registerAction(m_closeAllEditorsAction, Constants::CLOSEALL, editManagerContext, true);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+W")));
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
-    connect(m_closeAllEditorsAction, &QAction::triggered,
-            m_instance, []() { EditorManager::closeAllEditors(); });
+    connect(m_closeAllEditorsAction, &QAction::triggered, m_instance, &EditorManager::closeAllDocuments);
 
     // Close All Others Action
     cmd = ActionManager::registerAction(m_closeOtherDocumentsAction, Constants::CLOSEOTHERS, editManagerContext, true);
@@ -334,7 +334,7 @@ void EditorManagerPrivate::init()
 
     // Close XXX Context Actions
     connect(m_closeAllEditorsContextAction, &QAction::triggered,
-            m_instance, []() { EditorManager::closeAllEditors(); });
+            m_instance, &EditorManager::closeAllDocuments);
     connect(m_closeCurrentEditorContextAction, &QAction::triggered,
             this, &EditorManagerPrivate::closeEditorFromContextMenu);
     connect(m_closeOtherDocumentsContextAction, &QAction::triggered,
@@ -352,6 +352,7 @@ void EditorManagerPrivate::init()
             return;
         DocumentManager::showFilePropertiesDialog(d->m_contextMenuEntry->fileName());
     });
+    connect(m_pinAction, &QAction::triggered, this, &EditorManagerPrivate::togglePinned);
 
     // Goto Previous In History Action
     cmd = ActionManager::registerAction(m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editDesignContext);
@@ -2217,8 +2218,13 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
 
 void EditorManagerPrivate::closeAllEditorsExceptVisible()
 {
-    DocumentModelPrivate::removeAllSuspendedEntries();
+    DocumentModelPrivate::removeAllSuspendedEntries(DocumentModelPrivate::DoNotRemovePinnedFiles);
     QList<IDocument *> documentsToClose = DocumentModel::openedDocuments();
+    // Remove all pinned files from the list of files to close.
+    documentsToClose = Utils::filtered(documentsToClose, [](IDocument *document) {
+        DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
+        return !entry->pinned;
+    });
     foreach (IEditor *editor, EditorManager::visibleEditors())
         documentsToClose.removeAll(editor->document());
     EditorManager::closeDocuments(documentsToClose, true);
@@ -2301,6 +2307,15 @@ void EditorManagerPrivate::findInDirectory()
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
         return;
     emit m_instance->findOnFileSystemRequest(d->m_contextMenuEntry->fileName().parentDir().toString());
+}
+
+void EditorManagerPrivate::togglePinned()
+{
+    if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
+        return;
+
+    const bool currentlyPinned = d->m_contextMenuEntry->pinned;
+    DocumentModelPrivate::setPinned(d->m_contextMenuEntry, !currentlyPinned);
 }
 
 void EditorManagerPrivate::split(Qt::Orientation orientation)
@@ -2401,10 +2416,23 @@ bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 
 void EditorManager::closeOtherDocuments(IDocument *document)
 {
-    DocumentModelPrivate::removeAllSuspendedEntries();
+    DocumentModelPrivate::removeAllSuspendedEntries(DocumentModelPrivate::DoNotRemovePinnedFiles);
     QList<IDocument *> documentsToClose = DocumentModel::openedDocuments();
+    // Remove all pinned files from the list of files to close.
+    documentsToClose = Utils::filtered(documentsToClose, [](IDocument *document) {
+        DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
+        return !entry->pinned;
+    });
     documentsToClose.removeAll(document);
     closeDocuments(documentsToClose, true);
+}
+
+void EditorManager::closeAllDocuments()
+{
+    // Only close the files that aren't pinned.
+    const QList<DocumentModel::Entry *> entriesToClose
+            = Utils::filtered(DocumentModel::entries(), Utils::equal(&DocumentModel::Entry::pinned, false));
+    EditorManager::closeDocuments(entriesToClose);
 }
 
 // SLOT connected to action
@@ -2486,6 +2514,20 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
     contextMenu->addAction(d->m_closeAllEditorsContextAction);
     contextMenu->addAction(d->m_closeOtherDocumentsContextAction);
     contextMenu->addAction(d->m_closeAllEditorsExceptVisibleContextAction);
+}
+
+void EditorManager::addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry)
+{
+    const QString quotedDisplayName = entry ? Utils::quoteAmpersands(entry->displayName()) : QString();
+    if (entry) {
+        d->m_pinAction->setText(entry->pinned
+                                ? tr("Unpin \"%1\"").arg(quotedDisplayName)
+                                : tr("Pin \"%1\"").arg(quotedDisplayName));
+    } else {
+        d->m_pinAction->setText(tr("Pin Editor"));
+    }
+    d->m_pinAction->setEnabled(entry != nullptr);
+    contextMenu->addAction(d->m_pinAction);
 }
 
 void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry)
@@ -2585,6 +2627,20 @@ void EditorManager::closeDocument(DocumentModel::Entry *entry)
         DocumentModelPrivate::removeEntry(entry);
     else
         closeDocuments({entry->document});
+}
+
+void EditorManager::closeDocuments(const QList<DocumentModel::Entry *> &entries)
+{
+    QList<IDocument *> documentsToClose;
+    for (DocumentModel::Entry *entry : entries) {
+        if (!entry)
+            continue;
+        if (entry->isSuspended)
+            DocumentModelPrivate::removeEntry(entry);
+        else
+            documentsToClose << entry->document;
+    }
+    closeDocuments(documentsToClose);
 }
 
 bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
@@ -2906,13 +2962,13 @@ QVector<EditorWindow *> editorWindows(const QList<EditorArea *> &areas)
     return result;
 }
 
-// Save state of all non-teporary editors.
+// Save state of all non-temporary editors.
 QByteArray EditorManager::saveState()
 {
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::WriteOnly);
 
-    stream << QByteArray("EditorManagerV4");
+    stream << QByteArray("EditorManagerV5");
 
     // TODO: In case of split views it's not possible to restore these for all correctly with this
     QList<IDocument *> documents = DocumentModel::openedDocuments();
@@ -2938,8 +2994,10 @@ QByteArray EditorManager::saveState()
     stream << entriesCount;
 
     foreach (DocumentModel::Entry *entry, entries) {
-        if (!entry->document->isTemporary())
-            stream << entry->fileName().toString() << entry->plainDisplayName() << entry->id();
+        if (!entry->document->isTemporary()) {
+            stream << entry->fileName().toString() << entry->plainDisplayName() << entry->id()
+                   << entry->pinned;
+        }
     }
 
     stream << d->m_editorAreas.first()->saveState(); // TODO
@@ -2964,7 +3022,8 @@ bool EditorManager::restoreState(const QByteArray &state)
     QByteArray version;
     stream >> version;
 
-    if (version != "EditorManagerV4")
+    const bool isVersion5 = version == "EditorManagerV5";
+    if (version != "EditorManagerV4" && !isVersion5)
         return false;
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -2980,16 +3039,22 @@ bool EditorManager::restoreState(const QByteArray &state)
         stream >> displayName;
         Id id;
         stream >> id;
+        bool pinned = false;
+        if (isVersion5)
+            stream >> pinned;
 
         if (!fileName.isEmpty() && !displayName.isEmpty()) {
             QFileInfo fi(fileName);
             if (!fi.exists())
                 continue;
             QFileInfo rfi(autoSaveName(fileName));
-            if (rfi.exists() && fi.lastModified() < rfi.lastModified())
-                openEditor(fileName, id, DoNotMakeVisible);
-            else
-                DocumentModelPrivate::addSuspendedDocument(fileName, displayName, id);
+            if (rfi.exists() && fi.lastModified() < rfi.lastModified()) {
+                if (IEditor *editor = openEditor(fileName, id, DoNotMakeVisible))
+                    DocumentModelPrivate::setPinned(DocumentModel::entryForDocument(editor->document()), pinned);
+            } else {
+                 if (DocumentModel::Entry *entry = DocumentModelPrivate::addSuspendedDocument(fileName, displayName, id))
+                     DocumentModelPrivate::setPinned(entry, pinned);
+            }
         }
     }
 

@@ -80,7 +80,10 @@ exists(perfparser/perfparser.pro) {
     cache(PERFPARSER_APP_INSTALLDIR)
 }
 
-OTHER_FILES += tools.qbs
+OTHER_FILES += \
+    tools.qbs \
+    icons/exportapplicationicons.sh \
+    icons/exportdocumenttypeicons.sh
 
 # delegate deployqt target
 deployqt.CONFIG += recursive

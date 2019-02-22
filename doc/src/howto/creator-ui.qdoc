@@ -148,6 +148,7 @@
 
     \include creator-sidebar-views.qdocinc using sidebar views
     \include creator-sidebar-views.qdocinc projects view
+    \include creator-sidebar-views.qdocinc open documents view
     \include creator-sidebar-views.qdocinc file system view
     \include creator-sidebar-views.qdocinc outline view
     \if defined(qtcreator)

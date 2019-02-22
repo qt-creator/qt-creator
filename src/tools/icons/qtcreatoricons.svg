@@ -6597,6 +6597,24 @@
          d="m 210,595 -2.5,2.5 -2.5,-2.5 z"
          style="fill:#000000;fill-opacity:1;stroke:none" />
     </g>
+    <g
+       id="src/libs/utils/images/pinned">
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use5933-0-2-3"
+         width="100%"
+         height="100%"
+         transform="translate(361,148)" />
+      <path
+         sodipodi:nodetypes="ccccccccccccccc"
+         inkscape:connector-curvature="0"
+         id="path6750"
+         d="m 347,597.33936 0.60019,0.60645 3.49128,-3.49127 3.09695,3.09695 c 0.29088,-0.96173 0.20375,-2.0863 -0.1875,-3.07155 l 3.68179,-3.68179 0.55968,0.52841 0.75761,-0.75762 -4.51473,-4.51475 -0.80193,0.80194 0.53076,0.51509 -3.60205,3.60206 c -1.04768,-0.37523 -2.22553,-0.48941 -3.20237,-0.15625 l 3.0615,3.0615 z"
+         style="fill:#000000" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

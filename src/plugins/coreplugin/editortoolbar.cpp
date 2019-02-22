@@ -354,6 +354,8 @@ void EditorToolBar::fillListContextMenu(QMenu *menu)
                                              : nullptr;
         EditorManager::addSaveAndCloseEditorActions(menu, entry, editor);
         menu->addSeparator();
+        EditorManager::addPinEditorActions(menu, entry);
+        menu->addSeparator();
         EditorManager::addNativeDirAndOpenWithActions(menu, entry);
     }
 }

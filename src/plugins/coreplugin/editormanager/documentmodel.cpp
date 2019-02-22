@@ -43,7 +43,6 @@
 #include <QSet>
 #include <QUrl>
 
-
 static Core::Internal::DocumentModelPrivate *d;
 
 namespace Core {
@@ -52,6 +51,10 @@ namespace Internal {
 namespace {
 bool compare(const DocumentModel::Entry *e1, const DocumentModel::Entry *e2)
 {
+    // Pinned files should go at the top.
+    if (e1->pinned != e2->pinned)
+        return e1->pinned;
+
     const int cmp = e1->plainDisplayName().localeAwareCompare(e2->plainDisplayName());
     return (cmp < 0) || (cmp == 0 && e1->fileName() < e2->fileName());
 }
@@ -111,7 +114,8 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
             previousEntry->isSuspended = false;
             delete previousEntry->document;
             previousEntry->document = entry->document;
-            connect(previousEntry->document, &IDocument::changed, this, &DocumentModelPrivate::itemChanged);
+            connect(previousEntry->document, &IDocument::changed,
+                    this, [this, document = previousEntry->document] { itemChanged(document); });
         }
         delete entry;
         entry = nullptr;
@@ -129,7 +133,9 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     disambiguateDisplayNames(entry);
     if (!fixedPath.isEmpty())
         m_entryByFixedPath[fixedPath] = entry;
-    connect(entry->document, &IDocument::changed, this, &DocumentModelPrivate::itemChanged);
+    connect(entry->document, &IDocument::changed, this, [this, document = entry->document] {
+        itemChanged(document);
+    });
     endInsertRows();
 }
 
@@ -196,9 +202,26 @@ bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
     return true;
 }
 
+void DocumentModelPrivate::setPinned(DocumentModel::Entry *entry, bool pinned)
+{
+    if (entry->pinned == pinned)
+        return;
+
+    entry->pinned = pinned;
+    // Ensure that this entry is re-sorted in the list of open documents
+    // now that its pinned state has changed.
+    d->itemChanged(entry->document);
+}
+
 QIcon DocumentModelPrivate::lockedIcon()
 {
     const static QIcon icon = Utils::Icons::LOCKED.icon();
+    return icon;
+}
+
+QIcon DocumentModelPrivate::pinnedIcon()
+{
+    const static QIcon icon = Utils::Icons::PINNED.icon();
     return icon;
 }
 
@@ -230,7 +253,7 @@ void DocumentModelPrivate::removeDocument(int idx)
                                                                DocumentManager::ResolveLinks);
         m_entryByFixedPath.remove(fixedPath);
     }
-    disconnect(entry->document, &IDocument::changed, this, &DocumentModelPrivate::itemChanged);
+    disconnect(entry->document, &IDocument::changed, this, nullptr);
     disambiguateDisplayNames(entry);
     delete entry;
 }
@@ -307,7 +330,11 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
         return name;
     }
     case Qt::DecorationRole:
-        return entry->document->isFileReadOnly() ? lockedIcon() : QIcon();
+        if (entry->document->isFileReadOnly())
+            return lockedIcon();
+        if (entry->pinned)
+            return pinnedIcon();
+        return QIcon();
     case Qt::ToolTipRole:
         return entry->fileName().isEmpty() ? entry->displayName() : entry->fileName().toUserOutput();
     default:
@@ -316,10 +343,8 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void DocumentModelPrivate::itemChanged()
+void DocumentModelPrivate::itemChanged(IDocument *document)
 {
-    auto document = qobject_cast<IDocument *>(sender());
-
     const Utils::optional<int> idx = indexOfDocument(document);
     if (!idx)
         return;
@@ -353,14 +378,19 @@ void DocumentModelPrivate::itemChanged()
     // Make sure the entries stay sorted:
     auto positions = positionEntry(m_entries, entry);
     if (positions.first >= 0 && positions.second >= 0) {
-        // Entry did move: remove and add it again.
-        beginRemoveRows(QModelIndex(), positions.first + 1, positions.first + 1);
-        m_entries.removeAt(positions.first);
-        endRemoveRows();
+        // Entry did move: update its position.
 
-        beginInsertRows(QModelIndex(), positions.second + 1, positions.second + 1);
-        m_entries.insert(positions.second, entry);
-        endInsertRows();
+        // Account for the <no document> entry.
+        static const int noDocumentEntryOffset = 1;
+        const int fromIndex = positions.first + noDocumentEntryOffset;
+        const int toIndex = positions.second + noDocumentEntryOffset;
+        // Account for the weird requirements of beginMoveRows().
+        const int effectiveToIndex = toIndex > fromIndex ? toIndex + 1 : toIndex;
+        beginMoveRows(QModelIndex(), fromIndex, fromIndex, QModelIndex(), effectiveToIndex);
+
+        m_entries.move(fromIndex - 1, toIndex - 1);
+
+        endMoveRows();
     } else {
         // Nothing to remove or add: The entry did not move.
         QTC_CHECK(positions.first == -1 && positions.second == -1);
@@ -384,7 +414,9 @@ void DocumentModelPrivate::addEditor(IEditor *editor, bool *isNewDocument)
     }
 }
 
-void DocumentModelPrivate::addSuspendedDocument(const QString &fileName, const QString &displayName, Id id)
+DocumentModel::Entry *DocumentModelPrivate::addSuspendedDocument(const QString &fileName,
+                                                                 const QString &displayName,
+                                                                 Id id)
 {
     auto entry = new DocumentModel::Entry;
     entry->document = new IDocument;
@@ -393,6 +425,7 @@ void DocumentModelPrivate::addSuspendedDocument(const QString &fileName, const Q
     entry->document->setId(id);
     entry->isSuspended = true;
     d->addEntry(entry);
+    return entry;
 }
 
 DocumentModel::Entry *DocumentModelPrivate::firstSuspendedEntry()
@@ -433,15 +466,20 @@ void DocumentModelPrivate::removeEntry(DocumentModel::Entry *entry)
     d->removeDocument(index);
 }
 
-void DocumentModelPrivate::removeAllSuspendedEntries()
+void DocumentModelPrivate::removeAllSuspendedEntries(PinnedFileRemovalPolicy pinnedFileRemovalPolicy)
 {
     for (int i = d->m_entries.count()-1; i >= 0; --i) {
-        if (d->m_entries.at(i)->isSuspended) {
-            int row = i + 1/*<no document>*/;
-            d->beginRemoveRows(QModelIndex(), row, row);
-            delete d->m_entries.takeAt(i);
-            d->endRemoveRows();
-        }
+        const DocumentModel::Entry *entry = d->m_entries.at(i);
+        if (!entry->isSuspended)
+            continue;
+
+        if (pinnedFileRemovalPolicy == DoNotRemovePinnedFiles && entry->pinned)
+            continue;
+
+        int row = i + 1/*<no document>*/;
+        d->beginRemoveRows(QModelIndex(), row, row);
+        delete d->m_entries.takeAt(i);
+        d->endRemoveRows();
     }
     QSet<QString> displayNames;
     foreach (DocumentModel::Entry *entry, d->m_entries) {
@@ -480,7 +518,8 @@ void DocumentModelPrivate::DynamicEntry::setNumberedName(int number)
 
 DocumentModel::Entry::Entry() :
     document(nullptr),
-    isSuspended(false)
+    isSuspended(false),
+    pinned(false)
 {
 }
 

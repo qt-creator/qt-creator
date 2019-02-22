@@ -128,7 +128,9 @@ public:
     static bool closeDocument(IDocument *document, bool askAboutModifiedEditors = true);
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
     static void closeDocument(DocumentModel::Entry *entry);
+    static void closeDocuments(const QList<DocumentModel::Entry *> &entries);
     static void closeOtherDocuments(IDocument *document);
+    static void closeAllDocuments();
 
     static void addCurrentPositionToNavigationHistory(const QByteArray &saveState = QByteArray());
     static void cutForwardNavigationHistory();
@@ -161,6 +163,7 @@ public:
 
     static void addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry,
                                              IEditor *editor = nullptr);
+    static void addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void populateOpenWithMenu(QMenu *menu, const QString &fileName);
 

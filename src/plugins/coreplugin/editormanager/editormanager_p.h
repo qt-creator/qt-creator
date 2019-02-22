@@ -180,6 +180,8 @@ private:
     static void openTerminal();
     static void findInDirectory();
 
+    static void togglePinned();
+
     static void removeCurrentSplit();
 
     static void setCurrentEditorFromContextChange();
@@ -251,6 +253,7 @@ private:
     QAction *m_openTerminalAction;
     QAction *m_findInDirectoryAction;
     QAction *m_filePropertiesAction = nullptr;
+    QAction *m_pinAction = nullptr;
     DocumentModel::Entry *m_contextMenuEntry = nullptr;
     IEditor *m_contextMenuEditor = nullptr;
 

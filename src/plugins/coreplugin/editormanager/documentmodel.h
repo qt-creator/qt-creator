@@ -60,7 +60,17 @@ public:
         Id id() const;
 
         IDocument *document;
+        // When an entry is suspended, it means that it is not in memory,
+        // and there is no IEditor for it and only a dummy IDocument.
+        // This is typically the case for files that have not been opened yet,
+        // but can also happen later after they have been opened.
+        // The related setting for this is found in:
+        // Options > Environment > System > Auto-suspend unmodified files
         bool isSuspended;
+        // The entry has been pinned, which means that it should stick to
+        // the top of any lists of open files, and that any actions that close
+        // files in bulk should not close this one.
+        bool pinned;
     };
 
     static Entry *entryAtRow(int row);

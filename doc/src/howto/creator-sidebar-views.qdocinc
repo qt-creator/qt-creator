@@ -194,6 +194,20 @@
 
 //! [projects view]
 
+//! [open documents view]
+
+    \section2 Viewing Open Documents
+
+    To see a list of open documents, switch to the \uicontrol {Open Documents}
+    view. By right-clicking an open document, you can:
+
+    \list
+        \li Pin files to ensure they stay at the top of the list and are not
+            closed when \uicontrol {Close All} is used.
+    \endlist
+
+//! [open documents view]
+
 //! [file system view]
 
     \section2 Viewing the File System
