@@ -218,8 +218,13 @@ QString RunConfiguration::disabledReason() const
         return tr("The project no longer builds the target associated with this run configuration.");
     if (target()->project()->isParsing())
         return tr("The Project is currently being parsed.");
-    if (!target()->project()->hasParsingData())
-        return tr("The project could not be fully parsed.");
+    if (!target()->project()->hasParsingData()) {
+        QString msg = tr("The project could not be fully parsed.");
+        const FileName projectFilePath = buildTargetInfo().projectFilePath;
+        if (!projectFilePath.exists())
+            msg += '\n' + tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
+        return msg;
+    }
     return QString();
 }
 
