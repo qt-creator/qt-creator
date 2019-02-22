@@ -29,7 +29,12 @@
 
 #include <memory>
 
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class Project;
+}
+namespace TextEditor {
+class SnippetEditorWidget;
+}
 
 namespace ClangFormat {
 
@@ -54,7 +59,10 @@ private:
     void hideGlobalCheckboxes();
     void showGlobalCheckboxes();
 
+    void updatePreview();
+
     ProjectExplorer::Project *m_project;
+    TextEditor::SnippetEditorWidget *m_preview;
     std::unique_ptr<Ui::ClangFormatConfigWidget> m_ui;
 };
 

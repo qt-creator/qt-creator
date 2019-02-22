@@ -26,6 +26,7 @@
 #include "clangformatconfigwidget.h"
 
 #include "clangformatconstants.h"
+#include "clangformatindenter.h"
 #include "clangformatsettings.h"
 #include "clangformatutils.h"
 #include "ui_clangformatconfigwidget.h"
@@ -33,8 +34,14 @@
 #include <clang/Format/Format.h>
 
 #include <coreplugin/icore.h>
+#include <cppeditor/cpphighlighter.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <texteditor/displaysettings.h>
+#include <texteditor/snippets/snippeteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <QFile>
 #include <QMessageBox>
@@ -81,6 +88,17 @@ void ClangFormatConfigWidget::initialize()
     m_ui->applyButton->show();
     hideGlobalCheckboxes();
 
+    m_preview = new TextEditor::SnippetEditorWidget(this);
+    m_ui->horizontalLayout_2->addWidget(m_preview);
+    m_preview->setPlainText(QLatin1String(CppTools::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
+    m_preview->textDocument()->setIndenter(new ClangFormatIndenter(m_preview->document()));
+    m_preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
+    m_preview->textDocument()->setSyntaxHighlighter(new CppEditor::CppHighlighter);
+
+    TextEditor::DisplaySettings displaySettings = m_preview->displaySettings();
+    displaySettings.m_visualizeWhitespace = true;
+    m_preview->setDisplaySettings(displaySettings);
+
     QLayoutItem *lastItem = m_ui->verticalLayout->itemAt(m_ui->verticalLayout->count() - 1);
     if (lastItem->spacerItem())
         m_ui->verticalLayout->removeItem(lastItem);
@@ -101,9 +119,11 @@ void ClangFormatConfigWidget::initialize()
 
     m_ui->createFileButton->hide();
 
+    Utils::FileName fileName;
     if (m_project) {
         m_ui->projectHasClangFormat->hide();
         connect(m_ui->applyButton, &QPushButton::clicked, this, &ClangFormatConfigWidget::apply);
+        fileName = m_project->projectFilePath().appendPath("snippet.cpp");
     } else {
         const Project *currentProject = SessionManager::startupProject();
         if (!currentProject
@@ -119,9 +139,21 @@ void ClangFormatConfigWidget::initialize()
         createStyleFileIfNeeded(true);
         showGlobalCheckboxes();
         m_ui->applyButton->hide();
+        fileName = Utils::FileName::fromString(Core::ICore::userResourcePath())
+                       .appendPath("snippet.cpp");
     }
 
+    m_preview->textDocument()->indenter()->setFileName(fileName);
     fillTable();
+    updatePreview();
+}
+
+void ClangFormatConfigWidget::updatePreview()
+{
+    QTextCursor cursor(m_preview->document());
+    cursor.setPosition(0);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    m_preview->textDocument()->autoFormatOrIndent(cursor);
 }
 
 void ClangFormatConfigWidget::fillTable()
@@ -153,6 +185,7 @@ void ClangFormatConfigWidget::apply()
                              tr("Error in ClangFormat configuration"),
                              QString::fromStdString(error.message()));
         fillTable();
+        updatePreview();
         return;
     }
 
@@ -167,6 +200,8 @@ void ClangFormatConfigWidget::apply()
 
     file.write(text.toUtf8());
     file.close();
+
+    updatePreview();
 }
 
 } // namespace ClangFormat
