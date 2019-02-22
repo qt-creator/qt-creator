@@ -214,6 +214,8 @@ bool RunConfiguration::isActive() const
 
 QString RunConfiguration::disabledReason() const
 {
+    if (!target()->hasBuildTarget(m_buildKey))
+        return tr("The project no longer builds the target associated with this run configuration.");
     if (target()->project()->isParsing())
         return tr("The Project is currently being parsed.");
     if (!target()->project()->hasParsingData())
@@ -243,9 +245,14 @@ QWidget *RunConfiguration::createConfigurationWidget()
 
 void RunConfiguration::updateEnabledState()
 {
-    Project *p = target()->project();
-
-    setEnabled(!p->isParsing() && p->hasParsingData());
+    if (!target()->hasBuildTarget(m_buildKey)) {
+        // This apparently may happen for cmake builds where also outdated
+        // RunConfigurations are kept when builds change.
+        setEnabled(false); // Might happen for CMake.
+    } else {
+        Project *p = target()->project();
+        setEnabled(!p->isParsing() && p->hasParsingData());
+    }
 }
 
 void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)

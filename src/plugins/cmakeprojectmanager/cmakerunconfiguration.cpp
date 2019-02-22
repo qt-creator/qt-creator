@@ -73,28 +73,6 @@ void CMakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo
     updateTargetInformation();
 }
 
-bool CMakeRunConfiguration::isBuildTargetValid() const
-{
-    return Utils::anyOf(target()->applicationTargets().list, [this](const BuildTargetInfo &bti) {
-        return bti.buildKey == buildKey();
-    });
-}
-
-void CMakeRunConfiguration::updateEnabledState()
-{
-    if (!isBuildTargetValid())
-        setEnabled(false);
-    else
-        RunConfiguration::updateEnabledState();
-}
-
-QString CMakeRunConfiguration::disabledReason() const
-{
-    if (!isBuildTargetValid())
-        return tr("The project no longer builds the target associated with this run configuration.");
-    return RunConfiguration::disabledReason();
-}
-
 void CMakeRunConfiguration::updateTargetInformation()
 {
     BuildTargetInfo bti = buildTargetInfo();
