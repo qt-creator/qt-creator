@@ -68,7 +68,6 @@ class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfig
 public:
     explicit AndroidRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    QString disabledReason() const override;
     QWidget *createConfigurationWidget() override;
 
 private:
