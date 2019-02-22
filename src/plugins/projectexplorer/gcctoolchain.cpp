@@ -52,7 +52,6 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
-#include <algorithm>
 #include <memory>
 
 namespace {
@@ -343,6 +342,11 @@ bool GccToolChain::isValid() const
     return fi.isExecutable();
 }
 
+static bool isNetworkCompiler(const QString &dirPath)
+{
+    return dirPath.contains("icecc") || dirPath.contains("distcc");
+}
+
 static Utils::FileName findLocalCompiler(const Utils::FileName &compilerPath,
                                          const Environment &env)
 {
@@ -351,21 +355,13 @@ static Utils::FileName findLocalCompiler(const Utils::FileName &compilerPath,
 
     // Get the path to the compiler, ignoring direct calls to icecc and distcc as we cannot
     // do anything about those.
-    const Utils::FileName compilerDir = compilerPath.parentDir();
-    const QString compilerDirString = compilerDir.toString();
-    if (!compilerDirString.contains("icecc") && !compilerDirString.contains("distcc"))
+    if (!isNetworkCompiler(compilerPath.parentDir().toString()))
         return compilerPath;
 
-    FileNameList pathComponents = env.path();
-    auto it = std::find_if(pathComponents.begin(), pathComponents.end(),
-                           [compilerDir](const FileName &p) {
-        return p == compilerDir;
+    // Filter out network compilers
+    const FileNameList pathComponents = Utils::filtered(env.path(), [] (const FileName &dirPath) {
+        return !isNetworkCompiler(dirPath.toString());
     });
-    if (it != pathComponents.end()) {
-        std::rotate(pathComponents.begin(), it, pathComponents.end());
-        pathComponents.removeFirst(); // remove directory of compilerPath
-                                      // No need to put it at the end again, it is in PATH anyway...
-    }
 
     // This effectively searches the PATH twice, once via pathComponents and once via PATH itself:
     // searchInPath filters duplicates, so that will not hurt.
