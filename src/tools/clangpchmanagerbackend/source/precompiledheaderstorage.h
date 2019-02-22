@@ -126,6 +126,11 @@ public:
         return FilePath("");
     }
 
+    Utils::optional<ProjectPartPch> fetchPrecompiledHeader(int projectPartId) const
+    {
+        return m_getPrecompiledHeader.template value<ProjectPartPch, 2>(projectPartId);
+    }
+
 public:
     Sqlite::ImmediateNonThrowingDestructorTransaction m_transaction;
     Database &m_database;
@@ -155,6 +160,9 @@ public:
         "SELECT systemPchPath FROM precompiledHeaders WHERE projectPartId = (SELECT projectPartId "
         "FROM projectParts WHERE projectPartName = ?)",
         m_database};
+    mutable ReadStatement m_getPrecompiledHeader{"SELECT projectPchPath, projectPchBuildTime FROM "
+                                                 "precompiledHeaders WHERE projectPartId = ?",
+                                                 m_database};
 };
 
 }

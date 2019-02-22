@@ -223,11 +223,6 @@ public:
         m_deleteNewLocationsTableStatement.execute();
     }
 
-    Utils::optional<ProjectPartPch> fetchPrecompiledHeader(int projectPartId) const
-    {
-        return m_getPrecompiledHeader.template value<ProjectPartPch, 2>(projectPartId);
-    }
-
     SourceLocationEntries sourceLocations() const
     {
         return SourceLocationEntries();
@@ -350,10 +345,6 @@ public:
         "projectIncludeSearchPaths, projectPartId, language, languageVersion, languageExtension "
         "FROM projectParts WHERE projectPartName = ?",
         m_database};
-    mutable ReadStatement m_getPrecompiledHeader{
-        "SELECT projectPchPath, projectPchBuildTime FROM precompiledHeaders WHERE projectPartId = ?",
-        m_database
-    };
 };
 
 } // namespace ClangBackEnd

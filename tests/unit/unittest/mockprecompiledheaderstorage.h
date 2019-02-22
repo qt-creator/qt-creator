@@ -45,4 +45,6 @@ public:
                  void(const Utils::SmallStringVector &projectPartNames));
     MOCK_METHOD1(fetchSystemPrecompiledHeaderPath,
                  ClangBackEnd::FilePath(Utils::SmallStringView projectPartName));
+    MOCK_CONST_METHOD1(fetchPrecompiledHeader,
+                       Utils::optional<ClangBackEnd::ProjectPartPch>(int projectPartId));
 };

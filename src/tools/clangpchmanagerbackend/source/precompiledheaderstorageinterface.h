@@ -25,9 +25,12 @@
 
 #pragma once
 
+#include "projectpartpch.h"
+
 #include <filepath.h>
 
 #include <utils/smallstringvector.h>
+#include <utils/optional.h>
 
 namespace ClangBackEnd {
 
@@ -50,6 +53,7 @@ public:
         = 0;
     virtual void deleteSystemPrecompiledHeaders(const Utils::SmallStringVector &projectPartNames) = 0;
     virtual FilePath fetchSystemPrecompiledHeaderPath(Utils::SmallStringView projectPartName) = 0;
+    virtual Utils::optional<ProjectPartPch> fetchPrecompiledHeader(int projectPartId) const = 0;
 
 protected:
     ~PrecompiledHeaderStorageInterface() = default;

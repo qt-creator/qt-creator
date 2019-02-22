@@ -60,18 +60,20 @@ private:
 
 SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQueue,
                              SymbolStorageInterface &symbolStorage,
-                             BuildDependenciesStorageInterface &usedMacroAndSourceStorage,
+                             BuildDependenciesStorageInterface &buildDependenciesStorage,
+                             PrecompiledHeaderStorageInterface &precompiledHeaderStorage,
                              ClangPathWatcherInterface &pathWatcher,
                              FilePathCachingInterface &filePathCache,
                              FileStatusCache &fileStatusCache,
                              Sqlite::TransactionInterface &transactionInterface)
-    : m_symbolIndexerTaskQueue(symbolIndexerTaskQueue),
-      m_symbolStorage(symbolStorage),
-      m_buildDependencyStorage(usedMacroAndSourceStorage),
-      m_pathWatcher(pathWatcher),
-      m_filePathCache(filePathCache),
-      m_fileStatusCache(fileStatusCache),
-      m_transactionInterface(transactionInterface)
+    : m_symbolIndexerTaskQueue(symbolIndexerTaskQueue)
+    , m_symbolStorage(symbolStorage)
+    , m_buildDependencyStorage(buildDependenciesStorage)
+    , m_precompiledHeaderStorage(precompiledHeaderStorage)
+    , m_pathWatcher(pathWatcher)
+    , m_filePathCache(filePathCache)
+    , m_fileStatusCache(fileStatusCache)
+    , m_transactionInterface(transactionInterface)
 {
     pathWatcher.setNotifier(this);
 }
@@ -97,7 +99,8 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
         projectPart.languageExtension);
     if (optionalArtefact)
         projectPartId = optionalArtefact->projectPartId;
-    const Utils::optional<ProjectPartPch> optionalProjectPartPch = m_symbolStorage.fetchPrecompiledHeader(projectPartId);
+    const Utils::optional<ProjectPartPch> optionalProjectPartPch
+        = m_precompiledHeaderStorage.fetchPrecompiledHeader(projectPartId);
 
     FilePathIds sourcePathIds = updatableFilePathIds(projectPart, optionalArtefact);
     transaction.commit();
@@ -179,8 +182,8 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
     if (!optionalArtefact)
         return;
 
-    const Utils::optional<ProjectPartPch> optionalProjectPartPch = m_symbolStorage.fetchPrecompiledHeader(
-        optionalArtefact->projectPartId);
+    const Utils::optional<ProjectPartPch> optionalProjectPartPch
+        = m_precompiledHeaderStorage.fetchPrecompiledHeader(optionalArtefact->projectPartId);
     transaction.commit();
 
     const ProjectPartArtefact &artefact = optionalArtefact.value();
