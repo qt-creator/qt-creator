@@ -90,7 +90,7 @@ public:
         for (auto &task : tasks) {
             auto callWrapper = [&, task = std::move(task)](auto processor) -> ProcessorInterface & {
                 task(processor.get());
-                executeInLoop([&] { m_queue.processEntries(); });
+                this->executeInLoop([&] { m_queue.processEntries(); });
 
                 return processor;
             };
