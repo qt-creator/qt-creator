@@ -206,8 +206,7 @@ private:
 class PROJECTEXPLORER_EXPORT FolderNode : public Node
 {
 public:
-    explicit FolderNode(const Utils::FileName &folderPath, NodeType nodeType = NodeType::Folder,
-                        const QString &displayName = QString());
+    explicit FolderNode(const Utils::FileName &folderPath, NodeType nodeType = NodeType::Folder);
 
     QString displayName() const override;
     QIcon icon() const;

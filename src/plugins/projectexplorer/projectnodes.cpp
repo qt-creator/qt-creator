@@ -422,17 +422,14 @@ bool FileNode::supportsAction(ProjectAction action, const Node *node) const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-FolderNode::FolderNode(const Utils::FileName &folderPath, NodeType nodeType,
-                       const QString &displayName) :
-    Node(nodeType),
-    m_displayName(displayName)
+FolderNode::FolderNode(const Utils::FileName &folderPath, NodeType nodeType) :
+    Node(nodeType)
 {
     setFilePath(folderPath);
     setPriority(DefaultFolderPriority);
     setListInProject(false);
     setIsGenerated(false);
-    if (m_displayName.isEmpty())
-        m_displayName = folderPath.toUserOutput();
+    m_displayName = folderPath.toUserOutput();
 }
 
 /*!
@@ -784,7 +781,7 @@ bool FolderNode::showWhenEmpty() const
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
 VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority) :
-    FolderNode(folderPath, NodeType::VirtualFolder, QString())
+    FolderNode(folderPath, NodeType::VirtualFolder)
 {
     setPriority(priority);
 }
@@ -810,10 +807,11 @@ QString VirtualFolderNode::addFileFilter() const
   Creates an uninitialized project node object.
   */
 ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
-    FolderNode(projectFilePath, NodeType::Project, projectFilePath.fileName())
+    FolderNode(projectFilePath, NodeType::Project)
 {
     setPriority(DefaultProjectPriority);
     setListInProject(true);
+    setDisplayName(projectFilePath.fileName());
 }
 
 bool ProjectNode::canAddSubProject(const QString &proFilePath) const

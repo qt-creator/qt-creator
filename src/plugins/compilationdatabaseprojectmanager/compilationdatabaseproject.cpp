@@ -250,8 +250,9 @@ FolderNode *addChildFolderNode(FolderNode *parent, const QString &childName)
 {
     Utils::FileName parentPath = parent->filePath();
     auto node = std::make_unique<FolderNode>(
-                parentPath.appendPath(childName), NodeType::Folder, childName);
+                parentPath.appendPath(childName), NodeType::Folder);
     FolderNode *childNode = node.get();
+    childNode->setDisplayName(childName);
     parent->addNode(std::move(node));
 
     return childNode;
