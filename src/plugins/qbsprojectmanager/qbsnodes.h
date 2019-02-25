@@ -76,8 +76,6 @@ public:
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
-    qbs::GroupData qbsGroupData() const { return m_qbsGroupData; }
-
 private:
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
