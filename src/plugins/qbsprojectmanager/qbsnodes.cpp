@@ -258,11 +258,6 @@ QbsBaseProjectNode::QbsBaseProjectNode(const Utils::FileName &path) :
     ProjectExplorer::ProjectNode(path)
 { }
 
-bool QbsBaseProjectNode::showInSimpleTree() const
-{
-    return false;
-}
-
 // --------------------------------------------------------------------
 // QbsGroupNode:
 // --------------------------------------------------------------------

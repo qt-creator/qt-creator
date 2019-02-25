@@ -58,8 +58,6 @@ class QbsBaseProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
     explicit QbsBaseProjectNode(const Utils::FileName &absoluteFilePath);
-
-    bool showInSimpleTree() const override;
 };
 
 // --------------------------------------------------------------------
