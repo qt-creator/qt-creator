@@ -128,11 +128,6 @@ void Node::setPriority(int p)
     m_priority = p;
 }
 
-void Node::setNodeId(const QByteArray &nodeId)
-{
-    m_nodeId = nodeId;
-}
-
 void Node::setFilePath(const Utils::FileName &filePath)
 {
     m_filePath = filePath;
@@ -235,11 +230,6 @@ const Utils::FileName &Node::filePath() const
 int Node::line() const
 {
     return m_line;
-}
-
-QByteArray Node::id() const
-{
-    return m_nodeId;
 }
 
 QString Node::displayName() const
@@ -346,7 +336,6 @@ FileNode *FileNode::clone() const
 {
     auto fn = new FileNode(filePath(), fileType());
     fn->setLine(line());
-    fn->setNodeId(id());
     fn->setIsGenerated(isGenerated());
     fn->setEnabled(isEnabled());
     fn->setPriority(priority());
@@ -794,12 +783,10 @@ bool FolderNode::showWhenEmpty() const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority,
-                                     const QByteArray &id) :
+VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority) :
     FolderNode(folderPath, NodeType::VirtualFolder, QString())
 {
     setPriority(priority);
-    setNodeId(id);
 }
 
 QString VirtualFolderNode::addFileFilter() const

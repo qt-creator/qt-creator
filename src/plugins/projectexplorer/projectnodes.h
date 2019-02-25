@@ -127,7 +127,6 @@ public:
 
     const Utils::FileName &filePath() const;  // file system path
     int line() const;
-    QByteArray id() const;
     virtual QString displayName() const;
     virtual QString tooltip() const;
     bool isEnabled() const;
@@ -164,13 +163,11 @@ protected:
 
     void setPriority(int priority);
     void setLine(int line);
-    void setNodeId(const QByteArray &nodeId);
     void setFilePath(const Utils::FileName &filePath);
 
 private:
     FolderNode *m_parentFolderNode = nullptr;
     Utils::FileName m_filePath;
-    QByteArray m_nodeId;
     int m_line = -1;
     int m_priority = DefaultPriority;
     const NodeType m_nodeType;
@@ -310,8 +307,7 @@ private:
 class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 {
 public:
-    explicit VirtualFolderNode(const Utils::FileName &folderPath, int priority,
-                               const QByteArray &id = {});
+    explicit VirtualFolderNode(const Utils::FileName &folderPath, int priority);
 
     void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
     QString addFileFilter() const override;
@@ -356,6 +352,7 @@ public:
 
 protected:
     explicit ProjectNode(const Utils::FileName &projectFilePath);
+    QString m_target;
 };
 
 class PROJECTEXPLORER_EXPORT ContainerNode : public FolderNode

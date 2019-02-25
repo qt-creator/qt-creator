@@ -840,10 +840,10 @@ static CMakeTargetNode *createTargetNode(const QHash<Utils::FileName, ProjectNod
     ProjectNode *cmln = cmakeListsNodes.value(dir);
     QTC_ASSERT(cmln, return nullptr);
 
-    QByteArray targetId = CMakeTargetNode::generateId(dir, displayName);
+    QString targetId = CMakeTargetNode::generateId(dir, displayName);
 
     CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(cmln->findNode([&targetId](const Node *n) {
-        return n->id() == targetId;
+        return n->buildKey() == targetId;
     }));
     if (!tn) {
         auto newNode = std::make_unique<CMakeTargetNode>(dir, displayName);
