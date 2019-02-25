@@ -25,12 +25,12 @@
 
 #pragma once
 
-namespace Utils { class FileName; }
+#include <utils/fileutils.h>
 
 namespace ProjectExplorer {
 namespace Internal {
 
-Utils::FileName findFileInSession(const Utils::FileName &filePath);
+Utils::FileNameList findFileInSession(const Utils::FileName &filePath);
 
 } // namespace Internal
 } // namespace ProjectExplorer

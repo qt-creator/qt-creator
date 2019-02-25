@@ -29,7 +29,6 @@
 #include "session.h"
 
 #include <utils/fileinprojectfinder.h>
-#include <utils/fileutils.h>
 
 #include <QUrl>
 
@@ -43,7 +42,7 @@ class FileInSessionFinder : public QObject
 public:
     FileInSessionFinder();
 
-    FileName doFindFile(const FileName &filePath);
+    FileNameList doFindFile(const FileName &filePath);
     void invalidateFinder() { m_finderIsUpToDate = false; }
 
 private:
@@ -65,7 +64,7 @@ FileInSessionFinder::FileInSessionFinder()
     });
 }
 
-FileName FileInSessionFinder::doFindFile(const FileName &filePath)
+FileNameList FileInSessionFinder::doFindFile(const FileName &filePath)
 {
     if (!m_finderIsUpToDate) {
         m_finder.setProjectDirectory(SessionManager::startupProject()
@@ -77,10 +76,10 @@ FileName FileInSessionFinder::doFindFile(const FileName &filePath)
         m_finder.setProjectFiles(allFiles);
         m_finderIsUpToDate = true;
     }
-    return FileName::fromString(m_finder.findFile(QUrl::fromLocalFile(filePath.toString())));
+    return m_finder.findFile(QUrl::fromLocalFile(filePath.toString()));
 }
 
-FileName findFileInSession(const FileName &filePath)
+FileNameList findFileInSession(const FileName &filePath)
 {
     static FileInSessionFinder finder;
     return finder.doFindFile(filePath);

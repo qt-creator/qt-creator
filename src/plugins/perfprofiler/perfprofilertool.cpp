@@ -540,7 +540,7 @@ void PerfProfilerTool::gotoSourceLocation(QString filePath, int lineNumber, int 
 
     QFileInfo fi(filePath);
     if (!fi.isAbsolute() || !fi.exists() || !fi.isReadable()) {
-        fi.setFile(m_fileFinder.findFile(filePath));
+        fi.setFile(m_fileFinder.findFile(filePath).first().toString());
         if (!fi.exists() || !fi.isReadable())
             return;
     }

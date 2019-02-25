@@ -25,6 +25,7 @@
 
 #include "task.h"
 
+#include "fileinsessionfinder.h"
 #include "projectexplorerconstants.h"
 
 #include <app/app_version.h>
@@ -34,6 +35,7 @@
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
 #include <QTextStream>
 
 namespace ProjectExplorer
@@ -67,6 +69,13 @@ Task::Task(TaskType type_, const QString &description_,
     icon(icon.isNull() ? taskTypeIcon(type_) : icon)
 {
     ++s_nextId;
+    if (!file.isEmpty() && !file.toFileInfo().isAbsolute()) {
+        Utils::FileNameList possiblePaths = Internal::findFileInSession(file);
+        if (possiblePaths.length() == 1)
+            file = possiblePaths.first();
+        else
+            fileCandidates = possiblePaths;
+    }
 }
 
 Task Task::compilerMissingTask()

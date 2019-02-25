@@ -76,6 +76,7 @@ public:
     Options options = AddTextMark | FlashWorthy;
     QString description;
     Utils::FileName file;
+    Utils::FileNameList fileCandidates;
     int line = -1;
     int movedLine = -1; // contains a line number if the line was moved in the editor
     Core::Id category;

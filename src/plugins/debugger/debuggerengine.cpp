@@ -1828,7 +1828,7 @@ QString DebuggerEngine::toFileInProject(const QUrl &fileUrl)
     d->m_fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories);
     d->m_fileFinder.setSysroot(rp.sysRoot);
 
-    return d->m_fileFinder.findFile(fileUrl);
+    return d->m_fileFinder.findFile(fileUrl).first().toString();
 }
 
 QString DebuggerEngine::expand(const QString &string) const

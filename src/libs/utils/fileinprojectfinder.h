@@ -55,7 +55,7 @@ public:
 
     void addMappedPath(const FileName &localFilePath, const QString &remoteFilePath);
 
-    QString findFile(const QUrl &fileUrl, bool *success = nullptr) const;
+    FileNameList findFile(const QUrl &fileUrl, bool *success = nullptr) const;
     bool findFileOrDirectory(const QString &originalPath, FileHandler fileHandler = nullptr,
                              DirectoryHandler directoryHandler = nullptr) const;
 
@@ -71,17 +71,17 @@ private:
     };
 
     struct CacheEntry {
-        QString path;
+        QStringList paths;
         int matchLength = 0;
     };
 
     class QrcUrlFinder {
     public:
-        QString find(const QUrl &fileUrl) const;
+        FileNameList find(const QUrl &fileUrl) const;
         void setProjectFiles(const FileNameList &projectFiles);
     private:
         FileNameList m_allQrcFiles;
-        mutable QHash<QUrl, QString> m_fileCache;
+        mutable QHash<QUrl, FileNameList> m_fileCache;
         mutable QHash<FileName, QSharedPointer<QrcParser>> m_parserCache;
     };
 
@@ -92,11 +92,11 @@ private:
     QStringList filesWithSameFileName(const QString &fileName) const;
     QStringList pathSegmentsWithSameName(const QString &path) const;
 
-    bool handleSuccess(const QString &originalPath, const QString &found, int confidence,
+    bool handleSuccess(const QString &originalPath, const QStringList &found, int confidence,
                        const char *where) const;
 
     static int commonPostFixLength(const QString &candidatePath, const QString &filePathToFind);
-    static QString bestMatch(const QStringList &filePaths, const QString &filePathToFind);
+    static QStringList bestMatches(const QStringList &filePaths, const QString &filePathToFind);
 
     FileName m_projectDir;
     FileName m_sysroot;
@@ -107,5 +107,7 @@ private:
     mutable QHash<QString, CacheEntry> m_cache;
     QrcUrlFinder m_qrcUrlFinder;
 };
+
+QTCREATOR_UTILS_EXPORT FileName chooseFileFromList(const FileNameList &candidates);
 
 } // namespace Utils

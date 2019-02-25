@@ -211,13 +211,14 @@ void QtOutputFormatter::handleLink(const QString &href)
                                                           ":(\\d+)$");               // column
         const QRegularExpressionMatch qmlLineColumnMatch = qmlLineColumnLink.match(href);
 
+        const auto getFileToOpen = [this](const QUrl &fileUrl) {
+            return chooseFileFromList(d->projectFinder.findFile(fileUrl)).toString();
+        };
         if (qmlLineColumnMatch.hasMatch()) {
             const QUrl fileUrl = QUrl(qmlLineColumnMatch.captured(1));
             const int line = qmlLineColumnMatch.captured(2).toInt();
             const int column = qmlLineColumnMatch.captured(3).toInt();
-
-            openEditor(d->projectFinder.findFile(fileUrl), line, column - 1);
-
+            openEditor(getFileToOpen(fileUrl), line, column - 1);
             return;
         }
 
@@ -228,7 +229,7 @@ void QtOutputFormatter::handleLink(const QString &href)
         if (qmlLineMatch.hasMatch()) {
             const QUrl fileUrl = QUrl(qmlLineMatch.captured(1));
             const int line = qmlLineMatch.captured(2).toInt();
-            openEditor(d->projectFinder.findFile(fileUrl), line);
+            openEditor(getFileToOpen(fileUrl), line);
             return;
         }
 
@@ -257,7 +258,7 @@ void QtOutputFormatter::handleLink(const QString &href)
         }
 
         if (!fileName.isEmpty()) {
-            fileName = d->projectFinder.findFile(QUrl::fromLocalFile(fileName));
+            fileName = getFileToOpen(QUrl::fromLocalFile(fileName));
             openEditor(fileName, line);
             return;
         }

@@ -218,7 +218,8 @@ void ConsoleView::onRowActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    const QFileInfo fi(m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString()));
+    const QFileInfo fi = m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString())
+            .first().toFileInfo();
     if (fi.exists() && fi.isFile() && fi.isReadable()) {
         Core::EditorManager::openEditorAt(fi.canonicalFilePath(),
                                           model()->data(index, ConsoleItem::LineRole).toInt());

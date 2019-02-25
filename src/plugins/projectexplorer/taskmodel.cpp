@@ -104,14 +104,8 @@ bool sortById(const Task &task, unsigned int id)
     return task.taskId < id;
 }
 
-void TaskModel::addTask(const Task &t)
+void TaskModel::addTask(const Task &task)
 {
-    Task task = t;
-    if (!task.file.isEmpty() && !task.file.toFileInfo().isAbsolute()) {
-        const Utils::FileName fullFilePath = findFileInSession(task.file);
-        if (!fullFilePath.isEmpty())
-            task.file = fullFilePath;
-    }
     Q_ASSERT(m_categories.keys().contains(task.category));
     CategoryData &data = m_categories[task.category];
     CategoryData &global = m_categories[Core::Id()];

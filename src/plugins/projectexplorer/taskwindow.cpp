@@ -38,6 +38,7 @@
 #include <coreplugin/icontext.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
 #include <utils/itemviews.h>
 #include <utils/utilsicons.h>
@@ -497,6 +498,15 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
     Task task(d->m_filter->task(index));
     if (task.isNull())
         return;
+
+    if (!task.file.isEmpty() && !task.file.toFileInfo().isAbsolute()
+            && !task.fileCandidates.empty()) {
+        const Utils::FileName userChoice = Utils::chooseFileFromList(task.fileCandidates);
+        if (!userChoice.isEmpty()) {
+            task.file = userChoice;
+            updatedTaskFileName(task.taskId, task.file.toString());
+        }
+    }
 
     if (d->m_defaultHandler->canHandle(task)) {
         d->m_defaultHandler->handle(task);
