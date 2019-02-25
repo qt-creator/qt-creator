@@ -26,6 +26,7 @@
 #include "cppcodestylesettingspage.h"
 
 #include "cppcodestylepreferences.h"
+#include "cppcodestylesnippets.h"
 #include "cpppointerdeclarationformatter.h"
 #include "cppqtstyleindenter.h"
 #include "cpptoolsconstants.h"

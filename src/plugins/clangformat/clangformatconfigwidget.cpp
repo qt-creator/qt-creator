@@ -35,7 +35,7 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cpphighlighter.h>
-#include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cppcodestylesnippets.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <texteditor/displaysettings.h>
