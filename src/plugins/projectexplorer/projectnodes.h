@@ -90,7 +90,6 @@ enum ProjectAction {
     HidePathActions,
     HideFileActions,
     HideFolderActions,
-    HasSubProjectRunConfigurations
 };
 
 class FileNode;

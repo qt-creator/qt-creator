@@ -139,14 +139,6 @@ bool QmakePriFileNode::supportsAction(ProjectAction action, const Node *node) co
         break;
     }
 
-    if (action == HasSubProjectRunConfigurations) {
-        if (Target *t = m_project->activeTarget())  {
-            auto canRunForNode = [node](RunConfiguration *rc) { return rc->canRunForNode(node); };
-            if (Utils::anyOf(t->runConfigurations(), canRunForNode))
-                return true;
-        }
-    }
-
     return false;
 }
 
