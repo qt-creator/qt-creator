@@ -146,9 +146,11 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
 
     if (fileUrl.scheme() == "qrc" || fileUrl.toString().startsWith(':')) {
         const QString result = m_qrcUrlFinder.find(fileUrl);
-        if (success)
-            *success = !result.isEmpty();
-        return result;
+        if (!result.isEmpty()) {
+            if (success)
+                *success = true;
+            return result;
+        }
     }
 
     QString originalPath = fileUrl.toLocalFile();
