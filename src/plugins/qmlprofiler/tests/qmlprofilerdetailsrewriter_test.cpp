@@ -41,13 +41,6 @@
 namespace QmlProfiler {
 namespace Internal {
 
-class DummyProjectNode : public ProjectExplorer::ProjectNode
-{
-public:
-    DummyProjectNode(const Utils::FileName &file) : ProjectExplorer::ProjectNode(file)
-    {}
-};
-
 class DummyProject : public ProjectExplorer::Project
 {
     Q_OBJECT
@@ -57,7 +50,7 @@ public:
     {
         auto fileNode
                 = std::make_unique<ProjectExplorer::FileNode>(file, ProjectExplorer::FileType::Source);
-        auto root = std::make_unique<DummyProjectNode>(file);
+        auto root = std::make_unique<ProjectExplorer::ProjectNode>(file);
         root->addNode(std::move(fileNode));
         fileNode = std::make_unique<ProjectExplorer::FileNode>(
                     Utils::FileName::fromLatin1(

@@ -322,6 +322,8 @@ private:
 class PROJECTEXPLORER_EXPORT ProjectNode : public FolderNode
 {
 public:
+    explicit ProjectNode(const Utils::FileName &projectFilePath);
+
     virtual bool canAddSubProject(const QString &proFilePath) const;
     virtual bool addSubProject(const QString &proFile);
     virtual QStringList subProjectFileNamePatterns() const;
@@ -353,7 +355,6 @@ public:
     virtual bool setData(Core::Id role, const QVariant &value) const;
 
 protected:
-    explicit ProjectNode(const Utils::FileName &projectFilePath);
     QString m_target;
 };
 

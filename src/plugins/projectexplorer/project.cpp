@@ -958,12 +958,6 @@ public:
     bool needsConfiguration() const final { return false; }
 };
 
-class TestProjectNode : public ProjectNode
-{
-public:
-    TestProjectNode(const Utils::FileName &dir) : ProjectNode(dir) { }
-};
-
 void ProjectExplorerPlugin::testProject_setup()
 {
     TestProject project;
@@ -1060,7 +1054,7 @@ void ProjectExplorerPlugin::testProject_parsingFail()
 
 std::unique_ptr<ProjectNode> createFileTree(Project *project)
 {
-    std::unique_ptr<ProjectNode> root = std::make_unique<TestProjectNode>(project->projectDirectory());
+    std::unique_ptr<ProjectNode> root = std::make_unique<ProjectNode>(project->projectDirectory());
     std::vector<std::unique_ptr<FileNode>> nodes;
     nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_PATH, FileType::Project));
     nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_CPP_FILE, FileType::Source));
@@ -1080,7 +1074,7 @@ void ProjectExplorerPlugin::testProject_projectTree()
     QCOMPARE(fileSpy.count(), 0);
     QVERIFY(!project.rootProjectNode());
 
-    project.setRootProjectNode(std::make_unique<TestProjectNode>(project.projectDirectory()));
+    project.setRootProjectNode(std::make_unique<ProjectNode>(project.projectDirectory()));
     QCOMPARE(fileSpy.count(), 0);
     QVERIFY(!project.rootProjectNode());
 

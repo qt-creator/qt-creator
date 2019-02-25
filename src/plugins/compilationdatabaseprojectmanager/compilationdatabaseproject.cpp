@@ -61,13 +61,6 @@ namespace CompilationDatabaseProjectManager {
 namespace Internal {
 
 namespace {
-class DBProjectNode : public ProjectNode
-{
-public:
-    explicit DBProjectNode(const Utils::FileName &projectFilePath)
-        : ProjectNode(projectFilePath)
-    {}
-};
 
 QStringList jsonObjectFlags(const QJsonObject &object)
 {
@@ -356,7 +349,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
         return;
     }
 
-    auto root = std::make_unique<DBProjectNode>(projectDirectory());
+    auto root = std::make_unique<ProjectNode>(projectDirectory());
 
     CppTools::KitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
