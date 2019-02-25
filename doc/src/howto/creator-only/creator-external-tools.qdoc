@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -53,13 +53,12 @@
     translation files for use by the released application.
 
     To synchronize translation source (TS) files from a translator with the
-    application code,
-    select \uicontrol {Tools > External > Text > Linguist > Update Translations
-    (lupdate)}.
+    application code, select \uicontrol Tools > \uicontrol External >
+    \uicontrol Linguist > \uicontrol {Update Translations (lupdate)}.
 
     To generate from the TS files Qt message (QM) files that can be used by an
-    application, select \uicontrol {Tools > External > Text > Linguist > Release
-    Translations (lrelease)}.
+    application, select \uicontrol Tools > \uicontrol External >
+    \uicontrol Linguist > \uicontrol {Release Translations (lrelease)}.
 
     By default, the project .pro file is passed to the tools as an argument. To
     specify other command line arguments for the tools, select \uicontrol {Tools >
@@ -126,6 +125,13 @@
 
         \li In the \uicontrol {Error output} field, select how to handle error
             messages from the tool.
+
+        \li In the \uicontrol {Base environment} field, select whether to run
+            the tool in the system environment or the \l{Build Environment}
+            {build environment} or \l {Selecting the Run Environment}
+            {run environment} of the active project. Select the build or run
+            environment if the system environment does not contain the necessary
+            PATH settings to find the tool chain, for example.
 
         \li In the \uicontrol Environment field, select \uicontrol Change to modify
             environment variable values for build and run environments in
