@@ -160,10 +160,12 @@ public:
     static FileType fileTypeForFileName(const Utils::FileName &file);
 
 protected:
-    Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1,
-         const QByteArray &id = {});
+    explicit Node(NodeType nodeType);
 
     void setPriority(int priority);
+    void setLine(int line);
+    void setNodeId(const QByteArray &nodeId);
+    void setFilePath(const Utils::FileName &filePath);
 
 private:
     FolderNode *m_parentFolderNode = nullptr;
@@ -184,8 +186,7 @@ private:
 class PROJECTEXPLORER_EXPORT FileNode : public Node
 {
 public:
-    FileNode(const Utils::FileName &filePath, const FileType fileType, int line = -1,
-             const QByteArray &id = {});
+    FileNode(const Utils::FileName &filePath, const FileType fileType);
 
     FileNode *clone() const;
 
@@ -209,7 +210,7 @@ class PROJECTEXPLORER_EXPORT FolderNode : public Node
 {
 public:
     explicit FolderNode(const Utils::FileName &folderPath, NodeType nodeType = NodeType::Folder,
-                        const QString &displayName = QString(), const QByteArray &id = {});
+                        const QString &displayName = QString());
 
     QString displayName() const override;
     QIcon icon() const;
@@ -354,7 +355,7 @@ public:
     virtual bool setData(Core::Id role, const QVariant &value) const;
 
 protected:
-    explicit ProjectNode(const Utils::FileName &projectFilePath, const QByteArray &id = {});
+    explicit ProjectNode(const Utils::FileName &projectFilePath);
 };
 
 class PROJECTEXPLORER_EXPORT ContainerNode : public FolderNode

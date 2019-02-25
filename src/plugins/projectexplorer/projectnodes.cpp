@@ -119,13 +119,28 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
   \sa ProjectExplorer::NodesWatcher
 */
 
-Node::Node(NodeType nodeType, const Utils::FileName &filePath, int line, const QByteArray &id) :
-    m_filePath(filePath), m_nodeId(id), m_line(line), m_nodeType(nodeType)
+Node::Node(NodeType nodeType)
+    : m_nodeType(nodeType)
 { }
 
 void Node::setPriority(int p)
 {
     m_priority = p;
+}
+
+void Node::setNodeId(const QByteArray &nodeId)
+{
+    m_nodeId = nodeId;
+}
+
+void Node::setFilePath(const Utils::FileName &filePath)
+{
+    m_filePath = filePath;
+}
+
+void Node::setLine(int line)
+{
+    m_line = line;
 }
 
 void Node::setListInProject(bool l)
@@ -315,11 +330,11 @@ FileType Node::fileTypeForFileName(const Utils::FileName &file)
   \sa ProjectExplorer::FolderNode, ProjectExplorer::ProjectNode
 */
 
-FileNode::FileNode(const Utils::FileName &filePath, const FileType fileType,
-                   int line, const QByteArray &id) :
-    Node(NodeType::File, filePath, line, id),
+FileNode::FileNode(const Utils::FileName &filePath, const FileType fileType) :
+    Node(NodeType::File),
     m_fileType(fileType)
 {
+    setFilePath(filePath);
     setListInProject(true);
     if (fileType == FileType::Project)
         setPriority(DefaultProjectFilePriority);
@@ -329,7 +344,9 @@ FileNode::FileNode(const Utils::FileName &filePath, const FileType fileType,
 
 FileNode *FileNode::clone() const
 {
-    auto fn = new FileNode(filePath(), fileType(), line(), id());
+    auto fn = new FileNode(filePath(), fileType());
+    fn->setLine(line());
+    fn->setNodeId(id());
     fn->setIsGenerated(isGenerated());
     fn->setEnabled(isEnabled());
     fn->setPriority(priority());
@@ -417,10 +434,11 @@ bool FileNode::supportsAction(ProjectAction action, const Node *node) const
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
 FolderNode::FolderNode(const Utils::FileName &folderPath, NodeType nodeType,
-                       const QString &displayName, const QByteArray &id) :
-    Node(nodeType, folderPath, -1, id),
+                       const QString &displayName) :
+    Node(nodeType),
     m_displayName(displayName)
 {
+    setFilePath(folderPath);
     setPriority(DefaultFolderPriority);
     setListInProject(false);
     setIsGenerated(false);
@@ -778,9 +796,10 @@ bool FolderNode::showWhenEmpty() const
 */
 VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority,
                                      const QByteArray &id) :
-    FolderNode(folderPath, NodeType::VirtualFolder, QString(), id)
+    FolderNode(folderPath, NodeType::VirtualFolder, QString())
 {
     setPriority(priority);
+    setNodeId(id);
 }
 
 QString VirtualFolderNode::addFileFilter() const
@@ -803,8 +822,8 @@ QString VirtualFolderNode::addFileFilter() const
 /*!
   Creates an uninitialized project node object.
   */
-ProjectNode::ProjectNode(const Utils::FileName &projectFilePath, const QByteArray &id) :
-    FolderNode(projectFilePath, NodeType::Project, projectFilePath.fileName(), id)
+ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
+    FolderNode(projectFilePath, NodeType::Project, projectFilePath.fileName())
 {
     setPriority(DefaultProjectPriority);
     setListInProject(true);

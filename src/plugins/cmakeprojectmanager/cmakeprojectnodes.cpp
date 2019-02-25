@@ -107,8 +107,9 @@ void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::P
 }
 
 CMakeInputsNode::CMakeInputsNode(const Utils::FileName &cmakeLists) :
-    ProjectExplorer::ProjectNode(cmakeLists, generateId(cmakeLists))
+    ProjectExplorer::ProjectNode(cmakeLists)
 {
+    setNodeId(generateId(cmakeLists));
     setPriority(Node::DefaultPriority - 10); // Bottom most!
     setDisplayName(QCoreApplication::translate("CMakeFilesProjectNode", "CMake Modules"));
     setIcon(QIcon(":/projectexplorer/images/session.png")); // TODO: Use a better icon!
@@ -174,8 +175,9 @@ bool CMakeProjectNode::addFiles(const QStringList &filePaths, QStringList *)
 }
 
 CMakeTargetNode::CMakeTargetNode(const Utils::FileName &directory, const QString &target) :
-    ProjectExplorer::ProjectNode(directory, generateId(directory, target))
+    ProjectExplorer::ProjectNode(directory)
 {
+    setNodeId(generateId(directory, target));
     setPriority(Node::DefaultProjectPriority + 900);
     setIcon(QIcon(":/projectexplorer/images/build.png")); // TODO: Use proper icon!
     setListInProject(false);
