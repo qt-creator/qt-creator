@@ -691,19 +691,28 @@ void ServerModeReader::extractCMakeInputsData(const QVariantMap &data)
         const QVariantMap &section = bf.toMap();
         const QStringList sources = section.value(SOURCES_KEY).toStringList();
 
-        const bool isTemporary = section.value("isTemporary").toBool();
-        const bool isCMake = section.value("isCMake").toBool();
+        const bool isTemporary = section.value("isTemporary").toBool(); // generated file
+        const bool isCMake = section.value("isCMake").toBool(); // part of the cmake installation
 
         for (const QString &s : sources) {
             const FileName sfn = FileName::fromString(QDir::cleanPath(srcDir.absoluteFilePath(s)));
             const int oldCount = m_cmakeFiles.count();
             m_cmakeFiles.insert(sfn);
-            if (oldCount < m_cmakeFiles.count() && (!isCMake || sfn.toString().endsWith("/CMakeLists.txt"))) {
-                // Always include CMakeLists.txt files, even when cmake things these are part of its
-                // stuff. This unbreaks cmake binaries running from their own build directory.
-                m_cmakeInputsFileNodes.emplace_back(
-                            std::make_unique<FileNode>(sfn, FileType::Project));
-                m_cmakeInputsFileNodes.back()->setIsGenerated(isTemporary);
+            if (oldCount < m_cmakeFiles.count()) {
+                const bool isCMakeListsFile = sfn.toString().endsWith("/CMakeLists.txt");
+
+                if (isCMake && !isCMakeListsFile)
+                    // Skip files that cmake considers to be part of the installation -- but include
+                    // CMakeLists.txt files. This unbreaks cmake binaries running from their own
+                    // build directory.
+                    continue;
+
+                auto node = std::make_unique<FileNode>(sfn, FileType::Project);
+                node->setIsGenerated(isTemporary && !isCMakeListsFile);  // CMakeLists.txt are never
+                                                                         // generated, independent
+                                                                         // what cmake thinks:-)
+
+                m_cmakeInputsFileNodes.emplace_back(std::move(node));
             }
         }
     }
