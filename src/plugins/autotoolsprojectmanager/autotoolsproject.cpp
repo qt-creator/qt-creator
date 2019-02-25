@@ -172,8 +172,7 @@ void AutotoolsProject::makefileParsingFinished()
 
     // Remove file watches for the current project state.
     // The file watches will be added again after the parsing.
-    foreach (const QString& watchedFile, m_watchedFiles)
-        m_fileWatcher->removeFile(watchedFile);
+    m_fileWatcher->removeFiles(m_watchedFiles);
 
     m_files.clear();
     m_watchedFiles.clear();
