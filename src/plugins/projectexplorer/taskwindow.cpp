@@ -454,7 +454,7 @@ void TaskWindow::addTask(const Task &task)
 
 void TaskWindow::removeTask(const Task &task)
 {
-    d->m_model->removeTask(task);
+    d->m_model->removeTask(task.taskId);
 
     emit tasksChanged();
     navigateStateChanged();

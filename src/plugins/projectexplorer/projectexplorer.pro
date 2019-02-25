@@ -18,6 +18,7 @@ HEADERS += projectexplorer.h \
     environmentaspect.h \
     environmentaspectwidget.h \
     extraabi.h \
+    fileinsessionfinder.h \
     filterkitaspectsdialog.h \
     gcctoolchain.h \
     importwidget.h \
@@ -171,6 +172,7 @@ SOURCES += projectexplorer.cpp \
     environmentaspect.cpp \
     environmentaspectwidget.cpp \
     extraabi.cpp \
+    fileinsessionfinder.cpp \
     filterkitaspectsdialog.cpp \
     gcctoolchain.cpp \
     importwidget.cpp \

@@ -25,11 +25,13 @@
 
 #include "taskmodel.h"
 
+#include "fileinsessionfinder.h"
 #include "task.h"
 #include "taskhub.h"
 
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
 #include <QFontMetrics>
 
 #include <algorithm>
@@ -102,8 +104,14 @@ bool sortById(const Task &task, unsigned int id)
     return task.taskId < id;
 }
 
-void TaskModel::addTask(const Task &task)
+void TaskModel::addTask(const Task &t)
 {
+    Task task = t;
+    if (!task.file.isEmpty() && !task.file.toFileInfo().isAbsolute()) {
+        const Utils::FileName fullFilePath = findFileInSession(task.file);
+        if (!fullFilePath.isEmpty())
+            task.file = fullFilePath;
+    }
     Q_ASSERT(m_categories.keys().contains(task.category));
     CategoryData &data = m_categories[task.category];
     CategoryData &global = m_categories[Core::Id()];
@@ -117,17 +125,18 @@ void TaskModel::addTask(const Task &task)
     endInsertRows();
 }
 
-void TaskModel::removeTask(const Task &task)
+void TaskModel::removeTask(unsigned int id)
 {
-    int index = m_tasks.indexOf(task);
-    if (index >= 0) {
+    for (int index = 0; index < m_tasks.length(); ++index) {
+        if (m_tasks.at(index).taskId != id)
+            continue;
         const Task &t = m_tasks.at(index);
-
         beginRemoveRows(QModelIndex(), index, index);
-        m_categories[task.category].removeTask(t);
+        m_categories[t.category].removeTask(t);
         m_categories[Core::Id()].removeTask(t);
         m_tasks.removeAt(index);
         endRemoveRows();
+        break;
     }
 }
 

@@ -54,8 +54,8 @@ public:
     void addCategory(Core::Id categoryId, const QString &categoryName);
 
     QList<Task> tasks(Core::Id categoryId = Core::Id()) const;
-    void addTask(const Task &task);
-    void removeTask(const Task &task);
+    void addTask(const Task &t);
+    void removeTask(unsigned int id);
     void clearTasks(Core::Id categoryId = Core::Id());
     void updateTaskFileName(unsigned int id, const QString &fileName);
     void updateTaskLineNumber(unsigned int id, int line);
