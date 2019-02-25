@@ -455,16 +455,11 @@ QList<BuildInfo> CMakeBuildConfigurationFactory::availableSetups(const Kit *k, c
 {
     QList<BuildInfo> result;
     const FileName projectPathName = FileName::fromString(projectPath);
-    for (int type = BuildTypeNone; type != BuildTypeLast; ++type) {
+    for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
         BuildInfo info = createBuildInfo(k,
                                          ProjectExplorer::Project::projectDirectory(projectPathName).toString(),
                                          BuildType(type));
-        if (type == BuildTypeNone) {
-            //: The name of the build configuration created by default for a cmake project.
-            info.displayName = tr("Default");
-        } else {
-            info.displayName = info.typeName;
-        }
+        info.displayName = info.typeName;
         info.buildDirectory
                 = CMakeBuildConfiguration::shadowBuildDirectory(projectPathName, k,
                                                                 info.displayName, info.buildType);
