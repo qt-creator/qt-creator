@@ -45,7 +45,7 @@ void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
 
     for (auto &projectPart : projectParts) {
         BuildDependency buildDependency = m_buildDependenciesProvider.create(projectPart);
-        UsedMacroFilter filter{buildDependency.includes,
+        UsedMacroFilter filter{buildDependency.sources,
                                buildDependency.usedMacros,
                                projectPart.compilerMacros};
 
@@ -62,7 +62,7 @@ void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
                                          projectPart.languageExtension},
                                  PchTask{std::move(projectPart.projectPartId),
                                          std::move(filter.topProjectIncludes),
-                                         std::move(filter.allIncludes),
+                                         std::move(filter.sources),
                                          std::move(filter.projectCompilerMacros),
                                          std::move(filter.projectUsedMacros),
                                          projectPart.toolChainArguments,

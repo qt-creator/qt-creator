@@ -139,10 +139,11 @@ private:
             projectIncludes.emplace_back(include.sourceId);
             break;
         case SourceType::UserInclude:
+        case SourceType::Source:
             break;
         }
 
-        allIncludes.emplace_back(include.sourceId);
+        sources.emplace_back(include.sourceId);
     }
 
     static Utils::SmallStringVector filterUsedMarcos(const UsedMacros &usedMacros,
@@ -209,7 +210,7 @@ private:
     }
 
 public:
-    FilePathIds allIncludes;
+    FilePathIds sources;
     FilePathIds projectIncludes;
     FilePathIds systemIncludes;
     FilePathIds topProjectIncludes;

@@ -31,19 +31,20 @@
 
 namespace ClangBackEnd {
 
-enum class SourceType : unsigned char
-{
+enum class SourceType : unsigned char {
     TopProjectInclude,
     TopSystemInclude,
     UserInclude,
     ProjectInclude,
-    SystemInclude
+    SystemInclude,
+    Source
 };
 
 class TimeStamp
 {
     using int64 = long long;
 public:
+    TimeStamp() = default;
     TimeStamp(int64 value)
         : value(value)
     {}
@@ -58,7 +59,6 @@ public:
 
 class SourceTimeStamp
 {
-protected:
     using int64 = long long;
 public:
     SourceTimeStamp(int sourceId, int64 lastModified)
@@ -103,17 +103,20 @@ public:
 
 using SourceTimeStamps = std::vector<SourceTimeStamp>;
 
-class SourceEntry : public SourceTimeStamp
+class SourceEntry
 {
+    using int64 = long long;
 
 public:
-    SourceEntry(int sourceId, int64 lastModified, int sourceType)
-        : SourceTimeStamp(sourceId, lastModified)
+    SourceEntry(int sourceId, int64 pchCreationTimeStamp, int sourceType)
+        : pchCreationTimeStamp(pchCreationTimeStamp)
+        , sourceId(sourceId)
         , sourceType(static_cast<SourceType>(sourceType))
     {}
 
-    SourceEntry(FilePathId sourceId, SourceType sourceType, TimeStamp lastModified)
-        : SourceTimeStamp(sourceId, lastModified)
+    SourceEntry(FilePathId sourceId, SourceType sourceType, TimeStamp pchCreationTimeStamp)
+        : pchCreationTimeStamp(pchCreationTimeStamp)
+        , sourceId(sourceId)
         , sourceType(sourceType)
     {}
 
@@ -125,12 +128,14 @@ public:
     friend bool operator==(SourceEntry first, SourceEntry second)
     {
         return first.sourceId == second.sourceId && first.sourceType == second.sourceType
-               && first.lastModified == second.lastModified;
+               && first.pchCreationTimeStamp == second.pchCreationTimeStamp;
     }
 
     friend bool operator!=(SourceEntry first, SourceEntry second) { return !(first == second); }
 
 public:
+    TimeStamp pchCreationTimeStamp;
+    FilePathId sourceId;
     SourceType sourceType = SourceType::UserInclude;
 };
 

@@ -272,14 +272,14 @@ TEST_F(PchTasksMerger, MergeAllIncludes)
 {
     Merger::mergePchTasks(systemTask1, systemTask2);
 
-    ASSERT_THAT(systemTask1.allIncludes, ElementsAre(1, 2, 3, 11, 12, 13));
+    ASSERT_THAT(systemTask1.sources, ElementsAre(1, 2, 3, 11, 12, 13));
 }
 
 TEST_F(PchTasksMerger, DontAllMergeIncludes)
 {
     Merger::mergePchTasks(systemTask1, systemTask3);
 
-    ASSERT_THAT(systemTask1.allIncludes, ElementsAre(1, 2, 3));
+    ASSERT_THAT(systemTask1.sources, ElementsAre(1, 2, 3));
 }
 
 TEST_F(PchTasksMerger, MergeProjectIds)

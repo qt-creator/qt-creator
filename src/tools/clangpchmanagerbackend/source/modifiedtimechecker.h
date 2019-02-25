@@ -75,21 +75,68 @@ public:
 private:
     bool compareEntries(const SourceEntries &sourceEntries) const
     {
+        class CompareSourceId
+        {
+        public:
+            bool operator()(SourceTimeStamp first, SourceTimeStamp second) {
+                return first.sourceId < second.sourceId;
+            }
+
+            bool operator()(SourceEntry first, SourceEntry second)
+            {
+                return first.sourceId < second.sourceId;
+            }
+
+            bool operator()(SourceTimeStamp first, SourceEntry second)
+            {
+                return first.sourceId < second.sourceId;
+            }
+
+            bool operator()(SourceEntry first, SourceTimeStamp second)
+            {
+                return first.sourceId < second.sourceId;
+            }
+        };
+
         SourceTimeStamps currentSourceTimeStamp;
         currentSourceTimeStamp.reserve(sourceEntries.size());
         std::set_intersection(m_currentSourceTimeStamps.begin(),
                               m_currentSourceTimeStamps.end(),
                               sourceEntries.begin(),
                               sourceEntries.end(),
-                              std::back_inserter(currentSourceTimeStamp));
+                              std::back_inserter(currentSourceTimeStamp),
+                              CompareSourceId{});
 
-        return std::equal(currentSourceTimeStamp.begin(),
-                          currentSourceTimeStamp.end(),
-                          sourceEntries.begin(),
-                          sourceEntries.end(),
-                          [](SourceTimeStamp first, SourceTimeStamp second) {
-                              return first.lastModified <= second.lastModified;
-                          });
+        class CompareTime
+        {
+        public:
+            bool operator()(SourceTimeStamp first, SourceTimeStamp second)
+            {
+                return first.lastModified <= second.lastModified;
+            }
+
+            bool operator()(SourceEntry first, SourceEntry second)
+            {
+                return first.pchCreationTimeStamp <=
+                    second.pchCreationTimeStamp;
+            }
+
+            bool operator()(SourceTimeStamp first, SourceEntry second)
+            {
+                return first.lastModified <= second.pchCreationTimeStamp;
+            }
+
+            bool operator()(SourceEntry first, SourceTimeStamp second)
+            {
+                return first.pchCreationTimeStamp <= second.lastModified;
+            }
+        };
+
+        return std::lexicographical_compare(currentSourceTimeStamp.begin(),
+                                            currentSourceTimeStamp.end(),
+                                            sourceEntries.begin(),
+                                            sourceEntries.end(),
+                                            CompareTime{});
     }
 
     void updateCurrentSourceTimeStamps(const SourceEntries &sourceEntries) const
@@ -102,8 +149,8 @@ private:
         }
 
         auto split = sourceTimeStamps.insert(sourceTimeStamps.end(),
-                                        m_currentSourceTimeStamps.begin(),
-                                        m_currentSourceTimeStamps.end());
+                                             m_currentSourceTimeStamps.begin(),
+                                             m_currentSourceTimeStamps.end());
         std::inplace_merge(sourceTimeStamps.begin(), split, sourceTimeStamps.end());
 
         m_currentSourceTimeStamps = sourceTimeStamps;
@@ -111,14 +158,49 @@ private:
 
     SourceTimeStamps newSourceTimeStamps(const SourceEntries &sourceEntries) const
     {
-        SourceTimeStamps newTimeStamps;
-        newTimeStamps.reserve(sourceEntries.size() + m_currentSourceTimeStamps.size());
+        SourceEntries newSourceEntries;
+        newSourceEntries.reserve(sourceEntries.size());
+
+        class CompareSourceId
+        {
+        public:
+            bool operator()(SourceTimeStamp first, SourceTimeStamp second)
+            {
+                return first.sourceId < second.sourceId;
+            }
+
+            bool operator()(SourceEntry first, SourceEntry second)
+            {
+                return first.sourceId < second.sourceId;
+            }
+
+            bool operator()(SourceTimeStamp first, SourceEntry second)
+            {
+                return first.sourceId < second.sourceId;
+            }
+
+            bool operator()(SourceEntry first, SourceTimeStamp second)
+            {
+                return first.sourceId < second.sourceId;
+            }
+        };
 
         std::set_difference(sourceEntries.begin(),
                             sourceEntries.end(),
                             m_currentSourceTimeStamps.begin(),
                             m_currentSourceTimeStamps.end(),
-                            std::back_inserter(newTimeStamps));
+                            std::back_inserter(newSourceEntries),
+                            CompareSourceId{});
+
+        SourceTimeStamps newTimeStamps;
+        newTimeStamps.reserve(newSourceEntries.size());
+
+        std::transform(newSourceEntries.begin(),
+                       newSourceEntries.end(),
+                       std::back_inserter(newTimeStamps),
+                       [](SourceEntry entry) {
+                           return SourceTimeStamp{entry.sourceId, {}};
+                       });
 
         return newTimeStamps;
     }

@@ -45,7 +45,6 @@
 #include <fulltokeninfo.h>
 #include <includesearchpath.h>
 #include <nativefilepath.h>
-#include <pchcreatorincludes.h>
 #include <pchtask.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <projectpartartefact.h>
@@ -1151,11 +1150,6 @@ std::ostream &operator<<(std::ostream &out, const ProgressMessage &message)
                << message.total << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes)
-{
-    return out << "(" << includes.includeIds << ", " << includes.topIncludeIds << ", "
-               << includes.topSystemIncludeIds << ")";
-}
 std::ostream &operator<<(std::ostream &out, const PchTask &task)
 {
     return out << "(" << task.projectPartIds << ", " << task.includes << ", " << task.compilerMacros
@@ -1172,11 +1166,11 @@ std::ostream &operator<<(std::ostream &out, const PchTaskSet &taskSet)
 std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency)
 {
     return out << "(\n"
-               << "includes: " << dependency.includes << ",\n"
-               << "usedMacros: " << dependency.usedMacros  << ",\n"
-               << "fileStatuses: " << dependency.fileStatuses  << ",\n"
-               << "sourceFiles: " << dependency.sourceFiles  << ",\n"
-               << "sourceDependencies: " << dependency.sourceDependencies  << ",\n"
+               << "includes: " << dependency.sources << ",\n"
+               << "usedMacros: " << dependency.usedMacros << ",\n"
+               << "fileStatuses: " << dependency.fileStatuses << ",\n"
+               << "sourceFiles: " << dependency.sourceFiles << ",\n"
+               << "sourceDependencies: " << dependency.sourceDependencies << ",\n"
                << ")";
 }
 
@@ -1200,6 +1194,8 @@ const char *sourceTypeString(SourceType sourceType)
             return "ProjectInclude";
         case SourceType::UserInclude:
             return "UserInclude";
+        case SourceType::Source:
+            return "Source";
     }
 
     return "";

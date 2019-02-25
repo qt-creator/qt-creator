@@ -45,7 +45,26 @@ FilePathIds operator+(const FilePathIds &first, const FilePathIds &second)
 
     return result;
 }
+
+FilePaths operator+(FilePaths &&first, FilePaths &&second) {
+    FilePaths result = std::move(first);
+
+    std::copy(second.begin(), second.end(), std::back_inserter(result));
+
+    return result;
 }
+
+FilePaths generatedFilePaths(const V2::FileContainers &containers) {
+    FilePaths paths;
+    paths.reserve(containers.size());
+    std::transform(containers.begin(),
+                   containers.end(),
+                   std::back_inserter(paths),
+                   [](const auto &container) { return container.filePath; });
+    return paths;
+}
+
+} // namespace
 
 BuildDependency BuildDependencyCollector::create(const ProjectPartContainer &projectPart)
 {
@@ -54,8 +73,9 @@ BuildDependency BuildDependencyCollector::create(const ProjectPartContainer &pro
 
     addFiles(projectPart.sourcePathIds, std::move(builder.commandLine));
 
-    setExcludedFilePaths(
-        m_filePathCache.filePaths(projectPart.headerPathIds + projectPart.sourcePathIds));
+    setExcludedFilePaths(m_filePathCache.filePaths(projectPart.headerPathIds +
+                                                   projectPart.sourcePathIds) +
+                         generatedFilePaths(m_generatedFiles.fileContainers()));
 
     addUnsavedFiles(m_generatedFiles.fileContainers());
 

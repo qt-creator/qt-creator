@@ -138,12 +138,14 @@ public:
                       ClangBackEnd::Environment &environment,
                       Sqlite::Database &database,
                       PchManagerServer &pchManagerServer,
-                      ClangBackEnd::ClangPathWatcherInterface &pathWatcher)
-        : ProcessorManager(generatedFiles),
-          m_environment(environment),
-          m_database(database),
-          m_pchManagerServer(pchManagerServer),
-          m_pathWatcher(pathWatcher)
+                      ClangBackEnd::ClangPathWatcherInterface &pathWatcher,
+                      ClangBackEnd::BuildDependenciesStorageInterface &buildDependenciesStorage)
+        : ProcessorManager(generatedFiles)
+        , m_environment(environment)
+        , m_database(database)
+        , m_pchManagerServer(pchManagerServer)
+        , m_pathWatcher(pathWatcher)
+        , m_buildDependenciesStorage(buildDependenciesStorage)
     {}
 
 protected:
@@ -152,7 +154,8 @@ protected:
         return std::make_unique<PchCreator>(m_environment,
                                             m_database,
                                             *m_pchManagerServer.client(),
-                                            m_pathWatcher);
+                                            m_pathWatcher,
+                                            m_buildDependenciesStorage);
     }
 
 private:
@@ -160,6 +163,7 @@ private:
     Sqlite::Database &m_database;
     ClangBackEnd::PchManagerServer &m_pchManagerServer;
     ClangBackEnd::ClangPathWatcherInterface &m_pathWatcher;
+    ClangBackEnd::BuildDependenciesStorageInterface &m_buildDependenciesStorage;
 };
 
 struct Data // because we have a cycle dependency
@@ -181,7 +185,8 @@ struct Data // because we have a cycle dependency
                                         environment,
                                         database,
                                         clangPchManagerServer,
-                                        includeWatcher};
+                                        includeWatcher,
+                                        buildDependencyStorage};
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
     ClangBackEnd::ProgressCounter pchCreationProgressCounter{[&](int progress, int total) {
         executeInLoop([&] {

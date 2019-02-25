@@ -41,7 +41,7 @@ class PchTask
 public:
     PchTask(Utils::SmallString &&projectPartId,
             FilePathIds &&includes,
-            FilePathIds &&allIncludes,
+            FilePathIds &&sources,
             CompilerMacros &&compilerMacros,
             Utils::SmallStringVector &&usedMacros,
             Utils::SmallStringVector toolChainArguments,
@@ -52,7 +52,7 @@ public:
             Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None)
         : projectPartIds({projectPartId})
         , includes(includes)
-        , allIncludes(allIncludes)
+        , sources(sources)
         , compilerMacros(compilerMacros)
         , systemIncludeSearchPaths(std::move(systemIncludeSearchPaths))
         , projectIncludeSearchPaths(std::move(projectIncludeSearchPaths))
@@ -64,7 +64,7 @@ public:
 
     PchTask(Utils::SmallStringVector &&projectPartIds,
             FilePathIds &&includes,
-            FilePathIds &&allIncludes,
+            FilePathIds &&sources,
             CompilerMacros &&compilerMacros,
             Utils::SmallStringVector &&usedMacros,
             Utils::SmallStringVector toolChainArguments,
@@ -75,7 +75,7 @@ public:
             Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None)
         : projectPartIds(std::move(projectPartIds))
         , includes(includes)
-        , allIncludes(allIncludes)
+        , sources(sources)
         , compilerMacros(compilerMacros)
         , systemIncludeSearchPaths(std::move(systemIncludeSearchPaths))
         , projectIncludeSearchPaths(std::move(projectIncludeSearchPaths))
@@ -104,7 +104,7 @@ public:
     FilePath systemPchPath;
     Utils::SmallStringVector projectPartIds;
     FilePathIds includes;
-    FilePathIds allIncludes;
+    FilePathIds sources;
     CompilerMacros compilerMacros;
     IncludeSearchPaths systemIncludeSearchPaths;
     IncludeSearchPaths projectIncludeSearchPaths;

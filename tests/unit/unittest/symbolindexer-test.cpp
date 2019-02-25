@@ -73,13 +73,6 @@ using ClangBackEnd::SourceLocationKind;
 using ClangBackEnd::UsedMacros;
 using OptionalProjectPartArtefact = Utils::optional<ClangBackEnd::ProjectPartArtefact>;
 
-MATCHER_P(IsFileId, fileNameId,
-          std::string(negation ? "isn't " : "is ")
-          + PrintToString(ClangBackEnd::FilePathId(fileNameId)))
-{
-    return arg == ClangBackEnd::FilePathId(fileNameId);
-}
-
 struct Data
 {
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
@@ -211,7 +204,7 @@ protected:
     SourceLocationEntries sourceLocations{{1, 1, {42, 23}, SourceLocationKind::Declaration}};
     FilePathIds sourceFileIds{1, 23};
     UsedMacros usedMacros{{"Foo", 1}};
-    FileStatuses fileStatus{{2, 3, 4, false}};
+    FileStatuses fileStatus{{2, 3, 4}};
     SourceDependencies sourceDependencies{{1, 2}, {1, 3}};
     Utils::SmallString systemIncludeSearchPathsText{
          R"([["/includes", 1, 2], [")" TESTDATA_DIR R"(" ,2 , 3], ["/other/includes", 3, 3]])"};
@@ -442,26 +435,6 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
     indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
-TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSourcesWithArtifact)
-{
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>("project1"))).WillByDefault(Return(artefact));
-    ON_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project1"), _, _, _, _, _, _, _)).WillByDefault(Return(-1));
-
-    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(_, _));
-
-    indexer.updateProjectParts({projectPart1});
-}
-
-TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSourcesWithoutArtifact)
-{
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>("project2"))).WillByDefault(Return(nullArtefact));
-    ON_CALL(mockSymbolStorage, insertOrUpdateProjectPart(Eq("project2"), _, _, _, _, _, _, _)).WillByDefault(Return(3));
-
-    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(3, ElementsAre(IsFileId(1), IsFileId(23))));
-
-    indexer.updateProjectParts({projectPart2});
-}
-
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateUsedMacros)
 {
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros)))
@@ -472,7 +445,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateUsedMacros)
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertFileStatuses)
 {
-    EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(Eq(fileStatus)))
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus)))
             .Times(2);
 
     indexer.updateProjectParts({projectPart1, projectPart2});
@@ -538,9 +511,8 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithoutProjectPartArtifact)
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(TypedEq<int>(12), Eq(sourceFileIds)));
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(Eq(fileStatus)));
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus)));
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
@@ -591,9 +563,8 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithProjectPartArtifact)
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(TypedEq<int>(artefact.projectPartId), Eq(sourceFileIds)));
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(Eq(fileStatus)));
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus)));
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
@@ -646,9 +617,8 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderButGetsAnErrorForCollectingS
     EXPECT_CALL(mockCollector, collectSymbols()).WillOnce(Return(false));
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(0);
-    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(TypedEq<int>(12), Eq(sourceFileIds))).Times(0);
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros))).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(Eq(fileStatus))).Times(0);
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus))).Times(0);
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)))
         .Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
@@ -711,9 +681,8 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(artefact.projectPartId, Eq(sourceFileIds)));
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(Eq(fileStatus)));
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus)));
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
@@ -732,9 +701,8 @@ TEST_F(SymbolIndexer, HandleEmptyOptionalArtifactInUpdateChangedPath)
     EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _)).Times(0);
-    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(An<int>(), _)).Times(0);
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(_)).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(_)).Times(0);
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(_)).Times(0);
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(_)).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
 
@@ -775,10 +743,8 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrderButGetsAnErrorForCollectingSy
     EXPECT_CALL(mockCollector, collectSymbols()).WillOnce(Return(false));
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(0);
-    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(artefact.projectPartId, Eq(sourceFileIds)))
-        .Times(0);
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros))).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(Eq(fileStatus))).Times(0);
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus))).Times(0);
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)))
         .Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
@@ -950,9 +916,8 @@ TEST_F(SymbolIndexer, DontReparseInUpdateProjectPartsIfDefinesAreTheSame)
     EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _)).Times(0);
-    EXPECT_CALL(mockSymbolStorage, updateProjectPartSources(An<int>(), _)).Times(0);
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(_)).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertFileStatuses(_)).Times(0);
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(_)).Times(0);
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(_)).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
 

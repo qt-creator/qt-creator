@@ -68,7 +68,7 @@ protected:
 
     ClangBackEnd::FileStatus fileStatus(Utils::SmallStringView filePath) const
     {
-        return {filePathId(filePath), fileSize(filePath), lastModified(filePath), false};
+        return {filePathId(filePath), fileSize(filePath), lastModified(filePath)};
     }
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};

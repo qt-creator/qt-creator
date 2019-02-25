@@ -53,7 +53,9 @@ using ClangBackEnd::UsedMacro;
 
 namespace {
 
-MATCHER_P2(HasInclude, sourceId, sourceType,
+MATCHER_P2(HasSource,
+           sourceId,
+           sourceType,
            std::string(negation ? "hasn't " : "has ")
                + PrintToString(ClangBackEnd::SourceEntry(sourceId, sourceType, -1)))
 {
@@ -107,50 +109,50 @@ protected:
 
     ClangBackEnd::FileStatus fileStatus(Utils::SmallStringView filePath) const
     {
-        return {id(filePath), fileSize(filePath), lastModified(filePath), false};
+        return {id(filePath), fileSize(filePath), lastModified(filePath)};
     }
 
-    static FilePathIds filteredIncludes(const ClangBackEnd::SourceEntries &includes,
-                                        ClangBackEnd::SourceType includeType)
+    static FilePathIds filteredSources(const ClangBackEnd::SourceEntries &sources,
+                                       ClangBackEnd::SourceType sourceType)
     {
-        FilePathIds filteredIncludes;
+        FilePathIds filteredSources;
 
-        for (const ClangBackEnd::SourceEntry &include : includes) {
-            if (include.sourceType == includeType)
-                filteredIncludes.push_back(include.sourceId);
+        for (const ClangBackEnd::SourceEntry &source : sources) {
+            if (source.sourceType == sourceType)
+                filteredSources.push_back(source.sourceId);
         }
 
-        return filteredIncludes;
+        return filteredSources;
     }
 
-    static FilePathIds topIncludes(const ClangBackEnd::SourceEntries &includes)
+    static FilePathIds topSources(const ClangBackEnd::SourceEntries &sources)
     {
-        return filteredIncludes(includes, ClangBackEnd::SourceType::TopProjectInclude);
+        return filteredSources(sources, ClangBackEnd::SourceType::TopProjectInclude);
     }
 
-    static FilePathIds systemTopIncludes(const ClangBackEnd::SourceEntries &includes)
+    static FilePathIds systemTopSources(const ClangBackEnd::SourceEntries &sources)
     {
-        return filteredIncludes(includes, ClangBackEnd::SourceType::TopSystemInclude);
+        return filteredSources(sources, ClangBackEnd::SourceType::TopSystemInclude);
     }
 
-    static FilePathIds userIncludes(const ClangBackEnd::SourceEntries &includes)
+    static FilePathIds userSources(const ClangBackEnd::SourceEntries &sources)
     {
-        return filteredIncludes(includes, ClangBackEnd::SourceType::UserInclude);
+        return filteredSources(sources, ClangBackEnd::SourceType::UserInclude);
     }
 
-    static FilePathIds projectPartIncludes(const ClangBackEnd::SourceEntries &includes)
+    static FilePathIds projectPartSources(const ClangBackEnd::SourceEntries &sources)
     {
-        return filteredIncludes(includes, ClangBackEnd::SourceType::ProjectInclude);
+        return filteredSources(sources, ClangBackEnd::SourceType::ProjectInclude);
     }
 
-    static FilePathIds allIncludes(const ClangBackEnd::SourceEntries &includes)
+    static FilePathIds sources(const ClangBackEnd::SourceEntries &sources)
     {
-        FilePathIds filteredIncludes;
+        FilePathIds filteredSources;
 
-        for (const ClangBackEnd::SourceEntry &include : includes)
-            filteredIncludes.push_back(include.sourceId);
+        for (const ClangBackEnd::SourceEntry &source : sources)
+            filteredSources.push_back(source.sourceId);
 
-        return filteredIncludes;
+        return filteredSources;
     }
 
 protected:
@@ -173,26 +175,30 @@ TEST_F(BuildDependencyCollector, IncludesExternalHeader)
 {
     collector.collect();
 
-    ASSERT_THAT(allIncludes(collector.includeIds()),
+    ASSERT_THAT(sources(collector.sourceEntries()),
                 AllOf(Contains(id(TESTDATA_DIR "/builddependencycollector/external/external1.h")),
                       Contains(id(TESTDATA_DIR "/builddependencycollector/external/external2.h")),
-                      Contains(id(TESTDATA_DIR "/builddependencycollector/external/indirect_external.h")),
-                      Contains(id(TESTDATA_DIR "/builddependencycollector/external/indirect_external2.h"))));
+                      Contains(id(TESTDATA_DIR
+                                  "/builddependencycollector/external/indirect_external.h")),
+                      Contains(id(TESTDATA_DIR
+                                  "/builddependencycollector/external/indirect_external2.h"))));
 }
 
 TEST_F(BuildDependencyCollector, InternalHeaderAreUserIncludes)
 {
     collector.collect();
 
-    ASSERT_THAT(userIncludes(collector.includeIds()), Contains(id(TESTDATA_DIR "/builddependencycollector/project/header1.h")));
+    ASSERT_THAT(userSources(collector.sourceEntries()),
+                Contains(id(TESTDATA_DIR "/builddependencycollector/project/header1.h")));
 }
 
 TEST_F(BuildDependencyCollector, NoDuplicate)
 {
     collector.collect();
 
-    ASSERT_THAT(allIncludes(collector.includeIds()),
+    ASSERT_THAT(sources(collector.sourceEntries()),
                 UnorderedElementsAre(
+                    id(TESTDATA_DIR "/builddependencycollector/project/main.cpp"),
                     id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
                     id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
                     id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
@@ -206,15 +212,17 @@ TEST_F(BuildDependencyCollector, IncludesAreSorted)
 {
     collector.collect();
 
-    ASSERT_THAT(allIncludes(collector.includeIds()),
-                ElementsAre(
-                    id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
-                    id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
-                    id(TESTDATA_DIR "/builddependencycollector/external/external3.h"),
-                    id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
-                    id(TESTDATA_DIR "/builddependencycollector/external/indirect_external.h"),
-                    id(TESTDATA_DIR "/builddependencycollector/external/indirect_external2.h"),
-                    id(TESTDATA_DIR "/builddependencycollector/external/external2.h")));
+    ASSERT_THAT(sources(collector.sourceEntries()),
+                ElementsAre(id(TESTDATA_DIR "/builddependencycollector/project/main.cpp"),
+                            id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
+                            id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+                            id(TESTDATA_DIR "/builddependencycollector/external/external3.h"),
+                            id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+                            id(TESTDATA_DIR
+                               "/builddependencycollector/external/indirect_external.h"),
+                            id(TESTDATA_DIR
+                               "/builddependencycollector/external/indirect_external2.h"),
+                            id(TESTDATA_DIR "/builddependencycollector/external/external2.h")));
 }
 
 TEST_F(BuildDependencyCollector, If)
@@ -223,8 +231,9 @@ TEST_F(BuildDependencyCollector, If)
 
     emptyCollector.collect();
 
-    ASSERT_THAT(allIncludes(emptyCollector.includeIds()),
-                ElementsAre(id(TESTDATA_DIR "/builddependencycollector/project/true.h")));
+    ASSERT_THAT(sources(emptyCollector.sourceEntries()),
+                ElementsAre(id(TESTDATA_DIR "/builddependencycollector/project/if.cpp"),
+                            id(TESTDATA_DIR "/builddependencycollector/project/true.h")));
 }
 
 TEST_F(BuildDependencyCollector, LocalPath)
@@ -233,8 +242,9 @@ TEST_F(BuildDependencyCollector, LocalPath)
 
     emptyCollector.collect();
 
-    ASSERT_THAT(allIncludes(emptyCollector.includeIds()),
+    ASSERT_THAT(sources(emptyCollector.sourceEntries()),
                 UnorderedElementsAre(
+                    id(TESTDATA_DIR "/builddependencycollector/project/main.cpp"),
                     id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
                     id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
                     id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
@@ -250,20 +260,22 @@ TEST_F(BuildDependencyCollector, IgnoreMissingFile)
 
     emptyCollector.collect();
 
-    ASSERT_THAT(allIncludes(emptyCollector.includeIds()),
-                UnorderedElementsAre(id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
-                                     id(TESTDATA_DIR "/builddependencycollector/external/indirect_external.h"),
-                                     id(TESTDATA_DIR "/builddependencycollector/external/indirect_external2.h")));
+    ASSERT_THAT(sources(emptyCollector.sourceEntries()),
+                UnorderedElementsAre(
+                    id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+                    id(TESTDATA_DIR "/builddependencycollector/external/indirect_external.h"),
+                    id(TESTDATA_DIR "/builddependencycollector/external/indirect_external2.h")));
 }
 
 TEST_F(BuildDependencyCollector, IncludesOnlyTopExternalHeader)
 {
     collector.collect();
 
-    ASSERT_THAT(topIncludes(collector.includeIds()),
-                UnorderedElementsAre(id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
-                                     id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
-                                     id(TESTDATA_DIR "/builddependencycollector/external/external3.h")));
+    ASSERT_THAT(
+        topSources(collector.sourceEntries()),
+        UnorderedElementsAre(id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+                             id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
+                             id(TESTDATA_DIR "/builddependencycollector/external/external3.h")));
 }
 
 TEST_F(BuildDependencyCollector, TopIncludeInIfMacro)
@@ -273,7 +285,7 @@ TEST_F(BuildDependencyCollector, TopIncludeInIfMacro)
 
     emptyCollector.collect();
 
-    ASSERT_THAT(topIncludes(emptyCollector.includeIds()),
+    ASSERT_THAT(topSources(emptyCollector.sourceEntries()),
                 ElementsAre(id(TESTDATA_DIR "/builddependencycollector/project/true.h")));
 }
 
@@ -283,10 +295,11 @@ TEST_F(BuildDependencyCollector, TopIncludeWithLocalPath)
 
     emptyCollector.collect();
 
-    ASSERT_THAT(topIncludes(emptyCollector.includeIds()),
-                UnorderedElementsAre(id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
-                                     id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
-                                     id(TESTDATA_DIR "/builddependencycollector/external/external3.h")));
+    ASSERT_THAT(
+        topSources(emptyCollector.sourceEntries()),
+        UnorderedElementsAre(id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+                             id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
+                             id(TESTDATA_DIR "/builddependencycollector/external/external3.h")));
 }
 
 TEST_F(BuildDependencyCollector, TopIncludesIgnoreMissingFile)
@@ -296,8 +309,9 @@ TEST_F(BuildDependencyCollector, TopIncludesIgnoreMissingFile)
 
     emptyCollector.collect();
 
-    ASSERT_THAT(topIncludes(emptyCollector.includeIds()),
-                UnorderedElementsAre(id(TESTDATA_DIR "/builddependencycollector/external/external1.h")));
+    ASSERT_THAT(topSources(emptyCollector.sourceEntries()),
+                UnorderedElementsAre(
+                    id(TESTDATA_DIR "/builddependencycollector/external/external1.h")));
 }
 
 TEST_F(BuildDependencyCollector, SourceFiles)
@@ -620,10 +634,10 @@ TEST_F(BuildDependencyCollector, MissingInclude)
 
     emptyCollector.collect();
 
-    ASSERT_THAT(emptyCollector.includeIds(),
+    ASSERT_THAT(emptyCollector.sourceEntries(),
                 ElementsAre(
-                    HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
-                               SourceType::UserInclude)));
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
+                              SourceType::UserInclude)));
 }
 
 
@@ -643,10 +657,12 @@ TEST_F(BuildDependencyCollector, GeneratedFile)
 
     emptyCollector.collect();
 
-    ASSERT_THAT(emptyCollector.includeIds(),
-                ElementsAre(
-                    HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/generated_file.h"),
-                               SourceType::UserInclude)));
+    ASSERT_THAT(
+        emptyCollector.sourceEntries(),
+        ElementsAre(HasSource(id(TESTDATA_DIR "/builddependencycollector/project/main6.cpp"),
+                              SourceType::Source),
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/project/generated_file.h"),
+                              SourceType::UserInclude)));
 }
 
 TEST_F(BuildDependencyCollector, CreateFakeFileContent)
@@ -715,41 +731,37 @@ TEST_F(BuildDependencyCollector, Create)
                       fileStatus(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
                       fileStatus(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
                       ClangBackEnd::FileStatus(
-                          id(TESTDATA_DIR "/builddependencycollector/project/generated_file.h"),
-                          12,
-                          0,
-                          false))),
-            Field(&BuildDependency::includes,
-                  UnorderedElementsAre(
-                      HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
-                                 SourceType::UserInclude),
-                      HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
-                                 SourceType::UserInclude),
-                      HasInclude(id(TESTDATA_DIR "/builddependencycollector/external/external3.h"),
-                                 SourceType::TopProjectInclude),
-                      HasInclude(id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
-                                 SourceType::TopProjectInclude),
-                      HasInclude(id(TESTDATA_DIR
-                                    "/builddependencycollector/external/indirect_external.h"),
-                                 SourceType::ProjectInclude),
-                      HasInclude(id(TESTDATA_DIR
-                                    "/builddependencycollector/external/indirect_external2.h"),
-                                 SourceType::ProjectInclude),
-                      HasInclude(id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
-                                 SourceType::TopProjectInclude),
-                      HasInclude(id(TESTDATA_DIR "/builddependencycollector/system/system1.h"),
-                                 SourceType::TopSystemInclude),
-                      HasInclude(id(TESTDATA_DIR
-                                    "/builddependencycollector/system/indirect_system.h"),
-                                 SourceType::SystemInclude),
-                      HasInclude(id(TESTDATA_DIR
-                                    "/builddependencycollector/system/indirect_system2.h"),
-                                 SourceType::SystemInclude),
-                      HasInclude(id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
-                                 SourceType::UserInclude),
-                      HasInclude(id(TESTDATA_DIR
-                                    "/builddependencycollector/project/generated_file.h"),
-                                 SourceType::TopProjectInclude))),
+                          id(TESTDATA_DIR "/builddependencycollector/project/generated_file.h"), 12, 0))),
+            Field(
+                &BuildDependency::sources,
+                UnorderedElementsAre(
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
+                              SourceType::UserInclude),
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+                              SourceType::UserInclude),
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/external/external3.h"),
+                              SourceType::TopProjectInclude),
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+                              SourceType::TopProjectInclude),
+                    HasSource(id(TESTDATA_DIR
+                                 "/builddependencycollector/external/indirect_external.h"),
+                              SourceType::ProjectInclude),
+                    HasSource(id(TESTDATA_DIR
+                                 "/builddependencycollector/external/indirect_external2.h"),
+                              SourceType::ProjectInclude),
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
+                              SourceType::TopProjectInclude),
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/system/system1.h"),
+                              SourceType::TopSystemInclude),
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/system/indirect_system.h"),
+                              SourceType::SystemInclude),
+                    HasSource(id(TESTDATA_DIR
+                                 "/builddependencycollector/system/indirect_system2.h"),
+                              SourceType::SystemInclude),
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
+                              SourceType::UserInclude),
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/project/generated_file.h"),
+                              SourceType::UserInclude))),
             Field(&BuildDependency::usedMacros,
                   UnorderedElementsAre(
                       UsedMacro{"IFDEF", id(TESTDATA_DIR "/builddependencycollector/project/macros.h")},
@@ -843,6 +855,6 @@ TEST_F(BuildDependencyCollector, Clear)
 
     auto buildDependency = collector.create(projectPart);
 
-    ASSERT_THAT(buildDependency.includes, IsEmpty());
+    ASSERT_THAT(buildDependency.sources, IsEmpty());
 }
 } // namespace

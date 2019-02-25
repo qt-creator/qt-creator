@@ -61,7 +61,6 @@ public:
         Utils::LanguageVersion languageVersion,
         Utils::LanguageExtension languageExtension)
         = 0;
-    virtual void updateProjectPartSources(int projectPartId, const FilePathIds &sourceFilePathIds) = 0;
     virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(
         FilePathId sourceId) const = 0;
     virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(

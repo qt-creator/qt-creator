@@ -109,36 +109,46 @@ public:
                             clang::SrcMgr::CharacteristicKind fileType) override
     {
         clang::FileID currentFileId = m_sourceManager->getFileID(hashLocation);
-        if (file && currentFileId != m_mainFileId) {
-            addSourceDependency(file, hashLocation);
-            auto fileUID = file->getUID();
-            auto sourceFileUID = m_sourceManager
-                                     ->getFileEntryForID(m_sourceManager->getFileID(hashLocation))
-                                     ->getUID();
-            auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
-            if (notAlreadyIncluded.first) {
-                m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second, fileUID);
-                FilePath filePath = filePathFromFile(file);
-                if (!filePath.empty()) {
-                    FilePathId includeId = m_filePathCache.filePathId(filePath);
+        if (file) {
+            if (currentFileId != m_mainFileId) {
+                addSourceDependency(file, hashLocation);
+                auto fileUID = file->getUID();
+                auto sourceFileUID =
+                    m_sourceManager
+                        ->getFileEntryForID(
+                            m_sourceManager->getFileID(hashLocation))
+                        ->getUID();
+                auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
+                if (notAlreadyIncluded.first) {
+                    m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second,
+                                                     fileUID);
+                    FilePath filePath = filePathFromFile(file);
+                    if (!filePath.empty()) {
+                        FilePathId includeId =
+                            m_filePathCache.filePathId(filePath);
 
-                    time_t lastModified = file->getModificationTime();
+                        time_t lastModified = file->getModificationTime();
 
-                    SourceType sourceType = SourceType::UserInclude;
-                    if (isSystem(fileType)) {
-                        if (isInSystemHeader(hashLocation))
-                            sourceType = SourceType::SystemInclude;
-                        else
-                            sourceType = SourceType::TopSystemInclude;
-                    } else if (isNotInExcludedIncludeUID(fileUID)) {
-                        if (isInExcludedIncludeUID(sourceFileUID))
-                            sourceType = SourceType::TopProjectInclude;
-                        else
-                            sourceType = SourceType::ProjectInclude;
+                        SourceType sourceType = SourceType::UserInclude;
+                        if (isSystem(fileType)) {
+                            if (isInSystemHeader(hashLocation))
+                                sourceType = SourceType::SystemInclude;
+                            else
+                                sourceType = SourceType::TopSystemInclude;
+                        } else if (isNotInExcludedIncludeUID(fileUID)) {
+                            if (isInExcludedIncludeUID(sourceFileUID))
+                                sourceType = SourceType::TopProjectInclude;
+                            else
+                                sourceType = SourceType::ProjectInclude;
+                        }
+
+                        addSource({includeId, sourceType, lastModified});
                     }
-
-                    addInclude({includeId, sourceType, lastModified});
                 }
+            } else {
+                addSource({m_filePathCache.filePathId(filePathFromFile(file)),
+                           SourceType::Source,
+                           file->getModificationTime()});
             }
         } else {
             auto sourceFileId = filePathId(hashLocation);
@@ -270,7 +280,7 @@ public:
             }
         };
 
-        auto &includes = m_buildDependency.includes;
+        auto &includes = m_buildDependency.sources;
         SourceEntries newIncludes;
         newIncludes.reserve(includes.size());
         std::set_difference(includes.begin(),
@@ -280,7 +290,7 @@ public:
                             std::back_inserter(newIncludes),
                             Compare{});
 
-        m_buildDependency.includes = newIncludes;
+        m_buildDependency.sources = newIncludes;
     }
 
     SourceDependencies sourceDependenciesSortedByDependendFilePathId() const
@@ -296,7 +306,7 @@ public:
 
     void filterOutIncludesWithMissingIncludes()
     {
-        sortAndMakeUnique(m_containsMissingIncludes);;
+        sortAndMakeUnique(m_containsMissingIncludes);
 
         collectSourceWithMissingIncludes(m_containsMissingIncludes,
                                          sourceDependenciesSortedByDependendFilePathId());
@@ -339,16 +349,16 @@ public:
         return FilePath::fromNativeFilePath(absolutePath(file->getName()));
     }
 
-    void addInclude(SourceEntry sourceEntry)
-    {
-        auto &includes = m_buildDependency.includes;
-        auto found = std::lower_bound(includes.begin(),
-                                      includes.end(),
-                                      sourceEntry,
-                                      [](auto first, auto second) { return first < second; });
+    void addSource(SourceEntry sourceEntry) {
+        auto &sources = m_buildDependency.sources;
+        auto found = std::lower_bound(
+            sources.begin(),
+            sources.end(),
+            sourceEntry,
+            [](auto first, auto second) { return first < second; });
 
-        if (found == includes.end() || *found != sourceEntry)
-            includes.emplace(found, sourceEntry);
+        if (found == sources.end() || *found != sourceEntry)
+            sources.emplace(found, sourceEntry);
     }
 
 private:
