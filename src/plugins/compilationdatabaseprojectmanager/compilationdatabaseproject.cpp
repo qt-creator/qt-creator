@@ -249,8 +249,7 @@ QStringList relativeDirsList(Utils::FileName currentPath, const Utils::FileName 
 FolderNode *addChildFolderNode(FolderNode *parent, const QString &childName)
 {
     Utils::FileName parentPath = parent->filePath();
-    auto node = std::make_unique<FolderNode>(
-                parentPath.appendPath(childName), NodeType::Folder);
+    auto node = std::make_unique<FolderNode>(parentPath.appendPath(childName));
     FolderNode *childNode = node.get();
     childNode->setDisplayName(childName);
     parent->addNode(std::move(node));

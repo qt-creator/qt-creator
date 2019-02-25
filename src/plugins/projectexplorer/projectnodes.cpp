@@ -119,9 +119,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
   \sa ProjectExplorer::NodesWatcher
 */
 
-Node::Node(NodeType nodeType)
-    : m_nodeType(nodeType)
-{ }
+Node::Node() = default;
 
 void Node::setPriority(int p)
 {
@@ -310,6 +308,11 @@ FileType Node::fileTypeForFileName(const Utils::FileName &file)
                                                       Utils::MimeMatchMode::MatchExtension));
 }
 
+void Node::setNodeType(NodeType nodeType)
+{
+    m_nodeType = nodeType;
+}
+
 /*!
   \class ProjectExplorer::FileNode
 
@@ -321,7 +324,6 @@ FileType Node::fileTypeForFileName(const Utils::FileName &file)
 */
 
 FileNode::FileNode(const Utils::FileName &filePath, const FileType fileType) :
-    Node(NodeType::File),
     m_fileType(fileType)
 {
     setFilePath(filePath);
@@ -422,9 +424,9 @@ bool FileNode::supportsAction(ProjectAction action, const Node *node) const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-FolderNode::FolderNode(const Utils::FileName &folderPath, NodeType nodeType) :
-    Node(nodeType)
+FolderNode::FolderNode(const Utils::FileName &folderPath)
 {
+    setNodeType(NodeType::Folder);
     setFilePath(folderPath);
     setPriority(DefaultFolderPriority);
     setListInProject(false);
@@ -781,8 +783,9 @@ bool FolderNode::showWhenEmpty() const
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
 VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority) :
-    FolderNode(folderPath, NodeType::VirtualFolder)
+    FolderNode(folderPath)
 {
+    setNodeType(NodeType::VirtualFolder);
     setPriority(priority);
 }
 
@@ -807,8 +810,9 @@ QString VirtualFolderNode::addFileFilter() const
   Creates an uninitialized project node object.
   */
 ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
-    FolderNode(projectFilePath, NodeType::Project)
+    FolderNode(projectFilePath)
 {
+    setNodeType(NodeType::Project);
     setPriority(DefaultProjectPriority);
     setListInProject(true);
     setDisplayName(projectFilePath.fileName());
@@ -917,8 +921,10 @@ void FolderNode::handleSubTreeChanged(FolderNode *node)
 }
 
 ContainerNode::ContainerNode(Project *project)
-    : FolderNode(project->projectDirectory(), NodeType::Project), m_project(project)
-{}
+    : FolderNode(project->projectDirectory()), m_project(project)
+{
+    setNodeType(NodeType::Project);
+}
 
 QString ContainerNode::displayName() const
 {

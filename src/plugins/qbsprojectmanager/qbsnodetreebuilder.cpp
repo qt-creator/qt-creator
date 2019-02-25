@@ -214,8 +214,7 @@ std::unique_ptr<QbsRootProjectNode> QbsNodeTreeBuilder::buildTree(QbsProject *pr
     auto root = std::make_unique<QbsRootProjectNode>(project);
     setupProjectNode(root.get(), project->qbsProjectData(), project->qbsProject());
     auto buildSystemFiles
-            = std::make_unique<ProjectExplorer::FolderNode>(project->projectDirectory(),
-                                                            ProjectExplorer::NodeType::Folder);
+            = std::make_unique<ProjectExplorer::FolderNode>(project->projectDirectory());
     buildSystemFiles->setDisplayName(QCoreApplication::translate("QbsRootProjectNode", "Qbs files"));
 
     Utils::FileName base = project->projectDirectory();

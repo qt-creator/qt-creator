@@ -111,7 +111,7 @@ public:
     };
 
     virtual ~Node();
-    Node(const Node &other) = delete;
+
     NodeType nodeType() const;
     int priority() const;
 
@@ -159,8 +159,10 @@ public:
     static FileType fileTypeForFileName(const Utils::FileName &file);
 
 protected:
-    explicit Node(NodeType nodeType);
+    Node();
+    Node(const Node &other) = delete;
 
+    void setNodeType(NodeType nodeType);
     void setPriority(int priority);
     void setLine(int line);
     void setFilePath(const Utils::FileName &filePath);
@@ -170,7 +172,8 @@ private:
     Utils::FileName m_filePath;
     int m_line = -1;
     int m_priority = DefaultPriority;
-    const NodeType m_nodeType;
+    NodeType m_nodeType = NodeType::File;
+
     enum NodeFlag : quint16 {
         FlagNone = 0,
         FlagIsEnabled = 1 << 0,
@@ -206,7 +209,7 @@ private:
 class PROJECTEXPLORER_EXPORT FolderNode : public Node
 {
 public:
-    explicit FolderNode(const Utils::FileName &folderPath, NodeType nodeType = NodeType::Folder);
+    explicit FolderNode(const Utils::FileName &folderPath);
 
     QString displayName() const override;
     QIcon icon() const;
