@@ -702,7 +702,8 @@ void ServerModeReader::extractCMakeInputsData(const QVariantMap &data)
                 // Always include CMakeLists.txt files, even when cmake things these are part of its
                 // stuff. This unbreaks cmake binaries running from their own build directory.
                 m_cmakeInputsFileNodes.emplace_back(
-                            std::make_unique<FileNode>(sfn, FileType::Project, isTemporary));
+                            std::make_unique<FileNode>(sfn, FileType::Project));
+                m_cmakeInputsFileNodes.back()->setIsGenerated(isTemporary);
             }
         }
     }
@@ -908,8 +909,8 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
         std::vector<std::unique_ptr<FileNode>> newFileNodes
                 = Utils::transform<std::vector>(newSources,
                                                 [f, &knownHeaderNodes](const Utils::FileName &fn) {
-            auto node
-                    = std::make_unique<FileNode>(fn, Node::fileTypeForFileName(fn), f->isGenerated);
+            auto node = std::make_unique<FileNode>(fn, Node::fileTypeForFileName(fn));
+            node->setIsGenerated(f->isGenerated);
             if (node->fileType() == FileType::Header)
                 knownHeaderNodes.append(node.get());
             return node;

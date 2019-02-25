@@ -300,8 +300,7 @@ void createTree(FolderNode *root,
             FolderNode *parentNode = createFoldersIfNeeded(root, fileName.parentDir());
             if (!parentNode->fileNode(fileName)) {
                 parentNode->addNode(std::make_unique<FileNode>(fileName,
-                                                               fileTypeForName(fileName.fileName()),
-                                                               false));
+                                                               fileTypeForName(fileName.fileName())));
             }
         }
     }
@@ -395,10 +394,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
 
     createTree(root.get(), commonPath, rpps);
 
-    root->addNode(std::make_unique<FileNode>(
-                      projectFile,
-                      FileType::Project,
-                      false));
+    root->addNode(std::make_unique<FileNode>(projectFile, FileType::Project));
 
     setRootProjectNode(std::move(root));
 

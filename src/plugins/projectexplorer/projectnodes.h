@@ -155,6 +155,7 @@ public:
     void setParentFolderNode(FolderNode *parentFolder);
 
     void setListInProject(bool l);
+    void setIsGenerated(bool g);
 
     static FileType fileTypeForMimeType(const Utils::MimeType &mt);
     static FileType fileTypeForFileName(const Utils::FileName &file);
@@ -164,7 +165,6 @@ protected:
          const QByteArray &id = {});
 
     void setPriority(int priority);
-    void setIsGenerated(bool g);
 
 private:
     FolderNode *m_parentFolderNode = nullptr;
@@ -185,7 +185,7 @@ private:
 class PROJECTEXPLORER_EXPORT FileNode : public Node
 {
 public:
-    FileNode(const Utils::FileName &filePath, const FileType fileType, bool generated, int line = -1,
+    FileNode(const Utils::FileName &filePath, const FileType fileType, int line = -1,
              const QByteArray &id = {});
 
     FileNode *clone() const;

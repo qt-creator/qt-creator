@@ -315,13 +315,12 @@ FileType Node::fileTypeForFileName(const Utils::FileName &file)
   \sa ProjectExplorer::FolderNode, ProjectExplorer::ProjectNode
 */
 
-FileNode::FileNode(const Utils::FileName &filePath, const FileType fileType, bool generated,
+FileNode::FileNode(const Utils::FileName &filePath, const FileType fileType,
                    int line, const QByteArray &id) :
     Node(NodeType::File, filePath, line, id),
     m_fileType(fileType)
 {
     setListInProject(true);
-    setIsGenerated(generated);
     if (fileType == FileType::Project)
         setPriority(DefaultProjectFilePriority);
     else
@@ -330,7 +329,8 @@ FileNode::FileNode(const Utils::FileName &filePath, const FileType fileType, boo
 
 FileNode *FileNode::clone() const
 {
-    auto fn = new FileNode(filePath(), fileType(), isGenerated(), line(), id());
+    auto fn = new FileNode(filePath(), fileType(), line(), id());
+    fn->setIsGenerated(isGenerated());
     fn->setEnabled(isEnabled());
     fn->setPriority(priority());
     fn->setListInProject(listInProject());

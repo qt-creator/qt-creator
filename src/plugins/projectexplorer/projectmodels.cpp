@@ -261,7 +261,7 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
 
     if (container->childCount() == 0) {
         auto projectFileNode = std::make_unique<FileNode>(project->projectFilePath(),
-                                                          FileType::Project, false);
+                                                          FileType::Project);
         seen.insert(projectFileNode.get());
         container->appendChild(new WrapperNode(projectFileNode.get()));
         project->containerNode()->addNestedNode(std::move(projectFileNode));

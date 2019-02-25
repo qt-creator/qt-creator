@@ -358,9 +358,9 @@ void QmlProject::generateProjectTree()
         const Utils::FileName fileName = Utils::FileName::fromString(f);
         const FileType fileType = (fileName == projectFilePath())
                 ? FileType::Project : FileNode::fileTypeForFileName(fileName);
-        newRoot->addNestedNode(std::make_unique<FileNode>(fileName, fileType, false));
+        newRoot->addNestedNode(std::make_unique<FileNode>(fileName, fileType));
     }
-    newRoot->addNestedNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project, false));
+    newRoot->addNestedNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
     setRootProjectNode(std::move(newRoot));
     refreshTargetDirectory();

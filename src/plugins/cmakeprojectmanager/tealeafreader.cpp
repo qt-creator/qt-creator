@@ -422,7 +422,7 @@ void TeaLeafReader::extractData()
     resetData();
 
     m_projectName = m_parameters.projectName;
-    m_files.emplace_back(std::make_unique<FileNode>(topCMake, FileType::Project, false));
+    m_files.emplace_back(std::make_unique<FileNode>(topCMake, FileType::Project));
     // Do not insert topCMake into m_cmakeFiles: The project already watches that!
 
     // Find cbp file
@@ -458,7 +458,7 @@ void TeaLeafReader::extractData()
     if (!contains(m_files, [topCMake](const std::unique_ptr<FileNode> &fn) {
                       return fn->filePath() == topCMake;
                   }))
-        m_files.emplace_back(std::make_unique<FileNode>(topCMake, FileType::Project, false));
+        m_files.emplace_back(std::make_unique<FileNode>(topCMake, FileType::Project));
 
     m_buildTargets = cbpparser.buildTargets();
 }

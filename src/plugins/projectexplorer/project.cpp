@@ -733,7 +733,7 @@ bool Project::isKnownFile(const Utils::FileName &filename) const
 {
     if (d->m_sortedNodeList.empty())
         return filename == projectFilePath();
-    const FileNode element(filename, FileType::Unknown, false);
+    const FileNode element(filename, FileType::Unknown);
     return std::binary_search(std::begin(d->m_sortedNodeList), std::end(d->m_sortedNodeList),
                               &element, nodeLessThan);
 }
@@ -1062,9 +1062,10 @@ std::unique_ptr<ProjectNode> createFileTree(Project *project)
 {
     std::unique_ptr<ProjectNode> root = std::make_unique<TestProjectNode>(project->projectDirectory());
     std::vector<std::unique_ptr<FileNode>> nodes;
-    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_PATH, FileType::Project, false));
-    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_CPP_FILE, FileType::Source, false));
-    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_GENERATED_FILE, FileType::Source, true));
+    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_PATH, FileType::Project));
+    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_CPP_FILE, FileType::Source));
+    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_GENERATED_FILE, FileType::Source));
+    nodes.back()->setIsGenerated(true);
     root->addNestedNodes(std::move(nodes));
 
     return root;

@@ -126,7 +126,7 @@ void NimProject::collectProjectFiles()
                     || fileName.endsWith(".nimproject", HostOsInfo::fileNameCaseSensitivity())
                     || fileName.contains(".nimproject.user", HostOsInfo::fileNameCaseSensitivity()))
                 return nullptr;
-            return new FileNode(fn, FileType::Source, false);
+            return new FileNode(fn, FileType::Source);
         });
     });
     m_futureWatcher.setFuture(future);

@@ -137,7 +137,7 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
     node->setIcon(qmakeStaticData()->projectIcon);
 
     // .pro/.pri-file itself:
-    node->addNode(std::make_unique<FileNode>(pri->filePath(), FileType::Project, false));
+    node->addNode(std::make_unique<FileNode>(pri->filePath(), FileType::Project));
 
     // other normal files:
     const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
@@ -175,7 +175,7 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
                     // qt quick compiler moves qrc files into it:-/ Get better data based on
                     // the filename.
                     type = FileNode::fileTypeForFileName(fn);
-                    vfolder->addNestedNode(std::make_unique<FileNode>(fn, type, false));
+                    vfolder->addNestedNode(std::make_unique<FileNode>(fn, type));
                 }
                 for (FolderNode *fn : vfolder->folderNodes())
                     fn->compress();

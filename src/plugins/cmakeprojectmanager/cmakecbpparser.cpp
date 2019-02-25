@@ -429,7 +429,7 @@ void CMakeCbpParser::parseUnit()
                 // Now check whether we found a virtual element beneath
                 if (m_parsingCMakeUnit) {
                     m_cmakeFileList.emplace_back(
-                                std::make_unique<FileNode>(fileName, FileType::Project, false));
+                                std::make_unique<FileNode>(fileName, FileType::Project));
                 } else {
                     bool generated = false;
                     QString onlyFileName = fileName.fileName();
@@ -440,13 +440,12 @@ void CMakeCbpParser::parseUnit()
 
                     if (fileName.endsWith(".qrc")) {
                         m_fileList.emplace_back(
-                                    std::make_unique<FileNode>(fileName, FileType::Resource,
-                                                               generated));
+                                    std::make_unique<FileNode>(fileName, FileType::Resource));
                     } else {
                         m_fileList.emplace_back(
-                                    std::make_unique<FileNode>(fileName, FileType::Source,
-                                                               generated));
+                                    std::make_unique<FileNode>(fileName, FileType::Source));
                     }
+                    m_fileList.back()->setIsGenerated(generated);
                 }
                 m_unitTargetMap.insert(fileName, m_unitTargets);
                 m_processedUnits.insert(fileName);

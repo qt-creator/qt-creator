@@ -166,7 +166,7 @@ void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FileName& direc
         if (factory)
             type = factory(mimeType, fn);
 
-        return new FileNode(fn, type, false);
+        return new FileNode(fn, type);
     }, fip.get());
 
     Utils::sort(nodes, ProjectExplorer::Node::sortByPath);

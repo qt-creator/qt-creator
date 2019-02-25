@@ -236,10 +236,9 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
 
 QbsFileNode::QbsFileNode(const Utils::FileName &filePath,
                          const ProjectExplorer::FileType fileType,
-                         bool generated,
                          int line) :
-    ProjectExplorer::FileNode(filePath, fileType, generated, line)
-{ }
+    ProjectExplorer::FileNode(filePath, fileType, line, QByteArray{})
+{}
 
 QString QbsFileNode::displayName() const
 {

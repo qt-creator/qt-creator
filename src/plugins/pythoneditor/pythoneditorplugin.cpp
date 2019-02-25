@@ -471,7 +471,7 @@ class PythonFileNode : public FileNode
 public:
     PythonFileNode(const Utils::FileName &filePath, const QString &nodeDisplayName,
                    FileType fileType = FileType::Source)
-        : FileNode(filePath, fileType, false)
+        : FileNode(filePath, fileType)
         , m_displayName(nodeDisplayName)
     {}
 

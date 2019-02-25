@@ -73,7 +73,8 @@ void setupArtifacts(ProjectExplorer::FolderNode *root, const QList<qbs::Artifact
             QLatin1String("linkerscript"),
             QLatin1String("qrc"), QLatin1String("java.java")
         };
-        auto node = std::make_unique<ProjectExplorer::FileNode>(path, type, isGenerated);
+        auto node = std::make_unique<ProjectExplorer::FileNode>(path, type);
+        node->setIsGenerated(isGenerated);
         node->setListInProject(!isGenerated || ad.fileTags().toSet().intersects(sourceTags));
         root->addNestedNode(std::move(node));
     }
@@ -93,7 +94,7 @@ buildGroupNodeTree(const qbs::GroupData &grp, const QString &productPath, bool p
     result->setDisplayName(grp.name());
     result->addNode(std::make_unique<QbsProjectManager::Internal::QbsFileNode>(
                         Utils::FileName::fromString(grp.location().filePath()),
-                        ProjectExplorer::FileType::Project, false,
+                        ProjectExplorer::FileType::Project,
                         grp.location().line()));
 
     ::setupArtifacts(result.get(), grp.allSourceArtifacts());
@@ -114,7 +115,7 @@ void setupQbsProductData(QbsProjectManager::Internal::QbsProductNode *node,
 
     // Add QbsFileNode:
     node->addNode(std::make_unique<QbsFileNode>(Utils::FileName::fromString(prd.location().filePath()),
-                                                ProjectExplorer::FileType::Project, false,
+                                                ProjectExplorer::FileType::Project,
                                                 prd.location().line()));
 
 
@@ -150,7 +151,7 @@ void setupProjectNode(QbsProjectManager::Internal::QbsProjectNode *node, const q
 {
     using namespace QbsProjectManager::Internal;
     node->addNode(std::make_unique<QbsFileNode>(Utils::FileName::fromString(prjData.location().filePath()),
-                                                ProjectExplorer::FileType::Project, false,
+                                                ProjectExplorer::FileType::Project,
                                                 prjData.location().line()));
     foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
         auto subProject =
@@ -222,7 +223,7 @@ std::unique_ptr<QbsRootProjectNode> QbsNodeTreeBuilder::buildTree(QbsProject *pr
     for (const QString &f : files) {
         const Utils::FileName filePath = Utils::FileName::fromString(f);
         if (filePath.isChildOf(base))
-            buildSystemFiles->addNestedNode(std::make_unique<ProjectExplorer::FileNode>(filePath, ProjectExplorer::FileType::Project, false));
+            buildSystemFiles->addNestedNode(std::make_unique<ProjectExplorer::FileNode>(filePath, ProjectExplorer::FileType::Project));
     }
     buildSystemFiles->compress();
     root->addNode(std::move(buildSystemFiles));

@@ -396,25 +396,19 @@ void GenericProject::refresh(RefreshOptions options)
             FileType fileType = FileType::Source; // ### FIXME
             if (f.endsWith(".qrc"))
                 fileType = FileType::Resource;
-            newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(f), fileType,
-                                                              false));
+            newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(f), fileType));
         }
 
         newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_filesFileName),
-                                                          FileType::Project,
-                                                          /* generated = */ false));
+                                                          FileType::Project));
         newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_includesFileName),
-                                                          FileType::Project,
-                                                          /* generated = */ false));
+                                                          FileType::Project));
         newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_configFileName),
-                                                          FileType::Project,
-                                                          /* generated = */ false));
+                                                          FileType::Project));
         newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_cxxflagsFileName),
-                                                          FileType::Project,
-                                                          /* generated = */ false));
+                                                          FileType::Project));
         newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_cflagsFileName),
-                                                          FileType::Project,
-                                                          /* generated = */ false));
+                                                          FileType::Project));
 
         setRootProjectNode(std::move(newRoot));
     }
