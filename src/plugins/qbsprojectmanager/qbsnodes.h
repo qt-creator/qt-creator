@@ -48,16 +48,6 @@ public:
     QString displayName() const override;
 };
 
-class QbsFolderNode : public ProjectExplorer::FolderNode
-{
-public:
-    QbsFolderNode(const Utils::FileName &folderPath, ProjectExplorer::NodeType nodeType,
-                  const QString &displayName);
-
-private:
-    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const final;
-};
-
 // ---------------------------------------------------------------------------
 // QbsBaseProjectNode:
 // ---------------------------------------------------------------------------

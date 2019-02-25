@@ -248,18 +248,6 @@ QString QbsFileNode::displayName() const
     return ProjectExplorer::FileNode::displayName() + QLatin1Char(':') + QString::number(l);
 }
 
-
-QbsFolderNode::QbsFolderNode(const Utils::FileName &folderPath, ProjectExplorer::NodeType nodeType,
-                             const QString &displayName)
-    : ProjectExplorer::FolderNode(folderPath, nodeType, displayName)
-{
-}
-
-bool QbsFolderNode::supportsAction(ProjectAction action, const Node *node) const
-{
-    return supportsNodeAction(action, node);
-}
-
 // ---------------------------------------------------------------------------
 // QbsBaseProjectNode:
 // ---------------------------------------------------------------------------
