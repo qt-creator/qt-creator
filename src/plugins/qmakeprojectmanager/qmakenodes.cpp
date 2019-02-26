@@ -112,7 +112,7 @@ bool QmakePriFileNode::supportsAction(ProjectAction action, const Node *node) co
             return !(pro && pro->knowsFile(node->filePath()));
 
         bool addExistingFiles = true;
-        if (node->nodeType() == NodeType::VirtualFolder) {
+        if (node->isVirtualFolderType()) {
             // A virtual folder, we do what the projectexplorer does
             const FolderNode *folder = node->asFolderNode();
             if (folder) {
@@ -171,7 +171,7 @@ bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAd
     if (!pri)
         return false;
     QList<Node *> matchingNodes = findNodes([filePaths](const Node *n) {
-        return n->nodeType() == NodeType::File && filePaths.contains(n->filePath().toString());
+        return n->isFileNodeType() && filePaths.contains(n->filePath().toString());
     });
     matchingNodes = filtered(matchingNodes, [](const Node *n) {
         for (const Node *parent = n->parentFolderNode(); parent;

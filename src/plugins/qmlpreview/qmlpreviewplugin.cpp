@@ -298,7 +298,7 @@ void QmlPreviewPlugin::setFileLoader(QmlPreviewFileLoader fileLoader)
 void QmlPreviewPlugin::previewCurrentFile()
 {
     const Node *currentNode = ProjectTree::findCurrentNode();
-    if (!currentNode || currentNode->nodeType() != NodeType::File
+    if (!currentNode || !currentNode->isFileNodeType()
             || currentNode->asFileNode()->fileType() != FileType::QML)
         return;
 

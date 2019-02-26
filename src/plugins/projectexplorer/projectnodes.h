@@ -112,6 +112,11 @@ public:
 
     virtual ~Node();
 
+    virtual bool isFileNodeType() const { return false; }
+    virtual bool isFolderNodeType() const { return false; }
+    virtual bool isProjectNodeType() const { return false; }
+    virtual bool isVirtualFolderType() const { return false; }
+
     NodeType nodeType() const;
     int priority() const;
 
@@ -165,7 +170,6 @@ protected:
     Node(const Node &other) = delete;
     bool operator=(const Node &other) = delete;
 
-    void setNodeType(NodeType nodeType);
     void setFilePath(const Utils::FileName &filePath);
 
 private:
@@ -173,7 +177,6 @@ private:
     Utils::FileName m_filePath;
     int m_line = -1;
     int m_priority = DefaultPriority;
-    NodeType m_nodeType = NodeType::File;
 
     enum NodeFlag : quint16 {
         FlagNone = 0,
@@ -196,6 +199,8 @@ public:
     FileNode *asFileNode() final { return this; }
     const FileNode *asFileNode() const final { return this; }
 
+    bool isFileNodeType() const final { return true; }
+
     static QList<FileNode *>
     scanForFiles(const Utils::FileName &directory,
                  const std::function<FileNode *(const Utils::FileName &fileName)> factory,
@@ -215,6 +220,8 @@ public:
 
     QString displayName() const override;
     QIcon icon() const;
+
+    bool isFolderNodeType() const override { return true; }
 
     Node *findNode(const std::function<bool(Node *)> &filter);
     QList<Node *> findNodes(const std::function<bool(Node *)> &filter);
@@ -313,6 +320,9 @@ class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 public:
     explicit VirtualFolderNode(const Utils::FileName &folderPath);
 
+    bool isFolderNodeType() const override { return false; }
+    bool isVirtualFolderType() const override { return true; }
+
     void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
     QString addFileFilter() const override;
 
@@ -333,6 +343,9 @@ public:
     virtual Utils::optional<Utils::FileName> visibleAfterAddFileAction() const {
         return Utils::nullopt;
     }
+
+    bool isFolderNodeType() const override { return false; }
+    bool isProjectNodeType() const override { return true; }
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
@@ -367,6 +380,9 @@ public:
 
     QString displayName() const final;
     bool supportsAction(ProjectAction action, const Node *node) const final;
+
+    bool isFolderNodeType() const override { return false; }
+    bool isProjectNodeType() const override { return true; }
 
     ContainerNode *asContainerNode() final { return this; }
     const ContainerNode *asContainerNode() const final { return this; }

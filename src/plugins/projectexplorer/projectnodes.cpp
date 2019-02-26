@@ -165,7 +165,16 @@ Node::~Node() = default;
 
 NodeType Node::nodeType() const
 {
-    return m_nodeType;
+    if (isFileNodeType())
+        return NodeType::File;
+    if (isFolderNodeType())
+        return NodeType::Folder;
+    if (isProjectNodeType())
+        return NodeType::Project;
+    if (isVirtualFolderType())
+        return NodeType::VirtualFolder;
+    QTC_CHECK(false);
+    return NodeType::File;
 }
 
 int Node::priority() const
@@ -308,11 +317,6 @@ FileType Node::fileTypeForFileName(const Utils::FileName &file)
                                                       Utils::MimeMatchMode::MatchExtension));
 }
 
-void Node::setNodeType(NodeType nodeType)
-{
-    m_nodeType = nodeType;
-}
-
 /*!
   \class ProjectExplorer::FileNode
 
@@ -434,7 +438,6 @@ QString FileNode::displayName() const
 */
 FolderNode::FolderNode(const Utils::FileName &folderPath)
 {
-    setNodeType(NodeType::Folder);
     setFilePath(folderPath);
     setPriority(DefaultFolderPriority);
     setListInProject(false);
@@ -793,7 +796,6 @@ bool FolderNode::showWhenEmpty() const
 VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath) :
     FolderNode(folderPath)
 {
-    setNodeType(NodeType::VirtualFolder);
 }
 
 QString VirtualFolderNode::addFileFilter() const
@@ -819,7 +821,6 @@ QString VirtualFolderNode::addFileFilter() const
 ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
     FolderNode(projectFilePath)
 {
-    setNodeType(NodeType::Project);
     setPriority(DefaultProjectPriority);
     setListInProject(true);
     setDisplayName(projectFilePath.fileName());
@@ -930,7 +931,6 @@ void FolderNode::handleSubTreeChanged(FolderNode *node)
 ContainerNode::ContainerNode(Project *project)
     : FolderNode(project->projectDirectory()), m_project(project)
 {
-    setNodeType(NodeType::Project);
 }
 
 QString ContainerNode::displayName() const

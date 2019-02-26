@@ -201,7 +201,8 @@ static QVector<FolderNode *> renamableFolderNodes(const Utils::FileName &before,
 {
     QVector<FolderNode *> folderNodes;
     ProjectTree::forEachNode([&](Node *node) {
-        if (node->nodeType() == NodeType::File && node->filePath() == before
+        if (node->isFileNodeType()
+                && node->filePath() == before
                 && node->parentFolderNode()
                 && node->parentFolderNode()->canRenameFile(before.toString(), after.toString())) {
             folderNodes.append(node->parentFolderNode());
@@ -531,7 +532,8 @@ static QVector<FolderNode *> removableFolderNodes(const Utils::FileName &filePat
 {
     QVector<FolderNode *> folderNodes;
     ProjectTree::forEachNode([&](Node *node) {
-        if (node->nodeType() == NodeType::File && node->filePath() == filePath
+        if (node->isFileNodeType()
+                && node->filePath() == filePath
                 && node->parentFolderNode()
                 && node->parentFolderNode()->supportsAction(RemoveFile, node)) {
             folderNodes.append(node->parentFolderNode());

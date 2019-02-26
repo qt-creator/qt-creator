@@ -623,18 +623,16 @@ QString PythonProjectNode::addFileFilter() const
 
 bool PythonProjectNode::supportsAction(ProjectAction action, const Node *node) const
 {
-    switch (node->nodeType()) {
-    case NodeType::File:
+    if (node->isFileNodeType())  {
         return action == ProjectAction::Rename
             || action == ProjectAction::RemoveFile;
-    case NodeType::Folder:
-    case NodeType::Project:
+    }
+    if (node->isFolderNodeType() || node->isProjectNodeType()) {
         return action == ProjectAction::AddNewFile
             || action == ProjectAction::RemoveFile
             || action == ProjectAction::AddExistingFile;
-    default:
-        return ProjectNode::supportsAction(action, node);
     }
+    return ProjectNode::supportsAction(action, node);
 }
 
 bool PythonProjectNode::addFiles(const QStringList &filePaths, QStringList *)

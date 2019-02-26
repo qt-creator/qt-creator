@@ -171,7 +171,7 @@ BestNodeSelector::BestNodeSelector(const QString &commonDirectory, const QString
 void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
 {
     FolderNode *node = tree->node();
-    if (node->nodeType() == NodeType::Project) {
+    if (node->isProjectNodeType()) {
         if (static_cast<ProjectNode *>(node)->deploysFolder(m_commonDirectory)) {
             m_deploys = true;
             m_deployText += tree->displayName() + QLatin1Char('\n');

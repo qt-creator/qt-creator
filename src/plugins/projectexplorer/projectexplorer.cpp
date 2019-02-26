@@ -1460,7 +1460,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(dd->m_filePropertiesAction, &QAction::triggered, this, []() {
                 const Node *currentNode = ProjectTree::findCurrentNode();
-                QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
+                QTC_ASSERT(currentNode && currentNode->isFileNodeType(), return);
                 DocumentManager::showFilePropertiesDialog(currentNode->filePath());
             });
     connect(dd->m_removeFileAction, &QAction::triggered,
@@ -2324,7 +2324,7 @@ static QString pathOrDirectoryFor(const Node *node, bool dir)
     Utils::FileName path = node->filePath();
     QString location;
     const FolderNode *folder = node->asFolderNode();
-    if (node->nodeType() == NodeType::VirtualFolder && folder) {
+    if (node->isVirtualFolderType() && folder) {
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
         if (!folder->fileNodes().isEmpty() || folder->folderNodes().isEmpty()) {
@@ -3207,12 +3207,12 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             // Also handles ProjectNode
             m_addNewFileAction->setEnabled(supports(AddNewFile)
                                               && !ICore::isNewItemDialogRunning());
-            m_addNewSubprojectAction->setEnabled(currentNode->nodeType() == NodeType::Project
+            m_addNewSubprojectAction->setEnabled(currentNode->isProjectNodeType()
                                                     && supports(AddSubProject)
                                                     && !ICore::isNewItemDialogRunning());
-            m_addExistingProjectsAction->setEnabled(currentNode->nodeType() == NodeType::Project
+            m_addExistingProjectsAction->setEnabled(currentNode->isProjectNodeType()
                                                     && supports(AddExistingProject));
-            m_removeProjectAction->setEnabled(currentNode->nodeType() == NodeType::Project
+            m_removeProjectAction->setEnabled(currentNode->isProjectNodeType()
                                                     && supports(RemoveSubProject));
             m_addExistingFilesAction->setEnabled(supports(AddExistingFile));
             m_addExistingDirectoryAction->setEnabled(supports(AddExistingDirectory));
@@ -3338,7 +3338,7 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
     QTC_ASSERT(currentNode, return);
     QString location = directoryFor(currentNode);
 
-    if (currentNode->nodeType() == NodeType::Project
+    if (currentNode->isProjectNodeType()
             && currentNode->supportsAction(AddSubProject, currentNode)) {
         QVariantMap map;
         map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(currentNode));
@@ -3507,7 +3507,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
 void ProjectExplorerPluginPrivate::removeFile()
 {
     const Node *currentNode = ProjectTree::findCurrentNode();
-    QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
+    QTC_ASSERT(currentNode && currentNode->isFileNodeType(), return);
 
     const Utils::FileName filePath = currentNode->filePath();
     Utils::RemoveFileDialog removeFileDialog(filePath.toString(), ICore::mainWindow());
@@ -3518,7 +3518,7 @@ void ProjectExplorerPluginPrivate::removeFile()
         // Re-read the current node, in case the project is re-parsed while the dialog is open
         if (currentNode != ProjectTree::findCurrentNode()) {
             currentNode = ProjectTreeWidget::nodeForFile(filePath);
-            QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
+            QTC_ASSERT(currentNode && currentNode->isFileNodeType(), return);
         }
 
         // remove from project
@@ -3542,7 +3542,7 @@ void ProjectExplorerPluginPrivate::removeFile()
 void ProjectExplorerPluginPrivate::duplicateFile()
 {
     Node *currentNode = ProjectTree::findCurrentNode();
-    QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
+    QTC_ASSERT(currentNode && currentNode->isFileNodeType(), return);
 
     FileNode *fileNode = currentNode->asFileNode();
     QString filePath = currentNode->filePath().toString();
@@ -3573,7 +3573,7 @@ void ProjectExplorerPluginPrivate::duplicateFile()
 void ProjectExplorerPluginPrivate::deleteFile()
 {
     Node *currentNode = ProjectTree::findCurrentNode();
-    QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
+    QTC_ASSERT(currentNode && currentNode->isFileNodeType(), return);
 
     FileNode *fileNode = currentNode->asFileNode();
 

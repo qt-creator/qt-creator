@@ -333,26 +333,16 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
 
     if (!node) {
         contextMenu = Core::ActionManager::actionContainer(Constants::M_SESSIONCONTEXT)->menu();
-    } else {
-        switch (node->nodeType()) {
-        case NodeType::Project: {
-            if ((node->parentFolderNode() && node->parentFolderNode()->asContainerNode())
-                    || node->asContainerNode())
-                contextMenu = Core::ActionManager::actionContainer(Constants::M_PROJECTCONTEXT)->menu();
-            else
-                contextMenu = Core::ActionManager::actionContainer(Constants::M_SUBPROJECTCONTEXT)->menu();
-            break;
-        }
-        case NodeType::VirtualFolder:
-        case NodeType::Folder:
-            contextMenu = Core::ActionManager::actionContainer(Constants::M_FOLDERCONTEXT)->menu();
-            break;
-        case NodeType::File:
-            contextMenu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT)->menu();
-            break;
-        default:
-            qWarning("ProjectExplorerPlugin::showContextMenu - Missing handler for node type");
-        }
+    } else  if (node->isProjectNodeType()) {
+        if ((node->parentFolderNode() && node->parentFolderNode()->asContainerNode())
+                || node->asContainerNode())
+            contextMenu = Core::ActionManager::actionContainer(Constants::M_PROJECTCONTEXT)->menu();
+        else
+            contextMenu = Core::ActionManager::actionContainer(Constants::M_SUBPROJECTCONTEXT)->menu();
+    } else if (node->isVirtualFolderType() || node->isFolderNodeType()) {
+        contextMenu = Core::ActionManager::actionContainer(Constants::M_FOLDERCONTEXT)->menu();
+    } else if (node->isFileNodeType()) {
+        contextMenu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT)->menu();
     }
 
     if (contextMenu && contextMenu->actions().count() > 0) {
@@ -435,7 +425,7 @@ Node *ProjectTree::nodeForFile(const FileName &fileName)
             projectNode->forEachGenericNode([&](Node *n) {
                 if (n->filePath() == fileName) {
                     // prefer file nodes
-                    if (!node || (node->nodeType() != NodeType::File && n->nodeType() == NodeType::File))
+                    if (!node || (!node->isFileNodeType() && n->isFileNodeType()))
                         node = n;
                 }
             });

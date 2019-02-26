@@ -66,21 +66,9 @@ void PxNodeUtilities::setDiagramSceneController(qmt::DiagramSceneController *dia
 QString PxNodeUtilities::calcRelativePath(const ProjectExplorer::Node *node,
                                           const QString &anchorFolder)
 {
-    QString nodePath;
-
-    switch (node->nodeType()) {
-    case ProjectExplorer::NodeType::File:
-    {
-        QFileInfo fileInfo = node->filePath().toFileInfo();
-        nodePath = fileInfo.path();
-        break;
-    }
-    case ProjectExplorer::NodeType::Folder:
-    case ProjectExplorer::NodeType::VirtualFolder:
-    case ProjectExplorer::NodeType::Project:
-        nodePath = node->filePath().toString();
-        break;
-    }
+    const QString nodePath = node->isFileNodeType()
+            ? node->filePath().toFileInfo().path()
+            : node->filePath().toString();
 
     return qmt::NameController::calcRelativePath(nodePath, anchorFolder);
 }
