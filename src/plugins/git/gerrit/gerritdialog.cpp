@@ -213,7 +213,7 @@ void GerritDialog::refresh()
     const QString &query = m_ui->queryLineEdit->text().trimmed();
     updateCompletions(query);
     m_model->refresh(m_server, query);
-    m_ui->treeView->sortByColumn(-1);
+    m_ui->treeView->sortByColumn(-1, Qt::DescendingOrder);
 }
 
 void GerritDialog::scheduleUpdateRemotes()

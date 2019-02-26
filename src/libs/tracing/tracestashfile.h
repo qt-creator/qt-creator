@@ -153,7 +153,7 @@ public:
     void clear()
     {
         file.remove();
-        stream.unsetDevice();
+        stream.setDevice(nullptr);
     }
 
     bool flush()

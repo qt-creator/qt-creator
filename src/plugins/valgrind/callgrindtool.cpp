@@ -323,7 +323,7 @@ CallgrindTool::CallgrindTool()
     m_callersView->setObjectName("Valgrind.CallgrindTool.CallersView");
     m_callersView->setWindowTitle(tr("Callers"));
     m_callersView->setSettings(coreSettings, "Valgrind.CallgrindTool.CallersView");
-    m_callersView->sortByColumn(CallModel::CostColumn);
+    m_callersView->sortByColumn(CallModel::CostColumn, Qt::DescendingOrder);
     m_callersView->setFrameStyle(QFrame::NoFrame);
     // enable sorting
     m_callersProxy.setSourceModel(&m_callersModel);
@@ -336,7 +336,7 @@ CallgrindTool::CallgrindTool()
     m_calleesView->setObjectName("Valgrind.CallgrindTool.CalleesView");
     m_calleesView->setWindowTitle(tr("Callees"));
     m_calleesView->setSettings(coreSettings, "Valgrind.CallgrindTool.CalleesView");
-    m_calleesView->sortByColumn(CallModel::CostColumn);
+    m_calleesView->sortByColumn(CallModel::CostColumn, Qt::DescendingOrder);
     m_calleesView->setFrameStyle(QFrame::NoFrame);
     // enable sorting
     m_calleesProxy.setSourceModel(&m_calleesModel);
@@ -349,7 +349,7 @@ CallgrindTool::CallgrindTool()
     m_flatView->setObjectName("Valgrind.CallgrindTool.FlatView");
     m_flatView->setWindowTitle(tr("Functions"));
     m_flatView->setSettings(coreSettings, "Valgrind.CallgrindTool.FlatView");
-    m_flatView->sortByColumn(DataModel::SelfCostColumn);
+    m_flatView->sortByColumn(DataModel::SelfCostColumn, Qt::DescendingOrder);
     m_flatView->setFrameStyle(QFrame::NoFrame);
     m_flatView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_flatView->setModel(&m_proxyModel);

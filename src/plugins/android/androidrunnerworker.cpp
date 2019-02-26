@@ -676,7 +676,7 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
         QTC_ASSERT(m_psIsAlive, return);
         m_psIsAlive->setObjectName("IsAliveProcess");
         m_psIsAlive->setProcessChannelMode(QProcess::MergedChannels);
-        connect(m_psIsAlive.get(), static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+        connect(m_psIsAlive.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this, bind(&AndroidRunnerWorker::onProcessIdChanged, this, -1));
     }
 }
