@@ -230,19 +230,6 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
     return false;
 }
 
-// ----------------------------------------------------------------------
-// QbsFileNode:
-// ----------------------------------------------------------------------
-
-QbsFileNode::QbsFileNode(const Utils::FileName &filePath,
-                         const ProjectExplorer::FileType fileType,
-                         int line) :
-    ProjectExplorer::FileNode(filePath, fileType)
-{
-    setLine(line);
-}
-
-
 // ---------------------------------------------------------------------------
 // QbsBaseProjectNode:
 // ---------------------------------------------------------------------------

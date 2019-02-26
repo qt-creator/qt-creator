@@ -35,17 +35,6 @@ namespace Internal {
 class QbsNodeTreeBuilder;
 class QbsProject;
 
-// ----------------------------------------------------------------------
-// QbsFileNode:
-// ----------------------------------------------------------------------
-
-class QbsFileNode : public ProjectExplorer::FileNode
-{
-public:
-    QbsFileNode(const Utils::FileName &filePath, const ProjectExplorer::FileType fileType,
-                int line);
-};
-
 // ---------------------------------------------------------------------------
 // QbsBaseProjectNode:
 // ---------------------------------------------------------------------------

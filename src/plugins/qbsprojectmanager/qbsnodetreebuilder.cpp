@@ -93,16 +93,17 @@ buildGroupNodeTree(const qbs::GroupData &grp, const QString &productPath, bool p
 {
     QTC_ASSERT(grp.isValid(), return nullptr);
 
+    auto fileNode = std::make_unique<FileNode>(FileName::fromString(grp.location().filePath()),
+                                               FileType::Project);
+    fileNode->setLine(grp.location().line());
+
     auto result = std::make_unique<QbsGroupNode>(grp, productPath);
 
     result->setEnabled(productIsEnabled && grp.isEnabled());
     result->setAbsoluteFilePathAndLine(
                 FileName::fromString(grp.location().filePath()).parentDir(), -1);
     result->setDisplayName(grp.name());
-    result->addNode(std::make_unique<QbsFileNode>(
-                        FileName::fromString(grp.location().filePath()),
-                        FileType::Project,
-                        grp.location().line()));
+    result->addNode(std::move(fileNode));
 
     setupArtifacts(result.get(), grp.allSourceArtifacts());
 
@@ -111,18 +112,16 @@ buildGroupNodeTree(const qbs::GroupData &grp, const QString &productPath, bool p
 
 void setupQbsProductData(QbsProductNode *node, const qbs::ProductData &prd)
 {
-    node->setEnabled(prd.isEnabled());
+    auto fileNode = std::make_unique<FileNode>(FileName::fromString(prd.location().filePath()),
+                                               FileType::Project);
+    fileNode->setLine(prd.location().line());
 
+    node->setEnabled(prd.isEnabled());
     node->setDisplayName(prd.fullDisplayName());
     node->setAbsoluteFilePathAndLine(FileName::fromString(prd.location().filePath()).parentDir(), -1);
+    node->addNode(std::move(fileNode));
+
     const QString &productPath = QFileInfo(prd.location().filePath()).absolutePath();
-
-    // Add QbsFileNode:
-    node->addNode(std::make_unique<QbsFileNode>(FileName::fromString(prd.location().filePath()),
-                                                FileType::Project,
-                                                prd.location().line()));
-
-
     foreach (const qbs::GroupData &grp, prd.groups()) {
         if (grp.name() == prd.name() && grp.location() == prd.location()) {
             // Set implicit product group right onto this node:
@@ -151,9 +150,11 @@ std::unique_ptr<QbsProductNode> buildProductNodeTree(const qbs::ProductData &prd
 void setupProjectNode(QbsProjectNode *node, const qbs::ProjectData &prjData,
                       const qbs::Project &qbsProject)
 {
-    node->addNode(std::make_unique<QbsFileNode>(FileName::fromString(prjData.location().filePath()),
-                                                FileType::Project,
-                                                prjData.location().line()));
+    auto fileNode = std::make_unique<FileNode>(FileName::fromString(prjData.location().filePath()),
+                                               FileType::Project);
+    fileNode->setLine(prjData.location().line());
+
+    node->addNode(std::move(fileNode));
     foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
         auto subProject = std::make_unique<QbsProjectNode>(
                             FileName::fromString(subData.location().filePath()).parentDir());
