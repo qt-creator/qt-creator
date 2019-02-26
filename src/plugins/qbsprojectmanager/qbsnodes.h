@@ -44,8 +44,6 @@ class QbsFileNode : public ProjectExplorer::FileNode
 public:
     QbsFileNode(const Utils::FileName &filePath, const ProjectExplorer::FileType fileType,
                 int line);
-
-    QString displayName() const override;
 };
 
 // ---------------------------------------------------------------------------

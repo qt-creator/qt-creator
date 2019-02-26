@@ -242,13 +242,6 @@ QbsFileNode::QbsFileNode(const Utils::FileName &filePath,
     setLine(line);
 }
 
-QString QbsFileNode::displayName() const
-{
-    int l = line();
-    if (l < 0)
-        return ProjectExplorer::FileNode::displayName();
-    return ProjectExplorer::FileNode::displayName() + QLatin1Char(':') + QString::number(l);
-}
 
 // ---------------------------------------------------------------------------
 // QbsBaseProjectNode:

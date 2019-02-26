@@ -200,6 +200,7 @@ public:
                  const std::function<FileNode *(const Utils::FileName &fileName)> factory,
                  QFutureInterface<QList<FileNode *>> *future = nullptr);
     bool supportsAction(ProjectAction action, const Node *node) const override;
+    QString displayName() const override;
 
 private:
     FileType m_fileType;

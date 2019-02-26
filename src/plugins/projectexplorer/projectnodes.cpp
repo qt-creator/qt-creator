@@ -417,6 +417,14 @@ bool FileNode::supportsAction(ProjectAction action, const Node *node) const
     return parentFolder && parentFolder->supportsAction(action, node);
 }
 
+QString FileNode::displayName() const
+{
+    int l = line();
+    if (l < 0)
+        return Node::displayName();
+    return Node::displayName() + ':' + QString::number(l);
+}
+
 /*!
   \class ProjectExplorer::FolderNode
 
