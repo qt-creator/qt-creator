@@ -143,17 +143,17 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    const int second = 1000;
    const int waitConstant = 8 * second;
    if (m_qmlPuppetEditorProcess->waitForStarted(waitConstant)) {
-       connect(m_qmlPuppetEditorProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+       connect(m_qmlPuppetEditorProcess.data(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             m_qmlPuppetEditorProcess.data(), &QProcess::deleteLater);
     qCInfo(instanceViewBenchmark) << "puppets started:" << m_benchmarkTimer.elapsed();
 
        if (runModus == NormalModus) {
            m_qmlPuppetPreviewProcess->waitForStarted(waitConstant / 2);
-           connect(m_qmlPuppetPreviewProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+           connect(m_qmlPuppetPreviewProcess.data(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 m_qmlPuppetPreviewProcess.data(), &QProcess::deleteLater);
 
            m_qmlPuppetRenderProcess->waitForStarted(waitConstant / 2);
-           connect(m_qmlPuppetRenderProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+           connect(m_qmlPuppetRenderProcess.data(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 m_qmlPuppetRenderProcess.data(), &QProcess::deleteLater);
        }
 

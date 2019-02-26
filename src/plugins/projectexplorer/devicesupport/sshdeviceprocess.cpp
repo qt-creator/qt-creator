@@ -195,8 +195,7 @@ void SshDeviceProcess::handleConnected()
     if (runInTerminal()) {
         d->process->requestTerminal();
         const QStringList cmdLine = d->process->fullLocalCommandLine();
-        connect(&d->consoleProcess,
-                static_cast<void (ConsoleProcess::*)(QProcess::ProcessError)>(&ConsoleProcess::error),
+        connect(&d->consoleProcess, QOverload<QProcess::ProcessError>::of(&ConsoleProcess::error),
                 this, &DeviceProcess::error);
         connect(&d->consoleProcess, &ConsoleProcess::processStarted,
                 this, &SshDeviceProcess::handleProcessStarted);

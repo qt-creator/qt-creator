@@ -90,7 +90,7 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
     });
 
     connect(comboBox,
-            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
+            QOverload<const QString &>::of(&QComboBox::activated),
             this,
             [this](const QString &style) {
 

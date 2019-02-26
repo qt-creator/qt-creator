@@ -140,7 +140,7 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     , m_state(FetchState)
 {
     connect(&m_process, &QProcess::errorOccurred, this, &FetchContext::processError);
-    connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &FetchContext::processFinished);
     connect(&m_process, &QProcess::readyReadStandardError,
             this, &FetchContext::processReadyReadStandardError);

@@ -666,7 +666,7 @@ QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString
     p->start(adb, args);
     if (p->waitForStarted(500) && p->state() == QProcess::Running) {
         if (deleteOnFinish) {
-            connect(p.get(), static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            connect(p.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                     p.get(), &QObject::deleteLater);
         }
         return p.release();

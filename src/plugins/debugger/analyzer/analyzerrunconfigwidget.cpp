@@ -52,7 +52,7 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::GlobalOrProjec
             QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Custom")
             }));
     globalSettingLayout->addWidget(m_settingsCombo);
-    connect(m_settingsCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_settingsCombo, QOverload<int>::of(&QComboBox::activated),
             this, &AnalyzerRunConfigWidget::chooseSettings);
     m_restoreButton = new QPushButton(
                 QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Restore Global"),

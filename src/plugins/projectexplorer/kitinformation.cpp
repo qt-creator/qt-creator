@@ -249,7 +249,7 @@ public:
             layout->addWidget(cb, row, 1);
             ++row;
 
-            connect(cb, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged),
                     this, [this, l](int idx) { currentToolChainChanged(l, idx); });
         }
 
@@ -770,7 +770,7 @@ public:
             m_comboBox->addItem(factory->displayName(), factory->deviceType().toSetting());
         m_comboBox->setToolTip(ki->description());
         refresh();
-        connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &DeviceTypeKitAspectWidget::currentTypeChanged);
     }
 
@@ -895,7 +895,7 @@ public:
                 this, &DeviceKitAspectWidget::modelAboutToReset);
         connect(m_model, &QAbstractItemModel::modelReset,
                 this, &DeviceKitAspectWidget::modelReset);
-        connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &DeviceKitAspectWidget::currentDeviceChanged);
         connect(m_manageButton, &QAbstractButton::clicked,
                 this, &DeviceKitAspectWidget::manageDevices);

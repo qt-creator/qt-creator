@@ -459,7 +459,7 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     m_updateDocumentTimer.setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
     m_updateDocumentTimer.setSingleShot(true);
     connect(q->document(), &QTextDocument::contentsChanged,
-            &m_updateDocumentTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+            &m_updateDocumentTimer, QOverload<>::of(&QTimer::start));
     connect(&m_updateDocumentTimer, &QTimer::timeout,
             this, &QmlJSEditorDocumentPrivate::reparseDocument);
     connect(modelManager, &ModelManagerInterface::documentUpdated,
@@ -477,7 +477,7 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     connect(&m_reupdateSemanticInfoTimer, &QTimer::timeout,
             this, &QmlJSEditorDocumentPrivate::reupdateSemanticInfo);
     connect(modelManager, &ModelManagerInterface::libraryInfoUpdated,
-            &m_reupdateSemanticInfoTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+            &m_reupdateSemanticInfoTimer, QOverload<>::of(&QTimer::start));
 
     // outline model
     m_updateOutlineModelTimer.setInterval(UPDATE_OUTLINE_INTERVAL);

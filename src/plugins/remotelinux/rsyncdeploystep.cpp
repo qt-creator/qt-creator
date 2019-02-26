@@ -132,7 +132,7 @@ void RsyncDeployService::deployFiles()
             setFinished();
         }
     });
-    connect(&m_rsync, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, [this] {
+    connect(&m_rsync, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this] {
         if (m_rsync.exitStatus() == QProcess::CrashExit) {
             emit errorMessage(tr("rsync crashed."));
             setFinished();

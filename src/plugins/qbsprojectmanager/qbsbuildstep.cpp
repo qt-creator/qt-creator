@@ -553,11 +553,11 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     m_ui->qmlDebuggingWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
 
     connect(m_ui->buildVariantComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &QbsBuildStepConfigWidget::changeBuildVariant);
     connect(m_ui->keepGoingCheckBox, &QAbstractButton::toggled,
             this, &QbsBuildStepConfigWidget::changeKeepGoing);
-    connect(m_ui->jobSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(m_ui->jobSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &QbsBuildStepConfigWidget::changeJobCount);
     connect(m_ui->showCommandLinesCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeShowCommandLines);

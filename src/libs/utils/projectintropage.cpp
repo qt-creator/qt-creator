@@ -101,7 +101,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     connect(d->m_ui.nameLineEdit, &FancyLineEdit::validReturnPressed,
             this, &ProjectIntroPage::slotActivated);
     connect(d->m_ui.projectComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &ProjectIntroPage::slotChanged);
 
     setProperty(SHORT_TITLE_PROPERTY, tr("Location"));

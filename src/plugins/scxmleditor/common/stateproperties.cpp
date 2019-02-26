@@ -50,7 +50,7 @@ StateProperties::StateProperties(QWidget *parent)
 
     m_contentTimer.setInterval(500);
     m_contentTimer.setSingleShot(true);
-    connect(m_contentEdit, &QPlainTextEdit::textChanged, &m_contentTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+    connect(m_contentEdit, &QPlainTextEdit::textChanged, &m_contentTimer, QOverload<>::of(&QTimer::start));
     connect(&m_contentTimer, &QTimer::timeout, this, &StateProperties::timerTimeout);
 }
 

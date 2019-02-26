@@ -133,7 +133,7 @@ GdbEngine::GdbEngine()
 
     connect(&m_gdbProc, &QProcess::errorOccurred,
             this, &GdbEngine::handleGdbError);
-    connect(&m_gdbProc,  static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&m_gdbProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &GdbEngine::handleGdbFinished);
     connect(&m_gdbProc, &QtcProcess::readyReadStandardOutput,
             this, &GdbEngine::readGdbStandardOutput);

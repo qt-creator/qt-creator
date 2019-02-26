@@ -185,14 +185,10 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 
     proxyModel.setFilterRegExp(processFilterLineEdit->text());
 
-    connect(processFilterLineEdit,
-            static_cast<void (FancyLineEdit::*)(const QString &)>(&FancyLineEdit::textChanged),
-            &proxyModel,
-            static_cast<void (ProcessListFilterModel::*)(const QString &)>(
-                &ProcessListFilterModel::setFilterRegExp));
-    connect(procView->selectionModel(),
-        &QItemSelectionModel::selectionChanged,
-        this, &DeviceProcessesDialogPrivate::updateButtons);
+    connect(processFilterLineEdit, QOverload<const QString &>::of(&FancyLineEdit::textChanged),
+            &proxyModel, QOverload<const QString &>::of(&ProcessListFilterModel::setFilterRegExp));
+    connect(procView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &DeviceProcessesDialogPrivate::updateButtons);
     connect(updateListButton, &QAbstractButton::clicked,
             this, &DeviceProcessesDialogPrivate::updateProcessList);
     connect(kitChooser, &KitChooser::currentIndexChanged,

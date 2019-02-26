@@ -297,8 +297,7 @@ SynchronousProcess::SynchronousProcess() :
 {
     d->m_timer.setInterval(1000);
     connect(&d->m_timer, &QTimer::timeout, this, &SynchronousProcess::slotTimeout);
-    connect(&d->m_process,
-            static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&d->m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &SynchronousProcess::finished);
     connect(&d->m_process, &QProcess::errorOccurred, this, &SynchronousProcess::error);
     connect(&d->m_process, &QProcess::readyReadStandardOutput,

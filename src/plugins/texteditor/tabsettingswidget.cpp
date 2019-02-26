@@ -38,8 +38,8 @@ TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
     ui->setupUi(this);
     ui->codingStyleWarning->setVisible(false);
 
-    auto comboIndexChanged = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
-    auto spinValueChanged = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
+    auto comboIndexChanged = QOverload<int>::of(&QComboBox::currentIndexChanged);
+    auto spinValueChanged = QOverload<int>::of(&QSpinBox::valueChanged);
     connect(ui->codingStyleWarning, &QLabel::linkActivated,
             this, &TabSettingsWidget::codingStyleLinkActivated);
     connect(ui->tabPolicy, comboIndexChanged,

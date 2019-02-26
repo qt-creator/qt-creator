@@ -100,7 +100,7 @@ CanvasStyleDialog::CanvasStyleDialog(const CanvasStyle &style, QWidget *parent)
         emit styleChanged(out);
     };
 
-    auto doubleValueChanged = static_cast<void (QDoubleSpinBox::*)(double)>(
+    auto doubleValueChanged = QOverload<double>::of(
         &QDoubleSpinBox::valueChanged);
     auto colorValueChanged = &ColorControl::valueChanged;
 

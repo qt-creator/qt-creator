@@ -92,7 +92,7 @@ void HighlightScrollBarOverlay::scheduleUpdate()
         return;
 
     m_isCacheUpdateScheduled = true;
-    QTimer::singleShot(0, this, static_cast<void (QWidget::*)()>(&QWidget::update));
+    QTimer::singleShot(0, this, QOverload<>::of(&QWidget::update));
 }
 
 void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)

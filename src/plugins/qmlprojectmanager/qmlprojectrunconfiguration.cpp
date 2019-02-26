@@ -125,7 +125,7 @@ void MainQmlFileAspect::addToConfigurationLayout(QFormLayout *layout)
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
             this, &MainQmlFileAspect::updateFileComboBox);
-    connect(m_fileListCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_fileListCombo, QOverload<int>::of(&QComboBox::activated),
             this, &MainQmlFileAspect::setMainScript);
 
     layout->addRow(QmlProjectRunConfiguration::tr("Main QML file:"), m_fileListCombo);

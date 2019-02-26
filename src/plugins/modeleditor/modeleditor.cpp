@@ -321,7 +321,7 @@ void ModelEditor::init(QWidget *parent)
     toolbarLayout->addWidget(openParentButton);
 
     d->diagramSelector = new QComboBox(d->toolbar);
-    connect(d->diagramSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(d->diagramSelector, QOverload<int>::of(&QComboBox::activated),
             this, &ModelEditor::onDiagramSelectorSelected);
     toolbarLayout->addWidget(d->diagramSelector, 1);
     toolbarLayout->addStretch(1);

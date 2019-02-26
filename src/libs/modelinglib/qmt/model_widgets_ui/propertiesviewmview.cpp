@@ -352,7 +352,7 @@ void PropertiesView::MView::visitMElement(const MElement *element)
         m_stereotypeComboBox->addItems(m_propertiesView->stereotypeController()->knownStereotypes(m_stereotypeElement));
         connect(m_stereotypeComboBox->lineEdit(), &QLineEdit::textEdited,
                 this, &PropertiesView::MView::onStereotypesChanged);
-        connect(m_stereotypeComboBox, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
+        connect(m_stereotypeComboBox, QOverload<const QString &>::of(&QComboBox::activated),
                 this, &PropertiesView::MView::onStereotypesChanged);
     }
     if (!m_stereotypeComboBox->hasFocus()) {
@@ -580,7 +580,7 @@ void PropertiesView::MView::visitMDependency(const MDependency *dependency)
         m_directionSelector = new QComboBox(m_topWidget);
         m_directionSelector->addItems(QStringList({ "->", "<-", "<->" }));
         addRow(tr("Direction:"), m_directionSelector, "direction");
-        connect(m_directionSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(m_directionSelector, QOverload<int>::of(&QComboBox::activated),
                 this, &PropertiesView::MView::onDependencyDirectionChanged);
     }
     if (isSingleSelection) {
@@ -664,7 +664,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         m_endAKind = new QComboBox(m_topWidget);
         m_endAKind->addItems({ tr("Association"), tr("Aggregation"), tr("Composition") });
         addRow(tr("Relationship:"), m_endAKind, "relationship a");
-        connect(m_endAKind, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(m_endAKind, QOverload<int>::of(&QComboBox::activated),
                 this, &PropertiesView::MView::onAssociationEndAKindChanged);
     }
     if (isSingleSelection) {
@@ -729,7 +729,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         m_endBKind = new QComboBox(m_topWidget);
         m_endBKind->addItems({ tr("Association"), tr("Aggregation"), tr("Composition") });
         addRow(tr("Relationship:"), m_endBKind, "relationship b");
-        connect(m_endBKind, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(m_endBKind, QOverload<int>::of(&QComboBox::activated),
                 this, &PropertiesView::MView::onAssociationEndBKindChanged);
     }
     if (isSingleSelection) {
@@ -930,7 +930,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         m_visualSecondaryRoleSelector->addItems({ tr("Normal"), tr("Lighter"), tr("Darker"),
                                                   tr("Soften"), tr("Outline"), tr("Flat") });
         addRow(tr("Role:"), m_visualSecondaryRoleSelector, "role");
-        connect(m_visualSecondaryRoleSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(m_visualSecondaryRoleSelector, QOverload<int>::of(&QComboBox::activated),
                 this, &PropertiesView::MView::onVisualSecondaryRoleChanged);
     }
     if (!m_visualSecondaryRoleSelector->hasFocus()) {
@@ -958,7 +958,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         m_stereotypeDisplaySelector->addItems({ tr("Smart"), tr("None"), tr("Label"),
                                                 tr("Decoration"), tr("Icon") });
         addRow(tr("Stereotype display:"), m_stereotypeDisplaySelector, "stereotype display");
-        connect(m_stereotypeDisplaySelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(m_stereotypeDisplaySelector, QOverload<int>::of(&QComboBox::activated),
                 this, &PropertiesView::MView::onStereotypeDisplayChanged);
     }
     if (!m_stereotypeDisplaySelector->hasFocus()) {
@@ -995,7 +995,7 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
         m_templateDisplaySelector = new QComboBox(m_topWidget);
         m_templateDisplaySelector->addItems({ tr("Smart"), tr("Box"), tr("Angle Brackets") });
         addRow(tr("Template display:"), m_templateDisplaySelector, "template display");
-        connect(m_templateDisplaySelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(m_templateDisplaySelector, QOverload<int>::of(&QComboBox::activated),
                 this, &PropertiesView::MView::onTemplateDisplayChanged);
     }
     if (!m_templateDisplaySelector->hasFocus()) {
@@ -1126,7 +1126,7 @@ void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
                                                                tr("Subtitle"), tr("Emphasized"),
                                                                tr("Soften"), tr("Footnote") }));
         addRow(tr("Role:"), m_annotationVisualRoleSelector, "visual role");
-        connect(m_annotationVisualRoleSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(m_annotationVisualRoleSelector, QOverload<int>::of(&QComboBox::activated),
                 this, &PropertiesView::MView::onAnnotationVisualRoleChanged);
     }
     if (!m_annotationVisualRoleSelector->hasFocus()) {

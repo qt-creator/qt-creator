@@ -227,7 +227,7 @@ void Relayer::setClientSocket(QTcpSocket *clientSocket)
     m_clientSocket = clientSocket;
     if (m_clientSocket) {
         connect(m_clientSocket,
-                static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
+                QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),
                 this, &Relayer::handleClientHasError);
         connect(m_clientSocket, &QAbstractSocket::disconnected,
                 this, [this](){server()->removeRelayConnection(this);});

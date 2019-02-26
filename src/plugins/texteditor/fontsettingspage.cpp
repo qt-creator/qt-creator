@@ -365,15 +365,14 @@ QWidget *FontSettingsPage::widget()
         connect(d_ptr->m_ui->fontComboBox, &QFontComboBox::currentFontChanged,
                 this, &FontSettingsPage::fontSelected);
         connect(d_ptr->m_ui->sizeComboBox,
-                static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged),
+                QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
                 this, &FontSettingsPage::fontSizeSelected);
-        connect(d_ptr->m_ui->zoomSpinBox,
-                static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+        connect(d_ptr->m_ui->zoomSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
                 this, &FontSettingsPage::fontZoomChanged);
         connect(d_ptr->m_ui->antialias, &QCheckBox::toggled,
                 this, &FontSettingsPage::antialiasChanged);
         connect(d_ptr->m_ui->schemeComboBox,
-                static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &FontSettingsPage::colorSchemeSelected);
         connect(d_ptr->m_ui->copyButton, &QPushButton::clicked,
                 this, &FontSettingsPage::openCopyColorSchemeDialog);

@@ -100,7 +100,7 @@ LldbEngine::LldbEngine()
 
     connect(&m_lldbProc, &QProcess::errorOccurred,
             this, &LldbEngine::handleLldbError);
-    connect(&m_lldbProc, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&m_lldbProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &LldbEngine::handleLldbFinished);
     connect(&m_lldbProc, &QProcess::readyReadStandardOutput,
             this, &LldbEngine::readLldbStandardOutput);

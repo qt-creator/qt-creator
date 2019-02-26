@@ -124,9 +124,9 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
             &CppTools::CppToolsSettings::setSortedEditorDocumentOutline);
     m_combo->addAction(m_sortAction);
 
-    connect(m_combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_combo, QOverload<int>::of(&QComboBox::activated),
             this, &CppEditorOutline::gotoSymbolInEditor);
-    connect(m_combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &CppEditorOutline::updateToolTip);
 
     // Set up timers

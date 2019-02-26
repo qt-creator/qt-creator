@@ -284,9 +284,9 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) : WizardPage(parent),
 {
     m_ui->setupUi(this);
     m_ui->vcsManageButton->setText(ICore::msgShowOptionsDialog());
-    connect(m_ui->projectComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_ui->projectComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &ProjectWizardPage::projectChanged);
-    connect(m_ui->addToVersionControlComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_ui->addToVersionControlComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &ProjectWizardPage::versionControlChanged);
     connect(m_ui->vcsManageButton, &QAbstractButton::clicked, this, &ProjectWizardPage::manageVcs);
     setProperty(SHORT_TITLE_PROPERTY, tr("Summary"));
@@ -299,7 +299,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) : WizardPage(parent),
 
 ProjectWizardPage::~ProjectWizardPage()
 {
-    disconnect(m_ui->projectComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    disconnect(m_ui->projectComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                this, &ProjectWizardPage::projectChanged);
     delete m_ui;
 }

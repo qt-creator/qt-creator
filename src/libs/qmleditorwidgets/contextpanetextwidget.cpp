@@ -73,8 +73,7 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     connect(parentContextWidget->colorDialog(), &CustomColorDialog::rejected,
             this, &ContextPaneTextWidget::onColorDialogCancled);
 
-    connect(ui->fontSizeSpinBox,
-            static_cast<void (QmlEditorWidgets::FontSizeSpinBox::*)(int)>(&QmlEditorWidgets::FontSizeSpinBox::valueChanged),
+    connect(ui->fontSizeSpinBox, QOverload<int>::of(&QmlEditorWidgets::FontSizeSpinBox::valueChanged),
             this, &ContextPaneTextWidget::onFontSizeChanged);
     connect(ui->fontSizeSpinBox, &QmlEditorWidgets::FontSizeSpinBox::formatChanged,
             this, &ContextPaneTextWidget::onFontFormatChanged);
@@ -104,7 +103,7 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     connect(ui->bottomAlignmentButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onVerticalAlignmentChanged);
 
-    connect(ui->styleComboBox, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged),
+    connect(ui->styleComboBox, QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
             this, &ContextPaneTextWidget::onStyleComboBoxChanged);
 }
 

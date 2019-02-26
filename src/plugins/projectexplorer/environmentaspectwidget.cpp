@@ -71,7 +71,7 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     if (m_baseEnvironmentComboBox->count() == 1)
         m_baseEnvironmentComboBox->setEnabled(false);
 
-    connect(m_baseEnvironmentComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_baseEnvironmentComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &EnvironmentAspectWidget::baseEnvironmentSelected);
 
     baseLayout->addWidget(m_baseEnvironmentComboBox);

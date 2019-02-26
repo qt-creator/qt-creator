@@ -418,7 +418,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     connect(m_toggleRootSync, &QAbstractButton::clicked,
             this, [this]() { setRootAutoSynchronization(!m_rootAutoSync); });
     connect(m_rootSelector,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this,
             [this](int index) {
                 const auto directory = m_rootSelector->itemData(index).value<Utils::FileName>();

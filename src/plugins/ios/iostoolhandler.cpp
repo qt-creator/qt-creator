@@ -676,7 +676,7 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
     QObject::connect(process.get(), &QProcess::readyReadStandardOutput,
                      std::bind(&IosDeviceToolHandlerPrivate::subprocessHasData,this));
 
-    QObject::connect(process.get(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    QObject::connect(process.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                      std::bind(&IosDeviceToolHandlerPrivate::subprocessFinished,this, _1,_2));
 
     QObject::connect(process.get(), &QProcess::errorOccurred,

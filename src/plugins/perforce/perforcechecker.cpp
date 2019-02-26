@@ -42,7 +42,7 @@ namespace Internal {
 PerforceChecker::PerforceChecker(QObject *parent) : QObject(parent)
 {
     connect(&m_process, &QProcess::errorOccurred, this, &PerforceChecker::slotError);
-    connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &PerforceChecker::slotFinished);
 }
 

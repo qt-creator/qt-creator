@@ -325,7 +325,7 @@ void ConnectionClient::connectStandardOutputAndError(QProcess *process) const
 void ConnectionClient::connectLocalSocketError() const
 {
     connect(m_localSocket,
-            static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
+            QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error),
             this,
             &ConnectionClient::printLocalSocketError);
 }

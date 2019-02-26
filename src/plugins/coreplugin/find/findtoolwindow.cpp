@@ -77,14 +77,13 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     connect(m_ui.matchCase, &QAbstractButton::toggled, Find::instance(), &Find::setCaseSensitive);
     connect(m_ui.wholeWords, &QAbstractButton::toggled, Find::instance(), &Find::setWholeWord);
     connect(m_ui.regExp, &QAbstractButton::toggled, Find::instance(), &Find::setRegularExpression);
-    connect(m_ui.filterList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
-            this, static_cast<void (FindToolWindow::*)(int)>(&FindToolWindow::setCurrentFilter));
+    connect(m_ui.filterList, QOverload<int>::of(&QComboBox::activated),
+            this, QOverload<int>::of(&FindToolWindow::setCurrentFilter));
 
     m_findCompleter->setModel(Find::findCompletionModel());
     m_ui.searchTerm->setSpecialCompleter(m_findCompleter);
     m_ui.searchTerm->installEventFilter(this);
-    connect(m_findCompleter,
-            static_cast<void (QCompleter::*)(const QModelIndex &)>(&QCompleter::activated),
+    connect(m_findCompleter, QOverload<const QModelIndex &>::of(&QCompleter::activated),
             this, &FindToolWindow::findCompleterActivated);
 
     m_ui.searchTerm->setValidationFunction(validateRegExp);

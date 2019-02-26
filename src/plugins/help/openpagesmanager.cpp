@@ -61,7 +61,7 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
     m_comboBox = new QComboBox;
     m_comboBox->setModel(m_model);
     m_comboBox->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_comboBox, QOverload<int>::of(&QComboBox::activated),
             this, &OpenPagesManager::setCurrentPageByRow);
     connect(m_comboBox, &QWidget::customContextMenuRequested, this,
         &OpenPagesManager::openPagesContextMenu);

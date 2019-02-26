@@ -395,7 +395,7 @@ void GenericProposalWidget::setModel(ProposalModelPtr model)
     d->m_completionListView->setModel(new ModelAdapter(d->m_model, d->m_completionListView));
 
     connect(d->m_completionListView->selectionModel(), &QItemSelectionModel::currentChanged,
-            &d->m_infoTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+            &d->m_infoTimer, QOverload<>::of(&QTimer::start));
 }
 
 void GenericProposalWidget::setDisplayRect(const QRect &rect)

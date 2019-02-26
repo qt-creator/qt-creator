@@ -288,8 +288,7 @@ bool DesignerExternalEditor::startEditor(const QString &fileName, QString *error
         m_processCache.insert(binary, socket);
         auto mapSlot = [this, binary] { processTerminated(binary); };
         connect(socket, &QAbstractSocket::disconnected, this, mapSlot);
-        connect(socket,
-                static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
+        connect(socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),
                 this, mapSlot);
     }
     return true;

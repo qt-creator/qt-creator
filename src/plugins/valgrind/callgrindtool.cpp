@@ -431,7 +431,7 @@ CallgrindTool::CallgrindTool()
     // event selection
     m_eventCombo = new QComboBox;
     m_eventCombo->setToolTip(tr("Selects which events from the profiling data are shown and visualized."));
-    connect(m_eventCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_eventCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &CallgrindTool::setCostEvent);
     updateEventCombo();
 

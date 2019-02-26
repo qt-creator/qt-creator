@@ -68,7 +68,7 @@ public:
 
         refresh();
         m_comboBox->setToolTip(ki->description());
-        connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &DebuggerKitAspectWidget::currentDebuggerChanged);
 
         m_manageButton = new QPushButton(KitAspectWidget::msgManage());

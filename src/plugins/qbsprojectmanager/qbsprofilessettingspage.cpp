@@ -152,7 +152,7 @@ void QbsProfilesSettingsWidget::refreshKitsList()
         m_ui.kitsComboBox->setCurrentIndex(0);
     displayCurrentProfile();
     connect(m_ui.kitsComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &QbsProfilesSettingsWidget::displayCurrentProfile);
 }
 

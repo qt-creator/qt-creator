@@ -83,7 +83,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, QWidget *parent) :
         m_ui->stackSize->setEnabled(mode == QLatin1String(Constants::PerfCallgraphDwarf));
     });
 
-    auto spinBoxChangedSignal = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
+    auto spinBoxChangedSignal = QOverload<int>::of(&QSpinBox::valueChanged);
     connect(m_ui->stackSize, spinBoxChangedSignal, m_settings, &PerfSettings::setStackSize);
     connect(m_ui->period, spinBoxChangedSignal, m_settings, &PerfSettings::setPeriod);
     connect(m_ui->sampleMode, comboboxChangedSignal, this, [this](int index) {

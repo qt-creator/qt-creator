@@ -138,7 +138,7 @@ void QtVersionManager::triggerQtVersionRestore()
     if (configFileName.exists()) {
         m_configFileWatcher = new FileSystemWatcher(m_instance);
         connect(m_configFileWatcher, &FileSystemWatcher::fileChanged,
-                m_fileWatcherTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+                m_fileWatcherTimer, QOverload<>::of(&QTimer::start));
         m_configFileWatcher->addFile(configFileName.toString(),
                                      FileSystemWatcher::WatchModifiedDate);
     } // exists

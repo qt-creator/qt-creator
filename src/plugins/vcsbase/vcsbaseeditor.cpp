@@ -724,7 +724,7 @@ void VcsBaseEditorWidget::init()
     case OtherContent:
         break;
     case LogOutput:
-        connect(d->entriesComboBox(), static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(d->entriesComboBox(), QOverload<int>::of(&QComboBox::activated),
                 this, &VcsBaseEditorWidget::slotJumpToEntry);
         connect(this, &QPlainTextEdit::textChanged,
                 this, &VcsBaseEditorWidget::slotPopulateLogBrowser);
@@ -737,7 +737,7 @@ void VcsBaseEditorWidget::init()
         break;
     case DiffOutput:
         // Diff: set up diff file browsing
-        connect(d->entriesComboBox(), static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(d->entriesComboBox(), QOverload<int>::of(&QComboBox::activated),
                 this, &VcsBaseEditorWidget::slotJumpToEntry);
         connect(this, &QPlainTextEdit::textChanged,
                 this, &VcsBaseEditorWidget::slotPopulateDiffBrowser);

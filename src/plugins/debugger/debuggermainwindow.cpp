@@ -144,7 +144,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_perspectiveChooser->setObjectName("PerspectiveChooser");
     m_perspectiveChooser->setProperty("panelwidget", true);
     m_perspectiveChooser->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    connect(m_perspectiveChooser, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_perspectiveChooser, QOverload<int>::of(&QComboBox::activated),
             this, [this](int item) {
         Perspective *perspective = Perspective::findPerspective(m_perspectiveChooser->itemData(item).toString());
         QTC_ASSERT(perspective, return);

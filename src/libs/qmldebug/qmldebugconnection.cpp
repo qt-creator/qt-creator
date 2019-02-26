@@ -352,8 +352,8 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
         emit logStateChange(socketStateToString(state));
     });
 
-    connect(socket, static_cast<void (QTcpSocket::*)(QAbstractSocket::SocketError)>
-            (&QAbstractSocket::error), this, [this](QAbstractSocket::SocketError error) {
+    connect(socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),
+            this, [this](QAbstractSocket::SocketError error) {
         emit logError(socketErrorToString(error));
         socketDisconnected();
     });
@@ -391,8 +391,8 @@ void QmlDebugConnection::newConnection()
 
     connect(socket, &QLocalSocket::disconnected, this, &QmlDebugConnection::socketDisconnected);
 
-    connect(socket, static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>
-            (&QLocalSocket::error), this, [this](QLocalSocket::LocalSocketError error) {
+    connect(socket, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error),
+            this, [this](QLocalSocket::LocalSocketError error) {
         emit logError(socketErrorToString(static_cast<QAbstractSocket::SocketError>(error)));
         socketDisconnected();
     });

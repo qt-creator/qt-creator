@@ -449,8 +449,8 @@ void ReadOnlyFilesDialogPrivate::initDialog(const QStringList &fileNames)
         groupForFile.fileName = fileName;
         groupForFile.group = radioButtonGroup;
         buttonGroups.append(groupForFile);
-        QObject::connect(radioButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked),
-                [this](int) { updateSelectAll(); });
+        QObject::connect(radioButtonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked),
+                         [this] { updateSelectAll(); });
     }
 
     // Apply the Mac file dialog style.
@@ -508,7 +508,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const QStringList &fileNames)
         ui.setAll->addItem(saveAsText);
         setAllIndexForOperation[SaveAs] = ui.setAll->count() - 1;
     }
-    QObject::connect(ui.setAll, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    QObject::connect(ui.setAll, QOverload<int>::of(&QComboBox::activated),
                      [this](int index) { setAll(index); });
 
     // Filter which columns should be visible and resize them to content.

@@ -73,7 +73,7 @@ QWidget *SettingsPage::widget()
         connect(m_ui.m_checkNowButton, &QPushButton::clicked,
                 m_plugin, &UpdateInfoPlugin::startCheckForUpdates);
         connect(m_ui.m_checkIntervalComboBox,
-                static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &SettingsPage::updateNextCheckDate);
         connect(m_plugin, &UpdateInfoPlugin::lastCheckDateChanged,
                 this, &SettingsPage::updateLastCheckDate);

@@ -66,7 +66,7 @@ public:
         refresh();
         m_combo->setToolTip(ki->description());
 
-        connect(m_combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        connect(m_combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &QtKitAspectWidget::currentWasChanged);
 
         connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,

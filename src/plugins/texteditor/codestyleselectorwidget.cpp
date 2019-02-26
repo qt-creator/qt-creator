@@ -162,7 +162,7 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
     m_ui->importButton->setEnabled(false);
     m_ui->exportButton->setEnabled(false);
 
-    connect(m_ui->delegateComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_ui->delegateComboBox, QOverload<int>::of(&QComboBox::activated),
             this, &CodeStyleSelectorWidget::slotComboBoxActivated);
     connect(m_ui->copyButton, &QAbstractButton::clicked,
             this, &CodeStyleSelectorWidget::slotCopyClicked);

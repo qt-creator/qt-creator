@@ -119,7 +119,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     m_updateUsesTimer.setSingleShot(true);
     connect(&m_updateUsesTimer, &QTimer::timeout, this, &QmlJSEditorWidget::updateUses);
     connect(this, &QPlainTextEdit::cursorPositionChanged,
-            &m_updateUsesTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+            &m_updateUsesTimer, QOverload<>::of(&QTimer::start));
 
     m_updateOutlineIndexTimer.setInterval(UPDATE_OUTLINE_INTERVAL);
     m_updateOutlineIndexTimer.setSingleShot(true);
@@ -138,7 +138,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     connect(&m_contextPaneTimer, &QTimer::timeout, this, &QmlJSEditorWidget::updateContextPane);
     if (m_contextPane) {
         connect(this, &QmlJSEditorWidget::cursorPositionChanged,
-                &m_contextPaneTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+                &m_contextPaneTimer, QOverload<>::of(&QTimer::start));
         connect(m_contextPane, &IContextPane::closed, this, &QmlJSEditorWidget::showTextMarker);
     }
 
@@ -520,13 +520,13 @@ void QmlJSEditorWidget::createToolBar()
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
 
-    connect(m_outlineCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_outlineCombo, QOverload<int>::of(&QComboBox::activated),
             this, &QmlJSEditorWidget::jumpToOutlineElement);
     connect(m_qmlJsEditorDocument->outlineModel(), &QmlOutlineModel::updated,
             static_cast<QTreeView *>(m_outlineCombo->view()), &QTreeView::expandAll);
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
-            &m_updateOutlineIndexTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+            &m_updateOutlineIndexTimer, QOverload<>::of(&QTimer::start));
 
     insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
 }

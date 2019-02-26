@@ -114,7 +114,7 @@ void CompletingTextEdit::setCompleter(QCompleter *c)
 
     completer()->setWidget(this);
     completer()->setCompletionMode(QCompleter::PopupCompletion);
-    connect(completer(), static_cast<void (QCompleter::*)(const QString &)>(&QCompleter::activated),
+    connect(completer(), QOverload<const QString &>::of(&QCompleter::activated),
             this, [this](const QString &str) { d->insertCompletion(str); });
 }
 

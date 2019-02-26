@@ -1215,7 +1215,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_handleExceptionCombo->addItem(tr("On"));
     m_handleExceptionCombo->addItem(tr("Only"));
     m_handleExceptionCombo->setCurrentIndex(handleException);
-    connect(m_handleExceptionCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_handleExceptionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
     handleExceptionLayout->addWidget(m_handleExceptionCombo);
     layout->addLayout(handleExceptionLayout);
@@ -1228,7 +1228,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_pageProtectionCombo->addItem(tr("After"));
     m_pageProtectionCombo->addItem(tr("Before"));
     m_pageProtectionCombo->setCurrentIndex(pageProtection);
-    connect(m_pageProtectionCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_pageProtectionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
     pageProtectionLayout->addWidget(m_pageProtectionCombo);
     layout->addLayout(pageProtectionLayout);
@@ -1252,7 +1252,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_leakDetailCombo->addItem(tr("Fuzzy Detect Leak Types"));
     m_leakDetailCombo->addItem(tr("Fuzzy Detect Leak Types (Show Reachable)"));
     m_leakDetailCombo->setCurrentIndex(leakDetail);
-    connect(m_leakDetailCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_leakDetailCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
     leakDetailLayout->addWidget(m_leakDetailCombo);
     layout->addLayout(leakDetailLayout);

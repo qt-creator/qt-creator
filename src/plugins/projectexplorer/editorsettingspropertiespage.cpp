@@ -43,14 +43,14 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_proj
     globalSettingsActivated(config->useGlobalSettings() ? 0 : 1);
 
 
-    connect(m_ui.globalSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_ui.globalSelector, QOverload<int>::of(&QComboBox::activated),
             this, &EditorSettingsWidget::globalSettingsActivated);
     connect(m_ui.restoreButton, &QAbstractButton::clicked,
             this, &EditorSettingsWidget::restoreDefaultValues);
 
     connect(m_ui.showWrapColumn, &QAbstractButton::toggled,
             config, &EditorConfiguration::setShowWrapColumn);
-    connect(m_ui.wrapColumn, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(m_ui.wrapColumn, QOverload<int>::of(&QSpinBox::valueChanged),
             config, &EditorConfiguration::setWrapColumn);
 
     connect(m_ui.behaviorSettingsWidget, &TextEditor::BehaviorSettingsWidget::typingSettingsChanged,

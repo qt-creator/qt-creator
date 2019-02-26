@@ -149,7 +149,7 @@ ParseContextWidget::ParseContextWidget(ParseContextModel &parseContextModel, QWi
 
     // Set up sync of this widget and model in both directions
     connect(this,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            QOverload<int>::of(&QComboBox::activated),
             &m_parseContextModel,
             &ParseContextModel::setPreferred);
     connect(&m_parseContextModel, &ParseContextModel::updated,

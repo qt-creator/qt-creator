@@ -169,7 +169,7 @@ SerialOutputPane::SerialOutputPane(Settings &settings) :
     updateLineEndingsComboBox();
     inputLayout->addWidget(m_lineEndingsSelection);
 
-    connect(m_lineEndingsSelection, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_lineEndingsSelection, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &SerialOutputPane::defaultLineEndingChanged);
 
     layout->addLayout(inputLayout);
@@ -393,7 +393,7 @@ void SerialOutputPane::createToolButtons()
     m_portsSelection->setModel(m_devicesModel);
     updatePortsList();
     connect(m_portsSelection, &ComboBox::opened, this, &SerialOutputPane::updatePortsList);
-    connect(m_portsSelection, static_cast<void (ComboBox::*)(int)>(&ComboBox::currentIndexChanged),
+    connect(m_portsSelection, QOverload<int>::of(&ComboBox::currentIndexChanged),
             this, &SerialOutputPane::activePortNameChanged);
     // TODO: the ports are not updated with the box opened (if the user wait for it) -> add a timer?
 
@@ -402,7 +402,7 @@ void SerialOutputPane::createToolButtons()
     m_baudRateSelection = new ComboBox;
     m_baudRateSelection->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_baudRateSelection->addItems(m_devicesModel->baudRates());
-    connect(m_baudRateSelection, static_cast<void (ComboBox::*)(int)>(&ComboBox::currentIndexChanged),
+    connect(m_baudRateSelection, QOverload<int>::of(&ComboBox::currentIndexChanged),
             this, &SerialOutputPane::activeBaudRateChanged);
 
     if (m_settings.baudRate > 0)

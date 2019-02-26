@@ -271,7 +271,7 @@ void TodoOutputPane::createScopeButtons()
     m_scopeButtons->addButton(m_wholeProjectButton);
     m_scopeButtons->addButton(m_currentFileButton);
     m_scopeButtons->addButton(m_subProjectButton);
-    connect(m_scopeButtons, static_cast<void (QButtonGroup::*)(QAbstractButton *)>(&QButtonGroup::buttonClicked),
+    connect(m_scopeButtons, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
             this, &TodoOutputPane::scopeButtonClicked);
 
     m_spacer = new QWidget;

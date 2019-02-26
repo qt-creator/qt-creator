@@ -947,7 +947,7 @@ InternalLibraryDetailsController::InternalLibraryDetailsController(
         libraryDetailsWidget()->useSubfoldersCheckBox->setEnabled(true);
 
     connect(libraryDetailsWidget()->libraryComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &InternalLibraryDetailsController::slotCurrentLibraryChanged);
 
     updateProFile();

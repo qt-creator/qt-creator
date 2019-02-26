@@ -68,7 +68,7 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
     connect(m_ui.delayedTemplateParseCheckBox, &QCheckBox::toggled,
             this, &ClangProjectSettingsWidget::onDelayedTemplateParseClicked);
     connect(m_ui.globalOrCustomComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &ClangProjectSettingsWidget::onGlobalCustomChanged);
     connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
             this, &ClangProjectSettingsWidget::onAboutToSaveProjectSettings);

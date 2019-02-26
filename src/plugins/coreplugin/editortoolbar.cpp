@@ -190,7 +190,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     // this signal is disconnected for standalone toolbars and replaced with
     // a private slot connection
-    connect(d->m_editorList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(d->m_editorList, QOverload<int>::of(&QComboBox::activated),
             this, &EditorToolBar::listSelectionActivated);
 
     connect(d->m_editorList, &QComboBox::customContextMenuRequested, [this](QPoint p) {
@@ -303,9 +303,9 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
         connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
                 this, &EditorToolBar::updateEditorListSelection);
 
-        disconnect(d->m_editorList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        disconnect(d->m_editorList, QOverload<int>::of(&QComboBox::activated),
                    this, &EditorToolBar::listSelectionActivated);
-        connect(d->m_editorList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(d->m_editorList, QOverload<int>::of(&QComboBox::activated),
                 this, &EditorToolBar::changeActiveEditor);
         d->m_splitButton->setVisible(false);
         d->m_closeSplitButton->setVisible(false);

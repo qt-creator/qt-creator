@@ -98,7 +98,7 @@ ConfigurationEditor::ConfigurationEditor(QWidget *parent) :
     m_completer->setCaseSensitivity(Qt::CaseInsensitive);
     m_completer->popup()->installEventFilter(this);
 
-    connect(m_completer, static_cast<void (QCompleter::*)(const QString &)>(&QCompleter::activated),
+    connect(m_completer, QOverload<const QString &>::of(&QCompleter::activated),
             this, &ConfigurationEditor::insertCompleterText);
     connect(this, &ConfigurationEditor::cursorPositionChanged,
             this, &ConfigurationEditor::updateDocumentation);

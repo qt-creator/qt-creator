@@ -284,7 +284,7 @@ QueryContext::QueryContext(const QString &query,
     connect(&m_process, &QProcess::readyReadStandardOutput, this, [this] {
         m_output.append(m_process.readAllStandardOutput());
     });
-    connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &QueryContext::processFinished);
     connect(&m_process, &QProcess::errorOccurred, this, &QueryContext::processError);
     connect(&m_watcher, &QFutureWatcherBase::canceled, this, &QueryContext::terminate);
@@ -376,7 +376,7 @@ void QueryContext::timeout()
                     arg(timeOutMS / 1000), QMessageBox::NoButton, parent);
     QPushButton *terminateButton = box.addButton(tr("Terminate"), QMessageBox::YesRole);
     box.addButton(tr("Keep Running"), QMessageBox::NoRole);
-    connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             &box, &QDialog::reject);
     box.exec();
     if (m_process.state() != QProcess::Running)

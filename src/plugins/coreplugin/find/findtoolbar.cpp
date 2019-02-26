@@ -118,8 +118,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
             this, &FindToolBar::invokeFindEnter, Qt::QueuedConnection);
     connect(m_ui.replaceEdit, &Utils::FancyLineEdit::returnPressed,
             this, &FindToolBar::invokeReplaceEnter, Qt::QueuedConnection);
-    connect(m_findCompleter,
-            static_cast<void (QCompleter::*)(const QModelIndex &)>(&QCompleter::activated),
+    connect(m_findCompleter, QOverload<const QModelIndex &>::of(&QCompleter::activated),
             this, &FindToolBar::findCompleterActivated);
 
     auto shiftEnterAction = new QAction(m_ui.findEdit);

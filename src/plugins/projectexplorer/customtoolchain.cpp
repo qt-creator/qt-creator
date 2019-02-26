@@ -566,7 +566,7 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
             this, &CustomToolChainConfigWidget::updateSummaries);
     connect(m_cxx11Flags, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
     connect(m_mkspecs, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
-    connect(m_errorParserComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_errorParserComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &CustomToolChainConfigWidget::errorParserChanged);
     connect(m_customParserSettingsButton, &QAbstractButton::clicked,
             this, &CustomToolChainConfigWidget::openCustomParserSettingsDialog);

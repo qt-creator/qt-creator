@@ -119,7 +119,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     updateAddButtonMenu();
     updateBuildSettings();
 
-    connect(m_buildConfigurationComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_buildConfigurationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &BuildSettingsWidget::currentIndexChanged);
 
     connect(m_removeButton, &QAbstractButton::clicked,

@@ -64,7 +64,7 @@ QWidget *BackgroundAction::createWidget(QWidget *parent)
     }
 
     comboBox->setCurrentIndex(0);
-    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &BackgroundAction::emitBackgroundChanged);
 
     comboBox->setProperty("hideborder", true);

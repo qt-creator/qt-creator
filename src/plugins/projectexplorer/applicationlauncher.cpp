@@ -137,7 +137,7 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
             this, &ApplicationLauncherPrivate::readLocalStandardOutput);
     connect(&m_guiProcess, &QProcess::errorOccurred,
             this, &ApplicationLauncherPrivate::localGuiProcessError);
-    connect(&m_guiProcess, static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&m_guiProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &ApplicationLauncherPrivate::localProcessDone);
     connect(&m_guiProcess, &QProcess::started,
             this, &ApplicationLauncherPrivate::handleProcessStarted);
@@ -152,8 +152,7 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
             this, &ApplicationLauncherPrivate::localConsoleProcessError);
     connect(&m_consoleProcess, &ConsoleProcess::processStopped,
             this, &ApplicationLauncherPrivate::localProcessDone);
-    connect(&m_consoleProcess,
-            static_cast<void (ConsoleProcess::*)(QProcess::ProcessError)>(&ConsoleProcess::error),
+    connect(&m_consoleProcess, QOverload<QProcess::ProcessError>::of(&ConsoleProcess::error),
             q, &ApplicationLauncher::error);
 
 #ifdef Q_OS_WIN

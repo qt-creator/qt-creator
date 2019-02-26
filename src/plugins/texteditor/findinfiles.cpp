@@ -151,7 +151,7 @@ QWidget *FindInFiles::createConfigWidget()
         auto searchEngineLabel = new QLabel(tr("Search engine:"));
         gridLayout->addWidget(searchEngineLabel, row, 0, Qt::AlignRight);
         m_searchEngineCombo = new QComboBox;
-        auto cc = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
+        auto cc = QOverload<int>::of(&QComboBox::currentIndexChanged);
         connect(m_searchEngineCombo, cc, this, &FindInFiles::searchEnginesSelectionChanged);
         searchEngineLabel->setBuddy(m_searchEngineCombo);
         gridLayout->addWidget(m_searchEngineCombo, row, 1);

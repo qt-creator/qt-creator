@@ -95,7 +95,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
     }
 
     nodeSelected(m_comboBox->currentIndex());
-    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &ChooseProFilePage::nodeSelected);
 
     fl->addRow(tr(".pro file:"), m_comboBox);

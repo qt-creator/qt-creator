@@ -52,7 +52,7 @@ ClangToolsConfigWidget::ClangToolsConfigWidget(
     m_ui->simultaneousProccessesSpinBox->setMinimum(1);
     m_ui->simultaneousProccessesSpinBox->setMaximum(QThread::idealThreadCount());
     connect(m_ui->simultaneousProccessesSpinBox,
-            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            QOverload<int>::of(&QSpinBox::valueChanged),
             [settings](int count) { settings->setSimultaneousProcesses(count); });
 
     QCheckBox *buildBeforeAnalysis = m_ui->clangToolsBasicSettings->ui()->buildBeforeAnalysis;

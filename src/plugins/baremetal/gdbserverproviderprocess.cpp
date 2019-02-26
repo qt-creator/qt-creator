@@ -46,7 +46,7 @@ GdbServerProviderProcess::GdbServerProviderProcess(
         m_process->setUseCtrlCStub(true);
 
     connect(m_process, &QProcess::errorOccurred, this, &GdbServerProviderProcess::error);
-    connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &GdbServerProviderProcess::finished);
 
     connect(m_process, &QProcess::readyReadStandardOutput,

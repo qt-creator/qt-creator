@@ -179,7 +179,7 @@ DiffEditor::DiffEditor()
     QSizePolicy policy = m_entriesComboBox->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_entriesComboBox->setSizePolicy(policy);
-    connect(m_entriesComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_entriesComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &DiffEditor::setCurrentDiffFileIndex);
     m_toolBar->addWidget(m_entriesComboBox);
 
@@ -209,7 +209,7 @@ DiffEditor::DiffEditor()
     m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());
 
     connect(m_whitespaceButtonAction, &QAction::toggled, this, &DiffEditor::ignoreWhitespaceHasChanged);
-    connect(m_contextSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(m_contextSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &DiffEditor::contextLineCountHasChanged);
     connect(m_toggleSyncAction, &QAction::toggled, this, &DiffEditor::toggleSync);
     connect(m_toggleDescriptionAction, &QAction::toggled, this, &DiffEditor::toggleDescription);

@@ -66,7 +66,7 @@ AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStri
     updateApiLevelComboBox();
 
     connect(m_avdDialog.abiComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &AvdDialog::updateApiLevelComboBox);
 
     connect(&m_hideTipTimer, &QTimer::timeout,

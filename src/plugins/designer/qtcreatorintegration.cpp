@@ -86,8 +86,7 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, Q
     f &= ~ResourceEditorFeature;
     setFeatures(f);
 
-    connect(this, static_cast<void (QDesignerIntegrationInterface::*)
-                    (const QString&, const QString&, const QStringList&)>
+    connect(this, QOverload<const QString &, const QString &, const QStringList &>::of
                        (&QDesignerIntegrationInterface::navigateToSlot),
             this, &QtCreatorIntegration::slotNavigateToSlot);
     connect(this, &QtCreatorIntegration::helpRequested,

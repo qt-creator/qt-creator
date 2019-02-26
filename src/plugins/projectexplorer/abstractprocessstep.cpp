@@ -237,7 +237,7 @@ void AbstractProcessStep::doRun()
             this, &AbstractProcessStep::processReadyReadStdOutput);
     connect(d->m_process.get(), &QProcess::readyReadStandardError,
             this, &AbstractProcessStep::processReadyReadStdError);
-    connect(d->m_process.get(), static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+    connect(d->m_process.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &AbstractProcessStep::slotProcessFinished);
 
     d->m_process->start();

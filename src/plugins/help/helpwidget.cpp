@@ -220,7 +220,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         m_filterComboBox->setModel(LocalHelpManager::filterModel());
         m_filterComboBox->setCurrentIndex(LocalHelpManager::filterIndex());
         layout->addWidget(m_filterComboBox);
-        connect(m_filterComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(m_filterComboBox, QOverload<int>::of(&QComboBox::activated),
                 LocalHelpManager::instance(), &LocalHelpManager::setFilterIndex);
         connect(LocalHelpManager::instance(), &LocalHelpManager::filterIndexChanged,
                 m_filterComboBox, &QComboBox::setCurrentIndex);

@@ -296,7 +296,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     auto avdProcess = new QProcess();
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(avdProcess,
-                     static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                     QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                      avdProcess,
                      std::bind(&avdProcessFinished, std::placeholders::_1, avdProcess));
 

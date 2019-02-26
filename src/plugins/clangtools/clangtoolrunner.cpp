@@ -75,7 +75,7 @@ ClangToolRunner::ClangToolRunner(const QString &clangExecutable,
     m_process.setProcessEnvironment(environment.toProcessEnvironment());
     m_process.setWorkingDirectory(m_clangLogFileDir); // Current clang-cl puts log file into working dir.
     connect(&m_process, &QProcess::started, this, &ClangToolRunner::onProcessStarted);
-    connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &ClangToolRunner::onProcessFinished);
     connect(&m_process, &QProcess::errorOccurred, this, &ClangToolRunner::onProcessError);
     connect(&m_process, &QProcess::readyRead, this, &ClangToolRunner::onProcessOutput);

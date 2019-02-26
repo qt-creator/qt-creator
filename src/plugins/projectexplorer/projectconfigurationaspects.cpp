@@ -404,7 +404,7 @@ void BaseIntegerAspect::addToConfigurationLayout(QFormLayout *layout)
     if (d->m_maximumValue.isValid() && d->m_maximumValue.isValid())
         d->m_spinBox->setRange(d->m_minimumValue.toInt(), d->m_maximumValue.toInt());
     layout->addRow(d->m_label, d->m_spinBox);
-    connect(d->m_spinBox.data(), static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(d->m_spinBox.data(), QOverload<int>::of(&QSpinBox::valueChanged),
             this, [this](int value) {
         d->m_value = value;
         emit changed();

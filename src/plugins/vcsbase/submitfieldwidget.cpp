@@ -286,7 +286,7 @@ void SubmitFieldWidget::createField(const QString &f)
     if (d->completer)
         fe.lineEdit->setCompleter(d->completer);
 
-    connect(fe.combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(fe.combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &SubmitFieldWidget::slotComboIndexChanged);
     connect(fe.clearButton, &QAbstractButton::clicked,
             this, &SubmitFieldWidget::slotRemove);

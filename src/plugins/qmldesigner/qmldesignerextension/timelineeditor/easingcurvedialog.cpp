@@ -146,7 +146,7 @@ EasingCurveDialog::EasingCurveDialog(const QList<ModelNode> &frames, QWidget *pa
     connect(m_presets, &PresetEditor::presetChanged, m_splineEditor, &SplineEditor::setEasingCurve);
 
     connect(durationEdit,
-            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            QOverload<int>::of(&QSpinBox::valueChanged),
             m_splineEditor,
             &SplineEditor::setDuration);
 

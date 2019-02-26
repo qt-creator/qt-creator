@@ -561,7 +561,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(m_ui->qmakeAdditonalArgumentsLineEdit, &QLineEdit::textEdited,
             this, &QMakeStepConfigWidget::qmakeArgumentsLineEdited);
     connect(m_ui->buildConfigurationComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &QMakeStepConfigWidget::buildConfigurationSelected);
     connect(m_ui->qmlDebuggingLibraryCheckBox, &QCheckBox::toggled,
             this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked);

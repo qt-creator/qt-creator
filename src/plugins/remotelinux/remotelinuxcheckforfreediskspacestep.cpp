@@ -60,8 +60,7 @@ public:
 
         connect(m_ui.pathLineEdit, &QLineEdit::textChanged,
                 this, &RemoteLinuxCheckForFreeDiskSpaceStepWidget::handlePathChanged);
-        connect(m_ui.requiredSpaceSpinBox,
-                static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+        connect(m_ui.requiredSpaceSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
                 this, &RemoteLinuxCheckForFreeDiskSpaceStepWidget::handleRequiredSpaceChanged);
     }
 

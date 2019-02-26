@@ -124,7 +124,7 @@ namespace Internal {
         m_recentSearchesBox->setProperty("drawleftborder", true);
         m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         m_recentSearchesBox->addItem(tr("New Search"));
-        connect(m_recentSearchesBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+        connect(m_recentSearchesBox, QOverload<int>::of(&QComboBox::activated),
                 this, &SearchResultWindowPrivate::setCurrentIndexWithFocus);
 
         m_widget->setWindowTitle(q->displayName());

@@ -64,7 +64,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     m_remoteProcessStart(std::numeric_limits<qint64>::max()),
     m_lastRemoteTimestamp(0)
 {
-    connect(&m_input, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+    connect(&m_input, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, [this](int exitCode) {
         emit processFinished();
         // process any remaining input before signaling finished()

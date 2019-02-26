@@ -48,8 +48,7 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
     , m_projectFile(projectFile)
 {
     if (m_testApplication) {
-        connect(m_testApplication,
-                static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+        connect(m_testApplication, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this, [this] (int exitCode, QProcess::ExitStatus /*exitStatus*/) {
             if (exitCode == 1 && !m_description.isEmpty()) {
                 createAndReportResult(tr("Running tests failed.\n %1\nExecutable: %2")

@@ -56,7 +56,7 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
     connectSpinBox(ui->startFrame, "from");
     connectSpinBox(ui->endFrame, "to");
 
-    connect(ui->loops, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this]() {
+    connect(ui->loops, QOverload<int>::of(&QSpinBox::valueChanged), [this]() {
         ui->continuous->setChecked(ui->loops->value() == -1);
     });
 
@@ -106,7 +106,7 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
     });
 
     connect(ui->transitionToState,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            QOverload<int>::of(&QComboBox::activated),
             [this](int index) {
                 if (!m_animation.isValid())
                     return;

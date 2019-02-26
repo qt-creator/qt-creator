@@ -42,20 +42,20 @@ CustomParserConfigDialog::CustomParserConfigDialog(QDialog *parent) :
     connect(ui->errorPattern, &QLineEdit::textChanged, this, &CustomParserConfigDialog::changed);
     connect(ui->errorOutputMessage, &QLineEdit::textChanged,
             this, &CustomParserConfigDialog::changed);
-    connect(ui->errorFileNameCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(ui->errorFileNameCap, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &CustomParserConfigDialog::changed);
-    connect(ui->errorLineNumberCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(ui->errorLineNumberCap, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &CustomParserConfigDialog::changed);
-    connect(ui->errorMessageCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(ui->errorMessageCap, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &CustomParserConfigDialog::changed);
     connect(ui->warningPattern, &QLineEdit::textChanged, this, &CustomParserConfigDialog::changed);
     connect(ui->warningOutputMessage, &QLineEdit::textChanged,
             this, &CustomParserConfigDialog::changed);
-    connect(ui->warningFileNameCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(ui->warningFileNameCap, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &CustomParserConfigDialog::changed);
-    connect(ui->warningLineNumberCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(ui->warningLineNumberCap, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &CustomParserConfigDialog::changed);
-    connect(ui->warningMessageCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(ui->warningMessageCap, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &CustomParserConfigDialog::changed);
 
     changed();

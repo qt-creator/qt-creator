@@ -160,8 +160,7 @@ void WinRtDeviceFactory::autoDetect()
         qCDebug(winrtDeviceLog) << __FUNCTION__ << "Creating process";
         m_process = new Utils::QtcProcess(this);
         connect(m_process, &QProcess::errorOccurred, this, &WinRtDeviceFactory::onProcessError);
-        connect(m_process,
-                static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+        connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this, &WinRtDeviceFactory::onProcessFinished);
     }
 

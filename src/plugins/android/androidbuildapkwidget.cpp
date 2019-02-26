@@ -100,7 +100,7 @@ AndroidBuildApkInnerWidget::AndroidBuildApkInnerWidget(AndroidBuildApkStep *step
 
     // target sdk
     connect(m_ui->targetSDKComboBox,
-            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
+            QOverload<const QString &>::of(&QComboBox::activated),
             this, &AndroidBuildApkInnerWidget::setTargetSdk);
 
     // deployment options
@@ -122,10 +122,10 @@ AndroidBuildApkInnerWidget::AndroidBuildApkInnerWidget(AndroidBuildApkStep *step
     connect(m_ui->KeystoreLocationPathChooser, &Utils::PathChooser::pathChanged,
             this, &AndroidBuildApkInnerWidget::updateKeyStorePath);
     connect(m_ui->certificatesAliasComboBox,
-            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
+            QOverload<const QString &>::of(&QComboBox::activated),
             this, &AndroidBuildApkInnerWidget::certificatesAliasComboBoxActivated);
     connect(m_ui->certificatesAliasComboBox,
-            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged),
+            QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
             this, &AndroidBuildApkInnerWidget::certificatesAliasComboBoxCurrentIndexChanged);
 
     connect(m_step->buildConfiguration(), &ProjectExplorer::BuildConfiguration::buildTypeChanged,

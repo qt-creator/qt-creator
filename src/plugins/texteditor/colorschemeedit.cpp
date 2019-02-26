@@ -168,13 +168,13 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
             this, &ColorSchemeEdit::eraseBackColor);
     connect(m_ui->eraseForegroundToolButton, &QAbstractButton::clicked,
             this, &ColorSchemeEdit::eraseForeColor);
-    connect(m_ui->foregroundSaturationSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+    connect(m_ui->foregroundSaturationSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             this, &ColorSchemeEdit::changeRelativeForeColor);
-    connect(m_ui->foregroundLightnessSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+    connect(m_ui->foregroundLightnessSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             this, &ColorSchemeEdit::changeRelativeForeColor);
-    connect(m_ui->backgroundSaturationSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+    connect(m_ui->backgroundSaturationSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             this, &ColorSchemeEdit::changeRelativeBackColor);
-    connect(m_ui->backgroundLightnessSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+    connect(m_ui->backgroundLightnessSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             this, &ColorSchemeEdit::changeRelativeBackColor);
     connect(m_ui->boldCheckBox, &QAbstractButton::toggled,
             this, &ColorSchemeEdit::checkCheckBoxes);
@@ -184,7 +184,7 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
             this, &ColorSchemeEdit::changeUnderlineColor);
     connect(m_ui->eraseUnderlineColorToolButton, &QToolButton::clicked,
             this, &ColorSchemeEdit::eraseUnderlineColor);
-    connect(m_ui->underlineComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_ui->underlineComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &ColorSchemeEdit::changeUnderlineStyle);
 }
 

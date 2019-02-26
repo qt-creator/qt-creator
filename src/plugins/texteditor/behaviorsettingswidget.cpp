@@ -81,7 +81,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
         d->m_codecs.prepend(QTextCodec::codecForLocale());
     }
 
-    auto currentIndexChanged = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
+    auto currentIndexChanged = QOverload<int>::of(&QComboBox::currentIndexChanged);
     connect(d->m_ui.autoIndent, &QAbstractButton::toggled,
             this, &BehaviorSettingsWidget::slotTypingSettingsChanged);
     connect(d->m_ui.smartBackspaceBehavior, currentIndexChanged,

@@ -99,7 +99,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     }
     setCurrentItem(t);
 
-    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &SideBarWidget::setCurrentIndex);
 }
 

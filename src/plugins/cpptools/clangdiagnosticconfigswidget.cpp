@@ -910,7 +910,7 @@ void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMes
 void ClangDiagnosticConfigsWidget::connectClangTidyItemChanged()
 {
     connect(m_tidyChecks->tidyMode,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this,
             &ClangDiagnosticConfigsWidget::onClangTidyModeChanged);
     connect(m_tidyTreeModel.get(), &TidyChecksTreeModel::dataChanged,
@@ -920,7 +920,7 @@ void ClangDiagnosticConfigsWidget::connectClangTidyItemChanged()
 void ClangDiagnosticConfigsWidget::disconnectClangTidyItemChanged()
 {
     disconnect(m_tidyChecks->tidyMode,
-               static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+               QOverload<int>::of(&QComboBox::currentIndexChanged),
                this,
                &ClangDiagnosticConfigsWidget::onClangTidyModeChanged);
     disconnect(m_tidyTreeModel.get(), &TidyChecksTreeModel::dataChanged,

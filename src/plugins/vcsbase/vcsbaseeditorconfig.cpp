@@ -175,7 +175,7 @@ QComboBox *VcsBaseEditorConfig::addComboBox(const QStringList &options,
     auto cb = new QComboBox;
     foreach (const ComboBoxItem &item, items)
         cb->addItem(item.displayText, item.value);
-    connect(cb, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &VcsBaseEditorConfig::argumentsChanged);
     d->m_toolBar->addWidget(cb);
     d->m_optionMappings.append(OptionMapping(options, cb));

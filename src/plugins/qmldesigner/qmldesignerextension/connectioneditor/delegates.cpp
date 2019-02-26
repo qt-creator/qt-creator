@@ -167,7 +167,7 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
         default: qWarning() << "BindingDelegate::createEditor column" << index.column();
         }
 
-        connect(bindingComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
+        connect(bindingComboBox, QOverload<int>::of(&QComboBox::activated), this, [=]() {
             auto delegate = const_cast<BindingDelegate*>(this);
             emit delegate->commitData(bindingComboBox);
         });
@@ -214,7 +214,7 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
         case DynamicPropertiesModel::PropertyTypeRow: {
 
             auto dynamicPropertiesComboBox = new PropertiesComboBox(parent);
-            connect(dynamicPropertiesComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
+            connect(dynamicPropertiesComboBox, QOverload<int>::of(&QComboBox::activated), this, [=]() {
                 auto delegate = const_cast<DynamicPropertiesDelegate*>(this);
                 emit delegate->commitData(dynamicPropertiesComboBox);
             });
@@ -308,7 +308,7 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
     default: qWarning() << "ConnectionDelegate::createEditor column" << index.column();
     }
 
-    connect(connectionComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
+    connect(connectionComboBox, QOverload<int>::of(&QComboBox::activated), this, [=]() {
         auto delegate = const_cast<ConnectionDelegate*>(this);
         emit delegate->commitData(connectionComboBox);
     });
@@ -335,7 +335,7 @@ QWidget *BackendDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
         case BackendModel::TypeNameColumn: {
             auto backendComboBox = new PropertiesComboBox(parent);
             backendComboBox->addItems(model->possibleCppTypes());
-            connect(backendComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
+            connect(backendComboBox, QOverload<int>::of(&QComboBox::activated), this, [=]() {
                 auto delegate = const_cast<BackendDelegate*>(this);
                 emit delegate->commitData(backendComboBox);
             });

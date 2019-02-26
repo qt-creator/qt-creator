@@ -258,7 +258,7 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
     connect(m_nameLineEdit, &QLineEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_startupModeComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &GdbServerProviderConfigWidget::dirty);
 }
 
@@ -390,7 +390,7 @@ HostWidget::HostWidget(QWidget *parent)
 
     connect(m_hostLineEdit, &QLineEdit::textChanged,
             this, &HostWidget::dataChanged);
-    connect(m_portSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(m_portSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &HostWidget::dataChanged);
 }
 

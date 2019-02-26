@@ -44,7 +44,7 @@ ExecuteFilter::ExecuteFilter()
 
     m_process = new Utils::QtcProcess(this);
     m_process->setEnvironment(Utils::Environment::systemEnvironment());
-    connect(m_process, static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+    connect(m_process, QOverload<int ,QProcess::ExitStatus>::of(&QProcess::finished),
             this, &ExecuteFilter::finished);
     connect(m_process, &QProcess::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
     connect(m_process, &QProcess::readyReadStandardError, this, &ExecuteFilter::readStandardError);

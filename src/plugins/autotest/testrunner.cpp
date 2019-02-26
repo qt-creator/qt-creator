@@ -217,8 +217,7 @@ void TestRunner::scheduleNext()
     }
     m_currentProcess->setProcessEnvironment(environment.toProcessEnvironment());
 
-    connect(m_currentProcess,
-            static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(m_currentProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &TestRunner::onProcessFinished);
     const int timeout = AutotestPlugin::settings()->timeout;
     QTimer::singleShot(timeout, m_currentProcess, [this]() { cancelCurrent(Timeout); });

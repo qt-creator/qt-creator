@@ -364,7 +364,7 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     connect(m_model, &QAbstractItemModel::modelReset,
             this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
 
-    connect(m_ui.groupCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_ui.groupCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &SnippetsSettingsPagePrivate::loadSnippetGroup);
     connect(m_ui.addButton, &QAbstractButton::clicked,
             this, &SnippetsSettingsPagePrivate::addSnippet);

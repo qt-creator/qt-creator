@@ -636,7 +636,7 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     m_flashTimer->setDirection(QTimeLine::Forward);
     m_flashTimer->setCurveShape(QTimeLine::SineCurve);
     m_flashTimer->setFrameRange(0, 92);
-    auto updateSlot = static_cast<void (QWidget::*)()>(&QWidget::update);
+    auto updateSlot = QOverload<>::of(&QWidget::update);
     connect(m_flashTimer, &QTimeLine::valueChanged, this, updateSlot);
     connect(m_flashTimer, &QTimeLine::finished, this, updateSlot);
     updateToolTip();

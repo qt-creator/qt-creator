@@ -1009,8 +1009,8 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
     QObject::connect(q, &QPlainTextEdit::blockCountChanged,
                      this, &TextEditorWidgetPrivate::slotUpdateExtraAreaWidth);
 
-    QObject::connect(q, &QPlainTextEdit::modificationChanged, m_extraArea,
-                     static_cast<void (QWidget::*)()>(&QWidget::update));
+    QObject::connect(q, &QPlainTextEdit::modificationChanged,
+                     m_extraArea, QOverload<>::of(&QWidget::update));
 
     QObject::connect(q, &QPlainTextEdit::cursorPositionChanged,
                      q, &TextEditorWidget::slotCursorPositionChanged);
@@ -1046,8 +1046,8 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
     q->setFrameStyle(QFrame::NoFrame);
 
     m_delayedUpdateTimer.setSingleShot(true);
-    QObject::connect(&m_delayedUpdateTimer, &QTimer::timeout, q->viewport(),
-                     static_cast<void (QWidget::*)()>(&QWidget::update));
+    QObject::connect(&m_delayedUpdateTimer, &QTimer::timeout,
+                     q->viewport(), QOverload<>::of(&QWidget::update));
 
     m_moveLineUndoHack = false;
 
@@ -3454,7 +3454,7 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
                      this, &TextEditorWidgetPrivate::slotUpdateBlockNotify);
 
     QObject::connect(documentLayout, &TextDocumentLayout::updateExtraArea,
-                     m_extraArea, static_cast<void (QWidget::*)()>(&QWidget::update));
+                     m_extraArea, QOverload<>::of(&QWidget::update));
 
     QObject::connect(q, &TextEditorWidget::requestBlockUpdate,
                      documentLayout, &QPlainTextDocumentLayout::updateBlock);

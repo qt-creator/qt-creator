@@ -56,11 +56,11 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged);
     connect(m_ui->timeoutSpinBox, &QAbstractSpinBox::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished);
-    connect(m_ui->timeoutSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(m_ui->timeoutSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished);
     connect(m_ui->sshPortSpinBox, &QAbstractSpinBox::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished);
-    connect(m_ui->sshPortSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(m_ui->sshPortSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished);
     connect(m_ui->portsLineEdit, &QLineEdit::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged);

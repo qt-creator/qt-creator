@@ -316,7 +316,7 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
     }
 
     connect(m_ui->globalOrCustom,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             [=](int index){
         m_ui->clangToolsBasicSettings->setEnabled(index == CustomSettings);
         if (index == CustomSettings) {
