@@ -168,7 +168,7 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
                         int eid = vfs->idForFileName(file.toString(), QMakeVfs::VfsExact);
                         vfs->readFile(eid, &contents, &errorMessage);
                     }
-                    vfolder->addNode(std::make_unique<ResourceEditor::ResourceTopLevelNode>(file, false, contents, vfolder.get()));
+                    vfolder->addNode(std::make_unique<ResourceEditor::ResourceTopLevelNode>(file, contents, vfolder.get()));
                 }
             } else {
                 for (const FileName &fn : newFilePaths) {

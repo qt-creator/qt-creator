@@ -73,7 +73,7 @@ public:
         FolderNode *parent = m_node->parentFolderNode();
         QTC_ASSERT(parent, return false);
         parent->replaceSubtree(m_node, std::make_unique<ResourceTopLevelNode>(
-                                   m_node->filePath(), false, m_node->contents(), parent));
+                                   m_node->filePath(), m_node->contents(), parent));
         return true;
     }
 
@@ -264,11 +264,10 @@ bool SimpleResourceFolderNode::renameFile(const QString &filePath, const QString
 
 } // Internal
 
-ResourceTopLevelNode::ResourceTopLevelNode(const FileName &filePath, bool generated,
+ResourceTopLevelNode::ResourceTopLevelNode(const FileName &filePath,
                                            const QString &contents, FolderNode *parent)
     : FolderNode(filePath)
 {
-    setIsGenerated(generated);
     setIcon(FileIconProvider::icon(filePath.toString()));
     setPriority(Node::DefaultFilePriority);
     setListInProject(true);
