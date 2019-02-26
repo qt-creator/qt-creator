@@ -230,20 +230,12 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
     return false;
 }
 
-// ---------------------------------------------------------------------------
-// QbsBaseProjectNode:
-// ---------------------------------------------------------------------------
-
-QbsBaseProjectNode::QbsBaseProjectNode(const Utils::FileName &path) :
-    ProjectExplorer::ProjectNode(path)
-{ }
-
 // --------------------------------------------------------------------
 // QbsGroupNode:
 // --------------------------------------------------------------------
 
 QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath) :
-    QbsBaseProjectNode(Utils::FileName())
+    ProjectNode(Utils::FileName())
 {
     static QIcon groupIcon = QIcon(QString(Constants::QBS_GROUP_ICON));
     setIcon(groupIcon);
@@ -320,7 +312,7 @@ bool QbsGroupNode::renameFile(const QString &filePath, const QString &newFilePat
 FolderNode::AddNewInformation QbsGroupNode::addNewInformation(const QStringList &files,
                                                               Node *context) const
 {
-    AddNewInformation info = QbsBaseProjectNode::addNewInformation(files, context);
+    AddNewInformation info = ProjectNode::addNewInformation(files, context);
     if (context != this)
         --info.priority;
     return info;
@@ -331,7 +323,7 @@ FolderNode::AddNewInformation QbsGroupNode::addNewInformation(const QStringList 
 // --------------------------------------------------------------------
 
 QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
-    QbsBaseProjectNode(Utils::FileName::fromString(prd.location().filePath())),
+    ProjectNode(Utils::FileName::fromString(prd.location().filePath())),
     m_qbsProductData(prd)
 {
     static QIcon productIcon = Core::FileIconProvider::directoryIcon(Constants::QBS_PRODUCT_OVERLAY_ICON);
@@ -417,7 +409,7 @@ QString QbsProductNode::buildKey() const
 // --------------------------------------------------------------------
 
 QbsProjectNode::QbsProjectNode(const Utils::FileName &projectDirectory) :
-    QbsBaseProjectNode(projectDirectory)
+    ProjectNode(projectDirectory)
 {
     static QIcon projectIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
     setIcon(projectIcon);

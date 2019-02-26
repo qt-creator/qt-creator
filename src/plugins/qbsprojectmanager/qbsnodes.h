@@ -35,23 +35,11 @@ namespace Internal {
 class QbsNodeTreeBuilder;
 class QbsProject;
 
-// ---------------------------------------------------------------------------
-// QbsBaseProjectNode:
-// ---------------------------------------------------------------------------
-
-class QbsGroupNode;
-
-class QbsBaseProjectNode : public ProjectExplorer::ProjectNode
-{
-public:
-    explicit QbsBaseProjectNode(const Utils::FileName &absoluteFilePath);
-};
-
 // --------------------------------------------------------------------
 // QbsGroupNode:
 // --------------------------------------------------------------------
 
-class QbsGroupNode : public QbsBaseProjectNode
+class QbsGroupNode : public ProjectExplorer::ProjectNode
 {
 public:
     QbsGroupNode(const qbs::GroupData &grp, const QString &productPath);
@@ -72,7 +60,7 @@ private:
 // QbsProductNode:
 // --------------------------------------------------------------------
 
-class QbsProductNode : public QbsBaseProjectNode
+class QbsProductNode : public ProjectExplorer::ProjectNode
 {
 public:
     explicit QbsProductNode(const qbs::ProductData &prd);
@@ -96,7 +84,7 @@ private:
 // QbsProjectNode:
 // ---------------------------------------------------------------------------
 
-class QbsProjectNode : public QbsBaseProjectNode
+class QbsProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
     explicit QbsProjectNode(const Utils::FileName &projectDirectory);

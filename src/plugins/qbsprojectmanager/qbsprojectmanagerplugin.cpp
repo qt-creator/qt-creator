@@ -321,9 +321,11 @@ void QbsProjectManagerPlugin::updateBuildActions()
     if (Node *editorNode = currentEditorNode()) {
         fileName = editorNode->filePath().fileName();
 
+        ProjectNode *parentProjectNode = editorNode->parentProjectNode();
+
         // FIXME: This code is wrong: If the file is in a Group, then productNode will be
         // null and the action will be disabled. We have to walk up the tree.
-        auto productNode = dynamic_cast<QbsProductNode *>(editorNode->parentProjectNode());
+        auto productNode = dynamic_cast<QbsProductNode *>(parentProjectNode);
         if (productNode) {
             productVisible = true;
             productName = productNode->displayName();
@@ -331,7 +333,9 @@ void QbsProjectManagerPlugin::updateBuildActions()
 
         if (QbsProject *editorProject = currentEditorProject()) {
             enabled = !BuildManager::isBuilding(editorProject) && !editorProject->isParsing();
-            fileVisible = dynamic_cast<QbsBaseProjectNode *>(editorNode->parentProjectNode());
+            fileVisible = productNode
+                    || dynamic_cast<QbsProjectNode *>(parentProjectNode)
+                    || dynamic_cast<QbsGroupNode *>(parentProjectNode);
         }
     }
 
