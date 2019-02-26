@@ -64,10 +64,6 @@ class QbsProjectManagerPlugin : public ExtensionSystem::IPlugin
     void cleanSubprojectContextMenu();
     void rebuildSubprojectContextMenu();
     void runStepsForSubprojectContextMenu(const QList<Core::Id> &stepTypes);
-    void buildSubproject();
-    void cleanSubproject();
-    void rebuildSubproject();
-    void runStepsForSubproject(const QList<Core::Id> &stepTypes);
 
     void reparseSelectedProject();
     void reparseCurrentProject();
@@ -98,9 +94,6 @@ class QbsProjectManagerPlugin : public ExtensionSystem::IPlugin
     Utils::ParameterAction *m_buildProduct = nullptr;
     Utils::ParameterAction *m_cleanProduct = nullptr;
     Utils::ParameterAction *m_rebuildProduct = nullptr;
-    Utils::ParameterAction *m_buildSubproject = nullptr;
-    Utils::ParameterAction *m_cleanSubproject = nullptr;
-    Utils::ParameterAction *m_rebuildSubproject = nullptr;
 };
 
 } // namespace Internal
