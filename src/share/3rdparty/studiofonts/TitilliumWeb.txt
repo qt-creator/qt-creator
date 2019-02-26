@@ -1,0 +1,8 @@
+Titillium is a free open source font and it is born inside the Accademia
+di Belle Arti di Urbino as a didactic project Course Type design of the
+Master of Visual Design Campi Visivi. It has 11 different weights and is
+well suited for headlines and body type.
+
+Titillium is used as the brand font for Qt.
+
+https://brand.qt.io/fonts/
