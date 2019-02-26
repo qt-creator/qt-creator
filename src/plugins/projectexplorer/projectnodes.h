@@ -154,6 +154,7 @@ public:
 
     void setListInProject(bool l);
     void setIsGenerated(bool g);
+    void setPriority(int priority);
 
     static FileType fileTypeForMimeType(const Utils::MimeType &mt);
     static FileType fileTypeForFileName(const Utils::FileName &file);
@@ -163,7 +164,6 @@ protected:
     Node(const Node &other) = delete;
 
     void setNodeType(NodeType nodeType);
-    void setPriority(int priority);
     void setLine(int line);
     void setFilePath(const Utils::FileName &filePath);
 
@@ -309,7 +309,7 @@ private:
 class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 {
 public:
-    explicit VirtualFolderNode(const Utils::FileName &folderPath, int priority);
+    explicit VirtualFolderNode(const Utils::FileName &folderPath);
 
     void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
     QString addFileFilter() const override;

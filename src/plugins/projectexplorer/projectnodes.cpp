@@ -782,11 +782,10 @@ bool FolderNode::showWhenEmpty() const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority) :
+VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath) :
     FolderNode(folderPath)
 {
     setNodeType(NodeType::VirtualFolder);
-    setPriority(priority);
 }
 
 QString VirtualFolderNode::addFileFilter() const

@@ -148,7 +148,8 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
         });
 
         if (!newFilePaths.isEmpty()) {
-            auto vfolder = std::make_unique<VirtualFolderNode>(pri->filePath().parentDir(), Node::DefaultVirtualFolderPriority - i);
+            auto vfolder = std::make_unique<VirtualFolderNode>(pri->filePath().parentDir());
+            vfolder->setPriority(Node::DefaultVirtualFolderPriority - i);
             vfolder->setIcon(fileTypes.at(i).icon);
             vfolder->setDisplayName(fileTypes.at(i).typeName);
             vfolder->setAddFileFilter(fileTypes.at(i).addFileFilter);

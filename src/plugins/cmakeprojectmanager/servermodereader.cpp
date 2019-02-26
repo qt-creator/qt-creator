@@ -269,7 +269,8 @@ static void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, i
         return;
     FolderNode *folder = base;
     if (!displayName.isEmpty()) {
-        auto newFolder = std::make_unique<VirtualFolderNode>(basePath, priority);
+        auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
+        newFolder->setPriority(priority);
         newFolder->setDisplayName(displayName);
         folder = newFolder.get();
         base->addNode(std::move(newFolder));
@@ -954,8 +955,8 @@ void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *>
 
     static QIcon headerNodeIcon
             = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_H);
-    auto headerNode
-            = std::make_unique<VirtualFolderNode>(root->filePath(), Node::DefaultPriority - 5);
+    auto headerNode = std::make_unique<VirtualFolderNode>(root->filePath());
+    headerNode->setPriority(Node::DefaultPriority - 5);
     headerNode->setDisplayName(tr("<Headers>"));
     headerNode->setIcon(headerNodeIcon);
 
