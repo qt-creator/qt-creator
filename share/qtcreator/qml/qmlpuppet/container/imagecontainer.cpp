@@ -129,14 +129,14 @@ static void writeSharedMemory(SharedMemory *sharedMemory, const QImage &image)
     sharedMemory->lock();
 
     qint32 headerData[5];
-    headerData[0] = image.byteCount();
+    headerData[0] = qint32(image.sizeInBytes());
     headerData[1] = image.bytesPerLine();
     headerData[2] = image.size().width();
     headerData[3] = image.size().height();
     headerData[4] = image.format();
 
     std::memcpy(sharedMemory->data(), headerData, 20);
-    std::memcpy(reinterpret_cast<char*>(sharedMemory->data()) + 20, image.constBits(), image.byteCount());
+    std::memcpy(reinterpret_cast<char*>(sharedMemory->data()) + 20, image.constBits(), image.sizeInBytes());
     sharedMemory->unlock();
 }
 
@@ -145,8 +145,8 @@ static void writeStream(QDataStream &out, const QImage &image)
     out << qint32(image.bytesPerLine());
     out << image.size();
     out << qint32(image.format());
-    out << qint32(image.byteCount());
-    out.writeRawData(reinterpret_cast<const char*>(image.constBits()), image.byteCount());
+    out << qint32(image.sizeInBytes());
+    out.writeRawData(reinterpret_cast<const char*>(image.constBits()), image.sizeInBytes());
 }
 
 QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
@@ -163,7 +163,8 @@ QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
         out << qint32(0);
         writeStream(out, image);
     } else {
-        SharedMemory *sharedMemory = createSharedMemory(container.keyNumber(), image.byteCount() + extraDataSize);
+        const qint32 totalSize = qint32(image.sizeInBytes()) + extraDataSize;
+        SharedMemory *sharedMemory = createSharedMemory(container.keyNumber(), totalSize);
 
         out << qint32(sharedMemory != nullptr); // send if shared memory is used
 
