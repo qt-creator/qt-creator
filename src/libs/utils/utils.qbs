@@ -146,6 +146,7 @@ Project {
             "jsontreeitem.h",
             "linecolumn.h",
             "link.h",
+            "listmodel.h",
             "listutils.h",
             "macroexpander.cpp",
             "macroexpander.h",

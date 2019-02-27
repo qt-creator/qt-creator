@@ -268,7 +268,8 @@ HEADERS += \
     $$PWD/removefiledialog.h \
     $$PWD/differ.h \
     $$PWD/cpplanguage_details.h \
-    $$PWD/jsontreeitem.h
+    $$PWD/jsontreeitem.h \
+    $$PWD/listmodel.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/newclasswidget.ui \
