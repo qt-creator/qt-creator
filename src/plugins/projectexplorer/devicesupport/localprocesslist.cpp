@@ -56,8 +56,8 @@ namespace Internal {
 
 LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *parent)
         : DeviceProcessList(device, parent)
-        , m_myPid(GetCurrentProcessId())
 {
+    setOwnPid(GetCurrentProcessId())
 }
 
 QList<DeviceProcessItem> LocalProcessList::getLocalProcesses()
@@ -89,8 +89,9 @@ QList<DeviceProcessItem> LocalProcessList::getLocalProcesses()
 #ifdef Q_OS_UNIX
 LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *parent)
     : DeviceProcessList(device, parent)
-    , m_myPid(getpid())
-{}
+{
+    setOwnPid(getpid());
+}
 
 static bool isUnixProcessId(const QString &procname)
 {
@@ -204,14 +205,6 @@ void LocalProcessList::doKillProcess(const DeviceProcessItem &process)
     connect(signalOperation.data(), &DeviceProcessSignalOperation::finished,
             this, &LocalProcessList::reportDelayedKillStatus);
     signalOperation->killProcess(process.pid);
-}
-
-Qt::ItemFlags LocalProcessList::flags(const QModelIndex &index) const
-{
-    Qt::ItemFlags flags = DeviceProcessList::flags(index);
-    if (index.isValid() && at(index.row()).pid == m_myPid)
-        flags &= ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    return flags;
 }
 
 void LocalProcessList::handleUpdate()

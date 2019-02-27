@@ -27,23 +27,38 @@
 #include "localprocesslist.h"
 
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
 
 enum State { Inactive, Listing, Killing };
 
+class DeviceProcessTreeItem : public TreeItem
+{
+public:
+    DeviceProcessTreeItem(const DeviceProcessItem &p, Qt::ItemFlags f) : process(p), fl(f) {}
+
+    QVariant data(int column, int role) const final;
+    Qt::ItemFlags flags(int) const final { return fl; }
+
+    DeviceProcessItem process;
+    Qt::ItemFlags fl;
+};
+
 class DeviceProcessListPrivate
 {
 public:
     DeviceProcessListPrivate(const IDevice::ConstPtr &device)
-        : device(device),
-          state(Inactive)
+        : device(device)
     { }
 
+    qint64 ownPid = -1;
     const IDevice::ConstPtr device;
-    QList<DeviceProcessItem> remoteProcesses;
-    State state;
+    State state = Inactive;
+    TreeModel<TypedTreeItem<DeviceProcessTreeItem>, DeviceProcessTreeItem> model;
 };
 
 } // namespace Internal
@@ -51,39 +66,19 @@ public:
 using namespace Internal;
 
 DeviceProcessList::DeviceProcessList(const IDevice::ConstPtr &device, QObject *parent)
-    : QAbstractItemModel(parent), d(std::make_unique<DeviceProcessListPrivate>(device))
-{ }
+    : QObject(parent), d(std::make_unique<DeviceProcessListPrivate>(device))
+{
+    d->model.setHeader({tr("Process ID"), tr("Command Line")});
+}
 
 DeviceProcessList::~DeviceProcessList() = default;
-
-QModelIndex DeviceProcessList::parent(const QModelIndex &) const
-{
-    return QModelIndex();
-}
-
-bool DeviceProcessList::hasChildren(const QModelIndex &parent) const
-{
-    if (!parent.isValid())
-        return rowCount(parent) > 0 && columnCount(parent) > 0;
-    return false;
-}
-
-QModelIndex DeviceProcessList::index(int row, int column, const QModelIndex &parent) const
-{
-    return hasIndex(row, column, parent) ? createIndex(row, column) : QModelIndex();
-}
-
 
 void DeviceProcessList::update()
 {
     QTC_ASSERT(d->state == Inactive, return);
     QTC_ASSERT(device(), return);
 
-    if (!d->remoteProcesses.isEmpty()) {
-        beginRemoveRows(QModelIndex(), 0, d->remoteProcesses.count() - 1);
-        d->remoteProcesses.clear();
-        endRemoveRows();
-    }
+    d->model.clear();
     d->state = Listing;
     doUpdate();
 }
@@ -92,22 +87,29 @@ void DeviceProcessList::reportProcessListUpdated(const QList<DeviceProcessItem> 
 {
     QTC_ASSERT(d->state == Listing, return);
     setFinished();
-    if (!processes.isEmpty()) {
-        beginInsertRows(QModelIndex(), 0, processes.count() - 1);
-        d->remoteProcesses = processes;
-        endInsertRows();
+    for (const DeviceProcessItem &process : processes) {
+        Qt::ItemFlags fl;
+        if (process.pid != d->ownPid)
+            fl = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        d->model.rootItem()->appendChild(new DeviceProcessTreeItem(process, fl));
     }
+
     emit processListUpdated();
 }
 
 void DeviceProcessList::killProcess(int row)
 {
-    QTC_ASSERT(row >= 0 && row < d->remoteProcesses.count(), return);
+    QTC_ASSERT(row >= 0 && row < d->model.rootItem()->childCount(), return);
     QTC_ASSERT(d->state == Inactive, return);
     QTC_ASSERT(device(), return);
 
     d->state = Killing;
-    doKillProcess(d->remoteProcesses.at(row));
+    doKillProcess(at(row));
+}
+
+void DeviceProcessList::setOwnPid(qint64 pid)
+{
+    d->ownPid = pid;
 }
 
 void DeviceProcessList::reportProcessKilled()
@@ -119,40 +121,21 @@ void DeviceProcessList::reportProcessKilled()
 
 DeviceProcessItem DeviceProcessList::at(int row) const
 {
-    return d->remoteProcesses.at(row);
+    return d->model.rootItem()->childAt(row)->process;
 }
 
-int DeviceProcessList::rowCount(const QModelIndex &parent) const
+QAbstractItemModel *DeviceProcessList::model() const
 {
-    return parent.isValid() ? 0 : d->remoteProcesses.count();
+    return &d->model;
 }
 
-int DeviceProcessList::columnCount(const QModelIndex &) const
+QVariant DeviceProcessTreeItem::data(int column, int role) const
 {
-    return 2;
-}
-
-QVariant DeviceProcessList::headerData(int section, Qt::Orientation orientation,
-    int role) const
-{
-    if (orientation != Qt::Horizontal || role != Qt::DisplayRole || section < 0
-            || section >= columnCount())
-        return QVariant();
-    return section == 0? tr("Process ID") : tr("Command Line");
-}
-
-QVariant DeviceProcessList::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid() || index.row() >= rowCount(index.parent())
-            || index.column() >= columnCount())
-        return QVariant();
-
     if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
-        const DeviceProcessItem &proc = d->remoteProcesses.at(index.row());
-        if (index.column() == 0)
-            return proc.pid;
+        if (column == 0)
+            return process.pid;
         else
-            return proc.cmdLine;
+            return process.cmdLine;
     }
     return QVariant();
 }

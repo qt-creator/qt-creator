@@ -215,7 +215,7 @@ void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
 
     processList = device->createProcessListModel();
     QTC_ASSERT(processList, return);
-    proxyModel.setSourceModel(processList);
+    proxyModel.setSourceModel(processList->model());
 
     connect(processList, &DeviceProcessList::error,
             this, &DeviceProcessesDialogPrivate::handleRemoteError);

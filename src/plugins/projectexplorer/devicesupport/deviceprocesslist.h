@@ -46,7 +46,7 @@ public:
     QString exe;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceProcessList : public QAbstractItemModel
+class PROJECTEXPLORER_EXPORT DeviceProcessList : public QObject
 {
     Q_OBJECT
 
@@ -56,7 +56,10 @@ public:
 
     void update();
     void killProcess(int row);
+    void setOwnPid(qint64 pid);
+
     DeviceProcessItem at(int row) const;
+    QAbstractItemModel *model() const;
 
     static QList<DeviceProcessItem> localProcesses();
 
@@ -73,15 +76,6 @@ protected:
     IDevice::ConstPtr device() const;
 
 private:
-    QModelIndex index(int row, int column, const QModelIndex &parent) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    QModelIndex parent(const QModelIndex &) const override;
-    bool hasChildren(const QModelIndex &parent) const override;
-
     virtual void doUpdate() = 0;
     virtual void doKillProcess(const DeviceProcessItem &process) = 0;
 
