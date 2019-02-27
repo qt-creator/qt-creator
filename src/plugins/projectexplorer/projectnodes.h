@@ -163,6 +163,7 @@ public:
 protected:
     Node();
     Node(const Node &other) = delete;
+    bool operator=(const Node &other) = delete;
 
     void setNodeType(NodeType nodeType);
     void setFilePath(const Utils::FileName &filePath);
