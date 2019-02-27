@@ -2763,10 +2763,6 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
     runCommand({"from cdbbridge import Dumper", ScriptCommand});
     runCommand({"print(dir())", ScriptCommand});
     runCommand({"theDumper = Dumper()", ScriptCommand});
-    runCommand({"theDumper.loadDumpers(None)", ScriptCommand,
-                [this](const DebuggerResponse &response) {
-                    watchHandler()->addDumpers(response.data["result"]["dumpers"]);
-    }});
 
     const QString path = stringSetting(ExtraDumperFile);
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {
@@ -2779,6 +2775,11 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         for (const auto &command : commands.split('\n', QString::SkipEmptyParts))
             runCommand({command, ScriptCommand});
     }
+
+    runCommand({"theDumper.loadDumpers(None)", ScriptCommand,
+                [this](const DebuggerResponse &response) {
+                    watchHandler()->addDumpers(response.data["result"]["dumpers"]);
+    }});
 }
 
 void CdbEngine::mergeStartParametersSourcePathMap()
