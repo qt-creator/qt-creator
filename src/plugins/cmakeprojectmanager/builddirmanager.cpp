@@ -413,7 +413,7 @@ bool BuildDirManager::checkConfiguration()
         QStringList keyList = changedKeys.keys();
         Utils::sort(keyList);
         QString table = QString::fromLatin1("<table><tr><th>%1</th><th>%2</th><th>%3</th></tr>")
-                .arg(tr("Key")).arg(tr("CMake")).arg(tr("Project"));
+                .arg(tr("Key")).arg(tr("CMakeCache.txt")).arg(tr("Project"));
         foreach (const QString &k, keyList) {
             const QPair<QString, QString> data = changedKeys.value(k);
             table += QString::fromLatin1("\n<tr><td>%1</td><td>%2</td><td>%3</td></tr>")
@@ -426,7 +426,7 @@ bool BuildDirManager::checkConfiguration()
         QPointer<QMessageBox> box = new QMessageBox(Core::ICore::mainWindow());
         box->setText(tr("CMake configuration has changed on disk."));
         box->setInformativeText(table);
-        auto *defaultButton = box->addButton(tr("Overwrite Changes in CMake"), QMessageBox::RejectRole);
+        auto *defaultButton = box->addButton(tr("Overwrite Changes in CMakeCache.txt"), QMessageBox::RejectRole);
         auto *applyButton = box->addButton(tr("Apply Changes to Project"), QMessageBox::ApplyRole);
         box->setDefaultButton(defaultButton);
 
