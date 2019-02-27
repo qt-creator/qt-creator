@@ -79,6 +79,7 @@ ProFileReader::ProFileReader(QMakeGlobals *option, QMakeVfs *vfs)
     , ProFileEvaluator(option, this, vfs, this)
     , m_ignoreLevel(0)
 {
+    setExtraConfigs(QStringList("qtc_run"));
 }
 
 ProFileReader::~ProFileReader()

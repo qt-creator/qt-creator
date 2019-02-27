@@ -1246,6 +1246,7 @@ static bool evaluateOne(const QmakeEvalInput &input, ProFile *pro,
         QStringList basecfgs = reader->values(build + QLatin1String(".CONFIG"));
         basecfgs += build;
         basecfgs += QLatin1String("build_pass");
+        basecfgs += "qtc_run";
         basevars[QLatin1String("BUILD_PASS")] = QStringList(build);
         QStringList buildname = reader->values(build + QLatin1String(".name"));
         basevars[QLatin1String("BUILD_NAME")] = (buildname.isEmpty() ? QStringList(build) : buildname);
