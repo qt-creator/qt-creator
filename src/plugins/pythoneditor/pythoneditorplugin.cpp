@@ -116,7 +116,6 @@ public:
     PythonProjectNode(PythonProject *project);
 
     bool showInSimpleTree() const override;
-    QString addFileFilter() const override;
     bool supportsAction(ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *) override;
     bool removeFiles(const QStringList &filePaths, QStringList *) override;
@@ -585,6 +584,7 @@ PythonProjectNode::PythonProjectNode(PythonProject *project)
     , m_project(project)
 {
     setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
+    setAddFileFilter("*.py");
 }
 
 QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<QString> &files)
@@ -614,11 +614,6 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
 bool PythonProjectNode::showInSimpleTree() const
 {
     return true;
-}
-
-QString PythonProjectNode::addFileFilter() const
-{
-    return QLatin1String("*.py");
 }
 
 bool PythonProjectNode::supportsAction(ProjectAction action, const Node *node) const

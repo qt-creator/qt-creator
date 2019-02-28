@@ -693,6 +693,9 @@ const QList<FolderNode::LocationInfo> FolderNode::locationInfo() const
 
 QString FolderNode::addFileFilter() const
 {
+    if (!m_addFileFilter.isNull())
+        return m_addFileFilter;
+
     FolderNode *fn = parentFolderNode();
     return fn ? fn->addFileFilter() : QString();
 }
@@ -796,13 +799,6 @@ bool FolderNode::showWhenEmpty() const
 VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath) :
     FolderNode(folderPath)
 {
-}
-
-QString VirtualFolderNode::addFileFilter() const
-{
-    if (!m_addFileFilter.isNull())
-        return m_addFileFilter;
-    return FolderNode::addFileFilter();
 }
 
 /*!

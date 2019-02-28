@@ -271,6 +271,8 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FileName &filePath,
     setIcon(FileIconProvider::icon(filePath.toString()));
     setPriority(Node::DefaultFilePriority);
     setListInProject(true);
+    setAddFileFilter("*.png; *.jpg; *.gif; *.svg; *.ico; *.qml; *.qml.ui");
+
     if (!filePath.isEmpty()) {
         QFileInfo fi = filePath.toFileInfo();
         if (fi.isFile() && fi.isReadable()) {
@@ -382,11 +384,6 @@ void ResourceTopLevelNode::addInternalNodes()
                                                                qrcPath, displayName));
         }
     }
-}
-
-QString ResourceTopLevelNode::addFileFilter() const
-{
-    return QLatin1String("*.png; *.jpg; *.gif; *.svg; *.ico; *.qml; *.qml.ui");
 }
 
 bool ResourceTopLevelNode::supportsAction(ProjectAction action, const Node *node) const

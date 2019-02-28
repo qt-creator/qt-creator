@@ -40,8 +40,6 @@ public:
 
     void addInternalNodes();
 
-    QString addFileFilter() const override;
-
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) override;

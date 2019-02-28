@@ -268,7 +268,8 @@ public:
     void setLocationInfo(const QList<LocationInfo> &info);
     const QList<LocationInfo> locationInfo() const;
 
-    virtual QString addFileFilter() const;
+    QString addFileFilter() const;
+    void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
 
     bool supportsAction(ProjectAction action, const Node *node) const override;
 
@@ -312,6 +313,7 @@ protected:
 
 private:
     QString m_displayName;
+    QString m_addFileFilter;
     mutable QIcon m_icon;
 };
 
@@ -322,12 +324,6 @@ public:
 
     bool isFolderNodeType() const override { return false; }
     bool isVirtualFolderType() const override { return true; }
-
-    void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
-    QString addFileFilter() const override;
-
-private:
-    QString m_addFileFilter;
 };
 
 // Documentation inside.
