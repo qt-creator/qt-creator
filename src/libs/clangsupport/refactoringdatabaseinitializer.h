@@ -144,6 +144,7 @@ public:
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         table.addColumn("sourceType", Sqlite::ColumnType::Integer);
         table.addColumn("pchCreationTimeStamp", Sqlite::ColumnType::Integer);
+        table.addColumn("hasMissingIncludes", Sqlite::ColumnType::Integer);
         table.addUniqueIndex({sourceIdColumn, projectPartIdColumn});
         table.addIndex({projectPartIdColumn});
 

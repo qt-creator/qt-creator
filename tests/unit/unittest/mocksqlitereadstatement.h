@@ -255,9 +255,10 @@ template <>
 Utils::optional<SourceLocation>
 MockSqliteReadStatement::value<SourceLocation, 3>(const long long &symbolId, const int &locationKind);
 
-template <>
-SourceEntries
-MockSqliteReadStatement::values<SourceEntry, 3>(std::size_t reserveSize, const int&, const int&);
+template<>
+SourceEntries MockSqliteReadStatement::values<SourceEntry, 4>(std::size_t reserveSize,
+                                                              const int &,
+                                                              const int &);
 
 template <>
 Utils::optional<Sources::SourceNameAndDirectoryId>

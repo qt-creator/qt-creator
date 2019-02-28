@@ -186,9 +186,10 @@ MockSqliteReadStatement::value<SourceLocation, 3>(const long long &symbolId, con
     return valueReturnSourceLocation(symbolId, locationKind);
 }
 
-template <>
-SourceEntries
-MockSqliteReadStatement::values<SourceEntry, 3>(std::size_t reserveSize, const int &filePathId, const int &projectPartId)
+template<>
+SourceEntries MockSqliteReadStatement::values<SourceEntry, 4>(std::size_t reserveSize,
+                                                              const int &filePathId,
+                                                              const int &projectPartId)
 {
     return valuesReturnSourceEntries(reserveSize, filePathId, projectPartId);
 }

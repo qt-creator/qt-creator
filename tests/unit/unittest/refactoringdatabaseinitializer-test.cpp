@@ -104,7 +104,8 @@ TEST_F(RefactoringDatabaseInitializer, AddProjectPartsSourcesTable)
 
     EXPECT_CALL(mockDatabase,
                 execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsSources(projectPartId INTEGER, "
-                           "sourceId INTEGER, sourceType INTEGER, pchCreationTimeStamp INTEGER)")));
+                           "sourceId INTEGER, sourceType INTEGER, pchCreationTimeStamp INTEGER, "
+                           "hasMissingIncludes INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsSources_sourceId_projectPartId ON projectPartsSources(sourceId, projectPartId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_projectPartId ON projectPartsSources(projectPartId)")));
 
@@ -179,7 +180,8 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectParts_projectPartName ON projectParts(projectPartName)")));
     EXPECT_CALL(mockDatabase,
                 execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsSources(projectPartId INTEGER, "
-                           "sourceId INTEGER, sourceType INTEGER, pchCreationTimeStamp INTEGER)")));
+                           "sourceId INTEGER, sourceType INTEGER, pchCreationTimeStamp INTEGER, "
+                           "hasMissingIncludes INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsSources_sourceId_projectPartId ON projectPartsSources(sourceId, projectPartId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_projectPartId ON projectPartsSources(projectPartId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS usedMacros(usedMacroId INTEGER PRIMARY KEY, sourceId INTEGER, macroName TEXT)")));

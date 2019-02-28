@@ -61,7 +61,7 @@ protected:
     MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = storage.deleteOutdatedSourceDependenciesStatement;
     MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = storage.deleteNewSourceDependenciesStatement;
     MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = storage.getLowestLastModifiedTimeOfDependencies;
-    MockSqliteWriteStatement &insertOrUpdateSourceTypeStatement = storage.insertOrUpdateSourceTypeStatement;
+    MockSqliteWriteStatement &insertOrUpdateProjectPartsSourcesStatement = storage.insertOrUpdateProjectPartsSourcesStatement;
     MockSqliteReadStatement &fetchSourceDependenciesStatement = storage.fetchSourceDependenciesStatement;
     MockSqliteReadStatement &fetchProjectPartIdStatement = storage.fetchProjectPartIdStatement;
     MockSqliteReadStatement &fetchUsedMacrosStatement = storage.fetchUsedMacrosStatement;
@@ -174,14 +174,14 @@ TEST_F(BuildDependenciesStorage, AddNewSourceDependenciesTable)
 TEST_F(BuildDependenciesStorage, UpdateSources)
 {
     InSequence s;
-    SourceEntries entries{{1, SourceType::TopProjectInclude, 10},
+    SourceEntries entries{{1, SourceType::TopProjectInclude, 10, ClangBackEnd::HasMissingIncludes::Yes},
                           {2, SourceType::TopSystemInclude, 20}};
 
     EXPECT_CALL(deleteAllProjectPartsSourcesWithProjectPartNameStatement, write(TypedEq<int>(22)));
-    EXPECT_CALL(insertOrUpdateSourceTypeStatement,
-                write(TypedEq<int>(1), TypedEq<int>(22), TypedEq<uchar>(0)));
-    EXPECT_CALL(insertOrUpdateSourceTypeStatement,
-                write(TypedEq<int>(2), TypedEq<int>(22), TypedEq<uchar>(1)));
+    EXPECT_CALL(insertOrUpdateProjectPartsSourcesStatement,
+                write(TypedEq<int>(1), TypedEq<int>(22), TypedEq<uchar>(0), TypedEq<uchar>(1)));
+    EXPECT_CALL(insertOrUpdateProjectPartsSourcesStatement,
+                write(TypedEq<int>(2), TypedEq<int>(22), TypedEq<uchar>(1), TypedEq<uchar>(0)));
 
     storage.insertOrUpdateSources(entries, 22);
 }

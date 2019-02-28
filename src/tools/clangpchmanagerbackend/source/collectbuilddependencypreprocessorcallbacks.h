@@ -204,10 +204,10 @@ public:
 
     void appendContainsMissingIncludes(const FilePathIds &dependentSourceFilesWithMissingIncludes)
     {
-        auto split = m_containsMissingIncludes
-                         .insert(m_containsMissingIncludes.end(),
-                                 dependentSourceFilesWithMissingIncludes.begin(),
-                                 dependentSourceFilesWithMissingIncludes.end());
+        auto split = m_containsMissingIncludes.insert(
+            m_containsMissingIncludes.end(),
+            dependentSourceFilesWithMissingIncludes.begin(),
+            dependentSourceFilesWithMissingIncludes.end());
         std::inplace_merge(m_containsMissingIncludes.begin(),
                            split,
                            m_containsMissingIncludes.end());
@@ -217,11 +217,13 @@ public:
     {
         FilePathIds filteredDependentSourceFilesWithMissingIncludes;
         filteredDependentSourceFilesWithMissingIncludes.reserve(dependentSourceFilesWithMissingIncludes.size());
-        std::set_difference(dependentSourceFilesWithMissingIncludes.begin(),
-                            dependentSourceFilesWithMissingIncludes.end(),
-                            m_containsMissingIncludes.begin(),
-                            m_containsMissingIncludes.end(),
-                            std::back_inserter(filteredDependentSourceFilesWithMissingIncludes));
+        std::set_difference(
+            dependentSourceFilesWithMissingIncludes.begin(),
+            dependentSourceFilesWithMissingIncludes.end(),
+            m_containsMissingIncludes.begin(),
+            m_containsMissingIncludes.end(),
+            std::back_inserter(
+                filteredDependentSourceFilesWithMissingIncludes));
         dependentSourceFilesWithMissingIncludes = filteredDependentSourceFilesWithMissingIncludes;
     }
 
@@ -265,8 +267,7 @@ public:
                                          sourceDependencies);
     }
 
-    void removeSourceWithMissingIncludesFromIncludes()
-    {
+    void removeSourceWithMissingIncludesFromSources() {
         class Compare
         {
         public:
@@ -280,17 +281,16 @@ public:
             }
         };
 
-        auto &includes = m_buildDependency.sources;
-        SourceEntries newIncludes;
-        newIncludes.reserve(includes.size());
-        std::set_difference(includes.begin(),
-                            includes.end(),
-                            m_containsMissingIncludes.begin(),
-                            m_containsMissingIncludes.end(),
-                            std::back_inserter(newIncludes),
-                            Compare{});
-
-        m_buildDependency.sources = newIncludes;
+        SourceEntryReferences sourcesWithMissingIncludes;
+        sourcesWithMissingIncludes.reserve(m_containsMissingIncludes.size());
+        std::set_intersection(m_buildDependency.sources.begin(),
+                              m_buildDependency.sources.end(),
+                              m_containsMissingIncludes.begin(),
+                              m_containsMissingIncludes.end(),
+                              std::back_inserter(sourcesWithMissingIncludes),
+                              Compare{});
+        for (SourceEntryReference entry : sourcesWithMissingIncludes)
+            entry.get().hasMissingIncludes = HasMissingIncludes::Yes;
     }
 
     SourceDependencies sourceDependenciesSortedByDependendFilePathId() const
@@ -311,7 +311,7 @@ public:
         collectSourceWithMissingIncludes(m_containsMissingIncludes,
                                          sourceDependenciesSortedByDependendFilePathId());
 
-        removeSourceWithMissingIncludesFromIncludes();
+        removeSourceWithMissingIncludesFromSources();
     }
 
     void ensureDirectory(const QString &directory, const QString &fileName)

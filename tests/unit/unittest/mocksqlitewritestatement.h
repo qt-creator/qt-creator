@@ -109,7 +109,7 @@ public:
 
     MOCK_METHOD2(write,
                  void (uchar, int));
-    MOCK_METHOD3(write, void(int, int, uchar));
+    MOCK_METHOD4(write, void(int, int, uchar, uchar));
     MOCK_METHOD2(write,
                  void (long long, int));
     MOCK_METHOD2(write, void(long long, Utils::SmallStringView));

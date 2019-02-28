@@ -47,6 +47,7 @@ using ClangBackEnd::BuildDependency;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathIds;
 using ClangBackEnd::FilePathView;
+using ClangBackEnd::HasMissingIncludes;
 using ClangBackEnd::SourceDependency;
 using ClangBackEnd::SourceType;
 using ClangBackEnd::UsedMacro;
@@ -57,11 +58,26 @@ MATCHER_P2(HasSource,
            sourceId,
            sourceType,
            std::string(negation ? "hasn't " : "has ")
-               + PrintToString(ClangBackEnd::SourceEntry(sourceId, sourceType, -1)))
+               + PrintToString(ClangBackEnd::SourceEntry(
+                     sourceId, sourceType, -1, ClangBackEnd::HasMissingIncludes::No)))
 {
     const ClangBackEnd::SourceEntry &entry = arg;
 
-    return entry.sourceId == sourceId && entry.sourceType == sourceType;
+    return entry.sourceId == sourceId && entry.sourceType == sourceType
+           && entry.hasMissingIncludes == ClangBackEnd::HasMissingIncludes::No;
+}
+
+MATCHER_P3(HasSource,
+           sourceId,
+           sourceType,
+           hasMissingIncludes,
+           std::string(negation ? "hasn't " : "has ")
+               + PrintToString(ClangBackEnd::SourceEntry(sourceId, sourceType, -1, hasMissingIncludes)))
+{
+    const ClangBackEnd::SourceEntry &entry = arg;
+
+    return entry.sourceId == sourceId && entry.sourceType == sourceType
+           && entry.hasMissingIncludes == hasMissingIncludes;
 }
 
 class BuildDependencyCollector : public ::testing::Test
@@ -199,6 +215,7 @@ TEST_F(BuildDependencyCollector, NoDuplicate)
     ASSERT_THAT(sources(collector.sourceEntries()),
                 UnorderedElementsAre(
                     id(TESTDATA_DIR "/builddependencycollector/project/main.cpp"),
+                    id(TESTDATA_DIR "/builddependencycollector/project/main2.cpp"),
                     id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
                     id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
                     id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
@@ -214,6 +231,7 @@ TEST_F(BuildDependencyCollector, IncludesAreSorted)
 
     ASSERT_THAT(sources(collector.sourceEntries()),
                 ElementsAre(id(TESTDATA_DIR "/builddependencycollector/project/main.cpp"),
+                            id(TESTDATA_DIR "/builddependencycollector/project/main2.cpp"),
                             id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
                             id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
                             id(TESTDATA_DIR "/builddependencycollector/external/external3.h"),
@@ -262,6 +280,7 @@ TEST_F(BuildDependencyCollector, IgnoreMissingFile)
 
     ASSERT_THAT(sources(emptyCollector.sourceEntries()),
                 UnorderedElementsAre(
+                    id(TESTDATA_DIR "/builddependencycollector/project/missingfile.cpp"),
                     id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
                     id(TESTDATA_DIR "/builddependencycollector/external/indirect_external.h"),
                     id(TESTDATA_DIR "/builddependencycollector/external/indirect_external2.h")));
@@ -634,10 +653,37 @@ TEST_F(BuildDependencyCollector, MissingInclude)
 
     emptyCollector.collect();
 
-    ASSERT_THAT(emptyCollector.sourceEntries(),
-                ElementsAre(
-                    HasSource(id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
-                              SourceType::UserInclude)));
+    ASSERT_THAT(
+        emptyCollector.sourceEntries(),
+        UnorderedElementsAre(
+            HasSource(id(TESTDATA_DIR "/builddependencycollector/project/main5.cpp"),
+                      SourceType::Source,
+                      HasMissingIncludes::Yes),
+            HasSource(id(TESTDATA_DIR "/builddependencycollector/project/missinginclude2.h"),
+                      SourceType::ProjectInclude,
+                      HasMissingIncludes::Yes),
+            HasSource(id(TESTDATA_DIR
+                         "/builddependencycollector/project/indirect_missinginclude.h"),
+                      SourceType::ProjectInclude,
+                      HasMissingIncludes::Yes),
+            HasSource(id(TESTDATA_DIR
+                         "/builddependencycollector/project/indirect_missinginclude3.h"),
+                      SourceType::ProjectInclude,
+                      HasMissingIncludes::Yes),
+            HasSource(id(TESTDATA_DIR
+                         "/builddependencycollector/project/indirect_missinginclude4.h"),
+                      SourceType::ProjectInclude,
+                      HasMissingIncludes::Yes),
+            HasSource(id(TESTDATA_DIR "/builddependencycollector/project/missinginclude3.h"),
+                      SourceType::ProjectInclude,
+                      HasMissingIncludes::Yes),
+            HasSource(id(TESTDATA_DIR
+                         "/builddependencycollector/project/indirect_missinginclude2.h"),
+                      SourceType::ProjectInclude,
+                      HasMissingIncludes::Yes),
+            HasSource(id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
+                      SourceType::UserInclude,
+                      HasMissingIncludes::No)));
 }
 
 
@@ -735,6 +781,12 @@ TEST_F(BuildDependencyCollector, Create)
             Field(
                 &BuildDependency::sources,
                 UnorderedElementsAre(
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp"),
+                              SourceType::Source,
+                              HasMissingIncludes::Yes),
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
+                              SourceType::UserInclude,
+                              HasMissingIncludes::Yes),
                     HasSource(id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
                               SourceType::UserInclude),
                     HasSource(id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),

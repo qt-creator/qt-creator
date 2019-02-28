@@ -1179,7 +1179,7 @@ std::ostream &operator<<(std::ostream &out, const SlotUsage &slotUsage)
     return out << "(" << slotUsage.free << ", " << slotUsage.used << ")";
 }
 
-const char *sourceTypeString(SourceType sourceType)
+const char *typeToString(SourceType sourceType)
 {
     using ClangBackEnd::SymbolTag;
 
@@ -1201,9 +1201,24 @@ const char *sourceTypeString(SourceType sourceType)
     return "";
 }
 
+const char *typeToString(HasMissingIncludes hasMissingIncludes)
+{
+    using ClangBackEnd::SymbolTag;
+
+    switch (hasMissingIncludes) {
+    case HasMissingIncludes::No:
+        return "HasMissingIncludes::No";
+    case HasMissingIncludes::Yes:
+        return "HasMissingIncludes::Yes";
+    }
+
+    return "";
+}
+
 std::ostream &operator<<(std::ostream &out, const SourceEntry &entry)
 {
-    return out  << "(" << entry.sourceId << ", " << sourceTypeString(entry.sourceType) << ")";
+    return out << "(" << entry.sourceId << ", " << typeToString(entry.sourceType) << ", "
+               << typeToString(entry.hasMissingIncludes) << ")";
 }
 
 const char *typeToString(IncludeSearchPathType type)

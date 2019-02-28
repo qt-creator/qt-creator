@@ -40,6 +40,8 @@ enum class SourceType : unsigned char {
     Source
 };
 
+enum class HasMissingIncludes : unsigned char { No, Yes };
+
 class TimeStamp
 {
     using int64 = long long;
@@ -108,20 +110,23 @@ class SourceEntry
     using int64 = long long;
 
 public:
-    SourceEntry(int sourceId, int64 pchCreationTimeStamp, int sourceType)
-        : pchCreationTimeStamp(pchCreationTimeStamp)
-        , sourceId(sourceId)
-        , sourceType(static_cast<SourceType>(sourceType))
-    {}
+    SourceEntry(int sourceId,
+                int64 pchCreationTimeStamp,
+                int sourceType,
+                int hasMissingIncludes)
+        : pchCreationTimeStamp(pchCreationTimeStamp), sourceId(sourceId),
+          sourceType(static_cast<SourceType>(sourceType)),
+          hasMissingIncludes(
+              static_cast<HasMissingIncludes>(hasMissingIncludes)) {}
 
-    SourceEntry(FilePathId sourceId, SourceType sourceType, TimeStamp pchCreationTimeStamp)
-        : pchCreationTimeStamp(pchCreationTimeStamp)
-        , sourceId(sourceId)
-        , sourceType(sourceType)
-    {}
+    SourceEntry(FilePathId sourceId,
+                SourceType sourceType,
+                TimeStamp pchCreationTimeStamp,
+                HasMissingIncludes hasMissingIncludes = HasMissingIncludes::No)
+        : pchCreationTimeStamp(pchCreationTimeStamp), sourceId(sourceId),
+          sourceType(sourceType), hasMissingIncludes(hasMissingIncludes) {}
 
-    friend bool operator<(SourceEntry first, SourceEntry second)
-    {
+    friend bool operator<(SourceEntry first, SourceEntry second) {
         return first.sourceId < second.sourceId;
     }
 
@@ -137,8 +142,10 @@ public:
     TimeStamp pchCreationTimeStamp;
     FilePathId sourceId;
     SourceType sourceType = SourceType::UserInclude;
+    HasMissingIncludes hasMissingIncludes = HasMissingIncludes::No;
 };
 
 using SourceEntries = std::vector<SourceEntry>;
-
-}
+using SourceEntryReference = std::reference_wrapper<SourceEntry>;
+using SourceEntryReferences = std::vector<SourceEntryReference>;
+} // namespace ClangBackEnd

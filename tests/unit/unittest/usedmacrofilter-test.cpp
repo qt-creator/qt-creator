@@ -46,7 +46,8 @@ protected:
                           {3, SourceType::ProjectInclude, 0},
                           {4, SourceType::TopSystemInclude, 0},
                           {5, SourceType::TopProjectInclude, 0},
-                          {6, SourceType::Source, 0}};
+                          {6, SourceType::Source, 0},
+                          {7, SourceType::TopProjectInclude, 0, ClangBackEnd::HasMissingIncludes::Yes}};
     UsedMacros usedMacros{{"YI", 1},
                           {"ER", 2},
                           {"SE", 2},

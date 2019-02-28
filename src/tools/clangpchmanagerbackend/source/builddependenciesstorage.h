@@ -59,9 +59,11 @@ public:
             projectPartId);
 
         for (const SourceEntry &entry : sourceEntries) {
-            insertOrUpdateSourceTypeStatement.write(entry.sourceId.filePathId,
-                                                    projectPartId,
-                                                    static_cast<uchar>(entry.sourceType));
+            insertOrUpdateProjectPartsSourcesStatement.write(
+                entry.sourceId.filePathId,
+                projectPartId,
+                static_cast<uchar>(entry.sourceType),
+                static_cast<uchar>(entry.hasMissingIncludes));
         }
     }
 
@@ -120,9 +122,8 @@ public:
 
     SourceEntries fetchDependSources(FilePathId sourceId, int projectPartId) const override
     {
-        return fetchSourceDependenciesStatement.template values<SourceEntry, 3>(300,
-                                                                                sourceId.filePathId,
-                                                                                projectPartId);
+        return fetchSourceDependenciesStatement.template values<SourceEntry, 4>(
+            300, sourceId.filePathId, projectPartId);
     }
 
     UsedMacros fetchUsedMacros(FilePathId sourceId) const override
@@ -242,20 +243,20 @@ public:
         "DELETE FROM newSourceDependencies",
         database
     };
-    WriteStatement insertOrUpdateSourceTypeStatement{
+    WriteStatement insertOrUpdateProjectPartsSourcesStatement{
         "INSERT INTO projectPartsSources(sourceId, projectPartId, "
-        "sourceType) VALUES (?001, ?002, ?003) ON CONFLICT(sourceId, "
-        "projectPartId) DO UPDATE SET sourceType = ?003",
+        "sourceType, hasMissingIncludes) VALUES (?001, ?002, ?003, ?004) ON "
+        "CONFLICT(sourceId, projectPartId) DO UPDATE SET sourceType = ?003, "
+        "hasMissingIncludes = ?004",
         database};
     mutable ReadStatement fetchSourceDependenciesStatement{
         "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION "
         "SELECT dependencySourceId FROM sourceDependencies, "
         "collectedDependencies WHERE sourceDependencies.sourceId == "
         "collectedDependencies.sourceId) SELECT sourceId, "
-        "pchCreationTimeStamp, sourceType FROM "
+        "pchCreationTimeStamp, sourceType, hasMissingIncludes FROM "
         "collectedDependencies NATURAL JOIN projectPartsSources WHERE "
-        "projectPartId = ? ORDER BY "
-        "sourceId",
+        "projectPartId = ? ORDER BY sourceId",
         database};
     mutable ReadStatement fetchProjectPartIdStatement{
         "SELECT projectPartId FROM projectParts WHERE projectPartName = ?",
