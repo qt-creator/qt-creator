@@ -139,6 +139,7 @@ TYPED_TEST(CommandLineBuilder, CHeader)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c-header",
@@ -156,6 +157,7 @@ TYPED_TEST(CommandLineBuilder, CSource)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c",
@@ -174,6 +176,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCHeader)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "objective-c-header",
@@ -192,6 +195,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCSource)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "objective-c",
@@ -209,6 +213,7 @@ TYPED_TEST(CommandLineBuilder, CppHeader)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++-header",
@@ -227,6 +232,7 @@ TYPED_TEST(CommandLineBuilder, CppSource)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++",
@@ -246,6 +252,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppHeader)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "objective-c++-header",
@@ -265,6 +272,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppSource)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "objective-c++",
@@ -498,6 +506,7 @@ TYPED_TEST(CommandLineBuilder, IncludesOrder)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++-header",
@@ -525,6 +534,7 @@ TYPED_TEST(CommandLineBuilder, EmptySourceFile)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++-header",
@@ -539,6 +549,7 @@ TYPED_TEST(CommandLineBuilder, SourceFile)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++-header",
@@ -555,6 +566,7 @@ TYPED_TEST(CommandLineBuilder, EmptyOutputFile)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++-header",
@@ -574,6 +586,7 @@ TYPED_TEST(CommandLineBuilder, OutputFile)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++-header",
@@ -596,6 +609,7 @@ TYPED_TEST(CommandLineBuilder, IncludePchPath)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++-header",
@@ -619,6 +633,7 @@ TYPED_TEST(CommandLineBuilder, CompilerMacros)
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++-header",
