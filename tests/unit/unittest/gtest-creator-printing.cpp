@@ -1138,6 +1138,7 @@ const char* progressTypeToString(ClangBackEnd::ProgressType type)
         case ProgressType::Invalid: return "Invalid";
         case ProgressType::PrecompiledHeader: return "PrecompiledHeader";
         case ProgressType::Indexing: return "Indexing";
+        case ProgressType::DependencyCreation: return "DependencyCreation";
     }
 
     return nullptr;
