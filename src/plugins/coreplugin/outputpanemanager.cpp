@@ -507,7 +507,6 @@ void OutputPaneManager::showPage(int idx, int flags)
 
         ensurePageVisible(idx);
         IOutputPane *out = g_outputPanes.at(idx).pane;
-        out->visibilityChanged(true);
         if (flags & IOutputPane::WithFocus) {
             if (out->canFocus())
                 out->setFocus();
@@ -538,7 +537,10 @@ void OutputPaneManager::setCurrentIndex(int idx)
         m_outputWidgetPane->setCurrentIndex(idx);
         m_opToolBarWidgets->setCurrentIndex(idx);
 
-        IOutputPane *pane = g_outputPanes.at(idx).pane;
+        OutputPaneData &data = g_outputPanes[idx];
+        IOutputPane *pane = data.pane;
+        data.button->show();
+        data.buttonVisible = true;
         pane->visibilityChanged(true);
 
         bool canNavigate = pane->canNavigate();
@@ -574,8 +576,6 @@ void OutputPaneManager::popupMenu()
         data.button->hide();
         data.buttonVisible = false;
     } else {
-        data.button->show();
-        data.buttonVisible = true;
         showPage(idx, IOutputPane::ModeSwitch);
     }
 }
