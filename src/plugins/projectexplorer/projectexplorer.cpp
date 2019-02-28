@@ -3766,16 +3766,6 @@ QString ProjectExplorerPlugin::buildDirectoryTemplate()
     return dd->m_projectExplorerSettings.buildDirectoryTemplate;
 }
 
-/*!
-    Sets the current build directory template to \a directory.
-
-    \sa defaultbuildDirectory
-*/
-void ProjectExplorerPlugin::setBuildDirectoryTemplate(const QString &dir)
-{
-    dd->m_projectExplorerSettings.buildDirectoryTemplate = dir;
-}
-
 QString ProjectExplorerPlugin::defaultBuildDirectoryTemplate()
 {
     return QString(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE);

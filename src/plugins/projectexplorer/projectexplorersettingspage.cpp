@@ -57,15 +57,14 @@ public:
     bool useProjectsDirectory();
     void setUseProjectsDirectory(bool v);
 
-    QString buildDirectoryTemplate() const;
-    void setBuildDirectoryTemplate(const QString &bd);
-
 private:
     void slotDirectoryButtonGroupChanged();
     void resetBuildDirectoryTemplate();
     void updateBuildDirectoryResetButton();
 
     void setJomVisible(bool);
+    QString buildDirectoryTemplate() const;
+    void setBuildDirectoryTemplate(const QString &bd);
 
     Ui::ProjectExplorerSettingsPageUi m_ui;
     mutable ProjectExplorerSettings m_settings;
@@ -114,6 +113,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.maxAppOutputChars = m_ui.maxAppOutputBox->value();
     m_settings.maxBuildOutputChars = m_ui.maxBuildOutputBox->value();
     m_settings.stopBeforeBuild = static_cast<ProjectExplorerSettings::StopBeforeBuild>(m_ui.stopBeforeBuildComboBox->currentIndex());
+    m_settings.buildDirectoryTemplate = buildDirectoryTemplate();
     return m_settings;
 }
 
@@ -136,6 +136,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.maxAppOutputBox->setValue(m_settings.maxAppOutputChars);
     m_ui.maxBuildOutputBox->setValue(m_settings.maxBuildOutputChars);
     m_ui.stopBeforeBuildComboBox->setCurrentIndex(static_cast<int>(m_settings.stopBeforeBuild));
+    setBuildDirectoryTemplate(pes.buildDirectoryTemplate);
 }
 
 QString ProjectExplorerSettingsWidget::projectsDirectory() const
@@ -205,7 +206,6 @@ QWidget *ProjectExplorerSettingsPage::widget()
         m_widget->setSettings(ProjectExplorerPlugin::projectExplorerSettings());
         m_widget->setProjectsDirectory(Core::DocumentManager::projectsDirectory().toString());
         m_widget->setUseProjectsDirectory(Core::DocumentManager::useProjectsDirectory());
-        m_widget->setBuildDirectoryTemplate(ProjectExplorerPlugin::buildDirectoryTemplate());
     }
     return m_widget;
 }
@@ -217,7 +217,6 @@ void ProjectExplorerSettingsPage::apply()
         Core::DocumentManager::setProjectsDirectory(
             Utils::FileName::fromString(m_widget->projectsDirectory()));
         Core::DocumentManager::setUseProjectsDirectory(m_widget->useProjectsDirectory());
-        ProjectExplorerPlugin::setBuildDirectoryTemplate(m_widget->buildDirectoryTemplate());
     }
 }
 
