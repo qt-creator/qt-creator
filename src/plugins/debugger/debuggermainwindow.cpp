@@ -372,24 +372,16 @@ void DebuggerMainWindowPrivate::fixupLayoutIfNeeded()
 {
     // Evil workaround for QTCREATORBUG-21455: In some so far unknown situation
     // the saveLayout/restoreLayout process leads to a situation where some docks
-    // does not end up below the perspective toolbar even though they were there
+    // do not end up below the perspective toolbar even though they were there
     // initially, leading to an awkward dock layout.
-    // This here tries to detect the situation (no other dock directly below the
-    // toolbar) and "corrects" that by restoring the default layout.
-    const QRect toolbarRect = m_toolBarDock->geometry();
-    const int targetX = toolbarRect.left();
-    const int targetY = toolbarRect.bottom();
+    // This here tries to detect the situation (sonmething else in the bottom
+    // area is at the right of the toolbar) "corrects" that by restoring the
+    // default layout.
 
-    const QList<QDockWidget *> docks = q->dockWidgets();
-    for (QDockWidget *dock : docks) {
-        const QRect dockRect = dock->geometry();
-        // 10 for some decoration wiggle room. Found something below? Good.
-        if (targetX == dockRect.left() && qAbs(targetY - dockRect.top()) < 10)
-            return;
+    if (m_toolBarDock->width() != q->width()) {
+        qDebug() << "Scrambled dock layout found. Resetting it.";
+        resetCurrentPerspective();
     }
-
-    qDebug() << "Scrambled dock layout found. Resetting it.";
-    resetCurrentPerspective();
 }
 
 void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)

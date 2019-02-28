@@ -86,7 +86,7 @@ static void addFunctionOverloadAssistProposalItem(QList<AssistProposalItemInterf
                                                   const QString &name)
 {
     auto *item = static_cast<ClangAssistProposalItem *>(sameItem);
-    item->setHasOverloadsWithParameters(true);
+    item->setHasOverloadsWithParameters(codeCompletion.hasParameters);
     if (codeCompletion.completionKind == CodeCompletion::ConstructorCompletionKind) {
         // It's the constructor, currently constructor definitions do not lead here.
         // CLANG-UPGRADE-CHECK: Can we get here with constructor definition?
