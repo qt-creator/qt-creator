@@ -44,6 +44,7 @@ class QbsGroupNode : public ProjectExplorer::ProjectNode
 public:
     QbsGroupNode(const qbs::GroupData &grp, const QString &productPath);
 
+    bool showInSimpleTree() const final { return false; }
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const final;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
@@ -65,7 +66,6 @@ class QbsProductNode : public ProjectExplorer::ProjectNode
 public:
     explicit QbsProductNode(const qbs::ProductData &prd);
 
-    bool showInSimpleTree() const override;
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const final;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
@@ -93,7 +93,6 @@ public:
     const qbs::Project qbsProject() const;
     const qbs::ProjectData qbsProjectData() const { return m_projectData; }
 
-    bool showInSimpleTree() const override;
     void setProjectData(const qbs::ProjectData &data); // FIXME: Needed?
 
 private:

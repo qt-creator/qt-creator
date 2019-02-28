@@ -34,8 +34,6 @@ class CMakeInputsNode : public ProjectExplorer::ProjectNode
 {
 public:
     CMakeInputsNode(const Utils::FileName &cmakeLists);
-
-    bool showInSimpleTree() const final;
 };
 
 class CMakeListsNode : public ProjectExplorer::ProjectNode
@@ -53,7 +51,6 @@ class CMakeProjectNode : public ProjectExplorer::ProjectNode
 public:
     CMakeProjectNode(const Utils::FileName &directory);
 
-    bool showInSimpleTree() const final;
     QString tooltip() const final;
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
@@ -68,7 +65,6 @@ public:
 
     void setTargetInformation(const QList<Utils::FileName> &artifacts, const QString &type);
 
-    bool showInSimpleTree() const final;
     QString tooltip() const final;
     QString buildKey() const final;
 

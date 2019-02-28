@@ -129,8 +129,6 @@ public:
         setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
     }
 
-    bool showInSimpleTree() const override { return true; }
-
     bool supportsAction(ProjectAction action, const Node *) const override
     {
         return action == AddNewFile

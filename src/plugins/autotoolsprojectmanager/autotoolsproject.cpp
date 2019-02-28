@@ -28,7 +28,6 @@
 #include "autotoolsproject.h"
 #include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
-#include "autotoolsprojectnode.h"
 #include "autotoolsopenprojectwizard.h"
 #include "makestep.h"
 #include "makefileparserthread.h"
@@ -40,6 +39,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/headerpath.h>
 #include <extensionsystem/pluginmanager.h>
@@ -207,7 +207,7 @@ void AutotoolsProject::makefileParsingFinished()
         m_watchedFiles.append(absConfigureAc);
     }
 
-    auto newRoot = std::make_unique<AutotoolsProjectNode>(projectDirectory());
+    auto newRoot = std::make_unique<ProjectNode>(projectDirectory());
     for (const QString &f : m_files) {
         const Utils::FileName path = Utils::FileName::fromString(f);
         newRoot->addNestedNode(std::make_unique<FileNode>(path,

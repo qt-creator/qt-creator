@@ -330,11 +330,6 @@ QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
     setIcon(productIcon);
 }
 
-bool QbsProductNode::showInSimpleTree() const
-{
-    return true;
-}
-
 bool QbsProductNode::supportsAction(ProjectAction action, const Node *node) const
 {
     if (action == AddNewFile || action == AddExistingFile)
@@ -423,11 +418,6 @@ QbsProject *QbsProjectNode::project() const
 const qbs::Project QbsProjectNode::qbsProject() const
 {
     return project()->qbsProject();
-}
-
-bool QbsProjectNode::showInSimpleTree() const
-{
-    return true;
 }
 
 void QbsProjectNode::setProjectData(const qbs::ProjectData &data)

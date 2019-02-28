@@ -115,7 +115,6 @@ class PythonProjectNode : public ProjectNode
 public:
     PythonProjectNode(PythonProject *project);
 
-    bool showInSimpleTree() const override;
     bool supportsAction(ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *) override;
     bool removeFiles(const QStringList &filePaths, QStringList *) override;
@@ -609,11 +608,6 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
         filesInPath[relativeFilePath].append(absoluteFileName);
     }
     return filesInPath;
-}
-
-bool PythonProjectNode::showInSimpleTree() const
-{
-    return true;
 }
 
 bool PythonProjectNode::supportsAction(ProjectAction action, const Node *node) const

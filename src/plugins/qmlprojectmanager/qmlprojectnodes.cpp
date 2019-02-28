@@ -53,11 +53,6 @@ QmlProjectNode::QmlProjectNode(QmlProject *project) : ProjectNode(project->proje
     setIcon(qmlProjectIcon);
 }
 
-bool QmlProjectNode::showInSimpleTree() const
-{
-    return true;
-}
-
 bool QmlProjectNode::supportsAction(ProjectAction action, const Node *node) const
 {
     if (action == AddNewFile || action == EraseFile)

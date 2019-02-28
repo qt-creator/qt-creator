@@ -115,11 +115,6 @@ CMakeInputsNode::CMakeInputsNode(const Utils::FileName &cmakeLists) :
     setListInProject(false);
 }
 
-bool CMakeInputsNode::showInSimpleTree() const
-{
-    return true;
-}
-
 CMakeListsNode::CMakeListsNode(const Utils::FileName &cmakeListPath) :
     ProjectExplorer::ProjectNode(cmakeListPath)
 {
@@ -152,11 +147,6 @@ CMakeProjectNode::CMakeProjectNode(const Utils::FileName &directory) :
     setListInProject(false);
 }
 
-bool CMakeProjectNode::showInSimpleTree() const
-{
-    return true;
-}
-
 QString CMakeProjectNode::tooltip() const
 {
     return QString();
@@ -179,11 +169,6 @@ CMakeTargetNode::CMakeTargetNode(const Utils::FileName &directory, const QString
 QString CMakeTargetNode::generateId(const Utils::FileName &directory, const QString &target)
 {
     return directory.toString() + "///::///" + target;
-}
-
-bool CMakeTargetNode::showInSimpleTree() const
-{
-    return true;
 }
 
 QString CMakeTargetNode::tooltip() const

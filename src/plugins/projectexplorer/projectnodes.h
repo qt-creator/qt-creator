@@ -337,6 +337,7 @@ public:
 
     bool isFolderNodeType() const override { return false; }
     bool isProjectNodeType() const override { return true; }
+    bool showInSimpleTree() const override { return true; }
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
