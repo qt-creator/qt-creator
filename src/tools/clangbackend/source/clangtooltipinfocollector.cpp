@@ -36,6 +36,7 @@
 #include <clangsupport/sourcerangecontainer.h>
 #include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
+#include <utils/qtcassert.h>
 
 #include <utf8string.h>
 
@@ -392,7 +393,7 @@ static bool isBuiltinOrPointerToBuiltin(const Type &type)
 
     // TODO: Simplify
     // TODO: Test with **
-    while (theType.pointeeType().isValid()) {
+    while (theType.pointeeType().isValid() && theType != theType.pointeeType()) {
         theType = theType.pointeeType();
         if (theType.isBuiltinType())
             return true;
@@ -436,7 +437,7 @@ ToolTipInfo ToolTipInfoCollector::qDocInfo(const Cursor &cursor) const
         }
 
         Type type = cursor.type();
-        while (type.pointeeType().isValid())
+        while (type.pointeeType().isValid() && type != type.pointeeType())
             type = type.pointeeType();
 
         const Cursor typeCursor = type.declaration();

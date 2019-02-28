@@ -764,7 +764,7 @@ QByteArray Preprocessor::run(const QString &fileName,
     preprocessed.reserve(source.size() * 2); // multiply by 2 because we insert #gen lines.
     preprocess(fileName, source, &preprocessed, &includeGuardMacroName, noLines,
                markGeneratedTokens, false);
-    if (!includeGuardMacroName.isEmpty())
+    if (m_client && !includeGuardMacroName.isEmpty())
         m_client->markAsIncludeGuard(includeGuardMacroName);
     return preprocessed;
 }
@@ -986,10 +986,12 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         if (!expandFunctionlikeMacros()
                 // Still expand if this originally started with an object-like macro.
                 && m_state.m_expansionStatus != Expanding) {
-            m_client->notifyMacroReference(m_state.m_bytesOffsetRef + idTk.byteOffset,
-                                           m_state.m_utf16charsOffsetRef + idTk.utf16charOffset,
-                                           idTk.lineno,
-                                           *macro);
+            if (m_client) {
+                m_client->notifyMacroReference(m_state.m_bytesOffsetRef + idTk.byteOffset,
+                                               m_state.m_utf16charsOffsetRef + idTk.utf16charOffset,
+                                               idTk.lineno,
+                                               *macro);
+            }
             return false;
         }
 
@@ -1793,7 +1795,7 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
                 }
             }
         } else if (macroReference) {
-            if (tk->is(T_LPAREN)) {
+            if (m_client && tk->is(T_LPAREN)) {
                 m_client->notifyMacroReference(previousBytesOffset, previousUtf16charsOffset,
                                                previousLine, *macroReference);
             }

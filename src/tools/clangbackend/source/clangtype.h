@@ -81,6 +81,7 @@ private:
 };
 
 bool operator==(Type first, Type second);
+bool operator!=(Type first, Type second);
 
 std::ostream &operator<<(std::ostream &os, CXTypeKind typeKind);
 std::ostream &operator<<(std::ostream &os, const Type &type);
