@@ -53,6 +53,7 @@ protected:
     QString workingDirectory() const;
     void setStartupFile(const QString &startupFile);
     QString startupFile() const;
+    void setDisplayName(const QString &displayName);
 
 private:
     friend class VcsBaseDiffEditorControllerPrivate;

@@ -291,6 +291,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document, const QStr
 {
     connect(&m_decorator, &DescriptionWidgetDecorator::branchListRequested,
             this, &GitDiffEditorController::updateBranchList);
+    setDisplayName("Git Diff");
 }
 
 void GitDiffEditorController::updateBranchList()
@@ -514,7 +515,9 @@ public:
         GitDiffEditorController(document, dir),
         m_id(id),
         m_state(Idle)
-    { }
+    {
+        setDisplayName("Git Show");
+    }
 
     void reload() override;
     void processCommandOutput(const QString &output) override;

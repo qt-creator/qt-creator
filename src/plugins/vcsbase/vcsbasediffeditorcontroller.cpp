@@ -98,6 +98,7 @@ public:
     const QString m_directory;
     QString m_startupFile;
     QString m_output;
+    QString m_displayName;
     QPointer<VcsCommand> m_command;
     QPointer<VcsCommandResultProxy> m_commandResultProxy;
     QFutureWatcher<QList<FileData>> *m_processWatcher = nullptr;
@@ -251,6 +252,7 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
     d->cancelReload();
 
     d->m_command = new VcsCommand(workingDirectory(), d->m_client->processEnvironment());
+    d->m_command->setDisplayName(d->m_displayName);
     d->m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
     d->m_commandResultProxy = new VcsCommandResultProxy(d->m_command.data(), d);
     d->m_command->addFlags(flags);
@@ -287,6 +289,11 @@ void VcsBaseDiffEditorController::setStartupFile(const QString &startupFile)
 QString VcsBaseDiffEditorController::startupFile() const
 {
     return d->m_startupFile;
+}
+
+void VcsBaseDiffEditorController::setDisplayName(const QString &displayName)
+{
+    d->m_displayName = displayName;
 }
 
 } // namespace VcsBase
