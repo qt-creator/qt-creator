@@ -1661,8 +1661,8 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
     // Delete by file: Find indices of breakpoints of the same file.
     QList<Breakpoint> breakpointsInFile;
     QString file;
-    if (Breakpoint bp = itemForIndexAtLevel<1>(ev.index())) {
-        const QModelIndex index = ev.index().sibling(ev.index().row(), BreakpointFileColumn);
+    if (Breakpoint bp = itemForIndexAtLevel<1>(ev.sourceModelIndex())) {
+        const QModelIndex index = ev.sourceModelIndex().sibling(ev.sourceModelIndex().row(), BreakpointFileColumn);
         if (!file.isEmpty()) {
             for (int i = 0; i != rowCount(); ++i)
                 if (index.data().toString() == file)
@@ -2626,7 +2626,7 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
     // Delete by file: Find indices of breakpoints of the same file.
     GlobalBreakpoints breakpointsInFile;
     QString file;
-    if (GlobalBreakpoint gbp = itemForIndexAtLevel<1>(ev.index())) {
+    if (GlobalBreakpoint gbp = itemForIndexAtLevel<1>(ev.sourceModelIndex())) {
         if (!file.isEmpty()) {
             for (int i = 0; i != rowCount(); ++i)
                 if (gbp->markerFileName() == file)
