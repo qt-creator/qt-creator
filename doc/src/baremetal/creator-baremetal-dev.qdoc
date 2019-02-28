@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -53,7 +53,7 @@
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
             \uicontrol {Bare Metal} > \uicontrol Add > \uicontrol Default,
-            \uicontrol OpenCD, or \uicontrol {ST-LINK Utility} to specify
+            \uicontrol OpenOCD, or \uicontrol {ST-LINK Utility} to specify
             connections to GDB servers or hardware debuggers:
 
             \image creator-baremetal-device.png "Bare Metal options"
