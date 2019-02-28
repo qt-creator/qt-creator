@@ -39,7 +39,7 @@ NimProjectNode::NimProjectNode(NimProject &project,
 
 bool NimProjectNode::supportsAction(ProjectAction action, const Node *node) const
 {
-    if (node->isFileNodeType()) {
+    if (node->asFileNode()) {
         return action == ProjectAction::Rename
             || action == ProjectAction::RemoveFile;
     }

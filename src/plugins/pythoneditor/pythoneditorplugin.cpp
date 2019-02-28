@@ -618,7 +618,7 @@ bool PythonProjectNode::showInSimpleTree() const
 
 bool PythonProjectNode::supportsAction(ProjectAction action, const Node *node) const
 {
-    if (node->isFileNodeType())  {
+    if (node->asFileNode())  {
         return action == ProjectAction::Rename
             || action == ProjectAction::RemoveFile;
     }

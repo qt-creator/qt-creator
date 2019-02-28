@@ -171,7 +171,7 @@ bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAd
     if (!pri)
         return false;
     QList<Node *> matchingNodes = findNodes([filePaths](const Node *n) {
-        return n->isFileNodeType() && filePaths.contains(n->filePath().toString());
+        return n->asFileNode() && filePaths.contains(n->filePath().toString());
     });
     matchingNodes = filtered(matchingNodes, [](const Node *n) {
         for (const Node *parent = n->parentFolderNode(); parent;

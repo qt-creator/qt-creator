@@ -165,7 +165,7 @@ Node::~Node() = default;
 
 NodeType Node::nodeType() const
 {
-    if (isFileNodeType())
+    if (asFileNode())
         return NodeType::File;
     if (isFolderNodeType())
         return NodeType::Folder;

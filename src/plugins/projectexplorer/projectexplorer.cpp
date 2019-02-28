@@ -1460,7 +1460,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(dd->m_filePropertiesAction, &QAction::triggered, this, []() {
                 const Node *currentNode = ProjectTree::findCurrentNode();
-                QTC_ASSERT(currentNode && currentNode->isFileNodeType(), return);
+                QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
                 DocumentManager::showFilePropertiesDialog(currentNode->filePath());
             });
     connect(dd->m_removeFileAction, &QAction::triggered,
@@ -3507,7 +3507,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
 void ProjectExplorerPluginPrivate::removeFile()
 {
     const Node *currentNode = ProjectTree::findCurrentNode();
-    QTC_ASSERT(currentNode && currentNode->isFileNodeType(), return);
+    QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
 
     const Utils::FileName filePath = currentNode->filePath();
     Utils::RemoveFileDialog removeFileDialog(filePath.toString(), ICore::mainWindow());
@@ -3518,7 +3518,7 @@ void ProjectExplorerPluginPrivate::removeFile()
         // Re-read the current node, in case the project is re-parsed while the dialog is open
         if (currentNode != ProjectTree::findCurrentNode()) {
             currentNode = ProjectTreeWidget::nodeForFile(filePath);
-            QTC_ASSERT(currentNode && currentNode->isFileNodeType(), return);
+            QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
         }
 
         // remove from project
@@ -3542,7 +3542,7 @@ void ProjectExplorerPluginPrivate::removeFile()
 void ProjectExplorerPluginPrivate::duplicateFile()
 {
     Node *currentNode = ProjectTree::findCurrentNode();
-    QTC_ASSERT(currentNode && currentNode->isFileNodeType(), return);
+    QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
 
     FileNode *fileNode = currentNode->asFileNode();
     QString filePath = currentNode->filePath().toString();
@@ -3573,7 +3573,7 @@ void ProjectExplorerPluginPrivate::duplicateFile()
 void ProjectExplorerPluginPrivate::deleteFile()
 {
     Node *currentNode = ProjectTree::findCurrentNode();
-    QTC_ASSERT(currentNode && currentNode->isFileNodeType(), return);
+    QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
 
     FileNode *fileNode = currentNode->asFileNode();
 

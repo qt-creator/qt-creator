@@ -341,7 +341,7 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
             contextMenu = Core::ActionManager::actionContainer(Constants::M_SUBPROJECTCONTEXT)->menu();
     } else if (node->isVirtualFolderType() || node->isFolderNodeType()) {
         contextMenu = Core::ActionManager::actionContainer(Constants::M_FOLDERCONTEXT)->menu();
-    } else if (node->isFileNodeType()) {
+    } else if (node->asFileNode()) {
         contextMenu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT)->menu();
     }
 
@@ -425,7 +425,7 @@ Node *ProjectTree::nodeForFile(const FileName &fileName)
             projectNode->forEachGenericNode([&](Node *n) {
                 if (n->filePath() == fileName) {
                     // prefer file nodes
-                    if (!node || (!node->isFileNodeType() && n->isFileNodeType()))
+                    if (!node || (!node->asFileNode() && n->asFileNode()))
                         node = n;
                 }
             });

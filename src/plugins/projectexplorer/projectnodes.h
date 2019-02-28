@@ -112,7 +112,6 @@ public:
 
     virtual ~Node();
 
-    virtual bool isFileNodeType() const { return false; }
     virtual bool isFolderNodeType() const { return false; }
     virtual bool isProjectNodeType() const { return false; }
     virtual bool isVirtualFolderType() const { return false; }
@@ -198,8 +197,6 @@ public:
 
     FileNode *asFileNode() final { return this; }
     const FileNode *asFileNode() const final { return this; }
-
-    bool isFileNodeType() const final { return true; }
 
     static QList<FileNode *>
     scanForFiles(const Utils::FileName &directory,

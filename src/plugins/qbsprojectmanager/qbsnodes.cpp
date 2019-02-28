@@ -223,7 +223,7 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
     };
 
     if (action == RemoveFile || action == Rename) {
-       if (node->isFileNodeType())
+       if (node->asFileNode())
            return !Utils::contains(project->qbsProject().buildSystemFiles(), equalsNodeFilePath);
     }
 
