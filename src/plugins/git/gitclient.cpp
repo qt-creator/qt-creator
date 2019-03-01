@@ -2524,7 +2524,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     // Run status. Note that it has exitcode 1 if there are no added files.
     QString output;
     if (commitData.commitType == FixupCommit) {
-        synchronousLog(repoDirectory, {HEAD, "--not", "--remotes", "-n1"}, &output, errorMessage);
+        synchronousLog(repoDirectory, {HEAD, "--not", "--remotes", "-n1"}, &output, errorMessage,
+                       VcsCommand::SuppressCommandLogging);
         if (output.isEmpty()) {
             *errorMessage = msgNoCommits(false);
             return false;
