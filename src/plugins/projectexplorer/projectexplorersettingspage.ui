@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>831</width>
-    <height>520</height>
+    <width>963</width>
+    <height>564</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -52,176 +52,7 @@
       <string>Build and Run</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="saveAllFilesCheckBox">
-        <property name="text">
-         <string>Save all files before build</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="cleanOldAppOutputCheckBox">
-        <property name="text">
-         <string>Clear old application output on a new run</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="buildProjectBeforeDeployCheckBox">
-        <property name="text">
-         <string>Always build project before deploying it</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="mergeStdErrAndStdOutCheckBox">
-        <property name="toolTip">
-         <string>Enabling this option ensures that the order of interleaved messages from stdout and stderr is preserved, at the cost of disabling highlighting of stderr.</string>
-        </property>
-        <property name="text">
-         <string>Merge stderr and stdout</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="deployProjectBeforeRunCheckBox">
-        <property name="text">
-         <string>Always deploy project before running it</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="wrapAppOutputCheckBox">
-        <property name="text">
-         <string>Word-wrap application output</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QCheckBox" name="addLibraryPathsToRunEnvCheckBox">
-        <property name="text">
-         <string>Add linker library search paths to run environment</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="showCompileOutputCheckBox">
-        <property name="text">
-         <string>Open Compile Output pane when building</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QWidget" name="widget" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="limitBuildOutputLabel">
-           <property name="text">
-            <string>Limit build output to</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="maxBuildOutputBox">
-           <property name="minimum">
-            <number>5000</number>
-           </property>
-           <property name="maximum">
-            <number>100000000</number>
-           </property>
-           <property name="singleStep">
-            <number>5000</number>
-           </property>
-           <property name="value">
-            <number>10000000</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="limitBuildOutputLabel_2">
-           <property name="text">
-            <string>characters</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="showRunOutputCheckBox">
-        <property name="text">
-         <string>Open Application Output pane on output when running</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QWidget" name="widget_1" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Limit application output to</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="maxAppOutputBox">
-           <property name="minimum">
-            <number>5000</number>
-           </property>
-           <property name="maximum">
-            <number>100000000</number>
-           </property>
-           <property name="singleStep">
-            <number>5000</number>
-           </property>
-           <property name="value">
-            <number>10000000</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>characters</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
       <item row="5" column="0">
-       <widget class="QCheckBox" name="showDebugOutputCheckBox">
-        <property name="text">
-         <string>Open Application Output pane on output when debugging</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
        <widget class="QCheckBox" name="promptToStopRunControlCheckBox">
         <property name="toolTip">
          <string>Asks before terminating the running application in response to clicking the stop button in Application Output.</string>
@@ -231,17 +62,40 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
-       <widget class="QCheckBox" name="automaticallyCreateRunConfiguration">
-        <property name="toolTip">
-         <string>Creates suitable run configurations automatically when setting up a new kit.</string>
-        </property>
-        <property name="text">
-         <string>Create suitable run configurations automatically</string>
-        </property>
-       </widget>
-      </item>
       <item row="8" column="0" colspan="2">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="jomCheckbox">
+          <property name="whatsThis">
+           <string/>
+          </property>
+          <property name="text">
+           <string>Use jom instead of nmake</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="jomLabel">
+          <property name="text">
+           <string>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. The latest binary is available at &lt;a href=&quot;http://download.qt.io/official_releases/jom/&quot;&gt;http://download.qt.io/official_releases/jom/&lt;/a&gt;. Disable it if you experience problems with your builds.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="indent">
+           <number>20</number>
+          </property>
+          <property name="openExternalLinks">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="7" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <widget class="QLabel" name="labelStopBeforeBuild">
@@ -289,40 +143,24 @@
         </item>
        </layout>
       </item>
-      <item row="9" column="0" colspan="2">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <property name="spacing">
-         <number>0</number>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="addLibraryPathsToRunEnvCheckBox">
+        <property name="text">
+         <string>Add linker library search paths to run environment</string>
         </property>
-        <item>
-         <widget class="QCheckBox" name="jomCheckbox">
-          <property name="whatsThis">
-           <string/>
-          </property>
-          <property name="text">
-           <string>Use jom instead of nmake</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="jomLabel">
-          <property name="text">
-           <string>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. The latest binary is available at &lt;a href=&quot;http://download.qt.io/official_releases/jom/&quot;&gt;http://download.qt.io/official_releases/jom/&lt;/a&gt;. Disable it if you experience problems with your builds.</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="indent">
-           <number>20</number>
-          </property>
-          <property name="openExternalLinks">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       </widget>
       </item>
-      <item row="10" column="0" colspan="2">
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="automaticallyCreateRunConfiguration">
+        <property name="toolTip">
+         <string>Creates suitable run configurations automatically when setting up a new kit.</string>
+        </property>
+        <property name="text">
+         <string>Create suitable run configurations automatically</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <property name="topMargin">
          <number>12</number>
@@ -346,18 +184,53 @@
         </item>
        </layout>
       </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="buildProjectBeforeDeployCheckBox">
+        <property name="text">
+         <string>Always build project before deploying it</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="saveAllFilesCheckBox">
+        <property name="text">
+         <string>Save all files before build</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QWidget" name="widget_1" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="deployProjectBeforeRunCheckBox">
+        <property name="text">
+         <string>Always deploy project before running it</string>
+        </property>
+       </widget>
+      </item>
      </layout>
+     <zorder>widget_1</zorder>
+     <zorder>automaticallyCreateRunConfiguration</zorder>
      <zorder>saveAllFilesCheckBox</zorder>
      <zorder>buildProjectBeforeDeployCheckBox</zorder>
      <zorder>deployProjectBeforeRunCheckBox</zorder>
-     <zorder>showCompileOutputCheckBox</zorder>
-     <zorder>cleanOldAppOutputCheckBox</zorder>
-     <zorder>mergeStdErrAndStdOutCheckBox</zorder>
-     <zorder>wrapAppOutputCheckBox</zorder>
-     <zorder>widget</zorder>
      <zorder>promptToStopRunControlCheckBox</zorder>
-     <zorder>showRunOutputCheckBox</zorder>
-     <zorder>showDebugOutputCheckBox</zorder>
+     <zorder>addLibraryPathsToRunEnvCheckBox</zorder>
     </widget>
    </item>
    <item>

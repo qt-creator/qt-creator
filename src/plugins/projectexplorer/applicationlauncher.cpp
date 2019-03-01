@@ -126,7 +126,7 @@ public:
 ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *parent)
     : q(parent), m_outputCodec(QTextCodec::codecForLocale())
 {
-    if (ProjectExplorerPlugin::projectExplorerSettings().mergeStdErrAndStdOut){
+    if (ProjectExplorerPlugin::appOutputSettings().mergeChannels) {
         m_guiProcess.setProcessChannelMode(QProcess::MergedChannels);
     } else {
         m_guiProcess.setProcessChannelMode(QProcess::SeparateChannels);

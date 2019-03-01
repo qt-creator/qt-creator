@@ -100,18 +100,10 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.buildBeforeDeploy = m_ui.buildProjectBeforeDeployCheckBox->isChecked();
     m_settings.deployBeforeRun = m_ui.deployProjectBeforeRunCheckBox->isChecked();
     m_settings.saveBeforeBuild = m_ui.saveAllFilesCheckBox->isChecked();
-    m_settings.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
-    m_settings.showRunOutput = m_ui.showRunOutputCheckBox->isChecked();
-    m_settings.showDebugOutput = m_ui.showDebugOutputCheckBox->isChecked();
-    m_settings.cleanOldAppOutput = m_ui.cleanOldAppOutputCheckBox->isChecked();
-    m_settings.mergeStdErrAndStdOut = m_ui.mergeStdErrAndStdOutCheckBox->isChecked();
-    m_settings.wrapAppOutput = m_ui.wrapAppOutputCheckBox->isChecked();
     m_settings.useJom = m_ui.jomCheckbox->isChecked();
     m_settings.addLibraryPathsToRunEnv = m_ui.addLibraryPathsToRunEnvCheckBox->isChecked();
     m_settings.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
     m_settings.automaticallyCreateRunConfigurations = m_ui.automaticallyCreateRunConfiguration->isChecked();
-    m_settings.maxAppOutputChars = m_ui.maxAppOutputBox->value();
-    m_settings.maxBuildOutputChars = m_ui.maxBuildOutputBox->value();
     m_settings.stopBeforeBuild = static_cast<ProjectExplorerSettings::StopBeforeBuild>(m_ui.stopBeforeBuildComboBox->currentIndex());
     m_settings.buildDirectoryTemplate = buildDirectoryTemplate();
     return m_settings;
@@ -123,18 +115,10 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.buildProjectBeforeDeployCheckBox->setChecked(m_settings.buildBeforeDeploy);
     m_ui.deployProjectBeforeRunCheckBox->setChecked(m_settings.deployBeforeRun);
     m_ui.saveAllFilesCheckBox->setChecked(m_settings.saveBeforeBuild);
-    m_ui.showCompileOutputCheckBox->setChecked(m_settings.showCompilerOutput);
-    m_ui.showRunOutputCheckBox->setChecked(m_settings.showRunOutput);
-    m_ui.showDebugOutputCheckBox->setChecked(m_settings.showDebugOutput);
-    m_ui.cleanOldAppOutputCheckBox->setChecked(m_settings.cleanOldAppOutput);
-    m_ui.mergeStdErrAndStdOutCheckBox->setChecked(m_settings.mergeStdErrAndStdOut);
-    m_ui.wrapAppOutputCheckBox->setChecked(m_settings.wrapAppOutput);
     m_ui.jomCheckbox->setChecked(m_settings.useJom);
     m_ui.addLibraryPathsToRunEnvCheckBox->setChecked(m_settings.addLibraryPathsToRunEnv);
     m_ui.promptToStopRunControlCheckBox->setChecked(m_settings.prompToStopRunControl);
     m_ui.automaticallyCreateRunConfiguration->setChecked(m_settings.automaticallyCreateRunConfigurations);
-    m_ui.maxAppOutputBox->setValue(m_settings.maxAppOutputChars);
-    m_ui.maxBuildOutputBox->setValue(m_settings.maxBuildOutputChars);
     m_ui.stopBeforeBuildComboBox->setCurrentIndex(static_cast<int>(m_settings.stopBeforeBuild));
     setBuildDirectoryTemplate(pes.buildDirectoryTemplate);
 }

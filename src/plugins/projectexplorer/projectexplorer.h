@@ -56,7 +56,10 @@ class Node;
 class FolderNode;
 class FileNode;
 
-namespace Internal { class ProjectExplorerSettings; }
+namespace Internal {
+class AppOutputSettings;
+class ProjectExplorerSettings;
+}
 
 class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin : public ExtensionSystem::IPlugin
 {
@@ -128,6 +131,9 @@ public:
 
     static void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
     static const Internal::ProjectExplorerSettings &projectExplorerSettings();
+
+    static void setAppOutputSettings(const Internal::AppOutputSettings &settings);
+    static const Internal::AppOutputSettings &appOutputSettings();
 
     static void startRunControl(RunControl *runControl);
     static void showRunErrorMessage(const QString &errorMessage);

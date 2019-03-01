@@ -32,6 +32,7 @@
 #include <QStringList>
 
 namespace ProjectExplorer {
+namespace Internal { class CompileOutputSettings; }
 
 class Task;
 class Project;
@@ -63,6 +64,9 @@ public:
     static void appendStep(BuildStep *step, const QString &name);
 
     static int getErrorTaskCount();
+
+    static void setCompileOutputSettings(const Internal::CompileOutputSettings &settings);
+    static const Internal::CompileOutputSettings &compileOutputSettings();
 
 public slots:
     static void cancel();

@@ -25,8 +25,8 @@
 
 #include "appoutputpane.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
-#include "projectexplorersettings.h"
 #include "runconfiguration.h"
 #include "session.h"
 #include "windebuginterface.h"
@@ -49,11 +49,15 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QVBoxLayout>
+#include <QCheckBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QMenu>
+#include <QSpinBox>
+#include <QTabBar>
 #include <QTabWidget>
 #include <QToolButton>
-#include <QTabBar>
-#include <QMenu>
+#include <QVBoxLayout>
 
 #include <QDebug>
 
@@ -86,6 +90,12 @@ static void replaceAllChildWidgets(QLayout *layout, const QList<QWidget *> &newC
 namespace {
 const char SETTINGS_KEY[] = "ProjectExplorer/AppOutput/Zoom";
 const char C_APP_OUTPUT[] = "ProjectExplorer.ApplicationOutput";
+const char POP_UP_FOR_RUN_OUTPUT_KEY[] = "ProjectExplorer/Settings/ShowRunOutput";
+const char POP_UP_FOR_DEBUG_OUTPUT_KEY[] = "ProjectExplorer/Settings/ShowDebugOutput";
+const char CLEAN_OLD_OUTPUT_KEY[] = "ProjectExplorer/Settings/CleanOldAppOutput";
+const char MERGE_CHANNELS_KEY[] = "ProjectExplorer/Settings/MergeStdErrAndStdOut";
+const char WRAP_OUTPUT_KEY[] = "ProjectExplorer/Settings/WrapAppOutput";
+const char MAX_LINES_KEY[] = "ProjectExplorer/Settings/MaxAppOutputLines";
 }
 
 namespace ProjectExplorer {
@@ -169,6 +179,7 @@ AppOutputPane::AppOutputPane() :
     m_formatterWidget(new QWidget)
 {
     setObjectName(QLatin1String("AppOutputPane")); // Used in valgrind engine
+    loadSettings();
 
     // Rerun
     m_reRunButton->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
@@ -244,14 +255,9 @@ AppOutputPane::AppOutputPane() :
 
     connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
             this, &AppOutputPane::aboutToUnloadSession);
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &AppOutputPane::updateFromSettings);
-
-    QSettings *settings = Core::ICore::settings();
-    m_zoom = settings->value(QLatin1String(SETTINGS_KEY), 0).toFloat();
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
-            this, &AppOutputPane::saveSettings);
+            this, &AppOutputPane::storeZoomFactor);
 }
 
 AppOutputPane::~AppOutputPane()
@@ -266,7 +272,7 @@ AppOutputPane::~AppOutputPane()
     delete m_mainWidget;
 }
 
-void AppOutputPane::saveSettings()
+void AppOutputPane::storeZoomFactor()
 {
     QSettings *settings = Core::ICore::settings();
     settings->setValue(QLatin1String(SETTINGS_KEY), m_zoom);
@@ -446,8 +452,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
     ow->setWindowTitle(tr("Application Output Window"));
     ow->setWindowIcon(Icons::WINDOW.icon());
-    ow->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
-    ow->setMaxCharCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputChars);
+    ow->setWordWrapEnabled(m_settings.wrapOutput);
+    ow->setMaxCharCount(m_settings.maxCharCount);
     ow->setWheelZoomEnabled(TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
     ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
     ow->setFontZoom(m_zoom);
@@ -470,7 +476,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
 
 void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
 {
-    if (ProjectExplorerPlugin::projectExplorerSettings().cleanOldAppOutput)
+    if (m_settings.cleanOldOutput)
         window->clear();
     else
         window->grayOutOldContent();
@@ -479,8 +485,8 @@ void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
 void AppOutputPane::updateFromSettings()
 {
     foreach (const RunControlTab &tab, m_runControlTabs) {
-        tab.window->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
-        tab.window->setMaxCharCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputChars);
+        tab.window->setWordWrapEnabled(m_settings.wrapOutput);
+        tab.window->setMaxCharCount(m_settings.maxCharCount);
     }
 }
 
@@ -503,6 +509,37 @@ void AppOutputPane::appendMessage(RunControl *rc, const QString &out, Utils::Out
                 popup(NoModeSwitch);
         }
     }
+}
+
+void AppOutputPane::setSettings(const AppOutputSettings &settings)
+{
+    m_settings = settings;
+    storeSettings();
+    updateFromSettings();
+}
+
+void AppOutputPane::storeSettings() const
+{
+    QSettings * const s = Core::ICore::settings();
+    s->setValue(POP_UP_FOR_RUN_OUTPUT_KEY, m_settings.popUpForRunOutput);
+    s->setValue(POP_UP_FOR_DEBUG_OUTPUT_KEY, m_settings.popUpForDebugOutput);
+    s->setValue(CLEAN_OLD_OUTPUT_KEY, m_settings.cleanOldOutput);
+    s->setValue(MERGE_CHANNELS_KEY, m_settings.mergeChannels);
+    s->setValue(WRAP_OUTPUT_KEY, m_settings.wrapOutput);
+    s->setValue(MAX_LINES_KEY, m_settings.maxCharCount / 100);
+}
+
+void AppOutputPane::loadSettings()
+{
+    QSettings * const s = Core::ICore::settings();
+    m_settings.popUpForRunOutput = s->value(POP_UP_FOR_RUN_OUTPUT_KEY, true).toBool();
+    m_settings.popUpForDebugOutput = s->value(POP_UP_FOR_DEBUG_OUTPUT_KEY, false).toBool();
+    m_settings.cleanOldOutput = s->value(CLEAN_OLD_OUTPUT_KEY, false).toBool();
+    m_settings.mergeChannels = s->value(MERGE_CHANNELS_KEY, false).toBool();
+    m_settings.wrapOutput = s->value(WRAP_OUTPUT_KEY, true).toBool();
+    m_settings.maxCharCount = s->value(MAX_LINES_KEY,
+                                       Core::Constants::DEFAULT_MAX_CHAR_COUNT).toInt() * 100;
+    m_zoom = s->value(SETTINGS_KEY, 0).toFloat();
 }
 
 void AppOutputPane::showTabFor(RunControl *rc)
@@ -771,6 +808,86 @@ void AppOutputPane::goToPrev()
 bool AppOutputPane::canNavigate() const
 {
     return false;
+}
+
+class AppOutputSettingsPage::SettingsWidget : public QWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::AppOutputSettingsPage)
+public:
+    SettingsWidget()
+    {
+        const AppOutputSettings &settings = ProjectExplorerPlugin::appOutputSettings();
+        m_wrapOutputCheckBox.setText(tr("Word-wrap output"));
+        m_wrapOutputCheckBox.setChecked(settings.wrapOutput);
+        m_cleanOldOutputCheckBox.setText(tr("Clear old output on a new run"));
+        m_cleanOldOutputCheckBox.setChecked(settings.cleanOldOutput);
+        m_mergeChannelsCheckBox.setText(tr("Merge stderr and stdout"));
+        m_mergeChannelsCheckBox.setChecked(settings.mergeChannels);
+        m_popUpForRunOutputCheckBox.setText(tr("Open pane on output when running"));
+        m_popUpForRunOutputCheckBox.setChecked(settings.popUpForRunOutput);
+        m_popUpForDebugOutputCheckBox.setText(tr("Open pane on output when debugging"));
+        m_popUpForDebugOutputCheckBox.setChecked(settings.popUpForDebugOutput);
+        m_maxCharsBox.setMaximum(100000000);
+        m_maxCharsBox.setValue(settings.maxCharCount);
+        const auto layout = new QVBoxLayout(this);
+        layout->addWidget(&m_wrapOutputCheckBox);
+        layout->addWidget(&m_cleanOldOutputCheckBox);
+        layout->addWidget(&m_mergeChannelsCheckBox);
+        layout->addWidget(&m_popUpForRunOutputCheckBox);
+        layout->addWidget(&m_popUpForDebugOutputCheckBox);
+        const auto maxCharsLayout = new QHBoxLayout;
+        maxCharsLayout->addWidget(new QLabel(tr("Limit output to"))); // TODO: This looks problematic i18n-wise
+        maxCharsLayout->addWidget(&m_maxCharsBox);
+        maxCharsLayout->addWidget(new QLabel(tr("characters")));
+        maxCharsLayout->addStretch(1);
+        layout->addLayout(maxCharsLayout);
+        layout->addStretch(1);
+    }
+
+    AppOutputSettings settings() const
+    {
+        AppOutputSettings s;
+        s.wrapOutput = m_wrapOutputCheckBox.isChecked();
+        s.cleanOldOutput = m_cleanOldOutputCheckBox.isChecked();
+        s.mergeChannels = m_mergeChannelsCheckBox.isChecked();
+        s.popUpForRunOutput = m_popUpForRunOutputCheckBox.isChecked();
+        s.popUpForDebugOutput = m_popUpForDebugOutputCheckBox.isChecked();
+        s.maxCharCount = m_maxCharsBox.value();
+        return s;
+    }
+
+private:
+    QCheckBox m_wrapOutputCheckBox;
+    QCheckBox m_cleanOldOutputCheckBox;
+    QCheckBox m_mergeChannelsCheckBox;
+    QCheckBox m_popUpForRunOutputCheckBox;
+    QCheckBox m_popUpForDebugOutputCheckBox;
+    QSpinBox m_maxCharsBox;
+};
+
+AppOutputSettingsPage::AppOutputSettingsPage()
+{
+    setId("B.ProjectExplorer.AppOutputOptions");
+    setDisplayName(tr("Application Output"));
+    setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+}
+
+QWidget *AppOutputSettingsPage::widget()
+{
+    if (!m_widget)
+        m_widget = new SettingsWidget;
+    return m_widget;
+}
+
+void AppOutputSettingsPage::apply()
+{
+    if (m_widget)
+        ProjectExplorerPlugin::setAppOutputSettings(m_widget->settings());
+}
+
+void AppOutputSettingsPage::finish()
+{
+    delete m_widget;
 }
 
 #include "appoutputpane.moc"

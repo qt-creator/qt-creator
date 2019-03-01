@@ -186,6 +186,16 @@ int BuildManager::getErrorTaskCount()
     return errors;
 }
 
+void BuildManager::setCompileOutputSettings(const Internal::CompileOutputSettings &settings)
+{
+    d->m_outputWindow->setSettings(settings);
+}
+
+const Internal::CompileOutputSettings &BuildManager::compileOutputSettings()
+{
+    return d->m_outputWindow->settings();
+}
+
 void BuildManager::cancel()
 {
     if (d->m_running) {
@@ -511,7 +521,7 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &pr
         return false;
     }
 
-    if (ProjectExplorerPlugin::projectExplorerSettings().showCompilerOutput)
+    if (d->m_outputWindow->settings().popUp)
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
     startBuildQueue();
     return true;
@@ -524,7 +534,7 @@ void BuildManager::appendStep(BuildStep *step, const QString &name)
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
         return;
     }
-    if (ProjectExplorerPlugin::projectExplorerSettings().showCompilerOutput)
+    if (d->m_outputWindow->settings().popUp)
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
     startBuildQueue();
 }

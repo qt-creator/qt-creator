@@ -45,12 +45,17 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
+#include <QCheckBox>
+#include <QHBoxLayout>
 #include <QIcon>
-#include <QTextCharFormat>
-#include <QTextBlock>
-#include <QTextCursor>
+#include <QLabel>
 #include <QPlainTextEdit>
+#include <QSpinBox>
+#include <QTextBlock>
+#include <QTextCharFormat>
+#include <QTextCursor>
 #include <QToolButton>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -58,6 +63,9 @@ using namespace ProjectExplorer::Internal;
 namespace {
 const char SETTINGS_KEY[] = "ProjectExplorer/CompileOutput/Zoom";
 const char C_COMPILE_OUTPUT[] = "ProjectExplorer.CompileOutput";
+const char POP_UP_KEY[] = "ProjectExplorer/Settings/ShowCompilerOutput";
+const char WRAP_OUTPUT_KEY[] = "ProjectExplorer/Settings/WrapBuildOutput";
+const char MAX_LINES_KEY[] = "ProjectExplorer/Settings/MaxBuildOutputLines";
 }
 
 namespace ProjectExplorer {
@@ -199,8 +207,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     m_handler = new ShowOutputTaskHandler(this);
     ExtensionSystem::PluginManager::addObject(m_handler);
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &CompileOutputWindow::updateFromSettings);
+    loadSettings();
     updateFromSettings();
 }
 
@@ -226,8 +233,8 @@ void CompileOutputWindow::updateZoomEnabled()
 
 void CompileOutputWindow::updateFromSettings()
 {
-    m_outputWindow->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
-    m_outputWindow->setMaxCharCount(ProjectExplorerPlugin::projectExplorerSettings().maxBuildOutputChars);
+    m_outputWindow->setWordWrapEnabled(m_settings.wrapOutput);
+    m_outputWindow->setMaxCharCount(m_settings.maxCharCount);
 }
 
 bool CompileOutputWindow::hasFocus() const
@@ -357,6 +364,95 @@ void CompileOutputWindow::showPositionOf(const Task &task)
 void CompileOutputWindow::flush()
 {
     m_formatter->flush();
+}
+
+void CompileOutputWindow::setSettings(const CompileOutputSettings &settings)
+{
+    m_settings = settings;
+    storeSettings();
+    updateFromSettings();
+}
+
+void CompileOutputWindow::loadSettings()
+{
+    QSettings * const s = Core::ICore::settings();
+    m_settings.popUp = s->value(POP_UP_KEY, false).toBool();
+    m_settings.wrapOutput = s->value(WRAP_OUTPUT_KEY, true).toBool();
+    m_settings.maxCharCount = s->value(MAX_LINES_KEY,
+                                       Core::Constants::DEFAULT_MAX_CHAR_COUNT).toInt() * 100;
+}
+
+void CompileOutputWindow::storeSettings() const
+{
+    QSettings * const s = Core::ICore::settings();
+    s->setValue(POP_UP_KEY, m_settings.popUp);
+    s->setValue(WRAP_OUTPUT_KEY, m_settings.wrapOutput);
+    s->setValue(MAX_LINES_KEY, m_settings.maxCharCount / 100);
+}
+
+class CompileOutputSettingsPage::SettingsWidget : public QWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::CompileOutputSettingsPage)
+public:
+    SettingsWidget()
+    {
+        const CompileOutputSettings &settings = BuildManager::compileOutputSettings();
+        m_wrapOutputCheckBox.setText(tr("Word-wrap output"));
+        m_wrapOutputCheckBox.setChecked(settings.wrapOutput);
+        m_popUpCheckBox.setText(tr("Open pane when building"));
+        m_popUpCheckBox.setChecked(settings.popUp);
+        m_maxCharsBox.setMaximum(100000000);
+        m_maxCharsBox.setValue(settings.maxCharCount);
+        const auto layout = new QVBoxLayout(this);
+        layout->addWidget(&m_wrapOutputCheckBox);
+        layout->addWidget(&m_popUpCheckBox);
+        const auto maxCharsLayout = new QHBoxLayout;
+        maxCharsLayout->addWidget(new QLabel(tr("Limit output to"))); // TODO: This looks problematic i18n-wise
+        maxCharsLayout->addWidget(&m_maxCharsBox);
+        maxCharsLayout->addWidget(new QLabel(tr("characters")));
+        maxCharsLayout->addStretch(1);
+        layout->addLayout(maxCharsLayout);
+        layout->addStretch(1);
+    }
+
+    CompileOutputSettings settings() const
+    {
+        CompileOutputSettings s;
+        s.wrapOutput = m_wrapOutputCheckBox.isChecked();
+        s.popUp = m_popUpCheckBox.isChecked();
+        s.maxCharCount = m_maxCharsBox.value();
+        return s;
+    }
+
+private:
+    QCheckBox m_wrapOutputCheckBox;
+    QCheckBox m_popUpCheckBox;
+    QSpinBox m_maxCharsBox;
+};
+
+CompileOutputSettingsPage::CompileOutputSettingsPage()
+{
+    setId("C.ProjectExplorer.CompileOutputOptions");
+    setDisplayName(tr("Compile Output"));
+    setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+}
+
+QWidget *CompileOutputSettingsPage::widget()
+{
+    if (!m_widget)
+        m_widget = new SettingsWidget;
+    return m_widget;
+}
+
+void CompileOutputSettingsPage::apply()
+{
+    if (m_widget)
+        BuildManager::setCompileOutputSettings(m_widget->settings());
+}
+
+void CompileOutputSettingsPage::finish()
+{
+    delete m_widget;
 }
 
 #include "compileoutputwindow.moc"

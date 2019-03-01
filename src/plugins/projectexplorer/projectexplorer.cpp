@@ -25,7 +25,9 @@
 
 #include "projectexplorer.h"
 
+#include "appoutputpane.h"
 #include "buildsteplist.h"
+#include "compileoutputwindow.h"
 #include "configtaskhandler.h"
 #include "customexecutablerunconfiguration.h"
 #include "customwizard/customwizard.h"
@@ -546,6 +548,8 @@ public:
 
     // Settings pages
     ProjectExplorerSettingsPage m_projectExplorerSettingsPage;
+    AppOutputSettingsPage m_appOutputSettingsPage;
+    CompileOutputSettingsPage m_compileOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
     SshSettingsPage m_sshSettingsPage;
 
@@ -1302,18 +1306,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             s->value(QLatin1String("ProjectExplorer/Settings/DeployBeforeRun"), true).toBool();
     dd->m_projectExplorerSettings.saveBeforeBuild =
             s->value(QLatin1String("ProjectExplorer/Settings/SaveBeforeBuild"), false).toBool();
-    dd->m_projectExplorerSettings.showCompilerOutput =
-            s->value(QLatin1String("ProjectExplorer/Settings/ShowCompilerOutput"), false).toBool();
-    dd->m_projectExplorerSettings.showRunOutput =
-            s->value(QLatin1String("ProjectExplorer/Settings/ShowRunOutput"), true).toBool();
-    dd->m_projectExplorerSettings.showDebugOutput =
-            s->value(QLatin1String("ProjectExplorer/Settings/ShowDebugOutput"), false).toBool();
-    dd->m_projectExplorerSettings.cleanOldAppOutput =
-            s->value(QLatin1String("ProjectExplorer/Settings/CleanOldAppOutput"), false).toBool();
-    dd->m_projectExplorerSettings.mergeStdErrAndStdOut =
-            s->value(QLatin1String("ProjectExplorer/Settings/MergeStdErrAndStdOut"), false).toBool();
-    dd->m_projectExplorerSettings.wrapAppOutput =
-            s->value(QLatin1String("ProjectExplorer/Settings/WrapAppOutput"), true).toBool();
     dd->m_projectExplorerSettings.useJom =
             s->value(QLatin1String("ProjectExplorer/Settings/UseJom"), true).toBool();
     dd->m_projectExplorerSettings.autorestoreLastSession =
@@ -1324,12 +1316,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             s->value(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), false).toBool();
     dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations =
             s->value(QLatin1String("ProjectExplorer/Settings/AutomaticallyCreateRunConfigurations"), true).toBool();
-    dd->m_projectExplorerSettings.maxAppOutputChars =
-            s->value(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"),
-                     Core::Constants::DEFAULT_MAX_CHAR_COUNT).toInt() * 100;
-    dd->m_projectExplorerSettings.maxBuildOutputChars =
-            s->value(QLatin1String("ProjectExplorer/Settings/MaxBuildOutputLines"),
-                     Core::Constants::DEFAULT_MAX_CHAR_COUNT).toInt() * 100;
     dd->m_projectExplorerSettings.environmentId =
             QUuid(s->value(QLatin1String("ProjectExplorer/Settings/EnvironmentId")).toByteArray());
     if (dd->m_projectExplorerSettings.environmentId.isNull())
@@ -1918,20 +1904,12 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(QLatin1String("ProjectExplorer/Settings/BuildBeforeDeploy"), dd->m_projectExplorerSettings.buildBeforeDeploy);
     s->setValue(QLatin1String("ProjectExplorer/Settings/DeployBeforeRun"), dd->m_projectExplorerSettings.deployBeforeRun);
     s->setValue(QLatin1String("ProjectExplorer/Settings/SaveBeforeBuild"), dd->m_projectExplorerSettings.saveBeforeBuild);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/ShowCompilerOutput"), dd->m_projectExplorerSettings.showCompilerOutput);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/ShowRunOutput"), dd->m_projectExplorerSettings.showRunOutput);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/ShowDebugOutput"), dd->m_projectExplorerSettings.showDebugOutput);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/CleanOldAppOutput"), dd->m_projectExplorerSettings.cleanOldAppOutput);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/MergeStdErrAndStdOut"), dd->m_projectExplorerSettings.mergeStdErrAndStdOut);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/WrapAppOutput"), dd->m_projectExplorerSettings.wrapAppOutput);
     s->setValue(QLatin1String("ProjectExplorer/Settings/UseJom"), dd->m_projectExplorerSettings.useJom);
     s->setValue(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), dd->m_projectExplorerSettings.autorestoreLastSession);
     s->setValue(QLatin1String("ProjectExplorer/Settings/AddLibraryPathsToRunEnv"), dd->m_projectExplorerSettings.addLibraryPathsToRunEnv);
     s->setValue(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), dd->m_projectExplorerSettings.prompToStopRunControl);
     s->setValue(QLatin1String("ProjectExplorer/Settings/AutomaticallyCreateRunConfigurations"),
                 dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), dd->m_projectExplorerSettings.maxAppOutputChars / 100);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/MaxBuildOutputLines"), dd->m_projectExplorerSettings.maxBuildOutputChars / 100);
     s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), dd->m_projectExplorerSettings.environmentId.toByteArray());
     s->setValue(QLatin1String("ProjectExplorer/Settings/StopBeforeBuild"), dd->m_projectExplorerSettings.stopBeforeBuild);
 
@@ -2244,8 +2222,8 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     m_outputPane.flash(); // one flash for starting
     m_outputPane.showTabFor(runControl);
     Core::Id runMode = runControl->runMode();
-    bool popup = (runMode == Constants::NORMAL_RUN_MODE && dd->m_projectExplorerSettings.showRunOutput)
-            || (runMode == Constants::DEBUG_RUN_MODE && m_projectExplorerSettings.showDebugOutput);
+    bool popup = (runMode == Constants::NORMAL_RUN_MODE && m_outputPane.settings().popUpForRunOutput)
+            || (runMode == Constants::DEBUG_RUN_MODE && m_outputPane.settings().popUpForDebugOutput);
     m_outputPane.setBehaviorOnOutput(runControl, popup ? AppOutputPane::Popup : AppOutputPane::Flash);
     connect(runControl, &QObject::destroyed, this, &ProjectExplorerPluginPrivate::checkForShutdown,
             Qt::QueuedConnection);
@@ -3727,6 +3705,16 @@ void ProjectExplorerPlugin::setProjectExplorerSettings(const ProjectExplorerSett
 const ProjectExplorerSettings &ProjectExplorerPlugin::projectExplorerSettings()
 {
     return dd->m_projectExplorerSettings;
+}
+
+void ProjectExplorerPlugin::setAppOutputSettings(const AppOutputSettings &settings)
+{
+    dd->m_outputPane.setSettings(settings);
+}
+
+const AppOutputSettings &ProjectExplorerPlugin::appOutputSettings()
+{
+    return dd->m_outputPane.settings();
 }
 
 QStringList ProjectExplorerPlugin::projectFilePatterns()
