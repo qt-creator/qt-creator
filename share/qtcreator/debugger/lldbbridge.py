@@ -957,6 +957,12 @@ class Dumper(DumperBase):
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
             self.reportState('enginerunandinferiorrunok')
+        if self.target is not None:
+            broadcaster = self.target.GetBroadcaster()
+            listener = self.debugger.GetListener()
+            broadcaster.AddListener(listener, lldb.SBTarget.eBroadcastBitBreakpointChanged)
+            listener.StartListeningForEvents(broadcaster, lldb.SBTarget.eBroadcastBitBreakpointChanged)
+
 
     def loop(self):
         event = lldb.SBEvent()
@@ -1115,6 +1121,11 @@ class Dumper(DumperBase):
             # Unusual syntax intended, to support the double-click in left
             # logview pane feature.
             self.report('token(\"%s\")' % args["token"])
+
+
+    def reportBreakpointUpdate(self, bp):
+        self.report('breakpointmodified={%s}' % self.describeBreakpoint(bp))
+
 
     def readRawMemory(self, address, size):
         if size == 0:
@@ -1288,7 +1299,20 @@ class Dumper(DumperBase):
         self.process.Kill()
         self.reportResult('', args)
 
+
+    def handleBreakpointEvent(self, event):
+        eventType = lldb.SBBreakpoint.GetBreakpointEventTypeFromEvent(event)
+        # handle only the resolved locations for now..
+        if eventType & lldb.eBreakpointEventTypeLocationsResolved:
+            bp = lldb.SBBreakpoint.GetBreakpointFromEvent(event)
+            if bp is not None:
+                self.reportBreakpointUpdate(bp)
+
+
     def handleEvent(self, event):
+        if lldb.SBBreakpoint.EventIsBreakpointEvent(event):
+            self.handleBreakpointEvent(event)
+            return
         out = lldb.SBStream()
         event.GetDescription(out)
         #warn("EVENT: %s" % event)
