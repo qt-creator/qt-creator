@@ -461,7 +461,7 @@ void AndroidRunnerWorker::asyncStartHelper()
             if (!m_gdbserverPath.isEmpty() && uploadGdbServer()) {
                 gdbServerPrefix = "./";
             } else {
-                emit remoteProcessFinished(tr("Cannot find/copy C++ debug server."));
+                emit remoteProcessFinished(tr("Cannot find or copy C++ debug server."));
                 return;
             }
         } else {
@@ -517,7 +517,7 @@ void AndroidRunnerWorker::asyncStartHelper()
     }
 
     if (!runAdb(args)) {
-        emit remoteProcessFinished(tr("Failed to start the activity"));
+        emit remoteProcessFinished(tr("Failed to start the activity."));
         return;
     }
 }
@@ -584,7 +584,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     runAdb(removeForward);
     if (!runAdb({"forward", "tcp:" + m_localJdbServerPort.toString(),
                 "jdwp:" + QString::number(m_processPID)})) {
-        emit remoteProcessFinished(tr("Failed to forward jdb debugging ports."));
+        emit remoteProcessFinished(tr("Failed to forward JDB debugging ports."));
         return;
     }
     m_afterFinishAdbCommands.push_back(removeForward.join(' '));
@@ -603,7 +603,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
     jdbProcess->start(jdbPath.toString(), jdbArgs);
     if (!jdbProcess->waitForStarted()) {
-        emit remoteProcessFinished(tr("Failed to start jdb."));
+        emit remoteProcessFinished(tr("Failed to start JDB."));
         return;
     }
     m_jdbProcess = std::move(jdbProcess);
@@ -643,7 +643,7 @@ void AndroidRunnerWorker::handleJdbSettled()
             }
         }
     }
-    emit remoteProcessFinished(tr("Cannot attach jdb to the running application"));
+    emit remoteProcessFinished(tr("Cannot attach JDB to the running application."));
 }
 
 void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
