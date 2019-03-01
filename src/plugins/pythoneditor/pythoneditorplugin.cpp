@@ -33,6 +33,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/id.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <projectexplorer/buildtargetinfo.h>
@@ -61,6 +62,7 @@
 #include <QTextCursor>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonParseError>
 #include <QJsonValue>
 #include <QJsonArray>
 
@@ -344,30 +346,48 @@ static QStringList readLines(const Utils::FileName &projectFile)
     return lines;
 }
 
-static QStringList readLinesJson(const Utils::FileName &projectFile)
+static QStringList readLinesJson(const Utils::FileName &projectFile,
+                                 QString *errorMessage)
 {
     const QString projectFileName = projectFile.fileName();
     QStringList lines = { projectFileName };
 
     QFile file(projectFile.toString());
-    if (!file.open(QFile::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        *errorMessage = PythonProject::tr("Unable to open \"%1\" for reading: %2")
+                        .arg(projectFile.toUserOutput(), file.errorString());
         return lines;
+    }
+
     const QByteArray content = file.readAll();
 
     // This assumes te project file is formed with only one field called
     // 'files' that has a list associated of the files to include in the project.
-    if (!content.isEmpty()) {
-        const QJsonDocument doc = QJsonDocument::fromJson(content);
-        const QJsonObject obj = doc.object();
-        if (obj.contains("files")) {
-            QJsonValue files = obj.value("files");
-            QJsonArray files_array = files.toArray();
-            QSet<QString> visited;
-            for (const auto &file : files_array)
-                visited.insert(file.toString());
+    if (content.isEmpty()) {
+        *errorMessage = PythonProject::tr("Unable read \"%1\": The file is empty.")
+                        .arg(projectFile.toUserOutput());
+        return lines;
+    }
 
-            lines.append(visited.toList());
-        }
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(content, &error);
+    if (doc.isNull()) {
+        const int line = content.left(error.offset).count('\n') + 1;
+        *errorMessage = PythonProject::tr("Unable parse %1:%2: %3")
+                        .arg(projectFile.toUserOutput()).arg(line)
+                        .arg(error.errorString());
+        return lines;
+    }
+
+    const QJsonObject obj = doc.object();
+    if (obj.contains("files")) {
+        QJsonValue files = obj.value("files");
+        QJsonArray files_array = files.toArray();
+        QSet<QString> visited;
+        for (const auto &file : files_array)
+            visited.insert(file.toString());
+
+        lines.append(visited.toList());
     }
 
     return lines;
@@ -453,8 +473,12 @@ void PythonProject::parseProject()
     m_rawListEntries.clear();
     const Utils::FileName filePath = projectFilePath();
     // The PySide project file is JSON based
-    if (filePath.endsWith(".pyproject"))
-        m_rawFileList = readLinesJson(filePath);
+    if (filePath.endsWith(".pyproject")) {
+        QString errorMessage;
+        m_rawFileList = readLinesJson(filePath, &errorMessage);
+        if (!errorMessage.isEmpty())
+            Core::MessageManager::write(errorMessage);
+    }
     // To keep compatibility with PyQt we keep the compatibility with plain
     // text files as project files.
     else if (filePath.endsWith(".pyqtc"))
