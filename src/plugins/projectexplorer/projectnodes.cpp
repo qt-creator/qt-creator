@@ -616,8 +616,12 @@ void FolderNode::addNestedNodes(std::vector<std::unique_ptr<FileNode> > &&files,
 void FolderNode::compress()
 {
     if (auto subFolder = m_nodes.size() == 1 ? m_nodes.at(0)->asFolderNode() : nullptr) {
-        if (subFolder->nodeType() != nodeType())
+        const bool sameType = (isFolderNodeType() && subFolder->isFolderNodeType())
+                || (isProjectNodeType() && subFolder->isProjectNodeType())
+                || (isVirtualFolderType() && subFolder->isVirtualFolderType());
+        if (!sameType)
             return;
+
         // Only one subfolder: Compress!
         setDisplayName(QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName()));
         for (Node *n : subFolder->nodes()) {
