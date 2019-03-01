@@ -90,6 +90,7 @@ public:
     bool isQtcRunnable() const;
     bool includedInExactParse() const;
 
+    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool showInSimpleTree() const override;
 
     QString buildKey() const override;

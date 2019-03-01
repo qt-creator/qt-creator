@@ -31,21 +31,6 @@
 
 namespace ClangBackEnd {
 
-namespace {
-
-// use std::filesystem::path if it is supported by all compilers
-
-template <typename String>
-String toNativePath(String &&path)
-{
-#ifdef _WIN32
-    std::replace(path.begin(), path.end(), '/', '\\');
-#endif
-
-    return std::move(path);
-}
-}
-
 void ClangTool::addFile(FilePath &&filePath,
                         Utils::SmallString &&content,
                         Utils::SmallStringVector &&commandLine)
@@ -72,7 +57,7 @@ void ClangTool::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
     m_unsavedFileContents.reserve(m_unsavedFileContents.size() + unsavedFiles.size());
 
     auto convertToUnsavedFileContent = [](const V2::FileContainer &unsavedFile) {
-        return UnsavedFileContent{NativeFilePath{unsavedFile.filePath},
+        return UnsavedFileContent{unsavedFile.filePath.clone(),
                                   unsavedFile.unsavedFileContent.clone()};
     };
 
@@ -83,7 +68,7 @@ void ClangTool::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
 }
 
 namespace {
-template <typename String>
+template<typename String>
 llvm::StringRef toStringRef(const String &string)
 {
     return llvm::StringRef(string.data(), string.size());

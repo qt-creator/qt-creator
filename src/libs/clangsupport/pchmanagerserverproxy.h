@@ -47,6 +47,7 @@ class CLANGSUPPORT_EXPORT PchManagerServerProxy final : public BaseServerProxy,
                                                         public PchManagerServerInterface
 {
 public:
+    explicit PchManagerServerProxy(PchManagerClientInterface *client, QLocalSocket *localSocket);
     explicit PchManagerServerProxy(PchManagerClientInterface *client, QIODevice *ioDevice);
 
     void end() override;

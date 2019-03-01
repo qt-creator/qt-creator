@@ -37,6 +37,7 @@
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 
 #include <QSettings>
@@ -173,7 +174,8 @@ static bool keyWordReplacement(const QString &keyWord,
         return true;
     }
     if (keyWord == QLatin1String("%USER%")) {
-        *value = QLatin1String("%{Env:USER}");
+        *value = Utils::HostOsInfo::isWindowsHost() ? QLatin1String("%{Env:USERNAME}")
+                                                    : QLatin1String("%{Env:USER}");
         return true;
     }
     // Environment variables (for example '%$EMAIL%').

@@ -38,6 +38,11 @@
 
 namespace ClangBackEnd {
 
+PchManagerServerProxy::PchManagerServerProxy(PchManagerClientInterface *client,
+                                             QLocalSocket *localSocket)
+    : BaseServerProxy(client, localSocket)
+{}
+
 PchManagerServerProxy::PchManagerServerProxy(PchManagerClientInterface *client, QIODevice *ioDevice)
     : BaseServerProxy(client, ioDevice)
 {

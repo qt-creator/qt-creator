@@ -85,11 +85,7 @@ def main():
     checkSimpleCppLib("SampleApp1", False)
     checkSimpleCppLib("SampleApp2", True)
 
-    pluginTargets = Targets.desktopTargetClasses()
-    pluginTargets.remove(Targets.DESKTOP_4_8_7_DEFAULT)
-    if platform.system() in ('Microsoft', 'Windows'):
-        # No C++11 in GCC 4.9
-        pluginTargets.remove(Targets.DESKTOP_5_4_1_GCC)
+    pluginTargets = (Targets.DESKTOP_5_6_1_DEFAULT, Targets.DESKTOP_5_10_1_DEFAULT)
     projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin", pluginTargets)
     virtualFunctionsAdded = False
     for kit, config in iterateBuildConfigs("Debug"):
@@ -103,7 +99,7 @@ def main():
                 continue
             editor = getEditorForFileSuffix("%s.cpp" % className.lower())
             initialContent = str(editor.plainText)
-            test.verify("QObject * %s::create(" % className in initialContent,
+            test.verify("QObject *%s::create(" % className in initialContent,
                         "Verifying whether pure virtual function has been added to the source file.")
             if not openDocument("%s.Headers.%s\.h" % (projectName, className.lower())):
                 test.fatal("Could not open %s.h - continuing." % className.lower())
@@ -131,7 +127,7 @@ def main():
                         "Verifying whether event() definition has been added to the source file.")
             # add return to not run into build issues of missing return values
             addReturn(editor, "bool %s::event.*" % className, "true")
-            addReturn(editor, "QObject \* %s::create.*" % className, "0")
+            addReturn(editor, "QObject \*%s::create.*" % className, "0")
             placeCursorToLine(editor, 'static_assert\(false, .*', True)
             invokeContextMenuItem(editor, "Toggle Comment Selection")
             virtualFunctionsAdded = True

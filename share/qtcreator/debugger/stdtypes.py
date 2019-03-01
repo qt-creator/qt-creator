@@ -1024,7 +1024,20 @@ def qdump__std__basic_string(d, value):
 
 def qdump__std____cxx11__basic_string(d, value):
     innerType = value.type[0]
-    (data, size) = value.split("pI")
+    try:
+        allocator = value.type[2].name
+    except:
+        allocator = ''
+    if allocator == 'std::allocator<%s>' % innerType.name:
+        (data, size) = value.split("pI")
+    else:
+        try:
+            data = value["_M_dataplus"]["_M_p"]
+            size = int(value["_M_string_length"])
+        except:
+            d.putEmptyValue()
+            d.putPlainChildren(value)
+            return
     d.check(0 <= size) #and size <= alloc and alloc <= 100*1000*1000)
     d.putCharArrayHelper(data, size, innerType, d.currentItemFormat())
 

@@ -26,14 +26,25 @@
 #include "baseserverproxy.h"
 #include "messageenvelop.h"
 
-#include <QIODevice>
+#include <QLocalSocket>
 
 namespace ClangBackEnd {
 
+BaseServerProxy::BaseServerProxy(IpcClientInterface *client, QLocalSocket *localSocket)
+    : m_writeMessageBlock(localSocket)
+    , m_readMessageBlock(localSocket)
+    , m_client(client)
+{
+    if (localSocket)
+        QObject::connect(localSocket, &QIODevice::readyRead, [this]() {
+            BaseServerProxy::readMessages();
+        });
+}
+
 BaseServerProxy::BaseServerProxy(IpcClientInterface *client, QIODevice *ioDevice)
-    : m_writeMessageBlock(ioDevice),
-      m_readMessageBlock(ioDevice),
-      m_client(client)
+    : m_writeMessageBlock(ioDevice)
+    , m_readMessageBlock(ioDevice)
+    , m_client(client)
 {
     if (ioDevice)
         QObject::connect(ioDevice, &QIODevice::readyRead, [this] () { BaseServerProxy::readMessages(); });
@@ -51,11 +62,13 @@ void BaseServerProxy::resetState()
     m_readMessageBlock.resetState();
 }
 
-void BaseServerProxy::setIoDevice(QIODevice *ioDevice)
+void BaseServerProxy::setLocalSocket(QLocalSocket *localSocket)
 {
-    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () { BaseServerProxy::readMessages(); });
-    m_writeMessageBlock.setIoDevice(ioDevice);
-    m_readMessageBlock.setIoDevice(ioDevice);
+    QObject::connect(localSocket, &QIODevice::readyRead, [this]() {
+        BaseServerProxy::readMessages();
+    });
+    m_writeMessageBlock.setLocalSocket(localSocket);
+    m_readMessageBlock.setIoDevice(localSocket);
 }
 
 } // namespace ClangBackEnd

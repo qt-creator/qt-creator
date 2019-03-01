@@ -26,6 +26,7 @@ HEADERS += \
     cppcodestylepreferencesfactory.h \
     cppcodestylesettings.h \
     cppcodestylesettingspage.h \
+    cppcodestylesnippets.h \
     cppcompletionassist.h \
     cppcompletionassistprocessor.h \
     cppcompletionassistprovider.h \

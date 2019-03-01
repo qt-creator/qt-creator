@@ -87,6 +87,7 @@ private:
     TextEditor::Replacements replacements(QByteArray buffer,
                                           const QTextBlock &startBlock,
                                           const QTextBlock &endBlock,
+                                          int cursorPositionInEditor,
                                           ReplacementsToKeep replacementsToKeep,
                                           const QChar &typedChar = QChar::Null,
                                           bool secondTry = false) const;

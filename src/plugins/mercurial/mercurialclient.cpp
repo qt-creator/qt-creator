@@ -68,6 +68,7 @@ protected:
 MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document, const QString &workingDirectory):
     VcsBaseDiffEditorController(document, MercurialPlugin::client(), workingDirectory)
 {
+    setDisplayName("Hg Diff");
 }
 
 void MercurialDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)

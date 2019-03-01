@@ -52,7 +52,8 @@ public:
         if (!m_promise)
             initialize();
 
-        m_promise->setExpectedResultCount(maximumProgress);
+        if (m_promise->progressMaximum() != maximumProgress)
+            m_promise->setProgressRange(0, maximumProgress);
         m_promise->setProgressValue(currentProgress);
 
         if (currentProgress >= maximumProgress)

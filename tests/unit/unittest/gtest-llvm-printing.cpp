@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,30 +23,20 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#endif
-
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
 #include <gtest/gtest-printers.h>
-#include <gtest/gtest-typed-test.h>
 
-#include "compare-operators.h"
+#include <utils/smallstringio.h>
 
-#include "conditionally-disabled-tests.h"
-#include "gtest-qt-printing.h"
-#include "gtest-creator-printing.h"
-#include "gtest-llvm-printing.h"
-#ifdef CLANG_UNIT_TESTS
-#  include "gtest-clang-printing.h"
-#endif
+#include <clang/Tooling/CompilationDatabase.h>
 
-#include "google-using-declarations.h"
+namespace clang {
+namespace tooling {
+struct CompileCommand;
 
-#include "unittest-matchers.h"
-
-#include "unittest-utility-functions.h"
+std::ostream &operator<<(std::ostream &out, const CompileCommand &command)
+{
+    return out << "(" << command.Directory << ", " << command.Filename << ", "
+               << command.CommandLine << ", " << command.Output << ")";
+}
+} // namespace tooling
+} // namespace clang

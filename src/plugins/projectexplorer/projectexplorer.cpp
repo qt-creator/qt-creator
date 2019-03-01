@@ -44,6 +44,7 @@
 #include "projectexplorersettingspage.h"
 #include "projectmanager.h"
 #include "removetaskhandler.h"
+#include "runconfigurationaspects.h"
 #include "kitfeatureprovider.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
@@ -1595,8 +1596,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         tr("The currently active run configuration's executable (if applicable)."),
         []() -> QString {
             if (Target *target = activeTarget()) {
-                if (RunConfiguration *rc = target->activeRunConfiguration())
-                    return rc->runnable().executable;
+                if (RunConfiguration *rc = target->activeRunConfiguration()) {
+                    // TODO: This duplicates code and is not always correct, but see
+                    // QTCREATORBUG-18317.
+                    // Solution: Re-introduce RunConfiguration::executable()?
+                    if (auto executableAspect = rc->aspect<ExecutableAspect>())
+                        return executableAspect->executable().toString();
+                    return QString();
+                }
             }
             return QString();
         });
@@ -3459,15 +3466,12 @@ void ProjectExplorerPluginPrivate::removeProject()
     Node *node = ProjectTree::findCurrentNode();
     if (!node)
         return;
-    ProjectNode *subProjectNode = node->managingProject();
-    if (!subProjectNode)
-        return;
-    ProjectNode *projectNode = subProjectNode->managingProject();
+    ProjectNode *projectNode = node->managingProject();
     if (projectNode) {
-        Utils::RemoveFileDialog removeFileDialog(subProjectNode->filePath().toString(), ICore::mainWindow());
+        Utils::RemoveFileDialog removeFileDialog(node->filePath().toString(), ICore::mainWindow());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
-            projectNode->removeSubProject(subProjectNode->filePath().toString());
+            projectNode->removeSubProject(node->filePath().toString());
     }
 }
 

@@ -194,7 +194,8 @@ bool QmlDesignerPlugin::delayedInitialize()
     d->settings.fromSettings(Core::ICore::settings());
 
     d->viewManager.registerViewTakingOwnership(new QmlDesigner::Internal::ConnectionView);
-    if (DesignerSettings::getValue(DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool())
+    if (DesignerSettings::getValue(DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool()
+        || qEnvironmentVariableIsSet(DesignerSettingsKey::ENABLE_TIMELINEVIEW_ENVVAR))
         d->viewManager.registerViewTakingOwnership(new QmlDesigner::TimelineView);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::SourceTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::ColorTool);

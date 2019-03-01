@@ -112,6 +112,9 @@ QWidget *HighlighterSettingsPage::widget()
                             label->setText(tr("Update finished"));
                     });
                 });
+        connect(m_d->m_page->resetCache, &QPushButton::clicked, []() {
+            Highlighter::clearDefintionForDocumentCache();
+        });
 
         settingsToUI();
     }

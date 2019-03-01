@@ -41,12 +41,10 @@ QString currentProcessId()
 
 }
 
-ClangCodeModelConnectionClient::ClangCodeModelConnectionClient(
-        ClangCodeModelClientInterface *client)
+ClangCodeModelConnectionClient::ClangCodeModelConnectionClient(ClangCodeModelClientInterface *client)
     : ConnectionClient(Utils::TemporaryDirectory::masterDirectoryPath()
-                       + QStringLiteral("/ClangBackEnd-")
-                       + currentProcessId()),
-      m_serverProxy(client, nullptr)
+                       + QStringLiteral("/ClangBackEnd-") + currentProcessId())
+    , m_serverProxy(client)
 {
     m_processCreator.setTemporaryDirectoryPattern("clangbackend-XXXXXX");
     m_processCreator.setArguments({connectionName()});
@@ -85,9 +83,9 @@ QString ClangCodeModelConnectionClient::outputName() const
     return QStringLiteral("ClangCodeModelConnectionClient");
 }
 
-void ClangCodeModelConnectionClient::newConnectedServer(QIODevice *ioDevice)
+void ClangCodeModelConnectionClient::newConnectedServer(QLocalSocket *localSocket)
 {
-    m_serverProxy.setIoDevice(ioDevice);
+    m_serverProxy.setLocalSocket(localSocket);
 }
 
 } // namespace ClangBackEnd

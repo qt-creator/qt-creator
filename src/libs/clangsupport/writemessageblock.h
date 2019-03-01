@@ -32,6 +32,7 @@ QT_BEGIN_NAMESPACE
 class QVariant;
 class QDataStream;
 class QIODevice;
+class QLocalSocket;
 QT_END_NAMESPACE
 
 namespace ClangBackEnd {
@@ -42,6 +43,7 @@ class WriteMessageBlock
 {
 public:
     WriteMessageBlock(QIODevice *ioDevice = nullptr);
+    WriteMessageBlock(QLocalSocket *localSocket);
 
     void write(const MessageEnvelop &message);
 
@@ -50,13 +52,15 @@ public:
     void resetState();
 
     void setIoDevice(QIODevice *ioDevice);
+    void setLocalSocket(QLocalSocket *localSocket);
 
     void flushBlock();
 
 private:
     QByteArray m_block;
-    qint64 m_messageCounter;
-    QIODevice *m_ioDevice;
+    qint64 m_messageCounter = 0;
+    QIODevice *m_ioDevice = {};
+    QLocalSocket *m_localSocket = {};
 };
 
 } // namespace ClangBackEnd

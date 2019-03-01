@@ -138,7 +138,7 @@ TEST_F(ReadAndWriteMessageBlock, WriteMessagesToWriteBlockWithoutIoDeviceAndSetI
     writeMessageBlock.write(ClangBackEnd::EndMessage());
     writeMessageBlock.write(ClangBackEnd::EndMessage());
 
-    writeMessageBlock.setIoDevice(nullptr);
+    writeMessageBlock.setLocalSocket(nullptr);
     buffer.seek(0);
 
     ASSERT_THAT(readMessageBlock.readAll(), IsEmpty());

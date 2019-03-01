@@ -41,10 +41,11 @@
 #include <clangreferencescollector.h>
 #include <filestatus.h>
 #include <filepath.h>
+#include <filepathcaching.h>
 #include <fulltokeninfo.h>
 #include <includesearchpath.h>
 #include <nativefilepath.h>
-#include <pchcreator.h>
+#include <pchcreatorincludes.h>
 #include <pchtask.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <projectpartartefact.h>
@@ -69,23 +70,9 @@
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/locator/ilocatorfilter.h>
 
-#include <clang/Tooling/CompilationDatabase.h>
-
 namespace {
 ClangBackEnd::FilePathCaching *filePathCache = nullptr;
 }
-
-namespace clang {
-namespace tooling {
-struct CompileCommand;
-
-std::ostream &operator<<(std::ostream &out, const CompileCommand &command)
-{
-    return out << "(" << command.Directory << ", " << command.Filename << ", "
-               << command.CommandLine << ", " << command.Output << ")";
-}
-} // namespace tooling
-} // namespace clang
 
 void PrintTo(const Utf8String &text, ::std::ostream *os)
 {

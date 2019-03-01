@@ -104,28 +104,29 @@ int GradientModel::addStop(qreal position, const QColor &color)
         return -1;
 
     if (m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8())) {
-        //QmlDesigner::RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
-        //### TODO does not work
-
-        QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
-
-        QmlDesigner::ModelNode gradientStopNode =
-                m_itemNode.modelNode().view()->createModelNode("QtQuick.GradientStop",
-                                                               m_itemNode.modelNode().view()->majorQtQuickVersion(), 0);
-        gradientStopNode.variantProperty("position").setValue(position);
-        gradientStopNode.variantProperty("color").setValue(color);
-        gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
-
-        const QList<QmlDesigner::ModelNode> stopNodes = gradientNode.nodeListProperty("stops").toModelNodeList();
-
         int properPos = 0;
-        for (int i = 0; i < stopNodes.count(); i++) {
-            if (QmlDesigner::QmlObjectNode(stopNodes.at(i)).modelValue("position").toReal() < position)
-                properPos = i + 1;
-        }
-        gradientNode.nodeListProperty("stops").slide(stopNodes.count() - 1, properPos);
+        try {
 
-        setupModel();
+            QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
+
+            QmlDesigner::ModelNode gradientStopNode = createGradientStopNode();
+
+            gradientStopNode.variantProperty("position").setValue(position);
+            gradientStopNode.variantProperty("color").setValue(color);
+            gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
+
+            const QList<QmlDesigner::ModelNode> stopNodes = gradientNode.nodeListProperty("stops").toModelNodeList();
+
+            for (int i = 0; i < stopNodes.count(); i++) {
+                if (QmlDesigner::QmlObjectNode(stopNodes.at(i)).modelValue("position").toReal() < position)
+                    properPos = i + 1;
+            }
+            gradientNode.nodeListProperty("stops").slide(stopNodes.count() - 1, properPos);
+
+            setupModel();
+        } catch (const QmlDesigner::Exception &e) {
+            e.showException();
+        }
 
         return properPos;
     }
@@ -155,12 +156,12 @@ void GradientModel::addGradient()
 
             m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).reparentHere(gradientNode);
 
-            QmlDesigner::ModelNode gradientStopNode = view()->createModelNode("QtQuick.GradientStop", view()->majorQtQuickVersion(), 0);
+            QmlDesigner::ModelNode gradientStopNode = createGradientStopNode();
             gradientStopNode.variantProperty("position").setValue(0.0);
             gradientStopNode.variantProperty("color").setValue(color);
             gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
 
-            gradientStopNode = view()->createModelNode("QtQuick.GradientStop", view()->majorQtQuickVersion(), 0);
+            gradientStopNode = createGradientStopNode();
             gradientStopNode.variantProperty("position").setValue(1.0);
             gradientStopNode.variantProperty("color").setValue(QColor(Qt::black));
             gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
@@ -457,6 +458,17 @@ QmlDesigner::ModelNode GradientModel::createGradientNode()
     setupGradientProperties(gradientNode);
 
     return gradientNode;
+}
+
+QmlDesigner::ModelNode GradientModel::createGradientStopNode()
+{
+    QByteArray fullTypeName = "QtQuick.GradientStop";
+    auto metaInfo = model()->metaInfo(fullTypeName);
+
+    int minorVersion = metaInfo.minorVersion();
+    int majorVersion = metaInfo.majorVersion();
+
+    return view()->createModelNode(fullTypeName, majorVersion, minorVersion);
 }
 
 void GradientModel::setGradientProperty(const QString &propertyName, qreal value)

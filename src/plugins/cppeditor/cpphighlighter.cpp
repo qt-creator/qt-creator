@@ -35,7 +35,7 @@
 
 #include <QTextDocument>
 
-using namespace CppEditor::Internal;
+using namespace CppEditor;
 using namespace TextEditor;
 using namespace CPlusPlus;
 

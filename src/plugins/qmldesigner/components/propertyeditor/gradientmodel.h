@@ -86,6 +86,7 @@ private:
     bool hasGradient() const;
     bool locked() const;
     QmlDesigner::ModelNode createGradientNode();
+    QmlDesigner::ModelNode createGradientStopNode();
 
 private:
     QmlDesigner::QmlItemNode m_itemNode;

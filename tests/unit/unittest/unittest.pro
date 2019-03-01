@@ -176,6 +176,7 @@ SOURCES += \
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
+    gtest-llvm-printing.cpp \
     clangquerygatherer-test.cpp \
     clangqueryprojectfindfilter-test.cpp \
     clangquery-test.cpp \
@@ -214,6 +215,7 @@ HEADERS += \
     filesystem-utilities.h \
     googletest.h \
     gtest-creator-printing.h \
+    gtest-llvm-printing.h \
     gtest-qt-printing.h \
     mimedatabase-utilities.h \
     mockclangcodemodelclient.h \

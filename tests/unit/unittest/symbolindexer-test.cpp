@@ -630,15 +630,15 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderButGetsAnErrorForCollectingS
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    "/project/includes",
+                                    toNativePath("/project/includes").path(),
                                     "-I",
-                                    "/other/project/includes",
+                                    toNativePath("/other/project/includes").path(),
                                     "-isystem",
-                                    TESTDATA_DIR,
+                                    toNativePath(TESTDATA_DIR).path(),
                                     "-isystem",
-                                    "/other/includes",
+                                    toNativePath("/other/includes").path(),
                                     "-isystem",
-                                    "/includes")));
+                                    toNativePath("/includes").path())));
     EXPECT_CALL(mockCollector, collectSymbols()).WillOnce(Return(false));
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(0);
@@ -752,15 +752,15 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrderButGetsAnErrorForCollectingSy
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    "/project/includes",
+                                    toNativePath("/project/includes").path(),
                                     "-I",
-                                    "/other/project/includes",
+                                    toNativePath("/other/project/includes").path(),
                                     "-isystem",
-                                    TESTDATA_DIR,
+                                    toNativePath(TESTDATA_DIR).path(),
                                     "-isystem",
-                                    "/other/includes",
+                                    toNativePath("/other/includes").path(),
                                     "-isystem",
-                                    "/includes")));
+                                    toNativePath("/includes").path())));
     EXPECT_CALL(mockCollector, collectSymbols()).WillOnce(Return(false));
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(0);

@@ -36,6 +36,7 @@
 
 QT_BEGIN_NAMESPACE
 class QLocalServer;
+class QLocalSocket;
 class QIODevice;
 QT_END_NAMESPACE
 
@@ -44,6 +45,8 @@ namespace ClangBackEnd {
 class CLANGSUPPORT_EXPORT ClangCodeModelClientProxy : public ClangCodeModelClientInterface
 {
 public:
+    explicit ClangCodeModelClientProxy(ClangCodeModelServerInterface *server,
+                                       QLocalSocket *localSocket);
     explicit ClangCodeModelClientProxy(ClangCodeModelServerInterface *server, QIODevice *ioDevice);
     ClangCodeModelClientProxy(const ClangCodeModelClientProxy&) = delete;
     const ClangCodeModelClientProxy &operator=(const ClangCodeModelClientProxy&) = delete;

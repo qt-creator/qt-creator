@@ -25,6 +25,8 @@
 
 #include "highlightersettings.h"
 
+#include "texteditorconstants.h"
+
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
@@ -97,7 +99,6 @@ namespace {
 
 static const QLatin1String kDefinitionFilesPath("UserDefinitionFilesPath");
 static const QLatin1String kIgnoredFilesPatterns("IgnoredFilesPatterns");
-static const QLatin1String kGroupPostfix("HighlighterSettings");
 
 QString groupSpecifier(const QString &postFix, const QString &category)
 {
@@ -113,7 +114,7 @@ using namespace Internal;
 
 void HighlighterSettings::toSettings(const QString &category, QSettings *s) const
 {
-    const QString &group = groupSpecifier(kGroupPostfix, category);
+    const QString &group = groupSpecifier(Constants::HIGHLIGHTER_SETTINGS_CATEGORY, category);
     s->beginGroup(group);
     s->setValue(kDefinitionFilesPath, m_definitionFilesPath);
     s->setValue(kIgnoredFilesPatterns, ignoredFilesPatterns());
@@ -122,7 +123,7 @@ void HighlighterSettings::toSettings(const QString &category, QSettings *s) cons
 
 void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
 {
-    const QString &group = groupSpecifier(kGroupPostfix, category);
+    const QString &group = groupSpecifier(Constants::HIGHLIGHTER_SETTINGS_CATEGORY, category);
     s->beginGroup(group);
     m_definitionFilesPath = s->value(kDefinitionFilesPath, QString()).toString();
     if (!s->contains(kDefinitionFilesPath))

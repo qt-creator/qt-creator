@@ -2828,8 +2828,8 @@ void tst_Dumpers::dumper_data()
                + Check("ob", "\"An Object\"", "@QWidget")
                + Check("ob1", "\"Another Object\"", "@QObject")
                + Check("ob2", "\"A Subobject\"", "@QObject")
-               + Check("ob.[extra].[connections].0.0.receiver", "\"Another Object\"",
-                       "@QObject") % NoCdbEngine;
+               + Check("ob.[extra].[connections].@1.0.0.receiver", "\"Another Object\"",
+                       "@QObject") % NoCdbEngine % QtVersion(0x50b00);
 
 
     QString senderData =

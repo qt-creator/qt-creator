@@ -31,19 +31,34 @@
 #include "messageenvelop.h"
 
 #include <QDebug>
-#include <QIODevice>
+#include <QLocalSocket>
 #include <QVariant>
 #include <QVector>
 
 namespace ClangBackEnd {
 
-ClangCodeModelClientProxy::ClangCodeModelClientProxy(ClangCodeModelServerInterface *server, QIODevice *ioDevice)
-    : m_writeMessageBlock(ioDevice),
-      m_readMessageBlock(ioDevice),
-      m_server(server),
-      m_ioDevice(ioDevice)
+ClangCodeModelClientProxy::ClangCodeModelClientProxy(ClangCodeModelServerInterface *server,
+                                                     QLocalSocket *localSocket)
+    : m_writeMessageBlock(localSocket)
+    , m_readMessageBlock(localSocket)
+    , m_server(server)
+    , m_ioDevice(localSocket)
 {
-    QObject::connect(m_ioDevice, &QIODevice::readyRead, [this] () {ClangCodeModelClientProxy::readMessages();});
+    QObject::connect(m_ioDevice, &QIODevice::readyRead, [this]() {
+        ClangCodeModelClientProxy::readMessages();
+    });
+}
+
+ClangCodeModelClientProxy::ClangCodeModelClientProxy(ClangCodeModelServerInterface *server,
+                                                     QIODevice *ioDevice)
+    : m_writeMessageBlock(ioDevice)
+    , m_readMessageBlock(ioDevice)
+    , m_server(server)
+    , m_ioDevice(ioDevice)
+{
+    QObject::connect(m_ioDevice, &QIODevice::readyRead, [this]() {
+        ClangCodeModelClientProxy::readMessages();
+    });
 }
 
 ClangCodeModelClientProxy::ClangCodeModelClientProxy(ClangCodeModelClientProxy &&other)
@@ -106,9 +121,9 @@ void ClangCodeModelClientProxy::readMessages()
         m_server->dispatch(message);
 }
 
-bool ClangCodeModelClientProxy::isUsingThatIoDevice(QIODevice *m_ioDevice) const
+bool ClangCodeModelClientProxy::isUsingThatIoDevice(QIODevice *ioDevice) const
 {
-    return this->m_ioDevice == m_ioDevice;
+    return m_ioDevice == ioDevice;
 }
 
 } // namespace ClangBackEnd

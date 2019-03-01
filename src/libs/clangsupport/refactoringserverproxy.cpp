@@ -34,7 +34,13 @@
 
 namespace ClangBackEnd {
 
-RefactoringServerProxy::RefactoringServerProxy(RefactoringClientInterface *client, QIODevice *ioDevice)
+RefactoringServerProxy::RefactoringServerProxy(RefactoringClientInterface *client,
+                                               QLocalSocket *localSocket)
+    : BaseServerProxy(client, localSocket)
+{}
+
+RefactoringServerProxy::RefactoringServerProxy(RefactoringClientInterface *client,
+                                               QIODevice *ioDevice)
     : BaseServerProxy(client, ioDevice)
 {
 }

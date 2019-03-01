@@ -32,6 +32,8 @@
 #include <QTextStream>
 #include <QStringList>
 
+#include <cstring>
+
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -150,7 +152,7 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
         }
         QTC_ASSERT(nameIndex != -1, continue);
         sourceStr << '\n' << namespaceIndent << signature.left(nameIndex);
-        if (signature.at(nameIndex - 1) != ' ')
+        if (!std::strchr("&* ", signature.at(nameIndex - 1).toLatin1()))
             sourceStr << ' ';
         sourceStr << unqualifiedClassName << "::" << signature.mid(nameIndex) << '\n';
         sourceStr << namespaceIndent << "{\n" << indent

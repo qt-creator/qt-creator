@@ -65,12 +65,19 @@ public:
     Sqlite::Database database{Utils::PathString{Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"}, 1000ms};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    ClangPchManager::ProgressManager progressManager{
-        [] (QFutureInterface<void> &promise) {
-            auto title = QCoreApplication::translate("ClangPchProgressManager", "Creating PCHs", "PCH stands for precompiled header");
-            Core::ProgressManager::addTask(promise.future(), title, "pch creation", nullptr);
+    ClangPchManager::ProgressManager pchCreationProgressManager{[](QFutureInterface<void> &promise) {
+        auto title = QCoreApplication::translate("ClangPchProgressManager",
+                                                 "Creating PCHs",
+                                                 "PCH stands for precompiled header");
+        Core::ProgressManager::addTask(promise.future(), title, "pch creation", nullptr);
     }};
-    PchManagerClient pchManagerClient{progressManager};
+    ClangPchManager::ProgressManager dependencyCreationProgressManager{
+        [](QFutureInterface<void> &promise) {
+            auto title = QCoreApplication::translate("ClangPchProgressManager",
+                                                     "Creating Dependencies");
+            Core::ProgressManager::addTask(promise.future(), title, "dependency creation", nullptr);
+        }};
+    PchManagerClient pchManagerClient{pchCreationProgressManager, dependencyCreationProgressManager};
     PchManagerConnectionClient connectionClient{&pchManagerClient};
     QtCreatorProjectUpdater<PchManagerProjectUpdater> projectUpdate{connectionClient.serverProxy(),
                                                                     pchManagerClient,

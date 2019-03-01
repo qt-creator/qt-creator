@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,28 +25,16 @@
 
 #pragma once
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#endif
+#include <filepathid.h>
 
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include <gtest/gtest-printers.h>
-#include <gtest/gtest-typed-test.h>
+namespace ClangBackEnd {
 
-#include "compare-operators.h"
+class PchCreatorIncludes
+{
+public:
+    FilePathIds includeIds;
+    FilePathIds topIncludeIds;
+    FilePathIds topSystemIncludeIds;
+};
 
-#include "conditionally-disabled-tests.h"
-#include "gtest-qt-printing.h"
-#include "gtest-creator-printing.h"
-#include "gtest-llvm-printing.h"
-#ifdef CLANG_UNIT_TESTS
-#  include "gtest-clang-printing.h"
-#endif
-
-#include "google-using-declarations.h"
-
-#include "unittest-matchers.h"
-
-#include "unittest-utility-functions.h"
+} // namespace ClangBackEnd

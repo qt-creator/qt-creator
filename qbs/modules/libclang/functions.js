@@ -103,6 +103,10 @@ function extraLibraries(llvmConfig, targetOS)
 
 function formattingLibs(llvmConfig, qtcFunctions, targetOS)
 {
+    var llvmIncludeDir = includeDir(llvmConfig);
+    if (!File.exists(llvmIncludeDir.concat("/clang/Format/Format.h")))
+        return [];
+
     var clangVersion = version(llvmConfig)
     var libs = []
     if (qtcFunctions.versionIsAtLeast(clangVersion, MinimumLLVMVersion)) {

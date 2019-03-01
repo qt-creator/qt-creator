@@ -613,6 +613,7 @@ public:
     void reconfigure();
     void updateSyntaxInfoBar(const Highlighter::Definitions &definitions, const QString &fileName);
     void configureGenericHighlighter(const KSyntaxHighlighting::Definition &definition);
+    void rememberCurrentSyntaxDefinition();
 
 public:
     TextEditorWidget *q;
@@ -3306,6 +3307,11 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
             this->configureGenericHighlighter(Highlighter::definitionForName(definition));
         });
 
+        info.setCustomButtonInfo(BaseTextEditor::tr("Remember My Choice"), [multiple, this]() {
+            m_document->infoBar()->removeInfo(multiple);
+            rememberCurrentSyntaxDefinition();
+        });
+
         infoBar->removeInfo(missing);
         infoBar->addInfo(info);
     } else {
@@ -3331,6 +3337,16 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
     }
 
     m_document->setFontSettings(TextEditorSettings::fontSettings());
+}
+
+void TextEditorWidgetPrivate::rememberCurrentSyntaxDefinition()
+{
+    auto highlighter = qobject_cast<Highlighter *>(m_document->syntaxHighlighter());
+    if (!highlighter)
+        return;
+    const Highlighter::Definition &definition = highlighter->definition();
+    if (definition.isValid())
+        Highlighter::rememberDefintionForDocument(definition, m_document.data());
 }
 
 bool TextEditorWidget::codeFoldingVisible() const
@@ -8539,7 +8555,7 @@ QString TextEditorWidget::textAt(int from, int to) const
 
 void TextEditorWidget::configureGenericHighlighter()
 {
-    const Highlighter::Definitions definitions = Highlighter::definitionsForDocument(textDocument());
+    Highlighter::Definitions definitions = Highlighter::definitionsForDocument(textDocument());
     d->configureGenericHighlighter(definitions.isEmpty() ? Highlighter::Definition()
                                                          : definitions.first());
     d->updateSyntaxInfoBar(definitions, textDocument()->filePath().fileName());

@@ -163,7 +163,7 @@
 
     Property bindings are created implicitly in QML whenever a property is
     assigned a JavaScript expression. To set JavaScript expressions as values
-    of properties in the Design mode, select the \uicontrol Nut menu next to
+    of properties in the Design mode, select the \uicontrol Settings menu next to
     a property, and then select \uicontrol {Set Binding}.
 
     \image qmldesigner-set-expression.png "Type properties context menu"
@@ -269,9 +269,9 @@
             arranges its child items side by side, wrapping as necessary.
     \endlist
 
-    To lay out several items in a \uicontrol Column, \uicontrol Row,
+    To position several items in a \uicontrol Column, \uicontrol Row,
     \uicontrol Grid, or \uicontrol Flow, select the items on the canvas, and
-    then select \uicontrol Layout in the context menu.
+    then select \uicontrol Position in the context menu.
 
     \section2 Using Layouts
 
@@ -284,8 +284,7 @@
 
     \list
         \li \l{Layout} provides attached properties for items pushed onto a
-            \uicontrol {Column Layout}, \uicontrol {Row Layout}, or
-            \uicontrol {Grid Layout}.
+            column, row, or grid layout.
         \li \l{ColumnLayout}{Column Layout} provides a grid layout with only
             one column.
         \li \l{RowLayout}{Row Layout} provides a grid layout with only one row.
@@ -295,8 +294,7 @@
             one item is visible at a time.
     \endlist
 
-    To lay out several items in a \uicontrol {Column Layout},
-    \uicontrol {Row Layout}, \uicontrol {Grid Layout}, or
+    To lay out several items in a column, row, grid, or
     \uicontrol {Stack Layout}, select the items in the \uicontrol {Form Editor},
     and then select \uicontrol Layout in the context menu.
 

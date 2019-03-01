@@ -458,10 +458,6 @@ class Dumper(DumperBase):
     def report(self, stuff):
         sys.stdout.write(stuff + "\n")
 
-    def loadDumpers(self, args):
-        msg = self.setupDumpers()
-        self.reportResult(msg, args)
-
     def findValueByExpression(self, exp):
         return cdbext.parseAndEvaluate(exp)
 

@@ -36,23 +36,27 @@ class ProgressMessage
 public:
     ProgressMessage() = default;
     ProgressMessage(ProgressType progressType, int progress, int total)
-        : progressType(progressType),
-          progress(progress),
-          total(total)
+        : progress(progress)
+        , total(total)
+        , progressType(progressType)
     {}
 
     friend QDataStream &operator<<(QDataStream &out, const ProgressMessage &message)
     {
         out << message.progress;
         out << message.total;
+        out << static_cast<int>(message.progressType);
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, ProgressMessage &message)
     {
+        int progressTupe;
         in >> message.progress;
         in >> message.total;
+        in >> progressTupe;
+        message.progressType = static_cast<ProgressType>(progressTupe);
 
         return in;
     }
@@ -69,9 +73,9 @@ public:
     }
 
 public:
-    ProgressType progressType = ProgressType::Invalid;
     int progress = 0;
     int total = 0;
+    ProgressType progressType = ProgressType::Invalid;
 };
 
 DECLARE_MESSAGE(ProgressMessage)

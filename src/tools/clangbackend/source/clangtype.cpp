@@ -245,6 +245,11 @@ bool operator==(Type first, Type second)
     return clang_equalTypes(first.m_cxType, second.m_cxType);
 }
 
+bool operator!=(Type first, Type second)
+{
+    return !operator==(first, second);
+}
+
 std::ostream &operator<<(std::ostream &os, CXTypeKind typeKind)
 {
     ClangString typeKindSpelling(clang_getTypeKindSpelling(typeKind));

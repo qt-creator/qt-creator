@@ -228,7 +228,7 @@ void QtOutputFormatter::handleLink(const QString &href)
         if (qmlLineMatch.hasMatch()) {
             const QUrl fileUrl = QUrl(qmlLineMatch.captured(1));
             const int line = qmlLineMatch.captured(2).toInt();
-            openEditor(d->projectFinder.findFile(d->projectFinder.findFile(fileUrl)), line);
+            openEditor(d->projectFinder.findFile(fileUrl), line);
             return;
         }
 

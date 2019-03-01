@@ -25,7 +25,7 @@ Module {
     property string relativeLibexecPath: FileInfo.relativePath('/' + appInstallDir,
                                                                '/' + libexecInstallDir)
     property string relativePluginsPath: FileInfo.relativePath('/' + appInstallDir,
-                                                               '/' + pluginsInstallDir)
+                                                               '/' + qtc.ide_plugin_path)
     property string relativeSearchPath: FileInfo.relativePath('/' + appInstallDir,
                                                               '/' + resourcesInstallDir)
 }

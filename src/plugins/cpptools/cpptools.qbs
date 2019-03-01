@@ -82,6 +82,7 @@ Project {
             "cppcodestylesettingspage.cpp",
             "cppcodestylesettingspage.h",
             "cppcodestylesettingspage.ui",
+            "cppcodestylesnippets.h",
             "cppcompletionassist.cpp",
             "cppcompletionassist.h",
             "cppcompletionassistprocessor.cpp",

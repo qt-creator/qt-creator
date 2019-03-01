@@ -378,6 +378,8 @@ void FlatModel::saveExpandData()
 void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen)
 {
     for (Node *node : folderNode->nodes()) {
+        if (m_filterGeneratedFiles && node->isGenerated())
+            continue;
         if (FolderNode *subFolderNode = node->asFolderNode()) {
             const bool isHidden = m_filterProjects && !subFolderNode->showInSimpleTree();
             if (!isHidden && !seen->contains(subFolderNode)) {
@@ -390,8 +392,7 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
                 addFolderNode(parent, subFolderNode, seen);
             }
         } else if (FileNode *fileNode = node->asFileNode()) {
-            const bool isHidden = m_filterGeneratedFiles && fileNode->isGenerated();
-            if (!isHidden && !seen->contains(fileNode)) {
+            if (!seen->contains(fileNode)) {
                 seen->insert(fileNode);
                 parent->appendChild(new WrapperNode(fileNode));
             }

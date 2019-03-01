@@ -136,7 +136,7 @@ int forceIndentWithExtraText(QByteArray &buffer, const QTextBlock &block, bool s
     int utf8Offset = Utils::Text::utf8NthLineOffset(block.document(),
                                                     buffer,
                                                     block.blockNumber() + 1);
-    if (firstNonWhitespace > 0)
+    if (firstNonWhitespace >= 0)
         utf8Offset += firstNonWhitespace;
     else
         utf8Offset += blockText.length();
@@ -336,6 +336,7 @@ ClangFormatBaseIndenter::ClangFormatBaseIndenter(QTextDocument *doc)
 TextEditor::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffer,
                                                                const QTextBlock &startBlock,
                                                                const QTextBlock &endBlock,
+                                                               int cursorPositionInEditor,
                                                                ReplacementsToKeep replacementsToKeep,
                                                                const QChar &typedChar,
                                                                bool secondTry) const
@@ -353,17 +354,24 @@ TextEditor::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffer
     if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore)
         rangeStart = formattingRangeStart(startBlock, buffer, lastSaveRevision());
 
-    if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore) {
-        buffer.insert(utf8Offset - 1, " //");
-        utf8Offset += 3;
-    }
-
     adjustFormatStyleForLineBreak(style, replacementsToKeep);
     if (typedChar == QChar::Null) {
-        for (int index = startBlock.blockNumber(); index <= endBlock.blockNumber(); ++index) {
+        if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore) {
+            if (utf8Offset > 0) {
+                buffer.insert(utf8Offset - 1, " //");
+                utf8Offset += 3;
+            }
             utf8Length += forceIndentWithExtraText(buffer,
-                                                   m_doc->findBlockByNumber(index),
+                                                   cursorPositionInEditor < 0
+                                                       ? endBlock
+                                                       : m_doc->findBlock(cursorPositionInEditor),
                                                    secondTry);
+        } else {
+            for (int index = startBlock.blockNumber(); index <= endBlock.blockNumber(); ++index) {
+                utf8Length += forceIndentWithExtraText(buffer,
+                                                       m_doc->findBlockByNumber(index),
+                                                       secondTry);
+            }
         }
     }
 
@@ -394,6 +402,7 @@ TextEditor::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffer
         return replacements(originalBuffer,
                             startBlock,
                             endBlock,
+                            cursorPositionInEditor,
                             replacementsToKeep,
                             typedChar,
                             true);
@@ -468,6 +477,7 @@ TextEditor::Replacements ClangFormatBaseIndenter::indentsFor(QTextBlock startBlo
     return replacements(buffer,
                         startBlock,
                         endBlock,
+                        cursorPositionInEditor,
                         replacementsToKeep,
                         typedChar);
 }

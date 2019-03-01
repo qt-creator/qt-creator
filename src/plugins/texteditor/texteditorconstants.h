@@ -214,6 +214,8 @@ const char TEXT_EDITOR_DISPLAY_SETTINGS[] = "D.DisplaySettings";
 const char TEXT_EDITOR_HIGHLIGHTER_SETTINGS[] = "E.HighlighterSettings";
 const char TEXT_EDITOR_SNIPPETS_SETTINGS[] = "F.SnippetsSettings";
 
+const char HIGHLIGHTER_SETTINGS_CATEGORY[] = "HighlighterSettings";
+
 const char SNIPPET_EDITOR_ID[]     = "TextEditor.SnippetEditor";
 const char TEXT_SNIPPET_GROUP_ID[] = "Text";
 

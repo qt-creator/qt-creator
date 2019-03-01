@@ -155,7 +155,13 @@ TYPED_TEST(CommandLineBuilder, CSource)
     Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Source, "/source/file.c"};
 
     ASSERT_THAT(builder.commandLine,
-                ElementsAre("clang", "-DNOMINMAX", "-x", "c", "-std=c11", "-nostdinc", "/source/file.c"));
+                ElementsAre("clang",
+                            "-DNOMINMAX",
+                            "-x",
+                            "c",
+                            "-std=c11",
+                            "-nostdinc",
+                            toNativePath("/source/file.c").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCHeader)
@@ -191,7 +197,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCSource)
                             "objective-c",
                             "-std=c11",
                             "-nostdinc",
-                            "/source/file.c"));
+                            toNativePath("/source/file.c").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, CppHeader)
@@ -227,7 +233,7 @@ TYPED_TEST(CommandLineBuilder, CppSource)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "/source/file.cpp"));
+                            toNativePath("/source/file.cpp").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCppHeader)
@@ -265,7 +271,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppSource)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "/source/file.cpp"));
+                            toNativePath("/source/file.cpp").path()));
 }
 
 TYPED_TEST(CommandLineBuilder, Cpp98)

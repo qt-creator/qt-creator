@@ -87,8 +87,10 @@ protected:
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
     NiceMock<MockRefactoringServer> mockRefactoringServer;
-    NiceMock<MockProgressManager> mockProgressManager;
-    ClangPchManager::PchManagerClient pchManagerClient{mockProgressManager};
+    NiceMock<MockProgressManager> mockPchCreationProgressManager;
+    NiceMock<MockProgressManager> mockDependencyCreationProgressManager;
+    ClangPchManager::PchManagerClient pchManagerClient{mockPchCreationProgressManager,
+                                                       mockDependencyCreationProgressManager};
     MockCppModelManager mockCppModelManager;
     ClangRefactoring::RefactoringProjectUpdater updater{mockRefactoringServer, pchManagerClient, mockCppModelManager, filePathCache};
     Utils::SmallString projectPartId;

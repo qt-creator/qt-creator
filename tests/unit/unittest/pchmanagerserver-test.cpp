@@ -176,12 +176,26 @@ TEST_F(PchManagerServer, UpdateProjectPartQueueByPathIds)
     server.pathsWithIdsChanged({projectPartId1});
 }
 
-TEST_F(PchManagerServer, SetProgress)
+TEST_F(PchManagerServer, SetPchCreationProgress)
 {
-    EXPECT_CALL(mockPchManagerClient, progress(AllOf(Field(&ClangBackEnd::ProgressMessage::progress, 20),
-                                                     Field(&ClangBackEnd::ProgressMessage::total, 30))));
+    EXPECT_CALL(mockPchManagerClient,
+                progress(AllOf(Field(&ClangBackEnd::ProgressMessage::progressType,
+                                     ClangBackEnd::ProgressType::PrecompiledHeader),
+                               Field(&ClangBackEnd::ProgressMessage::progress, 20),
+                               Field(&ClangBackEnd::ProgressMessage::total, 30))));
 
-    server.setProgress(20, 30);
+    server.setPchCreationProgress(20, 30);
+}
+
+TEST_F(PchManagerServer, SetDependencyCreationProgress)
+{
+    EXPECT_CALL(mockPchManagerClient,
+                progress(AllOf(Field(&ClangBackEnd::ProgressMessage::progressType,
+                                     ClangBackEnd::ProgressType::DependencyCreation),
+                               Field(&ClangBackEnd::ProgressMessage::progress, 20),
+                               Field(&ClangBackEnd::ProgressMessage::total, 30))));
+
+    server.setDependencyCreationProgress(20, 30);
 }
 
 TEST_F(PchManagerServer, RemoveToolChainsArguments)
