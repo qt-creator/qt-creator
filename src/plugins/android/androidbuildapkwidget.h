@@ -52,10 +52,7 @@ public:
     ~AndroidBuildApkInnerWidget() override;
 
 private:
-    void setTargetSdk(const QString &sdk);
     void createKeyStore();
-    void certificatesAliasComboBoxCurrentIndexChanged(const QString &alias);
-    void certificatesAliasComboBoxActivated(const QString &alias);
     void updateSigningWarning();
     void openPackageLocationCheckBoxToggled(bool checked);
     void verboseOutputCheckBoxToggled(bool checked);

@@ -99,9 +99,12 @@ AndroidBuildApkInnerWidget::AndroidBuildApkInnerWidget(AndroidBuildApkStep *step
     m_ui->addDebuggerCheckBox->setChecked(m_step->addDebugger());
 
     // target sdk
-    connect(m_ui->targetSDKComboBox,
-            QOverload<const QString &>::of(&QComboBox::activated),
-            this, &AndroidBuildApkInnerWidget::setTargetSdk);
+    const auto cbActivated = QOverload<int>::of(&QComboBox::activated);
+    const auto cbCurrentIndexChanged = QOverload<int>::of(&QComboBox::currentIndexChanged);
+    connect(m_ui->targetSDKComboBox, cbActivated, this, [this](int idx) {
+        const QString sdk = m_ui->targetSDKComboBox->itemText(idx);
+        m_step->setBuildTargetSdk(sdk);
+    });
 
     // deployment options
     connect(m_ui->ministroOption, &QAbstractButton::clicked,
@@ -121,12 +124,15 @@ AndroidBuildApkInnerWidget::AndroidBuildApkInnerWidget(AndroidBuildApkStep *step
             this, &AndroidBuildApkInnerWidget::createKeyStore);
     connect(m_ui->KeystoreLocationPathChooser, &Utils::PathChooser::pathChanged,
             this, &AndroidBuildApkInnerWidget::updateKeyStorePath);
-    connect(m_ui->certificatesAliasComboBox,
-            QOverload<const QString &>::of(&QComboBox::activated),
-            this, &AndroidBuildApkInnerWidget::certificatesAliasComboBoxActivated);
-    connect(m_ui->certificatesAliasComboBox,
-            QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
-            this, &AndroidBuildApkInnerWidget::certificatesAliasComboBoxCurrentIndexChanged);
+
+    auto updateAlias = [this](int idx) {
+        QString alias = m_ui->certificatesAliasComboBox->itemText(idx);
+        if (alias.length())
+            m_step->setCertificateAlias(alias);
+    };
+
+    connect(m_ui->certificatesAliasComboBox, cbActivated, this, updateAlias);
+    connect(m_ui->certificatesAliasComboBox, cbCurrentIndexChanged, this, updateAlias);
 
     connect(m_step->buildConfiguration(), &ProjectExplorer::BuildConfiguration::buildTypeChanged,
             this, &AndroidBuildApkInnerWidget::updateSigningWarning);
@@ -137,11 +143,6 @@ AndroidBuildApkInnerWidget::AndroidBuildApkInnerWidget(AndroidBuildApkStep *step
 AndroidBuildApkInnerWidget::~AndroidBuildApkInnerWidget()
 {
     delete m_ui;
-}
-
-void AndroidBuildApkInnerWidget::setTargetSdk(const QString &sdk)
-{
-    m_step->setBuildTargetSdk(sdk);
 }
 
 void AndroidBuildApkInnerWidget::signPackageCheckBoxToggled(bool checked)
@@ -185,18 +186,6 @@ void AndroidBuildApkInnerWidget::updateKeyStorePath(const QString &path)
     m_ui->signPackageCheckBox->setChecked(!file.isEmpty());
     if (!file.isEmpty())
         setCertificates();
-}
-
-void AndroidBuildApkInnerWidget::certificatesAliasComboBoxActivated(const QString &alias)
-{
-    if (alias.length())
-        m_step->setCertificateAlias(alias);
-}
-
-void AndroidBuildApkInnerWidget::certificatesAliasComboBoxCurrentIndexChanged(const QString &alias)
-{
-    if (alias.length())
-        m_step->setCertificateAlias(alias);
 }
 
 void AndroidBuildApkInnerWidget::openPackageLocationCheckBoxToggled(bool checked)
