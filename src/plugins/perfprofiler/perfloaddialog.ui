@@ -19,7 +19,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label1">
        <property name="text">
-        <string>&amp;Trace File:</string>
+        <string>&amp;Trace file:</string>
        </property>
        <property name="buddy">
         <cstring>traceFileLineEdit</cstring>
@@ -39,7 +39,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label2">
        <property name="text">
-        <string>Directory of &amp;Executable:</string>
+        <string>Directory of &amp;executable:</string>
        </property>
        <property name="buddy">
         <cstring>executableDirLineEdit</cstring>
@@ -64,7 +64,7 @@
       </widget>
      </item>
      <item row="2" column="1" colspan="2">
-       <widget class="ProjectExplorer::KitChooser" name="kitChooser" native="true"/>
+      <widget class="ProjectExplorer::KitChooser" name="kitChooser" native="true"/>
      </item>
     </layout>
    </item>

@@ -89,19 +89,19 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     options->menu()->setEnabled(true);
 
     const Core::Context globalContext(Core::Constants::C_GLOBAL);
-    m_loadPerfData = new QAction(tr("Load perf.data file"), options);
+    m_loadPerfData = new QAction(tr("Load perf.data File"), options);
     Core::Command *command = Core::ActionManager::registerAction(
                 m_loadPerfData, Constants::PerfProfilerTaskLoadPerf, globalContext);
     connect(m_loadPerfData, &QAction::triggered, this, &PerfProfilerTool::showLoadPerfDialog);
     options->addAction(command);
 
-    m_loadTrace = new QAction(tr("Load trace file"), options);
+    m_loadTrace = new QAction(tr("Load Trace File"), options);
     command = Core::ActionManager::registerAction(m_loadTrace, Constants::PerfProfilerTaskLoadTrace,
                                                   globalContext);
     connect(m_loadTrace, &QAction::triggered, this, &PerfProfilerTool::showLoadTraceDialog);
     options->addAction(command);
 
-    m_saveTrace = new QAction(tr("Save trace file"), options);
+    m_saveTrace = new QAction(tr("Save Trace File"), options);
     command = Core::ActionManager::registerAction(m_saveTrace, Constants::PerfProfilerTaskSaveTrace,
                                                   globalContext);
     connect(m_saveTrace, &QAction::triggered, this, &PerfProfilerTool::showSaveTraceDialog);
@@ -126,7 +126,7 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     });
     options->addAction(command);
 
-    QAction *tracePointsAction = new QAction(tr("Create memory trace points"), options);
+    QAction *tracePointsAction = new QAction(tr("Create Memory Trace Points"), options);
     tracePointsAction->setIcon(Debugger::Icons::TRACEPOINT_TOOLBAR.icon());
     tracePointsAction->setIconVisibleInMenu(false);
     tracePointsAction->setToolTip(tr("Create trace points for memory profiling on the target "
@@ -141,7 +141,7 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     m_tracePointsButton->setDefaultAction(tracePointsAction);
 
     auto action = new QAction(tr("Performance Analyzer"), this);
-    action->setToolTip(tr("The Performance Analyzer can be used to find performance bottlenecks"));
+    action->setToolTip(tr("Finds performance bottlenecks."));
     menu->addAction(ActionManager::registerAction(action, Constants::PerfProfilerLocalActionId),
                     Debugger::Constants::G_ANALYZER_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this] {
@@ -251,7 +251,7 @@ void PerfProfilerTool::createViews()
     connect(m_recordButton, &QAbstractButton::clicked, this, &PerfProfilerTool::setRecording);
 
     m_clearButton->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
-    m_clearButton->setToolTip(tr("Discard data"));
+    m_clearButton->setToolTip(tr("Discard data."));
     connect(m_clearButton, &QAbstractButton::clicked, this, &PerfProfilerTool::clear);
 
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
@@ -410,10 +410,10 @@ void PerfProfilerTool::onReaderFinished()
     m_readerRunning = false;
     if (m_traceManager->traceDuration() <= 0) {
         QMessageBox::warning(Core::ICore::mainWindow(),
-                             tr("No data loaded"),
+                             tr("No Data Loaded"),
                              tr("The profiler did not produce any samples. "
-                                "Make sure you are running a recent Linux kernel and that the "
-                                "'perf' utility is available and generates useful call "
+                                "Make sure that you are running a recent Linux kernel and that "
+                                "the \"perf\" utility is available and generates useful call "
                                 "graphs."));
         clear();
     } else {
@@ -612,7 +612,7 @@ void PerfProfilerTool::showLoadTraceDialog()
     m_perspective.select();
 
     QString filename = QFileDialog::getOpenFileName(
-                ICore::mainWindow(), tr("Load trace file"),
+                ICore::mainWindow(), tr("Load Trace File"),
                 "", tr("Trace File (*.ptr)"));
     if (filename.isEmpty())
         return;
@@ -627,7 +627,7 @@ void PerfProfilerTool::showSaveTraceDialog()
     m_perspective.select();
 
     QString filename = QFileDialog::getSaveFileName(
-                ICore::mainWindow(), tr("Save trace file"),
+                ICore::mainWindow(), tr("Save Trace File"),
                 "", tr("Trace File (*.ptr)"));
     if (filename.isEmpty())
         return;
@@ -641,8 +641,8 @@ void PerfProfilerTool::showSaveTraceDialog()
 void PerfProfilerTool::setAggregated(bool aggregated)
 {
     m_aggregateButton->setChecked(aggregated);
-    m_aggregateButton->setToolTip(aggregated ? tr("Show all addresses")
-                                             : tr("Aggregate by functions"));
+    m_aggregateButton->setToolTip(aggregated ? tr("Show all addresses.")
+                                             : tr("Aggregate by functions."));
     emit aggregatedChanged(aggregated);
 }
 
@@ -653,8 +653,8 @@ void PerfProfilerTool::setRecording(bool recording)
 
     m_recordButton->setIcon(recording ? recordOn : recordOff);
     m_recordButton->setChecked(recording);
-    m_recordButton->setToolTip(recording ? tr("Stop collecting profile data") :
-                                           tr("Collect profile data"));
+    m_recordButton->setToolTip(recording ? tr("Stop collecting profile data.") :
+                                           tr("Collect profile data."));
     emit recordingChanged(recording);
 }
 
@@ -668,7 +668,7 @@ void PerfProfilerTool::updateTime(qint64 duration, qint64 delay)
         m_recordedLabel->clear();
 
     if (delay > 0)
-        m_delayLabel->setText(tr("Processing Delay: %1.%2s").arg(delay / e9)
+        m_delayLabel->setText(tr("Processing delay: %1.%2s").arg(delay / e9)
                               .arg(qAbs(delay / e8) % ten));
     else if (delay == 0)
         m_delayLabel->clear();

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Creating memory trace points</string>
+   <string>Creating Memory Trace Points</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -29,7 +29,7 @@
      <item>
       <widget class="QLabel" name="privilegeslabel">
        <property name="text">
-        <string>Elevate privileges using</string>
+        <string>Elevate privileges using:</string>
        </property>
       </widget>
      </item>
