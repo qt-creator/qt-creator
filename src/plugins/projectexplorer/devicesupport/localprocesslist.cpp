@@ -57,7 +57,7 @@ namespace Internal {
 LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *parent)
         : DeviceProcessList(device, parent)
 {
-    setOwnPid(GetCurrentProcessId())
+    setOwnPid(GetCurrentProcessId());
 }
 
 QList<DeviceProcessItem> LocalProcessList::getLocalProcesses()
