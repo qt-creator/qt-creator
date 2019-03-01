@@ -149,7 +149,7 @@ void SftpTransfer::doStart()
             break;
         case Internal::FileTransferType::Download:
             if (!QDir::root().mkdir(dir)) {
-                emitError(tr("Failed to create local directory \"%1\"")
+                emitError(tr("Failed to create local directory \"%1\".")
                           .arg(QDir::toNativeSeparators(dir)));
                 return;
             }
