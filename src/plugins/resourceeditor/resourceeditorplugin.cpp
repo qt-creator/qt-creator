@@ -217,7 +217,7 @@ void ResourceEditorPlugin::extensionsInitialized()
             FolderNode *const pn = file->parentFolderNode();
             QTC_ASSERT(pn, continue);
             const Utils::FileName path = file->filePath();
-            auto topLevel = std::make_unique<ResourceTopLevelNode>(path, QString(), pn);
+            auto topLevel = std::make_unique<ResourceTopLevelNode>(path, pn->filePath());
             topLevel->setIsGenerated(file->isGenerated());
             pn->replaceSubtree(file, std::move(topLevel));
         }
