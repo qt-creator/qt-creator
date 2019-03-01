@@ -50,7 +50,6 @@ public:
 
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
     bool showInSimpleTree() const override;
-    bool showWhenEmpty() const override;
     bool removeNonExistingFiles();
 
     QString contents() const { return m_contents; }

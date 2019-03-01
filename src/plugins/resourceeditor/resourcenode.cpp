@@ -489,11 +489,6 @@ bool ResourceTopLevelNode::showInSimpleTree() const
     return true;
 }
 
-bool ResourceTopLevelNode::showWhenEmpty() const
-{
-    return true;
-}
-
 ResourceFolderNode::ResourceFolderNode(const QString &prefix, const QString &lang, ResourceTopLevelNode *parent)
     : FolderNode(FileName(parent->filePath()).appendPath(prefix)),
       // TOOD Why add existing directory doesn't work
@@ -501,7 +496,7 @@ ResourceFolderNode::ResourceFolderNode(const QString &prefix, const QString &lan
       m_prefix(prefix),
       m_lang(lang)
 {
-
+    setShowWhenEmpty(true);
 }
 
 ResourceFolderNode::~ResourceFolderNode() = default;

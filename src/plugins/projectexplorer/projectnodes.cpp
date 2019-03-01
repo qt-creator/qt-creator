@@ -762,7 +762,7 @@ bool FolderNode::showInSimpleTree() const
 
 bool FolderNode::showWhenEmpty() const
 {
-    return false;
+    return m_showWhenEmpty;
 }
 
 /*!
@@ -902,6 +902,11 @@ void FolderNode::handleSubTreeChanged(FolderNode *node)
 {
     if (FolderNode *parent = parentFolderNode())
         parent->handleSubTreeChanged(node);
+}
+
+void FolderNode::setShowWhenEmpty(bool showWhenEmpty)
+{
+    m_showWhenEmpty = showWhenEmpty;
 }
 
 ContainerNode::ContainerNode(Project *project)

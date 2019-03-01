@@ -281,8 +281,10 @@ public:
 
     // determines if node will be shown in the flat view, by default folder and projects aren't shown
     virtual bool showInSimpleTree() const;
+
     // determines if node will always be shown when hiding empty directories
-    virtual bool showWhenEmpty() const;
+    bool showWhenEmpty() const;
+    void setShowWhenEmpty(bool showWhenEmpty);
 
     void addNode(std::unique_ptr<Node> &&node);
     std::unique_ptr<Node> takeNode(Node *node);
@@ -302,6 +304,7 @@ private:
     QString m_displayName;
     QString m_addFileFilter;
     mutable QIcon m_icon;
+    bool m_showWhenEmpty = false;
 };
 
 class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
