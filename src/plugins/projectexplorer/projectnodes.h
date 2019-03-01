@@ -44,13 +44,6 @@ namespace ProjectExplorer {
 
 class Project;
 
-enum class NodeType : quint16 {
-    File = 1,
-    Folder,
-    VirtualFolder,
-    Project
-};
-
 // File types common for qt projects
 enum class FileType : quint16 {
     Unknown = 0,
@@ -116,7 +109,6 @@ public:
     virtual bool isProjectNodeType() const { return false; }
     virtual bool isVirtualFolderType() const { return false; }
 
-    NodeType nodeType() const;
     int priority() const;
 
     ProjectNode *parentProjectNode() const; // parent project, will be nullptr for the top-level project

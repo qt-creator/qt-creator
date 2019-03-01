@@ -163,20 +163,6 @@ void Node::setAbsoluteFilePathAndLine(const Utils::FileName &path, int line)
 
 Node::~Node() = default;
 
-NodeType Node::nodeType() const
-{
-    if (asFileNode())
-        return NodeType::File;
-    if (isFolderNodeType())
-        return NodeType::Folder;
-    if (isProjectNodeType())
-        return NodeType::Project;
-    if (isVirtualFolderType())
-        return NodeType::VirtualFolder;
-    QTC_CHECK(false);
-    return NodeType::File;
-}
-
 int Node::priority() const
 {
     return m_priority;

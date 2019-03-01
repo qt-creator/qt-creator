@@ -355,6 +355,21 @@ Node *ProjectTreeWidget::nodeForFile(const FileName &fileName)
     Node *bestNode = nullptr;
     int bestNodeExpandCount = INT_MAX;
 
+    // FIXME: Check that the values used make sense in the context.
+    auto priority = [](Node *node) {
+        if (node->asFileNode())
+            return 1;
+        if (node->isFolderNodeType())
+            return 2;
+        if (node->isVirtualFolderType())
+            return 3;
+        if (node->isProjectNodeType())
+            return 4;
+        QTC_CHECK(false);
+        return 1;
+    };
+
+    // FIXME: Looks like this could be done with less cycles.
     for (Project *project : SessionManager::projects()) {
         if (ProjectNode *projectNode = project->rootProjectNode()) {
             projectNode->forEachGenericNode([&](Node *node) {
@@ -362,10 +377,10 @@ Node *ProjectTreeWidget::nodeForFile(const FileName &fileName)
                     if (!bestNode) {
                         bestNode = node;
                         bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
-                    } else if (node->nodeType() < bestNode->nodeType()) {
+                    } else if (priority(node) < priority(bestNode)) {
                         bestNode = node;
                         bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
-                    } else if (node->nodeType() == bestNode->nodeType()) {
+                    } else if (priority(node) == priority(bestNode)) {
                         int nodeExpandCount = ProjectTreeWidget::expandedCount(node);
                         if (nodeExpandCount < bestNodeExpandCount) {
                             bestNode = node;
