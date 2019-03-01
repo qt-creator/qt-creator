@@ -287,7 +287,6 @@ public:
     void setShowWhenEmpty(bool showWhenEmpty);
 
     void addNode(std::unique_ptr<Node> &&node);
-    std::unique_ptr<Node> takeNode(Node *node);
 
     bool isEmpty() const;
 
@@ -301,6 +300,8 @@ protected:
     QList<LocationInfo> m_locations;
 
 private:
+    std::unique_ptr<Node> takeNode(Node *node);
+
     QString m_displayName;
     QString m_addFileFilter;
     mutable QIcon m_icon;
