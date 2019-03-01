@@ -244,8 +244,6 @@ public:
                        = [](const Utils::FileName &fn) { return std::make_unique<FolderNode>(fn); });
     void compress();
 
-    bool isAncesterOf(Node *n);
-
     // takes ownership of newNode.
     // Will delete newNode if oldNode is not a child of this node.
     bool replaceSubtree(Node *oldNode, std::unique_ptr<Node> &&newNode);
