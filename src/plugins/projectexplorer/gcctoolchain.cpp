@@ -1490,7 +1490,7 @@ ClangToolChainConfigWidget::ClangToolChainConfigWidget(ClangToolChain *tc) :
 
     m_parentToolchainCombo = new QComboBox(this);
     m_mainLayout->insertRow(m_mainLayout->rowCount() - 1,
-                            tr("Parent Toolchain:"),
+                            tr("Parent toolchain:"),
                             m_parentToolchainCombo);
 
     ToolChainManager *tcManager = ToolChainManager::instance();

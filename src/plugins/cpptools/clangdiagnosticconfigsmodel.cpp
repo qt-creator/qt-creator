@@ -167,7 +167,7 @@ static void addConfigForBuildSystem(ClangDiagnosticConfigsModel &model)
     ClangDiagnosticConfig config;
     config.setId("Builtin.BuildSystem");
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Build-systems' warnings"));
+                                                      "Build-system warnings"));
     config.setIsReadOnly(true);
     config.setUseBuildSystemWarnings(true);
 
