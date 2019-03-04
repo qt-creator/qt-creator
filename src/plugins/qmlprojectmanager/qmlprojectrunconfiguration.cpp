@@ -375,16 +375,12 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 
 void QmlProjectRunConfiguration::updateEnabledState()
 {
-    bool qmlFileFound = m_mainQmlFileAspect->isQmlFilePresent();
-    if (!qmlFileFound) {
-        setEnabled(false);
-    } else {
-        const QString exe = executable();
-        if (exe.isEmpty())
-            setEnabled(false);
-        else
-            RunConfiguration::updateEnabledState();
+    bool enabled = false;
+    if (m_mainQmlFileAspect->isQmlFilePresent() && !executable().isEmpty()) {
+        Project *p = target()->project();
+        enabled = !p->isParsing() && p->hasParsingData();
     }
+    setEnabled(enabled);
 }
 
 bool MainQmlFileAspect::isQmlFilePresent()
