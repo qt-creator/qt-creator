@@ -860,11 +860,11 @@ void ClangDiagnosticConfigsWidget::syncClazyChecksGroupBox()
         return !m_clazySortFilterProxyModel->filterAcceptsRow(index.row(), index.parent());
     };
     const bool hasEnabledButHidden = m_clazyTreeModel->hasEnabledButNotVisibleChecks(isHidden);
-    const QString title = hasEnabledButHidden ? tr("Checks (%1 enabled, some are filtered out)")
-                                              : tr("Checks (%1 enabled)");
-
-    const QStringList checks = m_clazyTreeModel->enabledChecks();
-    m_clazyChecks->checksGroupBox->setTitle(title.arg(checks.count()));
+    const int checksCount = m_clazyTreeModel->enabledChecks().count();
+    const QString title = hasEnabledButHidden ? tr("Checks (%n enabled, some are filtered out)",
+                                                   nullptr, checksCount)
+                                              : tr("Checks (%n enabled)", nullptr, checksCount);
+    m_clazyChecks->checksGroupBox->setTitle(title);
 }
 
 void ClangDiagnosticConfigsWidget::updateConfig(const ClangDiagnosticConfig &config)
