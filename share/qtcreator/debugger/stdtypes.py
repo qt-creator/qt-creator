@@ -503,7 +503,7 @@ def qdump__std____1__set(d, value):
         valueType = value.type[0]
 
         def in_order_traversal(node):
-            (left, right, parent, color, isnil, pad, data) = d.split("pppBB@{%s}" % (valueType.name), node)
+            (left, right, parent, color, pad, data) = d.split("pppB@{%s}" % (valueType.name), node)
 
             if left:
                 for res in in_order_traversal(left):
@@ -537,7 +537,7 @@ def qdump__std____1__map(d, value):
         pairType = value.type[3][0]
 
         def in_order_traversal(node):
-            (left, right, parent, color, isnil, pad, pair) = d.split("pppBB@{%s}" % (pairType.name), node)
+            (left, right, parent, color, pad, pair) = d.split("pppB@{%s}" % (pairType.name), node)
 
             if left:
                 for res in in_order_traversal(left):
@@ -835,7 +835,7 @@ def qform__std____1__unordered_map():
     return mapForms()
 
 def qdump__std____1__unordered_map(d, value):
-    size = int(value["__table_"]["__p2_"]["__first_"])
+    (size, _) = value["__table_"]["__p2_"].split("pp")
     d.putItemCount(size)
 
     keyType = value.type[0]
@@ -843,8 +843,7 @@ def qdump__std____1__unordered_map(d, value):
     pairType = value.type[4][0]
 
     if d.isExpanded():
-        head = value["__table_"]["__p1_"]["__first_"]["__next_"]
-        (curr,) = head.split("p")
+        curr = value["__table_"]["__p1_"].split("pp")[0]
 
         def traverse_list(node):
             while node:
@@ -857,14 +856,13 @@ def qdump__std____1__unordered_map(d, value):
                 d.putPairItem(i, value, 'key', 'value')
 
 def qdump__std____1__unordered_set(d, value):
-    size = int(value["__table_"]["__p2_"]["__first_"])
+    (size, _) = value["__table_"]["__p2_"].split("pp")
     d.putItemCount(size)
 
     valueType = value.type[0]
 
     if d.isExpanded():
-        head = value["__table_"]["__p1_"]["__first_"]["__next_"]
-        (curr,) = head.split("p")
+        curr = value["__table_"]["__p1_"].split("pp")[0]
 
         def traverse_list(node):
             while node:
@@ -1075,7 +1073,6 @@ def qdump__std__once_flag(d, value):
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
-
 def qdump____gnu_cxx__hash_set(d, value):
     ht = value["_M_ht"]
     size = ht["_M_num_elements"].integer()
@@ -1098,7 +1095,6 @@ def qdump____gnu_cxx__hash_set(d, value):
                         cur = cur["_M_next"]
                         itemCount += 1
                 p = p + 1
-
 
 def qdump__uint8_t(d, value):
     d.putNumChild(0)
