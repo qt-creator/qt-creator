@@ -1027,6 +1027,8 @@ bool static hasFlagEffectOnMacros(const QString &flag)
             return false; // Skip include paths
         if (f.startsWith("w", Qt::CaseInsensitive))
             return false; // Skip warning options
+        if (f.startsWith("Y") || (f.startsWith("F") && f != "F"))
+            return false; // Skip pch-related flags
     }
     return true;
 }

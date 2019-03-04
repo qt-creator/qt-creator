@@ -741,6 +741,15 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             continue;
         }
 
+        if (option.startsWith("/Y", Qt::CaseSensitive)
+            || (option.startsWith("/F", Qt::CaseSensitive) && option != "/F")) {
+            // Precompiled header flags.
+            // Skip also the next option if it's not glued to the current one.
+            if (option.size() > 3)
+                skipNext = true;
+            continue;
+        }
+
         // Check whether a language version is already used.
         QString theOption = option;
         if (theOption.startsWith("-std=")) {
