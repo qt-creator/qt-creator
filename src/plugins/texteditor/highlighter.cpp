@@ -25,7 +25,6 @@
 
 #include "highlighter.h"
 
-#include "definitiondownloader.h"
 #include "highlightersettings.h"
 #include "textdocumentlayout.h"
 #include "texteditorsettings.h"
@@ -34,6 +33,7 @@
 #include <coreplugin/messagemanager.h>
 #include <utils/mimetypes/mimedatabase.h>
 
+#include <DefinitionDownloader>
 #include <Format>
 #include <Repository>
 #include <SyntaxHighlighter>

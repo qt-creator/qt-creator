@@ -16,6 +16,7 @@ Project {
             files: [
                 "AbstractHighlighter",
                 "Definition",
+                "DefinitionDownloader",
                 "FoldingRegion",
                 "Format",
                 "Repository",
