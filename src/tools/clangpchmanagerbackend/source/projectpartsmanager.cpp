@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "projectparts.h"
+#include "projectpartsmanager.h"
 
 #include <projectpartcontainer.h>
 
@@ -33,7 +33,7 @@ namespace ClangBackEnd {
 
 inline namespace Pch {
 
-ProjectPartContainers ProjectParts::update(ProjectPartContainers &&projectsParts)
+ProjectPartContainers ProjectPartsManager::update(ProjectPartContainers &&projectsParts)
 {
     auto updatedProjectPartContainers = newProjectParts(std::move(projectsParts));
 
@@ -42,7 +42,7 @@ ProjectPartContainers ProjectParts::update(ProjectPartContainers &&projectsParts
     return updatedProjectPartContainers;
 }
 
-void ProjectParts::remove(const Utils::SmallStringVector &ids)
+void ProjectPartsManager::remove(const Utils::SmallStringVector &ids)
 {
     auto shouldRemove = [&] (const ProjectPartContainer &projectPart) {
         return std::find(ids.begin(), ids.end(), projectPart.projectPartId) != ids.end();
@@ -52,7 +52,7 @@ void ProjectParts::remove(const Utils::SmallStringVector &ids)
     m_projectParts.erase(newEnd, m_projectParts.end());
 }
 
-ProjectPartContainers ProjectParts::projects(const Utils::SmallStringVector &projectPartIds) const
+ProjectPartContainers ProjectPartsManager::projects(const Utils::SmallStringVector &projectPartIds) const
 {
     ProjectPartContainers projectPartsWithIds;
 
@@ -66,7 +66,7 @@ ProjectPartContainers ProjectParts::projects(const Utils::SmallStringVector &pro
     return projectPartsWithIds;
 }
 
-void ProjectParts::updateDeferred(const ProjectPartContainers &deferredProjectsParts)
+void ProjectPartsManager::updateDeferred(const ProjectPartContainers &deferredProjectsParts)
 {
     using ProjectPartContainerReferences = std::vector<std::reference_wrapper<ProjectPartContainer>>;
 
@@ -86,7 +86,7 @@ void ProjectParts::updateDeferred(const ProjectPartContainers &deferredProjectsP
         projectPart.updateIsDeferred = true;
 }
 
-ProjectPartContainers ProjectParts::deferredUpdates()
+ProjectPartContainers ProjectPartsManager::deferredUpdates()
 {
     ProjectPartContainers deferredProjectParts;
     deferredProjectParts.reserve(m_projectParts.size());
@@ -102,7 +102,7 @@ ProjectPartContainers ProjectParts::deferredUpdates()
     return deferredProjectParts;
 }
 
-ProjectPartContainers ProjectParts::newProjectParts(ProjectPartContainers &&projectsParts) const
+ProjectPartContainers ProjectPartsManager::newProjectParts(ProjectPartContainers &&projectsParts) const
 {
     ProjectPartContainers updatedProjectPartContainers;
     updatedProjectPartContainers.reserve(projectsParts.size());
@@ -116,7 +116,7 @@ ProjectPartContainers ProjectParts::newProjectParts(ProjectPartContainers &&proj
     return updatedProjectPartContainers;
 }
 
-void ProjectParts::mergeProjectParts(const ProjectPartContainers &projectsParts)
+void ProjectPartsManager::mergeProjectParts(const ProjectPartContainers &projectsParts)
 {
     ProjectPartContainers newProjectParts;
     newProjectParts.reserve(m_projectParts.size() + projectsParts.size());
@@ -135,7 +135,7 @@ void ProjectParts::mergeProjectParts(const ProjectPartContainers &projectsParts)
     m_projectParts = newProjectParts;
 }
 
-const ProjectPartContainers &ProjectParts::projectParts() const
+const ProjectPartContainers &ProjectPartsManager::projectParts() const
 {
     return m_projectParts;
 }

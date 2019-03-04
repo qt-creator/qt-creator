@@ -29,7 +29,7 @@
 #include "clangpathwatchernotifier.h"
 #include "pchcreatorinterface.h"
 #include "pchmanagerserverinterface.h"
-#include "projectpartsinterface.h"
+#include "projectpartsmanagerinterface.h"
 #include "toolchainargumentscache.h"
 
 #include <generatedfilesinterface.h>
@@ -48,7 +48,7 @@ class PchManagerServer : public PchManagerServerInterface,
 public:
     PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
                      PchTaskGeneratorInterface &pchTaskGenerator,
-                     ProjectPartsInterface &projectParts,
+                     ProjectPartsManagerInterface &projectParts,
                      GeneratedFilesInterface &generatedFiles);
 
     void end() override;
@@ -66,7 +66,7 @@ public:
 private:
     ClangPathWatcherInterface &m_fileSystemWatcher;
     PchTaskGeneratorInterface &m_pchTaskGenerator;
-    ProjectPartsInterface &m_projectParts;
+    ProjectPartsManagerInterface &m_projectPartsManager;
     GeneratedFilesInterface &m_generatedFiles;
     ToolChainsArgumentsCache m_toolChainsArgumentsCache;
 };

@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include <projectparts.h>
+#include <projectpartsmanager.h>
 
 #include <projectpartcontainer.h>
 
@@ -41,7 +41,7 @@ using ClangBackEnd::FilePathId;
 class ProjectParts : public testing::Test
 {
 protected:
-    ClangBackEnd::ProjectParts projectParts;
+    ClangBackEnd::ProjectPartsManager projectParts;
     FilePathId firstHeader{1};
     FilePathId secondHeader{2};
     FilePathId firstSource{11};

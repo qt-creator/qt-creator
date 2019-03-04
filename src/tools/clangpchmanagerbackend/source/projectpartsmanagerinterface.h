@@ -29,12 +29,12 @@
 
 namespace ClangBackEnd {
 
-class ProjectPartsInterface
+class ProjectPartsManagerInterface
 {
 public:
-    ProjectPartsInterface() = default;
-    ProjectPartsInterface(const ProjectPartsInterface &) = delete;
-    ProjectPartsInterface &operator=(const ProjectPartsInterface &) = delete;
+    ProjectPartsManagerInterface() = default;
+    ProjectPartsManagerInterface(const ProjectPartsManagerInterface &) = delete;
+    ProjectPartsManagerInterface &operator=(const ProjectPartsManagerInterface &) = delete;
 
     virtual ProjectPartContainers update(ProjectPartContainers &&projectsParts) = 0;
     virtual void remove(const Utils::SmallStringVector &projectPartIds) = 0;
@@ -42,7 +42,7 @@ public:
     virtual void updateDeferred(const ProjectPartContainers &projectsParts) = 0;
     virtual ProjectPartContainers deferredUpdates() = 0;
 protected:
-    ~ProjectPartsInterface() = default;
+    ~ProjectPartsManagerInterface() = default;
 };
 
 } // namespace ClangBackEnd

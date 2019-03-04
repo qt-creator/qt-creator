@@ -27,9 +27,9 @@
 
 #include "googletest.h"
 
-#include <projectpartsinterface.h>
+#include <projectpartsmanagerinterface.h>
 
-class MockProjectParts : public ClangBackEnd::ProjectPartsInterface
+class MockProjectPartsManager : public ClangBackEnd::ProjectPartsManagerInterface
 {
 public:
     MOCK_METHOD1(update,

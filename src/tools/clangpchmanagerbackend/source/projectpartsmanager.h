@@ -27,15 +27,14 @@
 
 #include "clangpchmanagerbackend_global.h"
 
-#include <projectpartsinterface.h>
+#include <projectpartsmanagerinterface.h>
 
 #include <utils/smallstringvector.h>
 
 namespace ClangBackEnd {
 
 inline namespace Pch {
-
-class ProjectParts final : public ProjectPartsInterface
+class ProjectPartsManager final : public ProjectPartsManagerInterface
 {
 public:
     ProjectPartContainers update(ProjectPartContainers &&projectsParts) override;

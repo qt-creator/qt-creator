@@ -41,7 +41,7 @@
 #include <precompiledheaderstorage.h>
 #include <processormanager.h>
 #include <progresscounter.h>
-#include <projectparts.h>
+#include <projectpartsmanager.h>
 #include <filepathcaching.h>
 #include <refactoringdatabaseinitializer.h>
 #include <sqlitedatabase.h>
@@ -68,7 +68,7 @@ using ClangBackEnd::PchCreator;
 using ClangBackEnd::PchManagerClientProxy;
 using ClangBackEnd::PchManagerServer;
 using ClangBackEnd::PrecompiledHeaderStorage;
-using ClangBackEnd::ProjectParts;
+using ClangBackEnd::ProjectPartsManager;
 using ClangBackEnd::FilePathCache;
 using ClangBackEnd::FilePathView;
 using ClangBackEnd::TimeStamp;
@@ -179,7 +179,7 @@ struct Data // because we have a cycle dependency
     ClangBackEnd::FilePathCaching filePathCache{database};
     ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher{filePathCache};
     ApplicationEnvironment environment;
-    ProjectParts projectParts;
+    ProjectPartsManager projectParts;
     GeneratedFiles generatedFiles;
     PchCreatorManager pchCreatorManager{generatedFiles,
                                         environment,
