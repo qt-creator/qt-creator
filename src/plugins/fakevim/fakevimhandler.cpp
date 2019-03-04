@@ -2155,6 +2155,7 @@ public:
     bool handleExWriteCommand(const ExCommand &cmd);
     bool handleExEchoCommand(const ExCommand &cmd);
 
+    void setTabSize(int tabSize);
     void setupCharClass();
     int charClass(QChar c, bool simple) const;
     signed char m_charClass[256];
@@ -2686,17 +2687,22 @@ void FakeVimHandler::Private::ensureCursorVisible()
 
 void FakeVimHandler::Private::updateEditor()
 {
-    const int charWidth = QFontMetrics(EDITOR(font())).horizontalAdvance(' ');
-    EDITOR(setTabStopWidth(charWidth * config(ConfigTabStop).toInt()));
+    setTabSize(config(ConfigTabStop).toInt());
     setupCharClass();
+}
+
+void FakeVimHandler::Private::setTabSize(int tabSize)
+{
+    const int charWidth = QFontMetrics(EDITOR(font())).horizontalAdvance(' ');
+    const int width = charWidth * tabSize;
+    EDITOR(setTabStopDistance(width));
 }
 
 void FakeVimHandler::Private::restoreWidget(int tabSize)
 {
     //EDITOR(removeEventFilter(q));
     //EDITOR(setReadOnly(m_wasReadOnly));
-    const int charWidth = QFontMetrics(EDITOR(font())).horizontalAdvance(' ');
-    EDITOR(setTabStopWidth(charWidth * tabSize));
+    setTabSize(tabSize);
     g.visualMode = NoVisualMode;
     // Force "ordinary" cursor.
     setThinCursor();
