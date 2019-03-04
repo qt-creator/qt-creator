@@ -97,7 +97,7 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
     TextFileFormat format;
     format.codec = EditorManager::defaultTextCodec();
     QString error;
-    bool saveOk = format.writeFile(fileName, document->toRawText(), &error);
+    bool saveOk = format.writeFile(fileName, document->toPlainText(), &error);
     delete document;
     if (!saveOk)
         return false;
@@ -367,7 +367,7 @@ bool RefactoringFile::apply()
                 QString error;
                 // suppress "file has changed" warnings if the file is open in a read-only editor
                 Core::FileChangeBlocker block(m_fileName);
-                if (!m_textFileFormat.writeFile(m_fileName, doc->toRawText(), &error)) {
+                if (!m_textFileFormat.writeFile(m_fileName, doc->toPlainText(), &error)) {
                     qWarning() << "Could not apply changes to" << m_fileName << ". Error: " << error;
                     result = false;
                 }

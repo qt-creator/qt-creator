@@ -569,7 +569,7 @@ bool TextDocument::save(QString *errorString, const QString &saveFileName, bool 
         }
     }
 
-    const bool ok = write(fName, saveFormat, d->m_document.toRawText(), errorString);
+    const bool ok = write(fName, saveFormat, d->m_document.toPlainText(), errorString);
 
     // restore text cursor and scroll bar positions
     if (autoSave && undos < d->m_document.availableUndoSteps()) {

@@ -126,7 +126,7 @@ bool FixitsRefactoringFile::apply()
 
     QString error;
     for (auto it = m_documents.begin(); it != m_documents.end(); ++it) {
-        if (!m_textFileFormat.writeFile(it.key(), it.value()->toRawText(), &error)) {
+        if (!m_textFileFormat.writeFile(it.key(), it.value()->toPlainText(), &error)) {
             qCDebug(fixitsLog) << "ERROR: Could not write file" << it.key() << ":" << error;
             return false; // Error writing file
         }
