@@ -84,10 +84,9 @@ public:
     const Links &links() const;
     const Links bestLinks() const;
     const QString keyword() const;
-
-private:
     bool isFuzzyMatch() const;
 
+private:
     QUrl m_helpUrl;
     QStringList m_helpIds;
     QString m_docMark;

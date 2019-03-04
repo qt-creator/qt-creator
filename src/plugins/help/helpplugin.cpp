@@ -654,7 +654,7 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
                                 .arg(contextHelp.helpIds().join(", "))
                                 .arg(HelpPlugin::tr("No documentation available.")));
         }
-    } else if (links.size() == 1) {
+    } else if (links.size() == 1 && !contextHelp.isFuzzyMatch()) {
         showHelpUrl(links.front().second, LocalHelpManager::contextHelpOption());
     } else {
         QMap<QString, QUrl> map;

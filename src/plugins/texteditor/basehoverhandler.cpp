@@ -145,7 +145,7 @@ void BaseHoverHandler::decorateToolTip()
     if (Qt::mightBeRichText(toolTip()))
         setToolTip(toolTip().toHtmlEscaped());
 
-    if (lastHelpItemIdentified().isValid()) {
+    if (lastHelpItemIdentified().isValid() && !lastHelpItemIdentified().isFuzzyMatch()) {
         const QString &helpContents = lastHelpItemIdentified().extractContent(false);
         if (!helpContents.isEmpty()) {
             m_toolTip = toolTip().toHtmlEscaped();
