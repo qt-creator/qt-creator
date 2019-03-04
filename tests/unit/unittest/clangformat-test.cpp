@@ -32,9 +32,8 @@
 
 namespace TextEditor {
 class TabSettings
-{
-};
-}
+{};
+} // namespace TextEditor
 
 namespace {
 
@@ -58,10 +57,7 @@ public:
         : ClangFormatIndenter(doc)
     {}
 
-    bool formatWhileTyping() const override
-    {
-        return true;
-    }
+    bool formatWhileTyping() const override { return true; }
 };
 
 class ClangFormat : public ::testing::Test
@@ -104,6 +100,7 @@ protected:
     QTextCursor cursor{&doc};
 };
 
+// clang-format off
 TEST_F(ClangFormat, IndentBasicFile)
 {
     insertLines({"int main()",
@@ -365,7 +362,7 @@ TEST_F(ClangFormat, IndentEmptyLineAndKeepPreviousEmptyLines)
                                              "}"));
 }
 
-TEST_F(ClangFormat, IndentFunctionBodyAndFormatBeforeIt)
+TEST_F(ClangFormat, IndentFunctionBodyButNotFormatBeforeIt)
 {
     insertLines({"int foo(int a, int b,",
                  "        int c, int d",
@@ -375,8 +372,9 @@ TEST_F(ClangFormat, IndentFunctionBodyAndFormatBeforeIt)
 
     extendedIndenter.indentBlock(doc.findBlockByNumber(3), QChar::Null, TextEditor::TabSettings());
 
-    ASSERT_THAT(documentLines(), ElementsAre("int foo(int a, int b, int c, int d)",
-                                             "{",
+    ASSERT_THAT(documentLines(), ElementsAre("int foo(int a, int b,",
+                                             "        int c, int d",
+                                             "        ) {",
                                              "    ",
                                              "}"));
 }
@@ -404,13 +402,11 @@ TEST_F(ClangFormat, ReformatToEmptyFunction)
     insertLines({"int foo(int a, int b, int c, int d)",
                  "{",
                  "    ",
-                 "}",
-                 ""});
+                 "}"});
 
-    extendedIndenter.indentBlock(doc.findBlockByNumber(4), QChar::Null, TextEditor::TabSettings());
+    extendedIndenter.indentBlock(doc.findBlockByNumber(3), '}', TextEditor::TabSettings());
 
-    ASSERT_THAT(documentLines(), ElementsAre("int foo(int a, int b, int c, int d) {}",
-                                             ""));
+    ASSERT_THAT(documentLines(), ElementsAre("int foo(int a, int b, int c, int d) {}"));
 }
 
 TEST_F(ClangFormat, ReformatToNonEmptyFunction)
@@ -421,13 +417,12 @@ TEST_F(ClangFormat, ReformatToNonEmptyFunction)
 
     extendedIndenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
 
-    ASSERT_THAT(documentLines(), ElementsAre("int foo(int a, int b)",
-                                             "{",
+    ASSERT_THAT(documentLines(), ElementsAre("int foo(int a, int b) {",
                                              "    ",
                                              "}"));
 }
 
-TEST_F(ClangFormat, IndentIfBodyAndFormatBeforeIt)
+TEST_F(ClangFormat, IndentClosingScopeAndFormatBeforeIt)
 {
     insertLines({"if(a && b",
                  "   &&c && d",
@@ -435,10 +430,9 @@ TEST_F(ClangFormat, IndentIfBodyAndFormatBeforeIt)
                  "",
                  "}"});
 
-    extendedIndenter.indentBlock(doc.findBlockByNumber(3), QChar::Null, TextEditor::TabSettings());
+    extendedIndenter.indentBlock(doc.findBlockByNumber(4), '}', TextEditor::TabSettings());
 
     ASSERT_THAT(documentLines(), ElementsAre("if (a && b && c && d) {",
-                                             "    ",
                                              "}"));
 }
 
@@ -496,7 +490,7 @@ TEST_F(ClangFormat, IndentAndFormatCompleteStatementOnClosingScope)
                                              "}"));
 }
 
-TEST_F(ClangFormat, IndentAndFormatWithEmptyLines)
+TEST_F(ClangFormat, OnlyIndentClosingParenthesis)
 {
     insertLines({"foo(a,",
                  "    ",
@@ -505,7 +499,7 @@ TEST_F(ClangFormat, IndentAndFormatWithEmptyLines)
     extendedIndenter.indentBlock(doc.findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
 
     ASSERT_THAT(documentLines(), ElementsAre("foo(a,",
-                                             "",
+                                             "    ",
                                              "    )"));
 }
 
@@ -622,5 +616,6 @@ TEST_F(ClangFormat, FormatTemplateparameters)
 
     ASSERT_THAT(documentLines(), ElementsAre("using Alias = Template<A, B, C>"));
 }
+// clang-format on
 
-}
+} // namespace

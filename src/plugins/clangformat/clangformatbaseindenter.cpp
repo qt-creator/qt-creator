@@ -157,7 +157,7 @@ int forceIndentWithExtraText(QByteArray &buffer, const QTextBlock &block, bool s
             prevBlockIsEmpty = prevBlock.position() > 0 && prevBlock.text().trimmed().isEmpty();
         }
         if (closingParenBlock || prevBlock.text().endsWith(','))
-            dummyText = "&& a";
+            dummyText = "&& a,";
 
         buffer.insert(utf8Offset, dummyText);
         extraLength += dummyText.length();
@@ -464,7 +464,7 @@ TextEditor::Replacements ClangFormatBaseIndenter::indentsFor(QTextBlock startBlo
     ReplacementsToKeep replacementsToKeep = ReplacementsToKeep::OnlyIndent;
     if (formatWhileTyping()
         && (cursorPositionInEditor == -1 || cursorPositionInEditor >= startBlockPosition)
-        && (typedChar == QChar::Null || typedChar == ';' || typedChar == '}')) {
+        && (typedChar == ';' || typedChar == '}')) {
         // Format before current position only in case the cursor is inside the indented block.
         // So if cursor position is less then the block position then the current line is before
         // the indented block - don't trigger extra formatting in this case.
