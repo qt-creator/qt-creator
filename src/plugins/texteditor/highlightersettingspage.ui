@@ -127,6 +127,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="resetCache">
+          <property name="toolTip">
+           <string>Reset definitions remembered for files that can be associated with more than one highlighter definition.</string>
+          </property>
           <property name="text">
            <string>Reset Remembered Definitions</string>
           </property>
