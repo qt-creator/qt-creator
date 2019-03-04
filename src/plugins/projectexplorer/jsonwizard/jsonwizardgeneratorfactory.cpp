@@ -117,7 +117,7 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
             block = block.next();
         }
     }
-    file->setContents(doc.toPlainText());
+    file->setContents(doc.toRawText());
 
     return true;
 }

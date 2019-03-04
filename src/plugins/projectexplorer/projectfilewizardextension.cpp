@@ -277,7 +277,7 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
             block = block.next();
         }
     }
-    file->setContents(doc.toPlainText());
+    file->setContents(doc.toRawText());
 }
 
 } // namespace Internal
