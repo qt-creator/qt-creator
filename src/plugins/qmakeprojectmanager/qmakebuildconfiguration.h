@@ -101,6 +101,10 @@ public:
 
     void emitProFileEvaluateNeeded();
 
+    static QString unalignedBuildDirWarning();
+    static bool isBuildDirAtSafeLocation(const QString &sourceDir, const QString &buildDir);
+    bool isBuildDirAtSafeLocation() const;
+
 signals:
     /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even
     /// if those change the qmakebuildconfig

@@ -57,6 +57,7 @@ protected:
     ~AbstractProcessStep() override;
     bool init() override;
     void doRun() override;
+    virtual void finish(bool success);
 
     virtual void processStarted();
     virtual void processFinished(int exitCode, QProcess::ExitStatus status);
@@ -68,7 +69,6 @@ protected:
     void doCancel() override;
 
 private:
-    virtual void finish(bool success);
 
     void processReadyReadStdOutput();
     void processReadyReadStdError();

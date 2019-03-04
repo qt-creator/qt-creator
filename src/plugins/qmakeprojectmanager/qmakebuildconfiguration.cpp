@@ -31,6 +31,7 @@
 #include "qmakeprojectconfigwidget.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakenodes.h"
+#include "qmakesettings.h"
 #include "qmakestep.h"
 #include "qmakemakestep.h"
 #include "makefileparse.h"
@@ -291,6 +292,23 @@ void QmakeBuildConfiguration::emitProFileEvaluateNeeded()
     Project *p = t->project();
     if (t->activeBuildConfiguration() == this && p->activeTarget() == t)
         static_cast<QmakeProject *>(p)->scheduleAsyncUpdate();
+}
+
+QString QmakeBuildConfiguration::unalignedBuildDirWarning()
+{
+    return tr("The build directory should be at the same level as the source directory.");
+}
+
+bool QmakeBuildConfiguration::isBuildDirAtSafeLocation(const QString &sourceDir,
+                                                       const QString &buildDir)
+{
+    return buildDir.count('/') == sourceDir.count('/');
+}
+
+bool QmakeBuildConfiguration::isBuildDirAtSafeLocation() const
+{
+    return isBuildDirAtSafeLocation(project()->projectDirectory().toString(),
+                                    buildDirectory().toString());
 }
 
 void QmakeBuildConfiguration::emitQMakeBuildConfigurationChanged()
@@ -571,19 +589,11 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
         QList<Task> issues;
         if (version)
             issues << version->reportIssues(projectPath, buildDir);
-
-        QString tmpBuildDir = QDir(buildDir).absolutePath();
-        const QChar slash = QLatin1Char('/');
-        if (!tmpBuildDir.endsWith(slash))
-            tmpBuildDir.append(slash);
-        QString sourcePath = QFileInfo(projectPath).absolutePath();
-        if (!sourcePath.endsWith(slash))
-            sourcePath.append(slash);
-        if (tmpBuildDir.count(slash) != sourcePath.count(slash)) {
-            const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
-                                                            "The build directory needs to be at the same level as the source directory.");
-
-            issues.append(Task(Task::Warning, msg, Utils::FileName(), -1,
+        if (QmakeSettings::warnAgainstUnalignedBuildDir()
+                && !QmakeBuildConfiguration::isBuildDirAtSafeLocation(
+                    QDir(projectPath).absolutePath(), QDir(buildDir).absolutePath())) {
+            issues.append(Task(Task::Warning, QmakeBuildConfiguration::unalignedBuildDirWarning(),
+                               Utils::FileName(), -1,
                                ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
         return issues;

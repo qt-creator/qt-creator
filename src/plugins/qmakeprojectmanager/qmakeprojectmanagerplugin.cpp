@@ -28,6 +28,7 @@
 #include "profileeditor.h"
 #include "qmakeprojectmanager.h"
 #include "qmakenodes.h"
+#include "qmakesettings.h"
 #include "qmakestep.h"
 #include "qmakemakestep.h"
 #include "qmakebuildconfiguration.h"
@@ -101,6 +102,8 @@ public:
     DesktopQmakeRunConfigurationFactory runConfigFactory;
 
     ProFileEditorFactory profileEditorFactory;
+
+    QmakeSettingsPage settingsPage;
 
     ExternalQtEditor *m_designerEditor{ExternalQtEditor::createDesignerEditor()};
     ExternalQtEditor *m_linguistEditor{ExternalQtEditor::createLinguistEditor()};

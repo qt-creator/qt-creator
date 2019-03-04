@@ -30,6 +30,7 @@
 #include "qmakenodes.h"
 #include "qmakebuildconfiguration.h"
 #include "qmakeprojectmanagerconstants.h"
+#include "qmakesettings.h"
 
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/target.h>
@@ -38,6 +39,7 @@
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/xcodebuildparser.h>
 #include <utils/qtcprocess.h>
@@ -168,6 +170,7 @@ bool QmakeMakeStep::init()
                                          // it has a low priority.
 
     m_scriptTarget = (static_cast<QmakeProject *>(bc->target()->project())->rootProjectNode()->projectType() == ProjectType::ScriptTemplate);
+    m_unalignedBuildDir = !bc->isBuildDirAtSafeLocation();
 
     return AbstractProcessStep::init();
 }
@@ -188,6 +191,18 @@ void QmakeMakeStep::doRun()
     }
 
     AbstractProcessStep::doRun();
+}
+
+void QmakeMakeStep::finish(bool success)
+{
+    if (!success && !isCanceled() && m_unalignedBuildDir
+            && QmakeSettings::warnAgainstUnalignedBuildDir()) {
+        const QString msg = tr("The build directory is not at the same level as the source "
+                               "directory, which could be the reason for the build failure.");
+        emit addTask(Task(Task::Warning, msg, Utils::FileName(), -1,
+                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    }
+    MakeStep::finish(success);
 }
 
 ///

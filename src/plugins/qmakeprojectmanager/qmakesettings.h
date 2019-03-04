@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,43 +25,52 @@
 
 #pragma once
 
-#include "qmakeprojectmanager_global.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-#include <projectexplorer/makestep.h>
+#include <QObject>
+#include <QPointer>
 
 namespace QmakeProjectManager {
-
-class QmakeBuildConfiguration;
-
 namespace Internal {
 
-class QmakeMakeStepFactory : public ProjectExplorer::BuildStepFactory
-{
+class QmakeSettingsData {
 public:
-    QmakeMakeStepFactory();
+    bool warnAgainstUnalignedBuildDir = false;
 };
 
-} //namespace Internal
-
-class QmakeProject;
-
-class QMAKEPROJECTMANAGER_EXPORT QmakeMakeStep : public ProjectExplorer::MakeStep
+class QmakeSettings : public QObject
 {
     Q_OBJECT
-
 public:
-    explicit QmakeMakeStep(ProjectExplorer::BuildStepList *bsl);
+    static QmakeSettings &instance();
+    static bool warnAgainstUnalignedBuildDir();
+    static void setSettingsData(const QmakeSettingsData &settings);
 
-    QmakeBuildConfiguration *qmakeBuildConfiguration() const;
+signals:
+    void settingsChanged();
 
 private:
-    void finish(bool success) override;
-    bool init() override;
-    void doRun() override;
+    QmakeSettings();
+    void loadSettings();
+    void storeSettings() const;
 
-    bool m_scriptTarget = false;
-    QString m_makeFileToCheck;
-    bool m_unalignedBuildDir;
+    QmakeSettingsData m_settings;
 };
 
-} // QmakeProjectManager
+class QmakeSettingsPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+public:
+    QmakeSettingsPage();
+
+private:
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
+
+    class SettingsWidget;
+    QPointer<SettingsWidget> m_widget;
+};
+
+} // namespace Internal
+} // namespace QmakeProjectManager

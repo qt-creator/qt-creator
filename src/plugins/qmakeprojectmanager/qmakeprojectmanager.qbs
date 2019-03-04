@@ -41,6 +41,7 @@ Project {
                 "qmakeparser.cpp", "qmakeparser.h",
                 "qmakeparsernodes.cpp", "qmakeparsernodes.h",
                 "qmakeprojectimporter.cpp", "qmakeprojectimporter.h",
+                "qmakesettings.cpp", "qmakesettings.h",
                 "qmakestep.cpp", "qmakestep.h", "qmakestep.ui",
                 "qmakebuildconfiguration.cpp", "qmakebuildconfiguration.h",
                 "qmakenodes.cpp", "qmakenodes.h",

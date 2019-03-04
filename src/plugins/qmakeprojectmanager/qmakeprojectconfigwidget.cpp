@@ -28,6 +28,7 @@
 #include "qmakeproject.h"
 #include "qmakebuildconfiguration.h"
 #include "qmakenodes.h"
+#include "qmakesettings.h"
 #include "ui_qmakeprojectconfigwidget.h"
 
 #include <coreplugin/coreicons.h>
@@ -110,6 +111,8 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     connect(project, &QmakeProject::buildDirectoryInitialized,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
     connect(project, &Project::parsingFinished,
+            this, &QmakeProjectConfigWidget::updateProblemLabel);
+    connect(&QmakeSettings::instance(), &QmakeSettings::settingsChanged,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
 
     connect(bc->target(), &Target::kitChanged, this, &QmakeProjectConfigWidget::updateProblemLabel);
@@ -250,6 +253,11 @@ void QmakeProjectConfigWidget::updateProblemLabel()
         }
     }
 
+    const bool unalignedBuildDir = QmakeSettings::warnAgainstUnalignedBuildDir()
+            && !m_buildConfiguration->isBuildDirAtSafeLocation();
+    if (unalignedBuildDir)
+        allGood = false;
+
     if (allGood) {
         QString buildDirectory = m_buildConfiguration->target()->project()->projectDirectory().toString();
         if (m_buildConfiguration->isShadowBuild())
@@ -292,6 +300,9 @@ void QmakeProjectConfigWidget::updateProblemLabel()
                            "%1 error message, %2 build directory")
                         .arg(errorString)
                         .arg(m_buildConfiguration->buildDirectory().toUserOutput()));
+        return;
+    } else if (unalignedBuildDir) {
+        setProblemLabel(m_buildConfiguration->unalignedBuildDirWarning());
         return;
     }
 
