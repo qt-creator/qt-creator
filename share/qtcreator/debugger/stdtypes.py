@@ -532,25 +532,33 @@ def qform__std____1__map():
     return mapForms()
 
 def qdump__std____1__map(d, value):
-    tree = value["__tree_"]
-    base3 = tree["__pair3_"].address()
-    size = d.extractUInt(base3)
-    d.check(size <= 100*1000*1000)
-    d.putItemCount(size)
-    if d.isExpanded():
-        # type of node is std::__1::__tree_node<Foo, Bar>::value_type
-        valueType = value.type[0]
-        node = tree["__begin_node_"]
-        nodeType = node.type
-        with Children(d, size, maxNumChild=1000):
-            node = tree["__begin_node_"]
-            for i in d.childRange():
-                # There's possibly also:
-                #pair = node['__value_']['__nc']
-                pair = node['__value_']['__cc']
-                d.putPairItem(i, pair)
-                node = std1TreeNext(d, node).cast(nodeType)
+    (proxy, head, size) = value.split("ppp")
 
+    d.check(0 <= size and size <= 100*1000*1000)
+    d.putItemCount(size)
+
+    if d.isExpanded():
+        keyType = value.type[0]
+        valueType = value.type[1]
+        pairType = value.type[3][0]
+
+        def in_order_traversal(node):
+            (left, right, parent, color, isnil, pad, pair) = d.split("pppBB@{%s}" % (pairType.name), node)
+
+            if left:
+                for res in in_order_traversal(left):
+                    yield res
+
+            yield pair.split("{%s}@{%s}" % (keyType.name, valueType.name))[::2]
+
+            if right:
+                for res in in_order_traversal(right):
+                    yield res
+
+        with Children(d, size, maxNumChild=1000):
+            for (i, pair) in zip(d.childRange(), in_order_traversal(head)):
+                d.putPairItem(i, pair, 'key', 'value')
+                
 def qform__std____1__multimap():
     return mapForms()
 
