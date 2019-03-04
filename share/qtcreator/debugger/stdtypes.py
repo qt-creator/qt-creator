@@ -42,19 +42,6 @@ def qdump__std____1__array(d, value):
     qdump__std__array(d, value)
 
 
-def qdump__std__function(d, value):
-    (ptr, dummy1, manager, invoker) = value.split('pppp')
-    if manager:
-        if ptr > 2:
-            d.putSymbolValue(ptr)
-        else:
-            d.putEmptyValue()
-        d.putBetterType(value.type)
-    else:
-        d.putValue('(null)')
-    d.putPlainChildren(value)
-
-
 def qdump__std__complex(d, value):
     innerType = value.type[0]
     (real, imag) = value.split('{%s}{%s}' % (innerType.name, innerType.name))
@@ -507,23 +494,30 @@ def std1TreeNext(d, node):
     return node['__parent_']
 
 def qdump__std____1__set(d, value):
-    tree = value["__tree_"]
-    base3 = tree["__pair3_"].address()
-    size = d.extractUInt(base3)
-    d.check(size <= 100*1000*1000)
+    (proxy, head, size) = value.split("ppp")
+
+    d.check(0 <= size and size <= 100*1000*1000)
     d.putItemCount(size)
+
     if d.isExpanded():
-        # type of node is std::__1::__tree_node<Foo, void *>::value_type
         valueType = value.type[0]
-        d.putFields(tree)
-        node = tree["__begin_node_"]
-        nodeType = node.type
-        with Children(d, size):
-            for i in d.childRange():
-                with SubItem(d, i):
-                    d.putItem(node['__value_'])
-                    d.putBetterType(valueType)
-                node = std1TreeNext(d, node).cast(nodeType)
+
+        def in_order_traversal(node):
+            (left, right, parent, color, isnil, pad, data) = d.split("pppBB@{%s}" % (valueType.name), node)
+
+            if left:
+                for res in in_order_traversal(left):
+                    yield res
+
+            yield data
+
+            if right:
+                for res in in_order_traversal(right):
+                    yield res
+
+        with Children(d, size, maxNumChild=1000):
+            for (i, data) in zip(d.childRange(), in_order_traversal(head)):
+                d.putSubItem(i, data)
 
 def qdump__std____1__multiset(d, value):
     qdump__std____1__set(d, value)
@@ -558,7 +552,7 @@ def qdump__std____1__map(d, value):
         with Children(d, size, maxNumChild=1000):
             for (i, pair) in zip(d.childRange(), in_order_traversal(head)):
                 d.putPairItem(i, pair, 'key', 'value')
-                
+
 def qform__std____1__multimap():
     return mapForms()
 
@@ -841,33 +835,46 @@ def qform__std____1__unordered_map():
     return mapForms()
 
 def qdump__std____1__unordered_map(d, value):
-    size = value["__table_"]["__p2_"]["__first_"].integer()
+    size = int(value["__table_"]["__p2_"]["__first_"])
     d.putItemCount(size)
+
+    keyType = value.type[0]
+    valueType = value.type[1]
+    pairType = value.type[4][0]
+
     if d.isExpanded():
-        # There seem to be several versions of the implementation.
-        def valueCCorNot(val):
-            try:
-                return val["__cc"]
-            except:
-                return val
+        head = value["__table_"]["__p1_"]["__first_"]["__next_"]
+        (curr,) = head.split("p")
 
-        node = value["__table_"]["__p1_"]["__first_"]["__next_"]
-        with Children(d, size):
-            for i in d.childRange():
-                d.putPairItem(i, valueCCorNot(node["__value_"]))
-                node = node["__next_"]
+        def traverse_list(node):
+            while node:
+                (next_, _, pad, pair) = d.split("pp@{%s}" % (pairType.name), node)
+                yield pair.split("{%s}@{%s}" % (keyType.name, valueType.name))[::2]
+                node = next_
 
+        with Children(d, size, childType=value.type[0], maxNumChild=1000):
+            for (i, value) in zip(d.childRange(), traverse_list(curr)):
+                d.putPairItem(i, value, 'key', 'value')
 
 def qdump__std____1__unordered_set(d, value):
     size = int(value["__table_"]["__p2_"]["__first_"])
     d.putItemCount(size)
-    if d.isExpanded():
-        node = value["__table_"]["__p1_"]["__first_"]["__next_"]
-        with Children(d, size, childType=value.type[0], maxNumChild=1000):
-            for i in d.childRange():
-                d.putSubItem(i, node["__value_"])
-                node = node["__next_"]
 
+    valueType = value.type[0]
+
+    if d.isExpanded():
+        head = value["__table_"]["__p1_"]["__first_"]["__next_"]
+        (curr,) = head.split("p")
+
+        def traverse_list(node):
+            while node:
+                (next_, _, pad, val) = d.split("pp@{%s}" % (valueType.name), node)
+                yield val
+                node = next_
+
+        with Children(d, size, childType=value.type[0], maxNumChild=1000):
+            for (i, value) in zip(d.childRange(), traverse_list(curr)):
+                d.putSubItem(i, value)
 
 def qdump__std____debug__unordered_set(d, value):
     qdump__std__unordered_set(d, value)
@@ -986,9 +993,6 @@ def qdumpHelper__std__vector__QNX(d, value):
         else:
             d.putPlotData(start, size, innerType)
 
-def qform__std____1__vector():
-    return arrayForms()
-
 def qdump__std____1__vector(d, value):
     qdumpHelper__std__vector(d, value, True)
 
@@ -1032,20 +1036,7 @@ def qdump__std__basic_string(d, value):
 
 def qdump__std____cxx11__basic_string(d, value):
     innerType = value.type[0]
-    try:
-        allocator = value.type[2].name
-    except:
-        allocator = ''
-    if allocator == 'std::allocator<%s>' % innerType.name:
-        (data, size) = value.split("pI")
-    else:
-        try:
-            data = value["_M_dataplus"]["_M_p"]
-            size = int(value["_M_string_length"])
-        except:
-            d.putEmptyValue()
-            d.putPlainChildren(value)
-            return
+    (data, size) = value.split("pI")
     d.check(0 <= size) #and size <= alloc and alloc <= 100*1000*1000)
     d.putCharArrayHelper(data, size, innerType, d.currentItemFormat())
 
@@ -1080,7 +1071,7 @@ def qdump__std____1__once_flag(d, value):
     qdump__std__once_flag(d, value)
 
 def qdump__std__once_flag(d, value):
-    d.putValue(value.split("i")[0])
+    d.putValue(value.extractPointer())
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
