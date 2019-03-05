@@ -125,7 +125,10 @@ void LanguageClientManager::deleteClient(Client *client)
     QTC_ASSERT(client, return);
     client->disconnect();
     managerInstance->m_clients.removeAll(client);
-    client->deleteLater();
+    if (managerInstance->m_shuttingDown)
+        delete client;
+    else
+        client->deleteLater();
 }
 
 void LanguageClientManager::shutdown()
