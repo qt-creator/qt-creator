@@ -130,7 +130,7 @@ void QnxDeviceTester::handleVarRunProcessFinished(const QString &error)
             m_result = TestFailure;
         }
     } else {
-        emit errorMessage(tr("An error occurred checking that"
+        emit errorMessage(tr("An error occurred while checking that"
                              " files can be created in /var/run.")
                           + QLatin1Char('\n'));
         m_result = TestFailure;
@@ -162,7 +162,7 @@ void QnxDeviceTester::handleProcessFinished(const QString &error)
             m_result = TestFailure;
         }
     } else {
-        emit errorMessage(tr("An error occurred checking for %1.").arg(command)  + QLatin1Char('\n'));
+        emit errorMessage(tr("An error occurred while checking for %1.").arg(command)  + QLatin1Char('\n'));
         m_result = TestFailure;
     }
     testNextCommand();

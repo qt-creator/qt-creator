@@ -245,7 +245,7 @@ static QString createDiagnosticToolTipString(const Diagnostic &diagnostic, Fixit
                 createFullLocationString(diagnostic.location));
 
     lines << qMakePair(
-        QCoreApplication::translate("ClangTools::Diagnostic", "Fixit Status:"),
+        QCoreApplication::translate("ClangTools::Diagnostic", "Fixit status:"),
         fixitStatus(fixItStatus));
 
     QString html = QLatin1String("<html>"

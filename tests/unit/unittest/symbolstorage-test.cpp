@@ -74,7 +74,6 @@ protected:
     MockSqliteWriteStatement &insertProjectPartSourcesStatement = storage.m_insertProjectPartSourcesStatement;
     MockSqliteReadStatement &getProjectPartArtefactsBySourceId = storage.m_getProjectPartArtefactsBySourceId;
     MockSqliteReadStatement &getProjectPartArtefactsByProjectPartName = storage.m_getProjectPartArtefactsByProjectPartName;
-    MockSqliteReadStatement &getPrecompiledHeader = storage.m_getPrecompiledHeader;
 
     SymbolEntries symbolEntries{{1, {"functionUSR", "function", SymbolKind::Function}},
                                 {2, {"function2USR", "function2", SymbolKind::Function}}};
@@ -259,24 +258,6 @@ TEST_F(SymbolStorage, FetchProjectPartArtefactByProjectNameReturnArtefact)
     auto result = storage.fetchProjectPartArtefact(1);
 
     ASSERT_THAT(result, Eq(artefact));
-}
-
-TEST_F(SymbolStorage, FetchPrecompiledHeaderCallsValueInStatement)
-{
-    EXPECT_CALL(getPrecompiledHeader, valueReturnProjectPartPch(Eq(25)));
-
-    storage.fetchPrecompiledHeader(25);
-}
-
-TEST_F(SymbolStorage, FetchPrecompiledHeader)
-{
-    ClangBackEnd::ProjectPartPch pch{"", "/path/to/pch", 131};
-    EXPECT_CALL(getPrecompiledHeader, valueReturnProjectPartPch(Eq(25)))
-            .WillRepeatedly(Return(pch));
-
-    auto precompiledHeader = storage.fetchPrecompiledHeader(25);
-
-    ASSERT_THAT(precompiledHeader.value(), Eq(pch));
 }
 
 TEST_F(SymbolStorage, AddNewSymbolsTable)

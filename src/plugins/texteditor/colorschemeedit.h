@@ -59,6 +59,9 @@ public:
     void setColorScheme(const ColorScheme &colorScheme);
     const ColorScheme &colorScheme() const;
 
+signals:
+    void copyScheme();
+
 private:
     void currentItemChanged(const QModelIndex &index);
     void changeForeColor();

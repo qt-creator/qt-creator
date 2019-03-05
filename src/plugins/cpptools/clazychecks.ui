@@ -23,7 +23,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>See &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;clazy's homepage&lt;/a&gt; for more information.</string>
+      <string>See &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;Clazy's homepage&lt;/a&gt; for more information.</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>

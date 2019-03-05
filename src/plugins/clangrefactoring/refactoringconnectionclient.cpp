@@ -48,8 +48,8 @@ RefactoringConnectionClient::RefactoringConnectionClient(RefactoringClientInterf
     , m_serverProxy(client)
 {
     m_processCreator.setTemporaryDirectoryPattern("clangrefactoringbackend-XXXXXX");
-    m_processCreator.setArguments({connectionName(),
-                                   Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"});
+    m_processCreator.setArguments(
+        {connectionName(), Core::ICore::cacheResourcePath() + "/symbol-experimental-v1.db"});
 
     stdErrPrefixer().setPrefix("RefactoringConnectionClient.stderr: ");
     stdOutPrefixer().setPrefix("RefactoringConnectionClient.stdout: ");

@@ -176,8 +176,6 @@ FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
 
     setEnabled(isSilverSearcherAvailable());
     if (!isEnabled()) {
-        auto layout = new QHBoxLayout(m_widget);
-        layout->setMargin(0);
         QLabel *label = new QLabel(tr("Silver Searcher is not available on the system."));
         label->setStyleSheet("QLabel { color : red; }");
         layout->addWidget(label);

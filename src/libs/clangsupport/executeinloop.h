@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,26 +25,15 @@
 
 #pragma once
 
-#include "googletest.h"
+#include <QAbstractEventDispatcher>
+#include <QCoreApplication>
+#include <QThread>
 
-#include <precompiledheaderstorageinterface.h>
-
-class MockPrecompiledHeaderStorage : public ClangBackEnd::PrecompiledHeaderStorageInterface
+template<typename Callable>
+void executeInLoop(Callable &&callable, QObject *object = QCoreApplication::instance())
 {
-public:
-    MOCK_METHOD3(insertProjectPrecompiledHeader,
-                 void(Utils::SmallStringView projectPartName,
-                      Utils::SmallStringView pchPath,
-                      long long pchBuildTime));
-    MOCK_METHOD1(deleteProjectPrecompiledHeader, void(Utils::SmallStringView projectPartName));
-    MOCK_METHOD3(insertSystemPrecompiledHeaders,
-                 void(const Utils::SmallStringVector &projectPartNames,
-                      Utils::SmallStringView pchPath,
-                      long long pchBuildTime));
-    MOCK_METHOD1(deleteSystemPrecompiledHeaders,
-                 void(const Utils::SmallStringVector &projectPartNames));
-    MOCK_METHOD1(fetchSystemPrecompiledHeaderPath,
-                 ClangBackEnd::FilePath(Utils::SmallStringView projectPartName));
-    MOCK_CONST_METHOD1(fetchPrecompiledHeader,
-                       Utils::optional<ClangBackEnd::ProjectPartPch>(int projectPartId));
-};
+    if (QThread *thread = qobject_cast<QThread *>(object))
+        object = QAbstractEventDispatcher::instance(thread);
+
+    QMetaObject::invokeMethod(object, std::forward<Callable>(callable));
+}

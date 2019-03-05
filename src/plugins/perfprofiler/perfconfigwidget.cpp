@@ -211,7 +211,7 @@ void PerfConfigWidget::handleProcessFinished()
 
     if (tracePoints.isEmpty()) {
         Core::AsynchronousMessageBox::warning(
-                    tr("No trace points found"),
+                    tr("No Trace Points Found"),
                     tr("Trace points can be defined with \"perf probe -a\"."));
     } else {
         for (const QByteArray &event : qAsConst(tracePoints)) {
@@ -233,7 +233,7 @@ void PerfConfigWidget::handleProcessError(QProcess::ProcessError error)
 {
     if (error == QProcess::FailedToStart) {
         Core::AsynchronousMessageBox::warning(
-                    tr("Cannot list trace points"),
+                    tr("Cannot List Trace Points"),
                     tr("\"perf probe -l\" failed to start. Is perf installed?"));
         m_ui->useTracePointsButton->setEnabled(true);
     }

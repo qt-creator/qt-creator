@@ -51,11 +51,11 @@ ClangPchManager::PchManagerConnectionClient::PchManagerConnectionClient(
 {
     m_processCreator.setTemporaryDirectoryPattern("clangpchmanagerbackend-XXXXXX");
 
-    QDir pchsDirectory(Core::ICore::userResourcePath());
+    QDir pchsDirectory(Core::ICore::cacheResourcePath());
     pchsDirectory.mkdir("pchs");
     pchsDirectory.cd("pchs");
     m_processCreator.setArguments({connectionName(),
-                                   Core::ICore::userResourcePath() + "/symbol-experimental-v1.db",
+                                   Core::ICore::cacheResourcePath() + "/symbol-experimental-v1.db",
                                    pchsDirectory.absolutePath()});
 
     stdErrPrefixer().setPrefix("PchManagerConnectionClient.stderr: ");

@@ -121,7 +121,7 @@ void TestResultItem::updateResult(bool &changed, Result::Type addedChildType)
     if (!TestResult::isMessageCaseStart(old))
         return;
 
-    Result::Type newResult = Result::MessageTestCaseSuccess;
+    Result::Type newResult = old;
     switch (addedChildType) {
     case Result::Fail:
     case Result::MessageFatal:

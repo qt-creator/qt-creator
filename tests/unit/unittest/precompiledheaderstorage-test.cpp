@@ -43,16 +43,12 @@ protected:
     NiceMock<MockSqliteDatabase> database;
     Storage storage{database};
     MockSqliteWriteStatement &insertProjectPartStatement = storage.m_insertProjectPartStatement;
-    MockSqliteWriteStatement &insertProjectPrecompiledHeaderStatement
-        = storage.m_insertProjectPrecompiledHeaderStatement;
-    MockSqliteWriteStatement &deleteProjectPrecompiledHeaderStatement
-        = storage.m_deleteProjectPrecompiledHeaderStatement;
-    MockSqliteWriteStatement &insertSystemPrecompiledHeaderStatement
-        = storage.m_insertSystemPrecompiledHeaderStatement;
-    MockSqliteWriteStatement &deleteSystemPrecompiledHeaderStatement
-        = storage.m_deleteSystemPrecompiledHeaderStatement;
-    MockSqliteReadStatement &fetchSystemPrecompiledHeaderPathStatement
-        = storage.m_fetchSystemPrecompiledHeaderPathStatement;
+    MockSqliteWriteStatement &insertProjectPrecompiledHeaderStatement = storage.m_insertProjectPrecompiledHeaderStatement;
+    MockSqliteWriteStatement &deleteProjectPrecompiledHeaderStatement = storage.m_deleteProjectPrecompiledHeaderStatement;
+    MockSqliteWriteStatement &insertSystemPrecompiledHeaderStatement = storage.m_insertSystemPrecompiledHeaderStatement;
+    MockSqliteWriteStatement &deleteSystemPrecompiledHeaderStatement = storage.m_deleteSystemPrecompiledHeaderStatement;
+    MockSqliteReadStatement &fetchSystemPrecompiledHeaderPathStatement = storage.m_fetchSystemPrecompiledHeaderPathStatement;
+    MockSqliteReadStatement &getPrecompiledHeader = storage.m_getPrecompiledHeader;
 };
 
 TEST_F(PrecompiledHeaderStorage, UseTransaction)
@@ -240,5 +236,22 @@ TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderReturnsNullOptional
     auto path = storage.fetchSystemPrecompiledHeaderPath("project1");
 
     ASSERT_THAT(path, IsEmpty());
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderCallsValueInStatement)
+{
+    EXPECT_CALL(getPrecompiledHeader, valueReturnProjectPartPch(Eq(25)));
+
+    storage.fetchPrecompiledHeader(25);
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeader)
+{
+    ClangBackEnd::ProjectPartPch pch{"", "/path/to/pch", 131};
+    EXPECT_CALL(getPrecompiledHeader, valueReturnProjectPartPch(Eq(25))).WillRepeatedly(Return(pch));
+
+    auto precompiledHeader = storage.fetchPrecompiledHeader(25);
+
+    ASSERT_THAT(precompiledHeader.value(), Eq(pch));
 }
 }

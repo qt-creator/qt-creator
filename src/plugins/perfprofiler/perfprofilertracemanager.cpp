@@ -94,13 +94,13 @@ void PerfProfilerEventStorage::clear()
     m_file.clear();
     m_size = 0;
     if (!m_file.open())
-        m_errorHandler(tr("Failed to reset temporary trace file"));
+        m_errorHandler(tr("Failed to reset temporary trace file."));
 }
 
 void PerfProfilerEventStorage::finalize()
 {
     if (!m_file.flush())
-        m_errorHandler(tr("Failed to flush temporary trace file"));
+        m_errorHandler(tr("Failed to flush temporary trace file."));
 }
 
 bool PerfProfilerEventStorage::replay(
@@ -110,13 +110,13 @@ bool PerfProfilerEventStorage::replay(
     case Timeline::TraceStashFile<PerfEvent>::ReplaySuccess:
         return true;
     case Timeline::TraceStashFile<PerfEvent>::ReplayOpenFailed:
-        m_errorHandler(tr("Cannot re-open temporary trace file"));
+        m_errorHandler(tr("Cannot re-open temporary trace file."));
         break;
     case Timeline::TraceStashFile<PerfEvent>::ReplayLoadFailed:
         // Happens if the loader rejects an event. Not an actual error
         break;
     case Timeline::TraceStashFile<PerfEvent>::ReplayReadPastEnd:
-        m_errorHandler(tr("Read past end from temporary trace file"));
+        m_errorHandler(tr("Read past end from temporary trace file."));
         break;
     }
     return false;

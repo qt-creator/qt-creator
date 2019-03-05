@@ -105,14 +105,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QTabWidget" name="tabWidget">
-       <property name="minimumSize">
-        <size>
-         <width>700</width>
-         <height>500</height>
-        </size>
-       </property>
-      </widget>
+      <widget class="QTabWidget" name="tabWidget"/>
      </item>
     </layout>
    </item>

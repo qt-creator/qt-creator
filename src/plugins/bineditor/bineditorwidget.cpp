@@ -1625,7 +1625,7 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
     } else {
         jumpToBeAddressHereAction->setText(tr("Jump to Address in This Window"));
         jumpToBeAddressNewWindowAction->setText(tr("Jump to Address in New Window"));
-        copyBeValue->setText(tr("Copy value"));
+        copyBeValue->setText(tr("Copy Value"));
         jumpToBeAddressHereAction->setEnabled(false);
         jumpToBeAddressNewWindowAction->setEnabled(false);
         copyBeValue->setEnabled(false);

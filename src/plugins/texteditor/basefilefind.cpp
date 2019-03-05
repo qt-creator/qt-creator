@@ -111,8 +111,6 @@ public:
 class BaseFileFindPrivate
 {
 public:
-    BaseFileFindPrivate() : m_internalSearchEngine(std::make_unique<InternalEngine>()) {}
-
     QPointer<IFindSupport> m_currentFindSupport;
 
     QLabel *m_resultLabel = nullptr;
@@ -125,7 +123,7 @@ public:
     QPointer<QComboBox> m_filterCombo;
     QPointer<QComboBox> m_exclusionCombo;
     QVector<SearchEngine *> m_searchEngines;
-    std::unique_ptr<SearchEngine> m_internalSearchEngine;
+    InternalEngine m_internalSearchEngine;
     int m_currentSearchEngineIndex = -1;
 };
 
@@ -182,7 +180,7 @@ void SearchEngine::setEnabled(bool enabled)
 
 BaseFileFind::BaseFileFind() : d(new BaseFileFindPrivate)
 {
-    addSearchEngine(d->m_internalSearchEngine.get());
+    addSearchEngine(&d->m_internalSearchEngine);
 }
 
 BaseFileFind::~BaseFileFind()

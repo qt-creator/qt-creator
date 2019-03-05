@@ -75,8 +75,8 @@ PerfDataReader::PerfDataReader(QObject *parent) :
         }
         if (exitCode != 0) {
             QMessageBox::warning(Core::ICore::mainWindow(),
-                                 tr("Perf data parser failed"),
-                                 tr("The perf data parser failed to process all the samples. "
+                                 tr("Perf Data Parser Failed"),
+                                 tr("The Perf data parser failed to process all the samples. "
                                     "Your trace is incomplete. The exit code was %1.")
                                  .arg(exitCode));
         }
@@ -101,17 +101,17 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     connect(&m_input, &QProcess::errorOccurred, this, [this](QProcess::ProcessError e){
         switch (e) {
         case QProcess::FailedToStart:
-            emit processFailed(tr("perfparser failed to start"));
+            emit processFailed(tr("perfparser failed to start."));
             QMessageBox::warning(Core::ICore::mainWindow(),
-                                 tr("Perf data parser failed"),
-                                 tr("Could not start the 'perfparser' utility program. "
-                                    "Make sure a working perf parser is available at the location "
+                                 tr("Perf Data Parser Failed"),
+                                 tr("Could not start the perfparser utility program. "
+                                    "Make sure a working Perf parser is available at the location "
                                     "given by the PERFPROFILER_PARSER_FILEPATH environment "
                                     "variable."));
             break;
         case QProcess::Crashed:
             QMessageBox::warning(Core::ICore::mainWindow(),
-                                 tr("Perf data parser crashed"),
+                                 tr("Perf Data Parser Crashed"),
                                  tr("This is a bug. Please report it."));
             break;
         case QProcess::ReadError:
@@ -346,8 +346,8 @@ void PerfDataReader::writeChunk()
                 m_input.kill();
                 emit finished();
                 QMessageBox::warning(Core::ICore::mainWindow(),
-                                     tr("Cannot send data to Perf data parser"),
-                                     tr("The perf data parser doesn't accept further input. "
+                                     tr("Cannot Send Data to Perf Data Parser"),
+                                     tr("The Perf data parser does not accept further input. "
                                         "Your trace is incomplete."));
             }
         }

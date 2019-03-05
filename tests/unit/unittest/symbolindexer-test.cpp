@@ -26,6 +26,7 @@
 #include "googletest.h"
 #include "filesystem-utilities.h"
 #include "mockclangpathwatcher.h"
+#include "mockprecompiledheaderstorage.h"
 #include "mocksymbolscollector.h"
 #include "mocksymbolstorage.h"
 #include "mockfilepathcaching.h"
@@ -237,6 +238,7 @@ protected:
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockSymbolStorage> mockSymbolStorage;
     NiceMock<MockBuildDependenciesStorage> mockBuildDependenciesStorage;
+    NiceMock<MockPrecompiledHeaderStorage> mockPrecompiledHeaderStorage;
     NiceMock<MockClangPathWatcher> mockPathWatcher;
     ClangBackEnd::FileStatusCache fileStatusCache{filePathCache};
     ClangBackEnd::GeneratedFiles generatedFiles;
@@ -246,6 +248,7 @@ protected:
     ClangBackEnd::SymbolIndexer indexer{indexerQueue,
                                         mockSymbolStorage,
                                         mockBuildDependenciesStorage,
+                                        mockPrecompiledHeaderStorage,
                                         mockPathWatcher,
                                         filePathCache,
                                         fileStatusCache,
@@ -292,7 +295,8 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInCollector)
 {
     ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillByDefault(Return(emptyArtefact));
-    ON_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId))).WillByDefault(Return(projectPartPch));
+    ON_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)))
+        .WillByDefault(Return(projectPartPch));
 
     EXPECT_CALL(mockCollector,
                 setFile(main1PathId,
@@ -506,7 +510,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithoutProjectPartArtifact)
                                           Eq(Utils::LanguageVersion::CXX14),
                                           Eq(Utils::LanguageExtension::None)))
         .WillOnce(Return(12));
-    EXPECT_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(12)));
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(12)));
     EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(Eq(main1PathId))).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector,
@@ -559,7 +563,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithProjectPartArtifact)
                                           Eq(Utils::LanguageVersion::CXX14),
                                           Eq(Utils::LanguageExtension::None)))
         .WillOnce(Return(-1));
-    EXPECT_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
     EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(Eq(main1PathId))).WillOnce(Return(-1));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector,
@@ -614,7 +618,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderButGetsAnErrorForCollectingS
                                           Eq(Utils::LanguageVersion::CXX14),
                                           Eq(Utils::LanguageExtension::None)))
         .WillOnce(Return(12));
-    EXPECT_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(12)));
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(12)));
     EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(Eq(main1PathId))).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector,
@@ -656,7 +660,14 @@ TEST_F(SymbolIndexer, CallSetNotifier)
 {
     EXPECT_CALL(mockPathWatcher, setNotifier(_));
 
-    ClangBackEnd::SymbolIndexer indexer{indexerQueue, mockSymbolStorage, mockBuildDependenciesStorage, mockPathWatcher, filePathCache, fileStatusCache, mockSqliteTransactionBackend};
+    ClangBackEnd::SymbolIndexer indexer{indexerQueue,
+                                        mockSymbolStorage,
+                                        mockBuildDependenciesStorage,
+                                        mockPrecompiledHeaderStorage,
+                                        mockPathWatcher,
+                                        filePathCache,
+                                        fileStatusCache,
+                                        mockSqliteTransactionBackend};
 }
 
 TEST_F(SymbolIndexer, PathChangedCallsFetchProjectPartArtefactInStorage)
@@ -673,7 +684,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
 
     EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
     EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0]))).WillOnce(Return(artefact));
-    EXPECT_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector,
                 setFile(Eq(sourceFileIds[0]),
@@ -715,7 +726,7 @@ TEST_F(SymbolIndexer, HandleEmptyOptionalArtifactInUpdateChangedPath)
 
     EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
     EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(sourceFileIds[0])).WillOnce(Return(nullArtefact));
-    EXPECT_CALL(mockSymbolStorage, fetchPrecompiledHeader(_)).Times(0);
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(_)).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
     EXPECT_CALL(mockCollector, setFile(_, _)).Times(0);
     EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
@@ -737,7 +748,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrderButGetsAnErrorForCollectingSy
     EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
     EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
         .WillOnce(Return(artefact));
-    EXPECT_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector,
                 setFile(Eq(sourceFileIds[0]),
@@ -779,8 +790,8 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsUsingPrecompiledHeader)
 {
     ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
             .WillByDefault(Return(artefact));
-    ON_CALL(mockSymbolStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)))
-            .WillByDefault(Return(projectPartPch));
+    ON_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)))
+        .WillByDefault(Return(projectPartPch));
     std::vector<SymbolIndexerTask> symbolIndexerTask;
 
     EXPECT_CALL(mockCollector,

@@ -62,7 +62,9 @@ QString backendProcessPath()
 class ClangPchManagerPluginData
 {
 public:
-    Sqlite::Database database{Utils::PathString{Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"}, 1000ms};
+    Sqlite::Database database{Utils::PathString{Core::ICore::cacheResourcePath()
+                                                + "/symbol-experimental-v1.db"},
+                              1000ms};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
     ClangPchManager::ProgressManager pchCreationProgressManager{[](QFutureInterface<void> &promise) {

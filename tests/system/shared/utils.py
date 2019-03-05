@@ -42,9 +42,9 @@ def tempDir():
 def deleteDirIfExists(path):
     shutil.rmtree(path, True)
 
-def verifyChecked(objectName):
+def verifyChecked(objectName, checked=True):
     object = waitForObject(objectName)
-    test.compare(object.checked, True)
+    test.compare(object.checked, checked)
     return object
 
 def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):

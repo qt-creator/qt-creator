@@ -94,6 +94,7 @@ public:
 
     static QString resourcePath();
     static QString userResourcePath();
+    static QString cacheResourcePath();
     static QString installerResourcePath();
     static QString libexecPath();
     static QString clangExecutable(const QString &clangBinDirectory);

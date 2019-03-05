@@ -164,7 +164,7 @@ void Database::execute(Utils::SmallStringView sqlStatement)
 void Database::initializeTables()
 {
     try {
-        ImmediateTransaction transaction(*this);
+        ExclusiveTransaction transaction(*this);
 
         for (Table &table : m_sqliteTables)
             table.initialize(*this);

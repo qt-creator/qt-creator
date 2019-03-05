@@ -30,6 +30,7 @@
 #include "queueinterface.h"
 #include "progresscounter.h"
 
+#include <executeinloop.h>
 #include <processormanagerinterface.h>
 #include <symbolindexertaskqueueinterface.h>
 #include <symbolscollectorinterface.h>
@@ -147,14 +148,6 @@ private:
         m_progressCounter.addProgress(std::distance(split, m_futures.end()));
 
         m_futures.erase(split, m_futures.end());
-    }
-
-    template <typename Callable>
-    void executeInLoop(Callable &&callable, QObject *object = QCoreApplication::instance()) {
-       if (QThread *thread = qobject_cast<QThread*>(object))
-           object = QAbstractEventDispatcher::instance(thread);
-
-       QMetaObject::invokeMethod(object, std::forward<Callable>(callable));
     }
 
 private:

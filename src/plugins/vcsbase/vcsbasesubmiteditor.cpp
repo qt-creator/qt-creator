@@ -575,7 +575,7 @@ VcsBaseSubmitEditor::PromptSubmitResult
         message = tr("What do you want to do with these changes?");
     } else {
         message = tr("Cannot %1%2.\nWhat do you want to do?",
-                     "%2 is an optional error message with ': ' prefix. Do not separate it from %1.")
+                     "%2 is an optional error message with ': ' prefix. Don't add space in front.")
                 .arg(commitName.toLower(),
                      errorMessage.isEmpty() ? errorMessage : ": " + errorMessage);
     }
