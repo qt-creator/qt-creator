@@ -57,7 +57,7 @@ bool ClangFormatIndenter::formatWhileTyping() const
 
 Utils::optional<TabSettings> ClangFormatIndenter::tabSettings() const
 {
-    FormatStyle style = currentProjectStyle();
+    FormatStyle style = styleForFile();
     TabSettings tabSettings;
 
     switch (style.UseTab) {

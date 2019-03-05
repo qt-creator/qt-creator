@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <QString>
+
 namespace ClangFormat {
 
 class ClangFormatSettings
@@ -43,10 +45,14 @@ public:
 
     void setFormatOnSave(bool enable);
     bool formatOnSave() const;
+
+    void setOverrideDefaultFile(bool enable);
+    bool overrideDefaultFile() const;
 private:
     bool m_formatCodeInsteadOfIndent = false;
     bool m_formatWhileTyping = false;
     bool m_formatOnSave = false;
+    bool m_overrideDefaultFile = false;
 };
 
 } // namespace ClangFormat

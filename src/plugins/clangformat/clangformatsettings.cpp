@@ -46,6 +46,8 @@ ClangFormatSettings::ClangFormatSettings()
                               .toBool();
     m_formatOnSave = settings->value(QLatin1String(Constants::FORMAT_CODE_ON_SAVE_ID), false)
                          .toBool();
+    m_overrideDefaultFile = settings->value(QLatin1String(Constants::OVERRIDE_FILE_ID), false)
+                                .toBool();
     settings->endGroup();
 }
 
@@ -57,6 +59,7 @@ void ClangFormatSettings::write() const
                        m_formatCodeInsteadOfIndent);
     settings->setValue(QLatin1String(Constants::FORMAT_WHILE_TYPING_ID), m_formatWhileTyping);
     settings->setValue(QLatin1String(Constants::FORMAT_CODE_ON_SAVE_ID), m_formatOnSave);
+    settings->setValue(QLatin1String(Constants::OVERRIDE_FILE_ID), m_overrideDefaultFile);
     settings->endGroup();
 }
 
@@ -88,6 +91,16 @@ void ClangFormatSettings::setFormatOnSave(bool enable)
 bool ClangFormatSettings::formatOnSave() const
 {
     return m_formatOnSave;
+}
+
+void ClangFormatSettings::setOverrideDefaultFile(bool enable)
+{
+    m_overrideDefaultFile = enable;
+}
+
+bool ClangFormatSettings::overrideDefaultFile() const
+{
+    return m_overrideDefaultFile;
 }
 
 } // namespace ClangFormat
