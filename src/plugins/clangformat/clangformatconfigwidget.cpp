@@ -188,6 +188,9 @@ void ClangFormatConfigWidget::apply()
     }
     settings.write();
 
+    if (!m_ui->overrideDefault->isChecked())
+        return;
+
     const QString text = m_ui->clangFormatOptionsTable->toPlainText();
     clang::format::FormatStyle style;
     style.Language = clang::format::FormatStyle::LK_Cpp;
