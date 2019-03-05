@@ -750,7 +750,8 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
         dir.setPath(base.toFileInfo().absoluteFilePath());
         foreach (const QString &entry, dir.entryList()) {
             if (entry.startsWith("lldb-platform-")
-                    || entry.startsWith("lldb-gdbserver-")) {
+                    || entry.startsWith("lldb-gdbserver-")
+                    || entry.startsWith("lldb-mi-")) {
                 continue;
             }
             suspects.append(FileName::fromString(dir.absoluteFilePath(entry)));
