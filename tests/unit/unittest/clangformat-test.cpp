@@ -362,6 +362,23 @@ TEST_F(ClangFormat, IndentEmptyLineAndKeepPreviousEmptyLines)
                                              "}"));
 }
 
+TEST_F(ClangFormat, IndentOnElectricCharacterButNotRemoveEmptyLinesBefore)
+{
+    insertLines({"{",
+                 "    ",
+                 "    ",
+                 "if ()",
+                 "}"});
+
+    indenter.indentBlock(doc.findBlockByNumber(3), '(', TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("{",
+                                             "    ",
+                                             "    ",
+                                             "    if ()",
+                                             "}"));
+}
+
 TEST_F(ClangFormat, IndentFunctionBodyButNotFormatBeforeIt)
 {
     insertLines({"int foo(int a, int b,",

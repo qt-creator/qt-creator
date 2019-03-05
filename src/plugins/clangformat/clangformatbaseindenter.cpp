@@ -355,23 +355,11 @@ TextEditor::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffer
         rangeStart = formattingRangeStart(startBlock, buffer, lastSaveRevision());
 
     adjustFormatStyleForLineBreak(style, replacementsToKeep);
-    if (typedChar == QChar::Null) {
-        if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore) {
-            if (utf8Offset > 0) {
-                buffer.insert(utf8Offset - 1, " //");
-                utf8Offset += 3;
-            }
+    if (replacementsToKeep == ReplacementsToKeep::OnlyIndent) {
+        for (int index = startBlock.blockNumber(); index <= endBlock.blockNumber(); ++index) {
             utf8Length += forceIndentWithExtraText(buffer,
-                                                   cursorPositionInEditor < 0
-                                                       ? endBlock
-                                                       : m_doc->findBlock(cursorPositionInEditor),
+                                                   m_doc->findBlockByNumber(index),
                                                    secondTry);
-        } else {
-            for (int index = startBlock.blockNumber(); index <= endBlock.blockNumber(); ++index) {
-                utf8Length += forceIndentWithExtraText(buffer,
-                                                       m_doc->findBlockByNumber(index),
-                                                       secondTry);
-            }
         }
     }
 
