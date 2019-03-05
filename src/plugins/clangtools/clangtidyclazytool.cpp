@@ -452,12 +452,12 @@ void ClangTidyClazyTool::handleStateUpdate()
         if (issuesFound)
             message = tr("Running - %n diagnostics", nullptr, issuesFound);
         else
-            message = tr("Running - No diagnostics", nullptr, issuesFound);
+            message = tr("Running - No diagnostics");
     } else {
         if (issuesFound)
             message = tr("Finished - %n diagnostics", nullptr, issuesFound);
         else
-            message = tr("Finished - No diagnostics", nullptr, issuesFound);
+            message = tr("Finished - No diagnostics");
     }
 
     Debugger::showPermanentStatusMessage(message);
