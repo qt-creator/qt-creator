@@ -46,13 +46,13 @@ const int priorityTimelineCategory = 110;
 const char timelineCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Timeline");
 
 const char timelineCopyKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                  "Copy All Keyframes from Item");
+                                                                  "Copy All Keyframes");
 const char timelinePasteKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                   "Paste Keyframes to Item");
+                                                                   "Paste Keyframes");
 const char timelineInsertKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                    "Insert Keyframes for Item");
+                                                                    "Add Keyframes at Current Frame");
 const char timelineDeleteKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                    "Delete All Keyframes for Item");
+                                                                    "Delete All Keyframes");
 
 const char timelineStatusBarFrameNumber[] = QT_TRANSLATE_NOOP("QmlDesignerTimeline", "Frame %1");
 
