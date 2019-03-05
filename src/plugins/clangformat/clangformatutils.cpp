@@ -131,6 +131,20 @@ static Utils::FileName projectPath()
     return Utils::FileName();
 }
 
+static QString findConfig(Utils::FileName fileName)
+{
+    QDir parentDir(fileName.parentDir().toString());
+    while (!parentDir.exists(Constants::SETTINGS_FILE_NAME)
+           && !parentDir.exists(Constants::SETTINGS_FILE_ALT_NAME)) {
+        if (!parentDir.cdUp())
+            return QString();
+    }
+
+    if (parentDir.exists(Constants::SETTINGS_FILE_NAME))
+        return parentDir.filePath(Constants::SETTINGS_FILE_NAME);
+    return parentDir.filePath(Constants::SETTINGS_FILE_ALT_NAME);
+}
+
 static QString configForFile(Utils::FileName fileName, bool checkForSettings)
 {
     QDir overrideDir;
@@ -146,16 +160,7 @@ static QString configForFile(Utils::FileName fileName, bool checkForSettings)
             return overrideDir.filePath(Constants::SETTINGS_FILE_NAME);
     }
 
-    QDir parentDir(fileName.parentDir().toString());
-    while (!parentDir.exists(Constants::SETTINGS_FILE_NAME)
-           && !parentDir.exists(Constants::SETTINGS_FILE_ALT_NAME)) {
-        if (!parentDir.cdUp())
-            return QString();
-    }
-
-    if (parentDir.exists(Constants::SETTINGS_FILE_NAME))
-        return parentDir.filePath(Constants::SETTINGS_FILE_NAME);
-    return parentDir.filePath(Constants::SETTINGS_FILE_ALT_NAME);
+    return findConfig(fileName);
 }
 
 static clang::format::FormatStyle constructStyle(bool isGlobal,
@@ -201,6 +206,17 @@ void createStyleFileIfNeeded(bool isGlobal)
         return;
 
     QDir().mkpath(path.parentDir().toString());
+    if (!isGlobal) {
+        const Project *project = SessionManager::startupProject();
+        Utils::FileName possibleProjectConfig = project->rootProjectDirectory().appendPath(
+            Constants::SETTINGS_FILE_NAME);
+        if (possibleProjectConfig.exists()) {
+            // Just copy th .clang-format if current project has one.
+            QFile::copy(possibleProjectConfig.toString(), configFile);
+            return;
+        }
+    }
+
     std::fstream newStyleFile(configFile.toStdString(), std::fstream::out);
     if (newStyleFile.is_open()) {
         newStyleFile << clang::format::configurationAsText(constructStyle(isGlobal));
