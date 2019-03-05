@@ -71,7 +71,6 @@ namespace Internal {
 
 const char DEBUGGER_COUNT_KEY[] = "DebuggerItem.Count";
 const char DEBUGGER_DATA_KEY[] = "DebuggerItem.";
-const char DEBUGGER_LEGACY_FILENAME[] = "/profiles.xml";
 const char DEBUGGER_FILE_VERSION_KEY[] = "Version";
 const char DEBUGGER_FILENAME[] = "/debuggers.xml";
 const char debuggingToolsWikiLinkC[] = "http://wiki.qt.io/Qt_Creator_Windows_Debugging";
@@ -93,7 +92,6 @@ public:
     void readDebuggers(const FileName &fileName, bool isSystem);
     void autoDetectCdbDebuggers();
     void autoDetectGdbOrLldbDebuggers();
-    void readLegacyDebuggers(const FileName &file);
     QString uniqueDisplayName(const QString &base);
 
     PersistentSettingsWriter m_writer;
@@ -780,43 +778,6 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     }
 }
 
-void DebuggerItemManagerPrivate::readLegacyDebuggers(const FileName &file)
-{
-    PersistentSettingsReader reader;
-    if (!reader.load(file))
-        return;
-
-    foreach (const QVariant &v, reader.restoreValues()) {
-        QVariantMap data1 = v.toMap();
-        QString kitName = data1.value("PE.Profile.Name").toString();
-        QVariantMap data2 = data1.value("PE.Profile.Data").toMap();
-        QVariant v3 = data2.value(DebuggerKitAspect::id().toString());
-        QString fn;
-        if (v3.type() == QVariant::String)
-            fn = v3.toString();
-        else
-            fn = v3.toMap().value("Binary").toString();
-        if (fn.isEmpty())
-            continue;
-        if (fn.startsWith('{'))
-            continue;
-        if (fn == "auto")
-            continue;
-        FileName command = FileName::fromUserInput(fn);
-        if (!command.exists())
-            continue;
-        if (DebuggerItemManager::findByCommand(command))
-            continue;
-        DebuggerItem item;
-        item.createId();
-        item.setCommand(command);
-        item.setAutoDetected(true);
-        item.reinitializeFromFile();
-        item.setUnexpandedDisplayName(tr("Extracted from Kit %1").arg(kitName));
-        m_model->addDebugger(item);
-    }
-}
-
 static FileName userSettingsFileName()
 {
     return FileName::fromString(ICore::userResourcePath() + DEBUGGER_FILENAME);
@@ -923,10 +884,6 @@ void DebuggerItemManagerPrivate::restoreDebuggers()
     // Auto detect current.
     autoDetectCdbDebuggers();
     autoDetectGdbOrLldbDebuggers();
-
-    // Add debuggers from pre-3.x profiles.xml
-    readLegacyDebuggers(FileName::fromString(ICore::installerResourcePath() + DEBUGGER_LEGACY_FILENAME));
-    readLegacyDebuggers(FileName::fromString(ICore::userResourcePath() + DEBUGGER_LEGACY_FILENAME));
 }
 
 void DebuggerItemManagerPrivate::saveDebuggers()
