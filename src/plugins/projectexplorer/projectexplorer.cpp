@@ -2058,8 +2058,12 @@ void ProjectExplorerPluginPrivate::updateWelcomePage()
 
 void ProjectExplorerPluginPrivate::currentModeChanged(Id mode, Id oldMode)
 {
-    if (oldMode == Constants::MODE_SESSION)
-        ICore::saveSettings();
+    if (oldMode == Constants::MODE_SESSION) {
+        // Saving settings directly in a mode change is not a good idea, since the mode change
+        // can be part of a bigger change. Save settings after that bigger change had a chance to
+        // complete.
+        QTimer::singleShot(0, ICore::instance(), &ICore::saveSettings);
+    }
     if (mode == Core::Constants::MODE_WELCOME)
         updateWelcomePage();
 }
