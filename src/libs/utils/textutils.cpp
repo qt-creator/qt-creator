@@ -171,7 +171,8 @@ LineColumn utf16LineColumn(const QByteArray &utf8Buffer, int utf8Offset)
     lineColumn.line = static_cast<int>(
                           std::count(utf8Buffer.begin(), utf8Buffer.begin() + utf8Offset, '\n'))
                       + 1;
-    const int startOfLineOffset = utf8Buffer.lastIndexOf('\n', utf8Offset - 1) + 1;
+    const int startOfLineOffset = utf8Offset ? (utf8Buffer.lastIndexOf('\n', utf8Offset - 1) + 1)
+                                             : 0;
     lineColumn.column = QString::fromUtf8(
                             utf8Buffer.mid(startOfLineOffset, utf8Offset - startOfLineOffset))
                             .length()
@@ -181,7 +182,9 @@ LineColumn utf16LineColumn(const QByteArray &utf8Buffer, int utf8Offset)
 
 QString utf16LineTextInUtf8Buffer(const QByteArray &utf8Buffer, int currentUtf8Offset)
 {
-    const int lineStartUtf8Offset = utf8Buffer.lastIndexOf('\n', currentUtf8Offset - 1) + 1;
+    const int lineStartUtf8Offset = currentUtf8Offset
+                                        ? (utf8Buffer.lastIndexOf('\n', currentUtf8Offset - 1) + 1)
+                                        : 0;
     const int lineEndUtf8Offset = utf8Buffer.indexOf('\n', currentUtf8Offset);
     return QString::fromUtf8(
         utf8Buffer.mid(lineStartUtf8Offset, lineEndUtf8Offset - lineStartUtf8Offset));
