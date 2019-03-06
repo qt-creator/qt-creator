@@ -411,6 +411,22 @@
     </layout>
    </item>
    <item>
+    <widget class="QGroupBox" name="featuresGroupBox">
+     <property name="title">
+      <string>Features</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <widget class="QCheckBox" name="featureTimelineEditorCheckBox">
+        <property name="text">
+         <string>Enable Timeline editor</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="debugGroupBox">
      <property name="title">
       <string>Debugging</string>

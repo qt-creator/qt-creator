@@ -159,6 +159,8 @@ DesignerSettings SettingsPageWidget::settings() const
         m_ui.showPropertyEditorWarningsCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
         m_ui.showWarnExceptionsCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::ENABLE_TIMELINEVIEW,
+                    m_ui.featureTimelineEditorCheckBox->isChecked());
 
     return settings;
 }
@@ -224,9 +226,13 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
 
     m_ui.controls2StyleComboBox->setCurrentText(m_ui.styleLineEdit->text());
 
+    m_ui.featureTimelineEditorCheckBox->setChecked(settings.value(
+        DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool());
+
     if (settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool()) {
         m_ui.emulationGroupBox->hide();
         m_ui.debugGroupBox->hide();
+        m_ui.featuresGroupBox->hide();
     }
 }
 
@@ -262,7 +268,8 @@ void SettingsPage::apply()
                          << DesignerSettingsKey::PUPPET_KILL_TIMEOUT
                          << DesignerSettingsKey::FORWARD_PUPPET_OUTPUT
                          << DesignerSettingsKey::DEBUG_PUPPET
-                         << DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT;
+                         << DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT
+                         << DesignerSettingsKey::ENABLE_TIMELINEVIEW;
 
     foreach (const QByteArray &key, restartNecessaryKeys) {
         if (currentSettings.value(key) != newSettings.value(key)) {
