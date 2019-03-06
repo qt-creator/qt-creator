@@ -69,9 +69,11 @@ class KitManagerPrivate
 public:
     Kit *m_defaultKit = nullptr;
     bool m_initialized = false;
-    std::vector<std::unique_ptr<KitInformation>> m_informationList;
     std::vector<std::unique_ptr<Kit>> m_kitList;
     std::unique_ptr<PersistentSettingsWriter> m_writer;
+
+    // Sorted by priority, in descending order.
+    std::vector<std::unique_ptr<KitInformation>> m_informationList;
 };
 
 } // namespace Internal

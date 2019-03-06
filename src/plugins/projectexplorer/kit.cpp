@@ -269,11 +269,9 @@ void Kit::fix()
 void Kit::setup()
 {
     KitGuard g(this);
-    // Process the KitInfos in reverse order: They may only be based on other information lower in
-    // the stack.
-    QList<KitInformation *> info = KitManager::kitInformation();
-    for (int i = info.count() - 1; i >= 0; --i)
-        info.at(i)->setup(this);
+    const QList<KitInformation *> info = KitManager::kitInformation();
+    for (KitInformation * const ki : info)
+        ki->setup(this);
 }
 
 void Kit::upgrade()
