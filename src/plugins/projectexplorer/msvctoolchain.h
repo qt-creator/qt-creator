@@ -103,6 +103,8 @@ public:
 
     bool operator==(const ToolChain &) const override;
 
+    bool isJobCountSupported() const override { return false; }
+
     static void cancelMsvcToolChainDetection();
     static Utils::optional<QString> generateEnvironmentSettings(const Utils::Environment &env,
                                                                 const QString &batchFile,

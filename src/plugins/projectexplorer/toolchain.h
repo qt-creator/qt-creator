@@ -149,6 +149,8 @@ public:
     virtual QVariantMap toMap() const;
     virtual QList<Task> validateKit(const Kit *k) const;
 
+    virtual bool isJobCountSupported() const { return true; }
+
     void setLanguage(Core::Id language);
     static Utils::LanguageVersion cxxLanguageVersion(const QByteArray &cplusplusMacroValue);
     static Utils::LanguageVersion languageVersion(const Core::Id &language, const Macros &macros);
