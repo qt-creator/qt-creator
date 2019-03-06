@@ -102,6 +102,7 @@ void ClangFormatConfigWidget::showGlobalCheckboxes()
 static bool projectConfigExists()
 {
     return Utils::FileName::fromString(Core::ICore::userResourcePath())
+        .appendPath("clang-format")
         .appendPath(currentProjectUniqueId())
         .appendPath((Constants::SETTINGS_FILE_NAME))
         .exists();
@@ -208,7 +209,7 @@ void ClangFormatConfigWidget::apply()
 
     QString filePath = Core::ICore::userResourcePath();
     if (m_project)
-        filePath += "/" + currentProjectUniqueId();
+        filePath += "/clang-format/" + currentProjectUniqueId();
     filePath += "/" + QLatin1String(Constants::SETTINGS_FILE_NAME);
 
     QFile file(filePath);
