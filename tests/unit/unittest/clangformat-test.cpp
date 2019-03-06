@@ -633,6 +633,23 @@ TEST_F(ClangFormat, FormatTemplateparameters)
 
     ASSERT_THAT(documentLines(), ElementsAre("using Alias = Template<A, B, C>"));
 }
+
+TEST_F(ClangFormat, SortIncludes)
+{
+    insertLines({"#include \"b.h\"",
+                 "#include \"a.h\"",
+                 "",
+                 "#include <bb.h>",
+                 "#include <aa.h>"});
+
+    indenter.format({{1, 5}});
+
+    ASSERT_THAT(documentLines(), ElementsAre("#include \"a.h\"",
+                                             "#include \"b.h\"",
+                                             "",
+                                             "#include <aa.h>",
+                                             "#include <bb.h>"));
+}
 // clang-format on
 
 } // namespace

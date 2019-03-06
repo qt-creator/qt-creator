@@ -33,6 +33,7 @@
 #include <utils/qtcassert.h>
 
 #include <QTextDocument>
+#include <QDebug>
 
 namespace ClangFormat {
 
@@ -420,9 +421,24 @@ TextEditor::Replacements ClangFormatBaseIndenter::format(
                             static_cast<unsigned int>(utf8RangeLength));
     }
 
+    clang::format::FormatStyle style = styleForFile();
+    const std::string assumedFileName = m_fileName.toString().toStdString();
+    clang::tooling::Replacements clangReplacements = clang::format::sortIncludes(style,
+                                                                                 buffer.data(),
+                                                                                 ranges,
+                                                                                 assumedFileName);
+    auto changedCode = clang::tooling::applyAllReplacements(buffer.data(), clangReplacements);
+    QTC_ASSERT(changedCode, {
+        qDebug() << QString::fromStdString(llvm::toString(changedCode.takeError()));
+        return TextEditor::Replacements();
+    });
+    ranges = clang::tooling::calculateRangesAfterReplacements(clangReplacements, ranges);
+
     clang::format::FormattingAttemptStatus status;
-    const clang::tooling::Replacements clangReplacements
-        = reformat(styleForFile(), buffer.data(), ranges, m_fileName.toString().toStdString(), &status);
+    const clang::tooling::Replacements formatReplacements
+        = reformat(style, *changedCode, ranges, m_fileName.toString().toStdString(), &status);
+    clangReplacements = clangReplacements.merge(formatReplacements);
+
     const TextEditor::Replacements toReplace = utf16Replacements(m_doc, buffer, clangReplacements);
     applyReplacements(m_doc, toReplace);
 
