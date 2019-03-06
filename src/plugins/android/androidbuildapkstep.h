@@ -76,6 +76,7 @@ public:
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
+    QVariant data(Core::Id id) const override;
 private:
     Q_INVOKABLE void showInGraphicalShell();
 

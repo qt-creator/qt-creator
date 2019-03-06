@@ -225,6 +225,12 @@ void BuildStep::setWidgetExpandedByDefault(bool widgetExpandedByDefault)
     m_widgetExpandedByDefault = widgetExpandedByDefault;
 }
 
+QVariant BuildStep::data(Core::Id id) const
+{
+    Q_UNUSED(id);
+    return {};
+}
+
 /*!
   \fn BuildStep::isImmutable()
 

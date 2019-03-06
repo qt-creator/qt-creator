@@ -91,6 +91,7 @@ public:
     bool isImmutable() const { return m_immutable; }
     void setImmutable(bool immutable) { m_immutable = immutable; }
 
+    virtual QVariant data(Core::Id id) const;
 signals:
     /// Adds a \p task to the Issues pane.
     /// Do note that for linking compile output with tasks, you should first emit the task

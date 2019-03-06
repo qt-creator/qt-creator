@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "cmakeconfigitem.h"
+
 #include <projectexplorer/projectnodes.h>
 
 namespace CMakeProjectManager {
@@ -72,9 +74,12 @@ public:
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
     Utils::optional<Utils::FileName> visibleAfterAddFileAction() const override;
 
+    QVariant data(Core::Id role) const override;
+    void setConfig(const CMakeConfig &config);
+
 private:
     QString m_tooltip;
-    QString m_target;
+    CMakeConfig m_config;
 };
 
 } // namespace Internal

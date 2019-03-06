@@ -265,13 +265,56 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     QTC_ASSERT(bc == aBc, return);
     QTC_ASSERT(m_treeScanner.isFinished() && !m_buildDirManager.isParsing(), return);
 
-    bc->setBuildTargets(m_buildDirManager.takeBuildTargets());
-    bc->setConfigurationFromCMake(m_buildDirManager.takeCMakeConfiguration());
+    const QList<CMakeBuildTarget> buildTargets = m_buildDirManager.takeBuildTargets();
+    bc->setBuildTargets(buildTargets);
+    const CMakeConfig cmakeConfig = m_buildDirManager.takeCMakeConfiguration();
+    bc->setConfigurationFromCMake(cmakeConfig);
+
+    CMakeConfig patchedConfig = cmakeConfig;
+    {
+        CMakeConfigItem settingFileItem;
+        settingFileItem.key = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
+        settingFileItem.value = bc->buildDirectory().appendPath("android_deployment_settings.json").toString().toUtf8();
+        patchedConfig.append(settingFileItem);
+    }
+
+    QSet<QString> res;
+    QStringList apps;
+    for (const auto &target : bc->buildTargets()) {
+        if (target.targetType == CMakeProjectManager::DynamicLibraryType) {
+            res.insert(target.executable.parentDir().toString());
+            apps.push_back(target.executable.toUserOutput());
+        }
+        // ### shall we add also the ExecutableType ?
+    }
+    {
+        CMakeConfigItem paths;
+        paths.key = "ANDROID_SO_LIBS_PATHS";
+        paths.values = res.toList();
+        patchedConfig.append(paths);
+    }
+
+    apps.sort();
+    {
+        CMakeConfigItem appsPaths;
+        appsPaths.key = "TARGETS_BUILD_PATH";
+        appsPaths.values = apps;
+        patchedConfig.append(appsPaths);
+    }
+
 
     auto newRoot = generateProjectTree(m_allFiles);
     if (newRoot) {
         setDisplayName(newRoot->displayName());
         setRootProjectNode(std::move(newRoot));
+
+        for (const CMakeBuildTarget &bt : buildTargets) {
+            const QString buildKey = CMakeTargetNode::generateId(bt.sourceDirectory, bt.title);
+            if (ProjectNode *node = findNodeForBuildKey(buildKey)) {
+                if (auto targetNode = dynamic_cast<CMakeTargetNode *>(node))
+                    targetNode->setConfig(patchedConfig);
+            }
+        }
     }
 
     Target *t = bc->target();

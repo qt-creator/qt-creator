@@ -63,6 +63,7 @@ public:
     QString warning() const;
 
     QStringList buildTargetTitles() const;
+    const QList<CMakeBuildTarget> &buildTargets() const;
     ProjectExplorer::BuildTargetInfoList appTargets() const;
     ProjectExplorer::DeploymentData deploymentData() const;
 
@@ -72,7 +73,6 @@ public:
 
     // Context menu action:
     void buildTarget(const QString &buildTarget);
-
 signals:
     void errorOccured(const QString &message);
     void warningOccured(const QString &message);
@@ -104,6 +104,7 @@ private:
     void setWarning(const QString &message);
 
     CMakeConfig m_configurationForCMake;
+    CMakeConfig m_initialConfiguration;
     QString m_error;
     QString m_warning;
 

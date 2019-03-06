@@ -34,6 +34,8 @@
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
 
+#include <android/androidconstants.h>
+
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildinfo.h>
@@ -90,6 +92,37 @@ void CMakeBuildConfiguration::initialize(const BuildInfo &info)
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     buildSteps->appendStep(new CMakeBuildStep(buildSteps));
+
+    if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
+            == Android::Constants::ANDROID_DEVICE_TYPE) {
+        buildSteps->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
+        const auto &bs = buildSteps->steps().constLast();
+        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_NATIVE_API_LEVEL",
+                                                                            CMakeProjectManager::CMakeConfigItem::Type::STRING,
+                                                                            "Android native API level",
+                                                                            bs->data(Android::Constants::AndroidNdkPlatform).toString().toUtf8()});
+        auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FileName>();
+        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_NDK",
+                                                                            CMakeProjectManager::CMakeConfigItem::Type::PATH,
+                                                                            "Android NDK PATH",
+                                                                            ndkLocation.toUserOutput().toUtf8()});
+        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_TOOLCHAIN_FILE",
+                                                                            CMakeProjectManager::CMakeConfigItem::Type::PATH,
+                                                                            "Android CMake toolchain file",
+                                                                            ndkLocation.appendPath("build/cmake/android.toolchain.cmake").toUserOutput().toUtf8()});
+        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_ABI",
+                                                                            CMakeProjectManager::CMakeConfigItem::Type::STRING,
+                                                                            "Android ABI",
+                                                                            bs->data(Android::Constants::AndroidABI).toString().toUtf8()});
+        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_STL",
+                                                                            CMakeProjectManager::CMakeConfigItem::Type::STRING,
+                                                                            "Android STL",
+                                                                            "c++_shared"});
+        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH_MODE_PROGRAM", "BOTH"});
+        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH_MODE_LIBRARY", "BOTH"});
+        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH_MODE_INCLUDE", "BOTH"});
+        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH_MODE_PACKAGE", "BOTH"});
+    }
 
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
     cleanSteps->appendStep(new CMakeBuildStep(cleanSteps));
@@ -162,19 +195,19 @@ bool CMakeBuildConfiguration::isParsing() const
 BuildTargetInfoList CMakeBuildConfiguration::appTargets() const
 {
     BuildTargetInfoList appTargetList;
-
+    bool forAndroid = DeviceTypeKitAspect::deviceTypeId(target()->kit()) == Android::Constants::ANDROID_DEVICE_TYPE;
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (ct.targetType == UtilityType)
             continue;
 
-        if (ct.targetType == ExecutableType) {
+        if (ct.targetType == ExecutableType || (forAndroid && ct.targetType == DynamicLibraryType)) {
             BuildTargetInfo bti;
             bti.displayName = ct.title;
             bti.targetFilePath = ct.executable;
             bti.projectFilePath = ct.sourceDirectory;
             bti.projectFilePath.appendString('/');
             bti.workingDirectory = ct.workingDirectory;
-            bti.buildKey = ct.title + QChar('\n') + bti.projectFilePath.toString();
+            bti.buildKey = CMakeTargetNode::generateId(ct.sourceDirectory, ct.title);
             appTargetList.list.append(bti);
         }
     }
@@ -218,6 +251,11 @@ DeploymentData CMakeBuildConfiguration::deploymentData() const
 QStringList CMakeBuildConfiguration::buildTargetTitles() const
 {
     return transform(m_buildTargets, &CMakeBuildTarget::title);
+}
+
+const QList<CMakeBuildTarget> &CMakeBuildConfiguration::buildTargets() const
+{
+    return m_buildTargets;
 }
 
 FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFilePath,
@@ -341,7 +379,11 @@ static CMakeConfig removeDuplicates(const CMakeConfig &config)
 
 void CMakeBuildConfiguration::setConfigurationForCMake(const CMakeConfig &config)
 {
-    m_configurationForCMake = removeDuplicates(config);
+    auto configs = removeDuplicates(config);
+    if (m_configurationForCMake.isEmpty())
+        m_configurationForCMake = removeDuplicates(configs + m_initialConfiguration);
+    else
+        m_configurationForCMake = configs;
 
     const Kit *k = target()->kit();
     CMakeConfig kitConfig = CMakeConfigurationKitAspect::configuration(k);

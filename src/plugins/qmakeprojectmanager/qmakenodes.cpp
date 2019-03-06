@@ -288,6 +288,10 @@ QVariant QmakeProFileNode::data(Core::Id role) const
         res.removeDuplicates();
         return res;
     }
+
+    if (role == Android::Constants::AndroidTargets)
+        return {};
+
     QTC_CHECK(false);
     return {};
 }

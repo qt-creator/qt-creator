@@ -68,6 +68,7 @@ bool AndroidPackageInstallationStep::init()
 
     ToolChain *tc = ToolChainKitAspect::toolChain(target()->kit(),
                                                        ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    QTC_ASSERT(tc, return false);
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());

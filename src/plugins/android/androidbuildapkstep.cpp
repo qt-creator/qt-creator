@@ -54,10 +54,11 @@
 #include <utils/synchronousprocess.h>
 #include <utils/utilsicons.h>
 
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-
+#include <QDateTime>
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QLoggingCategory>
@@ -192,9 +193,14 @@ bool AndroidBuildApkStep::init()
                                                 &Utils::FileName::toString));
 
     RunConfiguration *rc = target()->activeRunConfiguration();
-    const ProjectNode *node = rc ? target()->project()->findNodeForBuildKey(rc->buildKey()) : nullptr;
+    const QString buildKey = rc ? rc->buildKey() : QString();
+    const ProjectNode *node = rc ? target()->project()->findNodeForBuildKey(buildKey) : nullptr;
 
-    QFileInfo sourceDirInfo(node ? node->data(Constants::AndroidPackageSourceDir).toString() : QString());
+    QString sourceDirName;
+    if (node)
+        sourceDirName = node->data(Constants::AndroidPackageSourceDir).toString();
+
+    QFileInfo sourceDirInfo(sourceDirName);
     parser->setSourceDirectory(Utils::FileName::fromString(sourceDirInfo.canonicalFilePath()));
     parser->setBuildDirectory(Utils::FileName::fromString(bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString()));
     setOutputParser(parser);
@@ -340,13 +346,89 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
     return success;
 }
 
+
+static bool copyFileIfNewer(const QString &sourceFileName,
+                            const QString &destinationFileName)
+{
+    if (QFile::exists(destinationFileName)) {
+        QFileInfo destinationFileInfo(destinationFileName);
+        QFileInfo sourceFileInfo(sourceFileName);
+        if (sourceFileInfo.lastModified() <= destinationFileInfo.lastModified())
+            return true;
+        if (!QFile(destinationFileName).remove())
+            return false;
+    }
+
+    if (!QDir().mkpath(QFileInfo(destinationFileName).path()))
+        return false;
+    return QFile::copy(sourceFileName, destinationFileName);
+}
+
 void AndroidBuildApkStep::doRun()
 {
     if (m_skipBuilding) {
-        emit addOutput(tr("No application .pro file found, not building an APK."), BuildStep::OutputFormat::ErrorMessage);
+        emit addOutput(tr("Android deploy settings file not found, not building an APK."), BuildStep::OutputFormat::ErrorMessage);
         emit finished(true);
         return;
     }
+
+    auto setup = [this] {
+        auto bc = target()->activeBuildConfiguration();
+        Utils::FileName androidLibsDir = bc->buildDirectory()
+                .appendPath("android-build/libs")
+                .appendPath(AndroidManager::targetArch(target()));
+        if (!androidLibsDir.exists() && !QDir{bc->buildDirectory().toString()}.mkpath(androidLibsDir.toString()))
+            return false;
+
+
+        QJsonObject deploySettings = Android::AndroidManager::deploymentSettings(target());
+        RunConfiguration *rc = target()->activeRunConfiguration();
+        const QString buildKey = rc ? rc->buildKey() : QString();
+        const ProjectNode *node = rc ? target()->project()->findNodeForBuildKey(buildKey) : nullptr;
+
+        if (!node)
+            return false;
+
+        auto targets = node->data(Android::Constants::AndroidTargets).toStringList();
+        if (targets.isEmpty())
+            return true; // qmake does this job for us
+
+        // Copy targets to android build folder
+        for (const auto &target : targets) {
+            if (!copyFileIfNewer(target, androidLibsDir.appendPath(QFileInfo{target}.fileName()).toString()))
+                return false;
+        }
+
+        QString extraLibs = node->data(Android::Constants::AndroidExtraLibs).toString();
+        if (!extraLibs.isEmpty())
+            deploySettings["android-extra-libs"] = extraLibs;
+
+        QString androidSrcs = node->data(Android::Constants::AndroidPackageSourceDir).toString();
+        if (!androidSrcs.isEmpty())
+            deploySettings["android-package-source-directory"] = androidSrcs;
+
+        QString qmlImportPath = node->data("QML_IMPORT_PATH").toString();
+        if (!qmlImportPath.isEmpty())
+            deploySettings["qml-import-paths"] = qmlImportPath;
+
+        QString qmlRootPath = node->data("QML_ROOT_PATH").toString();
+        if (qmlRootPath.isEmpty())
+            qmlRootPath = target()->project()->rootProjectDirectory().toString();
+         deploySettings["qml-root-path"] = qmlImportPath;
+
+        QFile f{bc->buildDirectory().appendPath("android_deployment_settings.json").toString()};
+        if (!f.open(QIODevice::WriteOnly))
+            return false;
+        f.write(QJsonDocument{deploySettings}.toJson());
+        return true;
+    };
+
+    if (!setup()) {
+        emit addOutput(tr("Cannot set up Android, not building an APK."), BuildStep::OutputFormat::ErrorMessage);
+        emit finished(false);
+        return;
+    }
+
     AbstractProcessStep::doRun();
 }
 
@@ -396,6 +478,18 @@ void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 {
     m_buildTargetSdk = sdk;
     AndroidManager::updateGradleProperties(target());
+}
+
+QVariant AndroidBuildApkStep::data(Core::Id id) const
+{
+    if (id == Constants::AndroidNdkPlatform)
+        return AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target())).mid(8);
+    if (id == Constants::NdkLocation)
+        return QVariant::fromValue(AndroidConfigurations::currentConfig().ndkLocation());
+    if (id == Constants::AndroidABI)
+        return AndroidManager::targetArch(target());
+
+    return AbstractProcessStep::data(id);
 }
 
 void AndroidBuildApkStep::setKeystorePath(const Utils::FileName &path)
@@ -568,7 +662,6 @@ namespace Internal {
 AndroidBuildApkStepFactory::AndroidBuildApkStepFactory()
 {
     registerStep<AndroidBuildApkStep>(Constants::ANDROID_BUILD_APK_ID);
-    setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     setDisplayName(AndroidBuildApkStep::tr("Build Android APK"));

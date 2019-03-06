@@ -87,7 +87,7 @@ public:
     static int minimumSDK(ProjectExplorer::Target *target);
     static int minimumSDK(const ProjectExplorer::Kit *kit);
 
-    static QString targetArch(ProjectExplorer::Target *target);
+    static QString targetArch(const ProjectExplorer::Target *target);
 
     static Utils::FileName dirPath(const ProjectExplorer::Target *target);
     static Utils::FileName manifestPath(ProjectExplorer::Target *target);
@@ -113,6 +113,8 @@ public:
     static SdkToolResult runAdbCommand(const QStringList &args, const QByteArray &writeData = {},
                                        int timeoutS = 30);
     static SdkToolResult runAaptCommand(const QStringList &args, int timeoutS = 30);
+
+    static QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
 
 private:
     static SdkToolResult runCommand(const QString &executable, const QStringList &args,

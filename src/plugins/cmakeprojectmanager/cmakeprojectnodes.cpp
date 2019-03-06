@@ -25,21 +25,30 @@
 
 #include "cmakeprojectnodes.h"
 
+#include "cmakeconfigitem.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectplugin.h"
+
+#include <android/androidconstants.h>
+
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
+
+#include <projectexplorer/target.h>
+
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/optional.h>
-
+#include <utils/qtcassert.h>
 
 #include <QClipboard>
 #include <QDir>
 #include <QGuiApplication>
 #include <QMessageBox>
+
+using namespace ProjectExplorer;
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -159,8 +168,9 @@ bool CMakeProjectNode::addFiles(const QStringList &filePaths, QStringList *)
 }
 
 CMakeTargetNode::CMakeTargetNode(const Utils::FileName &directory, const QString &target) :
-    ProjectExplorer::ProjectNode(directory), m_target(target)
+    ProjectExplorer::ProjectNode(directory)
 {
+    m_target = target;
     setPriority(Node::DefaultProjectPriority + 900);
     setIcon(QIcon(":/projectexplorer/images/build.png")); // TODO: Use proper icon!
     setListInProject(false);
@@ -179,6 +189,52 @@ QString CMakeTargetNode::tooltip() const
 QString CMakeTargetNode::buildKey() const
 {
     return generateId(filePath(), m_target);
+}
+
+QVariant CMakeTargetNode::data(Core::Id role) const
+{
+    auto value = [this](const QByteArray &key) -> QVariant {
+        for (const CMakeConfigItem &configItem : m_config) {
+            if (configItem.key == key)
+                return configItem.value;
+        }
+        return {};
+    };
+
+    auto values = [this](const QByteArray &key) -> QVariant {
+        for (const CMakeConfigItem &configItem : m_config) {
+            if (configItem.key == key)
+                return configItem.values;
+        }
+        return {};
+    };
+
+    if (role == Android::Constants::AndroidPackageSourceDir)
+        return value("ANDROID_PACKAGE_SOURCE_DIR");
+
+    if (role == Android::Constants::AndroidDeploySettingsFile)
+        return value("ANDROID_DEPLOYMENT_SETTINGS_FILE");
+
+    if (role == Android::Constants::AndroidExtraLibs)
+        return value("ANDROID_EXTRA_LIBS");
+
+    if (role == Android::Constants::AndroidArch)
+        return value("ANDROID_ABI");
+
+    if (role == Android::Constants::AndroidSoLibPath)
+        return values("ANDROID_SO_LIBS_PATHS");
+
+    if (role == Android::Constants::AndroidTargets)
+        return values("TARGETS_BUILD_PATH");
+
+    QTC_CHECK(false);
+    // Better guess than "not present".
+    return value(role.toString().toUtf8());
+}
+
+void CMakeTargetNode::setConfig(const CMakeConfig &config)
+{
+    m_config = config;
 }
 
 bool CMakeTargetNode::supportsAction(ProjectExplorer::ProjectAction action,
