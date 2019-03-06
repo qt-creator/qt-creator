@@ -30,6 +30,7 @@
 #include "qtsupportconstants.h"
 #include "qtversionmanager.h"
 #include "qtparser.h"
+#include "qttestparser.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -224,8 +225,11 @@ void QtKitAspect::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environ
 
 ProjectExplorer::IOutputParser *QtKitAspect::createOutputParser(const ProjectExplorer::Kit *k) const
 {
-    if (qtVersion(k))
-        return new QtParser;
+    if (qtVersion(k)) {
+        const auto parser = new Internal::QtTestParser;
+        parser->appendOutputParser(new QtParser);
+        return parser;
+    }
     return nullptr;
 }
 

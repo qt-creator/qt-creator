@@ -143,6 +143,8 @@ void BuildManager::extensionsInitialized()
                          tr("Build System", "Category for build system issues listed under 'Issues'"));
     TaskHub::addCategory(Constants::TASK_CATEGORY_DEPLOYMENT,
                          tr("Deployment", "Category for deployment issues listed under 'Issues'"));
+    TaskHub::addCategory(Constants::TASK_CATEGORY_AUTOTEST,
+                         tr("Autotests", "Category for autotest issues listed under 'Issues'"));
 }
 
 BuildManager::~BuildManager()
@@ -447,6 +449,7 @@ bool BuildManager::buildQueueAppend(const QList<BuildStep *> &steps, QStringList
         TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
         TaskHub::clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
         TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_AUTOTEST);
 
         foreach (const QString &str, preambleMessage)
             addToOutputWindow(str, BuildStep::OutputFormat::NormalMessage, BuildStep::DontAppendNewline);

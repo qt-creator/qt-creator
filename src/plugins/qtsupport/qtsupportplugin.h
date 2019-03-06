@@ -48,6 +48,7 @@ private:
 private slots:
     void testQtOutputParser_data();
     void testQtOutputParser();
+    void testQtTestOutputParser();
     void testQtOutputFormatter_data();
     void testQtOutputFormatter();
     void testQtOutputFormatter_appendMessage_data();

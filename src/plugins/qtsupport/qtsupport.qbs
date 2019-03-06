@@ -94,6 +94,8 @@ Project {
             "qtsupportconstants.h",
             "qtsupportplugin.cpp",
             "qtsupportplugin.h",
+            "qttestparser.cpp",
+            "qttestparser.h",
             "qtversionfactory.cpp",
             "qtversionfactory.h",
             "qtversioninfo.ui",

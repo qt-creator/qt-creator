@@ -17,6 +17,7 @@ HEADERS += \
     qtsupport_global.h \
     qtkitinformation.h \
     qtoutputformatter.h \
+    qttestparser.h \
     qtversionmanager.h \
     qtversionfactory.h \
     baseqtversion.h \
@@ -42,6 +43,7 @@ SOURCES += \
     qtsupportplugin.cpp \
     qtkitinformation.cpp \
     qtoutputformatter.cpp \
+    qttestparser.cpp \
     qtversionmanager.cpp \
     qtversionfactory.cpp \
     baseqtversion.cpp \
