@@ -9,7 +9,7 @@ QTC_PLUGIN_DEPENDS += \
 
 # needed for plugins that depend on TextEditor plugin
 include(../../shared/syntax/syntax_shared.pri)
-!isEmpty(KSYNTAXHIGHLIGHTING_INCLUDE_DIR) {
+!isEmpty(KSYNTAXHIGHLIGHTING_LIB_DIR):!isEmpty(KSYNTAXHIGHLIGHTING_INCLUDE_DIR) {
     INCLUDEPATH *= $${KSYNTAXHIGHLIGHTING_INCLUDE_DIR}
     LIBS *= -L$$KSYNTAXHIGHLIGHTING_LIB_DIR -lKF5SyntaxHighlighting
 
