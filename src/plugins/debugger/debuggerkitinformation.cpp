@@ -56,24 +56,7 @@ DebuggerKitInformation::DebuggerKitInformation()
     setPriority(28000);
 }
 
-QVariant DebuggerKitInformation::defaultValue(const Kit *k) const
-{
-    const Abi toolChainAbi = ToolChainKitInformation::targetAbi(k);
-    const Utils::FileNameList paths = Environment::systemEnvironment().path();
-    QVariant nextBestFit;
-    for (const DebuggerItem &item : DebuggerItemManager::debuggers()) {
-        for (const Abi &targetAbi : item.abis()) {
-            if (targetAbi.isCompatibleWith(toolChainAbi)) {
-                if (paths.contains(item.command()))
-                    return item.id(); // prefer debuggers found in PATH over those found elsewhere
-                if (nextBestFit.isNull())
-                    nextBestFit = item.id();
-            }
-        }
-    }
-
-    return nextBestFit;
-}
+QVariant DebuggerKitInformation::defaultValue(const Kit *) const { return QVariant(); }
 
 void DebuggerKitInformation::setup(Kit *k)
 {
