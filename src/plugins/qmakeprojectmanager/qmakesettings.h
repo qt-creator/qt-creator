@@ -36,6 +36,7 @@ namespace Internal {
 class QmakeSettingsData {
 public:
     bool warnAgainstUnalignedBuildDir = false;
+    bool alwaysRunQmake = false;
 };
 
 class QmakeSettings : public QObject
@@ -44,6 +45,7 @@ class QmakeSettings : public QObject
 public:
     static QmakeSettings &instance();
     static bool warnAgainstUnalignedBuildDir();
+    static bool alwaysRunQmake();
     static void setSettingsData(const QmakeSettingsData &settings);
 
 signals:

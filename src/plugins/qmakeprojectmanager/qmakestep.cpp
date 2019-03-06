@@ -33,6 +33,7 @@
 #include "qmakeparser.h"
 #include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
+#include "qmakesettings.h"
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
@@ -213,9 +214,10 @@ bool QMakeStep::init()
     }
 
     // Check whether we need to run qmake
-    bool makefileOutDated = (qmakeBc->compareToImportFrom(makefile) != QmakeBuildConfiguration::MakefileMatches);
-    if (m_forced || makefileOutDated)
+    if (m_forced || QmakeSettings::alwaysRunQmake()
+            || qmakeBc->compareToImportFrom(makefile) != QmakeBuildConfiguration::MakefileMatches) {
         m_needToRunQMake = true;
+    }
     m_forced = false;
 
     ProcessParameters *pp = processParameters();
