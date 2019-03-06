@@ -85,6 +85,8 @@ const Icon SNAPSHOT_TOOLBAR({
 const Icon NEWSEARCH_TOOLBAR({
         {QLatin1String(":/utils/images/zoom.png"), Theme::IconsBaseColor},
         {QLatin1String(":/utils/images/iconoverlay_add_small.png"), Theme::IconsRunColor}});
+const Icon SETTINGS_TOOLBAR({
+    {QLatin1String(":/utils/images/settings.png"), Theme::IconsBaseColor}});
 
 const Icon NEWFILE({
         {QLatin1String(":/utils/images/filenew.png"), Theme::PanelTextColorMid}}, Icon::Tint);

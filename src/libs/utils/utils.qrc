@@ -213,6 +213,8 @@
         <file>images/macos_touchbar_bookmark@2x.png</file>
         <file>images/macos_touchbar_clear.png</file>
         <file>images/macos_touchbar_clear@2x.png</file>
+        <file>images/settings.png</file>
+        <file>images/settings@2x.png</file>
     </qresource>
     <qresource prefix="/codemodel">
         <file>images/enum.png</file>
