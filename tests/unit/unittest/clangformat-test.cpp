@@ -72,6 +72,7 @@ protected:
 
     void insertLines(const std::vector<QString> &lines)
     {
+        doc.clear();
         cursor.setPosition(0);
         for (size_t lineNumber = 1; lineNumber <= lines.size(); ++lineNumber) {
             if (lineNumber > 1)
@@ -379,6 +380,17 @@ TEST_F(ClangFormat, IndentOnElectricCharacterButNotRemoveEmptyLinesBefore)
                                              "}"));
 }
 
+TEST_F(ClangFormat, IndentAfterExtraSpaceInpreviousLine)
+{
+    insertLines({"if (a ",
+                 "&& b)"});
+
+    indenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("if (a",
+                                             "    && b)"));
+}
+
 TEST_F(ClangFormat, IndentFunctionBodyButNotFormatBeforeIt)
 {
     insertLines({"int foo(int a, int b,",
@@ -516,6 +528,24 @@ TEST_F(ClangFormat, OnlyIndentClosingParenthesis)
     extendedIndenter.indentBlock(doc.findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
 
     ASSERT_THAT(documentLines(), ElementsAre("foo(a,",
+                                             "    ",
+                                             "    )"));
+}
+
+TEST_F(ClangFormat, EquallyIndentInsideParenthesis)
+{
+    insertLines({"if (a",
+                 ")"});
+    extendedIndenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    auto linesAfterFirstLineBreak = documentLines();
+    insertLines({"if (a",
+                 "    ",
+                 ")"});
+    extendedIndenter.indentBlock(doc.findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(linesAfterFirstLineBreak, ElementsAre("if (a",
+                                                      "    )"));
+    ASSERT_THAT(documentLines(), ElementsAre("if (a",
                                              "    ",
                                              "    )"));
 }
