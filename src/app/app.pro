@@ -5,8 +5,9 @@ TEMPLATE = app
 CONFIG += qtc_runnable sliced_bundle
 TARGET = $$IDE_APP_TARGET
 DESTDIR = $$IDE_APP_PATH
-VERSION = $$QTCREATOR_VERSION
 QT -= testlib
+# work around QTBUG-74265
+win32: VERSION=
 
 HEADERS += ../tools/qtcreatorcrashhandler/crashhandlersetup.h
 SOURCES += main.cpp ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp
