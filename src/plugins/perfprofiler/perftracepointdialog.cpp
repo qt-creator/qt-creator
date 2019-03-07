@@ -92,7 +92,7 @@ PerfTracePointDialog::~PerfTracePointDialog()
 
 void PerfTracePointDialog::runScript()
 {
-    m_ui->label->setText(tr("Executing script ..."));
+    m_ui->label->setText(tr("Executing script..."));
     m_ui->textEdit->setReadOnly(true);
     m_ui->privilegesChooser->setEnabled(false);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
