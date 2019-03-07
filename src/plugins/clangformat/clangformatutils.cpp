@@ -45,6 +45,104 @@ using namespace TextEditor;
 
 namespace ClangFormat {
 
+static clang::format::FormatStyle qtcStyle()
+{
+    clang::format::FormatStyle style = getLLVMStyle();
+    style.Language = FormatStyle::LK_Cpp;
+    style.AccessModifierOffset = -4;
+    style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
+    style.AlignConsecutiveAssignments = false;
+    style.AlignConsecutiveDeclarations = false;
+    style.AlignEscapedNewlines = FormatStyle::ENAS_DontAlign;
+    style.AlignOperands = true;
+    style.AlignTrailingComments = true;
+    style.AllowAllParametersOfDeclarationOnNextLine = true;
+    style.AllowShortBlocksOnASingleLine = false;
+    style.AllowShortCaseLabelsOnASingleLine = false;
+    style.AllowShortFunctionsOnASingleLine = FormatStyle::SFS_Inline;
+    style.AllowShortIfStatementsOnASingleLine = false;
+    style.AllowShortLoopsOnASingleLine = false;
+    style.AlwaysBreakAfterReturnType = FormatStyle::RTBS_None;
+    style.AlwaysBreakBeforeMultilineStrings = false;
+    style.AlwaysBreakTemplateDeclarations = FormatStyle::BTDS_Yes;
+    style.BinPackArguments = false;
+    style.BinPackParameters = false;
+    style.BraceWrapping.AfterClass = true;
+    style.BraceWrapping.AfterControlStatement = false;
+    style.BraceWrapping.AfterEnum = false;
+    style.BraceWrapping.AfterFunction = true;
+    style.BraceWrapping.AfterNamespace = false;
+    style.BraceWrapping.AfterObjCDeclaration = false;
+    style.BraceWrapping.AfterStruct = true;
+    style.BraceWrapping.AfterUnion = false;
+    style.BraceWrapping.BeforeCatch = false;
+    style.BraceWrapping.BeforeElse = false;
+    style.BraceWrapping.IndentBraces = false;
+    style.BraceWrapping.SplitEmptyFunction = false;
+    style.BraceWrapping.SplitEmptyRecord = false;
+    style.BraceWrapping.SplitEmptyNamespace = false;
+    style.BreakBeforeBinaryOperators = FormatStyle::BOS_All;
+    style.BreakBeforeBraces = FormatStyle::BS_Custom;
+    style.BreakBeforeTernaryOperators = true;
+    style.BreakConstructorInitializers = FormatStyle::BCIS_BeforeComma;
+    style.BreakAfterJavaFieldAnnotations = false;
+    style.BreakStringLiterals = true;
+    style.ColumnLimit = 100;
+    style.CommentPragmas = "^ IWYU pragma:";
+    style.CompactNamespaces = false;
+    style.ConstructorInitializerAllOnOneLineOrOnePerLine = false;
+    style.ConstructorInitializerIndentWidth = 4;
+    style.ContinuationIndentWidth = 4;
+    style.Cpp11BracedListStyle = true;
+    style.DerivePointerAlignment = false;
+    style.DisableFormat = false;
+    style.ExperimentalAutoDetectBinPacking = false;
+    style.FixNamespaceComments = true;
+    style.ForEachMacros = {"forever", "foreach", "Q_FOREACH", "BOOST_FOREACH"};
+    style.IncludeStyle.IncludeCategories = {{"^<Q.*", 200}};
+    style.IncludeStyle.IncludeIsMainRegex = "(Test)?$";
+    style.IndentCaseLabels = false;
+    style.IndentWidth = 4;
+    style.IndentWrappedFunctionNames = false;
+    style.JavaScriptQuotes = FormatStyle::JSQS_Leave;
+    style.JavaScriptWrapImports = true;
+    style.KeepEmptyLinesAtTheStartOfBlocks = false;
+    // Do not add QT_BEGIN_NAMESPACE/QT_END_NAMESPACE as this will indent lines in between.
+    style.MacroBlockBegin = "";
+    style.MacroBlockEnd = "";
+    style.MaxEmptyLinesToKeep = 1;
+    style.NamespaceIndentation = FormatStyle::NI_None;
+    style.ObjCBlockIndentWidth = 4;
+    style.ObjCSpaceAfterProperty = false;
+    style.ObjCSpaceBeforeProtocolList = true;
+    style.PenaltyBreakAssignment = 150;
+    style.PenaltyBreakBeforeFirstCallParameter = 300;
+    style.PenaltyBreakComment = 500;
+    style.PenaltyBreakFirstLessLess = 400;
+    style.PenaltyBreakString = 600;
+    style.PenaltyExcessCharacter = 50;
+    style.PenaltyReturnTypeOnItsOwnLine = 300;
+    style.PointerAlignment = FormatStyle::PAS_Right;
+    style.ReflowComments = false;
+    style.SortIncludes = true;
+    style.SortUsingDeclarations = true;
+    style.SpaceAfterCStyleCast = true;
+    style.SpaceAfterTemplateKeyword = false;
+    style.SpaceBeforeAssignmentOperators = true;
+    style.SpaceBeforeParens = FormatStyle::SBPO_ControlStatements;
+    style.SpaceInEmptyParentheses = false;
+    style.SpacesBeforeTrailingComments = 1;
+    style.SpacesInAngles = false;
+    style.SpacesInContainerLiterals = false;
+    style.SpacesInCStyleCastParentheses = false;
+    style.SpacesInParentheses = false;
+    style.SpacesInSquareBrackets = false;
+    style.Standard = FormatStyle::LS_Cpp11;
+    style.TabWidth = 4;
+    style.UseTab = FormatStyle::UT_Never;
+    return style;
+}
+
 static void applyTabSettings(clang::format::FormatStyle &style, const TabSettings &settings)
 {
     style.IndentWidth = static_cast<unsigned>(settings.m_indentSize);
@@ -64,35 +162,6 @@ static void applyTabSettings(clang::format::FormatStyle &style, const TabSetting
         style.ContinuationIndentWidth = style.IndentWidth;
         style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
     }
-}
-
-static void applyCppCodeStyleSettings(clang::format::FormatStyle &style,
-                                      const CppCodeStyleSettings &settings)
-{
-    style.IndentCaseLabels = settings.indentSwitchLabels;
-    style.AlignOperands = settings.alignAssignments;
-    style.NamespaceIndentation = FormatStyle::NI_None;
-    if (settings.indentNamespaceBody)
-        style.NamespaceIndentation = FormatStyle::NI_All;
-
-    style.BraceWrapping.IndentBraces = false;
-    if (settings.indentBlockBraces) {
-        if (settings.indentClassBraces && settings.indentEnumBraces
-                && settings.indentNamespaceBraces && settings.indentFunctionBraces) {
-            style.BraceWrapping.IndentBraces = true;
-        } else {
-            style.BreakBeforeBraces = FormatStyle::BS_GNU;
-        }
-    }
-
-    if (settings.bindStarToIdentifier || settings.bindStarToRightSpecifier)
-        style.PointerAlignment = FormatStyle::PAS_Right;
-    else
-        style.PointerAlignment = FormatStyle::PAS_Left;
-
-    style.AccessModifierOffset = settings.indentAccessSpecifiers
-            ? 0
-            : - static_cast<int>(style.IndentWidth);
 }
 
 static bool useGlobalOverriddenSettings()
@@ -168,8 +237,7 @@ QString configForFile(Utils::FileName fileName)
     return configForFile(fileName, true);
 }
 
-static clang::format::FormatStyle constructStyle(bool isGlobal,
-                                                 const QByteArray &baseStyle = QByteArray())
+static clang::format::FormatStyle constructStyle(const QByteArray &baseStyle = QByteArray())
 {
     if (!baseStyle.isEmpty()) {
         // Try to get the style for this base style.
@@ -185,21 +253,7 @@ static clang::format::FormatStyle constructStyle(bool isGlobal,
         // Fallthrough to the default style.
     }
 
-    FormatStyle style = getLLVMStyle();
-    style.BreakBeforeBraces = FormatStyle::BS_Custom;
-
-    const CppCodeStyleSettings codeStyleSettings = isGlobal
-            ? CppCodeStyleSettings::currentGlobalCodeStyle()
-            : CppCodeStyleSettings::currentProjectCodeStyle()
-              .value_or(CppCodeStyleSettings::currentGlobalCodeStyle());
-    const TabSettings tabSettings = isGlobal
-            ? CppCodeStyleSettings::currentGlobalTabSettings()
-            : CppCodeStyleSettings::currentProjectTabSettings();
-
-    applyTabSettings(style, tabSettings);
-    applyCppCodeStyleSettings(style, codeStyleSettings);
-
-    return style;
+    return qtcStyle();
 }
 
 void createStyleFileIfNeeded(bool isGlobal)
@@ -224,7 +278,7 @@ void createStyleFileIfNeeded(bool isGlobal)
 
     std::fstream newStyleFile(configFile.toStdString(), std::fstream::out);
     if (newStyleFile.is_open()) {
-        newStyleFile << clang::format::configurationAsText(constructStyle(isGlobal));
+        newStyleFile << clang::format::configurationAsText(constructStyle());
         newStyleFile.close();
     }
 }
@@ -255,7 +309,7 @@ static clang::format::FormatStyle styleForFile(Utils::FileName fileName, bool ch
 {
     QString configFile = configForFile(fileName, checkForSettings);
     if (configFile.isEmpty())
-        return constructStyle(true);
+        return constructStyle();
 
     Expected<FormatStyle> style = format::getStyle("file",
                                                    fileName.toString().toStdString(),
@@ -267,7 +321,7 @@ static clang::format::FormatStyle styleForFile(Utils::FileName fileName, bool ch
         // do nothing
     });
 
-    return constructStyle(true, configBaseStyleName(configFile));
+    return constructStyle(configBaseStyleName(configFile));
 }
 
 clang::format::FormatStyle styleForFile(Utils::FileName fileName)
@@ -284,5 +338,4 @@ clang::format::FormatStyle currentGlobalStyle()
 {
     return styleForFile(globalPath().appendPath(Constants::SAMPLE_FILE_NAME), false);
 }
-
-}
+} // namespace ClangFormat
