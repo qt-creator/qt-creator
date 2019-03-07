@@ -107,10 +107,8 @@ void BaseStringListAspect::setLabel(const QString &label)
 AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    enum BaseEnvironmentBase { CleanEnvironmentBase };
     auto envAspect = addAspect<EnvironmentAspect>();
-    envAspect->addSupportedBaseEnvironment(CleanEnvironmentBase, tr("Clean Environment"));
-    envAspect->setBaseEnvironmentGetter([] { return Utils::Environment(); });
+    envAspect->addSupportedBaseEnvironment(tr("Clean Environment"), {});
 
     addAspect<ArgumentsAspect>();
 

@@ -56,20 +56,13 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     baseLayout->setMargin(0);
     auto label = new QLabel(tr("Base environment for this run configuration:"), this);
     baseLayout->addWidget(label);
+
     m_baseEnvironmentComboBox = new QComboBox;
-    QList<int> bases = m_aspect->possibleBaseEnvironments();
-    int currentBase = m_aspect->baseEnvironmentBase();
-    QString baseDisplayName;
-    foreach (int i, bases) {
-        const QString displayName = m_aspect->baseEnvironmentDisplayName(i);
-        m_baseEnvironmentComboBox->addItem(displayName, i);
-        if (i == currentBase) {
-            m_baseEnvironmentComboBox->setCurrentIndex(m_baseEnvironmentComboBox->count() - 1);
-            baseDisplayName = displayName;
-        }
-    }
+    for (const QString &displayName : m_aspect->displayNames())
+        m_baseEnvironmentComboBox->addItem(displayName);
     if (m_baseEnvironmentComboBox->count() == 1)
         m_baseEnvironmentComboBox->setEnabled(false);
+    m_baseEnvironmentComboBox->setCurrentIndex(m_aspect->baseEnvironmentBase());
 
     connect(m_baseEnvironmentComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &EnvironmentAspectWidget::baseEnvironmentSelected);
@@ -80,8 +73,8 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
         baseLayout->addWidget(additionalWidget);
 
     m_environmentWidget = new EnvironmentWidget(this, baseEnvironmentWidget);
-    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(baseDisplayName);
+    m_environmentWidget->setBaseEnvironment(m_aspect->currentUnmodifiedBaseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_aspect->currentDisplayName());
     m_environmentWidget->setUserChanges(m_aspect->userEnvironmentChanges());
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     topLayout->addWidget(m_environmentWidget);
@@ -110,10 +103,9 @@ QWidget *EnvironmentAspectWidget::additionalWidget() const
 void EnvironmentAspectWidget::baseEnvironmentSelected(int idx)
 {
     m_ignoreChange = true;
-    int base = m_baseEnvironmentComboBox->itemData(idx).toInt();
-    m_aspect->setBaseEnvironmentBase(base);
-    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(m_aspect->baseEnvironmentDisplayName(base));
+    m_aspect->setBaseEnvironmentBase(idx);
+    m_environmentWidget->setBaseEnvironment(m_aspect->currentUnmodifiedBaseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_aspect->currentDisplayName());
     m_ignoreChange = false;
 }
 
@@ -127,8 +119,8 @@ void EnvironmentAspectWidget::changeBaseEnvironment()
         if (m_baseEnvironmentComboBox->itemData(i).toInt() == base)
             m_baseEnvironmentComboBox->setCurrentIndex(i);
     }
-    m_environmentWidget->setBaseEnvironmentText(m_aspect->baseEnvironmentDisplayName(base));
-    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_aspect->currentDisplayName());
+    m_environmentWidget->setBaseEnvironment(m_aspect->currentUnmodifiedBaseEnvironment());
 }
 
 void EnvironmentAspectWidget::userChangesEdited()
@@ -149,7 +141,7 @@ void EnvironmentAspectWidget::environmentChanged()
 {
     if (m_ignoreChange)
         return;
-    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
+    m_environmentWidget->setBaseEnvironment(m_aspect->currentUnmodifiedBaseEnvironment());
 }
 
 } // namespace ProjectExplorer

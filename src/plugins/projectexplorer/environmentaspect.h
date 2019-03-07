@@ -43,24 +43,28 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspect : public ProjectConfigurationAspe
 public:
     EnvironmentAspect();
 
-    // The environment the user chose as base for his modifications.
-    Utils::Environment baseEnvironment() const;
-    void setBaseEnvironmentGetter(const std::function<Utils::Environment ()> &getter);
-
     // The environment including the user's modifications.
     Utils::Environment environment() const;
-
-    QList<int> possibleBaseEnvironments() const;
-    QString baseEnvironmentDisplayName(int base) const;
 
     int baseEnvironmentBase() const;
     void setBaseEnvironmentBase(int base);
 
-    QList<Utils::EnvironmentItem> userEnvironmentChanges() const { return m_changes; }
+    QList<Utils::EnvironmentItem> userEnvironmentChanges() const { return m_userChanges; }
     void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
 
-    void addSupportedBaseEnvironment(int base, const QString &displayName);
-    void addPreferredBaseEnvironment(int base, const QString &displayName);
+    void addSupportedBaseEnvironment(const QString &displayName,
+                                     const std::function<Utils::Environment()> &getter);
+    void addPreferredBaseEnvironment(const QString &displayName,
+                                     const std::function<Utils::Environment()> &getter);
+
+    // The environment the user chose as base for his modifications.
+    Utils::Environment currentUnmodifiedBaseEnvironment() const;
+    QString currentDisplayName() const;
+
+    const QStringList displayNames() const;
+
+    using EnvironmentModifier = std::function<void(Utils::Environment &)>;
+    void addModifier(const EnvironmentModifier &);
 
 signals:
     void baseEnvironmentChanged();
@@ -72,10 +76,18 @@ protected:
     void toMap(QVariantMap &map) const override;
 
 private:
+    // One possible choice in the Environment aspect.
+    struct BaseEnvironment {
+        Utils::Environment unmodifiedBaseEnvironment() const;
+
+        std::function<Utils::Environment()> getter;
+        QString displayName;
+    };
+
     int m_base = -1;
-    std::function<Utils::Environment()> m_baseEnvironmentGetter;
-    QList<Utils::EnvironmentItem> m_changes;
-    QMap<int, QString> m_displayNames;
+    QList<Utils::EnvironmentItem> m_userChanges;
+    QList<EnvironmentModifier> m_modifiers;
+    QList<BaseEnvironment> m_baseEnvironments;
 };
 
 } // namespace ProjectExplorer

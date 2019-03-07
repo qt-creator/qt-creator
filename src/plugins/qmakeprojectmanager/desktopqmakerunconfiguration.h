@@ -39,8 +39,6 @@ class DesktopQmakeRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     DesktopQmakeRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    void addToBaseEnvironment(Utils::Environment &env) const;
-
 private:
     void updateTargetInformation();
     bool fromMap(const QVariantMap &map) final;

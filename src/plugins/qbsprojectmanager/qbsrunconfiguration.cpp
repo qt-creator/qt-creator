@@ -52,8 +52,21 @@ namespace Internal {
 QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = addAspect<LocalEnvironmentAspect>(target,
-            [this](Environment &env) { addToBaseEnvironment(env); });
+    auto envAspect = addAspect<LocalEnvironmentAspect>(target);
+    envAspect->addModifier([this](Environment &env) {
+        bool usingLibraryPaths = aspect<UseLibraryPathsAspect>()->value();
+
+        const auto key = qMakePair(env.toStringList(), usingLibraryPaths);
+        const auto it = m_envCache.constFind(key);
+        if (it != m_envCache.constEnd()) {
+            env = it.value();
+            return;
+        }
+        BuildTargetInfo bti = buildTargetInfo();
+        if (bti.runEnvModifier)
+            bti.runEnvModifier(env, usingLibraryPaths);
+        m_envCache.insert(key, env);
+    });
 
     addAspect<ExecutableAspect>();
     addAspect<ArgumentsAspect>();
@@ -69,6 +82,10 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
         auto dyldAspect = addAspect<UseDyldSuffixAspect>();
         connect(dyldAspect, &UseDyldSuffixAspect::changed,
                 envAspect, &EnvironmentAspect::environmentChanged);
+        envAspect->addModifier([dyldAspect](Environment &env) {
+            if (dyldAspect->value())
+                env.set("DYLD_IMAGE_SUFFIX", "_debug");
+        });
     }
 
     connect(project(), &Project::parsingFinished, this,
@@ -106,26 +123,6 @@ void QbsRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &
 {
     setDefaultDisplayName(info.displayName);
     updateTargetInformation();
-}
-
-void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
-{
-    if (auto dyldAspect = aspect<UseDyldSuffixAspect>()) {
-        if (dyldAspect->value())
-            env.set("DYLD_IMAGE_SUFFIX", "_debug");
-    }
-    bool usingLibraryPaths = aspect<UseLibraryPathsAspect>()->value();
-
-    const auto key = qMakePair(env.toStringList(), usingLibraryPaths);
-    const auto it = m_envCache.constFind(key);
-    if (it != m_envCache.constEnd()) {
-        env = it.value();
-        return;
-    }
-    BuildTargetInfo bti = buildTargetInfo();
-    if (bti.runEnvModifier)
-        bti.runEnvModifier(env, usingLibraryPaths);
-    m_envCache.insert(key, env);
 }
 
 Utils::FileName QbsRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const

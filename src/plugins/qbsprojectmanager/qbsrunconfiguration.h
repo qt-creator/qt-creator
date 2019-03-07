@@ -41,8 +41,6 @@ class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     QbsRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    void addToBaseEnvironment(Utils::Environment &env) const;
-
 private:
     Utils::FileName executableToRun(const ProjectExplorer::BuildTargetInfo &targetInfo) const;
     QVariantMap toMap() const final;

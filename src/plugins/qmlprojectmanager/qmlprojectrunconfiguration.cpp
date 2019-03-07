@@ -278,27 +278,24 @@ void MainQmlFileAspect::changeCurrentFile(IEditor *editor)
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    enum BaseEnvironmentBase {
-        SystemEnvironmentBase = 0,
-        CleanEnvironmentBase
-    };
-
     auto envAspect = addAspect<EnvironmentAspect>();
-    const Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(target->kit());
-    if (deviceTypeId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-        envAspect->addPreferredBaseEnvironment(SystemEnvironmentBase, tr("System Environment"));
-    envAspect->addSupportedBaseEnvironment(CleanEnvironmentBase, tr("Clean Environment"));
-    envAspect->setBaseEnvironmentGetter([envAspect, target]() -> Utils::Environment {
-        Environment env = envAspect->baseEnvironmentBase() == SystemEnvironmentBase
-                ? Environment::systemEnvironment()
-                : Environment();
 
+    auto envModifier = [&](Environment env) {
         if (auto project = qobject_cast<const QmlProject *>(target->project()))
             env.modify(project->environment());
-
         return env;
-    });
+    };
 
+    const Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(target->kit());
+    if (deviceTypeId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        envAspect->addPreferredBaseEnvironment(tr("System Environment"), [&] {
+            return envModifier(Environment::systemEnvironment());
+        });
+    }
+
+    envAspect->addSupportedBaseEnvironment(tr("Clean Environment"), [&] {
+        return envModifier(Environment());
+    });
 
     m_qmlViewerAspect = addAspect<BaseStringAspect>();
     m_qmlViewerAspect->setLabelText(tr("QML Viewer:"));

@@ -61,9 +61,12 @@ namespace Internal {
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = addAspect<LocalEnvironmentAspect>(target, [this](Environment &env) {
-                      addToBaseEnvironment(env);
-                   });
+    auto envAspect = addAspect<LocalEnvironmentAspect>(target);
+    envAspect->addModifier([this](Environment &env) {
+        BuildTargetInfo bti = buildTargetInfo();
+        if (bti.runEnvModifier)
+            bti.runEnvModifier(env, aspect<UseLibraryPathsAspect>()->value());
+    });
 
     addAspect<ExecutableAspect>();
     addAspect<ArgumentsAspect>();
@@ -80,6 +83,10 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core:
         auto dyldAspect = addAspect<UseDyldSuffixAspect>();
         connect(dyldAspect, &UseLibraryPathsAspect::changed,
                 envAspect, &EnvironmentAspect::environmentChanged);
+        envAspect->addModifier([dyldAspect](Environment &env) {
+            if (dyldAspect->value())
+                env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
+        });
     }
 
     connect(target->project(), &Project::parsingFinished,
@@ -116,18 +123,6 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
 void DesktopQmakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
 {
     updateTargetInformation();
-}
-
-void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
-{
-    BuildTargetInfo bti = buildTargetInfo();
-    if (bti.runEnvModifier)
-        bti.runEnvModifier(env, aspect<UseLibraryPathsAspect>()->value());
-
-    if (auto dyldAspect = aspect<UseDyldSuffixAspect>()) {
-        if (dyldAspect->value())
-            env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
-    }
 }
 
 FileName DesktopQmakeRunConfiguration::proFilePath() const

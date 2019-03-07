@@ -32,51 +32,38 @@
 
 #include <utils/qtcassert.h>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
-enum BaseEnvironmentBase {
-    CleanEnvironmentBase = 0,
-    SystemEnvironmentBase,
-    BuildEnvironmentBase
-};
-
-LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target,
-                                               const BaseEnvironmentModifier &modifier)
+LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target)
 {
-    addPreferredBaseEnvironment(BuildEnvironmentBase, tr("Build Environment"));
-    addSupportedBaseEnvironment(SystemEnvironmentBase, tr("System Environment"));
-    addSupportedBaseEnvironment(CleanEnvironmentBase, tr("Clean Environment"));
+    addSupportedBaseEnvironment(tr("Clean Environment"), {});
+
+    addSupportedBaseEnvironment(tr("System Environment"), [] {
+        return Environment::systemEnvironment();
+    });
+
+    addPreferredBaseEnvironment(tr("Build Environment"), [target] {
+        Environment env;
+        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
+            env = bc->environment();
+        } else { // Fallback for targets without buildconfigurations:
+            env = Environment::systemEnvironment();
+            target->kit()->addToEnvironment(env);
+        }
+        return  env;
+    });
 
     target->subscribeSignal(&BuildConfiguration::environmentChanged,
                             this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
     connect(target, &Target::activeBuildConfigurationChanged,
             this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
-
-    setBaseEnvironmentGetter([this, target, modifier] {
-        int base = baseEnvironmentBase();
-        Utils::Environment env;
-        if (base == static_cast<int>(BuildEnvironmentBase)) {
-            if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-                env = bc->environment();
-            } else { // Fallback for targets without buildconfigurations:
-                env = Utils::Environment::systemEnvironment();
-                target->kit()->addToEnvironment(env);
-            }
-        } else if (base == static_cast<int>(SystemEnvironmentBase)) {
-            env = Utils::Environment::systemEnvironment();
-        }
-
-        if (modifier)
-            modifier(env);
-
-        return env;
-    });
 }
 
 void LocalEnvironmentAspect::buildEnvironmentHasChanged()
 {
-    if (baseEnvironmentBase() == static_cast<int>(BuildEnvironmentBase))
-        emit environmentChanged();
+    emit environmentChanged();
 }
 
 } // namespace ProjectExplorer

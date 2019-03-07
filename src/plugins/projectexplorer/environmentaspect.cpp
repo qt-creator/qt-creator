@@ -30,6 +30,8 @@
 
 #include <utils/qtcassert.h>
 
+using namespace Utils;
+
 static const char BASE_KEY[] = "PE.EnvironmentAspect.Base";
 static const char CHANGES_KEY[] = "PE.EnvironmentAspect.Changes";
 
@@ -53,9 +55,7 @@ int EnvironmentAspect::baseEnvironmentBase() const
 
 void EnvironmentAspect::setBaseEnvironmentBase(int base)
 {
-    QTC_ASSERT(base >= 0, return);
-    QTC_ASSERT(possibleBaseEnvironments().contains(base), return);
-
+    QTC_ASSERT(base >= 0 && base < m_baseEnvironments.size(), return);
     if (m_base != base) {
         m_base = base;
         emit baseEnvironmentChanged();
@@ -64,64 +64,81 @@ void EnvironmentAspect::setBaseEnvironmentBase(int base)
 
 void EnvironmentAspect::setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff)
 {
-    if (m_changes != diff) {
-        m_changes = diff;
-        emit userEnvironmentChangesChanged(m_changes);
+    if (m_userChanges != diff) {
+        m_userChanges = diff;
+        emit userEnvironmentChangesChanged(m_userChanges);
         emit environmentChanged();
     }
 }
 
 Utils::Environment EnvironmentAspect::environment() const
 {
-    Utils::Environment env = baseEnvironment();
-    env.modify(m_changes);
+    QTC_ASSERT(m_base >= 0 && m_base < m_baseEnvironments.size(), return Environment());
+    Environment env = m_baseEnvironments.at(m_base).unmodifiedBaseEnvironment();
+    for (const EnvironmentModifier &modifier : m_modifiers)
+        modifier(env);
+    env.modify(m_userChanges);
     return env;
 }
 
-QList<int> EnvironmentAspect::possibleBaseEnvironments() const
+const QStringList EnvironmentAspect::displayNames() const
 {
-    return m_displayNames.keys();
+    return Utils::transform(m_baseEnvironments, &BaseEnvironment::displayName);
 }
 
-QString EnvironmentAspect::baseEnvironmentDisplayName(int base) const
+void EnvironmentAspect::addModifier(const EnvironmentAspect::EnvironmentModifier &modifier)
 {
-    return m_displayNames[base];
+    m_modifiers.append(modifier);
 }
 
-void EnvironmentAspect::addSupportedBaseEnvironment(int base, const QString &displayName)
+void EnvironmentAspect::addSupportedBaseEnvironment(const QString &displayName,
+                                                    const std::function<Environment()> &getter)
 {
-    m_displayNames[base] = displayName;
+    BaseEnvironment baseEnv;
+    baseEnv.displayName = displayName;
+    baseEnv.getter = getter;
+    m_baseEnvironments.append(baseEnv);
     if (m_base == -1)
-        setBaseEnvironmentBase(base);
+        setBaseEnvironmentBase(m_baseEnvironments.size() - 1);
 }
 
-void EnvironmentAspect::addPreferredBaseEnvironment(int base, const QString &displayName)
+void EnvironmentAspect::addPreferredBaseEnvironment(const QString &displayName,
+                                                    const std::function<Environment()> &getter)
 {
-    m_displayNames[base] = displayName;
-    setBaseEnvironmentBase(base);
+    BaseEnvironment baseEnv;
+    baseEnv.displayName = displayName;
+    baseEnv.getter = getter;
+    m_baseEnvironments.append(baseEnv);
+    setBaseEnvironmentBase(m_baseEnvironments.size() - 1);
 }
 
 void EnvironmentAspect::fromMap(const QVariantMap &map)
 {
     m_base = map.value(QLatin1String(BASE_KEY), -1).toInt();
-    m_changes = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(CHANGES_KEY)).toStringList());
+    m_userChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(CHANGES_KEY)).toStringList());
 }
 
 void EnvironmentAspect::toMap(QVariantMap &data) const
 {
     data.insert(QLatin1String(BASE_KEY), m_base);
-    data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_changes));
+    data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userChanges));
 }
 
-Utils::Environment EnvironmentAspect::baseEnvironment() const
+Environment EnvironmentAspect::currentUnmodifiedBaseEnvironment() const
 {
-    QTC_ASSERT(m_baseEnvironmentGetter, return Utils::Environment());
-    return m_baseEnvironmentGetter();
+    QTC_ASSERT(m_base >= 0 && m_base < m_baseEnvironments.size(), return Environment());
+    return m_baseEnvironments.at(m_base).unmodifiedBaseEnvironment();
 }
 
-void EnvironmentAspect::setBaseEnvironmentGetter(const std::function<Utils::Environment ()> &getter)
+QString EnvironmentAspect::currentDisplayName() const
 {
-    m_baseEnvironmentGetter = getter;
+    QTC_ASSERT(m_base >= 0 && m_base < m_baseEnvironments.size(), return {});
+    return m_baseEnvironments[m_base].displayName;
+}
+
+Environment EnvironmentAspect::BaseEnvironment::unmodifiedBaseEnvironment() const
+{
+    return getter ? getter() : Environment();
 }
 
 } // namespace ProjectExplorer

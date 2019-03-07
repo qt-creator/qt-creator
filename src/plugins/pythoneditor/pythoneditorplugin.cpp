@@ -270,7 +270,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     scriptAspect->setLabelText(tr("Script:"));
     scriptAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
 
-    addAspect<LocalEnvironmentAspect>(target, LocalEnvironmentAspect::BaseEnvironmentModifier());
+    addAspect<LocalEnvironmentAspect>(target);
     addAspect<ArgumentsAspect>();
     addAspect<TerminalAspect>();
 

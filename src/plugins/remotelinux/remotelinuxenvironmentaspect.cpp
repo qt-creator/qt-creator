@@ -41,40 +41,21 @@ static bool displayAlreadySet(const QList<Utils::EnvironmentItem> &changes)
     });
 }
 
-enum BaseEnvironmentBase {
-    CleanBaseEnvironment = 0,
-    RemoteBaseEnvironment = 1
-};
-
-
 RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(ProjectExplorer::Target *target)
 {
-    addSupportedBaseEnvironment(CleanBaseEnvironment, tr("Clean Environment"));
-    addPreferredBaseEnvironment(RemoteBaseEnvironment, tr("System Environment"));
+    addSupportedBaseEnvironment(tr("Clean Environment"), {});
+    addPreferredBaseEnvironment(tr("System Environment"), [this] { return m_remoteEnvironment; });
 
     setConfigWidgetCreator([this, target] {
         return new RemoteLinuxEnvironmentAspectWidget(this, target);
     });
-
-    setBaseEnvironmentGetter([this] {
-        Utils::Environment env;
-        if (baseEnvironmentBase() == static_cast<int>(RemoteBaseEnvironment))
-            env = m_remoteEnvironment;
-        return env;
-    });
-}
-
-Utils::Environment RemoteLinuxEnvironmentAspect::remoteEnvironment() const
-{
-    return m_remoteEnvironment;
 }
 
 void RemoteLinuxEnvironmentAspect::setRemoteEnvironment(const Utils::Environment &env)
 {
     if (env != m_remoteEnvironment) {
         m_remoteEnvironment = env;
-        if (baseEnvironmentBase() == static_cast<int>(RemoteBaseEnvironment))
-            emit environmentChanged();
+        emit environmentChanged();
     }
 }
 

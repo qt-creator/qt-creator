@@ -184,8 +184,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = addAspect<LocalEnvironmentAspect>
-            (target, LocalEnvironmentAspect::BaseEnvironmentModifier());
+    auto envAspect = addAspect<LocalEnvironmentAspect>(target);
 
     auto exeAspect = addAspect<ExecutableAspect>();
     exeAspect->setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
