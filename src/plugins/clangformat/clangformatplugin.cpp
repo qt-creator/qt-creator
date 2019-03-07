@@ -26,16 +26,23 @@
 #include "clangformatplugin.h"
 
 #include "clangformatconfigwidget.h"
+#include "clangformatconstants.h"
 #include "clangformatindenter.h"
+#include "clangformatutils.h"
 
 #include <utils/qtcassert.h>
 
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+
+#include <cppeditor/cppeditorconstants.h>
 
 #include <cpptools/cppcodestylepreferencesfactory.h>
 #include <cpptools/cpptoolsconstants.h>
@@ -106,6 +113,48 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
     Q_UNUSED(errorString);
 #ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
     replaceCppCodeStyle();
+
+    Core::ActionContainer *contextMenu = Core::ActionManager::actionContainer(
+        CppEditor::Constants::M_CONTEXT);
+    if (contextMenu) {
+        auto openClangFormatConfigAction
+            = new QAction(tr("Open Used .clang-format Configuration File"), this);
+        Core::Command *command
+            = Core::ActionManager::registerAction(openClangFormatConfigAction,
+                                                  Constants::OPEN_CURRENT_CONFIG_ID);
+        contextMenu->addSeparator();
+        contextMenu->addAction(command);
+
+        if (Core::EditorManager::currentEditor()) {
+            const Core::IDocument *doc = Core::EditorManager::currentEditor()->document();
+            if (doc)
+                openClangFormatConfigAction->setData(doc->filePath().toString());
+        }
+
+        connect(openClangFormatConfigAction,
+                &QAction::triggered,
+                this,
+                [openClangFormatConfigAction]() {
+                    const QString fileName = openClangFormatConfigAction->data().toString();
+                    if (!fileName.isEmpty()) {
+                        const QString clangFormatConfigPath = configForFile(
+                            Utils::FileName::fromString(fileName));
+                        Core::EditorManager::openEditor(clangFormatConfigPath);
+                    }
+                });
+
+        connect(Core::EditorManager::instance(),
+                &Core::EditorManager::currentEditorChanged,
+                this,
+                [openClangFormatConfigAction](Core::IEditor *editor) {
+                    if (!editor)
+                        return;
+
+                    const Core::IDocument *doc = editor->document();
+                    if (doc)
+                        openClangFormatConfigAction->setData(doc->filePath().toString());
+                });
+    }
 #endif
     return true;
 }

@@ -163,6 +163,11 @@ static QString configForFile(Utils::FileName fileName, bool checkForSettings)
     return findConfig(fileName);
 }
 
+QString configForFile(Utils::FileName fileName)
+{
+    return configForFile(fileName, true);
+}
+
 static clang::format::FormatStyle constructStyle(bool isGlobal,
                                                  const QByteArray &baseStyle = QByteArray())
 {
