@@ -31,6 +31,7 @@
 #include "languageclientinterface.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/variablechooser.h>
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
 #include <utils/fancylineedit.h>
@@ -308,7 +309,7 @@ QVariant LanguageClientSettingsModel::data(const QModelIndex &index, int role) c
     if (!setting)
         return QVariant();
     if (role == Qt::DisplayRole)
-        return setting->m_name;
+        return Utils::globalMacroExpander()->expand(setting->m_name);
     else if (role == Qt::CheckStateRole)
         return setting->m_enabled ? Qt::Checked : Qt::Unchecked;
     return QVariant();
@@ -408,7 +409,7 @@ Client *BaseSettings::createClient() const
     BaseClientInterface *interface = createInterface();
     if (QTC_GUARD(interface)) {
         auto *client = new Client(interface);
-        client->setName(m_name);
+        client->setName(Utils::globalMacroExpander()->expand(m_name));
         client->setSupportedLanguage(m_languageFilter);
         return client;
     }
@@ -517,7 +518,7 @@ void StdIOSettings::fromMap(const QVariantMap &map)
 
 BaseClientInterface *StdIOSettings::createInterface() const
 {
-    return new StdIOClientInterface(m_executable, m_arguments);
+    return new StdIOClientInterface(m_executable, Utils::globalMacroExpander()->expand(m_arguments));
 }
 
 static QWidget *createCapabilitiesView(
@@ -548,6 +549,8 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     auto *mainLayout = new QGridLayout;
     mainLayout->addWidget(new QLabel(tr("Name:")), row, 0);
     mainLayout->addWidget(m_name, row, 1);
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_name);
     mainLayout->addWidget(new QLabel(tr("Language:")), ++row, 0);
     auto mimeLayout = new QHBoxLayout;
     mimeLayout->addWidget(m_mimeTypes);
@@ -707,6 +710,9 @@ StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget 
     m_executable->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_executable->setPath(QDir::toNativeSeparators(settings->m_executable));
     mainLayout->addWidget(m_arguments, baseRows + 1, 1);
+
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_arguments);
 }
 
 QString StdIOSettingsWidget::executable() const
