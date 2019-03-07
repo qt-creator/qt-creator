@@ -391,6 +391,19 @@ TEST_F(ClangFormat, IndentAfterExtraSpaceInpreviousLine)
                                              "    && b)"));
 }
 
+TEST_F(ClangFormat, IndentEmptyLineInsideParantheses)
+{
+    insertLines({"if (a ",
+                 "",
+                 "    && b)"});
+
+    indenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("if (a",
+                                             "    ",
+                                             "    && b)"));
+}
+
 TEST_F(ClangFormat, IndentFunctionBodyButNotFormatBeforeIt)
 {
     insertLines({"int foo(int a, int b,",

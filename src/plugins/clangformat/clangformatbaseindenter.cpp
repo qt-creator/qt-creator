@@ -127,6 +127,44 @@ void trimRHSWhitespace(const QTextBlock &block)
     cursor.endEditBlock();
 }
 
+// We don't need other types so far.
+enum class CharacterType { OpeningParen, OpeningBrace, Invalid };
+
+CharacterType firstOpeningParenOrBraceBeforeBlock(const QTextBlock &block)
+{
+    if (block.text().trimmed().startsWith(')'))
+        return CharacterType::OpeningParen;
+
+    QTextCursor cursor(block);
+    const QTextDocument *doc = block.document();
+
+    cursor.movePosition(QTextCursor::PreviousCharacter);
+    QChar currentChar = doc->characterAt(cursor.position());
+
+    int parenCount = 0;
+    int braceCount = 0;
+
+    while (cursor.position() > 0 && parenCount <= 0 && braceCount <= 0) {
+        cursor.movePosition(QTextCursor::PreviousCharacter);
+        currentChar = doc->characterAt(cursor.position());
+        if (currentChar == '(')
+            ++parenCount;
+        else if (currentChar == ')')
+            --parenCount;
+        else if (currentChar == '{')
+            ++braceCount;
+        else if (currentChar == '}')
+            --braceCount;
+    }
+
+    if (braceCount > 0)
+        return CharacterType::OpeningBrace;
+    if (parenCount > 0)
+        return CharacterType::OpeningParen;
+
+    return CharacterType::Invalid;
+}
+
 // Add extra text in case of the empty line or the line starting with ')'.
 // Track such extra pieces of text in isInsideModifiedLine().
 int forceIndentWithExtraText(QByteArray &buffer,
@@ -147,25 +185,27 @@ int forceIndentWithExtraText(QByteArray &buffer,
 
     const bool closingParenBlock = firstNonWhitespace >= 0
                                    && blockText.at(firstNonWhitespace) == ')';
+
     int extraLength = 0;
     if (firstNonWhitespace < 0 || closingParenBlock) {
         if (dummyText.isEmpty()) {
+            const CharacterType charType = firstOpeningParenOrBraceBeforeBlock(block);
             // If we don't know yet the dummy text, let's guess it and use for this line and before.
-            // This extra text works for the most cases.
-            dummyText = "a;a;";
-
-            // Search for previous character
-            QTextBlock prevBlock = block.previous();
-            bool prevBlockIsEmpty = prevBlock.position() > 0
-                                    && prevBlock.text().trimmed().isEmpty();
-            while (prevBlockIsEmpty) {
-                prevBlock = prevBlock.previous();
-                prevBlockIsEmpty = prevBlock.position() > 0 && prevBlock.text().trimmed().isEmpty();
+            if (charType != CharacterType::OpeningParen) {
+                // Use the complete statement if we are not inside parenthesis.
+                dummyText = "a;a;";
+            } else {
+                // Search for previous character
+                QTextBlock prevBlock = block.previous();
+                bool prevBlockIsEmpty = prevBlock.position() > 0
+                                        && prevBlock.text().trimmed().isEmpty();
+                while (prevBlockIsEmpty) {
+                    prevBlock = prevBlock.previous();
+                    prevBlockIsEmpty = prevBlock.position() > 0
+                                       && prevBlock.text().trimmed().isEmpty();
+                }
+                dummyText = prevBlock.text().endsWith(',') ? "&& a," : "&& a";
             }
-            if (prevBlock.text().endsWith(','))
-                dummyText = "&& a,";
-            else if (closingParenBlock)
-                dummyText = "&& a";
         }
 
         buffer.insert(utf8Offset, dummyText);
@@ -179,7 +219,7 @@ int forceIndentWithExtraText(QByteArray &buffer,
 
         if (nextLinePos > 0) {
             // If first try was not successful try to put ')' in the end of the line to close possibly
-            // unclosed parentheses.
+            // unclosed parenthesis.
             // TODO: Does it help to add different endings depending on the context?
             buffer.insert(nextLinePos, ')');
             extraLength += 1;
