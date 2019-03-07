@@ -8,4 +8,3 @@ QTC_PLUGIN_DEPENDS += \
     projectexplorer \
     qtsupport
 
-CONFIG(licensechecker): QTC_PLUGIN_DEPENDS += licensechecker
