@@ -37,6 +37,7 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
+#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QFormLayout>
