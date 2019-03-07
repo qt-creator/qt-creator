@@ -38,8 +38,6 @@ class REMOTELINUX_EXPORT RemoteLinuxEnvironmentAspect : public ProjectExplorer::
 public:
     RemoteLinuxEnvironmentAspect(ProjectExplorer::Target *target);
 
-    Utils::Environment baseEnvironment() const override;
-
     Utils::Environment remoteEnvironment() const;
     void setRemoteEnvironment(const Utils::Environment &env);
 

@@ -40,46 +40,43 @@ enum BaseEnvironmentBase {
     BuildEnvironmentBase
 };
 
-Utils::Environment LocalEnvironmentAspect::baseEnvironment() const
+LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target,
+                                               const BaseEnvironmentModifier &modifier)
 {
-    int base = baseEnvironmentBase();
-    Utils::Environment env;
-    if (base == static_cast<int>(BuildEnvironmentBase)) {
-        if (BuildConfiguration *bc = m_target->activeBuildConfiguration()) {
-            env = bc->environment();
-        } else { // Fallback for targets without buildconfigurations:
+    addPreferredBaseEnvironment(BuildEnvironmentBase, tr("Build Environment"));
+    addSupportedBaseEnvironment(SystemEnvironmentBase, tr("System Environment"));
+    addSupportedBaseEnvironment(CleanEnvironmentBase, tr("Clean Environment"));
+
+    target->subscribeSignal(&BuildConfiguration::environmentChanged,
+                            this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
+    connect(target, &Target::activeBuildConfigurationChanged,
+            this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
+
+    setBaseEnvironmentGetter([this, target, modifier] {
+        int base = baseEnvironmentBase();
+        Utils::Environment env;
+        if (base == static_cast<int>(BuildEnvironmentBase)) {
+            if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
+                env = bc->environment();
+            } else { // Fallback for targets without buildconfigurations:
+                env = Utils::Environment::systemEnvironment();
+                target->kit()->addToEnvironment(env);
+            }
+        } else if (base == static_cast<int>(SystemEnvironmentBase)) {
             env = Utils::Environment::systemEnvironment();
-            m_target->kit()->addToEnvironment(env);
         }
-    } else if (base == static_cast<int>(SystemEnvironmentBase)) {
-        env = Utils::Environment::systemEnvironment();
-    }
 
-    if (m_baseEnvironmentModifier)
-        m_baseEnvironmentModifier(env);
+        if (modifier)
+            modifier(env);
 
-    return env;
+        return env;
+    });
 }
 
 void LocalEnvironmentAspect::buildEnvironmentHasChanged()
 {
     if (baseEnvironmentBase() == static_cast<int>(BuildEnvironmentBase))
         emit environmentChanged();
-}
-
-LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target,
-                                               const BaseEnvironmentModifier &modifier) :
-    m_baseEnvironmentModifier(modifier),
-    m_target(target)
-{
-    addPreferredBaseEnvironment(BuildEnvironmentBase, tr("Build Environment"));
-    addSupportedBaseEnvironment(SystemEnvironmentBase, tr("System Environment"));
-    addSupportedBaseEnvironment(CleanEnvironmentBase, tr("Clean Environment"));
-
-    m_target->subscribeSignal(&BuildConfiguration::environmentChanged,
-                              this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
-    connect(m_target, &Target::activeBuildConfigurationChanged,
-            this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
 }
 
 } // namespace ProjectExplorer

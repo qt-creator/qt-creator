@@ -37,13 +37,7 @@ public:
     using BaseEnvironmentModifier = std::function<void(Utils::Environment &)>;
     LocalEnvironmentAspect(Target *parent, const BaseEnvironmentModifier &modifier);
 
-    Utils::Environment baseEnvironment() const override;
-
     void buildEnvironmentHasChanged();
-
-private:
-    BaseEnvironmentModifier m_baseEnvironmentModifier;
-    Target *m_target;
 };
 
 } // namespace ProjectExplorer

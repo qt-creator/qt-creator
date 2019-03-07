@@ -113,4 +113,15 @@ void EnvironmentAspect::toMap(QVariantMap &data) const
     data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_changes));
 }
 
+Utils::Environment EnvironmentAspect::baseEnvironment() const
+{
+    QTC_ASSERT(m_baseEnvironmentGetter, return Utils::Environment());
+    return m_baseEnvironmentGetter();
+}
+
+void EnvironmentAspect::setBaseEnvironmentGetter(const std::function<Utils::Environment ()> &getter)
+{
+    m_baseEnvironmentGetter = getter;
+}
+
 } // namespace ProjectExplorer

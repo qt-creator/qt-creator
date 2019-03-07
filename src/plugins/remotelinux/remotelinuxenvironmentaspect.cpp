@@ -55,14 +55,13 @@ RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(ProjectExplorer::Targ
     setConfigWidgetCreator([this, target] {
         return new RemoteLinuxEnvironmentAspectWidget(this, target);
     });
-}
 
-Utils::Environment RemoteLinuxEnvironmentAspect::baseEnvironment() const
-{
-    Utils::Environment env;
-    if (baseEnvironmentBase() == static_cast<int>(RemoteBaseEnvironment))
-        env = m_remoteEnvironment;
-    return env;
+    setBaseEnvironmentGetter([this] {
+        Utils::Environment env;
+        if (baseEnvironmentBase() == static_cast<int>(RemoteBaseEnvironment))
+            env = m_remoteEnvironment;
+        return env;
+    });
 }
 
 Utils::Environment RemoteLinuxEnvironmentAspect::remoteEnvironment() const

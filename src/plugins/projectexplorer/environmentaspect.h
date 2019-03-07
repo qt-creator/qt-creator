@@ -41,8 +41,12 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspect : public ProjectConfigurationAspe
     Q_OBJECT
 
 public:
+    EnvironmentAspect();
+
     // The environment the user chose as base for his modifications.
-    virtual Utils::Environment baseEnvironment() const = 0;
+    Utils::Environment baseEnvironment() const;
+    void setBaseEnvironmentGetter(const std::function<Utils::Environment ()> &getter);
+
     // The environment including the user's modifications.
     Utils::Environment environment() const;
 
@@ -64,12 +68,12 @@ signals:
     void environmentChanged();
 
 protected:
-    EnvironmentAspect();
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
 private:
     int m_base = -1;
+    std::function<Utils::Environment()> m_baseEnvironmentGetter;
     QList<Utils::EnvironmentItem> m_changes;
     QMap<int, QString> m_displayNames;
 };

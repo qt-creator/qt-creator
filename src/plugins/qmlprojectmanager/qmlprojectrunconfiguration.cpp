@@ -26,13 +26,13 @@
 #include "qmlprojectrunconfiguration.h"
 #include "qmlproject.h"
 #include "qmlprojectmanagerconstants.h"
-#include "qmlprojectenvironmentaspect.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
@@ -41,10 +41,12 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/desktopqtversion.h>
 
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/winutils.h>
+
 #include <qmljstools/qmljstoolsconstants.h>
 
 #include <QComboBox>
@@ -55,6 +57,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QtSupport;
+using namespace Utils;
 
 namespace QmlProjectManager {
 
@@ -275,7 +278,28 @@ void MainQmlFileAspect::changeCurrentFile(IEditor *editor)
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    addAspect<QmlProjectEnvironmentAspect>(target);
+    enum BaseEnvironmentBase {
+        SystemEnvironmentBase = 0,
+        CleanEnvironmentBase
+    };
+
+    auto envAspect = addAspect<EnvironmentAspect>();
+    const Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(target->kit());
+    if (deviceTypeId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        envAspect->addPreferredBaseEnvironment(SystemEnvironmentBase, tr("System Environment"));
+    envAspect->addSupportedBaseEnvironment(CleanEnvironmentBase, tr("Clean Environment"));
+    envAspect->setBaseEnvironmentGetter([envAspect, target]() -> Utils::Environment {
+        Environment env = envAspect->baseEnvironmentBase() == SystemEnvironmentBase
+                ? Environment::systemEnvironment()
+                : Environment();
+
+        if (auto project = qobject_cast<const QmlProject *>(target->project()))
+            env.modify(project->environment());
+
+        return env;
+    });
+
+
     m_qmlViewerAspect = addAspect<BaseStringAspect>();
     m_qmlViewerAspect->setLabelText(tr("QML Viewer:"));
     m_qmlViewerAspect->setPlaceHolderText(executable());
@@ -304,7 +328,7 @@ Runnable QmlProjectRunConfiguration::runnable() const
     Runnable r;
     r.executable = executable();
     r.commandLineArguments = commandLineArguments();
-    r.environment = aspect<QmlProjectEnvironmentAspect>()->environment();
+    r.environment = aspect<EnvironmentAspect>()->environment();
     r.workingDirectory = static_cast<QmlProject *>(project())->targetDirectory(target()).toString();
     return r;
 }

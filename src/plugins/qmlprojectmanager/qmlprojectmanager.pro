@@ -4,8 +4,9 @@ include(../../qtcreatorplugin.pri)
 include(fileformat/fileformat.pri)
 
 DEFINES += QMLPROJECTMANAGER_LIBRARY
-HEADERS += qmlproject.h \
-    qmlprojectenvironmentaspect.h \
+
+HEADERS += \
+    qmlproject.h \
     qmlprojectplugin.h \
     qmlprojectconstants.h \
     qmlprojectnodes.h \
@@ -13,8 +14,8 @@ HEADERS += qmlproject.h \
     qmlprojectmanager_global.h \
     qmlprojectmanagerconstants.h
 
-SOURCES += qmlproject.cpp \
-    qmlprojectenvironmentaspect.cpp \
+SOURCES += \
+    qmlproject.cpp \
     qmlprojectplugin.cpp \
     qmlprojectnodes.cpp \
     qmlprojectrunconfiguration.cpp

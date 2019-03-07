@@ -30,7 +30,6 @@
 #include "androidtoolchain.h"
 #include "androidmanager.h"
 #include "adbcommandswidget.h"
-#include "androidrunenvironmentaspect.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
@@ -108,7 +107,11 @@ void BaseStringListAspect::setLabel(const QString &label)
 AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    addAspect<AndroidRunEnvironmentAspect>();
+    enum BaseEnvironmentBase { CleanEnvironmentBase };
+    auto envAspect = addAspect<EnvironmentAspect>();
+    envAspect->addSupportedBaseEnvironment(CleanEnvironmentBase, tr("Clean Environment"));
+    envAspect->setBaseEnvironmentGetter([] { return Utils::Environment(); });
+
     addAspect<ArgumentsAspect>();
 
     auto amStartArgsAspect = addAspect<BaseStringAspect>();
