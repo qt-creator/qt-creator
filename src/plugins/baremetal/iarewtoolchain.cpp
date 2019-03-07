@@ -349,8 +349,6 @@ IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
     m_compilerCommand(new PathChooser),
     m_abiWidget(new AbiWidget)
 {
-    Q_ASSERT(tc);
-
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setHistoryCompleter("PE.ToolChainCommand.History");
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
@@ -373,7 +371,6 @@ void IarToolChainConfigWidget::applyImpl()
         return;
 
     const auto tc = static_cast<IarToolChain *>(toolChain());
-    Q_ASSERT(tc);
     const  QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->fileName());
     tc->setTargetAbi(m_abiWidget->currentAbi());
@@ -391,7 +388,6 @@ void IarToolChainConfigWidget::applyImpl()
 bool IarToolChainConfigWidget::isDirtyImpl() const
 {
     const auto tc = static_cast<IarToolChain *>(toolChain());
-    Q_ASSERT(tc);
     return m_compilerCommand->fileName() != tc->compilerCommand()
             || m_abiWidget->currentAbi() != tc->targetAbi()
             ;
