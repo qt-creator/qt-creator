@@ -32,5 +32,6 @@ QtcPlugin {
         "defaultgdbserverprovider.cpp", "defaultgdbserverprovider.h",
         "stlinkutilgdbserverprovider.cpp", "stlinkutilgdbserverprovider.h",
         "iarewtoolchain.cpp", "iarewtoolchain.h",
+        "keiltoolchain.cpp", "keiltoolchain.h",
     ]
 }

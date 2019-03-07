@@ -110,6 +110,7 @@ public:
         PEFormat,
         RuntimeQmlFormat,
         UbrofFormat,
+        OmfFormat,
         UnknownFormat
     };
 

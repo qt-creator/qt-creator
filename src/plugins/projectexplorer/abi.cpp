@@ -726,6 +726,8 @@ QString Abi::toString(const BinaryFormat &bf)
         return QLatin1String("qml_rt");
     case UbrofFormat:
         return QLatin1String("ubrof");
+    case OmfFormat:
+        return QLatin1String("omf");
     case UnknownFormat:
         Q_FALLTHROUGH();
     default:
@@ -853,6 +855,8 @@ Abi::BinaryFormat Abi::binaryFormatFromString(const QStringRef &bf)
         return MachOFormat;
     if (bf == "ubrof")
         return UbrofFormat;
+    if (bf == "omf")
+        return OmfFormat;
     if (bf == "qml_rt")
         return RuntimeQmlFormat;
     return UnknownFormat;

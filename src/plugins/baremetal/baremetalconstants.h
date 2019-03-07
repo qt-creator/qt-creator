@@ -43,6 +43,7 @@ const char STLINK_UTIL_PROVIDER_ID[] = "BareMetal.GdbServerProvider.STLinkUtil";
 
 // Toolchain types.
 const char IAREW_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Iar";
+const char KEIL_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Keil";
 
 } // namespace BareMetal
 } // namespace Constants

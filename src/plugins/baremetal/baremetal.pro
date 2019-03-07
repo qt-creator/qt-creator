@@ -21,6 +21,7 @@ SOURCES += baremetalplugin.cpp \
     defaultgdbserverprovider.cpp \
     stlinkutilgdbserverprovider.cpp \
     iarewtoolchain.cpp \
+    keiltoolchain.cpp \
 
 HEADERS += baremetalplugin.h \
     baremetalconstants.h \
@@ -41,6 +42,7 @@ HEADERS += baremetalplugin.h \
     defaultgdbserverprovider.h \
     stlinkutilgdbserverprovider.h \
     iarewtoolchain.h \
+    keiltoolchain.h \
 
 RESOURCES += \
     baremetal.qrc

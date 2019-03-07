@@ -35,6 +35,7 @@
 #include "gdbserverprovidermanager.h"
 
 #include "iarewtoolchain.h"
+#include "keiltoolchain.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -52,6 +53,7 @@ class BareMetalPluginPrivate
 {
 public:
     IarToolChainFactory iarToolChainFactory;
+    KeilToolchainFactory keilToolChainFactory;
     BareMetalDeviceFactory deviceFactory;
     BareMetalRunConfigurationFactory runConfigurationFactory;
     BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;
