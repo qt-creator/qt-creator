@@ -38,11 +38,13 @@
 #include <utils/synchronousprocess.h>
 
 #include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QPlainTextEdit>
+#include <QSettings>
 #include <QTemporaryFile>
 
 using namespace ProjectExplorer;
@@ -140,6 +142,13 @@ static Abi guessAbi(const Macros &macros)
     const auto arch = guessArchitecture(macros);
     return {arch, Abi::OS::BareMetalOS, Abi::OSFlavor::GenericFlavor,
             guessFormat(arch), guessWordWidth(macros)};
+}
+
+static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
+                                const QString &version)
+{
+    return IarToolChain::tr("IAREW %1 (%2, %3)")
+            .arg(version, language.toString(), Abi::toString(arch));
 }
 
 // IarToolChain
@@ -318,6 +327,62 @@ QSet<Core::Id> IarToolChainFactory::supportedLanguages() const
             ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 }
 
+QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+{
+    Candidates candidates;
+
+#ifdef Q_OS_WIN
+
+#ifdef Q_OS_WIN64
+    static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\IAR Systems\\Embedded Workbench";
+#else
+    static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\IAR Systems\\Embedded Workbench";
+#endif
+
+    // Dictionary for know toolchains.
+    static const struct Entry {
+        QString registryKey;
+        QString subExePath;
+    } knowToolchains[] = {
+        {"EWARM", "\\arm\\bin\\iccarm.exe"},
+        {"EWAVR", "\\avr\\bin\\iccavr.exe"},
+        {"EW8051", "\\8051\\bin\\icc8051.exe"},
+    };
+
+    QSettings registry(kRegistryNode, QSettings::NativeFormat);
+    const auto oneLevelGroups = registry.childGroups();
+    for (const QString &oneLevelKey : oneLevelGroups) {
+        registry.beginGroup(oneLevelKey);
+        const auto twoLevelGroups = registry.childGroups();
+        for (const Entry &entry : knowToolchains) {
+            if (twoLevelGroups.contains(entry.registryKey)) {
+                registry.beginGroup(entry.registryKey);
+                const auto threeLevelGroups = registry.childGroups();
+                for (const QString &threeLevelKey : threeLevelGroups) {
+                    registry.beginGroup(threeLevelKey);
+                    QString compilerPath = registry.value("InstallPath").toString();
+                    if (!compilerPath.isEmpty()) {
+                        // Build full compiler path.
+                        compilerPath += entry.subExePath;
+                        const FileName fn = FileName::fromString(compilerPath);
+                        if (isCompilerExists(fn)) {
+                            // Note: threeLevelKey is a guessed toolchain version.
+                            candidates.push_back({fn, threeLevelKey});
+                        }
+                    }
+                    registry.endGroup();
+                }
+                registry.endGroup();
+            }
+        }
+        registry.endGroup();
+    }
+
+#endif // Q_OS_WIN
+
+    return autoDetectToolchains(candidates, alreadyKnown);
+}
+
 bool IarToolChainFactory::canCreate()
 {
     return true;
@@ -343,6 +408,53 @@ ToolChain *IarToolChainFactory::restore(const QVariantMap &data)
     return nullptr;
 }
 
+QList<ToolChain *> IarToolChainFactory::autoDetectToolchains(
+        const Candidates &candidates, const QList<ToolChain *> &alreadyKnown) const
+{
+    QList<ToolChain *> result;
+
+    for (const Candidate &candidate : qAsConst(candidates)) {
+        const QList<ToolChain *> filtered = Utils::filtered(
+                    alreadyKnown, [candidate](ToolChain *tc) {
+            return tc->typeId() == Constants::IAREW_TOOLCHAIN_TYPEID
+                && tc->compilerCommand() == candidate.first
+                && (tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID
+                    || tc->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+        });
+
+        if (!filtered.isEmpty()) {
+            result << filtered;
+            continue;
+        }
+
+        // Create toolchains for both C and C++ languages.
+        result << autoDetectToolchain(candidate, ProjectExplorer::Constants::C_LANGUAGE_ID);
+        result << autoDetectToolchain(candidate, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    }
+
+    return result;
+}
+
+QList<ToolChain *> IarToolChainFactory::autoDetectToolchain(
+        const Candidate &candidate, Core::Id language) const
+{
+    const auto env = Environment::systemEnvironment();
+    const Macros macros = dumpPredefinedMacros(candidate.first, env.toStringList());
+    if (macros.isEmpty())
+        return {};
+    const Abi abi = guessAbi(macros);
+
+    const auto tc = new IarToolChain(ToolChain::AutoDetection);
+    tc->setLanguage(language);
+    tc->setCompilerCommand(candidate.first);
+    tc->setTargetAbi(abi);
+    tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.second));
+
+    const auto languageVersion = ToolChain::languageVersion(language, macros);
+    tc->m_predefinedMacrosCache->insert({}, {macros, languageVersion});
+    return {tc};
+}
+
 // IarToolChainConfigWidget
 
 IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
@@ -351,7 +463,7 @@ IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
     m_abiWidget(new AbiWidget)
 {
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
-    m_compilerCommand->setHistoryCompleter("PE.ToolChainCommand.History");
+    m_compilerCommand->setHistoryCompleter("PE.IAREW.Command.History");
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
 
@@ -372,7 +484,7 @@ void IarToolChainConfigWidget::applyImpl()
         return;
 
     const auto tc = static_cast<IarToolChain *>(toolChain());
-    const  QString displayName = tc->displayName();
+    const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->fileName());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName);
@@ -396,7 +508,8 @@ bool IarToolChainConfigWidget::isDirtyImpl() const
 
 void IarToolChainConfigWidget::makeReadOnlyImpl()
 {
-    m_mainLayout->setEnabled(false);
+    m_compilerCommand->setReadOnly(true);
+    m_abiWidget->setEnabled(false);
 }
 
 void IarToolChainConfigWidget::setFromToolchain()
@@ -406,7 +519,7 @@ void IarToolChainConfigWidget::setFromToolchain()
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_abiWidget->setAbis({}, tc->targetAbi());
     const bool haveCompiler = isCompilerExists(m_compilerCommand->fileName());
-    m_abiWidget->setEnabled(haveCompiler);
+    m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
 }
 
 void IarToolChainConfigWidget::handleCompilerCommandChange()
