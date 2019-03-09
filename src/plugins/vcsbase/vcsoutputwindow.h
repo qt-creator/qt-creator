@@ -89,7 +89,7 @@ public slots:
 
     // Append text with a certain style (none by default),
     // and maybe pop up (silent by default)
-    static void append(const QString &text, enum MessageStyle style = None, bool silently = false);
+    static void append(const QString &text, MessageStyle style = None, bool silently = false);
 
     // Silently append text, do not pop up.
     static void appendSilently(const QString &text);
