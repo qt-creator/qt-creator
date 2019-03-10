@@ -80,7 +80,8 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
 
 void OutputFormatter::appendMessage(const QString &text, const QTextCharFormat &format)
 {
-    foreach (const FormattedText &output, parseAnsi(text, format))
+    const QList<FormattedText> formattedTextList = parseAnsi(text, format);
+    for (const FormattedText &output : formattedTextList)
         append(output.text, output.format);
 }
 
