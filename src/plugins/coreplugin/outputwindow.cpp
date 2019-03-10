@@ -62,10 +62,10 @@ public:
     bool enforceNewline = false;
     bool scrollToBottom = true;
     bool linksActive = true;
-    Qt::MouseButton mouseButtonPressed = Qt::NoButton;
     bool m_zoomEnabled = false;
     float m_originalFontSize = 0.;
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
+    Qt::MouseButton mouseButtonPressed = Qt::NoButton;
     QTextCursor cursor;
 };
 
