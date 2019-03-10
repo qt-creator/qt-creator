@@ -725,7 +725,7 @@ QString Abi::toString(const BinaryFormat &bf)
     case RuntimeQmlFormat:
         return QLatin1String("qml_rt");
     case UbrofFormat:
-        return "ubrof";
+        return QLatin1String("ubrof");
     case UnknownFormat:
         Q_FALLTHROUGH();
     default:
