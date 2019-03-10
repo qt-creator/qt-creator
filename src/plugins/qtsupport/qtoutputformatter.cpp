@@ -74,7 +74,7 @@ public:
     const QRegularExpression qtTestFailUnix;
     const QRegularExpression qtTestFailWin;
     QPointer<Project> project;
-    QString lastLine;
+    QList<FormattedText> lastLine;
     FileInProjectFinder projectFinder;
     QTextCursor cursor;
 };
@@ -134,36 +134,45 @@ void QtOutputFormatter::appendMessage(const QString &txt, OutputFormat format)
     appendMessage(txt, charFormat(format));
 }
 
-void QtOutputFormatter::appendMessagePart(const QString &txt, const QTextCharFormat &format)
+void QtOutputFormatter::appendMessagePart(const QString &txt, const QTextCharFormat &fmt)
 {
     QString deferredText;
 
     const int length = txt.length();
     for (int start = 0, pos = -1; start < length; start = pos + 1) {
+        bool linkHandled = false;
         pos = txt.indexOf('\n', start);
         const QString newPart = txt.mid(start, (pos == -1) ? -1 : pos - start + 1);
-        const QString line = d->lastLine + newPart;
+        QString line = newPart;
+        QTextCharFormat format = fmt;
+        if (!d->lastLine.isEmpty()) {
+            line = d->lastLine.last().text + newPart;
+            format = d->lastLine.last().format;
+        }
 
         LinkResult lr = matchLine(line);
         if (!lr.href.isEmpty()) {
             // Found something && line continuation
-            d->cursor.insertText(deferredText, format);
+            d->cursor.insertText(deferredText, fmt);
             deferredText.clear();
             if (!d->lastLine.isEmpty())
                 clearLastLine();
             appendLine(lr, line, format);
+            linkHandled = true;
         } else {
             // Found nothing, just emit the new part
             deferredText += newPart;
         }
 
         if (pos == -1) {
-            d->lastLine = line;
+            d->lastLine.clear();
+            if (!linkHandled)
+                d->lastLine.append(FormattedText(line, format));
             break;
         }
         d->lastLine.clear(); // Handled line continuation
     }
-    d->cursor.insertText(deferredText, format);
+    d->cursor.insertText(deferredText, fmt);
 }
 
 void QtOutputFormatter::appendMessage(const QString &txt, const QTextCharFormat &format)
@@ -274,7 +283,8 @@ void QtOutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 void QtOutputFormatter::clearLastLine()
 {
     OutputFormatter::clearLastLine();
-    d->lastLine.clear();
+    if (!d->lastLine.isEmpty())
+        d->lastLine.removeLast();
 }
 
 void QtOutputFormatter::openEditor(const QString &fileName, int line, int column)
@@ -447,6 +457,13 @@ static QTextCharFormat blueFormat()
     return result;
 }
 
+static QTextCharFormat greenFormat()
+{
+    QTextCharFormat result;
+    result.setForeground(QColor(0, 127, 0));
+    return result;
+}
+
 void QtSupportPlugin::testQtOutputFormatter_appendMessage_data()
 {
     QTest::addColumn<QString>("inputText");
@@ -500,24 +517,24 @@ void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
     formatter.setPlainTextEdit(&edit);
 
     const QString inputText =
-                "\x1b[38;2;0;0;127mHello\n"
-                "Object::Test in test.cpp:123\n"
-                "\x1b[38;2;0;0;127mHello\n";
+                "\x1b[38;2;0;127;0mGreen "
+                "file://test.cpp:123 "
+                "\x1b[38;2;0;0;127mBlue\n";
     const QString outputText =
-                "Hello\n"
-                "Object::Test in test.cpp:123\n"
-                "Hello\n";
+                "Green "
+                "file://test.cpp:123 "
+                "Blue\n";
 
     formatter.appendMessage(inputText, QTextCharFormat());
 
     QCOMPARE(edit.toPlainText(), outputText);
 
     edit.moveCursor(QTextCursor::Start);
-    QCOMPARE(edit.currentCharFormat(), blueFormat());
+    QCOMPARE(edit.currentCharFormat(), greenFormat());
 
-    edit.moveCursor(QTextCursor::Down);
-    edit.moveCursor(QTextCursor::EndOfLine);
-    QCOMPARE(edit.currentCharFormat(), linkFormat(QTextCharFormat(), "test.cpp:123"));
+    edit.moveCursor(QTextCursor::WordRight);
+    edit.moveCursor(QTextCursor::Right);
+    QCOMPARE(edit.currentCharFormat(), linkFormat(QTextCharFormat(), "file://test.cpp:123"));
 
     edit.moveCursor(QTextCursor::End);
     QCOMPARE(edit.currentCharFormat(), blueFormat());

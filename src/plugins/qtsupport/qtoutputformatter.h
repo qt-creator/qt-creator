@@ -70,7 +70,7 @@ protected:
 private:
     void updateProjectFileList();
     LinkResult matchLine(const QString &line) const;
-    void appendMessagePart(const QString &txt, const QTextCharFormat &format);
+    void appendMessagePart(const QString &txt, const QTextCharFormat &fmt);
     void appendLine(const LinkResult &lr, const QString &line, Utils::OutputFormat format);
     void appendLine(const LinkResult &lr, const QString &line, const QTextCharFormat &format);
     void appendMessage(const QString &text, const QTextCharFormat &format) override;
