@@ -96,7 +96,16 @@ defineReplace(splitFlags) {
             flag ~= s,-I\S*,,
             flag ~= s,/D\S*,,
             flag ~= s,/Z\S*,,
-            result += $$split(flag, " ")
+            separate_flags = $$split(flag, " ")
+            for (separate_flag, separate_flags) {
+                starting_substr = $$str_member($$separate_flag, 0, 0)
+                win32:equals(starting_substr, "/") {
+                    result += $$separate_flag
+                }
+                equals(starting_substr, "-") {
+                    result += $$separate_flag
+                }
+            }
         } else {
             inside_quotes = 0
             starting_substr = $$str_member($$flag, 0, 0)
