@@ -31,6 +31,7 @@
 #include <utils/algorithm.h>
 #include <utils/ansiescapecodehandler.h>
 #include <utils/fileinprojectfinder.h>
+#include <utils/hostosinfo.h>
 #include <utils/theme/theme.h>
 
 #include <QPlainTextEdit>
@@ -401,16 +402,16 @@ void QtSupportPlugin::testQtOutputFormatter_data()
             << "   Loc: [../TestProject/test.cpp(123)]"
             << 9 << 37 << "../TestProject/test.cpp(123)"
             << "../TestProject/test.cpp" << 123 << -1;
-
-    QTest::newRow("Windows failed QTest link")
-            << "..\\TestProject\\test.cpp(123) : failure location"
-            << 0 << 28 << "..\\TestProject\\test.cpp(123)"
-            << "..\\TestProject\\test.cpp" << 123 << -1;
-
-    QTest::newRow("Windows failed QTest link with carriage return")
-            << "..\\TestProject\\test.cpp(123) : failure location\r"
-            << 0 << 28 << "..\\TestProject\\test.cpp(123)"
-            << "..\\TestProject\\test.cpp" << 123 << -1;
+    if (HostOsInfo::isWindowsHost()) {
+        QTest::newRow("Windows failed QTest link")
+                << "..\\TestProject\\test.cpp(123) : failure location"
+                << 0 << 28 << "..\\TestProject\\test.cpp(123)"
+                << "../TestProject/test.cpp" << 123 << -1;
+        QTest::newRow("Windows failed QTest link with carriage return")
+                << "..\\TestProject\\test.cpp(123) : failure location\r"
+                << 0 << 28 << "..\\TestProject\\test.cpp(123)"
+                << "../TestProject/test.cpp" << 123 << -1;
+    }
 }
 
 void QtSupportPlugin::testQtOutputFormatter()
