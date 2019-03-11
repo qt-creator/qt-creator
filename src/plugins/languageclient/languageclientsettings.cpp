@@ -126,6 +126,8 @@ public:
     void apply() override;
     void finish() override;
 
+    QList<StdIOSettings *> settings() const;
+
 private:
     LanguageClientSettingsModel m_model;
     QList<StdIOSettings *> m_settings; // owned
@@ -290,6 +292,11 @@ void LanguageClientSettingsPage::finish()
     m_model.reset(m_settings);
 }
 
+QList<StdIOSettings *> LanguageClientSettingsPage::settings() const
+{
+    return m_settings;
+}
+
 LanguageClientSettingsModel::~LanguageClientSettingsModel()
 {
     qDeleteAll(m_settings);
@@ -428,8 +435,7 @@ void BaseSettings::fromMap(const QVariantMap &map)
 
 void LanguageClientSettings::init()
 {
-    static LanguageClientSettingsPage settingsPage;
-    settingsPage.init();
+    settingsPage().init();
 }
 
 QList<StdIOSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn)
@@ -445,6 +451,11 @@ QList<StdIOSettings *> LanguageClientSettings::fromSettings(QSettings *settingsI
     return settings;
 }
 
+QList<StdIOSettings *> LanguageClientSettings::currentSettings()
+{
+    return settingsPage().settings();
+}
+
 void LanguageClientSettings::toSettings(QSettings *settings, const QList<StdIOSettings *> &languageClientSettings)
 {
     settings->beginGroup(settingsGroupKey);
@@ -453,6 +464,12 @@ void LanguageClientSettings::toSettings(QSettings *settings, const QList<StdIOSe
         return QVariant(setting->toMap());
     }));
     settings->endGroup();
+}
+
+LanguageClientSettingsPage &LanguageClientSettings::settingsPage()
+{
+    static LanguageClientSettingsPage settingsPage;
+    return settingsPage;
 }
 
 void StdIOSettings::applyFromSettingsWidget(QWidget *widget)

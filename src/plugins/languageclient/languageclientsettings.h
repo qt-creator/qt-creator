@@ -120,12 +120,18 @@ protected:
     StdIOSettings &operator=(StdIOSettings &&other) = default;
 };
 
+class LanguageClientSettingsPage;
+
 class LanguageClientSettings
 {
 public:
     static void init();
     static QList<StdIOSettings *> fromSettings(QSettings *settings);
+    static QList<StdIOSettings *> currentSettings();
     static void toSettings(QSettings *settings, const QList<StdIOSettings *> &languageClientSettings);
+
+private:
+    static LanguageClientSettingsPage &settingsPage();
 };
 
 class BaseSettingsWidget : public QWidget
