@@ -1082,32 +1082,35 @@ void AndroidConfigurations::updateAutomaticKitList()
             QtSupport::QtKitAspect::setQtVersion(k, qt);
             DeviceKitAspect::setDevice(k, device);
         };
+        const auto initStage2 = [tc](Kit *k, const QtSupport::BaseQtVersion *qt) {
+            Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc));
+            AndroidGdbServerKitAspect::setGdbSever(k, currentConfig().gdbServer(tc->targetAbi()));
+            k->makeSticky();
+            k->setUnexpandedDisplayName(tr("Android for %1 (Clang %2)")
+                                              .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())
+                                              .arg(qt->displayName()));
+        };
 
         for (const QtSupport::BaseQtVersion *qt : qtVersionsForArch.value(tc->targetAbi())) {
-            auto newKit = std::make_unique<Kit>();
-            Kit *toSetup = newKit.get();
-            initBasicKitData(toSetup, qt);
-            Kit *existingKit = Utils::findOrDefault(existingKits, [toSetup](const Kit *k) {
-                return matchKits(toSetup, k);
-            });
-            if (existingKit) {
+            Kit *existingKit = nullptr;
+            const auto initializeKit = [&](Kit *k) {
+                initBasicKitData(k, qt);
+                existingKit = Utils::findOrDefault(existingKits, [k](const Kit *existing) {
+                    return matchKits(k, existing);
+                });
+                if (existingKit)
+                    return false;
+                initStage2(k, qt);
+                return true;
+            };
+            Kit * const newKit = KitManager::registerKit(initializeKit);
+            QTC_ASSERT(!newKit != !existingKit, continue);
+            if (!newKit) {
                 // Existing kit found.
                 // Update the existing kit with new data.
                 initBasicKitData(existingKit, qt);
-                newKit.reset();
-                toSetup = existingKit;
+                initStage2(existingKit, qt);
             }
-
-            Debugger::DebuggerKitAspect::setDebugger(toSetup, findOrRegisterDebugger(tc));
-
-            AndroidGdbServerKitAspect::setGdbSever(toSetup, currentConfig().gdbServer(tc->targetAbi()));
-            toSetup->makeSticky();
-
-            toSetup->setUnexpandedDisplayName(tr("Android for %1 (Clang %2)")
-                                              .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())
-                                              .arg(qt->displayName()));
-            if (!existingKit)
-                KitManager::registerKit(std::move(newKit));
         }
     }
 }

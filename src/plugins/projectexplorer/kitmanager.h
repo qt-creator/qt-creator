@@ -173,7 +173,7 @@ public:
     static const QSet<Core::Id> irrelevantAspects();
     static void setIrrelevantAspects(const QSet<Core::Id> &aspects);
 
-    static bool registerKit(std::unique_ptr<Kit> &&k);
+    static Kit *registerKit(const std::function<bool(Kit *)> &init, Core::Id id = {});
     static void deregisterKit(Kit *k);
     static void setDefaultKit(Kit *k);
 

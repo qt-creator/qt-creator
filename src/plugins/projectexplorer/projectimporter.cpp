@@ -286,20 +286,19 @@ bool ProjectImporter::isTemporaryKit(Kit *k) const
 
 Kit *ProjectImporter::createTemporaryKit(const KitSetupFunction &setup) const
 {
-    auto k = std::make_unique<Kit>();
-    Kit *kptr = k.get();
     UpdateGuard guard(*this);
-    {
-        KitGuard kitGuard(kptr);
-        k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter", "Imported Kit"));;
+    const auto init = [&](Kit *k) {
+        KitGuard kitGuard(k);
+        k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter",
+                                                                "Imported Kit"));
         k->setup();
-        setup(kptr);
+        setup(k);
         k->fix();
-        markKitAsTemporary(kptr);
-        addProject(kptr);
-    } // ~KitGuard, sending kitUpdated
-    KitManager::registerKit(std::move(k)); // potentially adds kits to other targetsetuppages
-    return kptr;
+        markKitAsTemporary(k);
+        addProject(k);
+        return true;
+    }; // ~KitGuard, sending kitUpdated
+    return KitManager::registerKit(init); // potentially adds kits to other targetsetuppages
 }
 
 bool ProjectImporter::findTemporaryHandler(Core::Id id) const

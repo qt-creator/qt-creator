@@ -159,21 +159,13 @@ QIcon KitManagerConfigWidget::icon() const
 
 void KitManagerConfigWidget::apply()
 {
-    bool mustSetDefault = m_isDefaultKit;
-    bool mustRegister = false;
-    auto toRegister = std::make_unique<Kit>();
-    if (!m_kit) {
-        mustRegister = true;
-        m_kit = toRegister.get();
-    }
-    m_kit->copyFrom(m_modifiedKit.get()); //m_isDefaultKit is reset in discard() here.
-    if (mustRegister)
-        KitManager::registerKit(std::move(toRegister));
-
-    if (mustSetDefault)
+    const auto copyIntoKit = [this](Kit *k) { k->copyFrom(m_modifiedKit.get()); };
+    if (m_kit)
+        copyIntoKit(m_kit);
+    else
+        m_kit = KitManager::registerKit([&](Kit *k) { copyIntoKit(k); return true; });
+    if (m_isDefaultKit)
         KitManager::setDefaultKit(m_kit);
-
-    m_isDefaultKit = mustSetDefault;
     emit dirty();
 }
 

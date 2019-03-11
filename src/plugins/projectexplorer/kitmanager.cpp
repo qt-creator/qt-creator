@@ -398,18 +398,16 @@ void KitManager::notifyAboutUpdate(Kit *k)
         emit m_instance->unmanagedKitUpdated(k);
 }
 
-bool KitManager::registerKit(std::unique_ptr<Kit> &&k)
+Kit *KitManager::registerKit(const std::function<bool (Kit *)> &init, Core::Id id)
 {
-    QTC_ASSERT(isLoaded(), return false);
+    QTC_ASSERT(isLoaded(), return nullptr);
 
-    if (!k)
-        return true;
-
-    QTC_ASSERT(k->id().isValid(), return false);
+    auto k = std::make_unique<Kit>(id);
+    QTC_ASSERT(k->id().isValid(), return nullptr);
 
     Kit *kptr = k.get();
-    if (Utils::contains(d->m_kitList, kptr))
-        return false;
+    if (init && !init(kptr))
+        return nullptr;
 
     // make sure we have all the information in our kits:
     completeKit(kptr);
@@ -420,7 +418,7 @@ bool KitManager::registerKit(std::unique_ptr<Kit> &&k)
         setDefaultKit(kptr);
 
     emit m_instance->kitAdded(kptr);
-    return true;
+    return kptr;
 }
 
 void KitManager::deregisterKit(Kit *k)

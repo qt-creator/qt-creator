@@ -300,17 +300,16 @@ void IosConfigurations::updateAutomaticKitList()
                     kit->unblockNotification();
                 } else {
                     qCDebug(kitSetupLog) << "    - Setting up new kit";
-                    auto newKit = std::make_unique<Kit>();
-                    kit = newKit.get();
-                    kit->blockNotification();
-                    kit->setAutoDetected(true);
-                    const QString baseDisplayName = isSimulatorDeviceId(pDeviceType)
-                            ? tr("%1 Simulator").arg(qtVersion->unexpandedDisplayName())
-                            : qtVersion->unexpandedDisplayName();
-                    kit->setUnexpandedDisplayName(baseDisplayName);
-                    setupKit(kit, pDeviceType, platformToolchains, debuggerId, sdk.path, qtVersion);
-                    kit->unblockNotification();
-                    KitManager::registerKit(std::move(newKit));
+                    const auto init = [&](Kit *k) {
+                        k->setAutoDetected(true);
+                        const QString baseDisplayName = isSimulatorDeviceId(pDeviceType)
+                                ? tr("%1 Simulator").arg(qtVersion->unexpandedDisplayName())
+                                : qtVersion->unexpandedDisplayName();
+                        k->setUnexpandedDisplayName(baseDisplayName);
+                        setupKit(k, pDeviceType, platformToolchains, debuggerId, sdk.path, qtVersion);
+                        return true;
+                    };
+                    kit = KitManager::registerKit(init);
                 }
                 resultingKits.insert(kit);
             }
