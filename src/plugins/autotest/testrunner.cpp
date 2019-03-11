@@ -595,9 +595,8 @@ void TestRunner::debugTests()
         outputreader->setId(inferior.executable);
         connect(outputreader, &TestOutputReader::newOutputAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutput);
-        connect(runControl, &ProjectExplorer::RunControl::appendMessageRequested,
-                this, [outputreader]
-                (ProjectExplorer::RunControl *, const QString &msg, Utils::OutputFormat format) {
+        connect(runControl, &ProjectExplorer::RunControl::appendMessage,
+                this, [outputreader](const QString &msg, Utils::OutputFormat format) {
             processOutput(outputreader, msg, format);
         });
 

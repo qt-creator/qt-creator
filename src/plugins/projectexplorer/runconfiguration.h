@@ -451,8 +451,6 @@ public:
     const Runnable &runnable() const;
     void setRunnable(const Runnable &runnable);
 
-    virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
-
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),
                                        const QString &cancelButtonText = QString(),
@@ -485,8 +483,7 @@ public:
     static WorkerCreator producer(RunConfiguration *runConfiguration, Core::Id runMode);
 
 signals:
-    void appendMessageRequested(ProjectExplorer::RunControl *runControl,
-                                const QString &msg, Utils::OutputFormat format);
+    void appendMessage(const QString &msg, Utils::OutputFormat format);
     void aboutToStart();
     void started();
     void stopped();

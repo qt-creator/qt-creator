@@ -413,8 +413,10 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             this, &AppOutputPane::slotRunControlFinished);
     connect(rc, &RunControl::applicationProcessHandleChanged,
             this, &AppOutputPane::enableDefaultButtons);
-    connect(rc, &RunControl::appendMessageRequested,
-            this, &AppOutputPane::appendMessage);
+    connect(rc, &RunControl::appendMessage,
+            this, [this, rc](const QString &out, Utils::OutputFormat format) {
+                appendMessage(rc, out, format);
+            });
 
     // First look if we can reuse a tab
     const Runnable thisRunnable = rc->runnable();

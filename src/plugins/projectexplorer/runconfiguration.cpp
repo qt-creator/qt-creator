@@ -1548,11 +1548,6 @@ void RunControlPrivate::debugMessage(const QString &msg)
     qCDebug(statesLog()) << msg;
 }
 
-void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
-{
-    emit appendMessageRequested(this, msg, format);
-}
-
 // SimpleTargetRunner
 
 SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
