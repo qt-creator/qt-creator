@@ -292,16 +292,9 @@ Kit *ProjectImporter::createTemporaryKit(const KitSetupFunction &setup) const
     {
         KitGuard kitGuard(kptr);
         k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter", "Imported Kit"));;
-
-        // Set up values:
-        for (KitAspect *aspect : KitManager::kitAspects())
-            aspect->setup(kptr);
-
+        k->setup();
         setup(kptr);
-
-        for (KitAspect *aspect : KitManager::kitAspects())
-            aspect->fix(kptr);
-
+        k->fix();
         markKitAsTemporary(kptr);
         addProject(kptr);
     } // ~KitGuard, sending kitUpdated
