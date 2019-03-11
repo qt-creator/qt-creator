@@ -237,6 +237,12 @@ QString configForFile(Utils::FileName fileName)
     return configForFile(fileName, true);
 }
 
+Utils::FileName assumedPathForConfig(const QString &configFile)
+{
+    Utils::FileName fileName = Utils::FileName::fromString(configFile);
+    return fileName.parentDir().appendPath("test.cpp");
+}
+
 static clang::format::FormatStyle constructStyle(const QByteArray &baseStyle = QByteArray())
 {
     if (!baseStyle.isEmpty()) {
@@ -311,6 +317,7 @@ static clang::format::FormatStyle styleForFile(Utils::FileName fileName, bool ch
     if (configFile.isEmpty())
         return constructStyle();
 
+    fileName = assumedPathForConfig(configFile);
     Expected<FormatStyle> style = format::getStyle("file",
                                                    fileName.toString().toStdString(),
                                                    "none");
