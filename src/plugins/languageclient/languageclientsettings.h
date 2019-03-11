@@ -37,7 +37,10 @@ class QCheckBox;
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace Utils { class PathChooser; }
+namespace Utils {
+class FileName;
+class PathChooser;
+} // namespace Utils
 
 namespace LanguageClient {
 
@@ -50,6 +53,7 @@ struct LanguageFilter
 {
     QStringList mimeTypes;
     QStringList filePattern;
+    bool isSupported(const Utils::FileName &filePath, const QString &mimeType) const;
 };
 
 class BaseSettings

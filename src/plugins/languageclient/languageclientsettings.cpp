@@ -719,4 +719,18 @@ QString StdIOSettingsWidget::arguments() const
     return m_arguments->text();
 }
 
+bool LanguageFilter::isSupported(const Utils::FileName &filePath, const QString &mimeType) const
+{
+    if (mimeTypes.isEmpty() && filePattern.isEmpty())
+        return true;
+    if (mimeTypes.contains(mimeType))
+        return true;
+    auto regexps = Utils::transform(filePattern, [](const QString &pattern){
+        return QRegExp(pattern, Utils::HostOsInfo::fileNameCaseSensitivity(), QRegExp::Wildcard);
+    });
+    return Utils::anyOf(regexps, [filePath](const QRegExp &reg){
+        return reg.exactMatch(filePath.toString()) || reg.exactMatch(filePath.fileName());
+    });
+}
+
 } // namespace LanguageClient

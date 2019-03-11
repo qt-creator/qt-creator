@@ -674,21 +674,12 @@ void Client::setSupportedLanguage(const LanguageFilter &filter)
 bool Client::isSupportedDocument(const Core::IDocument *document) const
 {
     QTC_ASSERT(document, return false);
-    return isSupportedFile(document->filePath(), document->mimeType());
+    return m_languagFilter.isSupported(document->filePath(), document->mimeType());
 }
 
 bool Client::isSupportedFile(const Utils::FileName &filePath, const QString &mimeType) const
 {
-    if (m_languagFilter.mimeTypes.isEmpty() && m_languagFilter.filePattern.isEmpty())
-        return true;
-    if (m_languagFilter.mimeTypes.contains(mimeType))
-        return true;
-    auto regexps = Utils::transform(m_languagFilter.filePattern, [](const QString &pattern){
-        return QRegExp(pattern, Utils::HostOsInfo::fileNameCaseSensitivity(), QRegExp::Wildcard);
-    });
-    return Utils::anyOf(regexps, [filePath](const QRegExp &reg){
-        return reg.exactMatch(filePath.toString()) || reg.exactMatch(filePath.fileName());
-    });
+    return m_languagFilter.isSupported(filePath, mimeType);
 }
 
 bool Client::isSupportedUri(const DocumentUri &uri) const
