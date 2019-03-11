@@ -364,7 +364,7 @@ static QStringList readLinesJson(const Utils::FileName &projectFile,
     // This assumes te project file is formed with only one field called
     // 'files' that has a list associated of the files to include in the project.
     if (content.isEmpty()) {
-        *errorMessage = PythonProject::tr("Unable read \"%1\": The file is empty.")
+        *errorMessage = PythonProject::tr("Unable to read \"%1\": The file is empty.")
                         .arg(projectFile.toUserOutput());
         return lines;
     }
@@ -373,7 +373,7 @@ static QStringList readLinesJson(const Utils::FileName &projectFile,
     const QJsonDocument doc = QJsonDocument::fromJson(content, &error);
     if (doc.isNull()) {
         const int line = content.left(error.offset).count('\n') + 1;
-        *errorMessage = PythonProject::tr("Unable parse %1:%2: %3")
+        *errorMessage = PythonProject::tr("Unable to parse \"%1\":%2: %3")
                         .arg(projectFile.toUserOutput()).arg(line)
                         .arg(error.errorString());
         return lines;
