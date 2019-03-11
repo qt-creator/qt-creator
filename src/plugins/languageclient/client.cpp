@@ -775,6 +775,11 @@ const DynamicCapabilities &Client::dynamicCapabilities() const
     return m_dynamicCapabilities;
 }
 
+const BaseClientInterface *Client::clientInterface() const
+{
+    return m_clientInterface.data();
+}
+
 void Client::log(const ShowMessageParams &message,
                      Core::MessageManager::PrintToOutputPaneFlag flag)
 {

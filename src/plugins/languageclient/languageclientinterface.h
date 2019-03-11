@@ -74,7 +74,7 @@ public:
     StdIOClientInterface &operator=(const StdIOClientInterface &) = delete;
     StdIOClientInterface &operator=(StdIOClientInterface &&) = delete;
 
-    bool needsRestart(const StdIOSettings *settings);
+    bool needsRestart(const StdIOSettings *settings) const;
 
     bool start() override;
 

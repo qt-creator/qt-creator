@@ -147,6 +147,7 @@ public:
 
     const LanguageServerProtocol::ServerCapabilities &capabilities() const;
     const DynamicCapabilities &dynamicCapabilities() const;
+    const BaseClientInterface *clientInterface() const;
 
 signals:
     void initialized(LanguageServerProtocol::ServerCapabilities capabilities);
