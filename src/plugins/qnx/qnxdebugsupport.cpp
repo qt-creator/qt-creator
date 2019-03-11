@@ -148,10 +148,7 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
 
     addStartDependency(debuggeeRunner);
 
-    auto runConfig = qobject_cast<QnxRunConfiguration *>(runControl->runConfiguration());
-    QTC_ASSERT(runConfig, return);
-    Target *target = runConfig->target();
-    Kit *k = target->kit();
+    Kit *k = runControl->kit();
 
     setStartMode(AttachToRemoteServer);
     setCloseMode(KillAtClose);

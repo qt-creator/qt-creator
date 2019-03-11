@@ -79,8 +79,7 @@ static void stopRunningRunControl(RunControl *runControl)
 {
     static QMap<Core::Id, QPointer<RunControl>> activeRunControls;
 
-    RunConfiguration *runConfig = runControl->runConfiguration();
-    Target *target = runConfig->target();
+    Target *target = runControl->target();
     Core::Id devId = DeviceKitAspect::deviceId(target->kit());
 
     // The device can only run an application at a time, if an app is running stop it.
@@ -100,8 +99,8 @@ IosRunner::IosRunner(RunControl *runControl)
     stopRunningRunControl(runControl);
     auto runConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     m_bundleDir = runConfig->bundleDirectory().toString();
-    m_arguments = runConfig->aspect<ArgumentsAspect>()->arguments(runConfig->macroExpander());
-    m_device = DeviceKitAspect::device(runConfig->target()->kit());
+    m_arguments = runControl->aspect<ArgumentsAspect>()->arguments(runConfig->macroExpander());
+    m_device = DeviceKitAspect::device(runControl->target()->kit());
     m_deviceType = runConfig->deviceType();
 }
 
@@ -387,7 +386,7 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
     Runnable runnable;
     runnable.executable = iosRunConfig->localExecutable().toUserOutput();
     runnable.commandLineArguments =
-            iosRunConfig->aspect<ArgumentsAspect>()->arguments(iosRunConfig->macroExpander());
+            runControl->aspect<ArgumentsAspect>()->arguments(iosRunConfig->macroExpander());
     runControl->setDisplayName(iosRunConfig->applicationName());
     runControl->setRunnable(runnable);
 
@@ -438,8 +437,6 @@ void IosDebugSupport::start()
         return;
     }
 
-    RunConfiguration *runConfig = runControl()->runConfiguration();
-
     if (device()->type() == Ios::Constants::IOS_DEVICE_TYPE) {
         IosDevice::ConstPtr dev = device().dynamicCast<const IosDevice>();
         setStartMode(AttachToRemoteProcess);
@@ -472,7 +469,7 @@ void IosDebugSupport::start()
         setIosPlatform("ios-simulator");
     }
 
-    auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runConfig);
+    auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runControl()->runConfiguration());
     setRunControlName(iosRunConfig->applicationName());
     setContinueAfterAttach(true);
 

@@ -86,7 +86,7 @@ void ValgrindToolRunner::start()
     m_runner.setDevice(device());
     m_runner.setDebuggee(runnable());
 
-    if (auto aspect = runControl()->runConfiguration()->aspect<TerminalAspect>())
+    if (auto aspect = runControl()->aspect<TerminalAspect>())
         m_runner.setUseTerminal(aspect->useTerminal());
 
     connect(&m_runner, &ValgrindRunner::processOutputReceived,

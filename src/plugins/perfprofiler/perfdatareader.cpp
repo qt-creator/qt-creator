@@ -34,12 +34,15 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
 
@@ -392,11 +395,11 @@ bool PerfDataReader::feedParser(const QByteArray &input)
     return true;
 }
 
-QStringList PerfDataReader::findTargetArguments(const ProjectExplorer::RunConfiguration *rc) const
+QStringList PerfDataReader::findTargetArguments(const ProjectExplorer::RunControl *runControl) const
 {
-    ProjectExplorer::Kit *kit = rc->target()->kit();
+    ProjectExplorer::Kit *kit = runControl->kit();
     QTC_ASSERT(kit, return QStringList());
-    ProjectExplorer::BuildConfiguration *buildConfig = rc->target()->activeBuildConfiguration();
+    ProjectExplorer::BuildConfiguration *buildConfig = runControl->target()->activeBuildConfiguration();
     QString buildDir = buildConfig ? buildConfig->buildDirectory().toString() : QString();
     return collectArguments(buildDir, kit);
 }

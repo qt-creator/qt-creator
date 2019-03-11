@@ -808,9 +808,9 @@ public:
             displayName  = runConfiguration->displayName();
             outputFormatter = runConfiguration->createOutputFormatter();
             device = runnable.device;
+            target = runConfiguration->target();
             if (!device)
-                device = DeviceKitAspect::device(runConfiguration->target()->kit());
-            project = runConfiguration->target()->project();
+                device = DeviceKitAspect::device(target->kit());
         } else {
             outputFormatter = new OutputFormatter();
         }
@@ -857,7 +857,7 @@ public:
     Core::Id runMode;
     Utils::Icon icon;
     const QPointer<RunConfiguration> runConfiguration; // Not owned.
-    QPointer<Project> project; // Not owned.
+    QPointer<Target> target; // Not owned.
     QPointer<Utils::OutputFormatter> outputFormatter = nullptr;
     std::function<bool(bool*)> promptToStop;
     std::vector<RunWorkerFactory> m_factories;
@@ -1357,9 +1357,29 @@ RunConfiguration *RunControl::runConfiguration() const
     return d->runConfiguration.data();
 }
 
+Target *RunControl::target() const
+{
+    return d->target;
+}
+
 Project *RunControl::project() const
 {
-    return d->project.data();
+    return d->target->project();
+}
+
+Kit *RunControl::kit() const
+{
+    return d->target->kit();
+}
+
+ProjectConfigurationAspect *RunControl::aspect(Core::Id id) const
+{
+    return d->runConfiguration->aspect(id);
+}
+
+BuildTargetInfo RunControl::buildTargetInfo() const
+{
+    return d->runConfiguration->buildTargetInfo();
 }
 
 /*!
@@ -1556,10 +1576,8 @@ SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
     setId("SimpleTargetRunner");
     m_runnable = runControl->runnable(); // Default value. Can be overridden using setRunnable.
     m_device = runControl->device(); // Default value. Can be overridden using setDevice.
-    if (auto runConfig = runControl->runConfiguration()) {
-        if (auto terminalAspect = runConfig->aspect<TerminalAspect>())
-            m_useTerminal = terminalAspect->useTerminal();
-    }
+    if (auto terminalAspect = runControl->aspect<TerminalAspect>())
+        m_useTerminal = terminalAspect->useTerminal();
 }
 
 void SimpleTargetRunner::start()

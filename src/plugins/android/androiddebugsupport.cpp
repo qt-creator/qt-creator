@@ -150,8 +150,7 @@ AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl, const QString &
 
 void AndroidDebugSupport::start()
 {
-    auto runConfig = runControl()->runConfiguration();
-    Target *target = runConfig->target();
+    Target *target = runControl()->target();
     Kit *kit = target->kit();
 
     setStartMode(AttachToRemoteServer);
@@ -172,6 +171,7 @@ void AndroidDebugSupport::start()
 
     if (isCppDebugging()) {
         qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
+        auto runConfig = runControl()->runConfiguration();
         QStringList solibSearchPath = getSoLibSearchPath(runConfig);
         QStringList extraLibs = getExtraLibs(runConfig);
         solibSearchPath.append(qtSoPaths(qtVersion));
@@ -191,7 +191,7 @@ void AndroidDebugSupport::start()
         QTC_CHECK(qt);
         const int minimumNdk = qt ? qt->minimumNDK() : 0;
 
-        int sdkVersion = qMax(AndroidManager::minimumSDK(target->kit()), minimumNdk);
+        int sdkVersion = qMax(AndroidManager::minimumSDK(kit), minimumNdk);
         Utils::FileName sysRoot = AndroidConfigurations::currentConfig().ndkLocation()
                 .appendPath("platforms")
                 .appendPath(QString("android-%1").arg(sdkVersion))

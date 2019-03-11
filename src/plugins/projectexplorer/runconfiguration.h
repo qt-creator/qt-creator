@@ -442,8 +442,15 @@ public:
     void setApplicationProcessHandle(const Utils::ProcessHandle &handle);
     IDevice::ConstPtr device() const;
 
-    RunConfiguration *runConfiguration() const;
+    RunConfiguration *runConfiguration() const; // FIXME: Remove.
+    // FIXME: Try to cut down to amount of functions.
+    Target *target() const;
     Project *project() const;
+    Kit *kit() const;
+    ProjectConfigurationAspect *aspect(Core::Id id) const;
+    template <typename T> T *aspect() const { return runConfiguration()->aspect<T>(); }
+    QString buildKey() const;
+    BuildTargetInfo buildTargetInfo() const;
 
     Utils::OutputFormatter *outputFormatter() const;
     Core::Id runMode() const;

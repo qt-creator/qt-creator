@@ -83,9 +83,7 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
 
 void BareMetalDebugSupport::start()
 {
-    const auto rc = runControl()->runConfiguration();
-    QTC_ASSERT(rc, reportFailure(); return);
-    const auto exeAspect = rc->aspect<ExecutableAspect>();
+    const auto exeAspect = runControl()->aspect<ExecutableAspect>();
     QTC_ASSERT(exeAspect, reportFailure(); return);
 
     const QString bin = exeAspect->executable().toString();
@@ -98,7 +96,7 @@ void BareMetalDebugSupport::start()
         return;
     }
 
-    const Target *target = rc->target();
+    const Target *target = runControl()->target();
     QTC_ASSERT(target, reportFailure(); return);
 
     auto dev = qSharedPointerCast<const BareMetalDevice>(device());
@@ -124,8 +122,10 @@ void BareMetalDebugSupport::start()
 
     Runnable inferior;
     inferior.executable = bin;
-    if (auto aspect = rc->aspect<ArgumentsAspect>())
+    if (auto aspect = runControl()->aspect<ArgumentsAspect>()) {
+        const auto rc = runControl()->runConfiguration();
         inferior.commandLineArguments = aspect->arguments(rc->macroExpander());
+    }
     setInferior(inferior);
     setSymbolFile(bin);
     setStartMode(AttachToRemoteServer);

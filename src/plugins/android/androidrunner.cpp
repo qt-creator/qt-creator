@@ -119,7 +119,7 @@ namespace Android {
 namespace Internal {
 
 AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
-    : RunWorker(runControl), m_target(runControl->runConfiguration()->target())
+    : RunWorker(runControl), m_target(runControl->target())
 {
     setId("AndroidRunner");
     static const int metaTypes[] = {

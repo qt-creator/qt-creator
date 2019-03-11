@@ -84,7 +84,7 @@ public:
 
     void start() override
     {
-        QStringList args = m_reader.findTargetArguments(runControl()->runConfiguration());
+        QStringList args = m_reader.findTargetArguments(runControl());
         QUrl url = runControl()->property("PerfConnection").toUrl();
         if (url.isValid()) {
             args.append(QStringList{"--host", url.host(), "--port", QString::number(url.port())});
@@ -116,8 +116,7 @@ public:
     {
         setId("LocalPerfRecordWorker");
 
-        auto runConfig = runControl->runConfiguration();
-        auto perfAspect = static_cast<PerfRunConfigurationAspect *>(runConfig->aspect(Constants::PerfSettingsId));
+        auto perfAspect = static_cast<PerfRunConfigurationAspect *>(runControl->aspect(Constants::PerfSettingsId));
         QTC_ASSERT(perfAspect, return);
         PerfSettings *settings = static_cast<PerfSettings *>(perfAspect->currentSettings());
         QTC_ASSERT(settings, return);

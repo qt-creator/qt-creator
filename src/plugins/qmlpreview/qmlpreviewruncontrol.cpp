@@ -90,10 +90,7 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
 
 void QmlPreviewRunner::start()
 {
-    ProjectExplorer::Target *target = nullptr;
-    if (ProjectExplorer::RunConfiguration *config = runControl()->runConfiguration())
-        target = config->target();
-    m_connectionManager->setTarget(target);
+    m_connectionManager->setTarget(runControl()->target());
     m_connectionManager->connectToServer(serverUrl());
     reportStarted();
 }

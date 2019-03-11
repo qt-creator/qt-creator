@@ -28,12 +28,15 @@
 #include "perfprofilertracefile.h"
 #include "perftimelinemodelmanager.h"
 
-#include <projectexplorer/target.h>
-
 #include <utils/temporaryfile.h>
 
 #include <QProcess>
 #include <QQueue>
+
+namespace ProjectExplorer {
+class Kit;
+class RunControl;
+} // ProjectExplorer
 
 namespace PerfProfiler {
 namespace Internal {
@@ -51,7 +54,7 @@ public:
     void startParser();
     void stopParser();
 
-    QStringList findTargetArguments(const ProjectExplorer::RunConfiguration *rc) const;
+    QStringList findTargetArguments(const ProjectExplorer::RunControl *runControl) const;
     void clear();
 
     bool feedParser(const QByteArray &input);

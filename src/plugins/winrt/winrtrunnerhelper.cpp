@@ -50,12 +50,11 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
     : QObject(runWorker)
     , m_worker(runWorker)
 {
-    auto runConfiguration = runWorker->runControl()->runConfiguration();
+    auto runControl = runWorker->runControl();
 
-    ProjectExplorer::Target *target = runConfiguration->target();
     m_device = runWorker->device().dynamicCast<const WinRtDevice>();
 
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(runControl->kit());
     if (!qt) {
         *errorMessage = tr("The current kit has no Qt version.");
         return;
@@ -68,7 +67,7 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
         return;
     }
 
-    const BuildTargetInfo bti = runConfiguration->buildTargetInfo();
+    const BuildTargetInfo bti = runControl->buildTargetInfo();
     m_executableFilePath = bti.targetFilePath.toString();
 
     if (m_executableFilePath.isEmpty()) {
@@ -84,13 +83,13 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
 
     bool loopbackExemptClient = false;
     bool loopbackExemptServer = false;
-    if (auto aspect = runConfiguration->aspect<ArgumentsAspect>())
-        m_arguments = aspect->arguments(runConfiguration->macroExpander());
-    if (auto aspect = runConfiguration->aspect<UninstallAfterStopAspect>())
+    if (auto aspect = runControl->aspect<ArgumentsAspect>())
+        m_arguments = aspect->arguments(runControl->runConfiguration()->macroExpander());
+    if (auto aspect = runControl->aspect<UninstallAfterStopAspect>())
         m_uninstallAfterStop = aspect->value();
-    if (auto aspect = runConfiguration->aspect<LoopbackExemptClientAspect>())
+    if (auto aspect = runControl->aspect<LoopbackExemptClientAspect>())
         loopbackExemptClient = aspect->value();
-    if (auto aspect = runConfiguration->aspect<LoopbackExemptServerAspect>())
+    if (auto aspect = runControl->aspect<LoopbackExemptServerAspect>())
         loopbackExemptServer = aspect->value();
     if (loopbackExemptClient && loopbackExemptServer)
         m_loopbackArguments = "--loopbackexempt clientserver";
@@ -99,7 +98,7 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
     else if (loopbackExemptServer)
         m_loopbackArguments = "--loopbackexempt server";
 
-    if (ProjectExplorer::BuildConfiguration *bc = target->activeBuildConfiguration())
+    if (BuildConfiguration *bc = runControl->target()->activeBuildConfiguration())
         m_environment = bc->environment();
 }
 

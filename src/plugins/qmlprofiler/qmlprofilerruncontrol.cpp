@@ -204,8 +204,7 @@ QUrl QmlProfilerRunner::serverUrl() const
 static QUrl localServerUrl(RunControl *runControl)
 {
     QUrl serverUrl;
-    RunConfiguration *runConfiguration = runControl->runConfiguration();
-    Kit *kit = runConfiguration->target()->kit();
+    Kit *kit = runControl->kit();
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
     if (version) {
         if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0))
