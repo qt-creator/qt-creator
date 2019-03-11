@@ -451,7 +451,6 @@ public:
 
     DebuggerEngine *m_engine = nullptr; // Not owned.
     QString m_runId;
-    QPointer<RunConfiguration> m_runConfiguration;  // Not owned.
     QString m_debuggerName;
     Perspective *m_perspective = nullptr;
     DebuggerRunParameters m_runParameters;
@@ -1007,7 +1006,6 @@ void DebuggerEngine::setRunId(const QString &id)
 void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
 {
     RunControl *runControl = runTool->runControl();
-    d->m_runConfiguration = runControl->runConfiguration();
     d->m_device = runControl->device();
     if (!d->m_device)
         d->m_device = d->m_runParameters.inferior.device;
@@ -1984,11 +1982,6 @@ void DebuggerEngine::progressPing()
 {
     int progress = qMin(d->m_progress.progressValue() + 2, 800);
     d->m_progress.setProgressValue(progress);
-}
-
-bool DebuggerEngine::isStartupRunConfiguration() const
-{
-    return d->m_runConfiguration == RunConfiguration::startupRunConfiguration();
 }
 
 void DebuggerEngine::setCompanionEngine(DebuggerEngine *engine)

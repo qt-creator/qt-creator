@@ -267,7 +267,6 @@ public:
     QString runId() const;
 
     const DebuggerRunParameters &runParameters() const;
-    bool isStartupRunConfiguration() const;
     void setCompanionEngine(DebuggerEngine *engine);
     void setSecondaryEngine();
 
