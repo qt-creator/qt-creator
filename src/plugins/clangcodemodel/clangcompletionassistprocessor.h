@@ -97,6 +97,7 @@ private:
     CompletionRequestType m_sentRequestType = NormalCompletion;
     bool m_requestSent = false;
     bool m_addSnippets = false; // For type == Type::NormalCompletion
+    bool m_fallbackToNormalCompletion = true;
 };
 
 } // namespace Internal
