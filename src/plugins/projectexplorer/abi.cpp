@@ -793,6 +793,8 @@ Abi::Architecture Abi::architectureFromString(const QStringRef &a)
         return AvrArchitecture;
     if (a == "x86")
         return X86Architecture;
+    if (a == "mcs51")
+        return Mcs51Architecture;
     if (a == "mips")
         return MipsArchitecture;
     if (a == "ppc")
@@ -849,6 +851,8 @@ Abi::BinaryFormat Abi::binaryFormatFromString(const QStringRef &bf)
         return PEFormat;
     if (bf == "mach_o")
         return MachOFormat;
+    if (bf == "ubrof")
+        return UbrofFormat;
     if (bf == "qml_rt")
         return RuntimeQmlFormat;
     return UnknownFormat;
