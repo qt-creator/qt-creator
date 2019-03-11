@@ -9,7 +9,6 @@ macos {
         $$PWD/touchbar_mac.mm \
         $$PWD/touchbar_appdelegate_mac.mm
 
-    QT += macextras
     LIBS += -framework Foundation -framework AppKit
 } else {
     SOURCES += $$PWD/touchbar.cpp

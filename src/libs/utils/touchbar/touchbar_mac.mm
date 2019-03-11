@@ -29,8 +29,6 @@
 
 #include <utils/utilsicons.h>
 
-#include <QtMac>
-
 #import <AppKit/NSButton.h>
 #import <AppKit/NSCustomTouchBarItem.h>
 #import <AppKit/NSImage.h>
@@ -145,8 +143,12 @@ static NSImage *iconToTemplateNSImage(const QIcon &icon)
 {
     // touch bar icons are max 18-22 pts big. our are always 22 pts big.
     const QPixmap pixmap = icon.pixmap(22);
-    NSImage *image = QtMac::toNSImage(pixmap);
-    // toNSImage ignores devicePixelRatio, so fixup after the fact
+
+    CGImageRef cgImage = pixmap.toImage().toCGImage();
+    NSImage *image = [[NSImage alloc] initWithCGImage:cgImage size:NSZeroSize];
+    CFRelease(cgImage);
+
+    // The above code ignores devicePixelRatio, so fixup after the fact
     const CGFloat userWidth = pixmap.width() / pixmap.devicePixelRatio();
     const CGFloat userHeight = pixmap.height() / pixmap.devicePixelRatio();
     image.size = CGSizeMake(userWidth, userHeight); // scales the image

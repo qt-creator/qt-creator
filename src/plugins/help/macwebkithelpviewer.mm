@@ -37,7 +37,6 @@
 #include <QHelpEngine>
 #include <QStyle>
 #include <QTimer>
-#include <QtMac>
 #include <QToolTip>
 #include <QUrl>
 #include <QVBoxLayout>

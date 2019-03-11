@@ -69,7 +69,6 @@ FORMS += docsettingspage.ui \
 
 osx {
     DEFINES += QTC_MAC_NATIVE_HELPVIEWER
-    QT += macextras
     HEADERS += macwebkithelpviewer.h
     OBJECTIVE_SOURCES += macwebkithelpviewer.mm
     LIBS += -framework WebKit -framework AppKit
