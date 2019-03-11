@@ -417,6 +417,30 @@ TEST_F(ClangFormat, EmptyLineInInitializerList)
                                              "};"));
 }
 
+TEST_F(ClangFormat, IndentClosingBraceAfterComma)
+{
+    insertLines({"Bar foo{a,",
+                 "}"});
+
+    indenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("Bar foo{a,",
+                                             "        }"));
+}
+
+TEST_F(ClangFormat, DoNotIndentClosingBraceAfterSemicolon)
+{
+    insertLines({"{",
+                 "    a;"
+                 "}"});
+
+    indenter.indentBlock(doc.findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("{",
+                                             "    a;"
+                                             "}"));
+}
+
 TEST_F(ClangFormat, IndentFunctionBodyButNotFormatBeforeIt)
 {
     insertLines({"int foo(int a, int b,",

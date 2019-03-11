@@ -188,9 +188,11 @@ int forceIndentWithExtraText(QByteArray &buffer,
 
     const bool closingParenBlock = firstNonWhitespace >= 0
                                    && blockText.at(firstNonWhitespace) == ')';
+    const bool closingBraceBlock = firstNonWhitespace >= 0
+                                   && blockText.at(firstNonWhitespace) == '}';
 
     int extraLength = 0;
-    if (firstNonWhitespace < 0 || closingParenBlock) {
+    if (firstNonWhitespace < 0 || closingParenBlock || closingBraceBlock) {
         if (charContext == CharacterContext::LastAfterComma) {
             charContext = CharacterContext::AfterComma;
         } else if (charContext == CharacterContext::Unknown) {
@@ -203,12 +205,23 @@ int forceIndentWithExtraText(QByteArray &buffer,
         }
 
         QByteArray dummyText;
-        if (charContext == CharacterContext::NewStatement) {
-            dummyText = "a;a;";
-        } else if (charContext == CharacterContext::AfterComma) {
+        switch (charContext) {
+        case CharacterContext::Unknown:
+            QTC_ASSERT(false, return 0;);
+        case CharacterContext::AfterComma:
             dummyText = "&& a,";
-        } else {
+            break;
+        case CharacterContext::NewStatement:
+            if (!closingBraceBlock)
+                dummyText = "a;a;";
+            break;
+        case CharacterContext::Continuation:
+            if (closingBraceBlock)
+                break;
+            Q_FALLTHROUGH();
+        case CharacterContext::LastAfterComma:
             dummyText = "&& a";
+            break;
         }
 
         buffer.insert(utf8Offset, dummyText);
