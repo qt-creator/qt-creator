@@ -38,12 +38,16 @@
 #include <utils/synchronousprocess.h>
 
 #include <QDebug>
+#include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QPlainTextEdit>
+#include <QSettings>
 #include <QTemporaryFile>
 #include <QTextStream>
+
+#include <array>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -182,6 +186,13 @@ static Abi guessAbi(const Macros &macros)
     const auto arch = guessArchitecture(macros);
     return {arch, Abi::OS::BareMetalOS, Abi::OSFlavor::GenericFlavor,
                 guessFormat(arch), guessWordWidth(macros, arch)};
+}
+
+static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
+                                const QString &version)
+{
+    return KeilToolchain::tr("KEIL %1 (%2, %3)")
+            .arg(version, language.toString(), Abi::toString(arch));
 }
 
 // KeilToolchain
@@ -360,6 +371,56 @@ QSet<Core::Id> KeilToolchainFactory::supportedLanguages() const
             ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 }
 
+QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+{
+#ifdef Q_OS_WIN64
+    static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Keil\\Products";
+#else
+    static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Keil\\Products";
+#endif
+
+    struct Entry {
+        QString productKey;
+        QString subExePath;
+    };
+
+    // Dictionary for know toolchains.
+    static const std::array<Entry, 2> knowToolchains = {{
+        {"MDK", "\\ARMCC\\bin\\armcc.exe"},
+        {"C51", "\\BIN\\c51.exe"},
+    }};
+
+    Candidates candidates;
+
+    QSettings registry(kRegistryNode, QSettings::NativeFormat);
+    const auto productGroups = registry.childGroups();
+    for (const QString &productKey : productGroups) {
+        const Entry entry = Utils::findOrDefault(knowToolchains,
+                                                 [productKey](const Entry &entry) {
+            return entry.productKey == productKey; });
+
+        if (entry.productKey.isEmpty())
+            continue;
+
+        registry.beginGroup(productKey);
+        QString compilerPath = registry.value("Path").toString();
+        if (!compilerPath.isEmpty()) {
+            // Build full compiler path.
+            compilerPath += entry.subExePath;
+            const FileName fn = FileName::fromString(compilerPath);
+            if (isCompilerExists(fn)) {
+                QString version = registry.value("Version").toString();
+                if (version.startsWith('V'))
+                    version.remove(0, 1);
+                candidates.push_back({fn, version});
+            }
+        }
+        registry.endGroup();
+    }
+
+    return autoDetectToolchains(candidates, alreadyKnown);
+}
+
 bool KeilToolchainFactory::canCreate()
 {
     return true;
@@ -385,6 +446,53 @@ ToolChain *KeilToolchainFactory::restore(const QVariantMap &data)
     return nullptr;
 }
 
+QList<ToolChain *> KeilToolchainFactory::autoDetectToolchains(
+        const Candidates &candidates, const QList<ToolChain *> &alreadyKnown) const
+{
+    QList<ToolChain *> result;
+
+    for (const Candidate &candidate : qAsConst(candidates)) {
+        const QList<ToolChain *> filtered = Utils::filtered(
+                    alreadyKnown, [candidate](ToolChain *tc) {
+            return tc->typeId() == Constants::IAREW_TOOLCHAIN_TYPEID
+                && tc->compilerCommand() == candidate.first
+                && (tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID
+                    || tc->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+        });
+
+        if (!filtered.isEmpty()) {
+            result << filtered;
+            continue;
+        }
+
+        // Create toolchains for both C and C++ languages.
+        result << autoDetectToolchain(candidate, ProjectExplorer::Constants::C_LANGUAGE_ID);
+        result << autoDetectToolchain(candidate, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    }
+
+    return result;
+}
+
+QList<ToolChain *> KeilToolchainFactory::autoDetectToolchain(
+        const Candidate &candidate, Core::Id language) const
+{
+    const auto env = Environment::systemEnvironment();
+    const Macros macros = dumpPredefinedMacros(candidate.first, env.toStringList());
+    if (macros.isEmpty())
+        return {};
+    const Abi abi = guessAbi(macros);
+
+    const auto tc = new KeilToolchain(ToolChain::AutoDetection);
+    tc->setLanguage(language);
+    tc->setCompilerCommand(candidate.first);
+    tc->setTargetAbi(abi);
+    tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.second));
+
+    const auto languageVersion = ToolChain::languageVersion(language, macros);
+    tc->m_predefinedMacrosCache->insert({}, {macros, languageVersion});
+    return {tc};
+}
+
 // KeilToolchainConfigWidget
 
 KeilToolchainConfigWidget::KeilToolchainConfigWidget(KeilToolchain *tc) :
@@ -393,7 +501,7 @@ KeilToolchainConfigWidget::KeilToolchainConfigWidget(KeilToolchain *tc) :
     m_abiWidget(new AbiWidget)
 {
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
-    m_compilerCommand->setHistoryCompleter("PE.ToolChainCommand.History");
+    m_compilerCommand->setHistoryCompleter("PE.KEIL.Command.History");
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
 
@@ -438,7 +546,8 @@ bool KeilToolchainConfigWidget::isDirtyImpl() const
 
 void KeilToolchainConfigWidget::makeReadOnlyImpl()
 {
-    m_mainLayout->setEnabled(false);
+    m_compilerCommand->setReadOnly(true);
+    m_abiWidget->setEnabled(false);
 }
 
 void KeilToolchainConfigWidget::setFromToolchain()
@@ -448,7 +557,7 @@ void KeilToolchainConfigWidget::setFromToolchain()
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_abiWidget->setAbis({}, tc->targetAbi());
     const bool haveCompiler = isCompilerExists(m_compilerCommand->fileName());
-    m_abiWidget->setEnabled(haveCompiler);
+    m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
 }
 
 void KeilToolchainConfigWidget::handleCompilerCommandChange()

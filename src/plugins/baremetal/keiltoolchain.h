@@ -36,7 +36,11 @@ class QPushButton;
 class QTextEdit;
 QT_END_NAMESPACE
 
-namespace Utils { class PathChooser; }
+namespace Utils {
+class FileName;
+class PathChooser;
+}
+
 namespace ProjectExplorer { class AbiWidget; }
 
 namespace BareMetal {
@@ -111,11 +115,24 @@ public:
     KeilToolchainFactory();
     QSet<Core::Id> supportedLanguages() const override;
 
+    QList<ProjectExplorer::ToolChain *> autoDetect(
+            const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
+
     bool canCreate() override;
     ProjectExplorer::ToolChain *create(Core::Id language) override;
 
     bool canRestore(const QVariantMap &data) override;
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
+
+private:
+    // File path + version.
+    using Candidate = QPair<Utils::FileName, QString>;
+    using Candidates = QVector<Candidate>;
+
+    QList<ProjectExplorer::ToolChain *> autoDetectToolchains(const Candidates &candidates,
+                                                             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) const;
+    QList<ProjectExplorer::ToolChain *> autoDetectToolchain(
+            const Candidate &candidate, Core::Id language) const;
 };
 
 // KeilToolchainConfigWidget
