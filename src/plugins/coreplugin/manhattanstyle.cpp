@@ -608,9 +608,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
     case PE_IndicatorArrowDown:
     case PE_IndicatorArrowRight:
     case PE_IndicatorArrowLeft:
-        {
+        if (qobject_cast<const QMenu *>(widget)) // leave submenu arrow painting alone
+            QProxyStyle::drawPrimitive(element, option, painter, widget);
+        else
             StyleHelper::drawArrow(element, painter, option);
-        }
         break;
 
     default:
