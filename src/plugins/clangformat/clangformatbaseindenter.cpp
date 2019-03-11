@@ -127,48 +127,51 @@ void trimRHSWhitespace(const QTextBlock &block)
     cursor.endEditBlock();
 }
 
-// We don't need other types so far.
-enum class CharacterType { OpeningParen, OpeningBrace, Invalid };
-
-CharacterType firstOpeningParenOrBraceBeforeBlock(const QTextBlock &block)
+QTextBlock reverseFindLastEmptyBlock(QTextBlock start)
 {
-    if (block.text().trimmed().startsWith(')'))
-        return CharacterType::OpeningParen;
+    if (start.position() > 0) {
+        start = start.previous();
+        while (start.position() > 0 && start.text().trimmed().isEmpty())
+            start = start.previous();
+        if (!start.text().trimmed().isEmpty())
+            start = start.next();
+    }
+    return start;
+}
 
-    QTextCursor cursor(block);
-    const QTextDocument *doc = block.document();
+enum class CharacterContext { AfterComma, LastAfterComma, NewStatement, Continuation, Unknown };
 
-    cursor.movePosition(QTextCursor::PreviousCharacter);
-    QChar currentChar = doc->characterAt(cursor.position());
+QChar findFirstNonWhitespaceCharacter(const QTextBlock &currentBlock)
+{
+    const QTextDocument *doc = currentBlock.document();
+    int currentPos = currentBlock.position();
+    while (currentPos < doc->characterCount() && doc->characterAt(currentPos).isSpace())
+        ++currentPos;
+    return currentPos < doc->characterCount() ? doc->characterAt(currentPos) : QChar::Null;
+}
 
-    int parenCount = 0;
-    int braceCount = 0;
-
-    while (cursor.position() > 0 && parenCount <= 0 && braceCount <= 0) {
-        cursor.movePosition(QTextCursor::PreviousCharacter);
-        currentChar = doc->characterAt(cursor.position());
-        if (currentChar == '(')
-            ++parenCount;
-        else if (currentChar == ')')
-            --parenCount;
-        else if (currentChar == '{')
-            ++braceCount;
-        else if (currentChar == '}')
-            --braceCount;
+CharacterContext characterContext(const QTextBlock &currentBlock,
+                                  const QTextBlock &previousNonEmptyBlock)
+{
+    const QString prevLineText = previousNonEmptyBlock.text().trimmed();
+    if (prevLineText.endsWith(',')) {
+        const QChar firstNonWhitespaceChar = findFirstNonWhitespaceCharacter(currentBlock);
+        // We don't need to add comma in case it's the last argument.
+        if (firstNonWhitespaceChar == '}' || firstNonWhitespaceChar == ')')
+            return CharacterContext::LastAfterComma;
+        return CharacterContext::AfterComma;
     }
 
-    if (braceCount > 0)
-        return CharacterType::OpeningBrace;
-    if (parenCount > 0)
-        return CharacterType::OpeningParen;
+    if (prevLineText.endsWith(';') || prevLineText.endsWith('{') || prevLineText.endsWith('}'))
+        return CharacterContext::NewStatement;
 
-    return CharacterType::Invalid;
+    return CharacterContext::Continuation;
 }
 
 // Add extra text in case of the empty line or the line starting with ')'.
 // Track such extra pieces of text in isInsideModifiedLine().
 int forceIndentWithExtraText(QByteArray &buffer,
-                             QByteArray &dummyText,
+                             CharacterContext &charContext,
                              const QTextBlock &block,
                              bool secondTry)
 {
@@ -188,24 +191,24 @@ int forceIndentWithExtraText(QByteArray &buffer,
 
     int extraLength = 0;
     if (firstNonWhitespace < 0 || closingParenBlock) {
-        if (dummyText.isEmpty()) {
-            const CharacterType charType = firstOpeningParenOrBraceBeforeBlock(block);
+        if (charContext == CharacterContext::LastAfterComma) {
+            charContext = CharacterContext::AfterComma;
+        } else if (charContext == CharacterContext::Unknown) {
+            QTextBlock lastBlock = reverseFindLastEmptyBlock(block);
+            if (lastBlock.position() > 0)
+                lastBlock = lastBlock.previous();
+
             // If we don't know yet the dummy text, let's guess it and use for this line and before.
-            if (charType != CharacterType::OpeningParen) {
-                // Use the complete statement if we are not inside parenthesis.
-                dummyText = "a;a;";
-            } else {
-                // Search for previous character
-                QTextBlock prevBlock = block.previous();
-                bool prevBlockIsEmpty = prevBlock.position() > 0
-                                        && prevBlock.text().trimmed().isEmpty();
-                while (prevBlockIsEmpty) {
-                    prevBlock = prevBlock.previous();
-                    prevBlockIsEmpty = prevBlock.position() > 0
-                                       && prevBlock.text().trimmed().isEmpty();
-                }
-                dummyText = prevBlock.text().endsWith(',') ? "&& a," : "&& a";
-            }
+            charContext = characterContext(block, lastBlock);
+        }
+
+        QByteArray dummyText;
+        if (charContext == CharacterContext::NewStatement) {
+            dummyText = "a;a;";
+        } else if (charContext == CharacterContext::AfterComma) {
+            dummyText = "&& a,";
+        } else {
+            dummyText = "&& a";
         }
 
         buffer.insert(utf8Offset, dummyText);
@@ -349,18 +352,6 @@ bool doNotIndentInContext(QTextDocument *doc, int pos)
     return false;
 }
 
-QTextBlock reverseFindLastEmptyBlock(QTextBlock start)
-{
-    if (start.position() > 0) {
-        start = start.previous();
-        while (start.position() > 0 && start.text().trimmed().isEmpty())
-            start = start.previous();
-        if (!start.text().trimmed().isEmpty())
-            start = start.next();
-    }
-    return start;
-}
-
 int formattingRangeStart(const QTextBlock &currentBlock,
                          const QByteArray &buffer,
                          int documentRevision)
@@ -405,11 +396,11 @@ TextEditor::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffer
 
     adjustFormatStyleForLineBreak(style, replacementsToKeep);
     if (replacementsToKeep == ReplacementsToKeep::OnlyIndent) {
-        QByteArray dummyText;
+        CharacterContext currentCharContext = CharacterContext::Unknown;
         // Iterate backwards to reuse the same dummy text for all empty lines.
         for (int index = endBlock.blockNumber(); index >= startBlock.blockNumber(); --index) {
             utf8Length += forceIndentWithExtraText(buffer,
-                                                   dummyText,
+                                                   currentCharContext,
                                                    m_doc->findBlockByNumber(index),
                                                    secondTry);
         }

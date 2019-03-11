@@ -404,6 +404,19 @@ TEST_F(ClangFormat, IndentEmptyLineInsideParantheses)
                                              "    && b)"));
 }
 
+TEST_F(ClangFormat, EmptyLineInInitializerList)
+{
+    insertLines({"Bar foo{a,",
+                 "",
+                 "};"});
+
+    indenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("Bar foo{a,",
+                                             "        ",
+                                             "};"));
+}
+
 TEST_F(ClangFormat, IndentFunctionBodyButNotFormatBeforeIt)
 {
     insertLines({"int foo(int a, int b,",
