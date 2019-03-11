@@ -748,8 +748,8 @@ void Check::endVisit(UiObjectInitializer *)
 {
     m_propertyStack.pop();
     m_typeStack.pop();
-    UiObjectDefinition *objectDenition = cast<UiObjectDefinition *>(parent());
-    if (objectDenition && objectDenition->qualifiedTypeNameId->name == "Component")
+    UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(parent());
+    if (objectDefinition && objectDefinition->qualifiedTypeNameId->name == "Component")
         m_idStack.pop();
     UiObjectBinding *objectBinding = cast<UiObjectBinding *>(parent());
     if (objectBinding && objectBinding->qualifiedTypeNameId->name == "Component")
