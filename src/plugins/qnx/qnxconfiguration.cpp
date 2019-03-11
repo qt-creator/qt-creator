@@ -291,15 +291,13 @@ QList<ToolChain *> QnxConfiguration::findToolChain(const QList<ToolChain *> &alr
                                          });
 }
 
-ProjectExplorer::Kit *QnxConfiguration::createKit(
-        const Target &target,
-        QnxToolChain *toolChain,
-        const QVariant &debugger)
+void QnxConfiguration::createKit(const Target &target, QnxToolChain *toolChain,
+                                 const QVariant &debugger)
 {
     QnxQtVersion *qnxQt = qnxQtVersion(target);
     // Do not create incomplete kits if no qt qnx version found
     if (!qnxQt)
-        return nullptr;
+        return;
 
     const auto init = [&](Kit *k) {
         QtKitAspect::setQtVersion(k, qnxQt);
@@ -332,7 +330,7 @@ ProjectExplorer::Kit *QnxConfiguration::createKit(
     };
 
     // add kit with device and qt version not sticky
-    return KitManager::registerKit(init);
+    KitManager::registerKit(init);
 }
 
 QStringList QnxConfiguration::validationErrors() const

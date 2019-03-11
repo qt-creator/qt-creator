@@ -123,9 +123,7 @@ private:
     void createTools(const Target &target);
     QVariant createDebugger(const Target &target);
     QnxToolChain *createToolChain(const Target &target);
-    ProjectExplorer::Kit *createKit(const Target &target,
-                                    QnxToolChain *toolChain,
-                                    const QVariant &debugger);
+    void createKit(const Target &target, QnxToolChain *toolChain, const QVariant &debugger);
 
     const Target *findTargetByDebuggerPath(const Utils::FileName &path) const;
 
