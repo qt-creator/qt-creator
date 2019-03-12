@@ -974,17 +974,6 @@ static bool matchToolChain(const ToolChain *atc, const ToolChain *btc)
     return aatc->targetAbi() == abtc->targetAbi();
 }
 
-static bool matchKits(const Kit *a, const Kit *b)
-{
-    if (QtSupport::QtKitAspect::qtVersion(a) != QtSupport::QtKitAspect::qtVersion(b))
-        return false;
-
-    return matchToolChain(ToolChainKitAspect::toolChain(a, ProjectExplorer::Constants::CXX_LANGUAGE_ID),
-                          ToolChainKitAspect::toolChain(b, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
-            && matchToolChain(ToolChainKitAspect::toolChain(a, ProjectExplorer::Constants::C_LANGUAGE_ID),
-                              ToolChainKitAspect::toolChain(b, ProjectExplorer::Constants::C_LANGUAGE_ID));
-}
-
 void AndroidConfigurations::registerNewToolChains()
 {
     const QList<ToolChain *> existingAndroidToolChains
@@ -1073,6 +1062,10 @@ void AndroidConfigurations::updateAutomaticKitList()
             return tc->targetAbi() == otherTc->targetAbi();
         });
 
+        QHash<Core::Id, ToolChain *> toolChainForLanguage;
+        for (ToolChain *tc : allLanguages)
+            toolChainForLanguage[tc->language()] = tc;
+
         auto initBasicKitData = [allLanguages, device](Kit *k, const QtSupport::BaseQtVersion *qt) {
             k->setAutoDetected(true);
             k->setAutoDetectionSource("AndroidConfiguration");
@@ -1092,24 +1085,27 @@ void AndroidConfigurations::updateAutomaticKitList()
         };
 
         for (const QtSupport::BaseQtVersion *qt : qtVersionsForArch.value(tc->targetAbi())) {
-            Kit *existingKit = nullptr;
-            const auto initializeKit = [&](Kit *k) {
-                initBasicKitData(k, qt);
-                existingKit = Utils::findOrDefault(existingKits, [k](const Kit *existing) {
-                    return matchKits(k, existing);
-                });
-                if (existingKit)
+            Kit *existingKit = Utils::findOrDefault(existingKits, [&](const Kit *b) {
+                if (qt != QtSupport::QtKitAspect::qtVersion(b))
                     return false;
-                initStage2(k, qt);
-                return true;
-            };
-            Kit * const newKit = KitManager::registerKit(initializeKit);
-            QTC_ASSERT(!newKit != !existingKit, continue);
-            if (!newKit) {
+                return matchToolChain(toolChainForLanguage[ProjectExplorer::Constants::CXX_LANGUAGE_ID],
+                                      ToolChainKitAspect::toolChain(b, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
+                        && matchToolChain(toolChainForLanguage[ProjectExplorer::Constants::C_LANGUAGE_ID],
+                                          ToolChainKitAspect::toolChain(b, ProjectExplorer::Constants::C_LANGUAGE_ID));
+            });
+            if (existingKit) {
                 // Existing kit found.
                 // Update the existing kit with new data.
                 initBasicKitData(existingKit, qt);
                 initStage2(existingKit, qt);
+            } else {
+                const auto initializeKit = [&](Kit *k) {
+                    initBasicKitData(k, qt);
+                    initStage2(k, qt);
+                    return true;
+                };
+                Kit * const newKit = KitManager::registerKit(initializeKit);
+                QTC_CHECK(!newKit != !existingKit);
             }
         }
     }
