@@ -66,6 +66,7 @@ const char C_COMPILE_OUTPUT[] = "ProjectExplorer.CompileOutput";
 const char POP_UP_KEY[] = "ProjectExplorer/Settings/ShowCompilerOutput";
 const char WRAP_OUTPUT_KEY[] = "ProjectExplorer/Settings/WrapBuildOutput";
 const char MAX_LINES_KEY[] = "ProjectExplorer/Settings/MaxBuildOutputLines";
+const char OPTIONS_PAGE_ID[] = "C.ProjectExplorer.CompileOutputOptions";
 }
 
 namespace ProjectExplorer {
@@ -159,6 +160,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_cancelBuildButton(new QToolButton),
     m_zoomInButton(new QToolButton),
     m_zoomOutButton(new QToolButton),
+    m_settingsButton(new QToolButton),
     m_formatter(new Utils::OutputFormatter)
 {
     Core::Context context(C_COMPILE_OUTPUT);
@@ -187,6 +189,8 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_zoomInButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
     m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
     m_zoomOutButton->setIcon(Utils::Icons::MINUS.icon());
+    m_settingsButton->setToolTip(tr("Open Settings Page"));
+    m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
 
     updateZoomEnabled();
 
@@ -198,6 +202,9 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
             this, [this]() { m_outputWindow->zoomIn(1); });
     connect(m_zoomOutButton, &QToolButton::clicked,
             this, [this]() { m_outputWindow->zoomOut(1); });
+    connect(m_settingsButton, &QToolButton::clicked, this, [] {
+        Core::ICore::showOptionsDialog(OPTIONS_PAGE_ID);
+    });
 
     auto agg = new Aggregation::Aggregate;
     agg->add(m_outputWindow);
@@ -218,6 +225,7 @@ CompileOutputWindow::~CompileOutputWindow()
     delete m_cancelBuildButton;
     delete m_zoomInButton;
     delete m_zoomOutButton;
+    delete m_settingsButton;
     delete m_formatter;
 }
 
@@ -259,7 +267,7 @@ QWidget *CompileOutputWindow::outputWidget(QWidget *)
 
 QList<QWidget *> CompileOutputWindow::toolBarWidgets() const
 {
-     return {m_cancelBuildButton, m_zoomInButton, m_zoomOutButton};
+     return {m_cancelBuildButton, m_zoomInButton, m_zoomOutButton, m_settingsButton};
 }
 
 void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputFormat format)
@@ -432,7 +440,7 @@ private:
 
 CompileOutputSettingsPage::CompileOutputSettingsPage()
 {
-    setId("C.ProjectExplorer.CompileOutputOptions");
+    setId(OPTIONS_PAGE_ID);
     setDisplayName(tr("Compile Output"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
 }

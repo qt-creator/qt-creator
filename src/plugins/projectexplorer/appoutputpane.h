@@ -162,6 +162,7 @@ private:
     QToolButton *m_attachButton;
     QToolButton *m_zoomInButton;
     QToolButton *m_zoomOutButton;
+    QToolButton * const m_settingsButton;
     QWidget *m_formatterWidget;
     float m_zoom;
     AppOutputSettings m_settings;

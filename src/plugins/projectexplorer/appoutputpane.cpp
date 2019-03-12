@@ -66,6 +66,9 @@ static Q_LOGGING_CATEGORY(appOutputLog, "qtc.projectexplorer.appoutput", QtWarni
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+const char OPTIONS_PAGE_ID[] = "B.ProjectExplorer.AppOutputOptions";
+
+
 static QObject *debuggerPlugin()
 {
     return ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin");
@@ -176,6 +179,7 @@ AppOutputPane::AppOutputPane() :
     m_attachButton(new QToolButton),
     m_zoomInButton(new QToolButton),
     m_zoomOutButton(new QToolButton),
+    m_settingsButton(new QToolButton),
     m_formatterWidget(new QWidget)
 {
     setObjectName("AppOutputPane"); // Used in valgrind engine
@@ -225,6 +229,13 @@ AppOutputPane::AppOutputPane() :
 
     connect(m_zoomOutButton, &QToolButton::clicked,
             this, &AppOutputPane::zoomOut);
+
+    m_settingsButton->setToolTip(tr("Open Settings Page"));
+    m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
+    m_settingsButton->setAutoRaise(true);
+    connect(m_settingsButton, &QToolButton::clicked, this, [] {
+        Core::ICore::showOptionsDialog(OPTIONS_PAGE_ID);
+    });
 
     auto formatterWidgetsLayout = new QHBoxLayout;
     formatterWidgetsLayout->setContentsMargins(QMargins());
@@ -343,7 +354,7 @@ QWidget *AppOutputPane::outputWidget(QWidget *)
 QList<QWidget*> AppOutputPane::toolBarWidgets() const
 {
     return { m_reRunButton, m_stopButton, m_attachButton, m_zoomInButton,
-                m_zoomOutButton, m_formatterWidget };
+                m_zoomOutButton, m_settingsButton, m_formatterWidget };
 }
 
 QString AppOutputPane::displayName() const
@@ -864,7 +875,7 @@ private:
 
 AppOutputSettingsPage::AppOutputSettingsPage()
 {
-    setId("B.ProjectExplorer.AppOutputOptions");
+    setId(OPTIONS_PAGE_ID);
     setDisplayName(tr("Application Output"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
 }

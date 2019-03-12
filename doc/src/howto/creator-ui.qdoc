@@ -320,10 +320,10 @@
 
     To specify settings for displaying application output, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
-    \uicontrol Application Output. You can select whether to open the
-    \uicontrol{Application Output} pane on output when running or debugging
-    applications, to clear old output on a new run, to word-wrap output, and to
-    limit output to the specified number of lines.
+    \uicontrol Application Output, or click the \uicontrol {Open Settings Page}
+    button. You can select whether to open the \uicontrol{Application Output} pane
+    on output when running or debugging applications, to clear old output on a new run,
+    to word-wrap output, and to limit output to the specified number of lines.
 
     \section2 Compile Output
 
@@ -344,6 +344,9 @@
     \uicontrol {Open pane when building} check box.
     In the \uicontrol {Limit output to} field, you can specify the maximum
     amount of build output lines to display in the pane.
+
+    You can also reach the options page by clicking the \uicontrol {Open Settings Page}
+    button.
 
     \if defined(qtcreator)
     \section2 To-Do Entries

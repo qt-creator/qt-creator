@@ -99,6 +99,7 @@ private:
     QToolButton *m_cancelBuildButton;
     QToolButton *m_zoomInButton;
     QToolButton *m_zoomOutButton;
+    QToolButton * const m_settingsButton;
     Utils::OutputFormatter *m_formatter;
     CompileOutputSettings m_settings;
 };
