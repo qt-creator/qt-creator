@@ -41,6 +41,8 @@ namespace Ui { class PerfTracePointDialog; }
 
 class PerfTracePointDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
     PerfTracePointDialog();
     ~PerfTracePointDialog();

@@ -103,7 +103,7 @@ QWidget *TimelineEditorDelegate::createEditor(QWidget *parent,
     switch (index.column()) {
     case TimelineSettingsModel::TimelineRow: {
         QTC_ASSERT(comboBox, return widget);
-        comboBox->addItem(tr("None"));
+        comboBox->addItem(TimelineSettingsModel::tr("None"));
         for (const auto &timeline : timelineSettingsModel->timelineView()->getTimelines()) {
             if (!timeline.modelNode().id().isEmpty())
                 comboBox->addItem(timeline.modelNode().id());
@@ -111,7 +111,7 @@ QWidget *TimelineEditorDelegate::createEditor(QWidget *parent,
     } break;
     case TimelineSettingsModel::AnimationRow: {
         QTC_ASSERT(comboBox, return widget);
-        comboBox->addItem(tr("None"));
+        comboBox->addItem(TimelineSettingsModel::tr("None"));
         for (const auto &animation :
              timelineSettingsModel->timelineView()->getAnimations(qmlTimeline)) {
             if (!animation.id().isEmpty())
