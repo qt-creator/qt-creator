@@ -252,6 +252,14 @@ void LocatorModel::addEntries(const QList<LocatorFilterEntry> &entries)
 CompletionList::CompletionList(QWidget *parent)
     : Utils::TreeView(parent)
 {
+    // on macOS and Windows the popup doesn't really get focus, so fake the selection color
+    // which would then just be a very light gray, but should look as if it had focus
+    QPalette p = palette();
+    p.setBrush(QPalette::Inactive,
+               QPalette::Highlight,
+               p.brush(QPalette::Normal, QPalette::Highlight));
+    setPalette(p);
+
     setItemDelegate(new CompletionDelegate(this));
     setRootIsDecorated(false);
     setUniformRowHeights(true);
