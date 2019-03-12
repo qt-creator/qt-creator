@@ -386,8 +386,8 @@ QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &al
 
     // Dictionary for know toolchains.
     static const std::array<Entry, 2> knowToolchains = {{
-        {"MDK", "\\ARMCC\\bin\\armcc.exe"},
-        {"C51", "\\BIN\\c51.exe"},
+        {QString("MDK"), QString("\\ARMCC\\bin\\armcc.exe")},
+        {QString("C51"), QString("\\BIN\\c51.exe")},
     }};
 
     Candidates candidates;
