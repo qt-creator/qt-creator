@@ -205,20 +205,18 @@ void LanguageClientManager::editorOpened(Core::IEditor *iEditor)
     for (Client *interface : reachableClients())
         interface->openDocument(document);
 
-    if (auto textDocument = qobject_cast<TextDocument *>(document)) {
-        if (BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(textDocument)) {
-            if (TextEditorWidget *widget = editor->editorWidget()) {
-                connect(widget, &TextEditorWidget::requestLinkAt, this,
-                        [this, filePath = document->filePath()]
-                        (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback){
-                    findLinkAt(filePath, cursor, callback);
-                });
-                connect(widget, &TextEditorWidget::requestUsages, this,
-                        [this, filePath = document->filePath()]
-                        (const QTextCursor &cursor){
-                    findUsages(filePath, cursor);
-                });
-            }
+    if (BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(iEditor)) {
+        if (TextEditorWidget *widget = editor->editorWidget()) {
+            connect(widget, &TextEditorWidget::requestLinkAt, this,
+                    [this, filePath = document->filePath()]
+                    (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback) {
+                        findLinkAt(filePath, cursor, callback);
+                    });
+            connect(widget, &TextEditorWidget::requestUsages, this,
+                    [this, filePath = document->filePath()]
+                    (const QTextCursor &cursor) {
+                        findUsages(filePath, cursor);
+                    });
         }
     }
 }
