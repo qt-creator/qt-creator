@@ -133,11 +133,9 @@ void updateCodeActionRefactoringMarker(Client *client,
     TextDocument* doc = TextDocument::textDocumentForFileName(uri.toFileName());
     if (!doc)
         return;
-    BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(doc);
-    if (!editor)
+    const QVector<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);
+    if (editors.isEmpty())
         return;
-
-    TextEditorWidget *editorWidget = editor->editorWidget();
 
     const QList<Diagnostic> &diagnostics = action.diagnostics().value_or(QList<Diagnostic>());
 
@@ -181,7 +179,10 @@ void updateCodeActionRefactoringMarker(Client *client,
         marker.cursor = endOfLineCursor(diagnostic.range().start().toTextCursor(doc->document()));
         markers << marker;
     }
-    editorWidget->setRefactorMarkers(markers + editorWidget->refactorMarkers());
+    for (BaseTextEditor *editor : editors) {
+        if (TextEditorWidget *editorWidget = editor->editorWidget())
+            editorWidget->setRefactorMarkers(markers + editorWidget->refactorMarkers());
+    }
 }
 
 } // namespace LanguageClient

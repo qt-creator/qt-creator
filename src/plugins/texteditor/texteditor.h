@@ -111,7 +111,7 @@ public:
     virtual void finalizeInitialization() {}
 
     static BaseTextEditor *currentTextEditor();
-    static BaseTextEditor *textEditorForDocument(TextDocument *textDocument);
+    static QVector<BaseTextEditor *> textEditorsForDocument(TextDocument *textDocument);
 
     TextEditorWidget *editorWidget() const;
     TextDocument *textDocument() const;

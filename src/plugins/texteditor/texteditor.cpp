@@ -8512,13 +8512,14 @@ BaseTextEditor *BaseTextEditor::currentTextEditor()
     return qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
 }
 
-BaseTextEditor *BaseTextEditor::textEditorForDocument(TextDocument *textDocument)
+QVector<BaseTextEditor *> BaseTextEditor::textEditorsForDocument(TextDocument *textDocument)
 {
+    QVector<BaseTextEditor *> ret;
     for (IEditor *editor : Core::DocumentModel::editorsForDocument(textDocument)) {
         if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
-            return textEditor;
+            ret << textEditor;
     }
-    return nullptr;
+    return ret;
 }
 
 TextEditorWidget *BaseTextEditor::editorWidget() const

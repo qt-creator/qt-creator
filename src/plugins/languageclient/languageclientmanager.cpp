@@ -217,6 +217,18 @@ void LanguageClientManager::editorOpened(Core::IEditor *iEditor)
                     (const QTextCursor &cursor) {
                         findUsages(filePath, cursor);
                     });
+            connect(widget, &TextEditorWidget::cursorPositionChanged, this, [this, widget](){
+                        // TODO This would better be a compressing timer
+                        QTimer::singleShot(50, this,
+                                           [this, widget = QPointer<TextEditorWidget>(widget)]() {
+                            if (widget) {
+                                for (Client *client : this->reachableClients()) {
+                                    if (client->isSupportedDocument(widget->textDocument()))
+                                        client->cursorPositionChanged(widget);
+                                }
+                            }
+                        });
+                    });
         }
     }
 }
