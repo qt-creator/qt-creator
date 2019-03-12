@@ -1402,6 +1402,11 @@ ProjectConfigurationAspect *RunControl::aspect(Core::Id id) const
     return d->runConfiguration ? d->runConfiguration->aspect(id) : nullptr;
 }
 
+ISettingsAspect *RunControl::settings(Core::Id id) const
+{
+    return d->runConfiguration ? d->runConfiguration->currentSettings(id) : nullptr;
+}
+
 BuildTargetInfo RunControl::buildTargetInfo() const
 {
     return d->runConfiguration->buildTargetInfo();

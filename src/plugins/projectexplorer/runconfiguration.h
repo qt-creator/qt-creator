@@ -454,6 +454,7 @@ public:
     template <typename T> T *aspect() const {
         return runConfiguration() ? runConfiguration()->aspect<T>() : nullptr;
     }
+    ISettingsAspect *settings(Core::Id id) const;
     QString buildKey() const;
     BuildTargetInfo buildTargetInfo() const;
 

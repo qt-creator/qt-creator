@@ -58,8 +58,8 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     setSupportsReRunning(false);
 
-    m_settings = runControl->runConfiguration()
-            ->currentSettings<ValgrindBaseSettings>(ANALYZER_VALGRIND_SETTINGS);
+    m_settings =
+            qobject_cast<ValgrindBaseSettings *>(runControl->settings(ANALYZER_VALGRIND_SETTINGS));
 
     if (!m_settings)
         m_settings = ValgrindPlugin::globalSettings();

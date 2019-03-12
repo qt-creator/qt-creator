@@ -782,8 +782,9 @@ void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
     QTC_ASSERT(m_visualization, return);
 
     // apply project settings
-    if (auto settings = runControl->runConfiguration()
-            ->currentSettings<ValgrindBaseSettings>(ANALYZER_VALGRIND_SETTINGS)) {
+    auto settings
+          = qobject_cast<ValgrindBaseSettings *>(runControl->settings(ANALYZER_VALGRIND_SETTINGS));
+    if (settings) {
         m_visualization->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
         m_proxyModel.setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
         m_dataModel.setVerboseToolTipsEnabled(settings->enableEventToolTips());
