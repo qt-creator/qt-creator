@@ -60,11 +60,6 @@ class BaseSettings
 {
 public:
     BaseSettings() = default;
-    BaseSettings(const QString &name, bool enabled, const LanguageFilter &filter)
-        : m_name(name)
-        , m_enabled(enabled)
-        , m_languageFilter(filter)
-    {}
 
     virtual ~BaseSettings() = default;
 
@@ -95,13 +90,6 @@ class StdIOSettings : public BaseSettings
 {
 public:
     StdIOSettings() = default;
-    StdIOSettings(const QString &name, bool enabled, const LanguageFilter &filter,
-                  const QString &executable, const QString &arguments)
-        : BaseSettings(name, enabled, filter)
-        , m_executable(executable)
-        , m_arguments(arguments)
-    {}
-
     ~StdIOSettings() override = default;
 
     QString m_executable;
