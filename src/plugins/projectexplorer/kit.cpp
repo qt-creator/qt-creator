@@ -137,8 +137,6 @@ public:
 Kit::Kit(Id id) :
     d(std::make_unique<Internal::KitPrivate>(id, this))
 {
-    for (KitAspect *aspect : KitManager::kitAspects())
-        d->m_data.insert(aspect->id(), aspect->defaultValue(this));
 }
 
 Kit::Kit(const QVariantMap &data) :

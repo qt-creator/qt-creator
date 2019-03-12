@@ -80,9 +80,9 @@ AndroidGdbServerKitAspect::AndroidGdbServerKitAspect()
     setPriority(27999); // Just one less than Debugger!
 }
 
-QVariant AndroidGdbServerKitAspect::defaultValue(const Kit *kit) const
+void AndroidGdbServerKitAspect::setup(Kit *kit)
 {
-    return autoDetect(kit).toString();
+    kit->setValue(id(), autoDetect(kit).toString());
 }
 
 QList<Task> AndroidGdbServerKitAspect::validate(const Kit *) const

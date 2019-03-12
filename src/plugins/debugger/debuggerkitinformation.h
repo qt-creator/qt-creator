@@ -41,7 +41,6 @@ class DEBUGGER_EXPORT DebuggerKitAspect : public ProjectExplorer::KitAspect
 public:
     DebuggerKitAspect();
 
-    QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override
         { return DebuggerKitAspect::validateDebugger(k); }
 

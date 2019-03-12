@@ -91,12 +91,6 @@ QmakeKitAspect::QmakeKitAspect()
     setPriority(24000);
 }
 
-QVariant QmakeKitAspect::defaultValue(const Kit *k) const
-{
-    Q_UNUSED(k);
-    return QString();
-}
-
 QList<Task> QmakeKitAspect::validate(const Kit *k) const
 {
     QList<Task> result;

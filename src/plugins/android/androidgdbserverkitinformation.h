@@ -36,7 +36,7 @@ class AndroidGdbServerKitAspect : public ProjectExplorer::KitAspect
 public:
     AndroidGdbServerKitAspect();
 
-    QVariant defaultValue(const ProjectExplorer::Kit *) const override;
+    void setup(ProjectExplorer::Kit *) override;
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *) const override;
     bool isApplicableToKit(const ProjectExplorer::Kit *k) const override;
     ItemList toUserOutput(const ProjectExplorer::Kit *) const override;

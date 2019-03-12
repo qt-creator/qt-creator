@@ -161,20 +161,19 @@ QtKitAspect::QtKitAspect()
             this, &QtKitAspect::kitsWereLoaded);
 }
 
-QVariant QtKitAspect::defaultValue(const Kit *k) const
+void QtKitAspect::setup(ProjectExplorer::Kit *k)
 {
     Q_UNUSED(k);
 
     // find "Qt in PATH":
     BaseQtVersion *result = QtVersionManager::version(equal(&BaseQtVersion::autodetectionSource,
                                                             QString::fromLatin1("PATH")));
-    if (result)
-        return result->uniqueId();
-
-    // Use *any* desktop Qt:
-    result = QtVersionManager::version(equal(&BaseQtVersion::type,
-                                             QString::fromLatin1(QtSupport::Constants::DESKTOPQT)));
-    return result ? result->uniqueId() : -1;
+    if (!result) {
+        // Use *any* desktop Qt:
+        result = QtVersionManager::version(equal(&BaseQtVersion::type,
+            QString::fromLatin1(QtSupport::Constants::DESKTOPQT)));
+    }
+    k->setValue(id(), result ? result->uniqueId() : -1);
 }
 
 QList<ProjectExplorer::Task> QtKitAspect::validate(const ProjectExplorer::Kit *k) const

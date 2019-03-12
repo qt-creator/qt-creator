@@ -152,8 +152,6 @@ DebuggerKitAspect::DebuggerKitAspect()
     setPriority(28000);
 }
 
-QVariant DebuggerKitAspect::defaultValue(const Kit *) const { return QVariant(); }
-
 void DebuggerKitAspect::setup(Kit *k)
 {
     QTC_ASSERT(k, return);

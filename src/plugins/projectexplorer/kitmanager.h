@@ -79,8 +79,6 @@ public:
     QString description() const { return m_description; }
     bool isEssential() const { return m_essential; }
 
-    virtual QVariant defaultValue(const Kit *) const = 0;
-
     // called to find issues with the kit
     virtual QList<Task> validate(const Kit *) const = 0;
     // called after restoring a kit, so upgrading of kit information settings can be done

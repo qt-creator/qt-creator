@@ -245,12 +245,6 @@ void CMakeKitAspect::setCMakeTool(Kit *k, const Core::Id id)
         k->setValue(TOOL_ID, toSet.toSetting());
 }
 
-QVariant CMakeKitAspect::defaultValue(const Kit *k) const
-{
-    const Core::Id id = k ? defaultCMakeToolId() : Core::Id();
-    return id.toSetting();
-}
-
 QList<Task> CMakeKitAspect::validate(const Kit *k) const
 {
     QList<Task> result;
@@ -275,8 +269,7 @@ void CMakeKitAspect::setup(Kit *k)
 
 void CMakeKitAspect::fix(Kit *k)
 {
-    if (!CMakeKitAspect::cmakeTool(k))
-        setup(k);
+    setup(k);
 }
 
 KitAspect::ItemList CMakeKitAspect::toUserOutput(const Kit *k) const

@@ -44,7 +44,6 @@ public:
 private:
     static Core::Id id();
 
-    QVariant defaultValue(const ProjectExplorer::Kit *) const override;
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *) const override;
     ItemList toUserOutput(const ProjectExplorer::Kit *) const override;
     ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *) const override;

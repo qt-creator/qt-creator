@@ -122,12 +122,6 @@ SysRootKitAspect::SysRootKitAspect()
     setPriority(31000);
 }
 
-QVariant SysRootKitAspect::defaultValue(const Kit *k) const
-{
-    Q_UNUSED(k)
-    return QString();
-}
-
 QList<Task> SysRootKitAspect::validate(const Kit *k) const
 {
     QList<Task> result;
@@ -375,12 +369,6 @@ static QVariant defaultToolChainValue()
     return result;
 }
 
-QVariant ToolChainKitAspect::defaultValue(const Kit *k) const
-{
-    Q_UNUSED(k);
-    return defaultToolChainValue();
-}
-
 QList<Task> ToolChainKitAspect::validate(const Kit *k) const
 {
     QList<Task> result;
@@ -494,7 +482,9 @@ void ToolChainKitAspect::setup(Kit *k)
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
     QTC_ASSERT(k, return);
 
-    const QVariantMap value = k->value(ToolChainKitAspect::id()).toMap();
+    QVariantMap value = k->value(id()).toMap();
+    if (value.empty())
+        value = defaultToolChainValue().toMap();
 
     for (auto i = value.constBegin(); i != value.constEnd(); ++i) {
         Core::Id l = findLanguage(i.key());
@@ -813,10 +803,10 @@ DeviceTypeKitAspect::DeviceTypeKitAspect()
     makeEssential();
 }
 
-QVariant DeviceTypeKitAspect::defaultValue(const Kit *k) const
+void DeviceTypeKitAspect::setup(Kit *k)
 {
-    Q_UNUSED(k);
-    return QByteArray(Constants::DESKTOP_DEVICE_TYPE);
+    if (k)
+        k->setValue(id(), QByteArray(Constants::DESKTOP_DEVICE_TYPE));
 }
 
 QList<Task> DeviceTypeKitAspect::validate(const Kit *k) const
@@ -1242,12 +1232,6 @@ EnvironmentKitAspect::EnvironmentKitAspect()
     setDisplayName(tr("Environment"));
     setDescription(tr("Additional build environment settings when using this kit."));
     setPriority(29000);
-}
-
-QVariant EnvironmentKitAspect::defaultValue(const Kit *k) const
-{
-    Q_UNUSED(k)
-    return QStringList();
 }
 
 QList<Task> EnvironmentKitAspect::validate(const Kit *k) const

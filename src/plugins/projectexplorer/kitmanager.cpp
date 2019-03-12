@@ -250,7 +250,7 @@ void KitManager::registerKitAspect(std::unique_ptr<KitAspect> &&ki)
 
     foreach (Kit *k, kits()) {
         if (!k->hasValue(ki->id()))
-            k->setValue(ki->id(), ki->defaultValue(k));
+            ki->setup(k);
         else
             ki->fix(k);
     }
@@ -452,7 +452,7 @@ void KitManager::completeKit(Kit *k)
     for (const std::unique_ptr<KitAspect> &ki : d->m_informationList) {
         ki->upgrade(k);
         if (!k->hasValue(ki->id()))
-            k->setValue(ki->id(), ki->defaultValue(k));
+            ki->setup(k);
         else
             ki->fix(k);
     }

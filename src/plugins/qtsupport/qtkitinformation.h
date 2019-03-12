@@ -42,7 +42,7 @@ class QTSUPPORT_EXPORT QtKitAspect : public ProjectExplorer::KitAspect
 public:
     QtKitAspect();
 
-    QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
+    void setup(ProjectExplorer::Kit *k) override;
 
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
     void fix(ProjectExplorer::Kit *) override;
