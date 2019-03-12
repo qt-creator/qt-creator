@@ -224,18 +224,18 @@ int forceIndentWithExtraText(QByteArray &buffer,
         case CharacterContext::Unknown:
             QTC_ASSERT(false, return 0;);
         case CharacterContext::AfterComma:
-            dummyText = "&& a,";
+            dummyText = "a,";
             break;
         case CharacterContext::NewStatement:
             if (!closingBraceBlock)
-                dummyText = "a;a;";
+                dummyText = "a;";
             break;
         case CharacterContext::Continuation:
             if (closingBraceBlock)
                 break;
             Q_FALLTHROUGH();
         case CharacterContext::LastAfterComma:
-            dummyText = "&& a";
+            dummyText = "& a &";
             break;
         }
     }

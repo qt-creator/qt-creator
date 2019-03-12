@@ -478,6 +478,19 @@ TEST_F(ClangFormat, SameIndentAfterSecondNewLineInsideIfWithFunctionCall)
                                              "    )"));
 }
 
+TEST_F(ClangFormat, SameIndentAfterSecondNonEmptyNewLineInsideIfWithFunctionCall)
+{
+    insertLines({"if (foo()",
+                 "    ",
+                 "bar)"});
+
+    indenter.indentBlock(doc.findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("if (foo()",
+                                             "    ",
+                                             "    bar)"));
+}
+
 TEST_F(ClangFormat, SameIndentsOnNewLinesAfterComments)
 {
     insertLines({"namespace {} //comment",
