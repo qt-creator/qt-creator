@@ -75,6 +75,7 @@ signals:
 private:
     LanguageClientManager();
 
+    void editorOpened(Core::IEditor *editor);
     void documentOpened(Core::IDocument *document);
     void documentClosed(Core::IDocument *document);
     void documentContentsSaved(Core::IDocument *document);

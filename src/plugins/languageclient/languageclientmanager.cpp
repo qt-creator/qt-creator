@@ -195,28 +195,29 @@ void LanguageClientManager::clientFinished(Client *client)
     }
 }
 
-void LanguageClientManager::documentOpened(Core::IDocument *document)
+void LanguageClientManager::editorOpened(Core::IEditor *editor)
 {
     using namespace TextEditor;
-    for (Client *interface : reachableClients())
-        interface->openDocument(document);
-
-    if (auto textDocument = qobject_cast<TextDocument *>(document)) {
-        if (BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(textDocument)) {
-            if (TextEditorWidget *widget = editor->editorWidget()) {
-                connect(widget, &TextEditorWidget::requestLinkAt, this,
-                        [this, filePath = document->filePath()]
-                        (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback){
-                            findLinkAt(filePath, cursor, callback);
-                        });
-                connect(widget, &TextEditorWidget::requestUsages, this,
-                        [this, filePath = document->filePath()]
-                        (const QTextCursor &cursor){
-                            findUsages(filePath, cursor);
-                        });
-            }
+    if (auto *textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+        if (TextEditorWidget *widget = textEditor->editorWidget()) {
+            connect(widget, &TextEditorWidget::requestLinkAt, this,
+                    [this, filePath = editor->document()->filePath()]
+                    (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback){
+                        findLinkAt(filePath, cursor, callback);
+                    });
+            connect(widget, &TextEditorWidget::requestUsages, this,
+                    [this, filePath = editor->document()->filePath()]
+                    (const QTextCursor &cursor){
+                        findUsages(filePath, cursor);
+                    });
         }
     }
+}
+
+void LanguageClientManager::documentOpened(Core::IDocument *document)
+{
+    for (Client *interface : reachableClients())
+        interface->openDocument(document);
 }
 
 void LanguageClientManager::documentClosed(Core::IDocument *document)
