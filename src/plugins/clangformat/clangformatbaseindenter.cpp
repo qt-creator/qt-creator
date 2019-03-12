@@ -154,18 +154,29 @@ CharacterContext characterContext(const QTextBlock &currentBlock,
                                   const QTextBlock &previousNonEmptyBlock)
 {
     const QString prevLineText = previousNonEmptyBlock.text().trimmed();
+    const QChar firstNonWhitespaceChar = findFirstNonWhitespaceCharacter(currentBlock);
     if (prevLineText.endsWith(',')) {
-        const QChar firstNonWhitespaceChar = findFirstNonWhitespaceCharacter(currentBlock);
         // We don't need to add comma in case it's the last argument.
         if (firstNonWhitespaceChar == '}' || firstNonWhitespaceChar == ')')
             return CharacterContext::LastAfterComma;
         return CharacterContext::AfterComma;
     }
 
-    if (prevLineText.endsWith(';') || prevLineText.endsWith('{') || prevLineText.endsWith('}'))
+    if (prevLineText.endsWith(';') || prevLineText.endsWith('{') || prevLineText.endsWith('}')
+        || firstNonWhitespaceChar == QChar::Null) {
         return CharacterContext::NewStatement;
+    }
 
     return CharacterContext::Continuation;
+}
+
+bool nextBlockExistsAndEmpty(const QTextBlock &currentBlock)
+{
+    QTextBlock nextBlock = currentBlock.next();
+    if (!nextBlock.isValid() || nextBlock.position() == currentBlock.position())
+        return false;
+
+    return nextBlock.text().trimmed().isEmpty();
 }
 
 // Add extra text in case of the empty line or the line starting with ')'.
@@ -192,10 +203,15 @@ int forceIndentWithExtraText(QByteArray &buffer,
                                    && blockText.at(firstNonWhitespace) == '}';
 
     int extraLength = 0;
-    if (firstNonWhitespace < 0 || closingParenBlock || closingBraceBlock) {
+    QByteArray dummyText;
+    if (firstNonWhitespace < 0 && charContext != CharacterContext::Unknown
+        && nextBlockExistsAndEmpty(block)) {
+        // If the next line is also empty it's safer to use a comment line.
+        dummyText = "//";
+    } else if (firstNonWhitespace < 0 || closingParenBlock || closingBraceBlock) {
         if (charContext == CharacterContext::LastAfterComma) {
             charContext = CharacterContext::AfterComma;
-        } else if (charContext == CharacterContext::Unknown) {
+        } else if (charContext == CharacterContext::Unknown || firstNonWhitespace >= 0) {
             QTextBlock lastBlock = reverseFindLastEmptyBlock(block);
             if (lastBlock.position() > 0)
                 lastBlock = lastBlock.previous();
@@ -204,7 +220,6 @@ int forceIndentWithExtraText(QByteArray &buffer,
             charContext = characterContext(block, lastBlock);
         }
 
-        QByteArray dummyText;
         switch (charContext) {
         case CharacterContext::Unknown:
             QTC_ASSERT(false, return 0;);
@@ -223,10 +238,10 @@ int forceIndentWithExtraText(QByteArray &buffer,
             dummyText = "&& a";
             break;
         }
-
-        buffer.insert(utf8Offset, dummyText);
-        extraLength += dummyText.length();
     }
+
+    buffer.insert(utf8Offset, dummyText);
+    extraLength += dummyText.length();
 
     if (secondTry) {
         int nextLinePos = buffer.indexOf('\n', utf8Offset);

@@ -119,14 +119,14 @@ TEST_F(ClangFormat, IndentBasicFile)
 
 TEST_F(ClangFormat, IndentEmptyLine)
 {
-    insertLines({"int main",
+    insertLines({"int main()",
                  "{",
                  "",
                  "}"});
 
     indenter.indent(cursor, QChar::Null, TextEditor::TabSettings());
 
-    ASSERT_THAT(documentLines(), ElementsAre("int main",
+    ASSERT_THAT(documentLines(), ElementsAre("int main()",
                                              "{",
                                              "    ",
                                              "}"));
@@ -439,6 +439,56 @@ TEST_F(ClangFormat, DoNotIndentClosingBraceAfterSemicolon)
     ASSERT_THAT(documentLines(), ElementsAre("{",
                                              "    a;"
                                              "}"));
+}
+
+TEST_F(ClangFormat, SameIndentAfterSecondNewLineAfterIf)
+{
+    insertLines({"if (a)",
+                 "    ",
+                 ""});
+
+    indenter.indentBlock(doc.findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("if (a)",
+                                             "    ",
+                                             "    "));
+}
+
+TEST_F(ClangFormat, IndentAfterNewLineInsideIfWithFunctionCall)
+{
+    insertLines({"if (foo()",
+                 ")"});
+
+    indenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("if (foo()",
+                                             "    )"));
+}
+
+TEST_F(ClangFormat, SameIndentAfterSecondNewLineInsideIfWithFunctionCall)
+{
+    insertLines({"if (foo()",
+                 "    ",
+                 ")"});
+
+    indenter.indentBlock(doc.findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("if (foo()",
+                                             "    ",
+                                             "    )"));
+}
+
+TEST_F(ClangFormat, SameIndentsOnNewLinesAfterComments)
+{
+    insertLines({"namespace {} //comment",
+                 "",
+                 ""});
+
+    indenter.indentBlock(doc.findBlockByNumber(2), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("namespace {} //comment",
+                                             "",
+                                             ""));
 }
 
 TEST_F(ClangFormat, IndentFunctionBodyButNotFormatBeforeIt)
