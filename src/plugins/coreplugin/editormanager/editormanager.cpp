@@ -1206,12 +1206,14 @@ void EditorManagerPrivate::addEditor(IEditor *editor)
     bool isNewDocument = false;
     DocumentModelPrivate::addEditor(editor, &isNewDocument);
     if (isNewDocument) {
-        const bool isTemporary = editor->document()->isTemporary();
+        IDocument *document = editor->document();
+        const bool isTemporary = document->isTemporary();
         const bool addWatcher = !isTemporary;
-        DocumentManager::addDocument(editor->document(), addWatcher);
+        DocumentManager::addDocument(document, addWatcher);
         if (!isTemporary)
-            DocumentManager::addToRecentFiles(editor->document()->filePath().toString(),
-                                              editor->document()->id());
+            DocumentManager::addToRecentFiles(document->filePath().toString(),
+                                              document->id());
+        emit m_instance->documentOpened(document);
     }
     emit m_instance->editorOpened(editor);
     QTimer::singleShot(0, d, &EditorManagerPrivate::autoSuspendDocuments);
@@ -1222,9 +1224,11 @@ void EditorManagerPrivate::removeEditor(IEditor *editor, bool removeSuspendedEnt
     DocumentModel::Entry *entry = DocumentModelPrivate::removeEditor(editor);
     QTC_ASSERT(entry, return);
     if (entry->isSuspended) {
-        DocumentManager::removeDocument(editor->document());
+        IDocument *document = editor->document();
+        DocumentManager::removeDocument(document);
         if (removeSuspendedEntry)
             DocumentModelPrivate::removeEntry(entry);
+        emit m_instance->documentClosed(document);
     }
     ICore::removeContextObject(editor);
 }

@@ -174,8 +174,10 @@ signals:
     void documentStateChanged(Core::IDocument *document);
     void editorCreated(Core::IEditor *editor, const QString &fileName);
     void editorOpened(Core::IEditor *editor);
+    void documentOpened(Core::IDocument *document);
     void editorAboutToClose(Core::IEditor *editor);
     void editorsClosed(QList<Core::IEditor *> editors);
+    void documentClosed(Core::IDocument *document);
     void findOnFileSystemRequest(const QString &path);
     void openFileProperties(const Utils::FileName &path);
     void aboutToSave(IDocument *document);
