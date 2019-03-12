@@ -30,7 +30,9 @@
 #include "languageclient_global.h"
 #include "languageclientinterface.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/variablechooser.h>
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
@@ -58,6 +60,7 @@
 
 constexpr char nameKey[] = "name";
 constexpr char enabledKey[] = "enabled";
+constexpr char alwaysOnKey[] = "alwaysOn";
 constexpr char mimeTypeKey[] = "mimeType";
 constexpr char filePatternKey[] = "filePattern";
 constexpr char executableKey[] = "executable";
@@ -271,11 +274,15 @@ void LanguageClientSettingsPage::apply()
         }
     }
     for (StdIOSettings *setting : restarts) {
-        if (setting && setting->isValid() && setting->m_enabled) {
-            if (auto client = setting->createClient()) {
-                setting->m_client = client;
-                LanguageClientManager::startClient(client);
-            }
+        if (setting->isValid() && setting->m_enabled) {
+            const bool start = setting->m_alwaysOn
+                               || Utils::anyOf(Core::DocumentModel::openedDocuments(),
+                                               [filter = setting->m_languageFilter](
+                                                   Core::IDocument *doc) {
+                                                   return filter.isSupported(doc);
+                                               });
+            if (start)
+                setting->startClient();
         }
     }
 
@@ -386,6 +393,7 @@ void BaseSettings::applyFromSettingsWidget(QWidget *widget)
     if (auto settingsWidget = qobject_cast<BaseSettingsWidget *>(widget)) {
         m_name = settingsWidget->name();
         m_languageFilter = settingsWidget->filter();
+        m_alwaysOn = settingsWidget->alwaysOn();
     }
 }
 
@@ -404,16 +412,17 @@ bool BaseSettings::isValid() const
     return !m_name.isEmpty();
 }
 
-Client *BaseSettings::createClient() const
+void BaseSettings::startClient()
 {
+    if (!isValid() || !m_enabled)
+        return;
     BaseClientInterface *interface = createInterface();
-    if (QTC_GUARD(interface)) {
-        auto *client = new Client(interface);
-        client->setName(Utils::globalMacroExpander()->expand(m_name));
-        client->setSupportedLanguage(m_languageFilter);
-        return client;
-    }
-    return nullptr;
+    QTC_ASSERT(interface, return);
+    auto *client = new Client(interface);
+    client->setName(Utils::globalMacroExpander()->expand(m_name));
+    client->setSupportedLanguage(m_languageFilter);
+    m_client = client;
+    LanguageClientManager::startClient(client);
 }
 
 QVariantMap BaseSettings::toMap() const
@@ -421,6 +430,7 @@ QVariantMap BaseSettings::toMap() const
     QVariantMap map;
     map.insert(nameKey, m_name);
     map.insert(enabledKey, m_enabled);
+    map.insert(alwaysOnKey, m_alwaysOn);
     map.insert(mimeTypeKey, m_languageFilter.mimeTypes);
     map.insert(filePatternKey, m_languageFilter.filePattern);
     return map;
@@ -430,6 +440,7 @@ void BaseSettings::fromMap(const QVariantMap &map)
 {
     m_name = map[nameKey].toString();
     m_enabled = map[enabledKey].toBool();
+    m_alwaysOn = map.value(alwaysOnKey, false).toBool();
     m_languageFilter.mimeTypes = map[mimeTypeKey].toStringList();
     m_languageFilter.filePattern = map[filePatternKey].toStringList();
 }
@@ -546,6 +557,7 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     , m_name(new QLineEdit(settings->m_name, this))
     , m_mimeTypes(new QLabel(settings->m_languageFilter.mimeTypes.join(filterSeparator), this))
     , m_filePattern(new QLineEdit(settings->m_languageFilter.filePattern.join(filterSeparator), this))
+    , m_alwaysOn(new QCheckBox())
 {
     int row = 0;
     auto *mainLayout = new QGridLayout;
@@ -562,6 +574,9 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     mainLayout->addLayout(mimeLayout, row, 1);
     m_filePattern->setPlaceholderText(tr("File pattern"));
     mainLayout->addWidget(m_filePattern, ++row, 1);
+    mainLayout->addWidget(new QLabel(tr("Always On:")), ++row, 0);
+    mainLayout->addWidget(m_alwaysOn, row, 1);
+    m_alwaysOn->setChecked(settings->m_alwaysOn);
 
     connect(addMimeTypeButton, &QPushButton::pressed,
             this, &BaseSettingsWidget::showAddMimeTypeDialog);
@@ -602,6 +617,11 @@ LanguageFilter BaseSettingsWidget::filter() const
 {
     return {m_mimeTypes->text().split(filterSeparator),
                 m_filePattern->text().split(filterSeparator)};
+}
+
+bool BaseSettingsWidget::alwaysOn() const
+{
+    return m_alwaysOn->isChecked();
 }
 
 class MimeTypeModel : public QStringListModel
@@ -739,6 +759,11 @@ bool LanguageFilter::isSupported(const Utils::FileName &filePath, const QString 
     return Utils::anyOf(regexps, [filePath](const QRegExp &reg){
         return reg.exactMatch(filePath.toString()) || reg.exactMatch(filePath.fileName());
     });
+}
+
+bool LanguageFilter::isSupported(const Core::IDocument *document) const
+{
+    return isSupported(document->filePath(), document->mimeType());
 }
 
 } // namespace LanguageClient

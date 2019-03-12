@@ -231,6 +231,10 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
 
 void LanguageClientManager::documentOpened(Core::IDocument *document)
 {
+    for (StdIOSettings *setting : LanguageClientSettings::currentSettings()) {
+        if (setting->m_client.isNull() && setting->m_languageFilter.isSupported(document))
+            setting->startClient();
+    }
     for (Client *interface : reachableClients())
         interface->openDocument(document);
 }

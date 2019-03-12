@@ -42,6 +42,8 @@ class FileName;
 class PathChooser;
 } // namespace Utils
 
+namespace Core { class IDocument; }
+
 namespace LanguageClient {
 
 constexpr char noLanguageFilter[] = "No Filter";
@@ -54,6 +56,7 @@ struct LanguageFilter
     QStringList mimeTypes;
     QStringList filePattern;
     bool isSupported(const Utils::FileName &filePath, const QString &mimeType) const;
+    bool isSupported(const Core::IDocument *document) const;
 };
 
 class BaseSettings
@@ -65,6 +68,7 @@ public:
 
     QString m_name = QString("New Language Server");
     bool m_enabled = true;
+    bool m_alwaysOn = false;
     LanguageFilter m_languageFilter;
     QPointer<Client> m_client; // not owned
 
@@ -73,7 +77,7 @@ public:
     virtual BaseSettings *copy() const { return new BaseSettings(*this); }
     virtual bool needsRestart() const;
     virtual bool isValid() const ;
-    Client *createClient() const;
+    void startClient();
     virtual QVariantMap toMap() const;
     virtual void fromMap(const QVariantMap &map);
 
@@ -135,6 +139,7 @@ public:
 
     QString name() const;
     LanguageFilter filter() const;
+    bool alwaysOn() const;
 
 private:
     void showAddMimeTypeDialog();
@@ -142,6 +147,7 @@ private:
     QLineEdit *m_name = nullptr;
     QLabel *m_mimeTypes = nullptr;
     QLineEdit *m_filePattern = nullptr;
+    QCheckBox *m_alwaysOn = nullptr;
 
     static constexpr char filterSeparator = ';';
 };
