@@ -552,8 +552,8 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
 
     d->m_viewContainer->perspective()->select();
 
-    auto runConfig = RunConfiguration::startupRunConfiguration();
-    auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    auto runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl->setRunConfiguration(RunConfiguration::startupRunConfiguration());
     auto profiler = new QmlProfilerRunner(runControl);
     profiler->setServerUrl(serverUrl);
     connect(profiler, &QmlProfilerRunner::starting, this, &QmlProfilerTool::finalizeRunControl);

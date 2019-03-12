@@ -64,8 +64,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     serverUrl.setScheme(Utils::urlSocketScheme());
     serverUrl.setPath("invalid");
 
-    runControl = new ProjectExplorer::RunControl(nullptr,
-                                                 ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
     profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
 
@@ -115,8 +114,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     // comma is used to specify a test function. In this case, an invalid one.
     debuggee.commandLineArguments = QString("-test QmlProfiler,");
-    runControl = new ProjectExplorer::RunControl(nullptr,
-                                                 ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
     profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
     connectRunner();
@@ -135,8 +133,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     debuggee.commandLineArguments.clear();
     serverUrl.clear();
     serverUrl = Utils::urlFromLocalHostAndFreePort();
-    runControl = new ProjectExplorer::RunControl(nullptr,
-                                                 ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
     profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
     connectRunner();
@@ -161,8 +158,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
             serverUrl.setPath(file.fileName());
     }
 
-    runControl = new ProjectExplorer::RunControl(nullptr,
-                                                 ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
     profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
     connectRunner();

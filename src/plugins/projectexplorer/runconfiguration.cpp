@@ -799,21 +799,11 @@ static QString stateName(RunControlState s)
 class RunControlPrivate : public QObject
 {
 public:
-    RunControlPrivate(RunControl *parent, RunConfiguration *runConfiguration, Core::Id mode)
-        : q(parent), runMode(mode), runConfiguration(runConfiguration)
+    RunControlPrivate(RunControl *parent, Core::Id mode)
+        : q(parent), runMode(mode)
     {
         icon = Icons::RUN_SMALL_TOOLBAR;
-        if (runConfiguration) {
-            runnable = runConfiguration->runnable();
-            displayName  = runConfiguration->displayName();
-            outputFormatter = runConfiguration->createOutputFormatter();
-            device = runnable.device;
-            target = runConfiguration->target();
-            if (!device)
-                device = DeviceKitAspect::device(target->kit());
-        } else {
-            outputFormatter = new OutputFormatter();
-        }
+        outputFormatter = new OutputFormatter();
     }
 
     ~RunControlPrivate() override
@@ -856,7 +846,7 @@ public:
     IDevice::ConstPtr device;
     Core::Id runMode;
     Utils::Icon icon;
-    const QPointer<RunConfiguration> runConfiguration; // Not owned.
+    QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
     QPointer<Target> target; // Not owned.
     QPointer<Utils::OutputFormatter> outputFormatter = nullptr;
     std::function<bool(bool*)> promptToStop;
@@ -874,11 +864,33 @@ public:
 
 using namespace Internal;
 
-RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode) :
-    d(std::make_unique<RunControlPrivate>(this, runConfiguration, mode))
+RunControl::RunControl(Core::Id mode) :
+    d(std::make_unique<RunControlPrivate>(this,  mode))
 {
+}
+
+void RunControl::setRunConfiguration(RunConfiguration *runConfig)
+{
+    QTC_ASSERT(runConfig, return);
+    d->runConfiguration = runConfig;
+    d->runnable = runConfig->runnable();
+    d->displayName  = runConfig->displayName();
+    if (auto outputFormatter = runConfig->createOutputFormatter()) {
+        delete d->outputFormatter;
+        d->outputFormatter = outputFormatter;
+    }
+    d->target = runConfig->target();
+    if (d->runnable.device)
+        setDevice(d->runnable.device);
+    else
+        setDevice(DeviceKitAspect::device(d->target->kit()));
+}
+
+void RunControl::setDevice(const IDevice::ConstPtr &device)
+{
+    d->device = device;
 #ifdef WITH_JOURNALD
-    if (!device().isNull() && device()->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+    if (!device.isNull() && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         JournaldWatcher::instance()->subscribe(this, [this](const JournaldWatcher::LogEntry &entry) {
 
             if (entry.value("_MACHINE_ID") != JournaldWatcher::instance()->machineId())
@@ -897,12 +909,6 @@ RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode) :
         });
     }
 #endif
-}
-
-RunControl::RunControl(const IDevice::ConstPtr &device, Core::Id mode)
-    : RunControl(nullptr, mode)
-{
-    d->device = device;
 }
 
 RunControl::~RunControl()

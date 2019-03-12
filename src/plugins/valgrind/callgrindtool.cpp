@@ -280,7 +280,8 @@ CallgrindTool::CallgrindTool()
         if (dlg.exec() != QDialog::Accepted)
             return;
         m_perspective.select();
-        auto runControl = new RunControl(runConfig, CALLGRIND_RUN_MODE);
+        auto runControl = new RunControl(CALLGRIND_RUN_MODE);
+        runControl->setRunConfiguration(runConfig);
         if (auto creator = RunControl::producer(runConfig, CALLGRIND_RUN_MODE))
             creator(runControl);
         const auto runnable = dlg.runnable();

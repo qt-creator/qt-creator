@@ -364,7 +364,7 @@ static ClangDiagnosticConfig getDiagnosticConfig(Project *project)
 
 void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
 {
-    auto runControl = new RunControl(nullptr, Constants::CLANGTIDYCLAZY_RUN_MODE);
+    auto runControl = new RunControl(Constants::CLANGTIDYCLAZY_RUN_MODE);
     runControl->setDisplayName(tr("Clang-Tidy and Clazy"));
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
 

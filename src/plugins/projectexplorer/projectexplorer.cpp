@@ -2191,7 +2191,8 @@ void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *run
     RunControl::WorkerCreator producer = RunControl::producer(runConfiguration, runMode);
 
     QTC_ASSERT(producer, return);
-    auto runControl = new RunControl(runConfiguration, runMode);
+    auto runControl = new RunControl(runMode);
+    runControl->setRunConfiguration(runConfiguration);
 
     // A user needed interaction may have cancelled the run
     // (by example asking for a process pid or server url).

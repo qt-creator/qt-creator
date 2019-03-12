@@ -266,7 +266,8 @@ void QnxAttachDebugSupport::showProcessesDialog()
             localExecutable = aspect->fileName().toString();
     }
 
-    auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setRunConfiguration(runConfig);
     auto debugger = new QnxAttachDebugSupport(runControl);
     debugger->setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(DetachAtClose);

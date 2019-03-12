@@ -671,7 +671,8 @@ MemcheckTool::MemcheckTool()
             return;
         TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
         m_perspective.select();
-        RunControl *rc = new RunControl(runConfig, MEMCHECK_RUN_MODE);
+        RunControl *rc = new RunControl(MEMCHECK_RUN_MODE);
+        rc->setRunConfiguration(runConfig);
         if (auto creator = RunControl::producer(runConfig, MEMCHECK_RUN_MODE))
             creator(rc);
         const auto runnable = dlg.runnable();

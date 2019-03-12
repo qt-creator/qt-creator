@@ -541,14 +541,8 @@ void TestRunner::debugTests()
     }
 
     QString errorMessage;
-    auto runControl = new ProjectExplorer::RunControl(config->runConfiguration(),
-                                                      ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    if (!runControl) {
-        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-            TestRunner::tr("Failed to create run configuration.\n%1").arg(errorMessage))));
-        onFinished();
-        return;
-    }
+    auto runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setRunConfiguration(config->runConfiguration());
 
     QStringList omitted;
     ProjectExplorer::Runnable inferior = config->runnable();

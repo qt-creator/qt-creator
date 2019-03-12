@@ -405,7 +405,7 @@ void StartApplicationDialog::run(bool attachRemote)
     Kit *k = dialog.d->kitChooser->currentKit();
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
 
-    auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto debugger = new DebuggerRunTool(runControl, k);
 
     const StartApplicationParameters newParameters = dialog.parameters();
