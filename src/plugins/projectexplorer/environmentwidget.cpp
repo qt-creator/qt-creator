@@ -33,10 +33,13 @@
 #include <utils/environmentmodel.h>
 #include <utils/environmentdialog.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QDir>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QString>
 #include <QPushButton>
 #include <QTreeView>
@@ -131,10 +134,12 @@ public:
     QPushButton *m_resetButton;
     QPushButton *m_unsetButton;
     QPushButton *m_batchEditButton;
+    QPushButton *m_appendPathButton = nullptr;
+    QPushButton *m_prependPathButton = nullptr;
     QPushButton *m_terminalButton;
 };
 
-EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget)
+EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additionalDetailsWidget)
     : QWidget(parent), d(std::make_unique<EnvironmentWidgetPrivate>())
 {
     d->m_model = new Utils::EnvironmentModel();
@@ -199,6 +204,21 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     d->m_unsetButton->setEnabled(false);
     d->m_unsetButton->setText(tr("&Unset"));
     buttonLayout->addWidget(d->m_unsetButton);
+
+    if (type == TypeLocal) {
+        d->m_appendPathButton = new QPushButton(this);
+        d->m_appendPathButton->setEnabled(false);
+        d->m_appendPathButton->setText(tr("Append Path..."));
+        buttonLayout->addWidget(d->m_appendPathButton);
+        d->m_prependPathButton = new QPushButton(this);
+        d->m_prependPathButton->setEnabled(false);
+        d->m_prependPathButton->setText(tr("Prepend Path..."));
+        buttonLayout->addWidget(d->m_prependPathButton);
+        connect(d->m_appendPathButton, &QAbstractButton::clicked,
+                this, &EnvironmentWidget::appendPathButtonClicked);
+        connect(d->m_prependPathButton, &QAbstractButton::clicked,
+                this, &EnvironmentWidget::prependPathButtonClicked);
+    }
 
     d->m_batchEditButton = new QPushButton(this);
     d->m_batchEditButton->setText(tr("&Batch Edit..."));
@@ -318,6 +338,36 @@ void EnvironmentWidget::linkActivated(const QString &link)
     focusIndex(idx);
 }
 
+bool EnvironmentWidget::currentEntryIsPathList(const QModelIndex &current) const
+{
+    if (!current.isValid())
+        return false;
+
+    // Look at the name first and check it against some well-known path variables. Extend as needed.
+    const QString varName = d->m_model->indexToVariable(current);
+    if (varName.compare("PATH", Utils::HostOsInfo::fileNameCaseSensitivity()) == 0)
+        return true;
+    if (Utils::HostOsInfo::isMacHost() && varName == "DYLD_LIBRARY_PATH")
+        return true;
+    if (Utils::HostOsInfo::isAnyUnixHost() && varName == "LD_LIBRARY_PATH")
+        return true;
+
+    // Now check the value: If it's a list of strings separated by the platform's path separator
+    // and at least one of the strings is an existing directory, then that's enough proof for us.
+    QModelIndex valueIndex = current;
+    if (valueIndex.column() == 0)
+        valueIndex = valueIndex.siblingAtColumn(1);
+    const QStringList entries = d->m_model->data(valueIndex).toString()
+            .split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
+    if (entries.length() < 2)
+        return false;
+    for (const QString &potentialDir : entries) {
+        if (QFileInfo(potentialDir).isDir())
+            return true;
+    }
+    return false;
+}
+
 void EnvironmentWidget::updateButtons()
 {
     environmentCurrentIndexChanged(d->m_environmentView->currentIndex());
@@ -352,6 +402,42 @@ void EnvironmentWidget::unsetEnvironmentButtonClicked()
         d->m_model->unsetVariable(name);
 }
 
+void EnvironmentWidget::amendPathList(const PathListModifier &modifier)
+{
+    const QString varName = d->m_model->indexToVariable(d->m_environmentView->currentIndex());
+    const QString dir = QDir::toNativeSeparators(
+                QFileDialog::getExistingDirectory(this, tr("Choose a directory")));
+    if (dir.isEmpty())
+        return;
+    QModelIndex index = d->m_model->variableToIndex(varName);
+    if (!index.isValid())
+        return;
+    if (index.column() == 0)
+        index = index.siblingAtColumn(1);
+    const QString value = d->m_model->data(index).toString();
+    d->m_model->setData(index, modifier(value, dir));
+}
+
+void EnvironmentWidget::appendPathButtonClicked()
+{
+    amendPathList([](const QString &pathList, const QString &dir) {
+        QString newPathList = dir;
+        if (!pathList.isEmpty())
+            newPathList.prepend(Utils::HostOsInfo::pathListSeparator()).prepend(pathList);
+        return newPathList;
+    });
+}
+
+void EnvironmentWidget::prependPathButtonClicked()
+{
+    amendPathList([](const QString &pathList, const QString &dir) {
+        QString newPathList = dir;
+        if (!pathList.isEmpty())
+            newPathList.append(Utils::HostOsInfo::pathListSeparator()).append(pathList);
+        return newPathList;
+    });
+}
+
 void EnvironmentWidget::batchEditEnvironmentButtonClicked()
 {
     const QList<Utils::EnvironmentItem> changes = d->m_model->userChanges();
@@ -384,6 +470,10 @@ void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &curren
         d->m_editButton->setEnabled(false);
         d->m_resetButton->setEnabled(false);
         d->m_unsetButton->setEnabled(false);
+    }
+    if (d->m_appendPathButton) {
+        d->m_appendPathButton->setEnabled(currentEntryIsPathList(current));
+        d->m_prependPathButton->setEnabled(currentEntryIsPathList(current));
     }
 }
 

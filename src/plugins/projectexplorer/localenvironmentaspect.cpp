@@ -38,6 +38,7 @@ namespace ProjectExplorer {
 
 LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target)
 {
+    setIsLocal(true);
     addSupportedBaseEnvironment(tr("Clean Environment"), {});
 
     addSupportedBaseEnvironment(tr("System Environment"), [] {

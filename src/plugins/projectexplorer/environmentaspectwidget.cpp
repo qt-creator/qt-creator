@@ -72,7 +72,9 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     if (additionalWidget)
         baseLayout->addWidget(additionalWidget);
 
-    m_environmentWidget = new EnvironmentWidget(this, baseEnvironmentWidget);
+    const EnvironmentWidget::Type widgetType = aspect->isLocal()
+            ? EnvironmentWidget::TypeLocal : EnvironmentWidget::TypeRemote;
+    m_environmentWidget = new EnvironmentWidget(this, widgetType, baseEnvironmentWidget);
     m_environmentWidget->setBaseEnvironment(m_aspect->currentUnmodifiedBaseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_aspect->currentDisplayName());
     m_environmentWidget->setUserChanges(m_aspect->userEnvironmentChanges());

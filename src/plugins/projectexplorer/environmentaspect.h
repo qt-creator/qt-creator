@@ -66,6 +66,8 @@ public:
     using EnvironmentModifier = std::function<void(Utils::Environment &)>;
     void addModifier(const EnvironmentModifier &);
 
+    bool isLocal() const { return m_isLocal; }
+
 signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
@@ -74,6 +76,8 @@ signals:
 protected:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
+
+    void setIsLocal(bool local) { m_isLocal = local; }
 
 private:
     // One possible choice in the Environment aspect.
@@ -84,10 +88,11 @@ private:
         QString displayName;
     };
 
-    int m_base = -1;
     QList<Utils::EnvironmentItem> m_userChanges;
     QList<EnvironmentModifier> m_modifiers;
     QList<BaseEnvironment> m_baseEnvironments;
+    int m_base = -1;
+    bool m_isLocal = false;
 };
 
 } // namespace ProjectExplorer
