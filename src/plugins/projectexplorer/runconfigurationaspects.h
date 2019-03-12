@@ -46,7 +46,7 @@ public:
     void addToConfigurationLayout(QFormLayout *layout) override;
 
     bool useTerminal() const;
-    void setUseTerminal(bool useTerminal);
+    void setUseTerminalHint(bool useTerminal);
 
     bool isUserSet() const;
 
@@ -54,6 +54,9 @@ private:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
+    void calculateUseTerminal();
+
+    bool m_useTerminalHint = false;
     bool m_useTerminal = false;
     bool m_userSet = false;
     QPointer<QCheckBox> m_checkBox; // Owned by RunConfigWidget

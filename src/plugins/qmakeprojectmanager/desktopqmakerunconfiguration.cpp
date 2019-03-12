@@ -107,8 +107,7 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
         wda->pathChooser()->setBaseFileName(target()->project()->projectDirectory());
 
     auto terminalAspect = aspect<TerminalAspect>();
-    if (!terminalAspect->isUserSet())
-        terminalAspect->setUseTerminal(bti.usesTerminal);
+    terminalAspect->setUseTerminalHint(bti.usesTerminal);
 
     aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
 }

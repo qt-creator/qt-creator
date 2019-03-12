@@ -56,6 +56,9 @@ TerminalAspect::TerminalAspect()
     setDisplayName(tr("Terminal"));
     setId("TerminalAspect");
     setSettingsKey("RunConfiguration.UseTerminal");
+    calculateUseTerminal();
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, &TerminalAspect::calculateUseTerminal);
 }
 
 void TerminalAspect::addToConfigurationLayout(QFormLayout *layout)
@@ -90,19 +93,33 @@ void TerminalAspect::toMap(QVariantMap &data) const
         data.insert(settingsKey(), m_useTerminal);
 }
 
-bool TerminalAspect::useTerminal() const
+void TerminalAspect::calculateUseTerminal()
 {
-    return m_useTerminal;
-}
-
-void TerminalAspect::setUseTerminal(bool useTerminal)
-{
+    if (m_userSet)
+        return;
+    bool useTerminal;
+    switch (ProjectExplorerPlugin::projectExplorerSettings().terminalMode) {
+    case Internal::TerminalMode::On: useTerminal = true; break;
+    case Internal::TerminalMode::Off: useTerminal = false; break;
+    case Internal::TerminalMode::Smart: useTerminal = m_useTerminalHint;
+    }
     if (m_useTerminal != useTerminal) {
         m_useTerminal = useTerminal;
         emit changed();
     }
     if (m_checkBox)
         m_checkBox->setChecked(m_useTerminal);
+}
+
+bool TerminalAspect::useTerminal() const
+{
+    return m_useTerminal;
+}
+
+void TerminalAspect::setUseTerminalHint(bool hint)
+{
+    m_useTerminalHint = hint;
+    calculateUseTerminal();
 }
 
 bool TerminalAspect::isUserSet() const

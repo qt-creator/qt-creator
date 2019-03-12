@@ -105,6 +105,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
     m_settings.automaticallyCreateRunConfigurations = m_ui.automaticallyCreateRunConfiguration->isChecked();
     m_settings.stopBeforeBuild = static_cast<ProjectExplorerSettings::StopBeforeBuild>(m_ui.stopBeforeBuildComboBox->currentIndex());
+    m_settings.terminalMode = static_cast<TerminalMode>(m_ui.terminalModeComboBox->currentIndex());
     m_settings.buildDirectoryTemplate = buildDirectoryTemplate();
     return m_settings;
 }
@@ -120,6 +121,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.promptToStopRunControlCheckBox->setChecked(m_settings.prompToStopRunControl);
     m_ui.automaticallyCreateRunConfiguration->setChecked(m_settings.automaticallyCreateRunConfigurations);
     m_ui.stopBeforeBuildComboBox->setCurrentIndex(static_cast<int>(m_settings.stopBeforeBuild));
+    m_ui.terminalModeComboBox->setCurrentIndex(static_cast<int>(m_settings.terminalMode));
     setBuildDirectoryTemplate(pes.buildDirectoryTemplate);
 }
 

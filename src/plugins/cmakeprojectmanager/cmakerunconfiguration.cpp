@@ -84,8 +84,7 @@ void CMakeRunConfiguration::updateTargetInformation()
     aspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
 
     auto terminalAspect = aspect<TerminalAspect>();
-    if (!terminalAspect->isUserSet())
-        terminalAspect->setUseTerminal(bti.usesTerminal);
+    terminalAspect->setUseTerminalHint(bti.usesTerminal);
 }
 
 // Factory

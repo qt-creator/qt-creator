@@ -33,6 +33,8 @@
 namespace ProjectExplorer {
 namespace Internal {
 
+enum class TerminalMode { On, Off, Smart };
+
 class ProjectExplorerSettings
 {
 public:
@@ -47,6 +49,7 @@ public:
     bool automaticallyCreateRunConfigurations = true;
     bool addLibraryPathsToRunEnv = true;
     StopBeforeBuild stopBeforeBuild = StopBeforeBuild::StopNone;
+    TerminalMode terminalMode = TerminalMode::Smart;
     QString buildDirectoryTemplate;
 
     // Add a UUid which is used to identify the development environment.
@@ -67,6 +70,7 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.addLibraryPathsToRunEnv == p2.addLibraryPathsToRunEnv
             && p1.environmentId == p2.environmentId
             && p1.stopBeforeBuild == p2.stopBeforeBuild
+            && p1.terminalMode == p2.terminalMode
             && p1.buildDirectoryTemplate == p2.buildDirectoryTemplate;
 }
 

@@ -246,6 +246,8 @@ const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxM
 const char DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "../%{JS: Util.asciify(\"build-%{CurrentProject:Name}-%{CurrentKit:FileSystemName}-%{CurrentBuild:Name}\")}";
 const char DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY[] = "Directories/BuildDirectory.Template";
 
+const char TERMINAL_MODE_SETTINGS_KEY[] = "ProjectExplorer/Settings/TerminalMode";
+
 } // namespace Constants
 
 
@@ -1325,6 +1327,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     if (tmp < 0 || tmp > ProjectExplorerSettings::StopSameBuildDir)
         tmp = Utils::HostOsInfo::isWindowsHost() ? 1 : 0;
     dd->m_projectExplorerSettings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(tmp);
+    dd->m_projectExplorerSettings.terminalMode = static_cast<TerminalMode>(s->value(
+        Constants::TERMINAL_MODE_SETTINGS_KEY, int(TerminalMode::Smart)).toInt());
     dd->m_projectExplorerSettings.buildDirectoryTemplate
             = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY).toString();
     if (dd->m_projectExplorerSettings.buildDirectoryTemplate.isEmpty())
@@ -1908,6 +1912,8 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), dd->m_projectExplorerSettings.autorestoreLastSession);
     s->setValue(QLatin1String("ProjectExplorer/Settings/AddLibraryPathsToRunEnv"), dd->m_projectExplorerSettings.addLibraryPathsToRunEnv);
     s->setValue(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), dd->m_projectExplorerSettings.prompToStopRunControl);
+    s->setValue(Constants::TERMINAL_MODE_SETTINGS_KEY,
+                int(dd->m_projectExplorerSettings.terminalMode));
     s->setValue(QLatin1String("ProjectExplorer/Settings/AutomaticallyCreateRunConfigurations"),
                 dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations);
     s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), dd->m_projectExplorerSettings.environmentId.toByteArray());

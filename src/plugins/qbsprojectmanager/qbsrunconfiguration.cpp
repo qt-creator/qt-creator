@@ -145,8 +145,7 @@ void QbsRunConfiguration::updateTargetInformation()
     BuildTargetInfo bti = buildTargetInfo();
     const FileName executable = executableToRun(bti);
     auto terminalAspect = aspect<TerminalAspect>();
-    if (!terminalAspect->isUserSet())
-        terminalAspect->setUseTerminal(bti.usesTerminal);
+    terminalAspect->setUseTerminalHint(bti.usesTerminal);
 
     aspect<ExecutableAspect>()->setExecutable(executable);
 
