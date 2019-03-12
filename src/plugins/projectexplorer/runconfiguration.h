@@ -416,7 +416,8 @@ public:
     ~RunControl() override;
 
     void setRunConfiguration(RunConfiguration *runConfig);
-    void setDevice(const IDevice::ConstPtr &device);
+    void setTarget(Target *target);
+    void setKit(Kit *kit);
 
     void initiateStart();
     void initiateReStart();
@@ -450,7 +451,9 @@ public:
     Project *project() const;
     Kit *kit() const;
     ProjectConfigurationAspect *aspect(Core::Id id) const;
-    template <typename T> T *aspect() const { return runConfiguration()->aspect<T>(); }
+    template <typename T> T *aspect() const {
+        return runConfiguration() ? runConfiguration()->aspect<T>() : nullptr;
+    }
     QString buildKey() const;
     BuildTargetInfo buildTargetInfo() const;
 
@@ -500,6 +503,8 @@ signals:
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
 
 private:
+    void setDevice(const IDevice::ConstPtr &device);
+
     friend class RunWorker;
     friend class Internal::RunWorkerPrivate;
 

@@ -876,7 +876,7 @@ Internal::TerminalRunner *DebuggerRunTool::terminalRunner() const
     return d->terminalRunner;
 }
 
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTerminal)
+DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerminal)
     : RunWorker(runControl), d(new DebuggerRunToolPrivate)
 {
     setId("DebuggerRunTool");
@@ -902,16 +902,15 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
                 QString(), QString(), optionalPrompt);
     });
 
-    if (runConfig) {
+    if (runConfig)
         m_runParameters.displayName = runConfig->displayName();
-        if (auto symbolsAspect = runConfig->aspect<SymbolFileAspect>())
-            m_runParameters.symbolFile = symbolsAspect->value();
-        if (auto terminalAspect = runConfig->aspect<TerminalAspect>())
-            m_runParameters.useTerminal = terminalAspect->useTerminal();
-    }
 
-    if (runConfig && !kit)
-        kit = runConfig->target()->kit();
+    if (auto symbolsAspect = runControl->aspect<SymbolFileAspect>())
+        m_runParameters.symbolFile = symbolsAspect->value();
+    if (auto terminalAspect = runControl->aspect<TerminalAspect>())
+        m_runParameters.useTerminal = terminalAspect->useTerminal();
+
+    Kit *kit = runControl->kit();
     QTC_ASSERT(kit, return);
 
     m_runParameters.sysRoot = SysRootKitAspect::sysRoot(kit);
@@ -922,7 +921,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
     if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
         m_runParameters.qtPackageSourceLocation = qtVersion->qtPackageSourcePath().toString();
 
-    if (auto aspect = runConfig ? runConfig->aspect<DebuggerRunConfigurationAspect>() : nullptr) {
+    if (auto aspect = runControl->aspect<DebuggerRunConfigurationAspect>()) {
         if (!aspect->useCppDebugger())
             m_runParameters.cppEngineType = NoEngineType;
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger();
@@ -933,7 +932,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
     // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
     m_runParameters.inferior.workingDirectory =
             FileUtils::normalizePathName(m_runParameters.inferior.workingDirectory);
-    setUseTerminal(allowTerminal && m_runParameters.useTerminal);
+    setUseTerminal(allowTerminal == DoAllowTerminal && m_runParameters.useTerminal);
 
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())

@@ -847,6 +847,7 @@ public:
     Core::Id runMode;
     Utils::Icon icon;
     QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
+    Kit *kit = nullptr; // Not owned.
     QPointer<Target> target; // Not owned.
     QPointer<Utils::OutputFormatter> outputFormatter = nullptr;
     std::function<bool(bool*)> promptToStop;
@@ -872,6 +873,7 @@ RunControl::RunControl(Core::Id mode) :
 void RunControl::setRunConfiguration(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return);
+    QTC_CHECK(!d->runConfiguration);
     d->runConfiguration = runConfig;
     d->runnable = runConfig->runnable();
     d->displayName  = runConfig->displayName();
@@ -879,15 +881,32 @@ void RunControl::setRunConfiguration(RunConfiguration *runConfig)
         delete d->outputFormatter;
         d->outputFormatter = outputFormatter;
     }
-    d->target = runConfig->target();
+    setTarget(runConfig->target());
+}
+
+void RunControl::setTarget(Target *target)
+{
+    QTC_ASSERT(target, return);
+    QTC_CHECK(!d->target);
+    d->target = target;
+    setKit(target->kit());
+}
+
+void RunControl::setKit(Kit *kit)
+{
+    QTC_ASSERT(kit, return);
+    QTC_CHECK(!d->kit);
+    d->kit = kit;
+
     if (d->runnable.device)
         setDevice(d->runnable.device);
     else
-        setDevice(DeviceKitAspect::device(d->target->kit()));
+        setDevice(DeviceKitAspect::device(kit));
 }
 
 void RunControl::setDevice(const IDevice::ConstPtr &device)
 {
+    QTC_CHECK(!d->device);
     d->device = device;
 #ifdef WITH_JOURNALD
     if (!device.isNull() && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
@@ -1375,12 +1394,12 @@ Project *RunControl::project() const
 
 Kit *RunControl::kit() const
 {
-    return d->target->kit();
+    return d->kit;
 }
 
 ProjectConfigurationAspect *RunControl::aspect(Core::Id id) const
 {
-    return d->runConfiguration->aspect(id);
+    return d->runConfiguration ? d->runConfiguration->aspect(id) : nullptr;
 }
 
 BuildTargetInfo RunControl::buildTargetInfo() const

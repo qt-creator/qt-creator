@@ -47,9 +47,9 @@ class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
     Q_OBJECT
 
 public:
+    enum AllowTerminal { DoAllowTerminal, DoNotAllowTerminal };
     explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl,
-                             ProjectExplorer::Kit *kit = nullptr,
-                             bool allowTerminal = true);
+                             AllowTerminal allowTerminal = DoAllowTerminal);
     ~DebuggerRunTool() override;
 
     void startRunControl();

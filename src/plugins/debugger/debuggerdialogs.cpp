@@ -403,10 +403,10 @@ void StartApplicationDialog::run(bool attachRemote)
         return;
 
     Kit *k = dialog.d->kitChooser->currentKit();
-    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    auto debugger = new DebuggerRunTool(runControl, k);
+    runControl->setKit(k);
+    auto debugger = new DebuggerRunTool(runControl);
 
     const StartApplicationParameters newParameters = dialog.parameters();
     if (newParameters != history.back()) {
@@ -423,6 +423,7 @@ void StartApplicationDialog::run(bool attachRemote)
         settings->endGroup();
     }
 
+    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
     Runnable inferior = newParameters.runnable;
     const QString inputAddress = dialog.d->channelOverrideEdit->text();
     if (!inputAddress.isEmpty())

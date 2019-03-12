@@ -886,10 +886,9 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         if (!kit)
             kit = guessKitFromAbis(Abi::abisOfBinary(FileName::fromString(executable)));
 
-        IDevice::ConstPtr device = DeviceKitAspect::device(kit);
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-        runControl->setDevice(device);
-        auto debugger = new DebuggerRunTool(runControl, kit);
+        runControl->setKit(kit);
+        auto debugger = new DebuggerRunTool(runControl);
         debugger->setInferiorExecutable(executable);
         if (pid) {
             debugger->setStartMode(AttachExternal);
@@ -931,7 +930,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         qint64 pid = it->section(':', 1, 1).toULongLong();
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-        auto debugger = new DebuggerRunTool(runControl, findUniversalCdbKit());
+        runControl->setKit(findUniversalCdbKit());
+        auto debugger = new DebuggerRunTool(runControl);
         debugger->setStartMode(AttachCrashedExternal);
         debugger->setCrashParameter(it->section(':', 0, 0));
         debugger->setAttachPid(pid);
@@ -1585,8 +1585,8 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue("LastForceLocalCoreFile", dlg.forcesLocalCoreFile());
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setDevice(DeviceKitAspect::device(dlg.kit()));
-    auto debugger = new DebuggerRunTool(runControl, dlg.kit());
+    runControl->setKit(dlg.kit());
+    auto debugger = new DebuggerRunTool(runControl);
     debugger->setInferiorExecutable(dlg.symbolFile());
     debugger->setCoreFileName(dlg.localCoreFile());
     debugger->setRunControlName(tr("Core file \"%1\"")
@@ -1613,8 +1613,8 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     setConfigValue(connectionKey, dlg.connection());
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setDevice(DeviceKitAspect::device(kit));
-    auto debugger = new DebuggerRunTool(runControl, kit);
+    runControl->setKit(kit);
+    auto debugger = new DebuggerRunTool(runControl);
     debugger->setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(KillAtClose);
     debugger->setRemoteChannel(dlg.connection());
@@ -1624,17 +1624,16 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
 class RemoteAttachRunner : public DebuggerRunTool
 {
 public:
-    RemoteAttachRunner(RunControl *runControl, Kit *kit, int pid)
-        : DebuggerRunTool(runControl, kit)
+    RemoteAttachRunner(RunControl *runControl, int pid)
+        : DebuggerRunTool(runControl)
     {
-        IDevice::ConstPtr device = DeviceKitAspect::device(kit);
         setId("AttachToRunningProcess");
         setUsePortsGatherer(true, false);
-        portsGatherer()->setDevice(device);
+        portsGatherer()->setDevice(runControl->device());
 
         auto gdbServer = new GdbServerRunner(runControl, portsGatherer());
         gdbServer->setUseMulti(false);
-        gdbServer->setDevice(device);
+        gdbServer->setDevice(runControl->device());
         gdbServer->setAttachPid(ProcessHandle(pid));
 
         addStartDependency(gdbServer);
@@ -1672,8 +1671,8 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         attachToRunningProcess(kit, process, false);
     } else {
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-        runControl->setDevice(device);
-        auto debugger = new RemoteAttachRunner(runControl, kit, process.pid);
+        runControl->setKit(kit);
+        auto debugger = new RemoteAttachRunner(runControl,  process.pid);
         debugger->startRunControl();
     }
 }
@@ -1726,7 +1725,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     }
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    auto debugger = new DebuggerRunTool(runControl, kit);
+    auto debugger = new DebuggerRunTool(runControl);
     debugger->setAttachPid(ProcessHandle(process.pid));
     debugger->setRunControlName(tr("Process %1").arg(process.pid));
     debugger->setInferiorExecutable(process.exe);
@@ -1743,13 +1742,9 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
 void DebuggerPlugin::attachExternalApplication(RunControl *rc)
 {
     ProcessHandle pid = rc->applicationProcessHandle();
-    RunConfiguration *runConfig = rc->runConfiguration();
-    QTC_ASSERT(runConfig, return);
-    Target *target = runConfig->target();
-    QTC_ASSERT(target, return);
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setRunConfiguration(runConfig);
-    auto debugger = new DebuggerRunTool(runControl, target->kit(), false);
+    runControl->setTarget(rc->target());
+    auto debugger = new DebuggerRunTool(runControl);
     debugger->setAttachPid(pid);
     debugger->setRunControlName(tr("Process %1").arg(pid.pid()));
     debugger->setStartMode(AttachExternal);
@@ -1808,7 +1803,8 @@ void DebuggerPluginPrivate::attachToQmlPort()
     QTC_ASSERT(device, return);
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    auto debugger = new DebuggerRunTool(runControl, kit);
+    runControl->setKit(kit);
+    auto debugger = new DebuggerRunTool(runControl);
 
     QUrl qmlServer = device->toolControlChannel(IDevice::QmlControlChannel);
     qmlServer.setPort(dlg.port());
