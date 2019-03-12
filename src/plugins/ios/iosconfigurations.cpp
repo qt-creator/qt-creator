@@ -307,7 +307,6 @@ void IosConfigurations::updateAutomaticKitList()
                                 : qtVersion->unexpandedDisplayName();
                         k->setUnexpandedDisplayName(baseDisplayName);
                         setupKit(k, pDeviceType, platformToolchains, debuggerId, sdk.path, qtVersion);
-                        return true;
                     };
                     kit = KitManager::registerKit(init);
                 }

@@ -326,7 +326,6 @@ void QnxConfiguration::createKit(const Target &target, QnxToolChain *toolChain,
         k->setSticky(SysRootKitAspect::id(), true);
         k->setSticky(DebuggerKitAspect::id(), true);
         k->setSticky(QmakeProjectManager::Constants::KIT_INFORMATION_ID, true);
-        return true;
     };
 
     // add kit with device and qt version not sticky

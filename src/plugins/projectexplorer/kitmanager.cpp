@@ -398,7 +398,7 @@ void KitManager::notifyAboutUpdate(Kit *k)
         emit m_instance->unmanagedKitUpdated(k);
 }
 
-Kit *KitManager::registerKit(const std::function<bool (Kit *)> &init, Core::Id id)
+Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Core::Id id)
 {
     QTC_ASSERT(isLoaded(), return nullptr);
 
@@ -406,8 +406,8 @@ Kit *KitManager::registerKit(const std::function<bool (Kit *)> &init, Core::Id i
     QTC_ASSERT(k->id().isValid(), return nullptr);
 
     Kit *kptr = k.get();
-    if (init && !init(kptr))
-        return nullptr;
+    if (init)
+        init(kptr);
 
     // make sure we have all the information in our kits:
     completeKit(kptr);

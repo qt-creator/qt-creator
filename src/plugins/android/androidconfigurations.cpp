@@ -1066,24 +1066,6 @@ void AndroidConfigurations::updateAutomaticKitList()
         for (ToolChain *tc : allLanguages)
             toolChainForLanguage[tc->language()] = tc;
 
-        auto initBasicKitData = [allLanguages, device](Kit *k, const QtSupport::BaseQtVersion *qt) {
-            k->setAutoDetected(true);
-            k->setAutoDetectionSource("AndroidConfiguration");
-            DeviceTypeKitAspect::setDeviceTypeId(k, Core::Id(Constants::ANDROID_DEVICE_TYPE));
-            for (ToolChain *tc : allLanguages)
-                ToolChainKitAspect::setToolChain(k, tc);
-            QtSupport::QtKitAspect::setQtVersion(k, qt);
-            DeviceKitAspect::setDevice(k, device);
-        };
-        const auto initStage2 = [tc](Kit *k, const QtSupport::BaseQtVersion *qt) {
-            Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc));
-            AndroidGdbServerKitAspect::setGdbSever(k, currentConfig().gdbServer(tc->targetAbi()));
-            k->makeSticky();
-            k->setUnexpandedDisplayName(tr("Android for %1 (Clang %2)")
-                                              .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())
-                                              .arg(qt->displayName()));
-        };
-
         for (const QtSupport::BaseQtVersion *qt : qtVersionsForArch.value(tc->targetAbi())) {
             Kit *existingKit = Utils::findOrDefault(existingKits, [&](const Kit *b) {
                 if (qt != QtSupport::QtKitAspect::qtVersion(b))
@@ -1093,20 +1075,27 @@ void AndroidConfigurations::updateAutomaticKitList()
                         && matchToolChain(toolChainForLanguage[ProjectExplorer::Constants::C_LANGUAGE_ID],
                                           ToolChainKitAspect::toolChain(b, ProjectExplorer::Constants::C_LANGUAGE_ID));
             });
-            if (existingKit) {
-                // Existing kit found.
-                // Update the existing kit with new data.
-                initBasicKitData(existingKit, qt);
-                initStage2(existingKit, qt);
-            } else {
-                const auto initializeKit = [&](Kit *k) {
-                    initBasicKitData(k, qt);
-                    initStage2(k, qt);
-                    return true;
-                };
-                Kit * const newKit = KitManager::registerKit(initializeKit);
-                QTC_CHECK(!newKit != !existingKit);
-            }
+
+            const auto initializeKit = [allLanguages, device, tc, qt](Kit *k) {
+                k->setAutoDetected(true);
+                k->setAutoDetectionSource("AndroidConfiguration");
+                DeviceTypeKitAspect::setDeviceTypeId(k, Core::Id(Constants::ANDROID_DEVICE_TYPE));
+                for (ToolChain *tc : allLanguages)
+                    ToolChainKitAspect::setToolChain(k, tc);
+                QtSupport::QtKitAspect::setQtVersion(k, qt);
+                DeviceKitAspect::setDevice(k, device);
+                Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc));
+                AndroidGdbServerKitAspect::setGdbSever(k, currentConfig().gdbServer(tc->targetAbi()));
+                k->makeSticky();
+                k->setUnexpandedDisplayName(tr("Android for %1 (Clang %2)")
+                                                  .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())
+                                                  .arg(qt->displayName()));
+            };
+
+            if (existingKit)
+                initializeKit(existingKit); // Update the existing kit with new data.
+            else
+                KitManager::registerKit(initializeKit);
         }
     }
 }

@@ -296,7 +296,6 @@ Kit *ProjectImporter::createTemporaryKit(const KitSetupFunction &setup) const
         k->fix();
         markKitAsTemporary(k);
         addProject(k);
-        return true;
     }; // ~KitGuard, sending kitUpdated
     return KitManager::registerKit(init); // potentially adds kits to other targetsetuppages
 }

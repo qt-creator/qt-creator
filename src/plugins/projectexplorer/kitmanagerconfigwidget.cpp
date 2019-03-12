@@ -163,7 +163,7 @@ void KitManagerConfigWidget::apply()
     if (m_kit)
         copyIntoKit(m_kit);
     else
-        m_kit = KitManager::registerKit([&](Kit *k) { copyIntoKit(k); return true; });
+        m_kit = KitManager::registerKit(copyIntoKit);
     if (m_isDefaultKit)
         KitManager::setDefaultKit(m_kit);
     emit dirty();
