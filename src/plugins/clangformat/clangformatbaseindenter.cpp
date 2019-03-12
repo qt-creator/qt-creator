@@ -29,11 +29,11 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/textutils.h>
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 
-#include <QTextDocument>
 #include <QDebug>
+#include <QTextDocument>
 
 namespace ClangFormat {
 
@@ -179,6 +179,27 @@ bool nextBlockExistsAndEmpty(const QTextBlock &currentBlock)
     return nextBlock.text().trimmed().isEmpty();
 }
 
+QByteArray dummyTextForContext(CharacterContext context, bool closingBraceBlock)
+{
+    if (closingBraceBlock
+        && (context == CharacterContext::NewStatement
+            || context == CharacterContext::Continuation)) {
+        return QByteArray();
+    }
+
+    switch (context) {
+    case CharacterContext::Unknown:
+        QTC_ASSERT(false, return "";);
+    case CharacterContext::AfterComma:
+        return "a,";
+    case CharacterContext::NewStatement:
+        return "a;";
+    case CharacterContext::Continuation:
+    case CharacterContext::LastAfterComma:
+        return "& a &";
+    }
+}
+
 // Add extra text in case of the empty line or the line starting with ')'.
 // Track such extra pieces of text in isInsideModifiedLine().
 int forceIndentWithExtraText(QByteArray &buffer,
@@ -220,24 +241,7 @@ int forceIndentWithExtraText(QByteArray &buffer,
             charContext = characterContext(block, lastBlock);
         }
 
-        switch (charContext) {
-        case CharacterContext::Unknown:
-            QTC_ASSERT(false, return 0;);
-        case CharacterContext::AfterComma:
-            dummyText = "a,";
-            break;
-        case CharacterContext::NewStatement:
-            if (!closingBraceBlock)
-                dummyText = "a;";
-            break;
-        case CharacterContext::Continuation:
-            if (closingBraceBlock)
-                break;
-            Q_FALLTHROUGH();
-        case CharacterContext::LastAfterComma:
-            dummyText = "& a &";
-            break;
-        }
+        dummyText = dummyTextForContext(charContext, closingBraceBlock);
     }
 
     buffer.insert(utf8Offset, dummyText);
