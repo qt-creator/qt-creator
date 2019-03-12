@@ -75,8 +75,8 @@ signals:
 private:
     LanguageClientManager();
 
-    void editorOpened(Core::IEditor *editor);
-    void editorsClosed(const QList<Core::IEditor *> &editors);
+    void documentOpened(Core::IDocument *document);
+    void documentClosed(Core::IDocument *document);
     void documentContentsSaved(Core::IDocument *document);
     void documentWillSave(Core::IDocument *document);
     void findLinkAt(const Utils::FileName &filePath, const QTextCursor &cursor,

@@ -69,10 +69,10 @@ void LanguageClientManager::init()
     using namespace Core;
     using namespace ProjectExplorer;
     QTC_ASSERT(managerInstance, return);
-    connect(EditorManager::instance(), &EditorManager::editorOpened,
-            managerInstance, &LanguageClientManager::editorOpened);
-    connect(EditorManager::instance(), &EditorManager::editorsClosed,
-            managerInstance, &LanguageClientManager::editorsClosed);
+    connect(EditorManager::instance(), &EditorManager::documentOpened,
+            managerInstance, &LanguageClientManager::documentOpened);
+    connect(EditorManager::instance(), &EditorManager::documentClosed,
+            managerInstance, &LanguageClientManager::documentClosed);
     connect(EditorManager::instance(), &EditorManager::saved,
             managerInstance, &LanguageClientManager::documentContentsSaved);
     connect(EditorManager::instance(), &EditorManager::aboutToSave,
@@ -195,10 +195,9 @@ void LanguageClientManager::clientFinished(Client *client)
     }
 }
 
-void LanguageClientManager::editorOpened(Core::IEditor *iEditor)
+void LanguageClientManager::documentOpened(Core::IDocument *document)
 {
     using namespace TextEditor;
-    Core::IDocument *document = iEditor->document();
     for (Client *interface : reachableClients())
         interface->openDocument(document);
 
@@ -208,28 +207,24 @@ void LanguageClientManager::editorOpened(Core::IEditor *iEditor)
                 connect(widget, &TextEditorWidget::requestLinkAt, this,
                         [this, filePath = document->filePath()]
                         (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback){
-                    findLinkAt(filePath, cursor, callback);
-                });
+                            findLinkAt(filePath, cursor, callback);
+                        });
                 connect(widget, &TextEditorWidget::requestUsages, this,
                         [this, filePath = document->filePath()]
                         (const QTextCursor &cursor){
-                    findUsages(filePath, cursor);
-                });
+                            findUsages(filePath, cursor);
+                        });
             }
         }
     }
 }
 
-void LanguageClientManager::editorsClosed(const QList<Core::IEditor *> &editors)
+void LanguageClientManager::documentClosed(Core::IDocument *document)
 {
-    for (auto iEditor : editors) {
-        if (auto editor = qobject_cast<TextEditor::BaseTextEditor *>(iEditor)) {
-            const DidCloseTextDocumentParams params(TextDocumentIdentifier(
-                    DocumentUri::fromFileName(editor->document()->filePath())));
-            for (Client *interface : reachableClients())
-                interface->closeDocument(params);
-        }
-    }
+    const DidCloseTextDocumentParams params(
+        TextDocumentIdentifier(DocumentUri::fromFileName(document->filePath())));
+    for (Client *interface : reachableClients())
+        interface->closeDocument(params);
 }
 
 void LanguageClientManager::documentContentsSaved(Core::IDocument *document)
