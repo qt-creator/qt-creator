@@ -1704,6 +1704,24 @@ TEST_F(TokenProcessor, LambdaLocalVariableCapture)
     ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::LocalVariable));
 }
 
+TEST_F(TokenProcessor, StaticProtectedMember)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(693, 31));
+
+    ClangBackEnd::TokenInfoContainer container(infos[2]);
+
+    ASSERT_THAT(container.extraInfo.accessSpecifier, ClangBackEnd::AccessSpecifier::Protected);
+}
+
+TEST_F(TokenProcessor, StaticPrivateMember)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(696, 29));
+
+    ClangBackEnd::TokenInfoContainer container(infos[2]);
+
+    ASSERT_THAT(container.extraInfo.accessSpecifier, ClangBackEnd::AccessSpecifier::Private);
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()

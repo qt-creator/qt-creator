@@ -181,6 +181,7 @@ void FullTokenInfo::variableKind(const Cursor &cursor)
 {
     TokenInfo::variableKind(cursor);
 
+    m_extraInfo.accessSpecifier = cursor.accessSpecifier();
     m_extraInfo.storageClass = cursor.storageClass();
 }
 
