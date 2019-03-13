@@ -54,6 +54,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
@@ -91,6 +92,7 @@ public:
     QbsCleanStepFactory cleanStepFactory;
     QbsInstallStepFactory installStepFactory;
     QbsRunConfigurationFactory runConfigFactory;
+    SimpleRunWorkerFactory<QbsRunConfiguration> runWorkerFactory;
     QbsProfilesSettingsPage profilesSetttingsPage;
     QbsKitAspect qbsKitAspect;
 };

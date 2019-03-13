@@ -284,8 +284,6 @@ CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory
     FixedRunConfigurationFactory(CustomExecutableRunConfiguration::tr("Custom Executable"))
 {
     registerRunConfiguration<CustomExecutableRunConfiguration>(CUSTOM_EXECUTABLE_ID);
-
-    addRunWorkerFactory<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE);
 }
 
 } // namespace ProjectExplorer

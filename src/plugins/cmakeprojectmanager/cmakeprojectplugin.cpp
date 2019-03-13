@@ -43,9 +43,12 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/runcontrol.h>
+
 #include <texteditor/snippets/snippetprovider.h>
 
 #include <utils/parameteraction.h>
@@ -67,6 +70,7 @@ public:
     CMakeManager manager;
     CMakeBuildStepFactory buildStepFactory;
     CMakeRunConfigurationFactory runConfigFactory;
+    SimpleRunWorkerFactory<CMakeRunConfiguration> runWorkerFactory;
     CMakeBuildConfigurationFactory buildConfigFactory;
     CMakeEditorFactory editorFactor;
     CMakeLocatorFilter locatorFiler;

@@ -43,6 +43,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/runcontrol.h>
 #include <texteditor/snippets/snippetprovider.h>
 
 using namespace Utils;
@@ -66,6 +67,7 @@ public:
     NimEditorFactory editorFactory;
     NimBuildConfigurationFactory buildConfigFactory;
     NimRunConfigurationFactory runConfigFactory;
+    SimpleRunWorkerFactory<NimRunConfiguration> runWorkerFactory;
     NimCompilerBuildStepFactory buildStepFactory;
     NimCompilerCleanStepFactory cleanStepFactory;
     NimCodeStyleSettingsPage codeStyleSettingsPage;

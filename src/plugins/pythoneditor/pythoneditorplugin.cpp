@@ -312,7 +312,6 @@ public:
     {
         registerRunConfiguration<PythonRunConfiguration>("PythonEditor.RunConfiguration.");
         addSupportedProjectType(PythonProjectId);
-        addRunWorkerFactory<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     }
 };
 
@@ -723,6 +722,7 @@ class PythonEditorPluginPrivate
 public:
     PythonEditorFactory editorFactory;
     PythonRunConfigurationFactory runConfigFactory;
+    SimpleRunWorkerFactory<PythonRunConfiguration> runWorkerFactory;
 };
 
 PythonEditorPlugin::~PythonEditorPlugin()

@@ -55,6 +55,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
@@ -100,6 +101,8 @@ public:
 
     QmakeBuildConfigurationFactory buildConfigFactory;
     DesktopQmakeRunConfigurationFactory runConfigFactory;
+    SimpleRunWorkerFactory<DesktopQmakeRunConfiguration, SimpleTargetRunner>
+        runWorkerFactory;
 
     ProFileEditorFactory profileEditorFactory;
 

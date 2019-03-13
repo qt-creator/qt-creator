@@ -100,7 +100,6 @@ NimRunConfigurationFactory::NimRunConfigurationFactory() : FixedRunConfiguration
 {
     registerRunConfiguration<NimRunConfiguration>("Nim.NimRunConfiguration");
     addSupportedProjectType(Constants::C_NIMPROJECT_ID);
-    addRunWorkerFactory<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE);
 }
 
 } // Nim

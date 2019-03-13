@@ -169,8 +169,6 @@ QbsRunConfigurationFactory::QbsRunConfigurationFactory()
     registerRunConfiguration<QbsRunConfiguration>("Qbs.RunConfiguration:");
     addSupportedProjectType(Constants::PROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-
-    addRunWorkerFactory<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE);
 }
 
 } // namespace Internal

@@ -327,4 +327,20 @@ private:
     bool m_useTerminal = false;
 };
 
+template <class RunConfig, class RunWorker = SimpleTargetRunner>
+class SimpleRunWorkerFactory : public RunWorkerFactory
+{
+public:
+    SimpleRunWorkerFactory(Core::Id runMode = ProjectExplorer::Constants::NORMAL_RUN_MODE)
+    {
+        addSupportedRunMode(runMode);
+        addConstraint([](RunConfiguration *runConfig) {
+            return qobject_cast<RunConfig *>(runConfig) != nullptr;
+        });
+        setProducer([](RunControl *runControl) {
+            return new RunWorker(runControl);
+        });
+    }
+};
+
 } // namespace ProjectExplorer

@@ -25,12 +25,13 @@
 
 #include "qmlprojectplugin.h"
 #include "qmlproject.h"
-#include "qmlprojectrunconfigurationfactory.h"
+#include "qmlprojectrunconfiguration.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
 
@@ -39,16 +40,24 @@ using namespace ProjectExplorer;
 namespace QmlProjectManager {
 namespace Internal {
 
+class QmlProjectPluginPrivate
+{
+public:
+    QmlProjectRunConfigurationFactory runConfigFactory;
+    SimpleRunWorkerFactory<QmlProjectRunConfiguration, SimpleTargetRunner>
+        runWorkerFactory{ProjectExplorer::Constants::NORMAL_RUN_MODE};
+};
+
 QmlProjectPlugin::~QmlProjectPlugin()
 {
-    delete m_rcFactory;
+    delete d;
 }
 
 bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
 
-    m_rcFactory = new QmlProjectRunConfigurationFactory;
+    d = new QmlProjectPluginPrivate;
 
     ProjectManager::registerProjectType<QmlProject>(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
     Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png", "qmlproject");

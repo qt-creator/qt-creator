@@ -251,25 +251,13 @@ protected:
             return new RunConfig(t, runConfigBaseId);
         };
         m_runConfigBaseId = runConfigBaseId;
-        m_ownTypeChecker = [](RunConfiguration *runConfig) {
-            return qobject_cast<RunConfig *>(runConfig) != nullptr;
-        };
     }
 
     void addSupportedProjectType(Core::Id id);
     void addSupportedTargetDeviceType(Core::Id id);
     void setDecorateDisplayNames(bool on);
 
-    template<class Worker>
-    RunWorkerFactory *addRunWorkerFactory(Core::Id runMode)
-    {
-        return addRunWorkerFactoryHelper(runMode, [](RunControl *rc) { return new Worker(rc); });
-    }
-
 private:
-    RunWorkerFactory *addRunWorkerFactoryHelper
-        (Core::Id runMode, const std::function<RunWorker *(RunControl *)> &creator);
-
     bool canHandle(Target *target) const;
 
     friend class RunConfigurationCreationInfo;
@@ -278,8 +266,6 @@ private:
     QList<Core::Id> m_supportedProjectTypes;
     QList<Core::Id> m_supportedTargetDeviceTypes;
     bool m_decorateDisplayNames = false;
-    QList<RunWorkerFactory *> m_ownedRunWorkerFactories;
-    std::function<bool(RunConfiguration *)> m_ownTypeChecker;
 };
 
 class PROJECTEXPLORER_EXPORT FixedRunConfigurationFactory : public RunConfigurationFactory

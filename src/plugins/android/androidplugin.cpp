@@ -85,10 +85,6 @@ public:
         registerRunConfiguration<Android::AndroidRunConfiguration>
                 ("Qt4ProjectManager.AndroidRunConfiguration:");
         addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
-        addRunWorkerFactory<AndroidRunSupport>(NORMAL_RUN_MODE);
-        addRunWorkerFactory<AndroidDebugSupport>(DEBUG_RUN_MODE);
-        addRunWorkerFactory<AndroidQmlToolingSupport>(QML_PROFILER_RUN_MODE);
-        addRunWorkerFactory<AndroidQmlToolingSupport>(QML_PREVIEW_RUN_MODE);
     }
 };
 
@@ -135,6 +131,13 @@ public:
     AndroidPackageInstallationFactory packackeInstallationFactory;
     AndroidManifestEditorFactory manifestEditorFactory;
     AndroidRunConfigurationFactory runConfigFactory;
+    SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidRunSupport> runWorkerFactory;
+    SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidDebugSupport>
+        debugWorkerFactory{DEBUG_RUN_MODE};
+    SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidQmlToolingSupport>
+        profilerWorkerFactory{QML_PROFILER_RUN_MODE};
+    SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidQmlToolingSupport>
+        qmlPreviewWorkerFactory{QML_PREVIEW_RUN_MODE};
     AndroidBuildApkStepFactory buildApkStepFactory;
     AndroidGdbServerKitAspect gdbServerKitAspect;
 };
