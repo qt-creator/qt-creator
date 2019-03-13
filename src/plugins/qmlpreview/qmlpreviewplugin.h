@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <extensionsystem/iplugin.h>
 #include <qmljs/qmljsdialect.h>
+
 #include <QUrl>
 #include <QThread>
 

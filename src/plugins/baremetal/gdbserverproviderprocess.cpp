@@ -26,6 +26,7 @@
 #include "gdbserverproviderprocess.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>

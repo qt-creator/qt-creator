@@ -27,7 +27,7 @@
 
 #include "winrtdevice.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <utils/qtcprocess.h>
 
 namespace WinRt {

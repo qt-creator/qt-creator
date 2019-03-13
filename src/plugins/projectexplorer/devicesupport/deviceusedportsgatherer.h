@@ -27,7 +27,7 @@
 
 #include "idevice.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/portlist.h>
 

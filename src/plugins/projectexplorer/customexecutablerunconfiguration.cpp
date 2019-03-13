@@ -31,7 +31,7 @@
 #include "environmentaspect.h"
 #include "localenvironmentaspect.h"
 #include "project.h"
-#include "runconfigurationaspects.h"
+#include "runcontrol.h"
 #include "target.h"
 
 #include <coreplugin/icore.h>

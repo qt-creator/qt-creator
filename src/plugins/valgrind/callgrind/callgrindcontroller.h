@@ -28,7 +28,7 @@
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <QProcess>
 

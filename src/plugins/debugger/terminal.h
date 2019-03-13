@@ -28,7 +28,7 @@
 #include <QCoreApplication>
 #include <QSocketNotifier>
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/consoleprocess.h>
 

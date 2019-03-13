@@ -27,7 +27,7 @@
 
 #include "qmlprofilerstatemanager.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/outputformat.h>
 #include <utils/port.h>

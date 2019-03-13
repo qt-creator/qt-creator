@@ -33,6 +33,7 @@
 #include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <utils/qtcprocess.h>

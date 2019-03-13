@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/deviceprocess.h>
+#include <projectexplorer/runcontrol.h>
 
 namespace PerfProfiler {
 namespace Internal {

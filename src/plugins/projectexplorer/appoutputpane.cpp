@@ -24,10 +24,11 @@
 ****************************************************************************/
 
 #include "appoutputpane.h"
+
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
-#include "runconfiguration.h"
+#include "runcontrol.h"
 #include "session.h"
 #include "windebuginterface.h"
 
@@ -157,11 +158,11 @@ void TabWidget::slotContextMenuRequested(const QPoint &pos)
     emit contextMenuRequested(pos, tabBar()->tabAt(pos));
 }
 
-AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *w) :
-    runControl(rc), window(w)
+AppOutputPane::RunControlTab::RunControlTab(RunControl *runControl, Core::OutputWindow *w) :
+    runControl(runControl), window(w)
 {
-    if (rc && w)
-        w->setFormatter(rc->outputFormatter());
+    if (runControl && w)
+        w->setFormatter(runControl->outputFormatter());
 }
 
 AppOutputPane::AppOutputPane() :

@@ -29,7 +29,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <qmlprofiler/qmlprofilerattachdialog.h>
 #include <qmlprofiler/qmlprofilerclientmanager.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>

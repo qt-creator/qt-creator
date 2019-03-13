@@ -30,6 +30,7 @@
 #include "remotelinuxx11forwardingaspect.h"
 
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtoutputformatter.h>

@@ -39,6 +39,7 @@
 #include "devicesupport/deviceprocess.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
+#include "runcontrol.h"
 
 #include <QTextCodec>
 #include <QTimer>

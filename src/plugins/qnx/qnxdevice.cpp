@@ -34,6 +34,7 @@
 #include "qnxdevicewizard.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <ssh/sshconnection.h>
 #include <utils/port.h>

@@ -26,7 +26,6 @@
 #pragma once
 
 #include "../projectexplorer_export.h"
-#include "../runconfiguration.h"
 
 #include <QObject>
 #include <QProcess>

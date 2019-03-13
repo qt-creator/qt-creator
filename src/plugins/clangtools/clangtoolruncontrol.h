@@ -27,7 +27,7 @@
 
 #include "clangfileinfo.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <cpptools/projectinfo.h>
 #include <utils/environment.h>
 #include <utils/temporarydirectory.h>

@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <utils/environment.h>
 #include <valgrind/valgrindrunner.h>
 #include <valgrind/valgrindsettings.h>

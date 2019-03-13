@@ -27,6 +27,8 @@
 
 #include "qnxconstants.h"
 
+#include <projectexplorer/runcontrol.h>
+
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
 

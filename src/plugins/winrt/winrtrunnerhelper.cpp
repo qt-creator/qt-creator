@@ -29,12 +29,14 @@
 #include "winrtrunconfiguration.h"
 
 #include <coreplugin/idocument.h>
+
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcprocess.h>

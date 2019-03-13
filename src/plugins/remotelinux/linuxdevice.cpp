@@ -37,9 +37,12 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
 #include <coreplugin/messagemanager.h>
+
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
+
 #include <ssh/sshremoteprocessrunner.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/port.h>

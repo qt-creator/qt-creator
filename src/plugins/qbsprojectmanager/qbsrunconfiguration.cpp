@@ -32,6 +32,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 

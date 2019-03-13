@@ -77,6 +77,7 @@ HEADERS += projectexplorer.h \
     editorconfiguration.h \
     editorsettingspropertiespage.h \
     runconfiguration.h \
+    runcontrol.h \
     applicationlauncher.h \
     runsettingspropertiespage.h \
     projecttreewidget.h \
@@ -226,6 +227,7 @@ SOURCES += projectexplorer.cpp \
     editorconfiguration.cpp \
     editorsettingspropertiespage.cpp \
     runconfiguration.cpp \
+    runcontrol.cpp \
     applicationlauncher.cpp \
     runsettingspropertiespage.cpp \
     projecttreewidget.cpp \

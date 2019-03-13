@@ -29,8 +29,12 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
+#include <utils/qtcassert.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>

@@ -26,7 +26,7 @@
 #include "desktopdeviceprocess.h"
 
 #include "idevice.h"
-#include "../runconfiguration.h"
+#include "../runcontrol.h"
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>

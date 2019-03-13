@@ -31,7 +31,7 @@
 #include "desktopprocesssignaloperation.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <ssh/sshconnection.h>
 

@@ -26,6 +26,7 @@
 #include "qnxdeviceprocess.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/qtcprocess.h>
 

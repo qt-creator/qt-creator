@@ -27,7 +27,7 @@
 
 #include <QObject>
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <remotelinux/linuxdevice.h>
 #include <utils/outputformat.h>
 

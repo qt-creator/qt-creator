@@ -34,7 +34,7 @@
 
 #include <coreplugin/icontext.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <texteditor/textmark.h>
 #include <utils/fileutils.h>
 

@@ -128,6 +128,7 @@ Project {
                 "projectwizardpage.cpp", "projectwizardpage.h", "projectwizardpage.ui",
                 "removetaskhandler.cpp", "removetaskhandler.h",
                 "runconfiguration.cpp", "runconfiguration.h",
+                "runcontrol.cpp", "runcontrol.h",
                 "runconfigurationaspects.cpp", "runconfigurationaspects.h",
                 "runsettingspropertiespage.cpp", "runsettingspropertiespage.h",
                 "selectablefilesmodel.cpp", "selectablefilesmodel.h",

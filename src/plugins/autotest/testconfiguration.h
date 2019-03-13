@@ -28,7 +28,7 @@
 #include "autotestconstants.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <utils/environment.h>
 
 #include <QFutureInterface>

@@ -25,7 +25,7 @@
 
 #include "linuxdeviceprocess.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>

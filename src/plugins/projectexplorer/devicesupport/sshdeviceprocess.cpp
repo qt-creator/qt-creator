@@ -26,7 +26,7 @@
 #include "sshdeviceprocess.h"
 
 #include "idevice.h"
-#include "../runconfiguration.h"
+#include "../runcontrol.h"
 
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>

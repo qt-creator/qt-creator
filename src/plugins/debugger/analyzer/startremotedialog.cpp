@@ -28,7 +28,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <ssh/sshconnection.h>
 
 #include <QDialogButtonBox>

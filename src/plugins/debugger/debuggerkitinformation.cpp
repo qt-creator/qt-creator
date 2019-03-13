@@ -32,6 +32,7 @@
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>

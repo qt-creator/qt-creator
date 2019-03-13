@@ -29,7 +29,7 @@
 #include <QDialog>
 #include <QTime>
 
-#include "runconfiguration.h"
+#include "runcontrol.h"
 
 QT_BEGIN_NAMESPACE
 class QLabel;

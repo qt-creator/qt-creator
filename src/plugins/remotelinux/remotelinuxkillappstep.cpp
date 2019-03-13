@@ -27,7 +27,7 @@
 
 #include "remotelinuxkillappservice.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
