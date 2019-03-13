@@ -33,9 +33,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QSysInfo>
 #include <QApplication>
+#include <QDebug>
 #include <QStandardPaths>
+#include <QSysInfo>
 
 /*!
     \namespace Core
@@ -332,6 +333,8 @@ ICore::ICore(MainWindow *mainwindow)
             this, &ICore::saveSettings);
     connect(PluginManager::instance(), &PluginManager::testsFinished, [this] (int failedTests) {
         emit coreAboutToClose();
+        if (failedTests != 0)
+            qWarning("Test run was not successful: %d test(s) failed.", failedTests);
         QCoreApplication::exit(failedTests);
     });
 }
