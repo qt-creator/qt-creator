@@ -889,8 +889,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     d->runId = QString::number(++toolRunCount);
 
-    RunConfiguration *runConfig = runControl->runConfiguration();
-
     runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     runControl->setPromptToStop([](bool *optionalPrompt) {
         return RunControl::showPromptToStopDialog(
@@ -902,8 +900,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
                 QString(), QString(), optionalPrompt);
     });
 
-    if (runConfig)
-        m_runParameters.displayName = runConfig->displayName();
+    m_runParameters.displayName = runControl->displayName();
 
     if (auto symbolsAspect = runControl->aspect<SymbolFileAspect>())
         m_runParameters.symbolFile = symbolsAspect->value();
@@ -938,8 +935,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     if (!envBinary.isEmpty())
         m_runParameters.debugger.executable = QString::fromLocal8Bit(envBinary);
 
-    Project *project = runConfig ? runConfig->target()->project() : nullptr;
-    if (project) {
+    if (Project *project = runControl->project()) {
         m_runParameters.projectSourceDirectory = project->projectDirectory();
         m_runParameters.projectSourceFiles = project->files(Project::SourceFiles);
     }
@@ -959,6 +955,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
             m_runParameters.validationErrors.append(t.description);
     }
 
+    RunConfiguration *runConfig = runControl->runConfiguration();
     if (runConfig && runConfig->property("supportsDebugger").toBool()) {
         const QString mainScript = runConfig->property("mainScript").toString();
         const QString interpreter = runConfig->property("interpreter").toString();

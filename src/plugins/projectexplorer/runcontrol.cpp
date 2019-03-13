@@ -297,6 +297,7 @@ public:
     QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
     Kit *kit = nullptr; // Not owned.
     QPointer<Target> target; // Not owned.
+    QPointer<Project> project; // Not owned.
     QPointer<Utils::OutputFormatter> outputFormatter = nullptr;
     std::function<bool(bool*)> promptToStop;
     std::vector<RunWorkerFactory> m_factories;
@@ -339,6 +340,7 @@ void RunControl::setTarget(Target *target)
     QTC_CHECK(!d->target);
     d->target = target;
     setKit(target->kit());
+    d->project = target->project();
 }
 
 void RunControl::setKit(Kit *kit)
@@ -838,7 +840,7 @@ Target *RunControl::target() const
 
 Project *RunControl::project() const
 {
-    return d->target->project();
+    return d->project;
 }
 
 Kit *RunControl::kit() const
