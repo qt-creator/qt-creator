@@ -94,6 +94,9 @@ public:
     bool needsConfiguration() const final { return false; }
     bool needsBuildConfigurations() const final { return false; }
 
+    bool writePyProjectFile(const QString &fileName, QString &content,
+                            const QStringList &rawList, QString *errorMessage);
+
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
     bool setupTarget(Target *t) override
@@ -402,16 +405,59 @@ bool PythonProject::saveRawFileList(const QStringList &rawFileList)
 bool PythonProject::saveRawList(const QStringList &rawList, const QString &fileName)
 {
     FileChangeBlocker changeGuarg(fileName);
-    // Make sure we can open the file for writing
-    FileSaver saver(fileName, QIODevice::Text);
-    if (!saver.hasError()) {
-        QTextStream stream(saver.file());
-        foreach (const QString &filePath, rawList)
-            stream << filePath << '\n';
-        saver.setResult(&stream);
+    bool result = false;
+
+    // New project file
+    if (fileName.endsWith(".pyproject")) {
+        FileSaver saver(fileName, QIODevice::ReadOnly | QIODevice::Text);
+        if (!saver.hasError()) {
+            QString content = QTextStream(saver.file()).readAll();
+            if (saver.finalize(ICore::mainWindow())) {
+                QString errorMessage;
+                result = writePyProjectFile(fileName, content, rawList, &errorMessage);
+                if (!errorMessage.isEmpty())
+                    Core::MessageManager::write(errorMessage);
+                }
+        }
+    } else { // Old project file
+        FileSaver saver(fileName, QIODevice::WriteOnly | QIODevice::Text);
+        if (!saver.hasError()) {
+            QTextStream stream(saver.file());
+            for (const QString &filePath : rawList)
+                stream << filePath << '\n';
+            saver.setResult(&stream);
+            result = saver.finalize(ICore::mainWindow());
+        }
     }
-    bool result = saver.finalize(ICore::mainWindow());
+
     return result;
+}
+
+bool PythonProject::writePyProjectFile(const QString &fileName, QString &content,
+                                       const QStringList &rawList, QString *errorMessage)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        *errorMessage = PythonProject::tr("Unable to open \"%1\" for reading: %2")
+                        .arg(fileName, file.errorString());
+        return false;
+    }
+
+    // Build list of files with the current rawList for the JSON file
+    QString files("[");
+    for (const QString &f : rawList)
+        if (!f.endsWith(".pyproject"))
+            files += QString("\"%1\",").arg(f);
+    files = files.left(files.lastIndexOf(',')); // Removing leading comma
+    files += ']';
+
+    // Removing everything inside square parenthesis
+    // to replace it with the new list of files for the JSON file.
+    QRegularExpression pattern(R"(\[.*\])");
+    content.replace(pattern, files);
+    file.write(content.toUtf8());
+
+    return true;
 }
 
 bool PythonProject::addFiles(const QStringList &filePaths)
@@ -422,10 +468,7 @@ bool PythonProject::addFiles(const QStringList &filePaths)
     foreach (const QString &filePath, filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
-    bool result = saveRawList(newList, projectFilePath().toString());
-    refresh();
-
-    return result;
+    return saveRawFileList(newList);
 }
 
 bool PythonProject::removeFiles(const QStringList &filePaths)
@@ -701,11 +744,10 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
 
 void PythonEditorPlugin::extensionsInitialized()
 {
-    // Initialize editor actions handler
     // Add MIME overlay icons (these icons displayed at Project dock panel)
-    const QIcon icon = QIcon::fromTheme(C_PY_MIME_ICON);
-    if (!icon.isNull())
-        Core::FileIconProvider::registerIconOverlayForMimeType(icon, C_PY_MIMETYPE);
+    QString imageFile = creatorTheme()->imageFile(Theme::IconOverlayPro,
+                                                  ProjectExplorer::Constants::FILEOVERLAY_PY);
+    FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
 
     TaskHub::addCategory(PythonErrorTaskCategory, "Python", true);
 }

@@ -69,6 +69,8 @@ const FileTypeDataStorage fileTypeDataStorage[] = {
       ProjectExplorer::Constants::FILEOVERLAY_QRC, "*.qrc;" },
     { FileType::QML, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "QML"),
       ProjectExplorer::Constants::FILEOVERLAY_QML, "*.qml;" },
+    { FileType::Source, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Python sources"),
+      ProjectExplorer::Constants::FILEOVERLAY_PY, "*.py;" },
     { FileType::Unknown, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Other files"),
       ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN, "*;" }
 };

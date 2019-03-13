@@ -12,7 +12,7 @@
 
     "options":
     [
-        { "key": "MainPyFileName", "value": "main.py" },
+        { "key": "SrcFileName", "value": "main.py" },
         { "key": "PyProjectFile", "value": "main.pyproject" }
     ],
 
@@ -42,7 +42,7 @@
                 },
                 {
                     "source": "../main_empty.py",
-                    "target": "%{MainPyFileName}",
+                    "target": "%{SrcFileName}",
                     "openInEditor": true
                 }
             ]

@@ -327,6 +327,8 @@ void IconLister::addProjectExplorerIcons()
          ""},
         {QIcon(":/projectexplorer/images/fileoverlay_h.png"), "fileoverlay_h.png", prefix,
          ""},
+        {QIcon(":/projectexplorer/images/fileoverlay_py.png"), "fileoverlay_py.png", prefix,
+         ""},
         {QIcon(":/projectexplorer/images/fileoverlay_unknown.png"), "fileoverlay_unknown.png", prefix,
          ""},
 
