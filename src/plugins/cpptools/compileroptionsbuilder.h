@@ -40,6 +40,7 @@ enum class UseBuildSystemWarnings : char { Yes, No };
 
 CPPTOOLS_EXPORT QStringList XclangArgs(const QStringList &args);
 CPPTOOLS_EXPORT QStringList clangArgsForCl(const QStringList &args);
+CPPTOOLS_EXPORT QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt);
 
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {

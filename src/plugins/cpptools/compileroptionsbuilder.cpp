@@ -172,7 +172,7 @@ void CompilerOptionsBuilder::addSyntaxOnly()
     isClStyle() ? add("/Zs") : add("-fsyntax-only");
 }
 
-static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
+QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
 {
     QStringList options;
 
