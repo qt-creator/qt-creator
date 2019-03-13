@@ -36,6 +36,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cpptools/cppmodelmanager.h>
@@ -72,8 +73,9 @@ void ClangCodeModelPlugin::generateCompilationDB() {
     if (!project || !project->activeTarget())
         return;
 
-    QFuture<void> task = QtConcurrent::run(&Utils::generateCompilationDB,
-                                           CppModelManager::instance()->projectInfo(project));
+    QFuture<Utils::GenerateCompilationDbResult> task
+            = QtConcurrent::run(&Utils::generateCompilationDB,
+                                CppModelManager::instance()->projectInfo(project));
     Core::ProgressManager::addTask(task, tr("Generating Compilation DB"), "generate compilation db");
     m_generatorWatcher.setFuture(task);
 }
@@ -135,7 +137,17 @@ void ClangCodeModelPlugin::createCompilationDBButton()
     command->setDescription(m_generateCompilationDBAction->text());
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
 
-    connect(&m_generatorWatcher, &QFutureWatcher<void>::finished, this, [this] () {
+    connect(&m_generatorWatcher, &QFutureWatcher<Utils::GenerateCompilationDbResult>::finished,
+            this, [this] () {
+        const Utils::GenerateCompilationDbResult result = m_generatorWatcher.result();
+        QString message;
+        if (result.error.isEmpty()) {
+            message = tr("Clang compilation database generated at \"%1\".")
+                    .arg(QDir::toNativeSeparators(result.filePath));
+        } else {
+            message = tr("Generating clang compilation database failed: %1").arg(result.error);
+        }
+        Core::MessageManager::write(message, Core::MessageManager::Flash);
         m_generateCompilationDBAction->setEnabled(
                     isDBGenerationEnabled(ProjectExplorer::SessionManager::startupProject()));
     });

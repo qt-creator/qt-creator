@@ -70,7 +70,19 @@ QString diagnosticCategoryPrefixRemoved(const QString &text);
 
 ::Utils::CodeModelIcon::Type iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token);
 
-void generateCompilationDB(CppTools::ProjectInfo projectInfo);
+class GenerateCompilationDbResult
+{
+public:
+    GenerateCompilationDbResult() = default;
+    GenerateCompilationDbResult(const QString &filePath, const QString &error)
+        : filePath(filePath), error(error)
+    {}
+
+    QString filePath;
+    QString error;
+};
+
+GenerateCompilationDbResult generateCompilationDB(CppTools::ProjectInfo projectInfo);
 
 class DiagnosticTextInfo
 {

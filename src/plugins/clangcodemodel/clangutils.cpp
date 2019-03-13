@@ -386,18 +386,22 @@ static QJsonObject createFileObject(const ::Utils::FileName &buildDir,
     return fileObject;
 }
 
-void generateCompilationDB(CppTools::ProjectInfo projectInfo)
+GenerateCompilationDbResult generateCompilationDB(CppTools::ProjectInfo projectInfo)
 {
     const ::Utils::FileName buildDir = buildDirectory(*projectInfo.project());
-    QTC_ASSERT(!buildDir.isEmpty(), return;);
+    QTC_ASSERT(!buildDir.isEmpty(), return GenerateCompilationDbResult(QString(),
+        QCoreApplication::translate("ClangUtils", "Could not retrieve build directory.")));
 
     QDir dir(buildDir.toString());
     if (!dir.exists())
         dir.mkpath(dir.path());
     QFile compileCommandsFile(buildDir.toString() + "/compile_commands.json");
     const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    if (!fileOpened)
-        return;
+    if (!fileOpened) {
+        return GenerateCompilationDbResult(QString(),
+                QCoreApplication::translate("ClangUtils", "Could not create \"%1\": %2")
+                    .arg(compileCommandsFile.fileName(), compileCommandsFile.errorString()));
+    }
     compileCommandsFile.write("[");
 
     for (ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
@@ -412,6 +416,7 @@ void generateCompilationDB(CppTools::ProjectInfo projectInfo)
 
     compileCommandsFile.write("\n]");
     compileCommandsFile.close();
+    return GenerateCompilationDbResult(compileCommandsFile.fileName(), QString());
 }
 
 QString currentCppEditorDocumentFilePath()
