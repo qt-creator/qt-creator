@@ -50,21 +50,20 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
     : RunWorker(runControl)
 {
     setId("QmlPreviewRunner");
-    m_connectionManager.reset(new Internal::QmlPreviewConnectionManager(this));
-    m_connectionManager->setFileLoader(fileLoader);
-    m_connectionManager->setFileClassifier(fileClassifier);
-    m_connectionManager->setFpsHandler(fpsHandler);
+    m_connectionManager.setFileLoader(fileLoader);
+    m_connectionManager.setFileClassifier(fileClassifier);
+    m_connectionManager.setFpsHandler(fpsHandler);
 
     connect(this, &QmlPreviewRunner::loadFile,
-            m_connectionManager.data(), &Internal::QmlPreviewConnectionManager::loadFile);
+            &m_connectionManager, &Internal::QmlPreviewConnectionManager::loadFile);
     connect(this, &QmlPreviewRunner::rerun,
-            m_connectionManager.data(), &Internal::QmlPreviewConnectionManager::rerun);
+            &m_connectionManager, &Internal::QmlPreviewConnectionManager::rerun);
 
     connect(this, &QmlPreviewRunner::zoom,
-            m_connectionManager.data(), &Internal::QmlPreviewConnectionManager::zoom);
+            &m_connectionManager, &Internal::QmlPreviewConnectionManager::zoom);
     connect(this, &QmlPreviewRunner::language,
-            m_connectionManager.data(), &Internal::QmlPreviewConnectionManager::language);
-    connect(m_connectionManager.data(), &Internal::QmlPreviewConnectionManager::connectionOpened,
+            &m_connectionManager, &Internal::QmlPreviewConnectionManager::language);
+    connect(&m_connectionManager, &Internal::QmlPreviewConnectionManager::connectionOpened,
             this, [this, initialZoom, initialLocale]() {
         if (initialZoom > 0)
             emit zoom(initialZoom);
@@ -73,7 +72,7 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
         emit ready();
     });
 
-    connect(m_connectionManager.data(), &Internal::QmlPreviewConnectionManager::restart,
+    connect(&m_connectionManager, &Internal::QmlPreviewConnectionManager::restart,
             runControl, [runControl]() {
         if (!runControl->isRunning())
             return;
@@ -90,14 +89,14 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
 
 void QmlPreviewRunner::start()
 {
-    m_connectionManager->setTarget(runControl()->target());
-    m_connectionManager->connectToServer(serverUrl());
+    m_connectionManager.setTarget(runControl()->target());
+    m_connectionManager.connectToServer(serverUrl());
     reportStarted();
 }
 
 void QmlPreviewRunner::stop()
 {
-    m_connectionManager->disconnectFromServer();
+    m_connectionManager.disconnectFromServer();
     reportStopped();
 }
 

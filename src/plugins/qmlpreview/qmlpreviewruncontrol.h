@@ -56,7 +56,7 @@ private:
     void start() override;
     void stop() override;
 
-    QScopedPointer<Internal::QmlPreviewConnectionManager> m_connectionManager;
+    Internal::QmlPreviewConnectionManager m_connectionManager;
 };
 
 class LocalQmlPreviewSupport : public ProjectExplorer::SimpleTargetRunner
