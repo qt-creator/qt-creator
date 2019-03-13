@@ -313,9 +313,9 @@ static ::Utils::FileName compilerPath(const CppTools::ProjectPart &projectPart)
     return toolchain->compilerCommand();
 }
 
-static ::Utils::FileName buildDirectory(const CppTools::ProjectPart &projectPart)
+static ::Utils::FileName buildDirectory(const ProjectExplorer::Project &project)
 {
-    ProjectExplorer::Target *target = projectPart.project->activeTarget();
+    ProjectExplorer::Target *target = project.activeTarget();
     if (!target)
         return ::Utils::FileName();
 
@@ -386,17 +386,21 @@ static QJsonObject createFileObject(const ::Utils::FileName &buildDir,
     return fileObject;
 }
 
-void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo projectInfo)
+void generateCompilationDB(CppTools::ProjectInfo projectInfo)
 {
-    QFile compileCommandsFile(projectDir.toString() + "/compile_commands.json");
+    const ::Utils::FileName buildDir = buildDirectory(*projectInfo.project());
+    QTC_ASSERT(!buildDir.isEmpty(), return;);
 
+    QDir dir(buildDir.toString());
+    if (!dir.exists())
+        dir.mkpath(dir.path());
+    QFile compileCommandsFile(buildDir.toString() + "/compile_commands.json");
     const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
     if (!fileOpened)
         return;
     compileCommandsFile.write("[");
 
     for (ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
-        const ::Utils::FileName buildDir = buildDirectory(*projectPart);
         const QStringList args = projectPartArguments(*projectPart);
         for (const ProjectFile &projFile : projectPart->files) {
             const QJsonObject json = createFileObject(buildDir, args, *projectPart, projFile);
