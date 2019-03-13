@@ -36,6 +36,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cpptools/cppmodelmanager.h>
 
@@ -71,9 +72,10 @@ void ClangCodeModelPlugin::generateCompilationDB() {
     if (!project || !project->activeTarget())
         return;
 
-    m_generatorWatcher.setFuture(
-        QtConcurrent::run(&Utils::generateCompilationDB,
-                          CppModelManager::instance()->projectInfo(project)));
+    QFuture<void> task = QtConcurrent::run(&Utils::generateCompilationDB,
+                                           CppModelManager::instance()->projectInfo(project));
+    Core::ProgressManager::addTask(task, tr("Generating Compilation DB"), "generate compilation db");
+    m_generatorWatcher.setFuture(task);
 }
 
 static bool isDBGenerationEnabled(ProjectExplorer::Project *project)
