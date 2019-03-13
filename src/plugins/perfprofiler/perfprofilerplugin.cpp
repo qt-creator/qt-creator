@@ -52,32 +52,44 @@
 #include <QAction>
 #include <QDebug>
 #include <QMenu>
-#include <QtPlugin>
 
 using namespace ProjectExplorer;
 
 namespace PerfProfiler {
+namespace Internal {
 
 Q_GLOBAL_STATIC(PerfSettings, perfGlobalSettings)
+
+class PerfProfilerPluginPrivate
+{
+public:
+    PerfProfilerPluginPrivate()
+    {
+        RunConfiguration::registerAspect<PerfRunConfigurationAspect>();
+
+        RunControl::registerWorkerCreator(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE,
+                       [](RunControl *runControl){ return new PerfProfilerRunner(runControl); });
+
+        auto constraint = [](RunConfiguration *) { return true; };
+        RunControl::registerWorker<PerfProfilerRunner>
+                (ProjectExplorer::Constants::PERFPROFILER_RUN_MODE, constraint);
+    }
+
+    PerfOptionsPage optionsPage;
+    PerfProfilerTool profilerTool;
+};
+
+PerfProfilerPlugin::~PerfProfilerPlugin()
+{
+    delete d;
+}
 
 bool PerfProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    (void) new Internal::PerfOptionsPage(this);
-
-    RunConfiguration::registerAspect<PerfRunConfigurationAspect>();
-
-    (void) new Internal::PerfProfilerTool(this);
-
-    RunControl::registerWorkerCreator(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE,
-        [](RunControl *runControl){ return new Internal::PerfProfilerRunner(runControl); });
-
-    auto constraint = [](RunConfiguration *) { return true; };
-    RunControl::registerWorker<Internal::PerfProfilerRunner>
-            (ProjectExplorer::Constants::PERFPROFILER_RUN_MODE, constraint);
-
+    d = new PerfProfilerPluginPrivate;
     return true;
 }
 
@@ -85,19 +97,20 @@ void PerfProfilerPlugin::extensionsInitialized()
 {
 }
 
-PerfProfiler::PerfSettings *PerfProfilerPlugin::globalSettings()
+PerfSettings *PerfProfilerPlugin::globalSettings()
 {
     return perfGlobalSettings();
 }
 
-QList<QObject *> PerfProfiler::PerfProfilerPlugin::createTestObjects() const
+QList<QObject *> PerfProfilerPlugin::createTestObjects() const
 {
     QList<QObject *> tests;
 #if WITH_TESTS
-    tests << new Internal::PerfProfilerTraceFileTest;
-    tests << new Internal::PerfResourceCounterTest;
+    tests << new PerfProfilerTraceFileTest;
+    tests << new PerfResourceCounterTest;
 #endif // WITH_TESTS
     return tests;
 }
 
+} // namespace Internal
 } // namespace PerfProfiler

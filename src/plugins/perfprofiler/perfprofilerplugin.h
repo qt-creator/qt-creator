@@ -30,6 +30,7 @@
 #include <extensionsystem/iplugin.h>
 
 namespace PerfProfiler {
+namespace Internal {
 
 class PerfProfilerPlugin : public ExtensionSystem::IPlugin
 {
@@ -37,11 +38,16 @@ class PerfProfilerPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "PerfProfiler.json")
 
 public:
+    ~PerfProfilerPlugin();
+
     bool initialize(const QStringList &arguments, QString *errorString) final;
     void extensionsInitialized() final;
     QList<QObject *> createTestObjects() const final;
 
     static PerfSettings *globalSettings();
+
+    class PerfProfilerPluginPrivate *d = nullptr;
 };
 
+} // namespace Internal
 } // namespace PerfProfiler

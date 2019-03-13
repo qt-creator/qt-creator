@@ -35,7 +35,7 @@ namespace PerfProfiler {
 PerfRunConfigurationAspect::PerfRunConfigurationAspect(ProjectExplorer::Target *target)
 {
     setProjectSettings(new PerfSettings(target));
-    setGlobalSettings(PerfProfilerPlugin::globalSettings());
+    setGlobalSettings(Internal::PerfProfilerPlugin::globalSettings());
     setId(Constants::PerfSettingsId);
     setDisplayName(QCoreApplication::translate("PerfProfiler::PerfRunConfigurationAspect",
                                                "Performance Analyzer Settings"));

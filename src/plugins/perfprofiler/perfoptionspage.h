@@ -36,7 +36,7 @@ class PerfOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 public:
-    PerfOptionsPage(QObject *parent = nullptr);
+    PerfOptionsPage();
 
     QWidget *widget();
     void apply();

@@ -69,8 +69,7 @@ namespace Internal {
 
 static PerfProfilerTool *s_instance;
 
-PerfProfilerTool::PerfProfilerTool(QObject *parent) :
-    QObject(parent)
+PerfProfilerTool::PerfProfilerTool()
 {
     s_instance = this;
     m_traceManager = new PerfProfilerTraceManager(this);

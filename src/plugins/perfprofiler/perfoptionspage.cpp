@@ -33,7 +33,7 @@
 namespace PerfProfiler {
 namespace Internal {
 
-PerfOptionsPage::PerfOptionsPage(QObject *parent) : Core::IOptionsPage(parent)
+PerfOptionsPage::PerfOptionsPage()
 {
     setId(Constants::PerfSettingsId);
     setDisplayName(QCoreApplication::translate("PerfProfiler::PerfOptionsPage", "CPU Usage"));

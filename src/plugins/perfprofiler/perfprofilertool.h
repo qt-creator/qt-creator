@@ -48,7 +48,7 @@ class PerfProfilerTool  : public QObject
 {
     Q_OBJECT
 public:
-    PerfProfilerTool(QObject *parent = nullptr);
+    PerfProfilerTool();
     static PerfProfilerTool *instance();
 
     PerfProfilerTraceManager *traceManager() const;
