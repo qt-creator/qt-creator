@@ -101,6 +101,10 @@ private:
     using MacrosCache = std::shared_ptr<ProjectExplorer::Cache<MacroInspectionReport, 64>>;
     mutable MacrosCache m_predefinedMacrosCache;
 
+    using HeaderPathsCache = ProjectExplorer::Cache<ProjectExplorer::HeaderPaths>;
+    using HeaderPathsCachePtr = std::shared_ptr<HeaderPathsCache>;
+    mutable HeaderPathsCachePtr m_headerPathsCache;
+
     friend class KeilToolchainFactory;
     friend class KeilToolchainConfigWidget;
 };

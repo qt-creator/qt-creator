@@ -66,6 +66,17 @@ static bool isCompilerExists(const FileName &compilerPath)
     return fi.exists() && fi.isExecutable() && fi.isFile();
 }
 
+static Abi::Architecture guessArchitecture(const FileName &compilerPath)
+{
+    const QFileInfo fi = compilerPath.toFileInfo();
+    const QString bn = fi.baseName().toLower();
+    if (bn == "c51" || bn == "cx51")
+        return Abi::Architecture::Mcs51Architecture;
+    if (bn == "armcc")
+        return Abi::Architecture::ArmArchitecture;
+    return Abi::Architecture::UnknownArchitecture;
+}
+
 // Note: The KEIL 8051 compiler does not support the predefined
 // macros dumping. So, we do it with following trick where we try
 // to compile a temporary file and to parse the console output.
@@ -138,13 +149,40 @@ static Macros dumpPredefinedMacros(const FileName &compiler, const QStringList &
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
         return {};
 
-    const QFileInfo fi(compiler.toString());
-    const QString bn = fi.baseName().toLower();
-    // Check for C51 compiler first.
-    if (bn.contains("c51") || bn.contains("cx51"))
+    const Abi::Architecture arch = guessArchitecture(compiler);
+    switch (arch) {
+    case Abi::Architecture::Mcs51Architecture:
         return dumpC51PredefinedMacros(compiler, env);
+    case Abi::Architecture::ArmArchitecture:
+        return dumpArmPredefinedMacros(compiler, env);
+    default:
+        return {};
+    }
+}
 
-    return dumpArmPredefinedMacros(compiler, env);
+static HeaderPaths dumpHeaderPaths(const FileName &compiler)
+{
+    if (!compiler.exists())
+        return {};
+
+    QDir toolkitDir(compiler.parentDir().toString());
+    if (!toolkitDir.cdUp())
+        return {};
+
+    HeaderPaths headerPaths;
+
+    const Abi::Architecture arch = guessArchitecture(compiler);
+    if (arch == Abi::Architecture::Mcs51Architecture) {
+        QDir includeDir(toolkitDir);
+        if (includeDir.cd("inc"))
+            headerPaths.push_back({includeDir.canonicalPath(), HeaderPathType::BuiltIn});
+    } else if (arch == Abi::Architecture::ArmArchitecture) {
+        QDir includeDir(toolkitDir);
+        if (includeDir.cd("include"))
+            headerPaths.push_back({includeDir.canonicalPath(), HeaderPathType::BuiltIn});
+    }
+
+    return headerPaths;
 }
 
 static Abi::Architecture guessArchitecture(const Macros &macros)
@@ -199,7 +237,8 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 
 KeilToolchain::KeilToolchain(Detection d) :
     ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID, d),
-    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>())
+    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
+    m_headerPathsCache(std::make_shared<HeaderPathsCache>())
 { }
 
 KeilToolchain::KeilToolchain(Core::Id language, Detection d) :
@@ -271,15 +310,26 @@ WarningFlags KeilToolchain::warningFlags(const QStringList &cxxflags) const
 
 ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunner() const
 {
-    return {};
+    const Utils::FileName compilerCommand = m_compilerCommand;
+
+    HeaderPathsCachePtr headerPathsCache = m_headerPathsCache;
+
+    return [compilerCommand, headerPathsCache]
+            (const QStringList &flags, const QString &fileName) {
+        Q_UNUSED(flags)
+        Q_UNUSED(fileName)
+
+        const HeaderPaths paths = dumpHeaderPaths(compilerCommand);
+        headerPathsCache->insert({}, paths);
+
+        return paths;
+    };
 }
 
 HeaderPaths KeilToolchain::builtInHeaderPaths(const QStringList &cxxFlags,
                                               const FileName &fileName) const
 {
-    Q_UNUSED(cxxFlags)
-    Q_UNUSED(fileName)
-    return {};
+    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString());
 }
 
 void KeilToolchain::addToEnvironment(Environment &env) const
@@ -355,6 +405,7 @@ ToolChain *KeilToolchain::clone() const
 void KeilToolchain::toolChainUpdated()
 {
     m_predefinedMacrosCache->invalidate();
+    m_headerPathsCache->invalidate();
     ToolChain::toolChainUpdated();
 }
 
