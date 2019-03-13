@@ -74,14 +74,14 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
     });
 
     connect(m_connectionManager.data(), &Internal::QmlPreviewConnectionManager::restart,
-            runControl, [runControl, this]() {
+            runControl, [runControl]() {
         if (!runControl->isRunning())
             return;
 
-        ProjectExplorer::RunConfiguration *runConfig = runControl->runConfiguration();
-        connect(runControl, &ProjectExplorer::RunControl::stopped, runConfig, [runConfig](){
+        connect(runControl, &ProjectExplorer::RunControl::stopped, runControl, [runControl]() {
             ProjectExplorer::ProjectExplorerPlugin::runRunConfiguration(
-                        runConfig, ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE, true);
+                        runControl->runConfiguration(),
+                        ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE, true);
         });
 
         runControl->initiateStop();

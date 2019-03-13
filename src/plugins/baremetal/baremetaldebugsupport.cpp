@@ -122,10 +122,8 @@ void BareMetalDebugSupport::start()
 
     Runnable inferior;
     inferior.executable = bin;
-    if (auto aspect = runControl()->aspect<ArgumentsAspect>()) {
-        const auto rc = runControl()->runConfiguration();
-        inferior.commandLineArguments = aspect->arguments(rc->macroExpander());
-    }
+    if (auto aspect = runControl()->aspect<ArgumentsAspect>())
+        inferior.commandLineArguments = aspect->arguments(runControl()->macroExpander());
     setInferior(inferior);
     setSymbolFile(bin);
     setStartMode(AttachToRemoteServer);
