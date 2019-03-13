@@ -240,11 +240,6 @@
 
     \image qtcreator-autotests-options.png
 
-    You can add filters to specify the directories within the current project
-    to scan for tests. Select the \uicontrol {Global Filters} check box, and
-    then select \uicontrol Add to specify paths to the directories to scan for
-    tests. Wildcards are not supported in the filter expressions.
-
     In some special setups, \QC cannot deduce which executable or run
     configuration it should use. If \QC repeatedly asks you to select the
     tests to run when trying to execute tests, you can enable it to cache

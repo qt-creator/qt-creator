@@ -171,28 +171,6 @@ void TestCodeParser::updateTestTree(ITestParser *parser)
     scanForTests(QStringList(), parser);
 }
 
-static QStringList filterFiles(const QString &projectDir, const QStringList &files)
-{
-    const QSharedPointer<TestSettings> &settings = AutotestPlugin::settings();
-    const QSet<QString> &filters = settings->whiteListFilters.toSet(); // avoid duplicates
-    if (!settings->filterScan || filters.isEmpty())
-        return files;
-    QStringList finalResult;
-    for (const QString &file : files) {
-        // apply filter only below project directory if file is part of a project
-        const QString &fileToProcess = file.startsWith(projectDir)
-                ? file.mid(projectDir.size())
-                : file;
-        for (const QString &filter : filters) {
-            if (fileToProcess.contains(filter)) {
-                finalResult.push_back(file);
-                break;
-            }
-        }
-    }
-    return finalResult;
-}
-
 // used internally to indicate a parse that failed due to having triggered a parse for a file that
 // is not (yet) part of the CppModelManager's snapshot
 static bool parsingHasFailed;
@@ -379,7 +357,6 @@ void TestCodeParser::scanForTests(const QStringList &fileList, ITestParser *pars
             m_model->markForRemoval(filePath);
     }
 
-    list = filterFiles(project->projectDirectory().toString(), list);
     if (list.isEmpty()) {
         if (isFullParse) {
             Core::MessageManager::instance()->write(

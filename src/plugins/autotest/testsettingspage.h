@@ -47,13 +47,8 @@ public:
 
 private:
     void populateFrameworksListWidget(const QHash<Core::Id, bool> &frameworks);
-    void populateFiltersWidget(const QStringList &filters);
     void frameworkSettings(TestSettings &settings) const;
-    QStringList filters() const;
     void onFrameworkItemChanged();
-    void onAddFilterClicked();
-    void onEditFilterClicked();
-    void onRemoveFilterClicked();
     Ui::TestSettingsPage m_ui;
 
 };
