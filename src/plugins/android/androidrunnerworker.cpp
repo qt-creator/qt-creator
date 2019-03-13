@@ -95,14 +95,14 @@ static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
     return timedOut;
 }
 
-static qint64 extractPID(const QString &output, const QString &packageName)
+static qint64 extractPID(const QByteArray &output, const QString &packageName)
 {
     qint64 pid = -1;
     foreach (auto tuple, output.split('\n')) {
         tuple = tuple.simplified();
         if (!tuple.isEmpty()) {
             auto parts = tuple.split(':');
-            QString commandName = parts.first();
+            QString commandName = QString::fromLocal8Bit(parts.first());
             if (parts.length() == 2 && commandName == packageName) {
                 pid = parts.last().toLongLong();
                 break;
@@ -121,18 +121,17 @@ static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
 
     qint64 processPID = -1;
     chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
-
-    selector.append("shell");
-    selector.append(preNougat ? pidScriptPreNougat : pidScript.arg(packageName));
-
     do {
         QThread::msleep(200);
-        SdkToolResult result = AndroidManager::runAdbCommand(selector);
+        QString adbPath = AndroidConfigurations::currentConfig().adbToolPath().toString();
+        selector.append("shell");
+        selector.append(preNougat ? pidScriptPreNougat : pidScript.arg(packageName));
+        const auto out = Utils::SynchronousProcess().runBlocking(adbPath, selector).allRawOutput();
         if (preNougat) {
-            processPID = extractPID(result.stdOut(), packageName);
+            processPID = extractPID(out, packageName);
         } else {
-            if (!result.stdOut().isEmpty())
-                processPID = result.stdOut().trimmed().toLongLong();
+            if (!out.isEmpty())
+                processPID = out.trimmed().toLongLong();
         }
     } while (processPID == -1 && !isTimedOut(start) && !fi.isCanceled());
 
@@ -321,11 +320,8 @@ void AndroidRunnerWorker::forceStop()
     runAdb({"shell", "am", "force-stop", m_packageName});
 
     // try killing it via kill -9
-    QString out;
-    runAdb({"shell", pidScriptPreNougat}, &out);
-    qint64 pid = extractPID(out.simplified(), m_packageName);
-    if (pid != -1)
-        adbKill(pid);
+    if (m_processPID != -1)
+        adbKill(m_processPID);
 }
 
 void AndroidRunnerWorker::logcatReadStandardError()
