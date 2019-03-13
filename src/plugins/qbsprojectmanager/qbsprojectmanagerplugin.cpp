@@ -322,10 +322,13 @@ void QbsProjectManagerPlugin::updateBuildActions()
         fileName = editorNode->filePath().fileName();
 
         ProjectNode *parentProjectNode = editorNode->parentProjectNode();
+        const QbsProductNode *productNode = nullptr;
+        for (const ProjectNode *potentialProductNode = parentProjectNode;
+             potentialProductNode && !productNode;
+             potentialProductNode = potentialProductNode->parentProjectNode()) {
+            productNode = dynamic_cast<const QbsProductNode *>(potentialProductNode);
+        }
 
-        // FIXME: This code is wrong: If the file is in a Group, then productNode will be
-        // null and the action will be disabled. We have to walk up the tree.
-        auto productNode = dynamic_cast<QbsProductNode *>(parentProjectNode);
         if (productNode) {
             productVisible = true;
             productName = productNode->displayName();
