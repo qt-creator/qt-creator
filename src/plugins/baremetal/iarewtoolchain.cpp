@@ -103,6 +103,71 @@ static Macros dumpPredefinedMacros(const FileName &compiler, const QStringList &
     return Macro::toMacros(output);
 }
 
+static HeaderPaths dumpHeaderPaths(const FileName &compiler, const Core::Id languageId,
+                                   const QStringList &env)
+{
+    if (!compiler.exists())
+        return {};
+
+    // Seems, that IAR compiler has not options to show a list of system
+    // include directories. But, we can use the following trick to enumerate
+    // this directories. We need to specify the '--preinclude' option with
+    // the wrong value (e.g. a dot). In this case the compiler fails and its
+    // error output will contains a mention about the using search directories
+    // in a form of tokens, like: ' searched: "<path/to/include>" '. Where are
+    // the resulting paths are escaped with a quotes.
+
+    QTemporaryFile fakeIn;
+    if (!fakeIn.open())
+        return {};
+    fakeIn.close();
+
+    SynchronousProcess cpp;
+    cpp.setEnvironment(env);
+    cpp.setTimeoutS(10);
+
+    QStringList arguments;
+    arguments.push_back(fakeIn.fileName());
+    if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
+        arguments.push_back("--ec++");
+    arguments.push_back("--preinclude");
+    arguments.push_back(".");
+
+    // Note: Response should retutn an error, just don't check on errors.
+    const SynchronousProcessResponse response = cpp.runBlocking(compiler.toString(),
+                                                                arguments);
+
+    HeaderPaths headerPaths;
+
+    const QByteArray output = response.allOutput().toUtf8();
+    for (auto pos = 0; pos < output.size(); ++pos) {
+        const int searchIndex = output.indexOf("searched:", pos);
+        if (searchIndex == -1)
+            break;
+        const int startQuoteIndex = output.indexOf('"', searchIndex + 1);
+        if (startQuoteIndex == -1)
+            break;
+        const int endQuoteIndex = output.indexOf('"', startQuoteIndex + 1);
+        if (endQuoteIndex == -1)
+            break;
+
+        const QByteArray candidate = output.mid(startQuoteIndex + 1,
+                                                endQuoteIndex - startQuoteIndex - 1)
+                .simplified();
+
+        const QString headerPath = QFileInfo(QFile::decodeName(candidate))
+                .canonicalFilePath();
+
+        // Ignore the QtC binary directory path.
+        if (headerPath != QCoreApplication::applicationDirPath())
+            headerPaths.append({headerPath, HeaderPathType::BuiltIn});
+
+        pos = endQuoteIndex + 1;
+    }
+
+    return headerPaths;
+}
+
 static Abi::Architecture guessArchitecture(const Macros &macros)
 {
     for (const Macro &macro : macros) {
@@ -155,7 +220,8 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 
 IarToolChain::IarToolChain(Detection d) :
     ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID, d),
-    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>())
+    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
+    m_headerPathsCache(std::make_shared<HeaderPathsCache>())
 { }
 
 IarToolChain::IarToolChain(Core::Id language, Detection d) :
@@ -227,15 +293,31 @@ WarningFlags IarToolChain::warningFlags(const QStringList &cxxflags) const
 
 ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner() const
 {
-    return {};
+    Environment env = Environment::systemEnvironment();
+    addToEnvironment(env);
+
+    const Utils::FileName compilerCommand = m_compilerCommand;
+    const Core::Id languageId = language();
+
+    HeaderPathsCachePtr headerPathsCache = m_headerPathsCache;
+
+    return [env, compilerCommand, headerPathsCache, languageId]
+            (const QStringList &flags, const QString &fileName) {
+        Q_UNUSED(flags)
+        Q_UNUSED(fileName)
+
+        const HeaderPaths paths = dumpHeaderPaths(compilerCommand, languageId,
+                                                  env.toStringList());
+        headerPathsCache->insert({}, paths);
+
+        return paths;
+    };
 }
 
 HeaderPaths IarToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
                                              const FileName &fileName) const
 {
-    Q_UNUSED(cxxFlags)
-    Q_UNUSED(fileName)
-    return {};
+    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString());
 }
 
 void IarToolChain::addToEnvironment(Environment &env) const
@@ -311,6 +393,7 @@ ToolChain *IarToolChain::clone() const
 void IarToolChain::toolChainUpdated()
 {
     m_predefinedMacrosCache->invalidate();
+    m_headerPathsCache->invalidate();
     ToolChain::toolChainUpdated();
 }
 
