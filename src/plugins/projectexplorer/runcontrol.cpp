@@ -869,6 +869,11 @@ ISettingsAspect *RunControl::settings(Core::Id id) const
     return d->runConfiguration ? d->runConfiguration->currentSettings(id) : nullptr;
 }
 
+QString RunControl::buildKey() const
+{
+    return d->runConfiguration ? d->runConfiguration->buildKey() : QString();
+}
+
 BuildTargetInfo RunControl::buildTargetInfo() const
 {
     return d->runConfiguration->buildTargetInfo();

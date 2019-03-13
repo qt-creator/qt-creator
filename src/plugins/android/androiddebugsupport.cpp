@@ -93,10 +93,8 @@ static QStringList uniquePaths(const QStringList &files)
     return paths.toList();
 }
 
-static QStringList getSoLibSearchPath(const RunConfiguration *rc)
+static QStringList getSoLibSearchPath(const ProjectNode *node)
 {
-    Target *target = rc->target();
-    const ProjectNode *node = target->project()->findNodeForBuildKey(rc->buildKey());
     if (!node)
         return {};
 
@@ -122,12 +120,10 @@ static QStringList getSoLibSearchPath(const RunConfiguration *rc)
     return res;
 }
 
-static QStringList getExtraLibs(const RunConfiguration *rc)
+static QStringList getExtraLibs(const ProjectNode *node)
 {
-    const ProjectNode *node = rc->target()->project()->findNodeForBuildKey(rc->buildKey());
     if (!node)
         return {};
-
     return node->data(Android::Constants::AndroidExtraLibs).toStringList();
 }
 
@@ -171,9 +167,9 @@ void AndroidDebugSupport::start()
 
     if (isCppDebugging()) {
         qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
-        auto runConfig = runControl()->runConfiguration();
-        QStringList solibSearchPath = getSoLibSearchPath(runConfig);
-        QStringList extraLibs = getExtraLibs(runConfig);
+        const ProjectNode *node = target->project()->findNodeForBuildKey(runControl()->buildKey());
+        QStringList solibSearchPath = getSoLibSearchPath(node);
+        QStringList extraLibs = getExtraLibs(node);
         solibSearchPath.append(qtSoPaths(qtVersion));
         solibSearchPath.append(uniquePaths(extraLibs));
         setSolibSearchPath(solibSearchPath);
