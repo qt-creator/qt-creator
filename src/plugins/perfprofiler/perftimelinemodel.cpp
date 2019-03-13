@@ -166,7 +166,7 @@ QVariantMap PerfTimelineModel::details(int index) const
                                                             manager->traceDuration()));
         const int guessedFrames = -frame.numSamples;
         if (guessedFrames > 0)
-            result.insert(tr("Guessed"), tr("%1 frames").arg(guessedFrames));
+            result.insert(tr("Guessed"), tr("%n frames", nullptr, guessedFrames));
         if (const int sampleWeight = weight(index))
             result.insert(tr("Weight"), sampleWeight);
         if (const int samplePeriod = period(index))
