@@ -35,22 +35,18 @@
 
 #include <coreplugin/reaper.h>
 
+#include <utils/fileinprojectfinder.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QDir>
-#include <QTimer>
 #include <QHash>
 #include <QPair>
+#include <QUrl>
 
 #include <algorithm>
 #include <memory>
-
-namespace {
-const int CACHE_SOFT_LIMIT = 500;
-const int CACHE_HARD_LIMIT = 1000;
-} // namespace
 
 namespace ProjectExplorer {
 
@@ -107,10 +103,8 @@ public:
     std::unique_ptr<Utils::QtcProcess> m_process;
     std::unique_ptr<IOutputParser> m_outputParserChain;
     ProcessParameters m_param;
-    QHash<QString, QPair<Utils::FileName, quint64>> m_filesCache;
-    QHash<QString, Utils::FileNameList> m_candidates;
+    Utils::FileInProjectFinder m_fileFinder;
     QByteArray deferredText;
-    quint64 m_cacheCounter = 0;
     bool m_ignoreReturnValue = false;
     bool m_skipFlush = false;
 
@@ -194,11 +188,8 @@ void AbstractProcessStep::setIgnoreReturnValue(bool b)
 
 bool AbstractProcessStep::init()
 {
-    d->m_candidates.clear();
-    const Utils::FileNameList fl = project()->files(Project::AllFiles);
-    for (const Utils::FileName &file : fl)
-        d->m_candidates[file.fileName()].push_back(file);
-
+    d->m_fileFinder.setProjectDirectory(project()->projectDirectory());
+    d->m_fileFinder.setProjectFiles(project()->files(Project::AllFiles));
     return !d->m_process;
 }
 
@@ -437,44 +428,16 @@ void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int
 
     Task editable(task);
     QString filePath = task.file.toString();
-
-    auto it = d->m_filesCache.find(filePath);
-    if (it != d->m_filesCache.end()) {
-        editable.file = it.value().first;
-        it.value().second = ++d->m_cacheCounter;
-    } else if (!filePath.isEmpty() && !filePath.startsWith('<') && !QDir::isAbsolutePath(filePath)) {
-        // We have no save way to decide which file in which subfolder
-        // is meant. Therefore we apply following heuristics:
-        // 1. Check if file is unique in whole project
-        // 2. Otherwise try again without any ../
-        // 3. give up.
-
-        QString sourceFilePath = filePath;
-        Utils::FileNameList possibleFiles = d->m_candidates.value(Utils::FileName::fromString(filePath).fileName());
-
-        if (possibleFiles.count() == 1) {
-            editable.file = possibleFiles.first();
-        } else {
-            // More then one filename, so do a better compare
-            // Chop of any "../"
-            while (filePath.startsWith("../"))
-                filePath.remove(0, 3);
-
-            int count = 0;
-            Utils::FileName possibleFilePath;
-            foreach (const Utils::FileName &fn, possibleFiles) {
-                if (fn.endsWith(filePath)) {
-                    possibleFilePath = fn;
-                    ++count;
-                }
-            }
-            if (count == 1)
-                editable.file = possibleFilePath;
-            else
-                qWarning() << "Could not find absolute location of file " << filePath;
-        }
-
-        insertInCache(sourceFilePath, editable.file);
+    if (!filePath.isEmpty() && !filePath.startsWith('<') && !QDir::isAbsolutePath(filePath)) {
+        while (filePath.startsWith("../"))
+            filePath.remove(0, 3);
+        bool found = false;
+        const Utils::FileNameList candidates
+                = d->m_fileFinder.findFile(QUrl::fromLocalFile(filePath), &found);
+        if (found && candidates.size() == 1)
+            editable.file = candidates.first();
+        else
+            qWarning() << "Could not find absolute location of file " << filePath;
     }
 
     emit addTask(editable, linkedOutputLines, skipLines);
@@ -499,27 +462,7 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
     for (const QString &l : stdOutLine.split('\n'))
         stdError(l);
 
-    purgeCache(true);
     cleanUp(process);
-}
-
-void AbstractProcessStep::purgeCache(bool useSoftLimit)
-{
-    const int limit = useSoftLimit ? CACHE_SOFT_LIMIT : CACHE_HARD_LIMIT;
-    if (d->m_filesCache.size() <= limit)
-        return;
-
-    const quint64 minCounter = d->m_cacheCounter - static_cast<quint64>(limit);
-    std::remove_if(d->m_filesCache.begin(), d->m_filesCache.end(),
-                   [minCounter](const QPair<Utils::FileName, quint64> &entry) {
-        return entry.second <= minCounter;
-    });
-}
-
-void AbstractProcessStep::insertInCache(const QString &relativePath, const Utils::FileName &absPath)
-{
-    purgeCache(false);
-    d->m_filesCache.insert(relativePath, qMakePair(absPath, ++d->m_cacheCounter));
 }
 
 } // namespace ProjectExplorer

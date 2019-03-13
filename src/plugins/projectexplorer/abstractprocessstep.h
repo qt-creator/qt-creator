@@ -80,9 +80,6 @@ private:
 
     void outputAdded(const QString &string, BuildStep::OutputFormat format);
 
-    void purgeCache(bool useSoftLimit);
-    void insertInCache(const QString &relativePath, const Utils::FileName &absPath);
-
     class Private;
     Private *d;
 };
