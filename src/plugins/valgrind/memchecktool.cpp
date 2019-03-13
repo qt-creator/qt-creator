@@ -1509,8 +1509,9 @@ void HeobData::processFinished()
     DWORD didread;
     if (GetOverlappedResult(m_errorPipe, &m_ov, &didread, TRUE) && didread == sizeof(m_data)) {
         if (m_data[0] >= HEOB_PID_ATTACH) {
-            m_runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-            auto debugger = new DebuggerRunTool(m_runControl, m_kit);
+            m_runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+            m_runControl->setKit(m_kit);
+            auto debugger = new DebuggerRunTool(m_runControl);
             debugger->setAttachPid(ProcessHandle(m_data[1]));
             debugger->setRunControlName(tr("Process %1").arg(m_data[1]));
             debugger->setInferiorDevice(DeviceKitAspect::device(m_kit));
