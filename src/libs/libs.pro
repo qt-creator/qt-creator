@@ -14,9 +14,14 @@ SUBDIRS   += \
     qmleditorwidgets \
     glsl \
     ssh \
-    sqlite \
     clangsupport \
     languageserverprotocol
+
+
+QTC_DISABLE_CLANG_REFACTORING=$$(QTC_DISABLE_CLANG_REFACTORING)
+isEmpty(QTC_DISABLE_CLANG_REFACTORING) {
+    SUBDIRS +=     sqlite
+}
 
 qtHaveModule(quick) {
     SUBDIRS += \

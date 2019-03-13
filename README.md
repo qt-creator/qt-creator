@@ -36,7 +36,8 @@ Prerequisites:
 * On Linux: g++ 5.3 or later
 * LLVM/Clang 7.0.0 or later (optional, needed for the Clang Code Model, Clang Tools, ClangFormat,
   Clang PCH Manager and Clang Refactoring plugins, see the section
-  "Get LLVM/Clang for the Clang Code Model")
+  "Get LLVM/Clang for the Clang Code Model". The LLVM C++ API provides no compatibility garantee,
+  so if later versions don't compile we don't support that version.)
 * CMake (only for manual builds of LLVM/Clang)
 * Qbs 1.7.x (optional, sources also contain Qbs itself)
 
@@ -46,6 +47,8 @@ You can build Qt Creator with
 
     # Optional, needed for the Clang Code Model if llvm-config is not in PATH:
     export LLVM_INSTALL_DIR=/path/to/llvm (or "set" on Windows)
+    # Optional, disable Clang Refactoring
+    export QTC_DISABLE_CLANG_REFACTORING=1
     # Optional, needed to let the QbsProjectManager plugin use system Qbs:
     export QBS_INSTALL_DIR=/path/to/qbs
     # Optional, needed for the Python enabled dumper on Windows

@@ -163,10 +163,10 @@ isEmpty(LLVM_VERSION) {
     $$llvmWarningOrError(\
         "Cannot determine clang version. Set LLVM_INSTALL_DIR to build the Clang Code Model",\
         "LLVM_INSTALL_DIR does not contain a valid llvm-config, candidate: $$llvm_config")
-} else:!versionIsAtLeast($$LLVM_VERSION, 6, 0, 0): {
+} else:!versionIsAtLeast($$LLVM_VERSION, 7, 0, 0): {
     # CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
     $$llvmWarningOrError(\
-        "LLVM/Clang version >= 6.0.0 required, version provided: $$LLVM_VERSION")
+        "LLVM/Clang version >= 7.0.0 required, version provided: $$LLVM_VERSION")
     LLVM_VERSION =
 } else {
     # CLANG-UPGRADE-CHECK: Remove suppression if this warning is resolved.
@@ -196,19 +196,11 @@ isEmpty(LLVM_VERSION) {
 
     CLANGFORMAT_MAIN_HEADER = $$LLVM_INCLUDEPATH/clang/Format/Format.h
     exists($$CLANGFORMAT_MAIN_HEADER) {
-        versionIsAtLeast($$LLVM_VERSION, 7, 0, 0): {
-            CLANGFORMAT_LIBS=-lclangFormat -lclangToolingInclusions -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
-            ALL_CLANG_LIBS=-lclangFormat -lclangToolingInclusions -lclangTooling -lclangToolingCore \
-                           -lclangRewrite -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
-                           -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
-                           -lclangASTMatchers -lclangAST -lclangLex -lclangBasic
-        } else:versionIsAtLeast($$LLVM_VERSION, 6, 0, 0): {
-            CLANGFORMAT_LIBS=-lclangFormat -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
-            ALL_CLANG_LIBS=-lclangFormat -lclangTooling -lclangToolingCore \
-                           -lclangRewrite -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
-                           -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
-                           -lclangASTMatchers -lclangAST -lclangLex -lclangBasic
-        }
+        CLANGFORMAT_LIBS=-lclangFormat -lclangToolingInclusions -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
+        ALL_CLANG_LIBS=-lclangFormat -lclangToolingInclusions -lclangTooling -lclangToolingCore \
+                       -lclangRewrite -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
+                       -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
+                       -lclangASTMatchers -lclangAST -lclangLex -lclangBasic
         win32:CLANGFORMAT_LIBS += -lversion
     }
     win32:ALL_CLANG_LIBS += -lversion
@@ -232,12 +224,10 @@ isEmpty(LLVM_VERSION) {
     !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBCLANG_LIBS = -L$${LLVM_LIBDIR}
     LIBCLANG_LIBS += $${CLANG_LIB}
 
-    QTC_ENABLE_CLANG_LIBTOOLING=$$(QTC_ENABLE_CLANG_LIBTOOLING)
-    !isEmpty(QTC_ENABLE_CLANG_LIBTOOLING) {
+    QTC_DISABLE_CLANG_REFACTORING=$$(QTC_DISABLE_CLANG_REFACTORING)
+    isEmpty(QTC_DISABLE_CLANG_REFACTORING) {
         !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
         LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
-    } else {
-        warning("Clang LibTooling is disabled. Set QTC_ENABLE_CLANG_LIBTOOLING to enable it.")
     }
 
     !isEmpty(CLANGFORMAT_LIBS) {

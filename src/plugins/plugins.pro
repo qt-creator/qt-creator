@@ -110,12 +110,10 @@ exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \
 SUBDIRS += \
     clangcodemodel
 
-QTC_ENABLE_CLANG_LIBTOOLING=$$(QTC_ENABLE_CLANG_LIBTOOLING)
-!isEmpty(QTC_ENABLE_CLANG_LIBTOOLING) {
+QTC_DISABLE_CLANG_REFACTORING=$$(QTC_DISABLE_CLANG_REFACTORING)
+isEmpty(QTC_DISABLE_CLANG_REFACTORING) {
     SUBDIRS += clangrefactoring
     SUBDIRS += clangpchmanager
-} else {
-    warning("Not building the clang refactoring plugin and the pch manager plugin.")
 }
 
 isEmpty(IDE_PACKAGE_MODE) {

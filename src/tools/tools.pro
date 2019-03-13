@@ -26,12 +26,10 @@ mac {
 
 SUBDIRS += clangbackend
 
-QTC_ENABLE_CLANG_LIBTOOLING=$$(QTC_ENABLE_CLANG_LIBTOOLING)
-!isEmpty(QTC_ENABLE_CLANG_LIBTOOLING) {
+QTC_DISABLE_CLANG_REFACTORING=$$(QTC_DISABLE_CLANG_REFACTORING)
+isEmpty(QTC_DISABLE_CLANG_REFACTORING) {
     SUBDIRS += clangrefactoringbackend
     SUBDIRS += clangpchmanagerbackend
-} else {
-    warning("Not building the clang refactoring backend and the pch manager backend.")
 }
 
 isEmpty(BUILD_CPLUSPLUS_TOOLS):BUILD_CPLUSPLUS_TOOLS=$$(BUILD_CPLUSPLUS_TOOLS)
