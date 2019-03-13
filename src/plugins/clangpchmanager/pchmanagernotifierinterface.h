@@ -27,6 +27,8 @@
 
 #include "clangpchmanager_global.h"
 
+#include <projectpartid.h>
+
 QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace ClangPchManager {
@@ -40,10 +42,11 @@ public:
     PchManagerNotifierInterface(const PchManagerNotifierInterface &) = delete;
     PchManagerNotifierInterface &operator=(const PchManagerNotifierInterface &) = delete;
 
-    virtual void precompiledHeaderUpdated(const QString &projectPartId,
+    virtual void precompiledHeaderUpdated(ClangBackEnd::ProjectPartId projectPartId,
                                           const QString &pchFilePath,
-                                          long long lastModified) = 0;
-    virtual void precompiledHeaderRemoved(const QString &projectPartId) = 0;
+                                          long long lastModified)
+        = 0;
+    virtual void precompiledHeaderRemoved(ClangBackEnd::ProjectPartId projectPartId) = 0;
 
     PchManagerClient &m_pchManagerClient;
 

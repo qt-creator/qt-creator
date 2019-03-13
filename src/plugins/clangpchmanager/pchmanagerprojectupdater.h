@@ -34,9 +34,14 @@ class PchManagerProjectUpdater : public ProjectUpdater
 public:
     PchManagerProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
                              PchManagerClient &client,
-                             ClangBackEnd::FilePathCachingInterface &filePathCache);
+                             ClangBackEnd::FilePathCachingInterface &filePathCache,
+                             ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage)
+        : ProjectUpdater(server, filePathCache, projectPartsStorage)
+        , m_client(client)
+    {}
 
-    void removeProjectParts(const QStringList &projectPartIds);
+    void removeProjectParts(const ClangBackEnd::ProjectPartIds &projectPartIds);
+    void removeProjectParts(const QStringList &projectPartNames);
 
 private:
     PchManagerClient &m_client;

@@ -38,7 +38,7 @@ namespace ClangBackEnd {
 class WatcherEntry
 {
 public:
-    int id;
+    ProjectPartId id;
     FilePathId pathId;
 
     friend bool operator==(WatcherEntry first, WatcherEntry second)
@@ -68,13 +68,6 @@ public:
 };
 
 using WatcherEntries = std::vector<WatcherEntry>;
-
-using IdCache = StringCache<Utils::SmallString,
-                            Utils::SmallStringView,
-                            int,
-                            NonLockingMutex,
-                            decltype(&Utils::compare),
-                            Utils::compare>;
 
 template <typename FileSystemWatcher,
           typename Timer>
@@ -109,9 +102,9 @@ public:
         removeUnusedEntries(entriesAndIds.first, entriesAndIds.second);
     }
 
-    void removeIds(const Utils::SmallStringVector &ids) override
+    void removeIds(const ProjectPartIds &ids) override
     {
-        auto removedEntries = removeIdsFromWatchedEntries(convertToIdNumbers(ids));
+        auto removedEntries = removeIdsFromWatchedEntries(ids);
 
         auto filteredPaths = filterNotWatchedPaths(removedEntries);
 
@@ -124,7 +117,6 @@ public:
         m_notifier = notifier;
     }
 
-unittest_public:
     static std::vector<uint> idsFromIdPaths(const std::vector<IdPaths> &idPaths)
     {
         std::vector<uint> ids;
@@ -144,15 +136,6 @@ unittest_public:
         return ids;
     }
 
-    std::vector<int> convertToIdNumbers(const Utils::SmallStringVector &ids)
-    {
-        std::vector<int> idNumbers = m_idCache.stringIds(ids);
-
-        std::sort(idNumbers.begin(), idNumbers.end());
-
-        return idNumbers;
-    }
-
     std::size_t sizeOfIdPaths(const std::vector<IdPaths> &idPaths)
     {
         auto sumSize = [] (std::size_t size, const IdPaths &idPath) {
@@ -162,20 +145,19 @@ unittest_public:
         return std::accumulate(idPaths.begin(), idPaths.end(), std::size_t(0), sumSize);
     }
 
-
-    std::pair<WatcherEntries, std::vector<int>>
-    convertIdPathsToWatcherEntriesAndIds(const std::vector<IdPaths> &idPaths)
+    std::pair<WatcherEntries, ProjectPartIds> convertIdPathsToWatcherEntriesAndIds(
+        const std::vector<IdPaths> &idPaths)
     {
         WatcherEntries entries;
         entries.reserve(sizeOfIdPaths(idPaths));
-        std::vector<int> ids;
+        ProjectPartIds ids;
         ids.reserve(ids.size());
 
         auto outputIterator = std::back_inserter(entries);
 
         for (const IdPaths &idPath : idPaths)
         {
-            int id = m_idCache.stringId(idPath.id);
+            ProjectPartId id = idPath.id;
 
             ids.push_back(id);
 
@@ -203,8 +185,7 @@ unittest_public:
             m_fileSystemWatcher.addPaths(convertWatcherEntriesToQStringList(filteredPaths));
     }
 
-    void removeUnusedEntries(const WatcherEntries &entries,
-                             const std::vector<int> &ids)
+    void removeUnusedEntries(const WatcherEntries &entries, const ProjectPartIds &ids)
     {
         auto oldEntries = notAnymoreWatchedEntriesWithIds(entries, ids);
 
@@ -286,9 +267,8 @@ unittest_public:
         return notAnymoreWatchedEntries;
     }
 
-    WatcherEntries notAnymoreWatchedEntriesWithIds(
-            const WatcherEntries &newEntries,
-            const std::vector<int> &ids) const
+    WatcherEntries notAnymoreWatchedEntriesWithIds(const WatcherEntries &newEntries,
+                                                   const ProjectPartIds &ids) const
     {
         auto oldEntries = notAnymoreWatchedEntries(newEntries, std::less<WatcherEntry>());
 
@@ -345,16 +325,13 @@ unittest_public:
         return m_watchedEntries;
     }
 
-    WatcherEntries removeIdsFromWatchedEntries(const std::vector<int> &ids)
+    WatcherEntries removeIdsFromWatchedEntries(const ProjectPartIds &ids)
     {
-
-        auto keep = [&] (WatcherEntry entry) {
+        auto keep = [&](WatcherEntry entry) {
             return !std::binary_search(ids.begin(), ids.end(), entry.id);
         };
 
-        auto found = std::stable_partition(m_watchedEntries.begin(),
-                                           m_watchedEntries.end(),
-                                           keep);
+        auto found = std::stable_partition(m_watchedEntries.begin(), m_watchedEntries.end(), keep);
 
         WatcherEntries removedEntries(found, m_watchedEntries.end());
 
@@ -410,22 +387,20 @@ unittest_public:
         return watchedFilePathIds;
     }
 
-    Utils::SmallStringVector idsForWatcherEntries(const WatcherEntries &foundEntries)
+    ProjectPartIds idsForWatcherEntries(const WatcherEntries &foundEntries)
     {
-        Utils::SmallStringVector ids;
+        ProjectPartIds ids;
         ids.reserve(foundEntries.size());
 
         std::transform(foundEntries.begin(),
                        foundEntries.end(),
                        std::back_inserter(ids),
-                       [&] (WatcherEntry entry) {
-            return Utils::SmallString(m_idCache.string(entry.id));
-        });
+                       [&](WatcherEntry entry) { return entry.id; });
 
         return ids;
     }
 
-    Utils::SmallStringVector uniqueIds(Utils::SmallStringVector &&ids)
+    ProjectPartIds uniqueIds(ProjectPartIds &&ids)
     {
         std::sort(ids.begin(), ids.end());
         auto newEnd = std::unique(ids.begin(), ids.end());
@@ -439,7 +414,7 @@ unittest_public:
         if (m_notifier) {
             WatcherEntries foundEntries = watchedEntriesForPaths(std::move(filePathIds));
 
-            Utils::SmallStringVector changedIds = idsForWatcherEntries(foundEntries);
+            ProjectPartIds changedIds = idsForWatcherEntries(foundEntries);
 
             m_notifier->pathsWithIdsChanged(uniqueIds(std::move(changedIds)));
             m_notifier->pathsChanged(watchedPaths(filePathIds));
@@ -451,13 +426,7 @@ unittest_public:
         return m_pathCache;
     }
 
-    IdCache &idCache()
-    {
-        return m_idCache;
-    }
-
 private:
-    IdCache m_idCache;
     WatcherEntries m_watchedEntries;
     ChangedFilePathCompressor<Timer> m_changedFilePathCompressor;
     FileSystemWatcher m_fileSystemWatcher;

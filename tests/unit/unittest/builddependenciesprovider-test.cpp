@@ -34,12 +34,13 @@
 
 namespace {
 
-using ClangBackEnd::BuildDependency;
 using ClangBackEnd::BuildDependencies;
+using ClangBackEnd::BuildDependency;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathIds;
-using ClangBackEnd::SourceEntry;
+using ClangBackEnd::ProjectPartId;
 using ClangBackEnd::SourceEntries;
+using ClangBackEnd::SourceEntry;
 using ClangBackEnd::SourceType;
 using ClangBackEnd::UsedMacro;
 using ClangBackEnd::UsedMacros;
@@ -64,7 +65,7 @@ protected:
                                                      mockBuildDependenciesGenerator,
                                                      mockSqliteTransactionBackend};
     ClangBackEnd::ProjectPartContainer projectPart1{
-        "ProjectPart1",
+        1,
         {"--yi"},
         {{"YI", "1", 1}},
         {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
@@ -75,7 +76,7 @@ protected:
         Utils::LanguageVersion::C11,
         Utils::LanguageExtension::All};
     ClangBackEnd::ProjectPartContainer projectPart2{
-        "ProjectPart2",
+        2,
         {"--er"},
         {{"ER", "2", 1}},
         {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
@@ -114,10 +115,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromStorageIfTime
     InSequence s;
 
     EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
-    EXPECT_CALL(mockBuildDependenciesStorage,
-                fetchProjectPartId(TypedEq<Utils::SmallStringView>("ProjectPart1")))
-        .WillOnce(Return(11));
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, 11))
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, {1}))
         .WillRepeatedly(Return(firstSources));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(true));
@@ -132,13 +130,10 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromStorageIfTime
 
 TEST_F(BuildDependenciesProvider, FetchDependSourcesFromStorage)
 {
-    ON_CALL(mockBuildDependenciesStorage,
-            fetchProjectPartId(TypedEq<Utils::SmallStringView>("ProjectPart2")))
-        .WillByDefault(Return(11));
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, 11)).WillByDefault(Return(firstSources));
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({3}, 11)).WillByDefault(Return(secondSources));
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({4}, 11)).WillByDefault(Return(thirdSources));
-
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, {2})).WillByDefault(Return(firstSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({3}, {2}))
+        .WillByDefault(Return(secondSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({4}, {2})).WillByDefault(Return(thirdSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(_)).WillByDefault(Return(true));
 
     auto buildDependency = provider.create(projectPart2);
@@ -157,17 +152,14 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromGeneratorIfTi
     InSequence s;
 
     EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
-    EXPECT_CALL(mockBuildDependenciesStorage,
-                fetchProjectPartId(TypedEq<Utils::SmallStringView>("ProjectPart1")))
-        .WillOnce(Return(11));
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, TypedEq<int>(11)))
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, TypedEq<ProjectPartId>(1)))
         .WillRepeatedly(Return(firstSources));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(false));
     EXPECT_CALL(mockBuildDependenciesGenerator, create(projectPart1))
         .WillOnce(Return(buildDependency));
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSources(Eq(secondSources), 11));
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSources(Eq(secondSources), {1}));
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatuses)));
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
     EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(secondUsedMacros)));
@@ -178,10 +170,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromGeneratorIfTi
 
 TEST_F(BuildDependenciesProvider, FetchDependSourcesFromGenerator)
 {
-    ON_CALL(mockBuildDependenciesStorage,
-            fetchProjectPartId(TypedEq<Utils::SmallStringView>("ProjectPart1")))
-        .WillByDefault(Return(11));
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, 11)).WillByDefault(Return(firstSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, {1})).WillByDefault(Return(firstSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(_)).WillByDefault(Return(false));
     ON_CALL(mockBuildDependenciesGenerator, create(projectPart1)).WillByDefault(Return(buildDependency));
 
@@ -195,10 +184,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchUsedMacrosFromStorageIfTimeSta
     InSequence s;
 
     EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
-    EXPECT_CALL(mockBuildDependenciesStorage,
-                fetchProjectPartId(TypedEq<Utils::SmallStringView>("ProjectPart1")))
-        .WillOnce(Return(11));
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, 11))
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, {1}))
         .WillRepeatedly(Return(firstSources));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(true));
@@ -213,10 +199,7 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchUsedMacrosFromStorageIfTimeSta
 
 TEST_F(BuildDependenciesProvider, FetchUsedMacrosFromStorageIfDependSourcesAreUpToDate)
 {
-    ON_CALL(mockBuildDependenciesStorage,
-            fetchProjectPartId(TypedEq<Utils::SmallStringView>("ProjectPart1")))
-        .WillByDefault(Return(11));
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, 11)).WillByDefault(Return(firstSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, {1})).WillByDefault(Return(firstSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillByDefault(Return(true));
     ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros({1})).WillByDefault(Return(firstUsedMacros));
     ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros({2})).WillByDefault(Return(secondUsedMacros));

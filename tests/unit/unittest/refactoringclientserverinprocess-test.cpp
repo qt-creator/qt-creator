@@ -180,19 +180,20 @@ TEST_F(RefactoringClientServerInProcess, RequestSourceRangesForQueryMessage)
 
 TEST_F(RefactoringClientServerInProcess, SendUpdateProjectPartsMessage)
 {
-    ProjectPartContainer projectPart2{"projectPartId",
-                                      {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
-                                      {{"DEFINE", "1", 1}},
-                                      {IncludeSearchPath{"/system/path", 2, IncludeSearchPathType::System},
-                                       IncludeSearchPath{"/builtin/path", 3, IncludeSearchPathType::BuiltIn},
-                                       IncludeSearchPath{"/framework/path", 1, IncludeSearchPathType::System}},
-                                      {IncludeSearchPath{"/to/path1", 1, IncludeSearchPathType::User},
-                                       IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User}},
-                                      {{1, 1}},
-                                      {{1, 2}},
-                                      Utils::Language::C,
-                                      Utils::LanguageVersion::C11,
-                                      Utils::LanguageExtension::All};
+    ProjectPartContainer projectPart2{
+        1,
+        {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
+        {{"DEFINE", "1", 1}},
+        {IncludeSearchPath{"/system/path", 2, IncludeSearchPathType::System},
+         IncludeSearchPath{"/builtin/path", 3, IncludeSearchPathType::BuiltIn},
+         IncludeSearchPath{"/framework/path", 1, IncludeSearchPathType::System}},
+        {IncludeSearchPath{"/to/path1", 1, IncludeSearchPathType::User},
+         IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User}},
+        {{1, 1}},
+        {{1, 2}},
+        Utils::Language::C,
+        Utils::LanguageVersion::C11,
+        Utils::LanguageExtension::All};
     UpdateProjectPartsMessage message{{projectPart2}, {"toolChainArgument"}};
 
     EXPECT_CALL(mockRefactoringServer, updateProjectParts(message));
@@ -214,7 +215,7 @@ TEST_F(RefactoringClientServerInProcess, SendUpdateGeneratedFilesMessage)
 
 TEST_F(RefactoringClientServerInProcess, SendRemoveProjectPartsMessage)
 {
-    RemoveProjectPartsMessage message{{"projectPartId1", "projectPartId2"}};
+    RemoveProjectPartsMessage message{{1, 2}};
 
     EXPECT_CALL(mockRefactoringServer, removeProjectParts(message));
 

@@ -49,7 +49,7 @@ void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
                                buildDependency.usedMacros,
                                projectPart.compilerMacros};
 
-        pchTaskSets.emplace_back(PchTask{projectPart.projectPartId.clone(),
+        pchTaskSets.emplace_back(PchTask{projectPart.projectPartId,
                                          std::move(filter.topSystemIncludes),
                                          {},
                                          std::move(filter.systemCompilerMacros),
@@ -60,7 +60,7 @@ void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
                                          projectPart.language,
                                          projectPart.languageVersion,
                                          projectPart.languageExtension},
-                                 PchTask{std::move(projectPart.projectPartId),
+                                 PchTask{projectPart.projectPartId,
                                          std::move(filter.topProjectIncludes),
                                          std::move(filter.sources),
                                          std::move(filter.projectCompilerMacros),
@@ -77,7 +77,7 @@ void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
     m_pchTasksMergerInterface.mergeTasks(std::move(pchTaskSets), std::move(toolChainArguments));
 }
 
-void PchTaskGenerator::removeProjectParts(const Utils::SmallStringVector &projectsPartIds)
+void PchTaskGenerator::removeProjectParts(const ProjectPartIds &projectsPartIds)
 {
     m_pchTasksMergerInterface.removePchTasks(projectsPartIds);
 }

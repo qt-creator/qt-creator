@@ -50,8 +50,8 @@ public:
     {}
 
     void addProjectParts(ProjectPartContainers &&projectParts,
-                         Utils::SmallStringVector &&toolChainArguments);
-    void removeProjectParts(const Utils::SmallStringVector &projectsPartIds);
+                         Utils::SmallStringVector &&toolChainArguments) override;
+    void removeProjectParts(const ProjectPartIds &projectsPartIds) override;
 
 private:
     BuildDependenciesProviderInterface &m_buildDependenciesProvider;

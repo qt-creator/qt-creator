@@ -43,12 +43,14 @@ using testing::SizeIs;
 using testing::NiceMock;
 
 using Watcher = ClangBackEnd::ClangPathWatcher<NiceMock<MockQFileSytemWatcher>, NiceMock<MockTimer>>;
-using ClangBackEnd::WatcherEntry;
-using ClangBackEnd::WatcherEntries;
 using ClangBackEnd::FilePath;
-using ClangBackEnd::FilePathView;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathIds;
+using ClangBackEnd::FilePathView;
+using ClangBackEnd::ProjectPartId;
+using ClangBackEnd::ProjectPartIds;
+using ClangBackEnd::WatcherEntries;
+using ClangBackEnd::WatcherEntry;
 
 class ClangPathWatcher : public testing::Test
 {
@@ -66,15 +68,15 @@ protected:
     NiceMock<MockClangPathWatcherNotifier> notifier;
     Watcher watcher{filePathCache, &notifier};
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();
-    Utils::SmallString id1{"id4"};
-    Utils::SmallString id2{"id2"};
-    Utils::SmallString id3{"id3"};
+    ProjectPartId id1{2};
+    ProjectPartId id2{3};
+    ProjectPartId id3{4};
     FilePathView path1{"/path/path1"};
     FilePathView path2{"/path/path2"};
     QString path1QString = QString(path1.toStringView());
     QString path2QString = QString(path2.toStringView());
     FilePathIds pathIds = {1, 2};
-    std::vector<int> ids{watcher.idCache().stringIds({id1, id2, id3})};
+    ClangBackEnd::ProjectPartIds ids{id1, id2, id3};
     WatcherEntry watcherEntry1{ids[0], pathIds[0]};
     WatcherEntry watcherEntry2{ids[1], pathIds[0]};
     WatcherEntry watcherEntry3{ids[0], pathIds[1]};
@@ -324,7 +326,7 @@ TEST_F(ClangPathWatcher, NotifyFileChange)
 {
     watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
-    EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id2, id1)));
+    EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id1, id2)));
 
     mockQFileSytemWatcher.fileChanged(path1QString);
 }
@@ -333,7 +335,7 @@ TEST_F(ClangPathWatcher, TwoNotifyFileChanges)
 {
     watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
-    EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id2, id3, id1)));
+    EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id1, id2, id3)));
 
     mockQFileSytemWatcher.fileChanged(path2QString);
     mockQFileSytemWatcher.fileChanged(path1QString);

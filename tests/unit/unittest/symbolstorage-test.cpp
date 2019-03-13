@@ -36,10 +36,6 @@
 namespace {
 
 using ClangBackEnd::FilePathCachingInterface;
-using ClangBackEnd::FilePathId;
-using ClangBackEnd::IncludeSearchPath;
-using ClangBackEnd::IncludeSearchPaths;
-using ClangBackEnd::IncludeSearchPathType;
 using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SourceLocationKind;
@@ -58,43 +54,20 @@ class SymbolStorage : public testing::Test
 protected:
     NiceMock<MockSqliteDatabase> mockDatabase;
     Storage storage{mockDatabase};
-    MockSqliteWriteStatement &insertSymbolsToNewSymbolsStatement = storage.m_insertSymbolsToNewSymbolsStatement;
-    MockSqliteWriteStatement &insertLocationsToNewLocationsStatement = storage.m_insertLocationsToNewLocationsStatement;
-    MockSqliteReadStatement &selectNewSourceIdsStatement = storage.m_selectNewSourceIdsStatement;
-    MockSqliteWriteStatement &addNewSymbolsToSymbolsStatement = storage.m_addNewSymbolsToSymbolsStatement;
-    MockSqliteWriteStatement &syncNewSymbolsFromSymbolsStatement = storage.m_syncNewSymbolsFromSymbolsStatement;
-    MockSqliteWriteStatement &syncSymbolsIntoNewLocationsStatement = storage.m_syncSymbolsIntoNewLocationsStatement;
-    MockSqliteWriteStatement &deleteAllLocationsFromUpdatedFilesStatement = storage.m_deleteAllLocationsFromUpdatedFilesStatement;
-    MockSqliteWriteStatement &insertNewLocationsInLocationsStatement = storage.m_insertNewLocationsInLocationsStatement;
-    MockSqliteWriteStatement &deleteNewSymbolsTableStatement = storage.m_deleteNewSymbolsTableStatement;
-    MockSqliteWriteStatement &deleteNewLocationsTableStatement = storage.m_deleteNewLocationsTableStatement;
-    MockSqliteWriteStatement &insertOrUpdateProjectPartStatement = storage.m_insertOrUpdateProjectPartStatement;
-    MockSqliteReadStatement &getProjectPartIdStatement = storage.m_getProjectPartIdStatement;
-    MockSqliteReadStatement &getProjectPartArtefactsBySourceId = storage.m_getProjectPartArtefactsBySourceId;
-    MockSqliteReadStatement &getProjectPartArtefactsByProjectPartName = storage.m_getProjectPartArtefactsByProjectPartName;
-
+    MockSqliteWriteStatement &insertSymbolsToNewSymbolsStatement = storage.insertSymbolsToNewSymbolsStatement;
+    MockSqliteWriteStatement &insertLocationsToNewLocationsStatement = storage.insertLocationsToNewLocationsStatement;
+    MockSqliteReadStatement &selectNewSourceIdsStatement = storage.selectNewSourceIdsStatement;
+    MockSqliteWriteStatement &addNewSymbolsToSymbolsStatement = storage.addNewSymbolsToSymbolsStatement;
+    MockSqliteWriteStatement &syncNewSymbolsFromSymbolsStatement = storage.syncNewSymbolsFromSymbolsStatement;
+    MockSqliteWriteStatement &syncSymbolsIntoNewLocationsStatement = storage.syncSymbolsIntoNewLocationsStatement;
+    MockSqliteWriteStatement &deleteAllLocationsFromUpdatedFilesStatement = storage.deleteAllLocationsFromUpdatedFilesStatement;
+    MockSqliteWriteStatement &insertNewLocationsInLocationsStatement = storage.insertNewLocationsInLocationsStatement;
+    MockSqliteWriteStatement &deleteNewSymbolsTableStatement = storage.deleteNewSymbolsTableStatement;
+    MockSqliteWriteStatement &deleteNewLocationsTableStatement = storage.deleteNewLocationsTableStatement;
     SymbolEntries symbolEntries{{1, {"functionUSR", "function", SymbolKind::Function}},
                                 {2, {"function2USR", "function2", SymbolKind::Function}}};
     SourceLocationEntries sourceLocations{{1, 3, {42, 23}, SourceLocationKind::Declaration},
                                           {2, 4, {7, 11}, SourceLocationKind::Definition}};
-    IncludeSearchPaths systemIncludeSearchPaths{
-        {"/includes", 1, IncludeSearchPathType::BuiltIn},
-        {"/other/includes", 2, IncludeSearchPathType::System}};
-    IncludeSearchPaths projectIncludeSearchPaths{
-        {"/project/includes", 1, IncludeSearchPathType::User},
-        {"/other/project/includes", 2, IncludeSearchPathType::User}};
-    Utils::SmallString systemIncludeSearchPathsText{
-        R"([["/includes",1,2],["/other/includes",2,3]])"};
-    Utils::SmallString projectIncludeSearchPathsText{
-        R"([["/project/includes",1,1],["/other/project/includes",2,1]])"};
-    ClangBackEnd::ProjectPartArtefact artefact{R"(["-DFOO"])",
-                                               R"([["FOO","1",1]])",
-                                               systemIncludeSearchPathsText,
-                                               projectIncludeSearchPathsText,
-                                               74,
-                                               Utils::Language::Cxx,
-                                               Utils::LanguageVersion::CXX11,
-                                               Utils::LanguageExtension::None};
 };
 
 TEST_F(SymbolStorage, CreateAndFillTemporaryLocationsTable)
@@ -172,78 +145,6 @@ TEST_F(SymbolStorage, AddSymbolsAndSourceLocationsCallsWrite)
     EXPECT_CALL(deleteNewLocationsTableStatement, execute());
 
     storage.addSymbolsAndSourceLocations(symbolEntries, sourceLocations);
-}
-
-TEST_F(SymbolStorage, ConvertStringsToJson)
-{
-    Utils::SmallStringVector strings{"foo", "bar", "foo"};
-
-    auto jsonText = storage.toJson(strings);
-
-    ASSERT_THAT(jsonText, Eq("[\"foo\",\"bar\",\"foo\"]"));
-}
-
-TEST_F(SymbolStorage, InsertOrUpdateProjectPart)
-{
-    InSequence sequence;
-
-    EXPECT_CALL(insertOrUpdateProjectPartStatement,
-                write(TypedEq<Utils::SmallStringView>("project"),
-                      TypedEq<Utils::SmallStringView>(R"(["foo"])"),
-                      TypedEq<Utils::SmallStringView>(R"([["FOO","1",1]])"),
-                      TypedEq<Utils::SmallStringView>(systemIncludeSearchPathsText),
-                      TypedEq<Utils::SmallStringView>(projectIncludeSearchPathsText),
-                      1,
-                      34,
-                      0));
-    EXPECT_CALL(
-        getProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("project")))
-        .WillOnce(Return(74));
-
-    storage.insertOrUpdateProjectPart("project",
-                                      {"foo"},
-                                      {{"FOO", "1", 1}},
-                                      systemIncludeSearchPaths,
-                                      projectIncludeSearchPaths,
-                                      Utils::Language::Cxx,
-                                      Utils::LanguageVersion::CXX11,
-                                      Utils::LanguageExtension::None);
-}
-
-TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatement)
-{
-    EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
-            .WillRepeatedly(Return(artefact));
-
-    storage.fetchProjectPartArtefact(1);
-}
-
-TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdReturnArtefact)
-{
-    EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
-            .WillRepeatedly(Return(artefact));
-
-    auto result = storage.fetchProjectPartArtefact(1);
-
-    ASSERT_THAT(result, Eq(artefact));
-}
-
-TEST_F(SymbolStorage, FetchProjectPartArtefactByProjectNameCallsValueInStatement)
-{
-    EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
-            .WillRepeatedly(Return(artefact));
-
-    storage.fetchProjectPartArtefact(1);
-}
-
-TEST_F(SymbolStorage, FetchProjectPartArtefactByProjectNameReturnArtefact)
-{
-    EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
-            .WillRepeatedly(Return(artefact));
-
-    auto result = storage.fetchProjectPartArtefact(1);
-
-    ASSERT_THAT(result, Eq(artefact));
 }
 
 TEST_F(SymbolStorage, AddNewSymbolsTable)

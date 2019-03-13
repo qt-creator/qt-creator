@@ -23,15 +23,16 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
 #include "filesystem-utilities.h"
+#include "googletest.h"
+#include "mockbuilddependenciesstorage.h"
 #include "mockclangpathwatcher.h"
+#include "mockfilepathcaching.h"
 #include "mockprecompiledheaderstorage.h"
+#include "mockprojectpartsstorage.h"
+#include "mocksqlitetransactionbackend.h"
 #include "mocksymbolscollector.h"
 #include "mocksymbolstorage.h"
-#include "mockfilepathcaching.h"
-#include "mocksqlitetransactionbackend.h"
-#include "mockbuilddependenciesstorage.h"
 
 #include <filepathcaching.h>
 #include <filestatuscache.h>
@@ -50,27 +51,29 @@
 
 namespace {
 
-using Utils::PathString;
 using ClangBackEnd::CompilerMacro;
-using ClangBackEnd::FileStatuses;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathIds;
 using ClangBackEnd::FilePathView;
+using ClangBackEnd::FileStatuses;
+using ClangBackEnd::ProcessorManager;
 using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::ProjectPartContainers;
-using ClangBackEnd::V2::FileContainers;
+using ClangBackEnd::ProjectPartId;
+using ClangBackEnd::ProjectPartIds;
+using ClangBackEnd::SourceDependencies;
+using ClangBackEnd::SourceLocationEntries;
+using ClangBackEnd::SourceLocationEntry;
+using ClangBackEnd::SourceLocationKind;
 using ClangBackEnd::SymbolEntries;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SymbolIndexerTask;
 using ClangBackEnd::SymbolIndexerTaskQueue;
-using ClangBackEnd::TaskScheduler;
-using ClangBackEnd::ProcessorManager;
-using ClangBackEnd::SourceDependencies;
-using ClangBackEnd::SourceLocationEntries;
-using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SymbolKind;
-using ClangBackEnd::SourceLocationKind;
+using ClangBackEnd::TaskScheduler;
 using ClangBackEnd::UsedMacros;
+using ClangBackEnd::V2::FileContainers;
+using Utils::PathString;
 using OptionalProjectPartArtefact = Utils::optional<ClangBackEnd::ProjectPartArtefact>;
 
 struct Data
@@ -106,7 +109,8 @@ protected:
         ON_CALL(mockCollector, usedMacros()).WillByDefault(ReturnRef(usedMacros));
         ON_CALL(mockCollector, fileStatuses()).WillByDefault(ReturnRef(fileStatus));
         ON_CALL(mockCollector, sourceDependencies()).WillByDefault(ReturnRef(sourceDependencies));
-        ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(A<FilePathId>())).WillByDefault(Return(artefact));
+        ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<FilePathId>()))
+            .WillByDefault(Return(artefact));
         ON_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>())).WillByDefault(Return(-1));
         ON_CALL(mockCollector, collectSymbols()).WillByDefault(Return(true));
 
@@ -167,7 +171,7 @@ protected:
     ClangBackEnd::IncludeSearchPaths projectIncludeSearchPaths{
         {"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User},
         {"/other/project/includes", 2, ClangBackEnd::IncludeSearchPathType::User}};
-    ProjectPartContainer projectPart1{"project1",
+    ProjectPartContainer projectPart1{1,
                                       {"-Wno-pragma-once-outside-header"},
                                       {{"BAR", "1", 1}, {"FOO", "1", 2}},
                                       Utils::clone(systemIncludeSearchPaths),
@@ -177,7 +181,7 @@ protected:
                                       Utils::Language::Cxx,
                                       Utils::LanguageVersion::CXX14,
                                       Utils::LanguageExtension::None};
-    ProjectPartContainer projectPart2{"project2",
+    ProjectPartContainer projectPart2{2,
                                       {"-Wno-pragma-once-outside-header"},
                                       {{"BAR", "1", 1}, {"FOO", "0", 2}},
                                       Utils::clone(systemIncludeSearchPaths),
@@ -187,7 +191,7 @@ protected:
                                       Utils::Language::Cxx,
                                       Utils::LanguageVersion::CXX14,
                                       Utils::LanguageExtension::None};
-    ProjectPartContainer projectPart3{"project3",
+    ProjectPartContainer projectPart3{3,
                                       {"-Wno-pragma-once-outside-header"},
                                       {{"BAR", "1", 1}, {"FOO", "1", 2}},
                                       Utils::clone(systemIncludeSearchPaths),
@@ -222,16 +226,17 @@ protected:
                                                     "",
                                                     "",
                                                     "",
-                                                    74,
+                                                    1,
                                                     Utils::Language::Cxx,
                                                     Utils::LanguageVersion::CXX14,
                                                     Utils::LanguageExtension::None};
     Utils::optional<ClangBackEnd::ProjectPartArtefact > nullArtefact;
-    ClangBackEnd::ProjectPartPch projectPartPch{"/path/to/pch", 4};
+    ClangBackEnd::ProjectPartPch projectPartPch{74, "/path/to/pch", 4};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockSymbolStorage> mockSymbolStorage;
     NiceMock<MockBuildDependenciesStorage> mockBuildDependenciesStorage;
     NiceMock<MockPrecompiledHeaderStorage> mockPrecompiledHeaderStorage;
+    NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
     NiceMock<MockClangPathWatcher> mockPathWatcher;
     ClangBackEnd::FileStatusCache fileStatusCache{filePathCache};
     ClangBackEnd::GeneratedFiles generatedFiles;
@@ -245,7 +250,8 @@ protected:
                                         mockPathWatcher,
                                         filePathCache,
                                         fileStatusCache,
-                                        mockSqliteTransactionBackend};
+                                        mockSqliteTransactionBackend,
+                                        mockProjectPartsStorage};
     SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter};
     Scheduler indexerScheduler{collectorManger,
                                indexerQueue,
@@ -273,23 +279,22 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    toNativePath("/project/includes").path(),
+                                    toNativePath("/project/includes"),
                                     "-I",
-                                    toNativePath("/other/project/includes").path(),
+                                    toNativePath("/other/project/includes"),
                                     "-isystem",
-                                    toNativePath(TESTDATA_DIR).path(),
+                                    toNativePath(TESTDATA_DIR),
                                     "-isystem",
-                                    toNativePath("/other/includes").path(),
+                                    toNativePath("/other/includes"),
                                     "-isystem",
-                                    toNativePath("/includes").path())));
+                                    toNativePath("/includes"))));
 
     indexer.updateProjectParts({projectPart1});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInCollector)
 {
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillByDefault(Return(emptyArtefact));
-    ON_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)))
+    ON_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(projectPart1.projectPartId)))
         .WillByDefault(Return(projectPartPch));
 
     EXPECT_CALL(mockCollector,
@@ -306,26 +311,27 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInColl
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    toNativePath("/project/includes").path(),
+                                    toNativePath("/project/includes"),
                                     "-I",
-                                    toNativePath("/other/project/includes").path(),
+                                    toNativePath("/other/project/includes"),
                                     "-isystem",
-                                    toNativePath(TESTDATA_DIR).path(),
+                                    toNativePath(TESTDATA_DIR),
                                     "-isystem",
-                                    toNativePath("/other/includes").path(),
+                                    toNativePath("/other/includes"),
                                     "-isystem",
-                                    toNativePath("/includes").path(),
+                                    toNativePath("/includes"),
                                     "-Xclang",
                                     "-include-pch",
                                     "-Xclang",
-                                    toNativePath("/path/to/pch").path())));
+                                    toNativePath("/path/to/pch"))));
 
     indexer.updateProjectParts({projectPart1});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithoutPrecompiledHeaderInCollector)
 {
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillByDefault(Return(emptyArtefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(TypedEq<ProjectPartId>(1)))
+        .WillByDefault(Return(emptyArtefact));
 
     EXPECT_CALL(mockCollector,
                 setFile(main1PathId,
@@ -341,15 +347,15 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithoutPrecompiledHeaderInC
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    toNativePath("/project/includes").path(),
+                                    toNativePath("/project/includes"),
                                     "-I",
-                                    toNativePath("/other/project/includes").path(),
+                                    toNativePath("/other/project/includes"),
                                     "-isystem",
-                                    toNativePath(TESTDATA_DIR).path(),
+                                    toNativePath(TESTDATA_DIR),
                                     "-isystem",
-                                    toNativePath("/other/includes").path(),
+                                    toNativePath("/other/includes"),
                                     "-isystem",
-                                    toNativePath("/includes").path())));
+                                    toNativePath("/includes"))));
 
     indexer.updateProjectParts({projectPart1});
 }
@@ -411,83 +417,12 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddSymbolsAndSourceLocationsInStora
     indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
-TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
-{
-    EXPECT_CALL(mockSymbolStorage,
-                insertOrUpdateProjectPart(
-                    Eq("project1"),
-                    ElementsAre("-Wno-pragma-once-outside-header"),
-                    ElementsAre(CompilerMacro{"BAR", "1", 1}, CompilerMacro{"FOO", "1", 2}),
-                    Eq(systemIncludeSearchPaths),
-                    Eq(projectIncludeSearchPaths),
-                    Eq(Utils::Language::Cxx),
-                    Eq(Utils::LanguageVersion::CXX14),
-                    Eq(Utils::LanguageExtension::None)));
-    EXPECT_CALL(
-        mockSymbolStorage,
-        insertOrUpdateProjectPart(
-            Eq("project2"),
-            ElementsAre("-Wno-pragma-once-outside-header"),
-            ElementsAre(CompilerMacro{"BAR", "1", 1}, CompilerMacro{"FOO", "0", 2}),
-            Eq(systemIncludeSearchPaths),
-            Eq(projectIncludeSearchPaths),
-            Eq(Utils::Language::Cxx),
-            Eq(Utils::LanguageVersion::CXX14),
-            Eq(Utils::LanguageExtension::None)));
-
-    indexer.updateProjectParts({projectPart1, projectPart2});
-}
-
-TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateUsedMacros)
-{
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros)))
-            .Times(2);
-
-    indexer.updateProjectParts({projectPart1, projectPart2});
-}
-
-TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertFileStatuses)
-{
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus)))
-            .Times(2);
-
-    indexer.updateProjectParts({projectPart1, projectPart2});
-}
-
-TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateSourceDependencies)
-{
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)))
-            .Times(2);
-
-    indexer.updateProjectParts({projectPart1, projectPart2});
-}
-
-TEST_F(SymbolIndexer, UpdateProjectPartsCallsFetchProjectPartArtefacts)
-{
-    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId)));
-    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart2.projectPartId)));
-
-    indexer.updateProjectParts({projectPart1, projectPart2});
-}
-
-TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithoutProjectPartArtifact)
+TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
 {
     InSequence s;
 
-    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillOnce(Return(nullArtefact));
-    EXPECT_CALL(mockSymbolStorage,
-                insertOrUpdateProjectPart(Eq(projectPart1.projectPartId),
-                                          Eq(projectPart1.toolChainArguments),
-                                          Eq(projectPart1.compilerMacros),
-                                          Eq(projectPart1.systemIncludeSearchPaths),
-                                          Eq(projectPart1.projectIncludeSearchPaths),
-                                          Eq(Utils::Language::Cxx),
-                                          Eq(Utils::LanguageVersion::CXX14),
-                                          Eq(Utils::LanguageExtension::None)))
-        .WillOnce(Return(12));
-    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(12)));
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(Eq(main1PathId))).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(projectPart1.projectPartId)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector,
                 setFile(main1PathId,
@@ -503,74 +438,18 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithoutProjectPartArtifact)
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    toNativePath("/project/includes").path(),
+                                    toNativePath("/project/includes"),
                                     "-I",
-                                    toNativePath("/other/project/includes").path(),
+                                    toNativePath("/other/project/includes"),
                                     "-isystem",
-                                    toNativePath(TESTDATA_DIR).path(),
+                                    toNativePath(TESTDATA_DIR),
                                     "-isystem",
-                                    toNativePath("/other/includes").path(),
+                                    toNativePath("/other/includes"),
                                     "-isystem",
-                                    toNativePath("/includes").path())));
+                                    toNativePath("/includes"))));
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus)));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
-    EXPECT_CALL(mockSqliteTransactionBackend, commit());
-
-    indexer.updateProjectParts({projectPart1});
-}
-
-TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderWithProjectPartArtifact)
-{
-    InSequence s;
-
-    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillRepeatedly(Return(artefact));
-    EXPECT_CALL(mockSymbolStorage,
-                insertOrUpdateProjectPart(Eq(projectPart1.projectPartId),
-                                          Eq(projectPart1.toolChainArguments),
-                                          Eq(projectPart1.compilerMacros),
-                                          Eq(projectPart1.systemIncludeSearchPaths),
-                                          Eq(projectPart1.projectIncludeSearchPaths),
-                                          Eq(Utils::Language::Cxx),
-                                          Eq(Utils::LanguageVersion::CXX14),
-                                          Eq(Utils::LanguageExtension::None)))
-        .WillOnce(Return(-1));
-    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(Eq(main1PathId))).WillOnce(Return(-1));
-    EXPECT_CALL(mockSqliteTransactionBackend, commit());
-    EXPECT_CALL(mockCollector,
-                setFile(Eq(main1PathId),
-                        ElementsAre("clang++",
-                                    "-w",
-                                    "-Wno-pragma-once-outside-header",
-                                    "-DNOMINMAX",
-                                    "-x",
-                                    "c++",
-                                    "-std=c++14",
-                                    "-nostdinc",
-                                    "-nostdinc++",
-                                    "-DBAR=1",
-                                    "-DFOO=1",
-                                    "-I",
-                                    toNativePath("/project/includes").path(),
-                                    "-I",
-                                    toNativePath("/other/project/includes").path(),
-                                    "-isystem",
-                                    toNativePath(TESTDATA_DIR).path(),
-                                    "-isystem",
-                                    toNativePath("/other/includes").path(),
-                                    "-isystem",
-                                    toNativePath("/includes").path())));
-    EXPECT_CALL(mockCollector, collectSymbols());
-    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus)));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
     indexer.updateProjectParts({projectPart1});
@@ -580,22 +459,8 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderButGetsAnErrorForCollectingS
 {
     InSequence s;
 
-    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockSymbolStorage,
-                fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId)))
-        .WillOnce(Return(nullArtefact));
-    EXPECT_CALL(mockSymbolStorage,
-                insertOrUpdateProjectPart(Eq(projectPart1.projectPartId),
-                                          Eq(projectPart1.toolChainArguments),
-                                          Eq(projectPart1.compilerMacros),
-                                          Eq(projectPart1.systemIncludeSearchPaths),
-                                          Eq(projectPart1.projectIncludeSearchPaths),
-                                          Eq(Utils::Language::Cxx),
-                                          Eq(Utils::LanguageVersion::CXX14),
-                                          Eq(Utils::LanguageExtension::None)))
-        .WillOnce(Return(12));
-    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(12)));
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(Eq(main1PathId))).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(projectPart1.projectPartId)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector,
                 setFile(main1PathId,
@@ -611,22 +476,18 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderButGetsAnErrorForCollectingS
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    toNativePath("/project/includes").path(),
+                                    toNativePath("/project/includes"),
                                     "-I",
-                                    toNativePath("/other/project/includes").path(),
+                                    toNativePath("/other/project/includes"),
                                     "-isystem",
-                                    toNativePath(TESTDATA_DIR).path(),
+                                    toNativePath(TESTDATA_DIR),
                                     "-isystem",
-                                    toNativePath("/other/includes").path(),
+                                    toNativePath("/other/includes"),
                                     "-isystem",
-                                    toNativePath("/includes").path())));
+                                    toNativePath("/includes"))));
     EXPECT_CALL(mockCollector, collectSymbols()).WillOnce(Return(false));
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros))).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus))).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)))
-        .Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
 
     indexer.updateProjectParts({projectPart1});
@@ -643,13 +504,14 @@ TEST_F(SymbolIndexer, CallSetNotifier)
                                         mockPathWatcher,
                                         filePathCache,
                                         fileStatusCache,
-                                        mockSqliteTransactionBackend};
+                                        mockSqliteTransactionBackend,
+                                        mockProjectPartsStorage};
 }
 
 TEST_F(SymbolIndexer, PathChangedCallsFetchProjectPartArtefactInStorage)
 {
-    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(sourceFileIds[0]));
-    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(sourceFileIds[1]));
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(sourceFileIds[0]));
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(sourceFileIds[1]));
 
     indexer.pathsChanged(sourceFileIds);
 }
@@ -659,69 +521,8 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
     InSequence s;
 
     EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
-    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0]))).WillOnce(Return(artefact));
-    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
-    EXPECT_CALL(mockSqliteTransactionBackend, commit());
-    EXPECT_CALL(mockCollector,
-                setFile(Eq(sourceFileIds[0]),
-                        ElementsAre("clang++",
-                                    "-w",
-                                    "-DFOO",
-                                    "-DNOMINMAX",
-                                    "-x",
-                                    "c++",
-                                    "-std=c++14",
-                                    "-nostdinc",
-                                    "-nostdinc++",
-                                    "-DBAR=1",
-                                    "-DFOO=1",
-                                    "-I",
-                                    toNativePath("/project/includes").path(),
-                                    "-I",
-                                    toNativePath("/other/project/includes").path(),
-                                    "-isystem",
-                                    toNativePath(TESTDATA_DIR).path(),
-                                    "-isystem",
-                                    toNativePath("/other/includes").path(),
-                                    "-isystem",
-                                    toNativePath("/includes").path())));
-    EXPECT_CALL(mockCollector, collectSymbols());
-    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros)));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus)));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
-    EXPECT_CALL(mockSqliteTransactionBackend, commit());
-
-    indexer.pathsChanged({sourceFileIds[0]});
-}
-
-TEST_F(SymbolIndexer, HandleEmptyOptionalArtifactInUpdateChangedPath)
-{
-    InSequence s;
-
-    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
-    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(sourceFileIds[0])).WillOnce(Return(nullArtefact));
-    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(_)).Times(0);
-    EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
-    EXPECT_CALL(mockCollector, setFile(_, _)).Times(0);
-    EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
-    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
-    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _)).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(_)).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(_)).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(_)).Times(0);
-    EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
-
-    indexer.pathsChanged({sourceFileIds[0]});
-}
-
-TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrderButGetsAnErrorForCollectingSymbols)
-{
-    InSequence s;
-
-    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
-    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
+    EXPECT_CALL(mockProjectPartsStorage,
+                fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
         .WillOnce(Return(artefact));
     EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
@@ -739,22 +540,77 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrderButGetsAnErrorForCollectingSy
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    toNativePath("/project/includes").path(),
+                                    toNativePath("/project/includes"),
                                     "-I",
-                                    toNativePath("/other/project/includes").path(),
+                                    toNativePath("/other/project/includes"),
                                     "-isystem",
-                                    toNativePath(TESTDATA_DIR).path(),
+                                    toNativePath(TESTDATA_DIR),
                                     "-isystem",
-                                    toNativePath("/other/includes").path(),
+                                    toNativePath("/other/includes"),
                                     "-isystem",
-                                    toNativePath("/includes").path())));
+                                    toNativePath("/includes"))));
+    EXPECT_CALL(mockCollector, collectSymbols());
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
+    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
+
+    indexer.pathsChanged({sourceFileIds[0]});
+}
+
+TEST_F(SymbolIndexer, HandleEmptyOptionalArtifactInUpdateChangedPath)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(sourceFileIds[0]))
+        .WillOnce(Return(nullArtefact));
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(_)).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
+    EXPECT_CALL(mockCollector, setFile(_, _)).Times(0);
+    EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
+    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _)).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
+
+    indexer.pathsChanged({sourceFileIds[0]});
+}
+
+TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrderButGetsAnErrorForCollectingSymbols)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
+    EXPECT_CALL(mockProjectPartsStorage,
+                fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
+        .WillOnce(Return(artefact));
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
+    EXPECT_CALL(mockCollector,
+                setFile(Eq(sourceFileIds[0]),
+                        ElementsAre("clang++",
+                                    "-w",
+                                    "-DFOO",
+                                    "-DNOMINMAX",
+                                    "-x",
+                                    "c++",
+                                    "-std=c++14",
+                                    "-nostdinc",
+                                    "-nostdinc++",
+                                    "-DBAR=1",
+                                    "-DFOO=1",
+                                    "-I",
+                                    toNativePath("/project/includes"),
+                                    "-I",
+                                    toNativePath("/other/project/includes"),
+                                    "-isystem",
+                                    toNativePath(TESTDATA_DIR),
+                                    "-isystem",
+                                    toNativePath("/other/includes"),
+                                    "-isystem",
+                                    toNativePath("/includes"))));
     EXPECT_CALL(mockCollector, collectSymbols()).WillOnce(Return(false));
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(usedMacros))).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatus))).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)))
-        .Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
 
     indexer.pathsChanged({sourceFileIds[0]});
@@ -762,8 +618,8 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrderButGetsAnErrorForCollectingSy
 
 TEST_F(SymbolIndexer, UpdateChangedPathIsUsingPrecompiledHeader)
 {
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
-            .WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
+        .WillByDefault(Return(artefact));
     ON_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)))
         .WillByDefault(Return(projectPartPch));
     std::vector<SymbolIndexerTask> symbolIndexerTask;
@@ -782,27 +638,27 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsUsingPrecompiledHeader)
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    toNativePath("/project/includes").path(),
+                                    toNativePath("/project/includes"),
                                     "-I",
-                                    toNativePath("/other/project/includes").path(),
+                                    toNativePath("/other/project/includes"),
                                     "-isystem",
-                                    toNativePath(TESTDATA_DIR).path(),
+                                    toNativePath(TESTDATA_DIR),
                                     "-isystem",
-                                    toNativePath("/other/includes").path(),
+                                    toNativePath("/other/includes"),
                                     "-isystem",
-                                    toNativePath("/includes").path(),
+                                    toNativePath("/includes"),
                                     "-Xclang",
                                     "-include-pch",
                                     "-Xclang",
-                                    toNativePath("/path/to/pch").path())));
+                                    toNativePath("/path/to/pch"))));
 
     indexer.pathsChanged({sourceFileIds[0]});
 }
 
 TEST_F(SymbolIndexer, UpdateChangedPathIsNotUsingPrecompiledHeaderIfItNotExists)
 {
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
-            .WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
+        .WillByDefault(Return(artefact));
     std::vector<SymbolIndexerTask> symbolIndexerTask;
 
     EXPECT_CALL(mockCollector,
@@ -819,15 +675,15 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsNotUsingPrecompiledHeaderIfItNotExists)
                                     "-DBAR=1",
                                     "-DFOO=1",
                                     "-I",
-                                    toNativePath("/project/includes").path(),
+                                    toNativePath("/project/includes"),
                                     "-I",
-                                    toNativePath("/other/project/includes").path(),
+                                    toNativePath("/other/project/includes"),
                                     "-isystem",
-                                    toNativePath(TESTDATA_DIR).path(),
+                                    toNativePath(TESTDATA_DIR),
                                     "-isystem",
-                                    toNativePath("/other/includes").path(),
+                                    toNativePath("/other/includes"),
                                     "-isystem",
-                                    toNativePath("/includes").path())));
+                                    toNativePath("/includes"))));
 
     indexer.pathsChanged({sourceFileIds[0]});
 }
@@ -835,7 +691,8 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsNotUsingPrecompiledHeaderIfItNotExists)
 
 TEST_F(SymbolIndexer, CompilerMacrosAndIncludeSearchPathsAreNotDifferent)
 {
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
+        .WillByDefault(Return(artefact));
 
     auto areDifferent = indexer.compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart1,
                                                                                artefact);
@@ -845,7 +702,8 @@ TEST_F(SymbolIndexer, CompilerMacrosAndIncludeSearchPathsAreNotDifferent)
 
 TEST_F(SymbolIndexer, CompilerMacrosAreDifferent)
 {
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
+        .WillByDefault(Return(artefact));
 
     auto areDifferent = indexer.compilerMacrosOrIncludeSearchPathsAreDifferent(projectPart2,
                                                                                artefact);
@@ -861,19 +719,20 @@ TEST_F(SymbolIndexer, SystemIncludeSearchPathsAreDifferent)
     ClangBackEnd::IncludeSearchPaths newProjectIncludeSearchPaths{
         {"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User},
         {"/other/project/includes2", 2, ClangBackEnd::IncludeSearchPathType::User}};
-    ProjectPartContainer projectPart3{
-        "project3",
-        {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
-        {{"BAR", "1", 1}, {"FOO", "1", 2}},
-        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn},
-         {"/other/includes2", 2, ClangBackEnd::IncludeSearchPathType::System}},
-        Utils::clone(projectIncludeSearchPaths),
-        {header1PathId},
-        {main1PathId},
-        Utils::Language::C,
-        Utils::LanguageVersion::C11,
-        Utils::LanguageExtension::All};
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>()))
+    ProjectPartContainer projectPart3{3,
+                                      {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
+                                      {{"BAR", "1", 1}, {"FOO", "1", 2}},
+                                      {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn},
+                                       {"/other/includes2",
+                                        2,
+                                        ClangBackEnd::IncludeSearchPathType::System}},
+                                      Utils::clone(projectIncludeSearchPaths),
+                                      {header1PathId},
+                                      {main1PathId},
+                                      Utils::Language::C,
+                                      Utils::LanguageVersion::C11,
+                                      Utils::LanguageExtension::All};
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
         .WillByDefault(Return(artefact));
 
     auto areDifferent = indexer.compilerMacrosOrIncludeSearchPathsAreDifferent(
@@ -885,7 +744,7 @@ TEST_F(SymbolIndexer, SystemIncludeSearchPathsAreDifferent)
 TEST_F(SymbolIndexer, ProjectIncludeSearchPathsAreDifferent)
 {
     ProjectPartContainer projectPart3{
-        "project3",
+        3,
         {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
         {{"BAR", "1", 1}, {"FOO", "1", 2}},
         Utils::clone(systemIncludeSearchPaths),
@@ -896,7 +755,7 @@ TEST_F(SymbolIndexer, ProjectIncludeSearchPathsAreDifferent)
         Utils::Language::C,
         Utils::LanguageVersion::C11,
         Utils::LanguageExtension::All};
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>()))
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
         .WillByDefault(Return(artefact));
 
     auto areDifferent = indexer.compilerMacrosOrIncludeSearchPathsAreDifferent(
@@ -904,31 +763,30 @@ TEST_F(SymbolIndexer, ProjectIncludeSearchPathsAreDifferent)
 
     ASSERT_TRUE(areDifferent);
 }
-TEST_F(SymbolIndexer, DontReparseInUpdateProjectPartsIfDefinesAreTheSame)
+
+TEST_F(SymbolIndexer, DISABLED_DontReparseInUpdateProjectPartsIfDefinesAreTheSame)
 {
     InSequence s;
     ON_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>())).WillByDefault(Return(QDateTime::currentSecsSinceEpoch()));
 
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockSymbolStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillRepeatedly(Return(artefact));
-    EXPECT_CALL(mockSymbolStorage,
-                insertOrUpdateProjectPart(Eq(projectPart1.projectPartId),
-                                          Eq(projectPart1.toolChainArguments),
-                                          Eq(projectPart1.compilerMacros),
-                                          Eq(projectPart1.systemIncludeSearchPaths),
-                                          Eq(projectPart1.projectIncludeSearchPaths),
-                                          Eq(Utils::Language::Cxx),
-                                          Eq(Utils::LanguageVersion::CXX14),
-                                          Eq(Utils::LanguageExtension::None)));
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(TypedEq<ProjectPartId>(1)))
+        .WillRepeatedly(Return(artefact));
+    EXPECT_CALL(mockProjectPartsStorage,
+                updateProjectPart(Eq(projectPart1.projectPartId),
+                                  Eq(projectPart1.toolChainArguments),
+                                  Eq(projectPart1.compilerMacros),
+                                  Eq(projectPart1.systemIncludeSearchPaths),
+                                  Eq(projectPart1.projectIncludeSearchPaths),
+                                  Eq(Utils::Language::Cxx),
+                                  Eq(Utils::LanguageVersion::CXX14),
+                                  Eq(Utils::LanguageExtension::None)));
     EXPECT_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>())).WillRepeatedly(Return(QDateTime::currentSecsSinceEpoch()));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector, setFile(_, _)).Times(0);
     EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _)).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(_)).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(_)).Times(0);
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSourceDependencies(_)).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
 
     indexer.updateProjectPart(std::move(projectPart1));
@@ -947,7 +805,8 @@ TEST_F(SymbolIndexer, PathsChangedUpdatesFileStatusCache)
 
 TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfCompilerMacrosAreDifferent)
 {
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
+        .WillByDefault(Return(artefact));
 
     auto filePathIds = indexer.updatableFilePathIds(projectPart2, artefact);
 
@@ -956,7 +815,8 @@ TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfCompilerMacrosAreDifferent)
 
 TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfIncludeSearchPathsAreDifferent)
 {
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
+        .WillByDefault(Return(artefact));
 
     auto filePathIds = indexer.updatableFilePathIds(projectPart3, artefact);
 
@@ -965,7 +825,8 @@ TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfIncludeSearchPathsAreDifferent)
 
 TEST_F(SymbolIndexer, GetNoUpdatableFilePathIdsIfArtefactsAreTheSame)
 {
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
+        .WillByDefault(Return(artefact));
     ON_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>())).WillByDefault(Return(QDateTime::currentSecsSinceEpoch()));
 
     auto filePathIds = indexer.updatableFilePathIds(projectPart1, artefact);
@@ -976,7 +837,8 @@ TEST_F(SymbolIndexer, GetNoUpdatableFilePathIdsIfArtefactsAreTheSame)
 TEST_F(SymbolIndexer, OutdatedFilesPassUpdatableFilePathIds)
 {
     indexer.pathsChanged({main1PathId});
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
+        .WillByDefault(Return(artefact));
     ON_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>()))
             .WillByDefault(Return(0));
 
@@ -988,7 +850,8 @@ TEST_F(SymbolIndexer, OutdatedFilesPassUpdatableFilePathIds)
 TEST_F(SymbolIndexer, UpToDateFilesDontPassFilteredUpdatableFilePathIds)
 {
     indexer.pathsChanged({main1PathId});
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
+        .WillByDefault(Return(artefact));
     ON_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>()))
             .WillByDefault(Return(QDateTime::currentSecsSinceEpoch()));
 
@@ -1001,7 +864,8 @@ TEST_F(SymbolIndexer, OutdatedFilesAreParsedInUpdateProjectParts)
 {
     indexer.pathsChanged({main1PathId});
     indexerScheduler.syncTasks();
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
+        .WillByDefault(Return(artefact));
     ON_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>()))
             .WillByDefault(Return(0));
 
@@ -1010,12 +874,13 @@ TEST_F(SymbolIndexer, OutdatedFilesAreParsedInUpdateProjectParts)
     indexer.updateProjectParts({projectPart1});
 }
 
-TEST_F(SymbolIndexer, UpToDateFilesAreNotParsedInUpdateProjectParts)
+TEST_F(SymbolIndexer, DISABLED_UpToDateFilesAreNotParsedInUpdateProjectParts)
 {
     indexer.pathsChanged({main1PathId});
 
     indexerScheduler.syncTasks();
-    ON_CALL(mockSymbolStorage, fetchProjectPartArtefact(An<Utils::SmallStringView>())).WillByDefault(Return(artefact));
+    ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
+        .WillByDefault(Return(artefact));
     ON_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>()))
             .WillByDefault(Return(QDateTime::currentSecsSinceEpoch()));
 

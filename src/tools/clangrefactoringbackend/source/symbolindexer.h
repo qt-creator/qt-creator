@@ -31,9 +31,10 @@
 #include "builddependenciesstorageinterface.h"
 #include "clangpathwatcher.h"
 
+#include <filecontainerv2.h>
 #include <precompiledheaderstorageinterface.h>
 #include <projectpartcontainer.h>
-#include <filecontainerv2.h>
+#include <projectpartsstorageinterface.h>
 
 namespace ClangBackEnd {
 
@@ -49,12 +50,13 @@ public:
                   ClangPathWatcherInterface &pathWatcher,
                   FilePathCachingInterface &filePathCache,
                   FileStatusCache &fileStatusCache,
-                  Sqlite::TransactionInterface &transactionInterface);
+                  Sqlite::TransactionInterface &transactionInterface,
+                  ProjectPartsStorageInterface &projectPartsStorage);
 
     void updateProjectParts(ProjectPartContainers &&projectParts);
     void updateProjectPart(ProjectPartContainer &&projectPart);
 
-    void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
+    void pathsWithIdsChanged(const ProjectPartIds &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;
     void updateChangedPath(FilePathId filePath,
                            std::vector<SymbolIndexerTask> &symbolIndexerTask);
@@ -78,6 +80,7 @@ private:
     FilePathCachingInterface &m_filePathCache;
     FileStatusCache &m_fileStatusCache;
     Sqlite::TransactionInterface &m_transactionInterface;
+    ProjectPartsStorageInterface &m_projectPartsStorage;
 };
 
 } // namespace ClangBackEnd

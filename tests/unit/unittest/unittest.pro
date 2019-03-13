@@ -65,7 +65,8 @@ SOURCES += \
     pchmanagerclient-test.cpp \
     pchmanagerserver-test.cpp \
     processevents-utilities.cpp \
-    projectparts-test.cpp \
+    projectpartsmanager-test.cpp \
+    projectpartsstorage-test.cpp \
     projectupdater-test.cpp \
     readandwritemessageblock-test.cpp \
     sizedarray-test.cpp \
@@ -226,7 +227,8 @@ HEADERS += \
     mockpchmanagerclient.h \
     mockpchmanagernotifier.h \
     mockpchmanagerserver.h \
-    mockprojectparts.h \
+    mockprojectpartsmanager.h \
+    mockprojectpartsstorage.h \
     mockqfilesystemwatcher.h \
     mocksearch.h \
     mocksearchhandle.h \

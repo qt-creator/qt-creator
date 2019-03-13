@@ -53,17 +53,16 @@ public:
         transaction.commit();
     }
 
-    void insertOrUpdateSources(const SourceEntries &sourceEntries, int projectPartId) override
+    void insertOrUpdateSources(const SourceEntries &sourceEntries, ProjectPartId projectPartId) override
     {
-        deleteAllProjectPartsSourcesWithProjectPartNameStatement.write(
-            projectPartId);
+        deleteAllProjectPartsFilesWithProjectPartNameStatement.write(projectPartId.projectPathId);
 
         for (const SourceEntry &entry : sourceEntries) {
-            insertOrUpdateProjectPartsSourcesStatement.write(
-                entry.sourceId.filePathId,
-                projectPartId,
-                static_cast<uchar>(entry.sourceType),
-                static_cast<uchar>(entry.hasMissingIncludes));
+            insertOrUpdateProjectPartsFilesStatement.write(entry.sourceId.filePathId,
+                                                             projectPartId.projectPathId,
+                                                             static_cast<uchar>(entry.sourceType),
+                                                             static_cast<uchar>(
+                                                                 entry.hasMissingIncludes));
         }
     }
 
@@ -108,22 +107,22 @@ public:
         deleteNewSourceDependenciesStatement.execute();
     }
 
-    int fetchProjectPartId(Utils::SmallStringView projectPartName) override
+    ProjectPartId fetchProjectPartId(Utils::SmallStringView projectPartName) override
     {
-        auto projectPartId = fetchProjectPartIdStatement.template value<int>(projectPartName);
+        auto projectPartId = fetchProjectPartIdStatement.template value<ProjectPartId>(projectPartName);
 
         if (projectPartId)
-            return projectPartId.value();
+            return *projectPartId;
 
         insertProjectPartNameStatement.write(projectPartName);
 
         return static_cast<int>(database.lastInsertedRowId());
     }
 
-    SourceEntries fetchDependSources(FilePathId sourceId, int projectPartId) const override
+    SourceEntries fetchDependSources(FilePathId sourceId, ProjectPartId projectPartId) const override
     {
-        return fetchSourceDependenciesStatement.template values<SourceEntry, 4>(
-            300, sourceId.filePathId, projectPartId);
+        return fetchSourceDependenciesStatement
+            .template values<SourceEntry, 4>(300, sourceId.filePathId, projectPartId.projectPathId);
     }
 
     UsedMacros fetchUsedMacros(FilePathId sourceId) const override
@@ -131,13 +130,11 @@ public:
         return fetchUsedMacrosStatement.template values<UsedMacro, 2>(128, sourceId.filePathId);
     }
 
-    void updatePchCreationTimeStamp(
-        long long pchCreationTimeStamp,
-        Utils::SmallStringView projectPartName) override {
+    void updatePchCreationTimeStamp(long long pchCreationTimeStamp, ProjectPartId projectPartId) override
+    {
         Sqlite::ImmediateTransaction transaction{database};
 
-        updatePchCreationTimeStampStatement.write(pchCreationTimeStamp,
-                                                  projectPartName);
+        updatePchCreationTimeStampStatement.write(pchCreationTimeStamp, projectPartId.projectPathId);
 
         transaction.commit();
     }
@@ -243,8 +240,8 @@ public:
         "DELETE FROM newSourceDependencies",
         database
     };
-    WriteStatement insertOrUpdateProjectPartsSourcesStatement{
-        "INSERT INTO projectPartsSources(sourceId, projectPartId, "
+    WriteStatement insertOrUpdateProjectPartsFilesStatement{
+        "INSERT INTO projectPartsFiles(sourceId, projectPartId, "
         "sourceType, hasMissingIncludes) VALUES (?001, ?002, ?003, ?004) ON "
         "CONFLICT(sourceId, projectPartId) DO UPDATE SET sourceType = ?003, "
         "hasMissingIncludes = ?004",
@@ -255,7 +252,7 @@ public:
         "collectedDependencies WHERE sourceDependencies.sourceId == "
         "collectedDependencies.sourceId) SELECT sourceId, "
         "pchCreationTimeStamp, sourceType, hasMissingIncludes FROM "
-        "collectedDependencies NATURAL JOIN projectPartsSources WHERE "
+        "collectedDependencies NATURAL JOIN projectPartsFiles WHERE "
         "projectPartId = ? ORDER BY sourceId",
         database};
     mutable ReadStatement fetchProjectPartIdStatement{
@@ -269,11 +266,9 @@ public:
         database
     };
     WriteStatement updatePchCreationTimeStampStatement{
-        "UPDATE projectPartsSources SET pchCreationTimeStamp = ?001 WHERE "
-        "projectPartId = (SELECT "
-        "projectPartId FROM projectParts WHERE projectPartName = ?002)",
+        "UPDATE projectPartsFiles SET pchCreationTimeStamp = ?001 WHERE projectPartId = ?002",
         database};
-    WriteStatement deleteAllProjectPartsSourcesWithProjectPartNameStatement{
-        "DELETE FROM projectPartsSources WHERE projectPartId = ?", database};
+    WriteStatement deleteAllProjectPartsFilesWithProjectPartNameStatement{
+        "DELETE FROM projectPartsFiles WHERE projectPartId = ?", database};
 };
 }

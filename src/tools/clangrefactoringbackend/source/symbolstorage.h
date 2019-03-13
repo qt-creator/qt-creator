@@ -50,10 +50,10 @@ class SymbolStorage final : public SymbolStorageInterface
 
 public:
     SymbolStorage(Database &database)
-        : m_transaction(database),
-          m_database(database)
+        : transaction(database)
+        , database(database)
     {
-        m_transaction.commit();
+        transaction.commit();
     }
 
     void addSymbolsAndSourceLocations(const SymbolEntries &symbolEntries,
@@ -70,91 +70,9 @@ public:
         deleteNewLocationsTable();
     }
 
-    int insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
-                                  const Utils::SmallStringVector &toolChainArguments,
-                                  const CompilerMacros &compilerMacros,
-                                  const IncludeSearchPaths &systemIncludeSearchPaths,
-                                  const IncludeSearchPaths &projectIncludeSearchPaths,
-                                  Utils::Language language,
-                                  Utils::LanguageVersion languageVersion,
-                                  Utils::LanguageExtension languageExtension) override
-    {
-        Utils::SmallString toolChainArgumentsAsJson = toJson(toolChainArguments);
-        Utils::SmallString compilerMacrosAsJson = toJson(compilerMacros);
-        Utils::SmallString systemIncludeSearchPathsAsJason = toJson(systemIncludeSearchPaths);
-        Utils::SmallString projectIncludeSearchPathsAsJason = toJson(projectIncludeSearchPaths);
-
-        m_insertOrUpdateProjectPartStatement.write(projectPartName,
-                                                   toolChainArgumentsAsJson,
-                                                   compilerMacrosAsJson,
-                                                   systemIncludeSearchPathsAsJason,
-                                                   projectIncludeSearchPathsAsJason,
-                                                   static_cast<int>(language),
-                                                   static_cast<int>(languageVersion),
-                                                   static_cast<int>(languageExtension));
-
-        auto projectPartId = m_getProjectPartIdStatement.template value<int>(projectPartName);
-
-        return projectPartId.value();
-    }
-
-    Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const override
-    {
-        ReadStatement &statement = m_getProjectPartArtefactsBySourceId;
-
-        return statement.template value<ProjectPartArtefact, 8>(sourceId.filePathId);
-    }
-
-    Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(Utils::SmallStringView projectPartName) const override
-    {
-        ReadStatement &statement = m_getProjectPartArtefactsByProjectPartName;
-
-        return statement.template value<ProjectPartArtefact, 8>(projectPartName);
-    }
-
-    static Utils::SmallString toJson(const Utils::SmallStringVector &strings)
-    {
-        QJsonDocument document;
-        QJsonArray array;
-
-        std::transform(strings.begin(), strings.end(), std::back_inserter(array), [] (const auto &string) {
-            return QJsonValue(string.data());
-        });
-
-        document.setArray(array);
-
-        return document.toJson(QJsonDocument::Compact);
-    }
-
-    static Utils::SmallString toJson(const CompilerMacros &compilerMacros)
-    {
-        QJsonDocument document;
-        QJsonArray array;
-
-        for (const CompilerMacro &macro : compilerMacros)
-            array.push_back(QJsonArray{{QString(macro.key), QString(macro.value), macro.index}});
-
-        document.setArray(array);
-
-        return document.toJson(QJsonDocument::Compact);
-    }
-
-    static Utils::SmallString toJson(const IncludeSearchPaths &includeSearchPaths)
-    {
-        QJsonDocument document;
-        QJsonArray array;
-
-        for (const IncludeSearchPath &path : includeSearchPaths)
-            array.push_back(QJsonArray{{path.path.data(), path.index, int(path.type)}});
-
-        document.setArray(array);
-
-        return document.toJson(QJsonDocument::Compact);
-    }
-
     void fillTemporarySymbolsTable(const SymbolEntries &symbolEntries)
     {
-        WriteStatement &statement = m_insertSymbolsToNewSymbolsStatement;
+        WriteStatement &statement = insertSymbolsToNewSymbolsStatement;
 
         for (const auto &symbolEntry : symbolEntries) {
             statement.write(symbolEntry.first,
@@ -166,7 +84,7 @@ public:
 
     void fillTemporaryLocationsTable(const SourceLocationEntries &sourceLocations)
     {
-        WriteStatement &statement = m_insertLocationsToNewLocationsStatement;
+        WriteStatement &statement = insertLocationsToNewLocationsStatement;
 
         for (const auto &locationEntry : sourceLocations) {
             statement.write(locationEntry.symbolId,
@@ -177,40 +95,22 @@ public:
         }
     }
 
-    void addNewSymbolsToSymbols()
-    {
-        m_addNewSymbolsToSymbolsStatement.execute();
-    }
+    void addNewSymbolsToSymbols() { addNewSymbolsToSymbolsStatement.execute(); }
 
-    void syncNewSymbolsFromSymbols()
-    {
-        m_syncNewSymbolsFromSymbolsStatement.execute();
-    }
+    void syncNewSymbolsFromSymbols() { syncNewSymbolsFromSymbolsStatement.execute(); }
 
-    void syncSymbolsIntoNewLocations()
-    {
-        m_syncSymbolsIntoNewLocationsStatement.execute();
-    }
+    void syncSymbolsIntoNewLocations() { syncSymbolsIntoNewLocationsStatement.execute(); }
 
     void deleteAllLocationsFromUpdatedFiles()
     {
-        m_deleteAllLocationsFromUpdatedFilesStatement.execute();
+        deleteAllLocationsFromUpdatedFilesStatement.execute();
     }
 
-    void insertNewLocationsInLocations()
-    {
-        m_insertNewLocationsInLocationsStatement.execute();
-    }
+    void insertNewLocationsInLocations() { insertNewLocationsInLocationsStatement.execute(); }
 
-    void deleteNewSymbolsTable()
-    {
-        m_deleteNewSymbolsTableStatement.execute();
-    }
+    void deleteNewSymbolsTable() { deleteNewSymbolsTableStatement.execute(); }
 
-    void deleteNewLocationsTable()
-    {
-        m_deleteNewLocationsTableStatement.execute();
-    }
+    void deleteNewLocationsTable() { deleteNewLocationsTableStatement.execute(); }
 
     SourceLocationEntries sourceLocations() const
     {
@@ -230,7 +130,7 @@ public:
         table.addIndex({usrColumn, symbolNameColumn});
         table.addIndex({symbolIdColumn});
 
-        table.initialize(m_database);
+        table.initialize(database);
 
         return table;
     }
@@ -248,85 +148,49 @@ public:
         table.addColumn("locationKind", Sqlite::ColumnType::Integer);
         table.addUniqueIndex({sourceIdColumn, lineColumn, columnColumn});
 
-        table.initialize(m_database);
+        table.initialize(database);
 
         return table;
     }
 
 public:
-    Sqlite::ImmediateNonThrowingDestructorTransaction m_transaction;
-    Database &m_database;
+    Sqlite::ImmediateNonThrowingDestructorTransaction transaction;
+    Database &database;
     Sqlite::Table newSymbolsTablet{createNewSymbolsTable()};
     Sqlite::Table newLocationsTable{createNewLocationsTable()};
-    WriteStatement m_insertSymbolsToNewSymbolsStatement{
+    WriteStatement insertSymbolsToNewSymbolsStatement{
         "INSERT INTO newSymbols(temporarySymbolId, usr, symbolName, symbolKind) VALUES(?,?,?,?)",
-        m_database};
-    WriteStatement m_insertLocationsToNewLocationsStatement{
-        "INSERT OR IGNORE INTO newLocations(temporarySymbolId, line, column, sourceId, locationKind) VALUES(?,?,?,?,?)",
-        m_database
-    };
-    ReadStatement m_selectNewSourceIdsStatement{
-        "SELECT DISTINCT sourceId FROM newLocations WHERE NOT EXISTS (SELECT sourceId FROM sources WHERE newLocations.sourceId == sources.sourceId)",
-        m_database
-    };
-    WriteStatement m_addNewSymbolsToSymbolsStatement{
+        database};
+    WriteStatement insertLocationsToNewLocationsStatement{
+        "INSERT OR IGNORE INTO newLocations(temporarySymbolId, line, column, sourceId, "
+        "locationKind) VALUES(?,?,?,?,?)",
+        database};
+    ReadStatement selectNewSourceIdsStatement{
+        "SELECT DISTINCT sourceId FROM newLocations WHERE NOT EXISTS (SELECT sourceId FROM sources "
+        "WHERE newLocations.sourceId == sources.sourceId)",
+        database};
+    WriteStatement addNewSymbolsToSymbolsStatement{
         "INSERT INTO symbols(usr, symbolName, symbolKind) "
         "SELECT usr, symbolName, symbolKind FROM newSymbols WHERE NOT EXISTS "
         "(SELECT usr FROM symbols WHERE symbols.usr == newSymbols.usr)",
-        m_database
-    };
-    WriteStatement m_syncNewSymbolsFromSymbolsStatement{
-        "UPDATE newSymbols SET symbolId = (SELECT symbolId FROM symbols WHERE newSymbols.usr = symbols.usr)",
-        m_database
-    };
-    WriteStatement m_syncSymbolsIntoNewLocationsStatement{
-        "UPDATE newLocations SET symbolId = (SELECT symbolId FROM newSymbols WHERE newSymbols.temporarySymbolId = newLocations.temporarySymbolId)",
-        m_database
-    };
-    WriteStatement m_deleteAllLocationsFromUpdatedFilesStatement{
+        database};
+    WriteStatement syncNewSymbolsFromSymbolsStatement{
+        "UPDATE newSymbols SET symbolId = (SELECT symbolId FROM symbols WHERE newSymbols.usr = "
+        "symbols.usr)",
+        database};
+    WriteStatement syncSymbolsIntoNewLocationsStatement{
+        "UPDATE newLocations SET symbolId = (SELECT symbolId FROM newSymbols WHERE "
+        "newSymbols.temporarySymbolId = newLocations.temporarySymbolId)",
+        database};
+    WriteStatement deleteAllLocationsFromUpdatedFilesStatement{
         "DELETE FROM locations WHERE sourceId IN (SELECT DISTINCT sourceId FROM newLocations)",
-        m_database
-    };
-    WriteStatement m_insertNewLocationsInLocationsStatement{
-        "INSERT INTO locations(symbolId, line, column, sourceId, locationKind) SELECT symbolId, line, column, sourceId, locationKind FROM newLocations",
-        m_database
-    };
-    WriteStatement m_deleteNewSymbolsTableStatement{
-        "DELETE FROM newSymbols",
-        m_database
-    };
-    WriteStatement m_deleteNewLocationsTableStatement{
-        "DELETE FROM newLocations",
-        m_database
-    };
-    WriteStatement m_insertOrUpdateProjectPartStatement{
-        "INSERT INTO projectParts(projectPartName, toolChainArguments, compilerMacros, "
-        "systemIncludeSearchPaths, projectIncludeSearchPaths, language, languageVersion, "
-        "languageExtension) VALUES (?001,?002,?003,?004,?005,?006,?007,?008) ON "
-        "CONFLICT(projectPartName) DO UPDATE SET toolChainArguments=?002, compilerMacros=?003, "
-        "systemIncludeSearchPaths=?004, projectIncludeSearchPaths=?005, language=?006, "
-        "languageVersion=?007, languageExtension=?008",
-        m_database};
-    mutable ReadStatement m_getProjectPartIdStatement{
-        "SELECT projectPartId FROM projectParts WHERE projectPartName = ?",
-        m_database
-    };
-
-    mutable ReadStatement m_getCompileArgumentsForFileIdStatement{
-        "SELECT toolChainArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId "
-        "FROM projectPartsSources WHERE sourceId = ?)",
-        m_database};
-    mutable ReadStatement m_getProjectPartArtefactsBySourceId{
-        "SELECT toolChainArguments, compilerMacros, systemIncludeSearchPaths, "
-        "projectIncludeSearchPaths, projectPartId, language, languageVersion, languageExtension "
-        "FROM projectParts WHERE projectPartId = (SELECT "
-        "projectPartId FROM projectPartsSources WHERE sourceId = ?)",
-        m_database};
-    mutable ReadStatement m_getProjectPartArtefactsByProjectPartName{
-        "SELECT toolChainArguments, compilerMacros, systemIncludeSearchPaths, "
-        "projectIncludeSearchPaths, projectPartId, language, languageVersion, languageExtension "
-        "FROM projectParts WHERE projectPartName = ?",
-        m_database};
+        database};
+    WriteStatement insertNewLocationsInLocationsStatement{
+        "INSERT INTO locations(symbolId, line, column, sourceId, locationKind) SELECT symbolId, "
+        "line, column, sourceId, locationKind FROM newLocations",
+        database};
+    WriteStatement deleteNewSymbolsTableStatement{"DELETE FROM newSymbols", database};
+    WriteStatement deleteNewLocationsTableStatement{"DELETE FROM newLocations", database};
 };
 
 } // namespace ClangBackEnd

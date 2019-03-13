@@ -29,20 +29,22 @@
 
 namespace ClangPchManager {
 
-PchManagerProjectUpdater::PchManagerProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
-                                                   PchManagerClient &client,
-                                                   ClangBackEnd::FilePathCachingInterface &filePathCache)
-    : ProjectUpdater(server, filePathCache),
-      m_client(client)
-{
-}
-
-void PchManagerProjectUpdater::removeProjectParts(const QStringList &projectPartIds)
+void PchManagerProjectUpdater::removeProjectParts(const ClangBackEnd::ProjectPartIds &projectPartIds)
 {
     ProjectUpdater::removeProjectParts(projectPartIds);
 
-    for (const QString &projectPartiId : projectPartIds)
-        m_client.precompiledHeaderRemoved(projectPartiId);
+    for (ClangBackEnd::ProjectPartId projectPartId : projectPartIds)
+        m_client.precompiledHeaderRemoved(projectPartId);
+}
+
+void PchManagerProjectUpdater::removeProjectParts(const QStringList &projectPartNames)
+{
+    ClangBackEnd::ProjectPartIds projectPartIds = toProjectPartIds(projectPartNames);
+
+    ProjectUpdater::removeProjectParts(projectPartIds);
+
+    for (ClangBackEnd::ProjectPartId projectPartId : projectPartIds)
+        m_client.precompiledHeaderRemoved(projectPartId);
 }
 
 } // namespace ClangPchManager

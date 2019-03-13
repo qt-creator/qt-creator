@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
-
+#include "projectpartid.h"
 #include "filepathid.h"
 
 namespace ClangBackEnd {
@@ -34,7 +33,7 @@ namespace ClangBackEnd {
 class IdPaths
 {
 public:
-    Utils::SmallString id;
+    ProjectPartId id;
     FilePathIds filePathIds;
 
     friend bool operator==(const IdPaths &first, const IdPaths &second)

@@ -30,6 +30,8 @@
 #include "mockpchmanagerserver.h"
 #include "mockprecompiledheaderstorage.h"
 #include "mockprogressmanager.h"
+#include "mockprojectpartsstorage.h"
+#include "mocksqlitetransactionbackend.h"
 
 #include <pchmanagerprojectupdater.h>
 
@@ -37,6 +39,7 @@
 #include <pchmanagerclient.h>
 #include <precompiledheaderstorage.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <projectpartsstorage.h>
 #include <refactoringdatabaseinitializer.h>
 #include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
@@ -89,7 +92,7 @@ protected:
         projectPart.files.push_back(nonActiveProjectFile);
         projectPart.displayName = "projectb";
         projectPart.projectMacros = {{"FOO", "2"}, {"BAR", "1"}};
-        projectPartId = projectPart.id();
+        projectPartId = projectPartsStorage.fetchProjectPartId(Utils::SmallString{projectPart.id()});
 
         projectPart2.files.push_back(header2ProjectFile);
         projectPart2.files.push_back(header1ProjectFile);
@@ -98,7 +101,7 @@ protected:
         projectPart2.files.push_back(nonActiveProjectFile);
         projectPart2.displayName = "projectaa";
         projectPart2.projectMacros = {{"BAR", "1"}, {"FOO", "2"}};
-        projectPartId2 = projectPart2.id();
+        projectPartId2 = projectPartsStorage.fetchProjectPartId(Utils::SmallString{projectPart2.id()});
 
         nonBuildingProjectPart.files.push_back(cannotBuildSourceProjectFile);
         nonBuildingProjectPart.displayName = "nonbuilding";
@@ -109,7 +112,7 @@ protected:
         Utils::SmallStringVector arguments2{
             ClangPchManager::ProjectUpdater::toolChainArguments(&projectPart2)};
 
-        expectedContainer = {projectPartId.clone(),
+        expectedContainer = {projectPartId,
                              arguments.clone(),
                              Utils::clone(compilerMacros),
                              {{CLANG_RESOURCE_DIR, 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
@@ -119,7 +122,7 @@ protected:
                              Utils::Language::Cxx,
                              Utils::LanguageVersion::LatestCxx,
                              Utils::LanguageExtension::None};
-        expectedContainer2 = {projectPartId2.clone(),
+        expectedContainer2 = {projectPartId2,
                               arguments2.clone(),
                               Utils::clone(compilerMacros),
                               {{CLANG_RESOURCE_DIR, 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
@@ -137,13 +140,14 @@ protected:
     ClangBackEnd::FilePathCaching filePathCache{database};
     NiceMock<MockProgressManager> mockPchCreationProgressManager;
     NiceMock<MockProgressManager> mockDependencyCreationProgressManager;
+    ClangBackEnd::ProjectPartsStorage<Sqlite::Database> projectPartsStorage{database};
     ClangPchManager::PchManagerClient pchManagerClient{mockPchCreationProgressManager,
                                                        mockDependencyCreationProgressManager};
     MockPchManagerNotifier mockPchManagerNotifier{pchManagerClient};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
-    ClangPchManager::ProjectUpdater updater{mockPchManagerServer, filePathCache};
-    Utils::SmallString projectPartId;
-    Utils::SmallString projectPartId2;
+    ClangPchManager::ProjectUpdater updater{mockPchManagerServer, filePathCache, projectPartsStorage};
+    ClangBackEnd::ProjectPartId projectPartId;
+    ClangBackEnd::ProjectPartId projectPartId2;
     Utils::PathStringVector headerPaths = {"/path/to/header1.h", "/path/to/header2.h"};
     Utils::PathStringVector sourcePaths = {"/path/to/source1.cpp", "/path/to/source2.cpp"};
     ClangBackEnd::CompilerMacros compilerMacros = {{"BAR", "1", 1}, {"FOO", "2", 2}};
@@ -227,18 +231,21 @@ TEST_F(ProjectUpdater, CallRemoveProjectParts)
 
     EXPECT_CALL(mockPchManagerServer, removeProjectParts(message));
 
-    updater.removeProjectParts({QString(projectPartId2), QString(projectPartId)});
+    updater.removeProjectParts({projectPartId2, projectPartId});
 }
 
 TEST_F(ProjectUpdater, CallPrecompiledHeaderRemovedInPchManagerProjectUpdater)
 {
-    ClangPchManager::PchManagerProjectUpdater pchUpdater{mockPchManagerServer, pchManagerClient, filePathCache};
+    ClangPchManager::PchManagerProjectUpdater pchUpdater{mockPchManagerServer,
+                                                         pchManagerClient,
+                                                         filePathCache,
+                                                         projectPartsStorage};
     ClangBackEnd::RemoveProjectPartsMessage message{{projectPartId, projectPartId2}};
 
-    EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId.toQString()));
-    EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId2.toQString()));
+    EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId));
+    EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId2));
 
-    pchUpdater.removeProjectParts({QString(projectPartId), QString(projectPartId2)});
+    pchUpdater.removeProjectParts({projectPartId, projectPartId2});
 }
 
 TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainer)
@@ -256,6 +263,25 @@ TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainersHaveSameSizeLike
         {&projectPart, &projectPart, &nonBuildingProjectPart});
 
     ASSERT_THAT(containers, SizeIs(2));
+}
+
+TEST_F(ProjectUpdater, CallStorageInsideTransaction)
+{
+    InSequence s;
+    CppTools::ProjectPart projectPart;
+    projectPart.displayName = "project";
+    Utils::SmallString projectPartName = projectPart.id();
+    MockSqliteTransactionBackend mockSqliteTransactionBackend;
+    MockProjectPartsStorage mockProjectPartsStorage;
+    ON_CALL(mockProjectPartsStorage, transactionBackend())
+        .WillByDefault(ReturnRef(mockSqliteTransactionBackend));
+    ClangPchManager::ProjectUpdater updater{mockPchManagerServer,
+                                            filePathCache,
+                                            mockProjectPartsStorage};
+
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartId(Eq(projectPartName)));
+
+    updater.toProjectPartContainers({&projectPart});
 }
 
 TEST_F(ProjectUpdater, CreateSortedExcludedPaths)
@@ -383,5 +409,15 @@ TEST_F(ProjectUpdater, ToolChainArgumentsMSVC)
                             "-U__cpp_variadic_using"));
 }
 
+TEST_F(ProjectUpdater, FetchProjectPartName)
+{
+    updater.updateProjectParts({&projectPart}, {});
+
+    auto projectPartName = updater.fetchProjectPartName(1);
+
+    ASSERT_THAT(projectPartName, Eq(" projectb"));
 }
 
+// test for update many time and get the same id
+
+} // namespace

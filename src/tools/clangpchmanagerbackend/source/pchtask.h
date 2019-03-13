@@ -30,6 +30,7 @@
 #include <compilermacro.h>
 #include <filepath.h>
 #include <includesearchpath.h>
+#include <projectpartid.h>
 
 #include <utils/smallstringvector.h>
 #include <utils/cpplanguage_details.h>
@@ -39,11 +40,11 @@ namespace ClangBackEnd {
 class PchTask
 {
 public:
-    PchTask(Utils::SmallString &&projectPartId,
+    PchTask(ProjectPartId projectPartId,
             FilePathIds &&includes,
             FilePathIds &&sources,
             CompilerMacros &&compilerMacros,
-            Utils::SmallStringVector &&usedMacros,
+            Utils::SmallStringVector &&usedMacros, // TODO remove
             Utils::SmallStringVector toolChainArguments,
             IncludeSearchPaths systemIncludeSearchPaths,
             IncludeSearchPaths projectIncludeSearchPaths,
@@ -62,11 +63,11 @@ public:
         , languageExtension(languageExtension)
     {}
 
-    PchTask(Utils::SmallStringVector &&projectPartIds,
+    PchTask(ProjectPartIds &&projectPartIds,
             FilePathIds &&includes,
             FilePathIds &&sources,
             CompilerMacros &&compilerMacros,
-            Utils::SmallStringVector &&usedMacros,
+            Utils::SmallStringVector &&usedMacros, // TODO remove
             Utils::SmallStringVector toolChainArguments,
             IncludeSearchPaths systemIncludeSearchPaths,
             IncludeSearchPaths projectIncludeSearchPaths,
@@ -98,11 +99,11 @@ public:
                && first.languageExtension == second.languageExtension;
     }
 
-    Utils::SmallStringView projectPartId() const { return projectPartIds.front(); }
+    ProjectPartId projectPartId() const { return projectPartIds.front(); }
 
 public:
     FilePath systemPchPath;
-    Utils::SmallStringVector projectPartIds;
+    ProjectPartIds projectPartIds;
     FilePathIds includes;
     FilePathIds sources;
     CompilerMacros compilerMacros;

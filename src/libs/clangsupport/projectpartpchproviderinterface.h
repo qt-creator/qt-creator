@@ -39,7 +39,7 @@ public:
     ProjectPartPchProviderInterface &operator=(const ProjectPartPchProviderInterface &) = delete;
 
     virtual Utils::optional<ClangBackEnd::ProjectPartPch> projectPartPch(
-            Utils::SmallStringView projectPartId) const = 0;
+        ClangBackEnd::ProjectPartId projectPartId) const = 0;
     virtual const ClangBackEnd::ProjectPartPchs &projectPartPchs() const = 0;
 
 

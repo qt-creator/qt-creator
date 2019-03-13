@@ -65,8 +65,7 @@ public:
 
     MOCK_METHOD2(write, void(Utils::SmallStringView, Utils::SmallStringView));
 
-    MOCK_METHOD3(write,
-                 void (Utils::SmallStringView, Utils::SmallStringView, long long));
+    MOCK_METHOD3(write, void(int, Utils::SmallStringView, long long));
 
     MOCK_METHOD3(write,
                  void (Utils::SmallStringView, Utils::SmallStringView, Utils::SmallStringView));
@@ -78,7 +77,7 @@ public:
                        Utils::SmallStringView));
 
     MOCK_METHOD8(write,
-                 void(Utils::SmallStringView,
+                 void(int,
                       Utils::SmallStringView,
                       Utils::SmallStringView,
                       Utils::SmallStringView,

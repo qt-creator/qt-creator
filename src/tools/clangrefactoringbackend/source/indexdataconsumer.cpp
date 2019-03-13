@@ -149,7 +149,7 @@ bool IndexDataConsumer::handleDeclOccurence(
                 auto  kindAndTags = symbolKindAndTags(declaration);
                 m_symbolEntries.emplace(std::piecewise_construct,
                                         std::forward_as_tuple(globalId),
-                                        std::forward_as_tuple(std::move(usr.value()),
+                                        std::forward_as_tuple(std::move(*usr),
                                                               symbolName(namedDeclaration),
                                                               kindAndTags.first,
                                                               kindAndTags.second));

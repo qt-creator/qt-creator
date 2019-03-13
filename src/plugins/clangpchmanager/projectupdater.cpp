@@ -61,13 +61,6 @@ public:
     ClangBackEnd::FilePathIds sources;
 };
 
-ProjectUpdater::ProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
-                               ClangBackEnd::FilePathCachingInterface &filePathCache)
-    : m_server(server),
-    m_filePathCache(filePathCache)
-{
-}
-
 void ProjectUpdater::updateProjectParts(const std::vector<CppTools::ProjectPart *> &projectParts,
                                         Utils::SmallStringVector &&toolChainArguments)
 {
@@ -75,9 +68,9 @@ void ProjectUpdater::updateProjectParts(const std::vector<CppTools::ProjectPart 
         toProjectPartContainers(projectParts), std::move(toolChainArguments)});
 }
 
-void ProjectUpdater::removeProjectParts(const QStringList &projectPartIds)
+void ProjectUpdater::removeProjectParts(ClangBackEnd::ProjectPartIds projectPartIds)
 {
-    Utils::SmallStringVector sortedIds(projectPartIds);
+    auto sortedIds{projectPartIds};
     std::sort(sortedIds.begin(), sortedIds.end());
 
     m_server.removeProjectParts(ClangBackEnd::RemoveProjectPartsMessage{std::move(sortedIds)});
@@ -278,7 +271,12 @@ ClangBackEnd::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
 
     auto includeSearchPaths = createIncludeSearchPaths(*projectPart);
 
-    return ClangBackEnd::ProjectPartContainer(projectPart->id(),
+    const QByteArray projectPartName = projectPart->id().toUtf8();
+
+    ClangBackEnd::ProjectPartId projectPartId = m_projectPartsStorage.fetchProjectPartId(
+        projectPartName);
+
+    return ClangBackEnd::ProjectPartContainer(projectPartId,
                                               Utils::SmallStringVector(arguments),
                                               createCompilerMacros(projectPart->projectMacros),
                                               std::move(includeSearchPaths.system),
@@ -296,15 +294,15 @@ ClangBackEnd::ProjectPartContainers ProjectUpdater::toProjectPartContainers(
 {
     using namespace std::placeholders;
 
-    std::vector<ClangBackEnd::ProjectPartContainer> projectPartContainers;
-    projectPartContainers.reserve(projectParts.size());
-
     projectParts.erase(std::remove_if(projectParts.begin(),
                                       projectParts.end(),
                                       [](const CppTools::ProjectPart *projectPart) {
                                           return !projectPart->selectedForBuilding;
                                       }),
                        projectParts.end());
+
+    std::vector<ClangBackEnd::ProjectPartContainer> projectPartContainers;
+    projectPartContainers.reserve(projectParts.size());
 
     std::transform(projectParts.begin(),
                    projectParts.end(),
@@ -334,6 +332,28 @@ ClangBackEnd::FilePaths ProjectUpdater::createExcludedPaths(
     std::sort(excludedPaths.begin(), excludedPaths.end());
 
     return excludedPaths;
+}
+
+QString ProjectUpdater::fetchProjectPartName(ClangBackEnd::ProjectPartId projectPartId) const
+{
+    return m_projectPartsStorage.fetchProjectPartName(projectPartId).toQString();
+}
+
+ClangBackEnd::ProjectPartIds ProjectUpdater::toProjectPartIds(
+    const QStringList &projectPartNames) const
+{
+    ClangBackEnd::ProjectPartIds projectPartIds;
+    projectPartIds.reserve(projectPartIds.size());
+
+    std::transform(projectPartNames.begin(),
+                   projectPartNames.end(),
+                   std::back_inserter(projectPartIds),
+                   [&](const QString &projectPartName) {
+                       return m_projectPartsStorage.fetchProjectPartId(
+                           Utils::SmallString{projectPartName});
+                   });
+
+    return projectPartIds;
 }
 
 } // namespace ClangPchManager

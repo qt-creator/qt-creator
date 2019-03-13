@@ -26,6 +26,7 @@
 #pragma once
 
 #include <filepathid.h>
+#include <projectpartid.h>
 
 #include <functional>
 
@@ -43,12 +44,10 @@ class SymbolIndexerTask
 public:
     using Callable = std::function<void(SymbolsCollectorInterface &symbolsCollector)>;
 
-    SymbolIndexerTask(FilePathId filePathId,
-                      int projectPartId,
-                      Callable &&callable)
-        : callable(std::move(callable)),
-          filePathId(filePathId),
-          projectPartId(projectPartId)
+    SymbolIndexerTask(FilePathId filePathId, ProjectPartId projectPartId, Callable &&callable)
+        : callable(std::move(callable))
+        , filePathId(filePathId)
+        , projectPartId(projectPartId)
     {
     }
 
@@ -78,7 +77,7 @@ public:
 public:
     Callable callable;
     FilePathId filePathId;
-    int projectPartId;
+    ProjectPartId projectPartId;
 };
 
 } // namespace ClangBackEnd

@@ -56,7 +56,7 @@ public:
 
     void addSystemPchTasks(PchTasks &&pchTasks) override;
     void addProjectPchTasks(PchTasks &&pchTasks) override;
-    void removePchTasks(const Utils::SmallStringVector &projectsPartIds) override;
+    void removePchTasks(const ProjectPartIds &projectsPartIds) override;
 
     void processEntries() override;
 
@@ -68,8 +68,7 @@ public:
 
 private:
     void addPchTasks(PchTasks &&pchTasks, PchTasks &destination);
-    void removePchTasksByProjectPartId(const Utils::SmallStringVector &projectsPartIds,
-                                       PchTasks &destination);
+    void removePchTasksByProjectPartId(const ProjectPartIds &projectsPartIds, PchTasks &destination);
     void processProjectPchTasks();
     void processSystemPchTasks();
 

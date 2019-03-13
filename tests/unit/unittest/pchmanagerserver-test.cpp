@@ -28,7 +28,7 @@
 #include "mockclangpathwatcher.h"
 #include "mockpchmanagerclient.h"
 #include "mockpchtaskgenerator.h"
-#include "mockprojectparts.h"
+#include "mockprojectpartsmanager.h"
 #include "mockgeneratedfiles.h"
 
 #include <filepathcaching.h>
@@ -77,15 +77,15 @@ protected:
                                           mockProjectPartsManager,
                                           mockGeneratedFiles};
     NiceMock<MockPchManagerClient> mockPchManagerClient;
-    SmallString projectPartId1 = "project1";
-    SmallString projectPartId2 = "project2";
+    ClangBackEnd::ProjectPartId projectPartId1{1};
+    ClangBackEnd::ProjectPartId projectPartId2{2};
     PathString main1Path = TESTDATA_DIR "/BuildDependencyCollector_main3.cpp";
     PathString main2Path = TESTDATA_DIR "/BuildDependencyCollector_main2.cpp";
     PathString header1Path = TESTDATA_DIR "/BuildDependencyCollector_header1.h";
     PathString header2Path = TESTDATA_DIR "/BuildDependencyCollector_header2.h";
     ClangBackEnd::IdPaths idPath{projectPartId1, {1, 2}};
     ProjectPartContainer projectPart1{
-        projectPartId1.clone(),
+        projectPartId1,
         {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
         {{"DEFINE", "1", 1}},
         {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
@@ -96,7 +96,7 @@ protected:
         Utils::LanguageVersion::C11,
         Utils::LanguageExtension::All};
     ProjectPartContainer projectPart2{
-        projectPartId2.clone(),
+        projectPartId2,
         {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
         {{"DEFINE", "1", 1}},
         {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
@@ -111,8 +111,8 @@ protected:
     FileContainer generatedFile{{"/path/to/", "file"}, "content", {}};
     ClangBackEnd::UpdateProjectPartsMessage updateProjectPartsMessage{
         Utils::clone(projectParts), {"toolChainArgument"}};
-    ClangBackEnd::RemoveProjectPartsMessage removeProjectPartsMessage{{projectPart1.projectPartId.clone(),
-                                                                       projectPart2.projectPartId.clone()}};
+    ClangBackEnd::RemoveProjectPartsMessage removeProjectPartsMessage{
+        {projectPart1.projectPartId, projectPart2.projectPartId}};
 };
 
 TEST_F(PchManagerServer, FilterProjectPartsAndSendThemToQueue)

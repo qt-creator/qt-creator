@@ -31,6 +31,7 @@
 
 #include <filepathcaching.h>
 #include <projectpartcontainer.h>
+#include <projectpartsstorage.h>
 #include <refactoringdatabaseinitializer.h>
 
 #include <QDir>
@@ -83,11 +84,12 @@ protected:
     FilePathCaching filePathCache{database};
     ClangBackEnd::GeneratedFiles generatedFiles;
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
+    ClangBackEnd::ProjectPartsStorage<Sqlite::Database> projectPartStorage{database};
     ClangBackEnd::SymbolIndexing indexing{database, filePathCache, generatedFiles, mockSetProgressCallback.AsStdFunction()};
     StatementFactory queryFactory{database};
     Query query{queryFactory};
     PathString main1Path = TESTDATA_DIR "/symbolindexing_main1.cpp";
-    ProjectPartContainer projectPart1{"project1",
+    ProjectPartContainer projectPart1{projectPartStorage.fetchProjectPartId("project1"),
                                       {},
                                       {{"DEFINE", "1", 1}},
                                       {{TESTDATA_DIR, 1, ClangBackEnd::IncludeSearchPathType::System}},

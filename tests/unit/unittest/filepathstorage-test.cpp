@@ -288,7 +288,7 @@ TEST_F(FilePathStorage, CallSelectAndWriteForFetchingSourceIdForUnknownEntry)
     storage.fetchSourceId(5, "unknownfile.h");
 }
 
-TEST_F(FilePathStorage, RestartFetchDirectoryIDIfTheDatabaseIsBusyInBeginBecauseTheTableAlreadyChanged)
+TEST_F(FilePathStorage, RestartFetchDirectoryIDIfTheStatementIsBusyInBeginBecauseTheTableAlreadyChanged)
 {
     InSequence s;
 
@@ -303,7 +303,8 @@ TEST_F(FilePathStorage, RestartFetchDirectoryIDIfTheDatabaseIsBusyInBeginBecause
     storage.fetchDirectoryId("/other/unknow/path");
 }
 
-TEST_F(FilePathStorage, CallSelectAndWriteForFetchingDirectoryIdTwoTimesIfTheDatabaseIsBusyInWriteBecauseTheTableAlreadyChanged)
+TEST_F(FilePathStorage,
+       CallSelectAndWriteForFetchingDirectoryIdTwoTimesIfTheStatementIsBusyInWriteBecauseTheTableAlreadyChanged)
 {
     InSequence s;
 
@@ -340,7 +341,7 @@ TEST_F(FilePathStorage, CallSelectAndWriteForFetchingDirectoryIdTwoTimesIfTheInd
     storage.fetchDirectoryId("/other/unknow/path");
 }
 
-TEST_F(FilePathStorage, RestartFetchSourceIdIfTheDatabaseIsBusyInBeginBecauseTheTableAlreadyChanged)
+TEST_F(FilePathStorage, RestartFetchSourceIdIfTheStatementIsBusyInBeginBecauseTheTableAlreadyChanged)
 {
     InSequence s;
 
@@ -356,7 +357,8 @@ TEST_F(FilePathStorage, RestartFetchSourceIdIfTheDatabaseIsBusyInBeginBecauseThe
     storage.fetchSourceId(5, "otherunknownfile.h");
 }
 
-TEST_F(FilePathStorage, CallSelectAndWriteForFetchingSourceTwoTimesIfTheDatabaseIsBusyInWriteBecauseTheTableAlreadyChanged)
+TEST_F(FilePathStorage,
+       CallSelectAndWriteForFetchingSourceTwoTimesIfTheStatementIsBusyInWriteBecauseTheTableAlreadyChanged)
 {
     InSequence s;
 
@@ -475,7 +477,7 @@ TEST_F(FilePathStorage, ThrowAsFetchingSourceNameForNonExistingId)
     ASSERT_THROW(storage.fetchSourceNameAndDirectoryId(12), ClangBackEnd::SourceNameIdDoesNotExists);
 }
 
-TEST_F(FilePathStorage, RestartFetchSourceNameIfTheDatabaseIsBusyInBegin)
+TEST_F(FilePathStorage, RestartFetchSourceNameIfTheStatementIsBusyInBegin)
 {
     InSequence s;
 
@@ -492,7 +494,7 @@ TEST_F(FilePathStorage, RestartFetchSourceNameIfTheDatabaseIsBusyInBegin)
     storage.fetchSourceNameAndDirectoryId(42);
 }
 
-TEST_F(FilePathStorage, RestartFetchDirectoryPathIfTheDatabaseIsBusyInBegin)
+TEST_F(FilePathStorage, RestartFetchDirectoryPathIfTheStatementIsBusyInBegin)
 {
     InSequence s;
 

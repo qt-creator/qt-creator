@@ -52,21 +52,20 @@ public:
     void precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeadersUpdatedMessage &&message) override;
     void progress(ClangBackEnd::ProgressMessage &&message) override;
 
-    void precompiledHeaderRemoved(const QString &projectPartId);
+    void precompiledHeaderRemoved(ClangBackEnd::ProjectPartId projectPartId);
 
     void setConnectionClient(PchManagerConnectionClient *connectionClient);
 
     Utils::optional<ClangBackEnd::ProjectPartPch> projectPartPch(
-            Utils::SmallStringView projectPartId) const override;
+        ClangBackEnd::ProjectPartId projectPartId) const override;
 
     const ClangBackEnd::ProjectPartPchs &projectPartPchs() const override
     {
         return m_projectPartPchs;
     }
 
-unittest_public:
-    const std::vector<PchManagerNotifierInterface*> &notifiers() const;
-    void precompiledHeaderUpdated(const QString &projectPartId,
+    unittest_public : const std::vector<PchManagerNotifierInterface *> &notifiers() const;
+    void precompiledHeaderUpdated(ClangBackEnd::ProjectPartId projectPartId,
                                   const QString &pchFilePath,
                                   long long lastModified);
 
@@ -74,7 +73,7 @@ unittest_public:
     void detach(PchManagerNotifierInterface *notifier);
 
     void addProjectPartPch(ClangBackEnd::ProjectPartPch &&projectPartPch);
-    void removeProjectPartPch(Utils::SmallStringView projectPartId);
+    void removeProjectPartPch(ClangBackEnd::ProjectPartId projectPartId);
 
 private:
     ClangBackEnd::ProjectPartPchs m_projectPartPchs;

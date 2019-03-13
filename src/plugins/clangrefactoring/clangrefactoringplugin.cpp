@@ -36,6 +36,7 @@
 #include <clangpchmanager/clangpchmanagerplugin.h>
 #include <clangpchmanager/progressmanager.h>
 #include <clangsupport/refactoringdatabaseinitializer.h>
+#include <projectpartsstorage.h>
 
 #include <cpptools/cppmodelmanager.h>
 
@@ -60,6 +61,8 @@ using namespace std::chrono_literals;
 namespace ClangRefactoring {
 
 namespace {
+
+using ClangPchManager::ClangPchManagerPlugin;
 
 QString backendProcessPath()
 {
@@ -91,14 +94,16 @@ public:
     ClangBackEnd::RefactoringConnectionClient connectionClient{&refactoringClient};
     QuerySqliteReadStatementFactory statementFactory{database};
     SymbolQuery<QuerySqliteReadStatementFactory> symbolQuery{statementFactory};
+    ClangBackEnd::ProjectPartsStorage<Sqlite::Database> projectPartsStorage{database};
     RefactoringEngine engine{connectionClient.serverProxy(), refactoringClient, filePathCache, symbolQuery};
     QtCreatorSearch qtCreatorSearch;
     QtCreatorClangQueryFindFilter qtCreatorfindFilter{connectionClient.serverProxy(),
                                                       qtCreatorSearch,
                                                       refactoringClient};
     QtCreatorRefactoringProjectUpdater projectUpdate{connectionClient.serverProxy(),
-                                                     ClangPchManager::ClangPchManagerPlugin::pchManagerClient(),
-                                                     filePathCache};
+                                                     ClangPchManagerPlugin::pchManagerClient(),
+                                                     filePathCache,
+                                                     projectPartsStorage};
 };
 
 ClangRefactoringPlugin::ClangRefactoringPlugin()

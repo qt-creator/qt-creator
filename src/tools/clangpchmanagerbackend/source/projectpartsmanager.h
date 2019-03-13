@@ -28,6 +28,7 @@
 #include "clangpchmanagerbackend_global.h"
 
 #include <projectpartsmanagerinterface.h>
+#include <projectpartsstorageinterface.h>
 
 #include <utils/smallstringvector.h>
 
@@ -37,18 +38,24 @@ inline namespace Pch {
 class ProjectPartsManager final : public ProjectPartsManagerInterface
 {
 public:
+    ProjectPartsManager(ProjectPartsStorageInterface &projectPartsStorage)
+        : m_projectPartsStorage(projectPartsStorage)
+    {}
+
     ProjectPartContainers update(ProjectPartContainers &&projectsParts) override;
-    void remove(const Utils::SmallStringVector &projectPartIds) override;
-    ProjectPartContainers projects(const Utils::SmallStringVector &projectPartIds) const override;
+    void remove(const ProjectPartIds &projectPartIds) override;
+    ProjectPartContainers projects(const ProjectPartIds &projectPartIds) const override;
     void updateDeferred(const ProjectPartContainers &projectsParts) override;
     ProjectPartContainers deferredUpdates() override;
 
-    ProjectPartContainers newProjectParts(ProjectPartContainers &&projectsParts) const;
+    static ProjectPartContainers filterNewProjectParts(ProjectPartContainers &&newProjectsParts,
+                                                       const ProjectPartContainers &oldProjectParts);
     void mergeProjectParts(const ProjectPartContainers &projectsParts);
     const ProjectPartContainers &projectParts() const;
 
 private:
     ProjectPartContainers m_projectParts;
+    ProjectPartsStorageInterface &m_projectPartsStorage;
 };
 
 } // namespace Pch

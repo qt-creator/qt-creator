@@ -33,14 +33,11 @@ class RemoveProjectPartsMessage
 {
 public:
     RemoveProjectPartsMessage() = default;
-    RemoveProjectPartsMessage(Utils::SmallStringVector &&projectsPartIds)
+    RemoveProjectPartsMessage(ProjectPartIds &&projectsPartIds)
         : projectsPartIds(std::move(projectsPartIds))
     {}
 
-    Utils::SmallStringVector takeProjectsPartIds()
-    {
-        return std::move(projectsPartIds);
-    }
+    ProjectPartIds takeProjectsPartIds() { return std::move(projectsPartIds); }
 
     friend QDataStream &operator<<(QDataStream &out, const RemoveProjectPartsMessage &message)
     {
@@ -68,10 +65,8 @@ public:
     }
 
 public:
-    Utils::SmallStringVector projectsPartIds;
+    ProjectPartIds projectsPartIds;
 };
-
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemoveProjectPartsMessage &message);
 
 DECLARE_MESSAGE(RemoveProjectPartsMessage)
 

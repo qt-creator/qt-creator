@@ -98,18 +98,18 @@ TEST_F(RefactoringDatabaseInitializer, AddProjectPartsTable)
     initializer.createProjectPartsTable();
 }
 
-TEST_F(RefactoringDatabaseInitializer, AddProjectPartsSourcesTable)
+TEST_F(RefactoringDatabaseInitializer, AddProjectPartsFilesTable)
 {
     InSequence s;
 
     EXPECT_CALL(mockDatabase,
-                execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsSources(projectPartId INTEGER, "
+                execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsFiles(projectPartId INTEGER, "
                            "sourceId INTEGER, sourceType INTEGER, pchCreationTimeStamp INTEGER, "
                            "hasMissingIncludes INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsSources_sourceId_projectPartId ON projectPartsSources(sourceId, projectPartId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_projectPartId ON projectPartsSources(projectPartId)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsFiles_sourceId_projectPartId ON projectPartsFiles(sourceId, projectPartId)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsFiles_projectPartId ON projectPartsFiles(projectPartId)")));
 
-    initializer.createProjectPartsSourcesTable();
+    initializer.createProjectPartsFilesTable();
 }
 
 TEST_F(RefactoringDatabaseInitializer, AddUsedMacrosTable)
@@ -155,6 +155,34 @@ TEST_F(RefactoringDatabaseInitializer, AddPrecompiledHeaderTable)
     initializer.createPrecompiledHeadersTable();
 }
 
+TEST_F(RefactoringDatabaseInitializer, AddProjectPartsHeadersTable)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsHeaders(projectPartId INTEGER, "
+                           "sourceId INTEGER)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsHeaders_projectPartId ON "
+                           "projectPartsHeaders(projectPartId)")));
+
+    initializer.createProjectPartsHeadersTable();
+}
+
+TEST_F(RefactoringDatabaseInitializer, AddProjectPartsSourcesTable)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsSources(projectPartId INTEGER, "
+                           "sourceId INTEGER)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_projectPartId ON "
+                           "projectPartsSources(projectPartId)")));
+
+    initializer.createProjectPartsSourcesTable();
+}
+
 TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
 {
     InSequence s;
@@ -179,11 +207,11 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
                        "language INTEGER, languageVersion INTEGER, languageExtension INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectParts_projectPartName ON projectParts(projectPartName)")));
     EXPECT_CALL(mockDatabase,
-                execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsSources(projectPartId INTEGER, "
+                execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsFiles(projectPartId INTEGER, "
                            "sourceId INTEGER, sourceType INTEGER, pchCreationTimeStamp INTEGER, "
                            "hasMissingIncludes INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsSources_sourceId_projectPartId ON projectPartsSources(sourceId, projectPartId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_projectPartId ON projectPartsSources(projectPartId)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsFiles_sourceId_projectPartId ON projectPartsFiles(sourceId, projectPartId)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsFiles_projectPartId ON projectPartsFiles(projectPartId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS usedMacros(usedMacroId INTEGER PRIMARY KEY, sourceId INTEGER, macroName TEXT)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_sourceId_macroName ON usedMacros(sourceId, macroName)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_macroName ON usedMacros(macroName)")));
@@ -195,6 +223,18 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sourceDependencies(sourceId INTEGER, dependencySourceId INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_sourceDependencies_sourceId_dependencySourceId ON sourceDependencies(sourceId, dependencySourceId)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS precompiledHeaders(projectPartId INTEGER PRIMARY KEY, projectPchPath TEXT, projectPchBuildTime INTEGER, systemPchPath TEXT, systemPchBuildTime INTEGER)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsHeaders(projectPartId INTEGER, "
+                           "sourceId INTEGER)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsHeaders_projectPartId ON "
+                           "projectPartsHeaders(projectPartId)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsSources(projectPartId INTEGER, "
+                           "sourceId INTEGER)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_projectPartId ON "
+                           "projectPartsSources(projectPartId)")));
     EXPECT_CALL(mockDatabase, commit());
     EXPECT_CALL(mockDatabase, setIsInitialized(true));
 
@@ -223,9 +263,9 @@ TEST_F(RefactoringDatabaseInitializer, DontCreateIfAlreadyInitialized)
                            "TEXT, includeSearchPaths TEXT)")))
         .Times(0);
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectParts_projectPartName ON projectParts(projectPartName)"))).Times(0);
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsSources(projectPartId INTEGER, sourceId INTEGER)"))).Times(0);
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsSources_sourceId_projectPartId ON projectPartsSources(sourceId, projectPartId)"))).Times(0);
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_projectPartId ON projectPartsSources(projectPartId)"))).Times(0);
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsFiles(projectPartId INTEGER, sourceId INTEGER)"))).Times(0);
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsFiles_sourceId_projectPartId ON projectPartsFiles(sourceId, projectPartId)"))).Times(0);
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsFiles_projectPartId ON projectPartsFiles(projectPartId)"))).Times(0);
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS usedMacros(usedMacroId INTEGER PRIMARY KEY, sourceId INTEGER, macroName TEXT)"))).Times(0);
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_sourceId_macroName ON usedMacros(sourceId, macroName)"))).Times(0);
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_macroName ON usedMacros(macroName)"))).Times(0);
@@ -236,6 +276,22 @@ TEST_F(RefactoringDatabaseInitializer, DontCreateIfAlreadyInitialized)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sourceDependencies(sourceId INTEGER, dependencySourceId INTEGER)"))).Times(0);
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_sourceDependencies_sourceId_dependencySourceId ON sourceDependencies(sourceId, dependencySourceId)"))).Times(0);
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS precompiledHeaders(projectPartId INTEGER PRIMARY KEY, pchPath TEXT, pchBuildTime INTEGER)"))).Times(0);
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsHeaders(projectPartId INTEGER, "
+                           "sourceId INTEGER)")))
+        .Times(0);
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsHeaders_projectPartId ON "
+                           "projectPartsHeaders(projectPartId)")))
+        .Times(0);
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsSources(projectPartId INTEGER, "
+                           "sourceId INTEGER)")))
+        .Times(0);
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsSources_projectPartId ON "
+                           "projectPartsSources(projectPartId)")))
+        .Times(0);
     EXPECT_CALL(mockDatabase, commit()).Times(0);
 
     Initializer initializer{mockDatabase};

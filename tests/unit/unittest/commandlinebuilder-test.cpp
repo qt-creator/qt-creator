@@ -54,8 +54,8 @@ public:
     }
 
 public:
-    ClangBackEnd::PchTask emptyProjectInfo{"empty", {}, {}, {}, {}, {}, {}, {}};
-    ClangBackEnd::PchTask cppProjectInfo{"project1", {}, {}, {}, {}, {}, {}, {}};
+    ClangBackEnd::PchTask emptyProjectInfo{0, {}, {}, {}, {}, {}, {}, {}};
+    ClangBackEnd::PchTask cppProjectInfo{1, {}, {}, {}, {}, {}, {}, {}};
 };
 
 template <>
@@ -68,7 +68,7 @@ public:
     }
 
 public:
-    ClangBackEnd::ProjectPartContainer emptyProjectInfo{"empty",
+    ClangBackEnd::ProjectPartContainer emptyProjectInfo{0,
                                                         {},
                                                         {},
                                                         {},
@@ -78,7 +78,7 @@ public:
                                                         Utils::Language::Cxx,
                                                         Utils::LanguageVersion::CXX98,
                                                         Utils::LanguageExtension::None};
-    ClangBackEnd::ProjectPartContainer cppProjectInfo{"project1",
+    ClangBackEnd::ProjectPartContainer cppProjectInfo{1,
                                                       {},
                                                       {},
                                                       {},
@@ -145,7 +145,7 @@ TYPED_TEST(CommandLineBuilder, CHeader)
                             "c-header",
                             "-std=c11",
                             "-nostdinc",
-                            toNativePath("/source/file.c").path()));
+                            toNativePath("/source/file.c")));
 }
 
 TYPED_TEST(CommandLineBuilder, CSource)
@@ -163,7 +163,7 @@ TYPED_TEST(CommandLineBuilder, CSource)
                             "c",
                             "-std=c11",
                             "-nostdinc",
-                            toNativePath("/source/file.c").path()));
+                            toNativePath("/source/file.c")));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCHeader)
@@ -182,7 +182,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCHeader)
                             "objective-c-header",
                             "-std=c11",
                             "-nostdinc",
-                            toNativePath("/source/file.c").path()));
+                            toNativePath("/source/file.c")));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCSource)
@@ -201,7 +201,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCSource)
                             "objective-c",
                             "-std=c11",
                             "-nostdinc",
-                            toNativePath("/source/file.c").path()));
+                            toNativePath("/source/file.c")));
 }
 
 TYPED_TEST(CommandLineBuilder, CppHeader)
@@ -220,7 +220,7 @@ TYPED_TEST(CommandLineBuilder, CppHeader)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            toNativePath("/source/file.cpp").path()));
+                            toNativePath("/source/file.cpp")));
 }
 
 TYPED_TEST(CommandLineBuilder, CppSource)
@@ -239,7 +239,7 @@ TYPED_TEST(CommandLineBuilder, CppSource)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            toNativePath("/source/file.cpp").path()));
+                            toNativePath("/source/file.cpp")));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCppHeader)
@@ -259,7 +259,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppHeader)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            toNativePath("/source/file.cpp").path()));
+                            toNativePath("/source/file.cpp")));
 }
 
 TYPED_TEST(CommandLineBuilder, ObjectiveCppSource)
@@ -279,7 +279,7 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppSource)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            toNativePath("/source/file.cpp").path()));
+                            toNativePath("/source/file.cpp")));
 }
 
 TYPED_TEST(CommandLineBuilder, Cpp98)
@@ -514,18 +514,18 @@ TYPED_TEST(CommandLineBuilder, IncludesOrder)
                             "-nostdinc",
                             "-nostdinc++",
                             "-I",
-                            toNativePath("/include/foo").path(),
+                            toNativePath("/include/foo"),
                             "-I",
-                            toNativePath("/include/bar").path(),
+                            toNativePath("/include/bar"),
                             "-F",
-                            toNativePath("/system/foo").path(),
+                            toNativePath("/system/foo"),
                             "-isystem",
-                            toNativePath("/system/bar").path(),
+                            toNativePath("/system/bar"),
                             "-isystem",
-                            toNativePath("/builtin/foo").path(),
+                            toNativePath("/builtin/foo"),
                             "-isystem",
-                            toNativePath("/builtin/bar").path(),
-                            toNativePath("/source/file.cpp").path()));
+                            toNativePath("/builtin/bar"),
+                            toNativePath("/source/file.cpp")));
 }
 
 TYPED_TEST(CommandLineBuilder, EmptySourceFile)
@@ -556,7 +556,7 @@ TYPED_TEST(CommandLineBuilder, SourceFile)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            toNativePath("/source/file.cpp").path()));
+                            toNativePath("/source/file.cpp")));
 }
 
 
@@ -573,7 +573,7 @@ TYPED_TEST(CommandLineBuilder, EmptyOutputFile)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            toNativePath("/source/file.cpp").path()));
+                            toNativePath("/source/file.cpp")));
 }
 
 TYPED_TEST(CommandLineBuilder, OutputFile)
@@ -594,8 +594,8 @@ TYPED_TEST(CommandLineBuilder, OutputFile)
                             "-nostdinc",
                             "-nostdinc++",
                             "-o",
-                            toNativePath("/output/file.o").path(),
-                            toNativePath("/source/file.cpp").path()));
+                            toNativePath("/output/file.o"),
+                            toNativePath("/source/file.cpp")));
 }
 
 TYPED_TEST(CommandLineBuilder, IncludePchPath)
@@ -619,10 +619,10 @@ TYPED_TEST(CommandLineBuilder, IncludePchPath)
                             "-Xclang",
                             "-include-pch",
                             "-Xclang",
-                            toNativePath("/pch/file.pch").path(),
+                            toNativePath("/pch/file.pch"),
                             "-o",
-                            toNativePath("/output/file.o").path(),
-                            toNativePath("/source/file.cpp").path()));
+                            toNativePath("/output/file.o"),
+                            toNativePath("/source/file.cpp")));
 }
 
 TYPED_TEST(CommandLineBuilder, CompilerMacros)

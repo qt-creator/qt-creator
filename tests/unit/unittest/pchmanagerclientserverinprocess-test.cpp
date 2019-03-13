@@ -97,18 +97,17 @@ TEST_F(PchManagerClientServerInProcess, SendAliveMessage)
 
 TEST_F(PchManagerClientServerInProcess, SendUpdateProjectPartsMessage)
 {
-    ProjectPartContainer projectPart2{
-        "projectPartId",
-        {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
-        {{"DEFINE", "1", 1}},
-        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
-        {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
-        {{1, 1}},
-        {{1, 2}},
-        Utils::Language::C,
-        Utils::LanguageVersion::C11,
-        Utils::LanguageExtension::All};
-    UpdateProjectPartsMessage message{{projectPart2}, {"-m32"}};
+    ProjectPartContainer projectPart{1,
+                                     {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
+                                     {{"DEFINE", "1", 1}},
+                                     {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+                                     {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
+                                     {{1, 1}},
+                                     {{1, 2}},
+                                     Utils::Language::C,
+                                     Utils::LanguageVersion::C11,
+                                     Utils::LanguageExtension::All};
+    UpdateProjectPartsMessage message{{projectPart}, {"-m32"}};
 
     EXPECT_CALL(mockPchManagerServer, updateProjectParts(message));
 
@@ -129,7 +128,7 @@ TEST_F(PchManagerClientServerInProcess, SendUpdateGeneratedFilesMessage)
 
 TEST_F(PchManagerClientServerInProcess, SendRemoveProjectPartsMessage)
 {
-    RemoveProjectPartsMessage message{{"projectPartId1", "projectPartId2"}};
+    RemoveProjectPartsMessage message{{1, 2}};
 
     EXPECT_CALL(mockPchManagerServer, removeProjectParts(message));
 
@@ -149,8 +148,7 @@ TEST_F(PchManagerClientServerInProcess, SendRemoveGeneratedFilesMessage)
 
 TEST_F(PchManagerClientServerInProcess, SendPrecompiledHeaderUpdatedMessage)
 {
-    PrecompiledHeadersUpdatedMessage message{{{"projectPartId", "/path/to/pch", 1}}};
-
+    PrecompiledHeadersUpdatedMessage message{{{1, "/path/to/pch", 1}}};
 
     EXPECT_CALL(mockPchManagerClient, precompiledHeadersUpdated(message));
 

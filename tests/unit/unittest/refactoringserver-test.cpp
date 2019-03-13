@@ -319,7 +319,7 @@ TEST_F(RefactoringServer, RemoveGeneratedFilesSetMemberWhichIsUsedForSymbolIndex
 TEST_F(RefactoringServer, UpdateProjectPartsCallsSymbolIndexingUpdateProjectParts)
 {
     ProjectPartContainers projectParts{
-        {{"projectPartId",
+        {{1,
           {"-I", TESTDATA_DIR},
           {{"DEFINE", "1", 1}},
           IncludeSearchPaths{{"/includes", 1, IncludeSearchPathType::BuiltIn},

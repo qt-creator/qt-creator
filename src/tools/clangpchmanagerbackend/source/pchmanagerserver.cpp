@@ -83,9 +83,9 @@ void PchManagerServer::removeProjectParts(RemoveProjectPartsMessage &&message)
 }
 
 namespace {
-Utils::SmallStringVector projectPartIds(const ProjectPartContainers &projectParts)
+ProjectPartIds projectPartIds(const ProjectPartContainers &projectParts)
 {
-    Utils::SmallStringVector ids;
+    ProjectPartIds ids;
     ids.reserve(projectParts.size());
 
     std::transform(projectParts.cbegin(),
@@ -118,7 +118,7 @@ void PchManagerServer::removeGeneratedFiles(RemoveGeneratedFilesMessage &&messag
     m_generatedFiles.remove(message.takeGeneratedFiles());
 }
 
-void PchManagerServer::pathsWithIdsChanged(const Utils::SmallStringVector &ids)
+void PchManagerServer::pathsWithIdsChanged(const ProjectPartIds &ids)
 {
     ArgumentsEntries entries = m_toolChainsArgumentsCache.arguments(ids);
 

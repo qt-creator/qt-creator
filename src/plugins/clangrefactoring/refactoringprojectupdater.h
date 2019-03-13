@@ -39,18 +39,18 @@ public:
     RefactoringProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
                               ClangPchManager::PchManagerClient &pchManagerClient,
                               CppTools::CppModelManagerInterface &cppModelManager,
-                              ClangBackEnd::FilePathCachingInterface &filePathCache)
-        : ClangPchManager::ProjectUpdater(server, filePathCache),
-          ClangPchManager::PchManagerNotifierInterface(pchManagerClient),
-          m_cppModelManager(cppModelManager)
+                              ClangBackEnd::FilePathCachingInterface &filePathCache,
+                              ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage)
+        : ClangPchManager::ProjectUpdater(server, filePathCache, projectPartsStorage)
+        , ClangPchManager::PchManagerNotifierInterface(pchManagerClient)
+        , m_cppModelManager(cppModelManager)
     {
-
     }
 
-    void precompiledHeaderUpdated(const QString &projectPartId,
+    void precompiledHeaderUpdated(ClangBackEnd::ProjectPartId projectPartId,
                                   const QString &pchFilePath,
                                   long long lastModified) override;
-    void precompiledHeaderRemoved(const QString &projectPartId) override;
+    void precompiledHeaderRemoved(ClangBackEnd::ProjectPartId projectPartId) override;
 
 private:
     CppTools::CppModelManagerInterface &m_cppModelManager;

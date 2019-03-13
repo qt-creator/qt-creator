@@ -41,7 +41,7 @@ public:
     ClangPathWatcherInterface &operator=(const ClangPathWatcherInterface &) = delete;
 
     virtual void updateIdPaths(const std::vector<IdPaths> &idPaths) = 0;
-    virtual void removeIds(const Utils::SmallStringVector &ids) = 0;
+    virtual void removeIds(const ProjectPartIds &ids) = 0;
 
     virtual void setNotifier(ClangPathWatcherNotifier *notifier) = 0;
 

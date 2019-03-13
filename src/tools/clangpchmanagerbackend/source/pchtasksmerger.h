@@ -40,7 +40,7 @@ public:
     {}
 
     void mergeTasks(PchTaskSets &&taskSets, Utils::SmallStringVector &&toolChainArguments) override;
-    void removePchTasks(const Utils::SmallStringVector &projectPartIds) override;
+    void removePchTasks(const ProjectPartIds &projectPartIds) override;
 
     static CompilerMacros mergeMacros(const CompilerMacros &firstCompilerMacros,
                                       const CompilerMacros &secondCompilerMacros);
