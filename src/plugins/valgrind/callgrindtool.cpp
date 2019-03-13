@@ -282,8 +282,7 @@ CallgrindTool::CallgrindTool()
         m_perspective.select();
         auto runControl = new RunControl(CALLGRIND_RUN_MODE);
         runControl->setRunConfiguration(runConfig);
-        if (auto creator = RunControl::producer(runConfig, CALLGRIND_RUN_MODE))
-            creator(runControl);
+        runControl->createMainWorker();
         const auto runnable = dlg.runnable();
         runControl->setRunnable(runnable);
         runControl->setDisplayName(runnable.executable);

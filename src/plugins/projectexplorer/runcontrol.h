@@ -274,7 +274,8 @@ public:
         factory->addConstraint(constraint);
     }
 
-    static WorkerCreator producer(RunConfiguration *runConfiguration, Core::Id runMode);
+    bool createMainWorker();
+    static bool canRun(RunConfiguration *runConfig, Core::Id runMode);
 
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);

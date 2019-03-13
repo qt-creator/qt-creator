@@ -443,19 +443,25 @@ RunWorker *RunControl::createWorker(Core::Id id)
     return nullptr;
 }
 
-RunWorkerFactory::WorkerCreator RunControl::producer(RunConfiguration *runConfig, Core::Id runMode)
+bool RunControl::createMainWorker()
 {
-    const auto canRun = std::bind(&RunWorkerFactory::canRun, std::placeholders::_1, runConfig, runMode);
+    const auto canRun = std::bind(&RunWorkerFactory::canRun, std::placeholders::_1,
+                                  d->runConfiguration, d->runMode);
     const QList<RunWorkerFactory *> candidates = Utils::filtered(g_runWorkerFactories, canRun);
-
-    // This is legit, there might be combinations that cannot run.
-    if (candidates.empty())
-        return {};
+    // There might be combinations that cannot run. But that should have been checked
+    // with canRun below.
+    QTC_ASSERT(!candidates.empty(), return false);
 
     // There should be at most one top-level producer feeling responsible per combination.
     // Breaking a tie should be done by tightening the restrictions on one of them.
     QTC_CHECK(candidates.size() == 1);
-    return candidates.front()->producer();
+    return candidates.front()->producer()(this) != nullptr;
+}
+
+bool RunControl::canRun(RunConfiguration *runConfig, Core::Id runMode)
+{
+    const auto check = std::bind(&RunWorkerFactory::canRun, std::placeholders::_1, runConfig, runMode);
+    return Utils::contains(g_runWorkerFactories, check);
 }
 
 void RunControlPrivate::initiateStart()

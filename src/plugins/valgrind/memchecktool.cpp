@@ -673,8 +673,7 @@ MemcheckTool::MemcheckTool()
         m_perspective.select();
         RunControl *rc = new RunControl(MEMCHECK_RUN_MODE);
         rc->setRunConfiguration(runConfig);
-        if (auto creator = RunControl::producer(runConfig, MEMCHECK_RUN_MODE))
-            creator(rc);
+        rc->createMainWorker();
         const auto runnable = dlg.runnable();
         rc->setRunnable(runnable);
         rc->setDisplayName(runnable.executable);
