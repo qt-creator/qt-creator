@@ -71,6 +71,7 @@ public:
     static void cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice);
     static ChoicePair cachedChoiceFor(const QString &buildTargetKey);
     static void clearChoiceCache();
+    static void popupResultsPane();
 
 private:
     void initializeMenuEntries();

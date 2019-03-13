@@ -464,6 +464,8 @@ void TestRunner::runTests()
     m_futureWatcher.setFuture(future);
 
     Core::ProgressManager::addTask(future, tr("Running Tests"), Autotest::Constants::TASK_INDEX);
+    if (AutotestPlugin::settings()->popupOnStart)
+        AutotestPlugin::popupResultsPane();
     scheduleNext();
 }
 
@@ -603,6 +605,8 @@ void TestRunner::debugTests()
 
     connect(runControl, &ProjectExplorer::RunControl::stopped, this, &TestRunner::onFinished);
     ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl);
+    if (useOutputProcessor && AutotestPlugin::settings()->popupOnStart)
+        AutotestPlugin::popupResultsPane();
 }
 
 void TestRunner::runOrDebugTests()

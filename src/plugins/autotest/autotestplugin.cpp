@@ -349,6 +349,12 @@ void AutotestPlugin::clearChoiceCache()
         s_instance->m_runconfigCache.clear();
 }
 
+void AutotestPlugin::popupResultsPane()
+{
+    if (s_instance)
+        s_instance->m_resultsPane->popup(Core::IOutputPane::NoModeSwitch);
+}
+
 QList<QObject *> AutotestPlugin::createTestObjects() const
 {
     QList<QObject *> tests;

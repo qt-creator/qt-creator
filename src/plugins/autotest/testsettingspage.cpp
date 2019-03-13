@@ -53,6 +53,8 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
             this, &TestSettingsWidget::onFrameworkItemChanged);
     connect(m_ui.resetChoicesButton, &QPushButton::clicked,
             this, [] { AutotestPlugin::clearChoiceCache(); });
+    connect(m_ui.openResultsOnFinishCB, &QCheckBox::toggled,
+            m_ui.openResultsOnFailCB, &QCheckBox::setEnabled);
 }
 
 void TestSettingsWidget::setSettings(const TestSettings &settings)
@@ -64,6 +66,9 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.autoScrollCB->setChecked(settings.autoScroll);
     m_ui.processArgsCB->setChecked(settings.processArgs);
     m_ui.displayAppCB->setChecked(settings.displayApplication);
+    m_ui.openResultsOnStartCB->setChecked(settings.popupOnStart);
+    m_ui.openResultsOnFinishCB->setChecked(settings.popupOnFinish);
+    m_ui.openResultsOnFailCB->setChecked(settings.popupOnFail);
     populateFrameworksListWidget(settings.frameworks);
 }
 
@@ -77,6 +82,9 @@ TestSettings TestSettingsWidget::settings() const
     result.autoScroll = m_ui.autoScrollCB->isChecked();
     result.processArgs = m_ui.processArgsCB->isChecked();
     result.displayApplication = m_ui.displayAppCB->isChecked();
+    result.popupOnStart = m_ui.openResultsOnStartCB->isChecked();
+    result.popupOnFinish = m_ui.openResultsOnFinishCB->isChecked();
+    result.popupOnFail = m_ui.openResultsOnFailCB->isChecked();
     frameworkSettings(result);
     return result;
 }

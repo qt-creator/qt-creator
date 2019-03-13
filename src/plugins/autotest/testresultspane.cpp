@@ -509,6 +509,13 @@ void TestResultsPane::onTestRunStarted()
     m_summaryWidget->setVisible(false);
 }
 
+static bool hasFailedTests(const TestResultModel *model)
+{
+    return (model->resultTypeCount(Result::Fail) > 0
+            || model->resultTypeCount(Result::MessageFatal) > 0
+            || model->resultTypeCount(Result::UnexpectedPass) > 0);
+}
+
 void TestResultsPane::onTestRunFinished()
 {
     m_testRunning = false;
@@ -520,8 +527,10 @@ void TestResultsPane::onTestRunFinished()
     m_model->removeCurrentTestMessage();
     disconnect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
                this, &TestResultsPane::onScrollBarRangeChanged);
-    if (!m_treeView->isVisible())
+    if (AutotestPlugin::settings()->popupOnFinish
+            && (!AutotestPlugin::settings()->popupOnFail || hasFailedTests(m_model))) {
         popup(Core::IOutputPane::NoModeSwitch);
+    }
     createMarks();
 }
 

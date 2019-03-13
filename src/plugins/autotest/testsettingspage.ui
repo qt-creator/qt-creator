@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>585</width>
-    <height>357</height>
+    <width>586</width>
+    <height>429</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -59,6 +59,59 @@
              <bool>true</bool>
             </property>
            </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="openResultsOnStartCB">
+            <property name="toolTip">
+             <string>Opens the test results pane automatically when tests are started.</string>
+            </property>
+            <property name="text">
+             <string>Open results pane when tests start</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="openResultsOnFinishCB">
+            <property name="toolTip">
+             <string>Opens the test result pane automatically when tests are finished.</string>
+            </property>
+            <property name="text">
+             <string>Open results pane when tests finish</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>10</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="openResultsOnFailCB">
+              <property name="toolTip">
+               <string>Opens the test result pane only if the test run contains failed, fatal or unexpectedly passed tests.</string>
+              </property>
+              <property name="text">
+               <string>Only for unsuccessful test runs</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="QCheckBox" name="autoScrollCB">

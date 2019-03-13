@@ -41,6 +41,9 @@ static const char limitResultOutputKey[]    = "LimitResultOutput";
 static const char autoScrollKey[]           = "AutoScrollResults";
 static const char processArgsKey[]          = "ProcessArgs";
 static const char displayApplicationKey[]   = "DisplayApp";
+static const char popupOnStartKey[]         = "PopupOnStart";
+static const char popupOnFinishKey[]        = "PopupOnFinish";
+static const char popupOnFailKey[]          = "PopupOnFail";
 static const char groupSuffix[]             = ".group";
 
 constexpr int defaultTimeout = 60000;
@@ -60,6 +63,9 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(autoScrollKey, autoScroll);
     s->setValue(processArgsKey, processArgs);
     s->setValue(displayApplicationKey, displayApplication);
+    s->setValue(popupOnStartKey, popupOnStart);
+    s->setValue(popupOnFinishKey, popupOnFinish);
+    s->setValue(popupOnFailKey, popupOnFail);
     // store frameworks and their current active and grouping state
     for (const Core::Id &id : frameworks.keys()) {
         s->setValue(QLatin1String(id.name()), frameworks.value(id));
@@ -78,6 +84,9 @@ void TestSettings::fromSettings(QSettings *s)
     autoScroll = s->value(autoScrollKey, true).toBool();
     processArgs = s->value(processArgsKey, false).toBool();
     displayApplication = s->value(displayApplicationKey, false).toBool();
+    popupOnStart = s->value(popupOnStartKey, true).toBool();
+    popupOnFinish = s->value(popupOnFinishKey, true).toBool();
+    popupOnFail = s->value(popupOnFailKey, false).toBool();
     // try to get settings for registered frameworks
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     const QList<Core::Id> &registered = frameworkManager->registeredFrameworkIds();

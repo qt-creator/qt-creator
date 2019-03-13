@@ -49,6 +49,9 @@ struct TestSettings
     bool autoScroll = true;
     bool processArgs = false;
     bool displayApplication = false;
+    bool popupOnStart = true;
+    bool popupOnFinish = true;
+    bool popupOnFail = false;
     QHash<Core::Id, bool> frameworks;
     QHash<Core::Id, bool> frameworksGrouping;
 };
