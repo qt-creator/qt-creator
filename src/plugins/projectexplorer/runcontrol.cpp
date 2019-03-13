@@ -1424,11 +1424,6 @@ const Runnable &RunWorker::runnable() const
     return d->runControl->runnable();
 }
 
-Core::Id RunWorker::runMode() const
-{
-    return d->runControl->runMode();
-}
-
 void RunWorker::addStartDependency(RunWorker *dependency)
 {
     d->startDependencies.append(dependency);
