@@ -290,6 +290,7 @@ void Highlighter::highlightBlock(const QString &text)
 
     if (block.isValid())
         TextDocumentLayout::userData(block)->setSyntaxState(state);
+    formatSpaces(text);
 }
 
 void Highlighter::applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format)
