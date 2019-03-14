@@ -283,6 +283,12 @@ void ProjectTree::expandAll()
         w->expandAll();
 }
 
+void ProjectTree::changeProjectRootDirectory()
+{
+    if (m_currentProject)
+        m_currentProject->changeRootProjectDirectory();
+}
+
 void ProjectTree::updateExternalFileWarning()
 {
     auto document = qobject_cast<Core::IDocument *>(sender());

@@ -160,7 +160,8 @@ HEADERS += projectexplorer.h \
     customexecutablerunconfiguration.h \
     projectmacro.h \
     makestep.h \
-    projectconfigurationaspects.h
+    projectconfigurationaspects.h \
+    treescanner.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -302,7 +303,8 @@ SOURCES += projectexplorer.cpp \
     customexecutablerunconfiguration.cpp \
     projectmacro.cpp \
     makestep.cpp \
-    projectconfigurationaspects.cpp
+    projectconfigurationaspects.cpp \
+    treescanner.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

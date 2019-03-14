@@ -35,8 +35,7 @@ HEADERS = builddirmanager.h \
     configmodelitemdelegate.h \
     servermode.h \
     servermodereader.h \
-    tealeafreader.h \
-    treescanner.h
+    tealeafreader.h
 
 SOURCES = builddirmanager.cpp \
     builddirparameters.cpp \
@@ -70,8 +69,7 @@ SOURCES = builddirmanager.cpp \
     configmodelitemdelegate.cpp \
     servermode.cpp \
     servermodereader.cpp \
-    tealeafreader.cpp \
-    treescanner.cpp \
+    tealeafreader.cpp
 
 RESOURCES += cmakeproject.qrc
 

@@ -88,8 +88,6 @@ QtcPlugin {
         "servermodereader.cpp",
         "servermodereader.h",
         "tealeafreader.cpp",
-        "tealeafreader.h",
-        "treescanner.cpp",
-        "treescanner.h",
+        "tealeafreader.h"
     ]
 }

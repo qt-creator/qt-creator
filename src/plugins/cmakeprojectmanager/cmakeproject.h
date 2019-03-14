@@ -30,11 +30,11 @@
 #include "builddirmanager.h"
 #include "cmakebuildtarget.h"
 #include "cmakeprojectimporter.h"
-#include "treescanner.h"
 
 #include <projectexplorer/extracompiler.h>
-#include <projectexplorer/projectmacro.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmacro.h>
+#include <projectexplorer/treescanner.h>
 
 #include <utils/fileutils.h>
 
@@ -108,7 +108,7 @@ private:
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
-    Internal::TreeScanner m_treeScanner;
+    ProjectExplorer::TreeScanner m_treeScanner;
     Internal::BuildDirManager m_buildDirManager;
 
     bool m_waitingForScan = false;

@@ -214,6 +214,7 @@ const char FILEOVERLAY_PY[]=":/projectexplorer/images/fileoverlay_py.png";
 const char FILEOVERLAY_UNKNOWN[]=":/projectexplorer/images/fileoverlay_unknown.png";
 
 const char ADD_FILES_DIALOG_FILTER_HISTORY_KEY[] = "ProjectExplorer.AddFilesFilterKey";
+const char PROJECT_ROOT_PATH_KEY[] = "ProjectExplorer.Project.RootPath";
 
 } // namespace Constants
 } // namespace ProjectExplorer

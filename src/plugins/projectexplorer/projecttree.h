@@ -81,6 +81,8 @@ public:
     void collapseAll();
     void expandAll();
 
+    void changeProjectRootDirectory();
+
     // for nodes to emit signals, do not call unless you are a node
     static void emitSubtreeChanged(FolderNode *node);
 

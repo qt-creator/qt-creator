@@ -29,12 +29,20 @@
 #include "compilationdatabaseproject.h"
 #include "compilationdatabasetests.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/fileiconprovider.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 #include <utils/utilsicons.h>
 
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
+
+const char CHANGEROOTDIR[] = "CompilationDatabaseProjectManager.ChangeRootDirectory";
 
 bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
@@ -45,8 +53,37 @@ bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &argu
 
     ProjectExplorer::ProjectManager::registerProjectType<CompilationDatabaseProject>(
                 Constants::COMPILATIONDATABASEMIMETYPE);
+    m_changeProjectRootDirectoryAction = new QAction(tr("Change Root Directory"), this);
+    Core::Command *cmd = Core::ActionManager::registerAction(m_changeProjectRootDirectoryAction,
+                                                             CHANGEROOTDIR);
+    Core::ActionContainer *mprojectContextMenu = Core::ActionManager::actionContainer(
+        ProjectExplorer::Constants::M_PROJECTCONTEXT);
+    mprojectContextMenu->addSeparator(ProjectExplorer::Constants::G_PROJECT_TREE);
+    mprojectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_TREE);
+
+    connect(m_changeProjectRootDirectoryAction,
+            &QAction::triggered,
+            ProjectExplorer::ProjectTree::instance(),
+            &ProjectExplorer::ProjectTree::changeProjectRootDirectory);
+
+    connect(ProjectExplorer::SessionManager::instance(),
+            &ProjectExplorer::SessionManager::startupProjectChanged,
+            this,
+            &CompilationDatabaseProjectManagerPlugin::projectChanged);
+    connect(ProjectExplorer::ProjectTree::instance(),
+            &ProjectExplorer::ProjectTree::currentProjectChanged,
+            this,
+            &CompilationDatabaseProjectManagerPlugin::projectChanged);
 
     return true;
+}
+
+void CompilationDatabaseProjectManagerPlugin::projectChanged()
+{
+    const auto *currentProject = qobject_cast<CompilationDatabaseProject *>(
+        ProjectExplorer::ProjectTree::currentProject());
+
+    m_changeProjectRootDirectoryAction->setEnabled(currentProject);
 }
 
 void CompilationDatabaseProjectManagerPlugin::extensionsInitialized()

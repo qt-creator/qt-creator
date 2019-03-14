@@ -102,8 +102,11 @@ public:
     Core::IDocument *document() const;
     Utils::FileName projectFilePath() const;
     Utils::FileName projectDirectory() const;
-    Utils::FileName rootProjectDirectory() const;
     static Utils::FileName projectDirectory(const Utils::FileName &top);
+
+    // This does not affect nodes, only the root path.
+    void changeRootProjectDirectory();
+    Utils::FileName rootProjectDirectory() const;
 
     virtual ProjectNode *rootProjectNode() const;
     ContainerNode *containerNode() const;
@@ -220,6 +223,8 @@ signals:
 
     void parsingStarted();
     void parsingFinished(bool success);
+
+    void rootProjectDirectoryChanged();
 
 protected:
     virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);

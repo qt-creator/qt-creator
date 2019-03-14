@@ -51,6 +51,8 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
+#include <QFileDialog>
+
 #include <limits>
 #include <memory>
 
@@ -177,6 +179,7 @@ public:
     Kit::Predicate m_preferredKitPredicate;
 
     Utils::MacroExpander m_macroExpander;
+    Utils::FileName m_rootProjectDirectory;
     mutable QVector<const Node *> m_sortedNodeList;
 };
 
@@ -653,13 +656,30 @@ Utils::FileName Project::projectDirectory(const Utils::FileName &top)
     return Utils::FileName::fromString(top.toFileInfo().absoluteDir().path());
 }
 
+void Project::changeRootProjectDirectory()
+{
+    Utils::FileName rootPath = Utils::FileName::fromString(
+        QFileDialog::getExistingDirectory(Core::ICore::dialogParent(),
+                                          tr("Select The Root Directory"),
+                                          rootProjectDirectory().toString(),
+                                          QFileDialog::ShowDirsOnly
+                                              | QFileDialog::DontResolveSymlinks));
+    if (rootPath != d->m_rootProjectDirectory) {
+        d->m_rootProjectDirectory = rootPath;
+        setNamedSettings(Constants::PROJECT_ROOT_PATH_KEY, d->m_rootProjectDirectory.toString());
+        emit rootProjectDirectoryChanged();
+    }
+}
+
 /*!
     Returns the common root directory that contains all files which belongs to a project.
 */
-
 Utils::FileName Project::rootProjectDirectory() const
 {
-    return projectDirectory(); // TODO parse all files and find the common path
+    if (!d->m_rootProjectDirectory.isEmpty())
+        return d->m_rootProjectDirectory;
+
+    return projectDirectory();
 }
 
 ProjectNode *Project::rootProjectNode() const
@@ -700,6 +720,9 @@ Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMe
 
         createTargetFromMap(map, i);
     }
+
+    d->m_rootProjectDirectory = Utils::FileName::fromString(
+        namedSettings(Constants::PROJECT_ROOT_PATH_KEY).toString());
 
     return RestoreResult::Ok;
 }

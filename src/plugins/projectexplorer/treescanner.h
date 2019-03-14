@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include "projectexplorer/projectnodes.h"
+#include "projectexplorer_export.h"
+#include "projectnodes.h"
 
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/fileutils.h>
@@ -38,10 +39,9 @@
 
 namespace Core { class IVersionControl; }
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace ProjectExplorer {
 
-class TreeScanner : public QObject
+class PROJECTEXPLORER_EXPORT TreeScanner : public QObject
 {
     Q_OBJECT
 
@@ -98,7 +98,4 @@ private:
     Future m_scanFuture;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
-
-
+} // namespace ProjectExplorer

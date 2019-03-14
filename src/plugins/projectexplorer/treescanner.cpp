@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "treescanner.h"
+#include "projectexplorerconstants.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <cpptools/cpptoolsconstants.h>
 
@@ -37,10 +37,7 @@
 
 #include <memory>
 
-using namespace ProjectExplorer;
-
-namespace CMakeProjectManager {
-namespace Internal {
+namespace ProjectExplorer {
 
 TreeScanner::TreeScanner(QObject *parent) : QObject(parent)
 {
@@ -176,5 +173,4 @@ void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FileName& direc
     fip->reportFinished();
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // namespace ProjectExplorer

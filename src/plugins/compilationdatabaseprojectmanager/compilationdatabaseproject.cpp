@@ -29,9 +29,10 @@
 #include "compilationdatabaseutils.h"
 
 #include <coreplugin/icontext.h>
-#include <cpptools/projectinfo.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppkitinfo.h>
 #include <cpptools/cppprojectupdater.h>
+#include <cpptools/projectinfo.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
@@ -47,6 +48,7 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
+#include <QFileDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -283,13 +285,17 @@ FileType fileTypeForName(const QString &fileName)
 
 void createTree(FolderNode *root,
                 const Utils::FileName &rootPath,
-                const CppTools::RawProjectParts &rpps)
+                const CppTools::RawProjectParts &rpps,
+                const QList<FileNode *> &scannedFiles = QList<FileNode *>())
 {
     root->setAbsoluteFilePathAndLine(rootPath, -1);
 
     for (const CppTools::RawProjectPart &rpp : rpps) {
         for (const QString &filePath : rpp.files) {
             Utils::FileName fileName = Utils::FileName::fromString(filePath);
+            if (!fileName.isChildOf(rootPath))
+                continue;
+
             FolderNode *parentNode = createFoldersIfNeeded(root, fileName.parentDir());
             if (!parentNode->fileNode(fileName)) {
                 parentNode->addNode(std::make_unique<FileNode>(fileName,
@@ -297,6 +303,22 @@ void createTree(FolderNode *root,
             }
         }
     }
+
+    for (FileNode *node : scannedFiles) {
+        if (node->fileType() != FileType::Header)
+            continue;
+
+        const Utils::FileName fileName = node->filePath();
+        if (!fileName.isChildOf(rootPath))
+            continue;
+        FolderNode *parentNode = createFoldersIfNeeded(root, fileName.parentDir());
+        if (!parentNode->fileNode(fileName)) {
+            std::unique_ptr<FileNode> headerNode(node->clone());
+            headerNode->setEnabled(false);
+            parentNode->addNode(std::move(headerNode));
+        }
+    }
+    qDeleteAll(scannedFiles);
 }
 
 struct Entry
@@ -354,7 +376,6 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
     CppTools::KitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
     CppTools::RawProjectParts rpps;
-    Utils::FileName commonPath;
 
     std::sort(array.begin(), array.end(), [](const Entry &lhs, const Entry &rhs) {
         return std::lexicographical_compare(lhs.flags.begin(), lhs.flags.end(),
@@ -370,10 +391,6 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
 
         prevEntry = &entry;
 
-        commonPath = rpps.empty()
-                ? entry.fileName.parentDir()
-                : Utils::FileUtils::commonPath(commonPath, entry.fileName);
-
         CppTools::RawProjectPart rpp = makeRawProjectPart(projectFile,
                                                           m_kit.get(),
                                                           kitInfo.cToolChain,
@@ -385,7 +402,13 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
         rpps.append(rpp);
     }
 
-    createTree(root.get(), commonPath, rpps);
+    m_treeScanner.future().waitForFinished();
+    QCoreApplication::processEvents();
+
+    if (m_treeScanner.future().isCanceled())
+        createTree(root.get(), rootProjectDirectory(), rpps);
+    else
+        createTree(root.get(), rootProjectDirectory(), rpps, m_treeScanner.release());
 
     root->addNode(std::make_unique<FileNode>(projectFile, FileType::Project));
 
@@ -407,7 +430,6 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
     setPreferredKitPredicate([](const Kit *) { return false; });
 
     m_kit.reset(KitManager::defaultKit()->clone());
-
     connect(this, &CompilationDatabaseProject::parsingFinished, this, [this]() {
         if (!m_hasTarget) {
             addTarget(createTarget(m_kit.get()));
@@ -415,22 +437,75 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
         }
     });
 
-    reparseProject(projectFile);
+    m_treeScanner.setFilter([this](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
+        // Mime checks requires more resources, so keep it last in check list
+        auto isIgnored = fn.toString().startsWith(projectFilePath().toString() + ".user")
+                         || TreeScanner::isWellKnownBinary(mimeType, fn);
+
+        // Cache mime check result for speed up
+        if (!isIgnored) {
+            auto it = m_mimeBinaryCache.find(mimeType.name());
+            if (it != m_mimeBinaryCache.end()) {
+                isIgnored = *it;
+            } else {
+                isIgnored = TreeScanner::isMimeBinary(mimeType, fn);
+                m_mimeBinaryCache[mimeType.name()] = isIgnored;
+            }
+        }
+
+        return isIgnored;
+    });
+    m_treeScanner.setTypeFactory([](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
+        return TreeScanner::genericFileType(mimeType, fn);
+    });
+
+    connect(this,
+            &CompilationDatabaseProject::rootProjectDirectoryChanged,
+            this,
+            &CompilationDatabaseProject::reparseProject);
 
     m_fileSystemWatcher.addFile(projectFile.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
     connect(&m_fileSystemWatcher,
             &Utils::FileSystemWatcher::fileChanged,
             this,
-            [this](const QString &projectFile) {
-                reparseProject(Utils::FileName::fromString(projectFile));
-            });
+            &CompilationDatabaseProject::reparseProject);
 }
 
-void CompilationDatabaseProject::reparseProject(const Utils::FileName &projectFile)
+Project::RestoreResult CompilationDatabaseProject::fromMap(const QVariantMap &map,
+                                                           QString *errorMessage)
+{
+    Project::RestoreResult result = Project::fromMap(map, errorMessage);
+    if (result == Project::RestoreResult::Ok) {
+        const Utils::FileName rootPath = Utils::FileName::fromString(
+            namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
+        if (rootPath.isEmpty())
+            changeRootProjectDirectory(); // This triggers reparse itself.
+        else
+            reparseProject();
+    }
+
+    return result;
+}
+
+void CompilationDatabaseProject::reparseProject()
 {
     emitParsingStarted();
+
+    const Utils::FileName rootPath = Utils::FileName::fromString(
+        namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
+    if (!rootPath.isEmpty()) {
+        m_treeScanner.asyncScanForFiles(rootPath);
+
+        Core::ProgressManager::addTask(m_treeScanner.future(),
+                                       tr("Scan \"%1\" project tree").arg(displayName()),
+                                       "CompilationDatabase.Scan.Tree");
+    }
+
     const QFuture<void> future = ::Utils::runAsync(
-        [this, projectFile]() { buildTreeAndProjectParts(projectFile); });
+        [this]() { buildTreeAndProjectParts(projectFilePath()); });
+    Core::ProgressManager::addTask(future,
+                                   tr("Parse \"%1\" project").arg(displayName()),
+                                   "CompilationDatabase.Parse");
     m_parserWatcher.setFuture(future);
 }
 

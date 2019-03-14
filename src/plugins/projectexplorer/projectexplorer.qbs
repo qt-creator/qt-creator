@@ -153,6 +153,7 @@ Project {
                 "toolchainmanager.cpp", "toolchainmanager.h",
                 "toolchainoptionspage.cpp", "toolchainoptionspage.h",
                 "toolchainsettingsaccessor.cpp", "toolchainsettingsaccessor.h",
+                "treescanner.cpp", "treescanner.h",
                 "userfileaccessor.cpp", "userfileaccessor.h",
                 "vcsannotatetaskhandler.cpp", "vcsannotatetaskhandler.h",
                 "waitforstopdialog.cpp", "waitforstopdialog.h",

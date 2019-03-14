@@ -26,6 +26,7 @@
 #pragma once
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/treescanner.h>
 #include <texteditor/texteditor.h>
 #include <utils/filesystemwatcher.h>
 
@@ -35,7 +36,9 @@ namespace CppTools {
 class CppProjectUpdater;
 }
 
-namespace ProjectExplorer { class Kit; }
+namespace ProjectExplorer {
+class Kit;
+}
 
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
@@ -51,13 +54,16 @@ public:
     bool needsBuildConfigurations() const override { return false; }
 
 private:
-    void reparseProject(const Utils::FileName &projectFile);
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    void reparseProject();
     void buildTreeAndProjectParts(const Utils::FileName &projectFile);
 
     QFutureWatcher<void> m_parserWatcher;
     std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;
     std::unique_ptr<ProjectExplorer::Kit> m_kit;
     Utils::FileSystemWatcher m_fileSystemWatcher;
+    ProjectExplorer::TreeScanner m_treeScanner;
+    QHash<QString, bool> m_mimeBinaryCache;
     bool m_hasTarget = false;
 };
 
