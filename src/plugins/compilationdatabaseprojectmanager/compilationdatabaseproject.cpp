@@ -419,14 +419,29 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
 
     m_kit.reset(KitManager::defaultKit()->clone());
 
-    connect(this, &CompilationDatabaseProject::parsingFinished,
-            this, [this]() { addTarget(createTarget(m_kit.get())); });
-
-    emitParsingStarted();
-
-    const QFuture<void> future = ::Utils::runAsync([this, projectFile](){
-        buildTreeAndProjectParts(projectFile);
+    connect(this, &CompilationDatabaseProject::parsingFinished, this, [this]() {
+        if (!m_hasTarget) {
+            addTarget(createTarget(m_kit.get()));
+            m_hasTarget = true;
+        }
     });
+
+    reparseProject(projectFile);
+
+    m_fileSystemWatcher.addFile(projectFile.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
+    connect(&m_fileSystemWatcher,
+            &Utils::FileSystemWatcher::fileChanged,
+            this,
+            [this](const QString &projectFile) {
+                reparseProject(Utils::FileName::fromString(projectFile));
+            });
+}
+
+void CompilationDatabaseProject::reparseProject(const Utils::FileName &projectFile)
+{
+    emitParsingStarted();
+    const QFuture<void> future = ::Utils::runAsync(
+        [this, projectFile]() { buildTreeAndProjectParts(projectFile); });
     m_parserWatcher.setFuture(future);
 }
 

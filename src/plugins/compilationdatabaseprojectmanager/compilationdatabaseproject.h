@@ -26,8 +26,8 @@
 #pragma once
 
 #include <projectexplorer/project.h>
-
 #include <texteditor/texteditor.h>
+#include <utils/filesystemwatcher.h>
 
 #include <QFutureWatcher>
 
@@ -51,11 +51,14 @@ public:
     bool needsBuildConfigurations() const override { return false; }
 
 private:
+    void reparseProject(const Utils::FileName &projectFile);
     void buildTreeAndProjectParts(const Utils::FileName &projectFile);
 
     QFutureWatcher<void> m_parserWatcher;
     std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;
     std::unique_ptr<ProjectExplorer::Kit> m_kit;
+    Utils::FileSystemWatcher m_fileSystemWatcher;
+    bool m_hasTarget = false;
 };
 
 class CompilationDatabaseEditorFactory : public TextEditor::TextEditorFactory
