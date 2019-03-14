@@ -126,7 +126,7 @@ private:
 
     void setAllBuildConfigurationsEnabled(bool enabled);
 
-    QString executableFor(const QmakeProFileNode *node);
+    QString executableFor(const QmakeProFile *file);
     void updateRunConfigurations();
 
     void updateCppCodeModel();
@@ -135,8 +135,8 @@ private:
     static bool equalFileList(const QStringList &a, const QStringList &b);
 
     void updateBuildSystemData();
-    void collectData(const QmakeProFileNode *node, ProjectExplorer::DeploymentData &deploymentData);
-    void collectApplicationData(const QmakeProFileNode *file,
+    void collectData(const QmakeProFile *file, ProjectExplorer::DeploymentData &deploymentData);
+    void collectApplicationData(const QmakeProFile *file,
                                 ProjectExplorer::DeploymentData &deploymentData);
     void collectLibraryData(const QmakeProFile *file,
             ProjectExplorer::DeploymentData &deploymentData);

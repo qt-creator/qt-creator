@@ -984,7 +984,7 @@ void QmakeProject::updateBuildSystemData()
         return;
 
     DeploymentData deploymentData;
-    collectData(rootProjectNode(), deploymentData);
+    collectData(file, deploymentData);
     target->setDeploymentData(deploymentData);
 
     BuildTargetInfoList appTargetList;
@@ -1025,7 +1025,7 @@ void QmakeProject::updateBuildSystemData()
             workingDir += '/' + ti.target + ".app/Contents/MacOS";
 
         BuildTargetInfo bti;
-        bti.targetFilePath = FileName::fromString(executableFor(node));
+        bti.targetFilePath = FileName::fromString(executableFor(node->proFile()));
         bti.projectFilePath = node->filePath();
         bti.workingDirectory = FileName::fromString(workingDir);
         bti.displayName = bti.projectFilePath.toFileInfo().completeBaseName();
@@ -1077,9 +1077,8 @@ void QmakeProject::updateBuildSystemData()
     target->setApplicationTargets(appTargetList);
 }
 
-void QmakeProject::collectData(const QmakeProFileNode *node, DeploymentData &deploymentData)
+void QmakeProject::collectData(const QmakeProFile *file, DeploymentData &deploymentData)
 {
-    QmakeProFile *file = node->proFile();
     if (!file->isSubProjectDeployable(file->filePath()))
         return;
 
@@ -1094,31 +1093,29 @@ void QmakeProject::collectData(const QmakeProFileNode *node, DeploymentData &dep
     switch (file->projectType()) {
     case ProjectType::ApplicationTemplate:
         if (!installsList.targetPath.isEmpty())
-            collectApplicationData(node, deploymentData);
+            collectApplicationData(file, deploymentData);
         break;
     case ProjectType::SharedLibraryTemplate:
     case ProjectType::StaticLibraryTemplate:
         collectLibraryData(file, deploymentData);
         break;
     case ProjectType::SubDirsTemplate:
-        node->forEachNode({}, [this, &deploymentData](Node *subNode) {
-            if (auto subProject = dynamic_cast<QmakeProFileNode *>(subNode)) {
-                QTC_ASSERT(subProject->priFile(), return );
-                if (subProject->priFile()->includedInExactParse())
-                    collectData(subProject, deploymentData);
-            }
-        });
+        for (const QmakePriFile *const subPriFile : file->subPriFilesExact()) {
+            auto subProFile = dynamic_cast<const QmakeProFile *>(subPriFile);
+            if (subProFile)
+                collectData(subProFile, deploymentData);
+        }
         break;
     default:
         break;
     }
 }
 
-void QmakeProject::collectApplicationData(const QmakeProFileNode *node, DeploymentData &deploymentData)
+void QmakeProject::collectApplicationData(const QmakeProFile *file, DeploymentData &deploymentData)
 {
-    QString executable = executableFor(node);
+    QString executable = executableFor(file);
     if (!executable.isEmpty())
-        deploymentData.addFile(executable, node->proFile()->installsList().targetPath,
+        deploymentData.addFile(executable, file->installsList().targetPath,
                                DeployableFile::TypeExecutable);
 }
 
@@ -1305,17 +1302,16 @@ void QmakeProject::warnOnToolChainMismatch(const QmakeProFile *pro) const
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
-QString QmakeProject::executableFor(const QmakeProFileNode *node)
+QString QmakeProject::executableFor(const QmakeProFile *file)
 {
     const Kit *const kit = activeTarget() ? activeTarget()->kit() : nullptr;
     const ToolChain *const tc = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc)
         return QString();
 
-    TargetInformation ti = node->targetInformation();
+    TargetInformation ti = file->targetInformation();
     QString target;
 
-    QmakeProFile *file = node->proFile();
     QTC_ASSERT(file, return QString());
 
     if (tc->targetAbi().os() == Abi::DarwinOS
