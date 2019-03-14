@@ -306,35 +306,36 @@ void DebuggerMainWindow::showStatusMessage(const QString &message, int timeoutMS
         theMainWindow->d->m_statusLabel->showStatusMessage(message, timeoutMS);
 }
 
-void DebuggerMainWindow::onModeChanged(Core::Id mode)
+void DebuggerMainWindow::enterDebugMode()
 {
-    if (mode == Debugger::Constants::MODE_DEBUG) {
-        theMainWindow->setDockActionsVisible(true);
-        Perspective *perspective = theMainWindow->d->m_currentPerspective;
-        if (!perspective) {
-            const QSettings *settings = ICore::settings();
-            const QString lastPerspectiveId = settings->value(LAST_PERSPECTIVE_KEY).toString();
-            perspective = Perspective::findPerspective(lastPerspectiveId);
-            // If we don't find a perspective with the stored name, pick any.
-            // This can happen e.g. when a plugin was disabled that provided
-            // the stored perspective, or when the save file was modified externally.
-            if (!perspective && !theMainWindow->d->m_perspectives.isEmpty())
-                perspective = theMainWindow->d->m_perspectives.first();
-        }
-        // There's at least the debugger preset perspective that should be found above.
-        QTC_ASSERT(perspective, return);
-        perspective->select();
-    } else {
-        if (Perspective *perspective = theMainWindow->d->m_currentPerspective)
-            perspective->d->saveLayout();
+    theMainWindow->setDockActionsVisible(true);
+    Perspective *perspective = theMainWindow->d->m_currentPerspective;
+    if (!perspective) {
+        const QSettings *settings = ICore::settings();
+        const QString lastPerspectiveId = settings->value(LAST_PERSPECTIVE_KEY).toString();
+        perspective = Perspective::findPerspective(lastPerspectiveId);
+        // If we don't find a perspective with the stored name, pick any.
+        // This can happen e.g. when a plugin was disabled that provided
+        // the stored perspective, or when the save file was modified externally.
+        if (!perspective && !theMainWindow->d->m_perspectives.isEmpty())
+            perspective = theMainWindow->d->m_perspectives.first();
+    }
+    // There's at least the debugger preset perspective that should be found above.
+    QTC_ASSERT(perspective, return);
+    perspective->select();
+}
 
-        theMainWindow->setDockActionsVisible(false);
+void DebuggerMainWindow::leaveDebugMode()
+{
+    if (Perspective *perspective = theMainWindow->d->m_currentPerspective)
+        perspective->d->saveLayout();
 
-        // Hide dock widgets manually in case they are floating.
-        for (QDockWidget *dockWidget : theMainWindow->dockWidgets()) {
-            if (dockWidget->isFloating())
-                dockWidget->hide();
-        }
+    theMainWindow->setDockActionsVisible(false);
+
+    // Hide dock widgets manually in case they are floating.
+    for (QDockWidget *dockWidget : theMainWindow->dockWidgets()) {
+        if (dockWidget->isFloating())
+            dockWidget->hide();
     }
 }
 

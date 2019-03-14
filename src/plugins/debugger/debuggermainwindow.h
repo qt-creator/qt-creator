@@ -126,7 +126,8 @@ public:
     static void doShutdown();
 
     static void showStatusMessage(const QString &message, int timeoutMS);
-    static void onModeChanged(Core::Id mode);
+    static void enterDebugMode();
+    static void leaveDebugMode();
 
     static QWidget *centralWidgetStack();
     void addSubPerspectiveSwitcher(QWidget *widget);
