@@ -334,7 +334,7 @@ static QStringList readLines(const Utils::FileName &projectFile)
     if (file.open(QFile::ReadOnly)) {
         QTextStream stream(&file);
 
-        forever {
+        while (true) {
             QString line = stream.readLine();
             if (line.isNull())
                 break;
@@ -465,7 +465,7 @@ bool PythonProject::addFiles(const QStringList &filePaths)
     QStringList newList = m_rawFileList;
 
     QDir baseDir(projectDirectory().toString());
-    foreach (const QString &filePath, filePaths)
+    for (const QString &filePath : filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
     return saveRawFileList(newList);
@@ -475,7 +475,7 @@ bool PythonProject::removeFiles(const QStringList &filePaths)
 {
     QStringList newList = m_rawFileList;
 
-    foreach (const QString &filePath, filePaths) {
+    for (const QString &filePath : filePaths) {
         QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
         if (i != m_rawListEntries.end())
             newList.removeOne(i.value());
@@ -488,7 +488,7 @@ bool PythonProject::setFiles(const QStringList &filePaths)
 {
     QStringList newList;
     QDir baseDir(projectDirectory().toString());
-    foreach (const QString &filePath, filePaths)
+    for (const QString &filePath : filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
     return saveRawFileList(newList);
@@ -611,7 +611,7 @@ QStringList PythonProject::processEntries(const QStringList &paths,
 
     QFileInfo fileInfo;
     QStringList absolutePaths;
-    foreach (const QString &path, paths) {
+    for (const QString &path : paths) {
         QString trimmedPath = path.trimmed();
         if (trimmedPath.isEmpty())
             continue;
@@ -659,7 +659,7 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
     QHash<QString, QStringList> filesInPath;
     const QDir baseDir(base);
 
-    foreach (const QString &absoluteFileName, files) {
+    for (const QString &absoluteFileName : files) {
         QFileInfo fileInfo(absoluteFileName);
         FileName absoluteFilePath = FileName::fromString(fileInfo.path());
         QString relativeFilePath;
