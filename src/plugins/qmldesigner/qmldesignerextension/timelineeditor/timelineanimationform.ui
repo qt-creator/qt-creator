@@ -10,14 +10,11 @@
     <height>176</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form</string>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="4" column="3">
     <widget class="QLabel" name="label_16">
      <property name="text">
-      <string>Loops</string>
+      <string>Loops:</string>
      </property>
     </widget>
    </item>
@@ -117,7 +114,7 @@
       </size>
      </property>
      <property name="text">
-      <string>Animation ID</string>
+      <string>Animation ID:</string>
      </property>
     </widget>
    </item>
@@ -162,14 +159,14 @@
    <item row="5" column="1">
     <widget class="QLabel" name="label_23">
      <property name="text">
-      <string>Finished</string>
+      <string>Finished:</string>
      </property>
     </widget>
    </item>
    <item row="4" column="7">
     <widget class="QLabel" name="label_17">
      <property name="text">
-      <string>Ping Pong</string>
+      <string>Ping pong</string>
      </property>
     </widget>
    </item>
@@ -205,7 +202,7 @@
       </size>
      </property>
      <property name="text">
-      <string>Transition to state</string>
+      <string>Transition to state:</string>
      </property>
     </widget>
    </item>
@@ -222,7 +219,7 @@
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>Running in Base State</string>
+      <string>Running in base state</string>
      </property>
     </widget>
    </item>
@@ -257,7 +254,7 @@
    <item row="3" column="1">
     <widget class="QLabel" name="label_12">
      <property name="text">
-      <string>Start Frame</string>
+      <string>Start frame:</string>
      </property>
     </widget>
    </item>
@@ -290,14 +287,14 @@
    <item row="3" column="7">
     <widget class="QLabel" name="label_14">
      <property name="text">
-      <string>Duration</string>
+      <string>Duration:</string>
      </property>
     </widget>
    </item>
    <item row="3" column="3">
     <widget class="QLabel" name="label_13">
      <property name="text">
-      <string>End Frame</string>
+      <string>End frame:</string>
      </property>
     </widget>
    </item>

@@ -172,7 +172,7 @@ void CompilerOptionsBuilder::addSyntaxOnly()
     isClStyle() ? add("/Zs") : add("-fsyntax-only");
 }
 
-static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
+QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
 {
     QStringList options;
 
@@ -738,6 +738,15 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             || option.startsWith(includeSystemPathOption)
             || option.startsWith(includeUserPathOptionWindows)) {
             // Optimization and run-time flags.
+            continue;
+        }
+
+        if (option.startsWith("/Y", Qt::CaseSensitive)
+            || (option.startsWith("/F", Qt::CaseSensitive) && option != "/F")) {
+            // Precompiled header flags.
+            // Skip also the next option if it's not glued to the current one.
+            if (option.size() > 3)
+                skipNext = true;
             continue;
         }
 

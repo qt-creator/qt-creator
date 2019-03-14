@@ -59,6 +59,24 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *proje
 {
     m_ui->setupUi(this);
 
+    m_preview = new TextEditor::SnippetEditorWidget(this);
+    m_ui->horizontalLayout_2->addWidget(m_preview);
+    if (m_project) {
+        m_ui->applyButton->show();
+        hideGlobalCheckboxes();
+        m_ui->overrideDefault->setChecked(
+            m_project->namedSettings(Constants::OVERRIDE_FILE_ID).toBool());
+    } else {
+        m_ui->applyButton->hide();
+        showGlobalCheckboxes();
+        m_ui->overrideDefault->setChecked(ClangFormatSettings::instance().overrideDefaultFile());
+    }
+
+    connect(m_ui->overrideDefault, &QCheckBox::toggled, this, [this](bool checked) {
+        if (checked)
+            createStyleFileIfNeeded(!m_project);
+        initialize();
+    });
     initialize();
 }
 
@@ -81,15 +99,19 @@ void ClangFormatConfigWidget::showGlobalCheckboxes()
     m_ui->formatOnSave->show();
 }
 
+static bool projectConfigExists()
+{
+    return Utils::FileName::fromString(Core::ICore::userResourcePath())
+        .appendPath("clang-format")
+        .appendPath(currentProjectUniqueId())
+        .appendPath((Constants::SETTINGS_FILE_NAME))
+        .exists();
+}
+
 void ClangFormatConfigWidget::initialize()
 {
-    m_ui->projectHasClangFormat->show();
-    m_ui->clangFormatOptionsTable->show();
-    m_ui->applyButton->show();
-    hideGlobalCheckboxes();
+    m_ui->projectHasClangFormat->hide();
 
-    m_preview = new TextEditor::SnippetEditorWidget(this);
-    m_ui->horizontalLayout_2->addWidget(m_preview);
     m_preview->setPlainText(QLatin1String(CppTools::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
     m_preview->textDocument()->setIndenter(new ClangFormatIndenter(m_preview->document()));
     m_preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
@@ -103,21 +125,15 @@ void ClangFormatConfigWidget::initialize()
     if (lastItem->spacerItem())
         m_ui->verticalLayout->removeItem(lastItem);
 
-    if (m_project
-        && !m_project->projectDirectory().appendPath(Constants::SETTINGS_FILE_NAME).exists()) {
-        m_ui->projectHasClangFormat->setText(tr("No .clang-format file for the project."));
+    if (!m_ui->overrideDefault->isChecked()) {
         m_ui->clangFormatOptionsTable->hide();
-        m_ui->applyButton->hide();
+        m_preview->hide();
         m_ui->verticalLayout->addStretch(1);
-
-        connect(m_ui->createFileButton, &QPushButton::clicked, this, [this]() {
-            createStyleFileIfNeeded(false);
-            initialize();
-        });
         return;
     }
 
-    m_ui->createFileButton->hide();
+    m_ui->clangFormatOptionsTable->show();
+    m_preview->show();
 
     Utils::FileName fileName;
     if (m_project) {
@@ -126,19 +142,13 @@ void ClangFormatConfigWidget::initialize()
         fileName = m_project->projectFilePath().appendPath("snippet.cpp");
     } else {
         const Project *currentProject = SessionManager::startupProject();
-        if (!currentProject
-            || !currentProject->projectDirectory()
-                    .appendPath(Constants::SETTINGS_FILE_NAME)
-                    .exists()) {
+        if (!currentProject || !projectConfigExists()) {
             m_ui->projectHasClangFormat->hide();
         } else {
             m_ui->projectHasClangFormat->setText(
-                tr("Current project has its own .clang-format file "
+                tr("Current project has its own overridden .clang-format file "
                    "and can be configured in Projects > Code Style > C++."));
         }
-        createStyleFileIfNeeded(true);
-        showGlobalCheckboxes();
-        m_ui->applyButton->hide();
         fileName = Utils::FileName::fromString(Core::ICore::userResourcePath())
                        .appendPath("snippet.cpp");
     }
@@ -160,7 +170,7 @@ void ClangFormatConfigWidget::fillTable()
 {
     clang::format::FormatStyle style = m_project ? currentProjectStyle() : currentGlobalStyle();
 
-    std::string configText = clang::format::configurationAsText(style);
+    const std::string configText = clang::format::configurationAsText(style);
     m_ui->clangFormatOptionsTable->setPlainText(QString::fromStdString(configText));
 }
 
@@ -168,13 +178,19 @@ ClangFormatConfigWidget::~ClangFormatConfigWidget() = default;
 
 void ClangFormatConfigWidget::apply()
 {
+    ClangFormatSettings &settings = ClangFormatSettings::instance();
     if (!m_project) {
-        ClangFormatSettings &settings = ClangFormatSettings::instance();
         settings.setFormatCodeInsteadOfIndent(m_ui->formatAlways->isChecked());
         settings.setFormatWhileTyping(m_ui->formatWhileTyping->isChecked());
         settings.setFormatOnSave(m_ui->formatOnSave->isChecked());
-        settings.write();
+        settings.setOverrideDefaultFile(m_ui->overrideDefault->isChecked());
+    } else {
+        m_project->setNamedSettings(Constants::OVERRIDE_FILE_ID, m_ui->overrideDefault->isChecked());
     }
+    settings.write();
+
+    if (!m_ui->overrideDefault->isChecked())
+        return;
 
     const QString text = m_ui->clangFormatOptionsTable->toPlainText();
     clang::format::FormatStyle style;
@@ -184,16 +200,18 @@ void ClangFormatConfigWidget::apply()
         QMessageBox::warning(this,
                              tr("Error in ClangFormat configuration"),
                              QString::fromStdString(error.message()));
-        fillTable();
-        updatePreview();
+        if (m_ui->overrideDefault->isChecked()) {
+            fillTable();
+            updatePreview();
+        }
         return;
     }
 
-    QString filePath;
+    QString filePath = Core::ICore::userResourcePath();
     if (m_project)
-        filePath = m_project->projectDirectory().appendPath(Constants::SETTINGS_FILE_NAME).toString();
-    else
-        filePath = Core::ICore::userResourcePath() + "/" + Constants::SETTINGS_FILE_NAME;
+        filePath += "/clang-format/" + currentProjectUniqueId();
+    filePath += "/" + QLatin1String(Constants::SETTINGS_FILE_NAME);
+
     QFile file(filePath);
     if (!file.open(QFile::WriteOnly))
         return;
@@ -201,7 +219,8 @@ void ClangFormatConfigWidget::apply()
     file.write(text.toUtf8());
     file.close();
 
-    updatePreview();
+    if (m_ui->overrideDefault->isChecked())
+        updatePreview();
 }
 
 } // namespace ClangFormat

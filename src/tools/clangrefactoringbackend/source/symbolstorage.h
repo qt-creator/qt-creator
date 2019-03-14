@@ -112,17 +112,6 @@ public:
         return statement.template value<ProjectPartArtefact, 8>(projectPartName);
     }
 
-    void updateProjectPartSources(int projectPartId,
-                                  const FilePathIds &sourceFilePathIds) override
-    {
-        WriteStatement &deleteStatement = m_deleteAllProjectPartsSourcesWithProjectPartIdStatement;
-        deleteStatement.write(projectPartId);
-
-        WriteStatement &insertStatement = m_insertProjectPartSourcesStatement;
-        for (const FilePathId &sourceFilePathId : sourceFilePathIds)
-            insertStatement.write(projectPartId, sourceFilePathId.filePathId);
-    }
-
     static Utils::SmallString toJson(const Utils::SmallStringVector &strings)
     {
         QJsonDocument document;
@@ -322,14 +311,7 @@ public:
         "SELECT projectPartId FROM projectParts WHERE projectPartName = ?",
         m_database
     };
-    WriteStatement m_deleteAllProjectPartsSourcesWithProjectPartIdStatement{
-        "DELETE FROM projectPartsSources WHERE projectPartId = ?",
-        m_database
-    };
-    WriteStatement m_insertProjectPartSourcesStatement{
-        "INSERT INTO projectPartsSources(projectPartId, sourceId) VALUES (?,?)",
-        m_database
-    };
+
     mutable ReadStatement m_getCompileArgumentsForFileIdStatement{
         "SELECT toolChainArguments FROM projectParts WHERE projectPartId = (SELECT projectPartId "
         "FROM projectPartsSources WHERE sourceId = ?)",

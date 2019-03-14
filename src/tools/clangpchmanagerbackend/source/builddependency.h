@@ -37,7 +37,7 @@ class BuildDependency
 public:
     void clear()
     {
-        includes.clear();
+        sources.clear();
         usedMacros.clear();
         sourceFiles.clear();
         fileStatuses.clear();
@@ -46,14 +46,15 @@ public:
 
     friend bool operator==(const BuildDependency &first, const BuildDependency &second)
     {
-        return first.includes == second.includes && first.usedMacros == second.usedMacros
-               && first.sourceFiles == second.sourceFiles
-               && first.sourceDependencies == second.sourceDependencies
-               && first.fileStatuses == second.fileStatuses;
+        return first.sources == second.sources &&
+            first.usedMacros == second.usedMacros &&
+            first.sourceFiles == second.sourceFiles &&
+            first.sourceDependencies == second.sourceDependencies &&
+            first.fileStatuses == second.fileStatuses;
     }
 
 public:
-    SourceEntries includes;
+    SourceEntries sources;
     UsedMacros usedMacros;
     FilePathIds sourceFiles;
     SourceDependencies sourceDependencies;

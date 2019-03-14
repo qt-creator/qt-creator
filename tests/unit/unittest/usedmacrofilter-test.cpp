@@ -41,11 +41,13 @@ using ClangBackEnd::CompilerMacros;
 class UsedMacroFilter : public testing::Test
 {
 protected:
-    SourceEntries includes{{1, SourceType::UserInclude, 0},
-                           {2, SourceType::SystemInclude, 0},
-                           {3, SourceType::ProjectInclude, 0},
-                           {4, SourceType::TopSystemInclude, 0},
-                           {5, SourceType::TopProjectInclude, 0}};
+    SourceEntries sources{{1, SourceType::UserInclude, 0},
+                          {2, SourceType::SystemInclude, 0},
+                          {3, SourceType::ProjectInclude, 0},
+                          {4, SourceType::TopSystemInclude, 0},
+                          {5, SourceType::TopProjectInclude, 0},
+                          {6, SourceType::Source, 0},
+                          {7, SourceType::TopProjectInclude, 0, ClangBackEnd::HasMissingIncludes::Yes}};
     UsedMacros usedMacros{{"YI", 1},
                           {"ER", 2},
                           {"SE", 2},
@@ -65,57 +67,62 @@ protected:
 
 TEST_F(UsedMacroFilter, SystemIncludes)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.systemIncludes, ElementsAre(FilePathId{2}, FilePathId{4}));
 }
 
 TEST_F(UsedMacroFilter, ProjectIncludes)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.projectIncludes, ElementsAre(FilePathId{3}, FilePathId{5}));
 }
 
 TEST_F(UsedMacroFilter, TopSystemIncludes)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.topSystemIncludes, ElementsAre(FilePathId{4}));
 }
 
 TEST_F(UsedMacroFilter, TopProjectIncludes)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.topProjectIncludes, ElementsAre(FilePathId{5}));
 }
 
-TEST_F(UsedMacroFilter, AllIncludes)
+TEST_F(UsedMacroFilter, Sources)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
 
-    ASSERT_THAT(filter.allIncludes,
-                ElementsAre(FilePathId{1}, FilePathId{2}, FilePathId{3}, FilePathId{4}, FilePathId{5}));
+    ASSERT_THAT(filter.sources,
+                ElementsAre(FilePathId{1},
+                            FilePathId{2},
+                            FilePathId{3},
+                            FilePathId{4},
+                            FilePathId{5},
+                            FilePathId{6}));
 }
 
 TEST_F(UsedMacroFilter, SystemUsedMacros)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.systemUsedMacros, ElementsAre("ER", "SE", "LIU"));
 }
 
 TEST_F(UsedMacroFilter, ProjectUsedMacros)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.projectUsedMacros, ElementsAre("QI", "WU", "SAN"));
 }
 
 TEST_F(UsedMacroFilter, SystemCompileMacros)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.systemCompilerMacros,
                 ElementsAre(CompilerMacro{"ER", "2", 2},
@@ -125,7 +132,7 @@ TEST_F(UsedMacroFilter, SystemCompileMacros)
 
 TEST_F(UsedMacroFilter, ProjectCompileMacros)
 {
-    ClangBackEnd::UsedMacroFilter filter(includes, usedMacros, compileMacros);
+    ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
 
     ASSERT_THAT(filter.projectCompilerMacros,
                 ElementsAre(CompilerMacro{"QI"},

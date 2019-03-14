@@ -491,7 +491,9 @@ bool StdIOSettings::needsRestart() const
 {
     if (BaseSettings::needsRestart())
         return true;
-    if (auto stdIOInterface = qobject_cast<StdIOClientInterface *>(m_client))
+    if (m_client.isNull())
+        return false;
+    if (auto stdIOInterface = qobject_cast<const StdIOClientInterface *>(m_client->clientInterface()))
         return stdIOInterface->needsRestart(this);
     return false;
 }

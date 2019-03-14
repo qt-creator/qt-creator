@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "PythonProject" ],
     "id": "U.QtForPythonApplicationEmpty",
     "category": "F.Application",
-    "trDescription": "Creates a Qt for Python application that only the main code for a QApplication",
+    "trDescription": "Creates a Qt for Python application that contains only the main code for a QApplication.",
     "trDisplayName": "Qt for Python - Empty",
     "trDisplayCategory": "Application",
     "icon": "icon.png",

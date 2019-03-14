@@ -36,15 +36,8 @@ namespace ClangBackEnd {
 class FileStatus
 {
 public:
-    FileStatus(FilePathId filePathId,
-               off_t size,
-               std::time_t lastModified,
-               bool isInPrecompiledHeader)
-        : filePathId(filePathId),
-          size(size),
-          lastModified(lastModified),
-          isInPrecompiledHeader(isInPrecompiledHeader)
-    {}
+    FileStatus(FilePathId filePathId, off_t size, std::time_t lastModified)
+        : filePathId(filePathId), size(size), lastModified(lastModified) {}
 
     friend
     bool operator==(const FileStatus &first, const FileStatus &second)
@@ -64,7 +57,6 @@ public:
     FilePathId filePathId;
     off_t size;
     std::time_t lastModified;
-    bool isInPrecompiledHeader;
 };
 
 using FileStatuses = std::vector<FileStatus>;

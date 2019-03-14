@@ -31,9 +31,27 @@ for(l, SUBDIRS) {
 }
 
 SUBDIRS += \
-    utils/process_stub.pro \
-    3rdparty/syntax-highlighting \
-    3rdparty/syntax-highlighting/data
+    utils/process_stub.pro
+
+isEmpty(KSYNTAXHIGHLIGHTING_LIB_DIR): KSYNTAXHIGHLIGHTING_LIB_DIR=$$(KSYNTAXHIGHLIGHTING_LIB_DIR)
+!isEmpty(KSYNTAXHIGHLIGHTING_LIB_DIR) {
+    # enable short information message
+    KSYNTAX_WARN_ON = 1
+}
+
+include(../shared/syntax/syntax_shared.pri)
+isEmpty(KSYNTAXHIGHLIGHTING_LIB_DIR) {
+    SUBDIRS += \
+        3rdparty/syntax-highlighting \
+        3rdparty/syntax-highlighting/data
+
+    equals(KSYNTAX_WARN_ON, 1) {
+        message("Either KSYNTAXHIGHLIGHTING_LIB_DIR does not exist or include path could not be deduced.")
+        unset(KSYNTAX_WARN_ON)
+    }
+} else {
+    message("Using KSyntaxHighlighting provided at $${KSYNTAXHIGHLIGHTING_LIB_DIR}.")
+}
 
 win32:SUBDIRS += utils/process_ctrlc_stub.pro
 

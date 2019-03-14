@@ -686,3 +686,12 @@ class NonConstParameterConstructor
         NonConstParameterConstructor bar(foo);
     }
 };
+
+class StaticMembersAccess
+{
+protected:
+    static int protectedValue;
+
+private:
+    static int privateValue;
+};

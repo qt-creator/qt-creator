@@ -258,6 +258,16 @@ void Highlighter::handleShutdown()
     delete highlightRepository();
 }
 
+static bool isOpeningParenthesis(QChar c)
+{
+    return c == QLatin1Char('{') || c == QLatin1Char('[') || c == QLatin1Char('(');
+}
+
+static bool isClosingParenthesis(QChar c)
+{
+    return c == QLatin1Char('}') || c == QLatin1Char(']') || c == QLatin1Char(')');
+}
+
 void Highlighter::highlightBlock(const QString &text)
 {
     if (!definition().isValid())
@@ -266,8 +276,21 @@ void Highlighter::highlightBlock(const QString &text)
     KSyntaxHighlighting::State state = TextDocumentLayout::userData(block)->syntaxState();
     state = highlightLine(text, state);
     block = block.next();
+
+    Parentheses parentheses;
+    int pos = 0;
+    for (const QChar &c : text) {
+        if (isOpeningParenthesis(c))
+            parentheses.push_back(Parenthesis(Parenthesis::Opened, c, pos));
+        else if (isClosingParenthesis(c))
+            parentheses.push_back(Parenthesis(Parenthesis::Closed, c, pos));
+        pos++;
+    }
+    TextDocumentLayout::setParentheses(currentBlock(), parentheses);
+
     if (block.isValid())
         TextDocumentLayout::userData(block)->setSyntaxState(state);
+    formatSpaces(text);
 }
 
 void Highlighter::applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format)

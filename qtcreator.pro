@@ -109,15 +109,19 @@ linux {
 
 macx {
     APPBUNDLE = "$$OUT_PWD/bin/$${IDE_APP_TARGET}.app"
-    BINDIST_SOURCE = "$$OUT_PWD/bin/$${IDE_APP_TARGET}.app"
+    BINDIST_SOURCE.release = "$$OUT_PWD/bin/$${IDE_APP_TARGET}.app"
+    BINDIST_SOURCE.debug = "$$OUT_PWD/bin"
+    BINDIST_EXCLUDE_ARG.debug = "--exclude-toplevel"
     deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\" \"$$[QT_INSTALL_BINS]\" \"$$[QT_INSTALL_TRANSLATIONS]\" \"$$[QT_INSTALL_PLUGINS]\" \"$$[QT_INSTALL_IMPORTS]\" \"$$[QT_INSTALL_QML]\"
     codesign.commands = codesign --deep -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${APPBUNDLE}\"
     dmg.commands = python -u \"$$PWD/scripts/makedmg.py\" \"$${BASENAME}.dmg\" \"Qt Creator\" \"$$IDE_SOURCE_TREE\" \"$$OUT_PWD/bin\"
     #dmg.depends = deployqt
     QMAKE_EXTRA_TARGETS += codesign dmg
 } else {
-    BINDIST_SOURCE = "$(INSTALL_ROOT)$$QTC_PREFIX"
-    BINDIST_EXCLUDE_ARG = "--exclude-toplevel"
+    BINDIST_SOURCE.release = "$(INSTALL_ROOT)$$QTC_PREFIX"
+    BINDIST_EXCLUDE_ARG.release = "--exclude-toplevel"
+    BINDIST_SOURCE.debug = $${BINDIST_SOURCE.release}
+    BINDIST_EXCLUDE_ARG.debug = $${BINDIST_EXCLUDE_ARG.release}
     deployqt.commands = python -u $$PWD/scripts/deployqt.py -i \"$(INSTALL_ROOT)$$QTC_PREFIX/bin/$${IDE_APP_TARGET}\" \"$(QMAKE)\"
     deployqt.depends = install
     win32 {
@@ -140,9 +144,9 @@ isEmpty(INSTALLER_ARCHIVE_FROM_ENV) {
 INSTALLER_ARCHIVE_DEBUG = $$INSTALLER_ARCHIVE
 INSTALLER_ARCHIVE_DEBUG ~= s/(.*)[.]7z/\1-debug.7z
 
-bindist.commands = python -u $$PWD/scripts/createDistPackage.py $$OUT_PWD/$${BASENAME}.7z \"$$BINDIST_SOURCE\"
-bindist_installer.commands = python -u $$PWD/scripts/createDistPackage.py $$BINDIST_EXCLUDE_ARG $${INSTALLER_ARCHIVE} \"$$BINDIST_SOURCE\"
-bindist_debug.commands = python -u $$PWD/scripts/createDistPackage.py --debug $$BINDIST_EXCLUDE_ARG $${INSTALLER_ARCHIVE_DEBUG} \"$$BINDIST_SOURCE\"
+bindist.commands = python -u $$PWD/scripts/createDistPackage.py $$OUT_PWD/$${BASENAME}.7z \"$${BINDIST_SOURCE.release}\"
+bindist_installer.commands = python -u $$PWD/scripts/createDistPackage.py $${BINDIST_EXCLUDE_ARG.release} $${INSTALLER_ARCHIVE} \"$${BINDIST_SOURCE.release}\"
+bindist_debug.commands = python -u $$PWD/scripts/createDistPackage.py --debug $${BINDIST_EXCLUDE_ARG.debug} $${INSTALLER_ARCHIVE_DEBUG} \"$${BINDIST_SOURCE.debug}\"
 
 win32 {
     deployqt.commands ~= s,/,\\\\,g

@@ -203,7 +203,7 @@ void AbstractRemoteLinuxDeployService::handleDeviceSetupDone(bool success)
     } else {
         connect(d->connection, &SshConnection::connected,
                 this, &AbstractRemoteLinuxDeployService::handleConnected);
-        emit progressMessage(tr("Connecting to device '%1' (%2)")
+        emit progressMessage(tr("Connecting to device \"%1\" (%2).")
                              .arg(deviceConfiguration()->displayName())
                              .arg(deviceConfiguration()->sshParameters().host()));
         if (d->connection->state() == SshConnection::Unconnected)

@@ -275,11 +275,9 @@ void Kit::fix()
 void Kit::setup()
 {
     KitGuard g(this);
-    // Process the KitAspects in reverse order: They may only be based on other information
-    // lower in the stack.
     const QList<KitAspect *> aspects = KitManager::kitAspects();
-    for (int i = aspects.count() - 1; i >= 0; --i)
-        aspects.at(i)->setup(this);
+    for (KitAspect * const aspect : aspects)
+        aspect->setup(this);
 }
 
 void Kit::upgrade()

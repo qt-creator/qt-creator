@@ -45,7 +45,6 @@
 #include <fulltokeninfo.h>
 #include <includesearchpath.h>
 #include <nativefilepath.h>
-#include <pchcreatorincludes.h>
 #include <pchtask.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <projectpartartefact.h>
@@ -1138,6 +1137,7 @@ const char* progressTypeToString(ClangBackEnd::ProgressType type)
         case ProgressType::Invalid: return "Invalid";
         case ProgressType::PrecompiledHeader: return "PrecompiledHeader";
         case ProgressType::Indexing: return "Indexing";
+        case ProgressType::DependencyCreation: return "DependencyCreation";
     }
 
     return nullptr;
@@ -1150,11 +1150,6 @@ std::ostream &operator<<(std::ostream &out, const ProgressMessage &message)
                << message.total << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const PchCreatorIncludes &includes)
-{
-    return out << "(" << includes.includeIds << ", " << includes.topIncludeIds << ", "
-               << includes.topSystemIncludeIds << ")";
-}
 std::ostream &operator<<(std::ostream &out, const PchTask &task)
 {
     return out << "(" << task.projectPartIds << ", " << task.includes << ", " << task.compilerMacros
@@ -1171,11 +1166,11 @@ std::ostream &operator<<(std::ostream &out, const PchTaskSet &taskSet)
 std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency)
 {
     return out << "(\n"
-               << "includes: " << dependency.includes << ",\n"
-               << "usedMacros: " << dependency.usedMacros  << ",\n"
-               << "fileStatuses: " << dependency.fileStatuses  << ",\n"
-               << "sourceFiles: " << dependency.sourceFiles  << ",\n"
-               << "sourceDependencies: " << dependency.sourceDependencies  << ",\n"
+               << "includes: " << dependency.sources << ",\n"
+               << "usedMacros: " << dependency.usedMacros << ",\n"
+               << "fileStatuses: " << dependency.fileStatuses << ",\n"
+               << "sourceFiles: " << dependency.sourceFiles << ",\n"
+               << "sourceDependencies: " << dependency.sourceDependencies << ",\n"
                << ")";
 }
 
@@ -1184,7 +1179,7 @@ std::ostream &operator<<(std::ostream &out, const SlotUsage &slotUsage)
     return out << "(" << slotUsage.free << ", " << slotUsage.used << ")";
 }
 
-const char *sourceTypeString(SourceType sourceType)
+const char *typeToString(SourceType sourceType)
 {
     using ClangBackEnd::SymbolTag;
 
@@ -1199,6 +1194,22 @@ const char *sourceTypeString(SourceType sourceType)
             return "ProjectInclude";
         case SourceType::UserInclude:
             return "UserInclude";
+        case SourceType::Source:
+            return "Source";
+    }
+
+    return "";
+}
+
+const char *typeToString(HasMissingIncludes hasMissingIncludes)
+{
+    using ClangBackEnd::SymbolTag;
+
+    switch (hasMissingIncludes) {
+    case HasMissingIncludes::No:
+        return "HasMissingIncludes::No";
+    case HasMissingIncludes::Yes:
+        return "HasMissingIncludes::Yes";
     }
 
     return "";
@@ -1206,7 +1217,8 @@ const char *sourceTypeString(SourceType sourceType)
 
 std::ostream &operator<<(std::ostream &out, const SourceEntry &entry)
 {
-    return out  << "(" << entry.sourceId << ", " << sourceTypeString(entry.sourceType) << ")";
+    return out << "(" << entry.sourceId << ", " << typeToString(entry.sourceType) << ", "
+               << typeToString(entry.hasMissingIncludes) << ")";
 }
 
 const char *typeToString(IncludeSearchPathType type)

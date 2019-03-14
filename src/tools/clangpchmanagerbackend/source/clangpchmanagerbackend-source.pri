@@ -3,20 +3,19 @@ INCLUDEPATH += $$PWD
 SOURCES += \
     $$PWD/builddependenciesprovider.cpp \
     $$PWD/pchmanagerserver.cpp \
-    $$PWD/projectparts.cpp \
     $$PWD/pchtaskgenerator.cpp \
     $$PWD/pchtasksmerger.cpp \
-    $$PWD/pchtaskqueue.cpp
+    $$PWD/pchtaskqueue.cpp \
+    $$PWD/projectpartsmanager.cpp
 
 HEADERS += \
-    $$PWD/pchcreatorincludes.h \
     $$PWD/pchmanagerserver.h \
     $$PWD/clangpchmanagerbackend_global.h \
     $$PWD/pchnotcreatederror.h \
     $$PWD/environment.h \
-    $$PWD/projectparts.h \
     $$PWD/pchcreatorinterface.h \
-    $$PWD/projectpartsinterface.h \
+    $$PWD/projectpartsmanager.h \
+    $$PWD/projectpartsmanagerinterface.h \
     $$PWD/queueinterface.h \
     $$PWD/processormanagerinterface.h \
     $$PWD/processorinterface.h \

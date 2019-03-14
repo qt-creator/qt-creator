@@ -65,7 +65,6 @@ const char REFORMAT_UI_QML_FILES[] = "ReformatUiQmlFiles";        /* These setti
 const char IGNORE_DEVICE_PIXEL_RATIO[] = "IgnoreDevicePixelRaio"; /* The settings can be used to turn off the feature, if there are serious issues */
 const char STANDALONE_MODE[] = "StandAloneMode";
 const char ENABLE_TIMELINEVIEW[] = "EnableTimelineView";
-const char ENABLE_TIMELINEVIEW_ENVVAR[] = "QTC_ENABLE_QTQUICKTIMELINE_EDITOR";
 }
 
 class DesignerSettings : public QHash<QByteArray, QVariant>

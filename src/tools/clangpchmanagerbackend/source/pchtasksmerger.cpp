@@ -96,8 +96,8 @@ bool PchTasksMerger::mergePchTasks(PchTask &firstTask, PchTask &secondTask)
         firstTask.projectPartIds = merge(std::move(firstTask.projectPartIds),
                                          std::move(secondTask.projectPartIds));
         firstTask.includes = merge(std::move(firstTask.includes), std::move(secondTask.includes));
-        firstTask.allIncludes = merge(std::move(firstTask.allIncludes),
-                                      std::move(secondTask.allIncludes));
+        firstTask.sources = merge(std::move(firstTask.sources),
+                                      std::move(secondTask.sources));
         firstTask.compilerMacros = std::move(macros);
         firstTask.systemIncludeSearchPaths = mergeIncludeSearchPaths(
             std::move(firstTask.systemIncludeSearchPaths),

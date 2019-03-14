@@ -63,9 +63,9 @@ QVariant Utils::JsonTreeItem::data(int column, int role) const
     if (column == 2)
         return typeName(m_value.type());
     if (m_value.isObject())
-        return QString('[' + QString::number(m_value.toObject().size()) + ' ' + tr("Items") + ']');
+        return QString('[' + tr("%n Items", nullptr, m_value.toObject().size()) + ']');
     if (m_value.isArray())
-        return QString('[' + QString::number(m_value.toArray().size()) + ' ' + tr("Items") + ']');
+        return QString('[' + tr("%n Items", nullptr, m_value.toArray().size()) + ']');
     return m_value.toVariant();
 }
 

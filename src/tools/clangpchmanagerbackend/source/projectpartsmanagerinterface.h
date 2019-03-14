@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,16 +25,24 @@
 
 #pragma once
 
-#include <filepathid.h>
+#include <projectpartcontainer.h>
 
 namespace ClangBackEnd {
 
-class PchCreatorIncludes
+class ProjectPartsManagerInterface
 {
 public:
-    FilePathIds includeIds;
-    FilePathIds topIncludeIds;
-    FilePathIds topSystemIncludeIds;
+    ProjectPartsManagerInterface() = default;
+    ProjectPartsManagerInterface(const ProjectPartsManagerInterface &) = delete;
+    ProjectPartsManagerInterface &operator=(const ProjectPartsManagerInterface &) = delete;
+
+    virtual ProjectPartContainers update(ProjectPartContainers &&projectsParts) = 0;
+    virtual void remove(const Utils::SmallStringVector &projectPartIds) = 0;
+    virtual ProjectPartContainers projects(const Utils::SmallStringVector &projectPartIds) const = 0;
+    virtual void updateDeferred(const ProjectPartContainers &projectsParts) = 0;
+    virtual ProjectPartContainers deferredUpdates() = 0;
+protected:
+    ~ProjectPartsManagerInterface() = default;
 };
 
 } // namespace ClangBackEnd

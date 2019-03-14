@@ -92,8 +92,7 @@ public:
             m_fileStatuses.emplace(found,
                                    id,
                                    fileEntry->getSize(),
-                                   fileEntry->getModificationTime(),
-                                   fileEntry->isInPCH());
+                                   fileEntry->getModificationTime());
         }
     }
 

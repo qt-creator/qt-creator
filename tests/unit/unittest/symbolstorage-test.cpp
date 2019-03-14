@@ -70,8 +70,6 @@ protected:
     MockSqliteWriteStatement &deleteNewLocationsTableStatement = storage.m_deleteNewLocationsTableStatement;
     MockSqliteWriteStatement &insertOrUpdateProjectPartStatement = storage.m_insertOrUpdateProjectPartStatement;
     MockSqliteReadStatement &getProjectPartIdStatement = storage.m_getProjectPartIdStatement;
-    MockSqliteWriteStatement &deleteAllProjectPartsSourcesWithProjectPartIdStatement = storage.m_deleteAllProjectPartsSourcesWithProjectPartIdStatement;
-    MockSqliteWriteStatement &insertProjectPartSourcesStatement = storage.m_insertProjectPartSourcesStatement;
     MockSqliteReadStatement &getProjectPartArtefactsBySourceId = storage.m_getProjectPartArtefactsBySourceId;
     MockSqliteReadStatement &getProjectPartArtefactsByProjectPartName = storage.m_getProjectPartArtefactsByProjectPartName;
 
@@ -210,18 +208,6 @@ TEST_F(SymbolStorage, InsertOrUpdateProjectPart)
                                       Utils::Language::Cxx,
                                       Utils::LanguageVersion::CXX11,
                                       Utils::LanguageExtension::None);
-}
-
-
-TEST_F(SymbolStorage, UpdateProjectPartSources)
-{
-    InSequence sequence;
-
-    EXPECT_CALL(deleteAllProjectPartsSourcesWithProjectPartIdStatement, write(TypedEq<int>(42)));
-    EXPECT_CALL(insertProjectPartSourcesStatement, write(TypedEq<int>(42), TypedEq<int>(1)));
-    EXPECT_CALL(insertProjectPartSourcesStatement, write(TypedEq<int>(42), TypedEq<int>(2)));
-
-    storage.updateProjectPartSources(42, {1, 2});
 }
 
 TEST_F(SymbolStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatement)

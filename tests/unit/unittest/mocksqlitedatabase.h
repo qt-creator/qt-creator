@@ -39,8 +39,8 @@
 class MockSqliteDatabase : public MockSqliteTransactionBackend
 {
 public:
-    using ReadStatement = MockSqliteReadStatement;
-    using WriteStatement = MockSqliteWriteStatement;
+    using ReadStatement = NiceMock<MockSqliteReadStatement>;
+    using WriteStatement = NiceMock<MockSqliteWriteStatement>;
 
     MOCK_METHOD1(execute,
                  void (Utils::SmallStringView sqlStatement));

@@ -51,6 +51,7 @@ public:
         commandLine.reserve(1024);
 
         addCompiler(projectInfo.language);
+        disableWarnings();
         addToolChainArguments(toolChainArguments);
         addExtraFlags();
         addLanguage(projectInfo, sourceType);
@@ -73,6 +74,8 @@ public:
         else
             commandLine.emplace_back("clang");
     }
+
+    void disableWarnings() { commandLine.emplace_back("-w"); }
 
     void addToolChainArguments(const Utils::SmallStringVector &toolChainArguments)
     {

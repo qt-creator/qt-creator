@@ -101,7 +101,7 @@ public:
         setSummaryText(displayName());
 
         auto uninstallPreviousPackage = new QCheckBox(this);
-        uninstallPreviousPackage->setText(tr("Uninstall previous package"));
+        uninstallPreviousPackage->setText(AndroidDeployQtStep::tr("Uninstall previous package"));
         uninstallPreviousPackage->setChecked(step->uninstallPreviousPackage() > AndroidDeployQtStep::Keep);
         uninstallPreviousPackage->setEnabled(step->uninstallPreviousPackage() != AndroidDeployQtStep::ForceUnintall);
 

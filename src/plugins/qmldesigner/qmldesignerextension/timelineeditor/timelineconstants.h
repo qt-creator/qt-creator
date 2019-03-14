@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -46,13 +46,13 @@ const int priorityTimelineCategory = 110;
 const char timelineCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Timeline");
 
 const char timelineCopyKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                  "Copy All Keyframes from item");
+                                                                  "Copy All Keyframes");
 const char timelinePasteKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                   "Paste Keyframes to item");
+                                                                   "Paste Keyframes");
 const char timelineInsertKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                    "Insert Keyframes for item");
+                                                                    "Add Keyframes at Current Frame");
 const char timelineDeleteKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                    "Delete All Keyframes for item");
+                                                                    "Delete All Keyframes");
 
 const char timelineStatusBarFrameNumber[] = QT_TRANSLATE_NOOP("QmlDesignerTimeline", "Frame %1");
 

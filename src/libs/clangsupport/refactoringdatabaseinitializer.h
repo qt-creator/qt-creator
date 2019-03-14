@@ -143,6 +143,8 @@ public:
         const Sqlite::Column &projectPartIdColumn = table.addColumn("projectPartId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         table.addColumn("sourceType", Sqlite::ColumnType::Integer);
+        table.addColumn("pchCreationTimeStamp", Sqlite::ColumnType::Integer);
+        table.addColumn("hasMissingIncludes", Sqlite::ColumnType::Integer);
         table.addUniqueIndex({sourceIdColumn, projectPartIdColumn});
         table.addIndex({projectPartIdColumn});
 
@@ -168,11 +170,11 @@ public:
         Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("fileStatuses");
-        table.addColumn("sourceId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.addColumn("sourceId",
+                        Sqlite::ColumnType::Integer,
+                        Sqlite::Contraint::PrimaryKey);
         table.addColumn("size", Sqlite::ColumnType::Integer);
         table.addColumn("lastModified", Sqlite::ColumnType::Integer);
-        table.addColumn("buildDependencyTimeStamp", Sqlite::ColumnType::Integer);
-        table.addColumn("isInPrecompiledHeader", Sqlite::ColumnType::Integer);
         table.initialize(database);
     }
 

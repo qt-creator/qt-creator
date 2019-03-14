@@ -32,6 +32,8 @@ namespace Internal {
 
 class DesktopDeviceFactory : public IDeviceFactory
 {
+    Q_OBJECT
+
 public:
     DesktopDeviceFactory();
 };

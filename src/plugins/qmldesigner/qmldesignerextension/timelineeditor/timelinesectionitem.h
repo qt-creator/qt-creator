@@ -40,6 +40,8 @@ class TimelineSectionItem;
 
 class TimelineBarItem : public TimelineMovableAbstractItem
 {
+    Q_DECLARE_TR_FUNCTIONS(TimelineBarItem)
+
     enum class Location { Undefined, Center, Left, Right };
 
 public:

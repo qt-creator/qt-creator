@@ -61,6 +61,7 @@
 #include <utils/temporarydirectory.h>
 #include <utils/temporaryfile.h>
 #include <utils/url.h>
+#include <utils/winutils.h>
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -564,6 +565,17 @@ void DebuggerRunTool::start()
 
     if (!fixupParameters())
         return;
+
+    if (m_runParameters.cppEngineType == CdbEngineType
+            && Utils::is64BitWindowsBinary(m_runParameters.inferior.executable)
+            && !Utils::is64BitWindowsBinary(m_runParameters.debugger.executable)) {
+        reportFailure(
+            DebuggerPlugin::tr(
+                "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"
+                "Please select a 64 bit Debugger in the kit settings for this kit.")
+                .arg(m_runParameters.inferior.executable));
+        return;
+    }
 
     Utils::globalMacroExpander()->registerFileVariables(
                 "DebuggedExecutable", tr("Debugged executable"),

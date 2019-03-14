@@ -28,6 +28,7 @@
 #include "fakeprocess.h"
 #include "filesystem-utilities.h"
 
+#include "mockbuilddependenciesstorage.h"
 #include "mockclangpathwatcher.h"
 #include "mockpchmanagerclient.h"
 #include "testenvironment.h"
@@ -97,16 +98,22 @@ protected:
     FileContainer generatedFile{generatedFilePath.clone(), "#pragma once", {}};
     NiceMock<MockPchManagerClient> mockPchManagerClient;
     NiceMock<MockClangPathWatcher> mockClangPathWatcher;
-    ClangBackEnd::PchCreator creator{environment, database, mockPchManagerClient, mockClangPathWatcher};
+    NiceMock<MockBuildDependenciesStorage> mockBuildDependenciesStorage;
+    ClangBackEnd::PchCreator creator{environment,
+                                     database,
+                                     mockPchManagerClient,
+                                     mockClangPathWatcher,
+                                     mockBuildDependenciesStorage};
     PchTask pchTask1{
         "project1",
         {id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
          id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
          id(TESTDATA_DIR "/builddependencycollector/external/external2.h")},
-        {id(generatedFilePath),
-         id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+        {id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
          id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
-         id(TESTDATA_DIR "/builddependencycollector/external/external2.h")},
+         id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
+         id(generatedFilePath),
+         id(main2Path)},
         {},
         {},
         {},
@@ -134,6 +141,7 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
 
     ASSERT_THAT(arguments,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++-header",
@@ -158,6 +166,7 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArgumentsWithSystemPch)
 
     ASSERT_THAT(arguments,
                 ElementsAre("clang++",
+                            "-w",
                             "-DNOMINMAX",
                             "-x",
                             "c++-header",
@@ -190,25 +199,24 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchsSendToPchManagerClient)
     creator.doInMainThreadAfterFinished();
 }
 
-TEST_F(PchCreatorVerySlowTest, AllIncludesAreWatchedAfterSucess)
+TEST_F(PchCreatorVerySlowTest, SourcesAreWatchedAfterSucess)
 {
     creator.generatePch(std::move(pchTask1));
 
-    EXPECT_CALL(
-        mockClangPathWatcher,
-        updateIdPaths(ElementsAre(
-            AllOf(Field(&ClangBackEnd::IdPaths::id, "project1"),
-                  Field(&ClangBackEnd::IdPaths::filePathIds,
-                        UnorderedElementsAre(
-                            id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
-                            id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
-                            id(TESTDATA_DIR "/builddependencycollector/external/external2.h")))))));
+    EXPECT_CALL(mockClangPathWatcher,
+                updateIdPaths(ElementsAre(AllOf(
+                    Field(&ClangBackEnd::IdPaths::id, "project1"),
+                    Field(&ClangBackEnd::IdPaths::filePathIds,
+                          UnorderedElementsAre(
+                              id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+                              id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+                              id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
+                              id(TESTDATA_DIR "/builddependencycollector/project/main2.cpp")))))));
 
     creator.doInMainThreadAfterFinished();
 }
 
-
-TEST_F(PchCreatorVerySlowTest, AllIncludesAreNotWatchedAfterFail)
+TEST_F(PchCreatorVerySlowTest, SourcesAreNotWatchedAfterFail)
 {
     pchTask1.systemIncludeSearchPaths = {};
     pchTask1.projectIncludeSearchPaths = {};
@@ -218,6 +226,15 @@ TEST_F(PchCreatorVerySlowTest, AllIncludesAreNotWatchedAfterFail)
                 updateIdPaths(
                     ElementsAre(AllOf(Field(&ClangBackEnd::IdPaths::id, "project1"),
                                       Field(&ClangBackEnd::IdPaths::filePathIds, IsEmpty())))));
+
+    creator.doInMainThreadAfterFinished();
+}
+
+TEST_F(PchCreatorVerySlowTest, PchCreationTimeStampsAreUpdated)
+{
+    creator.generatePch(std::move(pchTask1));
+
+    EXPECT_CALL(mockBuildDependenciesStorage, updatePchCreationTimeStamp(_, Eq("project1")));
 
     creator.doInMainThreadAfterFinished();
 }
@@ -239,6 +256,15 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchCleared)
     creator.clear();
 
     ASSERT_THAT(creator.projectPartPch(), ClangBackEnd::ProjectPartPch{});
+}
+
+TEST_F(PchCreatorVerySlowTest, SourcesCleared)
+{
+    creator.generatePch(std::move(pchTask1));
+
+    creator.clear();
+
+    ASSERT_THAT(creator.sources(), IsEmpty());
 }
 
 TEST_F(PchCreatorVerySlowTest, ClangToolCleared)
@@ -266,7 +292,7 @@ TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesFaultyPchForPchTask
     ASSERT_THAT(creator.projectPartPch(),
                 AllOf(Field(&ProjectPartPch::projectPartId, Eq("faultyProjectPart")),
                       Field(&ProjectPartPch::pchPath, IsEmpty()),
-                      Field(&ProjectPartPch::lastModified, Eq(-1))));
+                      Field(&ProjectPartPch::lastModified, Gt(0))));
 }
 
 TEST_F(PchCreatorVerySlowTest, GeneratedFile)

@@ -29,9 +29,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/textutils.h>
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 
+#include <QDebug>
 #include <QTextDocument>
 
 namespace ClangFormat {
@@ -126,9 +127,85 @@ void trimRHSWhitespace(const QTextBlock &block)
     cursor.endEditBlock();
 }
 
+QTextBlock reverseFindLastEmptyBlock(QTextBlock start)
+{
+    if (start.position() > 0) {
+        start = start.previous();
+        while (start.position() > 0 && start.text().trimmed().isEmpty())
+            start = start.previous();
+        if (!start.text().trimmed().isEmpty())
+            start = start.next();
+    }
+    return start;
+}
+
+enum class CharacterContext { AfterComma, LastAfterComma, NewStatement, Continuation, Unknown };
+
+QChar findFirstNonWhitespaceCharacter(const QTextBlock &currentBlock)
+{
+    const QTextDocument *doc = currentBlock.document();
+    int currentPos = currentBlock.position();
+    while (currentPos < doc->characterCount() && doc->characterAt(currentPos).isSpace())
+        ++currentPos;
+    return currentPos < doc->characterCount() ? doc->characterAt(currentPos) : QChar::Null;
+}
+
+CharacterContext characterContext(const QTextBlock &currentBlock,
+                                  const QTextBlock &previousNonEmptyBlock)
+{
+    const QString prevLineText = previousNonEmptyBlock.text().trimmed();
+    const QChar firstNonWhitespaceChar = findFirstNonWhitespaceCharacter(currentBlock);
+    if (prevLineText.endsWith(',')) {
+        // We don't need to add comma in case it's the last argument.
+        if (firstNonWhitespaceChar == '}' || firstNonWhitespaceChar == ')')
+            return CharacterContext::LastAfterComma;
+        return CharacterContext::AfterComma;
+    }
+
+    if (prevLineText.endsWith(';') || prevLineText.endsWith('{') || prevLineText.endsWith('}')
+        || firstNonWhitespaceChar == QChar::Null) {
+        return CharacterContext::NewStatement;
+    }
+
+    return CharacterContext::Continuation;
+}
+
+bool nextBlockExistsAndEmpty(const QTextBlock &currentBlock)
+{
+    QTextBlock nextBlock = currentBlock.next();
+    if (!nextBlock.isValid() || nextBlock.position() == currentBlock.position())
+        return false;
+
+    return nextBlock.text().trimmed().isEmpty();
+}
+
+QByteArray dummyTextForContext(CharacterContext context, bool closingBraceBlock)
+{
+    if (closingBraceBlock
+        && (context == CharacterContext::NewStatement
+            || context == CharacterContext::Continuation)) {
+        return QByteArray();
+    }
+
+    switch (context) {
+    case CharacterContext::Unknown:
+        QTC_ASSERT(false, return "";);
+    case CharacterContext::AfterComma:
+        return "a,";
+    case CharacterContext::NewStatement:
+        return "a;";
+    case CharacterContext::Continuation:
+    case CharacterContext::LastAfterComma:
+        return "& a &";
+    }
+}
+
 // Add extra text in case of the empty line or the line starting with ')'.
 // Track such extra pieces of text in isInsideModifiedLine().
-int forceIndentWithExtraText(QByteArray &buffer, const QTextBlock &block, bool secondTry)
+int forceIndentWithExtraText(QByteArray &buffer,
+                             CharacterContext &charContext,
+                             const QTextBlock &block,
+                             bool secondTry)
 {
     const QString blockText = block.text();
     int firstNonWhitespace = Utils::indexOf(blockText,
@@ -143,25 +220,32 @@ int forceIndentWithExtraText(QByteArray &buffer, const QTextBlock &block, bool s
 
     const bool closingParenBlock = firstNonWhitespace >= 0
                                    && blockText.at(firstNonWhitespace) == ')';
+    const bool closingBraceBlock = firstNonWhitespace >= 0
+                                   && blockText.at(firstNonWhitespace) == '}';
 
     int extraLength = 0;
-    if (firstNonWhitespace < 0 || closingParenBlock) {
-        //This extra text works for the most cases.
-        QByteArray dummyText("a;a;");
+    QByteArray dummyText;
+    if (firstNonWhitespace < 0 && charContext != CharacterContext::Unknown
+        && nextBlockExistsAndEmpty(block)) {
+        // If the next line is also empty it's safer to use a comment line.
+        dummyText = "//";
+    } else if (firstNonWhitespace < 0 || closingParenBlock || closingBraceBlock) {
+        if (charContext == CharacterContext::LastAfterComma) {
+            charContext = CharacterContext::AfterComma;
+        } else if (charContext == CharacterContext::Unknown || firstNonWhitespace >= 0) {
+            QTextBlock lastBlock = reverseFindLastEmptyBlock(block);
+            if (lastBlock.position() > 0)
+                lastBlock = lastBlock.previous();
 
-        // Search for previous character
-        QTextBlock prevBlock = block.previous();
-        bool prevBlockIsEmpty = prevBlock.position() > 0 && prevBlock.text().trimmed().isEmpty();
-        while (prevBlockIsEmpty) {
-            prevBlock = prevBlock.previous();
-            prevBlockIsEmpty = prevBlock.position() > 0 && prevBlock.text().trimmed().isEmpty();
+            // If we don't know yet the dummy text, let's guess it and use for this line and before.
+            charContext = characterContext(block, lastBlock);
         }
-        if (closingParenBlock || prevBlock.text().endsWith(','))
-            dummyText = "&& a";
 
-        buffer.insert(utf8Offset, dummyText);
-        extraLength += dummyText.length();
+        dummyText = dummyTextForContext(charContext, closingBraceBlock);
     }
+
+    buffer.insert(utf8Offset, dummyText);
+    extraLength += dummyText.length();
 
     if (secondTry) {
         int nextLinePos = buffer.indexOf('\n', utf8Offset);
@@ -170,7 +254,7 @@ int forceIndentWithExtraText(QByteArray &buffer, const QTextBlock &block, bool s
 
         if (nextLinePos > 0) {
             // If first try was not successful try to put ')' in the end of the line to close possibly
-            // unclosed parentheses.
+            // unclosed parenthesis.
             // TODO: Does it help to add different endings depending on the context?
             buffer.insert(nextLinePos, ')');
             extraLength += 1;
@@ -300,18 +384,6 @@ bool doNotIndentInContext(QTextDocument *doc, int pos)
     return false;
 }
 
-QTextBlock reverseFindLastEmptyBlock(QTextBlock start)
-{
-    if (start.position() > 0) {
-        start = start.previous();
-        while (start.position() > 0 && start.text().trimmed().isEmpty())
-            start = start.previous();
-        if (!start.text().trimmed().isEmpty())
-            start = start.next();
-    }
-    return start;
-}
-
 int formattingRangeStart(const QTextBlock &currentBlock,
                          const QByteArray &buffer,
                          int documentRevision)
@@ -355,23 +427,14 @@ TextEditor::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffer
         rangeStart = formattingRangeStart(startBlock, buffer, lastSaveRevision());
 
     adjustFormatStyleForLineBreak(style, replacementsToKeep);
-    if (typedChar == QChar::Null) {
-        if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore) {
-            if (utf8Offset > 0) {
-                buffer.insert(utf8Offset - 1, " //");
-                utf8Offset += 3;
-            }
+    if (replacementsToKeep == ReplacementsToKeep::OnlyIndent) {
+        CharacterContext currentCharContext = CharacterContext::Unknown;
+        // Iterate backwards to reuse the same dummy text for all empty lines.
+        for (int index = endBlock.blockNumber(); index >= startBlock.blockNumber(); --index) {
             utf8Length += forceIndentWithExtraText(buffer,
-                                                   cursorPositionInEditor < 0
-                                                       ? endBlock
-                                                       : m_doc->findBlock(cursorPositionInEditor),
+                                                   currentCharContext,
+                                                   m_doc->findBlockByNumber(index),
                                                    secondTry);
-        } else {
-            for (int index = startBlock.blockNumber(); index <= endBlock.blockNumber(); ++index) {
-                utf8Length += forceIndentWithExtraText(buffer,
-                                                       m_doc->findBlockByNumber(index),
-                                                       secondTry);
-            }
         }
     }
 
@@ -432,9 +495,24 @@ TextEditor::Replacements ClangFormatBaseIndenter::format(
                             static_cast<unsigned int>(utf8RangeLength));
     }
 
+    clang::format::FormatStyle style = styleForFile();
+    const std::string assumedFileName = m_fileName.toString().toStdString();
+    clang::tooling::Replacements clangReplacements = clang::format::sortIncludes(style,
+                                                                                 buffer.data(),
+                                                                                 ranges,
+                                                                                 assumedFileName);
+    auto changedCode = clang::tooling::applyAllReplacements(buffer.data(), clangReplacements);
+    QTC_ASSERT(changedCode, {
+        qDebug() << QString::fromStdString(llvm::toString(changedCode.takeError()));
+        return TextEditor::Replacements();
+    });
+    ranges = clang::tooling::calculateRangesAfterReplacements(clangReplacements, ranges);
+
     clang::format::FormattingAttemptStatus status;
-    const clang::tooling::Replacements clangReplacements
-        = reformat(styleForFile(), buffer.data(), ranges, m_fileName.toString().toStdString(), &status);
+    const clang::tooling::Replacements formatReplacements
+        = reformat(style, *changedCode, ranges, m_fileName.toString().toStdString(), &status);
+    clangReplacements = clangReplacements.merge(formatReplacements);
+
     const TextEditor::Replacements toReplace = utf16Replacements(m_doc, buffer, clangReplacements);
     applyReplacements(m_doc, toReplace);
 
@@ -443,7 +521,6 @@ TextEditor::Replacements ClangFormatBaseIndenter::format(
 
 TextEditor::Replacements ClangFormatBaseIndenter::indentsFor(QTextBlock startBlock,
                                                              const QTextBlock &endBlock,
-                                                             const QByteArray &buffer,
                                                              const QChar &typedChar,
                                                              int cursorPositionInEditor)
 {
@@ -461,10 +538,12 @@ TextEditor::Replacements ClangFormatBaseIndenter::indentsFor(QTextBlock startBlo
             cursorPositionInEditor += startBlock.position() - startBlockPosition;
     }
 
+    const QByteArray buffer = m_doc->toPlainText().toUtf8();
+
     ReplacementsToKeep replacementsToKeep = ReplacementsToKeep::OnlyIndent;
     if (formatWhileTyping()
         && (cursorPositionInEditor == -1 || cursorPositionInEditor >= startBlockPosition)
-        && (typedChar == QChar::Null || typedChar == ';' || typedChar == '}')) {
+        && (typedChar == ';' || typedChar == '}')) {
         // Format before current position only in case the cursor is inside the indented block.
         // So if cursor position is less then the block position then the current line is before
         // the indented block - don't trigger extra formatting in this case.
@@ -487,9 +566,7 @@ void ClangFormatBaseIndenter::indentBlocks(const QTextBlock &startBlock,
                                            const QChar &typedChar,
                                            int cursorPositionInEditor)
 {
-    const QByteArray buffer = m_doc->toPlainText().toUtf8();
-    applyReplacements(m_doc,
-                      indentsFor(startBlock, endBlock, buffer, typedChar, cursorPositionInEditor));
+    applyReplacements(m_doc, indentsFor(startBlock, endBlock, typedChar, cursorPositionInEditor));
 }
 
 void ClangFormatBaseIndenter::indent(const QTextCursor &cursor,
@@ -533,15 +610,14 @@ int ClangFormatBaseIndenter::indentFor(const QTextBlock &block,
                                        const TextEditor::TabSettings & /*tabSettings*/,
                                        int cursorPositionInEditor)
 {
-    const QByteArray buffer = m_doc->toPlainText().toUtf8();
     TextEditor::Replacements toReplace = indentsFor(block,
                                                     block,
-                                                    buffer,
                                                     QChar::Null,
                                                     cursorPositionInEditor);
     if (toReplace.empty())
         return -1;
 
+    const QByteArray buffer = m_doc->toPlainText().toUtf8();
     return indentationForBlock(toReplace, buffer, block);
 }
 
@@ -553,13 +629,12 @@ TextEditor::IndentationForBlock ClangFormatBaseIndenter::indentationForBlocks(
     TextEditor::IndentationForBlock ret;
     if (blocks.isEmpty())
         return ret;
-    const QByteArray buffer = m_doc->toPlainText().toUtf8();
     TextEditor::Replacements toReplace = indentsFor(blocks.front(),
                                                     blocks.back(),
-                                                    buffer,
                                                     QChar::Null,
                                                     cursorPositionInEditor);
 
+    const QByteArray buffer = m_doc->toPlainText().toUtf8();
     for (const QTextBlock &block : blocks)
         ret.insert(block.blockNumber(), indentationForBlock(toReplace, buffer, block));
     return ret;

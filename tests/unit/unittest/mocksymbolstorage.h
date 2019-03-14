@@ -46,9 +46,6 @@ public:
                     Utils::Language language,
                     Utils::LanguageVersion languageVersion,
                     Utils::LanguageExtension languageExtension));
-   MOCK_METHOD2(updateProjectPartSources,
-                void(int projectPartId,
-                     const ClangBackEnd::FilePathIds &sourceFilePathIds));
    MOCK_CONST_METHOD1(fetchProjectPartArtefact,
                       Utils::optional<ClangBackEnd::ProjectPartArtefact> (ClangBackEnd::FilePathId sourceId));
    MOCK_CONST_METHOD1(fetchProjectPartArtefact,

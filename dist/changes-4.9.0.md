@@ -52,6 +52,10 @@ QMake Projects
 * Fixed updating of `LD_LIBRARY_PATH` environment variable (QTCREATORBUG-21475)
 * Fixed updating of project tree in case of wildcards in corresponding QMake
   variable (QTCREATORBUG-21603)
+* Fixed issues with project tree when files are directly added to `RESOURCES`
+  (QTCREATORBUG-20103)
+* Fixed that importing build unnecessarily created temporary kit
+  (QTCREATORBUG-18153)
 
 CMake Projects
 
@@ -78,6 +82,8 @@ C++ Support
 * Clang Code Model
     * Added buttons for copying and ignoring diagnostics to tooltip
     * Fixed issue with high memory consumption (QTCREATORBUG-19543)
+    * Fixed inconsistency between `Follow Symbol` and `Ctrl + Click`
+      (QTCREATORBUG-21637)
 * Clang Format
     * Added option to format code instead of only indenting code
 
@@ -98,6 +104,9 @@ Nim Support
 
 Debugging
 
+* Fixed that debugger toolbar could force large minimum window size
+  (QTCREATORBUG-21885)
+* Added pretty printing of `QSizePolicy`
 * GDB
     * Added support for rvalue references in function arguments
 * LLDB
@@ -167,6 +176,7 @@ Windows
 * Added support for MSVC 2019
 * Changed toolchain detection to use `vswhere` by default, which is recommended
   by Microsoft
+* Fixed issue with UNC paths in `.pro` files (QTCREATORBUG-21881)
 
 Linux
 

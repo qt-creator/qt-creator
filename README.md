@@ -34,9 +34,10 @@ Prerequisites:
     * Python 3.5 or later (optional, needed for the python enabled debug helper)
 * On Mac OS X: latest Xcode
 * On Linux: g++ 5.3 or later
-* LLVM/Clang 6.0.0 or later (optional, needed for the Clang Code Model, see the
-  section "Get LLVM/Clang for the Clang Code Model")
-    * CMake (only for manual builds of LLVM/Clang)
+* LLVM/Clang 7.0.0 or later (optional, needed for the Clang Code Model, Clang Tools, ClangFormat,
+  Clang PCH Manager and Clang Refactoring plugins, see the section
+  "Get LLVM/Clang for the Clang Code Model")
+* CMake (only for manual builds of LLVM/Clang)
 * Qbs 1.7.x (optional, sources also contain Qbs itself)
 
 The installed toolchains have to match the one Qt was compiled with.
@@ -49,6 +50,10 @@ You can build Qt Creator with
     export QBS_INSTALL_DIR=/path/to/qbs
     # Optional, needed for the Python enabled dumper on Windows
     set PYTHON_INSTALL_DIR=C:\path\to\python
+    # Optional, needed to use system KSyntaxHighlighting:
+    set KSYNTAXHIGHLIGHTING_LIB_DIR to folder holding the KSyntaxHighlighting library
+    # if automatic deducing of include folder fails set KSYNTAXHIGHLIGHTING_INCLUDE_DIR as well
+    # both variables can also be passed as qmake variables
 
     cd $SOURCE_DIRECTORY
     qmake -r
@@ -220,7 +225,7 @@ or using shadow builds.
 ## Get LLVM/Clang for the Clang Code Model
 
 The Clang Code Model depends on the LLVM/Clang libraries. The currently
-supported LLVM/Clang version is 6.0.
+supported LLVM/Clang version is 7.0.
 
 ### Prebuilt LLVM/Clang packages
 
@@ -247,9 +252,9 @@ GCC 4 binaries. On Ubuntu, you can download the package from
 http://apt.llvm.org/ with:
 
    wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-   sudo apt-add-repository "deb http://apt.llvm.org/`lsb_release -cs`/ llvm-toolchain-`lsb_release -cs`-6.0 main"
+   sudo apt-add-repository "deb http://apt.llvm.org/`lsb_release -cs`/ llvm-toolchain-`lsb_release -cs`-7.0 main"
    sudo apt-get update
-   sudo apt-get install llvm-6.0 libclang-6.0-dev
+   sudo apt-get install llvm-7.0 libclang-7.0-dev
 
 There is a workaround to set _GLIBCXX_USE_CXX11_ABI to 1 or 0, but we recommend
 to download the package from http://apt.llvm.org/.

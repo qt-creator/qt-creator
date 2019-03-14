@@ -208,17 +208,6 @@ void Client::openDocument(Core::IDocument *document)
         connect(textDocument, &QObject::destroyed, this, [this, textDocument]{
             m_resetAssistProvider.remove(textDocument);
         });
-        if (BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(textDocument)) {
-            if (QPointer<TextEditorWidget> widget = editor->editorWidget()) {
-                connect(widget, &TextEditorWidget::cursorPositionChanged, this, [this, widget](){
-                    // TODO This would better be a compressing timer
-                    QTimer::singleShot(50, this, [this, widget]() {
-                        if (widget)
-                            cursorPositionChanged(widget);
-                    });
-                });
-            }
-        }
     }
 
     m_openedDocument.append(document->filePath());
@@ -344,7 +333,7 @@ void Client::documentContentsChanged(Core::IDocument *document)
 
     if (textDocument) {
         using namespace TextEditor;
-        if (BaseTextEditor *editor = BaseTextEditor::textEditorForDocument(textDocument))
+        for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(textDocument))
             if (TextEditorWidget *widget = editor->editorWidget())
                 widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
         requestDocumentSymbols(textDocument);
@@ -764,6 +753,11 @@ const ServerCapabilities &Client::capabilities() const
 const DynamicCapabilities &Client::dynamicCapabilities() const
 {
     return m_dynamicCapabilities;
+}
+
+const BaseClientInterface *Client::clientInterface() const
+{
+    return m_clientInterface.data();
 }
 
 void Client::log(const ShowMessageParams &message,

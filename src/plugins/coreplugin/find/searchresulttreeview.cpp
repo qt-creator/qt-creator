@@ -78,6 +78,21 @@ void SearchResultTreeView::addResults(const QList<SearchResultItem> &items, Sear
     }
 }
 
+void SearchResultTreeView::keyPressEvent(QKeyEvent *event)
+{
+    if ((event->key() == Qt::Key_Return
+            || event->key() == Qt::Key_Enter)
+            && event->modifiers() == 0
+            && currentIndex().isValid()
+            && state() != QAbstractItemView::EditingState) {
+        const SearchResultItem item
+            = model()->data(currentIndex(), ItemDataRoles::ResultItemRole).value<SearchResultItem>();
+        emit jumpToSearchResult(item);
+        return;
+    }
+    TreeView::keyPressEvent(event);
+}
+
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
 {
     if (model()->data(index, ItemDataRoles::IsGeneratedRole).toBool())

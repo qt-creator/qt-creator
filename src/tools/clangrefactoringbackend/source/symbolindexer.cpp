@@ -120,8 +120,7 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
     std::vector<SymbolIndexerTask> symbolIndexerTask;
     symbolIndexerTask.reserve(projectPart.sourcePathIds.size());
     for (FilePathId sourcePathId : projectPart.sourcePathIds) {
-        auto indexing = [projectPartId,
-                         arguments = commandLineBuilder.commandLine,
+        auto indexing = [arguments = commandLineBuilder.commandLine,
                          sourcePathId,
                          this](SymbolsCollectorInterface &symbolsCollector) {
             symbolsCollector.setFile(sourcePathId, arguments);
@@ -134,12 +133,9 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
                 m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
                                                              symbolsCollector.sourceLocations());
 
-                m_symbolStorage.updateProjectPartSources(projectPartId,
-                                                         symbolsCollector.sourceFiles());
-
                 m_buildDependencyStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
 
-                m_buildDependencyStorage.insertFileStatuses(symbolsCollector.fileStatuses());
+                m_buildDependencyStorage.insertOrUpdateFileStatuses(symbolsCollector.fileStatuses());
 
                 m_buildDependencyStorage.insertOrUpdateSourceDependencies(
                     symbolsCollector.sourceDependencies());
@@ -193,10 +189,8 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
     CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector>
         builder{artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
 
-    auto indexing = [projectPartId = artefact.projectPartId,
-                     arguments = builder.commandLine,
-                     filePathId,
-                     this](SymbolsCollectorInterface &symbolsCollector) {
+    auto indexing = [arguments = builder.commandLine, filePathId, this](
+                        SymbolsCollectorInterface &symbolsCollector) {
         symbolsCollector.setFile(filePathId, arguments);
 
         bool success = symbolsCollector.collectSymbols();
@@ -207,11 +201,9 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
             m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
                                                          symbolsCollector.sourceLocations());
 
-            m_symbolStorage.updateProjectPartSources(projectPartId, symbolsCollector.sourceFiles());
-
             m_buildDependencyStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
 
-            m_buildDependencyStorage.insertFileStatuses(symbolsCollector.fileStatuses());
+            m_buildDependencyStorage.insertOrUpdateFileStatuses(symbolsCollector.fileStatuses());
 
             m_buildDependencyStorage.insertOrUpdateSourceDependencies(
                 symbolsCollector.sourceDependencies());

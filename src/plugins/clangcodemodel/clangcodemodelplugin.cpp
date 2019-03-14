@@ -68,13 +68,12 @@ void ClangCodeModelPlugin::generateCompilationDB() {
     using namespace CppTools;
 
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    if (!project)
+    if (!project || !project->activeTarget())
         return;
 
-    m_generatorWatcher.setFuture(QtConcurrent::run(
-                                     &Utils::generateCompilationDB,
-                                     project->projectDirectory(),
-                                     CppModelManager::instance()->projectInfo(project)));
+    m_generatorWatcher.setFuture(
+        QtConcurrent::run(&Utils::generateCompilationDB,
+                          CppModelManager::instance()->projectInfo(project)));
 }
 
 static bool isDBGenerationEnabled(ProjectExplorer::Project *project)

@@ -395,6 +395,8 @@ void LldbEngine::handleResponse(const QString &response)
             handleOutputNotification(item);
         else if (name == "pid")
             notifyInferiorPid(item.toProcessHandle());
+        else if (name == "breakpointmodified")
+            handleInterpreterBreakpointModified(item);
     }
 }
 
@@ -605,6 +607,31 @@ void LldbEngine::handleOutputNotification(const GdbMi &output)
     else if (channel == "stderr")
         ch = AppError;
     showMessage(data, ch);
+}
+
+void LldbEngine::handleInterpreterBreakpointModified(const GdbMi &bpItem)
+{
+    QTC_ASSERT(bpItem.childCount(), return);
+    QString id = bpItem.childAt(0).m_data;
+
+    Breakpoint bp = breakHandler()->findBreakpointByResponseId(id);
+    if (!bp)        // FIXME adapt whole bp handling and turn into soft assert
+        return;
+
+    // this function got triggered by a lldb internal breakpoint event
+    // avoid asserts regarding unexpected state transitions
+    switch (bp->state()) {
+    case BreakpointInsertionRequested:  // was a pending bp
+        bp->gotoState(BreakpointInsertionProceeding, BreakpointInsertionRequested);
+        break;
+    case BreakpointInserted:            // was an inserted, gets updated now
+        bp->gotoState(BreakpointUpdateRequested, BreakpointInserted);
+        notifyBreakpointChangeProceeding(bp);
+        break;
+    default:
+        break;
+    }
+    updateBreakpointData(bp, bpItem, false);
 }
 
 void LldbEngine::loadSymbols(const QString &moduleName)

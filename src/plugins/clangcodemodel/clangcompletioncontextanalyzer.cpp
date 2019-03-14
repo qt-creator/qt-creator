@@ -110,6 +110,8 @@ int ClangCompletionContextAnalyzer::startOfFunctionCall(int endOfOperator) const
     functionNameSelector.setPosition(functionNameStart);
     functionNameSelector.setPosition(index, QTextCursor::KeepAnchor);
     const QString functionName = functionNameSelector.selectedText().trimmed();
+    if (functionName.isEmpty() && m_completionOperator == T_LBRACE)
+        return endOfOperator;
 
     return functionName.isEmpty() ? -1 : functionNameStart;
 }
@@ -139,7 +141,10 @@ void ClangCompletionContextAnalyzer::handleCommaInFunctionCall()
         const int start = expressionUnderCursor.startOfFunctionCall(textCursor);
         m_positionEndOfExpression = start;
         m_positionForProposal = start + 1; // After '(' of function call
-        m_completionOperator = T_LPAREN;
+        if (m_interface->characterAt(start) == '(')
+            m_completionOperator = T_LPAREN;
+        else
+            m_completionOperator = T_LBRACE;
     }
 }
 

@@ -69,7 +69,7 @@ SshRemoteProcess::SshRemoteProcess(const QByteArray &command, const QStringList 
     connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this] {
         QString error;
         if (exitStatus() == QProcess::CrashExit)
-            error = tr("The ssh binary crashed: %1").arg(errorString());
+            error = tr("The ssh process crashed: %1").arg(errorString());
         else if (exitCode() == 255)
             error = tr("Remote process crashed.");
         emit done(error);

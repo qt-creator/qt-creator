@@ -214,6 +214,9 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(const CodeComple
             setAsyncProposalAvailable(createFunctionHintProposal(completions));
             return;
         }
+
+        if (!m_fallbackToNormalCompletion)
+            return;
         // else: Proceed with a normal completion in case:
         // 1) it was not a function call, but e.g. a function declaration like "void f("
         // 2) '{' meant not a constructor call.
@@ -286,6 +289,14 @@ static QByteArray modifyInput(QTextDocument *doc, int endOfExpression) {
     return modifiedInput;
 }
 
+static QChar lastPrecedingNonWhitespaceChar(const ClangCompletionAssistInterface *interface)
+{
+    int pos = interface->position();
+    while (pos >= 0 && interface->characterAt(pos).isSpace())
+        --pos;
+    return pos >= 0 ? interface->characterAt(pos) : QChar::Null;
+}
+
 IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
 {
     ClangCompletionContextAnalyzer analyzer(m_interface.data(), m_interface->languageFeatures());
@@ -323,6 +334,8 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
     }
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen: {
         m_sentRequestType = FunctionHintCompletion;
+        if (lastPrecedingNonWhitespaceChar(m_interface.data()) == ',')
+            m_fallbackToNormalCompletion = false;
         m_requestSent = sendCompletionRequest(analyzer.positionForClang(), QByteArray(),
                                               analyzer.functionNameStart());
         break;

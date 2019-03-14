@@ -71,10 +71,12 @@ class KitManagerPrivate
 public:
     Kit *m_defaultKit = nullptr;
     bool m_initialized = false;
-    std::vector<std::unique_ptr<KitAspect>> m_informationList;
     std::vector<std::unique_ptr<Kit>> m_kitList;
     std::unique_ptr<PersistentSettingsWriter> m_writer;
     QSet<Id> m_irrelevantAspects;
+
+    // Sorted by priority, in descending order.
+    std::vector<std::unique_ptr<KitAspect>> m_informationList;
 };
 
 } // namespace Internal

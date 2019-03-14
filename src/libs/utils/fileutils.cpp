@@ -311,9 +311,10 @@ QString FileUtils::normalizePathName(const QString &name)
     if (FAILED(hr))
         return name;
     TCHAR buffer[MAX_PATH];
-    if (!SHGetPathFromIDList(file, buffer))
-        return name;
-    return QDir::fromNativeSeparators(QString::fromUtf16(reinterpret_cast<const ushort *>(buffer)));
+    const bool success = SHGetPathFromIDList(file, buffer);
+    ILFree(file);
+    return success ? QDir::fromNativeSeparators(QString::fromUtf16(reinterpret_cast<const ushort *>(buffer)))
+                   : name;
 #elif defined(Q_OS_OSX)
     return Internal::normalizePathName(name);
 #else // do not try to handle case-insensitive file systems on Linux

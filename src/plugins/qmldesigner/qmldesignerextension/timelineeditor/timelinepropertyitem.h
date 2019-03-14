@@ -44,6 +44,8 @@ class TimelineToolButton;
 
 class TimelineKeyframeItem : public TimelineMovableAbstractItem
 {
+    Q_DECLARE_TR_FUNCTIONS(TimelineKeyframeItem)
+
 public:
     explicit TimelineKeyframeItem(TimelinePropertyItem *parent, const ModelNode &frame);
     ~TimelineKeyframeItem() override;
@@ -84,6 +86,8 @@ private:
 
 class TimelinePropertyItem : public TimelineItem
 {
+    Q_OBJECT
+
 public:
     enum { Type = TimelineConstants::timelinePropertyItemUserType };
 

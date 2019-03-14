@@ -211,7 +211,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     expander->registerVariable(
                 "Cpp:PragmaOnce",
-                tr("Insert #pragma once instead of #ifndef include guards into header file"),
+                tr("Insert \"#pragma once\" instead of \"#ifndef\" include guards into header file"),
                 [] { return usePragmaOnce() ? QString("true") : QString(); });
 
     return true;

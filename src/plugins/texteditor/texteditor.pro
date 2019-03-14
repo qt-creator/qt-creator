@@ -2,7 +2,19 @@ DEFINES += TEXTEDITOR_LIBRARY
 QT += gui-private network printsupport xml
 CONFIG += exceptions
 CONFIG += include_source_dir # For the highlighter autotest.
+
+include(../../shared/syntax/syntax_shared.pri)
+isEmpty(KSYNTAXHIGHLIGHTING_LIB_DIR) | isEmpty(KSYNTAXHIGHLIGHTING_INCLUDE_DIR) {
+    QTC_LIB_DEPENDS += syntax-highlighting
+} else {
+    unix:!disable_external_rpath {
+        !macos: QMAKE_LFLAGS += -Wl,-z,origin
+        QMAKE_LFLAGS += -Wl,-rpath,$$shell_quote($${KSYNTAXHIGHLIGHTING_LIB_DIR})
+    }
+}
+
 include(../../qtcreatorplugin.pri)
+
 SOURCES += texteditorplugin.cpp \
     plaintexteditorfactory.cpp \
     textdocument.cpp \

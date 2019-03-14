@@ -110,7 +110,7 @@ StdIOClientInterface::~StdIOClientInterface()
     Utils::SynchronousProcess::stopProcess(m_process);
 }
 
-bool StdIOClientInterface::needsRestart(const StdIOSettings *settings)
+bool StdIOClientInterface::needsRestart(const StdIOSettings *settings) const
 {
     return m_executable != settings->m_executable || m_arguments != settings->m_arguments;
 }

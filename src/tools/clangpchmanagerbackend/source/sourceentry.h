@@ -31,19 +31,22 @@
 
 namespace ClangBackEnd {
 
-enum class SourceType : unsigned char
-{
+enum class SourceType : unsigned char {
     TopProjectInclude,
     TopSystemInclude,
     UserInclude,
     ProjectInclude,
-    SystemInclude
+    SystemInclude,
+    Source
 };
+
+enum class HasMissingIncludes : unsigned char { No, Yes };
 
 class TimeStamp
 {
     using int64 = long long;
 public:
+    TimeStamp() = default;
     TimeStamp(int64 value)
         : value(value)
     {}
@@ -58,7 +61,6 @@ public:
 
 class SourceTimeStamp
 {
-protected:
     using int64 = long long;
 public:
     SourceTimeStamp(int sourceId, int64 lastModified)
@@ -103,37 +105,47 @@ public:
 
 using SourceTimeStamps = std::vector<SourceTimeStamp>;
 
-class SourceEntry : public SourceTimeStamp
+class SourceEntry
 {
+    using int64 = long long;
 
 public:
-    SourceEntry(int sourceId, int64 lastModified, int sourceType)
-        : SourceTimeStamp(sourceId, lastModified)
-        , sourceType(static_cast<SourceType>(sourceType))
-    {}
+    SourceEntry(int sourceId,
+                int64 pchCreationTimeStamp,
+                int sourceType,
+                int hasMissingIncludes)
+        : pchCreationTimeStamp(pchCreationTimeStamp), sourceId(sourceId),
+          sourceType(static_cast<SourceType>(sourceType)),
+          hasMissingIncludes(
+              static_cast<HasMissingIncludes>(hasMissingIncludes)) {}
 
-    SourceEntry(FilePathId sourceId, SourceType sourceType, TimeStamp lastModified)
-        : SourceTimeStamp(sourceId, lastModified)
-        , sourceType(sourceType)
-    {}
+    SourceEntry(FilePathId sourceId,
+                SourceType sourceType,
+                TimeStamp pchCreationTimeStamp,
+                HasMissingIncludes hasMissingIncludes = HasMissingIncludes::No)
+        : pchCreationTimeStamp(pchCreationTimeStamp), sourceId(sourceId),
+          sourceType(sourceType), hasMissingIncludes(hasMissingIncludes) {}
 
-    friend bool operator<(SourceEntry first, SourceEntry second)
-    {
+    friend bool operator<(SourceEntry first, SourceEntry second) {
         return first.sourceId < second.sourceId;
     }
 
     friend bool operator==(SourceEntry first, SourceEntry second)
     {
         return first.sourceId == second.sourceId && first.sourceType == second.sourceType
-               && first.lastModified == second.lastModified;
+               && first.pchCreationTimeStamp == second.pchCreationTimeStamp;
     }
 
     friend bool operator!=(SourceEntry first, SourceEntry second) { return !(first == second); }
 
 public:
+    TimeStamp pchCreationTimeStamp;
+    FilePathId sourceId;
     SourceType sourceType = SourceType::UserInclude;
+    HasMissingIncludes hasMissingIncludes = HasMissingIncludes::No;
 };
 
 using SourceEntries = std::vector<SourceEntry>;
-
-}
+using SourceEntryReference = std::reference_wrapper<SourceEntry>;
+using SourceEntryReferences = std::vector<SourceEntryReference>;
+} // namespace ClangBackEnd

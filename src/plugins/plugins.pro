@@ -59,7 +59,6 @@ SUBDIRS   = \
     languageclient \
     cppcheck \
     compilationdatabaseprojectmanager \
-    perfprofiler \
     qmlpreview \
     studiowelcome
 
@@ -70,9 +69,9 @@ qtHaveModule(serialport) {
 }
 
 qtHaveModule(quick) {
-    SUBDIRS += qmlprofiler
+    SUBDIRS += qmlprofiler perfprofiler
 } else {
-    warning("QmlProfiler plugin has been disabled since the Qt Quick module is not available.")
+    warning("QmlProfiler and PerfProfiler plugins have been disabled since the Qt Quick module is not available.")
 }
 
 qtHaveModule(help) {

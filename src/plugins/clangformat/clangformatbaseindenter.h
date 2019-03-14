@@ -81,7 +81,6 @@ private:
                       int cursorPositionInEditor);
     TextEditor::Replacements indentsFor(QTextBlock startBlock,
                                         const QTextBlock &endBlock,
-                                        const QByteArray &buffer,
                                         const QChar &typedChar,
                                         int cursorPositionInEditor);
     TextEditor::Replacements replacements(QByteArray buffer,

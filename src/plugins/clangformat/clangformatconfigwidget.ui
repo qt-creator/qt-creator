@@ -55,6 +55,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="overrideDefault">
+     <property name="text">
+      <string>Override Clang Format configuration file</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QPlainTextEdit" name="clangFormatOptionsTable"/>
@@ -63,13 +70,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="createFileButton">
-       <property name="text">
-        <string>Create Clang Format Configuration File</string>
-       </property>
-      </widget>
-     </item>
      <item>
       <widget class="QPushButton" name="applyButton">
        <property name="text">

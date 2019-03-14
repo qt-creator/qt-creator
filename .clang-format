@@ -8,6 +8,8 @@
 # Use ../../tests/manual/clang-format-for-qtc/test.cpp for documenting problems
 # or testing changes.
 #
+# In case you update this configuration please also update the qtcStyle() in src\plugins\clangformat\clangformatutils.cpp
+#
 # [1] https://doc-snapshots.qt.io/qtcreator-extending/coding-style.html
 # [2] https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 #

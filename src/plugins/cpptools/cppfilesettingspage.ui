@@ -99,10 +99,10 @@ These prefixes are used in addition to current file name on Switch Header/Source
       <item row="7" column="1">
        <widget class="QCheckBox" name="headerPragmaOnceCheckBox">
         <property name="toolTip">
-         <string>Uses #pragma once instead of #ifndef include guards.</string>
+         <string>Uses &quot;#pragma once&quot; instead of &quot;#ifndef&quot; include guards.</string>
         </property>
         <property name="text">
-         <string>Use '#pragma once' instead of '#ifndef' guards</string>
+         <string>Use &quot;#pragma once&quot; instead of &quot;#ifndef&quot; guards</string>
         </property>
        </widget>
       </item>
