@@ -484,7 +484,6 @@ public:
     bool m_shuttingDown = false;
     Core::Id m_runMode = Constants::NO_RUN_MODE;
 
-    KitManager *m_kitManager = nullptr;
     ToolChainManager *m_toolChainManager = nullptr;
     QStringList m_arguments;
 
@@ -560,6 +559,12 @@ public:
     DefaultDeployConfigurationFactory m_defaultDeployConfigFactory;
 
     IDocumentFactory m_documentFactory;
+
+    DeviceTypeKitAspect deviceTypeKitAspect;
+    DeviceKitAspect deviceeKitAspect;
+    ToolChainKitAspect toolChainKitAspect;
+    SysRootKitAspect sysRootKitAspect;
+    EnvironmentKitAspect environmentKitAspect;
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;
@@ -576,7 +581,7 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     JsonWizardFactory::destroyAllFactories();
 
     // Force sequence of deletion:
-    delete dd->m_kitManager; // remove all the profile information
+    KitManager::destroy(); // remove all the profile information
     delete dd->m_toolChainManager;
     ProjectPanelFactory::destroyFactories();
     delete dd;
@@ -603,7 +608,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     CustomWizard::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
     JsonWizardFactory::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
 
-    dd->m_kitManager = new KitManager; // register before ToolChainManager
     dd->m_toolChainManager = new ToolChainManager;
 
     // Register languages
@@ -611,13 +615,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     ToolChainManager::registerLanguage(Constants::CXX_LANGUAGE_ID, tr("C++"));
 
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
-
-    // Register KitAspects:
-    KitManager::registerKitAspect<DeviceTypeKitAspect>();
-    KitManager::registerKitAspect<DeviceKitAspect>();
-    KitManager::registerKitAspect<ToolChainKitAspect>();
-    KitManager::registerKitAspect<SysRootKitAspect>();
-    KitManager::registerKitAspect<EnvironmentKitAspect>();
 
     IWizardFactory::registerFactoryCreator([]() -> QList<IWizardFactory *> {
         QList<IWizardFactory *> result;
@@ -1796,7 +1793,7 @@ void ProjectExplorerPlugin::restoreKits()
     ExtraAbi::load(); // Load this before Toolchains!
     DeviceManager::instance()->load();
     ToolChainManager::restoreToolChains();
-    dd->m_kitManager->restoreKits();
+    KitManager::restoreKits();
     QTimer::singleShot(0, dd, &ProjectExplorerPluginPrivate::restoreSession); // delay a bit...
 }
 

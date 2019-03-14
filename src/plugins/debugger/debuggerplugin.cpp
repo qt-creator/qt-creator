@@ -775,6 +775,8 @@ public:
 
     DebugInfoTaskHandler m_debugInfoTaskHandler;
     Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, tr("Debugger")};
+
+    DebuggerKitAspect debuggerKitAspect;
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
@@ -2255,8 +2257,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     // Separators
     mstart->addSeparator(MENU_GROUP_GENERAL);
     mstart->addSeparator(MENU_GROUP_SPECIAL);
-
-    KitManager::registerKitAspect<DebuggerKitAspect>();
 
     // Task integration.
     //: Category under which Analyzer tasks are listed in Issues view

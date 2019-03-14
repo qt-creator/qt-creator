@@ -136,6 +136,7 @@ public:
     AndroidManifestEditorFactory manifestEditorFactory;
     AndroidRunConfigurationFactory runConfigFactory;
     AndroidBuildApkStepFactory buildApkStepFactory;
+    AndroidGdbServerKitAspect gdbServerKitAspect;
 };
 
 AndroidPlugin::~AndroidPlugin()
@@ -159,8 +160,6 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     });
 
     d = new AndroidPluginPrivate;
-
-    KitManager::registerKitAspect<Internal::AndroidGdbServerKitAspect>();
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &AndroidPlugin::kitsRestored);

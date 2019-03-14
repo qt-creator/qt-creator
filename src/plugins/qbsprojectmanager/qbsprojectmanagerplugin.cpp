@@ -92,6 +92,7 @@ public:
     QbsInstallStepFactory installStepFactory;
     QbsRunConfigurationFactory runConfigFactory;
     QbsProfilesSettingsPage profilesSetttingsPage;
+    QbsKitAspect qbsKitAspect;
 };
 
 QbsProjectManagerPlugin::~QbsProjectManagerPlugin()
@@ -112,7 +113,6 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     Core::HelpManager::registerDocumentation({Core::HelpManager::documentationPath() + "/qbs.qch"});
 
     ProjectManager::registerProjectType<QbsProject>(QmlJSTools::Constants::QBS_MIMETYPE);
-    KitManager::registerKitAspect<QbsKitAspect>();
 
     //menus
     // Build Menu:

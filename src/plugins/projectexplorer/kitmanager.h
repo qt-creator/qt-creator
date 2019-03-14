@@ -63,7 +63,7 @@ class KitModel;
  *
  * One piece of information stored in the kit.
  *
- * This needs to get registered with the \a KitManager.
+ * They auto-register with the \a KitManager for their life time
  */
 class PROJECTEXPLORER_EXPORT KitAspect : public QObject
 {
@@ -105,6 +105,9 @@ public:
     virtual bool isApplicableToKit(const Kit *) const { return true; }
 
 protected:
+    KitAspect();
+    ~KitAspect();
+
     void setId(Core::Id id) { m_id = id; }
     void setDisplayName(const QString &name) { m_displayName = name; }
     void setDescription(const QString &desc) { m_description = desc; }
@@ -175,11 +178,6 @@ public:
     static void deregisterKit(Kit *k);
     static void setDefaultKit(Kit *k);
 
-    template<typename KI, typename... Args>
-    static void registerKitAspect(Args&&... args) {
-        registerKitAspect(std::make_unique<KI>(std::forward<Args>(args)...));
-    }
-
     static QSet<Core::Id> supportedPlatforms();
     static QSet<Core::Id> availableFeatures(Core::Id platformId);
 
@@ -204,20 +202,16 @@ signals:
     void kitsLoaded();
 
 private:
-    explicit KitManager(QObject *parent = nullptr);
+    KitManager();
 
-    static void registerKitAspect(std::unique_ptr<KitAspect> &&ki);
+    static void destroy();
+
+    static void registerKitAspect(KitAspect *ki);
+    static void deregisterKitAspect(KitAspect *ki);
 
     // Make sure the this is only called after all
     // KitAspects are registered!
-    void restoreKits();
-    class KitList
-    {
-    public:
-        Core::Id defaultKit;
-        std::vector<std::unique_ptr<Kit>> kits;
-    };
-    KitList restoreKits(const Utils::FileName &fileName);
+    static void restoreKits();
 
     static void notifyAboutUpdate(Kit *k);
     static void completeKit(Kit *k);
@@ -225,7 +219,7 @@ private:
     friend class ProjectExplorerPlugin; // for constructor
     friend class Kit;
     friend class Internal::KitModel;
-    friend class KitAspect; // for notifyAbutUpdate
+    friend class KitAspect; // for notifyAboutUpdate and self-registration
 };
 
 } // namespace ProjectExplorer

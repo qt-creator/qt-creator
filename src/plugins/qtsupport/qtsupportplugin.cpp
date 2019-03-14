@@ -68,6 +68,8 @@ public:
 
     ExamplesWelcomePage examplesPage{true};
     ExamplesWelcomePage tutorialPage{false};
+
+    QtKitAspect qtKiAspect;
 };
 
 QtSupportPlugin::~QtSupportPlugin()
@@ -86,8 +88,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     JsExpander::registerQObjectForJs(QLatin1String("QtSupport"), new CodeGenerator);
 
     d = new QtSupportPluginPrivate;
-
-    ProjectExplorer::KitManager::registerKitAspect<QtKitAspect>();
 
     (void) new UicGeneratorFactory(this);
     (void) new QScxmlcGeneratorFactory(this);

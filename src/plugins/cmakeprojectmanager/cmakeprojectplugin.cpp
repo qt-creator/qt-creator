@@ -70,6 +70,10 @@ public:
     CMakeBuildConfigurationFactory buildConfigFactory;
     CMakeEditorFactory editorFactor;
     CMakeLocatorFilter locatorFiler;
+
+    CMakeKitAspect cmakeKitAspect;
+    CMakeGeneratorKitAspect cmakeGeneratorKitAspect;
+    CMakeConfigurationKitAspect cmakeConfigurationKitAspect;
 };
 
 const std::unique_ptr<CMakeSpecificSettings>
@@ -105,10 +109,6 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     ProjectManager::registerProjectType<CMakeProject>(Constants::CMAKEPROJECTMIMETYPE);
 
     new CMakeToolManager(this);
-
-    KitManager::registerKitAspect<CMakeKitAspect>();
-    KitManager::registerKitAspect<CMakeGeneratorKitAspect>();
-    KitManager::registerKitAspect<CMakeConfigurationKitAspect>();
 
     //menus
     ActionContainer *msubproject =

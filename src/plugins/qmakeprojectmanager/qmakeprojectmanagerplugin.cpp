@@ -124,6 +124,8 @@ public:
     Utils::ParameterAction *m_buildFileAction = nullptr;
     QAction *m_addLibraryAction = nullptr;
     QAction *m_addLibraryActionContextMenu = nullptr;
+
+    QmakeKitAspect qmakeKitAspect;
 };
 
 QmakeProjectManagerPlugin::~QmakeProjectManagerPlugin()
@@ -142,8 +144,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     //create and register objects
     ProjectManager::registerProjectType<QmakeProject>(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
-
-    ProjectExplorer::KitManager::registerKitAspect<QmakeKitAspect>();
 
     IWizardFactory::registerFactoryCreator([] {
         return QList<IWizardFactory *> {

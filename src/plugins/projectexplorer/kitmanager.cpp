@@ -48,6 +48,16 @@ using namespace Utils;
 using namespace ProjectExplorer::Internal;
 
 namespace ProjectExplorer {
+
+class KitList
+{
+public:
+    Core::Id defaultKit;
+    std::vector<std::unique_ptr<Kit>> kits;
+};
+
+static KitList restoreKitsHelper(const Utils::FileName &fileName);
+
 namespace Internal {
 
 const char KIT_DATA_KEY[] = "Profile.";
@@ -75,8 +85,35 @@ public:
     std::unique_ptr<PersistentSettingsWriter> m_writer;
     QSet<Id> m_irrelevantAspects;
 
-    // Sorted by priority, in descending order.
-    std::vector<std::unique_ptr<KitAspect>> m_informationList;
+    void addKitAspect(KitAspect *ki)
+    {
+        QTC_ASSERT(!m_aspectList.contains(ki), return);
+        m_aspectList.append(ki);
+        m_aspectListIsSorted = false;
+    }
+
+    void removeKitAspect(KitAspect *ki)
+    {
+        int removed = m_aspectList.removeAll(ki);
+        QTC_CHECK(removed == 1);
+    }
+
+    const QList<KitAspect *> kitAspects()
+    {
+        if (!m_aspectListIsSorted) {
+            Utils::sort(m_aspectList, [](const KitAspect *a, const KitAspect *b) {
+                return a->priority() > b->priority();
+            });
+            m_aspectListIsSorted = true;
+        }
+        return m_aspectList;
+    }
+
+private:
+    // Sorted by priority, in descending order...
+    QList<KitAspect *> m_aspectList;
+    // ... if this here is set:
+    bool m_aspectListIsSorted = true;
 };
 
 } // namespace Internal
@@ -90,11 +127,12 @@ static KitManager *m_instance = nullptr;
 
 KitManager *KitManager::instance()
 {
+    if (!m_instance)
+        m_instance = new KitManager;
     return m_instance;
 }
 
-KitManager::KitManager(QObject *parent)
-    : QObject(parent)
+KitManager::KitManager()
 {
     d = new KitManagerPrivate;
     QTC_CHECK(!m_instance);
@@ -107,6 +145,14 @@ KitManager::KitManager(QObject *parent)
     connect(this, &KitManager::kitUpdated, this, &KitManager::kitsChanged);
 }
 
+void KitManager::destroy()
+{
+    delete d;
+    d = nullptr;
+    delete m_instance;
+    m_instance = nullptr;
+}
+
 void KitManager::restoreKits()
 {
     QTC_ASSERT(!d->m_initialized, return );
@@ -117,7 +163,7 @@ void KitManager::restoreKits()
     Core::Id defaultUserKit;
     std::vector<std::unique_ptr<Kit>> kitsToCheck;
     {
-        KitList userKits = restoreKits(settingsFileName());
+        KitList userKits = restoreKitsHelper(settingsFileName());
         defaultUserKit = userKits.defaultKit;
 
         for (auto &k : userKits.kits) {
@@ -132,8 +178,8 @@ void KitManager::restoreKits()
 
     // read all kits from SDK
     {
-        KitList system
-                = restoreKits(FileName::fromString(ICore::installerResourcePath() + KIT_FILENAME));
+        KitList system = restoreKitsHelper
+                (FileName::fromString(ICore::installerResourcePath() + KIT_FILENAME));
 
         // SDK kits need to get updated with the user-provided extra settings:
         for (auto &current : system.kits) {
@@ -194,19 +240,17 @@ void KitManager::restoreKits()
 
     d->m_writer = std::make_unique<PersistentSettingsWriter>(settingsFileName(), "QtCreatorProfiles");
     d->m_initialized = true;
-    emit kitsLoaded();
-    emit kitsChanged();
+    emit m_instance->kitsLoaded();
+    emit m_instance->kitsChanged();
 }
 
 KitManager::~KitManager()
 {
-    delete d;
-    d = nullptr;
-    m_instance = nullptr;
 }
 
 void KitManager::saveKits()
 {
+    QTC_ASSERT(d, return);
     if (!d->m_writer) // ignore save requests while we are not initialized.
         return;
 
@@ -234,28 +278,27 @@ bool KitManager::isLoaded()
     return d->m_initialized;
 }
 
-void KitManager::registerKitAspect(std::unique_ptr<KitAspect> &&ki)
+void KitManager::registerKitAspect(KitAspect *ki)
 {
-    QTC_ASSERT(ki->id().isValid(), return );
-    QTC_ASSERT(!Utils::contains(d->m_informationList, ki.get()), return );
+    instance();
+    QTC_ASSERT(d, return);
+    d->addKitAspect(ki);
 
-    auto it = std::lower_bound(std::begin(d->m_informationList),
-                               std::end(d->m_informationList),
-                               ki,
-                               [](const std::unique_ptr<KitAspect> &a,
-                                  const std::unique_ptr<KitAspect> &b) {
-                                   return a->priority() > b->priority();
-                               });
-    d->m_informationList.insert(it, std::move(ki));
+    // Adding this aspect to possibly already existing kits is currently not
+    // needed here as kits are only created after all aspects are created
+    // in *Plugin::initialize().
+    // Make sure we notice when this assumption breaks:
+    QTC_CHECK(d->m_kitList.empty());
+}
 
-    foreach (Kit *k, kits()) {
-        if (!k->hasValue(ki->id()))
-            ki->setup(k);
-        else
-            ki->fix(k);
-    }
-
-    return;
+void KitManager::deregisterKitAspect(KitAspect *ki)
+{
+    // Happens regularly for the aspects from the ProjectExplorerPlugin as these
+    // are destroyed after the manual call to KitManager::destroy() there, but as
+    // this here is just for sanity reasons that the KitManager does not access
+    // a destroyed aspect, a destroyed KitManager is not a problem.
+    if (d)
+        d->removeKitAspect(ki);
 }
 
 QSet<Id> KitManager::supportedPlatforms()
@@ -296,7 +339,7 @@ QList<Kit *> KitManager::sortKits(const QList<Kit *> &kits)
     return Utils::transform(sortList, &QPair<QString, Kit *>::second);
 }
 
-KitManager::KitList KitManager::restoreKits(const FileName &fileName)
+static KitList restoreKitsHelper(const FileName &fileName)
 {
     KitList result;
 
@@ -376,7 +419,7 @@ Kit *KitManager::defaultKit()
 
 const QList<KitAspect *> KitManager::kitAspects()
 {
-    return Utils::toRawPointer<QList>(d->m_informationList);
+    return d->kitAspects();
 }
 
 const QSet<Id> KitManager::irrelevantAspects()
@@ -449,7 +492,7 @@ void KitManager::completeKit(Kit *k)
 {
     QTC_ASSERT(k, return);
     KitGuard g(k);
-    for (const std::unique_ptr<KitAspect> &ki : d->m_informationList) {
+    for (KitAspect *ki : d->kitAspects()) {
         ki->upgrade(k);
         if (!k->hasValue(ki->id()))
             ki->setup(k);
@@ -461,6 +504,16 @@ void KitManager::completeKit(Kit *k)
 // --------------------------------------------------------------------
 // KitAspect:
 // --------------------------------------------------------------------
+
+KitAspect::KitAspect()
+{
+    KitManager::registerKitAspect(this);
+}
+
+KitAspect::~KitAspect()
+{
+    KitManager::deregisterKitAspect(this);
+}
 
 void KitAspect::addToEnvironment(const Kit *k, Environment &env) const
 {
