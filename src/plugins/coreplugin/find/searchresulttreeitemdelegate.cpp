@@ -40,59 +40,101 @@ SearchResultTreeItemDelegate::SearchResultTreeItemDelegate(int tabWidth, QObject
     setTabWidth(tabWidth);
 }
 
-void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+const int lineNumberAreaHorizontalPadding = 4;
+const int minimumLineNumberDigits = 6;
+
+static std::pair<int, QString> lineNumberInfo(const QStyleOptionViewItem &option,
+                                              const QModelIndex &index)
+{
+    const int lineNumber = index.data(ItemDataRoles::ResultBeginLineNumberRole).toInt();
+    if (lineNumber < 1)
+        return {0, {}};
+    const QString lineNumberText = QString::number(lineNumber);
+    const int lineNumberDigits = qMax(minimumLineNumberDigits, lineNumberText.count());
+    const int fontWidth = option.fontMetrics.horizontalAdvance(QString(lineNumberDigits, QLatin1Char('0')));
+    const QStyle *style = option.widget ? option.widget->style() : QApplication::style();
+    return {lineNumberAreaHorizontalPadding + fontWidth + lineNumberAreaHorizontalPadding
+                + style->pixelMetric(QStyle::PM_FocusFrameHMargin),
+            lineNumberText};
+}
+
+static QString itemText(const QModelIndex &index)
+{
+    const QString text = index.data(Qt::DisplayRole).toString();
+    // show number of subresults in displayString
+    if (index.model()->hasChildren(index)) {
+        return text + QLatin1String(" (") + QString::number(index.model()->rowCount(index))
+               + QLatin1Char(')');
+    }
+    return text;
+}
+
+LayoutInfo SearchResultTreeItemDelegate::getLayoutInfo(const QStyleOptionViewItem &option,
+                                                       const QModelIndex &index) const
 {
     static const int iconSize = 16;
 
-    painter->save();
-
-    QStyleOptionViewItem opt = setOptions(index, option);
-    painter->setFont(opt.font);
-
-    QItemDelegate::drawBackground(painter, opt, index);
-
-    // ---- do the layout
-    QRect checkRect;
-    QRect pixmapRect;
-    QRect textRect;
+    LayoutInfo info;
+    info.option = setOptions(index, option);
 
     // check mark
-    bool checkable = (index.model()->flags(index) & Qt::ItemIsUserCheckable);
-    Qt::CheckState checkState = Qt::Unchecked;
+    const bool checkable = (index.model()->flags(index) & Qt::ItemIsUserCheckable);
+    info.checkState = Qt::Unchecked;
     if (checkable) {
         QVariant checkStateData = index.data(Qt::CheckStateRole);
-        checkState = static_cast<Qt::CheckState>(checkStateData.toInt());
-        checkRect = doCheck(opt, opt.rect, checkStateData);
+        info.checkState = static_cast<Qt::CheckState>(checkStateData.toInt());
+        info.checkRect = doCheck(info.option, info.option.rect, checkStateData);
     }
 
     // icon
-    QIcon icon = index.model()->data(index, ItemDataRoles::ResultIconRole).value<QIcon>();
-    if (!icon.isNull()) {
-        const QSize size = icon.actualSize(QSize(iconSize, iconSize));
-        pixmapRect = QRect(0, 0, size.width(), size.height());
+    info.icon = index.data(ItemDataRoles::ResultIconRole).value<QIcon>();
+    if (!info.icon.isNull()) {
+        const QSize size = info.icon.actualSize(QSize(iconSize, iconSize));
+        info.pixmapRect = QRect(0, 0, size.width(), size.height());
     }
 
     // text
-    textRect = opt.rect.adjusted(0, 0, checkRect.width() + pixmapRect.width(), 0);
+    info.textRect = info.option.rect.adjusted(0,
+                                              0,
+                                              info.checkRect.width() + info.pixmapRect.width(),
+                                              0);
 
-    // do layout
-    doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
+    // do basic layout
+    doLayout(info.option, &info.checkRect, &info.pixmapRect, &info.textRect, false);
+
+    // adapt for line numbers
+    const int lineNumberWidth = lineNumberInfo(info.option, index).first;
+    info.lineNumberRect = info.textRect;
+    info.lineNumberRect.setWidth(lineNumberWidth);
+    info.textRect.adjust(lineNumberWidth, 0, 0, 0);
+    return info;
+}
+
+void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    painter->save();
+
+    const LayoutInfo info = getLayoutInfo(option, index);
+
+    painter->setFont(info.option.font);
+
+    QItemDelegate::drawBackground(painter, info.option, index);
+
     // ---- draw the items
     // icon
-    if (!icon.isNull())
-        icon.paint(painter, pixmapRect, option.decorationAlignment);
+    if (!info.icon.isNull())
+        info.icon.paint(painter, info.pixmapRect, info.option.decorationAlignment);
 
     // line numbers
-    int lineNumberAreaWidth = drawLineNumber(painter, opt, textRect, index);
-    textRect.adjust(lineNumberAreaWidth, 0, 0, 0);
+    drawLineNumber(painter, info.option, info.lineNumberRect, index);
 
     // text and focus/selection
-    drawText(painter, opt, textRect, index);
-    QItemDelegate::drawFocus(painter, opt, opt.rect);
+    drawText(painter, info.option, info.textRect, index);
+    QItemDelegate::drawFocus(painter, info.option, info.option.rect);
 
     // check mark
-    if (checkable)
-        QItemDelegate::drawCheck(painter, opt, checkRect, checkState);
+    if (info.checkRect.isValid())
+        QItemDelegate::drawCheck(painter, info.option, info.checkRect, info.checkState);
 
     painter->restore();
 }
@@ -102,22 +144,31 @@ void SearchResultTreeItemDelegate::setTabWidth(int width)
     m_tabString = QString(width, QLatin1Char(' '));
 }
 
+QSize SearchResultTreeItemDelegate::sizeHint(const QStyleOptionViewItem &option,
+                                             const QModelIndex &index) const
+{
+    const LayoutInfo info = getLayoutInfo(option, index);
+    const int height = index.data(Qt::SizeHintRole).value<QSize>().height();
+    // get text width, see QItemDelegatePrivate::displayRect
+    const QString text = itemText(index).replace('\t', m_tabString);
+    const QRect textMaxRect(0, 0, INT_MAX / 256, height);
+    const QRect textLayoutRect = textRectangle(nullptr, textMaxRect, info.option.font, text);
+    const QRect textRect(info.textRect.x(), info.textRect.y(), textLayoutRect.width(), height);
+    const QRect layoutRect = info.checkRect | info.pixmapRect | info.lineNumberRect | textRect;
+    return QSize(layoutRect.x(), layoutRect.y()) + layoutRect.size();
+}
+
 // returns the width of the line number area
 int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyleOptionViewItem &option,
                                                  const QRect &rect,
                                                  const QModelIndex &index) const
 {
-    static const int lineNumberAreaHorizontalPadding = 4;
-    int lineNumber = index.model()->data(index, ItemDataRoles::ResultBeginLineNumberRole).toInt();
-    if (lineNumber < 1)
-        return 0;
     const bool isSelected = option.state & QStyle::State_Selected;
-    QString lineText = QString::number(lineNumber);
-    int minimumLineNumberDigits = qMax((int)m_minimumLineNumberDigits, lineText.count());
-    int fontWidth = painter->fontMetrics().horizontalAdvance(QString(minimumLineNumberDigits, QLatin1Char('0')));
-    int lineNumberAreaWidth = lineNumberAreaHorizontalPadding + fontWidth + lineNumberAreaHorizontalPadding;
+    const std::pair<int, QString> numberInfo = lineNumberInfo(option, index);
+    if (numberInfo.first == 0)
+        return 0;
     QRect lineNumberAreaRect(rect);
-    lineNumberAreaRect.setWidth(lineNumberAreaWidth);
+    lineNumberAreaRect.setWidth(numberInfo.first);
 
     QPalette::ColorGroup cg = QPalette::Normal;
     if (!(option.state & QStyle::State_Active))
@@ -137,9 +188,9 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, nullptr) + 1;
 
     const QRect rowRect = lineNumberAreaRect.adjusted(-textMargin, 0, textMargin-lineNumberAreaHorizontalPadding, 0);
-    QItemDelegate::drawDisplay(painter, opt, rowRect, lineText);
+    QItemDelegate::drawDisplay(painter, opt, rowRect, numberInfo.second);
 
-    return lineNumberAreaWidth;
+    return numberInfo.first;
 }
 
 void SearchResultTreeItemDelegate::drawText(QPainter *painter,
@@ -147,18 +198,15 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
                                             const QRect &rect,
                                             const QModelIndex &index) const
 {
-    QString text = index.model()->data(index, Qt::DisplayRole).toString();
-    // show number of subresults in displayString
-    if (index.model()->hasChildren(index)) {
-        text += QLatin1String(" (")
-                + QString::number(index.model()->rowCount(index))
-                + QLatin1Char(')');
-    }
+    const QString text = itemText(index);
 
     const int searchTermStart = index.model()->data(index, ItemDataRoles::ResultBeginColumnNumberRole).toInt();
     int searchTermLength = index.model()->data(index, ItemDataRoles::SearchTermLengthRole).toInt();
     if (searchTermStart < 0 || searchTermStart >= text.length() || searchTermLength < 1) {
-        QItemDelegate::drawDisplay(painter, option, rect, text.replace(QLatin1Char('\t'), m_tabString));
+        QItemDelegate::drawDisplay(painter,
+                                   option,
+                                   rect,
+                                   QString(text).replace(QLatin1Char('\t'), m_tabString));
         return;
     }
 

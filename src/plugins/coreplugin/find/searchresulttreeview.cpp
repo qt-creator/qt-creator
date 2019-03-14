@@ -44,6 +44,8 @@ SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     setIndentation(14);
     setUniformRowHeights(true);
     setExpandsOnDoubleClick(true);
+    header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    header()->setStretchLastSection(false);
     header()->hide();
 
     connect(this, &SearchResultTreeView::activated,
@@ -91,6 +93,13 @@ void SearchResultTreeView::keyPressEvent(QKeyEvent *event)
         return;
     }
     TreeView::keyPressEvent(event);
+}
+
+bool SearchResultTreeView::event(QEvent *e)
+{
+    if (e->type() == QEvent::Resize)
+        header()->setMinimumSectionSize(width());
+    return TreeView::event(e);
 }
 
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
