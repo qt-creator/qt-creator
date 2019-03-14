@@ -46,6 +46,8 @@
 #include <QTextStream>
 #include <QUuid>
 
+#include <numeric>
+
 using namespace Core;
 using namespace Utils;
 
@@ -352,6 +354,15 @@ bool Kit::isSdkProvided() const
 Id Kit::id() const
 {
     return d->m_id;
+}
+
+int Kit::weight() const
+{
+    const QList<KitAspect *> &aspects = KitManager::kitAspects();
+    return std::accumulate(aspects.begin(), aspects.end(), 0,
+                           [this](int sum, const KitAspect *aspect) {
+        return sum + aspect->weight(this);
+    });
 }
 
 static QIcon iconForDeviceType(Core::Id deviceType)

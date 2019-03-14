@@ -163,17 +163,32 @@ QtKitAspect::QtKitAspect()
 
 void QtKitAspect::setup(ProjectExplorer::Kit *k)
 {
-    Q_UNUSED(k);
+    const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+    const Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
 
-    // find "Qt in PATH":
-    BaseQtVersion *result = QtVersionManager::version(equal(&BaseQtVersion::autodetectionSource,
-                                                            QString::fromLatin1("PATH")));
-    if (!result) {
-        // Use *any* desktop Qt:
-        result = QtVersionManager::version(equal(&BaseQtVersion::type,
-            QString::fromLatin1(QtSupport::Constants::DESKTOPQT)));
-    }
-    k->setValue(id(), result ? result->uniqueId() : -1);
+    const QList<BaseQtVersion *> matches
+            = QtVersionManager::versions([&tcAbi, &deviceType](const BaseQtVersion *qt) {
+        return qt->targetDeviceTypes().contains(deviceType)
+                && Utils::contains(qt->qtAbis(), [&tcAbi](const Abi &qtAbi) {
+            return qtAbi.isCompatibleWith(tcAbi); });
+    });
+    if (matches.empty())
+        return;
+
+    // An MSVC 2015 toolchain is compatible with an MSVC 2017 Qt, but we prefer an
+    // MSVC 2015 Qt if we find one.
+    const QList<BaseQtVersion *> exactMatches = Utils::filtered(matches,
+                                                                [&tcAbi](const BaseQtVersion *qt) {
+        return qt->qtAbis().contains(tcAbi);
+    });
+    const QList<BaseQtVersion *> &candidates = !exactMatches.empty() ? exactMatches : matches;
+
+    BaseQtVersion * const qtFromPath = QtVersionManager::version(
+                equal(&BaseQtVersion::autodetectionSource, QString::fromLatin1("PATH")));
+    if (qtFromPath && candidates.contains(qtFromPath))
+        k->setValue(id(), qtFromPath->uniqueId());
+    else
+        k->setValue(id(), candidates.first()->uniqueId());
 }
 
 QList<ProjectExplorer::Task> QtKitAspect::validate(const ProjectExplorer::Kit *k) const
@@ -368,6 +383,20 @@ QSet<Core::Id> QtKitAspect::availableFeatures(const Kit *k) const
 {
     BaseQtVersion *version = QtKitAspect::qtVersion(k);
     return version ? version->features() : QSet<Core::Id>();
+}
+
+int QtKitAspect::weight(const Kit *k) const
+{
+    const BaseQtVersion * const qt = qtVersion(k);
+    if (!qt)
+        return 0;
+    if (!qt->targetDeviceTypes().contains(DeviceTypeKitAspect::deviceTypeId(k)))
+        return 0;
+    const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+    if (qt->qtAbis().contains(tcAbi))
+        return 2;
+    return Utils::contains(qt->qtAbis(), [&tcAbi](const Abi &qtAbi) {
+        return qtAbi.isCompatibleWith(tcAbi); }) ? 1 : 0;
 }
 
 } // namespace QtSupport

@@ -626,8 +626,10 @@ bool Abi::isCompatibleWith(const Abi &other) const
     if (isCompat && (osFlavor() == AndroidLinuxFlavor || other.osFlavor() == AndroidLinuxFlavor))
         isCompat = (architecture() == other.architecture()) &&  (osFlavor() == other.osFlavor());
 
-    if (!isCompat && compatibleMSVCFlavors(osFlavor(), other.osFlavor()))
+    if (!isCompat && wordWidth() == other.wordWidth()
+            && compatibleMSVCFlavors(osFlavor(), other.osFlavor())) {
         isCompat = true;
+    }
 
     return isCompat;
 }

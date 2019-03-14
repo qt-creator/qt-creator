@@ -25,12 +25,16 @@
 
 #include "kitmanager.h"
 
+#include "abi.h"
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitfeatureprovider.h"
+#include "kitinformation.h"
 #include "kitmanagerconfigwidget.h"
 #include "project.h"
+#include "projectexplorerconstants.h"
 #include "task.h"
+#include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
 
@@ -40,6 +44,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <QHash>
 #include <QSettings>
 #include <QStyle>
 
@@ -220,16 +225,60 @@ void KitManager::restoreKits()
     // Delete all loaded autodetected kits that were not rediscovered:
     kitsToCheck.clear();
 
-    if (resultList.size() == 0) {
-        auto defaultKit = std::make_unique<Kit>(); // One kit using default values
-        defaultKit->setUnexpandedDisplayName(tr("Desktop"));
-        defaultKit->setSdkProvided(false);
-        defaultKit->setAutoDetected(false);
+    if (resultList.empty()) {
+        // No kits exist yet, so let's try to autoconfigure some from the toolchains we know.
+        // We consider only host toolchains, because for other ones we lack the knowledge how to
+        // map them to their respective device type.
+        static const auto isHostToolchain = [](const ToolChain *tc) {
+            static const Abi hostAbi = Abi::hostAbi();
+            const Abi tcAbi = tc->targetAbi();
+            return tcAbi.os() == hostAbi.os() && tcAbi.architecture() == hostAbi.architecture()
+                    && (tcAbi.os() != Abi::LinuxOS || tcAbi.osFlavor() == hostAbi.osFlavor());
+        };
+        const QList<ToolChain *> allToolchains = ToolChainManager::toolChains(isHostToolchain);
+        QHash<Abi, QHash<Core::Id, ToolChain *>> uniqueToolchains;
 
-        defaultKit->setup();
+        // On Linux systems, we usually detect a plethora of same-ish toolchains. The following
+        // algorithm gives precedence to icecc and ccache and otherwise simply chooses the one with
+        // the shortest path. This should also take care of ensuring matching C/C++ pairs.
+        // TODO: This should not need to be done here. Instead, it should be a convenience
+        // operation on some lower level, e.g. in the toolchain class(es).
+        // Also, we shouldn't detect so many doublets in the first place.
+        for (ToolChain * const tc : allToolchains) {
+            ToolChain *&bestTc = uniqueToolchains[tc->targetAbi()][tc->language()];
+            if (!bestTc) {
+                bestTc = tc;
+                continue;
+            }
+            const QString bestFilePath = bestTc->compilerCommand().toString();
+            const QString currentFilePath = tc->compilerCommand().toString();
+            if ((currentFilePath.contains("icecc") && !bestFilePath.contains("icecc"))
+                    || (currentFilePath.contains("ccache") && !bestFilePath.contains("ccache")
+                        && !bestFilePath.contains("icecc"))
+                    || (bestFilePath.length() > currentFilePath.length())) {
+                bestTc = tc;
+            }
+        }
 
-        completeKit(defaultKit.get()); // Store manual kits
-        resultList.emplace_back(std::move(defaultKit));
+        int maxWeight = 0;
+        for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
+            auto kit = std::make_unique<Kit>();
+            kit->setSdkProvided(false);
+            kit->setAutoDetected(false); // TODO: Why false? What does autodetected mean here?
+            for (ToolChain * const tc : it.value())
+                ToolChainKitAspect::setToolChain(kit.get(), tc);
+            kit->setUnexpandedDisplayName(tr("Desktop (%1)").arg(it.key().toString()));
+            kit->setup();
+            if (kit->weight() < maxWeight)
+                continue;
+            if (kit->weight() > maxWeight) {
+                maxWeight = kit->weight();
+                resultList.clear();
+            }
+            resultList.emplace_back(std::move(kit));
+        }
+        if (resultList.size() == 1)
+            resultList.front()->setUnexpandedDisplayName(tr("Desktop"));
     }
 
     Kit *k = Utils::findOrDefault(resultList, Utils::equal(&Kit::id, defaultUserKit));
@@ -513,6 +562,11 @@ KitAspect::KitAspect()
 KitAspect::~KitAspect()
 {
     KitManager::deregisterKitAspect(this);
+}
+
+int KitAspect::weight(const Kit *k) const
+{
+    return k->value(id()).isValid() ? 1 : 0;
 }
 
 void KitAspect::addToEnvironment(const Kit *k, Environment &env) const

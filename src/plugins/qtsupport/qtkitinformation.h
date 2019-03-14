@@ -73,6 +73,8 @@ public:
     QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const override;
 
 private:
+    int weight(const ProjectExplorer::Kit *k) const override;
+
     void qtVersionsChanged(const QList<int> &addedIds,
                            const QList<int> &removedIds,
                            const QList<int> &changedIds);

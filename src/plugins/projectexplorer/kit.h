@@ -90,6 +90,12 @@ public:
     bool isSdkProvided() const;
     Core::Id id() const;
 
+    // The higher the weight, the more aspects have sensible values for this kit.
+    // For instance, a kit where a matching debugger was found for the toolchain will have a
+    // higher weight than one whose toolchain does not match a known debugger, assuming
+    // all other aspects are equal.
+    int weight() const;
+
     QIcon icon() const;
     Utils::FileName iconPath() const;
     void setIconPath(const Utils::FileName &path);
