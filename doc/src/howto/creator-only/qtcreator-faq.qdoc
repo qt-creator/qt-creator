@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -327,8 +327,8 @@
 
     Typically, users also work on multiple classes or functions that are
     related, even though they are defined or declared in different files.
-    \QC provides two shortcuts for that: \key F2 to follow the symbol
-    and \key Ctrl+Shift+U to find usages.
+    \QC provides two shortcuts for that: \key F2 to follow the symbol under
+    cursor and \key Ctrl+Shift+U to find references to it.
 
     In addition, developers can:
 

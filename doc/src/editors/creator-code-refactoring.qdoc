@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -49,7 +49,8 @@
 
     To find instances of a specific symbol in your Qt C++ project, place the
     cursor on the symbol in the editor and select \uicontrol Tools >
-    \uicontrol {C++} > \uicontrol {Find Usages} or press \key {Ctrl+Shift+U}.
+    \uicontrol {C++} > \uicontrol {Find References to Symbol Under Cursor} or
+    press \key {Ctrl+Shift+U}.
 
     \note You can also select \uicontrol Edit > \uicontrol {Find/Replace} >
     \uicontrol {Advanced Find} > \uicontrol {C++ Symbols} to search for
@@ -63,7 +64,8 @@
 
     To find instances of a specific QML type in a project, place the cursor on
     the type and select \uicontrol Tools > \uicontrol {QML/JS} >
-    \uicontrol {Find Usages} or press \key {Ctrl+Shift+U}.
+    \uicontrol {Find References to Symbol Under Cursor} or press
+    \key {Ctrl+Shift+U}.
 
     \section1 Viewing Search Results
 
