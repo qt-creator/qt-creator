@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "baremetalconstants.h"
+#include "iarewparser.h"
 #include "iarewtoolchain.h"
 
 #include <projectexplorer/abiwidget.h>
@@ -330,7 +331,7 @@ void IarToolChain::addToEnvironment(Environment &env) const
 
 IOutputParser *IarToolChain::outputParser() const
 {
-    return nullptr;
+    return new IarParser;
 }
 
 QVariantMap IarToolChain::toMap() const

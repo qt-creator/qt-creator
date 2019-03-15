@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Tim Sander <tim@krieglstein.org>
-** Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
+** Copyright (C) 2019 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,28 +25,39 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
+#include <projectexplorer/ioutputparser.h>
+#include <projectexplorer/task.h>
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalPlugin : public ExtensionSystem::IPlugin
+// IarParser
+
+class IarParser final : public ProjectExplorer::IOutputParser
 {
-   Q_OBJECT
-   Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BareMetal.json")
+    Q_OBJECT
 
-   ~BareMetalPlugin() final;
+public:
+    IarParser();
+    static Core::Id id();
 
-   bool initialize(const QStringList &arguments, QString *errorString) final;
-   void extensionsInitialized() final;
+private:
+    void newTask(const ProjectExplorer::Task &task);
+    void amendDescription();
+    void amendFilePath();
 
-   class BareMetalPluginPrivate *d;
+    void stdError(const QString &line) override;
+    void stdOutput(const QString &line) override;
+    void doFlush() override;
 
-#ifdef WITH_TESTS
-private slots:
-   void testIarOutputParsers_data();
-   void testIarOutputParsers();
-#endif // WITH_TESTS
+    ProjectExplorer::Task m_lastTask;
+    int m_lines = 0;
+    bool m_expectSnippet = true;
+    bool m_expectFilePath = false;
+    bool m_expectDescription = false;
+    QStringList m_snippets;
+    QStringList m_filePathParts;
+    QStringList m_descriptionParts;
 };
 
 } // namespace Internal
