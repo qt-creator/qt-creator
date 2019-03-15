@@ -27,10 +27,12 @@
 #include "hostosinfo.h"
 #include "synchronousprocess.h"
 
-#include <QDir>
 #include <QDateTime>
 #include <QDebug>
+#include <QDir>
 #include <QRegExp>
+
+#include <set>
 
 namespace Utils {
 
@@ -71,32 +73,54 @@ static bool isQmake(const QString &path)
     return !BuildableHelperLibrary::qtVersionForQMake(fi.absoluteFilePath()).isEmpty();
 }
 
-FileName BuildableHelperLibrary::findSystemQt(const Environment &env)
+static FileName findQmakeInDir(const FileName &path)
 {
-    const QString qmake = QLatin1String("qmake");
-    FileNameList paths = env.path();
-    foreach (const FileName &path, paths) {
-        if (path.isEmpty())
+    if (path.isEmpty())
+        return FileName();
+
+    const QString qmake = "qmake";
+    QDir dir(path.toString());
+    if (dir.exists(qmake)) {
+        const QString qmakePath = dir.absoluteFilePath(qmake);
+        if (isQmake(qmakePath))
+            return FileName::fromString(qmakePath);
+    }
+
+    // Prefer qmake-qt5 to qmake-qt4 by sorting the filenames in reverse order.
+    const QFileInfoList candidates = dir.entryInfoList(
+                BuildableHelperLibrary::possibleQMakeCommands(),
+                QDir::Files, QDir::Name | QDir::Reversed);
+    for (const QFileInfo &fi : candidates) {
+        if (fi.fileName() == qmake)
             continue;
-
-        QDir dir(path.toString());
-
-        if (dir.exists(qmake)) {
-            const QString qmakePath = dir.absoluteFilePath(qmake);
-            if (isQmake(qmakePath))
-                return FileName::fromString(qmakePath);
-        }
-
-        // Prefer qmake-qt5 to qmake-qt4 by sorting the filenames in reverse order.
-        foreach (const QFileInfo &fi, dir.entryInfoList(possibleQMakeCommands(), QDir::Files, QDir::Name | QDir::Reversed)) {
-            if (fi.fileName() == qmake)
-                continue;
-
-            if (isQmake(fi.absoluteFilePath()))
-                return FileName(fi);
-        }
+        if (isQmake(fi.absoluteFilePath()))
+            return FileName(fi);
     }
     return FileName();
+}
+
+FileName BuildableHelperLibrary::findSystemQt(const Environment &env)
+{
+    const FileNameList list = findQtsInEnvironment(env, 1);
+    return list.size() == 1 ? list.first() : FileName();
+}
+
+FileNameList BuildableHelperLibrary::findQtsInEnvironment(const Environment &env, int maxCount)
+{
+    FileNameList qmakeList;
+    std::set<QString> canonicalEnvPaths;
+    const FileNameList paths = env.path();
+    for (const FileName &path : paths) {
+        if (!canonicalEnvPaths.insert(path.toFileInfo().canonicalFilePath()).second)
+            continue;
+        const FileName qmake = findQmakeInDir(path);
+        if (qmake.isEmpty())
+            continue;
+        qmakeList << qmake;
+        if (maxCount != -1 && qmakeList.size() == maxCount)
+            break;
+    }
+    return qmakeList;
 }
 
 QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)

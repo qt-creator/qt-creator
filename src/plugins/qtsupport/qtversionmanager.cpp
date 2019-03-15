@@ -427,10 +427,8 @@ static FileNameList gatherQmakePathsFromQtChooser()
 
 static void findSystemQt()
 {
-    FileNameList systemQMakes;
-    FileName systemQMakePath = BuildableHelperLibrary::findSystemQt(Environment::systemEnvironment());
-    if (!systemQMakePath.isEmpty())
-        systemQMakes << systemQMakePath;
+    FileNameList systemQMakes
+            = BuildableHelperLibrary::findQtsInEnvironment(Environment::systemEnvironment());
 
     systemQMakes.append(gatherQmakePathsFromQtChooser());
 
