@@ -46,13 +46,11 @@ public:
 class LANGUAGESERVERPROTOCOL_EXPORT SymbolCapabilities : public DynamicRegistrationCapabilities
 {
 public:
-    SymbolCapabilities();
     using DynamicRegistrationCapabilities::DynamicRegistrationCapabilities;
 
-    class SymbolKindCapabilities : public JsonObject
+    class LANGUAGESERVERPROTOCOL_EXPORT SymbolKindCapabilities : public JsonObject
     {
     public:
-        SymbolKindCapabilities();
         using JsonObject::JsonObject;
 
         /*
@@ -85,13 +83,11 @@ public:
 class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentClientCapabilities : public JsonObject
 {
 public:
-    TextDocumentClientCapabilities();
     using JsonObject::JsonObject;
 
-    class SynchronizationCapabilities : public DynamicRegistrationCapabilities
+    class LANGUAGESERVERPROTOCOL_EXPORT SynchronizationCapabilities : public DynamicRegistrationCapabilities
     {
     public:
-        SynchronizationCapabilities();
         using DynamicRegistrationCapabilities::DynamicRegistrationCapabilities;
 
         // The client supports sending will save notifications.
@@ -124,16 +120,14 @@ public:
     { insert(synchronizationKey, synchronization); }
     void clearSynchronization() { remove(synchronizationKey); }
 
-    class CompletionCapabilities : public DynamicRegistrationCapabilities
+    class LANGUAGESERVERPROTOCOL_EXPORT CompletionCapabilities : public DynamicRegistrationCapabilities
     {
     public:
-        CompletionCapabilities();
         using DynamicRegistrationCapabilities::DynamicRegistrationCapabilities;
 
-        class CompletionItemCapbilities : public JsonObject
+        class LANGUAGESERVERPROTOCOL_EXPORT CompletionItemCapbilities : public JsonObject
         {
         public:
-            CompletionItemCapbilities();
             using JsonObject::JsonObject;
 
             /*
@@ -180,7 +174,7 @@ public:
         { insert(completionItemKey, completionItem); }
         void clearCompletionItem() { remove(completionItemKey); }
 
-        class CompletionItemKindCapabilities : public JsonObject
+        class LANGUAGESERVERPROTOCOL_EXPORT CompletionItemKindCapabilities : public JsonObject
         {
         public:
             CompletionItemKindCapabilities();
@@ -227,7 +221,7 @@ public:
     { insert(completionKey, completion); }
     void clearCompletion() { remove(completionKey); }
 
-    class HoverCapabilities : public DynamicRegistrationCapabilities
+    class LANGUAGESERVERPROTOCOL_EXPORT HoverCapabilities : public DynamicRegistrationCapabilities
     {
     public:
         using DynamicRegistrationCapabilities::DynamicRegistrationCapabilities;
@@ -246,12 +240,12 @@ public:
     void setHover(const HoverCapabilities &hover) { insert(hoverKey, hover); }
     void clearHover() { remove(hoverKey); }
 
-    class SignatureHelpCapabilities : public DynamicRegistrationCapabilities
+    class LANGUAGESERVERPROTOCOL_EXPORT SignatureHelpCapabilities : public DynamicRegistrationCapabilities
     {
     public:
         using DynamicRegistrationCapabilities::DynamicRegistrationCapabilities;
 
-        class SignatureInformationCapabilities : public JsonObject
+        class LANGUAGESERVERPROTOCOL_EXPORT SignatureInformationCapabilities : public JsonObject
         {
         public:
             using JsonObject::JsonObject;
@@ -355,17 +349,17 @@ public:
     { insert(implementationKey, implementation); }
     void clearImplementation() { remove(implementationKey); }
 
-    class CodeActionCapabilities : public DynamicRegistrationCapabilities
+    class LANGUAGESERVERPROTOCOL_EXPORT CodeActionCapabilities : public DynamicRegistrationCapabilities
     {
     public:
         using DynamicRegistrationCapabilities::DynamicRegistrationCapabilities;
 
-        class CodeActionLiteralSupport : public JsonObject
+        class LANGUAGESERVERPROTOCOL_EXPORT CodeActionLiteralSupport : public JsonObject
         {
         public:
             using JsonObject::JsonObject;
 
-            class CodeActionKind : public JsonObject
+            class LANGUAGESERVERPROTOCOL_EXPORT CodeActionKind : public JsonObject
             {
             public:
                 using JsonObject::JsonObject;
@@ -454,7 +448,7 @@ public:
     void setApplyEdit(bool applyEdit) { insert(applyEditKey, applyEdit); }
     void clearApplyEdit() { remove(applyEditKey); }
 
-    class WorkspaceEditCapabilities : public JsonObject
+    class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceEditCapabilities : public JsonObject
     {
     public:
         using JsonObject::JsonObject;
@@ -522,7 +516,6 @@ public:
 class LANGUAGESERVERPROTOCOL_EXPORT ClientCapabilities : public JsonObject
 {
 public:
-    ClientCapabilities();
     using JsonObject::JsonObject;
 
     // Workspace specific client capabilities.

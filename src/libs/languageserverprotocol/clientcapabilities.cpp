@@ -27,19 +27,6 @@
 
 namespace LanguageServerProtocol {
 
-SymbolCapabilities::SymbolKindCapabilities::SymbolKindCapabilities()
-{
-    setValueSet({SymbolKind::File, SymbolKind::Module, SymbolKind::Namespace,
-                 SymbolKind::Package, SymbolKind::Class, SymbolKind::Method,
-                 SymbolKind::Property, SymbolKind::Field, SymbolKind::Constructor,
-                 SymbolKind::Enum, SymbolKind::Interface, SymbolKind::Function,
-                 SymbolKind::Variable, SymbolKind::Constant, SymbolKind::String,
-                 SymbolKind::Number, SymbolKind::Boolean, SymbolKind::Array,
-                 SymbolKind::Object, SymbolKind::Key, SymbolKind::Null,
-                 SymbolKind::EnumMember, SymbolKind::Struct, SymbolKind::Event,
-                 SymbolKind::Operator, SymbolKind::TypeParameter});
-}
-
 Utils::optional<QList<SymbolKind> > SymbolCapabilities::SymbolKindCapabilities::valueSet() const
 {
     Utils::optional<QList<int>> array = optionalArray<int>(valueSetKey);
@@ -53,13 +40,6 @@ Utils::optional<QList<SymbolKind> > SymbolCapabilities::SymbolKindCapabilities::
 void SymbolCapabilities::SymbolKindCapabilities::setValueSet(const QList<SymbolKind> &valueSet)
 {
     insert(valueSetKey, enumArrayToJsonArray<SymbolKind>(valueSet));
-}
-
-
-ClientCapabilities::ClientCapabilities()
-{
-    setTextDocument(TextDocumentClientCapabilities());
-    setWorkspace(WorkspaceClientCapabilities());
 }
 
 bool ClientCapabilities::isValid(QStringList *error) const
@@ -85,33 +65,12 @@ bool WorkspaceClientCapabilities::isValid(QStringList *error) const
             && checkOptional<bool>(error,configurationKey);
 }
 
-TextDocumentClientCapabilities::SynchronizationCapabilities::SynchronizationCapabilities()
-{
-    setDynamicRegistration(true);
-    setWillSave(true);
-    setWillSaveWaitUntil(false);
-    setDidSave(true);
-}
-
 bool TextDocumentClientCapabilities::SynchronizationCapabilities::isValid(QStringList *error) const
 {
     return DynamicRegistrationCapabilities::isValid(error)
             && checkOptional<bool>(error, willSaveKey)
             && checkOptional<bool>(error, willSaveWaitUntilKey)
             && checkOptional<bool>(error, didSaveKey);
-}
-
-TextDocumentClientCapabilities::TextDocumentClientCapabilities()
-{
-    setSynchronization(SynchronizationCapabilities());
-    setDocumentSymbol(SymbolCapabilities());
-    setCompletion(CompletionCapabilities());
-    CodeActionCapabilities cac;
-    CodeActionCapabilities::CodeActionLiteralSupport literalSupport;
-    literalSupport.setCodeActionKind(
-                CodeActionCapabilities::CodeActionLiteralSupport::CodeActionKind(QList<QString>{"*"}));
-    cac.setCodeActionLiteralSupport(literalSupport);
-    setCodeAction(cac);
 }
 
 bool TextDocumentClientCapabilities::isValid(QStringList *error) const
@@ -136,22 +95,10 @@ bool TextDocumentClientCapabilities::isValid(QStringList *error) const
        && checkOptional<DynamicRegistrationCapabilities>(error, renameKey);
 }
 
-SymbolCapabilities::SymbolCapabilities()
-{
-    setSymbolKind(SymbolKindCapabilities());
-}
-
 bool SymbolCapabilities::isValid(QStringList *error) const
 {
     return DynamicRegistrationCapabilities::isValid(error)
             && checkOptional<SymbolKindCapabilities>(error, symbolKindKey);
-}
-
-TextDocumentClientCapabilities::CompletionCapabilities::CompletionCapabilities()
-{
-    setDynamicRegistration(true);
-    setCompletionItem(CompletionItemCapbilities());
-    setCompletionItemKind(CompletionItemKindCapabilities());
 }
 
 bool TextDocumentClientCapabilities::CompletionCapabilities::isValid(QStringList *error) const

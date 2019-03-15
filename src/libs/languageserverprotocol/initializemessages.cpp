@@ -54,10 +54,6 @@ QString Trace::toString() const
 }
 #undef RETURN_CASE
 
-TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemCapbilities::CompletionItemCapbilities()
-{
-}
-
 Utils::optional<QList<MarkupKind>>
 TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemCapbilities::
 documentationFormat() const

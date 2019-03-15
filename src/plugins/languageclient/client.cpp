@@ -122,6 +122,75 @@ Client::~Client()
         removeDiagnostics(uri);
 }
 
+static ClientCapabilities generateClientCapabilities()
+{
+    ClientCapabilities capabilities;
+    WorkspaceClientCapabilities workspaceCapabilities;
+    workspaceCapabilities.setWorkspaceFolders(true);
+    workspaceCapabilities.setApplyEdit(true);
+    DynamicRegistrationCapabilities allowDynamicRegistration;
+    allowDynamicRegistration.setDynamicRegistration(true);
+    workspaceCapabilities.setDidChangeConfiguration(allowDynamicRegistration);
+    workspaceCapabilities.setExecuteCommand(allowDynamicRegistration);
+    capabilities.setWorkspace(workspaceCapabilities);
+
+    TextDocumentClientCapabilities documentCapabilities;
+    TextDocumentClientCapabilities::SynchronizationCapabilities syncCapabilities;
+    syncCapabilities.setDynamicRegistration(true);
+    syncCapabilities.setWillSave(true);
+    syncCapabilities.setWillSaveWaitUntil(false);
+    syncCapabilities.setDidSave(true);
+    documentCapabilities.setSynchronization(syncCapabilities);
+
+    SymbolCapabilities symbolCapabilities;
+    SymbolCapabilities::SymbolKindCapabilities symbolKindCapabilities;
+    symbolKindCapabilities.setValueSet(
+        {SymbolKind::File,       SymbolKind::Module,       SymbolKind::Namespace,
+         SymbolKind::Package,    SymbolKind::Class,        SymbolKind::Method,
+         SymbolKind::Property,   SymbolKind::Field,        SymbolKind::Constructor,
+         SymbolKind::Enum,       SymbolKind::Interface,    SymbolKind::Function,
+         SymbolKind::Variable,   SymbolKind::Constant,     SymbolKind::String,
+         SymbolKind::Number,     SymbolKind::Boolean,      SymbolKind::Array,
+         SymbolKind::Object,     SymbolKind::Key,          SymbolKind::Null,
+         SymbolKind::EnumMember, SymbolKind::Struct,       SymbolKind::Event,
+         SymbolKind::Operator,   SymbolKind::TypeParameter});
+    symbolCapabilities.setSymbolKind(symbolKindCapabilities);
+    documentCapabilities.setDocumentSymbol(symbolCapabilities);
+
+    TextDocumentClientCapabilities::CompletionCapabilities completionCapabilities;
+    completionCapabilities.setDynamicRegistration(true);
+    TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemKindCapabilities
+        completionItemKindCapabilities;
+    completionItemKindCapabilities.setValueSet(
+        {CompletionItemKind::Text,         CompletionItemKind::Method,
+         CompletionItemKind::Function,     CompletionItemKind::Constructor,
+         CompletionItemKind::Field,        CompletionItemKind::Variable,
+         CompletionItemKind::Class,        CompletionItemKind::Interface,
+         CompletionItemKind::Module,       CompletionItemKind::Property,
+         CompletionItemKind::Unit,         CompletionItemKind::Value,
+         CompletionItemKind::Enum,         CompletionItemKind::Keyword,
+         CompletionItemKind::Snippet,      CompletionItemKind::Color,
+         CompletionItemKind::File,         CompletionItemKind::Reference,
+         CompletionItemKind::Folder,       CompletionItemKind::EnumMember,
+         CompletionItemKind::Constant,     CompletionItemKind::Struct,
+         CompletionItemKind::Event,        CompletionItemKind::Operator,
+         CompletionItemKind::TypeParameter});
+
+    completionCapabilities.setCompletionItemKind(completionItemKindCapabilities);
+    documentCapabilities.setCompletion(completionCapabilities);
+
+    TextDocumentClientCapabilities::CodeActionCapabilities codeActionCapabilities;
+    TextDocumentClientCapabilities::CodeActionCapabilities::CodeActionLiteralSupport literalSupport;
+    literalSupport.setCodeActionKind(
+        TextDocumentClientCapabilities::CodeActionCapabilities::CodeActionLiteralSupport::
+            CodeActionKind(QList<QString>{"*"}));
+    codeActionCapabilities.setCodeActionLiteralSupport(literalSupport);
+    documentCapabilities.setCodeAction(codeActionCapabilities);
+    capabilities.setTextDocument(documentCapabilities);
+
+    return capabilities;
+}
+
 void Client::initialize()
 {
     using namespace ProjectExplorer;
@@ -131,6 +200,7 @@ void Client::initialize()
     auto initRequest = new InitializeRequest();
     if (auto startupProject = SessionManager::startupProject()) {
         auto params = initRequest->params().value_or(InitializeParams());
+        params.setCapabilities(generateClientCapabilities());
         params.setRootUri(DocumentUri::fromFileName(startupProject->projectDirectory()));
         initRequest->setParams(params);
         params.setWorkSpaceFolders(Utils::transform(SessionManager::projects(), [](Project *pro){
