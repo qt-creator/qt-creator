@@ -20,7 +20,8 @@ Editing
 
 * Language Client
     * Added support for document outline (QTCREATORBUG-21573)
-    * Added support for `Find Usages` (QTCREATORBUG-21577)
+    * Added support for `Find References to Symbol Under Cursor`
+      (QTCREATORBUG-21577)
     * Added support for code actions
 * Highlighter
     * Replaced custom highlighting file parser with `KSyntaxHighlighting`

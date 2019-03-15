@@ -52,7 +52,8 @@
             {following symbols}, and so on
 
         \li Inspecting code by using the \l{Browsing Project Contents}
-            {class browser}, the \l{Viewing QML Types}{outline}, and so on
+            {class browser}, the \l{Viewing Defined Types and Symbols}
+            {outline}, and so on
 
         \li Diagnostics
 
