@@ -141,7 +141,8 @@ class PlainDumper:
         d.putType(value.nativeValue.type.name)
         val = printer.to_string()
         if isinstance(val, str):
-            d.putValue(val)
+            # encode and avoid extra quotes ('"') at beginning and end
+            d.putValue(d.hexencode(val), 'utf8:1:0')
         elif sys.version_info[0] <= 2 and isinstance(val, unicode):
             d.putValue(val)
         else: # Assuming LazyString
