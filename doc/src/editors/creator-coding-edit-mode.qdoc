@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -192,16 +192,25 @@
     \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Behavior >
     \uicontrol {Enable mouse navigation}.
 
-    You can also select the symbol and press \key F2, or right-click the symbol
+    There are several additional ways of moving between symbol definitions and
+    declarations. All the functions described below are also available from the
+    \uicontrol Tools > \uicontrol C++ menu. The functions supported for QML and
+    JavaScript code are available from the \uicontrol Tools > \uicontrol QML/JS
+    menu.
+
+    You can select the symbol and press \key F2, or right-click the symbol
     and select \uicontrol {Follow Symbol Under Cursor} to move to its definition
-    or declaration. This feature is supported for namespaces, classes,
-    functions, variables, include statements, and macros.
+    or declaration. To follow the symbol in the next split, select
+    \uicontrol {Follow Symbol Under Cursor in Next Split}. Following symbols is
+    supported for namespaces, classes, functions, variables, include statements,
+    and macros.
 
     To switch between the definition and declaration of a function, place the
     cursor on either and press \key {Shift+F2} or right-click and select
-    \uicontrol {Switch Between Function Declaration/Definition}. For example,
-    this allows you to navigate from anywhere within a function body directly to
-    the function declaration.
+    \uicontrol {Switch Between Function Declaration/Definition} or
+    \uicontrol {Open Function Declaration/Definition in Next Split}.
+    For example, this allows you to navigate from anywhere within a function
+    body directly to the function declaration.
 
     Links are opened in the same split by default. To open links in the next
     split, prepend \key {Ctrl+E} to the shortcut. For example, press
@@ -213,6 +222,11 @@
     displayed and switching between definition and declaration is done in
     another split. If you change the default behavior, the shortcuts for opening
     link targets in the next split are used to open them in the current split.
+
+    To switch between C++ header and source files, right-click anywhere in a
+    file and select \uicontrol {Switch Header/Source} or
+    \uicontrol {Open Corresponding Header/Source in Next Split}. You can also
+    press \key F4 or \key {Ctrl+E,F4}, respectively.
 
     \section1 Reparsing Externally Changed Files
 
