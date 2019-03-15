@@ -33,8 +33,8 @@
 #define QT_QML_URL_REGEXP "(?:file|qrc):(?://)?/.+?"
 #define QT_ASSERT_REGEXP "ASSERT: .* in file (.+, line \\d+)"
 #define QT_ASSERT_X_REGEXP "ASSERT failure in .*: \".*\", file (.+, line \\d+)"
-#define QT_TEST_FAIL_UNIX_REGEXP "^   Loc: \\[(.*)\\]$"
-#define QT_TEST_FAIL_WIN_REGEXP "^(.*\\(\\d+\\)) : failure location\\s*$"
+#define QT_TEST_FAIL_UNIX_REGEXP "^   Loc: \\[((?<file>.+)\\((?<line>\\d+)\\))\\]$"
+#define QT_TEST_FAIL_WIN_REGEXP "^((?<file>.+)\\((?<line>\\d+)\\)) : failure location\\s*$"
 
 namespace ProjectExplorer { class Project; }
 

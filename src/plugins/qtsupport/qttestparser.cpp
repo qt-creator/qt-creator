@@ -25,6 +25,8 @@
 
 #include "qttestparser.h"
 
+#include "qtoutputformatter.h"
+
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -61,8 +63,8 @@ void QtTestParser::stdOutput(const QString &line)
         return;
     }
     static const QRegularExpression locationPattern(HostOsInfo::isWindowsHost()
-        ? QString("^(?<file>.+)\\((?<line>\\d+)\\) : failure location.*$")
-        : QString("^   Loc: \\[(?<file>.+)\\((?<line>\\d+)\\)\\].*$"));
+        ? QString(QT_TEST_FAIL_WIN_REGEXP)
+        : QString(QT_TEST_FAIL_UNIX_REGEXP));
     QTC_CHECK(locationPattern.isValid());
     const QRegularExpressionMatch match = locationPattern.match(theLine);
     if (match.hasMatch()) {
