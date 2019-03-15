@@ -561,18 +561,10 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.627417"
-     inkscape:cx="237.74824"
-     inkscape:cy="69.256677"
      inkscape:document-units="px"
-     inkscape:current-layer="g2486"
-     showgrid="false"
+     showgrid="true"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:window-width="1900"
-     inkscape:window-height="1042"
-     inkscape:window-x="2570"
-     inkscape:window-y="28"
      inkscape:window-maximized="0"
      inkscape:snap-grids="true">
     <inkscape:grid
@@ -9006,6 +8998,30 @@
       </g>
     </g>
     <g
+       transform="translate(111)"
+       id="src/plugins/projectexplorer/images/fileoverlay_py">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#transparentBackgroundRect"
+         id="use2479"
+         width="100%"
+         height="100%"
+         transform="translate(113,68)" />
+      <path
+         style="opacity:0.75;fill:#ffffff"
+         d="m 104,535.99991 c 0.5,-9e-5 1,-0.49991 1,-0.99991 v -1 c 1,0 1.58286,0 2.58286,0 -0.5,0.5 -0.2217,1 0.0332,1.22379 L 108.50001,536 h 0.74644 c 0.27171,0 0.55533,-0.30177 0.75356,-0.5 l 2.24999,-2.25 c 0.25054,-0.25054 0.75001,-0.85547 0.75001,-1.41406 V 530 c 0,-0.5 -0.5,-1 -1,-1 0,0 -8.49999,0 -9,0 -0.50001,0 -1,0.5 -1,1 v 5 c 0,0.5 0.49999,1 0.99999,1 0.5,0 0.5,0 1,-9e-5 z"
+         id="path5194-1"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="zsccscscssszzsszz" />
+      <path
+         sodipodi:nodetypes="cccccccccccc"
+         inkscape:connector-curvature="0"
+         d="m 103.49859,532.5 v -2 c 1.02427,-0.0193 2.92783,-0.45188 3,1 0.0722,1.45188 -2,1 -3,1 z M 111.5,530 v 1.73815 c -0.36757,0.7971 -1.47164,1.64275 -3,3.26185 m 0,-5 v 1.97707 c 0.22805,0.82162 1.35083,0.8693 2,1.52293 m -7,-3.5 v 5"
+         style="fill:none;stroke:#1986a0;stroke-opacity:1"
+         id="path5210-3" />
+    </g>
+    <g
        id="src/libs/utils/images/filesave">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1"
@@ -10119,56 +10135,6 @@
          height="18"
          x="753"
          y="48" />
-    </g>
-    <g
-       transform="translate(116)"
-       id="src/plugins/projectexplorer/images/fileoverlay_py"
-       inkscape:export-filename="/home/crmaurei/dev/qt-creator/src/plugins/projectexplorer/images/fileoverlay_py.png"
-       inkscape:export-xdpi="192"
-       inkscape:export-ydpi="192">
-      <g
-         id="g6226">
-        <g
-           id="g2486">
-          <rect
-             style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-             id="rect4941-3-5-0-5-4-6"
-             width="16"
-             height="16"
-             x="96"
-             y="520"
-             inkscape:export-filename="/home/crmaurei/dev/qt-creator/src/plugins/projectexplorer/images/fileoverlay_py@2x.png"
-             inkscape:export-xdpi="192"
-             inkscape:export-ydpi="192" />
-          <path
-             style="opacity:0.75;fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-             d="m 105.5,528 c -0.28499,-0.0813 -1.57177,-0.0662 -1.87546,-0.0966 -0.93436,-0.0937 -1.86374,-0.15612 -1.85285,0.50571 l 0.0998,6.06281 c 0.6725,0.36107 1.28181,0.15078 1.8106,0.0591 0.25808,-0.0786 -0.006,-1.57127 0.42781,-1.58114 0.18464,-0.004 0.86225,-0.10358 1.56983,-0.17361 0.77225,-0.80046 0.63718,-1.17577 1.16924,-0.0679 0.47064,0.005 0.78828,0.0743 0.71439,0.27346 -0.46327,1.26186 0.081,1.53464 0.54464,1.61459 0.54739,0.0944 1.41432,0.01 1.73732,-1.05221 L 111,528.5 c -0.10018,-0.36741 -0.62147,-0.77874 -1.06629,-0.71274 L 108.5,528 H 107 Z"
-             id="path5937-7"
-             inkscape:connector-curvature="0"
-             sodipodi:nodetypes="cssccscccsccsccc"
-             inkscape:export-filename="/home/crmaurei/dev/qt-creator/src/plugins/projectexplorer/images/fileoverlay_py@2x.png"
-             inkscape:export-xdpi="192"
-             inkscape:export-ydpi="192" />
-          <g
-             aria-label="py"
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.49317265px;line-height:1.25;font-family:Titillium;-inkscape-font-specification:Titillium;letter-spacing:0px;word-spacing:0px;fill:#2e5e84;fill-opacity:1;stroke:none;stroke-width:0.02123293;stroke-miterlimit:4;stroke-dasharray:none"
-             id="text6220"
-             inkscape:export-filename="/home/crmaurei/dev/qt-creator/src/plugins/projectexplorer/images/fileoverlay_py@2x.png"
-             inkscape:export-xdpi="192"
-             inkscape:export-ydpi="192">
-            <path
-               d="m 102.23001,534.27502 h 1.13808 v -1.74959 c 0,0 0.39069,0.0679 0.70494,0.0679 1.29945,0 1.92795,-0.45014 1.92795,-2.25918 0,-1.57973 -0.55206,-2.19124 -1.67316,-2.19124 -0.41616,0 -0.96822,0.33123 -0.96822,0.33123 v -0.22931 h -1.12959 v 0.69094 z m 1.87699,-5.11289 c 0.45014,0 0.7389,0.31425 0.7389,1.17206 0,0.90028 -0.17835,1.27398 -0.85781,1.27398 -0.23781,0 -0.62,-0.051 -0.62,-0.051 v -2.22522 c 0,0 0.39069,-0.16986 0.73891,-0.16986 z"
-               style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Titillium;-inkscape-font-specification:'Titillium Bold';fill:#2e5e84;fill-opacity:1;stroke-width:0.02123293"
-               id="path2488"
-               inkscape:connector-curvature="0"
-               sodipodi:nodetypes="cccsssccccccsscccc" />
-            <path
-               d="m 106.40108,528.24487 1.04466,4.24659 h 0.79836 l -0.46712,1.78356 h 1.1126 l 1.4948,-6.03015 h -1.1211 l -0.77288,3.27836 h -0.19534 l -0.77288,-3.27836 z"
-               style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Titillium;-inkscape-font-specification:'Titillium Bold';fill:#2e5e84;fill-opacity:1;stroke-width:0.02123293"
-               id="path2490" />
-          </g>
-        </g>
-      </g>
     </g>
   </g>
   <g
