@@ -69,7 +69,7 @@
     alphabetic order.
 
     To jump to a line and column in the current file, select the line and column
-    indicator (3) or press \key {Ctrl+L} (or \key {Cmd+L} on \macos) to open the
+    indicator (3) or press \key {Ctrl+K} (or \key {Cmd+K} on \macos) to open the
     locator. Enter the line number and column number in the locator, separated
     by a colon (:).
 
@@ -174,11 +174,19 @@
     \uicontrol Bookmarks > \uicontrol {Previous Bookmark} or press
     \key {Ctrl+.}.
 
+    To use the locator to go to a bookmark, press \key {Ctrl+K} (or \key {Cmd+K}
+    on \macos) to open the locator. Enter \e b and a space to display a list of
+    bookmarks. To filter the bookmarks by line number or a text string, enter
+    the number or string after the space. Double-click a bookmark in the list to
+    go to it in the editor.
+
+    \image qtcreator-locator-bookmark-filtering.png "Filtering bookmarks in locator"
+
     Bookmarks are listed in the \uicontrol Bookmarks view in the sidebar. To
     move between bookmarks, select the \uicontrol {Previous Bookmark} or
     \uicontrol {Next Bookmark} button or use the keyboard shortcuts.
 
-    \image qtcreator-bookmarks-view.png
+    \image qtcreator-bookmarks-view.png "Listing bookmarks in Bookmarks view"
 
 
     \section1 Moving to Symbol Definition or Declaration
