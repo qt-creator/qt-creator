@@ -554,7 +554,7 @@ void DebuggerEnginePrivate::setupViews()
 
     QTC_CHECK(!m_perspective);
 
-    m_perspective = new Perspective("Debugger.Perspective." + m_runId,
+    m_perspective = new Perspective("Debugger.Perspective." + m_runId + '.' + m_debuggerName,
                                     m_engine->displayName(),
                                     Debugger::Constants::PRESET_PERSPECTIVE_ID,
                                     m_debuggerName);
