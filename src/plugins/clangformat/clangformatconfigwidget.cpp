@@ -145,6 +145,7 @@ void ClangFormatConfigWidget::initialize()
         if (!currentProject || !projectConfigExists()) {
             m_ui->projectHasClangFormat->hide();
         } else {
+            m_ui->projectHasClangFormat->show();
             m_ui->projectHasClangFormat->setText(
                 tr("Current project has its own overridden .clang-format file "
                    "and can be configured in Projects > Code Style > C++."));
