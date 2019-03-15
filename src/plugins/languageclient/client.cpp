@@ -784,8 +784,7 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
     }
     box->setModal(true);
     connect(box, &QMessageBox::finished, this, [=]{
-        ShowMessageRequest::Response response;
-        response.setId(id);
+        ShowMessageRequest::Response response(id);
         const MessageActionItem &item = itemForButton.value(box->clickedButton());
         response.setResult(item.isValid(nullptr) ? LanguageClientValue<MessageActionItem>(item)
                                                  : LanguageClientValue<MessageActionItem>());
@@ -847,8 +846,7 @@ void Client::handleMethod(const QString &method, MessageId id, const IContent *c
         if (paramsValid) {
             showMessageBox(params, request->id());
         } else {
-            ShowMessageRequest::Response response;
-            response.setId(request->id());
+            ShowMessageRequest::Response response(request->id());
             ResponseError<std::nullptr_t> error;
             const QString errorMessage =
                     QString("Could not parse ShowMessageRequest parameter of '%1': \"%2\"")
@@ -874,8 +872,7 @@ void Client::handleMethod(const QString &method, MessageId id, const IContent *c
         if (paramsValid)
             applyWorkspaceEdit(params.edit());
     } else if (id.isValid(&error)) {
-        Response<JsonObject, JsonObject> response;
-        response.setId(id);
+        Response<JsonObject, JsonObject> response(id);
         ResponseError<JsonObject> error;
         error.setCode(ResponseError<JsonObject>::MethodNotFound);
         response.setError(error);

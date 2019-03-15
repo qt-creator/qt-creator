@@ -232,6 +232,7 @@ template <typename Result, typename ErrorDataType>
 class Response : public JsonRpcMessage
 {
 public:
+    explicit Response(const MessageId &id) { setId(id); }
     using JsonRpcMessage::JsonRpcMessage;
 
     MessageId id() const
