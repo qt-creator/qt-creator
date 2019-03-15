@@ -871,6 +871,21 @@ void Client::handleMethod(const QString &method, MessageId id, const IContent *c
         paramsValid = params.isValid(&error);
         if (paramsValid)
             applyWorkspaceEdit(params.edit());
+    } else if (method == WorkSpaceFolderRequest::methodName) {
+        WorkSpaceFolderRequest::Response response(dynamic_cast<const WorkSpaceFolderRequest *>(content)->id());
+        const QList<ProjectExplorer::Project *> projects
+            = ProjectExplorer::SessionManager::projects();
+        WorkSpaceFolderResult result;
+        if (projects.isEmpty()) {
+            result = nullptr;
+        } else {
+            result = Utils::transform(projects, [](ProjectExplorer::Project *project) {
+                return WorkSpaceFolder(project->projectDirectory().toString(),
+                                       project->displayName());
+            });
+        }
+        response.setResult(result);
+        sendContent(response);
     } else if (id.isValid(&error)) {
         Response<JsonObject, JsonObject> response(id);
         ResponseError<JsonObject> error;

@@ -56,6 +56,7 @@ LanguageClientManager::LanguageClientManager()
     JsonRpcMessageHandler::registerMessageProvider<LogMessageNotification>();
     JsonRpcMessageHandler::registerMessageProvider<ShowMessageRequest>();
     JsonRpcMessageHandler::registerMessageProvider<ShowMessageNotification>();
+    JsonRpcMessageHandler::registerMessageProvider<WorkSpaceFolderRequest>();
     managerInstance = this;
 }
 

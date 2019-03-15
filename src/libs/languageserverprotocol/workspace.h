@@ -29,8 +29,17 @@
 
 namespace LanguageServerProtocol {
 
+class LANGUAGESERVERPROTOCOL_EXPORT WorkSpaceFolderResult
+    : public Utils::variant<QList<WorkSpaceFolder>, std::nullptr_t>
+{
+public:
+    using variant::variant;
+    using variant::operator=;
+    operator const QJsonValue() const;
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT WorkSpaceFolderRequest : public Request<
-        Utils::variant<QList<WorkSpaceFolder>, Utils::nullopt_t>, std::nullptr_t, std::nullptr_t>
+    WorkSpaceFolderResult, std::nullptr_t, std::nullptr_t>
 {
 public:
     WorkSpaceFolderRequest();
