@@ -34,7 +34,7 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QCheckBox;
+class QComboBox;
 class QLineEdit;
 QT_END_NAMESPACE
 
@@ -44,6 +44,7 @@ class PathChooser;
 } // namespace Utils
 
 namespace Core { class IDocument; }
+namespace ProjectExplorer { class Project; }
 
 namespace LanguageClient {
 
@@ -67,17 +68,23 @@ public:
 
     virtual ~BaseSettings() = default;
 
+    enum StartBehavior {
+        AlwaysOn = 0,
+        RequiresFile,
+        RequiresProject,
+        LastSentinel
+    };
+
     QString m_name = QString("New Language Server");
     QString m_id = QUuid::createUuid().toString();
     bool m_enabled = true;
-    bool m_alwaysOn = false;
+    StartBehavior m_startBehavior = RequiresFile;
     LanguageFilter m_languageFilter;
 
     virtual void applyFromSettingsWidget(QWidget *widget);
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
     virtual BaseSettings *copy() const { return new BaseSettings(*this); }
     virtual bool needsRestart() const;
-    virtual bool canStartClient() const;
     virtual bool isValid() const;
     Client *createClient();
     virtual QVariantMap toMap() const;
@@ -90,6 +97,9 @@ protected:
     BaseSettings(BaseSettings &&other) = default;
     BaseSettings &operator=(const BaseSettings &other) = default;
     BaseSettings &operator=(BaseSettings &&other) = default;
+
+private:
+    bool canStart(QList<const Core::IDocument *> documents) const;
 };
 
 class StdIOSettings : public BaseSettings
@@ -137,7 +147,9 @@ public:
 
     QString name() const;
     LanguageFilter filter() const;
+    BaseSettings::StartBehavior startupBehavior() const;
     bool alwaysOn() const;
+    bool requiresProject() const;
 
 private:
     void showAddMimeTypeDialog();
@@ -145,7 +157,7 @@ private:
     QLineEdit *m_name = nullptr;
     QLabel *m_mimeTypes = nullptr;
     QLineEdit *m_filePattern = nullptr;
-    QCheckBox *m_alwaysOn = nullptr;
+    QComboBox *m_startupBehavior = nullptr;
 
     static constexpr char filterSeparator = ';';
 };

@@ -112,6 +112,8 @@ public:
     void executeCommand(const LanguageServerProtocol::Command &command);
 
     // workspace control
+    void setCurrentProject(ProjectExplorer::Project *project);
+    const ProjectExplorer::Project *project() const;
     void projectOpened(ProjectExplorer::Project *project);
     void projectClosed(ProjectExplorer::Project *project);
 
@@ -200,6 +202,7 @@ private:
     QScopedPointer<BaseClientInterface> m_clientInterface;
     QMap<LanguageServerProtocol::DocumentUri, QList<TextMark *>> m_diagnostics;
     DocumentSymbolCache m_documentSymbolCache;
+    const ProjectExplorer::Project *m_project = nullptr;
 };
 
 } // namespace LanguageClient

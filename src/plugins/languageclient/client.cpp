@@ -215,10 +215,10 @@ void Client::initialize()
     QTC_ASSERT(m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << m_displayName;
     auto initRequest = new InitializeRequest();
-    if (auto startupProject = SessionManager::startupProject()) {
+    if (m_project) {
         auto params = initRequest->params().value_or(InitializeParams());
         params.setCapabilities(generateClientCapabilities());
-        params.setRootUri(DocumentUri::fromFileName(startupProject->projectDirectory()));
+        params.setRootUri(DocumentUri::fromFileName(m_project->projectDirectory()));
         initRequest->setParams(params);
         params.setWorkSpaceFolders(Utils::transform(SessionManager::projects(), [](Project *pro){
             return WorkSpaceFolder(pro->projectDirectory().toString(), pro->displayName());
@@ -730,6 +730,16 @@ void Client::executeCommand(const Command &command)
     sendContent(request);
 }
 
+const ProjectExplorer::Project *Client::project() const
+{
+    return m_project;
+}
+
+void Client::setCurrentProject(ProjectExplorer::Project *project)
+{
+    m_project = project;
+}
+
 void Client::projectOpened(ProjectExplorer::Project *project)
 {
     if (!sendWorkspceFolderChanges())
@@ -744,10 +754,19 @@ void Client::projectOpened(ProjectExplorer::Project *project)
 
 void Client::projectClosed(ProjectExplorer::Project *project)
 {
+    if (project == m_project) {
+        if (m_state == Initialized) {
+            shutdown();
+        } else {
+            m_state = Shutdown; // otherwise the manager would try to restart this server
+            emit finished();
+        }
+    }
     if (!sendWorkspceFolderChanges())
         return;
     WorkspaceFoldersChangeEvent event;
-    event.setRemoved({WorkSpaceFolder(project->projectDirectory().toString(), project->displayName())});
+    event.setRemoved(
+        {WorkSpaceFolder(project->projectDirectory().toString(), project->displayName())});
     DidChangeWorkspaceFoldersParams params;
     params.setEvent(event);
     DidChangeWorkspaceFoldersNotification change(params);
@@ -811,6 +830,7 @@ bool Client::reset()
     m_openedDocument.clear();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
+    m_project = nullptr;
     for (const DocumentUri &uri : m_diagnostics.keys())
         removeDiagnostics(uri);
     return true;

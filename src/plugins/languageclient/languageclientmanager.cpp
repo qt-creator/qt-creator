@@ -112,15 +112,16 @@ void LanguageClientManager::startClient(Client *client)
         managerInstance->clientFinished(client);
 }
 
-void LanguageClientManager::startClient(BaseSettings *setting)
+void LanguageClientManager::startClient(BaseSettings *setting, ProjectExplorer::Project *project)
 {
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(setting, return);
     QTC_ASSERT(setting->isValid(), return);
     Client *client = setting->createClient();
     QTC_ASSERT(client, return);
+    client->setCurrentProject(project);
     startClient(client);
-    managerInstance->m_clientsForSetting[setting->m_id] = client;
+    managerInstance->m_clientsForSetting[setting->m_id].append(QPointer<Client>(client));
 }
 
 QVector<Client *> LanguageClientManager::clients()
@@ -207,14 +208,42 @@ void LanguageClientManager::applySettings()
     });
 
     for (BaseSettings *setting : restarts) {
-        if (auto client = clientForSetting(setting)) {
+        for (const QPointer<Client> &client : clientForSetting(setting)) {
             if (client->reachable())
                 client->shutdown();
             else
                 deleteClient(client);
         }
-        if (setting->canStartClient())
+        if (!setting->isValid() || !setting->m_enabled)
+            continue;
+        switch (setting->m_startBehavior) {
+        case BaseSettings::AlwaysOn:
             startClient(setting);
+            break;
+        case BaseSettings::RequiresFile:
+            if (Utils::anyOf(Core::DocumentModel::openedDocuments(),
+                             [filter = setting->m_languageFilter](Core::IDocument *doc) {
+                                 return filter.isSupported(doc);
+                             })) {
+                startClient(setting);
+            }
+            break;
+        case BaseSettings::RequiresProject: {
+            for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
+                if (setting->m_languageFilter.isSupported(doc)) {
+                    const Utils::FileName filePath = doc->filePath();
+                    for (ProjectExplorer::Project *project :
+                         ProjectExplorer::SessionManager::projects()) {
+                        if (project->isKnownFile(filePath))
+                            startClient(setting, project);
+                    }
+                }
+            }
+            break;
+        }
+        default:
+            break;
+        }
     }
 }
 
@@ -224,10 +253,26 @@ QList<BaseSettings *> LanguageClientManager::currentSettings()
     return managerInstance->m_currentSettings;
 }
 
-Client *LanguageClientManager::clientForSetting(const BaseSettings *setting)
+QVector<QPointer<Client>> LanguageClientManager::clientForSetting(const BaseSettings *setting)
+{
+    QTC_ASSERT(managerInstance, return {});
+    return managerInstance->m_clientsForSetting.value(setting->m_id);
+}
+
+const BaseSettings *LanguageClientManager::settingForClient(Client *client)
 {
     QTC_ASSERT(managerInstance, return nullptr);
-    return managerInstance->m_clientsForSetting.value(setting->m_id, nullptr);
+    for (const QString &id : managerInstance->m_clientsForSetting.keys()) {
+        for (const QPointer<Client> &settingClient : managerInstance->m_clientsForSetting[id]) {
+            if (settingClient == client) {
+                return Utils::findOrDefault(managerInstance->m_currentSettings,
+                                            [id](BaseSettings *setting) {
+                                                return setting->m_id == id;
+                                            });
+            }
+        }
+    }
+    return nullptr;
 }
 
 QVector<Client *> LanguageClientManager::reachableClients()
@@ -255,7 +300,7 @@ void LanguageClientManager::clientFinished(Client *client)
         client->disconnect(this);
         client->log(tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS),
                     Core::MessageManager::Flash);
-        QTimer::singleShot(restartTimeoutS * 1000, client, [client](){ startClient(client); });
+        QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { startClient(client); });
     } else {
         if (unexpectedFinish && !m_shuttingDown)
             client->log(tr("Unexpectedly finished."), Core::MessageManager::Flash);
@@ -299,9 +344,32 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
 
 void LanguageClientManager::documentOpened(Core::IDocument *document)
 {
+    // check whether we have to start servers for this document
     for (BaseSettings *setting : LanguageClientSettings::currentPageSettings()) {
-        if (clientForSetting(setting) == nullptr && setting->canStartClient())
-            startClient(setting);
+        const QVector<QPointer<Client>> clients = clientForSetting(setting);
+        if (setting->isValid() && setting->m_enabled
+            && setting->m_languageFilter.isSupported(document)) {
+            if (setting->m_startBehavior == BaseSettings::RequiresProject) {
+                const Utils::FileName filePath = document->filePath();
+                for (ProjectExplorer::Project *project :
+                     ProjectExplorer::SessionManager::projects()) {
+                    // check whether file is part of this project
+                    if (!project->isKnownFile(filePath))
+                        continue;
+
+                    // check whether we already have a client running for this project
+                    if (Utils::findOrDefault(clients,
+                                             [project](QPointer<Client> client) {
+                                                 return client->project() == project;
+                                             })) {
+                        continue;
+                    }
+                    startClient(setting, project);
+                }
+            } else if (setting->m_startBehavior == BaseSettings::RequiresFile && clients.isEmpty()) {
+                startClient(setting);
+            }
+        }
     }
     for (Client *interface : reachableClients())
         interface->openDocument(document);
@@ -427,13 +495,31 @@ void LanguageClientManager::findUsages(const Utils::FileName &filePath, const QT
 
 void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
 {
+    for (BaseSettings *setting : m_currentSettings) {
+        if (setting->isValid()
+            && setting->m_enabled
+            && setting->m_startBehavior == BaseSettings::RequiresProject) {
+            if (Utils::findOrDefault(clientForSetting(setting),
+                                     [project](QPointer<Client> client) {
+                                         return client->project() == project;
+                                     })
+                    .isNull()) {
+                for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
+                    if (setting->m_languageFilter.isSupported(doc)) {
+                        if (project->isKnownFile(doc->filePath()))
+                            startClient(setting, project);
+                    }
+                }
+            }
+        }
+    }
     for (Client *interface : reachableClients())
         interface->projectOpened(project);
 }
 
 void LanguageClientManager::projectRemoved(ProjectExplorer::Project *project)
 {
-    for (Client *interface : reachableClients())
+    for (Client *interface : m_clients)
         interface->projectClosed(project);
 }
 

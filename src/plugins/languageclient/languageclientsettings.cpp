@@ -34,6 +34,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/variablechooser.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
 #include <utils/fancylineedit.h>
@@ -41,7 +43,6 @@
 #include <utils/jsontreeitem.h>
 
 #include <QBoxLayout>
-#include <QCheckBox>
 #include <QComboBox>
 #include <QCompleter>
 #include <QCoreApplication>
@@ -61,7 +62,7 @@
 constexpr char nameKey[] = "name";
 constexpr char idKey[] = "id";
 constexpr char enabledKey[] = "enabled";
-constexpr char alwaysOnKey[] = "alwaysOn";
+constexpr char startupBehaviorKey[] = "startupBehavior";
 constexpr char mimeTypeKey[] = "mimeType";
 constexpr char filePatternKey[] = "filePattern";
 constexpr char executableKey[] = "executable";
@@ -261,7 +262,7 @@ void LanguageClientSettingsPage::apply()
     LanguageClientManager::applySettings();
 
     for (BaseSettings *setting : m_model.removed()) {
-        if (Client *client = LanguageClientManager::clientForSetting(setting)) {
+        for (Client *client : LanguageClientManager::clientForSetting(setting)) {
             if (client->reachable())
                 client->shutdown();
             else
@@ -374,7 +375,7 @@ void BaseSettings::applyFromSettingsWidget(QWidget *widget)
     if (auto settingsWidget = qobject_cast<BaseSettingsWidget *>(widget)) {
         m_name = settingsWidget->name();
         m_languageFilter = settingsWidget->filter();
-        m_alwaysOn = settingsWidget->alwaysOn();
+        m_startBehavior = settingsWidget->startupBehavior();
     }
 }
 
@@ -385,18 +386,14 @@ QWidget *BaseSettings::createSettingsWidget(QWidget *parent) const
 
 bool BaseSettings::needsRestart() const
 {
-    Client *client = LanguageClientManager::clientForSetting(this);
-    return client ? !m_enabled || client->needsRestart(this) : m_enabled;
-}
-
-bool BaseSettings::canStartClient() const
-{
-    using namespace Core;
-    if (!isValid() || !m_enabled)
-        return false;
-    return m_alwaysOn || Utils::anyOf(DocumentModel::openedDocuments(), [this](IDocument *doc) {
-               return m_languageFilter.isSupported(doc);
-           });
+    const QVector<QPointer<Client>> clients = LanguageClientManager::clientForSetting(this);
+    if (clients.isEmpty())
+        return m_enabled;
+    if (!m_enabled)
+        return true;
+    return Utils::anyOf(clients, [this](const QPointer<Client> &client) {
+        return client->needsRestart(this);
+    });
 }
 
 bool BaseSettings::isValid() const
@@ -422,7 +419,7 @@ QVariantMap BaseSettings::toMap() const
     map.insert(nameKey, m_name);
     map.insert(idKey, m_id);
     map.insert(enabledKey, m_enabled);
-    map.insert(alwaysOnKey, m_alwaysOn);
+    map.insert(startupBehaviorKey, m_startBehavior);
     map.insert(mimeTypeKey, m_languageFilter.mimeTypes);
     map.insert(filePatternKey, m_languageFilter.filePattern);
     return map;
@@ -433,7 +430,8 @@ void BaseSettings::fromMap(const QVariantMap &map)
     m_name = map[nameKey].toString();
     m_id = map.value(idKey, QUuid::createUuid().toString()).toString();
     m_enabled = map[enabledKey].toBool();
-    m_alwaysOn = map.value(alwaysOnKey, false).toBool();
+    m_startBehavior = BaseSettings::StartBehavior(
+        map.value(startupBehaviorKey, BaseSettings::RequiresFile).toInt());
     m_languageFilter.mimeTypes = map[mimeTypeKey].toStringList();
     m_languageFilter.filePattern = map[filePatternKey].toStringList();
 }
@@ -496,11 +494,13 @@ bool StdIOSettings::needsRestart() const
 {
     if (BaseSettings::needsRestart())
         return true;
-    if (Client *client = LanguageClientManager::clientForSetting(this))
-        if (auto stdIOInterface = qobject_cast<const StdIOClientInterface *>(
-                client->clientInterface()))
-            return stdIOInterface->needsRestart(this);
-    return false;
+    return Utils::anyOf(LanguageClientManager::clientForSetting(this),
+                        [this](QPointer<Client> client) {
+                            if (auto stdIOInterface = qobject_cast<const StdIOClientInterface *>(
+                                    client->clientInterface()))
+                                return stdIOInterface->needsRestart(this);
+                            return false;
+                        });
 }
 
 bool StdIOSettings::isValid() const
@@ -533,10 +533,9 @@ BaseClientInterface *StdIOSettings::createInterface() const
     return new StdIOClientInterface(m_executable, arguments());
 }
 
-static QWidget *createCapabilitiesView(
-    const LanguageServerProtocol::ServerCapabilities &capabilities)
+static QWidget *createCapabilitiesView(const QJsonValue &capabilities)
 {
-    auto root = new Utils::JsonTreeItem("Capabilities", QJsonValue(capabilities));
+    auto root = new Utils::JsonTreeItem("Capabilities", capabilities);
     if (root->canFetchMore())
         root->fetchMore();
 
@@ -551,12 +550,28 @@ static QWidget *createCapabilitiesView(
     return capabilitiesView;
 }
 
+static QString startupBehaviorString(BaseSettings::StartBehavior behavior)
+{
+    switch (behavior) {
+    case BaseSettings::AlwaysOn:
+        return QCoreApplication::translate("LanguageClient::BaseSettings", "Always On");
+    case BaseSettings::RequiresFile:
+        return QCoreApplication::translate("LanguageClient::BaseSettings", "Requires an Open File");
+    case BaseSettings::RequiresProject:
+        return QCoreApplication::translate("LanguageClient::BaseSettings",
+                                           "Start Server per Project");
+    default:
+        break;
+    }
+    return {};
+}
+
 BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *parent)
     : QWidget(parent)
     , m_name(new QLineEdit(settings->m_name, this))
     , m_mimeTypes(new QLabel(settings->m_languageFilter.mimeTypes.join(filterSeparator), this))
     , m_filePattern(new QLineEdit(settings->m_languageFilter.filePattern.join(filterSeparator), this))
-    , m_alwaysOn(new QCheckBox())
+    , m_startupBehavior(new QComboBox)
 {
     int row = 0;
     auto *mainLayout = new QGridLayout;
@@ -573,9 +588,12 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     mainLayout->addLayout(mimeLayout, row, 1);
     m_filePattern->setPlaceholderText(tr("File pattern"));
     mainLayout->addWidget(m_filePattern, ++row, 1);
-    mainLayout->addWidget(new QLabel(tr("Always On:")), ++row, 0);
-    mainLayout->addWidget(m_alwaysOn, row, 1);
-    m_alwaysOn->setChecked(settings->m_alwaysOn);
+    mainLayout->addWidget(new QLabel(tr("Startup Behavior:")), ++row, 0);
+    for (int behavior = 0; behavior < BaseSettings::LastSentinel ; ++behavior)
+        m_startupBehavior->addItem(startupBehaviorString(BaseSettings::StartBehavior(behavior)));
+    m_startupBehavior->setCurrentIndex(settings->m_startBehavior);
+    mainLayout->addWidget(m_startupBehavior, row, 1);
+
 
     connect(addMimeTypeButton, &QPushButton::pressed,
             this, &BaseSettingsWidget::showAddMimeTypeDialog);
@@ -585,9 +603,13 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     };
 
     mainLayout->addWidget(new QLabel(tr("Capabilities:")), ++row, 0, Qt::AlignTop);
-    if (Client *client = LanguageClientManager::clientForSetting(settings)) {
+    QVector<QPointer<Client> > clients = LanguageClientManager::clientForSetting(settings);
+    if (clients.isEmpty()) {
+        mainLayout->addWidget(createInfoLabel());
+    } else { // TODO move the capabilities view into a new widget outside of the settings
+        Client *client = clients.first();
         if (client->state() == Client::Initialized)
-            mainLayout->addWidget(createCapabilitiesView(client->capabilities()));
+            mainLayout->addWidget(createCapabilitiesView(QJsonValue(client->capabilities())));
         else
             mainLayout->addWidget(createInfoLabel(), row, 1);
         connect(client, &Client::finished, mainLayout, [mainLayout, row, createInfoLabel]() {
@@ -598,12 +620,9 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
                 [mainLayout, row](
                     const LanguageServerProtocol::ServerCapabilities &capabilities) {
                     delete mainLayout->itemAtPosition(row, 1)->widget();
-                    mainLayout->addWidget(createCapabilitiesView(capabilities), row, 1);
+                    mainLayout->addWidget(createCapabilitiesView(QJsonValue(capabilities)), row, 1);
                 });
-    } else {
-        mainLayout->addWidget(createInfoLabel());
     }
-
     setLayout(mainLayout);
 }
 
@@ -618,9 +637,9 @@ LanguageFilter BaseSettingsWidget::filter() const
                 m_filePattern->text().split(filterSeparator)};
 }
 
-bool BaseSettingsWidget::alwaysOn() const
+BaseSettings::StartBehavior BaseSettingsWidget::startupBehavior() const
 {
-    return m_alwaysOn->isChecked();
+    return BaseSettings::StartBehavior(m_startupBehavior->currentIndex());
 }
 
 class MimeTypeModel : public QStringListModel
