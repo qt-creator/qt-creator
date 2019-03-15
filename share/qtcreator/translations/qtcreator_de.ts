@@ -47368,7 +47368,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Find compile and application output here, as well as a list of configuration and build issues, and the panel for global searches.</source>
-        <translation>Hier werden die Ausgaben der Kompilierung und Ausführung, eine Liste von Konfigurations- und Kompilierungsproblemen, sowie globale Suchergebnisse angezeigt.</translation>
+        <translation>Hier werden die Ausgaben der Kompilierung und Ausführung, eine Liste von Konfigurations- und Kompilierungsproblemen sowie globale Suchergebnisse angezeigt.</translation>
     </message>
     <message>
         <source>Progress Indicator</source>
