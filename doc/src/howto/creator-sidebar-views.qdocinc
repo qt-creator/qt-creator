@@ -182,6 +182,9 @@
         \li Add and remove subprojects.
         \endif
         \li Search from the selected directory.
+        \li Expand or collapse the tree view to show or hide all files and
+            folders.
+        \li Close all files in a project.
         \li Close projects.
     \endlist
 
