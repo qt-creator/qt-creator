@@ -64,12 +64,15 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *proje
     if (m_project) {
         m_ui->applyButton->show();
         hideGlobalCheckboxes();
+        m_ui->fallbackConfig->hide();
         m_ui->overrideDefault->setChecked(
             m_project->namedSettings(Constants::OVERRIDE_FILE_ID).toBool());
     } else {
         m_ui->applyButton->hide();
         showGlobalCheckboxes();
         m_ui->overrideDefault->setChecked(ClangFormatSettings::instance().overrideDefaultFile());
+        m_ui->overrideDefault->setToolTip(
+            tr("Override Clang Format configuration file with the fallback configuration."));
     }
 
     connect(m_ui->overrideDefault, &QCheckBox::toggled, this, [this](bool checked) {
@@ -125,17 +128,12 @@ void ClangFormatConfigWidget::initialize()
     if (lastItem->spacerItem())
         m_ui->verticalLayout->removeItem(lastItem);
 
-    m_ui->clangFormatOptionsTable->setEnabled(true);
-    if (!m_ui->overrideDefault->isChecked()) {
-        if (m_project) {
-            m_ui->clangFormatOptionsTable->hide();
-            m_preview->hide();
-            m_ui->verticalLayout->addStretch(1);
-            return;
-        } else {
-            // Show the fallback configuration only globally.
-            m_ui->clangFormatOptionsTable->setEnabled(false);
-        }
+    if (!m_ui->overrideDefault->isChecked() && m_project) {
+        // Show the fallback configuration only globally.
+        m_ui->clangFormatOptionsTable->hide();
+        m_preview->hide();
+        m_ui->verticalLayout->addStretch(1);
+        return;
     }
 
     m_ui->clangFormatOptionsTable->show();
