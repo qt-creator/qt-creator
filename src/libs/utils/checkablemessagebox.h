@@ -42,7 +42,7 @@ class QTCREATOR_UTILS_EXPORT CheckableMessageBox : public QDialog
 {
     Q_OBJECT
     Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(QPixmap iconPixmap READ iconPixmap WRITE setIconPixmap)
+    Q_PROPERTY(QMessageBox::Icon icon READ icon WRITE setIcon)
     Q_PROPERTY(bool isChecked READ isChecked WRITE setChecked)
     Q_PROPERTY(QString checkBoxText READ checkBoxText WRITE setCheckBoxText)
     Q_PROPERTY(QDialogButtonBox::StandardButtons buttons READ standardButtons WRITE setStandardButtons)
@@ -109,9 +109,8 @@ public:
     QDialogButtonBox::StandardButton defaultButton() const;
     void setDefaultButton(QDialogButtonBox::StandardButton s);
 
-    // See static QMessageBox::standardPixmap()
-    QPixmap iconPixmap() const;
-    void setIconPixmap (const QPixmap &p);
+    QMessageBox::Icon icon() const;
+    void setIcon(QMessageBox::Icon icon);
 
     // Query the result
     QAbstractButton *clickedButton() const;

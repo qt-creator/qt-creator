@@ -537,7 +537,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
         messageBox.setText(text);
         messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::No);
         messageBox.setDefaultButton(QDialogButtonBox::No);
-        messageBox.setIconPixmap(QMessageBox::standardIcon(QMessageBox::Question));
+        messageBox.setIcon(QMessageBox::Question);
         messageBox.setCheckBoxVisible(true);
         messageBox.setCheckBoxText(CheckableMessageBox::msgDoNotAskAgain());
         messageBox.exec();

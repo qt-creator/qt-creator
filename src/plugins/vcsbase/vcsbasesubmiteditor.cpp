@@ -569,7 +569,7 @@ VcsBaseSubmitEditor::PromptSubmitResult
     const QString commitName = plugin->commitDisplayName();
     mb.setWindowTitle(tr("Close %1 %2 Editor")
                       .arg(plugin->versionControl()->displayName(), commitName));
-    mb.setIconPixmap(QMessageBox::standardIcon(QMessageBox::Question));
+    mb.setIcon(QMessageBox::Question);
     QString message;
     if (canCommit) {
         message = tr("What do you want to do with these changes?");
