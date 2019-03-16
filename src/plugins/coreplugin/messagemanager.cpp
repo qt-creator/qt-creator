@@ -31,6 +31,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QFont>
+
 using namespace Core;
 
 static MessageManager *m_instance = nullptr;
@@ -74,6 +76,20 @@ void MessageManager::init()
 {
     m_messageOutputWindow = new Internal::MessageOutputWindow;
     ExtensionSystem::PluginManager::addObject(m_messageOutputWindow);
+}
+
+void MessageManager::setFont(const QFont &font)
+{
+    QTC_ASSERT(m_messageOutputWindow, return);
+
+    m_messageOutputWindow->setFont(font);
+}
+
+void MessageManager::setWheelZoomEnabled(bool enabled)
+{
+    QTC_ASSERT(m_messageOutputWindow, return);
+
+    m_messageOutputWindow->setWheelZoomEnabled(enabled);
 }
 
 void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)

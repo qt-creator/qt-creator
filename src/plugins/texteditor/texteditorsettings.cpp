@@ -47,6 +47,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -367,14 +368,27 @@ TextEditorSettings::TextEditorSettings()
         new SnippetsSettingsPage(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS, this);
     d->m_completionSettingsPage = new CompletionSettingsPage(this);
 
+    auto updateGeneralMessagesFontSettings = []() {
+        Core::MessageManager::setFont(d->m_fontSettingsPage->fontSettings().font());
+    };
     connect(d->m_fontSettingsPage, &FontSettingsPage::changed,
             this, &TextEditorSettings::fontSettingsChanged);
+    connect(d->m_fontSettingsPage, &FontSettingsPage::changed,
+            this, updateGeneralMessagesFontSettings);
+    updateGeneralMessagesFontSettings();
     connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::typingSettingsChanged,
             this, &TextEditorSettings::typingSettingsChanged);
     connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::storageSettingsChanged,
             this, &TextEditorSettings::storageSettingsChanged);
+    auto updateGeneralMessagesBehaviorSettings = []() {
+        bool wheelZoom = d->m_behaviorSettingsPage->behaviorSettings().m_scrollWheelZooming;
+        Core::MessageManager::setWheelZoomEnabled(wheelZoom);
+    };
     connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
             this, &TextEditorSettings::behaviorSettingsChanged);
+    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
+            this, updateGeneralMessagesBehaviorSettings);
+    updateGeneralMessagesBehaviorSettings();
     connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::extraEncodingSettingsChanged,
             this, &TextEditorSettings::extraEncodingSettingsChanged);
     connect(d->m_displaySettingsPage, &DisplaySettingsPage::marginSettingsChanged,

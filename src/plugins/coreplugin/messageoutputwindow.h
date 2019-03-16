@@ -27,6 +27,11 @@
 
 #include "ioutputpane.h"
 
+QT_BEGIN_NAMESPACE
+class QFont;
+class QToolButton;
+QT_END_NAMESPACE
+
 namespace Core {
 class OutputWindow;
 
@@ -41,7 +46,7 @@ public:
     ~MessageOutputWindow() override;
 
     QWidget *outputWidget(QWidget *parent) override;
-    QList<QWidget*> toolBarWidgets() const override { return {}; }
+    QList<QWidget*> toolBarWidgets() const override;
 
     QString displayName() const override;
     int priorityInStatusBar() const override;
@@ -59,8 +64,16 @@ public:
     void goToPrev() override;
     bool canNavigate() const override;
 
+    void setFont(const QFont &font);
+    void setWheelZoomEnabled(bool enabled);
+
 private:
+    void storeSettings() const;
+    void loadSettings();
+
     OutputWindow *m_widget;
+    QToolButton *m_zoomInButton = nullptr;
+    QToolButton *m_zoomOutButton = nullptr;
 };
 
 } // namespace Internal
