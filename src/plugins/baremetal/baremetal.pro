@@ -23,6 +23,7 @@ SOURCES += baremetalplugin.cpp \
     iarewtoolchain.cpp \
     keiltoolchain.cpp \
     iarewparser.cpp \
+    keilparser.cpp \
 
 HEADERS += baremetalplugin.h \
     baremetalconstants.h \
@@ -45,6 +46,7 @@ HEADERS += baremetalplugin.h \
     iarewtoolchain.h \
     keiltoolchain.h \
     iarewparser.h \
+    keilparser.h \
 
 RESOURCES += \
     baremetal.qrc

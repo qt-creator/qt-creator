@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "baremetalconstants.h"
+#include "keilparser.h"
 #include "keiltoolchain.h"
 
 #include <projectexplorer/abiwidget.h>
@@ -342,7 +343,7 @@ void KeilToolchain::addToEnvironment(Environment &env) const
 
 IOutputParser *KeilToolchain::outputParser() const
 {
-    return nullptr;
+    return new KeilParser;
 }
 
 QVariantMap KeilToolchain::toMap() const
