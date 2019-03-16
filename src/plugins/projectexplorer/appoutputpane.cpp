@@ -34,16 +34,16 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/outputwindow.h>
-#include <coreplugin/find/basetextfind.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/find/basetextfind.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/outputwindow.h>
+#include <texteditor/behaviorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/behaviorsettings.h>
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/invoker.h>
 
+#include <extensionsystem/invoker.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
@@ -69,7 +69,7 @@ using namespace ProjectExplorer::Internal;
 
 static QObject *debuggerPlugin()
 {
-    return ExtensionSystem::PluginManager::getObjectByName(QLatin1String("DebuggerPlugin"));
+    return ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin");
 }
 
 static QString msgAttachDebuggerTooltip(const QString &handleDescription = QString())
@@ -84,7 +84,7 @@ static void replaceAllChildWidgets(QLayout *layout, const QList<QWidget *> &newC
     while (QLayoutItem *child = layout->takeAt(0))
         delete child;
 
-    foreach (QWidget *widget, newChildren)
+    for (QWidget *widget : newChildren)
         layout->addWidget(widget);
 }
 
@@ -179,7 +179,7 @@ AppOutputPane::AppOutputPane() :
     m_zoomOutButton(new QToolButton),
     m_formatterWidget(new QWidget)
 {
-    setObjectName(QLatin1String("AppOutputPane")); // Used in valgrind engine
+    setObjectName("AppOutputPane"); // Used in valgrind engine
     loadSettings();
 
     // Rerun
@@ -266,7 +266,7 @@ AppOutputPane::~AppOutputPane()
     if (debug)
         qDebug() << "OutputPane::~OutputPane: Entries left" << m_runControlTabs.size();
 
-    foreach (const RunControlTab &rt, m_runControlTabs) {
+    for (const RunControlTab &rt : qAsConst(m_runControlTabs)) {
         delete rt.window;
         delete rt.runControl;
     }
@@ -276,7 +276,7 @@ AppOutputPane::~AppOutputPane()
 void AppOutputPane::storeZoomFactor()
 {
     QSettings *settings = Core::ICore::settings();
-    settings->setValue(QLatin1String(SETTINGS_KEY), m_zoom);
+    settings->setValue(SETTINGS_KEY, m_zoom);
 }
 
 int AppOutputPane::currentIndex() const
@@ -391,14 +391,14 @@ void AppOutputPane::setFocus()
 void AppOutputPane::updateFontSettings()
 {
     QFont f = TextEditor::TextEditorSettings::fontSettings().font();
-    foreach (const RunControlTab &rcTab, m_runControlTabs)
+    for (const RunControlTab &rcTab : qAsConst(m_runControlTabs))
         rcTab.window->setBaseFont(f);
 }
 
 void AppOutputPane::updateBehaviorSettings()
 {
     bool zoomEnabled = TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming;
-    foreach (const RunControlTab &rcTab, m_runControlTabs)
+    for (const RunControlTab &rcTab : qAsConst(m_runControlTabs))
         rcTab.window->setWheelZoomEnabled(zoomEnabled);
 }
 
@@ -463,7 +463,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
 
     connect(ow, &Core::OutputWindow::wheelZoom, this, [this, ow]() {
         m_zoom = ow->fontZoom();
-        foreach (const RunControlTab &tab, m_runControlTabs)
+        for (const RunControlTab &tab : qAsConst(m_runControlTabs))
             tab.window->setFontZoom(m_zoom);
     });
 
@@ -487,7 +487,7 @@ void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
 
 void AppOutputPane::updateFromSettings()
 {
-    foreach (const RunControlTab &tab, m_runControlTabs) {
+    for (const RunControlTab &tab : qAsConst(m_runControlTabs)) {
         tab.window->setWordWrapEnabled(m_settings.wrapOutput);
         tab.window->setMaxCharCount(m_settings.maxCharCount);
     }
@@ -501,7 +501,7 @@ void AppOutputPane::appendMessage(RunControl *rc, const QString &out, Utils::Out
         QString stringToWrite;
         if (format == Utils::NormalMessageFormat || format == Utils::ErrorMessageFormat) {
             stringToWrite = QTime::currentTime().toString();
-            stringToWrite += QLatin1String(": ");
+            stringToWrite += ": ";
         }
         stringToWrite += out;
         window->appendMessage(stringToWrite, format);
@@ -665,7 +665,7 @@ void AppOutputPane::enableDefaultButtons()
 
 void AppOutputPane::zoomIn()
 {
-    foreach (const RunControlTab &tab, m_runControlTabs)
+    for (const RunControlTab &tab : qAsConst(m_runControlTabs))
         tab.window->zoomIn(1);
     if (m_runControlTabs.isEmpty())
         return;
@@ -674,7 +674,7 @@ void AppOutputPane::zoomIn()
 
 void AppOutputPane::zoomOut()
 {
-    foreach (const RunControlTab &tab, m_runControlTabs)
+    for (const RunControlTab &tab : qAsConst(m_runControlTabs))
         tab.window->zoomOut(1);
     if (m_runControlTabs.isEmpty())
         return;
