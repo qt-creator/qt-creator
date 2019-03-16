@@ -53,6 +53,7 @@
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLoggingCategory>
 #include <QMenu>
 #include <QSpinBox>
 #include <QTabBar>
@@ -60,9 +61,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include <QDebug>
-
-enum { debug = 0 };
+static Q_LOGGING_CATEGORY(appOutputLog, "qtc.projectexplorer.appoutput", QtWarningMsg);
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -263,8 +262,7 @@ AppOutputPane::AppOutputPane() :
 
 AppOutputPane::~AppOutputPane()
 {
-    if (debug)
-        qDebug() << "OutputPane::~OutputPane: Entries left" << m_runControlTabs.size();
+    qCDebug(appOutputLog) << "AppOutputPane::~AppOutputPane: Entries left" << m_runControlTabs.size();
 
     for (const RunControlTab &rt : qAsConst(m_runControlTabs)) {
         delete rt.window;
@@ -444,8 +442,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         m_tabWidget->setTabText(tabIndex, rc->displayName());
 
         tab.window->scrollToBottom();
-        if (debug)
-            qDebug() << "OutputPane::createNewOutputWindow: Reusing tab" << tabIndex << " for " << rc;
+        qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Reusing tab"
+                              << tabIndex << "for" << rc;
         return;
     }
     // Create new
@@ -472,8 +470,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     agg->add(new Core::BaseTextFind(ow));
     m_runControlTabs.push_back(RunControlTab(rc, ow));
     m_tabWidget->addTab(ow, rc->displayName());
-    if (debug)
-        qDebug() << "OutputPane::createNewOutputWindow: Adding tab for " << rc;
+    qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Adding tab for" << rc;
     updateCloseActions();
 }
 
@@ -592,8 +589,7 @@ void AppOutputPane::stopRunControl()
         rc->forceStop();
     }
 
-    if (debug)
-        qDebug() << "OutputPane::stopRunControl " << rc;
+    qCDebug(appOutputLog) << "AppOutputPane::stopRunControl" << rc;
 }
 
 void AppOutputPane::closeTabs(CloseTabMode mode)
@@ -617,8 +613,7 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 
     RunControl *runControl = m_runControlTabs[index].runControl;
     Core::OutputWindow *window = m_runControlTabs[index].window;
-    if (debug)
-        qDebug() << "OutputPane::closeTab tab " << tabIndex << runControl << window;
+    qCDebug(appOutputLog) << "AppOutputPane::closeTab tab" << tabIndex << runControl << window;
     // Prompt user to stop
     if (closeTabMode == CloseTabWithPrompt) {
         QWidget *tabWidget = m_tabWidget->widget(tabIndex);
@@ -769,9 +764,8 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
     // Enable buttons for current
     RunControl *current = currentRunControl();
 
-    if (debug)
-        qDebug() << "OutputPane::runControlFinished"  << sender << senderIndex
-                    << " current " << current << m_runControlTabs.size();
+    qCDebug(appOutputLog) << "AppOutputPane::runControlFinished"  << sender << senderIndex
+                          << "current" << current << m_runControlTabs.size();
 
     if (current && current == sender)
         enableButtons(current);
