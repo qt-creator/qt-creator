@@ -29,6 +29,8 @@
 
 #include <QCoreApplication>
 
+QT_FORWARD_DECLARE_CLASS(QCheckBox);
+
 namespace Utils { class FancyLineEdit; }
 
 namespace Git {
@@ -56,6 +58,7 @@ public:
 private:
     QWidget *m_widget;
     Utils::FancyLineEdit *m_treeLineEdit;
+    QCheckBox *m_recurseSubmodules = nullptr;
 };
 
 } // namespace Internal

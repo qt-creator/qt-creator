@@ -44,6 +44,7 @@
 #include <utils/synchronousprocess.h>
 #include <utils/textfileformat.h>
 
+#include <QCheckBox>
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QHBoxLayout>
@@ -59,6 +60,8 @@ class GitGrepParameters
 {
 public:
     QString ref;
+    bool recurseSubmodules = false;
+    QString id() const { return recurseSubmodules ? ref + ".Rec" : ref; }
 };
 
 using namespace Core;
@@ -169,10 +172,10 @@ public:
             arguments << "-P";
         else
             arguments << "-F";
-        if (client->gitVersion() >= 0x021300)
-            arguments << "--recurse-submodules";
         arguments << "-e" << m_parameters.text;
         GitGrepParameters params = m_parameters.searchEngineParameters.value<GitGrepParameters>();
+        if (params.recurseSubmodules)
+            arguments << "--recurse-submodules";
         if (!params.ref.isEmpty()) {
             arguments << params.ref;
             m_ref = params.ref + ':';
@@ -245,6 +248,10 @@ GitGrep::GitGrep(QObject *parent)
     const QRegularExpression refExpression("[\\S]*");
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
     layout->addWidget(m_treeLineEdit);
+    if (GitPlugin::client()->gitVersion() >= 0x021300) {
+        m_recurseSubmodules = new QCheckBox(tr("Recurse submodules"));
+        layout->addWidget(m_recurseSubmodules);
+    }
     TextEditor::FindInFiles *findInFiles = TextEditor::FindInFiles::instance();
     QTC_ASSERT(findInFiles, return);
     connect(findInFiles, &TextEditor::FindInFiles::pathChanged,
@@ -282,6 +289,8 @@ QVariant GitGrep::parameters() const
 {
     GitGrepParameters params;
     params.ref = m_treeLineEdit->text();
+    if (m_recurseSubmodules)
+        params.recurseSubmodules = m_recurseSubmodules->isChecked();
     return qVariantFromValue(params);
 }
 
@@ -325,7 +334,7 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
     }
 
     const QString documentId = QLatin1String(Git::Constants::GIT_PLUGIN)
-            + QLatin1String(".GitShow.") + params.ref
+            + QLatin1String(".GitShow.") + params.id()
             + QLatin1String(".") + relativePath;
     QString title = tr("Git Show %1:%2").arg(params.ref).arg(relativePath);
     IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,
