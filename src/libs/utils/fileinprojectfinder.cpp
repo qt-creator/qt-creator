@@ -464,20 +464,20 @@ FileInProjectFinder::PathMappingNode::~PathMappingNode()
 
 FileNameList FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
 {
-    FileNameList result;
     const auto fileIt = m_fileCache.constFind(fileUrl);
     if (fileIt != m_fileCache.cend())
         return fileIt.value();
+    QStringList hits;
     for (const FileName &f : m_allQrcFiles) {
         QrcParser::Ptr &qrcParser = m_parserCache[f];
         if (!qrcParser)
             qrcParser = QrcParser::parseQrcFile(f.toString(), QString());
         if (!qrcParser->isValid())
             continue;
-        QStringList hits;
         qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &hits);
-        result = transform(hits, [](const QString &fp) { return FileName::fromString(fp); });
     }
+    hits.removeDuplicates();
+    const FileNameList result = transform(hits, &FileName::fromString);
     m_fileCache.insert(fileUrl, result);
     return result;
 }
