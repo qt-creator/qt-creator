@@ -81,6 +81,7 @@ const char fixedOptionsC[] =
 "    -client                       Attempt to connect to already running first instance\n"
 "    -settingspath <path>          Override the default path where user settings are stored\n"
 "    -installsettingspath <path>   Override the default path from where user-independent settings are read\n"
+"    -temporarycleansetting        Use clean settings for debug or testing reasons\n"
 "    -pid <pid>                    Attempt to connect to instance given by pid\n"
 "    -block                        Block until editor is closed\n"
 "    -pluginpath <path>            Add a custom search path for plugins\n";
@@ -94,6 +95,8 @@ const char CLIENT_OPTION[] = "-client";
 const char SETTINGS_OPTION[] = "-settingspath";
 const char INSTALL_SETTINGS_OPTION[] = "-installsettingspath";
 const char TEST_OPTION[] = "-test";
+const char TEMPORARY_CLEAN_SETTINGS1[] = "-temporarycleansettings";
+const char TEMPORARY_CLEAN_SETTINGS2[] = "-tcs";
 const char PID_OPTION[] = "-pid";
 const char BLOCK_OPTION[] = "-block";
 const char PLUGINPATH_OPTION[] = "-pluginpath";
@@ -348,6 +351,7 @@ struct Options
     std::vector<char *> appArguments;
     Utils::optional<QString> userLibraryPath;
     bool hasTestOption = false;
+    bool wantsCleanSettings = false;
 };
 
 Options parseCommandLine(int argc, char *argv[])
@@ -372,6 +376,8 @@ Options parseCommandLine(int argc, char *argv[])
         } else if (arg == USER_LIBRARY_PATH_OPTION && hasNext) {
             ++it;
             options.userLibraryPath = nextArg;
+        } else if (arg == TEMPORARY_CLEAN_SETTINGS1 || arg == TEMPORARY_CLEAN_SETTINGS2) {
+            options.wantsCleanSettings = true;
         } else { // arguments that are still passed on to the application
             if (arg == TEST_OPTION)
                 options.hasTestOption = true;
@@ -424,7 +430,7 @@ int main(int argc, char **argv)
 #endif
 
     QScopedPointer<Utils::TemporaryDirectory> temporaryCleanSettingsDir;
-    if (options.settingsPath.isEmpty() && options.hasTestOption) {
+    if (options.settingsPath.isEmpty() && (options.hasTestOption || options.wantsCleanSettings)) {
         temporaryCleanSettingsDir.reset(new Utils::TemporaryDirectory("qtc-test-settings"));
         if (!temporaryCleanSettingsDir->isValid())
             return 1;
