@@ -14,6 +14,7 @@ General
 * Added option to run external tools in build or run environment of
   active project (QTCREATORBUG-18394, QTCREATORBUG-19892)
 * Improved selection colors in dark themes (QTCREATORBUG-18888)
+* Added -temporarycleansettings (alias -tcs) command line option
 
 Editing
 
