@@ -14,6 +14,12 @@
     ],
     \"Category\" : \"Core\",
     \"Description\" : \"Secondary Welcome Screen Plugin.\",
+    \"Arguments\" : [
+        {
+            \"Name\" : \"-notour\",
+            \"Description\" : \"Do not ask for taking a UI tour on startup\"
+        }
+    ],
     \"Url\" : \"http://www.qt.io\",
     $$dependencyList
 }
