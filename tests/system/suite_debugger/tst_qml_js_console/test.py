@@ -146,7 +146,7 @@ def main():
         mainRect = getQModelIndexStr("text='Rectangle'", rootIndex)
         doubleClick(waitForObject(mainRect))
         if not object.exists(":DebugModeWidget_Debugger::Internal::ConsoleView"):
-            invokeMenuItem("Window", "Output Panes", "Debugger Console")
+            invokeMenuItem("Window", "Output Panes", "QML Debugger Console")
         progressBarWait()
         # color and float values have additional ZERO WIDTH SPACE (\u200b), different usage of
         # whitespaces inside expressions is part of the test
