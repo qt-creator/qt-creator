@@ -3355,7 +3355,8 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
 void ProjectExplorerPluginPrivate::addExistingProjects()
 {
     Node * const currentNode = ProjectTree::findCurrentNode();
-    QTC_ASSERT(currentNode, return);
+    if (!currentNode)
+        return;
     ProjectNode *projectNode = currentNode->asProjectNode();
     if (!projectNode && currentNode->asContainerNode())
         projectNode = currentNode->asContainerNode()->rootProjectNode();
@@ -3364,6 +3365,8 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     QStringList subProjectFilePaths = QFileDialog::getOpenFileNames(
                 ICore::mainWindow(), tr("Please choose a project file"), dir,
                 projectNode->subProjectFileNamePatterns().join(";;"));
+    if (!ProjectTree::hasNode(projectNode))
+        return;
     const QList<Node *> childNodes = projectNode->nodes();
     Utils::erase(subProjectFilePaths, [childNodes](const QString &filePath) {
         return Utils::anyOf(childNodes, [filePath](const Node *n) {
