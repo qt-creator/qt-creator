@@ -40,8 +40,8 @@ MessageManager *MessageManager::instance()
 
 void MessageManager::showOutputPane(Core::MessageManager::PrintToOutputPaneFlags flags)
 {
-    if (!m_messageOutputWindow)
-        return;
+    QTC_ASSERT(m_messageOutputWindow, return);
+
     if (flags & Flash) {
         m_messageOutputWindow->flash();
     } else if (flags & Silent) {
@@ -75,8 +75,8 @@ void MessageManager::init()
 
 void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)
 {
-    if (!m_messageOutputWindow)
-        return;
+    QTC_ASSERT(m_messageOutputWindow, return);
+
     showOutputPane(flags);
     m_messageOutputWindow->append(text + QLatin1Char('\n'));
 }
