@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "messagemanager.h"
+
 #include "messageoutputwindow.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -31,7 +32,7 @@
 using namespace Core;
 
 static MessageManager *m_instance = nullptr;
-Internal::MessageOutputWindow *m_messageOutputWindow = nullptr;
+static Internal::MessageOutputWindow *m_messageOutputWindow = nullptr;
 
 MessageManager *MessageManager::instance()
 {
@@ -78,6 +79,6 @@ void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)
     QTC_ASSERT(m_messageOutputWindow, return);
 
     showOutputPane(flags);
-    m_messageOutputWindow->append(text + QLatin1Char('\n'));
+    m_messageOutputWindow->append(text + '\n');
 }
 

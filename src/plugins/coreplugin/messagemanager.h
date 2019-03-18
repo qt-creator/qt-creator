@@ -27,8 +27,8 @@
 
 #include "core_global.h"
 #include "ioutputpane.h"
-#include <QMetaType>
 
+#include <QMetaType>
 #include <QObject>
 
 namespace Core {
