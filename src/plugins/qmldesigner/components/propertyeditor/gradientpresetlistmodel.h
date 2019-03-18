@@ -23,37 +23,39 @@
 **
 ****************************************************************************/
 
-#include "quick2propertyeditorview.h"
+#pragma once
 
-#include "propertyeditorvalue.h"
-#include "fileresourcesmodel.h"
-#include "gradientmodel.h"
-#include "gradientpresetdefaultlistmodel.h"
-#include "gradientpresetcustomlistmodel.h"
-#include "qmlanchorbindingproxy.h"
-#include "theme.h"
+#include <QObject>
+#include <QAbstractListModel>
+#include <QtQml/qqml.h>
+#include <memory>
 
-namespace QmlDesigner {
+class GradientPresetItem;
 
-Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
-    QQuickWidget(parent)
+class GradientPresetListModel : public QAbstractListModel
 {
-    setResizeMode(QQuickWidget::SizeRootObjectToView);
-    Theme::setupTheme(engine());
-}
+    Q_OBJECT
 
-void Quick2PropertyEditorView::registerQmlTypes()
-{
-    static bool declarativeTypesRegistered = false;
-    if (!declarativeTypesRegistered) {
-        declarativeTypesRegistered = true;
-        PropertyEditorValue::registerDeclarativeTypes();
-        FileResourcesModel::registerDeclarativeType();
-        GradientModel::registerDeclarativeType();
-        GradientPresetDefaultListModel::registerDeclarativeType();
-        GradientPresetCustomListModel::registerDeclarativeType();
-        Internal::QmlAnchorBindingProxy::registerDeclarativeType();
-    }
-}
+public:
+    explicit GradientPresetListModel(QObject *parent = nullptr);
+    ~GradientPresetListModel() override;
 
-} //QmlDesigner
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QHash<int, QByteArray> roleNames() const override;
+
+    void clearItems();
+    void addItem(const GradientPresetItem &element);
+
+    const QList<GradientPresetItem> &items() const;
+
+    void sortItems();
+
+    static void registerDeclarativeType();
+
+protected:
+    QList<GradientPresetItem> m_items;
+    QHash<int, QByteArray> m_roleNames;
+};
+
+//QML_DECLARE_TYPE(GradientPresetListModel)

@@ -21,6 +21,8 @@ FontComboBox 2.0 FontComboBox.qml
 FontSection 2.0 FontSection.qml
 FontStyleButtons 2.0 FontStyleButtons.qml
 GradientLine 2.0 GradientLine.qml
+GradientPresetList 2.0 GradientPresetList.qml
+GradientPresetTabContent 2.0 GradientPresetTabContent.qml
 GroupBox 2.0 GroupBox.qml
 HueSlider 2.0 HueSlider.qml
 IconLabel 2.0 IconLabel.qml

@@ -59,6 +59,22 @@ Item {
         gradientModel.deleteGradient()
     }
 
+    function setPresetByID(presetID) {
+        gradientModel.setPresetByID(presetID)
+        colorLine.invalidate()
+        colorLine.select(0)
+    }
+
+    function setPresetByStops(stopsPositions, stopsColors, stopsCount) {
+        gradientModel.setPresetByStops(stopsPositions, stopsColors, stopsCount)
+        colorLine.invalidate()
+        colorLine.select(0)
+    }
+
+    function savePreset() {
+        gradientModel.savePreset()
+    }
+
     Connections {
         target: modelNodeBackend
         onSelectionChanged: {

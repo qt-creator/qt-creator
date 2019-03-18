@@ -23,37 +23,40 @@
 **
 ****************************************************************************/
 
-#include "quick2propertyeditorview.h"
+#pragma once
 
-#include "propertyeditorvalue.h"
-#include "fileresourcesmodel.h"
-#include "gradientmodel.h"
-#include "gradientpresetdefaultlistmodel.h"
-#include "gradientpresetcustomlistmodel.h"
-#include "qmlanchorbindingproxy.h"
-#include "theme.h"
+#include "gradientpresetlistmodel.h"
 
-namespace QmlDesigner {
+#include <QObject>
+#include <QAbstractListModel>
+#include <QtQml/qqml.h>
 
-Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
-    QQuickWidget(parent)
+class GradientPresetCustomListModel : public GradientPresetListModel
 {
-    setResizeMode(QQuickWidget::SizeRootObjectToView);
-    Theme::setupTheme(engine());
-}
+    Q_OBJECT
 
-void Quick2PropertyEditorView::registerQmlTypes()
-{
-    static bool declarativeTypesRegistered = false;
-    if (!declarativeTypesRegistered) {
-        declarativeTypesRegistered = true;
-        PropertyEditorValue::registerDeclarativeTypes();
-        FileResourcesModel::registerDeclarativeType();
-        GradientModel::registerDeclarativeType();
-        GradientPresetDefaultListModel::registerDeclarativeType();
-        GradientPresetCustomListModel::registerDeclarativeType();
-        Internal::QmlAnchorBindingProxy::registerDeclarativeType();
-    }
-}
+public:
+    explicit GradientPresetCustomListModel(QObject *parent = nullptr);
+    ~GradientPresetCustomListModel() override;
 
-} //QmlDesigner
+    static void registerDeclarativeType();
+
+    static QString getFilename();
+    static void storePresets(const QString &filename, const QList<GradientPresetItem> &items);
+    static QList<GradientPresetItem> storedPresets(const QString &filename);
+
+    Q_INVOKABLE void addGradient(const QList<qreal> &stopsPositions,
+                                 const QList<QString> &stopsColors,
+                                 int stopsCount);
+
+    Q_INVOKABLE void changePresetName(int id, const QString &newName);
+    Q_INVOKABLE void deletePreset(int id);
+
+    Q_INVOKABLE void writePresets();
+    Q_INVOKABLE void readPresets();
+
+private:
+    QString m_filename;
+};
+
+QML_DECLARE_TYPE(GradientPresetCustomListModel)

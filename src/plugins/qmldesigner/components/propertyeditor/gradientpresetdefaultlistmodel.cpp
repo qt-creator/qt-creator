@@ -23,37 +23,38 @@
 **
 ****************************************************************************/
 
-#include "quick2propertyeditorview.h"
-
-#include "propertyeditorvalue.h"
-#include "fileresourcesmodel.h"
-#include "gradientmodel.h"
 #include "gradientpresetdefaultlistmodel.h"
-#include "gradientpresetcustomlistmodel.h"
-#include "qmlanchorbindingproxy.h"
-#include "theme.h"
 
-namespace QmlDesigner {
+#include <QHash>
+#include <QByteArray>
+#include <QDebug>
 
-Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
-    QQuickWidget(parent)
+#include <QFile>
+
+#include "gradientpresetitem.h"
+
+GradientPresetDefaultListModel::GradientPresetDefaultListModel(QObject *parent)
+    : GradientPresetListModel(parent)
 {
-    setResizeMode(QQuickWidget::SizeRootObjectToView);
-    Theme::setupTheme(engine());
+    addAllPresets();
 }
 
-void Quick2PropertyEditorView::registerQmlTypes()
+GradientPresetDefaultListModel::~GradientPresetDefaultListModel() {}
+
+void GradientPresetDefaultListModel::registerDeclarativeType()
 {
-    static bool declarativeTypesRegistered = false;
-    if (!declarativeTypesRegistered) {
-        declarativeTypesRegistered = true;
-        PropertyEditorValue::registerDeclarativeTypes();
-        FileResourcesModel::registerDeclarativeType();
-        GradientModel::registerDeclarativeType();
-        GradientPresetDefaultListModel::registerDeclarativeType();
-        GradientPresetCustomListModel::registerDeclarativeType();
-        Internal::QmlAnchorBindingProxy::registerDeclarativeType();
+    qmlRegisterType<GradientPresetDefaultListModel>("HelperWidgets",
+                                                    2,
+                                                    0,
+                                                    "GradientPresetDefaultListModel");
+}
+
+void GradientPresetDefaultListModel::addAllPresets()
+{
+    const QMetaObject &metaObj = QGradient::staticMetaObject;
+    const QMetaEnum metaEnum = metaObj.enumerator(metaObj.indexOfEnumerator("Preset"));
+
+    for (int i = 0; i < metaEnum.keyCount(); i++) {
+        addItem(GradientPresetItem(QGradient::Preset(metaEnum.value(i))));
     }
 }
-
-} //QmlDesigner

@@ -23,37 +23,27 @@
 **
 ****************************************************************************/
 
-#include "quick2propertyeditorview.h"
+#pragma once
 
-#include "propertyeditorvalue.h"
-#include "fileresourcesmodel.h"
-#include "gradientmodel.h"
-#include "gradientpresetdefaultlistmodel.h"
-#include "gradientpresetcustomlistmodel.h"
-#include "qmlanchorbindingproxy.h"
-#include "theme.h"
+#include <QObject>
+#include <QAbstractListModel>
+#include <QtQml/qqml.h>
+#include <memory>
 
-namespace QmlDesigner {
+#include "gradientpresetlistmodel.h"
 
-Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
-    QQuickWidget(parent)
+class GradientPresetDefaultListModel : public GradientPresetListModel
 {
-    setResizeMode(QQuickWidget::SizeRootObjectToView);
-    Theme::setupTheme(engine());
-}
+    Q_OBJECT
 
-void Quick2PropertyEditorView::registerQmlTypes()
-{
-    static bool declarativeTypesRegistered = false;
-    if (!declarativeTypesRegistered) {
-        declarativeTypesRegistered = true;
-        PropertyEditorValue::registerDeclarativeTypes();
-        FileResourcesModel::registerDeclarativeType();
-        GradientModel::registerDeclarativeType();
-        GradientPresetDefaultListModel::registerDeclarativeType();
-        GradientPresetCustomListModel::registerDeclarativeType();
-        Internal::QmlAnchorBindingProxy::registerDeclarativeType();
-    }
-}
+public:
+    explicit GradientPresetDefaultListModel(QObject *parent = nullptr);
+    ~GradientPresetDefaultListModel() override;
 
-} //QmlDesigner
+    static void registerDeclarativeType();
+
+private:
+    void addAllPresets();
+};
+
+QML_DECLARE_TYPE(GradientPresetDefaultListModel)

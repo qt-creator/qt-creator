@@ -39,6 +39,8 @@ Item {
 
     signal clicked()
 
+    signal doubleClicked()
+
     property alias tooltip: toolTipArea.tooltip
 
     width: 24 + leftPadding
@@ -100,7 +102,8 @@ Item {
                 buttonRowButton.parent.__checkButton(index())
             }
             buttonRowButton.clicked()
-       }
+        }
+        onDoubleClicked: buttonRowButton.doubleClicked()
 
     }
 }

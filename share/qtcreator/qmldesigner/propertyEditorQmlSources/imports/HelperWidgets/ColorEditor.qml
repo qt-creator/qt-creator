@@ -234,6 +234,46 @@ Column {
                         gradientLine.addGradient()
                     }
 
+                    GradientPresetList {
+                        id: presetList
+                        visible: false
+
+                        function applyPreset() {
+                            if (presetList.gradientData.presetType == 0) {
+                                gradientLine.setPresetByID(presetList.gradientData.presetID);
+                            }
+                            else if (presetList.gradientData.presetType == 1) {
+                                gradientLine.setPresetByStops(
+                                            presetList.gradientData.stops,
+                                            presetList.gradientData.colors,
+                                            presetList.gradientData.stopsCount);
+                            }
+                            else { console.log("INVALID GRADIENT TYPE: " + presetList.gradientData.presetType); }
+                        }
+
+                        onApply: {
+                            if (presetList.gradientData.stopsCount > 0) {
+                                applyPreset();
+                            }
+                        }
+
+                        onSaved: {
+                            gradientLine.savePreset();
+                            presetList.updatePresets();
+                        }
+
+                        onAccepted: { //return key
+                            if (presetList.gradientData.stopsCount > 0) {
+                                applyPreset();
+                            }
+                        }
+
+                    }
+
+                    onDoubleClicked: {
+                        presetList.open()
+                    }
+
                     tooltip: qsTr("Linear Gradient")
 
                     GradientPopupIndicator {
