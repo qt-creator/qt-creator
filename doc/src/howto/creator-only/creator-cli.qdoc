@@ -171,6 +171,10 @@
                 stylesheets.
 
         \row
+            \li -notour
+            \li Welcome plugin: Skip the UI tour on startup.
+
+        \row
             \li -debug <pid>
             \li Debugger plugin: attach to the process with the given process
                 ID.
