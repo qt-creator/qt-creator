@@ -28,7 +28,6 @@
 #include "messageoutputwindow.h"
 
 #include <extensionsystem/pluginmanager.h>
-
 #include <utils/qtcassert.h>
 
 #include <QFont>
@@ -99,4 +98,3 @@ void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)
     showOutputPane(flags);
     m_messageOutputWindow->append(text + '\n');
 }
-
