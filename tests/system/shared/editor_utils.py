@@ -78,8 +78,6 @@ def menuVisibleAtEditor(editor, menuInList):
                     return True
             return False
         menu = waitForObject("{type='QMenu' unnamed='1' visible='1'}", 500)
-        if platform.system() == 'Darwin':
-            menu.activateWindow()
         success = menu.visible and widgetContainsPoint(editor, menu.mapToGlobal(QPoint(0, 0)))
         if success:
             menuInList[0] = menu
