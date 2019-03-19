@@ -3376,8 +3376,8 @@ markers in the source code editor.</source>
     <message numerus="yes">
         <source>&lt;at least %n items&gt;</source>
         <translation>
-            <numerusform>&lt;wenigstens ein Element&gt;</numerusform>
-            <numerusform>&lt;wenigstens %n Elemente&gt;</numerusform>
+            <numerusform>&lt;mindestens ein Element&gt;</numerusform>
+            <numerusform>&lt;mindestens %n Elemente&gt;</numerusform>
         </translation>
     </message>
     <message>
