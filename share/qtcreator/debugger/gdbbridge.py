@@ -79,12 +79,12 @@ def registerCommand(name, func):
 #
 #######################################################################
 
-# Just convienience for 'python print ...'
+# For CLI dumper use, see README.txt
 class PPCommand(gdb.Command):
     def __init__(self):
         super(PPCommand, self).__init__('pp', gdb.COMMAND_OBSCURE)
     def invoke(self, args, from_tty):
-        print(eval(args))
+        print(theCliDumper.fetchVariable(args))
 
 PPCommand()
 
@@ -1407,7 +1407,7 @@ class CliDumper(Dumper):
         self.chidrenSuffix = '] '
         self.indent = 0
         self.isCli = True
-
+        self.setupDumpers({})
 
     def put(self, line):
         if self.output.endswith('\n'):
@@ -1420,26 +1420,25 @@ class CliDumper(Dumper):
     def putOriginalAddress(self, address):
         pass
 
-    def fetchVariables(self, args):
+    def fetchVariable(self, name):
+        args = {}
         args['fancy'] = 1
         args['passexception'] = 1
         args['autoderef'] = 1
         args['qobjectnames'] = 1
-        name = args['varlist']
+        args['varlist'] = name
         self.prepare(args)
         self.output = name + ' = '
-        frame = gdb.selected_frame()
-        value = frame.read_var(name)
+        value = self.parseAndEvaluate(name)
         with TopLevelItem(self, name):
             self.putItem(value)
         return self.output
 
-# Global instance.
-#if gdb.parameter('height') is None:
+
+# Global instances.
 theDumper = Dumper()
-#else:
-#    import codecs
-#    theDumper = CliDumper()
+theCliDumper = CliDumper()
+
 
 ######################################################################
 #
