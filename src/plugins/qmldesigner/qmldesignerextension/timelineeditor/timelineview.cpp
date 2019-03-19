@@ -87,7 +87,7 @@ void TimelineView::nodeAboutToBeRemoved(const ModelNode &removedNode)
             toolBar->removeTimeline(QmlTimeline(removedNode));
             QString currentId = toolBar->currentTimelineId();
 
-            removedNode.setAuxiliaryData("removed", true);
+            removedNode.setAuxiliaryData("removed@Internal", true);
 
             if (currentId.isEmpty())
                 m_timelineWidget->graphicsScene()->clearTimeline();
@@ -399,7 +399,7 @@ QList<QmlTimeline> TimelineView::getTimelines() const
         return timelines;
 
     for (const ModelNode &modelNode : allModelNodes()) {
-        if (QmlTimeline::isValidQmlTimeline(modelNode) && !modelNode.hasAuxiliaryData("removed")) {
+        if (QmlTimeline::isValidQmlTimeline(modelNode) && !modelNode.hasAuxiliaryData("removed@Internal")) {
             timelines.append(modelNode);
         }
     }
