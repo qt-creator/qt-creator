@@ -154,11 +154,17 @@ Rectangle {
                 __panel.visible = false
         }
 
-        onEditingFinished: {
-            if (text != delegateStateName)
-                statesEditorModel.renameState(internalNodeId, text)
-        }
+        property string oldValue
 
+        onEditingFinished: {
+            if (stateNameField.oldValue === stateNameField.text)
+                return
+
+            stateNameField.oldValue = stateNameField.text
+
+            if (stateNameField.text != delegateStateName)
+                statesEditorModel.renameState(internalNodeId, stateNameField.text)
+        }
     }
 
     Item {
