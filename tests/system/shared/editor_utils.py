@@ -85,6 +85,8 @@ def menuVisibleAtEditor(editor, menuInList):
             menuInList[0] = menu
         return success
     except:
+        t, v = sys.exc_info()[:2]
+        test.log("Exception: %s" % str(t), str(v))
         return False
 
 # this function checks whether the given global point (QPoint)
