@@ -72,6 +72,7 @@ public:
 
     void resetGroupRecording() const;
     bool hasKeyframeGroup(const ModelNode &node, const PropertyName &propertyName) const;
+    bool hasKeyframeGroupForTarget(const ModelNode &node) const;
 
 private:
     void addKeyframeGroupIfNotExists(const ModelNode &node, const PropertyName &propertyName);
