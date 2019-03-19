@@ -86,7 +86,7 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
     bool loopbackExemptClient = false;
     bool loopbackExemptServer = false;
     if (auto aspect = runControl->aspect<ArgumentsAspect>())
-        m_arguments = aspect->arguments(runControl->runConfiguration()->macroExpander());
+        m_arguments = aspect->arguments(runControl->macroExpander());
     if (auto aspect = runControl->aspect<UninstallAfterStopAspect>())
         m_uninstallAfterStop = aspect->value();
     if (auto aspect = runControl->aspect<LoopbackExemptClientAspect>())
