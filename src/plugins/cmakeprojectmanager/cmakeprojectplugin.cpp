@@ -62,6 +62,8 @@ namespace Internal {
 class CMakeProjectPluginPrivate
 {
 public:
+    CMakeToolManager cmakeToolManager; // have that before the first CMakeKitAspect
+
     Utils::ParameterAction *m_buildTargetContextAction = nullptr;
     QMetaObject::Connection m_actionConnect;
 
@@ -111,8 +113,6 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
                                                tr("CMake", "SnippetProvider"));
     ProjectManager::registerProjectType<CMakeProject>(Constants::CMAKEPROJECTMIMETYPE);
-
-    new CMakeToolManager(this);
 
     //menus
     ActionContainer *msubproject =

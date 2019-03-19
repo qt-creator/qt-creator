@@ -40,7 +40,7 @@ class CMAKE_EXPORT CMakeToolManager : public QObject
 {
     Q_OBJECT
 public:
-    CMakeToolManager(QObject *parent);
+    CMakeToolManager();
     ~CMakeToolManager() override;
 
     static CMakeToolManager *instance();

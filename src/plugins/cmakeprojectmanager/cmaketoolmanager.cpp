@@ -57,7 +57,7 @@ static CMakeToolManagerPrivate *d = nullptr;
 
 CMakeToolManager *CMakeToolManager::m_instance = nullptr;
 
-CMakeToolManager::CMakeToolManager(QObject *parent) : QObject(parent)
+CMakeToolManager::CMakeToolManager()
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
