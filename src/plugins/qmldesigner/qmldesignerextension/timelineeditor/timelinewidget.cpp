@@ -260,7 +260,7 @@ void TimelineWidget::connectToolbar()
         }
     }
 
-    setRecording(false);
+    setTimelineActive(false);
 }
 
 int TimelineWidget::adjacentFrame(const std::function<qreal(const QVector<qreal> &, qreal)> &fun) const
@@ -393,7 +393,7 @@ void TimelineWidget::setupScrollbar(int min, int max, int current)
 
 void TimelineWidget::setTimelineId(const QString &id)
 {
-    setRecording(!m_timelineView->getTimelines().isEmpty());
+    setTimelineActive(!m_timelineView->getTimelines().isEmpty());
     if (m_timelineView->isAttached()) {
         m_toolbar->setCurrentTimeline(m_timelineView->modelNodeForId(id));
         m_toolbar->setCurrentState(m_timelineView->currentState().name());
@@ -401,7 +401,7 @@ void TimelineWidget::setTimelineId(const QString &id)
     }
 }
 
-void TimelineWidget::setRecording(bool b)
+void TimelineWidget::setTimelineActive(bool b)
 {
     if (b) {
         m_toolbar->setVisible(true);
