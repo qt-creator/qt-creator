@@ -97,9 +97,12 @@ public:
             if (projectInfo.languageExtension && Utils::LanguageExtension::ObjectiveC)
                 return sourceType == InputFileType::Header ? "objective-c++-header"
                                                            : "objective-c++";
+            return sourceType == InputFileType::Header ? "c++-header" : "c++";
+        case Utils::Language::None:
+            return "none";
         }
 
-        return sourceType == InputFileType::Header ? "c++-header" : "c++";
+        return "none";
     }
 
     void addLanguage(const ProjectInfo &projectInfo, InputFileType sourceType)
@@ -131,6 +134,8 @@ public:
             return "-std=c++17";
         case Utils::LanguageVersion::CXX2a:
             return "-std=c++2a";
+        case Utils::LanguageVersion::None:
+            return "";
         }
 
         return "-std=c++2a";
@@ -159,6 +164,8 @@ public:
             return "-std=gnu++17";
         case Utils::LanguageVersion::CXX2a:
             return "-std=gnu++2a";
+        case Utils::LanguageVersion::None:
+            return "";
         }
 
         return "-std=gnu++2a";

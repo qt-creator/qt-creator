@@ -66,6 +66,9 @@ ProjectPartContainers ProjectPartsManager::update(ProjectPartContainers &&projec
 
     m_projectPartsStorage.updateProjectParts(updatedProjectParts);
 
+    m_precompiledHeaderStorage.deleteProjectPrecompiledHeaders(
+        toProjectPartIds(updatedProjectParts));
+
     mergeProjectParts(updatedProjectParts);
 
     return updatedProjectParts;

@@ -193,6 +193,8 @@ const char * toText(Utils::Language language)
         return "C";
     case Language::Cxx:
         return "Cxx";
+    case Language::None:
+        return "None";
     }
 
     return "";
@@ -228,6 +230,8 @@ const char * toText(Utils::LanguageVersion languageVersion)
         return "CXX2a";
     case LanguageVersion::CXX98:
         return "CXX98";
+    case LanguageVersion::None:
+        return "None";
     }
 
     return "";

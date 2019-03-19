@@ -147,7 +147,8 @@ public:
                         first.sourcePathIds,
                         first.language,
                         first.languageVersion,
-                        first.languageExtension)
+                        first.languageExtension,
+                        first.hasPrecompiledHeader)
                < std::tie(second.projectPartId,
                           second.toolChainArguments,
                           second.compilerMacros,
@@ -157,7 +158,8 @@ public:
                           second.sourcePathIds,
                           second.language,
                           second.languageVersion,
-                          second.languageExtension);
+                          second.languageExtension,
+                          second.hasPrecompiledHeader);
     }
 
     ProjectPartContainer clone() const
@@ -169,6 +171,7 @@ public:
     FilePathIds headerPathIds;
     FilePathIds sourcePathIds;
     bool updateIsDeferred = false;
+    bool hasPrecompiledHeader = true;
 };
 
 using ProjectPartContainerReference = std::reference_wrapper<ProjectPartContainer>;

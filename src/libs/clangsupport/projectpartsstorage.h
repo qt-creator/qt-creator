@@ -74,6 +74,14 @@ public:
             .template values<FilePathId>(1024, projectPartId.projectPathId);
     }
 
+    bool hasPrecompiledHeader(ProjectPartId projectPartId) const
+    {
+        auto value = fetchProjectPrecompiledHeaderPathStatement.template value<Utils::SmallString>(
+            projectPartId.projectPathId);
+
+        return value && value->hasContent();
+    }
+
     ProjectPartContainers fetchProjectParts(const ProjectPartIds &projectPartIds) const override
     {
         try {
@@ -88,6 +96,7 @@ public:
                 if (value) {
                     value->headerPathIds = fetchHeaders(projectPartId);
                     value->sourcePathIds = fetchSources(projectPartId);
+                    value->hasPrecompiledHeader = hasPrecompiledHeader(projectPartId);
                     projectParts.push_back(*std::move(value));
                 }
             }
@@ -332,5 +341,7 @@ public:
         "SELECT sourceId FROM projectPartsHeaders WHERE projectPartId = ?", database};
     mutable ReadStatement fetchProjectPartsSourcesByIdStatement{
         "SELECT sourceId FROM projectPartsSources WHERE projectPartId = ?", database};
+    mutable ReadStatement fetchProjectPrecompiledHeaderPathStatement{
+        "SELECT projectPchPath FROM precompiledHeaders WHERE projectPartId = ?", database};
 };
 } // namespace ClangBackEnd

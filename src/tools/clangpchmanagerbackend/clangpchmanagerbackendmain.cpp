@@ -182,7 +182,8 @@ struct Data // because we have a cycle dependency
     ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher{filePathCache};
     ApplicationEnvironment environment;
     ProjectPartsStorage<> projectPartsStorage{database};
-    ProjectPartsManager projectParts{projectPartsStorage};
+    PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
+    ProjectPartsManager projectParts{projectPartsStorage, preCompiledHeaderStorage};
     GeneratedFiles generatedFiles;
     PchCreatorManager pchCreatorManager{generatedFiles,
                                         environment,
@@ -190,7 +191,6 @@ struct Data // because we have a cycle dependency
                                         clangPchManagerServer,
                                         includeWatcher,
                                         buildDependencyStorage};
-    PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
     ClangBackEnd::ProgressCounter pchCreationProgressCounter{[&](int progress, int total) {
         executeInLoop([&] {
             clangPchManagerServer.setPchCreationProgress(progress, total);

@@ -29,9 +29,10 @@
 
 namespace Utils {
 
-enum class Language : unsigned char { C, Cxx };
+enum class Language : unsigned char { None, C, Cxx };
 
 enum class LanguageVersion : unsigned char {
+    None,
     C89,
     C99,
     C11,

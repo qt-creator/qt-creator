@@ -113,8 +113,8 @@ public:
     CompilerMacros compilerMacros;
     IncludeSearchPaths systemIncludeSearchPaths;
     IncludeSearchPaths projectIncludeSearchPaths;
-    Utils::Language language = Utils::Language::Cxx;
-    Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX98;
+    Utils::Language language = Utils::Language::None;
+    Utils::LanguageVersion languageVersion = Utils::LanguageVersion::None;
     Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None;
 };
 

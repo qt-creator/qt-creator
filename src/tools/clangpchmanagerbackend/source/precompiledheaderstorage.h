@@ -77,6 +77,20 @@ public:
         }
     }
 
+    void deleteProjectPrecompiledHeaders(const ProjectPartIds &projectPartIds) override
+    {
+        try {
+            Sqlite::ImmediateTransaction transaction{database};
+
+            for (ProjectPartId projectPartId : projectPartIds)
+                deleteProjectPrecompiledHeaderStatement.write(projectPartId.projectPathId);
+
+            transaction.commit();
+        } catch (const Sqlite::StatementIsBusy) {
+            deleteProjectPrecompiledHeaders(projectPartIds);
+        }
+    }
+
     void insertSystemPrecompiledHeaders(const ProjectPartIds &projectPartIds,
                                         Utils::SmallStringView pchPath,
                                         long long pchBuildTime) override
@@ -138,7 +152,7 @@ public:
     Database &database;
     WriteStatement insertProjectPrecompiledHeaderStatement{
         "INSERT INTO precompiledHeaders(projectPartId, projectPchPath, projectPchBuildTime) "
-        "VALUES((SELECT projectPartId FROM projectParts WHERE projectPartName = ?001),?002,?003) "
+        "VALUES(?001,?002,?003) "
         "ON CONFLICT (projectPartId) DO UPDATE SET projectPchPath=?002,projectPchBuildTime=?003",
         database};
     WriteStatement insertSystemPrecompiledHeaderStatement{

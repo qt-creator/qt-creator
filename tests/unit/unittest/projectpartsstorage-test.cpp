@@ -103,6 +103,7 @@ protected:
     MockSqliteWriteStatement &insertProjectPartsSourcesStatement = storage.insertProjectPartsSourcesStatement;
     MockSqliteReadStatement &fetchProjectPartsHeadersByIdStatement = storage.fetchProjectPartsHeadersByIdStatement;
     MockSqliteReadStatement &fetchProjectPartsSourcesByIdStatement = storage.fetchProjectPartsSourcesByIdStatement;
+    MockSqliteReadStatement &fetchProjectPrecompiledHeaderPathStatement = storage.fetchProjectPrecompiledHeaderPathStatement;
     IncludeSearchPaths systemIncludeSearchPaths{{"/includes", 1, IncludeSearchPathType::BuiltIn},
                                                 {"/other/includes", 2, IncludeSearchPathType::System}};
     IncludeSearchPaths projectIncludeSearchPaths{{"/project/includes", 1, IncludeSearchPathType::User},
@@ -252,7 +253,13 @@ TEST_F(ProjectPartsStorage, FetchProjectPartsByIds)
 
     EXPECT_CALL(mockDatabase, deferredBegin());
     EXPECT_CALL(fetchProjectPartByIdStatement, valueReturnProjectPartContainer(Eq(1)));
+    EXPECT_CALL(fetchProjectPartsHeadersByIdStatement, valuesReturnFilePathIds(1024, Eq(1)));
+    EXPECT_CALL(fetchProjectPartsSourcesByIdStatement, valuesReturnFilePathIds(1024, Eq(1)));
+    EXPECT_CALL(fetchProjectPrecompiledHeaderPathStatement, valueReturnSmallString(Eq(1)));
     EXPECT_CALL(fetchProjectPartByIdStatement, valueReturnProjectPartContainer(Eq(2)));
+    EXPECT_CALL(fetchProjectPartsHeadersByIdStatement, valuesReturnFilePathIds(1024, Eq(2)));
+    EXPECT_CALL(fetchProjectPartsSourcesByIdStatement, valuesReturnFilePathIds(1024, Eq(2)));
+    EXPECT_CALL(fetchProjectPrecompiledHeaderPathStatement, valueReturnSmallString(Eq(2)));
     EXPECT_CALL(mockDatabase, commit());
 
     storage.fetchProjectParts({1, 2});
@@ -273,6 +280,36 @@ TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsIsBusy)
     EXPECT_CALL(mockDatabase, commit());
 
     storage.fetchProjectParts({1, 2});
+}
+
+TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsHasPrecompiledNullOptional)
+{
+    ON_CALL(fetchProjectPrecompiledHeaderPathStatement, valueReturnSmallString(Eq(1)))
+        .WillByDefault(Return(Utils::optional<Utils::SmallString>{}));
+
+    auto projectParts = storage.fetchProjectParts({1});
+
+    ASSERT_FALSE(projectParts.front().hasPrecompiledHeader);
+}
+
+TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsHasPrecompiledEmptyString)
+{
+    ON_CALL(fetchProjectPrecompiledHeaderPathStatement, valueReturnSmallString(Eq(1)))
+        .WillByDefault(Return(Utils::optional<Utils::SmallString>{""}));
+
+    auto projectParts = storage.fetchProjectParts({1});
+
+    ASSERT_FALSE(projectParts.front().hasPrecompiledHeader);
+}
+
+TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsHasPrecompiledStringWithContent)
+{
+    ON_CALL(fetchProjectPrecompiledHeaderPathStatement, valueReturnSmallString(Eq(1)))
+        .WillByDefault(Return(Utils::optional<Utils::SmallString>{"/some/path"}));
+
+    auto projectParts = storage.fetchProjectParts({1});
+
+    ASSERT_TRUE(projectParts.front().hasPrecompiledHeader);
 }
 
 TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsHasMissingId)
@@ -302,7 +339,7 @@ TEST_F(ProjectPartsStorage, UpdateProjectParts)
                       TypedEq<Utils::SmallStringView>(R"([["FOO","1",1]])"),
                       TypedEq<Utils::SmallStringView>(R"([["/include",1,3]])"),
                       TypedEq<Utils::SmallStringView>(R"([["/home/yi",2,1]])"),
-                      1,
+                      2,
                       35,
                       2));
     EXPECT_CALL(deleteProjectPartsHeadersByIdStatement, write(TypedEq<int>(1)));
@@ -317,8 +354,8 @@ TEST_F(ProjectPartsStorage, UpdateProjectParts)
                       TypedEq<Utils::SmallStringView>(R"([["BAR","2",1]])"),
                       TypedEq<Utils::SmallStringView>(R"([["/usr/include",1,3]])"),
                       TypedEq<Utils::SmallStringView>(R"([["/home/er",2,1]])"),
-                      0,
-                      2,
+                      1,
+                      3,
                       1));
     EXPECT_CALL(deleteProjectPartsHeadersByIdStatement, write(TypedEq<int>(2)));
     EXPECT_CALL(insertProjectPartsHeadersStatement, write(TypedEq<int>(2), TypedEq<int>(5)));
@@ -343,7 +380,7 @@ TEST_F(ProjectPartsStorage, UpdateProjectPartsIsBusy)
                       TypedEq<Utils::SmallStringView>(R"([["FOO","1",1]])"),
                       TypedEq<Utils::SmallStringView>(R"([["/include",1,3]])"),
                       TypedEq<Utils::SmallStringView>(R"([["/home/yi",2,1]])"),
-                      1,
+                      2,
                       35,
                       2));
     EXPECT_CALL(mockDatabase, commit());

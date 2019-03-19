@@ -102,8 +102,9 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
                                InputFileType::Source,
                                {},
                                {},
-                               optionalProjectPartPch ? FilePathView{optionalProjectPartPch->pchPath}
-                                                      : FilePathView{}};
+                               optionalProjectPartPch
+                                   ? FilePathView{optionalProjectPartPch->pchPath}
+                                   : FilePathView{}};
 
     std::vector<SymbolIndexerTask> symbolIndexerTask;
     symbolIndexerTask.reserve(projectPart.sourcePathIds.size());

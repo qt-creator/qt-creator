@@ -27,6 +27,7 @@
 
 #include "clangpchmanagerbackend_global.h"
 
+#include <precompiledheaderstorageinterface.h>
 #include <projectpartsmanagerinterface.h>
 #include <projectpartsstorageinterface.h>
 
@@ -38,8 +39,10 @@ inline namespace Pch {
 class ProjectPartsManager final : public ProjectPartsManagerInterface
 {
 public:
-    ProjectPartsManager(ProjectPartsStorageInterface &projectPartsStorage)
+    ProjectPartsManager(ProjectPartsStorageInterface &projectPartsStorage,
+                        PrecompiledHeaderStorageInterface &precompiledHeaderStorage)
         : m_projectPartsStorage(projectPartsStorage)
+        , m_precompiledHeaderStorage(precompiledHeaderStorage)
     {}
 
     ProjectPartContainers update(ProjectPartContainers &&projectsParts) override;
@@ -56,6 +59,7 @@ public:
 private:
     ProjectPartContainers m_projectParts;
     ProjectPartsStorageInterface &m_projectPartsStorage;
+    PrecompiledHeaderStorageInterface &m_precompiledHeaderStorage;
 };
 
 } // namespace Pch

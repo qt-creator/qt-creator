@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "mockprecompiledheaderstorage.h"
 #include "mockprojectpartsstorage.h"
 
 #include <projectpartsmanager.h>
@@ -39,8 +40,14 @@ using ClangBackEnd::ProjectPartContainers;
 class ProjectPartsManager : public testing::Test
 {
 protected:
+    ProjectPartsManager()
+    {
+        projectPartContainerWithoutPrecompiledHeader1.hasPrecompiledHeader = false;
+    }
     NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
-    ClangBackEnd::ProjectPartsManager manager{mockProjectPartsStorage};
+    NiceMock<MockPrecompiledHeaderStorage> mockPrecompiledHeaderStorage;
+
+    ClangBackEnd::ProjectPartsManager manager{mockProjectPartsStorage, mockPrecompiledHeaderStorage};
     FilePathId firstHeader{1};
     FilePathId secondHeader{2};
     FilePathId firstSource{11};
@@ -65,6 +72,27 @@ protected:
         {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
         {firstHeader, secondHeader},
         {firstSource, secondSource, thirdSource},
+        Utils::Language::C,
+        Utils::LanguageVersion::C11,
+        Utils::LanguageExtension::All};
+    ProjectPartContainer nullProjectPartContainer1{1,
+                                                   {},
+                                                   {},
+                                                   {},
+                                                   {},
+                                                   {},
+                                                   {},
+                                                   Utils::Language::C,
+                                                   Utils::LanguageVersion::C89,
+                                                   Utils::LanguageExtension::None};
+    ProjectPartContainer projectPartContainerWithoutPrecompiledHeader1{
+        1,
+        {"-DUNIX", "-O2"},
+        {{"DEFINE", "1", 1}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+        {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {firstHeader, secondHeader},
+        {firstSource, secondSource},
         Utils::Language::C,
         Utils::LanguageVersion::C11,
         Utils::LanguageExtension::All};
@@ -272,6 +300,8 @@ TEST_F(ProjectPartsManager, UpdateCallsIfNewProjectPartIsAdded)
     EXPECT_CALL(mockProjectPartsStorage,
                 fetchProjectParts(ElementsAre(Eq(projectPartContainer1.projectPartId))));
     EXPECT_CALL(mockProjectPartsStorage, updateProjectParts(ElementsAre(projectPartContainer1)));
+    EXPECT_CALL(mockPrecompiledHeaderStorage,
+                deleteProjectPrecompiledHeaders(ElementsAre(projectPartContainer1.projectPartId)));
 
     manager.update({projectPartContainer1});
 }
@@ -296,12 +326,26 @@ TEST_F(ProjectPartsManager, UpdateCallsNotFetchProjectPartsInStorageIfNoNewerPro
     manager.update({projectPartContainer1});
 }
 
+TEST_F(ProjectPartsManager, UpdateCallsNotDeleteProjectPrecompiledHeadersIfNoNewerProjectPartsExists)
+{
+    manager.update({projectPartContainer1});
+
+    EXPECT_CALL(mockPrecompiledHeaderStorage,
+                deleteProjectPrecompiledHeaders(ElementsAre(projectPartContainer1.projectPartId)))
+        .Times(0);
+
+    manager.update({projectPartContainer1});
+}
+
 TEST_F(ProjectPartsManager, UpdateCallsIfOldProjectPartIsAdded)
 {
     EXPECT_CALL(mockProjectPartsStorage,
                 fetchProjectParts(ElementsAre(Eq(projectPartContainer1.projectPartId))))
         .WillRepeatedly(Return(ProjectPartContainers{projectPartContainer1}));
     EXPECT_CALL(mockProjectPartsStorage, updateProjectParts(ElementsAre(projectPartContainer1))).Times(0);
+    EXPECT_CALL(mockPrecompiledHeaderStorage,
+                deleteProjectPrecompiledHeaders(ElementsAre(projectPartContainer1.projectPartId)))
+        .Times(0);
 
     manager.update({projectPartContainer1});
 }
@@ -315,7 +359,31 @@ TEST_F(ProjectPartsManager, UpdateCallsIfUpdatedProjectPartIsAdded)
         .WillRepeatedly(Return(ProjectPartContainers{projectPartContainer1}));
     EXPECT_CALL(mockProjectPartsStorage,
                 updateProjectParts(ElementsAre(updatedProjectPartContainer1)));
+    EXPECT_CALL(mockPrecompiledHeaderStorage,
+                deleteProjectPrecompiledHeaders(ElementsAre(projectPartContainer1.projectPartId)));
 
     manager.update({updatedProjectPartContainer1});
 }
+
+TEST_F(ProjectPartsManager,
+       GetProjectPartForAddingProjectPartWithProjectPartAlreadyInTheDatabaseButNoPrecompiledHeader)
+{
+    ON_CALL(mockProjectPartsStorage, fetchProjectParts(_))
+        .WillByDefault(Return(ProjectPartContainers{projectPartContainerWithoutPrecompiledHeader1}));
+
+    auto updatedProjectParts = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(updatedProjectParts, ElementsAre(projectPartContainer1));
+}
+
+TEST_F(ProjectPartsManager, ProjectPartAddedWithProjectPartAlreadyInTheDatabaseButWithoutEntries)
+{
+    ON_CALL(mockProjectPartsStorage, fetchProjectParts(_))
+        .WillByDefault(Return(ProjectPartContainers{nullProjectPartContainer1}));
+
+    manager.update({projectPartContainer1});
+
+    ASSERT_THAT(manager.projectParts(), ElementsAre(projectPartContainer1));
+}
+
 } // namespace

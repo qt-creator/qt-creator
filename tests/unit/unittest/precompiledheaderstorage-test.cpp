@@ -112,6 +112,31 @@ TEST_F(PrecompiledHeaderStorage, DeleteProjectPrecompiledHeaderStatementIsBusy)
     storage.deleteProjectPrecompiledHeader(1);
 }
 
+TEST_F(PrecompiledHeaderStorage, DeleteProjectPrecompiledHeaders)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, immediateBegin());
+    EXPECT_CALL(deleteProjectPrecompiledHeaderStatement, write(TypedEq<int>(1)));
+    EXPECT_CALL(deleteProjectPrecompiledHeaderStatement, write(TypedEq<int>(2)));
+    EXPECT_CALL(database, commit());
+
+    storage.deleteProjectPrecompiledHeaders({1, 2});
+}
+
+TEST_F(PrecompiledHeaderStorage, DeleteProjectPrecompiledHeadersStatementIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(database, immediateBegin());
+    EXPECT_CALL(deleteProjectPrecompiledHeaderStatement, write(TypedEq<int>(1)));
+    EXPECT_CALL(deleteProjectPrecompiledHeaderStatement, write(TypedEq<int>(2)));
+    EXPECT_CALL(database, commit());
+
+    storage.deleteProjectPrecompiledHeaders({1, 2});
+}
+
 TEST_F(PrecompiledHeaderStorage, InsertSystemPrecompiledHeaders)
 {
     InSequence s;
