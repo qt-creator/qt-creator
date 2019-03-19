@@ -1616,6 +1616,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
             m_varValues = result->newVarValues;
 
         m_displayName = singleVariableValue(Variable::QmakeProjectName);
+        m_featureRoots = m_readerExact->featureRoots();
     } // result == EvalOk
 
     if (!result->directoriesWithWildcards.isEmpty()) {

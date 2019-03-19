@@ -124,6 +124,11 @@ QStringList ProFileEvaluator::sourcesToFiles(const QVector<ProFileEvaluator::Sou
     return result;
 }
 
+QStringList ProFileEvaluator::featureRoots() const
+{
+    return d->m_featureRoots->paths;
+}
+
 // VFS note: all search paths are assumed to be real.
 QStringList ProFileEvaluator::absolutePathValues(
         const QString &variable, const QString &baseDirectory) const

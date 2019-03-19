@@ -309,6 +309,7 @@ public:
 
     TargetInformation targetInformation() const;
     InstallsList installsList() const;
+    const QStringList featureRoots() const { return m_featureRoots; }
 
     QByteArray cxxDefines() const;
 
@@ -368,6 +369,7 @@ private:
     TargetInformation m_qmakeTargetInformation;
     Utils::FileNameList m_subProjectsNotToDeploy;
     InstallsList m_installsList;
+    QStringList m_featureRoots;
 
     std::unique_ptr<Utils::FileSystemWatcher> m_wildcardWatcher;
 

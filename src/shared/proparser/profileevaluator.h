@@ -89,6 +89,7 @@ public:
             QHash<ProString, bool> *handled, QSet<QString> &directoriesWithWildcards) const;
     QString propertyValue(const QString &val) const;
     static QStringList sourcesToFiles(const QVector<SourceFile> &sources);
+    QStringList featureRoots() const;
 
 private:
     QMakeEvaluator *d;
