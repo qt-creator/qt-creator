@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "TextEditor" }
 
     files: [
         "baremetal.qrc",
