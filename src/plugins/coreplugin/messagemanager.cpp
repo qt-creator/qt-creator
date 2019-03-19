@@ -29,6 +29,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/qtcassert.h>
+
 using namespace Core;
 
 static MessageManager *m_instance = nullptr;
