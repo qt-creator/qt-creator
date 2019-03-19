@@ -300,16 +300,12 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
 {
     d->m_toolBusy = true;
     auto runControl = runWorker->runControl();
-    auto runConfiguration = runControl->runConfiguration();
-    if (runConfiguration) {
-        auto aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
-                    runControl->aspect(Constants::SETTINGS));
-        if (aspect) {
-            if (auto settings = static_cast<const QmlProfilerSettings *>(aspect->currentSettings())) {
-                d->m_profilerConnections->setFlushInterval(settings->flushEnabled() ?
-                                                               settings->flushInterval() : 0);
-                d->m_profilerModelManager->setAggregateTraces(settings->aggregateTraces());
-            }
+    if (auto aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
+                runControl->aspect(Constants::SETTINGS))) {
+        if (auto settings = static_cast<const QmlProfilerSettings *>(aspect->currentSettings())) {
+            d->m_profilerConnections->setFlushInterval(settings->flushEnabled() ?
+                                                           settings->flushInterval() : 0);
+            d->m_profilerModelManager->setAggregateTraces(settings->aggregateTraces());
         }
     }
 
@@ -341,8 +337,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     // Initialize m_projectFinder
     //
 
-    d->m_profilerModelManager->populateFileFinder(runConfiguration ? runConfiguration->target()
-                                                                   : nullptr);
+    d->m_profilerModelManager->populateFileFinder(runControl->target());
 
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
             runWorker, [this, runWorker]() {
