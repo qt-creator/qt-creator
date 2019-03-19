@@ -45,7 +45,7 @@ QString CppToolsJsExtension::headerGuard(const QString &in) const
 
 QString CppToolsJsExtension::fileName(const QString &path, const QString &extension) const
 {
-    QString raw = Utils::FileName::fromString(path, extension).toString();
+    QString raw = Utils::FileName::fromStringWithExtension(path, extension).toString();
     CppFileSettings settings;
     settings.fromSettings(Core::ICore::settings());
     if (!settings.lowerCaseFiles)

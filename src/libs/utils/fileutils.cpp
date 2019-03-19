@@ -654,7 +654,7 @@ FileName FileName::fromString(const QString &filename)
 /// Constructs a FileName from \a fileName. The \a defaultExtension is appended
 /// to \a filename if that does not have an extension already.
 /// \a fileName is not checked for validity.
-FileName FileName::fromString(const QString &filename, const QString &defaultExtension)
+FileName FileName::fromStringWithExtension(const QString &filename, const QString &defaultExtension)
 {
     if (filename.isEmpty() || defaultExtension.isEmpty())
         return filename;
