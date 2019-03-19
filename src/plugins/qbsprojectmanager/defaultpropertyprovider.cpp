@@ -135,6 +135,8 @@ static QStringList toolchainList(const ProjectExplorer::ToolChain *tc)
         list << QLatin1String("iar");
     else if (tc->typeId() == BareMetal::Constants::KEIL_TOOLCHAIN_TYPEID)
         list << QLatin1String("keil");
+    else if (tc->typeId() == BareMetal::Constants::SDCC_TOOLCHAIN_TYPEID)
+        list << QLatin1String("sdcc");
     return list;
 }
 

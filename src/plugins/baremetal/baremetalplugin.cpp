@@ -36,6 +36,7 @@
 
 #include "iarewtoolchain.h"
 #include "keiltoolchain.h"
+#include "sdcctoolchain.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -54,6 +55,7 @@ class BareMetalPluginPrivate
 public:
     IarToolChainFactory iarToolChainFactory;
     KeilToolchainFactory keilToolChainFactory;
+    SdccToolChainFactory sdccToolChainFactory;
     BareMetalDeviceFactory deviceFactory;
     BareMetalRunConfigurationFactory runConfigurationFactory;
     BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;

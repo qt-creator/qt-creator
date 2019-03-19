@@ -34,6 +34,7 @@ QtcPlugin {
         "stlinkutilgdbserverprovider.cpp", "stlinkutilgdbserverprovider.h",
         "iarewtoolchain.cpp", "iarewtoolchain.h",
         "keiltoolchain.cpp", "keiltoolchain.h",
+        "sdcctoolchain.cpp", "sdcctoolchain.h",
         "iarewparser.cpp", "iarewparser.h",
         "keilparser.cpp", "keilparser.h",
     ]

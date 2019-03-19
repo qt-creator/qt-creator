@@ -22,6 +22,7 @@ SOURCES += baremetalplugin.cpp \
     stlinkutilgdbserverprovider.cpp \
     iarewtoolchain.cpp \
     keiltoolchain.cpp \
+    sdcctoolchain.cpp \
     iarewparser.cpp \
     keilparser.cpp \
 
@@ -45,6 +46,7 @@ HEADERS += baremetalplugin.h \
     stlinkutilgdbserverprovider.h \
     iarewtoolchain.h \
     keiltoolchain.h \
+    sdcctoolchain.h \
     iarewparser.h \
     keilparser.h \
 

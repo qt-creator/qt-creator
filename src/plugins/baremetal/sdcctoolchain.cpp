@@ -1,0 +1,605 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 Denis Shienkov <denis.shienkov@gmail.com>
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#include "baremetalconstants.h"
+#include "sdcctoolchain.h"
+
+#include <projectexplorer/abiwidget.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmacro.h>
+#include <projectexplorer/toolchainmanager.h>
+
+#include <utils/algorithm.h>
+#include <utils/environment.h>
+#include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
+
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QSettings>
+#include <QTemporaryFile>
+#include <QTextStream>
+
+using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace BareMetal {
+namespace Internal {
+
+// Helpers:
+
+static const char compilerCommandKeyC[] = "BareMetal.SdccToolChain.CompilerPath";
+static const char targetAbiKeyC[] = "BareMetal.SdccToolChain.TargetAbi";
+
+static bool compilerExists(const FileName &compilerPath)
+{
+    const QFileInfo fi = compilerPath.toFileInfo();
+    return fi.exists() && fi.isExecutable() && fi.isFile();
+}
+
+static QString compilerTargetFlag(const Abi &abi)
+{
+    switch (abi.architecture()) {
+    case Abi::Architecture::Mcs51Architecture:
+        return "-mmcs51";
+    default:
+        return {};
+    }
+}
+
+static Macros dumpPredefinedMacros(const FileName &compiler, const QStringList &env,
+                                   const Abi &abi)
+{
+    if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
+        return {};
+
+    QTemporaryFile fakeIn("XXXXXX.c");
+    if (!fakeIn.open())
+        return {};
+    fakeIn.close();
+
+    SynchronousProcess cpp;
+    cpp.setEnvironment(env);
+    cpp.setTimeoutS(10);
+
+    QStringList arguments;
+    arguments.push_back(compilerTargetFlag(abi));
+    arguments.push_back("-dM");
+    arguments.push_back("-E");
+    arguments.push_back(fakeIn.fileName());
+
+    const SynchronousProcessResponse response = cpp.runBlocking(compiler.toString(), arguments);
+    if (response.result != SynchronousProcessResponse::Finished
+            || response.exitCode != 0) {
+        qWarning() << response.exitMessage(compiler.toString(), 10);
+        return {};
+    }
+
+    const QByteArray output = response.allOutput().toUtf8();
+    return Macro::toMacros(output);
+}
+
+static HeaderPaths dumpHeaderPaths(const FileName &compiler, const QStringList &env,
+                                   const Abi &abi)
+{
+    if (!compiler.exists())
+        return {};
+
+    SynchronousProcess cpp;
+    cpp.setEnvironment(env);
+    cpp.setTimeoutS(10);
+
+    QStringList arguments;
+    arguments.push_back(compilerTargetFlag(abi));
+    arguments.push_back("--print-search-dirs");
+
+    const SynchronousProcessResponse response = cpp.runBlocking(compiler.toString(), arguments);
+    if (response.result != SynchronousProcessResponse::Finished
+            || response.exitCode != 0) {
+        qWarning() << response.exitMessage(compiler.toString(), 10);
+        return {};
+    }
+
+    QString output = response.allOutput();
+    HeaderPaths headerPaths;
+    QTextStream in(&output);
+    QString line;
+    bool synchronized = false;
+    while (in.readLineInto(&line)) {
+        if (!synchronized) {
+            if (line.startsWith("includedir:"))
+                synchronized = true;
+        } else {
+            if (line.startsWith("programs:") || line.startsWith("datadir:")
+                    || line.startsWith("libdir:") || line.startsWith("libpath:")) {
+                break;
+            } else {
+                const QString headerPath = QFileInfo(line.trimmed())
+                        .canonicalFilePath();
+                headerPaths.append({headerPath, HeaderPathType::BuiltIn});
+            }
+        }
+    }
+    return headerPaths;
+}
+
+static QString findMacroValue(const Macros &macros, const QByteArray &key)
+{
+    for (const Macro &macro : macros) {
+        if (macro.key == key)
+            return QString::fromLocal8Bit(macro.value);
+    }
+    return {};
+}
+
+static QString guessVersion(const Macros &macros)
+{
+    const QString major = findMacroValue(macros, "__SDCC_VERSION_MAJOR");
+    const QString minor = findMacroValue(macros, "__SDCC_VERSION_MINOR");
+    const QString patch = findMacroValue(macros, "__SDCC_VERSION_PATCH");
+    return QString("%1.%2.%3").arg(major, minor, patch);
+}
+
+static Abi::Architecture guessArchitecture(const Macros &macros)
+{
+    for (const Macro &macro : macros) {
+        if (macro.key == "__SDCC_mcs51")
+            return Abi::Architecture::Mcs51Architecture;
+    }
+    return Abi::Architecture::UnknownArchitecture;
+}
+
+static unsigned char guessWordWidth(const Macros &macros)
+{
+    Q_UNUSED(macros)
+    // SDCC always have 16-bit word width.
+    return 16;
+}
+
+static Abi::BinaryFormat guessFormat(Abi::Architecture arch)
+{
+    Q_UNUSED(arch)
+    return Abi::BinaryFormat::UnknownFormat;
+}
+
+static Abi guessAbi(const Macros &macros)
+{
+    const auto arch = guessArchitecture(macros);
+    return {arch, Abi::OS::BareMetalOS, Abi::OSFlavor::GenericFlavor,
+            guessFormat(arch), guessWordWidth(macros)};
+}
+
+static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
+                                const QString &version)
+{
+    return SdccToolChain::tr("SDCC %1 (%2, %3)")
+            .arg(version, language.toString(), Abi::toString(arch));
+}
+
+static Utils::FileName compilerPathFromEnvironment(const QString &compilerName)
+{
+    const Environment systemEnvironment = Environment::systemEnvironment();
+    return systemEnvironment.searchInPath(compilerName);
+}
+
+// SdccToolChain
+
+SdccToolChain::SdccToolChain(Detection d) :
+    ToolChain(Constants::SDCC_TOOLCHAIN_TYPEID, d),
+    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
+    m_headerPathsCache(std::make_shared<HeaderPathsCache>())
+{ }
+
+SdccToolChain::SdccToolChain(Core::Id language, Detection d) :
+    SdccToolChain(d)
+{
+    setLanguage(language);
+}
+
+QString SdccToolChain::typeDisplayName() const
+{
+    return Internal::SdccToolChainFactory::tr("SDCC");
+}
+
+void SdccToolChain::setTargetAbi(const Abi &abi)
+{
+    if (abi == m_targetAbi)
+        return;
+    m_targetAbi = abi;
+    toolChainUpdated();
+}
+
+Abi SdccToolChain::targetAbi() const
+{
+    return m_targetAbi;
+}
+
+bool SdccToolChain::isValid() const
+{
+    return true;
+}
+
+ToolChain::MacroInspectionRunner SdccToolChain::createMacroInspectionRunner() const
+{
+    Environment env = Environment::systemEnvironment();
+    addToEnvironment(env);
+
+    const Utils::FileName compilerCommand = m_compilerCommand;
+    const Core::Id lang = language();
+    const Abi abi = m_targetAbi;
+
+    MacrosCache macrosCache = m_predefinedMacrosCache;
+
+    return [env, compilerCommand, macrosCache, lang, abi]
+            (const QStringList &flags) {
+        Q_UNUSED(flags)
+
+        const Macros macros = dumpPredefinedMacros(compilerCommand, env.toStringList(),
+                                                   abi);
+        const auto report = MacroInspectionReport{macros, languageVersion(lang, macros)};
+        macrosCache->insert({}, report);
+
+        return report;
+    };
+}
+
+Macros SdccToolChain::predefinedMacros(const QStringList &cxxflags) const
+{
+    return createMacroInspectionRunner()(cxxflags).macros;
+}
+
+Utils::LanguageExtensions SdccToolChain::languageExtensions(const QStringList &) const
+{
+    return LanguageExtension::None;
+}
+
+WarningFlags SdccToolChain::warningFlags(const QStringList &cxxflags) const
+{
+    Q_UNUSED(cxxflags);
+    return WarningFlags::Default;
+}
+
+ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunner() const
+{
+    Environment env = Environment::systemEnvironment();
+    addToEnvironment(env);
+
+    const Utils::FileName compilerCommand = m_compilerCommand;
+    const Core::Id languageId = language();
+    const Abi abi = m_targetAbi;
+
+    HeaderPathsCachePtr headerPathsCache = m_headerPathsCache;
+
+    return [env, compilerCommand, headerPathsCache, languageId, abi]
+            (const QStringList &flags, const QString &fileName) {
+        Q_UNUSED(flags)
+        Q_UNUSED(fileName)
+
+        const HeaderPaths paths = dumpHeaderPaths(compilerCommand, env.toStringList(),
+                                                  abi);
+        headerPathsCache->insert({}, paths);
+
+        return paths;
+    };
+}
+
+HeaderPaths SdccToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
+                                             const FileName &fileName) const
+{
+    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString());
+}
+
+void SdccToolChain::addToEnvironment(Environment &env) const
+{
+    if (!m_compilerCommand.isEmpty()) {
+        const FileName path = m_compilerCommand.parentDir();
+        env.prependOrSetPath(path.toString());
+    }
+}
+
+IOutputParser *SdccToolChain::outputParser() const
+{
+    return nullptr;
+}
+
+QVariantMap SdccToolChain::toMap() const
+{
+    QVariantMap data = ToolChain::toMap();
+    data.insert(compilerCommandKeyC, m_compilerCommand.toString());
+    data.insert(targetAbiKeyC, m_targetAbi.toString());
+    return data;
+}
+
+bool SdccToolChain::fromMap(const QVariantMap &data)
+{
+    if (!ToolChain::fromMap(data))
+        return false;
+    m_compilerCommand = FileName::fromString(data.value(compilerCommandKeyC).toString());
+    m_targetAbi = Abi::fromString(data.value(targetAbiKeyC).toString());
+    return true;
+}
+
+std::unique_ptr<ToolChainConfigWidget> SdccToolChain::createConfigurationWidget()
+{
+    return std::make_unique<SdccToolChainConfigWidget>(this);
+}
+
+bool SdccToolChain::operator==(const ToolChain &other) const
+{
+    if (!ToolChain::operator==(other))
+        return false;
+
+    const auto customTc = static_cast<const SdccToolChain *>(&other);
+    return m_compilerCommand == customTc->m_compilerCommand
+            && m_targetAbi == customTc->m_targetAbi
+            ;
+}
+
+void SdccToolChain::setCompilerCommand(const FileName &file)
+{
+    if (file == m_compilerCommand)
+        return;
+    m_compilerCommand = file;
+    toolChainUpdated();
+}
+
+FileName SdccToolChain::compilerCommand() const
+{
+    return m_compilerCommand;
+}
+
+QString SdccToolChain::makeCommand(const Environment &env) const
+{
+    Q_UNUSED(env)
+    return {};
+}
+
+ToolChain *SdccToolChain::clone() const
+{
+    return new SdccToolChain(*this);
+}
+
+void SdccToolChain::toolChainUpdated()
+{
+    m_predefinedMacrosCache->invalidate();
+    m_headerPathsCache->invalidate();
+    ToolChain::toolChainUpdated();
+}
+
+// SdccToolChainFactory
+
+SdccToolChainFactory::SdccToolChainFactory()
+{
+    setDisplayName(tr("SDCC"));
+}
+
+QSet<Core::Id> SdccToolChainFactory::supportedLanguages() const
+{
+    return {ProjectExplorer::Constants::C_LANGUAGE_ID};
+}
+
+QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+{
+    Candidates candidates;
+
+    if (Utils::HostOsInfo::isWindowsHost()) {
+
+#ifdef Q_OS_WIN64
+        static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\SDCC";
+#else
+        static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\SDCC";
+#endif
+
+        QSettings registry(kRegistryNode, QSettings::NativeFormat);
+        QString compilerPath = registry.value("Default").toString();
+        if (!compilerPath.isEmpty()) {
+            // Build full compiler path.
+            compilerPath += "\\bin\\sdcc.exe";
+            const FileName fn = FileName::fromString(
+                        QFileInfo(compilerPath).absoluteFilePath());
+            if (compilerExists(fn)) {
+                // Build compiler version.
+                const QString version = QString("%1.%2.%3").arg(
+                            registry.value("VersionMajor").toString(),
+                            registry.value("VersionMinor").toString(),
+                            registry.value("VersionRevision").toString());
+                candidates.push_back({fn, version});
+            }
+        }
+    }
+
+    const FileName fn = compilerPathFromEnvironment("sdcc");
+    if (fn.exists()) {
+        const auto env = Environment::systemEnvironment();
+        const auto macros = dumpPredefinedMacros(fn, env.toStringList(), {});
+        const QString version = guessVersion(macros);
+        const Candidate candidate(fn, version);
+        if (!candidates.contains(candidate))
+            candidates.push_back(candidate);
+    }
+
+    return autoDetectToolchains(candidates, alreadyKnown);
+}
+
+bool SdccToolChainFactory::canCreate()
+{
+    return true;
+}
+
+ToolChain *SdccToolChainFactory::create(Core::Id language)
+{
+    return new SdccToolChain(language, ToolChain::ManualDetection);
+}
+
+bool SdccToolChainFactory::canRestore(const QVariantMap &data)
+{
+    return typeIdFromMap(data) == Constants::SDCC_TOOLCHAIN_TYPEID;
+}
+
+ToolChain *SdccToolChainFactory::restore(const QVariantMap &data)
+{
+    const auto tc = new SdccToolChain(ToolChain::ManualDetection);
+    if (tc->fromMap(data))
+        return tc;
+
+    delete tc;
+    return nullptr;
+}
+
+QList<ToolChain *> SdccToolChainFactory::autoDetectToolchains(
+        const Candidates &candidates, const QList<ToolChain *> &alreadyKnown) const
+{
+    QList<ToolChain *> result;
+
+    for (const Candidate &candidate : qAsConst(candidates)) {
+        const QList<ToolChain *> filtered = Utils::filtered(
+                    alreadyKnown, [candidate](ToolChain *tc) {
+            return tc->typeId() == Constants::SDCC_TOOLCHAIN_TYPEID
+                && tc->compilerCommand() == candidate.first
+                && (tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID);
+        });
+
+        if (!filtered.isEmpty()) {
+            result << filtered;
+            continue;
+        }
+
+        // Create toolchain only for C language (because SDCC does not support C++).
+        result << autoDetectToolchain(candidate, ProjectExplorer::Constants::C_LANGUAGE_ID);
+    }
+
+    return result;
+}
+
+QList<ToolChain *> SdccToolChainFactory::autoDetectToolchain(
+        const Candidate &candidate, Core::Id language) const
+{
+    const auto env = Environment::systemEnvironment();
+    const Macros macros = dumpPredefinedMacros(candidate.first, env.toStringList(), {});
+    if (macros.isEmpty())
+        return {};
+    const Abi abi = guessAbi(macros);
+
+    const auto tc = new SdccToolChain(ToolChain::AutoDetection);
+    tc->setLanguage(language);
+    tc->setCompilerCommand(candidate.first);
+    tc->setTargetAbi(abi);
+    tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.second));
+
+    const auto languageVersion = ToolChain::languageVersion(language, macros);
+    tc->m_predefinedMacrosCache->insert({}, {macros, languageVersion});
+    return {tc};
+}
+
+// SdccToolChainConfigWidget
+
+SdccToolChainConfigWidget::SdccToolChainConfigWidget(SdccToolChain *tc) :
+    ToolChainConfigWidget(tc),
+    m_compilerCommand(new PathChooser),
+    m_abiWidget(new AbiWidget)
+{
+    m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
+    m_compilerCommand->setHistoryCompleter("PE.SDCC.Command.History");
+    m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+    m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
+
+    m_abiWidget->setEnabled(false);
+
+    addErrorLabel();
+    setFromToolchain();
+
+    connect(m_compilerCommand, &PathChooser::rawPathChanged,
+            this, &SdccToolChainConfigWidget::handleCompilerCommandChange);
+    connect(m_abiWidget, &AbiWidget::abiChanged,
+            this, &ToolChainConfigWidget::dirty);
+}
+
+void SdccToolChainConfigWidget::applyImpl()
+{
+    if (toolChain()->isAutoDetected())
+        return;
+
+    const auto tc = static_cast<SdccToolChain *>(toolChain());
+    const QString displayName = tc->displayName();
+    tc->setCompilerCommand(m_compilerCommand->fileName());
+    tc->setTargetAbi(m_abiWidget->currentAbi());
+    tc->setDisplayName(displayName);
+
+    if (m_macros.isEmpty())
+        return;
+
+    const auto languageVersion = ToolChain::languageVersion(tc->language(), m_macros);
+    tc->m_predefinedMacrosCache->insert({}, {m_macros, languageVersion});
+
+    setFromToolchain();
+}
+
+bool SdccToolChainConfigWidget::isDirtyImpl() const
+{
+    const auto tc = static_cast<SdccToolChain *>(toolChain());
+    return m_compilerCommand->fileName() != tc->compilerCommand()
+            || m_abiWidget->currentAbi() != tc->targetAbi()
+            ;
+}
+
+void SdccToolChainConfigWidget::makeReadOnlyImpl()
+{
+    m_compilerCommand->setReadOnly(true);
+    m_abiWidget->setEnabled(false);
+}
+
+void SdccToolChainConfigWidget::setFromToolchain()
+{
+    const QSignalBlocker blocker(this);
+    const auto tc = static_cast<SdccToolChain *>(toolChain());
+    m_compilerCommand->setFileName(tc->compilerCommand());
+    m_abiWidget->setAbis({}, tc->targetAbi());
+    const bool haveCompiler = compilerExists(m_compilerCommand->fileName());
+    m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
+}
+
+void SdccToolChainConfigWidget::handleCompilerCommandChange()
+{
+    const FileName compilerPath = m_compilerCommand->fileName();
+    const bool haveCompiler = compilerExists(compilerPath);
+    if (haveCompiler) {
+        const auto env = Environment::systemEnvironment();
+        m_macros = dumpPredefinedMacros(compilerPath, env.toStringList(), {});
+        const Abi guessed = guessAbi(m_macros);
+        m_abiWidget->setAbis({}, guessed);
+    }
+
+    m_abiWidget->setEnabled(haveCompiler);
+    emit dirty();
+}
+
+} // namespace Internal
+} // namespace BareMetal
