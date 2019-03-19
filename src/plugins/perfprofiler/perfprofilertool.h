@@ -88,7 +88,8 @@ private:
     void clear();
 
     friend class PerfProfilerRunner;
-    void populateFileFinder(const ProjectExplorer::RunConfiguration *rc = nullptr);
+    void populateFileFinder(const ProjectExplorer::Project *project,
+                            const ProjectExplorer::Kit *kit);
     void updateFilterMenu();
     void updateRunActions();
     void addLoadSaveActionsToMenu(QMenu *menu);

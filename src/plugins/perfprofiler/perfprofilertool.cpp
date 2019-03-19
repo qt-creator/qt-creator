@@ -439,7 +439,7 @@ void PerfProfilerTool::onReaderStarted()
 
 void PerfProfilerTool::onWorkerCreation(RunControl *runControl)
 {
-    populateFileFinder(runControl->runConfiguration());
+    populateFileFinder(runControl->project(), runControl->kit());
 }
 
 void PerfProfilerTool::updateRunActions()
@@ -617,7 +617,12 @@ void PerfProfilerTool::showLoadTraceDialog()
         return;
 
     startLoading();
-    populateFileFinder();
+
+    const Project *currentProject = SessionManager::startupProject();
+    const Target *target = currentProject ?  currentProject->activeTarget() : nullptr;
+    const Kit *kit = target ? target->kit() : nullptr;
+    populateFileFinder(currentProject, kit);
+
     m_traceManager->loadFromTraceFile(filename);
 }
 
@@ -673,24 +678,12 @@ void PerfProfilerTool::updateTime(qint64 duration, qint64 delay)
         m_delayLabel->clear();
 }
 
-void PerfProfilerTool::populateFileFinder(const RunConfiguration *rc)
+void PerfProfilerTool::populateFileFinder(const Project *project, const Kit *kit)
 {
-    const Project *currentProject = nullptr;
-    const Kit *kit = nullptr;
-    if (rc) {
-        if (const Target *target = rc->target()) {
-            kit = target->kit();
-            currentProject = target->project();
-        }
-    } else if ((currentProject = SessionManager::startupProject())) {
-        if (const Target *target = currentProject->activeTarget())
-            kit = target->kit();
-    }
+    m_fileFinder.setProjectFiles(sourceFiles(project));
 
-    m_fileFinder.setProjectFiles(sourceFiles(currentProject));
-
-    if (currentProject)
-        m_fileFinder.setProjectDirectory(currentProject->projectDirectory());
+    if (project)
+        m_fileFinder.setProjectDirectory(project->projectDirectory());
 
     if (kit) {
         m_fileFinder.setAdditionalSearchDirectories(collectQtIncludePaths(kit));
