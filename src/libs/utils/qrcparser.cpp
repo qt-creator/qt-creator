@@ -85,7 +85,7 @@ public:
     QStringList languages() const;
 private:
     static QString fixPrefix(const QString &prefix);
-    QStringList allUiLanguages(const QLocale *locale) const;
+    const QStringList allUiLanguages(const QLocale *locale) const;
 
     SMap m_resources;
     SMap m_files;
@@ -343,8 +343,7 @@ bool QrcParserPrivate::parseFile(const QString &path, const QString &contents)
 QString QrcParserPrivate::firstFileAtPath(const QString &path, const QLocale &locale) const
 {
     QTC_CHECK(path.startsWith(QLatin1Char('/')));
-    QStringList langs = allUiLanguages(&locale);
-    foreach (const QString &language, langs) {
+    for (const QString &language : allUiLanguages(&locale)) {
         if (m_languages.contains(language)) {
             SMap::const_iterator res = m_resources.find(language + path);
             if (res != m_resources.end())
@@ -358,8 +357,7 @@ void QrcParserPrivate::collectFilesAtPath(const QString &path, QStringList *file
                                           const QLocale *locale) const
 {
     QTC_CHECK(path.startsWith(QLatin1Char('/')));
-    QStringList langs = allUiLanguages(locale);
-    foreach (const QString &language, langs) {
+    for (const QString &language : allUiLanguages(locale)) {
         if (m_languages.contains(language)) {
             SMap::const_iterator res = m_resources.find(language + path);
             if (res != m_resources.end())
@@ -373,8 +371,7 @@ bool QrcParserPrivate::hasDirAtPath(const QString &path, const QLocale *locale) 
 {
     QTC_CHECK(path.startsWith(QLatin1Char('/')));
     QTC_CHECK(path.endsWith(QLatin1Char('/')));
-    QStringList langs = allUiLanguages(locale);
-    foreach (const QString &language, langs) {
+    for (const QString &language : allUiLanguages(locale)) {
         if (m_languages.contains(language)) {
             QString key = language + path;
             SMap::const_iterator res = m_resources.lowerBound(key);
@@ -391,8 +388,7 @@ void QrcParserPrivate::collectFilesInPath(const QString &path, QMap<QString,QStr
     QTC_CHECK(path.startsWith(QLatin1Char('/')));
     QTC_CHECK(path.endsWith(QLatin1Char('/')));
     SMap::const_iterator end = m_resources.end();
-    QStringList langs = allUiLanguages(locale);
-    foreach (const QString &language, langs) {
+    for (const QString &language : allUiLanguages(locale)) {
         QString key = language + path;
         SMap::const_iterator res = m_resources.lowerBound(key);
         while (res != end && res.key().startsWith(key)) {
@@ -401,7 +397,7 @@ void QrcParserPrivate::collectFilesInPath(const QString &path, QMap<QString,QStr
             if (endDir == -1) {
                 QString fileName = res.key().right(res.key().size()-key.size());
                 QStringList &els = (*contents)[fileName];
-                foreach (const QString &val, res.value())
+                for (const QString &val : res.value())
                     if (!els.contains(val))
                         els << val;
                 ++res;
@@ -424,12 +420,12 @@ void QrcParserPrivate::collectResourceFilesForSourceFile(const QString &sourceFi
 {
     // TODO: use FileName from fileutils for file paths
 
-    QStringList langs = allUiLanguages(locale);
+    const QStringList langs = allUiLanguages(locale);
     SMap::const_iterator file = m_files.find(sourceFile);
     if (file == m_files.end())
         return;
-    foreach (const QString &resource, file.value()) {
-        foreach (const QString &language, langs) {
+    for (const QString &resource : file.value()) {
+        for (const QString &language : langs) {
             if (resource.startsWith(language) && !results->contains(resource))
                 results->append(resource);
         }
@@ -463,7 +459,7 @@ QString QrcParserPrivate::fixPrefix(const QString &prefix)
     return result;
 }
 
-QStringList QrcParserPrivate::allUiLanguages(const QLocale *locale) const
+const QStringList QrcParserPrivate::allUiLanguages(const QLocale *locale) const
 {
     if (!locale)
         return languages();
