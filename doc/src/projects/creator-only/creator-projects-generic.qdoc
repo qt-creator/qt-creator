@@ -71,6 +71,10 @@
 
                \li  .creator
 
+               \li  \l{Forwarding Flags to Clang Code Model}{.cflags}
+
+               \li  \l{Forwarding Flags to Clang Code Model}{.cxxflags}
+
            \endlist
 
     \endlist
@@ -125,6 +129,14 @@
     \code
     #define NAME value
     \endcode
+
+    \section1 Forwarding Flags to Clang Code Model
+
+    The \c {.cxxflags} and \c {.cflags} files contain command line flags for the
+    Clang code model, one flag per line.
+
+    For example, specify the \c {-std=c++11} to set the language version
+    for parsing as C++11.
 
     \section1 Providing Deployment Information
 
