@@ -443,6 +443,7 @@ void TimelineSectionItem::invalidateHeight()
     setPreferredHeight(height);
     setMinimumHeight(height);
     setMaximumHeight(height);
+    timelineScene()->activateLayout();
 }
 
 void TimelineSectionItem::invalidateProperties()
