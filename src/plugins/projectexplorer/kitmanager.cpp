@@ -252,12 +252,21 @@ void KitManager::restoreKits()
             }
             const QString bestFilePath = bestTc->compilerCommand().toString();
             const QString currentFilePath = tc->compilerCommand().toString();
-            if ((currentFilePath.contains("icecc") && !bestFilePath.contains("icecc"))
-                    || (currentFilePath.contains("ccache") && !bestFilePath.contains("ccache")
-                        && !bestFilePath.contains("icecc"))
-                    || (bestFilePath.length() > currentFilePath.length())) {
+            if (bestFilePath.contains("icecc"))
+                continue;
+            if (currentFilePath.contains("icecc")) {
                 bestTc = tc;
+                continue;
             }
+
+            if (bestFilePath.contains("ccache"))
+                continue;
+            if (currentFilePath.contains("ccache")) {
+                bestTc = tc;
+                continue;
+            }
+            if (bestFilePath.length() > currentFilePath.length())
+                bestTc = tc;
         }
 
         int maxWeight = 0;
