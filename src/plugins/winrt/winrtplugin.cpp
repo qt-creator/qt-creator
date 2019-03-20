@@ -43,7 +43,7 @@ using namespace ProjectExplorer;
 namespace WinRt {
 namespace Internal {
 
-class WinRtPluginRunData
+class WinRtPluginPrivate
 {
 public:
     WinRtRunConfigurationFactory runConfigFactory;
@@ -58,14 +58,9 @@ public:
     WinRtDeviceFactory emulatorDeviceFactory{Constants::WINRT_DEVICE_TYPE_EMULATOR};
 };
 
-WinRtPlugin::WinRtPlugin()
-{
-    setObjectName(QLatin1String("WinRtPlugin"));
-}
-
 WinRtPlugin::~WinRtPlugin()
 {
-    delete m_runData;
+    delete d;
 }
 
 bool WinRtPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -73,7 +68,7 @@ bool WinRtPlugin::initialize(const QStringList &arguments, QString *errorMessage
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    m_runData = new WinRtPluginRunData;
+    d = new WinRtPluginPrivate;
 
     auto runConstraint = [](RunConfiguration *runConfig) {
         IDevice::ConstPtr device = DeviceKitAspect::device(runConfig->target()->kit());
