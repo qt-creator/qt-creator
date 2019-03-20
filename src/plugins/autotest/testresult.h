@@ -57,7 +57,6 @@ enum Type {
     MessageLocation,
 
     MessageInternal, INTERNAL_MESSAGES_BEGIN = MessageInternal,
-    MessageDisabledTests,
     MessageTestCaseStart,
     MessageTestCaseSuccess,
     MessageTestCaseSuccessWarn,

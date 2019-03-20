@@ -224,12 +224,9 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
         return;
     }
 
-    if (testResult->result() == Result::MessageDisabledTests)
-        m_disabled += testResult->line();
     m_testResultCount[testResult->result()]++;
 
     TestResultItem *newItem = new TestResultItem(testResult);
-
     TestResultItem *root = nullptr;
     if (AutotestPlugin::settings()->displayApplication) {
         const QString application = testResult->id();

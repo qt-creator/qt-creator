@@ -70,6 +70,7 @@ signals:
     void testRunFinished();
     void requestStopTestRun();
     void testResultReady(const TestResultPtr &result);
+    void hadDisabledTests(int disabled);
 
 private:
     void buildProject(ProjectExplorer::Project *project);

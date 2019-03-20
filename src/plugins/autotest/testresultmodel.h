@@ -69,6 +69,7 @@ public:
 
     int resultTypeCount(Result::Type type) const { return m_testResultCount.value(type, 0); }
     int disabledTests() const { return m_disabled; }
+    void raiseDisabledTests(int amount) { m_disabled += amount; }
 
 private:
     void recalculateMaxWidthOfFileName(const QFont &font);

@@ -273,6 +273,9 @@ void TestRunner::onProcessFinished()
             }
         }
     }
+    const int disabled = m_currentOutputReader->disabledTests();
+    if (disabled > 0)
+        emit hadDisabledTests(disabled);
     resetInternalPointers();
 
     if (!m_fakeFutureInterface) {

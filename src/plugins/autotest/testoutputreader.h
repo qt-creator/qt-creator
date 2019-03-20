@@ -47,6 +47,7 @@ public:
     void reportCrash();
     void createAndReportResult(const QString &message, Result::Type type);
     bool hadValidOutput() const { return m_hadValidOutput; }
+    int disabledTests() const { return m_disabled; }
     void setId(const QString &id) { m_id = id; }
     QString id() const { return m_id; }
 
@@ -63,6 +64,7 @@ protected:
     QProcess *m_testApplication;  // not owned
     QString m_buildDir;
     QString m_id;
+    int m_disabled = -1;
 private:
     bool m_hadValidOutput = false;
 };

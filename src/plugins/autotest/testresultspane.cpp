@@ -157,6 +157,8 @@ TestResultsPane::TestResultsPane(QObject *parent) :
             this, &TestResultsPane::onTestRunFinished);
     connect(TestRunner::instance(), &TestRunner::testResultReady,
             this, &TestResultsPane::addTestResult);
+    connect(TestRunner::instance(), &TestRunner::hadDisabledTests,
+            m_model, &TestResultModel::raiseDisabledTests);
 }
 
 void TestResultsPane::createToolButtons()
