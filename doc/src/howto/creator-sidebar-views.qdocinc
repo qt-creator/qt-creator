@@ -315,5 +315,8 @@
     the current file, right-click in the editor and select
     \uicontrol {Open Include Hierarchy} or press \key {Ctrl+Shift+I}.
 
+    To keep the view synchronized with the file currently opened in the editor,
+    select \uicontrol {Synchronize with Editor}.
+
 //! [include hierarchy view]
 */
