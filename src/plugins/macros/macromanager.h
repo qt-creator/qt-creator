@@ -34,12 +34,15 @@ namespace Internal {
 class IMacroHandler;
 class Macro;
 class MacroOptionsWidget;
-class MacrosPlugin;
 
 class MacroManager : public QObject
 {
     Q_OBJECT
+
 public:
+    MacroManager();
+    ~MacroManager() override;
+
     static MacroManager *instance();
 
     static const QMap<QString, Macro *> &macros();
@@ -61,15 +64,7 @@ protected:
     void changeMacro(const QString &name, const QString &description);
 
 private:
-    explicit MacroManager(QObject *parent = nullptr);
-    ~MacroManager() override;
-
-    static MacroManager *m_instance;
-
-    class MacroManagerPrivate;
-    MacroManagerPrivate* d;
-
-    friend class Internal::MacrosPlugin;
+    class MacroManagerPrivate *d;
 };
 
 } // namespace Internal

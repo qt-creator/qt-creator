@@ -57,7 +57,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-using namespace Macros::Internal;
+namespace Macros {
+namespace Internal {
 
 /*!
     \namespace Macros
@@ -88,7 +89,7 @@ using namespace Macros::Internal;
     the action id passed to the ActionManager.
 */
 
-class MacroManager::MacroManagerPrivate
+class MacroManagerPrivate
 {
 public:
     MacroManagerPrivate(MacroManager *qq);
@@ -114,7 +115,7 @@ public:
     void showSaveDialog();
 };
 
-MacroManager::MacroManagerPrivate::MacroManagerPrivate(MacroManager *qq):
+MacroManagerPrivate::MacroManagerPrivate(MacroManager *qq):
     q(qq)
 {
     // Load existing macros
@@ -125,7 +126,7 @@ MacroManager::MacroManagerPrivate::MacroManagerPrivate(MacroManager *qq):
     findHandler = new FindMacroHandler;
 }
 
-void MacroManager::MacroManagerPrivate::initialize()
+void MacroManagerPrivate::initialize()
 {
     macros.clear();
     QDir dir(q->macrosDirectory());
@@ -148,7 +149,7 @@ static Core::Id makeId(const QString &name)
     return Core::Id(Macros::Constants::PREFIX_MACRO).withSuffix(name);
 }
 
-void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
+void MacroManagerPrivate::addMacro(Macro *macro)
 {
     // Add sortcut
     Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
@@ -156,7 +157,7 @@ void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
     Core::Command *command = Core::ActionManager::registerAction(
                 action, makeId(macro->displayName()), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    connect(action, &QAction::triggered, q, [this, macro]() {
+    QObject::connect(action, &QAction::triggered, q, [this, macro]() {
         q->executeMacro(macro->displayName());
     });
 
@@ -165,7 +166,7 @@ void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
     actions[macro->displayName()] = action;
 }
 
-void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
+void MacroManagerPrivate::removeMacro(const QString &name)
 {
     if (!macros.contains(name))
         return;
@@ -181,7 +182,7 @@ void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
     delete macro;
 }
 
-void MacroManager::MacroManagerPrivate::changeMacroDescription(Macro *macro, const QString &description)
+void MacroManagerPrivate::changeMacroDescription(Macro *macro, const QString &description)
 {
     if (!macro->load())
         return;
@@ -193,7 +194,7 @@ void MacroManager::MacroManagerPrivate::changeMacroDescription(Macro *macro, con
     action->setText(description);
 }
 
-bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
+bool MacroManagerPrivate::executeMacro(Macro *macro)
 {
     bool error = !macro->load();
     foreach (const MacroEvent &macroEvent, macro->events()) {
@@ -210,8 +211,8 @@ bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
 
     if (error) {
         QMessageBox::warning(Core::ICore::mainWindow(),
-                             tr("Playing Macro"),
-                             tr("An error occurred while replaying the macro, execution stopped."));
+                             MacroManager::tr("Playing Macro"),
+                             MacroManager::tr("An error occurred while replaying the macro, execution stopped."));
     }
 
     // Set the focus back to the editor
@@ -222,7 +223,7 @@ bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
     return !error;
 }
 
-void MacroManager::MacroManagerPrivate::showSaveDialog()
+void MacroManagerPrivate::showSaveDialog()
 {
     QWidget *mainWindow = Core::ICore::mainWindow();
     SaveDialog dialog(mainWindow);
@@ -241,10 +242,9 @@ void MacroManager::MacroManagerPrivate::showSaveDialog()
 
 
 // ---------- MacroManager ------------
-MacroManager *MacroManager::m_instance = nullptr;
+MacroManager *m_instance = nullptr;
 
-MacroManager::MacroManager(QObject *parent) :
-    QObject(parent),
+MacroManager::MacroManager() :
     d(new MacroManagerPrivate(this))
 {
     m_instance = this;
@@ -393,3 +393,6 @@ QString MacroManager::macrosDirectory()
         return path;
     return QString();
 }
+
+} // Internal
+} // Macros
