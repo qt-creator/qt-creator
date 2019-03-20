@@ -191,7 +191,7 @@ void ValgrindConfigWidget::updateUi()
 
 void ValgrindConfigWidget::slotAddSuppression()
 {
-    ValgrindGlobalSettings *conf = ValgrindPlugin::globalSettings();
+    ValgrindGlobalSettings *conf = ValgrindGlobalSettings::instance();
     QTC_ASSERT(conf, return);
     QStringList files = QFileDialog::getOpenFileNames(this,
         tr("Valgrind Suppression Files"),

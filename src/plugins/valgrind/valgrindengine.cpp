@@ -62,7 +62,7 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
             qobject_cast<ValgrindBaseSettings *>(runControl->settings(ANALYZER_VALGRIND_SETTINGS));
 
     if (!m_settings)
-        m_settings = ValgrindPlugin::globalSettings();
+        m_settings = ValgrindGlobalSettings::instance();
 }
 
 void ValgrindToolRunner::start()

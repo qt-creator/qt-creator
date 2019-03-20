@@ -53,8 +53,6 @@ using namespace ProjectExplorer;
 namespace Valgrind {
 namespace Internal {
 
-static ValgrindGlobalSettings *theGlobalSettings = nullptr;
-
 class ValgrindOptionsPage : public IOptionsPage
 {
 public:
@@ -71,13 +69,13 @@ public:
     QWidget *widget() override
     {
         if (!m_widget)
-            m_widget = new ValgrindConfigWidget(theGlobalSettings, true);
+            m_widget = new ValgrindConfigWidget(ValgrindGlobalSettings::instance(), true);
         return m_widget;
     }
 
     void apply() override
     {
-        theGlobalSettings->writeSettings();
+        ValgrindGlobalSettings::instance()->writeSettings();
     }
 
     void finish() override
@@ -95,7 +93,7 @@ public:
     ValgrindRunConfigurationAspect(Target *)
     {
         setProjectSettings(new ValgrindProjectSettings);
-        setGlobalSettings(ValgrindPlugin::globalSettings());
+        setGlobalSettings(ValgrindGlobalSettings::instance());
         setId(ANALYZER_VALGRIND_SETTINGS);
         setDisplayName(QCoreApplication::translate("Valgrind::Internal::ValgrindRunConfigurationAspect",
                                                    "Valgrind Settings"));
@@ -105,40 +103,28 @@ public:
     }
 };
 
+class ValgrindPluginPrivate
+{
+public:
+    ValgrindGlobalSettings valgrindGlobalSettings; // Needs to come before the tools.
+    MemcheckTool memcheckTool;
+    CallgrindTool callgrindTool;
+};
+
 ValgrindPlugin::~ValgrindPlugin()
 {
-    delete theGlobalSettings;
-    theGlobalSettings = nullptr;
+    delete d;
 }
 
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
-    theGlobalSettings = new ValgrindGlobalSettings;
-    theGlobalSettings->readSettings();
+    d = new ValgrindPluginPrivate;
 
     new ValgrindOptionsPage(this);
 
     RunConfiguration::registerAspect<ValgrindRunConfigurationAspect>();
 
     return true;
-}
-
-void ValgrindPlugin::extensionsInitialized()
-{
-    initMemcheckTool();
-    initCallgrindTool();
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag ValgrindPlugin::aboutToShutdown()
-{
-    destroyCallgrindTool();
-    destroyMemcheckTool();
-    return SynchronousShutdown;
-}
-
-ValgrindGlobalSettings *ValgrindPlugin::globalSettings()
-{
-    return theGlobalSettings;
 }
 
 QList<QObject *> ValgrindPlugin::createTestObjects() const

@@ -26,11 +26,24 @@
 
 #pragma once
 
+#include <QCoreApplication>
+
 namespace Valgrind {
 namespace Internal {
 
-void initMemcheckTool();
-void destroyMemcheckTool();
+class MemcheckToolRunner;
+
+class MemcheckTool : public QObject
+{
+    Q_OBJECT
+
+public:
+    MemcheckTool();
+    ~MemcheckTool() final;
+
+private:
+    class MemcheckToolPrivate *d = nullptr;
+};
 
 } // namespace Internal
 } // namespace Valgrind

@@ -187,6 +187,8 @@ class ValgrindGlobalSettings : public ValgrindBaseSettings
 public:
     ValgrindGlobalSettings();
 
+    static ValgrindGlobalSettings *instance();
+
     void toMap(QVariantMap &map) const override;
     void fromMap(const QVariantMap &map) override;
 

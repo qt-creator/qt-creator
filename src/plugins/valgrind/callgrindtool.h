@@ -25,11 +25,21 @@
 
 #pragma once
 
+#include <QCoreApplication>
+
 namespace Valgrind {
 namespace Internal {
 
-void initCallgrindTool();
-void destroyCallgrindTool();
+class ValgrindGlobalSettings;
+
+class CallgrindTool : public QObject
+{
+    Q_OBJECT
+
+public:
+    CallgrindTool();
+    ~CallgrindTool() final;
+};
 
 } // namespace Internal
 } // namespace Valgrind
