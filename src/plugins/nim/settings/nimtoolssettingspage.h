@@ -43,7 +43,7 @@ class NimToolsSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit NimToolsSettingsWidget(NimSettings *settings, QWidget *parent = nullptr);
+    explicit NimToolsSettingsWidget(NimSettings *settings);
 
     ~NimToolsSettingsWidget();
 
@@ -60,7 +60,7 @@ class NimToolsSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    NimToolsSettingsPage(NimSettings *settings, QWidget *parent = nullptr);
+    NimToolsSettingsPage(NimSettings *settings);
 
     ~NimToolsSettingsPage();
 

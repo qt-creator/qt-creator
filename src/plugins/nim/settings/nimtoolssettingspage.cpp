@@ -32,9 +32,8 @@
 
 namespace Nim {
 
-NimToolsSettingsWidget::NimToolsSettingsWidget(NimSettings *settings, QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::NimToolsSettingsWidget)
+NimToolsSettingsWidget::NimToolsSettingsWidget(NimSettings *settings)
+    : ui(new Ui::NimToolsSettingsWidget)
     , m_settings(settings)
 {
     ui->setupUi(this);
@@ -56,9 +55,8 @@ void NimToolsSettingsWidget::setCommand(const QString &filename)
     ui->pathWidget->setPath(filename);
 }
 
-NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings, QWidget *parent)
-    : Core::IOptionsPage(parent)
-    , m_settings(settings)
+NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings)
+    : m_settings(settings)
 {
     setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
     setDisplayName(tr(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_DISPLAY));
