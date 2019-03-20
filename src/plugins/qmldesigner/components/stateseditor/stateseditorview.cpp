@@ -204,6 +204,7 @@ void StatesEditorView::checkForWindow()
 {
     if (m_statesEditorWidget)
         m_statesEditorWidget->showAddNewStatesButton(!rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Window")
+                                                     && !rootModelNode().metaInfo().isSubclassOf("QtQuick.Dialogs.Dialog")
                                                      && !rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Popup"));
 }
 
