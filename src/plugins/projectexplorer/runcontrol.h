@@ -257,14 +257,6 @@ public:
 
     static void registerWorkerCreator(Core::Id id, const WorkerCreator &workerCreator);
 
-    static void registerWorker(Core::Id runMode, const WorkerCreator &producer,
-                               const Constraint &constraint = {})
-    {
-        auto factory = new RunWorkerFactory;
-        factory->setProducer(producer);
-        factory->addSupportedRunMode(runMode);
-        factory->addConstraint(constraint);
-    }
     template <class Worker>
     static void registerWorker(Core::Id runMode, const Constraint &constraint)
     {

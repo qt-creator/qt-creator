@@ -88,6 +88,25 @@ public:
     }
 };
 
+class QmlPreviewRunWorkerFactory : public RunWorkerFactory
+{
+public:
+    QmlPreviewRunWorkerFactory()
+    {
+        addSupportedRunMode(QML_PREVIEW_RUN_MODE);
+        setProducer([](RunControl *runControl) -> RunWorker * {
+            const Runnable runnable = runControl->runConfiguration()->runnable();
+            return new AndroidQmlToolingSupport(runControl, runnable.executable);
+        });
+        addConstraint([](RunConfiguration *runConfig) {
+            return runConfig->isEnabled()
+                    && runConfig->id().name().startsWith("QmlProjectManager.QmlRunConfiguration")
+                    && DeviceTypeKitAspect::deviceTypeId(runConfig->target()->kit())
+                    == Android::Constants::ANDROID_DEVICE_TYPE;
+        });
+    }
+};
+
 class AndroidPluginPrivate : public QObject
 {
 public:
@@ -131,6 +150,7 @@ public:
     AndroidPackageInstallationFactory packackeInstallationFactory;
     AndroidManifestEditorFactory manifestEditorFactory;
     AndroidRunConfigurationFactory runConfigFactory;
+
     SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidRunSupport> runWorkerFactory;
     SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidDebugSupport>
         debugWorkerFactory{DEBUG_RUN_MODE};
@@ -138,6 +158,8 @@ public:
         profilerWorkerFactory{QML_PROFILER_RUN_MODE};
     SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidQmlToolingSupport>
         qmlPreviewWorkerFactory{QML_PREVIEW_RUN_MODE};
+    QmlPreviewRunWorkerFactory qmlPreviewWorkerFactory2;
+
     AndroidBuildApkStepFactory buildApkStepFactory;
     AndroidGdbServerKitAspect gdbServerKitAspect;
 };
@@ -151,16 +173,6 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
-
-    RunControl::registerWorker(QML_PREVIEW_RUN_MODE, [](RunControl *runControl) -> RunWorker* {
-        const Runnable runnable = runControl->runConfiguration()->runnable();
-        return new AndroidQmlToolingSupport(runControl, runnable.executable);
-    }, [](RunConfiguration *runConfig) {
-        return runConfig->isEnabled()
-                && runConfig->id().name().startsWith("QmlProjectManager.QmlRunConfiguration")
-                && DeviceTypeKitAspect::deviceTypeId(runConfig->target()->kit())
-                    == Android::Constants::ANDROID_DEVICE_TYPE;
-    });
 
     d = new AndroidPluginPrivate;
 
