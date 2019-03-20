@@ -72,6 +72,8 @@ public:
 
     int maximumScrollValue() const;
 
+    void activate();
+
 private:
     QGraphicsLinearLayout *m_layout = nullptr;
 
