@@ -94,6 +94,13 @@ public:
     IosDeployStepFactory deployStepFactory;
     IosDsymBuildStepFactory dsymBuildStepFactory;
     IosDeployConfigurationFactory deployConfigurationFactory;
+
+    SimpleRunWorkerFactory<Internal::IosRunSupport, IosRunConfiguration>
+        runWorkerFactory{ProjectExplorer::Constants::NORMAL_RUN_MODE};
+    SimpleRunWorkerFactory<Internal::IosDebugSupport, IosRunConfiguration>
+        debugWorkerFactory{ProjectExplorer::Constants::DEBUG_RUN_MODE};
+    SimpleRunWorkerFactory<Internal::IosQmlProfilerSupport, IosRunConfiguration>
+        qmlProfilerWorkerFactory{ProjectExplorer::Constants::QML_PROFILER_RUN_MODE};
 };
 
 IosPlugin::~IosPlugin()
@@ -111,17 +118,6 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     IosConfigurations::initialize();
 
     d = new IosPluginPrivate;
-
-    auto constraint = [](RunConfiguration *runConfig) {
-        return qobject_cast<IosRunConfiguration *>(runConfig) != nullptr;
-    };
-
-    RunControl::registerWorker<Internal::IosRunSupport>
-            (ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
-    RunControl::registerWorker<Internal::IosDebugSupport>
-            (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
-    RunControl::registerWorker<Internal::IosQmlProfilerSupport>
-            (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, constraint);
 
     return true;
 }
