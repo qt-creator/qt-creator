@@ -62,6 +62,7 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     m_headerLabel->setFont(boldFont);
     m_messageLabel->setForegroundRole(QPalette::ToolTipText);
     m_messageLabel->setWordWrap(true);
+    m_messageLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
     m_ignoreWarningsCheckBox->setText(tr("Always ignore these warnings about features "
                                          "not supported by Qt Quick Designer."));
