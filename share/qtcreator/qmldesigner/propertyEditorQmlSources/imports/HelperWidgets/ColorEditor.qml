@@ -26,7 +26,8 @@
 import QtQuick 2.1
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.0 as Controls
-
+import QtQuickDesignerTheme 1.0
+import QtQuick.Controls.Styles 1.1
 
 Column {
     id: colorEditor
@@ -45,19 +46,17 @@ Column {
 
     property alias gradientPropertyName: gradientLine.gradientPropertyName
 
+    property bool shapeGradients: false
+
     property alias transparent: transparentButton.checked
 
     function isNotInGradientMode() {
-         return (buttonRow.checkedIndex !== 1)
+        return (buttonRow.checkedIndex !== 1)
     }
 
-    onValueChanged: {
-        colorEditor.color = colorEditor.value
-    }
+    onValueChanged: colorEditor.color = colorEditor.value
 
-    onBackendValueChanged: {
-        colorEditor.color = colorEditor.value
-    }
+    onBackendValueChanged: colorEditor.color = colorEditor.value
 
     Timer {
         id: colorEditorTimer
@@ -87,7 +86,13 @@ Column {
 
     GradientLine {
         property bool isInValidState: false
-        visible: buttonRow.checkedIndex === 1
+        visible: {
+            if (colorEditor.shapeGradients) {
+                return buttonRow.checkedIndex > 0 && buttonRow.checkedIndex < 4
+            } else {
+                return buttonRow.checkedIndex === 1
+            }
+        }
         id: gradientLine
 
         width: parent.width
@@ -98,11 +103,26 @@ Column {
         }
 
         onHasGradientChanged: {
-             if (!supportGradient)
-                 return
+            if (!supportGradient)
+                return
 
             if (gradientLine.hasGradient) {
-                buttonRow.initalChecked = 1
+                if (colorEditor.shapeGradients) {
+                    switch (gradientLine.gradientTypeName) {
+                    case "LinearGradient":
+                        buttonRow.initalChecked = 1
+                        break;
+                    case "RadialGradient":
+                        buttonRow.initalChecked = 2
+                        break;
+                    case "ConicalGradient":
+                        buttonRow.initalChecked = 3
+                        break;
+                    default:
+                        buttonRow.initalChecked = 1
+                    }
+                }
+
                 colorEditor.color = gradientLine.currentColor
             } else {
                 buttonRow.initalChecked = 0
@@ -155,6 +175,11 @@ Column {
 
         SecondColumnLayout {
 
+            ColorCheckButton {
+                id: checkButton
+                color: colorEditor.color
+            }
+
             LineEdit {
                 enabled: !colorEditor.transparent
                 id: textField
@@ -181,10 +206,6 @@ Column {
 
                 Layout.fillWidth: true
             }
-            ColorCheckButton {
-                id: checkButton
-                color: colorEditor.color
-            }
 
             ButtonRow {
 
@@ -193,6 +214,7 @@ Column {
 
                 ButtonRowButton {
                     iconSource: "images/icon_color_solid.png"
+
                     onClicked: {
                         gradientLine.deleteGradient()
                         textField.text = colorEditor.color
@@ -205,10 +227,245 @@ Column {
                     iconSource: "images/icon_color_gradient.png"
                     onClicked: {
                         colorEditor.backendValue.resetValue()
+                        if (colorEditor.shapeGradients) {
+                            gradientLine.deleteGradient()
+                            gradientLine.gradientTypeName = "LinearGradient"
+                        }
                         gradientLine.addGradient()
                     }
 
-                    tooltip: qsTr("Gradient")
+                    tooltip: qsTr("Linear Gradient")
+
+                    GradientPopupIndicator {
+
+                        onClicked: gradientDialogPopupLinear.toggle()
+
+                        GradientDialogPopup {
+                            id: gradientDialogPopupLinear
+
+                            dialogHeight: 80
+                            content: GridLayout {
+                                rowSpacing: 4
+                                anchors.fill: parent
+                                height: 40
+
+                                columns: 4
+                                rows: 2
+
+                                anchors.leftMargin: 12
+                                anchors.rightMargin: 6
+
+                                anchors.topMargin: 24
+                                anchors.bottomMargin: 6
+
+                                Label {
+                                    text: "X1"
+                                    width: 16
+                                    tooltip: qsTr("Defines the start point for color interpolation.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "x1"
+                                }
+
+                                Label {
+                                    text: "X2"
+                                    width: 16
+                                    tooltip: qsTr("Defines the end point for color interpolation.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "x2"
+                                }
+
+                                Label {
+                                    text: "y1"
+                                    width: 16
+                                    tooltip: qsTr("Defines the start point for color interpolation.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "y1"
+                                }
+
+                                Label {
+                                    text: "Y2"
+                                    width: 16
+                                    tooltip: qsTr("Defines the end point for color interpolation.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "y2"
+                                }
+                            }
+                        }
+                    }
+                }
+                ButtonRowButton {
+                    visible: supportGradient && colorEditor.shapeGradients
+                    iconSource: "images/icon_color_radial_gradient.png"
+                    onClicked: {
+                        colorEditor.backendValue.resetValue()
+                        if (colorEditor.shapeGradients) {
+                            gradientLine.deleteGradient()
+                            gradientLine.gradientTypeName = "RadialGradient"
+                        }
+                        gradientLine.addGradient()
+                    }
+
+                    tooltip: qsTr("Radial Gradient")
+
+                    GradientPopupIndicator {
+                        onClicked: gradientDialogPopupRadial.toggle()
+
+                        GradientDialogPopup {
+                            id: gradientDialogPopupRadial
+                            dialogHeight: 140
+                            dialogWidth: 340
+                            content: GridLayout {
+                                rowSpacing: 4
+                                anchors.fill: parent
+                                height: 40
+
+                                columns: 4
+                                rows: 3
+
+                                anchors.leftMargin: 12
+                                anchors.rightMargin: 6
+
+                                anchors.topMargin: 24
+                                anchors.bottomMargin: 6
+
+                                Label {
+                                    text: "CenterX"
+                                    width: 54
+                                    tooltip: qsTr("Defines the center point.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "centerX"
+                                }
+
+                                Label {
+                                    text: "CenterY"
+                                    width: 54
+                                    tooltip: qsTr("Defines the center point.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "centerY"
+                                }
+
+                                Label {
+                                    text: "FocalX"
+                                    width: 54
+                                    tooltip: qsTr("Defines the focal point.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "focalX"
+                                }
+
+                                Label {
+                                    text: "FocalY"
+                                    width: 54
+                                    tooltip: qsTr("Defines the focal point.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "focalY"
+                                }
+
+                                Label {
+                                    text: "Center Radius"
+                                    width: 54
+                                    tooltip: qsTr("Defines the center point.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "centerRadius"
+                                }
+
+                                Label {
+                                    text: "Focal Radius"
+                                    width: 54
+                                    tooltip: qsTr("Defines the focal radius. Set to 0 for simple radial gradients.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "focalRadius"
+                                }
+                            }
+                        }
+                    }
+                }
+                ButtonRowButton {
+                    visible: supportGradient && colorEditor.shapeGradients
+                    iconSource: "images/icon_color_conical_gradient.png"
+                    onClicked: {
+                        colorEditor.backendValue.resetValue()
+                        if (colorEditor.shapeGradients) {
+                            gradientLine.deleteGradient()
+                            gradientLine.gradientTypeName = "ConicalGradient"
+                        }
+                        gradientLine.addGradient()
+                    }
+
+                    tooltip: qsTr("Concial Gradient")
+
+                    GradientPopupIndicator {
+
+                        onClicked: gradientDialogPopupConical.toggle()
+
+                        GradientDialogPopup {
+                            id: gradientDialogPopupConical
+                            dialogHeight: 80
+                            content: GridLayout {
+                                rowSpacing: 4
+                                anchors.fill: parent
+                                height: 40
+
+                                columns: 4
+                                rows: 2
+
+                                anchors.leftMargin: 12
+                                anchors.rightMargin: 6
+
+                                anchors.topMargin: 24
+                                anchors.bottomMargin: 6
+
+                                Label {
+                                    text: "CenterX"
+                                    width: 32
+                                    tooltip: qsTr("Defines the center point.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "centerX"
+                                }
+
+                                Label {
+                                    text: "CenterY"
+                                    width: 32
+                                    tooltip: qsTr("Defines the center point.")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "centerY"
+                                }
+
+                                Label {
+                                    text: "Angle"
+                                    width: 32
+                                    tooltip: qsTr("Defines the start angle for the conical gradient. The value is in degrees (0-360).")
+                                }
+
+                                GradientPropertySpinBox {
+                                    propertyName: "angle"
+                                }
+                            }
+                        }
+                    }
                 }
                 ButtonRowButton {
                     id: transparentButton

@@ -38,6 +38,7 @@ Item {
 
 
     property alias gradientPropertyName: gradientModel.gradientPropertyName
+    property alias gradientTypeName: gradientModel.gradientTypeName
 
     onHasGradientChanged: {
         colorLine.invalidate()
