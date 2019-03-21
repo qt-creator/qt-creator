@@ -27074,7 +27074,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
-        <translation>Dieser Assistent erstellt ein Qt-Projekt vom Typ subdirs. Mit Hilfe der anderen Assistenten können später Unterprojekte hinzugefügt werden.</translation>
+        <translation>Dieser Assistent erstellt ein Qt-Projekt vom Typ subdirs. Unterprojekte können später mit anderen Assistenten hinzugefügt werden.</translation>
     </message>
 </context>
 <context>
@@ -46492,7 +46492,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     <name>SyntaxHighlightingCLI</name>
     <message>
         <source>Command line syntax highlighter using Kate syntax definitions.</source>
-        <translation>Kommandozeilen-Syntaxhervorhebung mit Hilfe von Kate-Syntaxdefinitionen.</translation>
+        <translation>Kommandozeilen-Syntaxhervorhebung mittels Kate-Syntaxdefinitionen.</translation>
     </message>
     <message>
         <source>source</source>
@@ -46524,7 +46524,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
     <message>
         <source>Highlight using this syntax definition (default: auto-detect based on input file).</source>
-        <translation>Mit Hilfe dieser Syntaxdefinition hervorheben (Vorgabe: Anhand der Eingabedatei automatisch erkennen).</translation>
+        <translation>Mit dieser Syntaxdefinition hervorheben (Vorgabe: Anhand der Eingabedatei automatisch erkennen).</translation>
     </message>
     <message>
         <source>syntax</source>
@@ -47278,7 +47278,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Deploy files via rsync</source>
-        <translation>Dateien mit Hilfe von rsync übertragen</translation>
+        <translation>Dateien mittels rsync übertragen</translation>
     </message>
 </context>
 <context>
