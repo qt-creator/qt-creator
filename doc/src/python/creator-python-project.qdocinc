@@ -1,0 +1,97 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [python project wizards]
+
+    \section2 Creating Qt for Python Applications
+
+    \l {https://doc.qt.io/qtforpython/index.html}{Qt for Python} enables you
+    to use Qt 5 API in Python applications. You can use the PySide2 module to
+    gain access to individual Qt modules, such as \l {Qt Core}, \l {Qt GUI},
+    and \l {Qt Widgets}.
+
+    The Qt for Python Application wizards generate a \c {.pyproject} file that
+    lists the files in the Python project and a \c {.py} file that contains
+    some boilerplate code.
+
+    The \c{.pyproject} files are JSON-based configuration files that replace
+    the previously used \c {.pyqtc} configuration files. You can still open and
+    use \c {.pyqtc} files, but we recommend that you choose \c{.pyproject} files
+    for new projects.
+
+    The Window wizard adds the following imports to the \c {main.py}
+    file to provide access to the QApplication and QMainWindow classes
+    in the Qt Widgets module:
+
+    \badcode
+    import sys
+    from PySide2.QtWidgets import QApplication, QMainWindow
+    \endcode
+
+    The Window wizard also adds a \c MainWindow class that inherits from
+    QMainWindow:
+
+    \badcode
+    class MainWindow(QMainWindow):
+        def __init__(self):
+        QMainWindow.__init__(self)
+    \endcode
+
+    Next, the Window wizard adds a main function, where it creates a
+    QApplication instance. As Qt can receive arguments from the command line,
+    you can pass any arguments to the QApplication object. Usually, you do not
+    need to pass any arguments, and you can use the following approach:
+
+    \badcode
+    if __name__ == "__main__":
+        app = QApplication([])
+        ...
+    \endcode
+
+    Next, the Window wizard instantiates the \c MainWindow class and shows it:
+
+    \badcode
+        window = MainWindow()
+        window.show()
+        ...
+    \endcode
+
+    Finally, the Window wizard calls the \c app.exec_() method to enter the Qt
+    main loop and start executing the Qt code:
+
+    \badcode
+        sys.exit(app.exec_())
+    \endcode
+
+    The Empty wizard adds similar code to the \c {main.py} file, but it does
+    not add any classes, so you need to add and instantiate them yourself.
+
+    For examples of creating Qt for Python applications, see
+    \l {https://doc.qt.io/qtforpython/tutorials/index.html}
+    {Qt for Python Examples and Tutorials}.
+
+//! [python project wizards]
+*/
