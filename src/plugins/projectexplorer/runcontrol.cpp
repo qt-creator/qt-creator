@@ -375,7 +375,7 @@ void RunControl::setDevice(const IDevice::ConstPtr &device)
                 return;
 
             const QString message = QString::fromUtf8(entry.value("MESSAGE")) + "\n";
-            appendMessageRequested(this, message, Utils::OutputFormat::LogMessageFormat);
+            appendMessage(message, Utils::OutputFormat::LogMessageFormat);
         });
     }
 #endif
