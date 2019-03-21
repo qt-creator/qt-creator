@@ -151,6 +151,9 @@ void GradientModel::addGradient()
             if (!color.isValid())
                 color = QColor(Qt::white);
 
+            if (m_gradientTypeName != "Gradient")
+                ensureShapesImport();
+
             QmlDesigner::RewriterTransaction transaction = view()->beginRewriterTransaction(QByteArrayLiteral("GradientModel::addGradient"));
 
             QmlDesigner::ModelNode gradientNode = createGradientNode();
@@ -446,7 +449,6 @@ QmlDesigner::ModelNode GradientModel::createGradientNode()
         fullTypeName.prepend("QtQuick.");
     } else {
         fullTypeName.prepend("QtQuick.Shapes.");
-        ensureShapesImport();
     }
 
     auto metaInfo = model()->metaInfo(fullTypeName);
