@@ -159,6 +159,10 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
     QTC_CHECK(!m_process || m_process->state() == QProcess::NotRunning);
 
     m_process.reset(device->createProcess(nullptr));
+    if (!m_process) {
+        m_ui->useTracePointsButton->setEnabled(false);
+        return;
+    }
 
     connect(m_process.get(), &ProjectExplorer::DeviceProcess::finished,
             this, &PerfConfigWidget::handleProcessFinished);
