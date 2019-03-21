@@ -47,7 +47,7 @@ void CompletionChunksToTextConverter::parseChunks(
                   m_codeCompletionChunks.cend(),
                   [this] (const ClangBackEnd::CodeCompletionChunk &chunk)
     {
-        parseDependendOnTheOptionalState(chunk);
+        parseDependentOnTheOptionalState(chunk);
         m_previousCodeCompletionChunk = chunk;
     });
 }
@@ -200,7 +200,7 @@ void CompletionChunksToTextConverter::parse(
     }
 }
 
-void CompletionChunksToTextConverter::parseDependendOnTheOptionalState(
+void CompletionChunksToTextConverter::parseDependentOnTheOptionalState(
         const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     wrapInCursiveTagIfOptional(codeCompletionChunk);

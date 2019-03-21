@@ -50,6 +50,8 @@
 using ClangBackEnd::FilePathIds;
 using ClangBackEnd::SourceEntries;
 using ClangBackEnd::SourceEntry;
+using ClangBackEnd::SourceTimeStamp;
+using ClangBackEnd::SourceTimeStamps;
 using ClangRefactoring::SourceLocation;
 using ClangRefactoring::SourceLocations;
 using std::int64_t;
@@ -135,6 +137,9 @@ public:
 
     MOCK_METHOD1(valueReturnProjectPartId,
                  Utils::optional<ClangBackEnd::ProjectPartId>(Utils::SmallStringView));
+
+    MOCK_METHOD1(valuesReturnSourceTimeStamps, SourceTimeStamps(std::size_t));
+    MOCK_METHOD2(valuesReturnSourceTimeStamps, SourceTimeStamps(std::size_t, int sourcePathId));
 
     template <typename ResultType,
               int ResultTypeCount = 1,
@@ -282,6 +287,13 @@ template<>
 SourceEntries MockSqliteReadStatement::values<SourceEntry, 4>(std::size_t reserveSize,
                                                               const int &,
                                                               const int &);
+
+template<>
+SourceTimeStamps MockSqliteReadStatement::values<SourceTimeStamp, 2>(std::size_t reserveSize);
+
+template<>
+SourceTimeStamps MockSqliteReadStatement::values<SourceTimeStamp, 2>(std::size_t reserveSize,
+                                                                     const int &sourcePathId);
 
 template <>
 Utils::optional<Sources::SourceNameAndDirectoryId>

@@ -32,6 +32,7 @@
 #include "clangpathwatcher.h"
 
 #include <filecontainerv2.h>
+#include <modifiedtimecheckerinterface.h>
 #include <precompiledheaderstorageinterface.h>
 #include <projectpartcontainer.h>
 #include <projectpartsstorageinterface.h>
@@ -51,7 +52,8 @@ public:
                   FilePathCachingInterface &filePathCache,
                   FileStatusCache &fileStatusCache,
                   Sqlite::TransactionInterface &transactionInterface,
-                  ProjectPartsStorageInterface &projectPartsStorage);
+                  ProjectPartsStorageInterface &projectPartsStorage,
+                  ModifiedTimeCheckerInterface<SourceTimeStamps> &modifiedTimeChecker);
 
     void updateProjectParts(ProjectPartContainers &&projectParts);
     void updateProjectPart(ProjectPartContainer &&projectPart);
@@ -81,6 +83,7 @@ private:
     FileStatusCache &m_fileStatusCache;
     Sqlite::TransactionInterface &m_transactionInterface;
     ProjectPartsStorageInterface &m_projectPartsStorage;
+    ModifiedTimeCheckerInterface<SourceTimeStamps> &m_modifiedTimeChecker;
 };
 
 } // namespace ClangBackEnd

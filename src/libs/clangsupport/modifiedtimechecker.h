@@ -25,17 +25,18 @@
 
 #pragma once
 
+#include "filepathcachinginterface.h"
 #include "modifiedtimecheckerinterface.h"
-
-#include <filepathcachinginterface.h>
 
 #include <algorithm>
 #include <iterator>
 
 namespace ClangBackEnd {
-
-class ModifiedTimeChecker final : public ModifiedTimeCheckerInterface
+template<typename SourceEntries = ::ClangBackEnd::SourceEntries>
+class ModifiedTimeChecker final : public ModifiedTimeCheckerInterface<SourceEntries>
 {
+    using SourceEntry = typename SourceEntries::value_type;
+
 public:
     using GetModifiedTime = std::function<ClangBackEnd::TimeStamp(ClangBackEnd::FilePathView filePath)>;
     ModifiedTimeChecker(GetModifiedTime &getModifiedTime, FilePathCachingInterface &filePathCache)
@@ -67,7 +68,7 @@ public:
                               std::back_inserter(timeStampsToUpdate));
 
         for (SourceTimeStamp &sourceTimeStamp : timeStampsToUpdate) {
-            sourceTimeStamp.lastModified = m_getModifiedTime(
+            sourceTimeStamp.timeStamp = m_getModifiedTime(
                 m_filePathCache.filePath(sourceTimeStamp.sourceId));
         }
     }
@@ -78,21 +79,22 @@ private:
         class CompareSourceId
         {
         public:
-            bool operator()(SourceTimeStamp first, SourceTimeStamp second) {
-                return first.sourceId < second.sourceId;
-            }
-
-            bool operator()(SourceEntry first, SourceEntry second)
+            bool operator()(SourceTimeStamp first, SourceTimeStamp second)
             {
                 return first.sourceId < second.sourceId;
             }
 
-            bool operator()(SourceTimeStamp first, SourceEntry second)
+            bool operator()(::ClangBackEnd::SourceEntry first, ::ClangBackEnd::SourceEntry second)
             {
                 return first.sourceId < second.sourceId;
             }
 
-            bool operator()(SourceEntry first, SourceTimeStamp second)
+            bool operator()(SourceTimeStamp first, ::ClangBackEnd::SourceEntry second)
+            {
+                return first.sourceId < second.sourceId;
+            }
+
+            bool operator()(::ClangBackEnd::SourceEntry first, SourceTimeStamp second)
             {
                 return first.sourceId < second.sourceId;
             }
@@ -112,23 +114,22 @@ private:
         public:
             bool operator()(SourceTimeStamp first, SourceTimeStamp second)
             {
-                return first.lastModified <= second.lastModified;
+                return first.timeStamp <= second.timeStamp;
             }
 
-            bool operator()(SourceEntry first, SourceEntry second)
+            bool operator()(::ClangBackEnd::SourceEntry first, ::ClangBackEnd::SourceEntry second)
             {
-                return first.pchCreationTimeStamp <=
-                    second.pchCreationTimeStamp;
+                return first.timeStamp <= second.timeStamp;
             }
 
-            bool operator()(SourceTimeStamp first, SourceEntry second)
+            bool operator()(SourceTimeStamp first, ::ClangBackEnd::SourceEntry second)
             {
-                return first.lastModified <= second.pchCreationTimeStamp;
+                return first.timeStamp <= second.timeStamp;
             }
 
-            bool operator()(SourceEntry first, SourceTimeStamp second)
+            bool operator()(::ClangBackEnd::SourceEntry first, SourceTimeStamp second)
             {
-                return first.pchCreationTimeStamp <= second.lastModified;
+                return first.timeStamp <= second.timeStamp;
             }
         };
 
@@ -144,7 +145,7 @@ private:
         SourceTimeStamps sourceTimeStamps = newSourceTimeStamps(sourceEntries);
 
         for (SourceTimeStamp &newSourceTimeStamp : sourceTimeStamps) {
-            newSourceTimeStamp.lastModified = m_getModifiedTime(
+            newSourceTimeStamp.timeStamp = m_getModifiedTime(
                 m_filePathCache.filePath(newSourceTimeStamp.sourceId));
         }
 
@@ -169,17 +170,17 @@ private:
                 return first.sourceId < second.sourceId;
             }
 
-            bool operator()(SourceEntry first, SourceEntry second)
+            bool operator()(::ClangBackEnd::SourceEntry first, ::ClangBackEnd::SourceEntry second)
             {
                 return first.sourceId < second.sourceId;
             }
 
-            bool operator()(SourceTimeStamp first, SourceEntry second)
+            bool operator()(SourceTimeStamp first, ::ClangBackEnd::SourceEntry second)
             {
                 return first.sourceId < second.sourceId;
             }
 
-            bool operator()(SourceEntry first, SourceTimeStamp second)
+            bool operator()(::ClangBackEnd::SourceEntry first, SourceTimeStamp second)
             {
                 return first.sourceId < second.sourceId;
             }

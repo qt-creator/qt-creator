@@ -222,6 +222,19 @@ SourceEntries MockSqliteReadStatement::values<SourceEntry, 4>(std::size_t reserv
     return valuesReturnSourceEntries(reserveSize, filePathId, projectPartId);
 }
 
+template<>
+SourceTimeStamps MockSqliteReadStatement::values<SourceTimeStamp, 2>(std::size_t reserveSize)
+{
+    return valuesReturnSourceTimeStamps(reserveSize);
+}
+
+template<>
+SourceTimeStamps MockSqliteReadStatement::values<SourceTimeStamp, 2>(std::size_t reserveSize,
+                                                                     const int &sourcePathId)
+{
+    return valuesReturnSourceTimeStamps(reserveSize, sourcePathId);
+}
+
 template <>
 Utils::optional<Sources::SourceNameAndDirectoryId>
 MockSqliteReadStatement::value<Sources::SourceNameAndDirectoryId, 2>(const int &id)

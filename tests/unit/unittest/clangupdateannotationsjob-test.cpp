@@ -97,16 +97,16 @@ TEST_F(UpdateAnnotationsJobSlowTest, DontSendAnnotationsIfDocumentRevisionChange
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-TEST_F(UpdateAnnotationsJobSlowTest, UpdatesDependendFilePaths)
+TEST_F(UpdateAnnotationsJobSlowTest, UpdatesDependentFilePaths)
 {
-    const QSet<Utf8String> dependendOnFilesBefore = document.dependedFilePaths();
+    const QSet<Utf8String> dependentOnFilesBefore = document.dependedFilePaths();
     job.setContext(jobContext);
     job.prepareAsyncRun();
 
     job.runAsync();
     ASSERT_TRUE(waitUntilJobFinished(job));
 
-    ASSERT_THAT(dependendOnFilesBefore, Not(document.dependedFilePaths()));
+    ASSERT_THAT(dependentOnFilesBefore, Not(document.dependedFilePaths()));
 }
 
 TEST_F(UpdateAnnotationsJobSlowTest, UpdatesUnresolvedFilePaths)

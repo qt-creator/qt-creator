@@ -75,7 +75,7 @@ public:
 
 private:
     void parse(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
-    void parseDependendOnTheOptionalState(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
+    void parseDependentOnTheOptionalState(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
     void parseResultType(const Utf8String &text);
     void parseText(const Utf8String &text);
     void wrapInCursiveTagIfOptional(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);

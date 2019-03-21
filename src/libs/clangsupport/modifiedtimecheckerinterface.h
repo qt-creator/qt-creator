@@ -29,6 +29,7 @@
 
 namespace ClangBackEnd {
 
+template<typename SourceEntries = ::ClangBackEnd::SourceEntries>
 class ModifiedTimeCheckerInterface
 {
 public:

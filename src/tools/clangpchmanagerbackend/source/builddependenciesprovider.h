@@ -27,6 +27,8 @@
 
 #include "builddependenciesproviderinterface.h"
 
+#include <modifiedtimecheckerinterface.h>
+
 namespace Sqlite {
 class TransactionInterface;
 }
@@ -34,14 +36,13 @@ class TransactionInterface;
 namespace ClangBackEnd {
 
 class BuildDependenciesStorageInterface;
-class ModifiedTimeCheckerInterface;
 class BuildDependencyGeneratorInterface;
 
 class BuildDependenciesProvider : public BuildDependenciesProviderInterface
 {
 public:
     BuildDependenciesProvider(BuildDependenciesStorageInterface &buildDependenciesStorage,
-                              ModifiedTimeCheckerInterface &modifiedTimeChecker,
+                              ModifiedTimeCheckerInterface<> &modifiedTimeChecker,
                               BuildDependencyGeneratorInterface &buildDependenciesGenerator,
                               Sqlite::TransactionInterface &transactionBackend)
         : m_storage(buildDependenciesStorage)
@@ -61,7 +62,7 @@ private:
 
 private:
     BuildDependenciesStorageInterface &m_storage;
-    ModifiedTimeCheckerInterface &m_modifiedTimeChecker;
+    ModifiedTimeCheckerInterface<> &m_modifiedTimeChecker;
     BuildDependencyGeneratorInterface &m_generator;
     Sqlite::TransactionInterface &m_transactionBackend;
 };

@@ -27,12 +27,13 @@
 
 #include "mocksqlitedatabase.h"
 
+#include <builddependenciesstorage.h>
 #include <projectpartsstorage.h>
 #include <refactoringdatabaseinitializer.h>
 #include <sqlitedatabase.h>
 #include <sqlitereadstatement.h>
 #include <sqlitewritestatement.h>
-
+#include <symbolstorage.h>
 namespace {
 
 using ClangBackEnd::FilePathId;
@@ -104,6 +105,7 @@ protected:
     MockSqliteReadStatement &fetchProjectPartsHeadersByIdStatement = storage.fetchProjectPartsHeadersByIdStatement;
     MockSqliteReadStatement &fetchProjectPartsSourcesByIdStatement = storage.fetchProjectPartsSourcesByIdStatement;
     MockSqliteReadStatement &fetchProjectPrecompiledHeaderPathStatement = storage.fetchProjectPrecompiledHeaderPathStatement;
+    MockSqliteWriteStatement &resetDependentIndexingTimeStampsStatement = storage.resetDependentIndexingTimeStampsStatement;
     IncludeSearchPaths systemIncludeSearchPaths{{"/includes", 1, IncludeSearchPathType::BuiltIn},
                                                 {"/other/includes", 2, IncludeSearchPathType::System}};
     IncludeSearchPaths projectIncludeSearchPaths{{"/project/includes", 1, IncludeSearchPathType::User},
@@ -424,6 +426,35 @@ TEST_F(ProjectPartsStorage, FetchProjectPartArtefactByProjectPartIdReturnArtefac
     ASSERT_THAT(result, Eq(artefact));
 }
 
+TEST_F(ProjectPartsStorage, ResetDependentIndexingTimeStamps)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(3)));
+    EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(4)));
+    EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(7)));
+    EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(8)));
+    EXPECT_CALL(mockDatabase, commit());
+
+    storage.resetIndexingTimeStamps({projectPart1, projectPart2});
+}
+
+TEST_F(ProjectPartsStorage, ResetDependentIndexingTimeStampsIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(3)));
+    EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(4)));
+    EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(7)));
+    EXPECT_CALL(resetDependentIndexingTimeStampsStatement, write(TypedEq<int>(8)));
+    EXPECT_CALL(mockDatabase, commit());
+
+    storage.resetIndexingTimeStamps({projectPart1, projectPart2});
+}
+
 class ProjectPartsStorageSlow : public testing::Test, public Data
 {
     using Storage = ClangBackEnd::ProjectPartsStorage<Sqlite::Database>;
@@ -432,6 +463,8 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     Storage storage{database};
+    ClangBackEnd::SymbolStorage<> symbolStorage{database};
+    ClangBackEnd::BuildDependenciesStorage<> buildDependenciesStorage{database};
 };
 
 TEST_F(ProjectPartsStorageSlow, FetchProjectPartName)
@@ -469,4 +502,26 @@ TEST_F(ProjectPartsStorageSlow, FetchProjectParts)
 
     ASSERT_THAT(projectParts, ElementsAre(projectPart1, projectPart2));
 }
+
+TEST_F(ProjectPartsStorageSlow, ResetDependentIndexingTimeStamps)
+{
+    symbolStorage.insertOrUpdateIndexingTimeStamps({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 34);
+    buildDependenciesStorage.insertOrUpdateSourceDependencies(
+        {{3, 1}, {4, 1}, {1, 2}, {7, 5}, {8, 6}, {6, 5}, {9, 10}});
+
+    storage.resetIndexingTimeStamps({projectPart1, projectPart2});
+
+    ASSERT_THAT(symbolStorage.fetchIndexingTimeStamps(),
+                ElementsAre(SourceTimeStamp{1, 0},
+                            SourceTimeStamp{2, 0},
+                            SourceTimeStamp{3, 0},
+                            SourceTimeStamp{4, 0},
+                            SourceTimeStamp{5, 0},
+                            SourceTimeStamp{6, 0},
+                            SourceTimeStamp{7, 0},
+                            SourceTimeStamp{8, 0},
+                            SourceTimeStamp{9, 34},
+                            SourceTimeStamp{10, 34}));
+}
+
 } // namespace

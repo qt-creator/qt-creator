@@ -293,7 +293,7 @@ public:
             entry.get().hasMissingIncludes = HasMissingIncludes::Yes;
     }
 
-    SourceDependencies sourceDependenciesSortedByDependendFilePathId() const
+    SourceDependencies sourceDependenciesSortedByDependentFilePathId() const
     {
         auto sourceDependencies = m_buildDependency.sourceDependencies;
         std::sort(sourceDependencies.begin(), sourceDependencies.end(), [](auto first, auto second) {
@@ -309,7 +309,7 @@ public:
         sortAndMakeUnique(m_containsMissingIncludes);
 
         collectSourceWithMissingIncludes(m_containsMissingIncludes,
-                                         sourceDependenciesSortedByDependendFilePathId());
+                                         sourceDependenciesSortedByDependentFilePathId());
 
         removeSourceWithMissingIncludesFromSources();
     }

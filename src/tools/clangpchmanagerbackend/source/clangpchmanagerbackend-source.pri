@@ -29,8 +29,6 @@ HEADERS += \
     $$PWD/builddependenciesprovider.h \
     $$PWD/builddependenciesstorageinterface.h \
     $$PWD/builddependency.h \
-    $$PWD/modifiedtimecheckerinterface.h \
-    $$PWD/sourceentry.h \
     $$PWD/builddependenciesstorage.h \
     $$PWD/builddependencygeneratorinterface.h \
     $$PWD/usedmacrofilter.h \
@@ -40,8 +38,7 @@ HEADERS += \
     $$PWD/pchtaskqueue.h \
     $$PWD/generatepchactionfactory.h \
     $$PWD/pchtaskgeneratorinterface.h \
-    $$PWD/toolchainargumentscache.h \
-    $$PWD/modifiedtimechecker.h
+    $$PWD/toolchainargumentscache.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

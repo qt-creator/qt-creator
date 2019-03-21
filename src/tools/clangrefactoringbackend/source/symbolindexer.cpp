@@ -66,7 +66,8 @@ SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQ
                              FilePathCachingInterface &filePathCache,
                              FileStatusCache &fileStatusCache,
                              Sqlite::TransactionInterface &transactionInterface,
-                             ProjectPartsStorageInterface &projectPartsStorage)
+                             ProjectPartsStorageInterface &projectPartsStorage,
+                             ModifiedTimeCheckerInterface<SourceTimeStamps> &modifiedTimeChecker)
     : m_symbolIndexerTaskQueue(symbolIndexerTaskQueue)
     , m_symbolStorage(symbolStorage)
     , m_buildDependencyStorage(buildDependenciesStorage)
@@ -76,6 +77,7 @@ SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQ
     , m_fileStatusCache(fileStatusCache)
     , m_transactionInterface(transactionInterface)
     , m_projectPartsStorage(projectPartsStorage)
+    , m_modifiedTimeChecker(modifiedTimeChecker)
 {
     pathWatcher.setNotifier(this);
 }
@@ -109,23 +111,27 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
     std::vector<SymbolIndexerTask> symbolIndexerTask;
     symbolIndexerTask.reserve(projectPart.sourcePathIds.size());
     for (FilePathId sourcePathId : projectPart.sourcePathIds) {
-        auto indexing = [arguments = commandLineBuilder.commandLine,
-                         sourcePathId,
-                         this](SymbolsCollectorInterface &symbolsCollector) {
-            symbolsCollector.setFile(sourcePathId, arguments);
+        SourceTimeStamps dependentTimeStamps = m_symbolStorage.fetchIncludedIndexingTimeStamps(
+            sourcePathId);
 
-            bool success = symbolsCollector.collectSymbols();
+        if (!m_modifiedTimeChecker.isUpToDate(dependentTimeStamps)) {
+            auto indexing = [arguments = commandLineBuilder.commandLine, sourcePathId, this](
+                                SymbolsCollectorInterface &symbolsCollector) {
+                symbolsCollector.setFile(sourcePathId, arguments);
 
-            if (success) {
-                Sqlite::ImmediateTransaction transaction{m_transactionInterface};
+                bool success = symbolsCollector.collectSymbols();
 
-                m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
-                                                             symbolsCollector.sourceLocations());
-                transaction.commit();
-            }
-        };
+                if (success) {
+                    Sqlite::ImmediateTransaction transaction{m_transactionInterface};
+                    m_symbolStorage.insertOrUpdateIndexingTimeStamps(symbolsCollector.fileStatuses());
+                    m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
+                                                                 symbolsCollector.sourceLocations());
+                    transaction.commit();
+                }
+            };
 
-        symbolIndexerTask.emplace_back(sourcePathId, projectPartId, std::move(indexing));
+            symbolIndexerTask.emplace_back(sourcePathId, projectPartId, std::move(indexing));
+        }
     }
 
     m_symbolIndexerTaskQueue.addOrUpdateTasks(std::move(symbolIndexerTask));
@@ -136,11 +142,13 @@ void SymbolIndexer::pathsWithIdsChanged(const ProjectPartIds &) {}
 
 void SymbolIndexer::pathsChanged(const FilePathIds &filePathIds)
 {
-    std::vector<SymbolIndexerTask> symbolIndexerTask;
-    symbolIndexerTask.reserve(filePathIds.size());
+    FilePathIds dependentSourcePathIds = m_symbolStorage.fetchDependentSourceIds(filePathIds);
 
-    for (FilePathId filePathId : filePathIds)
-        updateChangedPath(filePathId, symbolIndexerTask);
+    std::vector<SymbolIndexerTask> symbolIndexerTask;
+    symbolIndexerTask.reserve(dependentSourcePathIds.size());
+
+    for (FilePathId dependentSourcePathId : dependentSourcePathIds)
+        updateChangedPath(dependentSourcePathId, symbolIndexerTask);
 
     m_symbolIndexerTaskQueue.addOrUpdateTasks(std::move(symbolIndexerTask));
     m_symbolIndexerTaskQueue.processEntries();
@@ -161,6 +169,8 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
         = m_precompiledHeaderStorage.fetchPrecompiledHeader(optionalArtefact->projectPartId);
     transaction.commit();
 
+    SourceTimeStamps dependentTimeStamps = m_symbolStorage.fetchIncludedIndexingTimeStamps(filePathId);
+
     const ProjectPartArtefact &artefact = *optionalArtefact;
 
     auto pchPath = optionalProjectPartPch ? optionalProjectPartPch->pchPath : FilePath{};
@@ -176,10 +186,9 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
 
         if (success) {
             Sqlite::ImmediateTransaction transaction{m_transactionInterface};
-
+            m_symbolStorage.insertOrUpdateIndexingTimeStamps(symbolsCollector.fileStatuses());
             m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
                                                          symbolsCollector.sourceLocations());
-
             transaction.commit();
         }
     };

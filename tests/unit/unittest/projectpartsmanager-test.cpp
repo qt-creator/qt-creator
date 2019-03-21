@@ -302,6 +302,7 @@ TEST_F(ProjectPartsManager, UpdateCallsIfNewProjectPartIsAdded)
     EXPECT_CALL(mockProjectPartsStorage, updateProjectParts(ElementsAre(projectPartContainer1)));
     EXPECT_CALL(mockPrecompiledHeaderStorage,
                 deleteProjectPrecompiledHeaders(ElementsAre(projectPartContainer1.projectPartId)));
+    EXPECT_CALL(mockProjectPartsStorage, resetIndexingTimeStamps(ElementsAre(projectPartContainer1)));
 
     manager.update({projectPartContainer1});
 }
@@ -337,6 +338,16 @@ TEST_F(ProjectPartsManager, UpdateCallsNotDeleteProjectPrecompiledHeadersIfNoNew
     manager.update({projectPartContainer1});
 }
 
+TEST_F(ProjectPartsManager, UpdateCallsNotResetIndexingTimeStampsIfNoNewerProjectPartsExists)
+{
+    manager.update({projectPartContainer1});
+
+    EXPECT_CALL(mockProjectPartsStorage, resetIndexingTimeStamps(ElementsAre(projectPartContainer1)))
+        .Times(0);
+
+    manager.update({projectPartContainer1});
+}
+
 TEST_F(ProjectPartsManager, UpdateCallsIfOldProjectPartIsAdded)
 {
     EXPECT_CALL(mockProjectPartsStorage,
@@ -345,6 +356,8 @@ TEST_F(ProjectPartsManager, UpdateCallsIfOldProjectPartIsAdded)
     EXPECT_CALL(mockProjectPartsStorage, updateProjectParts(ElementsAre(projectPartContainer1))).Times(0);
     EXPECT_CALL(mockPrecompiledHeaderStorage,
                 deleteProjectPrecompiledHeaders(ElementsAre(projectPartContainer1.projectPartId)))
+        .Times(0);
+    EXPECT_CALL(mockProjectPartsStorage, resetIndexingTimeStamps(ElementsAre(projectPartContainer1)))
         .Times(0);
 
     manager.update({projectPartContainer1});
@@ -361,6 +374,8 @@ TEST_F(ProjectPartsManager, UpdateCallsIfUpdatedProjectPartIsAdded)
                 updateProjectParts(ElementsAre(updatedProjectPartContainer1)));
     EXPECT_CALL(mockPrecompiledHeaderStorage,
                 deleteProjectPrecompiledHeaders(ElementsAre(projectPartContainer1.projectPartId)));
+    EXPECT_CALL(mockProjectPartsStorage,
+                resetIndexingTimeStamps(ElementsAre(updatedProjectPartContainer1)));
 
     manager.update({updatedProjectPartContainer1});
 }

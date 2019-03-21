@@ -201,7 +201,7 @@ TEST_F(DocumentSlowTest, NeedsReparseAfterChangeOfMainFile)
     ASSERT_TRUE(document.isDirty());
 }
 
-TEST_F(DocumentSlowTest, NoNeedForReparsingForIndependendFile)
+TEST_F(DocumentSlowTest, NoNeedForReparsingForIndependentFile)
 {
     document.parse();
 
@@ -210,7 +210,7 @@ TEST_F(DocumentSlowTest, NoNeedForReparsingForIndependendFile)
     ASSERT_FALSE(document.isDirty());
 }
 
-TEST_F(DocumentSlowTest, NeedsReparsingForDependendFile)
+TEST_F(DocumentSlowTest, NeedsReparsingForDependentFile)
 {
     document.parse();
 

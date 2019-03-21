@@ -455,6 +455,8 @@ void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
     case LanguageVersion::CXX2a:
         option = (gnuExtensions ? QLatin1String("-std=gnu++2a") : QLatin1String("-std=c++2a"));
         break;
+    case LanguageVersion::None:
+        break;
     }
 
     add(option, /*gccOnlyOption=*/true);

@@ -131,7 +131,7 @@ TEST_F(RefactoringDatabaseInitializer, AddFileStatusesTable)
         mockDatabase,
         execute(Eq(
             "CREATE TABLE IF NOT EXISTS fileStatuses(sourceId INTEGER PRIMARY KEY, size INTEGER, "
-            "lastModified INTEGER)")));
+            "lastModified INTEGER, indexingTimeStamp INTEGER)")));
 
     initializer.createFileStatusesTable();
 }
@@ -140,8 +140,19 @@ TEST_F(RefactoringDatabaseInitializer, AddSourceDependenciesTable)
 {
     InSequence s;
 
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sourceDependencies(sourceId INTEGER, dependencySourceId INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_sourceDependencies_sourceId_dependencySourceId ON sourceDependencies(sourceId, dependencySourceId)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS sourceDependencies(sourceId INTEGER, "
+                           "dependencySourceId INTEGER)")));
+    EXPECT_CALL(
+        mockDatabase,
+        execute(
+            Eq("CREATE INDEX IF NOT EXISTS index_sourceDependencies_sourceId_dependencySourceId ON "
+               "sourceDependencies(sourceId, dependencySourceId)")));
+    EXPECT_CALL(
+        mockDatabase,
+        execute(
+            Eq("CREATE INDEX IF NOT EXISTS index_sourceDependencies_dependencySourceId_sourceId ON "
+               "sourceDependencies(dependencySourceId, sourceId)")));
 
     initializer.createSourceDependenciesTable();
 }
@@ -189,40 +200,88 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
 
     EXPECT_CALL(mockDatabase, isInitialized()).WillOnce(Return(false));
     EXPECT_CALL(mockDatabase, exclusiveBegin());
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS symbols(symbolId INTEGER PRIMARY KEY, usr TEXT, symbolName TEXT, symbolKind INTEGER, signature TEXT)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_usr ON symbols(usr)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_symbolKind_symbolName ON symbols(symbolKind, symbolName)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS locations(symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER, locationKind INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_locations_sourceId_line_column ON locations(sourceId, line, column)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId_locationKind ON locations(sourceId, locationKind)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sources(sourceId INTEGER PRIMARY KEY, directoryId INTEGER, sourceName TEXT)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_sources_directoryId_sourceName ON sources(directoryId, sourceName)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS directories(directoryId INTEGER PRIMARY KEY, directoryPath TEXT)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_directories_directoryPath ON directories(directoryPath)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS symbols(symbolId INTEGER PRIMARY KEY, usr "
+                           "TEXT, symbolName TEXT, symbolKind INTEGER, signature TEXT)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_usr ON symbols(usr)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_symbols_symbolKind_symbolName ON "
+                           "symbols(symbolKind, symbolName)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS locations(symbolId INTEGER, line INTEGER, "
+                           "column INTEGER, sourceId INTEGER, locationKind INTEGER)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_locations_sourceId_line_column "
+                           "ON locations(sourceId, line, column)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId_locationKind ON "
+                           "locations(sourceId, locationKind)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS sources(sourceId INTEGER PRIMARY KEY, "
+                           "directoryId INTEGER, sourceName TEXT)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_sources_directoryId_sourceName "
+                           "ON sources(directoryId, sourceName)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS directories(directoryId INTEGER PRIMARY "
+                           "KEY, directoryPath TEXT)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_directories_directoryPath ON "
+                           "directories(directoryPath)")));
     EXPECT_CALL(mockDatabase,
                 execute(
                     Eq("CREATE TABLE IF NOT EXISTS projectParts(projectPartId INTEGER PRIMARY "
                        "KEY, projectPartName TEXT, toolChainArguments TEXT, compilerMacros "
                        "TEXT, systemIncludeSearchPaths TEXT, projectIncludeSearchPaths TEXT, "
                        "language INTEGER, languageVersion INTEGER, languageExtension INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectParts_projectPartName ON projectParts(projectPartName)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectParts_projectPartName "
+                           "ON projectParts(projectPartName)")));
     EXPECT_CALL(mockDatabase,
                 execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsFiles(projectPartId INTEGER, "
                            "sourceId INTEGER, sourceType INTEGER, pchCreationTimeStamp INTEGER, "
                            "hasMissingIncludes INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsFiles_sourceId_projectPartId ON projectPartsFiles(sourceId, projectPartId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsFiles_projectPartId ON projectPartsFiles(projectPartId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS usedMacros(usedMacroId INTEGER PRIMARY KEY, sourceId INTEGER, macroName TEXT)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_sourceId_macroName ON usedMacros(sourceId, macroName)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_macroName ON usedMacros(macroName)")));
+    EXPECT_CALL(
+        mockDatabase,
+        execute(
+            Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsFiles_sourceId_projectPartId "
+               "ON projectPartsFiles(sourceId, projectPartId)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsFiles_projectPartId ON "
+                           "projectPartsFiles(projectPartId)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS usedMacros(usedMacroId INTEGER PRIMARY KEY, "
+                           "sourceId INTEGER, macroName TEXT)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_sourceId_macroName ON "
+                           "usedMacros(sourceId, macroName)")));
+    EXPECT_CALL(
+        mockDatabase,
+        execute(
+            Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_macroName ON usedMacros(macroName)")));
     EXPECT_CALL(
         mockDatabase,
         execute(Eq(
             "CREATE TABLE IF NOT EXISTS fileStatuses(sourceId INTEGER PRIMARY KEY, size INTEGER, "
-            "lastModified INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sourceDependencies(sourceId INTEGER, dependencySourceId INTEGER)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_sourceDependencies_sourceId_dependencySourceId ON sourceDependencies(sourceId, dependencySourceId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS precompiledHeaders(projectPartId INTEGER PRIMARY KEY, projectPchPath TEXT, projectPchBuildTime INTEGER, systemPchPath TEXT, systemPchBuildTime INTEGER)")));
+            "lastModified INTEGER, indexingTimeStamp INTEGER)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS sourceDependencies(sourceId INTEGER, "
+                           "dependencySourceId INTEGER)")));
+    EXPECT_CALL(
+        mockDatabase,
+        execute(
+            Eq("CREATE INDEX IF NOT EXISTS index_sourceDependencies_sourceId_dependencySourceId ON "
+               "sourceDependencies(sourceId, dependencySourceId)")));
+    EXPECT_CALL(
+        mockDatabase,
+        execute(
+            Eq("CREATE INDEX IF NOT EXISTS index_sourceDependencies_dependencySourceId_sourceId ON "
+               "sourceDependencies(dependencySourceId, sourceId)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq("CREATE TABLE IF NOT EXISTS precompiledHeaders(projectPartId INTEGER "
+                           "PRIMARY KEY, projectPchPath TEXT, projectPchBuildTime INTEGER, "
+                           "systemPchPath TEXT, systemPchBuildTime INTEGER)")));
     EXPECT_CALL(mockDatabase,
                 execute(Eq("CREATE TABLE IF NOT EXISTS projectPartsHeaders(projectPartId INTEGER, "
                            "sourceId INTEGER)")));
@@ -271,7 +330,7 @@ TEST_F(RefactoringDatabaseInitializer, DontCreateIfAlreadyInitialized)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_usedMacros_macroName ON usedMacros(macroName)"))).Times(0);
     EXPECT_CALL(mockDatabase,
                 execute(Eq("CREATE TABLE IF NOT EXISTS fileStatuses(sourceId INTEGER PRIMARY KEY, "
-                           "size INTEGER, lastModified INTEGER, isInPrecompiledHeader INTEGER)")))
+                           "size INTEGER, lastModified INTEGER, indexingTimeStamp INTEGER)")))
         .Times(0);
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS sourceDependencies(sourceId INTEGER, dependencySourceId INTEGER)"))).Times(0);
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_sourceDependencies_sourceId_dependencySourceId ON sourceDependencies(sourceId, dependencySourceId)"))).Times(0);

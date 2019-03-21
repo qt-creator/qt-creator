@@ -37,4 +37,11 @@ public:
    MOCK_METHOD2(addSymbolsAndSourceLocations,
                 void(const ClangBackEnd::SymbolEntries &symbolEentries,
                      const ClangBackEnd::SourceLocationEntries &sourceLocations));
+   MOCK_METHOD2(insertOrUpdateIndexingTimeStamps,
+                void(const FilePathIds &filePathIds, ClangBackEnd::TimeStamp indexingTimeStamp));
+   MOCK_METHOD1(insertOrUpdateIndexingTimeStamps, void(const ClangBackEnd::FileStatuses &));
+   MOCK_CONST_METHOD0(fetchIndexingTimeStamps, ClangBackEnd::SourceTimeStamps());
+   MOCK_CONST_METHOD1(fetchIncludedIndexingTimeStamps,
+                      ClangBackEnd::SourceTimeStamps(ClangBackEnd::FilePathId sourcePathId));
+   MOCK_CONST_METHOD1(fetchDependentSourceIds, FilePathIds(const FilePathIds &sourcePathIds));
 };

@@ -65,7 +65,7 @@ ProjectPartContainers ProjectPartsManager::update(ProjectPartContainers &&projec
     }
 
     m_projectPartsStorage.updateProjectParts(updatedProjectParts);
-
+    m_projectPartsStorage.resetIndexingTimeStamps(updatedProjectParts);
     m_precompiledHeaderStorage.deleteProjectPrecompiledHeaders(
         toProjectPartIds(updatedProjectParts));
 

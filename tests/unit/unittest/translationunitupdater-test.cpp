@@ -113,7 +113,7 @@ TEST_F(TranslationUnitUpdaterSlowTest, NotUpdatingParseTimePointForReparseOnly)
     ASSERT_FALSE(result.hasParsed());
 }
 
-TEST_F(TranslationUnitUpdaterSlowTest, UpdatesDependendOnFilesOnParse)
+TEST_F(TranslationUnitUpdaterSlowTest, UpdatesDependentOnFilesOnParse)
 {
     ::TranslationUnitUpdater updater = createUpdater(createInput());
 

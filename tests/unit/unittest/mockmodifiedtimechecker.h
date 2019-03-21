@@ -29,9 +29,17 @@
 
 #include <modifiedtimecheckerinterface.h>
 
-class MockModifiedTimeChecker : public ClangBackEnd::ModifiedTimeCheckerInterface
+class MockSourceEntriesModifiedTimeChecker
+    : public ClangBackEnd::ModifiedTimeCheckerInterface<ClangBackEnd::SourceEntries>
 {
 public:
     MOCK_CONST_METHOD1(isUpToDate,
                        bool (const ClangBackEnd::SourceEntries &sourceEntries));
+};
+
+class MockSourceTimeStampsModifiedTimeChecker
+    : public ClangBackEnd::ModifiedTimeCheckerInterface<ClangBackEnd::SourceTimeStamps>
+{
+public:
+    MOCK_CONST_METHOD1(isUpToDate, bool(const ClangBackEnd::SourceTimeStamps &sourceTimeStamps));
 };

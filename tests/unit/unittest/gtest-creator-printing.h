@@ -165,7 +165,7 @@ class UpdateProjectPartsMessage;
 class DocumentsChangedMessage;
 class DocumentVisibilityChangedMessage;
 class FilePath;
-template <char WindowsSlash>
+template<char WindowsSlash>
 class AbstractFilePathView;
 using FilePathView = AbstractFilePathView<'/'>;
 using NativeFilePathView = AbstractFilePathView<'\\'>;
@@ -190,6 +190,8 @@ class PchTask;
 class PchTaskSet;
 class BuildDependency;
 class SourceEntry;
+class SourceTimeStamp;
+class TimeStamp;
 class FilePathCaching;
 struct SlotUsage;
 class IncludeSearchPath;
@@ -281,6 +283,8 @@ std::ostream &operator<<(std::ostream &out, const PchTask &task);
 std::ostream &operator<<(std::ostream &out, const PchTaskSet &taskSet);
 std::ostream &operator<<(std::ostream &out, const BuildDependency &dependency);
 std::ostream &operator<<(std::ostream &out, const SourceEntry &entry);
+std::ostream &operator<<(std::ostream &out, const SourceTimeStamp &sourceTimeStamp);
+std::ostream &operator<<(std::ostream &out, const TimeStamp &timeStamp);
 std::ostream &operator<<(std::ostream &out, const SlotUsage &slotUsage);
 std::ostream &operator<<(std::ostream &out, const IncludeSearchPathType &pathType);
 std::ostream &operator<<(std::ostream &out, const IncludeSearchPath &path);

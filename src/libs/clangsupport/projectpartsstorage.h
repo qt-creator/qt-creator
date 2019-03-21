@@ -245,6 +245,22 @@ public:
         return statement.template value<ProjectPartArtefact, 8>(projectPartId.projectPathId);
     }
 
+    void resetIndexingTimeStamps(const ProjectPartContainers &projectsParts) override
+    {
+        try {
+            Sqlite::ImmediateTransaction transaction{database};
+
+            for (const ProjectPartContainer &projectPart : projectsParts) {
+                for (FilePathId sourcePathId : projectPart.sourcePathIds)
+                    resetDependentIndexingTimeStampsStatement.write(sourcePathId.filePathId);
+            }
+
+            transaction.commit();
+        } catch (const Sqlite::StatementIsBusy &) {
+            resetIndexingTimeStamps(projectsParts);
+        }
+    }
+
     Sqlite::TransactionInterface &transactionBackend() override { return database; }
 
     static Utils::SmallString toJson(const Utils::SmallStringVector &strings)
@@ -343,5 +359,11 @@ public:
         "SELECT sourceId FROM projectPartsSources WHERE projectPartId = ?", database};
     mutable ReadStatement fetchProjectPrecompiledHeaderPathStatement{
         "SELECT projectPchPath FROM precompiledHeaders WHERE projectPartId = ?", database};
+    WriteStatement resetDependentIndexingTimeStampsStatement{
+        "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT "
+        "dependencySourceId FROM sourceDependencies, collectedDependencies WHERE "
+        "sourceDependencies.sourceId == collectedDependencies.sourceId) UPDATE fileStatuses SET "
+        "indexingTimeStamp = NULL WHERE sourceId IN (SELECT sourceId FROM collectedDependencies)",
+        database};
 };
 } // namespace ClangBackEnd

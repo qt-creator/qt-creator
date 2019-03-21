@@ -57,7 +57,7 @@ protected:
     ClangBackEnd::FilePathCaching filePathCache{database};
     decltype(getModifiedTimeCallback.AsStdFunction()) callback = getModifiedTimeCallback
                                                                      .AsStdFunction();
-    ClangBackEnd::ModifiedTimeChecker checker{callback, filePathCache};
+    ClangBackEnd::ModifiedTimeChecker<> checker{callback, filePathCache};
     SourceEntries upToDateEntries = {{id("/path1"), SourceType::UserInclude, 100},
                                      {id("/path2"), SourceType::SystemInclude, 30}};
     SourceEntries notUpToDateEntries = {{id("/path1"), SourceType::UserInclude, 50},

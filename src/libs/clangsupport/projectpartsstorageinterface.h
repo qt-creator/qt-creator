@@ -63,6 +63,7 @@ public:
     virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const = 0;
     virtual Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(
         ProjectPartId projectPartId) const = 0;
+    virtual void resetIndexingTimeStamps(const ProjectPartContainers &projectsParts) = 0;
 
     virtual Sqlite::TransactionInterface &transactionBackend() = 0;
 

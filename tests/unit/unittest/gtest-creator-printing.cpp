@@ -1230,6 +1230,16 @@ std::ostream &operator<<(std::ostream &out, const SourceEntry &entry)
                << typeToString(entry.hasMissingIncludes) << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const SourceTimeStamp &sourceTimeStamp)
+{
+    return out << "(" << sourceTimeStamp.sourceId << ", " << sourceTimeStamp.timeStamp << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const TimeStamp &timeStamp)
+{
+    return out << timeStamp.value;
+}
+
 const char *typeToString(IncludeSearchPathType type)
 {
     switch (type) {

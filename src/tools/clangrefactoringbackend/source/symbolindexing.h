@@ -38,13 +38,16 @@
 #include <precompiledheaderstorage.h>
 #include <projectpartsstorage.h>
 
-#include <refactoringdatabaseinitializer.h>
 #include <filepathcachingfwd.h>
+#include <modifiedtimechecker.h>
+#include <refactoringdatabaseinitializer.h>
 
 #include <sqlitedatabase.h>
 #include <sqlitereadstatement.h>
 #include <sqlitewritestatement.h>
 
+#include <QDateTime>
+#include <QFileInfo>
 #include <QFileSystemWatcher>
 
 #include <thread>
@@ -130,6 +133,12 @@ private:
     FileStatusCache m_fileStatusCache{m_filePathCache};
     SymbolsCollectorManager m_collectorManger;
     ProgressCounter m_progressCounter;
+    std::function<TimeStamp(FilePathView filePath)> getModifiedTime{
+        [&](ClangBackEnd::FilePathView path) -> TimeStamp {
+            return QFileInfo(QString(path)).lastModified().toSecsSinceEpoch();
+        }};
+    ModifiedTimeChecker<ClangBackEnd::SourceTimeStamps> m_modifiedTimeChecker{getModifiedTime,
+                                                                              m_filePathCache};
     SymbolIndexer m_indexer{m_indexerQueue,
                             m_symbolStorage,
                             m_buildDependencyStorage,
@@ -138,7 +147,8 @@ private:
                             m_filePathCache,
                             m_fileStatusCache,
                             m_symbolStorage.database,
-                            m_projectPartsStorage};
+                            m_projectPartsStorage,
+                            m_modifiedTimeChecker};
     SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler, m_progressCounter};
     SymbolIndexerTaskScheduler m_indexerScheduler;
 };

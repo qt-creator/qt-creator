@@ -177,6 +177,7 @@ public:
                         Sqlite::Contraint::PrimaryKey);
         table.addColumn("size", Sqlite::ColumnType::Integer);
         table.addColumn("lastModified", Sqlite::ColumnType::Integer);
+        table.addColumn("indexingTimeStamp", Sqlite::ColumnType::Integer);
         table.initialize(database);
     }
 
@@ -188,6 +189,7 @@ public:
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &dependencySourceIdColumn = table.addColumn("dependencySourceId", Sqlite::ColumnType::Integer);
         table.addIndex({sourceIdColumn, dependencySourceIdColumn});
+        table.addIndex({dependencySourceIdColumn, sourceIdColumn});
 
         table.initialize(database);
     }

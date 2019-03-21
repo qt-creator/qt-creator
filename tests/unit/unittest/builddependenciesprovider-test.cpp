@@ -58,7 +58,7 @@ class BuildDependenciesProvider : public testing::Test
 protected:
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockBuildDependenciesStorage> mockBuildDependenciesStorage;
-    NiceMock<MockModifiedTimeChecker> mockModifiedTimeChecker;
+    NiceMock<MockSourceEntriesModifiedTimeChecker> mockModifiedTimeChecker;
     NiceMock<MockBuildDependencyGenerator> mockBuildDependenciesGenerator;
     ClangBackEnd::BuildDependenciesProvider provider{mockBuildDependenciesStorage,
                                                      mockModifiedTimeChecker,

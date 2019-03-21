@@ -56,5 +56,7 @@ public:
     MOCK_CONST_METHOD1(fetchProjectPartArtefact,
                        Utils::optional<ClangBackEnd::ProjectPartArtefact>(
                            ClangBackEnd::ProjectPartId projectPartId));
+    MOCK_METHOD1(resetIndexingTimeStamps,
+                 void(const ClangBackEnd::ProjectPartContainers &projectsParts));
     MOCK_METHOD0(transactionBackend, Sqlite::TransactionInterface &());
 };

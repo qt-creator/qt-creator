@@ -28,6 +28,7 @@
 #include "mockbuilddependenciesstorage.h"
 #include "mockclangpathwatcher.h"
 #include "mockfilepathcaching.h"
+#include "mockmodifiedtimechecker.h"
 #include "mockprecompiledheaderstorage.h"
 #include "mockprojectpartsstorage.h"
 #include "mocksqlitetransactionbackend.h"
@@ -113,7 +114,12 @@ protected:
             .WillByDefault(Return(artefact));
         ON_CALL(mockBuildDependenciesStorage, fetchLowestLastModifiedTime(A<FilePathId>())).WillByDefault(Return(-1));
         ON_CALL(mockCollector, collectSymbols()).WillByDefault(Return(true));
-
+        ON_CALL(mockSymbolStorage, fetchDependentSourceIds(sourceFileIds))
+            .WillByDefault(Return(sourceFileIds));
+        ON_CALL(mockSymbolStorage, fetchDependentSourceIds(ElementsAre(sourceFileIds[0])))
+            .WillByDefault(Return(FilePathIds{sourceFileIds[0]}));
+        ON_CALL(mockSymbolStorage, fetchDependentSourceIds(ElementsAre(main1PathId)))
+            .WillByDefault(Return(FilePathIds{main1PathId}));
         mockCollector.setIsUsed(false);
 
         generatedFiles.update(unsaved);
@@ -230,6 +236,10 @@ protected:
                                                     Utils::Language::Cxx,
                                                     Utils::LanguageVersion::CXX14,
                                                     Utils::LanguageExtension::None};
+    ClangBackEnd::SourceTimeStamps dependentSourceTimeStamps1{{1, 32}};
+    ClangBackEnd::SourceTimeStamps dependentSourceTimeStamps2{{2, 35}};
+    ClangBackEnd::FileStatuses fileStatuses1{{1, 0, 32}};
+    ClangBackEnd::FileStatuses fileStatuses2{{2, 0, 35}};
     Utils::optional<ClangBackEnd::ProjectPartArtefact > nullArtefact;
     ClangBackEnd::ProjectPartPch projectPartPch{74, "/path/to/pch", 4};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
@@ -243,6 +253,7 @@ protected:
     Manager collectorManger{generatedFiles};
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
+    NiceMock<MockSourceTimeStampsModifiedTimeChecker> mockModifiedTimeChecker;
     ClangBackEnd::SymbolIndexer indexer{indexerQueue,
                                         mockSymbolStorage,
                                         mockBuildDependenciesStorage,
@@ -251,7 +262,8 @@ protected:
                                         filePathCache,
                                         fileStatusCache,
                                         mockSqliteTransactionBackend,
-                                        mockProjectPartsStorage};
+                                        mockProjectPartsStorage,
+                                        mockModifiedTimeChecker};
     SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter};
     Scheduler indexerScheduler{collectorManger,
                                indexerQueue,
@@ -493,6 +505,58 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderButGetsAnErrorForCollectingS
     indexer.updateProjectParts({projectPart1});
 }
 
+TEST_F(SymbolIndexer, UpdateProjectPartsFetchIncludedIndexingTimeStamps)
+{
+    InSequence s;
+    ProjectPartContainer projectPart{1,
+                                     {"-Wno-pragma-once-outside-header"},
+                                     {{"BAR", "1", 1}, {"FOO", "1", 2}},
+                                     Utils::clone(systemIncludeSearchPaths),
+                                     Utils::clone(projectIncludeSearchPaths),
+                                     {header1PathId},
+                                     {main1PathId, main2PathId},
+                                     Utils::Language::Cxx,
+                                     Utils::LanguageVersion::CXX14,
+                                     Utils::LanguageExtension::None};
+
+    EXPECT_CALL(mockSymbolStorage, fetchIncludedIndexingTimeStamps(Eq(main1PathId)))
+        .WillOnce(Return(dependentSourceTimeStamps1));
+    EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(dependentSourceTimeStamps1));
+    EXPECT_CALL(mockSymbolStorage, fetchIncludedIndexingTimeStamps(Eq(main2PathId)))
+        .WillOnce(Return(dependentSourceTimeStamps2));
+    EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(dependentSourceTimeStamps2));
+    EXPECT_CALL(mockCollector, fileStatuses()).WillRepeatedly(ReturnRef(fileStatuses1));
+    EXPECT_CALL(mockSymbolStorage, insertOrUpdateIndexingTimeStamps(fileStatuses1));
+    EXPECT_CALL(mockCollector, fileStatuses()).WillRepeatedly(ReturnRef(fileStatuses2));
+    EXPECT_CALL(mockSymbolStorage, insertOrUpdateIndexingTimeStamps(fileStatuses2));
+
+    indexer.updateProjectParts({projectPart});
+}
+
+TEST_F(SymbolIndexer, DependentSourceAreNotUpToDate)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(_)).WillOnce(Return(false));
+    EXPECT_CALL(mockCollector, setFile(main1PathId, _));
+    EXPECT_CALL(mockCollector, collectSymbols()).WillOnce(Return(true));
+    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
+
+    indexer.updateProjectParts({projectPart1});
+}
+
+TEST_F(SymbolIndexer, DependentSourceAreUpToDate)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(_)).WillOnce(Return(true));
+    EXPECT_CALL(mockCollector, setFile(main1PathId, _)).Times(0);
+    EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
+    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(0);
+
+    indexer.updateProjectParts({projectPart1});
+}
+
 TEST_F(SymbolIndexer, CallSetNotifier)
 {
     EXPECT_CALL(mockPathWatcher, setNotifier(_));
@@ -505,10 +569,59 @@ TEST_F(SymbolIndexer, CallSetNotifier)
                                         filePathCache,
                                         fileStatusCache,
                                         mockSqliteTransactionBackend,
-                                        mockProjectPartsStorage};
+                                        mockProjectPartsStorage,
+                                        mockModifiedTimeChecker};
 }
 
 TEST_F(SymbolIndexer, PathChangedCallsFetchProjectPartArtefactInStorage)
+{
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(sourceFileIds[0]));
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(sourceFileIds[1]));
+
+    indexer.pathsChanged(sourceFileIds);
+}
+
+TEST_F(SymbolIndexer, PathChangedCallsFetchSourcePathIds)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockSymbolStorage, fetchDependentSourceIds(sourceFileIds))
+        .WillOnce(Return(FilePathIds{2, 6, 5}));
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(FilePathId{2}));
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(FilePathId{6}));
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(FilePathId{5}));
+
+    indexer.pathsChanged(sourceFileIds);
+}
+
+TEST_F(SymbolIndexer, PathChangedFetchIncludedIndexingTimeStamps)
+{
+    InSequence s;
+    ProjectPartContainer projectPart{1,
+                                     {"-Wno-pragma-once-outside-header"},
+                                     {{"BAR", "1", 1}, {"FOO", "1", 2}},
+                                     Utils::clone(systemIncludeSearchPaths),
+                                     Utils::clone(projectIncludeSearchPaths),
+                                     {header1PathId},
+                                     {main1PathId, main2PathId},
+                                     Utils::Language::Cxx,
+                                     Utils::LanguageVersion::CXX14,
+                                     Utils::LanguageExtension::None};
+
+    EXPECT_CALL(mockSymbolStorage, fetchDependentSourceIds(_)).WillOnce(Return(FilePathIds{1, 2}));
+    EXPECT_CALL(mockSymbolStorage, fetchIncludedIndexingTimeStamps(Eq(1)))
+        .WillOnce(Return(dependentSourceTimeStamps1));
+    EXPECT_CALL(mockSymbolStorage, fetchIncludedIndexingTimeStamps(Eq(2)))
+        .WillOnce(Return(dependentSourceTimeStamps2));
+    EXPECT_CALL(mockCollector, fileStatuses()).WillOnce(ReturnRef(fileStatuses1));
+    EXPECT_CALL(mockSymbolStorage, insertOrUpdateIndexingTimeStamps(fileStatuses1));
+    EXPECT_CALL(mockCollector, fileStatuses()).WillOnce(ReturnRef(fileStatuses2));
+    EXPECT_CALL(mockSymbolStorage, insertOrUpdateIndexingTimeStamps(fileStatuses2));
+
+    indexer.pathsChanged({1, 3});
+}
+
+TEST_F(SymbolIndexer, PathChangedFetchesDependentSourceIdsFromStorage)
 {
     EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(sourceFileIds[0]));
     EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(sourceFileIds[1]));
@@ -797,6 +910,7 @@ TEST_F(SymbolIndexer, PathsChangedUpdatesFileStatusCache)
     auto sourceId = filePathId(TESTDATA_DIR "/symbolindexer_pathChanged.cpp");
     auto oldLastModified = fileStatusCache.lastModifiedTime(sourceId);
     touchFile(sourceId);
+    ON_CALL(mockSymbolStorage, fetchDependentSourceIds(_)).WillByDefault(Return(FilePathIds{sourceId}));
 
     indexer.pathsChanged({sourceId});
 

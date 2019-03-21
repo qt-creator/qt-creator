@@ -64,12 +64,12 @@ class SourceTimeStamp
     using int64 = long long;
 public:
     SourceTimeStamp(int sourceId, int64 lastModified)
-        : lastModified(lastModified)
+        : timeStamp(lastModified)
         , sourceId(sourceId)
     {}
 
     SourceTimeStamp(FilePathId sourceId, TimeStamp lastModified)
-        : lastModified(lastModified)
+        : timeStamp(lastModified)
         , sourceId(sourceId)
     {}
 
@@ -90,7 +90,7 @@ public:
 
     friend bool operator==(SourceTimeStamp first, SourceTimeStamp second)
     {
-        return first.sourceId == second.sourceId && first.lastModified == second.lastModified;
+        return first.sourceId == second.sourceId && first.timeStamp == second.timeStamp;
     }
 
     friend bool operator!=(SourceTimeStamp first, SourceTimeStamp second)
@@ -99,7 +99,7 @@ public:
     }
 
 public:
-    TimeStamp lastModified;
+    TimeStamp timeStamp;
     FilePathId sourceId;
 };
 
@@ -110,21 +110,22 @@ class SourceEntry
     using int64 = long long;
 
 public:
-    SourceEntry(int sourceId,
-                int64 pchCreationTimeStamp,
-                int sourceType,
-                int hasMissingIncludes)
-        : pchCreationTimeStamp(pchCreationTimeStamp), sourceId(sourceId),
-          sourceType(static_cast<SourceType>(sourceType)),
-          hasMissingIncludes(
-              static_cast<HasMissingIncludes>(hasMissingIncludes)) {}
+    SourceEntry(int sourceId, int64 timeStamp, int sourceType, int hasMissingIncludes)
+        : timeStamp(timeStamp)
+        , sourceId(sourceId)
+        , sourceType(static_cast<SourceType>(sourceType))
+        , hasMissingIncludes(static_cast<HasMissingIncludes>(hasMissingIncludes))
+    {}
 
     SourceEntry(FilePathId sourceId,
                 SourceType sourceType,
-                TimeStamp pchCreationTimeStamp,
+                TimeStamp timeStamp,
                 HasMissingIncludes hasMissingIncludes = HasMissingIncludes::No)
-        : pchCreationTimeStamp(pchCreationTimeStamp), sourceId(sourceId),
-          sourceType(sourceType), hasMissingIncludes(hasMissingIncludes) {}
+        : timeStamp(timeStamp)
+        , sourceId(sourceId)
+        , sourceType(sourceType)
+        , hasMissingIncludes(hasMissingIncludes)
+    {}
 
     friend bool operator<(SourceEntry first, SourceEntry second) {
         return first.sourceId < second.sourceId;
@@ -133,13 +134,13 @@ public:
     friend bool operator==(SourceEntry first, SourceEntry second)
     {
         return first.sourceId == second.sourceId && first.sourceType == second.sourceType
-               && first.pchCreationTimeStamp == second.pchCreationTimeStamp;
+               && first.timeStamp == second.timeStamp;
     }
 
     friend bool operator!=(SourceEntry first, SourceEntry second) { return !(first == second); }
 
 public:
-    TimeStamp pchCreationTimeStamp;
+    TimeStamp timeStamp;
     FilePathId sourceId;
     SourceType sourceType = SourceType::UserInclude;
     HasMissingIncludes hasMissingIncludes = HasMissingIncludes::No;
