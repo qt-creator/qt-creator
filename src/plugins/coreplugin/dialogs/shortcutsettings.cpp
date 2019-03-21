@@ -283,8 +283,7 @@ ShortcutSettingsWidget::~ShortcutSettingsWidget()
     qDeleteAll(m_scitems);
 }
 
-ShortcutSettings::ShortcutSettings(QObject *parent)
-    : IOptionsPage(parent)
+ShortcutSettings::ShortcutSettings()
 {
     setId(Constants::SETTINGS_ID_SHORTCUTS);
     setDisplayName(tr("Keyboard"));

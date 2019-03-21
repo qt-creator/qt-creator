@@ -40,8 +40,7 @@ static bool validateFilter(Utils::FancyLineEdit *edit, QString * /*error*/)
     return edit && GTestUtils::isValidGTestFilter(edit->text());
 }
 
-GTestSettingsWidget::GTestSettingsWidget(QWidget *parent)
-    : QWidget(parent)
+GTestSettingsWidget::GTestSettingsWidget()
 {
     m_ui.setupUi(this);
     m_ui.filterLineEdit->setValidationFunction(&validateFilter);

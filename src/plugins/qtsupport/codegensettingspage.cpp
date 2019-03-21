@@ -38,8 +38,7 @@ namespace Internal {
 
 // ---------- CodeGenSettingsPageWidget
 
-CodeGenSettingsPageWidget::CodeGenSettingsPageWidget(QWidget *parent) :
-        QWidget(parent)
+CodeGenSettingsPageWidget::CodeGenSettingsPageWidget()
 {
     m_ui.setupUi(this);
     connect(m_ui.includeQtModuleCheckBox, &QAbstractButton::toggled,
@@ -89,8 +88,7 @@ void CodeGenSettingsPageWidget::setUiEmbedding(int v)
 }
 
 // ---------- CodeGenSettingsPage
-CodeGenSettingsPage::CodeGenSettingsPage(QObject *parent) :
-    Core::IOptionsPage(parent)
+CodeGenSettingsPage::CodeGenSettingsPage()
 {
     m_parameters.fromSettings(Core::ICore::settings());
     setId(Constants::CODEGEN_SETTINGS_PAGE_ID);

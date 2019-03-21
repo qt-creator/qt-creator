@@ -632,9 +632,9 @@ void MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(const UserMimeTypeHash 
 }
 
 // MimeTypeSettingsPage
-MimeTypeSettings::MimeTypeSettings(QObject *parent)
-    : IOptionsPage(parent)
-    , d(new MimeTypeSettingsPrivate)
+
+MimeTypeSettings::MimeTypeSettings()
+    : d(new MimeTypeSettingsPrivate)
 {
     setId(Constants::SETTINGS_ID_MIMETYPES);
     setDisplayName(tr("MIME Types"));

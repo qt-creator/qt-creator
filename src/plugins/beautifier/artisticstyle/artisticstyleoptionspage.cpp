@@ -39,11 +39,8 @@ namespace Beautifier {
 namespace Internal {
 namespace ArtisticStyle {
 
-ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings,
-                                                               QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ArtisticStyleOptionsPage),
-    m_settings(settings)
+ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings)
+    : ui(new Ui::ArtisticStyleOptionsPage), m_settings(settings)
 {
     ui->setupUi(this);
     ui->useHomeFile->setText(ui->useHomeFile->text().replace(

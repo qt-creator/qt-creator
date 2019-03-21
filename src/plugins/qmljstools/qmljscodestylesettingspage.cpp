@@ -121,9 +121,7 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
 
 // ------------------ CppCodeStyleSettingsPage
 
-QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage(/*QSharedPointer<CppFileSettings> &settings,*/
-                     QWidget *parent) :
-    Core::IOptionsPage(parent)
+QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
 {
     setId(Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("QmlJSTools", Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));

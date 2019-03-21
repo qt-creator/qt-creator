@@ -35,8 +35,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-DeviceSettingsPage::DeviceSettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent)
+DeviceSettingsPage::DeviceSettingsPage()
 {
     setId(Constants::DEVICE_SETTINGS_PAGE_ID);
     setDisplayName(tr("Devices"));

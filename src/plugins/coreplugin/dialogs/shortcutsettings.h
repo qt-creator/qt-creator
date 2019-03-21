@@ -116,7 +116,7 @@ class ShortcutSettings : public IOptionsPage
     Q_OBJECT
 
 public:
-    ShortcutSettings(QObject *parent = nullptr);
+    ShortcutSettings();
 
     QWidget *widget() override;
     void apply() override;

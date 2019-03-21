@@ -31,8 +31,7 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-CMakeSpecificSettingWidget::CMakeSpecificSettingWidget(QWidget *parent):
-    QWidget(parent)
+CMakeSpecificSettingWidget::CMakeSpecificSettingWidget()
 {
     m_ui.setupUi(this);
     m_ui.newFileAddedCopyToCpliSettingGroup->setId(m_ui.alwaysAskRadio,

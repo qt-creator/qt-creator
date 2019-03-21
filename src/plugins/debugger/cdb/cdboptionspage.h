@@ -71,7 +71,8 @@ class CdbOptionsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit CdbOptionsPageWidget(QWidget *parent = nullptr);
+    CdbOptionsPageWidget();
+
     QStringList breakEvents() const;
 
     Utils::SavedActionSet group;
@@ -91,7 +92,7 @@ class CdbOptionsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit CdbOptionsPage();
+    CdbOptionsPage();
     ~CdbOptionsPage() override;
 
     // IOptionsPage
@@ -111,7 +112,7 @@ class CdbPathsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit CdbPathsPage();
+    CdbPathsPage();
     ~CdbPathsPage() override;
 
     static CdbPathsPage *instance();

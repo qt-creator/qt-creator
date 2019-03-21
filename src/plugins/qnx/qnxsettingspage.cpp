@@ -39,8 +39,7 @@
 namespace Qnx {
 namespace Internal {
 
-QnxSettingsPage::QnxSettingsPage(QObject* parent) :
-    Core::IOptionsPage(parent)
+QnxSettingsPage::QnxSettingsPage()
 {
     setId(Core::Id(Constants::QNX_SETTINGS_ID));
     setDisplayName(tr("QNX"));

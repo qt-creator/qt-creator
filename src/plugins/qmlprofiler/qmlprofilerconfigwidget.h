@@ -41,7 +41,7 @@ class QmlProfilerConfigWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit QmlProfilerConfigWidget(QmlProfilerSettings *settings, QWidget *parent = nullptr);
+    explicit QmlProfilerConfigWidget(QmlProfilerSettings *settings);
     ~QmlProfilerConfigWidget() override;
 
 private:

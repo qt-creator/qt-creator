@@ -90,7 +90,7 @@ public:
     QbsBuildStepFactory buildStepFactory;
     QbsCleanStepFactory cleanStepFactory;
     QbsInstallStepFactory installStepFactory;
-    QbsProfilesSettingsPage profilesSetttingsPage;
+    QbsProfilesSettingsPage profilesSettingsPage;
     QbsKitAspect qbsKitAspect;
 };
 

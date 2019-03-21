@@ -37,8 +37,10 @@ class QnxSettingsWidget;
 class QnxSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
-    explicit QnxSettingsPage(QObject *parent = nullptr);
+    QnxSettingsPage();
+
     QWidget *widget() override;
     void apply() override;
     void finish() override;

@@ -82,7 +82,7 @@ class QmlJsEditingSettignsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit QmlJsEditingSettignsPageWidget(QWidget *parent = nullptr);
+    QmlJsEditingSettignsPageWidget();
 
     QmlJsEditingSettings settings() const;
     void setSettings(const QmlJsEditingSettings &);

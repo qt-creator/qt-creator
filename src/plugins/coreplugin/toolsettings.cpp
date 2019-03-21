@@ -42,8 +42,7 @@
 using namespace Core;
 using namespace Core::Internal;
 
-ToolSettings::ToolSettings(QObject *parent) :
-    IOptionsPage(parent)
+ToolSettings::ToolSettings()
 {
     setId(Constants::SETTINGS_ID_TOOLS);
     setDisplayName(tr("External Tools"));

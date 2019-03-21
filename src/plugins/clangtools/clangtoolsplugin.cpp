@@ -61,8 +61,6 @@
 #include <QMessageBox>
 #include <QMenu>
 
-#include <QtPlugin>
-
 using namespace ProjectExplorer;
 
 namespace ClangTools {
@@ -71,7 +69,7 @@ namespace Internal {
 class ClangToolsOptionsPage : public Core::IOptionsPage
 {
 public:
-    explicit ClangToolsOptionsPage()
+    ClangToolsOptionsPage()
     {
         setId(Constants::SETTINGS_PAGE_ID);
         setDisplayName(QCoreApplication::translate(

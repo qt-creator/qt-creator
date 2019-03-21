@@ -406,8 +406,7 @@ QModelIndex GdbServerProvidersSettingsWidget::currentIndex() const
 }
 
 
-GdbServerProvidersSettingsPage::GdbServerProvidersSettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent)
+GdbServerProvidersSettingsPage::GdbServerProvidersSettingsPage()
 {
     setId(Constants::GDB_PROVIDERS_SETTINGS_ID);
     setDisplayName(tr("Bare Metal"));

@@ -39,7 +39,7 @@ class ToolSettings : public IOptionsPage
     Q_OBJECT
 
 public:
-    explicit ToolSettings(QObject *parent = nullptr);
+    ToolSettings();
 
     QWidget *widget() override;
     void apply() override;

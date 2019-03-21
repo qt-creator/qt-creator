@@ -42,9 +42,8 @@ using namespace TextEditor;
 
 namespace Nim {
 
-NimCodeStyleSettingsPage::NimCodeStyleSettingsPage(QWidget *parent)
-    : Core::IOptionsPage(parent)
-    , m_nimCodeStylePreferences(nullptr)
+NimCodeStyleSettingsPage::NimCodeStyleSettingsPage()
+    : m_nimCodeStylePreferences(nullptr)
     , m_widget(nullptr)
 {
     setId(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_ID);

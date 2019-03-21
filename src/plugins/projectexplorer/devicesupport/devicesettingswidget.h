@@ -49,7 +49,7 @@ class DeviceSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    DeviceSettingsWidget(QWidget *parent = nullptr);
+    DeviceSettingsWidget();
     ~DeviceSettingsWidget() override;
 
     void saveSettings();

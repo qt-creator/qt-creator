@@ -29,8 +29,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
-QmlProfilerConfigWidget::QmlProfilerConfigWidget(QmlProfilerSettings *settings, QWidget *parent) :
-    QWidget(parent), m_ui(new Ui::QmlProfilerConfigWidget), m_settings(settings)
+QmlProfilerConfigWidget::QmlProfilerConfigWidget(QmlProfilerSettings *settings) :
+    m_ui(new Ui::QmlProfilerConfigWidget), m_settings(settings)
 {
     m_ui->setupUi(this);
     updateUi();

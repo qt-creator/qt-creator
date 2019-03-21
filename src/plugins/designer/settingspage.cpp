@@ -66,8 +66,7 @@ void SettingsPage::finish()
     delete m_widget;
 }
 
-SettingsPageProvider::SettingsPageProvider(QObject *parent)
-    : IOptionsPageProvider(parent)
+SettingsPageProvider::SettingsPageProvider()
 {
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Designer",

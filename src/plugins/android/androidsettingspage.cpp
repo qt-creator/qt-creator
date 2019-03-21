@@ -38,8 +38,7 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-AndroidSettingsPage::AndroidSettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent)
+AndroidSettingsPage::AndroidSettingsPage()
 {
     setId(Constants::ANDROID_SETTINGS_ID);
     setDisplayName(tr("Android"));

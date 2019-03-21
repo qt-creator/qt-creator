@@ -34,8 +34,7 @@
 namespace Todo {
 namespace Internal {
 
-OptionsDialog::OptionsDialog(QWidget *parent) :
-    QWidget(parent),
+OptionsDialog::OptionsDialog() :
     ui(new Ui::OptionsDialog)
 {
     ui->setupUi(this);

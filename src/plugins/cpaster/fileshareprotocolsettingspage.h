@@ -54,10 +54,12 @@ inline bool operator==(const FileShareProtocolSettings &s1, const FileShareProto
 inline bool operator!=(const FileShareProtocolSettings &s1, const FileShareProtocolSettings &s2)
 { return !s1.equals(s2); }
 
-class FileShareProtocolSettingsWidget : public QWidget {
+class FileShareProtocolSettingsWidget : public QWidget
+{
     Q_OBJECT
+
 public:
-    explicit FileShareProtocolSettingsWidget(QWidget *parent = nullptr);
+    FileShareProtocolSettingsWidget();
 
     void setSettings(const FileShareProtocolSettings &);
     FileShareProtocolSettings settings() const;
@@ -71,8 +73,7 @@ class FileShareProtocolSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit FileShareProtocolSettingsPage(const QSharedPointer<FileShareProtocolSettings> &s,
-                                           QObject *parent = nullptr);
+    explicit FileShareProtocolSettingsPage(const QSharedPointer<FileShareProtocolSettings> &s);
 
     QWidget *widget() override;
     void apply() override;

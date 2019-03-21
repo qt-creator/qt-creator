@@ -86,7 +86,7 @@ class ExternalToolConfig : public QWidget
     Q_OBJECT
 
 public:
-    explicit ExternalToolConfig(QWidget *parent = nullptr);
+    ExternalToolConfig();
     ~ExternalToolConfig() override;
 
     void setTools(const QMap<QString, QList<ExternalTool *> > &tools);

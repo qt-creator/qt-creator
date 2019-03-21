@@ -42,8 +42,9 @@ class QtTestSettings;
 class QtTestSettingsWidget : public QWidget
 {
     Q_OBJECT
+
 public:
-    explicit QtTestSettingsWidget(QWidget *parent = nullptr);
+    QtTestSettingsWidget();
 
     void setSettings(const QtTestSettings &settings);
     QtTestSettings settings() const;

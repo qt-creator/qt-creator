@@ -87,7 +87,7 @@ class GdbServerProvidersSettingsPage final : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit GdbServerProvidersSettingsPage(QObject *parent = nullptr);
+    GdbServerProvidersSettingsPage();
 
 private:
     QWidget *widget() final;

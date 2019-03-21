@@ -123,8 +123,7 @@ void QmlJsEditingSettings::setAutoFormatOnlyCurrentProject(const bool autoFormat
     m_autoFormatOnlyCurrentProject = autoFormatOnlyCurrentProject;
 }
 
-QmlJsEditingSettignsPageWidget::QmlJsEditingSettignsPageWidget(QWidget *parent) :
-    QWidget(parent)
+QmlJsEditingSettignsPageWidget::QmlJsEditingSettignsPageWidget()
 {
     m_ui.setupUi(this);
 }

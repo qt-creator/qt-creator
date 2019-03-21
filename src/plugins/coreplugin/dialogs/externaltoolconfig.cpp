@@ -392,8 +392,7 @@ static void fillBaseEnvironmentComboBox(QComboBox *box)
         box->addItem(provider.displayName, Id::fromName(provider.id).toSetting());
 }
 
-ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
-    QWidget(parent),
+ExternalToolConfig::ExternalToolConfig() :
     ui(new Ui::ExternalToolConfig),
     m_model(new ExternalToolModel(this))
 {

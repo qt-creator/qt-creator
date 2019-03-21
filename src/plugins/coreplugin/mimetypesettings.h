@@ -37,7 +37,7 @@ class MimeTypeSettings : public IOptionsPage
     Q_OBJECT
 
 public:
-    MimeTypeSettings(QObject *parent = nullptr);
+    MimeTypeSettings();
     ~MimeTypeSettings() override;
 
     QWidget *widget() override;

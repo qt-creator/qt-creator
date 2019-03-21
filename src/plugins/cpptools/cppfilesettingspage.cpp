@@ -252,8 +252,7 @@ QString CppFileSettings::licenseTemplate()
 
 // ------------------ CppFileSettingsWidget
 
-CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
-    QWidget(parent),
+CppFileSettingsWidget::CppFileSettingsWidget() :
     m_ui(new Internal::Ui::CppFileSettingsPage)
 {
     m_ui->setupUi(this);
@@ -351,9 +350,7 @@ void CppFileSettingsWidget::slotEdit()
 }
 
 // --------------- CppFileSettingsPage
-CppFileSettingsPage::CppFileSettingsPage(QSharedPointer<CppFileSettings> &settings,
-                                         QObject *parent) :
-    Core::IOptionsPage(parent),
+CppFileSettingsPage::CppFileSettingsPage(QSharedPointer<CppFileSettings> &settings) :
     m_settings(settings)
 {
     setId(Constants::CPP_FILE_SETTINGS_ID);
@@ -363,7 +360,6 @@ CppFileSettingsPage::CppFileSettingsPage(QSharedPointer<CppFileSettings> &settin
 
 QWidget *CppFileSettingsPage::widget()
 {
-
     if (!m_widget) {
         m_widget = new CppFileSettingsWidget;
         m_widget->setSettings(*m_settings);

@@ -52,7 +52,7 @@ class QbsProfilesSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QbsProfilesSettingsWidget(QWidget *parent = nullptr);
+    QbsProfilesSettingsWidget();
 
     void apply();
 
@@ -64,10 +64,8 @@ private:
     qbs::SettingsModel m_model;
 };
 
-QbsProfilesSettingsPage::QbsProfilesSettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent)
-    , m_useQtcSettingsDirPersistent(QbsProjectManagerSettings::useCreatorSettingsDirForQbs())
-
+QbsProfilesSettingsPage::QbsProfilesSettingsPage()
+    : m_useQtcSettingsDirPersistent(QbsProjectManagerSettings::useCreatorSettingsDirForQbs())
 {
     setId("Y.QbsProfiles");
     setDisplayName(QCoreApplication::translate("QbsProjectManager", "Qbs"));
@@ -97,9 +95,8 @@ void QbsProfilesSettingsPage::finish()
 }
 
 
-QbsProfilesSettingsWidget::QbsProfilesSettingsWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_model(QbsProjectManagerSettings::qbsSettingsBaseDir(), qbs::Settings::UserScope)
+QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
+    : m_model(QbsProjectManagerSettings::qbsSettingsBaseDir(), qbs::Settings::UserScope)
 {
     m_model.setEditable(false);
     m_ui.setupUi(this);

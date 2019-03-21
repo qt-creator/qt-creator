@@ -71,7 +71,7 @@ class QmlJSCodeStyleSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit QmlJSCodeStyleSettingsPage(QWidget *parent = nullptr);
+    QmlJSCodeStyleSettingsPage();
 
     QWidget *widget() override;
     void apply() override;

@@ -74,7 +74,7 @@ private:
     bool m_keygenPathChanged = false;
 };
 
-SshSettingsPage::SshSettingsPage(QObject *parent) : Core::IOptionsPage(parent)
+SshSettingsPage::SshSettingsPage()
 {
     setId(Constants::SSH_SETTINGS_PAGE_ID);
     setDisplayName(tr("SSH"));

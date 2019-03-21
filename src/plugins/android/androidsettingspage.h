@@ -39,7 +39,7 @@ class AndroidSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit AndroidSettingsPage(QObject *parent = nullptr);
+    AndroidSettingsPage();
 
     QWidget *widget() override;
     void apply() override;

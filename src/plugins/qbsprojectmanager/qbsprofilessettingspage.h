@@ -34,7 +34,7 @@ class QbsProfilesSettingsWidget;
 class QbsProfilesSettingsPage : public Core::IOptionsPage
 {
 public:
-    QbsProfilesSettingsPage(QObject *parent = nullptr);
+    QbsProfilesSettingsPage();
 
 private:
     QWidget *widget() override;

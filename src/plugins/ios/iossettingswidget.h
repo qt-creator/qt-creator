@@ -33,15 +33,13 @@ namespace Ios {
 namespace Internal {
 
 namespace Ui { class IosSettingsWidget; }
-class SimulatorInfoModel;
-using SimulatorInfoList = QList<SimulatorInfo>;
 
 class IosSettingsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    IosSettingsWidget(QWidget *parent = nullptr);
+    IosSettingsWidget();
     ~IosSettingsWidget() override;
 
     void saveSettings();

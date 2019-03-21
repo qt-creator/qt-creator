@@ -35,8 +35,7 @@
 namespace Ios {
 namespace Internal {
 
-IosSettingsPage::IosSettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent)
+IosSettingsPage::IosSettingsPage()
 {
     setId(Constants::IOS_SETTINGS_ID);
     setDisplayName(tr("iOS"));

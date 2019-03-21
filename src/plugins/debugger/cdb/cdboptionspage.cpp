@@ -154,9 +154,8 @@ QStringList CdbBreakEventWidget::breakEvents() const
     return rc;
 }
 
-CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_breakEventWidget(new CdbBreakEventWidget)
+CdbOptionsPageWidget::CdbOptionsPageWidget()
+    : m_breakEventWidget(new CdbBreakEventWidget)
 {
     m_ui.setupUi(this);
     // Squeeze the groupbox layouts vertically to

@@ -35,8 +35,7 @@
 namespace Autotest {
 namespace Internal {
 
-QtTestSettingsWidget::QtTestSettingsWidget(QWidget *parent)
-    : QWidget(parent)
+QtTestSettingsWidget::QtTestSettingsWidget()
 {
     m_ui.setupUi(this);
     m_ui.callgrindRB->setEnabled(Utils::HostOsInfo::isAnyUnixHost()); // valgrind available on UNIX

@@ -41,9 +41,8 @@
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_ui(new Ui::CppCodeModelSettingsPage)
+CppCodeModelSettingsWidget::CppCodeModelSettingsWidget()
+    : m_ui(new Ui::CppCodeModelSettingsPage)
 {
     m_ui->setupUi(this);
     m_ui->expensiveChecksHintIcon->setPixmap(Utils::Icons::WARNING.pixmap());
@@ -184,10 +183,8 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
     return settingsChanged;
 }
 
-CppCodeModelSettingsPage::CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings,
-                                                   QObject *parent)
-    : Core::IOptionsPage(parent)
-    , m_settings(settings)
+CppCodeModelSettingsPage::CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings)
+    : m_settings(settings)
 {
     setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("CppTools",Constants::CPP_CODE_MODEL_SETTINGS_NAME));
