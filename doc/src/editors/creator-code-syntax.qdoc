@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -41,14 +41,16 @@
     \list
         \li Syntax errors are underlined in red.
 
-            In the following figure, a semicolon is missing at the end of the
-            line.
+            In the following screenshot, a semicolon is missing at the end
+            of the line.
             \image qtcreator-syntaxerror.png
         \li Semantic errors and warnings are underlined in olive.
 
-            In the following figure, the variable is not used.
+            In the following screenshot, the variable is not used.
             \image qtcreator-semanticerror.png
     \endlist
+
+    \section1 Viewing Annotations
 
     When using the Clang code model, errors and warnings are additionally marked
     with icons and annotated. If a \l{http://clang.llvm.org/diagnostics.html}
@@ -56,12 +58,21 @@
     \inlineimage refactormarker.png
     icon and pressing \key Enter.
 
-    In the following figure, a semicolon is missing at the end of the
+    In the following screenshot, a Qt class name contains a typo:
+
+    \image qtcreator-typo-clang.png
+
+    You can use the icons in the tooltip popup to copy the error or
+    warning message to the clipboard or to ignore and hide it. Select
+    the \uicontrol {Annotation Settings} link to specify the position
+    of the line annotations.
+
+    In the following screenshot, a semicolon is missing at the end of the
     line.
 
     \image qtcreator-syntaxerror-clang.png
 
-    In the following figure, the variable is not used.
+    In the following screenshot, the variable is not used.
 
     \image qtcreator-semanticerror-clang.png
 
@@ -73,6 +84,8 @@
     listed in \l{JavaScript and QML Error Codes}.
 
     \image qml-syntax-check.png
+
+    \section2 Specifying Line Annotation Positions
 
     To specify the position where the annotations are displayed, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
