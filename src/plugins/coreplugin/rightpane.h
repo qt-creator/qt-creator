@@ -72,6 +72,7 @@ public:
     static RightPaneWidget *instance();
 
     void setWidget(QWidget *widget);
+    QWidget *widget() const;
 
     int storedWidth();
 

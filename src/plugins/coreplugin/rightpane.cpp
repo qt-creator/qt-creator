@@ -153,6 +153,11 @@ void RightPaneWidget::setWidget(QWidget *widget)
     }
 }
 
+QWidget *RightPaneWidget::widget() const
+{
+    return m_widget;
+}
+
 int RightPaneWidget::storedWidth()
 {
     return m_width;
