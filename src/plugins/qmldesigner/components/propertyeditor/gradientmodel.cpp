@@ -38,6 +38,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QTimer>
+
 GradientModel::GradientModel(QObject *parent) :
     QAbstractListModel(parent), m_locked(false)
     ,m_gradientTypeName("Gradient")
@@ -177,6 +179,8 @@ void GradientModel::addGradient()
     }
     setupModel();
 
+    if (m_gradientTypeName != "Gradient")
+        QTimer::singleShot(100, [this](){ view()->resetPuppet(); }); /*Unfortunately required */
     emit hasGradientChanged();
     emit gradientTypeChanged();
 }
