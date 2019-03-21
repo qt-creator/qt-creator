@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -427,7 +427,7 @@
             \li  Alt+C, Alt+P
         \endif
         \row
-            \li  Find usages
+            \li  Find references to symbol under cursor
             \li  Ctrl+Shift+U
         \row
             \li  Follow symbol under cursor

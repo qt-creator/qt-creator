@@ -94,7 +94,7 @@ static QString buildDir(const QString &projectFilePath, const Kit *k)
                                   BuildConfiguration::Unknown);
     const QString projectDir
             = Project::projectDirectory(FileName::fromString(projectFilePath)).toString();
-    const QString buildPath = expander.expand(ProjectExplorerPlugin::defaultBuildDirectoryTemplate());
+    const QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     return FileUtils::resolvePath(projectDir, buildPath);
 }
 

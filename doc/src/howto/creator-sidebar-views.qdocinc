@@ -182,6 +182,9 @@
         \li Add and remove subprojects.
         \endif
         \li Search from the selected directory.
+        \li Expand or collapse the tree view to show or hide all files and
+            folders.
+        \li Close all files in a project.
         \li Close projects.
     \endlist
 
@@ -311,6 +314,9 @@
     To view which files are included in the current file and which files include
     the current file, right-click in the editor and select
     \uicontrol {Open Include Hierarchy} or press \key {Ctrl+Shift+I}.
+
+    To keep the view synchronized with the file currently opened in the editor,
+    select \uicontrol {Synchronize with Editor}.
 
 //! [include hierarchy view]
 */

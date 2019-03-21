@@ -72,7 +72,7 @@ WidgetInfo StatesEditorView::widgetInfo()
 
 void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    checkForWindow();
+    checkForStatesAvailability();
 }
 
 void StatesEditorView::toggleStatesViewExpanded()
@@ -200,11 +200,10 @@ void StatesEditorView::duplicateCurrentState()
     setCurrentState(newState);
 }
 
-void StatesEditorView::checkForWindow()
+void StatesEditorView::checkForStatesAvailability()
 {
     if (m_statesEditorWidget)
-        m_statesEditorWidget->showAddNewStatesButton(!rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Window")
-                                                     && !rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Popup"));
+        m_statesEditorWidget->showAddNewStatesButton(rootModelNode().metaInfo().isSubclassOf("QtQuick.Item"));
 }
 
 void StatesEditorView::setCurrentState(const QmlModelState &state)
@@ -314,7 +313,7 @@ void StatesEditorView::modelAttached(Model *model)
     if (m_statesEditorWidget)
         m_statesEditorWidget->setNodeInstanceView(nodeInstanceView());
 
-    checkForWindow();
+    checkForStatesAvailability();
 
     resetModel();
 }

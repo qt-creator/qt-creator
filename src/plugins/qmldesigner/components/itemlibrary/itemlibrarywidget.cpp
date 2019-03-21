@@ -318,6 +318,8 @@ void ItemLibraryWidget::setupImportTagWidget()
 
 void ItemLibraryWidget::updateModel()
 {
+    QTC_ASSERT(m_itemLibraryModel, return);
+
     m_itemLibraryModel->update(m_itemLibraryInfo.data(), m_model.data());
     updateImports();
     updateSearch();

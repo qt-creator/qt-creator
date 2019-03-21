@@ -131,7 +131,7 @@ public:
         palette.setCurrentColorGroup(QPalette::Active);
         bool selected = opt.state & QStyle::State_Selected;
         QColor backgroundColor = selected ? palette.highlight().color()
-                                          : palette.background().color();
+                                          : palette.window().color();
         painter->setBrush(backgroundColor);
 
         painter->drawRect(0, opt.rect.top(), opt.rect.width() + opt.rect.left(), opt.rect.height());

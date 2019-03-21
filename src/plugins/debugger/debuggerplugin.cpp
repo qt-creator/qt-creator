@@ -700,7 +700,6 @@ public:
                             int lineNumber, QMenu *menu);
 
     void toggleBreakpointHelper();
-    void onModeChanged(Id mode);
     void updateDebugWithoutDeployMenu();
 
     void startRemoteCdbSession();
@@ -1360,8 +1359,19 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     addCdbOptionPages(&m_optionPages);
     m_optionPages.append(new LocalsAndExpressionsOptionsPage);
 
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
-        this, &DebuggerPluginPrivate::onModeChanged);
+    connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange, this, [] {
+        if (ModeManager::currentModeId() == MODE_DEBUG)
+            DebuggerMainWindow::leaveDebugMode();
+    });
+
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged, this, [](Id mode) {
+        if (mode == MODE_DEBUG) {
+            DebuggerMainWindow::enterDebugMode();
+            if (IEditor *editor = EditorManager::currentEditor())
+                editor->widget()->setFocus();
+        }
+    });
+
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
         this, &DebuggerPluginPrivate::updateDebugWithoutDeployMenu);
 
@@ -2285,19 +2295,6 @@ QObject *DebuggerPlugin::remoteCommand(const QStringList &options,
 void DebuggerPlugin::extensionsInitialized()
 {
     dd->extensionsInitialized();
-}
-
-void DebuggerPluginPrivate::onModeChanged(Id mode)
-{
-    DebuggerMainWindow::onModeChanged(mode);
-    // FIXME: This one gets always called, even if switching between modes
-    //        different then the debugger mode. E.g. Welcome and Help mode and
-    //        also on shutdown.
-
-    if (mode == MODE_DEBUG) {
-        if (IEditor *editor = EditorManager::currentEditor())
-            editor->widget()->setFocus();
-    }
 }
 
 } // namespace Internal

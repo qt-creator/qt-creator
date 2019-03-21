@@ -51,7 +51,6 @@ void IntroductionWidget::askUserAboutIntroduction(QWidget *parent, QSettings *se
         return;
     auto messageBox = new CheckableMessageBox(parent);
     messageBox->setWindowTitle(tr("Take a UI Tour"));
-    messageBox->setIconPixmap(QMessageBox::standardIcon(QMessageBox::Question));
     messageBox->setText(
         tr("Do you want to take a quick UI tour? This shows where the most important user "
            "interface elements are, and how they are used, and will only take a minute. You can "

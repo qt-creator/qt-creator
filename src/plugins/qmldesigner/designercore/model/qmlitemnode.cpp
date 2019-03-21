@@ -51,10 +51,7 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
     if (modelNode.metaInfo().isSubclassOf("QtQuick.Item"))
         return true;
 
-    if (modelNode.metaInfo().isSubclassOf("QtQuick.Window.Window") && modelNode.isRootNode())
-        return true;
-
-    if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Popup"))
+    if (modelNode.metaInfo().isGraphicalItem()  && modelNode.isRootNode())
         return true;
 
     return false;

@@ -152,6 +152,11 @@
                 (for example written by the installer).
 
         \row
+            \li -temporarycleansettings
+            \li Use clean settings for debug or testing reasons. The settings
+                will be deleted when \QC exits.
+
+        \row
             \li -color <color>
             \li Core plugin: override the selected UI color.
 
@@ -164,6 +169,10 @@
             \li -theme <default | dark>
             \li Core plugin: apply a dark color theme to \QC, without using
                 stylesheets.
+
+        \row
+            \li -notour
+            \li Welcome plugin: Skip the UI tour on startup.
 
         \row
             \li -debug <pid>

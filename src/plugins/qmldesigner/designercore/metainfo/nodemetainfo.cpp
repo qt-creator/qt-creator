@@ -1550,6 +1550,7 @@ bool NodeMetaInfo::isGraphicalItem() const
 {
     return isSubclassOf("QtQuick.Item")
             || isSubclassOf("QtQuick.Window.Window")
+            || isSubclassOf("QtQuick.Dialogs.Dialog")
             || isSubclassOf("QtQuick.Controls.Popup");
 }
 

@@ -132,16 +132,10 @@ class WelcomePlugin : public ExtensionSystem::IPlugin
 public:
     ~WelcomePlugin() final { delete m_welcomeMode; }
 
-    bool initialize(const QStringList &, QString *) final
+    bool initialize(const QStringList &arguments, QString *) final
     {
         m_welcomeMode = new WelcomeMode;
-        return true;
-    }
 
-    void extensionsInitialized() final
-    {
-        m_welcomeMode->initPlugins();
-        ModeManager::activateMode(m_welcomeMode->id());
         auto introAction = new QAction(tr("UI Tour"), this);
         connect(introAction, &QAction::triggered, this, []() {
             auto intro = new IntroductionWidget(ICore::mainWindow());
@@ -151,9 +145,21 @@ public:
         ActionContainer *mhelp = ActionManager::actionContainer(Core::Constants::M_HELP);
         if (QTC_GUARD(mhelp))
             mhelp->addAction(cmd, Core::Constants::G_HELP_HELP);
-        connect(ICore::instance(), &ICore::coreOpened, this, []() {
-            IntroductionWidget::askUserAboutIntroduction(ICore::mainWindow(), ICore::settings());
-        }, Qt::QueuedConnection);
+
+        if (!arguments.contains("-notour")) {
+            connect(ICore::instance(), &ICore::coreOpened, this, []() {
+                IntroductionWidget::askUserAboutIntroduction(ICore::mainWindow(),
+                                                             ICore::settings());
+            }, Qt::QueuedConnection);
+        }
+
+        return true;
+    }
+
+    void extensionsInitialized() final
+    {
+        m_welcomeMode->initPlugins();
+        ModeManager::activateMode(m_welcomeMode->id());
     }
 
     WelcomeMode *m_welcomeMode = nullptr;

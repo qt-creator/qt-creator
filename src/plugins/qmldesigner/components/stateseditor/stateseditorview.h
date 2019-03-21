@@ -93,7 +93,7 @@ private:
     void resetModel();
     void addState();
     void duplicateCurrentState();
-    void checkForWindow();
+    void checkForStatesAvailability();
 
 private:
     QPointer<StatesEditorModel> m_statesEditorModel;

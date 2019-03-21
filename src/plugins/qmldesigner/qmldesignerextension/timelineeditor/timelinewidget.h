@@ -68,7 +68,7 @@ public:
     void setupScrollbar(int min, int max, int current);
     void setTimelineId(const QString &id);
 
-    void setRecording(bool b);
+    void setTimelineActive(bool b);
 
 public slots:
     void selectionChanged();

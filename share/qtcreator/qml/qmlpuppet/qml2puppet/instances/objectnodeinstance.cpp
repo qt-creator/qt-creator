@@ -622,10 +622,12 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
             || typeName == "QtQuick.Controls/Drawer"
             || typeName == "QtQuick.Controls/Dialog"
             || typeName == "QtQuick.Controls/Menu"
+            || typeName == "QtQuick.Controls/Pane"
             || typeName == "QtQuick.Controls/ToolTip")
         polishTypeName = "QtQuick/Item";
 
-    const QHash<QString, QString> mockHash = {{"QtQuick.Controls/SwipeView","qrc:/qtquickplugin/mockfiles/SwipeView.qml"}};
+    const QHash<QString, QString> mockHash = {{"QtQuick.Controls/SwipeView","qrc:/qtquickplugin/mockfiles/SwipeView.qml"},
+                                             {"QtQuick.Dialogs/Dialog","qrc:/qtquickplugin/mockfiles/Dialog.qml"}};
 
     QObject *object = nullptr;
 
