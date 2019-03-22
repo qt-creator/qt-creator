@@ -2953,7 +2953,7 @@ void GdbEngine::handleThreadInfo(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         ThreadsHandler *handler = threadsHandler();
         handler->setThreads(response.data);
-        updateState(false); // Adjust Threads combobox.
+        updateState(); // Adjust Threads combobox.
         if (boolSetting(ShowThreadNames)) {
             runCommand({"threadnames " + action(MaximalStackDepth)->value().toString(),
                 Discardable, CB(handleThreadNames)});
@@ -2993,7 +2993,7 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
             thread.name = decodeData(name["value"].data(), name["valueencoded"].data());
             handler->updateThread(thread);
         }
-        updateState(false);
+        updateState();
     }
 }
 

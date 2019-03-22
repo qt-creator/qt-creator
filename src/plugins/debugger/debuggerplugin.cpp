@@ -1045,7 +1045,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_breakpointManagerView->setSpanColumn(BreakpointFunctionColumn);
     m_breakpointManagerWindow = addSearch(m_breakpointManagerView);
     m_breakpointManagerWindow->setWindowTitle(tr("Breakpoint Preset"));
-    m_breakpointManagerWindow->setObjectName(DOCKWIDGET_BREAKPOINTMANAGER);
+    m_breakpointManagerWindow->setObjectName("Debugger.Docks.BreakpointManager");
     addLabel(m_breakpointManagerWindow, m_breakpointManagerWindow->windowTitle());
 
 
@@ -1057,7 +1057,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_engineManagerView->setModel(m_engineManager.model());
     m_engineManagerWindow = addSearch(m_engineManagerView);
     m_engineManagerWindow->setWindowTitle(tr("Debugger Perspectives"));
-    m_engineManagerWindow->setObjectName(DOCKWIDGET_ENGINEMANAGER);
+    m_engineManagerWindow->setObjectName("Debugger.Docks.Snapshots");
     addLabel(m_engineManagerWindow, m_engineManagerWindow->windowTitle());
 
     // Logging
@@ -1356,7 +1356,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
             DebuggerMainWindow::leaveDebugMode();
     });
 
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged, this, [](Id mode) {
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged, [](Id mode, Id oldMode) {
+        QTC_ASSERT(mode != oldMode, return);
         if (mode == MODE_DEBUG) {
             DebuggerMainWindow::enterDebugMode();
             if (IEditor *editor = EditorManager::currentEditor())
@@ -1521,7 +1522,7 @@ void DebuggerPluginPrivate::updatePresetState()
     } else {
         // The startup phase should be over once we are here.
         // But treat it as 'undisturbable if we are here by accident.
-        QTC_CHECK(state != DebuggerNotReady);
+        //QTC_CHECK(state != DebuggerNotReady);
         // Everything else is "undisturbable".
         m_startAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(false);
@@ -1559,7 +1560,7 @@ void DebuggerPluginPrivate::onStartupProjectChanged(Project *project)
     }
     for (DebuggerEngine *engine : EngineManager::engines()) {
         // Run controls might be deleted during exit.
-        engine->updateState(false);
+        engine->updateState();
     }
 
     updatePresetState();
@@ -2014,11 +2015,9 @@ void DebuggerPluginPrivate::aboutToShutdown()
     m_shutdownTimer.setInterval(0);
     m_shutdownTimer.setSingleShot(true);
     connect(&m_shutdownTimer, &QTimer::timeout, this, &DebuggerPluginPrivate::doShutdown);
-    for (DebuggerEngine *engine : m_engineManager.engines()) {
-        if (engine && engine->state() != Debugger::DebuggerNotReady) {
-            engine->abortDebugger();
-            m_shutdownTimer.setInterval(3000);
-        }
+    if (EngineManager::shutDown()) {
+        // If any engine is aborting we give them extra three seconds.
+        m_shutdownTimer.setInterval(3000);
     }
     m_shutdownTimer.start();
 }

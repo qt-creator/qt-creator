@@ -416,7 +416,7 @@ protected:
     void notifyInferiorStopFailed();
 
 public:
-    void updateState(bool alsoUpdateCompanion);
+    void updateState();
     QString formatStartParameters() const;
     WatchTreeView *inspectorView();
     void updateLocalsWindow(bool showReturn);

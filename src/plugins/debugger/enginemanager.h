@@ -45,17 +45,19 @@ public:
     static EngineManager *instance();
     static QAbstractItemModel *model();
 
-    static void registerEngine(DebuggerEngine *engine);
+    static QString registerEngine(DebuggerEngine *engine);
     static void unregisterEngine(DebuggerEngine *engine);
-    static void activateEngine(DebuggerEngine *engine);
+
     static void activateDebugMode();
     static void deactivateDebugMode();
-    static bool isLastOf(const QString &type);
 
     static QList<QPointer<DebuggerEngine> > engines();
     static QPointer<DebuggerEngine> currentEngine();
 
     static QWidget *engineChooser();
+    static void updatePerspectives();
+
+    static bool shutDown(); // Return true if some engine is being forced to shut down.
 
 signals:
     void engineStateChanged(DebuggerEngine *engine);

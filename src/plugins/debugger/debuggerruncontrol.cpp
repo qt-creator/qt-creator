@@ -728,8 +728,6 @@ void DebuggerRunTool::stop()
 
 void DebuggerRunTool::handleEngineStarted(DebuggerEngine *engine)
 {
-    EngineManager::activateEngine(engine);
-
     // Correct:
 //    if (--d->engineStartsNeeded == 0) {
 //        EngineManager::activateDebugMode();
