@@ -275,8 +275,28 @@
     ulimit -c unlimited
     \endcode
 
-    To launch the debugger in the core mode, select \uicontrol Debug >
-    \uicontrol {Start Debugging} > \uicontrol {Load Core File}.
+    To launch the debugger in the core mode:
+
+    \list 1
+        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Load Core File}.
+            \image qtcreator-debugger-load-core-file.png
+        \li In the \uicontrol Kit field, select a build and run kit that was
+            used for building the binary for which the core file was created.
+            If the core file stems from a binary not built by \QC or a process
+            not initiated by \QC, select a kit that matches the setup used as
+            closely as possible, in respect to the specified device, tool chain,
+            debugger, and sysroot.
+        \li In the \uicontrol {Core file} field, specify the core file to
+            inspect.
+        \li In the \uicontrol {Executable of symbol file} field, specify
+            a file that contains debug information corresponding to the
+            core file. Typically, this is the executable file or a \c {.debug}
+            file if the debug information is stored separately from the
+            executable.
+        \li In the \uicontrol {Override start script} field, specify a
+            script file to run instead of the default start script.
+    \endlist
 
     Also in this mode, using a properly configured project containing the
     sources of the crashed program is not strictly necessary, but helpful.
