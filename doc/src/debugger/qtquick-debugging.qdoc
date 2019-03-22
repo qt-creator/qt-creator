@@ -227,11 +227,11 @@
     \section1 Executing JavaScript Expressions
 
     When the application is interrupted by a breakpoint, you can use the
-    \uicontrol {Debugger Console} to execute JavaScript expressions in the
+    \uicontrol {QML Debugger Console} to execute JavaScript expressions in the
     current context. To open it, choose \uicontrol Window >
-    \uicontrol {Output Panes} > \uicontrol {Debugger Console}.
+    \uicontrol {Output Panes} > \uicontrol {QML Debugger Console}.
 
-    \image qml-script-console.png "Debugger Console"
+    \image qml-script-console.png "QML Debugger Console"
 
     You can change property values temporarily, without editing the source, and
     view the results in the running application. You can change the property
@@ -239,7 +239,7 @@
 
     \section1 Applying QML Changes at Runtime
 
-    When you change property values in the \uicontrol {Debugger Console} or in
-    the \uicontrol Locals or \uicontrol Expression view, they are immediately
+    When you change property values in the \uicontrol {QML Debugger Console} or
+    in the \uicontrol Locals or \uicontrol Expression view, they are immediately
     updated in the running application, but not in the source code.
 */
