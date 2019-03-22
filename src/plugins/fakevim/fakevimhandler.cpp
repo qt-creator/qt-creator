@@ -2061,7 +2061,7 @@ public:
 
     void pasteText(bool afterCursor);
 
-    void cutSelectedText();
+    void cutSelectedText(int reg = 0);
 
     void joinLines(int count, bool preserveSpace = false);
 
@@ -7237,7 +7237,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
     bool pasteAfter = isVisualMode() ? false : afterCursor;
 
     if (isVisualMode())
-        cutSelectedText();
+        cutSelectedText('"');
 
     switch (rangeMode) {
         case RangeCharMode: {
@@ -7318,7 +7318,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
     endEditBlock();
 }
 
-void FakeVimHandler::Private::cutSelectedText()
+void FakeVimHandler::Private::cutSelectedText(int reg)
 {
     pushUndoState();
 
@@ -7329,8 +7329,11 @@ void FakeVimHandler::Private::cutSelectedText()
     if (visualMode && g.rangemode == RangeCharMode)
         ++range.endPos;
 
+    if (!reg)
+        reg = m_register;
+
     g.submode = DeleteSubMode;
-    yankText(range, m_register);
+    yankText(range, reg);
     removeText(range);
     g.submode = NoSubMode;
 
