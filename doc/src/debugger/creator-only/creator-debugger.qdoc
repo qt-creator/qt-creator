@@ -112,7 +112,9 @@
     \QC checks whether the compiled program is up-to-date, and rebuilds and
     deploys it if the \uicontrol {Always build project before deploying it} and
     \uicontrol {Always deploy before running} options are selected in the
-    \uicontrol {Build and Run} options.
+    \uicontrol {Build and Run} options. To debug the program without deploying
+    it, select \uicontrol Debug > \uicontrol {Start Debugging} >
+    \uicontrol {Start Debugging Without Deployment}.
 
     The debugger then takes over and starts the program with suitable
     parameters.
