@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -180,24 +180,87 @@
 
     \section2 Launching in Start External Mode
 
-    To run any executable already present on your local or a remote machine
-    without using a project, select \uicontrol Debug >
-    \uicontrol {Start Debugging} >
-    \uicontrol {Start and Debug External Application}.
+    You can debug any executable already present on your local or on a remote
+    machine without using a project. You specify a build and run kit that
+    identifies the device to debug the application on.
+
+    While this mode does not strictly require a project to be opened in \QC,
+    opening it makes setting breakpoints and stepping through the code easier.
+
+    To start and debug an external application:
+
+    \list 1
+        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Start and Debug External Application}.
+        \image qtcreator-debugger-start-external.png
+        \li In the \uicontrol Kit field, select the build and run kit to
+            use for building the project.
+        \li In the \uicontrol {Local executable} field, specify the path to the
+            application executable on the local machine.
+        \li In the \uicontrol {Command line arguments} field, specify command
+            line arguments to be passed to the executable.
+        \li In the \uicontrol {Working directory} field, specify the working
+            directory. It defaults to the directory of the build result.
+        \li Select the \uicontrol{Run in terminal} check box for console
+            applications.
+        \li Select the \uicontrol {Break at "main"} check box to stop the
+            debugger at the main function.
+        \li In the \uicontrol {Debug information} field, specify the location
+            for storing debug information. You cannot use an empty path.
+        \li In the \uicontrol Recent field, you can select a recent
+            configuration to use.
+    \endlist
 
     \section2 Launching in Attach Mode
 
-    To attach the debugger to an application already running on your local or a
-    remote machine, select \uicontrol Debug > \uicontrol {Start Debugging} >
-    \uicontrol {Attach to Running Application}, and then select a process by its
-    name or process ID to attach to.
+    You can attach the debugger to applications that are already running or
+    instruct the debugger to attach to an application when it starts.
 
-    While this mode does not strictly require a project to be opened in \QC, it
-    is beneficial to have open one, as it makes setting breakpoints and stepping
-    through the code easier.
+    \section3 Attaching to Running Applications
+
+    To attach the debugger to an application already running on your local or on
+    a remote machine:
+
+    \list 1
+        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Attach to Running Application}.
+            \image qtcreator-debugger-attach-to-running.png
+        \li In the \uicontrol Filter field, enter a string to filter processes
+            by their process ID or name.
+        \li Select a process in the list, and then select
+            \uicontrol {Attach to Process} to start debugging.
+    \endlist
+
+    To refresh the list of running processes, select \uicontrol {Update List}.
+
+    To terminate the selected process, select \uicontrol {Kill Process}.
+
+    While this mode does not strictly require a project to be opened in \QC,
+    opening it makes setting breakpoints and stepping through the code easier.
 
     You can specify breakpoints before or after attaching the debugger to the
     application. For more information, see \l{Setting Breakpoints}.
+
+    \section3 Attaching to Processes when They Start
+
+    To instruct the debugger to watch an application process and to attach
+    to it when it starts:
+
+    \list 1
+        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Attach to Unstarted Application}.
+            \image qtcreator-debugger-attach-to-process-not-yet-started.png
+        \li In the \uicontrol Kit field, select the build and run kit to
+            use for building the project.
+        \li In the \uicontrol Executable field, specify the path to the
+            application executable.
+        \li Select the \uicontrol {Reopen dialog when application finishes}
+            check box to return to this dialog when the application is closed.
+        \li Select the \uicontrol {Continue on attach} check box to instruct
+            the debugger to keep the application running after attaching to it.
+        \li Select \uicontrol {Start Watching} to wait for the application
+            process to start.
+    \endlist
 
     \section2 Launching in Core Mode
 
@@ -279,10 +342,29 @@
 
         \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Attach to Running Debug Server}.
-
-        \li In the \uicontrol {Host and port} field, enter the name of the remote
+            \image qtcreator-debugger-attach-to-running-debug-server.png
+        \li In the \uicontrol Kit field, select the build and run kit to
+            use for building the project.
+        \li In the \uicontrol {Server port} field, enter the name of the remote
             machine and the port number to use.
-
+        \li In the \uicontrol {Local executable} field, specify the path to the
+            application executable on the local machine.
+        \li In the \uicontrol {Command line arguments} field, specify command
+            line arguments to be passed to the executable.
+        \li In the \uicontrol {Working directory} field, specify the working
+            directory. It defaults to the directory of the build result.
+        \li Select the \uicontrol{Run in terminal} check box for console
+            applications.
+        \li Select the \uicontrol {Break at "main"} check box to stop the
+            debugger at the main function.
+        \li In the \uicontrol {Server start script} field, specify a
+            script file to run when the server starts.
+        \li In the \uicontrol {Debug information} field, specify the location
+            for storing debug information. You cannot use an empty path.
+        \li In the \uicontrol {Override server channel} field, specify a
+            communication channel to use, such as a serial line or custom port.
+        \li In the \uicontrol Recent field, you can select a recent
+            configuration to use.
         \li Select \uicontrol OK to start debugging.
 
     \endlist
