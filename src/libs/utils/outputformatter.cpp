@@ -41,7 +41,6 @@ public:
     QTextCharFormat formats[NumberOfFormats];
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
-    OutputFormat lastFormat = NumberOfFormats;
     bool boldFontEnabled = true;
 };
 
@@ -72,9 +71,8 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 
 void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
 {
-    if (!d->cursor.atEnd() && format != d->lastFormat)
+    if (!d->cursor.atEnd() && text.startsWith('\n'))
         d->cursor.movePosition(QTextCursor::End);
-    d->lastFormat = format;
     appendMessage(text, d->formats[format]);
 }
 
