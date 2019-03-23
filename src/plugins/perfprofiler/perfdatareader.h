@@ -45,7 +45,8 @@ public:
     explicit PerfDataReader(QObject *parent = nullptr);
     ~PerfDataReader() override;
 
-    void load(const QString &filePath, const QString &executableDirPath, ProjectExplorer::Kit *kit);
+    void loadFromFile(const QString &filePath, const QString &executableDirPath,
+                      ProjectExplorer::Kit *kit);
 
     void createParser(const QStringList &arguments);
     void startParser();

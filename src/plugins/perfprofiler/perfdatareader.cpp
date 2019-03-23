@@ -142,8 +142,8 @@ PerfDataReader::~PerfDataReader()
     qDeleteAll(m_buffer);
 }
 
-void PerfDataReader::load(const QString &filePath, const QString &executableDirPath,
-                          ProjectExplorer::Kit *kit)
+void PerfDataReader::loadFromFile(const QString &filePath, const QString &executableDirPath,
+                                  ProjectExplorer::Kit *kit)
 {
     createParser(collectArguments(executableDirPath, kit) << QLatin1String("--input") << filePath);
     m_remoteProcessStart = 0; // Don't try to guess the timestamps

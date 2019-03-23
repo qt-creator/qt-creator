@@ -633,7 +633,7 @@ void PerfProfilerTraceManager::loadFromPerfData(const QString &filePath,
 
     reader->future().reportStarted();
     initialize();
-    reader->load(filePath, executableDirPath, kit);
+    reader->loadFromFile(filePath, executableDirPath, kit);
 }
 
 } // namespace Internal
