@@ -115,7 +115,7 @@ class PROJECTEXPLORER_EXPORT DeviceTypeKitAspect : public KitAspect
 public:
     DeviceTypeKitAspect();
 
-    void setup(Kit *k);
+    void setup(Kit *k) override;
     QList<Task> validate(const Kit *k) const override;
     KitAspectWidget *createConfigWidget(Kit *k) const override;
     ItemList toUserOutput(const Kit *k) const override;
