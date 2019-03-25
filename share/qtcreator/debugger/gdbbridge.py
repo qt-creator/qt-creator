@@ -88,7 +88,7 @@ class PPCommand(gdb.Command):
 
 PPCommand()
 
-# Just convienience for 'python print gdb.parse_and_eval(...)'
+# Just convenience for 'python print gdb.parse_and_eval(...)'
 class PPPCommand(gdb.Command):
     def __init__(self):
         super(PPPCommand, self).__init__('ppp', gdb.COMMAND_OBSCURE)
@@ -169,7 +169,7 @@ registerCommand('importPlainDumpers', importPlainDumpers)
 
 
 
-class OutputSafer:
+class OutputSaver:
     def __init__(self, d):
         self.d = d
 
@@ -179,7 +179,7 @@ class OutputSafer:
 
     def __exit__(self, exType, exValue, exTraceBack):
         if self.d.passExceptions and not exType is None:
-            showException('OUTPUTSAFER', exType, exValue, exTraceBack)
+            showException('OUTPUTSAVER', exType, exValue, exTraceBack)
             self.d.output = self.savedOutput
         else:
             self.savedOutput += self.d.output
@@ -1312,7 +1312,7 @@ class Dumper(DumperBase):
         frame = gdb.newest_frame()
         self.currentCallContext = None
         while i < limit and frame:
-            with OutputSafer(self):
+            with OutputSaver(self):
                 name = frame.name()
                 functionName = '??' if name is None else name
                 fileName = ''
