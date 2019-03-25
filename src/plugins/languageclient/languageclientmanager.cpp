@@ -69,6 +69,8 @@ void LanguageClientManager::init()
     using namespace Core;
     using namespace ProjectExplorer;
     QTC_ASSERT(managerInstance, return);
+    connect(EditorManager::instance(), &EditorManager::editorOpened,
+            managerInstance, &LanguageClientManager::editorOpened);
     connect(EditorManager::instance(), &EditorManager::documentOpened,
             managerInstance, &LanguageClientManager::documentOpened);
     connect(EditorManager::instance(), &EditorManager::documentClosed,
