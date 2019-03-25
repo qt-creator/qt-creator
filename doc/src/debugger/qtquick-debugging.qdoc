@@ -101,9 +101,10 @@
 
     \section1 Starting QML Debugging
 
-    To start the application, choose \uicontrol {Debug > Start Debugging >
-    Start Debugging} or press \key F5. Once the application starts running, it
-    behaves and performs as usual. You can then perform the following tasks:
+    To start the application, choose \uicontrol Debug > \uicontrol {Start Debugging}
+    > \uicontrol {Start Debugging of Startup Project} or press \key F5. Once the
+    application starts running, it behaves and performs as usual. You can then
+    perform the following tasks:
 
     \list
 
@@ -227,11 +228,11 @@
     \section1 Executing JavaScript Expressions
 
     When the application is interrupted by a breakpoint, you can use the
-    \uicontrol {Debugger Console} to execute JavaScript expressions in the
+    \uicontrol {QML Debugger Console} to execute JavaScript expressions in the
     current context. To open it, choose \uicontrol Window >
-    \uicontrol {Output Panes} > \uicontrol {Debugger Console}.
+    \uicontrol {Output Panes} > \uicontrol {QML Debugger Console}.
 
-    \image qml-script-console.png "Debugger Console"
+    \image qml-script-console.png "QML Debugger Console"
 
     You can change property values temporarily, without editing the source, and
     view the results in the running application. You can change the property
@@ -239,7 +240,7 @@
 
     \section1 Applying QML Changes at Runtime
 
-    When you change property values in the \uicontrol {Debugger Console} or in
-    the \uicontrol Locals or \uicontrol Expression view, they are immediately
+    When you change property values in the \uicontrol {QML Debugger Console} or
+    in the \uicontrol Locals or \uicontrol Expression view, they are immediately
     updated in the running application, but not in the source code.
 */

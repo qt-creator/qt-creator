@@ -65,7 +65,8 @@
             The red circle indicates that a breakpoint is now set on that line
             number.
 
-        \li Select \uicontrol {Debug > Start Debugging > Start Debugging} or press
+        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Start Debugging of Startup Project} or press
             \key{F5}.
 
         \li Once the Same Game application starts, select \uicontrol {Puzzle}
@@ -97,7 +98,7 @@
             \image qtquick-example-setting-breakpoint3.png
 
         \li To execute JavaScript commands in the current context, open the
-            \uicontrol {Debugger Console} output pane.
+            \uicontrol {QML Debugger Console} output pane.
 
             \image qml-script-console.png
 

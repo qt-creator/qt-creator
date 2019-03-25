@@ -73,6 +73,7 @@ class StartApplicationDialogPrivate
 public:
     KitChooser *kitChooser;
     QLabel *serverPortLabel;
+    QLabel *channelOverrideHintLabel;
     QLabel *channelOverrideLabel;
     QLineEdit *channelOverrideEdit;
     QSpinBox *serverPortSpinBox;
@@ -237,6 +238,12 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->serverPortSpinBox = new QSpinBox(this);
     d->serverPortSpinBox->setRange(1, 65535);
 
+    d->channelOverrideHintLabel =
+            new QLabel(tr("Normally, the running server is identified by the IP of the "
+                          "device in the kit and the server port selected above.\n"
+                          "You can choose another communication channel here, such as "
+                          "a serial line or custom ip:port."));
+
     d->channelOverrideLabel = new QLabel(tr("Override server channel:"), this);
     d->channelOverrideEdit = new QLineEdit(this);
     //: "For example, /dev/ttyS0, COM1, 127.0.0.1:1234"
@@ -304,10 +311,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     formLayout->addRow(tr("Break at \"&main\":"), d->breakAtMainCheckBox);
     formLayout->addRow(d->serverStartScriptLabel, d->serverStartScriptPathChooser);
     formLayout->addRow(tr("Debug &information:"), d->debuginfoPathChooser);
-    formLayout->addRow(new QLabel(tr("Normally, the running server is identified by the IP of the "
-                          "device in the kit and the server port selected above.\n"
-                          "You can choose another communication channel here, such as "
-                          "a serial line or custom ip:port.")));
+    formLayout->addRow(d->channelOverrideHintLabel);
     formLayout->addRow(d->channelOverrideLabel, d->channelOverrideEdit);
     formLayout->addRow(line2);
     formLayout->addRow(tr("&Recent:"), d->historyComboBox);
@@ -396,6 +400,7 @@ void StartApplicationDialog::run(bool attachRemote)
         dialog.d->serverStartScriptLabel->setVisible(false);
         dialog.d->serverPortSpinBox->setVisible(false);
         dialog.d->serverPortLabel->setVisible(false);
+        dialog.d->channelOverrideHintLabel->setVisible(false);
         dialog.d->channelOverrideLabel->setVisible(false);
         dialog.d->channelOverrideEdit->setVisible(false);
     }

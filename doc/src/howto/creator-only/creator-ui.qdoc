@@ -137,7 +137,7 @@
 
        \li \uicontrol{Compile Output}
 
-       \li \uicontrol {Debugger Console}
+       \li \uicontrol {QML Debugger Console}
 
        \li \uicontrol {To-Do Entries}
 
@@ -164,7 +164,7 @@
     \uicontrol {Window > Output Panes}. To display the \uicontrol {To-Do Entries} pane,
     enable the Todo plugin.
 
-    For more information about the \uicontrol {Debugger Console} view, see
+    For more information about the \uicontrol {QML Debugger Console} view, see
     \l{Executing JavaScript Expressions}.
 
     \section2 Issues

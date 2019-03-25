@@ -272,8 +272,6 @@ void EditorToolBar::addEditor(IEditor *editor)
 
     if (toolBar && !d->m_isStandalone)
         addCenterToolBar(toolBar);
-
-    updateDocumentStatus(editor->document());
 }
 
 void EditorToolBar::addCenterToolBar(QWidget *toolBar)
@@ -407,10 +405,6 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
         d->m_editorList->setToolTip(QString());
         return;
     }
-
-    const Utils::optional<int> index = DocumentModel::rowOfDocument(document);
-    if (QTC_GUARD(index))
-        d->m_editorList->setCurrentIndex(*index);
 
     if (document->filePath().isEmpty()) {
         d->m_lockButton->setIcon(QIcon());

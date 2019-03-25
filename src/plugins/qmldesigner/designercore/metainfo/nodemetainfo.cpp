@@ -85,7 +85,7 @@ static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPt
 {
     TypeName type = "unknown";
 
-    if (ref->ast()->defaultToken.isValid()) {
+    if (ref->ast()->propertyToken.isValid()) {
         type = ref->ast()->memberType->name.toUtf8();
 
         if (type == "alias") {

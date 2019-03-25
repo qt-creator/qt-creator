@@ -20,7 +20,8 @@ Editing
 
 * Language Client
     * Added support for document outline (QTCREATORBUG-21573)
-    * Added support for `Find Usages` (QTCREATORBUG-21577)
+    * Added support for `Find References to Symbol Under Cursor`
+      (QTCREATORBUG-21577)
     * Added support for code actions
 * Highlighter
     * Replaced custom highlighting file parser with `KSyntaxHighlighting`
@@ -75,6 +76,11 @@ Generic Projects
   files (QTCREATORBUG-19668)
 * Fixed `Apply Filter` when editing file list (QTCREATORBUG-16237)
 
+Compilation Database Projects
+
+* Fixed that project tree was not updated when database changes on disk
+  (QTCREATORBUG-21733)
+
 C++ Support
 
 * Added code snippet for range-based `for` loops
@@ -85,8 +91,11 @@ C++ Support
     * Fixed issue with high memory consumption (QTCREATORBUG-19543)
     * Fixed inconsistency between `Follow Symbol` and `Ctrl + Click`
       (QTCREATORBUG-21637)
+    * Fixed that global completion was shown after comma (QTCREATORBUG-21624)
 * Clang Format
     * Added option to format code instead of only indenting code
+    * Added `Open Used .clang-format Configuration File` to editor's
+      context menu
 
 QML Support
 
@@ -108,6 +117,8 @@ Debugging
 * Fixed that debugger toolbar could force large minimum window size
   (QTCREATORBUG-21885)
 * Added pretty printing of `QSizePolicy`
+* Fixed pretty printing of standard maps and sets from `libc++`
+  (QTCREATORBUG-18536)
 * GDB
     * Added support for rvalue references in function arguments
 * LLDB
@@ -130,6 +141,7 @@ Perf Profiler
 Qt Quick Designer
 
 * Made QML Live Preview integration opensource
+* Added support for `Dialog` (QTCREATORBUG-22120)
 
 Version Control Systems
 
@@ -178,6 +190,8 @@ Windows
 * Changed toolchain detection to use `vswhere` by default, which is recommended
   by Microsoft
 * Fixed issue with UNC paths in `.pro` files (QTCREATORBUG-21881)
+* Fixed language version detections with MSVC and precompiled headers
+  (QTCREATORBUG-21860)
 
 Linux
 
@@ -189,6 +203,7 @@ Android
 
 * Removed separate `QmakeAndroidSupport` plugin and merged functionality into
   other plugins
+* Fixed debugging for API level 22 (QTCREATORBUG-22098)
 
 Remote Linux
 

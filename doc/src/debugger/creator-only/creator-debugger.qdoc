@@ -54,10 +54,10 @@
         \li \l{Launching the Debugger}
 
             To start an application from an open project under the control
-            of a debugger, press the Debug button in the lower left corner
-            of the main view, or press \key F5. Other, less common start
-            options are available in the \uicontrol Debug >
-            \uicontrol {Start Debugging} menu.
+            of a debugger, select the \inlineimage qtcreator-debug-button.png
+            (\uicontrol {Start Debugging of Startup Project}) button or press
+            \key F5. Other, less common start options are available in the
+            \uicontrol Debug > \uicontrol {Start Debugging} menu.
 
         \li \l{Interacting with the Debugger}
 
@@ -106,13 +106,15 @@
     \title Launching the Debugger
 
     To start an application from an open project under the control of a
-    debugger, press the \uicontrol Debug button in the lower left corner
-    of the main view, or press \key F5.
+    debugger, select the \inlineimage qtcreator-debug-button.png
+    (\uicontrol {Start Debugging of Startup Project}) button or press \key F5.
 
     \QC checks whether the compiled program is up-to-date, and rebuilds and
     deploys it if the \uicontrol {Always build project before deploying it} and
     \uicontrol {Always deploy before running} options are selected in the
-    \uicontrol {Build and Run} options.
+    \uicontrol {Build and Run} options. To debug the program without deploying
+    it, select \uicontrol Debug > \uicontrol {Start Debugging} >
+    \uicontrol {Start Debugging Without Deployment}.
 
     The debugger then takes over and starts the program with suitable
     parameters.
@@ -127,7 +129,8 @@
     depending on where and how the debugged process is started and run. Some of
     the modes are only available for a particular operating system or platform.
 
-    In general, the \key F5 and the \uicontrol Debug button are set up in a
+    In general, \key F5 and the \uicontrol {Start Debugging of Startup Project}
+    button are set up in a
     way to start the operating mode that is commonly used in a given context. So
     if the current project is set up as a C++ application using the MinGW
     toolchain targeting desktop Windows, the GDB engine will be started in Start
@@ -137,7 +140,7 @@
 
     Change the run configuration parameters (such as
     \uicontrol {Run in Terminal}) in the run settings of the project, or select
-    options from the \uicontrol Debug  > \uicontrol {Start Debugging} menu to
+    options from the \uicontrol Debug > \uicontrol {Start Debugging} menu to
     select other modes of operation.
 
     The debugger can run in the following modes:

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -34,9 +34,19 @@
     For several programming languages, a \e {language server} is available
     that provides information about the code to IDEs as long as they support
     communication via the language server protocol (LSP). This enables the
-    IDE to provide code completion, highlighting of the symbol under cursor,
-    and jumping to the symbol definition, as well as to integrate diagnostics
-    from the language server.
+    IDE to provide the following services:
+
+    \list
+        \li \l{Completing Code}{Code completion}
+        \li Highlighting the symbol under cursor
+        \li \l{Moving to Symbol Definition or Declaration}
+            {Moving to the symbol definition}
+        \li Inspecting code by viewing the document
+            \l{Viewing Defined Types and Symbols}{outline}
+        \li \l{Finding Symbols}{Finding references to symbols}
+        \li Code actions
+        \li Integrating diagnostics from the language server
+    \endlist
 
     By providing a client for the language server protocol, \QC can support
     the above features for several other programming languages besides C++.

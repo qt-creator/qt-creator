@@ -78,7 +78,10 @@ def menuVisibleAtEditor(editor, menuInList):
                     return True
             return False
         menu = waitForObject("{type='QMenu' unnamed='1' visible='1'}", 500)
-        success = menu.visible and widgetContainsPoint(editor, menu.mapToGlobal(QPoint(0, 0)))
+        topLeft = menu.mapToGlobal(QPoint(0, 0))
+        bottomLeft = menu.mapToGlobal(QPoint(0, menu.height))
+        success = menu.visible and (widgetContainsPoint(editor, topLeft)
+                                    or widgetContainsPoint(editor, bottomLeft))
         if success:
             menuInList[0] = menu
         return success

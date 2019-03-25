@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -268,14 +268,15 @@
 
 //! [outline view]
 
-    \section2 Viewing QML Types
+    \section2 Viewing Defined Types and Symbols
 
-    The \uicontrol Outline view shows the type hierarchy in a QML file.
+    The \uicontrol Outline view shows an overview of defined types and other
+    symbols, as well as their properties and hierarchy in a source file.
 
     \list
         \li To see a complete list of all bindings, select
             \uicontrol {Filter Tree} > \uicontrol {Show All Bindings}.
-        \li To stop the synchronization with the QML type selected in the
+        \li To stop the synchronization with the type or symbol selected in the
             editor, deselect \uicontrol {Synchronize with Editor}.
     \endlist
 

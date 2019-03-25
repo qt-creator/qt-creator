@@ -60,7 +60,7 @@ QStringList filterExistingFiles(QStringList &&filePaths)
 
     filePaths.erase(startOfNonExistingFilePaths, filePaths.end());
 
-    return filePaths;
+    return std::move(filePaths);
 }
 }
 

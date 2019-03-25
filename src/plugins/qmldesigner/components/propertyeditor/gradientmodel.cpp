@@ -38,6 +38,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QTimer>
+
 GradientModel::GradientModel(QObject *parent) :
     QAbstractListModel(parent)
 {
@@ -150,6 +152,9 @@ void GradientModel::addGradient()
             if (!color.isValid())
                 color = QColor(Qt::white);
 
+            if (m_gradientTypeName != "Gradient")
+                ensureShapesImport();
+
             QmlDesigner::RewriterTransaction transaction = view()->beginRewriterTransaction(QByteArrayLiteral("GradientModel::addGradient"));
 
             QmlDesigner::ModelNode gradientNode = createGradientNode();
@@ -173,6 +178,8 @@ void GradientModel::addGradient()
     }
     setupModel();
 
+    if (m_gradientTypeName != "Gradient")
+        QTimer::singleShot(100, [this](){ view()->resetPuppet(); }); /*Unfortunately required */
     emit hasGradientChanged();
     emit gradientTypeChanged();
 }
@@ -321,7 +328,7 @@ void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
         m_itemNode = backendCasted->getItemNode();
 
     if (m_itemNode.isValid()
-        && m_itemNode.modelNode().hasProperty(gradientPropertyName().toUtf8()))
+            && m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8()))
         m_gradientTypeName = m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode().simplifiedTypeName();
 
     setupModel();
@@ -445,7 +452,6 @@ QmlDesigner::ModelNode GradientModel::createGradientNode()
         fullTypeName.prepend("QtQuick.");
     } else {
         fullTypeName.prepend("QtQuick.Shapes.");
-        ensureShapesImport();
     }
 
     auto metaInfo = model()->metaInfo(fullTypeName);
