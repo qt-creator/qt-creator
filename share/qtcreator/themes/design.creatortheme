@@ -53,7 +53,7 @@ hoverBackground=ff404244
 ;blended background color for controls 1 spinboxes, background selection square for snapping modes, publish as alias icon.
 ;color for filter background and overwrite width and height boxes
 ;selectedBackground=66000000
-selectedBackground=aa1f75cc
+selectedBackground=ff111111
 
 
 ;background for default "open a document" screen in the edit mode,
