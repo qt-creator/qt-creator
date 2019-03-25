@@ -29,7 +29,6 @@
 
 #include "clangformatconstants.h"
 #include "clangformatoptionspage.h"
-#include "clangformatsettings.h"
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
@@ -58,21 +57,6 @@ namespace Internal {
 namespace ClangFormat {
 
 ClangFormat::ClangFormat()
-    : m_settings(new ClangFormatSettings)
-{
-}
-
-ClangFormat::~ClangFormat()
-{
-    delete m_settings;
-}
-
-QString ClangFormat::id() const
-{
-    return QLatin1String(Constants::ClangFormat::DISPLAY_NAME);
-}
-
-bool ClangFormat::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ClangFormat::MENU_ID);
     menu->menu()->setTitle(tr("&ClangFormat"));
@@ -100,17 +84,20 @@ bool ClangFormat::initialize()
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
-    connect(m_settings, &ClangFormatSettings::supportedMimeTypesChanged,
+    connect(&m_settings, &ClangFormatSettings::supportedMimeTypesChanged,
             [this] { updateActions(Core::EditorManager::currentEditor()); });
 
-    new ClangFormatOptionsPage(m_settings, this);
+    new ClangFormatOptionsPage(&m_settings, this);
+}
 
-    return true;
+QString ClangFormat::id() const
+{
+    return QLatin1String(Constants::ClangFormat::DISPLAY_NAME);
 }
 
 void ClangFormat::updateActions(Core::IEditor *editor)
 {
-    const bool enabled = editor && m_settings->isApplicable(editor->document());
+    const bool enabled = editor && m_settings.isApplicable(editor->document());
     m_formatFile->setEnabled(enabled);
     m_formatRange->setEnabled(enabled);
 }
@@ -180,14 +167,14 @@ void ClangFormat::disableFormattingSelectedText()
 Command ClangFormat::command() const
 {
     Command command;
-    command.setExecutable(m_settings->command());
+    command.setExecutable(m_settings.command());
     command.setProcessing(Command::PipeProcessing);
 
-    if (m_settings->usePredefinedStyle()) {
-        const QString predefinedStyle = m_settings->predefinedStyle();
+    if (m_settings.usePredefinedStyle()) {
+        const QString predefinedStyle = m_settings.predefinedStyle();
         command.addOption("-style=" + predefinedStyle);
         if (predefinedStyle == "File") {
-            const QString fallbackStyle = m_settings->fallbackStyle();
+            const QString fallbackStyle = m_settings.fallbackStyle();
             if (fallbackStyle != "Default")
                 command.addOption("-fallback-style=" + fallbackStyle);
         }
@@ -196,7 +183,7 @@ Command ClangFormat::command() const
     } else {
         command.addOption("-style=file");
         const QString path =
-                QFileInfo(m_settings->styleFileName(m_settings->customStyle())).absolutePath();
+                QFileInfo(m_settings.styleFileName(m_settings.customStyle())).absolutePath();
         command.addOption("-assume-filename=" + path + QDir::separator() + "%filename");
     }
 
@@ -205,7 +192,7 @@ Command ClangFormat::command() const
 
 bool ClangFormat::isApplicable(const Core::IDocument *document) const
 {
-    return m_settings->isApplicable(document);
+    return m_settings.isApplicable(document);
 }
 
 Command ClangFormat::command(int offset, int length) const

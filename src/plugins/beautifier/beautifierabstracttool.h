@@ -45,7 +45,6 @@ public:
     BeautifierAbstractTool() = default;
 
     virtual QString id() const = 0;
-    virtual bool initialize() = 0;
     virtual void updateActions(Core::IEditor *editor) = 0;
 
     /**

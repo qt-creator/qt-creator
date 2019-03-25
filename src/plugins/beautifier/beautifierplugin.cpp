@@ -129,10 +129,8 @@ BeautifierPluginPrivate::BeautifierPluginPrivate()
 {
     QStringList toolIds;
     toolIds.reserve(m_tools.count());
-    for (BeautifierAbstractTool *tool : m_tools) {
+    for (BeautifierAbstractTool *tool : m_tools)
         toolIds << tool->id();
-        tool->initialize();
-    }
 
     m_generalSettings.reset(new GeneralSettings);
     new GeneralOptionsPage(m_generalSettings, toolIds, this);

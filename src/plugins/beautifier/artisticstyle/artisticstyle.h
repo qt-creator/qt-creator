@@ -27,13 +27,13 @@
 
 #include "../beautifierabstracttool.h"
 
+#include "artisticstylesettings.h"
+
 QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Beautifier {
 namespace Internal {
 namespace ArtisticStyle {
-
-class ArtisticStyleSettings;
 
 class ArtisticStyle : public BeautifierAbstractTool
 {
@@ -41,9 +41,7 @@ class ArtisticStyle : public BeautifierAbstractTool
 
 public:
     ArtisticStyle();
-    ~ArtisticStyle() override;
 
-    bool initialize() override;
     QString id() const override;
     void updateActions(Core::IEditor *editor) override;
     TextEditor::Command command() const override;
@@ -52,7 +50,7 @@ public:
 private:
     void formatFile();
     QAction *m_formatFile = nullptr;
-    ArtisticStyleSettings *m_settings;
+    ArtisticStyleSettings m_settings;
     QString configurationFile() const;
     TextEditor::Command command(const QString &cfgFile) const;
 };

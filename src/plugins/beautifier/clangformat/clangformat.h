@@ -27,13 +27,13 @@
 
 #include "../beautifierabstracttool.h"
 
+#include "clangformatsettings.h"
+
 QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Beautifier {
 namespace Internal {
 namespace ClangFormat {
-
-class ClangFormatSettings;
 
 class ClangFormat : public BeautifierAbstractTool
 {
@@ -41,10 +41,8 @@ class ClangFormat : public BeautifierAbstractTool
 
 public:
     ClangFormat();
-     ~ClangFormat() override;
 
     QString id() const override;
-    bool initialize() override;
     void updateActions(Core::IEditor *editor) override;
     TextEditor::Command command() const override;
     bool isApplicable(const Core::IDocument *document) const override;
@@ -53,11 +51,12 @@ private:
     void formatFile();
     void formatAtCursor();
     void disableFormattingSelectedText();
+    TextEditor::Command command(int offset, int length) const;
+
     QAction *m_formatFile = nullptr;
     QAction *m_formatRange = nullptr;
     QAction *m_disableFormattingSelectedText = nullptr;
-    ClangFormatSettings *m_settings;
-    TextEditor::Command command(int offset, int length) const;
+    ClangFormatSettings m_settings;
 };
 
 } // namespace ClangFormat
