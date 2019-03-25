@@ -892,16 +892,33 @@ class Dumper(DumperBase):
     def createSpecialBreakpoints(self, args):
         self.specialBreakpoints = []
         def newSpecial(spec):
-            class SpecialBreakpoint(gdb.Breakpoint):
+            # GDB < 8.1 does not have the 'qualified' parameter here,
+            # GDB >= 8.1 applies some generous pattern matching, hitting
+            # e.g. also Foo::abort() when asking for '::abort'
+            class Pre81SpecialBreakpoint(gdb.Breakpoint):
                 def __init__(self, spec):
-                    super(SpecialBreakpoint, self).\
-                        __init__(spec, gdb.BP_BREAKPOINT, internal=True)
+                    super(Pre81SpecialBreakpoint, self).__init__(spec,
+                        gdb.BP_BREAKPOINT, internal=True)
                     self.spec = spec
 
                 def stop(self):
                     print("Breakpoint on '%s' hit." % self.spec)
                     return True
-            return SpecialBreakpoint(spec)
+
+            class SpecialBreakpoint(gdb.Breakpoint):
+                def __init__(self, spec):
+                    super(SpecialBreakpoint, self).__init__(spec,
+                        gdb.BP_BREAKPOINT, internal=True, qualified=True)
+                    self.spec = spec
+
+                def stop(self):
+                    print("Breakpoint on '%s' hit." % self.spec)
+                    return True
+
+            try:
+                return SpecialBreakpoint(spec)
+            except:
+                return Pre81SpecialBreakpoint(spec)
 
         # FIXME: ns is accessed too early. gdb.Breakpoint() has no
         # 'rbreak' replacement, and breakpoints created with
