@@ -319,7 +319,7 @@ private:
     bool m_useTerminal = false;
 };
 
-template <class RunConfig, class RunWorker = SimpleTargetRunner>
+template <class RunWorker, class RunConfig>
 class SimpleRunWorkerFactory : public RunWorkerFactory
 {
 public:

@@ -722,7 +722,7 @@ class PythonEditorPluginPrivate
 public:
     PythonEditorFactory editorFactory;
     PythonRunConfigurationFactory runConfigFactory;
-    SimpleRunWorkerFactory<PythonRunConfiguration> runWorkerFactory;
+    SimpleRunWorkerFactory<SimpleTargetRunner, PythonRunConfiguration> runWorkerFactory;
 };
 
 PythonEditorPlugin::~PythonEditorPlugin()

@@ -151,12 +151,12 @@ public:
     AndroidManifestEditorFactory manifestEditorFactory;
     AndroidRunConfigurationFactory runConfigFactory;
 
-    SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidRunSupport> runWorkerFactory;
-    SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidDebugSupport>
+    SimpleRunWorkerFactory<AndroidRunSupport, AndroidRunConfiguration> runWorkerFactory;
+    SimpleRunWorkerFactory<AndroidDebugSupport, AndroidRunConfiguration>
         debugWorkerFactory{DEBUG_RUN_MODE};
-    SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidQmlToolingSupport>
+    SimpleRunWorkerFactory<AndroidQmlToolingSupport, AndroidRunConfiguration>
         profilerWorkerFactory{QML_PROFILER_RUN_MODE};
-    SimpleRunWorkerFactory<AndroidRunConfiguration, AndroidQmlToolingSupport>
+    SimpleRunWorkerFactory<AndroidQmlToolingSupport, AndroidRunConfiguration>
         qmlPreviewWorkerFactory{QML_PREVIEW_RUN_MODE};
     QmlPreviewRunWorkerFactory qmlPreviewWorkerFactory2;
 

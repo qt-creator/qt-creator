@@ -92,7 +92,7 @@ public:
     QbsCleanStepFactory cleanStepFactory;
     QbsInstallStepFactory installStepFactory;
     QbsRunConfigurationFactory runConfigFactory;
-    SimpleRunWorkerFactory<QbsRunConfiguration> runWorkerFactory;
+    SimpleRunWorkerFactory<SimpleTargetRunner, QbsRunConfiguration> runWorkerFactory;
     QbsProfilesSettingsPage profilesSetttingsPage;
     QbsKitAspect qbsKitAspect;
 };

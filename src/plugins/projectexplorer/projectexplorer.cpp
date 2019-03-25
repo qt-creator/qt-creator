@@ -544,7 +544,8 @@ public:
     CurrentProjectFind m_curretProjectFind;
 
     CustomExecutableRunConfigurationFactory m_customExecutableRunConfigFactory;
-    SimpleRunWorkerFactory<CustomExecutableRunConfiguration> m_customExecutableRunWorkerFactory;
+    SimpleRunWorkerFactory<SimpleTargetRunner, CustomExecutableRunConfiguration>
+        m_customExecutableRunWorkerFactory;
 
     ProjectFileWizardExtension m_projectFileWizardExtension;
 

@@ -100,7 +100,7 @@ public:
 
     QmakeBuildConfigurationFactory buildConfigFactory;
     DesktopQmakeRunConfigurationFactory runConfigFactory;
-    SimpleRunWorkerFactory<DesktopQmakeRunConfiguration, SimpleTargetRunner>
+    SimpleRunWorkerFactory<SimpleTargetRunner, DesktopQmakeRunConfiguration>
         runWorkerFactory;
 
     ProFileEditorFactory profileEditorFactory;

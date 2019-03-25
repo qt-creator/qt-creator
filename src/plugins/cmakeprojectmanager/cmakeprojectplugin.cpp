@@ -72,7 +72,7 @@ public:
     CMakeManager manager;
     CMakeBuildStepFactory buildStepFactory;
     CMakeRunConfigurationFactory runConfigFactory;
-    SimpleRunWorkerFactory<CMakeRunConfiguration> runWorkerFactory;
+    SimpleRunWorkerFactory<SimpleTargetRunner, CMakeRunConfiguration> runWorkerFactory;
     CMakeBuildConfigurationFactory buildConfigFactory;
     CMakeEditorFactory editorFactor;
     CMakeLocatorFilter locatorFiler;
