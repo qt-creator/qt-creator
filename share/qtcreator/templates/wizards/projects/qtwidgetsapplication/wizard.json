@@ -1,0 +1,192 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qt4ProjectManager.Qt4Project" ],
+    "id": "C.QtWidgets",
+    "category": "F.Application",
+    "trDescription": "Creates a Qt application for the desktop. Includes a Qt Designer-based main window.\n\nPreselects a desktop Qt for building the application if available.",
+    "trDisplayName": "Qt Widgets Application",
+    "trDisplayCategory": "Application",
+    "icon": "../../global/guiapplication.png",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0 || [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0}",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{JS: '%{BuildSystem}' === 'qmake' ? '%{ProFile}' : '%{CMakeFile}'}" },
+        { "key": "ProFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
+        { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "MainFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
+        { "key": "UiHdrFileName", "value": "%{JS: ('%{BuildSystem}' === 'cmake' ? (Util.path('%{FormFileName}') + '/') : '') + 'ui_' + Util.completeBaseName('%{FormFileName}') + '.h'}" },
+        { "key": "CN", "value": "%{JS: Cpp.className('%{Class}')}" },
+        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard('%{HdrFileName}')}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project",
+            "data": { "trDescription": "This wizard generates a Qt Widgets Application project. The application derives by default from QApplication and includes an empty widget." }
+        },
+        {
+            "trDisplayName": "Define Build System",
+            "trShortTitle": "Build System",
+            "typeId": "Fields",
+            "enabled": "%{JS: ! %{IsSubproject}}",
+            "data":
+            [
+                {
+                    "name": "BuildSystem",
+                    "trDisplayName": "Build system:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            {
+                                "trKey": "QMake",
+                                "value": "qmake",
+                                "condition": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "CMake",
+                                "value": "cmake",
+                                "condition": "%{JS: [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: ! %{IsSubproject}}",
+            "data": { "projectFilePath": "%{ProjectFile}" }
+        },
+        {
+            "trDisplayName": "Class Information",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "ClassPageDescription",
+                    "type": "Label",
+                    "data":
+                    {
+                        "trText": "Specify basic information about the classes for which you want to generate skeleton source code files.",
+                        "wordWrap": true
+                    }
+                },
+                {
+                    "name": "Sp0",
+                    "type": "Spacer"
+                },
+                {
+                    "name": "Class",
+                    "trDisplayName": "Class name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
+                        "trText": "%{JS: '%{BaseClass}'.slice(1)}"
+                    }
+                },
+                {
+                    "name": "BaseClass",
+                    "trDisplayName": "Base class:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "items": [ "QMainWindow", "QWidget", "QDialog" ]
+                    }
+                },
+                {
+                    "name": "Sp1",
+                    "type": "Spacer"
+                },
+                {
+                    "name": "HdrFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Header file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" }
+                },
+                {
+                    "name": "SrcFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Source file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++src')}')}" }
+                },
+                {
+                    "name": "GenerateForm",
+                    "type": "CheckBox",
+                    "trDisplayName": "Generate form:",
+                    "data": { "checked": true }
+                },
+                {
+                    "name": "FormFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Form file:",
+                    "enabled": "%{GenerateForm}",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', 'ui')}" }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "project.pro",
+                    "target": "%{ProFile}",
+                    "openAsProject": true,
+                    "condition": "%{JS: '%{BuildSystem}' === 'qmake'}"
+                },
+                {
+                    "source": "CMakeLists.txt",
+                    "openAsProject": true,
+                    "condition": "%{JS: '%{BuildSystem}' === 'cmake'}"
+                },
+                {
+                    "source": "main.cpp",
+                    "target": "%{MainFileName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "widget.cpp",
+                    "target": "%{SrcFileName}"
+                },
+                {
+                    "source": "widget.h",
+                    "target": "%{HdrFileName}"
+                },
+                {
+                    "source": "widget.ui",
+                    "target": "%{FormFileName}",
+                    "condition": "%{GenerateForm}"
+                },
+                {
+                    "source": "../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: ! %{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}

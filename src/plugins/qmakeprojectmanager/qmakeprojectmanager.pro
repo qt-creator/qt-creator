@@ -19,11 +19,9 @@ HEADERS += \
     profilehighlighter.h \
     profilehoverhandler.h \
     wizards/qtprojectparameters.h \
-    wizards/guiappwizard.h \
     wizards/libraryparameters.h \
     wizards/librarywizard.h \
     wizards/librarywizarddialog.h \
-    wizards/guiappwizarddialog.h \
     wizards/modulespage.h \
     wizards/filespage.h \
     wizards/qtwizard.h \
@@ -59,11 +57,9 @@ SOURCES += \
     profilehighlighter.cpp \
     profilehoverhandler.cpp \
     wizards/qtprojectparameters.cpp \
-    wizards/guiappwizard.cpp \
     wizards/libraryparameters.cpp \
     wizards/librarywizard.cpp \
     wizards/librarywizarddialog.cpp \
-    wizards/guiappwizarddialog.cpp \
     wizards/modulespage.cpp \
     wizards/filespage.cpp \
     wizards/qtwizard.cpp \

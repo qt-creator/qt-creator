@@ -78,8 +78,6 @@ Project {
             prefix: "wizards/"
             files: [
                 "filespage.cpp", "filespage.h",
-                "guiappwizard.cpp", "guiappwizard.h",
-                "guiappwizarddialog.cpp", "guiappwizarddialog.h",
                 "libraryparameters.cpp", "libraryparameters.h",
                 "librarywizard.cpp", "librarywizard.h",
                 "librarywizarddialog.cpp", "librarywizarddialog.h",
