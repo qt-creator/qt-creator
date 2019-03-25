@@ -3024,8 +3024,29 @@ void GitClient::subversionDeltaCommit(const QString &workingDirectory)
 
 void GitClient::push(const QString &workingDirectory, const QStringList &pushArgs)
 {
-    vcsExec(workingDirectory, QStringList({"push"}) + pushArgs, nullptr, true,
-            VcsCommand::ShowSuccessMessage);
+    VcsCommand *command = vcsExec(
+                workingDirectory, QStringList({"push"}) + pushArgs, nullptr, true,
+                VcsCommand::ShowSuccessMessage);
+    connect(command, &VcsCommand::stdErrText, this, [command](const QString &text) {
+        if (text.contains("non-fast-forward"))
+            command->setCookie(true);
+    });
+    connect(command, &VcsCommand::finished,
+            this, [this, command, workingDirectory, pushArgs](bool success) {
+        if (!success && command->cookie().toBool()) {
+            const QColor warnColor = Utils::creatorTheme()->color(Theme::TextColorError);
+            if (QMessageBox::question(
+                        Core::ICore::dialogParent(), tr("Force Push"),
+                        tr("Push failed. Would you like to force-push <span style=\"color:#%1\">"
+                           "(rewrites remote history)</span>?")
+                        .arg(QString::number(warnColor.rgba(), 16)),
+                        QMessageBox::Yes | QMessageBox::No,
+                        QMessageBox::No) == QMessageBox::Yes) {
+                vcsExec(workingDirectory, QStringList({"push", "--force-with-lease"}) + pushArgs,
+                        nullptr, true, VcsCommand::ShowSuccessMessage);
+            }
+        }
+    });
 }
 
 bool GitClient::synchronousMerge(const QString &workingDirectory, const QString &branch,
