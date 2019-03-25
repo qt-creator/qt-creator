@@ -40,7 +40,7 @@ class PERFPROFILER_EXPORT PerfSettings : public ProjectExplorer::ISettingsAspect
 
 public:
     explicit PerfSettings(ProjectExplorer::Target *target = nullptr);
-    ~PerfSettings();
+    ~PerfSettings() final;
 
     void readGlobalSettings();
     void writeGlobalSettings() const;
@@ -66,8 +66,8 @@ signals:
     void changed();
 
 protected:
-    void toMap(QVariantMap &map) const;
-    void fromMap(const QVariantMap &map);
+    void toMap(QVariantMap &map) const final;
+    void fromMap(const QVariantMap &map) final;
 
     int m_period;
     int m_stackSize;
