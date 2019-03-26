@@ -208,7 +208,7 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
         if (TextEditorWidget *widget = textEditor->editorWidget()) {
             connect(widget, &TextEditorWidget::requestLinkAt, this,
                     [this, filePath = editor->document()->filePath()]
-                    (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback){
+                    (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback) {
                         findLinkAt(filePath, cursor, callback);
                     });
             connect(widget, &TextEditorWidget::requestUsages, this,
@@ -228,6 +228,7 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
                             }
                         });
                     });
+            updateEditorToolBar(editor);
         }
     }
 }

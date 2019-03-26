@@ -31,6 +31,7 @@ namespace LanguageClient {
 namespace Constants {
 
 const char LANGUAGECLIENT_SETTINGS_CATEGORY[] = "ZY.LanguageClient";
+const char LANGUAGECLIENT_SETTINGS_PAGE[] = "LanguageClient.General";
 const char LANGUAGECLIENT_SETTINGS_TR[] = QT_TRANSLATE_NOOP("LanguageClient", "Language Client");
 
 } // namespace Constants

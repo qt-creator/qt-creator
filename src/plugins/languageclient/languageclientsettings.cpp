@@ -224,7 +224,7 @@ void LanguageClientSettingsPageWidget::deleteItem()
 
 LanguageClientSettingsPage::LanguageClientSettingsPage()
 {
-    setId("LanguageClient.General");
+    setId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
     setDisplayName(tr("General"));
     setCategory(Constants::LANGUAGECLIENT_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("LanguageClient",

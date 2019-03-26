@@ -103,6 +103,16 @@ Client::Client(BaseClientInterface *clientInterface)
     connect(clientInterface, &BaseClientInterface::finished, this, &Client::finished);
 }
 
+static void updateEditorToolBar(QList<Utils::FileName> files)
+{
+    QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocuments(
+        Utils::transform(files, [](Utils::FileName &file) {
+            return Core::DocumentModel::documentForFilePath(file.toString());
+        }));
+    for (auto editor : editors)
+        updateEditorToolBar(editor);
+}
+
 Client::~Client()
 {
     using namespace TextEditor;
@@ -120,6 +130,7 @@ Client::~Client()
     }
     for (const DocumentUri &uri : m_diagnostics.keys())
         removeDiagnostics(uri);
+    updateEditorToolBar(m_openedDocument);
 }
 
 static ClientCapabilities generateClientCapabilities()
@@ -239,27 +250,27 @@ Client::State Client::state() const
     return m_state;
 }
 
-void Client::openDocument(Core::IDocument *document)
+bool Client::openDocument(Core::IDocument *document)
 {
     using namespace TextEditor;
     if (!isSupportedDocument(document))
-        return;
+        return false;
     const FileName &filePath = document->filePath();
     const QString method(DidOpenTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
         if (!registered.value())
-            return;
+            return false;
         const TextDocumentRegistrationOptions option(
                     m_dynamicCapabilities.option(method).toObject());
         if (option.isValid(nullptr)
                 && !option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()))) {
-            return;
+            return false;
         }
     } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
                = m_serverCapabilities.textDocumentSync()) {
         if (auto options = Utils::get_if<TextDocumentSyncOptions>(&_sync.value())) {
             if (!options->openClose().value_or(true))
-                return;
+                return false;
         }
     }
     auto uri = DocumentUri::fromFileName(filePath);
@@ -289,6 +300,8 @@ void Client::openDocument(Core::IDocument *document)
     sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
     if (textDocument)
         requestDocumentSymbols(textDocument);
+
+    return true;
 }
 
 void Client::sendContent(const IContent &content)
@@ -318,6 +331,11 @@ void Client::cancelRequest(const MessageId &id)
 void Client::closeDocument(const DidCloseTextDocumentParams &params)
 {
     sendContent(params.textDocument().uri(), DidCloseTextDocumentNotification(params));
+}
+
+bool Client::documentOpen(const Core::IDocument *document) const
+{
+    return m_openedDocument.contains(document->filePath());
 }
 
 void Client::documentContentsSaved(Core::IDocument *document)
@@ -783,6 +801,7 @@ bool Client::reset()
     m_state = Uninitialized;
     m_responseHandlers.clear();
     m_clientInterface->resetBuffer();
+    updateEditorToolBar(m_openedDocument);
     m_openedDocument.clear();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
@@ -1028,8 +1047,12 @@ void Client::intializeCallback(const InitializeRequest::Response &initResponse)
     m_state = Initialized;
     sendContent(InitializeNotification());
     emit initialized(m_serverCapabilities);
-    for (auto openedDocument : Core::DocumentModel::openedDocuments())
-        openDocument(openedDocument);
+    for (auto openedDocument : Core::DocumentModel::openedDocuments()) {
+        if (openDocument(openedDocument)) {
+            for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(openedDocument))
+                updateEditorToolBar(editor);
+        }
+    }
 }
 
 void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)

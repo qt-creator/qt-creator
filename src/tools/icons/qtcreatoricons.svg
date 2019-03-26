@@ -3537,6 +3537,76 @@
          height="100%"
          inkscape:transform-center-x="-3.5355339" />
     </g>
+    <g
+       style="display:inline"
+       transform="translate(144)"
+       id="src/plugins/languageclient/images/languageclient">
+      <use
+         transform="translate(1740,132)"
+         height="100%"
+         width="100%"
+         id="use4105-8"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <ellipse
+         style="fill:none;stroke:#000000"
+         id="path4643-3"
+         cx="1729"
+         cy="580.5"
+         rx="3.5"
+         ry="2" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path4643-3"
+         id="use4684-9"
+         width="100%"
+         height="100%"
+         transform="translate(0,-5)" />
+      <rect
+         style="fill:#ffffff"
+         id="rect4670-9"
+         width="8"
+         height="2.5"
+         x="1725"
+         y="578" />
+      <path
+         style="fill:none;stroke:#000000"
+         d="m 1725.5,575.5 v 5"
+         id="path4672-0"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path4672-0"
+         id="use4686-9"
+         transform="translate(7)"
+         width="100%"
+         height="100%" />
+      <path
+         style="display:inline;fill:#000000"
+         d="m 1733,569 h 4 c 1,0 2,1 2,2 v 3 c 0,2.5 -1.5,2.5 -5.5,4 l 2,-2 h -2.5 c -1,0 -2,-1 -2,-2 v -3 c 0,-1 1,-2 2,-2 z"
+         id="path4639-0"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccc" />
+      <path
+         style="display:inline;fill:none;stroke:#ffffff"
+         d="m 1734.25,570.75 -1.75,1.75 1.75,1.75"
+         id="path4676-1"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccc" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#path4676-1"
+         id="use4682-2"
+         transform="matrix(-1,0,0,1,3470,0)"
+         width="100%"
+         height="100%" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

@@ -90,9 +90,9 @@ public:
     bool reachable() const { return m_state == Initialized; }
 
     // document synchronization
-    void openDocument(Core::IDocument *document);
+    bool openDocument(Core::IDocument *document);
     void closeDocument(const LanguageServerProtocol::DidCloseTextDocumentParams &params);
-    bool documentOpen(const LanguageServerProtocol::DocumentUri &uri) const;
+    bool documentOpen(const Core::IDocument *document) const;
     void documentContentsSaved(Core::IDocument *document);
     void documentWillSave(Core::IDocument *document);
     void documentContentsChanged(Core::IDocument *document);

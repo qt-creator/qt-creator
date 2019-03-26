@@ -26,8 +26,11 @@
 #include "languageclientutils.h"
 
 #include "client.h"
+#include "languageclient_global.h"
+#include "languageclientmanager.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/icore.h>
 
 #include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
 #include <texteditor/refactoringchanges.h>
@@ -37,6 +40,8 @@
 
 #include <QFile>
 #include <QTextDocument>
+#include <QToolBar>
+#include <QToolButton>
 
 using namespace LanguageServerProtocol;
 using namespace Utils;
@@ -182,6 +187,46 @@ void updateCodeActionRefactoringMarker(Client *client,
     for (BaseTextEditor *editor : editors) {
         if (TextEditorWidget *editorWidget = editor->editorWidget())
             editorWidget->setRefactorMarkers(markers + editorWidget->refactorMarkers());
+    }
+}
+
+void updateEditorToolBar(Core::IEditor *editor)
+{
+    auto *textEditor = qobject_cast<BaseTextEditor *>(editor);
+    if (!textEditor)
+        return;
+    TextEditorWidget *widget = textEditor->editorWidget();
+    if (!widget)
+        return;
+
+    const Core::IDocument *document = editor->document();
+    QStringList clientsWithDoc;
+    for (auto client : LanguageClientManager::clients()) {
+        if (client->documentOpen(document))
+            clientsWithDoc << client->name();
+    }
+
+    static QMap<QWidget *, QAction *> actions;
+
+    if (actions.contains(widget)) {
+        auto action = actions[widget];
+        if (clientsWithDoc.isEmpty()) {
+            widget->toolBar()->removeAction(action);
+            actions.remove(widget);
+        } else {
+            action->setText(clientsWithDoc.join(';'));
+        }
+    } else if (!clientsWithDoc.isEmpty()) {
+        const QIcon icon
+            = Utils::Icon({{":/languageclient/images/languageclient.png",
+                            Utils::Theme::IconsBaseColor}})
+                  .icon();
+        actions[widget] = widget->toolBar()->addAction(icon, clientsWithDoc.join(';'), []() {
+            Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
+        });
+        QObject::connect(widget, &QWidget::destroyed, [widget]() {
+            actions.remove(widget);
+        });
     }
 }
 

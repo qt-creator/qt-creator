@@ -30,6 +30,8 @@
 
 #include <texteditor/refactoroverlay.h>
 
+namespace Core { class IEditor; }
+
 namespace TextEditor {
 class TextDocument;
 class TextDocumentManipulatorInterface;
@@ -48,5 +50,6 @@ void applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,
 void updateCodeActionRefactoringMarker(Client *client,
                                        const LanguageServerProtocol::CodeAction &action,
                                        const LanguageServerProtocol::DocumentUri &uri);
+void updateEditorToolBar(Core::IEditor *editor);
 
 } // namespace LanguageClient
