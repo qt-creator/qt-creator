@@ -112,7 +112,7 @@ StdIOClientInterface::~StdIOClientInterface()
 
 bool StdIOClientInterface::needsRestart(const StdIOSettings *settings) const
 {
-    return m_executable != settings->m_executable || m_arguments != settings->m_arguments;
+    return m_executable != settings->m_executable || m_arguments != settings->arguments();
 }
 
 bool StdIOClientInterface::start()

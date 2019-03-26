@@ -529,9 +529,14 @@ void StdIOSettings::fromMap(const QVariantMap &map)
     m_arguments = map[argumentsKey].toString();
 }
 
+QString StdIOSettings::arguments() const
+{
+    return Utils::globalMacroExpander()->expand(m_arguments);
+}
+
 BaseClientInterface *StdIOSettings::createInterface() const
 {
-    return new StdIOClientInterface(m_executable, Utils::globalMacroExpander()->expand(m_arguments));
+    return new StdIOClientInterface(m_executable, arguments());
 }
 
 static QWidget *createCapabilitiesView(

@@ -106,6 +106,7 @@ public:
     bool isValid() const override;
     QVariantMap toMap() const override;
     void fromMap(const QVariantMap &map) override;
+    QString arguments() const;
 
 protected:
     BaseClientInterface *createInterface() const override;
