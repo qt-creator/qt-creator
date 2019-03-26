@@ -88,6 +88,8 @@ public:
     QmlTimeline timelineForState(const ModelNode &state) const;
     QmlModelState stateForTimeline(const QmlTimeline &timeline);
 
+    void registerActions();
+
 private:
     TimelineWidget *createWidget();
     TimelineWidget *m_timelineWidget = nullptr;
