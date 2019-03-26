@@ -1417,7 +1417,7 @@ static QString upperHexNum(unsigned num)
     return QString("%1").arg(num, 8, 16, QChar('0')).toUpper();
 }
 
-HeobData::HeobData(MemcheckTool *mcTool, const QString &xmlPath, Kit *kit, bool attach)
+HeobData::HeobData(MemcheckToolPrivate *mcTool, const QString &xmlPath, Kit *kit, bool attach)
     : m_ov(), m_data(), m_mcTool(mcTool), m_xmlPath(xmlPath), m_kit(kit), m_attach(attach)
 {
 }
