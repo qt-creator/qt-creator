@@ -302,7 +302,7 @@ void LanguageClientSettingsPage::finish()
 
 QList<StdIOSettings *> LanguageClientSettingsPage::settings() const
 {
-    return m_settings;
+    return m_model.settings();
 }
 
 LanguageClientSettingsModel::~LanguageClientSettingsModel()
