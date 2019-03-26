@@ -186,6 +186,11 @@ static ClientCapabilities generateClientCapabilities()
             CodeActionKind(QList<QString>{"*"}));
     codeActionCapabilities.setCodeActionLiteralSupport(literalSupport);
     documentCapabilities.setCodeAction(codeActionCapabilities);
+    documentCapabilities.setReferences(allowDynamicRegistration);
+    documentCapabilities.setDocumentHighlight(allowDynamicRegistration);
+    documentCapabilities.setDefinition(allowDynamicRegistration);
+    documentCapabilities.setTypeDefinition(allowDynamicRegistration);
+    documentCapabilities.setImplementation(allowDynamicRegistration);
     capabilities.setTextDocument(documentCapabilities);
 
     return capabilities;
