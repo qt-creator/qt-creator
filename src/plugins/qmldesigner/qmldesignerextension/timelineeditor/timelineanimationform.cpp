@@ -73,7 +73,14 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
     connect(ui->idLineEdit, &QLineEdit::editingFinished, [this]() {
         QTC_ASSERT(m_timeline.isValid(), return );
 
+        static QString lastString;
+
         const QString newId = ui->idLineEdit->text();
+
+        if (lastString == newId)
+            return;
+
+        lastString = newId;
 
         if (newId == animation().id())
             return;
