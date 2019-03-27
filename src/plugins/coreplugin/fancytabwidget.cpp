@@ -598,7 +598,7 @@ void FancyTabWidget::addCornerWidget(QWidget *widget)
 
 int FancyTabWidget::currentIndex() const
 {
-    return m_tabBar->currentIndex();
+    return m_modesStack->currentIndex();
 }
 
 QStatusBar *FancyTabWidget::statusBar() const
