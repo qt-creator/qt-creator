@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -51,4 +51,7 @@
 
     To show whitespace changes in annotation views, deselect the
     \uicontrol {Ignore whitespace changes in annotation} check box.
+
+    You can use Git as a client for a Subversion server. For more information,
+    see \l{Using Git with Subversion}.
 */
