@@ -1631,7 +1631,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
             Utils::filtered<QStringList>(result->directoriesWithWildcards.toList(),
                 [this](const QString &path) {
                     return !m_wildcardWatcher->watchesDirectory(path);
-                }), Utils::FileSystemWatcher::WatchAllChanges);
+                }), Utils::FileSystemWatcher::WatchModifiedDate);
     }
     if (m_wildcardWatcher) {
         if (result->directoriesWithWildcards.isEmpty()) {

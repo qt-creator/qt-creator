@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -70,7 +70,17 @@
 
             \image qtcreator-files-to-analyze.png "Analyzer Configuration dialog"
 
-        \li In the \uicontrol {Diagnostic Configuration} group, select a Clang
+        \li In the \uicontrol General group, select \uicontrol {Custom Settings}
+            to modify the analyzer configuration.
+
+        \li To build the project before running the Clang tools, select the
+            \uicontrol {Build the project before analysis} check box. The Clang
+            tools do not require the project to be built before analysis, but
+            they might display misleading warnings about files missing that are
+            generated during the build. For big projects, not building the
+            project might save some time.
+
+        \li In the \uicontrol {Diagnostic configuration} field, select a Clang
             configuration in the list of pre-defined configurations (1). For
             more information about creating a custom configuration, see
             \l {Configuring Clang Tools}.
@@ -104,7 +114,7 @@
 
     To configure Clang diagnostics globally for Clang tools:
 
-    \list
+    \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer >
             \uicontrol {Clang Tools}.
@@ -132,10 +142,24 @@
         \li In the \uicontrol {Diagnostic configuration name} field, give the
             configuration a name, and then select \uicontrol OK.
 
-        \li In the \uicontrol {Clang-Tidy} tab, select the checks to
-            perform.
+        \li In the \uicontrol Clang tab, select the
+            \uicontrol {Use diagnostic flags from the build system} check box
+            to forward diagnostic flags, such as warning flags, from the build
+            system to the Clang code model for displaying annotations in the
+            code editor.
+
+        \li In the \uicontrol {Clang-Tidy} tab, select
+            \uicontrol {Select Checks} to select the checks to perform,
+            \uicontrol {Use .clang-tidy Config File} to read them from a
+            Clang-Tidy configuration file, or \uicontrol Disable to disable
+            them.
 
             \image qtcreator-clang-tidy.png "Clang-Tidy tab"
+
+        \li Select the \uicontrol {Web Page} link to view more
+            information about the available checkers in the
+            \l{https://clang-analyzer.llvm.org/available_checks.html}
+            {Clang Static Analyzer documentation}.
 
         \li To edit the selected check as plain text, select
             \uicontrol {Edit Checks as String}.
@@ -144,6 +168,14 @@
             checks to perform.
 
             \image qtcreator-clazy.png "Clazy tab"
+
+        \li In the \uicontrol {Topic Filter} field, select a topic to view
+            only checks related to that area in the \uicontrol Checks field.
+
+        \li To view all checks again, select \uicontrol {Reset to All}.
+
+        \li To view more information about the checks online, select the
+            \uicontrol {Web Page} links next to them.
 
     \endlist
 
@@ -154,13 +186,10 @@
 
     \section2 Selecting Clazy Check Levels
 
-    The Clazy checks are divided into levels from 0 to 3. Each level adds checks
-    to the previous level. The checks at level 0 are very stable and provide
-    hardly any false positives, while the checks at level 3 can be considered
-    experimental.
-
-    For more information about the checks run at each level, see
-    \l{https://github.com/KDE/clazy/blob/master/README.md#list-of-checks}
-    {List of Checks} in the Clazy documentation.
+    The Clazy checks are divided into levels from 0 to 3. The checks at level 0
+    are very stable and provide hardly any false positives, while the checks at
+    level 3 can be considered experimental. You can select the checks to perform
+    at each level. To include the checks from the lower levels automatically,
+    select the \uicontrol {Enable lower levels automatically} check box.
 
 */

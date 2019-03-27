@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "timelineview.h"
+
+#include "easingcurve.h"
 #include "timelinecontext.h"
 #include "timelinewidget.h"
 
@@ -57,7 +59,9 @@ namespace QmlDesigner {
 
 TimelineView::TimelineView(QObject *parent)
     : AbstractView(parent)
-{}
+{
+    EasingCurve::registerStreamOperators();
+}
 
 TimelineView::~TimelineView() = default;
 

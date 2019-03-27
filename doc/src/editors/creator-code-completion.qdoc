@@ -286,4 +286,16 @@
 
     \note If you now select \uicontrol OK or \uicontrol Apply, you permanently
     lose all your own snippets.
+
+    \if defined(qtcreator)
+    \section1 Completing Nim Code
+
+    You can use the \l{https://nim-lang.org/docs/nimsuggest.html}{Nimsuggest}
+    tool to query \c {.nim} source files and obtain suggestions for code
+    completion.
+
+    To use Nimsuggest, you must install it on the development PC. Then select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Nim > \uicontrol Tools,
+    and enter the path to the tool executable in the \uicontrol Path field.
+    \endif
 */
