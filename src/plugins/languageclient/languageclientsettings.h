@@ -123,9 +123,9 @@ class LanguageClientSettings
 {
 public:
     static void init();
-    static QList<StdIOSettings *> fromSettings(QSettings *settings);
-    static QList<StdIOSettings *> currentSettings();
-    static void toSettings(QSettings *settings, const QList<StdIOSettings *> &languageClientSettings);
+    static QList<BaseSettings *> fromSettings(QSettings *settings);
+    static QList<BaseSettings *> currentSettings();
+    static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);
 
 private:
     static LanguageClientSettingsPage &settingsPage();

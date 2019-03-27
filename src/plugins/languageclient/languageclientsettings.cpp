@@ -84,15 +84,15 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role) final;
     Qt::ItemFlags flags(const QModelIndex &index) const final;
 
-    void reset(const QList<StdIOSettings *> &settings);
-    QList<StdIOSettings *> settings() const { return m_settings; }
-    QList<StdIOSettings *> removed() const { return m_removed; }
-    StdIOSettings *settingForIndex(const QModelIndex &index) const;
-    QModelIndex indexForSetting(StdIOSettings *setting) const;
+    void reset(const QList<BaseSettings *> &settings);
+    QList<BaseSettings *> settings() const { return m_settings; }
+    QList<BaseSettings *> removed() const { return m_removed; }
+    BaseSettings *settingForIndex(const QModelIndex &index) const;
+    QModelIndex indexForSetting(BaseSettings *setting) const;
 
 private:
-    QList<StdIOSettings *> m_settings; // owned
-    QList<StdIOSettings *> m_removed;
+    QList<BaseSettings *> m_settings; // owned
+    QList<BaseSettings *> m_removed;
 };
 
 class LanguageClientSettingsPageWidget : public QWidget
@@ -108,7 +108,7 @@ private:
     LanguageClientSettingsModel &m_settings;
     QTreeView *m_view = nullptr;
     struct CurrentSettings {
-        StdIOSettings *setting = nullptr;
+        BaseSettings *setting = nullptr;
         QWidget *widget = nullptr;
     } m_currentSettings;
 
@@ -130,11 +130,11 @@ public:
     void apply() override;
     void finish() override;
 
-    QList<StdIOSettings *> settings() const;
+    QList<BaseSettings *> settings() const;
 
 private:
     LanguageClientSettingsModel m_model;
-    QList<StdIOSettings *> m_settings; // owned
+    QList<BaseSettings *> m_settings; // owned
     QPointer<LanguageClientSettingsPageWidget> m_widget;
 };
 
@@ -259,12 +259,11 @@ void LanguageClientSettingsPage::apply()
     qDeleteAll(m_settings);
     if (m_widget)
         m_widget->applyCurrentSettings();
-    m_settings = Utils::transform(m_model.settings(), [](const StdIOSettings *other){
-        return dynamic_cast<StdIOSettings *>(other->copy());
-    });
+    m_settings = Utils::transform(m_model.settings(),
+                                  [](const BaseSettings *other) { return other->copy(); });
     LanguageClientSettings::toSettings(Core::ICore::settings(), m_settings);
 
-    QList<StdIOSettings *> restarts = Utils::filtered(m_settings, &StdIOSettings::needsRestart);
+    QList<BaseSettings *> restarts = Utils::filtered(m_settings, &BaseSettings::needsRestart);
     for (auto setting : restarts + m_model.removed()) {
         if (auto client = setting->m_client) {
             if (client->reachable())
@@ -273,7 +272,7 @@ void LanguageClientSettingsPage::apply()
                 LanguageClientManager::deleteClient(client);
         }
     }
-    for (StdIOSettings *setting : restarts) {
+    for (BaseSettings *setting : restarts) {
         if (setting->isValid() && setting->m_enabled) {
             const bool start = setting->m_alwaysOn
                                || Utils::anyOf(Core::DocumentModel::openedDocuments(),
@@ -300,7 +299,7 @@ void LanguageClientSettingsPage::finish()
     m_model.reset(m_settings);
 }
 
-QList<StdIOSettings *> LanguageClientSettingsPage::settings() const
+QList<BaseSettings *> LanguageClientSettingsPage::settings() const
 {
     return m_model.settings();
 }
@@ -312,7 +311,7 @@ LanguageClientSettingsModel::~LanguageClientSettingsModel()
 
 QVariant LanguageClientSettingsModel::data(const QModelIndex &index, int role) const
 {
-    StdIOSettings *setting = settingForIndex(index);
+    BaseSettings *setting = settingForIndex(index);
     if (!setting)
         return QVariant();
     if (role == Qt::DisplayRole)
@@ -347,7 +346,7 @@ bool LanguageClientSettingsModel::insertRows(int row, int count, const QModelInd
 
 bool LanguageClientSettingsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    StdIOSettings *setting = settingForIndex(index);
+    BaseSettings *setting = settingForIndex(index);
     if (!setting || role != Qt::CheckStateRole)
         return false;
 
@@ -363,26 +362,24 @@ Qt::ItemFlags LanguageClientSettingsModel::flags(const QModelIndex &/*index*/) c
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
-void LanguageClientSettingsModel::reset(const QList<StdIOSettings *> &settings)
+void LanguageClientSettingsModel::reset(const QList<BaseSettings *> &settings)
 {
     beginResetModel();
     qDeleteAll(m_settings);
     qDeleteAll(m_removed);
     m_removed.clear();
-    m_settings = Utils::transform(settings, [](const StdIOSettings *other){
-        return dynamic_cast<StdIOSettings *>(other->copy());
-    });
+    m_settings = Utils::transform(settings, [](const BaseSettings *other) { return other->copy(); });
     endResetModel();
 }
 
-StdIOSettings *LanguageClientSettingsModel::settingForIndex(const QModelIndex &index) const
+BaseSettings *LanguageClientSettingsModel::settingForIndex(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= m_settings.size())
         return nullptr;
     return m_settings[index.row()];
 }
 
-QModelIndex LanguageClientSettingsModel::indexForSetting(StdIOSettings *setting) const
+QModelIndex LanguageClientSettingsModel::indexForSetting(BaseSettings *setting) const
 {
     const int index = m_settings.indexOf(setting);
     return index < 0 ? QModelIndex() : createIndex(index, 0, setting);
@@ -450,12 +447,12 @@ void LanguageClientSettings::init()
     settingsPage().init();
 }
 
-QList<StdIOSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn)
+QList<BaseSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn)
 {
     settingsIn->beginGroup(settingsGroupKey);
     auto variants = settingsIn->value(clientsKey).toList();
     auto settings = Utils::transform(variants, [](const QVariant& var){
-        auto settings = new StdIOSettings();
+        BaseSettings *settings = new StdIOSettings();
         settings->fromMap(var.toMap());
         return settings;
     });
@@ -463,16 +460,17 @@ QList<StdIOSettings *> LanguageClientSettings::fromSettings(QSettings *settingsI
     return settings;
 }
 
-QList<StdIOSettings *> LanguageClientSettings::currentSettings()
+QList<BaseSettings *> LanguageClientSettings::currentSettings()
 {
     return settingsPage().settings();
 }
 
-void LanguageClientSettings::toSettings(QSettings *settings, const QList<StdIOSettings *> &languageClientSettings)
+void LanguageClientSettings::toSettings(QSettings *settings,
+                                        const QList<BaseSettings *> &languageClientSettings)
 {
     settings->beginGroup(settingsGroupKey);
     settings->setValue(clientsKey, Utils::transform(languageClientSettings,
-                                                    [](const StdIOSettings *setting){
+                                                    [](const BaseSettings *setting){
         return QVariant(setting->toMap());
     }));
     settings->endGroup();
