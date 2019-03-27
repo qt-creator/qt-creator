@@ -31,6 +31,7 @@
 #include <QList>
 #include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QPointer>
 #include <QPropertyAnimation>
 #include <QToolButton>
@@ -103,6 +104,7 @@ private:
     QHBoxLayout *m_summaryProgressLayout;
     QWidget *m_currentStatusDetailsWidget = nullptr;
     QPointer<FutureProgress> m_currentStatusDetailsProgress;
+    QLabel *m_statusDetailsLabel = nullptr;
     ProgressBar *m_summaryProgressBar;
     QGraphicsOpacityEffect *m_opacityEffect;
     QPointer<QPropertyAnimation> m_opacityAnimation;

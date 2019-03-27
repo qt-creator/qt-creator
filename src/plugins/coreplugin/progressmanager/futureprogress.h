@@ -56,6 +56,12 @@ public:
     void setTitle(const QString &title);
     QString title() const;
 
+    void setSubtitle(const QString &subtitle);
+    QString subtitle() const;
+
+    void setSubtitleVisibleInStatusBar(bool visible);
+    bool isSubtitleVisibleInStatusBar() const;
+
     void setType(Id type);
     Id type() const;
 
@@ -83,6 +89,7 @@ signals:
     void fadeStarted();
 
     void statusBarWidgetChanged();
+    void subtitleInStatusBarChanged();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;

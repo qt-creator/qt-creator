@@ -44,6 +44,8 @@ public:
     void setTitle(const QString &title);
     void setTitleVisible(bool visible);
     bool isTitleVisible() const;
+    void setSubtitle(const QString &subtitle);
+    QString subtitle() const;
     void setSeparatorVisible(bool visible);
     bool isSeparatorVisible() const;
     void setCancelEnabled(bool enabled);
@@ -73,16 +75,17 @@ protected:
 
 private:
     QFont titleFont() const;
+    QFont subtitleFont() const;
 
     QString m_text;
     QString m_title;
+    QString m_subtitle;
     bool m_titleVisible = true;
     bool m_separatorVisible = true;
     bool m_cancelEnabled = true;
     bool m_finished = false;
     bool m_error = false;
     float m_cancelButtonFader = 0.0;
-    int m_progressHeight = 0;
     int m_minimum = 1;
     int m_maximum = 100;
     int m_value = 1;

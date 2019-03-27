@@ -71,6 +71,7 @@ public:
     FutureProgress *m_q;
     bool m_fadeStarting;
     bool m_isFading;
+    bool m_isSubtitleVisibleInStatusBar = false;
 };
 
 FutureProgressPrivate::FutureProgressPrivate(FutureProgress *q) :
@@ -186,6 +187,33 @@ void FutureProgress::setTitle(const QString &title)
 QString FutureProgress::title() const
 {
     return d->m_progress->title();
+}
+
+void FutureProgress::setSubtitle(const QString &subtitle)
+{
+    if (subtitle != d->m_progress->subtitle()) {
+        d->m_progress->setSubtitle(subtitle);
+        if (d->m_isSubtitleVisibleInStatusBar)
+            emit subtitleInStatusBarChanged();
+    }
+}
+
+QString FutureProgress::subtitle() const
+{
+    return d->m_progress->subtitle();
+}
+
+void FutureProgress::setSubtitleVisibleInStatusBar(bool visible)
+{
+    if (visible != d->m_isSubtitleVisibleInStatusBar) {
+        d->m_isSubtitleVisibleInStatusBar = visible;
+        emit subtitleInStatusBarChanged();
+    }
+}
+
+bool FutureProgress::isSubtitleVisibleInStatusBar() const
+{
+    return d->m_isSubtitleVisibleInStatusBar;
 }
 
 void FutureProgress::cancel()

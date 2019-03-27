@@ -457,6 +457,8 @@ FutureProgress *ProgressManagerPrivate::doAddTask(const QFuture<void> &future, c
             this, &ProgressManagerPrivate::updateSummaryProgressBar);
     connect(progress, &FutureProgress::statusBarWidgetChanged,
             this, &ProgressManagerPrivate::updateStatusDetailsWidget);
+    connect(progress, &FutureProgress::subtitleInStatusBarChanged,
+            this, &ProgressManagerPrivate::updateStatusDetailsWidget);
     updateStatusDetailsWidget();
 
     emit taskStarted(type);
@@ -657,9 +659,22 @@ void ProgressManagerPrivate::updateStatusDetailsWidget()
     QList<FutureProgress *>::iterator i = m_taskList.end();
     while (i != m_taskList.begin()) {
         --i;
-        candidateWidget = (*i)->statusBarWidget();
+        FutureProgress *progress = *i;
+        candidateWidget = progress->statusBarWidget();
         if (candidateWidget) {
-            m_currentStatusDetailsProgress = *i;
+            m_currentStatusDetailsProgress = progress;
+            break;
+        } else if (progress->isSubtitleVisibleInStatusBar() && !progress->subtitle().isEmpty()) {
+            if (!m_statusDetailsLabel) {
+                m_statusDetailsLabel = new QLabel(m_summaryProgressWidget);
+                QFont font(m_statusDetailsLabel->font());
+                font.setPointSizeF(StyleHelper::sidebarFontSize());
+                font.setBold(true);
+                m_statusDetailsLabel->setFont(font);
+            }
+            m_statusDetailsLabel->setText(progress->subtitle());
+            candidateWidget = m_statusDetailsLabel;
+            m_currentStatusDetailsProgress = progress;
             break;
         }
     }
