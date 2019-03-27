@@ -381,8 +381,8 @@ static QStringList readLinesJson(const Utils::FileName &projectFile,
 
     const QJsonObject obj = doc.object();
     if (obj.contains("files")) {
-        QJsonValue files = obj.value("files");
-        QJsonArray files_array = files.toArray();
+        const QJsonValue files = obj.value("files");
+        const QJsonArray files_array = files.toArray();
         QSet<QString> visited;
         for (const auto &file : files_array)
             visited.insert(file.toString());
@@ -512,7 +512,7 @@ void PythonProject::refresh(Target *target)
     QDir baseDir(projectDirectory().toString());
     BuildTargetInfoList appTargets;
     auto newRoot = std::make_unique<PythonProjectNode>(this);
-    for (const QString &f : m_files) {
+    for (const QString &f : qAsConst(m_files)) {
         const QString displayName = baseDir.relativeFilePath(f);
         FileType fileType = f.endsWith(".pyproject") || f.endsWith(".pyqtc") ? FileType::Project : FileType::Source;
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(FileName::fromString(f),
