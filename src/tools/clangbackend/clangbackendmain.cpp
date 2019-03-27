@@ -57,8 +57,25 @@ QString processArguments(QCoreApplication &application)
 }
 
 #ifdef Q_OS_WIN
-static void messageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
+struct MessageHandler {
+    MessageHandler(QtMessageHandler handler)
+    {
+        defaultHandler = qInstallMessageHandler(handler);
+    }
+
+    ~MessageHandler()
+    {
+        qInstallMessageHandler(defaultHandler);
+    }
+
+    static QtMessageHandler defaultHandler;
+};
+
+QtMessageHandler MessageHandler::defaultHandler = nullptr;
+
+static void messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    MessageHandler::defaultHandler(type, context, msg);
     std::wcout << msg.toStdWString() << std::endl;
     if (type == QtFatalMsg)
         abort();
@@ -68,7 +85,7 @@ static void messageOutput(QtMsgType type, const QMessageLogContext &, const QStr
 int main(int argc, char *argv[])
 {
 #ifdef Q_OS_WIN
-    qInstallMessageHandler(messageOutput);
+    MessageHandler messageHandler(&messageOutput);
 #endif
     QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
