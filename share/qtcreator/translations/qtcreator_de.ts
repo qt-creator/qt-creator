@@ -6790,7 +6790,7 @@ Außer: %2
     </message>
     <message>
         <source>Use jom instead of nmake</source>
-        <translation>jom an Stelle von nmake verwenden</translation>
+        <translation>jom statt nmake verwenden</translation>
     </message>
     <message>
         <source>Current directory</source>
@@ -23157,7 +23157,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>Use %1 instead of &apos;var&apos; or &apos;variant&apos; to improve performance.</source>
-        <translation>Zur Steigerung der Ausführungsgeschwindigkeit sollte %1 an Stelle von &apos;var&apos; oder &apos;variant&apos; verwendet werden.</translation>
+        <translation>Zur Steigerung der Ausführungsgeschwindigkeit sollte %1 statt &apos;var&apos; oder &apos;variant&apos; verwendet werden.</translation>
     </message>
     <message>
         <source>This type (%1) is not supported in the Qt Quick Designer.</source>
