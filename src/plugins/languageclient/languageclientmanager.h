@@ -73,7 +73,7 @@ signals:
     void shutdownFinished();
 
 private:
-    LanguageClientManager();
+    LanguageClientManager(QObject *parent);
 
     void editorOpened(Core::IEditor *editor);
     void documentOpened(Core::IDocument *document);
@@ -95,7 +95,5 @@ private:
     bool m_shuttingDown = false;
     QVector<Client *> m_clients;
     QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
-
-    friend class LanguageClientPlugin;
 };
 } // namespace LanguageClient

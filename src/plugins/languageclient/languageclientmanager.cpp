@@ -26,6 +26,7 @@
 #include "languageclientmanager.h"
 
 #include "languageclientutils.h"
+#include "languageclientplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -49,45 +50,50 @@ namespace LanguageClient {
 
 static LanguageClientManager *managerInstance = nullptr;
 
-LanguageClientManager::LanguageClientManager()
+LanguageClientManager::LanguageClientManager(QObject *parent)
+    : QObject (parent)
 {
+    using namespace Core;
+    using namespace ProjectExplorer;
     JsonRpcMessageHandler::registerMessageProvider<PublishDiagnosticsNotification>();
     JsonRpcMessageHandler::registerMessageProvider<ApplyWorkspaceEditRequest>();
     JsonRpcMessageHandler::registerMessageProvider<LogMessageNotification>();
     JsonRpcMessageHandler::registerMessageProvider<ShowMessageRequest>();
     JsonRpcMessageHandler::registerMessageProvider<ShowMessageNotification>();
     JsonRpcMessageHandler::registerMessageProvider<WorkSpaceFolderRequest>();
-    managerInstance = this;
+    connect(EditorManager::instance(), &EditorManager::editorOpened,
+            this, &LanguageClientManager::editorOpened);
+    connect(EditorManager::instance(), &EditorManager::documentOpened,
+            this, &LanguageClientManager::documentOpened);
+    connect(EditorManager::instance(), &EditorManager::documentClosed,
+            this, &LanguageClientManager::documentClosed);
+    connect(EditorManager::instance(), &EditorManager::saved,
+            this, &LanguageClientManager::documentContentsSaved);
+    connect(EditorManager::instance(), &EditorManager::aboutToSave,
+            this, &LanguageClientManager::documentWillSave);
+    connect(SessionManager::instance(), &SessionManager::projectAdded,
+            this, &LanguageClientManager::projectAdded);
+    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+            this, &LanguageClientManager::projectRemoved);
 }
 
 LanguageClientManager::~LanguageClientManager()
 {
     QTC_ASSERT(m_clients.isEmpty(), qDeleteAll(m_clients));
+    managerInstance = nullptr;
 }
 
 void LanguageClientManager::init()
 {
-    using namespace Core;
-    using namespace ProjectExplorer;
-    QTC_ASSERT(managerInstance, return);
-    connect(EditorManager::instance(), &EditorManager::editorOpened,
-            managerInstance, &LanguageClientManager::editorOpened);
-    connect(EditorManager::instance(), &EditorManager::documentOpened,
-            managerInstance, &LanguageClientManager::documentOpened);
-    connect(EditorManager::instance(), &EditorManager::documentClosed,
-            managerInstance, &LanguageClientManager::documentClosed);
-    connect(EditorManager::instance(), &EditorManager::saved,
-            managerInstance, &LanguageClientManager::documentContentsSaved);
-    connect(EditorManager::instance(), &EditorManager::aboutToSave,
-            managerInstance, &LanguageClientManager::documentWillSave);
-    connect(SessionManager::instance(), &SessionManager::projectAdded,
-            managerInstance, &LanguageClientManager::projectAdded);
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
-            managerInstance, &LanguageClientManager::projectRemoved);
+    if (managerInstance)
+        return;
+    QTC_ASSERT(LanguageClientPlugin::instance(), return);
+    managerInstance = new LanguageClientManager(LanguageClientPlugin::instance());
 }
 
 void LanguageClientManager::startClient(Client *client)
 {
+    QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
     if (managerInstance->m_shuttingDown) {
         managerInstance->clientFinished(client);
@@ -106,16 +112,19 @@ void LanguageClientManager::startClient(Client *client)
 
 QVector<Client *> LanguageClientManager::clients()
 {
+    QTC_ASSERT(managerInstance, return {});
     return managerInstance->m_clients;
 }
 
 void LanguageClientManager::addExclusiveRequest(const MessageId &id, Client *client)
 {
+    QTC_ASSERT(managerInstance, return);
     managerInstance->m_exclusiveRequests[id] << client;
 }
 
 void LanguageClientManager::reportFinished(const MessageId &id, Client *byClient)
 {
+    QTC_ASSERT(managerInstance, return);
     for (Client *client : managerInstance->m_exclusiveRequests[id]) {
         if (client != byClient)
             client->cancelRequest(id);
@@ -125,6 +134,7 @@ void LanguageClientManager::reportFinished(const MessageId &id, Client *byClient
 
 void LanguageClientManager::deleteClient(Client *client)
 {
+    QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
     client->disconnect();
     managerInstance->m_clients.removeAll(client);
@@ -136,6 +146,7 @@ void LanguageClientManager::deleteClient(Client *client)
 
 void LanguageClientManager::shutdown()
 {
+    QTC_ASSERT(managerInstance, return);
     if (managerInstance->m_shuttingDown)
         return;
     managerInstance->m_shuttingDown = true;
@@ -160,6 +171,7 @@ LanguageClientManager *LanguageClientManager::instance()
 QList<Client *> LanguageClientManager::clientsSupportingDocument(
     const TextEditor::TextDocument *doc)
 {
+    QTC_ASSERT(managerInstance, return {});
     QTC_ASSERT(doc, return {};);
     return Utils::filtered(managerInstance->reachableClients(), [doc](Client *client) {
         return client->isSupportedDocument(doc);

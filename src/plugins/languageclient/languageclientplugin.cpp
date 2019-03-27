@@ -25,18 +25,37 @@
 
 #include "languageclientplugin.h"
 
+#include "languageclientmanager.h"
+
 #include "client.h"
 
 namespace LanguageClient {
 
+static LanguageClientPlugin *m_instance = nullptr;
+
+LanguageClientPlugin::LanguageClientPlugin()
+{
+    m_instance = this;
+}
+
+LanguageClientPlugin::~LanguageClientPlugin()
+{
+    m_instance = nullptr;
+}
+
+LanguageClientPlugin *LanguageClientPlugin::instance()
+{
+    return m_instance;
+}
+
 bool LanguageClientPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorString*/)
 {
+    LanguageClientManager::init();
     return true;
 }
 
 void LanguageClientPlugin::extensionsInitialized()
 {
-    LanguageClientManager::init();
     LanguageClientSettings::init();
 }
 
@@ -45,6 +64,8 @@ ExtensionSystem::IPlugin::ShutdownFlag LanguageClientPlugin::aboutToShutdown()
     LanguageClientManager::shutdown();
     if (LanguageClientManager::clients().isEmpty())
         return ExtensionSystem::IPlugin::SynchronousShutdown;
+    QTC_ASSERT(LanguageClientManager::instance(),
+               return ExtensionSystem::IPlugin::SynchronousShutdown);
     connect(LanguageClientManager::instance(), &LanguageClientManager::shutdownFinished,
             this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished);
     return ExtensionSystem::IPlugin::AsynchronousShutdown;

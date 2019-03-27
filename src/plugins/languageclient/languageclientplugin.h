@@ -38,7 +38,10 @@ class LanguageClientPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "LanguageClient.json")
 public:
-    LanguageClientPlugin() = default;
+    LanguageClientPlugin();
+    ~LanguageClientPlugin() override;
+
+    static LanguageClientPlugin *instance();
 
     // IPlugin interface
 private:
@@ -47,7 +50,6 @@ private:
     ShutdownFlag aboutToShutdown() override;
 
 private:
-    LanguageClientManager m_clientManager;
     LanguageClientOutlineWidgetFactory m_outlineFactory;
 };
 
