@@ -31,6 +31,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/searchresultwindow.h>
+#include <coreplugin/icore.h>
 #include <languageserverprotocol/messages.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
@@ -80,6 +81,7 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
 LanguageClientManager::~LanguageClientManager()
 {
     QTC_ASSERT(m_clients.isEmpty(), qDeleteAll(m_clients));
+    qDeleteAll(m_currentSettings);
     managerInstance = nullptr;
 }
 
@@ -178,6 +180,45 @@ QList<Client *> LanguageClientManager::clientsSupportingDocument(
     }).toList();
 }
 
+void LanguageClientManager::applySettings()
+{
+    QTC_ASSERT(instance(), return);
+    qDeleteAll(instance()->m_currentSettings);
+    instance()->m_currentSettings = Utils::transform(LanguageClientSettings::currentPageSettings(),
+                                                     [](BaseSettings *settings) {
+                                                         return settings->copy();
+                                                     });
+    LanguageClientSettings::toSettings(Core::ICore::settings(), instance()->m_currentSettings);
+
+    const QList<BaseSettings *> restarts = Utils::filtered(LanguageClientManager::currentSettings(),
+                                                           &BaseSettings::needsRestart);
+
+    for (BaseSettings *setting : restarts) {
+        if (auto client = setting->m_client) {
+            if (client->reachable())
+                client->shutdown();
+            else
+                deleteClient(client);
+        }
+        if (setting->isValid() && setting->m_enabled) {
+            const bool start = setting->m_alwaysOn
+                               || Utils::anyOf(Core::DocumentModel::openedDocuments(),
+                                               [filter = setting->m_languageFilter](
+                                                   Core::IDocument *doc) {
+                                                   return filter.isSupported(doc);
+                                               });
+            if (start)
+                setting->startClient();
+        }
+    }
+}
+
+QList<BaseSettings *> LanguageClientManager::currentSettings()
+{
+    QTC_ASSERT(instance(), return {});
+    return instance()->m_currentSettings;
+}
+
 QVector<Client *> LanguageClientManager::reachableClients()
 {
     return Utils::filtered(m_clients, &Client::reachable);
@@ -247,7 +288,7 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
 
 void LanguageClientManager::documentOpened(Core::IDocument *document)
 {
-    for (BaseSettings *setting : LanguageClientSettings::currentSettings()) {
+    for (BaseSettings *setting : LanguageClientSettings::currentPageSettings()) {
         if (setting->m_client.isNull() && setting->m_languageFilter.isSupported(document))
             setting->startClient();
     }

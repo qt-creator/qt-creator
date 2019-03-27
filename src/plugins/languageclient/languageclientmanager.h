@@ -69,6 +69,9 @@ public:
 
     static QList<Client *> clientsSupportingDocument(const TextEditor::TextDocument *doc);
 
+    static void applySettings();
+    static QList<BaseSettings *> currentSettings();
+
 signals:
     void shutdownFinished();
 
@@ -94,6 +97,7 @@ private:
 
     bool m_shuttingDown = false;
     QVector<Client *> m_clients;
+    QList<BaseSettings *>  m_currentSettings; // owned
     QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
 };
 } // namespace LanguageClient

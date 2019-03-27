@@ -134,7 +134,6 @@ public:
 
 private:
     LanguageClientSettingsModel m_model;
-    QList<BaseSettings *> m_settings; // owned
     QPointer<LanguageClientSettingsPageWidget> m_widget;
 };
 
@@ -238,7 +237,6 @@ LanguageClientSettingsPage::~LanguageClientSettingsPage()
 {
     if (m_widget)
         delete m_widget;
-    qDeleteAll(m_settings);
 }
 
 void LanguageClientSettingsPage::init()
@@ -257,47 +255,31 @@ QWidget *LanguageClientSettingsPage::widget()
 
 void LanguageClientSettingsPage::apply()
 {
-    qDeleteAll(m_settings);
     if (m_widget)
         m_widget->applyCurrentSettings();
-    m_settings = Utils::transform(m_model.settings(),
-                                  [](const BaseSettings *other) { return other->copy(); });
-    LanguageClientSettings::toSettings(Core::ICore::settings(), m_settings);
+    LanguageClientManager::applySettings();
 
-    QList<BaseSettings *> restarts = Utils::filtered(m_settings, &BaseSettings::needsRestart);
-    for (auto setting : restarts + m_model.removed()) {
-        if (auto client = setting->m_client) {
+    for (BaseSettings *setting : m_model.removed()) {
+        if (Client *client = setting->m_client) {
             if (client->reachable())
                 client->shutdown();
             else
                 LanguageClientManager::deleteClient(client);
         }
     }
-    for (BaseSettings *setting : restarts) {
-        if (setting->isValid() && setting->m_enabled) {
-            const bool start = setting->m_alwaysOn
-                               || Utils::anyOf(Core::DocumentModel::openedDocuments(),
-                                               [filter = setting->m_languageFilter](
-                                                   Core::IDocument *doc) {
-                                                   return filter.isSupported(doc);
-                                               });
-            if (start)
-                setting->startClient();
-        }
-    }
 
     if (m_widget) {
         int row = m_widget->currentRow();
-        m_model.reset(m_settings);
+        m_model.reset(LanguageClientManager::currentSettings());
         m_widget->resetCurrentSettings(row);
     } else {
-        m_model.reset(m_settings);
+        m_model.reset(LanguageClientManager::currentSettings());
     }
 }
 
 void LanguageClientSettingsPage::finish()
 {
-    m_model.reset(m_settings);
+    m_model.reset(LanguageClientManager::currentSettings());
 }
 
 QList<BaseSettings *> LanguageClientSettingsPage::settings() const
@@ -461,7 +443,7 @@ QList<BaseSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn
     return settings;
 }
 
-QList<BaseSettings *> LanguageClientSettings::currentSettings()
+QList<BaseSettings *> LanguageClientSettings::currentPageSettings()
 {
     return settingsPage().settings();
 }
