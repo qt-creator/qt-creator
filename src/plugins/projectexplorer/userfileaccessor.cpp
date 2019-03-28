@@ -377,7 +377,7 @@ QVariant UserFileAccessor::retrieveSharedSettings() const
 
 FileName UserFileAccessor::projectUserFile() const
 {
-    static const QString qtcExt = QLatin1String(qgetenv("QTC_SHARED_EXTENSION"));
+    static const QString qtcExt = QLatin1String(qgetenv("QTC_EXTENSION"));
     FileName projectUserFile = m_project->projectFilePath();
     projectUserFile.appendString(generateSuffix(qtcExt.isEmpty() ? ".user" : qtcExt));
     return projectUserFile;
