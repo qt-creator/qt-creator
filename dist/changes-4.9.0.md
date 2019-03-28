@@ -157,7 +157,7 @@ Version Control Systems
     * Improved handling of commit errors (QTCREATORBUG-15227)
 * Perforce
     * Disabled by default
-    * Fixed issue with setting P4 environment variables (QTCREATORBUG-21573)
+    * Fixed issue with setting P4 environment variables (QTCREATORBUG-18771)
 * Mercurial
     * Added side-by-side diff viewer (QTCREATORBUG-21124)
 
