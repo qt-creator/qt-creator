@@ -425,6 +425,12 @@ void BaseSettings::fromMap(const QVariantMap &map)
     m_languageFilter.filePattern = map[filePatternKey].toStringList();
 }
 
+static LanguageClientSettingsPage &settingsPage()
+{
+    static LanguageClientSettingsPage settingsPage;
+    return settingsPage;
+}
+
 void LanguageClientSettings::init()
 {
     settingsPage().init();
@@ -457,12 +463,6 @@ void LanguageClientSettings::toSettings(QSettings *settings,
         return QVariant(setting->toMap());
     }));
     settings->endGroup();
-}
-
-LanguageClientSettingsPage &LanguageClientSettings::settingsPage()
-{
-    static LanguageClientSettingsPage settingsPage;
-    return settingsPage;
 }
 
 void StdIOSettings::applyFromSettingsWidget(QWidget *widget)
