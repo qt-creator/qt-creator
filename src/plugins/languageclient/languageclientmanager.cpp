@@ -112,6 +112,17 @@ void LanguageClientManager::startClient(Client *client)
         managerInstance->clientFinished(client);
 }
 
+void LanguageClientManager::startClient(BaseSettings *setting)
+{
+    QTC_ASSERT(managerInstance, return);
+    QTC_ASSERT(setting, return);
+    QTC_ASSERT(setting->isValid(), return);
+    Client *client = setting->createClient();
+    QTC_ASSERT(client, return);
+    startClient(client);
+    managerInstance->m_clientsForSetting[setting->m_id] = client;
+}
+
 QVector<Client *> LanguageClientManager::clients()
 {
     QTC_ASSERT(managerInstance, return {});
@@ -182,41 +193,41 @@ QList<Client *> LanguageClientManager::clientsSupportingDocument(
 
 void LanguageClientManager::applySettings()
 {
-    QTC_ASSERT(instance(), return);
-    qDeleteAll(instance()->m_currentSettings);
-    instance()->m_currentSettings = Utils::transform(LanguageClientSettings::currentPageSettings(),
-                                                     [](BaseSettings *settings) {
-                                                         return settings->copy();
-                                                     });
-    LanguageClientSettings::toSettings(Core::ICore::settings(), instance()->m_currentSettings);
+    QTC_ASSERT(managerInstance, return);
+    qDeleteAll(managerInstance->m_currentSettings);
+    managerInstance->m_currentSettings = Utils::transform(LanguageClientSettings::currentPageSettings(),
+                                                          [](BaseSettings *settings) {
+            return settings->copy();
+    });
+    LanguageClientSettings::toSettings(Core::ICore::settings(), managerInstance->m_currentSettings);
 
-    const QList<BaseSettings *> restarts = Utils::filtered(LanguageClientManager::currentSettings(),
-                                                           &BaseSettings::needsRestart);
+    const QList<BaseSettings *> restarts = Utils::filtered(managerInstance->m_currentSettings,
+                                                           [](BaseSettings *settings) {
+            return settings->needsRestart();
+    });
 
     for (BaseSettings *setting : restarts) {
-        if (auto client = setting->m_client) {
+        if (auto client = clientForSetting(setting)) {
             if (client->reachable())
                 client->shutdown();
             else
                 deleteClient(client);
         }
-        if (setting->isValid() && setting->m_enabled) {
-            const bool start = setting->m_alwaysOn
-                               || Utils::anyOf(Core::DocumentModel::openedDocuments(),
-                                               [filter = setting->m_languageFilter](
-                                                   Core::IDocument *doc) {
-                                                   return filter.isSupported(doc);
-                                               });
-            if (start)
-                setting->startClient();
-        }
+        if (setting->canStartClient())
+            startClient(setting);
     }
 }
 
 QList<BaseSettings *> LanguageClientManager::currentSettings()
 {
-    QTC_ASSERT(instance(), return {});
-    return instance()->m_currentSettings;
+    QTC_ASSERT(managerInstance, return {});
+    return managerInstance->m_currentSettings;
+}
+
+Client *LanguageClientManager::clientForSetting(const BaseSettings *setting)
+{
+    QTC_ASSERT(managerInstance, return nullptr);
+    return managerInstance->m_clientsForSetting.value(setting->m_id, nullptr);
 }
 
 QVector<Client *> LanguageClientManager::reachableClients()
@@ -289,8 +300,8 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
 void LanguageClientManager::documentOpened(Core::IDocument *document)
 {
     for (BaseSettings *setting : LanguageClientSettings::currentPageSettings()) {
-        if (setting->m_client.isNull() && setting->m_languageFilter.isSupported(document))
-            setting->startClient();
+        if (clientForSetting(setting) == nullptr && setting->canStartClient())
+            startClient(setting);
     }
     for (Client *interface : reachableClients())
         interface->openDocument(document);

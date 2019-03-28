@@ -56,6 +56,7 @@ public:
     static void init();
 
     static void startClient(Client *client);
+    static void startClient(BaseSettings *setting);
     static QVector<Client *> clients();
 
     static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, Client *client);
@@ -71,6 +72,7 @@ public:
 
     static void applySettings();
     static QList<BaseSettings *> currentSettings();
+    static Client *clientForSetting(const BaseSettings *setting);
 
 signals:
     void shutdownFinished();
@@ -98,6 +100,7 @@ private:
     bool m_shuttingDown = false;
     QVector<Client *> m_clients;
     QList<BaseSettings *>  m_currentSettings; // owned
+    QMap<QString, QPointer<Client>> m_clientsForSetting;
     QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
 };
 } // namespace LanguageClient

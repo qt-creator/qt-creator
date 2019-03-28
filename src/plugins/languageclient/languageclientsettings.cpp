@@ -59,6 +59,7 @@
 #include <QTreeView>
 
 constexpr char nameKey[] = "name";
+constexpr char idKey[] = "id";
 constexpr char enabledKey[] = "enabled";
 constexpr char alwaysOnKey[] = "alwaysOn";
 constexpr char mimeTypeKey[] = "mimeType";
@@ -260,7 +261,7 @@ void LanguageClientSettingsPage::apply()
     LanguageClientManager::applySettings();
 
     for (BaseSettings *setting : m_model.removed()) {
-        if (Client *client = setting->m_client) {
+        if (Client *client = LanguageClientManager::clientForSetting(setting)) {
             if (client->reachable())
                 client->shutdown();
             else
@@ -384,7 +385,18 @@ QWidget *BaseSettings::createSettingsWidget(QWidget *parent) const
 
 bool BaseSettings::needsRestart() const
 {
-    return m_client ? !m_enabled || m_client->needsRestart(this) : m_enabled;
+    Client *client = LanguageClientManager::clientForSetting(this);
+    return client ? !m_enabled || client->needsRestart(this) : m_enabled;
+}
+
+bool BaseSettings::canStartClient() const
+{
+    using namespace Core;
+    if (!isValid() || !m_enabled)
+        return false;
+    return m_alwaysOn || Utils::anyOf(DocumentModel::openedDocuments(), [this](IDocument *doc) {
+               return m_languageFilter.isSupported(doc);
+           });
 }
 
 bool BaseSettings::isValid() const
@@ -392,23 +404,23 @@ bool BaseSettings::isValid() const
     return !m_name.isEmpty();
 }
 
-void BaseSettings::startClient()
+Client *BaseSettings::createClient()
 {
     if (!isValid() || !m_enabled)
-        return;
+        return nullptr;
     BaseClientInterface *interface = createInterface();
-    QTC_ASSERT(interface, return);
+    QTC_ASSERT(interface, return nullptr);
     auto *client = new Client(interface);
     client->setName(Utils::globalMacroExpander()->expand(m_name));
     client->setSupportedLanguage(m_languageFilter);
-    m_client = client;
-    LanguageClientManager::startClient(client);
+    return client;
 }
 
 QVariantMap BaseSettings::toMap() const
 {
     QVariantMap map;
     map.insert(nameKey, m_name);
+    map.insert(idKey, m_id);
     map.insert(enabledKey, m_enabled);
     map.insert(alwaysOnKey, m_alwaysOn);
     map.insert(mimeTypeKey, m_languageFilter.mimeTypes);
@@ -419,6 +431,7 @@ QVariantMap BaseSettings::toMap() const
 void BaseSettings::fromMap(const QVariantMap &map)
 {
     m_name = map[nameKey].toString();
+    m_id = map.value(idKey, QUuid::createUuid().toString()).toString();
     m_enabled = map[enabledKey].toBool();
     m_alwaysOn = map.value(alwaysOnKey, false).toBool();
     m_languageFilter.mimeTypes = map[mimeTypeKey].toStringList();
@@ -483,10 +496,10 @@ bool StdIOSettings::needsRestart() const
 {
     if (BaseSettings::needsRestart())
         return true;
-    if (m_client.isNull())
-        return false;
-    if (auto stdIOInterface = qobject_cast<const StdIOClientInterface *>(m_client->clientInterface()))
-        return stdIOInterface->needsRestart(this);
+    if (Client *client = LanguageClientManager::clientForSetting(this))
+        if (auto stdIOInterface = qobject_cast<const StdIOClientInterface *>(
+                client->clientInterface()))
+            return stdIOInterface->needsRestart(this);
     return false;
 }
 
@@ -572,7 +585,7 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     };
 
     mainLayout->addWidget(new QLabel(tr("Capabilities:")), ++row, 0, Qt::AlignTop);
-    if (Client *client = settings->m_client.data()) {
+    if (Client *client = LanguageClientManager::clientForSetting(settings)) {
         if (client->state() == Client::Initialized)
             mainLayout->addWidget(createCapabilitiesView(client->capabilities()));
         else

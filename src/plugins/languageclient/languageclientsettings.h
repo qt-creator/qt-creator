@@ -30,6 +30,7 @@
 #include <QAbstractItemModel>
 #include <QLabel>
 #include <QPointer>
+#include <QUuid>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -67,17 +68,18 @@ public:
     virtual ~BaseSettings() = default;
 
     QString m_name = QString("New Language Server");
+    QString m_id = QUuid::createUuid().toString();
     bool m_enabled = true;
     bool m_alwaysOn = false;
     LanguageFilter m_languageFilter;
-    QPointer<Client> m_client; // not owned
 
     virtual void applyFromSettingsWidget(QWidget *widget);
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
     virtual BaseSettings *copy() const { return new BaseSettings(*this); }
     virtual bool needsRestart() const;
-    virtual bool isValid() const ;
-    void startClient();
+    virtual bool canStartClient() const;
+    virtual bool isValid() const;
+    Client *createClient();
     virtual QVariantMap toMap() const;
     virtual void fromMap(const QVariantMap &map);
 
