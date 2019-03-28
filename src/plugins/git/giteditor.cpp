@@ -290,34 +290,27 @@ bool GitEditorWidget::isValidRevision(const QString &revision) const
 void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
 {
     m_currentChange = change;
-    if (contentType() != OtherContent) {
-        connect(menu->addAction(tr("Cherr&y-Pick Change %1").arg(change)), &QAction::triggered,
-                this, [this]() {
-            GitPlugin::client()->synchronousCherryPick(sourceWorkingDirectory(), m_currentChange);
-        });
-        connect(menu->addAction(tr("Re&vert Change %1").arg(change)), &QAction::triggered,
-                this, [this]() {
-            GitPlugin::client()->synchronousRevert(sourceWorkingDirectory(), m_currentChange);
-        });
-        connect(menu->addAction(tr("C&heckout Change %1").arg(change)), &QAction::triggered,
-                this, [this]() {
-            GitPlugin::client()->checkout(sourceWorkingDirectory(), m_currentChange);
-        });
-        connect(menu->addAction(tr("&Log for Change %1").arg(change)), &QAction::triggered,
-                this, [this]() {
-            GitPlugin::client()->log(
-                        sourceWorkingDirectory(), QString(), false, {m_currentChange});
-        });
+    if (contentType() == OtherContent)
+        return;
 
-        QMenu *resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
-        connect(resetMenu->addAction(tr("&Hard")), &QAction::triggered,
-                this, [this]() { resetChange("hard"); });
-        connect(resetMenu->addAction(tr("&Mixed")), &QAction::triggered,
-                this, [this]() { resetChange("mixed"); });
-        connect(resetMenu->addAction(tr("&Soft")), &QAction::triggered,
-                this, [this]() { resetChange("soft"); });
-        menu->addMenu(resetMenu);
-    }
+    menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), this, [this] {
+        GitPlugin::client()->synchronousCherryPick(sourceWorkingDirectory(), m_currentChange);
+    });
+    menu->addAction(tr("Re&vert Change %1").arg(change), this, [this] {
+        GitPlugin::client()->synchronousRevert(sourceWorkingDirectory(), m_currentChange);
+    });
+    menu->addAction(tr("C&heckout Change %1").arg(change), this, [this] {
+        GitPlugin::client()->checkout(sourceWorkingDirectory(), m_currentChange);
+    });
+    menu->addAction(tr("&Log for Change %1").arg(change), this, [this] {
+        GitPlugin::client()->log(sourceWorkingDirectory(), QString(), false, {m_currentChange});
+    });
+
+    auto resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
+    resetMenu->addAction(tr("&Hard"), this, [this] { resetChange("hard"); });
+    resetMenu->addAction(tr("&Mixed"), this, [this] { resetChange("mixed"); });
+    resetMenu->addAction(tr("&Soft"), this, [this] { resetChange("soft"); });
+    menu->addMenu(resetMenu);
 }
 
 QString GitEditorWidget::revisionSubject(const QTextBlock &inBlock) const
