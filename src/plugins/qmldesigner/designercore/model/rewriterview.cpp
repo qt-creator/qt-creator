@@ -390,7 +390,7 @@ void RewriterView::deactivateTextMofifierChangeSignals()
         textModifier()->deactivateChangeSignals();
 }
 
-void RewriterView::auxiliaryDataChanged(const ModelNode &, const PropertyName &name, const QVariant &)
+void RewriterView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &)
 {
     if (m_restoringAuxData)
         return;
@@ -400,6 +400,11 @@ void RewriterView::auxiliaryDataChanged(const ModelNode &, const PropertyName &n
 
     if (name.endsWith("@Internal"))
         return;
+
+    if (node.isRootNode()) {
+        if (name == "width" || name == "height" || name == "autoSize")
+            return;
+    }
 
     m_textModifier->textDocument()->setModified(true);
 }
