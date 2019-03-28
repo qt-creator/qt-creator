@@ -26,6 +26,7 @@
 #include "giteditor.h"
 
 #include "annotationhighlighter.h"
+#include "branchadddialog.h"
 #include "gitplugin.h"
 #include "gitclient.h"
 #include "gitsettings.h"
@@ -304,6 +305,25 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
     });
     menu->addAction(tr("&Log for Change %1").arg(change), this, [this] {
         GitPlugin::client()->log(sourceWorkingDirectory(), QString(), false, {m_currentChange});
+    });
+    menu->addAction(tr("Add &Tag for Change %1...").arg(change), this, [this] {
+        QString output;
+        QString errorMessage;
+        GitPlugin::client()->synchronousTagCmd(sourceWorkingDirectory(), QStringList(),
+                                               &output, &errorMessage);
+
+        const QStringList tags = output.split('\n');
+        BranchAddDialog dialog(tags, BranchAddDialog::Type::AddTag, nullptr);
+
+        if (dialog.exec() == QDialog::Rejected)
+            return;
+
+        GitPlugin::client()->synchronousTagCmd(sourceWorkingDirectory(),
+                                               {dialog.branchName(), m_currentChange},
+                                               &output, &errorMessage);
+        VcsOutputWindow::append(output);
+        if (!errorMessage.isEmpty())
+            VcsOutputWindow::append(errorMessage, VcsOutputWindow::MessageStyle::Error);
     });
 
     auto resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);

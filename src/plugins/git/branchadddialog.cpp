@@ -105,14 +105,31 @@ QWidget *BranchValidationDelegate::createEditor(QWidget *parent,
     return lineEdit;
 }
 
-BranchAddDialog::BranchAddDialog(const QStringList &localBranches, bool addBranch, QWidget *parent) :
+BranchAddDialog::BranchAddDialog(const QStringList &localBranches, Type type, QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::BranchAddDialog)
 {
     m_ui->setupUi(this);
     m_ui->trackingCheckBox->setVisible(false);
     setCheckoutVisible(false);
-    setWindowTitle(addBranch ? tr("Add Branch") : tr("Rename Branch"));
+
+    switch (type) {
+    case BranchAddDialog::AddBranch:
+        setWindowTitle(tr("Add Branch"));
+        break;
+    case BranchAddDialog::RenameBranch:
+        setWindowTitle(tr("Rename Branch"));
+        break;
+    case BranchAddDialog::AddTag:
+        setWindowTitle(tr("Add Tag"));
+        m_ui->branchNameLabel->setText(tr("Tag name:"));
+        break;
+    case BranchAddDialog::RenameTag:
+        setWindowTitle(tr("Rename Tag"));
+        m_ui->branchNameLabel->setText(tr("Tag name:"));
+        break;
+    }
+
     m_ui->branchNameEdit->setValidator(new BranchNameValidator(localBranches, this));
     connect(m_ui->branchNameEdit, &QLineEdit::textChanged, this, &BranchAddDialog::updateButtonStatus);
 }

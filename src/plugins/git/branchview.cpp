@@ -313,7 +313,7 @@ bool BranchView::add()
         }
     }
 
-    BranchAddDialog branchAddDialog(localNames, true, this);
+    BranchAddDialog branchAddDialog(localNames, BranchAddDialog::Type::AddBranch, this);
     branchAddDialog.setBranchName(suggestedName);
     branchAddDialog.setTrackedBranchName(isTracked ? trackedBranch : QString(), !isLocal);
     branchAddDialog.setCheckoutVisible(true);
@@ -444,11 +444,10 @@ bool BranchView::rename()
     if (!isTag)
         localNames = m_model->localBranchNames();
 
-    BranchAddDialog branchAddDialog(localNames, false, this);
-    if (isTag)
-        branchAddDialog.setWindowTitle(tr("Rename Tag"));
+    const BranchAddDialog::Type type = isTag ? BranchAddDialog::Type::RenameTag
+                                             : BranchAddDialog::Type::RenameBranch;
+    BranchAddDialog branchAddDialog(localNames, type, this);
     branchAddDialog.setBranchName(oldName);
-    branchAddDialog.setTrackedBranchName(QString(), false);
 
     branchAddDialog.exec();
 
