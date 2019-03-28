@@ -230,8 +230,11 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
         contextMenu.addAction(tr("&Log"), this, [this] { log(selectedIndex()); });
         contextMenu.addSeparator();
         if (!currentSelected) {
-            if (currentLocal)
-                contextMenu.addAction(tr("Re&set"), this, &BranchView::reset);
+            auto resetMenu = new QMenu(tr("Re&set"), &contextMenu);
+            resetMenu->addAction(tr("&Hard"), this, [this] { reset("hard"); });
+            resetMenu->addAction(tr("&Mixed"), this, [this] { reset("mixed"); });
+            resetMenu->addAction(tr("&Soft"), this, [this] { reset("soft"); });
+            contextMenu.addMenu(resetMenu);
             QString mergeTitle;
             if (isFastForwardMerge()) {
                 contextMenu.addAction(tr("&Merge (Fast-Forward)"), this, [this] { merge(true); });
@@ -466,17 +469,17 @@ bool BranchView::rename()
     return false;
 }
 
-bool BranchView::reset()
+bool BranchView::reset(const QByteArray &resetType)
 {
     const QString currentName = m_model->fullName(m_model->currentBranch());
     const QString branchName = m_model->fullName(selectedIndex());
     if (currentName.isEmpty() || branchName.isEmpty())
         return false;
 
-    if (QMessageBox::question(this, tr("Git Reset"), tr("Hard reset branch \"%1\" to \"%2\"?")
+    if (QMessageBox::question(this, tr("Git Reset"), tr("Reset branch \"%1\" to \"%2\"?")
                               .arg(currentName).arg(branchName),
                               QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-        GitPlugin::client()->reset(m_repository, "--hard", branchName);
+        GitPlugin::client()->reset(m_repository, QLatin1String("--" + resetType), branchName);
         return true;
     }
     return false;

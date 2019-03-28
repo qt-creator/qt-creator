@@ -76,7 +76,7 @@ private:
     bool checkout();
     bool remove();
     bool rename();
-    bool reset();
+    bool reset(const QByteArray &resetType);
     bool isFastForwardMerge();
     bool merge(bool allowFastForward);
     void rebase();
