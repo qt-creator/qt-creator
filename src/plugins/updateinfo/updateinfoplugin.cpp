@@ -67,6 +67,7 @@ class UpdateInfoPluginPrivate
 public:
     QString m_maintenanceTool;
     QPointer<ShellCommand> m_checkUpdatesCommand;
+    QPointer<FutureProgress> m_progress;
     QString m_collectedOutput;
     QTimer *m_checkUpdatesTimer = nullptr;
 
@@ -124,6 +125,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert(QLatin1String("QT_LOGGING_RULES"), QLatin1String("*=false"));
     d->m_checkUpdatesCommand = new ShellCommand(QString(), env);
+    d->m_checkUpdatesCommand->setDisplayName(tr("Checking for Updates"));
     connect(d->m_checkUpdatesCommand, &ShellCommand::stdOutText, this, &UpdateInfoPlugin::collectCheckForUpdatesOutput);
     connect(d->m_checkUpdatesCommand, &ShellCommand::finished, this, &UpdateInfoPlugin::checkForUpdatesFinished);
     d->m_checkUpdatesCommand->addJob(Utils::FileName(QFileInfo(d->m_maintenanceTool)), QStringList(QLatin1String("--checkupdates")),
@@ -131,6 +133,11 @@ void UpdateInfoPlugin::startCheckForUpdates()
                                      /*workingDirectory=*/QString(),
                                      [](int /*exitCode*/) { return Utils::SynchronousProcessResponse::Finished; });
     d->m_checkUpdatesCommand->execute();
+    d->m_progress = d->m_checkUpdatesCommand->futureProgress();
+    if (d->m_progress) {
+        d->m_progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
+        d->m_progress->setSubtitleVisibleInStatusBar(true);
+    }
     emit checkForUpdatesRunningChanged(true);
 }
 
@@ -168,6 +175,8 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
             startUpdater();
     } else {
         emit newUpdatesAvailable(false);
+        if (d->m_progress)
+            d->m_progress->setSubtitle(tr("No updates found."));
     }
 }
 
