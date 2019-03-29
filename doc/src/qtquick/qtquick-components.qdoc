@@ -32,7 +32,11 @@
 /*!
     \contentspage index.html
     \page quick-components.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-prototyping.html
+    \else
     \previouspage creator-using-qt-quick-designer.html
+    \endif
     \nextpage quick-buttons.html
 
     \title Creating Components
