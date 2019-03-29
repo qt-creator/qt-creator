@@ -293,10 +293,6 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
 void BaseFileFind::runSearch(SearchResult *search)
 {
     const FileFindParameters parameters = search->userData().value<FileFindParameters>();
-    auto label = new CountingLabel;
-    connect(search, &SearchResult::countChanged, label, &CountingLabel::updateCount);
-    auto statusLabel = new CountingLabel;
-    connect(search, &SearchResult::countChanged, statusLabel, &CountingLabel::updateCount);
     SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch|IOutputPane::WithFocus));
     auto watcher = new QFutureWatcher<FileSearchResultList>();
     watcher->setPendingResultsLimit(1);
@@ -316,10 +312,13 @@ void BaseFileFind::runSearch(SearchResult *search)
         search->finishSearch(watcher->isCanceled());
     });
     watcher->setFuture(executeSearch(parameters));
-    FutureProgress *progress =
-        ProgressManager::addTask(watcher->future(), tr("Searching"), Constants::TASK_SEARCH);
-    progress->setWidget(label);
-    progress->setStatusBarWidget(statusLabel);
+    FutureProgress *progress = ProgressManager::addTask(watcher->future(),
+                                                        tr("Searching"),
+                                                        Constants::TASK_SEARCH);
+    connect(search, &SearchResult::countChanged, progress, [progress](int c) {
+        progress->setSubtitle(BaseFileFind::tr("%n found.", nullptr, c));
+    });
+    progress->setSubtitleVisibleInStatusBar(true);
     connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
 }
 
@@ -565,24 +564,6 @@ QFuture<FileSearchResultList> BaseFileFind::executeSearch(const FileFindParamete
 }
 
 namespace Internal {
-
-CountingLabel::CountingLabel()
-{
-    setAlignment(Qt::AlignCenter);
-    // ### TODO this setup should be done by style
-    QFont f = font();
-    f.setBold(true);
-    f.setPointSizeF(StyleHelper::sidebarFontSize());
-    setFont(f);
-    setPalette(StyleHelper::sidebarFontPalette(palette()));
-    setProperty("_q_custom_style_disabled", QVariant(true));
-    updateCount(0);
-}
-
-void CountingLabel::updateCount(int count)
-{
-    setText(BaseFileFind::tr("%n found.", nullptr, count));
-}
 
 } // namespace Internal
 } // namespace TextEditor
