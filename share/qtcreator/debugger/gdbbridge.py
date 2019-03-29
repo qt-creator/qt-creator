@@ -1296,7 +1296,7 @@ class Dumper(DumperBase):
             frame = gdb.newest_frame()
             ns = self.qtNamespace()
             needle = self.qtNamespace() + 'QV4::ExecutionEngine'
-            pat = '%sqt_v4StackTrace(((%sQV4::ExecutionEngine *)0x%x)->currentContext())'
+            pat = '%sqt_v4StackTraceForEngine((void*)0x%x)'
             done = False
             while i < limit and frame and not done:
                 block = None
@@ -1313,7 +1313,7 @@ class Dumper(DumperBase):
                                dereftype = typeobj.target().unqualified()
                                if dereftype.name == needle:
                                     addr = toInteger(value)
-                                    expr = pat % (ns, ns, addr)
+                                    expr = pat % (ns, addr)
                                     res = str(gdb.parse_and_eval(expr))
                                     pos = res.find('"stack=[')
                                     if pos != -1:
