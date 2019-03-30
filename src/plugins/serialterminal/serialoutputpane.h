@@ -36,10 +36,10 @@
 #include <memory>
 
 QT_BEGIN_NAMESPACE
-class QToolButton;
-class QButtonGroup;
 class QAbstractButton;
+class QButtonGroup;
 class QComboBox;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace Core { class OutputWindow; }
@@ -47,10 +47,10 @@ namespace Core { class OutputWindow; }
 namespace SerialTerminal {
 namespace Internal {
 
-class SerialControl;
-class TabWidget;
 class ComboBox;
 class ConsoleLineEdit;
+class SerialControl;
+class TabWidget;
 
 class SerialOutputPane : public Core::IOutputPane
 {
@@ -145,7 +145,6 @@ private:
     void handleOldOutput(Core::OutputWindow *window) const;
 
     void updateCloseActions();
-
 
     std::unique_ptr<QWidget> m_mainWidget;
     ConsoleLineEdit *m_inputLine = nullptr;

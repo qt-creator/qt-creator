@@ -305,7 +305,7 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
     static int counter = 0;
     Core::Id contextId = Core::Id(Constants::C_SERIAL_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
-    Core::OutputWindow *ow = new Core::OutputWindow(context, QString(), m_tabWidget);
+    auto ow = new Core::OutputWindow(context, QString(), m_tabWidget);
     using TextEditor::TextEditorSettings;
     auto fontSettingsChanged = [ow] {
         ow->setBaseFont(TextEditorSettings::fontSettings().font());
@@ -694,7 +694,7 @@ void SerialOutputPane::connectControl()
         current->setBaudRate(m_devicesModel->baudRate(m_baudRateSelection->currentIndex()));
         // Gray out old and connect
         if (index != -1) {
-            auto& tab = m_serialControlTabs[index];
+            auto &tab = m_serialControlTabs[index];
             handleOldOutput(tab.window);
             tab.window->scrollToBottom();
         }
