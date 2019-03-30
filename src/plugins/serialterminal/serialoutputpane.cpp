@@ -302,7 +302,7 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
     Utils::OutputFormatter *formatter = rc->outputFormatter();
 
     // Create new
-    static uint counter = 0;
+    static int counter = 0;
     Core::Id contextId = Core::Id(Constants::C_SERIAL_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
     Core::OutputWindow *ow = new Core::OutputWindow(context, QString(), m_tabWidget);
