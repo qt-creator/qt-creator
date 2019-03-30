@@ -41,7 +41,6 @@ class VCSBASE_EXPORT VcsOutputWindow : public Core::IOutputPane
 
 public:
     QWidget *outputWidget(QWidget *parent) override;
-    QList<QWidget *> toolBarWidgets() const override;
     QString displayName() const override;
 
     int priorityInStatusBar() const override;

@@ -33,6 +33,9 @@
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcprocess.h>
+#include <texteditor/behaviorsettings.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
 #include <utils/theme/theme.h>
 
 #include <QAction>
@@ -74,6 +77,8 @@ namespace Internal {
 
 const char C_VCS_OUTPUT_PANE[] = "Vcs.OutputPane";
 
+const char zoomSettingsKey[] = "Vcs/OutputPane/Zoom";
+
 // Store repository along with text blocks
 class RepositoryUserData : public QTextBlockUserData
 {
@@ -109,7 +114,7 @@ private:
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
-    Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), QString(), parent)
+    Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), zoomSettingsKey, parent)
 {
     setReadOnly(true);
     setUndoRedoEnabled(false);
@@ -285,6 +290,26 @@ VcsOutputWindow::VcsOutputWindow()
     d->passwordRegExp = QRegExp("://([^@:]+):([^@]+)@");
     Q_ASSERT(d->passwordRegExp.isValid());
     m_instance = this;
+
+    auto updateFontSettings = [] {
+        d->widget.setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
+    };
+
+    auto updateBehaviorSettings = [] {
+        d->widget.setWheelZoomEnabled(
+                    TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
+    };
+
+    setZoomButtonsEnabled(true);
+    updateFontSettings();
+    updateBehaviorSettings();
+
+    connect(this, &IOutputPane::zoomIn, &d->widget, &Core::OutputWindow::zoomIn);
+    connect(this, &IOutputPane::zoomOut, &d->widget, &Core::OutputWindow::zoomOut);
+    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
+            this, updateFontSettings);
+    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
+            this, updateBehaviorSettings);
 }
 
 static QString filterPasswordFromUrls(const QString &input)
@@ -312,11 +337,6 @@ QWidget *VcsOutputWindow::outputWidget(QWidget *parent)
     if (parent != d->widget.parent())
         d->widget.setParent(parent);
     return &d->widget;
-}
-
-QList<QWidget *> VcsOutputWindow::toolBarWidgets() const
-{
-    return {};
 }
 
 QString VcsOutputWindow::displayName() const
