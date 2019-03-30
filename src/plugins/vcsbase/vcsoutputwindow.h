@@ -74,7 +74,7 @@ public:
         None,
         Error, // Red error text
         Warning, // Dark yellow warning text
-        Command, // A bold command with timetamp "10:00 " + "Executing: vcs -diff"
+        Command, // A bold command with timestamp "10:00 " + "Executing: vcs -diff"
         Message, // A blue message text (e.g. "command has finished successfully")
     };
 
