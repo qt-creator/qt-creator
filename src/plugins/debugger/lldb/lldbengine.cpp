@@ -263,7 +263,8 @@ void LldbEngine::setupEngine()
     for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
          it != cend;
          ++it) {
-        executeDebuggerCommand("settings append target.source-map " + it.key() + ' ' + it.value());
+        executeDebuggerCommand(
+                    "settings append target.source-map " + it.key() + ' ' + expand(it.value()));
     }
 
     DebuggerCommand cmd2("setupInferior");

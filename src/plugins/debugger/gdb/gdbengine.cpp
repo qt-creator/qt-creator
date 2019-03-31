@@ -61,7 +61,6 @@
 #include <app/app_version.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
-#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/savedaction.h>
@@ -3651,7 +3650,7 @@ void GdbEngine::setupEngine()
     for (auto it = completeSourcePathMap.constBegin(), cend = completeSourcePathMap.constEnd();
          it != cend;
          ++it) {
-        runCommand({"set substitute-path " + it.key() + " " + it.value()});
+        runCommand({"set substitute-path " + it.key() + " " + expand(it.value())});
     }
 
     // Spaces just will not work.

@@ -256,7 +256,7 @@ void CdbEngine::init()
     if (!sourcePathMap.isEmpty()) {
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend; ++it) {
             m_sourcePathMappings.push_back({QDir::toNativeSeparators(it.key()),
-                                            QDir::toNativeSeparators(it.value())});
+                                            QDir::toNativeSeparators(expand(it.value()))});
         }
     }
     // update source path maps from debugger start params
