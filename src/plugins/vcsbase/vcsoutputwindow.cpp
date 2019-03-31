@@ -109,7 +109,7 @@ private:
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
-    Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), parent)
+    Core::OutputWindow(Core::Context(C_VCS_OUTPUT_PANE), QString(), parent)
 {
     setReadOnly(true);
     setUndoRedoEnabled(false);

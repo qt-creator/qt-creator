@@ -88,11 +88,25 @@ static bool g_managerConstructed = false; // For debugging reasons.
 // OutputPane
 
 IOutputPane::IOutputPane(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      m_zoomInButton(new QToolButton),
+      m_zoomOutButton(new QToolButton)
 {
     // We need all pages first. Ignore latecomers and shout.
     QTC_ASSERT(!g_managerConstructed, return);
     g_outputPanes.append(OutputPaneData(this));
+
+    m_zoomInButton->setToolTip(tr("Increase Font Size"));
+    m_zoomInButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+    m_zoomInButton->setAutoRaise(true);
+    m_zoomInButton->setVisible(false);
+    connect(m_zoomInButton, &QToolButton::clicked, this, [this] { emit zoomIn(1); });
+
+    m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
+    m_zoomOutButton->setIcon(Utils::Icons::MINUS.icon());
+    m_zoomOutButton->setAutoRaise(true);
+    m_zoomOutButton->setVisible(false);
+    connect(m_zoomOutButton, &QToolButton::clicked, this, [this] { emit zoomOut(1); });
 }
 
 IOutputPane::~IOutputPane()
@@ -100,6 +114,32 @@ IOutputPane::~IOutputPane()
     const int i = Utils::indexOf(g_outputPanes, Utils::equal(&OutputPaneData::pane, this));
     QTC_ASSERT(i >= 0, return);
     delete g_outputPanes.at(i).button;
+
+    delete m_zoomInButton;
+    delete m_zoomOutButton;
+}
+
+QList<QWidget *> IOutputPane::toolBarWidgets() const
+{
+    return {m_zoomInButton, m_zoomOutButton};
+}
+
+void IOutputPane::setFont(const QFont &font)
+{
+    emit fontChanged(font);
+}
+
+void IOutputPane::setWheelZoomEnabled(bool enabled)
+{
+    emit wheelZoomEnabledChanged(enabled);
+}
+
+void IOutputPane::setZoomButtonsEnabled(bool enabled)
+{
+    m_zoomInButton->setEnabled(enabled);
+    m_zoomInButton->setVisible(true);
+    m_zoomOutButton->setEnabled(enabled);
+    m_zoomOutButton->setVisible(true);
 }
 
 namespace Internal {

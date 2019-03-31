@@ -305,7 +305,7 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
     static uint counter = 0;
     Core::Id contextId = Core::Id(Constants::C_SERIAL_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
-    Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
+    Core::OutputWindow *ow = new Core::OutputWindow(context, QString(), m_tabWidget);
     using TextEditor::TextEditorSettings;
     auto fontSettingsChanged = [ow] {
         ow->setBaseFont(TextEditorSettings::fontSettings().font());

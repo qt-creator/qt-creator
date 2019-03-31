@@ -76,29 +76,9 @@ class CompileOutputTextEdit : public Core::OutputWindow
 {
     Q_OBJECT
 public:
-    CompileOutputTextEdit(const Core::Context &context) : Core::OutputWindow(context)
+    CompileOutputTextEdit(const Core::Context &context) : Core::OutputWindow(context, SETTINGS_KEY)
     {
-        setWheelZoomEnabled(true);
-
-        QSettings *settings = Core::ICore::settings();
-        float zoom = settings->value(QLatin1String(SETTINGS_KEY), 0).toFloat();
-        setFontZoom(zoom);
-
-        fontSettingsChanged();
-
-        connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
-                this, &CompileOutputTextEdit::fontSettingsChanged);
-
-        connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
-                this, &CompileOutputTextEdit::saveSettings);
-
         setMouseTracking(true);
-    }
-
-    void saveSettings()
-    {
-        QSettings *settings = Core::ICore::settings();
-        settings->setValue(QLatin1String(SETTINGS_KEY), fontZoom());
     }
 
     void addTask(const Task &task, int blocknumber)
@@ -109,11 +89,6 @@ public:
     void clearTasks()
     {
         m_taskids.clear();
-    }
-private:
-    void fontSettingsChanged()
-    {
-        setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
     }
 
 protected:
@@ -158,8 +133,6 @@ private:
 
 CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_cancelBuildButton(new QToolButton),
-    m_zoomInButton(new QToolButton),
-    m_zoomOutButton(new QToolButton),
     m_settingsButton(new QToolButton),
     m_formatter(new Utils::OutputFormatter)
 {
@@ -185,23 +158,29 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
             Utils::ProxyAction::proxyActionWithIcon(cancelBuildAction,
                                                     Utils::Icons::STOP_SMALL_TOOLBAR.icon());
     m_cancelBuildButton->setDefaultAction(cancelBuildProxyButton);
-    m_zoomInButton->setToolTip(tr("Increase Font Size"));
-    m_zoomInButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
-    m_zoomOutButton->setIcon(Utils::Icons::MINUS.icon());
     m_settingsButton->setToolTip(tr("Open Settings Page"));
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
 
+    auto updateFontSettings = [this] {
+        m_outputWindow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
+    };
+
+    auto updateZoomEnabled = [this] {
+        m_outputWindow->setWheelZoomEnabled(
+                    TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
+    };
+
+    setZoomButtonsEnabled(true);
+    updateFontSettings();
     updateZoomEnabled();
 
-    connect(TextEditor::TextEditorSettings::instance(),
-            &TextEditor::TextEditorSettings::behaviorSettingsChanged,
-            this, &CompileOutputWindow::updateZoomEnabled);
+    connect(this, &IOutputPane::zoomIn, m_outputWindow, &Core::OutputWindow::zoomIn);
+    connect(this, &IOutputPane::zoomOut, m_outputWindow, &Core::OutputWindow::zoomOut);
+    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
+            this, updateFontSettings);
+    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
+            this, updateZoomEnabled);
 
-    connect(m_zoomInButton, &QToolButton::clicked,
-            this, [this]() { m_outputWindow->zoomIn(1); });
-    connect(m_zoomOutButton, &QToolButton::clicked,
-            this, [this]() { m_outputWindow->zoomOut(1); });
     connect(m_settingsButton, &QToolButton::clicked, this, [] {
         Core::ICore::showOptionsDialog(OPTIONS_PAGE_ID);
     });
@@ -223,20 +202,8 @@ CompileOutputWindow::~CompileOutputWindow()
     ExtensionSystem::PluginManager::removeObject(m_handler);
     delete m_handler;
     delete m_cancelBuildButton;
-    delete m_zoomInButton;
-    delete m_zoomOutButton;
     delete m_settingsButton;
     delete m_formatter;
-}
-
-void CompileOutputWindow::updateZoomEnabled()
-{
-    const TextEditor::BehaviorSettings &settings
-            = TextEditor::TextEditorSettings::behaviorSettings();
-    bool zoomEnabled  = settings.m_scrollWheelZooming;
-    m_zoomInButton->setEnabled(zoomEnabled);
-    m_zoomOutButton->setEnabled(zoomEnabled);
-    m_outputWindow->setWheelZoomEnabled(zoomEnabled);
 }
 
 void CompileOutputWindow::updateFromSettings()
@@ -267,7 +234,7 @@ QWidget *CompileOutputWindow::outputWidget(QWidget *)
 
 QList<QWidget *> CompileOutputWindow::toolBarWidgets() const
 {
-     return {m_cancelBuildButton, m_zoomInButton, m_zoomOutButton, m_settingsButton};
+    return QList<QWidget *>{m_cancelBuildButton, m_settingsButton} + IOutputPane::toolBarWidgets();
 }
 
 void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputFormat format)

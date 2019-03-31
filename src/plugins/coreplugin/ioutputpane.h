@@ -32,6 +32,7 @@
 #include <QString>
 
 QT_BEGIN_NAMESPACE
+class QToolButton;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -46,7 +47,7 @@ public:
     ~IOutputPane() override;
 
     virtual QWidget *outputWidget(QWidget *parent) = 0;
-    virtual QList<QWidget *> toolBarWidgets() const = 0;
+    virtual QList<QWidget *> toolBarWidgets() const;
     virtual QString displayName() const = 0;
 
     virtual int priorityInStatusBar() const = 0;
@@ -63,6 +64,9 @@ public:
     virtual bool canPrevious() const = 0;
     virtual void goToNext() = 0;
     virtual void goToPrev() = 0;
+
+    void setFont(const QFont &font);
+    void setWheelZoomEnabled(bool enabled);
 
     enum Flag { NoModeSwitch = 0, ModeSwitch = 1, WithFocus = 2, EnsureSizeHint = 4};
     Q_DECLARE_FLAGS(Flags, Flag)
@@ -83,6 +87,17 @@ signals:
     void navigateStateUpdate();
     void flashButton();
     void setBadgeNumber(int number);
+    void zoomIn(int range);
+    void zoomOut(int range);
+    void wheelZoomEnabledChanged(bool enabled);
+    void fontChanged(const QFont &font);
+
+protected:
+    void setZoomButtonsEnabled(bool enabled);
+
+private:
+    QToolButton * const m_zoomInButton = nullptr;
+    QToolButton * const m_zoomOutButton = nullptr;
 };
 
 } // namespace Core

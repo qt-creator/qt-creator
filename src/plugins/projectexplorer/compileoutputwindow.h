@@ -91,14 +91,11 @@ private:
     void loadSettings();
     void storeSettings() const;
     void updateFromSettings();
-    void updateZoomEnabled();
 
     CompileOutputTextEdit *m_outputWindow;
     QHash<unsigned int, QPair<int, int>> m_taskPositions;
     ShowOutputTaskHandler *m_handler;
     QToolButton *m_cancelBuildButton;
-    QToolButton *m_zoomInButton;
-    QToolButton *m_zoomOutButton;
     QToolButton * const m_settingsButton;
     Utils::OutputFormatter *m_formatter;
     CompileOutputSettings m_settings;

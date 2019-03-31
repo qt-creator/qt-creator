@@ -77,8 +77,9 @@ public:
 
 /*******************/
 
-OutputWindow::OutputWindow(Context context, QWidget *parent)
+OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget *parent)
     : QPlainTextEdit(parent)
+    , m_settingsKey(settingsKey)
     , d(new Internal::OutputWindowPrivate(document()))
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -117,6 +118,10 @@ OutputWindow::OutputWindow(Context context, QWidget *parent)
     connect(this, &QPlainTextEdit::redoAvailable, redoAction, &QAction::setEnabled);
     connect(this, &QPlainTextEdit::copyAvailable, cutAction, &QAction::setEnabled);  // OutputWindow never read-only
     connect(this, &QPlainTextEdit::copyAvailable, copyAction, &QAction::setEnabled);
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested, this, [this] {
+        if (!m_settingsKey.isEmpty())
+            Core::ICore::settings()->setValue(m_settingsKey, fontZoom());
+    });
 
     undoAction->setEnabled(false);
     redoAction->setEnabled(false);
@@ -130,6 +135,11 @@ OutputWindow::OutputWindow(Context context, QWidget *parent)
     m_lastMessage.start();
 
     d->m_originalFontSize = font().pointSizeF();
+
+    if (!m_settingsKey.isEmpty()) {
+        float zoom = Core::ICore::settings()->value(m_settingsKey).toFloat();
+        setFontZoom(zoom);
+    }
 }
 
 OutputWindow::~OutputWindow()

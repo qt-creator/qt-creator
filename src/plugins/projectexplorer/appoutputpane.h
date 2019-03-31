@@ -119,8 +119,8 @@ private:
     void updateFromSettings();
     void enableDefaultButtons();
 
-    void zoomIn();
-    void zoomOut();
+    void zoomIn(int range);
+    void zoomOut(int range);
 
     void enableButtons(const RunControl *rc);
 
@@ -143,9 +143,6 @@ private:
     int tabWidgetIndexOf(int runControlIndex) const;
     void handleOldOutput(Core::OutputWindow *window) const;
     void updateCloseActions();
-    void updateFontSettings();
-    void storeZoomFactor();
-    void updateBehaviorSettings();
     void updateFilter();
     void configureCurrentWindow();
     void filterOutputButtonClicked();
@@ -167,14 +164,11 @@ private:
     QToolButton *m_reRunButton;
     QToolButton *m_stopButton;
     QToolButton *m_attachButton;
-    QToolButton *m_zoomInButton;
-    QToolButton *m_zoomOutButton;
     QToolButton * const m_settingsButton;
     QAction *m_filterActionRegexp = nullptr;
     QAction *m_filterActionCaseSensitive = nullptr;
     Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
     QWidget *m_formatterWidget;
-    float m_zoom;
     AppOutputSettings m_settings;
     bool m_filterRegexp = false;
     bool m_filterCaseSensitive = false;

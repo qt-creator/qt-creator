@@ -52,7 +52,7 @@ public:
     };
     Q_DECLARE_FLAGS(FilterModeFlags, FilterModeFlag)
 
-    OutputWindow(Context context, QWidget *parent = nullptr);
+    OutputWindow(Context context, const QString &settingsKey, QWidget *parent = nullptr);
     ~OutputWindow() override;
 
     Utils::OutputFormatter *formatter() const;
@@ -114,6 +114,7 @@ private:
 
     QColor m_highlightBgColor;
     QColor m_highlightTextColor;
+    const QString m_settingsKey;
 
     Internal::OutputWindowPrivate *d;
 };

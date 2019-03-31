@@ -184,8 +184,6 @@ AppOutputPane::AppOutputPane() :
     m_reRunButton(new QToolButton),
     m_stopButton(new QToolButton),
     m_attachButton(new QToolButton),
-    m_zoomInButton(new QToolButton),
-    m_zoomOutButton(new QToolButton),
     m_settingsButton(new QToolButton),
     m_filterOutputLineEdit(new Utils::FancyLineEdit),
     m_formatterWidget(new QWidget)
@@ -224,19 +222,8 @@ AppOutputPane::AppOutputPane() :
     connect(m_attachButton, &QToolButton::clicked,
             this, &AppOutputPane::attachToRunControl);
 
-    m_zoomInButton->setToolTip(tr("Increase Font Size"));
-    m_zoomInButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    m_zoomInButton->setAutoRaise(true);
-
-    connect(m_zoomInButton, &QToolButton::clicked,
-            this, &AppOutputPane::zoomIn);
-
-    m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
-    m_zoomOutButton->setIcon(Utils::Icons::MINUS.icon());
-    m_zoomOutButton->setAutoRaise(true);
-
-    connect(m_zoomOutButton, &QToolButton::clicked,
-            this, &AppOutputPane::zoomOut);
+    connect(this, &Core::IOutputPane::zoomIn, this, &AppOutputPane::zoomIn);
+    connect(this, &Core::IOutputPane::zoomOut, this, &AppOutputPane::zoomOut);
 
     m_settingsButton->setToolTip(tr("Open Settings Page"));
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
@@ -293,17 +280,8 @@ AppOutputPane::AppOutputPane() :
 
     m_mainWidget->setLayout(layout);
 
-    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
-            this, &AppOutputPane::updateFontSettings);
-
-    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
-            this, &AppOutputPane::updateBehaviorSettings);
-
     connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
             this, &AppOutputPane::aboutToUnloadSession);
-
-    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
-            this, &AppOutputPane::storeZoomFactor);
 }
 
 AppOutputPane::~AppOutputPane()
@@ -315,12 +293,6 @@ AppOutputPane::~AppOutputPane()
         delete rt.runControl;
     }
     delete m_mainWidget;
-}
-
-void AppOutputPane::storeZoomFactor()
-{
-    QSettings *settings = Core::ICore::settings();
-    settings->setValue(SETTINGS_KEY, m_zoom);
 }
 
 int AppOutputPane::currentIndex() const
@@ -388,8 +360,8 @@ QWidget *AppOutputPane::outputWidget(QWidget *)
 
 QList<QWidget*> AppOutputPane::toolBarWidgets() const
 {
-    return { m_reRunButton, m_stopButton, m_attachButton, m_zoomInButton,
-             m_zoomOutButton, m_settingsButton, m_filterOutputLineEdit, m_formatterWidget };
+    return QList<QWidget *>{m_reRunButton, m_stopButton, m_attachButton, m_settingsButton,
+                m_filterOutputLineEdit, m_formatterWidget} + IOutputPane::toolBarWidgets();
 }
 
 QString AppOutputPane::displayName() const
@@ -430,25 +402,6 @@ void AppOutputPane::setFocus()
 {
     if (m_tabWidget->currentWidget())
         m_tabWidget->currentWidget()->setFocus();
-}
-
-void AppOutputPane::updateFontSettings()
-{
-    const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::fontSettings();
-    for (const RunControlTab &rcTab : qAsConst(m_runControlTabs)) {
-        rcTab.window->setBaseFont(fs.font());
-        rcTab.window->setHighlightBgColor(fs.toTextCharFormat(TextEditor::C_SEARCH_RESULT)
-                                          .background().color());
-        rcTab.window->setHighlightTextColor(fs.toTextCharFormat(TextEditor::C_SEARCH_RESULT)
-                                            .foreground().color());
-    }
-}
-
-void AppOutputPane::updateBehaviorSettings()
-{
-    bool zoomEnabled = TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming;
-    for (const RunControlTab &rcTab : qAsConst(m_runControlTabs))
-        rcTab.window->setWheelZoomEnabled(zoomEnabled);
 }
 
 void AppOutputPane::updateFilter()
@@ -540,24 +493,37 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::fontSettings();
     Core::Id contextId = Core::Id(C_APP_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
-    Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
+    Core::OutputWindow *ow = new Core::OutputWindow(context, SETTINGS_KEY, m_tabWidget);
     ow->setWindowTitle(tr("Application Output Window"));
     ow->setWindowIcon(Icons::WINDOW.icon());
     ow->setWordWrapEnabled(m_settings.wrapOutput);
     ow->setMaxCharCount(m_settings.maxCharCount);
-    ow->setWheelZoomEnabled(TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
-    ow->setBaseFont(fs.font());
     ow->setHighlightBgColor(fs.toTextCharFormat(TextEditor::C_SEARCH_RESULT)
                             .background().color());
     ow->setHighlightTextColor(fs.toTextCharFormat(TextEditor::C_SEARCH_RESULT)
                               .foreground().color());
-    ow->setFontZoom(m_zoom);
+
+    auto updateFontSettings = [ow] {
+        ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
+    };
+
+    auto updateBehaviorSettings = [ow] {
+        ow->setWheelZoomEnabled(
+                    TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
+    };
+
+    updateFontSettings();
+    updateBehaviorSettings();
 
     connect(ow, &Core::OutputWindow::wheelZoom, this, [this, ow]() {
-        m_zoom = ow->fontZoom();
+        float fontZoom = ow->fontZoom();
         for (const RunControlTab &tab : qAsConst(m_runControlTabs))
-            tab.window->setFontZoom(m_zoom);
+            tab.window->setFontZoom(fontZoom);
     });
+    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
+            this, updateFontSettings);
+    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
+            this, updateBehaviorSettings);
 
     auto *agg = new Aggregation::Aggregate;
     agg->add(ow);
@@ -634,7 +600,6 @@ void AppOutputPane::loadSettings()
     m_settings.wrapOutput = s->value(WRAP_OUTPUT_KEY, true).toBool();
     m_settings.maxCharCount = s->value(MAX_LINES_KEY,
                                        Core::Constants::DEFAULT_MAX_CHAR_COUNT).toInt() * 100;
-    m_zoom = s->value(SETTINGS_KEY, 0).toFloat();
 }
 
 void AppOutputPane::showTabFor(RunControl *rc)
@@ -754,22 +719,16 @@ void AppOutputPane::enableDefaultButtons()
     enableButtons(currentRunControl());
 }
 
-void AppOutputPane::zoomIn()
+void AppOutputPane::zoomIn(int range)
 {
     for (const RunControlTab &tab : qAsConst(m_runControlTabs))
-        tab.window->zoomIn(1);
-    if (m_runControlTabs.isEmpty())
-        return;
-    m_zoom = m_runControlTabs.first().window->fontZoom();
+        tab.window->zoomIn(range);
 }
 
-void AppOutputPane::zoomOut()
+void AppOutputPane::zoomOut(int range)
 {
     for (const RunControlTab &tab : qAsConst(m_runControlTabs))
-        tab.window->zoomOut(1);
-    if (m_runControlTabs.isEmpty())
-        return;
-    m_zoom = m_runControlTabs.first().window->fontZoom();
+        tab.window->zoomOut(range);
 }
 
 void AppOutputPane::enableButtons(const RunControl *rc)
@@ -789,8 +748,7 @@ void AppOutputPane::enableButtons(const RunControl *rc)
             m_attachButton->setEnabled(false);
             m_attachButton->setToolTip(msgAttachDebuggerTooltip());
         }
-        m_zoomInButton->setEnabled(true);
-        m_zoomOutButton->setEnabled(true);
+        setZoomButtonsEnabled(true);
 
         replaceAllChildWidgets(m_formatterWidget->layout(), rc->outputFormatter() ?
                                    rc->outputFormatter()->toolbarWidgets() :
@@ -801,8 +759,7 @@ void AppOutputPane::enableButtons(const RunControl *rc)
         m_attachButton->setEnabled(false);
         m_attachButton->setToolTip(msgAttachDebuggerTooltip());
         m_stopAction->setEnabled(false);
-        m_zoomInButton->setEnabled(false);
-        m_zoomOutButton->setEnabled(false);
+        setZoomButtonsEnabled(false);
     }
     m_formatterWidget->setVisible(m_formatterWidget->layout()->count());
 }
