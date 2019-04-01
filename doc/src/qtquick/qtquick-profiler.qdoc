@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -211,6 +211,11 @@
     events in milliseconds.
 
     To zoom into an event range, double-click it.
+
+    To narrow down the current range in the \uicontrol Timeline,
+    \uicontrol Statistics, and \uicontrol {Flame Graph} views, right-click
+    the range and select \uicontrol {Analyze Current Range}. To return to
+    the full range, select \uicontrol {Analyze Full Range} in the context menu.
 
     To remove an event range, close the \uicontrol Selection dialog.
 
@@ -556,10 +561,9 @@
 
     Click on an event to move to it in the source code in the code editor.
 
-    When you select an event in the \uicontrol Timeline view, information about it is
-    displayed in the \uicontrol Statistics view. To view an event range in the
-    \uicontrol Statistics view, select \uicontrol {Analyze Current Range}
-    in the context menu in the \uicontrol Timeline view.
+    When you select an event in the \uicontrol Timeline view, information about
+    it is displayed in the \uicontrol Statistics and \uicontrol {Flame Graph}
+    views.
 
     To copy the contents of one view or row to the clipboard, select
     \uicontrol {Copy Table} or \uicontrol {Copy Row} in the context menu.
