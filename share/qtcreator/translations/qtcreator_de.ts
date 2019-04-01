@@ -18536,11 +18536,11 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Show help tooltips using keyboard shortcut (Alt)</source>
-        <translation>Zeige Tooltips mit Hilfe unter Verwendung des Tastaturkürzels (Alt-Taste)</translation>
+        <translation>Hilfe-Tooltips mit der Tastatur aufrufen (Alt-Taste)</translation>
     </message>
     <message>
         <source>Show help tooltips using the mouse:</source>
-        <translation>Zeige Tooltips mit Hilfe unter Verwendung der Maus:</translation>
+        <translation>Hilfe-Tooltips mit der Maus aufrufen:</translation>
     </message>
     <message>
         <source>Cleans whitespace in entire document instead of only for changed parts.</source>
