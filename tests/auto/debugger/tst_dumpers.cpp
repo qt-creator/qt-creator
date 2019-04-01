@@ -2053,7 +2053,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QDir>\n",
                     "QDir dir(" + quoted(tempDir) + ");\n"
                     "QString s = dir.absolutePath();\n"
-                    "QFileInfoList fi = dir.entryInfoList();\n"
+                    "QFileInfoList fil = dir.entryInfoList();\n"
+                    "QFileInfo fi = fil.first();\n"
                     "unused(&dir, &s, &fi);\n")
 
                + CoreProfile()
