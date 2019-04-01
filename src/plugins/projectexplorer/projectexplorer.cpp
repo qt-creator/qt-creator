@@ -1716,7 +1716,7 @@ void ProjectExplorerPlugin::unloadProject(Project *project)
     if (!DocumentManager::saveModifiedDocumentSilently(document))
         return;
 
-    if (!dd->closeAllFilesInProject(project))
+    if (projectExplorerSettings().closeSourceFilesWithProject && !dd->closeAllFilesInProject(project))
         return;
 
     dd->addToRecentProjects(document->filePath().toString(), project->displayName());
