@@ -45,7 +45,7 @@ public:
     int majorVersion{-1};
     int minorVersion{-1};
     QString libraryEntryIconPath;
-    QIcon typeIcon;
+    QIcon typeIcon = QIcon(":/ItemLibrary/images/item-default-icon.png");
     QList<PropertyContainer> properties;
     QString qml;
     QString qmlSource;
