@@ -2043,13 +2043,15 @@ void tst_Dumpers::dumper_data()
                //     Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime") % Optional();
 
 #ifdef Q_OS_WIN
-    QString tempDir = "\"C:/Program Files\"";
+    QString tempDir = "C:/Program Files";
 #else
-    QString tempDir = "\"/tmp\"";
+    QString tempDir = "/tmp";
 #endif
+    auto quoted = [](const QString &str) { return QString('"' + str + '"'); };
+
     QTest::newRow("QDir")
             << Data("#include <QDir>\n",
-                    "QDir dir(" + tempDir + ");\n"
+                    "QDir dir(" + quoted(tempDir) + ");\n"
                     "QString s = dir.absolutePath();\n"
                     "QFileInfoList fi = dir.entryInfoList();\n"
                     "unused(&dir, &s, &fi);\n")
@@ -2057,9 +2059,13 @@ void tst_Dumpers::dumper_data()
                + CoreProfile()
                + QtVersion(0x50300)
 
-               + Check("dir", tempDir, "@QDir")
-            // + Check("dir.canonicalPath", tempDir, "@QString")
-               + Check("dir.absolutePath", tempDir, "@QString") % Optional();
+               + Check("dir", quoted(tempDir), "@QDir")
+            // + Check("dir.canonicalPath", quoted(tempDir), "@QString")
+               + Check("dir.absolutePath", quoted(tempDir), "@QString") % Optional()
+               + Check("dir.entryInfoList.0", "[0]", quoted(tempDir + "/."), "@QFileInfo")
+               + Check("dir.entryInfoList.1", "[1]", quoted(tempDir + "/.."), "@QFileInfo")
+               + Check("dir.entryList.0", "[0]", "\".\"", "@QString")
+               + Check("dir.entryList.1", "[1]", "\"..\"", "@QString");
 
 
     QTest::newRow("QFileInfo")
