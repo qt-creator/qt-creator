@@ -187,7 +187,7 @@ protected: // functions
     void notifyErrorsAndWarnings(const QList<DocumentMessage> &errors);
 
 private: //variables
-    ModelNode nodeAtTextCursorPositionRekursive(const ModelNode &root, int cursorPosition) const;
+    ModelNode nodeAtTextCursorPositionHelper(const ModelNode &root, int cursorPosition) const;
     void setupCanonicalHashes() const;
 
     TextModifier *m_textModifier = nullptr;

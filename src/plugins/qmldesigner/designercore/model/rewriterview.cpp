@@ -691,39 +691,36 @@ static bool isInNodeDefinition(int nodeTextOffset, int nodeTextLength, int curso
     return (nodeTextOffset <= cursorPosition) && (nodeTextOffset + nodeTextLength > cursorPosition);
 }
 
-ModelNode RewriterView::nodeAtTextCursorPositionRekursive(const ModelNode &root, int cursorPosition) const
+ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, int cursorPosition) const
 {
-    ModelNode node = root;
+    using myPair = std::pair<ModelNode,int>;
+    std::vector<myPair> data;
 
-    int lastOffset = -1;
-
-    bool sorted = true;
-
-    if (!root.nodeProperties().isEmpty())
-        sorted = false;
-
-    foreach (const ModelNode &currentNode, node.directSubModelNodes()) {
-        const int offset = nodeOffset(currentNode);
-
-        if (offset < cursorPosition && offset > lastOffset) {
-            node = nodeAtTextCursorPositionRekursive(currentNode, cursorPosition);
-            lastOffset = offset;
-        } else {
-            if (sorted)
-                break;
-        }
+    for (const ModelNode &node : allModelNodes()) {
+        int offset = nodeOffset(node);
+        if (offset > 0)
+            data.emplace_back(std::make_pair(node, offset));
     }
 
-    const int nodeTextLength = nodeLength(node);
-    const int nodeTextOffset = nodeOffset(node);
+    std::sort(data.begin(), data.end(), [](myPair a, myPair b) {
+        return a.second < b.second;
+    });
 
-    if (nodeTextLength < 0)
-        return ModelNode();
+    ModelNode lastNode = root;
 
-    if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition))
-        return node;
+    for (const myPair &pair : data) {
+        ModelNode node = pair.first;
 
-    return root;
+        const int nodeTextLength = nodeLength(node);
+        const int nodeTextOffset = nodeOffset(node);
+
+        if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition))
+            lastNode = node;
+        else if (nodeTextOffset > cursorPosition)
+            break;
+    }
+
+    return lastNode;
 }
 
 void RewriterView::setupCanonicalHashes() const
@@ -754,7 +751,7 @@ void RewriterView::setupCanonicalHashes() const
 
 ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
 {
-    return nodeAtTextCursorPositionRekursive(rootModelNode(), cursorPosition);
+    return nodeAtTextCursorPositionHelper(rootModelNode(), cursorPosition);
 }
 
 bool RewriterView::renameId(const QString& oldId, const QString& newId)
