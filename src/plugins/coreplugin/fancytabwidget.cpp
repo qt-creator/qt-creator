@@ -215,6 +215,7 @@ void FancyTabBar::mousePressEvent(QMouseEvent *event)
                     // menu arrow clicked
                     emit menuTriggered(index, event);
                 } else {
+                    emit currentAboutToChange(index);
                     m_currentIndex = index;
                     update();
                     // update tab bar before showing widget
@@ -396,6 +397,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
 void FancyTabBar::setCurrentIndex(int index)
 {
     if (isTabEnabled(index) && index != m_currentIndex) {
+        emit currentAboutToChange(index);
         m_currentIndex = index;
         update();
         emit currentChanged(m_currentIndex);
@@ -520,6 +522,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     mainLayout->addLayout(vlayout);
     setLayout(mainLayout);
 
+    connect(m_tabBar, &FancyTabBar::currentAboutToChange, this, &FancyTabWidget::currentAboutToShow);
     connect(m_tabBar, &FancyTabBar::currentChanged, this, &FancyTabWidget::showWidget);
     connect(m_tabBar, &FancyTabBar::menuTriggered, this, &FancyTabWidget::menuTriggered);
 }
@@ -598,7 +601,7 @@ void FancyTabWidget::addCornerWidget(QWidget *widget)
 
 int FancyTabWidget::currentIndex() const
 {
-    return m_modesStack->currentIndex();
+    return m_tabBar->currentIndex();
 }
 
 QStatusBar *FancyTabWidget::statusBar() const
@@ -613,7 +616,6 @@ void FancyTabWidget::setCurrentIndex(int index)
 
 void FancyTabWidget::showWidget(int index)
 {
-    emit currentAboutToShow(index);
     m_modesStack->setCurrentIndex(index);
     QWidget *w = m_modesStack->currentWidget();
     if (QTC_GUARD(w)) {

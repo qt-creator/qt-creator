@@ -125,6 +125,7 @@ public:
     QRect tabRect(int index) const;
 
 signals:
+    void currentAboutToChange(int index);
     void currentChanged(int index);
     void menuTriggered(int index, QMouseEvent *event);
 
