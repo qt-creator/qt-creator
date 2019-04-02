@@ -172,7 +172,8 @@ void TextEditorView::nodeIdChanged(const ModelNode& /*node*/, const QString &/*n
 void TextEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/,
                                           const QList<ModelNode> &/*lastSelectedNodeList*/)
 {
-    m_widget->jumpTextCursorToSelectedModelNode();
+    if (!m_errorState)
+        m_widget->jumpTextCursorToSelectedModelNode();
 }
 
 void TextEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
@@ -187,9 +188,11 @@ void TextEditorView::documentMessagesChanged(const QList<DocumentMessage> &error
 {
     if (errors.isEmpty()) {
         m_widget->clearStatusBar();
+        m_errorState = false;
     } else {
         const DocumentMessage &error = errors.constFirst();
         m_widget->setStatusText(QString("%1 (Line: %2)").arg(error.description()).arg(error.line()));
+        m_errorState = true;
     }
 }
 
