@@ -96,7 +96,10 @@ public:
     bool documentOpen(const Core::IDocument *document) const;
     void documentContentsSaved(Core::IDocument *document);
     void documentWillSave(Core::IDocument *document);
-    void documentContentsChanged(Core::IDocument *document);
+    void documentContentsChanged(TextEditor::TextDocument *document,
+                                 int position,
+                                 int charsRemoved,
+                                 int charsAdded);
     void registerCapabilities(const QList<LanguageServerProtocol::Registration> &registrations);
     void unregisterCapabilities(const QList<LanguageServerProtocol::Unregistration> &unregistrations);
     bool findLinkAt(LanguageServerProtocol::GotoDefinitionRequest &request);
@@ -190,7 +193,7 @@ private:
     QHash<QByteArray, ContentHandler> m_contentHandler;
     QString m_displayName;
     LanguageFilter m_languagFilter;
-    QList<Utils::FileName> m_openedDocument;
+    QMap<Utils::FileName, QString> m_openedDocument;
     Core::Id m_id;
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;

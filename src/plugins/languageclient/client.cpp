@@ -131,7 +131,7 @@ Client::~Client()
     }
     for (const DocumentUri &uri : m_diagnostics.keys())
         removeDiagnostics(uri);
-    updateEditorToolBar(m_openedDocument);
+    updateEditorToolBar(m_openedDocument.keys());
 }
 
 static ClientCapabilities generateClientCapabilities()
@@ -287,11 +287,13 @@ bool Client::openDocument(Core::IDocument *document)
     item.setText(QString::fromUtf8(document->contents()));
     item.setVersion(textDocument ? textDocument->document()->revision() : 0);
 
-    connect(document, &Core::IDocument::contentsChanged, this,
-            [this, document](){
-        documentContentsChanged(document);
-    });
     if (textDocument) {
+        connect(textDocument,
+                &TextEditor::TextDocument::contentsChangedWithPosition,
+                this,
+                [this, textDocument](int position, int charsRemoved, int charsAdded) {
+                    documentContentsChanged(textDocument, position, charsRemoved, charsAdded);
+                });
         textDocument->completionAssistProvider();
         m_resetAssistProvider << textDocument;
         m_completionProvider.setTriggerCharacters(
@@ -304,9 +306,11 @@ bool Client::openDocument(Core::IDocument *document)
         connect(textDocument, &QObject::destroyed, this, [this, textDocument]{
             m_resetAssistProvider.remove(textDocument);
         });
+        m_openedDocument.insert(document->filePath(), textDocument->plainText());
+    } else {
+        m_openedDocument.insert(document->filePath(), QString());
     }
 
-    m_openedDocument.append(document->filePath());
     sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
     if (textDocument)
         requestDocumentSymbols(textDocument);
@@ -410,7 +414,10 @@ void Client::documentWillSave(Core::IDocument *document)
     sendContent(WillSaveTextDocumentNotification(params));
 }
 
-void Client::documentContentsChanged(Core::IDocument *document)
+void Client::documentContentsChanged(TextEditor::TextDocument *document,
+                                     int position,
+                                     int charsRemoved,
+                                     int charsAdded)
 {
     if (!m_openedDocument.contains(document->filePath()))
         return;
@@ -430,7 +437,21 @@ void Client::documentContentsChanged(Core::IDocument *document)
         const auto uri = DocumentUri::fromFileName(document->filePath());
         VersionedTextDocumentIdentifier docId(uri);
         docId.setVersion(textDocument ? textDocument->document()->revision() : 0);
-        const DidChangeTextDocumentParams params(docId, QString::fromUtf8(document->contents()));
+        DidChangeTextDocumentParams params;
+        params.setTextDocument(docId);
+        if (syncKind == TextDocumentSyncKind::Incremental) {
+            DidChangeTextDocumentParams::TextDocumentContentChangeEvent change;
+            QTextDocument oldDoc(m_openedDocument[document->filePath()]);
+            QTextCursor cursor(&oldDoc);
+            cursor.setPosition(position + charsRemoved);
+            cursor.setPosition(position, QTextCursor::KeepAnchor);
+            change.setRange(Range(cursor));
+            change.setText(document->textAt(position, charsAdded));
+            params.setContentChanges({change});
+        } else {
+            params.setContentChanges({document->plainText()});
+        }
+        m_openedDocument[document->filePath()] = document->plainText();
         sendContent(DidChangeTextDocumentNotification(params));
     }
 
@@ -830,7 +851,7 @@ bool Client::reset()
     m_state = Uninitialized;
     m_responseHandlers.clear();
     m_clientInterface->resetBuffer();
-    updateEditorToolBar(m_openedDocument);
+    updateEditorToolBar(m_openedDocument.keys());
     m_openedDocument.clear();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
