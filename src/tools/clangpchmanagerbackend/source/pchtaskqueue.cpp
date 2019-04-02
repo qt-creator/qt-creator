@@ -30,6 +30,8 @@
 #include <progresscounter.h>
 #include <sqlitetransaction.h>
 
+#include <utils/algorithm.h>
+
 namespace ClangBackEnd {
 
 void PchTaskQueue::addPchTasks(PchTasks &&newPchTasks, PchTasks &destination)
@@ -42,12 +44,12 @@ void PchTaskQueue::addPchTasks(PchTasks &&newPchTasks, PchTasks &destination)
 
     PchTasks mergedPchTasks;
     mergedPchTasks.reserve(destination.size() + newPchTasks.size());
-    std::set_union(std::make_move_iterator(newPchTasks.begin()),
-                   std::make_move_iterator(newPchTasks.end()),
-                   std::make_move_iterator(destination.begin()),
-                   std::make_move_iterator(destination.end()),
-                   std::back_inserter(mergedPchTasks),
-                   compare);
+    Utils::set_union(std::make_move_iterator(newPchTasks.begin()),
+                     std::make_move_iterator(newPchTasks.end()),
+                     std::make_move_iterator(destination.begin()),
+                     std::make_move_iterator(destination.end()),
+                     std::back_inserter(mergedPchTasks),
+                     compare);
 
     destination = std::move(mergedPchTasks);
 

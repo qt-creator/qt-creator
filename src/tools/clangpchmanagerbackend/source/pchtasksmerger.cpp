@@ -27,6 +27,8 @@
 
 #include "pchtaskqueueinterface.h"
 
+#include <utils/algorithm.h>
+
 namespace ClangBackEnd {
 
 void PchTasksMerger::mergeTasks(PchTaskSets &&taskSets,
@@ -48,11 +50,11 @@ Result merge(Container &&first, Container &&second)
     Result result;
     result.reserve(first.size() + second.size());
 
-    std::set_union(std::make_move_iterator(first.begin()),
-                   std::make_move_iterator(first.end()),
-                   std::make_move_iterator(second.begin()),
-                   std::make_move_iterator(second.end()),
-                   std::back_inserter(result));
+    Utils::set_union(std::make_move_iterator(first.begin()),
+                     std::make_move_iterator(first.end()),
+                     std::make_move_iterator(second.begin()),
+                     std::make_move_iterator(second.end()),
+                     std::back_inserter(result));
 
     return result;
 }

@@ -27,6 +27,8 @@
 
 #include <projectpartcontainer.h>
 
+#include <utils/algorithm.h>
+
 #include <functional>
 
 namespace ClangBackEnd {
@@ -48,11 +50,11 @@ struct ArgumentsEntry
         ProjectPartIds mergedIds;
         mergedIds.reserve(ids.size() + newIds.size());
 
-        std::set_union(std::make_move_iterator(ids.begin()),
-                       std::make_move_iterator(ids.end()),
-                       std::make_move_iterator(newIds.begin()),
-                       std::make_move_iterator(newIds.end()),
-                       std::back_inserter(mergedIds));
+        Utils::set_union(std::make_move_iterator(ids.begin()),
+                         std::make_move_iterator(ids.end()),
+                         std::make_move_iterator(newIds.begin()),
+                         std::make_move_iterator(newIds.end()),
+                         std::back_inserter(mergedIds));
 
         ids = std::move(mergedIds);
     }

@@ -862,4 +862,70 @@ std::make_signed_t<typename Container::size_type> ssize(Container container)
 {
     return static_cast<std::make_signed_t<typename Container::size_type>>(container.size());
 }
+
+template<typename Compare>
+struct CompareIter
+{
+    Compare compare;
+
+    explicit constexpr CompareIter(Compare compare)
+        : compare(std::move(compare))
+    {}
+
+    template<typename Iterator1, typename Iterator2>
+    constexpr bool operator()(Iterator1 it1, Iterator2 it2)
+    {
+        return bool(compare(*it1, *it2));
+    }
+};
+
+template<typename InputIterator1, typename InputIterator2, typename OutputIterator, typename Compare>
+OutputIterator set_union_impl(InputIterator1 first1,
+                              InputIterator1 last1,
+                              InputIterator2 first2,
+                              InputIterator2 last2,
+                              OutputIterator result,
+                              Compare comp)
+{
+    auto compare = CompareIter<Compare>(comp);
+
+    while (first1 != last1 && first2 != last2) {
+        if (compare(first1, first2)) {
+            *result = *first1;
+            ++first1;
+        } else if (compare(first2, first1)) {
+            *result = *first2;
+            ++first2;
+        } else {
+            *result = *first1;
+            ++first1;
+            ++first2;
+        }
+        ++result;
+    }
+
+    return std::copy(first2, last2, std::copy(first1, last1, result));
+}
+
+template<typename InputIterator1, typename InputIterator2, typename OutputIterator, typename Compare>
+OutputIterator set_union(InputIterator1 first1,
+                         InputIterator1 last1,
+                         InputIterator2 first2,
+                         InputIterator2 last2,
+                         OutputIterator result,
+                         Compare comp)
+{
+    return Utils::set_union_impl(first1, last1, first2, last2, result, comp);
+}
+
+template<typename InputIterator1, typename InputIterator2, typename OutputIterator>
+OutputIterator set_union(InputIterator1 first1,
+                         InputIterator1 last1,
+                         InputIterator2 first2,
+                         InputIterator2 last2,
+                         OutputIterator result)
+{
+    return Utils::set_union_impl(
+        first1, last1, first2, last2, result, std::less<typename InputIterator1::value_type>{});
+}
 } // namespace Utils
