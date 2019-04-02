@@ -110,6 +110,7 @@ BranchAddDialog::BranchAddDialog(const QStringList &localBranches, bool addBranc
     m_ui(new Ui::BranchAddDialog)
 {
     m_ui->setupUi(this);
+    m_ui->trackingCheckBox->setVisible(false);
     setCheckoutVisible(false);
     setWindowTitle(addBranch ? tr("Add Branch") : tr("Rename Branch"));
     m_ui->branchNameEdit->setValidator(new BranchNameValidator(localBranches, this));
@@ -134,14 +135,14 @@ QString BranchAddDialog::branchName() const
 
 void BranchAddDialog::setTrackedBranchName(const QString &name, bool remote)
 {
-    m_ui->trackingCheckBox->setVisible(true);
-    if (!name.isEmpty()) {
-        m_ui->trackingCheckBox->setText(remote ? tr("Track remote branch \'%1\'").arg(name) :
-                                                 tr("Track local branch \'%1\'").arg(name));
-        m_ui->trackingCheckBox->setChecked(remote);
-    } else {
+    if (name.isEmpty()) {
         m_ui->trackingCheckBox->setVisible(false);
         m_ui->trackingCheckBox->setChecked(false);
+    } else {
+        m_ui->trackingCheckBox->setText(remote ? tr("Track remote branch \"%1\"").arg(name) :
+                                                 tr("Track local branch \"%1\"").arg(name));
+        m_ui->trackingCheckBox->setVisible(true);
+        m_ui->trackingCheckBox->setChecked(remote);
     }
 }
 

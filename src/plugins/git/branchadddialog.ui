@@ -32,11 +32,7 @@
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
-    <widget class="QCheckBox" name="trackingCheckBox">
-     <property name="text">
-      <string>CheckBox</string>
-     </property>
-    </widget>
+    <widget class="QCheckBox" name="trackingCheckBox"/>
    </item>
    <item row="4" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
