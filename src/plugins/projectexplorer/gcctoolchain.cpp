@@ -1919,7 +1919,7 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Mingw 2 (64bit)")
             << QString::fromLatin1("i686-w64-mingw32")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\r\n")
-            << QStringList({"x86-windows-msys-pe-64bit", "x86-windows-msys-pe-32bit"});
+            << QStringList({"x86-windows-msys-pe-64bit"});
     QTest::newRow("Mingw 3 (32 bit)")
             << QString::fromLatin1("mingw32")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\r\n")
@@ -1927,7 +1927,7 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Cross Mingw 1 (64bit)")
             << QString::fromLatin1("amd64-mingw32msvc")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\r\n")
-            << QStringList({"x86-windows-msys-pe-64bit", "x86-windows-msys-pe-32bit"});
+            << QStringList({"x86-windows-msys-pe-64bit"});
     QTest::newRow("Cross Mingw 2 (32bit)")
             << QString::fromLatin1("i586-mingw32msvc")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\r\n")
