@@ -90,6 +90,18 @@ public:
     Task::TaskType type = Task::Error;
 };
 
+static Task::TaskType taskTypeFromDescription(const QString &description)
+{
+    if (description.contains(". Stop."))
+        return Task::Error;
+    if (description.contains("not found"))
+        return Task::Error;
+    if (description.contains("No rule to make target"))
+        return Task::Error;
+    // Extend as needed.
+    return Task::Warning;
+}
+
 static Result parseDescription(const QString &description)
 {
     Result result;
@@ -103,7 +115,7 @@ static Result parseDescription(const QString &description)
         result.isFatal = true;
     } else {
         result.description = description;
-        result.type = Task::Error;
+        result.type = taskTypeFromDescription(description);
         result.isFatal = false;
     }
     return result;
