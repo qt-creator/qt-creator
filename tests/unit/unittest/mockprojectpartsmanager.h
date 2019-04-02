@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,18 +23,27 @@
 **
 ****************************************************************************/
 
-#include <sqliteexception.h>
+#pragma once
 
-namespace ClangBackEnd {
+#include "googletest.h"
 
-class ProjectPartArtefactParseError : public Sqlite::Exception
+#include <projectpartsmanagerinterface.h>
+
+class MockProjectPartsManager : public ClangBackEnd::ProjectPartsManagerInterface
 {
 public:
-    ProjectPartArtefactParseError(const char *whatErrorHasHappen,
-                                  Utils::SmallString &&errorMessage)
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    MOCK_METHOD1(update,
+                 ClangBackEnd::ProjectPartContainers(
+                     const ClangBackEnd::ProjectPartContainers &projectsParts));
+    MOCK_METHOD1(remove, void(const ClangBackEnd::ProjectPartIds &projectPartIds));
+    MOCK_CONST_METHOD1(
+        projects,
+        ClangBackEnd::ProjectPartContainers(const ClangBackEnd::ProjectPartIds &projectPartIds));
+    MOCK_METHOD1(updateDeferred, void(const ClangBackEnd::ProjectPartContainers &projectsParts));
+    MOCK_METHOD0(deferredUpdates, ClangBackEnd::ProjectPartContainers());
+
+    ClangBackEnd::ProjectPartContainers update(ClangBackEnd::ProjectPartContainers &&projectsParts) override
     {
+        return update(projectsParts);
     }
 };
-
-}

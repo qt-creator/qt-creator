@@ -478,8 +478,8 @@ def qdump__QDir(d, value):
                 typ = d.lookupType(ns + 'QString')
                 d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, typ))
             with SubItem(d, 'entryInfoList'):
-                typ = d.lookupType(ns + 'QList<' + ns + 'QFileInfo>')
-                d.putItem(d.createValue(privAddress + fileInfosOffset, typ))
+                typ = d.lookupType(ns + 'QFileInfo')
+                qdumpHelper_QList(d, privAddress + fileInfosOffset, typ)
             with SubItem(d, 'entryList'):
                 typ = d.lookupType(ns + 'QStringList')
                 d.putItem(d.createValue(privAddress + filesOffset, typ))

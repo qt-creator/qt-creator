@@ -154,4 +154,9 @@ int TimelineGraphicsLayout::maximumScrollValue() const
     return std::round(qMax(maxr, 0.0));
 }
 
+void TimelineGraphicsLayout::activate()
+{
+    m_layout->activate();
+}
+
 } // End namespace QmlDesigner.

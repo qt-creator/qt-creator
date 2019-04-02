@@ -33,7 +33,8 @@ class MockBuildDependenciesStorage : public ClangBackEnd::BuildDependenciesStora
 {
 public:
     MOCK_METHOD2(insertOrUpdateSources,
-                 void(const ClangBackEnd::SourceEntries &sources, int projectPartId));
+                 void(const ClangBackEnd::SourceEntries &sources,
+                      ClangBackEnd::ProjectPartId projectPartId));
     MOCK_METHOD1(insertOrUpdateUsedMacros,
                  void (const ClangBackEnd::UsedMacros &usedMacros));
     MOCK_METHOD1(insertOrUpdateFileStatuses, void(const ClangBackEnd::FileStatuses &fileStatuses));
@@ -43,11 +44,12 @@ public:
                        long long (ClangBackEnd::FilePathId sourceId));
     MOCK_CONST_METHOD2(fetchDependSources,
                        ClangBackEnd::SourceEntries(ClangBackEnd::FilePathId sourceId,
-                                                   int projectPartId));
+                                                   ClangBackEnd::ProjectPartId projectPartId));
     MOCK_CONST_METHOD1(fetchUsedMacros,
                        ClangBackEnd::UsedMacros (ClangBackEnd::FilePathId sourceId));
-    MOCK_METHOD1(fetchProjectPartId, int(Utils::SmallStringView projectPartName));
+    MOCK_METHOD1(fetchProjectPartId,
+                 ClangBackEnd::ProjectPartId(Utils::SmallStringView projectPartName));
     MOCK_METHOD2(updatePchCreationTimeStamp,
-                 void(long long pchCreationTimeStamp, Utils::SmallStringView projectPartName));
+                 void(long long pchCreationTimeStamp, ClangBackEnd::ProjectPartId projectPartId));
 };
 

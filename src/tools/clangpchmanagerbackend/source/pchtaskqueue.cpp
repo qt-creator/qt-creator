@@ -54,18 +54,18 @@ void PchTaskQueue::addPchTasks(PchTasks &&newPchTasks, PchTasks &destination)
     m_progressCounter.addTotal(int(destination.size() - oldSize));
 }
 
-void PchTaskQueue::removePchTasksByProjectPartId(const Utils::SmallStringVector &projectsPartIds,
+void PchTaskQueue::removePchTasksByProjectPartId(const ProjectPartIds &projectsPartIds,
                                                  PchTasks &destination)
 {
     class CompareDifference
     {
     public:
-        bool operator()(const PchTask &first, const Utils::SmallString &second)
+        bool operator()(const PchTask &first, ProjectPartId second)
         {
             return first.projectPartId() < second;
         }
 
-        bool operator()(const Utils::SmallString &first, const PchTask &second)
+        bool operator()(ProjectPartId first, const PchTask &second)
         {
             return first < second.projectPartId();
         }
@@ -97,7 +97,7 @@ void PchTaskQueue::addProjectPchTasks(PchTasks &&pchTasks)
     addPchTasks(std::move(pchTasks), m_projectPchTasks);
 }
 
-void PchTaskQueue::removePchTasks(const Utils::SmallStringVector &projectsPartIds)
+void PchTaskQueue::removePchTasks(const ProjectPartIds &projectsPartIds)
 {
     removePchTasksByProjectPartId(projectsPartIds, m_projectPchTasks);
 }

@@ -117,6 +117,9 @@ QString filterMetaIcons(const QString &fileName)
 
 QModelIndex CustomFileSystemModel::setRootPath(const QString &newPath)
 {
+    if (m_fileSystemModel->rootPath() == newPath)
+        return QAbstractListModel::index(0, 0);
+
     beginResetModel();
     m_fileSystemModel->setRootPath(newPath);
 

@@ -36,6 +36,7 @@
 
 #include <builddependenciesstorage.h>
 #include <precompiledheaderstorage.h>
+#include <projectpartsstorage.h>
 
 #include <refactoringdatabaseinitializer.h>
 #include <filepathcachingfwd.h>
@@ -84,7 +85,8 @@ public:
                    ProgressCounter::SetProgressCallback &&setProgressCallback)
         : m_filePathCache(filePathCache)
         , m_buildDependencyStorage(database)
-        , m_recompiledHeaderStorage(database)
+        , m_precompiledHeaderStorage(database)
+        , m_projectPartsStorage(database)
         , m_symbolStorage(database)
         , m_collectorManger(generatedFiles, database)
         , m_progressCounter(std::move(setProgressCallback))
@@ -121,7 +123,8 @@ private:
     using SymbolIndexerTaskScheduler = TaskScheduler<SymbolsCollectorManager, SymbolIndexerTask::Callable>;
     FilePathCachingInterface &m_filePathCache;
     BuildDependenciesStorage m_buildDependencyStorage;
-    PrecompiledHeaderStorage<Sqlite::Database> m_recompiledHeaderStorage;
+    PrecompiledHeaderStorage<Sqlite::Database> m_precompiledHeaderStorage;
+    ProjectPartsStorage<Sqlite::Database> m_projectPartsStorage;
     SymbolStorage m_symbolStorage;
     ClangPathWatcher<QFileSystemWatcher, QTimer> m_sourceWatcher{m_filePathCache};
     FileStatusCache m_fileStatusCache{m_filePathCache};
@@ -130,11 +133,12 @@ private:
     SymbolIndexer m_indexer{m_indexerQueue,
                             m_symbolStorage,
                             m_buildDependencyStorage,
-                            m_recompiledHeaderStorage,
+                            m_precompiledHeaderStorage,
                             m_sourceWatcher,
                             m_filePathCache,
                             m_fileStatusCache,
-                            m_symbolStorage.m_database};
+                            m_symbolStorage.database,
+                            m_projectPartsStorage};
     SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler, m_progressCounter};
     SymbolIndexerTaskScheduler m_indexerScheduler;
 };

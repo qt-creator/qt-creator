@@ -52,7 +52,6 @@ SOURCES += \
     $$PWD/refactoringserverproxy.cpp \
     $$PWD/referencesmessage.cpp \
     $$PWD/unsavedfilesupdatedmessage.cpp \
-    $$PWD/removeprojectpartsmessage.cpp \
     $$PWD/requestannotationsmessage.cpp \
     $$PWD/requestfollowsymbolmessage.cpp \
     $$PWD/requestreferencesmessage.cpp \
@@ -87,6 +86,7 @@ SOURCES += \
     $$PWD/updategeneratedfilesmessage.cpp \
     $$PWD/removegeneratedfilesmessage.cpp \
     $$PWD/generatedfiles.cpp \
+    $$PWD/projectpartartefact.cpp \
     $$PWD/projectpartcontainer.cpp
 
 HEADERS += \
@@ -107,8 +107,12 @@ HEADERS += \
     $$PWD/clangrefactoringmessages.h \
     $$PWD/clangrefactoringservermessages.h \
     $$PWD/alivemessage.h \
+    $$PWD/clangsupportexceptions.h \
     $$PWD/completionsmessage.h \
     $$PWD/executeinloop.h \
+    $$PWD/projectpartid.h \
+    $$PWD/projectpartsstorage.h \
+    $$PWD/projectpartsstorageinterface.h \
     $$PWD/requestcompletionsmessage.h \
     $$PWD/echomessage.h \
     $$PWD/endmessage.h \
@@ -208,6 +212,7 @@ HEADERS += \
     $$PWD/progresscounter.h \
     $$PWD/includesearchpath.h \
     $$PWD/commandlinebuilder.h \
+    $$PWD/projectpartartefact.h \
     $$PWD/projectpartcontainer.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

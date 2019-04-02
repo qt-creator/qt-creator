@@ -95,6 +95,8 @@ public:
           m_slashIndex(std::ptrdiff_t(directory.size()))
     {}
 
+    bool isValid() const { return size() > 0 && m_slashIndex >= 0; }
+
     Utils::SmallStringView directory() const noexcept
     {
         return mid(0, std::size_t(std::max(std::ptrdiff_t(0), m_slashIndex)));

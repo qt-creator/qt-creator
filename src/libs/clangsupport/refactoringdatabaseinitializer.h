@@ -47,11 +47,13 @@ public:
             createSourcesTable();
             createDirectoriesTable();
             createProjectPartsTable();
-            createProjectPartsSourcesTable();
+            createProjectPartsFilesTable();
             createUsedMacrosTable();
             createFileStatusesTable();
             createSourceDependenciesTable();
             createPrecompiledHeadersTable();
+            createProjectPartsHeadersTable();
+            createProjectPartsSourcesTable();
 
             transaction.commit();
 
@@ -135,11 +137,11 @@ public:
         table.initialize(database);
     }
 
-    void createProjectPartsSourcesTable()
+    void createProjectPartsFilesTable()
     {
         Sqlite::Table table;
         table.setUseIfNotExists(true);
-        table.setName("projectPartsSources");
+        table.setName("projectPartsFiles");
         const Sqlite::Column &projectPartIdColumn = table.addColumn("projectPartId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         table.addColumn("sourceType", Sqlite::ColumnType::Integer);
@@ -200,6 +202,32 @@ public:
         table.addColumn("projectPchBuildTime", Sqlite::ColumnType::Integer);
         table.addColumn("systemPchPath", Sqlite::ColumnType::Text);
         table.addColumn("systemPchBuildTime", Sqlite::ColumnType::Integer);
+        table.initialize(database);
+    }
+
+    void createProjectPartsHeadersTable()
+    {
+        Sqlite::Table table;
+        table.setUseIfNotExists(true);
+        table.setName("projectPartsHeaders");
+        const Sqlite::Column &projectPartIdColumn = table.addColumn("projectPartId",
+                                                                    Sqlite::ColumnType::Integer);
+        table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        table.addIndex({projectPartIdColumn});
+
+        table.initialize(database);
+    }
+
+    void createProjectPartsSourcesTable()
+    {
+        Sqlite::Table table;
+        table.setUseIfNotExists(true);
+        table.setName("projectPartsSources");
+        const Sqlite::Column &projectPartIdColumn = table.addColumn("projectPartId",
+                                                                    Sqlite::ColumnType::Integer);
+        table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        table.addIndex({projectPartIdColumn});
+
         table.initialize(database);
     }
 

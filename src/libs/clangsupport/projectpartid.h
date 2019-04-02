@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,16 +23,55 @@
 **
 ****************************************************************************/
 
-#include "removeprojectpartsmessage.h"
+#pragma once
+
+#include <QDataStream>
 
 namespace ClangBackEnd {
 
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemoveProjectPartsMessage &message)
+class ProjectPartId
 {
-    debug.nospace() << "RemoveProjectPartsMessage("
-                    << message.projectsPartIds << ")";
+public:
+    constexpr ProjectPartId() = default;
 
-    return debug;
-}
+    ProjectPartId(const char *) = delete;
+
+    ProjectPartId(int projectPathId)
+        : projectPathId(projectPathId)
+    {}
+
+    bool isValid() const { return projectPathId >= 0; }
+
+    friend bool operator==(ProjectPartId first, ProjectPartId second)
+    {
+        return first.isValid() && first.projectPathId == second.projectPathId;
+    }
+
+    friend bool operator!=(ProjectPartId first, ProjectPartId second) { return !(first == second); }
+
+    friend bool operator<(ProjectPartId first, ProjectPartId second)
+    {
+        return first.projectPathId < second.projectPathId;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const ProjectPartId &projectPathId)
+    {
+        out << projectPathId.projectPathId;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, ProjectPartId &projectPathId)
+    {
+        in >> projectPathId.projectPathId;
+
+        return in;
+    }
+
+public:
+    int projectPathId = -1;
+};
+
+using ProjectPartIds = std::vector<ProjectPartId>;
 
 } // namespace ClangBackEnd

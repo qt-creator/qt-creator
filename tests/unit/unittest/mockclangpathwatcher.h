@@ -34,8 +34,7 @@ class MockClangPathWatcher : public ClangBackEnd::ClangPathWatcherInterface
 public:
     MOCK_METHOD1(updateIdPaths,
                  void (const std::vector<ClangBackEnd::IdPaths> &idPaths));
-    MOCK_METHOD1(removeIds,
-                 void (const Utils::SmallStringVector &ids));
+    MOCK_METHOD1(removeIds, void(const ClangBackEnd::ProjectPartIds &ids));
     MOCK_METHOD1(setNotifier,
                  void (ClangBackEnd::ClangPathWatcherNotifier *notifier));
 

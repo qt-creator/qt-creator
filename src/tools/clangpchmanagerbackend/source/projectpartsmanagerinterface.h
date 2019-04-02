@@ -37,10 +37,11 @@ public:
     ProjectPartsManagerInterface &operator=(const ProjectPartsManagerInterface &) = delete;
 
     virtual ProjectPartContainers update(ProjectPartContainers &&projectsParts) = 0;
-    virtual void remove(const Utils::SmallStringVector &projectPartIds) = 0;
-    virtual ProjectPartContainers projects(const Utils::SmallStringVector &projectPartIds) const = 0;
+    virtual void remove(const ProjectPartIds &projectPartIds) = 0;
+    virtual ProjectPartContainers projects(const ProjectPartIds &projectPartIds) const = 0;
     virtual void updateDeferred(const ProjectPartContainers &projectsParts) = 0;
     virtual ProjectPartContainers deferredUpdates() = 0;
+
 protected:
     ~ProjectPartsManagerInterface() = default;
 };

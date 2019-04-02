@@ -30,12 +30,13 @@
 namespace {
 
 using ClangBackEnd::ProjectPartContainer;
+using ClangBackEnd::ProjectPartIds;
 
 MATCHER_P2(IsEntry,
            projectPartIds,
            arguments,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(ClangBackEnd::ArgumentsEntry(projectPartIds.clone(), arguments)))
+               + PrintToString(ClangBackEnd::ArgumentsEntry(Utils::clone(projectPartIds), arguments)))
 {
     const ClangBackEnd::ArgumentsEntry &entry= arg;
 
@@ -46,10 +47,10 @@ class ToolChainArgumentsCache : public testing::Test
 {
 public:
     ClangBackEnd::ToolChainsArgumentsCache cache;
-    ProjectPartContainer projectPart1{"project1", {}, {}, {}, {}, {}, {}, {}, {}, {}};
-    ProjectPartContainer projectPart2{"project2", {}, {}, {}, {}, {}, {}, {}, {}, {}};
-    ProjectPartContainer projectPart3{"project3", {}, {}, {}, {}, {}, {}, {}, {}, {}};
-    ProjectPartContainer projectPart4{"project4", {}, {}, {}, {}, {}, {}, {}, {}, {}};
+    ProjectPartContainer projectPart1{1, {}, {}, {}, {}, {}, {}, {}, {}, {}};
+    ProjectPartContainer projectPart2{2, {}, {}, {}, {}, {}, {}, {}, {}, {}};
+    ProjectPartContainer projectPart3{3, {}, {}, {}, {}, {}, {}, {}, {}, {}};
+    ProjectPartContainer projectPart4{4, {}, {}, {}, {}, {}, {}, {}, {}, {}};
     Utils::SmallStringVector arguments1{"yi", "er"};
     Utils::SmallStringVector arguments2{"san", "se"};
 };
@@ -67,9 +68,8 @@ TEST_F(ToolChainArgumentsCache, AddNewArguments)
 
     cache.update({projectPart1, projectPart3}, arguments1);
 
-    ASSERT_THAT(
-        cache.arguments({projectPart1.projectPartId}),
-        ElementsAre(IsEntry(Utils::SmallStringVector{projectPart1.projectPartId}, arguments1)));
+    ASSERT_THAT(cache.arguments({projectPart1.projectPartId}),
+                ElementsAre(IsEntry(ProjectPartIds{projectPart1.projectPartId}, arguments1)));
 }
 
 TEST_F(ToolChainArgumentsCache, AddDifferentProjectParts)
@@ -78,9 +78,8 @@ TEST_F(ToolChainArgumentsCache, AddDifferentProjectParts)
 
     cache.update({projectPart2, projectPart4}, arguments1);
 
-    ASSERT_THAT(
-        cache.arguments(Utils::SmallStringVector{projectPart2.projectPartId}),
-        ElementsAre(IsEntry(Utils::SmallStringVector{projectPart2.projectPartId}, arguments1)));
+    ASSERT_THAT(cache.arguments(ProjectPartIds{projectPart2.projectPartId}),
+                ElementsAre(IsEntry(ProjectPartIds{projectPart2.projectPartId}, arguments1)));
 }
 
 TEST_F(ToolChainArgumentsCache, AddDifferentProjectPartsReverseOrder)
@@ -89,9 +88,8 @@ TEST_F(ToolChainArgumentsCache, AddDifferentProjectPartsReverseOrder)
 
     cache.update({projectPart1, projectPart4}, arguments1);
 
-    ASSERT_THAT(
-        cache.arguments(Utils::SmallStringVector{projectPart2.projectPartId}),
-        ElementsAre(IsEntry(Utils::SmallStringVector{projectPart2.projectPartId}, arguments1)));
+    ASSERT_THAT(cache.arguments(ProjectPartIds{projectPart2.projectPartId}),
+                ElementsAre(IsEntry(ProjectPartIds{projectPart2.projectPartId}, arguments1)));
 }
 
 TEST_F(ToolChainArgumentsCache, AddDifferentProjectPartsDoesNotRemoveOldEntry)
@@ -100,9 +98,8 @@ TEST_F(ToolChainArgumentsCache, AddDifferentProjectPartsDoesNotRemoveOldEntry)
 
     cache.update({projectPart2, projectPart4}, arguments1);
 
-    ASSERT_THAT(
-        cache.arguments(Utils::SmallStringVector{projectPart1.projectPartId}),
-        ElementsAre(IsEntry(Utils::SmallStringVector{projectPart1.projectPartId}, arguments1)));
+    ASSERT_THAT(cache.arguments(ProjectPartIds{projectPart1.projectPartId}),
+                ElementsAre(IsEntry(ProjectPartIds{projectPart1.projectPartId}, arguments1)));
 }
 
 TEST_F(ToolChainArgumentsCache, AddSameArgumentsDoesNotIncreseEntryCount)
@@ -130,9 +127,8 @@ TEST_F(ToolChainArgumentsCache, RemoveIdsFromOtherEntries)
 
     cache.update({projectPart2, projectPart4}, arguments2);
 
-    ASSERT_THAT(
-        cache.arguments(Utils::SmallStringVector{projectPart2.projectPartId}),
-        ElementsAre(IsEntry(Utils::SmallStringVector{projectPart2.projectPartId}, arguments2)));
+    ASSERT_THAT(cache.arguments(ProjectPartIds{projectPart2.projectPartId}),
+                ElementsAre(IsEntry(ProjectPartIds{projectPart2.projectPartId}, arguments2)));
 }
 
 TEST_F(ToolChainArgumentsCache, RemoveIdsFromOtherEntriesWithArgumentsAlreadyExists)
@@ -142,9 +138,8 @@ TEST_F(ToolChainArgumentsCache, RemoveIdsFromOtherEntriesWithArgumentsAlreadyExi
 
     cache.update({projectPart2, projectPart4}, arguments2);
 
-    ASSERT_THAT(
-        cache.arguments({projectPart2.projectPartId}),
-        ElementsAre(IsEntry(Utils::SmallStringVector{projectPart2.projectPartId}, arguments2)));
+    ASSERT_THAT(cache.arguments({projectPart2.projectPartId}),
+                ElementsAre(IsEntry(ProjectPartIds{projectPart2.projectPartId}, arguments2)));
 }
 
 TEST_F(ToolChainArgumentsCache, RemoveEntryIfEmpty)
@@ -165,12 +160,11 @@ TEST_F(ToolChainArgumentsCache, GetMutipleEntries)
     auto arguments = cache.arguments(
         {projectPart1.projectPartId, projectPart2.projectPartId, projectPart3.projectPartId});
 
-    ASSERT_THAT(
-        arguments,
-        ElementsAre(IsEntry(Utils::SmallStringVector{projectPart2.projectPartId}, arguments1),
-                    IsEntry(Utils::SmallStringVector{projectPart1.projectPartId,
-                                                     projectPart3.projectPartId},
-                            arguments2)));
+    ASSERT_THAT(arguments,
+                ElementsAre(IsEntry(ProjectPartIds{projectPart2.projectPartId}, arguments1),
+                            IsEntry(ProjectPartIds{projectPart1.projectPartId,
+                                                   projectPart3.projectPartId},
+                                    arguments2)));
 }
 
 TEST_F(ToolChainArgumentsCache, RemoveMutipleIds)
@@ -180,10 +174,10 @@ TEST_F(ToolChainArgumentsCache, RemoveMutipleIds)
 
     cache.remove({projectPart1.projectPartId, projectPart2.projectPartId});
 
-    ASSERT_THAT(
-        cache.arguments(
-            {projectPart1.projectPartId, projectPart2.projectPartId, projectPart3.projectPartId}),
-        ElementsAre(IsEntry(Utils::SmallStringVector{projectPart3.projectPartId}, arguments2)));
+    ASSERT_THAT(cache.arguments({projectPart1.projectPartId,
+                                 projectPart2.projectPartId,
+                                 projectPart3.projectPartId}),
+                ElementsAre(IsEntry(ProjectPartIds{projectPart3.projectPartId}, arguments2)));
 }
 
 TEST_F(ToolChainArgumentsCache, RemoveEntriesIfEntryIsEmptyAfterRemovingIds)

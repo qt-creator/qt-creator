@@ -30,11 +30,12 @@
 #include <connectionserver.h>
 #include <environment.h>
 #include <executeinloop.h>
+#include <filepathcaching.h>
 #include <generatedfiles.h>
 #include <modifiedtimechecker.h>
 #include <pchcreator.h>
-#include <pchmanagerserver.h>
 #include <pchmanagerclientproxy.h>
+#include <pchmanagerserver.h>
 #include <pchtaskgenerator.h>
 #include <pchtaskqueue.h>
 #include <pchtasksmerger.h>
@@ -42,7 +43,7 @@
 #include <processormanager.h>
 #include <progresscounter.h>
 #include <projectpartsmanager.h>
-#include <filepathcaching.h>
+#include <projectpartsstorage.h>
 #include <refactoringdatabaseinitializer.h>
 #include <sqlitedatabase.h>
 #include <taskscheduler.h>
@@ -63,14 +64,15 @@ using namespace std::chrono_literals;
 
 using ClangBackEnd::ClangPathWatcher;
 using ClangBackEnd::ConnectionServer;
+using ClangBackEnd::FilePathCache;
+using ClangBackEnd::FilePathView;
 using ClangBackEnd::GeneratedFiles;
 using ClangBackEnd::PchCreator;
 using ClangBackEnd::PchManagerClientProxy;
 using ClangBackEnd::PchManagerServer;
 using ClangBackEnd::PrecompiledHeaderStorage;
 using ClangBackEnd::ProjectPartsManager;
-using ClangBackEnd::FilePathCache;
-using ClangBackEnd::FilePathView;
+using ClangBackEnd::ProjectPartsStorage;
 using ClangBackEnd::TimeStamp;
 
 class PchManagerApplication final : public QCoreApplication
@@ -179,7 +181,8 @@ struct Data // because we have a cycle dependency
     ClangBackEnd::FilePathCaching filePathCache{database};
     ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher{filePathCache};
     ApplicationEnvironment environment;
-    ProjectPartsManager projectParts;
+    ProjectPartsStorage<> projectPartsStorage{database};
+    ProjectPartsManager projectParts{projectPartsStorage};
     GeneratedFiles generatedFiles;
     PchCreatorManager pchCreatorManager{generatedFiles,
                                         environment,

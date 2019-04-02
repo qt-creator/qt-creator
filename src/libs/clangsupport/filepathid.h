@@ -40,6 +40,8 @@ class FilePathId
 public:
     constexpr FilePathId() = default;
 
+    FilePathId(const char *) = delete;
+
     FilePathId(int filePathId)
         : filePathId(filePathId)
     {}

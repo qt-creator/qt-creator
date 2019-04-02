@@ -37,7 +37,7 @@ void PchTasksMerger::mergeTasks(PchTaskSets &&taskSets,
     m_pchTaskQueue.processEntries();
 }
 
-void PchTasksMerger::removePchTasks(const Utils::SmallStringVector &projectPartIds)
+void PchTasksMerger::removePchTasks(const ProjectPartIds &projectPartIds)
 {
     m_pchTaskQueue.removePchTasks(projectPartIds);
 }

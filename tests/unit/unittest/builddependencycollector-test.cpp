@@ -734,7 +734,7 @@ TEST_F(BuildDependencyCollector, Create)
     generatedFiles.update(
         {{TESTDATA_DIR "/builddependencycollector/project/generated_file.h", "#pragma once"}});
     ClangBackEnd::ProjectPartContainer projectPart{
-        "project1",
+        1,
         {},
         {},
         {{TESTDATA_DIR "/builddependencycollector/system", 1, IncludeSearchPathType::System}},
@@ -885,7 +885,7 @@ TEST_F(BuildDependencyCollector, Clear)
     using ClangBackEnd::IncludeSearchPathType;
     ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles, environment};
     ClangBackEnd::ProjectPartContainer projectPart{
-        "project1",
+        1,
         {},
         {},
         {{TESTDATA_DIR "/builddependencycollector/system", 1, IncludeSearchPathType::System}},

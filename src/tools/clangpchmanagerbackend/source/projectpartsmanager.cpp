@@ -32,44 +32,115 @@
 namespace ClangBackEnd {
 
 inline namespace Pch {
+ProjectPartIds toProjectPartIds(const ProjectPartContainers &projectsParts)
+{
+    ProjectPartIds ids;
+    ids.reserve(projectsParts.size());
+    std::transform(projectsParts.begin(),
+                   projectsParts.end(),
+                   std::back_inserter(ids),
+                   [](const auto &projectPart) { return projectPart.projectPartId; });
+
+    return ids;
+}
 
 ProjectPartContainers ProjectPartsManager::update(ProjectPartContainers &&projectsParts)
 {
-    auto updatedProjectPartContainers = newProjectParts(std::move(projectsParts));
+    auto updatedProjectParts = filterNewProjectParts(std::move(projectsParts), m_projectParts);
 
-    mergeProjectParts(updatedProjectPartContainers);
+    if (updatedProjectParts.empty())
+        return {};
 
-    return updatedProjectPartContainers;
+    auto persistentProjectParts = m_projectPartsStorage.fetchProjectParts(
+        toProjectPartIds(updatedProjectParts));
+
+    if (persistentProjectParts.size() > 0) {
+        mergeProjectParts(persistentProjectParts);
+
+        updatedProjectParts = filterNewProjectParts(std::move(updatedProjectParts),
+                                                    persistentProjectParts);
+
+        if (updatedProjectParts.empty())
+            return {};
+    }
+
+    m_projectPartsStorage.updateProjectParts(updatedProjectParts);
+
+    mergeProjectParts(updatedProjectParts);
+
+    return updatedProjectParts;
 }
 
-void ProjectPartsManager::remove(const Utils::SmallStringVector &ids)
+void ProjectPartsManager::remove(const ProjectPartIds &projectPartIds)
 {
-    auto shouldRemove = [&] (const ProjectPartContainer &projectPart) {
-        return std::find(ids.begin(), ids.end(), projectPart.projectPartId) != ids.end();
+    ProjectPartContainers projectPartsWithoutIds;
+
+    struct Compare
+    {
+        bool operator()(ProjectPartId first, const ProjectPartContainer &second)
+        {
+            return first < second.projectPartId;
+        }
+
+        bool operator()(ProjectPartId first, const ProjectPartId &second) { return first < second; }
+
+        bool operator()(const ProjectPartContainer &first, const ProjectPartContainer &second)
+        {
+            return first.projectPartId < second.projectPartId;
+        }
+
+        bool operator()(const ProjectPartContainer &first, ProjectPartId second)
+        {
+            return first.projectPartId < second;
+        }
     };
 
-    auto newEnd = std::remove_if(m_projectParts.begin(), m_projectParts.end(), shouldRemove);
-    m_projectParts.erase(newEnd, m_projectParts.end());
+    std::set_difference(std::make_move_iterator(m_projectParts.begin()),
+                        std::make_move_iterator(m_projectParts.end()),
+                        projectPartIds.begin(),
+                        projectPartIds.end(),
+                        std::back_inserter(projectPartsWithoutIds),
+                        Compare{});
+
+    m_projectParts = std::move(projectPartsWithoutIds);
 }
 
-ProjectPartContainers ProjectPartsManager::projects(const Utils::SmallStringVector &projectPartIds) const
+ProjectPartContainers ProjectPartsManager::projects(const ProjectPartIds &projectPartIds) const
 {
     ProjectPartContainers projectPartsWithIds;
 
-    std::copy_if(m_projectParts.begin(),
-                 m_projectParts.end(),
-                 std::back_inserter(projectPartsWithIds),
-                 [&] (const ProjectPartContainer &projectPart) {
-        return std::binary_search(projectPartIds.begin(), projectPartIds.end(), projectPart.projectPartId);
-    });
+    struct Compare
+    {
+        bool operator()(ProjectPartId first, const ProjectPartContainer &second)
+        {
+            return first < second.projectPartId;
+        }
+
+        bool operator()(ProjectPartId first, const ProjectPartId &second) { return first < second; }
+
+        bool operator()(const ProjectPartContainer &first, const ProjectPartContainer &second)
+        {
+            return first.projectPartId < second.projectPartId;
+        }
+
+        bool operator()(const ProjectPartContainer &first, ProjectPartId second)
+        {
+            return first.projectPartId < second;
+        }
+    };
+
+    std::set_intersection(m_projectParts.begin(),
+                          m_projectParts.end(),
+                          projectPartIds.begin(),
+                          projectPartIds.end(),
+                          std::back_inserter(projectPartsWithIds),
+                          Compare{});
 
     return projectPartsWithIds;
 }
 
 void ProjectPartsManager::updateDeferred(const ProjectPartContainers &deferredProjectsParts)
 {
-    using ProjectPartContainerReferences = std::vector<std::reference_wrapper<ProjectPartContainer>>;
-
     ProjectPartContainerReferences deferredProjectPartPointers;
     deferredProjectPartPointers.reserve(deferredProjectsParts.size());
 
@@ -102,15 +173,16 @@ ProjectPartContainers ProjectPartsManager::deferredUpdates()
     return deferredProjectParts;
 }
 
-ProjectPartContainers ProjectPartsManager::newProjectParts(ProjectPartContainers &&projectsParts) const
+ProjectPartContainers ProjectPartsManager::filterNewProjectParts(
+    ProjectPartContainers &&projectsParts, const ProjectPartContainers &oldProjectParts)
 {
     ProjectPartContainers updatedProjectPartContainers;
     updatedProjectPartContainers.reserve(projectsParts.size());
 
     std::set_difference(std::make_move_iterator(projectsParts.begin()),
                         std::make_move_iterator(projectsParts.end()),
-                        m_projectParts.begin(),
-                        m_projectParts.end(),
+                        oldProjectParts.begin(),
+                        oldProjectParts.end(),
                         std::back_inserter(updatedProjectPartContainers));
 
     return updatedProjectPartContainers;

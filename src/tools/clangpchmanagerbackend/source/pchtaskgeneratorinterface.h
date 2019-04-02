@@ -35,7 +35,7 @@ public:
     virtual void addProjectParts(ProjectPartContainers &&projectParts,
                                  Utils::SmallStringVector &&toolChainArguments)
         = 0;
-    virtual void removeProjectParts(const Utils::SmallStringVector &projectsPartIds) = 0;
+    virtual void removeProjectParts(const ProjectPartIds &projectsPartIds) = 0;
 
 protected:
     ~PchTaskGeneratorInterface() = default;

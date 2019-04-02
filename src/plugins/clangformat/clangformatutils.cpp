@@ -143,27 +143,6 @@ static clang::format::FormatStyle qtcStyle()
     return style;
 }
 
-static void applyTabSettings(clang::format::FormatStyle &style, const TabSettings &settings)
-{
-    style.IndentWidth = static_cast<unsigned>(settings.m_indentSize);
-    style.TabWidth = static_cast<unsigned>(settings.m_tabSize);
-
-    if (settings.m_tabPolicy == TabSettings::TabsOnlyTabPolicy)
-        style.UseTab = FormatStyle::UT_Always;
-    else if (settings.m_tabPolicy == TabSettings::SpacesOnlyTabPolicy)
-        style.UseTab = FormatStyle::UT_Never;
-    else
-        style.UseTab = FormatStyle::UT_ForContinuationAndIndentation;
-
-    if (settings.m_continuationAlignBehavior == TabSettings::NoContinuationAlign) {
-        style.ContinuationIndentWidth = 0;
-        style.AlignAfterOpenBracket = FormatStyle::BAS_DontAlign;
-    } else {
-        style.ContinuationIndentWidth = style.IndentWidth;
-        style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
-    }
-}
-
 static bool useGlobalOverriddenSettings()
 {
     return ClangFormatSettings::instance().overrideDefaultFile();

@@ -1208,7 +1208,7 @@ void GitClient::reset(const QString &workingDirectory, const QString &argument, 
     if (!commit.isEmpty())
         arguments << commit;
 
-    unsigned flags = 0;
+    unsigned flags = VcsCommand::ShowSuccessMessage;
     if (argument == "--hard") {
         if (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules)) != StatusUnchanged) {
             if (QMessageBox::question(

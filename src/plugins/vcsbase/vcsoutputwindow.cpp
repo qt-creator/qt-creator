@@ -243,6 +243,8 @@ void OutputWindowPlainTextEdit::appendLinesWithStyle(const QString &s,
 
 void OutputWindowPlainTextEdit::setFormat(VcsOutputWindow::MessageStyle style)
 {
+    m_formatter->setBoldFontEnabled(style == VcsOutputWindow::Command);
+
     switch (style) {
     case VcsOutputWindow::Warning:
         m_format = LogMessageFormat;

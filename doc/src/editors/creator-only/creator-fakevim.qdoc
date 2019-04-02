@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -121,29 +121,99 @@
 
     \section2 Options
 
-    Use \c {:set ...} to set the following options:
+    Use \c {:set ...} to set the options listed in the following table:
 
-    \list
+    \table
+    \header
+        \li Long Name
+        \li Short Name
+        \li Arguments
+    \row
         \li \c autoindent
-        \li \c clipboard
+        \li \c ai
+        \li
+    \row
         \li \c backspace
+        \li \c bs
+        \li \c indent, \c eol, \c start
+    \row
+        \li \c blinkingcursor
+        \li \c bc
+        \li
+    \row
+        \li \c clipboard
+        \li \c cb
+        \li
+    \row
         \li \c expandtab
+        \li \c et
+        \li
+    \row
         \li \c hlsearch
+        \li \c hls
+        \li
+    \row
         \li \c ignorecase
+        \li \c ic
+        \li
+    \row
         \li \c incsearch
-        \li \c indent
+        \li \c is
+        \li
+    \row
         \li \c iskeyword
+        \li \c isk
+        \li A combination of the following characters: \c @, \c 48-57, \c _,
+            \c 192-255, \c a-z, \c A-Z
+    \row
+        \li \c relativenumber
+        \li \c rnu
+        \li
+    \row
         \li \c scrolloff
+        \li \c so
+        \li
+    \row
         \li \c shiftwidth
+        \li \c sw
+        \li
+    \row
         \li \c showcmd
+        \li \c sc
+        \li
+    \row
         \li \c smartcase
+        \li \c scs
+        \li
+    \row
         \li \c smartindent
+        \li \c si
+        \li
+    \row
         \li \c smarttab
+        \li \c sta
+        \li
+    \row
         \li \c startofline
+        \li \c sol
+        \li
+    \row
         \li \c tabstop
+        \li \c ts
+        \li
+    \row
         \li \c tildeop
+        \li \c top
+        \li
+    \row
+        \li \c usecoresearch
+        \li \c ucs
+        \li
+    \row
         \li \c wrapscan
-    \endlist
+        \li \c ws
+        \li
+    \endtable
 
     \section2 Vimrc Example
 

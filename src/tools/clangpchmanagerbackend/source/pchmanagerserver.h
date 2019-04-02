@@ -57,7 +57,7 @@ public:
     void updateGeneratedFiles(UpdateGeneratedFilesMessage &&message) override;
     void removeGeneratedFiles(RemoveGeneratedFilesMessage &&message) override;
 
-    void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
+    void pathsWithIdsChanged(const ProjectPartIds &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;
 
     void setPchCreationProgress(int progress, int total);

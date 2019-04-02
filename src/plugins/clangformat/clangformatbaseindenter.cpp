@@ -188,8 +188,6 @@ QByteArray dummyTextForContext(CharacterContext context, bool closingBraceBlock)
     }
 
     switch (context) {
-    case CharacterContext::Unknown:
-        QTC_ASSERT(false, return "";);
     case CharacterContext::AfterComma:
         return "a,";
     case CharacterContext::NewStatement:
@@ -197,6 +195,9 @@ QByteArray dummyTextForContext(CharacterContext context, bool closingBraceBlock)
     case CharacterContext::Continuation:
     case CharacterContext::LastAfterComma:
         return "& a &";
+    case CharacterContext::Unknown:
+    default:
+        QTC_ASSERT(false, return "";);
     }
 }
 

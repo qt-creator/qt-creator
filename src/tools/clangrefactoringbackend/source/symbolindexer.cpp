@@ -65,7 +65,8 @@ SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQ
                              ClangPathWatcherInterface &pathWatcher,
                              FilePathCachingInterface &filePathCache,
                              FileStatusCache &fileStatusCache,
-                             Sqlite::TransactionInterface &transactionInterface)
+                             Sqlite::TransactionInterface &transactionInterface,
+                             ProjectPartsStorageInterface &projectPartsStorage)
     : m_symbolIndexerTaskQueue(symbolIndexerTaskQueue)
     , m_symbolStorage(symbolStorage)
     , m_buildDependencyStorage(buildDependenciesStorage)
@@ -74,6 +75,7 @@ SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQ
     , m_filePathCache(filePathCache)
     , m_fileStatusCache(fileStatusCache)
     , m_transactionInterface(transactionInterface)
+    , m_projectPartsStorage(projectPartsStorage)
 {
     pathWatcher.setNotifier(this);
 }
@@ -86,26 +88,13 @@ void SymbolIndexer::updateProjectParts(ProjectPartContainers &&projectParts)
 
 void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
 {
-    Sqlite::ImmediateTransaction transaction{m_transactionInterface};
-    const auto optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(projectPart.projectPartId);
-    int projectPartId = m_symbolStorage.insertOrUpdateProjectPart(
-        projectPart.projectPartId,
-        projectPart.toolChainArguments,
-        projectPart.compilerMacros,
-        projectPart.systemIncludeSearchPaths,
-        projectPart.projectIncludeSearchPaths,
-        projectPart.language,
-        projectPart.languageVersion,
-        projectPart.languageExtension);
-    if (optionalArtefact)
-        projectPartId = optionalArtefact->projectPartId;
+    Sqlite::DeferredTransaction transaction{m_transactionInterface};
+
+    ProjectPartId projectPartId = projectPart.projectPartId;
     const Utils::optional<ProjectPartPch> optionalProjectPartPch
         = m_precompiledHeaderStorage.fetchPrecompiledHeader(projectPartId);
 
-    FilePathIds sourcePathIds = updatableFilePathIds(projectPart, optionalArtefact);
     transaction.commit();
-    if (sourcePathIds.empty())
-        return;
 
     using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
     Builder commandLineBuilder{projectPart,
@@ -113,9 +102,8 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
                                InputFileType::Source,
                                {},
                                {},
-                               optionalProjectPartPch
-                                   ? FilePathView{optionalProjectPartPch.value().pchPath}
-                                   : FilePathView{}};
+                               optionalProjectPartPch ? FilePathView{optionalProjectPartPch->pchPath}
+                                                      : FilePathView{}};
 
     std::vector<SymbolIndexerTask> symbolIndexerTask;
     symbolIndexerTask.reserve(projectPart.sourcePathIds.size());
@@ -132,14 +120,6 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
 
                 m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
                                                              symbolsCollector.sourceLocations());
-
-                m_buildDependencyStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
-
-                m_buildDependencyStorage.insertOrUpdateFileStatuses(symbolsCollector.fileStatuses());
-
-                m_buildDependencyStorage.insertOrUpdateSourceDependencies(
-                    symbolsCollector.sourceDependencies());
-
                 transaction.commit();
             }
         };
@@ -151,9 +131,7 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
     m_symbolIndexerTaskQueue.processEntries();
 }
 
-void SymbolIndexer::pathsWithIdsChanged(const Utils::SmallStringVector &)
-{
-}
+void SymbolIndexer::pathsWithIdsChanged(const ProjectPartIds &) {}
 
 void SymbolIndexer::pathsChanged(const FilePathIds &filePathIds)
 {
@@ -173,8 +151,8 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
     m_fileStatusCache.update(filePathId);
 
     Sqlite::DeferredTransaction transaction{m_transactionInterface};
-    const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(
-        filePathId);
+    const Utils::optional<ProjectPartArtefact>
+        optionalArtefact = m_projectPartsStorage.fetchProjectPartArtefact(filePathId);
     if (!optionalArtefact)
         return;
 
@@ -182,9 +160,9 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
         = m_precompiledHeaderStorage.fetchPrecompiledHeader(optionalArtefact->projectPartId);
     transaction.commit();
 
-    const ProjectPartArtefact &artefact = optionalArtefact.value();
+    const ProjectPartArtefact &artefact = *optionalArtefact;
 
-    auto pchPath = optionalProjectPartPch ? optionalProjectPartPch.value().pchPath : FilePath{};
+    auto pchPath = optionalProjectPartPch ? optionalProjectPartPch->pchPath : FilePath{};
 
     CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector>
         builder{artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
@@ -200,13 +178,6 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
 
             m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
                                                          symbolsCollector.sourceLocations());
-
-            m_buildDependencyStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
-
-            m_buildDependencyStorage.insertOrUpdateFileStatuses(symbolsCollector.fileStatuses());
-
-            m_buildDependencyStorage.insertOrUpdateSourceDependencies(
-                symbolsCollector.sourceDependencies());
 
             transaction.commit();
         }

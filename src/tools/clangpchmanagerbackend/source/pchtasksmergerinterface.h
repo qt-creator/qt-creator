@@ -32,7 +32,7 @@ class PchTasksMergerInterface
 {
 public:
     virtual void mergeTasks(PchTaskSets &&taskSets, Utils::SmallStringVector &&toolChainArguments) = 0;
-    virtual void removePchTasks(const Utils::SmallStringVector &projectPartIds) = 0;
+    virtual void removePchTasks(const ProjectPartIds &projectPartIds) = 0;
 
 protected:
     ~PchTasksMergerInterface() = default;

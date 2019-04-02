@@ -261,11 +261,4 @@
     correct paths for includes that are not resolved or that are resolved to the
     wrong file, select \uicontrol {Project Parts} > \uicontrol {Header Paths}.
     \endif
-
-    \if defined(qtdesignstudio)
-    \include creator-sidebar-views.qdocinc using sidebar views
-    \include creator-sidebar-views.qdocinc projects view
-    \include creator-sidebar-views.qdocinc file system view
-    \include creator-sidebar-views.qdocinc outline view
-    \endif
 */

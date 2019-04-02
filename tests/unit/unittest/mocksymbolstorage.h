@@ -37,17 +37,4 @@ public:
    MOCK_METHOD2(addSymbolsAndSourceLocations,
                 void(const ClangBackEnd::SymbolEntries &symbolEentries,
                      const ClangBackEnd::SourceLocationEntries &sourceLocations));
-   MOCK_METHOD8(insertOrUpdateProjectPart,
-                int(Utils::SmallStringView projectPartName,
-                    const Utils::SmallStringVector &commandLineArgument,
-                    const ClangBackEnd::CompilerMacros &compilerMacros,
-                    const ClangBackEnd::IncludeSearchPaths &systemIncludeSearchPaths,
-                    const ClangBackEnd::IncludeSearchPaths &projectIncludeSearchPaths,
-                    Utils::Language language,
-                    Utils::LanguageVersion languageVersion,
-                    Utils::LanguageExtension languageExtension));
-   MOCK_CONST_METHOD1(fetchProjectPartArtefact,
-                      Utils::optional<ClangBackEnd::ProjectPartArtefact> (ClangBackEnd::FilePathId sourceId));
-   MOCK_CONST_METHOD1(fetchProjectPartArtefact,
-                      Utils::optional<ClangBackEnd::ProjectPartArtefact> (Utils::SmallStringView projectPartName));
 };

@@ -2929,7 +2929,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables stepping backwards.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rückwärts-Debuggen aktivieren.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Diese Funktionalität ist sehr langsam und instabil auf Seiten von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht zerstört werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rückwärts-Debuggen aktivieren.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Diese Funktionalität ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht zerstört werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Debug all child processes</source>
@@ -6790,7 +6790,7 @@ Außer: %2
     </message>
     <message>
         <source>Use jom instead of nmake</source>
-        <translation>jom an Stelle von nmake verwenden</translation>
+        <translation>jom statt nmake verwenden</translation>
     </message>
     <message>
         <source>Current directory</source>
@@ -23157,7 +23157,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>Use %1 instead of &apos;var&apos; or &apos;variant&apos; to improve performance.</source>
-        <translation>Zur Steigerung der Ausführungsgeschwindigkeit sollte %1 an Stelle von &apos;var&apos; oder &apos;variant&apos; verwendet werden.</translation>
+        <translation>Zur Steigerung der Ausführungsgeschwindigkeit sollte %1 statt &apos;var&apos; oder &apos;variant&apos; verwendet werden.</translation>
     </message>
     <message>
         <source>This type (%1) is not supported in the Qt Quick Designer.</source>
@@ -33940,7 +33940,7 @@ Senden selbst auch Zeit benötigt.</translation>
     </message>
     <message>
         <source>This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.</source>
-        <translation>Diese Funktionalität ist sehr langsam und instabil auf Seiten von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht unbenutzbar werden.</translation>
+        <translation>Diese Funktionalität ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht unbenutzbar werden.</translation>
     </message>
     <message>
         <source>Reverse Direction</source>

@@ -52,7 +52,17 @@ TimelineForm::TimelineForm(QWidget *parent)
     connect(ui->expressionBindingLineEdit, &QLineEdit::editingFinished, [this]() {
         QTC_ASSERT(m_timeline.isValid(), return );
 
-        if (ui->expressionBindingLineEdit->text().isEmpty()) {
+
+        static QString lastString;
+
+        const QString bindingText = ui->expressionBindingLineEdit->text();
+
+        if (bindingText == lastString)
+            return;
+
+        lastString = bindingText;
+
+        if (bindingText.isEmpty()) {
             ui->animation->setChecked(true);
             try {
                 m_timeline.modelNode().removeProperty("currentFrame");
@@ -67,7 +77,7 @@ TimelineForm::TimelineForm(QWidget *parent)
         try {
             m_timeline.modelNode()
                 .bindingProperty("currentFrame")
-                .setExpression(ui->expressionBindingLineEdit->text());
+                .setExpression(bindingText);
         } catch (const Exception &e) {
             e.showException();
         }
@@ -76,7 +86,14 @@ TimelineForm::TimelineForm(QWidget *parent)
     connect(ui->idLineEdit, &QLineEdit::editingFinished, [this]() {
         QTC_ASSERT(m_timeline.isValid(), return );
 
+        static QString lastString;
+
         const QString newId = ui->idLineEdit->text();
+
+        if (newId == lastString)
+            return;
+
+        lastString = newId;
 
         if (newId == m_timeline.modelNode().id())
             return;

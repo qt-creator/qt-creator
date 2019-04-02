@@ -55,9 +55,9 @@ public:
 private:
     BuildDependency createBuildDependencyFromStorage(SourceEntries &&includes) const;
     UsedMacros createUsedMacrosFromStorage(const SourceEntries &includes) const;
-    std::pair<SourceEntries, int> createSourceEntriesFromStorage(
-        const FilePathIds &sourcePathIds, Utils::SmallStringView projectPartName) const;
-    void storeBuildDependency(const BuildDependency &buildDependency, int projectPartId);
+    std::pair<SourceEntries, ProjectPartId> createSourceEntriesFromStorage(
+        const FilePathIds &sourcePathIds, ProjectPartId projectPartId) const;
+    void storeBuildDependency(const BuildDependency &buildDependency, ProjectPartId projectPartId);
 
 private:
     BuildDependenciesStorageInterface &m_storage;

@@ -29,6 +29,7 @@
 #include "mockpchmanagerserver.h"
 #include "mockprecompiledheaderstorage.h"
 #include "mockprogressmanager.h"
+#include "mockprojectpartsstorage.h"
 
 #include <pchmanagerclient.h>
 #include <pchmanagerprojectupdater.h>
@@ -46,10 +47,6 @@ namespace {
 
 using ClangBackEnd::PrecompiledHeadersUpdatedMessage;
 
-using testing::_;
-using testing::Contains;
-using testing::Not;
-
 class PchManagerClient : public ::testing::Test
 {
 protected:
@@ -58,17 +55,21 @@ protected:
     ClangPchManager::PchManagerClient client{mockPchCreationProgressManager,
                                              mockDependencyCreationProgressManager};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
+    NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
     NiceMock<MockPchManagerNotifier> mockPchManagerNotifier{client};
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    ClangPchManager::PchManagerProjectUpdater projectUpdater{mockPchManagerServer, client, filePathCache};
-    Utils::SmallString projectPartId{"projectPartId"};
+    ClangPchManager::PchManagerProjectUpdater projectUpdater{mockPchManagerServer,
+                                                             client,
+                                                             filePathCache,
+                                                             mockProjectPartsStorage};
+    ClangBackEnd::ProjectPartId projectPartId{1};
     ClangBackEnd::FilePath pchFilePath{"/path/to/pch"};
-    PrecompiledHeadersUpdatedMessage message{{{projectPartId.clone(), pchFilePath.clone(), 1}}};
-    Utils::SmallString projectPartId2{"projectPartId2"};
+    PrecompiledHeadersUpdatedMessage message{{{projectPartId, pchFilePath.clone(), 1}}};
+    ClangBackEnd::ProjectPartId projectPartId2{2};
     ClangBackEnd::FilePath pchFilePath2{"/path/to/pch2"};
-    PrecompiledHeadersUpdatedMessage message2{{{projectPartId2.clone(), pchFilePath2.clone(), 1}}};
+    PrecompiledHeadersUpdatedMessage message2{{{projectPartId2, pchFilePath2.clone(), 1}}};
 };
 
 TEST_F(PchManagerClient, NotifierAttached)
@@ -92,23 +93,22 @@ TEST_F(PchManagerClient, NotifierDetached)
 
 TEST_F(PchManagerClient, Update)
 {
-    EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderUpdated(projectPartId.toQString(), pchFilePath.toQString(), Eq(1)));
+    EXPECT_CALL(mockPchManagerNotifier,
+                precompiledHeaderUpdated(projectPartId, pchFilePath.toQString(), Eq(1)));
 
     client.precompiledHeadersUpdated(message.clone());
 }
 
 TEST_F(PchManagerClient, Remove)
 {
-    EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId.toQString()))
-        .Times(2);
+    EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId)).Times(2);
 
-    projectUpdater.removeProjectParts({QString(projectPartId.clone()),
-                                       QString(projectPartId.clone())});
+    projectUpdater.removeProjectParts({projectPartId, projectPartId});
 }
 
 TEST_F(PchManagerClient, GetNoProjectPartPchForWrongProjectPartId)
 {
-    auto optional = client.projectPartPch("foo");
+    auto optional = client.projectPartPch(23);
 
     ASSERT_FALSE(optional);
 }
@@ -126,7 +126,7 @@ TEST_F(PchManagerClient, ProjectPartPchRemoved)
 {
     client.precompiledHeadersUpdated(std::move(message));
 
-    client.precompiledHeaderRemoved(QString(projectPartId));
+    client.precompiledHeaderRemoved(projectPartId);
 
     ASSERT_FALSE(client.projectPartPch(projectPartId));
 }
@@ -145,19 +145,17 @@ TEST_F(PchManagerClient, ProjectPartPchForProjectPartIdLastModified)
 {
     client.precompiledHeadersUpdated(std::move(message));
 
-    ASSERT_THAT(client.projectPartPch(projectPartId).value().lastModified,
-                1);
+    ASSERT_THAT(client.projectPartPch(projectPartId)->lastModified, 1);
 }
 
 TEST_F(PchManagerClient, ProjectPartPchForProjectPartIdIsUpdated)
 {
     client.precompiledHeadersUpdated(message.clone());
-    PrecompiledHeadersUpdatedMessage updateMessage{{{projectPartId.clone(), pchFilePath.clone(), 42}}};
+    PrecompiledHeadersUpdatedMessage updateMessage{{{projectPartId, pchFilePath.clone(), 42}}};
 
     client.precompiledHeadersUpdated(updateMessage.clone());
 
-    ASSERT_THAT(client.projectPartPch(projectPartId).value().lastModified,
-                42);
+    ASSERT_THAT(client.projectPartPch(projectPartId)->lastModified, 42);
 }
 
 TEST_F(PchManagerClient, SetPchCreationProgress)

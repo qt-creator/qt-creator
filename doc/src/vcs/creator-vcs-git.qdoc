@@ -224,6 +224,9 @@
     branch is shown in bold and underlined in the list of branches in the
     \uicontrol {Git Branches} sidebar view.
 
+    If you checked out a specific commit, the list of branches displays a
+    \e {Detached HEAD} entry.
+
     For local and remote branches, the changes log can be shown by double
     clicking on the branch name.
 
@@ -281,6 +284,9 @@
         \row
             \li \uicontrol Track
             \li Set the current branch to track the selected one.
+        \row
+            \li \uicontrol Push
+            \li Push the committed changes to the selected remote branch.
     \endtable
 
     The following additional context-menu operations are available for

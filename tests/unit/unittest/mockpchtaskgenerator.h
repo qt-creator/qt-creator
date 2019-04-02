@@ -35,8 +35,7 @@ public:
     MOCK_METHOD2(addProjectParts,
                  void(const ClangBackEnd::ProjectPartContainers &projectParts,
                       const Utils::SmallStringVector &toolChainArguments));
-    MOCK_METHOD1(removeProjectParts,
-                 void (const Utils::SmallStringVector &projectsPartIds));
+    MOCK_METHOD1(removeProjectParts, void(const ClangBackEnd::ProjectPartIds &projectsPartIds));
 
     void addProjectParts(ClangBackEnd::ProjectPartContainers &&projectParts,
                          Utils::SmallStringVector &&toolChainArguments) override

@@ -55,11 +55,12 @@ class QtCreatorProjectUpdater : public ProjectUpdaterType,
                                 public ProjectExplorer::ExtraCompilerFactoryObserver
 {
 public:
-    template <typename ClientType>
+    template<typename ClientType>
     QtCreatorProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
                             ClientType &client,
-                            ClangBackEnd::FilePathCachingInterface &filePathCache)
-        : ProjectUpdaterType(server, client, filePathCache)
+                            ClangBackEnd::FilePathCachingInterface &filePathCache,
+                            ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage)
+        : ProjectUpdaterType(server, client, filePathCache, projectPartsStorage)
     {
         connectToCppModelManager();
     }
@@ -78,7 +79,7 @@ public:
     }
 
     void projectPartsRemoved(const QStringList &projectPartIds)
-    {
+    {    
         ProjectUpdaterType::removeProjectParts(projectPartIds);
     }
 

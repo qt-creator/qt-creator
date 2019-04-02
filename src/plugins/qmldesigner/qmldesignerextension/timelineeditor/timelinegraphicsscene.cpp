@@ -698,6 +698,11 @@ void TimelineGraphicsScene::deleteKeyframes(const QList<ModelNode> &frames)
     }
 }
 
+void TimelineGraphicsScene::activateLayout()
+{
+    m_layout->activate();
+}
+
 void TimelineGraphicsScene::emitScrollOffsetChanged()
 {
     for (QGraphicsItem *item : items())

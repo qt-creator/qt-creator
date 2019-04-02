@@ -48,6 +48,7 @@
 #include <pchtask.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <projectpartartefact.h>
+#include <projectpartid.h>
 #include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
@@ -1022,10 +1023,10 @@ std::ostream &operator<<(std::ostream &out, const SourceDependency &sourceDepend
 
 std::ostream &operator<<(std::ostream &out, const ProjectPartArtefact &projectPartArtefact)
 {
-    return out << "("
-               << projectPartArtefact.toolChainArguments << ", "
-               << projectPartArtefact.compilerMacros
-               <<")";
+    return out << "(" << projectPartArtefact.projectPartId << ", "
+               << projectPartArtefact.toolChainArguments << ", " << projectPartArtefact.compilerMacros
+               << ", " << projectPartArtefact.language << ", " << projectPartArtefact.languageVersion
+               << ", " << projectPartArtefact.languageExtension << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const CompilerMacro &compilerMacro)
@@ -1134,10 +1135,14 @@ std::ostream &operator<<(std::ostream &out, const SymbolIndexerTask &task)
 const char* progressTypeToString(ClangBackEnd::ProgressType type)
 {
     switch (type) {
-        case ProgressType::Invalid: return "Invalid";
-        case ProgressType::PrecompiledHeader: return "PrecompiledHeader";
-        case ProgressType::Indexing: return "Indexing";
-        case ProgressType::DependencyCreation: return "DependencyCreation";
+    case ProgressType::Invalid:
+        return "Invalid";
+    case ProgressType::PrecompiledHeader:
+        return "PrecompiledHeader";
+    case ProgressType::Indexing:
+        return "Indexing";
+    case ProgressType::DependencyCreation:
+        return "Indexing";
     }
 
     return nullptr;
@@ -1184,18 +1189,18 @@ const char *typeToString(SourceType sourceType)
     using ClangBackEnd::SymbolTag;
 
     switch (sourceType) {
-        case SourceType::TopProjectInclude:
-            return "TopProjectInclude";
-        case SourceType::TopSystemInclude:
-            return "TopSystemInclude";
-        case SourceType::SystemInclude:
-            return "SystemInclude";
-        case SourceType::ProjectInclude:
-            return "ProjectInclude";
-        case SourceType::UserInclude:
-            return "UserInclude";
-        case SourceType::Source:
-            return "Source";
+    case SourceType::TopProjectInclude:
+        return "TopProjectInclude";
+    case SourceType::TopSystemInclude:
+        return "TopSystemInclude";
+    case SourceType::SystemInclude:
+        return "SystemInclude";
+    case SourceType::ProjectInclude:
+        return "ProjectInclude";
+    case SourceType::UserInclude:
+        return "UserInclude";
+    case SourceType::Source:
+        return "Source";
     }
 
     return "";
@@ -1263,6 +1268,11 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &containe
         << toText(container.languageVersion) << ", " << toText(container.languageExtension) << ")";
 
     return out;
+}
+
+std::ostream &operator<<(std::ostream &out, const ProjectPartId &projectPathId)
+{
+    return out << projectPathId.projectPathId;
 }
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os)

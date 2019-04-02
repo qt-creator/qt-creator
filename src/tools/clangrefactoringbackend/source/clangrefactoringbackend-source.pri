@@ -17,8 +17,6 @@ HEADERS += \
     $$PWD/usedmacro.h \
     $$PWD/sourcedependency.h \
     $$PWD/filestatus.h \
-    $$PWD/projectpartartefactexception.h \
-    $$PWD/projectpartartefact.h \
     $$PWD/filestatuscache.h \
     $$PWD/indexdataconsumer.h \
     $$PWD/sourcesmanager.h \
@@ -68,5 +66,4 @@ HEADERS += \
 SOURCES += \
     $$PWD/sourcerangefilter.cpp \
     $$PWD/symbolindexer.cpp \
-    $$PWD/projectpartartefact.cpp \
     $$PWD/filestatuscache.cpp

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,24 +25,23 @@
 
 #pragma once
 
-#include "googletest.h"
+#include <sqliteexception.h>
 
-#include <projectpartsmanagerinterface.h>
+namespace ClangBackEnd {
 
-class MockProjectPartsManager : public ClangBackEnd::ProjectPartsManagerInterface
+class ProjectPartArtefactParseError : public Sqlite::Exception
 {
 public:
-    MOCK_METHOD1(update,
-                 ClangBackEnd::ProjectPartContainers(
-                     const ClangBackEnd::ProjectPartContainers &projectsParts));
-    MOCK_METHOD1(remove, void(const Utils::SmallStringVector &projectPartIds));
-    MOCK_CONST_METHOD1(
-        projects, ClangBackEnd::ProjectPartContainers(const Utils::SmallStringVector &projectPartIds));
-    MOCK_METHOD1(updateDeferred, void(const ClangBackEnd::ProjectPartContainers &projectsParts));
-    MOCK_METHOD0(deferredUpdates, ClangBackEnd::ProjectPartContainers());
-
-    ClangBackEnd::ProjectPartContainers update(ClangBackEnd::ProjectPartContainers &&projectsParts) override
-    {
-        return update(projectsParts);
-    }
+    ProjectPartArtefactParseError(const char *whatErrorHasHappen, Utils::SmallString &&errorMessage)
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
 };
+
+class ProjectPartDoesNotExists : public Sqlite::Exception
+{
+public:
+    ProjectPartDoesNotExists(const char *whatErrorHasHappen, Utils::SmallString &&errorMessage)
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
+} // namespace ClangBackEnd

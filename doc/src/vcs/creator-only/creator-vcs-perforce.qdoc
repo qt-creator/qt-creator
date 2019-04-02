@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -40,21 +40,11 @@
     Perforce is a fast software configuration management system developed by
     Perforce Software.
 
+    Since \QC 4.9, the Perforce plugin is disabled by default. To enable
+    it, select \uicontrol Help > \uicontrol {About Plugins} >
+    \uicontrol {Version Control} > \uicontrol Perforce, and then restart \QC.
+
     \section1 Configuring Perforce
-
-    When you start \QC, it looks for the executable specified
-    in the \uicontrol{P4 command} field in \uicontrol{Tools > Options > Version
-    Control > Perforce}. If the file is not found, the following error
-    message is displayed in the \uicontrol {Version Control} output pane:
-    \uicontrol {Perforce: Unable to determine the repository: "p4.exe"
-    terminated with exit code 1}. If you use Perforce, check that the
-    path to the executable is specified correctly in the \uicontrol{P4 command}
-    field.
-
-    If you do not use Perforce, you can disable the Perforce plugin to
-    get rid of the error message. Choose \uicontrol {Help > About Plugins} and
-    deselect the \uicontrol Load check box for the \uicontrol Perforce plugin in
-    the \uicontrol {Version Control} group.
 
     In the Perforce options, you can specify workspace details:
     \uicontrol {P4 user}, \uicontrol {P4 client}, and \uicontrol {P4 port}. To

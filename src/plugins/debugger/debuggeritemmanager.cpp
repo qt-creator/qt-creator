@@ -700,7 +700,7 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
 void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
 {
     const QStringList filters = {"gdb-i686-pc-mingw32", "gdb-i686-pc-mingw32.exe", "gdb",
-                                 "gdb.exe", "lldb", "lldb.exe", "lldb-*"};
+                                 "gdb.exe", "lldb", "lldb.exe", "lldb-[1-9]*"};
 
 //    DebuggerItem result;
 //    result.setAutoDetected(true);
@@ -746,14 +746,8 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     dir.setFilter(QDir::Files | QDir::Executable);
     foreach (const Utils::FileName &base, path) {
         dir.setPath(base.toFileInfo().absoluteFilePath());
-        foreach (const QString &entry, dir.entryList()) {
-            if (entry.startsWith("lldb-platform-")
-                    || entry.startsWith("lldb-gdbserver-")
-                    || entry.startsWith("lldb-mi-")) {
-                continue;
-            }
+        foreach (const QString &entry, dir.entryList())
             suspects.append(FileName::fromString(dir.absoluteFilePath(entry)));
-        }
     }
 
     foreach (const FileName &command, suspects) {

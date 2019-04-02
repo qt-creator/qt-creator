@@ -30,19 +30,21 @@
 #include "compilermacro.h"
 #include "filepathid.h"
 #include "includesearchpath.h"
+#include "projectpartartefact.h"
+#include "projectpartid.h"
 
 #include <utils/cpplanguage_details.h>
 #include <utils/smallstringio.h>
 
 namespace ClangBackEnd {
 
-class ProjectPartContainer
+class ProjectPartContainer : public ProjectPartArtefact
 {
     using uchar = unsigned char;
 public:
     ProjectPartContainer() = default;
-    ProjectPartContainer(Utils::SmallString &&projectPartId,
-                         Utils::SmallStringVector &&arguments,
+    ProjectPartContainer(ProjectPartId projectPartId,
+                         Utils::SmallStringVector &&toolChainArguments,
                          CompilerMacros &&compilerMacros,
                          IncludeSearchPaths &&systemIncludeSearchPaths,
                          IncludeSearchPaths &&projectIncludeSearchPaths,
@@ -51,18 +53,36 @@ public:
                          Utils::Language language,
                          Utils::LanguageVersion languageVersion,
                          Utils::LanguageExtension languageExtension)
-        : projectPartId(std::move(projectPartId))
-        , toolChainArguments(std::move(arguments))
-        , compilerMacros(std::move(compilerMacros))
-        , systemIncludeSearchPaths(std::move(systemIncludeSearchPaths))
-        , projectIncludeSearchPaths(std::move(projectIncludeSearchPaths))
+        : ProjectPartArtefact(projectPartId,
+                              std::move(toolChainArguments),
+                              std::move(compilerMacros),
+                              std::move(systemIncludeSearchPaths),
+                              std::move(projectIncludeSearchPaths),
+                              language,
+                              languageVersion,
+                              languageExtension)
         , headerPathIds(std::move(headerPathIds))
         , sourcePathIds(std::move(sourcePathIds))
-        , language(language)
-        , languageVersion(languageVersion)
-        , languageExtension(languageExtension)
-    {
-    }
+
+    {}
+
+    ProjectPartContainer(Utils::SmallStringView compilerArgumentsText,
+                         Utils::SmallStringView compilerMacrosText,
+                         Utils::SmallStringView systemIncludeSearchPathsText,
+                         Utils::SmallStringView projectIncludeSearchPathsText,
+                         int projectPartId,
+                         int language,
+                         int languageVersion,
+                         int languageExtension)
+        : ProjectPartArtefact(compilerArgumentsText,
+                              compilerMacrosText,
+                              systemIncludeSearchPathsText,
+                              projectIncludeSearchPathsText,
+                              projectPartId,
+                              language,
+                              languageVersion,
+                              languageExtension)
+    {}
 
     friend QDataStream &operator<<(QDataStream &out, const ProjectPartContainer &container)
     {
@@ -146,20 +166,14 @@ public:
     }
 
 public:
-    Utils::SmallString projectPartId;
-    Utils::SmallStringVector toolChainArguments;
-    CompilerMacros compilerMacros;
-    IncludeSearchPaths systemIncludeSearchPaths;
-    IncludeSearchPaths projectIncludeSearchPaths;
     FilePathIds headerPathIds;
     FilePathIds sourcePathIds;
-    Utils::Language language = Utils::Language::Cxx;
-    Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX98;
-    Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None;
     bool updateIsDeferred = false;
 };
 
+using ProjectPartContainerReference = std::reference_wrapper<ProjectPartContainer>;
 using ProjectPartContainers = std::vector<ProjectPartContainer>;
+using ProjectPartContainerReferences = std::vector<ProjectPartContainerReference>;
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const ProjectPartContainer &container);
 

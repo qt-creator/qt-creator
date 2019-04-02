@@ -33,19 +33,19 @@ namespace ClangBackEnd {
 
 struct ArgumentsEntry
 {
-    ArgumentsEntry(Utils::SmallStringVector &&ids, const Utils::SmallStringVector &arguments)
+    ArgumentsEntry(ProjectPartIds &&ids, const Utils::SmallStringVector &arguments)
         : ids(std::move(ids))
         , arguments(arguments)
     {}
 
-    ArgumentsEntry(const Utils::SmallStringVector &ids, const Utils::SmallStringVector &arguments)
+    ArgumentsEntry(ProjectPartIds &ids, const Utils::SmallStringVector &arguments)
         : ids(ids)
         , arguments(arguments)
     {}
 
-    void mergeIds(Utils::SmallStringVector &&newIds)
+    void mergeIds(ProjectPartIds &&newIds)
     {
-        Utils::SmallStringVector mergedIds;
+        ProjectPartIds mergedIds;
         mergedIds.reserve(ids.size() + newIds.size());
 
         std::set_union(std::make_move_iterator(ids.begin()),
@@ -54,12 +54,12 @@ struct ArgumentsEntry
                        std::make_move_iterator(newIds.end()),
                        std::back_inserter(mergedIds));
 
-        ids = mergedIds;
+        ids = std::move(mergedIds);
     }
 
-    void removeIds(const Utils::SmallStringVector &idsToBeRemoved)
+    void removeIds(const ProjectPartIds &idsToBeRemoved)
     {
-        Utils::SmallStringVector idsWithout;
+        ProjectPartIds idsWithout;
         idsWithout.reserve(ids.size());
         std::set_difference(std::make_move_iterator(ids.begin()),
                             std::make_move_iterator(ids.end()),
@@ -67,10 +67,10 @@ struct ArgumentsEntry
                             idsToBeRemoved.end(),
                             std::back_inserter(idsWithout));
 
-        ids = idsWithout;
+        ids = std::move(idsWithout);
     }
 
-    Utils::SmallStringVector ids;
+    ProjectPartIds ids;
     Utils::SmallStringVector arguments;
 };
 
@@ -118,11 +118,11 @@ public:
         removeEmptyEntries();
     }
 
-    void remove(const Utils::SmallStringVector &idsToBeRemoved)
+    void remove(const ProjectPartIds &idsToBeRemoved)
     {
         ArgumentsEntries entries;
         for (ArgumentsEntry &entry : m_argumentEntries) {
-            Utils::SmallStringVector usedIds;
+            ProjectPartIds usedIds;
             std::set_difference(entry.ids.begin(),
                                 entry.ids.end(),
                                 idsToBeRemoved.begin(),
@@ -135,11 +135,11 @@ public:
         removeEmptyEntries();
     }
 
-    ArgumentsEntries arguments(const Utils::SmallStringVector &ids) const
+    ArgumentsEntries arguments(const ProjectPartIds &ids) const
     {
         ArgumentsEntries entries;
         for (const ArgumentsEntry &entry : m_argumentEntries) {
-            Utils::SmallStringVector usedIds;
+            ProjectPartIds usedIds;
             std::set_intersection(entry.ids.begin(),
                                   entry.ids.end(),
                                   ids.begin(),
@@ -159,9 +159,9 @@ public:
     }
 
 private:
-    static Utils::SmallStringVector createIds(const ProjectPartContainers &projectParts)
+    static ProjectPartIds createIds(const ProjectPartContainers &projectParts)
     {
-        Utils::SmallStringVector ids;
+        ProjectPartIds ids;
         ids.reserve(projectParts.size());
         for (const auto &projectPart : projectParts)
             ids.emplace_back(projectPart.projectPartId);
@@ -181,7 +181,7 @@ private:
     }
 
 private:
-    std::vector<ArgumentsEntry> m_argumentEntries;
+    ArgumentsEntries m_argumentEntries;
 };
 
 }

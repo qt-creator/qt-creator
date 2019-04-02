@@ -33,6 +33,7 @@
 #include <generatedfiles.h>
 #include <includesearchpath.h>
 #include <projectpartcontainer.h>
+#include <projectpartsstorageinterface.h>
 
 #include <projectexplorer/headerpath.h>
 
@@ -69,11 +70,16 @@ public:
     };
 
     ProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
-                   ClangBackEnd::FilePathCachingInterface &filePathCache);
+                   ClangBackEnd::FilePathCachingInterface &filePathCache,
+                   ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage)
+        : m_server(server)
+        , m_filePathCache(filePathCache)
+        , m_projectPartsStorage(projectPartsStorage)
+    {}
 
     void updateProjectParts(const std::vector<CppTools::ProjectPart *> &projectParts,
                             Utils::SmallStringVector &&toolChainArguments);
-    void removeProjectParts(const QStringList &projectPartIds);
+    void removeProjectParts(ClangBackEnd::ProjectPartIds projectPartIds);
 
     void updateGeneratedFiles(ClangBackEnd::V2::FileContainers &&generatedFiles);
     void removeGeneratedFiles(ClangBackEnd::FilePaths &&filePaths);
@@ -88,6 +94,7 @@ public:
             CppTools::ProjectPart *projectPart) const;
     ClangBackEnd::ProjectPartContainers toProjectPartContainers(
             std::vector<CppTools::ProjectPart *> projectParts) const;
+
     void addToHeaderAndSources(HeaderAndSources &headerAndSources,
                                const CppTools::ProjectFile &projectFile) const;
     static QStringList toolChainArguments(CppTools::ProjectPart *projectPart);
@@ -98,11 +105,16 @@ public:
     static ClangBackEnd::FilePaths createExcludedPaths(
             const ClangBackEnd::V2::FileContainers &generatedFiles);
 
+    QString fetchProjectPartName(ClangBackEnd::ProjectPartId projectPartId) const;
+
+    ClangBackEnd::ProjectPartIds toProjectPartIds(const QStringList &projectPartNames) const;
+
 private:
     ClangBackEnd::GeneratedFiles m_generatedFiles;
     ClangBackEnd::FilePaths m_excludedPaths;
     ClangBackEnd::ProjectManagementServerInterface &m_server;
     ClangBackEnd::FilePathCachingInterface &m_filePathCache;
+    ClangBackEnd::ProjectPartsStorageInterface &m_projectPartsStorage;
 };
 
 } // namespace ClangPchManager

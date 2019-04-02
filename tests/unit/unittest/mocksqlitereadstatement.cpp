@@ -90,6 +90,13 @@ MockSqliteReadStatement::values<ClangBackEnd::UsedMacro, 2>(
     return valuesReturnUsedMacros(reserveSize, sourceId);
 }
 
+template<>
+FilePathIds MockSqliteReadStatement::values<ClangBackEnd::FilePathId>(std::size_t reserveSize,
+                                                                      const int &projectPartId)
+{
+    return valuesReturnFilePathIds(reserveSize, projectPartId);
+}
+
 template <>
 std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directory, 2>(std::size_t reserveSize)
 {
@@ -114,6 +121,13 @@ Utils::optional<int>
 MockSqliteReadStatement::value<int>(const Utils::PathString &text)
 {
     return valueReturnInt32(text);
+}
+
+template<>
+Utils::optional<ClangBackEnd::ProjectPartId> MockSqliteReadStatement::value<ClangBackEnd::ProjectPartId>(
+    const Utils::SmallStringView &text)
+{
+    return valueReturnProjectPartId(text);
 }
 
 template <>
@@ -144,9 +158,9 @@ MockSqliteReadStatement::value<Utils::PathString>(const Utils::SmallStringView &
     return valueReturnPathString(path);
 }
 
-template <>
-Utils::optional<ClangBackEnd::FilePath>
-MockSqliteReadStatement::value<ClangBackEnd::FilePath>(const Utils::SmallStringView &path)
+template<>
+Utils::optional<ClangBackEnd::FilePath> MockSqliteReadStatement::value<ClangBackEnd::FilePath>(
+    const int &path)
 {
     return valueReturnFilePath(path);
 }
@@ -165,9 +179,23 @@ MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 8>(const Utils
     return valueReturnProjectPartArtefact(projectPartName);
 }
 
-template <>
+template<>
+Utils::optional<ClangBackEnd::ProjectPartContainer>
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartContainer, 8>(const int &id)
+{
+    return valueReturnProjectPartContainer(id);
+}
+
+template<>
+ClangBackEnd::ProjectPartContainers MockSqliteReadStatement::values<ClangBackEnd::ProjectPartContainer,
+                                                                    8>(std::size_t reserveSize)
+{
+    return valuesReturnProjectPartContainers(reserveSize);
+}
+
+template<>
 Utils::optional<ClangBackEnd::ProjectPartPch>
-MockSqliteReadStatement::value<ClangBackEnd::ProjectPartPch, 2>(const int &projectPartId)
+MockSqliteReadStatement::value<ClangBackEnd::ProjectPartPch, 3>(const int &projectPartId)
 {
     return valueReturnProjectPartPch(projectPartId);
 }

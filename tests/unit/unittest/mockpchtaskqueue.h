@@ -34,7 +34,7 @@ class MockPchTaskQueue : public ClangBackEnd::PchTaskQueueInterface
 public:
     MOCK_METHOD1(addSystemPchTasks, void(const ClangBackEnd::PchTasks &pchTasks));
     MOCK_METHOD1(addProjectPchTasks, void(const ClangBackEnd::PchTasks &pchTasks));
-    MOCK_METHOD1(removePchTasks, void(const Utils::SmallStringVector &projectsPartIds));
+    MOCK_METHOD1(removePchTasks, void(const ClangBackEnd::ProjectPartIds &projectsPartIds));
     MOCK_METHOD0(processEntries, void ());
 
     void addSystemPchTasks(ClangBackEnd::PchTasks &&pchTasks) override

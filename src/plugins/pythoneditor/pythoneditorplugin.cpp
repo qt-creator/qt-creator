@@ -334,7 +334,7 @@ static QStringList readLines(const Utils::FileName &projectFile)
         QTextStream stream(&file);
 
         while (true) {
-            QString line = stream.readLine();
+            const QString line = stream.readLine();
             if (line.isNull())
                 break;
             if (visited.contains(line))
@@ -382,8 +382,8 @@ static QStringList readLinesJson(const Utils::FileName &projectFile,
 
     const QJsonObject obj = doc.object();
     if (obj.contains("files")) {
-        QJsonValue files = obj.value("files");
-        QJsonArray files_array = files.toArray();
+        const QJsonValue files = obj.value("files");
+        const QJsonArray files_array = files.toArray();
         QSet<QString> visited;
         for (const auto &file : files_array)
             visited.insert(file.toString());
@@ -396,7 +396,7 @@ static QStringList readLinesJson(const Utils::FileName &projectFile,
 
 bool PythonProject::saveRawFileList(const QStringList &rawFileList)
 {
-    bool result = saveRawList(rawFileList, projectFilePath().toString());
+    const bool result = saveRawList(rawFileList, projectFilePath().toString());
 //    refresh(PythonProject::Files);
     return result;
 }
@@ -463,7 +463,7 @@ bool PythonProject::addFiles(const QStringList &filePaths)
 {
     QStringList newList = m_rawFileList;
 
-    QDir baseDir(projectDirectory().toString());
+    const QDir baseDir(projectDirectory().toString());
     for (const QString &filePath : filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
@@ -475,7 +475,7 @@ bool PythonProject::removeFiles(const QStringList &filePaths)
     QStringList newList = m_rawFileList;
 
     for (const QString &filePath : filePaths) {
-        QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
+        const QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
         if (i != m_rawListEntries.end())
             newList.removeOne(i.value());
     }
@@ -486,7 +486,7 @@ bool PythonProject::removeFiles(const QStringList &filePaths)
 bool PythonProject::setFiles(const QStringList &filePaths)
 {
     QStringList newList;
-    QDir baseDir(projectDirectory().toString());
+    const QDir baseDir(projectDirectory().toString());
     for (const QString &filePath : filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
@@ -497,11 +497,11 @@ bool PythonProject::renameFile(const QString &filePath, const QString &newFilePa
 {
     QStringList newList = m_rawFileList;
 
-    QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
+    const QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
     if (i != m_rawListEntries.end()) {
-        int index = newList.indexOf(i.value());
+        const int index = newList.indexOf(i.value());
         if (index != -1) {
-            QDir baseDir(projectDirectory().toString());
+            const QDir baseDir(projectDirectory().toString());
             newList.replace(index, baseDir.relativeFilePath(newFilePath));
         }
     }
@@ -550,12 +550,13 @@ void PythonProject::refresh(Target *target)
     emitParsingStarted();
     parseProject();
 
-    QDir baseDir(projectDirectory().toString());
+    const QDir baseDir(projectDirectory().toString());
     BuildTargetInfoList appTargets;
     auto newRoot = std::make_unique<PythonProjectNode>(this);
-    for (const QString &f : m_files) {
+    for (const QString &f : qAsConst(m_files)) {
         const QString displayName = baseDir.relativeFilePath(f);
-        FileType fileType = f.endsWith(".pyproject") || f.endsWith(".pyqtc") ? FileType::Project : FileType::Source;
+        const FileType fileType = f.endsWith(".pyproject") || f.endsWith(".pyqtc") ? FileType::Project
+                                                                                   : FileType::Source;
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(FileName::fromString(f),
                                                                 displayName, fileType));
         if (fileType == FileType::Source) {
@@ -659,8 +660,8 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
     const QDir baseDir(base);
 
     for (const QString &absoluteFileName : files) {
-        QFileInfo fileInfo(absoluteFileName);
-        FileName absoluteFilePath = FileName::fromString(fileInfo.path());
+        const QFileInfo fileInfo(absoluteFileName);
+        const FileName absoluteFilePath = FileName::fromString(fileInfo.path());
         QString relativeFilePath;
 
         if (absoluteFilePath.isChildOf(baseDir)) {

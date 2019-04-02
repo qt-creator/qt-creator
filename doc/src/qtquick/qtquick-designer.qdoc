@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -33,11 +33,12 @@
     \contentspage index.html
     \page creator-using-qt-quick-designer.html
     \if defined(qtdesignstudio)
-    \previouspage studio-prototyping.html
+    \previouspage creator-quick-tour.html
+    \nextpage {Tutorials}
     \else
     \previouspage creator-quick-ui-forms.html
-    \endif
     \nextpage quick-components.html
+    \endif
 
     \title Editing QML Files in Design Mode
 
@@ -46,7 +47,11 @@
     recommended that you use UI forms for components that you want to
     edit in the Design mode.
 
+    \if defined(qtcreator)
     \image qmldesigner-visual-editor.png "Visual editor"
+    \else
+    \image studio-design-mode.png "Design mode"
+    \endif
 
     To manage your project in the Design mode:
 
@@ -97,10 +102,15 @@
 
         \endlist
 
-        \li \uicontrol {State} pane (6) displays the different states of the item.
+        \li \uicontrol {States} pane (6) displays the different states of the item.
             QML states typically describe user interface configurations, such as
             the UI controls, their properties and behavior and the available
             actions. For more information, see \l{Adding States}.
+
+        \if defined(qtdesignstudio)
+        \li \uicontrol Timeline pane (7) provides a timeline and keyframe based
+            editor that enables you to animate the properties of UI components.
+        \endif
 
     \endlist
 

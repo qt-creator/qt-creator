@@ -36,7 +36,7 @@ public:
                  void(const ClangBackEnd::PchTaskSets &pchTaskSets,
                       const Utils::SmallStringVector &toolChainArguments));
 
-    MOCK_METHOD1(removePchTasks, void(const Utils::SmallStringVector &projectPartIds));
+    MOCK_METHOD1(removePchTasks, void(const ClangBackEnd::ProjectPartIds &projectPartIds));
 
     void mergeTasks(ClangBackEnd::PchTaskSets &&pchTaskSets,
                     Utils::SmallStringVector &&toolChainArguments) override

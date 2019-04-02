@@ -28,6 +28,7 @@
 #include "clangsupport_global.h"
 
 #include <filepathid.h>
+#include <projectpartid.h>
 
 #include <utils/smallstringvector.h>
 
@@ -40,7 +41,7 @@ public:
     ClangPathWatcherNotifier(const ClangPathWatcherNotifier &) = delete;
     ClangPathWatcherNotifier &operator=(const ClangPathWatcherNotifier &) = delete;
 
-    virtual void pathsWithIdsChanged(const Utils::SmallStringVector &ids) = 0;
+    virtual void pathsWithIdsChanged(const ProjectPartIds &ids) = 0;
     virtual void pathsChanged(const FilePathIds &filePathIds) = 0;
 
 protected:

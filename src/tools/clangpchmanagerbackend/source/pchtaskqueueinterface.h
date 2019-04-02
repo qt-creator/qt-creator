@@ -35,7 +35,7 @@ class PchTaskQueueInterface : public QueueInterface
 public:
     virtual void addSystemPchTasks(PchTasks &&pchTasks) = 0;
     virtual void addProjectPchTasks(PchTasks &&pchTasks) = 0;
-    virtual void removePchTasks(const Utils::SmallStringVector &projectsPartIds) = 0;
+    virtual void removePchTasks(const ProjectPartIds &projectsPartIds) = 0;
 
 protected:
     ~PchTaskQueueInterface() = default;

@@ -31,6 +31,7 @@
 #include "qtcreatorprojectupdater.h"
 
 #include <filepathcaching.h>
+#include <projectpartsstorage.h>
 #include <refactoringdatabaseinitializer.h>
 #include <sqlitedatabase.h>
 
@@ -79,11 +80,13 @@ public:
                                                      "Creating Dependencies");
             Core::ProgressManager::addTask(promise.future(), title, "dependency creation", nullptr);
         }};
+    ClangBackEnd::ProjectPartsStorage<Sqlite::Database> projectPartsStorage{database};
     PchManagerClient pchManagerClient{pchCreationProgressManager, dependencyCreationProgressManager};
     PchManagerConnectionClient connectionClient{&pchManagerClient};
     QtCreatorProjectUpdater<PchManagerProjectUpdater> projectUpdate{connectionClient.serverProxy(),
                                                                     pchManagerClient,
-                                                                    filePathCache};
+                                                                    filePathCache,
+                                                                    projectPartsStorage};
 };
 
 std::unique_ptr<ClangPchManagerPluginData> ClangPchManagerPlugin::d;

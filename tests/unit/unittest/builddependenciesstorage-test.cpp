@@ -35,14 +35,15 @@
 
 namespace {
 
-using Utils::PathString;
-using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathCachingInterface;
+using ClangBackEnd::FilePathId;
+using ClangBackEnd::ProjectPartId;
 using ClangBackEnd::SourceEntries;
 using ClangBackEnd::SourceType;
 using ClangBackEnd::UsedMacro;
 using Sqlite::Database;
 using Sqlite::Table;
+using Utils::PathString;
 
 using Storage = ClangBackEnd::BuildDependenciesStorage<MockSqliteDatabase>;
 
@@ -61,14 +62,14 @@ protected:
     MockSqliteWriteStatement &deleteOutdatedSourceDependenciesStatement = storage.deleteOutdatedSourceDependenciesStatement;
     MockSqliteWriteStatement &deleteNewSourceDependenciesStatement = storage.deleteNewSourceDependenciesStatement;
     MockSqliteReadStatement &getLowestLastModifiedTimeOfDependencies = storage.getLowestLastModifiedTimeOfDependencies;
-    MockSqliteWriteStatement &insertOrUpdateProjectPartsSourcesStatement = storage.insertOrUpdateProjectPartsSourcesStatement;
+    MockSqliteWriteStatement &insertOrUpdateProjectPartsFilesStatement = storage.insertOrUpdateProjectPartsFilesStatement;
     MockSqliteReadStatement &fetchSourceDependenciesStatement = storage.fetchSourceDependenciesStatement;
     MockSqliteReadStatement &fetchProjectPartIdStatement = storage.fetchProjectPartIdStatement;
     MockSqliteReadStatement &fetchUsedMacrosStatement = storage.fetchUsedMacrosStatement;
     MockSqliteWriteStatement &insertProjectPartNameStatement = storage.insertProjectPartNameStatement;
     MockSqliteWriteStatement &updatePchCreationTimeStampStatement = storage.updatePchCreationTimeStampStatement;
-    MockSqliteWriteStatement &deleteAllProjectPartsSourcesWithProjectPartNameStatement
-        = storage.deleteAllProjectPartsSourcesWithProjectPartNameStatement;
+    MockSqliteWriteStatement &deleteAllProjectPartsFilesWithProjectPartNameStatement
+        = storage.deleteAllProjectPartsFilesWithProjectPartNameStatement;
 };
 
 TEST_F(BuildDependenciesStorage, ConvertStringsToJson)
@@ -177,10 +178,10 @@ TEST_F(BuildDependenciesStorage, UpdateSources)
     SourceEntries entries{{1, SourceType::TopProjectInclude, 10, ClangBackEnd::HasMissingIncludes::Yes},
                           {2, SourceType::TopSystemInclude, 20}};
 
-    EXPECT_CALL(deleteAllProjectPartsSourcesWithProjectPartNameStatement, write(TypedEq<int>(22)));
-    EXPECT_CALL(insertOrUpdateProjectPartsSourcesStatement,
+    EXPECT_CALL(deleteAllProjectPartsFilesWithProjectPartNameStatement, write(TypedEq<int>(22)));
+    EXPECT_CALL(insertOrUpdateProjectPartsFilesStatement,
                 write(TypedEq<int>(1), TypedEq<int>(22), TypedEq<uchar>(0), TypedEq<uchar>(1)));
-    EXPECT_CALL(insertOrUpdateProjectPartsSourcesStatement,
+    EXPECT_CALL(insertOrUpdateProjectPartsFilesStatement,
                 write(TypedEq<int>(2), TypedEq<int>(22), TypedEq<uchar>(1), TypedEq<uchar>(0)));
 
     storage.insertOrUpdateSources(entries, 22);
@@ -191,50 +192,10 @@ TEST_F(BuildDependenciesStorage, UpdatePchCreationTimeStamp)
     InSequence s;
 
     EXPECT_CALL(mockDatabase, immediateBegin());
-    EXPECT_CALL(updatePchCreationTimeStampStatement,
-                write(TypedEq<long long>(101), TypedEq<Utils::SmallStringView>("project1")));
+    EXPECT_CALL(updatePchCreationTimeStampStatement, write(TypedEq<long long>(101), TypedEq<int>(1)));
     EXPECT_CALL(mockDatabase, commit());
 
-    storage.updatePchCreationTimeStamp(101, "project1");
-}
-
-TEST_F(BuildDependenciesStorage, CallsFetchProjectIdWithNonExistingProjectPartName)
-{
-    EXPECT_CALL(fetchProjectPartIdStatement,
-                valueReturnInt32(TypedEq<Utils::SmallStringView>("test")));
-    EXPECT_CALL(insertProjectPartNameStatement, write(TypedEq<Utils::SmallStringView>("test")));
-
-    storage.fetchProjectPartId("test");
-}
-
-TEST_F(BuildDependenciesStorage, CallsFetchProjectIdWithExistingProjectPart)
-{
-    EXPECT_CALL(fetchProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("test")))
-        .WillOnce(Return(Utils::optional<int>{20}));
-    EXPECT_CALL(insertProjectPartNameStatement, write(TypedEq<Utils::SmallStringView>("test"))).Times(0);
-
-    storage.fetchProjectPartId("test");
-}
-
-TEST_F(BuildDependenciesStorage, FetchProjectIdWithNonExistingProjectPartName)
-{
-    ON_CALL(fetchProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("test")))
-        .WillByDefault(Return(Utils::optional<int>{}));
-    ON_CALL(mockDatabase, lastInsertedRowId()).WillByDefault(Return(21));
-
-    int id = storage.fetchProjectPartId("test");
-
-    ASSERT_THAT(id, 21);
-}
-
-TEST_F(BuildDependenciesStorage, FetchProjectIdWithExistingProjectPartName)
-{
-    ON_CALL(fetchProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("test")))
-        .WillByDefault(Return(Utils::optional<int>{20}));
-
-    int id = storage.fetchProjectPartId("test");
-
-    ASSERT_THAT(id, 20);
+    storage.updatePchCreationTimeStamp(101, 1);
 }
 
 TEST_F(BuildDependenciesStorage, CallsFetchDependSources)

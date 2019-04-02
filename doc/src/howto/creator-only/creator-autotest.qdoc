@@ -399,7 +399,8 @@
     To view only messages of a particular type, select
     \inlineimage filtericon.png
     (\uicontrol {Filter Test Results}), and then select the types of messages to
-    show.
+    show. To show all messages, select \uicontrol {Check All Filters}. To
+    deselect all message types, select \uicontrol {Uncheck All Filters}.
 
     By default, test result output is limited to 100,000 characters. The output
     pane is automatically scrolled down when new results are added. To display

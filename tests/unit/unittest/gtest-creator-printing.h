@@ -91,7 +91,7 @@ template <typename Type>
 std::ostream &operator<<(std::ostream &out, const Utils::optional<Type> &optional)
 {
     if (optional)
-        return out << "optional" << optional.value();
+        return out << "optional " << optional.value();
     else
         return out << "empty optional()";
 }
@@ -196,6 +196,7 @@ class IncludeSearchPath;
 enum class IncludeSearchPathType : unsigned char;
 struct ArgumentsEntry;
 class ProjectPartContainer;
+class ProjectPartId;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -285,6 +286,7 @@ std::ostream &operator<<(std::ostream &out, const IncludeSearchPathType &pathTyp
 std::ostream &operator<<(std::ostream &out, const IncludeSearchPath &path);
 std::ostream &operator<<(std::ostream &out, const ArgumentsEntry &entry);
 std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container);
+std::ostream &operator<<(std::ostream &out, const ProjectPartId &projectPathId);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);

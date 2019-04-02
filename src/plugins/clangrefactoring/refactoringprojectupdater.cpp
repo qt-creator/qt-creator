@@ -26,19 +26,22 @@
 #include "refactoringprojectupdater.h"
 
 #include <cpptools/cppmodelmanager.h>
+#include <projectpartsstorageinterface.h>
 
 namespace ClangRefactoring {
 
-void RefactoringProjectUpdater::precompiledHeaderUpdated(const QString &projectPartId,
+void RefactoringProjectUpdater::precompiledHeaderUpdated(ClangBackEnd::ProjectPartId projectPartId,
                                                          const QString &,
                                                          long long)
 {
-    auto projectPart = m_cppModelManager.projectPartForId(projectPartId);
+    const QString projectPartName = fetchProjectPartName(projectPartId);
+
+    auto projectPart = m_cppModelManager.projectPartForId(projectPartName);
     if (projectPart)
         updateProjectParts({projectPart.data()}, {});
 }
 
-void RefactoringProjectUpdater::precompiledHeaderRemoved(const QString &projectPartId)
+void RefactoringProjectUpdater::precompiledHeaderRemoved(ClangBackEnd::ProjectPartId projectPartId)
 {
     removeProjectParts({projectPartId});
 }

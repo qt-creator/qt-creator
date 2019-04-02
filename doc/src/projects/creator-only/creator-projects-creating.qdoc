@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -125,6 +125,13 @@
             \li Qt Console Application
 
                 Use a single main.cpp file
+
+            \li Qt for Python Application - Empty or Window
+
+                Create a \l{https://doc.qt.io/qtforpython/index.html}
+                {Qt for Python} application that contains only the main
+                code for a QApplication or create one that contains an
+                empty window.
 
         \endlist
 
@@ -400,6 +407,8 @@
 
     The above functions are also available in the context menu in the
     \uicontrol Projects view.
+
+    \include creator-python-project.qdocinc python project wizards
 
     \section2 Creating OpenGL Fragment and Vertex Shaders
 

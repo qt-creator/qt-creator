@@ -41,6 +41,7 @@ using ClangBackEnd::IncludeSearchPath;
 using ClangBackEnd::IncludeSearchPathType;
 using ClangBackEnd::PchTask;
 using ClangBackEnd::PchTaskSet;
+using ClangBackEnd::ProjectPartId;
 using ClangBackEnd::SourceEntries;
 using ClangBackEnd::SourceType;
 using ClangBackEnd::UsedMacro;
@@ -57,7 +58,7 @@ protected:
                                              mockPchTaskMerger,
                                              progressCounter};
     ClangBackEnd::ProjectPartContainer projectPart1{
-        "ProjectPart1",
+        1,
         {"--yi"},
         {{"YI", "1", 1},
          {"QI", "7", 1},
@@ -97,7 +98,7 @@ TEST_F(PchTaskGenerator, AddProjectParts)
         mergeTasks(
             ElementsAre(AllOf(
                 Field(&PchTaskSet::system,
-                      AllOf(Field(&PchTask::projectPartIds, ElementsAre("ProjectPart1")),
+                      AllOf(Field(&PchTask::projectPartIds, ElementsAre(ProjectPartId{1})),
                             Field(&PchTask::includes, ElementsAre(5)),
                             Field(&PchTask::sources, IsEmpty()),
                             Field(&PchTask::compilerMacros,
@@ -114,7 +115,7 @@ TEST_F(PchTaskGenerator, AddProjectParts)
                             Field(&PchTask::languageExtension, Eq(Utils::LanguageExtension::All)))),
                 AllOf(Field(
                     &PchTaskSet::project,
-                    AllOf(Field(&PchTask::projectPartIds, ElementsAre("ProjectPart1")),
+                    AllOf(Field(&PchTask::projectPartIds, ElementsAre(ProjectPartId{1})),
                           Field(&PchTask::includes, ElementsAre(3)),
                           Field(&PchTask::sources, ElementsAre(1, 2, 3, 4, 5)),
                           Field(&PchTask::compilerMacros,
@@ -153,11 +154,9 @@ TEST_F(PchTaskGenerator, RemoveProjectParts)
 {
     ON_CALL(mockBuildDependenciesProvider, create(_)).WillByDefault(Return(buildDependency));
 
-    EXPECT_CALL(
-        mockPchTaskMerger,
-        removePchTasks(ElementsAre("project1", "project2")));
+    EXPECT_CALL(mockPchTaskMerger, removePchTasks(ElementsAre(ProjectPartId{1}, ProjectPartId{2})));
 
-    generator.removeProjectParts({"project1", "project2"});
+    generator.removeProjectParts({1, 2});
 }
 
 }

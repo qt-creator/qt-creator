@@ -280,6 +280,19 @@ bool QmlTimeline::hasKeyframeGroup(const ModelNode &node, const PropertyName &pr
     return false;
 }
 
+bool QmlTimeline::hasKeyframeGroupForTarget(const ModelNode &node) const
+{
+    if (!isValid())
+        return false;
+
+    for (const QmlTimelineKeyframeGroup &frames : allKeyframeGroups()) {
+        if (frames.target().isValid() && frames.target() == node)
+            return true;
+    }
+
+    return false;
+}
+
 QList<QmlTimelineKeyframeGroup> QmlTimeline::allKeyframeGroups() const
 {
     QList<QmlTimelineKeyframeGroup> returnList;

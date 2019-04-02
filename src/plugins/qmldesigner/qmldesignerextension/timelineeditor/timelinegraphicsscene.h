@@ -137,6 +137,8 @@ public:
     void deleteKeyframeGroup(const ModelNode &group);
     void deleteKeyframes(const QList<ModelNode> &frames);
 
+    void activateLayout();
+
 signals:
     void statusBarMessageChanged(const QString &message);
 

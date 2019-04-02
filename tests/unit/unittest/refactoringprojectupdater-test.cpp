@@ -27,6 +27,7 @@
 
 #include "mockcppmodelmanager.h"
 #include "mockprogressmanager.h"
+#include "mockprojectpartsstorage.h"
 #include "mockrefactoringserver.h"
 
 #include <sqlitedatabase.h>
@@ -48,9 +49,9 @@ using CppTools::ProjectPart;
 using ClangBackEnd::UpdateProjectPartsMessage;
 using ClangBackEnd::RemoveProjectPartsMessage;
 
-MATCHER_P(IsProjectPartContainer, projectPartId,
-          std::string(negation ? "hasn't" : "has")
-          + " name " + std::string(projectPartId))
+MATCHER_P(IsProjectPartContainer,
+          projectPartId,
+          std::string(negation ? "hasn't" : "has") + " id " + PrintToString(projectPartId))
 {
     const ClangBackEnd::ProjectPartContainer &container = arg;
 
@@ -68,20 +69,6 @@ protected:
         return projectPart;
     }
 
-    Utils::SmallString createProjectPartId(const char *name)
-    {
-        ProjectPart::Ptr projectPart{new ProjectPart};
-        projectPart->displayName = QString::fromUtf8(name, std::strlen(name));
-        return projectPart->id();
-    }
-
-    QString createProjectPartQStringId(const char *name)
-    {
-        ProjectPart::Ptr projectPart{new ProjectPart};
-        projectPart->displayName = QString::fromUtf8(name, std::strlen(name));
-        return projectPart->id();
-    }
-
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
@@ -89,46 +76,53 @@ protected:
     NiceMock<MockRefactoringServer> mockRefactoringServer;
     NiceMock<MockProgressManager> mockPchCreationProgressManager;
     NiceMock<MockProgressManager> mockDependencyCreationProgressManager;
+    NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
     ClangPchManager::PchManagerClient pchManagerClient{mockPchCreationProgressManager,
                                                        mockDependencyCreationProgressManager};
     MockCppModelManager mockCppModelManager;
-    ClangRefactoring::RefactoringProjectUpdater updater{mockRefactoringServer, pchManagerClient, mockCppModelManager, filePathCache};
+    ClangRefactoring::RefactoringProjectUpdater updater{mockRefactoringServer,
+                                                        pchManagerClient,
+                                                        mockCppModelManager,
+                                                        filePathCache,
+                                                        mockProjectPartsStorage};
     Utils::SmallString projectPartId;
 };
 
 TEST_F(RefactoringProjectUpdater, DontUpdateProjectPartIfNoProjectPartExistsForId)
 {
-    EXPECT_CALL(mockCppModelManager, projectPartForId(Eq(createProjectPartQStringId("project1"))));
+    InSequence s;
 
-    pchManagerClient.precompiledHeadersUpdated({{{createProjectPartId("project1"), "/path/to/pch", 12}}});
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartName(Eq(3)))
+        .WillOnce(Return(QString("project1")));
+    EXPECT_CALL(mockCppModelManager, projectPartForId(Eq(QString("project1"))));
+    EXPECT_CALL(mockRefactoringServer, updateProjectParts(_)).Times(0);
+
+    pchManagerClient.precompiledHeadersUpdated({{{3, "/path/to/pch", 12}}});
 }
 
 TEST_F(RefactoringProjectUpdater, UpdateProjectPart)
 {
-    EXPECT_CALL(mockCppModelManager, projectPartForId(Eq(createProjectPartQStringId("project1")))).WillRepeatedly(Return(createProjectPart("project1")));
-    EXPECT_CALL(mockRefactoringServer, updateProjectParts(
-                    Field(&UpdateProjectPartsMessage::projectsParts,
-                          ElementsAre(IsProjectPartContainer(createProjectPartId("project1"))))));
+    InSequence s;
 
-    pchManagerClient.precompiledHeadersUpdated({{{createProjectPartId("project1"), "/path/to/pch", 12}}});
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartName(Eq(3)))
+        .WillRepeatedly(Return(QString(" project1")));
+    EXPECT_CALL(mockCppModelManager, projectPartForId(Eq(QString(" project1"))))
+        .WillRepeatedly(Return(createProjectPart("project1")));
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartId(Eq(" project1")))
+        .WillOnce(Return(ClangBackEnd::ProjectPartId{3}));
+    EXPECT_CALL(mockRefactoringServer,
+                updateProjectParts(Field(&UpdateProjectPartsMessage::projectsParts,
+                                         ElementsAre(IsProjectPartContainer(3)))));
+
+    pchManagerClient.precompiledHeadersUpdated({{{3, "/path/to/pch", 12}}});
 }
 
 TEST_F(RefactoringProjectUpdater, RemoveProjectPart)
 {
-    EXPECT_CALL(mockRefactoringServer, removeProjectParts(
-                    Field(&RemoveProjectPartsMessage::projectsPartIds,
-                          ElementsAre(Eq("project1")))));
+    EXPECT_CALL(mockRefactoringServer,
+                removeProjectParts(
+                    Field(&RemoveProjectPartsMessage::projectsPartIds, ElementsAre(Eq(1)))));
 
-    pchManagerClient.precompiledHeaderRemoved({"project1"});
+    pchManagerClient.precompiledHeaderRemoved(1);
 }
-
-TEST_F(RefactoringProjectUpdater, UpdateGeneratedFiles)
-{
-    EXPECT_CALL(mockRefactoringServer, removeProjectParts(
-                    Field(&RemoveProjectPartsMessage::projectsPartIds,
-                          ElementsAre(Eq("project1")))));
-
-    pchManagerClient.precompiledHeaderRemoved({"project1"});
-}
-
 }
