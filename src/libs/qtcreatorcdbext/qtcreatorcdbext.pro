@@ -100,7 +100,7 @@ HEADERS += extensioncontext.h \
     symbolgroupnode.h
 
 isEmpty(PYTHON_INSTALL_DIR):PYTHON_INSTALL_DIR=$$(PYTHON_INSTALL_DIR)
-exists($$PYTHON_INSTALL_DIR) {
+!isEmpty(PYTHON_INSTALL_DIR):exists($$PYTHON_INSTALL_DIR) {
     DEFINES += WITH_PYTHON=1
 
     INCLUDEPATH += $$PYTHON_INSTALL_DIR/include
