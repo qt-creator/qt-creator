@@ -52,9 +52,9 @@ void IntroductionWidget::askUserAboutIntroduction(QWidget *parent, QSettings *se
     auto messageBox = new CheckableMessageBox(parent);
     messageBox->setWindowTitle(tr("Take a UI Tour"));
     messageBox->setText(
-        tr("Do you want to take a quick UI tour? This shows where the most important user "
-           "interface elements are, and how they are used, and will only take a minute. You can "
-           "also take the tour later by selecting Help > UI Tour."));
+        tr("Would you like to take a quick UI tour? This tour highlights important user "
+           "interface elements and shows how they are used. To take the tour later, "
+           "select Help > UI Tour."));
     messageBox->setCheckBoxVisible(true);
     messageBox->setCheckBoxText(CheckableMessageBox::msgDoNotAskAgain());
     messageBox->setChecked(true);
