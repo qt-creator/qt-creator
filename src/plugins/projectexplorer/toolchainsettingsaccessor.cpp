@@ -164,12 +164,9 @@ static ToolChainOperations mergeToolChainLists(const QList<ToolChain *> &systemF
     const QList<ToolChain *> notRedetectedButValidUserTcs
             = Utils::filtered(notRedetectedUserTcs, &ToolChain::isValid);
 
-    const QList<ToolChain *> validManualUserTcs
-            = Utils::filtered(manualUserFileTcs, &ToolChain::isValid);
-
     ToolChainOperations result;
     result.toDemote = notRedetectedButValidUserTcs;
-    result.toRegister = stabilizeOrder(systemFileTcs + validManualUserTcs + result.toDemote // manual TCs
+    result.toRegister = stabilizeOrder(systemFileTcs + manualUserFileTcs + result.toDemote // manual TCs
                                        + redetectedUserTcs + newlyAutodetectedTcs, // auto TCs
                                        userFileTcs);
 
@@ -225,7 +222,7 @@ void ToolChainSettingsAccessor::saveToolChains(const QList<ToolChain *> &toolcha
 
     int count = 0;
     for (const ToolChain *tc : toolchains) {
-        if (!tc || !tc->isValid())
+        if (!tc || (!tc->isValid() && tc->isAutoDetected()))
             continue;
         const QVariantMap tmp = tc->toMap();
         if (tmp.isEmpty())
@@ -424,9 +421,9 @@ void ProjectExplorerPlugin::testToolChainMerging_data()
             << (TCList()) << (TCList() << auto3i) << (TCList())
             << (TCList()) << (TCList());
 
-    QTest::newRow("Delete invalid user")
+    QTest::newRow("invalid user")
             << (TCList()) << (TCList() << user3i) << (TCList())
-            << (TCList()) << (TCList());
+            << (TCList()) << (TCList{user3i});
 
     QTest::newRow("one of everything")
             << (TCList() << system1) << (TCList() << user1) << (TCList() << auto1)

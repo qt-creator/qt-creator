@@ -38,6 +38,7 @@
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QApplication>
@@ -84,17 +85,20 @@ public:
                 if (column == 0)
                     return toolChain->displayName();
                 return toolChain->typeDisplayName();
-
             case Qt::FontRole: {
                 QFont font;
                 font.setBold(changed);
                 return font;
              }
-
             case Qt::ToolTipRole:
+                if (!toolChain->isValid())
+                    return ToolChainOptionsPage::tr("This toolchain is no longer valid.");
                 return ToolChainOptionsPage::tr("<nobr><b>ABI:</b> %1").arg(
                     changed ? ToolChainOptionsPage::tr("not up-to-date")
                             : toolChain->targetAbi().toString());
+            case Qt::DecorationRole:
+                return column == 0 && !toolChain->isValid()
+                        ? Utils::Icons::CRITICAL.icon() : QVariant();
         }
         return QVariant();
     }
