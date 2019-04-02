@@ -203,7 +203,8 @@ static QList<Abi> guessGccAbi(const QString &m, const ProjectExplorer::Macros &m
         abiList << Abi(arch, os, flavor, format, width == 64 ? 32 : 64);
     } else if (arch == Abi::X86Architecture && (width == 0 || width == 64)) {
         abiList << Abi(arch, os, flavor, format, 64);
-        abiList << Abi(arch, os, flavor, format, 32);
+        if (width != 64 || !m.contains("mingw"))
+            abiList << Abi(arch, os, flavor, format, 32);
     } else {
         abiList << Abi(arch, os, flavor, format, width);
     }
