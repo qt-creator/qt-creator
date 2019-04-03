@@ -132,8 +132,7 @@ void setupQbsProductData(QbsProductNode *node, const qbs::ProductData &prd)
     }
 
     // Add "Generated Files" Node:
-    auto genFiles = std::make_unique<VirtualFolderNode>(node->filePath());
-    genFiles->setPriority(Node::DefaultProjectFilePriority - 10);
+    auto genFiles = std::make_unique<VirtualFolderNode>(FileName::fromString(prd.buildDirectory()));
     genFiles->setDisplayName(QCoreApplication::translate("QbsProductNode", "Generated files"));
     setupArtifacts(genFiles.get(), prd.generatedArtifacts());
     node->addNode(std::move(genFiles));
