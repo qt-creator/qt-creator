@@ -78,9 +78,6 @@ Project {
             prefix: "wizards/"
             files: [
                 "filespage.cpp", "filespage.h",
-                "libraryparameters.cpp", "libraryparameters.h",
-                "librarywizard.cpp", "librarywizard.h",
-                "librarywizarddialog.cpp", "librarywizarddialog.h",
                 "modulespage.cpp", "modulespage.h",
                 "qtprojectparameters.cpp", "qtprojectparameters.h",
                 "qtwizard.cpp", "qtwizard.h",

@@ -33,7 +33,6 @@
 #include "qmakemakestep.h"
 #include "qmakebuildconfiguration.h"
 #include "desktopqmakerunconfiguration.h"
-#include "wizards/librarywizard.h"
 #include "wizards/simpleprojectwizard.h"
 #include "wizards/subdirsprojectwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
@@ -150,7 +149,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     IWizardFactory::registerFactoryCreator([] {
         return QList<IWizardFactory *> {
             new SubdirsProjectWizard,
-            new LibraryWizard,
             new CustomWidgetWizard,
             new SimpleProjectWizard
         };

@@ -1,0 +1,277 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qt4ProjectManager.Qt4Project" ],
+    "id": "H.CppLibrary",
+    "category": "G.Library",
+    "trDescription": "Creates a C++ library. This can be used to create:<ul><li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li><li>a shared or static C++ library for use with another project at linktime</li></ul>",
+    "trDisplayName": "C++ Library",
+    "trDisplayCategory": "Library",
+    "icon": "../../global/lib.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0 && ([ %{Plugins} ].indexOf('QmakeProjectManager') >= 0 || [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0)}",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{JS: '%{BuildSystem}' === 'qmake' ? '%{ProFile}' : '%{CMakeFile}'}" },
+        { "key": "ProFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
+        { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "PluginJsonFile", "value": "%{JS: Util.fileName('%{ProjectName}', 'json')}" },
+        { "key": "IsShared", "value": "%{JS: '%{Type}' === 'shared'}" },
+        { "key": "IsStatic", "value": "%{JS: '%{Type}' === 'static'}" },
+        { "key": "IsQtPlugin", "value": "%{JS: '%{Type}' === 'qtplugin'}" },
+        { "key": "BaseClassName", "value": "%{JS: [%{BaseClassInfo}].length ? [%{BaseClassInfo}][0] : ''}" },
+        { "key": "PluginTargetPath", "value": "%{JS: [%{BaseClassInfo}].length ? [%{BaseClassInfo}][1] : ''}" },
+        { "key": "PluginInterface", "value": "%{JS: [%{BaseClassInfo}].length ? [%{BaseClassInfo}][2] : ''}" },
+        { "key": "PluginModule", "value": "%{JS: [%{BaseClassInfo}].length ? [%{BaseClassInfo}][3] : ''}" },
+        { "key": "PluginMethods", "value": "%{JS: [%{BaseClassInfo}].length ? [%{BaseClassInfo}][4] : ''}" },
+        { "key": "QtModule", "value": "%{JS: %{IsQtPlugin} ? '%{PluginModule}' : '%{LibraryQtModule}'}" },
+        { "key": "QtModuleUpperCase", "value": "%{JS: '%{QtModule}'.charAt(0).toUpperCase() + '%{QtModule}'.slice(1)}" },
+        { "key": "LibraryDefine", "value": "%{JS: Cpp.headerGuard('%{ProjectName}') + '_LIBRARY'}" },
+        { "key": "LibraryExport", "value": "%{JS: Cpp.headerGuard('%{ProjectName}') + '_EXPORT'}" },
+        { "key": "GlobalHdrFileName", "value": "%{JS: Util.fileName('%{ProjectName}_global', Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "TargetInstallPath", "value": "%{JS: %{IsShared} ? '/usr/lib' : (%{IsQtPlugin} && '%{PluginTargetPath}' ? '$$[QT_INSTALL_PLUGINS]/%{PluginTargetPath}' : '')}" },
+        { "key": "CN", "value": "%{JS: Cpp.className('%{Class}')}" },
+        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard('%{HdrFileName}')}" },
+        { "key": "GLOBAL_GUARD", "value": "%{JS: Cpp.headerGuard('%{GlobalHdrFileName}')}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project",
+            "data": { "trDescription": "This wizard creates a C++ library project." }
+        },
+        {
+            "trDisplayName": "Define Build System",
+            "trShortTitle": "Build System",
+            "typeId": "Fields",
+            "enabled": "%{JS: ! %{IsSubproject}}",
+            "data":
+            [
+                {
+                    "name": "BuildSystem",
+                    "trDisplayName": "Build system:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            {
+                                "trKey": "Qmake",
+                                "value": "qmake",
+                                "condition": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "CMake",
+                                "value": "cmake",
+                                "condition": "%{JS: [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "ClassPageDescription",
+                    "type": "Label",
+                    "data":
+                    {
+                        "trText": "Specify basic information about the classes for which you want to generate skeleton source code files.",
+                        "wordWrap": true
+                    }
+                },
+                {
+                    "name": "Type",
+                    "trDisplayName": "Type:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            {
+                                "trKey": "Shared Library",
+                                "value": "shared"
+                            },
+                            {
+                                "trKey": "Statically Linked Library",
+                                "value": "static"
+                            },
+                            {
+                                "trKey": "Qt Plugin",
+                                "value": "qtplugin"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Sp0",
+                    "type": "Spacer"
+                },
+                {
+                    "name": "Class",
+                    "trDisplayName": "Class name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
+                        "trText": "%{JS: '%{Type}' === 'qtplugin' ? '%{BaseClassName}'.slice(1) : ('%{ProjectName}'.charAt(0).toUpperCase() + '%{ProjectName}'.slice(1))}"
+                    }
+                },
+                {
+                    "name": "BaseClassInfo",
+                    "trDisplayName": "Base class:",
+                    "type": "ComboBox",
+                    "visible": "%{JS: '%{Type}' === 'qtplugin'}",
+                    "data":
+                    {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "QAccessiblePlugin",
+                                "value": "'QAccessiblePlugin', 'accessible', 'QAccessibleFactoryInterface', 'gui', 'QAccessibleInterface *create(const QString &key, QObject *object)'"
+                            },
+                            {
+                                "trKey": "QGenericPlugin",
+                                "value": "'QGenericPlugin', 'generic', 'QGenericPluginFactoryInterface', 'gui', 'QObject *create(const QString &name, const QString &spec)'"
+                            },
+                            {
+                                "trKey": "QIconEnginePlugin",
+                                "value": "'QIconEnginePlugin', 'imageformats', 'QIconEngineFactoryInterface', 'gui', 'QIconEngine *create(const QString &filename)'"
+                            },
+                            {
+                                "trKey": "QImageIOPlugin",
+                                "value": "'QImageIOPlugin', 'imageformats', 'QImageIOHandlerFactoryInterface', 'gui', 'QImageIOPlugin::Capabilities capabilities(QIODevice *device, const QByteArray &format) const|QImageIOHandler *create(QIODevice *device, const QByteArray &format) const'"
+                            },
+                            {
+                                "trKey": "QScriptExtensionPlugin",
+                                "value": "'QScriptExtensionPlugin', '', 'QScriptExtensionInterface', 'script', 'void initialize(const QString &key, QScriptEngine *engine)|QStringList keys() const'"
+                            },
+                            {
+                                "trKey": "QSqlDriverPlugin",
+                                "value": "'QSqlDriverPlugin', 'sqldrivers', 'QSqlDriverFactoryInterface', 'sql', 'QSqlDriver *create(const QString &key)'"
+                            },
+                            {
+                                "trKey": "QStylePlugin",
+                                "value": "'QStylePlugin', 'styles', 'QStyleFactoryInterface', 'widgets', 'QStyle *create(const QString &key)'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "LibraryQtModule",
+                    "trDisplayName": "Qt module:",
+                    "type": "ComboBox",
+                    "visible": "%{JS: '%{Type}' != 'qtplugin'}",
+                    "data":
+                    {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "None",
+                                "value": "none"
+                            },
+                            {
+                                "trKey": "Core",
+                                "value": "core"
+                            },
+                            {
+                                "trKey": "Gui",
+                                "value": "gui"
+                            },
+                            {
+                                "trKey": "Widgets",
+                                "value": "widgets"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Sp1",
+                    "type": "Spacer"
+                },
+                {
+                    "name": "HdrFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Header file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" }
+                },
+                {
+                    "name": "SrcFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Source file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++src')}')}" }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: ! %{IsSubproject}}",
+            "data": { "projectFilePath": "%{ProjectFile}" }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "project.pro",
+                    "target": "%{ProFile}",
+                    "openAsProject": true,
+                    "condition": "%{JS: '%{BuildSystem}' === 'qmake'}"
+                },
+                {
+                    "source": "CMakeLists.txt",
+                    "openAsProject": true,
+                    "condition": "%{JS: '%{BuildSystem}' === 'cmake'}"
+                },
+                {
+                    "source": "lib.cpp",
+                    "target": "%{SrcFileName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "lib.h",
+                    "target": "%{HdrFileName}"
+                },
+                {
+                    "source": "lib_global.h",
+                    "target": "%{GlobalHdrFileName}",
+                    "condition": "%{JS: '%{Type}' === 'shared'}"
+                },
+                {
+                    "source": "project.json",
+                    "target": "%{PluginJsonFile}",
+                    "condition": "%{JS: '%{Type}' === 'qtplugin'}"
+                },
+                {
+                    "source": "../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: ! %{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}
