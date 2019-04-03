@@ -50,6 +50,7 @@ extern const Utils::Icon DEBUG_CONTINUE_SMALL;
 extern const Utils::Icon DEBUG_CONTINUE_SMALL_TOOLBAR;
 extern const Utils::Icon INTERRUPT;
 extern const Utils::Icon INTERRUPT_FLAT;
+extern const Utils::Icon STOP;
 extern const Utils::Icon STOP_FLAT;
 extern const Utils::Icon DEBUG_INTERRUPT_SMALL;
 extern const Utils::Icon DEBUG_INTERRUPT_SMALL_TOOLBAR;

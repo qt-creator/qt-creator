@@ -66,8 +66,10 @@ const Icon INTERRUPT(
 const Icon INTERRUPT_FLAT({
         {":/debugger/images/debugger_interrupt_mask.png", Theme::IconsInterruptToolBarColor},
         {":/projectexplorer/images/debugger_beetle_mask.png", Theme::IconsDebugColor}});
+const Icon STOP(
+        ":/debugger/images/debugger_stop.png");
 const Icon STOP_FLAT({
-        {":/debugger/images/debugger_stop_mask.png", Theme::IconsStopColor},
+        {":/debugger/images/debugger_stop_mask.png", Theme::IconsStopToolBarColor},
         {":/projectexplorer/images/debugger_beetle_mask.png", Theme::IconsDebugColor}});
 const Icon DEBUG_INTERRUPT_SMALL({
         {":/utils/images/interrupt_small.png", Theme::IconsInterruptColor},
