@@ -109,51 +109,6 @@ private:
     QSet<QString> m_changedFolders;
 };
 
-// QmakeProjectFiles: Struct for (Cached) lists of files in a project
-class QmakeProjectFiles {
-public:
-    void clear();
-    bool equals(const QmakeProjectFiles &f) const;
-
-    QStringList files[static_cast<int>(FileType::FileTypeSize)];
-    QStringList generatedFiles[static_cast<int>(FileType::FileTypeSize)];
-    QStringList proFiles;
-};
-
-void QmakeProjectFiles::clear()
-{
-    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
-        files[i].clear();
-        generatedFiles[i].clear();
-    }
-    proFiles.clear();
-}
-
-bool QmakeProjectFiles::equals(const QmakeProjectFiles &f) const
-{
-    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i)
-        if (files[i] != f.files[i] || generatedFiles[i] != f.generatedFiles[i])
-            return false;
-    if (proFiles != f.proFiles)
-        return false;
-    return true;
-}
-
-inline bool operator==(const QmakeProjectFiles &f1, const QmakeProjectFiles &f2)
-{       return f1.equals(f2); }
-
-inline bool operator!=(const QmakeProjectFiles &f1, const QmakeProjectFiles &f2)
-{       return !f1.equals(f2); }
-
-QDebug operator<<(QDebug d, const  QmakeProjectFiles &f)
-{
-    QDebug nsp = d.nospace();
-    nsp << "QmakeProjectFiles: proFiles=" <<  f.proFiles << '\n';
-    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i)
-        nsp << "Type " << i << " files=" << f.files[i] <<  " generated=" << f.generatedFiles[i] << '\n';
-    return d;
-}
-
 static QList<QmakeProject *> s_projects;
 
 } // namespace Internal
