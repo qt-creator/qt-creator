@@ -921,12 +921,11 @@ protected:
 
     bool visit(PatternElement *ast) override
     {
-        if (!ast->isVariableDeclaration())
-            return false;
 
         out(ast->identifierToken);
         if (ast->initializer) {
-            out(" = ");
+            if (ast->isVariableDeclaration())
+                out(" = ");
             accept(ast->initializer);
         }
         return false;
