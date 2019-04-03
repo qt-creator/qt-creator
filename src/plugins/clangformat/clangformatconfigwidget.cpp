@@ -125,11 +125,17 @@ void ClangFormatConfigWidget::initialize()
     if (lastItem->spacerItem())
         m_ui->verticalLayout->removeItem(lastItem);
 
+    m_ui->clangFormatOptionsTable->setEnabled(true);
     if (!m_ui->overrideDefault->isChecked()) {
-        m_ui->clangFormatOptionsTable->hide();
-        m_preview->hide();
-        m_ui->verticalLayout->addStretch(1);
-        return;
+        if (m_project) {
+            m_ui->clangFormatOptionsTable->hide();
+            m_preview->hide();
+            m_ui->verticalLayout->addStretch(1);
+            return;
+        } else {
+            // Show the fallback configuration only globally.
+            m_ui->clangFormatOptionsTable->setEnabled(false);
+        }
     }
 
     m_ui->clangFormatOptionsTable->show();
@@ -190,7 +196,7 @@ void ClangFormatConfigWidget::apply()
     }
     settings.write();
 
-    if (!m_ui->overrideDefault->isChecked())
+    if (!m_ui->clangFormatOptionsTable->isVisible())
         return;
 
     const QString text = m_ui->clangFormatOptionsTable->toPlainText();
