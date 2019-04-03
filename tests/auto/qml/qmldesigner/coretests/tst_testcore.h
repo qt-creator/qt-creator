@@ -62,6 +62,7 @@ private slots:
     void testQtQuick20BasicRectangle();
     void testQtQuickControls2();
     void testImplicitComponents();
+    void testRevisionedProperties();
 
     //
     // unit tests Model, ModelNode, NodeProperty, AbstractView
