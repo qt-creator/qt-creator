@@ -232,7 +232,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
             } else if (name == QLatin1String("exports")) {
                 readExports(script, fmo);
             } else if (name == QLatin1String("exportMetaObjectRevisions")) {
-                //readMetaObjectRevisions(script, fmo);
+                readMetaObjectRevisions(script, fmo);
             } else if (name == QLatin1String("attachedType")) {
                 fmo->setAttachedTypeName(readStringBinding(script));
             } else if (name == QLatin1String("isSingleton")) {
