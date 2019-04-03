@@ -1,0 +1,73 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [running python]
+    \section1 Running Python Projects
+
+    You can execute Qt for Python applications directly from \QC. If you
+    used the \l{Creating Qt for Python Applications}{new project wizard}
+    to create the application project, the \c main.py file is automatically
+    executed when you select the \uicontrol Run button.
+
+    You can specify another file to execute in the
+    \l{Specifying Run Settings for Python Projects}{run settings}
+    of the project.
+
+//! [running python]
+
+
+//! [run settings python]
+
+    \section1 Specifying Run Settings for Python Projects
+
+    You can specify settings for running Qt for Python applications:
+
+    \image qtcreator-python-run-settings.png
+
+    \list
+        \li In the \uicontrol Interpreter field, specify the path to the
+            Python executable.
+        \li In the \uicontrol Script field, you can see the path to the
+            main file of the project that will be run.
+        \li In the \uicontrol {Command line arguments} field, specify
+            command line arguments to be passed to the executable.
+    \endlist
+
+    If you want to run some other Python file than \c main.py,  create a custom
+    executable run configuration:
+
+    \image qtcreator-python-run-settings-custom-executable.png
+
+    \list 1
+        \li Select \uicontrol Add > \uicontrol {Custom Executable}.
+        \li In the \uicontrol Executable field, specify the path to the
+            Python executable.
+        \li In the \uicontrol {Command line arguments} field, select
+            the Python file to run.
+    \endlist
+
+//! [run settings python]
+*/
