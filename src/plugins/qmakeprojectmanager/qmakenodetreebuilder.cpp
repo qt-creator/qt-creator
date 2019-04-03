@@ -143,11 +143,21 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
 
     // other normal files:
     const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
+    FileNameList generatedFiles;
+    const auto proFile = dynamic_cast<const QmakeProFile *>(pri);
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
         const QSet<FileName> &newFilePaths = Utils::filtered(pri->files(type), [&toExclude](const Utils::FileName &fn) {
             return !Utils::contains(toExclude, [&fn](const Utils::FileName &ex) { return fn.isChildOf(ex); });
         });
+        if (proFile) {
+            for (const FileName &fp : newFilePaths) {
+                for (const ExtraCompiler *ec : proFile->extraCompilers()) {
+                    if (ec->source() == fp)
+                        generatedFiles << ec->targets();
+                }
+            }
+        }
 
         if (!newFilePaths.isEmpty()) {
             auto vfolder = std::make_unique<VirtualFolderNode>(pri->filePath().parentDir());
@@ -190,6 +200,22 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
             }
             node->addNode(std::move(vfolder));
         }
+    }
+
+    if (!generatedFiles.empty()) {
+        QTC_CHECK(proFile);
+        const FileName baseDir = generatedFiles.size() == 1 ? generatedFiles.first().parentDir()
+                                                            : proFile->buildDir();
+        auto genFolder = std::make_unique<VirtualFolderNode>(baseDir);
+        genFolder->setDisplayName(QCoreApplication::translate("QmakeProjectManager::QmakePriFile",
+                                                              "Generated Files"));
+        genFolder->setIsGenerated(true);
+        for (const FileName &fp : generatedFiles) {
+            auto fileNode = std::make_unique<FileNode>(fp, FileNode::fileTypeForFileName(fp));
+            fileNode->setIsGenerated(true);
+            genFolder->addNestedNode(std::move(fileNode));
+        }
+        node->addNode(std::move(genFolder));
     }
 
     // Virtual folders:
