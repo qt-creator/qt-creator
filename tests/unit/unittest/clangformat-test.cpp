@@ -404,6 +404,39 @@ TEST_F(ClangFormat, IndentEmptyLineInsideParantheses)
                                              "    && b)"));
 }
 
+TEST_F(ClangFormat, IndentInsideIf)
+{
+    insertLines({"if (a && b",
+                 ")"});
+
+    indenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("if (a && b",
+                                             "    )"));
+}
+
+TEST_F(ClangFormat, IndentInsideIf2)
+{
+    insertLines({"if (a && b &&",
+                 ")"});
+
+    indenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("if (a && b &&",
+                                             "    )"));
+}
+
+TEST_F(ClangFormat, IndentInsideIf3)
+{
+    insertLines({"if (a || b",
+                 ")"});
+
+    indenter.indentBlock(doc.findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+
+    ASSERT_THAT(documentLines(), ElementsAre("if (a || b",
+                                             "    )"));
+}
+
 TEST_F(ClangFormat, EmptyLineInInitializerList)
 {
     insertLines({"Bar foo{a,",
