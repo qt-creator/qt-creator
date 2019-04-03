@@ -30,6 +30,7 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsrunconfiguration.h"
 
+#include <android/androidconstants.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -397,6 +398,54 @@ QStringList QbsProductNode::targetApplications() const
 QString QbsProductNode::buildKey() const
 {
     return QbsProject::uniqueProductName(m_qbsProductData);
+}
+
+QVariant QbsProductNode::data(Core::Id role) const
+{
+//    if (role == Android::Constants::AndroidExtraLibs)
+//        return value("ANDROID_EXTRA_LIBS");
+
+    if (role == Android::Constants::AndroidDeploySettingsFile) {
+        for (const auto &artifact : m_qbsProductData.generatedArtifacts()) {
+            if (artifact.fileTags().contains("qt_androiddeployqt_input"))
+                return artifact.filePath();
+        }
+        return {};
+    }
+
+    if (role == Android::Constants::AndroidSoLibPath) {
+        QStringList ret{m_qbsProductData.buildDirectory()};
+        for (const auto &artifact : m_qbsProductData.generatedArtifacts()) {
+            if (artifact.fileTags().contains("dynamiclibrary")) {
+                ret << QFileInfo(artifact.filePath()).path();
+                qDebug() << artifact.properties().toString();
+            }
+        }
+        ret.removeDuplicates();
+        qDebug() << ret;
+        return ret;
+    }
+
+    if (role == Android::Constants::AndroidManifest) {
+        for (const auto &artifact : m_qbsProductData.generatedArtifacts()) {
+            if (artifact.fileTags().contains("android.manifest_final"))
+                return artifact.filePath();
+        }
+        return {};
+    }
+
+    if (role == Android::Constants::AndroidApk) {
+//        qDebug() << m_qbsProductData.name() << m_qbsProductData.targetExecutable() << m_qbsProductData.properties();
+//        for (const auto &artifact : m_qbsProductData.installableArtifacts()) {
+//            qDebug() << artifact.fileTags() << artifact.filePath();
+//        }
+//        for (const auto &artifact : m_qbsProductData.generatedArtifacts()) {
+//            qDebug() << artifact.fileTags() << artifact.filePath();
+//        }
+        return m_qbsProductData.targetExecutable();
+    }
+
+    return {};
 }
 
 // --------------------------------------------------------------------

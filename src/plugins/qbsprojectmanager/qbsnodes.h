@@ -75,6 +75,7 @@ public:
     QString buildKey() const override;
 
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }
+    QVariant data(Core::Id role) const override;
 
 private:
     const qbs::ProductData m_qbsProductData;

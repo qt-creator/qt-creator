@@ -1015,6 +1015,18 @@ static QVariant findOrRegisterDebugger(ToolChain *tc)
 
 void AndroidConfigurations::updateAutomaticKitList()
 {
+    const QList<Kit *> androidKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
+        Core::Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(k);
+        return deviceTypeId == Core::Id(Constants::ANDROID_DEVICE_TYPE);
+    });
+
+    for (auto k: androidKits) {
+        if (k->value(Constants::ANDROID_KIT_NDK).isNull() || k->value(Constants::ANDROID_KIT_SDK).isNull()) {
+            k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation().toString());
+            k->setValue(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
+        }
+    }
+
     const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
         Core::Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(k);
         if (k->isAutoDetected() && !k->isSdkProvided()
@@ -1090,6 +1102,8 @@ void AndroidConfigurations::updateAutomaticKitList()
                 k->setUnexpandedDisplayName(tr("Android for %1 (Clang %2)")
                                                   .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())
                                                   .arg(qt->displayName()));
+                k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation().toString());
+                k->setValueSilently(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
             };
 
             if (existingKit)

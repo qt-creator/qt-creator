@@ -91,6 +91,7 @@ public:
 
     static Utils::FileName dirPath(const ProjectExplorer::Target *target);
     static Utils::FileName manifestPath(ProjectExplorer::Target *target);
+    static void setManifestPath(ProjectExplorer::Target *target, const Utils::FileName &path);
     static Utils::FileName manifestSourcePath(ProjectExplorer::Target *target);
     static Utils::FileName defaultPropertiesPath(ProjectExplorer::Target *target);
     static Utils::FileName apkPath(const ProjectExplorer::Target *target);

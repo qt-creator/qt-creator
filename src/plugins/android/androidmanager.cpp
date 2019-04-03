@@ -332,7 +332,15 @@ Utils::FileName AndroidManager::manifestSourcePath(ProjectExplorer::Target *targ
 
 Utils::FileName AndroidManager::manifestPath(ProjectExplorer::Target *target)
 {
+    QVariant manifest = target->namedSettings(AndroidManifestName);
+    if (manifest.isValid())
+        return manifest.value<FileName>();
     return dirPath(target).appendPath(AndroidManifestName);
+}
+
+void AndroidManager::setManifestPath(Target *target, const FileName &path)
+{
+     target->setNamedSettings(AndroidManifestName, QVariant::fromValue(path));
 }
 
 Utils::FileName AndroidManager::defaultPropertiesPath(ProjectExplorer::Target *target)

@@ -63,11 +63,13 @@ const char ANDROID_MANIFEST_MIME_TYPE[] = "application/vnd.google.android.androi
 const char ANDROID_MANIFEST_EDITOR_ID[] = "Android.AndroidManifestEditor.Id";
 const char ANDROID_MANIFEST_EDITOR_CONTEXT[] = "Android.AndroidManifestEditor.Id";
 
+const char ANDROID_KIT_NDK[] = "Android.NDK";
+const char ANDROID_KIT_SDK[] = "Android.SDK";
+
 const char ANDROID_BUILDDIRECTORY[] = "android-build";
 const char JAVA_EDITOR_ID[] = "java.editor";
 const char JAVA_MIMETYPE[] = "text/x-java";
 const char ANDROID_ARCHITECTURE[] = "Android.Architecture";
-const char ANDROID_DEPLOY_SETTINGS_FILE[] = "AndroidDeploySettingsFile";
 const char ANDROID_PACKAGE_SOURCE_DIR[] = "AndroidPackageSourceDir";
 const char ANDROID_EXTRA_LIBS[] = "AndroidExtraLibs";
 
@@ -78,9 +80,12 @@ const char ANDROID_BUILD_APK_ID[] = "Android.BuildApkStep";
 const char AndroidPackageSourceDir[] = "AndroidPackageSourceDir"; // QString
 const char AndroidDeploySettingsFile[] = "AndroidDeploySettingsFile"; // QString
 const char AndroidExtraLibs[] = "AndroidExtraLibs";  // QStringList
+// REMOVE ME
 const char AndroidArch[] = "AndroidArch"; // QString
 const char AndroidSoLibPath[] = "AndroidSoLibPath"; // QStringList
 const char AndroidTargets[] = "AndroidTargets"; // QStringList
+const char AndroidApk[] = "Android.APK"; // QStringList
+const char AndroidManifest[] = "Android.Manifest"; // QStringList
 
 const char AndroidNdkPlatform[] = "AndroidNdkPlatform"; //QString
 const char NdkLocation[] = "NdkLocation"; // FileName

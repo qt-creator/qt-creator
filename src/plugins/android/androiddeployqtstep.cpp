@@ -186,11 +186,6 @@ bool AndroidDeployQtStep::init()
     QTC_ASSERT(deployQtLive || bc, return false);
 
     auto androidBuildApkStep = AndroidBuildApkStep::findInBuild(bc);
-    if (!androidBuildApkStep && !deployQtLive) {
-        emit addOutput(tr("Cannot find the android build step."), OutputFormat::Stderr);
-        return false;
-    }
-
     int minTargetApi = AndroidManager::minimumSDK(target());
     qCDebug(deployStepLog) << "Target architecture:" << m_targetArch
                            << "Min target API" << minTargetApi;
@@ -236,49 +231,57 @@ bool AndroidDeployQtStep::init()
             version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
     if (m_useAndroiddeployqt) {
-        m_command = version->qmakeProperty("QT_HOST_BINS");
-        if (m_command.isEmpty()) {
-            emit addOutput(tr("Cannot find the androiddeployqt tool."), OutputFormat::Stderr);
-            return false;
-        }
-        qCDebug(deployStepLog) << "Using androiddeployqt";
-        if (!m_command.endsWith(QLatin1Char('/')))
-            m_command += QLatin1Char('/');
-        m_command += Utils::HostOsInfo::withExecutableSuffix(QLatin1String("androiddeployqt"));
+        const ProjectNode *node = target()->project()->findNodeForBuildKey(rc->buildKey());
+        m_apkPath = Utils::FileName::fromString(node->data(Constants::AndroidApk).toString());
+        if (!m_apkPath.isEmpty()) {
+            m_manifestName = Utils::FileName::fromString(node->data(Constants::AndroidManifest).toString());
+            m_command = AndroidConfigurations::currentConfig().adbToolPath().toString();
+            AndroidManager::setManifestPath(target(), m_manifestName);
+        } else {
+            QString jsonFile;
+            if (node)
+                jsonFile = node->data(Constants::AndroidDeploySettingsFile).toString();
+            if (jsonFile.isEmpty()) {
+                emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
+                return false;
+            }        m_command = version->qmakeProperty("QT_HOST_BINS");
+            if (m_command.isEmpty()) {
+                emit addOutput(tr("Cannot find the androiddeployqt tool."), OutputFormat::Stderr);
+                return false;
+            }
+            qCDebug(deployStepLog) << "Using androiddeployqt";
+            if (!m_command.endsWith(QLatin1Char('/')))
+                m_command += QLatin1Char('/');
+            m_command += Utils::HostOsInfo::withExecutableSuffix(QLatin1String("androiddeployqt"));
 
-        m_workingDirectory = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
+            m_workingDirectory = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
 
-        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--verbose"));
-        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--output"));
-        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, m_workingDirectory);
-        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--no-build"));
-        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--input"));
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--verbose"));
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--output"));
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, m_workingDirectory);
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--no-build"));
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--input"));
 
-        QString jsonFile;
-        if (const ProjectNode *node = target()->project()->findNodeForBuildKey(rc->buildKey()))
-            jsonFile = node->data(Constants::AndroidDeploySettingsFile).toString();
-        if (jsonFile.isEmpty()) {
-            emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
-            return false;
-        }
 
-        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, jsonFile);
-        if (androidBuildApkStep && androidBuildApkStep->useMinistro()) {
-            qCDebug(deployStepLog) << "Using ministro";
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--deployment"));
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("ministro"));
-        }
 
-        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--gradle"));
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, jsonFile);
+            if (androidBuildApkStep && androidBuildApkStep->useMinistro()) {
+                qCDebug(deployStepLog) << "Using ministro";
+                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--deployment"));
+                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("ministro"));
+            }
 
-        if (androidBuildApkStep && androidBuildApkStep->signPackage()) {
-            // The androiddeployqt tool is not really written to do stand-alone installations.
-            // This hack forces it to use the correct filename for the apk file when installing
-            // as a temporary fix until androiddeployqt gets the support. Since the --sign is
-            // only used to get the correct file name of the apk, its parameters are ignored.
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--sign"));
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("foo"));
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("bar"));
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--gradle"));
+
+            if (androidBuildApkStep && androidBuildApkStep->signPackage()) {
+                // The androiddeployqt tool is not really written to do stand-alone installations.
+                // This hack forces it to use the correct filename for the apk file when installing
+                // as a temporary fix until androiddeployqt gets the support. Since the --sign is
+                // only used to get the correct file name of the apk, its parameters are ignored.
+                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--sign"));
+                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("foo"));
+                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("bar"));
+            }
         }
     } else {
         m_uninstallPreviousPackageRun = true;
@@ -301,7 +304,7 @@ bool AndroidDeployQtStep::init()
 AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 {
     QString args;
-    if (m_useAndroiddeployqt) {
+    if (m_useAndroiddeployqt && m_apkPath.isEmpty()) {
         args = m_androiddeployqtArgs;
         if (m_uninstallPreviousPackageRun)
             Utils::QtcProcess::addArg(&args, QLatin1String("--install"));

@@ -172,6 +172,8 @@ void AndroidDebugSupport::start()
         QStringList extraLibs = getExtraLibs(node);
         solibSearchPath.append(qtSoPaths(qtVersion));
         solibSearchPath.append(uniquePaths(extraLibs));
+        solibSearchPath.append(target->activeBuildConfiguration()->buildDirectory().toString());
+        solibSearchPath.removeDuplicates();
         setSolibSearchPath(solibSearchPath);
         qCDebug(androidDebugSupportLog) << "SoLibSearchPath: "<<solibSearchPath;
         setSymbolFile(target->activeBuildConfiguration()->buildDirectory().toString()
