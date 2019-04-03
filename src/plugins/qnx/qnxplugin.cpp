@@ -115,6 +115,13 @@ public:
     QnxRunConfigurationFactory runConfigFactory;
     QnxSettingsPage settingsPage;
     QnxToolChainFactory toolChainFactory;
+
+    SimpleRunWorkerFactory<SimpleTargetRunner, QnxRunConfiguration>
+        runWorkerFactory{ProjectExplorer::Constants::NORMAL_RUN_MODE};
+    SimpleRunWorkerFactory<QnxDebugSupport, QnxRunConfiguration>
+        debugWorkerFactory{ProjectExplorer::Constants::DEBUG_RUN_MODE};
+    SimpleRunWorkerFactory<QnxQmlProfilerSupport, QnxRunConfiguration>
+        qmlProfilerWorkerFactory;
 };
 
 static QnxPluginPrivate *dd = nullptr;
@@ -130,24 +137,6 @@ bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
     Q_UNUSED(errorString)
 
     dd = new QnxPluginPrivate;
-
-    auto constraint = [](RunConfiguration *runConfig) {
-        if (!runConfig->isEnabled()
-                || !runConfig->id().name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX)) {
-            return false;
-        }
-
-        auto dev = DeviceKitAspect::device(runConfig->target()->kit())
-                .dynamicCast<const QnxDevice>();
-        return !dev.isNull();
-    };
-
-    RunControl::registerWorker<SimpleTargetRunner>
-            (ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
-    RunControl::registerWorker<QnxDebugSupport>
-            (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
-    RunControl::registerWorker<QnxQmlProfilerSupport>
-            (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, constraint);
 
     return true;
 }
