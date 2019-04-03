@@ -107,17 +107,18 @@ QString Utils::toString(::Utils::LanguageVersion languageVersion)
 {
 #define CASE_LANGUAGEVERSION(x) case ::Utils::LanguageVersion::x: return QLatin1String(#x)
     switch (languageVersion) {
-    CASE_LANGUAGEVERSION(C89);
-    CASE_LANGUAGEVERSION(C99);
-    CASE_LANGUAGEVERSION(C11);
-    CASE_LANGUAGEVERSION(C18);
-    CASE_LANGUAGEVERSION(CXX98);
-    CASE_LANGUAGEVERSION(CXX03);
-    CASE_LANGUAGEVERSION(CXX11);
-    CASE_LANGUAGEVERSION(CXX14);
-    CASE_LANGUAGEVERSION(CXX17);
-    CASE_LANGUAGEVERSION(CXX2a);
-    // no default to get a compiler warning if anything is added
+        CASE_LANGUAGEVERSION(None);
+        CASE_LANGUAGEVERSION(C89);
+        CASE_LANGUAGEVERSION(C99);
+        CASE_LANGUAGEVERSION(C11);
+        CASE_LANGUAGEVERSION(C18);
+        CASE_LANGUAGEVERSION(CXX98);
+        CASE_LANGUAGEVERSION(CXX03);
+        CASE_LANGUAGEVERSION(CXX11);
+        CASE_LANGUAGEVERSION(CXX14);
+        CASE_LANGUAGEVERSION(CXX17);
+        CASE_LANGUAGEVERSION(CXX2a);
+        // no default to get a compiler warning if anything is added
     }
 #undef CASE_LANGUAGEVERSION
     return QString();
