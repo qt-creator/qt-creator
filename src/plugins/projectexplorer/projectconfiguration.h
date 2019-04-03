@@ -183,29 +183,6 @@ private:
     Utils::MacroExpander m_macroExpander;
 };
 
-class PROJECTEXPLORER_EXPORT StatefulProjectConfiguration : public ProjectConfiguration
-{
-    Q_OBJECT
-
-public:
-    StatefulProjectConfiguration() = default;
-
-    bool isEnabled() const;
-
-    virtual QString disabledReason() const = 0;
-
-signals:
-    void enabledChanged();
-
-protected:
-    StatefulProjectConfiguration(QObject *parent, Core::Id id);
-
-    void setEnabled(bool enabled);
-
-private:
-    bool m_isEnabled = false;
-};
-
 // helper function:
 PROJECTEXPLORER_EXPORT Core::Id idFromMap(const QVariantMap &map);
 

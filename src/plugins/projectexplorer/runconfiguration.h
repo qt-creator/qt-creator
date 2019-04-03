@@ -130,7 +130,7 @@ private:
 };
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT RunConfiguration : public StatefulProjectConfiguration
+class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 {
     Q_OBJECT
 
@@ -139,7 +139,10 @@ public:
 
     bool isActive() const override;
 
-    QString disabledReason() const override;
+    bool isEnabled() const { return m_isEnabled; }
+    void setEnabled(bool enabled);
+
+    virtual QString disabledReason() const;
 
     virtual QWidget *createConfigurationWidget();
 
@@ -183,6 +186,7 @@ public:
 signals:
     void requestRunActionsUpdate();
     void configurationFinished();
+    void enabledChanged();
 
 protected:
     RunConfiguration(Target *target, Core::Id id);
@@ -204,6 +208,7 @@ private:
     friend class RunConfigurationCreationInfo;
 
     QString m_buildKey;
+    bool m_isEnabled = false;
     std::function<Utils::OutputFormatter *(Project *)> m_outputFormatterCreator;
 };
 

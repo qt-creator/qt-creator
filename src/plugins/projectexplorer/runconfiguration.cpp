@@ -158,7 +158,7 @@ void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
 RunConfiguration::RunConfiguration(Target *target, Core::Id id)
-    : StatefulProjectConfiguration(target, id)
+    : ProjectConfiguration(target, id)
 {
     connect(target->project(), &Project::parsingStarted,
             this, [this]() { updateEnabledState(); });
@@ -199,6 +199,14 @@ RunConfiguration::~RunConfiguration() = default;
 bool RunConfiguration::isActive() const
 {
     return target()->isActive() && target()->activeRunConfiguration() == this;
+}
+
+void RunConfiguration::setEnabled(bool enabled)
+{
+    if (enabled == m_isEnabled)
+        return;
+    m_isEnabled = enabled;
+    emit enabledChanged();
 }
 
 QString RunConfiguration::disabledReason() const
