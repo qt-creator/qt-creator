@@ -28,7 +28,7 @@
 
     \section2 Automatic Formatting and Indentation
 
-    The experimental Clang Format plugin uses the
+    The Clang Format plugin uses the
     \l{https://clang.llvm.org/docs/LibFormat.html}{LibFormat}
     library for automatic formatting and indentation.
 
