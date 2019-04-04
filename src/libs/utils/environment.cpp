@@ -34,6 +34,12 @@
 #include <QSet>
 #include <QCoreApplication>
 
+#ifdef Q_OS_UNIX
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
+
 Q_GLOBAL_STATIC_WITH_ARGS(Utils::Environment, staticSystemEnvironment,
                           (QProcessEnvironment::systemEnvironment().toStringList()))
 
@@ -429,6 +435,21 @@ QStringList Environment::appendExeExtensions(const QString &executable) const
     return execs;
 }
 
+static bool hasSameInode(const QString &file1, const QString &file2)
+{
+#ifdef Q_OS_UNIX
+    struct stat stat1;
+    if (stat(file1.toLocal8Bit().constData(), &stat1) < 0)
+        return false;
+    struct stat stat2;
+    if (stat(file2.toLocal8Bit().constData(), &stat2) < 0)
+        return false;
+    return stat1.st_ino == stat2.st_ino;
+#else
+    return false;
+#endif
+}
+
 bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) const
 {
     const QStringList exe1List = appendExeExtensions(exe1);
@@ -440,6 +461,8 @@ bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) con
             if (f1 == f2)
                 return true;
             if (FileUtils::resolveSymlinks(f1) == FileUtils::resolveSymlinks(f2))
+                return true;
+            if (hasSameInode(f1.toString(), f2.toString()))
                 return true;
         }
     }
