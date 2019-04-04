@@ -24,14 +24,12 @@
 ****************************************************************************/
 
 #include "gradientpresetdefaultlistmodel.h"
+#include "gradientpresetitem.h"
 
 #include <QHash>
 #include <QByteArray>
 #include <QDebug>
-
 #include <QFile>
-
-#include "gradientpresetitem.h"
 
 GradientPresetDefaultListModel::GradientPresetDefaultListModel(QObject *parent)
     : GradientPresetListModel(parent)
@@ -54,7 +52,10 @@ void GradientPresetDefaultListModel::addAllPresets()
     const QMetaObject &metaObj = QGradient::staticMetaObject;
     const QMetaEnum metaEnum = metaObj.enumerator(metaObj.indexOfEnumerator("Preset"));
 
+    if (!metaEnum.isValid())
+        return;
+
     for (int i = 0; i < metaEnum.keyCount(); i++) {
-        addItem(GradientPresetItem(QGradient::Preset(metaEnum.value(i))));
+        addItem(GradientPresetItem(GradientPresetItem::Preset(metaEnum.value(i))));
     }
 }

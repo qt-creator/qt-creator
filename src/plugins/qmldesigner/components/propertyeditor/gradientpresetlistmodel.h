@@ -28,7 +28,6 @@
 #include <QObject>
 #include <QAbstractListModel>
 #include <QtQml/qqml.h>
-#include <memory>
 
 class GradientPresetItem;
 

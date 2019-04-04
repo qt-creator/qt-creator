@@ -507,7 +507,8 @@ void GradientModel::setGradientProperty(const QString &propertyName, qreal value
 
 void GradientModel::setPresetByID(int presetID)
 {
-    const QGradient gradient(static_cast<QGradient::Preset>(presetID));
+    const QGradient gradient(GradientPresetItem::createGradientFromPreset(
+        static_cast<GradientPresetItem::Preset>(presetID)));
     const QList<QGradientStop> gradientStops = gradient.stops().toList();
 
     QList<qreal> stopsPositions;

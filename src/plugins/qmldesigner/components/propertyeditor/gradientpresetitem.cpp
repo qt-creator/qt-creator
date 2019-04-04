@@ -36,19 +36,19 @@
 
 
 GradientPresetItem::GradientPresetItem()
-    : m_gradientVal(QGradient::Preset(0))
-    , m_gradientID(QGradient::Preset(0))
+    : m_gradientVal(QGradient())
+    , m_gradientID(Preset(0))
     , m_presetName(QString())
 {}
 
 GradientPresetItem::GradientPresetItem(const QGradient &value, const QString &name)
     : m_gradientVal(value)
-    , m_gradientID(QGradient::Preset(0))
+    , m_gradientID(Preset(0))
     , m_presetName(name)
 {}
 
-GradientPresetItem::GradientPresetItem(const QGradient::Preset value)
-    : m_gradientVal(QGradient::Preset(value))
+GradientPresetItem::GradientPresetItem(const Preset value)
+    : m_gradientVal(createGradientFromPreset(value))
     , m_gradientID(value)
     , m_presetName(getNameByPreset(value))
 {}
@@ -62,9 +62,6 @@ QVariant GradientPresetItem::getProperty(GradientPresetItem::Property id) const
     switch (id) {
     case objectNameRole:
         out.setValue(QString());
-        break;
-    case presetRole:
-        out.setValue(preset());
         break;
     case stopsPosListRole:
         out.setValue(stopsPosList());
@@ -94,22 +91,17 @@ QGradient GradientPresetItem::gradientVal() const
     return m_gradientVal;
 }
 
-QGradient::Preset GradientPresetItem::preset() const
-{
-    return m_gradientID;
-}
-
 void GradientPresetItem::setGradient(const QGradient &value)
 {
     m_gradientVal = value;
-    m_gradientID = QGradient::Preset(0);
+    m_gradientID = Preset(0);
     m_presetName = QString();
 }
 
-void GradientPresetItem::setGradient(const QGradient::Preset value)
+void GradientPresetItem::setGradient(const Preset value)
 {
     m_gradientID = value;
-    m_gradientVal = QGradient(value);
+    m_gradientVal = createGradientFromPreset(value);
     m_presetName = getNameByPreset(value);
 }
 
@@ -153,10 +145,13 @@ int GradientPresetItem::presetID() const
     return static_cast<int>(m_gradientID);
 }
 
-QString GradientPresetItem::getNameByPreset(QGradient::Preset value)
+QString GradientPresetItem::getNameByPreset(Preset value)
 {
     const QMetaObject &metaObj = QGradient::staticMetaObject;
     const QMetaEnum metaEnum = metaObj.enumerator(metaObj.indexOfEnumerator("Preset"));
+
+    if (!metaEnum.isValid())
+        return QString("Custom");
 
     QString enumName = QString::fromUtf8(metaEnum.valueToKey(static_cast<int>(value)));
 
@@ -166,7 +161,17 @@ QString GradientPresetItem::getNameByPreset(QGradient::Preset value)
     std::for_each(sl.begin(), sl.end(), [&enumName](const QString &s) { enumName += (s + " "); });
     enumName.chop(1); //let's remove the last empty space
 
-    return (enumName.isEmpty() ? "Custom" : enumName);
+    return (enumName.isEmpty() ? QString("Custom") : enumName);
+}
+
+QGradient GradientPresetItem::createGradientFromPreset(Preset value)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+    return QGradient(value);
+#else
+    Q_UNUSED(value);
+    return {};
+#endif
 }
 
 QDebug &operator<<(QDebug &stream, const GradientPresetItem &gradient)
@@ -194,7 +199,7 @@ QDataStream &operator>>(QDataStream &stream, GradientPresetItem &gradient)
 
     int gradientID;
     stream >> gradientID;
-    gradient.m_gradientID = static_cast<QGradient::Preset>(gradientID);
+    gradient.m_gradientID = static_cast<GradientPresetItem::Preset>(gradientID);
 
     stream >> gradient.m_presetName;
     return stream;

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "gradientpresetlistmodel.h"
-
 #include "gradientpresetitem.h"
 
 #include <QHash>
@@ -37,7 +36,6 @@ GradientPresetListModel::GradientPresetListModel(QObject *parent)
 {
     m_roleNames
         = {{static_cast<int>(GradientPresetItem::Property::objectNameRole), "objectName"},
-           {static_cast<int>(GradientPresetItem::Property::presetRole), "preset"},
            {static_cast<int>(GradientPresetItem::Property::stopsPosListRole), "stopsPosList"},
            {static_cast<int>(GradientPresetItem::Property::stopsColorListRole), "stopsColorList"},
            {static_cast<int>(GradientPresetItem::Property::stopListSizeRole), "stopListSize"},
@@ -103,7 +101,7 @@ const QList<GradientPresetItem> &GradientPresetListModel::items() const
 void GradientPresetListModel::sortItems()
 {
     auto itemSort = [](const GradientPresetItem &first, const GradientPresetItem &second) {
-        return (static_cast<int>(first.preset()) < static_cast<int>(second.preset()));
+        return (static_cast<int>(first.presetID()) < static_cast<int>(second.presetID()));
     };
 
     std::sort(m_items.begin(), m_items.end(), itemSort);

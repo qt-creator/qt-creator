@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "gradientpresetcustomlistmodel.h"
-
 #include "gradientpresetitem.h"
+
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>

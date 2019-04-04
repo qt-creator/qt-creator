@@ -25,12 +25,11 @@
 
 #pragma once
 
+#include "gradientpresetlistmodel.h"
+
 #include <QObject>
 #include <QAbstractListModel>
 #include <QtQml/qqml.h>
-#include <memory>
-
-#include "gradientpresetlistmodel.h"
 
 class GradientPresetDefaultListModel : public GradientPresetListModel
 {

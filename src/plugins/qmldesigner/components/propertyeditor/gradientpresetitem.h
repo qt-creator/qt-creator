@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#pragma once
+
 #include <QObject>
 #include <QGradient>
 
@@ -30,7 +32,6 @@ class GradientPresetItem
 {
     Q_GADGET
 
-    Q_PROPERTY(QGradient::Preset preset READ preset FINAL)
     Q_PROPERTY(QList<qreal> stopsPosList READ stopsPosList FINAL)
     Q_PROPERTY(QList<QString> stopsColorList READ stopsColorList FINAL)
     Q_PROPERTY(int stopListSize READ stopListSize FINAL)
@@ -38,28 +39,32 @@ class GradientPresetItem
     Q_PROPERTY(int presetID READ presetID FINAL)
 
 public:
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+    using Preset = QGradient::Preset;
+#else
+    enum Preset {};
+#endif
+
     explicit GradientPresetItem();
     explicit GradientPresetItem(const QGradient &value, const QString &name = QString());
-    explicit GradientPresetItem(const QGradient::Preset number);
+    explicit GradientPresetItem(const Preset number);
     ~GradientPresetItem();
 
     enum Property {
         objectNameRole = 0,
-        presetRole = 1,
-        stopsPosListRole = 2,
-        stopsColorListRole = 3,
-        stopListSizeRole = 4,
-        presetNameRole = 5,
-        presetIDRole = 6
+        stopsPosListRole = 1,
+        stopsColorListRole = 2,
+        stopListSizeRole = 3,
+        presetNameRole = 4,
+        presetIDRole = 5
     };
 
     QVariant getProperty(Property id) const;
 
     QGradient gradientVal() const;
-    QGradient::Preset preset() const;
 
     void setGradient(const QGradient &value);
-    void setGradient(const QGradient::Preset value);
+    void setGradient(const Preset value);
 
     QList<qreal> stopsPosList() const;
     QList<QString> stopsColorList() const;
@@ -69,16 +74,18 @@ public:
     QString presetName() const;
     int presetID() const;
 
-    static QString getNameByPreset(QGradient::Preset value);
+    static QString getNameByPreset(Preset value);
 
     friend QDebug &operator<<(QDebug &stream, const GradientPresetItem &gradient);
 
     friend QDataStream &operator<<(QDataStream &stream, const GradientPresetItem &gradient);
     friend QDataStream &operator>>(QDataStream &stream, GradientPresetItem &gradient);
 
+    static QGradient createGradientFromPreset(Preset value);
+
 private:
     QGradient m_gradientVal;
-    QGradient::Preset m_gradientID;
+    Preset m_gradientID;
     QString m_presetName;
 };
 
