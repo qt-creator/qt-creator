@@ -33,9 +33,11 @@
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
+#include <QOperatingSystemVersion>
 #include <QRegExp>
 #include <QTimer>
 #include <QUrl>
+#include <qplatformdefs.h>
 
 #ifdef QT_GUI_LIB
 #include <QMessageBox>
@@ -353,6 +355,82 @@ FileName FileUtils::commonPath(const FileName &oldCommonPath, const FileName &fi
     while (!newCommonPath.isEmpty() && !fileName.isChildOf(newCommonPath))
         newCommonPath = newCommonPath.parentDir();
     return canonicalPath(newCommonPath);
+}
+
+// Copied from qfilesystemengine_win.cpp
+#ifdef Q_OS_WIN
+#if WINVER < 0x0602 //  Windows 8 onwards
+
+typedef struct _FILE_ID_INFO {
+    ULONGLONG VolumeSerialNumber;
+    FILE_ID_128 FileId;
+} FILE_ID_INFO, *PFILE_ID_INFO;
+
+#endif // if WINVER < 0x0602
+
+// File ID for Windows up to version 7.
+static inline QByteArray fileIdWin7(HANDLE handle)
+{
+    BY_HANDLE_FILE_INFORMATION info;
+    if (GetFileInformationByHandle(handle, &info)) {
+        char buffer[sizeof "01234567:0123456701234567\0"];
+        qsnprintf(buffer, sizeof(buffer), "%lx:%08lx%08lx",
+                  info.dwVolumeSerialNumber,
+                  info.nFileIndexHigh,
+                  info.nFileIndexLow);
+        return QByteArray(buffer);
+    }
+    return QByteArray();
+}
+
+// File ID for Windows starting from version 8.
+static QByteArray fileIdWin8(HANDLE handle)
+{
+    QByteArray result;
+    FILE_ID_INFO infoEx;
+    if (GetFileInformationByHandleEx(handle,
+                                     static_cast<FILE_INFO_BY_HANDLE_CLASS>(18), // FileIdInfo in Windows 8
+                                     &infoEx, sizeof(FILE_ID_INFO))) {
+        result = QByteArray::number(infoEx.VolumeSerialNumber, 16);
+        result += ':';
+        // Note: MinGW-64's definition of FILE_ID_128 differs from the MSVC one.
+        result += QByteArray(reinterpret_cast<const char *>(&infoEx.FileId), int(sizeof(infoEx.FileId))).toHex();
+    }
+    return result;
+}
+
+static QByteArray fileIdWin(HANDLE fHandle)
+{
+    return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows8 ?
+                fileIdWin8(HANDLE(fHandle)) : fileIdWin7(HANDLE(fHandle));
+}
+#endif
+
+QByteArray FileUtils::fileId(const FileName &fileName)
+{
+    QByteArray result;
+
+#ifdef Q_OS_WIN
+    const HANDLE handle =
+            CreateFile((wchar_t*)fileName.toUserOutput().utf16(), 0,
+                       FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                       FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    if (handle != INVALID_HANDLE_VALUE) {
+        result = fileIdWin(handle);
+        CloseHandle(handle);
+    }
+#else // Copied from qfilesystemengine_unix.cpp
+    if (Q_UNLIKELY(fileName.isEmpty()))
+        return result;
+
+    QT_STATBUF statResult;
+    if (QT_STAT(fileName.toString().toLocal8Bit().constData(), &statResult))
+        return result;
+    result = QByteArray::number(quint64(statResult.st_dev), 16);
+    result += ':';
+    result += QByteArray::number(quint64(statResult.st_ino));
+#endif
+    return result;
 }
 
 QByteArray FileReader::fetchQrc(const QString &fileName)

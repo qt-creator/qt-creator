@@ -130,6 +130,7 @@ public:
     static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
     static QString resolvePath(const QString &baseDir, const QString &fileName);
     static FileName commonPath(const FileName &oldCommonPath, const FileName &fileName);
+    static QByteArray fileId(const FileName &fileName);
 };
 
 // for actually finding out if e.g. directories are writable on Windows
