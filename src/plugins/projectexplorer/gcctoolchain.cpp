@@ -1450,9 +1450,6 @@ QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &a
         const FileName clang = compilerPath.parentDir().appendPath(
                     HostOsInfo::withExecutableSuffix("clang"));
         tcs.append(autoDetectToolchains(clang,
-                                        hostAbi, Constants::CXX_LANGUAGE_ID,
-                                        Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
-        tcs.append(autoDetectToolchains(clang,
                                         hostAbi, Constants::C_LANGUAGE_ID,
                                         Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
     }
