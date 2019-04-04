@@ -237,7 +237,7 @@ void TestNavigationWidget::onItemActivated(const QModelIndex &index)
 void TestNavigationWidget::onSortClicked()
 {
     if (m_sortAlphabetically) {
-        m_sort->setIcon(Icons::SORT_ALPHABETICALLY.icon());
+        m_sort->setIcon(Utils::Icons::SORT_ALPHABETICALLY_TOOLBAR.icon());
         m_sort->setToolTip(tr("Sort Alphabetically"));
         m_sortFilterModel->setSortMode(TestTreeItem::Naturally);
     } else {

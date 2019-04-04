@@ -186,6 +186,9 @@ const Icon LINK({
         {QLatin1String(":/utils/images/linkicon.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon LINK_TOOLBAR({
         {QLatin1String(":/utils/images/linkicon.png"), Theme::IconsBaseColor}});
+const Icon SORT_ALPHABETICALLY_TOOLBAR({
+        {QLatin1String(":/utils/images/sort_alphabetically.png"), Theme::IconsBaseColor}});
+
 const Icon WARNING({
         {QLatin1String(":/utils/images/warningfill.png"), Theme::BackgroundColorNormal},
         {QLatin1String(":/utils/images/warning.png"), Theme::IconsWarningColor}}, Icon::Tint);

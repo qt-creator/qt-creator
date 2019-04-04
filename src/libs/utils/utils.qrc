@@ -217,6 +217,8 @@
         <file>images/macos_touchbar_clear@2x.png</file>
         <file>images/settings.png</file>
         <file>images/settings@2x.png</file>
+        <file>images/sort_alphabetically.png</file>
+        <file>images/sort_alphabetically@2x.png</file>
     </qresource>
     <qresource prefix="/codemodel">
         <file>images/enum.png</file>

@@ -30,8 +30,6 @@
 namespace Autotest {
 namespace Icons {
 
-const Utils::Icon SORT_ALPHABETICALLY({
-        {":/autotest/images/sort.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon SORT_NATURALLY({
         {":/autotest/images/leafsort.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon RUN_SELECTED_OVERLAY({
