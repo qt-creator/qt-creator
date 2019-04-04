@@ -56,6 +56,14 @@ MATCHER_P(HasSourceId, sourceId,  std::string(negation ? "hasn't" : "has")
 class BuildDependenciesProvider : public testing::Test
 {
 protected:
+    BuildDependenciesProvider()
+    {
+        provider.setEnsureAliveMessageIsSentCallback(
+            mockEnsureAliveMessageIsSentCallback.AsStdFunction());
+    }
+
+protected:
+    NiceMock<MockFunction<void()>> mockEnsureAliveMessageIsSentCallback;
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockBuildDependenciesStorage> mockBuildDependenciesStorage;
     NiceMock<MockSourceEntriesModifiedTimeChecker> mockModifiedTimeChecker;
@@ -208,5 +216,12 @@ TEST_F(BuildDependenciesProvider, FetchUsedMacrosFromStorageIfDependSourcesAreUp
     auto buildDependency = provider.create(projectPart1);
 
     ASSERT_THAT(buildDependency.usedMacros, ElementsAre(UsedMacro{"YI", 1}, UsedMacro{"ER", 2}, UsedMacro{"LIANG", 2}, UsedMacro{"SAN", 10}));
+}
+
+TEST_F(BuildDependenciesProvider, CallEnsureAliveMessageIsSentCallback)
+{
+    EXPECT_CALL(mockEnsureAliveMessageIsSentCallback, Call());
+
+    provider.create(projectPart1);
 }
 }

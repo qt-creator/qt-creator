@@ -273,6 +273,8 @@ int main(int argc, char *argv[])
 
         ConnectionServer<PchManagerServer, PchManagerClientProxy> connectionServer;
         connectionServer.setServer(&data.clangPchManagerServer);
+        data.buildDependencyProvider.setEnsureAliveMessageIsSentCallback(
+            [&] { connectionServer.ensureAliveMessageIsSent(); });
         connectionServer.start(connectionName);
 
         return application.exec();

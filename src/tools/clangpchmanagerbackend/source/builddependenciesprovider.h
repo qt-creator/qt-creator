@@ -53,6 +53,11 @@ public:
 
     BuildDependency create(const ProjectPartContainer &projectPart) override;
 
+    void setEnsureAliveMessageIsSentCallback(std::function<void()> &&callback)
+    {
+        m_ensureAliveMessageIsSentCallback = std::move(callback);
+    }
+
 private:
     BuildDependency createBuildDependencyFromStorage(SourceEntries &&includes) const;
     UsedMacros createUsedMacrosFromStorage(const SourceEntries &includes) const;
@@ -65,6 +70,7 @@ private:
     ModifiedTimeCheckerInterface<> &m_modifiedTimeChecker;
     BuildDependencyGeneratorInterface &m_generator;
     Sqlite::TransactionInterface &m_transactionBackend;
+    std::function<void()> m_ensureAliveMessageIsSentCallback;
 };
 
 } // namespace ClangBackEnd

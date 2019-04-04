@@ -55,8 +55,10 @@ OutputContainer setUnion(InputContainer1 &&input1,
 
 BuildDependency BuildDependenciesProvider::create(const ProjectPartContainer &projectPart)
 {
-    auto sourcesAndProjectPart = createSourceEntriesFromStorage(
-        projectPart.sourcePathIds, projectPart.projectPartId);
+    m_ensureAliveMessageIsSentCallback();
+
+    auto sourcesAndProjectPart = createSourceEntriesFromStorage(projectPart.sourcePathIds,
+                                                                projectPart.projectPartId);
 
     if (!m_modifiedTimeChecker.isUpToDate(sourcesAndProjectPart.first)) {
         BuildDependency buildDependency = m_generator.create(projectPart);

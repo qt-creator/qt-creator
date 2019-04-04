@@ -72,6 +72,12 @@ public:
 
     }
 
+    void ensureAliveMessageIsSent()
+    {
+        if (m_aliveTimer.remainingTime() == 0)
+            sendAliveMessage();
+    }
+
 private:
     void connectToLocalServer(const QString &connectionName)
     {
