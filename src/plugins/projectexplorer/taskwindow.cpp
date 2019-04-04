@@ -417,7 +417,6 @@ void TaskWindow::loadSettings()
     if (value.isValid()) {
         bool includeWarnings = value.toBool();
         d->m_filter->setFilterIncludesWarnings(includeWarnings);
-        d->m_filter->setFilterIncludesUnknowns(includeWarnings);
         d->m_filterWarningsButton->setDown(d->m_filter->filterIncludesWarnings());
     }
 }
@@ -536,7 +535,6 @@ void TaskWindow::actionTriggered()
 void TaskWindow::setShowWarnings(bool show)
 {
     d->m_filter->setFilterIncludesWarnings(show);
-    d->m_filter->setFilterIncludesUnknowns(show); // "Unknowns" are often associated with warnings
 }
 
 void TaskWindow::updateCategoriesMenu()

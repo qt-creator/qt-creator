@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
 
 #include <QIcon>
 
@@ -120,26 +120,17 @@ private:
     int m_sizeOfLineNumber = 0;
 };
 
-class TaskFilterModel : public QAbstractItemModel
+class TaskFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
     TaskFilterModel(TaskModel *sourceModel, QObject *parent = nullptr);
 
-    TaskModel *taskModel() { return m_sourceModel; }
-
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &child) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-
-    bool filterIncludesUnknowns() const { return m_includeUnknowns; }
-    void setFilterIncludesUnknowns(bool b) { m_includeUnknowns = b; invalidateFilter(); }
+    TaskModel *taskModel() const { return static_cast<TaskModel *>(sourceModel()); }
 
     bool filterIncludesWarnings() const { return m_includeWarnings; }
-    void setFilterIncludesWarnings(bool b) { m_includeWarnings = b; invalidateFilter(); }
+    void setFilterIncludesWarnings(bool b);
 
     bool filterIncludesErrors() const { return m_includeErrors; }
     void setFilterIncludesErrors(bool b) { m_includeErrors = b; invalidateFilter(); }
@@ -147,22 +138,13 @@ public:
     QList<Core::Id> filteredCategories() const { return m_categoryIds; }
     void setFilteredCategories(const QList<Core::Id> &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
 
-    Task task(const QModelIndex &index) const
-    { return m_sourceModel->task(mapToSource(index)); }
+    Task task(const QModelIndex &index) const { return taskModel()->task(mapToSource(index)); }
 
     bool hasFile(const QModelIndex &index) const
-    { return m_sourceModel->hasFile(mapToSource(index)); }
-
-    QModelIndex mapFromSource(const QModelIndex &idx) const;
+    { return taskModel()->hasFile(mapToSource(index)); }
 
 private:
-    void handleNewRows(const QModelIndex &index, int first, int last);
-    void handleRowsAboutToBeRemoved(const QModelIndex &index, int first, int last);
-    void handleDataChanged(const QModelIndex &top, const QModelIndex &bottom);
-
-    QModelIndex mapToSource(const QModelIndex &index) const;
-    void invalidateFilter();
-    void updateMapping() const;
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
     bool filterAcceptsTask(const Task &task) const;
 
     bool m_beginRemoveRowsSent = false;
@@ -170,10 +152,6 @@ private:
     bool m_includeWarnings;
     bool m_includeErrors;
     QList<Core::Id> m_categoryIds;
-
-    mutable QList<int> m_mapping;
-
-    TaskModel *m_sourceModel;
 };
 
 } // namespace Internal
