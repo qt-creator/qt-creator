@@ -155,7 +155,7 @@ public:
     void setCursorSynchronization(bool syncWithCursor) override;
 
 private:
-    void handleResponse(const LanguageServerProtocol::DocumentSymbolsRequest::Response &response);
+    void handleResponse(const DocumentUri &uri, const DocumentSymbolsResult &response);
     void updateTextCursor(const QModelIndex &proxyIndex);
     void updateSelectionInTree(const QTextCursor &currentCursor);
     void onItemActivated(const QModelIndex &index);
@@ -164,6 +164,7 @@ private:
     QPointer<TextEditor::BaseTextEditor> m_editor;
     LanguageClientOutlineModel m_model;
     Utils::TreeView m_view;
+    DocumentUri m_uri;
     bool m_sync = false;
 };
 
@@ -172,23 +173,19 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     : m_client(client)
     , m_editor(editor)
     , m_view(this)
+    , m_uri(DocumentUri::fromFileName(editor->textDocument()->filePath()))
 {
-    const DocumentSymbolParams params(
-                TextDocumentIdentifier(
-                    DocumentUri::fromFileName(editor->textDocument()->filePath())));
-    DocumentSymbolsRequest request(params);
-    request.setResponseCallback([self = QPointer<LanguageClientOutlineWidget>(this)]
-                                (const DocumentSymbolsRequest::Response &response){
-                                    if (self)
-                                        self->handleResponse(response);
-    });
+    connect(client->documentSymbolCache(),
+            &DocumentSymbolCache::gotSymbols,
+            this,
+            &LanguageClientOutlineWidget::handleResponse);
+    client->documentSymbolCache()->requestSymbols(m_uri);
 
     auto *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(&m_view));
     setLayout(layout);
-    client->sendContent(request);
     m_view.setModel(&m_model);
     m_view.setHeaderHidden(true);
     connect(&m_view, &QAbstractItemView::activated,
@@ -212,20 +209,17 @@ void LanguageClientOutlineWidget::setCursorSynchronization(bool syncWithCursor)
         updateSelectionInTree(m_editor->textCursor());
 }
 
-void LanguageClientOutlineWidget::handleResponse(const DocumentSymbolsRequest::Response &response)
+void LanguageClientOutlineWidget::handleResponse(const DocumentUri &uri,
+                                                 const DocumentSymbolsResult &result)
 {
-    if (Utils::optional<DocumentSymbolsRequest::Response::Error> error = response.error()) {
-        if (m_client)
-            m_client->log(error.value());
-    }
-    if (Utils::optional<DocumentSymbolsResult> result = response.result()) {
-        if (Utils::holds_alternative<QList<SymbolInformation>>(result.value()))
-            m_model.setInfo(Utils::get<QList<SymbolInformation>>(result.value()));
-        else if (Utils::holds_alternative<QList<DocumentSymbol>>(result.value()))
-            m_model.setInfo(Utils::get<QList<DocumentSymbol>>(result.value()));
-        else
-            m_model.clear();
-    }
+    if (uri != m_uri)
+        return;
+    if (Utils::holds_alternative<QList<SymbolInformation>>(result))
+        m_model.setInfo(Utils::get<QList<SymbolInformation>>(result));
+    else if (Utils::holds_alternative<QList<DocumentSymbol>>(result))
+        m_model.setInfo(Utils::get<QList<DocumentSymbol>>(result));
+    else
+        m_model.clear();
 }
 
 void LanguageClientOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)

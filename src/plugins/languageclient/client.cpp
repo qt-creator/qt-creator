@@ -94,6 +94,7 @@ Client::Client(BaseClientInterface *clientInterface)
     , m_completionProvider(this)
     , m_quickFixProvider(this)
     , m_clientInterface(clientInterface)
+    , m_documentSymbolCache(this)
 {
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
                             &JsonRpcMessageHandler::parseContent);
@@ -857,6 +858,11 @@ const DynamicCapabilities &Client::dynamicCapabilities() const
 const BaseClientInterface *Client::clientInterface() const
 {
     return m_clientInterface.data();
+}
+
+DocumentSymbolCache *Client::documentSymbolCache()
+{
+    return &m_documentSymbolCache;
 }
 
 void Client::log(const ShowMessageParams &message,

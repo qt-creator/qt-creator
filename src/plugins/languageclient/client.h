@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "documentsymbolcache.h"
 #include "dynamiccapabilities.h"
 #include "languageclientcompletionassist.h"
 #include "languageclientquickfix.h"
@@ -148,6 +149,7 @@ public:
     const LanguageServerProtocol::ServerCapabilities &capabilities() const;
     const DynamicCapabilities &dynamicCapabilities() const;
     const BaseClientInterface *clientInterface() const;
+    DocumentSymbolCache *documentSymbolCache();
 
 signals:
     void initialized(LanguageServerProtocol::ServerCapabilities capabilities);
@@ -197,6 +199,7 @@ private:
     int m_restartsLeft = 5;
     QScopedPointer<BaseClientInterface> m_clientInterface;
     QMap<LanguageServerProtocol::DocumentUri, QList<TextMark *>> m_diagnostics;
+    DocumentSymbolCache m_documentSymbolCache;
 };
 
 } // namespace LanguageClient
