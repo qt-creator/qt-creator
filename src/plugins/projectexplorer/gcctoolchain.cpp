@@ -964,9 +964,23 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const FileName &com
     if (compilerPath.isEmpty())
         return result;
 
-    result = Utils::filtered(alreadyKnown, [=](ToolChain *tc) {
-        return tc->typeId() == requiredTypeId && tc->compilerCommand() == compilerPath
-               && tc->language() == language;
+    result = Utils::filtered(alreadyKnown, [requiredTypeId, language, compilerPath](ToolChain *tc) {
+        if (tc->typeId() != requiredTypeId)
+            return false;
+
+           // clang++ is a symlink to clang.
+           if (requiredTypeId == Constants::CLANG_TOOLCHAIN_TYPEID
+                   && language == Constants::CXX_LANGUAGE_ID) {
+               return tc->compilerCommand() == compilerPath;
+           }
+
+           if (compilerPath.toString().contains("icecc")
+                   || compilerPath.toString().contains("ccache")) {
+               return tc->compilerCommand() == compilerPath;
+           }
+
+           return Environment::systemEnvironment().isSameExecutable(
+                       tc->compilerCommand().toString(), compilerPath.toString());
     });
     if (!result.isEmpty()) {
         for (ToolChain *tc : result) {
@@ -1451,7 +1465,7 @@ QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &a
                     HostOsInfo::withExecutableSuffix("clang"));
         tcs.append(autoDetectToolchains(clang,
                                         hostAbi, Constants::C_LANGUAGE_ID,
-                                        Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
+                                        Constants::CLANG_TOOLCHAIN_TYPEID, tcs));
     }
 
     return tcs;
