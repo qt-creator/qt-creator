@@ -165,18 +165,14 @@
     the \QC Manual, observe the guidelines listed in this section when taking
     screen shots.
 
-    To make the images look similar regardless of the operating system they were
-    taken on, you are asked to adjust their size to 75%. This makes the screen
-    shots hard to read, but they are provided more as reassurance for users that
-    they are in the correct place in the UI than as an actual source of
-    information. To make sure that no important information is lost, always
-    place example values also in the text.
+    \note Do not rely on screen shots present reasonable example values to
+    users, but always place example values also in the text.
 
     \list
-        \li Use the screen resolution of 1024x768 (this is available on all
-            screens).
+        \li Use the screen resolution of 1366x768 (available on the most
+            commonly used screens, as of this writing).
 
-        \li Use the aspect ratio of 4:3.
+        \li Use the aspect ratio of 16:9.
 
         \li Open the application in the maximum size on full screen.
 
@@ -184,9 +180,6 @@
 
         \li Include only the part of the screen that you need (you can crop the
             image also in the screen capture tool).
-
-        \li In the screen capture tool, open the screen shot and adjust its size
-            to 75%.
 
         \li To highlight parts of the screen shot, use the images of numbers
             that are stored in \c{doc\images\numbers} in the \QC repository.
@@ -212,13 +205,8 @@
     \c doc\images\numbers directory (or in the \c qtdoc module sources in
     \c doc\images\numbers).
 
-    To use the numbers:
-
-    \list
-        \li Take a screenshot as described above.
-        \li After resizing the screenshot, copy-paste the number images on
-            the screenshot to the places that you want to refer to from text.
-    \endlist
+    To use the numbers, copy-paste the number images on the screenshot to the
+    places that you want to refer to from text.
 
     \section2 Optimizing Images
 
@@ -234,8 +222,8 @@
 
     You can use a web service, such as \l{https://tinypng.com}, or an image
     optimization tool to shrink the images. For example, you can use the Radical
-    Image Optimization Tool (RIOT) on Windows (very efficient) or ImageOptim on
-    \macos (much less efficient), or some other tool available on Linux.
+    Image Optimization Tool (RIOT) or OptiPNG on Windows, ImageOptim on
+    \macos, or some other tool available on Linux.
 
     With ImageOptim, you simply drag and drop the image files to the
     application. The following section describes the settings to use for RIOT.
