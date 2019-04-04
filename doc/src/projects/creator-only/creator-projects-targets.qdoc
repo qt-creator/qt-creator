@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -53,6 +53,10 @@
 
         \li Bare Metal Device
 
+        \li Boot2Qt Device (commercial only)
+
+        \li \l {Emulator}{Boot2Qt Emulator Device} (commercial only)
+
         \li Generic Linux Device
 
         \li iOS Device
@@ -60,6 +64,12 @@
         \li iOS Simulator
 
         \li QNX Device
+
+        \li Windows Phone
+
+        \li Windows Phone Emulator
+
+        \li Windows Runtime (local)
 
     \endlist
 
@@ -94,6 +104,9 @@
             build the project for the selected kit.
 
         \li In the \uicontrol Device field, select a device.
+
+        \li In the \uicontrol {Emulator skin} field, select the skin to use for
+            the \l {Emulator}{Boot2Qt Emulator Device}.
 
         \li In the \uicontrol Sysroot field, specify the directory where the device
             image is located. If you are not cross-compiling, leave this field
