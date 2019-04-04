@@ -130,7 +130,7 @@ static QString tweakName(const Utf8String &oldName)
     if (!oldName.contains('>'))
         return QString();
 
-    QString fullName = QString(oldName).trimmed();
+    QString fullName = oldName.toString().trimmed();
     if (!fullName.endsWith('>')) {
         // This is the class<type>::method case - remove ::method part
         if (!fullName.endsWith("create") || !fullName.contains("QSharedPointer"))

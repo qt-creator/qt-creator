@@ -37,7 +37,7 @@ MATCHER_P(HasBuiltIn,
           std::string(negation ? "isn't " : "is ")
               + PrintToString(HeaderPath{QString::fromUtf8(path), HeaderPathType::BuiltIn}))
 {
-    return arg.path == path && arg.type == HeaderPathType::BuiltIn;
+    return arg.path == QString(path) && arg.type == HeaderPathType::BuiltIn;
 }
 
 MATCHER_P(HasSystem,
@@ -45,7 +45,7 @@ MATCHER_P(HasSystem,
           std::string(negation ? "isn't " : "is ")
               + PrintToString(HeaderPath{QString::fromUtf8(path), HeaderPathType::System}))
 {
-    return arg.path == path && arg.type == HeaderPathType::System;
+    return arg.path == QString(path) && arg.type == HeaderPathType::System;
 }
 
 MATCHER_P(HasFramework,
@@ -53,7 +53,7 @@ MATCHER_P(HasFramework,
           std::string(negation ? "isn't " : "is ")
               + PrintToString(HeaderPath{QString::fromUtf8(path), HeaderPathType::Framework}))
 {
-    return arg.path == path && arg.type == HeaderPathType::Framework;
+    return arg.path == QString(path) && arg.type == HeaderPathType::Framework;
 }
 
 MATCHER_P(HasUser,
@@ -61,7 +61,7 @@ MATCHER_P(HasUser,
           std::string(negation ? "isn't " : "is ")
               + PrintToString(HeaderPath{QString::fromUtf8(path), HeaderPathType::User}))
 {
-    return arg.path == path && arg.type == HeaderPathType::User;
+    return arg.path == QString(path) && arg.type == HeaderPathType::User;
 }
 
 class HeaderPathFilter : public testing::Test
