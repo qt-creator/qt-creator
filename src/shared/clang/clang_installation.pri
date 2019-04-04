@@ -141,15 +141,15 @@ win32: BIN_EXTENSION = .exe
 
 isEmpty(LLVM_INSTALL_DIR) {
     unix {
-      llvm_config = $$system(which llvm-config-7)
+      llvm_config = $$system(which llvm-config-8)
     }
 
     isEmpty(llvm_config) {
         llvm_config = llvm-config
     }
 } else {
-    exists($$LLVM_INSTALL_DIR/bin/llvm-config-7$$BIN_EXTENSION) {
-      llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config-7)
+    exists($$LLVM_INSTALL_DIR/bin/llvm-config-8$$BIN_EXTENSION) {
+      llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config-8)
     } else {
       llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config)
       requires(exists($$llvm_config$$BIN_EXTENSION))
@@ -163,10 +163,10 @@ isEmpty(LLVM_VERSION) {
     $$llvmWarningOrError(\
         "Cannot determine clang version. Set LLVM_INSTALL_DIR to build the Clang Code Model",\
         "LLVM_INSTALL_DIR does not contain a valid llvm-config, candidate: $$llvm_config")
-} else:!versionIsAtLeast($$LLVM_VERSION, 7, 0, 0): {
+} else:!versionIsAtLeast($$LLVM_VERSION, 8, 0, 0): {
     # CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
     $$llvmWarningOrError(\
-        "LLVM/Clang version >= 7.0.0 required, version provided: $$LLVM_VERSION")
+        "LLVM/Clang version >= 8.0.0 required, version provided: $$LLVM_VERSION")
     LLVM_VERSION =
 } else {
     # CLANG-UPGRADE-CHECK: Remove suppression if this warning is resolved.

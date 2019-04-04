@@ -86,12 +86,12 @@ QStringList ClangTidyClazyRunner::constructCommandLineArguments(const QStringLis
     const QString clazyChecks = m_diagnosticConfig.clazyChecks();
     if (!clazyChecks.isEmpty()) {
         arguments << XclangArgs({"-add-plugin",
-                                 "clang-lazy",
-                                 "-plugin-arg-clang-lazy",
+                                 "clazy",
+                                 "-plugin-arg-clazy",
                                  "enable-all-fixits",
-                                 "-plugin-arg-clang-lazy",
+                                 "-plugin-arg-clazy",
                                  "no-autowrite-fixits",
-                                 "-plugin-arg-clang-lazy",
+                                 "-plugin-arg-clazy",
                                  m_diagnosticConfig.clazyChecks()});
     }
 

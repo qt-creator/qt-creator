@@ -34,7 +34,7 @@ Prerequisites:
     * Python 3.5 or later (optional, needed for the python enabled debug helper)
 * On Mac OS X: latest Xcode
 * On Linux: g++ 5.3 or later
-* LLVM/Clang 7.0.0 or later (optional, needed for the Clang Code Model, Clang Tools, ClangFormat,
+* LLVM/Clang 8.0.0 or later (optional, needed for the Clang Code Model, Clang Tools, ClangFormat,
   Clang PCH Manager and Clang Refactoring plugins, see the section
   "Get LLVM/Clang for the Clang Code Model". The LLVM C++ API provides no compatibility garantee,
   so if later versions don't compile we don't support that version.)
@@ -228,7 +228,7 @@ or using shadow builds.
 ## Get LLVM/Clang for the Clang Code Model
 
 The Clang Code Model depends on the LLVM/Clang libraries. The currently
-supported LLVM/Clang version is 7.0.
+supported LLVM/Clang version is 8.0.
 
 ### Prebuilt LLVM/Clang packages
 
@@ -255,9 +255,9 @@ GCC 4 binaries. On Ubuntu, you can download the package from
 http://apt.llvm.org/ with:
 
    wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-   sudo apt-add-repository "deb http://apt.llvm.org/`lsb_release -cs`/ llvm-toolchain-`lsb_release -cs`-7.0 main"
+   sudo apt-add-repository "deb http://apt.llvm.org/`lsb_release -cs`/ llvm-toolchain-`lsb_release -cs`-8.0 main"
    sudo apt-get update
-   sudo apt-get install llvm-7.0 libclang-7.0-dev
+   sudo apt-get install llvm-8.0 libclang-8.0-dev
 
 There is a workaround to set _GLIBCXX_USE_CXX11_ABI to 1 or 0, but we recommend
 to download the package from http://apt.llvm.org/.
@@ -273,7 +273,7 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
    1. Clone LLVM and checkout a suitable branch
 
-          git clone -b release_70-based --recursive https://code.qt.io/clang/llvm
+          git clone -b release_80-based --recursive https://code.qt.io/clang/llvm
 
    2. Build and install LLVM/Clang
 

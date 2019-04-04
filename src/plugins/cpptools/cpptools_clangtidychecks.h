@@ -50,7 +50,33 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
         {
             "android-",
             {
+                {
+                    "uration-",
+                    {
+                        "comparison",
+                        "division",
+                        {
+                            "factory-",
+                            {
+                                "float",
+                                "scale"
+                            }
+                        },
+                        "subtraction"
+                    }
+                },
+                "aster-strsplit-delimiter",
+                {
+                    "o-",
+                    {
+                        "internal-dependencies",
+                        "namespace"
+                    }
+                },
+                "edundant-strcat-calls",
+                "tr-cat-append",
                 "tring-find-startswith",
+                "pgrade-duration-conversions",
                 {
                     "cloexec-",
                     {
@@ -149,6 +175,7 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                 "swapped-arguments",
                 "terminating-continue",
                 "throw-keyword-missing",
+                "too-small-loop-variable",
                 "undefined-memory-manipulation",
                 "undelegated-constructor",
                 {
@@ -166,6 +193,7 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
             "cert-",
             {
                 "dcl03-c",
+                "dcl16-c",
                 "dcl21-cpp",
                 "dcl50-cpp",
                 "dcl54-cpp",
@@ -193,6 +221,7 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                 {
                     "apiModeling.",
                     {
+                        "StdCLibraryFunctions",
                         "TrustNonnull",
                         "google.GTest"
                     }
@@ -232,13 +261,13 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                     "cplusplus.",
                     {
                         "InnerPointer",
+                        "Move",
                         "NewDelete",
                         "NewDeleteLeaks",
                         "SelfAssignment"
                     }
                 },
                 "deadcode.DeadStores",
-                "llvm.Conventions",
                 {
                     "nullability.",
                     {
@@ -286,6 +315,7 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                     {
                         "API",
                         "NumberObjectConversion",
+                        "OSObjectRetainCount",
                         "ObjCProperty",
                         "SecKeychainAPI",
                         {
@@ -357,7 +387,6 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                         "Malloc",
                         "MallocSizeof",
                         "MismatchedDeallocator",
-                        "StdCLibraryFunctions",
                         "Vfork",
                         {
                             "cstring.",
@@ -381,11 +410,20 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
         {
             "cppcoreguidelines-",
             {
-                "avoid-goto",
+                {
+                    "avoid-",
+                    {
+                        "c-arrays",
+                        "goto",
+                        "magic-numbers"
+                    }
+                },
                 "c-copy-assignment-signature",
                 "interfaces-global-init",
+                "macro-usage",
                 "narrowing-conversions",
                 "no-malloc",
+                "non-private-member-variables-in-classes",
                 "owning-memory",
                 {
                     "pro-",
@@ -447,6 +485,7 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                     "objc-",
                     {
                         "avoid-throwing-exception",
+                        "function-naming",
                         "global-variable-declaration"
                     }
                 },
@@ -473,7 +512,13 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
         {
             "hicpp-",
             {
-                "avoid-goto",
+                {
+                    "avoid-",
+                    {
+                        "c-arrays",
+                        "goto"
+                    }
+                },
                 "braces-around-statements",
                 "deprecated-headers",
                 "exception-baseclass",
@@ -498,6 +543,7 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                 "special-member-functions",
                 "static-assert",
                 "undelegated-constructor",
+                "uppercase-literal-suffix",
                 {
                     "use-",
                     {
@@ -533,7 +579,13 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                 "definitions-in-headers",
                 "misplaced-const",
                 "new-delete-overloads",
-                "non-copyable-objects",
+                {
+                    "non-",
+                    {
+                        "copyable-objects",
+                        "private-member-variables-in-classes"
+                    }
+                },
                 "redundant-expression",
                 "static-assert",
                 "throw-by-value-catch-by-reference",
@@ -552,8 +604,21 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
         {
             "modernize-",
             {
-                "avoid-bind",
-                "deprecated-headers",
+                {
+                    "avoid-",
+                    {
+                        "bind",
+                        "c-arrays"
+                    }
+                },
+                "concat-nested-namespaces",
+                {
+                    "deprecated-",
+                    {
+                        "headers",
+                        "ios-base-aliases"
+                    }
+                },
                 "loop-convert",
                 {
                     "make-",
@@ -589,6 +654,7 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                                 "delete"
                             }
                         },
+                        "nodiscard",
                         "noexcept",
                         "nullptr",
                         "override",
@@ -658,6 +724,7 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
             {
                 "avoid-const-params-in-decls",
                 "braces-around-statements",
+                "const-return-type",
                 "container-size-empty",
                 "delete-null-pointer",
                 "deleted-default",
@@ -666,6 +733,8 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                 "identifier-naming",
                 "implicit-bool-conversion",
                 "inconsistent-declaration-parameter-name",
+                "isolate-declaration",
+                "magic-numbers",
                 "misleading-indentation",
                 "misplaced-array-index",
                 "named-parameter",
@@ -677,6 +746,7 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                         "declaration",
                         "function-ptr-dereference",
                         "member-init",
+                        "preprocessor",
                         "smartptr-get",
                         {
                             "string-",
@@ -703,6 +773,7 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                 },
                 "string-compare",
                 "uniqueptr-delete-release",
+                "uppercase-literal-suffix",
                 "rary-objects"
             }
         }

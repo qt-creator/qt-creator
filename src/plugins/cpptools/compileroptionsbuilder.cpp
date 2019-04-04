@@ -524,6 +524,7 @@ static QStringList languageFeatureMacros()
         "__cpp_guaranteed_copy_elision",
         "__cpp_hex_float",
         "__cpp_if_constexpr",
+        "__cpp_impl_destroying_delete",
         "__cpp_inheriting_constructors",
         "__cpp_init_captures",
         "__cpp_initializer_lists",

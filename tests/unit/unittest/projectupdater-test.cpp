@@ -385,6 +385,7 @@ TEST_F(ProjectUpdater, ToolChainArgumentsMSVC)
                             QString{"-U__cpp_guaranteed_copy_elision"},
                             QString{"-U__cpp_hex_float"},
                             QString{"-U__cpp_if_constexpr"},
+                            QString{"-U__cpp_impl_destroying_delete"},
                             QString{"-U__cpp_inheriting_constructors"},
                             QString{"-U__cpp_init_captures"},
                             QString{"-U__cpp_initializer_lists"},

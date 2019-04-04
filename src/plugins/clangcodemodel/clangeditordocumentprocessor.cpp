@@ -527,14 +527,14 @@ private:
             return;
 
         m_options.append(CppTools::XclangArgs({"-add-plugin",
-                                               "clang-lazy",
-                                               "-plugin-arg-clang-lazy",
+                                               "clazy",
+                                               "-plugin-arg-clazy",
                                                "enable-all-fixits",
-                                               "-plugin-arg-clang-lazy",
+                                               "-plugin-arg-clazy",
                                                "no-autowrite-fixits",
-                                               "-plugin-arg-clang-lazy",
+                                               "-plugin-arg-clazy",
                                                checks,
-                                               "-plugin-arg-clang-lazy",
+                                               "-plugin-arg-clazy",
                                                "ignore-included-files"}));
     }
 

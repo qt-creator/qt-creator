@@ -92,8 +92,9 @@ newFrontendActionFactory(Factory *consumerFactory,
                   m_sourceFileCallbacks(sourceFileCallbacks)
             {}
 
-            std::unique_ptr<clang::ASTConsumer>
-                    CreateASTConsumer(clang::CompilerInstance &instance, StringRef inFile) override {
+            std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &instance,
+                                                                  llvm::StringRef inFile) override
+            {
                 return m_consumerFactory->newASTConsumer(instance, inFile);
             }
 

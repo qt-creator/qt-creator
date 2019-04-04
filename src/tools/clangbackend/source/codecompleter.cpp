@@ -197,9 +197,7 @@ ClangCodeCompleteResults CodeCompleter::completeHelper(uint line, uint column)
 uint CodeCompleter::defaultOptions() const
 {
     uint options = CXCodeComplete_IncludeMacros
-        #ifdef IS_COMPLETION_FIXITS_BACKPORTED
             | CXCodeComplete_IncludeCompletionsWithFixIts
-        #endif
             | CXCodeComplete_IncludeCodePatterns;
 
     if (TranslationUnitUpdater::defaultParseOptions()

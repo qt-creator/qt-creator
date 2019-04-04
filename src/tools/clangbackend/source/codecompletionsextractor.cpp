@@ -370,7 +370,6 @@ SourceRangeContainer toRangeContainer(const UnsavedFile &file, CXSourceRange cxS
 
 void CodeCompletionsExtractor::extractRequiredFixIts()
 {
-#ifdef IS_COMPLETION_FIXITS_BACKPORTED
     unsigned fixItsNumber = clang_getCompletionNumFixIts(cxCodeCompleteResults,
                                                          cxCodeCompleteResultIndex);
 
@@ -386,7 +385,6 @@ void CodeCompletionsExtractor::extractRequiredFixIts()
         currentCodeCompletion_.requiredFixIts.push_back(
                     FixItContainer(Utf8String(fixIt), toRangeContainer(unsavedFile, range)));
     }
-#endif
 }
 
 void CodeCompletionsExtractor::adaptPriority()

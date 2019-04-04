@@ -107,11 +107,7 @@ bool Cursor::isDeclaration() const
 
 bool Cursor::isInvalidDeclaration() const
 {
-#ifdef IS_INVALIDDECL_SUPPORTED
     return clang_isInvalidDeclaration(m_cxCursor);
-#else
-    return false;
-#endif
 }
 
 bool Cursor::isLocalVariable() const

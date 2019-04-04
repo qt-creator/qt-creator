@@ -177,10 +177,8 @@ uint TranslationUnitUpdater::defaultParseOptions()
     return CXTranslationUnit_CacheCompletionResults
          | CXTranslationUnit_PrecompiledPreamble
          | CXTranslationUnit_CreatePreambleOnFirstParse
-#ifdef IS_LIMITSKIPFUNCTIONBODIESTOPREAMBLE_SUPPORTED
          | CXTranslationUnit_SkipFunctionBodies
          | CXTranslationUnit_LimitSkipFunctionBodiesToPreamble
-#endif
 #ifdef IS_SKIPWARNINGSFROMINCLUDEDFILES_SUPPORTED
          | CXTranslationUnit_IgnoreNonErrorsFromIncludedFiles
 #endif

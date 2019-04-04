@@ -153,7 +153,7 @@ TEST_F(ToolTipInfo, MemberVariable)
     ASSERT_THAT(actual, IsToolTip(::ToolTipInfo(Utf8StringLiteral("int"))));
 }
 
-TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(MemberFunctionCall_QualifiedName))
+TEST_F(ToolTipInfo, MemberFunctionCall_QualifiedName)
 {
     const ::ToolTipInfo actual = tooltip(21, 9);
 
@@ -161,7 +161,7 @@ TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(MemberFunctionCall_Qualifi
 }
 
 // ChangeLog: Show extra specifiers. For functions e.g.: virtual, inline, explicit, const, volatile
-TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(MemberFunctionCall_ExtraSpecifiers))
+TEST_F(ToolTipInfo, MemberFunctionCall_ExtraSpecifiers)
 {
     const ::ToolTipInfo actual = tooltip(22, 9);
 
@@ -199,7 +199,7 @@ TEST_F(ToolTipInfo, MemberFunctionCall_qdocCategory)
 }
 
 // TODO: Show the template parameter type, too: "template<typename T>...)"
-TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(TemplateFunctionCall))
+TEST_F(ToolTipInfo, TemplateFunctionCall)
 {
     const ::ToolTipInfo actual = tooltip(30, 5);
 
@@ -548,7 +548,7 @@ TEST_F(ToolTipInfo, Function_qdocIdCandidatesAreQualified)
                                                      Utf8StringLiteral("f")));
 }
 
-TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_HasParameterName))
+TEST_F(ToolTipInfo, Function_HasParameterName)
 {
     const ::ToolTipInfo actual = tooltip(167, 5);
 
@@ -621,21 +621,21 @@ TEST_F(ToolTipInfo, AutoTypeClassTemplateType)
     ASSERT_THAT(actual.text, Utf8StringLiteral("Zii<int>"));
 }
 
-TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_DefaultConstructor))
+TEST_F(ToolTipInfo, Function_DefaultConstructor)
 {
     const ::ToolTipInfo actual = tooltip(193, 5);
 
     ASSERT_THAT(actual.text, Utf8StringLiteral("inline constexpr Con::Con() noexcept"));
 }
 
-TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_ExplicitDefaultConstructor))
+TEST_F(ToolTipInfo, Function_ExplicitDefaultConstructor)
 {
     const ::ToolTipInfo actual = tooltip(194, 5);
 
     ASSERT_THAT(actual.text, Utf8StringLiteral("ExplicitCon::ExplicitCon() noexcept = default"));
 }
 
-TEST_F(ToolTipInfo, DISABLED_WITHOUT_PRETTYDECL_PATCH(Function_CustomConstructor))
+TEST_F(ToolTipInfo, Function_CustomConstructor)
 {
     const ::ToolTipInfo actual = tooltip(195, 5);
 

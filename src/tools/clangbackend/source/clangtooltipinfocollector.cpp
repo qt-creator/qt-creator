@@ -87,7 +87,6 @@ Utf8String displayName(const Cursor &cursor)
 
 Utf8String textForFunctionLike(const Cursor &cursor)
 {
-#ifdef IS_PRETTY_DECL_SUPPORTED
     CXPrintingPolicy policy = clang_getCursorPrintingPolicy(cursor.cx());
     clang_PrintingPolicy_setProperty(policy, CXPrintingPolicy_FullyQualifiedName, 1);
     clang_PrintingPolicy_setProperty(policy, CXPrintingPolicy_TerseOutput, 1);
@@ -98,17 +97,6 @@ Utf8String textForFunctionLike(const Cursor &cursor)
         clang_getCursorPrettyPrinted(cursor.cx(), policy));
     clang_PrintingPolicy_dispose(policy);
     return prettyPrinted;
-#else
-    // Printing function declarations with displayName() is quite limited:
-    //   * result type is not included
-    //   * parameter names are not included
-    //   * templates in the result type are not included
-    //   * no full qualification of the function name
-    return Utf8String(cursor.resultType().spelling())
-         + Utf8StringLiteral(" ")
-         + qualificationPrefix(cursor)
-         + Utf8String(cursor.displayName());
-#endif
 }
 
 Utf8String textForEnumConstantDecl(const Cursor &cursor)
