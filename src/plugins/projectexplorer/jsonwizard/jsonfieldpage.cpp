@@ -388,6 +388,7 @@ QWidget *LabelField::createWidget(const QString &displayName, JsonFieldPage *pag
     auto w = new QLabel;
     w->setWordWrap(m_wordWrap);
     w->setText(m_text);
+    w->setSizePolicy(QSizePolicy::Expanding, w->sizePolicy().verticalPolicy());
     return w;
 }
 
