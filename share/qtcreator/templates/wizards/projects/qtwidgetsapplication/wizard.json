@@ -120,7 +120,7 @@
                 {
                     "name": "GenerateForm",
                     "type": "CheckBox",
-                    "trDisplayName": "Generate form:",
+                    "trDisplayName": "Generate form",
                     "data": { "checked": true }
                 },
                 {
