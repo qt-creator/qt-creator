@@ -61,13 +61,6 @@
             ]
         },
         {
-            "trDisplayName": "Kit Selection",
-            "trShortTitle": "Kits",
-            "typeId": "Kits",
-            "enabled": "%{JS: ! %{IsSubproject}}",
-            "data": { "projectFilePath": "%{ProjectFile}" }
-        },
-        {
             "trDisplayName": "Class Information",
             "trShortTitle": "Details",
             "typeId": "Fields",
@@ -139,6 +132,13 @@
                     "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', 'ui')}" }
                 }
             ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: ! %{IsSubproject}}",
+            "data": { "projectFilePath": "%{ProjectFile}" }
         },
         {
             "trDisplayName": "Project Management",
