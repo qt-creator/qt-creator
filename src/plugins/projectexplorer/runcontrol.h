@@ -157,6 +157,9 @@ public:
     void addConstraint(const Constraint &constraint);
     void addSupportedRunMode(Core::Id runMode);
 
+    void setSupportedRunConfigurations(const QList<Core::Id> &ids);
+    void addSupportedRunConfiguration(Core::Id id);
+
     WorkerCreator producer() const { return m_producer; }
 
 private:
@@ -166,6 +169,7 @@ private:
     static void destroyRemainingRunWorkerFactories();
 
     QList<Core::Id> m_supportedRunModes;
+    QList<Core::Id> m_supportedRunConfigurations;
     QList<Constraint> m_constraints;
     WorkerCreator m_producer;
 };

@@ -87,6 +87,11 @@ bool RunWorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMo
     if (!m_supportedRunModes.contains(runMode))
         return false;
 
+    if (!m_supportedRunConfigurations.isEmpty()) {
+        if (!m_supportedRunConfigurations.contains(runConfiguration->id()))
+            return false;
+    }
+
     for (const Constraint &constraint : m_constraints) {
         if (!constraint(runConfiguration))
             return false;
@@ -113,6 +118,16 @@ void RunWorkerFactory::addConstraint(const Constraint &constraint)
 void RunWorkerFactory::addSupportedRunMode(Core::Id runMode)
 {
     m_supportedRunModes.append(runMode);
+}
+
+void RunWorkerFactory::setSupportedRunConfigurations(const QList<Core::Id> &ids)
+{
+    m_supportedRunConfigurations = ids;
+}
+
+void RunWorkerFactory::addSupportedRunConfiguration(Core::Id id)
+{
+    m_supportedRunConfigurations.append(id);
 }
 
 void RunWorkerFactory::destroyRemainingRunWorkerFactories()
