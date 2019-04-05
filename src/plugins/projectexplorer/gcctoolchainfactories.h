@@ -33,6 +33,8 @@
 #include <QList>
 #include <QSet>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QComboBox;
 QT_END_NAMESPACE
@@ -64,20 +66,18 @@ public:
 
 protected:
     virtual GccToolChain *createToolChain(bool autoDetect);
-    void versionProbe(const QString &name,
-                      Core::Id language,
-                      Core::Id type,
-                      QList<ToolChain *> &tcs,
-                      QList<ToolChain *> &known,
-                      const QSet<QString> &filteredNames = {});
 
     Utils::FileName compilerPathFromEnvironment(const QString &compilerName);
 
+    enum class DetectVariants { Yes, No };
+    using ToolchainChecker = std::function<bool(const ToolChain *)>;
     QList<ToolChain *> autoDetectToolchains(
-            const Utils::FileName &compilerPath, const Abi &requiredAbi, Core::Id language,
-            const Core::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown);
-    QList<ToolChain *> autoDetectToolChain(const Utils::FileName &compilerPath, const Core::Id language,
-                                           const Abi &requiredAbi = Abi());
+            const QString &compilerName, DetectVariants detectVariants, Core::Id language,
+            const Core::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown,
+            const ToolchainChecker &checker = {});
+    QList<ToolChain *> autoDetectToolChain(
+            const Utils::FileName &compilerPath, const Core::Id language,
+            const ToolchainChecker &checker = {});
 };
 
 // --------------------------------------------------------------------------
