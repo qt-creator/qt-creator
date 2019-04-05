@@ -215,11 +215,13 @@ void FancyTabBar::mousePressEvent(QMouseEvent *event)
                     // menu arrow clicked
                     emit menuTriggered(index, event);
                 } else {
-                    emit currentAboutToChange(index);
-                    m_currentIndex = index;
-                    update();
-                    // update tab bar before showing widget
-                    QTimer::singleShot(0, this, [this]() { emit currentChanged(m_currentIndex); });
+                    if (index != m_currentIndex) {
+                        emit currentAboutToChange(index);
+                        m_currentIndex = index;
+                        update();
+                        // update tab bar before showing widget
+                        QTimer::singleShot(0, this, [this]() { emit currentChanged(m_currentIndex); });
+                    }
                 }
             }
             break;
