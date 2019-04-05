@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -86,4 +86,8 @@
             the shell or the device. Usually, you can leave this field empty.
 
     \endlist
+
+    To remove the selected manually added debugger, select \uicontrol Remove.
+    The debugger is removed from the list when you select \uicontrol Apply.
+    Until then, you can cancel the deletion by clicking \uicontrol Restore.
 */
