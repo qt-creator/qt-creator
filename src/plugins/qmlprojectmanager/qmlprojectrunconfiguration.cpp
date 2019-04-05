@@ -281,7 +281,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 {
     auto envAspect = addAspect<EnvironmentAspect>();
 
-    auto envModifier = [&](Environment env) {
+    auto envModifier = [target](Environment env) {
         if (auto project = qobject_cast<const QmlProject *>(target->project()))
             env.modify(project->environment());
         return env;
@@ -289,12 +289,12 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 
     const Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(target->kit());
     if (deviceTypeId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        envAspect->addPreferredBaseEnvironment(tr("System Environment"), [&] {
+        envAspect->addPreferredBaseEnvironment(tr("System Environment"), [envModifier] {
             return envModifier(Environment::systemEnvironment());
         });
     }
 
-    envAspect->addSupportedBaseEnvironment(tr("Clean Environment"), [&] {
+    envAspect->addSupportedBaseEnvironment(tr("Clean Environment"), [envModifier] {
         return envModifier(Environment());
     });
 
