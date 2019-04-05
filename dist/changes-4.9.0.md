@@ -221,6 +221,11 @@ Remote Linux
   (QTCREATORBUG-21225)
 * Fixed issue with killing remote process (QTCREATORBUG-19941)
 
+Boot to Qt
+
+* Removed ADB-based Boot to Qt plugin that provided support for
+  Boot to Qt versions 5.8, and earlier.
+
 Credits for these changes go to:  
 Aaron Barany  
 Alessandro Portale  
