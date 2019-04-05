@@ -446,6 +446,8 @@ static bool hasSameInode(const QString &file1, const QString &file2)
         return false;
     return stat1.st_ino == stat2.st_ino;
 #else
+    Q_UNUSED(file1)
+    Q_UNUSED(file2)
     return false;
 #endif
 }
