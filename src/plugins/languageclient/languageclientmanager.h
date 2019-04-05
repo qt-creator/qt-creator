@@ -27,6 +27,7 @@
 
 #include "client.h"
 #include "languageclientsettings.h"
+#include "locatorfilter.h"
 
 #include <coreplugin/id.h>
 
@@ -74,6 +75,7 @@ public:
     static QList<BaseSettings *> currentSettings();
     static QVector<QPointer<Client> > clientForSetting(const BaseSettings *setting);
     static const BaseSettings *settingForClient(Client *setting);
+    static Client *clientForEditor(Core::IEditor *editor);
 
 signals:
     void shutdownFinished();
@@ -103,5 +105,6 @@ private:
     QList<BaseSettings *>  m_currentSettings; // owned
     QMap<QString, QVector<QPointer<Client>>> m_clientsForSetting;
     QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
+    DocumentLocatorFilter m_currentDocumentLocatorFilter;
 };
 } // namespace LanguageClient

@@ -1077,13 +1077,13 @@ void Client::intializeCallback(const InitializeRequest::Response &initResponse)
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Initialized;
     sendContent(InitializeNotification());
-    emit initialized(m_serverCapabilities);
     for (auto openedDocument : Core::DocumentModel::openedDocuments()) {
         if (openDocument(openedDocument)) {
             for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(openedDocument))
                 updateEditorToolBar(editor);
         }
     }
+    emit initialized(m_serverCapabilities);
 }
 
 void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)

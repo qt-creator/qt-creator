@@ -110,6 +110,11 @@ void LanguageClientManager::startClient(Client *client)
         client->initialize();
     else
         managerInstance->clientFinished(client);
+
+    connect(client,
+            &Client::initialized,
+            &managerInstance->m_currentDocumentLocatorFilter,
+            &DocumentLocatorFilter::updateCurrentClient);
 }
 
 void LanguageClientManager::startClient(BaseSettings *setting, ProjectExplorer::Project *project)
@@ -273,6 +278,20 @@ const BaseSettings *LanguageClientManager::settingForClient(Client *client)
         }
     }
     return nullptr;
+}
+
+Client *LanguageClientManager::clientForEditor(Core::IEditor *iEditor)
+{
+    QTC_ASSERT(managerInstance, return nullptr);
+
+    auto editor = qobject_cast<TextEditor::BaseTextEditor *>(iEditor);
+    if (!editor)
+        return nullptr;
+
+    return Utils::findOrDefault(managerInstance->reachableClients(),
+                                [doc = editor->textDocument()](Client *client) {
+                                    return client->documentOpen(doc);
+                                });
 }
 
 QVector<Client *> LanguageClientManager::reachableClients()

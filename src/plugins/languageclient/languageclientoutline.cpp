@@ -26,6 +26,7 @@
 #include "languageclientoutline.h"
 
 #include "languageclientmanager.h"
+#include "languageclientutils.h"
 
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -42,46 +43,6 @@
 using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
-
-static const QIcon symbolIcon(int type)
-{
-    using namespace Utils::CodeModelIcon;
-    static QMap<SymbolKind, QIcon> icons;
-    if (type < int(SymbolKind::FirstSymbolKind) || type > int(SymbolKind::LastSymbolKind))
-        return {};
-    auto kind = static_cast<SymbolKind>(type);
-    if (icons.contains(kind)) {
-        switch (kind) {
-        case SymbolKind::File: icons[kind] = Utils::Icons::NEWFILE.icon(); break;
-        case SymbolKind::Module: icons[kind] = iconForType(Namespace); break;
-        case SymbolKind::Namespace: icons[kind] = iconForType(Namespace); break;
-        case SymbolKind::Package: icons[kind] = iconForType(Namespace); break;
-        case SymbolKind::Class: icons[kind] = iconForType(Class); break;
-        case SymbolKind::Method: icons[kind] = iconForType(FuncPublic); break;
-        case SymbolKind::Property: icons[kind] = iconForType(Property); break;
-        case SymbolKind::Field: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Constructor: icons[kind] = iconForType(Class); break;
-        case SymbolKind::Enum: icons[kind] = iconForType(Enum); break;
-        case SymbolKind::Interface: icons[kind] = iconForType(Class); break;
-        case SymbolKind::Function: icons[kind] = iconForType(FuncPublic); break;
-        case SymbolKind::Variable: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Constant: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::String: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Number: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Boolean: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Array: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Object: icons[kind] = iconForType(Class); break;
-        case SymbolKind::Key: icons[kind] = iconForType(Keyword); break;
-        case SymbolKind::Null: icons[kind] = iconForType(Keyword); break;
-        case SymbolKind::EnumMember: icons[kind] = iconForType(Enumerator); break;
-        case SymbolKind::Struct: icons[kind] = iconForType(Struct); break;
-        case SymbolKind::Event: icons[kind] = iconForType(FuncPublic); break;
-        case SymbolKind::Operator: icons[kind] = iconForType(FuncPublic); break;
-        case SymbolKind::TypeParameter: icons[kind] = iconForType(VarPublic); break;
-        }
-    }
-    return icons[kind];
-}
 
 class LanguageClientOutlineItem : public Utils::TypedTreeItem<LanguageClientOutlineItem>
 {

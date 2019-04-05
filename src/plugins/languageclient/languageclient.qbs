@@ -38,5 +38,7 @@ QtcPlugin {
         "languageclientsettings.h",
         "languageclientutils.cpp",
         "languageclientutils.h",
+        "locatorfilter.cpp",
+        "locatorfilter.h",
     ]
 }

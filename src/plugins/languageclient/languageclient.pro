@@ -14,7 +14,8 @@ HEADERS += \
     languageclientplugin.h \
     languageclientquickfix.h \
     languageclientsettings.h \
-    languageclientutils.h
+    languageclientutils.h \
+    locatorfilter.h
 
 
 SOURCES += \
@@ -28,7 +29,8 @@ SOURCES += \
     languageclientplugin.cpp \
     languageclientquickfix.cpp \
     languageclientsettings.cpp \
-    languageclientutils.cpp
+    languageclientutils.cpp \
+    locatorfilter.cpp
 
 RESOURCES += \
     languageclient.qrc
