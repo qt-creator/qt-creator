@@ -225,8 +225,8 @@ void BuildManager::updateTaskCount()
 void BuildManager::finish()
 {
     const QTime format = QTime(0, 0, 0, 0).addMSecs(d->m_elapsed.elapsed() + 500);
-    QString time = format.toString(QLatin1String("h:mm:ss"));
-    if (time.startsWith(QLatin1String("0:")))
+    QString time = format.toString("h:mm:ss");
+    if (time.startsWith("0:"))
         time.remove(0, 2); // Don't display zero hours
     m_instance->addToOutputWindow(tr("Elapsed time: %1.") .arg(time), BuildStep::OutputFormat::NormalMessage);
 
@@ -240,7 +240,7 @@ void BuildManager::emitCancelMessage()
 
 void BuildManager::clearBuildQueue()
 {
-    foreach (BuildStep *bs, d->m_buildQueue) {
+    for (BuildStep *bs : qAsConst(d->m_buildQueue)) {
         decrementActiveBuildSteps(bs);
         disconnectOutput(bs);
     }
@@ -345,11 +345,11 @@ void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFor
     QString stringToWrite;
     if (format == BuildStep::OutputFormat::NormalMessage || format == BuildStep::OutputFormat::ErrorMessage) {
         stringToWrite = QTime::currentTime().toString();
-        stringToWrite += QLatin1String(": ");
+        stringToWrite += ": ";
     }
     stringToWrite += string;
     if (newlineSettings == BuildStep::DoAppendNewline)
-        stringToWrite += QLatin1Char('\n');
+        stringToWrite += '\n';
     d->m_outputWindow->appendText(stringToWrite, format);
 }
 
@@ -482,7 +482,7 @@ bool BuildManager::buildQueueAppend(const QList<BuildStep *> &steps, QStringList
             TaskHub::clearTasks(Constants::TASK_CATEGORY_AUTOTEST);
         }
 
-        foreach (const QString &str, preambleMessage)
+        for (const QString &str : preambleMessage)
             addToOutputWindow(str, BuildStep::OutputFormat::NormalMessage, BuildStep::DontAppendNewline);
     }
 
@@ -533,11 +533,11 @@ bool BuildManager::buildList(BuildStepList *bsl)
     return buildLists({bsl});
 }
 
-bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &preambelMessage)
+bool BuildManager::buildLists(const QList<BuildStepList *> bsls, const QStringList &preambelMessage)
 {
     QList<BuildStep *> steps;
     QStringList stepListNames;
-    foreach (BuildStepList *list, bsls) {
+    for (BuildStepList *list : bsls) {
         steps.append(list->steps());
         stepListNames.append(ProjectExplorerPlugin::displayNameForStepId(list->id()));
         d->m_isDeploying = d->m_isDeploying || list->id() == Constants::BUILDSTEPS_DEPLOY;

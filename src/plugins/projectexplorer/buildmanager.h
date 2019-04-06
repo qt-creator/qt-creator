@@ -52,7 +52,7 @@ public:
     static bool isDeploying();
     static bool tasksAvailable();
 
-    static bool buildLists(QList<BuildStepList *> bsls,
+    static bool buildLists(const QList<BuildStepList *> bsls,
                            const QStringList &preambelMessage = QStringList());
     static bool buildList(BuildStepList *bsl);
 
