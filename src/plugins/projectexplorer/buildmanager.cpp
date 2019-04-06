@@ -32,28 +32,26 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
+#include "session.h"
 #include "target.h"
 #include "task.h"
-#include "taskwindow.h"
 #include "taskhub.h"
+#include "taskwindow.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
-#include <projectexplorer/session.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
-
-#include <QPointer>
-#include <QTime>
-#include <QTimer>
-#include <QList>
-#include <QHash>
-#include <QFutureWatcher>
-#include <QElapsedTimer>
-
 #include <utils/runextensions.h>
 
 #include <QApplication>
+#include <QElapsedTimer>
+#include <QFutureWatcher>
+#include <QHash>
+#include <QList>
+#include <QPointer>
+#include <QTime>
+#include <QTimer>
 
 using namespace Core;
 

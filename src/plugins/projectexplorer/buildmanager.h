@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "projectexplorer_export.h"
 #include "buildstep.h"
+#include "projectexplorer_export.h"
 
 #include <QObject>
 #include <QStringList>
