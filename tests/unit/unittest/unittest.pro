@@ -26,6 +26,9 @@ msvc: QMAKE_CXXFLAGS_WARN_ON -= -w34100 # 'unreferenced formal parameter' in MAT
 win32:DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echo)xxx\\\"\"
 unix: DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echoserver/echo)xxx\\\"\"
 
+RELATIVE_DATA_PATH = ../../../share/qtcreator
+DEFINES += $$shell_quote(RELATIVE_DATA_PATH=\"$$RELATIVE_DATA_PATH\")
+
 linux {
 QMAKE_LFLAGS_RELEASE = #disable optimization
 QMAKE_LFLAGS += -fno-merge-debug-strings -fuse-ld=gold

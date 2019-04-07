@@ -29,6 +29,9 @@
 
 #include <nativefilepath.h>
 
+#include <QCoreApplication>
+#include <QDir>
+
 template<std::size_t Size>
 ClangBackEnd::NativeFilePath toNativePath(const char (&text)[Size])
 {
@@ -49,4 +52,10 @@ inline Utils::PathString toNativePath(Utils::SmallStringView text)
     ClangBackEnd::FilePath path{text};
 
     return ClangBackEnd::NativeFilePath{path}.path();
+}
+
+inline QString resourcePath()
+{
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH
+                           + "/indexing_preincludes");
 }

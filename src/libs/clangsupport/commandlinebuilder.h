@@ -33,6 +33,9 @@
 #include <utils/smallstringvector.h>
 #include <utils/cpplanguage_details.h>
 
+#include <QCoreApplication>
+#include <QDir>
+
 namespace ClangBackEnd {
 
 enum class InputFileType : unsigned char { Header, Source };
@@ -58,6 +61,7 @@ public:
         addLanguageVersion(projectInfo);
         addNoStdIncAndNoStdLibInc(projectInfo.language);
         addCompilerMacros(projectInfo.compilerMacros);
+        addPreIncludeSearchPath();
         addProjectIncludeSearchPaths(
             sortedIncludeSearchPaths(projectInfo.projectIncludeSearchPaths));
         addSystemAndBuiltInIncludeSearchPaths(
@@ -214,6 +218,20 @@ public:
 
         for (const CompilerMacro &macro : macros)
             commandLine.emplace_back(Utils::SmallString{"-D", macro.key, "=", macro.value});
+    }
+
+    QString resourcePath() const
+    {
+        return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH
+                               + "/indexing_preincludes");
+    }
+
+    void addPreIncludeSearchPath()
+    {
+        static NativeFilePath preIncludeSearchPath{FilePath{resourcePath()}};
+
+        commandLine.emplace_back("-I");
+        commandLine.emplace_back(preIncludeSearchPath);
     }
 
     IncludeSearchPaths sortedIncludeSearchPaths(const IncludeSearchPaths &unsortedPaths)
