@@ -171,7 +171,7 @@ public:
 
 bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
 {
-    ModuleItem *item = itemForIndexAtLevel<1>(ev.index());
+    ModuleItem *item = itemForIndexAtLevel<1>(ev.sourceModelIndex());
 
     const bool enabled = engine->debuggerActionsEnabled();
     const bool canReload = engine->hasCapability(ReloadModuleCapability);

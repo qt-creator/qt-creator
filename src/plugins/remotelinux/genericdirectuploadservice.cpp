@@ -191,7 +191,7 @@ void GenericDirectUploadService::stopDeployment()
 QList<DeployableFile> GenericDirectUploadService::collectFilesToUpload(
         const DeployableFile &deployable) const
 {
-    QList<DeployableFile> collected({deployable});
+    QList<DeployableFile> collected;
     QFileInfo fileInfo = deployable.localFilePath().toFileInfo();
     if (fileInfo.isDir()) {
         const QStringList files = QDir(deployable.localFilePath().toString())
@@ -203,6 +203,8 @@ QList<DeployableFile> GenericDirectUploadService::collectFilesToUpload(
                 + fileInfo.fileName();
             collected.append(collectFilesToUpload(DeployableFile(localFilePath, remoteDir)));
         }
+    } else {
+        collected << deployable;
     }
     return collected;
 }

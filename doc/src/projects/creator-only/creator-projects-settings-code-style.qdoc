@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -47,6 +47,16 @@
     project. You can specify several sets of code style settings and easily
     switch between them. In addition, you can import and export code style
     settings.
+
+    \image qtcreator-projects-code-style.png "Code Style settings in Projects mode"
+
+    Alternatively, you can enable the Clang Format plugin to enforce
+    the code style specified in a \c {.clang-format} file. It uses the
+    \l{https://clang.llvm.org/docs/LibFormat.html}{LibFormat} library for
+    automatic code formatting and indentation. For more information, see
+    \l {Automatic Formatting and Indentation}.
+
+    \image qtcreator-code-style-clang-format.png "Clang Format Code Style settings in Projects mode"
 
     To specify global code style settings sets for C++ files, select
     \uicontrol {Tools > Options > C++}.

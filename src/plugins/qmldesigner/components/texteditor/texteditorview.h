@@ -103,6 +103,7 @@ public:
 private:
     QPointer<TextEditorWidget> m_widget;
     Internal::TextEditorContext *m_textEditorContext;
+    bool m_errorState = false;
 };
 
 } // namespace QmlDesigner

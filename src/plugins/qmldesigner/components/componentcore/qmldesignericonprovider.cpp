@@ -69,7 +69,8 @@ QPixmap QmlDesignerIconProvider::getPixmap(const QString &id)
     else if (id == "plus")
         result = Utils::Icons::PLUS_TOOLBAR.pixmap();
     else if (id == "expression")
-        result = Icon(iconPath() + "expression.png").pixmap();
+        result = Icon({
+                { iconPath() + QLatin1String("expression.png"), Theme::QmlDesigner_HighlightColor}}).pixmap();
     else if (id == "placeholder")
         result = Icon(iconPath() + "placeholder.png").pixmap();
     else if (id == "submenu")

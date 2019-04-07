@@ -367,7 +367,7 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
 {
     auto menu = new QMenu;
 
-    const int row = ev.index().row();
+    const int row = ev.sourceModelIndex().row();
     StackFrame frame;
     if (row >= 0 && row < stackSize())
         frame = frameAt(row);

@@ -86,7 +86,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
             m_description = line;
             if (m_iteration > 1)
                 m_description.append(' ' + tr("(iteration %1)").arg(m_iteration));
-            TestResultPtr testResult = TestResultPtr(new GTestResult(m_projectFile));
+            TestResultPtr testResult = TestResultPtr(new GTestResult(id(), m_projectFile, QString()));
             testResult->setResult(Result::MessageInternal);
             testResult->setDescription(m_description);
             reportResult(testResult);

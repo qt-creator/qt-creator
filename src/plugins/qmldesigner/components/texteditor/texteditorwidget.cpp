@@ -108,15 +108,20 @@ void TextEditorWidget::updateSelectionByCursorPosition()
     const int cursorPosition = m_textEditor->editorWidget()->textCursor().position();
     RewriterView *rewriterView = m_textEditorView->model()->rewriterView();
 
+    m_blockRoundTrip = true;
     if (rewriterView) {
         ModelNode modelNode = rewriterView->nodeAtTextCursorPosition(cursorPosition);
         if (modelNode.isValid() && !m_textEditorView->isSelectedModelNode(modelNode))
             m_textEditorView->setSelectedModelNode(modelNode);
     }
+    m_blockRoundTrip = false;
 }
 
 void TextEditorWidget::jumpTextCursorToSelectedModelNode()
 {
+    if (m_blockRoundTrip)
+        return;
+
     ModelNode selectedNode;
 
     if (hasFocus())

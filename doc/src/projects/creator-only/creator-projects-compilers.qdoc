@@ -64,6 +64,10 @@
         \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
             LLVM compiler for Windows, Linux, and \macos.
 
+        \li \l{https://clang.llvm.org/docs/UsersManual.html#clang-cl}{clang-cl}
+            is an alternative command-line interface to Clang that is compatible
+            with the Visual C++ compiler, \c cl.exe.
+
         \li Nim is the Nim Compiler for Windows, Linux, and \macos.
 
         \li QCC is the interface for compiling C++ applications for QNX.
@@ -75,6 +79,12 @@
     the application binary interface (ABI) version from the list of available
     versions. You can also create a custom ABI definition.
     For QCC, also specify the path to the QNX Software Development Platform (SDP).
+
+    To enable Microsoft Visual C++ Compilers (MSVC) and clang-cl to find system
+    headers, libraries, and the linker, \QC executes them inside a command
+    prompt where the environment has been set up using \c {vcvarsall.bat}. For
+    these compilers, you also specify the path to the script that sets up the
+    command prompt.
 
     You specify the compiler to use for each kit in \uicontrol Tools >
     \uicontrol Options > \uicontrol Kits.

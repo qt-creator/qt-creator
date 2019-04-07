@@ -523,6 +523,21 @@ bool FancyMainWindow::autoHideTitleBars() const
     return d->m_autoHideTitleBars.isChecked();
 }
 
+void FancyMainWindow::setAutoHideTitleBars(bool on)
+{
+    d->m_autoHideTitleBars.setChecked(on);
+}
+
+bool FancyMainWindow::isCentralWidgetShown() const
+{
+    return d->m_showCentralWidget.isChecked();
+}
+
+void FancyMainWindow::showCentralWidget(bool on)
+{
+    d->m_showCentralWidget.setChecked(on);
+}
+
 void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
 {
     QList<QAction *> actions;

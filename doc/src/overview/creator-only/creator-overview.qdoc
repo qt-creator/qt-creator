@@ -79,6 +79,10 @@
                 languages as code, not just as plain text. This enables it to
                 provide you with useful features, such as semantic highlighting,
                 checking code syntax, code completion, and refactoring actions.
+                In addition, the experimental language server plugin provides
+                some of these services for other programming languages, such as
+                Python, for which a \e {language server} is available that
+                provides information about the code to IDEs.
                 For more information, see \l{Coding}.
         \row
             \li \inlineimage creator_buildingrunning.png

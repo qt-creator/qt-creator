@@ -72,6 +72,11 @@
             \li \l{Using Perforce}{Perforce}
             \li \l{http://www.perforce.com}
             \li Server version 2006.1 and later
+
+                Disabled by default. To enable the plugin, select
+                \uicontrol Help > \uicontrol {About Plugins} >
+                \uicontrol {Version Control} > \uicontrol Perforce,
+                and then restart \QC.
         \row
             \li \l{Using Subversion}{Subversion}
             \li \l{http://subversion.apache.org/}

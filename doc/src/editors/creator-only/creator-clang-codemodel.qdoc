@@ -112,7 +112,7 @@
 
     \list
         \li Clang code model (globally or at project level)
-        \li Clang tools (globally or at project level)
+        \li \l{Using Clang Tools}{Clang tools} (globally or at project level)
     \endlist
 
     \section1 Configuring Clang Code Model

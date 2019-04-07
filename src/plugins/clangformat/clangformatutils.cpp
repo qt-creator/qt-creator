@@ -293,8 +293,11 @@ static QByteArray configBaseStyleName(const QString &configFile)
 static clang::format::FormatStyle styleForFile(Utils::FileName fileName, bool checkForSettings)
 {
     QString configFile = configForFile(fileName, checkForSettings);
-    if (configFile.isEmpty())
-        return constructStyle();
+    if (configFile.isEmpty()) {
+        // If no configuration is found create a global one (if it does not yet exist) and use it.
+        createStyleFileIfNeeded(true);
+        configFile = globalPath().appendPath(Constants::SETTINGS_FILE_NAME).toString();
+    }
 
     fileName = assumedPathForConfig(configFile);
     Expected<FormatStyle> style = format::getStyle("file",

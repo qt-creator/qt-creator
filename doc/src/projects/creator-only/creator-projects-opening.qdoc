@@ -1,7 +1,7 @@
 
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -58,6 +58,10 @@
     select the \uicontrol Options link, or select \uicontrol Tools >
     \uicontrol Options > \uicontrol Kits.
 
+    Qt for Python projects rely on the \l{Using Language Servers}
+    {experimental language server client} for code completion,
+    highlighting, and other useful features.
+
     If \QC cannot find an existing build for a particular \l{glossary-buildandrun-kit}{kit},
     it starts out
     from a clean slate, and creates new debug and release build configurations
@@ -79,8 +83,8 @@
         \li Select \uicontrol File > \uicontrol {Open File or Project}
             (\key Ctrl+O or \key Cmd+O on \macos) and select the project file
             for the project to open: \e {.pro} (qmake), \e {CMakeLists.txt}
-            (CMake), \e {.qbs} (Qbs), or \e {Makefile.am} (Autotools,
-            experimental).
+            (CMake), \e {.qbs} (Qbs), \e {pyproject} (Python), or
+            \e {Makefile.am} (Autotools, experimental).
 
         \li In the \uicontrol {Configure Project} tab, select kits for building and running your
             project, and click \uicontrol {Configure Project}.

@@ -66,6 +66,10 @@ public:
     void addDockActionsToMenu(QMenu *menu);
 
     bool autoHideTitleBars() const;
+    void setAutoHideTitleBars(bool on);
+
+    bool isCentralWidgetShown() const;
+    void showCentralWidget(bool on);
 
 signals:
     // Emitted by resetLayoutAction(). Connect to a slot

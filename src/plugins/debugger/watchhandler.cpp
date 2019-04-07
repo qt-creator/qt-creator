@@ -1638,7 +1638,7 @@ void WatchModel::inputNewExpression()
 
 bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 {
-    WatchItem *item = itemForIndex(ev.index());
+    WatchItem *item = itemForIndex(ev.sourceModelIndex());
 
     const QString exp = item ? item->expression() : QString();
     const QString name = item ? item->name : QString();

@@ -28,6 +28,8 @@
 #include <qmlanchors.h>
 #include <nodeabstractproperty.h>
 #include <variantproperty.h>
+#include <utils/qtcassert.h>
+
 
 #include <QtQml>
 #include <QDebug>
@@ -108,13 +110,18 @@ void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
 
     m_ignoreQml = true;
 
+    auto parentModelNode = [](const QmlItemNode &node) {
+        QTC_ASSERT(node.modelNode().hasParentProperty(), return ModelNode());
+        return node.modelNode().parentProperty().parentModelNode();
+    };
+
     m_verticalTarget =
             m_horizontalTarget =
             m_topTarget =
             m_bottomTarget =
             m_leftTarget =
             m_rightTarget =
-            m_qmlItemNode.modelNode().parentProperty().parentModelNode();
+            parentModelNode(m_qmlItemNode);
 
     setupAnchorTargets();
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -101,7 +101,7 @@
 
             \endlist
 
-        \li \macos 10.11 or later with the following:
+        \li \macos 10.12 or later with the following:
 
             \list
 
@@ -117,9 +117,9 @@
     Either Windows 7 or later or Ubuntu Linux 64-bit 12.04 LTS or later is
     required to install and use Qt for Device Creation. For more information
     about the requirements for the development host, see the
-    \l{http://doc.qt.io/QtForDeviceCreation/qtee-installation-guide.html}
-    {Installation Guide} in the
-    \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
+    \l{https://doc.qt.io/QtForDeviceCreation/b2qt-installation-guides.html}
+    {Installation Guides} in the
+    \l{https://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
     documentation.
 
     \section1 Compiling from Source

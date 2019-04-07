@@ -20,7 +20,8 @@ imagedirs = ../images \
             ../../src/plugins/qmldesigner/components/formeditor \
             ../../src/plugins/qmldesigner/components/navigator \
             ../../src/plugins/scxmleditor/common/images \
-            ../../src/plugins/texteditor/images
+            ../../src/plugins/texteditor/images \
+            ../../src/plugins/valgrind/images
 
 exampledirs = ../examples
 examples.fileextensions += *.qml *.svg

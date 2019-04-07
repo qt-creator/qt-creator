@@ -166,6 +166,7 @@ QMakeStepConfig QMakeStep::deducedArguments() const
 
 bool QMakeStep::init()
 {
+    m_wasSuccess = true;
     QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
     const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
 

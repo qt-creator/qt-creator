@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -41,9 +41,16 @@
 
     In addition to the standard version control system functions described in
     \l {Using Common Functions}, you can select \uicontrol Tools >
-    \uicontrol CVS > \uicontrol Edit to open a file for editing.
+    \uicontrol CVS > \uicontrol Edit to set a file as writable, notify
+    watchers that the file is being edited, and watch for actions performed
+     on the file by other users.
 
-    To discard the changes that you made in a file, select \uicontrol Unedit.
+    To discard the changes that you made in a file, notify watchers that
+    the file is no longer being edited, and set the file as read-only,
+    select \uicontrol Unedit.
+
+    To unedit files in the local directory, as well as recursively in all
+    subdirectories, select \uicontrol {Unedit Repository}.
 
     To specify the CVS root directory, select \uicontrol Tools >
     \uicontrol Options > \uicontrol {Version Control} > \uicontrol CVS, and then

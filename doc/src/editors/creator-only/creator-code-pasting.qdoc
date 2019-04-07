@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -97,6 +97,6 @@
     retrieve the code snippet by selecting \uicontrol Tools >
     \uicontrol {Code Pasting} > \uicontrol {Fetch Snippet}. If they have the
     project currently opened in \QC, they can apply and test the change by
-    choosing \uicontrol Tools > \uicontrol Git > \uicontrol {Patch} >
-    \uicontrol {Apply from Editor}.
+    choosing \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository}
+    > \uicontrol Patch > \uicontrol {Apply from Editor}.
 */

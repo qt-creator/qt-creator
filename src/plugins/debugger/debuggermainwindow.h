@@ -59,12 +59,12 @@ public:
     QPointer<QToolButton> m_toolButton;
 };
 
-class DEBUGGER_EXPORT Perspective
+class DEBUGGER_EXPORT Perspective : public QObject
 {
 public:
     Perspective(const QString &id, const QString &name,
                 const QString &parentPerspectiveId = QString(),
-                const QString &subPerspectiveType = QString());
+                const QString &settingId = QString());
     ~Perspective();
 
     enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
@@ -92,26 +92,26 @@ public:
 
     using Callback = std::function<void()>;
     void setAboutToActivateCallback(const Callback &cb);
-    void aboutToActivate() const;
 
     void setEnabled(bool enabled);
 
     void select();
+    void destroy();
 
-    static Perspective *currentPerspective();
     static Perspective *findPerspective(const QString &perspectiveId);
 
-    Core::Context context() const;
-
-    void showToolBar();
-    void hideToolBar();
+    bool isCurrent() const;
 
 private:
+    void rampDownAsCurrent();
+    void rampUpAsCurrent();
+
     Perspective(const Perspective &) = delete;
     void operator=(const Perspective &) = delete;
 
     friend class DebuggerMainWindow;
     friend class DebuggerMainWindowPrivate;
+    friend class PerspectivePrivate;
     class PerspectivePrivate *d = nullptr;
 };
 
@@ -132,12 +132,20 @@ public:
     static QWidget *centralWidgetStack();
     void addSubPerspectiveSwitcher(QWidget *widget);
 
+    static void savePersistentSettings();
+    static void restorePersistentSettings();
+
+    static Perspective *currentPerspective();
+
 private:
     DebuggerMainWindow();
     ~DebuggerMainWindow() override;
 
+    void contextMenuEvent(QContextMenuEvent *ev) override;
+
     friend class Perspective;
     friend class PerspectivePrivate;
+    friend class DockOperation;
     class DebuggerMainWindowPrivate *d = nullptr;
 };
 

@@ -28,6 +28,7 @@
 #include "progressindicator.h"
 #include "treemodel.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -39,6 +40,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QSettings>
+#include <QSortFilterProxyModel>
 #include <QTimer>
 
 namespace Utils {
@@ -596,11 +598,23 @@ ItemViewEvent::ItemViewEvent(QEvent *ev, QAbstractItemView *view)
                 m_selectedRows.append(current);
         }
     }
+
+    auto fixIndex = [view](QModelIndex idx) {
+        QAbstractItemModel *model = view->model();
+        while (auto proxy = qobject_cast<QSortFilterProxyModel *>(model)) {
+            idx = proxy->mapToSource(idx);
+            model = proxy->sourceModel();
+        }
+        return idx;
+    };
+
+    m_sourceModelIndex = fixIndex(m_index);
+    m_selectedRows = Utils::transform(m_selectedRows, fixIndex);
 }
 
 QModelIndexList ItemViewEvent::currentOrSelectedRows() const
 {
-    return m_selectedRows.isEmpty() ? QModelIndexList() << m_index : m_selectedRows;
+    return m_selectedRows.isEmpty() ? QModelIndexList() << m_sourceModelIndex : m_selectedRows;
 }
 
 } // namespace Utils

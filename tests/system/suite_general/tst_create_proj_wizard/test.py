@@ -125,9 +125,7 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
         test.log("Using build system '%s'" % buildSystem)
         selectFromCombo(combo, buildSystem)
         clickButton(waitForObject(":Next_QPushButton"))
-        if template == "Qt Quick Application - Scroll":
-            clickButton(waitForObject(":Next_QPushButton"))
-        elif specialHandlingFunc:
+        if specialHandlingFunc:
             specialHandlingFunc(displayedPlatforms, *args)
         verifyKitCheckboxes(kits, displayedPlatforms)
         safeClickButton("Cancel")

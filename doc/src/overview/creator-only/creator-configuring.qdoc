@@ -124,10 +124,11 @@
 
     For more information, see \l{Defining Color Schemes}.
 
-    Generic highlighting is based on highlight definition files that are
-    provided by the
-    \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
-    {Kate Editor}. You can download highlight definition files for use with \QC.
+    Generic highlighting is provided by
+    \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
+    {KSyntaxHighlighting}, which is the syntax highlighting engine for Kate
+    syntax definitions. \QC comes with most of the commonly used syntax files,
+    and you can download additional files.
 
     To download and use highlight definition files, select \uicontrol Tools >
     \uicontrol Options > \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.

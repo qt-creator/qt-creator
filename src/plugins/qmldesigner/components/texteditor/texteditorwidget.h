@@ -72,6 +72,7 @@ private:
     QTimer m_updateSelectionTimer;
     TextEditorStatusBar *m_statusBar;
     bool m_blockCursorSelectionSynchronisation = false;
+    bool m_blockRoundTrip = false;
 };
 
 } // namespace QmlDesigner

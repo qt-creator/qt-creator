@@ -80,7 +80,6 @@
                     "name": "QtVersion",
                     "trDisplayName": "Minimal required Qt version:",
                     "type": "ComboBox",
-                    "visible": false,
                     "data":
                     {
                         "index": 1,
