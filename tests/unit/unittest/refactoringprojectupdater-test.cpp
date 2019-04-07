@@ -41,6 +41,8 @@
 
 #include <refactoringprojectupdater.h>
 
+#include <projectexplorer/project.h>
+
 #include <memory>
 
 namespace {
@@ -64,6 +66,7 @@ protected:
     ProjectPart::Ptr createProjectPart(const char *name)
     {
         ProjectPart::Ptr projectPart{new ProjectPart};
+        projectPart->project = &project;
         projectPart->displayName = QString::fromUtf8(name, std::strlen(name));
         projectPartId = projectPart->id();
         return projectPart;
@@ -80,6 +83,7 @@ protected:
     ClangPchManager::PchManagerClient pchManagerClient{mockPchCreationProgressManager,
                                                        mockDependencyCreationProgressManager};
     MockCppModelManager mockCppModelManager;
+    ProjectExplorer::Project project;
     ClangRefactoring::RefactoringProjectUpdater updater{mockRefactoringServer,
                                                         pchManagerClient,
                                                         mockCppModelManager,

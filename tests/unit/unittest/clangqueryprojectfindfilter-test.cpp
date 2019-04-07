@@ -37,6 +37,7 @@
 
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
+#include <projectexplorer/project.h>
 
 namespace {
 
@@ -53,11 +54,62 @@ using testing::ByMove;
 using CppTools::CompilerOptionsBuilder;
 using ClangBackEnd::V2::FileContainer;
 
+std::vector<Utils::SmallStringVector> createCommandLines(
+    const std::vector<CppTools::ProjectPart::Ptr> &projectParts)
+{
+    using Filter = ClangRefactoring::ClangQueryProjectsFindFilter;
+
+    std::vector<Utils::SmallStringVector> commandLines;
+
+    for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
+        for (const CppTools::ProjectFile &projectFile : projectPart->files) {
+            Utils::SmallStringVector commandLine = Filter::compilerArguments(projectPart.data(),
+                                                                             projectFile.kind);
+            commandLine.emplace_back(projectFile.path);
+            commandLines.push_back(commandLine);
+        }
+    }
+
+    return commandLines;
+}
+
 class ClangQueryProjectFindFilter : public ::testing::Test
 {
 protected:
-    void SetUp();
-    std::unique_ptr<ClangRefactoring::SearchHandle> createSearchHandle();
+    void SetUp()
+    {
+        projectsParts = createProjectParts();
+        commandLines = createCommandLines(projectsParts);
+
+        findFilter.setProjectParts(projectsParts);
+        findFilter.setUnsavedContent({unsavedContent.clone()});
+
+        ON_CALL(mockSearch, startNewSearch(QStringLiteral("Clang Query"), findDeclQueryText))
+            .WillByDefault(Return(ByMove(createSearchHandle())));
+    }
+    std::unique_ptr<ClangRefactoring::SearchHandle> createSearchHandle()
+    {
+        auto handle = std::make_unique<NiceMock<MockSearchHandle>>();
+        handle->setRefactoringServer(&mockRefactoringServer);
+
+        return handle;
+    }
+
+    std::vector<CppTools::ProjectPart::Ptr> createProjectParts()
+    {
+        auto projectPart1 = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
+        projectPart1->project = &project;
+        projectPart1->files.append({"/path/to/file1.h", CppTools::ProjectFile::CXXHeader});
+        projectPart1->files.append({"/path/to/file1.cpp", CppTools::ProjectFile::CXXSource});
+
+        auto projectPart2 = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
+        projectPart2->project = &project;
+        projectPart2->files.append({"/path/to/file2.cpp", CppTools::ProjectFile::CXXSource});
+        projectPart2->files.append({"/path/to/unsaved.cpp", CppTools::ProjectFile::CXXSource});
+        projectPart2->files.append({"/path/to/cheader.h", CppTools::ProjectFile::CHeader});
+
+        return {projectPart1, projectPart2};
+    }
 
 protected:
     NiceMock<MockRefactoringServer> mockRefactoringServer;
@@ -73,6 +125,7 @@ protected:
     ClangBackEnd::V2::FileContainer unsavedContent{{"/path/to", "unsaved.cpp"},
                                                   "void f();",
                                                   {}};
+    ProjectExplorer::Project project;
 };
 
 TEST_F(ClangQueryProjectFindFilter, SupportedFindFlags)
@@ -173,62 +226,6 @@ TEST_F(ClangQueryProjectFindFilter, CallingRequestSourceRangesAndDiagnostics)
                         Field(&Message::query, queryText))));
 
     findFilter.requestSourceRangesAndDiagnostics(QString(queryText), QString(exampleContent));
-}
-
-std::vector<CppTools::ProjectPart::Ptr> createProjectParts()
-{
-    auto projectPart1 = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
-    projectPart1->files.append({"/path/to/file1.h", CppTools::ProjectFile::CXXHeader});
-    projectPart1->files.append({"/path/to/file1.cpp", CppTools::ProjectFile::CXXSource});
-
-    auto projectPart2 = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
-    projectPart2->files.append({"/path/to/file2.cpp", CppTools::ProjectFile::CXXSource});
-    projectPart2->files.append({"/path/to/unsaved.cpp", CppTools::ProjectFile::CXXSource});
-    projectPart2->files.append({"/path/to/cheader.h", CppTools::ProjectFile::CHeader});
-
-
-    return {projectPart1, projectPart2};
-}
-
-std::vector<Utils::SmallStringVector>
-createCommandLines(const std::vector<CppTools::ProjectPart::Ptr> &projectParts)
-{
-    using Filter = ClangRefactoring::ClangQueryProjectsFindFilter;
-
-    std::vector<Utils::SmallStringVector> commandLines;
-
-    for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
-        for (const CppTools::ProjectFile &projectFile : projectPart->files) {
-            Utils::SmallStringVector commandLine = Filter::compilerArguments(projectPart.data(),
-                                                                             projectFile.kind);
-            commandLine.emplace_back(projectFile.path);
-            commandLines.push_back(commandLine);
-        }
-    }
-
-    return commandLines;
-}
-
-void ClangQueryProjectFindFilter::SetUp()
-{
-    projectsParts = createProjectParts();
-    commandLines = createCommandLines(projectsParts);
-
-    findFilter.setProjectParts(projectsParts);
-    findFilter.setUnsavedContent({unsavedContent.clone()});
-
-
-    ON_CALL(mockSearch, startNewSearch(QStringLiteral("Clang Query"), findDeclQueryText))
-            .WillByDefault(Return(ByMove(createSearchHandle())));
-
-}
-
-std::unique_ptr<ClangRefactoring::SearchHandle> ClangQueryProjectFindFilter::createSearchHandle()
-{
-    auto handle = std::make_unique<NiceMock<MockSearchHandle>>();
-    handle->setRefactoringServer(&mockRefactoringServer);
-
-    return handle;
 }
 
 }

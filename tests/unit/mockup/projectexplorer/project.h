@@ -39,8 +39,10 @@ public:
 
     Utils::FileName projectDirectory() const { return {}; }
 
-    Utils::FileName rootProjectDirectory() const { return {}; }
+    Utils::FileName rootProjectDirectory() const { return rootProjectDirectoryPath; }
 
     Target *activeTarget() const { return {}; }
+
+    Utils::FileName rootProjectDirectoryPath;
 };
 } // namespace ProjectExplorer

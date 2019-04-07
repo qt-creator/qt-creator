@@ -46,9 +46,10 @@
 #include <updategeneratedfilesmessage.h>
 #include <updateprojectpartsmessage.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
 
@@ -85,6 +86,8 @@ protected:
 
     void SetUp() override
     {
+        project.rootProjectDirectoryPath.appendPath("project");
+        projectPart.project = &project;
         projectPart.files.push_back(header1ProjectFile);
         projectPart.files.push_back(header2ProjectFile);
         projectPart.files.push_back(source1ProjectFile);
@@ -94,6 +97,7 @@ protected:
         projectPart.projectMacros = {{"FOO", "2"}, {"BAR", "1"}};
         projectPartId = projectPartsStorage.fetchProjectPartId(Utils::SmallString{projectPart.id()});
 
+        projectPart2.project = &project;
         projectPart2.files.push_back(header2ProjectFile);
         projectPart2.files.push_back(header1ProjectFile);
         projectPart2.files.push_back(source2ProjectFile);
@@ -115,7 +119,8 @@ protected:
         expectedContainer = {projectPartId,
                              arguments.clone(),
                              Utils::clone(compilerMacros),
-                             {{CLANG_RESOURCE_DIR, 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+                             {{"project/.pre_includes", 1, ClangBackEnd::IncludeSearchPathType::System},
+                              {CLANG_RESOURCE_DIR, 2, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
                              {},
                              {filePathId(headerPaths[1])},
                              {filePathIds(sourcePaths)},
@@ -125,7 +130,8 @@ protected:
         expectedContainer2 = {projectPartId2,
                               arguments2.clone(),
                               Utils::clone(compilerMacros),
-                              {{CLANG_RESOURCE_DIR, 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+                              {{"project/.pre_includes", 1, ClangBackEnd::IncludeSearchPathType::System},
+                               {CLANG_RESOURCE_DIR, 2, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
                               {},
                               {filePathId(headerPaths[1])},
                               {filePathIds(sourcePaths)},
@@ -159,6 +165,7 @@ protected:
     CppTools::ProjectFile cannotBuildSourceProjectFile{QString("/cannot/build"),
                                                        CppTools::ProjectFile::CXXSource};
     CppTools::ProjectFile nonActiveProjectFile{QString("/foo"), CppTools::ProjectFile::CXXSource, false};
+    ProjectExplorer::Project project;
     CppTools::ProjectPart projectPart;
     CppTools::ProjectPart projectPart2;
     CppTools::ProjectPart nonBuildingProjectPart;
@@ -269,6 +276,7 @@ TEST_F(ProjectUpdater, CallStorageInsideTransaction)
 {
     InSequence s;
     CppTools::ProjectPart projectPart;
+    projectPart.project = &project;
     projectPart.displayName = "project";
     Utils::SmallString projectPartName = projectPart.id();
     MockSqliteTransactionBackend mockSqliteTransactionBackend;
@@ -305,6 +313,7 @@ TEST_F(ProjectUpdater, CreateSortedCompilerMacros)
 TEST_F(ProjectUpdater, CreateSortedIncludeSearchPaths)
 {
     CppTools::ProjectPart projectPart;
+    projectPart.project = &project;
     ProjectExplorer::HeaderPath includePath{"/to/path1", ProjectExplorer::HeaderPathType::User};
     ProjectExplorer::HeaderPath includePath2{"/to/path2", ProjectExplorer::HeaderPathType::User};
     ProjectExplorer::HeaderPath invalidPath;
@@ -317,13 +326,15 @@ TEST_F(ProjectUpdater, CreateSortedIncludeSearchPaths)
 
     auto paths = updater.createIncludeSearchPaths(projectPart);
 
-    ASSERT_THAT(paths.system,
-                ElementsAre(Eq(IncludeSearchPath{systemPath.path, 1, IncludeSearchPathType::System}),
-                            Eq(IncludeSearchPath{builtInPath.path, 4, IncludeSearchPathType::BuiltIn}),
-                            Eq(IncludeSearchPath{frameworkPath.path, 2, IncludeSearchPathType::Framework}),
-                            Eq(IncludeSearchPath{CLANG_RESOURCE_DIR,
-                                                 3,
-                                                 ClangBackEnd::IncludeSearchPathType::BuiltIn})));
+    ASSERT_THAT(
+        paths.system,
+        ElementsAre(Eq(IncludeSearchPath{systemPath.path, 2, IncludeSearchPathType::System}),
+                    Eq(IncludeSearchPath{builtInPath.path, 5, IncludeSearchPathType::BuiltIn}),
+                    Eq(IncludeSearchPath{frameworkPath.path, 3, IncludeSearchPathType::Framework}),
+                    Eq(IncludeSearchPath{"project/.pre_includes", 1, IncludeSearchPathType::System}),
+                    Eq(IncludeSearchPath{CLANG_RESOURCE_DIR,
+                                         4,
+                                         ClangBackEnd::IncludeSearchPathType::BuiltIn})));
     ASSERT_THAT(paths.project,
                 ElementsAre(Eq(IncludeSearchPath{includePath.path, 2, IncludeSearchPathType::User}),
                             Eq(IncludeSearchPath{includePath2.path, 1, IncludeSearchPathType::User})));

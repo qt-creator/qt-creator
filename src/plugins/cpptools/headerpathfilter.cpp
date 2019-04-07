@@ -29,6 +29,8 @@
 #include <coreplugin/icore.h>
 #endif
 
+#include <projectexplorer/project.h>
+
 #include <QRegularExpression>
 
 namespace CppTools {
@@ -40,6 +42,8 @@ using ProjectExplorer::HeaderPathType;
 void HeaderPathFilter::process()
 {
     const HeaderPaths &headerPaths = projectPart.headerPaths;
+
+    addPreIncludesPath();
 
     for (const HeaderPath &headerPath : headerPaths)
         filterHeaderPath(headerPath);
@@ -138,6 +142,18 @@ void HeaderPathFilter::tweakHeaderPaths()
     if (!clangVersion.isEmpty()) {
         const QString clangIncludePath = clangIncludeDirectory(clangVersion, clangResourceDirectory);
         builtInHeaderPaths.insert(split, HeaderPath{clangIncludePath, HeaderPathType::BuiltIn});
+    }
+}
+
+void HeaderPathFilter::addPreIncludesPath()
+{
+    if (projectDirectory.size()) {
+        Utils::FileName rootProjectDirectory = Utils::FileName::fromString(projectDirectory);
+
+        rootProjectDirectory.appendPath(".pre_includes");
+
+        systemHeaderPaths.push_back(
+            {rootProjectDirectory.toString(), ProjectExplorer::HeaderPathType::System});
     }
 }
 

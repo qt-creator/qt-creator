@@ -36,6 +36,7 @@
 
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
+#include <projectexplorer/project.h>
 
 #include <utils/smallstringvector.h>
 
@@ -56,7 +57,17 @@ using Utils::SmallStringVector;
 class RefactoringEngine : public ::testing::Test
 {
 protected:
-    void SetUp();
+    void SetUp()
+    {
+        projectPart = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
+        projectPart->project = &project;
+        projectPart->files.push_back(projectFile);
+
+        CompilerOptionsBuilder optionsBuilder(*projectPart);
+        commandLine = Utils::SmallStringVector(
+            optionsBuilder.build(projectFile.kind, CppTools::UsePrecompiledHeaders::No));
+        commandLine.push_back(qStringFilePath);
+    }
 
 protected:
     NiceMock<MockFilePathCaching> mockFilePathCaching;
@@ -74,6 +85,7 @@ protected:
     Utils::FileName filePath{Utils::FileName::fromString(qStringFilePath)};
     ClangBackEnd::FilePath clangBackEndFilePath{qStringFilePath};
     SmallStringVector commandLine;
+    ProjectExplorer::Project project;
     CppTools::ProjectPart::Ptr projectPart;
     CppTools::ProjectFile projectFile{qStringFilePath, CppTools::ProjectFile::CXXSource};
 };
@@ -143,17 +155,5 @@ TEST_F(RefactoringEngine, ServerIsUsableForUsableEngine)
 
     ASSERT_TRUE(mockRefactoringServer.isAvailable());
 }
-
-void RefactoringEngine::SetUp()
-{
-    projectPart = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
-    projectPart->files.push_back(projectFile);
-
-    CompilerOptionsBuilder optionsBuilder(*projectPart);
-    commandLine = Utils::SmallStringVector(
-        optionsBuilder.build(projectFile.kind, CppTools::UsePrecompiledHeaders::No));
-    commandLine.push_back(qStringFilePath);
-}
-
 }
 
