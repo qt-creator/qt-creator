@@ -211,6 +211,21 @@ public:
 
         m_delButton = new QPushButton(ToolChainOptionsPage::tr("Remove"), this);
 
+        m_removeAllButton = new QPushButton(ToolChainOptionsPage::tr("Remove All"), this);
+        connect(m_removeAllButton, &QAbstractButton::clicked, this,
+                [this] {
+            QList<ToolChainTreeItem *> itemsToRemove;
+            m_model.forAllItems([&itemsToRemove](TreeItem *item) {
+                if (item->level() != 3)
+                    return;
+                const auto tcItem = static_cast<ToolChainTreeItem *>(item);
+                if (tcItem->toolChain->detection() != ToolChain::AutoDetectionFromSdk)
+                    itemsToRemove << tcItem;
+            });
+            for (ToolChainTreeItem * const tcItem : qAsConst(itemsToRemove))
+                markForRemoval(tcItem);
+        });
+
         m_redetectButton = new QPushButton(ToolChainOptionsPage::tr("Re-detect"), this);
         connect(m_redetectButton, &QAbstractButton::clicked,
                 this, &ToolChainOptionsWidget::redetectToolchains);
@@ -240,6 +255,7 @@ public:
         buttonLayout->addWidget(m_addButton);
         buttonLayout->addWidget(m_cloneButton);
         buttonLayout->addWidget(m_delButton);
+        buttonLayout->addWidget(m_removeAllButton);
         buttonLayout->addWidget(m_redetectButton);
         buttonLayout->addWidget(m_detectionSettingsButton);
         buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -302,6 +318,7 @@ public:
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
     QPushButton *m_delButton;
+    QPushButton *m_removeAllButton;
     QPushButton *m_redetectButton;
     QPushButton *m_detectionSettingsButton;
 
