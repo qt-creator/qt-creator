@@ -1,13 +1,13 @@
 {
     "version": 1,
-    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
     "id": "R.AutoTest",
     "category": "H.Project",
     "trDescription": "Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.",
     "trDisplayName": "Auto Test Project",
     "trDisplayCategory": "Other Project",
     "icon": "autotest.png",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureDesktop" ],
+    "featuresRequired": [ "QtSupport.Wizards.FeatureDesktop" ],
     "enabled": "%{JS: [ %{Plugins} ].indexOf('AutoTest') >= 0}",
 
     "options":
@@ -187,7 +187,7 @@
             "enabled": "%{IsTopLevelProject}",
             "data": {
                  "projectFilePath": "%{ProjectFilePath}",
-                 "requiredFeatures": [ "%{JS: (('%{BuildSystem}' === 'cmake' && '%{TestFrameWork}' === 'QtTest') || '%{TestFrameWork}' === 'QtQuickTest') ? 'QtSupport.Wizards.FeatureQt.5' : 'QtSupport.Wizards.FeatureQt' }" ]
+                 "requiredFeatures": [ "%{JS: ('%{TestFrameWork}' === 'QtQuickTest' ? 'QtSupport.Wizards.FeatureQt.5' : (('%{BuildSystem}' === 'qmake' || '%{TestFrameWork}' === 'QtTest') ? 'QtSupport.Wizards.FeatureQt' : 'DeviceType.Desktop' )) }" ]
             }
         },
         {
