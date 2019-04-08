@@ -25,6 +25,7 @@
 
 #include "qt5nodeinstanceserver.h"
 
+#include <QQmlFileSelector>
 
 #include <QQuickItem>
 #include <QQuickView>
@@ -58,6 +59,12 @@ void Qt5NodeInstanceServer::initializeView()
 
     m_quickView = new QQuickView;
     DesignerSupport::createOpenGLContext(m_quickView.data());
+
+    if (qEnvironmentVariableIsSet("QML_FILE_SELECTORS")) {
+        QQmlFileSelector *fileSelector = new QQmlFileSelector(engine(), engine());
+        QStringList customSelectors = QString::fromUtf8(qgetenv("QML_FILE_SELECTORS")).split(",");
+        fileSelector->setExtraSelectors(customSelectors);
+    }
 }
 
 QQmlView *Qt5NodeInstanceServer::declarativeView() const

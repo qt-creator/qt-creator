@@ -71,6 +71,7 @@ public:
 
     QList<Utils::EnvironmentItem> environment() const;
     QStringList customImportPaths() const;
+    QStringList customFileSelectors() const;
 
     bool addFiles(const QStringList &filePaths);
 
@@ -79,6 +80,9 @@ public:
     bool needsBuildConfigurations() const final;
 
     static QStringList makeAbsolute(const Utils::FileName &path, const QStringList &relativePaths);
+
+    QVariant additionalData(Core::Id id, const ProjectExplorer::Target *target) const override;
+
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 

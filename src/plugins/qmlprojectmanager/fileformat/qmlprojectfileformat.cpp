@@ -88,6 +88,10 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FileName &fi
         if (importPathsProperty.isValid())
             projectItem->setImportPaths(importPathsProperty.toStringList());
 
+        const QVariant fileSelectorsProperty = rootNode->property(QLatin1String("fileSelectors"));
+        if (fileSelectorsProperty.isValid())
+            projectItem->setFileSelectors(fileSelectorsProperty.toStringList());
+
         const QVariant targetDirectoryPropery = rootNode->property("targetDirectory");
         if (targetDirectoryPropery.isValid())
             projectItem->setTargetDirectory(targetDirectoryPropery.toString());

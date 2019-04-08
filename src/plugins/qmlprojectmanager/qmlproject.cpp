@@ -225,6 +225,13 @@ QStringList QmlProject::customImportPaths() const
     return {};
 }
 
+QStringList QmlProject::customFileSelectors() const
+{
+    if (m_projectItem)
+        return m_projectItem.data()->fileSelectors();
+    return {};
+}
+
 bool QmlProject::addFiles(const QStringList &filePaths)
 {
     QStringList toAdd;
@@ -254,6 +261,13 @@ QStringList QmlProject::makeAbsolute(const Utils::FileName &path, const QStringL
     return Utils::transform(relativePaths, [&baseDir](const QString &path) {
         return QDir::cleanPath(baseDir.absoluteFilePath(path));
     });
+}
+
+QVariant QmlProject::additionalData(Id id, const Target *) const
+{
+    if (id == Constants::customFileSelectorsData)
+        return customFileSelectors();
+    return {};
 }
 
 void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString> &removed)

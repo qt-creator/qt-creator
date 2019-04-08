@@ -54,6 +54,9 @@ public:
     QStringList importPaths() const { return m_importPaths; }
     void setImportPaths(const QStringList &paths);
 
+    QStringList fileSelectors() const { return m_fileSelectors; }
+    void setFileSelectors(const QStringList &selectors);
+
     QStringList files() const;
     bool matchesFile(const QString &filePath) const;
 
@@ -72,6 +75,7 @@ protected:
     QString m_sourceDirectory;
     QString m_targetDirectory;
     QStringList m_importPaths;
+    QStringList m_fileSelectors;
     QString m_mainFile;
     QList<Utils::EnvironmentItem> m_environment;
     QList<QmlProjectContentItem *> m_content; // content property

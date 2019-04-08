@@ -59,6 +59,12 @@ void QmlProjectItem::setImportPaths(const QStringList &importPaths)
         m_importPaths = importPaths;
 }
 
+void QmlProjectItem::setFileSelectors(const QStringList &selectors)
+{
+    if (m_fileSelectors != selectors)
+        m_fileSelectors = selectors;
+}
+
 /* Returns list of absolute paths */
 QStringList QmlProjectItem::files() const
 {

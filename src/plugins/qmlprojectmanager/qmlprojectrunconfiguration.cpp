@@ -388,6 +388,11 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
         Utils::QtcProcess::addArg(&args, importPath, osType);
     }
 
+    for (const QString &fileSelector : project->customFileSelectors()) {
+        Utils::QtcProcess::addArg(&args, QLatin1String("-S"), osType);
+        Utils::QtcProcess::addArg(&args, fileSelector, osType);
+    }
+
     const QString main = project->targetFile(Utils::FileName::fromString(mainScript()),
                                              currentTarget).toString();
     if (!main.isEmpty())
