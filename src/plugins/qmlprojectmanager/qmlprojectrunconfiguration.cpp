@@ -280,6 +280,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     m_qmlViewerAspect->setLabelText(tr("QML Viewer:"));
     m_qmlViewerAspect->setPlaceHolderText(executable());
     m_qmlViewerAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_qmlViewerAspect->setHistoryCompleter("QmlProjectManager.viewer.history");
 
     auto argumentAspect = addAspect<ArgumentsAspect>();
     argumentAspect->setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
