@@ -314,6 +314,8 @@ Project {
                 "ifindsupport.h",
                 "itemviewfind.cpp",
                 "itemviewfind.h",
+                "optionspopup.cpp",
+                "optionspopup.h",
                 "searchresultcolor.h",
                 "searchresulttreeitemdelegate.cpp",
                 "searchresulttreeitemdelegate.h",
