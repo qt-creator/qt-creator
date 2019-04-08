@@ -45,6 +45,12 @@ namespace ProjectExplorer {
 class ProjectExplorerPlugin;
 class Abi;
 
+class ToolchainDetectionSettings
+{
+public:
+    bool detectX64AsX32 = false;
+};
+
 // --------------------------------------------------------------------------
 // ToolChainManager
 // --------------------------------------------------------------------------
@@ -75,6 +81,9 @@ public:
     static bool isLanguageSupported(const Core::Id &id);
 
     static void aboutToShutdown();
+
+    static ToolchainDetectionSettings detectionSettings();
+    static void setDetectionSettings(const ToolchainDetectionSettings &settings);
 
     void saveToolChains();
 

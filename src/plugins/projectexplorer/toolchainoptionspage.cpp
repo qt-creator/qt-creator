@@ -42,6 +42,9 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QCheckBox>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QItemSelectionModel>
@@ -108,6 +111,39 @@ public:
     bool changed;
 };
 
+class DetectionSettingsDialog : public QDialog
+{
+public:
+    DetectionSettingsDialog(const ToolchainDetectionSettings &settings, QWidget *parent)
+        : QDialog(parent)
+    {
+        setWindowTitle(ToolChainOptionsPage::tr("TGoolchain Auto-detection Settings"));
+        const auto layout = new QVBoxLayout(this);
+        m_detectX64AsX32CheckBox.setText(ToolChainOptionsPage::tr("Detect x86_64 GCC compilers "
+                                                                  "as x86_64 and x86"));
+        m_detectX64AsX32CheckBox.setToolTip(ToolChainOptionsPage::tr("If checked, Qt Creator will "
+            "set up two instances of each x86_64 compiler:\nOne for the native x86_64 target, "
+            "and one for a plain x86 target.\nEnable this if you plan to create 32-bit x86 "
+            "binaries without using a dedicated cross compiler."));
+        m_detectX64AsX32CheckBox.setChecked(settings.detectX64AsX32);
+        layout->addWidget(&m_detectX64AsX32CheckBox);
+        const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        layout->addWidget(buttonBox);
+    }
+
+    ToolchainDetectionSettings settings() const
+    {
+        ToolchainDetectionSettings s;
+        s.detectX64AsX32 = m_detectX64AsX32CheckBox.isChecked();
+        return s;
+    }
+
+private:
+    QCheckBox m_detectX64AsX32CheckBox;
+};
+
 // --------------------------------------------------------------------------
 // ToolChainOptionsWidget
 // --------------------------------------------------------------------------
@@ -117,6 +153,7 @@ class ToolChainOptionsWidget : public QWidget
 public:
     ToolChainOptionsWidget()
     {
+        m_detectionSettings = ToolChainManager::detectionSettings();
         m_factories = Utils::filtered(ToolChainFactory::allToolChainFactories(),
                     [](ToolChainFactory *factory) { return factory->canCreate();});
 
@@ -173,6 +210,15 @@ public:
 
         m_delButton = new QPushButton(ToolChainOptionsPage::tr("Remove"), this);
 
+        m_detectionSettingsButton = new QPushButton(
+                    ToolChainOptionsPage::tr("Auto-detection Settings..."), this);
+        connect(m_detectionSettingsButton, &QAbstractButton::clicked, this,
+                [this] {
+            DetectionSettingsDialog dlg(m_detectionSettings, this);
+            if (dlg.exec() == QDialog::Accepted)
+                m_detectionSettings = dlg.settings();
+        });
+
         m_container = new DetailsWidget(this);
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
@@ -189,6 +235,7 @@ public:
         buttonLayout->addWidget(m_addButton);
         buttonLayout->addWidget(m_cloneButton);
         buttonLayout->addWidget(m_delButton);
+        buttonLayout->addWidget(m_detectionSettingsButton);
         buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
         auto verticalLayout = new QVBoxLayout;
@@ -238,7 +285,7 @@ public:
 
     void apply();
 
- public:
+ private:
     TreeModel<TreeItem, ToolChainTreeItem> m_model;
     QList<ToolChainFactory *> m_factories;
     QTreeView *m_toolChainView;
@@ -247,11 +294,14 @@ public:
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
     QPushButton *m_delButton;
+    QPushButton *m_detectionSettingsButton;
 
     QHash<Core::Id, QPair<StaticTreeItem *, StaticTreeItem *>> m_languageMap;
 
     QList<ToolChainTreeItem *> m_toAddList;
     QList<ToolChainTreeItem *> m_toRemoveList;
+
+    ToolchainDetectionSettings m_detectionSettings;
 };
 
 void ToolChainOptionsWidget::markForRemoval(ToolChainTreeItem *item)
@@ -378,6 +428,7 @@ void ToolChainOptionsWidget::apply()
                                                       "They were not configured again.")
                                                       .arg(removedTcs.join(QLatin1String(",<br>&nbsp;"))));
     }
+    ToolChainManager::setDetectionSettings(m_detectionSettings);
 }
 
 void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory, const Core::Id &language)

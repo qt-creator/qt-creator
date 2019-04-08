@@ -203,8 +203,10 @@ static QList<Abi> guessGccAbi(const QString &m, const ProjectExplorer::Macros &m
         abiList << Abi(arch, os, flavor, format, width == 64 ? 32 : 64);
     } else if (arch == Abi::X86Architecture && (width == 0 || width == 64)) {
         abiList << Abi(arch, os, flavor, format, 64);
-        if (width != 64 || !m.contains("mingw"))
+        if (width != 64 || (!m.contains("mingw")
+                            && ToolChainManager::detectionSettings().detectX64AsX32)) {
             abiList << Abi(arch, os, flavor, format, 32);
+        }
     } else {
         abiList << Abi(arch, os, flavor, format, width);
     }
@@ -1885,7 +1887,7 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Linux 3 (64bit intel)")
             << QString::fromLatin1("x86_64-linux-gnu")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
-            << QStringList({"x86-linux-generic-elf-64bit",  "x86-linux-generic-elf-32bit"});
+            << QStringList("x86-linux-generic-elf-64bit");
     QTest::newRow("Linux 3 (64bit intel -- non 64bit)")
             << QString::fromLatin1("x86_64-linux-gnu")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
@@ -1897,11 +1899,11 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Linux 5 (QTCREATORBUG-4690)") // from QTCREATORBUG-4690
             << QString::fromLatin1("x86_64-redhat-linux6E")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
-            << QStringList({"x86-linux-generic-elf-64bit", "x86-linux-generic-elf-32bit"});
+            << QStringList("x86-linux-generic-elf-64bit");
     QTest::newRow("Linux 6 (QTCREATORBUG-4690)") // from QTCREATORBUG-4690
             << QString::fromLatin1("x86_64-redhat-linux")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
-            << QStringList({"x86-linux-generic-elf-64bit", "x86-linux-generic-elf-32bit"});
+            << QStringList("x86-linux-generic-elf-64bit");
     QTest::newRow("Linux 7 (arm)")
                 << QString::fromLatin1("armv5tl-montavista-linux-gnueabi")
                 << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
@@ -1946,11 +1948,11 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Clang 1: windows")
             << QString::fromLatin1("x86_64-pc-win32")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\r\n")
-            << QStringList({"x86-windows-msys-pe-64bit", "x86-windows-msys-pe-32bit"});
+            << QStringList("x86-windows-msys-pe-64bit");
     QTest::newRow("Clang 1: linux")
             << QString::fromLatin1("x86_64-unknown-linux-gnu")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
-            << QStringList({"x86-linux-generic-elf-64bit", "x86-linux-generic-elf-32bit"});
+            << QStringList("x86-linux-generic-elf-64bit");
     QTest::newRow("Mac 1")
             << QString::fromLatin1("i686-apple-darwin10")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
@@ -1970,7 +1972,7 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Intel 1")
             << QString::fromLatin1("86_64 x86_64 GNU/Linux")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
-            << QStringList({"x86-linux-generic-elf-64bit", "x86-linux-generic-elf-32bit"});
+            << QStringList("x86-linux-generic-elf-64bit");
     QTest::newRow("FreeBSD 1")
             << QString::fromLatin1("i386-portbld-freebsd9.0")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
