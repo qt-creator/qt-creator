@@ -92,6 +92,9 @@
     You can use the following QML types to create components:
 
     \list
+        \li \l [QML]{AnimatedImage}{Animated Image} provides a way to play
+            animations stored as images containing a series of frames, such
+            as those stored in GIF files.
         \li \l [QML]{BorderImage}{Border Image} uses an image as a border or
             background.
         \li \l [QML]{Image} adds a bitmap to the scene. You can stretch and
