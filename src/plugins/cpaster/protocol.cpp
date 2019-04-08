@@ -24,9 +24,6 @@
 ****************************************************************************/
 
 #include "protocol.h"
-#ifdef CPASTER_PLUGIN_GUI
-#include "authenticationdialog.h"
-#endif
 
 #include <utils/networkaccessmanager.h>
 
@@ -50,7 +47,6 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QPushButton>
-#include <QAuthenticator>
 
 namespace CodePaster {
 
@@ -207,34 +203,7 @@ QNetworkReply *NetworkProtocol::httpPost(const QString &link, const QByteArray &
     return Utils::NetworkAccessManager::instance()->post(r, data);
 }
 
-NetworkProtocol::NetworkProtocol()
-    : Protocol()
-{
-    connect(Utils::NetworkAccessManager::instance(), &QNetworkAccessManager::authenticationRequired,
-            this, &NetworkProtocol::authenticationRequired);
-}
-
 NetworkProtocol::~NetworkProtocol() = default;
-
-void NetworkProtocol::requestAuthentication(const QUrl &url, QNetworkReply *reply, QAuthenticator *authenticator)
-{
-#ifdef CPASTER_PLUGIN_GUI
-    if (reply->request().url().host() == url.host()) {
-        const QString details = tr("Pasting needs authentication.<br/>"
-                                   "Enter your identity credentials to continue.");
-        AuthenticationDialog authDialog(details, Core::ICore::dialogParent());
-        authDialog.setWindowTitle(tr("Authenticate for Paster"));
-        if (authDialog.exec() == QDialog::Accepted) {
-            authenticator->setUser(authDialog.userName());
-            authenticator->setPassword(authDialog.password());
-        }
-    }
-#else
-    Q_UNUSED(url);
-    Q_UNUSED(reply);
-    Q_UNUSED(authenticator);
-#endif
-}
 
 bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHttps)
 {

@@ -24,8 +24,6 @@ QtcPlugin {
         "fileshareprotocolsettingspage.cpp",
         "fileshareprotocolsettingspage.h",
         "fileshareprotocolsettingswidget.ui",
-        "kdepasteprotocol.cpp",
-        "kdepasteprotocol.h",
         "pastebindotcomprotocol.cpp",
         "pastebindotcomprotocol.h",
         "pastebindotcomsettings.ui",
@@ -44,10 +42,10 @@ QtcPlugin {
         "settingspage.cpp",
         "settingspage.h",
         "settingspage.ui",
+        "stickynotespasteprotocol.cpp",
+        "stickynotespasteprotocol.h",
         "urlopenprotocol.cpp",
         "urlopenprotocol.h",
-        "authenticationdialog.cpp",
-        "authenticationdialog.h"
     ]
 
     Group {

@@ -26,7 +26,6 @@
 #include "cpasterplugin.h"
 
 #include "pasteview.h"
-#include "kdepasteprotocol.h"
 #include "pastebindotcomprotocol.h"
 #include "pastecodedotxyzprotocol.h"
 #include "fileshareprotocol.h"
@@ -120,7 +119,6 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     // Create the protocols and append them to the Settings
     Protocol *protos[] =  {new PasteBinDotComProtocol,
-                           new KdePasteProtocol,
                            new FileShareProtocol,
                            new PasteCodeDotXyzProtocol,
                           };

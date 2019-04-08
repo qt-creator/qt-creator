@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "argumentscollector.h"
-#include "../kdepasteprotocol.h"
 #include "../pastebindotcomprotocol.h"
 #include "../pastecodedotxyzprotocol.h"
 
@@ -46,9 +45,7 @@ class PasteReceiver : public QObject
 public:
     PasteReceiver(const QString &protocol, const QString &filePath) : m_filePath(filePath)
     {
-        if (protocol == KdePasteProtocol::protocolName().toLower())
-            m_protocol.reset(new KdePasteProtocol);
-        else if (protocol == PasteBinDotComProtocol::protocolName().toLower())
+        if (protocol == PasteBinDotComProtocol::protocolName().toLower())
             m_protocol.reset(new PasteBinDotComProtocol);
         else if (protocol == PasteCodeDotXyzProtocol::protocolName().toLower())
             m_protocol.reset(new PasteCodeDotXyzProtocol);
@@ -91,8 +88,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    const QStringList protocols = {KdePasteProtocol::protocolName().toLower(),
-                                   PasteBinDotComProtocol::protocolName().toLower(),
+    const QStringList protocols = {PasteBinDotComProtocol::protocolName().toLower(),
                                    PasteCodeDotXyzProtocol::protocolName().toLower()};
     ArgumentsCollector argsCollector(protocols);
     QStringList arguments = QCoreApplication::arguments();

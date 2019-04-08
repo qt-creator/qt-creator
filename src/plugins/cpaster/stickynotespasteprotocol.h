@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,42 +23,49 @@
 **
 ****************************************************************************/
 
-#include "authenticationdialog.h"
+#pragma once
 
-#include <QDialogButtonBox>
-#include <QFormLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QVBoxLayout>
+#include "protocol.h"
 
 namespace CodePaster {
 
-AuthenticationDialog::AuthenticationDialog(const QString &details, QWidget *parent)
-    : QDialog(parent)
+class StickyNotesPasteProtocol : public NetworkProtocol
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    auto *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(new QLabel(details));
-    auto *formLayout = new QFormLayout;
-    formLayout->addRow(tr("Username:"), m_user = new QLineEdit);
-    formLayout->addRow(tr("Password:"), m_pass = new QLineEdit);
-    m_pass->setEchoMode(QLineEdit::Password);
-    mainLayout->addLayout(formLayout);
-    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    mainLayout->addWidget(buttonBox);
-    setLayout(mainLayout);
-}
+    Q_OBJECT
+public:
+    unsigned capabilities() const override;
 
-QString AuthenticationDialog::userName() const
-{
-    return m_user->text();
-}
+    void fetch(const QString &id) override;
+    void paste(const QString &text,
+               ContentType ct = Text,
+               int expiryDays = 1,
+               const QString &username = QString(),
+               const QString &comment = QString(),
+               const QString &description = QString()) override;
+    void list() override;
 
-QString AuthenticationDialog::password() const
-{
-    return m_pass->text();
-}
+
+
+    QString hostUrl() const { return m_hostUrl; }
+    void setHostUrl(const QString &hostUrl);
+
+protected:
+    bool checkConfiguration(QString *errorMessage = nullptr) override;
+
+private:
+    void fetchFinished();
+    void pasteFinished();
+    void listFinished();
+
+    QString m_hostUrl;
+
+    QNetworkReply *m_fetchReply = nullptr;
+    QNetworkReply *m_pasteReply = nullptr;
+    QNetworkReply *m_listReply = nullptr;
+
+    QString m_fetchId;
+    int m_postId = -1;
+    bool m_hostChecked = false;
+};
 
 } // namespace CodePaster
