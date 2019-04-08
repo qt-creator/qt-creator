@@ -34,17 +34,13 @@ def __platformToBeRunToday__():
 # for all machines using the same IP-address like you.
 skipPastingToPastebinCom = platform.system() not in __platformToBeRunToday__()
 
-NAME_KDE = "Paste.KDE.Org"
 NAME_PBCOM = "Pastebin.Com"
 NAME_PCXYZ = "Pastecode.Xyz"
 
 serverProblems = "Server side problems."
 
 def invalidPasteId(protocol):
-    if protocol == NAME_KDE:
-        return None
-    else:
-        return -1
+    return -1
 
 def closeHTTPStatusAndPasterDialog(protocol, pasterDialog):
     try:
@@ -170,7 +166,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    protocolsToTest = [NAME_KDE, NAME_PBCOM, NAME_PCXYZ]
+    protocolsToTest = [NAME_PBCOM, NAME_PCXYZ]
     sourceFile = os.path.join(os.getcwd(), "testdata", "main.cpp")
     # make sure General Messages is open
     openGeneralMessages()
@@ -179,10 +175,7 @@ def main():
         with TestSection(protocol):
             skippedPasting = True
             description = "Paste from 2017-05-11"
-            if protocol == NAME_KDE:
-                pasteId = "pysjk6n2i"
-                pastedText = readFile(os.path.join(os.getcwd(), "testdata", "main-prepasted.cpp"))
-            elif skipPastingToPastebinCom and protocol == NAME_PBCOM:
+            if skipPastingToPastebinCom and protocol == NAME_PBCOM:
                 pasteId = "8XHP0ZgH"
                 pastedText = readFile(os.path.join(os.getcwd(), "testdata", "main-prepasted.cpp"))
             else:
@@ -219,7 +212,7 @@ def main():
                 clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
                 continue
             test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
-            if protocol in (NAME_KDE, NAME_PBCOM) and pastedText.endswith("\n"):
+            if protocol == NAME_PBCOM and pastedText.endswith("\n"):
                 pastedText = pastedText[:-1]
             test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
             invokeMenuItem("File", "Close All")
