@@ -51,6 +51,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QSet>
 #include <QSpacerItem>
 #include <QStackedWidget>
 #include <QTextStream>
@@ -210,6 +211,10 @@ public:
 
         m_delButton = new QPushButton(ToolChainOptionsPage::tr("Remove"), this);
 
+        m_redetectButton = new QPushButton(ToolChainOptionsPage::tr("Re-detect"), this);
+        connect(m_redetectButton, &QAbstractButton::clicked,
+                this, &ToolChainOptionsWidget::redetectToolchains);
+
         m_detectionSettingsButton = new QPushButton(
                     ToolChainOptionsPage::tr("Auto-detection Settings..."), this);
         connect(m_detectionSettingsButton, &QAbstractButton::clicked, this,
@@ -235,6 +240,7 @@ public:
         buttonLayout->addWidget(m_addButton);
         buttonLayout->addWidget(m_cloneButton);
         buttonLayout->addWidget(m_delButton);
+        buttonLayout->addWidget(m_redetectButton);
         buttonLayout->addWidget(m_detectionSettingsButton);
         buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
@@ -283,6 +289,8 @@ public:
         return action;
     }
 
+    void redetectToolchains();
+
     void apply();
 
  private:
@@ -294,6 +302,7 @@ public:
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
     QPushButton *m_delButton;
+    QPushButton *m_redetectButton;
     QPushButton *m_detectionSettingsButton;
 
     QHash<Core::Id, QPair<StaticTreeItem *, StaticTreeItem *>> m_languageMap;
@@ -366,6 +375,50 @@ StaticTreeItem *ToolChainOptionsWidget::parentForToolChain(ToolChain *tc)
     return tc->isAutoDetected() ? nodes.first : nodes.second;
 }
 
+void ToolChainOptionsWidget::redetectToolchains()
+{
+    QList<ToolChainTreeItem *> itemsToRemove;
+    QList<ToolChain *> knownTcs;
+    m_model.forAllItems([&itemsToRemove, &knownTcs](TreeItem *item) {
+        if (item->level() != 3)
+            return;
+        const auto tcItem = static_cast<ToolChainTreeItem *>(item);
+        if (tcItem->toolChain->isAutoDetected()
+                && tcItem->toolChain->detection() != ToolChain::AutoDetectionFromSdk) {
+            itemsToRemove << tcItem;
+        } else {
+            knownTcs << tcItem->toolChain;
+        }
+    });
+    QList<ToolChain *> toAdd;
+    QSet<ToolChain *> toDelete;
+    for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories()) {
+        for (ToolChain * const tc : f->autoDetect(knownTcs)) {
+            if (knownTcs.contains(tc) || toDelete.contains(tc))
+                continue;
+            const auto matchItem = [tc](const ToolChainTreeItem *item) {
+                return item->toolChain->compilerCommand() == tc->compilerCommand()
+                        && item->toolChain->typeId() == tc->typeId()
+                        && item->toolChain->language() == tc->language()
+                        && item->toolChain->targetAbi() == tc->targetAbi();
+            };
+            ToolChainTreeItem * const item = findOrDefault(itemsToRemove, matchItem);
+            if (item) {
+                itemsToRemove.removeOne(item);
+                toDelete << tc;
+                continue;
+            }
+            knownTcs << tc;
+            toAdd << tc;
+        }
+    }
+    for (ToolChainTreeItem * const tcItem : qAsConst(itemsToRemove))
+        markForRemoval(tcItem);
+    for (ToolChain * const newTc : qAsConst(toAdd))
+        m_toAddList.append(insertToolChain(newTc, true));
+    qDeleteAll(toDelete);
+}
+
 void ToolChainOptionsWidget::toolChainSelectionChanged()
 {
     ToolChainTreeItem *item = currentTreeItem();
@@ -388,14 +441,16 @@ void ToolChainOptionsWidget::apply()
 
     // Update tool chains:
     foreach (const Core::Id &l, m_languageMap.keys()) {
-        StaticTreeItem *parent = m_languageMap.value(l).second;
-        for (TreeItem *item : *parent) {
-            auto tcItem = static_cast<ToolChainTreeItem *>(item);
-            Q_ASSERT(tcItem->toolChain);
-            if (tcItem->widget)
-                tcItem->widget->apply();
-            tcItem->changed = false;
-            tcItem->update();
+        const QPair<StaticTreeItem *, StaticTreeItem *> autoAndManual = m_languageMap.value(l);
+        for (StaticTreeItem *parent : {autoAndManual.first, autoAndManual.second}) {
+            for (TreeItem *item : *parent) {
+                auto tcItem = static_cast<ToolChainTreeItem *>(item);
+                Q_ASSERT(tcItem->toolChain);
+                if (tcItem->widget)
+                    tcItem->widget->apply();
+                tcItem->changed = false;
+                tcItem->update();
+            }
         }
     }
 

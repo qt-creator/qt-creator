@@ -81,7 +81,8 @@ public:
     enum Detection {
         ManualDetection,
         AutoDetection,
-        AutoDetectionFromSettings
+        AutoDetectionFromSettings,
+        AutoDetectionFromSdk,
     };
 
     using Predicate = std::function<bool(const ToolChain *)>;

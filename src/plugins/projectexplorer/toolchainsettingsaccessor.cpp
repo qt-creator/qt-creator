@@ -195,6 +195,8 @@ QList<ToolChain *> ToolChainSettingsAccessor::restoreToolChains(QWidget *parent)
     const QList<ToolChain *> systemFileTcs
             = toolChains(restoreSettings(FileName::fromString(Core::ICore::installerResourcePath() + TOOLCHAIN_FILENAME),
                                          parent));
+    for (ToolChain * const systemTc : systemFileTcs)
+        systemTc->setDetection(ToolChain::AutoDetectionFromSdk);
 
     // read all tool chains from user file.
     const QList<ToolChain *> userFileTcs = toolChains(restoreSettings(parent));
