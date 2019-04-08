@@ -388,7 +388,7 @@ QWidget *AppOutputPane::outputWidget(QWidget *)
 QList<QWidget*> AppOutputPane::toolBarWidgets() const
 {
     return { m_reRunButton, m_stopButton, m_attachButton, m_zoomInButton,
-             m_settingsButton,  m_zoomOutButton, m_filterOutputLineEdit, m_formatterWidget };
+             m_zoomOutButton, m_settingsButton, m_filterOutputLineEdit, m_formatterWidget };
 }
 
 QString AppOutputPane::displayName() const
