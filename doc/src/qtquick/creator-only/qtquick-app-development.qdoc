@@ -59,7 +59,7 @@
         \li \l {Creating Components}
 
             You can use basic QML types to create your own components that you
-            can combine with ready-made Qt Quick Controls 2 and Layouts
+            can combine with ready-made Qt Quick Controls and Layouts
             (available since Qt 5.7).
 
         \li \l {Managing Item Hierarchy}

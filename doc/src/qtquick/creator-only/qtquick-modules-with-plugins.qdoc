@@ -179,6 +179,6 @@
     qmlDesignerImportPaths in your product (for Qbs projects).
     Modules in the import paths defined in \c{QML_DESIGNER_IMPORT_PATH} will be
     used only in the Design mode.
-    For an example, see \l {Qt Quick Controls 2 - Contact List}.
+    For an example, see \l {Qt Quick Controls - Contact List}.
 
 */

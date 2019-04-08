@@ -39,7 +39,6 @@ depends +=    qtwidgets \
               qtgui \
               qthelp \
               qtquickcontrols \
-              qtquickcontrols2 \
               qtquickextras \
               qtlinguist \
               qtscxml \

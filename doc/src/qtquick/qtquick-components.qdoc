@@ -119,13 +119,13 @@
         \li \l{GridView}{Grid View} provides a grid vizualization of a model.
         \li \l{ListView}{List View} provides a list vizualization of a model.
         \li \l{PathView}{Path View} visualizes the contents of a model along a
-            path.
-        \li \l [QtQuickControls2] {ScrollView}{Scroll View} provides scrolling
+            path. For more information, see \l{Editing PathView Properties}.
+        \li \l [QtQuickControls] {ScrollView}{Scroll View} provides scrolling
             for user-defined content. It can be used instead of a \l Flickable
             item.
-        \li \l [QtQuickControls2] {StackView}{Stack View} provides a stack-based
+        \li \l [QtQuickControls] {StackView}{Stack View} provides a stack-based
             navigation model.
-        \li \l[QtQuickControls2] {SwipeView}{Swipe View} enables users to
+        \li \l[QtQuickControls] {SwipeView}{Swipe View} enables users to
             navigate pages by swiping sideways.
     \endlist
 
@@ -333,21 +333,21 @@
 
     \section2 Organizing Items
 
-    Since Qt 5.7, you can use the following \l{Qt Quick Controls 2} types to
+    Since Qt 5.7, you can use the following \l{Qt Quick Controls} types to
     organize items on screens:
 
     \list
-        \li \l [QtQuickControls2]{Frame} places a logical group of controls
+        \li \l [QtQuickControls]{Frame} places a logical group of controls
             within a visual frame.
-        \li \l [QtQuickControls2]{GroupBox}{Group Box} is used to lay out a
+        \li \l [QtQuickControls]{GroupBox}{Group Box} is used to lay out a
             logical group of controls together, within a titled visual frame.
-        \li \l [QtQuickControls2]{Label} is a text label with inherited styling
+        \li \l [QtQuickControls]{Label} is a text label with inherited styling
             and font.
-        \li \l [QtQuickControls2]{Page} provides a styled page control with
+        \li \l [QtQuickControls]{Page} provides a styled page control with
             support for a header and footer.
-        \li \l [QtQuickControls2]{PageIndicator}{Page Indicator} indicates the
+        \li \l [QtQuickControls]{PageIndicator}{Page Indicator} indicates the
             currently active page.
-        \li \l [QtQuickControls2]{Pane} provides a background matching with the
+        \li \l [QtQuickControls]{Pane} provides a background matching with the
             application style and theme.
     \endlist
 
@@ -365,62 +365,62 @@
         \li \l [QML]{MouseArea}{Mouse Area} enables simple mouse handling.
     \endlist
 
-    Since Qt 5.7, you can also use the following \l{Qt Quick Controls 2} types
+    Since Qt 5.7, you can also use the following \l{Qt Quick Controls} types
     to inform users about the progress of the application or to gather input
     from the user:
 
     \list
-        \li \l [QtQuickControls2]{BusyIndicator}{Busy Indicator} indicates
+        \li \l [QtQuickControls]{BusyIndicator}{Busy Indicator} indicates
             activity while content is being loaded.
-        \li \l [QtQuickControls2]{Button} provides a push button that you can
+        \li \l [QtQuickControls]{Button} provides a push button that you can
             associate with an action.
-        \li \l [QtQuickControls2]{CheckBox}{Check Box} provides an option button
+        \li \l [QtQuickControls]{CheckBox}{Check Box} provides an option button
             that can be toggled on (checked) or off (unchecked).
-        \li \l [QtQuickControls2]{CheckDelegate}{Check Delegate} presents an
+        \li \l [QtQuickControls]{CheckDelegate}{Check Delegate} presents an
             item delegate that can be toggled on (checked) or off (unchecked).
-        \li \l [QtQuickControls2]{ComboBox}{Combo Box} is a combined button and
+        \li \l [QtQuickControls]{ComboBox}{Combo Box} is a combined button and
             popup list that is populated by using a data model.
-        \li \l [QtQuickControls2]{DelayButton}{Delay Button} provides an option
+        \li \l [QtQuickControls]{DelayButton}{Delay Button} provides an option
             button that is triggered when held down long enough.
-        \li \l [QtQuickControls2]{Dial} is a circular dial that is rotated to
+        \li \l [QtQuickControls]{Dial} is a circular dial that is rotated to
             set a value.
-        \li \l [QtQuickControls2]{ProgressBar}{Progress Bar} indicates the
+        \li \l [QtQuickControls]{ProgressBar}{Progress Bar} indicates the
             progress of an operation.
-        \li \l [QtQuickControls2]{RadioButton}{Radio Button} provides an option
+        \li \l [QtQuickControls]{RadioButton}{Radio Button} provides an option
             button that can be switched on (checked) or off (unchecked).
-        \li \l [QtQuickControls2]{RadioDelegate}{Radio Delegate} presents an
+        \li \l [QtQuickControls]{RadioDelegate}{Radio Delegate} presents an
             item delegate that can be toggled on (checked) or off (unchecked).
-        \li \l [QtQuickControls2]{RangeSlider}{Range Slider} enables users to
+        \li \l [QtQuickControls]{RangeSlider}{Range Slider} enables users to
             select a range of values by sliding two handles along a track.
-        \li \l [QtQuickControls2]{RoundButton}{Round Button} provides a push
+        \li \l [QtQuickControls]{RoundButton}{Round Button} provides a push
             button with rounded corners that you can associate with an action.
-        \li \l [QtQuickControls2]{Slider} selects a value by sliding a handle
+        \li \l [QtQuickControls]{Slider} selects a value by sliding a handle
             along a track.
-        \li \l [QtQuickControls2]{SpinBox}{Spin Box} enables the user to specify
+        \li \l [QtQuickControls]{SpinBox}{Spin Box} enables the user to specify
             a value by clicking the up or down buttons, by pressing up or down
             on the keyboard, or by entering a value in the box.
-        \li \l [QtQuickControls2]{Switch} is an option button that can be
+        \li \l [QtQuickControls]{Switch} is an option button that can be
             toggled on or off.
-        \li \l [QtQuickControls2]{SwitchDelegate}{SwitchDelegate} presents an
+        \li \l [QtQuickControls]{SwitchDelegate}{Switch Delegate} presents an
             item delegate with a switch indicator that can be toggled on or off.
-        \li \l [QtQuickControls2] {TabBar}{Tab Bar} enables users to switch
+        \li \l [QtQuickControls] {TabBar}{Tab Bar} enables users to switch
             between different views or subtasks.
-        \li \l [QtQuickControls2]{TabButton}{Tab Button} is a button
+        \li \l [QtQuickControls]{TabButton}{Tab Button} is a button
             that is functionally similar to \uicontrol Button, but provides a
             look that is more suitable for a \uicontrol {Tab Bar}.
-        \li \l [QtQuickControls2]{TextArea}{Text Area} displays multiple lines
+        \li \l [QtQuickControls]{TextArea}{Text Area} displays multiple lines
             of editable formatted text.
-        \li \l [QtQuickControls2]{TextField}{Text Field} displays a single line
+        \li \l [QtQuickControls]{TextField}{Text Field} displays a single line
             of editable plain text.
-        \li \l [QtQuickControls2]{ToolBar}{Tool Bar} is a container of
+        \li \l [QtQuickControls]{ToolBar}{Tool Bar} is a container of
             application-wide and context sensitive actions and controls, such as
             navigation buttons and search fields.
-        \li \l [QtQuickControls2]{ToolButton}{Tool Button} is a button
+        \li \l [QtQuickControls]{ToolButton}{Tool Button} is a button
             that is functionally similar to \uicontrol Button, but provides a
             look that is more suitable for a \uicontrol {Tool Bar}.
-        \li \l [QtQuickControls2]{ToolSeparator}{Tool Separator} separates a
+        \li \l [QtQuickControls]{ToolSeparator}{Tool Separator} separates a
             group of items from adjacent items on a \uicontrol {Tool Bar}.
-        \li \l [QtQuickControls2]{Tumbler} is a spinnable wheel of items that
+        \li \l [QtQuickControls]{Tumbler} is a spinnable wheel of items that
             can be selected.
     \endlist
 

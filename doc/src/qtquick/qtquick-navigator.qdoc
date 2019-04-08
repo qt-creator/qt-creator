@@ -95,7 +95,7 @@
     \uicontrol {Stack (z)}. To remove the \c z property, select
     \uicontrol {Reset z Property}.
 
-    You can also use a \uicontrol StackLayout item (Qt Quick Controls 2) to
+    You can also use a \uicontrol StackLayout item (Qt Quick Controls) to
     create a stacked view. For more information, see \l {Using Layouts}.
 
     \section1 Switching Parent Items
