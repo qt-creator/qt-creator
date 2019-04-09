@@ -362,8 +362,13 @@ bool TaskFilterModel::filterAcceptsTask(const Task &task) const
         break;
     }
 
-    if (m_categoryIds.contains(task.category))
+    if (accept && m_categoryIds.contains(task.category))
         accept = false;
+
+    if (accept && !filterRegExp().isEmpty() && !task.file.toString().contains(filterRegExp())
+            && !task.description.contains(filterRegExp())) {
+        accept = false;
+    }
 
     return accept;
 }

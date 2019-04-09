@@ -100,6 +100,7 @@ protected:
     void setupFilterUi(const QString &historyKey);
     QString filterText() const;
     void setFilteringEnabled(bool enable);
+    QWidget *filterWidget() const { return m_filterOutputLineEdit; }
 
     void setZoomButtonsEnabled(bool enabled);
 
