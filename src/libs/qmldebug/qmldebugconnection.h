@@ -30,6 +30,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QAbstractSocket>
+#include <QDataStream>
 
 namespace QmlDebug {
 
@@ -38,10 +39,9 @@ class QmlDebugConnectionPrivate;
 class QMLDEBUG_EXPORT QmlDebugConnection : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QmlDebugConnection)
     Q_DECLARE_PRIVATE(QmlDebugConnection)
 public:
-    QmlDebugConnection(QObject * = 0);
+    QmlDebugConnection(QObject *parent = nullptr);
     ~QmlDebugConnection() override;
 
     void connectToHost(const QString &hostName, quint16 port);
@@ -62,7 +62,10 @@ public:
     float serviceVersion(const QString &serviceName) const;
     bool sendMessage(const QString &name, const QByteArray &message);
 
-    static int minimumDataStreamVersion();
+    static constexpr int minimumDataStreamVersion()
+    {
+        return QDataStream::Qt_4_7;
+    }
 
 signals:
     void connected();
