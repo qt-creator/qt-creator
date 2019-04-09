@@ -169,6 +169,7 @@ PerfProfilerTool::PerfProfilerTool(QObject *parent) :
     m_delayLabel->setProperty("panelwidget", true);
 
     m_perspective.setAboutToActivateCallback([this]() { createViews(); });
+    updateRunActions();
 }
 
 void PerfProfilerTool::createViews()
