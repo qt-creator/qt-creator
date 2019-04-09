@@ -120,6 +120,12 @@
             support for \l{http://doc.qt.io/qt-5/qtvirtualkeyboard-index.html}
             {Qt Virtual Keyboard} to the application.
 
+            \note If you have not installed the Qt Virtual Keyboard module when
+            you installed Qt, an error message will appear when you try to open
+            the \e main.qml in the \uicontrol {Form Editor} in the Design mode.
+            You can use the \l {Installing Qt}{Qt Maintenance Tool} to install
+            Qt Virtual Keyboard.
+
         \li Select \uicontrol Next.
 
         \li Select \l{glossary-buildandrun-kit}{kits} for running and building
