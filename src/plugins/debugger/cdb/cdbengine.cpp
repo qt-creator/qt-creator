@@ -1114,6 +1114,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         cmd.arg("dyntype", boolSetting(UseDynamicType));
         cmd.arg("partialvar", updateParameters.partialVariable);
         cmd.arg("qobjectnames", boolSetting(ShowQObjectNames));
+        cmd.arg("timestamps", boolSetting(LogTimeStamps));
 
         StackFrame frame = stackHandler()->currentFrame();
         cmd.arg("context", frame.context);

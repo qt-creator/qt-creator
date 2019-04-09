@@ -270,6 +270,7 @@ class DumperBase:
         # Later set, or not set:
         self.stringCutOff = 10000
         self.displayStringLimit = 100
+        self.useTimeStamps = False
 
         self.typesReported = {}
         self.typesToReport = {}
@@ -329,6 +330,7 @@ class DumperBase:
         self.showQObjectNames = int(args.get('qobjectnames', '1'))
         self.nativeMixed = int(args.get('nativemixed', '0'))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
+        self.useTimeStamps = int(args.get('timestamps', '0'))
         self.partialVariable = args.get('partialvar', '')
         self.uninitialized = args.get('uninitialized', [])
         self.uninitialized = list(map(lambda x: self.hexdecode(x), self.uninitialized))
@@ -422,6 +424,8 @@ class DumperBase:
         self.currentIName = item.iname
         self.currentValue = ReportItem();
         self.currentType = ReportItem();
+        if self.useTimeStamps:
+            item.startTime = time.time()
 
     def exitSubItem(self, item, exType, exValue, exTraceBack):
         #warn('CURRENT VALUE: %s: %s %s' %
@@ -431,6 +435,8 @@ class DumperBase:
                 showException('SUBITEM', exType, exValue, exTraceBack)
             self.putSpecialValue('notaccessible')
             self.putNumChild(0)
+        if self.useTimeStamps:
+            self.put('time="%s",' % (time.time() - item.startTime))
         if not self.isCli:
             try:
                 if self.currentType.value:

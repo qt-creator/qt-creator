@@ -46,6 +46,8 @@ class WatchModelBase : public Utils::TreeModel<WatchItem, WatchItem>
 public:
     WatchModelBase() = default;
 
+    enum { NameColumn, TimeColumn, ValueColumn, TypeColumn };
+
 signals:
     void currentIndexRequested(const QModelIndex &idx);
     void itemIsExpanded(const QModelIndex &idx);

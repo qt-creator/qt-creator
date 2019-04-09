@@ -53,6 +53,9 @@ WatchTreeView::WatchTreeView(WatchType type)
 
     connect(this, &QTreeView::expanded, this, &WatchTreeView::expandNode);
     connect(this, &QTreeView::collapsed, this, &WatchTreeView::collapseNode);
+
+    connect(action(LogTimeStamps), &QAction::triggered,
+            this, &WatchTreeView::updateTimeColumn);
 }
 
 void WatchTreeView::expandNode(const QModelIndex &idx)
@@ -96,6 +99,14 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
         connect(watchModel, &WatchModelBase::updateFinished,
                 this, &WatchTreeView::hideProgressIndicator);
     }
+
+    updateTimeColumn();
+}
+
+void WatchTreeView::updateTimeColumn()
+{
+    if (header())
+        header()->setSectionHidden(WatchModelBase::TimeColumn, !boolSetting(LogTimeStamps));
 }
 
 void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)

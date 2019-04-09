@@ -363,6 +363,10 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
     if (mi.isValid())
         exp = mi.data();
 
+    mi = input["time"];
+    if (mi.isValid())
+        time = mi.data().toFloat();
+
     mi = input["sortgroup"];
     if (mi.isValid())
         sortGroup = mi.toInt();
@@ -462,6 +466,8 @@ void WatchItem::parse(const GdbMi &data, bool maySort)
 
     if (wname.isValid())
         exp = name;
+
+    time = data["time"].data().toFloat();
 }
 
 // Format a tooltip row with aligned colon.
@@ -508,6 +514,7 @@ QString WatchItem::toToolTip() const
     if (size)
         formatToolTipRow(str, tr("Static Object Size"), tr("%n bytes", nullptr, size));
     formatToolTipRow(str, tr("Internal ID"), internalName());
+    formatToolTipRow(str, tr("Creation Time in ms"), QString::number(int(time * 1000)));
     str << "</table></body></html>";
     return res;
 }

@@ -99,6 +99,7 @@ public:
     bool            valueEnabled;  // Value will be enabled or not
     bool            valueEditable; // Value will be editable
     bool            outdated;      // \internal item is to be removed.
+    double          time = 0;      // Time used on the dumper side to produce this item
 
 private:
     void parseHelper(const GdbMi &input, bool maySort);

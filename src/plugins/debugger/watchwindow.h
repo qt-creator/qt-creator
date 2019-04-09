@@ -56,6 +56,7 @@ private:
     void resetHelper();
     void expandNode(const QModelIndex &idx);
     void collapseNode(const QModelIndex &idx);
+    void updateTimeColumn();
     void adjustSlider();
 
     void doItemsLayout() override;
