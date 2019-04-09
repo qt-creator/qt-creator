@@ -382,6 +382,11 @@ void TargetSetupPage::handleKitUpdate(Kit *k)
         m_importer->makePersistent(k);
 
     bool acceptable = !m_requiredPredicate || m_requiredPredicate(k);
+    const bool wasAcceptable = Utils::contains(m_widgets, [k](const TargetSetupWidget *w) {
+        return w->kit() == k;
+    });
+    if (acceptable == wasAcceptable)
+        return;
 
     if (!acceptable)
         removeWidget(k);
