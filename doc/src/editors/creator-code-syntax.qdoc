@@ -489,7 +489,8 @@
         \li M222
         \li Error
         \li Functions are not supported in a Qt Quick UI form.
-        \li
+        \li For a list of supported JavaScript functions, see
+            \l{Supported Methods}.
 
     \row
         \li M223
