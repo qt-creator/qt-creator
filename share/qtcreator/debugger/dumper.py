@@ -407,6 +407,8 @@ class DumperBase:
         return xrange(min(self.currentMaxNumChild, self.currentNumChild))
 
     def enterSubItem(self, item):
+        if self.useTimeStamps:
+            item.startTime = time.time()
         if not item.iname:
             item.iname = '%s.%s' % (self.currentIName, item.name)
         if not self.isCli:
@@ -424,8 +426,6 @@ class DumperBase:
         self.currentIName = item.iname
         self.currentValue = ReportItem();
         self.currentType = ReportItem();
-        if self.useTimeStamps:
-            item.startTime = time.time()
 
     def exitSubItem(self, item, exType, exValue, exTraceBack):
         #warn('CURRENT VALUE: %s: %s %s' %
@@ -435,8 +435,6 @@ class DumperBase:
                 showException('SUBITEM', exType, exValue, exTraceBack)
             self.putSpecialValue('notaccessible')
             self.putNumChild(0)
-        if self.useTimeStamps:
-            self.put('time="%s",' % (time.time() - item.startTime))
         if not self.isCli:
             try:
                 if self.currentType.value:
@@ -453,6 +451,8 @@ class DumperBase:
                     self.put('value="%s",' % self.currentValue.value)
             except:
                 pass
+            if self.useTimeStamps:
+                self.put('time="%s",' % (time.time() - item.startTime))
             self.put('},')
         else:
             self.indent -= 1
