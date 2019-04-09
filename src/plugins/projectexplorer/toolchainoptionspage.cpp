@@ -317,8 +317,8 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
     ToolChainTreeItem *item = currentTreeItem();
 
     QWidget *currentTcWidget = item ? item->widget : nullptr;
-
-    m_widgetStack->setCurrentWidget(currentTcWidget);
+    if (currentTcWidget)
+        m_widgetStack->setCurrentWidget(currentTcWidget);
     m_container->setVisible(currentTcWidget);
     updateState();
 }
