@@ -112,14 +112,5 @@ private:
     bool m_hovered = false;
 };
 
-class ToggleButton : public QToolButton
-{
-    Q_OBJECT
-public:
-    ToggleButton(QWidget *parent);
-    QSize sizeHint() const override;
-    void paintEvent(QPaintEvent *event) override;
-};
-
 } // namespace Internal
 } // namespace Core

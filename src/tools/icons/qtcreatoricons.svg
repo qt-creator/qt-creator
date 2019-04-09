@@ -3607,6 +3607,45 @@
          width="100%"
          height="100%" />
     </g>
+    <g
+       style="display:inline"
+       transform="translate(160)"
+       id="src/libs/utils/images/toggleprogressdetails">
+      <use
+         style="display:inline"
+         transform="translate(1740,132)"
+         height="100%"
+         width="100%"
+         id="use4105-8-8"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <rect
+         style="display:inline;fill:#707070"
+         id="rect2566"
+         width="8"
+         height="2"
+         x="1726"
+         y="577" />
+      <rect
+         style="display:inline;fill:none;stroke:#000000"
+         id="rect2564"
+         width="13"
+         height="3"
+         x="1725.5"
+         y="576.5"
+         ry="1"
+         rx="1" />
+      <use
+         transform="matrix(1,0,0,-1,1529,1167)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#expandarrow"
+         id="use2507"
+         width="100%"
+         height="100%" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
@@ -6593,7 +6632,7 @@
       <path
          sodipodi:nodetypes="cccc"
          inkscape:connector-curvature="0"
-         id="path4784-17"
+         id="expandarrow"
          d="m 210,595 -2.5,2.5 -2.5,-2.5 z"
          style="fill:#000000;fill-opacity:1;stroke:none" />
     </g>
