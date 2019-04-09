@@ -52,10 +52,9 @@
     When you copy an item, all its child items are also copied. When
     you remove an item, the child items are also removed.
 
-    You can show and hide items on the canvas to focus on specific parts of the
-    application. Click the \inlineimage icon_color_none.png
-    (\uicontrol Transparent) button to change the visibility of an item on the
-    canvas. To change the visibility of an item in the application, select the
+    To show and hide items on the canvas when focusing on specific parts of the
+    application, click \inlineimage eye_open.png
+    . To change the visibility of an item in the application code, select the
     \uicontrol Visibility check box in the \uicontrol Properties pane or select
     \uicontrol Edit > \uicontrol Visibility in the context menu.
 
